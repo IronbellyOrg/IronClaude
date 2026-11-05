@@ -1,0 +1,467 @@
+src/superclaude/agents/rf-analyst.md:74	inventory.md:58
+src/superclaude/agents/rf-analyst.md:93	inventory.md:61
+src/superclaude/agents/rf-analyst.md:148	inventory.md:62
+src/superclaude/agents/rf-analyst.md:199	inventory.md:62
+src/superclaude/agents/rf-qa-qualitative.md:83	inventory.md:53
+src/superclaude/agents/rf-qa-qualitative.md:97	inventory.md:54
+src/superclaude/agents/rf-qa-qualitative.md:228	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:229	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:279	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:280	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:350	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:351	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:417	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:418	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:488	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:489	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:555	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:556	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:734	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:735	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:772	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:773	inventory.md:55
+src/superclaude/agents/rf-qa-qualitative.md:777	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:778	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:779	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:780	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:781	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:782	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:783	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:784	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:785	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:786	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:787	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:788	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:789	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:790	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:791	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:792	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:793	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:794	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:795	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:796	inventory.md:56
+src/superclaude/agents/rf-qa-qualitative.md:797	cap-edits C-001
+src/superclaude/agents/rf-qa-qualitative.md:827	cap-edits C-002
+src/superclaude/agents/rf-qa-qualitative.md:982	cap-edits C-003
+src/superclaude/agents/rf-qa.md:82	inventory.md:44
+src/superclaude/agents/rf-qa.md:84	inventory.md:45
+src/superclaude/agents/rf-qa.md:91	inventory.md:46
+src/superclaude/agents/rf-qa.md:98	inventory.md:47
+src/superclaude/agents/rf-qa.md:158	inventory.md:48
+src/superclaude/agents/rf-qa.md:159	inventory.md:48
+src/superclaude/agents/rf-qa.md:171	inventory.md:49
+src/superclaude/agents/rf-qa.md:172	inventory.md:49
+src/superclaude/agents/rf-qa.md:370	inventory.md:50
+src/superclaude/agents/rf-qa.md:371	inventory.md:50
+src/superclaude/agents/rf-qa.md:372	inventory.md:50
+src/superclaude/agents/rf-qa.md:373	inventory.md:50
+src/superclaude/agents/rf-qa.md:374	inventory.md:50
+src/superclaude/agents/rf-qa.md:375	inventory.md:50
+src/superclaude/agents/rf-qa.md:376	inventory.md:50
+src/superclaude/agents/rf-qa.md:377	inventory.md:50
+src/superclaude/agents/rf-qa.md:378	inventory.md:50
+src/superclaude/agents/rf-qa.md:379	inventory.md:50
+src/superclaude/agents/rf-qa.md:380	inventory.md:50
+src/superclaude/agents/rf-qa.md:381	inventory.md:50
+src/superclaude/agents/rf-qa.md:382	inventory.md:50
+src/superclaude/agents/rf-qa.md:383	inventory.md:50
+src/superclaude/agents/rf-qa.md:384	inventory.md:50
+src/superclaude/agents/rf-qa.md:385	inventory.md:50
+src/superclaude/agents/rf-qa.md:386	inventory.md:50
+src/superclaude/agents/rf-qa.md:387	inventory.md:50
+src/superclaude/agents/rf-qa.md:388	inventory.md:50
+src/superclaude/agents/rf-qa.md:389	inventory.md:50
+src/superclaude/agents/rf-qa.md:390	cap-edits C-004
+src/superclaude/agents/rf-qa.md:391	inventory.md:50
+src/superclaude/agents/rf-qa.md:393	cap-edits C-005
+src/superclaude/agents/rf-qa.md:395	cap-edits C-006
+src/superclaude/agents/rf-qa.md:403	cap-edits C-008
+src/superclaude/agents/rf-qa.md:406	cap-edits C-009
+src/superclaude/agents/rf-qa.md:418	cap-edits C-010
+src/superclaude/agents/rf-qa.md:464	inventory.md:51
+src/superclaude/agents/rf-qa.md:537	cap-edits C-011
+src/superclaude/agents/rf-task-builder.md:383	cap-edits C-012
+src/superclaude/agents/rf-task-builder.md:384	cap-edits C-013
+src/superclaude/agents/rf-task-builder.md:385	cap-edits C-014
+src/superclaude/agents/rf-task-builder.md:386	cap-edits C-015
+src/superclaude/agents/rf-task-builder.md:387	cap-edits C-016
+src/superclaude/agents/rf-task-executor.md:226	cap-edits C-017
+src/superclaude/cli/cli_portify/commands.py:100	cap-edits C-136
+src/superclaude/cli/cli_portify/commands.py:101	cap-edits C-137
+src/superclaude/cli/cli_portify/config.py:53	cap-edits C-138
+src/superclaude/cli/cli_portify/convergence.py:149	cap-edits C-132
+src/superclaude/cli/cli_portify/convergence.py:150	cap-edits C-133
+src/superclaude/cli/cli_portify/convergence.py:165	cap-edits C-134
+src/superclaude/cli/cli_portify/models.py:583	cap-edits C-139
+src/superclaude/cli/cli_portify/prompts.py:68	cap-edits C-140
+src/superclaude/cli/cli_portify/resume.py:136	cap-edits C-141
+src/superclaude/cli/cli_portify/steps/panel_review.py:352	cap-edits C-135
+src/superclaude/cli/prd/models.py:203	cap-edits C-152
+src/superclaude/output-styles/pragmatic.md:225	inventory.md:38
+src/superclaude/rules/core/ib_agent_core.md:574	cap-edits C-153
+src/superclaude/rules/core/ib_agent_core.md:633	cap-edits C-154
+src/superclaude/rules/core/ib_agent_core.md:913	cap-edits C-155
+src/superclaude/rules/core/ib_agent_core.md:933	cap-edits C-156
+src/superclaude/rules/prompts/automated_qa_workflow_qa_prompt.md:10	inventory.md:114
+src/superclaude/rules/prompts/doc_code_analyst_qa_prompt.md:26	inventory.md:115
+src/superclaude/rules/prompts/documentation_expert_qa_prompt.md:27	inventory.md:116
+src/superclaude/rules/prompts/documentation_expert_qa_prompt.md:307	inventory.md:117
+src/superclaude/rules/prompts/documentation_expert_qa_prompt.md:308	inventory.md:117
+src/superclaude/rules/prompts/recruiting_expert_qa_prompt.md:26	inventory.md:118
+src/superclaude/skills/operational-guide/SKILL.md:427	cap-edits C-054
+src/superclaude/skills/operational-guide/SKILL.md:439	cap-edits C-055
+src/superclaude/skills/operational-guide/SKILL.md:447	cap-edits C-056
+src/superclaude/skills/operational-guide/SKILL.md:514	cap-edits C-057
+src/superclaude/skills/operational-guide/SKILL.md:571	cap-edits C-058
+src/superclaude/skills/operational-guide/SKILL.md:982	inventory.md:91
+src/superclaude/skills/operational-guide/SKILL.md:990	inventory.md:91
+src/superclaude/skills/operational-guide/SKILL.md:1349	cap-edits C-059
+src/superclaude/skills/operational-guide/SKILL.md:1371	cap-edits C-060
+src/superclaude/skills/prd/refs/agent-prompts.md:273	inventory.md:87
+src/superclaude/skills/prd/refs/agent-prompts.md:283	inventory.md:87
+src/superclaude/skills/prd/refs/build-request-template.md:129	inventory.md:105
+src/superclaude/skills/prd/refs/build-request-template.md:130	cap-edits C-103
+src/superclaude/skills/prd/refs/build-request-template.md:157	inventory.md:105
+src/superclaude/skills/readme/SKILL.md:188	cap-edits C-061
+src/superclaude/skills/readme/SKILL.md:191	cap-edits C-062
+src/superclaude/skills/readme/SKILL.md:451	cap-edits C-063
+src/superclaude/skills/readme/SKILL.md:460	cap-edits C-064
+src/superclaude/skills/readme/SKILL.md:464	cap-edits C-065
+src/superclaude/skills/readme/SKILL.md:546	cap-edits C-066
+src/superclaude/skills/readme/SKILL.md:549	inventory.md:107
+src/superclaude/skills/readme/SKILL.md:553	cap-edits C-067
+src/superclaude/skills/readme/SKILL.md:602	cap-edits C-068
+src/superclaude/skills/readme/SKILL.md:607	cap-edits C-069
+src/superclaude/skills/readme/SKILL.md:608	cap-edits C-070
+src/superclaude/skills/readme/SKILL.md:609	inventory.md:107
+src/superclaude/skills/readme/SKILL.md:1007	inventory.md:92
+src/superclaude/skills/readme/SKILL.md:1029	inventory.md:92
+src/superclaude/skills/readme/SKILL.md:1038	inventory.md:92
+src/superclaude/skills/readme/SKILL.md:1690	cap-edits C-071
+src/superclaude/skills/readme/SKILL.md:1715	cap-edits C-071
+src/superclaude/skills/readme/SKILL.md:2034	cap-edits C-073
+src/superclaude/skills/readme/SKILL.md:2058	cap-edits C-074
+src/superclaude/skills/roadmap/SKILL.md:435	cap-edits C-075
+src/superclaude/skills/roadmap/SKILL.md:440	cap-edits C-076
+src/superclaude/skills/roadmap/SKILL.md:554	cap-edits C-077
+src/superclaude/skills/roadmap/SKILL.md:563	cap-edits C-078
+src/superclaude/skills/roadmap/SKILL.md:569	cap-edits C-079
+src/superclaude/skills/roadmap/SKILL.md:577	cap-edits C-080
+src/superclaude/skills/roadmap/SKILL.md:2073	cap-edits C-081
+src/superclaude/skills/roadmap/SKILL.md:2587	cap-edits C-083
+src/superclaude/skills/roadmap/SKILL.md:2608	cap-edits C-084
+src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:355	cap-edits C-144
+src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:363	cap-edits C-145
+src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:364	cap-edits C-146
+src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:367	cap-edits C-147
+src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:374	cap-edits C-148
+src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:534	cap-edits C-149
+src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml:121	cap-edits C-150
+src/superclaude/skills/sc-cli-portify-protocol/decisions.yaml:123	cap-edits C-151
+src/superclaude/skills/task-builder/SKILL.md:204	cap-edits C-114
+src/superclaude/skills/task-builder/SKILL.md:865	inventory.md:101
+src/superclaude/skills/task-builder/SKILL.md:870	inventory.md:102
+src/superclaude/skills/task-builder/SKILL.md:872	cap-edits C-115
+src/superclaude/skills/task-builder/SKILL.md:873	cap-edits C-116
+src/superclaude/skills/task-builder/SKILL.md:895	inventory.md:59
+src/superclaude/skills/task-builder/SKILL.md:1147	cap-edits C-117
+src/superclaude/skills/task-builder/SKILL.md:1259	cap-edits C-118
+src/superclaude/skills/task-builder/SKILL.md:1275	cap-edits C-119
+src/superclaude/skills/task-builder/SKILL.md:1310	cap-edits C-121
+src/superclaude/skills/task-builder/SKILL.md:1412	cap-edits C-126
+src/superclaude/skills/task-builder/SKILL.md:1419	cap-edits C-127
+src/superclaude/skills/task-builder/SKILL.md:1420	cap-edits C-128
+src/superclaude/skills/task-builder/SKILL.md:1471	cap-edits C-130
+src/superclaude/skills/task-builder/SKILL.md:1490	cap-edits C-157
+src/superclaude/skills/task-builder/SKILL.md:1600	inventory.md:103
+src/superclaude/skills/task-builder/SKILL.md:1620	cap-edits C-157
+src/superclaude/skills/task-builder/SKILL.md:1644	cap-edits C-157
+src/superclaude/skills/task-builder/SKILL.md:1660	cap-edits C-157
+src/superclaude/skills/task-builder/SKILL.md:2369	cap-edits C-131
+src/superclaude/skills/task/SKILL.md:120	cap-edits C-105
+src/superclaude/skills/task/SKILL.md:254	cap-edits C-106
+src/superclaude/skills/task/SKILL.md:336	cap-edits C-108
+src/superclaude/skills/task/SKILL.md:347	inventory.md:104
+src/superclaude/skills/task/SKILL.md:366	cap-edits C-109
+src/superclaude/skills/task/SKILL.md:368	cap-edits C-110
+src/superclaude/skills/task/SKILL.md:405	cap-edits C-111
+src/superclaude/skills/task/SKILL.md:477	cap-edits C-112
+src/superclaude/skills/task/SKILL.md:616	cap-edits C-113
+src/superclaude/skills/tdd/refs/agent-prompts.md:282	inventory.md:88
+src/superclaude/skills/tdd/refs/agent-prompts.md:291	inventory.md:88
+src/superclaude/skills/tdd/refs/build-request-template.md:124	inventory.md:106
+src/superclaude/skills/tdd/refs/build-request-template.md:125	cap-edits C-104
+src/superclaude/skills/tdd/refs/build-request-template.md:152	inventory.md:106
+src/superclaude/skills/tech-reference/SKILL.md:177	cap-edits C-085
+src/superclaude/skills/tech-reference/SKILL.md:412	cap-edits C-086
+src/superclaude/skills/tech-reference/SKILL.md:415	cap-edits C-087
+src/superclaude/skills/tech-reference/SKILL.md:424	cap-edits C-088
+src/superclaude/skills/tech-reference/SKILL.md:428	cap-edits C-089
+src/superclaude/skills/tech-reference/SKILL.md:432	cap-edits C-090
+src/superclaude/skills/tech-reference/SKILL.md:436	cap-edits C-091
+src/superclaude/skills/tech-reference/SKILL.md:512	cap-edits C-092
+src/superclaude/skills/tech-reference/SKILL.md:529	cap-edits C-093
+src/superclaude/skills/tech-reference/SKILL.md:534	cap-edits C-094
+src/superclaude/skills/tech-reference/SKILL.md:535	cap-edits C-095
+src/superclaude/skills/tech-reference/SKILL.md:536	inventory.md:98
+src/superclaude/skills/tech-reference/SKILL.md:878	inventory.md:89
+src/superclaude/skills/tech-reference/SKILL.md:886	inventory.md:89
+src/superclaude/skills/tech-reference/SKILL.md:1307	cap-edits C-096
+src/superclaude/skills/tech-reference/SKILL.md:1327	cap-edits C-097
+src/superclaude/skills/tech-research/SKILL.md:398	cap-edits C-098
+src/superclaude/skills/tech-research/SKILL.md:406	cap-edits C-099
+src/superclaude/skills/tech-research/SKILL.md:486	cap-edits C-100
+src/superclaude/skills/tech-research/SKILL.md:551	cap-edits C-101
+src/superclaude/skills/tech-research/SKILL.md:567	inventory.md:99
+src/superclaude/skills/tech-research/SKILL.md:886	inventory.md:90
+src/superclaude/skills/tech-research/SKILL.md:894	inventory.md:90
+src/superclaude/skills/tech-research/SKILL.md:1150	inventory.md:100
+src/superclaude/skills/tech-research/SKILL.md:1643	cap-edits C-102
+src/superclaude/templates/documents/agent_template_qa.md:95	inventory.md:68
+src/superclaude/templates/documents/agent_template_qa.md:96	inventory.md:68
+src/superclaude/templates/documents/agent_template_qa.md:100	inventory.md:68
+src/superclaude/templates/documents/agent_template_qa.md:139	inventory.md:69
+src/superclaude/templates/documents/agent_template_qa.md:156	inventory.md:70
+src/superclaude/templates/documents/agent_template_qa.md:157	inventory.md:70
+src/superclaude/templates/documents/agent_template_qa.md:184	cap-edits C-018
+src/superclaude/templates/documents/agent_template_qa.md:210	cap-edits C-019
+src/superclaude/templates/documents/agent_template_qa.md:262	inventory.md:71
+src/superclaude/templates/documents/agent_template_qa.md:320	cap-edits C-020
+src/superclaude/templates/documents/agent_template_qa.md:335	cap-edits C-021
+src/superclaude/templates/documents/skill_template.md:427	cap-edits C-022
+src/superclaude/templates/documents/skill_template.md:815	inventory.md:79
+src/superclaude/templates/documents/skill_template.md:824	inventory.md:79
+src/superclaude/templates/modularization-template-review/analyst-completeness_report_template.md:75	inventory.md:78
+src/superclaude/templates/modularization-template-review/analyst-completeness_report_template.md:159	inventory.md:78
+src/superclaude/templates/modularization-template-review/qa-consolidated-findings_template.md:102	cap-edits C-023
+src/superclaude/templates/modularization-template-review/qa-cross-source-contradictions_template.md:101	cap-edits C-024
+src/superclaude/templates/modularization-template-review/qa-fix-summary_template.md:96	cap-edits C-025
+src/superclaude/templates/modularization-template-review/qa-fix-summary_template.md:105	cap-edits C-026
+src/superclaude/templates/modularization-template-review/qa-research-depth_report_template.md:105	cap-edits C-028
+src/superclaude/templates/modularization-template-review/qa-research-evidence_report_template.md:100	cap-edits C-029
+src/superclaude/templates/modularization-template-review/qa-research-gap_report_template.md:103	cap-edits C-030
+src/superclaude/templates/modularization-template-review/qa-source-fidelity_template.md:95	cap-edits C-031
+src/superclaude/templates/modularization-template-review/qa-task-validation-b2_report_template.md:101	cap-edits C-032
+src/superclaude/templates/modularization-template-review/qa-task-validation-structure_report_template.md:104	cap-edits C-033
+src/superclaude/templates/modularization-template-review/synthetic-dnsp-finding.contract:52	inventory.md:60
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:643	inventory.md:73
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:649	cap-edits C-034
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:650	cap-edits C-035
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:651	cap-edits C-036
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:652	cap-edits C-037
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:653	cap-edits C-038
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:655	inventory.md:74
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:787	cap-edits C-039
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:803	cap-edits C-040
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:938	cap-edits C-041
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:1232	cap-edits C-161
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:654	inventory.md:75
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:656	inventory.md:76
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:662	cap-edits C-042
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:663	cap-edits C-043
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:664	cap-edits C-044
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:665	cap-edits C-045
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:666	cap-edits C-046
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:667	cap-edits C-047
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:671	inventory.md:77
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:753	cap-edits C-048
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:804	cap-edits C-049
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:820	cap-edits C-050
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:1090	cap-edits C-051
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:1119	cap-edits C-053
+src/superclaude/zero_findings_baseline.md:9	inventory.md:209
+src/superclaude/zero_findings_baseline.md:35	inventory.md:209
+tests/audit/test_dnsp_all_agents_fail_bypass.py:14	inventory.md:210
+tests/audit/test_dnsp_all_agents_fail_bypass.py:32	inventory.md:210
+tests/audit/test_dnsp_all_agents_fail_bypass.py:77	inventory.md:210
+tests/audit/test_dnsp_all_agents_fail_bypass.py:395	inventory.md:210
+tests/audit/test_dnsp_all_agents_fail_bypass.py:396	inventory.md:210
+tests/audit/test_dnsp_all_agents_fail_bypass.py:397	inventory.md:210
+tests/audit/test_dnsp_all_agents_fail_bypass.py:398	inventory.md:210
+tests/audit/test_dnsp_all_agents_fail_bypass.py:399	inventory.md:210
+tests/audit/test_dnsp_all_agents_fail_bypass.py:640	inventory.md:210
+tests/audit/test_nfr_conv_9_zero_trust.py:78	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:79	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:80	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:81	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:82	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:83	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:84	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:85	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:94	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:95	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:96	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:97	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:98	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:99	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:100	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:101	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:102	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:103	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:104	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:105	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:225	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:226	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:227	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:228	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:229	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:230	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:231	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:232	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:233	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:234	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:235	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:236	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:237	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:238	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:239	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:240	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:241	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:242	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:243	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:244	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:245	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:246	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:247	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:248	inventory.md:208
+tests/audit/test_nfr_conv_9_zero_trust.py:249	inventory.md:208
+tests/cli_portify/test_convergence.py:78	cap-edits C-142
+tests/cli_portify/test_convergence.py:81	cap-edits C-143
+tests/cli_portify/test_convergence.py:82	cap-edits C-143
+tests/cli_portify/test_convergence.py:83	cap-edits C-143
+tests/cli_portify/test_convergence.py:84	cap-edits C-143
+tests/cli_portify/test_convergence.py:85	cap-edits C-143
+tests/skills/test_implement_severity_replay.py:130	inventory.md:212
+tests/skills/test_implement_severity_replay.py:131	inventory.md:212
+tests/skills/test_implement_severity_replay.py:132	inventory.md:212
+tests/skills/test_implement_severity_replay.py:133	inventory.md:212
+tests/skills/test_implement_severity_replay.py:134	inventory.md:212
+tests/skills/test_implement_severity_replay.py:135	inventory.md:212
+tests/skills/test_implement_severity_replay.py:136	inventory.md:212
+tests/skills/test_implement_severity_replay.py:137	inventory.md:212
+tests/skills/test_implement_severity_replay.py:138	inventory.md:212
+tests/skills/test_implement_severity_replay.py:139	inventory.md:212
+tests/skills/test_implement_severity_replay.py:140	inventory.md:212
+tests/skills/test_implement_severity_replay.py:141	inventory.md:212
+tests/skills/test_implement_severity_replay.py:142	inventory.md:212
+tests/skills/test_implement_severity_replay.py:143	inventory.md:212
+tests/skills/test_implement_severity_replay.py:144	inventory.md:212
+tests/skills/test_implement_severity_replay.py:145	inventory.md:212
+tests/skills/test_implement_severity_replay.py:146	inventory.md:212
+tests/skills/test_implement_severity_replay.py:147	inventory.md:212
+tests/skills/test_implement_severity_replay.py:148	inventory.md:212
+tests/skills/test_implement_severity_replay.py:149	inventory.md:212
+tests/skills/test_implement_severity_replay.py:150	inventory.md:212
+tests/skills/test_implement_severity_replay.py:151	inventory.md:212
+tests/skills/test_implement_severity_replay.py:152	inventory.md:212
+tests/skills/test_implement_severity_replay.py:153	inventory.md:212
+tests/skills/test_implement_severity_replay.py:154	inventory.md:212
+tests/skills/test_implement_severity_replay.py:155	inventory.md:212
+tests/skills/test_implement_severity_replay.py:156	inventory.md:212
+tests/skills/test_implement_severity_replay.py:157	inventory.md:212
+tests/skills/test_implement_severity_replay.py:158	inventory.md:212
+tests/skills/test_implement_severity_replay.py:159	inventory.md:212
+tests/skills/test_implement_severity_replay.py:160	inventory.md:212
+tests/skills/test_implement_severity_replay.py:161	inventory.md:212
+tests/skills/test_implement_severity_replay.py:162	inventory.md:212
+tests/skills/test_implement_severity_replay.py:163	inventory.md:212
+tests/skills/test_implement_severity_replay.py:164	inventory.md:212
+tests/skills/test_implement_severity_replay.py:165	inventory.md:212
+tests/skills/test_implement_severity_replay.py:166	inventory.md:212
+tests/skills/test_implement_severity_replay.py:167	inventory.md:212
+tests/skills/test_implement_severity_replay.py:168	inventory.md:212
+tests/skills/test_implement_severity_replay.py:169	inventory.md:212
+tests/skills/test_implement_severity_replay.py:170	inventory.md:212
+tests/skills/test_implement_severity_replay.py:171	inventory.md:212
+tests/skills/test_implement_severity_replay.py:172	inventory.md:212
+tests/skills/test_implement_severity_replay.py:173	inventory.md:212
+tests/skills/test_implement_severity_replay.py:174	inventory.md:212
+tests/skills/test_implement_severity_replay.py:175	inventory.md:212
+tests/skills/test_implement_severity_replay.py:176	inventory.md:212
+tests/skills/test_implement_severity_replay.py:177	inventory.md:212
+tests/skills/test_implement_severity_replay.py:178	inventory.md:212
+tests/skills/test_implement_severity_replay.py:179	inventory.md:212
+tests/skills/test_implement_severity_replay.py:180	inventory.md:212
+tests/skills/test_implement_severity_replay.py:181	inventory.md:212
+tests/skills/test_implement_severity_replay.py:182	inventory.md:212
+tests/skills/test_implement_severity_replay.py:183	inventory.md:212
+tests/skills/test_implement_severity_replay.py:184	inventory.md:212
+tests/skills/test_implement_severity_replay.py:185	inventory.md:212
+tests/skills/test_implement_severity_replay.py:186	inventory.md:212
+tests/skills/test_implement_severity_replay.py:187	inventory.md:212
+tests/skills/test_implement_severity_replay.py:188	inventory.md:212
+tests/skills/test_implement_severity_replay.py:189	inventory.md:212
+tests/skills/test_implement_severity_replay.py:190	inventory.md:212
+tests/skills/test_implement_severity_replay.py:191	inventory.md:212
+tests/skills/test_implement_severity_replay.py:192	inventory.md:212
+tests/skills/test_implement_severity_replay.py:193	inventory.md:212
+tests/skills/test_implement_severity_replay.py:194	inventory.md:212
+tests/skills/test_implement_severity_replay.py:195	inventory.md:212
+tests/skills/test_implement_severity_replay.py:196	inventory.md:212
+tests/skills/test_implement_severity_replay.py:197	inventory.md:212
+tests/skills/test_implement_severity_replay.py:198	inventory.md:212
+tests/skills/test_implement_severity_replay.py:199	inventory.md:212
+tests/skills/test_implement_severity_replay.py:200	inventory.md:212
+tests/skills/test_implement_severity_replay.py:201	inventory.md:212
+tests/skills/test_implement_severity_replay.py:202	inventory.md:212
+tests/skills/test_implement_severity_replay.py:203	inventory.md:212
+tests/skills/test_implement_severity_replay.py:204	inventory.md:212
+tests/skills/test_implement_severity_replay.py:205	inventory.md:212
+tests/skills/test_implement_severity_replay.py:206	inventory.md:212
+tests/skills/test_implement_severity_replay.py:207	inventory.md:212
+tests/skills/test_implement_severity_replay.py:208	inventory.md:212
+tests/skills/test_implement_severity_replay.py:209	inventory.md:212
+tests/skills/test_implement_severity_replay.py:210	inventory.md:212
+tests/skills/test_implement_severity_replay.py:211	inventory.md:212
+tests/skills/test_implement_severity_replay.py:212	inventory.md:212
+tests/skills/test_implement_severity_replay.py:213	inventory.md:212
+tests/skills/test_implement_severity_replay.py:214	inventory.md:212
+tests/skills/test_implement_severity_replay.py:215	inventory.md:212
+tests/skills/test_implement_severity_replay.py:216	inventory.md:212
+tests/skills/test_implement_severity_replay.py:217	inventory.md:212
+tests/skills/test_implement_severity_replay.py:218	inventory.md:212
+tests/skills/test_implement_severity_replay.py:219	inventory.md:212
+tests/skills/test_implement_severity_replay.py:220	inventory.md:212
+tests/skills/test_implement_severity_replay.py:221	inventory.md:212
+tests/skills/test_implement_severity_replay.py:222	inventory.md:212
+tests/skills/test_implement_severity_replay.py:223	inventory.md:212
+tests/skills/test_implement_severity_replay.py:224	inventory.md:212
+tests/skills/test_implement_severity_replay.py:225	inventory.md:212
+tests/skills/test_implement_severity_replay.py:226	inventory.md:212
+tests/skills/test_implement_severity_replay.py:227	inventory.md:212
+tests/skills/test_implement_severity_replay.py:228	inventory.md:212
+tests/skills/test_implement_severity_replay.py:229	inventory.md:212
+tests/skills/test_implement_severity_replay.py:230	inventory.md:212
+tests/skills/test_implement_severity_replay.py:231	inventory.md:212
+tests/skills/test_implement_severity_replay.py:232	inventory.md:212
+tests/skills/test_implement_severity_replay.py:233	inventory.md:212
+tests/skills/test_implement_severity_replay.py:234	inventory.md:212
+tests/skills/test_implement_severity_replay.py:235	inventory.md:212
+tests/skills/test_implement_severity_replay.py:236	inventory.md:212
+tests/skills/test_implement_severity_replay.py:237	inventory.md:212
+tests/skills/test_implement_severity_replay.py:238	inventory.md:212
+tests/skills/test_implement_severity_replay.py:239	inventory.md:212
+tests/skills/test_implement_severity_replay.py:240	inventory.md:212
+tests/skills/test_implement_severity_replay.py:241	inventory.md:212
+tests/skills/test_implement_severity_replay.py:242	inventory.md:212
+tests/skills/test_implement_severity_replay.py:243	inventory.md:212
+tests/skills/test_implement_severity_replay.py:244	inventory.md:212
+tests/skills/test_implement_severity_replay.py:245	inventory.md:212
+tests/skills/test_implement_severity_replay.py:246	inventory.md:212
+tests/skills/test_implement_severity_replay.py:247	inventory.md:212
+tests/skills/test_implement_severity_replay.py:248	inventory.md:212
+tests/skills/test_implement_severity_replay.py:249	inventory.md:212
+tests/skills/test_implement_severity_replay.py:250	inventory.md:212
+tests/skills/test_implement_severity_replay.py:251	inventory.md:212
+tests/skills/test_implement_severity_static.py:278	inventory.md:212
+tests/skills/test_implement_severity_static.py:485	inventory.md:207
+tests/skills/test_implement_severity_static.py:486	inventory.md:207
+tests/skills/test_implement_severity_static.py:487	inventory.md:207
+tests/skills/test_implement_severity_static.py:488	inventory.md:207
+tests/skills/test_implement_severity_static.py:489	inventory.md:207
+tests/skills/test_implement_severity_static.py:490	inventory.md:207
+tests/skills/test_implement_severity_static.py:491	inventory.md:207
+tests/skills/test_implement_severity_static.py:492	inventory.md:207
+tests/skills/test_implement_severity_static.py:493	inventory.md:207
+tests/skills/test_task_builder_merge.py:435	inventory.md:211
+tests/skills/test_task_workspace_lifecycle.py:582	inventory.md:212

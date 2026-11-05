@@ -1,0 +1,11 @@
+--- a/docs/user-guide/agents.md
++++ b/docs/user-guide/agents.md
+@@ -681,7 +681,7 @@
+ 
+ **Enhanced Capabilities through MCP Servers**:
+ 
+-- **codegraph**: Symbol, caller and impact lookups for `auggie-reviewer`, `reflect-reviewer`, `reuse-auditor` and `troubleshoot-analyst`. They use the codegraph tools when the index is fresh and fall back to Grep and Read when it is not
++- **codegraph**: Symbol and caller lookups for `auggie-reviewer`, `reflect-reviewer`, `reuse-auditor` and `troubleshoot-analyst` (`reflect-reviewer` and `troubleshoot-analyst` can also run impact lookups). They use the codegraph tools when the index is fresh and fall back to Grep and Read when it is not
+ - **Context7**: Official documentation patterns for all architects and specialists
+ - **Playwright**: Browser testing for quality-engineer, accessibility validation for frontend-architect
+ - **Morphllm**: Code transformation for refactoring-expert, bulk changes for python-expert

@@ -1,0 +1,435 @@
+# E2E Test Guide — `superclaude sprint`: run, auto-resume, per-task flags, verify-checkpoints, attach / kill / status / logs (`5.0.0`)
+
+- **Capability:** `superclaude sprint run` executes the phases of a tasklist index as headless Claude Code sessions (one per task when the phase file has `### T<PP>.<TT>` headings), auto-resumes an interrupted run when no `--start`/`--end` window is given, and accepts the new per-task flags `--resume`, `--task-parallelism` and `--handoff/--no-handoff`; `sprint verify-checkpoints` reports declared checkpoint files; `attach`, `kill`, `status` and `logs` manage or report on a running sprint.
+- **Audience:** end user / operator
+- **Source of truth:** `src/superclaude/cli/sprint/commands.py:16-32,72-439,441-614,617-754,757-945,948-993`; `src/superclaude/cli/sprint/tmux.py:50-78,176-217,262-330`; `src/superclaude/cli/sprint/logging_.py:226-249,367-378`; `src/superclaude/cli/sprint/config.py:58-160,281-383`; `src/superclaude/cli/sprint/models.py:572,603-607,632-735`; `src/superclaude/cli/sprint/executor.py:909-913,1009-1193,1196-1460,1761-1830,1966-2066,2539-2672`; `src/superclaude/cli/sprint/handoff.py:23-82`; `src/superclaude/cli/sprint/resume/planner.py:40-125,346-374`; `src/superclaude/cli/sprint/resume/drift.py:30-38,194-206`; `src/superclaude/cli/sprint/resume/integrity.py:351-415`; `superclaude sprint <cmd> --help`; `CHANGELOG.md:298-344`
+- **Est. time:** `Tier A: 2 minutes. Tier B: 5 minutes. Tier C: 20-40 minutes (four real sprint runs of two small tasks each).`
+
+## Preconditions
+
+- IronClaude 5.0.0 installed for your user: `superclaude --version` prints `SuperClaude, version 5.0.0`.
+- `git`, `tar` and `jq` on your `PATH`. `tmux` is optional: without it `attach` and `kill` give the same "no session" result (`tmux.py:66-67`).
+- **No sprint is running under your user.** Check with `tmux ls 2>/dev/null | grep '^sc-sprint-'`: it must print nothing. If it prints a line, skip Step 2: `superclaude sprint kill` stops the first `sc-sprint-*` session it finds (`tmux.py:64-78,271-330`).
+- A clone of `IronbellyOrg/IronClaude` that contains the tag `v5.0.0`, used only as the source of the sprint fixture. Set `REPO` to its path in the terminal you use for Tier B (`REPO=~/path/to/IronClaude`); `git -C "$REPO" rev-parse --short v5.0.0^{commit}` must print `d953b983`. Without a clone: `git clone https://github.com/IronbellyOrg/IronClaude /tmp/d10-repo && REPO=/tmp/d10-repo` (network; needs read access to the fork).
+- `/tmp/d10` does not exist (`[ ! -e /tmp/d10 ] && echo OK` prints `OK`). Every file Tier B and Tier C create is under `/tmp/d10`.
+- A bash shell. Tier B sets the variables `IDX` and `B`; run all of Tier B in one terminal. Tier C runs in one terminal from `/tmp/d10/c1`.
+- Tier C only: the `claude` CLI on your `PATH` and logged in. Each Tier C run spends API tokens: one headless `claude --print` per task (`executor.py:1653-1700`; `src/superclaude/cli/pipeline/process.py:134-166`) plus one `claude --print --model sonnet` phase summary (`src/superclaude/cli/sprint/summarizer.py:11-16,310-330`).
+- Tier C task sessions run with `--dangerously-skip-permissions`, the default `--permission-flag` (`commands.py:109-119`): Claude edits files without asking. The fixture tells it to write only under `/tmp/d10/c1/work/`.
+- Tier C sessions use your real `~/.claude`. They pass `--no-session-persistence`, so Claude Code saves no transcript (`src/superclaude/cli/pipeline/process.py:152`), but the hooks installed in `~/.claude/settings.json` still run and write `~/.claude/state/` and `~/.claude/logs/` at session start and on each prompt (`src/superclaude/hooks/hooks.json:18,49`; `src/superclaude/hooks/scripts/freshness-session-start.sh:8-9`; `freshness-user-prompt.sh:8-10`; `auggie-flag-clear.sh:10-12`). No step installs, registers or edits anything under `~/.claude`.
+
+## What you're verifying
+
+- `attach` and `kill` exit 1 with `No running sprint session found.` when no `sc-sprint-*` tmux session exists. `status` and `logs` are stubs in 5.0.0: each prints one fixed line and exits 0, although their `--help` says they read the execution log (follow-up O4).
+- `sprint run --dry-run` with an explicit window lists the discovered phases and writes nothing. Without a window, `sprint run` plans an auto-resume from the files on disk, prints the plan, and refuses to go on when tasklist drift is too high (exit 2) or when the session is non-interactive and nobody assented with `--yes`, `SUPERCLAUDE_SPRINT_ASSUME_YES` or `CI` (exit 2).
+- `CI` and `SUPERCLAUDE_SPRINT_ASSUME_YES` count as assent when they hold **any** non-empty value, so `CI=0` and `CI=false` assent too. This is the coded 5.0.0 behaviour, observed as coded here; it is follow-up O7 (`commands.py:323-327,891-895`).
+- `sprint verify-checkpoints` prints a checkpoint table and **always** writes `<dir>/manifest.json`, even without `--recover` (follow-up O16). Run it only on a copy.
+- A real one-phase `--no-tmux` run executes one Claude session per task, writes one handoff record per task and one `task_complete` event per task; `--task-parallelism 2` runs the two independent tasks at the same time; `--no-handoff` writes neither records nor `task_complete` events; `--resume <task_id>` skips only tasks whose handoff record has status `pass` **and** gate outcome `pass`, and under the 5.0.0 default gate mode no record gets gate outcome `pass`, so nothing is skipped.
+
+Operator settings this guide does not exercise (flags and environment only, no permission check): `--ignore-run-lock` reclaims a live run-lock with a warning and does not stop the other process (`commands.py:242-250`; `executor.py:1806-1816`); `--max-session-resets` caps the account-rotation re-spawns per phase, default 8 (`commands.py:233-241`; `executor.py:1396-1403`), using the model aliases in `~/.aienv` (`src/superclaude/cli/sprint/aienv.py:1-23`); `SUPERCLAUDE_PROMPT_MAX_BYTES` overrides the 16 MiB prompt guard (`src/superclaude/cli/pipeline/process.py:53-58`); `SUPERCLAUDE_SPRINT_RENDER_DIAG=1` turns off Rich's output redirect for crash diagnosis (`src/superclaude/cli/sprint/tui.py:112-118`). The fidelity override `--force-fidelity[-fail]` is checked in the Edge cases table.
+
+---
+
+## Steps
+
+### Tier A — free smoke (read-only)
+
+#### Step 1 — Version and subcommands `[FREE]`
+
+**Do:**
+
+```bash
+superclaude --version
+superclaude sprint --help | sed -n '/^Commands:/,$p'
+```
+
+**Expected result:** `SuperClaude, version 5.0.0`, then:
+
+```text
+Commands:
+  attach              Attach to a running sprint tmux session.
+  kill                Stop a running sprint.
+  logs                Tail the sprint execution log.
+  rerun-tasks         Re-execute only the named failed tasks within a...
+  run                 Execute a sprint from a tasklist index.
+  status              Show current sprint status without attaching.
+  verify-checkpoints  Verify (and optionally recover) checkpoint reports...
+```
+
+Seven subcommands; the module docstring still says five (`commands.py:3-4`). (source: `pyproject.toml:7`; group `commands.py:16-32`; commands `commands.py:72,617,629,641,666,684,757`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 2 — `attach` and `kill` with no running sprint `[FREE]`
+
+Skip this step if the Preconditions check found an `sc-sprint-*` session.
+
+**Do:**
+
+```bash
+superclaude sprint attach; echo "exit=$?"
+superclaude sprint kill; echo "exit=$?"
+```
+
+**Expected result:** twice `No running sprint session found.` followed by `exit=1`. Both look for the first tmux session whose name starts with `sc-sprint-` and stop when there is none (or when `tmux` is not installed). (source: `tmux.py:64-78`; `attach_to_sprint` `tmux.py:262-268`; `kill_sprint` `tmux.py:271-276`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 3 — `status` and `logs` are stubs `[FREE]`
+
+**Do:**
+
+```bash
+superclaude sprint status; echo "exit=$?"
+superclaude sprint logs -n 5 -f; echo "exit=$?"
+```
+
+**Expected result:** `Status command not yet connected to active sprint.` and `exit=0`, then `Logs command not yet connected to active sprint.` and `exit=0`. `logs -f` returns at once instead of following: `-n` and `-f` are accepted and ignored. Their `--help` texts ("Reads the execution log ...", "Shows the human-readable execution log") describe behaviour 5.0.0 does not have (follow-up O4). (source: `logging_.py:367-378`; commands `commands.py:629-663`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+### Tier B — local runs on a copy of the shipped fixture (no Claude call)
+
+Steps 5-10 write nothing: auto-resume planning is read-only, and Step 10 stops at the `claude` check that `execute_sprint` runs before anything else (`planner.py:40-41`; `commands.py:441-447`; `executor.py:1773-1777`). The fixture ships no task transcripts, so the advisory Sonnet coherence read of the integrity gate never starts (`integrity.py:368-376`).
+
+#### Step 4 — Extract the fixture `[LOCAL-WRITE]`
+
+**Do:** (in the terminal where `REPO` is set)
+
+```bash
+[ ! -e /tmp/d10 ] || echo "STOP: remove /tmp/d10 first"
+mkdir -p /tmp/d10/b
+git -C "$REPO" archive v5.0.0 .dev/e2e-reflect/tl-1/bundle | tar -x -C /tmp/d10/b
+cd /tmp/d10/b
+IDX=.dev/e2e-reflect/tl-1/bundle/tasklist-index.md
+B=.dev/e2e-reflect/tl-1/bundle
+ls "$B" "$B/results"
+```
+
+**Expected result:** no `STOP` line. `ls` lists `artifacts checkpoints execution-log.jsonl execution-log.md manifest.json phase-1-tasklist.md phase-2-tasklist.md results tasklist-index.md validation`, and under `results`: `gate-kpi-report.md phase-1-result.json phase-2-result.json release-retrospective.md`. The release directory is the folder that holds the index (its name `bundle` is not `tasklist`, `tasklists` or `tasks`), and the fixture's repository-prefixed checkpoint paths (`.dev/e2e-reflect/tl-1/bundle/checkpoints/...`) resolve inside that folder, so every later step reads and writes only the copy. (source: the files tracked under `.dev/e2e-reflect/tl-1/bundle/` at tag `v5.0.0`; release directory `config.py:242-278`; checkpoint path resolution `checkpoints.py:40-78`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 5 — Dry run with an explicit window `[FREE]`
+
+**Do:**
+
+```bash
+superclaude sprint run "$IDX" --dry-run --start 1; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+Dry run: 2 phases discovered
+
+  Phase 1: - Scaffold
+    File: /tmp/d10/b/.dev/e2e-reflect/tl-1/bundle/phase-1-tasklist.md
+  Phase 2: - Content
+    File: /tmp/d10/b/.dev/e2e-reflect/tl-1/bundle/phase-2-tasklist.md
+
+Would execute phases 1–2
+exit=0
+```
+
+The leading dash and space in the names (`- Scaffold`) are expected: the name parser strips `# Phase 1 -` from the heading `# Phase 1 -- Scaffold` and keeps the rest. `--start 1` given on the command line turns auto-resume off, even though 1 is the default value. (source: explicit-window test `commands.py:317-322`; dry-run branch `commands.py:430-432`; output `commands.py:982-993`; phase discovery `config.py:58-146`; name `config.py:149-160`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 6 — Auto-resume plan on the fixture as shipped `[FREE]`
+
+**Do:**
+
+```bash
+superclaude sprint run "$IDX" --dry-run; echo "exit=$?"
+```
+
+**Expected result:** (the `drift:` line is one long line, shortened here)
+
+```text
+── Auto-resume plan ──
+  index:            .dev/e2e-reflect/tl-1/bundle/tasklist-index.md
+  completed phases: []
+  interrupted:      phase 1 (interrupt)
+  resume window:    phases 1–2
+  granularity:      task
+  re-run tasks:     T01.01, T01.02, T01.03, T01.04
+  drift:            confidence 0.50 (tier structural) — Boundary tasklist content changed (content hash differs from the recorded baseline) but no task IDs were added or removed, ... or --fresh to discard prior state.
+                    changed: .dev/e2e-reflect/tl-1/bundle/phase-1-tasklist.md
+  integrity gate:   PASS (last-completed validated: True)
+    suspect: T01.01 [next_unfinished] persisted=TaskStatus.SKIPPED derived=None
+    partial work (uncommitted): /tmp/d10/b/.dev/e2e-reflect/tl-1/bundle/artifacts/D-0001/evidence.md
+exit=0
+```
+
+The shipped `phase-1-result.json` is not a passing result, so phase 1 counts as interrupted. With `--dry-run` the plan is printed and nothing runs, whatever the drift. (source: no window → auto-resume `commands.py:332-352`; planning `commands.py:441-468`; printout `commands.py:570-614`; phase classes `planner.py:346-374`; task seam `planner.py:129-174`; drift text `drift.py:194-206`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 7 — Drift below 0.80 stops the run `[FREE]`
+
+**Do:**
+
+```bash
+env -u CI -u SUPERCLAUDE_SPRINT_ASSUME_YES superclaude sprint run "$IDX" </dev/null; echo "exit=$?"
+```
+
+**Expected result:** on stderr `Resume blocked: tasklist drift confidence 0.50 < 0.80.`, the indented drift explanation, `Choose an explicit --start/--end window, or --fresh to discard prior state.`, then `exit=2`. No phase starts. (source: `commands.py:353-356,483-497`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 8 — Fresh state: plan from phase 1 `[LOCAL-WRITE]`
+
+**Do:** (removes the shipped run state from the copy)
+
+```bash
+rm -rf "$B/results" "$B/execution-log.jsonl" "$B/execution-log.md"
+superclaude sprint run "$IDX" --dry-run; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+── Auto-resume plan ──
+  index:            .dev/e2e-reflect/tl-1/bundle/tasklist-index.md
+  completed phases: []
+  interrupted:      phase None (none)
+  resume window:    phases 1–2
+  granularity:      phase
+  drift:            confidence 1.00 (tier hash) — No interrupted phase tasklist to compare; no drift possible.
+  integrity gate:   PASS (last-completed validated: True)
+exit=0
+```
+
+(source: fresh case `planner.py:93-100`; drift `drift.py:30-38`; printout `commands.py:570-614`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 9 — Non-interactive auto-resume without assent `[FREE]`
+
+**Do:**
+
+```bash
+env -u CI -u SUPERCLAUDE_SPRINT_ASSUME_YES superclaude sprint run "$IDX" </dev/null; echo "exit=$?"
+```
+
+**Expected result:** on stderr `Non-interactive session: auto-resume confirmation required. Re-run with --yes (or set SUPERCLAUDE_SPRINT_ASSUME_YES=1 / CI=1), or pass an explicit --start/--end window.`, then `exit=2`. Standard input is not a terminal and no assent was given, so the command stops instead of prompting. On a terminal it would print the plan and ask `Proceed with auto-resume?`. (source: `commands.py:499-528`; stop path `commands.py:353-356`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 10 — `CI=0` still counts as assent (O7) `[FREE]`
+
+**Do:** (`claude` is kept off the `PATH` so that the assent cannot start a real sprint)
+
+```bash
+SC=$(command -v superclaude)
+env PATH=/usr/bin:/bin sh -c 'command -v claude || echo no-claude'
+env -u SUPERCLAUDE_SPRINT_ASSUME_YES CI=0 PATH=/usr/bin:/bin "$SC" sprint run "$IDX" --no-tmux </dev/null; echo "exit=$?"
+```
+
+If the second line prints a path instead of `no-claude`, `claude` lives in `/usr/bin` or `/bin`: mark this step SKIP, because the command would start a real two-phase sprint.
+
+**Expected result:** `no-claude`, then the same plan as Step 8 (printed this time because assent was given), then on stderr `Error: 'claude' binary not found in PATH. Install Claude Code CLI before running sprint.` and `exit=1`. There is no `Non-interactive session` refusal: `CI=0` was taken as yes. With `claude` on the `PATH` the same command would run the sprint. This is the coded 5.0.0 behaviour, recorded as observed (follow-up O7); `CI=false` gives the same result. (source: assent test `commands.py:323-327`; plan printed on the assent path `commands.py:530-543`; claude check `executor.py:1773-1777`)
+
+**Pass/Fail:** ☐ PASS ☐ SKIP ☐ FAIL — notes: `______`
+
+#### Step 11 — `verify-checkpoints` prints a table and writes `manifest.json` `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+rm "$B/manifest.json"
+superclaude sprint verify-checkpoints "$B"; echo "exit=$?"
+ls "$B/manifest.json"
+```
+
+**Expected result:**
+
+```text
+Checkpoints: 2 declared  |  1 found  |  0 recovered  |  1 missing
+
+Phase  Status       Name                            Path
+--------------------------------------------------------------------------------
+    1  found        End of Phase 01                 /tmp/d10/b/.dev/e2e-reflect/tl-1/bundle/checkpoints/CP-P01-END.md
+    2  MISSING      End of Phase 02                 /tmp/d10/b/.dev/e2e-reflect/tl-1/bundle/checkpoints/CP-P02-END.md
+
+Manifest: .dev/e2e-reflect/tl-1/bundle/manifest.json
+exit=0
+.dev/e2e-reflect/tl-1/bundle/manifest.json
+```
+
+The manifest file exists again although `--recover` was not passed: the command writes it on every call (follow-up O16), so never point it at a release directory you want unchanged. (source: `commands.py:727-754`; table `commands.py:948-979`; manifest `checkpoints.py:170-216`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 12 — `verify-checkpoints --json` `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+superclaude sprint verify-checkpoints "$B" --json | jq -c '.summary, [.entries[].exists]'
+```
+
+**Expected result:** `{"total":2,"found":1,"missing":1,"recovered":0}` then `[true,false]`. The JSON printed is the manifest file it has just rewritten. (source: `commands.py:747-752`; `checkpoints.py:205-216`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+### Tier C — real one-phase runs (`[API-LONG]`, Claude API)
+
+Always pass `--no-tmux` here. In tmux mode the sprint relaunches itself inside tmux from a rebuilt command line that does not carry `--resume`, `--task-parallelism`, `--handoff/--no-handoff` or `--yes` (`tmux.py:176-217`; follow-up O9), so those flags would be lost. Each run uses `--start 1`, which turns auto-resume off (`commands.py:317-322`), and `--max-turns 10`, which caps every task session at 10 turns (`commands.py:88-93`).
+
+#### Step 13 — Create the one-phase fixture `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+mkdir -p /tmp/d10/c1/work && cd /tmp/d10/c1
+cat > tasklist-index.md <<'EOF'
+# Tasklist index: D10 one-phase sprint
+
+| Phase | File |
+|---|---|
+| 1 | phase-1-tasklist.md |
+EOF
+cat > phase-1-tasklist.md <<'EOF'
+# Phase 1: Two small files
+
+### T01.01 -- Write alpha file
+
+**Deliverables:**
+
+- Write the file /tmp/d10/c1/work/alpha.txt containing the single line alpha. Change nothing else.
+
+**Dependencies:** None
+
+### T01.02 -- Write beta file
+
+**Deliverables:**
+
+- Write the file /tmp/d10/c1/work/beta.txt containing the single line beta. Change nothing else.
+
+**Dependencies:** None
+EOF
+superclaude sprint run tasklist-index.md --dry-run --start 1; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+Dry run: 1 phases discovered
+
+  Phase 1: Two small files
+    File: /tmp/d10/c1/phase-1-tasklist.md
+
+Would execute phases 1–1
+exit=0
+```
+
+Both tasks match the task-heading parser and have no dependencies, so they form one wave. (source: `config.py:58-146,149-160`; task parser `config.py:390-508`; `commands.py:982-993`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 14 — Run 1: sequential, handoff on `[API-LONG]`
+
+**Do:** (from `/tmp/d10/c1`; the dashboard runs in the foreground until the sprint ends)
+
+```bash
+superclaude sprint run tasklist-index.md --no-tmux --start 1 --max-turns 10; echo "exit=$?"
+cat work/alpha.txt work/beta.txt
+ls results/handoff/
+jq -c '{task_id,status,gate_outcome}' results/handoff/*.json
+jq -c 'select(.event=="task_complete") | [.task_id,.status]' execution-log.jsonl
+jq -rs 'if (.[0].started_at < .[1].finished_at and .[1].started_at < .[0].finished_at) then "overlap" else "sequential" end' results/handoff/phase-1-task-T01.01.json results/handoff/phase-1-task-T01.02.json
+cat .dev/sprint-state/c1/.sprint-exitcode; echo
+jq -r '.task_id + " " + .started_at' results/handoff/*.json > /tmp/d10/run1-starts.txt
+```
+
+**Expected result:**
+
+- `exit=0`. The exit code is 0 only when every task's Claude session exits 0 (task `pass`, phase `PASS`); a failed task gives `exit=1`.
+- `cat` prints `alpha` and `beta` (the files are written by Claude, so check that they exist with that content).
+- `ls` prints `phase-1-task-T01.01.json  phase-1-task-T01.02.json`; the two records are `{"task_id":"T01.01","status":"pass","gate_outcome":"pending"}` and the same for `T01.02`. `gate_outcome` stays `pending` because the default gate mode is `off` (Step 15 depends on this).
+- Two `task_complete` lines: `["T01.01","pass"]` and `["T01.02","pass"]`.
+- The overlap check prints `sequential`: with the default `--task-parallelism 1` the second task starts after the first one finished.
+- The state sentinel prints `0`. It sits under the directory you ran from, at `.dev/sprint-state/<release folder name>/`.
+
+(source: task spawn and status `executor.py:1009-1162`; sequential loop `executor.py:1425-1460`; handoff store and `task_complete` gating `executor.py:1975-1986`; handoff path `models.py:725-735`; `handoff.py:49-66`; `task_complete` event `logging_.py:226-249`; default gate mode `models.py:572`, `off` returns early `executor.py:909-913`, default `pending` `models.py:189`; phase status `executor.py:2009-2017`; exit code and sentinel `executor.py:2539-2544,2654-2672`; state folder `models.py:618-630,683-688`; `CHANGELOG.md:302-305`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 15 — Run 2: `--resume T01.01` skips nothing under the default gate mode `[API-LONG]`
+
+**Do:**
+
+```bash
+superclaude sprint run tasklist-index.md --no-tmux --start 1 --max-turns 10 --resume T01.01; echo "exit=$?"
+jq -r '.task_id + " " + .started_at' results/handoff/*.json | diff /tmp/d10/run1-starts.txt - >/dev/null && echo "same starts" || echo "new starts"
+jq -c 'select(.event=="task_complete") | .task_id' execution-log.jsonl | wc -l
+```
+
+**Expected result:** `exit=0`, `new starts` (both handoff records were rewritten with new start times) and `4` (two more `task_complete` events). Both tasks ran again. `--resume` skips a task only when its handoff record has status `pass` **and** gate outcome `pass`; under the 5.0.0 default gate mode every record keeps gate outcome `pending` (Step 14), so no task qualifies. `CHANGELOG.md:303` and `--help` ("skipping validated-successful tasks") describe the skip; with the shipped defaults it does not happen. Record this as observed-as-coded. If a task was skipped, `task_complete` count stays at `3` or less and its start time is unchanged: mark FAIL and note which task. (source: skip test `executor.py:1441-1460`; predicate `handoff.py:23-46`; `--resume` value only switches the skip on, it is not compared with task ids `models.py:598-603`; `models.py:189,572`; `executor.py:909-913`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 16 — Run 3: `--task-parallelism 2` `[API-LONG]`
+
+**Do:**
+
+```bash
+superclaude sprint run tasklist-index.md --no-tmux --start 1 --max-turns 10 --task-parallelism 2; echo "exit=$?"
+jq -rs 'if (.[0].started_at < .[1].finished_at and .[1].started_at < .[0].finished_at) then "overlap" else "sequential" end' results/handoff/phase-1-task-T01.01.json results/handoff/phase-1-task-T01.02.json
+jq -c 'select(.event=="task_complete") | .task_id' execution-log.jsonl | wc -l
+```
+
+**Expected result:** `exit=0`, `overlap` (both tasks started before either finished) and `6`. With K greater than 1 and more than one task, the phase uses the parallel path: tasks of one dependency wave run in a pool of K workers, and the two tasks here form one wave. (source: switch `executor.py:1405-1423`; pool and waves `executor.py:1229-1242,1328-1334`; worker start time and handoff write `executor.py:1244-1245,1304-1319`; `CHANGELOG.md:307`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 17 — Run 4: `--no-handoff` `[API-LONG]`
+
+**Do:**
+
+```bash
+rm -rf results/handoff
+superclaude sprint run tasklist-index.md --no-tmux --start 1 --max-turns 10 --no-handoff; echo "exit=$?"
+ls results/handoff 2>&1
+jq -c 'select(.event=="task_complete") | .task_id' execution-log.jsonl | wc -l
+jq -c 'select(.event=="phase_start") | .phase' execution-log.jsonl | wc -l
+ls results/phase-1-task-T01.01-output.txt results/phase-1-task-T01.02-output.txt
+```
+
+**Expected result:** `exit=0`; `ls` reports `No such file or directory` for `results/handoff`; the `task_complete` count stays `6`; the `phase_start` count is `4` (one per run); both per-task output files exist. With `--no-handoff` the runner creates no handoff store and passes no logger for `task_complete`, while the phase start and the task transcripts are still written. (source: gating `executor.py:1975-1986`; `phase_start` `executor.py:1972`; transcript path `models.py:719-720`; `CHANGELOG.md:302`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+---
+
+## Edge cases (optional but recommended)
+
+Run the Tier B rows in the Tier B terminal (`/tmp/d10/b`, `IDX` and `B` set) after Step 12.
+
+| Try this | Expected behavior | Source | Pass/Fail |
+|---|---|---|---|
+| `[FREE]` `superclaude sprint run "$IDX" --dry-run --start 9; echo "exit=$?"` | `Error: No phases in range [9, 2]. Available phase numbers: [1, 2]` and `exit=1` | `config.py:375-381` | ☐ |
+| `[FREE]` `superclaude sprint run "$IDX" --dry-run --fresh` | The plain `Dry run: 2 phases discovered` listing of Step 5, no auto-resume plan: `--fresh` turns auto-resume off | `commands.py:329-331` | ☐ |
+| `[FREE]` `env -u SUPERCLAUDE_SPRINT_ASSUME_YES CI= superclaude sprint run "$IDX" </dev/null; echo "exit=$?"` | The `Non-interactive session` refusal of Step 9 and `exit=2`: an empty value is not assent | `commands.py:323-327,516-528` | ☐ |
+| `[FREE]` As Step 10 but `env -u CI SUPERCLAUDE_SPRINT_ASSUME_YES=0 PATH=/usr/bin:/bin "$SC" sprint run "$IDX" --no-tmux </dev/null` | Plan printed, then the `'claude' binary not found` error, `exit=1`: `0` assents (O7) | `commands.py:323-327`; `executor.py:1773-1777` | ☐ |
+| `[LOCAL-WRITE]` `printf '{"fidelity_status":"fail"}' > "$B/.roadmap-state.json"; superclaude sprint run "$IDX" --dry-run --start 1; echo "exit=$?"` | `Sprint blocked: spec-fidelity check FAILED.`, `(see spec-fidelity.md for details)`, `To override: add --force-fidelity-fail '<justification>' to your command.`, `exit=1` | `commands.py:36-69,418-423` | ☐ |
+| `[LOCAL-WRITE]` Then `superclaude sprint run "$IDX" --dry-run --start 1 --force-fidelity; rm "$B/.roadmap-state.json"` | `[WARN] Fidelity block overridden: no justification provided`, then the Step 5 listing; with `--force-fidelity-fail 'hand test'` the line ends `hand test` | `commands.py:159-175,424-428` | ☐ |
+| `[FREE]` `superclaude sprint verify-checkpoints /tmp/d10; echo "exit=$?"` | `Error: No tasklist-index.md found in /tmp/d10` and `exit=1` | `commands.py:727-729` | ☐ |
+| `[FREE]` `superclaude sprint rerun-tasks "$IDX" --from-reflect-report "$IDX" --phase 1; echo "exit=$?"` | `Error: --from-reflect-report is mutually exclusive with --phase / --tasks` and `exit=1` | `commands.py:877-880` | ☐ |
+| `[FREE]` After Step 8: `superclaude sprint rerun-tasks "$IDX" --dry-run; echo "exit=$?"` | ``Error: Auto-detect found a phase-level interruption with no recoverable per-task failures. Use `superclaude sprint run` to re-run the phase, or pass explicit --phase/--tasks.`` and `exit=1` | `commands.py:913-918` | ☐ |
+
+## Cleanup
+
+```bash
+cd /tmp && rm -rf /tmp/d10
+```
+
+Also remove `/tmp/d10-repo` if you cloned the repository for this guide. No tmux session was created (every run used `--no-tmux` or stopped before launch). What stays under your real `~/.claude` after Tier C is what the installed hooks write for any Claude Code session: rows in `~/.claude/state/` and `~/.claude/logs/`; the task sessions saved no transcript (`--no-session-persistence`, `src/superclaude/cli/pipeline/process.py:152`).
+
+## Overall result
+
+☐ **PASS** — capability works as documented for `5.0.0`
+☐ **FAIL** — see failing step(s) above
+
+**Tester:** `<name>`  **Date:** `<date>`  **Build:** `5.0.0 (tag v5.0.0, commit d953b983)`

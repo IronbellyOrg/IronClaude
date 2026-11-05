@@ -349,7 +349,7 @@ def run_panel_review(config: PortifyConfig) -> PortifyStepResult:
     unaddressed = count_unaddressed_criticals(output_text)
 
     # --- Run convergence engine (internal loop, not outer retry) ---
-    engine = ConvergenceEngine(max_iterations=3)
+    engine = ConvergenceEngine(max_iterations=1)
     engine.submit(
         IterationResult(
             iteration=1,

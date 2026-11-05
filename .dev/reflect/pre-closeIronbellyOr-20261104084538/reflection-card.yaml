@@ -1,0 +1,36 @@
+# Wave 1C Tier-1 reflection card (UC-1, inline orchestrator; the orchestrator also authored the plan, so this card is self-review and is NOT the gate: Tier 2 is forced, see tier_decision.yaml)
+mode: pre
+spec: .dev/tasks/to-do/TASK-WF-closeIronbellyOr-20261104-084334/source.md
+tasklist: .dev/tasks/to-do/TASK-WF-closeIronbellyOr-20261104-084334/TASK-WF-closeIronbellyOr-20261104-084334.md
+coverage_matrix: artifacts/coverage-matrix.yaml
+self_reported_confidence: 0.80
+findings:
+  - id: F-1
+    kind: coverage-gap
+    claim: "`make verify-sync` (required by the source checks) appears in no task's acceptance criteria."
+    evidence: "source.md:1 ('make verify-sync'); tasklist Task 2 acceptance criteria list pytest, `make lint` and `ruff format --check` only (TASK-WF-closeIronbellyOr-20261104-084334.md:59-62)."
+    severity: medium
+  - id: F-2
+    kind: weak-verifier
+    claim: "Tasks 3 and 4 use `make lint` as an acceptance check for Markdown edits, but `make lint` runs only lint-architecture and `ruff check .` (Makefile:48-50), so it does not check the docs or CHANGELOG."
+    evidence: "Makefile:48-50; tasklist Task 3 and Task 4 acceptance criteria."
+    severity: low
+  - id: F-3
+    kind: coverage-by-constraint
+    claim: "INF-002, INF-003 and INF-009 (ledger decision, ledger alternative, no-change list) are carried only in the plan's Constraints section; INF-001 (the design reference) only in the Goal line. The containment matcher scores tasks only, so they show as unmapped although the plan states them."
+    evidence: "artifacts/coverage-matrix.yaml rows INF-001/002/003/009; tasklist Constraints section."
+    severity: low
+  - id: F-4
+    kind: risk
+    claim: "Task 5 runs the real `claude plugin` commands under a throwaway HOME; whether the `claude` CLI needs credentials or writes outside that HOME is unverified, and a network clone of DietrichGebert/ponytail (about 13 MB) may hit the 30 s budget."
+    evidence: "tasklist Task 5 body; merged-requirements.md Failure Behaviour clone-size paragraph."
+    severity: low
+  - id: F-5
+    kind: ordering
+    claim: "Task 2 depends on Task 1 although the code change is independent; the dependency is only the shared test file, which is a safe serialisation."
+    evidence: "tasklist Task 2 'Depends on: Task 1'."
+    severity: info
+deviation_classes_used: [none]
+recommendations:
+  - "Add `make verify-sync` to Task 2's acceptance criteria (or a later task) so the source check is not dropped."
+  - "Replace `make lint` in Tasks 3 and 4 with checks that read the edited Markdown (the grep and the item checklist already present) or keep it only as a no-regression check."

@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.15.1
+collected 259 items
+
+tests/cli/test_install_codebase_memory.py .............................. [ 11%]
+........................................................................ [ 39%]
+...........................................                              [ 55%]
+tests/cli/test_install_mcp_registry.py ............                      [ 60%]
+tests/cli/test_install_mcp_tavily.py ...............s................... [ 74%]
+...................................                                      [ 87%]
+tests/cli/test_update_command.py ...........................             [ 98%]
+tests/docs/test_tavily_doc_alignment.py .....                            [100%]
+
+======================= 258 passed, 1 skipped in 11.59s ========================

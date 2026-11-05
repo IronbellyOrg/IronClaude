@@ -1,0 +1,9 @@
+3e7c7011cc0c319cb87f6ca4c6b3d34cde643451 tree=80d03fbf35c91e5a739f861656e1edd25f428c0f
+T8.AC1 met: T8.AC1@tests/commands/test_graph_command.py:82
+T8.AC2 met: T8.AC2@src/superclaude/commands/graph.md:9
+T8.AC3 met: T8.AC3@src/superclaude/skills/sc-graph-protocol/SKILL.md:101
+T8.AC4 met: T8.AC4@src/superclaude/commands/graph.md:1
+F1.1 sev=blocking trigger=B2 ac=scope at=src/superclaude/skills/sc-graph-protocol/SKILL.md:48 anchor=src/superclaude/skills/sc-graph-protocol/SKILL.md:48 chk=n,y,n,n family=telemetry-parse fix=classify the line starting "Telemetry:" (or the first non-empty line). first=A1 origin=new: G-T reads the first line of codegraph telemetry status, but on 1.6.2 the first stdout line is blank and the second is "Telemetry: enabled (your saved choice)" (verified live), so the step as written reports telemetry: unknown and never adds graph:telemetry_on.
+F1.2 sev=note trigger=none ac=scope at=tests/unit/test_cli_install.py:115 anchor="both commands lists" chk=n,n,n,n family=install-list-scope fix=none first=A1 origin=new: only the package lists were extended; logged decision.
+F1.3 sev=note trigger=none ac=scope at=src/superclaude/commands/graph.md:51 anchor=src/superclaude/commands/graph.md:51 chk=n,n,n,n family=spec-gap-init-i fix=carry forward first=A1 origin=new: init -i without --yes may prompt in a non-interactive call; the allowlist form is fixed by source §3.2.
+F1.4 sev=minor trigger=none ac=scope at=src/superclaude/skills/sc-graph-protocol/SKILL.md:39 anchor=src/superclaude/skills/sc-graph-protocol/SKILL.md:49 chk=n,n,n,n family=init-running-fields fix=define fields when init_running and strip thousands separators first=A1 origin=new: with an init running no worktree_relation value is defined and G-C would add graph:parse_failed; CLI counts print as 8,824 while the field is an int.

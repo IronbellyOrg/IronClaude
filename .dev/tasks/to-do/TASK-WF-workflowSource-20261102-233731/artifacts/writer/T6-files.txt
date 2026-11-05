@@ -1,0 +1,4 @@
+src/superclaude/core/HOW-WE-WORK.md
+docs/user-guide/how-we-work.md
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/t6-tests.log

@@ -1,0 +1,48 @@
+input_tree_sha256: bcb66ea4280ab5a6d9dd814815a17f9fb2ed8e1b9c759e019ac031738a4c33a6
+file_count: 13
+file_list:
+- path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/TASK-WF-orcaWorkerContra-20261103-012232.md
+  sha256: e0612301e7122142cbe2b0b8b736ed5a6dca32de60ca0abc6b80380a5debfe83
+- path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261103-012232/source.md
+  sha256: 433cb186438051238c49e68b693be35b611eb3bf46874a01bd616bcaef779031
+- path: .claude/settings.json
+  sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+- path: CLAUDE.md
+  sha256: 469305ccd434b946f87a5f063286efc050ac7f06fafe360ba0c364a734be4c9a
+- path: plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+  sha256: 56710865289278974d9a440a3b9d10dbc51b607af44c2d38c23ae6c4e472021e
+- path: scripts/build_superclaude_plugin.py
+  sha256: eb15218457daf0201e53b60cfc91dc4edc2452f12c024e8b909e5f51a8cd6967
+- path: src/superclaude/cli/install_core.py
+  sha256: 6c90ef3d2742d348c46b92626dab91d8b90ec6604a958224a1ca57bc2feb38b7
+- path: src/superclaude/core/CLAUDE.md
+  sha256: 82d53b38ab0d7e1aa47ac6cf194279545f66302f6bf478358ea03bdda8ed8c18
+- path: src/superclaude/core/HOW-WE-WORK.md
+  sha256: 56710865289278974d9a440a3b9d10dbc51b607af44c2d38c23ae6c4e472021e
+- path: tests/cli/test_how_we_work_install.py
+  sha256: 283b32140385c6f55638d12ce5949ff743caf94dc14e46484e85eebc65f0597f
+- path: tests/cli/test_issue_body_templates.py
+  sha256: e4a821a32b04b73c71858e0cdc906add79e5d3ac7854dda3541b2c09fe16b823
+- path: tests/core/test_claude_md_routing_block.py
+  sha256: 1558f0deb3fe3ecaa1606e4d40de76858b53bd5defdc7bc8554c94ea7687be23
+- path: tests/core/test_how_we_work_routing_table.py
+  sha256: dbf96c050ca487bb80b13e28a6c4aa392f333532eeb4f609902730f21164951f
+missing_referenced:
+- ./artifacts/ac-0.7-depth-trace.md
+- ./artifacts/ac-0.9-hits.txt
+- ./artifacts/ac-c3-baseline.txt
+- ./artifacts/ac-c3-compare.md
+- ./artifacts/ac-c4-index.txt
+- ./artifacts/ac-c6-depth-setting.txt
+- ./artifacts/p0-static-report.md
+- ./artifacts/t1-baseline-wider.txt
+- ./artifacts/t3-plugin-mirror.md
+- ./artifacts/t4-wider-compare.md
+- ./artifacts/t5-negative-check.txt
+- ./artifacts/t6-negative-check.txt
+- ./source.md
+- HOW-WE-WORK.md
+- WORKER-CONTRACT.md
+- plugins/superclaude/core/WORKER-CONTRACT.md
+- src/superclaude/core/WORKER-CONTRACT.md
+- tests/skills/test_worker_contract.py

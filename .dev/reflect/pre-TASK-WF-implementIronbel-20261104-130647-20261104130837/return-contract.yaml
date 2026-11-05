@@ -1,0 +1,80 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/audit.log
+confidence_calibrated: 0.72
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.75
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-002, INF-006]
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: 5ba3dd1b87812b97fc608d17f1239f6174666865cc155021598afc760282dc1c
+  spec: d7db85c6855804fa5374aef3de699e4e4f9ef030a03d9d1d49b5fe4d3f17f0b2
+input_tree_sha256: 36b2778c738e70e23aecc45ac970bab4333d620891bf06e5b56e4df29746f635
+input_tree_file_count: 12
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 25
+citations_revalidated: 25
+citations_dropped: 2
+citations_dropped_extrapolated: 2
+citations_inferred: 1
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/reviewer-cards/reviewer-1-card.yaml, /home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/reviewer-cards/reviewer-2-card.yaml, /home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/reviewer-cards/reviewer-3-card.yaml]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/adversarial
+adversarial_convergence_score: 0.92
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_gate_passed: null
+blocking_findings: [R1-F1, R1-F2, R1-F5, M-SCANNER]
+merged_verdict_path: /home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/adversarial/merged-verdict.yaml
+telemetry:
+  degraded_components: []
+  executor_class_source: unknown
+  executor_class_resolved: false
+  reviewer_models: [claude-sonnet-5-5, glm-5.3, claude-opus-5-5]
+  reviewer_personas: [analyzer, qa, refactorer]
+  memory_hits: 0
+  memory_misses: 2
+  type_hierarchy_invoked: false
+  summarize_changes_invoked: false
+  references_extended_info_used: false

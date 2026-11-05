@@ -1,0 +1,4 @@
+codex reviewer: codex hint: medium
+default reviewer: augment
+non-text reviewer: ValueError finding reviewer must be text
+rc=0

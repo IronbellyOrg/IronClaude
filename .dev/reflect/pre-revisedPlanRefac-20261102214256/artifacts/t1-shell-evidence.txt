@@ -1,0 +1,30 @@
+Shell evidence captured by the orchestrator on 2026-11-02 (~21:43Z), worktree /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths
+
+1. Throwaway repo under /tmp (git init -b master; empty commit); T=$(mktemp -d /tmp/wtcheck-target.XXXXXX)
+   git worktree add --detach "$T" master        -> add-into-empty-mkdtemp exit=0
+   git worktree list | wc -l                       -> 2
+   git worktree remove --force "$T"                -> remove exit=0 exists_after=no
+
+2. git rev-parse --is-shallow-repository         -> false
+   id -u                                         -> 1000
+
+3. Replay parents (tests/troubleshoot/backtest/git_replay.py:52-58), git cat-file -e <sha>^{commit}:
+   present 10723863
+   present e97aa4fd
+   present 1b0264f1
+   present d878bc6d
+   present 94d5baa0
+
+4. git grep -n -E 'repos/\{owner\}/\{repo\}|gh repo view( |$)' -- src/superclaude (abridged):
+   src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh:22  [ -n "$REPO" ] || REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null ...
+   src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:35       (same fallback)
+   src/superclaude/skills/sc-pr-submit-protocol/scripts/reply-resolve-thread.sh:57 (same fallback)
+   src/superclaude/skills/sc-pr-submit-protocol/scripts/retrigger-review.sh:50     (same fallback)
+   repos/{owner}/{repo}: no matches in src/superclaude
+
+5. Import probe (~21:49Z): importlib.util.spec_from_file_location('eval_runner_probe', 'scripts/eval_runner.py') + exec_module
+   without sys.modules registration -> unregistered load: FAIL AttributeError 'NoneType' object has no attribute '__dict__'
+   with sys.modules[spec.name] = module -> registered load: OK
+
+6. Throwaway repo under /tmp; T=$(mktemp -d) never registered as a worktree:
+   git worktree remove --force "$T" -> remove-unregistered exit=128 dir_exists=yes

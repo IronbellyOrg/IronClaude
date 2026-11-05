@@ -1,0 +1,5 @@
+card: reviewer-3-card.yaml
+calibrator_model_class: fable
+dimensions: {citation_grounding: 0.92, coverage_completeness: 0.65, deviation_classification_clarity: 0.80, risk_surface_coverage: 0.85, recommendation_actionability: 0.85}
+C: 0.81
+finding_verdicts: {R3-F1: confirmed, R3-F2: confirmed, R3-F3: confirmed, R3-F4: confirmed, R3-F5: confirmed, R3-F6: confirmed, R3-F7: weak, R3-F8: confirmed, R3-F9: confirmed, R3-F10: confirmed, R3-F11: confirmed}

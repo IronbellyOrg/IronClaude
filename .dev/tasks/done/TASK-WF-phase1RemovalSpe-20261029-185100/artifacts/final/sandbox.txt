@@ -1,0 +1,35 @@
+sandbox root: /tmp/p1-sbx.cLLwPW
+== FRESH: superclaude install in an empty HOME ==
+fresh install rc=0
+✅ Plugins: installed frontend-design@claude-plugins-official, playwright@claude-plugins-official, notion@claude-plugins-official, dropbox@claude-plugins-official, google-cloud-storage@claude-plugins-official, understand-anything@understand-anything
+
+📦 Retiring stale MCP registrations...
+   No retired MCP registrations present.
+fresh residual search: EMPTY (pass)
+fresh claude call log: no mcp add (pass)
+fresh claude calls: 8
+== EXISTING: seeded HOME, then ./update.sh ==
+seeded: ["codebase-memory-mcp","serena","tavily"]
+update.sh rc=0
+✅ pytest plugin loaded
+✅ Agents installed
+✅ Skills installed
+✅ Configuration
+✅ ccsession installed (warning: ~/.local/bin not on PATH)
+✅ Retired MCP registrations
+
+✅ SuperClaude is healthy
+keys after: ["tavily"]  (expect ["tavily"])
+project-scope serena kept: true  (expect true)
+settings.json: no mcp__serena (pass)
+existing residual search over ~/.claude: EMPTY (pass)
+settings.json.bak.* backup exists (pass): 1
+existing claude calls: 2 mcp remove; adds: 0
+0
+== PIN: current-pin serena entry is kept ==
+pin install rc=0
+serena entry kept: true  (expect true)
+output contains the Tier K line (pass)
+== ROBUSTNESS: no claude CLI on PATH ==
+no-claude install rc=0, doctor rc=0 (expect 0 and 0)
+== cleanup ==

@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-phase3CodegraphA-20261029-204913
+plan_path: ./TASK-WF-phase3CodegraphA-20261029-204913.md
+source_path: ./source.md
+source_origin: .dev/codegraph-migration/specs/phase-3-codegraph-adoption-spec.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase3CodegraphA-20261029205359/REPORT.md
+unresolved:
+  - "reflect partial: evidence-validator dropped 2 of 107 citations (M-10 task.md:6 line number, M-15 DES:456); findings themselves stand"

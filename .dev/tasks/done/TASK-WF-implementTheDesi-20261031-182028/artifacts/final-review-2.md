@@ -1,0 +1,5 @@
+FINAL review 2 (fresh subagent, prompt artifacts/final-review-prompt-2.md): RESULT issues
+Blocking (quoted-constraint-breach, anchored on the plan constraint ".dev/tasks/ is always staged (git add .dev/tasks), including this package and its artifacts/."):
+D1 154 package files were untracked at the end state (progress.md, artifacts/ except reflect-pre). Fix: git add .dev/tasks (no delivery file content change).
+Noted (all no): D2 reopened T2 complete line records verdict=compliant with AC2 met under amendment A0 while the plan wording is covered by the Ruling; D3 review-1-2.md (T2, T12) and review-1.md (T12) headers lack tree=; D4 moved log pointers (t2r-test.log:116 -> :55, t14-test.log:623 -> :47); D5 refs/loop-guard.md:44 paragraph splits the INV-R1..R3 blockquote; D6 classifier.py:3 module docstring says only Augment identities supply evidence; D7 detection.py:84 override selection checks only Augment identities (pre-existing); D8 some prior-findings slots paraphrased.
+All task AC met at the end state; T2.AC2 is the accepted gap recorded by the Ruling. FINAL 1 D1/D2 sentences are now correct.

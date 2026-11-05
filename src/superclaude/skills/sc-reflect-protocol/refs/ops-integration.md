@@ -115,29 +115,17 @@ Telemetry: `ensemble.t2_vendor_diversity` is recorded in `metrics.json` (string 
 
 The exact message body is implementation-defined but MUST include: the resolved-alias list, the shared vendor prefix, the effective-diversity downgrade, and at least one concrete env-var override hint. The "warn-only in v1" disclaimer is mandatory so operators do not interpret the message as a blocker.
 
-## Serena-adoption operator WARN catalog (V3-Serena medium)
+## Verification operator WARN catalog (FR-RV3-MED.4)
 
-**Source:** spec FR-RV3-MED.4 (verification triangle) and FR-RV3-MED.2 (onboarding). These WARNs follow the `[reflect][WARN] <title>` body format established by the Vendor-heterogeneity WARN above. All are **loud-never-silent** — when a Serena capability is unavailable or a verification command is rejected, the operator is told explicitly; none of these block (the skill fails open and continues).
+**Source:** spec FR-RV3-MED.4 (verification run). These WARNs follow the `[reflect][WARN] <title>` body format established by the Vendor-heterogeneity WARN above. All are **loud-never-silent** — when the Bash verification run is unavailable or a verification command is rejected, the operator is told explicitly; none of these block (the skill fails open and continues).
 
-**`read-only-disabled` (FR-4.7).** Trigger: Wave-0 step 0.5d detected `read_only: true`. Emits `verification_skip_reason: read-only-project`; the verification triangle is disabled and the verdict degrades to LSP-only signals.
-
-```text
-[reflect][WARN] Verification triangle disabled: Serena read_only: true
-  The active Serena project config sets read_only: true.
-  execute_shell_command is blocked, so the §6.1 step 5.5 verification triangle cannot run.
-  Effect: verification_ran: false; verification_skip_reason: read-only-project
-  §10.4 Regression detection degrades to the task-log claim + a Grounding Gap entry.
-  This is warn-only; the skill continues (fail-open §6.5).
-```
-
-**`context-excluded` (FR-4.4).** Trigger: `execute_shell_command` is not in the active-tools list (context-excluded, e.g. `claude-code`/`ide-assistant`). Emits `verification_ran: false` + `verification_skip_reason: tool-unavailable` + a Grounding Gap.
+**`tool-unavailable` (FR-4.4).** Trigger: the Bash tool is not available in the active tool set. Emits `verification_ran: false` + `verification_skip_reason: tool-unavailable` + a Grounding Gap.
 
 ```text
-[reflect][WARN] Verification triangle unavailable: execute_shell_command context-excluded
-  The active Serena context does not expose execute_shell_command.
+[reflect][WARN] Verification run unavailable: Bash not available
+  The active tool set does not expose Bash, so the §6.1 step 5 / 5.5 verification run cannot execute.
   Effect: verification_ran: false; verification_skip_reason: tool-unavailable
   §10.4 Regression detection degrades to the task-log claim + a Grounding Gap entry.
-  To enable: switch to a Serena context that includes execute_shell_command.
   This is warn-only; the skill continues (fail-open §6.5).
 ```
 
@@ -151,33 +139,13 @@ The exact message body is implementation-defined but MUST include: the resolved-
   This is warn-only; the skill continues (fail-open §6.5).
 ```
 
-**`metachar-denied` (FR-4.2b).** Trigger: a verification command contained a shell control character (semicolon, pipe, ampersand, dollar, backtick, redirect `>`/`<`, newline, or parentheses). Emits `verify_blocked: true` + `verify_blocked_reason: "metachar-denied"`; the command is never passed to `execute_shell_command`.
+**`metachar-denied` (FR-4.2b).** Trigger: a verification command contained a shell control character (semicolon, pipe, ampersand, dollar, backtick, redirect `>`/`<`, newline, or parentheses). Emits `verify_blocked: true` + `verify_blocked_reason: "metachar-denied"`; the command is never passed to Bash.
 
 ```text
 [reflect][WARN] Verification command rejected: metachar-denied
   Command: <cmd>
   Reason: contains a shell control character; structural metachar gate (C1) blocks composition.
   Effect: verify_blocked: true; verify_blocked_reason: "metachar-denied"; command NEVER invoked.
-  This is warn-only; the skill continues (fail-open §6.5).
-```
-
-**`onboarding-context-excluded` (FR-2.3).** Trigger: `--onboard` was set but the `onboarding` tool is excluded from the active Serena context. Emits `onboarding_ran: false` + `onboarding_skipped_reason: "context-excluded"`; the operator is told to switch context. **Never a hard STOP.**
-
-```text
-[reflect][WARN] Onboarding bootstrap skipped: context-excluded
-  --onboard was set, but the active Serena context does not expose the onboarding tool.
-  Effect: onboarding_ran: false; onboarding_skipped_reason: "context-excluded"
-  To enable: switch to a Serena context that includes onboarding, then re-run with --onboard.
-  This is warn-only; the skill continues (fail-open §6.5).
-```
-
-**`onboarding-budget-exceeded` (NFR-7).** Trigger: the onboarding bootstrap breached its hard context/turn budget (default = the §15 T1 band, hard-kill at 1.25×). Emits `onboarding_budget_exceeded: true`; the bootstrap is aborted and degrades to `onboarding_succeeded: false` — it NEVER consumes the reflection waves' budget.
-
-```text
-[reflect][WARN] Onboarding bootstrap aborted: context budget exceeded
-  The onboarding bootstrap exceeded its hard turn/context budget (T1 band, 1.25x hard-kill).
-  Effect: onboarding_budget_exceeded: true; onboarding_succeeded: false; bootstrap aborted.
-  The reflection waves' budget was NOT consumed by onboarding.
   This is warn-only; the skill continues (fail-open §6.5).
 ```
 

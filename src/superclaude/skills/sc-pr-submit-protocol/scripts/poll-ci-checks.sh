@@ -4,10 +4,16 @@
 #
 # Purpose : Do a SINGLE poll of a PR's checks and emit exactly ONE JSON line.
 # Usage   : poll-ci-checks.sh --pr <N> [--repo <owner/repo>]
+#           poll-ci-checks.sh --evidence-sha <40hex> [--repo <owner/repo>]
 # Output  : one line of JSON: {"pr":N,"head_sha":"...","source":"ci",
 #           "state":"polling|clean|findings","checks":[...]}
-# Exit    : 0 always on a completed poll (fail-soft); 2 on a usage error or a
-#           missing prerequisite (gh, jq, repo, or `gh pr checks --json` support).
+#           Evidence mode (no --pr needed) reads the commit's check runs and
+#           commit statuses: {"evidence_sha":"<sha>","evidence_checks":N,"source":"ci"}
+#           with N = check runs + statuses, or -1 when either read fails or does
+#           not parse (fail closed: -1 counts as "had checks").
+# Exit    : 0 always on a completed poll (fail-soft); 2 on a usage error (an
+#           invalid --evidence-sha included) or a missing prerequisite (gh, jq,
+#           repo, or `gh pr checks --json` support, which evidence mode skips).
 # Spec    : .dev/specs/pr-submit-ci-monitor.md FR-CI-2 / FR-CI-10 / FR-CI-11.
 #           Authoritative classify is superclaude.pr_submit.ci.classify_checks.
 #
@@ -19,21 +25,41 @@ die() { printf 'poll-ci-checks: %s\n' "$1" >&2; exit "${2:-1}"; }
 
 PR=""
 REPO=""
+EVIDENCE_MODE=0
+EVIDENCE_SHA=""
 while [ $# -gt 0 ]; do
     case "$1" in
         --pr) PR="${2:-}"; shift 2 ;;
         --repo) REPO="${2:-}"; shift 2 ;;
+        --evidence-sha) EVIDENCE_MODE=1; EVIDENCE_SHA="${2:-}"; shift; [ $# -eq 0 ] || shift ;;
         *) die "unknown argument: $1" 2 ;;
     esac
 done
 
-[ -n "$PR" ] || die "missing required --pr <N>" 2
+[ -n "$PR" ] || [ "$EVIDENCE_MODE" -eq 1 ] || die "missing required --pr <N>" 2
 command -v gh >/dev/null 2>&1 || die "gh CLI not found on PATH" 2
 command -v jq >/dev/null 2>&1 || die "jq not found on PATH" 2
 
 REPO="${REPO:-$(git remote get-url origin 2>/dev/null | sed -E 's#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##' || true)}"
 [ -n "$REPO" ] || REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)"
 [ -n "$REPO" ] || die "could not resolve target repo (pass --repo <owner/repo>)" 2
+
+# Evidence mode: how many checks exist on one commit. Validated before the
+# `pr checks` capability probe below, which this read does not need.
+if [ "$EVIDENCE_MODE" -eq 1 ]; then
+    [[ "$EVIDENCE_SHA" =~ ^[0-9a-fA-F]{40}$ ]] \
+        || die "invalid --evidence-sha: '${EVIDENCE_SHA}' (expected 40 hex characters)" 2
+    RUNS="$(gh api "repos/${REPO}/commits/${EVIDENCE_SHA}/check-runs?per_page=1" --jq .total_count 2>/dev/null)" || RUNS=""
+    STATUSES="$(gh api "repos/${REPO}/commits/${EVIDENCE_SHA}/status" --jq .total_count 2>/dev/null)" || STATUSES=""
+    # Fail closed: a failed or unparsable read is -1, which counts as "had checks".
+    EVIDENCE_CHECKS=-1
+    if [[ "$RUNS" =~ ^[0-9]{1,9}$ ]] && [[ "$STATUSES" =~ ^[0-9]{1,9}$ ]]; then
+        EVIDENCE_CHECKS=$(( 10#$RUNS + 10#$STATUSES ))
+    fi
+    jq -nc --arg sha "$EVIDENCE_SHA" --argjson n "$EVIDENCE_CHECKS" \
+        '{evidence_sha:$sha, evidence_checks:$n, source:"ci"}'
+    exit 0
+fi
 # Probe the installed CLI, not a guessed version: without `pr checks --json` every
 # query below fails and the fail-soft path would report `polling` until timeout.
 CHECKS_HELP="$(gh pr checks --repo "$REPO" --help 2>/dev/null || true)"

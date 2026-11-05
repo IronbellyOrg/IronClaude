@@ -1,0 +1,18 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+coverage_undefined: false
+structural_signals:
+  S_scope: 5            # UC-1 tasklist item count (Tasks 1-5)
+  S_domains: 3          # code (ccsession, proxy), tests (test_ccsession_tiers.py), docs (CHANGELOG.md)
+  S_dev_density: 0.2955 # 13 unmatched / 44 union rows (matcher result; T1 card reads 12 of them as covered by Constraints)
+composite_score: 6
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 1
+  blast_radius: 1
+  spec_density: 2
+  ambiguity_signals: 1
+escalation_reason: "coverage_degraded=parsed-sparse is a table-wide pre-filter forbidding a Tier-1 stop; first matching ESCALATE row is rule 4 (S_domains=3); rule 5 (S_dev_density 0.2955 > 0.20) also matches"
+note: "confidence C not required for the decision (pre-filter and rule 4 fire regardless); recorded after Wave 1D calibration"

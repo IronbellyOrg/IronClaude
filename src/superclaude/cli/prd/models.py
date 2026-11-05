@@ -200,7 +200,7 @@ class PrdConfig(PipelineConfig):
     max_turns: int = 300
     stall_timeout: int = 120
     stall_action: str = "warn"
-    max_research_fix_cycles: int = 3
+    max_research_fix_cycles: int = 2
     max_synthesis_fix_cycles: int = 2
     research_partition_threshold: int = 6
     synthesis_partition_threshold: int = 4

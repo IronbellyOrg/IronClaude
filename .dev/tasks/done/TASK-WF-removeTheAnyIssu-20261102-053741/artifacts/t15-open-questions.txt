@@ -1,0 +1,15 @@
+Task 15 acceptance: `git grep -n -i 'Open Question' -- src/superclaude/skills/task-builder/SKILL.md` after the skills-b rows,
+each remaining hit with the reason it is not a rule that proceeds with open review findings as Open Questions.
+
+1115-1116  builder output block: research questions that could not be resolved; not review findings.
+1267       NEED_USER_INPUT flow: unresolvable user-intent ambiguity before the task file exists; not review findings.
+1389       structural QA check item "Open Questions and remaining gaps documented"; a check, not an at-cap rule.
+1395, 2304 TB-Add-3 clarification adjacency check (blocked items cite their Open Question); not an at-cap rule.
+1683       pre-execution reflect: stamps `verdict: fail` and records unmapped requirements; the run is marked failed, nothing passes.
+1739, 1746-1747  summary display of the pre-reflect verdict and of the task file's Open Questions.
+2069       field glossary: OPEN QUESTIONS = unresolvable ambiguities from research/gate.
+2225, 2231, 2238, 2239  post-execution reflect gate: still logs deviations to Open Questions. Not a cap-edits row; it is
+           pre-review-3 finding B3-04, fixed by Task 19 (sweep-edits rows S-114..S-118, group reflect-gate).
+2294       final checklist item "Open questions and remaining gaps documented"; a check, not an at-cap rule.
+2343       rule "Report all uncertainty ... document it in Open Questions"; about ambiguity, not review findings.
+2410, 2414 task-size scoring rules that exclude or count Open Question tokens; not an at-cap rule.

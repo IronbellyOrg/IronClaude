@@ -8,7 +8,7 @@ argument-hint: "<version> — an existing release tag (e.g. v1.4.1). Optional: -
 <!-- Extended metadata (for documentation, not parsed):
 category: documentation
 complexity: high
-mcp-servers: [serena]
+mcp-servers: []
 personas: [scribe, devops, qa, analyzer]
 -->
 
@@ -88,7 +88,7 @@ Three design choices make this reliable rather than theatrical:
 
 **Entry criteria:** the raw `<version>` argument has been validated in Wave 0.
 
-**Anchor the scan to the tagged commit.** Once the tag is resolved, read the release's code surface **at that tag** — e.g. `git show <tag>:<path>`, `git ls-tree <tag>`, or a `git worktree add` / `git archive` checkout of the tag — rather than the current working tree. Confirm the tag actually belongs to the release lineage (`git merge-base --is-ancestor <tag> <default-branch>`); if it is **not** an ancestor of the mainline, or the tree's version metadata disagrees with the tag, treat that as a release-integrity finding and report it before proceeding. **Auto-detect the default branch** (e.g. `git symbolic-ref refs/remotes/origin/HEAD`) — do not assume `main`/`master`.
+**Anchor the scan to the tagged commit.** Once the tag is resolved, read the release's code surface **at that tag** — e.g. `git show <tag>:<path>`, `git ls-tree <tag>`, or a `git worktree add` / `git archive` checkout of the tag — rather than the current working tree. Such a checkout is made in a temporary directory and removed with `git worktree remove` after the scan. Confirm the tag actually belongs to the release lineage (`git merge-base --is-ancestor <tag> <default-branch>`); if it is **not** an ancestor of the mainline, or the tree's version metadata disagrees with the tag, treat that as a release-integrity finding and report it before proceeding. **Auto-detect the default branch** (e.g. `git symbolic-ref refs/remotes/origin/HEAD`) — do not assume `main`/`master`.
 
 ### Two run modes (auto-detect — do not ask)
 
@@ -241,7 +241,7 @@ This protocol emits two HTML-comment header blocks (style follows `sc-auggie-rev
 **Field sources.**
 
 - `caller` — the slash command that invoked this skill: `/sc:post-release` if invoked directly; the parent skill name if invoked from another skill; `none` if invoked interactively without a slash command.
-- `mcps_available` — the pipe-joined subset of `{auggie, serena, context7, tavily}` whose tools are present in the runtime tool list this session; `none` if empty. Presence in the tool list is the only signal — do NOT probe network endpoints, and note the tool list may be a superset of the frontmatter `mcp-servers`.
+- `mcps_available` — the pipe-joined subset of `{auggie, context7, tavily}` whose tools are present in the runtime tool list this session; `none` if empty. Presence in the tool list is the only signal — do NOT probe network endpoints, and note the tool list may be a superset of the frontmatter `mcp-servers`.
 - `duration_sec` — integer wall-clock seconds between the moment the RUN header is emitted and the moment the RESULT header is emitted. It appears ONLY in a RESULT header (it is meaningless without one). If the run aborts before emitting RESULT, do NOT synthesize a RESULT block just to carry `duration_sec`; instead append a final `{wave: exit, status: aborted, reason, elapsed_sec}` line to `audit.log` (see "audit.log lifecycle" → Aborted runs) and surface the abort reason in chat — the RESULT block (and therefore `duration_sec`) is emitted only on runs that reach RESULT.
 
 **RUN block — the RUN header is the FIRST chat message whose body is an HTML-comment `SC:POST-RELEASE:RUN` block, emitted immediately after Wave 2 completes (the install-surface class is chosen and the consolidated input set is locked). Waves 0–2 may emit progress messages before it. It is also the first `<output-dir>/audit.log` line (see the audit.log lifecycle below):
@@ -256,7 +256,7 @@ output_dir: {{abs-output-dir}}
 report_path: pending
 manifest_path: pending
 caller: {{caller|none}}
-mcps_available: {{auggie|serena|context7|tavily|none}}
+mcps_available: {{auggie|context7|tavily|none}}
 -->
 ```
 

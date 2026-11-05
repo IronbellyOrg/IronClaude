@@ -1,0 +1,5 @@
+$ git add .dev/tasks
+$ git diff --cached --name-only | grep "^\.claude/"
+rc=1
+$ git diff --cached --name-only -- .dev/tasks | wc -l
+52

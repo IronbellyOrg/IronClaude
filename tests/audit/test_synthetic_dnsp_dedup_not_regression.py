@@ -41,8 +41,6 @@ Asserted invariants:
 6. The SKILL.md §A.9 INV-012 composition rule still encodes the
    "contributes 1 (not 2)" wording and the "Regression non-emission
    invariant" clause for synthetic-dnsp persistence.
-7. The generated log shape matches the canonical D-0059 synthetic
-   fixture at the load-bearing transition + cycle-3 spawn lines.
 
 Acceptance reference (phase-5-tasklist.md L676-679):
 - ``uv run pytest tests/audit/test_synthetic_dnsp_dedup_not_regression.py -v`` exits 0.
@@ -56,7 +54,6 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Optional
 
 import pytest
 
@@ -78,27 +75,6 @@ from _halt_emitter import (  # noqa: E402
 
 SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
 
-CANONICAL_LOG_SHRINKING = (
-    REPO_ROOT
-    / ".dev"
-    / "releases"
-    / "complete"
-    / "task-builder-merge"
-    / "artifacts"
-    / "D-0059"
-    / "fixture-cross-cycle-dedup-shrinking.log"
-)
-
-CANONICAL_LOG_NON_SHRINKING = (
-    REPO_ROOT
-    / ".dev"
-    / "releases"
-    / "complete"
-    / "task-builder-merge"
-    / "artifacts"
-    / "D-0059"
-    / "fixture-cross-cycle-dedup-non-shrink.log"
-)
 
 # Synthetic-dnsp dedup_key per the canonical D-0059 fixture. The
 # helper's Set[str] semantics collapse identical entries — so
@@ -207,16 +183,6 @@ def non_shrinking_log() -> HaltLog:
 @pytest.fixture(scope="module")
 def skill_text() -> str:
     return SKILL_SRC.read_text(encoding="utf-8")
-
-
-@pytest.fixture(scope="module")
-def canonical_shrinking_text() -> str:
-    return CANONICAL_LOG_SHRINKING.read_text(encoding="utf-8")
-
-
-@pytest.fixture(scope="module")
-def canonical_non_shrinking_text() -> str:
-    return CANONICAL_LOG_NON_SHRINKING.read_text(encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
@@ -435,113 +401,4 @@ class TestNonShrinkingCounterfactualHalts:
     def test_counterfactual_cycle_3_never_started(self, non_shrinking_log: HaltLog):
         assert 3 not in non_shrinking_log.cycles_started, (
             "counterfactual non-shrinking dedup fixture unexpectedly attempted cycle 3"
-        )
-
-
-# ---------------------------------------------------------------------------
-# AC5 — Canonical D-0059 synthetic fixture log parity.
-# ---------------------------------------------------------------------------
-
-
-class TestCanonicalFixtureParity:
-    """The TEST-022 runtime emission and the D-0059 canonical
-    synthetic logs agree on the load-bearing lines (no HALT in the
-    shrinking case; byte-exact monotonicity HALT in the non-shrink
-    case; cycle 3 attempted in the shrinking case)."""
-
-    def test_canonical_shrinking_log_present(self):
-        assert CANONICAL_LOG_SHRINKING.is_file(), (
-            f"D-0059 shrinking fixture missing at {CANONICAL_LOG_SHRINKING} "
-            "— T05.07 evidence pack regressed"
-        )
-
-    def test_canonical_non_shrinking_log_present(self):
-        assert CANONICAL_LOG_NON_SHRINKING.is_file(), (
-            f"D-0059 non-shrinking fixture missing at {CANONICAL_LOG_NON_SHRINKING}"
-        )
-
-    def test_canonical_shrinking_log_has_no_halt(self, canonical_shrinking_text: str):
-        halt_lines = [
-            ln for ln in canonical_shrinking_text.splitlines() if ln.startswith("HALT ")
-        ]
-        assert halt_lines == [], (
-            f"D-0059 shrinking fixture HALT line(s) {halt_lines!r} — "
-            "INV-012 regressed in the evidence pack"
-        )
-
-    def test_canonical_shrinking_log_has_cycle_3(self, canonical_shrinking_text: str):
-        assert "CYCLE 3 START" in canonical_shrinking_text, (
-            "D-0059 shrinking fixture missing 'CYCLE 3 START' — INV-012 "
-            "primary behavior (proceeds to cycle 3) regressed in the "
-            "evidence pack"
-        )
-
-    EXPECTED_NON_SHRINK_HALT_LINE = "HALT [HALT-MONOTONICITY] |F|=2"
-
-    def test_canonical_non_shrinking_halt_byte_exact(
-        self, canonical_non_shrinking_text: str
-    ):
-        halts = [
-            ln
-            for ln in canonical_non_shrinking_text.splitlines()
-            if ln.startswith("HALT ")
-        ]
-        assert halts == [self.EXPECTED_NON_SHRINK_HALT_LINE], (
-            f"D-0059 non-shrinking fixture HALT line(s) {halts!r} differ "
-            f"from byte-exact {self.EXPECTED_NON_SHRINK_HALT_LINE!r}"
-        )
-
-    def test_canonical_non_shrinking_log_no_regression_halt(
-        self, canonical_non_shrinking_text: str
-    ):
-        # Even in the non-shrinking case, the regression halt MUST
-        # NOT fire — only the monotonicity halt is intended per
-        # INV-012's "persistence trips monotonicity (intended)" rule.
-        assert "HALT Regression" not in canonical_non_shrinking_text, (
-            "D-0059 non-shrinking fixture unexpectedly contains a "
-            "regression halt — INV-012 regression non-emission invariant "
-            "violated in the evidence pack"
-        )
-
-    def test_canonical_non_shrinking_log_no_cycle_3(
-        self, canonical_non_shrinking_text: str
-    ):
-        assert "CYCLE 3 START" not in canonical_non_shrinking_text, (
-            "D-0059 non-shrinking fixture unexpectedly references "
-            "'CYCLE 3 START' — monotonicity halt should have stopped the loop"
-        )
-
-    def test_runtime_and_canonical_non_shrink_halt_match(
-        self, non_shrinking_log: HaltLog, canonical_non_shrinking_text: str
-    ):
-        canon_halts = [
-            ln[len("HALT ") :]
-            for ln in canonical_non_shrinking_text.splitlines()
-            if ln.startswith("HALT ")
-        ]
-        assert canon_halts == [non_shrinking_log.halt_message], (
-            f"runtime non-shrink halt {non_shrinking_log.halt_message!r} "
-            f"disagrees with D-0059 canonical halt(s) {canon_halts!r}"
-        )
-
-    def test_canonical_shrinking_log_monotonicity_proceeds(
-        self, canonical_shrinking_text: str
-    ):
-        # The canonical D-0059 fixture uses the "TRANSITION 1->2"
-        # labeling (older convention) while the helper uses
-        # "TRANSITION 2->3" — both record the same comparison
-        # between cycle 1 and cycle 2 with monotonicity verdict
-        # PROCEED. Match the canonical labeling here.
-        lines = canonical_shrinking_text.splitlines()
-        mon_idx: Optional[int] = None
-        for idx, ln in enumerate(lines):
-            if ln.startswith("TRANSITION 1->2 step=monotonicity"):
-                mon_idx = idx
-                assert "PROCEED" in ln, (
-                    f"D-0059 shrinking monotonicity step at line {idx} did "
-                    f"not record PROCEED: {ln!r}"
-                )
-                break
-        assert mon_idx is not None, (
-            "D-0059 shrinking fixture missing 'TRANSITION 1->2 step=monotonicity' line"
         )

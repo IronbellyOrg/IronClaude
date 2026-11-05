@@ -1,0 +1,23 @@
+# Blind calibration of reviewer-1-card (confidence-calibrator on claude-opus-5-5; calibrator_diversity: degraded)
+card: reviewer-1-card.md
+dimension_scores:
+  citation_grounding: 0.85
+  coverage_completeness: 0.80
+  deviation_classification_clarity: 0.60
+  risk_surface_coverage: 0.75
+  recommendation_actionability: 0.80
+calibrated_confidence: 0.76
+self_reported_confidence: 0.78
+spot_checks: {read: 20, matched: 18}
+mismatches:
+  R1-6: "describes the plan wrongly: Task 8 (plan line 116) names no module ('search tests/ for count_model_aliases'); withdraw or reduce to a note"
+  R1-2: "'also lines 228' loose: line 228 is the command and pins no model; line 235 pins claude-opus-4-8, line 243 cites commands.py:31,359"
+self_contradictions:
+  - "verdict says no defect that would make a task fail, but R1-9 shows Task 7's own acceptance check (plan line 107) would fail"
+  - "coverage audit says none found, but R1-2 is a gap against spec item (4)"
+severity_challenges:   # calibrator argues these should be blocking
+  R1-2: "spec item (4) unmet: D12 manual test line 235 still expects --model claude-opus-4-8 after Task 2"
+  R1-9: "Task 7 acceptance (plan line 107) fails because tiers.md:40 still says glm-5.3 here; developer-guide:411 recommends picker IDs, contradicting the new note"
+  R1-1: "Task 5 activates the primary ladder (retry.md:162; defaults.sh:37,48,67,69); a claude-sonnet-5-5 executor is on no primary rung so its tier becomes unknown (retry.md:164) and adviser A jumps to the top rung; unrecorded runtime change"
+  R1-10: "possible: spec item (1) full-id scan limited to cli/**/*.py (plan line 34)"
+notes: "reflect rubric used; troubleshoot cross-tab not applied; structural assertions skipped (no assertions_path)"

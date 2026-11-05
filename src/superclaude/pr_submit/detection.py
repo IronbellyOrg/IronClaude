@@ -40,6 +40,17 @@ _CONTRACT_PATH = (
 _LOCAL_OVERRIDE_REL = Path(".dev/pr-monitor/detection-contract.locked.md")
 _LOCAL_OVERRIDE_PATH: Path | None = None
 
+# Shipped Codex (ChatGPT Codex Connector) identity and re-trigger phrase. A YAML
+# contract that OMITS a Codex key falls back to these values (an override written
+# by contract setup has no Codex keys and must not switch Codex off); an explicit
+# empty or null value blanks that one identity. Codex is disabled only when both
+# Codex identities are blank; it stays on while either remains. Direct
+# ``DetectionContract()`` construction
+# keeps both identities empty (fail-safe, like Augment).
+_SHIPPED_CODEX_BOT_LOGIN = "chatgpt-codex-connector[bot]"
+_SHIPPED_CODEX_APP_SLUG = "chatgpt-codex-connector"
+_DEFAULT_CODEX_RETRIGGER_PHRASE = "@codex review"
+
 
 def _local_override_path() -> Path:
     """Return the operator-local locked-contract path (indirection for testability).
@@ -124,14 +135,44 @@ class DetectionContract:
             "augmentcode review",
         ]
     )
+    # --- Codex (ChatGPT Codex Connector) reviewer identity ---
+    # REST shape ``chatgpt-codex-connector[bot]``, GraphQL shape
+    # ``chatgpt-codex-connector``. Empty here (fail-safe); the shipped ref and
+    # from_yaml supply the real values. An empty identity set disables Codex.
+    codex_bot_login: str | None = None
+    codex_app_slug: str | None = None
+    codex_retrigger_phrase: str = _DEFAULT_CODEX_RETRIGGER_PHRASE
 
     @classmethod
     def from_yaml(cls, data: dict) -> "DetectionContract":
-        """Build a contract from YAML, trimming identity padding (no lock enforcement)."""
+        """Build a contract from YAML, trimming identity padding (no lock enforcement).
+
+        Codex keys use key-presence semantics: an absent key falls back to the
+        shipped Codex value; a present empty or null value blanks that identity.
+        Codex is disabled only when both Codex identities are blank; it stays on
+        while either remains.
+        """
         data = data.copy()
-        for key in ("augment_bot_login", "augment_app_slug"):
+        for key, shipped in (
+            ("codex_bot_login", _SHIPPED_CODEX_BOT_LOGIN),
+            ("codex_app_slug", _SHIPPED_CODEX_APP_SLUG),
+        ):
+            if key not in data:
+                data[key] = shipped
+        for key in (
+            "augment_bot_login",
+            "augment_app_slug",
+            "codex_bot_login",
+            "codex_app_slug",
+        ):
             if isinstance(data.get(key), str):
                 data[key] = data[key].strip()
+        for key in ("codex_bot_login", "codex_app_slug"):
+            if not data.get(key):
+                data[key] = None
+        phrase = data.get("codex_retrigger_phrase")
+        if not isinstance(phrase, str) or not phrase.strip():
+            phrase = _DEFAULT_CODEX_RETRIGGER_PHRASE
         return cls(
             augment_bot_login=data.get("augment_bot_login"),
             augment_author_association=_as_str_list(
@@ -155,6 +196,9 @@ class DetectionContract:
                 data.get("accepted_trigger_phrases"),
                 ["auggie review", "augment review", "augmentcode review"],
             ),
+            codex_bot_login=data["codex_bot_login"],
+            codex_app_slug=data["codex_app_slug"],
+            codex_retrigger_phrase=phrase.strip(),
         )
 
     @classmethod

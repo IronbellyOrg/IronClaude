@@ -1,0 +1,72 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t3-claude-md-grep.txt b/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t3-claude-md-grep.txt
+new file mode 100644
+index 00000000..340bcc20
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t3-claude-md-grep.txt
+@@ -0,0 +1,7 @@
++$ git grep -n -E '\.dev/worktrees|git worktree add' -- CLAUDE.md
++CLAUDE.md:304:- Never create a project worktree with raw `git worktree add`, under the retired `.dev/worktrees/` location, or under `.claude/worktrees/`.
++CLAUDE.md:307:- **Exception — internal temporary checkouts:** a CLI, script or test that creates and removes its own checkout keeps using `git worktree add` directly and must work without Orca. The five cases are: the reflect `--isolate-reviewers` review snapshot; the troubleshoot backtest replay; test fixtures in a pytest temporary directory; `scripts/eval_runner.py`'s temporary master checkout; and the optional read-only release-tag checkout in `/sc:post-release`, removed after the scan.
++CLAUDE.md:308:- **Existing checkouts under the retired `.dev/worktrees/` location** may stay until their branch is merged, then are removed with `git worktree remove <path>`; no new checkout may be created there.
++rc=0
++$ grep -n '/home/coder' CLAUDE.md
++rc=1
+diff --git a/CLAUDE.md b/CLAUDE.md
+index df59f6db..098a6716 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -294,20 +294,25 @@ def test_with_budget(token_budget):
+ 
+ ### Parallel Development with Git Worktrees
+ 
+-**CRITICAL**: When running multiple Claude Code sessions in parallel, use `git worktree` to avoid conflicts.
++**CRITICAL**: When running multiple Claude Code sessions in parallel, give each session its own worktree to avoid conflicts.
+ 
+-**ABSOLUTE RULE — worktree location is `./.dev/worktrees/`, NEVER `.claude/worktrees/`.**
+-Every worktree this project creates MUST live under `<repo>/.dev/worktrees/<name>/`. Do **not** use the
+-`EnterWorktree` tool (it hardcodes `.claude/worktrees/`, which is gitignored sync-dev territory) — instead
+-create worktrees explicitly with `git worktree add .dev/worktrees/<name> <branch>`. Add `.dev/worktrees/`
+-to `.gitignore` if it is not already ignored, so nested worktree checkouts never get staged.
++**ABSOLUTE RULE — every project worktree is created through Orca and lives at Orca's default worktree location.**
++Create it with `orca worktree create --name <name>`, adding `--repo <selector>`, `--base-branch <ref>`, and
++`--parent-worktree <selector>` or `--no-parent` as needed. Orca places it at its default worktree location,
++outside the main checkout; `orca worktree current --json` (from inside it) and `orca worktree list` show the real path.
++
++- Never create a project worktree with raw `git worktree add`, under the retired `.dev/worktrees/` location, or under `.claude/worktrees/`.
++- Do **not** use the `EnterWorktree` tool: it hardcodes `.claude/worktrees/`, which is gitignored sync-dev territory.
++- Never pass Orca link flags (`--issue`, `--pr`) for this repo; the fork rule above (`## ABSOLUTE RULE: PR Target = Fork`) governs them.
++- **Exception — internal temporary checkouts:** a CLI, script or test that creates and removes its own checkout keeps using `git worktree add` directly and must work without Orca. The five cases are: the reflect `--isolate-reviewers` review snapshot; the troubleshoot backtest replay; test fixtures in a pytest temporary directory; `scripts/eval_runner.py`'s temporary master checkout; and the optional read-only release-tag checkout in `/sc:post-release`, removed after the scan.
++- **Existing checkouts under the retired `.dev/worktrees/` location** may stay until their branch is merged, then are removed with `git worktree remove <path>`; no new checkout may be created there.
+ 
+ ```bash
+-# Create a worktree for a feature branch (canonical location)
+-git worktree add .dev/worktrees/pm-agent -b feature/pm-agent origin/master
++# Create a worktree named pm-agent, based on origin/master
++orca worktree create --name pm-agent --base-branch origin/master
+ 
+-# Create a worktree for an existing branch
+-git worktree add .dev/worktrees/integration integration
++# Show where Orca put it
++orca worktree list
+ ```
+ 
+ **Benefits**:
+@@ -319,14 +324,14 @@ git worktree add .dev/worktrees/integration integration
+ 
+ **Usage**:
+ 
+-- Session A: Open `<repo>/` (current branch)
+-- Session B: Open `<repo>/.dev/worktrees/integration/` (integration)
+-- Session C: Open `<repo>/.dev/worktrees/pm-agent/` (feature branch)
++- Session A: Open the main checkout (current branch)
++- Session B: Open the Orca-created worktree `integration` (path from `orca worktree list`)
++- Session C: Open the Orca-created worktree `pm-agent` (feature branch)
+ 
+ **Cleanup**:
+ 
+ ```bash
+-git worktree remove .dev/worktrees/integration
++orca worktree rm --worktree name:integration
+ ```
+ 
+ ## 📝 Key Documentation Files

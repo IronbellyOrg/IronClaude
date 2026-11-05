@@ -1,0 +1,172 @@
+# Wave 4 adversarial merge of reviewer-1/2/3 cards (base: reviewer-1).
+# "plan" = .dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/TASK-WF-writeTheP0LivePl-20261103-215902.md
+# Every fix must land in the plan BEFORE /sc:implement writes its first `T<id>: start` line
+# (~/.claude/skills/sc-implement-protocol/refs/managed-workspace.md:43, E-PLAN-CHANGED).
+merge_method: adversarial
+convergence_score: 0.76
+verdict: FAIL
+blocking_count: 2
+findings:
+  - id: D-001
+    title: Executor's post-archive `git add .dev/tasks` stages the superseded package
+    severity: blocking
+    sources: [F-001, R1-01]
+    claim: The managed executor must re-run `git add .dev/tasks` after the archive move, which stages the untracked TASK-WF-orcaWorkerContra-20261102-231950 package after FINAL and after Task 5's unstage, breaching plan:24 at the end state with no reviewer left to see it.
+    evidence: "~/.claude/skills/sc-implement-protocol/refs/managed-workspace.md:36"
+    fix: "Add a Constraints bullet: every `git add .dev/tasks` in this run, including the executor's re-add after `archived`, is immediately followed by `git restore --staged -- .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950`; this one-path exception overrides 'never leave it untracked'. Retitle staged.txt as the pre-archive snapshot, and have p0-phase-report.md end with the post-archive check the person runs: `git diff --cached --name-only` must list nothing under that package."
+  - id: D-002
+    title: Task 1 AC allows "four untracked folders"; five exist and no saved status backs it
+    severity: blocking
+    sources: [F-009, R1-10, R2-01, R3-05, F-010]
+    claim: Five untracked paths exist outside the package (two .dev/brainstorms folders, .dev/review-loop-convergence/, the superseded package, and this reflect folder, which postdates the plan); plan:21 forbids writes outside the package, so no fix pass can make the AC true and Task 1, on which every later task depends, goes to the retry ladder.
+    evidence: "plan:52"
+    fix: "Task 1 first saves `git status --porcelain` to ./artifacts/status-baseline.txt, before any other write. Replace the AC with: '`git status --porcelain`, saved to ./artifacts/status-end-t1.txt, lists no path that is not in status-baseline.txt or under this package, and no tracked file is modified.' Add .dev/reflect/ to the leave-untouched list at plan:24."
+  - id: D-003
+    title: Step 7 drops `--run`; the run Task 1 creates is never used
+    severity: should-fix
+    sources: [F-004, R1-04, R3-04]
+    claim: "Spec step 7 scopes the reclaimable list to the run; plan step 7 lists up to 100 rows from every run on the machine, so another session's reclaimable worker gives a false AC-0.4 FAIL that reopens spec section 1 (a Drift from spec:293)."
+    evidence: "plan:38"
+    fix: "Add to the Constraints facts 'run id = the run id field in ./artifacts/live-run.json' and use `orca orchestration worker-list --run <run_id> --terminal-state reclaimable --json` in Step 7. Pass `--run <run_id>` to task-create, worker-start and check only where the pre-run help check (D-009) shows the flag."
+  - id: D-004
+    title: No exit for a parked, stalled or failed-to-start worker
+    severity: should-fix
+    sources: [F-003, R1-03, R3-08]
+    claim: Step 3 waits until worker_done with no bound; a worker parked on a human prompt or blocked on an unanswered decision question never sends it, and a failed worker-start still owns a terminal, so the executor hangs or improvises.
+    evidence: "plan:33"
+    fix: "Add failure branches. Failed start: worker-release from its receipt (orca-capabilities.md:112), mark steps 2-6 not run, then Step 7 and Remove. Non-null agentWait or a decision question: record step 2 or 3 FAIL with that sample or message, keep waiting up to a stated cap (for example 3 consecutive empty 240 s turns), then read the transcript; stop only on Orca's positive stall proof (final agent turn with no worker_done, or exited liveness) or on the person's explicit go-ahead, because orca-capabilities.md:114, :125 and :129 forbid stopping a waiting worker on absence alone. After a stop: task-update --status failed --result cancelled, record steps 4-6, then Step 7 and Remove."
+  - id: D-005
+    title: Managed FINAL may read intended failures as `issues`
+    severity: should-fix
+    sources: [F-002, R1-02]
+    claim: qa.md:310 makes a cited log showing a failure at its outcome line an `issues` trigger; Task 1's AC must cite symptom-check.txt (3 failed by design) and a legitimate live-check FAIL puts FAIL on the phase report's verdict line, so a correct run can end in E-ARCHIVE-BLOCKED. Apply with the blocking fixes (invariant INV-007).
+    evidence: "~/.claude/skills/sc-implement-protocol/refs/qa.md:310"
+    fix: "Add a Constraints bullet naming each log's expected outcome: symptom-check.txt passes when it shows exactly the three named failures; an lc<N>-* step file or a P0 FAIL verdict is a recorded result, not a task failure; only lc<N>-result.md, ac-0.5.md, ac-0.6.md and p0-phase-report.md carry verdicts. Have each lc<N>-result.md end with 'Recording status: complete (verdict recorded, not a task failure)' and tell the executor to cite that line on evidence=."
+  - id: D-006
+    title: End-state ACs name live state with no saved evidence file
+    severity: should-fix
+    sources: [F-010, R2-02, R3-06]
+    claim: "'orca worktree list --json no longer lists ...', 'the feature worktree's HEAD is unchanged' (Tasks 2-4) and 'git rev-parse HEAD still prints ...' (Task 5) are not observable from the diff, so each task takes a cannot-verify fix pass and FINAL needs files."
+    evidence: "plan:80"
+    fix: "In Remove, save `orca worktree list --json` to ./artifacts/lc<N>-worktree-list-after.json and the feature worktree's `git rev-parse HEAD` to ./artifacts/lc<N>-head-after.txt; Task 5 saves HEAD to ./artifacts/head-final.txt. Each AC cites its file (same at plan:106, :131, :145)."
+  - id: D-007
+    title: Retry ladder A3-A5 would re-run a one-shot live check and moves its evidence
+    severity: should-fix
+    sources: [R1-09, R3-09]
+    claim: A3-A5 restart the task from the Q0 snapshot against the original AC and move the failed attempt's cited artifacts to retries/T<id>/artifacts-<k>/, so a retry of Tasks 2-4 can start a second worktree and worker, which plan:25 forbids, and collide with the kept p0-live-<name> branch.
+    evidence: "~/.claude/skills/sc-implement-protocol/refs/retry.md:11"
+    fix: "Add a Constraint: a fix pass, repair or retry attempt on Tasks 2-4 only rebuilds ./artifacts from saved receipts, saved files under ./artifacts/ (including retries/T<id>/artifacts-<k>/) and worker-read output, which survives release; it never creates a worktree, Task or worker. If the evidence is gone, the step is recorded FAIL with that reason."
+  - id: D-008
+    title: No resume rule; re-entering a live task can start a second worker
+    severity: should-fix
+    sources: [F-008, R1-08]
+    claim: E-RESUME-NEEDED says re-run the same command; a resumed Task 2-4 restarts at Worktree and collides with the kept branch or starts a second worker.
+    evidence: "plan:25"
+    fix: "Add a Resume bullet: before Worktree, check `orca worktree list --json` and `orca orchestration worker-list --run <run_id> --json` as well as ./artifacts/lc<N>-*; if a p0-live-<name> worktree or a worker for this check exists, reuse it and continue from the first step without evidence; never create a second worktree or worker for a check."
+  - id: D-009
+    title: Orca flags and receipt fields used without any check; in-run correction is impossible
+    severity: should-fix
+    sources: [F-005, R1-05, R3-03]
+    claim: "The capability record lacks check --ack, worker-read --cursor, run-create --objective, worktree list, worktree create --no-parent and the coordinator_handle field, and records removal as `--worktree id:<repoId>::<worktreePath>`; a wrong flag gives a false AC-0.4 FAIL. Fixing the plan 'before Task 2' (F-005, R1-05) is impossible because Task 1's start line pins the plan."
+    evidence: ".dev/orca-command-refactor/inventory/orca-capabilities.md:115"
+    fix: "Before starting /sc:implement, run `orca <verb> --help` for every verb the procedure uses and correct the plan text and the live-run.json AC field name. In the plan, Task 1 saves the same help output to ./artifacts/orca-help.txt as evidence, and a Constraint says: an Orca usage error on a planned flag is recorded as that step's FAIL with the help text saved; the command is never corrected at run time."
+  - id: D-010
+    title: Branch-remaining check probably uses the wrong name
+    severity: should-fix
+    sources: [F-006, R1-06]
+    claim: Orca named this worktree's branch ironbelly/OrcaCLICommandRefactor-Specs for worktree name OrcaCLICommandRefactor-Specs, so `git branch --list p0-live-<name>*` may miss a prefixed branch and Task 5 would report none remaining (inferred).
+    evidence: "plan:39"
+    fix: "Save `git -C <path> branch --show-current` to ./artifacts/lc<N>-branch.txt before Remove; after Remove check `git branch --list \"<that exact name>\"`."
+  - id: D-011
+    title: The workflow worker stages .dev/tasks in its worktree and nothing records it
+    severity: should-fix
+    sources: [F-007, R1-07]
+    claim: At P0 /sc:workflow runs `git add .dev/tasks` in the disposable worktree, against WORKER-CONTRACT's no-git-add rule; Step 6 compares paths only, and plan:22 overclaims the only git-state changes.
+    evidence: "plan:22"
+    fix: "Add `git -C <path> diff --cached --name-only` to Step 6 as ./artifacts/lc<N>-index-after.txt; record any staging in lc2-step6.md and the phase report as a known P0 WC-9 gap that P1 closes; reword plan:22 to 'the executor's own git-state changes'."
+  - id: D-012
+    title: The 240 s blocking wait exceeds the default Bash tool timeout
+    severity: should-fix
+    sources: [F-013, R2-03]
+    claim: check --wait --timeout-ms 240000 outlives the 120 s default Bash timeout; under the no-retry rule a killed wait can be logged as a failed check, a false result.
+    evidence: "plan:32"
+    fix: "Add: run every wait with a Bash tool timeout of at least 300000 ms; a tool timeout is an executor mishap that is re-issued, not a check failure."
+  - id: D-013
+    title: Task 3's plan-file copy is only in the AC, not in the evidence-copy instruction
+    severity: should-fix
+    sources: [R3-07]
+    claim: The evidence copy covers the report file plus files the task names, Task 3's body names only return-contract.yaml, and Remove deletes the worktree with --force, so a missed plan file is gone and the AC cannot be met without a forbidden re-run.
+    evidence: "plan:37"
+    fix: "In Task 3's body add: 'Evidence copy also copies the new package's <id>.md plan file into ./artifacts/lc2-report/.'"
+  - id: D-014
+    title: --base-branch may not resolve to the unpushed local commit
+    severity: minor
+    sources: [R1-11]
+    claim: Commit 8db29f11 is local only; if Orca resolves the base against origin, all three setups fail their HEAD check (speculative, calibrator weak).
+    evidence: "plan:29"
+    fix: "Cover it in the D-009 pre-run help check; if --base-branch cannot take a local branch or commit, say in the plan that a HEAD mismatch is an environment failure recorded separately from AC-0.4."
+  - id: D-015
+    title: Absent observation.agentWait passes 'never non-null' vacuously
+    severity: minor
+    sources: [F-011, R2-04]
+    claim: Orca says an absent field means it never looked, so an all-absent run is indistinguishable from an all-null run.
+    evidence: ".dev/orca-command-refactor/inventory/orca-capabilities.md:129"
+    fix: "Record absent vs null per sample line in lc<N>-step2-samples.txt and state 'PASS (observed)' or 'PASS (not observed)' in lc<N>-result.md and the phase report."
+  - id: D-016
+    title: The unattended-section grep exits 1 on its passing result
+    severity: minor
+    sources: [F-012, R2-05, R1-12]
+    claim: grep -c over two files with no match prints 0 twice and exits 1, which can be misread as a failure.
+    evidence: "plan:30"
+    fix: "State: exit 1 with both counts 0 is the pass; exit 2 (a file is missing) is a FAIL."
+  - id: D-017
+    title: AC-0.6 needs a transcript read the plan does not place
+    severity: minor
+    sources: [F-014, R2-06]
+    claim: AC-0.6 must be answered before Step 5, but the only earlier transcript read is conditional.
+    evidence: "plan:73"
+    fix: "After Step 4, run `worker-read --dispatch <id> --source transcript --json`, save the first page as ./artifacts/lc1-ac06-page.json, and answer AC-0.6 from it."
+  - id: D-018
+    title: The brief's Worktree slot uses text the template does not offer
+    severity: minor
+    sources: [F-015, R3-01]
+    claim: The guard never checks the Worktree slot, so nothing fails, but the plan does not say the departure is deliberate.
+    evidence: "plan:67"
+    fix: "Add one Constraints sentence: the Worktree: and Report directory: values are deliberate 7.2 departures from the template (spec line 282)."
+  - id: D-019
+    title: Live-check procedure sits inside Constraints
+    severity: minor
+    sources: [F-017, R3-03]
+    claim: Moving the procedure does not reduce breach exposure, because qa.md:52 also covers explicit task instructions and Tasks 2-4 say 'Follow the live-check procedure'; plan:25 already makes a recorded FAIL compliant.
+    evidence: "plan:28"
+    fix: "Keep the procedure in Constraints; the D-009 record-not-correct rule covers the flag case."
+  - id: D-020
+    title: Task 5 weakens spec line 291's heartbeat requirement
+    severity: minor
+    sources: [R2-07]
+    claim: plan:139 adds 'or state that none did' while citing spec:291, which requires naming at least one run longer than the cadence.
+    evidence: "plan:139"
+    fix: "When no run exceeded the cadence, record it in the P0 verdict as a flagged coverage gap (WC-10 heartbeat evidence vacuous), not a clean pass."
+  - id: D-021
+    title: Step 3 does not say how --report-path is matched to the relative report file
+    severity: minor
+    sources: [R2-08]
+    claim: The worker reports a path inside the disposable worktree while the brief names a relative path; a literal compare could false-FAIL (calibrator weak).
+    evidence: "plan:33"
+    fix: "State the rule: the report path matches when it equals the report file relative to the worktree root, recorded in lc<N>-result.md."
+  - id: D-022
+    title: Phase report omits the quoted AC-0.6 excerpt spec 303 asks for
+    severity: minor
+    sources: [R2-09]
+    claim: Spec 303 wants the yes/no with a quoted excerpt in the phase report; the plan keeps the excerpt only in ac-0.6.md.
+    evidence: "plan:139"
+    fix: "Require the AC-0.6 row of p0-phase-report.md to carry the quoted excerpt."
+  - id: D-023
+    title: Step-2 turns can return worker_done or a question; brief needs shell-safe quoting
+    severity: minor
+    sources: [R1-12]
+    claim: Step 3's save and ack read as if step 3 starts fresh, and the briefs contain double quotes that break `task-create --spec "<brief>"`.
+    evidence: "plan:32"
+    fix: "Say any message a step-2 turn returns is handled by step 3's save and ack; pass each brief from a saved file (./artifacts/lc<N>-brief.txt) with its exact text."
+unresolved_conflicts: 0
+unaddressed_invariants: []

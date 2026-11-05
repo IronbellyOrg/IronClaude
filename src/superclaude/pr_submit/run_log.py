@@ -57,6 +57,12 @@ def fix_key(path: str, line: int | str, body: str) -> str:
     return hashlib.sha256(f"{path}\n{line}\n{body}".encode("utf-8")).hexdigest()
 
 
+def _cycle_key(event: dict) -> str | None:
+    """The event's ``cycle_id`` when it is a string, else ``None`` (never unhashable)."""
+    cycle_id = event.get("cycle_id")
+    return cycle_id if isinstance(cycle_id, str) else None
+
+
 def _redact(value):
     """Recursively scrub credential/token patterns from a value (NFR-7)."""
     if isinstance(value, str):
@@ -108,13 +114,14 @@ class RunLog:
     def append(self, event: dict) -> dict:
         """Append a validated, redacted event with a monotonic ``event_id`` and fsync.
 
-        Raises :class:`ValueError` if ``event_type`` is not one of the 37 closed
+        Raises :class:`ValueError` if ``event_type`` is not one of the 43 closed
         enum values (the run-log writer validates against ``models.EventType``).
         """
         event_type = event.get("event_type")
         if event_type not in _VALID_EVENT_VALUES:
             raise ValueError(
-                f"unknown event_type: {event_type!r} (not one of the 37 §11.3 events)"
+                f"unknown event_type: {event_type!r} "
+                f"(not one of the {len(_VALID_EVENT_VALUES)} closed EventType values)"
             )
         self._event_id += 1
         record = {
@@ -163,6 +170,37 @@ class RunLog:
         Reconstructs the FSM state, ``round_counter``, the 7 idempotency sets, and
         ``push_count``/``reply_count`` from the event stream. This is the source of
         truth on any snapshot/JSONL disagreement.
+
+        ``rereview_request_count`` counts re-triggered push cycles: one cycle may
+        post an Augment and a Codex re-trigger comment, so ``rereview_requested``
+        events are folded by distinct ``cycle_id`` (an event without ``cycle_id``
+        still counts once each, so old logs rebuild to the same number).
+        ``absent_reviewers`` is the sorted set of reviewers named by
+        ``reviewer_absent`` events.
+
+        Issue #305 (conflict cycles and push kinds) adds four keys:
+
+        - ``sync_push_count``: landed ``push_completed`` events with ``kind ==
+          "sync"``. Such pushes do NOT count in ``push_count``; every other kind
+          (``fix``, ``merge``, ``ci``, or absent, which means ``fix``) does.
+        - ``conflict_cycles``: the distinct ``cycle_id`` values of ``sync_started``
+          events in first-seen order (not sorted); a resume restart that re-opens
+          the same id is counted once.
+        - ``open_conflict_cycle``: the open cycle whose ``sync_started`` came last,
+          or ``None``. A cycle opens on ``sync_started`` (the entry is the event's
+          payload, so it carries ``hook``, ``review_terminal``, ``kind``,
+          ``base_sha`` and ``pre_push_sha``, plus the flags ``push_initiated``,
+          ``push_completed`` and ``superseded`` and the ``target_sha`` and
+          ``expect_checks`` copied from its ``push_initiated``) and closes on
+          ``sync_concluded``. A missing or non-bool ``expect_checks`` is stored as
+          ``True`` (fail closed). A ``push_initiated`` of any other cycle marks
+          every still-open cycle ``superseded``.
+        - ``push_rejected``: ``True`` once a ``push_aborted_or_not_landed`` event
+          carries ``rejected is True``.
+
+        A log without ``kind`` fields or conflict-cycle events rebuilds every
+        pre-existing key exactly as before, with the four keys at their defaults
+        (``0``, ``[]``, ``None``, ``False``) (NFR-12).
         """
         state = {
             "pr_number": self.pr_number,
@@ -175,10 +213,21 @@ class RunLog:
             "rereview_request_count": 0,
             "effective_max_rounds": None,
             "silence_rerequested_at": None,
+            "absent_reviewers": [],
             "last_event_id": 0,
             **{s: [] for s in IDEMPOTENCY_SETS},
+            # Issue #305 (design section 6.3): push kinds and conflict cycles.
+            "sync_push_count": 0,
+            "conflict_cycles": [],
+            "open_conflict_cycle": None,
+            "push_rejected": False,
         }
         sets = {s: set() for s in IDEMPOTENCY_SETS}
+        retriggered_cycles: set = set()
+        absent: set = set()
+        # Open conflict cycles by id; insertion order is sync_started order (a
+        # re-opened id is moved to the end), so the last entry is the newest.
+        open_cycles: dict = {}
         for ev in self.read_events():
             state["last_event_id"] = ev.get("event_id", state["last_event_id"])
             et = ev.get("event_type")
@@ -187,8 +236,14 @@ class RunLog:
             if et == EventType.ROUND_INCREMENTED.value:
                 state["round_counter"] += 1
             elif et == EventType.REREVIEW_REQUESTED.value:
-                # IDIOM A (count fold) — INV-R1 monotone re-trigger count.
-                state["rereview_request_count"] += 1
+                # IDIOM A (count fold) — INV-R1 monotone re-trigger count, by cycle.
+                cycle_id = ev.get("cycle_id")
+                if cycle_id is None or cycle_id not in retriggered_cycles:
+                    state["rereview_request_count"] += 1
+                if cycle_id is not None:
+                    retriggered_cycles.add(cycle_id)
+            elif et == EventType.REVIEWER_ABSENT.value and ev.get("reviewer"):
+                absent.add(ev["reviewer"])
             elif (
                 et == EventType.AUGGIE_FALLBACK_INVOKED.value
                 and ev.get("pr_number") is not None
@@ -218,10 +273,55 @@ class RunLog:
                 state["effective_max_rounds"] = (
                     clamp if prev is None else min(prev, clamp)
                 )
+            elif et == EventType.SYNC_STARTED.value:
+                cycle_id = _cycle_key(ev)
+                if cycle_id is not None:
+                    if cycle_id not in state["conflict_cycles"]:
+                        state["conflict_cycles"].append(cycle_id)
+                    # A resume restart re-opens the same id; it becomes the newest.
+                    open_cycles.pop(cycle_id, None)
+                    open_cycles[cycle_id] = {
+                        **ev,
+                        "push_initiated": False,
+                        "push_completed": False,
+                        "target_sha": None,
+                        "expect_checks": None,
+                        "superseded": False,
+                    }
+            elif et == EventType.SYNC_CONCLUDED.value:
+                cycle_id = _cycle_key(ev)
+                if cycle_id is not None:
+                    open_cycles.pop(cycle_id, None)
+            elif et == EventType.PUSH_INITIATED.value:
+                cycle_id = _cycle_key(ev)
+                for open_id, entry in open_cycles.items():
+                    if open_id == cycle_id:
+                        expect = ev.get("expect_checks")
+                        entry["push_initiated"] = True
+                        entry["target_sha"] = ev.get("target_sha")
+                        # Fail closed: never a None or defaulted False here.
+                        entry["expect_checks"] = (
+                            expect if isinstance(expect, bool) else True
+                        )
+                    else:
+                        # A push of another cycle: this one was never closed.
+                        entry["superseded"] = True
             elif et == EventType.PUSH_COMPLETED.value:
-                state["push_count"] += 1
+                # Kind-aware count: absent means "fix"; only "sync" is excluded.
+                if (ev.get("kind") or "fix") == "sync":
+                    state["sync_push_count"] += 1
+                else:
+                    state["push_count"] += 1
                 if ev.get("target_sha"):
                     sets["pushed_commit_shas"].add(ev["target_sha"])
+                cycle_id = _cycle_key(ev)
+                if cycle_id is not None and cycle_id in open_cycles:
+                    open_cycles[cycle_id]["push_completed"] = True
+            elif (
+                et == EventType.PUSH_ABORTED_OR_NOT_LANDED.value
+                and ev.get("rejected") is True
+            ):
+                state["push_rejected"] = True
             elif et == EventType.REPLY_POSTED.value:
                 state["reply_count"] += 1
                 if ev.get("comment_id") is not None:
@@ -239,6 +339,10 @@ class RunLog:
                 sets["processed_finding_ids"].add(ev["fix_key"])
         for s in IDEMPOTENCY_SETS:
             state[s] = sorted(sets[s], key=str)
+        state["absent_reviewers"] = sorted(absent)
+        state["open_conflict_cycle"] = (
+            list(open_cycles.values())[-1] if open_cycles else None
+        )
         return state
 
     def materialize_snapshot(self) -> dict:

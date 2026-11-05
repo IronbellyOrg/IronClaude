@@ -1,0 +1,16 @@
+# sc:adversarial return contract (written on every invocation)
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/adversarial/merged-findings.md
+  convergence_score: 1.0          # agreed_points / total_diff_points = 16 / 16 (S 3 + C 4 + X 5 + promoted A 4)
+  convergence_status: CONVERGED   # taxonomy L1/L2/L3 covered; invariant gate: 0 HIGH UNADDRESSED
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/adversarial/adversarial
+  status: partial                 # post-merge validation failed on one new contradiction (below); 7 MEDIUM invariant warnings
+  partial_reasons:
+    - "Post-merge contradiction re-scan (merge-log.md): the D-004 row in deviations_resolution still says 'line-64 parenthetical in R1-4', but Change 6 removed the CLAUDE.md:64 half from R1-4. The refactor plan did not authorize editing that row; flagged, not hand-patched."
+    - "Invariant probe: 7 MEDIUM UNADDRESSED items (INV-001, INV-004, INV-006, INV-010, INV-012, INV-013, INV-014); carried into merged findings R1-2, M-1, M-2, M-3, R1-3. They do not block convergence."
+  base_variant: "variant-1 (reviewer-1, sonnet, analyzer)"   # combined 0.825 vs variant-2 0.821; tiebreaker level 1 (debate wins 4.5 vs 0)
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []      # no HIGH-severity UNADDRESSED items

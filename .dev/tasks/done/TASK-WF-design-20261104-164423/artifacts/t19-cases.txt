@@ -1,0 +1,5 @@
+tests/pr_submit/test_conflict_e2e.py::test_x1_tier1_sync_with_real_uv PASSED [ 25%]
+tests/pr_submit/test_conflict_e2e.py::test_x2_tier1_sync_with_a_stub_uv PASSED [ 50%]
+tests/pr_submit/test_conflict_e2e.py::test_x3_tier2_merge_with_a_scripted_resolution PASSED [ 75%]
+tests/pr_submit/test_conflict_e2e.py::test_x3_semantic_kind_is_rejected_before_any_commit PASSED [100%]
+============================== 4 passed in 1.83s ===============================

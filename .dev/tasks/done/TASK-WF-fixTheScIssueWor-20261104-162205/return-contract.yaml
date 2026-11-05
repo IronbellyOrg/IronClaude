@@ -1,0 +1,13 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-fixTheScIssueWor-20261104-162205
+plan_path: ./TASK-WF-fixTheScIssueWor-20261104-162205.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-20261104162416/REPORT.md
+unresolved: []

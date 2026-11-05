@@ -1,0 +1,19 @@
+return_contract:
+  merged_output_path: ".dev/codegraph-migration/decisions/P2-serena-entry-removal/adversarial/P2-serena-entry-removal-merged.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/codegraph-migration/decisions/P2-serena-entry-removal/adversarial/adversarial/"
+  status: "partial"          # diff points converged 18/18; invariant gate blocked by 2 escalated HIGH items
+  base_variant: "variant-2 (option-b, original)"
+  unresolved_conflicts: 0
+  fallback_mode: true        # base force-selected by score under BLOCKED_BY_INVARIANTS (FR-006)
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: INV-001
+      category: sufficiency_challenge
+      assumption: "After ./update.sh on a Coder workspace both servers are completely absent (baked root-owned /usr/local/bin/codebase-memory-mcp stays until the step-5 image)"
+      severity: HIGH
+    - id: INV-002
+      category: sufficiency_challenge
+      assumption: "Removing the kind-B registration makes codebase-memory absent off Coder (upstream ~/.local/bin binary and client companions stay; removal would reopen Phase 1 D2)"
+      severity: HIGH

@@ -33,9 +33,6 @@ wire string:
 5. The SKILL.md §A.9 API-004 contract table still contains the
    byte-exact wire-string row for the regression halt, complete
    with the U+2014 em-dash.
-6. The generated log shape matches the canonical D-0057 synthetic
-   fixtures line-for-line at the load-bearing transition + halt
-   lines.
 
 Acceptance reference (phase-5-tasklist.md L630-633):
 - ``uv run pytest tests/audit/test_regression_halt_pass1_fail2.py -v`` exits 0.
@@ -70,27 +67,6 @@ from _halt_emitter import (  # noqa: E402
 
 SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
 
-CANONICAL_LOG_SHRINKING = (
-    REPO_ROOT
-    / ".dev"
-    / "releases"
-    / "complete"
-    / "task-builder-merge"
-    / "artifacts"
-    / "D-0057"
-    / "fixture-pass1-fail2-shrinking.log"
-)
-
-CANONICAL_LOG_NON_SHRINKING = (
-    REPO_ROOT
-    / ".dev"
-    / "releases"
-    / "complete"
-    / "task-builder-merge"
-    / "artifacts"
-    / "D-0057"
-    / "fixture-pass1-fail2-non-shrinking.log"
-)
 
 # Byte-exact wire template frozen by API-004-M5 (SKILL.md §A.9, row 2
 # of the halt-message table). The em-dash is U+2014 (``e2 80 94``),
@@ -160,16 +136,6 @@ def non_shrinking_log() -> HaltLog:
 @pytest.fixture(scope="module")
 def skill_text() -> str:
     return SKILL_SRC.read_text(encoding="utf-8")
-
-
-@pytest.fixture(scope="module")
-def canonical_shrinking_text() -> str:
-    return CANONICAL_LOG_SHRINKING.read_text(encoding="utf-8")
-
-
-@pytest.fixture(scope="module")
-def canonical_non_shrinking_text() -> str:
-    return CANONICAL_LOG_NON_SHRINKING.read_text(encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
@@ -407,98 +373,6 @@ class TestCycle3NeverAttempted:
         assert 3 not in non_shrinking_log.cycles_started, (
             f"cycle 3 attempted: cycles_started={non_shrinking_log.cycles_started}"
         )
-
-
-# ---------------------------------------------------------------------------
-# AC5 — Canonical D-0057 synthetic fixture log parity.
-# ---------------------------------------------------------------------------
-
-
-class TestCanonicalFixtureParity:
-    """The TEST-016 runtime emission and the D-0057 canonical
-    synthetic logs agree on the load-bearing lines (HALT + halting
-    transition + em-dash presence)."""
-
-    def test_canonical_shrinking_log_present(self):
-        assert CANONICAL_LOG_SHRINKING.is_file(), (
-            f"D-0057 shrinking fixture missing at {CANONICAL_LOG_SHRINKING}"
-        )
-
-    def test_canonical_non_shrinking_log_present(self):
-        assert CANONICAL_LOG_NON_SHRINKING.is_file(), (
-            f"D-0057 non-shrinking fixture missing at {CANONICAL_LOG_NON_SHRINKING}"
-        )
-
-    EXPECTED_CANONICAL_HALT_LINE = (
-        "HALT Regression detected on Item 3.2 — previously PASS at cycle 1, "
-        "now FAIL. Halt overrides monotonicity check."
-    )
-
-    def test_canonical_shrinking_halt_byte_exact(self, canonical_shrinking_text: str):
-        halts = [
-            ln for ln in canonical_shrinking_text.splitlines() if ln.startswith("HALT ")
-        ]
-        assert halts == [self.EXPECTED_CANONICAL_HALT_LINE], (
-            f"D-0057 shrinking fixture HALT line(s) {halts!r} differ from "
-            f"byte-exact {self.EXPECTED_CANONICAL_HALT_LINE!r}"
-        )
-
-    def test_canonical_non_shrinking_halt_byte_exact(
-        self, canonical_non_shrinking_text: str
-    ):
-        halts = [
-            ln
-            for ln in canonical_non_shrinking_text.splitlines()
-            if ln.startswith("HALT ")
-        ]
-        assert halts == [self.EXPECTED_CANONICAL_HALT_LINE], (
-            f"D-0057 non-shrinking fixture HALT line(s) {halts!r} differ from "
-            f"byte-exact {self.EXPECTED_CANONICAL_HALT_LINE!r}"
-        )
-
-    def test_canonical_no_monotonicity_halt_in_either_fixture(
-        self, canonical_shrinking_text: str, canonical_non_shrinking_text: str
-    ):
-        for label, txt in (
-            ("shrinking", canonical_shrinking_text),
-            ("non-shrinking", canonical_non_shrinking_text),
-        ):
-            assert "HALT-MONOTONICITY" not in txt, (
-                f"D-0057 {label} fixture unexpectedly contains "
-                "HALT-MONOTONICITY token — precedence rule violated in evidence pack"
-            )
-
-    def test_canonical_no_cycle_3_in_either_fixture(
-        self, canonical_shrinking_text: str, canonical_non_shrinking_text: str
-    ):
-        for label, txt in (
-            ("shrinking", canonical_shrinking_text),
-            ("non-shrinking", canonical_non_shrinking_text),
-        ):
-            assert "CYCLE 3" not in txt, (
-                f"D-0057 {label} fixture unexpectedly references CYCLE 3"
-            )
-
-    def test_runtime_and_canonical_halt_strings_match(
-        self,
-        shrinking_log: HaltLog,
-        non_shrinking_log: HaltLog,
-        canonical_shrinking_text: str,
-        canonical_non_shrinking_text: str,
-    ):
-        for log, canon_text, label in (
-            (shrinking_log, canonical_shrinking_text, "shrinking"),
-            (non_shrinking_log, canonical_non_shrinking_text, "non-shrinking"),
-        ):
-            canon_halts = [
-                ln[len("HALT ") :]
-                for ln in canon_text.splitlines()
-                if ln.startswith("HALT ")
-            ]
-            assert canon_halts == [log.halt_message], (
-                f"{label}: runtime halt {log.halt_message!r} disagrees with "
-                f"canonical halt(s) {canon_halts!r}"
-            )
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,203 @@
+diff --git a/src/superclaude/skills/task-builder/SKILL.md b/src/superclaude/skills/task-builder/SKILL.md
+index 559654d2..9616329c 100644
+--- a/src/superclaude/skills/task-builder/SKILL.md
++++ b/src/superclaude/skills/task-builder/SKILL.md
+@@ -201,7 +201,7 @@ This skill operates in a single stage (Stage A only). Unlike the canonical docum
+ 5. Review research sufficiency — mandatory self-review gate (A.5)
+ 6. Triage template selection — Template 01 (generic) vs 02 (complex) per track (A.6)
+ 7. Spawn parallel researchers via Agent tool — 3-8 per track based on tier and scope complexity (A.7)
+-8. Research quality gate — 2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative in parallel via Agent tool (5 agents minimum), with gap-fill cycle if needed (max 3 rounds) (A.8)
++8. Research quality gate — 2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative in parallel via Agent tool (5 agents minimum), with gap-fill cycle if needed (max 2 rounds) (A.8)
+ 9. Optional web research — only if tier allows web agents AND quality gate identified external knowledge gaps (A.8.5)
+ 10. Spawn the `rf-task-builder` agent via Agent tool with structured BUILD_REQUEST (A.9)
+ 11. Task file structural validation — 2 rf-qa agents with focused lenses (B2 self-containment + phase structure/ordering) via Agent tool, serialized fix authorization (A.10)
+@@ -869,8 +869,8 @@ Agent 5 (rf-qa-qualitative — research-depth lens):
+ 1. Compile all CRITICAL and IMPORTANT issues from analyst + QA reports into a structured gap list (MINOR issues stay as notes and are not sent to gap-fill)
+ 2. Spawn targeted gap-fill researcher(s) via Agent tool (`subagent_type: "general-purpose"`) with specific gaps to fill
+ 3. After gap-fill, re-run analyst + QA on the NEW research files only
+-4. **Maximum 3 gap-fill rounds** (aligned with canonical skills and rf-qa agent definition)
+-5. After 3 rounds, proceed with remaining gaps as Open Questions in the task file
++4. **Maximum 2 gap-fill rounds** (aligned with canonical skills and rf-qa agent definition)
++5. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; minor findings stay as notes
+ 
+ **Cross-track validation (multi-track only):** After gate evaluation, cross-validate that no two tracks have overlapping scope that would produce conflicting task files.
+ 
+@@ -1144,7 +1144,7 @@ Agent:
+     4. Spawn ONE fix agent (fix_authorization: true) with consolidated
+        findings to apply ALL fixes.
+     5. Spawn verification agents to confirm fixes applied correctly.
+-    6. Max 3 fix-verify cycles.
++    6. Max 2 fix-verify cycles.
+ 
+     M4 — SOURCE FIDELITY GATE (mandatory when output >500 lines):
+     After M3 completes, spawn fidelity agents that read BOTH source inputs
+@@ -1256,7 +1256,7 @@ Agent:
+    - Wait for researcher to return the new research file path
+    - Re-invoke builder with original context PLUS the new research file path added to the research directory listing
+    - **Maximum 2 RESEARCH_NEEDED rounds** (tracked independently from malformed rounds)
+-   - After max rounds, proceed with gaps as Open Questions in the task file
++   - After max rounds, HALT and escalate to the user with the open blocking findings; minor findings stay as notes
+ 
+ 2. **MALFORMED flow** (builder produced bad output): Builder returns a task file path, but the file fails structural validation (frontmatter missing, no checklist items, clearly incomplete). Orchestrator action:
+    - Read the task file and identify specific problems
+@@ -1272,7 +1272,7 @@ These are SEPARATE retry counters — a builder that returns RESEARCH_NEEDED twi
+ 
+ **Retry Monotonicity Protocol (FR-CONV.5 / PR-02 -- strengthens zero-trust QA against oscillation):**
+ 
+-This protocol is the FR-CONV.5 halt-guards wrapper layered ON TOP of every existing fix-cycle loop in task-builder (RESEARCH_NEEDED, MALFORMED, the A.8 research-gate gap-fill loop, the A.10 / A.10.5 fix cycles, rf-task-builder per-gate fix-cycles in rf-task-builder.md, and rf-qa's 3-fix-cycle in rf-qa.md). The wrapper introduces NO new retry loop and NO new stage -- it adds two stop conditions evaluated BEFORE the existing iteration cap fires; the existing 3-cycle hard cap at `rf-team-lead's Fix Cycles rule` is preserved as the fourth-precedence backstop:
++This protocol is the FR-CONV.5 halt-guards wrapper layered ON TOP of every existing fix-cycle loop in task-builder (RESEARCH_NEEDED, MALFORMED, the A.8 research-gate gap-fill loop, the A.10 / A.10.5 fix cycles, rf-task-builder per-gate fix-cycles in rf-task-builder.md, and rf-qa's 2-fix-cycle in rf-qa.md). The wrapper introduces NO new retry loop and NO new stage -- it adds two stop conditions evaluated BEFORE the existing iteration cap fires; the existing 2-cycle hard cap at `rf-team-lead's Fix Cycles rule` is preserved as the fourth-precedence backstop:
+ 
+ 1. **Monotonicity guard.** Record the count of remaining gate failures `F_n` at the end of each cycle `n`. If `F_{n+1} >= F_n` -- i.e., the failure count did NOT strictly shrink -- HALT and emit `[HALT-MONOTONICITY] |F|=<n>` (the byte-exact halt-message wire string per API-004). The guard fires only on strict non-shrink; legitimate slow convergence (`F_{n+1} = F_n - 1`) continues to the existing cap. The monotonicity check is only consulted when `|F_n| > 0` AND only after the regression check has passed for this cycle transition.
+ 2. **Regression detection.** Record the set of items that PASSED at the end of each cycle. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately and emit `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (the byte-exact halt-message wire string per API-004). Regression detection fires only on previously-PASS items -- legitimate refinement of still-FAILing items does not trigger.
+@@ -1307,7 +1307,7 @@ On every cycle transition `n -> n+1`, run the following steps in this exact orde
+ 
+ 1. **Regression check.** If any item with verdict PASS at end-of-cycle-`n` has verdict FAIL at end-of-cycle-`n+1` (by dedup-key identity), HALT and emit the byte-exact regression halt-message. Do NOT consult subsequent steps.
+ 2. **Monotonicity check.** If `|F_n| > 0` AND `|F_{n+1}| >= |F_n|` (cardinality after dedup), HALT and emit the byte-exact monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (with `<n>` = `|F_{n+1}|`). Do NOT consult subsequent steps.
+-3. **Hard-cap check.** If the per-gate cycle counter has reached the gate-specific cap (research-gate=3, synthesis-gate=2, report-validation=3, task-integrity=2, qualitative=3 -- see the rf-task-builder.md per-gate cap table, with the global 3-cycle backstop at `rf-team-lead's Fix Cycles rule`), HALT per the gate's existing escalation path (HALT-and-escalate or Open Questions).
++3. **Hard-cap check.** If the per-gate cycle counter has reached the gate-specific cap (research-gate=2, synthesis-gate=2, report-validation=2, task-integrity=2, qualitative=2 -- see the rf-task-builder.md per-gate cap table, with the global 2-cycle backstop at `rf-team-lead's Fix Cycles rule`), HALT per the gate's existing escalation path (HALT and escalate to the user with the open blocking findings; minor findings stay as notes).
+ 4. **Proceed.** Re-spawn the fix cycle for cycle `n+1`.
+ 
+ Strict ordering invariant: regression ALWAYS exits BEFORE monotonicity; monotonicity ALWAYS exits BEFORE hard-cap; hard-cap ALWAYS exits BEFORE proceed. Producers MUST NOT reorder or skip steps; consumers (fixture asserts) MUST verify ordering by emission ordering in the execution log.
+@@ -1409,15 +1409,15 @@ Consolidation + Fix Round:
+   SINGLE rf-qa fix agent (fix_authorization: true) with the consolidated
+   findings list to apply ALL fixes to the task file. After fixes, spawn
+   a verification agent to confirm fixes were applied correctly.
+-  Max 3 fix-verify cycles.
++  Max 2 fix-verify cycles.
+ ```
+ 
+ **Handling the verdict:**
+ 
+ - **ALL PASS** → Proceed to A.10.25 (research-alignment validation)
+ - **ANY FAIL, all fixes applied by fix agent** → Verification confirms fixes. Proceed to A.10.25.
+-- **FAIL with unfixable issues after 3 fix-verify cycles** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
+-- **No verdict emitted (report file absent OR present but no `VERDICT:` line OR `VERDICT:` value not `PASS`/`FAIL`)** -- treat as a failed cycle, do NOT advance to A.10.25. Re-spawn rf-qa (counts against the A.10 fix-cycle budget, max 3 cycles). At max cycle, surface the missing/malformed report to the user as an Open Question in the task file and proceed to A.10.25 with the issue documented. The orchestrator MUST: (a) check `${TASK_DIR}qa/qa-task-validation-b2-report.md` and `qa-task-validation-structure-report.md` exist on disk; (b) if absent, log `INV-002-no-producer-artifact` and surface the missing-report path to the user; (c) if present, grep for `^VERDICT: (PASS|FAIL)` (case-sensitive, line-anchored); if zero matches, log `INV-002-no-verdict-line` and surface the malformed-report path to the user. DM-005 token: `failure_mode: retry-into-max-cycle-then-Open-Questions`.
++- **FAIL with unfixable issues after 2 fix-verify cycles (3 reviews)** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
++- **No verdict emitted (report file absent OR present but no `VERDICT:` line OR `VERDICT:` value not `PASS`/`FAIL`)** -- treat as a failed cycle, do NOT advance to A.10.25. Re-spawn rf-qa (counts against the A.10 fix-cycle budget, max 2 cycles). At max cycle (after 2 fix cycles, 3 reviews), HALT and escalate to the user with the open blocking findings, including the missing/malformed report path; minor findings stay as notes. The orchestrator MUST: (a) check `${TASK_DIR}qa/qa-task-validation-b2-report.md` and `qa-task-validation-structure-report.md` exist on disk; (b) if absent, log `INV-002-no-producer-artifact` and surface the missing-report path to the user; (c) if present, grep for `^VERDICT: (PASS|FAIL)` (case-sensitive, line-anchored); if zero matches, log `INV-002-no-verdict-line` and surface the malformed-report path to the user. DM-005 token: `failure_mode: retry-into-max-cycle-then-halt-escalate`.
+ 
+ ### A.10.25: Task File Research-Alignment Validation
+ 
+@@ -1468,7 +1468,7 @@ Agent (rf-analyst — task-research-alignment lens):
+ **Handling the verdict:**
+ 
+ - **PASS** → Proceed to A.10.5 (qualitative validation)
+-- **FAIL** → Findings are merged into the A.10 consolidated findings file (`qa-task-validation-consolidated.md`). Spawn a NEW rf-qa fix agent (fix_authorization: true) with the alignment findings appended to the consolidated file. This fix agent applies alignment fixes to the task file. After fix, proceed to A.10.5. Maximum 1 fix-verify cycle for A.10.25 findings (independent of A.10's 3-cycle budget). If unfixable after 1 cycle, document issues in the consolidated file and proceed to A.10.5.
++- **FAIL** → Findings are merged into the A.10 consolidated findings file (`qa-task-validation-consolidated.md`). Spawn a NEW rf-qa fix agent (fix_authorization: true) with the alignment findings appended to the consolidated file. This fix agent applies alignment fixes to the task file. After fix, proceed to A.10.5. Maximum 1 fix-verify cycle for A.10.25 findings (independent of A.10's 2-cycle budget). If blocking findings remain after 1 cycle, HALT and escalate to the user with the open blocking findings; minor findings stay as notes in the consolidated file.
+ 
+ **Note on gate composition:** The combined task-integrity gate spans A.10 + A.10.25 + A.10.5 = 2 rf-qa + 1 rf-analyst + 2 rf-qa-qualitative = 5 agents, meeting the MDTM I19 intermediate gate floor.
+ 
+@@ -1487,7 +1487,7 @@ This step catches two categories of issues:
+ 
+ **Building the target file list:** Before spawning, read the task file and extract ALL unique source file paths referenced by checklist items (every file that an item reads, modifies, creates, or runs a command against). This is the TARGET_FILE_LIST. Do NOT allow spot-checking — both qualitative agents must verify every target file, not a sample.
+ 
+-**Inherited Structural Verdict (PR-04 Gate Results Passthrough -- operationalises rf-qa-qualitative rule #11):** Before spawning rf-qa-qualitative, read `${TASK_DIR}qa/qa-task-validation-consolidated.md` (rf-qa's A.10 consolidated output). Extract the "Items Reviewed" PASS/FAIL table **contiguously** -- a single span between the `## Items Reviewed` heading and the next top-level (`##`) heading -- verbatim, with no editing/summarising/renaming/re-ordering. **Splice the extracted span byte-for-byte into the rf-qa-qualitative spawn prompt as a `## Inherited Structural Verdict` section, after the TARGET FILES + PROJECT CONVENTIONS context blocks and before the ADVERSARIAL STANCE / INSTRUCTIONS directive blocks.** The orchestrator MUST also dynamically enumerate every TB-Add-* item from rf-qa.md's current checklist (do NOT hand-maintain the list -- read rf-qa.md and pull the live TB-Add catalogue) so the verdict passthrough auto-picks up future structural additions (INV-010). On EVERY fix cycle re-spawn, the orchestrator MUST re-read the freshly-written consolidated report and re-inject the new verdict -- never reuse a stale verdict from a prior cycle (INV-002). If the consolidated report is missing or its `VERDICT:` line is absent/malformed, handle per the DM-005 `failure_mode: retry-into-max-cycle-then-Open-Questions` lever (see A.10 verdict handling).
++**Inherited Structural Verdict (PR-04 Gate Results Passthrough -- operationalises rf-qa-qualitative rule #11):** Before spawning rf-qa-qualitative, read `${TASK_DIR}qa/qa-task-validation-consolidated.md` (rf-qa's A.10 consolidated output). Extract the "Items Reviewed" PASS/FAIL table **contiguously** -- a single span between the `## Items Reviewed` heading and the next top-level (`##`) heading -- verbatim, with no editing/summarising/renaming/re-ordering. **Splice the extracted span byte-for-byte into the rf-qa-qualitative spawn prompt as a `## Inherited Structural Verdict` section, after the TARGET FILES + PROJECT CONVENTIONS context blocks and before the ADVERSARIAL STANCE / INSTRUCTIONS directive blocks.** The orchestrator MUST also dynamically enumerate every TB-Add-* item from rf-qa.md's current checklist (do NOT hand-maintain the list -- read rf-qa.md and pull the live TB-Add catalogue) so the verdict passthrough auto-picks up future structural additions (INV-010). On EVERY fix cycle re-spawn, the orchestrator MUST re-read the freshly-written consolidated report and re-inject the new verdict -- never reuse a stale verdict from a prior cycle (INV-002). If the consolidated report is missing or its `VERDICT:` line is absent/malformed, handle per the DM-005 `failure_mode: retry-into-max-cycle-then-halt-escalate` lever (see A.10 verdict handling).
+ 
+ The consumer agent (rf-qa-qualitative) retains independent standalone capability, but operationally FR-CONV.3 (PR-04 passthrough) + INV-002 (freshness) + INV-010 (dynamic enumeration) require a producer verdict for every spawn: the anti-inflation rule requires an enumerated checklist that only the producer can publish, and the Self-Audit obligation (INV-019) requires the consumer to declare which producer-PASS items it relied on.
+ 
+@@ -1617,7 +1617,7 @@ This procedure operationalises the `freshness_rule: INV-002-reinject-NEW` field
+ 2. **Bound the catalogue region.** Identify the `#### Structural Gate Additions` heading and treat the catalogue region as the span from that heading to the next `####`, `###`, or `##` heading (whichever comes first). Enumeration MUST be confined to this span — TB-Add tokens outside the span (e.g., illustrative references in narrative prose) do NOT contribute to the catalogue.
+ 3. **Extract IDs.** Within the bounded span, match the regex `^[0-9]+\. \*\*TB-Add-([0-9]+):` (Python `re` flavour, MULTILINE) against the span. Each match yields one TB-Add-N ID via the captured integer N.
+ 4. **Build the live set.** Deduplicate, sort ascending by N, and form `LIVE_TB_ADD = [TB-Add-1, TB-Add-3, …, TB-Add-K]`. K is the runtime size of the catalogue; it is never asserted against a hard-coded constant in this skill.
+-5. **Cross-check against the producer.** Every `TB-Add-*` row present in the freshly-extracted "Items Reviewed" span (step 3 of the freshness procedure) MUST appear in `LIVE_TB_ADD`. A row whose TB-Add-N is absent from `LIVE_TB_ADD` is an orphan (producer ran on a stale catalogue) — FAIL the spawn with `INV-010-orphan-tb-add` and retry into the max cycle then Open Questions (re-uses the `failure_mode: retry-into-max-cycle-then-Open-Questions` lever). A TB-Add-N present in `LIVE_TB_ADD` but absent from the producer table is allowed only when the producer's own report explicitly annotates it as `not-yet-implemented`; otherwise FAIL with `INV-010-missing-tb-add-row`.
++5. **Cross-check against the producer.** Every `TB-Add-*` row present in the freshly-extracted "Items Reviewed" span (step 3 of the freshness procedure) MUST appear in `LIVE_TB_ADD`. A row whose TB-Add-N is absent from `LIVE_TB_ADD` is an orphan (producer ran on a stale catalogue) — FAIL the spawn with `INV-010-orphan-tb-add` and retry into the max cycle, then HALT and escalate to the user with the open blocking findings (re-uses the `failure_mode: retry-into-max-cycle-then-halt-escalate` lever). A TB-Add-N present in `LIVE_TB_ADD` but absent from the producer table is allowed only when the producer's own report explicitly annotates it as `not-yet-implemented`; otherwise FAIL with `INV-010-missing-tb-add-row`.
+ 6. **Forbid hard-coded enumeration in the orchestrator logic.** This A.10.5 procedure block MUST NOT itself enumerate a fixed `[TB-Add-1, …, TB-Add-K]` list as the spawn target. The directive narratives in this section reference the catalogue abstractly (via the dynamic `LIVE_TB_ADD`); only `rf-qa.md` is the source of the live IDs. (Operator self-check: grep for `TB-Add-[0-9]+` inside the A.10.5 span and confirm every match is either a regex pattern, a worked example tagged `illustrative`, or an integrated-checklist reference — never an orchestrator enumeration target.)
+ 7. **Emit a structured log line.** Write `INV-010: enumerated TB-Add-* catalogue size=K ids=[TB-Add-1,...,TB-Add-K] source=rf-qa.md source_sha256=<hex8>` at every spawn boundary (initial entry and each fix-cycle re-entry). The log is the operator-visible audit-trail and the TEST-010 fixture's (T03.15) assertion surface.
+ 8. **Auto-richening invariant.** Appending a new `**TB-Add-N+1: <name>` line inside the bounded catalogue region of `rf-qa.md` MUST cause `LIVE_TB_ADD` to grow by exactly one entry on the next spawn — with **zero edits** to this SKILL.md, to orchestrator code, or to any consumer-side configuration. This is the K-007 sequencing-inversion mitigation cited in `roadmap.md` R-069: FR-CONV.1 catalogue additions auto-propagate to the PR-04 passthrough.
+@@ -1641,7 +1641,7 @@ freshness_rule: INV-002-reinject-NEW
+ enumeration_rule: INV-010-auto-pick-TB-Add
+ consumer_obligation: INV-019-Self-Audit
+ anti_inflation: preserve-766-775-byte-stable
+-failure_mode: retry-into-max-cycle-then-Open-Questions
++failure_mode: retry-into-max-cycle-then-halt-escalate
+ ```
+ 
+ **Field-by-field semantics (1.0.0 wire ABI):**
+@@ -1657,7 +1657,7 @@ failure_mode: retry-into-max-cycle-then-Open-Questions
+ | enumeration_rule | `INV-010-auto-pick-TB-Add` | Orchestrator MUST dynamically enumerate every TB-Add-* item from rf-qa.md's live checklist at injection time. |
+ | consumer_obligation | `INV-019-Self-Audit` | rf-qa-qualitative MUST emit a `## Self-Audit` section listing which rf-qa PASS items it relied on AND >=1 semantic check where rf-qa PASS was insufficient. |
+ | anti_inflation | `preserve-766-775-byte-stable` | The anti-inflation bullet at the canonical rf-qa-qualitative.md anchor MUST remain byte-identical across releases. |
+-| failure_mode | `retry-into-max-cycle-then-Open-Questions` | If the consolidated report is missing or malformed, orchestrator treats as failed cycle (per DET-015 no-halt decision). |
++| failure_mode | `retry-into-max-cycle-then-halt-escalate` | If the consolidated report is missing or malformed, orchestrator treats as failed cycle (at the cap, HALT and escalate to the user with the open blocking findings). |
+ 
+ ### A.10.7: PRE Reflect Gate
+ 
+@@ -2366,7 +2366,7 @@ The QA agents (A.10 + A.10.25 + A.10.5) validate the generated task file against
+ 
+ 18. **Testing in generated task files.** When the BUILD_REQUEST specifies TESTING_REQUIREMENTS other than NONE or N/A, the builder MUST encode testing checklist items in the generated task file. Testing items must specify: test file paths, test commands, coverage thresholds (if applicable), and verification that tests pass. Testing items are placed after implementation items and before QA gate items. A generated task file that requires testing items (TESTING_REQUIREMENTS is not NONE or N/A) but omits them is a MALFORMED output.
+ 
+-19. **No scope/cost-anxiety pauses during execution.** Once a task file begins executing (via /task or any execution loop), the executor MUST process every item sequentially to completion. It MUST NOT pause mid-execution to present the user with options like "stop here and review, or continue to phase N?" or to flag scope/cost/time concerns. Scope is established at task file creation time. Cost is committed when the user invokes execution. The only permitted mid-execution halts are: all items blocked by the same unrecoverable issue, phase-gate QA failing 3 fix cycles, or an item output fundamentally invalidating the rest of the task. "This will take a while" / "Phase N is expensive" / "the user might want to review" are NOT valid halt reasons. Pausing for these reasons violates the F1 loop discipline and the skill's trust model.
++19. **No scope/cost-anxiety pauses during execution.** Once a task file begins executing (via /task or any execution loop), the executor MUST process every item sequentially to completion. It MUST NOT pause mid-execution to present the user with options like "stop here and review, or continue to phase N?" or to flag scope/cost/time concerns. Scope is established at task file creation time. Cost is committed when the user invokes execution. The only permitted mid-execution halts are: all items blocked by the same unrecoverable issue, phase-gate QA failing 2 fix cycles, or an item output fundamentally invalidating the rest of the task. "This will take a while" / "Phase N is expensive" / "the user might want to review" are NOT valid halt reasons. Pausing for these reasons violates the F1 loop discipline and the skill's trust model.
+ 
+ 20. **POST reflect gate in generated task files.** **(Validator: read the generated tasklist's `reflect_post_mode` frontmatter key FIRST, then evaluate ONLY the matching clause below; the non-matching clause is SKIPPED, never failed. The full branch rule is restated as the Validator-branching requirement at the end of this rule.)** **When `reflect_post_mode` is `skill` (default):** When the BUILD_REQUEST specifies `POST_REFLECT_GATE: ENABLED`, the builder MUST emit, as the penultimate item of the final phase (immediately before the `Update task status to Done` item, preserving anti-orphaning per the validation checklist), a dedicated-subagent reflect runner. The item instructs the executor to spawn EXACTLY ONE subagent (via the Agent tool) and pass it the COMPLETE verbatim runner prompt (spec §4.3) so the subagent invokes `/sc:reflect --mode post` via the Skill tool and runs the `sc-reflect-protocol` pipeline end-to-end. **DISCLOSURE (default skill-mode POST path is not yet session-validated):** Nested-subagent and Skill-tool-in-subagent capability are EXPECTED to hold but are NOT yet session-validated end-to-end on this default (`reflect_post_mode: skill`) path; project memory `reference_subagent_cannot_nest_skill_fanout` records a case where an Agent-tool subagent asked to run a fan-out skill degraded to a hand-rolled fixture. The `--cli` wrapper path (a real `claude --print` subprocess) IS the session-validated POST mechanism — prefer it for mission-critical builds until skill-mode nesting is re-proven with a cited validating run. Under that expectation, a subagent is expected to invoke the Skill tool to run `sc-reflect-protocol` verbatim, with that skill spawning its own reviewer ensemble from inside the subagent. Running the audit in a dedicated subagent (not the executor) makes it executor-independent: a fresh instance that did not produce the work orchestrates the skill, and the executor cannot substitute a reduced or hand-rolled audit. The runner item MUST carry the hard completion contract (a `verdict recorded` from a partial or hand-rolled run does NOT satisfy it), record the subagent's `{verdict, run_id, report}` to the `reflect_post` frontmatter, and remediate or log any deviations before proceeding to Update-status-to-Done. The item MUST NOT halt for a human or defer to a separate session, and MUST NOT pass `--executor-model` or any executor-exclusion flag (the skill-mode POST arm does not forward an executor-class flag on this path — `executor_model_class` is CLI-mode-only — so there is nothing to forward; reviewer-panel composition is left to the reflect skill's own internal rules). The gate command uses `/sc:reflect`, and `/task` (never `/sc:task`) for any re-execution. A generated task file that omits the POST reflect item when `POST_REFLECT_GATE: ENABLED`, or that emits the direct-self-run form, an abbreviated or paraphrased runner prompt, a runner missing the completion contract, a form passing `--executor-model`, or a human-handoff/HALT form instead of the dedicated-subagent-runner form, is a MALFORMED output. **When `reflect_post_mode` is `cli` (CLI_MODE resolved true):** the builder MUST emit, as the penultimate item of the final phase (immediately before the `Update task status to Done` item, preserving anti-orphaning per the validation checklist), a FLAT wrapper shell-out item: a single Bash command that runs `superclaude reflect run {TASK_FILE} --depth deep --fix --promote` wrapped in the `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` recursion-breaker skip guard (contract §2/§3.2). The item consumes the wrapper's EXIT CODE: only `0` lets Update-status-to-Done proceed; `10`/`11`/`2` FAIL and surface the wrapper report. The wrapper itself runs reflect's POST audit as an executor-disjoint subprocess and writes `reflect_post:` back to frontmatter, so the gate item MUST NOT halt for a human or defer to a separate session, and MUST NOT hand-author `reflect_post`. The gate command uses `superclaude reflect run`, and `/task` (never `/sc:task`) for any re-execution. A generated task file that omits the POST reflect item when `POST_REFLECT_GATE: ENABLED` + CLI_MODE true, or that emits the in-session subagent-runner form or a human-handoff/HALT form instead of the wrapper shell-out, is a MALFORMED output. The shared anti-orphaning / penultimate-position / no-human-handoff guards apply to BOTH arms. **Validator-branching requirement (CRITICAL, prevents a default-mode regression):** Rule 20 now holds two mutually exclusive POST-form clauses; they are NOT both enforced unconditionally. The validator (and the validation checklist, §3.3) MUST FIRST read the resolved mode from the generated tasklist's `reflect_post_mode` frontmatter key (ALWAYS present, `skill` or `cli`), THEN evaluate ONLY the matching clause: a `reflect_post_mode: skill` tasklist evaluates ONLY the subagent-runner clause; a `reflect_post_mode: cli` tasklist evaluates ONLY the wrapper-shell-out clause. The non-matching clause is SKIPPED, never failed. Without this branch, a default-mode build would trip the CLI clause (and vice versa) and FAIL validation that passes today. `reflect_post_mode` is the single authoritative switch the validator reads.
+ 
+diff --git a/src/superclaude/skills/task/SKILL.md b/src/superclaude/skills/task/SKILL.md
+index 7b33cbdb..f4f68b84 100644
+--- a/src/superclaude/skills/task/SKILL.md
++++ b/src/superclaude/skills/task/SKILL.md
+@@ -117,7 +117,7 @@ These actions are NEVER permitted during task file execution:
+ - **Skipping phase-gate QA** — After completing all items in a phase (Phase 2+), you MUST run the full lens-based QA gate (minimum 6 agents: 3+ rf-qa structural lenses + 3+ rf-qa-qualitative content lenses, followed by the Serialized Fix Protocol) before executing any item in the next phase. This is not optional. See Phase-Gate QA Verification for the full protocol. Proceeding to the next phase without a passing QA gate is a prohibited action equivalent to skipping items.
+ - **Spawning fewer than 6 agents at any QA gate** — Every QA gate (phase-gate and post-completion) requires a minimum of 6 agents (3 rf-qa structural + 3 rf-qa-qualitative content). For intermediate gates (research-gate, synthesis-gate), the minimum is 5 agents (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative) per I19 (MDTM template rule defining discrete error-target tiers and minimum agent count floors)9. For task-integrity gates, the minimum is 5 agents (2 rf-qa + 2 rf-qa-qualitative + 1 rf-analyst) per I19. Gates with fewer agents than these floors are a protocol violation equivalent to skipping QA entirely. See Phase-Gate QA Verification for size-based scaling.
+ - **Skipping post-completion validation** — After the final phase's phase-gate QA passes, you MUST run the full Post-Completion Validation: lens-based structural validation (Step 1), lens-based content validation (Step 2), serialized fix protocol (Step 3), and source-document fidelity gate (Step 4) BEFORE marking the task "Done." See Post-Completion Validation for the full protocol. Marking a task done without running all four steps is a prohibited action.
+-- **Pausing execution mid-flow to present scope, cost, or time-estimate concerns to the user** — The F1 loop executes every item sequentially per the task file. Cost, scope, and time estimates are established at task file creation time (Stage A of the calling skill). Once execution begins, the executor MUST proceed through every item without pausing to ask the user "are you sure you want to continue given the scope?" or presenting options like "stop here and review, or continue to phase N?". The ONLY halts permitted mid-execution are: (1) all remaining items are blocked by the same unrecoverable issue, (2) a phase-gate QA has failed 3 fix cycles, (3) an item's output fundamentally invalidates the rest of the task file. "This is going to take a while" is not a valid halt reason. "Phase N will spawn many subagents" is not a valid halt reason. "The user might want to review before the next phase" is not a valid halt reason. Scope-awareness pauses violate the F1 loop discipline and the skill's trust model — the user already committed to the full task file when they invoked /task.
++- **Pausing execution mid-flow to present scope, cost, or time-estimate concerns to the user** — The F1 loop executes every item sequentially per the task file. Cost, scope, and time estimates are established at task file creation time (Stage A of the calling skill). Once execution begins, the executor MUST proceed through every item without pausing to ask the user "are you sure you want to continue given the scope?" or presenting options like "stop here and review, or continue to phase N?". The ONLY halts permitted mid-execution are: (1) all remaining items are blocked by the same unrecoverable issue, (2) a phase-gate QA has failed 2 fix cycles, (3) an item's output fundamentally invalidates the rest of the task file. "This is going to take a while" is not a valid halt reason. "Phase N will spawn many subagents" is not a valid halt reason. "The user might want to review before the next phase" is not a valid halt reason. Scope-awareness pauses violate the F1 loop discipline and the skill's trust model — the user already committed to the full task file when they invoked /task.
+ 
+ ### Parallel Agent Spawning
+ 
+@@ -251,7 +251,7 @@ rf-qa-qualitative at intermediate gates is mandatory. It catches the gap where r
+ 
+ 8. **Verification Round (M3 Step 7, PARALLEL)** — After the fix agent returns, spawn a verification round: minimum 2 agents (1 rf-qa + 1 rf-qa-qualitative, both `fix_authorization: false`). Verification rounds are exempt from the 6-agent minimum — they use a reduced 2-agent minimum because they verify a targeted set of fixes against the consolidated findings list, not the full document. They verify: (a) all findings from the consolidated list were addressed, (b) fixes were applied correctly (no garbled text, no lost content), (c) no new issues were introduced by the fixes. Output: `${TASK_DIR}qa/qa-verification-structural-report.md` and `${TASK_DIR}qa/qa-verification-content-report.md`.
+ 
+-9. **Conditional Proceed (M3 Step 8)** — IF both verification agents report PASS, proceed to the next phase. IF either reports FAIL, repeat Steps 6-8 (consolidate new + remaining findings, fix, verify). Maximum 3 fix cycles total (per I16 (MDTM template rule: maximum 3 fix-verify cycles per gate)6). After 3 failed cycles: HALT execution — log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance. Do NOT continue to the next phase without user approval.
++9. **Conditional Proceed (M3 Step 8)** — IF both verification agents report PASS, proceed to the next phase. IF either reports FAIL, repeat Steps 6-8 (consolidate new + remaining findings, fix, verify). Maximum 2 fix cycles total (per I16 (MDTM template rule: maximum 2 fix-verify cycles per gate)). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings — log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance. Do NOT continue to the next phase without user approval.
+ 
+ 10. **Verify all QA reports exist on disk** — Check that each lens agent wrote its report to the expected path. If any reports are missing, the agent may have failed silently — log missing reports as blockers in Task Log. The expected paths are `${TASK_DIR}qa/qa-structural-[lens-name]-report.md` (rf-qa) or `${TASK_DIR}qa/qa-content-[lens-name]-report.md` (rf-qa-qualitative). The consolidated findings file, verification reports, and fix reports also persist. The `qa/` subfolder should be created during Phase 1 setup alongside `research/` and `synthesis/` subfolders.
+ 
+@@ -333,7 +333,7 @@ Every agent receives:
+ 
+ **Step 3: Consolidate findings and apply fixes (Serialized Fix Protocol)**
+ 
+-After ALL Step 1 + Step 2 lens agents return, follow the Serialized Fix Protocol (see dedicated section below). Consolidate all findings, spawn a single fix agent, then a verification round. Maximum 3 fix cycles.
++After ALL Step 1 + Step 2 lens agents return, follow the Serialized Fix Protocol (see dedicated section below). Consolidate all findings, spawn a single fix agent, then a verification round. Maximum 2 fix cycles.
+ 
+ **Step 4: Source-Document Fidelity Gate (M4: Source-Document Fidelity Gate pattern from the MDTM template)** — Follow the Source-Document Fidelity Gate protocol defined in the dedicated section below. If the task did not consume source documents to produce its outputs, skip this step.
+ 
+@@ -363,9 +363,9 @@ When multiple QA agents evaluate the same document or set of output files, fixes
+    - Fixes were applied correctly (no garbled text, no lost content)
+    - No new issues were introduced by the fixes
+ 
+-5. **Iteration:** If verification finds new issues, repeat from step 2 with updated findings (re-consolidate so the fix agent gets both remaining unfixed issues and newly introduced issues). Maximum 3 fix cycles total per gate.
++5. **Iteration:** If verification finds new issues, repeat from step 2 with updated findings (re-consolidate so the fix agent gets both remaining unfixed issues and newly introduced issues). Maximum 2 fix cycles total per gate.
+ 
+-6. **Escalation:** After 3 failed cycles, HALT — log all remaining issues in the Task Log, present findings to the user, and ask for guidance.
++6. **Escalation:** After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings; log all remaining issues in the Task Log.
+ 
+ **Where this applies:** Every QA gate that spawns 3+ agents evaluating the same file(s). This includes phase-gate QA, post-completion validation, and source-document fidelity gates.
+ 
+@@ -402,7 +402,7 @@ Report output: `${TASK_DIR}qa/qa-source-fidelity-[N]-report.md` (numbered if par
+ 
+ **Step 5 (Fidelity Fix Agent):** If findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the fidelity findings file as input. Apply all fixes.
+ 
+-**Step 6 (Fidelity Verification):** Spawn minimum 2 verification agents to confirm fidelity fixes were applied correctly. Maximum 3 fix cycles (per I16), then HALT and escalate to user.
++**Step 6 (Fidelity Verification):** Spawn minimum 2 verification agents to confirm fidelity fixes were applied correctly. Maximum 2 fix cycles (per I16). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings.
+ 
+ **Agent count (Step 2):**
+ - Minimum 2 fidelity agents
+@@ -474,7 +474,7 @@ All lens agents MUST use this report format (matching the rf-qa agent definition
+ **Date:** [today]
+ **Phase:** [phase-gate / post-completion / fidelity]
+ **Lens:** [lens name]
+-**Fix cycle:** [1 / 2 / 3 / N/A]
++**Fix cycle:** [1 / 2 / N/A]
+ 
+ ---
+ 
+@@ -613,7 +613,7 @@ These rules apply across ALL task file executions. Violations compromise executi
+ 
+ 15. **Report progress at milestones.** At the end of each phase (when all items in that phase are `- [x]`), run the phase-gate QA check (see Phase-Gate QA Verification), then briefly inform the user: which phase completed, key outputs produced, QA verdict, which phase is next, and any issues logged. Keep these updates concise — 2-3 sentences maximum. After the FINAL phase's phase-gate QA passes, run the Post-Completion Validation (pre-QA verification + lens-based structural + lens-based content + serialized fix + source-document fidelity gate) before marking the task done.
+ 
+-16. **No scope/cost-anxiety pauses during execution.** Once a task file begins executing (via /task or any execution loop), the executor MUST process every item sequentially to completion. It MUST NOT pause mid-execution to present the user with options like "stop here and review, or continue to phase N?" or to flag scope/cost/time concerns. Scope is established at task file creation time. Cost is committed when the user invokes execution. The only permitted mid-execution halts are: all items blocked by the same unrecoverable issue, phase-gate QA failing 3 fix cycles, or an item output fundamentally invalidating the rest of the task. "This will take a while" / "Phase N is expensive" / "the user might want to review" are NOT valid halt reasons. Pausing for these reasons violates the F1 loop discipline and the skill's trust model.
++16. **No scope/cost-anxiety pauses during execution.** Once a task file begins executing (via /task or any execution loop), the executor MUST process every item sequentially to completion. It MUST NOT pause mid-execution to present the user with options like "stop here and review, or continue to phase N?" or to flag scope/cost/time concerns. Scope is established at task file creation time. Cost is committed when the user invokes execution. The only permitted mid-execution halts are: all items blocked by the same unrecoverable issue, phase-gate QA failing 2 fix cycles, or an item output fundamentally invalidating the rest of the task. "This will take a while" / "Phase N is expensive" / "the user might want to review" are NOT valid halt reasons. Pausing for these reasons violates the F1 loop discipline and the skill's trust model.
+ 
+ ---
+ 

@@ -19,9 +19,11 @@ error. Per-command specifics below.
 superclaude swarm run [OPTIONS] [SPEC_PATH]
 ```
 
-Run a swarm job: **Wave 0 preflight → Wave 1 dispatch**. (Wave 2 normalize / Wave 3
-merge + ResultContract are the pending M5 milestone — see
-[README](README.md#what-a-run-emits-today).)
+Run a swarm job: **Wave 0 preflight → Wave 1 dispatch → Wave 2 normalize → Wave 3
+reduce**. When `--output` is set and the spec names a normalization recipe (every bundled
+lens does), the run writes the per-worker outputs, `merged.md` and
+`return-contract.yaml` before it marks the job `terminal` — see
+[README](README.md#what-a-run-emits) and [Run artifacts](#run-artifacts).
 
 ### Four mutually-exclusive input modes
 
@@ -41,29 +43,31 @@ merge + ResultContract are the pending M5 milestone — see
 | `--resume` | TEXT | Resume a prior job from its manifest (requires `--output` pointing at the original job dir). Skips workers whose `*.meta.json` reports `status=success`. Mutually exclusive with `SPEC_PATH` / `--stdin` / `--lens`. |
 | `--target` | PATH | Override `target.path` on the resolved spec. Required with `--lens`. |
 | `--output` | DIR | Output directory. **Wires all observability artifacts** — without it, a spec-file run dispatches but writes nothing. Required with `--lens` / `--resume`. |
-| `--transport` | `stub`\|`openai_compat` | Override `transport.kind`. `stub` (default for `--lens`) = in-process, no network. `openai_compat` = real T2 proxy. |
+| `--transport` | `stub`\|`openai_compat` | Override `transport.kind`. `stub` (default for `--lens`) = in-process, no network. `openai_compat` = real T2 proxy. Spec-file and `--stdin` runs use the spec's `transport.kind`; when the spec omits it the default is `openai_compat` (a scaffolded spec sets `stub`). |
 | `--reviewers` | INT | B-1 override of the bare-review reviewer (worker) count. Integer in the inclusive range `[2, 4]` (legacy `t2_preflight.sh` AC-1.4 invariant). Omitted → lens default (3 for bare-review) preserved; `workers.models` is resized to match so the INV-005 model-pool guard admits the requested count. |
 | `--target-line-cap` | INT | B-2 override of the target truncation line cap (legacy `t2_preflight.sh --target-line-cap`, default `4000`). Omitted → lens default (4000 for bare-review) preserved. Threads through to `target.truncation.line_cap`. |
 | `--timeout-sec` | INT | B-3 override of the per-worker timeout in seconds (legacy `t2_preflight.sh --timeout-sec` / `T2Timeout`, default `180`). Omitted → 180s default preserved. Applied to `workers.timeout_sec` and threaded into dispatch via `worker_spec`. |
 | `--label` | TEXT | B-4 override of the caller invocation label (legacy `t2_preflight.sh --label`), stamped onto per-reviewer output frontmatter via the recipe `caller_label`. Omitted → default `swarm-run-lens-<lens>` label preserved. |
 | `--force-relens` | — | With `--resume`: re-resolve lens-derived prompt/recipe fields from the **current** registry (FR-025). Requires `--resume`. |
-| `--detached` | — | Launch inside a `tmux` session `swarm-<job_id>` (FR-014). Mutually exclusive with `--resume`. Exits `2` if tmux is unavailable — no silent inline fallback. |
-| `--auto-inject-guard` | — | Prepend the canonical §11.5 injection-guard sentence to a custom-prompt-dir `system.txt` that lacks it (idempotent, opt-in). Relevant only when migrating legacy custom-prompt-dir layouts that predate §11.5 framing. |
+| `--detached` | — | Launch inside a `tmux` session `swarm-<job_id>` (FR-014). Mutually exclusive with `--resume` and `--tui`. Exits `2` if tmux is unavailable — no silent inline fallback. |
+| `--tui` | — | Render a live Rich progress dashboard while Wave 1 dispatch runs. Fresh runs only (not with `--resume`); needs a TTY (on a non-TTY pipe it silently runs the plain synchronous path); mutually exclusive with `--detached`. Ctrl-C during the dashboard exits `130`. |
+| `--auto-inject-guard` | — | Prepend the canonical §11.5 injection-guard sentence to the `system.txt` in the `custom_prompt_dir` directory when it lacks it (idempotent, opt-in; the file on disk is not rewritten). Relevant only when migrating legacy custom prompt directories that predate §11.5 framing. |
 
-> **Note — custom prompt directory is not a `run` flag.** The custom prompt
-> directory is the JobSpec `custom_prompt_dir` field (FR-021), authored in a spec
-> file and validated only for the `custom` lens (`custom_prompt_dir` requires the
-> `custom` lens — see [`swarm validate`](#swarm-validate)). It is **not** a
+> **Note — the custom prompt directory is not a `run` flag.** It is the JobSpec
+> `custom_prompt_dir` field (FR-021), authored in a spec file with `"lens": "custom"`
+> (`custom_prompt_dir` requires the `custom` lens — see [`swarm validate`](#swarm-validate)).
+> The directory must hold `system.txt`, `user.txt` and `meta.yaml`. It is **not** a
 > `swarm run` CLI option; only `--auto-inject-guard` (above) is the run-time flag
-> that interacts with a custom-prompt-dir `system.txt`.
+> that interacts with the `custom_prompt_dir` `system.txt`.
 
 ### Exit codes
 
 | Code | Condition |
 |---|---|
-| `0` | Job dispatched (stub or proxy). stdout ends `swarm run: dispatched job (mode=…, workers=N, results=N)`. |
+| `0` | Job ran to `terminal` (stub or proxy). stdout ends `swarm run: dispatched job (mode=…, workers=N, results=N)`. The run status (`success` / `partial` / `failed`) is in `return-contract.yaml`; read it with [`swarm status`](#swarm-status). |
 | `1` | Preflight failed (e.g. `imm4.target_too_small`; `inv007.env_missing`). Structured rule block on stderr. Output dir **not** created on IMM-4 failure. |
 | `2` | Usage error (unknown lens, conflicting input modes, `--detached` without tmux). |
+| `130` | Interrupted with Ctrl-C during a `--tui` run (the terminal is restored and the dispatch thread drained first). |
 
 ### Examples
 
@@ -138,13 +142,16 @@ superclaude swarm validate-lenses [--warning-mode]
 ```
 
 Validate the bundled `LENSES` registry (FR-008): six structural assertions per entry
-over every **non-`custom`** lens.
+over every **non-`custom`** lens. The registry has 9 entries: the 8 bundled lenses
+(`bare-review`, `refactor-find`, `edge-case-hunt`, `spec-completeness`,
+`feasibility-probe`, `troubleshoot-hypothesis`, `doc-completeness`, `reflect-review`)
+plus the unvalidated `custom` escape hatch.
 
 | Flag | Meaning |
 |---|---|
 | `--warning-mode` | Emit per-entry diagnostics on stderr but exit `0` even on failure. For pre-commit / non-blocking CI advisories. Default is blocking. |
 
-**Exit:** `0` all pass (stdout `validate-lenses: registry OK (8 entries inspected, 7
+**Exit:** `0` all pass (stdout `validate-lenses: registry OK (9 entries inspected, 8
 validated)`), or any mode with `--warning-mode` · `1` ≥1 entry failed (default blocking)
 · `2` reserved.
 
@@ -168,12 +175,14 @@ Report a job's wave phase from `<DIR>/.swarm-state.json` (FR-002). Phases:
 | `--watch-max-iterations` | INT | Optional ceiling on polls (mainly a test lever). |
 
 **Exit:** `0` non-terminal phase, OR terminal+success, OR terminal with unreadable
-contract (status unknown) · `1` terminal+partial or terminal+failed *(requires the M5
-contract; not reachable on today's dispatch-only path)* · `2` usage error (dir/state
-missing, corrupt JSON, `--job` mismatch).
+contract (status unknown) · `1` terminal+partial or terminal+failed (as recorded in
+`return-contract.yaml`) · `2` usage error (dir/state missing, corrupt JSON, `--job`
+mismatch).
+
+On a terminal job with a readable contract the line ends with `terminal_status=`:
 
 ```text
-status: phase=terminal job_id=lens-bare-review-ab12cd34 updated=2026-06-09T00:18:03Z
+status: phase=terminal job_id=lens-bare-review-ab12cd34 updated=2026-06-09T00:18:03Z terminal_status=success
 ```
 
 ---
@@ -240,27 +249,28 @@ missing, nested tmux, illegal `JOB_ID`, or `--output` not a directory).
 
 ## Run artifacts
 
-After a successful **fresh** `swarm run … --output <DIR>` (stub or proxy — *not*
-`--resume`), `<DIR>` contains **exactly four** files:
+After a successful **fresh** `swarm run … --output <DIR>` (stub or proxy), `<DIR>`
+contains the four observability files, the per-worker outputs, `merged.md` and
+`return-contract.yaml`:
 
 | File | Format | Key fields |
 |---|---|---|
-| `.swarm-state.json` | JSON | `state` (`preflight_ok`…`terminal`), `job_id`, `updated` (ISO-8601 `Z`). |
+| `.swarm-state.json` | JSON | `state` (`preflight_ok`…`terminal`), `job_id`, `updated` (ISO-8601 `Z`). Flipped to `terminal` only after Wave 3 has written the contract. |
 | `execution-log.jsonl` | JSONL | One record/line: `event_type` (`wave_transition`/`worker_start`/`worker_progress`/`worker_done`/`terminal`), `timestamp`, `worker_index` (int or null), `payload` (free-form). |
 | `execution-log.md` | Markdown | `- [<ts>] <event_type> worker=<i\|->: <k=v …>` — same stream, human-rendered. |
 | `manifest.json` | JSON | `contract_version`, `job_id`, `resolved_lens_entry` (durable lens snapshot), `preflight` (`target_checksum` / `workers_requested` / `transport_kind`), `caller_metadata` (`suspect` / `tier`). |
+| `<lens>-NN-<model>.final.md` | Markdown | One normalized worker output per worker (Wave 2 recipe output). |
+| `<lens>-NN-<model>.meta.json` | JSON | Per-worker sidecar; `--resume` skips workers whose sidecar reports `status=success`. |
+| `merged.md` | Markdown | Wave 3 merge of the worker outputs; written when `amalgamation_mode` is `normalize+merge` (the default for every bundled lens). |
+| `return-contract.yaml` | YAML | `status` (`success`/`partial`/`failed`), `job_id`, `lens`, `workers_requested` / `workers_succeeded` / `workers_failed`, `output_files` (per-worker paths), recommended next command. |
 
-**Not** emitted by the **fresh** run path: `merged.md`, `return-contract.yaml`,
-`done.json`, per-worker `*.md` / `*.meta.json` — the fresh path is dispatch-only
-(Wave 0 + Wave 1), so the Wave 2/3 amalgamation writer (M5) is not wired into it.
-**Exception:** preflight writes `return-contract.yaml` (`status: failed`,
-`reason: env-missing`) on the INV-007 env-missing path.
+**Not** emitted by a run: `done.json`. Only [`swarm kill JOB_ID --output DIR`](#swarm-kill)
+writes it (with `terminal_status=killed`). Preflight also writes `return-contract.yaml`
+(`status: failed`, `reason: env-missing`) on the INV-007 env-missing path.
 
-**`--resume` emits more.** `swarm run --resume` re-runs Wave 2 normalize + Wave 3
-reduce (`reduce_wave3`), so a resumed job's `<DIR>` *additionally* contains
-`return-contract.yaml` and `done.json`, plus `merged.md` when
-`amalgamation_mode == normalize+merge` and the per-worker normalized outputs. The
-four-file set above is the fresh-run contract only.
+**`--resume`** re-dispatches only the workers that did not succeed, re-runs Wave 2
+normalize on them and Wave 3 reduce (`reduce_wave3(resume=True)`), regenerating
+`merged.md` and `return-contract.yaml`.
 
 Full schemas: [Lens Catalog](lens-catalog.md) and the dataclass definitions in
 `cli/swarm/models.py`.

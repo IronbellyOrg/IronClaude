@@ -1,0 +1,37 @@
+7:Checks in `tests/skills/test_model_alias_policy.py` that r
+9:- `test_frontmatter_model_is_an_alias_when_present` reads 
+16:- `issue-worker-t3` pins `claude-gw-tier3`, `issue-worker
+17:- The pins are on purpose: when a spawn fails because the
+38:Target, once the launcher change lands: outside a ccsessi
+40:Status on 2026-11-05: the ccsession launcher is to apply 
+43:## Why aliases and not picker ids
+47:- The sub-agents page says the Agent-call `model` paramet
+48:- The page says the frontmatter `model` takes an alias, a
+49:- The probe found that a tier id set in `ANTHROPIC_DEFAUL
+50:- The page also describes an edge case for family aliases
+54:The probe covered the frontmatter path and `--model`; it 
+59:- **Sprint alternate-model suggestion.** Given the alias 
+60:- **Roadmap names.** Step ids such as `generate-opus-arch
+61:- **Implement retry ladder.** On 2026-11-05 `/etc/aidev02
+== retired
+exit=1
+collecting ... collected 13 items
+
+tests/skills/test_model_alias_policy.py::test_frontmatter_model_is_an_alias_when_present PASSED [  7%]
+tests/skills/test_model_alias_policy.py::test_tier_ids_appear_only_in_allowed_paths PASSED [ 15%]
+tests/skills/test_model_alias_policy.py::test_python_selection_constants_are_not_full_model_ids PASSED [ 23%]
+tests/skills/test_model_alias_policy.py::test_markdown_does_not_pass_full_model_ids_to_model_flags PASSED [ 30%]
+tests/skills/test_model_alias_policy.py::test_reflect_default_model_is_an_alias PASSED [ 38%]
+tests/skills/test_model_alias_policy.py::test_d12_manual_test_does_not_pin_the_old_reflect_model PASSED [ 46%]
+tests/skills/test_model_alias_policy.py::test_issue_chains_use_the_default_brainstorm_models PASSED [ 53%]
+tests/skills/test_model_alias_policy.py::test_cleanup_audit_docs_match_the_audit_scanner_pin PASSED [ 61%]
+tests/skills/test_model_alias_policy.py::test_retry_ladder_uses_the_variable_names_the_workspace_exports PASSED [ 69%]
+tests/skills/test_model_alias_policy.py::test_mapping_document_states_the_exports_and_tiers_exist PASSED [ 76%]
+tests/skills/test_model_alias_policy.py::test_issue_worker_allow_list_entries_exist[src/superclaude/agents/issue-worker-t1.md] PASSED [ 84%]
+tests/skills/test_model_alias_policy.py::test_issue_worker_allow_list_entries_exist[src/superclaude/agents/issue-worker-t2.md] PASSED [ 92%]
+tests/skills/test_model_alias_policy.py::test_issue_worker_allow_list_entries_exist[src/superclaude/agents/issue-worker-t3.md] PASSED [100%]
+
+============================== 13 passed in 1.24s ==============================
+grep exit 1
+============================== 8 passed in 0.45s ===============================
+probe link target exists

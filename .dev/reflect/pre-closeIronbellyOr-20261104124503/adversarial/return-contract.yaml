@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-closeIronbellyOr-20261104124503/adversarial/merged-verdict.yaml"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/reflect/pre-closeIronbellyOr-20261104124503/adversarial/"
+  status: "partial"          # diff points converged 18/18, but the invariant gate is BLOCKED by INV-001 (carried into the merged verdict as blocking finding M-2)
+  base_variant: "opus:refactorer"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-001, category: sufficiency_challenge, assumption: "plan:80 mode-switch scope ('every session in that repo until a new session starts') is true", severity: HIGH}

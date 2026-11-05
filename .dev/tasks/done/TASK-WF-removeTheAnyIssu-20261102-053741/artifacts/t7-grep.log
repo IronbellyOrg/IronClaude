@@ -1,0 +1,7 @@
+== AC1 grep (expect nothing)
+grep rc=1
+== AC1 equality
+      3 6. Gap severity — Critical and Important gaps are blocking and fail the gate; Minor gaps are recorded as notes and do not fail it
+      3 - FAIL: any blocking (Critical or Important) finding; every blocking finding must be resolved. Minor findings are notes: they never fail the gate and are not rechecked. Only PASS or FAIL — no conditional pass.
+== R-008
+r008 rc=1 (1 = nothing printed)

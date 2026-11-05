@@ -2,7 +2,7 @@
 component: "prd-skill"
 component_version: "skill-v2 (refactored decomposition)"
 covers_release: "refactor/prd-skill-decompose branch"
-last_updated: "2026-04-03"
+last_updated: "2026-11-02"
 author: "Claude Opus 4.6"
 ---
 
@@ -51,7 +51,7 @@ The pipeline uses **parallel multi-agent investigation** to achieve deep coverag
 
 ### Skill file structure
 
-```
+```text
 src/superclaude/skills/prd/
 ├── SKILL.md                        # Full skill definition and behavioral protocol
 └── refs/
@@ -99,7 +99,7 @@ Performs scope discovery on a product area, creates an MDTM task file encoding t
 
 #### Syntax
 
-```
+```text
 /prd [description of what to document]
 ```
 
@@ -116,7 +116,7 @@ The skill needs four pieces of information. The first is mandatory; the rest imp
 
 #### Examples
 
-```
+```text
 # Strong — all four inputs
 /prd Create a PRD for the GameFrame AI multi-agent system. We need this for
 Series A investor materials and to align engineering on next quarter's roadmap.
@@ -132,6 +132,20 @@ Key areas: frontend/app/wizard/, the stage configs, and the Zustand store slices
 /prd Write a PRD for the platform.
 ```
 
+### `superclaude prd` (headless CLI)
+
+The `superclaude prd` command runs the PRD pipeline headlessly from a terminal, without an interactive Claude session:
+
+```bash
+superclaude prd run "<request>" [--tier lightweight|standard|heavyweight] [--dry-run]
+superclaude prd resume <STEP_ID>
+```
+
+- `prd run` takes the request as its argument; `--dry-run` validates the configuration without launching the pipeline. Other options: `--product`, `--where`, `--spec`, `--output`, `--max-turns`, `--model`, `--debug`.
+- `prd resume` continues an interrupted run from a step such as `parse-request` or `investigation-3`. If the original run used a non-default `--output`, pass the same `--output`, `--product` and `--tier`.
+- Research and synthesis fix cycles default to 2 each.
+- Run `superclaude prd run --help` and `superclaude prd resume --help` for the full option list.
+
 ---
 
 ## 3) The 7-Phase Multi-Agent Pipeline
@@ -140,7 +154,7 @@ The PRD pipeline generates a comprehensive product requirements document through
 
 ### Pipeline overview
 
-```
+```text
 Stage A: Scope Discovery (orchestrator)
   A.1: Check for existing task file
   A.2: Parse & triage PRD request
@@ -258,7 +272,7 @@ The pipeline enforces quality at three critical gates plus a final dual-QA pass.
 10. Pattern documentation — code conventions captured
 11. Incremental writing compliance — files show iterative structure
 
-**Verdict**: PASS proceeds to Phase 4. FAIL triggers targeted gap-filling agents (max 3 fix cycles).
+**Verdict**: PASS proceeds to Phase 4. FAIL triggers targeted gap-filling agents: max 2 fix cycles (3 reviews), then HALT and escalate the open blocking findings to you.
 
 **Parallel partitioning**: When >6 research files, multiple analyst/QA instances run with assigned subsets.
 
@@ -329,7 +343,7 @@ Verifies the PRD makes sense from product and engineering perspectives:
 - No contradictions or red flags
 - Appropriate audience targeting
 
-**Zero leniency**: All severity levels (CRITICAL, IMPORTANT, MINOR) must be resolved before proceeding.
+**Blocking findings only**: Only blocking findings (CRITICAL, IMPORTANT) must be resolved before proceeding. MINOR findings are notes: they never fail a gate and are not rechecked.
 
 ---
 
@@ -339,7 +353,7 @@ All persistent artifacts go into the task folder at `.dev/tasks/to-do/TASK-PRD-Y
 
 ### Directory structure
 
-```
+```text
 .dev/tasks/to-do/TASK-PRD-YYYYMMDD-HHMMSS/
 ├── TASK-PRD-YYYYMMDD-HHMMSS.md          # MDTM task file (execution contract)
 ├── research-notes.md                     # Scope discovery results
@@ -452,7 +466,7 @@ The MDTM task file provides automatic resume:
 
 ### 8.5 Error handling
 
-- **QA gate failure**: Triggers targeted fix cycles (max 3 for research, max 2 for synthesis). After max cycles, execution halts and issues are presented to the user.
+- **QA gate failure**: Triggers targeted fix cycles: max 2 fix cycles (3 reviews) for research and for synthesis. After 2 fix cycles, execution halts and the open blocking findings are escalated to you.
 - **Agent failure**: Individual agent failures are logged. Remaining agents continue. Failed investigations are noted in the gaps log.
 - **Session interruption**: Resume from task file. Partial research files persist on disk.
 
@@ -464,7 +478,7 @@ The PRD skill is the starting point of the full product development pipeline.
 
 ### Stage A: PRD (product requirements) <- **This skill**
 
-```
+```text
 /prd Create a PRD for [product area]
 ```
 
@@ -472,7 +486,7 @@ Produces a comprehensive PRD at `docs/docs-product/tech/[feature]/PRD_[FEATURE].
 
 ### Stage A2: Critique the PRD
 
-```
+```text
 /sc:spec-panel @<PRD path> --mode critique --focus requirements
 ```
 
@@ -480,7 +494,7 @@ It only reports. Decide which findings to accept, ask Claude to apply them to th
 
 ### Stage B: TDD (technical design)
 
-```
+```text
 /tdd Create a TDD based on the PRD at docs/docs-product/tech/[feature]/PRD_[FEATURE].md
 ```
 
@@ -488,7 +502,7 @@ The PRD skill offers to invoke `/tdd` automatically after completion. Research f
 
 ### Stage B2: Critique the TDD
 
-```
+```text
 /sc:spec-panel @<TDD path> --mode critique --focus architecture,testing
 ```
 
@@ -496,7 +510,7 @@ Apply accepted findings the same way as Stage A2.
 
 ### Stage B3 (optional): Check whether to split the release
 
-```
+```text
 /sc:release-split <TDD path>
 ```
 
@@ -504,7 +518,7 @@ Apply accepted findings the same way as Stage A2.
 
 ### Stage C: Roadmap and phase task files
 
-```
+```text
 /roadmap "Create a full roadmap from <PRD path> and <TDD path>. Dry run first so I can review the phase plan."
 ```
 
@@ -512,7 +526,7 @@ The dry run is requested by those words in the request: it shows the proposed ph
 
 ### Stage D: Run each phase
 
-```
+```text
 /task <phase task file>
 ```
 
@@ -520,7 +534,7 @@ Run the phase task files one at a time, in the order the roadmap run printed. Be
 
 Then re-confirm before starting the next phase. The audit inside `/task` compares a commit range and `/task` does not commit, so it misses the phase's uncommitted work:
 
-```
+```text
 /sc:reflect --mode post --tasklist <task file> --spec <tdd file> --diff <commit before the work started> --no-promote
 ```
 
@@ -528,14 +542,14 @@ Give that one commit, not a `..HEAD` range: a single commit is compared with you
 
 ### Stage E: Review and open a PR
 
-```
+```text
 /code-review
 /security-review
 /sc:auggie-review --diff origin/<main branch>...HEAD --no-post-pr
 /sc:pr-submit --monitor 3 --head <branch> --title "<title>" --body "<body>"
 ```
 
-Commit locally first. Run `/security-review` only if login, permissions, secrets, user input, or file paths changed. Push only after your lead approves, then run `/sc:pr-submit`. It fixes the confirmed review findings of Medium severity or higher and failing CI checks, and pushes those fixes to your branch without asking (use `--monitor 2` to stop before pushing). It needs `gh` logged in and the Augment Code review app on the repository; without the app use `--monitor 0`, which only opens the PR. Full steps: section 3.11 of [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md) (installed as `~/.claude/HOW-WE-WORK.md`); the whole pipeline above is its workflow 3.1.
+Commit locally first. Run `/security-review` only if login, permissions, secrets, user input, or file paths changed. Push only after your lead approves, then run `/sc:pr-submit`. It fixes the confirmed review findings of Medium severity or higher and failing CI checks, and pushes those fixes to your branch without asking (use `--monitor 2` to stop before pushing). It needs `gh` logged in and the Augment Code review app or the Codex review connector on the repository; without either use `--monitor 0`, which only opens the PR. Full steps: section 3.11 of [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md) (installed as `~/.claude/HOW-WE-WORK.md`); the whole pipeline above is its workflow 3.1.
 
 The CLI pipeline (`superclaude roadmap run` -> `/sc:tasklist` -> `superclaude sprint run`) is a separate release pipeline; see [roadmap-cli-tools-release-guide.md](roadmap-cli-tools-release-guide.md). For which tool to use when, see [How We Work](../user-guide/how-we-work.md).
 
@@ -617,7 +631,7 @@ The CLI pipeline (`superclaude roadmap run` -> `/sc:tasklist` -> `superclaude sp
 | Scope discovery takes unusually long | Large codebase with many matching files (Scenario B broad search) | Provide WHERE input to constrain the search space |
 | Task builder produces malformed task file | Research notes are incomplete (failed sufficiency gate) | Check `research-notes.md` — ensure all 7 categories are populated |
 | Research agents produce empty output files | Agent spawning failed or agent hit context limit immediately | Check agent error output; restart session to get fresh context |
-| QA gate fails repeatedly (3+ fix cycles) | Fundamental gap in research coverage — targeted fixes insufficient | Review the QA report, manually investigate the flagged areas, then restart |
+| QA gate still fails after max 2 fix cycles (3 reviews) and the run halts | Fundamental gap in research coverage — targeted fixes insufficient | Review the open blocking findings the run escalated in the QA report, manually investigate the flagged areas, then restart |
 | Synthesis agents produce placeholder content | Research files don't cover the template sections assigned to that synth file | Check synthesis mapping — the research directory may be missing a topic |
 | Assembly produces a PRD missing sections | Synthesis files incomplete or missing | Check `synthesis/` directory — ensure all `synth-*.md` files are present and populated |
 | Final PRD line count exceeds tier budget | Synthesis agents over-produced; assembler didn't trim | The rf-qa report-validation agent should catch this. If it persists, manually trim. |
@@ -630,7 +644,7 @@ The CLI pipeline (`superclaude roadmap run` -> `/sc:tasklist` -> `superclaude sp
 
 ### Use case 1: Standard product PRD
 
-```
+```text
 /prd Create a PRD for the GameFrame AI multi-agent system for engineering planning.
 Focus on backend/app/agents/ and backend/app/services/.
 ```
@@ -639,7 +653,7 @@ Standard tier, 4-6 codebase agents + 1-2 web agents. All 32 template sections po
 
 ### Use case 2: Feature-scoped PRD
 
-```
+```text
 /prd Create a PRD for the wizard configuration system. We want to add new stages
 and need to document current vs planned capabilities. Key areas: frontend/app/wizard/.
 ```
@@ -648,7 +662,7 @@ Feature PRD — sections S5, S8, S9, S16-S18 abbreviated or N/A. References Plat
 
 ### Use case 3: Comprehensive platform PRD
 
-```
+```text
 /prd Create a detailed, comprehensive PRD for the entire platform. We need this for
 Series A investor materials. Include full market analysis and competitive positioning.
 ```
@@ -657,7 +671,7 @@ Heavyweight tier (user said "detailed, comprehensive"), 6-10+ codebase agents, 2
 
 ### Use case 4: PRD from existing documentation
 
-```
+```text
 /prd Create a PRD for pixel streaming by consolidating the existing docs at
 docs/docs-product/tech/streaming/. Need a single source of truth.
 ```
@@ -666,7 +680,7 @@ Consolidation mode — Doc Analyst agents cross-validate existing docs against c
 
 ### Use case 5: Resume interrupted PRD
 
-```
+```text
 /prd Create a PRD for the task management system.
 ```
 
@@ -674,7 +688,7 @@ If a `TASK-PRD-*` folder exists for "task management", the skill reads the task 
 
 ### Use case 6: PRD feeding into TDD
 
-```
+```text
 /prd Create a PRD for the canvas roadmap feature. After completion, I want to create
 a technical design document from it.
 ```
@@ -683,7 +697,7 @@ After PRD completion, Phase 7 offers to invoke `/tdd` with the PRD and research 
 
 ### Use case 7: Investor-focused PRD with market emphasis
 
-```
+```text
 /prd Create a PRD for the AI assistant product. This is for our Series A deck —
 emphasize market sizing, competitive positioning, and value proposition.
 ```
@@ -692,7 +706,7 @@ Product PRD with emphasis on S5 (Business Context), S8 (Value Proposition), S9 (
 
 ### Use case 8: Narrow feature with no web research needed
 
-```
+```text
 /prd Create a PRD for the notification preference system. Engineering-only — no market
 context needed. Focus on frontend/src/notifications/ and backend/api/preferences/.
 ```
@@ -705,7 +719,7 @@ Lightweight tier. Web research agents skipped (0 web agents). Fast execution foc
 
 ### Invocation
 
-```
+```text
 /prd [description]
 ```
 

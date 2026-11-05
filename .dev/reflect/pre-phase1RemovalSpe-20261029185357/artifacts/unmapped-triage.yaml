@@ -1,0 +1,396 @@
+- id: INF-001
+  section: 1.1 C1
+  citation: source.md:30
+  triage: row-ref C1
+- id: INF-002
+  section: 1.1 C2
+  citation: source.md:31
+  triage: row-ref C2
+- id: INF-003
+  section: 1.1 C3
+  citation: source.md:32
+  triage: row-ref C3
+- id: INF-004
+  section: 1.1 C4
+  citation: source.md:33
+  triage: row-ref C4
+- id: INF-005
+  section: 1.1 C5
+  citation: source.md:34
+  triage: row-ref C5
+- id: INF-006
+  section: 1.1 C6
+  citation: source.md:35
+  triage: row-ref C6
+- id: INF-007
+  section: 1.1 C7
+  citation: source.md:36
+  triage: row-ref C7
+- id: INF-009
+  section: 1.1 C8
+  citation: source.md:37
+  triage: row-ref C8
+- id: INF-010
+  section: 1.1 C9
+  citation: source.md:38
+  triage: row-ref C9
+- id: INF-011
+  section: 1.1 C10
+  citation: source.md:39
+  triage: row-ref C10
+- id: INF-012
+  section: 1.1 C11
+  citation: source.md:40
+  triage: row-ref C11
+- id: INF-013
+  section: 1.1 C12
+  citation: source.md:41
+  triage: row-ref C12
+- id: INF-015
+  section: 1.2 preamble
+  citation: source.md:48
+  triage: "section-ref \xA71.2"
+- id: INF-016
+  section: 1.2 S1
+  citation: source.md:52
+  triage: row-ref S1
+- id: INF-023
+  section: 1.2 S12
+  citation: source.md:63
+  triage: row-ref S12
+- id: INF-025
+  section: 1.2 S16
+  citation: source.md:67
+  triage: row-ref S16
+- id: INF-026
+  section: 1.2 S17
+  citation: source.md:68
+  triage: row-ref S17
+- id: INF-027
+  section: 1.2 S20
+  citation: source.md:71
+  triage: row-ref S20
+- id: INF-028
+  section: 1.2 S21
+  citation: source.md:72
+  triage: row-ref S21
+- id: INF-035
+  section: 1.2 S28
+  citation: source.md:79
+  triage: row-ref S28
+- id: INF-038
+  section: 1.2 S31
+  citation: source.md:82
+  triage: row-ref S31
+- id: INF-044
+  section: 1.2 S41
+  citation: source.md:92
+  triage: row-ref S41
+- id: INF-046
+  section: 1.2 S43
+  citation: source.md:94
+  triage: row-ref S43
+- id: INF-047
+  section: 1.2 S44
+  citation: source.md:95
+  triage: row-ref S44
+- id: INF-048
+  section: 1.2 S57
+  citation: source.md:108
+  triage: row-ref S57
+- id: INF-053
+  section: 1.2 S84
+  citation: source.md:135
+  triage: row-ref S84
+- id: INF-057
+  section: 1.2 S89
+  citation: source.md:140
+  triage: row-ref S89
+- id: INF-063
+  section: 1.2 P1, P11, P27
+  citation: source.md:152-178
+  triage: row-ref P1
+- id: INF-064
+  section: 1.2 P2
+  citation: source.md:153
+  triage: row-ref P2
+- id: INF-066
+  section: 1.2 P4, P13, P39
+  citation: source.md:155-190
+  triage: row-ref P4
+- id: INF-067
+  section: 1.2 P5, P14, P40
+  citation: source.md:156-191
+  triage: row-ref P5
+- id: INF-070
+  section: 1.2 P8, P17, P47
+  citation: source.md:159-198
+  triage: row-ref P8
+- id: INF-076
+  section: 1.2 P23, P57
+  citation: source.md:174-208
+  triage: row-ref P23
+- id: INF-084
+  section: 1.2 P49
+  citation: source.md:200
+  triage: row-ref P49
+- id: INF-091
+  section: 1.2 P68, P69, P70
+  citation: source.md:219-221
+  triage: row-ref P68
+- id: INF-093
+  section: 1.2 P73
+  citation: source.md:224
+  triage: row-ref P73
+- id: INF-100
+  section: 1.2 P83
+  citation: source.md:234
+  triage: row-ref P83
+- id: INF-102
+  section: 1.2 P85
+  citation: source.md:236
+  triage: row-ref P85
+- id: INF-103
+  section: 1.2 P89
+  citation: source.md:240
+  triage: row-ref P89
+- id: INF-104
+  section: 1.2 P91
+  citation: source.md:242
+  triage: row-ref P91
+- id: INF-108
+  section: 1.2 P96
+  citation: source.md:247
+  triage: row-ref P96
+- id: INF-114
+  section: '2.1'
+  citation: source.md:261
+  triage: NO-REF
+- id: INF-115
+  section: '2.1'
+  citation: source.md:261
+  triage: NO-REF
+- id: INF-116
+  section: 2.2 DoD-1
+  citation: source.md:267
+  triage: "section-ref \xA72.2"
+- id: INF-119
+  section: 2.2 DoD-3
+  citation: source.md:269
+  triage: "section-ref \xA72.2"
+- id: INF-120
+  section: 2.2 DoD-4
+  citation: source.md:270
+  triage: "section-ref \xA72.2"
+- id: INF-122
+  section: 2.2 DoD-6
+  citation: source.md:272
+  triage: "section-ref \xA72.2"
+- id: INF-125
+  section: '2.3'
+  citation: source.md:279
+  triage: NO-REF
+- id: INF-129
+  section: 2.4 allowlist
+  citation: source.md:300
+  triage: "section-ref \xA72.4"
+- id: INF-130
+  section: 2.4 allowlist
+  citation: source.md:301
+  triage: "section-ref \xA72.4"
+- id: INF-131
+  section: '3.1'
+  citation: source.md:307
+  triage: "section-ref \xA73.1"
+- id: INF-132
+  section: '3.1'
+  citation: source.md:307
+  triage: "section-ref \xA73.1"
+- id: INF-133
+  section: '3.1'
+  citation: source.md:307
+  triage: "section-ref \xA73.1"
+- id: INF-134
+  section: 3.2 codebase-memory matcher
+  citation: source.md:313
+  triage: "section-ref \xA73.2"
+- id: INF-138
+  section: 3.2 serena Tier R
+  citation: source.md:315
+  triage: "section-ref \xA73.2"
+- id: INF-139
+  section: 3.2 Tier R row (a)
+  citation: source.md:319
+  triage: "section-ref \xA73.2"
+- id: INF-140
+  section: 3.2 Tier R row (b)
+  citation: source.md:320
+  triage: "section-ref \xA73.2"
+- id: INF-141
+  section: 3.2 Tier R row (c)
+  citation: source.md:321
+  triage: "section-ref \xA73.2"
+- id: INF-143
+  section: 3.2 serena Tier K
+  citation: source.md:325
+  triage: "section-ref \xA73.2"
+- id: INF-147
+  section: 3.2 receipt and marker
+  citation: source.md:327
+  triage: "section-ref \xA73.2"
+- id: INF-148
+  section: 3.2 receipt and marker
+  citation: source.md:327
+  triage: "section-ref \xA73.2"
+- id: INF-149
+  section: 3.3 never touched
+  citation: source.md:331
+  triage: "section-ref \xA73.3"
+- id: INF-150
+  section: 3.3 index and memory policy
+  citation: source.md:332
+  triage: "section-ref \xA73.3"
+- id: INF-151
+  section: 3.3 classifier
+  citation: source.md:333
+  triage: "section-ref \xA73.3"
+- id: INF-152
+  section: 3.3 removal helper
+  citation: source.md:334
+  triage: "section-ref \xA73.3"
+- id: INF-155
+  section: 3.3 non-fatal
+  citation: source.md:337
+  triage: "section-ref \xA73.3"
+- id: INF-156
+  section: 3.3 failure table
+  citation: source.md:341
+  triage: "section-ref \xA73.3"
+- id: INF-157
+  section: 3.3 failure table
+  citation: source.md:342
+  triage: "section-ref \xA73.3"
+- id: INF-158
+  section: 3.3 failure table
+  citation: source.md:343
+  triage: "section-ref \xA73.3"
+- id: INF-159
+  section: 3.3 failure table
+  citation: source.md:344
+  triage: "section-ref \xA73.3"
+- id: INF-162
+  section: 3.3 failure table
+  citation: source.md:347
+  triage: "section-ref \xA73.3"
+- id: INF-163
+  section: 3.4 install --list
+  citation: source.md:351
+  triage: "section-ref \xA73.4"
+- id: INF-164
+  section: 3.4 doctor
+  citation: source.md:352
+  triage: "section-ref \xA73.4"
+- id: INF-166
+  section: 3.4 messages
+  citation: source.md:354
+  triage: "section-ref \xA73.4"
+- id: INF-167
+  section: 3.4 messages
+  citation: source.md:354
+  triage: "section-ref \xA73.4"
+- id: INF-168
+  section: 3.4 messages
+  citation: source.md:354
+  triage: "section-ref \xA73.4"
+- id: INF-169
+  section: 3.4 messages
+  citation: source.md:354
+  triage: "section-ref \xA73.4"
+- id: INF-173
+  section: 3.5 tests
+  citation: source.md:361
+  triage: "section-ref \xA73.5"
+- id: INF-176
+  section: 3.5 tests
+  citation: source.md:361
+  triage: "section-ref \xA73.5"
+- id: INF-178
+  section: 3.5 tests
+  citation: source.md:362
+  triage: "section-ref \xA73.5"
+- id: INF-180
+  section: 4 decision
+  citation: source.md:380
+  triage: "section-ref \xA74"
+- id: INF-181
+  section: 4.1 G1
+  citation: source.md:388
+  triage: "section-ref \xA74.1"
+- id: INF-183
+  section: 4.1 G2
+  citation: source.md:389
+  triage: "section-ref \xA74.1"
+- id: INF-186
+  section: 4.1 G4
+  citation: source.md:391
+  triage: "section-ref \xA74.1"
+- id: INF-187
+  section: 4.1 G5
+  citation: source.md:392
+  triage: "section-ref \xA74.1"
+- id: INF-188
+  section: 4.1 G5
+  citation: source.md:392
+  triage: "section-ref \xA74.1"
+- id: INF-191
+  section: 4.1 G7
+  citation: source.md:394
+  triage: "section-ref \xA74.1"
+- id: INF-195
+  section: 4.1 G9
+  citation: source.md:396
+  triage: "section-ref \xA74.1"
+- id: INF-199
+  section: 4.3 acceptance 2
+  citation: source.md:406
+  triage: "section-ref \xA74.3"
+- id: INF-200
+  section: '5'
+  citation: source.md:410
+  triage: "section-ref \xA75"
+- id: INF-208
+  section: 5 M8
+  citation: source.md:421
+  triage: "section-ref \xA75"
+- id: INF-211
+  section: 5 consumers
+  citation: source.md:423
+  triage: "section-ref \xA75"
+- id: INF-213
+  section: '6.1'
+  citation: source.md:449
+  triage: "section-ref \xA76.1"
+- id: INF-216
+  section: '6.3'
+  citation: source.md:457
+  triage: "section-ref \xA76.3"
+- id: INF-221
+  section: 6.3 ClaudeCodeCodeAudit
+  citation: source.md:509
+  triage: "section-ref \xA76.3"
+- id: INF-231
+  section: 8.0 check_rosters.py
+  citation: source.md:627
+  triage: "section-ref \xA78.0"
+- id: INF-270
+  section: 8 T8
+  citation: source.md:712
+  triage: row-ref S4
+- id: INF-276
+  section: 8 T10/T11 split
+  citation: source.md:725
+  triage: "section-ref \xA78"
+- id: INF-329
+  section: '10'
+  citation: source.md:806
+  triage: "section-ref \xA710"

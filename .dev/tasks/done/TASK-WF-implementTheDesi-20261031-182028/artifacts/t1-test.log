@@ -1,0 +1,12 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-codex
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.15.1
+collected 10 items
+
+tests/pr_submit/test_run_log.py ..........                               [100%]
+
+============================== 10 passed in 0.07s ==============================
+rc=0

@@ -13,10 +13,10 @@ MCP (Model Context Protocol) servers extend Claude Code's capabilities through s
 
 **Core Servers:**
 
+- **codegraph**: Code graph of symbols, callers, impact and file outlines (installed by `superclaude install`)
 - **context7**: Official library documentation and patterns
 - **playwright**: Browser automation and E2E testing
 - **morphllm-fast-apply**: Pattern-based code transformations
-- **serena**: Semantic code understanding and project memory
 - **tavily**: Web search and real-time information retrieval
 - **auggie**: Semantic codebase search and retrieval
 
@@ -28,14 +28,28 @@ MCP (Model Context Protocol) servers extend Claude Code's capabilities through s
 
 | Request Contains | Servers Activated |
 |-----------------|------------------|
+| Symbol, caller, impact questions | **codegraph** (Grep/Read fallback) |
 | Library imports, API names | **context7** |
 | `test`, `e2e`, `browser` | **playwright** |
 | Multi-file edits, refactoring | **morphllm-fast-apply** |
-| Large projects, sessions | **serena** |
 | `/sc:research`, `latest`, `current` | **tavily** |
 | Unfamiliar codebase, before edits | **auggie** |
 
 ## Server Details
+
+### codegraph 🕸️
+
+**Purpose**: Code structure answers from an indexed graph: where a symbol is defined, who calls it, what a change affects, and file outlines
+**Triggers**: Symbol, caller, callee and impact questions; reading a file's outline before an edit. When codegraph is unavailable, Claude falls back to Grep and Read
+**Install**: Installed for you by `superclaude install` as a required phase, pinned to codegraph 1.6.2 and registered as a user-scope MCP server. You do not need to add it with `superclaude mcp`
+**Tools**: seven tools: `codegraph_node`, `codegraph_search`, `codegraph_callers`, `codegraph_callees`, `codegraph_impact`, `codegraph_files`, `codegraph_status`
+
+```bash
+# See what is installed and registered (read-only)
+superclaude install --list
+```
+
+Details: [Default setup: codegraph](mcp-installation.md#default-setup-codegraph) and the [codegraph guide](codegraph.md).
 
 ### context7 📚
 
@@ -63,8 +77,8 @@ MCP (Model Context Protocol) servers extend Claude Code's capabilities through s
 /sc:test --type e2e "user login flow"
 # → Enables browser automation testing
 
-# Manual activation
-/sc:validate "accessibility compliance" --play
+# Manual hint (advisory)
+/sc:test --type e2e "accessibility compliance" --play
 ```
 
 ### morphllm-fast-apply 🔄
@@ -82,21 +96,6 @@ MCP (Model Context Protocol) servers extend Claude Code's capabilities through s
 export MORPH_API_KEY="your_key_here"
 ```
 
-### serena 🧭
-
-**Purpose**: Semantic code understanding with project memory
-**Triggers**: Symbol operations, large codebases, session management
-**Requirements**: Python 3.9+, uv package manager, no API key
-
-```bash
-# Automatic activation  
-/sc:load existing-project/
-# → Builds project understanding and memory
-
-# Manual activation
-/sc:refactor "extract UserService" --serena
-```
-
 ### tavily 🔍
 
 **Purpose**: Web search and real-time information retrieval for research
@@ -109,19 +108,34 @@ export MORPH_API_KEY="your_key_here"
 /sc:research "latest AI developments 2024"
 # → Performs intelligent web research
 
-# Manual activation  
+# Manual activation
 /sc:analyze "market trends" --tavily
 
 # API key setup (get free key at https://app.tavily.com)
 export TAVILY_API_KEY="tvly-your_api_key_here"
 ```
 
+**Capabilities:**
+
+- **Web Search**: Comprehensive searches with ranking and filtering
+- **News Search**: Time-filtered current events and updates
+- **Content Extraction**: Full-text extraction from search results
+- **Domain Filtering**: Include/exclude specific domains
+- **Multi-Hop Research**: Iterative searches based on findings (up to 5 hops)
+
+**Research Depth Control** (`/sc:research --depth`):
+
+- `--depth quick`: 5-10 sources, basic synthesis
+- `--depth standard`: 10-20 sources, structured report (default)
+- `--depth deep`: 20-40 sources, comprehensive analysis
+- `--depth exhaustive`: 40+ sources, academic-level research
+
 ### auggie 🧠
 
 **Purpose**: Augment Code semantic codebase search and retrieval
 **Triggers**: Natural-language questions about an unfamiliar codebase, architectural concepts, cross-file recall before significant edits
-**Requirements**: Node.js 18+, global `@augmentcode/auggie` install, one-time `auggie login` (or `AUGMENT_SESSION_AUTH` env var)
-**Tools**: `codebase-retrieval`, `ask_question`, `implement`
+**Requirements**: Node.js 20+, global `@augmentcode/auggie` install (the installer pins `@augmentcode/auggie@0.36.0`), one-time `auggie login` (or `AUGMENT_SESSION_AUTH` env var)
+**Tools**: the shipped description names `codebase-retrieval` and `ask_question`
 
 ```bash
 # Install via SuperClaude (handles npm install -g + claude mcp add)
@@ -131,55 +145,49 @@ superclaude mcp --servers auggie
 auggie login
 ```
 
+### litellm 🌐
 
-**Capabilities:**
+**Purpose**: One LiteLLM MCP gateway endpoint that fronts hosted Augment search, Tavily and Context7
+**Requirements**: Network access to `http://ibcore:4000/mcp/`, and the `LITELLM_API_KEY` environment variable set before you start Claude Code
+**Install**: Opt-in only. The "all servers" choice skips it; select it by number or by name.
 
-- **Web Search**: Comprehensive searches with ranking and filtering
-- **News Search**: Time-filtered current events and updates
-- **Content Extraction**: Full-text extraction from search results  
-- **Domain Filtering**: Include/exclude specific domains
-- **Multi-Hop Research**: Iterative searches based on findings (up to 5 hops)
+```bash
+export LITELLM_API_KEY="<your gateway key>"
+superclaude mcp --servers litellm
+```
 
-**Research Depth Control:**
-
-- `--depth quick`: 5-10 sources, basic synthesis
-- `--depth standard`: 10-20 sources, structured report (default)
-- `--depth deep`: 20-40 sources, comprehensive analysis
-- `--depth exhaustive`: 40+ sources, academic-level research
+The registration stores the literal text `Bearer ${LITELLM_API_KEY}` in the `x-litellm-api-key` header, never the key itself. Claude Code reads the variable when it connects, so rotating the key needs no reinstall. Check with `claude mcp list`: litellm should show Connected (a 401 means the variable was empty when Claude Code started).
 
 ## Unified MCP Gateway (Alternative Setup)
 
-For users who want a simpler, unified setup that manages all MCP servers through a single endpoint, **AIRIS MCP Gateway** provides:
+For users who want a simpler, unified setup that manages many MCP servers through a single endpoint, **AIRIS MCP Gateway** provides:
 
-- **50 tools** from default servers (airis-agent, context7, fetch, memory, serena, tavily)
-- **Single SSE endpoint** instead of 8+ separate stdio connections
+- **60+ tools**, as advertised by the installer (this figure is not verified here)
+- **Single SSE endpoint** (`http://localhost:9400/sse`) instead of many separate stdio connections
 - **Lazy loading** - servers start only when needed, auto-terminate when idle
 
 ### Setup
 
-```bash
-# 1. Clone and start
-git clone https://github.com/agiletec-inc/airis-mcp-gateway.git
-cd airis-mcp-gateway
-docker compose up -d
+The installer sets the gateway up for you. Docker is required.
 
-# 2. Register with Claude Code
-claude mcp add --scope user --transport sse airis-mcp-gateway http://localhost:9400/sse
+```bash
+superclaude mcp --servers airis-mcp-gateway
 ```
+
+It installs into `~/.superclaude/airis-mcp-gateway/`, downloads the gateway's Docker Compose file and server configuration (`mcp-config.json`), starts the containers, and registers the gateway with Claude Code at user scope over SSE. When it downloads a fresh configuration template, it disables the `airis-agent` and `mindbase` servers, because their containers are not part of the distributed Compose file.
 
 ### Verify
 
 ```bash
 curl http://localhost:9400/health
-curl http://localhost:9400/api/tools/combined | jq '.tools_count'
 ```
 
 ### Configuration
 
-Edit `mcp-config.json` to enable/disable servers, then restart:
+Edit `~/.superclaude/airis-mcp-gateway/mcp-config.json` to enable/disable servers, then restart:
 
 ```bash
-docker compose restart api
+cd ~/.superclaude/airis-mcp-gateway && docker compose restart
 ```
 
 ### More Information
@@ -190,6 +198,8 @@ docker compose restart api
 
 ## Configuration
 
+Prefer `superclaude mcp --servers <name>` (repeat `--servers` for each server) over editing the file by hand: the installer registers each server with Claude Code for you. The sample below shows what the individual-server entries look like; codegraph is registered separately by `superclaude install` (see [Default setup: codegraph](mcp-installation.md#default-setup-codegraph)).
+
 **MCP Configuration File (`~/.claude.json`):**
 
 ```json
@@ -197,20 +207,16 @@ docker compose restart api
   "mcpServers": {
     "context7": {
       "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"]
+      "args": ["-y", "@upstash/context7-mcp"]
     },
     "playwright": {
       "command": "npx",
-      "args": ["@playwright/mcp@latest"]
+      "args": ["-y", "@playwright/mcp@latest"]
     },
     "morphllm-fast-apply": {
       "command": "npx",
       "args": ["-y", "@morphllm/morphmcp"],
       "env": {"MORPH_API_KEY": "${MORPH_API_KEY}"}
-    },
-    "serena": {
-      "command": "uvx",
-      "args": ["--from", "serena-agent==1.7.0", "serena", "start-mcp-server", "--context", "claude-code", "--project-from-cwd", "--enable-web-dashboard", "false", "--enable-gui-log-window", "false"]
     },
     "tavily": {
       "command": "npx",
@@ -225,15 +231,15 @@ docker compose restart api
 
 **Server Control:**
 
+`--c7`, `--tavily` and `--play` are advisory hints Claude may honour, not switches enforced in code. `--no-mcp` is a real option only on `/sc:troubleshoot` and `/sc:reflect`, where it runs them with native tools only.
+
 ```bash
-# Enable specific servers
+# Hint at a specific server (advisory)
 /sc:analyze codebase/ --c7
 
-# Disable all MCP servers
-/sc:implement "simple function" --no-mcp
-
-# Enable all servers
-/sc:design "complex architecture" --all-mcp
+# Native tools only (supported on /sc:troubleshoot and /sc:reflect)
+/sc:troubleshoot "login fails after upgrade" --no-mcp
+/sc:reflect --mode post --diff HEAD~1..HEAD --no-mcp
 ```
 
 **Multi-Server Coordination:**
@@ -242,7 +248,6 @@ docker compose restart api
 # Full-stack development
 /sc:implement "e-commerce checkout"
 # → Context7: payment patterns
-# → Serena: code organization
 # → Playwright: E2E testing
 ```
 
@@ -250,7 +255,7 @@ docker compose restart api
 
 **Common Issues:**
 
-- **No servers connected**: Check Node.js: `node --version` (need v16+; Tavily and Auggie require v18+)
+- **No servers connected**: Check Node.js: `node --version` (need v16+; Tavily requires v18+, Auggie requires v20+)
 - **Context7 fails**: Clear cache: `npm cache clean --force`
 - **Morphllm errors**: Expected without API keys (paid service)
 - **Server timeouts**: Restart Claude Code session
@@ -261,11 +266,11 @@ docker compose restart api
 # Reset connections
 # Restart Claude Code session
 
-# Check dependencies  
-node --version  # Should show v16+ (v18+ required for Tavily and Auggie)
+# Check dependencies
+node --version  # Should show v16+ (v18+ required for Tavily, v20+ for Auggie)
 
-# Test without MCP
-/sc:command --no-mcp
+# Test without MCP (only /sc:troubleshoot and /sc:reflect accept --no-mcp)
+/sc:troubleshoot "describe the problem" --no-mcp
 
 # Check configuration
 ls ~/.claude.json
@@ -296,7 +301,7 @@ echo 'export TAVILY_API_KEY="your_key"' >> ~/.bashrc
 
 **No API Keys (Free)**:
 
-- context7 + playwright + serena
+- context7 + playwright
 
 **1 API Key**:
 
@@ -304,34 +309,29 @@ echo 'export TAVILY_API_KEY="your_key"' >> ~/.bashrc
 
 **Common Workflows:**
 
-- **Learning**: context7 + serena
+- **Learning**: context7 + auggie
 - **Web Development**: context7 + playwright
-- **Enterprise Refactoring**: serena + morphllm
-- **Complex Analysis**: context7 + serena
-- **Deep Research**: tavily + serena + playwright
+- **Enterprise Refactoring**: auggie + morphllm
+- **Complex Analysis**: context7 + auggie
+- **Deep Research**: tavily + playwright
 - **Current Events**: tavily + context7
 
 ## Integration
 
 **With SuperClaude Commands:**
 
-- Analysis commands automatically use Serena
 - Implementation commands use Context7
 - Testing commands use Playwright
 - Research commands use Tavily + Playwright
 
-**With Behavioral Modes:**
+**With Behavioral Modes (advisory):**
 
-- Brainstorming Mode: Serena for discovery
-- Task Management: Serena for persistence
-- Orchestration Mode: Optimal server selection
-- Deep Research Mode: Tavily + Playwright coordination
+Mode files are not installed, so modes are styles you can ask Claude for, not switches. When you ask for one, Claude may combine servers like this:
 
-**Performance Control:**
-
-- Automatic resource management based on system load
-- Concurrency control: `--concurrency N` (1-15)
-- Priority-based server selection under constraints
+- Brainstorming: Auggie for discovery
+- Task management: `.superclaude/memory/` files for persistence
+- Orchestration: choosing the server that fits the request
+- Deep research: Tavily + Playwright coordination
 
 ## Related Resources
 
@@ -342,9 +342,9 @@ echo 'export TAVILY_API_KEY="your_key"' >> ~/.bashrc
 
 **Advanced Usage:**
 
-- [Behavioral Modes](modes.md) - Mode-MCP coordination
+- [Behavioral Modes](modes.md) - Mode styles you can ask for (advisory, not installed as files)
 - [Agents Guide](agents.md) - Agent-MCP integration
-- [Session Management](session-management.md) - Serena workflows
+- [Session Management](session-management.md) - Project memory workflows
 
 **Technical References:**
 

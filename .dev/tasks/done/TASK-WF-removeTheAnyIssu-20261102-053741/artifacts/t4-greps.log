@@ -1,0 +1,15 @@
+grep-rc=1
+src/superclaude/output-styles/pragmatic.md:225
+src/superclaude/templates/documents/agent_template_qa.md:161
+src/superclaude/templates/documents/skill_template.md:828
+src/superclaude/output-styles/pragmatic.md:226
+src/superclaude/templates/documents/agent_template_qa.md:162
+src/superclaude/templates/documents/skill_template.md:829
+src/superclaude/output-styles/pragmatic.md:227
+src/superclaude/templates/documents/agent_template_qa.md:163
+src/superclaude/templates/documents/skill_template.md:830
+src/superclaude/output-styles/pragmatic.md:229
+src/superclaude/templates/documents/agent_template_qa.md:140
+src/superclaude/templates/documents/skill_template.md:831
+824:- FAIL: any blocking (Critical or Important) finding; ev
+r008-rc=1

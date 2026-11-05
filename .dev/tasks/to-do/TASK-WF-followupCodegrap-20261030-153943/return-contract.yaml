@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-followupCodegrap-20261030-153943
+plan_path: ./TASK-WF-followupCodegrap-20261030-153943.md
+source_path: ./source.md
+source_origin: .dev/codegraph-migration/specs/followup-codegraph-release-monitor-spec.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/codegraph-release-monitor/.dev/tasks/to-do/TASK-WF-followupCodegrap-20261030-153943/artifacts/reflect/pre-20261030154210/REPORT.md
+unresolved:
+  - "reflect partial: adversarial merge unavailable (advocate subagents never returned), F2 single-reviewer fallback; 1 external citation dropped"
+  - "reflect audited plan version 1; every finding (2 critical, 18 important, 31 minor rows) was then fixed in the spec, source.md and the plan (version 2); see source.md '## Review resolution'. A fresh /sc:reflect --mode pre on version 2 was not run."

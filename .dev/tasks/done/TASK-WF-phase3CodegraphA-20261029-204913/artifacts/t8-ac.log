@@ -1,0 +1,4 @@
+$ AC2 invocation-form check
+rc=1
+$ AC3
+rc=1

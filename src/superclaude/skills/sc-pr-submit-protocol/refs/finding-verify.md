@@ -1,7 +1,7 @@
 # Finding Verify (C3a) — verify-before-remediate, by reference
 
 This wave is the **false-positive filter** (FR-3.5): between routing (C3) and dispatch (C3b), each
-routed finding must independently **ground in real code** before any `/sc:troubleshoot --fix` session
+routed review finding (Augment or Codex) must independently **ground in real code** before any `/sc:troubleshoot --fix` session
 — or any round, or any push — is spent on it. It reuses the repo's existing grounding discipline
 **by reference** (never copied or forked) and **spawns the existing `evidence-validator` agent**
 rather than authoring a new verifier.
@@ -59,3 +59,12 @@ A finding is:
 The structural drop happens first (a finding with no valid location never reaches the reproduce
 check). The false-positive demote is the NEW filter this wave contributes. Both keep the loop from
 burning a round or a push on a hallucinated or stale finding (directly attacking risks R1 and R4).
+
+## Two reviewers and dedup groups
+
+Augment and Codex findings are verified the same way and **in one batch**: the verdict is **per
+finding**, never per reviewer or per group, and each `finding_verified` / `finding_unverified` event
+carries the finding's `reviewer`. Inside a dedup group (same path and line, `dedup_groups`), each
+member keeps its own verdict: a group is dispatched to C3b only when at least one member is
+`verified`, and an unverified member stays report-only (no reply, no resolve) even when another
+member of its group is fixed.

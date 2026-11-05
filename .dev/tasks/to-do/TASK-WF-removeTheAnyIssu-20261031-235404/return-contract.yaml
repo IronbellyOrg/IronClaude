@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-removeTheAnyIssu-20261031-235404
+plan_path: ./TASK-WF-removeTheAnyIssu-20261031-235404.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/reflect/pre-removeTheAnyIssu-20261031235716/REPORT.md
+unresolved:
+  - "SUPERSEDED: do not execute this package. The coordinator answered pending decision 1 (CAP = 2 fix cycles) during the pre-review, and the pre-review found 3 sites missing from the plan (rf-analyst.md:74, task-builder/SKILL.md:895, synthetic-dnsp-finding.contract:52) plus an unhoused S5 sentence. A regenerated package replaces it."

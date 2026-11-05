@@ -1,0 +1,6 @@
+backend-path: FAILED before the guard (AttributeError: module 'superclaude.pr_submit.conflicts' has no attribute 'lock_trust_findings')
+dynamic: FAILED before the guard (AttributeError: module 'superclaude.pr_submit.conflicts' has no attribute 'lock_trust_findings')
+path source: FAILED before the guard (AttributeError: module 'superclaude.pr_submit.conflicts' has no attribute 'lock_trust_findings')
+editable source: FAILED before the guard (AttributeError: module 'superclaude.pr_submit.conflicts' has no attribute 'lock_trust_findings')
+clean pyproject: FAILED before the guard (AttributeError: module 'superclaude.pr_submit.conflicts' has no attribute 'lock_trust_findings')
+step 5 pin: FAILED on HEAD text (missing 'lock_trust_findings')

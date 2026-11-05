@@ -1,0 +1,6 @@
+card: reviewer-1-card.yaml
+calibrator_model_class: opus
+dimensions: {citation_grounding: 0.65, coverage_completeness: 0.70, deviation_classification_clarity: 0.65, risk_surface_coverage: 0.85, recommendation_actionability: 0.90}
+C: 0.75
+per_finding: {R1-F1: confirmed, R1-F2: confirmed, R1-F3: confirmed, R1-F4: confirmed, R1-F5: confirmed, R1-F6: confirmed, R1-F7: confirmed, R1-F8: confirmed, R1-F9: confirmed, R1-F10: confirmed}
+notes: "Plan-file line refs were +33 (brief offset); orchestrator remapped them in the card after calibration. load.md:27 sentence is added by Task 11, so R1-F4's citation there is prospective."

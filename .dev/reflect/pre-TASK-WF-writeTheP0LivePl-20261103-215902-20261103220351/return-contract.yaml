@@ -1,0 +1,113 @@
+contract_version: "1.8.0"
+status: partial                      # adversarial merge partial (five steps run in one agent, no separate advocates); 0 citations dropped
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/audit.log
+confidence_calibrated: 0.87          # mean of the three blind-calibrated reviewer cards (0.87, 0.86, 0.87); Tier 1 card 0.82
+escalation_rule_matched: 6
+onboarding_ran: false
+
+# UC-1 specific
+coverage_pct: null                   # parsed-only; 0 parsed requirement IDs
+coverage_pct_union: 0.75
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-008, INF-011, INF-012, INF-013, INF-024]   # qa reviewer found each covered in substance in different words
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 specific (not applicable in pre mode)
+tasklist_completion_pct: null
+deviation_count_by_class:            # plan-vs-spec deviations among the 23 merged findings; the rest are plan defects with class none
+  authorized: 0
+  necessary: 0
+  drift: 3
+  regression: 0
+deviation_register_path: null
+grounding_gaps_path: null
+verification_ran: false
+verification_skip_reason: null
+
+# Input integrity
+input_tree_sha256: 8e91b29e98b23b7183bdbc2356bb698c90fb84e9fd3f4e954f33ebbfd6061f4a
+input_tree_file_count: 15
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 63
+citations_revalidated: 63
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread  # stricter than the >20 sampling default: every citation was re-Read
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2 artifacts
+reviewer_cards:
+  - .dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/reviewer-cards/reviewer-1-card.yaml
+  - .dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/reviewer-cards/reviewer-2-card.yaml
+  - .dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: .dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/adversarial
+adversarial_convergence_score: 0.76
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: full           # calibrator class fable, disjoint from reviewer classes sonnet/haiku/opus
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: true        # drift findings present
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+
+# Telemetry (non-stable)
+telemetry:
+  reviewer_models: [sonnet, haiku, opus]
+  reviewer_aliases: [claude-sonnet-5-5, glm-5.3, claude-opus-5-5]
+  reviewer_personas: [analyzer, qa, refactorer]
+  calibrator_model_class: fable
+  degraded_components: []
+  fallback_path: null
+  executor_class_source: unknown
+  executor_class_resolved: false
+  adversarial_status: partial
+  adversarial_invocation_method: manual
+  merged_verdict: FAIL
+  merged_blocking_count: 2
+  merged_findings_by_severity: {blocking: 2, should-fix: 11, minor: 10}
+  zero_drop_flag: true
+  sc_adversarial_probe: installed-file check (~/.claude/skills/sc-adversarial-protocol/SKILL.md present)

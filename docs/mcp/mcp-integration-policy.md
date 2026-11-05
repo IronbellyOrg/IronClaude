@@ -6,6 +6,42 @@ Integration policy and usage guidelines for MCP (Model Context Protocol) servers
 
 ### Core MCP Servers
 
+#### Codegraph MCP (installed by default)
+
+```yaml
+Name: codegraph
+Purpose: Code structure of the current git worktree (symbols, callers, callees, impact, file outlines)
+Category: Code Understanding
+Auto-Managed: true for installation and indexing; its tools are called explicitly
+Installed by: superclaude install (required phase). It installs the pinned codegraph 1.6.2 and
+              registers the MCP server at user scope as `codegraph serve --mcp`. A failure in this
+              phase makes superclaude install exit 1. Every other MCP server below is optional and
+              installed with `superclaude mcp --servers <name>`.
+
+Tools:
+  - codegraph_search: find a symbol by name
+  - codegraph_node: one symbol, or a file's outline
+  - codegraph_callers / codegraph_callees: who calls it, what it calls
+  - codegraph_impact: what a change reaches
+  - codegraph_files: indexed file tree
+  - codegraph_status: whether this checkout is indexed
+
+Index:
+  Location: <worktree>/.codegraph/ (one SQLite index per worktree, gitignored)
+  Built by: a SessionStart hook that starts `codegraph init --yes` in a new checkout
+            (SUPERCLAUDE_CODEGRAPH_AUTOINIT=0 switches the hook off)
+  Not indexed: markdown, files over 1 MB, ignored files, dependency folders
+
+Usage Pattern:
+  - First choice for code-structure questions; a graph answer locates code and is
+    confirmed with Read before it is cited
+  - Grep + Read is the floor whenever the index is missing, stale or switched off
+    (SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off switches it off for commands, skills and agents)
+  - Readiness report: /sc:graph
+
+Reference: ~/.claude/CODEGRAPH.md, docs/user-guide/codegraph.md
+```
+
 #### Memory & Error Learning
 
 **ReflexionPattern (Built into the Python package, explicit API)**
@@ -72,51 +108,6 @@ Usage Pattern:
     repository connects the two
 
 Note: Optional. SuperClaude does not need it; ReflexionPattern works with only the local file.
-```
-
-#### Serena MCP
-
-```yaml
-Name: serena
-Purpose: コードベース理解のためのシンボル管理
-Category: Code Understanding
-Auto-Managed: false (明示的使用)
-PM Agent Role: コード理解タスクで自動活用
-
-Capabilities:
-  - シンボル追跡（関数、クラス、変数）
-  - コード構造分析
-  - リファクタリング支援
-  - 依存関係マッピング
-
-Lifecycle:
-  Start: 何もしない
-  During: コード理解時に使用
-  End: 自動削除（セッション終了）
-  Cleanup: 自動
-
-Usage Pattern:
-  Use Cases:
-    - リファクタリング計画
-    - コード構造分析
-    - シンボル間の関係追跡
-    - 大規模コードベース探索
-
-  NOT for:
-    - タスク管理
-    - 会話記憶
-    - ドキュメント保存
-    - プロジェクト知識管理
-
-Trigger Conditions:
-  - Keywords: "refactor", "analyze code structure", "find all usages"
-  - File Count: >10 files involved
-  - Complexity: Cross-file symbol tracking needed
-
-Example:
-  Task: "Refactor authentication system across 15 files"
-  → Serena: Track auth-related symbols
-  → PM Agent: Coordinate refactoring with Serena insights
 ```
 
 #### Native reasoning
@@ -197,7 +188,7 @@ Usage Pattern:
 
   NOT for:
     - プロジェクト内情報（Grep使用）
-    - コードベース検索（Serena使用）
+    - コードベース検索（Grep / Read使用）
     - 過去の会話（Mindbase: 任意・手動で導入した場合のみ）
 
 Trigger Conditions:
@@ -217,9 +208,10 @@ Example:
 
 ```yaml
 Code Understanding:
-  Primary: Serena MCP
-  Secondary: Grep (simple searches)
-  Example: "Find all authentication-related symbols"
+  Primary: codegraph MCP (installed by default; symbols, callers, impact)
+  Secondary: Auggie MCP (optional, semantic search)
+  Floor: Grep + Read (always available; confirms every graph answer)
+  Example: "Find all callers of authenticate_user"
 
 Complex Analysis:
   Native reasoning (simple cases)
@@ -258,7 +250,7 @@ Medium (3-10 files, some complexity):
   Tools: MultiEdit, Glob, Grep
 
 Complex (>10 files, architectural changes):
-  MCPs: Serena
+  MCPs: codegraph (impact of the change), Auggie (optional)
   Coordination: PM Agent Commander mode
   Tools: Task delegation, parallel execution
 
@@ -277,10 +269,11 @@ Session Start:
   Auto-Execute:
     1. git status && git branch
     2. Read CLAUDE.md
-    3. Read docs/patterns/*.md (latest 5)
+    3. Read <project>/.superclaude/memory/*.md (pm_context, current_plan, last_session,
+       next_actions)
     4. (Superseded: "Mindbase auto-load". No automatic memory load is implemented for
        solutions_learned.jsonl or Mindbase. The PM agent definition restores context
-       through Serena read_memory calls instead.)
+       by reading the .superclaude/memory/ markdown files instead.)
 
   MCPs Used:
     - Mindbase: not used by default
@@ -290,13 +283,12 @@ Session Start:
 
 Pre-Implementation:
   Auto-Execute:
-    1. Read relevant docs/patterns/
-    2. Read relevant docs/mistakes/
+    1. Read <project>/.superclaude/memory/current_plan.md
+    2. Read the project's docs/*.md relevant to the task
     3. Confidence check
 
   MCPs Used:
     - Context7: If new library (automatic)
-    - Serena: If complex refactor (automatic)
 
   Decision:
     High Confidence (>90%): Proceed
@@ -306,10 +298,9 @@ Pre-Implementation:
 During Implementation:
   Manual Trigger:
     - TodoWrite: Progress tracking
-    - Serena: Code understanding (if needed)
+    - Grep + Read: Code understanding (if needed)
 
   MCPs Used:
-    - Serena: On code complexity trigger
     - Context7: On documentation need
 
 Post-Implementation:
@@ -324,29 +315,16 @@ Post-Implementation:
     - Others: None (file-based documentation)
 
   Output:
-    - Success → docs/patterns/
-    - Failure → docs/mistakes/
+    - Session state → <project>/.superclaude/memory/ (summary-<timestamp>.md, last_session.md,
+      next_actions.md)
+    - Success pattern → docs/patterns/ in the user's project (the agent creates it when needed)
+    - Failure with prevention → docs/mistakes/ in the user's project (created when needed)
     - Global → CLAUDE.md
 ```
 
 ### MCP Activation Triggers
 
 ```yaml
-Serena MCP:
-  Auto-Trigger Keywords:
-    - "refactor"
-    - "analyze code structure"
-    - "find all usages"
-    - "symbol tracking"
-
-  Auto-Trigger Conditions:
-    - File count > 10
-    - Cross-file changes
-    - Symbol renaming
-    - Dependency analysis
-
-  Manual Override: --serena flag
-
 Native reasoning:
   Manual Override: native reasoning
 
@@ -362,7 +340,7 @@ Context7 MCP:
     - New library in package.json
     - Framework pattern needed
 
-  Manual Override: --c7 flag
+  Manual Hint: --c7 (advisory hint Claude may honour, not a parsed flag)
 
 Tavily MCP:
   Auto-Trigger Keywords:
@@ -376,7 +354,7 @@ Tavily MCP:
     - Unknown error message
     - Latest version check
 
-  Manual Override: --tavily flag
+  Manual Hint: --tavily (advisory hint Claude may honour, not a parsed flag)
 ```
 
 ## Anti-Patterns (禁止事項)
@@ -384,10 +362,6 @@ Tavily MCP:
 ### DO NOT
 
 ```yaml
-❌ Serenaをタスク管理に使用:
-  Reason: コード理解専用
-  Instead: TodoWrite使用
-
 ❌ Context7をプロジェクトドキュメントに使用:
   Reason: 公式ドキュメント専用
   Instead: Read docs/ 使用
@@ -400,9 +374,9 @@ list banned three things. They no longer apply:
 Former: "Do not operate Mindbase explicitly" (it was described as fully automatic)
   Now: Mindbase is not automatic here. If you installed it, using its tools explicitly is fine.
 
-Former: "Do not use write_memory() / read_memory()"
-  Now: Explicit memory calls are supported. The PM agent definition itself uses Serena
-       read_memory / write_memory (src/superclaude/agents/pm-agent.md), and
+Former: "Do not read or write memory explicitly"
+  Now: Explicit memory use is supported. The PM agent definition itself reads and writes
+       the .superclaude/memory/ markdown files (src/superclaude/agents/pm-agent.md), and
        ReflexionPattern is an explicit API.
 
 Former: "Do not create the docs/memory/ directory (duplicates Mindbase)"
@@ -418,7 +392,7 @@ Former: "Do not create the docs/memory/ directory (duplicates Mindbase)"
 ✅ Right Tool for Right Job:
   Simple → Native tools (Read, Edit, Grep)
   Medium → Context7 (new library)
-  Complex → Serena
+  Complex → codegraph, Auggie (optional), Grep + Read floor
 
 ✅ Lazy Evaluation:
   Don't preload MCPs
@@ -429,7 +403,7 @@ Former: "Do not create the docs/memory/ directory (duplicates Mindbase)"
   Memory: ReflexionPattern (explicit API) or optional Mindbase (manual install)
   Knowledge: docs/ (file-based)
   Progress: TodoWrite (session)
-  Code: Serena (understanding)
+  Code: codegraph (structure), Grep + Read (floor and citations)
 
 ✅ Documentation First:
   Pre-Implementation: Context7 + docs/patterns/
@@ -449,17 +423,12 @@ Test Cases:
      implemented, so the case has been removed.
    - Error-record behavior is described in docs/user-guide/memory-system.md.
 
-2. Serena Code Understanding:
-   - Task: "Refactor auth across 15 files"
-   - Verify Serena auto-triggered
-   - Verify symbol tracking used
-
-3. Context7 Documentation:
+2. Context7 Documentation:
    - Task: "Implement with new library"
    - Verify Context7 auto-triggered
    - Verify official docs referenced
 
-4. Tavily Research:
+3. Tavily Research:
    - Task: "Find latest security patterns"
    - Verify Tavily auto-triggered
    - Verify web search executed
@@ -473,8 +442,9 @@ followed**: docs/memory/ is live storage and explicit memory calls are supported
 ```yaml
 From Old System:
   - [ ] (superseded) Remove docs/memory/ references
-  - [ ] (superseded) Remove write_memory() / read_memory() calls
-  - [ ] Remove MODE_Task_Management.md memory sections
+  - [ ] (superseded) Remove explicit memory read/write calls
+  - [ ] (historical) Remove MODE_Task_Management.md memory sections; mode files are not
+        installed by superclaude install
   - [ ] Update pm-agent.md with new MCP policy
 
 To New System:
@@ -487,8 +457,8 @@ To New System:
 
 ## References
 
-- PM Agent: `~/.claude/superclaude/agents/pm-agent.md`
-- Modes: `~/.claude/superclaude/modes/MODE_*.md`
-- Rules: `~/.claude/superclaude/framework/rules.md`
+- PM Agent: `~/.claude/agents/pm-agent.md`
+- Rules: `~/.claude/RULES.md`
+- codegraph: `~/.claude/CODEGRAPH.md` and [docs/user-guide/codegraph.md](../user-guide/codegraph.md)
 - Memory Cleanup: `docs/architecture/pm-agent-responsibility-cleanup.md` (historical; this document no longer exists in the repository)
 - Error-record contract: [docs/user-guide/memory-system.md](../user-guide/memory-system.md)

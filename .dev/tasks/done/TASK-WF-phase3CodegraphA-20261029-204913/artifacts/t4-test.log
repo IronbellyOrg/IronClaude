@@ -1,0 +1,20 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+benchmark: 5.3.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, benchmark-5.3.0, anyio-4.15.1, cov-7.1.0
+collected 136 items
+
+tests/core/test_claude_md_routing_block.py ......                        [  4%]
+tests/core/test_codegraph_guide.py ...............                       [ 15%]
+tests/core/test_how_we_work_routing_table.py ........................... [ 35%]
+....................................................                     [ 73%]
+tests/core/test_research_config.py ....                                  [ 76%]
+tests/skills/test_sc_recommend_routing_contract.py ..................... [ 91%]
+......                                                                   [ 96%]
+tests/commands/test_routing_plugin_parity.py .....                       [100%]
+
+============================= 136 passed in 1.01s ==============================
+pytest_rc=0

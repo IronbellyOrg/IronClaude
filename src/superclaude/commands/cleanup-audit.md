@@ -4,7 +4,7 @@ description: "Multi-pass read-only repository audit producing evidence-backed cl
 category: utility
 complexity: high
 allowed-tools: Read, Glob, Grep, Bash, TodoWrite, Task, Write, Skill
-mcp-servers: [serena, context7]
+mcp-servers: [codegraph, context7]
 personas: [analyzer, architect, devops, qa, refactorer]
 ---
 
@@ -40,7 +40,7 @@ personas: [analyzer, architect, devops, qa, refactorer]
 
 ## Behavioral Summary
 
-Spawns parallel subagents in 3 escalating passes: Pass 1 (Haiku surface scan classifying files as DELETE/REVIEW/KEEP), Pass 2 (Sonnet structural audit producing mandatory 8-field per-file profiles), Pass 3 (Sonnet cross-cutting comparison producing duplication matrices with overlap percentages). Each pass uses evidence-gated classification requiring grep proof for every recommendation. Quality validated via spot-check sampling (10%). Reports written to `.claude-audit/`. Incremental checkpointing enables resume-from-checkpoint on session interruption.
+Spawns parallel subagents in 3 escalating passes: Pass 1 (Sonnet surface scan classifying files as DELETE/REVIEW/KEEP), Pass 2 (Sonnet structural audit producing mandatory 8-field per-file profiles), Pass 3 (Sonnet cross-cutting comparison producing duplication matrices with overlap percentages). Each pass uses evidence-gated classification requiring grep proof for every recommendation. Quality validated via spot-check sampling (10%). Reports written to `.claude-audit/`. Incremental checkpointing enables resume-from-checkpoint on session interruption.
 
 ## Examples
 
@@ -50,7 +50,7 @@ Spawns parallel subagents in 3 escalating passes: Pass 1 (Haiku surface scan cla
 /sc:cleanup-audit
 ```
 
-Runs Pass 1 surface scan on the entire repository. Uses Haiku agents to classify every file as DELETE/REVIEW/KEEP. Produces per-batch reports and a consolidated summary at `.claude-audit/pass1-summary.md`.
+Runs Pass 1 surface scan on the entire repository. Uses Sonnet agents to classify every file as DELETE/REVIEW/KEEP. Produces per-batch reports and a consolidated summary at `.claude-audit/pass1-summary.md`.
 
 ### Structural Audit of Source Directory
 

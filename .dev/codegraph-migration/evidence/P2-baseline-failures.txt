@@ -1,0 +1,5 @@
+FAILED tests/cli/eval/test_ban_import_rule.py::test_ban_message_references_fr_g1
+FAILED tests/cli/eval/test_ban_import_rule.py::test_clean_tree_passes_ruff_check
+FAILED tests/cli/eval/test_ban_import_rule.py::test_synthetic_import_anthropic_is_flagged_by_ruff
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_passes_on_real_adapter_module

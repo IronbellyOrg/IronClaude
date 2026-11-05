@@ -2,10 +2,15 @@
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
-from superclaude.cli.doctor import _check_ccsession, _check_skills_installed
+from superclaude.cli.doctor import (
+    _check_ccsession,
+    _check_codegraph,
+    _check_skills_installed,
+)
 from superclaude.cli.install_commands import install_commands
 from superclaude.cli.install_skills import install_all_skills
 
@@ -79,6 +84,9 @@ def test_isolated_install_resolves_every_command_dependency(tmp_path):
     assert result["passed"] is True, result["details"]
 
 
+NAME_HOOK = "~/.claude/skills/ccsession-tag/hooks/session-name.sh"
+
+
 @pytest.fixture
 def ccsession_home(tmp_path, monkeypatch):
     skill = tmp_path / ".claude/skills/ccsession-tag"
@@ -87,8 +95,10 @@ def ccsession_home(tmp_path, monkeypatch):
     (skill / "ccsession").write_text("wrapper")
     (skill / "ccsession-orca").write_text("orca wrapper")
     (skill / "hooks/session-start.sh").write_text("hook")
+    (skill / "hooks/session-name.sh").write_text("hook")
     (tmp_path / ".claude/ccsession.env").write_text("secret-value")
     settings = tmp_path / ".claude/settings.json"
+    name_hook = [{"hooks": [{"command": NAME_HOOK}]}]
     settings.write_text(
         json.dumps(
             {
@@ -102,7 +112,9 @@ def ccsession_home(tmp_path, monkeypatch):
                                 }
                             ],
                         }
-                    ]
+                    ],
+                    "UserPromptSubmit": name_hook,
+                    "SessionEnd": name_hook,
                 }
             }
         )
@@ -121,6 +133,7 @@ def ccsession_home(tmp_path, monkeypatch):
         ".claude/skills/ccsession-tag/ccsession",
         ".claude/skills/ccsession-tag/ccsession-orca",
         ".claude/skills/ccsession-tag/hooks/session-start.sh",
+        ".claude/skills/ccsession-tag/hooks/session-name.sh",
         ".claude/ccsession.env",
         ".local/bin/ccsession",
         ".local/bin/ccsession-orca",
@@ -179,12 +192,141 @@ def test_ccsession_doctor_accepts_placeholder_env_and_warns_about_path(
 
 def test_ccsession_doctor_accepts_install_sh_legacy_hook(ccsession_home):
     settings = ccsession_home / ".claude/settings.json"
-    command = (
-        f'bash "{ccsession_home}/.claude/skills/ccsession-tag/hooks/session-start.sh"'
-    )
+    hooks = f"{ccsession_home}/.claude/skills/ccsession-tag/hooks"
+    start = [{"hooks": [{"command": f'bash "{hooks}/session-start.sh"'}]}]
+    name = [{"hooks": [{"command": f'bash "{hooks}/session-name.sh"'}]}]
     settings.write_text(
-        json.dumps({"hooks": {"SessionStart": [{"hooks": [{"command": command}]}]}})
+        json.dumps(
+            {
+                "hooks": {
+                    "SessionStart": start,
+                    "UserPromptSubmit": name,
+                    "SessionEnd": name,
+                }
+            }
+        )
     )
     assert _check_ccsession(home=ccsession_home)["passed"] is True
     settings.write_text("malformed")
     assert _check_ccsession(home=ccsession_home)["passed"] is False
+
+
+@pytest.mark.parametrize("event", ["UserPromptSubmit", "SessionEnd"])
+def test_ccsession_doctor_reports_a_missing_rename_hook(ccsession_home, event):
+    # Without it a name given with /rename never reaches ccsession's list.
+    settings = ccsession_home / ".claude/settings.json"
+    data = json.loads(settings.read_text())
+    del data["hooks"][event]
+    settings.write_text(json.dumps(data))
+    result = _check_ccsession(home=ccsession_home)
+    assert result["passed"] is False
+    assert f"ccsession {event} hook not registered" in str(result["details"])
+
+
+# --- codegraph MCP registration (spec 2.7) -------------------------------------------------
+
+
+@pytest.fixture
+def cg_home(tmp_path, monkeypatch):
+    home = tmp_path / "home"
+    (home / ".claude").mkdir(parents=True)
+    path_dir = tmp_path / "pathbin"
+    path_dir.mkdir()
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(home))
+    monkeypatch.setenv("PATH", str(path_dir))
+    return SimpleNamespace(home=home, path=path_dir, tmp=tmp_path)
+
+
+def _stub(path: Path, version: str = "1.6.2") -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f"#!/bin/sh\necho {version}\n")
+    path.chmod(0o755)
+    return path
+
+
+def _register(cg_home, command, **extra):
+    entry = {"type": "stdio", "command": str(command), "args": ["serve", "--mcp"]}
+    (cg_home.home / ".claude.json").write_text(
+        json.dumps({"mcpServers": {"codegraph": {**entry, **extra}}})
+    )
+
+
+def _details(result):
+    return "\n".join(result["details"])
+
+
+def test_codegraph_doctor_fails_only_for_a_dangling_registered_command(cg_home):
+    _register(cg_home, cg_home.tmp / "gone" / "codegraph")
+    result = _check_codegraph(home=cg_home.home)
+    assert result["passed"] is False
+    assert "not an executable file" in _details(result)
+    assert "Ready for Serena retirement: no" in _details(result)
+
+
+def test_codegraph_doctor_resolves_a_bare_command_name_through_path(cg_home):
+    _stub(cg_home.path / "codegraph")
+    _register(cg_home, "codegraph")
+    result = _check_codegraph(home=cg_home.home)
+    assert result["passed"] is True
+    assert "not an executable" not in _details(result)
+    assert "pin is" not in _details(result)
+
+
+def test_codegraph_doctor_passes_with_a_detail_when_the_entry_is_missing(cg_home):
+    result = _check_codegraph(home=cg_home.home)
+    assert result["passed"] is True
+    assert "no codegraph registration" in _details(result)
+
+
+def test_codegraph_doctor_reports_version_drift_but_passes(cg_home):
+    old = _stub(cg_home.tmp / "old" / "codegraph", "1.5.0")
+    _register(cg_home, old)
+    result = _check_codegraph(home=cg_home.home)
+    assert result["passed"] is True
+    assert "prints 1.5.0, the pin is 1.6.2" in _details(result)
+
+
+def test_codegraph_doctor_reports_upstream_leftovers_but_passes(cg_home):
+    good = _stub(cg_home.tmp / "good" / "codegraph")
+    _register(cg_home, good)
+    (cg_home.home / ".claude/settings.json").write_text(
+        json.dumps(
+            {
+                "hooks": {
+                    "UserPromptSubmit": [
+                        {"hooks": [{"command": "codegraph prompt-hook"}]}
+                    ]
+                }
+            }
+        )
+    )
+    (cg_home.home / ".claude/CLAUDE.md").write_text(
+        "x\n<!-- CODEGRAPH_START -->\nstuff\n<!-- CODEGRAPH_END -->\n"
+    )
+    result = _check_codegraph(home=cg_home.home)
+    assert result["passed"] is True
+    assert "codegraph prompt-hook" in _details(result)
+    assert "CODEGRAPH_START" in _details(result)
+
+
+def test_codegraph_doctor_passes_when_claude_json_is_unreadable(cg_home):
+    (cg_home.home / ".claude.json").write_text("{broken")
+    result = _check_codegraph(home=cg_home.home)
+    assert result["passed"] is True
+    assert "unknown" in _details(result)
+
+
+def test_codegraph_doctor_always_reports_serena_retirement_readiness(cg_home):
+    good = _stub(cg_home.tmp / "good" / "codegraph")
+    _register(cg_home, good)
+    details = _details(_check_codegraph(home=cg_home.home))
+    assert "Ready for Serena retirement: yes" in details
+
+
+def test_run_doctor_includes_the_codegraph_check(cg_home):
+    from superclaude.cli.doctor import run_doctor
+
+    assert any(
+        c["name"] == "codegraph MCP registration" for c in run_doctor()["checks"]
+    )

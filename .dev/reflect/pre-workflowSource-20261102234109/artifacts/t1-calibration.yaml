@@ -1,0 +1,23 @@
+card: .dev/reflect/pre-workflowSource-20261102234109/t1-card.md
+rubric: ~/.claude/skills/sc-reflect-protocol/refs/reflection-rubric.md
+section: 5-dimension scoring
+self_reported_ignored: true
+persisted_by: orchestrator (calibrator agent is Read-only)
+scores:
+  citation_grounding: 0.70
+  coverage_completeness: 0.75
+  deviation_classification_clarity: 0.35
+  risk_surface_coverage: 0.60
+  recommendation_actionability: 0.75
+C: 0.63
+rationale:
+  citation_grounding: "Cited coverage-summary.yaml lines and CONSOLIDATED-PLAN.md:392/481/544 verified; C1 repeats a wrong count (53 vs 66 itemized deliverables in coverage-matrix.md:44-109); D1 and C3 uncited; S2 cites a Constraints bullet without a line (tasklist:24)."
+  coverage_completeness: "Coverage metrics null or 0.0 handled honestly; omits partially carried INF-010/INF-014 constraints, the markdownlint tool swap (spec markdownlint-cli2 or make lint; plan markdownlint-cli@0.38.0, tasklist:27), and Task 47's extra links beyond B-W13."
+  deviation_classification_clarity: "No deviation gets a taxonomy label; C3, C4, S1 described in prose; D1 claims no deviations while deviations exist (missing smoke test and final make test, missing git-standards-protocols.md pointer)."
+  risk_surface_coverage: "Misses shared-file edits across tasks (README.md by Tasks 3, 4, 17; installation.md by 1 and 3; mcp-installation.md by 2 and 17; Task 17 has no dependency) and treats guide-citation risk as effort only."
+  recommendation_actionability: "R1-R3 name tasks/files/commands but no checkable success criterion; R1/R2 hedge; C4 has no recommendation."
+spot_check:
+  mismatches: ["C1 / coverage-summary.yaml:18 count 53 vs 66 itemized deliverables enumerated in coverage-matrix.md:44-109"]
+calibrator_model_class: opus
+calibrator_diversity: degraded
+calibrator_diversity_note: "reviewer pool is opus, sonnet and glm-5.3; no model class outside the pool is available"

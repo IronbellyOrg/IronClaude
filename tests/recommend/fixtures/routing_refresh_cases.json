@@ -573,7 +573,7 @@
       "retained_inputs": [],
       "stop": "memory written",
       "authority": "memory-write",
-      "side_effects": "Serena memory writes only; not task execution state",
+      "side_effects": ".superclaude/memory file writes only; not task execution state",
       "guide_phrases": ["writes memory; not durable task execution state"],
       "negative": {"competitors": ["sc:implement", "task"], "must_not": "executor continuation or undeclared checkpoint examples"},
       "activation": {"sc:save": "self-contained", "sc:load": "self-contained"},
@@ -581,7 +581,7 @@
         {"request": "Load and refresh the saved project context.", "targets": ["sc:load"], "mode_flags": ["--refresh"], "guide_route": {"block": "other", "command": "sc:load"}, "guide_phrases": ["Not executor resume"], "expected": "context load/refresh only; a task-package resume uses its own executor"}
       ],
       "variants": {
-        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:save", "expected": "not installed: sc:save; Serena prerequisite disclosed"},
+        "unavailable_plugin": {"environment": "plugin-only", "missing": "sc:save", "expected": "not installed: sc:save; no MCP server prerequisite to disclose"},
         "seeded_wrong_cache": {"environment": "checkout-seeded-wrong-cache", "cache_row": {"key": "codebase-research", "candidate": "/sc:implement", "envelope": "Run: /sc:implement .dev/tasks/to-do/previous/previous.md"}, "expected": "no routing row matched; if dispatch hits codebase-research: cache hint consulted, cached /sc:implement rejected by current verification and request binding (miss_validation_stale); on a miss (classifier unknown -> no_key, or no row): cache row unused; either way live discovery selects /sc:save from Other commands; no hit telemetry; cached /sc:implement never emitted"}
       }
     },

@@ -1,0 +1,36 @@
+--- a/docs/getting-started/upgrading.md
++++ b/docs/getting-started/upgrading.md
+@@ -94,9 +94,12 @@
+    points at `~/.local/bin/codebase-memory-mcp` and any uncustomised Serena
+    launcher (a stdio entry that runs `start-mcp-server` with no `env` or
+    `headers`), whatever user-scope name it is registered under, except
+-   `serena-local`. Entries with their own `env` or `headers`, and anything that
+-   is not one of these shapes, are kept, and the reason (with a removal command)
+-   is printed. Each `claude` call has 10 seconds and the
++   `serena-local`. A `codebase-memory-mcp` or `serena` entry it keeps is
++   reported as `<name>: kept: <reason>`; only a legacy Serena entry kept until
++   codegraph is ready also prints `claude mcp remove serena --scope user`.
++   Other user-scope entries are left alone without a message. The removal
++   commands are under [What stays on purpose](#what-stays-on-purpose).
++   Each `claude` call has 10 seconds and the
+    whole step 15 seconds, and nothing in this step changes the exit code.
+ 
+ The retire step never touches:
+--- a/docs/getting-started/installation.md
++++ b/docs/getting-started/installation.md
+@@ -380,9 +380,12 @@
+ - It needs the `claude` CLI and, for the download, network access. If the
+   phase fails, everything else is still installed, the failed stage is
+   printed and `superclaude install` exits 1. Fix the cause and run it again.
+-- A cleanup step then runs. Once codegraph is ready, it removes old `serena`
+-  and `codebase-memory-mcp` user registrations that IronClaude can prove it
+-  wrote, and prints the reason (and a removal command) for any entry it keeps.
++- A cleanup step then runs. It removes old `serena` and `codebase-memory-mcp`
++  user registrations that IronClaude can prove it wrote and, once codegraph is
++  ready, other uncustomised Serena launchers (any name except `serena-local`).
++  It prints `<name>: kept: <reason>` for a `serena` or `codebase-memory-mcp`
++  entry it keeps; see [Upgrading](upgrading.md#what-stays-on-purpose) for the
++  removal commands.
+ 
+ Restart Claude Code afterwards: MCP servers load at session start. For the
+ failure table, indexing, removal and the Serena cleanup, see the

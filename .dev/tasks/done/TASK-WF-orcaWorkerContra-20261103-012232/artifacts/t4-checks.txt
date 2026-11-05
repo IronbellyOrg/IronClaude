@@ -1,0 +1,17 @@
+$ cmp src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+rc=0
+$ uv run pytest tests/core/test_how_we_work_routing_table.py tests/core/test_claude_md_routing_block.py tests/cli/test_how_we_work_install.py -q -p no:cacheprovider
+tests/cli/test_how_we_work_install.py .......                            [100%]
+
+============================== 92 passed in 0.56s ==============================
+rc=0
+$ git diff --numstat "$(git merge-base master HEAD)" -- src/superclaude/core/HOW-WE-WORK.md | awk '$2 != 0'
+rc=0 (numstat: 11	0	src/superclaude/core/HOW-WE-WORK.md)
+$ AC-C1 scan (./source.md section 7.1)
+pipeline rc=1 (1 = nothing printed)
+$ make verify-sync
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+rc=0

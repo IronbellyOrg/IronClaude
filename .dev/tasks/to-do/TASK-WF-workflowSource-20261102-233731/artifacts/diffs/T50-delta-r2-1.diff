@@ -1,0 +1,47 @@
+--- a/docs/testing/v5.0.0/user/D03-codegraph-graph-impact.md
++++ b/docs/testing/v5.0.0/user/D03-codegraph-graph-impact.md
+@@ -115,7 +115,7 @@
+ pgrep -f 'codegraph\.js (init|index)' || codegraph status
+ ```
+ 
+-**Expected result:** `pgrep` prints nothing (no init is running), then `CodeGraph Status`, `Project: /tmp/d03/repo`, `⚠ Not initialized` and `ℹ Run "codegraph init" to initialize`. Never run `codegraph status` while `pgrep` prints a line: it can empty an index being built. (source: the "Not initialized" text is what `/sc:graph` classifies as `not_initialized`, `src/superclaude/core/CODEGRAPH.md:13,17`; output text observed with codegraph 1.6.2 on this fixture)
++**Expected result:** `pgrep` prints nothing (no init is running), then `CodeGraph Status`, `Project: /tmp/d03/repo`, `⚠ Not initialized` and `ℹ Run "codegraph init" to initialize`. Never run `codegraph status` while `pgrep` prints a line: it can empty an index being built. (source: the "Not initialized" text is what `/sc:graph` classifies as `not_initialized`, `src/superclaude/core/CODEGRAPH.md:13,17`). UNVERIFIED: the exact `codegraph status` lines were observed once with codegraph 1.6.2 on this fixture; no code line, `--help` output or transcript range holds them, so treat the wording as a guide and judge PASS on "not initialized".
+ 
+ **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+ 
+@@ -146,7 +146,7 @@
+ cd /tmp/d03/hooked && codegraph status | tail -n 2
+ ```
+ 
+-**Expected result:** `exit=0 stdout=[]` (the hook returns at once and prints nothing). `.codegraph/` holds `.gitignore` and `codegraph.db`. The log `/tmp/d03/state/superclaude/codegraph-init.log` ends with the init output, including `Initialized in /tmp/d03/hooked`, `Indexed 4 files` and `Done`. The last status line is `✓ Index is up to date`. (source: binary lookup, git top level, skip rules and the one detached `nohup codegraph init --yes <top>` with its log path, `src/superclaude/hooks/scripts/codegraph-session-start.sh:15-31`; log text and file count observed with codegraph 1.6.2 on this fixture)
++**Expected result:** `exit=0 stdout=[]` (the hook returns at once and prints nothing). `.codegraph/` holds `.gitignore` and `codegraph.db`. The log `/tmp/d03/state/superclaude/codegraph-init.log` ends with the init output, including `Initialized in /tmp/d03/hooked`, `Indexed 4 files` and `Done`. The last status line is `✓ Index is up to date`. (source: binary lookup, git top level, skip rules and the one detached `nohup codegraph init --yes <top>` with its log path, `src/superclaude/hooks/scripts/codegraph-session-start.sh:15-31`). UNVERIFIED: the log lines (`Initialized in ...`, `Indexed 4 files`, `Done`, `✓ Index is up to date`) and the file count were observed once with codegraph 1.6.2 on this fixture; no code line, `--help` output or transcript range holds them. PASS needs `.codegraph/codegraph.db` and a log that ends without an error.
+ 
+ **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+ 
+@@ -234,7 +234,7 @@
+ - `caller: test_parse_config`, `file: tests/test_config.py`, `def_line: 4`, `partition: test`, `hop: 1`, `resolution: def-line` (only production rows get call-site confirmation)
+ - `caller: main`, `file: pkg/cli.py`, `def_line: 4`, `hop: 2`, `source: impact`, `resolution: def-line`
+ 
+-`impact.md` starts with YAML front matter, then these headings in order: `## Summary`, `## How to read this`, `## Readiness`, `## Input`, `## Definitions`, `## Production dependents`, `## Test dependents`, `## Limits`, `## Degraded and fallbacks` (`## Unclassified dependents`, `## Tests (advisory)` and `## Unmapped files` appear only when they have content). (source: default output dir and slug `src/superclaude/skills/sc-impact-protocol/SKILL.md:29`; steps 4-7 `SKILL.md:42-46`; advisory rule `SKILL.md:55` with `Freshness experiment E-1: outcome-A` at `src/superclaude/core/CODEGRAPH.md:35`; status merge `SKILL.md:98-103`; layout `SKILL.md:144-157`; outputs `src/superclaude/commands/impact.md:47-50`; the three rows match what `codegraph callers` and `codegraph impact` returned for this fixture with codegraph 1.6.2. Extra rows of kind file, such as `test_config.py`, may also appear.)
++`impact.md` starts with YAML front matter, then these headings in order: `## Summary`, `## How to read this`, `## Readiness`, `## Input`, `## Definitions`, `## Production dependents`, `## Test dependents`, `## Limits`, `## Degraded and fallbacks` (`## Unclassified dependents`, `## Tests (advisory)` and `## Unmapped files` appear only when they have content). (source: default output dir and slug `src/superclaude/skills/sc-impact-protocol/SKILL.md:29`; steps 4-7 `SKILL.md:42-46`; advisory rule `SKILL.md:55` with `Freshness experiment E-1: outcome-A` at `src/superclaude/core/CODEGRAPH.md:35`; status merge `SKILL.md:98-103`; layout `SKILL.md:144-157`; outputs `src/superclaude/commands/impact.md:47-50`; extra rows of kind file, such as `test_config.py`, may also appear.) UNVERIFIED: the three `dependents` rows are what `codegraph callers` and `codegraph impact` returned once for this fixture with codegraph 1.6.2; no code line, `--help` output or transcript range holds them.
+ 
+ **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+ 
+@@ -265,7 +265,7 @@
+ /sc:impact parse_config --tests --output-dir /tmp/d03/out/tests1
+ ```
+ 
+-**Expected result:** The contract has `input.tests: true`, `tests: [{path: tests/test_config.py, source: both}]` and `selection_source: advisory` (`codegraph affected pkg/config.py --json --quiet` returns `tests/test_config.py`, and the name heuristic `**/test_config.*` finds the same file). If `affected` contributed nothing, the row is `source: heuristic` and `selection_source: heuristic_only`. `impact.md` has a `## Tests (advisory)` section ending with `Adds tests to a selection; never removes any.` (source: `src/superclaude/skills/sc-impact-protocol/SKILL.md:47,94-95,154`; `src/superclaude/commands/impact.md:35`; `affected` output observed with codegraph 1.6.2 on this fixture)
++**Expected result:** The contract has `input.tests: true`, `tests: [{path: tests/test_config.py, source: both}]` and `selection_source: advisory` (`codegraph affected pkg/config.py --json --quiet` returns `tests/test_config.py`, and the name heuristic `**/test_config.*` finds the same file). If `affected` contributed nothing, the row is `source: heuristic` and `selection_source: heuristic_only`. `impact.md` has a `## Tests (advisory)` section ending with `Adds tests to a selection; never removes any.` (source: `src/superclaude/skills/sc-impact-protocol/SKILL.md:47,94-95,154`; `src/superclaude/commands/impact.md:35`). UNVERIFIED: that `codegraph affected` returns `tests/test_config.py` (and so `source: both`) was observed once with codegraph 1.6.2 on this fixture; no code line, `--help` output or transcript range holds it. The `heuristic` fallback above is the code-backed alternative.
+ 
+ **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+ 
+@@ -331,7 +331,7 @@
+ | `[CLAUDE-SESSION]` `/sc:impact --diff nosuchref` | `status: blocked` (the base ref does not resolve) | `src/superclaude/skills/sc-impact-protocol/SKILL.md:24` | ☐ |
+ | `[CLAUDE-SESSION]` `/sc:impact parse_config --test-depth 2` (no `--tests`) | `status: blocked` | `src/superclaude/skills/sc-impact-protocol/SKILL.md:28` | ☐ |
+ | `[CLAUDE-SESSION]` `/sc:impact parse_config --caller sc-implement-protocol --output-dir /tmp/d03/out/caller1` | Chat output is three lines: status, degraded tokens, contract path | `src/superclaude/commands/impact.md:38`; `src/superclaude/skills/sc-impact-protocol/SKILL.md:32` | ☐ |
+-| `[LOCAL-WRITE]` In `/tmp/d03/hooked`, append a line to `pkg/cli.py`, then `pgrep -f 'codegraph\.js (init\|index)' \|\| codegraph status` with no Claude session open | `Pending Changes:` and `Modified:  1 files`: a stale index is detectable without an MCP server | `src/superclaude/core/CODEGRAPH.md:19,37`; output observed with codegraph 1.6.2 | ☐ |
++| `[LOCAL-WRITE]` In `/tmp/d03/hooked`, append a line to `pkg/cli.py`, then `pgrep -f 'codegraph\.js (init\|index)' \|\| codegraph status` with no Claude session open | `Pending Changes:` and `Modified:  1 files`: a stale index is detectable without an MCP server | `src/superclaude/core/CODEGRAPH.md:19,37`; UNVERIFIED: the `Pending Changes:` and `Modified:  1 files` text was observed once with codegraph 1.6.2 and is in no code line, `--help` output or transcript range | ☐ |
+ | `[CLAUDE-SESSION]` A new clone started with `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` only (hook switch unset) | `.codegraph/codegraph.db` still appears: the primitives switch does not affect the hook | `src/superclaude/core/CODEGRAPH.md:26`; `CHANGELOG.md:87` | ☐ |
+ | `[CLAUDE-SESSION]` Delete `/tmp/d03/clone2/.codegraph`, then resume with `claude --continue` in `/tmp/d03/clone2` | No new index: the hook is registered for the `startup` matcher only. That Claude Code reports a resumed session as `resume`, not `startup`, is Claude Code behaviour: UNVERIFIED here | `src/superclaude/hooks/hooks.json:24` | ☐ |
+ 

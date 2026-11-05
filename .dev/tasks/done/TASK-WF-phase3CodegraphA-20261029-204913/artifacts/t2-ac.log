@@ -1,0 +1,11 @@
+$ AC1
+files_checked
+$ AC2
+213:Outcome: A
+$ AC3 (hand count, see E7-slots-map.md counting rule)
+map lines matching the regex: 119
+ledger step-table rows: 117 + 2 coverage-index hook rows
+$ AC4
+no_sandbox_rc=0
+branch: []
+smoke: []

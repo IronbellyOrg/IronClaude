@@ -1,0 +1,112 @@
+Usage: superclaude roadmap run [OPTIONS] INPUT_FILES...
+
+  Run the roadmap generation pipeline on INPUT_FILES.
+
+  INPUT_FILES accepts 1-3 markdown files (spec, TDD, PRD) in any order.
+  Content type is auto-detected. Use --input-type to override for single
+  files.
+
+  Examples:     superclaude roadmap run spec.md     superclaude roadmap run
+  spec.md tdd.md     superclaude roadmap run spec.md tdd.md prd.md
+
+Options:
+  --agents TEXT                   Comma-separated agent specs:
+                                  model[:persona]. Default:
+                                  opus:architect,sonnet:architect
+  --output PATH                   Output directory for all artifacts. Default:
+                                  parent dir of spec-file.
+  --depth [quick|standard|deep]   Debate round depth: quick=1, standard=2,
+                                  deep=3. Default: standard.
+  --resume                        Skip steps whose outputs already pass their
+                                  gates. Re-run from the first failing step.
+  --dry-run                       Print step plan and gate criteria, then exit
+                                  without launching subprocesses.
+  --model TEXT                    Override model for all steps. Default: per-
+                                  agent model for generate steps.
+  --max-turns INTEGER             Max agent turns per claude subprocess.
+                                  Default: 100.
+  --debug                         Enable debug logging to output_dir/roadmap-
+                                  debug.log.
+  --no-validate                   Skip post-pipeline validation step.
+  --allow-regeneration            Allow patches that exceed the diff-size
+                                  threshold (FR-9). Use with caution.
+  --no-convergence                Disable the spec-fidelity convergence engine
+                                  (use single-shot LLM check instead).
+  --retrospective PATH            Path to a retrospective file from a prior
+                                  release cycle. Content is framed as advisory
+                                  'areas to watch' in extraction. Missing file
+                                  is not an error -- extraction proceeds
+                                  normally.
+  --input-type [auto|tdd|spec]    Input file type. auto=detect from content
+                                  (PRD, TDD, or spec), tdd/spec=force type.
+                                  PRD files are auto-detected when passed as
+                                  positional arguments. Default: auto.
+  --tdd-file PATH                 Path to a TDD file for supplementary
+                                  technical context enrichment. When the
+                                  primary input is a spec, the TDD provides
+                                  data models, API endpoints, component
+                                  inventory, and test strategy detail. Ignored
+                                  if the primary input is itself a TDD (use
+                                  --input-type spec to force).
+  --prd-file PATH                 Path to a PRD file for supplementary
+                                  business context enrichment. The PRD
+                                  provides personas, success metrics,
+                                  compliance requirements, and scope
+                                  boundaries. Works with both spec and TDD
+                                  primary inputs. Auto-wired from .roadmap-
+                                  state.json on --resume if not specified.
+  --no-compress                   Disable markdown compression of LLM inputs
+                                  (spec, variants, merge). Compression is
+                                  lossless (strategies S-01..S-22) and applied
+                                  only to LLM-consumed content; deterministic
+                                  steps always read originals.
+  --allow-cosmetic-remediation / --no-allow-cosmetic-remediation
+                                  Auto-fix pure-cosmetic gate failures
+                                  (heading shape, dash variants, whitespace,
+                                  smart-quotes, table padding) before halting
+                                  the pipeline. Semantic failures (missing
+                                  milestones, placeholder leaks, OQ-xxx in
+                                  deliverables) always halt. Default: on.
+  --strict-no-remediation         Disable cosmetic-failure auto-remediation
+                                  entirely. Equivalent to --no-allow-cosmetic-
+                                  remediation; explicit alias for high-stakes
+                                  runs where any drift should halt for human
+                                  review.
+  --tool-write-extract            R1.4 dual-write: extract step emits
+                                  structured JSON rendered deterministically
+                                  to markdown (opt-in; markdown path remains
+                                  default until cutover).
+  --tool-write-extract-tdd        R1.4 dual-write: TDD-input extract step
+                                  emits structured JSON rendered to markdown
+                                  (opt-in).
+  --tool-write-generate           R1.4 dual-write: generate step emits
+                                  structured JSON (with generation-time
+                                  phantom-ID rejection) rendered to markdown
+                                  (opt-in).
+  --tool-write-diff               R1.4 dual-write: diff step emits structured
+                                  JSON rendered to markdown (opt-in).
+  --tool-write-debate             R1.4 dual-write: debate step (PRESERVED
+                                  adversarial-debate mechanism) emits
+                                  structured JSON rendered to markdown (opt-
+                                  in).
+  --tool-write-score              R1.4 dual-write: score step emits structured
+                                  JSON rendered to markdown (opt-in).
+  --tool-write-merge              R1.4 dual-write: merge step (SECOND primary
+                                  phantom-ID source) emits structured JSON
+                                  with generation-time phantom-ID rejection,
+                                  rendered to markdown (opt-in).
+  --tool-write-spec-fidelity      R1.4 dual-write: spec-fidelity step emits
+                                  structured JSON rendered to markdown (opt-
+                                  in; single-shot path only -- convergence
+                                  mode is unaffected).
+  --tool-write-test-strategy      R1.4 dual-write: test-strategy step
+                                  (secondary) emits structured JSON rendered
+                                  to markdown (opt-in).
+  --tool-write-certify            R1.4 dual-write: certify step (secondary)
+                                  emits structured JSON rendered to markdown
+                                  (opt-in).
+  --tool-write-remediate          R1.4 surface-consistency: remediate prompt
+                                  builder appends a structured-output hint
+                                  (parity-only; no schema/render -- emits no
+                                  roadmap-ID artifact).
+  --help                          Show this message and exit.

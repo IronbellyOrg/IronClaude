@@ -1,0 +1,19 @@
+# Returned by confidence-calibrator (blind, read-only); persisted by the orchestrator.
+# Orchestrator note: `git ls-files .claude` (2026-11-02) lists .claude/cache/sc-recommend-lookup.yaml and .claude/settings.json,
+# so the tracked cache file R2-F4 names does exist; the calibrator's "weak" verdict rests on the misquoted .gitignore:129 line
+# and on plan line 20 restating CLAUDE.md:18 and :29.
+card: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/reviewer-cards/reviewer-2-card.yaml
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimensions:
+  citation_grounding: {score: 0.75, reason: "13 of 14 quotes match; R2-F4's quote of .gitignore:129 is fabricated (the real line reads 'Lookup-cache tracked artifacts — user-authorized exception (merged-requirements.md Gitignore Exception)'); R2-F4 omits CLAUDE.md:18 and :29."}
+  coverage_completeness: {score: 0.85, reason: "missing_requirements justification checks out (11 rows cover source.md:1); findings touch INF-005, 007, 008, 011; all four T1 items addressed."}
+  deviation_classification_clarity: {score: 0.68, reason: "One class each; R2-F4 is aligned with CLAUDE.md:18/:29 rather than drift; R2-F3 is a verification gap rather than drift."}
+  risk_surface_coverage: {score: 0.70, reason: "R2-F3 and R2-F1 are real; no blast-radius reasoning; R2-F4 has no practical exposure because the plan never touches .claude/cache."}
+  recommendation_actionability: {score: 0.82, reason: "R2-F1 and R2-F3 concrete with verifiers; R2-F2 advisory; R2-F4 concrete but would loosen the plan below CLAUDE.md:29."}
+C: 0.76
+per_finding:
+  - {id: R2-F1, verdict: grounded, reason: "CLAUDE.md:251 link and plan line 73 wording verified; Task 3 limited to the fork-rule section; low severity fits."}
+  - {id: R2-F2, verdict: grounded, reason: "Plan 37 third class, source.md:1 two classes, POST-REFLECT-TASK.md:141 and :9 verified; necessary deviation is defensible."}
+  - {id: R2-F3, verdict: grounded, reason: "Plan 135 and 116 verified; test_implement_retry_revert.py:612-613 builds the worktree in tmp_path; 'vacuous' slightly overstates."}
+  - {id: R2-F4, verdict: weak, reason: "Exception exists at .gitignore:130-135 but the line-129 quote is fabricated; plan line 20 restates CLAUDE.md:18 and :29; the plan never stages .claude/cache; recommendation would weaken a governing rule."}

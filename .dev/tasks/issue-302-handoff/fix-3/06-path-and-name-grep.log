@@ -1,0 +1,36 @@
+$ grep -rn src/superclaude src/superclaude/{commands,skills,agents,core,hooks}  (filtered to the changed primitives)
+grep: src/superclaude/skills/sc-issue-protocol/scripts/__pycache__/origin_repo.cpython-311.pyc: binary file matches
+grep: src/superclaude/skills/sc-issue-protocol/scripts/__pycache__/clickup_claim.cpython-311.pyc: binary file matches
+grep: src/superclaude/skills/sc-implement-protocol/scripts/__pycache__/archive_workspace.cpython-311.pyc: binary file matches
+grep: src/superclaude/skills/ccsession-tag/__pycache__/models.cpython-311.pyc: binary file matches
+grep: src/superclaude/skills/ccsession-tag/__pycache__/models.cpython-313.pyc: binary file matches
+rc=1  (rc=1 = no hit in any changed primitive)
+
+$ grep -rn summary\.md src/superclaude/skills/sc-issue-protocol src/superclaude/agents/issue-worker-t*.md src/superclaude/commands/issue.md
+src/superclaude/skills/sc-issue-protocol/refs/claim.md:59:- always writes `<D>/issue-summary.md` from `templates/issue-summary.md`: what the issue asks for, the
+src/superclaude/skills/sc-issue-protocol/refs/claim.md:79:2. Write `<D>/next-steps.md` from `templates/next-steps.md`: the `/model` tier line first (simple -> `
+src/superclaude/skills/sc-issue-protocol/refs/claim.md:88:2. Claim comment: write `<D>/claim-comment.md` from `templates/claim-comment.md`: who claimed it, the 
+src/superclaude/skills/sc-issue-protocol/refs/chains.md:7:These are the default rows passed to `/sc:recommend` as the suggested route. `/sc:recommend` makes the
+src/superclaude/skills/sc-issue-protocol/refs/chains.md:28:Invoke `Skill sc-recommend` with this goal, filled from `issue-summary.md`:
+src/superclaude/skills/sc-issue-protocol/refs/chains.md:33:Summary: .dev/issues/<N>/issue-summary.md
+src/superclaude/skills/sc-issue-protocol/SKILL.md:37:| `templates/issue-summary.md` | `issue-summary.md` (claim) |
+src/superclaude/skills/sc-issue-protocol/SKILL.md:86:5. **Wave 4, accuracy check and summary.** Spawn `issue-worker-t2`, or `issue-worker-t1` when `scout.md` sa
+src/superclaude/skills/sc-issue-protocol/templates/claim-comment.md:17:- Summary: `.dev/issues/<N>/issue-summary.md`
+src/superclaude/skills/sc-issue-protocol/templates/next-steps.md:8:   - Input: `@.dev/issues/<N>/issue-summary.md`
+src/superclaude/agents/issue-worker-t1.md:15:The files you write under `.dev/issues/` (`scout.md`, `accuracy-check.md`, `issue-summary.md`, the reports under `a
+src/superclaude/agents/issue-worker-t1.md:21:1. **Accuracy check and summary (claim Wave 4, when `scout.md` sizes the issue `complex`).** Assume the issue text 
+src/superclaude/agents/issue-worker-t2.md:15:The files you write under `.dev/issues/` (`scout.md`, `accuracy-check.md`, `issue-summary.md`, the reports under `a
+src/superclaude/agents/issue-worker-t2.md:21:1. **Accuracy check and summary (claim Wave 4, when `scout.md` sizes the issue `simple` or `medium`).** Assume the 
+src/superclaude/agents/issue-worker-t3.md:15:The files you write under `.dev/issues/` (`scout.md`, `accuracy-check.md`, `issue-summary.md`, the reports under `a
+src/superclaude/commands/issue.md:68:| claim | `.dev/issues/<N>/` | `scout.md`, `clickup.json`, `accuracy-check.md` (posted), `issue-summary.md` (effort in hour
+rc=0
+
+$ grep -rhon "[A-Za-z0-9_./<>@-]*summary\.md" (same scope; every token)
+      3 .dev/issues/<N>/issue-summary.md
+      5 <D>/issue-summary.md
+      2 @.dev/issues/<N>/issue-summary.md
+      8 issue-summary.md
+      2 templates/issue-summary.md
+
+$ git diff --cached --name-only | grep ^.claude/
+rc=1  (rc=1 = nothing under .claude/ staged)

@@ -27,7 +27,6 @@ unauthorized_deviation_present: false
 needs_human_decision: true
 user_decision_required: false
 grounding_gaps_path: /tmp/reflect-out/grounding-gaps.yaml
-serena_summary_corroboration: unavailable
 degraded_components: []
 # FR-RH1 proxy-oracle unproven: a blocking annotated sink with proxy-only oracle evidence
 # and real boot unavailable -> unproven (Grounding Gap), HALT for human decision. This proves

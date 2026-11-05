@@ -1,0 +1,610 @@
+# E2E Test Guide — `superclaude swarm` and `/sc:swarm-wizard` (`5.0.0`)
+
+- **Capability:** `superclaude swarm` sends one review prompt about one target file to several model "workers" (2-4), normalizes each answer with the lens recipe, merges them into `merged.md` and writes a `return-contract.yaml` that names the recommended next command; `validate-lenses`, `scaffold` and `validate` check the lens registry and job files, `status` and `logs` read a run's folder, `attach` and `kill` manage a detached tmux run; `/sc:swarm-wizard` is the plain-language Claude Code guide that builds, practice-runs and launches a swarm run for you.
+- **Audience:** end user / operator
+- **Source of truth:** `src/superclaude/cli/swarm/commands.py:261-300,393-432,510-609,799-940,984-1081,1084-1178,1218-1336,1339-1353,1558-2178,2314-2598,2634-2740,2811-2870,3282-3330,3407-3473,3518-3560,3613-3689,3802-3870`; `src/superclaude/cli/swarm/tmux.py:95-218`; `src/superclaude/cli/swarm/tui.py:74-93,238-303`; `src/superclaude/cli/swarm/preflight.py:111,1821-1823,1871-1873`; `src/superclaude/cli/swarm/lenses/__init__.py:75-85,108-117`; `src/superclaude/cli/swarm/config.py:53-59`; `src/superclaude/cli/swarm/transports/openai_compat.py:149-165,237-264`; `src/superclaude/cli/swarm/reduce.py:383-430,536,702`; `src/superclaude/commands/swarm-wizard.md:7,45-55,65-68`; `src/superclaude/skills/sc-swarm-wizard-protocol/SKILL.md:7,67-198`; `superclaude swarm --help` and the `--help` of each of its eight subcommands
+- **Est. time:** `Tier A: 2 minutes. Tier B: 15 minutes (no API call, no proxy). Tier C: 15-30 minutes (one proxy run, one interactive Claude Code session).`
+
+## Preconditions
+
+- IronClaude 5.0.0 installed for your user: `superclaude --version` prints `SuperClaude, version 5.0.0`.
+- A bash shell. `/tmp/d14` does not exist (`[ ! -e /tmp/d14 ] && echo OK` prints `OK`). Every file Tier B and Tier C create is under `/tmp/d14`.
+- Steps 14-15 only: `tmux` on your `PATH`, and you are not inside a tmux session (`echo "${TMUX:-unset}"` prints `unset`). The detached, attach and kill paths refuse to run inside tmux (`tmux.py:95-107`).
+- Step 13 only: a real interactive terminal (not a pipe, not an IDE output pane), because the `--tui` dashboard draws only when standard output is a TTY (`tui.py:74-93`).
+- Run Tier B in one terminal, in the order given: later steps read the folders the earlier ones create.
+- Tier B never calls a model. `--lens` runs use the `stub` transport by default: it answers every worker in-process with a fixed one-line body (`commands.py:566-570,631-635`; `swarm run --help`, `--lens`). A stub run proves the plumbing, not a review.
+- Tier C only (Step 17): proxy credentials issued by your operator in your shell: `T2ProxyUrl`, `T2ProxyKey` and at least three `T2Model0N` slots (`T2Model01`..`T2Model09`) (`config.py:53-59`; `openai_compat.py:149-165`).
+- Tier C only (Step 18): the `claude` CLI on your `PATH` and logged in, and `uv` on your `PATH` (the wizard runs the swarm CLI only as `uv run superclaude swarm ...`, `SKILL.md:7`). The session uses your real `~/.claude`: Claude Code keeps the session in your normal history, and the hooks installed in `~/.claude/settings.json` also write `~/.claude/state/` and `~/.claude/logs/`: the freshness hooks at session start and on each prompt (`src/superclaude/hooks/hooks.json:18,49`; `src/superclaude/hooks/scripts/freshness-session-start.sh:8-9`; `freshness-user-prompt.sh:8-10`) and `auggie-flag-clear.sh` after auggie tool calls (`hooks.json:104`; `auggie-flag-clear.sh:10-12`). No step installs, registers or edits anything under `~/.claude`.
+
+## What you're verifying
+
+- `validate-lenses` reports `registry OK (9 entries inspected, 8 validated)`: eight bundled lenses plus the `custom` entry, which it skips (`commands.py:409-415`; `lenses/__init__.py:75-85`).
+- `scaffold --lens <name>` prints a starter job file (JSON) that `validate` accepts as is, with the `stub` transport and empty `target.path` / `output.dir`; `validate` exits 0 on a good file, 1 on a rule failure, 2 on unreadable or invalid JSON.
+- A fresh `swarm run` writes the full output set into `--output`: `.swarm-state.json`, `manifest.json`, `execution-log.jsonl`, `execution-log.md`, one `.final.md` and one `.meta.json` per worker, `merged.md` and `return-contract.yaml`, and no `done.json` (`commands.py:2083-2178`; `reduce.py:702`).
+- `status` prints one `status: phase=... job_id=... updated=...` line (plus `terminal_status=` when the run is finished) and exits 0 for running or `success`, 1 for `partial` / `failed`, 2 for usage errors; `logs` prints the Markdown or JSONL event log.
+- `--detached` starts a tmux session `swarm-<job_id>` and returns at once; `attach` and `kill` exit 0 when no session exists; `kill --output` writes `done.json` with `terminal_status: killed`.
+- `--tui` draws a live `SUPERCLAUDE SWARM` dashboard on a TTY and does nothing on a pipe; it cannot be combined with `--detached` or `--resume`.
+- Rejected: `--lens custom` (in `run` and `scaffold`), unknown lens names, and the flag `--custom-prompt-dir`, which does not exist. Custom prompts go in a job file with `"lens": "custom"` and a `custom_prompt_dir` field (`commands.py:1164-1170`).
+- `/sc:swarm-wizard` interviews you, always runs a stub practice run first, and asks before any real run.
+- **Observed-as-coded in 5.0.0** (record, do not mark FAIL):
+  - A `--detached` run leaves only `.swarm-detached-spec.json` in the output folder: no state file, no log, no reviews, no contract (Step 14). The tmux child runs `swarm run <snapshot>` without `--output` (`commands.py:1297-1304`), preflight writes `manifest.json` only when it is given an output folder (`preflight.py:1871-1873`), and the run writes state, logs and results only when a manifest was written (`commands.py:1844-1866,2095,2164`). With the stub the session also ends within a second, so there is nothing to attach to.
+  - With the `stub` transport every worker is labelled `lens-default-model-0`: one stub transport serves all slots, bound to the first model name (`commands.py:566-570,631-635`).
+  - `return-contract.yaml` lists a `raw_path` (`.raw.md`) per worker that is never written, and its `started`, `finished`, `target.path` and `artifacts:` fields are empty (Step 8).
+  - `--resume` of a finished job rewrites `return-contract.yaml` with `lens: ''` and an empty `recommended_next_command`, because the resume path calls the merge step without the lens and next-command values (`commands.py:2578-2586`; Step 12).
+  - The `--tui` dashboard shows only the workers whose events arrived in the latest poll, so its last frame can list fewer workers than ran (`commands.py:2012-2015`; `tui.py:243-247,263`; Step 13).
+
+Settings this guide does not exercise: `--target-line-cap`, `--timeout-sec`, `--label`, `--force-relens` beyond one edge row, `--auto-inject-guard`, `status --watch` beyond one step, `logs --follow` on a running job, and the seven lenses other than `bare-review`. All are listed by `superclaude swarm run --help`, `status --help` and `logs --help`.
+
+---
+
+## Steps
+
+### Tier A — free smoke (read-only)
+
+#### Step 1 — Version and subcommands `[FREE]`
+
+**Do:**
+
+```bash
+superclaude --version
+superclaude swarm --help | sed -n '/^Commands:/,$p' | awk '{print $1}'
+superclaude swarm run --help | grep -E -- '^  --(stdin|lens|resume|target|output|transport|reviewers|detached|tui) '
+```
+
+**Expected result:**
+
+```text
+SuperClaude, version 5.0.0
+Commands:
+attach
+kill
+logs
+run
+scaffold
+status
+validate
+validate-lenses
+  --stdin                         Consume the JobSpec JSON document from stdin
+  --lens TEXT                     Shortcut: dispatch with the named lens (e.g.
+  --resume TEXT                   T06.04 / FR-015 -- resume a prior swarm job
+  --target PATH                   Override target.path on the resolved
+  --output DIRECTORY              Override output.dir on the resolved JobSpec.
+  --transport [openai_compat|stub]
+  --reviewers INTEGER             B-1 -- override the bare-review reviewer
+  --detached                      T07.11 / FR-014 -- launch the run inside a
+  --tui                           INV-012 / FR-1 -- render a live Rich
+```
+
+The full `run` help says `--lens` defaults the transport to `stub`, `--reviewers` takes 2-4, and `--tui` is fresh-run only, needs a TTY and excludes `--detached`. It has no `--custom-prompt-dir`. (source: `pyproject.toml:7`; `commands.py:1339-1558` options; group help `superclaude swarm --help`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 2 — `validate-lenses` `[FREE]`
+
+**Do:**
+
+```bash
+cd /tmp
+superclaude swarm validate-lenses; echo "exit=$?"
+superclaude swarm validate-lenses --warning-mode; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+validate-lenses: registry OK (9 entries inspected, 8 validated)
+exit=0
+validate-lenses: registry OK (9 entries inspected, 8 validated)
+exit=0
+```
+
+Nine registry entries (`bare-review`, `refactor-find`, `edge-case-hunt`, `spec-completeness`, `feasibility-probe`, `troubleshoot-hypothesis`, `doc-completeness`, `reflect-review`, `custom`); `custom` is not validated. `--warning-mode` changes only the failure branch (exit 0 instead of 1). (source: `commands.py:409-417`; `lenses/__init__.py:75-85`; `swarm validate-lenses --help`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 3 — `scaffold` piped into `validate` `[FREE]`
+
+**Do:**
+
+```bash
+superclaude swarm scaffold --lens bare-review | superclaude swarm validate /dev/stdin; echo "exit=${PIPESTATUS[*]}"
+superclaude swarm scaffold --lens bare-review | grep -E '"(lens|count|kind|path|dir|amalgamation_mode)":'
+```
+
+**Expected result:**
+
+```text
+validate: /dev/stdin OK
+exit=0 0
+    "kind": "cli"
+  "lens": "bare-review",
+    "count": 3,
+    "kind": "stub",
+    "kind": "file",
+    "path": "",
+    "dir": "",
+  "amalgamation_mode": "normalize+merge",
+```
+
+The starter file uses the `stub` transport, three workers named `lens-default-model-0`..`2`, and empty `target.path` and `output.dir` that you must fill before a run. The `job_id` is `lens-bare-review-<8 hex characters>`, new on each call. (source: `commands.py:799-940` (job id `:841`), `3802-3870`; `validate` `commands.py:261-300`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+### Tier B — local runs with the stub transport (no API call)
+
+#### Step 4 — Create the sandbox and the review target `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+[ ! -e /tmp/d14 ] || echo "STOP: remove /tmp/d14 first"
+mkdir -p /tmp/d14 && cd /tmp/d14
+printf '# Sample\n\nThis file is the review target for the D14 swarm guide.\n\n- item one\n- item two\n' > target.md
+tr -d ' \n\t' < target.md | wc -c
+sha256sum target.md
+```
+
+**Expected result:** no `STOP` line, then `68`, then `787daed74cf3dd22055850096dcfd693440fa31dfe6acf82bf7c88be4638ebf5  target.md`. A target needs at least 50 non-whitespace bytes or preflight stops the run (edge-case table). The stub answer depends on the prompt, so this exact file gives the exact hashes shown in Step 8. (source: `preflight.py:111`; `commands.py:1020-1039`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 5 — Rejected lens names, `--custom-prompt-dir` and flag conflicts `[FREE]`
+
+**Do:** (these write nothing)
+
+```bash
+cd /tmp/d14
+superclaude swarm run --lens custom --target /tmp/d14/target.md --output /tmp/d14/neg; echo "exit=$?"
+superclaude swarm run --lens custom --custom-prompt-dir /tmp/d14 --target /tmp/d14/target.md --output /tmp/d14/neg; echo "exit=$?"
+superclaude swarm scaffold --lens custom; echo "exit=$?"
+superclaude swarm run --lens nope --target /tmp/d14/target.md --output /tmp/d14/neg; echo "exit=$?"
+superclaude swarm run --lens bare-review --reviewers 5 --target /tmp/d14/target.md --output /tmp/d14/neg; echo "exit=$?"
+superclaude swarm run --lens bare-review --tui --detached --target /tmp/d14/target.md --output /tmp/d14/neg; echo "exit=$?"
+ls -d /tmp/d14/neg 2>/dev/null || echo "no /tmp/d14/neg"
+```
+
+**Expected result:**
+
+```text
+swarm run: --lens custom is not a shortcut (FR-021 escape hatch); supply a spec file with custom_prompt_dir set instead
+exit=2
+Usage: superclaude swarm run [OPTIONS] [SPEC_PATH]
+Try 'superclaude swarm run --help' for help.
+
+Error: No such option '--custom-prompt-dir'.
+exit=2
+swarm scaffold: --lens custom is not scaffoldable (FR-021 escape hatch); author a spec by hand with custom_prompt_dir set and validate via ``swarm validate``
+exit=2
+swarm run: unknown lens 'nope'; known lenses: bare-review, refactor-find, edge-case-hunt, spec-completeness, feasibility-probe, troubleshoot-hypothesis, doc-completeness, reflect-review
+exit=2
+swarm run: --reviewers must be an integer in [2, 4] (got 5); legacy AC-1.4 invariant
+exit=2
+swarm run --tui: --tui is mutually exclusive with --detached (the live dashboard requires a foreground run)
+exit=2
+no /tmp/d14/neg
+```
+
+The `--help` texts of `scaffold` and `validate-lenses` still say custom prompts come "from --custom-prompt-dir"; that is the job-file field `custom_prompt_dir`, not a flag. (source: custom and unknown `commands.py:1164-1177`, `3826-3840`; reviewers `commands.py:1762-1769`; `--tui` with `--detached` `commands.py:1692-1698`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 6 — Stub run with `--lens bare-review` `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+cd /tmp/d14
+superclaude swarm run --lens bare-review --target /tmp/d14/target.md --output /tmp/d14/sw1; echo "exit=$?"
+ls -A /tmp/d14/sw1
+```
+
+**Expected result:**
+
+```text
+swarm run: dispatched job (mode=lens, workers=3, results=3)
+exit=0
+.swarm-state.json
+bare-review-00-lens-default-model-0.final.md
+bare-review-00-lens-default-model-0.meta.json
+bare-review-01-lens-default-model-0.final.md
+bare-review-01-lens-default-model-0.meta.json
+bare-review-02-lens-default-model-0.final.md
+bare-review-02-lens-default-model-0.meta.json
+execution-log.jsonl
+execution-log.md
+manifest.json
+merged.md
+return-contract.yaml
+```
+
+Nothing on stderr, and no `done.json`: a fresh run writes the contract only, `done.json` comes from `swarm kill --output` (Step 15). (source: run flow `commands.py:1813-2178`; file names `commands.py:1042-1081`; contract `reduce.py:702`; `done.json` writer `reduce.py:383-430` is called only by `src/superclaude/cli/reflect/ensemble.py:421`, kill writer `commands.py:3518-3560`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 7 — Note the job id `[FREE]`
+
+**Do:**
+
+```bash
+cat /tmp/d14/sw1/.swarm-state.json; echo
+grep -o '"job_id": "[^"]*"' /tmp/d14/sw1/manifest.json
+```
+
+**Expected result:** the state file holds `"job_id": "lens-bare-review-<8 hex>"`, `"state": "terminal"` and an `updated` UTC time; `manifest.json` holds the same `job_id`. Write it down: later steps call it `<JOB>`. (source: state writes `commands.py:1862-1866,1914-1919,2164-2169`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 8 — Read the contract, the merged file and one review `[FREE]`
+
+**Do:**
+
+```bash
+cd /tmp/d14
+grep -E '^(contract_version|status|lens|workers_requested|workers_succeeded|workers_failed|amalgamation_mode|merged_path):' sw1/return-contract.yaml
+grep -o '/sc:adversarial --compare <existing-review>,' sw1/return-contract.yaml
+grep -c '^## From ' sw1/merged.md
+grep -A1 '^## Verdict' sw1/bare-review-00-lens-default-model-0.final.md
+ls sw1/*.raw.md 2>/dev/null | wc -l
+grep -E '^(started|finished):' sw1/return-contract.yaml
+```
+
+**Expected result:**
+
+```text
+contract_version: '1.0'
+status: success
+lens: bare-review
+workers_requested: 3
+workers_succeeded: 3
+workers_failed: 0
+amalgamation_mode: normalize+merge
+merged_path: /tmp/d14/sw1/merged.md
+/sc:adversarial --compare <existing-review>,
+3
+## Verdict
+stub:lens-default-model-0:3db82dd8b13e352e
+0
+started: ''
+finished: ''
+```
+
+`recommended_next_command` is `/sc:adversarial --compare <existing-review>,<the three .final.md paths> --suspect-source <the same three paths>`: replace `<existing-review>` with your own review file before you run it. `merged.md` has one `## From <model> (<ms>ms)` section per worker. Each review is the bare-review template with an empty findings table and the stub's one-line verdict. Observed-as-coded: every worker is `lens-default-model-0`; the contract names a `raw_path` per worker but no `.raw.md` is written (`0`); `started`, `finished`, `target.path` and the `artifacts:` paths are empty. (source: next command `commands.py:2121-2159`; merge `commands.py:2145-2159`; raw path `commands.py:1075`; stub model `commands.py:566-570,631-635`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 9 — `status` and its exit codes `[FREE]`
+
+**Do:** (replace `<JOB>` with the Step 7 job id)
+
+```bash
+cd /tmp/d14
+superclaude swarm status --output /tmp/d14/sw1; echo "exit=$?"
+superclaude swarm status --output /tmp/d14/sw1 --job <JOB>; echo "exit=$?"
+superclaude swarm status --output /tmp/d14/sw1 --job wrong-id; echo "exit=$?"
+superclaude swarm status --output /tmp/d14; echo "exit=$?"
+superclaude swarm status --output /tmp/d14/sw1 --watch --watch-interval 0.1; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+status: phase=terminal job_id=<JOB> updated=<UTC time> terminal_status=success
+exit=0
+status: phase=terminal job_id=<JOB> updated=<UTC time> terminal_status=success
+exit=0
+swarm status: job_id mismatch -- requested 'wrong-id', state carries '<JOB>'
+exit=2
+swarm status: state file not found: /tmp/d14/.swarm-state.json
+exit=2
+status: phase=terminal job_id=<JOB> updated=<UTC time> terminal_status=success
+exit=0
+```
+
+`terminal_status=` is the contract's `status` and appears only once the phase is `terminal`; `partial` or `failed` gives exit 1 (edge-case table). `--watch` stops at once on a finished job. (source: line format `commands.py:2634-2650`; contract read `commands.py:2654-2685`; errors `commands.py:2700-2740`; `swarm status --help`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 10 — `logs` in Markdown and JSONL `[FREE]`
+
+**Do:**
+
+```bash
+cd /tmp/d14
+superclaude swarm logs --output /tmp/d14/sw1; echo "exit=$?"
+superclaude swarm logs --output /tmp/d14/sw1 --jsonl --lines 2 | cut -c1-40; echo "exit=${PIPESTATUS[0]}"
+superclaude swarm logs --output /tmp/d14/sw1 --tail | wc -l; echo "exit=${PIPESTATUS[0]}"
+superclaude swarm logs --output /tmp/d14/nope; echo "exit=$?"
+```
+
+**Expected result:** eight lines of the form `- [<time>] <event> worker=<n>: <fields>`: one `wave_transition` (`from=preflight_ok to=dispatching workers_requested=3`), a `worker_start` (`timeout_sec=180`) and a `worker_done` (`... model_id=lens-default-model-0 ... status=success`) per worker, and a final `wave_transition` (`from=dispatching results_collected=3 success_count=3 to=dispatched`); then `exit=0`. Then:
+
+```text
+{"event_type": "worker_done", "payload":
+{"event_type": "wave_transition", "paylo
+exit=0
+8
+exit=0
+swarm logs: output directory not found: /tmp/d14/nope
+exit=2
+```
+
+`--tail` (JSONL plus follow) prints the whole log and returns at once because the job is already `terminal`. The log ends at `dispatched`: the normalize and merge steps write no events. (source: `commands.py:2954-3101`, `3282-3330`; `swarm logs --help`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 11 — Job-file and stdin input modes `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+cd /tmp/d14
+superclaude swarm scaffold --lens bare-review -o /tmp/d14/job.json; echo "exit=$?"
+superclaude swarm validate /tmp/d14/job.json; echo "exit=$?"
+superclaude swarm run /tmp/d14/job.json --target /tmp/d14/target.md --output /tmp/d14/sw6; echo "exit=$?"
+superclaude swarm scaffold --lens bare-review | superclaude swarm run --stdin --reviewers 2 --target /tmp/d14/target.md --output /tmp/d14/sw7; echo "exit=$?"
+ls /tmp/d14/sw7 | grep -c 'final.md$'
+```
+
+**Expected result:**
+
+```text
+swarm scaffold: wrote starter spec for lens 'bare-review' to /tmp/d14/job.json
+exit=0
+validate: /tmp/d14/job.json OK
+exit=0
+swarm run: dispatched job (mode=spec-file, workers=3, results=3)
+exit=0
+swarm run: dispatched job (mode=stdin, workers=2, results=2)
+exit=0
+2
+```
+
+`--target`, `--output` and `--transport` override the job file in every input mode; `--reviewers 2` sets the worker count. (source: overrides `commands.py:1737-1775`; modes `commands.py:1107-1155`; scaffold write `commands.py:3740,3867`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 12 — `--resume` of a finished job `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+cd /tmp/d14
+superclaude swarm run --resume <JOB> --output /tmp/d14/sw1; echo "exit=$?"
+superclaude swarm run --resume wrong-id --output /tmp/d14/sw1; echo "exit=$?"
+grep -E '^(status|lens|recommended_next_command):' /tmp/d14/sw1/return-contract.yaml
+```
+
+**Expected result:**
+
+```text
+swarm run --resume: job_id=<JOB> workers=3 skipped=3 redispatched=0
+exit=0
+swarm run --resume: job_id mismatch -- requested 'wrong-id', manifest carries '<JOB>'
+exit=2
+status: success
+lens: ''
+recommended_next_command: ''
+```
+
+All three workers have a `success` meta file, so none is sent again; `merged.md` and the contract are written again. Observed-as-coded: the rewritten contract loses the lens name and the next command (compare Step 8). (source: resume `commands.py:1631-1670,2314-2598`; mismatch `commands.py:2425`; merge call without lens `commands.py:2578-2586`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 13 — `--tui` on a terminal and on a pipe `[LOCAL-WRITE]`
+
+**Do:** (in a real interactive terminal)
+
+```bash
+cd /tmp/d14
+superclaude swarm run --lens bare-review --target /tmp/d14/target.md --output /tmp/d14/sw4 --tui; echo "exit=$?"
+ls /tmp/d14/sw4 | wc -l
+superclaude swarm run --lens bare-review --target /tmp/d14/target.md --output /tmp/d14/sw5 --tui | cat; echo "exit=${PIPESTATUS[0]}"
+```
+
+**Expected result:** first command: for under a second a blue box titled `SUPERCLAUDE SWARM` with a line `job: lens-bare-review-<8 hex>    state: <phase>    workers: <n>    elapsed: <s>` and a table with columns `#`, `Model`, `Status`, `Elapsed`; then the box stops and `swarm run: dispatched job (mode=lens, workers=3, results=3)` and `exit=0`. `ls` counts `11` entries (the Step 6 set without the hidden state file). Second command (standard output is a pipe): no box, only the `dispatched job` line and `exit=0`. Observed-as-coded: the last frame can show `state: dispatching` and fewer than three rows, because each poll shows only newly read events. (source: dashboard `tui.py:263-303`; TTY gate `tui.py:74-93`, `commands.py:1946`; poll loop `commands.py:1990-2081`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 14 — `--detached` launch `[LOCAL-WRITE]`
+
+**Do:** (outside tmux)
+
+```bash
+cd /tmp/d14
+echo "${TMUX:-unset}"; command -v tmux
+superclaude swarm run --lens bare-review --target /tmp/d14/target.md --output /tmp/d14/sw2 --detached; echo "exit=$?"
+sleep 3; ls -A /tmp/d14/sw2
+tmux ls 2>/dev/null | grep -c '^swarm-'
+superclaude swarm status --output /tmp/d14/sw2; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+unset
+/usr/bin/tmux
+swarm run: detached job_id=lens-bare-review-<8 hex> session=swarm-lens-bare-review-<8 hex> mode=lens
+exit=0
+.swarm-detached-spec.json
+0
+swarm status: state file not found: /tmp/d14/sw2/.swarm-state.json
+exit=2
+```
+
+(`command -v tmux` may print another path.) The parent stages the job file (with your overrides and `runtime.mode: detached`) as `.swarm-detached-spec.json` and starts `tmux new-session -d -s swarm-<job_id>` running `<python> -m superclaude.cli.main swarm run <snapshot>` in the output folder. Observed-as-coded: that child gets no `--output`, so it writes no state, log, review or contract, and the session closes when the stub run ends. To see the child's result, run its command yourself: `"$(dirname "$(readlink -f "$(command -v superclaude)")")/python" -m superclaude.cli.main swarm run /tmp/d14/sw2/.swarm-detached-spec.json` prints a `RuntimeWarning` line and `swarm run: dispatched job (mode=spec-file, workers=3, results=3)`, and `ls -A /tmp/d14/sw2` still shows only the snapshot. Inside tmux the launch exits 2 with `tmux is not available (missing on PATH or already nested inside a tmux session)`. (source: detached branch `commands.py:1700-1724`; launcher `commands.py:1218-1336`; child argv `commands.py:1297-1304`; tmux `tmux.py:140-177`; manifest gate `preflight.py:1871-1873`; output gates `commands.py:1844-1866,2095,2164`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 15 — `attach` and `kill`, with a stand-in tmux session `[LOCAL-WRITE]`
+
+Because the Step 14 session ends at once, this step uses plain tmux sessions named like swarm sessions (`swarm-<id>`); `attach` and `kill` look only for that name (`tmux.py:110-137`).
+
+**Do:**
+
+```bash
+cd /tmp/d14
+superclaude swarm attach lens-bare-review-00000000; echo "exit=$?"
+superclaude swarm kill lens-bare-review-00000000; echo "exit=$?"
+superclaude swarm kill 'bad:id'; echo "exit=$?"
+tmux new-session -d -s swarm-d14-standin 'sleep 600'
+superclaude swarm kill d14-standin --output /tmp/d14/sw3; echo "exit=$?"
+tmux has-session -t swarm-d14-standin 2>/dev/null && echo "still live" || echo "session gone"
+ls -A /tmp/d14/sw3; cat /tmp/d14/sw3/done.json; echo
+superclaude swarm status --output /tmp/d14/sw3; echo "exit=$?"
+superclaude swarm kill d14-standin --output /tmp/d14/sw3; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+swarm attach: no live tmux session for job_id='lens-bare-review-00000000' (looked for 'swarm-lens-bare-review-00000000')
+exit=0
+swarm kill: no live tmux session for job_id='lens-bare-review-00000000' (looked for 'swarm-lens-bare-review-00000000'); treating as already-terminated
+exit=0
+swarm kill: invalid job_id: job_id 'bad:id' contains tmux-illegal characters: [':']
+exit=2
+swarm kill: terminated tmux session 'swarm-d14-standin' for job_id='d14-standin'
+exit=0
+session gone
+.swarm-state.json
+done.json
+{
+  "atomic_write": true,
+  "contract_path": "",
+  "terminal_status": "killed"
+}
+
+status: phase=terminal job_id=d14-standin updated=<UTC time>
+exit=0
+swarm kill: no live tmux session for job_id='d14-standin' (looked for 'swarm-d14-standin'); treating as already-terminated
+exit=0
+```
+
+With no `return-contract.yaml` the `status` line has no `terminal_status=` and exits 0 ("status unknown"). `kill --output` creates the folder if needed and writes the terminal state and `done.json` even when no session was live.
+
+Then attach to a live session (interactive):
+
+```bash
+tmux new-session -d -s swarm-d14-attach 'sleep 600'
+superclaude swarm attach d14-attach; echo "exit=$?"
+```
+
+Your terminal switches to the tmux session (an empty pane running `sleep`). Press `Ctrl-b` then `d` to detach: you are back in your shell and `exit=0` is printed. Then run `superclaude swarm kill d14-attach` (exit 0). This part is derived from code, not rehearsed: attach runs `tmux attach-session -t swarm-<id>` and returns its exit code. (source: attach `commands.py:3407-3473`, `tmux.py:180-199`; kill `commands.py:3613-3689`, `tmux.py:202-218`; id rules `tmux.py:110-123`; status without contract `commands.py:2654-2673`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 16 — `openai_compat` without credentials `[LOCAL-WRITE]`
+
+**Do:**
+
+```bash
+cd /tmp/d14
+env -u T2ProxyUrl -u T2ProxyKey -u T2Model01 -u T2Model02 -u T2Model03 -u T2Model04 -u T2Model05 -u T2Model06 -u T2Model07 -u T2Model08 -u T2Model09 superclaude swarm run --lens bare-review --transport openai_compat --target /tmp/d14/target.md --output /tmp/d14/px0; echo "exit=$?"
+ls -A /tmp/d14/px0
+superclaude swarm status --output /tmp/d14/px0; echo "exit=$?"
+```
+
+**Expected result:**
+
+```text
+swarm run: cannot construct 'openai_compat' transport -- T2 proxy env contract incomplete; missing: T2ProxyUrl, T2ProxyKey, T2Model01..9. Set T2ProxyUrl, T2ProxyKey, and at least one T2Model01..9 slot.
+exit=1
+.swarm-state.json
+manifest.json
+status: phase=preflight_ok job_id=lens-bare-review-<8 hex> updated=<UTC time>
+exit=0
+```
+
+The proxy settings are read after preflight and before dispatch, so the folder keeps the manifest and a `preflight_ok` state; no worker is started. `openai_compat` is also the transport of a job file that does not name one; `--lens` and `scaffold` choose `stub`. (source: `commands.py:1892-1909`; default `src/superclaude/cli/swarm/models.py:331`; message `openai_compat.py:149-165`; state `commands.py:1862-1866`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+### Tier C — proxy run and Claude Code session
+
+#### Step 17 — Real reviewers through the T2 proxy `[PROXY]`
+
+**Do:** (credentials in your shell as listed in Preconditions; three proxy calls)
+
+```bash
+cd /tmp/d14
+for v in T2ProxyUrl T2ProxyKey T2Model01 T2Model02 T2Model03; do [ -n "$(printenv "$v")" ] && echo "$v set" || echo "$v MISSING"; done
+superclaude swarm run --lens bare-review --transport openai_compat --target /tmp/d14/target.md --output /tmp/d14/px1; echo "exit=$?"
+ls /tmp/d14/px1
+superclaude swarm status --output /tmp/d14/px1; echo "exit=$?"
+grep -E '^(status|workers_succeeded|workers_failed):' /tmp/d14/px1/return-contract.yaml
+grep -E '^  (model_id|status|http_code):' /tmp/d14/px1/return-contract.yaml
+```
+
+**Expected result:** five `set` lines (stop if any is `MISSING`). Then `swarm run: dispatched job (mode=lens, workers=3, results=3)` and `exit=0`. The folder holds the Step 6 file set, with the per-worker files named `bare-review-00-<T2Model01 value>`, `-01-<T2Model02 value>`, `-02-<T2Model03 value>` (characters other than letters, digits, `.`, `_`, `-` become `-`); worker `n` uses slot `T2Model0<n+1>`. Each `.final.md` holds real review text in the bare-review template; its findings are the model's judgement and are not fixed. The `status` line ends `terminal_status=success` (exit 0) when all three workers succeed, `partial` or `failed` (exit 1) otherwise; each worker's `status` is one of `success`, `timeout`, `parse_error`, `proxy_error`. Which status your proxy produces is UNVERIFIED (this guide was not run against a live proxy). With fewer than three model slots the run stops before dispatch: `swarm run: cannot construct 'openai_compat' transport -- T2 model pool has <n> model(s) but the job requests 3 worker(s); ...` and exit 1. (source: per-slot models `commands.py:612-669`, `openai_compat.py:237-264`; pool guard `commands.py:589-609,1892-1909`; file names `commands.py:984-995,1042-1081`; status exit `commands.py:2634-2685`, `swarm status --help`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 18 — `/sc:swarm-wizard` in Claude Code `[CLAUDE-SESSION]`
+
+**Do:** in a shell, prepare a scratch project, then start `claude` in it:
+
+```bash
+mkdir -p /tmp/d14/proj && cp /tmp/d14/target.md /tmp/d14/proj/notes.md
+cd /tmp/d14/proj && claude
+```
+
+Send this prompt and answer the wizard's questions; when it offers a real run, decline:
+
+```text
+/sc:swarm-wizard --goal "find gaps in this document" --target /tmp/d14/proj/notes.md
+```
+
+Then, in a shell:
+
+```bash
+ls -d /tmp/d14/proj/.dev/swarm-runs/*/
+d=$(ls -d /tmp/d14/proj/.dev/swarm-runs/*/ | head -1); ls -A "$d"
+grep -o '"state": "[a-z_]*"' "$d/.swarm-state.json"
+grep -E '^(status|lens|workers_succeeded):' "$d/return-contract.yaml"
+```
+
+**Expected result:**
+
+- The session loads the `sc:swarm-wizard-protocol` skill, runs `uv run superclaude swarm --help`, and asks short multiple-choice questions in plain language (goal, target, and so on); it shows plain "I want to..." options, not raw lens names first.
+- Before offering a real run it runs one stub practice run (`--transport stub`) into `.dev/swarm-runs/<lens>-<timestamp>/` under the project, checks for exit 0, a `terminal` state and `return-contract.yaml`, and tells you the stub content is placeholder text that only proves the machinery.
+- It asks for an explicit go-ahead before any real run; after you decline it reports a summary with `status: cancelled`.
+- The shell check shows one run folder with the Step 6 file set, `"state": "terminal"`, `status: success` and `workers_succeeded:` equal to the reviewer count it chose. The lens it picks (for this goal probably `doc-completeness` or `bare-review`), the reviewer count and the wording are the model's choices and are not fixed; the folder layout is. If the wizard proposes `--detached` for a real run, expect the Step 14 behaviour (only `.swarm-detached-spec.json`).
+
+(source: `src/superclaude/commands/swarm-wizard.md:7,45-55,65-68`; `src/superclaude/skills/sc-swarm-wizard-protocol/SKILL.md:67-153` waves, `:115` output folder, `:121-137` mandatory stub run, `:139-144` go-ahead, `:173-198` `cancelled`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+---
+
+## Edge cases (optional but recommended)
+
+Run these from `/tmp/d14` after Step 16.
+
+| Try this | Expected behavior | Source | Pass/Fail |
+|---|---|---|---|
+| `[FREE]` `printf 'tiny\n' > tiny.md; superclaude swarm run --lens bare-review --target /tmp/d14/tiny.md --output /tmp/d14/e1; echo "exit=$?"; ls -d /tmp/d14/e1` | `swarm run: preflight FAILED (1 rule(s))`, `- imm4.target_too_small @ target.path: Target has 4 non-whitespace byte(s) after truncation; IMM-4 requires ≥50. STOP before dispatch.`, `exit=1`, and no `e1` folder (`tiny.md` is the only file written) | `preflight.py:111`; `commands.py:1339-1353,1813-1824` | ☐ |
+| `[FREE]` `superclaude swarm run --lens bare-review --target /tmp/d14/target.md --output /tmp/d14/target.md; echo "exit=$?"` | `Error: Invalid value for '--output': Directory '/tmp/d14/target.md' is a file.` and `exit=2` | `swarm run --help` (`--output DIRECTORY`) | ☐ |
+| `[FREE]` `superclaude swarm run --lens bare-review --stdin </dev/null; echo "exit=$?"` | `swarm run: SPEC_PATH, --stdin, and --lens are mutually exclusive` and `exit=2` | `commands.py:1107-1117` | ☐ |
+| `[FREE]` `superclaude swarm run --force-relens --lens bare-review; echo "exit=$?"` | `swarm run: --force-relens requires --resume; it re-resolves the lens from the current registry on the resume path only` and `exit=2` | `commands.py:1676-1682` | ☐ |
+| `[FREE]` `superclaude swarm run --resume <JOB> --tui --output /tmp/d14/sw1; echo "exit=$?"` | `swarm run --tui: --tui is not supported with --resume (v1 scope = fresh-run only; resume does not enter the TUI loop)` and `exit=2` | `commands.py:1646-1656` | ☐ |
+| `[FREE]` `printf '{not json' > bad.json; superclaude swarm validate bad.json; echo "exit=$?"` | `validate: bad.json is not valid JSON (line 1, col 2): Expecting property name enclosed in double quotes` and `exit=2` | `commands.py:285-297` | ☐ |
+| `[LOCAL-WRITE]` `sed 's/"kind": "stub"/"kind": "http"/' job.json > bad3.json; superclaude swarm validate bad3.json; echo "exit=$?"` | `validate: bad3.json FAILED (1 rule(s))`, `- json_schema @ transport.kind: 'http' is not one of ['openai_compat', 'stub']`, `exit=1` | `commands.py:224-240,261-300` | ☐ |
+| `[LOCAL-WRITE]` `sed 's/"count": 3/"count": 9/' job.json > c9.json; superclaude swarm run c9.json --target /tmp/d14/target.md --output /tmp/d14/e2; echo "exit=$?"` | a warning line `INV-005 / OQ-007 V1 warn-with-defaults: workers.count=9 exceeds configured pool size=3; clamping workers.count to 3 for job_id=...`, then `dispatched job (mode=spec-file, workers=3, results=3)` and `exit=0` (`validate` accepts `count: 9`) | `preflight.py:1821-1823` | ☐ |
+| `[LOCAL-WRITE]` `cp -r sw6 sw6p; sed -i 's/^status: success$/status: partial/' sw6p/return-contract.yaml; superclaude swarm status --output /tmp/d14/sw6p; echo "exit=$?"` | `status: phase=terminal job_id=... updated=... terminal_status=partial` and `exit=1` | `commands.py:2634-2685`; `swarm status --help` | ☐ |
+| `[FREE]` `TMUX=/tmp/x,1,0 superclaude swarm attach d14-x; echo "exit=$?"` | `swarm attach: tmux is not available (missing on PATH or already nested inside a tmux session); detached jobs require tmux` and `exit=2` | `tmux.py:95-107`; `commands.py:3439-3446` | ☐ |
+
+## Cleanup
+
+```bash
+tmux kill-session -t swarm-d14-attach 2>/dev/null; tmux kill-session -t swarm-d14-standin 2>/dev/null
+cd /tmp && rm -rf /tmp/d14
+```
+
+Tier A wrote nothing. The stand-in tmux sessions run `sleep 600` and end by themselves after ten minutes. What stays under your real `~/.claude` after Step 18 is the session in your Claude Code history and what the installed hooks write for any session: rows in `~/.claude/state/` and `~/.claude/logs/`.
+
+## Overall result
+
+☐ **PASS** — capability works as documented for `5.0.0`
+☐ **FAIL** — see failing step(s) above
+
+**Tester:** `<name>`  **Date:** `<date>`  **Build:** `5.0.0 (tag v5.0.0, commit d953b983)`

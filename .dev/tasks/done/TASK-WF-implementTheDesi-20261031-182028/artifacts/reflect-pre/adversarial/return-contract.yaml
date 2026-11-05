@@ -1,0 +1,14 @@
+return_contract:
+  merged_output_path: merged-verdict.yaml
+  convergence_score: 0.94
+  artifacts_dir: .
+  status: partial
+  base_variant: "opus:refactorer"
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants:
+    - {id: INV-001, category: sufficiency_challenge, assumption: "marker updated_at alone is a safe Codex completion time", severity: HIGH}
+    - {id: INV-002, category: state_variables, assumption: "sticky absence computable from wait-outcome inputs", severity: HIGH}
+  notes: "status partial: convergence BLOCKED_BY_INVARIANTS (no Round 3 at depth standard); qualitative scoring single-pass (recorded deviation in base-selection.md); artifacts written directly in --output (no nested adversarial/ subdir)."

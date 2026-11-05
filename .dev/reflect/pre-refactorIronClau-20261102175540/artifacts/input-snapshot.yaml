@@ -1,0 +1,45 @@
+input_tree_sha256: 59de1cd8d42c5a2f823404577dd4fdd10b229f8d859d8b64dc999cfe14a3fb2a
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-refactorIronClau-20261102-162730/TASK-WF-refactorIronClau-20261102-162730.md
+    sha256: b62d2d4c2a13e90060e60c155460892ffa8378a4505aed8973e3bd6af8294598
+  - path: .dev/tasks/to-do/TASK-WF-refactorIronClau-20261102-162730/source.md
+    sha256: 64ee57f63e626897088901b7931e7bc3153c720385bbb98ccfb8d1b55b174b71
+  - path: .gitignore
+    sha256: 1f95a69faa7bd479ff232dcea512a6c8ff96c6131f9ff072db02c756493d4ff6
+  - path: CLAUDE.md
+    sha256: 469305ccd434b946f87a5f063286efc050ac7f06fafe360ba0c364a734be4c9a
+  - path: POST-REFLECT-TASK.md
+    sha256: a2ef71a7fe989c919796b0e1842a106f342429918f98591238dbaf65bdb9c363
+  - path: plugins/superclaude/commands/recommend.md
+    sha256: 779b45b1b738a5884b59fb86be86f34f2fedadb6af5e9efaffd6eeefe2a44e1a
+  - path: plugins/superclaude/skills/sc-recommend/SKILL.md
+    sha256: 63660e34bebae9a71e6d02080d840f034b448a63122d52a899acc8d0a4e93680
+  - path: plugins/superclaude/skills/sc-recommend/refs/surface-enumeration.md
+    sha256: f3ff1dc2f3dc17b0b70c4537a6f621ab0823d30f0127ae4cb11c35f24ea80333
+  - path: src/superclaude/agents/reflect-reviewer.md
+    sha256: bf786daa7fe53a152b01735876272e91e5fe08f515671814e1f30942df8ca652
+  - path: src/superclaude/cli/reflect/config.py
+    sha256: 7b826ec6a5f19ede4e76a306988142e7ffd5e0853dde2cac2fff847921b3b387
+  - path: src/superclaude/commands/recommend.md
+    sha256: 779b45b1b738a5884b59fb86be86f34f2fedadb6af5e9efaffd6eeefe2a44e1a
+  - path: src/superclaude/skills/sc-post-release-protocol/SKILL.md
+    sha256: 588c2adb9ec92b4f7b25dc53bebd47079f5764d233c1ee5f08ab0672285f9b38
+  - path: src/superclaude/skills/sc-recommend/SKILL.md
+    sha256: 63660e34bebae9a71e6d02080d840f034b448a63122d52a899acc8d0a4e93680
+  - path: src/superclaude/skills/sc-recommend/refs/surface-enumeration.md
+    sha256: f3ff1dc2f3dc17b0b70c4537a6f621ab0823d30f0127ae4cb11c35f24ea80333
+  - path: src/superclaude/skills/sc-reflect-protocol/SKILL.md
+    sha256: 138e2625b4ab67055466c97b6bdd5e8d764f6b19abc7485a2c5d55fd15feed21
+  - path: tests/cli/reflect/test_isolate_reviewers_cli.py
+    sha256: 4567e5b88fc0490aee8bebee44d7caa47bebdbe86037ccbd5a1381824a310b49
+  - path: tests/commands/test_routing_plugin_parity.py
+    sha256: c362104ffdea66a1164d0903a251f3fb11e614c02c60258a3b476b7e16aaa123
+  - path: tests/docs/test_tavily_doc_alignment.py
+    sha256: 027cacc036ee6e0fc361eadf2cbb99f3c1e81ad8e211c341e9e1ee3b5febed3b
+  - path: tests/skills/test_implement_retry_revert.py
+    sha256: 6ee7d1d87490945d0ff217862e91f74a26259f6dcbe9cd36c1a30f7b44a544ac
+  - path: tests/troubleshoot/backtest/git_replay.py
+    sha256: 1b57b3ddc8b5bbfe9b434c74f5403243353f83b772294f46c26a9d7b5b687d10
+  - path: tests/troubleshoot/backtest/test_git_replay_integration.py
+    sha256: d824fe4d6d560b1d827cd9bb721868281c2389dd40657e455a67d724271e7585
+file_count: 21

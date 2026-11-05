@@ -1,0 +1,12 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 7.5
+per_signal_breakdown:
+  scope_size: 2        # S_scope 66 tasks
+  task_count: 2
+  blast_radius: 1      # code domain limited to two installed primitives
+  spec_density: 1.5    # 0 parsed IDs, 17 inferred rows
+  ambiguity_signals: 1 # containment 0.0 is aggregate-row artefact; semantic item coverage 53/53
+escalation_reason: "coverage_degraded=parsed-sparse is a table-wide pre-filter forbidding any T1 STOP; first matching ESCALATE row is rule 4 (S_domains=3), rule 5 (S_dev_density=1.0) also matches"

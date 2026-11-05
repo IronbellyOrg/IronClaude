@@ -1,0 +1,13 @@
+Leg B summary (sandbox tmp.VeWPkMc1yx); model haiku; claude 2.1.314; arms in ABAB order
+== run1-default.jsonl
+{"codegraph_tools":["mcp__codegraph__codegraph_explore"]}
+{"usage":{"input_tokens":36468,"cache_creation_input_tokens":0,"cache_read_input_tokens":512},"is_error":false}
+== run2-seven.jsonl
+{"codegraph_tools":["mcp__codegraph__codegraph_callees","mcp__codegraph__codegraph_callers","mcp__codegraph__codegraph_files","mcp__codegraph__codegraph_impact","mcp__codegraph__codegraph_node","mcp__codegraph__codegraph_search","mcp__codegraph__codegraph_status"]}
+{"usage":{"input_tokens":21369,"cache_creation_input_tokens":0,"cache_read_input_tokens":17472},"is_error":false}
+== run3-default.jsonl
+{"codegraph_tools":["mcp__codegraph__codegraph_explore"]}
+{"usage":{"input_tokens":13300,"cache_creation_input_tokens":0,"cache_read_input_tokens":23680},"is_error":false}
+== run4-seven.jsonl
+{"codegraph_tools":["mcp__codegraph__codegraph_callees","mcp__codegraph__codegraph_callers","mcp__codegraph__codegraph_files","mcp__codegraph__codegraph_impact","mcp__codegraph__codegraph_node","mcp__codegraph__codegraph_search","mcp__codegraph__codegraph_status"]}
+{"usage":{"input_tokens":13305,"cache_creation_input_tokens":0,"cache_read_input_tokens":25536},"is_error":false}

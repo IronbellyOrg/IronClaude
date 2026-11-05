@@ -1,0 +1,3 @@
+# re-run after installing dev tools (first attempt at T1 complete failed to spawn ruff; recorded in final report)
+All checks passed!
+rc=0

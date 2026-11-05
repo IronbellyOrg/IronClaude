@@ -1,0 +1,38 @@
+$ uv run pytest tests/skills/test_issue_worker_agents.py -v
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 26 items
+
+tests/skills/test_issue_worker_agents.py::test_worker_file_exists_with_pinned_picker_id[issue-worker-t1] PASSED [  3%]
+tests/skills/test_issue_worker_agents.py::test_worker_file_exists_with_pinned_picker_id[issue-worker-t2] PASSED [  7%]
+tests/skills/test_issue_worker_agents.py::test_worker_file_exists_with_pinned_picker_id[issue-worker-t3] PASSED [ 11%]
+tests/skills/test_issue_worker_agents.py::test_picker_tier_exists_in_ccsession_models[issue-worker-t1] PASSED [ 15%]
+tests/skills/test_issue_worker_agents.py::test_picker_tier_exists_in_ccsession_models[issue-worker-t2] PASSED [ 19%]
+tests/skills/test_issue_worker_agents.py::test_picker_tier_exists_in_ccsession_models[issue-worker-t3] PASSED [ 23%]
+tests/skills/test_issue_worker_agents.py::test_tools_exclude_edit[issue-worker-t1] PASSED [ 26%]
+tests/skills/test_issue_worker_agents.py::test_tools_exclude_edit[issue-worker-t2] PASSED [ 30%]
+tests/skills/test_issue_worker_agents.py::test_tools_exclude_edit[issue-worker-t3] PASSED [ 34%]
+tests/skills/test_issue_worker_agents.py::test_no_permission_mode[issue-worker-t1] PASSED [ 38%]
+tests/skills/test_issue_worker_agents.py::test_no_permission_mode[issue-worker-t2] PASSED [ 42%]
+tests/skills/test_issue_worker_agents.py::test_no_permission_mode[issue-worker-t3] PASSED [ 46%]
+tests/skills/test_issue_worker_agents.py::test_body_states_github_git_and_write_rules[issue-worker-t1] PASSED [ 50%]
+tests/skills/test_issue_worker_agents.py::test_body_states_github_git_and_write_rules[issue-worker-t2] PASSED [ 53%]
+tests/skills/test_issue_worker_agents.py::test_body_states_github_git_and_write_rules[issue-worker-t3] PASSED [ 57%]
+tests/skills/test_issue_worker_agents.py::test_every_gh_issue_pr_label_mention_carries_repo[issue-worker-t1] PASSED [ 61%]
+tests/skills/test_issue_worker_agents.py::test_every_gh_issue_pr_label_mention_carries_repo[issue-worker-t2] PASSED [ 65%]
+tests/skills/test_issue_worker_agents.py::test_every_gh_issue_pr_label_mention_carries_repo[issue-worker-t3] PASSED [ 69%]
+tests/skills/test_issue_worker_agents.py::test_no_source_tree_path_or_brace_placeholder[issue-worker-t1] PASSED [ 73%]
+tests/skills/test_issue_worker_agents.py::test_no_source_tree_path_or_brace_placeholder[issue-worker-t2] PASSED [ 76%]
+tests/skills/test_issue_worker_agents.py::test_no_source_tree_path_or_brace_placeholder[issue-worker-t3] PASSED [ 80%]
+tests/skills/test_issue_worker_agents.py::test_scan_helper_flags_mentions_without_repo[Run `gh issue view 3 --repo <R> --json body`.-missing0] PASSED [ 84%]
+tests/skills/test_issue_worker_agents.py::test_scan_helper_flags_mentions_without_repo[Run `gh issue view 3 --json body`.-missing1] PASSED [ 88%]
+tests/skills/test_issue_worker_agents.py::test_scan_helper_flags_mentions_without_repo[never gh label create x-missing2] PASSED [ 92%]
+tests/skills/test_issue_worker_agents.py::test_scan_helper_flags_mentions_without_repo[```\ngh pr list --state merged\n```-missing3] PASSED [ 96%]
+tests/skills/test_issue_worker_agents.py::test_scan_helper_flags_mentions_without_repo[`gh api user -q .login`-missing4] PASSED [100%]
+
+============================== 26 passed in 0.06s ==============================
+rc=0

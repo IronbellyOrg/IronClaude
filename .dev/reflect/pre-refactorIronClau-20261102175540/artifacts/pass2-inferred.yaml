@@ -1,0 +1,47 @@
+pass: 2
+spec: .dev/tasks/to-do/TASK-WF-refactorIronClau-20261102-162730/source.md
+rows:
+  - id: INF-001
+    quote: 'Refactor IronClaude to Orca''s default worktree paths'
+    citation: source.md:1
+    obligation: Overall goal - move IronClaude's worktree convention to Orca's default worktree paths.
+  - id: INF-002
+    quote: 'replace the .dev/worktrees rule in CLAUDE.md'
+    citation: source.md:1
+    obligation: Replace the CLAUDE.md rule that mandates worktrees under .dev/worktrees.
+  - id: INF-003
+    quote: 'every tracked file that encodes .dev/worktrees or git worktree add'
+    citation: source.md:1
+    obligation: Also update every tracked file that contains .dev/worktrees or git worktree add, not just CLAUDE.md.
+  - id: INF-004
+    quote: '(git grep -E ''\.dev/worktrees|git worktree add'' -- '':!.dev'')'
+    citation: source.md:1
+    obligation: The hit set is defined by this git grep command over tracked files, excluding the .dev directory.
+  - id: INF-005
+    quote: 'Classify each hit as project worktree (move to Orca-created worktrees at Orca''s default location) or internal temporary checkout used by a CLI or test (keep working without Orca).'
+    citation: source.md:1
+    obligation: Every grep hit must be classified into exactly one of two categories - project worktree or internal temporary checkout.
+  - id: INF-006
+    quote: 'project worktree (move to Orca-created worktrees at Orca''s default location)'
+    citation: source.md:1
+    obligation: Hits classified as project worktrees must be changed to use Orca-created worktrees at Orca's default location.
+  - id: INF-007
+    quote: 'internal temporary checkout used by a CLI or test (keep working without Orca)'
+    citation: source.md:1
+    obligation: Hits classified as internal CLI or test temporary checkouts must keep working without depending on Orca.
+  - id: INF-008
+    quote: 'Also tighten the CLAUDE.md rule: SuperClaude upstream is never pushed to or interacted with.'
+    citation: source.md:1
+    obligation: Strengthen the CLAUDE.md upstream rule so SuperClaude upstream is never pushed to or interacted with in any way.
+  - id: INF-009
+    quote: 'Source of truth is src/superclaude'
+    citation: source.md:1
+    obligation: Make edits to distributable components in src/superclaude, which is the source of truth.
+  - id: INF-010
+    quote: 'run make sync-dev'
+    citation: source.md:1
+    obligation: Run make sync-dev after editing src/superclaude to refresh the .claude dev copies.
+  - id: INF-011
+    quote: 'never stage .claude mirrors'
+    citation: source.md:1
+    obligation: Do not stage the generated .claude mirror files in git.

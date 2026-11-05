@@ -1,0 +1,8 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 8
+per_signal_breakdown: {scope_size: 2, task_count: 2, blast_radius: 2, spec_density: 1, ambiguity_signals: 1}
+escalation_reason: "coverage_degraded parsed-sparse pre-filter forbids T1 stop (Pass 1 0 ids, Pass 2 338 rows); also S_domains 4 >= 3 (rule 4) and C 0.83 < 0.85 (rule 6)"
+inputs: {C: 0.83, S_scope: 8, S_domains: 4, S_dev_density: 0.0148, coverage_pct: null, coverage_pct_union: 0.3284}

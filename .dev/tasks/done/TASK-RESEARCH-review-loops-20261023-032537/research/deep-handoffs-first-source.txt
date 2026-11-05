@@ -1,0 +1,675 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+SOURCE agent-acase-orca-plan-b00df541d5be4e19.jsonl
+FINAL RAW_LINE 151 TIME 2026-10-23T03:43:00.897Z CHARS 39764
+| Status | Result |
+|---|---|
+| DONE | Investigated the selected planning session, reconstructed its four plan versions, and traced both full reviews and the targeted third review. |
+| DONE | Distinguished fix-induced defects from pre-existing omissions, incomplete fixes, stronger test demands, and findings that were narrowed or withdrawn. |
+| NEXT | Parent agent must persist this text at the assigned report path. My governing instructions prohibit writing report files. |
+
+# Research: Repeated pre-implementation reviews of the Orca tracking plan
+
+**Investigation type:** Historical source tracing and document analysis  
+**Scope:** Session `ac2cd1fd-60f6-4b7c-942c-93026ea8edce`, planning incident only  
+**Status:** Complete, with explicit verification limits below  
+**Date:** 2026-10-23  
+**Requested output path, not written:** `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/01-session-ac2cd1fd.md`
+
+## 1. Finding
+
+The repeated reviews did not uncover twenty newly introduced regressions after sixteen successful fixes. They uncovered a mixture:
+
+- Some corrections introduced demonstrable new plan defects.
+- Several earlier findings were only partially corrected.
+- Some important omissions already existed in the original plan.
+- Several later findings demanded stronger tests than the driving specification itself listed.
+- The specification contained conflicting instructions that the original plan copied without resolving.
+- One later item duplicated other findings, and another explicitly described a note rather than a defect.
+
+There were **two full pre-implementation reflection runs and one targeted independent review**, not three full review cycles. Both full runs reported `partial`; the targeted review reported `PARTIAL` for both selected findings. The final plan passed a structural quality check but was explicitly **not reviewed again**.
+
+No production implementation was performed in this selected session. Its physical JSONL file has 954 lines. Its last substantive planning result is line 946; the live task folder contains implementation artifacts from subsequent activity, which I excluded from this incident.
+
+### Evidence locations
+
+The following absolute-path keys are used below.
+
+| Key | Absolute path |
+|---|---|
+| Session | `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-orca-upstream-tracking/ac2cd1fd-60f6-4b7c-942c-93026ea8edce.jsonl` |
+| Plan | `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/tasks/to-do/TASK-WF-designSpec-20261022-132541/TASK-WF-designSpec-20261022-132541.md` |
+| Source | `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/tasks/to-do/TASK-WF-designSpec-20261022-132541/source.md` |
+| Requirements | `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/brainstorms/20261022T011827Z-orca-upstream-tracking/merged-requirements.md` |
+| First report | `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/reflect/pre-designSpec-20261022133138/REPORT.md` |
+| First merged findings | `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/reflect/pre-designSpec-20261022133138/adversarial/merged-verdict.yaml` |
+| First coverage matrix | `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/reflect/pre-designSpec-20261022133138/artifacts/coverage-matrix.yaml` |
+| Second report | `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/reflect/pre-designSpec-v2-20261022150856/REPORT.md` |
+| Second merged findings | `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/reflect/pre-designSpec-v2-20261022150856/adversarial/merged-verdict.yaml` |
+| Second citation validation | `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/reflect/pre-designSpec-v2-20261022150856/artifacts/evidence-validation.yaml` |
+| Targeted verdict | `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/reflect/pre-designSpec-v3-targeted-20261022155651/verdict.yaml` |
+| Workflow inventory test | `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.github/contract-tests/test-50-candidate-attribution.sh` |
+| Existing workflow-shape test | `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.github/contract-tests/test-66-orca-publish-gate.sh` |
+
+References such as “Plan v2:207” describe the historical version reconstructed from the logged write, **not the current file at that line**. The current on-disk plan is byte-identical to the reconstructed final v4.
+
+**Key takeaways**
+
+- This is a mixed-cause planning loop, not evidence that every correction created another regression.
+- Exact historical plan contents are recoverable from the actual JSONL writes and edits.
+- Report and finding counts require correction before reuse.
+
+## 2. Chronological event chain
+
+All timestamps below are UTC on 2026-10-22. These are actual events, excluding command templates, injected skill text, hook instructions, and task-notification boilerplate.
+
+| JSONL line | Timestamp | Actual event |
+|---|---|---|
+| 15 and 37 | 13:25:22.131; 13:25:25.236 | Workflow command appears in the transcript. These are not two completed workflow runs. |
+| 58 | 13:25:27.503 | Actual workflow skill invocation. |
+| 141 | 13:31:04.606 | Writes original plan, version 1. |
+| 150 and 163 | 13:31:11.613; 13:31:22.708 | Small initial wording cleanup. Reviewed v1 hash matches the first review snapshot. |
+| 152 | 13:31:15.974 | Structural plan checks: headings, acceptance-criteria presence, forbidden patterns, dependencies. |
+| 170 | 13:31:26.392 | First actual pre-implementation reflection invocation. |
+| 194-454 | 13:32:10.279-14:03:52.502 | Thirteen actual agent dispatches: coverage, calibration, two reviewers, adversarial rounds, invariant probe, merge, citation validation. |
+| 499 | 14:09:01.093 | Reports sixteen findings, thirteen rated important and three minor. Reflection status is `partial`, with two unsupported citations dropped but no finding dropped. |
+| 511 | 15:06:19.930 | User authorizes applying the sixteen findings and rerunning the pre-review. |
+| 544 | 15:08:38.839 | **Whole-file Write**, not an Edit, creates plan v2. |
+| 558 | 15:08:48.329 | Second actual pre-implementation reflection invocation. |
+| 574-789 | 15:09:10.536-15:40:32.555 | Another thirteen actual agent dispatches following the full review sequence. |
+| 821 | 15:45:18.570 | Reports twenty numbered items. Status remains `partial`; two high-severity items block the adversarial merge. Recommends a targeted next review rather than a third full run. |
+| 824 | 15:50:41.590 | User: “apply 01-20 as plan version 3”. |
+| 841 | 15:53:15.796 | Whole-file Write creates plan v3. |
+| 843/849 | 15:53:19.603 onward | Structural gate passes. It checks shape and backward dependencies, not the semantic correctness of every change. |
+| 856 | 15:53:35.506 | Reports v3 and recommends checking only the two blockers. |
+| 858 | 15:54:59.545 | User explicitly authorizes that narrowed review. |
+| 862 | 15:55:10.904 | One fresh reviewer is dispatched for the validation-before-use and up-to-date-state findings only. |
+| 874 | 15:56:35.717 | Reviewer returns `PARTIAL` for both, with additional omissions and contradictions. |
+| 877 | 15:56:51.622 | Orchestrator persists a condensed targeted verdict. |
+| 885 | 15:57:00.384 | Recommends a small correction “without another review”. |
+| 889 | 16:04:39.868 | User: “make the small edit”. |
+| 906-934 | 16:05:13.461-16:05:39.849 | Fifteen actual targeted Edit calls create version 4. |
+| 943/944 | 16:05:46.068 onward | Structural gate passes: seven phases, fifteen tasks, acceptance criteria present, no prohibited formatting. |
+| 946 | 16:05:53.370 | Explicit final disclosure: “NOT CHECKED: v4 has had no review since this edit.” Recommends implementation. |
+
+Elapsed invocation-to-result time was approximately 37 minutes 35 seconds for the first full review and 36 minutes 30 seconds for the second. The targeted reviewer returned about 85 seconds after dispatch. These are observed wall-clock intervals, not token costs or summed agent runtime.
+
+### Count corrections
+
+The second report says “13 of the 16” findings fixed, three partial. Its detailed `prior_fix_check` instead marks:
+
+- **Fourteen fixed:** first findings 1-3, 5-8, 10-16.
+- **Two partial:** toolchain/diagnosis testing and PR-body rendering/old values.
+
+The second report’s own fixed list omits the repository-self-check finding even though the detailed merged artifact marks it fixed. Do not repeat “13 fixed, 3 partial” as a verified result.
+
+Likewise, twenty numbered second-round items are not twenty independent defects:
+
+- The sufficiency item repeats the validation-order and missing-state problems.
+- The concurrency item explicitly says it is “a note, not a defect”.
+
+**Key takeaways**
+
+- The user authorized each plan amendment and the reduction in review scope.
+- Final termination was not a clean independent review result.
+- Structural gate success was reported separately from the absence of a final semantic review.
+
+## 3. Findings that demonstrably arose from earlier corrections
+
+These are **plan-level** introduced defects or contradictions. No runtime regression is claimed.
+
+### 3.1 Moving the four-asset requirement into early detection
+
+**Original criterion.** Source:316 defines “release exists” as a published, non-draft release listing the Debian package. Source:245 separately makes the pin-writing script refuse a release missing any of four assets.
+
+**First finding and proposal.** First merged findings:22-30 says rollback validation is missing from detection and recommends using the pin writer’s four-asset rule, or explicitly accepting late failure. Its invariant probe also advocates harmonizing the predicates.
+
+**Actual v2 edit.** JSONL:544 inserts a constraint calling this a case “the source leaves open”. Plan v2:171 and :186-187 require all four assets during pin/rollback detection.
+
+**Next finding.** Second merged findings:75-83 identifies that this changes specified behavior. A package release with `LICENSE.orca` rather than `LICENSE` now fails in detection, instead of reaching the pin-writing job and failing there by release name.
+
+**Classification:** Introduced behavioral divergence in the plan, directly caused by an earlier recommendation. The “pin equals current means no operation” part of the same item was subsequently withdrawn as a contradiction because Source:136 permits that decision.
+
+**Actual v3 correction.** JSONL:841 restores Debian-package-only detection and keeps the four-asset refusal in the pin writer. Current Plan:29, :180, :196 describe the distinction explicitly.
+
+**Why the first review missed it:** The first review did not merely miss this later divergence; it proposed the stronger early predicate. Its objective was eliminating late refusal, but it did not preserve the specification’s distinction between release existence and pin-writer eligibility.
+
+### 3.2 Choosing a different source for the old lockfile digest
+
+**Original criterion.** Requirements:302 names the recipe’s lockfile digest as the old value for PR field 9.
+
+**First finding and proposal.** First merged findings:85-93 correctly notices that old values must be captured before the pin writer rewrites files. It offers capture from main “or from P provenance”.
+
+**Actual v2 edit.** JSONL:544, historical Plan v2:209, explicitly captures the old lock digest from the currently deployed package’s provenance, without declaring a change to the field’s contract.
+
+**Next finding.** Second merged findings:57-65 identifies the changed source and also finds that old commit, patch hash, package digest, patch digests, and Electron version still lack complete declared sources.
+
+**Classification:** Mixed. The explicit field-9 source substitution is introduced by the correction. The other unspecified old values are an incomplete correction of the original old-value problem.
+
+**Actual v3 correction.** JSONL:841; current Plan:220 takes field 9 from the recipe on main and enumerates the other old values from the deployed release’s provenance.
+
+**Why the first review missed it:** It allowed two alternative sources without resolving that the governing field table chose one. The first probe already understood that rollback separates the deployed recipe and deployed package; the resulting recommendation still left the source choice open.
+
+### 3.3 Requiring an inventory test before registering the new workflow
+
+**Original criterion.** Source:281 requires the new workflow to be registered in the automation inventory. The actual test, Workflow inventory test:599-628, compares the real workflow-file set against registered/excluded entries and fails on any unlisted file.
+
+**First finding and proposal.** First merged findings:103-111 adds local reader tests, including this inventory test, to the workflow-test task.
+
+**Actual v2 edit.** JSONL:544 adds “same result as on the base commit” for test-50 to Task 13. Route registration remains Task 14.
+
+**Next finding.** Second merged findings:120-128 identifies an unsatisfiable intermediate acceptance criterion: the new workflow already exists, but the entry needed for the test is scheduled later.
+
+**Classification:** Introduced acceptance-order defect.
+
+**Actual v3 correction.** JSONL:841 moves registration to Task 13 and workflow checks to Task 14. Current Plan:234-260 preserves that order.
+
+**Why the first review missed it:** It recommended a broader regression check without tracing when that check’s required new inventory entry would exist. The relevant test was already being cited in the original route task, so this was a dependency interaction created by the recommendation.
+
+### 3.4 Creating a renderer test boundary that excluded what the tests needed
+
+**Original criterion.** Source:345-359 separates collectors, sanitization, object construction, rendering, and the oversized-body fallback.
+
+**First finding and proposal.** First merged findings:85-93 asks for an extracted renderer region and fixture tests for caps, fallbacks, unavailable fields, and rollback text.
+
+**Actual v2 edit.** JSONL:544 creates an extracted renderer that reads only a JSON object, with collectors outside it, while requiring extracted-region tests for caps and release filtering without assigning where those operations live.
+
+**Next finding.** Second merged findings:66-74 says the tests could be vacuous or impossible if caps/filtering happen in collectors outside the tested region.
+
+**Classification:** Newly introduced ambiguity in the correction, plus an unresolved original integration-testing gap. Testing the sanitizer alone still does not prove collectors invoke it.
+
+**Actual v3 correction.** JSONL:841 explicitly assigns sanitization to collectors and caps, field-17 filtering, rollback text, title, and oversized-body handling to the renderer. Current Plan:224-225 and :251-259 encode those boundaries.
+
+**Why the first review missed it:** Its proposed extraction solved “no renderer test” without defining the boundary between the extractor’s input and the operations it was supposed to test.
+
+### 3.5 Naming a fetch remote without establishing that remote
+
+**Original criterion.** The patch-check task must fetch upstream source and the recipe base commit.
+
+**Original plan.** Historical v1:191 says “shallow fetch of T and the base commit”, without a remote name.
+
+**Actual v2 edit.** JSONL:544, historical v2:208, adds `git fetch ... origin ...` while spelling out the missing diagnosis procedure.
+
+**Next finding.** Second merged findings:201-209 notes that no scratch repository or upstream remote has been established. In the repository checkout, `origin` is not the intended upstream source.
+
+**Classification:** Introduced concrete plan instruction error, refining a pre-existing underspecification.
+
+**Actual v3 correction.** JSONL:841; current Plan:218 requires a scratch repository and explicitly adds the upstream repository before fetching.
+
+**Why the first review missed it:** It was introduced while expanding the procedure requested by the first review. The earlier text had not named the wrong remote.
+
+**Key takeaways**
+
+- Several later problems have a visible correction-to-defect chain.
+- These cases concern preservation of behavior and dependency ordering, not simply missing prose.
+- The first review’s proposed fixes were not themselves consistently checked against the whole specification.
+
+## 4. Complete second-round finding trace
+
+The table covers every numbered item in the second merged review. “v3 changed” means the logged whole-file write contains the specified correction, not that a later full review proved it complete.
+
+| Later item, plain-English meaning | Classification and validity | Earlier chain, actual correction, and observed outcome |
+|---|---|---|
+| **Validation happens after external calls (N-01)** | Pre-existing newly discovered ordering defect, not proven introduced by v2. Valid as a plan omission. | Source:469 requires checks before arguments reach `gh`. Original v1:163 performs checks inside the network-free decision script, while v1:190 fetches before calling it. First findings 2 and 8 add more checks inside that same late stage. V2 makes the candidate derivation explicit but retains the earlier ordering. V3 adds fetch-level checks. Targeted review still finds additional unchecked tag sources; v4 expands the rule. Second merged findings:39-47. |
+| **The agreed changes are insufficient (N-02)** | Duplicate/meta-finding, not another independent defect or regression. | It rests on the validation-order and missing-state findings, plus incomplete old-value and pinned-output coverage. It should not inflate the count of distinct root causes. Second merged findings:48-56. |
+| **Old PR values have incomplete or conflicting sources (N-03)** | Introduced field-9 contract change plus unresolved original old-value gaps. Valid, with the qualification that provenance could be a better engineering source if explicitly approved. | First finding 9 → pre-edit capture proposal → v2 chooses provenance for field 9 and lists only three old values → later source-contract conflict and remaining missing values → v3 enumerates sources. See §3.2. |
+| **Renderer/sanitizer tests can pass without checking integration (N-04)** | Newly underspecified extraction boundary plus incomplete original fix. Valid test-design issue, not proof that deployed code is unsafe. | First finding 9 → renderer extraction → v2 leaves tested-region contents unclear → v3 assigns operations and adds collector-pipe checks/mutations. See §3.4. |
+| **Early four-asset check changes the specified failure path (N-05)** | Introduced specification divergence. Valid; “pin equals current is forbidden” subclaim was withdrawn. | First findings 2 and 8 → stronger early predicate → v2 blocks earlier and calls it unspecified scope → v3 restores source behavior. See §3.1. |
+| **Candidate branch and pinned resolver output are not guarded by failing tests (N-06)** | Pre-existing newly discovered test gaps and output ambiguity. Not a v2 regression. | Source:160 conditionally supplies commit but passes resolver version directly; Source:183 rejects only one environment variable being set. Original v1:132 and v2:133 do not explicitly say pinned mode emits no version. Original test cases mainly cover default extraction and input rejection. V3 adds candidate-mode part (f), resolver extraction, empty-version behavior, and mutations. Current Plan:121, :137, :159, :164. Second merged findings:84-92. |
+| **Dispatch flags and manual target selection are untested (N-07)** | Pre-existing newly discovered test-strength/assignment gap. Valid risk, not observed faulty dispatch. | Original v1:191 refers to the exact source command, but v1:204 only checks that dispatch is conditioned on “needs build”. The first toolchain/diagnosis fix does not execute dispatch. V3 adds an extracted dispatch region and asserts all three flags; makes manual target assignment explicit. Current Plan:217-218, :250, :259. Second merged findings:93-101. |
+| **Repository failure versus outage precedence lacks a conflicting fixture (N-08)** | Unresolved old issue, with stronger fixture demand. Valid test omission. | First findings 6 and 15 add repository checks and an individual bad-digest case. V2 does not combine a bad repository and failed metadata fetch. V3 adds that combined case, non-latest fetch error distinction, and an ordering mutation. Current Plan:198 and :205. Does not resolve the separate “no upstream call before self-check” contradiction. Second merged findings:102-110. |
+| **Release-pruning credentials and environment wiring are not asserted (N-09)** | Pre-existing newly discovered test gap. | Source:167 defines distinct release and PR tokens and the fresh-main checkout. Original plan delegates the environment to the source but its shape checks do not assert those mappings. V3 enumerates them and adds mutations. Current Plan:140, :157, :164. Second merged findings:111-119. |
+| **Inventory test scheduled before route registration (N-10)** | Introduced acceptance-order defect. Valid and directly supported by actual test code. | First finding 11 → add reader tests → v2 puts test-50 in Task 13 with route registration still Task 14 → v3 reorders them. See §3.3. |
+| **Manual upstream-tag runs lack release metadata and rejection fixtures (N-11)** | Pre-existing newly discovered interface/test gap. | Source:312 requires shape, non-prerelease, non-draft status. Original v1:163 reads latest-release metadata in forward mode but gives no explicit manual-tag metadata fetch; v1:175 lacks these rejection cases. V3 introduces the target metadata-file distinction and the missing cases. Current Plan:177, :195, :217, :248. Second merged findings:129-137. |
+| **Current pin can stop the weekly patch check (N-12)** | Pre-existing omission aggravated by inconsistent source instructions. Valid missing reconciliation, not proof v2 would certainly skip the job. | Source:382 sends current candidate to “Noop”; Source:142 and :402 require a nonempty “up to date” state and patch-check execution. Both v1:163/:175 and v2:170/:185 say only “noop”. V3 introduces the state and mutations, but the targeted review finds the planned text mutation ill-defined. V4 uses the exact generic condition. Second merged findings:138-146; targeted verdict:11-21. |
+| **Workflow-shape assertion mechanism is unspecified (N-13)** | Changed review precision/test scope, not demonstrated functional regression. Valid executability clarification. | The source itself calls for text checks; original plan repeats them. During review, a proposed YAML-parsed assertion conflicts with the existing text-level convention and undeclared dependency. The merged item rejects that proposal and asks for a named mechanism. V3 chooses the existing regular-expression job slicing and adds per-guard mutation requirements. Current Plan:24. Second merged findings:147-155 and :241. |
+| **Toolchain and diagnosis logic are not executed by tests (N-14)** | Unresolved old finding, not new. | First finding 4 demands a procedure and fixtures. V2 adds procedure and rendering-from-diagnosis fixtures, not execution of the probe/parser. V3 explicitly accepts owner-run live acceptance as the only coverage. Current Plan:218 and :268. This is a declared test-coverage limit, not an automated fix. Second merged findings:156-164. |
+| **Rollback compare direction is not asserted (N-15)** | Incomplete new renderer-test fix; stronger test specificity, not a newly wrong link. | Source:361 supplies direction. V1 delegates rollback rendering to the source. V2’s new renderer fixture checks heading/sentence but not the link. V3 adds the exact link and reversal mutation. Current Plan:225, :253, :259. Second merged findings:165-173. |
+| **Concurrency key verification remains limited (N-16)** | Explicit non-defect note after calibration. Do not count as a fresh bug. | First finding 16 requests external support verification. V2 records documented support and pairing with non-cancellation. The second merge says this satisfies the first concern and withdraws the suggestion to remove the key. V3 clarifies the oracle and old-linter caveat. Second merged findings:174-182 and :235-237. I did not independently research current GitHub syntax. |
+| **No recorded baseline for “same result as base” (N-17)** | Introduced acceptance-executability gap associated with the new reader checks; a known local-failure comparison also existed in v2 constraints. | First finding 11 → v2 adds baseline comparisons without a capture task → v3 captures named test outcomes before editing. Current Plan:27, :35, :47, :150, :260. Second merged findings:183-191. |
+| **Logs could be accidentally staged (N-18)** | Pre-existing advisory hygiene risk, not behavioral defect. | Original v1 already writes acceptance logs under an untracked artifacts path. V3 clarifies the package-relative directory and “never stage”. The citation validator rejects a proposed claim that the package lies outside the worktree. Current Plan:28. Second merged findings:192-200; second citation validation:14. |
+| **Patch fetch names an unestablished/wrong remote (N-19)** | Introduced concrete instruction error atop earlier missing detail. | First finding 4 → v2 adds explicit `origin` fetch → later reviewer requires scratch/upstream setup → v3 supplies it. See §3.5. |
+| **PR head must be defined by mode before rechecking (N-20)** | Incomplete old fix plus source inconsistency, not wholly new. | First finding 3 fixes the open-only rollback exception. V2 adds it but retains a branch placeholder and broad “same candidate” wording. Source:115 says “all modes”, whereas Source:454 gives rollback its own head rule. V3 names the per-mode head and adds a case that a merged forward PR does not block rollback. The validator narrows the finding because closed/merged rollback handling was already present. Current Plan:197 and :222; second citation validation:15. |
+
+### Why the original review did not catch these particular issues
+
+Verified evidence supports four case-specific explanations.
+
+1. **Coverage was credited without proving the state needed by downstream wiring.**  
+   First coverage matrix:1749-1757 quotes the requirement that the patch check run for the “up to date” state. It initially matches Task 10 by containment at ratio `0.714`, then assigns semantic coverage to Tasks 12 and 13. Neither original task actually names that state. The missing-state defect was therefore present in a requirement that the matrix treated as covered.
+
+2. **The first matrix omitted some security/order clauses entirely.**  
+   The second merged findings:223-227 explicitly records the before-use security clause and before-upstream-call clause among missed spans. The original matrix contains tag-validation rows but not the complete temporal constraint. A check existing somewhere was not the same as checking before the fetch that used it.
+
+3. **The specification’s test table itself left holes.**  
+   Source:479 lists “noop for current candidate” rather than asserting the named state. It omits the individual patch-digest mismatch that the behavior section requires at Source:400. The first QA reviewer’s self-audit says they checked every listed test-table case. Matching that list did not establish that every behavioral requirement had an effective test.
+
+4. **Some later defects did not exist until the correction was written.**  
+   The inventory-test ordering, explicit old-lock source substitution, renderer boundary, and explicit remote instruction have before/after evidence. No explanation of an initial “miss” is needed for text introduced later.
+
+For the remaining newly noticed test-strength issues, the exact reason the first reviewers overlooked them is **unknown**. The record supports omissions and differing focus, not a proven cognitive cause such as context exhaustion.
+
+**Key takeaways**
+
+- Validation existence, validation timing, and validation coverage were repeatedly conflated.
+- The original coverage matrix visibly over-credited at least one later blocking requirement.
+- Copying the source’s test inventory preserved omissions and contradictions already present in that source.
+
+## 5. What the targeted third review added
+
+The full return is preserved at Session:874. The shorter on-disk targeted verdict omits some per-site detail, so the JSONL notification is necessary for the complete evidence.
+
+| Targeted observation | Historical classification | Actual v4 response |
+|---|---|---|
+| PR collectors still use intermediate upstream release tags without the required filter. | Pre-existing omission, newly discovered by tracing all tag sources. V3 fixed the primary target paths, not this secondary source. Requirements:297 and Source:346 already require filtering. | Edit at Session:926 adds filtering before calls/links; :932 adds structural checking; :934 adds a filter-removal mutation. Current Plan:224, :251, :259. |
+| The bad-value error prints untrusted text inside a workflow command. | Introduced explicit unsafe instruction in v3:217, which says the error names the bad value. This is a plan-level injection risk, not an observed exploit. | Session:908 and :922 change errors to name only the failed input; :928 and :934 add output/mutation checks. Current Plan:23, :217, :248, :259. |
+| Annotated tags are followed through an upstream-controlled URL without checking it first. | Pre-existing, inherited from Source:158, which explicitly instructs following `object.url`. This is tension with Source:469, not a v3 regression. | Session:912 requires a 40-hex object digest and a fixed tag-object endpoint instead of the raw URL. Current Plan:137. No separate final independent verification observed. |
+| No fetch-level malformed rollback input case. | Incomplete validation-before-use correction. A decision-script test after fetching is not a fetch-level guard test. | Session:928 adds the missing case. Current Plan:248. |
+| No mutation for the candidate-version check. | Incomplete v3 testing promise. The new global “one mutation per guard” rule makes this more conspicuous, but missing mutation does not prove the existing bad-input test ineffective. | Session:934 adds ordering mutation. Current Plan:259. |
+| No mutation removing the build resolver’s tag check. | Incomplete v3 testing promise; the existing malformed-tag fixture already requires an empty call log. | Session:914 adds the mutation. Current Plan:164. |
+| Downstream jobs rely on successful detection without saying so explicitly. | Documentation clarification, not established faulty wiring: `needs: detect` already exists. | Session:908 makes the dependency explicit. Current Plan:23. |
+| Planned mutation “remove up_to_date from the condition” has no meaning when the source condition is simply nonempty state. | Introduced v3 acceptance-instruction defect. Source:129 names a generic condition, not a state list. | Session:924 and :930 require the exact source condition; :934 changes mutation to narrowing execution to “needs build”. Current Plan:218, :251, :259. |
+| Pin/rollback no-operation cases have an unspecified state value. | Incomplete missing-state correction, with a source scope tension. | Session:910 and :916-920 make those modes emit the “up to date” state and empty target. Current Plan:29, :180, :196-197. |
+| No test or named live check evaluates the up-to-date week through the positive control. | Unresolved verification limit. | V4 retains text-level guard checks and a general statement that live checks cover expression evaluation. It does not add the exact runtime scenario requested by the targeted reviewer. |
+| Fetches still precede the repository self-check despite the “before any upstream call” rule. | Pre-existing specification contradiction, unresolved. | V4 preserves a decision-stage check before reading fetched files, but fetch still precedes that decision. Current Plan:178 versus :217. |
+
+### Narrowing overstatements in the targeted return
+
+The detailed reviewer also marks some deterministic derivations and downstream uses as not independently tested. Those observations do **not** establish separate functional defects:
+
+- A value derived from an already checked version is not automatically an unchecked-input defect.
+- An absent extra mutation is not proof that an existing malformed-input fixture cannot catch removal of the guard.
+- The handoff uses a version produced by the build path; the return does not demonstrate that an arbitrary untrusted value can reach that point.
+- Existing job dependency syntax is evidence of dependency wiring even when an explanatory sentence is absent.
+
+These should be retained as test/documentation limitations unless a concrete invalid path is shown, rather than counted as newly introduced bugs.
+
+**Key takeaways**
+
+- The targeted reviewer found two genuinely new correction defects: unsafe bad-value wording and an ill-defined condition mutation.
+- It also found pre-existing paths outside the primary validation fix.
+- The final edit improved the plan but did not close every verification limit or reconcile the self-check ordering contradiction.
+
+## 6. Why the loop continued, and why it stopped
+
+### Verified continuation mechanisms
+
+**Different review passes were answering different questions.** Initial gaps concerned coverage and assignment. Corrections then introduced more precise collectors, extraction regions, acceptance checks, and order constraints. Later reviewers could inspect those newly concrete interfaces and find defects that were previously underspecified rather than concretely wrong.
+
+**Local fixes crossed component boundaries.** Early release validation changed which job failed and what recovery applied. Capturing old values crossed the deployed-package/recipe boundary. Adding a reader test crossed workflow creation and inventory registration. These are specific dependencies visible in the artifacts.
+
+**The source was not a consistent single acceptance contract.** Examples:
+
+- Source:382 says current candidate goes to “Noop”; Source:142/:402 requires a named state that still runs patch checks.
+- Source:285 makes the decision script consume pre-fetched files; Source:402 says the repository self-check precedes any upstream call.
+- Source:158 says follow the annotated tag URL; Source:469 requires upstream values to be checked before use.
+- Requirements:302 defines field 9 from recipe state even though rollback can separate recipe and deployed-package state.
+
+**Stronger tests accumulated across rounds.** Several later findings asked for mutation checks or execution scenarios absent from Source:477-479. Some were useful corrections; they were not all evidence of lost original requirements.
+
+### Verified stopping mechanism
+
+At Session:821 and :856, the orchestrator argued for reviewing only the two blocking fixes, citing the repeated cost and increasingly detailed test-strength findings. The user explicitly accepted that narrowed review at :858.
+
+After both targeted results were still partial, Session:885 recommended a small edit “without another review”, relying on future per-task implementation review. The user authorized the edit at :889.
+
+Session:946 then disclosed:
+
+> “NOT CHECKED: v4 has had no review since this edit.”
+
+The loop therefore stopped by **authorized reduction of review scope and deferral of enforcement to implementation**, not by observed convergence to a clean independent pre-review.
+
+**Key takeaways**
+
+- Cost and review-scope decisions are explicit in the record.
+- There is no basis to describe final v4 as independently approved.
+- The structural gate could pass all four versions because the contested problems were primarily semantic and cross-task.
+
+## 7. Evidence integrity and hashes
+
+Historical plan versions were reconstructed in memory from actual `Write` and `Edit` payloads, without writing extracted files. The first two reconstructed hashes match the review snapshots, and the final reconstructed hash matches the live plan.
+
+| Source | SHA-256 |
+|---|---|
+| Selected JSONL | `bff72993f9c75b6c1565326ed3298964b99bf5ae0ddcae20a38a12d4e5e12a89` |
+| Driving source | `32211523717c4740cbd82123b69d960b9e9e5b61ee99c7e1b42b675432e83b2b` |
+| Companion requirements | `08f9c06e87c614d4980e4b1227876c06d34d268ef16bab0f1fa86f717f466e60` |
+| Reviewed plan v1 | `ebc03d4586a29b7436632bd40008a731f94f33a021f242fc7cb98068bd685ab5` |
+| Plan v2, Session:544 | `d3a12ef9e187e8edbfa584926c81be75a5bb6792a3013de237bf19cb0d5e8940` |
+| Plan v3, Session:841 | `cbfb606a9d9669c66aaa01c7df1ff6a480a11374ecdf9ffda386e39b34af78f8` |
+| Final/live plan v4 | `94af0cdac984ba7661ab1919d38ee670a87ab9f3c18b88dcf240f2b807b9e18b` |
+| First report | `ff7ba8697a03e296a255a45a21375373624e71137a9a32de0226dc6f1689b423` |
+| Second report | `52a2e253e0158658724a79c17335cd85c21db052a01d7c0a3b2cd6609d4550c8` |
+| Persisted targeted verdict | `a675acc8f66dcf7831538717ae35e55caa865a6db99aa0b085fb9974a12e4fd0` |
+
+First and second `input-snapshot.yaml` files contain the same source hash. Thus changing specification content is not an explanation for the additional findings between those two runs.
+
+## Gaps and Questions
+
+- No runtime implementation regression is established by this planning session. The findings concern instructions, acceptance design, and specification fidelity.
+- Later implementation artifacts now exist under the task package. Their presence does not prove this planning session executed anything.
+- The second report’s closure count is internally inconsistent; the detailed checklist supports fourteen fixed and two partial.
+- The final plan was not independently reviewed after the fifteen edits.
+- The repository-self-check-before-fetch contradiction remained unresolved.
+- The precise runtime test for an up-to-date week reaching the positive control remained absent.
+- The exact reason a reviewer overlooked each otherwise pre-existing test gap cannot be recovered. I have not substituted speculation for that missing evidence.
+- I did not independently verify present-day GitHub concurrency documentation; the historical review resolved that issue and explicitly treated the remaining item as a note.
+- No task execution, production code edits, tests, commits, or report-file writes were performed for this investigation.
+
+## Stale Documentation Found
+
+No current-architecture staleness claim is established by this investigation. The relevant issues are **internally conflicting design instructions**, an inaccurate review closure count, and a condensed targeted verdict that omits details retained in the JSONL return.
+
+## Summary
+
+The repeated planning reviews were driven by a real mixture of incomplete fixes, new defects introduced by fix proposals, pre-existing omissions, and inconsistent source instructions. Several correction-induced failures have direct before/after proof, especially early release eligibility, old-value sourcing, inventory-test ordering, renderer extraction, and remote setup. Other later findings strengthened tests rather than identifying newly wrong behavior, and the twenty-item count includes a duplicate sufficiency finding and an explicit non-defect note. The final version passed structural checks but was not independently re-reviewed; the user authorized that stopping point after a targeted review still returned partial results.
+
+**Recommended action:** Persist this evidence under the assigned research path and classify this incident as **mixed-cause review churn with an explicitly unreviewed final amendment**, not “twenty regressions caused by sixteen fixes”.
+SOURCE agent-acase-claim-oracle-c99620098e7f9ae9.jsonl
+FINAL RAW_LINE 135 TIME 2026-10-23T03:40:56.969Z CHARS 20482
+| Status | Result |
+|---|---|
+| DONE | Reconstructed the oracle task’s two failed reviews, the single permitted repair, operator authorization, and subsequent passing review. |
+| DONE | Verified historical tool traces, original requirements, preserved fixture bytes, current assertions, and test logs. No investigated tasks were executed or source files changed. |
+| NEXT | Parent agent must preserve this structured return at the assigned output path. My governing agent instructions prohibit writing report files. |
+
+# Research: Repeated oracle-task QA failures
+
+**Investigation type:** Pattern Investigator / Code Tracer  
+**Scope:** Session `a9b88895-5374-4cae-8ebb-cac03a97aff1`, especially the claim-gate oracle task (Task 12).  
+**Status:** Complete  
+**Date:** 2026-10-23
+
+## 1. Finding and counting boundary
+
+**This session contains two actual failed independent reviews of Task 12, followed by one passing review after an explicitly authorized fixture correction. The second failure retained one already-known frozen-fixture defect; it did not introduce a new requirement or identify a regression caused by the preceding repair.**
+
+The first review identified four distinct defects. The permitted repair fixed three and deliberately left the fourth unchanged because the orchestrator prohibited modifying its frozen fixture or adding duplicate retention coverage to conceal the omission. The second review confirmed the three repairs and failed on precisely that remaining defect.
+
+Do not count the following as additional failed reviews:
+
+- Repeated deliveries, split messages, and idle notifications from the same reviewer.
+- Task 11 failures described in the opening carryover instructions and existing ledger. This session was explicitly told not to re-review that task.
+- Two local test failures during initial oracle development.
+- The later archive refusal because a separate operator-written archive ruling was missing. No fresh final review had occurred at that point.
+
+**Key Takeaways**
+
+- Four unique defects, two failed review rounds, one later passing review.
+- One finding persisted across both failed rounds.
+- No new post-repair defect was established.
+
+## 2. Evidence register
+
+**Main session**
+
+`/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-auggie-claim-gate/a9b88895-5374-4cae-8ebb-cac03a97aff1.jsonl`
+
+**Builder trace**
+
+`/config/.claude/projects/-config-workspace-IronClaude--dev-worktrees-auggie-claim-gate/a9b88895-5374-4cae-8ebb-cac03a97aff1/subagents/agent-aoracle-builder-6889f23314fbb16e.jsonl`
+
+**Managed plan**
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/.dev/tasks/to-do/TASK-WF-designV2-20261020-132032/TASK-WF-designV2-20261020-132032.md`
+
+**Authoritative design source**
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/.dev/tasks/to-do/TASK-WF-designV2-20261020-132032/source.md`
+
+**Original family and retention requirements**
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/.dev/brainstorms/20261020-043737-auggieClaimGate/merged-requirements.md`
+
+**Independent failed reviews**
+
+- `/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/.dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t12-review-1.md`
+- `/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/.dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t12-review-2.md`
+
+**Passing authorized-correction review**
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/.dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t12-review-authorized.json`
+
+**Preserved original frozen fixture**
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/.dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t12-held-back-before-authorization.json`
+
+**Current oracle**
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/tests/skills/test_auggie_claim_gate_oracle.py`
+
+Graph coverage reported the investigated worktree paths excluded from its index. Conclusions therefore rely on direct source reads, historical tool payloads, fixture-byte comparison, and preserved execution logs, not graph absence.
+
+## 3. Actual review and repair timeline
+
+Raw anchors below refer to the main session unless expressly identified as builder-trace anchors.
+
+| Raw anchor | Timestamp, UTC | Actual event |
+|---|---|---|
+| 139 | 2026-10-21T21:33:52.744Z | Builder assigned Task 12. Instructions require frozen tokens, then held-back corpus and hash, then oracle authoring. Explicitly freeze held-back bytes and forbid tuning from acceptance outcomes. |
+| Builder 52 | 2026-10-21T21:35:16.358Z | Held-back generator authored. Shared facts default `default_path` to false. The security-retention constructor does not override it. |
+| Builder 55 | 2026-10-21T21:35:18.945Z | Held-back generator executed before oracle creation. |
+| Builder 65 | 2026-10-21T21:38:23.677Z | Initial oracle written, including unverified guard/producer rejection predicates. |
+| 256 | 2026-10-21T21:43:01.005Z | First independent reviewer dispatched against the original task and parent requirements. |
+| **291** | **2026-10-21T21:47:06.709Z** | **First FAIL / missing delivered. Four findings.** |
+| **383** | **2026-10-21T21:49:47.309Z** | **ONE allowed repair authorized for findings 1-3 only. Finding 4 explicitly excluded because its fixture was frozen.** |
+| Builder 189-196 | 2026-10-21T21:51:40.984Z through 21:51:41.074Z | Actual predicate and provenance corrections applied. |
+| Builder 206-211 | 2026-10-21T21:52:07.011Z through 21:52:07.083Z | Actual structural-family corrections applied. |
+| Builder 223 | 2026-10-21T21:55:55.589Z | Runnable verification, provenance, and structural regression assertions added. |
+| **398** | **2026-10-21T21:56:52.809Z** | **Builder returns corrected paths and preserved evidence.** |
+| 414 | 2026-10-21T21:57:25.078Z | Fresh post-repair reviewer dispatched. |
+| **450** | **2026-10-21T22:03:12.606Z** | **Second FAIL / missing. Reviewer confirms the other three findings fixed; default-path security retention remains absent.** |
+| 462 | 2026-10-21T22:03:47.231Z | Task recorded blocked rather than complete. |
+| 475 | 2026-10-21T22:04:24.721Z | Orchestrator asks for explicit authorization to correct and re-freeze the fixture, invalidating earlier acceptance evidence. |
+| **521** | **2026-10-22T00:19:07.882Z** | **Operator: “I authorize the frozen-fixture correction”.** |
+| 573 | 2026-10-22T00:20:13.181Z | Security fixture’s default-path boolean changed from false to true. |
+| 579 | 2026-10-22T00:20:20.483Z | Concrete default-path security coverage assertion added. |
+| 585-586 | 2026-10-22T00:20:28.053Z through 00:20:28.058Z | Oracle digest constant and held-back hash pin updated. |
+| 607 | 2026-10-22T00:21:13.097Z | Fresh independent authorized-correction review dispatched. |
+| **668** | **2026-10-22T00:26:48.291Z** | **PASS / compliant delivered. All six Task 12 criteria verified.** |
+| 691 | 2026-10-22T00:27:22.489Z | Task 12 recorded complete. |
+| 779 | 2026-10-22T00:33:32.415Z | Integration task recorded complete after independent passing review. |
+| 824 | 2026-10-22T00:35:03.074Z | Archive blocked by missing separate operator archive ruling. No final-review failure occurred. |
+
+**Key Takeaways**
+
+- The second failed review was predictable from the deliberately unresolved finding.
+- The operator decision, not another predicate rewrite, removed the remaining blocker.
+- Historical acceptance evidence was retained and superseded, not silently overwritten.
+
+## 4. Finding-by-finding validity against original criteria
+
+### 4.1 Unverified evidence incorrectly selected rejection rows
+
+**Original requirement:** The canonical admission rules require verified guards or a verified producer/schema before those facts justify rejection. Missing required verification belongs to the unproven-evidence outcome.
+
+**Historical implementation:** Builder trace anchor 65 contains:
+
+```python
+matches = (
+    f["guard_blocks"] or f["seam_violates_precondition"],
+    f["producer_refuses"],
+```
+
+These earlier matches won before the later incomplete-evidence condition, even when the corresponding verification flags were false. The first reviewer independently demonstrated both errors using development records.
+
+**Validity:** Valid against the original oracle-fidelity requirement, not a newly introduced reviewer preference. Exact textual comparison of the table constants was insufficient because execution used separate predicates.
+
+**Repair:** Builder anchor 189 adds verification requirements to the guard, seam, and producer predicates. The later runnable regression tests explicitly distinguish verified rejection from unverified, unproven evidence.
+
+**Subsequent status:** Resolved. The second reviewer confirmed working development-only counterexamples. This finding did not recur.
+
+Primary review evidence:
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/.dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t12-review-1.md:20-22`
+
+Current runnable checks:
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/tests/skills/test_auggie_claim_gate_oracle.py:291-302`
+
+### 4.2 Provenance contrast tested policy documentation instead of author identity
+
+**Original requirement:** Contrast refusal of a present valid author against refusal of a missing author with unknown identity.
+
+Primary requirement:
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/.dev/brainstorms/20261020-043737-auggieClaimGate/merged-requirements.md:610`
+
+**Historical implementation:** Builder anchor 58 authors the provenance pair by changing `policy_verified` while retaining the known-valid-author consequence. This was a real single-field contrast, but for the wrong causal factor.
+
+**Validity:** Valid original semantic-coverage failure. Correct family labels, cardinality, and changing exactly one field did not establish the required known-versus-unknown author contrast.
+
+**Repair:** Builder anchors 191-196 introduce actual author input, required-author schema facts, and an author-field contrast. The negative expectation changes to producer/schema rejection. Added assertions pin the actual author values.
+
+**Subsequent status:** Resolved. Second review confirmed known author admitted, missing author rejected, and unverified producer classified unproven.
+
+Current semantic assertions:
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/tests/skills/test_auggie_claim_gate_oracle.py:305-322`
+
+### 4.3 Missing-abstraction case remained another import-cycle claim
+
+**Original requirement:** Preserve both the pre-existing-cycle case and a separate missing-abstraction claim without a convention source.
+
+Primary requirement:
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/.dev/brainstorms/20261020-043737-auggieClaimGate/merged-requirements.md:607`
+
+**Historical implementation:** Builder anchor 58 copies the positive import-cycle record, renames it as the no-convention negative, and clears convention verification. Its consequence still describes an import cycle.
+
+**Validity:** Valid original semantic omission. The record exercised missing convention evidence, but not the separately specified missing-abstraction claim.
+
+**Repair:** Builder anchors 206-211 distinguish cycle and missing-abstraction facts, replace the abstraction consequence, and add its matching positive comparison. The existing new and pre-existing cycle cases remain.
+
+**Subsequent status:** Resolved. The second reviewer explicitly found the added structural positive necessary for the required contrast, not extra scope.
+
+Primary second-review assessment:
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/.dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t12-review-2.md:30-40`
+
+Current assertions:
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/tests/skills/test_auggie_claim_gate_oracle.py:325-350`
+
+### 4.4 Required default-path security fixture inherited a false default
+
+**Original requirement:** Include a Critical-tier security sink on a default path.
+
+Primary requirement:
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/.dev/brainstorms/20261020-043737-auggieClaimGate/merged-requirements.md:652`
+
+**Historical cause, directly observed:** The held-back generator at builder anchor 52 defines shared facts with `default_path=False`. Its `base-default-security` constructor overrides security category, exploitability, severity hint, and harm, but does not override default-path status. By contrast, the neighboring default-path null-dereference constructor explicitly supplies `default_path=True`.
+
+The preserved original fixture confirms:
+
+- Security category.
+- Exploitable harm.
+- Expected Critical severity.
+- Correct base/security-retention labels.
+- **`default_path: false`.**
+
+Primary preserved bytes:
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/.dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t12-held-back-before-authorization.json:563-628`
+
+**Validity:** Valid against the original requirement. This was not a reviewer inventing an extra test condition after the repair.
+
+**Why the first repair did not resolve it:** Main-session anchor 383 explicitly prohibited changing the held-back fixture, hash artifact, oracle digest constant, or frozen token file. It also prohibited adding duplicate retention to conceal the omission. The builder’s freeze log expressly retained this open finding.
+
+**Subsequent status:** The sole retained finding in the second failed review. No changed predicate caused it; its original bytes remained unchanged.
+
+Second-review evidence:
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/.dev/tasks/to-do/TASK-WF-designV2-20261020-132032/artifacts/t12-review-2.md:20-28`
+
+**Key Takeaways**
+
+- All four initial findings were supported by original requirements and historical implementation.
+- Three were repaired successfully.
+- The recurring finding was a frozen input defect, not failed execution of those three repairs.
+
+## 5. Why green tests did not close the findings
+
+I independently inspected the preserved log summaries, without executing the investigated tests.
+
+| State | Default tests | Acceptance tests | Independent review |
+|---|---:|---:|---|
+| Before first review | 67 passed | 78 passed | FAIL, four findings |
+| After permitted repair | 74 passed | 85 passed | FAIL, one retained finding |
+| After authorized fixture correction | 74 passed | 85 passed | PASS |
+
+The mechanism is specific:
+
+1. **Textual fidelity was not executable fidelity.** The original table constants contained verification language, while the separate executable predicates omitted verification gates.
+2. **Coverage checked structure more strongly than meaning.** Family identifiers, member counts, one-field differences, and retention labels passed despite the wrong causal contrasts and missing default-path fact.
+3. **Security grading could still pass.** The historical fixture already described exploitable Critical security harm. It could receive its expected disposition and severity without supplying the specifically required default-path example.
+
+The authorized correction added an assertion requiring an actual security-category, default-path, exploitable case with supported Critical harm:
+
+`/config/workspace/IronClaude/.dev/worktrees/auggie-claim-gate/tests/skills/test_auggie_claim_gate_oracle.py:278-283`
+
+Thus unchanged passing test counts after correction do not imply the correction was cosmetic. An existing coverage test acquired a previously missing semantic assertion.
+
+**Key Takeaways**
+
+- Passing tests were genuine but incomplete evidence.
+- The reviewers found compliance defects outside what those assertions established.
+- The correction strengthened the test’s meaning without increasing the number of collected tests.
+
+## 6. Freeze conflict and authorized resolution
+
+**There was no inherent contradiction in the original feature requirement. A valid default-path security fixture could have been authored before freezing.**
+
+The conflict arose after the deficient record had been frozen and acceptance had run. Under the first repair’s explicit boundaries, the builder could neither correct that frozen record nor substitute duplicate coverage. That made the specific remaining repair unavailable without a new operator decision.
+
+This does **not** prove every conceivable implementation was mathematically impossible. It establishes that the permitted repair deliberately excluded the action required for the chosen fixture correction.
+
+After authorization:
+
+- The original fixture and hash were preserved.
+- Earlier acceptance results were explicitly superseded.
+- Exactly one fixture field changed: `/8/facts/default_path`, false to true.
+- The hash pin and oracle constant changed.
+- A concrete semantic coverage assertion was added.
+- A fresh independent review passed.
+
+My independent byte comparison verified that replacing only that boolean produces the entire current held-back file exactly. No expected disposition, severity, or other fixture fact changed.
+
+**Historical limit:** The authorized reviewer lacked a separately preserved full pre-authorization oracle snapshot. The observed edit trace supports the limited oracle changes, but should not be described as an independent historical full-file byte comparison. The passing review expressly recorded that distinction.
+
+**Key Takeaways**
+
+- Freeze preservation explains the repeated failure.
+- Authorization enabled a bounded input correction, not outcome-driven predicate tuning.
+- Corrected held-back evidence must remain labeled re-frozen, not untouched.
+
+## 7. Subsequent outcome and excluded events
+
+The independent authorized-correction review passed at main-session anchor 668. Integration then passed with 255 scoped default tests and 85 acceptance tests.
+
+The archive gate subsequently refused to proceed because the accepted Task 11 residuals lacked the separate operator archive ruling required by that gate. Main-session anchor 824 explicitly states no final review or archive move occurred. This is an authorization/state blocker, not another Task 12 QA failure.
+
+The two earlier local oracle test failures are also separate:
+
+- Initial table extraction omitted the first admission row.
+- A subsequent mutation test changed a disposition to its existing value and therefore did not raise.
+
+They occurred during initial builder development before the first independent review. Counting them as failed independent QA rounds would mix test-debugging attempts with review outcomes.
+
+## Gaps and Questions
+
+- No live-model effectiveness claim is established. The oracle and deterministic tests do not prove a model follows the protocol.
+- No independent pre-authorization full-oracle byte comparison was available to the historical authorized reviewer.
+- Task 11’s preceding failed rounds belong to earlier execution history. This session’s carryover descriptions are not independent observations of those events.
+- The worktree is excluded from the available graph index. Direct files and historical tool payloads supplied the evidence instead.
+- No unresolved question prevents classifying the repeated Task 12 failure.
+
+## Stale Documentation Found
+
+No stale documentation was established as the cause of this review loop. The final live fixture differs intentionally from its preserved historical version because of the explicit operator-authorized correction; that is not documentation drift.
+
+## Summary
+
+Task 12 failed twice because its first implementation contained four real compliance defects, and the permitted repair deliberately left one defective frozen fixture unchanged. The three permitted repairs worked, and the second reviewer confirmed them rather than replacing them with new objections. The repeated security-fixture finding originated in an inherited false default and survived because the coverage test checked labels without the required default-path property. Explicit operator authorization enabled the one-field correction, re-freeze, semantic assertion, and subsequent passing independent review.
+
+**Recommended action:** Preserve this as a **retained frozen-input defect requiring authorization**, not a moving-target review case or repair-induced regression, at `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/02-session-a9b88895.md`.

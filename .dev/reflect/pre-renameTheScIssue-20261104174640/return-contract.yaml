@@ -1,0 +1,92 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-renameTheScIssue-20261104174640/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-renameTheScIssue-20261104174640/audit.log
+confidence_calibrated: 0.75   # mean of the three calibrated reviewer cards (0.75, 0.76, 0.75)
+escalation_rule_matched: null  # Tier 2 forced by the coverage_degraded pre-filter before row evaluation
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 4
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: 64743c29623b1d6f41cad9c0f49fb599245b5e0e2a8f7c9f7955ea670310de74
+  spec: 0fd3773f9dab2cf13b17ab703257ecaacf91ca6b502a7d73a45192e0ec0a8d6b
+input_tree_sha256: 9a3b1daac2e0a66cd6f2f940ce5e2776f46e36c74c07a0123fedb81a023952ee
+input_tree_file_count: 17
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-renameTheScIssue-20261104174640/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 18
+citations_revalidated: 18
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - .dev/reflect/pre-renameTheScIssue-20261104174640/reviewer-cards/reviewer-1-card.yaml
+  - .dev/reflect/pre-renameTheScIssue-20261104174640/reviewer-cards/reviewer-2-card.yaml
+  - .dev/reflect/pre-renameTheScIssue-20261104174640/reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: .dev/reflect/pre-renameTheScIssue-20261104174640/adversarial/
+adversarial_convergence_score: 0.95
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+telemetry:
+  degraded_components: []
+  executor_class_source: unknown
+  executor_class_resolved: false
+  executor_exclusion_degraded: false
+  reviewer_models: [claude-sonnet-5-5, glm-5.3, claude-opus-5-5]
+  reviewer_personas: [analyzer, qa, refactorer]
+  reviewer_vendors: [Anthropic, Zhipu, Anthropic]
+  memory_hits: 0
+  memory_misses: 2
+  zero_drop_flag: true

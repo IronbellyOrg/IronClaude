@@ -1,0 +1,10 @@
+ src/superclaude/commands/pr-submit.md              |  7 +++--
+ .../skills/sc-pr-submit-protocol/SKILL.md          | 35 +++++++++++++++-------
+ 2 files changed, 29 insertions(+), 13 deletions(-)
+--- net line growth (SKILL.md)
+HEAD: 331  master: 331  now: 346
+net vs HEAD: 15  net vs master: 15
+--- net line growth (pr-submit.md)
+HEAD: 90  now: 91
+ .../skills/sc-pr-submit-protocol/SKILL.md          | 35 +++++++++++++++-------
+ 1 file changed, 25 insertions(+), 10 deletions(-)

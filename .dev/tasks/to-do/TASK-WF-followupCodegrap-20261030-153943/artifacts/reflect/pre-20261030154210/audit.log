@@ -1,0 +1,21 @@
+{wave: 0, step: 0.1, timestamp: 2026-10-30T15:42:10Z, outcome: ok, evidence_ref: null}  # mode=pre (rule 1 --mode pre)
+{wave: 0, step: 0.4, timestamp: 2026-10-30T15:42:10Z, outcome: ok, evidence_ref: artifacts/input-snapshot.yaml}
+{wave: 0, step: 0.5, timestamp: 2026-10-30T15:42:10Z, outcome: ok, evidence_ref: null}  # aliases: sonnet=claude-sonnet-5-5 opus=claude-opus-5-5 haiku=glm-5.3 -> 3 distinct, t2_model_class_diversity=full, t2_vendor_diversity=multi
+{wave: 0, step: 0.5b, timestamp: 2026-10-30T15:42:10Z, outcome: warn, evidence_ref: null}  # executor class opus (author of plan, this session) -> removed from reviewer rotation; backfill fable
+{wave: 0, step: 0.5c, timestamp: 2026-10-30T15:42:10Z, outcome: warn, evidence_ref: null}  # get_current_config/activate_project not exposed in this session -> degraded serena; serena_version unknown
+{wave: 0, step: 0.7, timestamp: 2026-10-30T15:42:10Z, outcome: skip, evidence_ref: null}  # onboarding_status unknown
+{wave: 0, step: 0.8, timestamp: 2026-10-30T15:42:10Z, outcome: ok, evidence_ref: audit.log}
+{wave: 1, step: 1B.0, timestamp: 2026-10-30T15:48:04Z, outcome: ok, evidence_ref: artifacts/coverage-matrix.yaml}  # pass1=0 pass2=338; coverage_degraded=parsed-sparse
+{wave: 3, step: 3B.0, timestamp: 2026-10-30T15:51:09Z, outcome: ok, evidence_ref: reviewer-briefs/}  # reviewer_briefs_materialized: 3
+{wave: 1, step: 1C, timestamp: 2026-10-30T15:51:09Z, outcome: ok, evidence_ref: t1-card.md}
+{wave: 2, step: 2.1, timestamp: 2026-10-30T15:51:09Z, outcome: ok, evidence_ref: artifacts/tier_decision.yaml}  # forced T2 by coverage_degraded pre-filter
+{wave: 1, step: 1D, timestamp: 2026-10-30T15:52:06Z, outcome: ok, evidence_ref: reflection-card.yaml}  # C=0.83
+{wave: 3, step: 3B, timestamp: 2026-10-30T16:03:29Z, outcome: ok, evidence_ref: reviewer-cards/}  # 3 reflect-reviewer cards (sonnet analyzer, haiku/glm-5.3 qa, fable refactorer); all verdict revise
+{wave: 3, step: 3C, timestamp: 2026-10-30T16:04:29Z, outcome: ok, evidence_ref: reviewer-cards/}  # calibrated C: r1 0.82, r2 0.76, r3 0.81; calibrator opus disjoint from reviewers; calibrator_diversity full
+{wave: 4, step: 4.F1, timestamp: 2026-10-31T00:40:25Z, outcome: warn, evidence_ref: adversarial/merged-verdict.yaml}  # first merge attempt stalled (debate subagents lost across an 8h session pause; merged-verdict.yaml still a stub); F1 retry once at --depth quick into adversarial-retry/
+{wave: 4, step: 4.F1b, timestamp: 2026-10-31T00:49:27Z, outcome: fail, evidence_ref: adversarial-retry/merged-verdict.yaml}  # F1 retry stalled the same way (advocates never returned)
+{wave: 4, step: 4.F2, timestamp: 2026-10-31T00:49:27Z, outcome: warn, evidence_ref: merged-verdict-fallback.yaml}  # merge_method single-reviewer-fallback, adversarial_unavailable true
+{wave: 5, step: 5.x, timestamp: 2026-10-31T00:54:31Z, outcome: ok, evidence_ref: artifacts/input-snapshot.yaml}  # input_tree_sha256 recompute matches; no drift
+{wave: 5, step: 5.2, timestamp: 2026-10-31T00:54:31Z, outcome: warn, evidence_ref: REPORT.md}  # evidence-validator: 108/109 upheld, 1 dropped, 4 corrections; 30/30 INF rows exact
+{wave: 5, step: 5.9, timestamp: 2026-10-31T00:54:31Z, outcome: ok, evidence_ref: return-contract.yaml}  # status partial
+{wave: 5, step: 5.10, timestamp: 2026-10-31T01:03:19Z, outcome: ok, evidence_ref: null}  # run folder moved from .dev/reflect/ into the package artifacts/reflect/ (package convention; .dev/reflect is outside the planner's staging scope)

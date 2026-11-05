@@ -1,0 +1,25 @@
+# sc-reflect-protocol audit log
+# mode=post depth=standard remediate=true
+# run: TASK-RF-reflect-config-error-observability-20260707-024841
+
+WAVE0  --diff origin/master..HEAD EMPTY (HEAD==branch==origin/master==051e147b); real work = 5 uncommitted working-tree files -> audited working-tree diff
+WAVE0  --spec REPORT.md ABSENT (== tasklist spec_path, intrinsic); gold-standard = research/06-gap-fill-d2-contract.md + tasklist criteria
+WAVE0  env aliases 3: opus(anthropic)/gpt-5.5(openai)/glm-5.2(zhipu) -> t2_model_class_diversity=full, t2_vendor_diversity=multi
+WAVE0  executor_class UNRESOLVED (no --executor-model, skill-mode POST) -> degraded=[executor-class-unresolved]; anti-self-confirmation weakened (fail-open, logged)
+WAVE0  input-snapshot computed; VERIFICATION_ARTIFACT_EXCLUDES applied
+WAVE1A ruff exit 0 (all checks passed); pytest tests/cli/reflect/ 198 passed 1 xpassed 0 failed -> §10.4 no-regression
+WAVE1A all 11 contract pins matched live source (models.py:166,config.py:106,runner.py:254/375,commands.py:392/432/449)
+WAVE1B coverage 11/11 mapped, S_scope=5, S_domains=1, S_dev_density=0.0, out_of_scope_mutations=0
+WAVE2  rubric would STOP@T1; ESCALATE@T2 for caller EV-3 on-disk-evidence acceptance gate (fired_rule=7)
+WAVE3  3 heterogeneous reflect-reviewer agents: R1 analyzer PASS 0.91, R2 qa 0.88 (2 test-adequacy drift), R3 refactorer PASS 0.92
+WAVE3  R3 independently VERIFIED '7 construction sites' comment accurate -> refutes R1 LOW comment-drift -> final none
+WAVE4  adversarial merge: merged-verdict.yaml merge_method=adversarial convergence=0.94 PASS; deviations drift=2(LOW non-gating) regression=0
+WAVE5  input-drift guard: NO DRIFT (all input SHAs match snapshot)
+WAVE5  evidence-validator: 23 citations, 0 dropped, all VERIFIED (zero_drop_flag=true, flagged for meta-eval)
+WAVE6  --remediate set; 0 gating deviations (only LOW non-gating advisories) -> Authorized/Necessary-only short-circuit -> remediation_task_path=null; advisories surfaced in REPORT
+WAVE7  promotion SKIPPED gate-failed: cond3 completion!=1.0 (2 open items incl this run), cond5b status='🟠 Doing' not Done, work uncommitted -> correct (reflect is the unblocking gate)
+
+EV-1 adversarial/merged-verdict.yaml on disk, merge_method=adversarial: PASS
+EV-2 merge_method legal value (adversarial): PASS
+EV-3 <output>/adversarial/ dir exists with merged-verdict.yaml: PASS
+VERDICT PASS status=success tier=2 confidence=0.91 convergence=0.94

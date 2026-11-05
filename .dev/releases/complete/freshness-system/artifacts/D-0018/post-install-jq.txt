@@ -1,7 +1,0 @@
-FileChanged
-PostToolUse
-PreToolUse
-SessionStart
-SubagentStart
-SubagentStop
-UserPromptSubmit

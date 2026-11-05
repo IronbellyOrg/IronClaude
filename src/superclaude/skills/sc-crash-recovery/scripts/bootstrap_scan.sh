@@ -47,6 +47,13 @@ count_in() {
   find "$dir" -type f 2>/dev/null | wc -l | tr -d ' '
 }
 
+# Count markdown memory files (*.md) anywhere under a directory.
+count_md_in() {
+  local dir="$1"
+  [[ -d "$dir" ]] || { echo 0; return; }
+  find "$dir" -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' '
+}
+
 # Find pipeline state files newer than SINCE_HOURS, anywhere under project.
 recent_files() {
   local pattern="$1"
@@ -143,8 +150,8 @@ cat <<JSON
   "recent_sessions": $SESSIONS,
   "has_dev": $([[ -d "$ABS_PROJECT/.dev" ]] && echo true || echo false),
   "has_docs": $([[ -d "$ABS_PROJECT/docs" ]] && echo true || echo false),
-  "has_serena": $([[ -d "$ABS_PROJECT/.serena/memories" ]] && echo true || echo false),
-  "serena_memory_count": $(count_in "$ABS_PROJECT/.serena/memories"),
+  "has_memory": $([[ -d "$ABS_PROJECT/.superclaude/memory" ]] && echo true || echo false),
+  "memory_count": $(count_md_in "$ABS_PROJECT/.superclaude/memory"),
   "git": $(git_state),
   "sprints": $(sprints_state),
   "tasks": $(task_state),

@@ -18,16 +18,18 @@ Activation conditions:
 
 Do NOT invoke this skill directly. Use the `sc:pm` command.
 
-## Session Lifecycle (Serena MCP Memory Integration)
+## Session Lifecycle (Memory Files Under `.superclaude/memory/`)
+
+Memory is plain markdown in `<project>/.superclaude/memory/<key>.md`, with subfolders for topics. `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory outside git: one store per worktree. On the first write, if `<project>/.superclaude/.gitignore` is absent, create it with the single line `*`. Single-owner keys (`pm_context`, `last_session`, `next_actions`, `current_plan`) are overwritten whole; keys parallel sessions may write (`checkpoint`, `decision`, handoffs) are written as `<key>-<session-or-timestamp>.md` and never edited in place.
 
 ### Session Start Protocol (Auto-Executes Every Time)
 
 1. Context Restoration:
-   - list_memories() → Check for existing PM Agent state
-   - read_memory("pm_context") → Restore overall context
-   - read_memory("current_plan") → What are we working on
-   - read_memory("last_session") → What was done previously
-   - read_memory("next_actions") → What to do next
+   - Glob `.superclaude/memory/**/*.md` → Check for existing PM Agent state
+   - Read `.superclaude/memory/pm_context.md` → Restore overall context
+   - Read `.superclaude/memory/current_plan.md` → What are we working on
+   - Read `.superclaude/memory/last_session.md` → What was done previously
+   - Read `.superclaude/memory/next_actions.md` → What to do next
 
 2. Report to User:
    "Previous: [last session summary]
@@ -40,16 +42,16 @@ Do NOT invoke this skill directly. Use the `sc:pm` command.
 
 ### During Work (Continuous PDCA Cycle)
 
-1. Plan: write_memory("plan", goal_statement); define what to implement and why
-2. Do: TodoWrite for task tracking; write_memory("checkpoint", progress) every 30min; record experiments
+1. Plan: Write goal_statement to `.superclaude/memory/current_plan.md`; define what to implement and why
+2. Do: TodoWrite for task tracking; Write progress to `.superclaude/memory/checkpoint-<timestamp>.md` every 30min; record experiments
 3. Check: Self-evaluation against goals; assess what worked and what failed
 4. Act: Success → docs/patterns/[name].md; Failure → docs/mistakes/[name].md; update CLAUDE.md if global
 
 ### Session End Protocol
 
-1. Final Checkpoint: write_memory("last_session", summary); write_memory("next_actions", todo_list)
+1. Final Checkpoint: Write summary to `.superclaude/memory/last_session.md`; Write todo_list to `.superclaude/memory/next_actions.md`
 2. Documentation Cleanup: Move temp docs to patterns or mistakes
-3. State Preservation: write_memory("pm_context", complete_state)
+3. State Preservation: Write complete_state to `.superclaude/memory/pm_context.md`
 
 ## Sub-Agent Orchestration Patterns
 
@@ -110,7 +112,7 @@ Never retry the same approach without understanding WHY it failed.
 3. Hypothesis Formation: Create hypothesis document with evidence
 4. Solution Design (MUST BE DIFFERENT from failed approach)
 5. Execute New Approach: Implement based on root cause understanding
-6. Learning Capture: Success → write_memory; Failure → Return to Step 2
+6. Learning Capture: Success → Write the solution to `.superclaude/memory/learning/solutions/[error_type].md`; Failure → Return to Step 2
 
 ### Anti-Patterns
 
@@ -127,7 +129,7 @@ Never retry the same approach without understanding WHY it failed.
 
 ## Memory Key Schema (Standardized)
 
-Pattern: `[category]/[subcategory]/[identifier]`
+Pattern: `[category]/[subcategory]/[identifier]`, stored as the file `.superclaude/memory/[category]/[subcategory]/[identifier].md`
 
 - `session/`: context, last, checkpoint
 - `plan/[feature]/`: hypothesis, architecture, rationale
@@ -154,7 +156,7 @@ After each successful implementation:
 - Create docs/patterns/[feature-name].md
 - Document architecture decisions in ADR format
 - Update CLAUDE.md with new best practices
-- write_memory("learning/patterns/[name]", reusable_pattern)
+- Write reusable_pattern to `.superclaude/memory/learning/patterns/[name].md`
 
 ### Mistake Recording
 
@@ -163,7 +165,7 @@ When errors occur:
 - Create docs/mistakes/[feature]-YYYY-MM-DD.md
 - Document root cause analysis
 - Create prevention checklist
-- write_memory("learning/mistakes/[timestamp]", failure_analysis)
+- Write failure_analysis to `.superclaude/memory/learning/mistakes/[timestamp].md`
 
 ### Monthly Maintenance
 

@@ -1,0 +1,123 @@
+diff --git a/src/superclaude/templates/documents/agent_template_qa.md b/src/superclaude/templates/documents/agent_template_qa.md
+index 329ef7af..c5779a1d 100644
+--- a/src/superclaude/templates/documents/agent_template_qa.md
++++ b/src/superclaude/templates/documents/agent_template_qa.md
+@@ -92,12 +92,12 @@ The orchestrator (skill session or team lead) is responsible for:
+ 0. **Adversarial stance**: Begin from adversarial position. Assume mistakes were made. Your job is to find them. A review that finds 0 issues should be treated with suspicion, not satisfaction.
+ 
+ <!-- SPECIALIZATION: DOMAIN_PRINCIPLES — Domain-specific verification principles. Number sequentially starting from 1. Examples from existing QA agents:
+-  - rf-qa (10 principles total): Zero tolerance, Evidence-based, Clear documentation, Actionable feedback, Consistent standards, Source truth is king, Complete means complete, NO LENIENCY, Self-audit
++  - rf-qa (10 principles total): Zero tolerance for blocking defects, Evidence-based, Clear documentation, Actionable feedback, Consistent standards, Source truth is king, Complete means complete, NO LENIENCY, Self-audit
+   - rf-qa-qualitative (12 principles total): Read as the audience would, Scope awareness, Internal consistency, Logical flow, No red flags, Actionable feedback, Context matters, NO LENIENCY, Ban N/A, Exhaustive verification, Self-audit
+   Add as many domain-specific principles as needed for this agent's verification scope. -->
+ [1-N. Domain-specific verification principles appropriate for this agent's QA focus]
+ 
+-N+1. **NO LENIENCY**: Do not give agents the benefit of the doubt. If something is "close enough" or "probably fine" — it FAILS
++N+1. **NO LENIENCY**: Do not give agents the benefit of the doubt. If something is "close enough" or "probably fine" — it FAILS. Grade what you find by the review severity rule: an unverified or 'probably fine' claim is blocking; a cosmetic or wording finding is minor.
+ 
+ <!-- GUIDANCE: Additional domain-specific principles may be placed here, between NO LENIENCY and Self-audit. rf-qa-qualitative uses this pattern: principles 9 (Ban N/A) and 10 (Exhaustive verification) appear AFTER NO LENIENCY (principle 8) and BEFORE Self-audit (principle 11). The only hard constraint is that Self-audit is always the LAST principle. -->
+ [N+2 through M. Optional additional domain-specific principles — see GUIDANCE above]
+@@ -137,6 +137,7 @@ M+1. **Self-audit**: Before writing your verdict, ask: 'If I told the user I fou
+ - **CRITICAL:** [Domain-specific definition of critical severity in this phase — e.g., "Missing entire required section", "Fabricated evidence"]
+ - **IMPORTANT:** [Domain-specific definition of important severity — e.g., "Incomplete coverage of a required area", "Inconsistent cross-references"]
+ - **MINOR:** [Domain-specific definition of minor severity — e.g., "Formatting issues", "Unclear but not incorrect phrasing"]
++- On a CRITICAL / IMPORTANT / MINOR scale, CRITICAL and IMPORTANT findings are blocking and MINOR findings are minor; grade by the definition above, not by the label, so a finding labelled IMPORTANT that is only wording is minor.
+ 
+ <!-- SPECIALIZATION: HAS_SELF_AUDIT — Include if this agent uses deep adversarial depth (multi-persona reading). rf-qa-qualitative includes per-phase self-audit; rf-qa does not. -->
+ ### Self-Audit
+@@ -153,8 +154,13 @@ Read through these lenses simultaneously:
+ - **[Persona 3]:** [What this persona cares about — e.g., "QA Engineer: Can I write test cases from these requirements?"]
+ 
+ ### Verdict
+-- **PASS** — All checks pass, no issues of any severity.
+-- **FAIL** — Any issues exist (CRITICAL, IMPORTANT, or MINOR). List each with specific remediation. ALL issues must be resolved before proceeding — no severity level is exempt.
++- **PASS** — No CRITICAL or IMPORTANT issues; any MINOR issues are listed as notes.
++- **FAIL** — Any CRITICAL or IMPORTANT issue exists. List each with specific remediation. All blocking issues must be resolved before proceeding; MINOR issues never fail the review.
++
++Review severity rule (applies to every verdict):
++- Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim.
++- Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in later rounds and never trigger a fix pass on their own. Only blocking findings produce FAIL.
++- A review loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings.
+ 
+ ---
+ 
+@@ -259,7 +265,7 @@ After writing your QA report:
+    SendMessage:
+      type: "message"
+      recipient: "team-lead"
+-     content: "[QA Type Prefix] [phase] complete. Verdict: [PASS/FAIL]. [count] checks passed, [count] failed. Issues: [count] (CRITICAL: [n], IMPORTANT: [n], MINOR: [n]). [If FAIL: 'Must resolve ALL [N] issues before proceeding.' If PASS: 'Green light to proceed.'] Report: [path]."
++     content: "[QA Type Prefix] [phase] complete. Verdict: [PASS/FAIL]. [count] checks passed, [count] failed. Issues: [count] (CRITICAL: [n], IMPORTANT: [n], MINOR: [n]). [If FAIL: 'Must resolve ALL [N] blocking (CRITICAL/IMPORTANT) issues before proceeding; MINOR issues are notes.' If PASS: 'Green light to proceed.'] Report: [path]."
+      summary: "[QA Type Prefix] [phase] complete — [PASS/FAIL]"
+    ```
+    <!-- SPECIALIZATION: QA_TYPE_PREFIX — The prefix used in completion messages. Examples: "QA" (rf-qa), "Qualitative QA" (rf-qa-qualitative). Replace [QA Type Prefix] with the agent's domain prefix. -->
+@@ -332,4 +338,4 @@ N+1. **Fix then verify** — If authorized to fix, always verify the fix worked.
+ 
+ N+2. **Report honestly** — A false PASS is worse than a false FAIL. When in doubt, fail it and explain why.
+ 
+-N+3. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user. ALL findings regardless of severity must be resolved.
++N+3. **Maximum 3 fix cycles** — After 3 rounds of fixes without resolution, HALT and escalate to the user. All blocking findings must be resolved; minor findings are recorded as notes.
+diff --git a/src/superclaude/templates/documents/skill_template.md b/src/superclaude/templates/documents/skill_template.md
+index 9dfb3a43..e0ba8aca 100644
+--- a/src/superclaude/templates/documents/skill_template.md
++++ b/src/superclaude/templates/documents/skill_template.md
+@@ -812,7 +812,7 @@ Apply the full 10-item Research Gate checklist from your agent definition indepe
+ 3. Scope coverage — every key file from research-notes EXISTING_FILES examined
+ 4. Documentation cross-validation — all doc-sourced claims tagged, Verify EVERY CODE-VERIFIED claim
+ 5. Contradiction resolution — no unresolved conflicting findings
+-6. Gap severity — Critical gaps block synthesis, Important reduce quality, Minor are lower priority but must still be fixed
++6. Gap severity — Critical and Important gaps are blocking and fail the gate; Minor gaps are recorded as notes and do not fail it
+ 7. Depth appropriateness — matches the tier expectation
+ 8. Integration point coverage — connection points documented
+ 9. Pattern documentation — code patterns and conventions captured
+@@ -821,9 +821,15 @@ Apply the full 10-item Research Gate checklist from your agent definition indepe
+ <!-- VERBATIM — Research QA Verdict pattern -->
+ VERDICTS:
+ - PASS: Green light for synthesis
+-- FAIL: ALL findings must be resolved. Only PASS or FAIL — no conditional pass.
++- FAIL: any blocking (Critical or Important) finding; every blocking finding must be resolved. Minor findings are notes: they never fail the gate and are not rechecked. Only PASS or FAIL — no conditional pass.
+ <!-- END VERBATIM — repo-cleanup uses "assembly" instead of "synthesis" in the PASS line -->
+ 
++REVIEW SEVERITY RULE:
++- Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim.
++- Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in later rounds and never trigger a fix pass on their own. Only blocking findings produce FAIL.
++- A review loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings.
++- On a CRITICAL / IMPORTANT / MINOR scale, CRITICAL and IMPORTANT findings are blocking and MINOR findings are minor; grade by the definition above, not by the label, so a finding labelled IMPORTANT that is only wording is minor.
++
+ Use the full QA report output format from your agent definition.
+ Zero tolerance — if you can't verify it, it fails.
+ ```
+diff --git a/src/superclaude/templates/modularization-template-review/analyst-completeness_report_template.md b/src/superclaude/templates/modularization-template-review/analyst-completeness_report_template.md
+index ffd8e863..adea0c4a 100644
+--- a/src/superclaude/templates/modularization-template-review/analyst-completeness_report_template.md
++++ b/src/superclaude/templates/modularization-template-review/analyst-completeness_report_template.md
+@@ -72,7 +72,7 @@ THE SECTIONS (header block plus 9 required `##` sections, fixed order):
+ 4. Documentation Staleness -- Claim / Source Doc / Verification Tag / Status table
+ 5. Completeness -- Research File / Status / Summary / Gaps Section / Key Takeaways / Rating table
+ 6. Contradictions Found -- bullet list, each citing both files
+-7. Compiled Gaps -- three `###` sub-sections: Critical Gaps (block synthesis), Important Gaps (affect quality), Minor Gaps (must still be fixed)
++7. Compiled Gaps -- three `###` sub-sections: Critical Gaps (block synthesis), Important Gaps (affect quality), Minor Gaps (notes; do not block synthesis)
+ 8. Depth Assessment -- Expected depth / Actual depth achieved / Missing depth elements
+ 9. Recommendations -- specific actions to address gaps before proceeding
+ 
+@@ -156,7 +156,7 @@ WRITING DISCIPLINE:
+ 
+ {{RF_PLACEHOLDER:IMPORTANT_GAPS_BODY}}
+ 
+-### Minor Gaps (must still be fixed)
++### Minor Gaps (notes; do not block synthesis)
+ 
+ {{RF_PLACEHOLDER:MINOR_GAPS_BODY}}
+ 
+diff --git a/src/superclaude/templates/modularization-template-review/synthetic-dnsp-finding.contract b/src/superclaude/templates/modularization-template-review/synthetic-dnsp-finding.contract
+index 0e786274..cb5311a9 100644
+--- a/src/superclaude/templates/modularization-template-review/synthetic-dnsp-finding.contract
++++ b/src/superclaude/templates/modularization-template-review/synthetic-dnsp-finding.contract
+@@ -49,7 +49,7 @@ found_n_times: 1
+ 
+ ## Emission wire-shape
+ 
+-Emitted as a structured Markdown block into the partition agent's normal output stream, the same stdout/report channel real findings use, with no sideband or separate signalling channel. Consumed by the merge step at task-builder `SKILL.md` A.8 (Research Quality Gate merge) and A.10 (Task File Validation merge); the merge step treats the synthetic-dnsp record as a real finding for the existing "any gap regardless of severity = FAIL" gating rule until the operator manually reviews per the fixed `recommendation` literal above.
++Emitted as a structured Markdown block into the partition agent's normal output stream, the same stdout/report channel real findings use, with no sideband or separate signalling channel. Consumed by the merge step at task-builder `SKILL.md` A.8 (Research Quality Gate merge) and A.10 (Task File Validation merge); the merge step treats the synthetic-dnsp record as a real blocking finding (severity HIGH) under the review severity rule until the operator manually reviews per the fixed `recommendation` literal above.
+ 
+ ## Emitter rejection symbols (preserve verbatim if this contract is documented downstream)
+ 

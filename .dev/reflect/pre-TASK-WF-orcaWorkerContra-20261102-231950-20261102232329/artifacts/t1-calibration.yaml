@@ -1,0 +1,14 @@
+calibrator: confidence-calibrator
+calibrator_model_class: opus
+self_reported_confidence: 0.72
+dimensions:
+  citation_grounding: 0.80
+  coverage_completeness: 0.50
+  deviation_classification_clarity: 0.35
+  risk_surface_coverage: 0.65
+  recommendation_actionability: 0.45
+calibrated_confidence: 0.55
+escalation: escalate
+notes:
+  - "SRC:77 does not itself state that implement's retry needs HEAD unchanged; inferred."
+  - "Card does not review Task 9, AC-0.5, AC-0.7 or AC-C6, nor SRC:220 'its two mirrored copies' against Task 4's single copy."

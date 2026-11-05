@@ -1,0 +1,112 @@
+contract_version: "1.8.0"
+status: partial                      # 1 citation dropped; adversarial merge partial (convergence BLOCKED_BY_INVARIANTS, INV-001 HIGH)
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/audit.log
+confidence_calibrated: 0.85          # mean of the three blind-calibrated reviewer cards (0.86, 0.82, 0.88)
+escalation_rule_matched: 5
+onboarding_ran: false
+
+# UC-1 specific
+coverage_pct: null                   # parsed-only; 0 parsed requirement IDs
+coverage_pct_union: 0.2762
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union_count: 76   # full list in artifacts/coverage-matrix.yaml unmapped_requirements_union
+unmapped_requirements_union_ref: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/artifacts/coverage-matrix.yaml
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 specific (not applicable in pre mode)
+tasklist_completion_pct: null
+deviation_count_by_class:            # plan findings from the merged verdict (19 findings; the rest are class none)
+  authorized: 0
+  necessary: 0
+  drift: 6
+  regression: 0
+deviation_register_path: null
+grounding_gaps_path: null
+verification_ran: false
+verification_skip_reason: null
+
+# Input integrity
+input_tree_sha256: bcb66ea4280ab5a6d9dd814815a17f9fb2ed8e1b9c759e019ac031738a4c33a6
+input_tree_file_count: 13
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 182
+citations_revalidated: 82
+citations_dropped: 1
+citations_dropped_extrapolated: 2
+citations_inferred: 0
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2 artifacts
+reviewer_cards:
+  - .dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/reviewer-cards/reviewer-1-card.yaml
+  - .dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/reviewer-cards/reviewer-2-card.yaml
+  - .dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: .dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/adversarial   # remapped from sc-adversarial artifacts_dir
+adversarial_convergence_score: 1.00
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: full           # calibrators used class fable, disjoint from reviewer classes sonnet/haiku/opus
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: true        # drift findings present
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false                 # no grounding-gaps.yaml (UC-1)
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+
+# Telemetry (non-stable)
+telemetry:
+  reviewer_models: [sonnet, haiku, opus]
+  reviewer_aliases: [claude-sonnet-5-5, glm-5.3, claude-opus-5-5]
+  reviewer_personas: [analyzer, qa, refactorer]
+  calibrator_model_class: fable
+  degraded_components: []
+  fallback_path: null
+  executor_class_source: unknown
+  executor_class_resolved: false
+  adversarial_status: partial
+  adversarial_unaddressed_invariants_high: [INV-001]
+  merged_verdict: FAIL
+  merged_blocking_count: 2
+  probe_side_effect: "Round 2.5 fault-finder ran the Task 1 test suite, which rewrote tracked .dev/releases/current/cliEval/evidence/T02.15/perf.json; it restored the file to HEAD; working tree verified clean of it afterwards"

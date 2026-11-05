@@ -1,0 +1,800 @@
+=== real-home baseline 2026-11-02T23:17:10Z
+/home/coder/.claude.json mtime=1793661428
+/home/coder/.claude/settings.json mtime=1793660380
+codegraph versions: v1.6.2 
+pipx: superclaude 5.0.0 
+
+################ SCENARIO 1: brand-new user, clean HOME ################
++ pipx install git+https://github.com/IronbellyOrg/IronClaude@v5.0.0
+creating virtual environment...
+determining package name from 'git+https://github.com/IronbellyOrg/IronClaude@v5.0.0'...
+creating virtual environment...
+installing superclaude from spec 'git+https://github.com/IronbellyOrg/IronClaude@v5.0.0'...
+done! ✨ 🌟 ✨
+  installed package superclaude 5.0.0, installed using Python 3.11.15
+  These apps are now available
+    - ic
+    - superclaude
+[exit=0]
++ superclaude --version
+SuperClaude, version 5.0.0
+[exit=0]
++ superclaude --help
+Usage: superclaude [OPTIONS] COMMAND [ARGS]...
+
+  SuperClaude - AI-enhanced development framework for Claude Code
+
+  A pytest plugin providing PM Agent capabilities and optional skills system.
+
+Options:
+  --version  Show the version and exit.
+  --help     Show this message and exit.
+
+Commands:
+  cleanup-audit  Multi-pass read-only repository audit with...
+  cli-portify    Port inference-based SuperClaude workflows into...
+  doctor         Check SuperClaude installation health
+  eval           Run and inspect the cliEval real-eval harness.
+  init-lite      Safely audit project-local SuperClaude context surfaces.
+  install        Install SuperClaude to Claude Code
+  install-skill  Install a SuperClaude skill to Claude Code
+  mcp            Install and manage MCP servers for Claude Code.
+  prd            Generate Product Requirements Documents via multi-step...
+  recommend      sc-recommend lookup-cache deterministic helpers.
+  reflect        Run the post-execution reflect gate as a top-level...
+  roadmap        Generate project roadmaps from specification files.
+  sprint         Orchestrate multi-phase Claude Code sprint execution.
+  swarm          Orchestrate multi-model swarm execution.
+  tasklist       Tasklist validation commands.
+  update         Update SuperClaude to latest version
+  version        Show SuperClaude version
+[exit=0]
++ superclaude install
+📦 Installing core framework files to ~/.claude/...
+
+✅ Installed 11 core framework files:
+   - BASH_INSPECTION_POLICY.md
+   - BUSINESS_PANEL_EXAMPLES.md
+   - BUSINESS_SYMBOLS.md
+   - CLAUDE.md
+   - CODEGRAPH.md
+   - HOW-WE-WORK.md
+   - ISSUE-BACKLOG.md
+   - ISSUE-HANDOFF.md
+   - PRINCIPLES.md
+   - RESEARCH_CONFIG.md
+   - RULES.md
+
+📁 Installation directory: /tmp/ic-e2e.m9rOBYlN/new-user/home/.claude
+
+📦 Installing slash commands to /tmp/ic-e2e.m9rOBYlN/new-user/home/.claude/commands/sc...
+
+✅ Installed 45 commands:
+   - /adversarial
+   - /agent
+   - /analyze
+   - /auggie-review
+   - /brainstorm
+   - /build
+   - /business-panel
+   - /cleanup-audit
+   - /cleanup
+   - /cli-eval
+   - /cli-portify
+   - /design
+   - /document
+   - /explain
+   - /git
+   - /graph
+   - /help
+   - /impact
+   - /implement
+   - /improve
+   - /index-repo
+   - /index
+   - /init-lite
+   - /load
+   - /pm
+   - /post-release
+   - /pr-submit
+   - /recommend
+   - /reflect
+   - /release-split
+   - /research
+   - /review-translation
+   - /roadmap
+   - /save
+   - /spawn
+   - /spec-panel
+   - /swarm-wizard
+   - /task
+   - /tasklist
+   - /tdd
+   - /test
+   - /troubleshoot
+   - /validate-roadmap
+   - /validate-tests
+   - /workflow
+
+📁 Installation directory: /tmp/ic-e2e.m9rOBYlN/new-user/home/.claude/commands/sc
+
+💡 Tip: Restart Claude Code to use the new commands
+
+📦 Installing agents to ~/.claude/agents/...
+
+✅ Installed 45 agents:
+   - audit-analyzer
+   - audit-comparator
+   - audit-consolidator
+   - audit-scanner
+   - audit-validator
+   - auggie-reviewer
+   - backend-architect
+   - business-panel-experts
+   - confidence-calibrator
+   - debate-orchestrator
+   - deep-research-agent
+   - deep-research
+   - devops-architect
+   - eval-docs-loader
+   - eval-run-reporter
+   - eval-suite-author
+   - evidence-validator
+   - frontend-architect
+   - implement-retry-adviser
+   - learning-guide
+   - merge-executor
+   - performance-engineer
+   - pm-agent
+   - python-expert
+   - quality-engineer
+   - refactoring-expert
+   - reflect-reviewer
+   - repo-index
+   - requirements-analyst
+   - reuse-auditor
+   - rf-analyst
+   - rf-assembler
+   - rf-qa-qualitative
+   - rf-qa
+   - rf-task-builder
+   - rf-task-executor
+   - rf-task-researcher
+   - rf-team-lead
+   - root-cause-analyst
+   - security-engineer
+   - self-review
+   - socratic-mentor
+   - system-architect
+   - technical-writer
+   - troubleshoot-analyst
+
+📁 Installation directory: /tmp/ic-e2e.m9rOBYlN/new-user/home/.claude/agents
+
+📦 Installing skills to ~/.claude/skills/...
+
+✅ Installed 38 skills:
+   - ccsession-tag
+   - confidence-check
+   - operational-guide
+   - prd
+   - readme
+   - roadmap
+   - sc-adversarial-protocol
+   - sc-auggie-review-protocol
+   - sc-bare-review
+   - sc-brainstorm-protocol
+   - sc-cleanup-audit-protocol
+   - sc-cli-eval-protocol
+   - sc-cli-portify-protocol
+   - sc-crash-recovery
+   - sc-graph-protocol
+   - sc-impact-protocol
+   - sc-implement-protocol
+   - sc-init-lite-protocol
+   - sc-pm-protocol
+   - sc-post-release-protocol
+   - sc-pr-submit-protocol
+   - sc-recommend
+   - sc-reflect-protocol
+   - sc-release-split-protocol
+   - sc-review-translation-protocol
+   - sc-roadmap-protocol
+   - sc-swarm-wizard-protocol
+   - sc-task-protocol
+   - sc-tasklist-protocol
+   - sc-troubleshoot-protocol
+   - sc-validate-roadmap-protocol
+   - sc-validate-tests-protocol
+   - sc-workflow-protocol
+   - task
+   - task-builder
+   - tdd
+   - tech-reference
+   - tech-research
+
+📁 Installation directory: /tmp/ic-e2e.m9rOBYlN/new-user/home/.claude/skills
+
+ccsession wired at /tmp/ic-e2e.m9rOBYlN/new-user/home/.local/bin/ccsession
+
+📦 Installing hooks to ~/.claude/hooks/...
+
+✅ Copied 13 hook script(s) to /tmp/ic-e2e.m9rOBYlN/new-user/home/.claude/hooks:
+   - freshness-session-start.sh
+   - freshness-user-prompt.sh
+   - freshness-pre-edit.sh
+   - freshness-post-read.sh
+   - freshness-file-changed.sh
+   - freshness-subagent-start.sh
+   - freshness-subagent-stop.sh
+   - auggie-flag-clear.sh
+   - reject-workspace-writes.sh
+   - pragmatic-subagent.js
+   - sc-recommend-phase0.sh
+   - codegraph-session-start.sh
+   - session-init.sh
+
+📋 settings.json merge: events=7 added=13
+
+📦 Seeded 1 data file(s):
+   - auggie-projects.txt
+
+📦 Installing templates to ~/.claude/templates/...
+
+✅ Installed 53 templates:
+   - documents/GFxAI_Master_Documentation_Template.md
+   - documents/agent_template_analysis.md
+   - documents/agent_template_qa.md
+   - documents/agent_template_worker.md
+   - documents/operational_guide_template.md
+   - documents/prd_template.md
+   - documents/readme_template.md
+   - documents/release-spec-template.md
+   - documents/roadmap_template.md
+   - documents/skill_template.md
+   - documents/supplemental-doc-creation-checklist.md
+   - documents/supplemental_doc_template.md
+   - documents/tdd_template.md
+   - documents/technical_reference_template.md
+   - modularization-template-review/INDEX.md
+   - modularization-template-review/analyst-completeness_report_template.md
+   - modularization-template-review/analyst-coverage-matrix_template.md
+   - modularization-template-review/analyst-cross-validation_report_template.md
+   - modularization-template-review/analyst-gap-analysis_template.md
+   - modularization-template-review/analyst-synthesis-review_report_template.md
+   - modularization-template-review/claim-evidence-matrix_template.md
+   - modularization-template-review/codebase-research_template.md
+   - modularization-template-review/pipeline-complete_report_template.md
+   - modularization-template-review/qa-acceptance-methodology-audit_template.md
+   - modularization-template-review/qa-consolidated-findings_template.md
+   - modularization-template-review/qa-cross-source-contradictions_template.md
+   - modularization-template-review/qa-fix-summary_template.md
+   - modularization-template-review/qa-inventory_report_template.md
+   - modularization-template-review/qa-lens_report_template.md
+   - modularization-template-review/qa-qualitative-operational_report_template.md
+   - modularization-template-review/qa-qualitative-sufficiency_report_template.md
+   - modularization-template-review/qa-research-depth_report_template.md
+   - modularization-template-review/qa-research-evidence_report_template.md
+   - modularization-template-review/qa-research-gap_report_template.md
+   - modularization-template-review/qa-source-fidelity_template.md
+   - modularization-template-review/qa-task-research-alignment_report_template.md
+   - modularization-template-review/qa-task-validation-b2_report_template.md
+   - modularization-template-review/qa-task-validation-structure_report_template.md
+   - modularization-template-review/research-notes_template.md
+   - modularization-template-review/synthetic-dnsp-finding.contract
+   - modularization-template-review/track-scope-map_template.md
+   - modularization-template-review/web-research_template.md
+   - workflow/00_mdtm_template_simple_task.md
+   - workflow/01_mdtm_template_generic_task.md
+   - workflow/01_mdtm_template_generic_task__gfdoc.md
+   - workflow/02_mdtm_template_complex_task.md
+   - workflow/03_component_authoring_template.md
+   - workflow/03_project_plan_template.md
+   - workflow/04_feature_brief_template.md
+   - workflow/05_prd_template.md
+   - workflow/06_architecture_proposal_template.md
+   - workflow/99_mdtm_template_generic_task_old.md
+   - workflow/changelog_template.md
+
+📁 Installation directory: /tmp/ic-e2e.m9rOBYlN/new-user/home/.claude/templates
+
+📦 Installing rules, output styles, settings defaults, Orca skills...
+
+✅ Rules: 20 installed, 0 kept, in /tmp/ic-e2e.m9rOBYlN/new-user/home/.claude/rules (never auto-loaded)
+✅ Output styles: 1 installed, 0 kept, in /tmp/ic-e2e.m9rOBYlN/new-user/home/.claude/output-styles
+✅ Settings defaults: added 22 (outputStyle, model, effortLevel, alwaysThinkingEnabled, verbose, teammateMode, agentPushNotifEnabled, skipDangerousModePermissionPrompt, env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, env.CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION, modelSettings.gpt-6-astra, modelSettings.gpt-6.1-sol, modelSettings.gpt-6-sol, modelSettings.gpt-5.6-sol, enabledPlugins.frontend-design@claude-plugins-official, enabledPlugins.playwright@claude-plugins-official, enabledPlugins.notion@claude-plugins-official, enabledPlugins.dropbox@claude-plugins-official, enabledPlugins.google-cloud-storage@claude-plugins-official, enabledPlugins.understand-anything@understand-anything, extraKnownMarketplaces.claude-plugins-official, extraKnownMarketplaces.understand-anything)
+💾 Backup: /tmp/ic-e2e.m9rOBYlN/new-user/home/.claude/settings.json.bak.20261102T231736Z
+⏭️  Orca skills: Orca CLI not found; skipped
+✅ Plugins: installed frontend-design@claude-plugins-official, playwright@claude-plugins-official, notion@claude-plugins-official, dropbox@claude-plugins-official, google-cloud-storage@claude-plugins-official, understand-anything@understand-anything
+
+📦 Installing codegraph (required user-level phase)...
+installed codegraph 1.6.2 (SHA-256 verified) at /tmp/ic-e2e.m9rOBYlN/new-user/home/.codegraph/versions/v1.6.2
+Registration: exact user stdio entry verified (codegraph 1.6.2 at /tmp/ic-e2e.m9rOBYlN/new-user/home/.codegraph/versions/v1.6.2/bin/codegraph). Restart Claude sessions to load it; no indexing or live MCP handshake was performed.
+
+📦 Retiring stale MCP registrations...
+   No retired MCP registrations present.
+[exit=0]
+   modularization-template-review/web-research_template.md ✅ installed
+   workflow/00_mdtm_template_simple_task.md      ✅ installed
+   workflow/01_mdtm_template_generic_task.md     ✅ installed
+   workflow/01_mdtm_template_generic_task__gfdoc.md ✅ installed
+   workflow/02_mdtm_template_complex_task.md     ✅ installed
+   workflow/03_component_authoring_template.md   ✅ installed
+   workflow/03_project_plan_template.md          ✅ installed
+   workflow/04_feature_brief_template.md         ✅ installed
+   workflow/05_prd_template.md                   ✅ installed
+   workflow/06_architecture_proposal_template.md ✅ installed
+   workflow/99_mdtm_template_generic_task_old.md ✅ installed
+   workflow/changelog_template.md                ✅ installed
+
+Templates: 53 available, 53 installed
+
+codegraph MCP (pinned v1.6.2; user scope):
+   Executable: /tmp/ic-e2e.m9rOBYlN/new-user/home/.codegraph/versions/v1.6.2/bin/codegraph (1.6.2)
+   Owner: owned (receipt) /tmp/ic-e2e.m9rOBYlN/new-user/home/.codegraph/versions/v1.6.2, /tmp/ic-e2e.m9rOBYlN/new-user/home/.local/bin/codegraph -> /tmp/ic-e2e.m9rOBYlN/new-user/home/.codegraph/versions/v1.6.2/bin/codegraph, /tmp/ic-e2e.m9rOBYlN/new-user/home/.codegraph/current -> /tmp/ic-e2e.m9rOBYlN/new-user/home/.codegraph/versions/v1.6.2
+   User registration: matches
+   Ready for Serena retirement: yes
+
+Retired MCP registrations (user scope):
+   codebase-memory-mcp    absent
+   serena                 absent
+[exit=0]
++ superclaude doctor --verbose
+🔍 SuperClaude Doctor
+
+✅ pytest plugin loaded
+    SuperClaude pytest plugin is active
+✅ Agents installed
+    45 agent(s) installed
+✅ Skills installed
+    38 skill(s) installed: ccsession-tag, confidence-check, operational-guide, prd, readme, roadmap, sc-adversarial-protocol, sc-auggie-review-protocol, sc-bare-review, sc-brainstorm-protocol, sc-cleanup-audit-protocol, sc-cli-eval-protocol, sc-cli-portify-protocol, sc-crash-recovery, sc-graph-protocol, sc-impact-protocol, sc-implement-protocol, sc-init-lite-protocol, sc-pm-protocol, sc-post-release-protocol, sc-pr-submit-protocol, sc-recommend, sc-reflect-protocol, sc-release-split-protocol, sc-review-translation-protocol, sc-roadmap-protocol, sc-swarm-wizard-protocol, sc-task-protocol, sc-tasklist-protocol, sc-troubleshoot-protocol, sc-validate-roadmap-protocol, sc-validate-tests-protocol, sc-workflow-protocol, task, task-builder, tdd, tech-reference, tech-research
+✅ Configuration
+    SuperClaude 5.0.0 installed correctly
+✅ ccsession installed
+    ccsession skill, launcher, env and hook present
+✅ codegraph MCP registration
+    Ready for Serena retirement: yes
+✅ Retired MCP registrations
+    No legacy registration to retire
+
+✅ SuperClaude is healthy
+[exit=0]
+--- codegraph registration in throwaway ~/.claude.json
++ python3 -c import json,os;d=json.load(open(os.path.expanduser("~/.claude.json")));c=d.get("mcpServers",{}).get("codegraph");print(json.dumps(c,indent=1) if c else "NO codegraph entry")
+{
+ "type": "stdio",
+ "command": "/tmp/ic-e2e.m9rOBYlN/new-user/home/.codegraph/versions/v1.6.2/bin/codegraph",
+ "args": [
+  "serve",
+  "--mcp"
+ ],
+ "env": {
+  "CODEGRAPH_TELEMETRY": "0",
+  "CODEGRAPH_NO_UPDATE_CHECK": "1",
+  "CODEGRAPH_MCP_TOOLS": "node,search,callers,callees,impact,files,status"
+ },
+ "alwaysLoad": true
+}
+[exit=0]
++ codegraph --version
+1.6.2
+[exit=0]
+--- installed surface counts
+commands/sc: 45
+agents: 45
+skills: 38
+hooks: 13
+templates: 3
+rules: 3
+BASH_INSPECTION_POLICY.md BUSINESS_PANEL_EXAMPLES.md BUSINESS_SYMBOLS.md CLAUDE.md CODEGRAPH.md HOW-WE-WORK.md ISSUE-BACKLOG.md ISSUE-HANDOFF.md PRINCIPLES.md RESEARCH_CONFIG.md RULES.md 
+--- second install is idempotent
+
+📦 Installing codegraph (required user-level phase)...
+using codegraph 1.6.2 at /tmp/ic-e2e.m9rOBYlN/new-user/home/.codegraph/versions/v1.6.2/bin/codegraph
+Registration: exact user stdio entry verified (codegraph 1.6.2 at /tmp/ic-e2e.m9rOBYlN/new-user/home/.codegraph/versions/v1.6.2/bin/codegraph). Restart Claude sessions to load it; no indexing or live MCP handshake was performed.
+
+📦 Retiring stale MCP registrations...
+   No retired MCP registrations present.
+[exit=0]
+--- smoke: a read-only CLI command
++ superclaude sprint --help
+Usage: superclaude sprint [OPTIONS] COMMAND [ARGS]...
+
+  Orchestrate multi-phase Claude Code sprint execution.
+
+  Reads a tasklist-index.md, discovers phase files, and executes each phase as
+  a fresh Claude Code session with strict compliance. Supports tmux for
+  detachable long-running sprints.
+
+  Examples:     superclaude sprint run path/to/tasklist-index.md
+  superclaude sprint run path/to/tasklist-index.md --start 3 --end 6
+  superclaude sprint run path/to/tasklist-index.md --dry-run     superclaude
+  sprint attach     superclaude sprint status     superclaude sprint logs
+  superclaude sprint kill
+
+
+################ SCENARIO 2: upgrade 4.3.5 (539e2414) -> v5.0.0 ################
++ pipx install git+https://github.com/IronbellyOrg/IronClaude@539e2414
+creating virtual environment...
+determining package name from 'git+https://github.com/IronbellyOrg/IronClaude@539e2414'...
+creating virtual environment...
+installing superclaude from spec 'git+https://github.com/IronbellyOrg/IronClaude@539e2414'...
+done! ✨ 🌟 ✨
+  installed package superclaude 4.3.5, installed using Python 3.11.15
+  These apps are now available
+    - ic
+    - superclaude
+[exit=0]
++ superclaude --version
+SuperClaude, version 4.3.5
+[exit=0]
+#=#=#                                                                          ##O#-#                                                                         ##                                                                         3.9%########                                                                  11.1%########                                                                  12.1%##############                                                            20.1%##########################                                                36.5%####################################                                      50.1%#######################################                                   54.8%###########################################                               60.8%##############################################                            64.7%######################################################################    98.3%######################################################################## 100.0%
+Added /tmp/ic-e2e.m9rOBYlN/upgrade/home/.local/bin to PATH in /tmp/ic-e2e.m9rOBYlN/upgrade/home/.profile
+
+Install complete. Please restart your coding-agent sessions to properly take this into account.
+Restart your shell or run:
+  source /tmp/ic-e2e.m9rOBYlN/upgrade/home/.profile
+Installed updater -> /tmp/ic-e2e.m9rOBYlN/upgrade/home/.local/bin/install.sh
+Installed: codebase-memory-mcp 0.12.1
+
+Done! Restart your coding agent to start using codebase-memory-mcp.
+Executable verification: codebase-memory-mcp 0.12.1 at /tmp/ic-e2e.m9rOBYlN/upgrade/home/.local/bin/codebase-memory-mcp
+Registration: exact user stdio entry verified (codebase-memory-mcp 0.12.1). Restart clients to load integrations; no indexing or live MCP handshake was performed.
+[exit=0]
+--- seed a legacy IronClaude Serena registration (Tier R shape c)
++ claude mcp add-json serena {"type":"stdio","command":"serena","args":["start-mcp-server","--context","ide-assistant","--project","$(pwd)"]} --scope user
+Added stdio MCP server serena to user config
+[exit=0]
+BASH_INSPECTION_POLICY.md BUSINESS_PANEL_EXAMPLES.md BUSINESS_SYMBOLS.md CLAUDE.md HOW-WE-WORK.md PRINCIPLES.md RESEARCH_CONFIG.md RULES.md 
+--- documented upgrade (docs/releases/v5.0.0.md migration step 2)
++ pipx install --force git+https://github.com/IronbellyOrg/IronClaude@v5.0.0
+creating virtual environment...
+determining package name from 'git+https://github.com/IronbellyOrg/IronClaude@v5.0.0'...
+creating virtual environment...
+installing superclaude from spec 'git+https://github.com/IronbellyOrg/IronClaude@v5.0.0'...
+done! ✨ 🌟 ✨
+Installing to existing venv 'superclaude'
+  installed package superclaude 5.0.0, installed using Python 3.11.15
+  These apps are now available
+    - ic
+    - superclaude
+[exit=0]
++ superclaude --version
+SuperClaude, version 5.0.0
+[exit=0]
++ superclaude install --force
+📦 Installing core framework files to ~/.claude/...
+
+✅ Installed 11 core framework files:
+   - BASH_INSPECTION_POLICY.md
+   - BUSINESS_PANEL_EXAMPLES.md
+   - BUSINESS_SYMBOLS.md
+   - CLAUDE.md
+   - CODEGRAPH.md
+   - HOW-WE-WORK.md
+   - ISSUE-BACKLOG.md
+   - ISSUE-HANDOFF.md
+   - PRINCIPLES.md
+   - RESEARCH_CONFIG.md
+   - RULES.md
+
+📁 Installation directory: /tmp/ic-e2e.m9rOBYlN/upgrade/home/.claude
+
+📦 Installing slash commands to /tmp/ic-e2e.m9rOBYlN/upgrade/home/.claude/commands/sc...
+
+✅ Installed 45 commands:
+   - /adversarial
+   - /agent
+   - /analyze
+   - /auggie-review
+   - /brainstorm
+   - /build
+   - /business-panel
+   - /cleanup-audit
+   - /cleanup
+   - /cli-eval
+   - /cli-portify
+   - /design
+   - /document
+   - /explain
+   - /git
+   - /graph
+   - /help
+   - /impact
+   - /implement
+   - /improve
+   - /index-repo
+   - /index
+   - /init-lite
+   - /load
+   - /pm
+   - /post-release
+   - /pr-submit
+   - /recommend
+   - /reflect
+   - /release-split
+   - /research
+   - /review-translation
+   - /roadmap
+   - /save
+   - /spawn
+   - /spec-panel
+   - /swarm-wizard
+   - /task
+   - /tasklist
+   - /tdd
+   - /test
+   - /troubleshoot
+   - /validate-roadmap
+   - /validate-tests
+   - /workflow
+
+📁 Installation directory: /tmp/ic-e2e.m9rOBYlN/upgrade/home/.claude/commands/sc
+
+💡 Tip: Restart Claude Code to use the new commands
+
+📦 Installing agents to ~/.claude/agents/...
+
+✅ Installed 45 agents:
+   - audit-analyzer
+   - audit-comparator
+   - audit-consolidator
+   - audit-scanner
+   - audit-validator
+   - auggie-reviewer
+   - backend-architect
+   - business-panel-experts
+   - confidence-calibrator
+   - debate-orchestrator
+   - deep-research-agent
+   - deep-research
+   - devops-architect
+   - eval-docs-loader
+   - eval-run-reporter
+   - eval-suite-author
+   - evidence-validator
+   - frontend-architect
+   - implement-retry-adviser
+   - learning-guide
+   - merge-executor
+   - performance-engineer
+   - pm-agent
+   - python-expert
+   - quality-engineer
+   - refactoring-expert
+   - reflect-reviewer
+   - repo-index
+   - requirements-analyst
+   - reuse-auditor
+   - rf-analyst
+   - rf-assembler
+   - rf-qa-qualitative
+   - rf-qa
+   - rf-task-builder
+   - rf-task-executor
+   - rf-task-researcher
+   - rf-team-lead
+   - root-cause-analyst
+   - security-engineer
+   - self-review
+   - socratic-mentor
+   - system-architect
+   - technical-writer
+   - troubleshoot-analyst
+
+📁 Installation directory: /tmp/ic-e2e.m9rOBYlN/upgrade/home/.claude/agents
+
+📦 Installing skills to ~/.claude/skills/...
+
+✅ Installed 38 skills:
+   - ccsession-tag
+   - confidence-check
+   - operational-guide
+   - prd
+   - readme
+   - roadmap
+   - sc-adversarial-protocol
+   - sc-auggie-review-protocol
+   - sc-bare-review
+   - sc-brainstorm-protocol
+   - sc-cleanup-audit-protocol
+   - sc-cli-eval-protocol
+   - sc-cli-portify-protocol
+   - sc-crash-recovery
+   - sc-graph-protocol
+   - sc-impact-protocol
+   - sc-implement-protocol
+   - sc-init-lite-protocol
+   - sc-pm-protocol
+   - sc-post-release-protocol
+   - sc-pr-submit-protocol
+   - sc-recommend
+   - sc-reflect-protocol
+   - sc-release-split-protocol
+   - sc-review-translation-protocol
+   - sc-roadmap-protocol
+   - sc-swarm-wizard-protocol
+   - sc-task-protocol
+   - sc-tasklist-protocol
+   - sc-troubleshoot-protocol
+   - sc-validate-roadmap-protocol
+   - sc-validate-tests-protocol
+   - sc-workflow-protocol
+   - task
+   - task-builder
+   - tdd
+   - tech-reference
+   - tech-research
+
+📁 Installation directory: /tmp/ic-e2e.m9rOBYlN/upgrade/home/.claude/skills
+
+ccsession wired at /tmp/ic-e2e.m9rOBYlN/upgrade/home/.local/bin/ccsession
+
+📦 Installing hooks to ~/.claude/hooks/...
+
+✅ Copied 13 hook script(s) to /tmp/ic-e2e.m9rOBYlN/upgrade/home/.claude/hooks:
+   - freshness-session-start.sh
+   - freshness-user-prompt.sh
+   - freshness-pre-edit.sh
+   - freshness-post-read.sh
+   - freshness-file-changed.sh
+   - freshness-subagent-start.sh
+   - freshness-subagent-stop.sh
+   - auggie-flag-clear.sh
+   - reject-workspace-writes.sh
+   - pragmatic-subagent.js
+   - sc-recommend-phase0.sh
+   - codegraph-session-start.sh
+   - session-init.sh
+
+📋 settings.json merge: events=7 added=1 replaced=12
+💾 Backup: /tmp/ic-e2e.m9rOBYlN/upgrade/home/.claude/settings.json.bak.20261102T231855Z
+
+⏭️  Preserved 1 existing data file(s):
+   - auggie-projects.txt (user-edited; not overwritten)
+
+📦 Installing templates to ~/.claude/templates/...
+
+✅ Installed 53 templates:
+   - documents/GFxAI_Master_Documentation_Template.md
+   - documents/agent_template_analysis.md
+   - documents/agent_template_qa.md
+   - documents/agent_template_worker.md
+   - documents/operational_guide_template.md
+   - documents/prd_template.md
+   - documents/readme_template.md
+   - documents/release-spec-template.md
+   - documents/roadmap_template.md
+   - documents/skill_template.md
+   - documents/supplemental-doc-creation-checklist.md
+   - documents/supplemental_doc_template.md
+   - documents/tdd_template.md
+   - documents/technical_reference_template.md
+   - modularization-template-review/INDEX.md
+   - modularization-template-review/analyst-completeness_report_template.md
+   - modularization-template-review/analyst-coverage-matrix_template.md
+   - modularization-template-review/analyst-cross-validation_report_template.md
+   - modularization-template-review/analyst-gap-analysis_template.md
+   - modularization-template-review/analyst-synthesis-review_report_template.md
+   - modularization-template-review/claim-evidence-matrix_template.md
+   - modularization-template-review/codebase-research_template.md
+   - modularization-template-review/pipeline-complete_report_template.md
+   - modularization-template-review/qa-acceptance-methodology-audit_template.md
+   - modularization-template-review/qa-consolidated-findings_template.md
+   - modularization-template-review/qa-cross-source-contradictions_template.md
+   - modularization-template-review/qa-fix-summary_template.md
+   - modularization-template-review/qa-inventory_report_template.md
+   - modularization-template-review/qa-lens_report_template.md
+   - modularization-template-review/qa-qualitative-operational_report_template.md
+   - modularization-template-review/qa-qualitative-sufficiency_report_template.md
+   - modularization-template-review/qa-research-depth_report_template.md
+   - modularization-template-review/qa-research-evidence_report_template.md
+   - modularization-template-review/qa-research-gap_report_template.md
+   - modularization-template-review/qa-source-fidelity_template.md
+   - modularization-template-review/qa-task-research-alignment_report_template.md
+   - modularization-template-review/qa-task-validation-b2_report_template.md
+   - modularization-template-review/qa-task-validation-structure_report_template.md
+   - modularization-template-review/research-notes_template.md
+   - modularization-template-review/synthetic-dnsp-finding.contract
+   - modularization-template-review/track-scope-map_template.md
+   - modularization-template-review/web-research_template.md
+   - workflow/00_mdtm_template_simple_task.md
+   - workflow/01_mdtm_template_generic_task.md
+   - workflow/01_mdtm_template_generic_task__gfdoc.md
+   - workflow/02_mdtm_template_complex_task.md
+   - workflow/03_component_authoring_template.md
+   - workflow/03_project_plan_template.md
+   - workflow/04_feature_brief_template.md
+   - workflow/05_prd_template.md
+   - workflow/06_architecture_proposal_template.md
+   - workflow/99_mdtm_template_generic_task_old.md
+   - workflow/changelog_template.md
+
+📁 Installation directory: /tmp/ic-e2e.m9rOBYlN/upgrade/home/.claude/templates
+
+📦 Installing rules, output styles, settings defaults, Orca skills...
+
+✅ Rules: 20 installed, 0 kept, in /tmp/ic-e2e.m9rOBYlN/upgrade/home/.claude/rules (never auto-loaded)
+✅ Output styles: 1 installed, 0 kept, in /tmp/ic-e2e.m9rOBYlN/upgrade/home/.claude/output-styles
+✅ Settings defaults: already present
+⏭️  Orca skills: Orca CLI not found; skipped
+✅ Plugins: already installed
+
+📦 Installing codegraph (required user-level phase)...
+installed codegraph 1.6.2 (SHA-256 verified) at /tmp/ic-e2e.m9rOBYlN/upgrade/home/.codegraph/versions/v1.6.2
+Registration: exact user stdio entry verified (codegraph 1.6.2 at /tmp/ic-e2e.m9rOBYlN/upgrade/home/.codegraph/versions/v1.6.2/bin/codegraph). Restart Claude sessions to load it; no indexing or live MCP handshake was performed.
+
+📦 Retiring stale MCP registrations...
+   Retired MCP registrations (user scope only):
+   Removed the codebase-memory-mcp user registration (codegraph is ready: kind-B registration (binary and companions stay))
+   Removed the serena user registration (Tier R row (c): serena start-mcp-server --context ide-assistant --project '$(pwd)')
+   Restart running Claude sessions; a running session can write the entry back. Check with `superclaude install --list`.
+   If you installed codebase-memory-mcp yourself, its own `uninstall` removes its client companions.
+   Removed Serena registration: serena start-mcp-server --context ide-assistant --project '$(pwd)'
+   To keep using Serena, register it yourself under the name `serena-local`, e.g. `claude mcp add --scope user serena-local -- uvx --from serena-agent==1.7.0 serena start-mcp-server --context claude-code --project-from-cwd --enable-web-dashboard false --enable-gui-log-window false`
+   "$HOME/.local/bin/codebase-memory-mcp" uninstall -y --dir="$HOME/.local/bin"  # for a codebase-memory you or IronClaude installed under ~/.local/bin; removes its own client companions, keeps indexes
+   rm -rf ~/.cache/codebase-memory-mcp  # only if you no longer need the indexes
+   uv tool uninstall serena-agent  # if you installed it yourself; Coder workspaces reinstall it at start
+   rm -rf ~/.serena  # only if you no longer need Serena's memories (project .serena/ folders are yours to delete)
+[exit=0]
+   modularization-template-review/web-research_template.md ✅ installed
+   workflow/00_mdtm_template_simple_task.md      ✅ installed
+   workflow/01_mdtm_template_generic_task.md     ✅ installed
+   workflow/01_mdtm_template_generic_task__gfdoc.md ✅ installed
+   workflow/02_mdtm_template_complex_task.md     ✅ installed
+   workflow/03_component_authoring_template.md   ✅ installed
+   workflow/03_project_plan_template.md          ✅ installed
+   workflow/04_feature_brief_template.md         ✅ installed
+   workflow/05_prd_template.md                   ✅ installed
+   workflow/06_architecture_proposal_template.md ✅ installed
+   workflow/99_mdtm_template_generic_task_old.md ✅ installed
+   workflow/changelog_template.md                ✅ installed
+
+Templates: 53 available, 53 installed
+
+codegraph MCP (pinned v1.6.2; user scope):
+   Executable: /tmp/ic-e2e.m9rOBYlN/upgrade/home/.codegraph/versions/v1.6.2/bin/codegraph (1.6.2)
+   Owner: owned (receipt) /tmp/ic-e2e.m9rOBYlN/upgrade/home/.codegraph/versions/v1.6.2, /tmp/ic-e2e.m9rOBYlN/upgrade/home/.local/bin/codegraph -> /tmp/ic-e2e.m9rOBYlN/upgrade/home/.codegraph/versions/v1.6.2/bin/codegraph, /tmp/ic-e2e.m9rOBYlN/upgrade/home/.codegraph/current -> /tmp/ic-e2e.m9rOBYlN/upgrade/home/.codegraph/versions/v1.6.2
+   User registration: matches
+   Ready for Serena retirement: yes
+
+Retired MCP registrations (user scope):
+   codebase-memory-mcp    absent
+   serena                 absent
+[exit=0]
++ superclaude doctor --verbose
+🔍 SuperClaude Doctor
+
+✅ pytest plugin loaded
+    SuperClaude pytest plugin is active
+✅ Agents installed
+    48 agent(s) installed
+✅ Skills installed
+    39 skill(s) installed: ccsession-tag, codebase-memory, confidence-check, operational-guide, prd, readme, roadmap, sc-adversarial-protocol, sc-auggie-review-protocol, sc-bare-review, sc-brainstorm-protocol, sc-cleanup-audit-protocol, sc-cli-eval-protocol, sc-cli-portify-protocol, sc-crash-recovery, sc-graph-protocol, sc-impact-protocol, sc-implement-protocol, sc-init-lite-protocol, sc-pm-protocol, sc-post-release-protocol, sc-pr-submit-protocol, sc-recommend, sc-reflect-protocol, sc-release-split-protocol, sc-review-translation-protocol, sc-roadmap-protocol, sc-swarm-wizard-protocol, sc-task-protocol, sc-tasklist-protocol, sc-troubleshoot-protocol, sc-validate-roadmap-protocol, sc-validate-tests-protocol, sc-workflow-protocol, task, task-builder, tdd, tech-reference, tech-research
+✅ Configuration
+    SuperClaude 5.0.0 installed correctly
+✅ ccsession installed
+    ccsession skill, launcher, env and hook present
+✅ codegraph MCP registration
+    Ready for Serena retirement: yes
+✅ Retired MCP registrations
+    No legacy registration to retire
+
+✅ SuperClaude is healthy
+[exit=0]
++ python3 -c import json,os;d=json.load(open(os.path.expanduser("~/.claude.json")));print(sorted(d.get("mcpServers",{})))
+['codegraph']
+[exit=0]
+
+=== real-home after
+/home/coder/.claude.json mtime=1793661540
+/home/coder/.claude/settings.json mtime=1793660380
+codegraph versions: v1.6.2 
+pipx: superclaude 5.0.0 
+REAL_HOME_CHANGED
+1c1
+< /home/coder/.claude.json mtime=1793661428
+---
+> /home/coder/.claude.json mtime=1793661540
+SUMMARY s1_install=0 s1_doctor=0 s1_second=0 s2_install=0 s2_doctor=0
+CLEANUP_OK /tmp/ic-e2e.m9rOBYlN

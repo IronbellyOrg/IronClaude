@@ -1,0 +1,21 @@
+== grep retired names ==
+grep exit=1
+cmp identical
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collected 254 items
+
+tests/skills/test_workflow_archive.py .................................. [ 13%]
+........................................................................ [ 41%]
+.......................................................................  [ 69%]
+tests/skills/test_task_workspace_lifecycle.py .......................... [ 79%]
+...............................................                          [ 98%]
+tests/skills/test_implement_adviser_family.py ...                        [ 99%]
+tests/skills/test_model_alias_policy.py .                                [100%]
+
+============================= 254 passed in 0.94s ==============================
+All checks passed!
+2 files already formatted
+tests/skills/test_implement_severity_static.py ......................... [ 97%]
+...                                                                      [100%]
+
+============================= 115 passed in 6.02s ==============================

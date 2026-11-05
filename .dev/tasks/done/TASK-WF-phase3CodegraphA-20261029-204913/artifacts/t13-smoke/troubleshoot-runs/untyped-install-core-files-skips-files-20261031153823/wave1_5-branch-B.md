@@ -1,0 +1,4 @@
+[
+{"doc_path":"/home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption/docs/getting-started/installation.md","summary":"Plain install preserves existing files; update and forced installation overwrite shipped files. Missing-file skips are not explained by this policy.","currency_verdict":"current","reason":"Parent stat: doc=1793453800, newest CLI source=1793455505; lag 1705 seconds, below 90 days. No stale header markers found.","degraded":true},
+{"doc_path":"/home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption/docs/developer-guide/testing-debugging.md","summary":"Lists core instruction presence checks and forced installation overwriting existing files; no per-component install option.","currency_verdict":"current","reason":"Parent stat: doc=1793453800, newest CLI source=1793455505; lag 1705 seconds, below 90 days. No stale header markers found.","degraded":true}
+]

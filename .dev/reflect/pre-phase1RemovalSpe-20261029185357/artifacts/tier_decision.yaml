@@ -1,0 +1,26 @@
+selected_tier: 2
+fired_rule_number: 4            # S_domains >= 3 (code, tests, docs, config/CI); rule 5 (S_dev_density 0.2912 > 0.20) also holds
+coverage_degraded: parsed-sparse   # Step 1B.2b table-wide pre-filter: 340 inferred rows > 0 parsed rows; no STOP row may fire
+surface_unreached: null
+coverage_undefined: false
+S_scope: 19                     # tasklist item count (UC-1)
+S_domains: 4                    # code (src/superclaude/cli), tests, docs, config/CI (.github, hooks)
+S_dev_density: 0.2912           # 99 unmapped union rows / 340 (lexical containment; see artifacts/unmapped-triage.yaml)
+confidence_calibrated: 0.79   # Wave 1D blind calibration (opus); rule 6 (C < 0.85) also escalates
+composite_score: 9
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 2
+  spec_density: 2
+  ambiguity_signals: 1
+escalation_reason: "Spec has no parseable requirement IDs (parsed-sparse pre-filter forces Tier 2); multi-domain plan (rule 4)."
+t2_model_class_diversity: full    # 3 distinct aliases resolved
+t2_vendor_diversity: multi        # anthropic + glm
+reviewer_count: 2                 # executor class opus removed; no backfill class available
+reviewer_models: [sonnet, haiku(glm-5.3)]
+reviewer_personas: [analyzer, qa]
+executor_class: opus
+executor_class_source: log-heuristic   # session model id claude-opus-5-5 authored the plan
+calibrator_model_class: opus           # disjoint from reviewers; collides with executor (three-way partition partly degraded)
+calibrator_diversity: full

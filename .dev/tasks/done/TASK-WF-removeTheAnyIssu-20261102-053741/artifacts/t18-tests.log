@@ -1,0 +1,33 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collected 658 items
+
+tests/commands/test_impact_command.py .................................. [  5%]
+.............................................                            [ 12%]
+tests/commands/test_workflow_command.py .................                [ 14%]
+tests/core/test_how_we_work_routing_table.py ........................... [ 18%]
+....................................................                     [ 26%]
+tests/skills/test_implement_adviser_family.py ...                        [ 27%]
+tests/skills/test_implement_retry_citation.py .....................      [ 30%]
+tests/skills/test_implement_retry_revert.py ............................ [ 34%]
+..........................                                               [ 38%]
+tests/skills/test_implement_severity_replay.py ............              [ 40%]
+tests/skills/test_implement_severity_static.py ......................... [ 44%]
+...                                                                      [ 44%]
+tests/skills/test_reflect_input_snapshot.py ...............              [ 46%]
+tests/skills/test_task_workspace_lifecycle.py .......................... [ 50%]
+...............................................                          [ 57%]
+tests/skills/test_task_workspace_smoke.py ....                           [ 58%]
+tests/skills/test_workflow_archive.py .................................. [ 63%]
+........................................................................ [ 74%]
+.......................................................................  [ 85%]
+tests/unit/test_cli_install.py ......................................... [ 91%]
+.......................................................                  [100%]
+
+============================= 658 passed in 7.52s ==============================
+rc=0

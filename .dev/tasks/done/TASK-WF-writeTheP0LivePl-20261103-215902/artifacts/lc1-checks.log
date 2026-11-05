@@ -1,0 +1,296 @@
+--- check turn 1 ---
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":15004,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":30009,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":45012,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":60013,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":75013,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":90014,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":105015,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":120016,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":135020,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":150020,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":165026,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":180026,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":195029,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":210029,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":225029,"deadlineMs":240000}
+{
+  "id": "3eae512a-25fd-467c-bd4d-8b7211badfbb",
+  "ok": true,
+  "result": {
+    "runId": "run_0f9350decd8c",
+    "deliveryId": null,
+    "messages": [],
+    "count": 0,
+    "acknowledged": null,
+    "timedOut": true,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "25a8e3e0-23e2-45c0-840d-c728a72bcaa5",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}
+--- turn 06:07:29Z ---
+{
+  "id": "e708adef-7c8d-4d1c-bf7e-cb509af29da8",
+  "ok": true,
+  "result": {
+    "runId": "run_0f9350decd8c",
+    "deliveryId": null,
+    "messages": [],
+    "count": 0,
+    "acknowledged": null,
+    "timedOut": true,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "e07586ad-ed27-4491-92cc-b4213b5cf6fe",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}
+--- turn 06:11:35Z ---
+{
+  "id": "52b244cb-2d64-4899-86db-6626a7656d63",
+  "ok": true,
+  "result": {
+    "runId": "run_0f9350decd8c",
+    "deliveryId": null,
+    "messages": [],
+    "count": 0,
+    "acknowledged": null,
+    "timedOut": true,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "58b517bb-29a7-4c10-a978-2da373d4a620",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}
+--- turn 06:15:40Z ---
+{
+  "id": "616f6d85-27e8-4c3e-ae1a-66dec4aa82b9",
+  "ok": true,
+  "result": {
+    "runId": "run_0f9350decd8c",
+    "deliveryId": null,
+    "messages": [],
+    "count": 0,
+    "acknowledged": null,
+    "timedOut": true,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "638ea62b-1877-41b7-b1ce-b2ce24065056",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}
+--- turn 06:19:44Z ---
+{
+  "id": "a628defc-2c80-491d-af49-782c7b375423",
+  "ok": true,
+  "result": {
+    "runId": "run_0f9350decd8c",
+    "deliveryId": null,
+    "messages": [],
+    "count": 0,
+    "acknowledged": null,
+    "timedOut": true,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "c7ab2e9e-5d3c-41cf-ae63-79f389458388",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}
+--- turn 06:23:49Z ---
+{
+  "id": "ce294e49-faa7-4d24-89f6-d33d978a8772",
+  "ok": true,
+  "result": {
+    "runId": "run_0f9350decd8c",
+    "deliveryId": null,
+    "messages": [],
+    "count": 0,
+    "acknowledged": null,
+    "timedOut": true,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "1c433c23-ecc0-4e2c-a418-65f051b5a6d2",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}
+--- turn 06:27:54Z ---
+{
+  "id": "47022a52-9084-4134-a3f9-7508404f7862",
+  "ok": true,
+  "result": {
+    "runId": "run_0f9350decd8c",
+    "deliveryId": null,
+    "messages": [],
+    "count": 0,
+    "acknowledged": null,
+    "timedOut": true,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "7169a0a0-234e-4799-85f8-757cb14d31b0",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}
+--- turn 06:32:05Z ---
+{
+  "id": "8553a1de-f90c-426f-817f-adc22733f368",
+  "ok": true,
+  "result": {
+    "runId": "run_0f9350decd8c",
+    "deliveryId": null,
+    "messages": [],
+    "count": 0,
+    "acknowledged": null,
+    "timedOut": true,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "f2eae5f5-1ee9-4ca4-b7c3-a98059616985",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}
+--- turn 06:36:11Z ---
+{
+  "id": "b11a8d76-2743-4bd8-95b6-5f0366186e80",
+  "ok": true,
+  "result": {
+    "runId": "run_0f9350decd8c",
+    "deliveryId": null,
+    "messages": [],
+    "count": 0,
+    "acknowledged": null,
+    "timedOut": true,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "6f9e6611-41df-4784-9600-5b4cc6b58356",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}
+--- turn 06:40:15Z ---
+{
+  "id": "c061d331-73e0-43d9-9433-3d0d1efffbb1",
+  "ok": true,
+  "result": {
+    "runId": "run_0f9350decd8c",
+    "deliveryId": null,
+    "messages": [],
+    "count": 0,
+    "acknowledged": null,
+    "timedOut": true,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "5da54c7c-1b70-426f-af72-f1d8c8af97e8",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}
+--- turn 06:44:20Z ---
+{
+  "id": "8b76633f-4e5e-4837-a58b-0d2bb65d667b",
+  "ok": true,
+  "result": {
+    "runId": "run_0f9350decd8c",
+    "deliveryId": null,
+    "messages": [],
+    "count": 0,
+    "acknowledged": null,
+    "timedOut": true,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "6599cc69-031a-4dc7-b5ea-f9555ff7ee9a",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}
+--- turn 06:48:25Z ---
+{
+  "id": "3b743ef4-7544-44f8-a4ef-eecfc2a9e2e9",
+  "ok": true,
+  "result": {
+    "runId": "run_0f9350decd8c",
+    "deliveryId": "delivery_f5d4cce4532f",
+    "messages": [
+      {
+        "id": "msg_e5fc8540c83d",
+        "run_id": "run_0f9350decd8c",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_9e8c7204-7c7d-4b03-877d-e8b9b275c271",
+        "to_handle": "run:run_0f9350decd8c",
+        "subject": "troubleshoot: root cause found (ruff not installed), status partial",
+        "body": "Report status is partial (Tier 2, confidence 0.50): I ran /sc:troubleshoot to completion and wrote .dev/p0-live/troubleshoot/REPORT.md; partial only because the evidence validator dropped one citation for a wrong line locator, which is re-cited. Root cause: ruff is declared only in the optional dev extra of pyproject.toml and plain uv run never installs extras, so in this fresh worktree the test's uv run ruff subprocess exits 2 with 'Failed to spawn: ruff'; supplying ruff 0.15.20 via uv run --with makes all 3 tests pass, the sibling test_claude_process_adapter.py ruff tests fail the same way, CI is unaffected because it installs .[dev]. Left for the coordinator: run make install in this worktree and re-run both test files (the outstanding positive witness), then plan the two-file test-guard change through /sc:workflow; no repo files were changed and nothing was committed.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_9c0f198acb01\",\"dispatchId\":\"ctx_e70499c8ef2d\",\"outcome\":\"succeeded\",\"filesModified\":[\".dev/p0-live/troubleshoot/\"],\"reportPath\":\".dev/p0-live/troubleshoot/REPORT.md\"}",
+        "created_at": "2026-11-04T06:48:43Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "21bb85ef-f9e3-4313-b3f3-2dd7d9904e22",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}

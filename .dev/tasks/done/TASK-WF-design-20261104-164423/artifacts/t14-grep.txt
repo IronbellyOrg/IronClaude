@@ -1,0 +1,32 @@
+== forbidden items in src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md ==
+OK      force_flag_after_git_push (0 hits)
+OK      force_words (0 hits)
+OK      git_push_lines_exact (1 hits, expected 1)
+OK      git_push_line_is_exact (1 hits, expected 1)
+OK      src_superclaude (0 hits)
+OK      superclaude_org (0 hits)
+OK      git_stash (0 hits)
+OK      no_verify (0 hits)
+OK      amend_flag (0 hits)
+OK      add_all (0 hits)
+OK      ours_theirs_dot (0 hits)
+OK      checkout_side_whole (0 hits)
+OK      strategy_X (0 hits)
+OK      strategy_s_ours (0 hits)
+OK      reset_hard (0 hits)
+OK      commit_only (0 hits)
+OK      commit_all (0 hits)
+OK      git_config (0 hits)
+OK      git_worktree (0 hits)
+OK      git_rebase (0 hits)
+OK      rerere_on (0 hits)
+OK      git_checkout_or_switch_only_uvlock (1 hits, expected 1)
+OK      collect_evidence_script_not_named (0 hits)
+OK      intent_or_validator_line_without_tier2 (0 hits)
+== fenced code blocks ==
+fenced lines=32, gh lines=7 (all scoped unless FAIL above)
+call ceilings: probe=1 finish_commit_mode=1 push=1 (each must be 1)
+FENCE_FAILURES=0
+== prose gh mentions (outside fences), for review ==
+299:| `resume_unrepresentable` (row 4b') | `--resume` with an open conflict cycle whose dangling push no crash record matches | The merge commit `<target_sha>` of cycle `<cycle_id>` may or may not be on the PR. Nothing more was pushed. If the PR head (`gh pr view <N> --repo "$REPO" --json headRefOid`) equals it, re-run with `--pr <N>`; otherwise push or drop it yourself, then re-run. |
+== result: failures=0 ==

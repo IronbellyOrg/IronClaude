@@ -34,8 +34,9 @@ Working states:
 - `S6_REPLYING` — reply on the finding thread citing the fix + SHA + passing validation.
 - `RESOLVING` — resolve the thread (after the reply).
 - `S5_AWAITING_REREVIEW` — waiting for the re-review attributed to our pushed SHA.
-- `S5a_RETRIGGER_REVIEW` (Python `S5A_RETRIGGER_REVIEW`) — V1.1 (FR-8): post the re-trigger comment
-  (a push does NOT auto-trigger an Augment re-review) BEFORE awaiting the re-review. Non-terminal.
+- `S5a_RETRIGGER_REVIEW` (Python `S5A_RETRIGGER_REVIEW`) — V1.1 (FR-8): post one re-trigger comment
+  per present reviewer (a push does NOT auto-trigger an Augment or a Codex re-review) BEFORE awaiting
+  the re-review. Non-terminal.
 - `S5b_AUGGIE_FALLBACK` (Python `S5B_AUGGIE_FALLBACK`) — V1.1 (FR-9/FR-10): the single-shot oversized-PR
   `/sc:auggie-review` fallback engaged on an Augment "abnormally large" decline. Non-terminal.
 - `S5c_SILENCE_REREQUEST` (Python `S5C_SILENCE_REREQUEST`) — consider the one permitted INV-S1
@@ -50,10 +51,21 @@ Terminals (the FSM never transitions out of these):
 - `HALT_MAX_ROUNDS` (terminal `terminal_max_rounds`) — round cap reached with residual findings.
 - `HALT_HUMAN` (terminal `terminal_halted`) — a `needs_human_decision` finding short-circuited.
 - `VALIDATION_FAIL` — validation failed beyond the retry budget.
-- `TERMINAL_TIMEOUT` — partial Augment activity, but no classified review within `--timeout`.
-- `TERMINAL_AUGMENT_NO_RESPONSE` — zero Augment-attributed activity after the silence window
-  (and the optional L3 poke). Wave 8 still waits; do not claim `TERMINAL_CLEAN` for the review.
+- `TERMINAL_TIMEOUT` — partial reviewer activity, but no classified review from any reviewer within
+  `--timeout`.
+- `TERMINAL_AUGMENT_NO_RESPONSE` — no configured reviewer (Augment, Codex) responded: zero
+  Augment-attributed activity after the silence window (and the optional L3 poke) while Codex is
+  absent too. The name is kept for compatibility. Wave 8 still waits; do not claim `TERMINAL_CLEAN`
+  for the review.
 - `TERMINAL_FAILED` — misrouted PR, corrupt run-log, or other unrecoverable failure.
+
+**Reviewers.** Two reviewers (Augment, Codex) may review the PR. Their per-reviewer results are
+merged into one round outcome (`clean` / `findings` / `declined` / no-response / timeout) **before**
+the FSM sees an outcome, so this machine has no new state or edge for Codex: the FSM consumes the
+merged outcome exactly as it consumed Augment's. A reviewer with no activity is recorded absent and
+ignored. In `S5_AWAITING_REREVIEW` the wait covers only the reviewers re-triggered in this cycle, and
+the INV-001 edge fires once when at least one of them reaches `clean` or `findings` on the pushed SHA
+(an Augment `declined` routes to S5b instead, even when Codex is done).
 
 ## 5.2 The ordinal as a capability ceiling (transition table, NOT nested ifs)
 
@@ -103,8 +115,10 @@ re-review is observed (after S5a posts the re-trigger), not the edge it ticks on
 New edges:
 
 - **`RESOLVING → S5a_RETRIGGER_REVIEW`** (re-trigger emission, INV-R1): after reply+resolve, and only
-  when `applied_edits > 0`, post the re-trigger comment. The re-trigger does NOT tick `round_counter`.
-- **`S5a_RETRIGGER_REVIEW → S5_AWAITING_REREVIEW`**: the comment is posted; await the attributed re-review.
+  when `applied_edits > 0`, post one re-trigger comment per present reviewer. The re-trigger does NOT
+  tick `round_counter`.
+- **`S5a_RETRIGGER_REVIEW → S5_AWAITING_REREVIEW`**: the comments are posted; await the attributed
+  re-review of the re-triggered reviewers.
 - **`S5_AWAITING_REREVIEW → S5b_AUGGIE_FALLBACK`** and **`S2_CLASSIFY → S5b_AUGGIE_FALLBACK`** (decline):
   an Augment "abnormally large" decline observed at the S5 re-trigger poll OR the initial S2 poll routes
   to the fallback. The `needs_human_decision ⇒ HALT_HUMAN` pre-gate override still short-circuits ahead
@@ -125,11 +139,12 @@ this MOD is a deliberate, flagged addendum-coverage gap (recorded in the task's 
 
 ### 5.2c CI phase — SKILL-owned `source`, no new FSM edges
 
-After Augment classify would be `clean`, reaches `REPORT_ONLY`, **exhausts**
+After the (merged) review classify would be `clean`, reaches `REPORT_ONLY`, **exhausts**
 `max_rounds` (`HALT_MAX_ROUNDS`), **or** ends in `TERMINAL_AUGMENT_NO_RESPONSE`,
 the SKILL sets `source=ci`, resets the wait clock, and polls CI. A spent round
 budget and a silence terminal permit **waiting only**: CI findings are
-`REPORT_ONLY`, never an additional fix or push. `TERMINAL_TIMEOUT` and other
+`REPORT_ONLY`, never an additional fix or fix push. The single exception is the
+one Tier 1 sync push (5.2d), which is not a fix. `TERMINAL_TIMEOUT` and other
 halt states do not arm CI. Never send `transition(clean)` after silence. On Augment `clean` / `REPORT_ONLY`, the SKILL continues at `S2_CLASSIFY`
 **without** sending Augment `clean` to `transition()`. Once the FSM reaches
 `HALT_MAX_ROUNDS`, it stays terminal: the SKILL polls CI separately and reports
@@ -141,6 +156,29 @@ Unparseable logs are `REPORT_ONLY` with no Finding. A CI-phase push skips S5a /
 S6 / RESOLVING (the push itself re-runs checks). `transition()` is unchanged:
 `clean` still means `TERMINAL_CLEAN`, `pushed` still means `S6_REPLYING`. Only
 a non-halted CI-clean path sends `clean` to `transition()`. L0 never enters this phase.
+
+### 5.2d Conflict cycles (issue #305): Tier 1 is SKILL-owned, Tier 2 adds one edge
+
+- **Tier 1 (push kind `sync`)** runs at Wave 8 entry, before the CI wait, with no FSM edge,
+  exactly like the CI phase (5.2c): no round, no re-trigger, no reply, no resolve. It counts in
+  `sync_push_count`, never in `push_count`, and a run has at most `SYNC_CAP = 1` conflict cycle
+  (both tiers together). After `HALT_MAX_ROUNDS` or `TERMINAL_AUGMENT_NO_RESPONSE` that terminal
+  stays and the sync outcome is reported alongside it. At L2 the resolution is left validated and
+  uncommitted; the caller sets `S4'_HALT_BEFORE_PUSH` only when Wave 8 was entered from `clean` or
+  `REPORT_ONLY`.
+- **Tier 2 (push kind `merge`)** adds exactly one edge: `(S2_CLASSIFY, conflicting)` goes to
+  `HALT_MAX_ROUNDS` when the round gate fires (the same gate as `findings`), else to `S3_FIXING`
+  (L2+) or `PROPOSED` (L1) by G-edit. The cycle then follows the existing edges
+  `S3_FIXING → S7_VALIDATING → S4_PUSHING → S6_REPLYING → RESOLVING` (zero threads)
+  `→ S5a_RETRIGGER_REVIEW → S5_AWAITING_REREVIEW → S2_CLASSIFY`, and ticks `round_counter` once
+  on the INV-001 edge. The S5a re-trigger fires when `applied_edits > 0` or the push kind is `merge`.
+- A conflict push is authorized by the sibling conjunction `evaluate_sync_decision` (ordinal,
+  validated, tier allowed, under cap), never by the 5.3 conjunction, whose predicate (5) means
+  grounded finding edits. Its parent check is `merge_parent_ok`: exactly two parents, the stored
+  pre-push SHA first and the recorded base tip second.
+- **Tier 3 never enters the FSM.** At L3 it halts before arming (`terminal_halted`, reason
+  `conflict_tier3`); a Tier 3 found by a later hook takes the human-gate route to `HALT_HUMAN`, or is
+  reported alongside a preserved terminal.
 
 ## 5.3 G-push — the 5-predicate runtime conjunction (INV-016, verbatim)
 

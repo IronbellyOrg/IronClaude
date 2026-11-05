@@ -1,0 +1,794 @@
+citations_total: 180
+citations_selected: 81
+policy: sampled
+rule: 'SKILL.md 11.5: 100% of high-stakes (blocking findings here; no regression/security items) + 30% of the rest (index mod 10 in 0,3,6) + 10% spot-check (index mod 10 == 9)'
+selected:
+- kind: finding
+  deviation: D-001
+  finding: M-01
+  cite: TL:25
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '25'
+  claim: Task 7's instructions cannot all be followed in any order, on the task that commits and runs `--force`
+  high_stakes: true
+  n: 1
+  sample: high-stakes-100
+- kind: finding
+  deviation: D-001
+  finding: M-01
+  cite: TL:110
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '110'
+  claim: Task 7's instructions cannot all be followed in any order, on the task that commits and runs `--force`
+  high_stakes: true
+  n: 2
+  sample: high-stakes-100
+- kind: finding
+  deviation: D-001
+  finding: M-01
+  cite: TL:113
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '113'
+  claim: Task 7's instructions cannot all be followed in any order, on the task that commits and runs `--force`
+  high_stakes: true
+  n: 3
+  sample: high-stakes-100
+- kind: finding
+  deviation: D-001
+  finding: M-01
+  cite: SRC:282
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '282'
+  claim: Task 7's instructions cannot all be followed in any order, on the task that commits and runs `--force`
+  high_stakes: true
+  n: 4
+  sample: high-stakes-100
+- kind: finding
+  deviation: D-001
+  finding: M-01
+  cite: retry.md:41
+  path: /home/coder/.claude/skills/sc-implement-protocol/refs/retry.md
+  lines: '41'
+  claim: Task 7's instructions cannot all be followed in any order, on the task that commits and runs `--force`
+  high_stakes: true
+  n: 5
+  sample: high-stakes-100
+- kind: finding
+  deviation: D-001
+  finding: M-01
+  cite: retry.md:44
+  path: /home/coder/.claude/skills/sc-implement-protocol/refs/retry.md
+  lines: '44'
+  claim: Task 7's instructions cannot all be followed in any order, on the task that commits and runs `--force`
+  high_stakes: true
+  n: 6
+  sample: high-stakes-100
+- kind: finding
+  deviation: D-001
+  finding: M-01
+  cite: qa.md:52
+  path: /home/coder/.claude/skills/sc-implement-protocol/refs/qa.md
+  lines: '52'
+  claim: Task 7's instructions cannot all be followed in any order, on the task that commits and runs `--force`
+  high_stakes: true
+  n: 7
+  sample: high-stakes-100
+- kind: finding
+  deviation: D-001
+  finding: M-01
+  cite: qa.md:61
+  path: /home/coder/.claude/skills/sc-implement-protocol/refs/qa.md
+  lines: '61'
+  claim: Task 7's instructions cannot all be followed in any order, on the task that commits and runs `--force`
+  high_stakes: true
+  n: 8
+  sample: high-stakes-100
+- kind: finding
+  deviation: D-001
+  finding: M-01
+  cite: qa.md:288
+  path: /home/coder/.claude/skills/sc-implement-protocol/refs/qa.md
+  lines: '288'
+  claim: Task 7's instructions cannot all be followed in any order, on the task that commits and runs `--force`
+  high_stakes: true
+  n: 9
+  sample: high-stakes-100
+- kind: finding
+  deviation: D-002
+  finding: M-02
+  cite: SRC:291
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '291'
+  claim: Task 8 never requires a checked run longer than the heartbeat cadence
+  high_stakes: false
+  n: 10
+  sample: sample-30
+- kind: finding
+  deviation: D-002
+  finding: M-02
+  cite: TL:122
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '122'
+  claim: Task 8 never requires a checked run longer than the heartbeat cadence
+  high_stakes: false
+  n: 13
+  sample: sample-30
+- kind: finding
+  deviation: D-003
+  finding: M-03
+  cite: TL:42
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '42'
+  claim: TL:21 widens the spec's no-copy rule to the whole file, against the guard line TL:52 requires verbatim
+  high_stakes: false
+  n: 16
+  sample: sample-30
+- kind: finding
+  deviation: D-003
+  finding: M-03
+  cite: SRC:59
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '59'
+  claim: TL:21 widens the spec's no-copy rule to the whole file, against the guard line TL:52 requires verbatim
+  high_stakes: false
+  n: 19
+  sample: spot-check-10
+- kind: finding
+  deviation: D-003
+  finding: M-03
+  cite: SRC:86
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '86'
+  claim: TL:21 widens the spec's no-copy rule to the whole file, against the guard line TL:52 requires verbatim
+  high_stakes: false
+  n: 20
+  sample: sample-30
+- kind: finding
+  deviation: D-004
+  finding: M-04
+  cite: SRC:312
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '312'
+  claim: Tasks 1 and 5 demand "four" exact `guard refused:` texts; the spec gives three plus a case-3 prefix
+  high_stakes: false
+  n: 23
+  sample: sample-30
+- kind: finding
+  deviation: D-004
+  finding: M-04
+  cite: TL:41
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '41'
+  claim: Tasks 1 and 5 demand "four" exact `guard refused:` texts; the spec gives three plus a case-3 prefix
+  high_stakes: false
+  n: 26
+  sample: sample-30
+- kind: finding
+  deviation: D-005
+  finding: M-05
+  cite: TL:58
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '58'
+  claim: '`tests/cli` is red between Task 1 and Task 3; Depends-on lines omit Task 3'
+  high_stakes: false
+  n: 29
+  sample: spot-check-10
+- kind: finding
+  deviation: D-005
+  finding: M-05
+  cite: TL:72
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '72'
+  claim: '`tests/cli` is red between Task 1 and Task 3; Depends-on lines omit Task 3'
+  high_stakes: false
+  n: 30
+  sample: sample-30
+- kind: finding
+  deviation: D-005
+  finding: M-05
+  cite: SKILL.md:79
+  path: /home/coder/.claude/skills/sc-implement-protocol/SKILL.md
+  lines: '79'
+  claim: '`tests/cli` is red between Task 1 and Task 3; Depends-on lines omit Task 3'
+  high_stakes: false
+  n: 33
+  sample: sample-30
+- kind: finding
+  deviation: D-006
+  finding: M-06
+  cite: SRC:303
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '303'
+  claim: Task 8 does not carry the AC-0.6 `--source terminal` fallback into step 5
+  high_stakes: false
+  n: 36
+  sample: sample-30
+- kind: finding
+  deviation: D-007
+  finding: M-07
+  cite: SRC:216
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '216'
+  claim: 'No closing task: AC-C5 never recorded, common checks not re-run at phase end, no P0 report, no closing staging'
+  high_stakes: false
+  n: 39
+  sample: spot-check-10
+- kind: finding
+  deviation: D-007
+  finding: M-07
+  cite: SRC:241
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '241'
+  claim: 'No closing task: AC-C5 never recorded, common checks not re-run at phase end, no P0 report, no closing staging'
+  high_stakes: false
+  n: 40
+  sample: sample-30
+- kind: finding
+  deviation: D-007
+  finding: M-07
+  cite: TL:15
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '15'
+  claim: 'No closing task: AC-C5 never recorded, common checks not re-run at phase end, no P0 report, no closing staging'
+  high_stakes: false
+  n: 43
+  sample: sample-30
+- kind: finding
+  deviation: D-008
+  finding: M-08
+  cite: TL:87
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '87'
+  claim: Negative checks in Tasks 5 and 6 have no safe target
+  high_stakes: false
+  n: 46
+  sample: sample-30
+- kind: finding
+  deviation: D-008
+  finding: M-08
+  cite: TL:100
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '100'
+  claim: Negative checks in Tasks 5 and 6 have no safe target
+  high_stakes: false
+  n: 49
+  sample: spot-check-10
+- kind: finding
+  deviation: D-008
+  finding: M-08
+  cite: Makefile:171
+  path: Makefile
+  lines: '171'
+  claim: Negative checks in Tasks 5 and 6 have no safe target
+  high_stakes: false
+  n: 50
+  sample: sample-30
+- kind: finding
+  deviation: D-009
+  finding: M-09
+  cite: SRC:305
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '305'
+  claim: AC-0.9's "refused under `--unattended`" class is empty at P0; `gh api` posts undefined
+  high_stakes: false
+  n: 53
+  sample: sample-30
+- kind: finding
+  deviation: D-010
+  finding: M-10
+  cite: TL:38
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '38'
+  claim: Task 5's test may assert rule labels, not rule substance
+  high_stakes: false
+  n: 56
+  sample: sample-30
+- kind: finding
+  deviation: D-011
+  finding: M-11
+  cite: TL:60
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '60'
+  claim: Stale cite "lines 13-25" for KNOWN_CORE_FILES
+  high_stakes: false
+  n: 59
+  sample: spot-check-10
+- kind: finding
+  deviation: D-011
+  finding: M-11
+  cite: SRC:59
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '59'
+  claim: Stale cite "lines 13-25" for KNOWN_CORE_FILES
+  high_stakes: false
+  n: 60
+  sample: sample-30
+- kind: finding
+  deviation: D-012
+  finding: M-12
+  cite: TL:77
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '77'
+  claim: Task 4 edits HOW-WE-WORK.md but runs only three test files
+  high_stakes: false
+  n: 63
+  sample: sample-30
+- kind: finding
+  deviation: D-013
+  finding: M-13
+  cite: SRC:212
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '212'
+  claim: '"after P0, none" in HOW-WE-WORK.md goes stale every phase'
+  high_stakes: false
+  n: 66
+  sample: sample-30
+- kind: finding
+  deviation: D-014
+  finding: M-14
+  cite: SRC:152
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '152'
+  claim: Brief template passes `--report-dir`, which no command accepts until P1
+  high_stakes: false
+  n: 69
+  sample: spot-check-10
+- kind: finding
+  deviation: D-014
+  finding: M-14
+  cite: SRC:221
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '221'
+  claim: Brief template passes `--report-dir`, which no command accepts until P1
+  high_stakes: false
+  n: 70
+  sample: sample-30
+- kind: finding
+  deviation: D-015
+  finding: M-15
+  cite: TL:26
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '26'
+  claim: Task 7's `ls-remote` check and Task 8's coordinator check name no evidence
+  high_stakes: false
+  n: 73
+  sample: sample-30
+- kind: finding
+  deviation: D-016
+  finding: INV-002
+  cite: SRC:73
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '73'
+  claim: Task 8 cannot reach a passing AC-0.4 at P0 (step 3 needs a WC-4 contract)
+  high_stakes: true
+  n: 74
+  sample: high-stakes-100
+- kind: finding
+  deviation: D-016
+  finding: INV-002
+  cite: SRC:241
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '241'
+  claim: Task 8 cannot reach a passing AC-0.4 at P0 (step 3 needs a WC-4 contract)
+  high_stakes: true
+  n: 75
+  sample: high-stakes-100
+- kind: finding
+  deviation: D-016
+  finding: INV-002
+  cite: SRC:285
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '285'
+  claim: Task 8 cannot reach a passing AC-0.4 at P0 (step 3 needs a WC-4 contract)
+  high_stakes: true
+  n: 76
+  sample: high-stakes-100
+- kind: finding
+  deviation: D-016
+  finding: INV-002
+  cite: SRC:301
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '301'
+  claim: Task 8 cannot reach a passing AC-0.4 at P0 (step 3 needs a WC-4 contract)
+  high_stakes: true
+  n: 77
+  sample: high-stakes-100
+- kind: finding
+  deviation: D-016
+  finding: INV-002
+  cite: TL:122
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '122'
+  claim: Task 8 cannot reach a passing AC-0.4 at P0 (step 3 needs a WC-4 contract)
+  high_stakes: true
+  n: 78
+  sample: high-stakes-100
+- kind: finding
+  deviation: D-016
+  finding: INV-002
+  cite: TL:125
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/TASK-WF-orcaWorkerContra-20261102-231950.md
+  lines: '125'
+  claim: Task 8 cannot reach a passing AC-0.4 at P0 (step 3 needs a WC-4 contract)
+  high_stakes: true
+  n: 79
+  sample: high-stakes-100
+- kind: inferred_requirement
+  finding: INF-003
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:56
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '56'
+  claim: '**Flag parse rule**: `--unattended` counts only as a standalone argument token outside any quoted argument.'
+  high_stakes: false
+  n: 82
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-006
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:59
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '59'
+  claim: '**Contract file**: one shared document, proposed as `src/superclaude/core/WORKER-CONTRACT.md`, installed to `~/.claude/WORKER-CONTRACT.md`.'
+  high_stakes: false
+  n: 85
+  sample: spot-check-10
+- kind: inferred_requirement
+  finding: INF-007
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:59
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '59'
+  claim: For the worker-session duties (WC-3, WC-5, WC-7, WC-12, WC-13 and heartbeats) it states only the IronClaude-specific rule (outcome mapping from `worker_status`, top-level only, ask only when the
+    brief allows it) and points to the dispatch preamble as the authority for Orca verb syntax and heartbeat cadence; it never copies them, because the preamble is issued per dispatch by the running Orca
+    version (`CAPS:130`).
+  high_stakes: false
+  n: 86
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-010
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:61
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '61'
+  claim: '**Never-as-worker list**: `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:pm`, `/sc:spawn` and `/sc:swarm-wizard` (section 4), plus `/sc:pr-submit` while the answer to D3 keeps it off workers.'
+  high_stakes: false
+  n: 89
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-013
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:70
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '70'
+  claim: WC-2 | **No person-blocking step in unattended mode.** Under `--unattended` the command never calls `AskUserQuestion`, never ends its turn on a chat question or `[yes / no]` offer, and never says
+    STOP AND WAIT.
+  high_stakes: false
+  n: 92
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-016
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:73
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '73'
+  claim: WC-5 | **Outcome mapping.** The worker sends `worker_done` exactly once from its own top-level session.
+  high_stakes: false
+  n: 95
+  sample: spot-check-10
+- kind: inferred_requirement
+  finding: INF-017
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:74
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '74'
+  claim: WC-6 | **Every retry is a new Task.** A Task's brief cannot change after creation (`task-update` changes only `--status` and `--result`, `task-update --help` line 3), and a re-run into the first
+    attempt's directories could mix its files with the retry's.
+  high_stakes: false
+  n: 96
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-020
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:77
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '77'
+  claim: WC-9 | **No outward action from a worker; local commits only by grant.** Under `--unattended` every outward default (push, merge into a shared branch, PR, GitHub post, install on a shared or real
+    target, VM, paid external run) is off, and no brief can turn it on (D4); the coordinator performs those actions (section 2.3).
+  high_stakes: false
+  n: 99
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-023
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:80
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '80'
+  claim: WC-12 | **Coordinator follow-ups are pulled, not pushed.** The worker runs `check` at natural checkpoints and once before `worker_done`; if `check` returns `consumer_fenced` it stops without sending
+    `worker_done`.
+  high_stakes: false
+  n: 102
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-026
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:86
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '86'
+  claim: '**Brief layout.** The brief puts the preamble-facing instructions and the guard line before the commands, and gives each command its own labelled `Command:` line in run order (for example `Command:
+    /sc:load ...`, then the converted command), so the Task text never starts with `/sc:`.'
+  high_stakes: false
+  n: 105
+  sample: spot-check-10
+- kind: inferred_requirement
+  finding: INF-027
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:86
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '86'
+  claim: 'Guard line: `Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed
+    with a body starting "guard refused:".`'
+  high_stakes: false
+  n: 106
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-030
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:90
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '90'
+  claim: 'Every such action targets `IronbellyOrg/IronClaude`: never the SuperClaude upstream, and never through Orca''s issue or PR linking while Orca records the project as the upstream.'
+  high_stakes: false
+  n: 109
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-033
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:94
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '94'
+  claim: '`partial`: dependents do not start until the coordinator has read the contract''s `report_path` and recorded, in its own run notes, whether the partial deliverable is usable; an unusable one is
+    handled like `failed`.'
+  high_stakes: false
+  n: 112
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-036
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:97
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '97'
+  claim: Every dependent Task is created only after all its inputs have settled and been admitted under the bullets above, with `--deps` naming the Tasks that actually succeeded (an original Task or its
+    replacement).
+  high_stakes: false
+  n: 115
+  sample: spot-check-10
+- kind: inferred_requirement
+  finding: INF-037
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:98
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '98'
+  claim: The coordinator starts only Tasks it created itself. A ready Task it did not create is not started; it is reported to the person with its spec text.
+  high_stakes: false
+  n: 116
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-040
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:112
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '112'
+  claim: '*Check before a resume Task under (c).* The coordinator reads the ledger and the worktree, never edits either, and dispatches only if all of the following hold.'
+  high_stakes: false
+  n: 119
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-043
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:137
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '137'
+  claim: These run as workers now only if the brief uses the stated flags and avoids the inputs that trigger a gate; the worker reports the named file until Phase 1 adds the contract.
+  high_stakes: false
+  n: 122
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-046
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:169
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '169'
+  claim: on `E-HALT-QA` or `E-NO-RULING`, stop with the halt recorded in the ledger and the contract as blocked, carrying the Ruling question, the STOP code in `reason`
+  high_stakes: false
+  n: 125
+  sample: spot-check-10
+- kind: inferred_requirement
+  finding: INF-047
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:178
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '178'
+  claim: the "Resume? [Y/n]" prompt is replaced by the explicit resume flag (resume only when passed); `--interactive` refused
+  high_stakes: false
+  n: 126
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-050
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:210
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '210'
+  claim: The new contract file and report files are written only in unattended mode or when the caller passes the new output flag.
+  high_stakes: false
+  n: 129
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-053
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:213
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '213'
+  claim: The existing headless rule of `/sc:reflect` under `claude --print` keeps working exactly as today; `--unattended` reuses it and does not replace it.
+  high_stakes: false
+  n: 132
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-056
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:221
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '221'
+  claim: The WC-4 contract, the report-directory rule, the flag parse rule and the person-mode refusal (section 2.1) for the P1 commands only; `--unattended` is added to a command only in the phase that
+    converts its gates, so no command accepts the flag while it can still prompt; output flags for commands that lack one; the small fixes to ready commands.
+  high_stakes: false
+  n: 135
+  sample: spot-check-10
+- kind: inferred_requirement
+  finding: INF-057
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:222
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '222'
+  claim: Each default-on gate resolves per its section 3 row; WC-10 wait splitting for cli-eval.
+  high_stakes: false
+  n: 136
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-060
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:230
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '230'
+  claim: none (smoke runs use each command's existing flags)
+  high_stakes: false
+  n: 139
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-063
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:256
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '256'
+  claim: '**AC-C2** (SA-5). Pass: exits 0.'
+  high_stakes: false
+  n: 142
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-066
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:271
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '271'
+  claim: '**AC-C5** (SA-4: edits are additive). Run for every command file the phase edits without a named defect fix.'
+  high_stakes: false
+  n: 145
+  sample: spot-check-10
+- kind: inferred_requirement
+  finding: INF-067
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:276
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '276'
+  claim: '**AC-C6** (D5, non-goal 2). Pass: prints exactly one line per Orca profile and every line is `"nestedWorkerMaxDepth":1`.'
+  high_stakes: false
+  n: 146
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-070
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:299
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '299'
+  claim: AC-0.2 | `cmp src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` and the level-table test the repo already runs (`CLAUDE.md:334`) | identical; tests
+    pass
+  high_stakes: false
+  n: 149
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-073
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:302
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '302'
+  claim: 'AC-0.5 | WC-1: `worker-start` with the user''s normal launch setup (the same shell wrapper, hooks and startup command a person''s sessions use), timed | exit 0, `state: ready`, and the start returns
+    in under 45 s.'
+  high_stakes: false
+  n: 152
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-076
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:305
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '305'
+  claim: 'AC-0.9 | Write-verb audit: `test_worker_contract.py` scans the skills, commands and agents under `src/superclaude/` (the installed primitives'' source) for git and gh write verbs (`add`, `commit`,
+    `push`, `merge`, `worktree add/remove`, `stash`, `update-ref`, `gh pr`, `gh api` posts)'
+  high_stakes: false
+  n: 155
+  sample: spot-check-10
+- kind: inferred_requirement
+  finding: INF-077
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:306
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '306'
+  claim: AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command listed for P1 in the section 6 table of commands accepting `--unattended` has a `## Unattended
+    mode` section naming `return-contract.yaml`, `~/.claude/WORKER-CONTRACT.md` and its report directory flag, and that no other command has one yet (load, pr-submit under D3 (a), the section 4 commands,
+    and the P2-P4 commands until their phase).
+  high_stakes: false
+  n: 156
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-080
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:309
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '309'
+  claim: AC-1.4 | `grep -n 'return-contract.yaml' src/superclaude/skills/sc-adversarial-protocol/SKILL.md` and the workflow return-contract ref
+  high_stakes: false
+  n: 159
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-083
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:312
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '312'
+  claim: AC-1.7 | Brief-guard refusals (section 2.1), one 7.2 live check per case, with steps 3-4 replaced by this row's conditions.
+  high_stakes: false
+  n: 162
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-086
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:315
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '315'
+  claim: 'AC-2.2 | Gate-trigger run per P2 command: a 7.2 live check whose brief carries `On a blocked gate: report blocked` and input that hits the gate (for example `/sc:tdd "auth" --unattended --output
+    <file> --report-dir <dir>` with a bare topic; `/sc:cli-eval run --unattended --report-dir <dir>` with no `--suite`).'
+  high_stakes: false
+  n: 165
+  sample: spot-check-10
+- kind: inferred_requirement
+  finding: INF-087
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:316
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '316'
+  claim: AC-2.3 | Happy-path run per P2 command with every required flag in the brief | 7.2 passes with `--outcome succeeded`
+  high_stakes: false
+  n: 166
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-090
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:319
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '319'
+  claim: 'AC-2.6 | WC-3 and WC-6, the section 2.3 worked example run live: T1 hits the tdd gate and reports blocked; the coordinator creates T2 with the answer and new directories; then a third Task T3
+    with the same bare-topic input and `On a blocked gate: ask the coordinator`, where the coordinator answers the `ask`.'
+  high_stakes: false
+  n: 169
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-093
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:322
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '322'
+  claim: AC-3.1 | `test_worker_contract.py` asserts that `cmd/validate-roadmap.md` and `sk/sc-validate-roadmap-protocol/SKILL.md` name the same report filename
+  high_stakes: false
+  n: 172
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-096
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:325
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '325'
+  claim: AC-3.4 | Two workers in one worktree each run `/sc:save --unattended --report-dir <own dir>`
+  high_stakes: false
+  n: 175
+  sample: spot-check-10
+- kind: inferred_requirement
+  finding: INF-097
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:326
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '326'
+  claim: 'AC-4.1 | `/sc:implement <plan> --unattended --report-dir <dir>` with the brief line `On a blocked gate: ask the coordinator` (the policy most likely to relay a Ruling), on a plan with one acceptance
+    criterion that cannot be met'
+  high_stakes: false
+  n: 176
+  sample: sample-30
+- kind: inferred_requirement
+  finding: INF-100
+  cite: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md:329
+  path: .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/source.md
+  lines: '329'
+  claim: 'AC-4.4 | (1) Before the coordinator ever launches a pr-submit session: on each Chat UI setting the user uses (chat, terminal)'
+  high_stakes: false
+  n: 179
+  sample: sample-30

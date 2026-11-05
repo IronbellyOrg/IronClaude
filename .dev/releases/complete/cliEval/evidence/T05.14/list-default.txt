@@ -1,2 +1,0 @@
-superclaude eval list:
-  - real (version 1.0, 17 evals)

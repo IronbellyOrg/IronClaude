@@ -1,0 +1,2 @@
+25c904b6172a1ef32eea5e5f1e75a6fbb076841a
+A1 r1-1 F1.1 minor src/superclaude/cli/install_retired_mcp.py:356-358 amiss:n,false:n,harm:n,constraint:n When only the upstream binary exists (no registration, receipt or marker) run_retire_step returns early with 'No retired MCP registrations present' and skips the section 3.4 uninstall hint; fix: print CBM_UNINSTALL_LINE before the early return when the canonical binary exists.

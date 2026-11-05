@@ -1,0 +1,42 @@
+== 1 no text
+My-Work-Tree-1105-040822-3a57
+rc=0
+== 2 hostile text
+My-Work-Tree-fix-the-login-bug-1105-040822-25ef
+rc=0
+== 3 option-shaped texts (not consumed by the argument loop)
+--model -> My-Work-Tree-model-1105-040822-17f6
+rc=0
+--claude-args -> My-Work-Tree-claude-args-1105-040823-40a2
+rc=0
+--shim -> My-Work-Tree-shim-1105-040823-59aa
+rc=0
+--tier=x -> My-Work-Tree-tier-x-1105-040823-234e
+rc=0
+--name -> My-Work-Tree-name-1105-040823-4a08
+rc=0
+== 4 big multi-line text with control characters
+My-Work-Tree-word-line-word-line-1105-040823-46d2
+len=49
+no-control-characters
+== 5 label accepted by validate_label (ccsession --rm: exit 1 'No label' means valid, exit 2 means invalid)
+My-Work-Tree-fix-the-login-bug-1105-040823-1db0
+No label 'My-Work-Tree-fix-the-login-bug-1105-040823-1db0' in this workspace.
+rc=1
+== 6 collision: same label -> -2 -> -3
+first : My-Work-Tree-same-task-0101-000000-aaaa
+second: My-Work-Tree-same-task-0101-000000-aaaa-2
+third : My-Work-Tree-same-task-0101-000000-aaaa-3
+== 7 long folder name and long words: stamp kept, length
+xxxxxxxxxxxxxxxxxxxx-alpha-beta-gamma-delta-1105-040823-1f90 len=60
+== 8 two calls in the same second differ
+xxxxxxxxxxxxxxxxxxxx-t-1105-040823-5368
+xxxxxxxxxxxxxxxxxxxx-t-1105-040823-2454
+differ
+== 9 help lists --auto-name
+61:  ccsession --auto-name [<task text>]
+== 10 leading-dot folder with CJK characters
+hidden-task-1105-040823-71bb
+rc=0
+== 11 stamp override is cut to safe characters
+hidden-a-b-c-d

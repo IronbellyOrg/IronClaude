@@ -24,7 +24,6 @@ regression_present: false
 unauthorized_deviation_present: false
 needs_human_decision: false
 user_decision_required: false
-serena_summary_corroboration: unavailable
 degraded_components: []
 # FR-RH1 R9: a side-effect noun matched semantic classification but there is NO explicit
 # durable_sink:/@sink annotation -> advisory telemetry ONLY. It must NOT increment

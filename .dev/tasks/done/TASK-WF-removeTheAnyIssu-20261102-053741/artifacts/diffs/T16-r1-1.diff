@@ -1,0 +1,14 @@
+diff --git a/src/superclaude/cli/cli_portify/commands.py b/src/superclaude/cli/cli_portify/commands.py
+index 03dd818a..ef183f98 100644
+--- a/src/superclaude/cli/cli_portify/commands.py
++++ b/src/superclaude/cli/cli_portify/commands.py
+@@ -101,7 +101,8 @@ def cli_portify_group():
+     help=(
+         "Maximum convergence iterations for panel-review "
+         "(default: 1; follows the 2-fix-cycle cap). "
+-        "You may raise it to allow more iterations."
++        "The review loop currently always runs this default; "
++        "the value is used only in resume and failure messages."
+     ),
+ )
+ @click.option(

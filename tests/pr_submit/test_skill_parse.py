@@ -11,10 +11,12 @@ from __future__ import annotations
 import pytest
 
 from superclaude.pr_submit.fsm import (
+    DEFAULT_CONFLICT_MAX_TIER,
     DEFAULT_MAX_ROUNDS,
     DEFAULT_MONITOR,
     DEFAULT_TIMEOUT,
     POLL_INTERVAL_ERROR,
+    SkillArgs,
     parse_args,
 )
 
@@ -103,3 +105,15 @@ def test_yes_flag_removed():
     """`--yes` never did anything and is no longer accepted."""
     with pytest.raises(SystemExit):
         parse_args(["--yes"])
+
+
+def test_conflict_max_tier_default_and_bounds():
+    """Issue #305: `--conflict-max-tier` defaults to 0 (Tier 1 is opt-in, PR #378
+    finding C5), accepts 0-2, rejects 3 and non-ints."""
+    assert parse_args([]).conflict_max_tier == DEFAULT_CONFLICT_MAX_TIER == 0
+    assert SkillArgs().conflict_max_tier == 0
+    for tier in (0, 1, 2):
+        assert parse_args(["--conflict-max-tier", str(tier)]).conflict_max_tier == tier
+    for bad in ("3", "x"):
+        with pytest.raises(SystemExit):
+            parse_args(["--conflict-max-tier", bad])

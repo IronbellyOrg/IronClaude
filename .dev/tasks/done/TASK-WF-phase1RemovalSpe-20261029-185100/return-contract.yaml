@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-phase1RemovalSpe-20261029-185100
+plan_path: ./TASK-WF-phase1RemovalSpe-20261029-185100.md
+source_path: ./source.md
+source_origin: .dev/codegraph-migration/specs/phase-1-removal-spec.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase1RemovalSpe-20261029185357/REPORT.md
+unresolved:
+  - "reflect partial: 3 report citations dropped by the evidence-validator, and input_drift (the Phase 2 spec was edited by the parallel F2 worker during the run). Verdict refactor: 12 plan findings (3 IMPORTANT, 9 MINOR)."

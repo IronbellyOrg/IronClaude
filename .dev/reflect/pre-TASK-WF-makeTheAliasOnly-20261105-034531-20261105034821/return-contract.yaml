@@ -1,0 +1,71 @@
+contract_version: "1.8.0"
+status: partial                       # 6 citations dropped by the evidence validator; plan verdict is FAIL
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-384-ccsession-model-aliases/.dev/reflect/pre-TASK-WF-makeTheAliasOnly-20261105-034531-20261105034821/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-384-ccsession-model-aliases/.dev/reflect/pre-TASK-WF-makeTheAliasOnly-20261105-034531-20261105034821/audit.log
+confidence_calibrated: 0.75
+escalation_rule_matched: null         # parse-density pre-filter (coverage_degraded) decided; no row fired
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.9231
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-011]   # matcher false negative; see REPORT.md
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256: {tasklist: null, spec: null}
+input_tree_sha256: c215e489bcaf743c5b66f37f145a7e22c8d239de14039d65a085d67fe0f9517a
+input_tree_file_count: 5
+input_tree_snapshot_path: .dev/reflect/pre-TASK-WF-makeTheAliasOnly-20261105-034531-20261105034821/artifacts/input-snapshot.yaml
+input_drift_detected: false
+citations_total: 114
+citations_revalidated: 114
+citations_dropped: 6
+citations_dropped_extrapolated: 6
+citations_inferred: 2
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - .dev/reflect/pre-TASK-WF-makeTheAliasOnly-20261105-034531-20261105034821/reviewer-cards/reviewer-1-card.md
+  - .dev/reflect/pre-TASK-WF-makeTheAliasOnly-20261105-034531-20261105034821/reviewer-cards/reviewer-2-card.md
+  - .dev/reflect/pre-TASK-WF-makeTheAliasOnly-20261105-034531-20261105034821/reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: .dev/reflect/pre-TASK-WF-makeTheAliasOnly-20261105-034531-20261105034821/adversarial/adversarial/
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+budget_check_skipped: true
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+forced_tier: null
+promotion_action: not-applicable
+promotion_gate_passed: null
+# plan-review result (additive, advisory; this contract carries no PASS/FAIL field)
+plan_review_verdict: FAIL
+plan_blocking_findings: 4
+plan_minor_findings: 19
+degraded_components: [calibrator_diversity, executor_class_unresolved, memory_persist_skipped, adversarial_depth_quick]

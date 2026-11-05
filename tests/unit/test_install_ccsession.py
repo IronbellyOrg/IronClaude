@@ -22,6 +22,7 @@ def home(tmp_path):
         "ccsession",
         "ccsession-orca",
         "hooks/session-start.sh",
+        "hooks/session-name.sh",
         "ccsession.env.example",
         "install.sh",
     ):
@@ -43,7 +44,38 @@ def test_wire_creates_symlink_and_env(home):
     assert env.stat().st_mode & 0o777 == 0o600
     assert (skill / "ccsession").stat().st_mode & 0o111
     assert (skill / "hooks/session-start.sh").stat().st_mode & 0o111
+    assert (skill / "hooks/session-name.sh").stat().st_mode & 0o111
     assert not (home / ".claude/settings.json").exists()
+
+
+def test_wire_moves_names_saved_per_folder_into_the_repo_list(home, tmp_path):
+    # Install copies names that older versions saved per folder into the
+    # repo's list, in the home being installed, never the caller's own home.
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    git_env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    for args in (("init", "-q"), ("remote", "add", "origin", "git@host:Org/R.git")):
+        subprocess.run(["git", *args], cwd=repo, env=git_env, check=True)
+    old = home / ".claude/projects" / str(repo).replace("/", "-") / "topics"
+    old.mkdir(parents=True)
+    (old / ".cwd").write_text(f"{repo}\n")
+    (old / "notes.txt").write_text("sid-notes\n")
+    ok, msg = wire_ccsession(home)
+    assert ok, msg
+    moved = home / ".claude/projects/host-Org-R/topics/notes.txt"
+    assert moved.read_text() == "sid-notes\n"
+    assert (old / "notes.txt").exists()
+
+
+def test_wire_never_asks_an_older_ccsession_to_move_names(home):
+    # A plain install can keep an older skill; its ccsession would read
+    # --migrate-names as a launch and start claude.
+    wrapper = home / ".claude/skills/ccsession-tag/ccsession"
+    marker = home / "launched"
+    wrapper.write_text(f'#!/bin/sh\necho "$@" > "{marker}"\n')
+    ok, msg = wire_ccsession(home)
+    assert ok, msg
+    assert not marker.exists()
 
 
 def test_wire_older_skill_without_orca_wrapper_still_succeeds(home):
@@ -55,6 +87,20 @@ def test_wire_older_skill_without_orca_wrapper_still_succeeds(home):
     assert "superclaude update" in msg
     assert (home / ".local/bin/ccsession").is_symlink()
     assert not (home / ".local/bin/ccsession-orca").exists()
+
+
+def test_wire_gives_an_older_skill_the_rename_hook(home):
+    # The UserPromptSubmit and SessionEnd hooks are registered even when a plain
+    # install keeps an older skill; their script must then exist.
+    hook = home / ".claude/skills/ccsession-tag/hooks/session-name.sh"
+    hook.unlink()
+    ok, msg = wire_ccsession(home)
+    assert ok, msg
+    source = Path(__file__).resolve().parents[2] / (
+        "src/superclaude/skills/ccsession-tag/hooks/session-name.sh"
+    )
+    assert hook.read_bytes() == source.read_bytes()
+    assert hook.stat().st_mode & 0o111
 
 
 def test_wire_leaves_existing_env_and_settings(home):
@@ -196,6 +242,16 @@ def test_fallback_after_native_does_not_duplicate_hook(home):
     assert wire_ccsession(home)[0]
     settings = home / ".claude/settings.json"
     canonical = "~/.claude/skills/ccsession-tag/hooks/session-start.sh"
+    name_hook = [
+        {
+            "hooks": [
+                {
+                    "type": "command",
+                    "command": "~/.claude/skills/ccsession-tag/hooks/session-name.sh",
+                }
+            ]
+        }
+    ]
     settings.write_text(
         json.dumps(
             {
@@ -205,7 +261,9 @@ def test_fallback_after_native_does_not_duplicate_hook(home):
                             "matcher": "startup|resume",
                             "hooks": [{"type": "command", "command": canonical}],
                         }
-                    ]
+                    ],
+                    "UserPromptSubmit": name_hook,
+                    "SessionEnd": name_hook,
                 }
             }
         )

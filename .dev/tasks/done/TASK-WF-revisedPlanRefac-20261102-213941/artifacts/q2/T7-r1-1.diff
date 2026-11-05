@@ -1,0 +1,286 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t7-cmp.txt b/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t7-cmp.txt
+new file mode 100644
+index 00000000..a25009c6
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t7-cmp.txt
+@@ -0,0 +1,6 @@
++$ cmp src/superclaude/commands/recommend.md plugins/superclaude/commands/recommend.md
++rc=0
++$ cmp src/superclaude/skills/sc-recommend/SKILL.md plugins/superclaude/skills/sc-recommend/SKILL.md
++rc=0
++$ cmp src/superclaude/skills/sc-recommend/refs/surface-enumeration.md plugins/superclaude/skills/sc-recommend/refs/surface-enumeration.md
++rc=0
+diff --git a/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t7-staged-claude.txt b/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t7-staged-claude.txt
+new file mode 100644
+index 00000000..12e11680
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t7-staged-claude.txt
+@@ -0,0 +1,2 @@
++$ git diff --cached --name-only | grep "^\.claude/"
++rc=1
+diff --git a/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t7-verify-sync.txt b/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t7-verify-sync.txt
+new file mode 100644
+index 00000000..e8376e07
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-revisedPlanRefac-20261102-213941/artifacts/t7-verify-sync.txt
+@@ -0,0 +1,214 @@
++$ make verify-sync
++🔍 Verifying src/superclaude/ ↔ .claude/ sync...
++
++=== Skills ===
++  ✅ ccsession-tag
++  ✅ confidence-check
++  ✅ operational-guide
++  ✅ prd
++  ✅ readme
++  ✅ roadmap
++  ✅ sc-adversarial-protocol
++  ✅ sc-auggie-review-protocol
++  ✅ sc-bare-review
++  ✅ sc-brainstorm-protocol
++  ✅ sc-cleanup-audit-protocol
++  ✅ sc-cli-eval-protocol
++  ✅ sc-cli-portify-protocol
++  ✅ sc-crash-recovery
++  ✅ sc-graph-protocol
++  ✅ sc-impact-protocol
++  ✅ sc-implement-protocol
++  ✅ sc-init-lite-protocol
++  ✅ sc-pm-protocol
++  ✅ sc-post-release-protocol
++  ✅ sc-pr-submit-protocol
++  ✅ sc-recommend
++  ✅ sc-reflect-protocol
++  ✅ sc-release-split-protocol
++  ✅ sc-review-translation-protocol
++  ✅ sc-roadmap-protocol
++  ✅ sc-swarm-wizard-protocol
++  ✅ sc-task-protocol
++  ✅ sc-tasklist-protocol
++  ✅ sc-troubleshoot-protocol
++  ✅ sc-validate-roadmap-protocol
++  ✅ sc-validate-tests-protocol
++  ✅ sc-workflow-protocol
++  ✅ task-builder
++  ✅ task
++  ✅ tdd
++  ✅ tech-reference
++  ✅ tech-research
++
++=== Agents ===
++  ✅ audit-analyzer.md
++  ✅ audit-comparator.md
++  ✅ audit-consolidator.md
++  ✅ audit-scanner.md
++  ✅ audit-validator.md
++  ✅ auggie-reviewer.md
++  ✅ backend-architect.md
++  ✅ business-panel-experts.md
++  ✅ confidence-calibrator.md
++  ✅ debate-orchestrator.md
++  ✅ deep-research-agent.md
++  ✅ deep-research.md
++  ✅ devops-architect.md
++  ✅ eval-docs-loader.md
++  ✅ eval-run-reporter.md
++  ✅ eval-suite-author.md
++  ✅ evidence-validator.md
++  ✅ frontend-architect.md
++  ✅ implement-retry-adviser.md
++  ✅ learning-guide.md
++  ✅ merge-executor.md
++  ✅ performance-engineer.md
++  ✅ pm-agent.md
++  ✅ python-expert.md
++  ✅ quality-engineer.md
++  ✅ refactoring-expert.md
++  ✅ reflect-reviewer.md
++  ✅ repo-index.md
++  ✅ requirements-analyst.md
++  ✅ reuse-auditor.md
++  ✅ rf-analyst.md
++  ✅ rf-assembler.md
++  ✅ rf-qa-qualitative.md
++  ✅ rf-qa.md
++  ✅ rf-task-builder.md
++  ✅ rf-task-executor.md
++  ✅ rf-task-researcher.md
++  ✅ rf-team-lead.md
++  ✅ root-cause-analyst.md
++  ✅ security-engineer.md
++  ✅ self-review.md
++  ✅ socratic-mentor.md
++  ✅ system-architect.md
++  ✅ technical-writer.md
++  ✅ troubleshoot-analyst.md
++
++=== Commands ===
++  ✅ adversarial.md
++  ✅ agent.md
++  ✅ analyze.md
++  ✅ auggie-review.md
++  ✅ brainstorm.md
++  ✅ build.md
++  ✅ business-panel.md
++  ✅ cleanup-audit.md
++  ✅ cleanup.md
++  ✅ cli-eval.md
++  ✅ cli-portify.md
++  ✅ design.md
++  ✅ document.md
++  ✅ explain.md
++  ✅ git.md
++  ✅ graph.md
++  ✅ help.md
++  ✅ impact.md
++  ✅ implement.md
++  ✅ improve.md
++  ✅ index-repo.md
++  ✅ index.md
++  ✅ init-lite.md
++  ✅ load.md
++  ✅ pm.md
++  ✅ post-release.md
++  ✅ pr-submit.md
++  ✅ recommend.md
++  ✅ reflect.md
++  ✅ release-split.md
++  ✅ research.md
++  ✅ review-translation.md
++  ✅ roadmap.md
++  ✅ save.md
++  ✅ spawn.md
++  ✅ spec-panel.md
++  ✅ swarm-wizard.md
++  ✅ task.md
++  ✅ tasklist.md
++  ✅ tdd.md
++  ✅ test.md
++  ✅ troubleshoot.md
++  ✅ validate-roadmap.md
++  ✅ validate-tests.md
++  ✅ workflow.md
++
++=== Hooks ===
++  ✅ auggie-flag-clear.sh
++  ✅ codegraph-session-start.sh
++  ✅ freshness-file-changed.sh
++  ✅ freshness-post-read.sh
++  ✅ freshness-pre-edit.sh
++  ✅ freshness-session-start.sh
++  ✅ freshness-subagent-start.sh
++  ✅ freshness-subagent-stop.sh
++  ✅ freshness-user-prompt.sh
++  ✅ reject-workspace-writes.sh
++  ✅ sc-recommend-phase0.sh
++  ✅ pragmatic-subagent.js
++
++=== Templates ===
++  ✅ workflow/05_prd_template.md
++  ✅ workflow/03_project_plan_template.md
++  ✅ workflow/03_component_authoring_template.md
++  ✅ workflow/00_mdtm_template_simple_task.md
++  ✅ workflow/01_mdtm_template_generic_task__gfdoc.md
++  ✅ workflow/06_architecture_proposal_template.md
++  ✅ workflow/02_mdtm_template_complex_task.md
++  ✅ workflow/04_feature_brief_template.md
++  ✅ workflow/changelog_template.md
++  ✅ workflow/01_mdtm_template_generic_task.md
++  ✅ workflow/99_mdtm_template_generic_task_old.md
++  ✅ documents/prd_template.md
++  ✅ documents/operational_guide_template.md
++  ✅ documents/GFxAI_Master_Documentation_Template.md
++  ✅ documents/tdd_template.md
++  ✅ documents/agent_template_analysis.md
++  ✅ documents/supplemental-doc-creation-checklist.md
++  ✅ documents/agent_template_qa.md
++  ✅ documents/skill_template.md
++  ✅ documents/roadmap_template.md
++  ✅ documents/agent_template_worker.md
++  ✅ documents/release-spec-template.md
++  ✅ documents/supplemental_doc_template.md
++  ✅ documents/technical_reference_template.md
++  ✅ documents/readme_template.md
++  ✅ modularization-template-review/qa-fix-summary_template.md
++  ✅ modularization-template-review/qa-task-research-alignment_report_template.md
++  ✅ modularization-template-review/analyst-synthesis-review_report_template.md
++  ✅ modularization-template-review/research-notes_template.md
++  ✅ modularization-template-review/synthetic-dnsp-finding.contract
++  ✅ modularization-template-review/INDEX.md
++  ✅ modularization-template-review/qa-task-validation-structure_report_template.md
++  ✅ modularization-template-review/qa-cross-source-contradictions_template.md
++  ✅ modularization-template-review/track-scope-map_template.md
++  ✅ modularization-template-review/claim-evidence-matrix_template.md
++  ✅ modularization-template-review/qa-inventory_report_template.md
++  ✅ modularization-template-review/analyst-coverage-matrix_template.md
++  ✅ modularization-template-review/codebase-research_template.md
++  ✅ modularization-template-review/analyst-completeness_report_template.md
++  ✅ modularization-template-review/analyst-gap-analysis_template.md
++  ✅ modularization-template-review/qa-lens_report_template.md
++  ✅ modularization-template-review/qa-consolidated-findings_template.md
++  ✅ modularization-template-review/qa-task-validation-b2_report_template.md
++  ✅ modularization-template-review/qa-research-gap_report_template.md
++  ✅ modularization-template-review/qa-research-evidence_report_template.md
++  ✅ modularization-template-review/qa-qualitative-operational_report_template.md
++  ✅ modularization-template-review/qa-qualitative-sufficiency_report_template.md
++  ✅ modularization-template-review/analyst-cross-validation_report_template.md
++  ✅ modularization-template-review/qa-acceptance-methodology-audit_template.md
++  ✅ modularization-template-review/pipeline-complete_report_template.md
++  ✅ modularization-template-review/qa-source-fidelity_template.md
++  ✅ modularization-template-review/qa-research-depth_report_template.md
++  ✅ modularization-template-review/web-research_template.md
++
++=== Installer Registration ===
++  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
++
++=== Hooks Cross-Consistency ===
++  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
++
++✅ All components in sync.
++rc=0
+diff --git a/plugins/superclaude/commands/recommend.md b/plugins/superclaude/commands/recommend.md
+index 31db9f04..034dee78 100644
+--- a/plugins/superclaude/commands/recommend.md
++++ b/plugins/superclaude/commands/recommend.md
+@@ -134,5 +134,5 @@ Where it is registered (this repository's project `.claude/settings.json`), a Pr
+ ## Output Constraints
+ 
+ - Single-line bash for any install / invocation commands embedded in the output (project memory: terminals cannot paste heredocs or `\` continuations). The prompt block itself may be multi-line because it is an argument string passed to the next tool, not a shell command.
+-- Paths are absolute or repo-relative and worktree-aware. When cwd is `.dev/worktrees/<name>/`, paths resolve against the worktree, not the main checkout.
++- Paths are absolute or repo-relative and worktree-aware. When cwd is inside a linked git worktree (for example one Orca created at its default location outside the main checkout), paths resolve against that worktree, not the main checkout.
+ - No emojis in any output (project convention).
+diff --git a/plugins/superclaude/skills/sc-recommend/SKILL.md b/plugins/superclaude/skills/sc-recommend/SKILL.md
+index a31948f7..4c862beb 100644
+--- a/plugins/superclaude/skills/sc-recommend/SKILL.md
++++ b/plugins/superclaude/skills/sc-recommend/SKILL.md
+@@ -125,7 +125,7 @@ Separate **canonical research authority** from the **actual callable copy**. Ins
+ 
+ Commands may be **self-contained** or **skill-indirected**. Read mandatory skill invocations wherever documented, including a `Skill Invocation` heading; never assume that an `Activation` heading exists or invent a protocol name from the command filename. Treat command files as a discovery entry point, not proof that a required skill or advertised capability is available.
+ 
+-The checkout paths (row 7) resolve under the repository root (`git rev-parse --show-toplevel`); the project paths (row 5) are read from cwd. If the user's cwd is a worktree under `.dev/worktrees/<name>/`, that command returns the worktree's root, so both resolve against **that worktree**. The skill must remain worktree-aware.
++The checkout paths (row 7) resolve under the repository root (`git rev-parse --show-toplevel`); the project paths (row 5) are read from cwd. If the user's cwd is inside a linked worktree (for example an Orca-created worktree outside the main checkout), that command returns the worktree's root, so both resolve against **that worktree**. The skill must remain worktree-aware.
+ 
+ See `refs/surface-enumeration.md` for the full algorithm, the verification record schema, and worked examples.
+ 
+@@ -195,7 +195,7 @@ Build the prompt as a **hand-off envelope**, not a specification. The prompt car
+ - the target invocation (`/sc:<command>`, a skill's own slash name such as `/task-builder` or `/task` (`/<skill>`), `Skill <skill-name>`, `Agent <agent-name>`, or a native tool sequence)
+ - the user's verified parameters / file paths / flags
+ - the expected deliverable shape (what the user wants back)
+-- worktree-aware paths (resolved under `git rev-parse --show-toplevel`, which is the worktree's root when cwd is inside `.dev/worktrees/<name>/`)
++- worktree-aware paths (resolved under `git rev-parse --show-toplevel`, which is the worktree's root when cwd is inside a linked worktree)
+ 
+ The prompt MUST NOT restate the target's protocol logic — phase breakdown, scoring rules, agent roster, debate format, return contract internals. That belongs to the target skill. Trust the hand-off.
+ 
+diff --git a/plugins/superclaude/skills/sc-recommend/refs/surface-enumeration.md b/plugins/superclaude/skills/sc-recommend/refs/surface-enumeration.md
+index 74b3b34e..3c5fa555 100644
+--- a/plugins/superclaude/skills/sc-recommend/refs/surface-enumeration.md
++++ b/plugins/superclaude/skills/sc-recommend/refs/surface-enumeration.md
+@@ -16,7 +16,7 @@ List installed locations with `find` or absolute-path Glob calls, not unmatched
+ | Plugin primitives | `${CLAUDE_PLUGIN_ROOT}/commands/*.md`, `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md`, `${CLAUDE_PLUGIN_ROOT}/agents/*.md` | Only for a resolved plugin root |
+ | In-checkout research fallback | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` | Only when these exist under the current IronClaude git root |
+ 
+-The current worktree is the repository root returned by `git rev-parse --show-toplevel`, including when cwd is under `.dev/worktrees/<name>/`. Never redirect lookups to another checkout by assumption.
++The current worktree is the repository root returned by `git rev-parse --show-toplevel`, including when cwd is inside a linked worktree (such as an Orca-created one). Never redirect lookups to another checkout by assumption.
+ 
+ ### Research authority versus actual callable copy
+ 

@@ -1,0 +1,477 @@
+pass: 2
+source: source.md
+parsed_ids: []
+rows:
+- id: INF-001
+  section: '1. Preflight: files that change'
+  quote: '| F1 | `src/superclaude/cli/install_codegraph.py` (new) | Pin constants (`VERSION = "1.6.2"`, `TAG = "v1.6.2"`, `SHA256` dict with the four §0 assets, `MCP_TOOLS` = the tool-list value T2 step
+    0 selects, §2.4), `asset_name()` (platform map: Linux/Darwin × x86_64/amd64/aarch64/arm64 → `linux-x64`, `linux-arm64`, `darwin-x64`, `darwin-arm64`; anything else → None), `discover()` (exact version
+    gate, §2.2), `acquire()` (verified download and extract, §2.3), receipt read/write (§2.6). Standard library only (`urllib.request`, `hashlib`, `tarfile`, `tempfile`, `os`, `subprocess` with timeouts).
+    | no '
+  citation: source.md:33
+- id: INF-002
+  section: '1. Preflight: files that change'
+  quote: '| F2 | `src/superclaude/cli/install_mcp.py` | (a) Registry entry `"codegraph"` in `MCP_SERVERS` (shape of the old `codebase-memory-mcp` entry, `:101-108`: `transport: stdio`, `command: "codegraph"`,
+    `args: ["serve", "--mcp"]`, `required: False`) so `superclaude mcp --list`, the menu and `--servers codegraph` work. (b) Dispatch branch at the top of `install_mcp_server` routing `codegraph` to the
+    phase function (same shape as `:1025-1028`).'
+  citation: source.md:34
+- id: INF-003
+  section: '1. Preflight: files that change'
+  quote: '| F3 | `src/superclaude/cli/main.py` | `install()`: help/docstring text naming codegraph; phase block "Installing codegraph (required user-level phase)…" after `install_user_setup` (where the
+    Codebase Memory block was, `:254-262`) and immediately before Phase 1''s non-fatal retire step (`install_retired_mcp.py`; §2.1); `or not codegraph_success` in the exit condition (`:264-275`); a read-only
+    codegraph block in `--list` (where `:161-186` was) printing executable state, version, owner (from receipt) and registration state. `mcp()` and `update()` unchanged. | **Phase 1** |'
+  citation: source.md:35
+- id: INF-004
+  section: '1. Preflight: files that change'
+  quote: '| F4 | `src/superclaude/cli/doctor.py` | `_check_codegraph()` appended to `run_doctor` checks (`:26-44`); behaviour in §2.7. | no |'
+  citation: source.md:36
+- id: INF-005
+  section: '1. Preflight: files that change'
+  quote: '| F5 | `update.sh` | **No change.** Line 8 `superclaude install --force` already reaches the new phase; the four commands are pinned by `tests/cli/test_update_script.py:13-18`. | no |'
+  citation: source.md:37
+- id: INF-006
+  section: '1. Preflight: files that change'
+  quote: '| F6 | `src/superclaude/core/CLAUDE.md` | Add a `codegraph` row to the "MCP Servers" table (`:17-25`; keep the `\| Flag (advisory) \|` header pinned by `tests/core/test_claude_md_routing_block.py:79-81`)
+    and a short "codegraph" guidance block between fixed begin/end markers (text and markers in §3.4). This replaces the block upstream `codegraph install` would write to `~/.claude/CLAUDE.md`, which `superclaude
+    install --force` erases (W4 §2).'
+  citation: source.md:38
+- id: INF-007
+  section: '1. Preflight: files that change'
+  quote: '| F7 | Indexing hook files (only if §3 ships a hook): `src/superclaude/hooks/scripts/codegraph-session-start.sh` (new), `src/superclaude/hooks/hooks.json` (SessionStart entry), `plugins/superclaude/hooks/hooks.json`
+    and `plugins/superclaude/hooks/scripts/codegraph-session-start.sh` (mirror), `src/superclaude/cli/install_hooks.py` (`_FRESHNESS_SCRIPTS`, `:42-79`, required by `make verify-sync`) | §3 | **Phase 1**
+    (`hooks.json` matcher edit at `:47`) |'
+  citation: source.md:39
+- id: INF-008
+  section: '1. Preflight: files that change'
+  quote: '| F8 | `docs/user-guide/mcp-installation.md` | New top section "Default setup: codegraph" (pin, verified download, reuse of a baked copy, user-scope registration argv, telemetry off, `--list`,
+    doctor, failure and exit codes, removal commands, indexing). Replaces the Codebase Memory section Phase 1 deletes (`:5-26`).'
+  citation: source.md:40
+- id: INF-009
+  section: '1. Preflight: files that change'
+  quote: '| F9 | `docs/reference/mcp-server-guide.md` | `codegraph` row in "Available MCP Servers" (`:9`); new "codegraph lifecycle" section where "Codebase Memory Native Lifecycle" was (`:31-55`); troubleshooting
+    entries (not initialized, lock error from `codegraph sync`, stale version). | **Phase 1** |'
+  citation: source.md:41
+- id: INF-010
+  section: '1. Preflight: files that change'
+  quote: '| F10 | `README.md` | Install description (`:64`) and the dev-install comment (`:75`) say codegraph instead of Codebase Memory. | **Phase 1** |'
+  citation: source.md:42
+- id: INF-011
+  section: '1. Preflight: files that change'
+  quote: '| F11 | `CHANGELOG.md` | `## [Unreleased]` entry "codegraph installed by default" (Added/Changed). | **Phase 1** (its own entry) |'
+  citation: source.md:43
+- id: INF-012
+  section: '1. Preflight: files that change'
+  quote: '| F12 | `.github/workflows/test.yml` (`doctor-check`, `:130-171`) | Keep the `Install Claude CLI` step (Phase 1''s W1 row 12 proposes deleting it because Codebase Memory no longer needs it; the
+    codegraph phase needs `claude --version`). Rewrite its comment and the `permissions` comment (`:133-134`) to name codegraph.'
+  citation: source.md:44
+- id: INF-013
+  section: '1. Preflight: files that change'
+  quote: '| F13 | `tests/cli/test_install_codegraph.py` (new) | Unit tests for F1 and the phase function (§4.1). | no |'
+  citation: source.md:45
+- id: INF-014
+  section: '1. Preflight: files that change'
+  quote: '| F14 | `tests/cli/test_update_command.py` | Autouse fixture also stubs `install_mcp.install_codegraph_mcp` (Phase 1 rewrites the fixture first); expected install call list gains `install_codegraph_mcp`
+    last; new tests: required phase failure keeps framework work and exits 1; `--force` is not forwarded; `--list` codegraph block is read-only. | **Phase 1** |'
+  citation: source.md:46
+- id: INF-015
+  section: '1. Preflight: files that change'
+  quote: '| F15 | `tests/cli/test_install_mcp_registry.py` | Registry entry contract for `codegraph` and dispatch to `install_codegraph_mcp`. | **Phase 1** |'
+  citation: source.md:47
+- id: INF-016
+  section: '1. Preflight: files that change'
+  quote: '| F16 | `tests/unit/test_cli_doctor.py` | Tests for `_check_codegraph` (§2.7). | no |'
+  citation: source.md:48
+- id: INF-017
+  section: '1. Preflight: files that change'
+  quote: '| F17 | `tests/cli/test_install_hooks.py`, `tests/unit/test_cli_install.py` (hook script listing, `:140-145`) | Only if §3 ships a hook: registration test and packaged-file listing. | **Phase
+    1** (Serena matcher asserts `:684-687`; MCP listings `:150-153`, `:423-425`) |'
+  citation: source.md:49
+- id: INF-018
+  section: '1. Preflight: files that change'
+  quote: '| F18 | `src/superclaude/cli/install_retired_mcp.py` (Phase 1''s retire step), its Phase 1 test file, `src/superclaude/cli/main.py` (passes `codegraph_ready()`), `install_mcp.py` (`codegraph_ready()`)
+    | §2.12: the readiness-gated Serena and kind-B codebase-memory removal. Phase 1 must also amend its own spec rows (Phase 1 §2.3 row, §3.2 Tier K, §3.4 hint, §3.6 row, its sandbox expectation "Legacy
+    Serena registration kept", D2), listed in §9 | **Phase 1** |'
+  citation: source.md:50
+- id: INF-019
+  section: '1. Preflight: files that change'
+  quote: '| F19 | `.gitignore` | Add `.codegraph/`. codegraph''s own `.codegraph/.gitignore` is `*` plus `!.gitignore`, so the folder still shows as `?? .codegraph/` and `git add -A` commits `.codegraph/.gitignore`
+    (third review, finding 5). Docs (F8) tell users to add `.codegraph/` to their `core.excludesFile`. | no |'
+  citation: source.md:51
+- id: INF-020
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  quote: '- `codegraph_ready()` (in `install_mcp.py`): one read-only predicate on current state, shared by `install`, `install --list` and `doctor`. True when the user entry `codegraph` either equals the
+    expected entry (§2.4) or is an owned entry whose command''s `--version` prints `1.6.2`, or is a user-managed entry whose command resolves to an executable (any version: the user chose it).'
+  citation: source.md:194
+- id: INF-021
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  quote: '- When ready, the retire step also removes: (a) every user-scope entry other than `serena-local`, matched by shape rather than by key name, whose args contain `start-mcp-server` (this covers `serena`
+    and a renamed Serena launcher), whose `type` is stdio or absent, and whose `env` and `headers` are each **absent or `{}`** (Coder''s bundle and `claude mcp add` write `"env":{}`, and the live entry
+    on this workspace has it: third review finding 1); and (b) the kind-B `~/.local/bin/codebase-memory-mcp` registration (its binary and upstream companions stay; the upstream `uninstall -y` command is
+    prin'
+  citation: source.md:195
+- id: INF-022
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  quote: '- When not ready: Phase 1''s behaviour is unchanged (Tier K kept, hint printed); Tier R rows and the `/usr/local/bin/codebase-memory-mcp` entry are still removed unconditionally (Phase 1 §3.2).'
+  citation: source.md:196
+- id: INF-023
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  quote: '- Local-scope (`projects.*.mcpServers`) and `.mcp.json` entries are reported with the exact command, never removed (Phase 1 §3.3).'
+  citation: source.md:197
+- id: INF-024
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  quote: '- Kept by policy and stated in docs and CHANGELOG: `~/.serena`, project `.serena/`, `~/.cache/codebase-memory-mcp`, the uv cache, and (off Coder) a user-installed `serena-agent` uv tool, for which
+    the removal command is printed.'
+  citation: source.md:198
+- id: INF-025
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  quote: '- user scope, by name and by launcher shape: `jq -e ''(.mcpServers // {}) | (has("serena") or has("codebase-memory-mcp") or (to_entries | map(select(.key != "serena-local" and ((.value.args //
+    []) | tostring | test("serena-agent|start-mcp-server")))) | length > 0)) | not'' ~/.claude.json`; a failure caused by an entry the retire step reported as kept (non-empty `env`/`headers`, or a Serena
+    launcher without `start-mcp-server`) means the user runs the printed command;'
+  citation: source.md:210
+- id: INF-026
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  quote: '- local scope (`projects.*.mcpServers`, never removed automatically, §3.3 of Phase 1): `jq -e ''[(.projects // {}) | .[] | (.mcpServers // {}) | has("serena") or has("codebase-memory-mcp")] |
+    any | not'' ~/.claude.json`; a failure here means the user must run the printed `claude mcp remove <name> --scope local` command, not that the plan failed;'
+  citation: source.md:211
+- id: INF-027
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  quote: '- on Coder, as user `coder`, once the image''s IronClaude pin includes the merge and the step-5 image is running: `! command -v serena && ! command -v codebase-memory-mcp`.'
+  citation: source.md:212
+- id: INF-028
+  section: 3.2 The hook (`src/superclaude/hooks/scripts/codegraph-sessi
+  quote: 1. Exit if `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0`.
+  citation: source.md:241
+- id: INF-029
+  section: 3.2 The hook (`src/superclaude/hooks/scripts/codegraph-sessi
+  quote: '2. Binary: `cg=$(cat "$HOME/.codegraph/.superclaude-bin" 2>/dev/null)` (the installer''s pointer to the registered binary, §2.2); if that is not an executable file, `cg=$(command -v codegraph)`;
+    if neither, exit.'
+  citation: source.md:242
+- id: INF-030
+  section: 3.2 The hook (`src/superclaude/hooks/scripts/codegraph-sessi
+  quote: 3. `top=$(git -C "${CLAUDE_PROJECT_DIR:-$PWD}" rev-parse --show-toplevel 2>/dev/null)` or exit; exit if `top` is empty, `$HOME` or `/`.
+  citation: source.md:243
+- id: INF-031
+  section: 3.2 The hook (`src/superclaude/hooks/scripts/codegraph-sessi
+  quote: '4. Exit if `$top/.codegraph/codegraph.db` exists (any state: complete, building, truncated, built by anyone).'
+  citation: source.md:244
+- id: INF-032
+  section: 3.2 The hook (`src/superclaude/hooks/scripts/codegraph-sessi
+  quote: 5. `log="${XDG_STATE_HOME:-$HOME/.local/state}/superclaude/codegraph-init.log"`; `mkdir -p "${log%/*}" || exit 0`.
+  citation: source.md:245
+- id: INF-033
+  section: 3.2 The hook (`src/superclaude/hooks/scripts/codegraph-sessi
+  quote: 6. `nohup "$cg" init --yes "$top" </dev/null >>"$log" 2>&1 &` (every descriptor redirected so Claude Code does not wait; no `setsid`, which macOS lacks).
+  citation: source.md:246
+- id: INF-034
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U1 | `asset_name()` for Linux x86_64/amd64/aarch64/arm64 and Darwin x86_64/arm64 | the four asset names; Windows/FreeBSD/armv7 → None |'
+  citation: source.md:286
+- id: INF-035
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U2 | `SHA256` table has exactly the four assets and 64-hex values; `TAG == "v" + VERSION`; `MCP_TOOLS` equals the value recorded in `.dev/codegraph-migration/evidence/P2-mcp-tools-schema.md`
+    (T2 step 0) and does not contain `explore` | pin integrity |'
+  citation: source.md:287
+- id: INF-036
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U3 | PATH has a `codegraph` printing `1.6.2` | reused; `_download` never called |'
+  citation: source.md:288
+- id: INF-037
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U4 | PATH copy prints `1.5.0`, `~/.local/bin/codegraph` prints `1.6.2` | the `~/.local/bin` one wins |'
+  citation: source.md:289
+- id: INF-038
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U5 | no matching copy; download bytes match the pinned hash | extracted to `~/.codegraph/versions/v1.6.2/`, `~/.local/bin/codegraph` and `~/.codegraph/current` link to it, version check passes
+    |'
+  citation: source.md:290
+- id: INF-039
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U6 | download bytes do not match | stage `checksum` failure; nothing left under `~/.codegraph/versions/`; no link changed |'
+  citation: source.md:291
+- id: INF-040
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U7 | tarball member with `..` or absolute path or a symlink escaping the target | rejected before extraction (stage `extract`) |'
+  citation: source.md:292
+- id: INF-041
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U8 | download raises `URLError`/timeout | stage `download` failure, message names the URL and the manual recovery, no traceback |'
+  citation: source.md:293
+- id: INF-042
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U9 | unsupported platform with no matching PATH copy | failure names the platform; no download attempted |'
+  citation: source.md:294
+- id: INF-043
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U10 | unsupported platform **with** a matching PATH copy | success (reuse is platform-neutral) |'
+  citation: source.md:295
+- id: INF-044
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U11 | `claude --version` fails | failure before discovery or download (same rule as `install_mcp.py:830-843`) |'
+  citation: source.md:296
+- id: INF-045
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U12 | registration absent | one `claude mcp add-json codegraph <json> --scope user`; JSON equals §2.4 with the realpath of the winner, including `env.CODEGRAPH_MCP_TOOLS == install_codegraph.MCP_TOOLS`
+    |'
+  citation: source.md:297
+- id: INF-046
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U13 | registration already equal | no `claude mcp` call after `--version` (idempotent) |'
+  citation: source.md:298
+- id: INF-047
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U14 | registration differs (old path, missing `alwaysLoad`, old version dir, env without `CODEGRAPH_MCP_TOOLS` as Coder or an earlier plan wrote it) | `remove` then `add-json`; re-read verifies
+    |'
+  citation: source.md:299
+- id: INF-048
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U15 | add fails / verification fails | previous entry restored; message says so |'
+  citation: source.md:300
+- id: INF-049
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U16 | user-managed entry (extra env key, `headers`, `url`, other args): command resolves / does not resolve | kept, phase passes with the `claude mcp remove` hint / phase fails with that hint;
+    never replaced either way (§2.4) |'
+  citation: source.md:301
+- id: INF-050
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U17 | `~/.claude.json` unreadable or has duplicate keys | lookup failure; no `claude mcp` mutation |'
+  citation: source.md:302
+- id: INF-051
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U18 | `dry_run=True` | describes the plan; no download, no `claude` call, no file written |'
+  citation: source.md:303
+- id: INF-052
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U19 | second run after a successful download | reuse, zero downloads, zero registry mutations |'
+  citation: source.md:304
+- id: INF-053
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U20 | receipt written only after a verified download (not for a reused PATH copy); corrupt receipt deletes nothing and does not fail | §2.6 |'
+  citation: source.md:305
+- id: INF-054
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U21 | pin bump: new dir installed, owned links flipped, previous owned dir kept; next run deletes it only when nothing registered or linked resolves inside it | §2.6 |'
+  citation: source.md:306
+- id: INF-055
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U22 | a non-owned `~/.local/bin/codegraph` pointing elsewhere is left alone and the version dir''s launcher is registered | §2.3 step 6 |'
+  citation: source.md:307
+- id: INF-056
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U23 | `superclaude mcp --servers codegraph --dry-run` | no download, no `claude mcp` call |'
+  citation: source.md:308
+- id: INF-057
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U24 | pointer file `~/.codegraph/.superclaude-bin` holds the winner''s realpath (baked and downloaded cases); rewritten only on change; a winner that is not the shell''s `command -v codegraph`
+    prints the PATH warning and still passes | §2.2 |'
+  citation: source.md:309
+- id: INF-058
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  quote: '| U25 | the bounded runner kills a `claude` stub that ignores SIGTERM after the timeout (process group gone) | §2.4 |'
+  citation: source.md:310
+- id: INF-059
+  section: 'G0: publish the plan and start the Coder work'
+  quote: '**T0. Commit the planning files and hand off to Coder.**'
+  citation: source.md:435
+- id: INF-060
+  section: 'G0: publish the plan and start the Coder work'
+  quote: 'Change: commit and push the branch so the Coder agent can fetch the handoff (`.dev/codegraph-migration/` is untracked when this spec was written, so `gh api …/contents/…` would 404). Then post
+    an issue comment that links `handoff/coder-handoff-prompt.md` on the branch and asks for the Coder work to start (human step 5 in §7: giving the prompt to an agent in the Coder repo).'
+  citation: source.md:437
+- id: INF-061
+  section: 'G0: publish the plan and start the Coder work'
+  quote: '**T0b. Align Phase 1''s spec and facts file with §2.12.**'
+  citation: source.md:447
+- id: INF-062
+  section: 'G0: publish the plan and start the Coder work'
+  quote: 'Change: edit each listed Phase 1 row so it states the §2.12 gate (the current-pin Serena entry is kept only until `codegraph_ready()`; Tier R and Tier K match `env`/`headers` absent or `{}`; the
+    re-register hint uses `serena-local`), and append the override section to the facts file.'
+  citation: source.md:449
+- id: INF-063
+  section: 'G1: installer core'
+  quote: '**T1. Pin and verified acquisition module.**'
+  citation: source.md:463
+- id: INF-064
+  section: 'G1: installer core'
+  quote: 'Change: §2.2, §2.3, §2.6 (receipt and pruning), §2.11 module shape, `MCP_TOOLS` set from the `Selected MCP_TOOLS:` line of the step-0 evidence file; tests U1-U11, U20-U22, U24. First run T2 step
+    0 (the tool-list schema-cost check), then re-check the pin (a mismatch means stop: §7 item 2):'
+  citation: source.md:466
+- id: INF-065
+  section: 'G1: installer core'
+  quote: '**T2. Phase function, registry entry, dispatch, registration helpers.**'
+  citation: source.md:484
+- id: INF-066
+  section: 'G1: installer core'
+  quote: 'Change: F2 (a)-(e); §2.4 table and bounded runner; tests U12-U19, U23, U25 and the registry/dispatch tests (§4.1).'
+  citation: source.md:486
+- id: INF-067
+  section: 'G1: installer core'
+  quote: 1. Save this stdio client as `.dev/codegraph-migration/evidence/p2-mcp-tools.mjs` (committed with T2; layer 2 step 5b reuses it).
+  citation: source.md:488
+- id: INF-068
+  section: 'G1: installer core'
+  quote: '2. Leg A (always runs, no login, no real HOME): `W=$(mktemp -d)`; with `HOME="$W/home" CLAUDE_CONFIG_DIR="$W/home" CODEGRAPH_TELEMETRY=0 CODEGRAPH_NO_UPDATE_CHECK=1`, download the pinned tarball
+    for this platform (§2.3 step 2 URL), check its SHA-256 against §0 before extracting (mismatch: stop, §7 item 2), extract under `$W`, `CG=` realpath of the extracted `bin/codegraph`; `mkdir "$W/repo"
+    && git -C "$W/repo" init -q`; run the client twice from `$W/repo`: run 1 with `CODEGRAPH_MCP_TOOLS` unset, run 2 with `CODEGRAPH_MCP_TOOLS=node,search,callers,callees,impact,files,status`.'
+  citation: source.md:522
+- id: INF-069
+  section: 'G1: installer core'
+  quote: '3. X-25 check, a hard stop: run 2''s tool names are exactly the seven `codegraph_*` names (no `codegraph_explore`) and run 2''s `explore_call_error` is `true`.'
+  citation: source.md:523
+- id: INF-070
+  section: 'G1: installer core'
+  quote: '4. Bands on D: `D <= 6000` bytes → seven tools; `D > 8000` → `status`; in between → Leg B decides (merged method §3; the edges are 2,000 tokens at 3 and 4 bytes per token).'
+  citation: source.md:524
+- id: INF-071
+  section: 'G1: installer core'
+  quote: '5. Leg B (undecided band only; merged method §4-§5): needs `timeout 10 claude --version` to succeed; two codegraph-only config files (`$P/default.json`, `$P/seven.json`, identical except the key,
+    `alwaysLoad: true`, `command` = `$CG`); `H0=$(jq -S ''.mcpServers'' ~/.claude.json | sha256sum)`; four runs from `$W/repo` in the order default, seven, default, seven, each `timeout 120 claude -p "reply
+    ok" --output-format stream-json --verbose --strict-mcp-config --mcp-config "$P/<arm>.json" --no-session-persistence --model <one alias for all runs> > "$P/run<N>-<arm>.jsonl"`; tokens per run = `input_to'
+  citation: source.md:525
+- id: INF-072
+  section: 'G1: installer core'
+  quote: '6. Decision: pass or fail band → as banded (decided by A); undecided with valid Leg B → seven tools if `T <= 2000`, else `status` (decided by B); undecided with Leg B not run or invalid → `status`
+    (decided by default), and the executor continues and logs §7 item 6 with the exact Leg B commands.'
+  citation: source.md:526
+- id: INF-073
+  section: 'G1: installer core'
+  quote: '7. Write `.dev/codegraph-migration/evidence/P2-mcp-tools-schema.md` with the 16 one-fact lines of the merged method §7, in that order, ending with `Selected MCP_TOOLS: <value>`.'
+  citation: source.md:527
+- id: INF-074
+  section: 'G2: CLI wiring'
+  quote: '**T3. `superclaude install` phase, exit term, `--list` block.**'
+  citation: source.md:561
+- id: INF-075
+  section: 'G2: CLI wiring'
+  quote: 'Change: F3; §2.1, §2.8; the test additions listed in §4.1 for this file.'
+  citation: source.md:563
+- id: INF-076
+  section: 'G2: CLI wiring'
+  quote: '**T3b. Retire Serena once codegraph is ready.**'
+  citation: source.md:571
+- id: INF-077
+  section: 'G2: CLI wiring'
+  quote: 'Change: F18; §2.12. Tests: codegraph failed keeps the current-pin Serena entry and install exits 1; ready (owned pinned entry; user-managed resolving entry) removes every launcher entry §2.12
+    matches (`serena`, and a non-`serena` key such as `foo` whose args contain `start-mcp-server`) and the kind-B `~/.local/bin/codebase-memory-mcp` registration; not ready (user-managed not resolving;
+    wrong version) keeps them; `"env":{}` and `"headers":{}` entries removed; non-empty `env` or `headers` and no `start-mcp-server` kept; `serena-local` never removed; second run is a no-op; `install`
+    and `install'
+  citation: source.md:573
+- id: INF-078
+  section: 'G2: CLI wiring'
+  quote: '**T4. Doctor check.**'
+  citation: source.md:582
+- id: INF-079
+  section: 'G2: CLI wiring'
+  quote: 'Change: F4; §2.7. Tests: dangling registered command fails; missing entry, version drift, prompt-hook leftover, `CODEGRAPH_START` block and unreadable `~/.claude.json` pass with a detail line;
+    a bare-name command resolves through `PATH`; the check always adds the detail `Ready for Serena retirement: yes | no (<reason>)` from the same `codegraph_ready()` that `install` uses (test patches it
+    once and asserts both callers see it).'
+  citation: source.md:584
+- id: INF-080
+  section: 'G3: indexing'
+  quote: '**T5. SessionStart hook.**'
+  citation: source.md:595
+- id: INF-081
+  section: 'G3: indexing'
+  quote: 'Change: §3.2 behaviour and its listed tests.'
+  citation: source.md:597
+- id: INF-082
+  section: 'G4: guidance, docs, CI, live proof'
+  quote: '**T6. Core guidance.**'
+  citation: source.md:615
+- id: INF-083
+  section: 'G4: guidance, docs, CI, live proof'
+  quote: 'Change: F6; §3.4 row and block.'
+  citation: source.md:617
+- id: INF-084
+  section: 'G4: guidance, docs, CI, live proof'
+  quote: '**T7. User docs, README, CHANGELOG.**'
+  citation: source.md:629
+- id: INF-085
+  section: 'G4: guidance, docs, CI, live proof'
+  quote: 'Change: F8-F11, F19; include §2.6 removal commands, §2.10 failure table (short form), the registered tool list (`CODEGRAPH_MCP_TOOLS`, §2.4: which tools sessions see and why `codegraph_explore`
+    is hidden), §3.3 costs and opt-out (with the exact scope of `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0`), the opt-in `post-checkout` recipe, the `core.excludesFile` tip for `.codegraph/`, and §2.12 (Serena is
+    removed once codegraph is ready, the `serena-local` re-register name, what is kept by policy, the escalated residuals).'
+  citation: source.md:631
+- id: INF-086
+  section: 'G4: guidance, docs, CI, live proof'
+  quote: '**T8. CI doctor job.**'
+  citation: source.md:644
+- id: INF-087
+  section: 'G4: guidance, docs, CI, live proof'
+  quote: 'Change: F12. First check whether the step is still there: `rg -n ''name: Install Claude CLI'' .github/workflows/test.yml`.'
+  citation: source.md:646
+- id: INF-088
+  section: 'G4: guidance, docs, CI, live proof'
+  quote: '**T9. Live sandbox proof (layer 2).**'
+  citation: source.md:654
+- id: INF-089
+  section: 'G4: guidance, docs, CI, live proof'
+  quote: 'Change: save the §4.2 script as `.dev/codegraph-migration/evidence/p2-layer2.sh` and run it (it includes the offline-reuse proof and the real-HOME hash check). If a real Claude Code session is
+    available, also start one in a fresh clone and record in `P2-layer2.md` whether the hook''s background `init` survives the hook and the session''s end (`pgrep -f ''codegraph\.js init''`); otherwise
+    record "process-group survival inside Claude Code: UNVERIFIED".'
+  citation: source.md:656
+- id: INF-090
+  section: 'G5: final gate and PR'
+  quote: '**T10. Full gate.**'
+  citation: source.md:669
+- id: INF-091
+  section: 'G5: final gate and PR'
+  quote: '**T11. PR (shared with Phase 1, one merge unit).**'
+  citation: source.md:686
+- id: INF-092
+  section: 'G6: post-merge live verification (review finding X-5)'
+  quote: '**T12. Prove "completely absent" on the real workspace.**'
+  citation: source.md:704
+- id: INF-093
+  section: '6. Progress reporting on issue #323'
+  quote: After each task-group commit in §5 (G0 to G5), and after G6's checks, post one comment. Never post anywhere else (no PR comments for progress, no Slack).
+  citation: source.md:725
+- id: INF-094
+  section: 7. Autonomy rules for the executor
+  quote: '| Simple: one obvious answer, or forced by a pinned test or a verified constraint | helper name, message wording, test file layout, which fixture to extend | decide yourself |'
+  citation: source.md:749
+- id: INF-095
+  section: 7. Autonomy rules for the executor
+  quote: '| Mid: two or more viable options with real trade-offs, local to one task | where the receipt lives; whether `--list` prints the receipt paths; how to bound the tar extraction | write each option
+    to `.dev/codegraph-migration/decisions/P2X-<slug>/option-<x>.md` (under 40 lines each) and spawn an agent (Agent tool) that runs `/sc:adversarial --compare <files> --depth quick` |'
+  citation: source.md:750
+- id: INF-096
+  section: 7. Autonomy rules for the executor
+  quote: '| Complex: changes the installer contract in §2, the indexing design in §3, the release order in §8, or crosses Phase 1/3 ownership | making the phase optional; adding a git hook; changing the
+    pin source of truth | same, without `--depth quick` (`/sc:adversarial --compare <files>`, default standard depth) |'
+  citation: source.md:751
+- id: INF-097
+  section: 7. Autonomy rules for the executor
+  quote: 'Hard rules (no decision can override them): never run `claude mcp add/remove` or `superclaude install` against the real HOME (only in sandbox HOMEs: T2 step 1 and §4.2, both of which assert the
+    real `.mcpServers` is unchanged; the one exception is the read-only `superclaude install --list`, §2.8, used by T3 and T12); never commit anything under `.claude/` except `.claude/settings.json`; always
+    `git add .dev/tasks` if that folder exists; feature branch only; PRs only on `IronbellyOrg/IronClaude` via `/sc:pr-submit --monitor 3` (fallback `gh pr create --repo IronbellyOrg/IronClaude`); never
+    push'
+  citation: source.md:755
+- id: INF-098
+  section: 7. Autonomy rules for the executor
+  quote: 1. A GitHub auth failure for `gh` (the executor cannot log in for the user).
+  citation: source.md:758
+- id: INF-099
+  section: 7. Autonomy rules for the executor
+  quote: '2. A release with a different `SHA256SUMS` than §0 for `v1.6.2` (possible tampering): stop, report on issue #323 and ask before changing a hash.'
+  citation: source.md:759
+- id: INF-100
+  section: 7. Autonomy rules for the executor
+  quote: 3. Merging the PR to `master` (ordering in §8 depends on the Coder bake; merge is the user's call; T11's merge-gate command shows whether the bake is on Coder `main`).
+  citation: source.md:760
+- id: INF-101
+  section: 7. Autonomy rules for the executor
+  quote: 4. Running `./update.sh` on the real workspace after merge (it mutates the live environment) and restarting the Claude sessions; the executor then runs T12's read-only checks.
+  citation: source.md:761
+- id: INF-102
+  section: 7. Autonomy rules for the executor
+  quote: '5. After T0: giving `.dev/codegraph-migration/handoff/coder-handoff-prompt.md` to an agent working in the IronbellyOrg/Coder repo (the executor has no authority over that repo).'
+  citation: source.md:762
+- id: INF-103
+  section: 7. Autonomy rules for the executor
+  quote: '6. Non-blocking (the executor does not wait): when T2 step 0 ends in the undecided band with Leg B not run or invalid, the executor ships `status`, continues, and posts the exact Leg B commands
+    in that group''s issue-#323 comment and as a row in `decisions/P2X-log.md`.'
+  citation: source.md:763
+- id: INF-104
+  section: 8. Release and ordering
+  quote: '| 3 | IronClaude | Merge the Phase 1 + Phase 2 PR (human, §7 item 3), only after steps 1-2 are merged on Coder `main`. | IronClaude CI green |'
+  citation: source.md:780

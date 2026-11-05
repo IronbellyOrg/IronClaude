@@ -1,0 +1,15 @@
+P0                       priority=P0 hint=critical route=--depth deep --fix
+P1                       priority=P1 hint=high route=--depth deep --fix
+P2                       priority=P2 hint=medium route=--fix
+P3                       priority=P3 hint=low route=report-only
+no badge                 priority=None hint=None route=--fix
+two badges               priority=None hint=None route=--fix
+P4                       priority=None hint=None route=--fix
+alt/url mismatch         priority=None hint=None route=--fix
+badge not on first line  priority=None hint=None route=--fix
+REVIEWERS ('augment', 'codex')
+codex identities ['chatgpt-codex-connector', 'chatgpt-codex-connector[bot]'] augment ['augmentcode', 'augmentcode[bot]']
+phrases auggie review | @codex review
+bare contract codex identities set()
+activity {'augment': False, 'codex': True}
+rc=0

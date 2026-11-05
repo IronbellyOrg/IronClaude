@@ -1,6 +1,6 @@
 # MCP Server Troubleshooting Guide
 
-**MCP Server Focus**: Model Context Protocol (MCP) servers provide enhanced capabilities like documentation lookup (Context7), browser automation (Playwright), and project memory (Serena). This guide covers installation, configuration, and operational troubleshooting for shipped MCP servers.
+**MCP Server Focus**: Model Context Protocol (MCP) servers provide enhanced capabilities like code graph queries (codegraph), documentation lookup (Context7), web search (Tavily) and browser automation (Playwright). This guide covers installation, configuration, and operational troubleshooting for shipped MCP servers.
 
 **Server-Specific Solutions**: Each MCP server has unique requirements and common failure patterns. This guide provides targeted solutions for each server type and general MCP troubleshooting strategies.
 
@@ -10,48 +10,45 @@
 
 **Available integrations (runtime use remains optional):**
 
-- **Codebase Memory MCP**: Native graph memory; full user-level setup is a required phase of normal framework installation on Linux amd64/arm64
-- **Context7**: Official documentation lookup and framework patterns
-- **Playwright**: Browser automation and E2E testing
-- **Morphllm**: Pattern-based code editing with token optimization
-- **Serena**: Semantic code understanding and project memory
+- **codegraph**: Code graph (symbols, callers, impact, file outlines); installed by default by `superclaude install`
+- **context7**: Official library documentation (`npx -y @upstash/context7-mcp`)
+- **playwright**: Browser automation and E2E testing (`npx -y @playwright/mcp@latest`)
+- **morphllm-fast-apply**: Fast Apply code edits (`npx -y @morphllm/morphmcp`, needs `MORPH_API_KEY`)
+- **tavily**: Web search for research (`npx -y tavily-mcp@0.2.22`, needs `TAVILY_API_KEY`)
+- **auggie**: Augment Code codebase search (global `@augmentcode/auggie@0.36.0` binary plus a one-time `auggie login`)
+- **litellm**: LiteLLM MCP gateway over HTTP (opt-in only: never part of the "0 for all" menu choice; select it explicitly)
+- **airis-mcp-gateway**: AIRIS MCP Gateway, a Docker-based gateway (the default choice of the interactive `superclaude mcp` menu)
+
+Install any of them with `superclaude mcp --servers <name>` (repeat `--servers` for several). `superclaude mcp --list` shows the list without changing anything. Registrations use user scope unless you pass `--scope local` or `--scope project`.
 
 **Selection-specific requirements:**
 
-- Claude CLI for registration; Codebase Memory automation supports Linux amd64/arm64, user scope only
-- Codebase Memory requires curl/Bash only for acquisition, not Node/npm, Docker, an API key or a compiler
-- npm-based servers require Node.js 18+ and npx/npm (Auggie `0.36.0` requires Node.js 20+); Serena uses uv; AIRIS Gateway uses Docker and curl
-
-The older Node/npm troubleshooting examples below apply only to those servers, not native Codebase Memory.
+- Claude CLI for registration
+- npm-based servers require Node.js 18+ and npx/npm (Auggie `0.36.0` requires Node.js 20+); AIRIS Gateway uses Docker and curl
 
 **Other considerations:**
+
 - Stable network connection for some servers
 - Sufficient system memory (2GB+ recommended)
 
-## Codebase Memory Native Lifecycle
+## codegraph lifecycle
 
-Use the current flat command, not the historical generic reset recipes later in this guide:
+codegraph is installed and registered by `superclaude install` (pinned `v1.6.2`, SHA-256 verified, user scope). Setup, costs, removal and the opt-out are in the [MCP installation guide](../user-guide/mcp-installation.md#default-setup-codegraph). Quick checks:
 
 ```bash
-superclaude install --list
-superclaude mcp --servers codebase-memory-mcp
-superclaude mcp --uninstall --servers codebase-memory-mcp --dry-run
-superclaude mcp --uninstall --servers codebase-memory-mcp --yes
+superclaude install --list    # Executable, Owner, User registration, Ready for Serena retirement
+superclaude doctor            # "codegraph MCP registration" fails only if the registered command is gone
+claude mcp remove codegraph --scope user   # unregister (see the guide for the files to delete)
 ```
 
-- **Default setup fails:** `superclaude install` runs full native setup after user setup; a failed required phase exits 1 and preserves installed framework work. Resolve the reported acquisition/verification/registration stage, then retry. macOS/Windows automation is unsupported before native effects; use [upstream manual instructions](https://github.com/DeusData/codebase-memory-mcp#installation) separately, not as a bypass for this required phase.
-- **Understand what runs:** acquisition downloads the complete `https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh` into a private temporary directory, then runs Bash by argv. It preserves upstream checksum checks and full detected-client instructions/skills/agents/hooks, not binary-only setup. Both `main` bootstrap and latest-release assets move independently and are not pinned; checksums do not authenticate the bootstrap. See the [installation guide](../user-guide/mcp-installation.md) for the 60/300-second bounds and temporary-file cleanup.
-- **Missing or stale registration:** a working binary is reused; only the exact user entry is reconciled to stdio, absolute executable and no arguments, without reacquiring companion assets. Same-named project/local registrations are not user-install success and are not removed by IronClaude's reconciliation. Unknown/unreadable configuration fails closed, not as absence. Failed replacement restores the prior user entry or explicitly reports restoration failure; inspect that state before retrying. A stale entry with `env` or `headers` values is refused before any change, so its values never reach a command line; update or remove it by hand, then retry.
-- **No upgrade happened:** this is expected. Acquisition happens only when needed, never on every install. `--force` applies to framework files, not native upgrades/index resets; `--target` redirects slash commands only. `update` does not resurrect a removed tool; a later explicit `install` restores the default bundle. No adopt/skip/upgrade lifecycle flags exist.
-- **Status is not a handshake:** `install --list` is read-only and reports executable status plus exact user registration (including unknown/stale). MCP `--list` uses legacy installed markers, not ownership/scope/health proof, and rejects selections/lifecycle flags, dry-run or non-user scope combinations. Success reports a verified version; restart clients and test a real tool separately. Installation does not index code or perform a live MCP handshake.
-- **Removal refuses a canonical binary:** automatic removal needs the private `~/.local/bin/.superclaude-codebase-memory.json` acquisition receipt matching canonical binary identity/hash. Only actual IronClaude acquisition creates it; reuse of a preexisting/manual/external binary does not adopt it. Missing proof, an upstream-replaced binary, symlinks or uncertain ownership must be resolved through the original installer, not by inventing a receipt.
-- **Full removal is account-wide:** user scope only, preview plus default-No consent; `--yes/-y` is the new explicit removal consent, not server selection or index-deletion permission. Upstream receives the canonical binary's `uninstall -y --dir=<canonical-bin-directory>` and owns activation/companion cleanup, which can interrupt sessions. IronClaude never requests index deletion/reset or manually deletes caches/companion assets. After native success it revokes its matching receipt and cleans up only a surviving exact user registration; unrelated names/project scopes remain outside that residual cleanup.
-- **Absent or partial state:** no binary and no user entry is a no-op without companion audit; missing binary with a user entry permits confirmed registration-only partial cleanup, not a full-cleanup claim or download just to uninstall. External/custom-only binaries are reported and left to their original mechanism. Nonzero/timeout/postcondition failures report possible partial removal; inspect upstream output before retrying, with no rollback or blind second deletion pass.
-- **Updater or another binary remains:** graph indexes stay, the adjacent updater is intentionally left and reported, and alternate PATH binaries are reported, not removed. Do not erase them or the cache as a generic repair step.
+The tools in a session are limited by `CODEGRAPH_MCP_TOOLS` in the registered entry (`node,search,callers,callees,impact,files,status`); `codegraph_explore` is intentionally hidden.
 
-Without a terminal, explicit `--servers` selection is required, plus `--yes` for removal. With no selection on a terminal, the menu offers Install (default), Uninstall Codebase Memory, or Cancel; install remains gateway-first and all-individual selection includes Codebase Memory. Repeat `--servers` for multiple names. Dry-run prints choices or a selected plan including full source URL, account-wide effects and retained indexes, without prompts, downloads, lifecycle execution or config/file mutation.
+### codegraph troubleshooting
 
-**The disposable-environment live smoke passed on 2026-10-22** for upstream 0.12.1 on Linux amd64 (see the [release gate](../user-guide/mcp-installation.md#release-gate-separately-authorized-live-smoke) for the result and known residuals). Re-run that operator procedure for a materially different upstream release; mocked tests are not merge-safety proof. Stop and revise with the user if upstream overwrites unrelated framework/user assets; never silently switch to binary-only setup.
+- **"No CodeGraph project is loaded for this session", or the index belongs to a different working tree**: the checkout has no index yet (the session-start hook starts one in the background) or the session was opened before it finished. Use Read/Grep for now, or run `codegraph init --yes` in the directory printed by `git rev-parse --show-toplevel`. It is safe to repeat.
+- **A lock error, or an index that suddenly became empty**: `codegraph status`, `index` and `sync` can empty an index that another process is building. Check with `pgrep -f 'codegraph\.js (init|index)'` first, and use `init` to rebuild.
+- **Stale or wrong version**: `superclaude doctor` prints "registered codegraph prints X, the pin is 1.6.2". Run `superclaude install`; it replaces an entry it wrote and keeps one you changed.
+- **No index is created in CI or a headless pipeline**: that is intended when `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` is set; unset it, or run `codegraph init --yes` yourself.
 
 ## Installation and Configuration Issues
 
@@ -59,7 +56,7 @@ Without a terminal, explicit `--servers` selection is required, plus `--yes` for
 
 #### Issue: Node.js Version Incompatibility
 
-**Error Message**: `ERROR: MCP servers require Node.js 16+ but found Node.js 14.x`
+**Error Message**: `Node.js 18+ required for selected npm servers` (`Node.js 20+` when Auggie is selected)
 
 **Diagnosis**:
 
@@ -92,11 +89,13 @@ nvm use node
 **Verification**:
 
 ```bash
-node --version  # Should be 16.0.0+
-npm --version   # Should be 8.0.0+
+node --version  # Should be 18.0.0+ (20.0.0+ for Auggie)
+npx --version   # npx must be on PATH for the npx-based servers
 ```
 
 **Issue: npm Permission Problems**
+
+Only global installs hit this; of the shipped servers only Auggie is installed globally (`npm install -g @augmentcode/auggie@0.36.0`). The other npm-based servers run through `npx -y` and need no global install.
 
 ```bash
 # Error message
@@ -111,9 +110,6 @@ source ~/.profile
 # Solution 2: Fix npm permissions
 sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
 
-# Solution 3: Use npx for package execution
-npx @context7/mcp-server --version
-
 # Verification
 npm list -g --depth=0
 npm config get prefix
@@ -121,30 +117,25 @@ npm config get prefix
 
 ### MCP Server Installation Failures
 
-**Issue: Context7 MCP Server Installation Failed**
+**Issue: Context7 MCP Server Registration Failed**
+
+Context7 is registered as `npx -y @upstash/context7-mcp`; npx downloads the package when Claude Code starts the server, so nothing is installed globally.
 
 ```bash
-# Error message
-ERROR: Failed to install @context7/mcp-server
-
 # Diagnosis
-npm list -g @context7/mcp-server
-node --version
+node --version          # 18+
+npx --version
+claude mcp get context7 # shows the registered command, if any
 
-# Solution 1: Clean npm cache and reinstall
+# Solution 1: Re-register the server
+claude mcp remove context7 --scope user
+superclaude mcp --servers context7
+
+# Solution 2: Clear a broken npx download cache
 npm cache clean --force
-npm install -g @context7/mcp-server
-
-# Solution 2: Use alternative registry
-npm install -g @context7/mcp-server --registry https://registry.npmjs.org/
-
-# Solution 3: Manual installation verification
-npm info @context7/mcp-server
-npm install -g @context7/mcp-server@latest
 
 # Verification
-npm list -g @context7/mcp-server
-node -e "console.log('Context7 installation test')"
+claude mcp get context7
 ```
 
 ## Connection and Communication Issues
@@ -159,25 +150,16 @@ ERROR: MCP server 'context7' failed to connect
 
 # Diagnosis
 # Check Node.js installation
-node --version  # Should be 16.0.0 or higher
-npm list -g @context7/mcp-server
+node --version  # Should be 18.0.0 or higher
 
-# Check server configuration
-cat ~/.claude/CLAUDE.md | grep -i context7
+# Check server registration
+claude mcp get context7
 
 # Solution 1: Restart Claude Code session
 # MCP servers restart with Claude Code session restart
 
-# Solution 2: Reconfigure MCP servers
-python3 -m SuperClaude install --components mcp --force
-
-# Solution 3: Manual server testing
-node -e "console.log('Node.js working')"
-npm test @context7/mcp-server
-
-# Solution 4: Check network connectivity
-ping context7-server.example.com  # If server requires network
-curl -I https://context7-api.example.com/health  # Health check
+# Solution 2: Reconfigure the MCP server
+superclaude mcp --servers context7
 
 # Verification
 # Try Context7 functionality in Claude Code
@@ -191,9 +173,8 @@ curl -I https://context7-api.example.com/health  # Health check
 ERROR: MCP server request timeout after 30 seconds
 
 # Diagnosis
-# Check network connectivity and server health
+# Check network connectivity
 ping 8.8.8.8  # Basic connectivity
-curl -I https://api.example.com/health  # API health
 
 # Check system resources
 top
@@ -205,11 +186,9 @@ free -h
 # Solution 2: Restart Claude Code session
 # MCP servers restart with Claude Code session restart
 
-# Solution 3: Disable problematic server temporarily
-# Use --no-mcp flag for operations
-
-# Solution 4: Increase timeout (if configurable)
-# Check MCP server configuration files
+# Solution 3: Disable a problematic server temporarily
+claude mcp remove <name> --scope user   # re-add later with superclaude mcp --servers <name>
+# /sc:troubleshoot and /sc:reflect also accept --no-mcp (native tools only)
 
 # Verification
 # Test with simple operations first
@@ -218,26 +197,23 @@ free -h
 
 **Issue: Multiple MCP Servers Conflicting**
 
-```bash
-# Error message
-ERROR: MCP server port conflicts detected
+The npx-based servers use stdio transport and open no network ports, so they cannot clash on a port.
 
+```bash
 # Diagnosis
-netstat -tlnp | grep :8000  # Check port usage
+claude mcp list   # every registered server and its connection status
 ps aux | grep -E "context7|playwright"
 
 # Solution 1: Sequential server restart
 # Restart Claude Code to reset all MCP servers
 
-# Solution 2: Configure different ports
-# Edit MCP server configuration files
-# Usually in ~/.claude/ or server-specific directories
-
-# Solution 3: Use selective server activation
-# Use specific server flags instead of --all-mcp
+# Solution 2: Remove a duplicate registration
+# The same server registered at two scopes (user and project) can both start
+claude mcp get <name>
+claude mcp remove <name> --scope project
 
 # Verification
-netstat -tlnp | grep -E "8000|8001|8002"  # Check port assignments
+claude mcp list
 ```
 
 ## Server-Specific Troubleshooting
@@ -250,20 +226,15 @@ netstat -tlnp | grep -E "8000|8001|8002"  # Check port assignments
 # Symptoms: Context7 activated but returns no documentation
 
 # Diagnosis
-# Test Context7 connection
-node -e "const c7 = require('@context7/mcp-server'); console.log('Context7 loaded');"
+claude mcp get context7   # command should be npx -y @upstash/context7-mcp
 
-# Solution 1: Update Context7 server
-npm update -g @context7/mcp-server
+# Solution 1: Restart Claude Code (npx fetches the package again when needed)
 
-# Solution 2: Clear Context7 cache
-rm -rf ~/.context7/cache/  # If cache directory exists
-
-# Solution 3: Use explicit library keywords
+# Solution 2: Use explicit library keywords
 # Use specific framework names in requests
 
-# Solution 4: Verify internet connection
-curl -I https://docs.react.dev/  # Example API test
+# Solution 3: Verify internet connection
+curl -I https://docs.react.dev/  # Example connectivity test
 
 # Verification
 # Try specific documentation requests
@@ -275,14 +246,10 @@ curl -I https://docs.react.dev/  # Example API test
 ```bash
 # Symptoms: Context7 returns old documentation versions
 
-# Solution 1: Update Context7 server
-npm uninstall -g @context7/mcp-server
-npm install -g @context7/mcp-server@latest
+# Solution 1: Refresh the cached npx package
+npm cache clean --force
 
-# Solution 2: Clear documentation cache
-rm -rf ~/.context7/  # Clear cache if exists
-
-# Solution 3: Force documentation refresh
+# Solution 2: Force documentation refresh
 # Restart Claude Code session completely
 
 # Verification
@@ -299,7 +266,7 @@ rm -rf ~/.context7/  # Clear cache if exists
 ERROR: Playwright browser automation failed - browser not installed
 
 # Diagnosis
-npm list -g playwright
+claude mcp get playwright   # command should be npx -y @playwright/mcp@latest
 npx playwright --version
 
 # Solution 1: Install Playwright browsers
@@ -337,14 +304,11 @@ sudo apt-get install xvfb
 export DISPLAY=:99
 Xvfb :99 -screen 0 1024x768x24 &
 
-# Solution 3: Use Docker for browser testing
-docker run -it --rm playwright:latest
-
 # Verification
 # Should successfully launch browsers in headless mode
 ```
 
-### Morphllm Pattern Editor
+### Morphllm Fast Apply
 
 **Issue: Morphllm Pattern Application Failures**
 
@@ -352,10 +316,13 @@ docker run -it --rm playwright:latest
 # Symptoms: Pattern-based edits not applying correctly
 
 # Diagnosis
-npm list -g @morphllm/mcp-server
+claude mcp get morphllm-fast-apply   # command should be npx -y @morphllm/morphmcp
+echo ${MORPH_API_KEY:+set}           # prints "set" when the key is in the environment
 
-# Solution 1: Update Morphllm server
-npm update -g @morphllm/mcp-server
+# Solution 1: Re-register with the API key
+export MORPH_API_KEY=<your-key>
+claude mcp remove morphllm-fast-apply --scope user
+superclaude mcp --servers morphllm-fast-apply
 
 # Solution 2: Use more specific patterns
 # Provide explicit pattern descriptions
@@ -365,36 +332,6 @@ ls -la target-files/  # Ensure write permissions
 
 # Verification
 # Pattern edits should be applied consistently across files
-```
-
-### Serena Project Memory
-
-**Issue: Serena Session Persistence Failures**
-
-```bash
-# Symptoms: Project context not persisting between sessions
-
-# Diagnosis
-ls ~/.claude/sessions/  # Check session storage
-ls ~/.serena/  # Check Serena-specific storage
-
-# Solution 1: Verify session save operations
-# Ensure proper session saving before closing
-
-# Solution 2: Check storage permissions
-ls -la ~/.claude/sessions/
-chmod 755 ~/.claude/sessions/
-
-# Solution 3: Reinstall Serena server
-# Remove existing Serena registration
-claude mcp remove serena
-# Reinstall using uvx
-uvx --from serena-agent==1.7.0 serena --help
-# Re-register with Claude
-claude mcp add serena -- uvx --from serena-agent==1.7.0 serena start-mcp-server --context claude-code --project-from-cwd --enable-web-dashboard false --enable-gui-log-window false
-
-# Verification
-# Session context should persist across Claude Code restarts
 ```
 
 ## Performance and Optimization
@@ -407,8 +344,8 @@ claude mcp add serena -- uvx --from serena-agent==1.7.0 serena start-mcp-server 
 # Symptoms: MCP server operations causing delays
 
 # Diagnosis
-# Check MCP server installation and health
-npm list -g | grep -E "context7|playwright"
+# Check MCP server registration and health
+claude mcp list
 top | grep node
 
 # Solution 1: Selective MCP server usage
@@ -418,10 +355,7 @@ top | grep node
 # This restarts all MCP servers fresh
 
 # Solution 3: Local fallback mode
-# Use --no-mcp flag for pure native operations
-
-# Solution 4: Update all MCP servers
-npm update -g
+# /sc:troubleshoot and /sc:reflect accept --no-mcp for native-tools-only runs
 
 # Verification
 time node -e "console.log('Node.js speed test')"
@@ -462,16 +396,13 @@ top | grep -E "node|mcp"
 iostat 1 3  # Check I/O usage
 
 # Solution 1: Use targeted server activation
-# Activate only needed servers per task
+# Register only the servers you use
 
 # Solution 2: Increase system resources
 # Add more RAM or CPU cores if possible
 
 # Solution 3: Queue MCP operations
 # Avoid simultaneous heavy operations
-
-# Solution 4: Use MCP server priorities
-# Configure resource allocation in MCP settings
 
 # Verification
 top  # Monitor resource usage during operations
@@ -483,23 +414,19 @@ top  # Monitor resource usage during operations
 
 **Issue: Default MCP Configuration Not Optimal**
 
+MCP registrations belong to Claude Code: user-scope entries are stored in `~/.claude.json`, project-scope entries in the project's `.mcp.json`. Inspect and change them with the `claude mcp` commands rather than by editing files.
+
 ```bash
-# Symptoms: MCP servers not performing optimally for specific use cases
+# Solution 1: Inspect the registered command, arguments and environment
+claude mcp list
+claude mcp get <name>
 
-# Solution 1: Locate configuration files
-find ~/.claude/ -name "*mcp*" -type f
-find ~/.config/ -name "*mcp*" -type f
-
-# Solution 2: Customize server settings
-# Edit server-specific configuration files
-# Common locations: ~/.claude/mcp-config.json
-
-# Solution 3: Environment variable configuration
-export MCP_CONTEXT7_TIMEOUT=60
+# Solution 2: Change a setting by re-registering
+claude mcp remove <name> --scope user
+superclaude mcp --servers <name>
 
 # Verification
-# Test with custom configuration
-# Should show improved performance for specific use cases
+claude mcp get <name>
 ```
 
 **Issue: MCP Server Load Balancing**
@@ -534,9 +461,9 @@ echo "=== MCP Server Health Check ==="
 echo "Node.js version: $(node --version)"
 echo "npm version: $(npm --version)"
 
-# Server installations
-echo "=== Installed MCP Servers ==="
-npm list -g | grep -E "context7|playwright|morphllm|serena"
+# Server registrations
+echo "=== Registered MCP Servers ==="
+claude mcp list
 
 # Process monitoring
 echo "=== Running MCP Processes ==="
@@ -559,8 +486,8 @@ ping -c 1 8.8.8.8 > /dev/null && echo "✅ Network OK" || echo "❌ Network Issu
 echo "=== MCP Server Functionality Test ==="
 
 # Context7 test
-if npm list -g @context7/mcp-server > /dev/null 2>&1; then
-    echo "✅ Context7 installed"
+if claude mcp get context7 > /dev/null 2>&1; then
+    echo "✅ Context7 registered"
 else
     echo "❌ Context7 missing"
 fi
@@ -607,20 +534,23 @@ echo "=== Emergency MCP Server Reset ==="
 # Step 1: Stop all Claude Code sessions
 echo "Stop all Claude Code sessions and wait 30 seconds"
 
-# Step 2: Backup current state
+# Step 2: Backup current state (user-scope registrations live in ~/.claude.json)
+cp ~/.claude.json ~/.claude.json.mcp.backup.$(date +%Y%m%d)
 cp -r ~/.claude ~/.claude.mcp.backup.$(date +%Y%m%d)
 
-# Step 3: Remove all MCP servers
-npm list -g | grep -E "context7|playwright|morphllm|serena" | awk '{print $2}' | xargs npm uninstall -g
+# Step 3: Remove the npm-based MCP registrations
+claude mcp remove context7 --scope user
+claude mcp remove playwright --scope user
+claude mcp remove morphllm-fast-apply --scope user
 
 # Step 4: Clear npm cache
 npm cache clean --force
 
-# Step 5: Reinstall MCP servers
-python3 -m SuperClaude install --components mcp --force
+# Step 5: Re-register MCP servers
+superclaude mcp --servers context7 --servers playwright --servers morphllm-fast-apply
 
 # Step 6: Verification
-npm list -g | grep -E "context7|playwright|morphllm|serena"
+claude mcp list
 
 # Step 7: Test functionality
 echo "Test MCP servers in Claude Code after restart"
@@ -642,15 +572,14 @@ echo "Test MCP servers in Claude Code after restart"
 
 ### Support Channels
 
-- **GitHub Issues**: [MCP-specific problems](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues)
-- **GitHub Discussions**: [MCP server community support](https://github.com/SuperClaude-Org/SuperClaude_Framework/discussions)
+- **GitHub Issues**: [MCP-specific problems](https://github.com/IronbellyOrg/IronClaude/issues)
 
 ---
 
-**npm-based Server Priority**: For npm-based servers only, check Node.js → npm → individual server → Claude Code integration. For native Codebase Memory, use the lifecycle section above; Node/npm repair and generic reset recipes do not apply.
+**npm-based Server Priority**: For npm-based servers, check Node.js → npx → server registration → Claude Code integration.
 
 **npm-based Verification Pattern**: For those servers, verify with:
 
-- ✅ `node --version` - Should be 16.0.0+
-- ✅ `npm list -g | grep mcp` - Should show installed servers
+- ✅ `node --version` - Should be 18.0.0+ (20.0.0+ for Auggie)
+- ✅ `claude mcp list` - Should show the registered servers
 - ✅ Test server functionality in Claude Code - Should respond without errors

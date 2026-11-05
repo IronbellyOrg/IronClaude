@@ -1,0 +1,63 @@
+input_tree_sha256: 3179048716a4f6dc40f14eada73e1a53353066b68a7d9caa0220be96d8710b58
+file_count: 30
+file_list:
+  - path: .claude/settings.json
+    sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+  - path: .dev/codegraph-migration/decisions/F2-schema-cost-method/adversarial/F2-schema-cost-method-merged.md
+    sha256: ea936a7e5c11c31543bc90b16139059dbe38d49a7603c6b44ab436ebe250dace
+  - path: .dev/codegraph-migration/handoff/coder-handoff-prompt.md
+    sha256: 588992718827f2b24e9fbc4e462d288e33f715ec0591d9120423226459451fd3
+  - path: .dev/codegraph-migration/specs/phase-1-removal-spec.md
+    sha256: 4f25d464f97d791b7a20491d928cefb8775377378075bd21e492284bd92b2259
+  - path: .dev/codegraph-migration/specs/phase-2-codegraph-install-spec.md
+    sha256: cd5d443f4c80e8b1278d0bcb4bc2ae3e30bc2356600e0945c3ec93b0e423ced3
+  - path: .dev/releases/current/cliEval/evidence/T02.15/perf.json
+    sha256: 829a1651c4d859d4e694f890d87ff89dec089b8bf130d42ebdd069352d63525b
+  - path: .dev/tasks/to-do/TASK-WF-phase2CodegraphI-20261029-192001/TASK-WF-phase2CodegraphI-20261029-192001.md
+    sha256: 87792b850562abcf1bbea56e5e9efc53506be3bb59fb83aca66c044aeab4643f
+  - path: .dev/tasks/to-do/TASK-WF-phase2CodegraphI-20261029-192001/source.md
+    sha256: cd5d443f4c80e8b1278d0bcb4bc2ae3e30bc2356600e0945c3ec93b0e423ced3
+  - path: .github/workflows/test.yml
+    sha256: 7a256bb199b51de2e3b2e71ea6ff29ee55088016cc0d1f5556a8c8fef30e9b43
+  - path: .gitignore
+    sha256: 34ee5c65be138f0d6e58538852132ef4ffc579b83afbd659f93821a91937dd1f
+  - path: /usr/local/bin/codebase-memory-mcp
+    sha256: 6761236d038de87bf49da5695dd52d7928180d814624d4ceb8d8e849ba07f4c8
+  - path: CHANGELOG.md
+    sha256: 9cf1590d4cc2b6fba78d8ca532d9f295b249a9e1432cb711d8f1b74abbd611c5
+  - path: CLAUDE.md
+    sha256: ee86465df0c9ed28bce7273740accfd2374c9a501fab49d08c0e0c64e8e7021a
+  - path: README.md
+    sha256: a36f703500cd19d301eb53262ddec430a50ae24e40c8edd596b1801ec47db69a
+  - path: docs/reference/mcp-server-guide.md
+    sha256: 384f624af5b0289ece4d688e93e3ecc2d97d3b9f42ea494d260a8719f7e1b2ed
+  - path: docs/user-guide/mcp-installation.md
+    sha256: e413bbe6f423028135997d7146ee787a3ffcd2a74cf817ec9166f2221f7c1e6e
+  - path: plugins/superclaude/hooks/hooks.json
+    sha256: e9eb95af6fb5926e5cb4ed4b4449379a8039716bc87689625c57cdc04455a84f
+  - path: src/superclaude/cli/doctor.py
+    sha256: 91806e389f7589636afd12fe0614d738f215e1814a6b1d0d9722aef54a71de36
+  - path: src/superclaude/cli/install_hooks.py
+    sha256: 6656e933c3be47e97fa6d1df61376481b3ae0fe8ed57dcd665074648e91c105b
+  - path: src/superclaude/cli/install_mcp.py
+    sha256: ccdba3b5f198db555a6c67145caf93d34f0d42203f6baf35afbe3360b078ac1c
+  - path: src/superclaude/cli/main.py
+    sha256: cc54e0cbb54aa6acb6350afe8a9744f33d2c889e346c62168b6656c31dea70d0
+  - path: src/superclaude/core/CLAUDE.md
+    sha256: 5ed441bb74c1390a5cfcdecf6de9952c5fee43cde9f7bea11a26fd77c398d08d
+  - path: src/superclaude/hooks/hooks.json
+    sha256: 31075c8bb88fbfd6e061313d02df9a56abb9c9b49416637d137d4d01ba3523ce
+  - path: tests/cli/test_install_hooks.py
+    sha256: fc5e812234c43a6d220dc934bf94895fef141fe76da84698ce7af84d1c412ea3
+  - path: tests/cli/test_install_mcp_registry.py
+    sha256: e7f46537bf72193b0915a3c4b06b9e2d0d55dd76b842c638617e75d6a5a0d0cc
+  - path: tests/cli/test_update_command.py
+    sha256: 6294689f75ac5b583df76c49d89988f57f5a96eb8c21c813a53b100e5aca8b1f
+  - path: tests/cli/test_verify_sync_hooks.py
+    sha256: 31f153bcaf38ff82f0e8813080260e54542fd32e5f12b6fcd002d869e5ac1223
+  - path: tests/core/test_claude_md_routing_block.py
+    sha256: 1558f0deb3fe3ecaa1606e4d40de76858b53bd5defdc7bc8554c94ea7687be23
+  - path: tests/unit/test_cli_doctor.py
+    sha256: 431e9e297d91bdab2967a6383067dff7b42a958adb04bef9db3be9112f80b093
+  - path: tests/unit/test_cli_install.py
+    sha256: 25f68dcf2ca5fb2ee20bc90fbde5d45d693208db80706ebaf54509dc7bae1b32

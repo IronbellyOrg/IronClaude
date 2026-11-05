@@ -8,10 +8,10 @@
 This synthetic report is the **1-LOW-finding** half of the NFR-CONV.9 two-part
 fixture. It carries exactly one gap, classified at the lowest severity
 recognised by the rf-qa research-completeness verdict rule
-(`src/superclaude/agents/rf-qa.md:145` — `MINOR` ≡ `LOW` per roadmap
-synonymy). Per the zero-trust QA invariant the verdict MUST be FAIL:
-"Any gaps exist (CRITICAL, IMPORTANT, or MINOR)" — no severity level is
-exempt.
+(`src/superclaude/agents/rf-qa.md`, research-gate Verdict — `MINOR` ≡ `LOW`
+per roadmap synonymy). Under the review severity rule the verdict MUST be
+PASS (with notes): MINOR gaps are listed as notes and only CRITICAL or
+IMPORTANT gaps fail the gate.
 
 ## 10-Item Checklist Results
 
@@ -39,16 +39,15 @@ exempt.
 
 ## Verdict
 
-- **PASS** — rejected.
-- **FAIL** — selected. Per rf-qa.md:145 ("Any gaps exist (CRITICAL,
-  IMPORTANT, or MINOR) … ALL gaps must be resolved before
-  proceeding — no severity level is exempt") the single MINOR gap
-  above triggers FAIL.
+- **PASS** — selected (with notes). Per the rf-qa research-gate verdict
+  ("No CRITICAL or IMPORTANT gaps; any MINOR gaps are listed as
+  notes") the single MINOR gap above is recorded as a note and does
+  not fail the gate.
+- **FAIL** — rejected.
 
 ## Self-documenting marker
 
-`NFR-CONV.9 part (a)` — this fixture EXPECTS the rf-qa gate to FAIL
-when scored against the verdict rule at
-`src/superclaude/agents/rf-qa.md:144-145`. Flipping the gap row to
-PASS (e.g., by removing the MINOR finding) would falsify the
-zero-trust QA invariant.
+`NFR-CONV.9 part (a)` — this fixture EXPECTS the rf-qa gate to PASS
+(with notes) when scored against the research-gate verdict rule in
+`src/superclaude/agents/rf-qa.md`. Scoring it FAIL would mean a MINOR
+finding failed a review, which the review severity rule forbids.

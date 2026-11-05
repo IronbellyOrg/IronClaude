@@ -167,7 +167,7 @@ escape hatch (see FR-CLI1 flag table).
 - **Filename:** `quick.yaml` in this directory.
 - **Roster:** a curated 3-5 eval subset of `real.yaml` covering the
   PostToolUse Read async path (E9) and one matcher branch each from
-  the Edit / Write / serena trio (E6 / E7 / E8) — biased toward
+  the Edit / Write pair (E6 / E7) — biased toward
   evals that pass on every host without `--no-mcp`. Final roster
   selected by the suite owner at follow-up time.
 - **Acceptance signal:** total wall-clock budget < 90s on a clean

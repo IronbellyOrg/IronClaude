@@ -1,0 +1,624 @@
+pass: 2
+source: source.md
+parsed_ids: []
+rows:
+- id: INF-001
+  section: 0. Precondition and how the executor verifies it
+  quote: '| G1 | CLI on PATH at the pinned version | `command -v codegraph && codegraph --version` and `PIN=$(uv run --no-sync python -c ''from superclaude.cli.install_codegraph import VERSION; print(VERSION)'')`
+    | prints a path, and the printed version equals `$PIN` (Phase 2 pin constant `VERSION` in `src/superclaude/cli/install_codegraph.py`, `1.6.2` at the time of writing, `P2` F1). If `~/.codegraph/.superclaude-bin`
+    exists and its content differs from `realpath "$(command -v codegraph)"`, record it: CLI calls then reach a different binary than the MCP server (standing rule 8) |'
+  citation: source.md:23
+- id: INF-002
+  section: 0. Precondition and how the executor verifies it
+  quote: '| G2 | MCP server registered at user scope | `claude mcp list 2>/dev/null \| rg -n ''^codegraph:''` | one line ending in `Connected` |'
+  citation: source.md:24
+- id: INF-003
+  section: 0. Precondition and how the executor verifies it
+  quote: '| G3 | The registered tool list equals Phase 2''s constant | `MT=$(uv run --no-sync python -c ''from superclaude.cli.install_codegraph import MCP_TOOLS; print(MCP_TOOLS)'')` then `jq -e --arg
+    t "$MT" ''.mcpServers.codegraph.env.CODEGRAPH_MCP_TOOLS == $t'' ~/.claude.json` | exits 0, and `$MT` is either `node,search,callers,callees,impact,files,status` (seven-tool branch) or `status` (status-only
+    branch). Record the branch in the decision log; both pass.'
+  citation: source.md:25
+- id: INF-004
+  section: 0. Precondition and how the executor verifies it
+  quote: '| G4 | This worktree is indexed | if `mcp__codegraph__codegraph_status` is in the session''s tool list, call it with `projectPath` = realpath of `git rev-parse --show-toplevel`; else, only when
+    `pgrep -f ''codegraph\.js (init\|index)''` prints nothing, `codegraph status` | "Index is up to date" (or a pending-sync list). If `pgrep` prints a line, an init (usually Phase 2''s session-start hook)
+    is running: wait 30 s and re-check, at most 20 times.'
+  citation: source.md:26
+- id: INF-005
+  section: 0. Precondition and how the executor verifies it
+  quote: '| G5 | Session sees the tools | in the executor''s own Claude session''s tool list | seven-tool branch: contains `mcp__codegraph__codegraph_callers` and `mcp__codegraph__codegraph_status`, not
+    `mcp__codegraph__codegraph_explore`. Status-only branch: contains `mcp__codegraph__codegraph_status`, neither `_callers` nor `_explore` |'
+  citation: source.md:27
+- id: INF-006
+  section: 0. Precondition and how the executor verifies it
+  quote: '| G6 | Phase 1 landed and its slots ledger exists | `rg -n ''mcp__serena__'' src/superclaude plugins/superclaude commands agents` and `test -s .dev/codegraph-migration/handoffs/phase3-codegraph-slots.md`
+    | the `rg` prints nothing (`P1 §4.3` acceptance 1) and the ledger file exists. Anything else is H4 |'
+  citation: source.md:28
+- id: INF-007
+  section: 1.1 By job group
+  quote: 1. **Read before cite or edit.** A codegraph answer locates code; it is not a citation.
+  citation: source.md:70
+- id: INF-008
+  section: 1.1 By job group
+  quote: 2. **Fail open to the Phase 1 floor.** codegraph missing, unlisted, index missing, foreign or stale → use the step's Phase 1 floor (Grep/Glob/Read, `P1 §4.1` G2) and record one `graph:*` token
+    (section 4) in the skill's existing `degraded` / `degraded_components` list.
+  citation: source.md:71
+- id: INF-009
+  section: 1.1 By job group
+  quote: 3. **Empty is not absence.** Files over 1 MB, ignored files, dependency dirs and Markdown are not indexed (`EVAL §4`, §5.4), and callers are call edges only.
+  citation: source.md:72
+- id: INF-010
+  section: 1.1 By job group
+  quote: '4. **Agents get exact names and the run''s state.** A read-only agent lists exact `mcp__codegraph__codegraph_<tool>` names (never `mcp__codegraph__*`) and only for spawn modes that passed the
+    T0 smoke matrix; its brief carries `index_state`, `checked_at`, `worktree_root` and the `projectPath` to pass on every call, and it calls codegraph only when `index_state: fresh` (access decision §4).'
+  citation: source.md:73
+- id: INF-011
+  section: 1.1 By job group
+  quote: 5. **No `explore`, no mutating CLI verb in a skill or agent.** No primitive names `codegraph_explore`, `codegraph explore` or `codegraph context`; no allowlist says `Bash(codegraph *)`.
+  citation: source.md:74
+- id: INF-012
+  section: 1.1 By job group
+  quote: 6. **Both tool-list branches.** Primitive text is the same whichever value Phase 2 shipped (section 0 G3).
+  citation: source.md:75
+- id: INF-013
+  section: 1.1 By job group
+  quote: '7. **Guard every CLI `status`.** Run CLI `codegraph status` only when `pgrep -f ''codegraph\.js (init|index)''` prints nothing; when it prints a line, skip `status`, set `index_state: stale` with
+    token `graph:stale` (graph rows are leads only) and, in `/sc:graph`, `next_action: wait_for_sync`.'
+  citation: source.md:76
+- id: INF-014
+  section: 1.1 By job group
+  quote: 8. **CLI binary.** A primitive calls the CLI as bare `codegraph` (that is what its exact `Bash(codegraph <verb> …)` allowlist entries match).
+  citation: source.md:77
+- id: INF-015
+  section: 1.1 By job group
+  quote: 9. **Tier above the floor.** Where Phase 1 left a floor (ledger action `floor`), the codegraph step is inserted before it and the floor text stays unchanged below it; a row never says "skip" where
+    the floor exists (`P1 §4` decision, G6).
+  citation: source.md:78
+- id: INF-016
+  section: 1.2 Per-primitive table
+  quote: '| 1 | `src/superclaude/core/CLAUDE.md` `## MCP Servers` table row and the `SUPERCLAUDE_CODEGRAPH_BEGIN/END` block | `## MCP Servers` table; marked block | Phase 2''s row `\| codegraph \| Code
+    graph: symbols, callers, impact, file outlines \| (auto) \|` and Phase 2''s block (`P2 §3.4`) | edit Phase 2''s row in place: `\| codegraph \| Code graph: symbols, callers, impact, file outlines (guide:
+    ~/.claude/CODEGRAPH.md) \| (auto) \|`; inside the markers append one sentence "Skills and agents follow `~/.claude/CODEGRAPH.md`." (so the guide path also reaches Coder through its marker re-sync, `P2
+    §3.4` "'
+  citation: source.md:90
+- id: INF-017
+  section: 1.2 Per-primitive table
+  quote: '| 2 | `src/superclaude/core/CLAUDE.md:90` | `S2.` trigger | `Edit / Write / replace_content / replace_symbol_body / insert_*_symbol` | `Edit / Write` | deleted |'
+  citation: source.md:91
+- id: INF-018
+  section: 1.2 Per-primitive table
+  quote: '| 3 | `src/superclaude/core/CLAUDE.md:112` | `### Refresh-tool selection` | Phase 1 G10 text: "Grep for the definition and references, then Read" | "`codegraph_search` / `codegraph_callers` (or
+    the CLI, `~/.claude/CODEGRAPH.md`) to locate, else Grep for the definition and references; then Read before citing" | floor (G10) |'
+  citation: source.md:92
+- id: INF-019
+  section: 1.2 Per-primitive table
+  quote: '| 4 | `src/superclaude/modes/MODE_Orchestration.md:24` | `## Tool Selection Matrix` | `\| Symbol operations \| Serena MCP \| Manual search \|` | `\| Symbol lookup, callers, impact \| codegraph
+    MCP \| Grep + Read \|` (symbol edits stay native Edit) | floor |'
+  citation: source.md:93
+- id: INF-020
+  section: 1.2 Per-primitive table
+  quote: '| 5 | `src/superclaude/agents/troubleshoot-analyst.md:5` | frontmatter `tools:` | 4 `mcp__serena__*` names | `mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers,
+    mcp__codegraph__codegraph_impact` (no diagnostics: the analyst has no shell, `troubleshoot-analyst.md:15`). Applies only if the analyst''s spawn mode passed the T0 smoke matrix (E-6); otherwise the
+    roster keeps only native tools and the brief carries graph artifacts (access decision §4, §9.2).'
+  citation: source.md:94
+- id: INF-021
+  section: 1.2 Per-primitive table
+  quote: '| 6 | `src/superclaude/agents/troubleshoot-analyst.md:27` | `## Working rules` 1 | "Use native search and the individually allowed read-only retrieval tools" | append: "For symbols and callers
+    use the codegraph tools per `~/.claude/CODEGRAPH.md`" | n/a |'
+  citation: source.md:95
+- id: INF-022
+  section: 1.2 Per-primitive table
+  quote: '| 7 | `src/superclaude/agents/reflect-reviewer.md:5` | frontmatter `tools:` | 4 `mcp__serena__*` names | same 4 codegraph names as row 5 | deleted, then floor |'
+  citation: source.md:96
+- id: INF-023
+  section: 1.2 Per-primitive table
+  quote: '| 8 | `src/superclaude/agents/reuse-auditor.md:5` | frontmatter `tools:` | `find_symbol, get_symbols_overview, find_referencing_symbols` | `mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node,
+    mcp__codegraph__codegraph_callers` | deleted, then floor |'
+  citation: source.md:97
+- id: INF-024
+  section: 1.2 Per-primitive table
+  quote: '| 9 | `src/superclaude/agents/reuse-auditor.md:54` | `### 1. Capability Fingerprint` F1 | `get_symbols_overview + Read body` | `codegraph_node {file, symbolsOnly:true}` + Read body | floor |'
+  citation: source.md:98
+- id: INF-025
+  section: 1.2 Per-primitive table
+  quote: '| 10 | `src/superclaude/agents/reuse-auditor.md:57` | F4 call-graph role | `find_referencing_symbols` | `codegraph_callers` (definition lines; re-Read for call sites) | floor (LB, `PU` R023) |'
+  citation: source.md:99
+- id: INF-026
+  section: 1.2 Per-primitive table
+  quote: '| 11 | `src/superclaude/agents/reuse-auditor.md:131` | `### 8. Cost control` auggie-unavailable | Phase 1 G6 text: "Grep by capability tokens + skeleton grep" | "fall back to `codegraph_search`
+    by capability tokens when it is in the tool list, then the Phase 1 Grep floor (capability tokens + skeleton grep) unchanged" | floor (G6) |'
+  citation: source.md:100
+- id: INF-027
+  section: 1.2 Per-primitive table
+  quote: '| 12 | `src/superclaude/agents/auggie-reviewer.md:5,36,81,115` | `tools:`, Responsibilities 2, tool list, freely-use list | `mcp__serena__find_symbol`, `find_referencing_symbols` | `mcp__codegraph__codegraph_search`,
+    `mcp__codegraph__codegraph_node`, `mcp__codegraph__codegraph_callers` (access decision §4); line 36 "Read (or `codegraph_node`)"; line 81 "`codegraph_search` / `codegraph_callers`: where a symbol is
+    defined and who calls it"; line 115 "codegraph symbol tools"; add "Do not run the `codegraph` CLI through Bash" (this agent has Bash) | deleted, then floor |'
+  citation: source.md:101
+- id: INF-028
+  section: 1.2 Per-primitive table
+  quote: '| 13 | `src/superclaude/commands/troubleshoot.md:3,6,52,75,89,96,173` | description, `mcp-servers`, `--scope` row, Tier table, `## MCP Integration`, `## Tool Coordination`, Will-do | "auggie +
+    serena grounding", Serena bullet with 3 tools | "auggie + codegraph grounding"; bullet "**codegraph**: Tier 1 + Tier 2 symbol, caller and impact lookup (`codegraph_search`, `codegraph_node`, `codegraph_callers`,
+    `codegraph_impact`); guide `~/.claude/CODEGRAPH.md`" | floor |'
+  citation: source.md:102
+- id: INF-029
+  section: 1.2 Per-primitive table
+  quote: '| 14 | `src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:4` | frontmatter `allowed-tools` | 3 `mcp__serena__*` names | add `mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search,
+    mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact` and `Bash` already covers the CLI fallback | deleted, then floor |'
+  citation: source.md:103
+- id: INF-030
+  section: 1.2 Per-primitive table
+  quote: '| 15 | same `:193` | `### Wave 1` step 1, second bullet | "`mcp__serena__get_symbols_overview` on the target file or `mcp__serena__find_symbol` on a specific function" | "`mcp__codegraph__codegraph_node
+    {file, symbolsOnly:true}` on the target file, or `codegraph_node {symbol, includeCode:true}` plus `codegraph_callers` when the issue names a function" | floor (LB, R124) |'
+  citation: source.md:104
+- id: INF-031
+  section: 1.2 Per-primitive table
+  quote: '| 16 | same `:156,168,216,439,606,620` | Wave 0 step 3, TARGET header, Wave 1 exit, failure table, tool matrix, Will-do | "auggie/serena" | "auggie/codegraph"; header `mcps_available: <auggie\|codegraph\|context7\|tavily\|none>`;
+    failure row "MCP call fails (auggie/codegraph)" | floor |'
+  citation: source.md:105
+- id: INF-032
+  section: 1.2 Per-primitive table
+  quote: '| 17 | `.../sc-troubleshoot-protocol/refs/triage-checklist.md:11` | `## Pre-investigation grounding` | "The serena symbol overview / surrounding function definitions" | "The codegraph outline
+    and callers of the suspect function (or Grep if codegraph is unavailable)" | floor |'
+  citation: source.md:106
+- id: INF-033
+  section: 1.2 Per-primitive table
+  quote: '| 18 | `.../sc-troubleshoot-protocol/refs/diagnosability-audit.md:11` | first paragraph | mentions serena | drop the word (auggie call stays) | deleted |'
+  citation: source.md:107
+- id: INF-034
+  section: 1.2 Per-primitive table
+  quote: '| 19 | `src/superclaude/skills/sc-reflect-protocol/SKILL.md:5` | frontmatter `allowed-tools` | 20 `mcp__serena__*` names | `mcp__codegraph__codegraph_status`, `_search`, `_node`, `_callers`, `_callees`,
+    `_impact` (written as full names) | deleted, then floor |'
+  citation: source.md:108
+- id: INF-035
+  section: 1.2 Per-primitive table
+  quote: '| 20 | same `:340-345` | `Step 1B.3` steps 1a, 1, 3, 3a | `find_declaration`, `find_symbol`, `find_referencing_symbols`, `type_hierarchy` | 1a `codegraph_node {file, line}` per hunk (no codegraph
+    match → Phase 1''s Grep floor for that hunk; `find_declaration_no_match` only when the floor also finds nothing, as Phase 1 G8 defines it); 1 `codegraph_node {file, symbolsOnly:true}` filtered to hunk
+    ranges; 3 `codegraph_callers`; 3a deleted (P3-D6: no lineage confirmation, so base-class edges stay at their non-HIGH severity, today''s gated-off behaviour) | floor (LB, R209-R212) |'
+  citation: source.md:109
+- id: INF-036
+  section: 1.2 Per-primitive table
+  quote: '| 21 | same `:500-531` | `## 6. Modern Serena Tool Usage` → rename `## 6.'
+  citation: source.md:110
+- id: INF-037
+  section: 1.2 Per-primitive table
+  quote: '| 22 | same `:534-565` | explanatory notes per step | Serena-specific notes (`include_info`, LSP backends) | rewrite each note to the new tool; delete notes for deleted steps | floor |'
+  citation: source.md:111
+- id: INF-038
+  section: 1.2 Per-primitive table
+  quote: '| 23 | same `:567-585` | `### 6.1.1 execute_shell_command safety envelope` | envelope for the Serena shell tool | already retitled and applied to `Bash` by Phase 1 (`P1 §4.1` G4); Phase 3 verifies
+    the heading names `Bash` and changes nothing else | deleted (Phase 1 did the rewrite; LB, R227) |'
+  citation: source.md:112
+- id: INF-039
+  section: 1.2 Per-primitive table
+  quote: '| 24 | same `:634-636` | `### 6.5 Fail-open policy` | "Every Serena call is fail-open … `degraded: true`" | "Every codegraph call is fail-open … add the matching `graph:*` token (`~/.claude/CODEGRAPH.md`)
+    to `degraded_components`" | floor |'
+  citation: source.md:113
+- id: INF-040
+  section: 1.2 Per-primitive table
+  quote: '| 25 | same `:1492` | error table | "Serena unavailable … `degraded: ["serena"]`" | "codegraph unavailable, unlisted or index missing → Grep/Glob; add the matching `graph:*` token to `degraded_components`;
+    Continue" | floor |'
+  citation: source.md:114
+- id: INF-041
+  section: 1.2 Per-primitive table
+  quote: '| 26 | same `:92`, `commands/reflect.md:109` | `--with-hierarchy` flag | opt-in `type_hierarchy` | flag removed (P3-D6; no test or CLI pins it: `rg -n ''with-hierarchy\|with_hierarchy'' tests
+    src/superclaude/cli` returns nothing) | floor |'
+  citation: source.md:115
+- id: INF-042
+  section: 1.2 Per-primitive table
+  quote: '| 27 | `src/superclaude/cli/reflect/contract.py:32-34` (+ `tests/cli/reflect/test_verdict_mapping.py`) | `_DEGRADED_COMPONENTS_HALT_SET` | Phase 1 drops `serena` | no code change: `graph:*` tokens
+    stay out of the halt set (P3-D7); a test pins it (task T9) | n/a after P1 |'
+  citation: source.md:116
+- id: INF-043
+  section: 1.2 Per-primitive table
+  quote: '| 28 | `.../sc-reflect-protocol/refs/runtime-surface.md:21`, `coverage-mapping.md:173-195`, `reviewer-spec.md:14-55`, `deviation-taxonomy.md:50-83`, `reflection-rubric.md:124-130`, `cost-profile.yaml:73-74`
+    | named paragraphs | `find_referencing_symbols`, `find_implementations`, `type_hierarchy`, Serena probes | `codegraph_callers` results; implementor counts from step 3b; hierarchy terms and Serena-probe
+    weights deleted | floor / deleted (probe weights) |'
+  citation: source.md:117
+- id: INF-044
+  section: 1.2 Per-primitive table
+  quote: '| 29 | `src/superclaude/commands/reflect.md:144,158,166-172` | Tier table, `## MCP Integration`, tool list | Serena navigation + verification triangle tools | "codegraph: Wave 0-6 symbol, caller
+    and impact lookup"; tool list as row 19; verification via Bash | floor |'
+  citation: source.md:118
+- id: INF-045
+  section: 1.2 Per-primitive table
+  quote: '| 30 | `src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:4,129-130` and `commands/validate-roadmap.md:6` | `allowed-tools`, MCP glossary | `find_symbol`, `get_symbols_overview` | `mcp__codegraph__codegraph_search`,
+    `mcp__codegraph__codegraph_node`; glossary rows "Find symbol \| `codegraph_search`", "File outline \| `codegraph_node {file, symbolsOnly:true}`" | deleted, then floor |'
+  citation: source.md:119
+- id: INF-046
+  section: 1.2 Per-primitive table
+  quote: '| 31 | same `:318-349` | `#### Step 0.5 — Symbol Context Supplement` | activate + `find_symbol include_body=False` + `get_symbols_overview` | step 2 deleted (Phase 1); codegraph tier first: `codegraph_search
+    {query:<identifier>, limit:3}` (cap 30), then `codegraph_node {file, symbolsOnly:true}` once per file; if codegraph is unavailable, unlisted or returns nothing for an identifier, Phase 1''s Grep-definition
+    floor runs unchanged for that identifier (same 30-lookup cap, same INFORMATIONAL ONLY artifact, `P1 §4.1` G6); never "skip" | floor (G6; LB, R141-R143) |'
+  citation: source.md:120
+- id: INF-047
+  section: 1.2 Per-primitive table
+  quote: '| 32 | `src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md:24-30`, `SKILL.md:57,193,387` | `**Tier 2 (fallback_1)**` | Serena `get_symbols_overview` / `find_symbol` | `codegraph_files
+    {format:"grouped", maxDepth:2}` on relevant dirs + `codegraph_search` for the known entity names in the topic (limit 10); quality tier names unchanged | floor |'
+  citation: source.md:121
+- id: INF-048
+  section: 1.2 Per-primitive table
+  quote: '| 33 | `src/superclaude/skills/sc-task-protocol/SKILL.md:103,309` | STANDARD step 2, Tool Coordination execution 3 | `find_referencing_symbols OR grep` | `codegraph_callers` / `codegraph_impact`
+    OR grep | floor |'
+  citation: source.md:122
+- id: INF-049
+  section: 1.2 Per-primitive table
+  quote: '| 34 | same `:88,91,287,303,315,319-320` | STRICT steps 1, 4; `## MCP Integration`; Tool Coordination | activate, memory, "STRICT: Serena (fallback not allowed)", nudges | Phase 1 removes activate/memory/nudges.
+    Phase 3: STRICT step 7 "Identify all files that import changed code" → "run `codegraph_impact` on each changed symbol, confirm with Grep"; MCP Integration "STRICT: codegraph preferred for step 7; Grep
+    fallback allowed and recorded" (P3-D8) | deleted + floor |'
+  citation: source.md:123
+- id: INF-050
+  section: 1.2 Per-primitive table
+  quote: '| 35 | `src/superclaude/skills/sc-tasklist-protocol/SKILL.md:683` | `### 5.5 MCP Tool Requirements` | `\| STRICT \| Serena \| Context7 \| No \|` | `\| STRICT \| None \| codegraph, Context7 \|
+    Yes (recorded) \|` (P3-D8; this table leaks into generated tasklists, `PU §1`) | floor |'
+  citation: source.md:124
+- id: INF-051
+  section: 1.2 Per-primitive table
+  quote: '| 36 | `src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md:28` | `### 1. Specialized capability` | "YES (auggie/serena beats brute Grep)" | "YES (auggie for semantic ranking;
+    codegraph for definitions and callers)" | floor |'
+  citation: source.md:125
+- id: INF-052
+  section: 1.2 Per-primitive table
+  quote: '| 37 | `src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md:6,83` | `mcp-servers`, `## MCP Integration` | "Serena MCP: Import chain tracing during Step 1" | "codegraph MCP: import and caller
+    tracing during Step 1 (`codegraph_callers`, `codegraph_files`); dynamic loading still needs Grep" (orchestrator only, line 86 unchanged) | floor |'
+  citation: source.md:126
+- id: INF-053
+  section: 1.2 Per-primitive table
+  quote: '| 38 | `src/superclaude/commands/auggie-review.md:6,78`, `skills/sc-auggie-review-protocol/SKILL.md:10` | `mcp-servers`, `## MCP Integration` | "Serena: Symbol-level cross-reference when validating
+    Auggie''s file:line citations" | "codegraph: caller and definition cross-check when validating Auggie''s `file:line` citations (then Read)" | floor |'
+  citation: source.md:127
+- id: INF-054
+  section: 1.2 Per-primitive table
+  quote: '| 39 | `src/superclaude/mcp/MCP_Auggie.md:16-37` | comparison prose | "Over Serena: broad recall, not symbol navigation" | "Over codegraph: broad semantic recall; use codegraph for exact definitions
+    and callers" | floor |'
+  citation: source.md:128
+- id: INF-055
+  section: 1.2 Per-primitive table
+  quote: '| 40 | `src/superclaude/commands/{cli-eval,brainstorm,release-split,adversarial,task,cleanup-audit,post-release,init-lite,cli-portify,pr-submit,review-translation,research,load,save,pm}.md` and
+    8 skills'' `mcp-servers:` (`PU §6`) | frontmatter metadata | `serena` in list | Phase 1 strips. Phase 3 adds `codegraph` only to `troubleshoot`, `reflect`, `validate-roadmap`, `brainstorm`, `cleanup-audit`,
+    `auggie-review` (bodies use it) and the new commands | deleted |'
+  citation: source.md:129
+- id: INF-056
+  section: 1.2 Per-primitive table
+  quote: '| 41 | memory, activation and nudge rows (`PU` jobs `MEM`, `ACT`, `NUDGE`: pm-agent, `/sc:save`, `/sc:load`, `/sc:pm`, sc-pm-protocol, MODE_Task_Management, sc-roadmap, sc-validate-roadmap memory
+    hooks, sc-reflect memory I/O, sc-crash-recovery, HOW-WE-WORK 237/327/329, RESEARCH_CONFIG) | various | Serena memory tools | Phase 1 file store; no codegraph change. Phase 3 acceptance only checks no
+    tool name remains | deleted |'
+  citation: source.md:130
+- id: INF-057
+  section: 1.2 Per-primitive table
+  quote: '| 42 | `src/superclaude/hooks/hooks.json:47`, `hooks/scripts/freshness-pre-edit.sh:25,36` | PreToolUse matcher | 4 `mcp__serena__*` edit tools | `Edit\|Write` (Phase 1). codegraph adds no edit
+    tool, so no hook change in Phase 3 | deleted |'
+  citation: source.md:131
+- id: INF-058
+  section: 1.2 Per-primitive table
+  quote: '**Mirror rule.** For every row, apply the identical change to the tracked plugin twin under `plugins/superclaude/` when that file exists (`PU §5.7` lists which twins exist and whether they are
+    byte-identical; `plugins/superclaude/` is hand-maintained, `SER §0.3` item 3). Where the twin DIFFERS from src, change only the matching sentence, do not copy the src file over it.'
+  citation: source.md:133
+- id: INF-059
+  section: 3.1 `/sc:impact`
+  quote: '| Name and files | `/sc:impact`; `src/superclaude/commands/impact.md` (thin; `## Activation` says `> Skill sc:impact-protocol`); `src/superclaude/skills/sc-impact-protocol/SKILL.md`. No plugin
+    twin (the plugin ships only listed commands; `ls plugins/superclaude/commands` has no new names to mirror) |'
+  citation: source.md:203
+- id: INF-060
+  section: 3.1 `/sc:impact`
+  quote: '| Inputs and flags | `<symbol>...` (1-30 bare names) or `--diff [<base>]` (default `HEAD`; with a base, `git diff --merge-base <base>`); `--depth 1-3` (default 2); `--limit 1-100` (default 20);
+    `--tests`; `--test-depth 1-5` (only with `--tests`; default codegraph''s own); `--output-dir <dir>` (default `<worktree_root>/.dev/impact/<slug>-<UTC timestamp>/`; never inside `.git/` or `.codegraph/`);
+    `--caller <name>` (shortens chat output to three lines). Flag errors → `status: blocked` (`DES §4.b`) |'
+  citation: source.md:205
+- id: INF-061
+  section: 3.1 `/sc:impact`
+  quote: '| Steps | (1) validate; (2) readiness check (guide §2: kill switch, worktree root, `codegraph --version`, `codegraph_status` or guarded CLI `status`, listed-tools check); (3) definitions via `codegraph_search`,
+    or diff hunks → symbols via `codegraph_node {file, symbolsOnly:true}` and `codegraph query <name> --json` spans; (4) `codegraph_callers` with one re-query up to 100, else `graph:truncated`; (5) `codegraph_impact
+    {depth}`; in the status-only branch steps 3-5 use the CLI forms `codegraph query|node|callers|impact` with the flags T0 E-2 captured (standing rule 6), then step 9 if the CLI is'
+  citation: source.md:206
+- id: INF-062
+  section: 3.1 `/sc:impact`
+  quote: '| Allowed tools (skill) | `Read, Grep, Glob, Write, Bash(printenv SUPERCLAUDE_CODEGRAPH_PRIMITIVES), Bash(pgrep -f *), Bash(git rev-parse *), Bash(realpath *), Bash(git diff *), Bash(codegraph
+    --version), Bash(codegraph status), Bash(codegraph query *), Bash(codegraph node *), Bash(codegraph callers *), Bash(codegraph impact *), Bash(codegraph affected *), mcp__codegraph__codegraph_status,
+    mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact` (exact; never `Bash(codegraph *)` or `mcp__codegraph__*`) |'
+  citation: source.md:207
+- id: INF-063
+  section: 3.1 `/sc:impact`
+  quote: '| Outputs | `<output-dir>/impact.md` (12 fixed sections, `DES §4.e`) and `<output-dir>/return-contract.yaml`: `schema_version: 1`, `command: impact`, `status: success\|partial\|blocked\|failed`,
+    `caller`, absolute `output_dir`/`report_path`/`contract_path`, `input{…}`, `readiness{access, index_state, checked_at, cli_version, pin, pin_match, worktree_root, project_path, worktree_relation}`,
+    `advisory` (true while E-1 is pending: no consumer may change a severity, gate or verdict from it), `degraded[]` (closed `graph:*` tokens), `symbols[]` with `prod/test/unknown {shown,total}`, `transitive`,
+    `'
+  citation: source.md:208
+- id: INF-064
+  section: 3.1 `/sc:impact`
+  quote: '| Failure behaviour | Never stops the caller. codegraph absent, switched off, not initialized, foreign index, or lookup tools unlisted with no usable CLI → Grep-based rows, `status: partial`,
+    the matching `graph:*` token; stale or version mismatch → graph rows kept as leads only; truncated, ambiguous, empty, parse failure → `partial` with token; bad flags → `blocked`; output dir unwritable
+    → `failed` (`DES §4.f`). Callers treat `blocked`/`failed` like `graph:absent` and continue natively |'
+  citation: source.md:209
+- id: INF-065
+  section: 3.1 `/sc:impact`
+  quote: '| Callers (Phase 3 wires them in T10) | sc-implement-protocol Q1 (rename/delete/signature tasks; warning and QA package input, never widens edits) and Q6 (`--tests`, advisory extras); sc-pr-submit-protocol
+    Wave 4 (warning before a fix), Wave 3 (`--diff`, context) and VG-1 (`--tests`, prints tests outside `<changed-area>`, gate unchanged); sc-troubleshoot-protocol `--fix` handoff (warning, `report_path`
+    listed in `remediation-source.md`); sc-auggie-review-protocol Wave 1 (`--diff`, dependent names and files into the Auggie prompt, out-of-hunk rule unchanged); sc-reflect-protocol Step 1B.3 and c'
+  citation: source.md:210
+- id: INF-066
+  section: 3.2 `/sc:graph`
+  quote: '| Name and files | `/sc:graph`; `src/superclaude/commands/graph.md` (thin; activates `> Skill sc:graph-protocol`; holds the only literal `codegraph init` calls, design D-2); `src/superclaude/skills/sc-graph-protocol/SKILL.md`
+    |'
+  citation: source.md:217
+- id: INF-067
+  section: 3.2 `/sc:graph`
+  quote: '| Inputs and flags | positional `status` (default) or `init`; `--worktree-local` (only with `init`, for a nested worktree that answers from the parent index, runs `codegraph init -i`, `EVAL §5.8`);
+    `--output-dir <dir>` (writes the contract; screen only without it). No `--caller`: skills never call it.'
+  citation: source.md:219
+- id: INF-068
+  section: 3.2 `/sc:graph`
+  quote: '| Steps | `status`: readiness check (guide §2), `codegraph telemetry status`, counts and pending list, `next_action` from a 9-row first-match table (`DES §2.c`). `init`: read-only preflight in
+    the skill (refuses when switched off, absent, an init or index is running (`pgrep -f ''codegraph\.js (init|index)''` prints a line; usually the hook: "wait and run `/sc:graph status`"), already initialized,
+    nested without `--worktree-local`, `--worktree-local` when not nested, status error, or working directory not the worktree root); guard that the user''s own message starts with `/sc:graph init`; one
+    `cod'
+  citation: source.md:220
+- id: INF-069
+  section: 3.2 `/sc:graph`
+  quote: '| Allowed tools | command: `Skill, Bash(codegraph init --yes *), Bash(codegraph init -i)`; skill: `Read, Write, Bash(codegraph --version), Bash(codegraph status), Bash(codegraph telemetry status),
+    Bash(git rev-parse --show-toplevel), Bash(realpath *), Bash(pgrep -f *), Bash(printenv SUPERCLAUDE_CODEGRAPH_PRIMITIVES), mcp__codegraph__codegraph_status` |'
+  citation: source.md:221
+- id: INF-070
+  section: 3.2 `/sc:graph`
+  quote: '| Outputs | an 8-line screen report (`DES §2.e`); with `--output-dir`, `return-contract.yaml`: `schema_version`, `command: graph`, `subcommand`, `status`, absolute paths, readiness fields, `mcp_tools_listed`,
+    `counts{files,nodes,edges}`, `pending[]\|unknown`, `telemetry`, `telemetry_opt_out`, `kill_switch: SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off`, `next_action` (9 values), `degraded[]`, `init{requested, form,
+    ran, exit_code, refused_reason}` (`DES §2.d`, with an example). `status` → `success` only when fresh, pin match and tools listed, else `partial`; `init` → `blocked` on refusal, `failed` on n'
+  citation: source.md:222
+- id: INF-071
+  section: 3.2 `/sc:graph`
+  quote: '| Failure behaviour | Never stops anything (no skill callers). codegraph absent → `index_state: absent`, `next_action: install_codegraph` ("run `./update.sh`"); status-only tool list → `status_only_branch`
+    (override (e)); not initialized → `run_graph_init`; foreign index → `run_graph_init_worktree_local`; version mismatch → `align_version`; stale → `wait_for_sync`; unparsable → `check_codegraph_error`
+    with the first error line |'
+  citation: source.md:223
+- id: INF-072
+  section: 3.2 `/sc:graph`
+  quote: '| Callers | Users. `/sc:load` prints one readiness line pointing to `/sc:graph status` (T10), and every primitive''s `graph:not_initialized` fallback message names `/sc:graph init`.'
+  citation: source.md:224
+- id: INF-073
+  section: 3.3 Tests for the new commands
+  quote: 'Following `tests/commands/test_research_command.py` style (content assertions, no network), the executor adds `tests/commands/test_impact_command.py` (18 tests, `DES §7.1`) and `tests/commands/test_graph_command.py`
+    (14 tests, `DES §7.2`), and adds `impact.md`, `graph.md`, `sc-impact-protocol`, `sc-graph-protocol` to both expected lists in `tests/unit/test_cli_install.py` (re-locate by the `"commands": _names(`
+    and `"skills"` anchors). Highlights: exact `allowed-tools` sets; no `Bash(codegraph *)`, no `mcp__codegraph__*`, no `explore`; the invocation-form mutating-verb check (T6) has zero hits'
+  citation: source.md:229
+- id: INF-074
+  section: 4. Shared-guidance placement
+  quote: '**Decision (P3-D2): one core doc, `src/superclaude/core/CODEGRAPH.md`, installed to `~/.claude/CODEGRAPH.md`.** Every primitive points to it by the installed path and never repeats its rules beyond
+    one line.'
+  citation: source.md:233
+- id: INF-075
+  section: 4. Shared-guidance placement
+  quote: '1. *What it is*: a read-only code graph of the current worktree, one SQLite index per worktree in `.codegraph/` (`EVAL §1`, §4).'
+  citation: source.md:254
+- id: INF-076
+  section: 4. Shared-guidance placement
+  quote: '2. *Readiness check, once per run*: detect MCP from whether `mcp__codegraph__codegraph_status` is in the tool list (never from the kind of run); call it, or CLI `codegraph status` only when MCP
+    is absent and `pgrep -f ''codegraph\.js (init|index)''` prints nothing (a running init → `stale`, standing rule 7).'
+  citation: source.md:255
+- id: INF-077
+  section: 4. Shared-guidance placement
+  quote: '3. *Degraded tokens* (closed list; consumers invent none): `graph:absent`, `graph:unlisted`, `graph:disabled` (user set `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off`; it switches off codegraph use in
+    primitives only, while `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` switches off only Phase 2''s session-start index hook; the guide names both), `graph:not_initialized`, `graph:foreign_index`, `graph:stale`,
+    `graph:version_mismatch`, `graph:provenance_unproven`, `graph:empty`, `graph:ambiguous`, `graph:truncated`, `graph:parse_failed`, `graph:unresolved`, `graph:telemetry_on` (14 tokens; `BS` FR-02; access
+    decisio'
+  citation: source.md:256
+- id: INF-078
+  section: 4. Shared-guidance placement
+  quote: '4. *Tool table*: section 1.1''s job → tool rows, condensed to the seven MCP tools (`node`, `search`, `callers`, `callees`, `impact`, `files`, `status`; only `status` in the status-only branch)
+    and the allowed CLI verbs (`--version`, guarded `status` when no MCP, `telemetry status`, `query <name> --json`, `affected … --json --quiet`, `init` in `/sc:graph` only, plus `node`, `callers`, `callees`,
+    `impact` as the status-only-branch transport in orchestrators that allow them, flags from T0 E-2).'
+  citation: source.md:257
+- id: INF-079
+  section: 4. Shared-guidance placement
+  quote: '5. *Standing rules*: the nine standing rules at the end of section 1.1, plus the call-site procedure: for a caller row that will be cited, Grep `\b<callee>\s*\(` inside the caller''s span (from
+    `codegraph query <caller> --json` `startLine`/`endLine`, or `codegraph_node {symbol}`), reject matches in strings, comments or docstrings, then Read the line; a row that fails is dropped, never repaired;
+    at most 5 per symbol and 20 per run; every row carries `resolution: def-line|call-site-verified|unresolved` (`BS` FR-06).'
+  citation: source.md:258
+- id: INF-080
+  section: 4. Shared-guidance placement
+  quote: '6. *Known gaps and fallbacks*: no text search, no diagnostics, no type hierarchy, no implementations tool, no edits, no memory; caller lists are truncated at 20 by default (record `shown/total`,
+    re-query once up to 100, else `graph:truncated`) (`EVAL §5.5`, §6; `BS` FR-08).'
+  citation: source.md:259
+- id: INF-081
+  section: 4. Shared-guidance placement
+  quote: '7. *Never* (the only section of the guide that may name these verbs; a T1 test checks it): call `explore` or `codegraph context`; use `codegraph_node` file mode without `symbolsOnly:true`; run
+    CLI `codegraph status` while an init or index is running; from a skill or agent, run `codegraph init`; run `codegraph install`, `upgrade`, `uninstall`, `uninit`, `index`, `sync`, `unlock`, `telemetry
+    on|off` or `prompt-hook`; write `Bash(codegraph *)` in an allowlist; prefix a call with environment variables (it can defeat per-subcommand allowlist matching, `BS` INV-020) (Phase 2 owns install; `EVAL
+    §7` '
+  citation: source.md:260
+- id: INF-082
+  section: 4. Shared-guidance placement
+  quote: 'Primitives then carry exactly one line, for example in `troubleshoot-analyst.md` Working rule 1: "For symbols and callers use the codegraph tools per `~/.claude/CODEGRAPH.md`." A content test
+    (task T1) fails if any primitive other than `CODEGRAPH.md` itself contains the phrase `Caller rows give the caller''s definition line` (a sentinel sentence that only the guide may hold), which keeps
+    the rules from being copied. Agents that need the citation rule read the guide by its installed path; there is no separate `refs/citation-contract.md` (the access decision''s name for it maps to guide
+    section 5)'
+  citation: source.md:262
+- id: INF-083
+  section: 5. Task breakdown (execution order)
+  quote: '- Run from the Phase 3 worktree root (section 7). Every `pytest` call names files or small directories and adds `-q -p no:cacheprovider`; never the whole suite or `tests/cli/eval/` (orchestration
+    README).'
+  citation: source.md:268
+- id: INF-084
+  section: 5. Task breakdown (execution order)
+  quote: '- After every task: `git status --short` shows only the task''s files (plus `.dev/` progress and decision files). Then `git add <those files> .dev/codegraph-migration/progress .dev/codegraph-migration/decisions`
+    and commit with a conventional message ending in the attribution line the session gives.'
+  citation: source.md:269
+- id: INF-085
+  section: 5. Task breakdown (execution order)
+  quote: '- Mirror rule (section 1.2) applies to every task: the plugin twin changes in the same commit.'
+  citation: source.md:270
+- id: INF-086
+  section: 5. Task breakdown (execution order)
+  quote: '- Before T1, record two baselines in the decision log: (a) `grep -rIn ''src/superclaude'' src/superclaude/{commands,skills,agents,core,hooks} | wc -l` (157 at HEAD `55d40308`; re-measure after
+    Phase 1) and (b) `uv run pytest tests/core tests/troubleshoot tests/skills tests/agents tests/commands tests/cli/reflect tests/unit/test_cli_install.py -q -p no:cacheprovider` (pass and fail counts;
+    failures that already exist are recorded, not fixed, as out of scope). Save the failing ids in sorted form for the T11 (8) comparison, with a pipeline that does not fail under `pipefail` when nothing
+    fails: `{ '
+  citation: source.md:271
+- id: INF-087
+  section: 5. Task breakdown (execution order)
+  quote: '- New tests follow the existing content-test style: a module docstring saying what drifts it guards, `_REPO = Path(__file__).resolve().parents[2]`, plain `read_text` assertions, no network (pattern:
+    `tests/commands/test_research_command.py`, `tests/commands/test_help_command.py`).'
+  citation: source.md:272
+- id: INF-088
+  section: 5. Task breakdown (execution order)
+  quote: '| **T0** prerequisite experiments (no source edit) | new `.dev/codegraph-migration/experiments/P3-T0/{E1-freshness,E2-help,E3-allowlist,E6-agent-matrix,E7-slots-map}.md` (stub each first; E-5,
+    the schema-cost check, moved to Phase 2 T2 step 0, review finding X-1) | Run in a scratch worktree `git worktree add .dev/worktrees/cg-sandbox -b tmp/cg-sandbox HEAD` (deleted at the end with `git worktree
+    remove .dev/worktrees/cg-sandbox` and `git branch -D tmp/cg-sandbox`). **E-1** freshness: the 8 steps of `BS §2.3` (init, status, append a function, CLI `status` at once and after 5 s, repeat with a
+    da'
+  citation: source.md:276
+- id: INF-089
+  section: 5. Task breakdown (execution order)
+  quote: '| **T1** shared guide | new `src/superclaude/core/CODEGRAPH.md`; new `plugins/superclaude/core/CODEGRAPH.md` (byte copy); `src/superclaude/cli/install_core.py` (`KNOWN_CORE_FILES` gains `CODEGRAPH.md`);
+    `tests/unit/test_cli_install.py` (`"core"` expected list gains `CODEGRAPH.md`); new `tests/core/test_codegraph_guide.py` | Write the guide with the 7 sections of section 4 (at most 120 lines). Test
+    asserts: file exists and has at most 120 lines; names the seven listed `codegraph_*` tools and all 14 `graph:*` tokens plus the `Pinned codegraph version:` and `Freshness experiment E-1:` lines; name'
+  citation: source.md:277
+- id: INF-090
+  section: 5. Task breakdown (execution order)
+  quote: '| **T2** core docs and routing hints | `src/superclaude/core/CLAUDE.md` (rows 1, 3: Phase 2''s codegraph row and marked block edited in place, the refresh-tool row; Phase 3 owns later wording
+    changes inside the `SUPERCLAUDE_CODEGRAPH_BEGIN/END` markers, `P2 §3.4`); `src/superclaude/modes/MODE_Orchestration.md` + `plugins/superclaude/modes/MODE_Orchestration.md` (row 4); `src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md`
+    + plugin twin (row 36); `src/superclaude/mcp/MCP_Auggie.md` (row 39); `tests/core/test_codegraph_guide.py` (extend) | Apply rows 1, 3, 4, 36, 39 (row '
+  citation: source.md:278
+- id: INF-091
+  section: 5. Task breakdown (execution order)
+  quote: '| **T3** agents | `src/superclaude/agents/{troubleshoot-analyst,reflect-reviewer,reuse-auditor,auggie-reviewer}.md` (no plugin twins exist: `ls plugins/superclaude/agents`); `tests/troubleshoot/test_diagnostic_worker_contract.py`
+    (`TOOLS` set at lines 17-26 becomes the roster T0 E-6 selected for `troubleshoot-analyst`: Phase 1''s native tools, plus the 4 codegraph names of row 5 only if the analyst''s spawn modes passed); new
+    `tests/agents/test_codegraph_rosters.py` | Apply rows 5-12. New test, parametrized over the 4 agents: frontmatter `tools:` contains no `mcp__serena`; contains exactly the c'
+  citation: source.md:279
+- id: INF-092
+  section: 5. Task breakdown (execution order)
+  quote: '| **T4** troubleshoot | `src/superclaude/commands/troubleshoot.md` + `plugins/superclaude/commands/troubleshoot.md`; `src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md`; `refs/triage-checklist.md`;
+    `refs/diagnosability-audit.md`; new `tests/troubleshoot/test_codegraph_grounding.py` | Apply rows 13-18. Test: skill `allowed-tools` contains the five `mcp__codegraph__codegraph_{status,search,node,callers,impact}`
+    names and no `codegraph_explore`; the `### Wave 1` section names `codegraph_node` and still names the `Glob` + `Grep` fallback; the TARGET header line reads `mcps_available: <auggi'
+  citation: source.md:280
+- id: INF-093
+  section: 5. Task breakdown (execution order)
+  quote: '| **T5** other skills and commands | rows 30-38 and 40: `commands/validate-roadmap.md`, `skills/sc-validate-roadmap-protocol/SKILL.md`, `skills/sc-brainstorm-protocol/{SKILL.md,refs/handoff-routing.md}`,
+    `commands/brainstorm.md` + plugin twin, `skills/sc-task-protocol/SKILL.md`, `commands/task.md` + plugin twin (metadata only), `skills/sc-tasklist-protocol/SKILL.md`, `skills/sc-cleanup-audit-protocol/SKILL.md`,
+    `commands/cleanup-audit.md`, `commands/auggie-review.md`, `skills/sc-auggie-review-protocol/SKILL.md`; new `tests/skills/test_codegraph_adoption.py` | Apply the rows. Test, parametrized'
+  citation: source.md:281
+- id: INF-094
+  section: 5. Task breakdown (execution order)
+  quote: '| **T6** `/sc:graph` | new `src/superclaude/commands/graph.md`; new `src/superclaude/skills/sc-graph-protocol/SKILL.md`; `tests/unit/test_cli_install.py` (both `"commands"` lists gain `graph.md`,
+    both `"skills"` lists gain `sc-graph-protocol`); new `tests/commands/test_graph_command.py`; `tests/recommend/test_routing_refresh.py` (review finding X-8: the test asserts `shipped == active` at lines
+    639-640, where `active` comes from the frozen research package; add a module constant `_POST_REFRESH_ADDITIONS = {"graph"}` with a comment naming issue #323 and compare `shipped - _POST_REFRESH_ADDITION'
+  citation: source.md:282
+- id: INF-095
+  section: 5. Task breakdown (execution order)
+  quote: '| **T7** `/sc:impact` | new `src/superclaude/commands/impact.md`; new `src/superclaude/skills/sc-impact-protocol/SKILL.md`; `tests/unit/test_cli_install.py` (gain `impact.md`, `sc-impact-protocol`);
+    new `tests/commands/test_impact_command.py` (all tests of `DES §7.1` except `test_impact_callers_wired`, which lands in T10); `tests/recommend/test_routing_refresh.py` (`_POST_REFRESH_ADDITIONS` gains
+    `"impact"`, X-8) | Build both files from `DES §4` (frontmatter, flags, steps 1-10, call-site confirmation, contract, `impact.md` layout, failure table) with the section 3 overrides (a)-(c). Test addit'
+  citation: source.md:283
+- id: INF-096
+  section: 5. Task breakdown (execution order)
+  quote: '| **T8** reflect skill and command | `src/superclaude/skills/sc-reflect-protocol/SKILL.md` and the 6 refs of row 28; `src/superclaude/commands/reflect.md` + `plugins/superclaude/commands/reflect.md`
+    (DIFFERS: change matching sentences only); `tests/skills/test_codegraph_adoption.py` (extend) | Apply rows 19-26, 28, 29. Step 1B.3 and chain 4/4b get the `/sc:impact` call of `DES §5` (`--diff <baseline_ref>
+    --depth 1 --limit 100 --output-dir <output>/artifacts/impact --caller sc-reflect-protocol`), reading only the contract fields listed there.'
+  citation: source.md:284
+- id: INF-097
+  section: 5. Task breakdown (execution order)
+  quote: '| **T9** reflect contract pin | `tests/cli/reflect/test_verdict_mapping.py` (new `test_graph_tokens_do_not_halt`); new fixture `tests/cli/reflect/fixtures/degraded_graph_absent.yaml` (copy of
+    an existing passing fixture with `degraded_components: ["graph:absent", "graph:not_initialized"]`). No change to `src/superclaude/cli/reflect/contract.py` | P3-D7: `graph:*` tokens are informational
+    and must NOT be in `_DEGRADED_COMPONENTS_HALT_SET`; the test asserts the fixture maps to the same verdict as the fixture without the tokens | `uv run pytest tests/cli/reflect -q -p no:cacheprovider`
+    | commit `'
+  citation: source.md:285
+- id: INF-098
+  section: 5. Task breakdown (execution order)
+  quote: '| **T10** wire callers and routing | `src/superclaude/skills/sc-implement-protocol/SKILL.md` (+ byte-identical plugin twin `plugins/superclaude/skills/sc-implement-protocol/SKILL.md`): Q1 and
+    Q6; `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md` (and the wave ref it lazy-loads for Waves 3-4, found with `rg -n ''Wave 4'' src/superclaude/skills/sc-pr-submit-protocol`): Wave 3, Wave 4,
+    VG-1; `src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md`: Wave 6 Phase A (`--fix` handoff); `src/superclaude/skills/sc-auggie-review-protocol/SKILL.md`: `### Wave 1: Collect Inputs`; `src/superclaude/sk'
+  citation: source.md:286
+- id: INF-099
+  section: 5. Task breakdown (execution order)
+  quote: '| **T11** changelog, docs, sync, full verification, live smoke | `CHANGELOG.md` (one entry for `/sc:impact`, `/sc:graph` and `~/.claude/CODEGRAPH.md`, review finding X-20); `docs/user-guide/mcp-installation.md`
+    (one short paragraph after Phase 2''s codegraph section: the two commands, the guide path, and both switches with their scope, `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` for primitives and `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0`
+    for the hook, review finding X-14); new `.dev/codegraph-migration/experiments/P3-T11-smoke.md`; fixes found by the checks go into the files they concern | (0) `rg -q ''sc:'
+  citation: source.md:287
+- id: INF-100
+  section: 5. Task breakdown (execution order)
+  quote: '| **T12** PR | none | Pre-PR checks from repo `CLAUDE.md` "PR Target = Fork" (remote and `gh repo view` show `IronbellyOrg/IronClaude`; rebase onto `origin/master` if it moved), then run `/sc:pr-submit
+    --monitor 3 --head feat/codegraph-adoption --title "feat(codegraph): adopt codegraph in primitives; add /sc:impact and /sc:graph (#323)" --body-file <body>` (body lists groups 0-G, the smoke results
+    and the deferred ideas of section 2.3, and ends with the PR attribution line the session gives) Then post the Coder addendum (review finding X-10): write `.dev/codegraph-migration/progress/P3-coder-a'
+  citation: source.md:288
+- id: INF-101
+  section: '6. Progress reporting on issue #323'
+  quote: 1. Writes the comment body to `.dev/codegraph-migration/progress/P3-<group-letter>.md` (create the folder if absent; overwrite on a retry so the file is idempotent).
+  citation: source.md:298
+- id: INF-102
+  section: '6. Progress reporting on issue #323'
+  quote: '2. Posts it: `gh issue comment 323 --repo IronbellyOrg/IronClaude --body-file .dev/codegraph-migration/progress/P3-<group-letter>.md`'
+  citation: source.md:299
+- id: INF-103
+  section: '6. Progress reporting on issue #323'
+  quote: 3. Records the returned comment URL in the decision log (section 7).
+  citation: source.md:300
+- id: INF-104
+  section: 7. Autonomy rules for the executor
+  quote: '**Branch and worktree.** Start only after Phase 1 and Phase 2 are merged to `master` on `origin`. Create `git worktree add .dev/worktrees/codegraph-adoption -b feat/codegraph-adoption origin/master`
+    (worktrees live under `.dev/worktrees/`, never `.claude/worktrees/`, repo `CLAUDE.md`).'
+  citation: source.md:321
+- id: INF-105
+  section: 7. Autonomy rules for the executor
+  quote: '- wording of replacement text, as long as it keeps the meaning in section 1.2 and stays within the row''s anchor;'
+  citation: source.md:325
+- id: INF-106
+  section: 7. Autonomy rules for the executor
+  quote: '- which section 1.2 row a slots-ledger row maps to (T0 E-7), when the anchor makes it plain;'
+  citation: source.md:326
+- id: INF-107
+  section: 7. Autonomy rules for the executor
+  quote: '- which tool-list branch applies (section 0 G3), read from Phase 2''s constant;'
+  citation: source.md:327
+- id: INF-108
+  section: 7. Autonomy rules for the executor
+  quote: '- adding a `codegraph` mention to a mirror file that differs from src (change the matching sentence only);'
+  citation: source.md:328
+- id: INF-109
+  section: 7. Autonomy rules for the executor
+  quote: '- fixing a test that pins old Serena text, when the fix only swaps the pinned token for the new one written in this spec;'
+  citation: source.md:329
+- id: INF-110
+  section: 7. Autonomy rules for the executor
+  quote: '- running `codegraph init --yes` in its own worktree (gitignored `.codegraph/`, `EVAL §2`);'
+  citation: source.md:330
+- id: INF-111
+  section: 7. Autonomy rules for the executor
+  quote: '- an extra fallback line when a live codegraph answer is wrong in the T11 smoke (for example a missing caller), as long as the fallback is Grep/Read.'
+  citation: source.md:331
+- id: INF-112
+  section: 7. Autonomy rules for the executor
+  quote: 'A mid-level choice (two or more viable options with real trade-offs that this spec does not settle) follows the orchestration README rule: write each option to `.dev/codegraph-migration/decisions/P3X-<slug>/option-<x>.md`,
+    spawn an agent that runs `/sc:adversarial --compare <option files> --depth quick --output .dev/codegraph-migration/decisions/P3X-<slug>/adversarial`, and follow its recommendation. An architectural
+    choice (changes a command''s return contract, a contract field read by Python, or the shared guide''s rules) uses the same procedure at the default depth.'
+  citation: source.md:333
+- id: INF-113
+  section: 7. Autonomy rules for the executor
+  quote: '**Decision log.** Append one row per decision to `.dev/codegraph-migration/decisions/P3X-execution-log.md` (create it as a header stub first): date, task, decision, options considered, method
+    (self / adversarial quick / adversarial full), rationale, files touched. The group''s issue comment (section 6) repeats that group''s rows in one line each.'
+  citation: source.md:335
+- id: INF-114
+  section: 7. Autonomy rules for the executor
+  quote: '**Never do (stop and escalate instead):** edit `~/.claude`, `~/.claude.json` or any MCP registration; run `superclaude install`, `./update.sh`, `claude mcp add/remove`, `codegraph install/upgrade/uninstall`;
+    stage anything under `.claude/` except `.claude/settings.json`; push to `upstream`; open a PR with bare `gh pr create`; run the whole test suite or `tests/cli/eval/` as a directory (a full run rewrites
+    the tracked `.dev/releases/current/cliEval/evidence/T02.15/perf.json`, orchestration README); add a reference to `src/superclaude/...` in an installed primitive except the one labelled fallb'
+  citation: source.md:337
+- id: INF-115
+  section: 7. Autonomy rules for the executor
+  quote: '| H1 | Section 0 gate G1, G2, G3 or G4 fails after one `codegraph init` | Fix the Phase 2 install or registration (for G3: make the registered `CODEGRAPH_MCP_TOOLS` match `install_codegraph.MCP_TOOLS`;
+    Phase 3 never edits the installer), re-run `./update.sh`, then tell the executor to continue |'
+  citation: source.md:345
+- id: INF-116
+  section: 7. Autonomy rules for the executor
+  quote: '| H2 | T12 (open the PR) | Review and merge the PR on `IronbellyOrg/IronClaude`; the executor never merges |'
+  citation: source.md:346
+- id: INF-117
+  section: 7. Autonomy rules for the executor
+  quote: '| H3 | A section 5 acceptance command still fails after two fix attempts and an adversarial-quick decision did not resolve it | Read the logged failure and choose: accept a documented skip, or
+    give a direction |'
+  citation: source.md:347
+- id: INF-118
+  section: 7. Autonomy rules for the executor
+  quote: '| H4 | Phase 1 changed a primitive in a way that contradicts section 1.2 (for example it deleted a whole step this spec rewrites), section 0 G6 fails (Serena names remain or the slots ledger is
+    missing), or a ledger row fits no section 1.2 row (T0 E-7) | Confirm whether the step should come back, or finish the Phase 1 item |'
+  citation: source.md:348
+- id: INF-119
+  section: 7. Autonomy rules for the executor
+  quote: '| H5 | T0 experiments E-3 or E-6 need a fresh or headless Claude session the executor cannot start | Run the command written in the T0 row and paste the output into the named experiment file |'
+  citation: source.md:349

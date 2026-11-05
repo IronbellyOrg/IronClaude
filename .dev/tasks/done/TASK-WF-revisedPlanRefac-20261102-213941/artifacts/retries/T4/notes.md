@@ -1,0 +1,3 @@
+34f8f2a815e2eeb448d07300899e3e9a7bcb5c03
+A1 r1-1 F1.1 minor CLAUDE.md:72 ac=T4.AC2 amiss=n,false=n,harm=n,constraint=n Pre-PR check 1 names the repo positionally, so `gh repo view IronbellyOrg/IronClaude` prints `IronbellyOrg/IronClaude` whatever gh's default repo is; the check cannot detect the "default repo is wrong" condition its next sentence handles. Wording follows plan line 108 exactly. Optional fix: probe with `gh repo set-default --view`.
+A1 r1-1 F1.2 note CLAUDE.md:54 ac=scope amiss=n,false=n,harm=n,constraint=n Plan line 111 says "Add a bullet"; the Orca project-id record is a bold-lead paragraph, not a list item. Formatting only.

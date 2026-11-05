@@ -1,0 +1,316 @@
+# Provenance: merge-executor, 2026-10-31. Base variant-3-original.md (reviewer-3, opus:refactorer) + refactor-plan.md Changes 1-5, drawing on variant-1-original.md (sonnet:analyzer), variant-2-original.md (haiku:qa), invariant-probe.md (fable fault-finder) and debate-transcript.md (scoring matrix). Citations are copied verbatim from those sources; short forms such as "design:226" or "plan:102" are kept exactly as the probe and debate wrote them.
+merge_method: adversarial
+base_variant: "opus:refactorer"
+convergence_score: 0.94
+convergence_status: BLOCKED_BY_INVARIANTS
+findings:
+  # ---------------- HIGH ----------------
+  - id: M-01
+    title: "Codex completion time must be the later of the summary-marker update and the Codex formal review"
+    class: gap
+    severity: high
+    affected_tasks: [4, 7, 10]
+    citations:
+      - "classifier.py:301,317-319"
+      - "design:177,185"
+    remedy: "Task 7 sets the Codex completion time to max(marker updated_at, Codex formal review submitted_at for expected_head) and passes it through M-03's completed_at parameter, and Task 10 adds a fixture whose root createdAt is later than the marker updated_at."
+    sources: [INV-001]
+
+  - id: M-02
+    title: "Sticky reviewer absence is not an input to the wait outcomes"
+    class: gap
+    severity: high
+    affected_tasks: [8, 10, 12]
+    citations:
+      - "design:323-324"
+      - "plan:102"
+      - "fsm.py:705"
+      - "run_log.py:199-208"
+    remedy: "Task 8 passes the absent-reviewer set into augment_wait_outcome, codex_wait_outcome and merge_wait so an absent reviewer is never pending, Task 12 supplies that set from the SKILL, and Task 10 asserts that a silent Augment in S5 does not hold a finished Codex until the 600 s timeout."
+    sources: [INV-002]
+
+  # ---------------- MEDIUM ----------------
+  - id: M-03
+    title: "_thread_findings has no way to receive the Codex completion time"
+    class: gap
+    severity: medium
+    affected_tasks: [4, 7]
+    citations:
+      - "src/superclaude/pr_submit/classifier.py:79-81,269,316-320"
+      - "src/superclaude/pr_submit/classifier.py:79-81,269,301-320"
+    remedy: "Task 4 adds an explicit keyword completed_at parameter to _thread_findings and Task 7 passes the Codex completion time through it, with a PR 336-shaped test that selects three roots."
+    sources: [R3-F1, R1-4, C-002]
+
+  - id: M-04
+    title: "Task 9 depends on Tasks 1 and 6 only, but its imports need Tasks 4, 7 and 8"
+    class: gap
+    severity: medium
+    affected_tasks: [9]
+    citations:
+      - ".dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md:110,112,117,145"
+      - ".dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md:108-117"
+    remedy: "Task 9 declares Depends on: Task 1, Task 4, Task 6, Task 7, Task 8."
+    sources: [R3-F2, R1-1, X-002, C-001]
+
+  - id: M-05
+    title: "Task 2 silently disables Codex for every contract-setup override"
+    class: drift
+    severity: medium
+    affected_tasks: [2]
+    citations:
+      - "src/superclaude/pr_submit/contract_setup/writer.py:151-163"
+      - "src/superclaude/pr_submit/detection.py:147-157,178-184"
+      - "design:96-97,108,303"
+    remedy: "Task 2 replaces its line-44 acceptance so from_yaml falls back to the shipped Codex identities and phrase only when the key is absent (a key-presence check, not get(key) or DEFAULT), an explicit empty string disables Codex, and direct DetectionContract() construction stays empty."
+    sources: [R3-F3, X-001, INV-009]
+
+  - id: M-06
+    title: "A crash between the Augment and Codex re-trigger posts can leave Codex never re-triggered"
+    class: gap
+    severity: medium
+    affected_tasks: [10, 12, 14]
+    citations:
+      - "src/superclaude/pr_submit/recovery.py:136-146"
+      - "design:277-280"
+      - "recovery.py:60-80"
+    remedy: "Without changing recovery.py, Task 12 and Task 14 make every resume at S5a or S5 of a re-triggered cycle call pending_retriggers and post the missing reviewers before polling, Task 10 adds a log fixture with only an augment rereview_requested asserting resolve_crash_window returns S5 and pending_retriggers returns ['codex'], and Task 12 acceptance greps that the SKILL resume section calls pending_retriggers before the S5 poll."
+    sources: [R3-F4, R1-3, X-004]
+
+  - id: M-07
+    title: "rereview_requested must carry the reviewer field"
+    class: gap
+    severity: medium
+    affected_tasks: [12]
+    citations:
+      - ".dev/pr-submit-codex/design/pr-submit-codex-design.md:288-291"
+      - "plan:112"
+    remedy: "Task 12 acceptance requires every rereview_requested event to carry reviewer, because pending_retriggers counts a reviewer-less event as augment."
+    sources: [R3-F9, R2-05, C-006]
+
+  - id: M-08
+    title: "Per-reviewer re-trigger watermark is lost on resume"
+    class: gap
+    severity: medium
+    affected_tasks: [3, 12, 14]
+    citations:
+      - "review-retrigger.md:42-45"
+      - "SKILL.md:87-90"
+    remedy: "Task 12 records the watermark on rereview_requested{cycle_id, reviewer, watermark}, Task 3 rebuilds per-reviewer watermarks from those events, and Task 14 documents it in review-retrigger.md."
+    sources: [INV-003]
+
+  - id: M-09
+    title: "Augment-silent path must continue with Codex instead of ending as terminal_augment_no_response"
+    class: gap
+    severity: medium
+    affected_tasks: [12]
+    citations:
+      - "SKILL.md:61,186,199,241"
+      - "design:125-127"
+    remedy: "Task 12 changes SKILL step 3, Wave 8 arming and Error Handling so a silent Augment with Codex present continues through the merge with Codex rather than stopping before it."
+    sources: [INV-004]
+
+  - id: M-10
+    title: "Two Codex summary comments cause permanent polling"
+    class: gap
+    severity: medium
+    affected_tasks: [7, 10]
+    citations:
+      - "design:172-174"
+      - "classifier.py:230-234"
+    remedy: "Task 7 lets the newest valid Codex marker win (ambiguous only when two markers share the same time), matching how Augment picks the latest candidate, and Task 10 tests it."
+    sources: [INV-005]
+
+  - id: M-11
+    title: "Crash-resume repost must reuse the dangling cycle_id"
+    class: gap
+    severity: medium
+    affected_tasks: [12]
+    citations:
+      - "recovery.py:136-141"
+    remedy: "Task 12's resume path reuses the dangling record's cycle_id so a repost does not open a new cycle and re-post both reviewers."
+    sources: [INV-006]
+
+  - id: M-12
+    title: "Dedup group lifecycle (max tier, per-member fix_applied, per-member reply and resolve, flagged-by line) is stated by no task"
+    class: gap
+    severity: medium
+    affected_tasks: [10, 12, 13]
+    citations:
+      - ".dev/pr-submit-codex/design/pr-submit-codex-design.md:232-234"
+      - ".dev/pr-submit-codex/design/pr-submit-codex-design.md:226"
+      - ".dev/pr-submit-codex/design/pr-submit-codex-design.md:230-231"
+      - ".dev/pr-submit-codex/design/pr-submit-codex-design.md:235"
+      - "SKILL.md:196"
+    remedy: "Task 12 routes each dedup group at its members' highest remapped tier, diagnoses it once while recording fix_applied for every member's fix_key, replies to and resolves every verified member in Wave 6, and reports a 'flagged by' line, with Task 13 severity-routing.md stating the max-tier rule and Task 10 asserting each behaviour."
+    sources: [R2-01, R2-03, R2-04, R2-09, C-008]
+
+  - id: M-13
+    title: "S5 re-review wait over only the re-triggered reviewers, its attribution rule and reviewer_incomplete{phase: rereview} are assigned to no task"
+    class: gap
+    severity: medium
+    affected_tasks: [8, 10, 12, 14]
+    citations:
+      - ".dev/pr-submit-codex/design/pr-submit-codex-design.md:164-168"
+      - ".dev/pr-submit-codex/design/pr-submit-codex-design.md:284-287"
+    remedy: "Task 12's S5 description waits only on the re-triggered reviewers with the at-least-one attribution rule and emits reviewer_incomplete{phase: rereview}, Task 8 and Task 10 assert the row, and Task 14's state-machine.md names the merged attribution."
+    sources: [R2-02, R2-07, C-009]
+
+  - id: M-14
+    title: "Codex findings do not join the S5b decline fallback's single re-entry"
+    class: gap
+    severity: medium
+    affected_tasks: [12]
+    citations:
+      - ".dev/pr-submit-codex/design/pr-submit-codex-design.md:155"
+    remedy: "Task 12 extends the S5b fallback re-entry to the merged Codex findings."
+    sources: [R2-06]
+
+  - id: M-15
+    title: "Tasks 7-9 acceptance depends on Task 10's later tests, and the Task 7 dry check needs live gh with no fallback"
+    class: gap
+    severity: medium
+    affected_tasks: [7, 8, 9, 10]
+    citations:
+      - ".dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/TASK-WF-implementTheDesi-20261031-182028.md:93-96,104-106,125"
+    remedy: "Tasks 7-9 state that their acceptance is proven by the Task 10 tests, and the Task 7 PR 336 dry check becomes best-effort with a recorded-payload fallback."
+    sources: [R1-2]
+
+  # ---------------- LOW ----------------
+  - id: M-16
+    title: "Reviewer field on the other design s13 events is not pinned by acceptance"
+    class: gap
+    severity: low
+    affected_tasks: [12]
+    citations:
+      - ".dev/pr-submit-codex/design/pr-submit-codex-design.md:288-291"
+    remedy: "Task 12 lists all nine reviewer-carrying event types from design s13, including poll_result, review_detected, reply_posted and thread_resolved."
+    sources: [R3-F9, R2-05, C-006]
+
+  - id: M-17
+    title: "Stale event-count and re-trigger-count texts outside the class docstrings"
+    class: refinement
+    severity: low
+    affected_tasks: [1, 3, 14]
+    citations:
+      - "src/superclaude/pr_submit/models.py:3"
+      - "src/superclaude/pr_submit/run_log.py:111,117"
+      - "models.py:211-212"
+      - "src/superclaude/skills/sc-pr-submit-protocol/refs/loop-guard.md:82-96"
+    remedy: "Task 1 updates every count text (the models.py module docstring, the run_log.append docstring and error message, and the models.py:211-212 re-trigger comment made stale by Task 3), and Task 14 rewrites the loop-guard.md event list from 37 to 41 rather than adding two names."
+    sources: [R3-F5, R1-5, R2-10, C-005]
+
+  - id: M-18
+    title: "Output Contract rereview_request_count row still says re-trigger comments posted"
+    class: gap
+    severity: low
+    affected_tasks: [12]
+    citations:
+      - "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:166"
+    remedy: "Task 12 rewords the row to count re-triggered cycles."
+    sources: [R3-F6]
+
+  - id: M-19
+    title: "reviewer_activity['augment'] must equal has_augment_activity"
+    class: refinement
+    severity: low
+    affected_tasks: [4, 6]
+    citations:
+      - "src/superclaude/pr_submit/classifier.py:55-63"
+      - "design:309"
+    remedy: "Task 6 asserts reviewer_activity['augment'] == has_augment_activity with a thread-root-only Augment payload test, and has_augment_activity stays unchanged."
+    sources: [R1-6, R3-F7, R2-12, C-007, X-003]
+
+  - id: M-20
+    title: "Task 7 acceptance omits two Codex gate rows"
+    class: gap
+    severity: low
+    affected_tasks: [7, 10]
+    citations:
+      - ".dev/pr-submit-codex/design/pr-submit-codex-design.md:188-191,389-390"
+      - ".dev/pr-submit-codex/design/pr-submit-codex-design.md:188-191"
+    remedy: "Task 7 and Task 10 add the resolved-only threads plus Codex review on head -> clean case and the has_any_findings true with no visible roots -> polling case."
+    sources: [R3-F8, R1-8, C-004]
+
+  - id: M-21
+    title: "Poll script advisory state is not a Codex completion signal"
+    class: refinement
+    severity: low
+    affected_tasks: [13]
+    citations:
+      - "src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh:161-162"
+    remedy: "Task 13's augment-poll.md notes that the advisory state stays 'polling' for a Codex-only clean PR and is not used for Codex."
+    sources: [R3-F10]
+
+  - id: M-22
+    title: "Distinct-cycle re-trigger count matches the existing test"
+    class: aligned
+    severity: low
+    affected_tasks: [3]
+    citations:
+      - "tests/pr_submit/test_run_log.py:215-223"
+      - "src/superclaude/pr_submit/run_log.py:167-180"
+    remedy: "No change to the Task 3 count rule; the absent_reviewers seeding this finding also recommended is carried by M-25."
+    sources: [R3-F11]
+
+  - id: M-23
+    title: "Outdated Codex thread and current Augment thread on the same line can get different dedup keys"
+    class: gap
+    severity: low
+    affected_tasks: [9, 10]
+    citations:
+      - "design:224"
+      - "classifier.py:298-299"
+    remedy: "Task 9 pins dedup_groups behaviour for an outdated Codex thread (line null, old original_line) against a current Augment line, and Task 10 tests it."
+    sources: [INV-007]
+
+  - id: M-24
+    title: "reviewer_absent set semantics are not pinned; a disabled reviewer must be absent immediately"
+    class: gap
+    severity: low
+    affected_tasks: [3, 8]
+    citations:
+      - "plan:50,54"
+      - "design:108"
+    remedy: "Task 3 pins absent_reviewers as a set folded from one-shot reviewer_absent events, and Task 8 treats a reviewer with a blank identity as absent immediately."
+    sources: [INV-008]
+
+  - id: M-25
+    title: "absent_reviewers is not seeded in the initial resume state"
+    class: gap
+    severity: low
+    affected_tasks: [3]
+    citations:
+      - "run_log.py:167-180"
+      - "src/superclaude/pr_submit/run_log.py:167-180"
+    remedy: "Task 3 seeds absent_reviewers in the initial state dict of rebuild_state."
+    sources: [INV-011, R3-F11]
+
+  - id: M-26
+    title: "pr-submit.md --silence-timeout row still reads No-Augment-activity window"
+    class: gap
+    severity: low
+    affected_tasks: [14]
+    citations:
+      - "src/superclaude/commands/pr-submit.md:50"
+    remedy: "Task 14 also updates the --silence-timeout row to name both reviewers."
+    sources: [R1-9]
+
+  - id: M-27
+    title: "SKILL resume path does not read rebuild_state()['absent_reviewers']"
+    class: gap
+    severity: low
+    affected_tasks: [12]
+    citations:
+      - ".dev/pr-submit-codex/design/pr-submit-codex-design.md:128"
+    remedy: "Task 12's resume path reads rebuild_state()['absent_reviewers']."
+    sources: [R2-08]
+
+  - id: M-28
+    title: "Task 15 acceptance grep omits the two release guides it edits"
+    class: refinement
+    severity: low
+    affected_tasks: [15]
+    citations:
+      - "docs/guides/tdd-skill-release-guide.md:560"
+    remedy: "Task 15 extends its acceptance grep to docs/guides/tdd-skill-release-guide.md and docs/guides/prd-skill-release-guide.md."
+    sources: [R2-13]

@@ -1,0 +1,31 @@
+# sc:adversarial return contract (SKILL.md "Return Contract (MANDATORY)")
+# Run resumed after the 2026-11-02 16:28 UTC interruption; Steps 4-5 completed 2026-11-02 (Steps 1-3 not redone).
+return_contract:
+  merged_output_path: ".dev/orca-command-refactor/decisions/D5/debate/adversarial/merged-output.md"
+  convergence_score: 0.952           # 20 of 21 diff points (debate-transcript.md:364-365)
+  artifacts_dir: ".dev/orca-command-refactor/decisions/D5/debate/adversarial/"
+  status: "partial"                  # debate ended BLOCKED_BY_INVARIANTS (debate-transcript.md:408); all 19 planned changes applied; merge validation PASS (merge-log.md:252)
+  base_variant: "variant-1-original.md (option a, keep depth 1; Mode A, no model:persona)"
+  unresolved_conflicts: 1            # C-003 (oscillating; both readings reject a raise), debate-transcript.md:346,368
+  fallback_mode: false               # convergence threshold met (95.2% >= 80%); base chosen by score, no tiebreaker
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    # The merge applies a change for all four HIGH items (refactor-plan.md Changes 1, 4, 13-18).
+    # Listed here: the parts that stay open until Phase 0 runs (refactor-plan.md AR-1, AR-2).
+    - id: "INV-001"
+      category: "state_variables"
+      assumption: "A session the person opens is depth 0; stated as a precondition (Change 1), but Orca's depth assignment is not traced until AC-0.7"
+      severity: "HIGH"
+    - id: "INV-004"
+      category: "guard_conditions"
+      assumption: "Orca refuses worker-start, dispatch and task-create from a depth-1 worker; presumed until the read-only trace AC-0.7 runs"
+      severity: "HIGH"
+    - id: "INV-005"
+      category: "guard_conditions"
+      assumption: "A written worker-session rule (WC-13) restrains the worker session; a breach is found only afterwards by the 7.2 step 5 transcript check"
+      severity: "HIGH"
+    - id: "INV-017"
+      category: "sufficiency_challenge"
+      assumption: "Depth 1 plus WC-13 and the Task-ownership rule stop every route; routes (a), (b), (f) depend on AC-0.7 and route (g) on AC-C6 and the person"
+      severity: "HIGH"

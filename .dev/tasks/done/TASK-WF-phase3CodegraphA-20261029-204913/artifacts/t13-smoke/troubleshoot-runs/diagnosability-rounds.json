@@ -1,0 +1,5 @@
+{
+  "feat/codegraph-adoption": {
+    "install_core_files skips files (no repro command supplied)": 1
+  }
+}

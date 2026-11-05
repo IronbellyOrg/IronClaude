@@ -1,0 +1,16 @@
+## __all__ group 'merge conflicts (issue #305)' resolution
+group_names 27 ['MECHANICAL_RULES', 'SYNC_CAP', 'TIER2_MAX_FILES', 'ConflictAction', 'ConflictPlan', 'MechanicalRule', 'ResumePlan', 'SyncDecision', 'conflict_action', 'conflict_cycle_id', 'conflict_plan', 'conflict_resume_plan', 'conflict_validation_status', 'crash_resume_plan', 'evaluate_sync_decision', 'finish_manifest', 'is_conflict_cycle', 'merge_commit_message', 'merge_parent_ok', 'merge_preflight_ok', 'mergeability_hint', 'needs_probe', 'parse_resolution_record', 'prior_conflict_cycles', 'resolution_record_ok', 'should_retrigger', 'sync_fail_state']
+missing []
+all_names_unique True
+all_resolve True
+exit=0
+
+## no module among fsm, models, run_log, ci imports conflicts (expect no match)
+grep_exit=1 (1 = no import found)
+
+## conflicts.py imports
+24:import base64
+25:import re
+26:from dataclasses import dataclass
+28:from .fsm import run_validation_gates
+29:from .models import MonitorState

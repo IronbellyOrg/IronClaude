@@ -1,0 +1,31 @@
+$ git diff --stat
+ .../progress.md                                    |  1 +
+ .gitignore                                         |  4 +-
+ CLAUDE.md                                          | 57 ++++++++-----
+ plugins/superclaude/commands/recommend.md          |  2 +-
+ plugins/superclaude/skills/sc-recommend/SKILL.md   |  4 +-
+ .../sc-recommend/refs/surface-enumeration.md       |  2 +-
+ scripts/eval_runner.py                             | 94 ++++++++++++++++------
+ src/superclaude/commands/recommend.md              |  2 +-
+ .../skills/sc-post-release-protocol/SKILL.md       |  2 +-
+ src/superclaude/skills/sc-recommend/SKILL.md       |  4 +-
+ .../sc-recommend/refs/surface-enumeration.md       |  2 +-
+ tests/docs/test_tavily_doc_alignment.py            |  3 +-
+ 12 files changed, 119 insertions(+), 58 deletions(-)
+
+$ git diff HEAD --stat -- . ':!.dev'
+ .gitignore                                         |  4 +-
+ CLAUDE.md                                          | 57 ++++++++-----
+ plugins/superclaude/commands/recommend.md          |  2 +-
+ plugins/superclaude/skills/sc-recommend/SKILL.md   |  4 +-
+ .../sc-recommend/refs/surface-enumeration.md       |  2 +-
+ scripts/eval_runner.py                             | 94 ++++++++++++++++------
+ src/superclaude/commands/recommend.md              |  2 +-
+ .../skills/sc-post-release-protocol/SKILL.md       |  2 +-
+ src/superclaude/skills/sc-recommend/SKILL.md       |  4 +-
+ .../sc-recommend/refs/surface-enumeration.md       |  2 +-
+ tests/docs/test_tavily_doc_alignment.py            |  3 +-
+ 11 files changed, 118 insertions(+), 58 deletions(-)
+
+$ git diff HEAD --name-only -- POST-REFLECT-TASK.md docs/swarm/runbook.md src/superclaude/cli/reflect/config.py src/superclaude/skills/sc-reflect-protocol/SKILL.md tests/cli/reflect/test_isolate_reviewers_cli.py tests/skills/test_implement_retry_revert.py tests/unit/test_ccsession_tag.py tests/troubleshoot/backtest/git_replay.py tests/troubleshoot/backtest/test_git_replay_integration.py tests/troubleshoot/backtest/test_git_replay_unit.py
+(empty output above = no change)

@@ -1,0 +1,472 @@
+policy: 'sampled: every 3rd INF row (index % 3 == 0), 30%+ of 340'
+rows:
+- id: INF-001
+  section: 1.1 C1
+  quote: '`src/superclaude/cli/install_codebase_memory.py` | 1-759 (whole file; hits 23,25,82,86,223,265,323,337,611,673) | **delete file** | T5'
+  citation: source.md:30
+- id: INF-004
+  section: 1.1 C4
+  quote: '`tests/cli/test_install_codebase_memory.py` | 1-1633 (hits: Appendix A) | **delete file, but port 16 generic tests first** (1.4) | T1, T2, T4, T5'
+  citation: source.md:33
+- id: INF-007
+  section: 1.1 C7
+  quote: '**rewrite**: autouse fixture `native_phase_guard` (31-76), `_NATIVE_INSTALLER` (28), `_stub_installers` branch (82-91), expected call list (138). **Delete 17 tests** (5 test functions:...'
+  citation: source.md:36
+- id: INF-010
+  section: 1.1 C9
+  quote: '**delete section** `## Codebase Memory Native Lifecycle` (31-55); **rewrite** 13, 21-22, 25, 650 | T12'
+  citation: source.md:38
+- id: INF-013
+  section: 1.1 C12
+  quote: '**rewrite comments only**: the `permissions` comment (133-134, "runs the unpinned upstream Codebase Memory installer") and the step comment (155, "The required Codebase Memory phase ... needs the Claude CLI") stop naming codebase-memory, e.g. "`superclaude install` registers and retires user-scope
+    MCP servers through the Claude CLI".'
+  citation: source.md:41
+- id: INF-016
+  section: 1.2 S1
+  quote: '`.gitignore` | 113 | keep until `.serena/` is deleted everywhere; then delete line (decision D4) | T13'
+  citation: source.md:52
+- id: INF-019
+  section: 1.2 S7
+  quote: '`CLAUDE.md` | 377 | delete line 377 | T12'
+  citation: source.md:58
+- id: INF-022
+  section: 1.2 S11
+  quote: '`docs/analysis-sc-tasklist.md` | 317 | rewrite after sc-task-protocol STRICT decision | T12'
+  citation: source.md:62
+- id: INF-025
+  section: 1.2 S16
+  quote: '`docs/mcp/mcp-integration-policy.md` | 77,80,118-119,200,220,261,283,299,309,312,335,348,387,403-405,421,432,452,454,476 | delete Serena sections; rewrite memory rules per section 3 | T12'
+  citation: source.md:67
+- id: INF-028
+  section: 1.2 S21
+  quote: '`docs/troubleshooting/serena-installation.md` | 1,5,10,15,22,25,28,34,47-48,51,76,85,90-91,119,123-124,143,145,153 | delete file (and its links) | T12'
+  citation: source.md:72
+- id: INF-031
+  section: 1.2 S24
+  quote: delete Serena rows and the comparison section; rewrite /sc:save//sc:load text per section 3 | T12
+  citation: source.md:75
+- id: INF-034
+  section: 1.2 S27
+  quote: '`docs/user-guide/mcp-installation.md` | 43,60,83,123,304 | delete serena rows/examples and link | T12'
+  citation: source.md:78
+- id: INF-037
+  section: 1.2 S30
+  quote: '`docs/user-guide/modes.md` | 213,264 | rewrite per section 3 | T12'
+  citation: source.md:81
+- id: INF-040
+  section: 1.2 S33, S35, S36, S48, S50, S51
+  quote: '`plugins/superclaude/mcp/MCP_Serena.md` | 1,24-25,30-33 | delete file | T8'
+  citation: source.md:84-102
+- id: INF-043
+  section: 1.2 S40
+  quote: delete capability row 40 and eval E8; reword E6/E7 comments | T7
+  citation: source.md:91
+- id: INF-046
+  section: 1.2 S43
+  quote: '`src/superclaude/cli/reflect/contract.py` | 29-30,33 | remove two members + comment; unknown tokens then neither halt nor degrade (see section 4) | T6'
+  citation: source.md:94
+- id: INF-049
+  section: 1.2 S58-S64, S66, S67, S69-S82
+  quote: '`tests/cli/reflect/fixtures/autofixable_drift.yaml` | 26 | delete the `serena_summary_corroboration` line | T6'
+  citation: source.md:109-133
+- id: INF-052
+  section: 1.2 S83, S86
+  quote: '`tests/cli/reflect/test_ensemble_unit.py` | 345 | reword docstring | T6'
+  citation: source.md:134-137
+- id: INF-055
+  section: 1.2 S87
+  quote: '`tests/cli/test_install_hooks.py` | 684-687 | delete four asserts | T7'
+  citation: source.md:138
+- id: INF-058
+  section: 1.2 S90
+  quote: '`tests/recommend/fixtures/routing_refresh_cases.json` | 576,584 | rewrite strings with HOW-WE-WORK wording | T10'
+  citation: source.md:141
+- id: INF-061
+  section: 1.2 S99
+  quote: '`tests/troubleshoot/test_diagnostic_worker_contract.py` | 22-25,152 | edit TOOLS and mutant string together with troubleshoot-analyst.md | T11'
+  citation: source.md:150
+- id: INF-064
+  section: 1.2 P2
+  quote: '`commands/sc-brainstorm.md` | 6,44,78,84 | delete `serena` from frontmatter and fallback wording | T11'
+  citation: source.md:153
+- id: INF-067
+  section: 1.2 P5, P14, P40
+  quote: '`commands/sc-pm.md` | 6,15,34,39-43,59,65,79,86-87,95,323,423-428,530,539 | rewrite memory lifecycle per section 3; delete `serena` frontmatter | T10'
+  citation: source.md:156-191
+- id: INF-070
+  section: 1.2 P8, P17, P47
+  quote: '`commands/sc-save.md` | 3,6,25,31,37,42,58,86,91 | rewrite per memory decision (section 3): keep command, swap Serena memory for repo-local files; delete `serena` frontmatter | T10'
+  citation: source.md:159-198
+- id: INF-073
+  section: 1.2 P19, P53
+  quote: '`plugins/superclaude/core/RESEARCH_CONFIG.md` | 98,415 | delete both | T9'
+  citation: source.md:170-204
+- id: INF-076
+  section: 1.2 P23, P57
+  quote: '`plugins/superclaude/modes/MODE_Task_Management.md` | 15-18,25-26,33,36,43,49-50,53,83-86,88,94-95,98,107,109 | rewrite memory calls per section 3 | T10'
+  citation: source.md:174-208
+- id: INF-079
+  section: 1.2 P26
+  quote: '`src/superclaude/agents/auggie-reviewer.md` | 5,36,81,115 | delete the two tools from `tools:`; rewrite lines 36, 81, 115 | T11'
+  citation: source.md:177
+- id: INF-082
+  section: 1.2 P31
+  quote: '`src/superclaude/agents/troubleshoot-analyst.md` | 5 | delete the four tools from `tools:` | T11'
+  citation: source.md:182
+- id: INF-085
+  section: 1.2 P50
+  quote: '`src/superclaude/commands/validate-roadmap.md` | 6-7 | delete the mcp__serena__* entries from `allowed-tools` and `serena` from `mcp-servers` | T10, T11'
+  citation: source.md:201
+- id: INF-088
+  section: 1.2 P62
+  quote: '`src/superclaude/skills/sc-brainstorm-protocol/SKILL.md` | 15,57,193,387 | delete frontmatter entry and fallback_1 wording | T11'
+  citation: source.md:213
+- id: INF-091
+  section: 1.2 P68, P69, P70
+  quote: '`src/superclaude/skills/sc-crash-recovery/SKILL.md` | 3,37,62,67,79,145,157 | rewrite investigator #3 to read the new memory folder (section 3); rename report section | T10'
+  citation: source.md:219-221
+- id: INF-094
+  section: 1.2 P74
+  quote: '`src/superclaude/skills/sc-post-release-protocol/SKILL.md` | 11,244,259 | delete serena from enum and frontmatter (P3: add codegraph) | T9'
+  citation: source.md:225
+- id: INF-097
+  section: 1.2 P80
+  quote: '`src/superclaude/skills/sc-reflect-protocol/refs/deviation-taxonomy.md` | 50,65 | delete line 65; rewrite line 50 (P3: codegraph lookup) | T11'
+  citation: source.md:231
+- id: INF-100
+  section: 1.2 P83
+  quote: '`src/superclaude/skills/sc-reflect-protocol/refs/ops-integration.md` | 118,120,125-126,137,140,164,168-170,174,178-180 | delete the catalog section together with the `--onboard` feature | T11 (with the reflect rewrite)'
+  citation: source.md:234
+- id: INF-103
+  section: 1.2 P89
+  quote: '`src/superclaude/skills/sc-roadmap-protocol/SKILL.md` | 13,325-326,414,419,425,436,443,455 | delete Serena rows; make the existing file fallback the primary; delete `serena` frontmatter | T9'
+  citation: source.md:240
+- id: INF-106
+  section: 1.2 P93
+  quote: '`src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md` | 3-4,10,31,156,168,193,216,439,606,620 | delete tools and wording | T11'
+  citation: source.md:244
+- id: INF-109
+  section: 1.2 D1
+  quote: '`src/superclaude/hooks/scripts/freshness-pre-edit.sh` | 25-36 | delete the `relative_path` branch (`REL_PATH` lookup and its `elif`), keep `file_path`; reword the line-36 message to "no file_path in tool_input" | T7'
+  citation: source.md:250
+- id: INF-112
+  section: 1.2 D4
+  quote: '`tests/cli/reflect/test_reviewer_readonly_tools.py` | 7, 31 | drop `execute_shell_command` from the denylist set and docstring (the tool no longer exists) | T11'
+  citation: source.md:253
+- id: INF-115
+  section: '2.1'
+  quote: Historical `.dev/` artifacts stay untouched.
+  citation: source.md:261
+- id: INF-118
+  section: 2.2 DoD-3
+  quote: '`./update.sh` on an existing workspace removes the IronClaude-owned leftovers: the user-scope `codebase-memory-mcp` registration and every Tier R `serena` registration...'
+  citation: source.md:269
+- id: INF-121
+  section: 2.2 DoD-5
+  quote: Targeted suites green; full `uv run pytest` has no failure that is not in the T0 baseline; `make verify-sync` and `make lint` pass
+  citation: source.md:271
+- id: INF-124
+  section: 2.2 merge constraint
+  quote: Phases 1 and 2 merge as one unit; the Phase 1 executor never opens a `master` PR for Phase 1 alone.
+  citation: source.md:277
+- id: INF-127
+  section: 2.4 allowlist
+  quote: '`src/superclaude/commands/load.md` and its `plugins/superclaude/commands/load.md` and root `commands/sc-load.md` copies: one legacy-read sentence for `.serena/memories/` | memory decision item 7 (section 5): one release of read-only fallback for existing Serena memories'
+  citation: source.md:298
+- id: INF-130
+  section: 2.4 allowlist
+  quote: The 19 files that match only `onboarding` (rows marked "none (keep)" whose action says "onboarding is generic English") | false positives
+  citation: source.md:301
+- id: INF-133
+  section: '3.1'
+  quote: Nothing Coder-owned or upstream-owned is removed; all indexes, caches and memories are kept.
+  citation: source.md:307
+- id: INF-136
+  section: 3.2 codebase-memory matcher
+  quote: 'Every other matching entry (Coder''s `/usr/local/bin`, any other path, the current home''s `~/.local/bin` path whose binary is gone) is removed. A non-matching shape is kept: "kept: not an IronClaude registration".'
+  citation: source.md:313
+- id: INF-139
+  section: 3.2 Tier R row (a)
+  quote: (a) | IronClaude registry `050d5ea2`..`0e7bc31f^` | `uvx` | `["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "ide-assistant", "--enable-web-dashboard", "false", "--enable-gui-log-window", "false"]`
+  citation: source.md:319
+- id: INF-142
+  section: 3.2 serena Tier K
+  quote: "**serena, Tier K (kept, one printed line per run; matched with `env` and `headers` each absent or `{}`; kept by Phase 1 alone only until Phase 2's `codegraph_ready()` gate removes it, Phase 2 spec \xA72.12; a launcher with a non-empty `env` or `headers` is reported as \"kept: customised registration\"\
+    \ and is never removed, not even by that gate):** the current pin..."
+  citation: source.md:325
+- id: INF-145
+  section: 3.2 serena Tier K
+  quote: 'A `serena` entry without `start-mcp-server` is "kept: not a Serena launcher registration".'
+  citation: source.md:325
+- id: INF-148
+  section: 3.2 receipt and marker
+  quote: T3 copies the small predicate logic into the retire module, because T5 deletes `install_codebase_memory.py`.
+  citation: source.md:327
+- id: INF-151
+  section: 3.3 classifier
+  quote: '**One pure classifier** `classify_retired_entries() -> list[(name, verdict, reason)]` reads all state once (via `read_user_mcp_entry(name)`, `install_mcp.py:714-754`), then actions run in a fixed order: (1) receipt/marker cleanup, (2) codebase-memory registration, (3) serena registration.'
+  citation: source.md:333
+- id: INF-154
+  section: 3.3 placement
+  quote: '**Placement:** in `main.py` `install()`, in the slot of the deleted codebase-memory phase (baseline `main.py:254`), before the exit-code block, inside its own `try/except Exception` that only warns.'
+  citation: source.md:336
+- id: INF-157
+  section: 3.3 failure table
+  quote: Entry changed before removal | kept, reported, not retried
+  citation: source.md:342
+- id: INF-160
+  section: 3.3 failure table
+  quote: '`shutil.which("claude")` is None | skip note printing the exact `claude mcp remove <name> --scope user` per entry that would have been removed'
+  citation: source.md:345
+- id: INF-163
+  section: 3.4 install --list
+  quote: '`superclaude install --list`: the deleted codebase-memory block (baseline `main.py:161-186`) is replaced by one line per retired name: "absent", "will be removed (IronClaude shape)" or "kept: <reason>".'
+  citation: source.md:351
+- id: INF-166
+  section: 3.4 messages
+  quote: 'Messages, one line per action: after any removal, "Restart running Claude sessions; a running session can write the entry back. Check with `superclaude install --list`."; after a codebase-memory removal, "If you installed codebase-memory-mcp yourself, its own `uninstall` removes its client companions.";...'
+  citation: source.md:354
+- id: INF-169
+  section: 3.4 messages
+  quote: '`uv tool uninstall serena-agent` labelled "if you installed it yourself; Coder workspaces reinstall it at start"; the Tier K line; the data delete commands.'
+  citation: source.md:354
+- id: INF-172
+  section: 3.5 files
+  quote: '`src/superclaude/cli/main.py`: the call in `install()`, the `install --list` lines, the `update` notice. `src/superclaude/cli/doctor.py`: the warn-only check.'
+  citation: source.md:360
+- id: INF-175
+  section: 3.5 tests
+  quote: a Tier R serena removal prints the removed argv and the re-register command; local-scope and `.mcp.json` entries ignored; binary, receipt and marker states, including "receipt present, binary absent" converging in one run);
+  citation: source.md:361
+- id: INF-178
+  section: 3.5 tests
+  quote: 'Unchanged contract: `tests/cli/test_update_script.py` (`update.sh` list and order) still passes.'
+  citation: source.md:362
+- id: INF-181
+  section: 4.1 G1
+  quote: '**Triage first.** For each load-bearing SYM/REF/DIAG/ALLOW row (`primitive-usage.md` section 4 lists them): **delete** the Serena half when the same step already names a Serena-free Read/Grep/Glob/auggie path (examples:...'
+  citation: source.md:388
+- id: INF-184
+  section: 4.1 G3
+  quote: '**Closed read-only rosters** (`agents/reflect-reviewer.md`, `agents/troubleshoot-analyst.md`, `agents/reuse-auditor.md`) only lose `mcp__serena__*` names; the floor inside them is Read/Grep/Glob/auggie; Bash is never added'
+  citation: source.md:390
+- id: INF-187
+  section: 4.1 G5
+  quote: '**Every `tools:` / `allowed-tools:` line naming `mcp__serena__*` is load-bearing**, whatever its inventory label, and changes in the same commit as the skill body that drives that agent and its pinning test...'
+  citation: source.md:392
+- id: INF-190
+  section: 4.1 G7
+  quote: '**reflect treats floor evidence as normal.** No `serena` degraded token is emitted; `"serena"` and `"serena:context-excluded"` leave `_DEGRADED_COMPONENTS_HALT_SET` (`src/superclaude/cli/reflect/contract.py:32-34`, verified) and the section 6.5 and section 10 fallback rows of the reflect SKILL.md.'
+  citation: source.md:394
+- id: INF-193
+  section: 4.1 G8
+  quote: '**Exception (this spec''s decision D4):** `serena_summary_corroboration` is deleted, not kept:...'
+  citation: source.md:395
+- id: INF-196
+  section: 4.1 G10
+  quote: '**Core rules file:** `src/superclaude/core/CLAUDE.md:112` (refresh-tool table, "Symbolic queries" row) becomes "Grep for the definition and references, then Read" (Phase 3 adds codegraph); `:21` (MCP table row) and the `replace_symbol_body` item of rule S2 (`:90`) are deleted (T9)'
+  citation: source.md:397
+- id: INF-199
+  section: 4.3 acceptance 2
+  quote: 'No primitive step names a tool absent from its own roster: for each agent and skill with a `tools:` or `allowed-tools:` line, every `mcp__<server>__<tool>` named in its body is in that line (T11a-T11c run the check script in section 8.0).'
+  citation: source.md:406
+- id: INF-202
+  section: 5 M2
+  quote: '`<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory outside git: one store per worktree'
+  citation: source.md:415
+- id: INF-205
+  section: 5 M5
+  quote: Reflect cold-start calibration moves to tracked `docs/memory/reflect/deviation-patterns-<slug>.md`; T13 moves `.serena/memories/reflect/deviation-patterns-IronClaude.md` there with `git mv` (content kept)
+  citation: source.md:418
+- id: INF-208
+  section: 5 M8
+  quote: 'Delete, do not port, the Serena-only non-memory calls: `think_about_*`, `summarize_changes`, `activate_project`, `onboarding`, `check_onboarding_performed`, `prepare_for_new_conversation`, `get_current_config`, and reflect''s `--onboard` flow (Steps 0.5c, 0.7, 0.7b) with `refs/ops-integration.md`''s
+    Serena WARN catalog'
+  citation: source.md:421
+- id: INF-211
+  section: 5 consumers
+  quote: '`core/RULES.md` lines 49-50 stay (the commands stay).'
+  citation: source.md:423
+- id: INF-214
+  section: '6.2'
+  quote: The Coder part is **merged into Phase 2's Coder handoff** (Phase 2 spec, task P2), because the Coder change must also bake codegraph...
+  citation: source.md:453
+- id: INF-217
+  section: 6.3 Financials
+  quote: 'Repo: IronbellyOrg/Financials. Context: IronClaude (issue IronbellyOrg/IronClaude#323) removed the Serena and codebase-memory MCP servers; codegraph replaces code navigation later (IronClaude Phase 3).'
+  citation: source.md:462
+- id: INF-220
+  section: 6.3 InfraDocs
+  quote: 'Repo: IronbellyOrg/InfraDocs. Context: IronClaude (issue IronbellyOrg/IronClaude#323) removed the Serena MCP server.'
+  citation: source.md:498
+- id: INF-223
+  section: 6.3 Octodive
+  quote: 'Repo: IronbellyOrg/Octodive. Context: IronClaude (issue IronbellyOrg/IronClaude#323) removed the Serena MCP server.'
+  citation: source.md:530
+- id: INF-226
+  section: 6.3 shrapnel-gov
+  quote: 'Repo: IronbellyOrg/shrapnel-gov. Context: IronClaude (issue IronbellyOrg/IronClaude#323) removed the Serena MCP server.'
+  citation: source.md:559
+- id: INF-229
+  section: 8 intro
+  quote: Tasks run in the listed order; no task needs a later task to go green.
+  citation: source.md:604
+- id: INF-232
+  section: 8.0 check_rosters.py
+  quote: Run it as `uv run --no-project python -I $PKG/artifacts/check_rosters.py`. Violations that already exist at baseline for other servers are out of scope; the check is "no line that is not in the T0 output, and no `serena` line".
+  citation: source.md:646
+- id: INF-235
+  section: 8 T0
+  quote: 'Change: `make sync-dev` (the audit tests need the `.claude/` mirror, `inventory/codebase-memory.md` 4.0); write the two helpers from 8.0; record baselines:'
+  citation: source.md:654
+- id: INF-238
+  section: 8 T0
+  quote: '`T02_15_PERF_REPORT=/tmp/p1-perf.json uv run pytest -q -p no:cacheprovider --tb=line | tee $PKG/artifacts/baseline/full.txt`'
+  citation: source.md:657
+- id: INF-241
+  section: 8 T0
+  quote: '**Group G0 done:** issue comment (section 9) with the baseline pass/fail counts.'
+  citation: source.md:661
+- id: INF-244
+  section: 8 T1
+  quote: 'Acceptance: `uv run pytest tests/cli/test_install_mcp_cli.py -q -p no:cacheprovider` passes, and `uv run pytest tests/cli/test_install_codebase_memory.py tests/cli/test_install_mcp_registry.py tests/cli/test_install_mcp_tavily.py tests/cli/test_update_command.py tests/docs/test_tavily_doc_alignment.py
+    -q -p no:cacheprovider` still shows the T0 `cbm.txt` counts.'
+  citation: source.md:668
+- id: INF-247
+  section: 8 T2
+  quote: 'The fixture and `main.py` change in the same commit (hazard: the real-install tests would otherwise reach the real upstream installer).'
+  citation: source.md:673
+- id: INF-250
+  section: 8 T3
+  quote: 'Change: implement section 3 exactly (matchers 3.2, behaviour 3.3, surfaces and messages 3.4, tests 3.5). The retire module must not import `install_codebase_memory.py` (deleted in T5).'
+  citation: source.md:679
+- id: INF-253
+  section: 8 T3
+  quote: '`rg -c ''codebase-memory-mcp|serena'' "$T/list.txt"` prints at least 2 (one line each, both "absent"); then `rm -rf "$T"`.'
+  citation: source.md:680
+- id: INF-256
+  section: 8 T4
+  quote: Add `"codebase-memory-mcp"` to the `test_removed_mcp_servers_are_not_in_registry` tuple.
+  citation: source.md:685
+- id: INF-259
+  section: 8 T5
+  quote: 'Acceptance: `rg -n "install_codebase_memory|codebase_memory" src tests -g ''!src/superclaude/cli/install_retired_mcp.py'' -g ''!tests/cli/test_install_retired_mcp.py''` prints nothing (the retire step and its test are allowlisted, section 2.4; review finding X-17);...'
+  citation: source.md:692
+- id: INF-262
+  section: 8 T6
+  quote: drop `"serena"` and `"serena:context-excluded"` from `_DEGRADED_COMPONENTS_HALT_SET` and fix the comment (`contract.py:28-34`); delete the `serena_summary_corroboration` key (`ensemble.py:824`) and its line in 24 fixtures; delete `fixtures/degraded_serena.yaml`; `degraded_with_drift.yaml` `-
+    serena` -> `- auggie`;
+  citation: source.md:700
+- id: INF-265
+  section: 8 T7
+  quote: 'Files: `src/superclaude/hooks/hooks.json`, `plugins/superclaude/hooks/hooks.json`, `src/superclaude/hooks/scripts/freshness-pre-edit.sh`, `plugins/superclaude/hooks/scripts/freshness-pre-edit.sh`, `tests/cli/test_install_hooks.py`, `src/superclaude/cli/eval/suites/real.yaml`, `src/superclaude/cli/eval/coverage.py`,
+    `src/superclaude/cli/eval/suites/README.md`, `tests/cli/eval/test_coverage_gate.py`.'
+  citation: source.md:705
+- id: INF-268
+  section: 8 T7
+  quote: 'Acceptance: `uv run pytest tests/cli/test_install_hooks.py tests/hooks tests/cli/eval/test_coverage_gate.py tests/cli/eval/test_no_mcp_skip.py tests/cli/eval/test_schema_validate.py tests/cli/eval/test_capability_gates.py -q -p no:cacheprovider` passes; `rg -n ''mcp__serena|relative_path'' src/superclaude/hooks
+    plugins/superclaude/hooks src/superclaude/cli/eval tests/cli/test_install_hooks.py tests/cli/eval/test_coverage_gate.py` prints nothing.'
+  citation: source.md:707
+- id: INF-271
+  section: 8 T8
+  quote: 'Acceptance: `uv run pytest tests/cli/test_install_mcp_registry.py tests/cli/test_install_mcp_tavily.py tests/cli/test_install_mcp_cli.py tests/unit/test_cli_install.py tests/cli/test_update_command.py -q -p no:cacheprovider` passes; `rg -n -i serena src/superclaude/cli/install_mcp.py src/superclaude/mcp
+    plugins/superclaude/mcp tests/unit/test_cli_install.py` prints nothing; `uv run superclaude mcp --servers serena --dry-run 2>&1 | grep -q ''Unknown MCP server selection: serena''` succeeds.'
+  citation: source.md:713
+- id: INF-274
+  section: 8 T9
+  quote: 'Change: delete the Serena entries and lines named in each row''s action; no body text may still point at Serena.'
+  citation: source.md:721
+- id: INF-277
+  section: 8 T10a
+  quote: 'Files: rows P1, P4, P5, P8 (root `commands/sc-{load,pm,save}.md`, `agents/sc-pm-agent.md`), P11, P13, P14, P17, P23 (`plugins/superclaude/` twins), P27, P39, P40, P47, P57 (`src/superclaude/agents/pm-agent.md`, `commands/{load,pm,save}.md`, `modes/MODE_Task_Management.md`), P73 (`src/superclaude/skills/sc-pm-protocol/SKILL.md`;
+    kept with `/sc:pm` because `src/superclaude/commands/pm.md:52` loads `sc:pm-protocol`).'
+  citation: source.md:728
+- id: INF-280
+  section: 8 T10a
+  quote: '`rg --files-without-match ''\.superclaude/\.gitignore'' src/superclaude/commands/save.md src/superclaude/agents/pm-agent.md src/superclaude/skills/sc-pm-protocol/SKILL.md src/superclaude/modes/MODE_Task_Management.md` prints nothing (rule M3 in every writer).'
+  citation: source.md:730
+- id: INF-283
+  section: 8 T10b
+  quote: 'Change: rules M1-M8 for these files. After editing `HOW-WE-WORK.md`, copy it byte for byte to the plugin copy; if the edit touches the block between `<!-- level-table:v1 -->` and `<!-- /level-table -->`, re-copy that block into `src/superclaude/core/CLAUDE.md:50-67` (project `CLAUDE.md` rule;
+    `tests/core/test_claude_md_routing_block.py`).'
+  citation: source.md:735
+- id: INF-286
+  section: 8 T11a
+  quote: 'Files: tool parts of rows P6, P15, P43 (reflect commands) and P77 (reflect SKILL.md, including the section 6.1.1 envelope retitle, rule G4); rows P78, P79, P80, P81, P83, P84, P86, P87 (reflect refs);...'
+  citation: source.md:740
+- id: INF-289
+  section: 8 T11a
+  quote: 'Acceptance: `make sync-dev && make verify-sync` passes; `uv run pytest tests/cli/reflect tests/skills tests/commands -q -p no:cacheprovider` passes; `bash $PKG/artifacts/acceptance-search.sh serena src/superclaude/skills/sc-reflect-protocol src/superclaude/commands/reflect.md plugins/superclaude/commands/reflect.md
+    commands/sc-reflect.md src/superclaude/agents/reflect-reviewer.md src/superclaude/agents/reuse-auditor.md` prints `ACCEPTANCE_SEARCH_OK serena`;...'
+  citation: source.md:742
+- id: INF-292
+  section: 8 T11b
+  quote: 'Change: rules G1-G9 for these files; append the touched steps to the slots ledger.'
+  citation: source.md:747
+- id: INF-295
+  section: 8 T11c
+  quote: 'Files: tool parts of rows P50 and P96 (validate-roadmap command and skill, rule G6 Step 0.5 floor) and P91 (sc-task-protocol STRICT prerequisites); rows P92 (`sc-tasklist-protocol/SKILL.md:683`), P26 and P33 (`agents/auggie-reviewer.md`, `commands/auggie-review.md`), P2, P62, P63 (brainstorm
+    root command, skill and `refs/handoff-routing.md`), P65 (cleanup-audit skill), P22 and P56 (`MODE_Orchestration.md` twins), P25 and P76 (`delegation-vs-native-heuristics.md` twins), P51 line 112 (`core/CLAUDE.md` refresh-tool row, rule G10).'
+  citation: source.md:752
+- id: INF-298
+  section: 8 T11c
+  quote: '`for f in commands/troubleshoot.md skills/sc-reflect-protocol/SKILL.md skills/sc-troubleshoot-protocol/SKILL.md skills/sc-validate-roadmap-protocol/SKILL.md agents/reuse-auditor.md; do rg -qF "$f" .dev/codegraph-migration/handoffs/phase3-codegraph-slots.md || echo "ledger missing $f"; done`
+    prints nothing; `bash $PKG/artifacts/acceptance-search.sh serena src/superclaude plugins/superclaude commands agents` prints `ACCEPTANCE_SEARCH_OK serena`.'
+  citation: source.md:754
+- id: INF-301
+  section: 8 T12
+  quote: 'Change: per each row''s action; no "Retired servers" section in user docs (decision D7; the CHANGELOG entry and the retire step''s own output carry the manual commands).'
+  citation: source.md:762
+- id: INF-304
+  section: 8 T13
+  quote: 'Files: `git rm .serena/project.yml .serena/memories/memory_maintenance.md .serena/.gitignore` (the calibration file already moved in T10b); `.gitignore:113` stays (section 2.4).'
+  citation: source.md:767
+- id: INF-307
+  section: 8 T14 check 1
+  quote: '`make sync-dev && make verify-sync`; `make lint`; `uv run ruff format --check src/superclaude/cli tests/cli`.'
+  citation: source.md:777
+- id: INF-310
+  section: 8 T14 check 4
+  quote: 'Sandbox "fresh" (DoD-2): `T=$(mktemp -d /tmp/p1-sbx.XXXXXX)`; stub `claude` at `$T/bin/claude` (logs argv to `$HOME/claude-calls.log`;...'
+  citation: source.md:780
+- id: INF-313
+  section: 8 T14 check 5
+  quote: 'Expect: `jq ''.mcpServers|keys'' $T/old/.claude.json` is `["tavily"]`; `jq ''.projects["/x"].mcpServers|has("serena")'' $T/old/.claude.json` is `true`; `rg -n ''mcp__serena'' $T/old/.claude/settings.json` prints nothing; `rg -n -i ''serena|codebase-memory'' $T/old/.claude` prints nothing.'
+  citation: source.md:781
+- id: INF-316
+  section: 8 T14 check 6
+  quote: '`env HOME=$T/ci UV_CACHE_DIR="$(uv cache dir)" PATH=<a PATH with no claude executable; confirm with command -v claude printing nothing> uv run --no-sync superclaude install && uv run --no-sync superclaude doctor --verbose` exits 0.'
+  citation: source.md:782
+- id: INF-319
+  section: 8 T15
+  quote: 'Files: `$PKG/handoffs/<repo>.md` for the 11 repos in section 6.3 (text copied verbatim);...'
+  citation: source.md:788
+- id: INF-322
+  section: 8 T15
+  quote: 'Acceptance: `ls $PKG/handoffs/*.md | wc -l` prints 11; `test -s .dev/codegraph-migration/handoffs/phase2-facts-from-phase1.md && test -s .dev/codegraph-migration/handoffs/phase3-codegraph-slots.md`; `rg -q ''codegraph_ready'' .dev/codegraph-migration/handoffs/phase2-facts-from-phase1.md`.'
+  citation: source.md:789
+- id: INF-325
+  section: '9'
+  quote: '# must print IronbellyOrg/IronClaude; otherwise run: gh repo set-default IronbellyOrg/IronClaude'
+  citation: source.md:798
+- id: INF-328
+  section: '9'
+  quote: If `gh` is not authenticated or the call fails, record the exact error and the intended body in the task package's `progress.md` and continue; this is not a blocker.
+  citation: source.md:802
+- id: INF-331
+  section: '10 decision size: mid-level'
+  quote: write each option to `<task package>/decisions/<task>-<slug>/option-<x>.md`, then spawn an agent that runs `/sc:adversarial --compare <option files> --depth quick`; follow its recommendation | `decisions.md` entry with method `adversarial quick` and the merged-recommendation path
+  citation: source.md:811
+- id: INF-334
+  section: '10'
+  quote: If a task's acceptance command fails, fix within the task's files; if the fix needs a file another task owns, pull that edit forward and say so in `decisions.md`.
+  citation: source.md:817
+- id: INF-337
+  section: '10'
+  quote: Never stage or commit `.claude/` content except `.claude/settings.json` (project `CLAUDE.md`); stage `.dev/tasks/` (the task package) with every commit.
+  citation: source.md:819
+- id: INF-340
+  section: '10'
+  quote: 'Two later actions belong to the user and are listed so the executor does not attempt them: (1) merging Phases 1 and 2 to `master` together (Phase 2''s PR, via `/sc:pr-submit`); (2) running the real `./update.sh` on a live workspace after that merge, which removes the live registrations listed
+    in 2.3.'
+  citation: source.md:823

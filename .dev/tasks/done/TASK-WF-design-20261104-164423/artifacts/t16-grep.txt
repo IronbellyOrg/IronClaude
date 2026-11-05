@@ -1,0 +1,13 @@
+== new gh api lines in ci-poll.md (must carry repos/<owner/repo>/) ==
+61:gh api repos/<owner/repo>/commits/<sha>/check-runs --jq .total_count
+62:gh api repos/<owner/repo>/commits/<sha>/status --jq .total_count
+== gh api lines lacking repos/ path (expect none) ==
+NONE
+== T-N50 tokens in state-machine.md / loop-guard.md (expect none) ==
+NONE
+== force flags in the three refs (expect none) ==
+NONE
+== src/superclaude/ text in the three refs (expect none) ==
+NONE
+== INV-016 blockquote unchanged vs HEAD (diff of '> ' lines) ==
+IDENTICAL

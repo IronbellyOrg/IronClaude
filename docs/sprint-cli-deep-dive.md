@@ -673,7 +673,7 @@ Isolation directories live at `results/.isolation/` and are cleaned up per-phase
 The prompt sent to each ClaudeProcess is structured:
 
 ```text
-/sc:task-unified Execute all tasks in @<phase_file> --compliance strict --strategy systematic
+/sc:task Execute all tasks in @<phase_file> --compliance strict --strategy systematic
 
 ## Sprint Context
 - Sprint: <release_name>
@@ -1639,7 +1639,7 @@ superclaude sprint run tasklist-index.md --start 1 --end 6 --max-turns 100
 
 ---
 
-## Auto-Resume (v4.3.5)
+## Auto-Resume
 
 Auto-resume is the **default** behavior of `sprint run` and `sprint rerun-tasks`.
 A bare invocation (no explicit window/selector and no `--fresh`) reconstructs

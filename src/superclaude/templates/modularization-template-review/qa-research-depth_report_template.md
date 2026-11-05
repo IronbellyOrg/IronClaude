@@ -102,7 +102,7 @@ WRITING DISCIPLINE:
 - **Topic:** {{RF_PLACEHOLDER:TOPIC}}
 - **Date:** {{RF_PLACEHOLDER:DATE}}
 - **Phase:** research-depth
-- **Fix cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 3
+- **Fix cycle:** {{RF_PLACEHOLDER:FIX_CYCLE}} / 2
 
 ## Overall Verdict: {{RF_PLACEHOLDER:VERDICT}}
 

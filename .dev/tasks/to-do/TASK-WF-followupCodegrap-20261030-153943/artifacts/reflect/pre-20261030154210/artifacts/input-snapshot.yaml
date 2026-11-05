@@ -1,0 +1,33 @@
+input_tree_sha256: 14bdafb31c34b20261a5f01f73c0ff29f07fbd65b3000a294dcdf6b2dbf78944
+file_count: 15
+file_list:
+  - path: .dev/codegraph-migration/evidence/P2-release-SHA256SUMS.txt
+    sha256: 83629fc59ff8b695bea3aa61e41c15dd2d57a6e20865bd0c6f2d1b2995be13f5
+  - path: .dev/codegraph-migration/specs/followup-codegraph-release-monitor-spec.md
+    sha256: bde42c6c0921b76eddd16a6e179d823313a776cf5c18b7cf85fc18413e147080
+  - path: .dev/releases/current/cliEval/evidence/T02.15/perf.json
+    sha256: 829a1651c4d859d4e694f890d87ff89dec089b8bf130d42ebdd069352d63525b
+  - path: .dev/tasks/to-do/TASK-WF-followupCodegrap-20261030-153943/TASK-WF-followupCodegrap-20261030-153943.md
+    sha256: 9740475c5b3e123f47632b9021a768c6d6e2d3187ba4740456aea16f57b81b99
+  - path: .dev/tasks/to-do/TASK-WF-followupCodegrap-20261030-153943/source.md
+    sha256: bde42c6c0921b76eddd16a6e179d823313a776cf5c18b7cf85fc18413e147080
+  - path: .github/workflows/README.md
+    sha256: ac55397e2854fabaeb13a8211e88a972c6408591f7abcb3cfa35b64544dc6d11
+  - path: CHANGELOG.md
+    sha256: 434e9129921e8a7174e3bd72e93e53ea5550d37aaf620d4ce906973d6c5ca42f
+  - path: docs/reference/mcp-server-guide.md
+    sha256: 93a975af15a1518a1ffded6574a4fd0c4bbd457ac3283d9a5899b17850ab856f
+  - path: docs/user-guide/mcp-installation.md
+    sha256: 6f5023b634ceef321880741ef6853eb52ff3649f4ddb039163bf410f204d14f5
+  - path: src/superclaude/cli/install_codegraph.py
+    sha256: 63a9dc4607ad4b0e29f324a5c947daff3edd6e9fdb1cf58f543286bc0483d7fa
+  - path: tests/cli/test_install_codegraph.py
+    sha256: f35e6b1bcb0d46fa89648202018349cf6dd2402e5b45103154807e115d5f8073
+  - path: tests/cli/test_update_command.py
+    sha256: 4bfa12d6ea054a15d0d82ee5800887afd6962d7aa04555fbb59b2eefb7017182
+  - path: tests/swarm/test_merge_boundary_guards.py
+    sha256: 497e328caef6e7cf21e9c7ba966813e2f7dca9cfe9b0eb8fdce778638752a180
+  - path: tests/unit/test_cli_doctor.py
+    sha256: d1a2cca30afcd1cf3108fb2f806a23dc8c16090bb2281cede09ded2293708144
+  - path: update.sh
+    sha256: 955858e661c347db88285b8cb930cd8f73ac8eb1f6ebcb60ecb415207a359860

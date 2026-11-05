@@ -4,7 +4,7 @@
 
 This guide documents how SuperClaude's Context-Oriented Configuration Framework is structured and how Claude Code interprets these context files to modify its behavior.
 
-**Important**: SuperClaude is NOT standalone software with running processes, execution layers, or performance systems. It is a collection of `.md` instruction files that Claude Code reads to adopt specialized behaviors.
+**Important**: Most of SuperClaude is `.md` instruction files (core files, commands, agents, skills) that Claude Code reads to adopt specialized behaviors. Two parts do run code: the `superclaude` Python CLI (installer, `doctor`, and the `sprint`, `roadmap`, `tasklist`, `eval`, `swarm` and other pipelines) and the hook scripts Claude Code runs on session and tool events. See [What Runs Code](#what-runs-code).
 
 ## Table of Contents
 
@@ -21,37 +21,42 @@ This guide documents how SuperClaude's Context-Oriented Configuration Framework 
 
 ### Directory Structure
 
-```
+The lists below give counts rather than every file name. Run `superclaude install --list` to see each installed core file, command, agent, skill and template by name.
+
+```text
 ~/.claude/ (SuperClaude Framework Files Only)
 ├── CLAUDE.md                       # Always loaded; imports BASH_INSPECTION_POLICY.md
 ├── BASH_INSPECTION_POLICY.md       # Bash inspection rules, imported by CLAUDE.md
 ├── HOW-WE-WORK.md                  # Routing guide, read on demand, never imported
 ├── RULES.md                        # Behavioral rules, read by skills
 ├── PRINCIPLES.md                   # Engineering principles, read by skills
+├── CODEGRAPH.md                    # Codegraph usage guide, read by skills and agents (5.0.0)
+├── ISSUE-HANDOFF.md                # Issue template for work handed to someone else (5.0.0)
+├── ISSUE-BACKLOG.md                # Issue template for parked work (5.0.0)
 ├── RESEARCH_CONFIG.md              # Deep-research configuration
 ├── BUSINESS_SYMBOLS.md             # Business-panel symbols
 ├── BUSINESS_PANEL_EXAMPLES.md      # Business-panel examples
-├── agents/                         # Domain specialist contexts (19 total)
-│   ├── backend-architect.md        # Backend expertise
-│   ├── business-panel-experts.md   # Business strategy panel
-│   ├── deep-research-agent.md      # Deep research expertise
-│   ├── devops-architect.md         # DevOps expertise
-│   ├── frontend-architect.md       # Frontend expertise
-│   ├── learning-guide.md           # Educational expertise
-│   ├── performance-engineer.md     # Performance expertise
-│   ├── python-expert.md            # Python expertise
-│   ├── quality-engineer.md         # Quality assurance expertise
-│   ├── refactoring-expert.md       # Code quality expertise
-│   ├── requirements-analyst.md     # Requirements expertise
-│   ├── root-cause-analyst.md       # Problem diagnosis expertise
-│   ├── security-engineer.md        # Security expertise
-│   ├── socratic-mentor.md          # Educational expertise
-│   ├── spec-panel-experts.md       # Specification review panel
-│   ├── system-architect.md         # System design expertise
-│   ├── technical-writer.md         # Documentation expertise
-│   ├── test-runner.md              # Test execution expertise
-│   └── wave-orchestrator.md        # Wave orchestration patterns
-├── hooks/                          # Shell hooks deposited by install_hooks (v4.3+)
+│                                   # (11 core files in all)
+├── agents/                         # 45 agent files, e.g. backend-architect.md,
+│                                   # pm-agent.md, rf-qa.md, technical-writer.md
+├── commands/
+│   └── sc/                         # 45 slash commands (/sc:<name>), e.g. implement.md,
+│                                   # workflow.md, impact.md (/sc:impact), graph.md (/sc:graph)
+├── skills/                         # 38 skill folders (SKILL.md plus refs/, rules/,
+│                                   # templates/, scripts/), e.g. sc-implement-protocol/,
+│                                   # sc-graph-protocol/, sc-impact-protocol/, ccsession-tag/
+│   └── ccsession-tag/
+│       ├── ccsession, ccsession-orca  # Launchers, linked from ~/.local/bin/
+│       └── hooks/
+│           ├── session-start.sh    # SessionStart (startup|resume)
+│           └── session-name.sh     # UserPromptSubmit and SessionEnd: keeps session names in step
+├── templates/                      # 53 document and workflow templates (documents/,
+│                                   # workflow/, modularization-template-review/)
+├── rules/                          # Rule groups core/, contextual/, prompts/; listed in
+│                                   # settings.json claudeMdExcludes, read on demand
+├── output-styles/
+│   └── pragmatic.md                # Injected into subagents by pragmatic-subagent.js
+├── hooks/                          # Hook scripts deposited by install_hooks
 │   ├── session-init.sh             # Pre-existing init script (legacy)
 │   ├── freshness-session-start.sh  # SessionStart envelope (startup + resume branches)
 │   ├── freshness-user-prompt.sh    # Per-turn <session-context> envelope injection
@@ -59,7 +64,13 @@ This guide documents how SuperClaude's Context-Oriented Configuration Framework 
 │   ├── freshness-post-read.sh      # PostToolUse(Read) tracker
 │   ├── freshness-subagent-start.sh # Background-agent counter increment
 │   ├── freshness-subagent-stop.sh  # Background-agent counter decrement
-│   └── freshness-file-changed.sh   # NOT REGISTERED in v1 — see freshness-hooks.md
+│   ├── freshness-file-changed.sh   # Copied but NOT registered — see freshness-hooks.md
+│   ├── codegraph-session-start.sh  # SessionStart (startup): one detached `codegraph init --yes`
+│   │                               # in a git checkout with no .codegraph/codegraph.db (5.0.0)
+│   ├── auggie-flag-clear.sh        # PostToolUse after an auggie MCP call
+│   ├── pragmatic-subagent.js       # SubagentStart: injects output-styles/pragmatic.md (needs node)
+│   ├── reject-workspace-writes.sh  # Copied; registered only by this repo's .claude/settings.json
+│   └── sc-recommend-phase0.sh      # Copied; registered only by this repo's .claude/settings.json
 ├── state/                          # Per-session state populated by hooks
 │   ├── reads.jsonl                 # Successful Read events (cross-session jsonl)
 │   ├── turns/<sid>.txt             # Per-session turn counter
@@ -68,38 +79,28 @@ This guide documents how SuperClaude's Context-Oriented Configuration Framework 
 │   └── tool-call-counter/<sid>.txt # Per-session tool-call sequence
 ├── logs/                           # Hook telemetry
 │   └── freshness-hook.jsonl        # PreToolUse decisions (one row per Edit attempt)
-├── settings.json                   # Hook registrations merged by install_hooks
-└── commands/                       # Workflow pattern contexts
-    └── sc/                         # SuperClaude command namespace (25 total)
-        ├── analyze.md              # Analysis patterns
-        ├── brainstorm.md           # Discovery patterns
-        ├── build.md                # Build patterns
-        ├── business-panel.md       # Business expert panel patterns
-        ├── cleanup.md              # Cleanup patterns
-        ├── design.md               # Design patterns
-        ├── document.md             # Documentation patterns
-        ├── estimate.md             # Estimation patterns
-        ├── explain.md              # Explanation patterns
-        ├── git.md                  # Git workflow patterns
-        ├── help.md                 # Help and command listing
-        ├── implement.md            # Implementation patterns
-        ├── improve.md              # Improvement patterns
-        ├── index.md                # Index patterns
-        ├── load.md                 # Context loading patterns
-        ├── reflect.md              # Reflection patterns
-        ├── research.md             # Deep research patterns
-        ├── save.md                 # Session persistence patterns
-        ├── select-tool.md          # Tool selection patterns
-        ├── spawn.md                # Multi-agent patterns
-        ├── spec-panel.md           # Specification review panel
-        ├── task.md                 # Task management patterns
-        ├── test.md                 # Testing patterns
-        ├── troubleshoot.md         # Troubleshooting patterns
-        └── workflow.md             # Workflow planning patterns
+├── ccsession.env                   # ccsession settings, seeded once from ccsession.env.example
+└── settings.json                   # Hook registrations merged by install_hooks
 
-Note: Other directories (backups/, logs/, projects/, serena/, etc.) are Claude Code
+Note: Other directories (backups/, projects/, etc.) are Claude Code
 operational directories, not part of SuperClaude framework content.
 ```
+
+`superclaude install` also writes outside `~/.claude/`. The `versions/`, `current` and `~/.local/bin/codegraph` entries appear only when the installer downloads the pinned codegraph itself, because none was found on `PATH` or in `~/.local/bin`:
+
+```text
+~/.codegraph/                       # codegraph, pinned version
+├── versions/<tag>/bin/codegraph    # Downloaded binary
+├── current                         # Link to the active version
+├── .superclaude-receipt.json       # What the installer downloaded and linked
+└── .superclaude-bin                # Path of the binary the installer registered
+~/.local/bin/
+├── codegraph                       # Link to ~/.codegraph/versions/<tag>/bin/codegraph
+├── ccsession                       # Link to ~/.claude/skills/ccsession-tag/ccsession
+└── ccsession-orca                  # Link to ~/.claude/skills/ccsession-tag/ccsession-orca
+```
+
+The hook registrations themselves come from `hooks.json` in the package and are merged into `~/.claude/settings.json`. The 5.0.0 release dropped the core files `ORCHESTRATOR.md`, `COMMANDS.md`, `PERSONAS.md`, `MODES.md`, `FLAGS.md` and `MCP.md`; their routing content now lives in `HOW-WE-WORK.md`. Copies left in an older `~/.claude/` are not loaded by anything.
 
 ### Context File Types
 
@@ -257,7 +258,7 @@ MCP servers are configured in `~/.claude.json` (NOT part of SuperClaude context)
 
 ### Context Loading Sequence
 
-```
+```text
 User Input (in Claude Code): "/sc:analyze src/ --focus security"
                     ↓
 1. Parse Command: identify 'analyze' command
@@ -309,24 +310,18 @@ There is no way to add a mode that switches on by itself. Modes ship under `src/
 
 ## Important Clarifications
 
-### What SuperClaude Is NOT
+### What Runs Code
 
-- ❌ **No Execution Engine**: No code runs, no processes execute
-- ❌ **No Performance System**: No optimization possible (it's just text)
-- ❌ **No Detection Engine**: Claude Code does pattern matching
-- ❌ **No Orchestration Layer**: Context files guide, not control
-- ❌ **No Quality Gates**: Just instructional patterns
+- **The `superclaude` Python CLI**: `install`, `update`, `doctor` and `mcp` set up and check the installation. The `sprint`, `roadmap`, `tasklist`, `eval`, `swarm`, `reflect`, `prd`, `cli-portify` and `cleanup-audit` commands are multi-step pipelines: most start Claude Code as a subprocess for each step and check its output in code; `swarm` fans one prompt out to several OpenAI-compatible model workers. Run `superclaude --help` for the full list.
+- **Hook scripts**: Claude Code runs the scripts in `~/.claude/hooks/` and `~/.claude/skills/ccsession-tag/hooks/` on the events registered in `settings.json`. They track reads, block edits to unread or stale files (`freshness-pre-edit.sh`), and start a background `codegraph init` on the first session in a new checkout (`codegraph-session-start.sh`; opt out with `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0`).
+- **MCP servers**: Separate software (codegraph, Context7, Tavily and others) that `superclaude mcp` and `superclaude install` register with Claude Code.
 
-### What SuperClaude IS
+### What Is Only Context
 
-- ✅ **Context Files**: `.md` instructions for Claude Code
-- ✅ **Behavioral Patterns**: Workflows and approaches
-- ✅ **Domain Expertise**: Specialized knowledge contexts
-- ✅ **Configuration**: Settings for actual tools (MCP)
-- ✅ **Framework**: Structured prompt engineering
+- **Core files, commands, agents and skills**: `.md` instructions Claude Code reads. A `/sc:` command or skill describes a workflow; Claude follows it, nothing enforces it in code unless the workflow calls a CLI pipeline or a hook applies.
+- **No detection engine**: Claude Code chooses agents by their `description`; there is no keyword or file-type matcher.
+- **Flags**: Flags typed after a `/sc:` command (`--c7`, `--tavily`, `--brainstorm`) are hints Claude may honour, not options parsed by code. CLI options of `superclaude <command>` are parsed normally.
 
 ## Summary
 
-SuperClaude's architecture is intentionally simple: it's a well-organized collection of context files that Claude Code reads to modify its behavior. The power comes from the careful crafting of these contexts and their systematic organization, not from any executing code or running processes.
-
-The framework's elegance lies in its simplicity - by providing Claude Code with structured instructions through context files, we can achieve sophisticated behavioral modifications without any software complexity.
+SuperClaude is mostly a well-organized collection of context files that Claude Code reads to modify its behavior, plus a Python CLI and a set of hook scripts that do run. The context files carry the workflows and expertise; the CLI installs and checks them and runs the long multi-step pipelines; the hooks keep sessions honest about what has been read and keep the code graph indexed.

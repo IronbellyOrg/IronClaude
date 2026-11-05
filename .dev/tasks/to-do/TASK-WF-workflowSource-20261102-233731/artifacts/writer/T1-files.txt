@@ -1,0 +1,3 @@
+docs/getting-started/installation.md
+.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/writer/T1-files.txt

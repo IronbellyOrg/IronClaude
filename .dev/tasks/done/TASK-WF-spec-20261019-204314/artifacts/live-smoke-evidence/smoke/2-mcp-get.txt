@@ -1,8 +1,0 @@
-codebase-memory-mcp:
-  Scope: User config (available in all your projects)
-  Status: ✔ Connected
-  Type: stdio
-  Command: /home/coder/.local/bin/codebase-memory-mcp
-  Args:
-
-To remove this server, run: claude mcp remove codebase-memory-mcp -s user

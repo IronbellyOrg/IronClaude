@@ -1,0 +1,891 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+SOURCE agent-acase-ci-plan-7ab24a85dd89dfdb.jsonl RAW_LINE 116 TIME 2026-10-23T03:46:28.557Z CHARS 21596
+| Status | Result |
+|---|---|
+| DONE | Investigated the original plan, its 18 merged concerns, the regenerated source and plan, and both review cycles through the recorded endpoint. |
+| DONE | Separated incomplete repairs, previously missed checks, withdrawn findings, and one repair-induced dependency-graph defect. |
+| NEXT | The parent investigation should use the bounded findings below. The regenerated review had not finished at the observed endpoint. |
+
+# Research: Regenerated CI-followup plan review failures
+
+**Investigation type:** Root-cause analysis and document comparison  
+**Scope:** Assigned session `43582de1-c41b-4b6a-806c-f19f1488095c`, its CI-followup plans, source snapshots, and review artifacts  
+**Status:** Complete for the observed endpoint  
+**Date:** 2026-10-23  
+**Output:** Returned as structured text because this agent’s instructions prohibit writing report files.
+
+## 1. Main finding
+
+The regeneration fixed most of the identified problems, but several repairs enforced only part of the intended rule. The clearest example is the tooling-output exemption: it was added to the final status comparison but not to the independent content-hash comparison. Another surviving weakness was already present before regeneration: the instructions specified the pull-request search filters, while the acceptance checks tested the creation command’s filters but not the search command’s filters.
+
+The “four new medium findings” reported after regeneration do **not** establish four fix-caused regressions. Two were later downgraded to optional hardening or a specification-level residual. The dependency graph is the strongest supported example of a repair introducing a new structural defect, although the intended executor’s sequential execution still prevents the corresponding runtime reordering.
+
+No implementation run or resulting product-code regression was observed.
+
+## 2. Evidence locations
+
+All paths below are absolute.
+
+**Session log**
+
+`/config/.claude/projects/-config-workspace-IronClaude/43582de1-c41b-4b6a-806c-f19f1488095c.jsonl`
+
+**Original plan**
+
+`/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-spec-20261022-211556/TASK-WF-spec-20261022-211556.md`
+
+**Regenerated plan**
+
+`/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/TASK-WF-specR1-20261023-031725.md`
+
+**Regenerated source snapshot, containing the unchanged original specification followed by review feedback**
+
+`/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/tasks/to-do/TASK-WF-specR1-20261023-031725/source.md`
+
+**Original merged findings**
+
+`/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/adversarial/merged-verdict.yaml`
+
+**Original final report**
+
+`/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-spec-20261022-211556-20261022211900/REPORT.md`
+
+**Regenerated reviewer-1 card**
+
+`/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-specR1-20261023-031725-20261023032025/reviewer-cards/reviewer-1-card.yaml`
+
+**Regenerated second-round concessions**
+
+`/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-specR1-20261023-031725-20261023032025/adversarial/round2-v1.md`
+
+**Regenerated emerging consensus**
+
+`/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-specR1-20261023-031725-20261023032025/adversarial/consensus-summary.md`
+
+The knowledge graph explicitly excludes the worktree subtree. Conclusions therefore come from direct file reads and focused session-log extraction, not indexed graph coverage.
+
+## 3. Observation boundary
+
+The final byte-level observation was made at **2026-10-23T03:41:52.643460Z**.
+
+| Measurement | Observed value |
+|---|---|
+| Session length | 4,092,055 bytes |
+| JSONL rows | 1,000 |
+| Last recorded timestamp | 2026-10-23T03:37:30.672Z |
+| SHA-256 | `c93d9746b81770b18fca85d1e000f0766e4abdf2ba92a8d69e4731e53be8ba10` |
+| Last substantive status | The regenerated review’s invariant probe was running |
+| Pending background agents in final system record | 1 |
+
+At that observation, the regenerated review had **no** final report, return contract, merged verdict, or completed invariant-probe artifact. Its existing consensus was an intermediate result, not a completed review.
+
+The session’s eight actual skill invocations were workflow, reflection, and adversarial-review invocations. There was no implementation-skill invocation. The implementation command printed after the first review was explicitly marked “not run.”
+
+**Key takeaways**
+
+- This case concerns planning and review, not implementation failure.
+- The bounded outcome is an emerging “not ready” consensus with another check still running.
+- Do not report a final regenerated verdict or eventual repair outcome.
+
+## 4. Timeline and what the counts mean
+
+| Session row | Time, UTC | Observed event |
+|---|---|---|
+| 69 / 75 | Oct 22, 21:15 | Workflow generation starts from the original CI-followup specification. |
+| 170 | 21:18:22 | Pre-execution reflection starts on the original plan. |
+| 342 | 21:29:18 | Reviewer 2 returns findings, including weak README checks and broken or underspecified checks. |
+| 493 | 21:34:52 | Reviewer-1 advocate changes to “not ready” during debate. |
+| 623 | 21:46:39 | Operator summary reports 18 merged concerns: 10 medium, 8 low. |
+| 627 | Oct 23, 03:16:29 | User authorizes “refactor.” |
+| 651 / 653 | 03:17 | Review notes are written and concatenated after the original specification. |
+| 663 / 670 | 03:17 | A second workflow generates a new package from the combined source. |
+| 733 | 03:20:03 | Pre-execution reflection starts on the regenerated plan. |
+| 791 | 03:21:29 | Orchestrator prematurely states that every review note is applied. |
+| 801 | 03:22:18 | Calibration scores the initial card 0.67 and notes that the 18 earlier findings were not checked individually. |
+| 810 / 821 | 03:24 | Reviewer 1 reports “16 fixed, 2 partial” plus four new medium findings. |
+| 825 | 03:28:56 | Reviewer 2 reports additional concerns and disputes some initial-card claims. |
+| 845 | 03:30 | Reviewer-1 calibration qualifies several claims. |
+| 987 / 988 | 03:37 | Debate reaches an emerging “not ready” consensus. |
+| 990 / 999 | 03:37 | Another invariant probe starts and remains running at the endpoint. |
+
+The original **18** is a deduplicated merged-finding count, not 18 independent review rounds. That review involved two initial reviewers, two debate rounds, and an independent invariant probe. The probe itself produced 19 entries, of which six were medium, unaddressed warnings. Several became merged findings, including the decision-file conflict, non-durable run record, failure handling, fresh-change requirement, and whole-document preservation checks.
+
+The original final report groups the 18 merged items into 14 report sections. That is aggregation, not evidence that four findings disappeared.
+
+**Key takeaways**
+
+- Repeated debate statements are not additional independent discoveries.
+- The “16 fixed, 2 partial” statement was one reviewer’s intermediate assessment.
+- Later debate corrected that assessment’s interpretation of at least one “partial” item.
+
+## 5. Finding-level disposition of the original 18 concerns
+
+Locations below refer to the absolute original and regenerated plan paths listed in Section 2. These are verified **plan-text repairs**, not executed behavior.
+
+| Original concern | Regenerated evidence | Disposition |
+|---|---|---|
+| Advisory header and warning checks permit wrong wording (M-01) | Regenerated lines 94-97 add anchored blocks, required advisory wording, and prohibited phrases. | Original counterexamples addressed. |
+| Git/command stubs are underspecified (M-02) | Lines 129-133 specify real-git delegation, environment, shell behavior, and four runs. | Addressed in plan text. |
+| Unchanged sync-step body and creation arguments are not checked (M-03) | Lines 125-128 compare the preserved body and require creation head/base arguments. | Original finding addressed; search-command filter coverage remains separate. |
+| README keyword and badge checks are weak (M-04) | Lines 164-168 require the workflow path and explicit advisory/no-master-push wording. | Original counterexamples addressed. |
+| Baseline parsing and tooling-output scope behavior are underspecified (M-05) | Lines 37 and 178 add NUL-delimited status handling and deleted-path markers; line 184 adds tooling exemptions. | **Partial:** rename handling remains undefined, and hashes lack the exemption. |
+| Decision must remain the last line, but a later task appends (M-06) | Lines 48-52 use a uniquely prefixed decision line; line 140 writes a separate note. | Original conflict addressed; immutable-file verification and machine format have residual weaknesses. |
+| Post-merge result is stored only in a disposable worktree (M-07) | Line 120 names a comment on the merging pull request and says the local note is not durable. | Addressed in plan text. |
+| Failed pull-request search can finish green (M-08) | Line 117 uses a standalone assignment; line 133 requires a failing-search run. | Addressed in plan text. |
+| Second stub run might test no-change behavior instead of PR reuse (M-09) | Line 131 requires another new file after the first commit and a logged search call. | Addressed in plan text. |
+| Sync and test documents lack whole-document preservation checks (M-10) | Lines 125 and 146 add comparisons covering surrounding document structure. | **Addressed for the original finding’s actual two-file scope.** |
+| Fixed line slices are fragile (M-11) | Lines 94 and 97 use text-anchored blocks. | Addressed. |
+| Backslash/backtick command is broken Markdown (M-12) | Lines 102-104 put the fixed-string check in a fence. | Addressed. |
+| Throwaway repository lacks explicit branch/identity setup (M-13) | Line 71 supplies both. | Addressed. |
+| Render commits may produce unrelated differences or no guarded files (M-14) | Lines 90 and 100 select a parent pair and require a nonempty identical list. | Addressed in plan text. |
+| Path-filter question has no artifact home (M-15) | Lines 58-63 and 176/186 provide a documentation quote and leftover item. | Addressed as specified. This investigation does not independently certify the external documentation conclusion. |
+| README neighbors and accepted contradictions are incompletely disclosed (M-16) | Lines 174-176 require reading neighboring text and expand the accepted-leftover list. | Addressed without expanding the edit scope. |
+| Baseline/input placeholders lack definitions (M-17) | Lines 23 and 145 define their sources. | Original placeholder problem addressed; decision serialization remains loosely specified. |
+| Dependency lines misstate real dependencies (M-18) | Research dependencies are repointed, but lines 138, 153 and 172 leave the final tasks’ graph disconnected from earlier edits. | Direct predecessors partly corrected; **new structural deficiency** discussed below. |
+
+Reviewer 1 called the whole-document concern partially fixed because the boundary workflow lacked the same protection. That is too broad a reading of the original concern: the original merged finding and appended source feedback explicitly named the sync workflow and test workflow. In the second debate, reviewer 1 conceded this and downgraded boundary-file comparison to optional hardening.
+
+**Key takeaways**
+
+- There is strong evidence of substantial repair, not wholesale failure to apply feedback.
+- One repair remained incomplete across two independent scope-check mechanisms.
+- Counting boundary-file hardening as an unapplied original requirement inflated the apparent residual count.
+
+## 6. The four newly reported medium findings
+
+### 6.1 Tooling files are exempt from status checking, but not hashing
+
+**Before:** Original Task 1 hashes baseline-listed paths outside allowed folders. Original Task 9 compares those hashes and separately rejects new status entries outside its allowlist.
+
+**Repair:** Regenerated line 184 allows tooling-output paths in the status comparison. Regenerated line 37 still hashes existing tooling files, and line 183 still requires exact hash-file equality.
+
+**Failure mechanism:** If an already-present review/tooling file is rewritten during execution, the status exemption accepts it while the hash comparison rejects it.
+
+**Classification:** An incomplete repair of an existing scope-check problem, **not a demonstrated fix-caused regression**. The hash exposure existed before regeneration.
+
+**Evidence strength:** The plan-text contradiction is verified. An advocate reported 48 existing reflection entries from their own status inspection. Those were not a completed Task 1 baseline artifact, and this investigation observed no failed implementation run. Failure still requires a pre-existing hashed tooling file to change.
+
+### 6.2 Pull-request search filters are specified but not verified
+
+**Before:** Original line 105 specifies a search filtered by branch and base. Original acceptance lines 113-114 do not assert those search filters.
+
+**After:** Regenerated line 117 still specifies the correct search. Line 128 checks head/base arguments on the **creation** command, not the **search** command. The stub at line 129 returns its scripted count regardless of the received arguments.
+
+**Failure mechanism:** Removing the search’s branch filter still passes the described checks. An unrelated open pull request could then be counted and suppress creation of the sync pull request.
+
+**Classification:** A previously missed acceptance weakness that survived regeneration, not a new defect caused by the repair.
+
+**Why the earlier repair missed it:** The recorded remedy for preserving arguments specifically asserted the creation command’s head/base arguments. It did not extend that assertion to the search command. The underlying reason the original reviewers did not broaden their inspection is unknown.
+
+### 6.3 Boundary workflow lacks whole-document preservation
+
+**Before and after:** The boundary task checks selected blocks, paths, rendering and tests, but does not compare all surrounding workflow structure.
+
+**Failure mechanism:** A change to runner, checkout depth or environment could escape those particular checks.
+
+**Classification:** A surviving analogous weakness, not a fix-caused regression and not an unapplied original whole-document finding.
+
+**Later disposition:** Reviewer 1 explicitly conceded that the original whole-document requirement named only the sync and test workflows, and downgraded this to optional hardening in the second debate.
+
+### 6.4 Final scope checking allows every workflow-directory path
+
+**Before:** Original line 158 accepts new status entries anywhere under the workflow directory.
+
+**After:** Regenerated line 184 retains that directory-level allowance.
+
+**Failure mechanism:** An extra workflow-file edit passes the final status allowlist; the positive check only proves the expected files also changed.
+
+**Classification:** Inherited source/check mismatch, not a regeneration-induced defect.
+
+**Important qualification:** The source’s scope section names exact files, but its quality-rule section explicitly describes the final check at directory level. The second calibration and debate therefore downgraded this from a medium plan defect to a low residual/tightening suggestion. No actual extra workflow edit was observed.
+
+**Key takeaways**
+
+- “New finding” means newly detected, not necessarily newly introduced.
+- The two strongest surviving acceptance problems were the hash exemption and unchecked search arguments.
+- The other two medium claims were softened after checking their exact governing requirements.
+
+## 7. Supported repair-induced structural defect
+
+The dependency graph has a documented before-and-after causal chain.
+
+**Before:** The original plan uses a serial dependency chain. Its review calls that chain “safe for correctness” but overly restrictive.
+
+**Advice:** The original merged finding offers repointing individual dependencies while also claiming that the documentation task can treat earlier edits as ancestors. The proposed repointing does not actually preserve those ancestors. The appended source feedback then requires that ancestor relationship explicitly.
+
+**After:** In the regenerated plan:
+
+- Codecov editing depends directly on its research task.
+- Workflow documentation depends on Codecov editing.
+- Final scope checking depends on workflow documentation.
+- Earlier boundary and sync edits are not ancestors of that final chain.
+
+The regenerated source requires the final dependency to lead back through the earlier edits at line 82. The regenerated plan substitutes a prose “number order” rule at line 31 rather than satisfying the graph requirement.
+
+**Causal conclusion:** Repairing excessive dependencies by repointing edges introduced a missing-ancestor defect into the plan graph. This is stronger evidence than merely finding a new issue after a change: the original safe chain, the repair advice, and the resulting disconnected graph are all visible.
+
+**Runtime qualification:** The intended executor runs these unmarked tasks sequentially in source order. The review verified that behavior, so this is a structural/specification miss, **not evidence that the implementation actually reordered tasks**.
+
+The second debate identified a workable repair by renumbering the research step near its consumer and rebuilding a single-parent chain. That repair was proposed, not observed as applied.
+
+## 8. Why review and regeneration did not converge immediately
+
+The artifacts support these specific mechanisms.
+
+1. **Requirements were stronger than their acceptance checks.** Correct search filters appeared in instructions, but the stub did not validate search arguments. Correct README wording appeared in instructions, but initial checks accepted keyword presence.
+
+2. **A cross-task repair covered only one of two checking mechanisms.** The tooling exemption was added to status comparison but not hash comparison.
+
+3. **The regeneration was initially declared complete without finding-by-finding verification.** The orchestrator said every review note was applied before the calibrator reported that the 18 prior findings had not been individually checked.
+
+4. **Review findings themselves required correction.** Missing boundary-file comparison was initially treated as an incomplete original repair, then conceded to be optional hardening. The broad workflow allowlist was initially medium, then qualified against the specification’s own directory-level rule.
+
+5. **Readiness judgments were inconsistent with findings.** Reviewer 1 initially returned “ready with notes” despite acceptance defects comparable to those that made the original plan “not ready.” Debate changed that verdict.
+
+The record does **not** establish context exhaustion, model capability, generic “prose unreliability,” or inadequate reviewer count as the cause. Those explanations would be speculation.
+
+## 9. Scope and authorization
+
+- The original specification remained intact. The regenerated source is the original specification followed by the review-feedback section; the package source snapshots exactly matched their proposal files.
+- The tooling-output exception changes the original checking boundary, but it is explicitly disclosed as a necessary deviation in both feedback and regenerated constraints. It is not a concealed product-scope expansion.
+- The README contradictions outside the designated paragraph were accepted by the specification. Treating those remaining lines as unauthorized failure would misread the scope.
+- No actual extra workflow edit, implementation execution, or product-code scope violation was observed.
+
+## 10. Gaps and questions
+
+- The regenerated invariant probe’s result, final merged verdict and final report were not available at the observed endpoint.
+- No implementation artifacts prove the described hash or search-filter failure occurred in a real execution.
+- The advocate’s 48 tooling-file count establishes a reported exposure, not a completed task baseline or observed hash failure.
+- The exact reason the original reviewers missed the search-filter assertion is unknown beyond the narrower recorded remedy.
+- External documentation conclusions embedded in the plan were not independently re-researched here.
+- No later refactor cycle, implementation, merge or post-merge workflow result may be inferred.
+
+## 11. Stale documentation found
+
+No stale production-documentation finding is established by this investigation. The publishing-document contradictions were existing, explicitly accepted leftovers; the workflow changes were still proposed.
+
+## 12. Summary and recommended action
+
+This case demonstrates **partial repair across interacting checks, previously missed acceptance weaknesses, and one repair-induced dependency-graph defect**. It does not demonstrate that implementation fixes repeatedly broke production code. The initial “16 fixed, 2 partial, 4 new medium” account was provisional and was materially qualified during debate.
+
+**RECOMMENDED ACTION:** In the parent synthesis, classify this case as a pre-execution review loop with an incomplete endpoint. Preserve the distinction between the two supported acceptance defects, the dependency-graph regression, and the two downgraded hardening suggestions; that prevents overstating both failure count and implementation impact.
+SOURCE agent-acase-orca-monitor-5b644b12ceea9c86.jsonl RAW_LINE 122 TIME 2026-10-23T03:45:06.911Z CHARS 23751
+| Status | Result |
+|---|---|
+| DONE | Investigated the assigned frozen session, original workflow write, repair edits, reviewer verdicts, plan, source requirements and ledger. |
+| DONE | Separated previously missed defects, retained gaps, additional review criteria and one proven repair-caused regression. |
+| NEXT | Incorporate this evidence into the parent report. No production changes or execution were performed. |
+
+# Research: Repeated Orca monitor implementation reviews
+
+**Investigation type:** Root-cause analysis and historical code tracing  
+**Scope:** The assigned implementation session and its Task 12 monitor workflow  
+**Status:** Complete  
+**Date:** 2026-10-23  
+**Delivery:** Full evidence returned here because developer instructions prohibit writing report files.
+
+## 1. Finding
+
+This was **one implementation invocation with repeated reviews of the same task**, not several independent implementation attempts.
+
+The verified sequence contains:
+
+- Seven Task 12 verdicts: six noncompliant and one compliant.
+- Five repair passes: the original automatic repair and four operator-authorized repairs.
+- Four literal operator replies of `fix`.
+- Three checks by the original reviewer, followed by four fresh reviewers.
+- One original-protocol halt, followed by four new-protocol operator-review halts.
+- No Task 12 retry-ladder records, adviser records or revert records.
+
+**Most later findings were already present in the first workflow.** The evidence does not support “every repair introduced the next failure.” One genuine repair-caused regression is demonstrable: adding an inherited error trap that writes to standard output polluted command-substitution results.
+
+A separate process change explains why a compliant review did not finish the task: the implementation protocol changed during execution, and its migration rule required a fresh review of the previously blocked task.
+
+### Evidence notation
+
+**Session S:**  
+`/config/.claude/projects/-config-workspace-Coder--claude-worktrees-orca-upstream-tracking/e002bed2-7877-42c1-8665-8cb8595587b6.jsonl`
+
+“Raw N” below means physical JSONL line N in Session S. Historical workflow line numbers refer to the version embedded in that raw record, not necessarily the current file.
+
+**Workflow W:**  
+`/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.github/workflows/orca-upstream-monitor.yml`
+
+**Plan P:**  
+`/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/tasks/to-do/TASK-WF-designSpec-20261022-132541/TASK-WF-designSpec-20261022-132541.md`
+
+**Source D:**  
+`/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/tasks/to-do/TASK-WF-designSpec-20261022-132541/source.md`
+
+**Ledger L:**  
+`/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/tasks/to-do/TASK-WF-designSpec-20261022-132541/progress.md`
+
+**Key takeaway:** Count this as one sustained Task 12 incident with several discovery-and-repair cycles.
+
+## 2. Requirements and verification structure
+
+Task 12 combined three jobs, upstream probing, GitHub issue maintenance, build dispatch, release metadata collection, eighteen PR fields, sanitization, rollback handling and PR creation into one workflow.
+
+The first workflow write was **640 lines**: Raw 585, `2026-10-22T19:56:32.313Z`.
+
+The plan’s first three acceptance criteria are structural: YAML parsing, expression placement, secret tracing controls, marker counts and concurrency shape. Its fourth criterion defers marked-region behavior and job-wiring tests to Task 14. Review prompts therefore instructed reviewers to judge every Task 12 requirement bullet directly rather than wait for the deferred tests. See Plan P, lines 209-232.
+
+This produced an important split:
+
+- Structural checks repeatedly passed.
+- Reviewers independently constructed behavioral counterexamples.
+- Task 14’s lasting workflow tests were not reached because Task 12 remained blocked.
+- The retained Task 12 evidence log contains structural checks, not a cumulative executable suite of the discovered failure cases.
+
+The log currently begins “re-run after the fifth fix pass” and records YAML, job settings, `set +x`, expression checks, `bash -n`, markers and sanitizer equality:
+
+`/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/tasks/to-do/TASK-WF-designSpec-20261022-132541/artifacts/t12-monitor-yaml.log`
+
+Its 34 lines do not establish coverage of all the reviewer-generated edge cases.
+
+**Key takeaway:** Passing checks were real, but they checked different properties from those that kept failing review.
+
+## 3. Timeline
+
+All timestamps are UTC and come from Session S.
+
+| Raw anchor | Timestamp | Event |
+|---|---|---|
+| 14 / 40 | Oct 22, 19:29:17.282 / 19:29:22.409 | One `/sc:implement` invocation and its skill load. |
+| 585 | 19:56:32.313 | Initial 640-line monitor workflow written. |
+| 685 / 697 | 19:59:15.498 / 20:10:58.253 | First reviewer launched, then returned `missing`: swallowed collector failures, missing error reporting, wrong summary outcomes and missing-old-provenance status. |
+| 716-766; 797/800 | 20:11-20:13 | First repair pass; original reviewer resumed. |
+| 804 | 20:19:54.643 | `missing`: prior fixes held; equal/older tag ranges remained wrong and failed PR listing was swallowed. Reviewer explicitly said the range was wrong before the repair too. |
+| 817 | 20:20:17.791 | Original one-fix protocol halted. |
+| 820 | 20:26:30.810 | Operator replied `fix`. |
+| 825 / 827 / 842 | 20:26-20:27 | Equal/older-range and PR-listing repairs; same reviewer resumed. |
+| 849 | 20:33:49.079 | Original reviewer returned `compliant`, with a self-audit. |
+| 869 / 873 / 882-885 | 20:33:59-20:34:18 | Executor inspected changed implementation protocol and ledger rules. |
+| 893 / 902 | 20:34:43.875 / 20:34:48.078 | Migration rule caused a fresh operator review rather than recording completion. |
+| 906 / 913 | 20:46:07.164 / 20:46:34.572 | Fresh review returned `missing`; executor halted: missing detect summary, blank notes, missing range upper bound and carriage-return quote escape. |
+| 921 | 21:06:20.280 | Operator replied `fix`. |
+| 937-994; 1009 | 21:06-21:08 | Repairs and next fresh review. |
+| 1021 / 1041 | 21:27:34.002 / 21:27:54.122 | `missing`; halt: early pin-job failures lacked summaries, and large collector JSON exceeded the argument-size limit. |
+| 1044 | 21:34:21.423 | Operator replied `fix`. |
+| 1060 onward; 1131 | 21:34-21:36 | File-based JSON transport and other repairs; next fresh review. |
+| 1143 / 1150 | 21:49:17.041 / 21:49:33.931 | `missing`; halt: detect checkout fallback, unchecked provenance, security matching and output-size issues. |
+| 1153 | Oct 23, 03:14:12.143 | Operator replied `fix`. |
+| 1188-1210; 1228 | 03:14-03:15 | Successful fifth repair pass and final fresh review launch. |
+| 1240 / 1247 | 03:31:41.631 / 03:31:57.433 | Final frozen verdict `misunderstood`; halt: wrong outage classification, unbounded fallback links, error-trap contamination and permissive newline validation. |
+
+**The final verdict is present.** The frozen session does not stop merely with the last review pending.
+
+The interval between Raw 1150 and Raw 1153 includes approximately five hours and twenty-four minutes awaiting the operator. Do not characterize that interval as continuous model repair work.
+
+**Key takeaway:** The sole compliant verdict was followed by a protocol-mandated new review, which found earlier missed defects.
+
+## 4. Classification of later findings
+
+### Review at Raw 804
+
+| Finding | Classification | Before/after evidence |
+|---|---|---|
+| Equal tags or an older pin produce a forward range of newer tags. | **Preexisting, missed.** | Original Raw 585, workflow line 475 already used an `awk` walk that consumed the lower bound before checking the upper bound. Raw 804 explicitly states, “Before the fix the output was equally wrong, but no check noticed.” |
+| Failed listing of pin PRs silently supersedes nothing. | **Retained member of the original error-propagation problem.** | Original Raw 585, lines 414-419 placed `gh pr list` inside `for n in $(...)`. The first repair’s error traps did not make that loop propagate the failed substitution. Raw 827 replaces it with a separately checked assignment. |
+
+These were not demonstrated regressions from the first repair.
+
+### Fresh review at Raw 906
+
+| Finding | Classification | Before/after evidence |
+|---|---|---|
+| Missing patch file aborts detect without summary/error annotation. | **Preexisting, missed.** | Original Raw 585, lines 94-95 read the Dockerfile and patches under `set -euo pipefail`, without the later error trap. Raw 939 adds that trap. |
+| Blank release-note sections render empty quotes; blank compatibility notes trigger a false implication. | **Preexisting, missed.** | Original Raw 585, lines 498-504 preserve section whitespace; renderer line 592 tests only exact empty string. Raw 970 trims blank edges and removes carriage returns; Raw 976 changes the empty-summary test. |
+| Missing upper tag causes range traversal to include later releases. | **Preexisting, missed after a narrower range repair.** | Original Raw 585, line 475 adds only the lower bound to the sorted walk. Raw 825 fixes equal/reversed bounds but not absent upper bounds. Raw 949 adds both bounds to the sort and keeps only listed tags. |
+| Lone carriage return lets release text leave a quoted block. | **Preexisting, missed.** | Original quote function at Raw 585, line 580 splits only on newline. The mandated sanitizer also does not remove carriage returns. Raw 970/972/974 add handling outside the byte-exact sanitizer. This finding was reasoned from the formatting rules, not demonstrated on GitHub. |
+| Unused `vhex()` helper. | **Preexisting extra.** | Present in original Raw 585, line 465. |
+| Reversed rollback compare link in commit message. | **Preexisting, missed.** | Original Raw 585, line 448 always uses old-to-new order. Raw 945 changes it to the calculated range bounds. |
+| Evidence log says checks were rerun without showing their output. | **Repair-era evidence gap, not proven fabricated execution.** | Raw 906 identifies incomplete log evidence after the second repair. Reviewer’s own rerun passed. Do not turn “not shown in the log” into “did not run.” |
+| Trailing spaces and empty-range punctuation. | **Preexisting or retained cosmetics.** | Original renderer already prints an unconditional colon after tag count; the collector reason had not been trimmed. |
+| Fields 8 and 10 have no size cap. | **Preexisting design gap / broader review criterion.** | Raw 906 labels this a risk, not a defect. The plan specifies caps for fields 5 and 6, not these fields. |
+
+### Fresh review at Raw 1021
+
+| Finding | Classification | Before/after evidence |
+|---|---|---|
+| Gate/token/checkout failure before the main pin step leaves no job summary. | **Preexisting, missed; same summary-obligation family.** | Original workflow’s summary trap is inside the main pin step. It cannot handle earlier steps. Source D requires every running job’s summary and explicitly discusses token/gate failures. |
+| Collector JSON passed through command arguments fails at large ranges. | **Preexisting, missed.** | Original Raw 585, line 463 uses `--argjson v "$val"`; line 517 uses `--argjson lines "$lines"`. Raw 1021 reports reproduction with 89 tags at about 1.9 KB each. Raw 1060/1062/1064 switch these values to files. |
+| Electron major-bump callout appears only in implications, not Electron field. | **Preexisting, missed under the field-specific contract.** | Original renderer contains the implications callout but only prints old/new in the Electron section. The contract separately asks for the callout in field 11. |
+| Renamed patched files can be missed by overlap calculation. | **Preexisting, missed; exposes a weakness in the suggested command.** | Original implementation uses `git diff --name-only`. The requirement calls the overlap exact but also suggests that command. Raw 1066 adds `--no-renames`. |
+| Trailing blank quote, singular/plural grammar and empty links punctuation. | **Retained/preexisting cosmetics.** | Newline-producing section extraction and the quote function existed originally. Prior carriage-return repairs had not removed trailing newlines. |
+
+The 89-tag failure is a reproduced case. The reviewer’s approximate 70-tag threshold depends on note size and must not be presented as a fixed tag limit.
+
+### Fresh review at Raw 1143
+
+| Finding | Classification | Before/after evidence |
+|---|---|---|
+| Detect checkout fails before its shell trap can run, leaving no summary. | **Preexisting, missed; retained summary-obligation family.** | The earlier repair covered failures inside detect’s script, not checkout before that script. Raw 1200 adds a separate fallback step. The accompanying whole-job-timeout claim was not verified on a runner. |
+| Patch hashes and lockfile hash enter PR text unchecked. | **Preexisting, missed/incomplete earlier hardening.** | Original Raw 585 reads patch hashes at lines 524-525 and lock hash at line 545 without validators. First repair hardened Electron/node/pnpm but not these fields. Successful edits Raw 1188/1190/1192 address them. |
+| Security matcher misses capitalized “Vulnerability.” | **Preexisting; requirement interpretation strengthened.** | Original Raw 585, line 512 contains lowercase `vulnerab`. The written keyword pattern does not explicitly require case-insensitive matching. Useful hardening, but not an unambiguous literal acceptance-criterion violation. |
+| Security output alone exceeds body limit after fallback. | **Preexisting design gap; explicitly not a plan deviation.** | Reviewer reproduced 119,057 characters with 97 tags and twelve security lines each and explicitly says the plan sets no field-10 cap. Raw 1196 adds a cap. |
+| Tag-list argument could hit the argument limit around 9,000 tags. | **Retained theoretical ceiling, not reproduced operational failure.** | The reviewer explicitly calls it unreachable in practice. Do not weight it like the reproduced 89-tag failure. |
+
+Raw 1164-1170’s initial edit attempts were rejected by the freshness hook. The successful changes followed a new read at Raw 1188 onward. Do not count the blocked attempts as additional repairs or applied duplicate changes.
+
+### Final review at Raw 1240
+
+| Finding | Classification | Before/after evidence |
+|---|---|---|
+| Failed explicitly selected release lookup is mislabeled upstream outage. | **Preexisting cross-component defect, missed by earlier accepted helper review.** | Original workflow Raw 585, lines 98-103 funnels selected-tag and latest-release calls into the same metadata file. Original helper Raw 171, lines 100-102 treats any empty forward metadata file as outage. Source D’s detailed fetch rule distinguishes these errors. |
+| Links-only fallback still exceeds the PR-body limit. | **Preexisting, retained design gap in the same output-budget family.** | Original Raw 585, line 594 already emits every release URL; both fields 5 and 6 use it. Final review reproduces 83,415 characters with 420 tags. The preceding field-10 cap does not create the links behavior. |
+| Pin error trap contaminates captured values and duplicates errors. | **Proven introduced regression from the first repair.** | Raw 759 enables inherited error traps; successful Raw 761/762 adds a standard-output error trap. Final reviewer reproduces annotation text captured into `P=$(...)`. Current Workflow W, lines 413 and 422-428, retains that mechanism. |
+| Provenance validators accept trailing newline. | **Retained/incomplete hardening, with mixed validator history.** | Original Raw 585 already contains the `^...$` hex validator. Later repairs add similar version and lock validators. These tighten previous unrestricted inputs but still accept some newline-suffixed strings. The demonstrated table-row break is not evidence that the latest repair introduced a new vulnerability. |
+
+For the last finding, the directly demonstrated path is a provenance value preserved inside jq and rendered into a table. Do not assume every cited validator is equally reachable: shell command substitution strips trailing newlines from captured scalar output.
+
+**Key takeaway:** There is one strong repair-caused regression, many earlier missed defects, and some additional hardening/design-gap findings. They should not be merged into one “fixes keep breaking things” explanation.
+
+## 5. Exact causal mechanisms
+
+### 5.1 One requirement was rediscovered through different failure paths
+
+The same summary/error requirement surfaced repeatedly:
+
+1. Probe, dispatch and PR failures without annotations.
+2. Detect’s patch-reading failure.
+3. Pin’s gate/token failure before its main step.
+4. Detect checkout failure before its main step.
+5. Error annotations corrupting captured values after traps were added.
+
+Each repair covered a particular execution boundary. Subsequent reviewers tested a different boundary. This is narrower than a claim that the requirement was unknown or the specification changed every round.
+
+Source D, lines 340 and 365, already requires error reporting and each running job’s summary.
+
+### 5.2 Error handling introduced a specific data-flow regression
+
+The first repair changed the pin script to inherit error traps and added:
+
+```bash
+trap 'echo "::error::pin_pr failed at line ${LINENO}"' ERR
+```
+
+The pin then captures a pipeline’s output into `P`. When that pipeline fails inside command substitution, the inherited trap writes annotation text to the same stream being captured. The outer shell can run the trap again, explaining both contaminated summary data and duplicated annotations.
+
+The trace supplies the introduction and the reproduction:
+
+- Raw 759/760: error inheritance enabled successfully.
+- Raw 761/762: trap added successfully.
+- Raw 1240: missing Dockerfile reproduces captured annotation text.
+- Current Workflow W, lines 413, 422 and 428: mechanism still present.
+
+The detect job acquired a process guard in Raw 994/995; the corresponding pin trap did not. This is a concrete missed sibling implementation, not an inference from temporal order.
+
+### 5.3 Size repairs exposed later limits rather than necessarily creating them
+
+The original JSON argument-size defect could stop a large range before rendering. File-based transport removed that earlier failure.
+
+Later reviewers could then reach other preexisting large-input problems:
+
+- Uncapped security output.
+- A links-only fallback whose link list itself grows without bound.
+
+The sequence supports **previously masked defects becoming reachable**, not “using files caused oversized PR bodies.”
+
+### 5.4 A mid-run protocol migration reopened a successful check
+
+At initial skill load, Raw 42 says exactly one repair pass, then halt if still noncompliant. Raw 58’s QA rules confirm that behavior.
+
+After the operator-authorized second repair, Raw 849 returned compliant. Before recording completion, the executor read updated rules:
+
+- Raw 874’s ledger Resume row P: a blocked task with no retry or halt records receives one fresh operator review.
+- Raw 884: the implementation loop now references a retry ladder.
+- Raw 893: fresh review launched.
+- Raw 902: executor explicitly explains that the protocol changed while working.
+
+The task was a pre-upgrade blocked task without retry records. Consequently, the compliant same-reviewer check was followed by a fresh review under the migration rule.
+
+Later operator replies selected additional repairs and fresh reviews. The ledger repeatedly records `halt review=2 reason=operator-review`; those numbers do **not** count all seven historical verdicts.
+
+### 5.5 The acceptance boundary was wider than literal compliance alone
+
+Review prompts from the first Task 12 reviewer onward state: **any defect of any severity means noncompliant**.
+
+This catches real defects, but the observed reports include a mixture:
+
+- Clear requirement violations.
+- Exactness problems in commands suggested by the requirements.
+- Cosmetic output issues.
+- Output-budget gaps explicitly acknowledged as absent from the plan.
+- At least one strengthened interpretation of keyword matching.
+
+Operators subsequently authorized repairing the stated sets. That authorization does not retroactively make every item an original acceptance-criterion violation.
+
+**Key takeaway:** Review discovery, repair completeness, protocol migration and acceptance expansion all contributed. Only one of those is demonstrated to have introduced a new implementation defect.
+
+## 6. Controls from neighboring tasks
+
+The same session contains useful shorter controls:
+
+- Task 10: Raw 267 returns `extra`; one repair; Raw 319 returns `compliant`.
+- Task 11: Raw 496 returns `missing`; one repair; Raw 540 returns `compliant`.
+
+Thus the same executor/reviewer arrangement could converge within one repair on smaller units.
+
+Task 10’s accepted helper nevertheless retained the selected-tag outage-classification defect later exposed through Task 12. That is evidence of an integration case missed by earlier component review.
+
+These are controls, not extra occurrences of the Task 12 incident. The separate troubleshooting session mentioned in the assignment was not counted as another implementation invocation.
+
+## 7. Final state and evidence limits
+
+### Verified final state
+
+Ledger L, lines 25-34, contains:
+
+- One Task 12 start.
+- Five blocked records.
+- Four explicit operator-review halt records.
+- No Task 12 complete record.
+- No retry-ladder record.
+
+The initial failed review and the intermediate compliant reviewer result are not individually represented as verdict rows in the ledger. The transcript is necessary to reconstruct them.
+
+The latest frozen verdict is `misunderstood` at Raw 1240. The executor stops for operator direction at Raw 1247.
+
+### Limits
+
+- Reviewer reproductions were inspected through their returned results and the parent tool/edit trace. This investigation did not rerun production workflows.
+- Real GitHub permissions, dispatch expression behavior, runner cancellation behavior and queue behavior remain unverified by these local reviews.
+- The timeout-specific summary claim is not established by a live timeout test.
+- The carriage-return quote escape was initially judged from formatting behavior, not rendered on GitHub.
+- Exact size-limit tag thresholds depend on the fixture contents.
+- The specification itself marks GitHub’s quoted body limit unverified in its PR contract, although reviewers consistently use it.
+- The retained structural log is overwritten with later checks and is not a complete per-review behavioral record.
+- No evidence establishes that other troubleshooting sessions caused these Task 12 defects.
+- Do not sum the reused reviewer’s cumulative usage fields as though they were independent per-review token totals.
+
+## 8. Summary and recommended action
+
+This incident primarily demonstrates **progressive discovery of preexisting defects in a large verification unit**, amplified by deferred lasting tests, path-specific repairs and a mid-execution protocol migration. It also contains one provable repair regression in error-trap output handling. Several late findings concern missing design bounds or broader review expectations rather than new implementation damage.
+
+**Recommended action:** Use this case in the synthesis as a mixed failure mode. Recommend converting each confirmed failure family into a persistent, bounded regression matrix before another broad review, while separately deciding the unresolved aggregate-output budget. That addresses the demonstrated repeated rediscovery without weakening genuine acceptance requirements or blaming every later finding on the preceding repair.
+SOURCE agent-acase-credential-finals-e27f96d2d0725b3a.jsonl RAW_LINE 122 TIME 2026-10-23T03:47:09.411Z CHARS 21065
+| Status | Result |
+|---|---|
+| DONE | Verified two distinct implementation packages, five final reviews, their actual corrections, archived evidence, and historical review rules. |
+| DONE | Identified a review-policy change during the second package's loop and an omitted failed review in its ledger. |
+| NEXT | Parent should persist these findings. No Markdown report was written because my developer instructions prohibit report files. |
+
+# Research: credential implementation final-review failures
+
+**Investigation type:** Root-cause analysis  
+**Scope:** Frozen manifest index 15 only, with its nested reviewers and historical package evidence  
+**Status:** Complete  
+**Date:** 2026-10-23
+
+## 1. Result and counting
+
+This session contains **two independent final-review incidents**, not repeated implementation attempts on one task:
+
+| Package | Observed sequence | What actually changed between final reviews |
+|---|---|---|
+| Initial five-key shell change, four tasks | Final issues, evidence correction, final pass | A missing durable lint comparison was saved and its ledger citation corrected. No delivery-file change. |
+| Key-source documentation follow-up, 17 tasks | Final issues, owner acceptance and evidence corrections, second final issues, further evidence corrections, third final pass | Owner accepted a pre-existing lint exception; ledger pointers were repaired. No delivery-file change. The installed final-review rubric also changed before the third review. |
+
+**Do not classify the second failure as a fix introducing a new code defect.** Its blocking finding was a Task 10 citation that was already wrong before the first final review. The first review missed it.
+
+The package delivery-state digests stayed unchanged throughout their respective final-review sequences:
+
+- Initial package: `7ecdaa02bf2b9f1c7d9acf9fd8a4aae7b73ab1288bb762dd4796f3ef382f6634`
+- Follow-up package: `8e0459560c10d2c0a70481ebe3b9c348dbe6581f4b2872a7ed29ee05109f61b2`
+
+These are historical helper results recorded in the original transcript, not fresh claims that the present worktree still has that content.
+
+**Key takeaways**
+- The repeated failures concern evidence handling and acceptance-rule interpretation.
+- There is one genuine later-task line shift, several citations wrong from their creation, and one known literal criterion accepted prematurely.
+- The final pass is not a controlled retry under an unchanged rubric.
+
+## 2. Primary source and integrity
+
+**Original parent transcript**
+
+`/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866.jsonl`
+
+- Physical records: **2095**
+- Observed SHA-256: `7da194916ee6f359c2c3058ae94bcc00ea599ac507b8a4b1bcbee5d3df8f8a7f`
+- Frozen population membership verified at `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/session-manifest.txt:16`.
+- All record numbers and timestamps below refer to original JSONL records, not extracted-output line numbers.
+
+**Archived package locations**
+
+1. `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358InTempla-20261022-151058/`
+2. `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358FollowUp-20261022-193837/`
+
+Both archived directories exist. Both corresponding `to-do` directories are absent. Original archive helper results also report `status=archived`, exit 0.
+
+### Package hashes
+
+| Artifact | Initial package SHA-256 | Follow-up package SHA-256 |
+|---|---|---|
+| Plan | `b6610852ae2e2f7d2e9e89f78c559b9ef97ffdfbe714076cc572bca860942114` | `b50308eeca33b2465f42166a1ab68d65f005843a1360f926cb0a4b606c9405b9` |
+| Source request | `f79ef858c8f93eda7ba64d570f65da8d4b55d5ce1619151d79ebad197fccbafe` | `868b5ec0c15638b9177d487cc9a4185b610d82b1b6abfdbeaec4700851e25ca0` |
+| Ledger | `a3082878fbac3234bca74e1a9c81feabf548f14901e38fc901022605d6717dca` | `7cfcbec52acc028d167450224bf612db091cfe2600159b098c4a838ec8a225d3` |
+
+The plan and source hashes match their historical `PLAN:` ledger records.
+
+## 3. Initial package: correct work, lost durable proof
+
+### Evidence chain
+
+| Original parent record | Timestamp | Verified event |
+|---|---|---|
+| 15 | 15:32:02.303Z | Actual implementation command for the initial package. |
+| 36 | 15:32:07.357Z | Actual implementation protocol invocation. |
+| 318 | 15:41:31.954Z | Independent Task 3 reviewer dispatched; expressly told to ignore the ledger and artifacts. |
+| 332 | 15:42:07.293Z | Executor appends Task 3 completion, assigning its lint criterion to README line 161. |
+| 375 | 15:43:26.516Z | Fresh whole-package final reviewer dispatched. |
+| 390 | 15:44:52.068Z | `FINAL: issues`; unchanged delivery-state digest. |
+| 396 | 15:51:38.336Z | User explicitly reopens Task 3 evidence only. |
+| 411 | 15:51:55.456Z | Saved comparison reports 28 findings before, 28 after, zero on changed lines. |
+| 415 | 15:52:05.065Z | Corrected Task 3 completion appended. |
+| 419 | 15:52:16.384Z | Second fresh final reviewer dispatched. |
+| 435 | 15:54:23.570Z | Final pass and successful archive. |
+
+### Why task QA passed
+
+The Task 3 reviewer genuinely checked the README changes and reran lint. Its original final response records the unchanged 28 findings and refers to temporary before/after lint files:
+
+`/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-abd76ef5e5d22848f.jsonl`, original record **36**, **15:42:01.803Z**.
+
+However:
+
+1. The reviewer was deliberately isolated from the ledger.
+2. Its lint evidence used temporary file names without line-number citations.
+3. The executor then recorded README line 161 as the evidence for “no new findings.”
+
+That line was a table separator, not lint evidence. I independently confirmed its historical content using preserved Git tree `7ac64e6a91f624362b19daf46ea9544ad8a4edcd`, rather than today's changed README.
+
+### Was the final finding valid?
+
+**Yes, under the rule then loaded.** The final reviewer independently confirmed the lint criterion itself held but found no durable lint log and an unsupported ledger pointer.
+
+Original final conclusion:
+
+`/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-a59e9aa6df05118de.jsonl`, record **51**, **15:44:41.129Z**.
+
+It says the delivered work meets the criteria, then identifies the single ledger-evidence defect.
+
+### Actual correction and outcome
+
+The original bad completion remains at:
+
+`/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358InTempla-20261022-151058/progress.md:8`
+
+The corrected completion is at line **12**, with final issues/pass at lines **11/13**.
+
+The durable comparison is:
+
+`/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358InTempla-20261022-151058/artifacts/t3-markdownlint.log`
+
+- Line 10: before total 28.
+- Line 15: after total 28.
+- Line 22: zero findings on changed lines.
+- Line 24: comparison result.
+
+Second final conclusion:
+
+`/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-a6248e3c9fc51e940.jsonl`, record **50**, **15:54:17.688Z**.
+
+**Root cause:** verified temporary proof was not preserved when converting the task review into the durable ledger. The correction repaired evidence, not implementation.
+
+## 4. Follow-up package: inconsistent lint interpretation and incomplete evidence audit
+
+### First final review
+
+The follow-up implementation protocol starts at original parent record **818**, **19:40:25.935Z**.
+
+The first final reviewer was dispatched at **1916**, **20:16:10.434Z**, after 17 task reviews. Its conclusion is:
+
+`/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-a9c0c61dd415c2c4d.jsonl`, record **135**, **20:20:21.142Z**.
+
+### Original findings and adjudication
+
+| Finding | Independent assessment | Cause |
+|---|---|---|
+| Task 6 says no lint finding may occur on a changed line, but two changed operator-guide rows retain findings | **Valid literal criterion failure**, despite unchanged totals | Task reviewer substituted “no new findings” for the written stronger condition |
+| Task 8 cites startup line 1309, but the quoted string moved to 1310 | **Valid stale pointer under the old final rule** | Task 15 subsequently added a header line |
+| Task 7 cites security lines 421-424 as evidence that gitleaks rows were unchanged | **Wrong supporting location** | Those lines describe refresh behavior, not the gitleaks table |
+| Task 17 cites a preamble and one file-list entry to support complete follow-ups and protected-file coverage | **Weak/incomplete evidence pointers** | Executor selected narrower lines than the actual reviewed evidence |
+
+The follow-up plan's literal lint rule is present at:
+
+`/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358FollowUp-20261022-193837/TASK-WF-issue358FollowUp-20261022-193837.md:30`
+
+Task 6 repeats it at line **96**.
+
+### Why Task 6 QA passed despite already knowing the problem
+
+This was not a final reviewer discovering previously unavailable lint information.
+
+- Parent record **1215**, **19:50:46.995Z**: the original comparison reports two changed-line findings and `RESULT: DIFFERENCE FOUND`.
+- Record **1219**, **19:51:03.657Z**: probes confirm that the same table rows had those findings before editing.
+- Record **1230**, **19:51:13.212Z**: executor changes the log's result wording to “no new findings” and appends the explanatory note.
+- The Task 6 reviewer then explicitly acknowledges the literal rule is unmet but accepts a “nothing new” interpretation.
+
+That reviewer conclusion is:
+
+`/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-a6d8fbaf69a56dd14.jsonl`, record **61**, **19:52:41.441Z**.
+
+The underlying evidence remains transparent:
+
+`/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358FollowUp-20261022-193837/artifacts/t6-markdownlint.log:18-26`
+
+It records two changed-line findings, unchanged totals of 123, and their pre-existing origin.
+
+**Root cause:** executor and task reviewer knowingly relaxed a written criterion without first obtaining owner acceptance. The first final reviewer applied the literal criterion instead.
+
+### Owner acceptance and first correction
+
+Parent record **1935**, **20:20:43.704Z**, explains the issue and requests acceptance plus correction of Tasks 7, 8 and 17. The user replies “accept and fix” at **1938**, **20:25:19.428Z**.
+
+Record **1968**, **20:25:54.345Z**, contains the actual write of the acceptance note and append-only corrected completions.
+
+Durable record:
+
+`/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358FollowUp-20261022-193837/artifacts/t6-owner-acceptance.md:10-13`
+
+It accepts the unchanged pre-existing findings and specifically authorizes correcting Tasks 7, 8 and 17 only.
+
+### Second failure: an old error the first final review missed
+
+Second final reviewer dispatched at parent record **1979**, **20:26:21.231Z**.
+
+Its conclusion:
+
+`/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-acf0a51e6992c50ee.jsonl`, record **116**, **20:31:27.048Z**.
+
+The blocking finding is Task 10's lint citation to **blank line 10**.
+
+Independent corroboration:
+
+- Original completion at `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358FollowUp-20261022-193837/progress.md:22`.
+- Actual log at `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358FollowUp-20261022-193837/artifacts/t10-markdownlint.log`:
+  - Line 9: before total 4.
+  - Line 10: blank.
+  - Line 14: after total 4.
+  - Line 17: no-new-findings result.
+- Parent record **1425**, **19:57:50.705Z**, shows the original command creating that incorrect `:10` pointer.
+- Parent record **2012**, **20:31:49.683Z**, reports the mechanical result `T10: BLANK …:10-10`.
+
+The original Task 10 reviewer had already read the correct log body, but its final response supplied incorrectly numbered log citations:
+
+`/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-af349dd52cae648a5.jsonl`, records **16** and **33**, **19:57:18.651Z** and **19:57:44.798Z** respectively.
+
+The second reviewer also notices that the first Task 7 repair, lines 45-56, omits the final gitleaks row at line 57. This is a small incompleteness in the repair's evidence range, not a delivery regression.
+
+**Conclusion:** the additional failed final review was caused principally by an existing evidence defect missed in the first full audit.
+
+### Second correction, authorization and missing history
+
+Parent record **2015**, **20:31:58.264Z**, appends corrected Task 10 and Task 7 completions. Record **2016** reports zero blank/missing token problems and the same delivery digest.
+
+Parent record **2028**, **20:32:18.558Z**, admits Task 10 correction went beyond the expressly named Tasks 7, 8 and 17. No intervening user message grants fresh Task 10 permission in this correction sequence.
+
+The ledger omits the second `FINAL: issues`:
+
+`/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358FollowUp-20261022-193837/progress.md`
+
+- Line 37: first final issues.
+- Lines 38-40: first corrections.
+- Lines 41-42: second corrections.
+- Line 43: final pass.
+- **No second failed-final record.**
+
+The third reviewer prompt says two earlier attempts “recorded” issues, but the on-disk ledger disproves that wording. Counting ledger `FINAL:` records alone undercounts this incident.
+
+## 5. Review-policy changed before the final pass
+
+This is an important control, not speculation about the agent's reasoning.
+
+The second follow-up final reviewer reads the installed rubric through:
+
+`/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-acf0a51e6992c50ee.jsonl`
+
+- Read dispatch record **16**, **20:26:29.621Z**.
+- Result record **18**, **20:26:30.085Z**.
+- Captured rubric line **79**: “Missing, stale or unverifiable evidence is `issues`.”
+
+The third reviewer reads **different content from the same installed path** through:
+
+`/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-a4bfff371c63a6c39.jsonl`
+
+- Read dispatch record **16**, **20:32:18.776Z**.
+- Result record **18**, **20:32:19.277Z**.
+- Captured rubric line **82**: a moved line number alone is never `issues`; judge current evidence and end-state compliance, including recorded owner acceptance.
+
+The newer text also changes acceptance-recording rules.
+
+Third final conclusion is record **155**, **20:37:13.395Z**. Parent record **2036**, **20:37:22.846Z**, records final pass and successful archive.
+
+**What can be concluded:** the final pass follows both evidence corrections and a changed review policy. This case cannot isolate their separate effect.
+
+**What cannot be concluded:** which actor updated the installed rubric, or whether that change alone would have passed the unrepaired package.
+
+## 6. Remaining findings versus actual regressions
+
+The third final reviewer passes while listing eight minor observations.
+
+Independent historical-source checks distinguish them:
+
+- **Cosmetic:** short comment wrapping and a long README line.
+- **Authorized by another task:** refresh comment outside Task 15's narrow spans was permitted by Task 17's closing sweep.
+- **Equivalent wording:** saying the optional file exists only for file-form secrets preserves the relevant meaning.
+- **Real narrow task-body omission:** Task 2 explicitly requests that the manpage load-order entry connect the five key names to the gateway key. Historical load-order line 236 says only optional/sourced-last/wins. The fan-out is explained elsewhere at lines 171-183.
+
+The last item was present before the final loop and did not cause its failures. It means **observed final pass must not be restated as proof that every literal instruction was fulfilled**.
+
+This historical content was checked using preserved tree `d9f262a48f82c55b18f883826428f2fd8d2d7be5`. Today's surviving worktree has later edits, including a different startup credential check and shifted source lines.
+
+## 7. Controls, exclusions and gaps
+
+### Controls
+
+- Used actual user commands, assistant tool dispatches, tool results and nested conclusions.
+- Did not count injected policies, examples or quoted command strings as execution events.
+- Read archived plans, source requests, ledgers, lint logs and acceptance record.
+- Checked historical source through preserved Git objects where present-day content had changed.
+- Ran no contract tests, builds, deployments or production code; performed read-only transcript parsing, hashing and Git object inspection.
+- No nested agents spawned and no report file written.
+- These are transcript/artifact-backed conclusions. Graph coverage was unavailable for the relevant historical evidence.
+
+### Exclusions
+
+- Expected negative test failures are not review-loop failures.
+- Initial Task 1's unrelated-red extras result is not a failed spec review.
+- Follow-up plan regeneration is not another execution retry of these completed packages.
+- Cosmetic observations do not establish newly introduced code defects.
+
+### Gaps and questions
+
+1. The updater of the installed review rubric is not established by this assigned session.
+2. Historical temporary lint files may not survive; their original tool outputs and later durable comparisons do.
+3. The blank-token check establishes pointer existence and nonblank content, not semantic proof that every citation supports its claim.
+4. The successful archive is verified. Literal universal compliance is not, because of the accepted lint gap and narrow manpage instruction omission.
+
+### Stale documentation found
+
+The archived follow-up list intentionally records historical source positions. It must not be treated as a current defect inventory after later edits:
+
+`/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env/.dev/tasks/done/TASK-WF-issue358FollowUp-20261022-193837/artifacts/t17-followups.md`
+
+## 8. Supporting reviewer source hashes
+
+| Original nested transcript | SHA-256 |
+|---|---|
+| `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-a59e9aa6df05118de.jsonl` | `77745b0aa621a339a8af927311ac5924bf7e18640145d520c63734e925a62f85` |
+| `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-a6248e3c9fc51e940.jsonl` | `4ca98b54efeca080f472843c9afb692aca96ec30af7dd7e9d15f4637136f37ed` |
+| `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-a9c0c61dd415c2c4d.jsonl` | `ee78bfd415b166a763910dcce9f3400988917bb935f582f28d5c7c81e9022ba6` |
+| `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-acf0a51e6992c50ee.jsonl` | `cec853e54458e3701b5d452937853d46d6bc1239196c48a116803abe4eea28df` |
+| `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-issue-358-litellm-key-env/0690ee9f-c2f6-40ef-96be-1a0913a37866/subagents/agent-a4bfff371c63a6c39.jsonl` | `4ae49f385e60368991d2b1bc53db6e37df5fd18980f7f5c9c667ee553b27decb` |
+
+## Summary and recommended action
+
+The first package failed because valid lint proof was not preserved in the durable evidence record. The follow-up package failed because task QA relaxed a known literal criterion, several ledger pointers were wrong or moved, and the first whole-package audit missed an existing blank citation. The second repair introduced no delivery defect; it fixed the missed citation and extended one evidence range. Final acceptance also coincided with a live rubric change, so these reviews were not governed by one frozen policy throughout.
+
+**Recommended action:** use this case to require durable task evidence and a complete ledger-pointer check before the first final review, while recording every failed review and the exact rubric version it used. This addresses the demonstrated avoidable repeats without confusing evidence repairs with implementation regressions.

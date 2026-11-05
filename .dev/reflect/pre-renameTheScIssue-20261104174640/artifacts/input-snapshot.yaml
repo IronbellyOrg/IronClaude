@@ -1,0 +1,41 @@
+input_tree_sha256: 9a3b1daac2e0a66cd6f2f940ce5e2776f46e36c74c07a0123fedb81a023952ee
+hash_method: "sha256 of `sha256sum <files> | sort -k2` output"
+file_count: 17
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-renameTheScIssue-20261104-174359/TASK-WF-renameTheScIssue-20261104-174359.md
+    sha256: 64743c29623b1d6f41cad9c0f49fb599245b5e0e2a8f7c9f7955ea670310de74
+  - path: .dev/tasks/to-do/TASK-WF-renameTheScIssue-20261104-174359/source.md
+    sha256: 0fd3773f9dab2cf13b17ab703257ecaacf91ca6b502a7d73a45192e0ec0a8d6b
+  - path: src/superclaude/skills/sc-issue-protocol/SKILL.md
+    sha256: 4641d673adf6af0d487b43da89e2454cd4d9dce1b73c618254dbb3d7ddb0f32c
+  - path: src/superclaude/skills/sc-issue-protocol/refs/claim.md
+    sha256: 3db51370412114204816baed8968eb296c55e68719f3142f71cd9109c631ede7
+  - path: src/superclaude/skills/sc-issue-protocol/refs/chains.md
+    sha256: f37972648e3ea32c97a4939696ec3e00bf0a09b6d020f0fb94c7d16a9f88bd25
+  - path: src/superclaude/skills/sc-issue-protocol/templates/summary.md
+    sha256: bf71ae4781bc7181f6cfecb7c3ae07514bd95e20cb48a7f141a90e38f1ba5ede
+  - path: src/superclaude/skills/sc-issue-protocol/templates/claim-comment.md
+    sha256: 4b06bb865f5bcf52621bdc65ce3a3191fba517cb2a97d5c17517c33ddf139f32
+  - path: src/superclaude/skills/sc-issue-protocol/templates/next-steps.md
+    sha256: 85f641b7cab5dd2c655284c5864e38320e8595873296783ce2db45471b686c58
+  - path: src/superclaude/agents/issue-worker-t1.md
+    sha256: 0a1f902785b29a5d28ab132ddb6904f08cc339751423310ee51a628ef8984538
+  - path: src/superclaude/agents/issue-worker-t2.md
+    sha256: 63cc4207f7e949c1c8178db353fafa92a19578ddb25b26b31459faf20ea3c351
+  - path: src/superclaude/agents/issue-worker-t3.md
+    sha256: 9789d01d90c8ad1c6ea9f2bd4d25ef823cd4def246ad74f228418df4106837a5
+  - path: src/superclaude/commands/issue.md
+    sha256: 0108381b2291e3dd89b9b4eed4cdcd5ec9176897f95f1b94113a83dd36350139
+  - path: tests/skills/test_issue_worker_agents.py
+    sha256: 94c893e7a5990ea9d8e2eadf02f85deafbfb950ad9cd543d44764822e95b995e
+  - path: tests/skills/test_issue_protocol.py
+    sha256: 02c43f325aff92ef3d29c792526af8384f2c96de24894866a506d7e0e0e33552
+  - path: docs/designs/sc-issue-command.md
+    sha256: 043015b3307a2be7e65855d895751f0c42f072040bbfb3cb58b9abe17bd4edcd
+  - path: docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+    sha256: a9f6fbdfb62403b384859657214baa1d69b6e44c3ef6b80b8f5a461657a028f1
+  - path: docs/user-guide/commands.md
+    sha256: 0b39cb3bb27f4e440a08eb58053a7ebc4e53170c00bf7e7f253d532923075d31
+input_sha256:
+  tasklist: 64743c29623b1d6f41cad9c0f49fb599245b5e0e2a8f7c9f7955ea670310de74
+  spec: 0fd3773f9dab2cf13b17ab703257ecaacf91ca6b502a7d73a45192e0ec0a8d6b

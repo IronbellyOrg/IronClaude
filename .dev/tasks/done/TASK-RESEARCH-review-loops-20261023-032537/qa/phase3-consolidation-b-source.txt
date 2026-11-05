@@ -1,0 +1,181 @@
+SOURCE /config/.claude/projects/-config-workspace-IronClaude/bbddbf85-99f2-4caf-a47f-a402da4f09de/subagents/agent-amerge-research-gates-b-ce017e228a43ee6f.jsonl RAW_LINE 44 TIME 2026-10-23T04:10:01.546Z
+| Status | Result |
+|---|---|
+| DONE | Consolidated all 7 delivered reports in this assignment. Preserved 5 PASS verdicts, 2 FAIL verdicts, and their findings and limitations. |
+| NEXT | Resolve the 2 distinct reported findings and obtain the missing evidence review before accepting this portion of the research gate. |
+
+# QA Report: Research Gate Consolidation, Second Assigned Set
+
+**Topic:** Repeated review loops, historical baselines, monitor repairs, and credential final reviews  
+**Date:** 2026-10-23  
+**Phase:** research-gate consolidation  
+**Fix cycle:** N/A  
+**Authorization:** Consolidation only. No new case review or fixes.  
+**Delivery:** Structured text under the developer prohibition against writing report files. No consolidation file was written.
+
+## Overall Verdict: FAIL for this assigned consolidation scope
+
+The delivered reports contain **2 distinct findings: 1 IMPORTANT and 1 MINOR**. One additional expected report was **NOT_DELIVERED** when checked. This is not a verdict on the other consolidation set or the complete research gate.
+
+## Items Reviewed
+
+**Expected reports:** 8  
+**Delivered and read completely:** 7  
+**Missing:** 1  
+**Delivered verdicts:** 5 PASS, 2 FAIL
+
+| Source report, absolute path | Original verdict | Findings and qualifications |
+|---|---|---|
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-evidence-b.md` | PASS | No evidence-quality defects. Six checks passed. Frozen transcript prefixes and historical baselines were independently checked. |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-gaps-b.md` | PASS | No findings. Four checks passed; original incremental-writing history was unverifiable. Later CI review artifacts are explicitly separated from the original cutoff. |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-depth-b.md` | PASS | No depth findings. Six checks passed. Independent checks supported the reports’ different causal classifications. |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-completeness-c.md` | FAIL | One IMPORTANT historical-outcome clarification and one MINOR missing uncertainty disclosure. |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-cross-c.md` | PASS | No corrections requested. Historical counts, repairs, policy changes, and evidence-only corrections were corroborated. Later monitor completion is treated as continuation. |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-gaps-c.md` | FAIL | One IMPORTANT content-cutoff finding, overlapping the completeness review’s historical-outcome finding. Three checks passed, one failed, and incremental-writing history was unverifiable. |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-depth-c.md` | PASS | No depth findings. Eight checks passed. Self-audit tested alternative causal explanations and policy-change confounding. |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-evidence-c.md` | **NOT_DELIVERED** | Direct Read returned “File does not exist.” No verdict or findings can be inferred. |
+
+The missing evidence report is a delivery blocker, not an invented substantive finding or synthetic agent-failure finding. No exhausted retry history was supplied.
+
+## Summary
+
+- Delivered source reports: **7/8**
+- Source PASS verdicts: **5**
+- Source FAIL verdicts: **2**
+- Original finding occurrences: **3**
+- Distinct findings after duplicate removal: **2**
+- CRITICAL findings: **0**
+- IMPORTANT findings: **1**
+- MINOR findings: **1**
+- Fixes applied by this consolidation: **0**
+
+No aggregate claim-level confidence percentage is calculated. The source reports use different check sets, and their reported 100% confidence values do not mean every claim passed or every historical uncertainty was resolved.
+
+## Issues Found
+
+Locations below are **reported by the source reviewers**. This consolidation did not reopen the case files.
+
+### 1. Historical monitor outcome needs a precise content boundary
+
+**Severity:** IMPORTANT in both originating reports.
+
+**Affected location:**  
+`/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/05-session-e002bed2.md:259-273`
+
+**Duplicate mapping:**
+
+- The IMPORTANT finding under “Contradictions and Temporal Conflicts” and “Compiled Gaps” in `phase3-completeness-c.md`.
+- Finding 1 in `phase3-gaps-c.md`.
+
+These are **one finding**, not two. The completeness review requests historical-versus-live qualification; the gap review adds the distinction between population selection and transcript-content cutoff.
+
+**Reported problem:** The research describes a frozen halt and “No Task 12 complete record,” while the live ledger later records acceptance and completion. The gap reviewer also reports that population selection occurred before the sampled endpoint, so population selection alone does not establish the content boundary.
+
+**Reported supporting locations:**
+
+- Original transcript:  
+  `/config/.claude/projects/-config-workspace-Coder--claude-worktrees-orca-upstream-tracking/e002bed2-7877-42c1-8665-8cb8595587b6.jsonl`  
+  Record 1247 is reported at **2026-10-23T03:31:57.433Z**.
+- Later ledger continuation:  
+  `/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/tasks/to-do/TASK-WF-designSpec-20261022-132541/progress.md:35-36`
+
+**Required correction:** State that the sampled halt and absence of completion apply through the declared historical endpoint, with record number, timestamp, and qualified ledger boundary. Explicitly exclude the later continuation from that prefix or describe it separately.
+
+**Limits on the correction:**
+
+- Preserve the **seven-review count** for the declared prefix.
+- Do not treat later continuation as proof that the earlier reconstruction was false.
+- Do not count later acceptance as another repair.
+- Do not treat a ledger’s account of owner acceptance as independent verification of consent.
+- Do not require reconstruction of unobserved future history.
+
+### 2. Unexplained earlier-review misses need explicit unknown labels
+
+**Severity:** MINOR, retained from `phase3-completeness-c.md`.
+
+**Affected locations:**
+
+- `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/05-session-e002bed2.md:118-150`
+- `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/06-session-0690ee9f.md:185-212`
+
+**Reported problem:** Some earlier misses are described without explicitly stating that their causes remain unknown. The completeness reviewer names monitor blank-note, carriage-return, and rename findings, plus the credential Task 10 blank citation missed by the first final review.
+
+**Required correction:** Where no observed mechanism explains the earlier miss, state: **“Why the earlier review missed this is unknown from the inspected evidence.”**
+
+No explanation of reviewer reasoning should be invented. Evidence that a defect existed earlier does not establish why an earlier review missed it.
+
+**Duplicate mapping:** No separate matching finding was raised in the other delivered reports. General statements that uncertainty was handled well do not erase this specific completeness finding.
+
+## Verdict Differences and Their Treatment
+
+### Historical-cutoff sufficiency
+
+`phase3-cross-c.md` gives PASS and says the research already identifies record 1247 as its frozen endpoint. `phase3-completeness-c.md` and `phase3-gaps-c.md` give FAIL because they find the final-state wording or reproducibility boundary insufficiently explicit.
+
+This is a disagreement about **whether the qualification is sufficient**, not conflicting evidence about the historical review count. Preserve all original verdicts. The merged correction is limited to clearer temporal wording, not a new investigation of later outcomes.
+
+### Disclosure of unknown causes
+
+The passing depth and gap assessments generally praise honest limitations. The failing completeness assessment identifies specific passages needing explicit unknown labels. Preserve that narrow MINOR finding without converting the passing reports into claims that those passages were individually cleared.
+
+## Preserved PASS Findings and Self-Audits
+
+### Documentation and CI cases
+
+The three passing reviews retain these supported distinctions:
+
+- Static checks did not prove documentation rendering. The final acceptance retained an acknowledged verification gap.
+- Historical Git comparisons supported the narrower true change set rather than the reconstructed baseline.
+- The CI hash-exemption mismatch and search-check weakness were inherited weaknesses, not demonstrated repair-caused regressions.
+- The dependency-ancestry defect was introduced during regeneration, but sequential execution qualified the alleged runtime consequence.
+- Reviewer concessions narrowed optional-hardening complaints.
+- The original CI observation ended with another probe running, not a completed regenerated verdict.
+
+The gap review separately reports later CI artifacts at:
+
+`/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-specR1-20261023-031725-20261023032025/REPORT.md`
+
+`/config/workspace/IronClaude/.dev/worktrees/ci-followup/.dev/reflect/pre-TASK-WF-specR1-20261023-031725-20261023032025/return-contract.yaml`
+
+It reports a later **partial / not_ready** result with **5 medium and 11 low findings**. These are later case evidence, **not additional defects in the research-gate reports**. They do not invalidate the earlier declared cutoff.
+
+### Monitor and credential cases
+
+The passing cross-validation and depth reviews preserve:
+
+- One monitor implementation invocation, seven historical Task 12 verdicts, five repairs, and four operator repair replies.
+- A specifically demonstrated error-trap regression, distinct from preexisting defects discovered later.
+- A compliant review reopened after a protocol change.
+- Two credential-package incidents and five final reviews.
+- One failed credential final review omitted from the ledger.
+- Evidence-only corrections with unchanged delivery digests.
+- A changed credential-review rubric before the final pass, preventing isolation of the effects of evidence corrections versus policy changes.
+- Observed acceptance is not proof of universal literal compliance.
+
+The zero-finding reports include substantive self-audits: historical-source comparisons, original edit and reviewer records, acceptance criteria, policy changes, and attempts to disprove competing causal explanations. Their PASS verdicts are preserved within their assigned lenses.
+
+## Epistemic Limitations
+
+- This consolidation reviewed reports, not the underlying case files.
+- Cross-file checks remain limited to the assigned subsets; this is not a whole-research coverage audit.
+- Original incremental-writing history was unverifiable in both delivered gap reviews. Neither inferred a violation from polished final files.
+- Behavioral runner, permission, cancellation, rendering, and output-limit claims remain partly unverified.
+- The monitor structural log does not retain every behavioral counterexample cumulatively.
+- The actor responsible for the credential rubric change remains unknown.
+- Nonblank citation checks do not prove semantic support.
+- Later mutable sources must not silently replace historical snapshots.
+- The missing evidence review contributes no assurance.
+
+## Actions Taken
+
+Read all seven delivered reports completely, checked the eighth expected path, and read the installed review-report templates. No agents, tests, fixes, case-file re-reviews, production edits, report writes, or teammate messages were performed.
+
+## Recommendations
+
+Have the authorized report editor apply the **historical-boundary clarification** and **explicit unknown labels**, then obtain the missing evidence review at:
+
+`/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/phase3-evidence-c.md`
+
+Recheck those corrections and merge this result with the other consolidation set. This preserves valid historical evidence without turning a sampled stopping point into an unqualified current-outcome claim.
+
+## QA Complete

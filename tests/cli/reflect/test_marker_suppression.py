@@ -98,13 +98,13 @@ def test_marker_two_does_not_suppress(
     _assert_not_suppressed(cli_runner, temp_tasklist, make_claude_process_stub)
 
 
-def _extract_execute_shell_command_envelope(text: str) -> str:
-    """Extract the §6.1.1 execute_shell_command safety-envelope section.
+def _extract_verification_envelope(text: str) -> str:
+    """Extract the §6.1.1 Bash verification safety-envelope section.
 
     Uses stable heading anchors: the section starts at the §6.1.1 heading and
     ends at the next §6.2 heading.
     """
-    start = text.index("### 6.1.1 `execute_shell_command` safety envelope")
+    start = text.index("### 6.1.1 Bash verification safety envelope")
     end = text.index("### 6.2", start)
     return text[start:end]
 
@@ -127,7 +127,7 @@ def test_verification_envelope_strips_reflect_wrapper_marker() -> None:
     an env dict that omits the marker).
     """
     text = _REFLECT_SKILL_SRC.read_text(encoding="utf-8")
-    envelope = _extract_execute_shell_command_envelope(text)
+    envelope = _extract_verification_envelope(text)
     # The envelope must explicitly account for the recursion-breaker marker...
     assert _MARKER in envelope
     # ...as a concrete env-strip command prefix, not vague prose.

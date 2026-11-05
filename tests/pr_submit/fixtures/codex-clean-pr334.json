@@ -1,0 +1,279 @@
+{
+  "pr": 334,
+  "url": "https://github.com/IronbellyOrg/IronClaude/pull/334",
+  "head_sha": "7c3f4304a52cdb351ef93f1ab2d6f13922bec6a6",
+  "base": "master",
+  "observed_at": "2026-10-31T19:28:31Z",
+  "state": "review_present",
+  "comments_ok": true,
+  "reviews_ok": true,
+  "threads_ok": true,
+  "reviews": [
+    {
+      "id": 5715744511,
+      "node_id": "PRR_kwDOPOT5c88AAAABVK9W_w",
+      "user": {
+        "login": "augmentcode[bot]",
+        "id": 185243770,
+        "node_id": "BOT_kgDOCwqYeg",
+        "avatar_url": "https://avatars.githubusercontent.com/in/1027498?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/augmentcode%5Bbot%5D",
+        "html_url": "https://github.com/apps/augmentcode",
+        "followers_url": "https://api.github.com/users/augmentcode%5Bbot%5D/followers",
+        "following_url": "https://api.github.com/users/augmentcode%5Bbot%5D/following{/other_user}",
+        "gists_url": "https://api.github.com/users/augmentcode%5Bbot%5D/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/augmentcode%5Bbot%5D/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/augmentcode%5Bbot%5D/subscriptions",
+        "organizations_url": "https://api.github.com/users/augmentcode%5Bbot%5D/orgs",
+        "repos_url": "https://api.github.com/users/augmentcode%5Bbot%5D/repos",
+        "events_url": "https://api.github.com/users/augmentcode%5Bbot%5D/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/augmentcode%5Bbot%5D/received_events",
+        "type": "Bot",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "body": "<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId=01M66VM20B5ZSMCZGAJ6GC8ZF8)🐛</sup>\n\nReview completed with 1 suggestion.\n\n<sub>R",
+      "state": "COMMENTED",
+      "html_url": "https://github.com/IronbellyOrg/IronClaude/pull/334#pullrequestreview-5715744511",
+      "pull_request_url": "https://api.github.com/repos/IronbellyOrg/IronClaude/pulls/334",
+      "author_association": "NONE",
+      "_links": {
+        "html": {
+          "href": "https://github.com/IronbellyOrg/IronClaude/pull/334#pullrequestreview-5715744511"
+        },
+        "pull_request": {
+          "href": "https://api.github.com/repos/IronbellyOrg/IronClaude/pulls/334"
+        }
+      },
+      "is_copilot_code_review": false,
+      "copilot_code_review_effort": null,
+      "submitted_at": "2026-10-30T16:58:04Z",
+      "commit_id": "7c3f4304a52cdb351ef93f1ab2d6f13922bec6a6"
+    },
+    {
+      "id": 5715843952,
+      "node_id": "PRR_kwDOPOT5c88AAAABVLDbcA",
+      "user": {
+        "login": "ironbelly",
+        "id": 7361222,
+        "node_id": "MDQ6VXNlcjczNjEyMjI=",
+        "avatar_url": "https://avatars.githubusercontent.com/u/7361222?u=e4601a9dc0db3a52bfacbdc5452d1a4a96633806&v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/ironbelly",
+        "html_url": "https://github.com/ironbelly",
+        "followers_url": "https://api.github.com/users/ironbelly/followers",
+        "following_url": "https://api.github.com/users/ironbelly/following{/other_user}",
+        "gists_url": "https://api.github.com/users/ironbelly/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/ironbelly/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/ironbelly/subscriptions",
+        "organizations_url": "https://api.github.com/users/ironbelly/orgs",
+        "repos_url": "https://api.github.com/users/ironbelly/repos",
+        "events_url": "https://api.github.com/users/ironbelly/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/ironbelly/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "body": "",
+      "state": "COMMENTED",
+      "html_url": "https://github.com/IronbellyOrg/IronClaude/pull/334#pullrequestreview-5715843952",
+      "pull_request_url": "https://api.github.com/repos/IronbellyOrg/IronClaude/pulls/334",
+      "author_association": "MEMBER",
+      "_links": {
+        "html": {
+          "href": "https://github.com/IronbellyOrg/IronClaude/pull/334#pullrequestreview-5715843952"
+        },
+        "pull_request": {
+          "href": "https://api.github.com/repos/IronbellyOrg/IronClaude/pulls/334"
+        }
+      },
+      "is_copilot_code_review": false,
+      "copilot_code_review_effort": null,
+      "submitted_at": "2026-10-30T17:05:16Z",
+      "commit_id": "7c3f4304a52cdb351ef93f1ab2d6f13922bec6a6"
+    },
+    {
+      "id": 5722926353,
+      "node_id": "PRR_kwDOPOT5c88AAAABVRztEQ",
+      "user": {
+        "login": "ironbelly",
+        "id": 7361222,
+        "node_id": "MDQ6VXNlcjczNjEyMjI=",
+        "avatar_url": "https://avatars.githubusercontent.com/u/7361222?u=e4601a9dc0db3a52bfacbdc5452d1a4a96633806&v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/ironbelly",
+        "html_url": "https://github.com/ironbelly",
+        "followers_url": "https://api.github.com/users/ironbelly/followers",
+        "following_url": "https://api.github.com/users/ironbelly/following{/other_user}",
+        "gists_url": "https://api.github.com/users/ironbelly/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/ironbelly/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/ironbelly/subscriptions",
+        "organizations_url": "https://api.github.com/users/ironbelly/orgs",
+        "repos_url": "https://api.github.com/users/ironbelly/repos",
+        "events_url": "https://api.github.com/users/ironbelly/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/ironbelly/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "body": "",
+      "state": "COMMENTED",
+      "html_url": "https://github.com/IronbellyOrg/IronClaude/pull/334#pullrequestreview-5722926353",
+      "pull_request_url": "https://api.github.com/repos/IronbellyOrg/IronClaude/pulls/334",
+      "author_association": "MEMBER",
+      "_links": {
+        "html": {
+          "href": "https://github.com/IronbellyOrg/IronClaude/pull/334#pullrequestreview-5722926353"
+        },
+        "pull_request": {
+          "href": "https://api.github.com/repos/IronbellyOrg/IronClaude/pulls/334"
+        }
+      },
+      "is_copilot_code_review": false,
+      "copilot_code_review_effort": null,
+      "submitted_at": "2026-10-31T13:35:30Z",
+      "commit_id": "9a88976d36112705b34b30e5dd05c1b5242deced"
+    }
+  ],
+  "threads": [
+    {
+      "id": "PRRT_kwDOPOT5c86yD4sN",
+      "path": ".dev/codegraph-migration/orchestration/task-specs/M-release-monitor.md",
+      "line": 9,
+      "originalLine": 9,
+      "isResolved": true,
+      "isOutdated": false,
+      "comments": {
+        "nodes": [
+          {
+            "id": "PRRC_kwDOPOT5c88AAAABB9MAIA",
+            "databaseId": 4426235936,
+            "body": "<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId=01M66VM20B5ZSMCZGAJ6GC8ZF8)🐛</sup>\n\nThis `gh attestation verify` invocation omi",
+            "path": ".dev/codegraph-migration/orchestration/task-specs/M-release-monitor.md",
+            "line": 9,
+            "originalLine": 9,
+            "createdAt": "2026-10-30T16:58:04Z",
+            "author": {
+              "login": "augmentcode"
+            },
+            "replyTo": null,
+            "pullRequestReview": {
+              "id": "PRR_kwDOPOT5c88AAAABVK9W_w",
+              "databaseId": 5715744511,
+              "commit": {
+                "oid": "7c3f4304a52cdb351ef93f1ab2d6f13922bec6a6"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "comments": [
+    {
+      "url": "https://api.github.com/repos/IronbellyOrg/IronClaude/issues/comments/6528343574",
+      "html_url": "https://github.com/IronbellyOrg/IronClaude/pull/334#issuecomment-6528343574",
+      "issue_url": "https://api.github.com/repos/IronbellyOrg/IronClaude/issues/334",
+      "id": 6528343574,
+      "node_id": "IC_kwDOPOT5c88AAAABhR6eFg",
+      "user": {
+        "login": "chatgpt-codex-connector[bot]",
+        "id": 199175422,
+        "node_id": "BOT_kgDOC98s_g",
+        "avatar_url": "https://avatars.githubusercontent.com/in/1144995?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D",
+        "html_url": "https://github.com/apps/chatgpt-codex-connector",
+        "followers_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/followers",
+        "following_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/following{/other_user}",
+        "gists_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/subscriptions",
+        "organizations_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/orgs",
+        "repos_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/repos",
+        "events_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/chatgpt-codex-connector%5Bbot%5D/received_events",
+        "type": "Bot",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "created_at": "2026-10-30T16:52:31Z",
+      "updated_at": "2026-10-30T16:55:30Z",
+      "body": "<!-- codex-pull-request-review-summary -->\n<!-- codex-review-state:v1 {\"code_review\":{\"commit_sha\":\"7c3f4304a52cdb351ef93f1ab2d6f13922bec6a6\",\"has_any_findings\":false,\"has_unresolved_findings\":false,\"status\":\"completed\"},\"security_review\":{\"commit_sha\":\"7c3f4304a52cdb351ef93f1ab2d6f13922bec6a6\",\"has_any_findings\":null,\"has_unresolved_findings\":null,\"status\":\"completed\"}} -->\n<!-- codex-security-review:v1 {\"blockingSeverityThreshold\":\"P0\",\"headSha\":\"7c3f4304a52cdb351ef93f1ab2d6f13922bec6a6\",\"mergeGateEnabled\":false,\"pullRequestNumber\":334,\"repository\":\"IronbellyOrg/IronClaude\",\"status\":\"completed\"} -->\n## Codex Review Summary\n\nThis comment shows the latest Codex review activity on this pull request.\n\n| Review | Status | Commit | Review trigger |\n| --- | --- | --- | --- |\n| 📝 **Code Review** | ✅ **Completed** <relative-time datetime=\"2026-10-30T16:53:46.481992Z\">2026-10-30T16:53:46.481992Z</relative-time> | `7c3f430` | PR opened |\n| 🔒 **Security Review** | ✅ **Completed** <relative-time datetime=\"2026-10-30T16:55:29.348322Z\">2026-10-30T16:55:29.348322Z</relative-time> | `7c3f430` | PR opened |\n\n\n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\" or \"@codex security review\".\n\nCodex reacts with 👀 while any review is running, comments if it has suggestions, and reacts with 👍 once all reviews finish with no findings.\n\n</details>",
+      "author_association": "NONE",
+      "reactions": {
+        "url": "https://api.github.com/repos/IronbellyOrg/IronClaude/issues/comments/6528343574/reactions",
+        "total_count": 0,
+        "+1": 0,
+        "-1": 0,
+        "laugh": 0,
+        "hooray": 0,
+        "confused": 0,
+        "heart": 0,
+        "rocket": 0,
+        "eyes": 0
+      },
+      "performed_via_github_app": {
+        "id": 1144995,
+        "client_id": "Iv23liVemv8A9if9v0F2",
+        "slug": "chatgpt-codex-connector",
+        "node_id": "A_kwHOAOQ6Gs4AEXij",
+        "owner": {
+          "login": "openai",
+          "id": 14957082,
+          "node_id": "MDEyOk9yZ2FuaXphdGlvbjE0OTU3MDgy",
+          "avatar_url": "https://avatars.githubusercontent.com/u/14957082?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/openai",
+          "html_url": "https://github.com/openai",
+          "followers_url": "https://api.github.com/users/openai/followers",
+          "following_url": "https://api.github.com/users/openai/following{/other_user}",
+          "gists_url": "https://api.github.com/users/openai/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/openai/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/openai/subscriptions",
+          "organizations_url": "https://api.github.com/users/openai/orgs",
+          "repos_url": "https://api.github.com/users/openai/repos",
+          "events_url": "https://api.github.com/users/openai/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/openai/received_events",
+          "type": "Organization",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "name": "ChatGPT Codex Connector",
+        "description": "Bring ChatGPT and Codex to your GitHub repositories.",
+        "external_url": "https://www.chatgpt.com",
+        "html_url": "https://github.com/apps/chatgpt-codex-connector",
+        "created_at": "2025-02-14T01:37:05Z",
+        "updated_at": "2026-09-23T18:52:59Z",
+        "permissions": {
+          "actions": "write",
+          "checks": "read",
+          "contents": "write",
+          "emails": "read",
+          "issues": "write",
+          "metadata": "read",
+          "pull_requests": "write",
+          "statuses": "read",
+          "workflows": "write"
+        },
+        "events": [
+          "check_run",
+          "check_suite",
+          "commit_comment",
+          "issues",
+          "issue_comment",
+          "pull_request",
+          "pull_request_review",
+          "pull_request_review_comment",
+          "pull_request_review_thread",
+          "repository",
+          "status",
+          "sub_issues"
+        ]
+      },
+      "minimized": null
+    }
+  ],
+  "_provenance": "PR 334 poll snapshot 2026-10-31, head set to the Codex marker commit"
+}

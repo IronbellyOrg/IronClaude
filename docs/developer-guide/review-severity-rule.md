@@ -1,0 +1,115 @@
+# Review Severity and the 2-Fix-Cycle Cap (Design Note)
+
+This note explains the review rule IronClaude 5.0.0 applies to every review loop: how findings are graded, how many fix cycles a loop may run, where the rule is written, how it reaches every agent, which protocol keeps its own model, and the static test that stops the old wording from coming back. It is for maintainers who write or change a review gate in a command, skill, agent, template or CLI pipeline. Every claim cites the code at tag v5.0.0; line numbers are from that tag.
+
+For the user-facing summary, see the 5.0.0 release notes, "Change 4: review loops stop after 2 fix cycles" (`docs/releases/v5.0.0.md:212-214`).
+
+## Contents
+
+1. [The rule](#the-rule)
+2. [Decisions behind it](#decisions-behind-it)
+3. [How the rule reaches every agent](#how-the-rule-reaches-every-agent)
+4. [Where the rule applies](#where-the-rule-applies)
+5. [The `/sc:implement` exception](#the-scimplement-exception)
+6. [The guard test](#the-guard-test)
+7. [Open questions](#open-questions)
+8. [Changing the rule](#changing-the-rule)
+
+## The rule
+
+The source of truth is five bullets in the Pragmatic output style, `src/superclaude/output-styles/pragmatic.md:225-229`, placed right after the binary-verdict bullet ("Every review agent MUST produce a binary verdict: PASS or FAIL", `pragmatic.md:224`). The guard test calls them S1-S5 by position.
+
+| # | Rule | Line |
+|---|---|---|
+| S1 | Grade every finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim. | `pragmatic.md:225` |
+| S2 | Minor findings never fail a review. They are recorded as notes, the verdict is PASS (with notes), they are not rechecked in later rounds and never trigger a fix pass on their own. Only blocking findings produce FAIL. | `pragmatic.md:226` |
+| S3 | A review loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalates to the user with the open blocking findings. Never a fourth review, never a pass with open blocking findings. | `pragmatic.md:227` |
+| S4 | A protocol that defines its own severity model, such as `/sc:implement`, applies that model and its own escalation path. | `pragmatic.md:228` |
+| S5 | On a CRITICAL / IMPORTANT / MINOR scale, CRITICAL and IMPORTANT are blocking and MINOR is minor, but grade by the definition, not the label: an IMPORTANT finding that is only wording is minor. | `pragmatic.md:229` |
+
+What a loop looks like under S3:
+
+```text
+review 1 -> FAIL (blocking) -> fix 1 -> review 2 -> FAIL (blocking) -> fix 2 -> review 3
+                                                                              |
+                         PASS (maybe with minor notes) <------- no blocking --+-- blocking still open
+                                                                                   -> HALT, escalate to the user
+```
+
+## Decisions behind it
+
+The rule was a 5.0.0 release blocker decided by the user and recorded in `.dev/releases/current/v5.0.0/DECISIONS.md:12-19`. The evidence was the QA-loop investigation: long review loops came from "any finding of any severity fails" rules with no round cap (`docs/releases/v5.0.0.md:187`).
+
+| Decision | What it settled | Line |
+|---|---|---|
+| B1 | A review that fails only on minor findings notes them and proceeds: no recheck, no FAIL. Every "any severity" rule is removed and review loops are limited to 2 rounds. At the cap with blocking findings open, stop and escalate; never pass them silently. | `DECISIONS.md:12` |
+| B2 | "2 rounds" means 2 fix cycles, so at most 3 reviews (review, fix, re-review, fix, re-review), then escalate. Existing "Max 2 fix cycles" stay; "Max 3" and uncapped loops drop to 2. | `DECISIONS.md:13` |
+| B3 | Inside `/sc:implement`, the second A2 in-place repair is removed (A1 review, fix, A2 re-review, one repair, re-review = 2 fix cycles). Retry-adviser attempts A3-A5, the halt contract, the saved reviewer prompt and FINAL are unchanged. | `DECISIONS.md:14` |
+| B4 | `/sc:cli-portify` convergence defaults to 1 iteration (one iteration is exactly 2 fix cycles and 3 reviews). Amended 2026-11-02: the `--max-convergence` flag was never wired to the engine, so its help text was reworded to say so and wiring it is a follow-up. | `DECISIONS.md:18` |
+| B5 | When the rule's own plan hit the cap with 10 blocking findings, they were added and implemented without a fourth plan review, with a safeguard: one recorded search for every wording of the old rule (`.dev/review-severity-rule/site-sweep.md`), a static test that fails CI if any wording survives, and text anchors instead of line numbers in acceptance checks. | `DECISIONS.md:19` |
+
+Decision R1 (`DECISIONS.md:17`) only replaced a stalled worker during the implementation; it does not change the rule.
+
+## How the rule reaches every agent
+
+- **Output style.** `superclaude install` copies `src/superclaude/output-styles/` to `~/.claude/output-styles/` (`src/superclaude/cli/install_user_setup.py:122-133`). A plain install keeps a file that already exists; `--force` replaces it (`install_user_setup.py:56-58`). An existing installation therefore gets the 5.0.0 rule only after `superclaude install --force`.
+- **SubagentStart hook.** `src/superclaude/hooks/hooks.json:120-127` registers `node "$HOME/.claude/hooks/pragmatic-subagent.js"` (timeout 5 s) on SubagentStart, and `install_hooks.py:67-68` installs the script. The script reads `~/.claude/output-styles/pragmatic.md`, strips its frontmatter and returns it as `additionalContext` prefixed with `PRAGMATIC MODE ACTIVE` (`src/superclaude/hooks/scripts/pragmatic-subagent.js:7-18`). So every subagent, reviewers included, receives S1-S5 even when the parent session uses another output style.
+- **Failure mode.** If the style file is missing or unreadable, the script writes `Failed to load Pragmatic instructions from <path>` to stderr and exits 1 (`pragmatic-subagent.js:19-21`); the subagent then starts without the rule. The hook needs `node` on `PATH` (`install_hooks.py:67`).
+- **Copies in primitives.** Ten tracked files carry S1-S3 word for word, and six of them also carry S5, so the rule holds where a primitive is read without the hook (for example by a CLI pipeline): `rf-qa.md`, `rf-qa-qualitative.md`, the QA agent and skill templates, both MDTM task templates, and four legacy QA rule prompts (`tests/skills/test_review_severity_rule.py:181-203`).
+
+## Where the rule applies
+
+The 5.0.0 changelog lists the scope (`CHANGELOG.md:29-33`). Representative sites:
+
+| Area | What changed | Where to look |
+|---|---|---|
+| Pragmatic output style | S1-S5 replace "any issue of ANY severity fails" | `src/superclaude/output-styles/pragmatic.md:225-229` |
+| rf-qa, rf-qa-qualitative, rf-analyst, rf-team-lead agents; QA and skill templates; both MDTM templates | PASS allows minor findings as notes; FAIL needs a blocking finding; fix agents receive, apply and recheck blocking findings only | `CHANGELOG.md:30`; copies pinned by `test_review_severity_rule.py:181-203` |
+| prd, tdd, tech-reference, tech-research, readme, operational-guide, task, task-builder skills | Same rule; task-builder's gate passes with minor findings as notes and HALTs at the cap | `src/superclaude/skills/task-builder/SKILL.md:865,873` |
+| prd CLI | Research and synthesis fix cycles default to 2 | `src/superclaude/cli/prd/models.py:203-204` |
+| `/sc:tasklist` patch loop | Capped at pass `k=2`; open High or Medium (blocking) findings HALT and escalate instead of shipping "logged for human review"; Low findings stay notes | `src/superclaude/skills/sc-tasklist-protocol/SKILL.md:1598,1608` |
+| `/sc:cli-portify` | Convergence engine runs 1 iteration | `src/superclaude/cli/cli_portify/convergence.py:165`; `cli_portify/steps/panel_review.py:352` |
+| At-cap behaviour everywhere | HALT and escalate the open blocking findings instead of turning them into Open Questions and proceeding | `CHANGELOG.md:31` |
+
+## The `/sc:implement` exception
+
+S4 exists for `/sc:implement`, which grades findings with its own model: the reviewer answers four factual checklist questions per finding, and the parent derives `blocking`, `minor` or `note` mechanically and reads each cited anchor back (`src/superclaude/skills/sc-implement-protocol/refs/qa.md:37-56,81`). Inside `/sc:implement` that model takes precedence over the output style, including the copy the SubagentStart hook injects; only `blocking` findings may fail an attempt, halt or prompt the user (`qa.md:93`).
+
+The 2-fix-cycle cap reaches it through decision B3: an attempt gets at most one in-place repair, and A2 gets one repair at most (`refs/retry.md:141-142`; `qa.md:267`). The retry-adviser attempts A3-A5 are unchanged (`CHANGELOG.md:33`). `tests/skills/test_implement_severity_static.py` pins this model and imports S1-S5 from the guard test (`test_implement_severity_static.py:12`); the guard test's old-cap check skips `sc-implement-protocol` files (`test_review_severity_rule.py:320-325`).
+
+## The guard test
+
+`tests/skills/test_review_severity_rule.py` is a static test over tracked text. CI runs it with the rest of the suite (`.github/workflows/test.yml:38-40`). Run it locally with:
+
+```bash
+uv run pytest tests/skills/test_review_severity_rule.py -v
+```
+
+| Check | What fails it | Lines |
+|---|---|---|
+| (b) canonical bullets | S1-S5 missing, out of order, or not directly after the binary-verdict bullet in `pragmatic.md` | `66-107` |
+| (a) any-severity wording | Phrases such as "any issue of any severity", "regardless of severity", "must still be fixed" in `src/`, `plugins/`, `commands/`, `agents/` | `112-176` |
+| (c) copies | S1-S3 (and S5 where required) not verbatim in the ten-file set | `181-210` |
+| (d) cap text | The canonical cap text or the at-cap HALT clause missing | `215-246` |
+| (e), (j) edit tables | Any of the 161 cap-edit or 139 sweep-edit rows not applied (fixtures in `tests/skills/fixtures/review_severity_cap_edits.yaml` and `review_severity_sweep_edits.yaml`) | `261-283` |
+| (f) old caps | A review-loop cap above 2 ("Max 3 fix cycles", "after 3 failed cycles", ...) outside `sc-implement-protocol` and two allowlisted lines | `288-339` |
+| (g) verdict suffixes | "Only PASS or FAIL — no conditional pass." removed from the listed skills | `344-365` |
+| (h) plugin twins | `plugins/superclaude/skills/sc-implement-protocol/` not byte-equal to `src/` | `371-385` |
+| (i) site sweep | Old fix-loop wordings ("If findings exist", "logged for human review", ...) that would send minor findings to a fix pass | `390-464` |
+| (k) zero tolerance | "zero tolerance" without a qualifier such as fabrication, verification or blocking | `469-520` |
+
+## Open questions
+
+These are known gaps or unclear intent, not rule violations. Each needs an owner decision.
+
+- **`/sc:cli-portify --max-convergence` does nothing.** The option defaults to 1 and its help text says nothing reads it yet (`src/superclaude/cli/cli_portify/commands.py:97-106`); `panel_review.py:352` builds the engine with a fixed `max_iterations=1`, while a failure message still suggests raising the flag (`cli_portify/failures.py:240`). Recorded as a 5.0.0 Known Issue (`docs/releases/v5.0.0.md:229`) and in decision B4 (amended).
+- **Roadmap convergence `max_runs=3`.** The roadmap fidelity gate runs up to 3 checker runs by default (`src/superclaude/cli/roadmap/convergence.py:440`) and remediates only between runs (`convergence.py:632-649`), so it performs at most 2 remediation passes, the same count as S3 if a checker run counts as a review. The changelog scope does not name roadmap convergence (`CHANGELOG.md:29-33`), so whether the rule is meant to cover it is not stated.
+- **`sc-cli-eval-protocol` "max 3 fix loops".** The create pipeline allows 3 fix loops for manifest loader errors before reporting blocked (`src/superclaude/skills/sc-cli-eval-protocol/SKILL.md:204`; `refs/create-pipeline.md:50`). The guard test allowlists both lines as "not a review loop" (`test_review_severity_rule.py:294-304`); whether non-review fix loops should follow the 2-cycle cap is not decided.
+
+## Changing the rule
+
+1. Edit S1-S5 in `src/superclaude/output-styles/pragmatic.md` and keep each bullet's opening phrase, which the guard test checks (`test_review_severity_rule.py:69-75`).
+2. Update the copies in the ten-file set (`test_review_severity_rule.py:181-192`), and the edit-table fixtures if a pinned row changes.
+3. A new review loop in any primitive states blocking versus minor, caps at 2 fix cycles, and HALTs with the open blocking findings at the cap. A protocol that needs its own severity model says so explicitly, as `/sc:implement` does (`qa.md:93`).
+4. Run `make sync-dev`, `make verify-sync` and `uv run pytest tests/skills/test_review_severity_rule.py tests/skills/test_implement_severity_static.py -v`.
+5. Existing installations pick up a changed style only after `superclaude install --force` (see [How the rule reaches every agent](#how-the-rule-reaches-every-agent)).

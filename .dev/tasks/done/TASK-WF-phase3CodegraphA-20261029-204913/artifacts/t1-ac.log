@@ -1,0 +1,16 @@
+$ AC1
+rg_rc=1
+slots_rc=0
+$ AC2
+true
+jq_rc=0
+$ AC3
+g1_rc=0
+$ AC4
+exists_rc=0
+sort_rc=0
+$ AC5
+base_rc=0
+inside
+$ AC6
+refs_done

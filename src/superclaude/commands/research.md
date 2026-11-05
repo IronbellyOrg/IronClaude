@@ -3,7 +3,7 @@ name: research
 description: Deep web research with adaptive planning and intelligent search
 category: command
 complexity: advanced
-mcp-servers: [tavily, playwright, serena]
+mcp-servers: [tavily, playwright]
 personas: [deep-research-agent]
 ---
 
@@ -97,7 +97,6 @@ Per-tier `search_depth`/`extract_depth` and map/crawl selection are defined by t
 - **Tavily**: Primary search, extraction, site-mapping (`tavily-map`) and domain-crawl (`tavily-crawl`) engine — see deep-research-agent / RESEARCH_CONFIG.md for routing
 - **Native reasoning**: Complex reasoning and synthesis
 - **Playwright**: JavaScript-heavy content extraction
-- **Serena**: Research session persistence
 
 ## Output Standards
 

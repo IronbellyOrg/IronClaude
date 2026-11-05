@@ -1,0 +1,3 @@
+$ uv run --no-project python src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py
+IronbellyOrg/IronClaude
+rc=0

@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-design-20261020-090627
+plan_path: ./TASK-WF-design-20261020-090627.md
+source_path: ./source.md
+source_origin: /config/workspace/IronClaude/.dev/designs/auggie-claim-gate/design.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: failed
+reflect_report_path: null
+unresolved:
+  - "Advisory reflection failed during adversarial merge after a permission-system denial; no final validated verdict. Failure contract: .dev/reflect/pre-TASK-WF-design-20261020-090627-20261020091159/return-contract.yaml. REPORT.md creation was separately denied by subagent report policy."
+  - "Plan generation passed its schema gate, but the plan is NOT approved for implementation; provisional reviewers found design/plan contradictions. Complete review and resolve confirmed gaps before implementation."

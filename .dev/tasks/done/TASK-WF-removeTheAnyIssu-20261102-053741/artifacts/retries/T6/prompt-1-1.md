@@ -1,0 +1,55 @@
+289fe75f838c02f01388e1e0c748fa7f6912ba4b
+Review one task for spec compliance.
+
+Task brief: ## Task 6: Rewrite the pinned rf-team-lead Fix Cycles line and propagate its sha256
+
+Depends on: Task 3
+
+Covers: R-004, R-007 (dnsp test), R-012, R-008, R-010.
+
+Rewrite the line of `src/superclaude/agents/rf-team-lead.md` that begins "- **Fix Cycles**: " (line 462 at HEAD) so that it keeps that prefix, its FIX trigger reads exactly "If a phase pipeline returns blocking findings, invoke another pipeline with a FIX request" followed by "(minor findings are recorded as notes)", reads "max 2 cycles per phase", and keeps "HALT and ask user" with "the open blocking findings". Compute the sha256 of the new line exactly as `tests/audit/test_dnsp_all_agents_fail_bypass.py` does (fixture bytes, trailing newline included). In one change: put the new sha in place of `51725c0ffa151c3403701f21910d7f5cf122639f3a0e7fa9ae3cafe82701a0a0` on the four sha lines `src/superclaude/agents/rf-qa.md:82`, `src/superclaude/agents/rf-qa-qualitative.md:83`, `src/superclaude/agents/rf-analyst.md:74` and `src/superclaude/skills/task-builder/SKILL.md:901`; change "max-3-cycles" to "max-2-cycles" on the three token lines (rf-qa:82, rf-qa-qualitative:83, rf-analyst:74); write the new line to `tests/audit/fixtures/rf-team-lead-fix-cycles-rule.txt`; update `tests/audit/test_dnsp_all_agents_fail_bypass.py` (lines 14, 32, 77, 395-399, 640) to the new sha, "max 2 cycles per phase" and "max-2-cycles", and rename `test_fix_cycles_line_contains_max_3_cycles_token` to `..._max_2_cycles_token`.
+
+Acceptance criteria:
+- `git grep -n '51725c0f' -- src tests plugins` and `git grep -n -i -E 'max-3-cycles|max 3 cycles per phase' -- src tests` print nothing; the new sha appears on the four sha lines and in the test; `git grep -n -F -- '- **Fix Cycles**: If a phase pipeline returns blocking findings, invoke another pipeline with a FIX request' -- src/superclaude/agents/rf-team-lead.md` prints one line, and that line contains "max 2 cycles per phase"; `git grep -n -F 'If a phase pipeline returns issues' -- src` prints nothing.
+- `make sync-dev` then `uv run pytest tests/audit -q` passes (saved to `./artifacts/t6-audit.log`).
+
+AC ids: T6.AC1, T6.AC2 (the Acceptance criteria bullets, in order).
+Global constraints: - Final user decisions (restart spec `/tmp/t11b-severity-rule-restart-spec.md`): B1 minor findings are noted and work proceeds, with no recheck and no FAIL; at the cap, open blocking findings are escalated to the user, never passed; B2 the cap is 2 fix cycles = at most 3 reviews; B3 `/sc:implement` option A; `update.sh` is not changed; cli-portify default 1 iteration (coordinator, inventory section 4 item 3a). Evidence: `/home/coder/workspaces/IronClaude/.dev/worktrees/qa-loop-investigation/.dev/qa-loop-investigation/FINDINGS.md` sections 4 and 5.
+- Amendment, user decision 2026-11-02 08:41 UTC (coordinator message msg_9d0fe67f82c7, reply to the review-cap escalation): the 10 open blocking findings of pre-review 3 (`.dev/reflect/pre-removeTheAnyIssu-20261102054021/REPORT.md`, B3-01..B3-10) are added to this plan and it is implemented with no fourth plan review. Safeguards: (1) one fixed, recorded site sweep, `.dev/review-severity-rule/site-sweep.md` (pattern list, every hit, and for each hit its task or the reason it is not a rule of this kind); its literal edits for sites outside the earlier lists are `.dev/review-severity-rule/sweep-edits.yaml` (Task 19); (2) the static test of Task 20 fails if any swept wording survives as a rule; (3) acceptance checks use text anchors, not line numbers (B3-09). Per-task QA and the FINAL review stay as they are, each under the 2-fix-cycle cap. This amendment was made by hand on the user's instruction; it is the one exception to never editing a generated plan from reflect findings.
+- This plan replaces packages `TASK-WF-removeTheAnyIssu-20261101-225635` and `TASK-WF-removeTheAnyIssu-20261102-042031`; their pre-review findings (B-01..B-11, P2-B1..P2-B7) are folded in.
+- Site lists (repo-relative): severity wording `.dev/review-severity-rule/inventory.md` sections 1, 2, 4 and 6; every cap and at-cap edit `.dev/review-severity-rule/cap-edits.yaml` (161 rows with literal `old` and `new`, grouped `agents`, `templates`, `skills-a`, `skills-b`, `portify`, `prd-core`; a row with `occurrences` > 1 is applied to every occurrence). Severity line numbers are against `f90877be`; locate each site by its quoted text.
+- CAP_CHECK for a group G (run from the repo root): `uv run python -I -c 'import sys,yaml,pathlib; rows=[r for r in yaml.safe_load(open(".dev/review-severity-rule/cap-edits.yaml"))["rows"] if r["group"]==sys.argv[1]]; bad=[r["id"] for r in rows if r["old"] in pathlib.Path(r["file"]).read_text() or r["new"] not in pathlib.Path(r["file"]).read_text()]; print(len(rows), "rows; failing:", bad); sys.exit(1 if bad else 0)' G`. It exits 0 only when every row of the group has its `old` absent and its `new` present.
+- Severity tasks never change any `old` fragment of cap-edits.yaml; cap tasks change only those fragments. Copies of S1-S5 are taken from `src/superclaude/output-styles/pragmatic.md` after Task 1 (no "(S1)".."(S5)" labels, no S3 annotation). The S1-S3 file set is exactly `src/superclaude/agents/rf-qa.md`, `src/superclaude/agents/rf-qa-qualitative.md`, `src/superclaude/templates/documents/agent_template_qa.md`, `src/superclaude/templates/documents/skill_template.md`, `src/superclaude/templates/workflow/01_mdtm_template_generic_task.md`, `src/superclaude/templates/workflow/02_mdtm_template_complex_task.md` (these six also carry S5) and the four `src/superclaude/rules/prompts/*_qa_prompt.md` files. Shared FAIL-line replacements keep "Only PASS or FAIL — no conditional pass." and each file's own "List each ..." suffix.
+- Tasks run in number order. `.claude/agents`, `.claude/skills` and `.claude/templates` are absent in this worktree and many `tests/audit` tests compare `src/` with those mirrors, so every task runs `make sync-dev` before its pytest command.
+- R-008: never add a `src/superclaude/...` path to an installed primitive; every task that edits a primitive checks `git diff -U0 -- <its primitive files> | grep '^+[^+]' | grep -n 'src/superclaude'` prints nothing.
+- Edit only `src/superclaude/`, `plugins/superclaude/` twins, `tests/` and `CHANGELOG.md`. Never edit or stage `.claude/` (except `.claude/settings.json`, untouched here). `.dev/tasks/` is always staged.
+- Minor findings from this plan's own reviewers are noted, not fixed in extra rounds (pre-review 3 minors M3-01..M3-12 stay notes). Kept as notes, not tasks: rule 9 "When in doubt, fail it" (`rf-qa-qualitative.md:981`), `docs/guides/tdd-skill-release-guide.md:265, 271` (outside scope), S1-S3 not copied into the seven skill prompt-block copies, no check that OUT sites stay unchanged beyond Task 20(f).
+- SWEEP_CHECK for a group G: the CAP_CHECK command with `cap-edits.yaml` replaced by `sweep-edits.yaml`.
+- Checks are the tests named per task plus tests that read edited files; `make verify-sync`; `make lint`. Never the full suite and never `tests/cli/eval/` as a directory. Commit, push and `/sc:pr-submit` are done by the operator after this plan.
+Repository root: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule. Plan: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261102-053741/TASK-WF-removeTheAnyIssu-20261102-053741.md.
+Start sha: 289fe75f838c02f01388e1e0c748fa7f6912ba4b
+Diff against the start snapshot: saved in full at /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261102-053741/artifacts/diffs/T6-r1-1.diff (git diff of the start tree against the reviewed tree over src/, plugins/, tests/ and CHANGELOG.md; new files appear in full). Read the whole file; read live files in the worktree as needed.
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

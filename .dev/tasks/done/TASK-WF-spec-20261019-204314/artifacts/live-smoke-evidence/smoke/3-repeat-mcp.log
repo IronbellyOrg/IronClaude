@@ -1,5 +1,0 @@
-Upstream source: https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh. Native location: /home/coder/.local/bin/codebase-memory-mcp. This user/account-wide lifecycle affects detected clients and companion instructions, skills, agents and hooks; graph indexes are retained.
-Acquisition: preparing Codebase Memory through the native helper.
-Executable verification: codebase-memory-mcp 0.12.1 at /home/coder/.local/bin/codebase-memory-mcp
-Registration: exact user stdio entry verified (codebase-memory-mcp 0.12.1). Restart clients to load integrations; no indexing or live MCP handshake was performed.
-Successfully installed 1 MCP server(s).

@@ -1,0 +1,15 @@
+calibrator_model_class: fable
+self_reported_confidence: 0.70
+dimensions: {citation_grounding: 0.90, coverage_completeness: 0.60, deviation_classification_clarity: 0.70, risk_surface_coverage: 0.50, recommendation_actionability: 0.40}
+calibrated_confidence: 0.62
+escalation: escalate
+notes:
+  - "All SRC/TL/H citations verified on read: TL:19, TL:20, TL:42, TL:56, TL:69, TL:125, TL:154, SRC:61, SRC:238, H3 (test_how_we_work_install.py:44), H4 (empty), H5 (six .md files), H9 (sums to 121), H10 hold."
+  - "H9 over-reach: H9 shows only per-verb counts, not which commands the hits sit in; 'many in commands that no phase converts' is an inference the hunk does not show."
+  - "Task 3 finding is stronger than stated: scripts/build_superclaude_plugin.py:75 copies only agents, commands, hooks, scripts, skills (no core), so the script alone cannot decide the plugins/superclaude/core convention."
+  - "Gap: Task 7 not examined; it depends on /opt/Orca being installed (H12) and on profiles/*/orca-data.json existing; AC requires every printed line to be nestedWorkerMaxDepth:1 with no handling for a differing value."
+  - "Gap: Task 4 AC-0.3 uses git merge-base master HEAD; branch is ironbelly/..., not off master-verified; card does not check that HOW-WE-WORK.md is unchanged at that base."
+  - "Gap: Task 6 allowlist must enumerate ~121 hits by hand in a test; scale/maintainability risk not raised."
+  - "Gap: Task 5 and Task 2 (12 ready commands vs section 3.1 flags) not checked at all."
+  - "No recommendations: card names candidate drift classes for Task 3 and Task 6 but proposes no plan amendment (e.g. add Makefile plugin targets to Task 3's read list; add a 'never a worker' reason slot to Task 6)."
+  - "Coverage matrix is inference-only (parsed_count 0, 105 inferred); card correctly flags coverage_degraded but the 0.2762 figure carries little weight."

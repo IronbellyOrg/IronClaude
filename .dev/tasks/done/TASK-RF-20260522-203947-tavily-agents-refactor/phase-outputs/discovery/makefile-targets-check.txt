@@ -1,5 +1,0 @@
-# Makefile targets check — timestamp: 2026-05-22 21:25 — conclusion: ALL_TARGETS_PRESENT
-test:
-lint:
-sync-dev:
-verify-sync:

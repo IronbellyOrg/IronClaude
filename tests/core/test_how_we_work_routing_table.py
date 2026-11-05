@@ -27,6 +27,9 @@ _OTHER_BEGIN, _OTHER_END = "<!-- other-commands:v1 -->", "<!-- /other-commands -
 _OTHER_COMMANDS = {
     "sc:build",
     "sc:git",
+    "sc:graph",
+    "sc:impact",
+    "sc:issue",
     "sc:spawn",
     "sc:index",
     "sc:index-repo",
@@ -94,7 +97,7 @@ _EXPECTED_IDS = {
 }
 
 # Claude Code built-in slash commands the guide may name without a source file.
-_BUILTINS = {"code-review", "security-review"}
+_BUILTINS = {"code-review", "rename", "security-review"}
 
 # A command or skill token: a backtick immediately followed by a slash. Anchoring
 # on the backtick avoids path fragments such as `.dev/tasks/to-do`.
@@ -1071,7 +1074,8 @@ def test_other_operations_preserve_requested_authority_and_owned_state():
     assert "mode=quick or mode=update" in other
     assert "PROJECT_INDEX.md and PROJECT_INDEX.json" in other
     assert "Coordinated project docs/API/structure/README" in other
-    assert "requires Serena" in other
+    assert "needs no MCP server" in other
+    assert ".superclaude/memory/" in other
     assert "writes memory; not durable task execution state" in other
     assert "Not executor resume" in other
     assert "inspect status, orient, then wait" in other

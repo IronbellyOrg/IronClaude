@@ -1,0 +1,20 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: null
+surface_unreached: null
+inputs:
+  confidence_calibrated: 0.62
+  S_scope: 4
+  S_domains: 3
+  S_dev_density: 0.00
+  regression_candidate_count: 0
+  runtime_surface_unreached: 0
+  runtime_surface_degraded: true
+composite_score: 5
+per_signal_breakdown:
+  scope_size: 1        # 4 files
+  task_count: 1        # 5 tasks
+  blast_radius: 1      # shared shim used by every session on a port; launcher change
+  spec_density: 0      # 0 unmapped hunks
+  ambiguity_signals: 2 # degraded reuse search, runtime-surface DEGRADE, 2-class reviewer pool
+escalation_reason: "rule 4: S_domains >= 3 (code, tests, docs); also C 0.62 < 0.85 (rule 6 would fire)"

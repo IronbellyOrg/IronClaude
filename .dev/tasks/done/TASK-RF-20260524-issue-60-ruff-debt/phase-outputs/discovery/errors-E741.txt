@@ -1,2 +1,0 @@
-scripts/eval_1.py:283:20: E741 Ambiguous variable name: `l`
-scripts/eval_1.py:291:72: E741 Ambiguous variable name: `l`

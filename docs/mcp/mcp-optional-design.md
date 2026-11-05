@@ -4,15 +4,11 @@
 
 **重要**: 実行時は **MCPなしでも基本機能を利用** できます。これはインストールの成功条件とは別です。
 
-### Default Provisioning vs Optional Runtime Use
+### Installation vs Optional Runtime Use
 
-`superclaude install` now provisions full user-level Codebase Memory MCP after framework/user setup as a **required installation phase on Linux amd64/arm64**. Acquisition, verification or registration failure exits 1 and keeps completed framework files. Unsupported macOS/Windows also leave that phase incomplete; separate upstream manual setup is not a bypass for framework installation success.
+`superclaude install` installs the framework files and then installs and registers codegraph at user scope (`claude mcp add-json codegraph ... --scope user`). codegraph is a required install phase: if it fails, the framework files stay installed and `superclaude install` exits 1. Every other MCP server is optional and is added separately with `superclaude mcp`. If an MCP server is unavailable at runtime, the native-tool fallbacks below apply. See the [MCP installation guide](../user-guide/mcp-installation.md) for the commands.
 
-That default does not make graph tools mandatory at runtime. If Codebase Memory or another MCP is unavailable, the existing native-tool fallbacks below remain applicable. This change adds no indexing, graph-usage policy, bundled graph skills/agents or gateway dependency. Other MCP servers remain optional.
-
-`superclaude update` does not reinstall or upgrade the native tool; a later explicit `superclaude install` restores the default bundle. Safe account-wide removal retains graph indexes and requires explicit consent and verified acquisition ownership. See the [MCP installation guide](../user-guide/mcp-installation.md) for the full upstream companion effects, platform/prerequisite limits and lifecycle commands.
-
-The examples below describe **runtime fallback behavior**, not installer completion or permission to suppress installation errors.
+The examples below describe **runtime fallback behavior**, not permission to suppress installation errors.
 
 ```yaml
 Core Principle:
@@ -32,8 +28,10 @@ Design Philosophy:
 
 ```yaml
 Code Understanding:
-  With MCP: Serena (シンボル追跡、高速)
-  Without MCP: Grep + Read (テキスト検索、確実)
+  With MCP:
+    - codegraph (構造: シンボル、呼び出し元、影響範囲; installed by default)
+    - Auggie (セマンティック検索)
+  Without MCP: Grep + Glob + Read (常に利用可能な下限)
   Degradation: 機能維持、速度低下のみ
 
 Complex Analysis:
@@ -51,9 +49,9 @@ Research:
   Degradation: 検索効率が若干低下
 
 Memory:
-  With MCP: Mindbase (自動管理、永続化)
-  Without MCP: Session context only (セッション内のみ)
-  Degradation: クロスセッション記憶なし
+  Store: plain markdown files under <project>/.superclaude/memory/ (no MCP needed)
+  Cross-session: PM Agent reads them at session start and writes them during work
+  Degradation: なし (MCPに依存しない)
 ```
 
 ## PM Agent Without MCPs
@@ -66,15 +64,15 @@ Session Start:
     - Git status ✅
     - Read CLAUDE.md ✅
     - Read docs/patterns/ ✅
-    - Mindbase auto-load ⚡ (optional)
+    - Read .superclaude/memory/ ✅
 
   Without MCPs:
     - Git status ✅
     - Read CLAUDE.md ✅
     - Read docs/patterns/ ✅
-    - Session context only ✅
+    - Read .superclaude/memory/ ✅
 
-Result: 完全動作（クロスセッション記憶以外）
+Result: 完全動作（記憶はファイルなのでMCP不要）
 
 Pre-Implementation:
   With MCPs:
@@ -94,7 +92,8 @@ Result: 完全動作（ドキュメント取得が若干遅い）
 During Implementation:
   With MCPs:
     - TodoWrite ✅
-    - Serena code understanding ⚡ (optional)
+    - codegraph structure lookups ⚡ (installed by default)
+    - Auggie code understanding ⚡ (optional)
 
   Without MCPs:
     - TodoWrite ✅
@@ -108,15 +107,15 @@ Post-Implementation:
     - Self-evaluation ✅
     - docs/patterns/ update ✅
     - docs/mistakes/ update ✅
-    - Mindbase auto-save ⚡ (optional)
+    - Write .superclaude/memory/ ✅
 
   Without MCPs:
     - Self-evaluation ✅
     - docs/patterns/ update ✅
     - docs/mistakes/ update ✅
-    - Session summary only ✅
+    - Write .superclaude/memory/ ✅
 
-Result: 完全動作（クロスセッション学習以外）
+Result: 完全動作（クロスセッション学習もファイルで継続）
 ```
 
 ## Detection & Auto-Fallback
@@ -129,7 +128,7 @@ Runtime Detection:
 
   Example:
     try:
-      serena.search_symbols("authenticate")
+      auggie.codebase_retrieval("authenticate")
     except MCPNotAvailable:
       fallback_to_grep("authenticate")
 
@@ -139,7 +138,7 @@ Runtime Detection:
 Startup Check:
   Method: List available MCP servers
 
-  Available MCPs: [mindbase, serena]
+  Available MCPs: [codegraph, auggie]
   Missing MCPs: [context7, tavily]
 
   → Auto-configure fallbacks
@@ -150,11 +149,11 @@ Startup Check:
 ### Automatic Fallback Logic
 
 ```yaml
-Serena MCP Unavailable:
+Auggie MCP Unavailable:
   Task: "Refactor auth across 15 files"
 
   Attempt:
-    1. Try Serena symbol tracking
+    1. Try Auggie codebase retrieval
     2. MCPNotAvailable error
     3. Fallback to Grep + Read
 
@@ -180,19 +179,22 @@ Context7 MCP Unavailable:
 
   Output: Same info, less curated
 
-Mindbase MCP Unavailable:
-  Impact: No cross-session memory
+codegraph MCP Unavailable:
+  Task: "Who calls authenticate()?"
 
-  Fallback:
-    - Use session context only
-    - docs/patterns/ for knowledge
-    - docs/mistakes/ for learnings
+  Attempt:
+    1. Try codegraph callers lookup
+    2. MCPNotAvailable error (or index not ready)
+    3. Fallback to Grep + Glob + Read
 
-  Limitation:
-    - Can't recall previous sessions automatically
-    - User can manually reference past work
+  Output: Same answer, slower; graph answers are leads, not citations
 
-  Workaround: "Recall our conversation about X"
+Cross-Session Memory:
+  Impact: None from MCP availability
+
+  Store:
+    - Plain markdown files under <project>/.superclaude/memory/
+    - Read at session start, written during work (PM Agent)
 ```
 
 ## Configuration
@@ -200,13 +202,16 @@ Mindbase MCP Unavailable:
 ### MCP Enable/Disable
 
 ```yaml
+# Illustrative design sketch only: no SuperClaude code reads this file
+# or these keys. Register or remove servers with `superclaude mcp` and
+# `claude mcp`.
 User Configuration:
-  Location: ~/.claude/mcp-config.json (optional)
+  Location: ~/.claude/mcp-config.json (illustrative)
 
   {
     "mcps": {
-      "mindbase": "auto",      // enabled if available
-      "serena": "auto",        // enabled if available
+      "codegraph": "auto",     // enabled if available
+      "auggie": "auto",        // enabled if available
       "context7": "disabled",  // explicitly disabled
       "tavily": "enabled"      // explicitly enabled
     },
@@ -224,12 +229,12 @@ Fallback Modes:
 ```yaml
 Task: Refactor 15 files
 
-With Serena MCP:
+With Auggie MCP:
   Time: 30 seconds
   Tokens: 5,000
   Accuracy: 95%
 
-Without Serena (Grep fallback):
+Without Auggie (Grep fallback):
   Time: 90 seconds
   Tokens: 5,000
   Accuracy: 95%
@@ -272,15 +277,16 @@ Scenario 1: No MCPs Installed
   Expected: All core functionality works
 
 Scenario 2: Partial MCPs Available
-  Setup: Only Mindbase installed
+  Setup: Only codegraph installed (the install default)
 
   Test Cases:
-    - [ ] Session memory works (Mindbase)
-    - [ ] Code search fallback (Grep)
+    - [ ] Code structure lookups work (codegraph)
+    - [ ] Semantic code search fallback (Grep)
     - [ ] Analysis fallback (Native)
     - [ ] Docs fallback (WebSearch)
+    - [ ] Session memory works (.superclaude/memory/ files)
 
-  Expected: Memory works, others fallback
+  Expected: codegraph and memory work, others fallback
 
 Scenario 3: MCP Becomes Unavailable
   Setup: Start with MCP, MCP crashes mid-session
@@ -313,17 +319,16 @@ Scenario 4: MCP Performance Issues
 Getting Started:
   "Core runtime functionality has native fallbacks when MCPs are unavailable"
   "MCP runtime usage is optional"
-  "Normal installation provisions Codebase Memory; other MCP installs remain optional"
+  "superclaude install installs and registers codegraph (required phase); every other MCP server is optional via superclaude mcp"
 
 Installation Guide:
   Default Setup:
     - Clone repo
-    - Run installer (required Codebase Memory phase on Linux amd64/arm64)
+    - Run installer (installs and registers codegraph)
     - Start using; choose MCP tools or native runtime fallbacks
 
   Enhanced Setup (Optional):
-    - Install Mindbase (cross-session memory)
-    - Install Serena (faster code understanding)
+    - Install Auggie (faster code understanding)
     - Install Context7 (curated docs)
     - Install Tavily (better search)
 
@@ -351,8 +356,8 @@ Rule 3: Test both paths
   ❌ Only test with MCPs
 
 Rule 4: Document fallback behavior
-  ✅ "Uses Grep if Serena unavailable"
-  ❌ "Requires Serena MCP"
+  ✅ "Uses Grep if Auggie unavailable"
+  ❌ "Requires Auggie MCP"
 
 Rule 5: Performance expectations
   ✅ "30% slower without MCP"
@@ -396,7 +401,7 @@ Current Users (No MCPs):
   Benefit: Can add MCPs incrementally
 
 New Users:
-  Step 1: Install framework and default Codebase Memory (Linux amd64/arm64)
+  Step 1: Install the framework
   Step 2: Choose MCP usage or native fallbacks at runtime
   Step 3: Add other MCPs if desired (optional)
 
@@ -417,7 +422,7 @@ Core Message:
 
 User Choice:
   Minimal: No MCPs, full functionality
-  Standard: Codebase Memory provisioned by default; runtime usage optional
+  Standard: Install only the MCPs you use; runtime usage optional
   Enhanced: All MCPs, maximum performance
   Custom: Pick and choose based on needs
 

@@ -1,0 +1,118 @@
+diff --git aa/src/superclaude/skills/sc-issue-protocol/SKILL.md b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+index aad4b597..8feb893a 100644
+--- aa/src/superclaude/skills/sc-issue-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+@@ -34,7 +34,7 @@ For issues filed through `/sc:issue --create`, its four templates replace the `I
+ | `scripts/clickup_claim.py` | claim Wave 3: assigns the matching ClickUp task |
+ | `templates/scout-report.md` | `scout.md` (both modes) |
+ | `templates/accuracy-check-comment.md` | `accuracy-check.md` (claim, posted) |
+-| `templates/summary.md` | `summary.md` (claim) |
++| `templates/issue-summary.md` | `issue-summary.md` (claim) |
+ | `templates/recommend-record.md` | `recommend.md` (claim) |
+ | `templates/next-steps.md` | `next-steps.md` (claim) |
+ | `templates/claim-comment.md` | `claim-comment.md` (claim, posted) |
+@@ -83,7 +83,7 @@ Load `refs/claim.md` now. `<N>` is the issue number, `<D>` = `.dev/issues/<N>/`.
+ 2. **Wave 1, lookup.** Load `refs/tiers.md`. Spawn `issue-worker-t3` first (B13); it writes `<D>/scout.md` from `templates/scout-report.md`.
+ 3. **Wave 2, edge cases** from `scout.md`: a pull request is STOP `E-NOT-AN-ISSUE`; closed or assigned to someone else stops with the stated message and no write (B9); re-claim continues; earlier marked comment IDs are kept for Wave 6.
+ 4. **Wave 3, assign.** `gh issue edit <N> --repo <R> --add-assignee @me` (failure STOP `E-ASSIGN-FAILED`, before ClickUp and any comment), then `scripts/clickup_claim.py` with stdout to `<D>/clickup.json`; every ClickUp outcome except an argument error is non-fatal.
+-5. **Wave 4, accuracy check and summary.** Spawn `issue-worker-t2`, or `issue-worker-t1` when `scout.md` says `complex`; it writes `<D>/accuracy-check.md`, `<D>/summary.md` (effort in hours) and, when out of date, `<D>/analysis/`.
++5. **Wave 4, accuracy check and summary.** Spawn `issue-worker-t2`, or `issue-worker-t1` when `scout.md` says `complex`; it writes `<D>/accuracy-check.md`, `<D>/issue-summary.md` (effort in hours) and, when out of date, the analysis report as `<D>/analysis/analyze-<scope>.md` (`<scope>` in this file name is the last segment of the main path the issue touches). No file under `<D>/analysis/` has a name that starts with analysis, report, summary or findings.
+ 6. **Wave 5, next steps.** Load `refs/chains.md`. Invoke `Skill sc-recommend` with the goal format of `refs/chains.md`; save its output verbatim to `<D>/recommend.md` from `templates/recommend-record.md`. Write `<D>/next-steps.md` from `templates/next-steps.md`, starting with the `/model` tier line.
+ 7. **Wave 6, post.** Post or edit (by marker) the accuracy-check comment and the claim comment (`templates/claim-comment.md`). Print the `next-steps.md` path and STOP. Never run a next-step command (B2).
+ 
+diff --git aa/src/superclaude/skills/sc-issue-protocol/refs/claim.md b/src/superclaude/skills/sc-issue-protocol/refs/claim.md
+index 8c67b816..969e27d5 100644
+--- aa/src/superclaude/skills/sc-issue-protocol/refs/claim.md
++++ b/src/superclaude/skills/sc-issue-protocol/refs/claim.md
+@@ -55,8 +55,8 @@ Spawn `issue-worker-t2`, or `issue-worker-t1` when `scout.md` sizes the issue `c
+ 
+ - checks each concrete claim in the issue body and comments (paths, symbols, behaviours, flags) against today's code, and checks each merged pull request and changed file from `scout.md` for relevance;
+ - writes `<D>/accuracy-check.md` from `templates/accuracy-check-comment.md` with the verdict `current` or `out_of_date` and the evidence for each changed claim;
+-- when `out_of_date`: runs `/sc:analyze` on the paths the issue touches (`--depth deep` when complex, no `--depth` otherwise) and saves the report under `<D>/analysis/`;
+-- always writes `<D>/summary.md` from `templates/summary.md`: what the issue asks for, the relevant files and systems (the cheatsheet), type, complexity, the effort estimate in hours using the rubric below (B3), and links to anything under `<D>/analysis/` (default D22);
++- when `out_of_date`: runs `/sc:analyze` on the paths the issue touches (`--depth deep` when complex, no `--depth` otherwise) and saves the report as `<D>/analysis/analyze-<scope>.md` (`<scope>` in this file name is the last segment of the main path the issue touches; no file under `<D>/analysis/` has a name that starts with analysis, report, summary or findings);
++- always writes `<D>/issue-summary.md` from `templates/issue-summary.md`: what the issue asks for, the relevant files and systems (the cheatsheet), type, complexity, the effort estimate in hours using the rubric below (B3), and links to anything under `<D>/analysis/` (default D22);
+ - returns both paths.
+ 
+ Missing or empty file: retry the worker once, then STOP `E-WORKER-NO-OUTPUT` naming the missing path.
+@@ -76,7 +76,7 @@ Effort is always recorded in hours.
+ Load `refs/chains.md`.
+ 
+ 1. Invoke `Skill sc-recommend` with the goal format of `refs/chains.md`: issue URL, type, complexity, the summary path and the default chain row for that type and complexity as the suggested route. `/sc:recommend` picks the starting chain and depth (B4). Save its output verbatim to `<D>/recommend.md` from `templates/recommend-record.md`.
+-2. Write `<D>/next-steps.md` from `templates/next-steps.md`: the `/model` tier line first (simple -> `claude-gw-tier2`, medium and complex -> `claude-gw-tier1a`, default D6), then the commands in order with their flags and the inputs each needs (`@.dev/issues/<N>/summary.md`), the effort estimate, and, when `/sc:recommend` chose differently from the default row, one line naming the default row and why it was not used (default D23). When `/sc:recommend` asks a question or finds no route, record that in `recommend.md` and use the default row, saying so.
++2. Write `<D>/next-steps.md` from `templates/next-steps.md`: the `/model` tier line first (simple -> `claude-gw-tier2`, medium and complex -> `claude-gw-tier1a`, default D6), then the commands in order with their flags and the inputs each needs (`@.dev/issues/<N>/issue-summary.md`), the effort estimate, and, when `/sc:recommend` chose differently from the default row, one line naming the default row and why it was not used (default D23). When `/sc:recommend` asks a question or finds no route, record that in `recommend.md` and use the default row, saying so.
+ 3. Do not run any of those commands (B2).
+ 
+ ## Wave 6: post (orchestrator, directly, B1)
+@@ -85,6 +85,6 @@ Load `refs/chains.md`.
+    `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<D>/accuracy-check.md`
+    otherwise post a new one:
+    `gh issue comment <N> --repo <R> --body-file <D>/accuracy-check.md`
+-2. Claim comment: write `<D>/claim-comment.md` from `templates/claim-comment.md`: who claimed it, the ClickUp result from `clickup.json`, the summary overview, effort estimate, complexity, accuracy verdict, the first next step, and repo-relative links to `<D>/summary.md`, `<D>/next-steps.md` and `<D>/analysis/` with the one-line note that they open on GitHub only after someone commits and pushes the files (default D9). It ends with `<!-- sc:issue:claim -->`. Edit the earlier claim comment with `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<D>/claim-comment.md`, or post it with `gh issue comment <N> --repo <R> --body-file <D>/claim-comment.md`.
++2. Claim comment: write `<D>/claim-comment.md` from `templates/claim-comment.md`: who claimed it, the ClickUp result from `clickup.json`, the summary overview, effort estimate, complexity, accuracy verdict, the first next step, and repo-relative links to `<D>/issue-summary.md`, `<D>/next-steps.md` and `<D>/analysis/` with the one-line note that they open on GitHub only after someone commits and pushes the files (default D9). It ends with `<!-- sc:issue:claim -->`. Edit the earlier claim comment with `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<D>/claim-comment.md`, or post it with `gh issue comment <N> --repo <R> --body-file <D>/claim-comment.md`.
+ 3. A post or edit that fails -> STOP `E-POST-FAILED`; the files stay in `<D>`, and a re-run edits rather than duplicates because of the markers.
+ 4. Print the `next-steps.md` path and STOP. Do not stage or commit `.dev/issues/` (default D24).
+diff --git aa/src/superclaude/skills/sc-issue-protocol/refs/chains.md b/src/superclaude/skills/sc-issue-protocol/refs/chains.md
+index e69533d9..f752a45d 100644
+--- aa/src/superclaude/skills/sc-issue-protocol/refs/chains.md
++++ b/src/superclaude/skills/sc-issue-protocol/refs/chains.md
+@@ -4,7 +4,7 @@ Loaded in claim Wave 5.
+ 
+ Spawn workers with `subagent_type: issue-worker-t<N>` and never pass the `model` parameter. (No worker is spawned in Wave 5; the rule is repeated here so every ref carries it. Workers are `~/.claude/agents/issue-worker-t3.md`, `~/.claude/agents/issue-worker-t2.md` and `~/.claude/agents/issue-worker-t1.md`, project `.claude/agents/` copy first; they run `/sc:analyze` by following `~/.claude/commands/sc/analyze.md`.)
+ 
+-These are the default rows passed to `/sc:recommend` as the suggested route. `/sc:recommend` makes the final pick (B4). `<S>` = `.dev/issues/<N>/summary.md`; `<symptom>` is the bug's one-line symptom from the summary (at least 10 words); `<scope>` is the main path from the summary. `/sc:issue` never runs these commands (B2); it writes them into `next-steps.md` from `templates/next-steps.md`.
++These are the default rows passed to `/sc:recommend` as the suggested route. `/sc:recommend` makes the final pick (B4). `<S>` = `.dev/issues/<N>/issue-summary.md`; `<symptom>` is the bug's one-line symptom from the summary (at least 10 words); `<scope>` is the main path from the summary. `/sc:issue` never runs these commands (B2); it writes them into `next-steps.md` from `templates/next-steps.md`.
+ 
+ | Type / complexity | Tier line | Chain |
+ |---|---|---|
+@@ -25,12 +25,12 @@ No brainstorm step carries a handoff flag: the tasklist handoff feeds `/sc:taskl
+ 
+ ## Goal sent to `/sc:recommend` (claim Wave 5 step 1)
+ 
+-Invoke `Skill sc-recommend` with this goal, filled from `summary.md`:
++Invoke `Skill sc-recommend` with this goal, filled from `issue-summary.md`:
+ 
+ ```text
+ Pick the next-step chain for GitHub issue <issue url>.
+ Type: <feature|bug>. Complexity: <simple|medium|complex>.
+-Summary: .dev/issues/<N>/summary.md
++Summary: .dev/issues/<N>/issue-summary.md
+ Suggested route (default row "<Type>, <complexity>" of the /sc:issue chains):
+ <tier line>
+ <the numbered chain of that row, one step per line>
+diff --git aa/src/superclaude/skills/sc-issue-protocol/templates/claim-comment.md b/src/superclaude/skills/sc-issue-protocol/templates/claim-comment.md
+index efe9654b..2eb7a494 100644
+--- aa/src/superclaude/skills/sc-issue-protocol/templates/claim-comment.md
++++ b/src/superclaude/skills/sc-issue-protocol/templates/claim-comment.md
+@@ -14,7 +14,7 @@
+ 
+ ### Files
+ 
+-- Summary: `.dev/issues/<N>/summary.md`
++- Summary: `.dev/issues/<N>/issue-summary.md`
+ - Next steps: `.dev/issues/<N>/next-steps.md`
+ - Analysis: `.dev/issues/<N>/analysis/`
+ 
+diff --git aa/src/superclaude/skills/sc-issue-protocol/templates/next-steps.md b/src/superclaude/skills/sc-issue-protocol/templates/next-steps.md
+index f39f17ac..e362e1da 100644
+--- aa/src/superclaude/skills/sc-issue-protocol/templates/next-steps.md
++++ b/src/superclaude/skills/sc-issue-protocol/templates/next-steps.md
+@@ -5,7 +5,7 @@
+ Run these in your own session, in order. `/sc:issue` does not run them.
+ 
+ 1. `<command with its flags>`
+-   - Input: `@.dev/issues/<N>/summary.md`
++   - Input: `@.dev/issues/<N>/issue-summary.md`
+ 2. `<command with its flags, using the path printed by step 1>`
+ 
+ - Effort estimate: <hours> hours
+diff --git aa/src/superclaude/skills/sc-issue-protocol/templates/summary.md b/src/superclaude/skills/sc-issue-protocol/templates/issue-summary.md
+index e973dc64..a31c4d89 100644
+--- aa/src/superclaude/skills/sc-issue-protocol/templates/summary.md
++++ b/src/superclaude/skills/sc-issue-protocol/templates/issue-summary.md
+@@ -17,4 +17,4 @@
+ 
+ ## Analysis
+ 
+-<Links to the reports under `.dev/issues/<N>/analysis/`, or "None: the accuracy check found the issue current, so no analysis ran.">
++<Links to the reports under `.dev/issues/<N>/analysis/` (named like `analyze-<scope>.md`), or "None: the accuracy check found the issue current, so no analysis ran.">

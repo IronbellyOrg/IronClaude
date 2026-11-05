@@ -1,0 +1,18 @@
+T10 evidence (executor)
+== CHANGELOG.md diff since the T10 start: removed lines (must be 0) and added lines
+0
+22
+== hunk headers (all must sit at the top of the file, inside [Unreleased])
+@@ -4,6 +4,28 @@ All notable changes to IronClaude are documented in this file.
+== first release heading line
+80:## [5.0.0] - 2026-11-02
+== D08 old wording left
+(none above = clean)
+== #315 in CHANGELOG
+7:### ccsession: agents no longer get stuck at the session name question (#315)
+== CHANGELOG diff since start (removed lines; added lines; hunks)
+0
+22
+@@ -4,6 +4,28 @@ All notable changes to IronClaude are documented in this file.
+80:## [5.0.0] - 2026-11-02
+T10 status: three reviews done (r1-1, r2-1, r3-1); F3.1-F3.3 fixed after review 3, not re-reviewed; coordinator asked for a ruling.

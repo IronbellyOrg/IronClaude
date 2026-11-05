@@ -342,7 +342,7 @@ def test_u11_build_reflect_contract_threads_regression_fields() -> None:
 def test_r2f2_build_reflect_contract_emits_honest_verification_fields() -> None:
     """R2-F2 (PR#199 round-2): the Tier-2 seam emits honest verification fields.
 
-    The headless Tier-2 ensemble runs NO grounded/serena verification triangle, so
+    The headless Tier-2 ensemble runs NO grounded verification triangle, so
     hard-coding ``verification_ran=True`` was factually false and made the
     ``verification-skipped`` DEGRADE structurally unreachable on every Tier-2
     contract (clean runs bypassed the verification-integrity gate). The seam now

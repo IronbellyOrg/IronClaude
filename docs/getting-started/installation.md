@@ -5,7 +5,7 @@
 ### **Transform Claude Code with commands, agents, skills, and MCP integrations**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-4.3.5-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/version-5.0.0-blue?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/Python-3.10+-green?style=for-the-badge" alt="Python">
   <img src="https://img.shields.io/badge/Platform-Linux%20|%20macOS%20|%20Windows-orange?style=for-the-badge" alt="Platform">
 </p>
@@ -31,10 +31,16 @@
 | Method | Command | Platform | Best For |
 |:------:|---------|:--------:|----------|
 | **🐍 pipx** | `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` | Linux/macOS | **✅ Recommended** - Isolated environment |
-| **📦 pip** | `pip install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` | All | Traditional Python setups |
-| **🔧 Dev** | `git clone ... && uv venv && make install && uv run superclaude install` | All | Contributors & developers |
+| **📦 pip** | `pip install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` | Linux/macOS | Traditional Python setups |
+| **🔧 Dev** | `git clone ... && uv venv && make install && uv run superclaude install` | Linux/macOS | Contributors & developers |
 
 </div>
+
+**Platforms.** `superclaude install` always installs codegraph (see
+[codegraph](#codegraph)). Its automatic install supports Linux and macOS on x64
+or arm64 only. On any other platform, including Windows, `superclaude install`
+exits 1 unless a `codegraph` that prints `1.6.2` for `codegraph --version` is
+already on `PATH` or in `~/.local/bin`. Most installed hooks are bash scripts.
 
 > **IronClaude vs. the PyPI package.** IronClaude is a fork that still ships under the
 > Python package name `superclaude`. The `superclaude` package on PyPI
@@ -50,16 +56,21 @@ batching policy, skills, agents, and hooks under `~/.claude/`. The policy is
 therefore active in every project that loads normal user configuration—not only
 inside the IronClaude repository.
 
-Existing installations receive refreshed core files and hook registrations with:
+Existing installations upgrade with:
 
 ```bash
-superclaude update
+pipx install --force git+https://github.com/IronbellyOrg/IronClaude
+superclaude install --force
 ```
 
-The update preserves unrelated user hook registrations, refreshes
+See [Upgrading](upgrading.md) for the full steps. Do not use `superclaude update`
+for this: it refreshes the files but never installs codegraph or retires old MCP
+registrations.
+
+The refresh preserves unrelated user hook registrations, refreshes
 framework-owned hooks by command identity, and makes SubagentStart policy
 injection synchronous. Start a new Claude Code session after installing or
-updating; an already-running session does not reload its initial instructions.
+upgrading; an already-running session does not reload its initial instructions.
 No hard Bash counter is installed—the policy is advisory and keeps mutations or
 adaptive diagnostics as separate calls.
 
@@ -78,9 +89,14 @@ adaptive diagnostics as separate calls.
 | Component | Version | Check Command |
 |-----------|---------|---------------|
 | **Python** | 3.10+ | `python3 --version` |
-| **pip** | Latest | `pip --version` |
-| **Claude Code** | Latest | `claude --version` |
+| **Git** | Any | `git --version` |
+| **pipx** (recommended) or **pip** | Latest | `pipx --version` |
+| **Claude Code CLI** (`claude` on `PATH`) | Latest | `claude --version` |
+| **Network access to GitHub** | - | Needed to install from the repository and to download codegraph |
 | **Disk Space** | 50MB | `df -h` |
+
+`superclaude install` exits 1 when `claude --version` fails: the codegraph
+phase does not start without it.
 
 </td>
 <td align="center" width="50%">
@@ -90,8 +106,6 @@ adaptive diagnostics as separate calls.
 | Component | Purpose | Check Command |
 |-----------|---------|---------------|
 | **Node.js** | MCP Servers | `node --version` |
-| **Git** | Version Control | `git --version` |
-| **pipx** | Isolated Install | `pipx --version` |
 | **RAM** | Performance | 1GB recommended |
 
 </td>
@@ -106,9 +120,10 @@ adaptive diagnostics as separate calls.
 ```bash
 # Run this to check all requirements at once
 python3 --version && echo "✅ Python OK" || echo "❌ Python missing"
+git --version && echo "✅ Git OK" || echo "❌ Git missing"
+pipx --version && echo "✅ pipx OK" || echo "⚠️ pipx missing (pip works too)"
 claude --version && echo "✅ Claude Code OK" || echo "❌ Claude Code missing"
 node --version 2>/dev/null && echo "✅ Node.js OK (optional)" || echo "⚠️ Node.js missing (optional)"
-git --version 2>/dev/null && echo "✅ Git OK (optional)" || echo "⚠️ Git missing (optional)"
 ```
 
 </details>
@@ -130,9 +145,11 @@ git --version 2>/dev/null && echo "✅ Git OK (optional)" || echo "⚠️ Git mi
 <td width="60%">
 
 ```bash
-# Install pipx if not present
-python3 -m pip install --user pipx
-python3 -m pipx ensurepath
+# Install pipx if not present. On systems that block pip installs
+# (PEP 668 "externally-managed-environment"), use uv or the distro package
+# instead of `python3 -m pip install --user pipx`:
+uv tool install pipx          # or: sudo apt install pipx / brew install pipx
+pipx ensurepath
 
 # Install IronClaude from the fork (the PyPI "superclaude" package is upstream)
 pipx install git+https://github.com/IronbellyOrg/IronClaude
@@ -168,7 +185,10 @@ superclaude install
 <td width="60%">
 
 ```bash
-# Standard installation (from the fork, not PyPI)
+# Standard installation (from the fork, not PyPI).
+# On PEP 668 systems ("externally-managed-environment") these pip commands
+# fail outside a virtual environment: use Method 1 (pipx) instead, installing
+# pipx with `uv tool install pipx` or the distro pipx package.
 pip install git+https://github.com/IronbellyOrg/IronClaude
 
 # Or user installation
@@ -183,15 +203,15 @@ superclaude install
 
 **✅ Advantages:**
 
-- Works everywhere
 - Familiar to Python users
 - Direct installation
 
 **📍 Best for:**
 
-- Windows users
 - Virtual environments
 - Quick setup
+
+**⚠️ Platforms:** Linux and macOS (x64 or arm64); see the platform note under Quick Installation.
 
 </td>
 </tr>
@@ -278,12 +298,26 @@ From a source checkout, `superclaude` lives in `.venv`. Prefix it with `uv run`
 ### **Step 1: Check Installation**
 
 ```bash
-# Verify the installed version
+# Verify the installed version (prints: SuperClaude, version 5.0.0)
 superclaude --version
 
-# Run the health check
-superclaude doctor
+# List what is installed (read-only)
+superclaude install --list
+
+# Run the health check with details
+superclaude doctor --verbose
 ```
+
+Check that:
+
+- `superclaude install --list` shows a `codegraph MCP` block whose
+  `User registration:` line reads `matches` and whose last line reads
+  `Ready for Serena retirement: yes`.
+- `superclaude doctor --verbose` ends with `✅ SuperClaude is healthy` and prints
+  no `no codegraph registration` line.
+
+Use `--verbose`: plain `superclaude doctor` passes even when codegraph is not
+registered, and only the verbose output shows that line.
 
 ### **Step 2: Test in Claude Code**
 
@@ -305,8 +339,195 @@ superclaude doctor
 | Agents | `~/.claude/agents/` |
 | Skills | `~/.claude/skills/` |
 | Hooks | `~/.claude/hooks/` |
+| Document and workflow templates | `~/.claude/templates/` |
+| Rules (read on demand, excluded from auto-loading) | `~/.claude/rules/` |
+| Output styles | `~/.claude/output-styles/` |
+| Hook registrations and settings defaults (only keys you have not set), merged into your settings; a backup `settings.json.bak.<timestamp>` is written first | `~/.claude/settings.json` |
+| IronClaude plugin catalog (pinned third-party plugins such as Ponytail; rewritten on every run) | `~/.claude/ironclaude-marketplace/` |
+| ccsession launchers (links into the `ccsession-tag` skill) | `~/.local/bin/ccsession`, `~/.local/bin/ccsession-orca` |
+| ccsession settings file (created from the example only when missing) | `~/.claude/ccsession.env` |
+| codegraph 1.6.2 (downloaded, SHA-256 verified) | `~/.codegraph/`, link `~/.local/bin/codegraph` |
+| codegraph user-scope MCP registration | the `codegraph` entry under `mcpServers` in `~/.claude.json` |
 
 </div>
+
+`superclaude install` also installs the default Claude Code plugins listed in
+its settings defaults (including `playwright`, `frontend-design` and `ponytail`)
+with `claude plugin install <plugin> --scope user`, skipping any you disabled in
+`enabledPlugins`. This step downloads over the network within a shared 30-second
+budget (with the Orca skills step); a plugin that fails or runs out of time is
+reported by name, and the step never makes `superclaude install` fail. Rerun
+`superclaude install` to retry. When the Orca CLI is installed, the same step
+asks it to install its own skills (`computer-use`, `orca-cli`, `orchestration`).
+
+**Ponytail.** `ponytail@ironclaude` is Ponytail v5.3.3 from
+`DietrichGebert/ponytail`, pinned to commit
+`7801d061243d7b753bad0e0b3c057cd250b11755`. It adds the `ponytail-*` skills and
+the `/ponytail` command, and runs in its always-on `lite` mode: the installer
+sets `PONYTAIL_DEFAULT_MODE` to `lite` under `env` in `~/.claude/settings.json`
+unless you already set it. The behaviour below is that of v5.3.3.
+
+Ponytail's hooks run with your permissions, so IronClaude installs it only at
+the pinned commit, through its own marketplace named `ironclaude`. Every
+`superclaude install` and `superclaude update` writes the catalog
+`~/.claude/ironclaude-marketplace/.claude-plugin/marketplace.json` from the
+`ironclaudeMarketplace` entry of the package's settings defaults, adds it with
+`claude plugin marketplace add`, and installs the plugin, which Claude Code checks
+out at the catalog's `sha`. Do not edit the catalog: the next run rewrites it.
+An upstream change reaches you only when an IronClaude release moves the pin;
+the next run then rewrites the catalog, runs `claude plugin marketplace update
+ironclaude` and updates the installed plugin to the new commit. If a marketplace
+named `ironclaude` is already registered from any other source, the installer
+uses none of its plugins and leaves it alone; the warning names the
+`claude plugin marketplace add ~/.claude/ironclaude-marketplace` command that
+points the name at IronClaude's catalog. When a marketplace add or update fails,
+the plugins from that marketplace are skipped in that run and reported by name.
+
+To move the pin (maintainers): review the upstream changes, then set `ref` to the
+new tag and `sha` to its full 40-character commit (`git ls-remote
+https://github.com/DietrichGebert/ponytail refs/tags/<tag>`) under
+`ironclaudeMarketplace` in `src/superclaude/cli/user_settings_defaults.json`,
+set `PONYTAIL_SHA` in `tests/cli/test_install_user_setup.py` to the same commit,
+and recheck the behaviour described below against the new version.
+
+To run a newer Ponytail than the pin, install it yourself: set
+`"ponytail@ironclaude": false` under `enabledPlugins`, then run `claude plugin
+marketplace add DietrichGebert/ponytail` and `claude plugin install
+ponytail@ponytail --scope user`. That copy is not pinned and follows upstream.
+
+**Moving from the unpinned `ponytail@ponytail`.** IronClaude master from #358
+(commit `9b9497e6`) until this fix installed the unpinned `ponytail@ponytail`
+from the `DietrichGebert/ponytail` marketplace, at whatever commit upstream had
+then. On such a workspace, or one where you installed `ponytail@ponytail`
+yourself, the next `superclaude install` or `superclaude update` adds the pinned
+`ponytail@ironclaude` beside it, so both are enabled (unless you had opted out,
+see below). The installer leaves
+`ponytail@ponytail` alone: the entries it wrote look exactly like the ones
+`claude plugin marketplace add DietrichGebert/ponytail` writes, so it cannot
+tell whether it or you added them. To keep only the pinned copy, run:
+
+```bash
+claude plugin marketplace remove ponytail
+```
+
+This removes the `ponytail` marketplace, uninstalls `ponytail@ponytail`, removes
+its `enabledPlugins` entry and deletes its saved options and data; set Ponytail's
+options (such as `ledger`) again on `ponytail@ironclaude` if you had changed
+them. Later installs do not add `ponytail@ponytail` back. To keep upstream
+Ponytail instead, set `"ponytail@ironclaude": false`.
+
+In `lite`, every session start:
+
+- injects Ponytail's rules at the lite level ("Build what was asked. Name the
+  smaller option in one line and let the user pick."). The rules include the
+  rest of Ponytail's guidance too, for example ending each reply with one or two
+  lines on what was skipped and any risk;
+- appends a short map of the codebase (set `PONYTAIL_MAP=0` to turn the map off);
+- records the mode in `~/.claude/.ponytail-active`.
+
+Every subagent gets the same rules. `PONYTAIL_SUBAGENT_MATCHER`, a
+case-insensitive regular expression on the agent type, limits which subagents
+get them; it is best-effort and injects anyway when the expression is invalid.
+
+If your user settings have no `statusLine`, the first session on the workspace
+gets a one-time note asking Claude to offer to set up Ponytail's statusline
+badge. Ponytail copies `ponytail-statusline.sh` into `~/.claude` and writes
+`~/.claude/.ponytail-statusline-nudged`, so the note is not repeated. The first
+session can be an unattended Orca worker or a headless `claude -p` run: a worker
+sees the note in its context and may mention the offer in its reply; the note
+itself changes no settings. The installer never sets `statusLine`; to skip the note, set your own `statusLine`
+or create that file before the first session.
+
+Ponytail's band module runs in every mode: it draws a band above the prompt,
+runs `git grep` over the repo at session start, watches every Edit and Write,
+and after every turn writes a ledger row to
+`$XDG_CONFIG_HOME/ponytail/band/<project>.csv` (or
+`~/.config/ponytail/band/<project>.csv` when `XDG_CONFIG_HOME` is unset). The
+ledger stays local unless you set Ponytail's webhook option. `/ponytail band off`
+hides the band; the `git grep`, the Edit/Write watch and the ledger keep
+running. The ledger is on by default: set Ponytail's `ledger` option to `false`
+to stop it (in `/config` it is the row titled "Task board"; the value is saved
+under `pluginConfigs` in your settings).
+
+To change the mode for the rest of the session, type `/ponytail off`,
+`/ponytail lite`, `/ponytail full` or `/ponytail ultra`; a message that is
+exactly "stop ponytail" or "normal mode" also turns it off. The level is stored
+per project directory, so each worktree has its own, and any new session,
+`/clear` or resume in that directory sets it back to the default. Bare
+`/ponytail` reports the level when Ponytail is on, and switches it on at the
+default level when it is off (`full` when the default is `off`). To change the
+default, set `PONYTAIL_DEFAULT_MODE` under `env` in `~/.claude/settings.json` to
+`off`, `lite`, `full` or `ultra`. The variable overrides Ponytail's own
+`/ponytail default <mode>`, which prints "PONYTAIL DEFAULT SET" but has no
+effect while the variable is set.
+
+To opt out, set `"ponytail@ironclaude": false` under `enabledPlugins` in
+`~/.claude/settings.json`. Do not delete the key: the next install adds it back
+as `true`. Do not only run `claude plugin uninstall` either: the next
+`superclaude install` reinstalls Ponytail whenever `enabledPlugins` does not hold
+`false` for it. A project `.claude/settings.json` that enables it wins over your
+user value; to opt out of such a project, set `"ponytail@ironclaude": false` in
+that project's `.claude/settings.local.json`.
+
+If you opted out before the pin with `"ponytail@ponytail": false` (the earlier
+instructions), that choice carries over: when `ponytail@ironclaude` is missing
+from your user settings, the installer adds it as `false`, not `true`, and leaves
+`ponytail@ponytail` as it is. A value you already set for `ponytail@ironclaude`
+always wins.
+
+The installer installs Ponytail only into `$HOME/.claude` (see the note below).
+A session started with `CLAUDE_CONFIG_DIR` set reads its plugins from that
+profile, so it does not load Ponytail unless you install it there yourself.
+When Ponytail does run, it writes its own state files (for example
+`.ponytail-active`) under `CLAUDE_CONFIG_DIR` if that variable is set, else under
+`~/.claude`. Its hooks need `node` on your PATH; IronClaude's own SubagentStart hook already
+needs it. Existing workspaces get Ponytail only after the IronClaude package
+itself is upgraded: upgrade the package the way you installed it (for a
+checkout, `git pull` before `./update.sh`, because `update.sh` reinstalls from
+the local checkout), then run `superclaude update` or `superclaude install`.
+
+On a workspace where Orca's skill install uses the shared 30 s network budget on
+every run, the installer may not reach the Ponytail install. Such a workspace
+gets Ponytail on a later run that leaves budget, or through Claude Code's own
+background install of enabled plugins (UNVERIFIED). Every marketplace is added
+before any plugin is installed, so the extra Ponytail download can also push
+the other default plugins past the budget on a fresh workspace; they are
+reported by name and installed on a later run.
+
+> **`CLAUDE_CONFIG_DIR`.** The installer always writes its files under
+> `$HOME/.claude/`, and it runs its `claude plugin` commands against
+> `$HOME/.claude/` too, so a Claude Code profile kept in `CLAUDE_CONFIG_DIR`
+> does not get the default plugins. MCP registrations are the exception: if
+> you set `CLAUDE_CONFIG_DIR`, the installer reads `.claude.json` from it, and
+> the `claude mcp` commands that register codegraph act on that profile. An
+> empty `CLAUDE_CONFIG_DIR` makes that lookup fail, so the codegraph phase stops
+> and `superclaude install` exits 1.
+
+---
+
+## codegraph
+
+codegraph is a code-graph MCP server (symbols, callers, impact, file outlines).
+Installing it is a required phase of every `superclaude install`, with or
+without `--force`:
+
+- It reuses a `codegraph` that prints `1.6.2` (on `PATH` or in `~/.local/bin`);
+  otherwise it downloads the pinned v1.6.2 release for your platform from
+  GitHub, checks its SHA-256 and extracts it under `~/.codegraph/`.
+- It registers codegraph as a user-scope MCP server in `~/.claude.json`.
+- It needs the `claude` CLI and, for the download, network access. If the
+  phase fails, everything else is still installed, the failed stage is
+  printed and `superclaude install` exits 1. Fix the cause and run it again.
+- A cleanup step then runs. It removes old `serena` and `codebase-memory-mcp`
+  user registrations that IronClaude can prove it wrote and, once codegraph is
+  ready, other uncustomised Serena launchers (any name except `serena-local`).
+  It prints `<name>: kept: <reason>` for a `serena` or `codebase-memory-mcp`
+  entry it keeps; see [Upgrading](upgrading.md#what-stays-on-purpose) for the
+  removal commands.
+
+Restart Claude Code afterwards: MCP servers load at session start. For the
+failure table, indexing, removal and the Serena cleanup, see the
+[MCP Installation Guide](../user-guide/mcp-installation.md).
 
 ---
 
@@ -326,11 +547,11 @@ superclaude doctor
 # Update to latest (pipx). --force reinstalls from the repository:
 # `pipx upgrade` skips the reinstall while the version number is unchanged
 pipx install --force git+https://github.com/IronbellyOrg/IronClaude
-superclaude update
+superclaude install --force
 
 # Update to latest (pip). --force-reinstall for the same reason
 pip install --force-reinstall git+https://github.com/IronbellyOrg/IronClaude
-superclaude update
+superclaude install --force
 ```
 
 </td>
@@ -355,14 +576,21 @@ There is no `superclaude uninstall` command. Uninstalling the package removes on
 - core files such as `~/.claude/CLAUDE.md`, `~/.claude/RULES.md` and `~/.claude/HOW-WE-WORK.md`
 - `~/.claude/commands/sc/`, `~/.claude/agents/`, `~/.claude/skills/`, `~/.claude/hooks/` and `~/.claude/templates/`
 - `~/.claude/rules/` and `~/.claude/output-styles/`
-- the `~/.local/bin/ccsession` link and `~/.claude/ccsession.env`
+- the `~/.local/bin/ccsession` and `~/.local/bin/ccsession-orca` links and `~/.claude/ccsession.env`
 - the hook entries and settings defaults merged into `~/.claude/settings.json` (a backup named `settings.json.bak.<timestamp>` is written before the hook merge)
+- codegraph: its user-scope registration and the files `superclaude install --list` prints as owned (under `~/.codegraph/`, plus the `~/.local/bin/codegraph` link)
 
-Remove those by hand if you want them gone. Run `superclaude install --list` before uninstalling to see which core files, commands, agents, skills and templates are installed.
+Remove those by hand if you want them gone. Run `superclaude install --list` before uninstalling to see which core files, commands, agents, skills and templates are installed, and which codegraph paths are owned. To remove codegraph, run:
 
-A plain `superclaude install` never replaces files you already have; run `superclaude update` to get the new `~/.claude/CLAUDE.md` and the latest `~/.claude/HOW-WE-WORK.md`.
+```bash
+claude mcp remove codegraph --scope user
+```
 
-> **Warning:** `superclaude update` overwrites every file it ships, including `~/.claude/CLAUDE.md` and `~/.claude/RULES.md`, and keeps no backup of them. It also deletes and re-copies each shipped skill folder in `~/.claude/skills/`, so any file you added inside one is lost. `superclaude install --force` does the same. If you edited or added any of these files, copy them first (for example `cp ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.mine`), then re-apply your changes after the update.
+then delete the owned paths `superclaude install --list` printed; see [Removing codegraph](../user-guide/mcp-installation.md#removing-codegraph).
+
+A plain `superclaude install` keeps framework files you already have (it still runs the codegraph phase and the cleanup step); run `superclaude install --force` to refresh them, for example to get the new `~/.claude/CLAUDE.md` and the latest `~/.claude/HOW-WE-WORK.md`. Unlike `superclaude update`, it also installs codegraph and retires old MCP registrations.
+
+> **Warning:** `superclaude install --force` overwrites every file it ships, the same files `superclaude update` overwrites, including `~/.claude/CLAUDE.md` and `~/.claude/RULES.md`, and keeps no backup of them. It also deletes and re-copies each shipped skill folder in `~/.claude/skills/`, so any file you added inside one is lost. If you edited or added any of these files, copy them first (for example `cp ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.mine`), then re-apply your changes after the upgrade. After refreshing the files it also runs the codegraph phase and the cleanup step; if the codegraph phase fails, the command exits 1 even though the files were already refreshed. Fix the cause and run it again.
 
 ---
 

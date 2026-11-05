@@ -1,0 +1,125 @@
+SOURCE /config/.claude/projects/-config-workspace-IronClaude/bbddbf85-99f2-4caf-a47f-a402da4f09de/subagents/agent-acase-orca-monitor-5b644b12ceea9c86.jsonl RAW_LINE 164 TIME 2026-10-23T04:04:54.921Z
+| Status | Result |
+|---|---|
+| DONE | Verified the continuation separately from the original seven-verdict prefix. |
+| DONE | Task 12 was later completed through explicit human acceptance, not a new compliant review. |
+| NEXT | Append this timestamped supplement without changing the original prefix counts or causal classifications. |
+
+# Post-cutoff supplement
+
+**Observation timestamp:** 2026-10-23T04:03:52.359004Z  
+**Original report remains unchanged.**
+
+## 1. Membership freeze was not a content freeze
+
+The discovery manifest freezes **which sessions belong to the research population**, not their bytes:
+
+`/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/session-manifest.txt`
+
+- Line 1 identifies the discovery inspection as **2026-10-23T03:25:59Z**.
+- Line 6 includes the assigned session as index 05.
+- The manifest contains no per-file byte length, line cutoff or content hash.
+
+The original analysis actually covered **physical JSONL rows 1-1247 inclusive**, ending with the executor’s halt response at **2026-10-23T03:31:57.433Z**. Its seventh Task 12 verdict is Raw 1240 at **03:31:41.631Z**.
+
+Therefore, **03:25:59Z is the population-selection time, not the original report’s content cutoff**. The original seven-verdict count remains correct for its stated prefix.
+
+## 2. Source fingerprints at this supplemental observation
+
+### Session source
+
+`/config/.claude/projects/-config-workspace-Coder--claude-worktrees-orca-upstream-tracking/e002bed2-7877-42c1-8665-8cb8595587b6.jsonl`
+
+- Rows: **1,437**
+- Bytes: **4,164,912**
+- Modification time: **2026-10-23T04:02:38.443393Z**
+- SHA-256:  
+  `3fe14ffcb7a2ed06ed98078ed1bd64a8d9a1005e54d64ce76f0d787f5dabe79f`
+
+The first 1,247 rows, extracted from that observed source:
+
+- Bytes: **3,734,406**
+- SHA-256:  
+  `72b61c38df7ed27c7121bae62eb872296c8f206c3ef0e0be02bbb92894162bfb`
+
+**Qualification:** That prefix hash was computed retrospectively during this supplement. No original-time hash was recorded, so it is not proof of a byte snapshot taken at discovery time.
+
+### Current ledger
+
+`/config/workspace/Coder/.claude/worktrees/orca-upstream-tracking/.dev/tasks/to-do/TASK-WF-designSpec-20261022-132541/progress.md`
+
+- Rows: **42**
+- Bytes: **12,078**
+- Modification time: **2026-10-23T03:59:52.288720Z**
+- SHA-256:  
+  `ac6bde8c02d28769f75dd888bb41fff390e7ca4e4bf0ca5706a824a478b1c2ba`
+
+These are observation-specific fingerprints, not claims that the live files will remain unchanged.
+
+## 3. Historical ledger evidence versus current ledger
+
+The original halt is preserved in the session’s actual historical tool output:
+
+- **Raw 1243, 03:31:49.420Z:** command appends Task 12’s `blocked verdict=misunderstood` and operator-review halt.
+- **Raw 1244, 03:31:49.773Z:** successful tool output shows the blocked record, halt record and count **4** for explicit Task 12 halt records.
+- **Raw 1247, 03:31:57.433Z:** executor stops for operator direction.
+
+The current ledger retains those records at lines 33-34 but now adds acceptance and completion at lines 35-36. Its current completion must not be projected backward into the analyzed prefix.
+
+## 4. Later human acceptance closed Task 12
+
+| Session anchor | Timestamp | Verified event |
+|---|---|---|
+| Raw 1250 | 03:44:11.059Z | Human typed **“accept these defects and proceed”**. The record explicitly identifies human origin. |
+| Raw 1260 | 03:44:25.218Z | Executor appends a ruling accepting the four previously explained Task 12 defects, then copies the blocked verdict fields into a complete record without changing the verdict. |
+| Raw 1261 | 03:44:25.599Z | Successful tool output confirms both records and deletion of the task’s pin reference. |
+| Raw 1301 | 03:45:26.178Z | Executor reports Task 12 closed under accepted-defect ruling and proceeds to Task 13. |
+
+Current ledger:
+
+- **Line 35:** scoped ruling accepting the four defects.
+- **Line 36:** `T12: complete verdict=misunderstood`.
+
+**There is no eighth Task 12 reviewer verdict in the inspected continuation.** Completion was acceptance of known defects, not repair verification or a compliant outcome.
+
+This is consistent with the rule at:
+
+`/config/.claude/skills/sc-implement-protocol/refs/ledger.md:61-81`
+
+That rule permits clear current-conversation human acceptance, requires the executor to record its scope and permits completion with the **unchanged noncompliant verdict**.
+
+## 5. Fresh reviews in the continuation concern Task 13
+
+These must not be added to Task 12’s seven-verdict count.
+
+- **Raw 1293, 03:45:22.024Z:** fresh Task 13 reviewer launched.
+- **Raw 1305, 03:46:33.960Z:** verdict `misunderstood`, despite its acceptance test passing all 72 rows. Three route-description statements were inaccurate or incomplete.
+- **Raw 1324, 03:47:14.456Z:** a different fresh reviewer launched after repair.
+- **Raw 1331, 03:48:46.212Z:** verdict `missing`. Test still passed all 72 rows; one low-severity image-boundary description omitted the in-image runtime file and digest.
+- **Raw 1348/1349, 03:49:12.882Z / 03:49:13.224Z:** blocked record and `halt review=2 reason=head-moved` written.
+
+The last halt does **not** prove actual HEAD movement. Raw 1349 shows the required task-start HEAD file was missing. The historical rule read at **Raw 1340** explicitly says a missing file counts as moved; the current corresponding rule is:
+
+`/config/.claude/skills/sc-implement-protocol/refs/retry.md:38-43`
+
+Then:
+
+- **Raw 1355, 03:59:24.771Z:** human requests the phrase repair, explicitly declines another test run and directs continuation.
+- **Raw 1370/1371, 03:59:40.852Z / 03:59:41.007Z:** executor records Task 13 acceptance and completion with unchanged `missing` verdict.
+- Current ledger lines **40-41** preserve that acceptance and explicitly state no fresh rereview or test rerun followed the final wording correction.
+- Ledger line **42** starts Task 14; **Raw 1397, 04:00:09.163Z**, reports Task 14 work underway. No Task 14 reviewer outcome appears through the observed 1,437-row source.
+
+The test results above are historical session evidence; this investigation ran no tests.
+
+## 6. Effect on the original conclusions
+
+**The later outcome changes the status, not the causal classification.**
+
+- Historical status through Raw 1247: Task 12 blocked.
+- Later status: Task 12 complete **by human acceptance of the same four defects**.
+- The original seven verdicts, five repair passes and classifications remain unchanged.
+- The proven error-trap regression was accepted, not shown repaired.
+- The later Task 13 events provide additional evidence of review-driven wording expansion and a missing task-start checkpoint, but constitute a separate task sequence.
+- No claim should remain that Task 12 is *currently* blocked, that the overall implementation never continued, or that the source bytes were frozen at manifest-membership time.
+
+**Recommended action:** Append this supplement and describe Task 12’s outcome as **“blocked at the analyzed prefix endpoint; subsequently completed through explicit acceptance of four known defects.”**

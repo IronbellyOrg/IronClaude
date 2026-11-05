@@ -10,8 +10,8 @@ reused by reference (`sc-troubleshoot-protocol/SKILL.md:103`).
 
 For each verified finding, construct:
 
-- **issue description** ← the Augment finding `body` + recommendation + evidence excerpt, so
-  troubleshoot does not re-derive the symptom (FR-3.3).
+- **issue description** ← the review finding `body` (Augment or Codex, named in the seed) +
+  recommendation + evidence excerpt, so troubleshoot does not re-derive the symptom (FR-3.3).
 - **`--scope <file:line>`** ← the finding's grounded `file:line` (T-320 asserts the dispatched
   `scope` contains the finding's file:line).
 - **`--type <category>`** ← the rubric category (security / performance / tests / …), so troubleshoot
@@ -22,6 +22,15 @@ For each verified finding, construct:
     escalation, `escalation-rubric.md:60-61`).
   - Low / Nit → **report-only**: troubleshoot is NOT called; the finding is recorded in the
     report-only list.
+
+## Dedup groups (Augment and Codex on the same line)
+
+A dedup group (`dedup_groups`: same path and line, `original_line` when `line` is null) is seeded
+**once**: the issue description holds **every verified member's body, each labelled with its
+reviewer** (for example "augment:" and "codex:"), so two different claims on one line are both fixed,
+never silently merged. The group's route is its members' highest remapped tier; `--scope` is the
+shared `file:line`. The group gets one diagnosis and one set of edits (no double fix), and
+`fix_applied` is recorded for each member's `fix_key`. Unverified members are not in the seed.
 
 ## STOP — never emit `--depth quick --fix`
 
@@ -49,3 +58,16 @@ FSM `S3_FIXING` state (spec §5.1, `state-machine.md`). The dispatch here drives
 working-tree edit is applied by `sc:pr-submit`, not by troubleshoot. C3b also inherits troubleshoot's
 **user-gated, never-auto-execute** discipline, which dovetails with the autonomy ceiling and the
 `needs_human_decision` override (FR-4.4).
+
+## Impact warning before a fix (Wave 4)
+
+Before `S3_FIXING` applies the cycle's first edit, invoke
+
+> Skill sc:impact-protocol
+
+with `<symbols the fix edits> --depth 2 --output-dir <output-dir>/impact/round-<n> --caller sc-pr-submit-protocol`
+and read only `status`, `degraded`, `symbols[].prod.total`, `symbols[].transitive.count` and `report_path`
+from its `return-contract.yaml`. Print one warning line per symbol (production dependents and
+transitive count, with `report_path`) and copy `degraded` into the run-log. This is a warning only: it
+changes no severity, no route, no gate and no edit, and `status: blocked|failed` counts as `graph:absent`
+(continue natively).

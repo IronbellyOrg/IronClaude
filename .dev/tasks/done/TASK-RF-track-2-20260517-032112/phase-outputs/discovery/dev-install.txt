@@ -1,2 +1,0 @@
-ruff 0.15.13
-RUFF_AVAILABLE=0

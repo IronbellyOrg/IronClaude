@@ -74,7 +74,7 @@ def finding_from_comment(raw: dict) -> Finding:
     for value in (line, original):
         if value is not None and (type(value) is not int or value <= 0):
             raise ValueError("finding locations must be positive integers or null")
-    for key in ("severity_hint", "category", "confidence"):
+    for key in ("severity_hint", "category", "confidence", "reviewer"):
         if raw.get(key) is not None and not isinstance(raw[key], str):
             raise ValueError(f"finding {key} must be text")
     for key in ("in_diff", "is_outdated"):
@@ -115,6 +115,7 @@ def finding_from_comment(raw: dict) -> Finding:
         review_id=review_id,
         original_line=original,
         is_outdated=raw.get("is_outdated", False),
+        reviewer=(raw.get("reviewer") or "augment").strip() or "augment",
     )
 
 

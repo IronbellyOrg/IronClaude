@@ -192,7 +192,7 @@ def sanitize_pattern_for_filename(pattern: str) -> str:
 def default_matcher_filter(pattern: str) -> bool:
     """v1 only enforces coverage for matchers that target MCP tools.
 
-    Matchers like ``Edit|Write|mcp__serena__replace_content`` mix MCP
+    Matchers like ``Edit|Write|mcp__context7__resolve-library-id`` mix MCP
     tool prefixes with built-in tool names — these are bookkeeping
     hooks that no eval needs to issue a tool call for. The v1 gate
     therefore restricts itself to matchers that mention one of the

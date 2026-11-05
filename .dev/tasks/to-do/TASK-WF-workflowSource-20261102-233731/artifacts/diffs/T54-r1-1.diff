@@ -1,0 +1,361 @@
+--- a/docs/testing/v5.0.0/user/D07-pr-submit.md
++++ b/docs/testing/v5.0.0/user/D07-pr-submit.md
+@@ -0,0 +1,358 @@
++# E2E Test Guide — `/sc:pr-submit` (`5.0.0`)
++
++- **Capability:** `/sc:pr-submit` opens a PR on the repository of your `origin` remote, or attaches to one with `--pr <N>`, and at `--monitor 1` to `3` (default 3) watches the Augment and Codex reviews: level 1 proposes fixes only, level 2 fixes locally and stops before pushing, level 3 fixes, pushes one commit per cycle, replies to and resolves the fixed threads and asks each reviewer to look again. It refuses a checkout that is not the PR head (`pr_head_mismatch`) and a `--max-rounds` above 5; `--yes` was removed in 5.0.0.
++- **Audience:** end user
++- **Source of truth:** `src/superclaude/commands/pr-submit.md:8,25-58,66,85`; `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:77,212-230,236-248,267-277,279-291,303-327`; `src/superclaude/pr_submit/fsm.py:30-41,76-78,111-126,528-600`; `src/superclaude/pr_submit/reviewers.py:63-70`; `src/superclaude/pr_submit/run_log.py:81-82,303-313`; `src/superclaude/pr_submit/models.py:43,61,68-82,89`; `src/superclaude/skills/sc-pr-submit-protocol/refs/detection-contract.md:29,34`, `refs/review-retrigger.md:3-7`, `refs/state-machine.md:32,45,95-104`, `refs/loop-guard.md:69-83`; `src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh:8,18`, `poll-ci-checks.sh:18,30`, `retrigger-review.sh:23,41`; `CHANGELOG.md:47-54,206-217,223`; `docs/releases/v5.0.0.md:234`; repository `CLAUDE.md:64,66`
++- **Est. time:** `Tier A: 3 minutes. Tier B: 5-10 minutes (clone and dependency install). Tier C: 1-3 hours, mostly waiting for the reviewers and CI (UNVERIFIED estimate: it depends on reviewer latency, the number of findings and the CI run time).`
++
++## Preconditions
++
++- IronClaude 5.0.0 installed for your user (`superclaude install` done): `superclaude --version` prints `SuperClaude, version 5.0.0`.
++- `git`, `gh`, `jq` and `uv` on your `PATH`. The poll script stops without `gh` or `jq` (`src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh:19-20`).
++- Tier C only: `gh auth status` shows you logged in with push rights to `IronbellyOrg/IronClaude`, your `git` commit name and email are set, and the Augment Code app and/or the Codex connector (`chatgpt-codex-connector`) are installed on `IronbellyOrg/IronClaude` (UNVERIFIED: this guide cannot check which apps are installed; with neither, the run ends `terminal_augment_no_response`). The `claude` CLI is logged in; every Tier C step uses API tokens.
++- `/tmp/d07` does not exist (`[ ! -e /tmp/d07 ] && echo OK` prints `OK`). Every local file this guide creates is under `/tmp/d07`. No step edits your real `~/.claude`. The Tier C sessions still write there in ways no step controls: Claude Code saves each session's history, and the hooks that `superclaude install` registers write state and log files under `~/.claude/state/` and `~/.claude/logs/` at session start and on each prompt (`src/superclaude/hooks/hooks.json:18,49`; `src/superclaude/hooks/scripts/freshness-session-start.sh:8-9`, `freshness-user-prompt.sh:8-10`, `auggie-flag-clear.sh:10-12`).
++- Tier C creates real state on GitHub: one sandbox branch and one PR on `IronbellyOrg/IronClaude`, plus review replies, a fix commit and re-review comments on that PR. Those steps are tagged `[EXTERNAL]`. Use only the sandbox branch this guide creates, and close the PR in Cleanup. Every PR in this guide must be on `IronbellyOrg/IronClaude`: a PR URL with any other owner (for example the public upstream parent of the fork) is a FAIL; close that PR at once (repository `CLAUDE.md:66`).
++- `/sc:pr-submit` is carried out by Claude following the command and skill files. Expected results check the PR on GitHub, the git state and the run-log on disk, plus the exact strings those files fix; other chat wording is judged on content.
++
++## What you're verifying
++
++- The installed command defaults to level 3, caps `--max-rounds` at 5, has `--pr <N>`, and no longer lists `--yes`; the Python core enforces the same bounds and the head-binding check.
++- `--monitor 0` only opens the PR, on the `origin` repository `IronbellyOrg/IronClaude`, and starts no monitor.
++- A checkout that is not the PR head stops with `pr_head_mismatch`; `--max-rounds 6` is refused; `--yes` does nothing.
++- `--monitor 1 --pr <N>` proposes fixes and changes nothing; `--monitor 2 --pr <N>` edits only the working tree and stops before pushing; a bare `/sc:pr-submit --pr <N>` (level 3) commits one fix per cycle on top of the PR head, pushes it to the PR branch without force, replies to and resolves the fixed threads, and posts one re-review comment per present reviewer.
++
++---
++
++## Steps
++
++### Tier A — free smoke on your machine (read-only)
++
++#### Step 1 — The installed command surface `[FREE]`
++
++**Do:**
++
++```bash
++superclaude --version
++grep -n -e '^| `--monitor {0,1,2,3}` | 3 |' -e '^| `--max-rounds N` | 2 |' -e '^| `--pr <N>` |' ~/.claude/commands/sc/pr-submit.md | cut -c1-60
++grep -c -e '--yes' ~/.claude/commands/sc/pr-submit.md ~/.claude/skills/sc-pr-submit-protocol/SKILL.md
++ls ~/.claude/skills/sc-pr-submit-protocol/scripts/
++```
++
++**Expected result:**
++
++- `SuperClaude, version 5.0.0`.
++- Three lines numbered `46:`, `47:` and `53:`: `--monitor` default `3`, `--max-rounds` default `2` with "hard cap 5", and `--pr <N>` "Attach to an existing PR" (source: `src/superclaude/commands/pr-submit.md:46-47,53`).
++- Both files report `:0`: `--yes` is gone from the command and the skill (source: `CHANGELOG.md:217`, "It was accepted but never read").
++- Four scripts: `poll-augment-review.sh`, `poll-ci-checks.sh`, `reply-resolve-thread.sh`, `retrigger-review.sh` (source: `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:56,269,274,277`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 2 — The core parser's defaults and bounds `[FREE]`
++
++**Do:** (uses the Python of your `superclaude` install, for example the pipx virtual environment)
++
++```bash
++PY="$(dirname "$(readlink -f "$(command -v superclaude)")")/python"
++"$PY" -I -c 'from superclaude.pr_submit.fsm import parse_args as p; a=p([]); print(a.monitor, a.max_rounds, a.poll_interval, a.timeout, a.silence_timeout)'
++"$PY" -I -c 'from superclaude.pr_submit.fsm import parse_args as p; p(["--max-rounds","6"])' 2>&1 | tail -n 1
++"$PY" -I -c 'from superclaude.pr_submit.fsm import parse_args as p; p(["--yes"])' 2>&1 | tail -n 1; echo "exit=${PIPESTATUS[0]}"
++```
++
++**Expected result:**
++
++- `3 2 30 600 300`: level 3, 2 rounds, 30 s poll, 600 s timeout, 300 s silence timeout (source: `src/superclaude/pr_submit/fsm.py:30-35`).
++- `ValueError: --max-rounds hard cap is 5` (source: `src/superclaude/pr_submit/fsm.py:38,115-116`).
++- `sc:pr-submit: error: unrecognized arguments: --yes`, then `exit=2`: the parser has no `--yes` (source: `src/superclaude/pr_submit/fsm.py:73-99`, Python's `argparse`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 3 — The head-binding check `[FREE]`
++
++**Do:**
++
++```bash
++PY="$(dirname "$(readlink -f "$(command -v superclaude)")")/python"
++"$PY" -I -c 'from superclaude.pr_submit.fsm import pr_head_ok as h; s="a"*40; print(h("test/x", s, "test/x", s, False), h("d07-other", s, "test/x", s, False), h("test/x", s, "test/x", "b"*40, False), h("test/x", s, "test/x", s, True), h("test/x", s, "test/x", s, True, allow_cross_repo=True))'
++```
++
++**Expected result:** `True False False False True`: same branch and commit passes; a different branch name fails; a different commit fails; a PR head on a fork fails unless allowed (the skill allows it only below level 3, where nothing is pushed) (source: `src/superclaude/pr_submit/fsm.py:528-579`; `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:268`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 4 — The CI-wait preflight and the script argument checks `[FREE]`
++
++**Do:**
++
++```bash
++PY="$(dirname "$(readlink -f "$(command -v superclaude)")")/python"
++gh pr checks --repo IronbellyOrg/IronClaude --help | grep -c -e '--json'
++"$PY" -I -c 'import superclaude.pr_submit.ci; print("ci ok")'
++cd /tmp
++bash ~/.claude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh; echo "exit=$?"
++bash ~/.claude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh; echo "exit=$?"
++bash ~/.claude/skills/sc-pr-submit-protocol/scripts/retrigger-review.sh --pr abc; echo "exit=$?"
++```
++
++**Expected result:**
++
++- A count of at least `1`, then `ci ok`: both preflight prerequisites hold. If either fails, every `--monitor 1` to `3` run stops before it opens or attaches to a PR and names the missing one (source: `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:225-230`; `src/superclaude/commands/pr-submit.md:30`).
++- `poll-augment-review: missing/invalid --pr <N>`, `exit=2` (source: `poll-augment-review.sh:8,18`).
++- `poll-ci-checks: missing required --pr <N>`, `exit=2` (source: `poll-ci-checks.sh:18,30`).
++- `retrigger-review: invalid --pr value (must be a positive integer): abc`, `exit=2` (source: `retrigger-review.sh:23,41`). No script reaches `gh` or the network.
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++### Tier B — local writes under /tmp/d07
++
++#### Step 5 — Clone the fork and make the sandbox branch `[LOCAL-WRITE]`
++
++**Do:** (needs network for the clone and the dependency install; keep this terminal open)
++
++```bash
++[ ! -e /tmp/d07 ] || { echo "remove /tmp/d07 first"; false; }
++mkdir -p /tmp/d07 && git clone -q https://github.com/IronbellyOrg/IronClaude.git /tmp/d07/IronClaude && cd /tmp/d07/IronClaude
++git remote -v
++gh repo view --json nameWithOwner -q .nameWithOwner
++gh repo view IronbellyOrg/IronClaude --json defaultBranchRef -q .defaultBranchRef.name
++B="test/d07-pr-submit-$(date -u +%Y%m%d%H%M)"; echo "$B" > /tmp/d07/branch; git switch -q -c "$B" origin/master
++mkdir -p .claude/hooks && cp src/superclaude/hooks/scripts/reject-workspace-writes.sh src/superclaude/hooks/scripts/sc-recommend-phase0.sh .claude/hooks/
++uv venv -q && make install >/dev/null
++mkdir -p tests/d07_sandbox && : > tests/d07_sandbox/__init__.py
++cat > tests/d07_sandbox/test_d07_average.py <<'EOF'
++def average(values):
++    """Return the arithmetic mean of a non-empty list of numbers."""
++    return sum(values) / (len(values) - 1)
++
++
++def test_average_is_positive():
++    assert average([2, 4]) > 0
++EOF
++PYTHONDONTWRITEBYTECODE=1 uv run pytest -q -p no:cacheprovider tests/d07_sandbox 2>&1 | tail -n 1
++uv run ruff check tests/d07_sandbox && uv run ruff format --check tests/d07_sandbox
++git add tests/d07_sandbox && git commit -qm "test(d07): pr-submit sandbox, do not merge" && git log --oneline -1
++git status --porcelain
++```
++
++**Expected result:**
++
++- `git remote -v` shows only `origin` pointing at `https://github.com/IronbellyOrg/IronClaude.git`, `gh repo view` prints `IronbellyOrg/IronClaude` (a fresh clone has no `upstream` remote, so `gh` cannot pick the parent) and the default branch is `master` (source: repository `CLAUDE.md:64`; base branch read the same way at `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:267`).
++- The two copied hook scripts are the ones the clone's tracked `.claude/settings.json` registers; `.claude/` is ignored by git, so they stay local and keep the Tier C session free of "hook not found" errors.
++- `1 passed`, `All checks passed!`, `2 files already formatted`, one new commit `test(d07): pr-submit sandbox, do not merge`, and an empty `git status`. The seeded `average` divides by `len(values) - 1`, a defect a reviewer can flag; the test passes before and after a fix, so the level-3 validation gates (targeted tests, `make lint`, `ruff format --check`) can pass (source: `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:284-288`). Whether a reviewer flags it is UNVERIFIED.
++- The clone's `master` may be newer than 5.0.0. The installed 5.0.0 skill drives the run; Python checks that run inside the clone use the clone's code.
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++### Tier C — GitHub, reviewers and interactive Claude Code sessions
++
++Every step below acts on a real PR, so each is tagged `[EXTERNAL]`; each also runs an interactive Claude Code session (API tokens), and Steps 11-13 can take tens of minutes each. Start every session with `cd /tmp/d07/IronClaude && claude`, type the `/sc:` line exactly as shown, and allow the `gh`, `git`, `uv` and `make` calls Claude Code asks about inside `/tmp/d07/IronClaude`. After Step 7, set `N` to the PR number in the first terminal and define this snapshot helper there:
++
++```bash
++cd /tmp/d07/IronClaude && B=$(cat /tmp/d07/branch) && N=<PR number from Step 7>
++snap() { gh pr view "$N" --repo IronbellyOrg/IronClaude --json url,state,headRefName,headRefOid,commits --jq '"\(.url) \(.state) \(.headRefName) \(.headRefOid) commits=\(.commits|length)"'; echo "issue_comments=$(gh api "repos/IronbellyOrg/IronClaude/issues/$N/comments?per_page=100" --jq length) review_comments=$(gh api "repos/IronbellyOrg/IronClaude/pulls/$N/comments?per_page=100" --jq length)"; }
++```
++
++The first `snap` line must always start with `https://github.com/IronbellyOrg/IronClaude/pull/`.
++
++#### Step 6 — Publish the sandbox branch `[EXTERNAL]`
++
++**Do:**
++
++```bash
++cd /tmp/d07/IronClaude && B=$(cat /tmp/d07/branch) && git push -q -u origin "$B" && git ls-remote --heads origin "$B"
++```
++
++**Expected result:** one line `<sha>` followed by a tab and `refs/heads/test/d07-pr-submit-<timestamp>`, with the same `<sha>` as `git rev-parse HEAD`. `/sc:pr-submit` opens a PR from an existing head branch with `gh pr create --head <head>`; it does not push the branch for you (source: `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:267`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 7 — `--monitor 0` opens the PR and nothing else `[EXTERNAL]`
++
++**Do:** in a session started in `/tmp/d07/IronClaude` (replace `<branch>` with the content of `/tmp/d07/branch`):
++
++```text
++/sc:pr-submit --monitor 0 --head <branch> --title "test(d07): pr-submit sandbox, do not merge" --body "Sandbox PR for docs/testing/v5.0.0/user/D07-pr-submit.md. Do not merge; it is closed when the test ends."
++```
++
++Note the PR number, `/exit`, set `N` and define `snap` (see above), then:
++
++```bash
++snap
++gh pr view "$N" --repo IronbellyOrg/IronClaude --json baseRefName,isCrossRepository --jq '"\(.baseRefName) cross=\(.isCrossRepository)"'
++ls .dev/pr-monitor 2>&1
++```
++
++**Expected result:**
++
++- Claude resolves the repository from `origin` (`IronbellyOrg/IronClaude`), checks the remote, opens the PR with `gh pr create --repo IronbellyOrg/IronClaude --base master --head <branch> ...`, verifies the returned URL and stops (source: `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:267`; `src/superclaude/commands/pr-submit.md:25,35`).
++- `snap` prints `https://github.com/IronbellyOrg/IronClaude/pull/<N> OPEN <branch> <sha> commits=1`, then the comment counts (any comments come from the reviewer apps, which review on PR open; source: `src/superclaude/skills/sc-pr-submit-protocol/refs/review-retrigger.md:3-6`). The base line is `master cross=false`.
++- `ls: cannot access '.dev/pr-monitor': No such file or directory`: level 0 never arms the monitor, so no run-log is written (source: `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:267,269`).
++- FAIL if the URL has an owner other than `IronbellyOrg`, or if a second PR exists for the branch (`gh pr list --repo IronbellyOrg/IronClaude --head "$B" --state all --json number --jq length` must print `1`).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 8 — A checkout that is not the PR head stops with `pr_head_mismatch` `[EXTERNAL]`
++
++**Do:** in the first terminal, `snap > /tmp/d07/before8 && git switch -q -c d07-other`. Then in a session:
++
++```text
++/sc:pr-submit --monitor 1 --pr <N>
++```
++
++After it stops, `/exit`, then:
++
++```bash
++snap | diff /tmp/d07/before8 - && echo "PR unchanged"
++ls .dev/pr-monitor 2>&1
++git switch -q "$B" && git branch -q -D d07-other && git branch --show-current
++```
++
++**Expected result:**
++
++- The run halts before monitoring with status `terminal_halted`, reason `pr_head_mismatch`, and a message that PR #`<N>`'s head `<branch>`@`<sha>` does not match your checkout `d07-other`@`<sha>`, telling you not to close the PR, to check out `<branch>` and make it equal the PR head, then re-run with `--pr <N>` (source: `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:268,316`; `src/superclaude/commands/pr-submit.md:28`; check function from Step 3). The wording is Claude's; those elements must be there.
++- `PR unchanged`; `.dev/pr-monitor` still does not exist (the head binding runs before Wave 1 creates the run-log, `SKILL.md:268-269`); the last line is your sandbox branch name.
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 9 — `--max-rounds 6` is refused `[EXTERNAL]`
++
++**Do:** `snap > /tmp/d07/before9` in the first terminal, then in a session:
++
++```text
++/sc:pr-submit --monitor 1 --pr <N> --max-rounds 6
++```
++
++`/exit`, then `snap | diff /tmp/d07/before9 - && echo "PR unchanged"; ls .dev/pr-monitor 2>&1`.
++
++**Expected result:** the run refuses the flag before attaching, naming the hard cap of 5 (source: "reject >5" `src/superclaude/commands/pr-submit.md:47`; `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:214`; the core's text is `--max-rounds hard cap is 5`, `src/superclaude/pr_submit/fsm.py:38,115-116`). UNVERIFIED: the chat wording; the skill does not run the Python parser itself. `PR unchanged` and no `.dev/pr-monitor` folder. FAIL if a monitor starts.
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 10 — The removed `--yes` does nothing `[EXTERNAL]`
++
++**Do:** `snap > /tmp/d07/before10`, then in a session:
++
++```text
++/sc:pr-submit --monitor 0 --pr <N> --yes
++```
++
++`/exit`, then `snap | diff /tmp/d07/before10 - && echo "PR unchanged"; gh pr list --repo IronbellyOrg/IronClaude --head "$B" --state all --json number --jq length`.
++
++**Expected result:** `--yes` is not an option of the 5.0.0 command (no `--yes` in `src/superclaude/commands/pr-submit.md:8,44-56`; removed, `CHANGELOG.md:217`), and the core parser rejects it (Step 2). UNVERIFIED: how the session reacts, because neither the command nor the skill file says what to do with an unknown flag. Either outcome is a PASS: Claude stops and names `--yes` as unknown or removed, or it ignores the flag and only attaches to PR #`<N>` at level 0. Then `PR unchanged` and `1`. FAIL if a new PR is opened, anything is pushed or posted, or Claude says `--yes` skipped a confirmation.
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 11 — `--monitor 1 --pr <N>` proposes and changes nothing `[EXTERNAL]`
++
++**Do:** wait until the reviewer apps have posted their first review on the PR (open the PR page). Then `snap > /tmp/d07/before11; git rev-parse HEAD`, and in a session:
++
++```text
++/sc:pr-submit --monitor 1 --pr <N>
++```
++
++When it asks `fix these? y/n`, answer `n`. When it reports its final status, `/exit`, then:
++
++```bash
++snap | diff /tmp/d07/before11 - && echo "PR unchanged"
++git status --porcelain; git rev-parse HEAD
++ls .dev/pr-monitor/pr-"$N"-*/
++jq -r '.event_type + " " + (.reviewer // "")' .dev/pr-monitor/pr-"$N"-*/monitor-run-"$N".jsonl | sort | uniq -c
++```
++
++**Expected result:**
++
++- The preflight passes, the head binding passes, and the monitor arms once (source: `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:225-230,268-269`).
++- A run folder `.dev/pr-monitor/pr-<N>-<YYYYMMDDHHMMSS>/` holding `monitor-run-<N>.jsonl` (the authoritative log) and possibly `state.snapshot.json` (source: `src/superclaude/pr_submit/run_log.py:81-82,303-313`; `refs/loop-guard.md:69-83`). The event list includes `monitor_armed` (`src/superclaude/pr_submit/models.py:43`). The folder is ignored by git (`.gitignore:250`).
++- With verified findings of Medium severity or higher: Claude shows the diagnosis and asks exactly `fix these? y/n`, applies no edit, and ends with status `proposed` (source: `src/superclaude/pr_submit/fsm.py:41`; `SKILL.md:272`; `refs/state-machine.md:45`; status enum `src/superclaude/commands/pr-submit.md:58`). Low or Nit findings are only reported (`SKILL.md:270`).
++- The report lists each reviewer as `present`, `absent` or `incomplete` (`SKILL.md:244`). A reviewer that never shows activity is recorded with a `reviewer_absent` event and ignored (`SKILL.md:319-320`; `models.py:89`).
++- `PR unchanged`, an empty `git status`, and `HEAD` equal to the value you printed before: level 1 edits, commits, pushes and posts nothing (`src/superclaude/commands/pr-submit.md:85`; `SKILL.md:308`).
++- Inconclusive, not FAIL: no reviewer posts findings (the run goes on to wait for CI), or no configured reviewer responds at all (`terminal_augment_no_response`, with advice to check the app's trigger mode, allowlist and quota and to comment `augment review` by hand; `SKILL.md:77,321`). Steps 12 and 13 then cannot show the fix path either.
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 12 — `--monitor 2 --pr <N>` fixes locally and stops before pushing `[EXTERNAL]`
++
++**Do:** `snap > /tmp/d07/before12; git rev-parse HEAD`, then in a session:
++
++```text
++/sc:pr-submit --monitor 2 --pr <N>
++```
++
++When it reports its final status, `/exit`, then:
++
++```bash
++snap | diff /tmp/d07/before12 - && echo "PR unchanged"
++git status --porcelain; git rev-parse HEAD; git diff --stat
++```
++
++**Expected result:**
++
++- For verified Medium-or-higher findings: Claude applies the fixes in the working tree, runs the validation gates in order (targeted `uv run pytest`, `make lint`, `uv run ruff format --check src/ tests/`), then halts with status `halt_before_push`: no commit, no push, no reply (source: `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:273,279-291`; `refs/state-machine.md:32,95-104`; `src/superclaude/commands/pr-submit.md:37,58`).
++- `PR unchanged`; `git status` lists the edited files (for the seeded defect, a line `M tests/d07_sandbox/test_d07_average.py` with a leading space); `HEAD` is unchanged; `git diff --stat` shows the fix.
++- If a validation gate fails on a check unrelated to the fix (for example a lint error already on `master`), the run stops without pushing; record the failing gate as a note, not a `/sc:pr-submit` FAIL (`SKILL.md:326`).
++- FAIL if a commit was made, anything was pushed, or a comment was posted.
++
++Then discard the local fix so Step 13 starts from the PR head: `git restore --staged --worktree . && git status --porcelain` (remove by hand any untracked file it still lists).
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++#### Step 13 — A bare `/sc:pr-submit --pr <N>` runs level 3 and pushes `[EXTERNAL]`
++
++**Do:** `snap > /tmp/d07/before13; OLD=$(git rev-parse HEAD); echo "$OLD"`, then in a session:
++
++```text
++/sc:pr-submit --pr <N>
++```
++
++Let it run until it reports its final status (it waits for re-reviews and then for CI), then `/exit`, then:
++
++```bash
++snap
++git fetch -q origin && git log --format='%h parent=%p %s' "$OLD..origin/$B"
++git log -1 --format='%h' origin/master; git log --format='%h' -1 "$OLD"
++gh api "repos/IronbellyOrg/IronClaude/issues/$N/comments?per_page=100" --jq '.[] | select(.body | test("^(auggie review|@codex review)$")) | .body'
++gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){pullRequest(number:$n){reviewThreads(first:100){nodes{isResolved comments(first:1){nodes{author{login} path}}}}}}}' -F o=IronbellyOrg -F r=IronClaude -F n="$N" --jq '.data.repository.pullRequest.reviewThreads.nodes[] | "\(.comments.nodes[0].author.login) \(.comments.nodes[0].path) resolved=\(.isResolved)"'
++jq -r '.event_type' .dev/pr-monitor/pr-"$N"-*/monitor-run-"$N".jsonl | grep -E '^(push_decision|push_initiated|push_completed|reply_posted|thread_resolved|rereview_requested)$' | sort | uniq -c
++```
++
++**Expected result:**
++
++- No `--monitor` means level 3 (source: `src/superclaude/pr_submit/fsm.py:30`; `src/superclaude/commands/pr-submit.md:25,46`; `CHANGELOG.md:223`).
++- `git log "$OLD..origin/$B"` lists one fix commit per remediation cycle, at most 2 (the default `--max-rounds`), oldest first; the first one's `parent=` is `$OLD` and each later one's parent is the commit before it. Your sandbox commit `$OLD` is still on the branch, so nothing was force-pushed, and `origin/master` did not move (source: one commit per cycle staging only the edited paths, push only when the commit's single parent is the PR head, never a force push or a push to the default branch, `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:274,303-305`; `src/superclaude/pr_submit/fsm.py:582-600`; push count at most `max_rounds`, `SKILL.md:239`).
++- `snap` shows the same URL on `IronbellyOrg/IronClaude`, `headRefOid` equal to the newest fix commit, and `commits=` raised by the number of fix commits.
++- After each fixing push, one re-review comment per present reviewer: `auggie review` for Augment, `@codex review` for Codex (source: `src/superclaude/pr_submit/reviewers.py:63-70`; `refs/detection-contract.md:29,34`; `CHANGELOG.md:52`).
++- Every thread whose verified finding was fixed got a reply citing the fix commit and shows `resolved=true`; threads of Low, Nit or unverified findings get no reply and stay `resolved=false` (source: `SKILL.md:270-271,274`; `CHANGELOG.md:48-51`).
++- The run-log has `push_decision`, `push_initiated` and `push_completed` for each push, `reply_posted` and `thread_resolved` for each fixed thread, and `rereview_requested` per re-triggered reviewer (source: `SKILL.md:274`; `src/superclaude/pr_submit/models.py:68-71,82`).
++- The final report gives a status from the enum (`terminal_clean`, `terminal_max_rounds`, `terminal_timeout`, `terminal_augment_no_response`, `terminal_halted`, ...) and the `reviewers` map. After the review loop it waits for CI checks; a CI run longer than the 600 s `--timeout` ends that wait, which is a note, not a FAIL (source: `src/superclaude/commands/pr-submit.md:49,58`; `SKILL.md:216,236,244,277`).
++- Known issue, not a FAIL: Augment's "Review completed with 0 suggestions" may be recorded as `incomplete`; the run still ends clean when CI and the other reviewer pass (source: `docs/releases/v5.0.0.md:234`).
++- FAIL if: `$OLD` is gone from the branch, any commit landed on `master`, a cycle pushed more than one commit, a thread was resolved without a pushed fix, or any PR outside `IronbellyOrg/IronClaude` was touched.
++
++**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
++
++---
++
++## Edge cases (optional but recommended)
++
++| Try this | Expected behavior | Source | Pass/Fail |
++|---|---|---|---|
++| `[FREE]` `"$PY" -I -c 'from superclaude.pr_submit.fsm import parse_args as p; p(["--poll-interval","10"])' 2>&1 \| tail -n 1` | `ValueError: --poll-interval minimum is 30 seconds` | `src/superclaude/pr_submit/fsm.py:37,111-112` | ☐ |
++| `[FREE]` Same with `p(["--monitor","4"])` | An `argparse` error `argument --monitor: invalid choice` listing `0, 1, 2, 3`, exit 2 | `src/superclaude/pr_submit/fsm.py:76-78` | ☐ |
++| `[FREE]` Same with `print(p(["--silence-timeout","900","--timeout","600"]).silence_timeout)` | `600`: the silence timeout is clamped to `--timeout` | `src/superclaude/pr_submit/fsm.py:126`; `src/superclaude/commands/pr-submit.md:50` | ☐ |
++| `[EXTERNAL]` Run Step 11 on a PR where only one of the two apps reviews | The silent reviewer is recorded `reviewer_absent` and ignored; the run continues with the other one | `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:319-320`; `CHANGELOG.md:50` | ☐ |
++| `[EXTERNAL]` Interrupt Step 13 with Esc while it waits, then run `/sc:pr-submit --resume /tmp/d07/IronClaude/.dev/pr-monitor/pr-<N>-<ts>/monitor-run-<N>.jsonl` | It rebuilds its state from the run-log and continues; no second push of the same fix and no second fix of the same finding | `src/superclaude/commands/pr-submit.md:39,56`; `SKILL.md:218,327` | ☐ |
++
++## Cleanup
++
++```bash
++gh pr close "$N" --repo IronbellyOrg/IronClaude --delete-branch --comment "D07 sandbox finished."
++gh pr view "$N" --repo IronbellyOrg/IronClaude --json state -q .state
++cd /tmp && rm -rf /tmp/d07
++```
++
++The first command is `[EXTERNAL]`: it closes the sandbox PR and deletes its remote branch; the second must print `CLOSED`. The last removes the clone, its virtual environment, the run-logs and the snapshot files. The closed PR, its comments and the review threads stay on GitHub. The Tier C sessions stay in Claude Code's own session history, and the hook state and log files they wrote under `~/.claude/state/` and `~/.claude/logs/` stay, like those of any session. No step changed your IronClaude install.
++
++## Overall result
++
++☐ **PASS** — capability works as documented for `5.0.0`
++☐ **FAIL** — see failing step(s) above
++
++**Tester:** `<name>`  **Date:** `<date>`  **Build:** `5.0.0 (tag v5.0.0, commit d953b983)`

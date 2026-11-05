@@ -1,0 +1,17 @@
+return_contract:
+  merged_output_path: ".dev/codegraph-migration/decisions/P1-existing-workspace-cleanup/adversarial/merged-recommendation.md"
+  convergence_score: 1.00          # 23 of 23 diff points (S 2, C 10, X 4, A 7); threshold 0.80
+  artifacts_dir: ".dev/codegraph-migration/decisions/P1-existing-workspace-cleanup/adversarial/adversarial"
+  status: "success"
+  base_variant: "variant-1-original (option-a.md; advocate persona architect; current model)"
+  unresolved_conflicts: 0
+  fallback_mode: false             # Round 1 statements were re-delivered via files after being routed to the parent session; no content lost, no fallback path in the protocol was used
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []       # 14 INV findings; INV-001 (HIGH) blocked convergence after Round 2.5 and was cleared by the gate-forced resolution round
+  notes:
+    depth: "standard"
+    rounds: "R1 parallel, R2 sequential, R2.5 invariant probe, gate-forced resolution round; R3 skipped (standard)"
+    scores: {option_a: 0.877, option_c: 0.730, option_b: 0.717}
+    taxonomy_coverage: {L1: 2, L2: 9, L3: 12}
+    decision_goal_status: "met except (recorded in merged-recommendation.md section 11): current serena pin and other ambiguous serena rows kept and reported; non-forced installs and `superclaude update` do not retire; Coder re-adds serena until the Phase 2 handoff"

@@ -3,13 +3,14 @@
 
 Two-part fixture per `phase-7-tasklist.md` lines 327-339:
 
-1. **Part (a) — 1-LOW-finding fixture → gate FAILS.** A research
-   completeness verification report with exactly one MINOR-severity gap
-   MUST yield FAIL when scored against the verdict rule at
-   ``src/superclaude/agents/rf-qa.md:144-145``. Per that rule "Any gaps
-   exist (CRITICAL, IMPORTANT, or MINOR) … ALL gaps must be resolved
-   before proceeding — no severity level is exempt." The PRD's "LOW" is
-   the synonym used in the roadmap; the rf-qa source uses "MINOR".
+1. **Part (a) — 1-LOW-finding fixture → gate PASSES (with notes).** A
+   research completeness verification report with exactly one
+   MINOR-severity gap MUST yield PASS when scored against the research-gate
+   verdict rule in ``src/superclaude/agents/rf-qa.md``. Under the review
+   severity rule only CRITICAL or IMPORTANT gaps fail the gate; MINOR gaps
+   are listed as notes. A one-IMPORTANT-gap twin MUST yield FAIL. The
+   PRD's "LOW" is the synonym used in the roadmap; the rf-qa source uses
+   "MINOR".
 
 2. **Part (b) — FR-CONV.3 inherited-verdict applied → no VERIFIED
    without independent semantic-check engagement.** Reuses the K-003
@@ -25,9 +26,9 @@ Additionally enforces the invariant anchor cited in
 strings carried by ``src/superclaude/agents/rf-qa.md`` are byte-equal
 to the recorded baseline. The roadmap row was anchored at lines
 141-142 (pre-FR-CONV.* commit ``fd41178``); after PR-03 added three
-lines earlier in the file the bullets sit at lines 144-145 in HEAD —
-the *content* (the byte-string of each line) is byte-identical from
-``fd41178`` through HEAD across all nine intervening commits.
+lines earlier in the file the bullets moved down. The review severity
+rule rewrote both bullets (MINOR gaps are notes; only CRITICAL or
+IMPORTANT gaps FAIL); the pinned strings below are the rewritten ones.
 
 Closes the structural-annotations-byte-equal-across-2-runs check from
 the NFR-CONV.2 acceptance row (`structural annotations within prose
@@ -61,6 +62,7 @@ RF_QA_MIRROR = REPO_ROOT / ".claude" / "agents" / "rf-qa.md"
 
 FIXTURE_DIR = REPO_ROOT / "tests" / "audit" / "fixtures" / "nfr_conv_9"
 FIX_ONE_LOW = FIXTURE_DIR / "one_low_finding.md"
+FIX_ONE_IMPORTANT = FIXTURE_DIR / "one_important_finding.md"
 FIX_ZERO_BASELINE = FIXTURE_DIR / "zero_findings_baseline.md"
 FIX_INHERIT_NO_SEMANTIC = FIXTURE_DIR / "inherited_verdict_no_semantic.md"
 FIX_INHERIT_WITH_SEMANTIC = FIXTURE_DIR / "inherited_verdict_with_semantic.md"
@@ -76,21 +78,25 @@ NFR_CONV_2_DOC = REPO_ROOT / "docs" / "reference" / "nfr-conv-2-prose-determinis
 # index.
 # ---------------------------------------------------------------------------
 PASS_BULLET = (
-    "- **PASS** — All checks pass, no gaps of any severity. Green light for synthesis."
+    "- **PASS** — No CRITICAL or IMPORTANT gaps; any MINOR gaps are listed "
+    "as notes. Green light for synthesis."
 )
 FAIL_BULLET = (
-    "- **FAIL** — Any gaps exist (CRITICAL, IMPORTANT, or MINOR). "
-    "List each gap with a specific remediation action. ALL gaps must "
-    "be resolved before proceeding — no severity level is exempt."
+    "- **FAIL** — Any CRITICAL or IMPORTANT gap exists. List each with a "
+    "specific remediation action. All blocking gaps must be resolved before "
+    "proceeding; MINOR gaps never fail the gate."
 )
 
-# Roadmap anchor — the literal "(CRITICAL, IMPORTANT, or MINOR)" triple
-# that defines the zero-trust QA invariant.
+# Roadmap anchor — the CRITICAL / IMPORTANT / MINOR scale the research-gate
+# verdict rule grades against.
 SEVERITY_TRIPLE = ("CRITICAL", "IMPORTANT", "MINOR")
+
+# Blocking severities under the review severity rule: only these fail the gate.
+BLOCKING_SEVERITIES = frozenset({"CRITICAL", "IMPORTANT"})
 
 
 # ---------------------------------------------------------------------------
-# rf-qa verdict scorer — ports the rule body at rf-qa.md:144-145.
+# rf-qa verdict scorer — ports the research-gate Verdict bullets in rf-qa.md.
 # ---------------------------------------------------------------------------
 
 _SEVERITY_LINE_RE = re.compile(
@@ -103,12 +109,13 @@ _SEVERITY_LINE_RE = re.compile(
 def _score_rf_qa_verdict(report: str) -> str:
     """Return 'PASS' or 'FAIL' for a research-completeness report.
 
-    Implements the rule at ``rf-qa.md:144-145`` literally:
-      - PASS: no gaps of any severity.
-      - FAIL: any gap (CRITICAL, IMPORTANT, MINOR/LOW) present.
+    Implements the research-gate Verdict bullets in ``rf-qa.md``:
+      - PASS: no CRITICAL or IMPORTANT gap; MINOR/LOW gaps are notes.
+      - FAIL: any CRITICAL or IMPORTANT gap present.
     """
     for line in report.splitlines():
-        if _SEVERITY_LINE_RE.match(line):
+        match = _SEVERITY_LINE_RE.match(line)
+        if match and match.group(2).upper() in BLOCKING_SEVERITIES:
             return "FAIL"
     return "PASS"
 
@@ -121,6 +128,9 @@ def _score_rf_qa_verdict(report: str) -> str:
 class TestFixturesExist:
     def test_one_low_finding_fixture_exists(self):
         assert FIX_ONE_LOW.is_file(), f"missing {FIX_ONE_LOW}"
+
+    def test_one_important_finding_fixture_exists(self):
+        assert FIX_ONE_IMPORTANT.is_file(), f"missing {FIX_ONE_IMPORTANT}"
 
     def test_zero_findings_baseline_fixture_exists(self):
         assert FIX_ZERO_BASELINE.is_file(), f"missing {FIX_ZERO_BASELINE}"
@@ -214,13 +224,14 @@ class TestPassFailBulletsByteIdentical:
 
 
 # ---------------------------------------------------------------------------
-# Part (a): 1-LOW-finding fixture → gate FAILS.
+# Part (a): 1-LOW-finding fixture → gate PASSES (with notes);
+# 1-IMPORTANT-finding fixture → gate FAILS.
 # ---------------------------------------------------------------------------
 
 
-class TestPartA_OneLowFindingFailsGate:
-    """1-LOW (MINOR) finding fixture FAILS the rf-qa research-completeness
-    gate per rf-qa.md:145."""
+class TestPartA_OneLowFindingPassesGateWithNotes:
+    """1-LOW (MINOR) finding fixture PASSES the rf-qa research-completeness
+    gate with the MINOR gap recorded as a note (review severity rule)."""
 
     @pytest.fixture
     def report(self) -> str:
@@ -239,24 +250,59 @@ class TestPartA_OneLowFindingFailsGate:
             "the NFR-CONV.9 spec line 304 of phase-7-tasklist.md"
         )
 
-    def test_gate_returns_fail(self, report: str):
+    def test_gate_returns_pass(self, report: str):
         verdict = _score_rf_qa_verdict(report)
-        assert verdict == "FAIL", (
-            f"zero-trust QA invariant violated: 1-LOW-finding fixture scored "
-            f"{verdict}; rf-qa.md:145 mandates FAIL for any severity (MINOR included)."
+        assert verdict == "PASS", (
+            f"review severity rule violated: 1-LOW-finding fixture scored "
+            f"{verdict}; rf-qa.md's research-gate verdict lists MINOR gaps as "
+            "notes and fails only on CRITICAL or IMPORTANT gaps."
         )
 
     def test_fixture_is_self_documenting(self, report: str):
         assert "NFR-CONV.9 part (a)" in report, (
             "fixture lost its self-documenting marker — future maintainers "
-            "could 'fix' the FAIL and silently regress the invariant."
+            "could turn the MINOR note into a FAIL and silently regress the "
+            "review severity rule."
+        )
+
+
+class TestPartA_OneImportantFindingFailsGate:
+    """1-IMPORTANT finding fixture FAILS the rf-qa research-completeness
+    gate: IMPORTANT is a blocking severity."""
+
+    @pytest.fixture
+    def report(self) -> str:
+        return FIX_ONE_IMPORTANT.read_text(encoding="utf-8")
+
+    def test_fixture_contains_one_important_gap(self, report: str):
+        gap_rows = [
+            line for line in report.splitlines() if _SEVERITY_LINE_RE.match(line)
+        ]
+        assert len(gap_rows) == 1, (
+            f"one-IMPORTANT fixture must carry exactly 1 gap; found "
+            f"{len(gap_rows)} rows matching the severity regex."
+        )
+        assert "IMPORTANT" in gap_rows[0].upper(), (
+            "the single gap must be classified IMPORTANT"
+        )
+
+    def test_gate_returns_fail(self, report: str):
+        verdict = _score_rf_qa_verdict(report)
+        assert verdict == "FAIL", (
+            f"review severity rule violated: 1-IMPORTANT-finding fixture scored "
+            f"{verdict}; an IMPORTANT gap is blocking and must FAIL the gate."
+        )
+
+    def test_fixture_is_self_documenting(self, report: str):
+        assert "NFR-CONV.9 part (a) blocking twin" in report, (
+            "fixture lost its self-documenting marker"
         )
 
 
 class TestPartA_ZeroFindingsBaselinePasses:
     """Baseline twin: the same checklist surface with zero gaps PASSES
-    the gate. Anchors the positive arm so the FAIL above isn't a
-    checker-side false positive."""
+    the gate. Anchors the zero-gap arm alongside the MINOR-note PASS and
+    the IMPORTANT FAIL above."""
 
     @pytest.fixture
     def report(self) -> str:
@@ -274,8 +320,7 @@ class TestPartA_ZeroFindingsBaselinePasses:
         verdict = _score_rf_qa_verdict(report)
         assert verdict == "PASS", (
             f"baseline 0-gap fixture must PASS; scorer returned {verdict}. "
-            "If this fails, the 1-LOW FAIL is meaningless — investigate the "
-            "scorer regex before touching the fixtures."
+            "Investigate the scorer regex before touching the fixtures."
         )
 
 
@@ -404,6 +449,7 @@ class TestStructuralAnnotationsByteEqualAcrossRuns:
         "fixture_path",
         [
             FIX_ONE_LOW,
+            FIX_ONE_IMPORTANT,
             FIX_ZERO_BASELINE,
             FIX_INHERIT_NO_SEMANTIC,
             FIX_INHERIT_WITH_SEMANTIC,
@@ -429,7 +475,7 @@ class TestStructuralAnnotationsByteEqualAcrossRuns:
         verdict_b = _score_rf_qa_verdict(report_v2)
         bullets_a = (PASS_BULLET in report_v1, FAIL_BULLET in report_v1)
         bullets_b = (PASS_BULLET in report_v2, FAIL_BULLET in report_v2)
-        assert verdict_a == verdict_b == "FAIL"
+        assert verdict_a == verdict_b == "PASS"
         assert bullets_a == bullets_b
 
 

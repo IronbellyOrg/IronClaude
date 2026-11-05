@@ -1,0 +1,21 @@
+return_contract:
+  merged_output_path: ".dev/codegraph-migration/brainstorm/P3-codegraph-opportunities/adversarial/merged-output.md"
+  convergence_score: 0.957          # 67 of 70 points (65 S/C/X + 5 promoted A-NNN)
+  artifacts_dir: ".dev/codegraph-migration/brainstorm/P3-codegraph-opportunities/adversarial/"
+  status: "partial"                 # convergence gate BLOCKED_BY_INVARIANTS (INV-001); depth standard has no Round 3; base force-selected by score
+  base_variant: "sonnet:analyzer"   # Variant B, 0.954 vs A 0.921 vs C 0.835; tiebreaker level 1 applied (B 48 vs A 35 points won)
+  unresolved_conflicts: 3           # C-029, C-031, X-021 (each resolved by the refactor plan, Changes 26, 31 and 2)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: INV-001
+      category: state_variables
+      assumption: "CLI `codegraph status` reports edited files as pending when no daemon runs (never measured in EVAL)"
+      severity: HIGH
+      handling: "accepted risk; blocking prerequisite experiment E-1 (rank 1, P-01) gates every freshness-dependent idea (G-FRESH)"
+  notes:
+    - "Artifacts were written directly into the passed --output directory (the brainstorm caller's adversarial/), not into a nested adversarial/adversarial/."
+    - "Agent instructions arrived single-quoted from the brainstorm agent-spec builder; accepted as quoted."
+    - "Working files: working/round1-{A,B,C}.md, working/round2-{A,B,C}.md; Round 2.5 output: invariant-probe.md."
+    - "Serena persistence (MCP Integration, Step 5) and Context7 validation skipped: Serena forbidden by the run brief; no library docs in scope."

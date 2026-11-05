@@ -1,0 +1,19 @@
+# Triage of the 40 containment-unmapped INF rows (artifacts/coverage-matrix.yaml). The plan delegates
+# detail to ./source.md sections and test-ID ranges, so word containment under-matches; each row is
+# checked against the plan text by hand. covered_by = plan task whose body names the row by id/section.
+rows:
+  - {ids: [INF-001], covered_by: "Task 4 (Implements T1, F1)", verdict: covered}
+  - {ids: [INF-002], covered_by: "Task 5 (F2 (a)-(e))", verdict: covered}
+  - {ids: [INF-003], covered_by: "Task 6 (T3, F3)", verdict: covered}
+  - {ids: [INF-005], covered_by: "Task 6 acceptance runs tests/cli/test_update_script.py, which pins update.sh (F5 = no change)", verdict: covered}
+  - {ids: [INF-008, INF-009, INF-010, INF-011, INF-019], covered_by: "Task 11 (Implements T7, F8-F11 and F19)", verdict: covered}
+  - {ids: [INF-012], covered_by: "Task 12 (T8, F12, D29)", verdict: covered}
+  - {ids: [INF-017], covered_by: "Task 9 (Implements T5, F7, F17)", verdict: covered}
+  - {ids: [INF-020, INF-021], covered_by: "Task 7 (T3b, F18, §2.12)", verdict: covered}
+  - {ids: [INF-024], covered_by: "Task 11 (§2.12 'what is kept by policy')", verdict: covered}
+  - {ids: [INF-027], covered_by: "none in IronClaude plan: Coder-side acceptance (handoff 'Done means'); Task 16 states Coder's check is owned by the Coder agent", verdict: out-of-scope-by-design}
+  - {ids: [INF-031, INF-033], covered_by: "Task 9 (§3.2 behaviour list)", verdict: covered}
+  - {ids: [INF-034, INF-036, INF-038, INF-039, INF-040, INF-041, INF-042, INF-043, INF-044, INF-053, INF-054, INF-055, INF-057], covered_by: "Task 4 (tests U1-U11, U20-U22, U24)", verdict: covered}
+  - {ids: [INF-046, INF-047, INF-048, INF-049, INF-050, INF-051, INF-052, INF-058], covered_by: "Task 5 (tests U12-U19, U23, U25)", verdict: covered}
+  - {ids: [INF-071, INF-072], covered_by: "Task 3 (Leg B and decision bullets)", verdict: covered}
+summary: {unmapped_by_containment: 40, covered_by_reference: 39, out_of_scope_by_design: 1, real_gaps: 0}

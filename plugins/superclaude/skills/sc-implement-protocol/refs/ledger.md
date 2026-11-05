@@ -140,7 +140,7 @@ Trust ledger + git history after compaction. Do not ask the user to paste prior 
 
 Definitions, over the task's records after its latest `start`: "Last record" = the last task record, ignoring ineligible Rulings. "Latest verdict" = the last `complete` or `blocked` line. A `T<id>: Ruling:` line is eligible only under the Ruling eligibility rule in `refs/retry.md`. Before any row except Row 1 runs for a task with a tree `start`, every `r<k>-<j>` ref of the task is re-pinned from its recorded tree (review header or repair `applied tree=` line, `refs/qa.md`), so Rows V, S, H, B and X re-pin as well.
 
-Ledgers written before the change resume through the existing rows. Findings with no recorded tree get `origin=unknown`, and absent repair files for the current `start` mean both repairs are unspent.
+Ledgers written before the change resume through the existing rows. Findings with no recorded tree get `origin=unknown`, and absent repair files for the current `start` mean no repair is spent.
 
 Precondition: one `/sc:implement` invocation writes a given ledger at a time; there is no lock.
 
@@ -197,7 +197,7 @@ The earlier operator-written form (`T2: Ruling: drop pagination — AC-2 deferre
 Retry open:
 
 ```
-T1: retry n=3 step=open checkpoint=0123456789abcdef0123456789abcdef01234567 tier=T2_Model02
+T1: retry n=3 step=open checkpoint=0123456789abcdef0123456789abcdef01234567 tier=T2Model02
 ```
 
 Retry revert:

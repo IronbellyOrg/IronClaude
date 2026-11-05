@@ -11,7 +11,12 @@ from __future__ import annotations
 
 import pytest
 
-from superclaude.pr_submit.fsm import PROPOSE_PROMPT, RunConfig, run_skill
+from superclaude.pr_submit.fsm import (
+    PROPOSE_PROMPT,
+    RunConfig,
+    run_skill,
+    transition,
+)
 from superclaude.pr_submit.models import Finding, MonitorState
 
 
@@ -152,3 +157,40 @@ def test_zero_edit_no_push(load_fixture):
     assert result.push_decision is not None
     assert result.push_decision.authorized is False
     assert result.push_decision.predicate_5_applied_edits == 0
+
+
+@pytest.mark.autonomy
+def test_transition_conflicting_edge():
+    """Issue #305 (P2): `(S2_CLASSIFY, "conflicting")` uses the findings round gate,
+    then the G-edit ceiling; the needs_human pre-gate still applies first."""
+    ms = MonitorState
+    budget = {"round_counter": 0, "max_rounds": 2}
+    assert (
+        transition(ms.S2_CLASSIFY, "conflicting", {"monitor_ordinal": 3, **budget})
+        == ms.S3_FIXING
+    )
+    assert (
+        transition(
+            ms.S2_CLASSIFY,
+            "conflicting",
+            {"monitor_ordinal": 3, "round_counter": 2, "max_rounds": 2},
+        )
+        == ms.HALT_MAX_ROUNDS
+    )
+    assert (
+        transition(ms.S2_CLASSIFY, "conflicting", {"monitor_ordinal": 1, **budget})
+        == ms.PROPOSED
+    )
+    assert (
+        transition(
+            ms.S2_CLASSIFY,
+            "conflicting",
+            {"monitor_ordinal": 3, "needs_human_decision": True, **budget},
+        )
+        == ms.HALT_HUMAN
+    )
+    # The findings edge is unchanged.
+    assert (
+        transition(ms.S2_CLASSIFY, "findings", {"monitor_ordinal": 3, **budget})
+        == ms.S2B_VERIFY
+    )

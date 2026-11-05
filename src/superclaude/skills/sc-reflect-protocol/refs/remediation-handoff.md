@@ -176,9 +176,10 @@ Agent:
 
     HANDOFF_MEMORY_KEY: reflect/handoff-{slug}-{timestamp}
       # FR-3 warm-start bridge. When present, task-builder should
-      # `read_memory` this key to recover reflect's in-flight rubric
-      # scores + deviation set + evidence packet + reviewer verdicts
-      # instead of re-deriving them. Omitted / null when no Tier 3
+      # `Read` `<project>/.superclaude/memory/<key>.md` (a file written
+      # once by reflect, never edited) to recover reflect's in-flight
+      # rubric scores + deviation set + evidence packet + reviewer
+      # verdicts instead of re-deriving them. Omitted / null when no Tier 3
       # handoff was written (handoff_persist_failed or no --remediate).
 
     QUALITY GATE RESULTS:
@@ -229,7 +230,7 @@ Proceed with <sc:workflow | task-builder>?  [yes / no]
 If no: the report at <report_path> is the final deliverable.
 ```
 
-**State carried per route.** Step 6.0 (handoff memory write) and the `remediation_task_path` emission are **MDTM-route only**: `task-builder` can `read_memory` a handoff key, `sc:workflow` cannot. On the plan route the state travels in the `## Reflect Verdict State` section of `remediation-source.md`, so `handoff_memory_key: null` and `remediation_task_path: null`; the plan route records `remediation_route: plan` in `audit.log` and emits the absolute path of the built tasklist `<pkg>/<slug>.md` as the `remediation_plan_path` contract field (§9.1, 1.8.0; `null` when no plan was built). The wrapper's auto-fix loop is the only consumer of either field.
+**State carried per route.** Step 6.0 (handoff memory write) and the `remediation_task_path` emission are **MDTM-route only**: `task-builder` can `Read` the handoff file `.superclaude/memory/<key>.md`, `sc:workflow` cannot. On the plan route the state travels in the `## Reflect Verdict State` section of `remediation-source.md`, so `handoff_memory_key: null` and `remediation_task_path: null`; the plan route records `remediation_route: plan` in `audit.log` and emits the absolute path of the built tasklist `<pkg>/<slug>.md` as the `remediation_plan_path` contract field (§9.1, 1.8.0; `null` when no plan was built). The wrapper's auto-fix loop is the only consumer of either field.
 
 ## Headless auto-accept under `--print` (FR-9)
 

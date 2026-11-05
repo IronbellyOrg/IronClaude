@@ -1,0 +1,95 @@
+# Troubleshoot Report
+
+**Target**: Verified Codex security finding on PR #360 (src/superclaude/cli/install_user_setup.py:332): verify the IronClaude marketplace source before installing
+**Type**: security
+**Tier reached**: 2
+**Confidence**: 0.92
+**Status**: success
+**Escalation reason**: security_caution
+**Test is wrong**: false
+**Behavior is documented**: false
+**Doc context card**: .dev/troubleshoot/security-verify-the-ironclaude-marketplace-source-20261104161841/doc-context.md
+**Duration**: 720
+**Date**: 2026-11-04T16:31:01Z
+
+---
+
+## Summary
+
+install_plugins trusts any marketplace already registered under the name `ironclaude`, whatever its source, and still runs the Ponytail install after a failed marketplace add or update, so the sha pin can be bypassed. Fix: install pinned plugins only when the registered `ironclaude` entry is IronClaude's own catalog directory (otherwise report and skip, never touching the user's marketplace), and skip every command whose marketplace add/update failed in the same run.
+
+## Documentation Context
+
+- **Relevant refs**: docs/getting-started/installation.md, CHANGELOG.md, .dev/brainstorms/20261104-063430-ponytail-plugin-install/merged-requirements.md, SECURITY.md
+- **Documented behavior**: Ponytail only at the pinned commit through IronClaude's own marketplace; plugin failures never fail the install.
+- **Restrictions honored**: non-fatal plugin step; never remove or overwrite a marketplace the user may own; Ponytail only from the pinned catalog.
+- **Restrictions overridden**: None.
+- **Card path**: /home/coder/workspaces/worktrees/IronClaude/issue-330-ponytail-plugin/.dev/troubleshoot/security-verify-the-ironclaude-marketplace-source-20261104161841/doc-context.md
+
+## Diagnosability Context
+
+**Verdict**: partial
+**Complexity classification**: non-trivial
+**Captured-bytes (failing run)**: n/a
+
+The plugin-step message reaches stdout and names failed items.
+It does not show which marketplace source was used, and claude's own stderr is discarded.
+No effect on this diagnosis: the repro observed both defects directly (verdict capped to partial because auggie was unavailable).
+
+(Full card: /home/coder/workspaces/worktrees/IronClaude/issue-330-ponytail-plugin/.dev/troubleshoot/security-verify-the-ironclaude-marketplace-source-20261104161841/diagnosability-context.md)
+(Tasklist (informational): /home/coder/workspaces/worktrees/IronClaude/issue-330-ponytail-plugin/.dev/troubleshoot/security-verify-the-ironclaude-marketplace-source-20261104161841/diagnosability-tasklist.md)
+
+## Diagnosis
+
+**Root cause**: install_plugins decides to skip `marketplace add` from the name `ironclaude` alone and never checks the registered source; and it queues every plugin command before any runs, so a failed marketplace command does not stop the commands that depend on it.
+
+**Cause class**: Security (missing source check plus missing dependency check)
+
+**Detailed explanation**: With a foreign `ironclaude` registered, the installer runs `marketplace update ironclaude` and `plugin install ponytail@ironclaude` against it (Evidence 1, 3). With a failed add, the install still runs (Evidence 2, 3). Real Claude Code 2.1.318 rebinds a taken name when our catalog is added, so the add path itself is safe once the source check routes a mismatch away from `update` (Evidence 4).
+
+## Evidence
+
+1. `src/superclaude/cli/install_user_setup.py:332` — `if name not in known:` then `elif changed or stale:` (:336) queues `marketplace update`; the registered source is never read.
+2. `src/superclaude/cli/install_user_setup.py:371` — `if result.returncode != 0:` followed by `failed.append(name)` (:372); the loop continues to the next queued command.
+3. Command: `timeout 120 uv run python /tmp/t14c-repro2/repro.py` (fake claude CLI) → case 1 `ran: plugin marketplace update ironclaude`, `ran: plugin install ponytail@ironclaude`; case 2 `ran: plugin marketplace add ...` then `ran: plugin install ponytail@ironclaude` (captured in /home/coder/workspaces/worktrees/IronClaude/issue-330-ponytail-plugin/.dev/troubleshoot/security-verify-the-ironclaude-marketplace-source-20261104161841/tier1-observation.md)
+4. Command: real `claude plugin marketplace add <home>/.claude/ironclaude-marketplace` with the name taken by a foreign directory marketplace → exit 0, entry rebound to `<home>/.claude/ironclaude-marketplace` (tier1-observation.md, Discriminator probe; behaviour-definitions.md row 2)
+
+## Proposed Fix
+
+**Files to change**:
+- `src/superclaude/cli/install_user_setup.py` — helper `_is_our_catalog(entry, home)` (tolerates any shape; True only for a directory source whose absolute path resolves to home/.claude/ironclaude-marketplace); refusal branch before add/update that reports `ironclaude` as registered from another source, skips the pinned plugins and names an already-installed copy; commands carry their marketplace name; a failed or raising marketplace add/update marks that marketplace and later commands for it are skipped and reported; time-limit check stays first.
+- `tests/cli/test_install_user_setup.py` — `_pinned_home` seeds the real directory source; new tests for the refusal (foreign github, other directory, relative path, malformed entries; registry unchanged) and for skipping dependents (add fails, update fails, add raises).
+- `docs/getting-started/installation.md`, `CHANGELOG.md` — one sentence on the refusal.
+
+**Test to verify**: the new tests above plus all existing install_plugins tests.
+
+**Apply with**: applied by the caller (sc:pr-submit S3_FIXING).
+
+## Alternative Fixes Considered
+
+- **F2 — add a post-add/post-update re-read gate** (from security-engineer) — Rejected because: its premise (add exits 0 while the entry stays foreign) is refuted by Evidence 4.
+
+## Risk + Rollback
+
+- **Likelihood of regression**: low in install_plugins (a mismatch or failure now skips only the affected marketplace's commands)
+- **Test coverage of the changed code**: good after the new tests
+- **Rollback**: revert the fix commit; failure mode is fail-closed (Ponytail skipped with a warning)
+
+## Follow-up tasks
+
+- install_plugins reads the plugin registry from $HOME/.claude even when CLAUDE_CONFIG_DIR is set (install_mcp.py honours it). Suggested type: bug.
+- The plugin-step message discards claude's stderr. Suggested type: observability.
+
+## Grounding Gaps
+
+- MCP `auggie` was unavailable; grounding used Grep/Read (codegraph fresh).
+- The repro replaces subprocess.run with a fake claude CLI; the real-CLI side is Evidence 4 only.
+- How Claude Code stores the path under a symlinked HOME was not observed; the fix compares resolved paths and fails closed.
+
+## Next Steps
+
+- Tier 2 with --fix: the caller (sc:pr-submit) applies F1 and runs the tests.
+
+## Pipeline Hardening Closure
+
+pipeline_hardening_applicable=false; pipeline_hardening_verdict: not_applicable. HC0 boundary scan: CLI/subprocess: the installer shells out to claude but the defect is in its own trust decision, not in argument delivery; file/stdin/prompt delivery no; generated-artifact parser no; gate/severity/status enum no; duplicated evaluator no; persisted/resume pipeline state no (user plugin registry, not pipeline state); review/audit selector no; sibling pipeline no; prior-escape unmask no.

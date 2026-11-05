@@ -1,0 +1,11 @@
+--- a/docs/developer-guide/codegraph-integration.md
++++ b/docs/developer-guide/codegraph-integration.md
+@@ -52,7 +52,7 @@
+ - **User scope only.** Any other scope is refused (`install_mcp.py:926-927`).
+ - **Prerequisite.** `claude --version` must succeed before discovery or download starts (`install_mcp.py:937-947`).
+ - **Read path.** The current entry is read from the top-level `mcpServers.codegraph` of `$CLAUDE_CONFIG_DIR/.claude.json`, or `~/.claude.json` when the variable is unset; an empty variable, a parse error or a duplicate JSON key means "unknown" and no change is attempted (`install_mcp.py:709-757,954-960`).
+-- **Write path.** Writes go only through `claude mcp add-json codegraph <json> --scope user` and `claude mcp remove codegraph --scope user`, each bounded to 60 s with output discarded (`install_mcp.py:893-902`).
++- **Write path.** Writes go only through `claude mcp add-json codegraph <json> --scope user` and `claude mcp remove codegraph --scope user`, with output discarded. `add-json` and the `remove` used when restoring a previous entry are each bounded to 60 s (`install_mcp.py:893-902,914`). The `remove` that replaces an owned stale entry goes through `_remove_exact_user_entry`, which uses its default 10 s per call (`install_mcp.py:809-814,985`).
+ - **Exact entry.** `type: stdio`, the absolute launcher path, `args: ["serve", "--mcp"]`, `alwaysLoad: true`, and env `CODEGRAPH_TELEMETRY=0`, `CODEGRAPH_NO_UPDATE_CHECK=1`, `CODEGRAPH_MCP_TOOLS=node,search,callers,callees,impact,files,status` (`install_codegraph.py:35`; `install_mcp.py:862-874`).
+ - **Owned versus user-managed.** An entry that holds only fields IronClaude writes is "owned" and is replaced when it differs; anything else is "user" and is kept if its command runs, or reported as a failure if it does not, with the removal command to run (`install_mcp.py:877-890,967-999`). A failed add or verification restores the previous entry when possible (`install_mcp.py:905-919,1000-1020`).
+ - **No live check.** Success means the entry was read back equal to the expected one; no indexing or MCP handshake is performed, and the message asks the user to restart Claude sessions (`install_mcp.py:962-966`).

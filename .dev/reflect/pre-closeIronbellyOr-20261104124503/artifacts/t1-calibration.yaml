@@ -1,0 +1,14 @@
+# Persisted by the orchestrator from the confidence-calibrator (opus) blind re-grade of reflection-card.yaml.
+calibrator_model_class: opus
+dimensions:
+  citation_grounding: {score: 0.65, reason: "F-4/F-5/F-6 and install_user_setup.py:292,303,305 check out; F-2 plan:18 is blank (override at :17), F-3 plan:55 is 'Depends on' (limit at :57/:64), F-1 misses the Design reference at :17."}
+  coverage_completeness: {score: 0.55, reason: "coverage_pct_union 0.5294; F-1/F-2 explain the 8 unmapped rows but do not re-score."}
+  deviation_classification_clarity: {score: 0.35, reason: "Findings use card-local kinds, not the taxonomy; F-2 left unclassified."}
+  risk_surface_coverage: {score: 0.50, reason: "Misses the off->lite blast radius the brainstorm rejected non-off modes for (merged-requirements.md:117,140-144): Orca-worker statusline nudge, a third subagent injection, doctrine overlap with Pragmatic."}
+  recommendation_actionability: {score: 0.25, reason: "No recommendations."}
+calibrated_confidence: 0.46
+self_reported_confidence: 0.80
+delta: -0.34
+escalation_recommendation: ESCALATE
+spot_check_notes:
+  - "F-6 verified against /tmp/ponytail-src-t14b; nudge also fires once for a stale statusLine path (activate.js:116,135-141)."

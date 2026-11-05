@@ -214,7 +214,7 @@ def check_matrix_covers_items(assertion: dict, base_dir: Path) -> tuple[bool, st
 def checkpoint_logged(audit_log: str, checkpoint_name: str) -> AssertionResult: ...
 ```
 
-**Semantics.** Read `audit.log` as JSONL (one event per line, schema `{ts, step, checkpoint, ...}`). Pass when ≥1 row has `checkpoint == checkpoint_name`. Confirms scripted Serena think-checkpoints and audit-emit-per-step actually fired.
+**Semantics.** Read `audit.log` as JSONL (one event per line, schema `{ts, step, checkpoint, ...}`). Pass when ≥1 row has `checkpoint == checkpoint_name`. Confirms the named per-step audit-emit checkpoints actually fired.
 
 ```python
 import json

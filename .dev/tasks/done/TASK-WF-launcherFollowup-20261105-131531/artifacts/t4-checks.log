@@ -1,0 +1,21 @@
+$ grep -rn "launcher sets\|once the launcher" src docs tests (excluding .dev)
+src/superclaude/cli/reflect/commands.py:32:# resolves it, and inside a ccsession tier workspace the launcher sets
+src/superclaude/skills/sc-issue-protocol/refs/tiers.md:26:4. The `haiku` alias follows `ANTHROPIC_DEFAULT_HAIKU_MODEL`. Inside a ccsession tier workspace the launcher set
+src/superclaude/skills/sc-issue-protocol/refs/chains.md:21:- The brainstorm model list defaults to `opus,sonnet,haiku`, rotated across proposals, and takes aliases only; 
+docs/user-guide/commands.md:860:- Composes a `--agents` spec spanning 3 model aliases × domain-detected personas (in a ccsession tier workspace the launcher sets `ANTHRO
+docs/user-guide/brainstorm.md:52:| `--models` | `opus,sonnet,haiku` | Model aliases rotated across proposals (`ANTHROPIC_DEFAULT_*_MODEL` env vars override them; unset on
+docs/reference/model-aliases.md:22:Owner decision of 2026-11-05: inside a ccsession tier workspace the launcher sets the three variables, so the aliases resolve as follow
+docs/reference/model-aliases.md:38:Outside a ccsession tier workspace the launcher sets none of the three variables, so `opus`, `sonnet` and `haiku` keep Claude Code's me
+tests/skills/test_model_alias_policy.py:6:allow-lists below. In tier mode the launcher sets ``ANTHROPIC_DEFAULT_*_MODEL``,
+--- future-tense check (expect none):
+future-grep-exit=1
+$ git diff src/superclaude/cli/reflect/commands.py (added/removed lines)
+--- a/src/superclaude/cli/reflect/commands.py
++++ b/src/superclaude/cli/reflect/commands.py
+-# resolves it, and inside a ccsession tier workspace it maps to a tier model once
+-# the launcher sets ``ANTHROPIC_DEFAULT_OPUS_MODEL``
++# resolves it, and inside a ccsession tier workspace the launcher sets
++# ``ANTHROPIC_DEFAULT_OPUS_MODEL``, which maps it to a tier model
+$ ruff
+All checks passed!
+2 files already formatted

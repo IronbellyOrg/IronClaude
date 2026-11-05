@@ -1,0 +1,5 @@
+$ cmp src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+rc=0
+$ uv run pytest tests/core/test_how_we_work_routing_table.py tests/core/test_claude_md_routing_block.py tests/cli/test_how_we_work_install.py -q -p no:cacheprovider
+============================== 92 passed in 0.58s ==============================
+rc=0

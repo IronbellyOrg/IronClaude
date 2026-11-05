@@ -1,0 +1,73 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase1RemovalSpe-20261029185357/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase1RemovalSpe-20261029185357/audit.log
+confidence_calibrated: 0.79
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.7088
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase1RemovalSpe-20261029185357/artifacts/unmapped-triage.yaml   # 99 ids; 96 cited by row/section in the plan, 3 unreferenced (INF-114, INF-115, INF-125)
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: a53f203aa537787f9d5d75cf45a1ccbad326f8932e1abdfdbe0b53478180d5c6
+  spec: 4f25d464f97d791b7a20491d928cefb8775377378075bd21e492284bd92b2259
+input_tree_sha256: a3f75f6dbaf6aa509d6010b76d7475c8de1e407f15fdc386aeef6e050df4c3d9
+input_tree_sha256_recomputed: f332b5232b536491bf9a25d5202388a57e923e515404ab0ae5103670f95a1378
+input_tree_file_count: 89
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase1RemovalSpe-20261029185357/artifacts/input-snapshot.yaml
+input_drift_detected: true
+input_drift_diff:
+  - {path: .dev/codegraph-migration/specs/phase-2-codegraph-install-spec.md, old_sha: 2a5c2565d8ea, new_sha: cd5d443f4c80, change_kind: modified}   # edited by the parallel Phase 2 finalizer (F2); Phase 2 §2.12 and its T0b checks that Phase 1 relies on are unchanged
+citations_total: 404
+citations_revalidated: 178
+citations_dropped: 3
+citations_dropped_extrapolated: 7
+citations_inferred: 0
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase1RemovalSpe-20261029185357/reviewer-cards/reviewer-1-card.yaml, /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase1RemovalSpe-20261029185357/reviewer-cards/reviewer-2-card.yaml]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase1RemovalSpe-20261029185357/adversarial/adversarial
+adversarial_convergence_score: 0.947
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: full
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false        # UC-1: plan-defect findings classified regression are not shipped regressions
+unauthorized_deviation_present: true
+blocked_by_low_confidence: false
+spec_is_wrong: true              # 7 of 12 findings are spec errata (merged-findings.md spec_errata)
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_gate_passed: null
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 4, regression: 8}
+plan_verdict: refactor
+findings_important: 3
+findings_minor: 9

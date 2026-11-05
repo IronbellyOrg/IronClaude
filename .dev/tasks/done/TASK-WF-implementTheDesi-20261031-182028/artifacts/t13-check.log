@@ -1,0 +1,2 @@
+('codex_bot_login',) ['chatgpt-codex-connector'] True polling
+('codex_bot_login', 'codex_app_slug') [] False polling

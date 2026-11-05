@@ -24,7 +24,6 @@ regression_present: false
 unauthorized_deviation_present: false
 needs_human_decision: false
 user_decision_required: false
-serena_summary_corroboration: unavailable
 degraded_components: []
 # FR-RH1 R3: neither --spec nor --tasklist -> legacy telemetry-only skip.
 # gate_ran false, null ledger, zero counters; NO Grounding Gap, NO needs_human_decision,

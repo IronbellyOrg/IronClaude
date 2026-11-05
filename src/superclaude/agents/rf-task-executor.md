@@ -223,7 +223,7 @@ Failed items:
 - Step 2.5: Content doesn't match source
 
 Correction loop initiated...
-Will retry up to 5 times.
+Will retry up to 2 times.
 ```
 
 ### Execution Errors

@@ -28,7 +28,6 @@ canonical Tavily capability reference; other docs point here rather than restati
 
 - **Playwright**: Tavily discovers URLs → Playwright extracts complex content
 - **Context7**: Tavily searches for updates → Context7 provides stable documentation
-- **Serena**: Tavily performs searches → Serena stores research sessions
 
 ## Configuration
 
@@ -149,7 +148,6 @@ Extract: true
 2. Analyze and identify gaps
 3. Tavily: Targeted follow-up searches
 4. Synthesize findings
-5. Serena: Store research session
 ```
 
 ### Fact-Checking Flow

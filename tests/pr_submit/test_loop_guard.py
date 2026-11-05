@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pytest
 
-from superclaude.pr_submit.fsm import RunConfig, run_skill
+from superclaude.pr_submit.fsm import RunConfig, run_skill, should_retrigger
 from superclaude.pr_submit.loop_guard import RoundCounter, should_halt, user_label
 from superclaude.pr_submit.models import Finding, MonitorState
 
@@ -225,3 +225,33 @@ def test_fallback_round_counter_cap_one():
         )
     )
     assert result.fallback_round_counter == 1
+
+
+@pytest.mark.loop_guard
+@pytest.mark.parametrize("max_rounds", [1, 2, 5])
+def test_should_retrigger_zero_edit_pair(max_rounds):
+    """Issue #305 (P2, QA-3b): only a Tier 2 merge cycle re-triggers with zero edits.
+
+    A zero-edit fix cycle never re-triggers, so `run_skill` (fix cycles only) keeps
+    `rereview_request_count == 0` when nothing was applied.
+    """
+    assert should_retrigger(0, "merge") is True
+    for kind in ("fix", None, "sync", "ci"):
+        assert should_retrigger(0, kind) is False
+    assert should_retrigger(1) is True
+    # run_skill zero-edit rows: a verified finding outside the diff applies nothing
+    # (the finding-ungroundable.json shape, T-ZERO-EDIT-NO-PUSH).
+    ungroundable = Finding(
+        path="src/legacy/helper.py",
+        line=5,
+        body="no applicable edit",
+        in_diff=False,
+        verification_status="verified",
+        comment_id=4242,
+    )
+    result = run_skill(
+        RunConfig(monitor_ordinal=3, max_rounds=max_rounds, findings=[ungroundable])
+    )
+    assert result.applied_edits == 0
+    assert result.push_count == 0
+    assert result.rereview_request_count == 0

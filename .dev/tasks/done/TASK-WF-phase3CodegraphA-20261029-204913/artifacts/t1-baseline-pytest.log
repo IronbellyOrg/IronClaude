@@ -1,0 +1,4 @@
+ImportError while loading conftest '/home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption/tests/roadmap/conftest.py'.
+tests/roadmap/conftest.py:25: in <module>
+    from conftest import AuditTrailHelper
+E   ImportError: cannot import name 'AuditTrailHelper' from 'conftest' (/home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption/tests/sc-roadmap/conftest.py)

@@ -1,0 +1,10 @@
+MOVED ./artifacts/t15-pytest.log -> .dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/artifacts/retries/T15/artifacts-2/t15-pytest.log
+MOVED ./artifacts/t15-lint.log -> .dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/artifacts/retries/T15/artifacts-2/t15-lint.log
+SWEEP refs/superclaude/implement/TASK-WF-implementTheDesi-20261031-182028/retry/T15/sweep-2-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+RESTORED CHANGELOG.md
+RESTORED CLAUDE.md
+RESTORED docs/guides/prd-skill-release-guide.md
+RESTORED docs/guides/tdd-skill-release-guide.md
+RESTORED docs/user-guide/commands.md
+DONE

@@ -146,8 +146,8 @@ class ConvergenceEngine:
 
     Usage::
 
-        engine = ConvergenceEngine(max_iterations=3)
-        for i in range(1, 4):
+        engine = ConvergenceEngine(max_iterations=1)
+        for i in range(1, 2):
             result = IterationResult(iteration=i, unaddressed_criticals=count)
             state = engine.submit(result)
             if engine.is_done:
@@ -162,7 +162,7 @@ class ConvergenceEngine:
 
     def __init__(
         self,
-        max_iterations: int = 3,
+        max_iterations: int = 1,
         budget_guard: Optional[SimpleBudgetGuard] = None,
     ) -> None:
         self._max_iterations = max_iterations

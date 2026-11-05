@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/merged-verdict.yaml"
+  convergence_score: 1.00
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-orcaWorkerContra-20261103-012232-20261103055307/adversarial/adversarial"
+  status: "partial"   # convergence_status is BLOCKED_BY_INVARIANTS; all post-merge validation checks passed
+  base_variant: "default:analyzer (Variant A)"
+  unresolved_conflicts: 0   # debate-transcript.md Convergence Assessment: "Unresolved points: none" (21/21 agreed)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: INV-001
+      category: sufficiency_challenge
+      assumption: "Fixing R3-F1 and the should-fixes is enough for per-task QA and the managed FINAL to pass"
+      severity: HIGH

@@ -4,7 +4,7 @@ Static guard for the reflect-reviewer agent (L1). Reads the SOURCE agent file
 ``src/superclaude/agents/reflect-reviewer.md`` (never the ``.claude/`` mirror, per
 SoT discipline) and asserts its ``tools:`` allowlist is present, non-empty,
 contains the read-only core (Read/Grep/Glob), and intersects the mutator set
-{Bash, Edit, Write, NotebookEdit, Task, execute_shell_command} EMPTY.
+{Bash, Edit, Write, NotebookEdit, Task} EMPTY.
 
 A negative fixture (a reviewer persona with the ``tools:`` line stripped, under
 ``tests/cli/reflect/fixtures/reviewer-personas/``) proves the SAME guard helper
@@ -27,9 +27,7 @@ _FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures" / "reviewer-personas
 _NO_TOOLS_FIXTURE = _FIXTURE_DIR / "reviewer-persona-no-tools.md"
 
 # Mutator tools that MUST NOT appear in a read-only reviewer allowlist.
-_MUTATORS = frozenset(
-    {"Bash", "Edit", "Write", "NotebookEdit", "Task", "execute_shell_command"}
-)
+_MUTATORS = frozenset({"Bash", "Edit", "Write", "NotebookEdit", "Task"})
 # Read-only core that MUST be present.
 _REQUIRED_READONLY = frozenset({"Read", "Grep", "Glob"})
 

@@ -1,0 +1,4 @@
+$ grep -n -i "disable" src/superclaude/pr_submit/detection.py
+46:# empty or null value blanks that one identity. Codex is disabled only when both
+141:    # from_yaml supply the real values. An empty identity set disables Codex.
+152:        Codex is disabled only when both Codex identities are blank; it stays on

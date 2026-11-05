@@ -1,7 +1,7 @@
 ---
 name: sc:task-protocol
 description: Unified task execution with intelligent workflow management, MCP compliance enforcement, and multi-agent delegation. Merges orchestration capabilities with MCP compliance into a single coherent interface.
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact
 ---
 
 <!-- markdownlint-disable MD041 MD040 -->
@@ -85,22 +85,23 @@ Execute task according to tier requirements:
 
 **STRICT Execution**:
 
-1. Activate project (mcp__serena__activate_project)
-2. Verify git working directory clean (git status)
-3. Load codebase context (codebase-retrieval)
-4. Check relevant memories (list_memories -> read_memory)
-5. Identify all affected files and test files
-6. Make changes with full checklist
-7. Identify all files that import changed code
-8. Update all affected files
-9. Spawn verification agent (quality-engineer)
-10. Run comprehensive tests: `pytest [path] -v`
-11. Answer adversarial questions
+1. Verify git working directory clean (git status)
+2. Load codebase context (codebase-retrieval)
+3. Check relevant memory files (Glob `.superclaude/memory/**/*.md`, then Read the relevant ones; skip when none exist)
+4. Identify all affected files and test files
+5. Make changes with full checklist
+6. Identify all files that import changed code: invoke
+   > Skill sc:impact-protocol
+   with `<changed symbols> --depth 2 --output-dir .dev/impact/task-<slug> --caller sc-task-protocol` and read only `status`, `degraded`, `dependents[].file` and `unmapped_files` from its `return-contract.yaml`; the dependent files are candidates, and every unmapped file is checked with Grep too. Confirm every candidate file with Grep (word-boundary pattern for the symbol, then Read the call site) and copy `degraded` into the task notes. `status: blocked|failed` counts as `graph:absent`: then, or when it returns no rows, Grep alone, and record that fallback in the task notes. The call changes no tier, gate or verification step
+7. Update all affected files
+8. Spawn verification agent (quality-engineer)
+9. Run comprehensive tests: `pytest [path] -v`
+10. Answer adversarial questions
 
 **STANDARD Execution**:
 
 1. Load context via codebase-retrieval
-2. Search downstream impacts (find_referencing_symbols OR grep)
+2. Search downstream impacts: `codegraph_callers` / `codegraph_impact` on the changed symbol when codegraph is usable (`~/.claude/CODEGRAPH.md`; rows are leads, Read before relying on them), OR Grep with a word-boundary pattern for the changed symbol, then Read the call sites
 3. Make changes
 4. Run affected tests OR document manual verification
 5. Verify basic functionality
@@ -284,14 +285,14 @@ After completion, collect implicit feedback:
 
 **Required Servers by Tier**:
 
-- STRICT: Serena (fallback not allowed)
+- STRICT: None required (native Read, Grep, Glob, Bash and codebase-retrieval cover the prerequisites); codegraph preferred for the "files that import changed code" step; Grep fallback allowed and recorded
 - STANDARD: Context7 (fallback allowed)
 - LIGHT: None required (fallback allowed)
 - EXEMPT: None required
 
 **Circuit Breaker Behavior**:
 
-- If required servers unavailable for STRICT tier, block task execution
+- STRICT has no required server, so the breaker never blocks a STRICT task
 - For other tiers, use fallbacks with noted limitations
 
 ## Tool Coordination
@@ -300,24 +301,22 @@ After completion, collect implicit feedback:
 
 1. TodoWrite: Create task breakdown
 2. codebase-retrieval: Load context
-3. list_memories / read_memory: Check project state
+3. Glob / Read: Check project state in `.superclaude/memory/**/*.md`
 
 **Execution Phase**:
 
 1. Edit/MultiEdit/Write: Make changes
 2. Grep/Glob: Find references
-3. find_referencing_symbols: Trace dependencies
+3. `codegraph_callers` / `codegraph_impact` (when usable), OR Grep (word-boundary pattern for the symbol) then Read the call sites: Trace dependencies
 
 **Verification Phase**:
 
 1. Task (quality-engineer): Spawn verification agent (STRICT only)
 2. Bash: Run tests directly (STANDARD)
-3. think_about_task_adherence: Reflect on completeness
 
 **Completion Phase**:
 
-1. write_memory: Save session state
-2. think_about_whether_you_are_done: Final check
+1. Write: Save session state to `.superclaude/memory/task/session-<timestamp>.md` (create `.superclaude/.gitignore` containing `*` first if absent; `<project>` is the git top-level, or the current directory outside git; written once, never edited)
 
 ## Examples
 

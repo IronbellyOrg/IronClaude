@@ -1,0 +1,14 @@
+E   assert 'Session name (Enter or Ctrl+C = untagged; untagged after 30s): ' in '[ccsession] Shim already running on 127.0.0.1:4555 (reusing)\r\nTraceback (most recent call last):\r\n  File "/home/c...dels; Claude Code will retry discovery after launch\r\n[ccsession] Starting untagged session\r\n\x1b]0;Claude Code\x07'
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tag.py::test_orca_saved_name_is_listed_and_resumes_before_the_prompt
+FAILED tests/unit/test_ccsession_tag.py::test_orca_enter_or_ctrl_c_starts_untagged[enter]
+FAILED tests/unit/test_ccsession_tag.py::test_orca_enter_or_ctrl_c_starts_untagged[ctrl-c]
+FAILED tests/unit/test_ccsession_tag.py::test_orca_invalid_name_asks_again - ...
+FAILED tests/unit/test_ccsession_tag.py::test_orca_prefill_passes_through_and_its_text_is_not_a_flag
+FAILED tests/unit/test_ccsession_tag.py::test_orca_unanswered_question_starts_untagged
+FAILED tests/unit/test_ccsession_tag.py::test_orca_a_launch_with_more_than_options_is_asked_as_before[prompt]
+FAILED tests/unit/test_ccsession_tag.py::test_orca_a_launch_with_more_than_options_is_asked_as_before[prefill]
+FAILED tests/unit/test_ccsession_tag.py::test_orca_a_launch_with_more_than_options_is_asked_as_before[name]
+FAILED tests/unit/test_ccsession_tag.py::test_orca_a_launch_with_more_than_options_is_asked_as_before[print]
+FAILED tests/unit/test_ccsession_tag.py::test_orca_a_launch_with_more_than_options_is_asked_as_before[session-id]
+================ 11 failed, 35 passed, 114 deselected in 23.01s ================

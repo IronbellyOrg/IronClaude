@@ -10,9 +10,10 @@ before PR-07 axis-overlay landed). Two equality proofs are checked:
    ``770f439517cab45a605f0e098561946f04485d406393567fa8bbeaba9de91fc7``.
 2. The entire Critical Rules block (``## Critical Rules`` header + Rules
    #1..#11) has SHA-256
-   ``cc57869c5580b32d9c38a9a64089820a9ea92e4103c8eb68d5b5ff041e5de06b``
+   ``be18e2cf2194b3232c83c77ee6d08c30ad707d10304ff592e5d7e78872e46b1b``
    (re-pinned 2026-05-24 after markdownlint MD013 reflow in
-   TASK-RF-20260523-234320-markdownlint-remediation).
+   TASK-RF-20260523-234320-markdownlint-remediation, and 2026-11-02 after
+   the review severity rule rewrote Rule #10).
 
 Rule #6 — "Contradictions are always IMPORTANT or CRITICAL" — must
 appear verbatim with no softening verbs.
@@ -45,7 +46,12 @@ BASELINE_SLICE_SHA = "770f439517cab45a605f0e098561946f04485d406393567fa8bbeaba9d
 # TASK-RF-20260523-234320-markdownlint-remediation. The Critical Rules
 # block was reflowed (no semantic content change); recompute reflects
 # the new byte sequence of the same logical block.
-BASELINE_BLOCK_SHA = "cc57869c5580b32d9c38a9a64089820a9ea92e4103c8eb68d5b5ff041e5de06b"  # pragma: allowlist secret
+# Re-pinned 2026-11-02 (review severity rule, fix/review-severity-rule):
+# rule 10 now reads "Maximum 2 fix cycles ... with the open blocking
+# findings. All blocking findings must be resolved; minor findings are
+# recorded as notes." (cap-edits.yaml row C-003). Rules 1-9 and 11,
+# including Rule 6, are unchanged.
+BASELINE_BLOCK_SHA = "be18e2cf2194b3232c83c77ee6d08c30ad707d10304ff592e5d7e78872e46b1b"  # pragma: allowlist secret
 
 # Rule #6 verbatim text (the explicit severity floor).
 RULE_6_TEXT = (

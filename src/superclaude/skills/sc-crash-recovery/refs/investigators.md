@@ -73,18 +73,18 @@ Return as markdown with one subsection per session. Lead each subsection with th
 
 ---
 
-## 3. serena-memory
+## 3. project-memory
 
 **Goal:** surface project memory entries that record current state, working hypotheses, or recently-discovered context.
 
 **Prompt skeleton:**
 
 ```
-You are reading serena memory files for project <PROJECT_PATH>.
+You are reading project memory files for project <PROJECT_PATH>.
 
-Location: <PROJECT_PATH>/.serena/memories/
+Location: <PROJECT_PATH>/.superclaude/memory/ (use Glob `**/*.md` to list them; subfolders are topics)
 
-For each .md file in that directory:
+For each .md file found:
 - Read the file
 - Capture: filename, top-level heading, and any sections that mention current/in-progress/recent/blocked work
 - Note the file's mtime
@@ -161,7 +161,7 @@ In one message, emit all needed Task tool calls. Example:
 ```
 [Task: pipeline-artifacts for tracel3t]
 [Task: claude-sessions for tracel3t]
-[Task: serena-memory for tracel3t]
+[Task: project-memory for tracel3t]
 [Task: git-state for tracel3t]
 [Task: auggie-semantic for tracel3t]
 ```

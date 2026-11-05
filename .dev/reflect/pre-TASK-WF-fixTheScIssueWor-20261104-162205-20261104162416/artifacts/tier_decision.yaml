@@ -1,0 +1,20 @@
+selected_tier: 2
+fired_rule_number: 8   # no STOP row may fire while coverage_degraded is set; pre-filter routes the row-8 default to Tier 2
+coverage_degraded: parsed-sparse   # Step 1B.2b: inferred_count 5 > parsed_count 0
+surface_unreached: null
+composite_score: 2.0
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 0
+  blast_radius: 1
+  spec_density: 1
+  ambiguity_signals: 0
+t2_model_class_diversity: full   # aliases resolve to 3 distinct models (claude-opus-5-5, claude-sonnet-5-5, glm-5.3)
+t2_vendor_diversity: multi       # Anthropic + GLM
+calibrator_diversity: degraded   # reviewers use opus, sonnet, haiku; no disjoint class left, opus chosen
+executor_class_source: unknown
+executor_class_resolved: false
+escalation_reason: "coverage_degraded parsed-sparse table-wide pre-filter forbids a Tier-1 stop (source has no labeled requirement IDs; all 5 requirements are inferred)"
+S_scope: 3
+S_domains: 2
+S_dev_density: 0.0

@@ -1,0 +1,29 @@
+--- a/docs/testing/v5.0.0/user/D12-reflect.md
++++ b/docs/testing/v5.0.0/user/D12-reflect.md
+@@ -22,7 +22,7 @@
+ - `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE=1` makes every `reflect` subcommand print `reflect-wrapper recursion breaker: nested gate suppressed` and exit 0 before anything else runs. Only the exact value `1` does this (`commands.py:38-44,62-73`).
+ - `reflect run --print-command` and `--dry-run` print the composed `claude` command line and `/sc:reflect` prompt and write nothing. `--promote` is the default (the prompt carries `--no-promote` only when you pass it); `--fix` adds `--remediate`; `--depth` accepts only `standard` and `deep`.
+ - The exit code is the verdict: `pass` 0, `halted` 10, `degraded` 11, `blocked` 2 (`models.py:38-49`; `commands.py:464-478`). Only a clean Tier-2 result with an adversarial convergence score of 0.80 or more passes; a missing or low score, a partial adversarial run or a single reviewer is `degraded`; a missing `claude`, an incomplete phase, a task file without frontmatter or a bad `--output` is `blocked`.
+-- Every run that gets past the configuration check writes `wrapper-result.yaml` in the output folder; every run that reaches the verdict writes a `reflect_post:` block into the task file, `degraded` included; `--resume` skips the audit when the task file already records a pass on the current `HEAD`.
++- Every run that gets past the configuration check, except `--print-command` and `--dry-run` (they print and return before any file is written, `runner.py:653-668`), writes `wrapper-result.yaml` in the output folder; every run that reaches the verdict writes a `reflect_post:` block into the task file, `degraded` included; `--resume` skips the audit when the task file already records a pass on the current `HEAD`.
+ - **Observed-as-coded in 5.0.0** (record, do not mark FAIL):
+   - Every `reflect run` takes the Tier-2 ensemble path: three reviewers (stub or proxy) plus one headless `/sc:adversarial` scorer session. The `/sc:reflect` prompt that `--print-command` prints is the Tier-1 prompt, which the shipped code launches only when the process class is replaced by a test double (`runner.py:538-572`).
+   - The Tier-2 reviewers receive the task file text and the base commit id, not the code diff (`ensemble.py:601-630`, docstring "full git-diff materialization is a rollout refinement").
+@@ -550,7 +550,7 @@
+ **Do:**
+ 
+ ```bash
+-env -u T2ProxyUrl -u T2ProxyKey PATH="/tmp/d12/stub:$PATH" superclaude reflect run TASK.md --output /tmp/d12/out/s16 > /tmp/d12/out/s16.log 2>&1; echo "exit=$?"
++env -u T2ProxyUrl -u T2ProxyKey -u T2Model01 -u T2Model02 -u T2Model03 -u T2Model04 -u T2Model05 -u T2Model06 -u T2Model07 -u T2Model08 -u T2Model09 PATH="/tmp/d12/stub:$PATH" superclaude reflect run TASK.md --output /tmp/d12/out/s16 > /tmp/d12/out/s16.log 2>&1; echo "exit=$?"
+ head -1 /tmp/d12/out/s16.log; tail -1 /tmp/d12/out/s16.log
+ ls -A /tmp/d12/out/s16; grep -E '^(verdict|reason):' /tmp/d12/out/s16/wrapper-result.yaml
+ ```
+@@ -560,7 +560,7 @@
+ ```text
+ exit=1
+ Traceback (most recent call last):
+-superclaude.cli.swarm.transports.openai_compat.TransportEnvError: T2 proxy env contract incomplete; missing: T2ProxyUrl, T2ProxyKey. Set T2ProxyUrl, T2ProxyKey, and at least one T2Model01..9 slot.
++superclaude.cli.swarm.transports.openai_compat.TransportEnvError: T2 proxy env contract incomplete; missing: T2ProxyUrl, T2ProxyKey, T2Model01..9. Set T2ProxyUrl, T2ProxyKey, and at least one T2Model01..9 slot.
+ t2-swarm
+ wrapper-result.yaml
+ verdict: blocked

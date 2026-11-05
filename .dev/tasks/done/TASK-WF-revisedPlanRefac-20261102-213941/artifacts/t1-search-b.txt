@@ -1,0 +1,19 @@
+$ git grep -c -E '"worktree",\s*"add"' -- ':!.dev'
+scripts/eval_runner.py:1
+src/superclaude/cli/reflect/config.py:1
+tests/cli/reflect/test_isolate_reviewers_cli.py:1
+tests/skills/test_implement_retry_revert.py:2
+tests/troubleshoot/backtest/git_replay.py:1
+tests/troubleshoot/backtest/test_git_replay_unit.py:1
+tests/unit/test_ccsession_tag.py:2
+
+$ git grep -n -E '"worktree",\s*"add"' -- ':!.dev'
+scripts/eval_runner.py:143:            ["git", "worktree", "add", str(worktree_path), "master"],
+src/superclaude/cli/reflect/config.py:202:        _git(git_cwd, "worktree", "add", "--detach", str(snapshot), current_head)
+tests/cli/reflect/test_isolate_reviewers_cli.py:147:    assert not any(a[:2] == ("worktree", "add") for a in calls)
+tests/skills/test_implement_retry_revert.py:614:    git(main, "worktree", "add", "-q", str(wt), "-b", "wtbranch")
+tests/skills/test_implement_retry_revert.py:1054:    git(main, "worktree", "add", "-q", str(wt), "-b", "wtbranch")
+tests/troubleshoot/backtest/git_replay.py:191:            ["git", "worktree", "add", "--detach", str(wt), commitish],
+tests/troubleshoot/backtest/test_git_replay_unit.py:34:    add_calls = [a for a in argvs if a[:4] == ["git", "worktree", "add", "--detach"]]
+tests/unit/test_ccsession_tag.py:1858:    _git(main, "worktree", "add", "-q", "-b", "feature", str(worktree))
+tests/unit/test_ccsession_tag.py:1912:    _git(main, "worktree", "add", "-q", "-b", "feature", str(worktree))

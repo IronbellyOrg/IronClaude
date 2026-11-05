@@ -1,6 +1,6 @@
 ---
 name: sc-crash-recovery
-description: Post-crash work-state recovery. Fans parallel subagents across pipeline artifacts (.dev/releases, manifest.json, execution-log.jsonl, .roadmap-state.json), recent Claude Code session logs, serena memory, git status, and auggie semantic sweeps to produce a structured "where was I, what's in-flight, what to resume" report with concrete resume commands. Use this skill whenever the user mentions a server crash, reboot, machine restart, lost session, dropped pipelines, "where was I", "what was I working on", "what's in flight", "resume", "pick up where I left off", "recover state", or logs back in after an outage — even when they don't explicitly say "crash recovery". Also use after `superclaude sprint`, `superclaude roadmap`, or `/sc:task` pipelines fail or get interrupted, when investigating stalled work, or when starting a fresh session on a project that has unfinished pipeline runs. Supports a single project (default, current cwd) or fleet sweep across all workspaces with `--all`.
+description: Post-crash work-state recovery. Fans parallel subagents across pipeline artifacts (.dev/releases, manifest.json, execution-log.jsonl, .roadmap-state.json), recent Claude Code session logs, project memory (`.superclaude/memory/`), git status, and auggie semantic sweeps to produce a structured "where was I, what's in-flight, what to resume" report with concrete resume commands. Use this skill whenever the user mentions a server crash, reboot, machine restart, lost session, dropped pipelines, "where was I", "what was I working on", "what's in flight", "resume", "pick up where I left off", "recover state", or logs back in after an outage — even when they don't explicitly say "crash recovery". Also use after `superclaude sprint`, `superclaude roadmap`, or `/sc:task` pipelines fail or get interrupted, when investigating stalled work, or when starting a fresh session on a project that has unfinished pipeline runs. Supports a single project (default, current cwd) or fleet sweep across all workspaces with `--all`.
 allowed-tools: Read, Glob, Grep, Bash(ls *), Bash(find *), Bash(wc *), Bash(cat *), Bash(head *), Bash(tail *), Bash(stat *), Bash(git status *), Bash(git diff *), Bash(git log *), Bash(git stash *), Bash(git branch *), Bash(git ls-files *), Bash(~/.claude/skills/sc-crash-recovery/scripts/*), Bash(~/workspace/IronClaude/.claude/skills/sc-crash-recovery/scripts/*), Task
 metadata:
   type: workflow
@@ -34,7 +34,7 @@ Before launching any investigation:
 
 - **STOP** if `<project-path>` was supplied but does not resolve to an existing directory. Tell the user the path is invalid and ask them to clarify. Do not fall back to cwd silently — a typo'd path producing a confidently-empty "no in-flight state" report is worse than no report at all.
 - **STOP** if `--all` was supplied and `~/workspace/` contains zero project directories. Report the configuration issue.
-- **WARN** (don't stop) if the resolved project path exists but has no `.dev/`, no `.git/`, no `.serena/`, and no recent session logs. Tell the user the project looks untouched; ask whether they want to continue anyway.
+- **WARN** (don't stop) if the resolved project path exists but has no `.dev/`, no `.git/`, no `.superclaude/`, and no recent session logs. Tell the user the project looks untouched; ask whether they want to continue anyway.
 
 ## How to work
 
@@ -59,12 +59,12 @@ If you got `--all`, tell the user how many projects you're sweeping and warn thi
 
 Before fanning out, run `scripts/bootstrap_scan.sh <project>` for each project. This is a cheap shell scan that returns:
 
-- whether `.dev/`, `docs/`, `.serena/`, `.git/` exist
+- whether `.dev/`, `docs/`, `.superclaude/memory/`, `.git/` exist (`has_memory`) and how many `*.md` memory files it holds (`memory_count`)
 - file counts and most-recent mtimes for known artifact directories
 - the path of the most recent Claude Code session log for the cwd
 - recent `.roadmap-state.json` / `manifest.json` / `execution-log.jsonl` / `.sprint-exitcode` files
 
-The bootstrap output tells you which investigators to actually spawn — skip ones whose signal source doesn't exist. There's no point fanning out a `serena-memory` agent if `.serena/memories/` is empty.
+The bootstrap output tells you which investigators to actually spawn — skip ones whose signal source doesn't exist. There's no point fanning out a `project-memory` agent if `.superclaude/memory/` is empty.
 
 Show the user a one-line summary per project after bootstrap (e.g. `tracel3t: 3 .dev/releases/current, 1 stalled sprint, 2 recent sessions, dirty git`). This gives them feedback while the heavy fan-out runs.
 
@@ -76,7 +76,7 @@ For each project that has signal, spawn these investigators in parallel via the 
 |---|---|---|
 | pipeline-artifacts | no `.dev/releases/` and no `docs/` artifacts | general-purpose |
 | claude-sessions | no `~/.claude/projects/<encoded-cwd>/*.jsonl` | general-purpose |
-| serena-memory | no `.serena/memories/` | general-purpose |
+| project-memory | no `.superclaude/memory/` (`has_memory: false` or `memory_count: 0`) | general-purpose |
 | git-state | not a git repo | general-purpose |
 | auggie-semantic | source tree is empty or trivially small | general-purpose |
 
@@ -142,7 +142,7 @@ When an investigator's tool layer fails, do not silently drop its signal — the
 
 | Failure | Behavior | Fallback |
 |---|---|---|
-| `bootstrap_scan.sh` exits non-zero or returns malformed JSON | Continue with the investigators that don't depend on it (git-state, claude-sessions); mark pipeline-artifacts and serena-memory as `unscanned: bootstrap_failed` in the final report | Read .dev/releases/current/* directly via Glob+Read as a degraded fallback |
+| `bootstrap_scan.sh` exits non-zero or returns malformed JSON | Continue with the investigators that don't depend on it (git-state, claude-sessions); mark pipeline-artifacts and project-memory as `unscanned: bootstrap_failed` in the final report | Read .dev/releases/current/* directly via Glob+Read as a degraded fallback |
 | Auggie MCP unreachable / `codebase-retrieval` returns error | Skip the auggie-semantic investigator; emit `unscanned: auggie_unavailable` in the report; offer the user the option to run a Grep-based fallback for `TODO-WIP`/`status: 🟡` markers | Grep over the tree for the explicit marker strings |
 | Task subagent times out or returns empty string | Re-spawn that one investigator once with a tighter prompt (cap output, narrower scope); if still empty, emit `unscanned: subagent_failure` and continue synthesis | None — the report is honest about the gap |
 | Wave exit criterion: any investigator that returns neither a structured fragment nor an explicit "no signal" marker | Wait briefly, then treat as `unscanned`. Never let a silent-empty investigator slip through into a synthesis that looks complete | None |
@@ -154,4 +154,4 @@ The synthesis report must surface every `unscanned:` marker in a "What I could n
 - It does not run recovery commands. It proposes them.
 - It does not modify any files. Pure read-only — enforced by `allowed-tools`.
 - It does not make judgment calls about whether to abandon vs. resume work — that's the user's call, informed by your diagnosis.
-- It does not replace `/sc:load` (Serena project-context loader). They're complementary: `/sc:load` loads project context into the session; this skill diagnoses outstanding work.
+- It does not replace `/sc:load` (project-context loader). They're complementary: `/sc:load` loads project context into the session; this skill diagnoses outstanding work.

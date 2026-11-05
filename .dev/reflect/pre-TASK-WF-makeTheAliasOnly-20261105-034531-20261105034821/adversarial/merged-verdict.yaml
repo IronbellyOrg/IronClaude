@@ -1,0 +1,22 @@
+# sc:adversarial return contract, consumed by sc:reflect Wave 4
+return_contract:
+  merged_output_path: .dev/reflect/pre-TASK-WF-makeTheAliasOnly-20261105-034531-20261105034821/adversarial/adversarial/merged-verdict-card.md
+  convergence_score: 1.0            # 19 of 19 diff points (13 unanimous, 6 majority); debate-transcript.md
+  artifacts_dir: .dev/reflect/pre-TASK-WF-makeTheAliasOnly-20261105-034531-20261105034821/adversarial/adversarial/
+  status: success
+  base_variant: "reviewer-3 (refactorer, claude-opus-5-5)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []        # Round 2.5 skipped at --depth quick
+merge_method: adversarial
+depth: quick                        # deviation from the reflect default (standard); recorded in REPORT.md
+debate_rounds: 1
+reviewer_cards_calibrated: 3        # reviewer-cards/reviewer-{1,2,3}-card.md with -calibration.yaml
+calibrated_confidence_by_reviewer: {reviewer_1: 0.76, reviewer_2: 0.88, reviewer_3: 0.84}
+t1_card_calibrated_confidence: 0.75
+base_selection: {winner: V3, combined: 0.910, runner_up: V2, runner_up_combined: 0.877, tiebreaker: "debate points won (8 vs 3)"}
+merged_verdict: FAIL
+blocking_findings: [M-1, M-2, M-3, M-4]
+minor_findings: 19

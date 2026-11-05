@@ -1,2 +1,0 @@
-=== re-run ruff check ===
-All checks passed!

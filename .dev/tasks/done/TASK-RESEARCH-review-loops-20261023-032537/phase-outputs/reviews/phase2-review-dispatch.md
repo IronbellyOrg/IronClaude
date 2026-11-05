@@ -1,0 +1,50 @@
+# Phase 2 Review Dispatch
+
+**Date:** 2026-10-23
+**Purpose:** Assignment instructions for the separate full Task phase gate, not a review or verdict
+**Governing prompts:** /config/.claude/skills/task/SKILL.md, Lens-Based QA Agent Prompts and Standard QA Report Output Format
+**Task root:** /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/
+**Task file:** TASK-RESEARCH-review-loops-20261023-032537.md
+**Measured targets:** 13 research outputs, 3559 physical lines after parent persistence note
+**Reviewer plan:** Six structural plus six content lenses, each partitioned across three exhaustive file groups: 36 independent contexts. Persistence-only workers are not reviewers.
+
+## Common Review Contract
+You are a focused independent QA reviewer, not a producer. Assume mistakes exist and actively try to find them, but never invent findings to meet a quota. Evaluate ONLY your assigned lens within your assigned partition; supporting sources outside it may be read to check a cross-reference. Read ALL assigned target files, not a sample. Read the task's actual assigned Step 2 acceptance paragraphs and the governing lens/output template before findings. Report every real issue of any severity as FAIL; PASS requires zero real issues and a tool-backed Self-Audit stating the checks performed. Preserve precise scope and unverifiable historical limits. An honestly bounded missing historical artifact is not automatically a research defect, whereas an invented event, missing required deliverable, contradictory current claim or unsupported causal assertion is.
+
+fix_authorization:false. Do not change targets, task boxes, policy, production code, original logs, historical packages, other reviewers' reports or source captures. Do not launch agents, gates, a debate, investigated plans or tests. No Git operations, moves, archives, deletes or external publication. No private logs sent to web/documentation services. Use source files, bounded metadata/excerpt extraction and existing captures. UV only for Python. Do not read the giant original parent investigation log. The resume analyses are navigation, never stronger than actual targets and primary evidence. Do not infer historical behavior from current protocol bytes. Do not read full adversarial debate/base/score bodies; this is a Phase 2 gate, not the later synthesis gate.
+
+## Partitions and Acceptance Criteria
+Paths below are relative to the task root; resolve them to absolute paths before reading.
+
+| Partition | Full target files | Acceptance criteria to read in the task file |
+|---|---|---|
+| a | research/01-session-ac2cd1fd.md; research/02-session-a9b88895.md; research/scope-04.md; research/scope-05.md; research/scope-rules.md | Steps 2.7, 2.8, 2.4, 2.5, 2.6 |
+| b | research/03-session-6f744b87.md; research/04-session-43582de1.md; research/scope-01.md; research/scope-02.md | Steps 2.9, 2.10, 2.1, 2.2 |
+| c | research/05-session-e002bed2.md; research/06-session-0690ee9f.md; research/scope-03.md; research/evidence-deck.md | Steps 2.11, 2.12, 2.3, 2.13 |
+
+The exact acceptance paragraphs are in task-file lines 137-187, under their actual step headings. Common criteria: complete Status/Summary/Key Takeaways/Gaps, true original criteria and chronology, successful applied fix versus proposal or blocked edit, actual next review, each later finding's validity and one or more explicitly distinguished causal classes, before/after proof for introduction, observed earlier-miss mechanism or unknown, original paths/physical records/timestamps/UUIDs, real controls, historical/current separation and truthful persistence attribution. Screening must retain all 30 fixed slots across its five files; index03 is the excluded investigation, seven synthetic files are not operational cases. Do not back-attribute later shared ledger events. Deck must distinguish session/incident/review/finding/transition denominators and retain all six cases, strict subset, controls and limitations.
+
+Supporting source inventory: research/session-manifest.txt, research/research-notes.md, research/screening-handoffs-source.txt, research/screening-recovery-source.txt, research/historical-review-rules.json and actual case-linked primary sources. Recovered scope-01/03 originals and preserved raw captures intentionally retain old placeholders or superseded observations; they are NOT finished target deliverables. Original case content and corrections were independently reviewed historically; that does not exempt current claims from your lens. Appended primary identifier supplements preserve original case line anchors. Deck was assembled as text then persisted by parent; its final Parent Persistence Record resolves the producer's historical NEXT handoff. Existing historical empirical gate PASS is narrower than this separate full Task phase gate; do not conflate them.
+
+## Lens Checklists
+Structural reviewer type: rf-qa. Content reviewer type: rf-qa-qualitative. Six lenses per type, each with an independent a/b/c reviewer. Standard checks derive from the Task skill; the two extra structural and two extra content focuses partition its evidence/completeness/domain concerns for the large-output tier, not a new gate policy.
+
+| Type | Lens token | Focused checklist |
+|---|---|---|
+| structural | template-conformance | Required research-template sections or reasoned N/A; correct hierarchy; populated tables/status; no unfinished producer placeholders; no confusing raw recovered drafts with finished targets. Phase 2 uses the Codebase Research Agent Prompt adaptation, not the later hypothesis-card ten-section requirement. |
+| structural | internal-consistency | IDs, dates, names, closure counts, raw statuses and observation windows agree within targets; summaries match detail; no contradictory current claims. Clearly attributed historical contradictions may remain explicitly resolved or bounded. |
+| structural | evidence-quality | Every factual/causal assertion has meaningful real primary path/record support or explicit uncertainty; verify cited source existence and relevant content; before/after supports introduction; no invented IDs, paths, functions or statistical claims. |
+| structural | completeness | Each assigned acceptance clause and source takeaway is substantively addressed; original criteria, all relevant later findings, errors/controls/limits and required source inventory survive; no silent omission or suspiciously thin/stub section. |
+| structural | source-traceability | Trace claim to case, captured evidence and original source meaning, not ID-only presence; exact historical artifact version, actual successful changes and source/current label remain faithful; missing sources and failed searches are explicit. |
+| structural | chronology-classification | Check failure -> applied change -> next result timing, event identity/deduplication and six-class assignments; proposed/blocked edits are not applied repairs; later discovery is not automatically introduction; accepted versus repaired endpoints remain distinct. |
+| content | actionability | Evidence locators and proposed next checks are executable by an investigator without inventing prerequisites; actual targets, expected discriminator, approval limits and uncertainty are concrete. Do not demand production implementation or numeric effort estimates where research explicitly makes them N/A. |
+| content | numbers-metrics | Re-derive counts and denominators; closure counts, review rounds, repairs, controls, timestamps and strict subset boundaries agree; no unsupported probability or prevalence inference. |
+| content | crossref-chain | Trace original requirement -> alleged failure -> actual repair -> next verdict -> analytical conclusion; verify both direction and meaningful link targets, original versus current path meanings and no phantom support. |
+| content | domain-accuracy | Compare protocol/implementation claims to actual code or executable instruction sources; distinguish instructions from enforced behavior, today's bytes from loaded historical versions, and planned/runtime behavior; no doc-only architecture as fact. |
+| content | causal-boundaries | Mechanism matches source strength and original criteria; introduction versus retained sibling/old miss/changed contract/invalid finding/unknown stay separate; alternatives/opposition and confounding are preserved; no invented reviewer psychology or cure. |
+| content | controls-limitations | Negative controls, successful one-repair cases, source-family clustering, mtime selection, immutable membership versus live contents, unknown miss causes and unavailable history constrain every applicable conclusion; no silent generalization or accepted gap mislabeled repaired. |
+
+## Output and Persistence
+Agreed output: qa/qa-<structural|content>-phase2-<lens-token>-<a|b|c>-report.md. Read the full Standard QA Report Output Format at /config/.claude/skills/task/SKILL.md:466-505 and your assigned output stub before gathering findings. Stubs are prepared separately; a stub is not a review. Populate incrementally if your higher-priority instructions permit writing your own report, with no other writes. Return only output path, literal VERDICT: PASS or VERDICT: FAIL, issue count and at most two summary lines; no body in SendMessage.
+
+If higher-priority instructions prohibit report writing, do not bypass that restriction: return a COMPLETE template-shaped report ONLY in your final assistant response, starting '# QA Report', never in SendMessage. The parent/persistence context will extract that exact final text directly from your subagent JSONL into the already-prepared stub. This explicit text-only transport does not establish completion until the consumer verifies the disk report. Do not claim you wrote a file if you did not. A zero-finding report must contain a concrete Self-Audit. Include exact checked scope, primary checks and limitations, all real findings with severity/location/source/required correction, a binary verdict and no fake findings or independent gate-completion claims.

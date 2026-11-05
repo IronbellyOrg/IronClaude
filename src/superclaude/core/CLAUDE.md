@@ -18,12 +18,16 @@ uv run python script.py          # execute scripts
 | Server         | Primary Use                                  | Flag (advisory) |
 |----------------|----------------------------------------------|-----------------|
 | auggie         | Codebase search — call before significant edits | (auto)  |
-| serena         | Symbol navigation, project memory            | --serena   |
+| codegraph      | Code graph: symbols, callers, impact, file outlines (guide: ~/.claude/CODEGRAPH.md) | (auto) |
 | context7       | Official library/framework docs              | --c7       |
 | tavily         | Web search, current information              | --tavily   |
 | playwright     | Browser automation, E2E testing              | --play     |
 
 The Flag column is advisory: these are hints Claude may honour, not options every command accepts. A command's own flags are in its file under `~/.claude/commands/sc/`; check there before passing one.
+
+<!-- SUPERCLAUDE_CODEGRAPH_BEGIN -->
+**codegraph.** For code-structure questions use the codegraph MCP tools: `codegraph_search` (find a symbol by name), `codegraph_node` (one symbol, or a file's outline), `codegraph_callers` and `codegraph_callees`, `codegraph_impact` (what a change reaches) and `codegraph_files`; `codegraph_status` says whether this checkout is indexed. If a codegraph tool says "No CodeGraph project is loaded for this session" or that the index belongs to a different working tree, use Read/Grep for now and run `codegraph init --yes` in the directory printed by `git rev-parse --show-toplevel` (safe to repeat; a session-start hook usually does this already). Run codegraph as the path in `~/.codegraph/.superclaude-bin` when that file exists, else as `codegraph`. Never run `codegraph status`, `codegraph index` or `codegraph sync` while an init or index may be running (`pgrep -f 'codegraph\.js (init|index)'` prints a line): they can empty the index. An interrupted index is repaired by the codegraph MCP server on its next connection. In a checkout indexed for the first time, answers in the first minute can be missing or incomplete; ask again after the init finishes. codegraph tools are read-only; edit with Edit/Write. Skills and agents follow `~/.claude/CODEGRAPH.md`.
+<!-- SUPERCLAUDE_CODEGRAPH_END -->
 
 ## Core Rules
 
@@ -36,6 +40,7 @@ The Flag column is advisory: these are hints Claude may honour, not options ever
 7. **Scope discipline** — build exactly what's asked; no speculative additions
 8. **Auggie first** — call `codebase-retrieval` before significant edits to load relevant context
 9. **Temporal** — verify current date from env context before any date/version reasoning
+10. **Issues** — before filing a GitHub issue, copy the matching template (`~/.claude/ISSUE-HANDOFF.md` for work handed to another person or agent, `~/.claude/ISSUE-BACKLOG.md` for parked work) to a temporary file, fill every section in the copy, then run `gh issue create --title "<title>" --body-file <the copy>`; never edit the installed template
 
 ## Key Docs
 
@@ -87,8 +92,8 @@ Treat the following as **mandatory re-verification triggers** before
 output:
 
 - **S1.** About to cite `file:line` or "at line N" of a specific file.
-- **S2.** About to issue an Edit / Write / replace_content / replace_symbol_body
-  / insert_*_symbol against a file. (Hook enforces; mention here for completeness.)
+- **S2.** About to issue an Edit / Write against a file. (Hook enforces; mention
+  here for completeness.)
 - **S3.** About to assert that file A agrees or disagrees with file B.
 - **S4.** About to quote an IP, hostname, credential ID, port, path, or
   config value tied to a specific source file.
@@ -109,7 +114,7 @@ Pick the refresh tool by the content type of the claim:
 | Content | Tool |
 |---|---|
 | Exact line numbers / file content | `Read` |
-| Symbolic queries (which function, where defined, what references) | `mcp__serena__find_symbol` / `find_referencing_symbols` |
+| Symbolic queries (which function, where defined, what references) | `codegraph_search` / `codegraph_callers` (or the CLI, `~/.claude/CODEGRAPH.md`) to locate, else `Grep` for the definition and references; then `Read` before citing |
 | Semantic / cross-cutting ("is there an X anywhere") | `mcp__auggie__codebase-retrieval` |
 | Runtime state (permissions, mounts, sockets) | `Bash` (user-executed read-only command) |
 

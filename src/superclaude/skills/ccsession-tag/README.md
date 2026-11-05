@@ -18,14 +18,15 @@ Neither one changes anything on your gateway. Both run entirely on your machine.
 | File | What it is |
 |---|---|
 | `ccsession` | The `ccsession` shell command |
-| `ccsession-orca` | Orca's Claude command: asks for a session name, then runs ccsession |
+| `ccsession-orca` | Orca's Claude command: asks for a session name only when Claude starts with no task, no name and no resume (a new session without a name is auto-named, except in print mode, with `CCSESSION_AUTOSTART=0`, and for launches that start no session), then runs ccsession |
 | `local-gateway-alias-proxy.py` | The shim, a small local proxy |
 | `ccsession-models.json` | Profiles and the curated model list (data only) |
 | `models.py` | Checks for, validates, and caches the latest model data |
 | `install.sh` | Standalone fallback when you only have this skill folder |
 | `ccsession.env.example` | Template for your gateway address and key |
 | `hooks/session-start.sh` | Records each session's ID so names can resume it |
-| `SKILL.md` | The `/ccsession-tag` command used inside Claude |
+| `hooks/session-name.sh` | Copies a name given with Claude Code's `/rename` into ccsession's list |
+| `SKILL.md` | Marks this folder as a skill so it installs; the old `/ccsession-tag` command is retired (use `/rename`) |
 | `README.md` | This file |
 
 ---
@@ -51,7 +52,8 @@ superclaude install
 
 This installs the skill, links `~/.local/bin/ccsession` and
 `~/.local/bin/ccsession-orca`, seeds
-`~/.claude/ccsession.env` if absent, and registers its SessionStart hook.
+`~/.claude/ccsession.env` if absent, and registers its SessionStart,
+UserPromptSubmit and SessionEnd hooks.
 `superclaude update` and `./update.sh` refresh the packaged files without
 overwriting your env file. No gateway is required for session naming.
 
@@ -121,21 +123,88 @@ part of this package, and it belongs in no git repository.
 ccsession notes              # start or resume the session named "notes"
 ccsession notes --shim       # same, but with the extra gateway models available
 ccsession --list             # every named session on this machine
-ccsession --here             # named sessions for this folder only
+ccsession --here             # named sessions of this worktree (and of removed ones)
+ccsession --here --all       # named sessions of every worktree of this repo
 ccsession --rm notes         # forget the name (the conversation itself is kept)
 ccsession notes --claude-args "fix it"
                              # everything after --claude-args goes to Claude Code
                              # as given, never read as a name or a ccsession option
 ```
 
-Inside a running Claude session you can name it after the fact:
+### One name, given either way
 
-```
-/ccsession-tag notes
-```
+A session has one name, shown in ccsession's list, in Claude Code's prompt box
+and `/resume` picker, and on the Orca tab:
 
-Names are per folder. The same name in two different projects points at two
-different conversations, which is what you usually want.
+- **`ccsession <name>`** starts or resumes the session with that name, and
+  gives Claude Code the same name (`--name`).
+- **`/rename <name>`** inside Claude Code names a session you started without
+  one, or renames it. It is a built-in command, so it costs no tokens. The
+  name joins ccsession's list (the old one leaves it) and `ccsession <name>`
+  reopens it. Claude Code runs no hook at a rename itself, so the list and the
+  Orca tab pick it up at your next message, or when you quit.
+
+Names may contain spaces and any other characters except tabs, newlines and
+other control characters, up to 245 bytes, where each `/` or `%` (and a
+leading `.`) counts as 3: 245 letters of plain English text, or about 81
+characters of Chinese or Japanese. A longer `/rename` name is not listed. Quote a name with spaces in the shell: `ccsession "my work"`; the
+session-name question needs no quotes. A name that starts with `-` would be
+read as an option, so reopen it with `ccsession --name -wip` (`--name` takes
+any name). A name another saved session already has gets `-2` (then `-3`...)
+in ccsession's list. Claude Code's automatic names are not listed; only names
+someone gave.
+
+`superclaude install` also adds, once, the names given with `/rename` before
+ccsession kept them. The old `/ccsession-tag` command is retired: use
+`/rename`.
+
+Names are per repo. Every worktree, branch and copy of a repo (same `origin`)
+shares one list, so a session named in one worktree resumes from any other,
+and a fresh copy of the repo still sees its names. The same name in two
+different repos points at two different conversations. A folder that is not a
+git repo keeps its own list, as before.
+
+The list you see follows the worktree, like Claude Code's own `/resume`
+picker. Claude Code continues a resumed conversation in the folder you start
+it in, so a session that was working in another worktree would make its edits
+and commits in this one. `ccsession --here` and the session-name question
+therefore show:
+
+- the sessions that were started in this worktree;
+- under "Sessions whose worktree was removed", the sessions whose worktree no
+  longer exists, with the folder they were started in: they have nowhere else
+  to go, so they are listed in every worktree;
+- a count of the sessions that were started in another worktree (or copy of
+  the repo) that still exists. `ccsession --here --all`, or `*` at the
+  question, lists them.
+
+A session's folder is the one it was started in, which Claude Code names its
+transcript folder after (`~/.claude/projects/<folder with every character
+other than a letter or digit as ->`), as its own picker does. The working
+folders the transcript records follow the session's shell when it changes
+directory, so they are not used alone. A session from another worktree still
+resumes by name from anywhere, and ccsession then warns which worktree it was
+started in.
+
+Older versions kept one list per folder. The first run of this version copies
+those names into their repo's list, once per old list (`ccsession
+--migrate-names`, which every install also runs, retrying only lists that
+failed). The old files stay but drop out of `--list`, nothing is overwritten,
+the most recently used folder keeps a shared name, and another session with
+the same name is copied as `<name>-<folder>` (then `-2`, `-3`). Labels saved
+with a leading `.` (hidden files before this version) are moved to the new
+file name first, and copied to their repo's list too when their old list was
+already copied.
+
+A labeled session's name, and its Orca tab, belong only to the Claude Code
+that ccsession started, in that folder, including the conversations `/clear`
+starts in it. A `claude` started inside it inherits its environment (for
+example a pipeline's `claude -p`, in that folder or another worktree) but
+never takes the name or the tab over: ccsession replaces itself with Claude
+Code, so its process id (the start of `CCSESSION_LAUNCH_ID`) is that Claude
+Code's, and the hooks check which Claude Code runs them. A `ccsession` run
+from inside Claude Code (its Bash tool) leaves the Orca tab alone, and an
+untagged one does not take the session's label either.
 
 ---
 
@@ -151,31 +220,189 @@ example:
 /home/coder/.local/bin/ccsession-orca
 ```
 
-Orca accepts one executable there, with no arguments. Each Orca launch then:
+Orca accepts one executable there, with no arguments. Each Orca launch then
+runs through the shim and passes Orca's own arguments (its prompt,
+`--prefill <text>`, resume flags) to Claude Code unchanged, after ccsession's
+`--claude-args`, so a prompt is never read as a session name.
 
-- Lists this folder's saved sessions and asks
-  `Session name (Enter or Ctrl+C = untagged; untagged after 30s):`. A name
-  starts or resumes that session; Enter, Ctrl+C, or no answer within 30
-  seconds starts an untagged one, so the tab never ends at a dead prompt. A
-  name that is not a valid label (for example one starting with `-`) is asked
-  again.
-- Skips the question when Orca resumes or continues a session
-  (`--resume <id>`, `--fork-session`, `--continue`), when there is no terminal,
-  when keys were already typed into the tab, or when `CCSESSION_AUTOSTART=0`.
-- Runs through the shim, and passes Orca's own arguments (its prompt,
-  `--prefill <text>`, resume flags) to Claude Code unchanged, after
-  ccsession's `--claude-args`, so a prompt is never read as a session name.
+#### The one question rule
 
-Orca also uses this command for supervised workers (`orca orchestration
-worker-start`), and fails a worker whose Claude is not ready within 60 seconds.
-The 30-second limit keeps those workers starting. Change it with
-`CCSESSION_ASK_TIMEOUT=<seconds>` (`0` waits for ever).
+The session-name question is asked **only when Claude starts with no task, no
+name and no resume**, and someone can answer it (stdin, stdout and standard
+error are all a terminal, and `CCSESSION_AUTOSTART` is not `0`). The question lists this
+worktree's saved sessions (as `ccsession --here` does; `*` lists every
+worktree's) and reads:
+
+```
+Session name (Enter = auto-named, Ctrl+C = cancel; auto-named after 30s):
+```
+
+- **A name** starts or resumes the session of that name. Spaces are fine, and
+  a name starting with `-` is passed on as `--name`.
+- **Enter**, or no answer within the time limit, starts the session under an
+  automatic name (below), so with the default limit the tab does not wait at
+  the prompt for ever.
+- **Ctrl+C** cancels: `ccsession-orca` exits with status 130 and Claude is not
+  started, so you are back at the shell.
+- **Text that cannot be a name** is not an error and not a name. A line that
+  holds a control character (a tab) among other text (a line of only spaces
+  or tabs is a blank answer, like Enter), is too long to save as a name (more than
+  245 bytes of file name, where each `/` or `%`, and a leading `.`, count as 3
+  bytes), or is several lines pasted (the first line not blank) becomes
+  Claude's first message (after `--` when it starts with `-`), and the session
+  is auto-named from its first words. A normal line, spaces included, stays a
+  name.
+
+What each launch does:
+
+| Launch | Question | Name Claude gets |
+|---|---|---|
+| The Claude button, a plain relaunch of a new tab | Asked | The name typed; an automatic name on Enter, on the time limit, or on keys typed ahead (no question then) |
+| A prompt, `--prefill <text>`, or `--session-id <id>` (an agent or worktree launch) | No | An automatic name made from the prompt's first words (from the folder and a stamp alone when there is no prompt text, as with `--session-id`); Orca's arguments reach Claude unchanged and in their own order |
+| `CCSESSION_NAME=<name>` in the environment (a worker start) | No | That name (see below) |
+| Claude's own `--name`, `-n` or `--name=` | No | Left for Claude as given; nothing is added |
+| `--resume`, `-r`, `--continue`, `-c`, `--fork-session`, `--from-pr` | No | None: the session names itself |
+| A tab Orca relaunches after a restart, with a recorded session | No | The tab's own session is reopened (below) |
+| No terminal and no task or name (a worker start with nothing given) | No (nobody to ask) | An automatic name |
+| `-p` / `--print` (print mode) | No | None: the run is untagged |
+| `CCSESSION_AUTOSTART=0` | No | None: the launch is untagged |
+| `--version`, `--help`, and Claude's own subcommands (`mcp`, `doctor`, `update`...) | No | None: they start no session |
+
+The rows above describe a launch with no `CCSESSION_NAME`. A valid
+`CCSESSION_NAME` is an explicit instruction. It is passed as `--name` even with
+`-p`, `--version`, a subcommand or `CCSESSION_AUTOSTART=0`, so set it only on a
+launch that starts a new session. Do not combine it with a resume option (with
+`--resume <id>` and a name that is also a saved label, Claude would get two
+`--resume` arguments) or with Claude's own `--name` (Claude would get two
+`--name` arguments).
+
+`--fork-session` and `--from-pr` are resume options like `--resume`, so they
+skip the question and get no name. `--session-id` starts a new session under an
+id you choose: it carries a task, so it skips the question and is auto-named.
+
+#### Automatic names
+
+A launch that needs a name and was given none gets one from
+`ccsession --auto-name [<task text>]`:
+`<folder>-<up to four words of the task>-<MMDD-HHMMSS>-<4 hex digits>`, for
+example `my-repo-fix-the-login-bug-1105-091530-3a7f`. The folder is cut to 20
+characters and each word to 12, and only letters, digits and hyphens are kept,
+so whatever the text holds (quotes, `$(...)`, a path, control characters) the
+label is one safe, valid name, well under the 245-byte limit. It is checked
+against the names already saved for this repo (a saved name resumes its
+session), and the stamp ends in a random part, so launches do not share one in
+practice: a label that matches a saved name gets `-2`, then `-3`. A name is
+saved only when the session starts, so two launches in the same second rely on
+the random part. If the name list
+cannot be written, no name is made and Claude starts untagged: a launch never
+stops here. The name is Claude Code's name for the session too, and joins
+`ccsession --here` once the session has started and the hooks have recorded it.
+
+#### Time limit
+
+The question gives up after 30 seconds (the time runs again after a `*`, which
+lists every worktree's sessions and asks again). Orca fails a supervised worker whose
+Claude is not ready within 60 seconds, so a worker that was started with
+neither a task nor a name still starts. Change the limit with
+`CCSESSION_ASK_TIMEOUT=<seconds>` (`0` waits for ever, and the hint then drops
+the time). The limit lives inside the question itself (`ccsession --ask`), so
+every caller of `--ask` has it, not only `ccsession-orca`. `ccsession-orca`
+removes both this limit and `CCSESSION_NAME` from the environment it starts
+Claude Code with; a plain `ccsession` run leaves its environment as it is.
+
+#### `CCSESSION_NAME`: how an orchestrator names a session
+
+Set `CCSESSION_NAME=<name>` in the launch environment to name a session
+without a prompt. A valid name (the rules above) is used as the session's name
+and nothing is asked. An invalid one (a control character, or too long to save) is dropped with a
+warning on standard error, and the launch is then handled as if none was
+given: Claude still starts. A name equal to a saved label of this repo resumes
+that session, with a visible `Resuming '<name>'` line, while its conversation
+is still saved; if the conversation is gone, a new session starts under that
+name. A launch with a valid
+`CCSESSION_NAME` is never treated as a relaunch to reopen.
+
+**Orchestrators should always pass the task or a name in the launch** (a prompt
+argument, or `CCSESSION_NAME`). Without either, on a terminal the worker waits
+for the question until the time limit; with no terminal it is auto-named at
+once.
+
+#### Known exception
+
+Claude Agent Teams starts its teammates from inside Claude Code, without
+running `ccsession-orca`, so ccsession cannot name those sessions or ask about
+them. This is the one launch path this command does not cover. It is listed as
+a follow-up to issue 315.
+
+### Reopening a tab after a restart
+
+After a workspace restart Orca relaunches each Claude tab by running this
+command again, with only its own options (for example
+`--dangerously-skip-permissions`) and nothing that says which session the tab
+ran. So the tab reopens its own session instead of asking:
+
+- The hooks remember, for each Orca tab (its `ORCA_PANE_KEY`, which Orca keeps
+  across restarts), the session the Claude Code that ccsession launched there
+  runs, with the folder and the terminal it ran in. They update it at every
+  session start and message, so `/clear` and `/resume` move it along. The
+  record is `${XDG_STATE_HOME:-~/.local/state}/ccsession/orca-tabs/<pane key>`,
+  with each `:` of the pane key written as `+` (for example `tab-1+leaf-1`).
+- When `ccsession-orca` would ask the question, Orca passed only options, and
+  the tab's recorded session is still saved, was started in this same folder
+  and ran in another terminal (Orca relaunched the tab), it resumes that
+  session: by its name when it has one in this repo's list, else by its id.
+- The reopen runs first, before the question and before any automatic name.
+  Everything else follows the one question rule above. A new tab or split pane
+  has no record and is asked. A launch with a prompt, `--prefill`, a name
+  (`CCSESSION_NAME` or Claude's `--name`) or a session choice (`--resume`,
+  `--continue`, `--session-id`, `--fork-session`, `--from-pr`) never reopens:
+  it is named, or resumed, as described above. Running `ccsession-orca` again
+  by hand in the same terminal is asked. A session whose conversation was
+  deleted, or that was started in another folder, falls back to the question.
+- A session belongs to one tab: when another tab opens it, the first tab
+  forgets it, so two tabs never reopen the same session.
 
 The question itself is `ccsession --ask [<hint>]`: it prints the list and the
-question on the terminal and only the chosen name on standard output (empty
-for untagged). It exits 1 when it did not ask (no terminal, or keys already
-waiting), got no answer within `CCSESSION_ASK_TIMEOUT` seconds (unset or `0`:
-no limit), or input ended, and 130 on Ctrl+C.
+question on the terminal and only the answer on standard output. A `@LIMIT@`
+in the hint becomes the time limit in seconds. When there is no limit, the hint
+is cut at the first `; ` that has `@LIMIT@` after it; a hint without such a
+`; ` keeps `@LIMIT@` as written. Without a hint the question reads
+`Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s):`,
+for callers where an empty answer means an untagged session. Exit status:
+
+- `0`: a name, or an empty line for a blank answer (Enter);
+- `1`: it did not ask (no terminal, or keys already waiting), got no answer
+  within `CCSESSION_ASK_TIMEOUT` seconds (default `30`; `0` or a value that is
+  not a whole number of seconds, such as `1.5` or `30s`: no limit), or input
+  ended;
+- `3`: the typed text cannot be a name (a control character among other text,
+  over 245 bytes, or several lines pasted after a first line that is not
+  blank; the 245-byte rule is the one above; a line of only spaces or tabs is a
+  blank answer, status `0`, and so is a pasted block that starts with a blank
+  line). It is printed as
+  typed, as a first message for Claude;
+- `130`: Ctrl+C.
+
+`ccsession --check-name <name>` exits 0 when the name is valid, else 1.
+
+### Tab title in Orca
+
+In any Orca terminal (`ORCA_PANE_KEY` set), ccsession sets the tab title to
+`<label> · Claude Code`, or `Claude Code` for an untagged session, and starts
+Claude Code with `CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1` so it keeps that title.
+Orca's web and mobile server treats a pane as running Claude only while its
+title contains the word "claude"; Claude Code's own title is its AI
+conversation name, so without this a resumed session dropped out of the Orca
+Web sidebar and the phone. Other terminals keep Claude Code's own titles.
+
+Because Claude Code's own title is off, a `/rename` reaches the tab through
+Orca: at your next message the hook sets the tab title to
+`<new name> · Claude Code` (`orca terminal rename`). When you leave Claude Code
+(or, after a crash, at the next ccsession launch in that tab) ccsession takes
+that title off again, but only while the tab still shows it: a name you typed
+into Orca since is kept. Renaming the tab in Orca still works, but only
+changes the tab: Claude Code and ccsession never see that name, so use
+`/rename` to rename a session.
 
 ---
 
@@ -189,13 +416,13 @@ applies to the next launch in any terminal or in Orca, with no new shell.
 
 ```bash
 ccsession notes                       # default tier (CCSESSION_DEFAULT_TIER)
-ccsession notes --tier tier1          # a specific tier
+ccsession notes --tier tier1a         # a specific tier (tier1a and 1a both work)
 ccsession notes --model gpt-6-astra   # one model, no failover
 ```
 
 | | What happens |
 |---|---|
-| Picker (`/model`) | Shows the tiers (Tier 0, Tier 1, ...), each with its models |
+| Picker (`/model`) | Shows the tiers (Tier 0, Tier 1a, ...), each with its models; with `+models` in the owner's rule, also each model on its own, in `CCSESSION_MODEL_ORDER` order |
 | Failover | When a tier's model answers with an out-of-usage error (for example `are cooling down`, `auth_unavailable`, `usage_limit_reached`, a billing error, an overloaded or retired model, an outdated provider login, or, for a streamed request, no start of a reply within 5 minutes), the same request goes to the next model; Claude Code never sees the error. A plain `Rate limited` and a `500` are passed back unchanged |
 | Cooldown | A model that failed is skipped for an hour (or the gateway's `Retry-After`), then tried once again |
 | Context | The tier window (`T<N>_WINDOW`) for the whole session; a backup smaller than that is never used |
@@ -212,6 +439,57 @@ sessions' pickers do not change. `CCSESSION_TIERS=0` turns tier mode off,
 auto-compact settings. `ccsession --models-status` shows whether tier mode is
 on and where its settings came from.
 
+A tier is named by a number with an optional letter (`tier0`, `tier1a`,
+`tier1b`, `tier12`); its env names follow (`T1a_WINDOW`, `T1aModel01`).
+
+**Per-user tiers.** `CCSESSION_TIER_RULES` in the same workspace env file sets
+the tier each person starts on, the tiers they are offered, and whether the
+picker also lists each model:
+
+```bash
+export CCSESSION_TIER_RULES="role:owner=tier1a+models role:auditor=tier1a+models *=tier2:tier2,tier3,tier4"
+export CCSESSION_MODEL_ORDER="claude-fable-5-1 claude-opus-5-5 ... Qwen3.8-max"
+```
+
+Entries are space-separated `<who>=<start tier>[:<tier>,<tier>,...][+models]`.
+`<who>` is a Coder username, `role:<coder role>` for everyone holding that
+site-wide Coder role (`owner`, `user-admin`, `template-admin`, `auditor`; a
+plain member holds only `member`), or `*` for everyone else, including a terminal that does not know
+its owner. A username entry wins, then the first matching role entry, then
+`*`. No tier list means every tier (`tier2` and `2` both work, and names match
+without regard to case). `+models` also lists each model of those tiers in
+`/model`, ordered by `CCSESSION_MODEL_ORDER` (models not named there follow in
+tier order). With no matching entry, the user starts on
+`CCSESSION_DEFAULT_TIER` with every tier. The owner comes from
+`CODER_WORKSPACE_OWNER_NAME` and their roles from
+`CODER_WORKSPACE_OWNER_ROLES`, both set by the Coder template. For a limited
+user, `--help` and `/model` show only their tiers, `--tier` and `--model`
+refuse anything outside them, and the shim refuses requests for other tiers.
+A broken or repeated entry that applies to this user stops their launch with
+the reason, rather than opening every tier. Set it on one line with a literal
+value, `export CCSESSION_TIER_RULES="..."`, and do not name it on any other
+line of the file, comments included. Another line naming it, a `${...}`
+value, or a piece of the value that is not a `who=...` entry (for example from
+a stray space) stops ccsession for every Coder user until it is fixed. Because
+ccsession re-reads the file on every launch and every request, a pushed change
+applies without a restart. `ccsession --models-status` shows the owner's
+access.
+
+`CCSESSION_ACCESS` is the older form of the same setting, read when there is no
+`CCSESSION_TIER_RULES` line. Keep it in the file for workspaces still running an
+older ccsession, with the same one-line rule. Older copies ignore
+`CCSESSION_TIER_RULES` and understand only username entries in
+`CCSESSION_ACCESS`: a `role:` or `*` entry there stops them for every named
+owner, so put those in `CCSESSION_TIER_RULES` only.
+
+The limit is advisory. It sets what ccsession offers by default, and the
+workspace owner can undo it from their own environment
+(`CODER_WORKSPACE_OWNER_NAME`, `CODER_WORKSPACE_OWNER_ROLES`, `AIDEV_AI_DEFAULTS_PATH`, `CCSESSION_TIERS=0`)
+or call a model directly with their gateway key. Only a gateway key limited to
+those models enforces it. ccsession reads the file without running it, so a
+setting whose name is deliberately assembled from pieces (for example across
+two lines) is not seen; the central file is changed only through review.
+
 No time limit ever applies once a model has started answering: a reply may
 think or stream for hours. The only ccsession timer is, for streamed tier
 requests, a 5-minute wait for the gateway to accept the request (it normally
@@ -221,15 +499,20 @@ failure.
 
 | Setting | Effect |
 |---|---|
-| `T<N>_WINDOW` (workspace env) | Tier context window; its presence turns tier mode on |
+| `T<N>_WINDOW` (workspace env) | Tier context window; its presence turns tier mode on (`<N>` is a number with an optional letter, such as `1a`) |
 | `T<N>Model0M`, `T<N>Model0M_WINDOW` (workspace env) | Tier models in order, and each model's own window (a backup smaller than the tier window is never used) |
 | `CCSESSION_DEFAULT_TIER` (workspace env) | Tier used when no `--tier` or `--model` is given (`tier2` if unset) |
+| `CCSESSION_TIER_RULES` (workspace env) | Per Coder username, Coder role, or everyone else: start tier, tiers offered, and `+models` (see Per-user tiers above) |
+| `CCSESSION_MODEL_ORDER` (workspace env) | Order of the individual models in `/model` for a `+models` rule |
+| `CCSESSION_ACCESS` (workspace env) | Older per-username form, read only when there is no `CCSESSION_TIER_RULES` line |
+| `CODER_WORKSPACE_OWNER_NAME` | Workspace owner's Coder username (set by the Coder agent); picks a username entry |
+| `CODER_WORKSPACE_OWNER_ROLES` | Workspace owner's Coder roles, comma-separated (set by the Coder template); picks `role:` entries |
 | `AIDEV_AI_DEFAULTS_PATH` | Workspace env file read on every launch (default `/etc/aidev02/aienv.d/defaults.sh`); the shell environment is used only when the file is absent |
 | `CCSESSION_TIERS=0` | Turn tier mode off |
 | `CCSESSION_SHOW_ALL_MODELS=1` | Also list every tier model in `/model` (own shim) |
 | `CCSESSION_COOLDOWN_SECONDS` | How long a failed model is skipped (default 3600) |
 | `CCSESSION_FIRST_BYTE_TIMEOUT` | Wait for a streamed tier reply to start before trying the next model (default 300) |
-| `CC_SHIM_PORT` | Base shim port (default 4010). Show-all, a non-standard env file, or tier settings from the shell get base + an offset; an explicitly set port is used as-is |
+| `CC_SHIM_PORT` | Base shim port (default 4010). Show-all, a non-standard env file, tier settings from the shell, or a workspace owner name or roles (every Coder session) get base + an offset; an explicitly set port is used as-is |
 | `CCSESSION_COMPACT_WINDOW`, `CCSESSION_COMPACT_PCT` | Override the auto-compact window or percentage, in tier mode too |
 
 ---
@@ -350,7 +633,10 @@ profile's number to something the model can really handle.
 
 ## After you edit the shim
 
-Restart it and clear the saved list, then open a new session:
+Restart it and clear the saved list, then open a new session. This recipe is
+for the base port (a Mac with default settings). In a Coder workspace the port
+depends on the workspace owner and the settings, so use the simpler
+alternative below.
 
 ```bash
 (
@@ -407,8 +693,21 @@ or the names will not line up.
 
 ## Storage layout
 
-- Label pointers live at `~/.claude/projects/<workspace-slug>/topics/<label>.txt`.
-- The `.cwd` file beside them records the real workspace path for listings.
+- Label pointers live at `~/.claude/projects/<key>/topics/<label>.txt`. The key
+  is the repo's network `origin` as host and path with `/` turned into `-`
+  (for example `github.com-IronbellyOrg-IronClaude`; credentials, port, query
+  and host case ignored). Without a network origin (none, or a local path such
+  as a clone made with `git clone /path/repo`), the main worktree's folder
+  (for a separate or bare git folder, that folder); outside a git repo, the
+  current folder. `ccsession --key` prints it. In the file name, `%`, `/` and
+  a leading `.` are written `%25`, `%2F` and `%2E`.
+- The `.cwd` file beside them records the folder last used, for listings.
+- `.ccsession-lock` beside them is locked (`flock`) while a name is saved, so
+  two sessions saving at once take turns. The lock goes with the process that
+  held it, so a killed run never leaves the list locked.
+- `~/.cache/ccsession/orca-titles/` (or under `$XDG_CACHE_HOME`) holds, per
+  Orca tab, the exact title ccsession set on it, so only that title is ever
+  taken off.
 - Claude Code owns the conversation transcripts in the neighboring `.jsonl`
   files. ccsession resumes them but does not modify their contents.
 
@@ -419,8 +718,8 @@ rm ~/.local/bin/ccsession ~/.local/bin/ccsession-orca
 rm -rf ~/.claude/skills/ccsession-tag
 ```
 
-Optionally remove `~/.claude/ccsession.env` and the ccsession SessionStart hook
-from `~/.claude/settings.json`. Removing a label or uninstalling ccsession does
+Optionally remove `~/.claude/ccsession.env` and the ccsession SessionStart,
+UserPromptSubmit and SessionEnd hooks from `~/.claude/settings.json`. Removing a label or uninstalling ccsession does
 not delete a Claude Code transcript.
 
 ---

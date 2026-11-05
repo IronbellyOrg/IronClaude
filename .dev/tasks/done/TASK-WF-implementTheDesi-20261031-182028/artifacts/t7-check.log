@@ -1,0 +1,19 @@
+PASS PR334 shape (completed, no findings, no Codex review) -> clean: got='clean' want='clean'
+PASS PR336 shape (3 unresolved P2 roots) -> findings: got='findings' want='findings'
+PASS PR336 roots count: got=3 want=3
+PASS PR336 roots reviewer/hint: got={('codex', 'medium', 'P2')} want={('codex', 'medium', 'P2')}
+PASS resolved-only threads + Codex review on head -> clean: got='clean' want='clean'
+PASS live head (marker is for an older commit) -> polling: got='polling' want='polling'
+PASS running status -> polling: got='polling' want='polling'
+PASS wrong head -> polling: got='polling' want='polling'
+PASS two summary markers with the same time -> polling: got='polling' want='polling'
+PASS A3: two markers, newest valid wins -> findings: got='findings' want='findings'
+PASS malformed JSON -> polling: got='polling' want='polling'
+PASS duplicate JSON key -> polling: got='polling' want='polling'
+PASS completion after observed_at -> polling: got='polling' want='polling'
+PASS completion not newer than watermark -> polling: got='polling' want='polling'
+PASS has_any_findings true, no roots, no Codex review -> polling: got='polling' want='polling'
+PASS A1: completion = later of marker and review (review 15:57:28): got='2026-10-31T15:57:28+00:00' want='2026-10-31T15:57:28+00:00'
+PASS A1: roots created after the marker edit still selected via the review time: got='findings' want='findings'
+PASS incomplete snapshot -> polling: got='polling' want='polling'
+rc=0

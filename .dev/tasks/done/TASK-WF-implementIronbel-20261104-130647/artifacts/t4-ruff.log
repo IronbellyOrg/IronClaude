@@ -1,0 +1,6 @@
+$ uv run ruff check tests/cli/test_install_hooks.py tests/hooks/test_freshness_subagent_start_policy.py tests/unit/test_cli_install.py
+All checks passed!
+rc=0
+$ uv run ruff format --check tests/cli/test_install_hooks.py tests/hooks/test_freshness_subagent_start_policy.py tests/unit/test_cli_install.py
+3 files already formatted
+rc=0

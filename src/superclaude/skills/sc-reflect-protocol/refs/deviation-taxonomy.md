@@ -47,7 +47,7 @@ When the diff under audit contains **more than 100 hunks**, taxonomy classificat
 - Commit message body (not subject) contains the rationale.
 - Task log contains "blocked by X, deviated to Y" entry.
 - The deviation does NOT contradict any acceptance criterion in the spec.
-- A `third_party_api_verified` flag (FR-4): the divergence resolves to a verified external-API constraint — `find_symbol(search_deps:true)` confirmed the upstream third-party behavior the work conforms to — supporting classification as Necessary (forced by a real upstream constraint) rather than Drift.
+- A divergence attributed to an upstream third-party API constraint (FR-4): the SKILL.md Step 7 dependency lookup is skipped, so the constraint cannot be verified and `third_party_api_verified` stays `false`; the attribution is supportable only as `[INFERRED]` and counts toward Necessary only together with the inline-rationale signals above.
 
 **Gold-standard reference.** Inline documentation (comment, commit body, task log) + spec acceptance-criteria check (no contradictions).
 
@@ -62,7 +62,6 @@ When the diff under audit contains **more than 100 hunks**, taxonomy classificat
 - Diff hunk does NOT map to any tasklist item.
 - No commit-body rationale, no inline comment, no task-log entry explaining the change.
 - Does NOT contradict any acceptance criterion (this is what distinguishes drift from regression).
-- A `serena_summary_corroboration: disagree` (FR-5): the Serena change-summary contradicts the supplied diff, reinforcing the Drift classification. (`agree` / `partial` / `unavailable` do NOT boost Drift — `unavailable` is the cross-session no-signal default.)
 
 Runtime-surface note (FR-RSR): unmapped is not the same signal as unreached. A decided runtime-surface `UNREACHED` finding is governed by SKILL.md §10.9 and maps onto the existing taxonomy by evidence; an unmapped-but-not-contradictory UNREACHED maps here to Drift, while contradiction maps to Regression.
 
@@ -76,11 +75,11 @@ Runtime-surface note (FR-RSR): unmapped is not the same signal as unreached. A d
 
 **Detection signals.**
 
-- Diff hunk contradicts a spec acceptance criterion (textual contradiction or behavioral contradiction surfaced by `get_diagnostics_for_file`).
-- **A test that previously passed now fails after the diff — detected by the default-on §6.1 step 5.5 verification triangle (`execute_shell_command`), not the task-log self-report.** A non-zero exit that the exit-code mapping (below) classifies as Regression sets `verification_regressions_detected += 1` → `regression_present: true`. `--no-verify` is the opt-out; `--rerun-tests` is a deprecated alias for "verification on". When verification is unavailable, this degrades to the task-log claim with a Grounding Gap entry.
+- Diff hunk contradicts a spec acceptance criterion (textual contradiction or behavioral contradiction surfaced by the project's own linter or type-checker run in §6.1 step 5).
+- **A test that previously passed now fails after the diff — detected by the default-on §6.1 step 5.5 Bash verification run (under the §6.1.1 envelope), not the task-log self-report.** A non-zero exit that the exit-code mapping (below) classifies as Regression sets `verification_regressions_detected += 1` → `regression_present: true`. `--no-verify` is the opt-out; `--rerun-tests` is a deprecated alias for "verification on". When verification is unavailable, this degrades to the task-log claim with a Grounding Gap entry.
 - A documented invariant in the spec or in a `@invariant` comment is violated.
 
-**Gold-standard reference.** Spec acceptance-criteria section + **verified test-suite state pre/post (from the §6.1 step 5.5 `execute_shell_command` exit codes, falling back to the task-log claim only when verification is unavailable)** + invariant comments.
+**Gold-standard reference.** Spec acceptance-criteria section + **verified test-suite state pre/post (from the §6.1 step 5.5 Bash exit codes, falling back to the task-log claim only when verification is unavailable)** + invariant comments.
 
 **Default remediation — unconditional Tier 3 escalation.** Regression is the **only class** that *unconditionally* triggers a Tier 3 remediation offer in Wave 6 when `--remediate` is set. It also **unconditionally forces escalation to Tier 2** per §5.3 rule 3 — the regression is debated by ≥2 reviewers before the report ships. No other deviation class carries an unconditional escalation; for Drift/Necessary/Authorized the escalation gate depends on other rule-set conditions.
 
@@ -100,7 +99,7 @@ This precedence is also the union rule for the per-file aggregation mode (see *A
 
 ## Verification exit-code → deviation-class mapping (FR-4)
 
-A non-zero exit from the §6.1 step 5.5 verification triangle is **NOT** uniformly a Regression. Each invocation's exit code is classified per-tool; an unmapped exit defaults to **Grounding Gap** (conservative — never silently a Regression). This mapping feeds the precedence union above *by evidence*, not by assignment — only the rows mapped to Regression set `regression_present`.
+A non-zero exit from the §6.1 step 5 / 5.5 verification run is **NOT** uniformly a Regression. Each invocation's exit code is classified per-tool; an unmapped exit defaults to **Grounding Gap** (conservative — never silently a Regression). This mapping feeds the precedence union above *by evidence*, not by assignment — only the rows mapped to Regression set `regression_present`.
 
 | Tool / exit | Class | Effect |
 |-------------|-------|--------|

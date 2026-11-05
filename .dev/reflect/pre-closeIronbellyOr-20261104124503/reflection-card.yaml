@@ -1,0 +1,36 @@
+# Tier-1 reflection card (orchestrator inline; UC-1 pre-execution)
+# Spec: .dev/tasks/to-do/TASK-WF-closeIronbellyOr-20261104-124207/source.md (1 line)
+# Plan: .dev/tasks/to-do/TASK-WF-closeIronbellyOr-20261104-124207/TASK-WF-closeIronbellyOr-20261104-124207.md
+mode: pre
+tier: 1
+self_reported_confidence: 0.80
+coverage:
+  parsed_total: 0
+  inferred_total: 17
+  coverage_pct_union: 0.5294
+  unmapped_union: [INF-001, INF-002, INF-003, INF-005, INF-007, INF-014, INF-015, INF-017]
+findings:
+  - id: F-1
+    kind: coverage-by-paraphrase
+    claim: "The eight containment-unmapped rows are stated in the plan outside a single task's literal wording: INF-001 in the 'Design reference' line, INF-002 in Task 1 (append PONYTAIL_DEFAULT_MODE lite) plus Constraints (user values never changed), INF-005/INF-007 in the 'Lite behaviour' block and Task 3, INF-014/INF-017 in Constraints, INF-015 split across Task 2 (pytest, lint, format), Task 3 (six plugins grep) and Task 4 (verify-sync). The matcher scores single tasks only."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-124207.md:18-26", "TASK-WF-closeIronbellyOr-20261104-124207.md:28-33"]
+  - id: F-2
+    kind: scope-ambiguity
+    claim: "INF-003 says every place the brainstorm says 'off' is rewritten to lite. The plan applies lite to the delivery files (defaults, tests, docs, CHANGELOG) and declares the override in its header; it does not edit merged-requirements.md itself. Whether the spec meant editing the brainstorm file is ambiguous."
+    evidence: ["source.md:1", "TASK-WF-closeIronbellyOr-20261104-124207.md:18"]
+  - id: F-3
+    kind: acceptance-ambiguity
+    claim: "Task 2's 'at most 5 changed lines' is ambiguous: the design's shape adds one line and changes three (git counts 4 insertions plus 3 deletions)."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-124207.md:55", "merged-requirements.md:111", "src/superclaude/cli/install_user_setup.py:292,303,305"]
+  - id: F-4
+    kind: unverified-claim
+    claim: "[INFERRED] Task 3's 'bare /ponytail switches to full' rests on the brainstorm's citation of upstream ponytail-mode-tracker.js:110-118, which this session did not re-read."
+    evidence: ["merged-requirements.md:140"]
+  - id: F-5
+    kind: cohesion
+    claim: "The manual install proof (AC-M1..M3) sits in Task 4, the CHANGELOG task; M1b/M1c need a Claude session in a throwaway HOME, which likely has no credentials, so they will probably be UNVERIFIED."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-124207.md:103-106"]
+  - id: F-6
+    kind: confirmed
+    claim: "Lite facts in the plan header match upstream source: off exits before any flag/ruleset (activate.js:33-36); map gated by PONYTAIL_MAP (:66); nudge only when statusLine unset and nudged flag absent (:116), writes the flag and copies the script (:122-134), text ends 'Proactively offer to set this up for the user on first interaction.' (:153); subagent exits when mode absent or off (subagent.js:20-22); env beats config file beats full (config.js:80-105)."
+    evidence: ["/tmp/ponytail-src-t14b/hooks_ponytail-activate.js:33-36,66,116,122-134,153", "/tmp/ponytail-src-t14b/hooks_ponytail-subagent.js:20-22", "/tmp/ponytail-src-t14b/hooks_ponytail-config.js:80-105"]

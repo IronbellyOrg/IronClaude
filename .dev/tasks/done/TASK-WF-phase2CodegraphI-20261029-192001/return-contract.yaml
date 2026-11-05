@@ -1,0 +1,13 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-phase2CodegraphI-20261029-192001
+plan_path: ./TASK-WF-phase2CodegraphI-20261029-192001.md
+source_path: ./source.md
+source_origin: .dev/codegraph-migration/specs/phase-2-codegraph-install-spec.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase2CodegraphI-20261029192356/REPORT.md
+unresolved: []

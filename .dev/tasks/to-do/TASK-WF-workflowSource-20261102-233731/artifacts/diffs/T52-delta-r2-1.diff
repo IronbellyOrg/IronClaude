@@ -1,0 +1,11 @@
+--- a/docs/testing/v5.0.0/user/D05-routing-core-files-issue-templates.md
++++ b/docs/testing/v5.0.0/user/D05-routing-core-files-issue-templates.md
+@@ -9,7 +9,7 @@
+ 
+ - IronClaude 5.0.0 installed for your user (`superclaude install` done): `superclaude --version` prints `SuperClaude, version 5.0.0`.
+ - `git` and the `claude` CLI on your `PATH`, and a Claude Code login for Tier C (each Tier C step uses API tokens). Steps 13-15 also need `gh` logged in to a GitHub account where you may create a throwaway private repository.
+-- `/tmp/d05` does not exist (`[ ! -e /tmp/d05 ] && echo OK` prints `OK`). Every file this guide creates is under `/tmp/d05`. No step moves, edits or deletes anything under your real `~/.claude`; Step 5 records checksums of the files this guide reads and Step 16 checks they are unchanged. The only thing Tier C adds to your real config is what every Claude Code session writes (its own session history).
++- `/tmp/d05` does not exist (`[ ! -e /tmp/d05 ] && echo OK` prints `OK`). Every file this guide creates is under `/tmp/d05`. No step moves, edits or deletes anything under your real `~/.claude`; Step 5 records checksums of the files this guide reads and Step 16 checks they are unchanged. Tier C sessions still write to your real `~/.claude` in two ways no step controls: Claude Code saves each session's history, and the hooks that `superclaude install` registers write state and log files under `~/.claude/state/` and `~/.claude/logs/` at session start and on each prompt (`src/superclaude/hooks/hooks.json:18,49`; `src/superclaude/hooks/scripts/freshness-session-start.sh:8-9`, `freshness-user-prompt.sh:8-10`, `auggie-flag-clear.sh:10-12`). The Step 5 and Step 16 checksums do not cover those two folders.
+ - Run every `/sc:help` and `/sc:recommend` step outside an IronClaude checkout (the steps use `/tmp/d05/...`). Inside a checkout, both commands read the checkout's `src/superclaude/core/HOW-WE-WORK.md` before the installed copy (`src/superclaude/commands/help.md:67`; `src/superclaude/commands/recommend.md:44`), which is a different file from the one under test.
+ - `/sc:help` and `/sc:recommend` are carried out by Claude following the command files; there is no script behind them. Expected results give the exact lines the command file fixes and judge the rest on content, not wording.
+ 

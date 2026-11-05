@@ -1,2 +1,0 @@
-=== re-run ruff format --check ===
-794 files already formatted

@@ -1,0 +1,27 @@
+# sc:adversarial return contract (SKILL.md "Return Contract (MANDATORY)")
+# Run resumed after the 2026-11-02 16:28 UTC interruption; Steps 3-5 completed 2026-11-02.
+return_contract:
+  merged_output_path: ".dev/orca-command-refactor/decisions/git-ownership/debate/adversarial/merged-output.md"
+  convergence_score: 0.96            # 24 of 25 diff points (debate-transcript.md:1320-1321)
+  artifacts_dir: ".dev/orca-command-refactor/decisions/git-ownership/debate/adversarial/"
+  status: "partial"                  # debate ended BLOCKED_BY_INVARIANTS (non-convergence); base force-selected by score; merge validation PASS
+  base_variant: "variant-5-original.md (option E, hybrid; Mode A, no model:persona)"
+  unresolved_conflicts: 1            # C-006 (context load: D's committer offload vs per-PR Task), split 55%
+  fallback_mode: true                # no-convergence path: force-select by score; HIGH invariants made mandatory refactor changes
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    # The merge applies the smallest fix for all five HIGH items (refactor-plan.md Changes 4, 7, 9, 10, 12).
+    # Listed here: the three whose fix is not yet effective.
+    - id: "INV-024"
+      category: "interaction_effects"
+      assumption: "Report-only workers never write the user index; fix (defer .dev/tasks staging under --unattended) needs the user to confirm how CLAUDE.md:37 applies to worker sessions"
+      severity: "HIGH"
+    - id: "INV-026"
+      category: "interaction_effects"
+      assumption: "No worker performs an outward action; fix (narrow D4 to local commits) reverses the spec's current D4 (a) recommendation and needs the user's D4 decision"
+      severity: "HIGH"
+    - id: "INV-032"
+      category: "sufficiency_challenge"
+      assumption: "The rule set alone keeps worker git writes inside the rules; fix (write-verb audit test) is specified but not built or run"
+      severity: "HIGH"

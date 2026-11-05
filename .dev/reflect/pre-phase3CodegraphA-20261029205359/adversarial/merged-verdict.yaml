@@ -1,0 +1,29 @@
+merge_method: adversarial
+convergence_score: 1.00
+status: success
+artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase3CodegraphA-20261029205359/adversarial/adversarial
+finding_count: 19
+severity_counts: {critical: 0, important: 9, minor: 10}
+class_counts: {regression: 1, necessary_deviation: 9, drift: 7, authorized_expansion: 2}
+verdict: refactor
+dropped: [R1-13, R2-03, R2-04]
+findings:
+  - {id: M-01, severity: important}
+  - {id: M-02, severity: important}
+  - {id: M-03, severity: important}
+  - {id: M-04, severity: important}
+  - {id: M-05, severity: important}
+  - {id: M-06, severity: important}
+  - {id: M-07, severity: important}
+  - {id: M-08, severity: important}
+  - {id: M-09, severity: minor}
+  - {id: M-10, severity: minor}
+  - {id: M-11, severity: minor}
+  - {id: M-12, severity: minor}
+  - {id: M-13, severity: minor}
+  - {id: M-14, severity: minor}
+  - {id: M-15, severity: minor}
+  - {id: M-16, severity: minor}
+  - {id: M-17, severity: minor}
+  - {id: M-18, severity: minor}
+  - {id: M-19, severity: important}

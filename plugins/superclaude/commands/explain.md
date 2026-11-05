@@ -3,7 +3,7 @@ name: explain
 description: "Provide clear explanations of code, concepts, and system behavior with educational clarity"
 category: workflow
 complexity: standard
-mcp-servers: [context7]
+mcp-servers: [context7, codegraph]
 personas: [educator, architect, security]
 ---
 
@@ -48,6 +48,7 @@ Key behaviors:
 - **Read/Grep/Glob**: Code analysis and pattern identification for explanation content
 - **TodoWrite**: Progress tracking for complex multi-part explanations
 - **Task**: Delegation for comprehensive explanation workflows requiring systematic breakdown
+- **Codegraph one-hop view** (code targets only, when codegraph is usable): `codegraph_search` (limit 10) to find the target symbol, then `codegraph_callers` and `codegraph_callees` (limit 10 each) for its direct callers and callees; Read every row before citing it, and use Read/Grep alone when codegraph is unusable. Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`).
 
 ## Key Patterns
 

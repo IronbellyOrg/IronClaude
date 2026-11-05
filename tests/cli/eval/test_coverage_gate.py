@@ -124,7 +124,7 @@ def test_eval_covers_pattern_matches_prefix_regex() -> None:
 
 
 def test_eval_covers_pattern_misses_unrelated_tool_call() -> None:
-    spec = _spec("E1", "mcp__serena__find_symbol")
+    spec = _spec("E1", "mcp__context7__resolve-library-id")
     assert eval_covers_pattern(spec, "mcp__auggie__.*") is False
 
 

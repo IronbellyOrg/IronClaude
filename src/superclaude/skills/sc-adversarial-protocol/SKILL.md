@@ -9,7 +9,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
 <!-- Extended metadata (for documentation, not parsed):
 category: analysis
 complexity: advanced
-mcp-servers: [context7, serena]
+mcp-servers: [context7]
 personas: [architect, analyzer, scribe]
 -->
 
@@ -488,7 +488,6 @@ return_contract:
 | Server | Usage | Steps |
 |--------|-------|-------|
 | Native reasoning | Debate scoring, convergence analysis, refactoring plan logic | Steps 2-4 |
-| Serena | Memory persistence of adversarial outcomes | Step 5 |
 | Context7 | Domain pattern validation during merge | Step 5 |
 
 **Circuit breaker**: Use native Claude reasoning with depth reduction (deep → standard, standard → quick) if analysis depth exceeds budget.
@@ -2240,18 +2239,6 @@ mcp_integration:
     steps: "Steps 2-4"
     depth_reduction: "deep → standard, standard → quick"
 
-  serena:
-    usage: "Memory persistence of adversarial outcomes"
-    steps: "Step 5 (post-merge)"
-    data_persisted:
-      - "Pipeline configuration and outcome summary"
-      - "Scoring results for cross-session learning"
-      - "Error patterns for improvement"
-    circuit_breaker:
-      failure_threshold: 4
-      timeout: "45s"
-      fallback: "Skip persistence, log warning"
-
   context7:
     usage: "Domain pattern validation during merge"
     steps: "Step 5 (merge validation)"
@@ -2274,7 +2261,7 @@ framework_registration:
     entry: |
       **`/sc:adversarial [options]`** — Structured adversarial debate, comparison, and merge pipeline (wave-enabled, complex profile)
       - **Auto-Persona**: Architect, Analyzer, Scribe
-      - **MCP**: Serena (persistence), Context7 (validation); native reasoning for debate scoring
+      - **MCP**: Context7 (validation); native reasoning for debate scoring
       - **Tools**: [Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task]
 
   orchestrator_md:
@@ -2282,7 +2269,7 @@ framework_registration:
       pattern: "adversarial debate"
       complexity: "complex"
       domain: "analysis"
-      auto_activates: "architect + analyzer personas, --ultrathink, Serena"
+      auto_activates: "architect + analyzer personas, --ultrathink"
       confidence: "95%"
 
     additional_entries:

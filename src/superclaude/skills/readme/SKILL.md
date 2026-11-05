@@ -26,7 +26,7 @@ The multi-phase structure (scope discovery → deep investigation → **analyst 
 - **Hallucinated content** — By separating research (what exists) from synthesis (what it means) from assembly (the final README), each phase can be verified independently. This prevents hallucinated features, fabricated setup steps, or aspirational content presented as current. Synthesis agents only work from verified research files, not from memory or inference.
 - **Uncaught quality drift** — Lens-based multi-agent QA replaces single-agent rubber-stamping. At the final document gate, minimum 11 agents (4 structural lenses + 4 content lenses + 3 readme-specific lenses) each focus on ONE quality dimension. Intermediate gates (research, synthesis) use 5+ agents (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative). A single agent reading 500 lines rubber-stamps; 11 focused agents find issues a generalist misses.
 - **Source-document infidelity** — A dedicated source-document fidelity gate spawns minimum 2 agents that read BOTH the module's original source code AND the assembled README, verifying every feature claim, setup step, and dependency against actual code. This catches phantom features, fabricated setup procedures, and missing dependencies that internal-only QA misses.
-- **Fix churn from parallel edits** — Serialized fix authorization ensures only ONE agent applies fixes per round. All lens agents report findings with `fix_authorization: false`, a single fix agent applies consolidated fixes, then a verification round confirms correctness. This eliminates contradictory edits from parallel fix agents.
+- **Fix churn from parallel edits** — Serialized fix authorization ensures only ONE agent applies fixes per round. All lens agents report findings with `fix_authorization: false`, a single fix agent applies the consolidated blocking fixes (minor findings stay as notes), then a verification round confirms correctness. This eliminates contradictory edits from parallel fix agents.
 
 ### Variable Reference Block
 
@@ -185,10 +185,10 @@ The skill operates in two stages:
 Phase names within the task file:
 - **Phase 1: Preparation** — Scope confirmation, template read, tier selection, tech reference identification
 - **Phase 2: Deep Investigation** — Parallel subagent investigation (tech reference reading, project structure mapping, features inventory, setup/config tracing, existing doc review)
-- **Phase 3: Completeness Verification** — rf-analyst completeness verification + rf-qa research gate + rf-qa-qualitative research depth (5 agents, parallel), then consolidate findings, apply fixes via serialized protocol (max 3 cycles), fill coverage gaps if needed (max 2 gap-fill rounds)
+- **Phase 3: Completeness Verification** — rf-analyst completeness verification + rf-qa research gate + rf-qa-qualitative research depth (5 agents, parallel), then consolidate findings, apply fixes via serialized protocol (max 2 cycles), fill coverage gaps if needed (max 2 gap-fill rounds)
 - **Phase 4: Web Research** — Optional external research (similar READMEs, framework docs, badge services)
 - **Phase 5: Synthesis + QA Gate** — Template-aligned synthesis, then rf-analyst synthesis review + rf-qa synthesis gate + rf-qa-qualitative synthesis coherence (5 agents, parallel), then consolidate findings, apply fixes via serialized protocol (max 2 cycles)
-- **Phase 6: Assembly & Lens-Based Validation** — rf-assembler produces final README, then 11 lens-based QA agents (4 structural + 4 content + 3 readme domain-specific, serialized fix protocol), then 2 source-document fidelity agents verify README against actual module source code; each gate uses consolidate-fix-verify serialized protocol (max 3 fix cycles per gate)
+- **Phase 6: Assembly & Lens-Based Validation** — rf-assembler produces final README, then 11 lens-based QA agents (4 structural + 4 content + 3 readme domain-specific, serialized fix protocol), then 2 source-document fidelity agents verify README against actual module source code; each gate uses consolidate-fix-verify serialized protocol (max 2 fix cycles per gate)
 - **Phase 7: Present to User & Complete Task** — Deliver README, present artifacts, offer companion document creation
 
 If a task file already exists for this module (from a previous session), skip Stage A and invoke `/task` with the existing task file path to resume from the first unchecked item.
@@ -439,7 +439,7 @@ TEMPLATE 02 PATTERN MAPPING FOR THIS SKILL (if Template 02):
 - Phase 3 (Completeness Verification): L4 Review/QA — spawn rf-analyst (completeness-verification) AND rf-qa (research-gate) IN PARALLEL as quality gate. Both agents independently read research files and apply their checklists. Partitioning for >6 research files. QA verdict gates Phase 4.
 - Phase 4 (Web Research): L1 Discovery — optional external research: similar README examples for structural inspiration, framework/tool documentation for accuracy, badge services (shields.io) for status badges. Skip when the module has no external dependencies or framework context.
 - Phase 5 (Synthesis + QA Gate): L2 Build-from-Discovery — synthesis agents read research files and produce README sections aligned to the template. Then 5 synthesis gate agents ALL parallel with fix_authorization: false (SERIALIZED FIX PROTOCOL): 2 rf-analyst (synthesis-accuracy + source-tracing) + 2 rf-qa (structure + content-quality) + 1 rf-qa-qualitative (synthesis-coherence). Consolidate findings, 1 fix agent, 2 verification agents. Partitioning >4 synthesis files.
-- Phase 6 (Assembly & Validation): L6 Aggregation — spawn rf-assembler to consolidate synthesis files into final README at [MODULE_DIR]/README.md following the template schema. Then lens-based QA: 11 agents (4 structural rf-qa + 4 content rf-qa-qualitative + 3 readme domain-specific), ALL fix_authorization: false (serialized fix protocol), consolidated findings, 1 fix agent, 2 verification agents. Then source-document fidelity gate: 2 rf-qa fidelity agents read module source code + assembled README, serialized fix protocol.
+- Phase 6 (Assembly & Validation): L6 Aggregation — spawn rf-assembler to consolidate synthesis files into final README at [MODULE_DIR]/README.md following the template schema. Then lens-based QA: 11 agents (4 structural rf-qa + 4 content rf-qa-qualitative + 3 readme domain-specific), ALL fix_authorization: false (serialized fix protocol), consolidated findings, 1 fix agent for the blocking findings (minor findings stay as notes), 2 verification agents. Then source-document fidelity gate: 2 rf-qa fidelity agents read module source code + assembled README, serialized fix protocol.
 - Phase 7 (Present & Complete): L0 Closeout — present README to user (location, key sections, research file count, open questions), offer companion document creation ("Would you like a Technical Reference or Operational Guide for deeper coverage?"), update task file status to Done. **CRITICAL: Phase 7 task-completion items (update status, set completion_date) MUST be inside Phase 7, NOT in a separate Post-Completion section. The anti-orphaning rule requires all items be within numbered phases.**
 
 QA_INTENSITY: [lite / standard / full]  (per I22 — determined by tier mapping in Tier Selection section or user override)
@@ -448,8 +448,8 @@ QA_GATE_REQUIREMENTS: PER_PHASE
   Gate 1: Research Completeness (Phase 3)
     - lite: 1 rf-qa (evidence + gaps) + 1 rf-qa-qualitative (depth + completeness) = 2 agents. Max 1 fix cycle.
     - standard: 1 rf-analyst (completeness) + 1 rf-qa (evidence-quality) + 1 rf-qa-qualitative (research-depth) = 3 agents. Max 2 fix cycles.
-    - full: 2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative = 5 agents. Max 3 fix cycles. Partitioning >6 files.
-  **Note: All fix agents across all gates (research, synthesis, final, fidelity) use the Consolidated Fix Agent Prompt defined in the Agent Prompt Templates section unless a gate-specific override is defined.**
+    - full: 2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative = 5 agents. Max 2 fix cycles. Partitioning >6 files.
+  **Note: All fix agents across all gates (research, synthesis, final, fidelity) use the Consolidated Fix Agent Prompt defined in the Agent Prompt Templates section unless a gate-specific override is defined. Fix agents receive blocking findings only; minor findings stay as notes.**
   Gate 2: Synthesis Quality (Phase 5)
     - lite: 1 rf-qa (structure) + 1 rf-qa-qualitative (coherence) = 2 agents. Max 1 fix cycle.
     - standard: 1 rf-analyst (accuracy) + 1 rf-qa (structure) + 1 rf-qa-qualitative (coherence) = 3 agents. Max 2 fix cycles.
@@ -457,11 +457,11 @@ QA_GATE_REQUIREMENTS: PER_PHASE
   Gate 3: Lens-Based Final Document QA (Phase 6)
     - lite: 1 rf-qa (combined structural) + 1 rf-qa-qualitative (combined content) + 1 domain lens (feature-list-accuracy) = 3 agents. Max 1 fix cycle.
     - standard: 3 rf-qa structural (template-conformance, internal-consistency, evidence-quality) + 3 rf-qa-qualitative content (actionability, domain-accuracy, crossref-chain) + 1 domain lens (feature-list-accuracy) = 7 agents. Max 2 fix cycles.
-    - full: 4 rf-qa + 4 rf-qa-qualitative + 3 domain (feature-list-accuracy, usage-example-correctness, dependency-list-completeness) = 11 agents. Max 3 fix cycles.
+    - full: 4 rf-qa + 4 rf-qa-qualitative + 3 domain (feature-list-accuracy, usage-example-correctness, dependency-list-completeness) = 11 agents. Max 2 fix cycles.
   Gate 4: Source-Document Fidelity (Phase 6, after Gate 3)
     - lite: 1 rf-qa fidelity agent (combined semantic-coverage + phantom-detection lenses). Max 1 fix cycle.
     - standard: 2 rf-qa fidelity agents. Max 2 fix cycles.
-    - full: 2 rf-qa fidelity agents. HALT if unresolved after 3 cycles.
+    - full: 2 rf-qa fidelity agents. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings.
 
 VALIDATION_REQUIREMENTS: TEMPLATE_COMPLIANCE + EVIDENCE_TRAIL + CROSS_VALIDATION + LINE_CEILING
   TEMPLATE_COMPLIANCE: All sections from README template must be present or marked N/A with rationale.
@@ -541,16 +541,16 @@ Phase 3 — Research Completeness Verification (LENS-BASED GATE, 5 AGENTS MINIMU
   Each agent writes to a separate report: `${TASK_DIR}qa/analyst-completeness-report-[N].md`, `${TASK_DIR}qa/qa-research-gate-report-[N].md`, `${TASK_DIR}qa/qa-research-depth-report.md`
 - Step 3.2: Consolidate all 5 reports into `${TASK_DIR}qa/qa-consolidated-research-findings.md`. Union all findings, take more severe rating for duplicates.
 - **Sub-flow A: Fix existing research content (Steps 3.3-3.4, serialized fix protocol):**
-  - Step 3.3: If any findings exist in the consolidated report, spawn 1 rf-qa fix agent (fix_authorization: true, per the universal Consolidated Fix Agent Prompt) with consolidated findings to apply all fixes to existing research files.
+  - Step 3.3: If any blocking findings exist in the consolidated report, spawn 1 rf-qa fix agent (fix_authorization: true, per the universal Consolidated Fix Agent Prompt) with the consolidated blocking findings (minor findings stay as notes) to apply all blocking fixes to existing research files.
   - Step 3.4: Spawn 2 verification agents (1 rf-qa + 1 rf-qa-qualitative, fix_authorization: false) to confirm fixes applied correctly.
-  - If verification finds new issues, repeat Steps 3.3-3.4. Maximum 3 fix cycles for Sub-flow A.
+  - If verification finds new blocking issues, repeat Steps 3.3-3.4 (new minor findings are notes and do not restart the cycle). Maximum 2 fix cycles for Sub-flow A.
 - **Parallel partitioning for large workloads:** When >6 research files exist, spawn MULTIPLE instances of each of the 5 agent roles in parallel, each with an `assigned_files` subset. The threshold is >6 for research files because research files tend to be longer and more detailed than synthesis files. For example, with 10 research files: spawn 2 instances of each role (5 files each). Each partition instance writes to a numbered report (e.g., `${TASK_DIR}qa/analyst-completeness-report-1.md`, `${TASK_DIR}qa/analyst-completeness-report-2.md`). After all instances complete, merge their reports: union of all findings, take the more severe rating for any item flagged by multiple partitions, deduplicate gaps.
 - Read ALL reports (or the merged report). Determine verdict from the QA report(s) (PASS / FAIL), cross-referenced with analyst findings.
-- If PASS → proceed to Phase 4. If FAIL → fix ALL findings regardless of severity before proceeding. Reports list gaps with specific remediation actions.
+- If PASS → proceed to Phase 4. If FAIL → fix every blocking finding (minor findings are recorded as notes) before proceeding. Reports list gaps with specific remediation actions.
 - **Sub-flow B: Fill coverage gaps (runs only when gap-detection lens identifies missing topics):**
   - Spawn additional targeted research agents (one item per gap-filling agent, from merged gap list). Each gap-filling agent follows the same incremental writing protocol. Wait for gap-filling agents to complete before proceeding.
   - After gap-filling agents add NEW research files, spawn `rf-qa` with qa_phase: "fix-cycle" and the previous QA report path to re-verify only the previously-failed items against the new research files. **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked. Maximum 2 gap-fill rounds for Sub-flow B.
-- **Total cycle budget:** Sub-flow A (max 3 fix cycles) and Sub-flow B (max 2 gap-fill rounds) are counted independently. After either sub-flow exhausts its budget, HALT execution: log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance on how to proceed. Do NOT continue to Phase 4 without user approval.
+- **Total cycle budget:** Sub-flow A (max 2 fix cycles) and Sub-flow B (max 2 gap-fill rounds) are counted independently. After either sub-flow exhausts its budget, HALT execution: log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance on how to proceed. Do NOT continue to Phase 4 without user approval.
 - Compile final gaps into `${TASK_DIR}gaps-and-questions.md` (merged from all reports)
 - Do NOT proceed to Phase 4 until verdict is PASS
 
@@ -574,9 +574,9 @@ Phase 5 — Synthesis (PARALLEL SPAWNING MANDATORY) + Synthesis QA Gate:
   - rf-qa-2 (content-quality lens): verifies no fabrication, runnable examples reference real commands/packages, no aspirational features as current, audience-appropriate language
   - rf-qa-qualitative-1 (synthesis-coherence lens): evaluates whether synthesis files tell a coherent story from the research -- does the README flow logically? Are cross-section references consistent? Would a newcomer understand the module from these sections?
   **ADVERSARIAL STANCE for ALL 5 agents:** "Assume the synthesis contains at least 5 errors. Find them."
-  Each agent writes to a separate report. After all complete, consolidate findings into `${TASK_DIR}qa/qa-consolidated-synthesis-findings.md`, then 1 rf-qa fix agent applies all fixes, then 2 verification agents confirm. **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked. The analyst applies the Synthesis Quality Review Checklist. The QA agent applies its synthesis-gate checklist. The analyst writes to `${TASK_DIR}qa/analyst-synthesis-review-[N].md`. The QA agent writes to `${TASK_DIR}qa/qa-synthesis-gate-report-[N].md`. Embed full prompts from respective agent definitions in each checklist item per B2.
+  Each agent writes to a separate report. After all complete, consolidate findings into `${TASK_DIR}qa/qa-consolidated-synthesis-findings.md`, then 1 rf-qa fix agent applies all blocking fixes (minor findings stay as notes), then 2 verification agents confirm. **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked. The analyst applies the Synthesis Quality Review Checklist. The QA agent applies its synthesis-gate checklist. The analyst writes to `${TASK_DIR}qa/analyst-synthesis-review-[N].md`. The QA agent writes to `${TASK_DIR}qa/qa-synthesis-gate-report-[N].md`. Embed full prompts from respective agent definitions in each checklist item per B2.
 - **Parallel partitioning for large workloads:** When >4 synthesis files exist, spawn multiple analyst instances and multiple QA instances in parallel, each with an `assigned_files` subset of synthesis files. The threshold is lower than Phase 3 (>4 vs >6) because synthesis QA requires deeper per-file analysis (tracing claims back to research files, verifying template alignment, checking cross-section consistency). Same partitioning pattern as Phase 3. Each partition instance writes to a numbered report. Orchestrator merges all partition reports after completion.
-- Read ALL reports (or the merged report). Merge findings from all reports. The fix agent applies all consolidated fixes. Determine verdict from QA report(s), cross-referenced with analyst findings. If PASS → proceed to Phase 6. If FAIL → check which issues QA already fixed vs which remain. For remaining issues, re-run affected synthesis agents, then re-spawn `rf-qa` (fix-cycle). Maximum 2 fix cycles for synthesis — after 2 failed cycles, HALT execution: log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance on how to proceed. Do NOT continue to Phase 6 without user approval.
+- Read ALL reports (or the merged report). Merge findings from all reports. The fix agent applies all consolidated blocking fixes (minor findings stay as notes). Determine verdict from QA report(s), cross-referenced with analyst findings. If PASS → proceed to Phase 6. If FAIL → check which issues QA already fixed vs which remain. For remaining issues, re-run affected synthesis agents, then re-spawn `rf-qa` (fix-cycle). Maximum 2 fix cycles for synthesis — after 2 failed cycles, HALT execution: log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance on how to proceed. Do NOT continue to Phase 6 without user approval.
 
 Phase 6 — Assembly & Lens-Based Validation (RF-ASSEMBLER + 11 LENS AGENTS + SOURCE FIDELITY):
 - Step 6.1: Spawn rf-assembler (same as current — single agent, assembles README from synth files, enforces 500-line ceiling). Writes to [MODULE_DIR]/README.md.
@@ -597,16 +597,16 @@ Phase 6 — Assembly & Lens-Based Validation (RF-ASSEMBLER + 11 LENS AGENTS + SO
     - rf-qa (usage-example-correctness lens): every install command, config snippet, CLI example actually runs against current codebase (commands exist, flags exist, file paths exist, env vars are real). Report: `${TASK_DIR}qa/qa-lens-usage-correctness.md`
     - rf-qa (dependency-list-completeness lens): prerequisites/dependencies match package.json/requirements.txt/pyproject.toml/Dockerfile, no missing deps, no fabricated deps, versions match lock files. Report: `${TASK_DIR}qa/qa-lens-dependency-completeness.md`
   Step 6.2b: Read all 11 QA reports, consolidate into `${TASK_DIR}qa/qa-consolidated-final-findings.md`.
-  Step 6.2c: Spawn 1 rf-qa fix agent (fix_authorization: true, per the universal Consolidated Fix Agent Prompt) with consolidated findings — apply ALL fixes to the README.
+  Step 6.2c: Spawn 1 rf-qa fix agent (fix_authorization: true, per the universal Consolidated Fix Agent Prompt) with the consolidated blocking findings (minor findings stay as notes) — apply ALL blocking fixes to the README.
   Step 6.2d: Spawn 2 verification agents (1 rf-qa + 1 rf-qa-qualitative, fix_authorization: false) to confirm fixes applied correctly and no new issues introduced.
-  If verification finds issues, repeat Steps 6.2c-6.2d (max 3 cycles). If unresolved after 3 cycles, HALT and present findings to user.
+  If verification finds issues, repeat Steps 6.2c-6.2d (max 2 cycles). After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings.
 - Step 6.3: SOURCE-DOCUMENT FIDELITY GATE (2 agents minimum, SERIALIZED FIX PROTOCOL).
   Step 6.3a: Spawn 2 rf-qa fidelity agents IN PARALLEL, fix_authorization: false:
     - rf-qa (fidelity-coverage agent): reads module source code (entry points, package manifests, key source files) + full assembled README. Checks: every feature in source code has a corresponding README entry, every dependency in package manifest appears in Prerequisites, every setup step traces to an actual config/script file. Report: `${TASK_DIR}qa/qa-source-fidelity-coverage.md`
     - rf-qa (fidelity-phantom agent): reads module source code + full assembled README. Checks: every README claim traces to real code (no phantom features, no fabricated commands, no invented file paths), detail preservation (specific names, counts, config keys survive from code into README). Report: `${TASK_DIR}qa/qa-source-fidelity-phantom.md`
-  Step 6.3b: Consolidate fidelity findings, apply fixes (same serialized protocol: 1 fix agent, 2 verification agents, max 3 cycles).
-  If unresolved after 3 cycles, HALT and present findings to user.
-- Step 6.4: Read all QA reports (lens + fidelity). If any issues remain unresolved, address ALL before proceeding to Phase 7. Zero leniency.
+  Step 6.3b: Consolidate fidelity findings, apply fixes (same serialized protocol: 1 fix agent, 2 verification agents, max 2 cycles).
+  After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings.
+- Step 6.4: Read all QA reports (lens + fidelity). If any blocking issue remains unresolved, address it before Phase 7; minor issues are recorded as notes.
 
 Phase 7 — Present to User & Complete Task:
 - Present summary to user (README location, key sections, tier used, research file count, open questions from gaps-and-questions.md)
@@ -1004,7 +1004,7 @@ Adversarial framing: "Assume at least 3 claims in the research files are unverif
 
 VERDICTS:
 - PASS: Evidence quality meets standards
-- FAIL: ALL findings must be resolved. List each with specific remediation.
+- FAIL: any blocking (Critical or Important) finding; every blocking finding must be resolved. Minor findings are notes: they never fail the gate and are not rechecked. List each with specific remediation.
 
 Zero tolerance — if you can’t verify it, it fails.
 ```
@@ -1026,7 +1026,7 @@ You focus on COVERAGE GAPS — whether all required topics were investigated tho
 
 CHECKLIST:
 1. Scope coverage — every key file/directory from research-notes EXISTING_FILES examined
-2. Gap severity — Critical gaps block synthesis, Important reduce quality, Minor are lower priority but must still be fixed
+2. Gap severity — Critical and Important gaps are blocking and fail the gate; Minor gaps are recorded as notes and do not fail it
 3. Depth appropriateness — matches the tier expectation (Lightweight/Standard/Heavyweight)
 4. Tech reference utilization (README-specific) — if companion tech reference files exist, verify research agents actually read them and extracted relevant content rather than re-investigating from scratch
 5. Feature completeness — user-facing features identified from code, not just from documentation. Features described from user perspective, not implementer perspective
@@ -1035,7 +1035,7 @@ Adversarial framing: "Assume the research has at least 3 coverage gaps that will
 
 VERDICTS:
 - PASS: No significant gaps found
-- FAIL: ALL findings must be resolved. List each with specific remediation.
+- FAIL: any blocking (Critical or Important) finding; every blocking finding must be resolved. Minor findings are notes: they never fail the gate and are not rechecked. List each with specific remediation.
 
 Zero tolerance — if you can’t verify it, it fails.
 ```
@@ -1102,8 +1102,8 @@ CHECKLIST:
 Adversarial framing: "Assume the synthesis contains at least 3 accuracy errors or fabricated claims. Find them."
 
 VERDICTS:
-- PASS: All synthesis files are accurate and traceable
-- FAIL: Issues found (list each with specific location, severity, and remediation action)
+- PASS: All synthesis files are accurate and traceable (MINOR issues, if any, listed as notes)
+- FAIL: Blocking issues found (list each with specific location, severity, and remediation action); MINOR issues alone are listed as notes and do not fail
 ```
 
 #### Analyst-2: Source-Tracing Lens
@@ -1135,8 +1135,8 @@ CHECKLIST:
 Adversarial framing: "Assume at least 3 synthesis claims are over-summarized, distorted, or missing context from the research. Find them."
 
 VERDICTS:
-- PASS: Synthesis faithfully represents research findings
-- FAIL: Issues found (list each with specific location and remediation)
+- PASS: Synthesis faithfully represents research findings (MINOR issues, if any, listed as notes)
+- FAIL: Blocking issues found (list each with specific location and remediation); MINOR issues alone are listed as notes and do not fail
 ```
 
 ### Synthesis QA Agent Prompts (rf-qa — 2 Lens Instances)
@@ -1168,8 +1168,8 @@ CHECKLIST:
 Adversarial framing: "Assume at least 3 structural issues exist in the synthesis files. Find them."
 
 VERDICTS:
-- PASS: All synth files meet structural standards
-- FAIL: Issues found (list with specific fixes)
+- PASS: All synth files meet structural standards (MINOR issues, if any, listed as notes)
+- FAIL: Blocking issues found (list with specific fixes); MINOR issues alone are listed as notes and do not fail
 ```
 
 #### QA-2: Content-Quality Lens
@@ -1197,8 +1197,8 @@ CHECKLIST:
 Adversarial framing: "Assume at least 3 content quality issues exist. Find them."
 
 VERDICTS:
-- PASS: All synth files meet content quality standards
-- FAIL: Issues found (list with specific fixes)
+- PASS: All synth files meet content quality standards (MINOR issues, if any, listed as notes)
+- FAIL: Blocking issues found (list with specific fixes); MINOR issues alone are listed as notes and do not fail
 ```
 
 ### Synthesis Coherence QA Agent Prompt (rf-qa-qualitative — Synthesis Gate)
@@ -1325,7 +1325,7 @@ integrity: correct ordering, internal consistency, no placeholders, all componen
 
 ### Lens-Based Final Document QA Agent Prompts
 
-These are 11 separate prompt templates, one per lens agent. At the final document gate (Phase 6, Step 6.2), ALL 11 agents spawn in parallel with `fix_authorization: false`. Each agent focuses on ONE quality dimension and writes to its own report file. After all 11 complete, findings are consolidated and a single fix agent applies all fixes.
+These are 11 separate prompt templates, one per lens agent. At the final document gate (Phase 6, Step 6.2), ALL 11 agents spawn in parallel with `fix_authorization: false`. Each agent focuses on ONE quality dimension and writes to its own report file. After all 11 complete, findings are consolidated and a single fix agent applies all blocking fixes (minor findings stay as notes).
 
 **Lens-to-Checklist Mapping (from the original 15+4 validation items):**
 
@@ -1577,7 +1577,7 @@ CHECKLIST:
 Adversarial framing: "Assume at least 3 dependencies are missing, fabricated, or version-mismatched. Find them."
 ```
 
-#### Consolidated Fix Agent Prompt (rf-qa)
+#### Consolidated Fix Agent Prompt (rf-qa; blocking findings only)
 
 ```
 Apply consolidated fixes to the README for [module/project name].
@@ -1587,7 +1587,7 @@ Report path: [readme-path]
 Consolidated findings: ${TASK_DIR}qa/qa-consolidated-final-findings.md
 Fix authorization: true
 
-You are the ONLY agent authorized to modify the README during this fix cycle. Read the consolidated findings list and apply ALL fixes using Edit. For each fix:
+You are the ONLY agent authorized to modify the README during this fix cycle. Read the consolidated findings list and apply ALL blocking fixes using Edit; minor findings stay as notes. For each fix:
 1. Read the finding (what, where, severity)
 2. Locate the issue in the README
 3. Apply the fix with Edit
@@ -1687,7 +1687,7 @@ CHECKLIST:
 
 Adversarial framing: "Assume the README is missing at least 3 features or dependencies that exist in the source code. Find them."
 
-Fix cycle budget: Maximum 3 fix cycles for the fidelity gate. After 3 cycles, HALT and escalate to user.
+Fix cycle budget: Maximum 2 fix cycles for the fidelity gate. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings.
 ```
 
 #### Fidelity Phantom Agent (rf-qa)
@@ -1712,7 +1712,7 @@ CHECKLIST:
 
 Adversarial framing: "Assume at least 3 claims in this README are fabricated or outdated. Find them by reading actual source code."
 
-Fix cycle budget: Maximum 3 fix cycles for the fidelity gate. After 3 cycles, HALT and escalate to user.
+Fix cycle budget: Maximum 2 fix cycles for the fidelity gate. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings.
 ```
 
 ---
@@ -1877,7 +1877,7 @@ This is the standard mapping of synthesis files to README template sections. Adj
 
 > **Note:** This section is reference documentation. The BUILD_REQUEST phases (Stage A) are authoritative for task file construction.
 
-**This checklist is enforced by 5 lens-based agents** (see Phase 5 in the BUILD_REQUEST phase definitions above). The 9 criteria below are distributed across 2 rf-analyst instances (synthesis-accuracy lens + source-tracing lens) and 2 rf-qa instances (structure lens + content-quality lens), with 1 rf-qa-qualitative (synthesis-coherence lens) providing narrative quality assessment. All 5 agents spawn with fix_authorization: false; a single fix agent applies consolidated findings using the serialized fix protocol.
+**This checklist is enforced by 5 lens-based agents** (see Phase 5 in the BUILD_REQUEST phase definitions above). The 9 criteria below are distributed across 2 rf-analyst instances (synthesis-accuracy lens + source-tracing lens) and 2 rf-qa instances (structure lens + content-quality lens), with 1 rf-qa-qualitative (synthesis-coherence lens) providing narrative quality assessment. All 5 agents spawn with fix_authorization: false; a single fix agent applies the consolidated blocking findings using the serialized fix protocol (minor findings stay as notes).
 
 The 9 criteria (used by rf-analyst):
 
@@ -1952,7 +1952,7 @@ Before presenting the README to the user, validate against this checklist. In th
 - [ ] All 11 lens agents spawned with focused prompts (not generic "check everything")
 - [ ] All lens agents spawned with fix_authorization: false (serialized fix protocol)
 - [ ] Consolidated findings list created from all 11 reports before any fixes applied
-- [ ] Single fix agent applied ALL consolidated fixes
+- [ ] Single fix agent applied ALL consolidated blocking fixes (minor findings stay as notes)
 - [ ] Verification round (2 agents) confirmed fixes after each fix cycle
 - [ ] Source-document fidelity gate ran AFTER lens-based gate passed (2 fidelity agents minimum)
 - [ ] Fidelity agents read actual module source code, not just the README
@@ -2031,7 +2031,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 
 7. **Report all uncertainty.** If something is unclear, ambiguous, or requires a judgment call, document it in Open Questions. Do not silently pick one interpretation and present it as fact.
 
-8. **Quality gates mandatory with lens-based minimums.** Intermediate gates (research, synthesis): minimum 5 agents (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative) with lens-based focus and serialized fix authorization. Final document gate: minimum 11 lens agents (4 structural rf-qa + 4 content rf-qa-qualitative + 3 readme domain-specific) with serialized fix protocol (report-only -> consolidate -> single fix agent -> verification). Source-document fidelity gate: minimum 2 rf-qa fidelity agents reading module source code + assembled README. Max fix cycles: 3 for research gate, 2 for synthesis gate, 3 for final document gate, 3 for fidelity gate. After max fix cycles, HALT and ask user for guidance. ALL findings must be resolved. An intermediate QA gate (research-gate, synthesis-gate) with fewer than 5 total agents is PROHIBITED. A final QA gate (report-validation, source-fidelity) with fewer than 6 total agents is PROHIBITED.
+8. **Quality gates mandatory with lens-based minimums.** Intermediate gates (research, synthesis): minimum 5 agents (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative) with lens-based focus and serialized fix authorization. Final document gate: minimum 11 lens agents (4 structural rf-qa + 4 content rf-qa-qualitative + 3 readme domain-specific) with serialized fix protocol (report-only -> consolidate -> single fix agent -> verification). Source-document fidelity gate: minimum 2 rf-qa fidelity agents reading module source code + assembled README. Max fix cycles: 2 for research gate, 2 for synthesis gate, 2 for final document gate, 2 for fidelity gate. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings. All blocking findings must be resolved; minor findings are recorded as notes. An intermediate QA gate (research-gate, synthesis-gate) with fewer than 5 total agents is PROHIBITED. A final QA gate (report-validation, source-fidelity) with fewer than 6 total agents is PROHIBITED.
 
 9. **No one-shotting documents.** Agents must write incrementally as they discover information. The assembler must write the final README section by section. This is non-negotiable.
 
@@ -2055,9 +2055,9 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 
 19. **Single-agent large-input prohibition.** No single agent may read more than ~1000 lines of input at any discovery, analysis, or extraction stage. Large inputs MUST be partitioned into slices, with one agent per slice spawned in parallel. The rf-task-researcher agent type is permitted per slice but not as a replacement for parallelism. Violations cause shallow coverage and defeat the Deep-tier depth guarantee.
 
-20. **No scope/cost-anxiety pauses during execution.** Once a task file begins executing (via /task or any execution loop), the executor MUST process every item sequentially to completion. It MUST NOT pause mid-execution to present the user with options like "stop here and review, or continue to phase N?" or to flag scope/cost/time concerns. Scope is established at task file creation time. Cost is committed when the user invokes execution. The only permitted mid-execution halts are: all items blocked by the same unrecoverable issue, phase-gate QA failing 3 fix cycles, or an item output fundamentally invalidating the rest of the task. "This will take a while" / "Phase N is expensive" / "the user might want to review" are NOT valid halt reasons. Pausing for these reasons violates the F1 loop discipline and the skill's trust model.
+20. **No scope/cost-anxiety pauses during execution.** Once a task file begins executing (via /task or any execution loop), the executor MUST process every item sequentially to completion. It MUST NOT pause mid-execution to present the user with options like "stop here and review, or continue to phase N?" or to flag scope/cost/time concerns. Scope is established at task file creation time. Cost is committed when the user invokes execution. The only permitted mid-execution halts are: all items blocked by the same unrecoverable issue, phase-gate QA failing 2 fix cycles, or an item output fundamentally invalidating the rest of the task. "This will take a while" / "Phase N is expensive" / "the user might want to review" are NOT valid halt reasons. Pausing for these reasons violates the F1 loop discipline and the skill's trust model.
 
-21. **Serialized fix authorization at all multi-agent gates.** When 3+ QA agents evaluate the same document, ALL agents spawn with `fix_authorization: false` (report-only). After all reports are collected, findings are consolidated into a single list. ONE fix agent (rf-qa, fix_authorization: true) applies ALL fixes. Then 2 verification agents confirm fixes. This prevents contradictory parallel edits. The only exception: when a gate has exactly 2 agents evaluating different files (not the same file), parallel fix authorization is acceptable.
+21. **Serialized fix authorization at all multi-agent gates.** When 3+ QA agents evaluate the same document, ALL agents spawn with `fix_authorization: false` (report-only). After all reports are collected, findings are consolidated into a single list. ONE fix agent (rf-qa, fix_authorization: true) applies ALL blocking fixes (minor findings stay as notes). Then 2 verification agents confirm fixes. This prevents contradictory parallel edits. The only exception: when a gate has exactly 2 agents evaluating different files (not the same file), parallel fix authorization is acceptable.
 
 22. **Source-document fidelity is mandatory for all READMEs.** Every assembled README must pass a source-document fidelity gate where agents read the module's actual source code alongside the README. This gate runs AFTER the lens-based structural/content QA gate. Internal-only QA (reading only the README) catches formatting and consistency issues but misses semantic fidelity: phantom features, fabricated commands, missing dependencies. The fidelity gate catches these.
 

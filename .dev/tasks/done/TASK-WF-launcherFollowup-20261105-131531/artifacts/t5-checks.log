@@ -1,0 +1,21 @@
+$ grep -n "does not set these variables yet\|Until then the workspace defaults" CHANGELOG.md
+grep-exit=1
+$ make lint
+  ✅ PASS — architecture policy compliant (5 warning(s))
+Running linter...
+uv run ruff check .
+All checks passed!
+lint-exit=0
+$ uv run ruff format --check src/ tests/
+1199 files already formatted
+format-exit=0
+$ make sync-dev (writes only gitignored .claude/ copies)
+   Templates: 52 files
+$ make verify-sync
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+verify-exit=0
+$ git status --short | grep .claude
+claude-staged-grep-exit=1

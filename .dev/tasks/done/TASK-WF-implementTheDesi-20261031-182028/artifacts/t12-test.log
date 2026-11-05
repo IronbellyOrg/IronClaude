@@ -1,0 +1,56 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+benchmark: 5.3.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/IronClaude/.dev/worktrees/pr-submit-codex
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, benchmark-5.3.0, anyio-4.15.1, cov-7.1.0
+collected 705 items
+
+tests/pr_submit/test_auggie_fallback.py ............                     [  1%]
+tests/pr_submit/test_augment_review_remediation.py .......               [  2%]
+tests/pr_submit/test_autonomy_gates.py .......                           [  3%]
+tests/pr_submit/test_ci_classify.py ....................                 [  6%]
+tests/pr_submit/test_codex_reviews.py .................................. [ 11%]
+........................                                                 [ 14%]
+tests/pr_submit/test_contract_setup_diagnosis.py ..............          [ 16%]
+tests/pr_submit/test_contract_setup_evidence.py .....................    [ 19%]
+tests/pr_submit/test_contract_setup_pr_submit_integration.py ......      [ 20%]
+tests/pr_submit/test_contract_setup_questions.py .........               [ 21%]
+tests/pr_submit/test_contract_setup_validation.py .............          [ 23%]
+tests/pr_submit/test_contract_setup_writer.py ................           [ 25%]
+tests/pr_submit/test_cosmos_poll.py .................................... [ 31%]
+...............................................................          [ 40%]
+tests/pr_submit/test_cosmos_protocol.py ...............                  [ 42%]
+tests/pr_submit/test_cosmos_review.py .................................. [ 46%]
+........................................................................ [ 57%]
+                                                                         [ 57%]
+tests/pr_submit/test_crash_recovery.py ................                  [ 59%]
+tests/pr_submit/test_detection_contract.py ............................. [ 63%]
+.....                                                                    [ 64%]
+tests/pr_submit/test_edge_cases.py ...................                   [ 66%]
+tests/pr_submit/test_finding_verify.py ...                               [ 67%]
+tests/pr_submit/test_gate_helper_coverage.py ...........                 [ 68%]
+tests/pr_submit/test_gate_helper_differentials.py ...................... [ 72%]
+                                                                         [ 72%]
+tests/pr_submit/test_idempotency.py ......                               [ 72%]
+tests/pr_submit/test_loop_guard.py .............                         [ 74%]
+tests/pr_submit/test_monitor_arm.py ...                                  [ 75%]
+tests/pr_submit/test_pre_pr_checks.py .................................. [ 80%]
+.....                                                                    [ 80%]
+tests/pr_submit/test_rate_limit.py ....                                  [ 81%]
+tests/pr_submit/test_reply_resolve.py ..........                         [ 82%]
+tests/pr_submit/test_review_retrigger.py .......                         [ 83%]
+tests/pr_submit/test_run_log.py ............                             [ 85%]
+tests/pr_submit/test_setup_questions_resolution.py ....                  [ 85%]
+tests/pr_submit/test_severity_router.py ............................     [ 89%]
+tests/pr_submit/test_silence.py .................                        [ 92%]
+tests/pr_submit/test_skill_parse.py ..............                       [ 94%]
+tests/pr_submit/test_static_grep.py ...................                  [ 97%]
+tests/pr_submit/test_timeout.py .....                                    [ 97%]
+tests/pr_submit/test_troubleshoot_seed.py ....                           [ 98%]
+tests/pr_submit/test_validated_not_verified.py ...                       [ 98%]
+tests/pr_submit/test_validation_gate.py .........                        [100%]
+
+============================= 705 passed in 14.52s =============================
+rc=0

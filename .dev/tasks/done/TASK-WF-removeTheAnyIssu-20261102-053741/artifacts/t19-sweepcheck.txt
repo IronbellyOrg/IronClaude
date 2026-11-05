@@ -1,0 +1,28 @@
+group fixloop:
+99 rows; failing: []
+rc=0
+group verdict:
+14 rows; failing: []
+rc=0
+group halt:
+2 rows; failing: []
+rc=0
+group template-qa:
+1 rows; failing: []
+rc=0
+group reflect-gate:
+6 rows; failing: []
+rc=0
+group tasklist:
+12 rows; failing: []
+rc=0
+group zero-tolerance:
+5 rows; failing: []
+rc=0
+fixloop_scan:
+# 3 lines
+F1 agents/sc-pm-agent.md:541
+F1 plugins/superclaude/agents/pm-agent.md:564
+F1 src/superclaude/agents/pm-agent.md:564
+banned grep:
+banned rc=1

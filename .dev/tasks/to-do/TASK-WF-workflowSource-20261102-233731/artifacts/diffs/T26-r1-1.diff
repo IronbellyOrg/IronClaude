@@ -1,0 +1,335 @@
+--- a/src/superclaude/rules/core/changelog_maintenance.md
++++ b/src/superclaude/rules/core/changelog_maintenance.md
+@@ -31,10 +31,8 @@
+ related_links:
+ - text: Master CHANGELOG.md
+   link: CHANGELOG.md
+-- text: Changelog System README
+-  link: .claude/changelogs/README.md
+ - text: Changelog Template
+-  link: .claude/templates/workflow/changelog_template.md
++  link: ~/.claude/templates/workflow/changelog_template.md
+ - text: File Conventions
+   link: ~/.claude/rules/core/file_conventions.md
+ related_task_id:
+@@ -45,6 +43,7 @@
+   next_review_date: "2026-04-11"
+ ---
+ 
++<!-- markdownlint-disable-next-line MD025 -->
+ # Changelog Maintenance Rules
+ 
+ ## Purpose
+@@ -87,6 +86,7 @@
+ | **Large** | 30+ changes, breaking changes, major features | ✅ Yes |
+ 
+ **ALWAYS create detailed file if:**
++
+ - New major/minor version (X.0.0 or X.Y.0)
+ - Breaking changes or deprecations
+ - New features requiring documentation
+@@ -96,24 +96,27 @@
+ - 10+ files changed
+ 
+ **DON'T create detailed file if:**
++
+ - Patch fixes (X.Y.Z) with <10 changes, no breaking changes
+ - Single-file documentation updates, typo fixes
+ - Internal refactoring with no user impact, test-only changes
+ 
+ #### Step 2: Create Detailed File (if needed)
+ 
+-1. Copy template: `.claude/templates/workflow/changelog_template.md`
+-2. Name: `YYYY-MM-DD_vX.Y.Z_SHORT_DESCRIPTION.md`
+-3. Save to: `.claude/changelogs/`
++1. Copy template: `~/.claude/templates/workflow/changelog_template.md` (the installed copy; in an IronClaude dev checkout it is also at `.claude/templates/workflow/changelog_template.md` after `make sync-dev`)
++2. Name: `vX.Y.Z.md`
++3. Save to `docs/releases/vX.Y.Z.md` (tracked; `.claude/` is git-ignored, so release notes saved there are never committed)
+ 4. Fill ALL required sections (see template)
+ 
+ #### Step 3: Update CHANGELOG.md
+ 
+ 1. Move "Unreleased" items to new `[X.Y.Z] - YYYY-MM-DD` section
+ 2. Add link to detailed file (if created):
++
+    ```markdown
+-   **Detailed Release Notes**: [.claude/changelogs/YYYY-MM-DD_vX.Y.Z_DESCRIPTION.md]
++   **Detailed Release Notes**: [docs/releases/vX.Y.Z.md](docs/releases/vX.Y.Z.md)
+    ```
++
+ 3. Update comparison links at bottom
+ 
+ ---
+@@ -130,17 +133,22 @@
+ #### Step 5: GitHub Release (if using GitHub)
+ 
+ **Option A - CLI** (recommended):
++
+ ```bash
+ gh release create vX.Y.Z \
++  --repo <owner>/<repo> \
+   --title "vX.Y.Z - Brief Description" \
+-  --notes-file .claude/changelogs/YYYY-MM-DD_vX.Y.Z_DESCRIPTION.md
++  --notes-file docs/releases/vX.Y.Z.md
+ ```
+ 
+-**Option B - Web UI**: See `.claude/changelogs/README.md` section 4
++Always pass `--repo`: in a fork, gh defaults to the parent repository. For IronClaude: `--repo IronbellyOrg/IronClaude`.
++
++**Option B - Web UI**: Create the release on the repository's Releases page and attach `docs/releases/vX.Y.Z.md` as the release body.
+ 
+ #### Step 6: Start New Unreleased Section
+ 
+ Add to top of `CHANGELOG.md`:
++
+ ```markdown
+ ## [Unreleased]
+ 
+@@ -163,9 +171,8 @@
+ ## Files and Locations
+ 
+ - **Master Changelog**: `CHANGELOG.md` (repository root)
+-- **Detailed Files**: `.claude/changelogs/YYYY-MM-DD_vX.Y.Z_DESCRIPTION.md`
+-- **Template**: `.claude/templates/workflow/changelog_template.md`
+-- **Documentation**: `.claude/changelogs/README.md` (human reference)
++- **Detailed Files**: `docs/releases/vX.Y.Z.md`
++- **Template**: `~/.claude/templates/workflow/changelog_template.md` (in an IronClaude dev checkout also `.claude/templates/workflow/changelog_template.md` after `make sync-dev`)
+ 
+ ---
+ 
+@@ -178,7 +185,3 @@
+ - ❌ **NEVER** skip changelog updates
+ - ❌ **NEVER** use vague descriptions ("various fixes")
+ - ❌ **NEVER** forget migration notes for breaking changes
+-
+----
+-
+-**Related Documentation**: See `.claude/changelogs/README.md` for detailed examples, best practices, and troubleshooting.
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/t26-verify-sync.log
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/t26-verify-sync.log
+@@ -0,0 +1,212 @@
++🔍 Verifying src/superclaude/ ↔ .claude/ sync...
++
++=== Skills ===
++  ✅ ccsession-tag
++  ✅ confidence-check
++  ✅ operational-guide
++  ✅ prd
++  ✅ readme
++  ✅ roadmap
++  ✅ sc-adversarial-protocol
++  ✅ sc-auggie-review-protocol
++  ✅ sc-bare-review
++  ✅ sc-brainstorm-protocol
++  ✅ sc-cleanup-audit-protocol
++  ✅ sc-cli-eval-protocol
++  ✅ sc-cli-portify-protocol
++  ✅ sc-crash-recovery
++  ✅ sc-graph-protocol
++  ✅ sc-impact-protocol
++  ✅ sc-implement-protocol
++  ✅ sc-init-lite-protocol
++  ✅ sc-pm-protocol
++  ✅ sc-post-release-protocol
++  ✅ sc-pr-submit-protocol
++  ✅ sc-recommend
++  ✅ sc-reflect-protocol
++  ✅ sc-release-split-protocol
++  ✅ sc-review-translation-protocol
++  ✅ sc-roadmap-protocol
++  ✅ sc-swarm-wizard-protocol
++  ✅ sc-task-protocol
++  ✅ sc-tasklist-protocol
++  ✅ sc-troubleshoot-protocol
++  ✅ sc-validate-roadmap-protocol
++  ✅ sc-validate-tests-protocol
++  ✅ sc-workflow-protocol
++  ✅ task-builder
++  ✅ task
++  ✅ tdd
++  ✅ tech-reference
++  ✅ tech-research
++
++=== Agents ===
++  ✅ audit-analyzer.md
++  ✅ audit-comparator.md
++  ✅ audit-consolidator.md
++  ✅ audit-scanner.md
++  ✅ audit-validator.md
++  ✅ auggie-reviewer.md
++  ✅ backend-architect.md
++  ✅ business-panel-experts.md
++  ✅ confidence-calibrator.md
++  ✅ debate-orchestrator.md
++  ✅ deep-research-agent.md
++  ✅ deep-research.md
++  ✅ devops-architect.md
++  ✅ eval-docs-loader.md
++  ✅ eval-run-reporter.md
++  ✅ eval-suite-author.md
++  ✅ evidence-validator.md
++  ✅ frontend-architect.md
++  ✅ implement-retry-adviser.md
++  ✅ learning-guide.md
++  ✅ merge-executor.md
++  ✅ performance-engineer.md
++  ✅ pm-agent.md
++  ✅ python-expert.md
++  ✅ quality-engineer.md
++  ✅ refactoring-expert.md
++  ✅ reflect-reviewer.md
++  ✅ repo-index.md
++  ✅ requirements-analyst.md
++  ✅ reuse-auditor.md
++  ✅ rf-analyst.md
++  ✅ rf-assembler.md
++  ✅ rf-qa-qualitative.md
++  ✅ rf-qa.md
++  ✅ rf-task-builder.md
++  ✅ rf-task-executor.md
++  ✅ rf-task-researcher.md
++  ✅ rf-team-lead.md
++  ✅ root-cause-analyst.md
++  ✅ security-engineer.md
++  ✅ self-review.md
++  ✅ socratic-mentor.md
++  ✅ system-architect.md
++  ✅ technical-writer.md
++  ✅ troubleshoot-analyst.md
++
++=== Commands ===
++  ✅ adversarial.md
++  ✅ agent.md
++  ✅ analyze.md
++  ✅ auggie-review.md
++  ✅ brainstorm.md
++  ✅ build.md
++  ✅ business-panel.md
++  ✅ cleanup-audit.md
++  ✅ cleanup.md
++  ✅ cli-eval.md
++  ✅ cli-portify.md
++  ✅ design.md
++  ✅ document.md
++  ✅ explain.md
++  ✅ git.md
++  ✅ graph.md
++  ✅ help.md
++  ✅ impact.md
++  ✅ implement.md
++  ✅ improve.md
++  ✅ index-repo.md
++  ✅ index.md
++  ✅ init-lite.md
++  ✅ load.md
++  ✅ pm.md
++  ✅ post-release.md
++  ✅ pr-submit.md
++  ✅ recommend.md
++  ✅ reflect.md
++  ✅ release-split.md
++  ✅ research.md
++  ✅ review-translation.md
++  ✅ roadmap.md
++  ✅ save.md
++  ✅ spawn.md
++  ✅ spec-panel.md
++  ✅ swarm-wizard.md
++  ✅ task.md
++  ✅ tasklist.md
++  ✅ tdd.md
++  ✅ test.md
++  ✅ troubleshoot.md
++  ✅ validate-roadmap.md
++  ✅ validate-tests.md
++  ✅ workflow.md
++
++=== Hooks ===
++  ✅ auggie-flag-clear.sh
++  ✅ codegraph-session-start.sh
++  ✅ freshness-file-changed.sh
++  ✅ freshness-post-read.sh
++  ✅ freshness-pre-edit.sh
++  ✅ freshness-session-start.sh
++  ✅ freshness-subagent-start.sh
++  ✅ freshness-subagent-stop.sh
++  ✅ freshness-user-prompt.sh
++  ✅ reject-workspace-writes.sh
++  ✅ sc-recommend-phase0.sh
++  ✅ pragmatic-subagent.js
++
++=== Templates ===
++  ✅ workflow/05_prd_template.md
++  ✅ workflow/03_project_plan_template.md
++  ✅ workflow/03_component_authoring_template.md
++  ✅ workflow/00_mdtm_template_simple_task.md
++  ✅ workflow/01_mdtm_template_generic_task__gfdoc.md
++  ✅ workflow/06_architecture_proposal_template.md
++  ✅ workflow/02_mdtm_template_complex_task.md
++  ✅ workflow/04_feature_brief_template.md
++  ✅ workflow/changelog_template.md
++  ✅ workflow/01_mdtm_template_generic_task.md
++  ✅ workflow/99_mdtm_template_generic_task_old.md
++  ✅ documents/prd_template.md
++  ✅ documents/operational_guide_template.md
++  ✅ documents/GFxAI_Master_Documentation_Template.md
++  ✅ documents/tdd_template.md
++  ✅ documents/agent_template_analysis.md
++  ✅ documents/supplemental-doc-creation-checklist.md
++  ✅ documents/agent_template_qa.md
++  ✅ documents/skill_template.md
++  ✅ documents/roadmap_template.md
++  ✅ documents/agent_template_worker.md
++  ✅ documents/release-spec-template.md
++  ✅ documents/supplemental_doc_template.md
++  ✅ documents/technical_reference_template.md
++  ✅ documents/readme_template.md
++  ✅ modularization-template-review/qa-fix-summary_template.md
++  ✅ modularization-template-review/qa-task-research-alignment_report_template.md
++  ✅ modularization-template-review/analyst-synthesis-review_report_template.md
++  ✅ modularization-template-review/research-notes_template.md
++  ✅ modularization-template-review/synthetic-dnsp-finding.contract
++  ✅ modularization-template-review/INDEX.md
++  ✅ modularization-template-review/qa-task-validation-structure_report_template.md
++  ✅ modularization-template-review/qa-cross-source-contradictions_template.md
++  ✅ modularization-template-review/track-scope-map_template.md
++  ✅ modularization-template-review/claim-evidence-matrix_template.md
++  ✅ modularization-template-review/qa-inventory_report_template.md
++  ✅ modularization-template-review/analyst-coverage-matrix_template.md
++  ✅ modularization-template-review/codebase-research_template.md
++  ✅ modularization-template-review/analyst-completeness_report_template.md
++  ✅ modularization-template-review/analyst-gap-analysis_template.md
++  ✅ modularization-template-review/qa-lens_report_template.md
++  ✅ modularization-template-review/qa-consolidated-findings_template.md
++  ✅ modularization-template-review/qa-task-validation-b2_report_template.md
++  ✅ modularization-template-review/qa-research-gap_report_template.md
++  ✅ modularization-template-review/qa-research-evidence_report_template.md
++  ✅ modularization-template-review/qa-qualitative-operational_report_template.md
++  ✅ modularization-template-review/qa-qualitative-sufficiency_report_template.md
++  ✅ modularization-template-review/analyst-cross-validation_report_template.md
++  ✅ modularization-template-review/qa-acceptance-methodology-audit_template.md
++  ✅ modularization-template-review/pipeline-complete_report_template.md
++  ✅ modularization-template-review/qa-source-fidelity_template.md
++  ✅ modularization-template-review/qa-research-depth_report_template.md
++  ✅ modularization-template-review/web-research_template.md
++
++=== Installer Registration ===
++  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
++
++=== Hooks Cross-Consistency ===
++  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
++
++✅ All components in sync.
+--- a/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
++++ b/.dev/tasks/to-do/TASK-WF-workflowSource-20261102-233731/artifacts/deviations.md
+@@ -66,3 +66,10 @@
+ 
+ - **Pre-existing markdownlint violations (fixed).** 23 MD040 violations (example-prompt and directory-tree fences with no language) were present at d953b983; each opening fence was tagged `text`.
+ - **A-W20 adjacent wording (code-true).** The §8.5 error-handling line and the troubleshooting row now say "max 2 fix cycles" for both the research and synthesis gates (`src/superclaude/skills/tdd/refs/build-request-template.md:125,144`); the row's old "3+ fix cycles for research" was removed.
++
++## Task 26 (item B-W1) — src/superclaude/rules/core/changelog_maintenance.md
++
++- **B-W1 step 2 name (code-true extension).** Correction 1 moves the save location to `docs/releases/vX.Y.Z.md`; the old adjacent "Name: `YYYY-MM-DD_vX.Y.Z_SHORT_DESCRIPTION.md`" step would contradict it, so it now reads "Name: `vX.Y.Z.md`" (matches the tracked `docs/releases/v5.0.0.md` that `CHANGELOG.md:9` links).
++- **B-W1 "Related Documentation" footer (removed).** Correction 4 drops the `:184` `.claude/changelogs/README.md` reference; that line was the whole footer, so the footer and its preceding `---` were removed.
++- **Pre-existing markdownlint violations (fixed).** MD032 (2), MD031 (4) fixed with blank lines. MD025 (frontmatter `title` plus the `# Changelog Maintenance Rules` H1) fixed with `<!-- markdownlint-disable-next-line MD025 -->` above the H1, keeping the heading the agent reads.
++- **`make sync-dev` scope (note).** `sync-dev` does not copy `src/superclaude/rules/`; the rule reaches `~/.claude/rules/core/` through `superclaude install` (`install_user_setup.py` `install_rules`). `make sync-dev` and `make verify-sync` both exited 0 (`t26-verify-sync.log`).

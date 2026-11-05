@@ -1,0 +1,2 @@
+cfa59be1342a8d38c0f56e9ca4cda494f7a02a2e
+A1 r1-1 F1.1 minor tests/pr_submit/test_conflict_sync_protocol.py:346 ac=scope n,n,n,n The Tier 2 labelling exemption for the two pre-existing evidence-validator lines matches a short phrase anywhere in the line, so new text appended to the long Wave 3 line (SKILL.md:279) could pass unlabelled; matching the whole stripped line (as _GH_MESSAGE_LINES does) would close that. No live line slips through today. Advisory.

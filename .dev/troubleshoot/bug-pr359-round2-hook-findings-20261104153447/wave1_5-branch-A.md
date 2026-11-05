@@ -1,0 +1,5 @@
+# Wave 1.5 Branch A (round 2), returned by troubleshoot-analyst, persisted on receipt
+```json
+{"release_slug": "TASK-WF-implementIronbel-20261104-130647", "artifact_paths": [".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md", ".dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/artifacts/amendments.md"], "summary": "Only the done #357 plan and amendments scope the hook. Task 1 splits at unquoted separators, $( and backticks and keeps backslash escapes when tracking quotes; AMD-03 requires one stateful awk scanner with quote states, backticks and $( as nested contexts, $(( and case ) as non-command contexts; M-CEILINGS lists leading redirections as a ceiling (worker: may cover defect 2). Neither mentions [[ ]], process substitution or backticks inside $(( )).", "confidence": 0.85, "degraded": false}
+```
+Parent note: the current hook header and CHANGELOG list process substitution as checked and do not list leading redirections as a ceiling (branch B), so defect 2 contradicts the shipped contract.

@@ -1,0 +1,2298 @@
+{
+  "purpose": "Faithful assembly and arithmetic verification of actual writing-base scoring; not causal likelihood.",
+  "aggregate_source": {
+    "path": "/config/.claude/projects/-config-workspace-IronClaude/bbddbf85-99f2-4caf-a47f-a402da4f09de/tool-results/bybsrxops.txt",
+    "sha256": "7479ab5ef2591f56e11371b8b5b04a90f6b636689b58a77b85997da83f88b9e4",
+    "quant_lines": [
+      56,
+      166
+    ],
+    "forward_lines": [
+      168,
+      358
+    ],
+    "reverse_lines": [
+      360,
+      547
+    ],
+    "comparison_lines": [
+      548,
+      553
+    ]
+  },
+  "manager_metadata": {
+    "path": "/config/.claude/projects/-config-workspace-IronClaude/bbddbf85-99f2-4caf-a47f-a402da4f09de/subagents/agent-acausal-debate-manager-7197cc83cce2bf57.jsonl",
+    "physical_record": 178,
+    "timestamp": "2026-10-23T05:26:04.949Z",
+    "message": "Exact canonical debate metadata and matrix (fresh Read of both extraction files and scoring summary). Depth=deep; advocates=5 per round; Round1 actualparallel5; Round2 actualsequentialV1,V2,V3,V4,V5 with every priorrebuttal diskRead; Round2.5 independentprobe executed; Round3 NOTexecuted (tenpointsemanticconvergence1.0>=.80,noHIGHunaddressed); forcedtaxonomy NOTneeded. Roundscompleted=2 advocate rounds +1 independentprobe, NOT3advocaterounds. Threshold=.80; denominator10=S2+C7+X0+A1; U5excluded. TaxonomyL1=1,L2=3,L3=6. InvocationModeA,currentmodeldefault,noexplicitmodeloverride; don't inventmodelversion. Failure recovery: initial5namedcalls rejectedflatteam, then5unnamednested actualcalls succeeded; noN-1fallback. Historicalmechanisms are cardreported notnewreplay.\n\nR2 exactfinalpositionvector orderV1,V2,V3,V4,V5. Allagreed=true:\nS-001 L1 [SHARED,SHARED,SHARED,SHARED,SHARED] winnerapproach=commonmechanism/evidence/counterevidence/limitsnavigation,nocausalweight.\nS-002 L2 [SHARED,SHARED,SHARED,SHARED,SHARED] winnerapproach=preserve5causes+separatesubtypes.\nC-001 L3 [SHARED,SHARED,SHARED,SHARED,SHARED] winnerapproach=classifyoldescape/introduction/contractentry/prooffailure/retainedblocker,separateevidenceperlinkedstage.\nC-002 L3 [V3,V3,V3,V3,V3] winnerV3=originalrequirementvsactuallyappliedrules+separatestates.\nC-003 L3 [V2,V2,V2,V2,V2] winnerV2=successfulchange+immediateabsentbefore/presentaftertestforintroduction,othertransitionsrequireownevidence.\nC-004 L2 [V1,V1,V1,V1,V1] winnerV1=widestolddefectescapeaccount,clustering/successfulrepairs/tasksizequalification.\nC-005 L3 [V5,V5,V5,V5,V5] winnerV5=correctedcompliance/PASSvscorrectedproofvsexceptionvsacceptedcannotverify.\nC-006 L3 [SHARED,SHARED,SHARED,SHARED,SHARED] winnerapproach=fixedoriginalcriteria,immediatepreservedstates,factor-specificcomparison,unexecutedlabel.\nC-007 L3 [V4,V4,V4,V4,V4] winnerV4=meaningfulproof/truthfulbaseline+successful-edits+historicalrules,availabilityqualification.\nA-001 L2 [SHARED,SHARED,SHARED,SHARED,SHARED] commonrule=sharedrepeatfailure/reentrytarget,reachfirstdirecttransitionsecondconditionaloverrides. Explicitresponsevector[ACCEPT,QUALIFY,QUALIFY,QUALIFY,QUALIFY]; allacceptsamequalifiedoperationalrule,notunqualifiedpopulationlikelihood.\nPer-pointconfidenceforcanonicalscoringmatrix: record5/5actualagreement as confidencebasis; if template requirescalibratedconfidencepercent use90%or95% explicitlyORCHESTRATORconfidenceinwritingapproach, notempiricalcausality, never100%noconsensusconcessionbasis. No fabricatedadvocatepercentage.\nActualwritingwins V1=1,V2=1,V3=1,V4=1,V5=1; sharedpoints awardnovariantwin.\n\nSourceanchorsR2 file /config/.claude/projects/-config-workspace-IronClaude/bbddbf85-99f2-4caf-a47f-a402da4f09de/tool-results/bsxx38kuv.txt:3,5,7,9,11 respectively. Rawfinalrecord/UUID:\nV1 agent-a10f528b653be924d.jsonl:38 /4666ef5a-f3b4-4d47-b398-cddfc2446464\nV2 agent-af69730c10969d6d5.jsonl:38 /139d5ad7-cf20-40c8-a849-902c23238433\nV3 agent-a5940b45825333447.jsonl:40 /144b5c2b-2865-4ac1-8130-168e7325bfa7\nV4 agent-a5897166d0dd499ec.jsonl:42 /e8288c86-5bab-4394-b896-94b37b281e89\nV5 agent-a0cf1669b6de6622e.jsonl:44 /c4db185c-1549-44b6-99fa-1946fa4d1208\nAllrawpaths under same session /subagents/.\nR1 finalrecords freshcorrection: V1=31,V2=41,V3=31,V4=32 (NOTearlier31),V5=31, fullbodyextraction bibiommdw.txt:3,5,7,9,11.\n\nCausalorder R2actual: advocates1/2 1>2>3>4>5; advocate3 1>3>2>4>5; advocates4/5 1>3>2>5>4. V3>V2=3/5; V4>V5=3/5, neither>=2/3. Thus disputedcausalpairs2, but unresolveddefinedsynthesispoints0. Returncontract should not hide2dissents; distinguish fieldmeaning+explicitwarning. Provisionaldisplayorder1>3>2>5>4 isplan'sevidencejudgment,NOTmajorityvoteforwholeorder (only2advocates). Faultfinderindependentlycheckedthisdistinction.\n\nExtra base metadata: quant+qualweightseach.5; qual6dims30criteria,notolder25template. 150comparisonpairsallagree,0actualdisagreements=>0re-adjudications,0changedverdicts. Everycandidateedge3/5eligible; nofloorsuspension. V4-V5scoregap=.0034226193333333<.05; Level1writingwins1each; Level2COR5each; Level3inputorder4before5=>V4. Nooverallcausalrankusedintiebreak. ScoringcorrectnessMET meansnoerroridentifiedwithsuppliedcardevidence,notprimaryhistoricalrecertification. QuantICexplicitboundedliteralproxyplusseparatequalitativeconsistency,nooverclaim.\n\nI will wait foractualcanonicalpaths then dispatch required independent analyticalreviewagainstcanonicaldisk, even though priorreviewalreadycheckedpersistedtranscriptdraft. No claimIauthoredMDfiles."
+  },
+  "weights": {
+    "quantitative": 0.5,
+    "qualitative": 0.5,
+    "RC": 0.3,
+    "IC": 0.25,
+    "SR": 0.15,
+    "DC": 0.15,
+    "SC": 0.15
+  },
+  "quantitative": {
+    "1": {
+      "rc": "1",
+      "sr": "7/24",
+      "nonconcrete": 17,
+      "claims": 7,
+      "opposing": 0,
+      "refs": "0/0",
+      "h2": 11,
+      "quant": "0.893750000",
+      "quant_exact": "143/160",
+      "met": 24,
+      "combined": "0.846875000"
+    },
+    "2": {
+      "rc": "1",
+      "sr": "5/13",
+      "nonconcrete": 16,
+      "claims": 10,
+      "opposing": 0,
+      "refs": "0/0",
+      "h2": 11,
+      "quant": "0.907692308",
+      "quant_exact": "59/65",
+      "met": 25,
+      "combined": "0.8705128206666666666666666667"
+    },
+    "3": {
+      "rc": "1",
+      "sr": "7/26",
+      "nonconcrete": 19,
+      "claims": 7,
+      "opposing": 0,
+      "refs": "0/0",
+      "h2": 11,
+      "quant": "0.890384615",
+      "quant_exact": "463/520",
+      "met": 25,
+      "combined": "0.8618589741666666666666666667"
+    },
+    "4": {
+      "rc": "12/13",
+      "sr": "5/8",
+      "nonconcrete": 6,
+      "claims": 10,
+      "opposing": 0,
+      "refs": "0/0",
+      "h2": 11,
+      "quant": "0.920673077",
+      "quant_exact": "383/416",
+      "met": 25,
+      "combined": "0.8770032051666666666666666667"
+    },
+    "5": {
+      "rc": "12/13",
+      "sr": "5/14",
+      "nonconcrete": 9,
+      "claims": 5,
+      "opposing": 0,
+      "refs": "0/0",
+      "h2": 11,
+      "quant": "0.880494505",
+      "quant_exact": "641/728",
+      "met": 26,
+      "combined": "0.8735805858333333333333333333"
+    }
+  },
+  "qualitative": {
+    "criterion_dictionary": {
+      "COMP1": "Covers all explicit requirements from source input",
+      "COMP2": "Addresses edge cases and failure scenarios",
+      "COMP3": "Includes dependencies and prerequisites",
+      "COMP4": "Defines success/completion criteria",
+      "COMP5": "Specifies what is explicitly out of scope",
+      "COR1": "No factual errors or hallucinated claims",
+      "COR2": "Technical approaches are feasible with stated constraints",
+      "COR3": "Terminology used consistently and accurately throughout",
+      "COR4": "No internal contradictions (cross-validated with quantitative IC metric)",
+      "COR5": "Claims supported by evidence or rationale within the document",
+      "STR1": "Logical section ordering (prerequisites before dependents)",
+      "STR2": "Consistent hierarchy depth (no orphaned subsections)",
+      "STR3": "Clear separation of concerns between sections",
+      "STR4": "Navigation aids present (table of contents, cross-references, or index)",
+      "STR5": "Follows conventions of the artifact type",
+      "CLR1": "Unambiguous language (no \"should consider\", \"might\", \"as appropriate\")",
+      "CLR2": "Concrete rather than abstract (specific actions, not general principles)",
+      "CLR3": "Each section has a clear purpose statement or can be summarized in one sentence",
+      "CLR4": "Acronyms and domain terms defined on first use",
+      "CLR5": "Actionable next steps or decision points clearly identified",
+      "RISK1": "Identifies at least 3 risks with probability and impact assessment",
+      "RISK2": "Provides mitigation strategy for each identified risk",
+      "RISK3": "Addresses failure modes and recovery procedures",
+      "RISK4": "Considers external dependencies and their failure scenarios",
+      "RISK5": "Includes monitoring or validation mechanism for risk detection",
+      "EDGE1": "Addresses boundary conditions for collections (empty, single-element, maximum size)",
+      "EDGE2": "Handles state variable interactions across component boundaries",
+      "EDGE3": "Identifies guard condition gaps (missing validation, unguarded type assumptions)",
+      "EDGE4": "Covers count divergence scenarios (off-by-one, inclusive/exclusive ranges)",
+      "EDGE5": "Considers interaction effects when features or components combine"
+    },
+    "forward": [
+      {
+        "variant": 1,
+        "criterion": "COMP1",
+        "claim": "claim met",
+        "evidence": "Hypothesis, incidents, counterevidence and limits develop the assigned weak-check mechanism; Summary explicitly defers relative likelihood to debate.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COMP2",
+        "claim": "claim met",
+        "evidence": "Counterevidence distinguishes frozen remainder, successful smaller-task repairs and actual repair introductions.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COMP3",
+        "claim": "claim met",
+        "evidence": "Discriminating Test requires \"preserved historical versions\" and fixed original acceptance criteria/review policy.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COMP4",
+        "claim": "claim met",
+        "evidence": "Discriminating Test specifies support when examples pass weak checks but fail a criterion-derived behavioral check, and weakening when actual original checks reject them.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COMP5",
+        "claim": "claim met",
+        "evidence": "Scope excludes frozen fixtures, unavailable rendering and defective pointers from automatic inclusion in this hypothesis.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COR1",
+        "claim": "claim met",
+        "evidence": "Incidents and Counterevidence distinguish initial escape from later persistence; Limits denies causal rates, while Gaps states tests were not rerun. No error established by supplied evidence.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COR2",
+        "claim": "claim met",
+        "evidence": "Discriminating Test proposes bounded counterexamples on preserved versions, explicitly not production execution or relaxed criteria.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COR3",
+        "claim": "claim met",
+        "evidence": "Exact Mechanism, Counterevidence and Summary consistently distinguish weaker verification, old defects and repair-created defects.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COR4",
+        "claim": "claim met",
+        "evidence": "Counterevidence qualifies the broad hypothesis: three repairs worked; task size is only an amplifier. No internal contradiction found; quantitative IC result was not supplied.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COR5",
+        "claim": "claim met",
+        "evidence": "Supporting Incidents links four case reports and historical review/plan anchors; Limits explains the observational task-size inference.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "STR1",
+        "claim": "claim met",
+        "evidence": "Hypothesis → Exact Mechanism → Supporting Incidents → Counterevidence → Scope → Discriminating Test → Limits.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "STR2",
+        "claim": "claim met",
+        "evidence": "All substantive sections use the same heading level; the incident table and mechanism list remain subordinate content.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "STR3",
+        "claim": "claim met",
+        "evidence": "Supporting Incidents supplies observations; Counterevidence limits attribution; Discriminating Test separates proposed investigation from historical evidence.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "STR4",
+        "claim": "claim met",
+        "evidence": "Supporting Incidents and Counterevidence contain linked case reports plus named sections and historical anchors.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "STR5",
+        "claim": "claim met",
+        "evidence": "Metadata, causal mechanism, supporting evidence, competing explanations, falsification and gaps fit a research hypothesis card.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "CLR1",
+        "claim": "claim met",
+        "evidence": "Hypothesis says \"partly caused\"; Limits explicitly labels task-size evidence observational and denies universal attribution. These are clear evidentiary qualifications.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "CLR2",
+        "claim": "claim met",
+        "evidence": "Incidents name counts/labels, validation after fetch, ineffective search filters and contradictory advisory wording rather than merely urging better checking.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "CLR3",
+        "claim": "claim met",
+        "evidence": "Each named section has one identifiable function: explanation, evidence, limitation, test or conclusion.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "CLR4",
+        "claim": "claim notmet",
+        "evidence": "No first-use definitions for JSONL, CI or PR; searched metadata, Exact Mechanism and Supporting Incidents.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "CLR5",
+        "claim": "claim met",
+        "evidence": "Discriminating Test directs construction of each minimal counterexample and comparison of existing versus criterion-derived checks.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "RISK1",
+        "claim": "claim notmet",
+        "evidence": "Several failure risks and impacts appear, but probability assessments do not; searched Mechanism, Incidents, Counterevidence and Limits. Evidence strength is not probability.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "RISK2",
+        "claim": "claim notmet",
+        "evidence": "The proposed behavioral comparison addresses weak checks, but no explicit mitigation covers the separately identified large-unit/deferred-lasting-test amplifier; searched Test, Takeaways and Summary.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "RISK3",
+        "claim": "claim notmet",
+        "evidence": "Failure modes are detailed, but the proposed test diagnoses attribution rather than providing a repair/recovery procedure; searched Mechanism, Counterevidence, Test and Summary.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "RISK4",
+        "claim": "claim met",
+        "evidence": "Scope explicitly identifies \"unavailable render tools\" and frozen fixtures as competing immediate blockers rather than silently assuming those dependencies work.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "RISK5",
+        "claim": "claim met",
+        "evidence": "Discriminating Test compares passing weak checks against criterion-derived behavioral checks and checks whether relevant tests were absent or deferred.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "EDGE1",
+        "claim": "claim notmet",
+        "evidence": "No concrete empty/single-element/maximum collection boundary is developed; searched Incidents, Test and Limits. Generic \"range, summary and size defects\" is insufficient.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "EDGE2",
+        "claim": "claim met",
+        "evidence": "Planning incident places validation after the fetch consuming its input; Exact Mechanism explicitly identifies execution order and cross-component use.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "EDGE3",
+        "claim": "claim met",
+        "evidence": "Oracle labels/counts omit required semantic validation; planning validation exists too late to guard the input-consuming fetch.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "EDGE4",
+        "claim": "claim notmet",
+        "evidence": "No concrete off-by-one or inclusive/exclusive count divergence is explained; searched Incidents and Test. Passing family counts despite wrong semantics is not count divergence.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "EDGE5",
+        "claim": "claim met",
+        "evidence": "Scope permits weak checks to coexist with connected repair defects, while Counterevidence separates frozen-input persistence and task-size/deferred-test amplification.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COMP1",
+        "claim": "claim met",
+        "evidence": "Hypothesis, five connected-effect examples, counterevidence and scope develop the assigned local-repair cause; metadata explicitly defers final ranking.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COMP2",
+        "claim": "claim met",
+        "evidence": "Counterevidence covers accepted repairs, preexisting monitor defects, exposed output limits and proof-only credential repairs.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COMP3",
+        "claim": "claim met",
+        "evidence": "Discriminating Test requires confirmed successful edits, preserved immediate pre-fix state and fixed original criterion/policy.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COMP4",
+        "claim": "claim met",
+        "evidence": "Test requires an absent-before/present-after counterexample; existing-before failures must instead be classified retained or previously missed.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COMP5",
+        "claim": "claim met",
+        "evidence": "Scope separates introduction from incomplete sibling coverage and excludes reviewer cognition; Limits rejects universal repair/model-ability claims.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COR1",
+        "claim": "claim met",
+        "evidence": "Incidents distinguish plan nonconformance from runtime disorder; Counterevidence rejects treating twenty later items as twenty regressions. No error established by supplied evidence.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COR2",
+        "claim": "claim met",
+        "evidence": "Test uses preserved immediate states and confirmed edits; it explicitly labels replay proposed and disclaims production execution.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COR3",
+        "claim": "claim met",
+        "evidence": "Scope and Takeaways consistently reserve \"introduced\" for demonstrated new defects and \"retained\" for untouched existing failures.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COR4",
+        "claim": "claim met",
+        "evidence": "CI's sequential-execution safeguard consistently limits the claimed graph defect's runtime impact; no contradiction found. Quantitative IC result was not supplied.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COR5",
+        "claim": "claim met",
+        "evidence": "Each incident provides a before/after conclusion and case/transcript anchors; Counterevidence identifies successful amendments and preexisting defects.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "STR1",
+        "claim": "claim met",
+        "evidence": "Mechanism and historical evidence precede counterevidence, attribution boundaries and proposed replay.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "STR2",
+        "claim": "claim met",
+        "evidence": "Uniform section headings contain a numbered mechanism, evidence table and subordinate test bullets without orphaned subsections.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "STR3",
+        "claim": "claim met",
+        "evidence": "Incidents distinguish actual amendments; Scope defines attribution categories; Test specifies how to distinguish those categories.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "STR4",
+        "claim": "claim met",
+        "evidence": "Incident rows and Counterevidence link planning, monitor and CI case reports with sections and historical anchors.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "STR5",
+        "claim": "claim met",
+        "evidence": "The card supplies hypothesis, mechanism, before/after evidence, counterevidence, falsification, limitations and summary.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "CLR1",
+        "claim": "claim met",
+        "evidence": "\"This is demonstrated in selected changes, not inferred from every later failure\" clearly bounds the assertion rather than obscuring uncertainty.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "CLR2",
+        "claim": "claim met",
+        "evidence": "Examples specify Task13 before Task14 registration, deployed-package versus recipe provenance and trap annotations captured as stdout data.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "CLR3",
+        "claim": "claim met",
+        "evidence": "Each section can be summarized as mechanism, examples, objections, boundaries, test, evidentiary strength or unresolved questions.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "CLR4",
+        "claim": "claim notmet",
+        "evidence": "No first-use definitions for CI, JSONL or stdout; searched metadata, Mechanism and Supporting Incidents.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "CLR5",
+        "claim": "claim met",
+        "evidence": "Test requires immediate before/after counterexamples and directs reclassification when the failure predates the edit.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "RISK1",
+        "claim": "claim notmet",
+        "evidence": "Multiple concrete risks and impacts are given, but no probability assessments; searched Incidents, Counterevidence, Scope and Limits.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "RISK2",
+        "claim": "claim met",
+        "evidence": "Test identifies each affected producer/consumer/sibling/dependency edge and checks the remedy against unchanged constraints and neighboring paths before broader review.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "RISK3",
+        "claim": "claim notmet",
+        "evidence": "Failure modes and diagnostic reclassification are explicit, but rollback or operational repair/recovery procedures are absent; searched Test, Takeaways, Gaps and Summary.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "RISK4",
+        "claim": "claim met",
+        "evidence": "The four-asset incident distinguishes release existence from pin-writer eligibility and explains how an inappropriate dependency predicate changes which job rejects the release.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "RISK5",
+        "claim": "claim met",
+        "evidence": "Test demands confirmed successful edits plus an explicit data-flow/order explanation and an absent-before/present-after counterexample.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "EDGE1",
+        "claim": "claim notmet",
+        "evidence": "No empty/single-element/maximum collection case is developed; searched all incident rows and Test. The four-asset predicate is not presented as those boundaries.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "EDGE2",
+        "claim": "claim met",
+        "evidence": "Inventory comparison precedes registration; inherited trap diagnostics cross command-substitution boundaries into captured data.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "EDGE3",
+        "claim": "claim met",
+        "evidence": "The early four-asset predicate applies the wrong stage contract; trap output is accepted as captured data without preserving the diagnostic/data boundary.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "EDGE4",
+        "claim": "claim notmet",
+        "evidence": "No explicit off-by-one/inclusive/exclusive divergence; searched Incidents, Counterevidence and Test. Amendment/finding-count cautions are attribution cautions, not count-boundary cases.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "EDGE5",
+        "claim": "claim met",
+        "evidence": "Exact Mechanism and five incidents directly trace repairs interacting with neighboring jobs, data sources, dependency edges and unchanged constraints.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COMP1",
+        "claim": "claim met",
+        "evidence": "The assigned contract-change cause includes distinct submechanisms, evidence, counterexamples and limits; Summary leaves relative importance for debate.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COMP2",
+        "claim": "claim met",
+        "evidence": "Counterevidence preserves stable oracle/render criteria and genuine preexisting monitor defects despite changed review entry rules.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COMP3",
+        "claim": "claim met",
+        "evidence": "Test requires original text, accepted exceptions, exact loaded rubric bytes and artifact state for every reviewed attempt.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COMP4",
+        "claim": "claim met",
+        "evidence": "Test specifies support when changing only the contract changes a verdict/review requirement, and weakening when fixed criteria reproduce substantive failures.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COMP5",
+        "claim": "claim met",
+        "evidence": "Scope rejects universal invented-requirement claims and distinguishes source contradictions, unauthorized interpretations, operator decisions and migrations.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COR1",
+        "claim": "claim met",
+        "evidence": "Migration is explicitly separated from original defect creation; credential convergence remains policy/proof-confounded. No error established by supplied evidence.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COR2",
+        "claim": "claim met",
+        "evidence": "Proposed paired adjudication holds artifact state fixed and varies preserved contracts; the card explicitly states no historical replay occurred.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COR3",
+        "claim": "claim met",
+        "evidence": "Mechanism, Scope and Test consistently distinguish original requirements, actually applied rules, authorized acceptance and added hardening.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COR4",
+        "claim": "claim met",
+        "evidence": "The hypothesis permits unchanged delivery with changed review while Counterevidence acknowledges genuine old defects; no contradiction found. Quantitative IC result was not supplied.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COR5",
+        "claim": "claim met",
+        "evidence": "Incident rows cite nested reviewer records, captured historical-rule text and migration records; Limits names the unknown actor and unresolved isolated policy effect.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "STR1",
+        "claim": "claim met",
+        "evidence": "The card defines contract inconsistency before presenting mechanisms, stable-contract counterexamples and the controlled comparison.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "STR2",
+        "claim": "claim met",
+        "evidence": "Uniform major headings, a five-row evidence table and subordinate test bullets form a consistent hierarchy.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "STR3",
+        "claim": "claim met",
+        "evidence": "Evidence, competing causes, proposed adjudication and unknown attribution are separated into named sections.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "STR4",
+        "claim": "claim met",
+        "evidence": "Links point to case reports, historical-review-rules.json and scope-rules.md, with historical record references.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "STR5",
+        "claim": "claim met",
+        "evidence": "Hypothesis-card conventions are satisfied through mechanism, primary anchors, counterevidence, falsification and explicit limitations.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "CLR1",
+        "claim": "claim met",
+        "evidence": "\"Their separate effects cannot be isolated\" clearly states confounding; \"not clearly required\" identifies a documented scope dispute rather than an ambiguous instruction.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "CLR2",
+        "claim": "claim met",
+        "evidence": "Examples specify the changed-line lint clause, stale-evidence rubric difference and mandatory fresh review on migration.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "CLR3",
+        "claim": "claim met",
+        "evidence": "Each section has a distinct one-sentence purpose, from defining the mechanism through proposing a discriminating comparison.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "CLR4",
+        "claim": "claim notmet",
+        "evidence": "QA, FINAL, CI and JSONL appear without first-use definitions; searched metadata, Mechanism and Supporting Incidents.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "CLR5",
+        "claim": "claim met",
+        "evidence": "Test tells reviewers to adjudicate under original versus actual contracts and classify original violations, exceptions, hardening, contradictions or version effects.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "RISK1",
+        "claim": "claim notmet",
+        "evidence": "At least three contract risks and consequences are identified, but no probability assessments; searched Mechanism, Incidents, Scope and Limits.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "RISK2",
+        "claim": "claim met",
+        "evidence": "Preserving original requirements, exceptions, exact rubric bytes and artifact state, then paired classification, directly addresses the identified contract-consistency risks.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "RISK3",
+        "claim": "claim notmet",
+        "evidence": "The card explains reversals and how to classify them, but supplies no procedure to resolve conflicting contracts or recover execution after migration; searched Test, Takeaways and Summary.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "RISK4",
+        "claim": "claim met",
+        "evidence": "Installed review-policy contents can change between reviewers; Stale Documentation explicitly refuses to substitute current rules for historically loaded versions.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "RISK5",
+        "claim": "claim met",
+        "evidence": "Paired adjudication under fixed original versus changed rules detects verdict/re-entry changes attributable to contract differences.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "EDGE1",
+        "claim": "claim notmet",
+        "evidence": "No collection empty/single-element/maximum boundary is analyzed; searched Incidents, Test and Gaps. Uncapped fields are not developed as collection-boundary cases.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "EDGE2",
+        "claim": "claim met",
+        "evidence": "Test tracks artifact state, accepted exceptions and loaded rubric bytes across review attempts, isolating rule-state changes from delivery changes.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "EDGE3",
+        "claim": "claim met",
+        "evidence": "The literal no-finding-on-changed-line condition is weakened to no-new-findings; the migration introduces a completion prerequisite absent from earlier acceptance.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "EDGE4",
+        "claim": "claim notmet",
+        "evidence": "No off-by-one or inclusive/exclusive count divergence is explained; searched Incidents, Test and Gaps. Reviewer-count attribution is not that scenario.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "EDGE5",
+        "claim": "claim met",
+        "evidence": "Credential convergence explicitly combines evidence corrections with changed policy; monitor migration combines new review entry with genuine preexisting omissions.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COMP1",
+        "claim": "claim met",
+        "evidence": "The assigned proof/provenance cause develops distinct mechanisms, evidence-only intervals, counterevidence and limits; metadata explicitly leaves ranking pending.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COMP2",
+        "claim": "claim met",
+        "evidence": "Counterevidence preserves genuine lint failure, valid evidence rejection and policy confounding; Scope limits the missing checkpoint to a halt mechanism.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COMP3",
+        "claim": "claim met",
+        "evidence": "Falsification requires the true pre-task state, retained original proof, fixed rubric and unchanged delivered requirements.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COMP4",
+        "claim": "claim met",
+        "evidence": "Falsification states weakening conditions: repeats despite valid proof/baseline, or a purported proof-only interval requiring delivery correction.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COMP5",
+        "claim": "claim met",
+        "evidence": "Hypothesis excludes explanation of every semantic defect; Scope denies that checkpoint absence proves repository movement or caused rendering failure.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COR1",
+        "claim": "claim met",
+        "evidence": "The card distinguishes delivery digests from evidence/policy and unavailable live archives from preserved transcript contents. No error established by supplied evidence.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COR2",
+        "claim": "claim met",
+        "evidence": "Proposed reconstruction uses recorded baselines and original proof; missing live logs are explicitly disclosed rather than assumed available.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COR3",
+        "claim": "claim met",
+        "evidence": "Claim-to-proof linkage, baseline provenance, checkpoint halt and delivery change remain distinct throughout Mechanism, Scope and Summary.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COR4",
+        "claim": "claim met",
+        "evidence": "An initial proof-only pass coexists consistently with a follow-up genuine lint violation and later confounding; no contradiction found. Quantitative IC result was not supplied.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COR5",
+        "claim": "claim met",
+        "evidence": "Supporting Incidents provides transcript/nested-review anchors and discriminating observations; Limits identifies unchanged delivery digests and recovered Git trees.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "STR1",
+        "claim": "claim met",
+        "evidence": "Hypothesis and mechanism precede incident evidence, objections, scope, competing explanations and falsification.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "STR2",
+        "claim": "claim met",
+        "evidence": "Consistent main headings contain subordinate bullets, one evidence table and clearly associated takeaway paragraphs.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "STR3",
+        "claim": "claim met",
+        "evidence": "Mechanism separates proof loss/baseline substitution; Counterevidence limits causal claims; Gaps separately records archive availability.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "STR4",
+        "claim": "claim met",
+        "evidence": "Case-report links, physical transcript anchors and historical-rule evidence links provide navigation beyond headings.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "STR5",
+        "claim": "claim met",
+        "evidence": "The adapted hypothesis card includes metadata, causal explanation, traceable incidents, counterevidence, falsification and unresolved questions.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "CLR1",
+        "claim": "claim met",
+        "evidence": "\"That label does not itself prove HEAD changed\" and \"digests exclude evidence artifacts and policy\" clearly delimit conclusions.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "CLR2",
+        "claim": "claim met",
+        "evidence": "Concrete examples include a README separator citation, blank log line10, post-edit HEAD substitution and an absent start-HEAD file.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "CLR3",
+        "claim": "claim met",
+        "evidence": "Named sections and repeated key takeaways make each section's purpose directly identifiable.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "CLR4",
+        "claim": "claim notmet",
+        "evidence": "QA, HEAD, JSONL and FINAL are not defined on first use; searched metadata, Mechanism and Supporting Incidents.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "CLR5",
+        "claim": "claim met",
+        "evidence": "Falsification directs reconstruction of the true baseline, retention of original proof and checking every cited range under a fixed rubric.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "RISK1",
+        "claim": "claim notmet",
+        "evidence": "Proof loss, incomplete evidence, false attribution and checkpoint halt have impacts, but no probability assessments; searched Mechanism, Incidents and Limits.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "RISK2",
+        "claim": "claim notmet",
+        "evidence": "Durable proof, citation checks and true-baseline reconstruction mitigate several risks, but no mitigation is supplied for the separately identified missing-checkpoint halt; searched Falsification and Summary.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "RISK3",
+        "claim": "claim met",
+        "evidence": "Supporting Incidents records proof/pointer correction and recovery of the truthful Git tree; Falsification specifies reconstructing the true pre-task state and validating cited ranges.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "RISK4",
+        "claim": "claim met",
+        "evidence": "Gaps records an archived log returning \"file does not exist\" and distinguishes that failed dependency from the surviving nested transcript body.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "RISK5",
+        "claim": "claim met",
+        "evidence": "Checking every cited range under a fixed rubric and comparing delivery digests against historical-before/after evidence detect proof/provenance failures.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "EDGE1",
+        "claim": "claim notmet",
+        "evidence": "No collection empty/single-element/maximum boundary is developed; searched Mechanism, Incidents and Falsification. A blank cited line is not an empty collection.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "EDGE2",
+        "claim": "claim met",
+        "evidence": "Post-edit HEAD substitution replaces a baseline containing preexisting dirty work, changing downstream attribution without establishing new task-created changes.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "EDGE3",
+        "claim": "claim met",
+        "evidence": "Falsification says not to waive semantic support merely because a cited line exists; Mechanism rejects equating a missing-checkpoint guard label with actual HEAD movement.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "EDGE4",
+        "claim": "claim notmet",
+        "evidence": "No explicit off-by-one/inclusive/exclusive divergence; searched Mechanism, Incidents and Stale Documentation. A missed row or moved pointer alone does not establish count divergence.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "EDGE5",
+        "claim": "claim met",
+        "evidence": "Counterevidence and Competing Explanations identify evidence repair combined with changed rubric text, preventing isolated attribution of the final pass.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COMP1",
+        "claim": "claim met",
+        "evidence": "The assigned retained-blocker cause distinguishes authority from capability, supplies both incidents and limits broader attribution; final ranking is explicitly pending.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COMP2",
+        "claim": "claim met",
+        "evidence": "Counterevidence preserves feasible original requirements, successful permitted repairs and legitimate partial re-review; no malformed manual page is inferred.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COMP3",
+        "claim": "claim met",
+        "evidence": "Falsification requires the unmet property, actual evidence-producing capability and permitted correction before resubmission.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COMP4",
+        "claim": "claim met",
+        "evidence": "Test requires a changed blocker or scoped decision; Summary distinguishes authorized fixture correction/PASS from accepted unverified rendering.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COMP5",
+        "claim": "claim met",
+        "evidence": "Hypothesis excludes universal impossibility; Falsification explicitly excludes installs, freeze bypass, altered criteria and new task execution.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COR1",
+        "claim": "claim met",
+        "evidence": "The card distinguishes accepted inability to verify from successful rendering and feasible original requirements from constrained repair. No error established by supplied evidence.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COR2",
+        "claim": "claim met",
+        "evidence": "The proposed comparison examines documented authority/capability without installing tools or bypassing the freeze; missing live evidence is disclosed.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COR3",
+        "claim": "claim met",
+        "evidence": "Unchanged blocker, repair authority, rendering capability, authorized correction and accepted cannot-verify retain distinct meanings.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COR4",
+        "claim": "claim met",
+        "evidence": "The scope restriction and later authorized fixture correction are consistent; rendering remains unverified throughout. Quantitative IC result was not supplied.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COR5",
+        "claim": "claim met",
+        "evidence": "Both incident rows provide physical transcript anchors and specific repeated conditions; Gaps identifies captured historical evidence when an archived log is absent.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "STR1",
+        "claim": "claim met",
+        "evidence": "Hypothesis and mechanism precede incidents, counterevidence, scope, competing explanations and the proposed test.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "STR2",
+        "claim": "claim met",
+        "evidence": "Uniform major headings consistently contain subordinate mechanism bullets, one evidence table and takeaway paragraphs.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "STR3",
+        "claim": "claim met",
+        "evidence": "Authority and capability are distinct mechanisms; Counterevidence handles legitimate controls, while Gaps handles absent render proof/archive availability.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "STR4",
+        "claim": "claim met",
+        "evidence": "Case-report links, a directly reread review-artifact reference and absolute historical transcript paths support navigation.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "STR5",
+        "claim": "claim met",
+        "evidence": "The card follows research-hypothesis conventions through mechanism, primary evidence, counterevidence, falsification and limitations.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "CLR1",
+        "claim": "claim met",
+        "evidence": "\"Late blocker handling under the observed constraints\" explicitly rejects impossible-specification and pointless-review interpretations.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "CLR2",
+        "claim": "claim met",
+        "evidence": "Examples identify default_path=false, three successful repairs, the excluded fourth defect and a nominal rc0 notice that did not render.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "CLR3",
+        "claim": "claim met",
+        "evidence": "Each section has a distinct purpose, reinforced by takeaways separating unchanged acceptance state from new repair damage.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "CLR4",
+        "claim": "claim notmet",
+        "evidence": "JSONL and rc0 are not defined on first use; searched metadata, Supporting Incidents and Gaps.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "CLR5",
+        "claim": "claim met",
+        "evidence": "Before resubmission, identify the failed property, actual capability and permitted correction; require a changed blocker or scoped decision.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "RISK1",
+        "claim": "claim notmet",
+        "evidence": "Freeze, capability, misleading availability/exit evidence and repeated unchanged rejection are covered, but probability assessments are absent; searched Mechanism, Incidents and Limits.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "RISK2",
+        "claim": "claim met",
+        "evidence": "The pre-resubmission property/capability/authority check covers both identified blocker classes and requires either relevant correction or the required scoped decision.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "RISK3",
+        "claim": "claim met",
+        "evidence": "The fixture recovers through explicit authorization and one-field correction/PASS; rendering instead takes a scoped acceptance path retaining cannot-verify, not falsely claiming repair.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "RISK4",
+        "claim": "claim met",
+        "evidence": "The available manual-page command prints a notice rather than rendering; missing archived proof is disclosed with surviving transcript evidence identified.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "RISK5",
+        "claim": "claim met",
+        "evidence": "Falsification checks whether the next attempt actually changes the blocker or obtains its required decision, rather than relying on successful unrelated repairs.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "EDGE1",
+        "claim": "claim notmet",
+        "evidence": "No collection empty/single-element/maximum boundary is analyzed; searched Mechanism, Incidents and Falsification. Three repairs plus one blocker are outcome counts, not collection boundaries.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "EDGE2",
+        "claim": "claim met",
+        "evidence": "The frozen fixture's semantic state interacts with executor repair permission and reviewer acceptance; rendering capability interacts with the availability-guarded evidence requirement.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "EDGE3",
+        "claim": "claim met",
+        "evidence": "Stale Documentation identifies the inadequate availability guard; Supporting Incidents explains why nominal rc0 did not establish rendering capability.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "EDGE4",
+        "claim": "claim notmet",
+        "evidence": "No explicit off-by-one/inclusive/exclusive count divergence; searched Mechanism, Incidents and Counterevidence. Three corrected findings and one retained finding do not alone satisfy this criterion.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "EDGE5",
+        "claim": "claim met",
+        "evidence": "Scope combines weak semantic assertions with fixture freezing and weak availability checks with renderer limitation, while preserving their distinct immediate blockers.",
+        "verdict": "MET"
+      }
+    ],
+    "reverse": [
+      {
+        "variant": 5,
+        "criterion": "COMP1",
+        "claim": "met",
+        "evidence": "Hypothesis, Exact Mechanism, Supporting Incidents, Counterevidence and Falsification Test complete the assigned retained-blocker account; Rank explicitly pending.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COMP2",
+        "claim": "met",
+        "evidence": "Counterevidence distinguishes feasible original requirements, three successful repairs, legitimate partial re-review and absence of demonstrated malformed output.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COMP3",
+        "claim": "met",
+        "evidence": "Falsification Test requires “unmet property, actual evidence-producing capability and permitted correction” before resubmission.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COMP4",
+        "claim": "met",
+        "evidence": "Falsification Test requires changed blocker or scoped decision; Summary distinguishes fixture correction/PASS from accepted unverified rendering.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COMP5",
+        "claim": "met",
+        "evidence": "Hypothesis explicitly excludes “a universal inability to implement the original requirement”; Scope limits direct support to two incidents.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COR1",
+        "claim": "met",
+        "evidence": "Supporting Incidents supplies anchored observations; Counterevidence and Gaps explicitly deny demonstrated malformed output, fresh rendering and current archive availability; no error identified within supplied evidence.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COR2",
+        "claim": "met",
+        "evidence": "Falsification Test checks permitted changes and capability; explicitly records “no installs, freeze bypass, altered acceptance criteria or new task execution.”",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COR3",
+        "claim": "met",
+        "evidence": "Exact Mechanism and Summary consistently separate correction authority, rendering capability, unchanged blocker and scoped acceptance.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COR4",
+        "claim": "met",
+        "evidence": "Counterevidence’s feasible originals agree internally with observed later constraints; Summary never converts accepted inability to verify into successful rendering; no quantitative IC result supplied.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "COR5",
+        "claim": "met",
+        "evidence": "Supporting Incidents contrasts exclusion→three repairs→unchanged fourth finding and static-only retry→same render clause, with primary anchors.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "STR1",
+        "claim": "met",
+        "evidence": "Hypothesis→Exact Mechanism→Supporting Incidents→Counterevidence precede Falsification Test and final limits/summary.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "STR2",
+        "claim": "met",
+        "evidence": "One document title and consistently parallel second-level sections; no orphaned subsection.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "STR3",
+        "claim": "met",
+        "evidence": "Exact Mechanism explains causation; Supporting Incidents supplies observations; Counterevidence bounds inference; Gaps records unavailable evidence.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "STR4",
+        "claim": "met",
+        "evidence": "Supporting Incidents links oracle and documentation case reports and names their sections.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "STR5",
+        "claim": "met",
+        "evidence": "Metadata labels an adapted hypothesis card; mechanism, evidence, counterevidence, falsification, limits and summary match that artifact type.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "CLR1",
+        "claim": "met",
+        "evidence": "“not an impossible specification or a rule against all resubmission” precisely bounds the claim; uncertainty concerns evidence, not vague instructions.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "CLR2",
+        "claim": "met",
+        "evidence": "Supporting Incidents identifies excluded default_path=false correction, a one-field correction, static-only retry and unchanged rendering clause.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "CLR3",
+        "claim": "met",
+        "evidence": "Each section has a distinct stated function; Hypothesis, Mechanism, Incidents and Counterevidence also give explicit Key takeaways.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "CLR4",
+        "claim": "not met",
+        "evidence": "No first-use definitions for JSONL and rc0; searched Supporting Incidents, Exact Mechanism and remaining sections.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "CLR5",
+        "claim": "met",
+        "evidence": "Falsification Test explicitly says identify property/capability/authority and check whether the next attempt changes the blocker or obtains a scoped decision.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "RISK1",
+        "claim": "not met",
+        "evidence": "Provisional Evidence Strength gives strong/moderate evidentiary support, not probability-and-impact assessments for at least three risks; searched Mechanism, Counterevidence, Limits and Gaps.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "RISK2",
+        "claim": "met",
+        "evidence": "Falsification Test supplies a shared mitigation for both blocker types: verify capability and permitted correction, then change the blocker or obtain the required scoped decision.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "RISK3",
+        "claim": "met",
+        "evidence": "Supporting Incidents documents authorized fixture correction followed by PASS; Summary separately preserves accepted unverified rendering rather than claiming recovery of rendering.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "RISK4",
+        "claim": "met",
+        "evidence": "Exact Mechanism identifies the available command returning a notice instead of rendering; Gaps handles missing archived evidence through captured transcript findings.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "RISK5",
+        "claim": "met",
+        "evidence": "Falsification Test compares the identified unmet property with the next attempted change and tests unsupported repeated objections.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "EDGE1",
+        "claim": "not met",
+        "evidence": "No empty, singleton or maximum-size collection cases; searched Exact Mechanism, Supporting Incidents, Counterevidence and Falsification Test.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "EDGE2",
+        "claim": "met",
+        "evidence": "Exact Mechanism connects frozen fixture state and permitted repair actions to reviewer acceptance; separately connects executable availability to real rendering capability.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "EDGE3",
+        "claim": "met",
+        "evidence": "Stale Documentation explicitly calls the rendering “availability guard” inadequate; Supporting Incidents says nominal rc0 did not prove rendering.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "EDGE4",
+        "claim": "not met",
+        "evidence": "Three repaired findings versus one retained finding describes repair scope, not an off-by-one or divergent counting/range rule; searched Incidents, Mechanism and Test.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 5,
+        "criterion": "EDGE5",
+        "claim": "met",
+        "evidence": "Competing Explanations examines anti-overfitting freeze combined with permitted repairs; Counterevidence examines partial repair verification alongside retained rejection.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COMP1",
+        "claim": "met",
+        "evidence": "Hypothesis through Falsification Test develops the assigned evidence/provenance cause, with scope, counterevidence and limits; Summary explicitly defers ranking.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COMP2",
+        "claim": "met",
+        "evidence": "Counterevidence includes valid proof rejection, genuine lint failure and policy-confounded convergence; Scope separates checkpoint halt from rendering failure.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COMP3",
+        "claim": "met",
+        "evidence": "Falsification Test requires true pre-task state, original proof, every cited range and a fixed rubric.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COMP4",
+        "claim": "met",
+        "evidence": "Falsification Test specifies weakening conditions: valid complete proof/correct baseline with continued failures, or a necessary delivery correction in a supposed proof-only interval.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COMP5",
+        "claim": "met",
+        "evidence": "Hypothesis says it “does not explain every semantic defect”; Limits excludes fleet frequency, numerical probability and version-effect claims.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COR1",
+        "claim": "met",
+        "evidence": "Supporting Incidents anchors ledger changes and baseline reconstruction; Counterevidence denies isolated proof causation for the final pass; no error identified within supplied evidence.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COR2",
+        "claim": "met",
+        "evidence": "Falsification Test proposes historical reconstruction and fixed-rubric citation checking, explicitly not an executed comparison or waiver of semantic support.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COR3",
+        "claim": "met",
+        "evidence": "Mechanism and Scope consistently distinguish delivery, proof, baseline provenance and checkpoint classification.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COR4",
+        "claim": "met",
+        "evidence": "Evidence-only intervals coexist without contradiction with the follow-up’s genuine lint violation; checkpoint label is explicitly not proof of HEAD movement; no quantitative IC result supplied.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "COR5",
+        "claim": "met",
+        "evidence": "Supporting Incidents supplies temporary-proof substitution, preexisting blank pointer and recovered earlier baseline; Limits explains what delivery digests exclude.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "STR1",
+        "claim": "met",
+        "evidence": "Hypothesis and mechanism precede incident evidence; counterevidence and competing explanations precede proposed falsification and summary.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "STR2",
+        "claim": "met",
+        "evidence": "Document title and parallel second-level sections maintain one consistent hierarchy.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "STR3",
+        "claim": "met",
+        "evidence": "Incidents hold observations; Counterevidence qualifies attribution; Scope separates contexts; Gaps distinguishes unavailable archives from preserved contents.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "STR4",
+        "claim": "met",
+        "evidence": "Supporting Incidents links documentation and credential reports; Stale Documentation links historical rule evidence.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "STR5",
+        "claim": "met",
+        "evidence": "Explicit adapted hypothesis-card metadata and mechanism/evidence/counterevidence/falsification/limits sections follow research-card conventions.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "CLR1",
+        "claim": "met",
+        "evidence": "“that label does not itself prove HEAD changed” and “digests exclude evidence artifacts and policy” make evidentiary limits precise.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "CLR2",
+        "claim": "met",
+        "evidence": "Exact Mechanism names unrelated citation, incomplete evidence range, post-edit HEAD substitution and missing checkpoint.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "CLR3",
+        "claim": "met",
+        "evidence": "Each section has a distinct purpose; Mechanism, Incidents and Counterevidence include concise Key takeaways.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "CLR4",
+        "claim": "not met",
+        "evidence": "QA, HEAD, JSONL and FINAL appear without first-use definitions; searched Hypothesis, Mechanism, Incidents and Counterevidence.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "CLR5",
+        "claim": "met",
+        "evidence": "Falsification Test gives concrete reconstruction, proof retention and cited-range checks under a fixed rubric.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "RISK1",
+        "claim": "not met",
+        "evidence": "Several risks and consequences are described, but none receives a probability-and-impact assessment; searched Mechanism, Counterevidence, Limits and Gaps.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "RISK2",
+        "claim": "not met",
+        "evidence": "Summary mitigates baseline/proof/citation failures, but no explicit mitigation preserves or restores the missing start checkpoint; searched Mechanism, Test, Gaps and Summary.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "RISK3",
+        "claim": "met",
+        "evidence": "Incidents documents durable-proof/pointer correction producing a pass and investigation recovering the truthful earlier Git tree.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "RISK4",
+        "claim": "met",
+        "evidence": "Counterevidence addresses changed loaded policy; Gaps records unavailable archived proof and preserved nested transcript content.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "RISK5",
+        "claim": "met",
+        "evidence": "Falsification Test checks every cited range under a fixed rubric and rejects mere line existence as semantic support.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "EDGE1",
+        "claim": "not met",
+        "evidence": "Blank lines and incomplete citations do not establish empty/singleton/maximum collection handling; searched Mechanism, Incidents and Test.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "EDGE2",
+        "claim": "met",
+        "evidence": "Mechanism connects dirty working-tree state, reconstructed baseline and later task attribution; proof conversion separately changes the reviewable ledger state.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "EDGE3",
+        "claim": "met",
+        "evidence": "Mechanism identifies an incomplete evidence range surviving audit; Test explicitly forbids accepting semantic support merely because a cited line exists.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "EDGE4",
+        "claim": "not met",
+        "evidence": "Blank pointer and later line shift show citation defects, but no explicit divergent counting/range rule or off-by-one scenario; searched Incidents, Test and Stale Documentation.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 4,
+        "criterion": "EDGE5",
+        "claim": "met",
+        "evidence": "Counterevidence explains pointer correction plus changed rubric confounding the final pass; Scope separates checkpoint and rendering mechanisms.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COMP1",
+        "claim": "met",
+        "evidence": "Hypothesis, five mechanism-specific incidents, stable-contract counterexamples and Discriminating Test complete the assigned contract-change card; final ranking is explicitly deferred.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COMP2",
+        "claim": "met",
+        "evidence": "Counterevidence covers stable oracle/render criteria and genuine defects predating migration; Gaps rejects unsupported assumptions about all broad review demands.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COMP3",
+        "claim": "met",
+        "evidence": "Discriminating Test requires original requirements, accepted exceptions, exact loaded rubric bytes and artifact state for every attempt.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COMP4",
+        "claim": "met",
+        "evidence": "Discriminating Test defines support as verdict/re-entry changing solely with contract; unchanged substantive failure under identical conditions weakens the hypothesis.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COMP5",
+        "claim": "met",
+        "evidence": "Scope excludes universal defect causation and blanket invented requirements; Counterevidence excludes stable-contract retained blockers.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COR1",
+        "claim": "met",
+        "evidence": "Incidents anchors differing rubric versions and migration; Limits explicitly leaves actor and policy-only pass effect unknown; no error identified within supplied evidence.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COR2",
+        "claim": "met",
+        "evidence": "Paired independent adjudication under original and changed contracts is a feasible proposed comparison; no historical replay is claimed.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COR3",
+        "claim": "met",
+        "evidence": "Scope consistently distinguishes source contradiction, unauthorized interpretation, authorized acceptance, added hardening and policy migration.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COR4",
+        "claim": "met",
+        "evidence": "Migration can reopen review while genuine defects predate it; final convergence is explicitly confounded by evidence repair; no quantitative IC result supplied.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "COR5",
+        "claim": "met",
+        "evidence": "Supporting Incidents supplies separate anchored evidence for lint relaxation, rubric versions, migration, broader checking and source conflicts.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "STR1",
+        "claim": "met",
+        "evidence": "Hypothesis→mechanism→evidence→counterevidence/scope precedes controlled comparison, limits and summary.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "STR2",
+        "claim": "met",
+        "evidence": "One title and consistent parallel second-level sections; numbered mechanism and table remain within their parent sections.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "STR3",
+        "claim": "met",
+        "evidence": "Evidence table separates contract mechanisms; Counterevidence isolates stable contracts; Test defines comparison rather than asserting its outcome.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "STR4",
+        "claim": "met",
+        "evidence": "Evidence table links credential, monitor and planning cases plus captured rule texts; Stale Documentation links current-rule map separately.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "STR5",
+        "claim": "met",
+        "evidence": "Research metadata, causal hypothesis, anchored incidents, alternatives, discriminating test and limits follow hypothesis-card conventions.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "CLR1",
+        "claim": "met",
+        "evidence": "“not a claim that all reviewers invent requirements” and the five explicit finding classifications remove attribution ambiguity; warranted uncertainty is bounded.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "CLR2",
+        "claim": "met",
+        "evidence": "Incidents specifies no-new-findings versus no-finding-on-changed-line, differing rubric text and mandatory fresh operator review.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "CLR3",
+        "claim": "met",
+        "evidence": "Each section can be summarized distinctly: proposed cause, transition mechanism, evidence, exceptions, comparison, limits or conclusion.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "CLR4",
+        "claim": "not met",
+        "evidence": "QA, FINAL, CI and JSONL appear without first-use definitions; searched Hypothesis, Mechanism and Supporting Incidents.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "CLR5",
+        "claim": "met",
+        "evidence": "Discriminating Test explicitly directs preservation, paired adjudication and classification of differences.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "RISK1",
+        "claim": "not met",
+        "evidence": "Five contract mechanisms are described, but probability-and-impact assessments are absent; searched Incidents, Scope, Limits and Gaps.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "RISK2",
+        "claim": "met",
+        "evidence": "Preserving original requirements/exceptions/exact rules and separately adjudicating/classifying differences mitigates conflation across the identified contract-change mechanisms.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "RISK3",
+        "claim": "not met",
+        "evidence": "Failure modes and detection are explicit, but no procedure resolves conflicting instructions or restores one operative contract after detection; searched Scope, Test, Takeaways and Summary.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "RISK4",
+        "claim": "met",
+        "evidence": "Migration and changing installed rubric are external review-policy dependencies; source contradictions are separately identified rather than silently normalized.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "RISK5",
+        "claim": "met",
+        "evidence": "Paired fixed-versus-changed-contract adjudication detects verdict/re-entry effects while holding artifact state constant.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "EDGE1",
+        "claim": "not met",
+        "evidence": "Uncapped fields are mentioned, but no empty/singleton/maximum-size collection cases are developed; searched Incidents, Counterevidence and Test.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "EDGE2",
+        "claim": "met",
+        "evidence": "Mechanism tracks original criterion, early interpretation, later loaded rule and artifact state across successive reviewers.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "EDGE3",
+        "claim": "met",
+        "evidence": "Literal lint incident identifies acceptance under no-new-findings despite a no-finding-on-changed-line requirement: a missing original-condition validation.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "EDGE4",
+        "claim": "not met",
+        "evidence": "Counting cautions and unsupported minimum-reviewer-count attribution are not divergent counting/range scenarios; searched Counting, Limits and Gaps.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 3,
+        "criterion": "EDGE5",
+        "claim": "met",
+        "evidence": "Rubric change plus evidence correction explicitly confound the final pass; migration adds review without creating preexisting defects.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COMP1",
+        "claim": "met",
+        "evidence": "Assigned connected-impact cause has mechanism, successful-change evidence, counterevidence, scope and discriminating comparison; metadata explicitly defers final ranking.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COMP2",
+        "claim": "met",
+        "evidence": "Counterevidence distinguishes successful repairs, preexisting monitor faults, evidence-only changes and the CI sequential-order safeguard.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COMP3",
+        "claim": "met",
+        "evidence": "Discriminating Test requires successful edits, immediate pre-fix state, original criterion/policy and identified producer/consumer/sibling/dependency edge.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COMP4",
+        "claim": "met",
+        "evidence": "Test requires a counterexample absent before and present after; already-present failures must be reclassified as retained or missed.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COMP5",
+        "claim": "met",
+        "evidence": "Limits excludes most later monitor findings, frozen/environmental blockers and general model-ability claims.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COR1",
+        "claim": "met",
+        "evidence": "Evidence table distinguishes plan nonconformance from reproduced runtime regression; Counterevidence rejects treating later-item totals as repair regressions; no supplied-evidence error identified.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COR2",
+        "claim": "met",
+        "evidence": "Successful-edit-only historical replay and before/after counterexamples respect stated scope; no production execution is claimed.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COR3",
+        "claim": "met",
+        "evidence": "Scope and Takeaways consistently separate introduced connected defects from unchanged sibling failures.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COR4",
+        "claim": "met",
+        "evidence": "CI graph nonconformance and sequential runtime safeguard are compatible; accepted monitor defects are not described as repaired; no quantitative IC result supplied.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "COR5",
+        "claim": "met",
+        "evidence": "Evidence table provides successful write/edit anchors and concrete ordering, predicate, provenance, stdout and graph mechanisms.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "STR1",
+        "claim": "met",
+        "evidence": "Hypothesis and mechanism precede evidence; counterevidence/scope precede replay method and limits.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "STR2",
+        "claim": "met",
+        "evidence": "One title, parallel second-level sections and contained numbered mechanism/table maintain consistent hierarchy.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "STR3",
+        "claim": "met",
+        "evidence": "Before/after table holds case evidence; Counterevidence bounds attribution; Test specifies standards; Gaps records unperformed or unresolved work.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "STR4",
+        "claim": "met",
+        "evidence": "Supporting Incidents cross-references planning, monitor and CI case reports with named sections and supplements.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "STR5",
+        "claim": "met",
+        "evidence": "Research-card metadata, causal mechanism, anchored comparisons, competing explanations, test and limits match artifact conventions.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "CLR1",
+        "claim": "met",
+        "evidence": "“Evidence for the latter alone does not prove a regression” states the critical distinction plainly; conditional trap behavior is warranted, not vague advice.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "CLR2",
+        "claim": "met",
+        "evidence": "Incidents specifies Task13 before Task14 registration, four-asset predicate reuse and inherited trap output captured as data.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "CLR3",
+        "claim": "met",
+        "evidence": "Every section has a distinct, readily summarized purpose from causal proposal through evidence, exclusions and test.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "CLR4",
+        "claim": "not met",
+        "evidence": "CI and shell-specific terms such as inherited traps/command substitution are not defined on first use; searched Hypothesis, Mechanism and Incidents.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "CLR5",
+        "claim": "met",
+        "evidence": "Discriminating Test gives explicit replay, fixed-contract, before/after and neighbor-check steps plus a reclassification decision.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "RISK1",
+        "claim": "not met",
+        "evidence": "Multiple connected-effect risks have consequences, but no probability-and-impact assessments; searched Incidents, Counterevidence, Limits and Gaps.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "RISK2",
+        "claim": "met",
+        "evidence": "Test applies producer/consumer/sibling/dependency analysis to each alleged regression and requires checking remedies against unchanged constraints and neighbors before review.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "RISK3",
+        "claim": "not met",
+        "evidence": "Failures and attribution recovery are covered, but no concrete artifact-recovery procedure repairs the demonstrated trap or plan defects; Gaps says the regression was accepted, not shown repaired.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "RISK4",
+        "claim": "met",
+        "evidence": "Four-asset predicate incident considers release-asset eligibility and incorrect rejection stage; digest incident considers deployed-package provenance versus companion recipe contract.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "RISK5",
+        "claim": "met",
+        "evidence": "Absent-before/present-after counterexample and explicit data-flow/ordering explanation form a concrete regression-validation mechanism.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "EDGE1",
+        "claim": "not met",
+        "evidence": "Four-asset predicate and size-limit mentions do not develop empty/singleton/maximum collection boundary cases; searched Incidents, Counterevidence and Test.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "EDGE2",
+        "claim": "met",
+        "evidence": "Inherited error-trap status/output crosses command-substitution data capture; release detection and pin-writer eligibility use different stage contracts.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "EDGE3",
+        "claim": "met",
+        "evidence": "Predicate reuse changes which stage rejects a release; acceptance lacks neighbor/invariant validation, and stdout diagnostics enter an unprotected data stream.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "EDGE4",
+        "claim": "not met",
+        "evidence": "Four assets and fourteen/two repair totals do not establish divergent counting rules or off-by-one/range behavior; searched Incidents and Counterevidence.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 2,
+        "criterion": "EDGE5",
+        "claim": "met",
+        "evidence": "Inherited traps combined with command substitution create captured diagnostic data; inventory comparison combined with later registration creates impossible intermediate acceptance.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COMP1",
+        "claim": "met",
+        "evidence": "Assigned weak-verification cause includes mechanism, four incident contexts, counterevidence, scope, discriminating test and limits; final debate/ranking remains deferred.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COMP2",
+        "claim": "met",
+        "evidence": "Counterevidence separates frozen authority, successful smaller-task repairs and genuinely introduced faults from old-defect escape.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COMP3",
+        "claim": "met",
+        "evidence": "Discriminating Test requires preserved historical versions, original criteria/policy and minimal counterexamples on the first-passing version.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COMP4",
+        "claim": "met",
+        "evidence": "Test defines support as weak checks accepting wrong behavior that criterion-derived checks reject; actually used checks rejecting it weaken the mechanism.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COMP5",
+        "claim": "met",
+        "evidence": "Scope excludes frozen fixtures, unavailable render tools and defective pointers as automatic instances; Limits rejects probability/model-comparison claims.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COR1",
+        "claim": "met",
+        "evidence": "Anchored incident observations are bounded by explicit “historical tests were inspected, not rerun here” and observational size limits; no error identified within supplied evidence.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COR2",
+        "claim": "met",
+        "evidence": "Bounded historical counterexample checking is feasible under stated preserved-version constraints; the card explicitly labels it proposed, not performed.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COR3",
+        "claim": "met",
+        "evidence": "Mechanism and Counterevidence consistently distinguish old-defect discovery, introduced regression, semantic checking and repair authority.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COR4",
+        "claim": "met",
+        "evidence": "Initial weak-check escape and later frozen-blocker persistence are explicitly different events; smaller-task convergence limits task-size inference; no quantitative IC result supplied.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "COR5",
+        "claim": "met",
+        "evidence": "Incidents supplies wrong oracle semantics, structural-only monitor checks, mistimed validation and search/advisory stub weaknesses with case/primary anchors.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "STR1",
+        "claim": "met",
+        "evidence": "Hypothesis→mechanism→supporting incidents→counterevidence/scope precedes test, limits and conclusion.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "STR2",
+        "claim": "met",
+        "evidence": "One title and parallel second-level sections maintain consistent hierarchy without orphaned subsections.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "STR3",
+        "claim": "met",
+        "evidence": "Mechanism explains escape; table supplies observations; Counterevidence separates alternatives; Gaps records causal unknowns and lack of rerun.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "STR4",
+        "claim": "met",
+        "evidence": "Supporting Incidents links oracle, monitor, planning and CI case reports with section references.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "STR5",
+        "claim": "met",
+        "evidence": "Research metadata, hypothesis, anchored evidence, competing explanations, proposed test and limitations fit the assigned research-card artifact.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "CLR1",
+        "claim": "met",
+        "evidence": "“not independently proven universal causes” and “not evidence that the preceding repair introduced it” precisely delimit causal claims.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "CLR2",
+        "claim": "met",
+        "evidence": "Incidents names known/unknown author semantics, default-path meanings, Task14 deferral, validation after fetch and ignored search filters.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "CLR3",
+        "claim": "met",
+        "evidence": "Every section can be summarized in one sentence with distinct hypothesis, mechanism, evidence, exception, test or limit purpose.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "CLR4",
+        "claim": "not met",
+        "evidence": "CI, PR and JSONL are not defined at first use; searched Supporting Incidents and the surrounding sections.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "CLR5",
+        "claim": "met",
+        "evidence": "Discriminating Test directs constructing a minimal counterexample, running the described check and checking absent/deferred behavioral tests.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "RISK1",
+        "claim": "not met",
+        "evidence": "Several risks and impacts are identified, but probability assessments are expressly unestablished; searched Incidents, Limits and Gaps.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "RISK2",
+        "claim": "not met",
+        "evidence": "Test diagnoses weaker checks but gives no explicit per-risk mitigation for deferred test timing, validation placement and ineffective search filtering; searched Test, Takeaways and Summary.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "RISK3",
+        "claim": "not met",
+        "evidence": "Failure mechanisms are detailed, but no recovery procedure repairs or revalidates an affected artifact after detecting weak verification; searched Counterevidence, Test and Summary.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "RISK4",
+        "claim": "met",
+        "evidence": "Planning validation occurs after the fetch consuming its input; CI search stub ignores filters, exposing failures at input/search dependency boundaries.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "RISK5",
+        "claim": "met",
+        "evidence": "Proposed weak-check-versus-criterion-derived-counterexample comparison explicitly detects the claimed verification gap.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "EDGE1",
+        "claim": "not met",
+        "evidence": "Family counts and mentions of range/size defects do not specify empty/singleton/maximum collection scenarios; searched Mechanism, Incidents and Test.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "EDGE2",
+        "claim": "met",
+        "evidence": "Mechanism identifies cross-component use and execution order; planning incident connects input validation state to an earlier consuming fetch.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "EDGE3",
+        "claim": "met",
+        "evidence": "Oracle labels/counts omit semantic validation; planning validation follows consumption; CI stub ignores effective search filters.",
+        "verdict": "MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "EDGE4",
+        "claim": "not met",
+        "evidence": "Unspecified range defects, test totals and counting cautions do not describe divergent counting rules or inclusive/exclusive boundaries; searched Incidents, Counting and Test.",
+        "verdict": "NOT MET"
+      },
+      {
+        "variant": 1,
+        "criterion": "EDGE5",
+        "claim": "met",
+        "evidence": "Monitor incident combines three jobs/many behaviors with structural acceptance and deferred lasting tests; Mechanism explicitly includes cross-component and exceptional paths.",
+        "verdict": "MET"
+      }
+    ],
+    "compared_pairs": 150,
+    "agreements": 150,
+    "disagreements": [],
+    "readjudications": 0,
+    "changed_verdicts": 0
+  },
+  "selection": {
+    "writing_base": 4,
+    "top_two": [
+      4,
+      5
+    ],
+    "score_gap_using_published_quant": "0.0034226193333333333333333334",
+    "writing_wins": {
+      "1": 1,
+      "2": 1,
+      "3": 1,
+      "4": 1,
+      "5": 1
+    },
+    "correctness_top_two": [
+      5,
+      5
+    ],
+    "tiebreak_level": 3,
+    "causal_ranking_not_derived_from_scores": true,
+    "provisional_causal_order": [
+      1,
+      3,
+      2,
+      5,
+      4
+    ],
+    "contested_causal_pairs": [
+      [
+        2,
+        3
+      ],
+      [
+        4,
+        5
+      ]
+    ]
+  },
+  "card_hashes": {
+    "1": "3f39f065ffb13efad680694e9e699fb04456a03a93cabab75be90bee3d2dbac9",
+    "2": "e62a753c7b5c9df11d0a57469de1717e115f3166e2596342adf26ad3fa882ebc",
+    "3": "f20f7fd37114f1c3d529bd7eca97b2af748fe9c5b3c73559b78837a7dfb5a8e3",
+    "4": "fe15dc657c4e6ee11e9d60ce655d2b61d364e5c6055e090abd58e87395f36117",
+    "5": "1cf685b5356db01e1409ffb335dd25543622c3701dcf8072264ef1a9467941ac"
+  },
+  "output": {
+    "path": "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/reviews/adversarial/adversarial/base-selection.md",
+    "sha256": "707d86126d426e7ad8c1f4e5fa9a8bc160907fdbe2e75b2ebfa11f7cf92397fc",
+    "lines": 577
+  }
+}

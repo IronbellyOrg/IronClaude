@@ -1,0 +1,15 @@
+calibrated_dimensions: {citation_grounding: 0.70, coverage_completeness: 0.60, deviation_classification_clarity: 0.60, risk_surface_coverage: 0.55, recommendation_actionability: 0.45}
+C: 0.58
+calibrator_model_class: opus
+calibrator_diversity: degraded
+disagreements_with_card:
+  - "F-01 partial: plan:243 re-runs only tests/skills/test_clickup_claim.py after a Task 16 change, not uv run pytest tests/skills (round-1 merged-verdict.yaml:31)."
+  - "F-02 partial: the key-path shape comparison has no defined method; the script prints only a status JSON (plan:43), so getting shapes needs raw authenticated calls (merged-verdict.yaml:39)."
+  - "Task 17 depends on Task 14 only (plan:252) but cites Task 15 and Task 16 evidence (plan:254): missing dependencies."
+  - "Several containment matches point at the wrong task (INF-004, INF-016, INF-038, INF-055, INF-056); F-14 repeated."
+  - "F-14 not mentioned; F-08 only implicit."
+  - "AC 5 'comment says ClickUp skipped' half has no assigned status in Task 17 (plan:254)."
+  - "F-04 partial: no check that gh api paths use repos/<R>/ (source.md:319)."
+  - "F-17 partial: PYTHONDONTWRITEBYTECODE=1 not adopted (merged-verdict.yaml:256)."
+  - "Card lists risks without next actions or a closure verdict."
+escalation_recommendation: escalate-t2

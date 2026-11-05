@@ -102,5 +102,6 @@ Schema version 1.0, effective for v2.20. Schema changes require a new decision d
 | Version | 1.0 |
 | Status | Finalized |
 | Review Date | 2026-03-09 |
-| Dataclass | `FidelityDeviation` in `src/superclaude/cli/roadmap/fidelity.py` |
-| Schema Match | 7-column table ↔ 7 dataclass fields (verified 1:1) |
+| Defined by | Prompt builders `build_spec_fidelity_prompt` in `src/superclaude/cli/roadmap/prompts.py` and `build_tasklist_fidelity_prompt` in `src/superclaude/cli/tasklist/prompts.py`; no dataclass models the table |
+| Checked by | `_high_severity_count_zero` and `_tasklist_ready_consistent` in `src/superclaude/cli/roadmap/gates.py` (reused by `src/superclaude/cli/tasklist/gates.py`) |
+| Column names | The roadmap-to-tasklist prompt uses `Upstream Quote` / `Downstream Quote`; the spec-to-roadmap prompt labels columns 4 and 5 `Source Quote` / `Roadmap Quote` |

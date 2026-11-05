@@ -1,0 +1,21 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+coverage_undefined: false
+confidence_calibrated: 0.83
+S_scope: 15
+S_domains: 3
+S_dev_density: 0.461
+composite_score: 8
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 1
+  spec_density: 2
+  ambiguity_signals: 1
+escalation_reason: "S_domains == 3 (code, tests, docs) fires rule 4; coverage_degraded parsed-sparse (141 inferred vs 0 parsed) also forbids a Tier-1 stop; C 0.83 < 0.85 and S_dev_density 0.461 > 0.20 would each escalate too."
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+executor_class_source: unknown
+executor_class_resolved: false

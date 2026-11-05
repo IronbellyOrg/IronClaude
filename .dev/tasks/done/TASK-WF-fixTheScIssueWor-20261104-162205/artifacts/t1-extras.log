@@ -1,0 +1,17 @@
+$ uv run ruff check tests/skills/test_issue_worker_agents.py
+All checks passed!
+rc=0
+$ PYTHONDONTWRITEBYTECODE=1 uv run pytest -p no:cacheprovider tests/skills/test_issue_worker_agents.py -q
+E    +  where 0 = <built-in method count of str object at 0x620aa5f2c570>(('Every spawn prompt names each exact path the job must write under `.dev/issues/` and states that these are input file...orker writes them with the Write tool, and returning their content as text counts as no output (`E-WORKER-NO-OUTPUT`).' + '\n\n'))
+E    +    where <built-in method count of str object at 0x620aa5f2c570> = '---\nname: sc:issue-protocol\ndescription: "Behavioral protocol for /sc:issue: --claim assigns an existing GitHub iss...gin`, or fetch any other remote.\n- Stage or commit `.dev/issues/`, or edit source code.\n- Print the ClickUp token.\n'.count
+=========================== short test summary info ============================
+FAILED tests/skills/test_issue_worker_agents.py::test_worker_states_its_files_are_tool_inputs[issue-worker-t1]
+FAILED tests/skills/test_issue_worker_agents.py::test_worker_states_its_files_are_tool_inputs[issue-worker-t2]
+FAILED tests/skills/test_issue_worker_agents.py::test_worker_states_its_files_are_tool_inputs[issue-worker-t3]
+FAILED tests/skills/test_issue_worker_agents.py::test_tool_input_check_fails_on_pre_fix_text[issue-worker-t1]
+FAILED tests/skills/test_issue_worker_agents.py::test_tool_input_check_fails_on_pre_fix_text[issue-worker-t2]
+FAILED tests/skills/test_issue_worker_agents.py::test_tool_input_check_fails_on_pre_fix_text[issue-worker-t3]
+FAILED tests/skills/test_issue_worker_agents.py::test_spawn_rule_restates_tool_inputs
+FAILED tests/skills/test_issue_worker_agents.py::test_spawn_rule_check_fails_without_the_line
+========================= 8 failed, 35 passed in 0.14s =========================
+rc=0

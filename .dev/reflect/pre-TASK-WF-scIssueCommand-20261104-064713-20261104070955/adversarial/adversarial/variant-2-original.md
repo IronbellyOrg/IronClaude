@@ -1,0 +1,43 @@
+<!-- variant-2-original.md: Mode A copy of reviewer-cards/reviewer-2-card.yaml (YAML input; protocol expects markdown; WARNING logged; content preserved verbatim inside a yaml fence) -->
+# Variant 2: reviewer-2-card
+
+```yaml
+reviewer: 2
+persona: qa
+model_class: haiku
+resolved_model: glm-5.3
+verdict: PASS
+findings:
+  - id: Q-1
+    severity: minor
+    category: weak-match
+    claim: "Five matrix rows carry best-task matches that do not satisfy them (INF-013 -> Task 2, INF-054 -> Task 3, INF-058/059/062 -> Task 5 prose only); real coverage for INF-013 is Task 5's create.md bullet and INF-054 is an authorized exclusion."
+    evidence: [artifacts/coverage-matrix.json:8-15, plan:92, plan:24]
+    recommendation: "No plan change; correct the best-task mapping note in t1-card.md so coverage_pct_union is not read as task-level satisfaction of these rows."
+  - id: Q-2
+    severity: minor
+    category: missing-requirement
+    claim: "The origin-only fetch rule (source.md:321) is bound only by the plan-wide constraint and the umbrella 'claim Waves 0 to 6 in detail'; Task 5 says 'the gh commands exactly as written' while the rule lives in a git-command parenthetical (source.md:149); no task puts it in the worker bodies."
+    evidence: [source.md:149, source.md:321, plan:22, plan:55, plan:91]
+    recommendation: "Task 5 claim.md bullet: add the git fetch origin (only origin) precondition of Wave 1; Task 3 agent body: 'it fetches only from the origin remote'."
+  - id: Q-3
+    severity: minor
+    category: missing-test
+    claim: "Section 20 ACs 2, 3 and 6 remain unverified at plan end; no task executes them; the plan declares the residual at line 25 and the source schedules only two live checks."
+    evidence: [source.md:468, source.md:469, source.md:472, plan:25]
+    recommendation: "Task 16: add artifacts/t16-manual-acceptance.md listing ACs 1-6 and 8 as 'pending user-approved live verification' with the exact commands."
+  - id: Q-4
+    severity: minor
+    category: weak-match
+    claim: "source.md:132 requires the never-pass-model rule in SKILL.md and every ref, but the plan instructs it only for SKILL.md (Task 6) and refs/tiers.md (Task 5), not refs/claim.md and refs/create.md where spawns are described."
+    evidence: [source.md:132, source.md:391, plan:95, plan:109]
+    recommendation: "Task 5: add the spawn rule sentence to the claim.md and create.md bullets."
+  - id: Q-5
+    severity: minor
+    category: other
+    claim: "The 67-row matrix omits several requirement-bearing regions (source.md:76-77, 148-159, 192-210, 327-342, defaults D2-D27); spot-checked each against the plan and each is carried by a task."
+    evidence: [source.md:76-77, source.md:148-159, source.md:192-210, source.md:282, source.md:327-342, plan:91-95, plan:109]
+    recommendation: "No plan change; annotate that the union figure is bound to the 67-row sample and the omitted regions were reviewer-verified."
+self_reported_confidence: 0.86
+self_audit: "Enumerated all section 15 create (13) and change (7) rows and all section 16 test rows (8); each maps to a task; Task 9 guard inversion faithful; repo anchors verified; make test == uv run pytest (Makefile:13-15); no false claim, missing deliverable or security risk found."
+```

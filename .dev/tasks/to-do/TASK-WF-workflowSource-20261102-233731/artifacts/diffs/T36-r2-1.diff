@@ -1,0 +1,96 @@
+--- a/docs/developer-guide/testing-debugging.md
++++ b/docs/developer-guide/testing-debugging.md
+@@ -4,7 +4,7 @@
+ 
+ This guide covers how to verify your SuperClaude installation and troubleshoot common issues with context files and configurations.
+ 
+-**Important**: SuperClaude is a collection of context files, not executable software. This guide focuses on verifying context files are properly installed and accessible to Claude Code.
++**Important**: SuperClaude installs context files (commands, agents, skills, core files) into `~/.claude/`, and it also ships the `superclaude` Python CLI, which has executable pipelines (`sprint`, `roadmap`, `reflect`, `swarm`, `eval` and more) and a pytest suite. This guide focuses on verifying the installed files and the codegraph MCP registration; see [Running the test suite](#running-the-test-suite) for the code tests.
+ 
+ ## Table of Contents
+ 
+@@ -125,12 +125,38 @@
+ fi
+ ```
+ 
++### Verify the codegraph MCP Registration
++
++`superclaude install` downloads the pinned codegraph binary and registers it as a user-scope MCP server. Two read-only commands show its state:
++
++```bash
++# The codegraph block comes just before the "Retired MCP registrations (user scope)" block
++# (no download, no claude mcp call)
++superclaude install --list
++# Expected, near the end:
++# codegraph MCP (pinned v1.6.2; user scope):
++#    Executable: <your home>/.codegraph/versions/v1.6.2/bin/codegraph (1.6.2)
++#    Owner: owned (receipt) ...
++#    User registration: matches
++#    Ready for Serena retirement: yes
++
++# The health check includes a codegraph check
++superclaude doctor --verbose
++# Expected lines:
++# ✅ codegraph MCP registration
++#     Ready for Serena retirement: yes
++```
++
++If `User registration` shows `absent` or `owned but stale`, or the doctor check fails because the registered command is not an executable while `User registration` is not `user-managed`, run `superclaude install --force` and check again.
++
++`user-managed` means the `codegraph` entry was registered by you, not by IronClaude. The installer never replaces it: it keeps a working entry as it is, and it refuses an entry whose command does not run. To let IronClaude manage it, or to repair an entry whose command does not run, remove it with `claude mcp remove codegraph --scope user` and run `superclaude install` again.
++
+ ### Test MCP Server Availability
+ 
+ ```bash
+ # Check if Node.js is available (required for MCP)
+ node --version
+-# Expected: v16.0.0 or higher
++# Expected: v18.0.0 or higher (superclaude mcp requires Node.js 18+ for npm-based servers)
+ 
+ # Check if npx is available
+ npx --version
+@@ -303,25 +329,27 @@
+ # Backup existing configuration
+ cp -r ~/.claude ~/.claude.backup.$(date +%Y%m%d)
+ 
+-# Remove existing installation
+-rm -rf ~/.claude
+-
+-# Reinstall everything
+-superclaude install
++# Reinstall everything, overwriting the installed files
++superclaude install --force
+ 
+ # Restore any customizations from backup if needed
+ ```
+ 
++Do not delete `~/.claude/`: it also holds your Claude Code settings, project memory and session history, which `superclaude install` does not recreate.
++
+ ## Important Notes
+ 
+-### What We're NOT Verifying
++### Running the Test Suite
++
++The context files themselves do not execute, but the repository has a pytest suite for the `superclaude` CLI, its pipelines, hooks and skill structure. From a source checkout:
+ 
+-- **No Code Execution**: Context files don't execute, so no runtime verification needed
+-- **No Performance Metrics**: No code runs, so no performance to measure
+-- **No Unit Tests**: Context files are instructions, not functions
+-- **No Integration Tests**: Claude Code reads files; verification is behavioral
++```bash
++make test                      # runs uv run pytest
++uv run pytest tests/sprint/ -v # one area
++make verify-sync               # src/superclaude/ and .claude/ are in sync
++```
+ 
+-### What We ARE Verifying
++### What This Guide Verifies
+ 
+ - **File Presence**: Context files exist in correct locations
+ - **File Integrity**: Files are valid text and readable
+@@ -332,4 +360,4 @@
+ 
+ ## Summary
+ 
+-Verification for SuperClaude focuses on ensuring context files are properly installed and accessible to Claude Code. Since SuperClaude is not software but a configuration framework, verification centers on file presence, integrity, and behavioral testing in Claude Code conversations.
++Installation verification for SuperClaude focuses on ensuring context files are properly installed and accessible to Claude Code and that the codegraph MCP registration is ready (`superclaude install --list`, `superclaude doctor --verbose`). The `superclaude` CLI code is covered by the pytest suite (`make test`).

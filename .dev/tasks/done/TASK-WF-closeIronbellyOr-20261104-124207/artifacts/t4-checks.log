@@ -1,0 +1,22 @@
+$ make verify-sync
+✅ All components in sync.
+rc=0
+$ git diff --stat HEAD   (HEAD = branch base 119622e3; local master is stale)
+ CHANGELOG.md                                    | 11 +++
+ docs/getting-started/installation.md            | 80 +++++++++++++++++++++-
+ src/superclaude/cli/install_user_setup.py       |  7 +-
+ src/superclaude/cli/user_settings_defaults.json | 12 +++-
+ tests/cli/test_install_user_setup.py            | 89 +++++++++++++++++++++++++
+ 5 files changed, 192 insertions(+), 7 deletions(-)
+$ git status --short | grep "^??"   (only .dev/ packages untracked)
+?? .dev/brainstorms/20261104-063430-ponytail-plugin-install/
+?? .dev/reflect/pre-closeIronbellyOr-20261104084538/
+?? .dev/reflect/pre-closeIronbellyOr-20261104124503/
+?? .dev/tasks/to-do/TASK-WF-closeIronbellyOr-20261104-084334/
+?? .dev/tasks/to-do/TASK-WF-closeIronbellyOr-20261104-124207/
+$ grep -n "to `lite`\|option to `false`" CHANGELOG.md
+11:- `superclaude install`, `superclaude update` and `update
+$ git diff HEAD -- CHANGELOG.md | removed lines (0 = no existing section changed)
+0
+$ uv run pytest tests/docs -q
+============================== 8 passed in 0.43s ===============================

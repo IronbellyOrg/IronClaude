@@ -1,6 +1,8 @@
 """Pure, finite review classification and shared actionable-root selection.
 
-Only the configured Augment identities supply evidence. Cosmos completion is an
+Only configured reviewer identities supply evidence: the Augment identities by
+default, or the identity set a caller passes (the Codex adapter in
+``reviewers.py`` passes the Codex identities). Cosmos completion is an
 observed wire format, not a prose heuristic; ambiguous/incomplete evidence polls.
 Legacy injected payloads without attribution context remain supported.
 """
@@ -50,6 +52,28 @@ def _augment_entries(entries: Any, identities: set[str]) -> list[dict]:
     if not isinstance(entries, list):
         return []
     return [e for e in entries if isinstance(e, dict) and _login_of(e) in identities]
+
+
+def has_reviewer_activity(payload: dict, identities: set[str]) -> bool:
+    """Whether any review, comment or review-thread root is authored by ``identities``.
+
+    Used for reviewer presence; Augment's silence path keeps
+    :func:`has_augment_activity` (reviews and comments only), unchanged.
+    """
+    if not isinstance(payload, dict) or not identities:
+        return False
+    if _augment_entries(payload.get("reviews"), identities) or _augment_entries(
+        payload.get("comments"), identities
+    ):
+        return True
+    threads = payload.get("threads")
+    for thread in threads if isinstance(threads, list) else []:
+        connection = thread.get("comments") if isinstance(thread, dict) else None
+        nodes = connection.get("nodes") if isinstance(connection, dict) else None
+        if isinstance(nodes, list) and nodes and isinstance(nodes[0], dict):
+            if _login_of(nodes[0]) in identities:
+                return True
+    return False
 
 
 def has_augment_activity(payload: dict, contract: Any) -> bool:
@@ -256,17 +280,86 @@ def _stable_id(entry: dict) -> str | int | None:
     return None
 
 
-def _thread_findings(threads: Any, contract: Any, completed: dict) -> list[dict] | None:
+def _review_keys(review: dict) -> set:
+    """One review's identifiers: REST ``id``/``node_id``, GraphQL ``databaseId``/``id``."""
+    return {
+        value
+        for value in (review.get(key) for key in ("databaseId", "id", "node_id"))
+        if (type(value) is int and value > 0)
+        or (isinstance(value, str) and value.strip())
+    }
+
+
+def _completion_time(
+    threads: list, identities: set[str], reviews: list[dict], completed_at: Any
+) -> Any:
+    """The later of ``completed_at`` and the creation of the reviewer's own roots
+    that belong to one of the completing ``reviews`` on that review's commit
+    (design section 18, A6: a root posted seconds after its review's submission
+    is part of that review, not a sign of a newer one)."""
+    if completed_at is None:
+        return None
+    latest = completed_at
+    for review in reviews:
+        keys = _review_keys(review)
+        heads = {_sha(c) for c in _review_commits(review)} - {None}
+        if not keys or not heads:
+            continue
+        for thread in threads:
+            connection = thread.get("comments") if isinstance(thread, dict) else None
+            nodes = connection.get("nodes") if isinstance(connection, dict) else None
+            if not isinstance(nodes, list) or not nodes:
+                continue
+            root = nodes[0]
+            origin = root.get("pullRequestReview") if isinstance(root, dict) else None
+            if not isinstance(origin, dict) or _login_of(root) not in identities:
+                continue
+            commits = _review_commits(origin)
+            if (
+                not commits
+                or any(_sha(c) not in heads for c in commits)
+                or not keys & _review_keys(origin)
+            ):
+                continue
+            created = _timestamp(_entry_ts(root))
+            if created is not None and created > latest:
+                latest = created
+    return latest
+
+
+def _thread_findings(
+    threads: Any,
+    contract: Any,
+    completed: dict | None,
+    identities: set[str] | None = None,
+    *,
+    completed_at: Any = None,
+    reviews: list[dict] | None = None,
+) -> list[dict] | None:
     """Return roots only, or None if an unresolved source cannot be safely selected.
 
     Current-null/original-only locations stay hints. Resolution is authoritative;
     neither outdated state nor the re-trigger watermark discards an open root.
+    ``identities`` selects whose roots count (default: the Augment identities).
+    ``completed_at`` overrides the completion time otherwise read from the
+    ``completed`` review's submission time (Codex passes its marker-derived time).
+    ``reviews`` are the completing formal reviews (default: ``[completed]``); the
+    creation times of their own roots extend the completion time (A6).
     """
     if not isinstance(threads, list):
         return None
-    identities = _augment_identities(contract)
+    if identities is None:
+        identities = _augment_identities(contract)
+    if reviews is None:
+        reviews = [completed] if isinstance(completed, dict) else []
     selected, seen_threads, seen_roots = [], set(), set()
-    completed_at = _timestamp(_submission_ts(completed))
+    if completed_at is None:
+        completed_at = (
+            _submission_ts(completed) if isinstance(completed, dict) else None
+        )
+    completed_at = _completion_time(
+        threads, identities, reviews, _timestamp(completed_at)
+    )
     for thread in threads:
         if not isinstance(thread, dict) or type(thread.get("isResolved")) is not bool:
             return None

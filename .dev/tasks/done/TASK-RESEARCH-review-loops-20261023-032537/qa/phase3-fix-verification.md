@@ -1,0 +1,45 @@
+<!-- Verbatim main transcription from phase3-fix-verification-source.txt; producer report-write restriction disclosed. -->
+# QA Report: Research Correction Verification
+
+**Date:** 2026-10-23  
+**Phase:** fix-cycle  
+**Fix cycle:** 1  
+**Overall verdict:** **PASS**  
+**Initial failure set:** 6  
+**Remaining failures:** 0  
+**New issues introduced by the corrections:** 0 observed within the assigned scope.
+
+**Task directory:** `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/`
+
+## Items Reviewed
+
+| Original finding | Result | Independently verified evidence |
+|---|---|---|
+| Complete accounting for sixteen original Orca planning repairs | RESOLVED | The resulting supplement contains the original source block unchanged, including all sixteen rows, successful non-recurring repairs, historical Write confirmation at records 544/545, and fourteen-fixed/two-partial qualification. “Fixed” remains acceptance of a plan amendment, not runtime verification. |
+| Blocked initial edit incorrectly grouped with successful cleanup | RESOLVED | The corrected timeline distinguishes attempted edit 150, blocking result 151, retry 163 and successful result 164. The supplement preserves all four events. The reviewed first-version hash and planning-only limitation remain present. |
+| Missing dispositions for eight CI reviewer entries and subsequent final outcome | RESOLVED | Both specified source blocks occur unchanged in the resulting report. All eight entries retain their corrections, rejected subclaims, optional hardening, bookkeeping-only changes and overlaps. The later completed review remains separately timed: partial evidence status, not-ready verdict, five medium and eleven low items, no high items. No implementation or authorized subsequent refactor is inferred. |
+| Monitor content boundary confused with membership selection and later completion | RESOLVED | The substantive source block is unchanged. The report distinguishes original rows 1-1247 ending at 03:31:57.433Z from membership selection at 03:25:59Z. Historical ledger evidence remains bounded through record 1244 and ledger line 34. Human acceptance at 1250 and successful completion at 1261 retain the same misunderstood verdict, without an eighth review. Retrospective fingerprints and the separate Task 13 continuation remain qualified. |
+| Unexplained earlier misses lack explicit uncertainty | RESOLVED | The monitor report explicitly labels the reasons earlier reviews missed blank notes, carriage returns, rename/copy handling and other examples as unknown unless independently traced. The credential report separately labels the first final review’s missed blank-line pointer as unexplained. Neither assigns a cognitive cause. |
+| Incorrect credential timestamp | RESOLVED | The resulting report uses 19:57:18.777Z. Direct parsing of the original nested reviewer record 16 independently returned `2026-10-22T19:57:18.777Z`; record 33 remained 19:57:44.798Z. |
+
+## Preservation and Consistency
+
+- Exact comparisons verified the required substantive source-copy blocks. The monitor observation-heading comparison differed only by trailing Markdown whitespace; its timestamp and meaning are unchanged.
+- Removing each appended correction block reproduced the four recorded pre-supplement report hashes. Sampled earlier controls and limits remain intact, including planning versus runtime distinctions, accepted versus repaired defects, successful evidence repairs, and the credential rubric-change qualification.
+- The evidence deck and gap log reflect the corrected accounting and endpoints without resolving specification contradictions or claiming unobserved runtime results.
+- Copied source headings are organizational material, not additional empirical claims.
+- Main’s sole-writer role is disclosed. This verification performed no edits, tests, agent launches, task execution or production changes.
+
+## Verification Limits and Negative Evidence
+
+An initial reconstruction attempted to reproduce pre-supplement hashes while also reversing earlier surgical corrections; those comparisons did not match. Repeating the check at the correct boundary, removing only the supplements, matched all four hashes.
+
+The final research ranking was not reviewed because it has not yet been produced and is outside this correction gate.
+
+**Confidence:** Verified: 6/6 | Unverifiable: 0 | Unchecked: 0 | Confidence: 100.0%  
+**Tool engagement:** Read: 22 | Grep: 0 | Glob: 0 | Bash: 4  
+**Issues fixed in-place:** 0, report-only verification.
+
+**Recommended action:** Record PASS for these six corrections and proceed to the next prescribed research stage. No further correction cycle is required for this failure set.
+
+## QA Complete

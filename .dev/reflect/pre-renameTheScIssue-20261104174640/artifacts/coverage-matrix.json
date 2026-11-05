@@ -1,0 +1,83 @@
+[
+ {
+  "requirement_id": "INF-001",
+  "matched_task_ids": [
+   "Task 1"
+  ],
+  "ratio": 0.9091,
+  "match_method": "containment",
+  "source": "inferred"
+ },
+ {
+  "requirement_id": "INF-002",
+  "matched_task_ids": [
+   "Task 1"
+  ],
+  "ratio": 0.913,
+  "match_method": "containment",
+  "source": "inferred"
+ },
+ {
+  "requirement_id": "INF-003",
+  "matched_task_ids": [
+   "Task 2"
+  ],
+  "ratio": 0.8,
+  "match_method": "containment",
+  "source": "inferred"
+ },
+ {
+  "requirement_id": "INF-004",
+  "matched_task_ids": [
+   "Task 4"
+  ],
+  "ratio": 0.6667,
+  "match_method": "containment",
+  "source": "inferred"
+ },
+ {
+  "requirement_id": "INF-005",
+  "matched_task_ids": [
+   "Task 3"
+  ],
+  "ratio": 0.8333,
+  "match_method": "containment",
+  "source": "inferred"
+ },
+ {
+  "requirement_id": "INF-006",
+  "matched_task_ids": [
+   "Task 2"
+  ],
+  "ratio": 0.875,
+  "match_method": "containment",
+  "source": "inferred"
+ },
+ {
+  "requirement_id": "INF-007",
+  "matched_task_ids": [
+   "Task 3"
+  ],
+  "ratio": 0.7931,
+  "match_method": "containment",
+  "source": "inferred"
+ },
+ {
+  "requirement_id": "INF-008",
+  "matched_task_ids": [
+   "Task 3"
+  ],
+  "ratio": 0.7143,
+  "match_method": "containment",
+  "source": "inferred"
+ },
+ {
+  "requirement_id": "INF-009",
+  "matched_task_ids": [
+   "Task 4"
+  ],
+  "ratio": 0.8333,
+  "match_method": "containment",
+  "source": "inferred"
+ }
+]

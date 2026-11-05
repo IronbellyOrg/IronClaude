@@ -424,7 +424,7 @@ TEMPLATE 02 PATTERN MAPPING FOR THIS SKILL (if Template 02):
 Customize phase names, L-level mappings, and descriptions for the skill's specific workflow.]
 
 QA_GATE_REQUIREMENTS: PER_PHASE
-  Gate 1: Research Completeness (Phase 3) — rf-analyst (completeness-verification) + rf-qa (research-gate) in parallel, max 3 fix cycles, partitioning >6 files.
+  Gate 1: Research Completeness (Phase 3) — rf-analyst (completeness-verification) + rf-qa (research-gate) in parallel, max 2 fix cycles, partitioning >6 files.
   Gate 2: Synthesis Quality (Phase 5) — rf-analyst (synthesis-review) + rf-qa (synthesis-gate, fix_authorization: true) in parallel, max 2 fix cycles, partitioning >4 files.
   Gate 3: Report Validation (Phase 6) — rf-qa (report-validation, fix_authorization: true) + rf-qa-qualitative ([skill-qualitative-phase — e.g., report-qualitative, prd-qualitative, tdd-qualitative], fix_authorization: true) sequential. HALT after max fix cycles exceeded.
 
@@ -812,7 +812,7 @@ Apply the full 10-item Research Gate checklist from your agent definition indepe
 3. Scope coverage — every key file from research-notes EXISTING_FILES examined
 4. Documentation cross-validation — all doc-sourced claims tagged, Verify EVERY CODE-VERIFIED claim
 5. Contradiction resolution — no unresolved conflicting findings
-6. Gap severity — Critical gaps block synthesis, Important reduce quality, Minor are lower priority but must still be fixed
+6. Gap severity — Critical and Important gaps are blocking and fail the gate; Minor gaps are recorded as notes and do not fail it
 7. Depth appropriateness — matches the tier expectation
 8. Integration point coverage — connection points documented
 9. Pattern documentation — code patterns and conventions captured
@@ -821,8 +821,14 @@ Apply the full 10-item Research Gate checklist from your agent definition indepe
 <!-- VERBATIM — Research QA Verdict pattern -->
 VERDICTS:
 - PASS: Green light for synthesis
-- FAIL: ALL findings must be resolved. Only PASS or FAIL — no conditional pass.
+- FAIL: any blocking (Critical or Important) finding; every blocking finding must be resolved. Minor findings are notes: they never fail the gate and are not rechecked. Only PASS or FAIL — no conditional pass.
 <!-- END VERBATIM — repo-cleanup uses "assembly" instead of "synthesis" in the PASS line -->
+
+REVIEW SEVERITY RULE:
+- Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim.
+- Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in later rounds and never trigger a fix pass on their own. Only blocking findings produce FAIL.
+- A review loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings.
+- On a CRITICAL / IMPORTANT / MINOR scale, CRITICAL and IMPORTANT findings are blocking and MINOR findings are minor; grade by the definition above, not by the label, so a finding labelled IMPORTANT that is only wording is minor.
 
 Use the full QA report output format from your agent definition.
 Zero tolerance — if you can't verify it, it fails.
@@ -880,8 +886,8 @@ Items 3, 4, 10, 11, 12 are near-identical across all skills. Items 1, 2, 5-9 var
 
 <!-- VERBATIM — Synthesis QA Verdict pattern -->
 VERDICTS:
-- PASS: All synth files meet quality standards
-- FAIL: Issues found (list with specific fixes, note which were fixed in-place)
+- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)
+- FAIL: Blocking issues found (list with specific fixes, note which were fixed in-place); MINOR issues alone are listed as notes and do not fail
 <!-- END VERBATIM -->
 ```
 

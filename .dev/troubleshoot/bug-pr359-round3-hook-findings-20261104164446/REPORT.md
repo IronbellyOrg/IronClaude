@@ -1,0 +1,97 @@
+# Troubleshoot Report
+
+**Target**: PR #359 review round 3: block-bare-python.sh blocks a `python3()` function definition and misses python3 after a `{fd}>` redirection
+**Type**: bug
+**Tier reached**: 1
+**Confidence**: 0.92
+**Status**: success
+**Escalation reason**: none
+**Test is wrong**: false
+**Behavior is documented**: false
+**Doc context card**: .dev/troubleshoot/bug-pr359-round3-hook-findings-20261104164446/doc-context.md
+**Duration**: 600
+**Date**: 2026-11-04T16:54:14Z
+
+---
+
+## Summary
+
+The hook's awk scanner decides what a word is before it has seen the token that gives the word its meaning. A function definition named `python3` is blocked because the name is reported as a command before the `()` is read, and a named file-descriptor redirection `{fd}>` is not recognized, so `{fd}` becomes the command word and the `python3` after it is missed. The fix is two local changes in the scanner plus its mirror, docs and tests.
+
+## Documentation Context
+
+- **Relevant refs**: src/superclaude/hooks/scripts/block-bare-python.sh (header), CHANGELOG.md (#357 entry), .dev/tasks/done/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md
+- **Documented behavior**: redirections are tracked; the command word is the first word after assignments, keywords and wrappers. Function definitions and `{fd}` redirections are not mentioned.
+- **Restrictions honored**: exit 0/2 contract; awk only; 100 KB under 1 s; byte-identical mirror; `f() { python3 x.py; }` stays blocked.
+- **Restrictions overridden**: None
+- **Card path**: .dev/troubleshoot/bug-pr359-round3-hook-findings-20261104164446/doc-context.md
+
+## Diagnosability Context
+
+**Verdict**: partial
+**Complexity classification**: trivial
+**Captured-bytes (failing run)**: n/a
+
+The hook reports only a matched word, and an allow is silent. A read-only copy of the scanner printing every chosen command word closed the gap; both mechanisms were observed directly. The partial verdict is a cap from Grep-only discovery.
+
+(Full card: /home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/troubleshoot/bug-pr359-round3-hook-findings-20261104164446/diagnosability-context.md)
+(Tasklist (informational): /home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/troubleshoot/bug-pr359-round3-hook-findings-20261104164446/diagnosability-tasklist.md)
+
+## Diagnosis
+
+**Root cause**: the scanner classifies a word before reading the token that follows it (function definitions) and accepts only numeric fd prefixes before a redirection (named `{var}` fds), so it chooses the wrong command word.
+
+**Cause class**: Parser/tokenizer logic error (lookahead missing)
+
+**Detailed explanation**: In the `(` branch, endword runs first (Evidence 1) and, with the word still in command position, prints `python3` and exits (Evidence 3) before the `()` check (Evidence 2), so the hook blocks a definition (Evidence 5, 6). In the redirection branch, only an all-digit word is dropped as an fd prefix (Evidence 4), so `{fd}` becomes the command word and `python3` is an argument; the hook allows (Evidence 6, 7).
+
+## Evidence
+
+1. `src/superclaude/hooks/scripts/block-bare-python.sh:218` — `endword(o)`
+2. `src/superclaude/hooks/scripts/block-bare-python.sh:219` — `if (substr(s, i + 1, 1) == ")") { i++; need[o] = !noc[o]; wrap[o] = ""; parg[o] = 0; return }`
+3. `src/superclaude/hooks/scripts/block-bare-python.sh:130` — `if (b == "python" || b == "python3" || b == "pip" || b == "pip3") { print b; exit }`
+4. `src/superclaude/hooks/scripts/block-bare-python.sh:206` — `if (inw[o] && wd[o] ~ /^[0-9]+$/) { inw[o] = 0; wd[o] = ""; wq[o] = 0 } else endword(o)`
+5. `src/superclaude/hooks/scripts/block-bare-python.sh:340` — `exit 2`; `src/superclaude/hooks/scripts/block-bare-python.sh:336` — `*) exit 0 ;;`
+6. Command: `bash trace-probe.sh src/superclaude/hooks/scripts/block-bare-python.sh` → `cmdword=python3`, `hook_exit=2` for the definition; `cmdword={fd}`, `hook_exit=0` for the redirection (trace-probe.out)
+7. Command: bash with a fake python3 on PATH → `ready` only for the definition; `FAKE-PY ran` for `{fd}>/dev/null python3 -c 1`; reference rows `2>/dev/null python3 -c 1` and `f() { python3 x.py; }` give `hook_exit=2` (tier1-observation.md)
+
+## Proposed Fix
+
+**Files to change**:
+- `src/superclaude/hooks/scripts/block-bare-python.sh` — in endword, treat a command-position word followed by `(`, optional blanks and `)` as a function name (the body is still scanned); let the `(` branch accept blanks inside `( )`; accept an unquoted `{NAME}` word as an fd prefix before `<`/`>`; header text.
+- `plugins/superclaude/hooks/scripts/block-bare-python.sh` — byte-identical copy.
+- `CHANGELOG.md` — behaviour text.
+
+**Test to verify**:
+- add ALLOWED `python3() { uv run python "$@"; }; echo ready`, `pip () { uv pip "$@"; }`; BLOCKED `{fd}>/dev/null python3 -c 1`, `{in}</dev/null python3 x`, `f ( ) { python3 x; }`; `function-body` and the 100 KB case stay green.
+
+**Apply with**: applied by the caller sc-pr-submit-protocol in its fixing state.
+
+## Risk + Rollback
+
+- **Likelihood of regression**: low-medium in function-definition and redirection handling
+- **Test coverage of the changed code**: good after the new cases
+- **Rollback**: revert the fix commit
+
+## Follow-up tasks
+
+None.
+
+## Grounding Gaps
+
+- MCP auggie was unavailable; Wave 1.5 and 1.6 discovery used Grep/Glob/Read (Wave 1.6 degraded), capping the diagnosability verdict at partial.
+- Quoted function names (`"python3"() {...}`) and array-element fd variables (`{a[1]}>`) are not covered by this fix.
+
+## Next Steps
+
+- P4-exact, P4-ref, P5-exact, P5-ref (core): observed this run, consistent; no pending rows.
+- Tier 1, high confidence: the caller applies the fix, re-runs both inputs (definition exit 0, redirection exit 2) and the test suite.
+
+## Audit
+
+- **Hypothesis cards**: .dev/troubleshoot/bug-pr359-round3-hook-findings-20261104164446/tier1-hypothesis.md
+- **Audit log**: .dev/troubleshoot/bug-pr359-round3-hook-findings-20261104164446/audit.log
+
+## Pipeline Hardening Closure
+
+Pipeline hardening not applicable: the defect is in the scanner's word recognition after intact delivery; decision mapping, mirror and tests sit on the real boundary (boundary scan: .dev/troubleshoot/bug-pr359-round3-hook-findings-20261104164446/hc0-boundary-scan.md).

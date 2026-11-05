@@ -1,0 +1,56 @@
+<!-- SC:TROUBLESHOOT:TARGET
+issue: install_core_files skips files
+type: auto
+depth: quick
+scope: install_core_files
+fix_authorized: false
+no_escalate: false
+mcps_available: codegraph|context7|tavily
+output_dir: /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption/.dev/troubleshoot/untyped-install-core-files-skips-files-20261031153823
+caller: none
+context_path: none
+-->
+Wave 0 complete: type=untyped depth=quick
+auggie unavailable: tool not listed; native Grep/Read fallback.
+Installed CODEGRAPH.md absent; read labelled in-checkout fallback src/superclaude/core/CODEGRAPH.md.
+index_state: fresh
+checked_at: 2026-10-31T15:38:23Z
+worktree_root: /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption
+projectPath: /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption
+switch: unset (printenv exit 1), not disabled
+access: mcp
+troubleshoot-analyst: project definition valid; exact closed roster verified.
+git writes: prohibited by user; no staging, commits or index initialization.
+Wave 1 complete: grounding done; handing off to Wave 1.5
+Codegraph node+callers: install_core_files body located; 2/2 caller rows, install/main.py:178 and update/main.py:365 confirmed by Read. tier1-callers.md persisted. No graph degraded token.
+Execution locus: unknown run-site environment, OBSERVE-VIA nobody; no repro available: run-site unobservable; re-run permitted unknown.
+Wave 1.5 complete: doc_context_card_path=.dev/troubleshoot/untyped-install-core-files-skips-files-20261031153823/doc-context.md
+Three restricted documentation branches returned degraded native discovery; branch B parent stat captured docs 1793453800 and newest CLI source 1793455505, lag 1705 sec: current. No stale header markers reported.
+Recovery: initial branch-B Edit hook required Read; Read performed, Edit succeeded. No bypass.
+failing_component: src/superclaude/cli/install_core.py
+observation-kind string; categorical grep not applicable; producer rows=0, categorical grep hits=not-applicable. producer-citation-check skipped: empty menu.
+Wave 1.6 branches returned and persisted; degraded=true; 3-W coverage no/partial/partial; verdict partial; complexity trivial score 0. S14 not evidenced; console-only S9 analogue plus degraded cap.
+discriminator-required: yes (captured failing-run corpus empty)
+Counter existing key feat/codegraph-adoption / install_core_files skips files (no repro command supplied): 1. Wrote inert update-counter.py to atomically lock/update/snapshot metadata, but uv run execution denied by session dontAsk permissions before running. No alternate transport, retry, counter mutation or snapshot claimed. Locked update unavailable: status blocked. No rerun refusal, so blocked-on-authorization not set. No capability block asserted.
+Wave 1.6 complete: verdict=partial complexity=trivial hard_stop=true round=uncommitted/prior-1/3 discriminator-required: yes
+Counter block routes to Wave 5, skipping Waves 1.7-4.5. No calibration required or fabricated. Confidence 0.0 is unassessed sentinel, not rubric result. Depth quick respected; no deeper hypotheses or Skill invocation.
+Protocol references for hypothesis/rubric read during preparation but hypothesis formation not reached; assertions ref read for validation briefing only, no inline fallback performed.
+Source/reference count at emitter search: 16 distinct files enumerated in tasklist. Direct output sinks 2 plus 7 construction sites. Usable capture routes 1 technical wrapper path; actual incident transport unavailable. All rows pending.
+Wave 5 validator result persisted in evidence-validation.md, then Read: 7 verified source citations, 0 drops, 1 denied-command citation passed through without reexecution. Raw validation PASS means no structural FAIL, not diagnostic success. Suggested partial merged with prior blocked => blocked.
+Consequence consumer: A4 partial retained; absent hardening enum made explicit as contract default not_applicable with HC0 applicability unassessed, never a justified skip. No source claims added. A1/A3/A6/A7/A8/A10 not fired; A2/A5/A9 skipped for missing diff/candidates/reference inputs; limitations recorded in report. No timestamp drops, suspect probes, citation drops or structural revalidation required. All pending rows retained, no causal root/solution summary. Final ls passed for every cited run artifact. Report finalized from independently validated draft; no remaining report placeholders.
+Finalization timestamp (date -u): 2026-10-31T15:45:53Z
+Wave 5 complete: status blocked; report_path=.dev/troubleshoot/untyped-install-core-files-skips-files-20261031153823/REPORT.md
+<!-- SC:TROUBLESHOOT:SUMMARY
+status: blocked
+tier_reached: 1
+confidence: 0.0
+escalation_reason: none
+hypothesis_count: 0
+adversarial_invoked: false
+cosmetic_overrun: 0
+fix_authorized: false
+duration_sec: 450
+caller: none
+context_path: none
+return_contract_path: none
+-->

@@ -1,0 +1,45 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: ".dev/codegraph-migration/brainstorm/P3-codegraph-opportunities/seed-brief.md"
+merged_output_path: ".dev/codegraph-migration/brainstorm/P3-codegraph-opportunities/merged-requirements.md"
+convergence_score: 0.957
+adversarial_artifacts_dir: ".dev/codegraph-migration/brainstorm/P3-codegraph-opportunities/adversarial/"
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: fallback_2        # auggie MCP not in this session's tools; Serena forbidden by the run brief; native Glob/Grep used
+  - source: research-light
+    quality_tier: skipped           # auto-detect would trigger (codegraph not in project); skipped because the evaluation file is the mandated ground truth
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "C-029 (candidate callers) - resolved in merge by Change 26"
+  - "C-031 (requirements emphasis) - resolved in merge by Change 31"
+  - "X-021 (wording) - resolved in merge by Change 2"
+  - "INV-001 HIGH UNADDRESSED - adversarial convergence BLOCKED_BY_INVARIANTS; carried as accepted risk and blocking prerequisite experiment E-1"
+
+telemetry:
+  routing_note: "Wave 3 PASS branch (convergence 0.957 >= 0.65) although the adversarial status is partial (invariant gate); merged-requirements.md frontmatter records convergence_status BLOCKED_BY_INVARIANTS."
+  wave_durations_ms:
+    wave_0: null                    # not instrumented; wall clock for the whole run 2026-10-29T16:24Z to 17:49Z
+    wave_1: null
+    wave_2a: null
+    wave_2b: null
+    wave_3: null
+    wave_4: null
+  token_usage:
+    wave_3_subagents_measured: 2795865  # sum of reported subagent tokens: 3 variants (588,607) + diff (202,555) + R1 (539,415) + R2 (586,347) + probe (234,745) + orchestrator (344,095) + merge (300,101)
+  token_budget:
+    estimate_skill_md: 540000       # 3 x 150K x 1.2 (SKILL.md Wave 2B multipliers)
+    estimate_refs: 54000            # 3 x 15K x 1.2 (refs/agent-spec-builder.md multipliers; the two files disagree)
+    hard_kill_threshold: 675000     # 1.25 x SKILL.md estimate; exceeded by measured subagent tokens, not enforced (see deviations)
+  agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for architecture domain',sonnet:analyzer:'focus on root-cause analysis and evidence-based reasoning for architecture',haiku:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'"
+  enrichment_artifact_sizes:
+    codebase-context.md: 4695
+  deviations:
+    - "Strategy auto-detect: literal heuristic matches 'audit' (enterprise); chosen systematic because 'audit' names a skill, not compliance (socratic-answers.md)."
+    - "Socratic questions answered by the agent from the evaluation and inventory files (user unavailable); recorded in socratic-answers.md."
+    - "Token hard-kill threshold not enforced: Wave 3 subagent usage (~2.8M) exceeded 1.25 x estimate; the two estimate tables in the skill disagree by 10x."
+    - "Round 2 advocate for Variant C ran pytest on a zero-test file and a missing path under /tmp to measure exit codes (5 and 4); brief forbade test runs; no repo file changed (git status clean outside the output directory)."
+    - "haiku alias resolved to ANTHROPIC_DEFAULT_HAIKU_MODEL=glm-5.3 in this environment."

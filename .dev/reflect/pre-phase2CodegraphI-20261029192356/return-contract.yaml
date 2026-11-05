@@ -1,0 +1,76 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase2CodegraphI-20261029192356/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase2CodegraphI-20261029192356/audit.log
+confidence_calibrated: 0.71
+escalation_rule_matched: 6
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.6154
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-002, INF-003, INF-005, INF-008, INF-009, INF-010, INF-011, INF-012, INF-017, INF-019, INF-020, INF-021, INF-024, INF-027, INF-031, INF-033, INF-034, INF-036, INF-038, INF-039, INF-040, INF-041, INF-042, INF-043, INF-044, INF-046, INF-047, INF-048, INF-049, INF-050, INF-051, INF-052, INF-053, INF-054, INF-055, INF-057, INF-058, INF-071, INF-072]
+unmapped_triage_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase2CodegraphI-20261029192356/artifacts/unmapped-triage.yaml   # 39 covered by reference, 1 Coder-owned, 0 real gaps
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+input_sha256: {tasklist: 87792b850562abcf1bbea56e5e9efc53506be3bb59fb83aca66c044aeab4643f, spec: cd5d443f4c80e8b1278d0bcb4bc2ae3e30bc2356600e0945c3ec93b0e423ced3}
+input_tree_sha256: 3179048716a4f6dc40f14eada73e1a53353066b68a7d9caa0220be96d8710b58
+input_tree_file_count: 30
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase2CodegraphI-20261029192356/artifacts/input-snapshot.yaml
+input_drift_detected: true
+input_drift_diff: [{path: .dev/codegraph-migration/specs/phase-1-removal-spec.md, old_sha: 4f25d464f97d791b7a20491d928cefb8775377378075bd21e492284bd92b2259, new_sha: f2f1f48919811400d7c87c391b4b6af5f2e2c74910100aff893fc782d5c87037, change_kind: modified}]
+citations_total: 193
+citations_revalidated: 189
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase2CodegraphI-20261029192356/reviewer-cards/reviewer-1-card.yaml, /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase2CodegraphI-20261029192356/reviewer-cards/reviewer-2-card.yaml]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/feat-codememory-codegraph-init/.dev/reflect/pre-phase2CodegraphI-20261029192356/adversarial/adversarial/
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: full
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: true
+blocked_by_low_confidence: false
+spec_is_wrong: true          # 8 findings are defects inherited from the spec
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+deviation_count_by_class: {authorized: 3, necessary: 8, drift: 8, regression: 0}
+partial_reasons: [adversarial BLOCKED_BY_INVARIANTS (INV-001, INV-006 applied without re-debate), input_drift on phase-1-removal-spec.md]
+telemetry:
+  degraded_components: [serena, get_current_config, auggie-not-used]
+  executor_class_source: session-model
+  executor_class_resolved: true
+  executor_exclusion_degraded: false
+  reviewer_models: [claude-sonnet-5-5, glm-5.3]
+  reviewer_personas: [analyzer, qa]
+  serena_version: unknown
+  onboarding_status: unknown
+  zero_drop_flag: true

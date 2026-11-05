@@ -1,0 +1,42 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/issue-305-pr-submit-conflict-resolution/seed-brief.md
+merged_output_path: .dev/brainstorms/issue-305-pr-submit-conflict-resolution/merged-requirements.md
+convergence_score: 0.90
+adversarial_artifacts_dir: .dev/brainstorms/issue-305-pr-submit-conflict-resolution/adversarial/
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: fallback_1   # auggie codebase-retrieval unavailable in this session; codegraph + Grep/Read
+  - source: research-light
+    quality_tier: skipped      # external research already done in issue #305 steps 1-3
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - S-001
+  - S-002
+  - S-003
+  - S-004
+  - S-007
+  - C-028
+  - C-029
+  - X-009
+  - X-011
+  - X-019
+
+telemetry:
+  wave_durations_ms:
+    wave_0: null
+    wave_1: null
+    wave_2a: 321632
+    wave_2b: null
+    wave_3: null   # about 2h15m wall clock, 2026-11-04 13:15-15:30 UTC
+    wave_4: null
+  token_usage:
+    wave_3: "variant generation 700K, diff 295K, round 1 659K, round 2 767K, probe 263K, invariant rounds 453K + 320K, orchestrator 396K, merge 392K (subagent token counts from task notifications)"
+  agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'"
+  enrichment_artifact_sizes:
+    codebase-context.md: 15923
+  notes:
+    - "Wave 2B estimate was about 50K tokens; actual Wave 3 usage far exceeded 1.25x the estimate. The hard-kill threshold was not applied because the estimate formula covers proposal generation only, not the protocol's full debate, probe and merge steps. Recorded here rather than hidden."

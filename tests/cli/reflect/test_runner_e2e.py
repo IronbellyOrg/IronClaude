@@ -68,7 +68,7 @@ def test_e2e_degraded(
     temp_tasklist, patch_git, patch_runner_env, make_claude_process_stub
 ) -> None:
     config = _config(temp_tasklist)
-    factory = make_claude_process_stub("degraded_serena.yaml", rc=0)
+    factory = make_claude_process_stub("degraded_tier1.yaml", rc=0)
     with patch(_PATCH_TARGET, side_effect=factory) as mock_cls:
         result = ReflectRunner(config).run()
     assert result.verdict is Verdict.DEGRADED

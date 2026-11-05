@@ -1,0 +1,16 @@
+🔍 SuperClaude Doctor
+
+✅ pytest plugin loaded
+    SuperClaude pytest plugin is active
+✅ Agents installed
+    45 agent(s) installed
+✅ Skills installed
+    36 skill(s) installed: ccsession-tag, confidence-check, operational-guide, prd, readme, roadmap, sc-adversarial-protocol, sc-auggie-review-protocol, sc-bare-review, sc-brainstorm-protocol, sc-cleanup-audit-protocol, sc-cli-eval-protocol, sc-cli-portify-protocol, sc-crash-recovery, sc-implement-protocol, sc-init-lite-protocol, sc-pm-protocol, sc-post-release-protocol, sc-pr-submit-protocol, sc-recommend, sc-reflect-protocol, sc-release-split-protocol, sc-review-translation-protocol, sc-roadmap-protocol, sc-swarm-wizard-protocol, sc-task-protocol, sc-tasklist-protocol, sc-troubleshoot-protocol, sc-validate-roadmap-protocol, sc-validate-tests-protocol, sc-workflow-protocol, task, task-builder, tdd, tech-reference, tech-research
+✅ Configuration
+    SuperClaude 4.3.5 installed correctly
+✅ ccsession installed (warning: ~/.local/bin not on PATH)
+    ccsession skill, launcher, env and hook present
+✅ Retired MCP registrations
+    No legacy registration to retire
+
+✅ SuperClaude is healthy

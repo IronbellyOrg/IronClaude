@@ -1,0 +1,67 @@
+# Persisted by the orchestrator from reviewer-1's returned card (reflect-reviewer, sonnet, persona analyzer). Claims condensed; IDs, evidence, classes, severities and recommendations kept.
+reviewer: reviewer-1
+persona: analyzer
+model: sonnet
+verdict: "plan delivers the design and is true to the repo, with one omitted source check (blocking) and several minor gaps"
+self_reported_confidence: 0.8
+findings:
+  - id: R1-1
+    claim: "Source check `make verify-sync` is run by no task."
+    evidence: [source.md:1, "TASK-WF-closeIronbellyOr-20261104-084334.md:58-62", "Makefile:166"]
+    deviation_class: drift
+    severity: blocking
+    recommendation: "Add `make verify-sync` to Task 2's acceptance criteria (or a final gate), output appended to ./artifacts/t2-pytest.log."
+  - id: R1-2
+    claim: "Design AC-2 (diff limited to the five files) and AC-3 (no new src/superclaude hit) are in no task's acceptance criteria; nothing checks the whole diff at the end."
+    evidence: ["merged-requirements.md:281-282", "TASK-WF-closeIronbellyOr-20261104-084334.md:19"]
+    deviation_class: drift
+    severity: minor
+    recommendation: "Add a closing criterion (e.g. Task 6): record `git diff --stat` showing only the five delivery files plus .dev/tasks, and the AC-3 grep result."
+  - id: R1-3
+    claim: "'At most 5 changed lines' is ambiguous: the design shape is +4/-3 in git terms, so a literal insertions+deletions reading fails a correct fix."
+    evidence: ["merged-requirements.md:111", "TASK-WF-closeIronbellyOr-20261104-084334.md:59", "install_user_setup.py:292,303,305"]
+    deviation_class: necessary
+    severity: minor
+    recommendation: "Define the cap as at most 5 added or modified lines on the new side (insertions <= 5)."
+  - id: R1-4
+    claim: "Task 5 M1a can fail on the 30 s budget (3 clones + 7 installs), not a defect; the plan does not say how the evidence run handles it."
+    evidence: ["install_user_setup.py:35,259,290-293", "merged-requirements.md:163", "TASK-WF-closeIronbellyOr-20261104-084334.md:99"]
+    deviation_class: grounding_gap
+    severity: minor
+    recommendation: "Pass an explicit larger `deadline` in the evidence run or rerun until stable; record the first-run budget outcome separately."
+  - id: R1-5
+    claim: "The C-install-surface recipe symlinks /usr/local/bin/node, which does not exist on this host; under env -i the uv cache moves into the throwaway HOME; claude credentials unverified."
+    evidence: ["C-install-surface.md:130-134", "TASK-WF-closeIronbellyOr-20261104-084334.md:98"]
+    deviation_class: grounding_gap
+    severity: minor
+    recommendation: "Resolve node with `command -v node`; set UV_CACHE_DIR or use the checkout's venv python; record missing node/credentials as UNVERIFIED."
+  - id: R1-6
+    claim: "The mtime check of the live ~/.claude can false-FAIL when other sessions touch it."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-084334.md:106"]
+    deviation_class: grounding_gap
+    severity: minor
+    recommendation: "Keep the before/after record; investigate a change against the commands run before calling it a Task 5 failure."
+  - id: R1-7
+    claim: "The Outcome 1 alternative only works 'before Task 1 runs', and Task 1's 'exactly the three new entries' criterion contradicts the four-key Outcome 1 branch."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-084334.md:24,42", "merged-requirements.md:83-87", source.md:1]
+    deviation_class: authorized
+    severity: minor
+    recommendation: "State in Constraints and Task 1: Outcome 1 means four keys; a late decision gets a follow-up step editing JSON, tests, docs and CHANGELOG."
+  - id: R1-8
+    claim: "Task 3's item list omits four design docs items (Orca workers included; local only/webhook empty; /ponytail default prints PONYTAIL DEFAULT SET with no effect; every subagent gets the ruleset while a level is on)."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-084334.md:72,77", "merged-requirements.md:198-222"]
+    deviation_class: drift
+    severity: minor
+    recommendation: "Make the criterion 'contains every sentence of the design installation block, ledger placeholder replaced'."
+  - id: R1-9
+    claim: "Task 6 'names no upstream repository other than ...' is ambiguous; the PR body legitimately names anthropics/claude-plugins-official and Lum1104/Understand-Anything."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-084334.md:118", "CLAUDE.md (PR Target = Fork rule)"]
+    deviation_class: necessary
+    severity: minor
+    recommendation: "Reword to 'contains no SuperClaude-Org reference or link; GitHub PR/issue references point only at IronbellyOrg/IronClaude'."
+  - id: R1-10
+    claim: "Confirmed true: label defect (lines 303/305/292), T5 pre/post expectations, JSON-revert claim, single 'six plugins' hit, CHANGELOG Unreleased position, _NESTED_KEYS fill, existing fixtures, safe task order."
+    evidence: ["install_user_setup.py:36,292,303,305", "tests/cli/test_install_user_setup.py:182-242", "docs/getting-started/installation.md:354", "CHANGELOG.md:5,7", "user_settings_defaults.json:10-12,28-49"]
+    deviation_class: authorized
+    severity: minor
+    recommendation: none

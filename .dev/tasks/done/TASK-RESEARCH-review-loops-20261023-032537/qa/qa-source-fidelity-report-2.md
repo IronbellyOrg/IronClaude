@@ -1,0 +1,63 @@
+# Source-Document Fidelity Report: Partition 2
+
+**Report reviewed:** `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/RESEARCH-REPORT-review-loops.md`. It has 1,310 lines and sha256 `9ac64f1353fb9a6ea228af727183d3434788807498219150a54275a84ad8e568`, which I re-measured at the start of this review. I read the whole report (lines 1-1310).
+**Partition:** 2 of 4. It covers the claim-gate oracle (slot 27) and the documentation/render case with its Task 2 baseline control (slot 01), plus the hypothesis cards, synthesis components and QA records assigned to Partition 2 in `phase-outputs/discovery/fidelity-source-map.md:91-152`.
+**QA phase:** source-fidelity. Fix authorization: false. I edited no file and ran no Git command.
+**Governing template:** the Source-Document Fidelity Agent Prompt and report format at `/config/.claude/skills/tech-research/SKILL.md:1153-1194`.
+**Source files checked:** 41 assigned paths. Text read in full or in the assigned ranges, about 4,900 lines. JSONL: 33 records of the oracle log, 9 records of the oracle builder trace and 31 records of the documentation log, extracted by line number.
+**Date:** 2026-10-24
+
+Verdict: FAIL
+
+## Fidelity Findings
+
+| # | Source File | Report Section | Type | Finding | Severity |
+|---|---|---|---|---|---|
+| 1 | `R/research/03-session-6f744b87.md:121-131` and `:212-239` (the case analyst read Coder Git blobs `62e217cd` and `0a01c9a4` and Coder trees `f60d2c3…`, `3c5fdfa…` and `00d8f4a…`, and compared their test-file contents) | §8 "Constraints and approval boundaries", Separate authorization row (Report:901); header Scope line (Report:8); §3 Constraints (Report:322); Option D Reuse (Report:612) | Inaccurate | **The report denies a Git object access that its own evidence depends on.** Report:901 says that apart from the IronClaude Git reads at Steps 6.3-6.20, "None was performed here … (not the Coder trees named in Option D)". Report:8 and Report:322 limit the disclosed Git departure to those IronClaude reads. Report:612 says reading the Coder objects "is read-only Git object access that needs authorization". The case file shows the Coder blobs and trees were already read during the Phase 2 case analysis ("I independently read both Git blobs"; "This investigation independently establishes it using the earlier Git tree", research/03:125, :250). The report relies on that read: Report:166 "Retained earlier Git objects independently establish the genuine delta", Report:602 "The earlier truthful tree `f60d2c3…` contains them" and Report:607 "recovered Git trees". The user's recorded acceptance covers only the read-only Git reads at Steps 6.3-6.20 (`phase-outputs/plans/report-gate-decision.md:115`), so it does not cover this earlier read. The source does not record which tool performed the read. Under the report's own definition at Report:612, it is Git object access either way. **Fix:** at Report:8, :322 and :901, disclose that the case-03 analyst read these Coder blobs and trees during the Phase 2 case analysis (cite research/03:121-131, 212-239), and state that no authorization for that read is on record. Remove the clause "(not the Coder trees named in Option D)" from Report:901. Whether to keep the Coder-tree evidence is the user's decision; do not silently delete it. | IMPORTANT |
+| 2 | Documentation log records 204, 222 and 234 (records 204 and 234 are task notifications from the same reviewer, task id `a728a634771049499`; record 222 is a SendMessage to that same id); `R/research/screening-recovery-source.txt:76` ("Same reviewer returns `compliant`"); `R/research/03-session-6f744b87.md:204,256` | §2.2 Six Selected Session Histories, documentation row (Report:166) | Distorted | Report:166 says "the historical second reviewer had relied on the executor's account". The source shows the *same* reviewer re-reviewing the narrowed diff and returning `compliant`. There was no second reviewer. The report treats reviewer identity as a counting unit ("Review-stage counts are not counts of unique reviewer agents", Report:135), so this wording invents a reviewer that did not exist. Report:344 and Report:379 phrase it correctly ("the historical reviewer"). **Fix:** at Report:166, write "the same reviewer's second verdict (raw 234) relied on the executor's account". | MINOR |
+
+**Known, user-accepted defect, not counted as new:** J1, the stale status lines at Report:5, :1235 and :1287 (recorded as known at `fidelity-source-map.md:6`). Report:5 still says the cycle-2 verification is pending.
+
+## Claims Verified Against Primary Sources (no defect found)
+
+| Requirement from Step 6.24 | Primary evidence read | Result |
+|---|---|---|
+| Truncation supplemented by the full original reviews | Oracle record 291 ends with `[result truncated — ask the agent for the rest via SendMessage]`. The full review is `t12-review-1.md:20-34`, findings 1-4. | Report:165, :521 and :647 label record 291 as a truncated relay and cite `t12-review-1.md:20-35`. Correct. |
+| Frozen corpus and authorization restrictions | Record 383: the repair covers "findings1-3" only. "Finding4 is a known immutable held-back fixture authoring defect. DO NOT modify held-back.json, its sha256 artifact, HELD_BACK_SHA256 constant or frozen-tokens.json, and do not mislabel/add duplicate retention to conceal it". Plan line 207 requires held-back.json and its hash to exist before the oracle. Record 521: "I authorize the frozen-fixture correction". | Report:165, :345, :626 and :873 are accurate. "Satisfiable before freezing" is supported by builder record 52, where the generator defaults `default_path` to False and only the neighbouring `classic-default-null` constructor sets it True. |
+| Three fixed, one retained | `t12-review-2.md:20-28` (one finding) and `:34-40` (the three prior fixes confirmed). Record 450: "the other three prior issues now have working development-side corrections". | Report:165, :175, :364, :522 and :626 are accurate. |
+| One-field correction and re-freeze | `diff` of the preserved and current held-back files shows only line 600, `false` changed to `true`. The hashes `d54be745…` and `2751e86c…` match the review JSON and the pin file. The assertion added at record 579 exists at test lines 278-283. Counts were 74/85 before and after. | Report:165 ("re-frozen, not untouched") and Report:237 ("without increasing collected-test count") are accurate. |
+| Original criteria | Plan `TASK-WF-issue358FollowUp-20261022-210638.md:87`: "`man -l` renders both without a warning when `man` is available". `merged-requirements.md:607,610,652` match oracle findings 2-4. | Report:166, :628 and :855 are accurate. |
+| Evidence-only renderer retry | Record 413 sends stdout to `/dev/null` and saves `rc`. Records 433-434 write only static evidence. Record 443: "No text change was needed". Record 450: "cannot-verify (unchanged)". `/usr/bin/man` is a 6-line notice script (sha256 `1150abfc…`). The current `t6-fix-evidence.log` lines 1-3 match the record-434 output. | Report:118, :130, :166 and :626 are accurate. Current files corroborate the historical records; they are not substituted for them. |
+| Explicit acceptance, with no render falsely shown as compliant | `progress.md:14-18`: blocked `cannot-verify`, halt `head-moved`, Ruling, complete `verdict=cannot-verify`, `FINAL: pass`. Records 498/503/506: the wrong-task acceptance was refused before Task 6 was accepted. FINAL record 527 keeps the unmet render clause. | No passage in the report calls the render compliant. Report:242, :398-406, :857 and :890 are accurate. |
+| Unsupported baseline provenance | Record 188 comment: "test-60 held at HEAD (T2 edits were made before this snapshot)". Record 234: "I did not check … I'm relying on your account". | Report:166, :344, :596 and :872 are accurate, apart from Finding 2. |
+| No phantom causal claim | Deck rows 380-382 and 486-495, deck rows 589-590 and 618-620, and case 02 §§4-6. | No oracle or documentation transition is labelled as introduced by a repair. The default-path finding is labelled retained; the render result is labelled an unchanged blocker. Correct. |
+| Current state not substituted for missing historical bytes | The recorded worktree `/config/workspace/Coder/.claude/worktrees/issue-358-litellm-key-env` is absent (`ls`). The current root holds the three hash-matched files (`43934e0a…`, `7f271ce5…`, `0fe8afd5…`). `retries/T6/q0-head` is absent. | Report:255, :612, :847, :855 and :954 keep these limits, apart from Finding 1. |
+| Timestamps and record identities | Oracle records 139-824 and builder records 52-223 match case 02 to the millisecond. Documentation records 14-539 and 871-927 match case 03. The builder transcript is 2,021,102 bytes; there are 43 artifact files. | Report:140-141, :842 and :841 are accurate. |
+| Partition 2 QA and synthesis records | The Git-read QA lines (lens :25/:61, crossref :27/:53, domain :55, phase-6 consolidation :92, fix log :31-32, verifications :133/:123); the Phase 6 consolidation (11 FAIL lenses, 31 issues); the Phase 5 consolidation (33 issues, P5-28); the cycle-2 synthesis log (19 patches, not applied at :5/:21); the synthesis intake (:5, :59-63); the seven-pair comparison (:93-127); the depth-review erratum (:95-116); `web-01` (18-row inventory, 0 queries); five cards with 10 chapters each; current hashes of synth-02, -03 and -06 equal their assembly identities; the brace expansion in §10.6 gives 204 unique existing files. | All match the report. |
+
+## Summary
+
+- Files checked: 41 assigned paths.
+- Claims verified: 74 individual source-to-report claims in the oracle and documentation rows, Options A, D and E, §§2.1-2.6, §4, §5, §7.4, §8, §9 questions 9, 12 and 13, and §§10.1-10.10. The grouped results are in the table above.
+- Fidelity issues: 2 (Critical 0, Important 1, Minor 1). Known defect J1 is not counted.
+- Verdict: FAIL.
+- **Confidence:** Verified: 13 of 14 checks | Unverifiable: 1 (the contents of the Coder Git objects; no Git was allowed) | Unchecked: 0 | Confidence: 100.0%.
+- **Tool engagement:** Read: 19 | Grep: 0 (searches ran inside Bash) | Glob: 0 | Bash: 32 (sed, jq, grep, sha256sum, wc, diff, ls and stat; no Git). No web research.
+
+| Status | Result |
+|---|---|
+| DONE | Read the Partition 2 originals and the full report, and checked every oracle and documentation claim against the primary records. |
+| DONE | Found 2 fidelity defects: 1 IMPORTANT (undisclosed Coder Git object access) and 1 MINOR (an invented "second reviewer"). |
+| NEXT | Step 6.28 consolidation should merge these two findings into the fidelity failure set. Keeping or removing the Coder-tree evidence in Finding 1 is a user decision. |
+
+## Partition Limitations
+
+- **Git-only evidence:** I could not read the contents of the Coder trees `f60d2c3…`, `3c5fdfa…` and `00d8f4a…` or the blobs `62e217cd` and `0a01c9a4`, because no Git command was allowed. I judged them against the case-03 analyst's record (research/03:121-131, 212-239) and corroborated them only by facts outside Git:
+  - The loose object files exist. Their modification times (21:13, 21:15 and 21:16 on 2026-10-22) agree with the `T1`/`T2`/`T3: start sha=` lines in the current `progress.md`.
+  - The blob `0a01c9a4…` has a modification time of 2026-10-24T06:05, so it has been rewritten since. The report does not cite it directly.
+  - No recording QA report exists for these reads.
+- **IronClaude Git evidence** was judged only against the recording QA lines listed in the map. Those lines are consistent with the command list at Report:8.
+- **Historical identities cannot be re-verified:** the assembly-time hashes of synth-01, synth-04 and synth-05 (10.9), and the historical inventory counts of 22:14:30Z, 01:26:42Z and 03:51:27Z, were not re-checked against historical bytes. Files have been added and changed since those observations.
+- **Not opened:** the parent session log `dfade920-…jsonl` and its subagent transcripts behind `qa-research-verification-structural.md` and `qa-phase-3-fix-log.md`, by instruction. I used the recorded QA text instead.
+- **Cross-file checks are limited to Partition 2.** Cross-reads were used only for context: task log lines 687 and 693, and the Git rows of `report-gate-decision.md` (Partition 1). Debate-ranking claims and the CI, monitor, Orca and credential rows belong to Partitions 1, 3 and 4.
+- **Record 413 detail:** its saved `rc=$?` is the exit status of `head` in a pipeline, not of `man`. Both the report and the case say only that the "nominal zero exit status" proved nothing, so this is not a defect.

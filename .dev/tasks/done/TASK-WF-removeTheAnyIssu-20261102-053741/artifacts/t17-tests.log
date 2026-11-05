@@ -1,0 +1,31 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collected 325 items
+
+tests/cli/prd/test_cli_smoke.py ......                                   [  1%]
+tests/cli/prd/test_config.py .                                           [  2%]
+tests/cli/prd/test_e2e.py .............                                  [  6%]
+tests/cli/prd/test_executor.py ..........                                [  9%]
+tests/cli/prd/test_filtering.py ..........                               [ 12%]
+tests/cli/prd/test_gates.py ............................................ [ 25%]
+.........................................                                [ 38%]
+tests/cli/prd/test_integration.py .........                              [ 41%]
+tests/cli/prd/test_inventory.py .......                                  [ 43%]
+tests/cli/prd/test_models.py .......                                     [ 45%]
+tests/cli/prd/test_path_resolution.py ........                           [ 48%]
+tests/cli/prd/test_prompt_builders_dual_mode.py ..........               [ 51%]
+tests/cli/prd/test_prompts.py ..........                                 [ 54%]
+tests/cli/prd/test_research_notes_roundtrip.py ..                        [ 54%]
+tests/cli/prd/test_resolve_step_content.py ..............                [ 59%]
+tests/cli/prd/test_resume_skip.py .......                                [ 61%]
+tests/cli/prd/test_spec_flag.py ..............................           [ 70%]
+tests/unit/test_cli_install.py ......................................... [ 83%]
+.......................................................                  [100%]
+
+============================= 325 passed in 1.50s ==============================
+rc=0

@@ -1,0 +1,5 @@
+finish stdout: {"merge_sha":"8e6db1fa4e5773e38f0b1a23c9c54d06a6c5cc28","parents":["1abb0e9f083410e155293aa9cbdd41a89e45d8fb","c2fbf92ecafbc8f4f3b7afeef852c643c4d61929"]}
+exit: 0
+validated index tree: 75418c017f5d2d55bf0710617615f11fd9b218ae
+committed tree:       1eea654f1b8e161e2b2d46bbefd94599c5f39fd5
+unrelated.txt in HEAD: changed by hook

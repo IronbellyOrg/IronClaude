@@ -1,0 +1,47 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+benchmark: 5.3.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, benchmark-5.3.0, anyio-4.15.1, cov-7.1.0
+collected 423 items
+
+tests/skills/test_codegraph_adoption.py ................................ [  7%]
+.                                                                        [  7%]
+tests/skills/test_brainstorm_protocol.py .                               [  8%]
+tests/skills/test_sc_recommend_routing_contract.py ..................... [ 13%]
+......                                                                   [ 14%]
+tests/commands/test_auggie_review_remediation_chain.py ............      [ 17%]
+tests/commands/test_auggie_review_revagent.py ............               [ 20%]
+tests/commands/test_help_command.py ......                               [ 21%]
+tests/commands/test_research_command.py ..                               [ 21%]
+tests/commands/test_routing_plugin_parity.py .....                       [ 23%]
+tests/commands/test_workflow_command.py .................                [ 27%]
+tests/sc-roadmap/compliance/test_critical_corrections.py ssssssss.ssss   [ 30%]
+tests/sc-roadmap/compliance/test_mcp_circuit_breakers.py sssssssss       [ 32%]
+tests/sc-roadmap/compliance/test_path_conventions.py .ssss.ssss.         [ 34%]
+tests/sc-roadmap/compliance/test_task_tool_pattern.py ssssssss           [ 36%]
+tests/sc-roadmap/compliance/test_todowrite_states.py ssssss.             [ 38%]
+tests/sc-roadmap/integration/test_adversarial_pipeline.py .............. [ 41%]
+.......................                                                  [ 47%]
+tests/sc-roadmap/integration/test_full_pipeline.py sssssssssssssss       [ 50%]
+tests/sc-roadmap/integration/test_return_contract_routing.py ........... [ 53%]
+.................................                                        [ 61%]
+tests/sc-roadmap/integration/test_wave1_pipeline.py ....                 [ 62%]
+tests/sc-roadmap/integration/test_wave2_pipeline.py .........            [ 64%]
+tests/sc-roadmap/integration/test_wave3_pipeline.py .......              [ 65%]
+tests/sc-roadmap/integration/test_wave4_validation.py ................s. [ 70%]
+.s                                                                       [ 70%]
+tests/sc-roadmap/integration/test_wave5_completion.py .s....ssss         [ 73%]
+tests/sc-roadmap/unit/test_artifact_generation.py .ssssssssssssss        [ 76%]
+tests/sc-roadmap/unit/test_complexity_scoring.py ............            [ 79%]
+tests/sc-roadmap/unit/test_domain_analysis.py .............              [ 82%]
+tests/sc-roadmap/unit/test_extraction.py .................               [ 86%]
+tests/sc-roadmap/unit/test_milestone_generation.py ............s....     [ 90%]
+tests/sc-roadmap/unit/test_persona_activation.py ...........             [ 93%]
+tests/sc-roadmap/unit/test_spec_validation.py ................s          [ 97%]
+tests/sc-roadmap/unit/test_template_discovery.py ....s.s.ssss            [100%]
+
+======================= 336 passed, 87 skipped in 1.27s ========================
+pytest_rc=0

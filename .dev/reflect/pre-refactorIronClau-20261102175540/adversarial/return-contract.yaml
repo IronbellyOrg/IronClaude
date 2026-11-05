@@ -1,0 +1,20 @@
+# sc:adversarial return contract (written on every invocation)
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/adversarial/merged-findings.md
+  convergence_score: 1.0          # agreed_points / total_diff_points = 13 / 13 (majority rule); 11 / 13 unanimous
+  convergence_status: BLOCKED_BY_INVARIANTS   # INV-005 HIGH UNADDRESSED; Round 3 unavailable at depth standard
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/adversarial/adversarial
+  status: partial                 # non-convergence (invariant gate) + 1 new contradiction found by post-merge re-scan
+  partial_reasons:
+    - "Invariant gate blocked convergence: INV-005 (HIGH). Carried into the merged card as finding M-1."
+    - "Post-merge contradiction re-scan: R1-2 headline still says the plan calls POST-REFLECT-TASK.md a finished record; its rationale (Change #8) says plan line 37 never does. Flagged in merge-log.md; not hand-patched."
+  base_variant: "variant-1 (reviewer-1, sonnet, analyzer)"
+  unresolved_conflicts: 0         # by vote; X-001 decided 2-1 (62% confidence)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants:
+    - id: INV-005
+      category: guard_conditions
+      assumption: "scripts/eval_runner.py can be classified under the plan's existing two-class scheme"
+      severity: HIGH

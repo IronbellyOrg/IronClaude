@@ -2,8 +2,9 @@
 #
 # reply-resolve-thread.sh — C4 reply + resolve wrapper for sc:pr-submit.
 #
-# Purpose : Post a REST reply on an Augment finding's review-comment thread, THEN
-#           resolve that thread via the GraphQL resolveReviewThread mutation.
+# Purpose : Post a REST reply on a review finding's comment thread (an Augment or
+#           Codex root; the thread is found by its root comment id, never by author),
+#           THEN resolve that thread via the GraphQL resolveReviewThread mutation.
 #           Reply FIRST, then resolve (FR-6.1 → FR-6.2). A thread already resolved
 #           is skipped (idempotency).
 # Usage   : reply-resolve-thread.sh --pr <N> --comment-id <ID> --body-file <path>

@@ -1,0 +1,1145 @@
+# sweep-edits.yaml: literal, mechanically checkable edit table for the review severity rule (sweep rows).
+#
+# Date: 2026-11-02. Branch: fix/review-severity-rule (HEAD f90877be; src unmodified; line numbers verified on disk today).
+# Rule applied (S1/S2): grade every finding as blocking (CRITICAL / IMPORTANT: wrong, unsafe, incomplete against stated
+# requirements, or unverifiable) or minor (MINOR / LOW: cosmetic, wording, style, optional polish). Only blocking findings
+# fail a review; minor findings are recorded as notes, are not rechecked, and never trigger a fix pass on their own.
+# At the cap, open blocking findings HALT and escalate to the user (cap numbers and at-cap clauses live in cap-edits.yaml).
+# Inputs: .dev/review-severity-rule/sweep/fixloop-hits.tsv (scanner: sweep/fixloop_scan.py),
+# .dev/reflect/pre-removeTheAnyIssu-20261102054021/adversarial/merged-verdict.md (B3-01, B3-02, B3-03, B3-04, B3-07, B3-10).
+#
+# Row contract (same as cap-edits.yaml; check each row mechanically):
+#   - `old` is a literal substring of `file`; `grep -n -F -- "<old>" <file>` hits only the listed line(s) and the number of
+#     matches equals `occurrences` (every row here has occurrences 1).
+#   - No `old` occurrence shares any character position with a cap-edits.yaml `old` occurrence in the same file, so the two
+#     tables apply in either order.
+#   - `new` never contains `old`. After applying: count(old) == 0 and count(new) >= 1 in `file`.
+#   - Multi-line `old` (verdict PASS+FAIL pairs, the agent_template_qa Fix Cycle block, two short anchors) uses YAML "\n"
+#     escapes and lists every spanned line in `lines`.
+#   - Every `fixloop` row's `new` contains "blocking".
+#   - Not covered here (owned by other tasks): prd/refs/build-request-template.md:157, tdd/refs/build-request-template.md:152,
+#     task-builder/SKILL.md:1600, task/SKILL.md:347, every line in inventory.md sections 2.2-2.5, and the pm-agent example
+#     lines (agents/sc-pm-agent.md:541, src/superclaude/agents/pm-agent.md:564, plugins/superclaude/agents/pm-agent.md:564).
+# Groups (fixloop 96, verdict 14, halt 2, template-qa 1, reflect-gate 5, tasklist 12, zero-tolerance 5):
+#   fixloop        fix passes and repeat triggers carry blocking findings only (finding B3-03 for its 8 site sets, else sweep)
+#   verdict        "FAIL: Issues found" -> "FAIL: Blocking issues found"; PASS allows MINOR notes (B3-07)
+#   halt           rf-qa HALT-MONOTONICITY counts blocking issues only (B3-01)
+#   template-qa    agent_template_qa.md Fix Cycle rechecks previously failed blocking items only (B3-02)
+#   reflect-gate   task-builder POST reflect gate: Regression / unauthorized Drift is remediated or HALTs and escalates (B3-04)
+#   tasklist       sc-tasklist-protocol Stages 8-10: Low findings are notes; open High/Medium findings HALT at the cap (B3-10)
+#   zero-tolerance QA prompt intros: zero tolerance applies to blocking errors (sweep)
+rows:
+  - id: S-001
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 27
+    group: fixloop
+    finding: sweep
+    old: "a single fix agent then applies ALL collected fixes,"
+    new: "a single fix agent then applies ALL collected blocking fixes (minor findings stay as notes),"
+    occurrences: 1
+  - id: S-002
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 427
+    group: fixloop
+    finding: sweep
+    old: "then 1 rf-qa fix agent applies all fixes."
+    new: "then 1 rf-qa fix agent applies all blocking fixes (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-003
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 430
+    group: fixloop
+    finding: sweep
+    old: "then 1 rf-qa fix agent applies ALL fixes."
+    new: "then 1 rf-qa fix agent applies ALL blocking fixes (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-004
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 512
+    group: fixloop
+    finding: sweep
+    old: "with the consolidated findings to apply ALL fixes."
+    new: "with the consolidated blocking findings to apply ALL blocking fixes (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-005
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 538
+    group: fixloop
+    finding: sweep
+    old: "Spawn 1 rf-qa fix agent (fix_authorization: true). Verification round"
+    new: "Spawn 1 rf-qa fix agent (fix_authorization: true) for the blocking findings only (minor findings stay as notes). Verification round"
+    occurrences: 1
+  - id: S-006
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 569
+    group: fixloop
+    finding: B3-03
+    old: "with the consolidated findings list. It applies ALL fixes to the guide."
+    new: "with the consolidated blocking findings list (a minors-only list spawns no fix agent; minor findings stay as notes). It applies ALL blocking fixes to the guide."
+    occurrences: 1
+  - id: S-007
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 571
+    group: fixloop
+    finding: B3-03
+    old: "If verification finds new issues,"
+    new: "If verification finds new blocking issues (new minor findings are notes and do not restart the cycle),"
+    occurrences: 1
+  - id: S-008
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 1042
+    group: fixloop
+    finding: sweep
+    old: "a separate fix agent applies all fixes via serialized protocol"
+    new: "a separate fix agent applies all blocking fixes via serialized protocol"
+    occurrences: 1
+  - id: S-009
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 1055
+    group: fixloop
+    finding: sweep
+    old: "a dedicated fix agent will apply all consolidated findings"
+    new: "a dedicated fix agent will apply all consolidated blocking findings (minor findings stay as notes)"
+    occurrences: 1
+  - id: S-010
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 1561
+    group: fixloop
+    finding: sweep
+    old: "A serialized fix agent applies all collected findings."
+    new: "A serialized fix agent applies all collected blocking findings (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-011
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 1575
+    group: fixloop
+    finding: sweep
+    old: "the serialized fix agent applies all collected fixes from all QA reports. Issues remaining"
+    new: "the serialized fix agent applies all collected blocking fixes from all QA reports (minor findings stay as notes). Blocking issues remaining"
+    occurrences: 1
+  - id: S-012
+    file: src/superclaude/skills/prd/refs/build-request-template.md
+    line: 155
+    group: fixloop
+    finding: sweep
+    old: "If issues remain unfixed, address them before proceeding to qualitative QA."
+    new: "If blocking issues remain unfixed, address them before proceeding to qualitative QA (minor issues stay as notes)."
+    occurrences: 1
+  - id: S-013
+    file: src/superclaude/skills/tdd/refs/build-request-template.md
+    line: 150
+    group: fixloop
+    finding: sweep
+    old: "If issues remain unfixed, address them before proceeding to qualitative QA."
+    new: "If blocking issues remain unfixed, address them before proceeding to qualitative QA (minor issues stay as notes)."
+    occurrences: 1
+  - id: S-014
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 29
+    group: fixloop
+    finding: sweep
+    old: "a single fix agent applies consolidated fixes,"
+    new: "a single fix agent applies the consolidated blocking fixes (minor findings stay as notes),"
+    occurrences: 1
+  - id: S-015
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 442
+    group: fixloop
+    finding: sweep
+    old: "consolidated findings, 1 fix agent, 2 verification agents"
+    new: "consolidated findings, 1 fix agent for the blocking findings (minor findings stay as notes), 2 verification agents"
+    occurrences: 1
+  - id: S-016
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 452
+    group: fixloop
+    finding: sweep
+    old: "unless a gate-specific override is defined.**"
+    new: "unless a gate-specific override is defined. Fix agents receive blocking findings only; minor findings stay as notes.**"
+    occurrences: 1
+  - id: S-017
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 544
+    group: fixloop
+    finding: sweep
+    old: "If any findings exist in the consolidated report, spawn 1 rf-qa fix agent (fix_authorization: true, per the universal Consolidated Fix Agent Prompt) with consolidated findings to apply all fixes"
+    new: "If any blocking findings exist in the consolidated report, spawn 1 rf-qa fix agent (fix_authorization: true, per the universal Consolidated Fix Agent Prompt) with the consolidated blocking findings (minor findings stay as notes) to apply all blocking fixes"
+    occurrences: 1
+  - id: S-018
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 546
+    group: fixloop
+    finding: B3-03
+    old: "If verification finds new issues, repeat Steps 3.3-3.4."
+    new: "If verification finds new blocking issues, repeat Steps 3.3-3.4 (new minor findings are notes and do not restart the cycle)."
+    occurrences: 1
+  - id: S-019
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 577
+    group: fixloop
+    finding: sweep
+    old: "then 1 rf-qa fix agent applies all fixes, then 2 verification agents confirm."
+    new: "then 1 rf-qa fix agent applies all blocking fixes (minor findings stay as notes), then 2 verification agents confirm."
+    occurrences: 1
+  - id: S-020
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 579
+    group: fixloop
+    finding: sweep
+    old: "The fix agent applies all consolidated fixes."
+    new: "The fix agent applies all consolidated blocking fixes (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-021
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 600
+    group: fixloop
+    finding: sweep
+    old: "with consolidated findings — apply ALL fixes to the README."
+    new: "with the consolidated blocking findings (minor findings stay as notes) — apply ALL blocking fixes to the README."
+    occurrences: 1
+  - id: S-022
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 1328
+    group: fixloop
+    finding: sweep
+    old: "findings are consolidated and a single fix agent applies all fixes."
+    new: "findings are consolidated and a single fix agent applies all blocking fixes (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-023
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 1580
+    group: fixloop
+    finding: sweep
+    old: "#### Consolidated Fix Agent Prompt (rf-qa)"
+    new: "#### Consolidated Fix Agent Prompt (rf-qa; blocking findings only)"
+    occurrences: 1
+  - id: S-024
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 1590
+    group: fixloop
+    finding: sweep
+    old: "Read the consolidated findings list and apply ALL fixes using Edit."
+    new: "Read the consolidated findings list and apply ALL blocking fixes using Edit; minor findings stay as notes."
+    occurrences: 1
+  - id: S-025
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 1880
+    group: fixloop
+    finding: sweep
+    old: "a single fix agent applies consolidated findings using the serialized fix protocol."
+    new: "a single fix agent applies the consolidated blocking findings using the serialized fix protocol (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-026
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 1955
+    group: fixloop
+    finding: sweep
+    old: "Single fix agent applied ALL consolidated fixes"
+    new: "Single fix agent applied ALL consolidated blocking fixes (minor findings stay as notes)"
+    occurrences: 1
+  - id: S-027
+    file: src/superclaude/skills/readme/SKILL.md
+    line: 2060
+    group: fixloop
+    finding: sweep
+    old: "applies ALL fixes. Then 2 verification agents confirm fixes."
+    new: "applies ALL blocking fixes (minor findings stay as notes). Then 2 verification agents confirm fixes."
+    occurrences: 1
+  - id: S-028
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 27
+    group: fixloop
+    finding: sweep
+    old: "then a single fix agent applies all corrections, then verification agents confirm."
+    new: "then a single fix agent applies all blocking corrections (minor findings stay as notes), then verification agents confirm."
+    occurrences: 1
+  - id: S-029
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 562
+    group: fixloop
+    finding: sweep
+    old: "Fix round — Count consolidated lens findings."
+    new: "Fix round — Count consolidated blocking lens findings (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-030
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 566
+    group: fixloop
+    finding: sweep
+    old: "based on consolidated fidelity findings count."
+    new: "based on the consolidated blocking fidelity findings count (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-031
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 569
+    group: fixloop
+    finding: sweep
+    old: "(4) Determine K per Rule 24 thresholds based on consolidated gap count."
+    new: "(4) Determine K per Rule 24 thresholds based on the consolidated count of blocking gaps (MISSING or PARTIAL; minor findings stay as notes)."
+    occurrences: 1
+  - id: S-032
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 577
+    group: fixloop
+    finding: sweep
+    old: "based on consolidated coverage finding count."
+    new: "based on the consolidated blocking coverage finding count (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-033
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 589
+    group: fixloop
+    finding: sweep
+    old: "based on that BUILD_REQUEST's consolidated finding count"
+    new: "based on that BUILD_REQUEST's consolidated blocking finding count (minor findings stay as notes)"
+    occurrences: 1
+  - id: S-034
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 668
+    group: fixloop
+    finding: sweep
+    old: "If issues found: for each failing task file independently"
+    new: "If blocking issues found (minor findings stay as notes): for each failing task file independently"
+    occurrences: 1
+  - id: S-035
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 2071
+    group: fixloop
+    finding: sweep
+    old: "Count fixable findings in the consolidated file."
+    new: "Count fixable blocking findings in the consolidated file (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-036
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 2073
+    group: fixloop
+    finding: B3-03
+    old: "If verification finds new issues, repeat steps 3-4."
+    new: "If verification finds new blocking issues, repeat steps 3-4 (new minor findings are notes and do not restart the cycle)."
+    occurrences: 1
+  - id: S-037
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 2107
+    group: fixloop
+    finding: sweep
+    old: "3. Log fix outcomes (succeeded / failed / skipped with reason) in a summary block"
+    new: "3. Log fix outcomes (succeeded / failed / skipped with reason) for each blocking finding in a summary block"
+    occurrences: 1
+  - id: S-038
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 2591
+    group: fixloop
+    finding: sweep
+    old: "then fix agents apply corrections SERIALLY (one at a time, never concurrently)."
+    new: "then fix agents apply the blocking corrections SERIALLY (one at a time, never concurrently; minor findings stay as notes)."
+    occurrences: 1
+  - id: S-039
+    file: src/superclaude/skills/roadmap/SKILL.md
+    line: 2594
+    group: fixloop
+    finding: sweep
+    old: "K=1 fix agent applies all corrections"
+    new: "K=1 fix agent applies all blocking corrections"
+    occurrences: 1
+  - id: S-040
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1144
+    group: fixloop
+    finding: sweep
+    old: "4. Spawn ONE fix agent (fix_authorization: true) with consolidated"
+    new: "4. Spawn ONE fix agent (fix_authorization: true) with the consolidated blocking"
+    occurrences: 1
+  - id: S-041
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1145
+    group: fixloop
+    finding: sweep
+    old: "findings to apply ALL fixes."
+    new: "findings to apply ALL blocking fixes (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-042
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1174
+    group: fixloop
+    finding: sweep
+    old: "A single fix agent applies all fixes."
+    new: "A single fix agent applies all blocking fixes (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-043
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1319
+    group: fixloop
+    finding: sweep
+    old: "focused structural lens. Use serialized fix authorization: both agents report findings only (fix_authorization: false), then a single fix agent applies all consolidated findings."
+    new: "focused structural lens. Use serialized fix authorization: both agents report findings only (fix_authorization: false), then a single fix agent applies all consolidated blocking findings (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-044
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1409
+    group: fixloop
+    finding: sweep
+    old: "SINGLE rf-qa fix agent (fix_authorization: true) with the consolidated"
+    new: "SINGLE rf-qa fix agent (fix_authorization: true) with the blocking findings from the consolidated"
+    occurrences: 1
+  - id: S-045
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1410
+    group: fixloop
+    finding: sweep
+    old: "findings list to apply ALL fixes to the task file."
+    new: "findings list to apply ALL blocking fixes to the task file (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-046
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1471
+    group: fixloop
+    finding: sweep
+    old: "with the alignment findings appended to the consolidated file. This fix agent applies alignment fixes to the task file."
+    new: "with the blocking alignment findings appended to the consolidated file (minor findings stay as notes). This fix agent applies the blocking alignment fixes to the task file."
+    occurrences: 1
+  - id: S-047
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 1477
+    group: fixloop
+    finding: sweep
+    old: "a focused lens. Use serialized fix authorization: both agents report findings only (fix_authorization: false), then a single fix agent applies all consolidated findings."
+    new: "a focused lens. Use serialized fix authorization: both agents report findings only (fix_authorization: false), then a single fix agent applies all consolidated blocking findings (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-048
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 2111
+    group: fixloop
+    finding: sweep
+    old: "with consolidated findings to apply all fixes"
+    new: "with the consolidated blocking findings to apply all blocking fixes (minor findings stay as notes)"
+    occurrences: 1
+  - id: S-049
+    file: src/superclaude/skills/task-builder/SKILL.md
+    lines: [2145, 2146]
+    group: fixloop
+    finding: sweep
+    old: "with consolidated findings\n3. Verification round to confirm fixes applied correctly"
+    new: "with the consolidated blocking findings (minor findings stay as notes)\n3. Verification round to confirm fixes applied correctly"
+    occurrences: 1
+  - id: S-050
+    file: src/superclaude/skills/task/SKILL.md
+    line: 250
+    group: fixloop
+    finding: sweep
+    old: "If findings exist, spawn ONE `rf-qa` agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the output files."
+    new: "If blocking findings exist, spawn ONE `rf-qa` agent with `fix_authorization: true` and the consolidated findings file as input (a minors-only list spawns no fix agent; minor findings stay as notes). This single agent applies ALL blocking fixes to the output files."
+    occurrences: 1
+  - id: S-051
+    file: src/superclaude/skills/task/SKILL.md
+    line: 252
+    group: fixloop
+    finding: sweep
+    old: "(a) all findings from the consolidated list were addressed,"
+    new: "(a) all blocking findings from the consolidated list were addressed (minor findings are notes and are not rechecked),"
+    occurrences: 1
+  - id: S-052
+    file: src/superclaude/skills/task/SKILL.md
+    line: 252
+    group: fixloop
+    finding: sweep
+    old: "(c) no new issues were introduced by the fixes."
+    new: "(c) no new blocking issues were introduced by the fixes (new minor findings are recorded as notes)."
+    occurrences: 1
+  - id: S-053
+    file: src/superclaude/skills/task/SKILL.md
+    line: 359
+    group: fixloop
+    finding: B3-03
+    old: "If findings exist, spawn ONE `rf-qa` agent with `fix_authorization: true` and the consolidated findings list. This agent applies ALL fixes."
+    new: "If blocking findings exist, spawn ONE `rf-qa` agent with `fix_authorization: true` and the consolidated findings list (a minors-only list spawns no fix agent; minor findings stay as notes). This agent applies ALL blocking fixes."
+    occurrences: 1
+  - id: S-054
+    file: src/superclaude/skills/task/SKILL.md
+    line: 362
+    group: fixloop
+    finding: B3-03
+    old: "- All findings from the consolidated list were addressed"
+    new: "- All blocking findings from the consolidated list were addressed (minor findings are notes and are not rechecked)"
+    occurrences: 1
+  - id: S-055
+    file: src/superclaude/skills/task/SKILL.md
+    line: 364
+    group: fixloop
+    finding: B3-03
+    old: "- No new issues were introduced by the fixes"
+    new: "- No new blocking issues were introduced by the fixes (new minor findings are recorded as notes)"
+    occurrences: 1
+  - id: S-056
+    file: src/superclaude/skills/task/SKILL.md
+    line: 366
+    group: fixloop
+    finding: B3-03
+    old: "If verification finds new issues, repeat from step 2 with updated findings (re-consolidate so the fix agent gets both remaining unfixed issues and newly introduced issues)."
+    new: "If verification finds new blocking issues, repeat from step 2 with updated findings (re-consolidate so the fix agent gets both remaining unfixed blocking issues and newly introduced blocking issues; new minor findings are notes and do not restart the cycle)."
+    occurrences: 1
+  - id: S-057
+    file: src/superclaude/skills/task/SKILL.md
+    line: 403
+    group: fixloop
+    finding: sweep
+    old: "If findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the fidelity findings file as input. Apply all fixes."
+    new: "If blocking findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the fidelity findings file as input. Apply all blocking fixes (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-058
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 180
+    group: fixloop
+    finding: sweep
+    old: "then consolidated findings, then a single serialized fix agent, then verification round"
+    new: "then consolidated findings, then a single serialized fix agent for the blocking findings (minor findings stay as notes), then verification round"
+    occurrences: 1
+  - id: S-059
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 414
+    group: fixloop
+    finding: sweep
+    old: "applying all consolidated findings, then 2-agent verification round"
+    new: "applying all consolidated blocking findings (minor findings stay as notes), then 2-agent verification round"
+    occurrences: 1
+  - id: S-060
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 510
+    group: fixloop
+    finding: sweep
+    old: "is any FAIL-rated finding from the consolidated findings list."
+    new: "is any FAIL-rated (blocking) finding from the consolidated findings list; minor findings stay as notes and get no gap-filling agent."
+    occurrences: 1
+  - id: S-061
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 527
+    group: fixloop
+    finding: sweep
+    old: "to apply all fixes, then 2-agent verification round."
+    new: "to apply all blocking fixes (minor findings stay as notes), then 2-agent verification round."
+    occurrences: 1
+  - id: S-062
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 529
+    group: fixloop
+    finding: sweep
+    old: "if fix agent could not resolve all findings,"
+    new: "if fix agent could not resolve all blocking findings (minor findings stay as notes),"
+    occurrences: 1
+  - id: S-063
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 534
+    group: fixloop
+    finding: B3-03
+    old: "with the consolidated findings list — it applies ALL fixes to the document."
+    new: "with the consolidated blocking findings list (a minors-only list spawns no fix agent; minor findings stay as notes) — it applies ALL blocking fixes to the document."
+    occurrences: 1
+  - id: S-064
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 534
+    group: fixloop
+    finding: B3-03
+    old: "If verification finds new issues, repeat from fix agent"
+    new: "If verification finds new blocking issues (new minor findings are notes and do not restart the cycle), repeat from fix agent"
+    occurrences: 1
+  - id: S-065
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 899
+    group: fixloop
+    finding: sweep
+    old: "a separate fix agent applies all fixes via serialized protocol"
+    new: "a separate fix agent applies all blocking fixes via serialized protocol"
+    occurrences: 1
+  - id: S-066
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 914
+    group: fixloop
+    finding: sweep
+    old: "a dedicated fix agent will apply all consolidated findings"
+    new: "a dedicated fix agent will apply all consolidated blocking findings (minor findings stay as notes)"
+    occurrences: 1
+  - id: S-067
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 1219
+    group: fixloop
+    finding: sweep
+    old: "a dedicated fix agent applies all fixes per the serialized fix protocol. Remaining unfixed issues"
+    new: "a dedicated fix agent applies all blocking fixes per the serialized fix protocol (minor findings stay as notes). Remaining unfixed blocking issues"
+    occurrences: 1
+  - id: S-068
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 1307
+    group: fixloop
+    finding: sweep
+    old: "then a single fix agent applies consolidated findings, then a verification round confirms."
+    new: "then a single fix agent applies the consolidated blocking findings (minor findings stay as notes), then a verification round confirms."
+    occurrences: 1
+  - id: S-069
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 27
+    group: fixloop
+    finding: sweep
+    old: "then a single fix agent applies all corrections, then a verification round confirms"
+    new: "then a single fix agent applies all blocking corrections (minor findings stay as notes), then a verification round confirms"
+    occurrences: 1
+  - id: S-070
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 484
+    group: fixloop
+    finding: sweep
+    old: "with consolidated findings. Fix agent spawns additional targeted research agents for gaps requiring new research (one per gap). Applies all fixes."
+    new: "with consolidated blocking findings (minor findings stay as notes). Fix agent spawns additional targeted research agents for blocking gaps requiring new research (one per gap). Applies all blocking fixes."
+    occurrences: 1
+  - id: S-071
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 486
+    group: fixloop
+    finding: B3-03
+    old: "If verification finds new issues:"
+    new: "If verification finds new blocking issues (new minor findings are notes and do not restart the cycle):"
+    occurrences: 1
+  - id: S-072
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 513
+    group: fixloop
+    finding: sweep
+    old: "with consolidated findings. Fixes issues in synth files in-place."
+    new: "with consolidated blocking findings (minor findings stay as notes). Fixes blocking issues in synth files in-place."
+    occurrences: 1
+  - id: S-073
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 546
+    group: fixloop
+    finding: sweep
+    old: "with consolidated findings list. The fix agent reads the report, applies ALL fixes from the consolidated list,"
+    new: "with the consolidated blocking findings list (minor findings stay as notes). The fix agent reads the report, applies ALL blocking fixes from the consolidated list,"
+    occurrences: 1
+  - id: S-074
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 551
+    group: fixloop
+    finding: sweep
+    old: "- [ ] If issues found:"
+    new: "- [ ] If blocking issues found (new minor findings are notes and do not restart the cycle):"
+    occurrences: 1
+  - id: S-075
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 564
+    group: fixloop
+    finding: sweep
+    old: "Consolidate anti-omission findings."
+    new: "Consolidate anti-omission findings (each unrecovered, unjustified omission is a blocking finding; minor findings stay as notes)."
+    occurrences: 1
+  - id: S-076
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 909
+    group: fixloop
+    finding: sweep
+    old: "a separate fix agent applies all fixes via serialized protocol"
+    new: "a separate fix agent applies all blocking fixes via serialized protocol"
+    occurrences: 1
+  - id: S-077
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 959
+    group: fixloop
+    finding: sweep
+    old: "A serialized fix agent applies all corrections."
+    new: "A serialized fix agent applies all blocking corrections (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-078
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 1508
+    group: fixloop
+    finding: sweep
+    old: "a single fix agent then applies all collected findings via serialized fix protocol."
+    new: "a single fix agent then applies all collected blocking findings via serialized fix protocol (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-079
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 1529
+    group: fixloop
+    finding: sweep
+    old: "the serialized fix agent applies all collected fixes. Issues remaining"
+    new: "the serialized fix agent applies all collected blocking fixes (minor findings stay as notes). Blocking issues remaining"
+    occurrences: 1
+  - id: S-080
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 1637
+    group: fixloop
+    finding: sweep
+    old: "A single fix agent applies all collected findings."
+    new: "A single fix agent applies all collected blocking findings (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-081
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 734
+    group: fixloop
+    finding: B3-03
+    old: "**Fix phase:** Spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the target document."
+    new: "**Fix phase:** If the consolidated findings file lists blocking findings, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input (a minors-only list spawns no fix agent; minor findings stay as notes). This single agent applies ALL blocking fixes to the target document."
+    occurrences: 1
+  - id: S-082
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 735
+    group: fixloop
+    finding: B3-03
+    old: "to confirm fixes were applied correctly and no new issues were introduced."
+    new: "to confirm the blocking fixes were applied correctly and no new blocking issues were introduced (minor findings are notes and are not rechecked)."
+    occurrences: 1
+  - id: S-083
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 736
+    group: fixloop
+    finding: B3-03
+    old: "If verification finds new issues, repeat from the Consolidation phase (step 2 above / M3 Step 5) — consolidate new findings + original unfixed findings, spawn fix agent, verify."
+    new: "If verification finds new blocking issues, repeat from the Consolidation phase (step 2 above / M3 Step 5) — consolidate new blocking findings + original unfixed blocking findings, spawn fix agent, verify (new minor findings are notes and do not restart the cycle)."
+    occurrences: 1
+  - id: S-084
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 934
+    group: fixloop
+    finding: sweep
+    old: "**Step 6 (Fix Agent):** Spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the target document."
+    new: "**Step 6 (Fix Agent):** If blocking findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input (minor findings stay as notes). This single agent applies ALL blocking fixes to the target document."
+    occurrences: 1
+  - id: S-085
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 965
+    group: fixloop
+    finding: sweep
+    old: "and the fidelity findings file as input. Apply all fixes."
+    new: "and the fidelity findings file as input. Apply all blocking fixes (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-086
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 1224
+    group: fixloop
+    finding: sweep
+    old: "If findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. The fix agent reads each finding and applies"
+    new: "If blocking findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input (a minors-only list spawns no fix agent; minor findings stay as notes). The fix agent reads each blocking finding and applies"
+    occurrences: 1
+  - id: S-087
+    file: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    line: 1261
+    group: fixloop
+    finding: sweep
+    old: "spawn one fix agent with `fix_authorization: true`, then spawn verification agents."
+    new: "spawn one fix agent with `fix_authorization: true` for the blocking findings (minor findings stay as notes), then spawn verification agents."
+    occurrences: 1
+  - id: S-088
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 644
+    group: fixloop
+    finding: sweep
+    old: "that applies all consolidated findings (see I20 for serialized fix protocol)"
+    new: "that applies all consolidated blocking findings (minor findings stay as notes; see I20 for serialized fix protocol)"
+    occurrences: 1
+  - id: S-089
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 669
+    group: fixloop
+    finding: sweep
+    old: "(3) ONE fix agent applies ALL fixes with `fix_authorization: true`,"
+    new: "(3) ONE fix agent applies ALL blocking fixes with `fix_authorization: true` (minor findings stay as notes),"
+    occurrences: 1
+  - id: S-090
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 751
+    group: fixloop
+    finding: B3-03
+    old: "**Fix phase:** Spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the target document."
+    new: "**Fix phase:** If the consolidated findings file lists blocking findings, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input (a minors-only list spawns no fix agent; minor findings stay as notes). This single agent applies ALL blocking fixes to the target document."
+    occurrences: 1
+  - id: S-091
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 752
+    group: fixloop
+    finding: B3-03
+    old: "to confirm fixes were applied correctly and no new issues were introduced."
+    new: "to confirm the blocking fixes were applied correctly and no new blocking issues were introduced (minor findings are notes and are not rechecked)."
+    occurrences: 1
+  - id: S-092
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 753
+    group: fixloop
+    finding: B3-03
+    old: "If verification finds new issues, repeat from the Consolidation phase (step 2 above / M3 Step 5) -- consolidate new findings + original unfixed findings, spawn fix agent, verify."
+    new: "If verification finds new blocking issues, repeat from the Consolidation phase (step 2 above / M3 Step 5) -- consolidate new blocking findings + original unfixed blocking findings, spawn fix agent, verify (new minor findings are notes and do not restart the cycle)."
+    occurrences: 1
+  - id: S-093
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 1086
+    group: fixloop
+    finding: sweep
+    old: "**Step 6 (Fix Agent):** Spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the target document."
+    new: "**Step 6 (Fix Agent):** If blocking findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input (minor findings stay as notes). This single agent applies ALL blocking fixes to the target document."
+    occurrences: 1
+  - id: S-094
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 1117
+    group: fixloop
+    finding: sweep
+    old: "and the fidelity findings file as input. Apply all fixes."
+    new: "and the fidelity findings file as input. Apply all blocking fixes (minor findings stay as notes)."
+    occurrences: 1
+  - id: S-095
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 1388
+    group: fixloop
+    finding: sweep
+    old: "with consolidated findings — apply ALL fixes to the Phase 2 output document(s)."
+    new: "with the consolidated blocking findings (minor findings stay as notes) — apply ALL blocking fixes to the Phase 2 output document(s)."
+    occurrences: 1
+  - id: S-096
+    file: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    line: 1400
+    group: fixloop
+    finding: sweep
+    old: "with fidelity consolidated findings -- apply ALL fidelity fixes"
+    new: "with the blocking fidelity consolidated findings (minor findings stay as notes) -- apply ALL blocking fidelity fixes"
+    occurrences: 1
+  - id: S-097
+    file: src/superclaude/templates/documents/skill_template.md
+    lines: [883, 884]
+    group: verdict
+    finding: B3-07
+    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with specific fixes, note which were fixed in-place)"
+    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes, note which were fixed in-place); MINOR issues alone are listed as notes and do not fail"
+    occurrences: 1
+  - id: S-098
+    file: src/superclaude/skills/prd/refs/agent-prompts.md
+    lines: [332, 333]
+    group: verdict
+    finding: B3-07
+    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with specific fixes, note which were fixed in-place)"
+    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes, note which were fixed in-place); MINOR issues alone are listed as notes and do not fail"
+    occurrences: 1
+  - id: S-099
+    file: src/superclaude/skills/tdd/refs/agent-prompts.md
+    lines: [340, 341]
+    group: verdict
+    finding: B3-07
+    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with specific fixes, note which were fixed in-place)"
+    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes, note which were fixed in-place); MINOR issues alone are listed as notes and do not fail"
+    occurrences: 1
+  - id: S-100
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    lines: [1073, 1074]
+    group: verdict
+    finding: B3-07
+    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with specific fixes and suggested remediation)"
+    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes and suggested remediation); MINOR issues alone are listed as notes and do not fail"
+    occurrences: 1
+  - id: S-101
+    file: src/superclaude/skills/readme/SKILL.md
+    lines: [1105, 1106]
+    group: verdict
+    finding: B3-07
+    old: "- PASS: All synthesis files are accurate and traceable\n- FAIL: Issues found (list each with specific location, severity, and remediation action)"
+    new: "- PASS: All synthesis files are accurate and traceable (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list each with specific location, severity, and remediation action); MINOR issues alone are listed as notes and do not fail"
+    occurrences: 1
+  - id: S-102
+    file: src/superclaude/skills/readme/SKILL.md
+    lines: [1138, 1139]
+    group: verdict
+    finding: B3-07
+    old: "- PASS: Synthesis faithfully represents research findings\n- FAIL: Issues found (list each with specific location and remediation)"
+    new: "- PASS: Synthesis faithfully represents research findings (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list each with specific location and remediation); MINOR issues alone are listed as notes and do not fail"
+    occurrences: 1
+  - id: S-103
+    file: src/superclaude/skills/readme/SKILL.md
+    lines: [1171, 1172]
+    group: verdict
+    finding: B3-07
+    old: "- PASS: All synth files meet structural standards\n- FAIL: Issues found (list with specific fixes)"
+    new: "- PASS: All synth files meet structural standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes); MINOR issues alone are listed as notes and do not fail"
+    occurrences: 1
+  - id: S-104
+    file: src/superclaude/skills/readme/SKILL.md
+    lines: [1200, 1201]
+    group: verdict
+    finding: B3-07
+    old: "- PASS: All synth files meet content quality standards\n- FAIL: Issues found (list with specific fixes)"
+    new: "- PASS: All synth files meet content quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes); MINOR issues alone are listed as notes and do not fail"
+    occurrences: 1
+  - id: S-105
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    lines: [932, 933]
+    group: verdict
+    finding: B3-07
+    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with specific fixes and suggested remediation)"
+    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes and suggested remediation); MINOR issues alone are listed as notes and do not fail"
+    occurrences: 1
+  - id: S-106
+    file: src/superclaude/skills/tech-research/SKILL.md
+    lines: [940, 941]
+    group: verdict
+    finding: B3-07
+    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with specific fixes and locations)"
+    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with specific fixes and locations); MINOR issues alone are listed as notes and do not fail"
+    occurrences: 1
+  - id: S-107
+    file: src/superclaude/cli/prd/prompts.py
+    lines: [1278, 1279]
+    group: verdict
+    finding: B3-07
+    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found with specific fixes listed"
+    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found with specific fixes listed; MINOR issues alone are listed as notes and do not fail"
+    occurrences: 1
+  - id: S-108
+    file: src/superclaude/cli/prd/prompts.py
+    lines: [1331, 1332]
+    group: verdict
+    finding: B3-07
+    old: "- PASS: All synth files meet quality standards\n- FAIL: Issues found (list with fixes, note which were fixed in-place)"
+    new: "- PASS: All synth files meet quality standards (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list with fixes, note which were fixed in-place); MINOR issues alone are listed as notes and do not fail"
+    occurrences: 1
+  - id: S-109
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    lines: [1028, 1029]
+    group: verdict
+    finding: B3-07
+    old: "- PASS: All synthesis files meet quality standards, no critical issues\n- FAIL: Issues found (list each with specific location, severity, and remediation action)"
+    new: "- PASS: All synthesis files meet quality standards, no blocking (CRITICAL or IMPORTANT) issues (MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list each with specific location, severity, and remediation action); MINOR issues alone are listed as notes and do not fail"
+    occurrences: 1
+  - id: S-110
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    lines: [1004, 1005]
+    group: verdict
+    finding: B3-07
+    old: "- PASS: No fidelity issues found (with evidence of thorough checking)\n- FAIL: Issues found (list each with: documented claim, actual code, file path, line number, severity)"
+    new: "- PASS: No blocking fidelity issues found (with evidence of thorough checking; MINOR issues, if any, listed as notes)\n- FAIL: Blocking issues found (list each with: documented claim, actual code, file path, line number, severity); MINOR issues alone are listed as notes and do not fail"
+    occurrences: 1
+  - id: S-111
+    file: src/superclaude/agents/rf-qa.md
+    line: 391
+    group: halt
+    finding: B3-01
+    old: "Each cycle MUST have strictly fewer issues than the previous one (`|F_{n+1}| < |F_n|` when `|F_n| > 0`)."
+    new: "Each cycle MUST have strictly fewer blocking issues than the previous one (`|F_{n+1}| < |F_n|` when `|F_n| > 0`, where `F_n` counts open blocking findings only; new minor findings are notes and do not count)."
+    occurrences: 1
+  - id: S-112
+    file: src/superclaude/agents/rf-qa.md
+    line: 391
+    group: halt
+    finding: B3-01
+    old: "Non-shrinking issue count is a systemic problem"
+    new: "Non-shrinking blocking-issue count is a systemic problem"
+    occurrences: 1
+  - id: S-113
+    file: src/superclaude/templates/documents/agent_template_qa.md
+    lines: [172, 173, 174, 175, 176, 177, 178, 179]
+    group: template-qa
+    finding: B3-02
+    old: "2. For each issue flagged in the previous report:\n   - Verify the fix was applied\n   - Verify the fix is correct (not just present)\n   - If the fix introduced new issues, flag them\n3. Produce an updated QA report with:\n   - Previously failed items that now pass\n   - Previously failed items that still fail\n   - New issues introduced by fixes"
+    new: "2. For each blocking issue flagged in the previous report (minor findings are notes and are not rechecked):\n   - Verify the fix was applied\n   - Verify the fix is correct (not just present)\n   - If the fix introduced new blocking issues, flag them (record new minor findings as notes)\n3. Produce an updated QA report with:\n   - Previously failed blocking items that now pass\n   - Previously failed blocking items that still fail\n   - New blocking issues introduced by fixes (new minor findings listed as notes)"
+    occurrences: 1
+  - id: S-114
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 2225
+    group: reflect-gate
+    finding: B3-04
+    old: "apply the remediations the skill offers under `--remediate`, or append the unresolved deviations to the `### Open Questions` section of {TASK_FILE} (never delete existing items)."
+    new: "apply the remediations the skill offers under `--remediate`; if any Regression or unauthorized Drift stays unresolved, HALT and escalate to the user with those deviations (never log them to Open Questions and proceed). Only Authorized or Necessary deviations and minor findings may be appended as notes to the `### Open Questions` section of {TASK_FILE} (never delete existing items)."
+    occurrences: 1
+  - id: S-115
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 2231
+    group: reflect-gate
+    finding: B3-04
+    old: "If reflect surfaced deviations, the remediations were applied or the deviations were logged to `### Open Questions`."
+    new: "If reflect surfaced Regression or unauthorized Drift deviations, the remediations were applied or the task HALTed and escalated them to the user; only Authorized or Necessary deviations and minor findings were logged as notes to `### Open Questions`."
+    occurrences: 1
+  - id: S-116
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 2232
+    group: reflect-gate
+    finding: B3-04
+    old: "and any flagged deviations were remediated or logged."
+    new: "and every flagged Regression or unauthorized Drift deviation was remediated (otherwise the task HALTed and escalated it to the user); only Authorized or Necessary deviations and minor findings were logged as notes."
+    occurrences: 1
+  - id: S-117
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 2238
+    group: reflect-gate
+    finding: B3-04
+    old: "If the wrapper surfaces unresolved deviations (exit 10/11/2), apply remediations or append them to `### Open Questions` (never delete existing items)."
+    new: "If the wrapper surfaces unresolved deviations (exit 10/11/2), HALT and escalate the open Regression or unauthorized Drift deviations to the user (per the Action above); only Authorized or Necessary deviations and minor findings may be appended as notes to `### Open Questions` (never delete existing items)."
+    occurrences: 1
+  - id: S-118
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 2239
+    group: reflect-gate
+    finding: B3-04
+    old: "any flagged deviations were remediated or logged to Open Questions."
+    new: "every flagged Regression or unauthorized Drift deviation was remediated (otherwise the task HALTed and escalated it to the user); only Authorized or Necessary deviations and minor findings were logged as notes to Open Questions."
+    occurrences: 1
+  - id: S-119
+    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+    line: 1439
+    group: tasklist
+    finding: B3-10
+    old: "If Stage 7 produced zero findings across all agents, write a clean `ValidationReport.md` containing:"
+    new: "If Stage 7 produced zero High or Medium (blocking) findings across all agents, write a clean `ValidationReport.md` containing (any Low findings are listed after it as notes; they are not patched or re-validated):"
+    occurrences: 1
+  - id: S-120
+    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+    line: 1445
+    group: tasklist
+    finding: B3-10
+    old: "Result: CLEAN — no drift detected across N phases and M tasks."
+    new: "Result: CLEAN — no blocking drift detected across N phases and M tasks (Low findings, if any, listed as notes)."
+    occurrences: 1
+  - id: S-121
+    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+    line: 1450
+    group: tasklist
+    finding: B3-10
+    old: "the genuine zero-finding short-circuit (no real findings AND no synthetic findings)"
+    new: "the genuine zero-finding short-circuit (no real High or Medium findings AND no synthetic findings)"
+    occurrences: 1
+  - id: S-122
+    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+    line: 1481
+    group: tasklist
+    finding: B3-10
+    old: "### Low Severity\n"
+    new: "### Low Severity (notes: not patched, not re-validated)\n"
+    occurrences: 1
+  - id: S-123
+    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+    line: 1531
+    group: tasklist
+    finding: B3-10
+    old: "Only real, patchable findings produce PatchChecklist items."
+    new: "Only real, patchable High or Medium (blocking) findings produce PatchChecklist items; Low findings stay as notes in `ValidationReport.md` and produce none."
+    occurrences: 1
+  - id: S-124
+    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+    line: 1537
+    group: tasklist
+    finding: B3-10
+    old: "**Purpose**: Apply all corrections from the PatchChecklist to the generated phase files."
+    new: "**Purpose**: Apply all blocking (High and Medium) corrections from the PatchChecklist to the generated phase files; Low findings stay as notes and are not patched."
+    occurrences: 1
+  - id: S-125
+    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+    line: 1561
+    group: tasklist
+    finding: B3-10
+    old: "**Purpose**: Re-verify only the specific findings from Stage 7 to confirm patches were applied correctly."
+    new: "**Purpose**: Re-verify only the specific High and Medium (blocking) findings from Stage 7 to confirm patches were applied correctly; Low findings are notes and are not re-verified."
+    occurrences: 1
+  - id: S-126
+    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+    line: 1565
+    group: tasklist
+    finding: B3-10
+    old: "For each finding in `ValidationReport.md`:"
+    new: "For each High or Medium finding in `ValidationReport.md`:"
+    occurrences: 1
+  - id: S-127
+    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+    line: 1583
+    group: tasklist
+    finding: B3-10
+    old: "| L1 | UNRESOLVED | Cross-phase wording still inconsistent in T03.06 |"
+    new: "| M3 | UNRESOLVED | Cross-phase dependency still inconsistent in T03.06 |"
+    occurrences: 1
+  - id: S-128
+    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+    line: 1602
+    group: tasklist
+    finding: B3-10
+    old: "failing findings: it EXCLUDES"
+    new: "failing findings (High and Medium, i.e. blocking, only; Low findings are notes and are never counted, patched or re-validated): it EXCLUDES"
+    occurrences: 1
+  - id: S-129
+    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+    line: 1604
+    group: tasklist
+    finding: B3-10
+    old: "if any patchable item that PASSED at pass `k` is FAILing at pass `k+1`,"
+    new: "if any patchable item that PASSED at pass `k` is FAILing with a High or Medium (blocking) finding at pass `k+1`,"
+    occurrences: 1
+  - id: S-130
+    file: src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+    line: 1608
+    group: tasklist
+    finding: B3-10
+    old: "Findings that remain `UNRESOLVED` at termination are logged for human review (the bundle still ships; the loop is an advisory remediation, not a hard blocker)."
+    new: "High or Medium (blocking) findings that remain `UNRESOLVED` at termination HALT the skill: escalate them to the user as the open blocking findings in `ValidationReport.md` (the bundle does not ship as clean); Low findings stay as notes."
+    occurrences: 1
+  - id: S-131
+    file: src/superclaude/rules/prompts/automated_qa_workflow_qa_prompt.md
+    line: 2
+    group: zero-tolerance
+    finding: sweep
+    old: "zero-tolerance policy for errors or omissions"
+    new: "zero-tolerance policy for blocking errors or omissions (minor findings are recorded as notes)"
+    occurrences: 1
+  - id: S-132
+    file: src/superclaude/rules/prompts/doc_code_analyst_qa_prompt.md
+    line: 5
+    group: zero-tolerance
+    finding: sweep
+    old: "zero-tolerance policy for errors or omissions"
+    new: "zero-tolerance policy for blocking errors or omissions (minor findings are recorded as notes)"
+    occurrences: 1
+  - id: S-133
+    file: src/superclaude/rules/prompts/documentation_expert_qa_prompt.md
+    line: 5
+    group: zero-tolerance
+    finding: sweep
+    old: "zero-tolerance policy for errors or omissions"
+    new: "zero-tolerance policy for blocking errors or omissions (minor findings are recorded as notes)"
+    occurrences: 1
+  - id: S-134
+    file: src/superclaude/rules/prompts/recruiting_expert_qa_prompt.md
+    line: 5
+    group: zero-tolerance
+    finding: sweep
+    old: "zero-tolerance policy for errors or omissions"
+    new: "zero-tolerance policy for blocking errors or omissions (minor findings are recorded as notes)"
+    occurrences: 1
+  - id: S-135
+    file: src/superclaude/rules/core/ib_agent_core.md
+    line: 390
+    group: zero-tolerance
+    finding: sweep
+    old: "Zero-tolerance policy for errors"
+    new: "Zero-tolerance policy for blocking errors; minor findings are recorded as notes"
+    occurrences: 1
+  # Added by the orchestrator after the site-sweep disposition pass (pattern "if issues remain" / at-cap log of all issues).
+  - id: S-136
+    file: src/superclaude/skills/tech-research/SKILL.md
+    line: 515
+    group: fixloop
+    finding: B3-03
+    old: "- [ ] If issues remain: repeat Steps 5.N+2"
+    new: "- [ ] If blocking issues remain (minor findings stay as notes): repeat Steps 5.N+2"
+    occurrences: 1
+  - id: S-137
+    file: src/superclaude/skills/tech-reference/SKILL.md
+    line: 1388
+    group: fixloop
+    finding: B3-03
+    old: "HALT: log remaining issues, present findings to user"
+    new: "HALT: log the remaining blocking issues and present them to the user (minor findings stay as notes)"
+    occurrences: 1
+  - id: S-138
+    file: src/superclaude/skills/operational-guide/SKILL.md
+    line: 583
+    group: fixloop
+    finding: B3-03
+    old: "Consolidate fidelity reports, spawn 1 fix agent, verification round"
+    new: "Consolidate fidelity reports, spawn 1 fix agent on the blocking findings only (minor findings stay as notes), verification round"
+    occurrences: 1
+  # Added after the Task 15 review (note F1.1): stale name of the flow that cap-edits row C-116 changed.
+  - id: S-139
+    file: src/superclaude/skills/task-builder/SKILL.md
+    line: 899
+    group: reflect-gate
+    finding: sweep
+    old: "the existing retry-then-Open-Questions flow"
+    new: "the existing retry-then-halt-escalate flow"
+    occurrences: 1

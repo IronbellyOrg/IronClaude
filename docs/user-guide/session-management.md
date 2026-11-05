@@ -1,20 +1,21 @@
 # Session Management Guide
 
-SuperClaude keeps project memory (decisions, patterns, and notes) across Claude Code conversations through the Serena MCP server. Project memory is not a way to resume work: to pick up a task, a plan, or a lost conversation, see [Resuming Existing Work](#resuming-existing-work-cross-conversation) below.
+SuperClaude keeps project memory (decisions, patterns, and notes) across Claude Code conversations as plain markdown files under `<project>/.superclaude/memory/`. `<project>` is the git top-level of the current directory (the current directory outside git), so each worktree has its own store. The first save creates `<project>/.superclaude/.gitignore` containing `*`, so the files stay out of version control. Project memory is not a way to resume work: to pick up a task, a plan, or a lost conversation, see [Resuming Existing Work](#resuming-existing-work-cross-conversation) below.
 
 ## Core Session Commands with Persistent Memory
 
 ### `/sc:load` - Context Loading with Persistent Memory
 
 **Purpose**: Initialize session with project context and persistent memory from previous sessions  
-**MCP Integration**: Triggers Serena MCP to read stored project memories  
-**Syntax**: `/sc:load [project_path]`
+**Storage**: Reads the markdown files in `.superclaude/memory/`  
+**Syntax**: `/sc:load [target] [--type project|config|deps|checkpoint] [--refresh] [--analyze]`
 
 **What Happens**:
 
-- Serena MCP reads persistent memory files from previous sessions
+- The memory files from previous sessions are read
 - Project context is restored from stored memories
 - Previous decisions and patterns are loaded as notes (task and plan progress is not; see [Resuming Existing Work](#resuming-existing-work-cross-conversation))
+- It ends by pointing you to `/sc:graph status`, which reports whether this worktree's code-graph index is ready; `/sc:load` does not run it for you
 
 **Use Cases**:
 
@@ -29,17 +30,28 @@ SuperClaude keeps project memory (decisions, patterns, and notes) across Claude 
 /sc:load . --analyze
 ```
 
+### Upgrading from Serena memory (5.0.0)
+
+Before 5.0.0, `/sc:save`, `/sc:load` and `/sc:pm` kept memories through Serena in `<project>/.serena/memories/`. 5.0.0 removes Serena and keeps memory in `<project>/.superclaude/memory/`. To keep your old memories, copy them across from the project root:
+
+```bash
+mkdir -p .superclaude/memory
+cp -Rn .serena/memories/. .superclaude/memory/
+```
+
+For 5.0.0 only, `/sc:load` still reads `.serena/memories/<key>.md` when `.superclaude/memory/<key>.md` is absent. It never writes there and tells you that folder is read-only history. This fallback ends in the next release, so copy the files now. The next `/sc:save` creates `<project>/.superclaude/.gitignore` if it is missing; until then, the copied files are not ignored by git.
+
 ### `/sc:save` - Session Persistence to Memory
 
 **Purpose**: Save current session state and decisions to persistent memory  
-**MCP Integration**: Triggers Serena MCP to write memory files  
+**Storage**: Writes markdown files in `.superclaude/memory/`  
 **Syntax**: `/sc:save [--type session|learnings|context|all] [--summarize] [--checkpoint]`
 
 The command takes no description argument. It decides what to record from the current conversation; say in the conversation what you want remembered before you run it.
 
 **What Happens**:
 
-- Current context and decisions are written to Serena memory
+- Current context and decisions are written to the memory files
 - Project notes are kept across conversations
 - Key insights and patterns are stored for future sessions
 - Session summary is created with timestamp for retrieval
@@ -62,11 +74,11 @@ The command takes no description argument. It decides what to record from the cu
 
 ## Persistent Memory Architecture
 
-### How Serena MCP Enables True Persistence
+### How Memory Files Enable Persistence
 
 **Memory Storage**:
 
-- Session contexts stored as structured memory files
+- Session contexts stored as markdown memory files, one per key, in `<project>/.superclaude/memory/` (subfolders for topics)
 - Project decisions and architectural patterns preserved permanently
 - Code analysis results and insights retained across conversations
 - Progress tracking and milestone data maintained long-term
@@ -107,10 +119,10 @@ The command takes no description argument. It decides what to record from the cu
 
 To pick up work in a new conversation, use section 3.12 ("Resume after a crash or a lost session") of the routing guide, [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md#312-resume-after-a-crash-or-a-lost-session), which `superclaude install` copies to `~/.claude/HOW-WE-WORK.md`. It gives two ways:
 
-1. **Reopen the conversation.** This only works if you tagged the conversation before you lost it: inside Claude, run `/ccsession-tag <name>`. Later, from a terminal in the same folder, run `ccsession <name>`. `ccsession --here` lists the names for the current folder. `~/.local/bin` must be on your `PATH`.
+1. **Reopen the conversation.** This only works if the conversation had a name before you lost it: start it with `ccsession <name>`, or inside Claude Code run `/rename <name>` and send one more message (or quit) so ccsession records it. Later, from a terminal in any worktree or copy of the same repo (outside git, the same folder), run `ccsession <name>` (quote a name with spaces). `ccsession --here` lists the names for this worktree (and for removed ones); `ccsession --here --all` lists every worktree's. `~/.local/bin` must be on your `PATH`.
 2. **Rerun the same command on the work's own files.** This always works: `/task <path to the task file>` for a task file, or `/sc:implement .dev/tasks/to-do/<id>/<id>.md` for a plan.
 
-`/sc:load` restores Serena project memory, which helps Claude remember project decisions, but it does not resume a task or a plan.
+`/sc:load` restores project memory from the `.superclaude/memory/` files, which helps Claude remember project decisions, but it does not resume a task or a plan.
 
 ### Long-Term Project Management
 
@@ -122,17 +134,18 @@ To pick up work in a new conversation, use section 3.12 ("Resume after a crash o
 
 # Phase completion pattern with memory
 /sc:save --type all --checkpoint
-/task-builder "Phase 2: payment and order processing"   # larger work goes through a task file (see How We Work)
+/sc:workflow "Phase 2: payment and order processing" --depth standard --handoff none
+# then run the plan it prints: /sc:implement <printed plan path>
 ```
 
-## Per-Turn Session Context Envelope (v4.3+)
+## Per-Turn Session Context Envelope
 
-In addition to the long-term Serena memory layer described above, every user
+In addition to the long-term memory files described above, every user
 prompt is prefixed with a **short, factual `<session-context>` block** injected
 by the `freshness-user-prompt.sh` hook. This is per-turn ephemeral state, not
 persistent memory.
 
-```
+```text
 <session-context>
   ts=2026-05-13T01:07:33+00:00 turn=2 Δ=07:43 mode=plan git=feat/x dirty=3M/4U bg=2
   changed_since_last_turn=/foo/a.go,/foo/b.go
@@ -160,13 +173,13 @@ files not Read in this session within the last 30 minutes — see
 
 ### Starting New Conversations with Persistence
 
-When starting a new Claude Code conversation, Serena project memory allows:
+When starting a new Claude Code conversation, the project memory files allow:
 
 1. **Loading project memory**
 
    ```bash
    /sc:load src/
-   # Loads stored Serena project memory (decisions and notes); it does not resume a task or a plan
+   # Loads stored project memory (decisions and notes); it does not resume a task or a plan
    ```
 
 2. **Earlier decisions at hand**
@@ -176,7 +189,7 @@ When starting a new Claude Code conversation, Serena project memory allows:
    - To continue unfinished work, use [Resuming Existing Work](#resuming-existing-work-cross-conversation) instead
 
 3. **Intelligent Context Building**
-   - Serena MCP provides relevant memories based on current work
+   - `/sc:load` reads the memories relevant to current work
    - Past solutions and patterns inform new implementations
    - Project evolution is tracked and understood
 
@@ -213,7 +226,7 @@ When starting a new Claude Code conversation, Serena project memory allows:
 
 ### Session End Protocol
 
-1. Save key decisions with `/sc:save` as Serena project memory
+1. Save key decisions with `/sc:save` as project memory
 2. Document next steps and open questions in memory
 3. Keep unfinished work in its own files (a task file or a plan) so it can be resumed; project memory does not resume it
 
@@ -228,9 +241,9 @@ When starting a new Claude Code conversation, Serena project memory allows:
 
 ### MCP Server Coordination
 
-- **Serena MCP**: Provides the persistent memory infrastructure
 - **Context7 MCP**: References stored patterns and documentation approaches
-- **Morphllm MCP**: Applies stored refactoring patterns consistently
+
+Memory is plain markdown files that Claude reads and writes with its file tools; no MCP server stores or applies memories.
 
 ### Agent Collaboration with Memory
 
@@ -252,9 +265,9 @@ When starting a new Claude Code conversation, Serena project memory allows:
 
 **Memory Not Loading**:
 
-- Verify Serena MCP is configured and running properly
+- Check that `<project>/.superclaude/memory/` exists for the project you are in (one store per worktree)
 - Check memory file permissions and accessibility
-- Ensure consistent project naming conventions
+- Ensure consistent memory key naming
 - Validate memory file integrity and format
 
 **Context Loss Between Sessions**:  
@@ -317,4 +330,4 @@ When starting a new Claude Code conversation, Serena project memory allows:
 
 ---
 
-**Key Takeaway**: Session management through Serena MCP keeps project decisions and learning across Claude Code conversations. It does not resume work; for that, see [Resuming Existing Work](#resuming-existing-work-cross-conversation).
+**Key Takeaway**: Session management through the `.superclaude/memory/` files keeps project decisions and learning across Claude Code conversations. It does not resume work; for that, see [Resuming Existing Work](#resuming-existing-work-cross-conversation).

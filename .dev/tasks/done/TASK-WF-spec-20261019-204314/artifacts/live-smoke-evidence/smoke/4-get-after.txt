@@ -1,1 +1,0 @@
-No MCP server named "codebase-memory-mcp". Configured servers: auggie, codebase-memory-mcp-lookalike, context7, morphllm-fast-apply, playwright, plugin:Notion:notion, plugin:dropbox:claude_app_mcp, plugin:google-cloud-storage:cloud-storage (and 3 more — run `claude mcp list` to see all)

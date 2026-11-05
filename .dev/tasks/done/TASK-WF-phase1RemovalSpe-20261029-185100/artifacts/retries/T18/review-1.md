@@ -1,0 +1,3 @@
+e99ae0802c96728762be026cc7cc2aaf1d5f4c16 fab5d4d2e331c684443369a342cdddcce963f25f
+T18.AC1 unmet (F1.1) ; T18.AC2 met
+F1.1 sev=blocking trigger=B1 ac=T18.AC1 at=.dev/tasks/to-do/TASK-WF-phase1RemovalSpe-20261029-185100/artifacts/final/summary.md:65 anchor="lists every check above with its exact command and observed result" chk=y,n,n,n family=evidence-exact-command fix=save the sandbox script verbatim next to summary.md and reference it, state the deviations (no-claude run used .venv/bin/superclaude), and add an explicit stale-file overwrite assertion first=A1 origin=new: the sandbox commands in summary.md are paraphrased with elisions and the script that ran was deleted.

@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: ".dev/codegraph-migration/decisions/P2-indexing-sync/adversarial/P2-indexing-sync-merged.md"
+  convergence_score: 1.00
+  artifacts_dir: ".dev/codegraph-migration/decisions/P2-indexing-sync/adversarial/adversarial/"
+  status: "success"
+  base_variant: "variant-2 (option-b, SessionStart hook; Mode A, default model)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped at depth quick
+  notes:
+    - "Depth quick: Round 1 only; the invariant probe gate was not applied."
+    - "Pre-ship probes still UNVERIFIED: partial-index repair by init --yes, concurrent init behaviour, MCP not-initialized reply text."
+    - "Orchestrator amended plan Change 1 after the merge: mkdir -p for the log directory."

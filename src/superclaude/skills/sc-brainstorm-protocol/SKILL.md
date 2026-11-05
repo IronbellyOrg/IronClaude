@@ -1,7 +1,7 @@
 ---
 name: sc:brainstorm-protocol
 description: "Full behavioral protocol for sc:brainstorm — Socratic dialogue + parallel proposals + adversarial merge"
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_files, mcp__codegraph__codegraph_search
 argument-hint: "<topic> [--proposals N] [--depth quick|standard|deep] [--strategy ...] [--handoff ...] [--output dir]"
 ---
 
@@ -12,7 +12,7 @@ argument-hint: "<topic> [--proposals N] [--depth quick|standard|deep] [--strateg
 <!-- Extended metadata (for documentation, not parsed):
 category: orchestration
 complexity: advanced
-mcp-servers: [serena, auggie-mcp, tavily]
+mcp-servers: [auggie-mcp, codegraph, tavily]
 personas: [architect, analyzer, scribe]
 version: 2.0.0
 spec: .dev/eval-workspaces/sc-brainstorm/SPEC.md
@@ -54,7 +54,7 @@ Orchestrate parallel brainstorming via:
 
 1. `seed-brief.md` — Socratic dialogue synthesis with frontmatter
 2. `merged-requirements.md` — Adversarial-merged unified spec
-3. `enrichment/codebase-context.md` (if applicable) — Auggie/Serena/Glob output
+3. `enrichment/codebase-context.md` (if applicable) — Auggie/codegraph/Glob/Grep output
 4. `enrichment/research-light.md` or `research-deep.md` (if applicable)
 5. `adversarial/` — 6 standard adversarial artifacts (debate-transcript, diff-analysis, base-selection, refactor-plan, merge-log, merged-output)
 6. `return-contract.yaml` — Versioned return contract
@@ -128,9 +128,9 @@ Orchestrate parallel brainstorming via:
    - Skip steps 4-6, proceed to Wave 2A.
 4. **Dialogue loop**:
    - Load Socratic template matching `--depth`:
-     - `quick`: 3-5 questions, single batch, ~500 tokens
-     - `standard`: 6-10 questions, 2 batches (clarify → validate), ~2000 tokens
-     - `deep`: 10-20 questions, 3 batches (clarify → validate → adversarial probe), ~5000 tokens
+     - `quick`: 3-5 questions, single batch, ~50000 tokens
+     - `standard`: 6-10 questions, 2 batches (clarify → validate), ~200000 tokens
+     - `deep`: 10-20 questions, 3 batches (clarify → validate → adversarial probe), ~500000 tokens
    - Present batch via chat. Wait for user response if `--interactive`; otherwise auto-proceed using best-available context.
    - Apply domain-specific question variations from `refs/socratic-templates.md` §Domain-Questions.
 5. **Synthesize seed brief**: Build `seed-brief.md` with:
@@ -190,14 +190,13 @@ Orchestrate parallel brainstorming via:
 
 2. **Quality-tier tracking** (mandatory per enrichment source):
    - `primary` — first-choice source ran cleanly
-   - `fallback_1` — primary failed, used Serena (codebase) or WebSearch (research)
-   - `fallback_2` — both primary and fallback_1 failed, used native Glob/Grep
+   - `fallback_1` — primary failed, used codegraph and native Glob/Grep (codebase) or WebSearch (research)
    - `skipped` — enrichment not invoked
    - Record as `enrichment_used: [{source, quality_tier}, ...]` in state.
 
-3. **Token budget for enrichment**: ~3000 tokens total cap. Priority order if exceeded: codebase > research-light > research-deep. Truncate by priority.
+3. **Token budget for enrichment**: ~30000 tokens total cap. Priority order if exceeded: codebase > research-light > research-deep. Truncate by priority.
 
-4. **Append enrichment summary** to `seed-brief.md` via Edit tool under new `## Enrichment Context` section (~500-800 tokens summary, full artifacts saved separately).
+4. **Append enrichment summary** to `seed-brief.md` via Edit tool under new `## Enrichment Context` section (~5000-8000 tokens summary, full artifacts saved separately).
 
 **Exit Criteria**: Enrichment artifacts present in state (any quality_tier counts). Wave proceeds even if all sources failed (degraded mode). Emit: `"Wave 2A complete: enrichment done (sources: <X>, degraded: <Y>)."`
 
@@ -234,10 +233,10 @@ Orchestrate parallel brainstorming via:
 
 5. **Token-budget pre-flight**:
    - Estimate Wave 3 cost: `estimate = proposals × depth_multiplier × persona_weight`
-     - depth_multiplier: quick=8K, standard=15K, deep=35K per proposal
+     - depth_multiplier: quick=80K, standard=150K, deep=350K per proposal
      - persona_weight: 1.0 default, 1.3 for architect/analyzer
-   - If `estimate > 250000` AND `depth == deep`: auto-downgrade `proposals` to 3 + emit WARN. Re-validate agent-spec with new count.
-   - If `estimate > 350000` post-downgrade: STOP with `"Token budget exhausted. Reduce --proposals or --depth."`
+   - If `estimate > 500000` AND `depth == deep`: auto-downgrade `proposals` to 3 + emit WARN. Re-validate agent-spec with new count.
+   - If `estimate > 650000` post-downgrade: STOP with `"Token budget exhausted. Reduce --proposals or --depth."`
    - Hard kill threshold (Wave 3): abort if cumulative tokens > 1.25 × estimate
 
 6. **Final output**: validated agent-spec string. Example:
@@ -348,7 +347,7 @@ domain: code | architecture | product | process | incident | research
 proposal_count: <int>
 enrichment_used:
   - source: codebase | research-light | research-deep
-    quality_tier: primary | fallback_1 | fallback_2 | skipped
+    quality_tier: primary | fallback_1 | skipped
 handoff_action: none | design | tasklist | task
 handoff_output_path: <path> | null
 unresolved_conflicts: [<list of strings>]
@@ -384,7 +383,7 @@ enrichment_artifact_sizes:
 | Empty topic | STOP with usage hint | None |
 | `sc-adversarial-protocol` missing | STOP with install instruction | None |
 | `--handoff task/tasklist` skill missing | STOP (no silent downgrade) | User must choose alternate handoff |
-| Codebase enrichment fails (Auggie down) | WARN, fall back to Serena `get_symbols_overview` (quality_tier=fallback_1) | Native Glob/Grep (quality_tier=fallback_2) |
+| Codebase enrichment fails (Auggie down) | WARN, fall back to codegraph, then native Glob/Grep (quality_tier=fallback_1; `refs/handoff-routing.md` Tier 2) | Skip (quality_tier=skipped) |
 | Research enrichment fails (Tavily down) | WARN, fall back to WebSearch (quality_tier=fallback_1; WebSearch fallback loses 0.2.x depth/map/crawl features) | Skip (quality_tier=skipped) |
 | Adversarial returns `convergence < 0.50` | FAIL Wave 3, skip Wave 4 | None |
 | Adversarial empty/unparseable response | **FAIL** (no synthetic 0.5 fallback) | None |

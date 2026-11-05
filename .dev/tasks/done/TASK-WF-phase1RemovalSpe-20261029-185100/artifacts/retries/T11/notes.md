@@ -1,0 +1,3 @@
+1bafb585b42d4b05bf018a1379a20c8521df05b9
+A1 r1-1 F1.1 minor src/superclaude/commands/load.md:52 amiss:n,false:n,harm:n,constraint:n /sc:load still lists a Write step for checkpoints but none of its three copies (src, plugins, commands/sc-load.md) carries the M3 .superclaude/.gitignore instruction; fix: add the instruction to load's Memory Store section or state that load writes nothing.
+A1 r1-1 F1.2 note src/superclaude/skills/sc-pm-protocol/SKILL.md:134 amiss:n,false:n,harm:n,constraint:n The session/ schema key names (context, last, checkpoint) differ from the flat pm_context, last_session, checkpoint-<timestamp> keys used in the lifecycle steps; present at the base, cosmetic.

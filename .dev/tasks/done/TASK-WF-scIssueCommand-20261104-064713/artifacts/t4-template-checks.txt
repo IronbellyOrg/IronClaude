@@ -1,0 +1,89 @@
+$ ls src/superclaude/skills/sc-issue-protocol/templates
+accuracy-check-comment.md
+claim-comment.md
+create-review-comment.md
+description.md
+draft-notes.md
+flags-decision.md
+issue-bug-complex.md
+issue-bug-simple.md
+issue-feature-complex.md
+issue-feature-simple.md
+next-steps.md
+recommend-record.md
+scout-report.md
+summary.md
+$ grep -n '^## ' (four issue templates)
+== issue-bug-simple
+3:## Bug Summary
+7:## Environment (OS, version)
+12:## Current Behavior
+16:## Expected Behavior
+20:## Steps to Reproduce
+24:## Impact Assessment (Severity, Blast Radius)
+29:## Error Messages
+35:## Codebase Context (from `/sc:analyze`)
+39:## Related Issues
+43:## Testing Notes
+== issue-bug-complex
+3:## Bug Summary
+7:## Environment (OS, version)
+12:## Current Behavior
+16:## Expected Behavior
+20:## Steps to Reproduce
+24:## Impact Assessment (Severity, Blast Radius)
+29:## Error Messages
+35:## Codebase Context (from `/sc:analyze`)
+39:## Related Issues
+43:## Testing Notes
+47:## Frequency
+51:## User Impact
+55:## Business Impact
+59:## Cascading Effects
+63:## Logs and Stack Trace
+69:## Attempted Solutions
+73:## Proposed Solution
+77:## For Development Team (Root Cause Analysis, Fix Approach, Verification Plan)
+== issue-feature-simple
+3:## Feature Summary
+7:## Problem Statement
+11:## User Story
+15:## Proposed Solution
+19:## Acceptance Criteria
+23:## Out of Scope
+27:## Components Affected (from `/sc:analyze`)
+31:## Related Issues/PRs
+== issue-feature-complex
+3:## Feature Summary
+7:## Problem Statement
+11:## User Story
+15:## Proposed Solution
+19:## Acceptance Criteria
+23:## Out of Scope
+27:## Components Affected (from `/sc:analyze`)
+31:## Related Issues/PRs
+35:## Success Metrics
+39:## Architecture Impact
+43:## Dependencies
+47:## Testing Strategy
+51:## Documentation Needs
+55:## Alternatives Considered
+59:## Impact Analysis (Blast Radius, Integration Impact)
+64:## Risks & Mitigation
+68:## Effort Estimate (hours) and Complexity
+$ grep -il clickup src/superclaude/skills/sc-issue-protocol/templates/issue-*.md
+rc=1 (1 = no match)
+$ last non-empty line of each posted template
+accuracy-check-comment: <!-- sc:issue:accuracy-check -->
+claim-comment: <!-- sc:issue:claim -->
+create-review-comment: <!-- sc:issue:create-review -->
+issue-bug-simple: <!-- sc:issue:create template=issue-bug-simple -->
+issue-bug-complex: <!-- sc:issue:create template=issue-bug-complex -->
+issue-feature-simple: <!-- sc:issue:create template=issue-feature-simple -->
+issue-feature-complex: <!-- sc:issue:create template=issue-feature-complex -->
+$ grep -rn 'src/superclaude' src/superclaude/skills/sc-issue-protocol/templates
+rc=1 (1 = no match)
+$ head -1 src/superclaude/skills/sc-issue-protocol/templates/next-steps.md
+/model <claude-gw-tier2 for simple work | claude-gw-tier1a for medium and complex work>
+$ grep -inE 'gpu|hardware|person-week|automatic labels' src/superclaude/skills/sc-issue-protocol/templates/issue-*.md
+rc=1 (1 = no match)

@@ -1,0 +1,68 @@
+schema_version: 1
+command: impact
+status: failed
+caller: null
+output_dir: /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption/.dev/codegraph-migration/experiments/P3-T11-impact
+report_path: /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption/.dev/codegraph-migration/experiments/P3-T11-impact/impact.md
+contract_path: /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption/.dev/codegraph-migration/experiments/P3-T11-impact/return-contract.yaml
+input:
+  mode: symbols
+  symbols: [install_core_files]
+  diff_base: null
+  changed_files: []
+  depth: 2
+  limit: 20
+  tests: false
+  test_depth: null
+readiness:
+  access: mcp
+  index_state: fresh
+  checked_at: '2026-10-31T15:23:47Z'
+  cli_version: 1.6.2
+  pin: 1.6.2
+  pin_match: true
+  worktree_root: /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption
+  project_path: /home/coder/workspaces/IronClaude/.dev/worktrees/codegraph-adoption
+  worktree_relation: own
+advisory: false
+degraded: []
+symbols:
+  - name: install_core_files
+    file: src/superclaude/cli/install_core.py
+    start_line: 28
+    end_line: 101
+    mapped_by: name
+    prod: {shown: 2, total: 2}
+    test: {shown: 0, total: 0}
+    unknown: {shown: 0, total: 0}
+    transitive: {count: 0, depth: 2}
+    truncated: false
+ambiguous: []
+unmapped_files: []
+dependents:
+  - symbol: install_core_files
+    caller: install
+    file: src/superclaude/cli/main.py
+    def_line: 46
+    call_site_line: 178
+    resolution: call-site-verified
+    partition: prod
+    hop: 1
+    source: callers
+  - symbol: install_core_files
+    caller: update
+    file: src/superclaude/cli/main.py
+    def_line: 340
+    call_site_line: 365
+    resolution: call-site-verified
+    partition: prod
+    hop: 1
+    source: callers
+dependents_omitted: 0
+call_sites: {verified: 2, unresolved: 0, dropped: 0, budget: '5/symbol, 20/run'}
+tests: []
+selection_source: null
+errors:
+  - 'File does not exist: /home/coder/.claude/CODEGRAPH.md; read the labelled in-checkout fallback.'
+  - "Permission to use Edit has been denied because Claude Code is running in don't ask mode."
+  - 'impact.md remains an unpopulated template stub: output completion failed; no independent final review performed.'

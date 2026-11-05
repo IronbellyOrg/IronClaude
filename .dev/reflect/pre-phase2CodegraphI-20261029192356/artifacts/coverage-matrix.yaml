@@ -1,0 +1,841 @@
+parsed_total: 0
+inferred_total: 104
+matched: 64
+coverage_pct: null
+coverage_pct_union: 0.6154
+unmapped_requirements: []
+unmapped_requirements_union:
+- INF-001
+- INF-002
+- INF-003
+- INF-005
+- INF-008
+- INF-009
+- INF-010
+- INF-011
+- INF-012
+- INF-017
+- INF-019
+- INF-020
+- INF-021
+- INF-024
+- INF-027
+- INF-031
+- INF-033
+- INF-034
+- INF-036
+- INF-038
+- INF-039
+- INF-040
+- INF-041
+- INF-042
+- INF-043
+- INF-044
+- INF-046
+- INF-047
+- INF-048
+- INF-049
+- INF-050
+- INF-051
+- INF-052
+- INF-053
+- INF-054
+- INF-055
+- INF-057
+- INF-058
+- INF-071
+- INF-072
+coverage_degraded: parsed-sparse
+matrix:
+- requirement_id: INF-001
+  section: '1. Preflight: files that change'
+  citation: source.md:33
+  matched_task_ids: []
+  ratio: 0.4487
+  match_method: none
+  source: inferred
+- requirement_id: INF-002
+  section: '1. Preflight: files that change'
+  citation: source.md:34
+  matched_task_ids: []
+  ratio: 0.4783
+  match_method: none
+  source: inferred
+- requirement_id: INF-003
+  section: '1. Preflight: files that change'
+  citation: source.md:35
+  matched_task_ids: []
+  ratio: 0.5469
+  match_method: none
+  source: inferred
+- requirement_id: INF-004
+  section: '1. Preflight: files that change'
+  citation: source.md:36
+  matched_task_ids:
+  - Task 8
+  ratio: 0.6
+  match_method: containment
+  source: inferred
+- requirement_id: INF-005
+  section: '1. Preflight: files that change'
+  citation: source.md:37
+  matched_task_ids: []
+  ratio: 0.4091
+  match_method: none
+  source: inferred
+- requirement_id: INF-006
+  section: '1. Preflight: files that change'
+  citation: source.md:38
+  matched_task_ids:
+  - Task 10
+  ratio: 0.6226
+  match_method: containment
+  source: inferred
+- requirement_id: INF-007
+  section: '1. Preflight: files that change'
+  citation: source.md:39
+  matched_task_ids:
+  - Task 9
+  ratio: 0.8246
+  match_method: containment
+  source: inferred
+- requirement_id: INF-008
+  section: '1. Preflight: files that change'
+  citation: source.md:40
+  matched_task_ids: []
+  ratio: 0.4524
+  match_method: none
+  source: inferred
+- requirement_id: INF-009
+  section: '1. Preflight: files that change'
+  citation: source.md:41
+  matched_task_ids: []
+  ratio: 0.3824
+  match_method: none
+  source: inferred
+- requirement_id: INF-010
+  section: '1. Preflight: files that change'
+  citation: source.md:42
+  matched_task_ids: []
+  ratio: 0.5882
+  match_method: none
+  source: inferred
+- requirement_id: INF-011
+  section: '1. Preflight: files that change'
+  citation: source.md:43
+  matched_task_ids: []
+  ratio: 0.4615
+  match_method: none
+  source: inferred
+- requirement_id: INF-012
+  section: '1. Preflight: files that change'
+  citation: source.md:44
+  matched_task_ids: []
+  ratio: 0.575
+  match_method: none
+  source: inferred
+- requirement_id: INF-013
+  section: '1. Preflight: files that change'
+  citation: source.md:45
+  matched_task_ids:
+  - Task 4
+  ratio: 0.6154
+  match_method: containment
+  source: inferred
+- requirement_id: INF-014
+  section: '1. Preflight: files that change'
+  citation: source.md:46
+  matched_task_ids:
+  - Task 6
+  ratio: 0.625
+  match_method: containment
+  source: inferred
+- requirement_id: INF-015
+  section: '1. Preflight: files that change'
+  citation: source.md:47
+  matched_task_ids:
+  - Task 5
+  ratio: 0.7692
+  match_method: containment
+  source: inferred
+- requirement_id: INF-016
+  section: '1. Preflight: files that change'
+  citation: source.md:48
+  matched_task_ids:
+  - Task 8
+  ratio: 0.8889
+  match_method: containment
+  source: inferred
+- requirement_id: INF-017
+  section: '1. Preflight: files that change'
+  citation: source.md:49
+  matched_task_ids: []
+  ratio: 0.4286
+  match_method: none
+  source: inferred
+- requirement_id: INF-018
+  section: '1. Preflight: files that change'
+  citation: source.md:50
+  matched_task_ids:
+  - Task 7
+  ratio: 0.7121
+  match_method: containment
+  source: inferred
+- requirement_id: INF-019
+  section: '1. Preflight: files that change'
+  citation: source.md:51
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-020
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  citation: source.md:194
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-021
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  citation: source.md:195
+  matched_task_ids: []
+  ratio: 0.5873
+  match_method: none
+  source: inferred
+- requirement_id: INF-022
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  citation: source.md:196
+  matched_task_ids:
+  - Task 7
+  ratio: 0.75
+  match_method: containment
+  source: inferred
+- requirement_id: INF-023
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  citation: source.md:197
+  matched_task_ids:
+  - Constraints
+  ratio: 0.75
+  match_method: containment
+  source: inferred
+- requirement_id: INF-024
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  citation: source.md:198
+  matched_task_ids: []
+  ratio: 0.56
+  match_method: none
+  source: inferred
+- requirement_id: INF-025
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  citation: source.md:210
+  matched_task_ids:
+  - Task 16
+  ratio: 0.7358
+  match_method: containment
+  source: inferred
+- requirement_id: INF-026
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  citation: source.md:211
+  matched_task_ids:
+  - Task 16
+  ratio: 0.8286
+  match_method: containment
+  source: inferred
+- requirement_id: INF-027
+  section: 2.12 Retiring Serena once codegraph is ready (amends Phase 1
+  citation: source.md:212
+  matched_task_ids: []
+  ratio: 0.5455
+  match_method: none
+  source: inferred
+- requirement_id: INF-028
+  section: 3.2 The hook (`src/superclaude/hooks/scripts/codegraph-sessi
+  citation: source.md:241
+  matched_task_ids:
+  - Task 9
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-029
+  section: 3.2 The hook (`src/superclaude/hooks/scripts/codegraph-sessi
+  citation: source.md:242
+  matched_task_ids:
+  - Task 9
+  ratio: 0.72
+  match_method: containment
+  source: inferred
+- requirement_id: INF-030
+  section: 3.2 The hook (`src/superclaude/hooks/scripts/codegraph-sessi
+  citation: source.md:243
+  matched_task_ids:
+  - Task 9
+  ratio: 0.6111
+  match_method: containment
+  source: inferred
+- requirement_id: INF-031
+  section: 3.2 The hook (`src/superclaude/hooks/scripts/codegraph-sessi
+  citation: source.md:244
+  matched_task_ids: []
+  ratio: 0.4615
+  match_method: none
+  source: inferred
+- requirement_id: INF-032
+  section: 3.2 The hook (`src/superclaude/hooks/scripts/codegraph-sessi
+  citation: source.md:245
+  matched_task_ids:
+  - Constraints
+  ratio: 0.8
+  match_method: containment
+  source: inferred
+- requirement_id: INF-033
+  section: 3.2 The hook (`src/superclaude/hooks/scripts/codegraph-sessi
+  citation: source.md:246
+  matched_task_ids: []
+  ratio: 0.5263
+  match_method: none
+  source: inferred
+- requirement_id: INF-034
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:286
+  matched_task_ids: []
+  ratio: 0.1765
+  match_method: none
+  source: inferred
+- requirement_id: INF-035
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:287
+  matched_task_ids:
+  - Task 4
+  ratio: 0.6562
+  match_method: containment
+  source: inferred
+- requirement_id: INF-036
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:288
+  matched_task_ids: []
+  ratio: 0.4545
+  match_method: none
+  source: inferred
+- requirement_id: INF-037
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:289
+  matched_task_ids:
+  - Task 7
+  ratio: 0.6111
+  match_method: containment
+  source: inferred
+- requirement_id: INF-038
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:290
+  matched_task_ids: []
+  ratio: 0.5217
+  match_method: none
+  source: inferred
+- requirement_id: INF-039
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:291
+  matched_task_ids: []
+  ratio: 0.3077
+  match_method: none
+  source: inferred
+- requirement_id: INF-040
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:292
+  matched_task_ids: []
+  ratio: 0.2308
+  match_method: none
+  source: inferred
+- requirement_id: INF-041
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:293
+  matched_task_ids: []
+  ratio: 0.2143
+  match_method: none
+  source: inferred
+- requirement_id: INF-042
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:294
+  matched_task_ids: []
+  ratio: 0.3636
+  match_method: none
+  source: inferred
+- requirement_id: INF-043
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:295
+  matched_task_ids: []
+  ratio: 0.2
+  match_method: none
+  source: inferred
+- requirement_id: INF-044
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:296
+  matched_task_ids: []
+  ratio: 0.3846
+  match_method: none
+  source: inferred
+- requirement_id: INF-045
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:297
+  matched_task_ids:
+  - Task 5
+  ratio: 0.7826
+  match_method: containment
+  source: inferred
+- requirement_id: INF-046
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:298
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-047
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:299
+  matched_task_ids: []
+  ratio: 0.3913
+  match_method: none
+  source: inferred
+- requirement_id: INF-048
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:300
+  matched_task_ids: []
+  ratio: 0.3
+  match_method: none
+  source: inferred
+- requirement_id: INF-049
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:301
+  matched_task_ids: []
+  ratio: 0.3929
+  match_method: none
+  source: inferred
+- requirement_id: INF-050
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:302
+  matched_task_ids: []
+  ratio: 0.4545
+  match_method: none
+  source: inferred
+- requirement_id: INF-051
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:303
+  matched_task_ids: []
+  ratio: 0.4
+  match_method: none
+  source: inferred
+- requirement_id: INF-052
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:304
+  matched_task_ids: []
+  ratio: 0.4167
+  match_method: none
+  source: inferred
+- requirement_id: INF-053
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:305
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-054
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:306
+  matched_task_ids: []
+  ratio: 0.2609
+  match_method: none
+  source: inferred
+- requirement_id: INF-055
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:307
+  matched_task_ids: []
+  ratio: 0.4737
+  match_method: none
+  source: inferred
+- requirement_id: INF-056
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:308
+  matched_task_ids:
+  - Task 3
+  ratio: 0.6364
+  match_method: containment
+  source: inferred
+- requirement_id: INF-057
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:309
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-058
+  section: '4.1 Layer 1: unit tests (mocked subprocess and network)'
+  citation: source.md:310
+  matched_task_ids: []
+  ratio: 0.4667
+  match_method: none
+  source: inferred
+- requirement_id: INF-059
+  section: 'G0: publish the plan and start the Coder work'
+  citation: source.md:435
+  matched_task_ids:
+  - Task 1
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-060
+  section: 'G0: publish the plan and start the Coder work'
+  citation: source.md:437
+  matched_task_ids:
+  - Task 1
+  ratio: 0.7805
+  match_method: containment
+  source: inferred
+- requirement_id: INF-061
+  section: 'G0: publish the plan and start the Coder work'
+  citation: source.md:447
+  matched_task_ids:
+  - Task 2
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-062
+  section: 'G0: publish the plan and start the Coder work'
+  citation: source.md:449
+  matched_task_ids:
+  - Task 2
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-063
+  section: 'G1: installer core'
+  citation: source.md:463
+  matched_task_ids:
+  - Task 4
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-064
+  section: 'G1: installer core'
+  citation: source.md:466
+  matched_task_ids:
+  - Task 4
+  ratio: 0.766
+  match_method: containment
+  source: inferred
+- requirement_id: INF-065
+  section: 'G1: installer core'
+  citation: source.md:484
+  matched_task_ids:
+  - Task 5
+  ratio: 0.75
+  match_method: containment
+  source: inferred
+- requirement_id: INF-066
+  section: 'G1: installer core'
+  citation: source.md:486
+  matched_task_ids:
+  - Task 5
+  ratio: 0.9444
+  match_method: containment
+  source: inferred
+- requirement_id: INF-067
+  section: 'G1: installer core'
+  citation: source.md:488
+  matched_task_ids:
+  - Task 3
+  ratio: 0.7895
+  match_method: containment
+  source: inferred
+- requirement_id: INF-068
+  section: 'G1: installer core'
+  citation: source.md:522
+  matched_task_ids:
+  - Task 3
+  ratio: 0.7763
+  match_method: containment
+  source: inferred
+- requirement_id: INF-069
+  section: 'G1: installer core'
+  citation: source.md:523
+  matched_task_ids:
+  - Task 3
+  ratio: 0.9048
+  match_method: containment
+  source: inferred
+- requirement_id: INF-070
+  section: 'G1: installer core'
+  citation: source.md:524
+  matched_task_ids:
+  - Task 3
+  ratio: 0.8462
+  match_method: containment
+  source: inferred
+- requirement_id: INF-071
+  section: 'G1: installer core'
+  citation: source.md:525
+  matched_task_ids: []
+  ratio: 0.5556
+  match_method: none
+  source: inferred
+- requirement_id: INF-072
+  section: 'G1: installer core'
+  citation: source.md:526
+  matched_task_ids: []
+  ratio: 0.5
+  match_method: none
+  source: inferred
+- requirement_id: INF-073
+  section: 'G1: installer core'
+  citation: source.md:527
+  matched_task_ids:
+  - Task 3
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-074
+  section: 'G2: CLI wiring'
+  citation: source.md:561
+  matched_task_ids:
+  - Task 6
+  ratio: 0.75
+  match_method: containment
+  source: inferred
+- requirement_id: INF-075
+  section: 'G2: CLI wiring'
+  citation: source.md:563
+  matched_task_ids:
+  - Task 6
+  ratio: 0.75
+  match_method: containment
+  source: inferred
+- requirement_id: INF-076
+  section: 'G2: CLI wiring'
+  citation: source.md:571
+  matched_task_ids:
+  - Task 7
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-077
+  section: 'G2: CLI wiring'
+  citation: source.md:573
+  matched_task_ids:
+  - Task 7
+  ratio: 0.7632
+  match_method: containment
+  source: inferred
+- requirement_id: INF-078
+  section: 'G2: CLI wiring'
+  citation: source.md:582
+  matched_task_ids:
+  - Task 8
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-079
+  section: 'G2: CLI wiring'
+  citation: source.md:584
+  matched_task_ids:
+  - Task 8
+  ratio: 0.7083
+  match_method: containment
+  source: inferred
+- requirement_id: INF-080
+  section: 'G3: indexing'
+  citation: source.md:595
+  matched_task_ids:
+  - Task 9
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-081
+  section: 'G3: indexing'
+  citation: source.md:597
+  matched_task_ids:
+  - Task 9
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-082
+  section: 'G4: guidance, docs, CI, live proof'
+  citation: source.md:615
+  matched_task_ids:
+  - Task 10
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-083
+  section: 'G4: guidance, docs, CI, live proof'
+  citation: source.md:617
+  matched_task_ids:
+  - Task 10
+  ratio: 0.8333
+  match_method: containment
+  source: inferred
+- requirement_id: INF-084
+  section: 'G4: guidance, docs, CI, live proof'
+  citation: source.md:629
+  matched_task_ids:
+  - Task 11
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-085
+  section: 'G4: guidance, docs, CI, live proof'
+  citation: source.md:631
+  matched_task_ids:
+  - Task 11
+  ratio: 0.8475
+  match_method: containment
+  source: inferred
+- requirement_id: INF-086
+  section: 'G4: guidance, docs, CI, live proof'
+  citation: source.md:644
+  matched_task_ids:
+  - Task 12
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-087
+  section: 'G4: guidance, docs, CI, live proof'
+  citation: source.md:646
+  matched_task_ids:
+  - Task 12
+  ratio: 0.7647
+  match_method: containment
+  source: inferred
+- requirement_id: INF-088
+  section: 'G4: guidance, docs, CI, live proof'
+  citation: source.md:654
+  matched_task_ids:
+  - Task 13
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-089
+  section: 'G4: guidance, docs, CI, live proof'
+  citation: source.md:656
+  matched_task_ids:
+  - Task 13
+  ratio: 0.8793
+  match_method: containment
+  source: inferred
+- requirement_id: INF-090
+  section: 'G5: final gate and PR'
+  citation: source.md:669
+  matched_task_ids:
+  - Task 14
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-091
+  section: 'G5: final gate and PR'
+  citation: source.md:686
+  matched_task_ids:
+  - Task 15
+  ratio: 0.75
+  match_method: containment
+  source: inferred
+- requirement_id: INF-092
+  section: 'G6: post-merge live verification (review finding X-5)'
+  citation: source.md:704
+  matched_task_ids:
+  - Task 16
+  ratio: 1.0
+  match_method: containment
+  source: inferred
+- requirement_id: INF-093
+  section: '6. Progress reporting on issue #323'
+  citation: source.md:725
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-094
+  section: 7. Autonomy rules for the executor
+  citation: source.md:749
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6
+  match_method: containment
+  source: inferred
+- requirement_id: INF-095
+  section: 7. Autonomy rules for the executor
+  citation: source.md:750
+  matched_task_ids:
+  - Constraints
+  ratio: 0.7333
+  match_method: containment
+  source: inferred
+- requirement_id: INF-096
+  section: 7. Autonomy rules for the executor
+  citation: source.md:751
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6944
+  match_method: containment
+  source: inferred
+- requirement_id: INF-097
+  section: 7. Autonomy rules for the executor
+  citation: source.md:755
+  matched_task_ids:
+  - Constraints
+  ratio: 0.8611
+  match_method: containment
+  source: inferred
+- requirement_id: INF-098
+  section: 7. Autonomy rules for the executor
+  citation: source.md:758
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-099
+  section: 7. Autonomy rules for the executor
+  citation: source.md:759
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6667
+  match_method: containment
+  source: inferred
+- requirement_id: INF-100
+  section: 7. Autonomy rules for the executor
+  citation: source.md:760
+  matched_task_ids:
+  - Task 15
+  ratio: 0.6522
+  match_method: containment
+  source: inferred
+- requirement_id: INF-101
+  section: 7. Autonomy rules for the executor
+  citation: source.md:761
+  matched_task_ids:
+  - Task 16
+  ratio: 0.65
+  match_method: containment
+  source: inferred
+- requirement_id: INF-102
+  section: 7. Autonomy rules for the executor
+  citation: source.md:762
+  matched_task_ids:
+  - Constraints
+  ratio: 0.85
+  match_method: containment
+  source: inferred
+- requirement_id: INF-103
+  section: 7. Autonomy rules for the executor
+  citation: source.md:763
+  matched_task_ids:
+  - Constraints
+  ratio: 0.6765
+  match_method: containment
+  source: inferred
+- requirement_id: INF-104
+  section: 8. Release and ordering
+  citation: source.md:780
+  matched_task_ids:
+  - Constraints
+  ratio: 0.8182
+  match_method: containment
+  source: inferred

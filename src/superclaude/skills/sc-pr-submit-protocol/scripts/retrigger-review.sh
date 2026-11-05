@@ -2,10 +2,12 @@
 #
 # retrigger-review.sh — S5a re-trigger wrapper for sc:pr-submit (R1 / FR-8).
 #
-# Purpose : Post one `auggie review` re-trigger comment on the PR's conversation
-#           thread so the Augment App performs a re-review of the just-pushed
-#           remediation commit. A push does NOT auto-trigger an Augment re-review —
-#           the App reviews only on PR-open or an explicit operator trigger comment.
+# Purpose : Post one re-trigger comment on the PR's conversation thread so a
+#           reviewer re-reviews the just-pushed remediation commit: `auggie review`
+#           (the default) for Augment, `--body "@codex review"` for Codex. The SKILL
+#           calls this once per present reviewer. A push does NOT auto-trigger a
+#           re-review by either bot; each reviews only on PR-open or an explicit
+#           trigger comment.
 # Usage   : retrigger-review.sh --pr <N> [--repo <owner/repo>] [--body <phrase>]
 # Exit    : 0 on a completed post; 2 on usage error (bad/missing/non-numeric --pr);
 #           127 on a missing dependency (gh not on PATH — an environment failure, NOT
@@ -49,7 +51,8 @@ REPO="${REPO:-$(git remote get-url origin 2>/dev/null | sed -E 's#^ssh://[^/]+/#
 [ -n "$REPO" ] || die "could not resolve target repo (pass --repo <owner/repo>)" 2
 
 # Post the re-trigger comment on the PR conversation thread (issue-comment surface).
-# Default body is `auggie review` (S5a). Silence path passes --body "augment review".
+# Default body is `auggie review` (S5a). Codex passes --body "@codex review".
+# Silence path (Augment only) passes --body "augment review".
 gh api --method POST \
     "repos/${REPO}/issues/${PR}/comments" \
     -f body="$BODY" >/dev/null \

@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/codegraph-migration/decisions/M-major-versions/adversarial/merged-output.md"
+  convergence_score: 0.929
+  artifacts_dir: ".dev/codegraph-migration/decisions/M-major-versions/adversarial/adversarial"
+  status: "success"
+  base_variant: "Variant 3 (option-c.md, current model, default persona)"
+  unresolved_conflicts: 1          # C-002: barrier strength, no PR (B) vs draft PR (C); resolved by base choice, flagged for user
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []       # Round 2.5 skipped at --depth quick

@@ -1,0 +1,36 @@
+SOURCE /config/.claude/projects/-config-workspace-IronClaude/bbddbf85-99f2-4caf-a47f-a402da4f09de/subagents/agent-afix-research-task-201fdeb6c30365e6.jsonl:164 TIME 2026-10-23T04:24:28.360Z
+| Status | Result |
+|---|---|
+| DONE | Applied the three requested task-file corrections. All 103 items remain unchecked. |
+| NEXT | Fresh independent verification is required. No gate verdict is asserted. |
+
+## Task-file correction log
+
+**Changed file:** `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/TASK-RESEARCH-review-loops-20261023-032537.md`
+
+| Finding | Correction applied |
+|---|---|
+| Missing input-path prefixes | Expanded abbreviated case, screening, synthesis, hypothesis and gate-decision paths. Installed reference paths are now absolute. Expanded abbreviated synthesis ownership lists. |
+| Missing Context evidence bindings | Added explicit final-state evidence-absence notes explaining prerequisite completion, corrections and execution-time source discovery. Added verified citations for task restrictions, package provenance, discovery status and the adversarial invocation surface. Added a specific source-selection explanation to the current/historical protocol-review item. |
+| Missing named completion section | Added `#### Post-Completion Actions` inside final Phase 7. Recorded the calling skill’s anti-orphaning precedence without moving actions or weakening completion requirements. |
+
+### Mechanical and semantic checks
+
+- YAML parses; status remains `To Do`; start and completion dates remain unset.
+- Exactly **103 unchecked items**, with contiguous numbering and unchanged phase counts: **2, 13, 15, 1, 27, 42, 3**.
+- All **103 Context fields** contain citation or evidence-absence syntax; **14** contain source citations.
+- No unresolved bare Markdown filename tokens or shortened installed-reference paths remain. All **15** independently named installed absolute paths exist.
+- Completion actions remain inside Phase 7 in their original order.
+- Full review floors, size thresholds, correction caps and halt guards remain present.
+- These were document inspections, **not tests, task execution or independent gate verification**. No byte-for-byte baseline diff was captured.
+
+### Checksums
+
+```text
+Before: 568990b835d1a60702ed26e77a52806bcb33fdd802cd252d82f6849923b91c62
+After:  36d1b9b0c28f7e0cfd45034d2653d2918400df6f0f9c47d9a36719d27330a750
+```
+
+**Boundaries:** Only the authorized task file was edited. No reports, production sources, investigated plans or shared artifacts were changed. No agents, messaging, task execution, tests, commits or archival actions were performed. The fix log is returned here because developer instructions prohibit report-file writes.
+
+**Unresolved:** Independent acceptance remains pending. Recommended action: have the designated fresh verifier check all three corrections, including whether each evidence-absence note adequately explains its item’s missing final-state anchors.

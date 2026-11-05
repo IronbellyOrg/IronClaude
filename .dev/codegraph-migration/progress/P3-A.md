@@ -1,0 +1,23 @@
+**Phase 3 (adopt codegraph), group A: shared guide and core docs: done**
+
+- Commit: 8ed5e57b on branch feat/codegraph-adoption (guide: 86e5e888)
+- Changed:
+  - src/superclaude/core/CODEGRAPH.md (new shared guide, 95 lines; installs to ~/.claude/CODEGRAPH.md)
+  - plugins/superclaude/core/CODEGRAPH.md (byte copy)
+  - src/superclaude/cli/install_core.py (CODEGRAPH.md added to the reported core files)
+  - src/superclaude/core/CLAUDE.md (codegraph table row and marked block name the guide; refresh-tool row puts codegraph before the Grep floor)
+  - src/superclaude/modes/MODE_Orchestration.md and its plugin twin (codegraph row in the tool matrix)
+  - src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md and its plugin twin
+  - src/superclaude/mcp/MCP_Auggie.md
+  - tests/core/test_codegraph_guide.py (new, 15 tests), tests/unit/test_cli_install.py (expected core lists)
+- Checks run and result:
+  - `uv run pytest tests/core/test_codegraph_guide.py tests/unit/test_cli_install.py`: PASS, 106 passed.
+  - Pin parity (guide pin equals the installer's VERSION 1.6.2): PASS.
+  - `uv run pytest tests/core tests/skills/test_sc_recommend_routing_contract.py tests/commands/test_routing_plugin_parity.py`: PASS, 136 passed.
+  - No "serena" in core/CLAUDE.md or either MODE_Orchestration.md: PASS. Exactly one codegraph table row, and it names the guide: PASS. No codegraph_explore in core/CLAUDE.md; each block marker appears once and the block names the guide: PASS.
+  - Independent review of the guide task: compliant, no findings (the core-docs task review runs after this comment).
+- Decisions made on my own:
+  - The guide's readiness step uses the status wording E-1 actually observed (CLI "Index is up to date" / "Pending Changes:", MCP "Changes since index" counts and "isn't indexed with codegraph"), instead of the design's unverified wording.
+  - The plugin's expected core list in tests/unit/test_cli_install.py also gains CODEGRAPH.md, because the plan adds the plugin copy.
+- Left for later / blocked: none
+- Next group: B, agents

@@ -1,0 +1,19 @@
+# Invariant Probe (Round 2.5)
+
+Fault-finder: the orchestrator, acting outside any variant (manual fallback; no sub-agent). Input: the emerging consensus in `debate-transcript.md`, the three cards, `diff-analysis.md`, and the re-Read lines cited below.
+
+| ID | Category | Assumption | Status | Severity | Evidence |
+|---|---|---|---|---|---|
+| INV-001 | state_variables | Plan text can still change once execution starts (F-005 and R1-05 fixes say "correct the procedure before Task 2") | ADDRESSED (D-009 fix moves the help check before the run) | HIGH | `~/.claude/skills/sc-implement-protocol/refs/managed-workspace.md:43` "The first `T<id>: start` line is the immutability boundary ... STOP `E-PLAN-CHANGED`" |
+| INV-002 | guard_conditions | A worker parked on a human prompt, or blocked on an unanswered decision question, may be stopped by the coordinator (fixes of F-003, R1-03, R3-08) | ADDRESSED (D-004 fix: stop only on Orca's positive stall proof or the person's explicit go-ahead) | HIGH | `.dev/orca-command-refactor/inventory/orca-capabilities.md:114` "Use only after positive proof"; :125 "Absence never authorizes stop, abandon, retry, or release"; :129 "A waiting worker is healthy, not failed" |
+| INV-003 | interaction_effects | A plan Constraints bullet can govern the executor's post-archive `git add .dev/tasks` (D-001 fix) | ADDRESSED with residual risk (D-001 fix adds a person-run post-archive check line in the phase report) | MEDIUM | managed-workspace.md:36 (re-add is executor protocol, after FINAL at :54-61, so no reviewer sees its result) |
+| INV-004 | count_divergence | The untracked-path set is fixed at plan time (four folders) | ADDRESSED (D-002 fix uses a baseline saved at Task 1 start, which also absorbs any later reflect folder) | HIGH | plan:52; `git status --porcelain` now prints five untracked paths outside the package |
+| INV-005 | collection_boundaries | `worker-list` without `--run` returns only this run's rows | ADDRESSED (D-003) | MEDIUM | orca-capabilities.md:127 "Returns at most 100 local rows, newest first"; spec:293 |
+| INV-006 | interaction_effects | Resume (D-008), the retry ladder (D-007) and the settle path (D-004) each might start or re-create a worker | ADDRESSED (merged card states one invariant: at most one worktree and one worker per check, ever, detected from Orca state as well as files) | HIGH | plan:25 "no second worker is started for it"; retry.md:11 (A3 starts from the Q0 snapshot); managed-workspace.md:33 (failed-attempt artifacts moved) |
+| INV-007 | sufficiency_challenge | Fixing the two blocking findings alone lets a correct run reach `archived` | UNADDRESSED by the blocking set; ADDRESSED only if D-005 and D-006 are also applied | MEDIUM | Downstream gates after D-001 and D-002 are fixed: (1) Task 1 AC 2 must cite `symptom-check.txt`, whose outcome line reports 3 failed, and qa.md:310 lists "a log cited on a task's latest `complete` line shows a failure at its outcome line" as an `issues` trigger (D-005); (2) end-state ACs at plan:80, :106, :131, :145 have no saved file, so each task takes a Q5 fix pass and FINAL needs files (qa.md:121, :310; D-006); (3) a legitimate live-check FAIL makes `p0-phase-report.md`'s verdict line read FAIL, the same qa.md:310 trigger (D-005). Not a false result, but `E-ARCHIVE-BLOCKED` stays reachable. |
+| INV-008 | guard_conditions | `git branch --list p0-live-<name>*` matches the branch Orca creates | ADDRESSED (D-010 records the exact branch before Remove) | LOW | plan:39; current branch `ironbelly/OrcaCLICommandRefactor-Specs` for worktree name `OrcaCLICommandRefactor-Specs` |
+
+## Summary
+- Findings: 8 (HIGH 4, MEDIUM 3, LOW 1)
+- HIGH UNADDRESSED: 0. INV-007 is MEDIUM and is reflected in the merged card's instruction to apply D-005 and D-006 together with the blocking fixes.
+- Convergence blocked by invariants: no.

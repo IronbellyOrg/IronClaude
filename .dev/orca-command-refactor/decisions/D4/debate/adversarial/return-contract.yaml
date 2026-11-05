@@ -1,0 +1,14 @@
+# sc:adversarial return contract, D4 (resumed run; Steps 4-5 completed 2026-11-02)
+return_contract:
+  merged_output_path: ".dev/orca-command-refactor/decisions/D4/debate/adversarial/merged-output.md"
+  convergence_score: 1.0            # 32 of 32 diff points agreed (debate-transcript.md:666-667)
+  artifacts_dir: ".dev/orca-command-refactor/decisions/D4/debate/adversarial/"
+  status: "partial"                 # merge and post-merge validation PASS (merge-log.md:179); partial because
+                                    # base-selection.md still has 11 TODO sections (Step 3 record incomplete) and the
+                                    # debate ended BLOCKED_BY_INVARIANTS, resolved by planned changes that have not run live
+  base_variant: "variant-3-original.md (option c)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "manual"       # resumed by a teammate agent after a dev-environment restart
+  unaddressed_invariants: []        # INV-001, INV-002, INV-016, INV-027 each resolved by refactor-plan.md Changes 5-7

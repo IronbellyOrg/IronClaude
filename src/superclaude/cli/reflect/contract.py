@@ -26,11 +26,10 @@ from .models import ReflectResult, Verdict
 # ---------------------------------------------------------------------------
 
 # FR-11 chain-critical subset: EXACT membership (NOT substring) so benign
-# fail-open tokens (search_deps:lsp_unindexed, serena:onboarding-parse,
-# serena:pre-v1.5-no-rename-propagation, get_current_config,
-# neighbour-search:auggie_unavailable) do NOT over-HALT.
+# fail-open tokens (search_deps:lsp_unindexed, neighbour-search:auggie_unavailable)
+# do NOT over-HALT.
 _DEGRADED_COMPONENTS_HALT_SET = frozenset(
-    {"serena", "auggie", "env-aliases", "evidence-validator", "serena:context-excluded"}
+    {"auggie", "env-aliases", "evidence-validator"}
 )
 
 # verification_ran == False is exempt (NOT degradation) for these skip reasons.

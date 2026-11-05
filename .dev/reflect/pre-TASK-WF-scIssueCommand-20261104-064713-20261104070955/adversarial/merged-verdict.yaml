@@ -1,0 +1,296 @@
+# Provenance: produced by /sc:adversarial (Mode A, depth standard); Base: Variant 3 (reviewer-3, opus:refactorer); Merge date: 2026-11-04T08:03:32Z
+# Refactoring plan: adversarial/refactor-plan.md (22 changes). Merge log: adversarial/merge-log.md
+# Sources: Variant 1 (reviewer-1, sonnet:analyzer), Variant 2 (reviewer-2, haiku->glm-5.3:qa), Variant 3 (reviewer-3, opus:refactorer, base),
+#          blind calibrations (debate evidence), Round 2.5 invariant probe (adversarial/invariant-probe.md)
+# Disposition tags: preserved-exact | modified | merged-from-multiple
+merge_method: adversarial
+verdict: FAIL
+convergence_score: 1.0  # convergence threshold 0.80 (preserved-exact per refactor-plan Threshold preservation)
+convergence_status: BLOCKED_BY_INVARIANTS
+base_variant: "variant-3 (reviewer-3, opus:refactorer)"
+source_cards: [reviewer-1, reviewer-2, reviewer-3]
+citation_legend: "Path prefixes in evidence: plan:N = .dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/TASK-WF-scIssueCommand-20261104-064713.md line N; source.md:N = .dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/source.md line N; other paths are relative to the repo root /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command."
+findings:
+  # Source: refactor-plan.md Change #2 (base S-1 + reviewer-1 A-2 + invariant probe INV-001/INV-002 + V3 Round 2 Branch A), Disposition: modified
+  - id: F-01
+    severity: blocking
+    category: ordering
+    claim: "Task 16, which is the only task running the full `uv run pytest`, `make lint` and the final `git add .dev/tasks`, depends on Tasks 14 and 15. Their acceptance criteria require the task to be 'reported as blocked rather than passed' when the tier is not served or no ClickUp token is available. Under /sc:implement that AC cannot be satisfied as written. If the reviewer marks it met, a truthful E-TIER-UNAVAILABLE or 'not run' row passes as compliant and the task is recorded complete, which is a silent pass. If the reviewer marks it unmet, the task goes through the fix pass and the retry ladder on an environment fact, then halts with E-HALT-QA. Task 16 then runs only after the user confirms a Ruling. This is wrong behaviour."
+    evidence:
+      - "plan:209"
+      - "plan:213"
+      - "plan:223"
+      - "plan:228"
+      - "plan:230-236"
+      - "src/superclaude/skills/sc-implement-protocol/SKILL.md:135"
+      - "src/superclaude/skills/sc-implement-protocol/refs/ledger.md:60"
+      - "src/superclaude/skills/sc-implement-protocol/refs/ledger.md:155"
+      - "src/superclaude/skills/sc-implement-protocol/refs/qa.md:83-87"
+      - "src/superclaude/skills/sc-implement-protocol/refs/qa.md:245-248"
+      - "source.md:400"
+    recommendation: "(1) Make the full-suite/lint/sync/staging task depend on Task 13 only and run it before the two smoke checks. (2) Rewrite the ACs at plan:213 and plan:223 as pure evidence ACs: the artifact truthfully records served, E-TIER-UNAVAILABLE or 'not run' with the reason. Drop 'reported as blocked' from both, and state in the Goal (plan:15) that the smoke checks may end pending. (3) After any fixture or script edit in Task 15 (plan:219, plan:224), re-run `make sync-dev`, `make verify-sync`, `make lint` and `uv run pytest tests/skills` (INV-001). (4) End each smoke task with `git add .dev/tasks`, so their artifacts are staged (plan:23; src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md:36) (INV-001)."
+    source_cards: [reviewer-1, reviewer-3]  # reviewer-1 A-2, reviewer-3 S-1
+    debate_ruling: "C-001: blocking, unanimous after Round 1 (V2 conceded); winner V3, V1 co-winner, 98%. Invariant probe INV-001 and INV-002 (HIGH, UNADDRESSED in the debate) showed that reordering alone is insufficient. Recommendation parts (2) to (4) come from the probe. Calibration's downgrade of A-2 to minor was rejected in debate: the Ruling path needs explicit user confirmation (qa.md:245-248)."
+
+  # Source: refactor-plan.md Change #3 (reviewer-3 calibration missed_by_card + debate A-001 + invariant probe INV-003/INV-004), Disposition: merged-from-multiple
+  - id: F-02
+    severity: blocking
+    category: security
+    claim: "Task 15 tells the executor to ask the user for CLICKUP_API_TOKEN and run the script with it set in the environment. A token typed into the conversation, or inlined in a Bash command, is persisted in the session record. That breaks the plan's own 'never write the token to disk' and the spec's 'never printed, logged or written to disk'. The live shape comparison has no defined method, so it invites raw authenticated calls whose responses, including personal GET /user data, can land in the transcript or in committed fixtures."
+    evidence:
+      - "plan:219"
+      - "plan:222"
+      - "source.md:296"
+      - "src/superclaude/skills/sc-implement-protocol/refs/qa.md:51"
+      - "plan:42"
+      - "source.md:302-310"
+    recommendation: "(1) The user exports CLICKUP_API_TOKEN and CLICKUP_WORKSPACE_ID in their own shell before starting the session that runs Task 15. The executor never asks for the value, never echoes or prints it, and never inlines it in a command (no echo, env, printenv or set -x on it). (2) Because the token may now be exported, isolate the other paths (INV-003). Task 2's no-token check (plan:49) runs as `env -u CLICKUP_API_TOKEN -u CLICKUP_WORKSPACE_ID uv run --no-project python ...`. tests/skills/test_clickup_claim.py clears both variables with monkeypatch.delenv (plan:44). Without that, an exported token makes the Task 2 check do live GET /user, page through the workspace and PUT an assignment on a task linking #302 (source.md:303-309), which is outside the two scheduled live checks (plan:24-25). (3) Define the shape comparison as key paths only, and never copy live values into fixtures (INV-004)."
+    source_cards: [reviewer-3-calibration]
+    debate_ruling: "A-001: all three cards missed it; all three advocates REJECTED the shared assumption that the token handling is safe; blocking (security), unanimous, 95%. Invariant probe INV-003 (HIGH) and INV-004 (MEDIUM) supplied recommendation parts (2) and (3)."
+
+  # Source: refactor-plan.md Change #4 (reviewer-1 A-1 + reviewer-2 Q-3, narrowed; invariant probe INV-005), Disposition: merged-from-multiple
+  - id: F-03
+    severity: minor
+    category: missing-test
+    claim: "No task runs section 20 ACs 1, 2, 3, 4 or 6, and none records them as pending. ACs 3 and 4 stop before any GitHub or ClickUp write, so plan:25's limit on live posting does not excuse them. This is unrecorded verification, not a missing deliverable. The deliverables are the section 15/16 files, which all map to tasks, and the plan's Goal claims no AC verification."
+    evidence:
+      - "source.md:465-472"
+      - "source.md:143"
+      - "source.md:155-156"
+      - "source.md:388-398"
+      - "plan:15"
+      - "plan:25"
+      - "plan:226-236"
+    recommendation: "Add `./artifacts/t-acceptance.md`, listing section 20 ACs 1-8 each as run (with evidence) or pending live verification with the exact command. Place any AC 3 or AC 4 run after the suite task, next to the smoke checks. AC 3 needs the Wave 1 T3 spawn (source.md:147), so it shares Task 14's tier dependency. Amend plan:25 to allow these runs, and ask the user before any run against a real issue, because a faulty Wave 2 guard reaches `gh issue edit --add-assignee` (source.md:162) (INV-005)."
+    source_cards: [reviewer-1, reviewer-2]  # A-1, Q-3
+    debate_ruling: "C-002 and X-002: minor, unanimous after Round 2 (V1 and V3 conceded); V2's classification won, 90%. A-1's 'items 1-6, missing required deliverable' was rejected as overstated: AC 5 is covered by Task 2 and Task 15. The calibration's upgrade of Q-3 to blocking was rejected: no missing deliverable, false claim, wrong behaviour or security risk."
+
+  # Source: refactor-plan.md Change #5 (debate A-002 + reviewer-1 A-1 recommendation + reviewer-2 calibration), Disposition: merged-from-multiple
+  - id: F-04
+    severity: minor
+    category: missing-test
+    claim: "The --repo <R> invariant on every gh issue/pr/label call, and the repos/<R>/ form of every gh api path, is stated only in prose (Constraints, Task 5, Task 6). No test checks the SKILL.md, ref or worker-body lines, although AC 4 requires that no gh call is made without --repo. Without --repo, gh on a fork targets the upstream parent. Section 16 does not require this test."
+    evidence:
+      - "source.md:319"
+      - "source.md:470"
+      - "plan:22"
+      - "plan:91"
+      - "plan:109"
+      - "plan:121"
+      - "source.md:390-398"
+    recommendation: "Add to tests/skills/test_issue_protocol.py a scan asserting that every `gh issue|pr|label` line in SKILL.md, refs/*.md and the three worker bodies carries `--repo`, and that no `{owner}/{repo}` placeholder appears."
+    source_cards: [reviewer-1, reviewer-2-calibration]
+    debate_ruling: "A-002: QUALIFY, minor, unanimous after V1 conceded in Round 2; 85%."
+
+  # Source: refactor-plan.md Change #6 (reviewer-1 A-3 + reviewer-2 Q-2 + debate A-004), Disposition: merged-from-multiple
+  - id: F-05
+    severity: minor
+    category: missing-requirement
+    claim: "The origin-only fetch rule appears only in the plan Constraints. Task 5 copies 'the gh commands exactly as written', which does not cover the git command in Wave 1. Task 3 tells workers to make 'read-only gh and git calls only' and to write 'only under .dev/issues/', yet Wave 1 requires the worker to run git fetch origin, which updates remote-tracking refs. A literal worker could skip the fetch and report stale commits."
+    evidence:
+      - "source.md:149"
+      - "source.md:320"
+      - "source.md:321"
+      - "plan:22"
+      - "plan:55"
+      - "plan:91"
+    recommendation: "Task 5: the claim.md Wave 1 bullet includes `git fetch origin` (origin only) and the `git log --since` command. Task 3: the worker body says its only git write is `git fetch origin`, and the test in tests/skills/test_issue_worker_agents.py asserts that sentence."
+    source_cards: [reviewer-1, reviewer-2]  # A-3, Q-2
+    debate_ruling: "C-003 minor, unanimous, winner V1, 85%. A-004 (shared assumption that 'read-only git' is compatible with the fetch): REJECT by V2 and V3, QUALIFY by V1; minor, 80%."
+
+  # Source: refactor-plan.md Change #7 (base S-3, claim narrowed; reviewer-1 A-4 part), Disposition: modified
+  - id: F-06
+    severity: minor
+    category: non-observable-ac
+    claim: "Task 11's criterion that git diff --stat shows only the developer guide cannot hold literally after Tasks 9 and 10 have left other tracked files modified. The executor's own per-task diff is against its Q0 snapshot, so only the AC wording is wrong."
+    evidence:
+      - "plan:178"
+      - "plan:145"
+      - "plan:159"
+      - "src/superclaude/skills/sc-implement-protocol/SKILL.md:123"
+    recommendation: "Use git diff -U0 -- docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md with hunks only between the ### 4.1 heading and the ### 4.4 heading."
+    source_cards: [reviewer-3, reviewer-1]  # S-3, A-4
+    debate_ruling: "C-004: minor, unanimous, winner V3, 90%; S-3's overstatement narrowed per SKILL.md:123."
+
+  # Source: refactor-plan.md Change #8 (base S-6 claim and recommendation kept verbatim, evidence per plan; reviewer-1 A-4 part), Disposition: modified
+  - id: F-07
+    severity: minor
+    category: other
+    claim: "Task 10 does not say the new Other-commands row must be ASCII and must not backtick a non-existent /command (test_guide_is_ascii_except_the_ruling_example, test_other_commands_membership_and_live_references)."
+    evidence:
+      - "plan:159"
+      - "plan:168"
+      - "tests/core/test_how_we_work_routing_table.py:290-310"
+      - "tests/core/test_how_we_work_routing_table.py:341-346"
+    recommendation: "Add the ASCII and live-reference rule to Task 10."
+    source_cards: [reviewer-3, reviewer-1]
+    debate_ruling: "C-005: minor, unanimous, winner V3, 85%; Task 10's tests/core run (plan:168) would catch a violation."
+
+  # Source: refactor-plan.md Change #9 (reviewer-1 A-4 part, split out), Disposition: modified
+  - id: F-08
+    severity: minor
+    category: unexecutable
+    claim: "Task 2's no-token check says 'With CLICKUP_API_TOKEN unset' but runs a plain command, and the tests are not required to clear the environment. In a shell that exports a token, the check would not print no_token."
+    evidence:
+      - "plan:49"
+      - "plan:44"
+    recommendation: "Covered by F-02 recommendation (2): `env -u CLICKUP_API_TOKEN -u CLICKUP_WORKSPACE_ID` at plan:49 and `monkeypatch.delenv` in the tests."
+    source_cards: [reviewer-1]
+    debate_ruling: "U-001: keep, minor, unanimous, 90%. The invariant probe (INV-003, HIGH) showed that F-02's fix makes an exported token the default path, so the fix is required as part of F-02."
+
+  # Source: refactor-plan.md Change #10 (reviewer-2 Q-4, relabelled; invariant probe INV-006), Disposition: modified
+  - id: F-09
+    severity: minor
+    category: missing-requirement
+    claim: "The spec requires the spawn rule ('never pass the model parameter') in SKILL.md and every ref. The plan puts it only in SKILL.md and refs/tiers.md, not in claim.md, create.md, chains.md or labels.md, and the Task 7 test checks two files. The risk is contained because SKILL.md carries the rule."
+    evidence:
+      - "source.md:132"
+      - "source.md:354-358"
+      - "plan:91-95"
+      - "plan:103"
+      - "plan:109"
+      - "plan:121"
+    recommendation: "Task 5: add the spawn-rule sentence to all five refs. Task 7: iterate the phrase check over refs/*.md."
+    source_cards: [reviewer-2]
+    debate_ruling: "U-003: keep, minor, unanimous, 90%; relabelled from weak-match to missing-requirement. INV-006 widened the fix from two refs to all five."
+
+  # Source: refactor-plan.md Change #11 (base S-2 kept), Disposition: preserved-exact
+  - id: F-10
+    severity: minor
+    category: unexecutable
+    claim: "Task 14 needs a session started after Task 13 with no halt-and-resume instruction, and its served-model evidence names no concrete checkable source; a subagent's self-reported model is not proof [INFERRED]."
+    evidence:
+      - "plan:209"
+      - "plan:212"
+    recommendation: "Tell the executor to stop after the sync task, start a new session and re-run the same /sc:implement command; name the evidence source (gateway/proxy request log or transcript model field); reject self-report alone."
+    source_cards: [reviewer-3]
+    debate_ruling: "U-005: keep, minor, unanimous, 90%. V2 Round 2 noted it makes the F-01 halt branch the likely path."
+
+  # Source: refactor-plan.md Change #12 (base S-4, relabelled false-claim -> spec-inherited, claim rewritten), Disposition: modified
+  - id: F-11
+    severity: minor
+    category: spec-inherited
+    claim: "Task 7 makes the chains.md flag test read ~/.claude/commands/sc/<name>.md first, as source.md:391's 'installed-or-source' says. It also calls this the 'same check style' as test_every_notes_flag_exists_in_its_command, but that test reads only src/superclaude/commands. The spec contradicts itself, and the installed read makes the test machine-dependent."
+    evidence:
+      - "plan:121"
+      - "source.md:391"
+      - "tests/core/test_how_we_work_routing_table.py:19"
+      - "tests/core/test_how_we_work_routing_table.py:141-153"
+    recommendation: "Check flags against src/superclaude/commands/<name>.md and src/superclaude/skills/task/SKILL.md only, noted as a deliberate narrowing of section 16 'installed-or-source' for determinism."
+    source_cards: [reviewer-3]
+    debate_ruling: "U-006: keep, minor, unanimous, 90%; 'false-claim' category rejected because the plan copies the spec."
+
+  # Source: refactor-plan.md Change #13 (base S-5 kept), Disposition: preserved-exact
+  - id: F-12
+    severity: minor
+    category: unexecutable
+    claim: "Task 13 compares grep hits with local master, which can be behind origin/master."
+    evidence:
+      - "plan:198"
+    recommendation: "git fetch origin, then git grep ... origin/master."
+    source_cards: [reviewer-3]
+    debate_ruling: "U-007: keep, minor, unanimous, 90%; it only mislabels pre-existing hits."
+
+  # Source: refactor-plan.md Change #14 (base S-7 kept), Disposition: preserved-exact
+  - id: F-13
+    severity: minor
+    category: scope
+    claim: "Task 14 writes .dev/issues/smoke/ and Task 16 creates an Orca worktree, both outside the Constraints edit scope; the worktree is never removed."
+    evidence:
+      - "plan:20"
+      - "plan:209"
+      - "plan:230"
+    recommendation: "Allow the package artifacts/, .dev/issues/smoke/ (unstaged) and the temporary master worktree in Constraints; remove the worktree with orca worktree rm --worktree name:<name>."
+    source_cards: [reviewer-3]
+    debate_ruling: "U-008: keep, minor, unanimous, 90%; not destructive."
+
+  # Source: refactor-plan.md Change #15 (reviewer-2 Q-1 claim and recommendation verbatim; evidence path qualified per plan), Disposition: modified
+  - id: F-14
+    severity: minor
+    category: weak-match
+    claim: "Five matrix rows carry best-task matches that do not satisfy them (INF-013 -> Task 2, INF-054 -> Task 3, INF-058/059/062 -> Task 5 prose only); real coverage for INF-013 is Task 5's create.md bullet and INF-054 is an authorized exclusion."
+    evidence:
+      - ".dev/reflect/pre-TASK-WF-scIssueCommand-20261104-064713-20261104070955/artifacts/coverage-matrix.json:8-15"
+      - "plan:24"
+      - "plan:92"
+    recommendation: "No plan change; correct the best-task mapping note in t1-card.md so coverage_pct_union is not read as task-level satisfaction of these rows."
+    source_cards: [reviewer-2]
+    debate_ruling: "U-002: keep, minor, unanimous, 90%."
+
+  # Source: refactor-plan.md Change #16 (new entry from invariant probe INV-007), Disposition: modified
+  - id: F-15
+    severity: minor
+    category: spec-inherited
+    claim: "The spec's `gh pr list --repo <R> --state merged --search ... --json ...` has no --limit, and gh's default is 30. Task 5 copies the gh commands exactly as written, so for an older issue the accuracy check silently misses later PRs. The label list in create Wave 1 sets --limit 200 explicitly."
+    evidence:
+      - "source.md:149"
+      - "source.md:188"
+      - "plan:91"
+    recommendation: "claim.md adds `--limit 200` (or pages) to the merged-PR query, and the worker records when the result was truncated."
+    source_cards: [invariant-probe]
+    debate_ruling: "INV-007, MEDIUM, UNADDRESSED in the debate; added as minor (robustness, inherited from the spec)."
+
+  # Source: refactor-plan.md Change #17 (new entry from invariant probe INV-008), Disposition: modified
+  - id: F-16
+    severity: minor
+    category: missing-requirement
+    claim: "Neither the plan nor the spec states the first page number for the task-list paging, and the page-cap test does not pin it. Behaviour for a zero, negative or non-integer CLICKUP_MAX_PAGES is undefined; exit 2 covers command-line arguments only."
+    evidence:
+      - "plan:42"
+      - "plan:44"
+      - "source.md:304"
+    recommendation: "State the starting page from the ClickUp v2 reference in the script docstring and pin it in a fixture test; define the outcome for an invalid CLICKUP_MAX_PAGES."
+    source_cards: [invariant-probe]
+    debate_ruling: "INV-008, MEDIUM; minor."
+
+  # Source: refactor-plan.md Change #18 (new entry from invariant probe INV-009), Disposition: modified
+  - id: F-17
+    severity: minor
+    category: other
+    claim: "Tasks 1 and 2 load the scripts by path in tests, which can write scripts/__pycache__/*.pyc holding the absolute source path (inferred, not run). The Task 7 'no file contains src/superclaude/' test and the Task 13 `grep -rn` would then match a binary file."
+    evidence:
+      - "plan:121"
+      - "plan:198"
+      - "plan:202"
+      - "src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md:35"
+    recommendation: "The test skips __pycache__ and binary files; Task 13 uses `grep -rIn`; run checks with PYTHONDONTWRITEBYTECODE=1 as the executor already advises."
+    source_cards: [invariant-probe]
+    debate_ruling: "INV-009, MEDIUM, inferred; minor. managed-workspace.md:35 already partly mitigates it."
+
+  # Source: refactor-plan.md Change #19 (new entry from invariant probe INV-010: the 500-line limit is measured two ways), Disposition: modified
+  - id: F-18
+    severity: minor
+    category: other
+    claim: "The AC uses wc -l and the test counts lines in Python; they differ by one for a file with no final newline."
+    evidence:
+      - "plan:112"
+      - "plan:121"
+    recommendation: "Use one counting rule in both, or set the limit at 499 lines."
+    source_cards: [invariant-probe]
+    debate_ruling: "INV-010, LOW; minor."
+
+# Source: refactor-plan.md Change #20, Disposition: preserved-exact
+rejected_findings:
+  - id: Q-5
+    reason: "U-004: reviewer-2's own card says no plan change; the omitted matrix regions were spot-checked as covered. Rejected unanimously in Round 2."
+  - id: A-1-as-blocking
+    reason: "Reviewer-1's 'items 1-6 have no task ... missing required deliverable' overstated: AC 5 is covered by Task 2 (plan:49) and Task 15 (plan:215-224); section 20 is checks, not deliverables (source.md:465 vs source.md:388-398). Kept as minor F-03."
+  - id: Q-3-calibrated-blocking
+    reason: "The calibrator's upgrade of Q-3 to blocking was rejected in debate: no deliverable missing, no false claim, no wrong behaviour, no security risk. Kept as minor F-03."
+  - id: A-2-recommendation-deferred-outcome
+    reason: "Reviewer-1's fix of accepting 'not run, deferred' while keeping Task 16 after 14/15 changes the meaning of plan:213/223; replaced by F-01's reorder plus the evidence-AC rewrite."
+  - id: S-4-false-claim-category
+    reason: "plan:121 copies source.md:391; the inconsistency is spec-inherited. Kept as minor F-11 with category spec-inherited."
+  - id: A-003-ac7-phrase-test
+    reason: "Challenge that a phrase-presence test does not satisfy AC 7's static test: accepted as adequate; source.md:391 defines the static test as phrase presence and plan:121 matches. No finding."
+  - id: calibration-make-test-vs-uv-run-pytest
+    reason: "source.md:400 'make test' vs plan:230 'uv run pytest' is no deviation: Makefile:13-15 runs uv run pytest."
+
+# Source: refactor-plan.md Change #21 (all 15 diff points reached agreement; debate-transcript.md Convergence Assessment)
+unresolved: []
+
+# Source: refactor-plan.md Change #1 (Round 2.5 invariant probe HIGH items; F-01 and F-02 recommendations carry their fixes)
+unaddressed_invariants: [INV-001, INV-002, INV-003]
+
+# Source: refactor-plan.md Change #22 (caller's text verbatim)
+severity_rule: "blocking only for wrong behaviour, a false claim, a missing required deliverable, or a security/data-loss risk. Everything else is minor."

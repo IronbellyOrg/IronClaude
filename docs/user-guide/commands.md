@@ -2,11 +2,11 @@
 
 <!-- markdownlint-disable MD040 MD051 -->
 
-**Complete SuperClaude Framework Command Reference**
+**IronClaude command reference**
 
 > This file serves two purposes: quick navigation for Claude Code and learning resource for humans.
 
-**Last Updated**: 2026-10-14
+**Last Updated**: 2026-11-03
 
 ---
 
@@ -15,7 +15,6 @@
 - [📋 How to Use This Document](#-how-to-use-this-document)
 - [🗂️ Command Categories](#️-command-categories)
 - [📖 Detailed Description of Each Command](#-detailed-description-of-each-command)
-- [📂 index-repo vs Serena](#-index-repo-vs-serena--indexing-tools-comparison)
 
 ---
 
@@ -27,7 +26,6 @@ This page is the per-command reference: exact syntax, options, and what each com
 |---------|---------|
 | [`🗂️ Command Categories`](#️-command-categories) | Every command by category, and whether it changes files |
 | [`📖 Detailed Descriptions`](#-detailed-description-of-each-command) | Syntax, options, and examples for each command |
-| [`📂 index-repo vs Serena`](#-index-repo-vs-serena--indexing-tools-comparison) | Which indexing tool to use for project memory |
 
 ---
 
@@ -40,7 +38,7 @@ This page is the per-command reference: exact syntax, options, and what each com
 | [`/sc:pm`](#scpm---project-manager-agent) | Project Manager agent | `pm.md` | Yes |
 | [`/sc:spawn`](#scspawn---meta-system-task-orchestration) | Decomposition Epic → Task | `spawn.md` | Report only (stops after the task breakdown; see its Critical Boundaries) |
 | [`/sc:task`](#sctask---enhanced-task-management) | One small, direct change (level 2) | `task.md` | Yes |
-| [`/sc:workflow`](#scworkflow---implementation-plan-generator) | Short checked plan for a few files (level 3) | `workflow.md` | Only with `--handoff implement` |
+| [`/sc:workflow`](#scworkflow---implementation-plan-generator) | Checked implementation plan (level 3, the default for planned work) | `workflow.md` | Only with `--handoff implement` |
 | `/sc:agent` | Session controller for investigate, build, review | `agent.md` | Yes |
 | `/sc:roadmap` | Roadmap artifacts from spec, TDD, PRD | `roadmap.md` | Report only |
 | `/sc:tasklist` | Sprint-ready tasklist bundles from roadmaps | `tasklist.md` | Report only |
@@ -67,7 +65,8 @@ This page is the per-command reference: exact syntax, options, and what each com
 | Command | Purpose | File | Changes files? |
 |---------|---------|------|----------------|
 | [`/sc:analyze`](#scanalyze---code-analysis) | Code analysis (quality/security/perf) | `analyze.md` | Report only |
-| [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` | Report only (`--fix` adds a task file you run with `/task`) |
+| [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` | Report only (`--fix` offers a `/sc:workflow` plan you run with `/sc:implement`; `--fix --depth deep` offers a `/task-builder` task file you run with `/task`) |
+| [`/sc:impact`](#scimpact---change-impact-report) | What depends on a symbol or a diff, from the code graph | `impact.md` | Report only |
 | [`/sc:test`](#sctest---testing) | Tests + coverage | `test.md` | Only with `--fix` |
 | [`/sc:build`](#scbuild---project-building) | Build project | `build.md` | Yes |
 | `/sc:adversarial` | Adversarial debate, compare, merge of artifacts | `adversarial.md` | Report only |
@@ -109,9 +108,11 @@ This page is the per-command reference: exact syntax, options, and what each com
 |---------|---------|------|----------------|
 | [`/sc:git`](#scgit---git-operations) | Git + smart commits | `git.md` | Yes |
 | [`/sc:reflect`](#screflect---tiered-reflection) | Pre/post-execution audit | `reflect.md` | Only with `--mode post` (moves the work folder on a pass unless you add `--no-promote`) |
-| `/sc:load` | Load Serena project memory (not a resume method) | `load.md` | No |
-| `/sc:save` | Save Serena project memory (not a resume method) | `save.md` | Report only |
+| `/sc:load` | Load project memory from `.superclaude/memory/` (not a resume method) | `load.md` | No |
+| `/sc:save` | Save project memory to `.superclaude/memory/` (not a resume method) | `save.md` | Report only |
 | `/sc:help` | List installed commands, skills, process levels | `help.md` | No |
+| [`/sc:graph`](#scgraph---code-graph-index-status) | Code-graph index status; builds the index only on `init` | `graph.md` | Only with `init` |
+| [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt) or create a templated issue | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
 | `/sc:recommend` | Paste-ready prompt for the right command | `recommend.md` | Report only (inside an IronClaude checkout it writes its cache and telemetry under `.claude/cache/`) |
 | `/sc:init-lite` | Safe audit of project-local context surfaces | `init-lite.md` | Report only |
 | `/sc:pr-submit` | Open fork PR and monitor review fixes | `pr-submit.md` | Yes |
@@ -156,7 +157,7 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:adversarial --source auth-spec.md --generate roadmap --agents opus:architect,sonnet:security --depth deep
 ```
 
-**MCP servers:** context7, serena
+**MCP servers:** context7
 
 ---
 
@@ -184,7 +185,7 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:auggie-review [<PR-num|PR-URL>|--diff <base>...HEAD|--snapshot <path>] [--focus security,architecture,quality,performance,all] [--depth quick|standard|deep] [--post-pr|--no-post-pr] [--remediation-offer|--no-remediation-offer]
 ```
 
-**MCP servers:** serena
+**MCP servers:** codegraph
 
 ---
 
@@ -198,7 +199,7 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:cleanup-audit [target-path] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]
 ```
 
-**MCP servers:** serena, context7
+**MCP servers:** codegraph, context7
 
 ---
 
@@ -213,7 +214,7 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:cli-eval run    [--suite <name>] [--eval <id>]
 ```
 
-**MCP servers:** context7, serena
+**MCP servers:** context7
 
 ---
 
@@ -227,7 +228,41 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:cli-portify --workflow <skill-name-or-path> [--name <cli-name>] [--output <dir>] [--dry-run]
 ```
 
-**MCP servers:** serena, context7
+**Review loop:** its spec review runs 1 convergence iteration (a focus pass and a critique pass). MINOR findings go to the spec's Open Items and never start another pass; if CRITICAL findings are still unaddressed after that iteration it stops with `status: partial` and escalates them to you.
+
+**MCP servers:** context7
+
+---
+
+### `/sc:graph` - Code-Graph Index Status
+
+**When to use:** Check whether this worktree's code-graph index is ready (codegraph version, pin match, index state, worktree relation, counts, pending files, telemetry and one next action). The session-start hook already starts indexing in every new checkout; type `/sc:graph init` only when it did not cover this worktree: a nested worktree that answers from its parent's index, the hook switched off with `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0`, or an init that failed or was interrupted.
+
+**Syntax:**
+
+```
+/sc:graph [status|init] [--worktree-local] [--output-dir <dir>]
+```
+
+**Options:**
+
+| Flag | Default | What it does |
+|------|---------|--------------|
+| `status` \| `init` | `status` | `status` prints the readiness report. `init` builds the index for this worktree and runs only when you type it; no skill, agent or automatic flow runs it |
+| `--worktree-local` | off | Only with `init`: give a nested worktree its own index instead of its parent's |
+| `--output-dir <dir>` | screen only | Also write `return-contract.yaml` there |
+
+**Examples:**
+
+```bash
+/sc:graph                        # readiness report
+/sc:graph init                   # index this worktree
+/sc:graph init --worktree-local  # nested worktree: build its own index
+```
+
+It never rebuilds an existing index, never runs `init` while another init or index is running, and never changes MCP registration or installs codegraph. See the [codegraph guide](codegraph.md).
+
+**MCP servers:** codegraph
 
 ---
 
@@ -242,6 +277,42 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 ```
 
 **MCP servers:** none
+
+---
+
+### `/sc:impact` - Change Impact Report
+
+**When to use:** Before you change a symbol, see what depends on it: for named symbols, or for the symbols a diff touches, it lists their definitions and their production and test dependents (direct callers plus transitive impact), and with `--tests` adds an advisory list of test files. It never edits code, runs tests or builds an index (use `/sc:graph` for index status).
+
+**Syntax:**
+
+```
+/sc:impact <symbol>... | --diff [<base>] [--depth 1-3] [--limit N] [--tests] [--test-depth N] [--output-dir <dir>] [--caller <name>]
+```
+
+**Options:**
+
+| Flag | Default | What it does |
+|------|---------|--------------|
+| `<symbol>...` | none | 1-30 bare names (no `Class.method` or path); use either symbols or `--diff`, never both |
+| `--diff [<base>]` | `HEAD` when given without a value | Map the changed hunks of the diff to the symbols they touch |
+| `--depth 1-3` | `2` | Transitive depth for impact |
+| `--limit N` | `20` | Caller rows per symbol (1-100) |
+| `--tests` | off | Add an advisory test list; it can add tests to a selection, never remove any |
+| `--test-depth N` | codegraph's own | 1-5, only with `--tests` |
+| `--output-dir <dir>` | `<worktree>/.dev/impact/<slug>-<timestamp>/` | Where `impact.md` and `return-contract.yaml` are written |
+| `--caller <name>` | unset | Name of the calling skill; shortens the chat output to three lines |
+
+**Examples:**
+
+```bash
+/sc:impact parse_config                      # dependents of one symbol
+/sc:impact --diff origin/master --tests      # symbols a branch changed, plus advisory tests
+```
+
+When codegraph, the index or its lookup tools are not usable, it falls back to Grep, keeps going and reports `status: partial`. See the [codegraph guide](codegraph.md).
+
+**MCP servers:** codegraph
 
 ---
 
@@ -269,13 +340,64 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:init-lite --context-optimized [--project-root <dir>] [--output <path>] [--dry-run] [--scaffold] [--force]
 ```
 
-**MCP servers:** serena
+**MCP servers:** none
+
+---
+
+### `/sc:issue` - GitHub Issue Claim and Create
+
+**When to use:** Take an existing GitHub issue on the repository `origin` points at, or file a new one. `--claim` assigns the issue to you, checks whether its text is still accurate against today's code and the pull requests merged since it was opened, writes a summary (with an effort estimate in hours) and a next-step prompt under `.dev/issues/<N>/`, posts an accuracy-check comment and a claim comment, then stops. `--create` turns a description into an issue built from one of four templates (feature or bug, simple or complex) with labels from a fixed set.
+
+**Syntax:**
+
+```
+/sc:issue --claim <number|url>
+/sc:issue --create "<description>" [--depth quick|standard|deep] [--mode feature|bug] [--type <type>]
+```
+
+**Options:**
+
+| Flag | Mode | Default | What it does |
+|------|------|---------|--------------|
+| `--claim <number\|url>` | claim | - | The issue to claim: a number (`302`, `#302`) or an issue URL on the origin repo |
+| `--create "<description>"` | create | - | The feature or bug description, as text or `@path` to a file |
+| `--depth quick\|standard\|deep` | create | `quick` | How hard the command checks your flags and fills the body; `deep` uses the complex template |
+| `--mode feature\|bug` | create | chosen by a worker | Picks the feature or bug template and the `enhancement` or `bug` label |
+| `--type <type>` | create | chosen by a worker | Area of the change: `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install` or `other`; maps to a `type: <value>` label |
+
+`--depth`, `--mode` and `--type` work with `--create` only. There is no repository option: the repository is always `origin`.
+
+**Examples:**
+
+```bash
+/sc:issue --claim 302
+/sc:issue --create "The sync check misses deleted skill files" --mode bug --type cli --depth standard
+/sc:issue --create @notes/new-command.md --depth deep
+```
+
+It posts directly to GitHub, without showing the comment or the issue body for approval first. It never creates labels: a label from the fixed set that the repository does not have is skipped and listed. On claim it also assigns the matching ClickUp task, only when `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID` are set; `--create` never touches ClickUp. A claim stops after writing `.dev/issues/<N>/next-steps.md`; you run those commands yourself, in your own session.
+
+**ClickUp settings (claim only, environment variables):**
+
+| Variable | Required | What it does |
+|----------|----------|--------------|
+| `CLICKUP_API_TOKEN` | yes | Your own ClickUp personal token (`pk_...`); never printed or written to disk |
+| `CLICKUP_WORKSPACE_ID` | yes | The ClickUp workspace (team) to search |
+| `CLICKUP_LIST_IDS` | no | Comma-separated list IDs that narrow the search |
+| `CLICKUP_MAX_PAGES` | no | Pages of 100 tasks to search, default `20` |
+
+The task is found by the issue URL in its description or a custom field, or else by `#<N>` in its title, and is assigned only when exactly one task matches. The ClickUp result appears in the claim comment and never stops the claim: `not found`, `ambiguous (<count> candidates)`, `already assigned` and `error (<reason>)` all leave the GitHub assignment in place. `error (page_cap)` means the search reached `CLICKUP_MAX_PAGES` before it saw every task, so nothing was assigned; raise `CLICKUP_MAX_PAGES` or set `CLICKUP_LIST_IDS` and claim again.
+
+**MCP servers:** auggie, codegraph
 
 ---
 
 ### `/sc:load` - Project Context Loading
 
-**When to use:** Load Serena project memory (project context, memories and checkpoints) at the start of a session. It is not a way to resume work: to continue a task, rerun `/task <task file>` or `/sc:implement <plan path>`, or reopen a tagged session with `ccsession <name>` (see [How We Work](how-we-work.md), section 3.12). It does not modify project structure or configuration, or override existing session context without a checkpoint.
+**When to use:** Load project memory from the `.superclaude/memory/` files (project context, memories and checkpoints) at the start of a session. It is not a way to resume work: to continue a task, rerun `/task <task file>` or `/sc:implement <plan path>`, or reopen a tagged session with `ccsession <name>` (see [How We Work](how-we-work.md), section 3.12). It does not modify project structure or configuration, or override existing session context without a checkpoint.
+
+- For 5.0.0 only, when `<project>/.superclaude/memory/<key>.md` is absent it reads the old `<project>/.serena/memories/<key>.md` instead, read-only: it never writes there and tells you that folder is read-only history.
+- It ends its summary by pointing you to `/sc:graph status` to see whether this worktree's code-graph index is ready; it never runs `/sc:graph` itself.
 
 **Syntax:**
 
@@ -283,7 +405,7 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 /sc:load [target] [--type project|config|deps|checkpoint] [--refresh] [--analyze]
 ```
 
-**MCP servers:** serena
+**MCP servers:** none
 
 ---
 
@@ -291,14 +413,14 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 
 **Status:** A command. It runs only when you invoke it; nothing activates it automatically.
 
-**When to use:** Agent-coordinated work when you want the PM agent's PDCA cycle. For choosing a workflow, prefer the levels in [How We Work](how-we-work.md): a vague idea goes to `/sc:brainstorm`, multi-file work to `/task-builder` then `/task`, and a new product or major feature to `/prd`, `/tdd`, `/roadmap`.
+**When to use:** Agent-coordinated work when you want the PM agent's PDCA cycle. For choosing a workflow, prefer the levels in [How We Work](how-we-work.md): a vague idea goes to `/sc:brainstorm`, multi-file work to `/sc:workflow` then `/sc:implement`, and a new product or major feature to `/prd`, `/tdd`, then `/sc:workflow`.
 
 **What it does:**
 
-- Loads Serena project memory (not a way to resume work)
-- Delegates tasks to personas (backend, frontend, security...)
+- Loads project memory from `.superclaude/memory/` (not a way to resume work)
+- Delegates to specialist agents (backend, frontend, security...)
 - Runs PDCA cycle: Plan → Do → Check → Act
-- Saves notes to Serena project memory (not a way to resume work)
+- Saves notes to project memory in `.superclaude/memory/` (not a way to resume work)
 
 **Workflow:**
 
@@ -320,7 +442,7 @@ PM Agent:
 /sc:pm [request] [--strategy brainstorm|direct|wave] [--verbose]
 ```
 
-**MCP servers:** context7, playwright, morphllm, serena, tavily
+**MCP servers:** context7, playwright, morphllm, tavily
 
 **Key patterns:**
 
@@ -354,13 +476,13 @@ PM Agent:
 /sc:post-release v1.4.1 --output docs/testing/v1.4.1/
 ```
 
-**MCP servers:** serena
+**MCP servers:** none
 
 ---
 
 ### `/sc:pr-submit` - PR Review Auto-Remediation Monitor
 
-**When to use:** Open a PR on the fork and, at `--monitor 1` or higher, arm an in-session monitor that polls for the Augment review, verifies findings, and sends verified ones to `/sc:troubleshoot`; higher levels also fix, push, reply and resolve. With no `--monitor` it runs level 3. `--monitor 0` only opens the PR; it never pushes to an upstream parent or to a protected branch.
+**When to use:** Open a PR on the fork and, at `--monitor 1` or higher, arm an in-session monitor that polls for the Augment and Codex reviews (a reviewer that never shows activity on the PR is skipped), verifies findings, and sends verified ones to `/sc:troubleshoot`; higher levels also fix, push, reply and resolve. With no `--monitor` it runs level 3. `--monitor 0` only opens the PR; it never pushes to an upstream parent or to a protected branch.
 
 **Syntax:**
 
@@ -368,7 +490,9 @@ PM Agent:
 /sc:pr-submit [--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 600] [--silence-timeout 300] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--pr <N>] [--output-dir <dir>] [--resume <run-log.jsonl>]
 ```
 
-**MCP servers:** serena, auggie
+`--yes` was removed in 5.0.0 (it was accepted but never read); drop it from your scripts.
+
+**MCP servers:** auggie
 
 ---
 
@@ -416,7 +540,7 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 /sc:release-split path/to/release-spec.md --depth deep --interactive
 ```
 
-**MCP servers:** context7, serena
+**MCP servers:** context7
 
 ---
 
@@ -447,13 +571,13 @@ Full option list: `~/.claude/commands/sc/release-split.md`.
 /sc:review-translation source.json translations/*.json --depth deep --tone-matrix
 ```
 
-**MCP servers:** tavily, context7, serena
+**MCP servers:** tavily, context7
 
 ---
 
 ### `/sc:roadmap` - Roadmap Generator
 
-**When to use:** Generate roadmap pipeline artifacts from one to three markdown inputs (spec, TDD and/or PRD), mirroring the `superclaude roadmap run` CLI. It does not generate tasklists, execute implementation, or modify the source files. It belongs to the separate release pipeline (`/sc:tasklist`, then `superclaude sprint run`); for the default planning route use `/roadmap`, which writes a task file for every phase (see [How We Work](how-we-work.md), section 5).
+**When to use:** Generate roadmap pipeline artifacts from one to three markdown inputs (spec, TDD and/or PRD), mirroring the `superclaude roadmap run` CLI. It does not generate tasklists, execute implementation, or modify the source files. It belongs to the separate release pipeline (`/sc:tasklist`, then `superclaude sprint run`). For ordinary planning use `/sc:workflow`; `/roadmap` is the MDTM composer for when you explicitly select it (see [How We Work](how-we-work.md), section 5).
 
 **Syntax:**
 
@@ -489,7 +613,7 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 
 ### `/sc:save` - Session Context Persistence
 
-**When to use:** Save session context, learnings and checkpoints to Serena project memory so a later session can read them with `/sc:load`. It is not a way to resume work (see [How We Work](how-we-work.md), section 3.12). It does not override existing session context without checkpoint preservation.
+**When to use:** Save session context, learnings and checkpoints to project memory in `.superclaude/memory/` so a later session can read them with `/sc:load`. It is not a way to resume work (see [How We Work](how-we-work.md), section 3.12). It does not override existing session context without checkpoint preservation.
 
 **Syntax:**
 
@@ -497,13 +621,13 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 /sc:save [--type session|learnings|context|all] [--summarize] [--checkpoint]
 ```
 
-**MCP servers:** serena
+**MCP servers:** none
 
 ---
 
 ### `/sc:spawn` - Meta-System Task Orchestration
 
-**When to use:** Break a large job into parts with dependencies; it stops after the task breakdown. For work that changes code, use `/task-builder` then `/task` instead (level 4 in [How We Work](how-we-work.md)).
+**When to use:** Break a large job into parts with dependencies; it stops after the task breakdown. For work that changes code, use `/sc:workflow` then `/sc:implement` instead (level 3 in [How We Work](how-we-work.md)).
 
 **What it does:**
 
@@ -548,7 +672,7 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 
 ### `/sc:task` - Enhanced Task Management
 
-**When to use:** A small, direct change: one source file plus its test, five edits or fewer, and you know exactly what it should be (level 2 in [How We Work](how-we-work.md)). Work that touches more than one source file or needs more than five edits needs a written plan (`/sc:workflow --depth quick` or `/task-builder`).
+**When to use:** A small, direct change: one source file plus its test, five edits or fewer, and you know exactly what it should be (level 2 in [How We Work](how-we-work.md)). Work that touches more than one source file or needs more than five edits needs a written plan (`/sc:workflow`, level 3; `/task-builder` only when you explicitly select MDTM).
 
 **What it does:**
 
@@ -570,7 +694,7 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 # Prints its Tier: line, makes the change, and (STANDARD/STRICT) runs the affected tests
 ```
 
-**MCP servers:** context7, serena, playwright, morphllm
+**MCP servers:** context7, playwright, morphllm
 
 ---
 
@@ -583,6 +707,8 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 ```
 /sc:tasklist <roadmap-path> [--spec <spec-path>] [--output <output-dir>] [--no-reflect]
 ```
+
+**Review loop:** only High and Medium validation findings are blocking and get patched; Low findings are listed as notes and are never patched or re-checked. The patch loop runs at most one re-patch pass, then stops and escalates any open blocking findings to you instead of shipping them.
 
 **MCP servers:** context7
 
@@ -652,7 +778,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 /sc:validate-roadmap ./roadmap.md --specs spec-a.md,spec-b.md --depth deep
 ```
 
-**MCP servers:** auggie, serena
+**MCP servers:** auggie, codegraph
 
 ---
 
@@ -692,7 +818,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 
 ### `/sc:workflow` - Implementation Plan Generator
 
-**When to use:** A few files with clear scope that fit in one or two sessions (level 3 in [How We Work](how-we-work.md)); always pass `--depth quick`. It writes a phased plan (`<id>.md`, named like its package directory). For a PRD or TDD use `/roadmap`; for many files or multi-session work use `/task-builder`.
+**When to use:** Any change that needs a written plan, including work across many files or several sessions, with or without a spec, PRD or TDD (level 3 in [How We Work](how-we-work.md), the ordinary default for planned work). The default is `--depth standard`; use `--depth quick` for a smaller checked plan. It writes a phased plan (`<id>.md`, named like its package directory). Use `/task-builder` only when you explicitly select MDTM or have an exceptional need for its machinery (level 4).
 
 **What it does:**
 
@@ -713,7 +839,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 **Examples:**
 
 ```bash
-/sc:workflow "Add a retry limit to the job runner: stop after 3 failures. Files: src/jobs/runner.py, src/jobs/config.py" --depth quick
+/sc:workflow "Add a retry limit to the job runner: stop after 3 failures. Files: src/jobs/runner.py, src/jobs/config.py" --depth standard --handoff none
 ```
 
 **Difference from `/sc:implement` / `/sc:task`:**
@@ -731,7 +857,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 
 - Runs a depth-tiered Socratic dialogue → `seed-brief.md`
 - Auto-routes codebase + research enrichment (`/sc:analyze`, `/sc:research`, `tech-research`)
-- Composes a `--agents` spec spanning 3 model aliases × domain-detected personas
+- Composes a `--agents` spec spanning 3 model aliases × domain-detected personas (in a ccsession tier workspace the launcher sets each `ANTHROPIC_DEFAULT_*_MODEL` for a tier the owner may use, so the matching aliases `opus`, `sonnet` and `haiku` map to `claude-gw-tier1a`, `claude-gw-tier1b` and `claude-gw-tier2`; see [model-aliases](../reference/model-aliases.md))
 - Delegates to `/sc:adversarial` for N parallel proposals + debate + merge → `merged-requirements.md`
 - Optionally hands off to `/sc:design`, `/sc:tasklist`, or `/task-builder`
 
@@ -766,7 +892,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 /sc:brainstorm "improve onboarding workflow" --dry-run --strategy enterprise
 ```
 
-**MCP servers:** serena, auggie-mcp, tavily  
+**MCP servers:** auggie-mcp, codegraph, tavily  
 **Personas:** architect, analyzer, scribe (auto-selected per detected domain)
 
 → Full guide: [brainstorm.md](brainstorm.md)
@@ -797,7 +923,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 /sc:research "competitive analysis of AI coding assistants" --depth exhaustive
 ```
 
-**MCP servers:** tavily, playwright, serena
+**MCP servers:** tavily, playwright
 
 ---
 
@@ -812,6 +938,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 - `--resume` continues from the first task that is not complete
 - On a `/sc:workflow` plan, once every task passes it runs a final independent review and archives the plan folder to `.dev/tasks/done/`; on macOS (any system other than Linux) the archive is refused on purpose and the folder stays in `.dev/tasks/to-do/`. `--skip-final-review` skips the final review and, on such a plan, also blocks the archive
 - Never commits, opens PRs, or releases
+- Review loops: it keeps its own severity model instead of the general 2-fix-cycle rule. Minor and note findings never change a task's verdict; only blocking findings fail it, and each attempt gets at most one in-place repair before the next attempt or a halt that asks you to decide
 
 **Syntax:**
 
@@ -905,6 +1032,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 - Stack trace examination
 - Log analysis
 - Suggests fixes
+- `--fix` offers a `/sc:workflow` plan you run with `/sc:implement`; `--fix --depth deep` offers a `/task-builder` task file you run with `/task`. Code changes never apply automatically
 
 **Syntax:**
 
@@ -920,11 +1048,13 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 /sc:troubleshoot "API response times degraded" --type performance
 ```
 
+**MCP servers:** auggie, codegraph, context7, tavily
+
 ---
 
 ### `/sc:improve` - Code Improvement
 
-**When to use:** Code works, but you want to make it better in a small, contained area. Commit first and review `git diff` afterwards; for a large or structural refactor, write a spec and use `/task-builder` (see [How We Work](how-we-work.md), section 3.7).
+**When to use:** Code works, but you want to make it better in a small, contained area. Commit first and review `git diff` afterwards; for a large or structural refactor, write a spec, run `/sc:workflow`, then `/sc:implement` (see [How We Work](how-we-work.md), section 3.7).
 
 **What it does:**
 
@@ -944,7 +1074,6 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 ```bash
 /sc:improve src/ --type quality --safe
 /sc:improve api-endpoints --type performance --interactive
-/sc:improve auth-service --type security --validate
 ```
 
 **MCP servers:** context7
@@ -972,7 +1101,6 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 
 ```bash
 /sc:cleanup src/ --type code --safe
-/sc:cleanup --type imports --preview
 /sc:cleanup --type all --interactive
 ```
 
@@ -1047,6 +1175,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 
 - Explains code at different levels (basic/advanced)
 - Framework-specific explanations via Context7
+- For code targets, a one-hop view of the symbol's direct callers and callees from codegraph (Read and Grep alone when codegraph is not usable)
 - Interactive examples
 
 **Syntax:**
@@ -1063,7 +1192,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 /sc:explain microservices-system --level advanced --format interactive
 ```
 
-**MCP servers:** context7
+**MCP servers:** context7, codegraph
 
 ---
 
@@ -1324,7 +1453,7 @@ TALEB: "The real question: does this benefit from uncertainty?"
 
 > The post-mapped legacy form (`--type task --validate`) still requires `--diff` or `--task-log`; `/sc:troubleshoot` Wave 6 supplies these, so standalone callers must add `--diff <ref>`.
 
-**MCP servers:** auggie, serena, context7, tavily
+**MCP servers:** auggie, codegraph, context7, tavily
 
 #### `superclaude reflect run` (CLI auto-fix wrapper)
 
@@ -1342,12 +1471,12 @@ superclaude reflect run <tasklist> [--fix/--no-fix] [--max-fix-iterations N] [--
 
 | Flag | Default | Purpose |
 |------|---------|---------|
-| `--fix` / `--no-fix` | `--no-fix` | Run the bounded audit → apply → re-verify auto-fix loop. When enabled, the wrapper consumes the skill's `remediation_task_path` and auto-runs the corrective `/task`. |
+| `--fix` / `--no-fix` | `--no-fix` | Run the bounded audit → apply → re-verify auto-fix loop. By default the wrapper reads the skill's `remediation_plan_path` and applies `/sc:implement <remediation_plan_path>`; only with `--depth deep` it reads `remediation_task_path` and runs `/task <remediation_task_path>`. |
 | `--max-fix-iterations N` | `2` | Max apply → verify cycles before a terminal HALT. |
 | `--base <ref>` | (none) | Explicit audit base ref (single ref vs. working tree). Highest precedence — overrides frontmatter `start_commit` + merge-base. |
 | `--promote` / `--no-promote` | `--promote` | Allow reflect's gated Wave-7 promotion. The default is now **on**; pass `--no-promote` to suppress it. |
 
-**Headless auto-authoring:** Because the wrapper launches the skill under `claude --print` (no TTY), the skill's `--remediate` handoff **auto-accepts and authors** the corrective MDTM without the interactive yes/no prompt — but only for AUTO-FIXABLE registers (Drift / Necessary). HUMAN-REQUIRED registers (any Regression, or `needs_human_decision: true`) author nothing auto-runnable, emit `remediation_task_path: null`, and the wrapper terminal-HALTs rather than auto-applying a human-decision change. The skill never executes `/task` itself; the wrapper's auto-fix loop is the sole consumer that runs the authored path. This handoff rides on return-contract `contract_version` **≥1.4.0** (1.4.0 added the `remediation_task_path` field the loop reads; the 1.5.0 D13 bump is additive and leaves this field unchanged) — it never guesses a "newest `TASK-RF-*`" directory.
+**Headless auto-authoring:** Because the wrapper launches the skill under `claude --print` (no TTY), the skill's `--remediate` handoff **auto-accepts and authors** the corrective artifact without the interactive yes/no prompt (a `/sc:workflow` plan, emitted as `remediation_plan_path`; with `--depth deep`, an MDTM task file, emitted as `remediation_task_path`) — but only for AUTO-FIXABLE registers (Drift / Necessary). HUMAN-REQUIRED registers (any Regression, or `needs_human_decision: true`) author nothing auto-runnable, and the wrapper terminal-HALTs rather than auto-applying a human-decision change. The skill never runs `/sc:implement` or `/task` itself; the wrapper's auto-fix loop is the sole consumer that runs the authored path. The loop reads only these contract fields (`remediation_plan_path` was added in contract 1.8.0) — it never guesses a "newest `TASK-RF-*`" directory.
 
 **Examples:**
 
@@ -1359,115 +1488,6 @@ superclaude reflect run path/to/TASK.md --tmux --depth deep              # watch
 ```
 
 > Full reference (verdict matrix, sentinel/`--tmux` mechanics, recursion breaker, sidecar, and the complete auto-fix state machine): see `docs/guides/reflect-cli-tools-guide.md`.
-
----
-
-## 📂 index-repo vs Serena — Indexing Tools Comparison
-
-### What Each Tool Creates
-
-| Tool | Creates files | Where stored |
-|------|---------------|--------------|
-| [`/sc:index-repo`](#scindex-repo---repository-indexing) | `PROJECT_INDEX.md` (3KB) | Project root |
-| **Serena MCP** | `.serena/project.yml` + `.serena/memories/*.md` | `.serena/` folder in project |
-
-### Serena File Structure
-
-```
-.serena/
-├── project.yml              # Configuration (languages, encoding, LSP settings)
-├── .gitignore               # Git ignore
-└── memories/
-    ├── project_overview.md      # About the project, tech stack
-    ├── suggested_commands.md    # Development commands
-    ├── style_conventions.md     # Code styles and conventions
-    └── task_completion.md       # Task completion checklist
-```
-
----
-
-### Key Differences
-
-| Aspect | [`/sc:index-repo`](#scindex-repo---repository-indexing) | **Serena MCP** |
-|--------|------------------|----------------|
-| **Type** | Static file | Live LSP server + memories |
-| **Main goal** | Quick start (token savings) | Semantic code understanding |
-| **What it understands** | File structure | Symbols (functions, classes, types) |
-| **Updates** | Manual (`mode=update`) | Memories — manual, LSP — automatic |
-| **Persistence** | File in project | Files in `.serena/memories/` |
-| **LSP operations** | ❌ No | ✅ rename, find references, go to definition |
-| **Cross-session** | ✅ Read file | ✅ Memories are persistent |
-| **Tokens at start** | ~3K (reading INDEX) | On demand (reading needed memories) |
-
----
-
-### When to Use What
-
-**[`/sc:index-repo`](#scindex-repo---repository-indexing)** — for quick session start:
-
-- Project structure overview
-- Entry points and key modules
-- Dependencies and configuration
-- Quick start commands
-- **Savings**: 58K → 3K tokens at start
-
-**Serena MCP** — for deep code work:
-
-- `find_symbol` — find class/function by name
-- `find_referencing_symbols` — where symbol is used
-- `rename_symbol` — rename everywhere safely via LSP
-- `get_symbols_overview` — file structure (class methods etc.)
-- **Memories** — persistent notes about project across sessions
-
----
-
-### Recommendation
-
-**Either one is sufficient** to start working:
-
-| If you chose | What you get | Each session |
-|--------------|--------------|--------------|
-| **Serena** (recommended) | Memories + LSP + symbols | No need to read anything |
-| [**index-repo**](#scindex-repo---repository-indexing) | PROJECT_INDEX.md | Can read for context |
-| **Both** | Maximum information | Optional |
-
-```bash
-# Initial setup (once)
-serena activate_project .         # Activate project
-serena onboarding                 # Create memories
-# and/or
-/sc:index-repo                    # Create PROJECT_INDEX.md
-
-# On structural changes
-/sc:index-repo mode=update        # Update INDEX (if using)
-serena edit_memory ...            # Update memories (if needed)
-```
-
-**Important**: SuperClaude commands automatically use Serena for code work.
-Explicitly reading PROJECT_INDEX.md or calling `serena read_memory` each session is **not required**.
-
----
-
-### Auto-update?
-
-| What | Auto-updates? | How to update |
-|------|---------------|---------------|
-| `PROJECT_INDEX.md` | ❌ No | [`/sc:index-repo`](#scindex-repo---repository-indexing) `mode=update` |
-| Serena memories | ❌ No | `write_memory` / `edit_memory` |
-| Serena LSP understanding | ✅ Yes | Automatically sees file changes |
-
----
-
-### When to Update?
-
-| Event | [index-repo](#scindex-repo---repository-indexing) | Serena memories |
-|-------|------------|-----------------|
-| Added new module/folder | ✅ Update | ⚡ Optional |
-| Renamed module | ✅ Update | ⚡ Optional |
-| Fixed bug in file | ❌ Not needed | ❌ Not needed |
-| Added dependency | ✅ Update | ❌ Not needed |
-| Changed code conventions | ❌ Not needed | ✅ Update |
-| Before PR/release | ⚡ Good practice | ❌ Not needed |
 
 ---
 

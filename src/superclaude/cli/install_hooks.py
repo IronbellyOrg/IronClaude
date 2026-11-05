@@ -76,6 +76,13 @@ _FRESHNESS_SCRIPTS = [
     # command — same pattern as `reject-workspace-writes.sh`, harmless when
     # unregistered in unrelated projects.
     "sc-recommend-phase0.sh",
+    # SessionStart (startup) hook: starts one detached `codegraph init --yes` in a
+    # git checkout that has no .codegraph/codegraph.db. Fail-open, silent, exit 0.
+    "codegraph-session-start.sh",
+    # PreToolUse(Bash) UV-only gate (issue #357): blocks a command that runs bare
+    # python/python3/pip/pip3 with exit 2 and a message naming `uv run python`
+    # and `jq`; fails open (exit 0) on anything it cannot judge, including no jq.
+    "block-bare-python.sh",
 ]
 _LEGACY_SCRIPTS = ["session-init.sh"]
 
@@ -87,27 +94,31 @@ _SEED_FILES = [
     ("auggie-projects.txt.example", "auggie-projects.txt"),
 ]
 
-_CCSESSION_HOOK = "~/.claude/skills/ccsession-tag/hooks/session-start.sh"
-_CCSESSION_LEGACY = re.compile(
-    r"""bash (["'])(/[^"']*/ccsession-tag/hooks/session-start\.sh)\1"""
+# A ccsession hook script, registered natively (hooks.json) or by the
+# standalone install.sh as bash "<absolute path>". Either form is the same hook.
+_CCSESSION_SCRIPT = re.compile(
+    r"""~/\.claude/skills/ccsession-tag/hooks/(session-(?:start|name)\.sh)"""
+    r"""|bash (["'])/[^"']*/ccsession-tag/hooks/(session-(?:start|name)\.sh)\2"""
 )
 
 
+def _ccsession_script(command: object) -> str | None:
+    """The ccsession hook script a command runs, in either form; else None."""
+    match = _CCSESSION_SCRIPT.fullmatch(command) if isinstance(command, str) else None
+    return (match.group(1) or match.group(3)) if match else None
+
+
 def _is_ccsession_hook(command: object) -> bool:
-    return isinstance(command, str) and (
-        command == _CCSESSION_HOOK or _CCSESSION_LEGACY.fullmatch(command) is not None
-    )
+    return _ccsession_script(command) == "session-start.sh"
 
 
 def _owns_command(command: object, managed: set, event: str) -> bool:
-    return isinstance(command, str) and (
-        command in managed
-        or (
-            event == "SessionStart"
-            and _CCSESSION_HOOK in managed
-            and _is_ccsession_hook(command)
-        )
-    )
+    if not isinstance(command, str):
+        return False
+    if command in managed:
+        return True
+    script = _ccsession_script(command)
+    return script is not None and any(_ccsession_script(m) == script for m in managed)
 
 
 def install_hooks(

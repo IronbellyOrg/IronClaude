@@ -191,6 +191,8 @@ Result (intended; not measured here):
 **Purpose**: 過去の失敗から学習、同じ間違いを繰り返さない
 
 > **Status**: explicit API only (`src/superclaude/pm_agent/reflexion.py`). The PM agent does not call it, nothing loads it at session start, and no fix is applied automatically. The earlier "automatic tool selection", MindBase semantic search and automatic storage described here were never implemented. Full contract: [docs/user-guide/memory-system.md](../user-guide/memory-system.md).
+>
+> **Not session memory**: ReflexionPattern stores error records in `docs/memory/` (or `memory_dir`, or `REFLEXION_OUTPUT_DIR`). Session memory written by `/sc:save` and read by the PM agent at session start is a separate store: markdown files in `<project>/.superclaude/memory/`.
 
 ```yaml
 When: You (or code you write) call ReflexionPattern. The only automatic use is the

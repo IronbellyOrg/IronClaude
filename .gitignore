@@ -117,6 +117,10 @@ poetry.lock
 
 # Project specific
 Tests/
+# Git matches the line above case-sensitively, so tests/ stays tracked.
+# Tools that read .gitignore case-insensitively (codegraph's matcher) would
+# also drop tests/; this negation keeps it in their scope. No-op for Git.
+!tests/
 temp/
 tmp/
 .cache/
@@ -233,8 +237,8 @@ uv.lock
 /prd-dry-run-*/
 # Eval-runs workspace (research/eval scratch).
 .dev/eval-runs/
-# Git worktrees — canonical location is .dev/worktrees/<name>/ (never .claude/worktrees/).
-# Nested worktree checkouts must never be staged.
+# Retired worktree location: Orca creates project worktrees at its default location, outside the repository.
+# The entry stays so existing or leftover checkouts here are never staged.
 .dev/worktrees/
 # Sprint runner transient exitcode marker. Anchored to repo root only so that
 # in-tree archive/release artifacts under .dev/releases/ remain tracked.
@@ -255,3 +259,8 @@ uv.lock
 # pre-commit large-file threshold; the manifest, execution-log, tasklists,
 # and verification artifacts in the same release directory remain tracked.
 .dev/releases/**/results/phase-*-task-*-output.txt
+
+# codegraph's per-checkout index (created by the codegraph SessionStart hook and
+# `codegraph init`). Its own .codegraph/.gitignore is `*` plus `!.gitignore`, so the
+# folder would still show as untracked and `git add -A` would commit that file.
+.codegraph/

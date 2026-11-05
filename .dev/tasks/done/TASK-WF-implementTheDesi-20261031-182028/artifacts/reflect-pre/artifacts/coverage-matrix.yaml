@@ -1,0 +1,1051 @@
+parsed_count: 0
+inferred_count: 141
+rows:
+- requirement_id: INF-001
+  source: inferred
+  quote: 'Implement the design in .dev/pr-submit-codex/design/pr-submit-codex-design.md: make /sc:pr-submit handle Codex review threads like Augment.'
+  citation: .dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/source.md:1
+  matched_task_ids:
+  - Task 13
+  match_method: containment
+- requirement_id: INF-002
+  source: inferred
+  quote: 'Code: src/superclaude/commands/pr-submit.md, src/superclaude/skills/sc-pr-submit-protocol/, plugins/superclaude mirrors, tests/pr_submit/'
+  citation: .dev/tasks/to-do/TASK-WF-implementTheDesi-20261031-182028/source.md:1
+  matched_task_ids:
+  - Task 12
+  match_method: containment
+- requirement_id: INF-003
+  source: inferred
+  quote: Everything after "a list of normalized `Finding` objects" is already reviewer-agnostic and is reused unchanged.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:77-78
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-004
+  source: inferred
+  quote: 'Adapter table (new module `pr_submit/reviewers.py`), values read from the detection contract so a local override can change or blank them:'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:96-97
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-005
+  source: inferred
+  quote: '| identities | `augment_bot_login`, `augment_app_slug` | `codex_bot_login` (`chatgpt-codex-connector[bot]`), `codex_app_slug` (`chatgpt-codex-connector`) |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:101
+  matched_task_ids:
+  - Task 2
+  match_method: containment
+- requirement_id: INF-006
+  source: inferred
+  quote: '| completion proof | formal review / Cosmos marker (existing) | `codex-review-state:v1` marker, `code_review.status == "completed"` for the expected head |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:102
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-007
+  source: inferred
+  quote: '| severity | `severity_hint` / `**Severity:**` line (existing) | P0-P3 badge on the first line (section 7) |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:103
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-008
+  source: inferred
+  quote: '| re-trigger body | `auggie review` (existing) | `codex_retrigger_phrase` = `@codex review` |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:104
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-009
+  source: inferred
+  quote: '| silence poke | yes, L3, once (existing INV-S1) | no (section 5) |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:105
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-010
+  source: inferred
+  quote: '| decline | "abnormally large" (existing) | none |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:106
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-011
+  source: inferred
+  quote: A blank identity set disables that reviewer (it is never present).
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:108
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-012
+  source: inferred
+  quote: 'No new provider abstraction beyond this table: two reviewers, one dict, no class hierarchy.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:108-109
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-013
+  source: inferred
+  quote: 'A reviewer is **present** on the PR when the snapshot holds at least one entry authored by its identities (a review, an issue or inline comment, or a thread root): `reviewer_activity(payload,
+    contract) -> {"augment": bool, "codex": bool}`.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:113-115
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-014
+  source: inferred
+  quote: 'Codex with no activity when Augment''s wait outcome is already settled, or by the silence deadline (`--silence-timeout`, default 300 s), is **absent**: the run appends `reviewer_absent{reviewer:"codex"}`
+    and ignores Codex for the rest of the run (no wait, no re-trigger).'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:119-122
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-015
+  source: inferred
+  quote: 'There is no Codex silence poke: posting `@codex review` on a repository without the Codex connector only produces an error reply, and absence here means "not installed".'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:122-123
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-016
+  source: inferred
+  quote: Augment keeps its existing silence path unchanged (optional single L3 poke, then `TERMINAL_AUGMENT_NO_RESPONSE` when it alone decides the run).
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:124-125
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-017
+  source: inferred
+  quote: 'When Augment reaches that silence outcome but Codex is present, Augment is recorded absent (`reviewer_absent{reviewer: "augment"}`) and the round continues with Codex alone.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:125-127
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-018
+  source: inferred
+  quote: Absence is sticky and rebuilt from the run log on `--resume` (`rebuild_state()["absent_reviewers"]`).
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:128
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-019
+  source: inferred
+  quote: 'Neither reviewer present: unchanged `TERMINAL_AUGMENT_NO_RESPONSE` (status value kept for compatibility; its message now says "no configured reviewer (Augment, Codex) responded").'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:129-130
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-020
+  source: inferred
+  quote: 'Augment-only PR: Codex becomes absent no later than the poll on which Augment settles (or at the silence deadline if Augment is still pending), so the wait never runs longer than today and every
+    Augment outcome, status and event is the same as today plus one `reviewer_absent` event.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:132-134
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-021
+  source: inferred
+  quote: 'Codex-only PR: Augment''s silence outcome marks it absent; Codex''s result drives the round.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:134-135
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+- requirement_id: INF-022
+  source: inferred
+  quote: Each poll runs the existing Augment snapshot gate and, on the same snapshot with the same `expected_head`, the Codex gate.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:139-140
+  matched_task_ids:
+  - Task 12
+  match_method: containment
+- requirement_id: INF-023
+  source: inferred
+  quote: '| `pending` | `polling` and `poll_outcome` is `S2_CLASSIFY` or `S5C_SILENCE_REREQUEST` | no completion yet, and (active, not timed out) or (inactive, before silence deadline, and Augment not settled)
+    |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:144
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+- requirement_id: INF-024
+  source: inferred
+  quote: '| `done` | gate state `clean` / `findings` / `declined` | gate state `clean` / `findings` |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:145
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+- requirement_id: INF-025
+  source: inferred
+  quote: '| `absent` | `TERMINAL_AUGMENT_NO_RESPONSE`, or already absent | inactive at silence deadline, or already absent |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:146
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+- requirement_id: INF-026
+  source: inferred
+  quote: '| `incomplete` | `TERMINAL_TIMEOUT` (partial activity) | active but no completion at `--timeout` |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:147
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-027
+  source: inferred
+  quote: '`merge_wait(augment, codex)` (pure, row-tested) maps the pair to the round outcome:'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:149
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-028
+  source: inferred
+  quote: '| `pending` | any | keep polling |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:153
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-029
+  source: inferred
+  quote: '| any | `pending` | keep polling |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:154
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-030
+  source: inferred
+  quote: '| `done: declined` | any settled | `declined` (existing S5b fallback; Codex `findings` join the fallback''s single Waves 2-6 re-entry) |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:155
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-031
+  source: inferred
+  quote: '| `done` | `done` | `findings` if either has findings, else `clean` |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:156
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+- requirement_id: INF-032
+  source: inferred
+  quote: '| `done` | `absent` / `incomplete` | Augment''s state (Codex incomplete is reported) |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:157
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+- requirement_id: INF-033
+  source: inferred
+  quote: '| `absent` / `incomplete` | `done` | Codex''s state (Augment''s condition is reported) |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:158
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+- requirement_id: INF-034
+  source: inferred
+  quote: '| `absent` | `absent` | `TERMINAL_AUGMENT_NO_RESPONSE` (unchanged) |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:159
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-035
+  source: inferred
+  quote: '| `incomplete` | `absent` / `incomplete` | `TERMINAL_TIMEOUT` (unchanged) |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:160
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-036
+  source: inferred
+  quote: '| `absent` | `incomplete` | `TERMINAL_TIMEOUT` (partial reviewer activity, no classified review) |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:161
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-037
+  source: inferred
+  quote: Both reviewers share the one `--timeout` wall clock and one `--poll-interval`; no second wait is added.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:163-164
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-038
+  source: inferred
+  quote: In the S5 re-review wait only reviewers that were re-triggered in this cycle are waited for; a reviewer that is `incomplete` at S5 expiry is reported and the other's attributed result is used.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:164-166
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-039
+  source: inferred
+  quote: The re-review is **attributed** (the INV-001 edge) when at least one re-triggered reviewer reaches `done` (clean or findings) attributed to the pushed SHA; `timeout` when none does; `declined`
+    when Augment declines (existing).
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:166-168
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-040
+  source: inferred
+  quote: '**Completion** (`codex_review_state(payload, contract, expected_head, watermark)`): exactly one issue comment authored by a Codex identity carries one `<!-- codex-review-state:v1 {JSON} -->` marker
+    (bounded length, JSON object, duplicate keys rejected, same as the Cosmos marker).'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:172-174
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-041
+  source: inferred
+  quote: Valid when `code_review.status` is a string, `code_review.commit_sha` is 40 hex, `code_review.has_any_findings` is a boolean.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:174-176
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-042
+  source: inferred
+  quote: Completed only when `status == "completed"`, `commit_sha == expected_head`, the comment's `updated_at` is a parseable aware time no later than `observed_at`, and (with a watermark) strictly newer
+    than the watermark.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:176-178
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-043
+  source: inferred
+  quote: Anything else (two summary comments, malformed JSON, `running`, wrong head, missing time) is `polling`, never clean.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:178-179
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-044
+  source: inferred
+  quote: The `security_review` object is ignored.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:180
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-045
+  source: inferred
+  quote: '**Findings** (`codex_finding_comments`): unresolved review threads whose root is Codex-authored, selected by the existing `_thread_findings` rules generalised to take an identity set and a completion
+    time (root-only, unique ids, `pullRequestReview` with a commit, nullable current line, `original_line` hint, created no later than completion).'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:182-185
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-046
+  source: inferred
+  quote: Resolved threads are excluded; older unresolved Codex roots stay visible (same as Augment).
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:185-186
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-047
+  source: inferred
+  quote: '**Codex gate state**: completion missing → `polling`; selection invalid → `polling`; unresolved roots → `findings`; none and `has_any_findings` false → `clean`; none, `has_any_findings` true and
+    a Codex formal review exists for the expected head (its threads were all resolved) → `clean`; otherwise `polling` (findings promised but not yet visible).'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:188-191
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-048
+  source: inferred
+  quote: '**Badge parser** (`parse_codex_priority(body) -> "P0".."P3" | None`): the body must contain exactly one badge image `![P<n> Badge](https://img.shields.io/badge/P<m>-<colour>?...)` with `n == m`
+    and `n` in 0-3, on the first non-blank line.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:193-195
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-049
+  source: inferred
+  quote: Colour is not checked (only P2 yellow was observed). Zero badges, two badges, `P4`, or alt/URL disagreement → `None`.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:195-196
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-050
+  source: inferred
+  quote: '| P0 | `critical` | `--depth deep --fix` |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:203
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-051
+  source: inferred
+  quote: '| P1 | `high` | `--depth deep --fix` |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:204
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-052
+  source: inferred
+  quote: '| P2 | `medium` | `--fix` |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:205
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-053
+  source: inferred
+  quote: '| P3 | `low` | report-only |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:206
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-054
+  source: inferred
+  quote: '| malformed / none | not set | Medium fail-safe (existing NFR-4 rule) → `--fix` after verification |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:207
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-055
+  source: inferred
+  quote: '`codex_finding_comments` adds `severity_hint`, `reviewer: "codex"` and `codex_priority` to each selected root dict; `finding_from_comment` already gives an explicit hint precedence.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:209-210
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-056
+  source: inferred
+  quote: 'Augment roots get `reviewer: "augment"`. `Finding` gains one field, `reviewer: str = "augment"`.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:210-211
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-057
+  source: inferred
+  quote: No change to `remap_severity`, `route`, `refs/finding-verify.md` (evidence-validator, verified / unverified, no round for unverified) or `refs/troubleshoot-dispatch.md` (seed, `--scope`, routes,
+    never `--depth quick --fix`).
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:215-217
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-058
+  source: inferred
+  quote: The refs change only their wording from "Augment finding" to "review finding (Augment or Codex)" and the seed names the reviewer.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:217-218
+  matched_task_ids:
+  - Task 13
+  match_method: containment
+- requirement_id: INF-059
+  source: inferred
+  quote: '`dedup_groups(findings) -> list[list[Finding]]` (pure) groups findings by `(path, line if line is not None else original_line)`, in input order, and keeps every finding.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:223-224
+  matched_task_ids:
+  - Task 9
+  match_method: containment
+- requirement_id: INF-060
+  source: inferred
+  quote: Severity and route of a group = the highest remapped tier in the group.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:226
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-061
+  source: inferred
+  quote: Verification still produces one verdict **per finding** (one evidence-validator batch); a group is dispatched only if at least one member is verified, with every verified body in the troubleshoot
+    seed, so two different claims on one line are both fixed, never silently merged.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:227-229
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-062
+  source: inferred
+  quote: One diagnosis and one set of edits per group (no double fix); `fix_applied` is recorded for each member's `fix_key`.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:230-231
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-063
+  source: inferred
+  quote: 'Every verified thread in the group gets its own reply and resolve, all citing the cycle''s one fix SHA. An unverified or Low/Nit member is handled as today: no reply, no resolve, listed in the
+    report.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:232-234
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-064
+  source: inferred
+  quote: 'The report lists a group once, with "flagged by: augment, codex".'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:235
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-065
+  source: inferred
+  quote: 'The change is wording only: the header and messages say "review finding" instead of "Augment finding"; no second copy of the script.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:241-243
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-066
+  source: inferred
+  quote: '`refs/thread-reply.md` says the `<COMMENT_ID>` is the Augment or Codex root id.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:243-244
+  matched_task_ids:
+  - Task 14
+  match_method: containment
+- requirement_id: INF-067
+  source: inferred
+  quote: The reply text (`build_reply`) is unchanged; the reply on a Codex thread is posted by the operator's identity like any other reply.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:244-245
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-068
+  source: inferred
+  quote: 'After the push, reply and resolve, and only when the cycle applied edits, the SKILL posts one re-trigger comment **per present reviewer** with `scripts/retrigger-review.sh --pr <N> --repo "$REPO"
+    --body <adapter phrase>`: `auggie review` for Augment (unchanged), `@codex review` for Codex.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:249-252
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-069
+  source: inferred
+  quote: 'Each post is preceded by a write-ahead `rereview_requested{cycle_id, reviewer}` check: a reviewer that already has one for this `cycle_id` is not posted again (crash safety, INV-R1).'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:252-254
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-070
+  source: inferred
+  quote: Each reviewer gets its own watermark (UTC recorded right after its own successful POST), used only for that reviewer's completion attribution.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:254-256
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-071
+  source: inferred
+  quote: If the marker is not updated, the Codex re-review wait ends `incomplete` at `--timeout` and the run continues with Augment (fail open), so the gap cannot hang the loop.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:261-263
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-072
+  source: inferred
+  quote: The S5b decline fallback keeps its "no second re-trigger" rule for both reviewers. The silence poke stays Augment-only.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:265-266
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-073
+  source: inferred
+  quote: 'One remediation cycle covers the findings of **both** reviewers from one round outcome: one fix commit, one push, one `round_counter` tick (INV-001 edge unchanged, fired once per cycle when the
+    merged S5 outcome is attributed). `max_rounds=N` still means at most N pushes.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:270-272
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-074
+  source: inferred
+  quote: '`rereview_request_count` (INV-R1, `<= max_rounds`) now counts **cycles that were re-triggered**, not comments: `rebuild_state` folds `rereview_requested` by distinct `cycle_id` (an event with
+    no `cycle_id` still counts once each, so old logs rebuild to the same number).'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:273-275
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-075
+  source: inferred
+  quote: At S5a the SKILL posts only for present reviewers that have no `rereview_requested{cycle_id, reviewer}` yet (`pending_retriggers(run_log, cycle_id, present)`), so a crash between the two posts
+    neither skips Codex nor double-posts Augment.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:278-280
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-076
+  source: inferred
+  quote: 'Add two `EventType` members (39 → 41): `reviewer_absent` (`{reviewer}`; fail-open, sticky, folded into `rebuild_state()["absent_reviewers"]`) and `reviewer_incomplete` (`{reviewer, phase: "initial"|"rereview"}`;
+    a present reviewer that did not complete by `--timeout` while the other reviewer''s result was used).'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:284-287
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-077
+  source: inferred
+  quote: 'Events that concern one reviewer carry a `reviewer` field: `poll_result` (per-reviewer wait outcomes), `review_detected`, `findings_normalized`, `finding_verified`, `finding_unverified`, `route_decision`,
+    `reply_posted`, `thread_resolved`, `rereview_requested`. Missing `reviewer` means `augment` (old logs).'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:288-291
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-078
+  source: inferred
+  quote: 'No new FSM state or edge: the two reviewers are merged **before** the FSM sees an outcome (section 6). `state-machine.md` gets a short "reviewers" paragraph saying so, and that `TERMINAL_AUGMENT_NO_RESPONSE`
+    means no configured reviewer responded.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:292-294
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-079
+  source: inferred
+  quote: 'Output contract gains `reviewers`: `{"augment": "present"|"absent"|"incomplete", "codex": ...}`. The `status` enum is unchanged.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:295-296
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-080
+  source: inferred
+  quote: All in the pure core (no `gh`/`git` tokens, NFR-6 / T-N50 purity kept).
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:300
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-081
+  source: inferred
+  quote: 'codex_bot_login: str | None = "chatgpt-codex-connector[bot]" codex_app_slug: str | None = "chatgpt-codex-connector" codex_retrigger_phrase: str = "@codex review"'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:304-306
+  matched_task_ids:
+  - Task 2
+  match_method: containment
+- requirement_id: INF-082
+  source: inferred
+  quote: DetectionContract() direct construction keeps EMPTY identities for both reviewers (fail-safe).
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:307
+  matched_task_ids:
+  - Task 2
+  match_method: containment
+- requirement_id: INF-083
+  source: inferred
+  quote: def _thread_findings(threads, contract, completed, identities=None) -> list[dict] | None
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:310
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-084
+  source: inferred
+  quote: 'def has_reviewer_activity(payload, identities: set[str]) -> bool'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:311
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-085
+  source: inferred
+  quote: REVIEWERS = ("augment", "codex")
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:314
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-086
+  source: inferred
+  quote: 'def reviewer_identities(contract, reviewer: str) -> set[str]'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:315
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-087
+  source: inferred
+  quote: 'def retrigger_phrase(contract, reviewer: str) -> str'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:316
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-088
+  source: inferred
+  quote: def reviewer_activity(payload, contract) -> dict[str, bool]
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:317
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-089
+  source: inferred
+  quote: 'def parse_codex_priority(body: str) -> str | None            # "P0".."P3" or None'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:318
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-090
+  source: inferred
+  quote: 'def codex_severity_hint(priority: str | None) -> str | None  # critical/high/medium/low'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:319
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-091
+  source: inferred
+  quote: def codex_review_state(payload, contract, *, watermark=None, current_head_sha=None) -> dict | None
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:320
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-092
+  source: inferred
+  quote: def classify_codex(payload, contract, *, watermark=None, current_head_sha=None) -> str
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:321
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-093
+  source: inferred
+  quote: def codex_finding_comments(payload, contract, *, watermark=None, current_head_sha=None) -> list[dict]
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:322
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-094
+  source: inferred
+  quote: def codex_wait_outcome(state, *, active, elapsed, timeout, silence_timeout, other_settled) -> str
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:323
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+- requirement_id: INF-095
+  source: inferred
+  quote: def augment_wait_outcome(state, next_state) -> str
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:324
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+- requirement_id: INF-096
+  source: inferred
+  quote: 'def merge_wait(augment: tuple[str, str], codex: tuple[str, str]) -> dict #   -> {"outcome": "polling"|"clean"|"findings"|"declined"|"no_response"|"timeout", #       "used": [...reviewers], "absent":
+    [...], "incomplete": [...]}'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:325-327
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+- requirement_id: INF-097
+  source: inferred
+  quote: 'def dedup_groups(findings: list[Finding]) -> list[list[Finding]]'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:328
+  matched_task_ids:
+  - Task 9
+  match_method: containment
+- requirement_id: INF-098
+  source: inferred
+  quote: 'def list_review_threads(payload, contract) -> list[dict]     # all bot threads, any state, for reports'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:329
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-099
+  source: inferred
+  quote: 'def pending_retriggers(run_log_events: list[dict], cycle_id, present: list[str]) -> list[str]'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:330
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-100
+  source: inferred
+  quote: 'Finding.reviewer: str = "augment"'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:333
+  matched_task_ids:
+  - Task 1
+  match_method: containment
+- requirement_id: INF-101
+  source: inferred
+  quote: EventType.REVIEWER_ABSENT = "reviewer_absent"; EventType.REVIEWER_INCOMPLETE = "reviewer_incomplete"
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:334
+  matched_task_ids:
+  - Task 1
+  match_method: containment
+- requirement_id: INF-102
+  source: inferred
+  quote: 'rebuild_state: rereview_request_count by distinct cycle_id;'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:336
+  matched_task_ids:
+  - Task 3
+  match_method: containment
+- requirement_id: INF-103
+  source: inferred
+  quote: new "absent_reviewers" list folded from reviewer_absent.
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:337
+  matched_task_ids:
+  - Task 3
+  match_method: containment
+- requirement_id: INF-104
+  source: inferred
+  quote: cx_state = classify_codex(payload, contract, watermark=wm.get("codex"), current_head_sha=expected_head)
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:344
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-105
+  source: inferred
+  quote: cx_roots = codex_finding_comments(...same args...) if cx_state == "findings" else []
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:345
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-106
+  source: inferred
+  quote: 'same normalization rule: empty selection or ValueError -> cx_state = "polling"'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:346
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-107
+  source: inferred
+  quote: decision = merge_wait((augment_wait_outcome(review_state, nxt), review_state), (codex_wait_outcome(cx_state, ...), cx_state))
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:347-348
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-108
+  source: inferred
+  quote: '| `src/superclaude/pr_submit/reviewers.py` | new: adapter table, Codex parser/classifier, merge, dedup, thread listing, pending re-triggers |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:355
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-109
+  source: inferred
+  quote: '| `src/superclaude/pr_submit/classifier.py` | identity parameter on `_thread_findings`; `has_reviewer_activity` |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:356
+  matched_task_ids:
+  - Task 4
+  match_method: containment
+- requirement_id: INF-110
+  source: inferred
+  quote: '| `src/superclaude/pr_submit/detection.py` | Codex contract fields |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:357
+  matched_task_ids:
+  - Task 2
+  match_method: containment
+- requirement_id: INF-111
+  source: inferred
+  quote: '| `src/superclaude/pr_submit/models.py` | `Finding.reviewer`; two event types |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:358
+  matched_task_ids:
+  - Task 1
+  match_method: containment
+- requirement_id: INF-112
+  source: inferred
+  quote: '| `src/superclaude/pr_submit/run_log.py` | distinct-cycle re-trigger count; `absent_reviewers` |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:359
+  matched_task_ids:
+  - Task 3
+  match_method: containment
+- requirement_id: INF-113
+  source: inferred
+  quote: '| `src/superclaude/pr_submit/severity_router.py` | carry `reviewer` into `Finding` |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:360
+  matched_task_ids:
+  - Task 5
+  match_method: containment
+- requirement_id: INF-114
+  source: inferred
+  quote: '| `src/superclaude/pr_submit/__init__.py` | export the new public functions |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:361
+  matched_task_ids:
+  - Task 9
+  match_method: containment
+- requirement_id: INF-115
+  source: inferred
+  quote: '| `src/superclaude/skills/sc-pr-submit-protocol/SKILL.md` | reviewer-agnostic wording; gate extended; re-trigger per reviewer; output `reviewers` |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:362
+  matched_task_ids:
+  - Task 12
+  match_method: containment
+- requirement_id: INF-116
+  source: inferred
+  quote: '| `.../refs/detection-contract.md` | Codex identity, marker and badge contract; YAML fields |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:363
+  matched_task_ids:
+  - Task 2
+  match_method: containment
+- requirement_id: INF-117
+  source: inferred
+  quote: '| `.../refs/augment-poll.md` | one snapshot serves both reviewers; per-reviewer wait outcomes and `merge_wait` |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:364
+  matched_task_ids:
+  - Task 13
+  match_method: containment
+- requirement_id: INF-118
+  source: inferred
+  quote: '| `.../refs/severity-routing.md` | P0-P3 mapping row; reviewer-neutral wording |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:365
+  matched_task_ids:
+  - Task 13
+  match_method: containment
+- requirement_id: INF-119
+  source: inferred
+  quote: '| `.../refs/finding-verify.md`, `troubleshoot-dispatch.md` | wording; dedup groups; seed names reviewer |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:366
+  matched_task_ids:
+  - Task 13
+  match_method: containment
+- requirement_id: INF-120
+  source: inferred
+  quote: '| `.../refs/thread-reply.md` | Augment or Codex root id |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:367
+  matched_task_ids:
+  - Task 14
+  match_method: containment
+- requirement_id: INF-121
+  source: inferred
+  quote: '| `.../refs/review-retrigger.md` | per-reviewer phrase, watermark, `pending_retriggers` |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:368
+  matched_task_ids:
+  - Task 14
+  match_method: containment
+- requirement_id: INF-122
+  source: inferred
+  quote: '| `.../refs/loop-guard.md` | 41 events; distinct-cycle INV-R1 fold; reviewer field |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:369
+  matched_task_ids:
+  - Task 14
+  match_method: containment
+- requirement_id: INF-123
+  source: inferred
+  quote: '| `.../refs/state-machine.md` | reviewers merged before the FSM; no-response meaning |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:370
+  matched_task_ids:
+  - Task 14
+  match_method: containment
+- requirement_id: INF-124
+  source: inferred
+  quote: '| `.../scripts/reply-resolve-thread.sh`, `retrigger-review.sh`, `poll-augment-review.sh` | header/message wording only (file names kept: tests and installers reference them) |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:371
+  matched_task_ids:
+  - Task 11
+  match_method: containment
+- requirement_id: INF-125
+  source: inferred
+  quote: '| `src/superclaude/commands/pr-submit.md` | description and arming text name both reviewers |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:372
+  matched_task_ids:
+  - Task 14
+  match_method: containment
+- requirement_id: INF-126
+  source: inferred
+  quote: '| `tests/pr_submit/test_codex_reviews.py` (+ fixtures) | new tests (section 16) |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:373
+  matched_task_ids:
+  - Task 10
+  match_method: containment
+- requirement_id: INF-127
+  source: inferred
+  quote: '| `tests/pr_submit/test_run_log.py` | 39 → 41 events |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:374
+  matched_task_ids:
+  - Task 1
+  match_method: containment
+- requirement_id: INF-128
+  source: inferred
+  quote: '| `CLAUDE.md`, `docs/user-guide/commands.md`, `docs/guides/tdd-skill-release-guide.md`, `docs/guides/prd-skill-release-guide.md` | where they state Augment-only behaviour |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:375
+  matched_task_ids:
+  - Task 15
+  match_method: containment
+- requirement_id: INF-129
+  source: inferred
+  quote: '| `CHANGELOG.md` | Unreleased entry |'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:376
+  matched_task_ids:
+  - Task 15
+  match_method: containment
+- requirement_id: INF-130
+  source: inferred
+  quote: No `plugins/superclaude/` twin exists for pr-submit. No installed primitive gains a `src/superclaude/` path (the refs keep referring to the `superclaude.pr_submit` package).
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:378-379
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-131
+  source: inferred
+  quote: 'New `tests/pr_submit/test_codex_reviews.py`, fixtures built from the real PR 334/336 shapes:'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:383
+  matched_task_ids:
+  - Task 10
+  match_method: containment
+- requirement_id: INF-132
+  source: inferred
+  quote: '1. `parse_codex_priority`: P0, P1, P2, P3 → label; no badge, two badges, `P4`, alt/URL mismatch → `None`.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:385
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-133
+  source: inferred
+  quote: '2. Severity mapping: P0/P1 → `--depth deep --fix`, P2 → `--fix`, P3 → report-only, malformed → Medium `--fix`.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:386
+  matched_task_ids:
+  - Task 6
+  match_method: containment
+- requirement_id: INF-134
+  source: inferred
+  quote: '3. `codex_review_state` / `classify_codex`: completed clean (PR 334 shape) → `clean`; findings (PR 336 shape, unresolved) → `findings` with 3 roots, `reviewer=="codex"`, hint `medium`; `running`,
+    wrong head, duplicate summary, malformed JSON, `updated_at` after `observed_at` or not newer than watermark → `polling`; resolved threads only + Codex review on head → `clean`.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:387-390
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+- requirement_id: INF-135
+  source: inferred
+  quote: '4. Reviewer detection: `reviewer_activity` and `merge_wait` rows for Augment only, Codex only, both, neither (and the pending / incomplete rows).'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:391-392
+  matched_task_ids:
+  - Task 8
+  match_method: containment
+- requirement_id: INF-136
+  source: inferred
+  quote: 5. Augment classification unchanged when Codex threads are present in the payload (Codex roots never leak into `actionable_finding_comments`).
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:393-394
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-137
+  source: inferred
+  quote: '6. `reply-resolve-thread.sh` on a Codex-rooted thread with a fake `gh` on PATH (the `test_cosmos_poll.py` adapter pattern): replies to the root id, then resolves that thread.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:395-396
+  matched_task_ids:
+  - Task 11
+  match_method: containment
+- requirement_id: INF-138
+  source: inferred
+  quote: '7. `dedup_groups`: Augment + Codex on the same path/line → one group of two; different lines → two groups; `original_line` used when `line` is null.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:397-398
+  matched_task_ids:
+  - Task 9
+  match_method: containment
+- requirement_id: INF-139
+  source: inferred
+  quote: '8. Run log: 41 event types; `rereview_request_count` counts distinct cycles; `absent_reviewers` rebuilt; `pending_retriggers` after a crash between two posts.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:399-400
+  matched_task_ids: []
+  match_method: none
+- requirement_id: INF-140
+  source: inferred
+  quote: 'Commands (named files only): `uv run pytest tests/pr_submit -q -p no:cacheprovider`, `uv run pytest tests/skills/test_primitive_dual_surface_lookup.py tests/unit/test_cli_install.py tests/core/test_how_we_work_routing_table.py
+    -q -p no:cacheprovider`, `make sync-dev`, `make verify-sync`, `make lint`.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:402-405
+  matched_task_ids:
+  - Task 15
+  match_method: containment
+- requirement_id: INF-141
+  source: inferred
+  quote: 'Dry check: `poll-augment-review.sh --pr 336 --repo IronbellyOrg/IronClaude` piped to `list_review_threads` lists the three resolved Codex threads as P2 / Medium.'
+  citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:405-407
+  matched_task_ids:
+  - Task 7
+  match_method: containment
+coverage_pct: null
+coverage_pct_union: 0.539
+unmapped_requirements: []
+unmapped_requirements_union:
+- INF-003
+- INF-004
+- INF-009
+- INF-010
+- INF-011
+- INF-012
+- INF-014
+- INF-015
+- INF-016
+- INF-017
+- INF-018
+- INF-019
+- INF-020
+- INF-026
+- INF-027
+- INF-028
+- INF-029
+- INF-030
+- INF-034
+- INF-035
+- INF-036
+- INF-037
+- INF-038
+- INF-039
+- INF-041
+- INF-044
+- INF-045
+- INF-046
+- INF-047
+- INF-054
+- INF-055
+- INF-056
+- INF-057
+- INF-060
+- INF-061
+- INF-062
+- INF-063
+- INF-064
+- INF-065
+- INF-067
+- INF-068
+- INF-069
+- INF-070
+- INF-071
+- INF-072
+- INF-073
+- INF-074
+- INF-075
+- INF-076
+- INF-077
+- INF-078
+- INF-079
+- INF-080
+- INF-084
+- INF-086
+- INF-088
+- INF-098
+- INF-099
+- INF-105
+- INF-106
+- INF-107
+- INF-108
+- INF-130
+- INF-136
+- INF-139
+S_dev_density: 0.461
+semantic_gaps:
+- design_citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:226
+  requirement: Severity and route of a dedup group = the highest remapped tier in the group.
+  why_uncovered: Task 9 only builds dedup_groups (grouping); Task 12 says Waves 2-4 'use dedup_groups' and Task 13 covers per-finding verdicts and the group seed, but no task states the group-level severity/route
+    rule (max tier) in code or in SKILL.md/severity-routing.md.
+- design_citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:230-231
+  requirement: One diagnosis and one set of edits per group; fix_applied is recorded for each member's fix_key.
+  why_uncovered: No task mentions recording fix_applied per group member; Task 13's group seed covers the single diagnosis only.
+- design_citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:232-234
+  requirement: Every verified thread in a group gets its own reply and resolve citing the cycle's one fix SHA; unverified or Low/Nit members get no reply/resolve and are listed.
+  why_uncovered: Task 12 applies dedup_groups to Waves 2-4 only; the Wave 5 reply/resolve fan-out per group member is not assigned to any task (Task 14's thread-reply.md change is only the root-id wording).
+- design_citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:235
+  requirement: 'The report lists a group once, with "flagged by: augment, codex".'
+  why_uncovered: No task changes the report/output rendering to list groups once with the flagged-by line.
+- design_citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:164-168
+  requirement: S5 re-review wait waits only for reviewers re-triggered this cycle; an incomplete one is reported; the re-review is attributed (INV-001 edge) when at least one re-triggered reviewer reaches
+    done on the pushed SHA, timeout when none, declined when Augment declines.
+  why_uncovered: Task 8's merge_wait covers the initial wait table; Task 12 covers posting per-reviewer re-triggers and watermarks, but no task specifies the S5 merged wait over the re-triggered subset
+    or the 'at least one re-triggered reviewer done' attribution rule (in code, SKILL.md, augment-poll.md or state-machine.md).
+- design_citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:284-287
+  requirement: reviewer_incomplete carries phase "initial"|"rereview" and is emitted when a present reviewer misses --timeout while the other's result is used.
+  why_uncovered: Task 12 records reviewer_incomplete in Wave 1 only (initial phase); emitting it with phase "rereview" at S5 expiry is not assigned to any task.
+- design_citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:288-291
+  requirement: 'Events concerning one reviewer carry a reviewer field: poll_result (per-reviewer wait outcomes), review_detected, findings_normalized, finding_verified, finding_unverified, route_decision,
+    reply_posted, thread_resolved, rereview_requested.'
+  why_uncovered: 'Partial: Task 12 names the reviewer in Waves 2-4 events and Task 14 documents the field in loop-guard.md, but the Wave 1 events (poll_result with per-reviewer outcomes, review_detected)
+    and Wave 5 events (reply_posted, thread_resolved) are not given a reviewer field by any task.'
+- design_citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:155
+  requirement: When Augment declines, Codex findings join the S5b fallback's single Waves 2-6 re-entry.
+  why_uncovered: 'Partial: Task 8 asserts the merge_wait ''declined'' outcome, but no task updates the SKILL.md S5b fallback so Codex findings enter its Waves 2-6 re-entry.'
+- design_citation: .dev/pr-submit-codex/design/pr-submit-codex-design.md:128
+  requirement: Absence is sticky and rebuilt from the run log on --resume (rebuild_state()["absent_reviewers"]).
+  why_uncovered: 'Partial: Task 3 adds the absent_reviewers fold, but no task makes the SKILL''s --resume path read it to keep an absent reviewer absent (no wait, no re-trigger).'

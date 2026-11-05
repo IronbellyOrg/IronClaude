@@ -16,10 +16,14 @@ KNOWN_CORE_FILES = frozenset(
         "BUSINESS_PANEL_EXAMPLES.md",
         "BUSINESS_SYMBOLS.md",
         "CLAUDE.md",
+        "CODEGRAPH.md",
         "HOW-WE-WORK.md",
+        "ISSUE-BACKLOG.md",
+        "ISSUE-HANDOFF.md",
         "PRINCIPLES.md",
         "RESEARCH_CONFIG.md",
         "RULES.md",
+        "WORKER-CONTRACT.md",
     }
 )
 

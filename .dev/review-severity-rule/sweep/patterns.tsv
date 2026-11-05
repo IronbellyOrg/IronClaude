@@ -1,0 +1,16 @@
+P01	any severity
+P02	regardless of severity
+P03	no severity level is exempt
+P04	minor issues still pass
+P05	FAIL: Issues found
+P06	strictly fewer issues
+P07	logged for human review
+P08	zero[ -]tolerance
+P09	must still be fixed|still must be fixed
+P10	must be perfect to pass
+P11	all (findings|issues|gaps) must be (resolved|fixed)
+P12	CRITICAL, IMPORTANT,? (and|or) MINOR
+P13	(if|when) (any )?(findings|issues|gaps) (exist|remain)|issues remain unfixed|remaining (issues|findings|failures)|finds new issues|new issues (are )?found
+P14	(spawn|dispatch|launch)[^.]{0,60}fix(-| )agent|fix(-| )agent[^.]{0,60}(all|every|each) (findings|issues)
+P15	(become|becomes|as|to) Open Questions|logged to Open Questions
+P16	(max(imum)?|after|up to|at most) [3-9] (fix|fix-verify|correction|review|qa|repair) ?(cycles?|loops?|attempts?|rounds?|iterations?)|(failing|failed) [3-9] fix cycles|max-[3-9]-cycles?|\b[3-9]-(fix-)?cycles?\b|fix cycles?: [3-9]\b|after [3-9] failed cycles|[3-9] (cycles|iterations|rounds) per (phase|gate|task)|2-3 per gate|max_iterations *[:=] *[3-9]|default[^.]{0,20}\b[3-9]\b[^.]{0,20}(cycles|iterations)

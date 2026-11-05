@@ -1,0 +1,18 @@
+# sc:adversarial return contract, decision D2 (written on resume, 2026-11-02T18:22Z)
+return_contract:
+  merged_output_path: ".dev/orca-command-refactor/decisions/D2/debate/adversarial/merged-output.md"
+  convergence_score: 1.0            # 27/27 diff points agreed in Round 2 (debate-transcript.md, Convergence Assessment)
+  artifacts_dir: ".dev/orca-command-refactor/decisions/D2/debate/adversarial/"
+  status: "partial"                 # all 5 steps complete and post-merge validation PASS, but convergence was BLOCKED_BY_INVARIANTS
+  base_variant: "variant-1-original (option a)"
+  unresolved_conflicts: 0           # no diff point unresolved
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "manual"       # Steps 1-3 by the original run; Steps 3 tail, 4 and 5 by a resuming teammate following the skill after the 16:28 UTC interruption
+  unaddressed_invariants:           # HIGH items UNADDRESSED in the debate; each now has a planned change (refactor-plan.md, Invariant coverage) that no debate round tested
+    - {id: INV-001, category: state_variables, assumption: "tree at resume equals tree at halt", severity: HIGH}
+    - {id: INV-004, category: guard_conditions, assumption: "hand-back defined after route (a)", severity: HIGH}
+    - {id: INV-014, category: collection_boundaries, assumption: "a regex-valid line is a scoped acceptance", severity: HIGH}
+    - {id: INV-017, category: interaction_effects, assumption: "resume Task finds the same ledger", severity: HIGH}
+    - {id: INV-018, category: interaction_effects, assumption: "resume Task runs in the halted worktree", severity: HIGH}
+    - {id: INV-022, category: sufficiency_challenge, assumption: "row R is safe for every non-dispute halt", severity: HIGH}

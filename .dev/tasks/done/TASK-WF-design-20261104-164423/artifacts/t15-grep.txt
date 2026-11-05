@@ -1,0 +1,35 @@
+$ grep -nE -- '--force|git push|git stash|--amend|--no-verify|src/superclaude/|```' src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md
+18:```bash
+20:```
+26:```bash
+28:```
+62:```bash
+65:```
+123:```bash
+125:```
+grep exit=0
+
+$ grep -nE '(^|[[:space:]`(])gh[[:space:]]' src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md
+grep exit=1 (1 = no gh line in the ref)
+
+$ PYTHONDONTWRITEBYTECODE=1 uv run python /tmp/t15-check/forbidden_check.py src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md
+fenced lines:
+       19: scripts/collect-conflict-evidence.sh --path <p> --out <output-dir>/sync/<cycle_id>/<n>/ --base-sha <base_sha> --merge-base <merge_base>
+       27: git grep -n -F -- <symbol>
+       63: git add -- <path>
+       64: git rm -- <path>
+       124: git diff --name-only origin/<base>...HEAD
+[OK] fence language other than bash: 0 hit(s)
+[OK] fenced line whose first word is not git/gh/uv/make/scripts/: 0 hit(s)
+[OK] unclosed fence: 0 hit(s)
+[OK] force push (test_skill_forbids_force_push regex): 0 hit(s)
+[OK] any --force / --force-with-lease text: 0 hit(s)
+[OK] git push line not exactly `git push origin <target_sha>:<HEAD_BRANCH>`: 0 hit(s)
+[OK] gh line without --repo "$REPO" or repos/<owner/repo>/: 0 hit(s)
+[OK] src/superclaude/ text: 0 hit(s)
+[OK] stash / amend / hook-skipping flag: 0 hit(s)
+[OK] upstream repository named: 0 hit(s)
+[OK] Tier 2 / off-by-default / --conflict-max-tier 2 marker missing: 0 hit(s)
+lines in file: 127
+RESULT: PASS
+exit=0

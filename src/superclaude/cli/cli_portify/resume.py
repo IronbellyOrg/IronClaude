@@ -133,7 +133,7 @@ def get_preserved_context(step_name: str) -> tuple[str, ...]:
 
 def suggest_budget(
     step_name: str,
-    max_convergence: int = 3,
+    max_convergence: int = 1,
 ) -> Optional[int]:
     """Return suggested turn budget for resuming at step_name.
 

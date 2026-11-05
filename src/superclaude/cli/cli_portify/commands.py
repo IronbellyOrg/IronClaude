@@ -97,8 +97,13 @@ def cli_portify_group():
 @click.option(
     "--max-convergence",
     type=int,
-    default=3,
-    help="Maximum convergence iterations for panel-review (default: 3)",
+    default=1,
+    help=(
+        "Maximum convergence iterations for panel-review "
+        "(default: 1; follows the 2-fix-cycle cap). "
+        "The value is stored in the run config, but nothing reads it yet: "
+        "the review loop always runs 1 iteration."
+    ),
 )
 @click.option(
     "--debug",

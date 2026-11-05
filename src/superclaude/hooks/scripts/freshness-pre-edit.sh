@@ -22,18 +22,12 @@ CWD=$(printf '%s' "$INPUT" | jq -r '.cwd // empty' 2>/dev/null)
 
 # 2. Extract target_path
 FILE_PATH=$(printf '%s' "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null)
-REL_PATH=$(printf '%s' "$INPUT" | jq -r '.tool_input.relative_path // empty' 2>/dev/null)
 TARGET=""
 if [ -n "$FILE_PATH" ]; then
     TARGET="$FILE_PATH"
-elif [ -n "$REL_PATH" ]; then
-    case "$REL_PATH" in
-        /*) TARGET="$REL_PATH" ;;
-        *)  TARGET="$CWD/$REL_PATH" ;;
-    esac
 else
     # Cannot enforce on this tool variant — fail open.
-    echo "freshness-pre-edit: no file_path/relative_path in tool_input for $TOOL_NAME; allowing." >&2
+    echo "freshness-pre-edit: no file_path in tool_input for $TOOL_NAME; allowing." >&2
     exit 0
 fi
 

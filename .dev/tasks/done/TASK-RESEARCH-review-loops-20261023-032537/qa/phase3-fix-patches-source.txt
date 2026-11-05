@@ -1,0 +1,319 @@
+SOURCE /config/.claude/projects/-config-workspace-IronClaude/bbddbf85-99f2-4caf-a47f-a402da4f09de/subagents/agent-afix-research-reports-d725a1843b1d4270.jsonl:88 TIME 2026-10-23T04:29:58.267Z
+| Status | Result |
+|---|---|
+| DONE | Prepared surgical corrections for the six consolidated findings. |
+| DONE | Read the three supplements and affected report, evidence-deck, and gap-log sections. |
+| NEXT | Main applies the patch below, then independent reviewers check the resulting files. |
+
+**No files were edited or written.** The developer prohibition on writing report Markdown files applies. This is a patch handoff, not a PASS verdict.
+
+All paths below use this absolute task directory:
+
+`/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/`
+
+## 1. Orca planning report: complete repair accounting and blocked edit
+
+**Target:** `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/01-session-ac2cd1fd.md`
+
+### Exact replacement
+
+Old:
+
+```text
+| 150 and 163 | 13:31:11.613; 13:31:22.708 | Small initial wording cleanup. Reviewed v1 hash matches the first review snapshot. |
+```
+
+New:
+
+```text
+| 150/151 and 163/164 | 13:31:11.613; 13:31:22.708 | Initial wording-cleanup attempt at Raw 150 was blocked at Raw 151 and did not apply; retry at Raw 163 succeeded at Raw 164. Reviewed v1 hash matches the first review snapshot. |
+```
+
+### Source-copy insertion
+
+Immediately before the existing `## Summary`, insert:
+
+```text
+<!-- phase3-correction: orca-plan-original-repair-ledger -->
+## Complete original-repair accounting supplement
+
+The following supplement supplies individual accounting for all sixteen original findings. Its v2 line numbers refer to the historical whole-file Write, not the current plan.
+```
+
+Then copy **lines 12-59 inclusive**, unchanged, from:
+
+`/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/research-fix-orca-plan-source.txt`
+
+That block contains the source keys, historical Raw 544/545 write confirmation, all sixteen repair rows, fourteen-fixed/two-partial qualification, and four-event cleanup timeline. Do not replace the existing later-finding analysis or hashes.
+
+## 2. CI planning report: separately timed final outcome and all eight reviewer entries
+
+**Target:** `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/04-session-43582de1.md`
+
+### Exact replacements
+
+Old:
+
+```text
+The final byte-level observation was made at **2026-10-23T03:41:52.643460Z**.
+```
+
+New:
+
+```text
+The original byte-level observation was made at **2026-10-23T03:41:52.643460Z**. The separately timed supplement below records subsequent developments without changing this original observation window.
+```
+
+Old:
+
+```text
+- Do not report a final regenerated verdict or eventual repair outcome.
+```
+
+New:
+
+```text
+- No final regenerated verdict was observed within this original window. The separately timed supplement below records the subsequently completed review; an eventual repair or implementation outcome remains unobserved.
+```
+
+Old:
+
+```text
+- The regenerated invariant probe’s result, final merged verdict and final report were not available at the observed endpoint.
+```
+
+New:
+
+```text
+- The regenerated invariant probe’s result, final merged verdict and final report were unavailable at the original endpoint. The separately timed supplement below records their subsequent completion; this is no longer an unresolved evidence gap.
+```
+
+Old:
+
+```text
+**RECOMMENDED ACTION:** In the parent synthesis, classify this case as a pre-execution review loop with an incomplete endpoint. Preserve the distinction between the two supported acceptance defects, the dependency-graph regression, and the two downgraded hardening suggestions; that prevents overstating both failure count and implementation impact.
+```
+
+New:
+
+```text
+**RECOMMENDED ACTION:** In the parent synthesis, classify this case as a pre-execution review loop whose second review subsequently finished with partial evidence status and a not-ready verdict, containing five medium and eleven low merged items and no high items. Preserve the original incomplete observation window, corrected and rejected reviewer claims, optional hardening suggestions, and the distinction between applied changes and proposed remediation. No subsequent refactor authorization or implementation outcome was observed.
+```
+
+### Source-copy insertion
+
+Immediately before `## 12. Summary and recommended action`, insert:
+
+```text
+<!-- phase3-correction: ci-final-outcome-and-reviewer-dispositions -->
+## Separately timed final outcome and complete reviewer accounting
+```
+
+Copy these blocks from:
+
+`/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/research-fix-ci-plan-source.txt`
+
+1. **Lines 10-204 inclusive:** observation window, completed outcome, timeline, sixteen merged items, probe qualifications, and fingerprints.
+2. **Lines 216-280 inclusive:** complete eight-entry disposition, supporting comparisons, counting, and uncertainty.
+
+Do not copy the transport `SOURCE` lines or agent DONE/NEXT tables. Preserve the corrected rename order, inherited overstrict job-name check, unproved immutability, rejected literal-warning claim, and matrix-only corrections. The eight card entries overlap existing merged findings; they are not eight additional defects.
+
+## 3. Monitor report: original prefix, historical ledger, later acceptance, and unknown misses
+
+**Target:** `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/05-session-e002bed2.md`
+
+### Exact replacements
+
+Old:
+
+```text
+The verified sequence contains:
+```
+
+New:
+
+```text
+The verified original sequence covers physical JSONL rows 1-1247 inclusive, ending at 2026-10-23T03:31:57.433Z. This content boundary is independent of the manifest’s 2026-10-23T03:25:59Z population-selection time. Within that original prefix, the sequence contains:
+```
+
+Old:
+
+```text
+### Verified final state
+
+Ledger L, lines 25-34, contains:
+```
+
+New:
+
+```text
+### Verified historical state at the original prefix endpoint
+
+The historical ledger output preserved at Raw 1244, through ledger line 34, contains:
+```
+
+Old:
+
+```text
+The latest frozen verdict is `misunderstood` at Raw 1240. The executor stops for operator direction at Raw 1247.
+```
+
+New:
+
+```text
+The last verdict within the original prefix is `misunderstood` at Raw 1240. The executor stops for operator direction at Raw 1247. This is a historical endpoint, not a claim that Task 12 remains blocked after the later continuation recorded below.
+```
+
+### Source-copy insertion
+
+Immediately before `## 8. Summary and recommended action`, insert:
+
+```text
+<!-- phase3-correction: monitor-boundary-and-accepted-completion -->
+## Separately timed continuation
+```
+
+Copy **line 10**, then **lines 13-123 inclusive**, from:
+
+`/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/qa/research-fix-orca-monitor-source.txt`
+
+Do not copy line 11, “Original report remains unchanged,” because main will be correcting the report. The copied substantive sections retain the original boundary, retrospective fingerprint qualification, human-origin acceptance, successful completion record, and separate Task 13 continuation.
+
+After that copied block, insert:
+
+```text
+### Limits on explanations of earlier misses
+
+For preexisting blank release-note handling, carriage-return escaping, rename/copy handling, and other later-discovered defects, the artifacts establish relevant implementation states but do not establish why each earlier reviewer missed the defect. Those reasons remain unknown unless a specific mechanism is independently traced. The demonstrated inherited-error-trap regression explains implementation behavior, not reviewer cognition.
+```
+
+Preserve seven Task 12 verdicts, five repair passes, and four literal `fix` replies. Later human acceptance at Raw 1250 and successful completion at Raw 1261 do not create an eighth review or a compliant verdict. Task 13 remains separate.
+
+## 4. Credential report: timestamp and explicit uncertainty
+
+**Target:** `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/06-session-0690ee9f.md`
+
+### Exact replacement
+
+Old:
+
+```text
+records **16** and **33**, **19:57:18.651Z** and **19:57:44.798Z** respectively.
+```
+
+New:
+
+```text
+records **16** and **33**, **19:57:18.777Z** and **19:57:44.798Z** respectively.
+```
+
+This changes only the erroneous nested record-16 timestamp.
+
+### Insertion
+
+Immediately before `## Summary and recommended action`, insert:
+
+```text
+<!-- phase3-correction: credential-earlier-miss-uncertainty -->
+## Limit on explaining the earlier evidence miss
+
+Why the first final reviewer missed the already incorrect Task 10 blank-line pointer is unknown. The artifacts establish that the original task reviewer read the correct log body and later supplied an incorrectly numbered citation; they do not establish why the first final review failed to catch that pointer. No cognitive cause is inferred.
+```
+
+Keep the successful evidence repairs, unchanged delivery content, rubric-change qualification, archive outcome, and limits on universal literal compliance.
+
+## 5. Evidence-deck consistency
+
+**Target:** `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/research/evidence-deck.md`
+
+Apply these exact text replacements within the existing table cells or paragraphs.
+
+### CI endpoint
+
+Old:
+
+```text
+At fixed03:41:52Z observation, consensus not-ready but invariant probe still running, no final merged verdict/report.
+```
+
+New:
+
+```text
+At the original03:41:52Z observation, consensus not-ready but invariant probe still running, no final merged verdict/report. The separate04:02:04.400203Z observation records the completed review: partial evidence status, not_ready verdict,5medium11low merged items, nohigh; no subsequent refactor authorization or implementation observed.
+```
+
+### Monitor endpoint
+
+Old:
+
+```text
+Final raw1240 misunderstood, halt1247; no completed task.
+```
+
+New:
+
+```text
+Original prefix rows1-1247 ends03:31:57.433Z: raw1240 misunderstood, halt1247, no completion through historical ledger34/raw1244. Later human1250 accepts four known defects; successful1261 confirms completion with unchanged misunderstood verdict, not an eighthreview or compliant result. Task13 continuation is separate.
+```
+
+### Cross-case endpoint summary
+
+Old:
+
+```text
+All six dedicated deep analyses are now on disk. Five selected sessions contain completed repeated-unsuccessful review chains; the CI planning session is an additional live-endpoint case whose second full review was not yet complete. A merely pending review is not counted as an observed final failure.
+```
+
+New:
+
+```text
+All six dedicated deep analyses are now on disk. The original CI observation ended with its second review still pending; a separately timed supplement records that review’s completed not_ready verdict with partial evidence status. The monitor’s original Task12 prefix ended blocked, but later explicit human acceptance completed that task with its unchanged misunderstood verdict. These later observations do not change the original observation windows, add another Task12 review, or establish compliant implementation.
+```
+
+### Append bounded accounting before the existing `## Summary`
+
+Insert this block without filling or replacing other agents’ unfinished sections:
+
+```text
+<!-- phase3-correction: consolidated-accounting -->
+## Research-gate correction accounting
+
+- Orca planning: all sixteen original repairs are individually accounted for in the case report supplement. The detailed next-review checklist supports fourteen fixed and two partial plan amendments, not runtime verification. Raw150 was blocked at151; only retry163 succeeded at164.
+- CI planning: all eight second-reviewer card entries have dispositions, including corrected advice, rejected subclaims, optional hardening, review-matrix-only corrections, and overlaps. They are not eight additional confirmed defects.
+- Monitor implementation: manifest membership selection did not freeze source bytes. The original content prefix is rows1-1247 through03:31:57.433Z; supplemental prefix fingerprints were calculated retrospectively. Later Task12 completion accepted known defects rather than verifying repair.
+- Earlier misses: why reviewers missed the monitor’s preexisting blank-note, carriage-return, rename/copy and other examples, and the credential case’s first-final blank-pointer miss, remains unknown where no observed mechanism establishes an explanation.
+```
+
+## 6. Gap-log consistency
+
+**Target:** `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-review-loops-20261023-032537/gaps-and-questions.md`
+
+Insert immediately before its existing `## Summary`:
+
+```text
+<!-- phase3-correction: supplemented-endpoints -->
+## Separately timed endpoint updates
+
+| Case | Original observation | Later evidence | Remaining limit |
+|---|---|---|---|
+| CI planning | At2026-10-23T03:41:52.643460Z the invariant probe was still running and no final review artifacts were available. | Separate observation at2026-10-23T04:02:04.400203Z records a finished review with partial evidence status and not_ready verdict: five medium, eleven low, no high merged items. All eight second-reviewer card entries are accounted for in the case supplement. | No subsequent refactor authorization, implementation, or merge outcome was observed. |
+| Orca monitor | Original physical JSONL rows1-1247 end2026-10-23T03:31:57.433Z. Historical ledger output atRaw1244 throughline34 has no Task12 completion. The03:25:59Z manifest time selected population membership, not file contents. | Human-origin acceptance atRaw1250 and successful output atRaw1261 complete Task12 with unchanged misunderstood verdict. No eighth Task12 review was observed. Task13 continuation is separate. | Completion accepted four known defects, including the demonstrated error-trap regression; it does not establish repair or compliance. Supplemental prefix fingerprints are retrospective. |
+| Earlier reviewer misses | Later evidence establishes preexisting defects and incorrect evidence pointers. | Case reports explicitly mark unexplained earlier misses unknown. | No cognitive explanation is established for the specified monitor examples or the credential first-final blank-pointer miss. |
+
+The Orca planning supplement separately accounts for all sixteen original repair traces and preserves the fourteen-fixed/two-partial detailed closure count. These additions close report-accounting and endpoint-description gaps; they do not resolve the separately recorded specification contradictions or unobserved runtime behavior.
+```
+
+Leave the existing contradiction records, historical sources, initial QA reports, production files, task file, and peer outputs unchanged.
+
+## Fix-log handoff
+
+For main’s serialized fix log, record:
+
+- Initial gate: **15 reports, 9 PASS, 6 FAIL; 6 deduplicated findings, 3 Important and 3 Minor**.
+- This agent’s changes: **none**.
+- Patch coverage: all six findings mapped to the operations above.
+- Gate status: **correction pending application and independent verification**.
+- Inspection: **21 Read calls and 4 Bash calls**; one broad search produced oversized output, followed by a narrower search and targeted Reads. No tests, agents, commits, archive operations, or production mutations.
+- Do not report any finding resolved solely from this handoff.
+
+**Recommended action:** Main applies these operations section by section, copying supplement text from the specified source blocks, then hands the actual resulting files to independent verifiers.

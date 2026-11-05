@@ -1,0 +1,4 @@
+graph-status exit=0
+impact exit=0
+troubleshoot exit=0
+done
