@@ -23,8 +23,10 @@ jobs:
           activate-environment: true
 
       - name: Install dependencies
+        # pytest-xdist is installed here, not in the `dev` extra, so uv.lock and
+        # scripts/dependency_baseline.txt (the `make verify-deps` allow-list) stay unchanged.
         run: |
-          uv pip install -e ".[dev]"
+          uv pip install -e ".[dev]" "pytest-xdist>=3.5,<4"
           uv pip list
 
       - name: Sync src/superclaude/ → .claude/ mirrors
@@ -35,9 +37,14 @@ jobs:
         run: |
           make sync-dev
 
-      - name: Run tests with coverage
+      - name: Run tests
+        # -n auto: one worker per CPU (4 on public-repo runners); the suite passed
+        # under xdist locally. --maxfail=3 stops a broken run early. No coverage:
+        # nothing consumed the report after the Codecov upload was removed.
+        # test_verify_sync_hooks.py rewrites hook files in place and must not run beside
+        # other workers (see its docstring); the lint job runs it serially.
         run: |
-          pytest -v --tb=short --color=yes --cov=superclaude --cov-report=xml --cov-report=term
+          pytest -v --tb=short --color=yes -n auto --maxfail=3 --ignore=tests/cli/test_verify_sync_hooks.py
 
   swarm-marker-matrix:
     name: Swarm ${{ matrix.marker }} acceptance lane
@@ -126,6 +133,13 @@ jobs:
       - name: Lint architecture policy
         run: |
           make lint-architecture
+
+      - name: Test verify-sync hook checks (serial; rewrites hook files in place)
+        # Excluded from the parallel test job: these tests rewrite hook files in place (no xdist here).
+        # Last step, so a failure cannot hide lint-architecture and no later step reads the rewritten tree.
+        if: ${{ !cancelled() }}
+        run: |
+          pytest -v --tb=short --color=yes tests/cli/test_verify_sync_hooks.py
 
   doctor-check:
     name: SuperClaude Doctor Check
