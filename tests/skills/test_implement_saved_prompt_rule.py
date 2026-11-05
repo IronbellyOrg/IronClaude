@@ -47,6 +47,8 @@ def test_old_when_they_differ_wording_is_gone(root):
         "is an unfinished re-review",
         "after the `FINAL:` line that flagged the prompt",
         "so the blocker never reaches the retry ladder",
+        "must be a real directory, not a symlink",
+        "a file move that never replaces an existing file",
     ],
 )
 def test_qa_has_rule_wording(root, phrase):
@@ -70,6 +72,20 @@ def test_step_six_of_the_archive_gate_starts_the_recovery(root):
 
 def test_managed_workspace_names_superseded_prompts(root):
     assert "superseded-prompts/" in _read(root, "managed-workspace.md")
+
+
+def test_managed_workspace_says_the_helper_refuses_a_symlinked_folder(root):
+    text = _read(root, "managed-workspace.md")
+    assert (
+        "the folder must be a real directory: the helper refuses a symlink there"
+        in text
+    )
+
+
+def test_archive_helper_plugin_copy_is_byte_identical_to_source():
+    src = _SRC.parent / "scripts/archive_workspace.py"
+    plugin = _PLUGIN.parent / "scripts/archive_workspace.py"
+    assert src.read_bytes() == plugin.read_bytes()
 
 
 @pytest.mark.parametrize("name", _REFS)

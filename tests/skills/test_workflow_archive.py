@@ -495,6 +495,31 @@ def test_source_symlink_escape(p, tmp_path):
     assert outside.is_dir() and (outside / PLAN).is_file()
 
 
+@pytest.mark.parametrize("sub", ["retries", "superseded-prompts"])
+def test_symlinked_evidence_folder_is_refused(p, tmp_path, sub):
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "keep.md").write_text("keep\n")
+    (p.pkg / "artifacts" / sub).symlink_to(outside, target_is_directory=True)
+    err = fails(p, "E-ARCHIVE-PACKAGE")
+    assert f"artifacts/{sub} must be a real directory" in err.msg
+    with pytest.raises(aw.ArchiveError) as e:
+        p.state()
+    assert e.value.code == "E-ARCHIVE-PACKAGE"
+    assert (outside / "keep.md").read_text() == "keep\n"
+
+
+def test_real_superseded_prompts_folder_moves_with_the_package(p):
+    folder = p.pkg / "artifacts" / "superseded-prompts"
+    folder.mkdir()
+    (folder / "README.md").write_text("moved prompts\n")
+    out = p.run()
+    assert out["status"] == "archived"
+    assert (
+        p.done / "artifacts/superseded-prompts/README.md"
+    ).read_text() == "moved prompts\n"
+
+
 def test_parent_symlink_escape(p, tmp_path):
     real = tmp_path / "elsewhere"
     p.todo_root.rename(real)
