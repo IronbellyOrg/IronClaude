@@ -62,3 +62,11 @@ Source: `.dev/reflect/pre-TASK-WF-writeTheP1Static-20261105-033458-2026110503425
 |---|---|
 | P1-D1 | Approved (plan decision D-P1-1). Graph and impact keep the short-name `command` value (`graph`, `impact`) in their contract, and it counts as the worker `command` field. No second key is added. Spec WC-4 ("the exact command line") is read as met by the existing key for these two commands. |
 | P1-D4 | Approved after an adversarial debate between two advocates (one per option, one rebuttal round; both ended on option A). Plan decision D-P1-4 stands: in P1 brainstorm passes `--unattended` and `<report-dir>/nested/<command>-<n>/` to its nested `/sc:analyze` and adversarial calls, research enrichment is off, and the `tasklist` and `task` handoffs are skipped and recorded. Reason: spec section 2.1 (nested propagation) applies to every called command that accepts the flag in this phase, and both are P1 commands; the spec's "from P2" wording (row for brainstorm, section 3.1) and AC-2.1 name research enrichment only. One addition: `<n>` starts at 1 per nested command and a retry of a nested call uses the next number, so a nested directory is never reused. |
+
+## AC-1.8 commit grant (owner decision 2026-11-05, after the P1 live plan review)
+Source: the owner's own words to the IronClaude orchestrator in session, 2026-11-05: "Why the hell do I need to make this random file ... My words, quoted exactly or not, are all that is required for things like this." The grant file `decisions/P1-AC-1.8-commit-grant.txt` was an invention of the P1 live plan (step lc22), not part of the spec, WORKER-CONTRACT.md or decision D4. Recorded by the coordinator, who heard the owner directly.
+
+| ID | Decision |
+|---|---|
+| G1 | The owner's own instruction naming a local commit for the AC-1.8 Task, given in the session in any plain wording, is the quoted grant of WC-9 and D4. The brief copies it as given. No separate grant file is created and none is checked for. |
+| G2 | WC-9 and D4 are otherwise unchanged: the brief still quotes the owner's instruction, the worker still runs alone in its own child worktree, commits once with `git commit --only -- <paths>`, never pushes, never uses `--no-verify`. |
