@@ -1125,6 +1125,13 @@ apply_tier_selection() {
   unset ANTHROPIC_CUSTOM_MODEL_OPTION_NAME
   unset ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION
   local what
+  # No --model and no --tier: the workspace's own default model (ANTHROPIC_MODEL)
+  # wins over the tier default, but only when it is in a tier this owner may
+  # use; anything else leaves the tier default, silently.
+  if [ -z "$MODEL_ARG" ] && [ -z "$TIER_ARG" ] && [ -n "${ANTHROPIC_MODEL:-}" ] \
+    && python3 "$CCSESSION_MODELS" in-my-tiers "$ANTHROPIC_MODEL" 2>/dev/null; then
+    MODEL_ARG="$ANTHROPIC_MODEL"
+  fi
   if [ -n "$MODEL_ARG" ]; then
     what="model $MODEL_ARG"
     _resolved=$(python3 "$CCSESSION_MODELS" model-resolve "$MODEL_ARG") || exit 2

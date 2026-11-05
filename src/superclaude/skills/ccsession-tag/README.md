@@ -501,7 +501,8 @@ failure.
 |---|---|
 | `T<N>_WINDOW` (workspace env) | Tier context window; its presence turns tier mode on (`<N>` is a number with an optional letter, such as `1a`) |
 | `T<N>Model0M`, `T<N>Model0M_WINDOW` (workspace env) | Tier models in order, and each model's own window (a backup smaller than the tier window is never used) |
-| `CCSESSION_DEFAULT_TIER` (workspace env) | Tier used when no `--tier` or `--model` is given (`tier2` if unset) |
+| `ANTHROPIC_MODEL` (workspace env) | Default model when no `--tier` or `--model` is given, if it is a model of a tier you may use (same launch as `--model <that model>`); otherwise ignored and `CCSESSION_DEFAULT_TIER` applies |
+| `CCSESSION_DEFAULT_TIER` (workspace env) | Tier used when no `--tier` or `--model` is given and `ANTHROPIC_MODEL` does not apply (`tier2` if unset) |
 | `CCSESSION_TIER_RULES` (workspace env) | Per Coder username, Coder role, or everyone else: start tier, tiers offered, and `+models` (see Per-user tiers above) |
 | `CCSESSION_MODEL_ORDER` (workspace env) | Order of the individual models in `/model` for a `+models` rule |
 | `CCSESSION_ACCESS` (workspace env) | Older per-username form, read only when there is no `CCSESSION_TIER_RULES` line |

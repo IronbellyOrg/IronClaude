@@ -110,6 +110,7 @@ def _isolated(monkeypatch, tmp_path_factory):
         if name.startswith("T") and ("Model" in name or name.endswith("_WINDOW")):
             monkeypatch.delenv(name)
     for name in (
+        "ANTHROPIC_MODEL",
         "CCSESSION_DEFAULT_TIER",
         "CCSESSION_SHOW_ALL_MODELS",
         "CCSESSION_TIERS",
@@ -3001,3 +3002,106 @@ def test_workspace_without_tier1a_and_tier1b_exports_only_its_tiers(
         "inherited-sonnet",
         "claude-gw-tier2",
     )
+
+
+# --- the workspace default model (ANTHROPIC_MODEL, issue 395) -------------------
+
+
+def test_anthropic_model_is_the_default_when_in_an_allowed_tier(
+    tmp_path: Path,
+) -> None:
+    rc, out, err, seen = _launch(tmp_path, "work", ANTHROPIC_MODEL="gpt-6.1-sol")
+    assert rc == 0, err
+    # Same launch as typing --model gpt-6.1-sol: its own window, in the picker.
+    assert _model_arg(seen) == "gpt-6.1-sol"
+    assert seen["context"] == "850000" and _compact(seen, "gpt-6.1-sol") == 850000
+    assert seen["custom"] == "gpt-6.1-sol"
+    assert "model gpt-6.1-sol" in out
+    # A [1m] suffix on the variable is accepted as the same model.
+    rc, _, err, seen = _launch(tmp_path, "work", ANTHROPIC_MODEL="gpt-6.1-sol[1m]")
+    assert rc == 0, err
+    assert seen["context"] == "850000" and "gpt-6.1-sol" in _model_arg(seen)
+
+
+def test_model_and_tier_flags_win_over_anthropic_model(tmp_path: Path) -> None:
+    rc, _, err, seen = _launch(
+        tmp_path, "work", "--tier", "tier0", ANTHROPIC_MODEL="gpt-6.1-sol"
+    )
+    assert rc == 0, err
+    assert _model_arg(seen) == "claude-gw-tier0[1m]"
+    rc, _, err, seen = _launch(
+        tmp_path, "work", "--model", "gpt-6-astra", ANTHROPIC_MODEL="gpt-6.1-sol"
+    )
+    assert rc == 0, err
+    assert _model_arg(seen) == "gpt-6-astra"
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["", "brand-new-model", "grok-4.6[1m]", "bad name!", "tier1b"],
+)
+def test_anthropic_model_not_in_a_tier_keeps_the_tier_default(
+    tmp_path: Path, value: str
+) -> None:
+    rc, _, err, seen = _launch(tmp_path, "work", ANTHROPIC_MODEL=value)
+    assert rc == 0, err
+    assert _model_arg(seen) == "claude-gw-tier2[1m]"
+    assert seen["context"] == "500000"
+    assert "not in any tier" not in err and "invalid model" not in err
+
+
+def test_anthropic_model_from_a_tier_the_user_may_not_use_is_ignored(
+    tmp_path: Path,
+) -> None:
+    # bob may use only tiers 2 and 3; gpt-6-astra is a tier 0 model.
+    rc, _, err, seen = _launch(
+        tmp_path,
+        "work",
+        defaults=ACCESS_BLOCK,
+        ANTHROPIC_MODEL="gpt-6-astra",
+        CODER_WORKSPACE_OWNER_NAME="bob",
+    )
+    assert rc == 0, err
+    assert _model_arg(seen) == "claude-gw-tier2[1m]"
+    assert "not in a tier available" not in err
+    # alice has every tier, so the same variable is honored for her.
+    rc, _, err, seen = _launch(
+        tmp_path,
+        "work",
+        defaults=ACCESS_BLOCK,
+        ANTHROPIC_MODEL="gpt-6-astra",
+        CODER_WORKSPACE_OWNER_NAME="alice",
+    )
+    assert rc == 0, err
+    assert _model_arg(seen) == "gpt-6-astra"
+
+
+def test_anthropic_model_is_ignored_outside_tier_mode(tmp_path: Path) -> None:
+    rc, _, err, seen = _launch(
+        tmp_path, "work", defaults=None, ANTHROPIC_MODEL="gpt-6.1-sol"
+    )
+    assert rc == 0, err
+    assert "--model" not in seen["argv"]
+
+
+def test_in_my_tiers_command_is_silent_and_exit_coded(tmp_path: Path) -> None:
+    env = _launch_env(tmp_path)
+
+    def run(model: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [sys.executable, str(SKILL_DIR / "models.py"), "in-my-tiers", model],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+    for model, code in (
+        ("gpt-6.1-sol", 0),
+        ("gpt-6.1-sol[1m]", 0),
+        ("nope", 1),
+        ("", 1),
+    ):
+        proc = run(model)
+        assert proc.returncode == code, (model, proc.stderr)
+        assert proc.stdout == "" and proc.stderr == ""

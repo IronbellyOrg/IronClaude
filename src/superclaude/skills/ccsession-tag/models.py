@@ -828,6 +828,34 @@ def _note_owner_unknown(access) -> None:
         )
 
 
+def _my_models(every, access) -> tuple:
+    """(model names, picker id -> model) of the tiers this owner may use. The
+    picker ids are what the shim shows: it names their tiers' models first, in
+    tier order, so alike names get the same -2, -3."""
+    mine = [
+        m
+        for name, tier in every.items()
+        if name in access["allowed"]
+        for _, m, _ in tier["models"]
+    ]
+    picker = {alias: m for m, alias in assign_aliases(mine).items()}
+    return mine, picker
+
+
+def in_my_tiers(model: str) -> bool:
+    """True when model (a name, a picker id, or either with [1m]) belongs to a
+    tier this owner may use. Never raises: bad input or settings are False."""
+    if not _ID.match(model):
+        return False
+    bare = model[: -len("[1m]")] if model.endswith("[1m]") else model
+    try:
+        every, access = tier_access()
+        mine, picker = _my_models(every, access)
+    except ValueError:
+        return False
+    return bare in set(mine) | set(picker)
+
+
 def main(argv) -> int:
     command = argv[1] if len(argv) > 1 else ""
     if command == "refresh":
@@ -877,15 +905,7 @@ def main(argv) -> int:
         bare = model[: -len("[1m]")] if model.endswith("[1m]") else model
         try:
             every, access = tier_access()
-            # The picker ids the shim shows this owner: it names their tiers'
-            # models first, in tier order, so alike names get the same -2, -3.
-            mine = [
-                m
-                for name, tier in every.items()
-                if name in access["allowed"]
-                for _, m, _ in tier["models"]
-            ]
-            picker = {alias: m for m, alias in assign_aliases(mine).items()}
+            mine, picker = _my_models(every, access)
             # A -2 picker id takes its own model's window, not the default.
             window, where = model_window(picker.get(bare, model))
         except ValueError as exc:
@@ -920,6 +940,9 @@ def main(argv) -> int:
         print("PROFILE_REQUIRES_SHIM=1")
         print(f"PROFILE_LABEL={model} ({where})")
         return 0
+    if command == "in-my-tiers" and len(argv) > 2:
+        # Exit 0 only for a model in a tier this owner may use; silent either way.
+        return 0 if in_my_tiers(argv[2]) else 1
     if command == "tiers":
         try:
             every, access = tier_access()
