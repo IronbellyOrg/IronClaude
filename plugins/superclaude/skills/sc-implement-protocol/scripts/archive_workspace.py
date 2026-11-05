@@ -307,11 +307,14 @@ def validate(
         raise ArchiveError("E-ARCHIVE-PACKAGE", "artifacts must be a real directory")
     # The retry evidence moves with the package: a symlinked retries folder would
     # resolve here but dangle once the package is renamed into done/.
-    retries = pkg / "artifacts" / "retries"
-    if os.path.lexists(retries) and not Loc.real_dir(retries):
-        raise ArchiveError(
-            "E-ARCHIVE-PACKAGE", "artifacts/retries must be a real directory"
-        )
+    # The FINAL reviewer reads, and the saved-prompt recovery writes into,
+    # artifacts/superseded-prompts: a symlink there would cross the package boundary.
+    for sub in ("retries", "superseded-prompts"):
+        folder = pkg / "artifacts" / sub
+        if os.path.lexists(folder) and not Loc.real_dir(folder):
+            raise ArchiveError(
+                "E-ARCHIVE-PACKAGE", f"artifacts/{sub} must be a real directory"
+            )
     plan_text = (pkg / f"{loc.id}.md").read_text(encoding="utf-8")
     fm = _front(plan_text)
     if fm.get("schema") != "workflow-plan/1.2" or fm.get("slug") != loc.id:
