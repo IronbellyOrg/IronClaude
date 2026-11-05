@@ -84,7 +84,7 @@ RULE_PHRASES = {
     "never-as-worker": (
         "**Never-as-worker list**",
         [
-            "`/sc:agent`, `/sc:git`, `/sc:help`, `/sc:pm`, `/sc:spawn` and `/sc:swarm-wizard`, "
+            "`/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn` and `/sc:swarm-wizard`, "
             "plus `/sc:pr-submit` while the answer to decision D3 keeps it off workers"
         ],
     ),
@@ -243,6 +243,7 @@ NEVER_AS_WORKER = (
     "/sc:agent",
     "/sc:git",
     "/sc:help",
+    "/sc:issue",
     "/sc:pm",
     "/sc:spawn",
     "/sc:swarm-wizard",
@@ -1293,6 +1294,110 @@ WRITE_VERB_CLASSIFICATION = {
     ): (
         "never-worker",
         "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/agents/issue-worker-t1.md",
+        "gh pr+gh api",
+        '- **Read-only GitHub access.** You make read-only `gh` calls only, always with the `--repo <R>` the orchestrator gave you (for example `gh issue view <N> --repo <R> --json body,comments` or `gh pr list --repo <R> --state merged --limit 200 --json number,files`); a `gh api` call reads the path `user` or a path that starts with `repos/<R>/`, never a brace placeholder. You never write to GitHub or ClickUp: never `gh issue edit <N> --repo <R>`, `gh issue comment <N> --repo <R>`, `gh issue create --repo <R>`, `gh label create "<name>" --repo <R>`, a `gh api` call with `-X`/`--method` other than `GET`, or any ClickUp request. The orchestrator makes every write.',
+    ): (
+        "read-only",
+        "the /sc:issue worker agents make read-only gh calls (gh issue view, gh pr list, a GET gh api); the line describes or forbids writes, it makes none",
+    ),
+    (
+        "src/superclaude/agents/issue-worker-t2.md",
+        "gh pr+gh api",
+        '- **Read-only GitHub access.** You make read-only `gh` calls only, always with the `--repo <R>` the orchestrator gave you (for example `gh issue view <N> --repo <R> --json body,comments` or `gh pr list --repo <R> --state merged --limit 200 --json number,files`); a `gh api` call reads the path `user` or a path that starts with `repos/<R>/`, never a brace placeholder. You never write to GitHub or ClickUp: never `gh issue edit <N> --repo <R>`, `gh issue comment <N> --repo <R>`, `gh issue create --repo <R>`, `gh label create "<name>" --repo <R>`, a `gh api` call with `-X`/`--method` other than `GET`, or any ClickUp request. The orchestrator makes every write.',
+    ): (
+        "read-only",
+        "the /sc:issue worker agents make read-only gh calls (gh issue view, gh pr list, a GET gh api); the line describes or forbids writes, it makes none",
+    ),
+    (
+        "src/superclaude/agents/issue-worker-t3.md",
+        "gh api",
+        '- **Read-only GitHub access.** You make read-only `gh` calls only, always with the `--repo <R>` the orchestrator gave you; a `gh api` call reads the path `user` or a path that starts with `repos/<R>/`, never a brace placeholder. You never write to GitHub or ClickUp: never `gh issue edit <N> --repo <R>`, `gh issue comment <N> --repo <R>`, `gh issue create --repo <R>`, `gh label create "<name>" --repo <R>`, a `gh api` call with `-X`/`--method` other than `GET`, or any ClickUp request. The orchestrator makes every write.',
+    ): (
+        "read-only",
+        "the /sc:issue worker agents make read-only gh calls (gh issue view, gh pr list, a GET gh api); the line describes or forbids writes, it makes none",
+    ),
+    (
+        "src/superclaude/agents/issue-worker-t3.md",
+        "gh api+gh pr",
+        '1. **Claim lookup (claim Wave 1).** Run `gh issue view <N> --repo <R> --json number,title,body,state,assignees,labels,comments,createdAt,url,author` and `gh api user -q .login`. List pull requests merged since `createdAt` with `gh pr list --repo <R> --state merged --search "merged:>=<createdAt date>" --limit 200 --json number,title,mergedAt,files,url`, and record whether the result reached the 200 limit. Run `git fetch origin`, then `git log --since=<createdAt> --name-only origin/<default branch>`. Find this user\'s earlier comments whose body contains `<!-- sc:issue:claim -->` or `<!-- sc:issue:accuracy-check -->` and record each comment ID. Write `<D>/scout.md` from the claim section of the `scout-report.md` template: state, `url`, `is_pull_request` (true when `url` contains `/pull/`), assignees, current login, earlier comment IDs, merged pull requests and changed files since creation, whether that list was truncated, and a first complexity guess (`simple|medium|complex`) and type guess (`feature|bug`), each with a one-line reason.',
+    ): (
+        "read-only",
+        "a read: gh issue view, gh pr list or a GET gh api user call",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/SKILL.md",
+        "gh api",
+        "- Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or spells `repos/<R>/...`, never a brace placeholder.",
+    ): (
+        "read-only",
+        "prose: every gh call passes --repo and every gh api path is user or repos/<R>/; it names no write",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/SKILL.md",
+        "gh api",
+        "- The orchestrator (this skill) is the only place that writes to GitHub or ClickUp: `gh issue edit <N> --repo <R> --add-assignee @me`, `gh issue comment <N> --repo <R> --body-file <file>`, `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<file>`, `gh issue create --repo <R> ...` and `scripts/clickup_claim.py`. Workers never write to either.",
+    ): (
+        "never-worker",
+        "/sc:issue is on the never-as-worker list; its assign, comment and issue writes run only in the coordinator or person session",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/SKILL.md",
+        "gh api",
+        "| `gh issue comment <N> --repo <R>` or the `gh api -X PATCH repos/<R>/issues/comments/<id>` edit fails | STOP `E-POST-FAILED`; files stay in `.dev/issues/<N>/`; a re-run edits rather than duplicates because of the markers |",
+    ): (
+        "never-worker",
+        "/sc:issue is on the never-as-worker list; its assign, comment and issue writes run only in the coordinator or person session",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/refs/claim.md",
+        "gh api",
+        "- runs `gh issue view <N> --repo <R> --json number,title,body,state,assignees,labels,comments,createdAt,url,author` and `gh api user -q .login`;",
+    ): (
+        "read-only",
+        "a read: gh issue view, gh pr list or a GET gh api user call",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/refs/claim.md",
+        "gh api",
+        "2. Claim comment: write `<D>/claim-comment.md` from `templates/claim-comment.md`: who claimed it, the ClickUp result from `clickup.json`, the summary overview, effort estimate, complexity, accuracy verdict, the first next step, and repo-relative links to `<D>/issue-summary.md`, `<D>/next-steps.md` and `<D>/analysis/` with the one-line note that they open on GitHub only after someone commits and pushes the files (default D9). It ends with `<!-- sc:issue:claim -->`. Edit the earlier claim comment with `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<D>/claim-comment.md`, or post it with `gh issue comment <N> --repo <R> --body-file <D>/claim-comment.md`.",
+    ): (
+        "never-worker",
+        "/sc:issue is on the never-as-worker list; its assign, comment and issue writes run only in the coordinator or person session",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/refs/claim.md",
+        "gh api",
+        "Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or starts with `repos/<R>/`, never a brace placeholder. Only the orchestrator writes to GitHub or ClickUp.",
+    ): (
+        "read-only",
+        "prose: every gh call passes --repo and every gh api path is user or repos/<R>/; it names no write",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/refs/claim.md",
+        "gh api",
+        "`gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<D>/accuracy-check.md`",
+    ): (
+        "never-worker",
+        "/sc:issue is on the never-as-worker list; its assign, comment and issue writes run only in the coordinator or person session",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/refs/claim.md",
+        "gh pr",
+        '- lists pull requests merged since `createdAt` with `gh pr list --repo <R> --state merged --search "merged:>=<createdAt date>" --limit 200 --json number,title,mergedAt,files,url` (gh\'s default limit is 30) and records in `scout.md` whether the result reached the 200 limit;',
+    ): (
+        "read-only",
+        "a read: gh issue view, gh pr list or a GET gh api user call",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/refs/create.md",
+        "gh api",
+        "Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or starts with `repos/<R>/`, never a brace placeholder. Only the orchestrator writes to GitHub. Create mode makes no ClickUp call and no self-assignment (B6).",
+    ): (
+        "read-only",
+        "prose: every gh call passes --repo and every gh api path is user or repos/<R>/; it names no write",
     ),
 }
 
