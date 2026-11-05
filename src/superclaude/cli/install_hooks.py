@@ -79,6 +79,10 @@ _FRESHNESS_SCRIPTS = [
     # SessionStart (startup) hook: starts one detached `codegraph init --yes` in a
     # git checkout that has no .codegraph/codegraph.db. Fail-open, silent, exit 0.
     "codegraph-session-start.sh",
+    # PreToolUse(Bash) UV-only gate (issue #357): blocks a command that runs bare
+    # python/python3/pip/pip3 with exit 2 and a message naming `uv run python`
+    # and `jq`; fails open (exit 0) on anything it cannot judge, including no jq.
+    "block-bare-python.sh",
 ]
 _LEGACY_SCRIPTS = ["session-init.sh"]
 

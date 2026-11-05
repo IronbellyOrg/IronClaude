@@ -1,0 +1,5 @@
+docs/getting-started/installation.md:1 MD041/first-line-heading/first-line-h1 First line in a file should be a top-level heading [Context: "<div align="center">"]
+docs/getting-started/installation.md:5 MD001/heading-increment Heading levels should only increment by one level at a time [Expected: h2; Actual: h3]
+(node:1607974) [DEP0176] DeprecationWarning: fs.R_OK is deprecated, use fs.constants.R_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+rc=1

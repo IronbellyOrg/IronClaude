@@ -1,0 +1,20 @@
+--- a/docs/guides/roadmap-cli-tools-release-guide.md
++++ b/docs/guides/roadmap-cli-tools-release-guide.md
+@@ -131,7 +131,7 @@
+ | Option | Type | Default | Description |
+ |--------|------|---------|-------------|
+ | `--agents` | String | `opus:architect,sonnet:architect` | Comma-separated agent specs in `model[:persona]` format. Controls which models/personas generate the two roadmap variants. |
+-| `--output` | Path | Parent dir of the spec file | Output directory for all pipeline artifacts. Created automatically if it doesn't exist. |
++| `--output` | Path | Parent dir of the first input file | Output directory for all pipeline artifacts. Created automatically if it doesn't exist. The default is the folder of the first file you list, whatever its type (`--help` calls it the spec file). |
+ | `--depth` | Choice | `standard` | Debate round depth: `quick` (1 round), `standard` (2 rounds), `deep` (3 rounds). |
+ | `--resume` | Flag | Off | Skip steps whose outputs already pass their gates. Re-run from the first failing step. Detects stale spec files via SHA-256 hash comparison. |
+ | `--dry-run` | Flag | Off | Print step plan, gate criteria, and timeout budgets, then exit without launching any subprocesses. |
+@@ -360,7 +360,7 @@
+ 
+ ### Output artifacts
+ 
+-All artifacts are written to the output directory (default: parent directory of the spec file).
++All artifacts are written to the output directory (default: parent directory of the first input file).
+ 
+ | Artifact | Source Step | Description |
+ |----------|------------|-------------|

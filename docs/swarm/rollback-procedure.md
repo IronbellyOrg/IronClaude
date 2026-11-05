@@ -29,25 +29,30 @@ The M8/M9 corrective migration
   caller** over `superclaude swarm run --lens bare-review` (previously 231
   lines of inline orchestration). Landed by commit `2355bfe1`
   (`feat(sc-bare-review): WS-A thin-caller SKILL.md (231→80) + PG3 gate pass`).
-- The legacy shell-dispatch implementation is **being retired** by the M8/M9
-  migration. The deletions of the following files are part of this migration's
-  WS-C work; once the migration commits land they are removed from the working
-  tree:
+- The legacy shell-dispatch implementation was **retired** by the M8/M9
+  migration. Its WS-C work removed the following files, and they are absent at
+  v5.0.0:
   - `src/superclaude/skills/sc-bare-review/scripts/t2_preflight.sh`
   - `src/superclaude/skills/sc-bare-review/scripts/t2_dispatch.sh`
   - `src/superclaude/skills/sc-bare-review/scripts/t2_normalize.py`
   - `src/superclaude/skills/sc-bare-review/refs/prompts.md`
   - `src/superclaude/skills/sc-bare-review/refs/output-template.md`
 
-**Git reality (important for recovery):** these files were **NOT** deleted by an
-earlier commit. They are present **in full** at commit `2355bfe1` — the current
-`feat/sc-bare-review-m8m9-migration` HEAD, i.e. the state **before** this M8/M9
-migration commits its `git rm` deletions. Their removal is carried by the
-migration commit(s) themselves. To recover the legacy path you therefore restore
-from `2355bfe1` (the commit just before the deletion lands), not from any
-pre-existing commit. The exact migration/deletion SHA is found at recovery time
-with `git log --oneline -- src/superclaude/skills/sc-bare-review/scripts/` (the
-first commit showing the deletion) — see options A and B below.
+**Git reality (important for recovery):** the migration branch was squash-merged
+into `master` as commit `85ba37f9` (PR #178, 2026-06-17), and that one commit
+removed the files. The branch commits named in this document (`2355bfe1`,
+`93f613de`, `e89e40ce`) were written before the squash merge and are not in the
+v5.0.0 history. On `master` and v5.0.0, the files (and the 231-line
+`SKILL.md`) are present in full at `85ba37f9^`, the parent of the deletion
+commit. `git log --oneline -- src/superclaude/skills/sc-bare-review/scripts/`
+lists the deletion commit. On `master`, translate the branch SHAs in options A
+and B below as follows:
+
+- Restore source (option B): where a command names `2355bfe1`, use
+  `85ba37f9^`.
+- Revert target (option A): `git revert --no-edit 85ba37f9` reverts the whole
+  squash, which restores the legacy files **and** the 231-line `SKILL.md`, so
+  the extra `2355bfe1` steps in the option A caveat do not apply on `master`.
 
 ## Rollback trigger conditions
 

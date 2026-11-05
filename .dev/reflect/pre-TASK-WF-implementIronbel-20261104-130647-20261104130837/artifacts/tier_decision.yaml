@@ -1,0 +1,16 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 1
+  blast_radius: 2
+  spec_density: 1
+  ambiguity_signals: 1
+signals:
+  S_scope: 7
+  S_domains: 4   # code (hook script, install_hooks.py), config (hooks.json x2), tests, docs (CHANGELOG, read-parse.md)
+  S_dev_density: 0.25
+escalation_reason: "coverage_degraded=parsed-sparse table-wide pre-filter forbids T1 stop; first matching rule is 4 (S_domains >= 3); rule 5 (S_dev_density 0.25 > 0.20) also holds"

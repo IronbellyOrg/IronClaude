@@ -1,0 +1,153 @@
+# Using codegraph
+
+codegraph is the code-graph server that IronClaude 5.0.0 installs by default. This page covers what it does for you while you work, how each checkout gets its index, the two commands that expose it (`/sc:graph` and `/sc:impact`), the two switches, and what to check when it does not answer. For installing and removing codegraph itself, see the [MCP installation guide](mcp-installation.md#default-setup-codegraph).
+
+## What codegraph does for you
+
+codegraph keeps a read-only graph of the current git checkout: symbols, who calls what, file outlines and the impact of a change. It answers questions such as "where is `parse_config` defined", "who calls it" and "what does changing it reach" without reading every file.
+
+- IronClaude commands, skills and agents ask codegraph first and keep their normal Grep/Read search as the fallback. When codegraph is missing, switched off, not indexed or out of date, they use Grep/Read and carry on; nothing stops a run.
+- A codegraph answer only locates code. Commands Read the file before they quote a line from it, and never conclude "no callers", "no dependents" or "no tests" from an empty graph answer.
+- Markdown files, files over 1 MB, git-ignored files and dependency folders are not indexed.
+
+Source: `src/superclaude/core/CODEGRAPH.md` lines 7, 11-34, 66-70; `CHANGELOG.md` lines 84-87.
+
+## Install and removal
+
+`superclaude install` (and so `./update.sh` from a clone) installs a pinned, checksum-verified codegraph 1.6.2 and registers it as a user-level MCP server; there is nothing extra to install. Restart your Claude sessions after an install so they load it. To remove it, follow [Removing codegraph](mcp-installation.md#removing-codegraph) in the MCP installation guide.
+
+Source: `CHANGELOG.md` lines 91-94; `src/superclaude/cli/install_mcp.py` lines 962-966.
+
+## Indexing: one index per checkout
+
+Each git checkout (a clone, a worktree, a new project) has its own index in `<checkout>/.codegraph/`.
+
+- **Automatic on the first session.** A `SessionStart` hook (matcher `startup`, so it runs when a session starts, not on resume or `/clear`) looks for `<top>/.codegraph/codegraph.db`, where `<top>` is the git top-level of the project. When that file is absent, it starts one background `codegraph init --yes <top>` and returns at once; your session does not wait.
+- **When it does nothing.** The hook exits without indexing when `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` is set, when no codegraph binary is found (the path IronClaude recorded in `~/.codegraph/.superclaude-bin`, else `codegraph` on `PATH`), when the folder is not in git, when the top-level is your home folder or `/`, or when `.codegraph/codegraph.db` already exists in any state.
+- **Progress log.** `${XDG_STATE_HOME:-~/.local/state}/superclaude/codegraph-init.log`.
+- **Cost.** About 70 KB of disk per indexed file, and up to about 1 GB of memory during the first init.
+- **First minute.** In a checkout indexed for the first time, answers can be missing or incomplete until the init finishes; ask again afterwards.
+- **Turning it off.** Set `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` in your environment (or in the `env` block of `~/.claude/settings.json`). This is recommended for CI and headless pipelines, because `claude -p` also starts a `startup` session. Then index by hand with `/sc:graph init` when you want an index.
+
+Source: `src/superclaude/hooks/hooks.json` lines 23-31; `src/superclaude/hooks/scripts/codegraph-session-start.sh` lines 11-31; `CHANGELOG.md` line 93; `src/superclaude/core/CLAUDE.md` (codegraph block).
+
+## Check the index: `/sc:graph`
+
+```text
+/sc:graph                                 # status (the default): readiness report
+/sc:graph status --output-dir .dev/graph  # also write return-contract.yaml
+/sc:graph init                            # index this worktree by hand
+/sc:graph init --worktree-local           # nested worktree: build its own index
+```
+
+### The status report
+
+`/sc:graph` (or `/sc:graph status`) prints eight lines in this order:
+
+1. `codegraph <version> (pin <pin>: match|MISMATCH|unknown)`: the installed version against the pinned 1.6.2.
+2. `index: <state> (<relation>), checked <time>`: the index state (`fresh`, `stale`, `not_initialized`, `foreign_index`, `absent`, `disabled` or `error`) and whose index answers (`own`, `parent`, `none` or `unknown`).
+3. `access: <mcp|cli|none>; MCP lookup tools listed: yes|no`.
+4. `counts: <files> files, <nodes> nodes, <edges> edges`.
+5. `pending: <n|unknown>`: changed files the index has not caught up with.
+6. `telemetry: <on|off|unknown> — opt out: ...`: to opt out, add `export CODEGRAPH_TELEMETRY=0` (or `export DO_NOT_TRACK=1`) to your shell profile. `/sc:graph` never changes this setting.
+7. The switch that turns off codegraph in commands: `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off`.
+8. `next: <what to do>`.
+
+### What the `next:` line tells you
+
+| Situation | `next:` says | What to do |
+|---|---|---|
+| `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` is set | codegraph use is switched off | Unset the variable to use the graph again. |
+| No codegraph binary and no MCP tool | codegraph is not installed; run `./update.sh` | Rerun the installer: `./update.sh` from a clone, or `superclaude install` from a pipx install. |
+| Only the status tool is registered | lookups use the CLI or Read/Grep | Nothing; commands still work on the fallback. |
+| This worktree has no index | type `/sc:graph init` | Type `/sc:graph init`. |
+| A nested worktree answers from its parent's index | type `/sc:graph init --worktree-local` | Type `/sc:graph init --worktree-local` from that worktree's top folder. |
+| The installed version differs from the pin | run `./update.sh` | Rerun the installer as above; its codegraph phase runs on every `superclaude install`, with or without `--force`. |
+| An init is running, or files are pending | wait | Wait for the init to finish, then run `/sc:graph status` again; pending files are synced while a Claude session with codegraph is open. |
+| codegraph returned an error | the first error line | Read the error; see Troubleshooting below. |
+| Everything is ready | index ready | Nothing. |
+
+### Building the index by hand: `/sc:graph init`
+
+The session-start hook normally indexes each new checkout. Type `/sc:graph init` only when it did not: a nested worktree that answers from its parent's index, the hook switched off with `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0`, or an init that failed or was interrupted.
+
+- It runs only when your own message starts with `/sc:graph init`. No skill, agent or other command ever runs it.
+- It runs once, with a 600-second time limit, then re-checks the index and reports `success`, `partial` or `failed`.
+- It refuses to run, and says why, in these cases:
+  - `already_initialized`: this worktree already has its own index (rebuilding is not offered);
+  - `init_running`: another init or index is running, usually the session-start hook; wait and run `/sc:graph status`;
+  - `nested_worktree`: this nested worktree answers from its parent's index; use `/sc:graph init --worktree-local`;
+  - also `disabled`, `absent`, `worktree_local_not_nested`, `status_error`, and `cwd_mismatch` (for `--worktree-local`, run it from the worktree's top folder).
+
+Source: `src/superclaude/commands/graph.md` lines 14, 20-53; `src/superclaude/skills/sc-graph-protocol/SKILL.md` lines 43, 48, 50-82, 108, 142-151.
+
+## See what a change reaches: `/sc:impact`
+
+Before you change a symbol, `/sc:impact` lists its definition and its production and test dependents (direct callers plus transitive impact), checks the call sites of the rows it shows, and can add an advisory list of tests.
+
+```text
+/sc:impact parse_config                         # dependents of one symbol
+/sc:impact load_spec write_report --depth 3     # several symbols, three hops
+/sc:impact --diff                               # symbols changed in the working tree vs HEAD
+/sc:impact --diff origin/master --tests         # symbols a branch changed, plus advisory tests
+```
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `<symbol>...` | none | 1-30 bare names (no `Class.method`, no path). Use either symbols or `--diff`, never both. |
+| `--diff [<base>]` | `HEAD` | Find the symbols touched by `git diff` (or by `git diff --merge-base <base>`). |
+| `--depth` | `2` | Transitive depth, 1-3. |
+| `--limit` | `20` | Caller rows per symbol, 1-100. |
+| `--tests` | off | Add an advisory test list. It can add tests to a selection, never remove any. |
+| `--test-depth` | codegraph's own | 1-5, only with `--tests`. |
+| `--output-dir` | `<worktree>/.dev/impact/<slug>-<timestamp>/` | Where the two output files go; never inside `.git/` or `.codegraph/`. |
+| `--caller` | unset | Name of a calling skill; shortens the chat output to three lines. |
+
+What you get:
+
+- `impact.md`, the report for you, and `return-contract.yaml`, a short machine-readable summary that other commands read.
+- Every dependent row carries a label: `call-site-verified` (the call was found and Read in the caller), `def-line` (the row points at the caller's definition line, not the call itself) or `unresolved` (the call site could not be confirmed).
+- Every list shows `shown/total`, and the report says when a list was cut.
+- An empty list never means "no dependents": the report says "no dependents found in the index", never "none exist".
+- When codegraph, the switch, the index or its lookup tools are not usable, it falls back to Grep, keeps going and reports `status: partial`.
+
+`/sc:impact` never edits code, runs tests, or builds, syncs or removes an index.
+
+Source: `src/superclaude/commands/impact.md` lines 13, 20-38, 47-64; `src/superclaude/skills/sc-impact-protocol/SKILL.md` lines 48, 100-103, 175.
+
+## Which commands use codegraph
+
+- **Ask codegraph first, Grep/Read as fallback:** `/sc:troubleshoot`, `/sc:reflect`, `/sc:validate-roadmap`, `/sc:brainstorm`, `/sc:cleanup-audit`, `/sc:auggie-review`, `/sc:task`, `/sc:tasklist`, and the agents `auggie-reviewer`, `reflect-reviewer`, `reuse-auditor` and `troubleshoot-analyst`.
+- **`/sc:explain`:** for a code target, adds a one-hop view of the symbol's direct callers and callees.
+- **Call `/sc:impact` for context only:** `/sc:implement`, `/sc:pr-submit`, `/sc:troubleshoot --fix`, `/sc:auggie-review`, `/sc:task` (STRICT tier) and `/sc:reflect`. The impact report adds warnings and references; it never changes a gate, severity or verdict.
+- **`/sc:load`:** ends its summary by telling you to type `/sc:graph status`; it never runs `/sc:graph` itself.
+
+Source: `CHANGELOG.md` lines 84-86; `src/superclaude/commands/explain.md` line 51; `src/superclaude/commands/load.md` line 53.
+
+## Switches
+
+| Variable | What it turns off | What it leaves alone |
+|---|---|---|
+| `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` | codegraph use in IronClaude commands, skills and agents (they use Grep/Read only; `/sc:graph` reports `disabled`) | The session-start hook and the MCP registration |
+| `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` | The session-start index hook only | Commands, skills, agents and the MCP registration |
+
+Neither switch removes or changes the codegraph MCP registration; to remove it, see [Removing codegraph](mcp-installation.md#removing-codegraph).
+
+Source: `src/superclaude/core/CODEGRAPH.md` lines 11, 26; `CHANGELOG.md` line 87.
+
+## Troubleshooting
+
+- **`/sc:graph init` fails because `codegraph` is not found.** It runs the bare `codegraph` command, so codegraph must be on your `PATH`. The installer links `~/.local/bin/codegraph`, and warns when the `codegraph` on your `PATH` is missing or is not the one it registered; add `~/.local/bin` to `PATH`.
+- **The codegraph tools do not appear in a session.** Restart Claude sessions after `superclaude install`; a session loads MCP servers only when it starts.
+- **Check the installation.** Run `superclaude doctor --verbose`: its "codegraph MCP registration" check fails only when the registered command is no longer an executable file (then rerun `superclaude install`). Run `superclaude install --list` to see the codegraph block: executable, owner, registration and `Ready for Serena retirement`.
+- **Answers are missing right after a new checkout.** The first init may still be running; see the progress log above, wait, and run `/sc:graph status`.
+- **Do not run `codegraph status`, `codegraph index` or `codegraph sync` by hand while an init is running** (`pgrep -f 'codegraph\.js (init|index)'` prints a line): they can empty the index. An interrupted index is repaired by the codegraph MCP server on its next connection.
+- **`.codegraph/` shows up in `git status`.** Add `.codegraph/` to your global git ignore file; see [Indexing](mcp-installation.md#indexing-one-index-per-checkout) in the MCP installation guide.
+
+Source: `src/superclaude/commands/graph.md` line 9; `src/superclaude/cli/install_codegraph.py` lines 67-68, 155-163; `src/superclaude/cli/install_mcp.py` lines 962-966; `src/superclaude/cli/doctor.py` lines 146-174; `CHANGELOG.md` line 94; `src/superclaude/core/CLAUDE.md` (codegraph block).
+
+## See also
+
+- [MCP installation guide: Default setup: codegraph](mcp-installation.md#default-setup-codegraph)
+- [MCP servers](mcp-servers.md)
+- [Commands reference](commands.md): `/sc:graph` and `/sc:impact`

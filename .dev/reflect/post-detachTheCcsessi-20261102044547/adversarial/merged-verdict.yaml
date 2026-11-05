@@ -1,0 +1,13 @@
+merge_method: adversarial
+merged_output_path: adversarial/merged-output.md
+convergence_score: 0.94
+base_variant: reviewer-2 (qa, haiku alias glm-5.3)
+reviewer_cards: [reviewer-cards/reviewer-1-card.md, reviewer-cards/reviewer-2-card.md]
+calibrated_confidence: {reviewer-1: 0.75, reviewer-2: 0.76}
+ac_audited: 13
+ac_met: 13
+deviation_count_by_class: {authorized: 0, necessary: 3, drift: 2, regression: 0}
+drift_severity: [LOW, LOW]
+regression_present: false
+unresolved_conflicts: [C-004]
+invariant_gate: {high_unaddressed: 0, medium_unaddressed: [INV-001, INV-002-residual]}

@@ -1,0 +1,126 @@
+# File-Based Session Memory (Design Note)
+
+This note explains how IronClaude 5.0.0 keeps session memory in plain markdown files under `<project>/.superclaude/memory/`, which commands, agents and skills read and write it, and how the one-release fallback to the old Serena memory folder works. It is for maintainers who change `/sc:save`, `/sc:load`, `/sc:pm`, the PM agent or a skill that uses the store. Every claim cites the code at tag v5.0.0; line numbers are from that tag.
+
+For the user-facing view, see [Session management](../user-guide/session-management.md). For the separate error-learning store under `docs/memory/`, see [Memory system](../user-guide/memory-system.md).
+
+## Contents
+
+1. [Parts and files](#parts-and-files)
+2. [Store layout](#store-layout)
+3. [Keys and write rules](#keys-and-write-rules)
+4. [Who reads and writes the store](#who-reads-and-writes-the-store)
+5. [Legacy fallback: `.serena/memories/`](#legacy-fallback-serenamemories)
+6. [Why files and not an MCP server](#why-files-and-not-an-mcp-server)
+7. [Stores this is not](#stores-this-is-not)
+8. [Changing the store](#changing-the-store)
+
+## Parts and files
+
+There is no Python or shell code behind the store. It is a set of instructions in command, agent and skill files, which Claude follows with its Read, Write and Glob tools. Because the behaviour is prompt-driven, the wording and file contents a session produces can vary between runs.
+
+| Part | File |
+|---|---|
+| Save command | `src/superclaude/commands/save.md` (section "Memory Store", lines 40-46) |
+| Load command and legacy fallback | `src/superclaude/commands/load.md` (section "Memory Store", lines 40-45) |
+| PM command | `src/superclaude/commands/pm.md` |
+| PM agent | `src/superclaude/agents/pm-agent.md` (section "Session Lifecycle", lines 19-35) |
+| PM protocol skill | `src/superclaude/skills/sc-pm-protocol/SKILL.md` (lines 21-54) |
+| Other skills that use the store | `sc-task-protocol`, `sc-reflect-protocol`, `sc-validate-roadmap-protocol`, `sc-crash-recovery` (see [Who reads and writes the store](#who-reads-and-writes-the-store)) |
+| Routing guide rows | `src/superclaude/core/HOW-WE-WORK.md:237,329,331` |
+
+## Store layout
+
+- **Location.** Each memory is `<project>/.superclaude/memory/<key>.md`, flat markdown, with subfolders allowed for topics (`save.md:42`, `load.md:42`, `pm-agent.md:21`).
+- **Project root.** `<project>` is the git top-level of the current directory (`git rev-parse --show-toplevel`), or the current directory when it is not inside git (`save.md:42`).
+- **One store per worktree.** `git rev-parse --show-toplevel` returns the root of the worktree you are in, so each git worktree of the same repository has its own `.superclaude/memory/` and does not see the others' memories (`save.md:42`, `load.md:42`).
+- **Kept out of git.** On the first write, if `<project>/.superclaude/.gitignore` is absent, the writer creates it with the single line `*` (`save.md:43`, `pm-agent.md:21`). The whole `.superclaude/` folder, including the `.gitignore` itself, is then ignored. The skills that write their own subfolders repeat this rule before writing (`sc-task-protocol/SKILL.md:319`, `sc-reflect-protocol/SKILL.md:329`, `sc-validate-roadmap-protocol/SKILL.md:129`).
+
+Example layout after a few sessions:
+
+```text
+<project>/.superclaude/
+├── .gitignore                          # contains the single line: *
+└── memory/
+    ├── pm_context.md                   # single-owner, overwritten
+    ├── last_session.md                 # single-owner, overwritten
+    ├── next_actions.md                 # single-owner, overwritten
+    ├── checkpoint-20261102-1430.md     # parallel key, written once
+    ├── learning/patterns/<name>.md     # PM protocol topic subfolder
+    ├── reflect/last-pass-<slug>.md     # /sc:reflect subfolder
+    └── validate-roadmap/<key>.md       # /sc:validate-roadmap subfolder
+```
+
+## Keys and write rules
+
+The rules exist so that several sessions in one worktree can write without overwriting each other's work.
+
+| Kind | Keys | Rule | Source |
+|---|---|---|---|
+| Single-owner | `pm_context`, `last_session`, `next_actions` | Overwritten whole on each save | `save.md:44` |
+| Single-owner (PM only) | `current_plan` | Overwritten whole; listed by the PM agent and PM protocol, not by `/sc:save` | `pm-agent.md:21`, `sc-pm-protocol/SKILL.md:23` |
+| Parallel | `checkpoint`, `decision`, handoffs | Written as `<key>-<session-or-timestamp>.md` and never edited in place | `save.md:45`, `pm-agent.md:21` |
+
+Subfolder keys follow the same split. For example, `/sc:reflect` overwrites `reflect/last-pass-{slug}.md` whole and writes `reflect/handoff-{slug}-{timestamp}.md` once (`sc-reflect-protocol/SKILL.md:539-541`); `/sc:validate-roadmap` treats its four keys as single-owner (`sc-validate-roadmap-protocol/SKILL.md:981`).
+
+## Who reads and writes the store
+
+### `/sc:save`
+
+Usage: `/sc:save [--type session|learnings|context|all] [--summarize] [--checkpoint]` (`save.md:22`). It lists existing memories with Glob `.superclaude/memory/**/*.md`, then writes the session's discoveries and context as memory files (`save.md:28,50-52`).
+
+### `/sc:load`
+
+Usage: `/sc:load [target] [--type project|config|deps|checkpoint] [--refresh] [--analyze]` (`load.md:22`). It resolves the project root, lists memories with Glob and reads `.superclaude/memory/<key>.md` (`load.md:27,49-50`). It ends its summary with one line telling the user to type `/sc:graph status`; it never runs `/sc:graph` itself and never waits on the code-graph index (`load.md:53`).
+
+The routing guide states the limits of both commands: they store and load project memory, and they are not a way to resume work or a guarantee of complete executor state (`HOW-WE-WORK.md:237,329,331`). `tests/core/test_how_we_work_routing_table.py:1064-1078` pins that wording, including `.superclaude/memory/` and "needs no MCP server".
+
+### `/sc:pm` and the PM agent
+
+`/sc:pm` loads the `sc:pm-protocol` skill before acting (`pm.md:51-52`). The PM agent and the protocol both describe the same lifecycle:
+
+- **Start:** Glob `.superclaude/memory/**/*.md`, then Read `pm_context.md`, `current_plan.md`, `last_session.md` and `next_actions.md` (`pm-agent.md:30-35`, `sc-pm-protocol/SKILL.md:28-32`).
+- **During work:** write the goal to `current_plan.md` and progress to `checkpoint-<timestamp>.md` (`pm-agent.md:54,67`, `sc-pm-protocol/SKILL.md:45-46`).
+- **End:** write `last_session.md`, `next_actions.md` and `pm_context.md` (`sc-pm-protocol/SKILL.md:52-54`).
+- **Learning files:** solutions, patterns and mistakes go under `learning/solutions/`, `learning/patterns/` and `learning/mistakes/` (`sc-pm-protocol/SKILL.md:115,159,168`); the general key pattern `[category]/[subcategory]/[identifier]` maps to `.superclaude/memory/[category]/[subcategory]/[identifier].md` (`sc-pm-protocol/SKILL.md:132`).
+
+`pm.md:12` and `pm.md:16` describe the PM agent as always active and restoring context at every session start. No hook does this: none of the SessionStart hooks in `src/superclaude/hooks/hooks.json:3-43` reads `.superclaude/memory/`, and `src/superclaude/scripts/session-init.sh` (the first SessionStart hook) does not mention memory. The restore happens only when the PM agent or the `sc:pm-protocol` skill is loaded into the session and Claude follows its instructions.
+
+### Other skills
+
+| Skill | Use of the store | Source |
+|---|---|---|
+| `sc-task-protocol` | Reads relevant memories before work; saves session state to `task/session-<timestamp>.md` | `sc-task-protocol/SKILL.md:90,304,319` |
+| `sc-reflect-protocol` | Reads and writes `reflect/` files; the `--remediate` MDTM route writes a handoff file whose key task-builder reads | `sc-reflect-protocol/SKILL.md:259,329-331,537-547` |
+| `sc-validate-roadmap-protocol` | Reads and writes ledger, terminology and pattern files under `validate-roadmap/`; every read and write is fail-open | `sc-validate-roadmap-protocol/SKILL.md:128-129,137,979-981` |
+| `sc-crash-recovery` | Counts memory files and spawns a project-memory investigator only when the store has files | `sc-crash-recovery/SKILL.md:62,79`, `sc-crash-recovery/scripts/bootstrap_scan.sh:153-154` |
+
+## Legacy fallback: `.serena/memories/`
+
+Before 5.0.0, `/sc:save`, `/sc:load` and `/sc:pm` kept memories through the Serena MCP server in `<project>/.serena/memories/` (`docs/releases/v5.0.0.md:154,196`). For one release only:
+
+- `/sc:load` reads `.serena/memories/<key>.md` only when `.superclaude/memory/<key>.md` is absent (`load.md:43`).
+- It never writes to `.serena/memories/` and tells the user that folder is read-only history (`load.md:43`).
+- Only `/sc:load` has this fallback. `/sc:save`, `/sc:pm`, the PM agent and the skills never read or write `.serena/` (no other file under `src/superclaude/` mentions `.serena/memories`).
+- Users are told to copy the files they want to keep into `.superclaude/memory/` (`docs/releases/v5.0.0.md:154`). The release notes list the fallback as a compatibility note and say it ends in the next release (`docs/releases/v5.0.0.md:167,173,198`).
+
+## Why files and not an MCP server
+
+5.0.0 removed Serena and codebase-memory-mcp (Breaking Change 1, `docs/releases/v5.0.0.md:194-198`). Memory moved to plain files so that it needs no MCP server: `save.md:6` and `load.md:6` declare `mcp-servers: []`. Plain files also make the store easy to inspect, copy between worktrees by hand, or delete.
+
+## Stores this is not
+
+Two other "memory" folders exist. Keep them apart when you change any of the three.
+
+| Store | Location | Written by | Source |
+|---|---|---|---|
+| Session memory (this note) | `<project>/.superclaude/memory/` | `/sc:save`, `/sc:pm`, PM agent, the skills above | `save.md:42` |
+| Reflexion error-learning | `docs/memory/solutions_learned.jsonl` under the current directory (or `REFLEXION_OUTPUT_DIR`), plus a sibling `docs/mistakes/` | `ReflexionPattern` in Python | `src/superclaude/pm_agent/reflexion.py:14-17,65-77` |
+| Claude Code auto memory | `~/.claude/projects/<key>/memory/` | Claude Code itself; the freshness SessionStart hook prints a short index of it | `src/superclaude/hooks/scripts/freshness-session-start.sh:60-62` |
+
+## Changing the store
+
+1. Change the rule in every file that states it, not just one: `commands/save.md`, `commands/load.md`, `agents/pm-agent.md`, `skills/sc-pm-protocol/SKILL.md`, and any skill above that repeats the location or the `.gitignore` rule.
+2. If the change touches `HOW-WE-WORK.md` lines 237, 329 or 331, run `uv run pytest tests/core/test_how_we_work_routing_table.py -v`.
+3. Run `make sync-dev` and then `make verify-sync`. Stage only the `src/superclaude/` side, never `.claude/`.
+4. When the next release removes the `.serena/memories/` fallback, delete the "Legacy fallback" line in `load.md:43` and update the user guide section "Upgrading from Serena memory (5.0.0)" in `docs/user-guide/session-management.md`.

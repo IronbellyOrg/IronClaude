@@ -8,13 +8,14 @@ SuperClaude keeps project memory (decisions, patterns, and notes) across Claude 
 
 **Purpose**: Initialize session with project context and persistent memory from previous sessions  
 **Storage**: Reads the markdown files in `.superclaude/memory/`  
-**Syntax**: `/sc:load [project_path]`
+**Syntax**: `/sc:load [target] [--type project|config|deps|checkpoint] [--refresh] [--analyze]`
 
 **What Happens**:
 
 - The memory files from previous sessions are read
 - Project context is restored from stored memories
 - Previous decisions and patterns are loaded as notes (task and plan progress is not; see [Resuming Existing Work](#resuming-existing-work-cross-conversation))
+- It ends by pointing you to `/sc:graph status`, which reports whether this worktree's code-graph index is ready; `/sc:load` does not run it for you
 
 **Use Cases**:
 
@@ -28,6 +29,17 @@ SuperClaude keeps project memory (decisions, patterns, and notes) across Claude 
 # Initialize with codebase analysis and previous insights
 /sc:load . --analyze
 ```
+
+### Upgrading from Serena memory (5.0.0)
+
+Before 5.0.0, `/sc:save`, `/sc:load` and `/sc:pm` kept memories through Serena in `<project>/.serena/memories/`. 5.0.0 removes Serena and keeps memory in `<project>/.superclaude/memory/`. To keep your old memories, copy them across from the project root:
+
+```bash
+mkdir -p .superclaude/memory
+cp -Rn .serena/memories/. .superclaude/memory/
+```
+
+For 5.0.0 only, `/sc:load` still reads `.serena/memories/<key>.md` when `.superclaude/memory/<key>.md` is absent. It never writes there and tells you that folder is read-only history. This fallback ends in the next release, so copy the files now. The next `/sc:save` creates `<project>/.superclaude/.gitignore` if it is missing; until then, the copied files are not ignored by git.
 
 ### `/sc:save` - Session Persistence to Memory
 
@@ -107,7 +119,7 @@ The command takes no description argument. It decides what to record from the cu
 
 To pick up work in a new conversation, use section 3.12 ("Resume after a crash or a lost session") of the routing guide, [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md#312-resume-after-a-crash-or-a-lost-session), which `superclaude install` copies to `~/.claude/HOW-WE-WORK.md`. It gives two ways:
 
-1. **Reopen the conversation.** This only works if the conversation had a name before you lost it: start it with `ccsession <name>`, or inside Claude Code run `/rename <name>` and send one more message (or quit) so ccsession records it. Later, from a terminal in any worktree or copy of the same repo (outside git, the same folder), run `ccsession <name>` (quote a name with spaces). `ccsession --here` lists the names for this repo. `~/.local/bin` must be on your `PATH`.
+1. **Reopen the conversation.** This only works if the conversation had a name before you lost it: start it with `ccsession <name>`, or inside Claude Code run `/rename <name>` and send one more message (or quit) so ccsession records it. Later, from a terminal in any worktree or copy of the same repo (outside git, the same folder), run `ccsession <name>` (quote a name with spaces). `ccsession --here` lists the names for this worktree (and for removed ones); `ccsession --here --all` lists every worktree's. `~/.local/bin` must be on your `PATH`.
 2. **Rerun the same command on the work's own files.** This always works: `/task <path to the task file>` for a task file, or `/sc:implement .dev/tasks/to-do/<id>/<id>.md` for a plan.
 
 `/sc:load` restores project memory from the `.superclaude/memory/` files, which helps Claude remember project decisions, but it does not resume a task or a plan.
@@ -122,17 +134,18 @@ To pick up work in a new conversation, use section 3.12 ("Resume after a crash o
 
 # Phase completion pattern with memory
 /sc:save --type all --checkpoint
-/task-builder "Phase 2: payment and order processing"   # larger work goes through a task file (see How We Work)
+/sc:workflow "Phase 2: payment and order processing" --depth standard --handoff none
+# then run the plan it prints: /sc:implement <printed plan path>
 ```
 
-## Per-Turn Session Context Envelope (v4.3+)
+## Per-Turn Session Context Envelope
 
 In addition to the long-term memory files described above, every user
 prompt is prefixed with a **short, factual `<session-context>` block** injected
 by the `freshness-user-prompt.sh` hook. This is per-turn ephemeral state, not
 persistent memory.
 
-```
+```text
 <session-context>
   ts=2026-05-13T01:07:33+00:00 turn=2 Δ=07:43 mode=plan git=feat/x dirty=3M/4U bg=2
   changed_since_last_turn=/foo/a.go,/foo/b.go
@@ -229,7 +242,8 @@ When starting a new Claude Code conversation, the project memory files allow:
 ### MCP Server Coordination
 
 - **Context7 MCP**: References stored patterns and documentation approaches
-- **Morphllm MCP**: Applies stored refactoring patterns consistently
+
+Memory is plain markdown files that Claude reads and writes with its file tools; no MCP server stores or applies memories.
 
 ### Agent Collaboration with Memory
 

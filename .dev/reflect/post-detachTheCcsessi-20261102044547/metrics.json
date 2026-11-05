@@ -1,0 +1,8 @@
+{"metrics_schema_version": "1.0", "run_id": "2026-11-02T04:46:54Z-post-detach", "skill": "sc-reflect", "skill_version": "1.8.0", "mode": "post", "tier_reached": 2, "status": "partial",
+ "calibration": {"calibrator_diversity": "full", "calibrated_confidence_initial": 0.62, "calibrated_confidence_final": 0.76, "calibration_delta": 0.14},
+ "ensemble": {"t2_model_class_diversity": "degraded", "t2_vendor_diversity": "multi", "t2_effective_diversity": "vendor-only", "reviewer_count": 2, "executor_class_resolved": true, "executor_exclusion_degraded": false},
+ "evidence_validator": {"ran": true, "citations_total": 55, "citations_revalidated": 55, "citations_dropped": 1, "citations_dropped_extrapolated": 1, "drop_rate": 0.018, "budget_policy": "full_reread"},
+ "deviation_counts": {"authorized": 0, "necessary": 3, "drift": 2, "regression": 0, "total": 5},
+ "adversarial": {"convergence_score": 0.94, "merge_method": "adversarial", "adversarial_unavailable": false, "fallback_path": null},
+ "promotion": {"action": "skipped", "gate_conditions_passed": null, "gate_conditions_total": 9, "cross_fs": false},
+ "degraded_components": ["neighbour-search:auggie_unavailable", "auggie"], "input_drift_detected": false, "needs_human_decision": true}

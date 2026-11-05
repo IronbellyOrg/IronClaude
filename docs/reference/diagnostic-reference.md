@@ -2,9 +2,9 @@
 
 ## Overview
 
-This guide provides procedures for diagnosing issues with SuperClaude context files and configurations. Since SuperClaude is a collection of text files (not running software), diagnostics focus on file verification and configuration checking.
+This guide provides procedures for diagnosing issues with SuperClaude context files and configurations. Most of SuperClaude is text files that Claude Code reads, so these diagnostics focus on file verification and configuration checking.
 
-**Important**: There are no processes to monitor, no performance metrics to measure, and no system resources to analyze. SuperClaude is purely configuration files that Claude Code reads.
+**Important**: SuperClaude is not only text files. Its hooks run as processes on Claude Code events, the codegraph SessionStart hook (`~/.claude/hooks/codegraph-session-start.sh`) starts a background `codegraph init` for the project, and the `superclaude` CLI pipelines (sprint, roadmap, tasklist, and others) start `claude` subprocesses that call the model API over the network. This guide does not cover monitoring those processes; it checks that the installed files are present and valid.
 
 ## Quick Diagnostics
 
@@ -77,16 +77,17 @@ done
 echo "=== Import System Check ==="
 if [ -f ~/.claude/CLAUDE.md ]; then
     echo "Imports found in CLAUDE.md:"
-    grep "^@import" ~/.claude/CLAUDE.md
-    
-    # Count import statements
-    IMPORT_COUNT=$(grep -c "^@import" ~/.claude/CLAUDE.md)
+    grep '^@' ~/.claude/CLAUDE.md
+
+    # The installed CLAUDE.md has exactly one import line:
+    # @BASH_INSPECTION_POLICY.md
+    IMPORT_COUNT=$(grep -c '^@' ~/.claude/CLAUDE.md)
     echo "Total imports: $IMPORT_COUNT"
-    
-    if [ $IMPORT_COUNT -ge 5 ]; then
+
+    if [ "$IMPORT_COUNT" -eq 1 ] && grep -qx '@BASH_INSPECTION_POLICY.md' ~/.claude/CLAUDE.md; then
         echo "✅ Import system configured correctly"
     else
-        echo "⚠️ Some imports may be missing"
+        echo "⚠️ Expected exactly one import line: @BASH_INSPECTION_POLICY.md"
     fi
 else
     echo "❌ CLAUDE.md not found"
@@ -177,7 +178,7 @@ COMMAND="implement"  # Change to test different commands
 
 echo "=== Diagnosing command: $COMMAND ==="
 
-FILE=~/.claude/commands/$COMMAND.md
+FILE=~/.claude/commands/sc/$COMMAND.md
 
 if [ -f "$FILE" ]; then
     echo "✅ Command file exists"
@@ -206,7 +207,7 @@ if [ -f "$FILE" ]; then
 else
     echo "❌ Command file not found: $FILE"
     echo "Available commands:"
-    ls ~/.claude/commands/ | sed 's/.md$//'
+    ls ~/.claude/commands/sc/ | sed 's/.md$//'
 fi
 ```
 
@@ -287,43 +288,31 @@ fi
 
 ### Complete Reinstallation
 
+**Warning**: never delete `~/.claude` to reinstall SuperClaude. That directory also holds Claude Code's own settings (`settings.json`), your session transcripts (`projects/`) and files written by other tools. Reinstall over the existing files instead:
+
 ```bash
-# Complete clean reinstall
-echo "=== Clean Reinstall ==="
+# Reinstall every SuperClaude file over the existing installation
+echo "=== Forced Reinstall ==="
 
-# Backup current installation
-BACKUP_DIR=~/.claude.backup.$(date +%Y%m%d_%H%M%S)
-if [ -d ~/.claude ]; then
-    cp -r ~/.claude "$BACKUP_DIR"
-    echo "✅ Backed up to $BACKUP_DIR"
-fi
-
-# Remove current installation
-rm -rf ~/.claude
-
-# Reinstall
-superclaude install
+superclaude install --force
 
 # Verify installation
-if [ -f ~/.claude/CLAUDE.md ]; then
-    echo "✅ Reinstallation successful"
-else
-    echo "❌ Reinstallation failed"
-    echo "Restoring backup..."
-    cp -r "$BACKUP_DIR" ~/.claude
-fi
+superclaude install --list
+superclaude doctor
 ```
+
+Restart any open Claude Code sessions afterwards so they load the reinstalled files.
 
 ## What These Diagnostics DON'T Do
 
 ### Not Applicable Concepts
 
-- **CPU/Memory Monitoring**: No processes to monitor
-- **Performance Metrics**: No code execution to measure
-- **Network Analysis**: No network operations (except MCP)
-- **Process Management**: No running processes
-- **Resource Optimization**: No resources consumed
-- **Execution Timing**: No code executes
+These diagnostics check installed files only. They do not monitor the parts of SuperClaude that do run:
+
+- **Hooks**: shell and Node scripts that Claude Code runs on session start and end, prompt submit, file reads and edits, and subagent start and stop
+- **Codegraph**: the SessionStart hook starts a detached background `codegraph init` that indexes the project
+- **CLI pipelines**: `superclaude sprint`, `superclaude roadmap` and the other pipeline commands start `claude` subprocesses, which call the model API over the network
+- **MCP servers**: run as separate processes and may use the network
 
 ### Focus on What Matters
 
@@ -335,4 +324,4 @@ fi
 
 ## Summary
 
-SuperClaude diagnostics are simple: verify files exist, check they're readable, and ensure configurations are valid. Since it's just text files that Claude Code reads, there's no complex system monitoring or performance analysis needed. If files are present and readable, SuperClaude is working.
+These diagnostics are simple: verify files exist, check they're readable, and ensure configurations are valid. If a problem persists with every file present and readable, look at the running parts listed above: the hooks, the codegraph index (`/sc:graph`), and the CLI pipeline logs.

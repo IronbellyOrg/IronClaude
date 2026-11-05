@@ -1,0 +1,117 @@
+# Provenance: produced by /sc:adversarial
+# Base: Variant 3 (opus:refactorer)
+# Merge date: 2026-11-04T13:25:58Z
+# Incorporated: Variant 1 (sonnet:analyzer), Variant 2 (glm-5.3 haiku slot:qa), Round 2.5 invariant probe (invariant-probe.md)
+# Reading notes: "plan" = TASK-WF-closeIronbellyOr-20261104-124207.md (the gated plan under review; it is not edited, so every recommendation is an implementation-time instruction).
+# Upstream citations (hooks_*.js, runtime.js, mode-tracker.js, activate.js, instructions.js, skill.md, plugin.json) are files in /tmp/ponytail-src-t14b/ (Ponytail v5.3.3, main 96608e07); short names such as activate.js are the hooks_ponytail-*.js files there.
+merge_method: adversarial
+base_variant: "opus:refactorer"
+convergence_score: 1.0
+invariant_gate: BLOCKED_BY_INVARIANTS   # INV-001 (HIGH, UNADDRESSED) carried as blocking finding M-2
+verdict: needs_revision   # driven by M-1 (R1-F1); 2 blocking (M-1, M-2), 11 minor
+scope_check: {confined_to_data_plus_one_shared_path_fix: true, new_mechanism: none, forbidden_file_edits: none, claude_dir_staging: none, python_fix_converges_all_failure_paths: true}
+findings:
+  - id: M-1
+    source: "Variant 1 R1-F1, Change #2 (C-001, X-001)"
+    claim: "Task 3's 'bare /ponytail switches to full' (plan:80) is false under lite: when Ponytail is on, bare /ponytail reports the current level and keeps it; when it is off, it switches to getDefaultMode() (lite); it yields full only when the default is off (mode-tracker.js:117). Carried over from the off-era brainstorm text."
+    evidence: ["/tmp/ponytail-src-t14b/mode-tracker.js:109-119", "TASK-WF-closeIronbellyOr-20261104-124207.md:80", "merged-requirements.md:140,171"]
+    deviation_class: drift
+    severity: blocking
+    recommendation: "When implementing Task 3, write: \"bare `/ponytail` reports the current level when Ponytail is on, and switches it on at the default level (lite) when it is off (`full` if the default is `off`)\". Never write that bare /ponytail switches to full."
+  - id: M-2
+    source: "invariant-probe INV-001 (HIGH, UNADDRESSED), Change #3"
+    claim: "Task 3's 'switches every session in that repo until a new session starts there' (plan:80) is wrong in scope. SessionStart runs on startup, resume, clear and compact; every non-compact start resets the mode to the default on the shared per-project flag, so any new session, /clear or resume in that directory resets every running session there. The scope is the project directory (sha256 of CLAUDE_PROJECT_DIR), so each worktree has its own mode. Other running sessions get no new ruleset in their main thread; they see the new level only in their subagents."
+    evidence: ["hooks_claude-codex-hooks.json:5", "hooks_ponytail-activate.js:193,55", "runtime.js:51-66,75-78", "mode-tracker.js:143-148"]
+    deviation_class: drift
+    severity: blocking
+    recommendation: "When implementing Task 3, say that the switch is recorded per project directory (each worktree separately); that any new session, /clear or resume in that directory resets it to the default for every session there; and that other running sessions see the new level only in their subagents."
+  - id: R3-1
+    source: "Variant 3 R3-1, severity per Variant 1 R1-F2 calibration, Change #4 (C-002, INV-016)"
+    claim: "The manual proof isolates only HOME; CLAUDE_CONFIG_DIR (claude CLI, install_mcp) and XDG_CONFIG_HOME (Ponytail ledger/config) would bypass it if exported. Exported PONYTAIL_* variables would also leak into the proof."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-124207.md:29,79,103", "docs/getting-started/installation.md:362-366", "src/superclaude/cli/install_mcp.py:721-726", "hooks_ponytail-config.js:85", "activate.js:66", "subagent.js:35"]
+    deviation_class: drift
+    severity: minor   # downgraded from blocking: CLAUDE_CONFIG_DIR and XDG_CONFIG_HOME verified unset in this worker (12:48Z); the fix is one env -u prefix
+    recommendation: "When running the Task 4 manual proof, run every step as `env -u CLAUDE_CONFIG_DIR -u XDG_CONFIG_HOME -u PONYTAIL_DEFAULT_MODE -u PONYTAIL_MAP -u PONYTAIL_SUBAGENT_MATCHER HOME=<throwaway> ...`, and log that none of these variables is set inside."
+  - id: R3-2
+    source: "Variant 3 R3-2, Change #5 (C-003; adopted by Variant 1 and Variant 2 in Round 2)"
+    claim: "'At most 5 changed lines' is ambiguous (the minimal fix is 4 insertions + 3 deletions)."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-124207.md:57,64", "merged-requirements.md:111"]
+    grounding_gap: counting rule
+    severity: minor
+    recommendation: "When checking Task 2's size cap, count with `git diff --numstat`: at most 5 insertions and at most 5 deletions, all inside install_plugins."
+  - id: R3-3
+    source: "Variant 3 R3-3 (base, unchanged; Variant 3 dependency change not applied per C-009)"
+    claim: "Dependencies stricter than needed: Task 2 independent of Task 1; Task 3 needs Task 1 only."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-124207.md:55,73,96"]
+    grounding_gap: dependency precision
+    severity: minor
+    recommendation: "Run the tasks sequentially as written; sequential execution is still safe and no change is needed to run."
+  - id: R3-4
+    source: "Variant 3 R3-4, Change #6 (C-004, X-002; Variant 1 and Variant 2 Round 2 evidence)"
+    claim: "Docs edits are not verified: tests/docs/test_retired_docs_absent.py reads every docs/**/*.md; pre-commit markdownlint --fix runs on installation.md."
+    evidence: ["source.md:1", "tests/docs/test_retired_docs_absent.py:39-44", ".pre-commit-config.yaml:74-88", "test_tavily_doc_alignment.py:45,117", ".pre-commit-config.yaml:73-88"]
+    deviation_class: drift
+    severity: minor
+    recommendation: "After Task 3, run `uv run pytest tests/docs -v` (test_retired_docs_absent.py:41,44 and test_tavily_doc_alignment.py:45,117 read the docs) and run markdownlint on docs/getting-started/installation.md (.pre-commit-config.yaml:73-88)."
+  - id: R3-5
+    source: "Variant 3 R3-5 restated from Variant 3 Round 2, Change #7 (reset grounded activate.js:193,55; 'PONYTAIL DEFAULT SET' grounded mode-tracker.js:71; INV-014)"
+    claim: "Task 3's acceptance criterion 'every behaviour claim matches the lite facts' (plan:89) cannot check claims outside the lite-facts block. The reset clause (activate.js:193,55) and 'PONYTAIL DEFAULT SET' (mode-tracker.js:71) are grounded; the claims that remain unsourced are 'a project .claude/settings.json wins' (plan:81) and 'do not only run claude plugin uninstall' (INV-014, which depends on uncited uninstall behaviour toward enabledPlugins)."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-124207.md:19-24,80-83,89", "merged-requirements.md:140", "activate.js:193,55", "mode-tracker.js:71", "src/superclaude/cli/install_user_setup.py:266"]
+    grounding_gap: source for the two remaining unsourced claims
+    severity: minor
+    recommendation: "When implementing Task 3, source each of the two claims ('a project .claude/settings.json wins'; 'do not only run claude plugin uninstall') from Claude Code documentation, or drop it from the docs."
+  - id: R3-6
+    source: "Variant 3 R3-6 (base, unchanged)"
+    claim: "Task 1 JSON shape vs file style: existing marketplaces are expanded over six lines; appending edits the prior last line's comma."
+    evidence: ["src/superclaude/cli/user_settings_defaults.json:10-13,28-49", "TASK-WF-closeIronbellyOr-20261104-124207.md:39,47"]
+    grounding_gap: formatting
+    severity: minor
+    recommendation: "Use the expanded form; diff = three entries + three trailing commas."
+  - id: R3-7
+    source: "Variant 3 R3-7 (base, unchanged)"
+    claim: "Task 4 asks for a link to the installation section; Task 3 adds no heading."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-124207.md:75,99", "docs/getting-started/installation.md:331"]
+    grounding_gap: link target
+    severity: minor
+    recommendation: "Link the file (optionally the Step 3 anchor); add no heading."
+  - id: R3-8
+    source: "Variant 3 R3-8 reduced to diagnostics, Change #11 (X-003, Variant 2 90%; C-006 move-proof change not applied)"
+    claim: "The Orca step can use up 25 s of the 30 s budget, so M1a may time out for unrelated reasons. The manual proof stays in Task 4."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-124207.md:103-106", "src/superclaude/cli/install_user_setup.py:34-35,215-228,316-323"]
+    grounding_gap: proof budget diagnostics
+    severity: minor
+    recommendation: "Keep the manual proof in Task 4. When running it, record whether Orca was on PATH and the time used, so a time-limit FAIL can be told apart from a real failure."
+  - id: R3-9
+    source: "Variant 3 R3-9 (base, unchanged)"
+    claim: "./artifacts/ base path not spelled out."
+    evidence: ["TASK-WF-closeIronbellyOr-20261104-124207.md:67,103"]
+    grounding_gap: base path
+    severity: minor
+    recommendation: "Use the package artifacts/ folder."
+  - id: M-3
+    source: "invariant-probe INV-003, INV-004, INV-006, INV-008, INV-009, INV-013 (MEDIUM/LOW), Change #8"
+    claim: "Task 3's description of lite would be inaccurate or incomplete in six ways. (1) Lite injects Ponytail's full rule set with only the lite level row kept (INV-003), not just the row. (2) Ponytail follows CLAUDE_CONFIG_DIR while the installer always writes $HOME/.claude, so '~/.claude/...' and 'installed with lite' do not hold when it is set (INV-004). (3) The one-time statusline note can be used up silently by a headless `claude -p` first session (INV-006). (4) 'stop ponytail' / 'normal mode' also turn it off (INV-008). (5) PONYTAIL_SUBAGENT_MATCHER is unanchored, case-insensitive and fails open, so it does not strictly limit injection (INV-009). (6) The ledger option is a plugin userConfig option and the plan never says where a user sets it (INV-013)."
+    evidence: ["instructions.js:19-40,87-88", "skill.md:15-44", "skill.md:15", "hooks_ponytail-config.js:71-74", "runtime.js:35", "activate.js:28-29,113", "install_user_setup.py:145,263,267", "docs/getting-started/installation.md:362-366", "activate.js:133-134", "activate.js:29,77-84", "activate.js:165-167", "hooks_ponytail-config.js:40-43", "mode-tracker.js:160-166", "skill.md:17", "hooks_ponytail-subagent.js:32-40,61-78", ".claude-plugin/plugin.json:15-20"]
+    grounding_gap: docs accuracy of the lite description
+    severity: minor
+    recommendation: "When implementing Task 3: (a) say lite injects Ponytail's full rule set with the lite level row (not only the row), including 'End your reply with one or two lines'; (b) say Ponytail's files follow CLAUDE_CONFIG_DIR while the installer writes $HOME/.claude, so the defaults do not apply when it is set; (c) say the statusline note can be used up by a headless `claude -p` run; (d) mention 'stop ponytail' / 'normal mode'; (e) call PONYTAIL_SUBAGENT_MATCHER best-effort (it fails open); (f) say where the `ledger` option is set (plugin options via /plugin, verified before writing), or name it only as Ponytail's `ledger` option with the upstream default."
+  - id: M-4
+    source: "invariant-probe INV-005 (MEDIUM), Change #9"
+    claim: "The Known Limitation risk is not confined to Ponytail: every marketplace add precedes every install, so the new clone consumes the shared 30 s budget before the six existing installs and can push the other default plugins past it."
+    evidence: ["install_user_setup.py:272-284", "install_user_setup.py:35,290-293"]
+    grounding_gap: Known Limitation scope
+    severity: minor
+    recommendation: "When implementing Task 3, make the Known Limitation sentence say that the extra clone can also push the other default plugins past the 30 s budget (all marketplace adds run before installs, install_user_setup.py:272-284)."
+coverage:
+  source: "Variant 2 R2-F1, R2-F2, coverage_check, Change #10 (C-005, Variant 2 90%)"
+  containment_unmapped_rows: [INF-001, INF-002, INF-003, INF-005, INF-007, INF-014, INF-015, INF-017]
+  conclusion: "All eight containment-unmapped rows are matcher artifacts; each is owned by a plan element outside a single task's wording."
+  ownership: "INF-002 Task 1 leg 2 + fill loop; INF-015 split across Tasks 2/3/4; INF-014 and INF-017 Constraints; INF-005 and INF-007 Task 3; INF-003 lite in tests, docs, CHANGELOG, M1b."
+  goal_span: "The goal span 'on every workspace via the installer and update scripts' missing from the matrix is covered at plan:15 (Goal), plan:39 (Task 1 rationale) and plan:82 (upgrade bullet)."
+  t5_check: "T5 verified to fail on unfixed code (install_user_setup.py:292,303,305 with fixture :232-242); T1 and T2 fail on the defect; T3/T4, T5c and T6 are pins that pass today by design."
+  evidence: ["artifacts/coverage-matrix.json", "TASK-WF-closeIronbellyOr-20261104-124207.md:15,39,82", "TASK-WF-closeIronbellyOr-20261104-124207.md:28-33,44,67,87,103-109", "src/superclaude/cli/install_user_setup.py:36,151-164", "src/superclaude/cli/install_user_setup.py:266", "src/superclaude/cli/install_user_setup.py:292,303,305"]
+  recommendation: "Accept coverage as complete; no plan change is needed for the matrix gaps."
+notes:
+  - "Change #12 (A-001, QUALIFY, unanimous): when implementing Task 3 and the CHANGELOG entry, state that the documented behaviour was checked against Ponytail v5.3.3, and have M1 record the installed plugin version."
+  - "A-002 (ACCEPT, unanimous): the gated plan is not edited; every recommendation above is an implementation-time instruction."
+  - "Variant 2's verdict 'pass' is not adopted: it is refuted by M-1 and Variant 2 conceded. R3-1 is no longer blocking after the calibration in Change #4."

@@ -592,7 +592,7 @@ All reviewers should verify the following before approving a PR:
 
 ## Section 6: Release and Tagging Protocol
 
-[To Do - No prework content available. Note: Release promotion flow is documented in Section 2]
+For IronClaude releases, follow the [Release Procedure](release-procedure.md).
 
 ---
 

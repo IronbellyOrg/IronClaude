@@ -1,0 +1,20 @@
+# Returned by confidence-calibrator (blind, read-only); persisted verbatim by the orchestrator.
+# Orchestrator note: the calibrator flagged "INF-003" as unfound. It is defined in
+# artifacts/pass2-inferred.yaml (the calibrator was not given that file, by design).
+card: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/reviewer-cards/reviewer-3-card.yaml
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimensions:
+  citation_grounding: {score: 0.90, reason: "All file:line quotes match the source. Deductions: INF-003 not found in the plan or source.md; R3-F6 reads plan :73 more broadly than its wording."}
+  coverage_completeness: {score: 0.75, reason: "Covers Tasks 1, 2, 3, 6, the Constraints and two T1 findings; Tasks 4, 5 and 7 get no direct review; no list of unreviewed tasks."}
+  deviation_classification_clarity: {score: 0.80, reason: "One category per finding, no hedging; all six labeled drift although R3-F2 is an internal contradiction and R3-F4 an untested invariant."}
+  risk_surface_coverage: {score: 0.80, reason: "Real structural risks found (R3-F1 never-removed worktree invisible to the search, R3-F2 vacuous acceptance check, R3-F4, R3-F5); does not examine conflicts with other tooling or Task 7 misclassification detection."}
+  recommendation_actionability: {score: 0.88, reason: "Each recommendation names a plan line or file, a change and a verifier; R3-F2 relies on an unchecked gh flag; R3-F5 and R3-F6 end in either/or branches."}
+C: 0.83
+per_finding:
+  - {id: R3-F1, verdict: grounded, reason: "eval_runner.py:143 passes worktree and add as separate list items; :138 sets a sibling path; no removal; fits none of the plan :57 exceptions."}
+  - {id: R3-F2, verdict: grounded, reason: "CLAUDE.md:64 check 1 runs gh repo view and handles the upstream-parent case; plan :73 bans such calls; plan :78 does not name the conflict."}
+  - {id: R3-F3, verdict: grounded, reason: "Plan :23 confirmed list lacks --json, --issue, --pr although :54, :56, :76 name them; mitigated because :76 records orca worktree current --json was run."}
+  - {id: R3-F4, verdict: grounded, reason: "test_sc_recommend_routing_contract.py reads the three files Task 5 edits; plan :116 does not run it."}
+  - {id: R3-F5, verdict: grounded, reason: "SKILL.md:91 offers git worktree add with no location or removal; plan :57's exception requires create-and-remove."}
+  - {id: R3-F6, verdict: weak, reason: "CLAUDE.md:251 links upstream issue #419, but plan :73 reads most naturally as tool or flag links, not doc hyperlinks."}

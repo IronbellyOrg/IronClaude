@@ -35,9 +35,9 @@ The README reflects the product/function of the repo first, while preserving the
 - **CLI-driven workflows** for roadmap, tasklist, sprint, audit, and validation
 - **Claude Code asset distribution** through commands, agents, and skills
 - **PM-agent patterns** for confidence, self-check, and reflexion
-- **MCP-aware development** with integrations such as Auggie, Tavily, and Context7
+- **MCP-aware development** with codegraph (installed and registered by default) and optional integrations such as Auggie, Tavily, and Context7
 - **Contributor workflow support** with source/dev-mirror sync between `src/superclaude/` and `.claude/`
-- **Context freshness hooks** (v4.3) — seven active shell hooks that inject a per-turn `<session-context>` envelope and block edits against files that have not been Read in the last 30 minutes. See [`docs/user-guide/freshness-hooks.md`](docs/user-guide/freshness-hooks.md).
+- **Context freshness hooks** — seven active shell hooks that inject a per-turn `<session-context>` envelope and block edits against files that have not been Read in the last 30 minutes. See [`docs/user-guide/freshness-hooks.md`](docs/user-guide/freshness-hooks.md). 5.0.0 also installs a codegraph SessionStart hook that indexes each checkout on its first session (`SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` turns it off).
 
 ## Repository purpose
 
@@ -63,6 +63,17 @@ superclaude install
 
 This installs the package, then framework assets (core files, commands, agents, skills, ccsession wiring, hooks, templates and user setup), followed by the codegraph phase (a pinned, checksum-verified codegraph registered as a user-level MCP server; a failure there exits 1) and a bounded, non-fatal cleanup of old user-level MCP registrations that IronClaude wrote itself. See the [MCP installation guide](docs/user-guide/mcp-installation.md) for details. Installing from the repository URL needs read access to it.
 
+### Upgrading to 5.0.0
+
+Back up any file you edited in `~/.claude/` first, then run:
+
+```bash
+pipx install --force git+https://github.com/IronbellyOrg/IronClaude
+superclaude install --force
+```
+
+Restart Claude sessions afterwards. A plain `superclaude install` keeps framework files that already exist, so use `--force` to refresh them. Do not upgrade with `superclaude update`: it never installs codegraph or retires old MCP registrations. See [Upgrading](docs/getting-started/upgrading.md) for the full steps and the [5.0.0 release notes](docs/releases/v5.0.0.md) for what changed.
+
 ### Install from source for development
 
 This repository uses **UV** for Python operations.
@@ -81,6 +92,12 @@ From a source checkout, run the CLI as `uv run superclaude ...` (or activate `.v
 ## Quick start
 
 Not sure which command to use? Read [How We Work](docs/user-guide/how-we-work.md), or run `/sc:recommend "<your goal>"` in Claude Code.
+
+### In Claude Code
+
+- `/sc:impact` lists the definitions of a symbol (or of the symbols a diff touches) and their production and test dependents from the code graph. See [codegraph](docs/user-guide/codegraph.md).
+- `/sc:graph` shows whether the current checkout's code-graph index is ready; `/sc:graph init` builds it. See [codegraph](docs/user-guide/codegraph.md).
+- Session memory lives in `<project>/.superclaude/memory/` as markdown files that `/sc:save` writes and `/sc:load` reads. See [Session management](docs/user-guide/session-management.md).
 
 ### Core CLI commands
 
@@ -213,19 +230,21 @@ For deeper context, start with:
 
 IronClaude is built to work with MCP-assisted workflows.
 
-Common integrations referenced in this repository include:
+`superclaude install` installs and registers codegraph as a user-level MCP server by default. The other servers are optional; add them with `superclaude mcp --servers <name>`:
 
-- Auggie
-- Tavily
-- Context7
-- Playwright
-- Mindbase
+- **codegraph** — code graph: symbols, callers, impact, file outlines (installed by `superclaude install`)
+- **Context7** — official library documentation (runs through `npx`; Node.js 18+)
+- **Playwright** — browser automation and end-to-end testing (runs through `npx`; Node.js 18+)
+- **Tavily** — web search (needs `TAVILY_API_KEY`)
+- **Auggie** — semantic codebase search (needs the global `auggie` npm package, Node.js 20+, and a one-time `auggie login`)
+- **Morphllm** (`morphllm-fast-apply`) — fast code edits (needs `MORPH_API_KEY`)
+- **LiteLLM** — opt-in only, for the operator's own network: an HTTP gateway at `http://ibcore:4000/mcp/` that needs `LITELLM_API_KEY`. Install it with `superclaude mcp --servers litellm`; choosing "all" in the menu leaves it out.
 
-Inspect MCP-related configuration with:
+On a terminal, bare `superclaude mcp` opens an install menu (1. Install MCP servers, 2. Cancel); without a terminal it asks for `--servers`. To inspect without changing anything:
 
 ```bash
-superclaude mcp
-superclaude mcp --list
+superclaude mcp --list      # list available servers (read-only)
+superclaude mcp --dry-run   # preview the choices without prompts or changes
 ```
 
 ## Contributing

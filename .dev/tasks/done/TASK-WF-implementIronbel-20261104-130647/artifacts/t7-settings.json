@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/src/superclaude/hooks/scripts/block-bare-python.sh",
+            "timeout": 3
+          }
+        ]
+      }
+    ]
+  }
+}

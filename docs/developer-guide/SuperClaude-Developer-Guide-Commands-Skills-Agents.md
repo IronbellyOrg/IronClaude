@@ -1,4 +1,4 @@
-p# SuperClaude Developer Guide: Commands, Skills, and Agents
+# SuperClaude Developer Guide: Commands, Skills, and Agents
 
 > **Version**: 1.0.0 | **Last Updated**: 2026-11-04
 > **Audience**: Developers creating, extending, or maintaining SuperClaude framework components
@@ -15,7 +15,7 @@ p# SuperClaude Developer Guide: Commands, Skills, and Agents
 5. [Skills Deep Dive](#5-skills-deep-dive)
 6. [Multi-Phase Architecture](#6-multi-phase-architecture)
 7. [Integration Patterns](#7-integration-patterns)
-   - [7.6 Orca Orchestration: Commands as Workers](#76-orca-orchestration-commands-as-workers)
+   - [7.7 Orca Orchestration: Commands as Workers](#77-orca-orchestration-commands-as-workers)
 8. [Development Workflow](#8-development-workflow)
 9. [Best Practices](#9-best-practices)
 10. [Complete Examples](#10-complete-examples)
@@ -40,7 +40,7 @@ The framework provides:
 
 SuperClaude components are organized into three tiers that work together:
 
-```
+```text
 Commands (Workflow Triggers — thin dispatch layer)
     invoke via Activation section
 Skills (Domain Knowledge Packages — behavioral protocol + refs/)
@@ -76,7 +76,7 @@ This pattern enforces separation of concerns: the command owns the interface, th
 
 ### Installation Locations
 
-```
+```text
 Source of truth (development):     src/superclaude/
   commands/                        Command .md files
   skills/                          Skill directories (SKILL.md + refs/)
@@ -84,7 +84,7 @@ Source of truth (development):     src/superclaude/
   core/                            Core framework files (CLAUDE.md, HOW-WE-WORK.md, WORKER-CONTRACT.md, ...)
 
 Installation target (user):        ~/.claude/
-  *.md                             Installed core files, including WORKER-CONTRACT.md (worker rules, section 7.6)
+  *.md                             Installed core files, including WORKER-CONTRACT.md (worker rules, section 7.7)
   commands/sc/                     Installed commands
   skills/                          Installed skills
   agents/                          Installed agents
@@ -119,7 +119,7 @@ Rules:
 When Claude Code starts a session, it loads context in this priority order:
 
 1. **Core file** (always loaded): `~/.claude/CLAUDE.md`, which imports only `BASH_INSPECTION_POLICY.md`. The routing guide `~/.claude/HOW-WE-WORK.md` is installed beside it but is read on demand (by `/sc:help`, `/sc:recommend`, or a person); it is never `@`-imported.
-   The worker contract `~/.claude/WORKER-CONTRACT.md` is installed beside `CLAUDE.md` too. It is read on demand by an Orca coordinator and, from P1, by a worker applying the brief guard, and it is never `@`-imported ([section 7.6](#76-orca-orchestration-commands-as-workers)).
+   The worker contract `~/.claude/WORKER-CONTRACT.md` is installed beside `CLAUDE.md` too. It is read on demand by an Orca coordinator and, from P1, by a worker applying the brief guard, and it is never `@`-imported ([section 7.7](#77-orca-orchestration-commands-as-workers)).
 2. **Explicit commands**: User types `/sc:<command>` -- loads the command file
 3. **Manual agents**: User references `@agent-<name>` -- loads the agent file
 4. **Flag-triggered**: per-command flags (each command file lists its own); `--c7`, `--play` and similar are behavioural hints, see `docs/user-guide/flags.md`
@@ -286,7 +286,7 @@ personas: [<personas>]         # Descriptive labels only (nothing auto-activates
 **Optional frontmatter fields** (seen in advanced commands):
 
 ```yaml
-version: "2.0.0"              # Explicit spec version (used in task-unified)
+version: "2.0.0"              # Explicit spec version (used in /sc:task)
 ```
 
 **Markdown Body** (standard sections):
@@ -303,9 +303,9 @@ version: "2.0.0"              # Explicit spec version (used in task-unified)
 | `## Examples` | Copy-paste invocation samples | Yes |
 | `## Boundaries` | Will / Will Not lists | Yes |
 | `## Related Commands` | Links to related `/sc:*` commands | Recommended |
-| `## Unattended mode` | This command's gate resolutions, report file, report directory flag and nested invocations under `--unattended` ([section 7.6](#76-orca-orchestration-commands-as-workers)) | Only when the command accepts `--unattended`, which no command does at P0 |
+| `## Unattended mode` | This command's gate resolutions, report file, report directory flag and nested invocations under `--unattended` ([section 7.7](#77-orca-orchestration-commands-as-workers)) | Only when the command accepts `--unattended`, which no command does at P0 |
 
-A command that accepts `--unattended` lists it in `## Options` (this guide's convention). It takes `--report-dir` when it has no directory-valued `--output` or `--output-dir` of its own, or when the brief does not pass that flag; passing both, or neither, is refused before any work (WC-4, [section 7.6](#76-orca-orchestration-commands-as-workers)).
+A command that accepts `--unattended` lists it in `## Options` (this guide's convention). It takes `--report-dir` when it has no directory-valued `--output` or `--output-dir` of its own, or when the brief does not pass that flag; passing both, or neither, is refused before any work (WC-4, [section 7.7](#77-orca-orchestration-commands-as-workers)).
 
 ### 3.2 Command Archetypes
 
@@ -317,7 +317,7 @@ Commands that read, analyze, and report without modifying files.
 
 - **Examples**: `/sc:analyze`, `/sc:cleanup-audit`, `/sc:explain`
 - **Characteristics**: Read-heavy tools, native reasoning for deep analysis, produces reports
-- **Worker fit**: `/sc:cleanup-audit` is in the contract's ready-with-brief-constraints table; one of `/sc:explain`'s flags is refused under `--unattended` (section 7.6); a command gets `--unattended` only after each of its gates has an unattended resolution (WC-2). See [section 7.6](#76-orca-orchestration-commands-as-workers).
+- **Worker fit**: `/sc:cleanup-audit` is in the contract's ready-with-brief-constraints table; one of `/sc:explain`'s flags is refused under `--unattended` (section 7.7); a command gets `--unattended` only after each of its gates has an unattended resolution (WC-2). See [section 7.7](#77-orca-orchestration-commands-as-workers).
 - **Typical frontmatter**:
 
 ```yaml
@@ -333,10 +333,11 @@ Commands that decompose work and delegate to sub-agents without directly executi
 - **Examples**: `/sc:spawn`, `/sc:adversarial`
 - **Characteristics**: Task tool for delegation, defines stop conditions, produces task hierarchies or coordination artifacts
 - **Key pattern**: Explicit "STOP AFTER" boundary preventing the command from executing what it plans
-- **Worker fit**: `/sc:spawn` is a never-as-worker command (section 7.6); `/sc:adversarial` is in the contract's ready-with-brief-constraints table. Such a command may fan out with the Agent tool (WC-7) but never calls `worker-start`, `dispatch` or `task-create` (WC-8). See [section 7.6](#76-orca-orchestration-commands-as-workers).
+- **Worker fit**: `/sc:spawn` is a never-as-worker command (section 7.7); `/sc:adversarial` is in the contract's ready-with-brief-constraints table. Such a command may fan out with the Agent tool (WC-7) but never calls `worker-start`, `dispatch` or `task-create` (WC-8). See [section 7.7](#77-orca-orchestration-commands-as-workers).
 
 Example from `/sc:spawn`:
-```
+
+```text
 ## CRITICAL BOUNDARIES
 - STOP AFTER TASK DECOMPOSITION
 - Output is task hierarchy only
@@ -347,9 +348,9 @@ Example from `/sc:spawn`:
 
 Commands that handle the full lifecycle from classification through execution to verification.
 
-- **Examples**: `/sc:task-unified`, `/sc:implement`, `/sc:build`
+- **Examples**: `/sc:task`, `/sc:implement`, `/sc:build`
 - **Characteristics**: Multiple MCP servers, many personas, tiered compliance, sub-agent delegation
-- **Worker fit**: outward actions and the command's own commit step are off under `--unattended` (WC-9); per the rollout plan, `/sc:implement` is converted in P4. See [section 7.6](#76-orca-orchestration-commands-as-workers).
+- **Worker fit**: outward actions and the command's own commit step are off under `--unattended` (WC-9); per the rollout plan, `/sc:implement` is converted in P4. See [section 7.7](#77-orca-orchestration-commands-as-workers).
 - **Typical frontmatter**:
 
 ```yaml
@@ -364,7 +365,7 @@ personas: [architect, analyzer, frontend, backend, security, qa, devops,
 
 When a user invokes a command, it passes through five stages:
 
-```
+```text
 1. Input Parsing    →  Parse $ARGUMENTS with @<path>, !<command>, --<flags>
 2. Context Resolution  →  Read the command file and its skill; select MCP servers
 3. Phase Planning      →  Follow the skill's own waves or phases, if it defines any
@@ -390,7 +391,7 @@ Some commands declare `wave-enabled: true` in their frontmatter, and many protoc
 
 After creating a command file, register it in `src/superclaude/core/HOW-WE-WORK.md`. Routing-table rows are per job, not per command: if a workflow should use the new command, add it to that job's row in the routing table (its steps and mandatory flags), or add a new job row; if no workflow uses it, add one row to the "Other commands" table instead. Then copy the guide byte-for-byte to `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` (and, if you edited the level table, re-copy it into `src/superclaude/core/CLAUDE.md`), run `make sync-dev` and `make verify-sync`, and run `uv run pytest tests/core tests/commands` (these tests check the routing table and the plugin copy). No other framework file needs registering: `/sc:help` lists installed commands live.
 
-A command that accepts `--unattended` needs no entry in any worker list, because the coordinator decides from whether the command file has an `## Unattended mode` section (the "Orca coordination" section of `~/.claude/HOW-WE-WORK.md`). The one registration step it does need is in a test file: the maintainer adds its name to `UNATTENDED_COMMANDS` in `tests/skills/test_worker_contract.py`, as section 8.4 describes. The never-as-worker list changes only through the maintainer edit that [section 7.6](#76-orca-orchestration-commands-as-workers) describes.
+A command that accepts `--unattended` needs no entry in any worker list, because the coordinator decides from whether the command file has an `## Unattended mode` section (the "Orca coordination" section of `~/.claude/HOW-WE-WORK.md`). The one registration step it does need is in a test file: the maintainer adds its name to `UNATTENDED_COMMANDS` in `tests/skills/test_worker_contract.py`, as section 8.4 describes. The never-as-worker list changes only through the maintainer edit that [section 7.7](#77-orca-orchestration-commands-as-workers) describes.
 
 ---
 
@@ -436,7 +437,7 @@ permissionMode: restricted     # Permission level
 
 ### 4.2 Agent Patterns
 
-"Worker" has two meanings in this guide. A pattern such as Constrained Worker below is an Agent-tool subagent inside one session. An Orca worker is a whole top-level session that a coordinator starts to run one command ([section 7.6](#76-orca-orchestration-commands-as-workers)).
+"Worker" has two meanings in this guide. A pattern such as Constrained Worker below is an Agent-tool subagent inside one session. An Orca worker is a whole top-level session that a coordinator starts to run one command ([section 7.7](#77-orca-orchestration-commands-as-workers)).
 
 Agents follow four recurring patterns:
 
@@ -474,7 +475,7 @@ An agent that operates across sessions and manages knowledge, learning, and docu
 - **Characteristics**: `.superclaude/memory/` files for session persistence, PDCA self-evaluation, mandatory session start activation
 - **Typical size**: 100-150 lines
 
-When an Orca coordinator runs the command as a worker, these rules hold for every agent under it ([section 7.6](#76-orca-orchestration-commands-as-workers)):
+When an Orca coordinator runs the command as a worker, these rules hold for every agent under it ([section 7.7](#77-orca-orchestration-commands-as-workers)):
 
 - Only the top-level worker session sends lifecycle messages (heartbeat, ask, check, `worker_done`), never a subagent (WC-7).
 - No agent calls `worker-start`, `dispatch` or `task-create`, because the command it runs under never does (WC-8).
@@ -484,7 +485,7 @@ When an Orca coordinator runs the command as a worker, these rules hold for ever
 
 Skills can dynamically create agents using the agent spec mini-language:
 
-```
+```text
 <model>[:persona[:"instruction"]]
 ```
 
@@ -517,7 +518,7 @@ Agents activate through three mechanisms:
 
 A skill is a **directory** containing a `SKILL.md` manifest and optional subdirectories:
 
-```
+```text
 src/superclaude/skills/<skill-name>/
   SKILL.md              # Manifest (required) -- behavioral intent
   refs/                 # Reference files (optional) -- algorithms, formulas, templates
@@ -609,7 +610,7 @@ A single `SKILL.md` file with no subdirectories. Suitable for lightweight checks
 
 **Example**: `confidence-check`
 
-```
+```text
 src/superclaude/skills/confidence-check/
   SKILL.md              # ~100 lines, no refs/ or rules/
 ```
@@ -627,44 +628,47 @@ The skill defines a scoring rubric (5 checks), a threshold (>= 90% to proceed), 
 
 A `SKILL.md` with tool allowlisting and structured execution flows. May include tiered compliance or delegation.
 
-**Example**: `sc-task-unified`
+**Example**: `sc-task-protocol` (backs `/sc:task`)
 
-```
-src/superclaude/skills/sc-task-unified/
-  SKILL.md              # ~400 lines with compliance tiers and delegation
+```text
+src/superclaude/skills/sc-task-protocol/
+  SKILL.md              # ~400 lines: execution flow for STANDARD and STRICT tiers
 ```
 
 ```yaml
 ---
-name: sc-task-unified
+name: sc:task-protocol
 description: Unified task execution with intelligent workflow management,
   MCP compliance enforcement, and multi-agent delegation.
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill,
+  mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact
 ---
 ```
 
-Key features: Four compliance tiers (STRICT/STANDARD/LIGHT/EXEMPT), auto-detection algorithm, compound phrase handling, machine-readable output headers, sub-agent delegation matrix.
+Key features: Four compliance tiers (STRICT/STANDARD/LIGHT/EXEMPT). The `/sc:task` command file classifies the tier (keyword and compound-phrase rules) and emits the machine-readable header; the skill then runs the execution flow for STANDARD and STRICT tasks.
 
 #### Tier 3: Complex (SKILL.md + refs/ + agents + multi-phase)
 
 A full skill directory with reference files, agent delegation, and multi-phase protocols.
 
-**Example**: `sc-adversarial`
+**Example**: `sc-adversarial-protocol` (backs `/sc:adversarial`)
 
-```
-src/superclaude/skills/sc-adversarial/
-  SKILL.md              # ~400-500 lines, behavioral protocol
+```text
+src/superclaude/skills/sc-adversarial-protocol/
+  SKILL.md                # ~3,000 lines, behavioral protocol
   refs/
     scoring-protocol.md   # Hybrid scoring algorithm details
     agent-specs.md        # Agent specification format and templates
+    debate-protocol.md    # The 5-step debate protocol
+    artifact-templates.md # Output artifact templates
 ```
 
 ```yaml
 ---
-name: sc:adversarial
+name: sc:adversarial-protocol
 description: Structured adversarial debate, comparison, and merge pipeline
   for 2-10 artifacts
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
 ---
 ```
 
@@ -699,11 +703,11 @@ Do NOT pre-load refs from later waves.
 
 Skills prefixed with `sc-` have a special relationship with commands:
 
-- `sc-adversarial` skill maps to `/sc:adversarial` command
-- `sc-task-unified` skill maps to `/sc:task-unified` command
-- `sc-cleanup-audit` skill maps to `/sc:cleanup-audit` command
+- `sc-adversarial-protocol` skill backs the `/sc:adversarial` command
+- `sc-task-protocol` skill backs the `/sc:task` command
+- `sc-cleanup-audit-protocol` skill backs the `/sc:cleanup-audit` command
 
-These skills are NOT installed as separate standalone skills. They are the knowledge backing for their corresponding slash commands.
+These protocol skills are installed to `~/.claude/skills/` like any other skill; the command activates its skill by name (`Skill sc:<command>-protocol`). The installer skips only a bare `sc-<name>` skill whose `commands/<name>.md` exists; it does not strip the `-protocol` suffix, so protocol skills are never skipped (`src/superclaude/cli/install_skills.py`).
 
 Skills without the `sc-` prefix (like `confidence-check`) are standalone utilities invocable by any command or agent.
 
@@ -769,7 +773,7 @@ Under `--unattended` the worker contract file is `<report-dir>/return-contract.y
 - A command that already writes `return-contract.yaml` in the report directory itself keeps every existing field, including its own `status`, and adds the worker fields beside them.
 - A command whose own contract lives elsewhere leaves that file unchanged, and the worker contract at `<report-dir>/return-contract.yaml` lists it in `artifacts`.
 
-For example, a skill's own `success` becomes `succeeded`. The full mapping is WC-4 in `~/.claude/WORKER-CONTRACT.md`; see [section 7.6](#76-orca-orchestration-commands-as-workers).
+For example, a skill's own `success` becomes `succeeded`. The full mapping is WC-4 in `~/.claude/WORKER-CONTRACT.md`; see [section 7.7](#77-orca-orchestration-commands-as-workers).
 
 ### 5.10 Skill-Authoring Checklist
 
@@ -788,14 +792,14 @@ Use this checklist when creating or refactoring a skill:
 - [ ] If the skill uses agents: agent delegation is explicit with Task tool
 - [ ] Routing row added to the guide (`src/superclaude/core/HOW-WE-WORK.md`)
 - [ ] **No hardcoded `src/superclaude/...` paths** in SKILL.md, refs/ or scripts that tell an agent to read or verify another primitive; use the installed `~/.claude/...` path and accept the project `.claude/` copy too (see "Path rules for primitives")
-- [ ] **Worker eligibility decided**: the command is either worker-capable or a never-as-worker command ([section 7.6](#76-orca-orchestration-commands-as-workers))
-- [ ] **Every blocking step has an unattended resolution**: each step that waits for a human has a default, a caller flag or a blocked outcome listed in the command's `## Unattended mode` section, which the skill follows as this guide's convention (WC-2, [section 7.6](#76-orca-orchestration-commands-as-workers))
-- [ ] **Worker contract on every outcome**: the worker contract is written on every outcome, and the skill's own contract file follows the WC-4 two-case rule as this guide's convention ([section 7.6](#76-orca-orchestration-commands-as-workers))
-- [ ] **No Orca dispatch**: no call to `worker-start`, `dispatch` or `task-create` in the skill, its refs or scripts (WC-8, [section 7.6](#76-orca-orchestration-commands-as-workers)), and, per the rollout plan (SA-2), no `orca` or `orca-ide` command at all
-- [ ] **Outward defaults off**: outward defaults and the skill's own commit or `.dev/tasks` staging step are off under `--unattended` (WC-9, [section 7.6](#76-orca-orchestration-commands-as-workers))
-- [ ] **Short blocking waits**: no single blocking Bash wait exceeds the WC-10 limit ([section 7.6](#76-orca-orchestration-commands-as-workers))
-- [ ] **Parallel-safe writes**: default write paths carry a timestamp or the caller's slug, and no single-owner shared file is written under `--unattended` (WC-11, [section 7.6](#76-orca-orchestration-commands-as-workers))
-- [ ] **Nested invocations propagate**: nested `/sc:` invocations follow the nested propagation rule ([section 7.6](#76-orca-orchestration-commands-as-workers))
+- [ ] **Worker eligibility decided**: the command is either worker-capable or a never-as-worker command ([section 7.7](#77-orca-orchestration-commands-as-workers))
+- [ ] **Every blocking step has an unattended resolution**: each step that waits for a human has a default, a caller flag or a blocked outcome listed in the command's `## Unattended mode` section, which the skill follows as this guide's convention (WC-2, [section 7.7](#77-orca-orchestration-commands-as-workers))
+- [ ] **Worker contract on every outcome**: the worker contract is written on every outcome, and the skill's own contract file follows the WC-4 two-case rule as this guide's convention ([section 7.7](#77-orca-orchestration-commands-as-workers))
+- [ ] **No Orca dispatch**: no call to `worker-start`, `dispatch` or `task-create` in the skill, its refs or scripts (WC-8, [section 7.7](#77-orca-orchestration-commands-as-workers)), and, per the rollout plan (SA-2), no `orca` or `orca-ide` command at all
+- [ ] **Outward defaults off**: outward defaults and the skill's own commit or `.dev/tasks` staging step are off under `--unattended` (WC-9, [section 7.7](#77-orca-orchestration-commands-as-workers))
+- [ ] **Short blocking waits**: no single blocking Bash wait exceeds the WC-10 limit ([section 7.7](#77-orca-orchestration-commands-as-workers))
+- [ ] **Parallel-safe writes**: default write paths carry a timestamp or the caller's slug, and no single-owner shared file is written under `--unattended` (WC-11, [section 7.7](#77-orca-orchestration-commands-as-workers))
+- [ ] **Nested invocations propagate**: nested `/sc:` invocations follow the nested propagation rule ([section 7.7](#77-orca-orchestration-commands-as-workers))
 
 ---
 
@@ -807,7 +811,7 @@ The wave system enables multi-stage command execution for complex operations. Wa
 
 **5-Wave Standard Pattern**:
 
-```
+```text
 Wave 0: Prerequisites
   - Validate inputs, check dependencies, create artifact directory
   - Load: SKILL.md only
@@ -835,7 +839,7 @@ Wave 4: Validation
 
 ### 6.2 Compliance Tiers
 
-The `/sc:task-unified` command implements tiered compliance enforcement:
+The `/sc:task` command implements tiered compliance enforcement:
 
 | Tier | When | Steps | Verification | Token Cost |
 |------|------|-------|-------------|------------|
@@ -848,7 +852,7 @@ The `/sc:task-unified` command implements tiered compliance enforcement:
 
 **Auto-detection algorithm**:
 
-```
+```text
 1. Check for user override (--compliance flag)
 2. Detect compound phrases (highest priority)
    - "fix security" -> STRICT (security always wins)
@@ -863,40 +867,6 @@ The `/sc:task-unified` command implements tiered compliance enforcement:
 6. If confidence < 0.7 -> prompt user for confirmation
 ```
 
-### 6.3 Delegation Intelligence
-
-The framework auto-delegates to sub-agents based on task characteristics:
-
-| Condition | Auto-Delegation | Confidence |
-|-----------|----------------|------------|
-| directory_count > 7 | `--delegate --parallel-dirs` | 95% |
-| file_count > 50 AND complexity > 0.6 | `--delegate --sub-agents` | 90% |
-| domains > 3 | `--delegate --parallel-focus` | 85% |
-| complexity > 0.8 AND scope = comprehensive | `--delegate --focus-agents` | 90% |
-| estimated_tokens > 20000 | `--delegate --aggregate-results` | 80% |
-
-**Sub-agent specialization matrix**:
-
-| Specialist | Persona | Focus | Tools |
-|-----------|---------|-------|-------|
-| Quality | qa | Complexity, maintainability | Read, Grep |
-| Security | security | Vulnerabilities, compliance | Grep, Context7 |
-| Performance | performance | Bottlenecks, optimization | Read, Playwright |
-| Architecture | architect | Patterns, structure | Read, Context7 |
-| API | backend | Endpoints, contracts | Grep, Context7 |
-
-### 6.4 Resource Management Zones
-
-The orchestrator monitors resource usage and adjusts behavior:
-
-| Zone | Usage | Behavior |
-|------|-------|----------|
-| Green | 0-60% | Full operations, predictive monitoring |
-| Yellow | 60-75% | Resource optimization, caching, suggest `--uc` mode |
-| Orange | 75-85% | Warning alerts, defer non-critical operations |
-| Red | 85-95% | Force efficiency modes, block resource-intensive operations |
-| Critical | 95%+ | Emergency protocols, essential operations only |
-
 ---
 
 ## 7. Integration Patterns
@@ -905,7 +875,7 @@ The orchestrator monitors resource usage and adjusts behavior:
 
 The canonical composition pattern (using `/sc:adversarial` as example):
 
-```
+```text
 User invokes:  /sc:adversarial --compare file1.md,file2.md --depth deep
 
 Command file:  src/superclaude/commands/adversarial.md
@@ -913,7 +883,7 @@ Command file:  src/superclaude/commands/adversarial.md
   - Activates personas: architect, analyzer, scribe
   - Selects MCP servers: context7
 
-Skill:         src/superclaude/skills/sc-adversarial/SKILL.md
+Skill:         src/superclaude/skills/sc-adversarial-protocol/SKILL.md
   - Loads behavioral protocol
   - Loads refs/scoring-protocol.md for Wave 2
   - Loads refs/agent-specs.md for Wave 3
@@ -929,25 +899,25 @@ Output:        artifacts/ directory with 6 files + return contract
 
 ### 7.2 MCP Server Integration
 
-Commands and skills declare MCP server needs in their frontmatter. The framework uses a circuit breaker pattern for reliability:
+Commands and skills name the MCP servers they use in their own frontmatter, for example `mcp-servers: [auggie, codegraph, context7, tavily]` in `/sc:troubleshoot` and `/sc:reflect`. A skill that needs an MCP tool also lists its exact tool names in `allowed-tools` (for example `mcp__codegraph__codegraph_callers`). There is no framework-wide MCP router, failure counter or fallback table: each primitive says in its own text what it does when a server is missing.
 
-| Server | Purpose | Fallback | Circuit Threshold |
-|--------|---------|----------|------------------|
-| Context7 | Library documentation, patterns | WebSearch for docs | 5 failures / 60s |
-| Playwright | Browser automation, E2E testing | Unit tests only | 2 failures / 120s |
-| Tavily | Web search, real-time information | WebSearch fallback | 3 failures / 45s |
+The pattern the 5.0.0 primitives follow:
 
-**MCP flag patterns**:
+- **Native floor.** `Grep`, `Glob` and `Read` are always available and stay in place as the floor for definition, caller and file lookups.
+- **Tiers above the floor.** codegraph and Auggie are lookup steps placed before the floor step, never instead of it; when either is missing the primitive continues on the floor. Context7 (library docs) and Tavily (web search) are optional steps a primitive uses when its text calls for outside knowledge.
+- **Per-command switches only.** MCP flags exist only where a command defines them. `/sc:troubleshoot` and `/sc:reflect` accept `--no-mcp` (native tools only). The `--c7`, `--play` and `--tavily` hints in `~/.claude/CLAUDE.md` are advisory; they are not options every command accepts.
 
-| Flag | Server | Activation |
-|------|--------|-----------|
-| `--c7`, `--context7` | Context7 | Manual |
-| `--play`, `--playwright` | Playwright | Manual |
-| `--tavily` | Tavily | Manual |
-| `--all-mcp` | All servers | Maximum complexity |
-| `--no-mcp` | None | Native tools only |
+### 7.3 Codegraph in Commands, Skills and Agents
 
-### 7.3 Persona Integration
+5.0.0 adds codegraph (a local code graph of symbols, callers and files) to commands, skills and agents. Every primitive that uses it follows `~/.claude/CODEGRAPH.md`; read that file before adding a codegraph step. Its rules, in short:
+
+- **Readiness check once per run.** Before the first lookup, check the switch, the session's tool list, the CLI version against the pin and the index state (CODEGRAPH.md section 2). Guard every CLI `codegraph status` with `pgrep -f 'codegraph\.js (init|index)'`; MCP `codegraph_status` needs no guard.
+- **Closed `graph:*` tokens.** When codegraph cannot be used, add exactly one token from the closed list (`graph:absent`, `graph:unlisted`, `graph:disabled`, `graph:not_initialized`, `graph:foreign_index`, `graph:stale`, `graph:version_mismatch`, `graph:provenance_unproven`, `graph:empty`, `graph:ambiguous`, `graph:truncated`, `graph:parse_failed`, `graph:unresolved`, `graph:telemetry_on`) to the primitive's existing `degraded` list and continue on the floor. Invent no new tokens; no token stops a run.
+- **Read before cite or edit.** Re-Read a `file:line` range before quoting it or editing it. An empty graph result is not proof of absence ("no callers", "no tests").
+- **Exact tool names.** Allowlists name each tool exactly (`mcp__codegraph__codegraph_<tool>`, `Bash(codegraph callers *)`), never a wildcard, and no skill or agent runs a mutating verb. Among primitives, only the user-typed `/sc:graph init` runs `codegraph init`; the session-start hook indexes new checkouts on its own.
+- **Switch-off.** `SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off` turns off codegraph use in primitives (token `graph:disabled`); `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0` turns off only the session-start index hook.
+
+### 7.4 Persona Integration
 
 Personas are labels, not switches. They appear in command frontmatter (`personas:`) and in debate agent specs such as `/sc:adversarial --agents opus:architect,sonnet:security`. Nothing activates them automatically and there are no `--persona-*` flags.
 
@@ -972,17 +942,17 @@ Personas are labels, not switches. They appear in command frontmatter (`personas
 - `frontend + qa`: User-focused development with accessibility testing
 - `analyzer + refactorer`: Root cause analysis with systematic code improvement
 
-### 7.4 Thinking Depth Flags
+### 7.5 Thinking Depth Flags (advisory)
 
-Commands interact with thinking depth flags for analysis scaling:
+These flags are advisory hints only. No installed core file defines them in 5.0.0 (the file that did was removed), so no command parses them or enforces a token budget or MCP choice; `/sc:business-panel` only notes that it works alongside them. The table records the conventional meaning, not installed behavior:
 
-| Flag | Token Budget | When to Use | MCP |
+| Flag | Token Budget (hint) | When to Use | MCP (hint) |
 |------|-------------|-------------|-----|
 | `--think` | ~4K | Module-level analysis | native |
 | `--think-hard` | ~10K | System-wide analysis, architectural | Context7 |
 | `--ultrathink` | ~32K | Critical system redesign, legacy modernization | All MCP servers |
 
-### 7.5 Dynamic Context Injection
+### 7.6 Dynamic Context Injection
 
 Skills can use shell preprocessing to inject runtime context:
 
@@ -995,7 +965,7 @@ Skills can use shell preprocessing to inject runtime context:
 
 The `!command` syntax executes shell commands and injects their output into the skill context. This enables skills to adapt to the current repository state.
 
-### 7.6 Orca Orchestration: Commands as Workers
+### 7.7 Orca Orchestration: Commands as Workers
 
 Orca can run IronClaude commands as workers under an Orca coordinator (the `/orchestration` skill). The rules live in one installed core file, `~/.claude/WORKER-CONTRACT.md`. This subsection says what they mean for someone writing a command, skill or agent; it summarizes the contract and does not replace it, so read the contract before you rely on a worker rule.
 
@@ -1059,7 +1029,7 @@ From P1, the worker's brief guard checks every copy of the command file it can s
 
 All component source files live in `src/superclaude/`:
 
-```
+```text
 src/superclaude/
   commands/           # Command .md files (source of truth)
   skills/             # Skill directories with SKILL.md (source of truth)
@@ -1112,7 +1082,7 @@ touch src/superclaude/skills/sc-my-skill/refs/scoring.md
 
 # 2. Write the component (see templates in Section 10)
 
-# 2a. Decide worker eligibility (WC-2, section 7.6)
+# 2a. Decide worker eligibility (WC-2, section 7.7)
 #    If the command will accept --unattended, write its ## Unattended mode section
 #    and add its name to UNATTENDED_COMMANDS in tests/skills/test_worker_contract.py
 
@@ -1156,7 +1126,7 @@ git commit -m "feat: add /sc:my-command with agent and skill"
 - Adversarial integration tests: End-to-end with real variant files
 - Edge case tests: Empty inputs, single file, maximum file count
 
-**Orca readiness checks** (for a command that will run as an Orca worker). These checks relate to WC-2, WC-4 and WC-9 ([section 7.6](#76-orca-orchestration-commands-as-workers)):
+**Orca readiness checks** (for a command that will run as an Orca worker). These checks relate to WC-2, WC-4 and WC-9 ([section 7.7](#77-orca-orchestration-commands-as-workers)):
 
 - Run `uv run pytest tests/skills/test_worker_contract.py`.
 - Its write-verb audit scans the skills, commands and agents under `src/superclaude/` (`AUDIT_ROOTS`) for `git add`, `git commit`, `git push`, `git merge`, `git stash`, `git update-ref`, `git worktree add` and `git worktree remove` (also written as `git -C <path> <verb>`), and for every `gh pr` and `gh api` line, reads included.
@@ -1185,32 +1155,36 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 ### 9.1 Command Design
 
 **Do**:
+
 - Start with clear "Required Input" or "Triggers" section
 - Define explicit "Will / Will Not" boundaries
 - Include 3-5 copy-paste examples covering common use cases
 - Declare MCP servers and personas in frontmatter even if empty (`[]`)
 - Use the existing command archetypes as starting points
-- Decide worker eligibility up front ([section 7.6](#76-orca-orchestration-commands-as-workers))
-- When the command accepts `--unattended`, list each gate's resolution, the report file and the report directory flag in `## Unattended mode`, and point to `~/.claude/WORKER-CONTRACT.md` (WC-2, [section 7.6](#76-orca-orchestration-commands-as-workers))
+- Decide worker eligibility up front ([section 7.7](#77-orca-orchestration-commands-as-workers))
+- When the command accepts `--unattended`, list each gate's resolution, the report file and the report directory flag in `## Unattended mode`, and point to `~/.claude/WORKER-CONTRACT.md` (WC-2, [section 7.7](#77-orca-orchestration-commands-as-workers))
 
 **Do not**:
+
 - Create commands that do everything (single responsibility principle)
 - Skip the Boundaries section (leads to scope creep)
 - Hardcode file paths (use arguments and `@<path>` references)
 - Forget to register the command in the guide (a job row or the Other commands table, see 3.6)
-- Call Orca from a command: commands contain no Orca calls (the contract's opening), and WC-8 bars `worker-start`, `dispatch` and `task-create` ([section 7.6](#76-orca-orchestration-commands-as-workers))
-- Copy shared contract rules into the command; point to `~/.claude/WORKER-CONTRACT.md` instead ([section 7.6](#76-orca-orchestration-commands-as-workers))
-- Leave an outward default on under `--unattended` (WC-9, [section 7.6](#76-orca-orchestration-commands-as-workers))
+- Call Orca from a command: commands contain no Orca calls (the contract's opening), and WC-8 bars `worker-start`, `dispatch` and `task-create` ([section 7.7](#77-orca-orchestration-commands-as-workers))
+- Copy shared contract rules into the command; point to `~/.claude/WORKER-CONTRACT.md` instead ([section 7.7](#77-orca-orchestration-commands-as-workers))
+- Leave an outward default on under `--unattended` (WC-9, [section 7.7](#77-orca-orchestration-commands-as-workers))
 
 ### 9.2 Agent Design
 
 **Do**:
+
 - Write a concise Behavioral Mindset (1-3 sentences)
 - List tools with explanations of WHY each tool is needed
 - Include explicit "Does NOT" constraints
 - Define concrete output artifact names and formats
 
 **Do not**:
+
 - Create agents that can do anything (constrain the scope)
 - Skip the Triggers / when-to-use guidance (delegators and Claude, which choose agents by `description`, then pick the wrong agent)
 - Allow agents to both orchestrate AND execute (pick one role)
@@ -1219,6 +1193,7 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 ### 9.3 Skill Design
 
 **Do**:
+
 - **Create a thin command layer** (`commands/<name>.md`, ~80-150 lines) for every skill — flags, usage, examples, boundaries, and an `## Activation` section that invokes the skill. No exceptions, including when refactoring existing skills.
 - Keep SKILL.md under 500 lines (behavioral intent only)
 - Move algorithms and templates to `refs/` for lazy loading
@@ -1226,11 +1201,12 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 - Define input contracts with STOP/WARN conditions
 - Define return contracts for composability
 - Declare per-wave ref loading instructions
-- Write the worker contract on every outcome (WC-4, [section 7.6](#76-orca-orchestration-commands-as-workers))
-- Follow the WC-4 two-case rule for the skill's own contract file, as this guide's convention ([section 7.6](#76-orca-orchestration-commands-as-workers))
-- Split long blocking Bash waits (WC-10, [section 7.6](#76-orca-orchestration-commands-as-workers))
+- Write the worker contract on every outcome (WC-4, [section 7.7](#77-orca-orchestration-commands-as-workers))
+- Follow the WC-4 two-case rule for the skill's own contract file, as this guide's convention ([section 7.7](#77-orca-orchestration-commands-as-workers))
+- Split long blocking Bash waits (WC-10, [section 7.7](#77-orca-orchestration-commands-as-workers))
 
 **Do not**:
+
 - Ship a skill without a command in front of it (the command is the user-facing interface; the skill is the behavioral engine)
 - Put flags, usage examples, or CLI interface concerns in SKILL.md (belongs in the command)
 - Pre-load all refs at skill invocation (violates lazy loading)
@@ -1238,17 +1214,18 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 - Use unrestricted `Bash` when specific commands suffice
 - Create skills without tool allowlisting
 - Skip the Will Do / Will Not Do boundaries
-- Call `AskUserQuestion` or end on a question under `--unattended` (WC-2, [section 7.6](#76-orca-orchestration-commands-as-workers))
-- Write a fixed shared output path or a single-owner shared file under `--unattended` (WC-11, [section 7.6](#76-orca-orchestration-commands-as-workers))
+- Call `AskUserQuestion` or end on a question under `--unattended` (WC-2, [section 7.7](#77-orca-orchestration-commands-as-workers))
+- Write a fixed shared output path or a single-owner shared file under `--unattended` (WC-11, [section 7.7](#77-orca-orchestration-commands-as-workers))
 
 ### 9.4 Token Management
 
 - Simple skill (confidence-check): ~50 tokens at session start, ~100 tokens on invocation
-- Medium skill (sc-task-unified): ~50 tokens at start, ~2000 on invocation
-- Complex skill (sc-adversarial): ~50 tokens at start, ~2000 for SKILL.md + ~500-1500 per ref loaded per wave
+- Medium skill (sc-task-protocol): ~50 tokens at start, ~2000 on invocation
+- Complex skill (sc-adversarial-protocol): ~50 tokens at start, ~2000 for SKILL.md + ~500-1500 per ref loaded per wave
 - Commands: ~80-150 lines loaded on invocation
 
 **Optimization strategies**:
+
 - Use `--uc` (ultra-compressed) mode when context pressure is high
 - Skills with refs/ should never load more than 2-3 refs at a time
 - Use the progressive disclosure pattern: name/description first, full content on demand
@@ -1266,7 +1243,7 @@ Skills should define an error handling matrix:
 | Missing required input | STOP with clear error message | None |
 | File not found | WARN, continue with available files | Skip missing |
 | Agent delegation fails | Retry once, then proceed with N-1 agents | Log and continue |
-| MCP server unavailable | Use circuit breaker fallback | Native tools |
+| MCP server unavailable | Continue on the native floor, record it as degraded | Grep / Glob / Read |
 | Convergence not reached | REVISE loop (max 2 iterations) | PASS_WITH_WARNINGS |
 ```
 
@@ -1301,13 +1278,13 @@ These patterns emerged from real-world Claude Code usage:
 | Hardcoded file paths in skills | Breaks portability | Use arguments and relative paths |
 | Skipping the routing-table row | /sc:recommend never gets a matched-row answer for the command; it can only find it through live enumeration (slower, with no mandatory flags) | Add the command to a job row in the routing table, or to the "Other commands" table, in src/superclaude/core/HOW-WE-WORK.md |
 | No error handling matrix | Silent failures, confusing behavior | Define scenario/behavior/fallback table |
-| A step that waits for a human under `--unattended` | WC-2 forbids the question, so the step has no allowed outcome and the worker cannot finish it | Resolve each gate by a documented default, a caller flag or blocked (WC-2, [section 7.6](#76-orca-orchestration-commands-as-workers)) |
-| An Orca call inside a command or skill | Per the rollout plan (SA-2), commands run where Orca is absent; per the rollout plan, two controllers compete, which is why orchestrating commands stay with the coordinator | Leave fan-out to the coordinator, which splits the work into separate Tasks; WC-8 bars `worker-start`, `dispatch` and `task-create` ([section 7.6](#76-orca-orchestration-commands-as-workers)) |
-| A worker contract written only on success | A stop with no contract reads as a failure with no report (WC-5) | Write it on every outcome (WC-4, [section 7.6](#76-orca-orchestration-commands-as-workers)) |
-| Reusing `status` for the worker outcome | It clashes with the values existing contracts already give `status` | Use `worker_status` under the WC-4 two-case rule ([section 7.6](#76-orca-orchestration-commands-as-workers)) |
-| One long blocking Bash wait | The worker session cannot heartbeat during it | Split it into waits within the WC-10 limit ([section 7.6](#76-orca-orchestration-commands-as-workers)) |
-| A fixed shared output path | Two workers in one worktree overwrite each other's files | Use a timestamp or the slug the coordinator passes, plus the Task's own report directory (WC-11, [section 7.6](#76-orca-orchestration-commands-as-workers)) |
-| Copying the contract into a command | The copies drift from the contract | Point to `~/.claude/WORKER-CONTRACT.md` ([section 7.6](#76-orca-orchestration-commands-as-workers)) |
+| A step that waits for a human under `--unattended` | WC-2 forbids the question, so the step has no allowed outcome and the worker cannot finish it | Resolve each gate by a documented default, a caller flag or blocked (WC-2, [section 7.7](#77-orca-orchestration-commands-as-workers)) |
+| An Orca call inside a command or skill | Per the rollout plan (SA-2), commands run where Orca is absent; per the rollout plan, two controllers compete, which is why orchestrating commands stay with the coordinator | Leave fan-out to the coordinator, which splits the work into separate Tasks; WC-8 bars `worker-start`, `dispatch` and `task-create` ([section 7.7](#77-orca-orchestration-commands-as-workers)) |
+| A worker contract written only on success | A stop with no contract reads as a failure with no report (WC-5) | Write it on every outcome (WC-4, [section 7.7](#77-orca-orchestration-commands-as-workers)) |
+| Reusing `status` for the worker outcome | It clashes with the values existing contracts already give `status` | Use `worker_status` under the WC-4 two-case rule ([section 7.7](#77-orca-orchestration-commands-as-workers)) |
+| One long blocking Bash wait | The worker session cannot heartbeat during it | Split it into waits within the WC-10 limit ([section 7.7](#77-orca-orchestration-commands-as-workers)) |
+| A fixed shared output path | Two workers in one worktree overwrite each other's files | Use a timestamp or the slug the coordinator passes, plus the Task's own report directory (WC-11, [section 7.7](#77-orca-orchestration-commands-as-workers)) |
+| Copying the contract into a command | The copies drift from the contract | Point to `~/.claude/WORKER-CONTRACT.md` ([section 7.7](#77-orca-orchestration-commands-as-workers)) |
 
 ---
 
@@ -1673,7 +1650,7 @@ Executes a 5-step protocol producing 6 artifacts:
 - Skip protocol steps
 ````
 
-**File**: `src/superclaude/skills/sc-adversarial/SKILL.md`
+**File**: `src/superclaude/skills/sc-adversarial-protocol/SKILL.md`
 
 ```markdown
 ---
@@ -1782,7 +1759,7 @@ If artifact directory exists, append `-N` suffix. Never overwrite.
 - Participate in debates (strict process management only)
 ```
 
-**File**: `src/superclaude/skills/sc-adversarial/refs/scoring-protocol.md`
+**File**: `src/superclaude/skills/sc-adversarial-protocol/refs/scoring-protocol.md`
 
 ```markdown
 # Scoring Protocol Reference
@@ -1823,7 +1800,7 @@ If top variants score within 5% of each other:
 3. If still tied, prefer alphabetical order (deterministic)
 ```
 
-**File**: `src/superclaude/skills/sc-adversarial/refs/agent-specs.md`
+**File**: `src/superclaude/skills/sc-adversarial-protocol/refs/agent-specs.md`
 
 ````markdown
 # Agent Specification Reference
@@ -2038,7 +2015,7 @@ personas: [<personas>]
 
 ## Protocol
 
-<When the run has --unattended, each step that waits for a human applies the resolution its command's ## Unattended mode section names (WC-2, section 7.6; this guide's convention).>
+<When the run has --unattended, each step that waits for a human applies the resolution its command's ## Unattended mode section names (WC-2, section 7.7; this guide's convention).>
 
 ### Step 1: <Name>
 <What happens, what refs to load, what output produced.>
@@ -2106,8 +2083,8 @@ personas: [<personas>]
 | Flag | Short | Default | Description |
 |------|-------|---------|-------------|
 | `--flag` | `-f` | `value` | <description> |
-| `--unattended` | | off | <Optional row: only if this command accepts unattended mode (WC-2, section 7.6)> |
-| `--report-dir` | | none | <Optional row: only if this command has no directory-valued `--output` or `--output-dir`, or the brief does not pass it; both or neither is refused before any work (WC-4, section 7.6)> |
+| `--unattended` | | off | <Optional row: only if this command accepts unattended mode (WC-2, section 7.7)> |
+| `--report-dir` | | none | <Optional row: only if this command has no directory-valued `--output` or `--output-dir`, or the brief does not pass it; both or neither is refused before any work (WC-4, section 7.7)> |
 
 ## Behavioral Flow
 1. <Step 1>
@@ -2134,7 +2111,7 @@ Under `--unattended`:
 - Nested invocations: <each nested /sc: command and its nested report directory, or none>
 - Resume input: <the input a resumed run takes, or none>
 
-Shared rules (WC-4, section 7.6): see `~/.claude/WORKER-CONTRACT.md`.
+Shared rules (WC-4, section 7.7): see `~/.claude/WORKER-CONTRACT.md`.
 
 ## Boundaries
 
@@ -2209,34 +2186,29 @@ All paths are relative to the SuperClaude Framework repository root:
 | Term | Definition |
 |------|-----------|
 | **Agent spec** | Mini-language format `model[:persona[:"instruction"]]` for dynamic agent creation |
-| **Brief guard** | The worker session's check, from P1, that each `Command:` line of its brief matches the `## Unattended mode` state of the command file copies it can see ([section 7.6](#76-orca-orchestration-commands-as-workers)) |
+| **Brief guard** | The worker session's check, from P1, that each `Command:` line of its brief matches the `## Unattended mode` state of the command file copies it can see ([section 7.7](#77-orca-orchestration-commands-as-workers)) |
 | **CEV protocol** | Claim-Evidence-Verdict format for qualitative scoring |
-| **Circuit breaker** | Pattern that disables failing MCP servers and uses fallbacks |
 | **Compliance tier** | STRICT/STANDARD/LIGHT/EXEMPT classification for task execution depth |
 | **Context-Oriented Configuration** | SuperClaude's architecture: .md files that shape Claude Code behavior |
-| **Coordinator** | The session, opened by hand, that plans Orca work, creates one Task per unit of work and starts one worker per Task ([section 7.6](#76-orca-orchestration-commands-as-workers)) |
+| **Coordinator** | The session, opened by hand, that plans Orca work, creates one Task per unit of work and starts one worker per Task ([section 7.7](#77-orca-orchestration-commands-as-workers)) |
 | **Frontmatter** | YAML metadata block at the top of .md files, delimited by `---` |
 | **Lazy loading** | Skills load name/description (~50 tokens) at start; full content on invocation |
-| **Lifecycle messages** | The Orca messages that only the top-level worker session sends, never a subagent (WC-7, [section 7.6](#76-orca-orchestration-commands-as-workers)) |
+| **Lifecycle messages** | The Orca messages that only the top-level worker session sends, never a subagent (WC-7, [section 7.7](#77-orca-orchestration-commands-as-workers)) |
 | **MCP** | Model Context Protocol -- servers that extend Claude Code capabilities |
-| **Nested propagation rule** | How a command run with `--unattended` passes the flag and a nested report directory to a nested `/sc:` command ([section 7.6](#76-orca-orchestration-commands-as-workers)) |
-| **Never-as-worker list** | The commands that are never dispatched as Orca workers and get no `--unattended` mode ([section 7.6](#76-orca-orchestration-commands-as-workers)) |
+| **Nested propagation rule** | How a command run with `--unattended` passes the flag and a nested report directory to a nested `/sc:` command ([section 7.7](#77-orca-orchestration-commands-as-workers)) |
+| **Never-as-worker list** | The commands that are never dispatched as Orca workers and get no `--unattended` mode ([section 7.7](#77-orca-orchestration-commands-as-workers)) |
 | **Persona** | Specialized behavior profile (architect, security, qa, etc.) |
 | **Position-bias mitigation** | Dual-pass scoring (forward + reverse) to eliminate order effects |
 | **Progressive disclosure** | Information loaded incrementally as needed, not all at once |
 | **refs/** | Reference files in a skill directory, loaded on-demand per wave |
-| **Report directory** | The one directory the brief passes for the worker contract: either the command's own directory-valued `--output` or `--output-dir`, or `--report-dir` for a command without one or a brief that does not pass it; both or neither is refused before any work (WC-4, [section 7.6](#76-orca-orchestration-commands-as-workers)) |
+| **Report directory** | The one directory the brief passes for the worker contract: either the command's own directory-valued `--output` or `--output-dir`, or `--report-dir` for a command without one or a brief that does not pass it; both or neither is refused before any work (WC-4, [section 7.7](#77-orca-orchestration-commands-as-workers)) |
 | **Return contract** | Structured data a skill returns for inter-command composition |
 | **REVISE loop** | Max 2 iteration retry for scores in 70-84% range |
 | **sc- prefix** | Skill prefix indicating it backs a `/sc:` command |
 | **Steelman** | Debate strategy: present the strongest version of each argument |
 | **STOP pattern** | Explicit halt condition when required inputs are missing |
-| **Unattended mode** | The behaviour a command switches to when its caller passes `--unattended`, with no step that waits for a human (WC-2, [section 7.6](#76-orca-orchestration-commands-as-workers)) |
+| **Unattended mode** | The behaviour a command switches to when its caller passes `--unattended`, with no step that waits for a human (WC-2, [section 7.7](#77-orca-orchestration-commands-as-workers)) |
 | **Wave** | One stage in multi-phase command execution |
-| **Worker (Orca)** | A top-level Claude session that an Orca coordinator starts to run one `/sc:` command; not an Agent-tool subagent ([section 7.6](#76-orca-orchestration-commands-as-workers)) |
-| **Worker contract** | The `return-contract.yaml` a command writes in its report directory on every outcome under `--unattended`, following the WC-4 two-case rule ([section 7.6](#76-orca-orchestration-commands-as-workers)) |
-| **`worker_status`** | The worker contract's outcome field, kept separate from a command's own `status` (WC-4, [section 7.6](#76-orca-orchestration-commands-as-workers)) |
-
----
-
-*Generated from 34 research and extraction files. Source material in `docs/generated/dev-guide-research/`.*
+| **Worker (Orca)** | A top-level Claude session that an Orca coordinator starts to run one `/sc:` command; not an Agent-tool subagent ([section 7.7](#77-orca-orchestration-commands-as-workers)) |
+| **Worker contract** | The `return-contract.yaml` a command writes in its report directory on every outcome under `--unattended`, following the WC-4 two-case rule ([section 7.7](#77-orca-orchestration-commands-as-workers)) |
+| **`worker_status`** | The worker contract's outcome field, kept separate from a command's own `status` (WC-4, [section 7.7](#77-orca-orchestration-commands-as-workers)) |

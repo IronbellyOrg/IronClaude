@@ -1,0 +1,313 @@
+# E2E Test Guide — `Planning chain, remediation routing and review cap` (`5.0.0`)
+
+- **Capability:** level-3 work runs as `/sc:workflow` (a checked plan package under `.dev/tasks/to-do/<id>/`) then `/sc:implement` (per-task review, `progress.md` ledger, a `/sc:impact` warning before a rename, archive to `.dev/tasks/done/` on Linux); `/sc:troubleshoot --fix` offers that plan route and only `--fix --depth deep` offers `/task-builder`; every subagent receives the Pragmatic rules, including the 5.0.0 review cap (blocking or minor findings, at most 2 fix cycles, then escalate; `/sc:implement` keeps its own model and halts).
+- **Audience:** end user
+- **Source of truth:** `src/superclaude/core/HOW-WE-WORK.md:17,22,24,360`; `src/superclaude/commands/troubleshoot.md:51,54,77,179,191-192`; `src/superclaude/skills/sc-troubleshoot-protocol/refs/remediation-handoff.md:7-14,28-66`; `src/superclaude/output-styles/pragmatic.md:225-229`; `src/superclaude/hooks/scripts/pragmatic-subagent.js:7-21`; `src/superclaude/hooks/hooks.json:110-128`; `src/superclaude/commands/workflow.md:12,46`; `src/superclaude/skills/sc-workflow-protocol/SKILL.md:10,24,40,44,58,72-74`; `src/superclaude/skills/sc-workflow-protocol/refs/input-parse.md:12,18-21`, `refs/return-contract.md:5-19`; `src/superclaude/skills/sc-implement-protocol/SKILL.md:13,55,64,118-122,133,168`, `refs/managed-workspace.md:9,25,31,40-61,73`, `refs/ledger.md:18-60,226-244`, `refs/retry.md:14,441`, `scripts/archive_workspace.py:88-93`; `src/superclaude/commands/impact.md:37-50`; `CHANGELOG.md:29-33`
+- **Est. time:** `Tier A: 2 minutes. Tier B: 2 minutes. Tier C cheap checks (Steps 4-6): 25-45 minutes. Tier C long run (Steps 7-8): 45-120 minutes. Optional Step 9: 30-90 minutes. The Tier C times are estimates (UNVERIFIED): they depend on the number of plan phases, review rounds and your model.`
+
+## Preconditions
+
+- IronClaude 5.0.0 installed for your user (`superclaude install` done): `superclaude --version` prints `SuperClaude, version 5.0.0`. The install puts the hook scripts in `~/.claude/hooks/`, merges their registrations into `~/.claude/settings.json` and copies `pragmatic.md` to `~/.claude/output-styles/` (transcript `docs/testing/v5.0.0/c-e2e-transcript.txt:220-237,304`).
+- `node` and `jq` on your `PATH` (the Pragmatic subagent hook is a Node script, `src/superclaude/hooks/hooks.json:124`; the Bash-policy subagent hook needs `jq`, `src/superclaude/hooks/scripts/freshness-subagent-start.sh:30-34`), plus `git`, `uv` (the archive helper runs as `uv run --no-project python`, `src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md:53`) and the `claude` CLI with a Claude Code login. Every Tier C step uses API tokens.
+- Linux for Step 8's archive check. On macOS or any other system the archive is refused on purpose; Step 8 gives that expected result too (`src/superclaude/core/HOW-WE-WORK.md:17`).
+- `/tmp/d06` does not exist (`[ ! -e /tmp/d06 ] && echo OK` prints `OK`). Every file this guide creates is under `/tmp/d06`. No step edits your real `~/.claude`. The Tier C sessions still write there in ways no step controls: Claude Code saves each session's history, and the hooks that `superclaude install` registers write state and log files under `~/.claude/state/` and `~/.claude/logs/` at session start and on each prompt (`src/superclaude/hooks/hooks.json:18,49`; `src/superclaude/hooks/scripts/freshness-session-start.sh:8-9`, `freshness-user-prompt.sh:8-10`, `auggie-flag-clear.sh:10-12`), and each subagent start adds a counter file under `~/.claude/state/bg-agents/` (`freshness-subagent-start.sh:6-27`).
+- The sessions in this guide are started without `SUPERCLAUDE_CODEGRAPH_AUTOINIT=0`, so the session-start hook indexes the fixture in the background (one `codegraph init --yes`, logged to `${XDG_STATE_HOME:-~/.local/state}/superclaude/codegraph-init.log`; the first init can use up to about 1 GB of memory, `CHANGELOG.md:93`). The fixture ignores `.codegraph/`. Without codegraph, `/sc:impact` falls back to Grep and the guide still passes (`src/superclaude/commands/impact.md:13`).
+- `/sc:workflow`, `/sc:implement` and `/sc:troubleshoot` are carried out by Claude following the command and skill files. Expected results check files on disk and the exact strings those files fix; anything else is judged on content, not wording.
+
+## What you're verifying
+
+- Every subagent starts with an injected block whose first line is `PRAGMATIC MODE ACTIVE`, carrying the review-severity rules: blocking or minor, minor never fails, at most 2 fix cycles (3 reviews) then escalate, `/sc:implement` keeps its own model.
+- `/sc:troubleshoot --fix` offers the plan route (`sc:workflow`, then you run `/sc:implement`); only `--fix --depth deep` offers `task-builder`; `--depth quick --fix` stops; nothing is edited before you accept.
+- `/sc:workflow "<feature>" --depth standard --handoff none` writes one new package `.dev/tasks/to-do/<id>/` with `<id>.md`, `source.md` and `return-contract.yaml`, prints the plan path and the advisory check result, and changes no product file.
+- `/sc:implement <plan path>` writes `progress.md` in the package, calls `/sc:impact` before a rename, ends with a fresh `FINAL: pass` review, and moves the package to `.dev/tasks/done/<id>/` (Linux) or reports archive-blocked (other systems).
+- Optional: a task whose blocking defect cannot be fixed ends in a `halt` and an escalation to you, never in `complete`.
+
+---
+
+## Steps
+
+### Tier A — free smoke on your machine (read-only)
+
+#### Step 1 — The Pragmatic subagent hook and the review-cap rules `[FREE]`
+
+**Do:**
+
+```bash
+superclaude --version
+node ~/.claude/hooks/pragmatic-subagent.js </dev/null | jq -r '.hookSpecificOutput.hookEventName, (.hookSpecificOutput.additionalContext | split("\n")[0:3][])'
+grep -n -e 'Grade every review finding' -e 'Minor findings never fail' -e 'at most 2 fix cycles' -e 'its own severity model' -e 'CRITICAL / IMPORTANT / MINOR scale' ~/.claude/output-styles/pragmatic.md | cut -c1-80
+jq -r '.hooks.SubagentStart[].hooks[].command' ~/.claude/settings.json | grep -E 'freshness-subagent-start|pragmatic-subagent'
+```
+
+**Expected result:**
+
+- `SuperClaude, version 5.0.0`.
+- Four lines: `SubagentStart`, `PRAGMATIC MODE ACTIVE`, an empty line, `# Pragmatic Mode`. The script reads `~/.claude/output-styles/pragmatic.md`, strips its front matter and puts `PRAGMATIC MODE ACTIVE` and a blank line in front (source: `src/superclaude/hooks/scripts/pragmatic-subagent.js:7-15`; heading `src/superclaude/output-styles/pragmatic.md:7`).
+- Five lines numbered `225:` to `229:`, in that order: grade every finding blocking or minor; minor findings never fail a review; at most 2 fix cycles (3 reviews), then escalate; a protocol with its own severity model, such as `/sc:implement`, applies it; on a CRITICAL / IMPORTANT / MINOR scale, CRITICAL and IMPORTANT are blocking (source: `src/superclaude/output-styles/pragmatic.md:225-229`; `CHANGELOG.md:29`). If the lines are missing or numbered differently, your copy predates 5.0.0: a plain `superclaude install` keeps an existing output style (`src/superclaude/cli/install_user_setup.py:129-131`). Note it and stop here; `superclaude install --force` refreshes it, but read the overwrite warning at `~/.claude/HOW-WE-WORK.md` line 3 first.
+- Two lines: `~/.claude/hooks/freshness-subagent-start.sh` and `node "$HOME/.claude/hooks/pragmatic-subagent.js"` (source: `src/superclaude/hooks/hooks.json:110-128`). Other SubagentStart hooks you or other tools added may also be registered; the `grep` hides them.
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 2 — The hook fails loudly without the style file `[FREE]`
+
+**Do:**
+
+```bash
+mkdir -p /tmp/d06-emptyhome && HOME=/tmp/d06-emptyhome node ~/.claude/hooks/pragmatic-subagent.js </dev/null; echo "exit=$?"; rmdir /tmp/d06-emptyhome
+```
+
+**Expected result:** nothing on stdout, then on stderr exactly `Failed to load Pragmatic instructions from /tmp/d06-emptyhome/.claude/output-styles/pragmatic.md: ENOENT: no such file or directory, open '/tmp/d06-emptyhome/.claude/output-styles/pragmatic.md'`, then `exit=1` (source: `src/superclaude/hooks/scripts/pragmatic-subagent.js:7,19-21`). The empty folder is removed again; your real `~/.claude` is not read or changed.
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+### Tier B — local writes under /tmp/d06
+
+#### Step 3 — Create the scratch repository `[LOCAL-WRITE]`
+
+**Do:** (bash; keep this terminal open, Tier C uses a second one)
+
+```bash
+[ ! -e /tmp/d06 ] || { echo "remove /tmp/d06 first"; false; }
+mkdir -p /tmp/d06/proj/src/calc /tmp/d06/proj/tests && cd /tmp/d06/proj && git init -q .
+printf '.codegraph/\n__pycache__/\n' > .gitignore
+: > src/calc/__init__.py
+cat > src/calc/core.py <<'EOF'
+def add_nums(a, b):
+    return a + b
+EOF
+cat > src/calc/cli.py <<'EOF'
+import sys
+
+from calc.core import add_nums
+
+
+def main(argv):
+    print(add_nums(int(argv[1]), int(argv[2])))
+
+
+if __name__ == "__main__":
+    main(sys.argv)
+EOF
+cat > src/calc/report.py <<'EOF'
+def report_path(name):
+    return Path("reports") / f"{name}.txt"
+
+
+if __name__ == "__main__":
+    print(report_path("daily"))
+EOF
+cat > tests/test_core.py <<'EOF'
+from calc.core import add_nums
+
+
+def test_add():
+    assert add_nums(2, 3) == 5
+EOF
+git add -A && git -c user.name=d06 -c user.email=d06@example.invalid commit -qm fixture
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run --no-project python src/calc/cli.py 2 3
+PYTHONDONTWRITEBYTECODE=1 uv run --no-project python src/calc/report.py 2>&1 | tail -n 1
+grep -rn add_nums src tests | wc -l
+git status --porcelain
+```
+
+**Expected result:** `5`, then `NameError: name 'Path' is not defined` (the seeded bug for Steps 5-6), then `5` (the uses of `add_nums` that Step 7 renames), and `git status` prints nothing. `/tmp/d06/proj` is a git repository with one commit (`/sc:implement` snapshots against `HEAD`, `src/superclaude/skills/sc-implement-protocol/SKILL.md:110-115`). (source: the fixture itself; Python's own `NameError` text)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+### Tier C — interactive Claude Code sessions
+
+Run these in a second terminal, starting each session with `cd /tmp/d06/proj && claude`. Type each `/sc:` line at the Claude Code prompt exactly as shown and allow the tool calls Claude Code asks about inside `/tmp/d06/proj`. Steps 4-6 are cheap checks (`[CLAUDE-SESSION]`). Steps 7-9 also run in an interactive session but start many subagents and take tens of minutes to hours, so they carry `[API-LONG]`.
+
+#### Step 4 — A subagent receives the Pragmatic block `[CLAUDE-SESSION]`
+
+**Do:**
+
+```bash
+cd /tmp/d06/proj && claude
+```
+
+```text
+Use the Agent tool to start one general-purpose subagent. Its only job: for each block of additional context that its SubagentStart hooks injected, reply with the first line of that block, quoted exactly, and nothing else. Show me the subagent's reply word for word.
+/exit
+```
+
+**Expected result:** the subagent reports a block whose first line is exactly `PRAGMATIC MODE ACTIVE` (source: `src/superclaude/hooks/scripts/pragmatic-subagent.js:15`; registration `src/superclaude/hooks/hooks.json:120-127`). It may also report a block whose first line is `# Bash Inspection Batching Policy`: the first SubagentStart hook injects `~/.claude/BASH_INSPECTION_POLICY.md` when `jq` is present and the file is readable (`src/superclaude/hooks/hooks.json:111-118`; `src/superclaude/hooks/scripts/freshness-subagent-start.sh:6-7,30-34`; `src/superclaude/core/BASH_INSPECTION_POLICY.md:1`), so the Pragmatic block need not be the first block. UNVERIFIED: the reply is the model's own report of its context; Step 1 is the mechanical check of the same text. FAIL if no block starts with `PRAGMATIC MODE ACTIVE`.
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 5 — `/sc:troubleshoot --fix` offers the plan route `[CLAUDE-SESSION]`
+
+**Do:**
+
+```bash
+cd /tmp/d06/proj && claude
+```
+
+```text
+/sc:troubleshoot "NameError: name 'Path' is not defined when running uv run --no-project python src/calc/report.py" --type bug --fix
+```
+
+When the offer appears, answer `no`. Keep the session open for Step 6. Then, in the first terminal:
+
+```bash
+cd /tmp/d06/proj && ls -d .dev/troubleshoot/*/ && ls .dev/troubleshoot/*/REPORT.md
+ls .dev/tasks/to-do 2>&1
+git status --porcelain -- src tests
+```
+
+**Expected result:**
+
+- Diagnosis first: a report under `.dev/troubleshoot/<slug>-<timestamp>/REPORT.md` (source: default output dir `src/superclaude/commands/troubleshoot.md:56`). Tier 1 should diagnose the missing `from pathlib import Path` in `src/calc/report.py`.
+- When the report status is `success`, the offer is printed from a fixed template: the first line is `Tier 3 remediation chain is available for this fix.   Route: plan`, the steps are the plan-route list (build a phased tasklist package via `/sc:workflow` with its own advisory `/sc:reflect --mode pre`, show the pre-review result, stop and show the literal `/sc:implement <pkg>/<id>.md` command, then `/sc:reflect --mode post` after you run it), then "Fix to be applied", "Files that will change" and the pipeline hardening verdict, and the last line is `Proceed with sc:workflow?  [yes / no]`. No `task-builder` and no MDTM step list (source: route keyed on the requested `--depth`, `src/superclaude/skills/sc-troubleshoot-protocol/refs/remediation-handoff.md:7-14`; template `remediation-handoff.md:28-58`; `src/superclaude/commands/troubleshoot.md:54,77`; level 3 for an ordinary fix `src/superclaude/core/HOW-WE-WORK.md:24,360`).
+- After `no`: `Tier 3 declined — report at <path>` (source: `remediation-handoff.md:66`). The shell checks show the report, `ls: cannot access '.dev/tasks/to-do': No such file or directory` (no plan package was built) and nothing from `git status`: no code changed (source: `src/superclaude/commands/troubleshoot.md:191,197-205`).
+- If the report status is `partial` or another non-success value, no offer appears (`src/superclaude/commands/troubleshoot.md:179`; `remediation-handoff.md:3`). Record that as inconclusive, not as a routing FAIL, and repeat the step with `--scope src/calc/report.py` added.
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 6 — `--fix --depth deep` offers `task-builder` `[CLAUDE-SESSION]`
+
+**Do:** in the Step 5 session (Tier 2 is forced, so this costs more: about 15-60k extra tokens and 4-15 extra minutes, `src/superclaude/commands/troubleshoot.md:76`):
+
+```text
+/sc:troubleshoot "NameError: name 'Path' is not defined when running uv run --no-project python src/calc/report.py" --type bug --depth deep --fix --scope src/calc/report.py
+```
+
+Answer `no` to the offer, then `/exit`. In the first terminal: `cd /tmp/d06/proj && ls .dev/tasks 2>&1; git status --porcelain -- src tests`.
+
+**Expected result:** a second report folder under `.dev/troubleshoot/`; the offer's first line is `Tier 3 remediation chain is available for this fix.   Route: mdtm`, its steps are the MDTM-route list (build an MDTM task file, run `/sc:reflect --type task --analyze`, stop and show the literal `/task <path>` command, then `/sc:reflect --type task --validate`), it includes `Expected task complexity (MDTM route only): generic` or `complex`, and the last line is `Proceed with task-builder?  [yes / no]`. After `no`: `Tier 3 declined — report at <path>`, no `.dev/tasks` folder and no code change. (source: `src/superclaude/skills/sc-troubleshoot-protocol/refs/remediation-handoff.md:12,39-58,66`; `src/superclaude/commands/troubleshoot.md:54,192`; MDTM only on explicit `--depth deep --fix` `src/superclaude/core/HOW-WE-WORK.md:360`)
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 7 — `/sc:workflow` writes a checked plan package `[API-LONG]`
+
+**Do:**
+
+```bash
+cd /tmp/d06/proj && claude
+```
+
+```text
+/sc:workflow "Rename the function add_nums to add_numbers in src/calc/core.py and update every use in src/calc/cli.py and tests/test_core.py. Why: the name should say what it adds. Done when grep -rn add_nums src tests prints nothing and PYTHONPATH=src uv run --no-project python src/calc/cli.py 2 3 prints 5." --depth standard --handoff none
+```
+
+Keep the session open for Step 8. When Claude prints the plan path, check the package in the first terminal:
+
+```bash
+cd /tmp/d06/proj && ls -d .dev/tasks/to-do/*/
+ID=$(basename "$(ls -d .dev/tasks/to-do/TASK-WF-* | head -n 1)"); echo "$ID" > /tmp/d06/id; echo "$ID"
+ls ".dev/tasks/to-do/$ID"
+sed -n '1,12p' ".dev/tasks/to-do/$ID/$ID.md"
+grep -c '^## Task [0-9]' ".dev/tasks/to-do/$ID/$ID.md"
+grep -E '^(contract_version|status|slug|plan_path|handoff_action|reflect_status|reflect_report_path):' ".dev/tasks/to-do/$ID/return-contract.yaml"
+git status --porcelain -- src tests
+```
+
+**Expected result:**
+
+- In chat: the plan path `.dev/tasks/to-do/<id>/<id>.md` and the advisory check result (`reflect_status` and its report path) (source: `src/superclaude/core/HOW-WE-WORK.md:17`; `src/superclaude/commands/workflow.md:46`; `src/superclaude/skills/sc-workflow-protocol/SKILL.md:58`).
+- One package. Its id matches `TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>`, with the time in UTC and, for this prompt, the subject `renameTheFunctio` (the first words in lower camelCase, cut to 16 characters) (source: `src/superclaude/skills/sc-workflow-protocol/refs/input-parse.md:18-20`).
+- The package holds `<id>.md`, `source.md` and `return-contract.yaml` (it may hold other files) (source: `src/superclaude/skills/sc-workflow-protocol/SKILL.md:72`). The plan front matter has `schema: workflow-plan/1.2`, `slug: <id>` and `source: ./source.md` (`SKILL.md:44`), and the plan has at least one `## Task N:` heading (`SKILL.md:46`); standard depth allows 4-8 phases (`SKILL.md:40`).
+- The contract shows `contract_version: "1.1"`, `status: success`, `slug: <id>`, `plan_path: ./<id>.md`, `handoff_action: none`, a `reflect_status` of `success`, `partial`, `failed` or `skipped`, and a `reflect_report_path` (an absolute path, or `null` when reflect was skipped or failed) (source: `src/superclaude/skills/sc-workflow-protocol/refs/return-contract.md:5-21,26`; `null` report path `src/superclaude/skills/sc-workflow-protocol/SKILL.md:60`).
+- `git status -- src tests` prints nothing: `/sc:workflow` plans only and writes no product code (source: `src/superclaude/skills/sc-workflow-protocol/SKILL.md:10,74`).
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 8 — `/sc:implement` runs the plan, calls `/sc:impact`, reviews and archives `[API-LONG]`
+
+**Do:** in the Step 7 session, with `<id>` from `/tmp/d06/id`:
+
+```text
+/sc:implement .dev/tasks/to-do/<id>/<id>.md
+```
+
+Wait until it finishes (it may take an hour or more), then `/exit`. In the first terminal:
+
+```bash
+cd /tmp/d06/proj && ID=$(cat /tmp/d06/id)
+ls -d ".dev/tasks/to-do/$ID" ".dev/tasks/done/$ID" 2>&1
+P=".dev/tasks/done/$ID/progress.md"; [ -f "$P" ] || P=".dev/tasks/to-do/$ID/progress.md"
+sed -n '1,2p' "$P" | cut -c1-100
+grep -E '^T[0-9A-Za-z.-]+: (start|complete|blocked|halt)' "$P" | cut -c1-70
+tail -n 2 "$P" | cut -c1-100
+ls "$(dirname "$P")"/impact/*/
+grep -rn add_nums src tests; PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src uv run --no-project python src/calc/cli.py 2 3
+```
+
+**Expected result:**
+
+- During the run, before the edit that renames `add_nums`, Claude prints one warning line with the production and test dependent counts from `/sc:impact` (wording UNVERIFIED); it never adds files or changes a verdict (source: `src/superclaude/skills/sc-implement-protocol/SKILL.md:120-122`).
+- **On Linux:** `ls` reports `No such file or directory` for the `to-do` path and lists the `done` path: the package moved (source: `src/superclaude/core/HOW-WE-WORK.md:17`; `src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md:61,73`). The run prints the actual `done/` path (`src/superclaude/skills/sc-implement-protocol/SKILL.md:168`).
+- `progress.md` line 1 is `# implement ledger — source: ./<id>.md — created: <YYYY-MM-DDTHH:MM:SSZ>` and line 2 is `PLAN: sha256=<64 hex> source_sha256=<64 hex>` (source: `src/superclaude/skills/sc-implement-protocol/refs/ledger.md:18-25`; `refs/managed-workspace.md:31,37-41`).
+- For every `## Task N:` of the plan: one `TN: start sha=<40 hex>` line and a latest `TN: complete verdict=compliant ...` line (a non-compliant `complete` is valid only after a `TN: Ruling:` line you approved) (source: `refs/ledger.md:33-60,74-82`).
+- The last two lines are `FINAL: pass evidence=... state=<64 hex>` and `ARCHIVE: start id=<id> token=<hex>`: a fresh independent review ran before the move (source: `refs/managed-workspace.md:49-61`; `refs/ledger.md:226-244`).
+- The `impact` listing shows a folder per rename task (for example `impact/T1/`) holding `impact.md` and `return-contract.yaml`; a second `<task>-tests` folder may appear from the optional advisory test list (source: output dir `<ledger dir>/impact/<task-id>`, `src/superclaude/skills/sc-implement-protocol/SKILL.md:122,133`; files `src/superclaude/commands/impact.md:47-50`).
+- `grep` prints nothing and the CLI prints `5`: the plan's done-when holds.
+- **On macOS or another non-Linux system:** the package stays in `.dev/tasks/to-do/<id>/`, the run reports `archive-blocked` with the helper's `E-ARCHIVE-PLATFORM` (`archiving needs Linux renameat2; no fallback`), and the ledger ends with the `FINAL:` line. That is the expected PASS; never move the folder by hand (source: `src/superclaude/core/HOW-WE-WORK.md:17`; `src/superclaude/skills/sc-implement-protocol/scripts/archive_workspace.py:88-93`; `refs/managed-workspace.md:47,73`).
+- FAIL if any task's latest record is `blocked` or `halt` without your Ruling, if the package exists in both `to-do/` and `done/`, or if the package moved while `FINAL` is not `pass`.
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+#### Step 9 — Optional: a blocking defect that cannot be fixed escalates `[API-LONG]`
+
+The general Pragmatic rule stops a review loop after 2 fix cycles (3 reviews) and escalates the open blocking findings (`src/superclaude/output-styles/pragmatic.md:227`; `CHANGELOG.md:29-31`). `/sc:implement` defines its own severity model and escalation path (`pragmatic.md:228`): one in-place fix (A2), then a retry ladder of attempts A3-A5, and every way out of the ladder that is not a pass is a `halt` that stops the run and asks you (`src/superclaude/skills/sc-implement-protocol/refs/retry.md:14,441`; `CHANGELOG.md:33`). This step seeds an acceptance criterion that contradicts a constraint, so no attempt can pass.
+
+**Do:** in the first terminal:
+
+```bash
+cd /tmp/d06/proj && git status --porcelain -- src tests
+cat > /tmp/d06/proj/conflict.md <<'EOF'
+# Conflicting task
+
+## Constraints
+
+- Do not modify src/calc/core.py.
+
+## Task 1: Make add_numbers return one more than the sum
+
+Acceptance criteria: in src/calc/core.py, add_numbers(2, 3) returns 6.
+EOF
+```
+
+`git status` must print nothing first (Step 8 finished cleanly); if Step 8 was skipped, replace `add_numbers` with `add_nums` in the file. Then in a session started in `/tmp/d06/proj`:
+
+```text
+/sc:implement conflict.md
+```
+
+If Claude asks whether to accept the task as it stands, or offers `fix`, `ruling` or `resume`, answer `no, do not accept` and let it stop; then `/exit`. In the first terminal:
+
+```bash
+cd /tmp/d06/proj && ls -d .dev/implement/conflict-*/
+grep -E '^T1: ' .dev/implement/conflict-*/progress.md | cut -c1-80
+```
+
+**Expected result:** the ledger is at `.dev/implement/conflict-<8 hex>/progress.md` (a file source that is not a workflow package keeps the path-hashed ledger, `src/superclaude/skills/sc-implement-protocol/SKILL.md:13,64`). It has no `T1: complete` line. Its last `T1:` record is `T1: halt review=<2-5> reason=<reason>`, with the reason from the legal list (`ladder-end`, `no-snapshot`, `batch`, `head-moved`, `budget`, `advice-rejected`, `dispute`, `no-runner-up`, `brief-invalid`, `no-evidence`, `operator-review`), and the run stops with `E-HALT-QA` (source: `src/superclaude/skills/sc-implement-protocol/refs/retry.md:441`; regex `refs/ledger.md:99`; STOP table `SKILL.md:33`). UNVERIFIED: which reason and which review number you get depends on the reviewers and advisers (a disputed acceptance criterion gives `dispute`, an exhausted ladder gives `halt review=5 reason=ladder-end`). If the run stops with `E-RESUME-NEEDED reason=adviser-missing`, the `implement-retry-adviser` agent is not installed: record it and run `superclaude install` later (`refs/retry.md:100`). FAIL if `T1` ends `complete` without your Ruling.
+
+**Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+
+---
+
+## Edge cases (optional but recommended)
+
+| Try this | Expected behavior | Source | Pass/Fail |
+|---|---|---|---|
+| `[CLAUDE-SESSION]` `/sc:troubleshoot "report.py fails with NameError" --depth quick --fix` in `/tmp/d06/proj` | STOP before any diagnosis: `--depth quick` with `--fix` is a conflicting-flags stop; no report, no offer | `src/superclaude/commands/troubleshoot.md:51`; `src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:180` | ☐ |
+| `[CLAUDE-SESSION]` `/sc:workflow "Rename add_nums" --output /tmp/d06/x` | STOP `E-LEGACY` with "`--output` removed; every plan is written to `.dev/tasks/to-do/<id>/`"; no new package folder | `src/superclaude/skills/sc-workflow-protocol/refs/input-parse.md:9-12` | ☐ |
+| `[CLAUDE-SESSION]` After Step 8 on Linux, run `/sc:implement .dev/tasks/to-do/<id>/<id>.md` again (the old path) | `already archived: <actual done path>`; no task runs and no ledger line is added | `src/superclaude/skills/sc-implement-protocol/SKILL.md:55`; `refs/managed-workspace.md:20,25` | ☐ |
+| `[API-LONG]` Interrupt Step 8 with Esc after the first `T1: complete` line appears, then run the same `/sc:implement` command again | It continues at the first task without a `complete` line; a task that already has a `start` line gets no second one | `src/superclaude/core/HOW-WE-WORK.md:17`; `src/superclaude/skills/sc-implement-protocol/refs/ledger.md:31,120-131` | ☐ |
+| `[CLAUDE-SESSION]` Answer `yes` to the Step 5 offer instead of `no` | It writes `remediation-source.md` in the report folder, builds a new `.dev/tasks/to-do/<id>/` package with `sc:workflow --depth standard --handoff none`, shows the pre-review result, and stops with the literal `/sc:implement <pkg>/<id>.md` command; `src/calc/report.py` is still unchanged | `src/superclaude/skills/sc-troubleshoot-protocol/refs/remediation-handoff.md:28-37,73-110`; `src/superclaude/commands/troubleshoot.md:202` | ☐ |
+
+## Cleanup
+
+```bash
+cd /tmp && rm -rf /tmp/d06
+```
+
+This removes the scratch repository, its plan packages, ledgers, troubleshoot reports, impact reports, its `.codegraph/` index and the id file. The Tier C sessions stay in Claude Code's own session history, and the hook state and log files they wrote under `~/.claude/state/` and `~/.claude/logs/` stay, like those of any session. The codegraph init log under `${XDG_STATE_HOME:-~/.local/state}/superclaude/` also stays. No step changed your IronClaude install.
+
+## Overall result
+
+☐ **PASS** — capability works as documented for `5.0.0`
+☐ **FAIL** — see failing step(s) above
+
+**Tester:** `<name>`  **Date:** `<date>`  **Build:** `5.0.0 (tag v5.0.0, commit d953b983)`

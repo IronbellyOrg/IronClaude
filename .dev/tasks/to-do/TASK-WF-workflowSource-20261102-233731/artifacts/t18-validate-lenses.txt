@@ -1,0 +1,2 @@
+validate-lenses: registry OK (9 entries inspected, 8 validated)
+exit=0

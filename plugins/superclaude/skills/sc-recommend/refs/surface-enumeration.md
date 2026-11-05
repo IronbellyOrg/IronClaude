@@ -16,7 +16,7 @@ List installed locations with `find` or absolute-path Glob calls, not unmatched 
 | Plugin primitives | `${CLAUDE_PLUGIN_ROOT}/commands/*.md`, `${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md`, `${CLAUDE_PLUGIN_ROOT}/agents/*.md` | Only for a resolved plugin root |
 | In-checkout research fallback | `src/superclaude/commands/*.md`, `src/superclaude/skills/*/SKILL.md`, `src/superclaude/agents/*.md`, `src/superclaude/templates/**/*.md`, `src/superclaude/examples/*-template.md` | Only when these exist under the current IronClaude git root |
 
-The current worktree is the repository root returned by `git rev-parse --show-toplevel`, including when cwd is under `.dev/worktrees/<name>/`. Never redirect lookups to another checkout by assumption.
+The current worktree is the repository root returned by `git rev-parse --show-toplevel`, including when cwd is inside a linked worktree (such as an Orca-created one). Never redirect lookups to another checkout by assumption.
 
 ### Research authority versus actual callable copy
 

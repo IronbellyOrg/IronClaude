@@ -1,0 +1,13 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/adversarial/merged-verdict.yaml"
+  convergence_score: 0.92
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/bare-python-hook-357/.dev/reflect/pre-TASK-WF-implementIronbel-20261104-130647-20261104130837/adversarial"
+  status: "partial"          # convergence BLOCKED_BY_INVARIANTS (INV-004, INV-027 HIGH UNADDRESSED)
+  base_variant: "sonnet:analyzer"
+  unresolved_conflicts: 2    # S-001, S-002 (structural, not argued)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-004, category: state_variables, assumption: "Exempting only quoted-delimiter heredoc bodies from quote tracking prevents desync", severity: HIGH}
+    - {id: INV-027, category: sufficiency_challenge, assumption: "The consensus scanner satisfies every Done-when bullet", severity: HIGH}

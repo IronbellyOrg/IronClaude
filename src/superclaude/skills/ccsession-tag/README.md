@@ -123,7 +123,8 @@ part of this package, and it belongs in no git repository.
 ccsession notes              # start or resume the session named "notes"
 ccsession notes --shim       # same, but with the extra gateway models available
 ccsession --list             # every named session on this machine
-ccsession --here             # named sessions for this repo only
+ccsession --here             # named sessions of this worktree (and of removed ones)
+ccsession --here --all       # named sessions of every worktree of this repo
 ccsession --rm notes         # forget the name (the conversation itself is kept)
 ccsession notes --claude-args "fix it"
                              # everything after --claude-args goes to Claude Code
@@ -163,6 +164,28 @@ and a fresh copy of the repo still sees its names. The same name in two
 different repos points at two different conversations. A folder that is not a
 git repo keeps its own list, as before.
 
+The list you see follows the worktree, like Claude Code's own `/resume`
+picker. Claude Code continues a resumed conversation in the folder you start
+it in, so a session that was working in another worktree would make its edits
+and commits in this one. `ccsession --here` and the session-name question
+therefore show:
+
+- the sessions that were started in this worktree;
+- under "Sessions whose worktree was removed", the sessions whose worktree no
+  longer exists, with the folder they were started in: they have nowhere else
+  to go, so they are listed in every worktree;
+- a count of the sessions that were started in another worktree (or copy of
+  the repo) that still exists. `ccsession --here --all`, or `*` at the
+  question, lists them.
+
+A session's folder is the one it was started in, which Claude Code names its
+transcript folder after (`~/.claude/projects/<folder with every character
+other than a letter or digit as ->`), as its own picker does. The working
+folders the transcript records follow the session's shell when it changes
+directory, so they are not used alone. A session from another worktree still
+resumes by name from anywhere, and ccsession then warns which worktree it was
+started in.
+
 Older versions kept one list per folder. The first run of this version copies
 those names into their repo's list, once per old list (`ccsession
 --migrate-names`, which every install also runs, retrying only lists that
@@ -199,13 +222,16 @@ example:
 
 Orca accepts one executable there, with no arguments. Each Orca launch then:
 
-- Lists this repo's saved sessions and asks
+- Lists this worktree's saved sessions (as `ccsession --here` does; `*` lists
+  every worktree's) and asks
   `Session name (Enter or Ctrl+C = untagged; untagged after 30s):`. A name
   starts or resumes that session; Enter, Ctrl+C, or no answer within 30
   seconds starts an untagged one, so the tab never ends at a dead prompt. A
   name that is not a valid label (too long, or holding a control character)
   is asked again. Any other name works, one starting with `-` too
   (it is passed on as `--name`).
+- Reopens the tab's own session without asking when Orca relaunches the tab
+  after a workspace restart (see below).
 - Skips the question when Orca resumes or continues a session
   (`--resume <id>`, `--fork-session`, `--continue`), when there is no terminal,
   when keys were already typed into the tab, or when `CCSESSION_AUTOSTART=0`.
@@ -217,6 +243,32 @@ Orca also uses this command for supervised workers (`orca orchestration
 worker-start`), and fails a worker whose Claude is not ready within 60 seconds.
 The 30-second limit keeps those workers starting. Change it with
 `CCSESSION_ASK_TIMEOUT=<seconds>` (`0` waits for ever).
+
+### Reopening a tab after a restart
+
+After a workspace restart Orca relaunches each Claude tab by running this
+command again, with only its own options (for example
+`--dangerously-skip-permissions`) and nothing that says which session the tab
+ran. So the tab reopens its own session instead of asking:
+
+- The hooks remember, for each Orca tab (its `ORCA_PANE_KEY`, which Orca keeps
+  across restarts), the session the Claude Code that ccsession launched there
+  runs, with the folder and the terminal it ran in. They update it at every
+  session start and message, so `/clear` and `/resume` move it along. The
+  record is `${XDG_STATE_HOME:-~/.local/state}/ccsession/orca-tabs/<pane key>`,
+  with each `:` of the pane key written as `+` (for example `tab-1+leaf-1`).
+- When `ccsession-orca` would ask the question, Orca passed only options, and
+  the tab's recorded session is still saved, was started in this same folder
+  and ran in another terminal (Orca relaunched the tab), it resumes that
+  session: by its name when it has one in this repo's list, else by its id.
+- Everything else is unchanged. A new tab or split pane has no record and is
+  asked. A launch with a prompt, `--prefill`, a name or a session choice
+  (`--resume`, `--continue`, `--session-id`, `--fork-session`) behaves as
+  before. Running `ccsession-orca` again by hand in the same terminal is
+  asked. A session whose conversation was deleted, or that was started in
+  another folder, falls back to the question.
+- A session belongs to one tab: when another tab opens it, the first tab
+  forgets it, so two tabs never reopen the same session.
 
 The question itself is `ccsession --ask [<hint>]`: it prints the list and the
 question on the terminal and only the chosen name on standard output (empty

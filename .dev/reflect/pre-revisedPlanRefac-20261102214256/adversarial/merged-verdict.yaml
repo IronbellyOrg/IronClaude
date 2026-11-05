@@ -1,0 +1,19 @@
+# sc:reflect Wave 4 merged verdict (consumer of sc:adversarial; field remap artifacts_dir -> adversarial_artifacts_dir)
+merge_method: adversarial
+adversarial_status: partial
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/adversarial/adversarial
+merged_output_path: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/adversarial/merged-findings.md
+adversarial_convergence_score: 1.0
+convergence_status: CONVERGED
+unaddressed_invariants: []
+medium_invariant_warnings: [INV-001, INV-004, INV-006, INV-010, INV-012, INV-013, INV-014]
+base_variant: reviewer-1 (sonnet, analyzer)
+reviewer_cards:
+  - /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/reviewer-cards/reviewer-1-card.yaml
+  - /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/reviewer-cards/reviewer-2-card.yaml
+  - /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/reviewer-cards/reviewer-3-card.yaml
+calibrated_confidence_per_card: {reviewer-1: 0.84, reviewer-2: 0.75, reviewer-3: 0.80}
+merged_findings_count: 15
+merged_findings_by_severity: {high: 0, medium: 8, low: 7}
+merged_findings_by_class: {authorized: 1, necessary: 0, drift: 13, regression: 1}
+verdict: "Plan resolves all 14 earlier deviations at plan level but needs one more revision before execution: Task 2 (eval_runner.py rewrite) is not executable as written (R1-1, R1-2, M-1, M-2) and its forced removal deletes E2E outputs (M-3); Task 4 has a self-blocking Orca rule (R1-3) and a CLAUDE.md:50 conflict (R1-4); Task 8's rerun branch leaves no evidence (R2-F1)."

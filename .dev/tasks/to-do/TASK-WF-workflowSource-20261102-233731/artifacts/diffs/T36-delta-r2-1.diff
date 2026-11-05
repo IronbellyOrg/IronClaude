@@ -1,0 +1,26 @@
+--- a/docs/developer-guide/testing-debugging.md
++++ b/docs/developer-guide/testing-debugging.md
+@@ -130,9 +130,10 @@
+ `superclaude install` downloads the pinned codegraph binary and registers it as a user-scope MCP server. Two read-only commands show its state:
+ 
+ ```bash
+-# The last block of the list output covers codegraph (no download, no claude mcp call)
++# The codegraph block comes just before the "Retired MCP registrations (user scope)" block
++# (no download, no claude mcp call)
+ superclaude install --list
+-# Expected, at the end:
++# Expected, near the end:
+ # codegraph MCP (pinned v1.6.2; user scope):
+ #    Executable: <your home>/.codegraph/versions/v1.6.2/bin/codegraph (1.6.2)
+ #    Owner: owned (receipt) ...
+@@ -146,7 +147,9 @@
+ #     Ready for Serena retirement: yes
+ ```
+ 
+-If `User registration` shows `absent`, `owned but stale` or `user-managed`, or the doctor check fails because the registered command is not an executable, run `superclaude install --force` and check again.
++If `User registration` shows `absent` or `owned but stale`, or the doctor check fails because the registered command is not an executable while `User registration` is not `user-managed`, run `superclaude install --force` and check again.
++
++`user-managed` means the `codegraph` entry was registered by you, not by IronClaude. The installer never replaces it: it keeps a working entry as it is, and it refuses an entry whose command does not run. To let IronClaude manage it, or to repair an entry whose command does not run, remove it with `claude mcp remove codegraph --scope user` and run `superclaude install` again.
+ 
+ ### Test MCP Server Availability
+ 

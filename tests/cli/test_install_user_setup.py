@@ -98,6 +98,141 @@ def test_settings_defaults_fill_only_missing_values(tmp_path: Path) -> None:
     assert again == (True, "✅ Settings defaults: already present")
 
 
+def _defaults() -> dict:
+    return json.loads(
+        (Path(setup.__file__).parent / "user_settings_defaults.json").read_text()
+    )
+
+
+PONYTAIL_SHA = "7801d061243d7b753bad0e0b3c057cd250b11755"  # upstream tag v5.3.3
+
+
+def test_defaults_ship_ponytail_pinned() -> None:
+    defaults = _defaults()
+    catalog = defaults[setup._CATALOG_KEY]
+    assert catalog["name"] == "ironclaude"
+    assert catalog["owner"]["name"]
+    assert defaults["enabledPlugins"]["ponytail@ironclaude"] is True
+    entry = next(e for e in catalog["plugins"] if e["name"] == "ponytail")
+    assert entry["source"] == {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail",
+        "ref": "v5.3.3",
+        "sha": PONYTAIL_SHA,
+    }
+    # Every catalog entry is pinned to a full commit, never a branch or tag alone.
+    for item in catalog["plugins"]:
+        assert re.fullmatch(r"[0-9a-f]{40}", item["source"]["sha"]), item["name"]
+    assert defaults["env"]["PONYTAIL_DEFAULT_MODE"] == "lite"
+    assert "pluginConfigs" not in defaults
+    # Every default plugin's marketplace must be installable by install_plugins.
+    for plugin in defaults["enabledPlugins"]:
+        market = plugin.split("@", 1)[1]
+        if market == catalog["name"]:
+            assert market not in defaults["extraKnownMarketplaces"]
+            continue
+        assert defaults["extraKnownMarketplaces"][market]["source"]["repo"], plugin
+
+
+def test_defaults_hold_no_unpinned_ponytail() -> None:
+    defaults = _defaults()
+    assert "ponytail@ponytail" not in defaults["enabledPlugins"]
+    assert "ponytail" not in defaults["extraKnownMarketplaces"]
+    outside_catalog = {k: v for k, v in defaults.items() if k != setup._CATALOG_KEY}
+    assert "DietrichGebert" not in json.dumps(outside_catalog)
+
+
+def test_settings_defaults_add_ponytail_for_existing_users(tmp_path: Path) -> None:
+    claude = tmp_path / ".claude"
+    claude.mkdir()
+    defaults = _defaults()
+    old_plugins = {
+        p: True for p in defaults["enabledPlugins"] if p != "ponytail@ironclaude"
+    }
+    old_markets = dict(defaults["extraKnownMarketplaces"])
+    (claude / "settings.json").write_text(
+        json.dumps(
+            {
+                "env": {"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"},
+                "enabledPlugins": old_plugins,
+                "extraKnownMarketplaces": old_markets,
+            }
+        )
+    )
+    assert setup.apply_settings_defaults(home=tmp_path)[0]
+    settings = _settings(tmp_path)
+    assert settings["enabledPlugins"]["ponytail@ironclaude"] is True
+    # The catalog stays in the package; Claude Code declares the marketplace
+    # itself when install_plugins adds it.
+    assert setup._CATALOG_KEY not in settings
+    assert "ironclaude" not in settings["extraKnownMarketplaces"]
+    assert settings["env"]["PONYTAIL_DEFAULT_MODE"] == "lite"
+    for plugin, value in old_plugins.items():
+        assert settings["enabledPlugins"][plugin] is value
+    for market, value in old_markets.items():
+        assert settings["extraKnownMarketplaces"][market] == value
+    assert setup.apply_settings_defaults(home=tmp_path) == (
+        True,
+        "✅ Settings defaults: already present",
+    )
+
+
+def test_settings_defaults_keep_user_ponytail_choices(tmp_path: Path) -> None:
+    claude = tmp_path / ".claude"
+    claude.mkdir()
+    (claude / "settings.json").write_text(
+        json.dumps(
+            {
+                "env": {"PONYTAIL_DEFAULT_MODE": "full"},
+                "enabledPlugins": {"ponytail@ironclaude": False},
+            }
+        )
+    )
+    assert setup.apply_settings_defaults(home=tmp_path)[0]
+    settings = _settings(tmp_path)
+    assert settings["env"]["PONYTAIL_DEFAULT_MODE"] == "full"
+    assert settings["enabledPlugins"]["ponytail@ironclaude"] is False
+
+
+def test_settings_defaults_carry_old_ponytail_opt_out(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """An opt-out under the old id ponytail@ponytail survives the rename."""
+    cases = [
+        ({"ponytail@ponytail": False}, False),
+        ({"ponytail@ponytail": False, "ponytail@ironclaude": True}, True),
+        ({"ponytail@ponytail": True}, True),
+    ]
+    for index, (enabled, expected) in enumerate(cases):
+        home = tmp_path / str(index)
+        (home / ".claude").mkdir(parents=True)
+        (home / ".claude" / "settings.json").write_text(
+            json.dumps({"enabledPlugins": dict(enabled)})
+        )
+        assert setup.apply_settings_defaults(home=home)[0]
+        plugins = _settings(home)["enabledPlugins"]
+        assert plugins["ponytail@ironclaude"] is expected, enabled
+        assert plugins["ponytail@ponytail"] is enabled["ponytail@ponytail"]
+        assert setup.apply_settings_defaults(home=home)[1] == (
+            "✅ Settings defaults: already present"
+        )
+    # install_plugins then leaves the opted-out plugin alone.
+    calls = []
+    opted_out = tmp_path / "0"
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    monkeypatch.setattr(
+        setup.subprocess,
+        "run",
+        lambda command, **_k: (
+            calls.append(command[1:]) or subprocess.CompletedProcess(command, 0, "", "")
+        ),
+    )
+    setup.install_plugins(home=opted_out)
+    assert calls  # the other default plugins are still installed
+    assert not any("ponytail@ironclaude" in c for c in calls)
+    assert not (opted_out / setup._CATALOG_DIR).exists()
+
+
 def test_settings_defaults_refuse_malformed_file(tmp_path: Path) -> None:
     claude = tmp_path / ".claude"
     claude.mkdir()
@@ -207,6 +342,196 @@ def test_plugins_install_missing_enabled_defaults(tmp_path: Path, monkeypatch) -
     assert "notion@claude-plugins-official" not in installs
     assert "frontend-design@claude-plugins-official" in installs
     assert "understand-anything@understand-anything" in installs
+    # Ponytail comes only from the pinned IronClaude catalog, added before install.
+    catalog_dir = home / ".claude" / "ironclaude-marketplace"
+    written = json.loads(
+        (catalog_dir / ".claude-plugin" / "marketplace.json").read_text()
+    )
+    assert written == defaults[setup._CATALOG_KEY]
+    add = ["plugin", "marketplace", "add", str(catalog_dir)]
+    install = ["plugin", "install", "ponytail@ironclaude", "--scope", "user", "-y"]
+    assert calls.index(add) < calls.index(install)
+    assert not any("DietrichGebert" in " ".join(c) for c in calls)
+
+
+def _pinned_home(tmp_path: Path, installed_sha: str, catalog_sha: str) -> Path:
+    """A workspace with Ponytail installed and the catalog on disk."""
+    home = _plugin_home(tmp_path, {"ponytail@ironclaude": True})
+    plugins = home / ".claude" / "plugins"
+    plugins.mkdir()
+    ours = {"source": "directory", "path": str(home / setup._CATALOG_DIR)}
+    (plugins / "known_marketplaces.json").write_text(
+        json.dumps({"ironclaude": {"source": ours}})
+    )
+    record = {"scope": "user", "version": "x", "gitCommitSha": installed_sha}
+    (plugins / "installed_plugins.json").write_text(
+        json.dumps({"plugins": {"ponytail@ironclaude": [record]}})
+    )
+    catalog = json.loads(json.dumps(_defaults()[setup._CATALOG_KEY]))
+    catalog["plugins"][0]["source"]["sha"] = catalog_sha
+    path = home / setup._CATALOG_DIR / ".claude-plugin" / "marketplace.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(catalog))
+    return home
+
+
+def test_plugins_move_ponytail_to_a_new_pin(tmp_path: Path, monkeypatch) -> None:
+    old = "16352ac229eb08a9598dcae48fe9f2b342567d86"  # upstream tag v5.3.2
+    home = _pinned_home(tmp_path, installed_sha=old, catalog_sha=old)
+    calls = []
+
+    def fake_run(command, **kwargs):
+        calls.append((command[1:], kwargs.get("env")))
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    monkeypatch.setattr(setup.subprocess, "run", fake_run)
+    ok, message = setup.install_plugins(home=home)
+    assert ok and message.startswith("✅ Plugins"), message
+    path = home / setup._CATALOG_DIR / ".claude-plugin" / "marketplace.json"
+    assert json.loads(path.read_text()) == _defaults()[setup._CATALOG_KEY]
+    assert [c for c, _ in calls] == [
+        ["plugin", "marketplace", "update", "ironclaude"],
+        ["plugin", "update", "ponytail@ironclaude", "--scope", "user"],
+    ]
+    assert calls[0][1] is None
+    assert calls[1][1]["GIT_CONFIG_VALUE_0"] == "git@github.com:"
+
+
+def test_plugins_keep_ponytail_at_its_pin(tmp_path: Path, monkeypatch) -> None:
+    home = _pinned_home(tmp_path, PONYTAIL_SHA, PONYTAIL_SHA)
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    monkeypatch.setattr(
+        setup.subprocess, "run", lambda *a, **k: (_ for _ in ()).throw(AssertionError)
+    )
+    assert setup.install_plugins(home=home) == (True, "✅ Plugins: already installed")
+
+
+def _recording_run(calls: list, failing: tuple = ()):
+    """A fake `claude` that records commands; commands starting with `failing` exit 1."""
+
+    def fake_run(command, **_kwargs):
+        calls.append(command[1:])
+        rc = 1 if failing and tuple(command[1 : 1 + len(failing)]) == failing else 0
+        return subprocess.CompletedProcess(command, rc, "", "")
+
+    return fake_run
+
+
+def test_plugins_refuse_a_foreign_ironclaude_marketplace(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """A marketplace that only shares the name `ironclaude` is never used."""
+    other = tmp_path / "elsewhere"
+    foreign_entries = [
+        {"source": {"source": "github", "repo": "someone/ironclaude"}},
+        {"source": {"source": "directory", "path": str(other)}},
+        {"source": {"source": "directory", "path": ".claude/ironclaude-marketplace"}},
+        {"source": "directory"},
+        {},
+        "not an object",
+    ]
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    for index, entry in enumerate(foreign_entries):
+        home = _pinned_home(tmp_path / str(index), "0" * 40, "0" * 40)
+        registry = home / ".claude" / "plugins" / "known_marketplaces.json"
+        registry.write_text(json.dumps({"ironclaude": entry}))
+        before = registry.read_bytes()
+        calls = []
+        monkeypatch.setattr(setup.subprocess, "run", _recording_run(calls))
+        ok, message = setup.install_plugins(home=home)
+        assert ok and message.startswith("⚠️  Plugins"), (entry, message)
+        assert "ironclaude (registered from another source" in message, entry
+        assert not any("ironclaude" in " ".join(c) for c in calls), (entry, calls)
+        assert registry.read_bytes() == before
+
+
+def test_plugins_accept_ours_through_a_symlinked_home(
+    tmp_path: Path, monkeypatch
+) -> None:
+    real = _pinned_home(tmp_path / "real", PONYTAIL_SHA, PONYTAIL_SHA)
+    link = tmp_path / "link"
+    link.symlink_to(real)
+    registry = real / ".claude" / "plugins" / "known_marketplaces.json"
+    ours = {"source": "directory", "path": str(link / setup._CATALOG_DIR)}
+    registry.write_text(json.dumps({"ironclaude": {"source": ours}}))
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    monkeypatch.setattr(
+        setup.subprocess, "run", lambda *a, **k: (_ for _ in ()).throw(AssertionError)
+    )
+    assert setup.install_plugins(home=real) == (True, "✅ Plugins: already installed")
+
+
+def test_plugins_skip_dependents_of_a_failed_marketplace(
+    tmp_path: Path, monkeypatch
+) -> None:
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    # The IronClaude catalog cannot be added: Ponytail is not installed, while
+    # plugins from other marketplaces still are.
+    home = _plugin_home(
+        tmp_path / "add",
+        {"ponytail@ironclaude": True, "playwright@claude-plugins-official": True},
+    )
+    calls = []
+    add_ours = ("plugin", "marketplace", "add", str(home / setup._CATALOG_DIR))
+    monkeypatch.setattr(setup.subprocess, "run", _recording_run(calls, add_ours))
+    ok, message = setup.install_plugins(home=home)
+    assert ok and "ponytail@ironclaude (marketplace ironclaude unavailable)" in message
+    assert [
+        "plugin",
+        "install",
+        "ponytail@ironclaude",
+        "--scope",
+        "user",
+        "-y",
+    ] not in (calls)
+    assert [
+        "plugin",
+        "install",
+        "playwright@claude-plugins-official",
+        "--scope",
+        "user",
+        "-y",
+    ] in calls
+    # A pin move whose marketplace update fails does not update the plugin.
+    old = "16352ac229eb08a9598dcae48fe9f2b342567d86"
+    home = _pinned_home(tmp_path / "update", old, old)
+    calls = []
+    update = ("plugin", "marketplace", "update")
+    monkeypatch.setattr(setup.subprocess, "run", _recording_run(calls, update))
+    ok, message = setup.install_plugins(home=home)
+    assert ok and "ponytail@ironclaude (marketplace ironclaude unavailable)" in message
+    assert calls == [["plugin", "marketplace", "update", "ironclaude"]]
+
+    # A marketplace command that raises counts as failed too.
+    def raising_run(command, **_kwargs):
+        calls.append(command[1:])
+        if command[1:3] == ["plugin", "marketplace"]:
+            raise subprocess.TimeoutExpired(command, 1)
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    home = _plugin_home(tmp_path / "raise", {"ponytail@ironclaude": True})
+    calls = []
+    monkeypatch.setattr(setup.subprocess, "run", raising_run)
+    ok, message = setup.install_plugins(home=home)
+    assert ok and "ponytail@ironclaude (marketplace ironclaude unavailable)" in message
+    assert all(c[:2] != ["plugin", "install"] for c in calls)
+
+
+def test_plugins_catalog_write_failure_is_not_fatal(
+    tmp_path: Path, monkeypatch
+) -> None:
+    home = _plugin_home(tmp_path, {"ponytail@ironclaude": True})
+    (home / setup._CATALOG_DIR).write_text("not a directory")
+    calls = []
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: "/bin/claude")
+    monkeypatch.setattr(
+        setup.subprocess, "run", lambda command, **k: calls.append(command)
+    )
+    ok, message = setup.install_plugins(home=home)
+    assert ok and message.startswith("⚠️  Plugins")
+    assert "ironclaude (catalog not written)" in message
+    assert not calls
 
 
 def test_plugins_skip_already_installed(tmp_path: Path, monkeypatch) -> None:
@@ -236,10 +561,23 @@ def test_plugin_failures_and_time_limit_never_fail_install(
         "run",
         lambda command, **k: subprocess.CompletedProcess(command, 1, "", "boom"),
     )
+    names = ("anthropics/claude-plugins-official", "playwright@claude-plugins-official")
     ok, message = setup.install_plugins(home=home)
     assert ok and message.startswith("⚠️  Plugins")
+    assert all(name in message for name in names), message
+    assert "--scope" not in message
     ok, message = setup.install_plugins(home=home, deadline=0)
     assert ok and "time limit" in message
+    assert all(f"{name} (time limit)" in message for name in names), message
+    assert "--scope" not in message
+
+
+def test_plugins_skip_when_claude_cli_is_absent(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr(setup.shutil, "which", lambda _name: None)
+    assert setup.install_plugins(home=tmp_path) == (
+        True,
+        "⏭️  Plugins: claude CLI not found; skipped",
+    )
 
 
 def test_shipped_setup_contains_no_personal_home_paths() -> None:

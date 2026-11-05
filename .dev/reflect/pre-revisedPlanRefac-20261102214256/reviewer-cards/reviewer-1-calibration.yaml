@@ -1,0 +1,18 @@
+# Returned by confidence-calibrator (blind, read-only); persisted by the orchestrator.
+card: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-revisedPlanRefac-20261102214256/reviewer-cards/reviewer-1-card.yaml
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimensions:
+  citation_grounding: {score: 0.85, reason: "All cited locations match; shell sections 5-6 confirm R1-1 and R1-2. Lowered: R1-5 false-match not run; R1-4 says CLAUDE.md:64 survives though plan :108 rewrites check 1."}
+  coverage_completeness: {score: 0.90, reason: "All 14 deviations mapped; F1/F3 disputed with reasons; Tasks 1 and 5-8 have no finding and no explicit 'checked clean' statement."}
+  deviation_classification_clarity: {score: 0.75, reason: "One class each, but 'drift' stretched over execution risks (R1-1, R1-2) and plan-quality defects (R1-3, R1-5)."}
+  risk_surface_coverage: {score: 0.82, reason: "R1-1 confirmed real with consequences; R1-2 leak and masking; Tasks 6-8 risks not discussed."}
+  recommendation_actionability: {score: 0.88, reason: "Concrete changes and targets; R1-3 two alternatives; R1-6 optional; part of R1-4 already done by plan :108."}
+C: 0.84
+per_finding:
+  - {id: R1-1, verdict: grounded, reason: "Pattern at :153-158 lacks sys.modules registration; shell section 5 confirms the AttributeError; medium fair."}
+  - {id: R1-2, verdict: grounded, reason: "Plan :62 removes in finally; shell section 6 shows exit 128 and the directory remains; low fits."}
+  - {id: R1-3, verdict: grounded, reason: "Plan :88 unconditional vs :111 conditional; impact small because :88 defers to Task 4."}
+  - {id: R1-4, verdict: weak, reason: "CLAUDE.md:70 half grounded; CLAUDE.md:64 half wrong because plan :108 rewrites check 1."}
+  - {id: R1-5, verdict: grounded, reason: "Plan :117 command quoted exactly; substring match is noisy; cosmetic."}
+  - {id: R1-6, verdict: grounded, reason: "Guarded fallback confirmed at poll-ci-checks.sh:34-35; source scopes tightening to CLAUDE.md; out-of-scope low is defensible."}

@@ -1,0 +1,3 @@
+c0187db9432c50ae55d03ff8bd24e80fbeccbd63
+A1 r1-1 F1.1 note docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:1621 ac=scope n,n,n,n (origin=inherited) The worked example's error table still has "MCP unavailable | Circuit breaker | Native tools"; deviations.md says the circuit breaker's other mentions were removed. Outside the sections B-W14 names.
+A1 r1-1 F1.2 note docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:1534 ac=scope n,n,n,n (origin=inherited) Example frontmatter under the sc-adversarial-protocol/SKILL.md label still says name: sc:adversarial and omits Skill from allowed-tools; line 56 still names the skill sc-adversarial. Outside the sections B-W14 names.

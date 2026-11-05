@@ -1,0 +1,22 @@
+# Task 66 link check: test -e on every link target in docs/testing/v5.0.0/README.md (cwd docs/testing/v5.0.0)
+OK user/D01-install-upgrade-doctor.md
+OK user/D02-mcp-servers.md
+OK user/D03-codegraph-graph-impact.md
+OK user/D04-session-memory.md
+OK user/D05-routing-core-files-issue-templates.md
+OK user/D06-plan-implement-review-cap.md
+OK user/D07-pr-submit.md
+OK user/D08-ccsession.md
+OK user/D09-hooks-freshness-pragmatic.md
+OK user/D10-sprint.md
+OK user/D11-roadmap-tasklist.md
+OK user/D12-reflect.md
+OK user/D13-prd-portify-cleanup-audit.md
+OK user/D14-swarm.md
+OK user/D15-eval-harness.md
+OK user/D16-init-lite-recommend-ic.md
+OK sysop/E01-ccsession-tier-policy.md
+OK sysop/E02-ccsession-model-data-publishing.md
+OK c-e2e-run.sh
+OK c-e2e-transcript.txt
+TOTAL=20 MISSING=0

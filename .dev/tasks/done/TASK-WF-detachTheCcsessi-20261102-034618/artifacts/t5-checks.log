@@ -1,0 +1,40 @@
+$ grep -rlE "local-gateway-alias-proxy|ccsession-tag" tests/
+tests/cli/test_update_command.py
+tests/cli/test_install_hooks.py
+tests/unit/test_install_ccsession.py
+tests/unit/test_ccsession_tag.py
+tests/unit/test_cli_doctor.py
+tests/unit/test_cli_install.py
+tests/unit/test_ccsession_tiers.py
+(CHANGELOG.md: tests/roadmap/test_spec_parser.py and tests/audit/test_full_docs_audit.py mention "CHANGELOG" only in fixture strings; neither reads the repo CHANGELOG.md)
+$ PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/cli/test_update_command.py tests/cli/test_install_hooks.py tests/unit/test_install_ccsession.py tests/unit/test_ccsession_tag.py tests/unit/test_cli_doctor.py tests/unit/test_cli_install.py tests/unit/test_ccsession_tiers.py -q -p no:cacheprovider
+======================= 457 passed in 172.61s (0:02:52) ========================
+rc=0
+$ pgrep -af "[p]ytest-of-.*/shim-under-test.py"
+pgrep: none running
+$ make lint
+  Errors:   0
+  Warnings: 5
+  ✅ PASS — architecture policy compliant (5 warning(s))
+Running linter...
+uv run ruff check .
+All checks passed!
+rc=0
+$ make verify-sync
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.
+make: *** [Makefile:168: verify-sync] Error 1
+rc=2
+$ make sync-dev   # this fresh worktree had no gitignored .claude/ dev copies; sync-dev fills the worktree .claude/ only
+   Hooks:     12 files
+   Templates: 52 files
+rc=0
+$ make verify-sync
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+rc=0

@@ -1,0 +1,480 @@
+# Merged reviewer verdict: sc:reflect UC-1 pre-execution review of issue #357 (bare python hook).
+# Produced by merge-executor from refactor-plan.md (9 planned changes, 4 rejected).
+# "plan Lnn" means line nn of provenance.subject_plan, exactly as the source artifacts cite it.
+# The plan file is NOT edited (A-002); every amendment below is recorded in progress.md by /sc:implement.
+provenance:
+  base: "variant-1 sonnet:analyzer"
+  base_artifact: variant-1-original.md
+  merge_date: "2026-11-04T14:19:26Z"
+  incorporated: [variant-2, variant-3, invariant-probe]
+  refactor_plan: refactor-plan.md
+  subject_plan: .dev/tasks/to-do/TASK-WF-implementIronbel-20261104-130647/TASK-WF-implementIronbel-20261104-130647.md
+merge_method: adversarial
+convergence_score: 0.92
+convergence_status: BLOCKED_BY_INVARIANTS
+blocking_invariants: [INV-004, INV-027]
+
+findings:
+  - id: R1-F1
+    severity: blocking
+    task: 3
+    title: >-
+      New PreToolUse Bash registration breaks tests/hooks/test_freshness_subagent_start_policy.py:102-105
+      (asserts no matcher == Bash in src hooks.json PreToolUse); no task updates or runs that test
+    evidence:
+      - 'tests/hooks/test_freshness_subagent_start_policy.py:102-105 is the only real-file matcher == "Bash" assertion in tests/ (round2-variant-1.md:18; round2-variant-2.md:21)'
+      - 'tests/hooks/test_freshness_subagent_start_policy.py:91 test name ..._without_bash_counter shows the intent (round1-variant-3.md:8)'
+      - 'plan L73 adds matcher "Bash"; plan L95 (Task 4) runs only tests/cli and tests/unit (round1-variant-2.md:11; round2-variant-2.md:9)'
+      - 'INV-001: the assertion came from commit a5e9df4b (bash batching policy, docs/user-guide/freshness-hooks.md:22 "no hard Bash counter is installed"); git log --all -G ''matcher.*Bash'' -- src/superclaude/hooks/hooks.json is empty, so no freshness- Bash hook ever existed (invariant-probe.md:9)'
+      - 'debate-transcript.md:39 (C-001, 85%, superseded in merge by INV-001)'
+    fix: >-
+      Replace the assertion with an allowlist: the set of PreToolUse commands registered under
+      matcher "Bash" in src/superclaude/hooks/hooks.json equals {block-bare-python.sh}. A
+      "no Bash registration whose command contains freshness-" filter is not used, because no
+      freshness- Bash hook ever existed and a future counter can have any name (INV-001). Keep the
+      test's intent (no Bash counter hook). Add tests/hooks/ to the Task 4 pytest run (the
+      load-bearing run-scope fix). Name the supersession of the old invariant as a Necessary
+      deviation in the PR body (A-001).
+    sources: [V1 R1-F1, V2 R2-F1, V3 R3-F1, C-001, INV-001, A-001]
+    source_tag: "Base (original, modified) — fix replaced by the INV-001 allowlist per Change #3; tests/hooks run and PR-body supersession note kept"
+
+  - id: R1-F2
+    severity: blocking
+    task: 2
+    title: >-
+      Acceptance 'each of &&, ; and | in both a blocked and an allowed case' unmet: no allowed case
+      chained with ;
+    evidence:
+      - 'plan L58 allowed list has only && and | (round1-variant-3.md:29)'
+      - 'plan L64 acceptance criterion cannot be met against L56/L58 (round1-variant-2.md:12)'
+      - 'debate-transcript.md:40 (C-002, V1, 95%)'
+    fix: >-
+      Add allowed cases such as 'ls; uv run python x.py', 'echo a; echo python3',
+      'uv run python a.py && echo python3'.
+    sources: [V1 R1-F2, V2 R2-F2, C-002]
+    source_tag: "Base (original)"
+
+  - id: R1-F3
+    severity: minor
+    task: 5
+    title: >-
+      uv run --no-project python is not the literal Done-when string; refinement, keep, explain in
+      acceptance and PR body
+    evidence:
+      - 'plan L102 (round1-variant-1.md:13)'
+      - 'debate-transcript.md:56 (C-018, V1, 85%: refinement; say so in PR body)'
+    fix: >-
+      Keep uv run --no-project python. Record it as a refinement of the Done-when literal in the
+      Task 5 acceptance note in progress.md and in the PR body.
+    sources: [V1 R1-F3, C-018]
+    source_tag: "Base (original, modified) — fix field split out of the original title text; no content change"
+
+  - id: R1-F4
+    severity: minor
+    task: 1
+    title: >-
+      Backslash-newline continuation and wrapper options (nice -n, sudo -u, env -u) unspecified;
+      continuation needs per-state handling and tests, option-taking wrappers are false negatives
+    evidence:
+      - 'plan L37 "backslash escapes outside single quotes are honoured": read literally, uv run --no-project \<nl> python x.py is one simple command (word uv), allowed (round2-variant-3.md:5, :10)'
+      - 'INV-005: no continuation after a comment (echo a # C:\ then python3 E1 runs); echo a \ then EOF still terminates a quoted heredoc (E2); unquoted heredoc joins; join must live inside the scanner, per state (invariant-probe.md:13)'
+      - 'debate-transcript.md:43 (C-005, V1, 90%) and :57 (X-001, V1, 95%, V3 conceded)'
+    fix: >-
+      Implement continuation inside M-SCANNER, per lexer state, not as a pre-pass (INV-005): a
+      backslash-newline joins only where bash joins; a # comment ending in a backslash does not
+      continue (echo a # C:\ followed by python3 E1 must block); a body line ending in a backslash
+      does not stop a quoted-delimiter heredoc terminator (E2). Add one allowed test
+      'uv run --no-project \<nl> python x.py' and one blocked continuation test. The wrapper-option
+      half is handled in M-CEILINGS and documented_ceilings.
+    sources: [V1 R1-F4, V3 R3-F4, C-005, X-001, INV-005]
+    source_tag: "Base (original, modified) — kept minor (R3-F4 blocking grade rejected, Changes NOT Being Made); fix moved inside the scanner per INV-005; wrapper half moved to M-CEILINGS per Change #7"
+
+  - id: R1-F5
+    severity: blocking
+    task: 1
+    title: >-
+      Command substitution ($( and backticks) inside double quotes runs bare python but is never
+      checked: x="$(python3 -c 1)" violates the Done-when
+    evidence:
+      - 'plan L19 Done-when requires blocking any command that runs bare python; plan L37 gives $( inside double quotes no new quoting context; plan L56 blocks only the unquoted form (round1-variant-3.md:12; round2-variant-3.md:17)'
+      - 'V1 Round 2 concession: x="$(python3 -c ...)" executes; line 19 exempts only commands that only mention python (round2-variant-1.md:8)'
+      - 'src/superclaude/skills/ccsession-tag/ccsession:1008 uses the quoted-substitution form (script, not an agent Bash call) (round2-variant-1.md:19)'
+      - 'debate-transcript.md:44 (C-006, V3, 95%) and :58 (X-002, V3, 95%)'
+    fix: >-
+      Implement in M-SCANNER: $( and backticks inside double quotes open a nested command context
+      with fresh quote state; the closing ) resumes the outer word (INV-008). Add blocked tests for
+      x="$(python3 -c 1)", the backtick form, and the nested "$(echo "$(python3 -c 1)")" (INV-025).
+      Document-and-pin is withdrawn: this ships together with the heredoc handling in M-SCANNER,
+      or the multi-line git commit -m "$(cat <<'EOF' ... EOF)" form regresses. bash -c, eval,
+      xargs and find -exec stay minor documented ceilings (M-CEILINGS).
+    sources: [V1 R1-F5, V3 R3-F5, C-006, X-002, INV-008, INV-025]
+    source_tag: "Base (original, modified) — regraded minor -> blocking and merged with V3 R3-F5 per Change #1 (X-002 95%; V1 Round 2 concession)"
+
+  - id: R1-F6
+    severity: minor
+    task: 1
+    title: >-
+      Fail-open is not guaranteed by construction: a tokenizer, jq or set -u runtime error can leak
+      a non-0/2 exit; the jq-missing branch is untested; jq is an unstated install precondition
+    evidence:
+      - 'plan L21 mandates fail-open when jq is missing; the plan L60 fail-open table has no such case (round1-variant-2.md:13)'
+      - 'tests/hooks has zero jq references; HOME-into-tmp_path does not hide jq (found via PATH); the test needs a PATH shim (round2-variant-2.md:20)'
+      - 'INV-021: any missing tool exits 0; the shim must provide bash; assert a jq-branch-only stderr marker (invariant-probe.md:29)'
+      - 'INV-017: install_hooks.py:16 "no jq shell-out"; only docs/user-guide/freshness-hooks.md:133-135 names jq (invariant-probe.md:25)'
+      - 'debate-transcript.md:46 (C-008, V3 design + V2 test, 85%)'
+    fix: >-
+      Exit 2 only on a positive block result from the scanner; every other path (missing tool,
+      parse error, set -u error) exits 0. Add a jq-missing test that runs the hook with a PATH shim
+      directory providing bash but no jq, and asserts exit 0 plus a stderr marker that only the
+      jq-missing branch emits (exit code alone proves nothing, INV-021). Make the jq precondition
+      visible: superclaude install warns when jq is absent, or the docs and CHANGELOG state it
+      (INV-017).
+    sources: [V1 R1-F6, V2 R2-F3, V3 R3-F7, C-008, INV-017, INV-021]
+    source_tag: "Base (original, modified) — merged V3 R3-F7 design, V2 R2-F3 test, INV-021 marker and INV-017 precondition per Change #4"
+
+  - id: R1-F7
+    severity: minor
+    task: "5, 6"
+    title: "Missing Depends on: Task 5 needs Task 1; Task 6 cites Task 5's change"
+    evidence:
+      - 'Task 5 lacks Depends on; Task 2 line 58 forward-references Task 5 text (round1-variant-1.md:13)'
+      - 'debate-transcript.md:52 (C-014, V1, 85%)'
+    fix: >-
+      Execute Task 1 before Task 5 and Task 5 before Task 6; record the missing Depends on lines as
+      an ordering amendment in progress.md (plan not edited, A-002).
+    sources: [V1 R1-F7, C-014]
+    source_tag: "Base (original, modified) — fix field added from the title's dependency statement; no content change"
+
+  - id: R1-F8
+    severity: minor
+    task: goal
+    title: >-
+      Goal says 'the one bare python3 -c in the installed skills'; false (ccsession scripts use
+      python3; templates/workflow/02_mdtm_template_complex_task.md:965 tells agents to run
+      python -m pytest via Bash)
+    evidence:
+      - 'templates/workflow/02_mdtm_template_complex_task.md:965 matches python -m (round2-variant-2.md:24; INV-019, invariant-probe.md:27)'
+      - '39 python3 occurrences across 11 files under src/superclaude/skills (round1-variant-1.md:15; round1-variant-2.md:14)'
+      - 'INV-019: fixing read-parse.md:8 does not remove every bare-python instruction in shipped primitives (invariant-probe.md:27)'
+      - 'debate-transcript.md:47 (C-009, V1, 80%)'
+    fix: >-
+      Reword the Goal to the issue-named call (read-parse.md:8) in progress.md and the PR body
+      (plan not edited, A-002). Record templates/workflow/02_mdtm_template_complex_task.md:965 as an
+      out-of-scope follow-up in progress.md and the PR body; do not change it in this work.
+    sources: [V1 R1-F8, V2 R2-F4, C-009, INV-019]
+    source_tag: "Base (original, modified) — extended with INV-019; template line 965 recorded as an out-of-scope follow-up per Change #9"
+
+  - id: R1-F9
+    severity: minor
+    task: 6
+    title: "CHANGELOG entry is a scope addition; recent PRs #355 #356 added no Unreleased entries"
+    evidence:
+      - 'variant-1-original.md:14'
+      - 'debate-transcript.md:50 (C-012, V1, 70%: scope addition, low value)'
+    fix: >-
+      Record the Task 6 CHANGELOG entry as a scope addition in progress.md and the PR body.
+    sources: [V1 R1-F9, C-012]
+    source_tag: "Base (original, modified) — fix field added from the title; no content change"
+
+  - id: R1-F10
+    severity: minor
+    task: 4
+    title: "Install test passes target_path explicitly; the not-live-home assertion is trivial"
+    evidence:
+      - 'install_hooks.py:136-140 derives hooks_dir from target_path, so the plan L92 assertion is vacuous (round1-variant-1.md:13; debate-transcript.md:51, C-013 85%)'
+      - 'INV-020 (ADDRESSED): install_hooks.py:135-136 resolves Path.home() at call time, so a HOME monkeypatch redirects install_hooks() with no target (invariant-probe.md:28)'
+    fix: "Monkeypatch HOME to tmp_path and call install_hooks() with no target"
+    sources: [V1 R1-F10, C-013, INV-020]
+    source_tag: "Base (original)"
+
+  - id: R1-F11
+    severity: minor
+    task: 2
+    title: >-
+      Timing assertion must hold for the full scanner, and the 100 KB case does not exercise the
+      128 KB argument limit
+    evidence:
+      - 'tests/hooks/test_freshness_subagent_start_policy.py:86 asserts elapsed < 1 (repo precedent; round1-variant-3.md:25; debate-transcript.md:48, C-010 70%)'
+      - 'INV-003: MAX_ARG_STRLEN 128 KB; 140 KB via awk -v or env fails "Argument list too long" rc=126, so fail-open allows a trailing ; python3 x; via stdin rc=0 (invariant-probe.md:11)'
+      - 'mawk 1.3.4 per-character loop over 100 KB ran in ~12 ms, a lower bound without heredoc/comment/nesting logic (round2-variant-1.md:20)'
+      - 'Task 2 100 KB case must pass with the full scanner (round2-variant-3.md:26, :50)'
+    fix: >-
+      Keep the plan's under-1-second assertion (repo precedent; no flaky reframing, no 2.5 s bound).
+      Run it against the full M-SCANNER, not a prototype. Add a ~200 KB command case passed on stdin
+      that ends in '; python3 x' and assert it is blocked (exit 2).
+    sources: [V1 R1-F11, V3 R3-F8, C-010, INV-003, A-003]
+    source_tag: "Base (original, modified) — flaky framing and the < 2.5 s bound dropped (Changes NOT Being Made); ~200 KB stdin case added per Change #5"
+
+  - id: M-SCANNER
+    severity: blocking
+    task: 1
+    title: >-
+      Plan L37's split rule is not a shell lexer: apostrophes in heredoc bodies and comments desync
+      quote state and hide later real python3 calls, the standard multi-line git commit -m
+      "$(cat <<'EOF' ...)" form is wrongly blocked, and probed forms run bare python unblocked
+    evidence:
+      - 'R3-F2 desync half: apostrophes in heredoc bodies break quote tracking (variant-3-original.md:7); V1 concession, same mechanism for # don''t comments (round2-variant-1.md:10)'
+      - 'R3-F3 desync half: # don''t opens an unclosed quote hiding later lines (round1-variant-3.md:14); correction: read-parse.md:7 and :9 comments contain ; but produce no python FP (round2-variant-3.md:12)'
+      - 'Round 2 evidence 1: awk model on git commit -m "$(cat <<''EOF'' / fix(hooks): block "echo x | python3 -c" calls / EOF / )" yields command words git and python3 -> blocked; violates the Done-when (plan L19) and L37''s own commit-message example; the only allowed commit test (plan L58) is single-line with no inner quotes (round2-variant-3.md:17-24)'
+      - 'Round 2 evidence 2: the FP already exists, so document-and-pin of R3-F5 is insufficient; one stateful scanner (round2-variant-3.md:25)'
+      - 'Round 2 evidence 3: jq regex cannot track a context stack; plan L41 offers both; require awk (round2-variant-3.md:26)'
+      - 'INV-002: awk -v processes escapes (printf "a\\nb" becomes printf "a\nb", mawk 1.3.4); ENVIRON/stdin keep bytes (invariant-probe.md:10)'
+      - 'INV-004 (HIGH): unquoted-delimiter heredoc has literal quotes but $( and backticks expand: cat <<EOF / don''t / EOF / python3 E3 runs; cat <<EOF / v=$(python3 E4) / EOF runs (invariant-probe.md:12)'
+      - 'INV-005: continuation and comment strip cannot be pre-passes (invariant-probe.md:13)'
+      - 'INV-006: <<-''EOF'' strips leading tabs; tab+EOF terminates; python3 E5 after it runs (invariant-probe.md:14)'
+      - 'INV-007: <<< here-string has no body (cat <<< ''{}'' / python3 E6 runs); $((1<<4)) is not a heredoc (invariant-probe.md:15)'
+      - 'INV-008: FP ls -d $(pwd)/bin/python3 only prints a path; FN PYTHONPATH=$(pwd)/src python3 E13 runs; resume the outer word (invariant-probe.md:16)'
+      - 'INV-009: $((1+2)) and case patterns a); echo "$(echo $((1+2)) )"; python3 E15 runs (invariant-probe.md:17)'
+      - 'INV-010: "python3" E9, ''python3'' E9b, \python3 E9c, "$PWD/bin/python3" E10 all run (invariant-probe.md:18)'
+      - 'INV-013: $''don\''t'' then python3 E11 runs (invariant-probe.md:21)'
+      - 'INV-027 (HIGH): the consensus scanner is falsified by INV-003, 004, 006, 007, 008, 010, INV-008 E12 and INV-016/017 (invariant-probe.md:35)'
+      - 'debate-transcript.md:41 (C-003, V3, 90%), :42 (C-004, V3, 85%), :44 (C-006, V3, 95%), :62 (A-003, awk stateful scanner)'
+    fix: >-
+      Implement the Task 1 tokenizer as one stateful awk scanner (not a jq regex), run with
+      LC_ALL=C (M-AWK-LOCALE), reading the command on stdin, never through awk -v or an environment
+      variable (INV-002, INV-003). Rules:
+      (a) quote states: single, double, and ANSI-C $'...' with backslash escapes (INV-013);
+      (b) an unquoted # at word start begins a comment to end of line, with no quote tracking and no
+      continuation inside it (R3-F3, INV-005);
+      (c) backslash-newline joins only in states where bash joins (INV-005, R1-F4);
+      (d) $( and backticks, including inside double quotes, push a nested context with fresh quote
+      state; ) pops it and resumes the outer word instead of starting a new simple command (INV-008);
+      $(( )) arithmetic and case-pattern ) do not push or pop a command context (INV-009);
+      (e) <<WORD and <<-WORD start heredocs; <<< and $((1<<4)) do not (INV-007); the body ends at a
+      line equal to the delimiter after stripping leading tabs for <<- (INV-006); a quoted-delimiter
+      body is literal unless the heredoc's command word is a shell (R3-F2); an unquoted-delimiter
+      body has literal quotes but its $( and backticks are scanned (INV-004);
+      (f) dequote the command word and drop a leading backslash before the basename check (INV-010).
+      Task 2 tests: blocked E1, E3, E4, E5, E6, E9, E9b, E9c, E10, E11, E13, E15, a # don't comment
+      followed by a python3 line, and a quoted-delimiter heredoc whose body has an apostrophe
+      followed by a real python3 line after EOF; allowed E12 (ls -d $(pwd)/bin/python3) and the
+      multi-line git commit -m "$(cat <<'EOF' ... "python3 -c" ... EOF )" form. INV-027 clears only
+      when this finding, R1-F5, R1-F6 (INV-017), R1-F11 (INV-003) and M-TASK7 (INV-016) all land.
+      The false-positive half of R3-F3 (a comment such as '# check (python3 version)' blocked) is
+      minor on its own and is fixed by rule (b).
+    sources: [V3 R3-F2 (desync half), V3 R3-F3 (desync half), V3 Round 2 evidence 1-3, INV-002, INV-004, INV-005, INV-006, INV-007, INV-008, INV-009, INV-010, INV-013, INV-027, C-003, C-004, C-006, X-003, A-003]
+    source_tag: "Variant 3, findings R3-F2 and R3-F3 (desync halves) with Round 2 evidence 1-3 and INV-002/004-010/013 — merged per Change #2"
+
+  - id: M-HEREDOC-TEXT
+    severity: minor
+    task: 1
+    title: >-
+      Plan L40 understates heredoc-body behaviour: any unquoted backtick, (, ; or | in a body line
+      also creates a command word
+    evidence:
+      - 'awk model blocks Run `python3 x.py` to reproduce inside cat > notes.md <<''EOF'' (round2-variant-3.md:11)'
+      - 'plan L40 openly accepts text-only heredoc blocking; grading a stated limit blocking punishes a declared trade-off (round2-variant-3.md:4)'
+      - 'debate-transcript.md:59 (X-003, V1 text-half severity, 85%)'
+    fix: >-
+      Rewrite the hook's header comment so it matches the shipped M-SCANNER heredoc behaviour
+      (quoted-delimiter bodies literal; unquoted-delimiter bodies scanned only for $( and backticks;
+      bodies fed to a shell are a ceiling), replacing L40's understated text; add one pinning test.
+    sources: [V3 R3-F2 (text half), V1 R1-F5 (heredoc ceiling), C-003, X-003]
+    source_tag: "Variant 3, finding R3-F2 (text half) — merged per Change #2; kept minor per Changes NOT Being Made (documented ceiling, plan L40)"
+
+  - id: M-TASK7
+    severity: minor
+    task: 7
+    title: >-
+      Live check uses bypassPermissions, checks only two live-state points, and a fresh session may
+      never send bare python3 to Bash
+    evidence:
+      - 'plan L124 bypassPermissions broader than needed (round1-variant-3.md:17); live check is Task 7 at plan L120 (round1-variant-1.md:8)'
+      - 'jsonl artifacts staged under .dev/tasks (variant-3-original.md:14)'
+      - 'INV-016: live ~/.claude/CLAUDE.md lines 7 and 34 forbid bare python; the model may refuse or rewrite; --bare skips settings hooks (invariant-probe.md:24)'
+      - 'debate-transcript.md:49 (C-011, V3, 85%)'
+    fix: >-
+      Use --allowedTools Bash,Agent instead of bypassPermissions. Drive the bare call with
+      --append-system-prompt and do not use --bare. Record a model refusal or rewrite as blocked
+      (not exercised), never as a pass. Record the expected live side effects beforehand, and review
+      the jsonl artifacts before staging them under .dev/tasks.
+    sources: [V3 R3-F9, INV-016, C-011]
+    source_tag: "Variant 3, finding R3-F9 — merged with INV-016 per Change #6"
+
+  - id: M-CONSTRAINTS
+    severity: minor
+    task: constraints
+    title: "Constraints line 20 says Task 6 for the live check; it is Task 7"
+    evidence:
+      - 'plan L20 vs L120-134 (round1-variant-2.md:9; variant-3-original.md:16)'
+      - 'debate-transcript.md:53 (C-015, V3, 95%)'
+    fix: >-
+      Treat the Constraints reference as Task 7 at implement time and record the mislabel in
+      progress.md (plan not edited, A-002).
+    sources: [V3 R3-F11, C-015]
+    source_tag: "Variant 3, finding R3-F11 — merged per Change #7"
+
+  - id: M-ARRAY
+    severity: minor
+    task: 1
+    title: "Splitting at ( blocks array assignments like tools=(python3 pip uv), which run nothing"
+    evidence:
+      - 'variant-3-original.md:15'
+      - 'INV-015: arr=(python3 pip) runs nothing; split at ( blocks it (invariant-probe.md:23)'
+      - 'the ( false positive is minor (round1-variant-3.md:31); debate-transcript.md:54 (C-016, V3, 75%: minor FP; ceiling)'
+    fix: >-
+      In M-SCANNER, treat name=( in assignment position as an array assignment, not a command
+      context; if not implemented, list it in the header comment as a known false positive and pin
+      it with a test.
+    sources: [V3 R3-F10, INV-015, C-016]
+    source_tag: "Variant 3, finding R3-F10 — merged per Change #7"
+
+  - id: M-CEILINGS
+    severity: minor
+    task: 1
+    title: >-
+      Bypass forms are not listed as ceilings, and plan L40's heredoc rationale contradicts L58's
+      bash -c allowance
+    evidence:
+      - 'R1-F5 ceiling half: bash -c/eval/xargs/find -exec not listed (variant-1-original.md:10)'
+      - 'R2-F6: bash -c, xargs, find -exec undocumented (variant-2-original.md:11)'
+      - 'R3-F6: option-taking wrappers and xargs/find -exec slip through; bash -c allowance contradicts heredoc rationale (variant-3-original.md:11; round1-variant-3.md:15)'
+      - 'sudo -u bob python3 makes -u the command word (round1-variant-2.md:26)'
+      - 'INV-011 leading redirections (invariant-probe.md:19); INV-012 heredoc fed to a shell (invariant-probe.md:20); INV-014 wrapper spellings (invariant-probe.md:22); INV-022 Monitor tool (invariant-probe.md:30)'
+      - 'debate-transcript.md:45 (C-007, V3, 70%: documented ceilings)'
+    fix: >-
+      List every documented_ceilings entry in the hook header comment and in the CHANGELOG entry
+      (Task 6). State that bash -c string arguments are an accepted ceiling so L40 and L58 agree.
+      For option-taking wrappers, either skip their options in command-word position or list them
+      as ceilings (R1-F4), with tests for whichever is chosen.
+    sources: [V1 R1-F4 (wrapper half), V1 R1-F5 (ceiling half), V2 R2-F6, V3 R3-F6, INV-011, INV-012, INV-014, INV-022, C-007]
+    source_tag: "Variant 3, finding R3-F6 — merged with V1 R1-F5 ceiling half, V2 R2-F6 and INV-011/012/014/022 per Change #7"
+
+  - id: M-AWK-LOCALE
+    severity: minor
+    task: 1
+    title: "The ~12 ms awk timing was measured only on mawk; the scanner should run with LC_ALL=C"
+    evidence:
+      - 'INV-026 (invariant-probe.md:34)'
+      - 'mawk 1.3.4 measurement (round2-variant-1.md:20)'
+    fix: >-
+      Invoke the scanner as LC_ALL=C awk; the Task 2 timing case (R1-F11) is the budget guard on
+      whatever awk the host provides.
+    sources: [INV-026, A-003]
+    source_tag: "Invariant probe, finding INV-026 — merged per Change #7"
+
+  - id: M-COVERAGE
+    severity: minor
+    task: none
+    title: >-
+      Coverage matrix misattributes INF-007 (Task 1, real Task 3) and INF-010 (Task 3, real Task 1);
+      corrected in semantic_notes
+    evidence:
+      - 'artifacts/coverage-matrix.yaml L67-73 (INF-007 -> Task 1, tie note), L88-94 (INF-010 -> Task 3), semantic_notes L131-142 carry the correction (round2-variant-2.md:11, :19)'
+      - 'independently verified (round2-variant-3.md:27)'
+      - 'debate-transcript.md:55 (C-017, V2, 80%)'
+    fix: >-
+      No plan edit. When /sc:implement checks coverage, attribute INF-007 to Task 3 and INF-010 to
+      Task 1 per the semantic_notes correction.
+    sources: [V2 R2-F5, C-017]
+    source_tag: "Variant 2, finding R2-F5 — merged per Change #8"
+
+implement_time_amendments:
+  - id: AMD-01
+    grade: blocking
+    findings: [R1-F1]
+    invariants: [INV-001]
+    action: >-
+      Replace the matcher == "Bash" assertion in tests/hooks/test_freshness_subagent_start_policy.py
+      with the allowlist (Bash-matcher PreToolUse commands == {block-bare-python.sh}); add tests/hooks/
+      to the Task 4 pytest run; name the supersession as a Necessary deviation in the PR body.
+    record: progress.md
+  - id: AMD-02
+    grade: blocking
+    findings: [R1-F2]
+    invariants: []
+    action: >-
+      Add allowed ;-chained cases to the Task 2 table ('ls; uv run python x.py',
+      'echo a; echo python3', 'uv run python a.py && echo python3') so the plan L64 criterion is met.
+    record: progress.md
+  - id: AMD-03
+    grade: blocking
+    findings: [M-SCANNER, R1-F4]
+    invariants: [INV-004, INV-002, INV-005, INV-006, INV-007, INV-008, INV-010]
+    action: >-
+      Build Task 1's tokenizer as one stateful awk scanner reading stdin with rules (a)-(f) of
+      M-SCANNER (quote states incl. $'...', comments, per-state continuation, nested $( and backtick
+      contexts that resume the outer word, heredoc forms incl. unquoted-delimiter bodies, <<-, <<<,
+      dequoted command word), and add every listed blocked and allowed test to Task 2.
+    record: progress.md
+  - id: AMD-04
+    grade: blocking
+    findings: [R1-F5]
+    invariants: [INV-008, INV-025]
+    action: >-
+      Scan $( and backticks inside double quotes as nested command contexts; add the blocked
+      quoted-substitution tests; ship in the same change as AMD-03 (no document-and-pin).
+    record: progress.md
+  - id: AMD-05
+    grade: blocking
+    findings: [M-SCANNER, R1-F5, R1-F6, R1-F11, M-TASK7]
+    invariants: [INV-027]
+    action: >-
+      Before Task 2 is marked done, show every Done-when bullet holds against the full scanner:
+      each INV E-case listed in M-SCANNER blocked, E12 and the multi-line commit form allowed, and
+      AMD-06, AMD-07 and AMD-08 landed.
+    record: progress.md
+  - id: AMD-06
+    grade: medium
+    findings: [R1-F11]
+    invariants: [INV-003]
+    action: >-
+      Keep the under-1-second timing assertion, run it against the full scanner, and add a ~200 KB
+      stdin command ending in '; python3 x' that must exit 2.
+    record: progress.md
+  - id: AMD-07
+    grade: medium
+    findings: [R1-F6]
+    invariants: [INV-017, INV-021]
+    action: >-
+      Exit 2 only on a positive scanner block, 0 on every other path; add the PATH-shim jq-missing
+      test (bash present, jq absent) asserting exit 0 and the jq-branch-only stderr marker; warn at
+      superclaude install when jq is absent, or state the precondition in docs and CHANGELOG.
+    record: progress.md
+  - id: AMD-08
+    grade: medium
+    findings: [M-TASK7]
+    invariants: [INV-016]
+    action: >-
+      Run the Task 7 live check with --allowedTools Bash,Agent and --append-system-prompt (no
+      bypassPermissions, no --bare); record a refusal or rewrite as blocked, not a pass; record
+      expected side effects; review jsonl artifacts before staging them under .dev/tasks.
+    record: progress.md
+
+documented_ceilings:
+  - form: "bash -c / sh -c string argument"
+    example: "bash -c 'python3 x.py'"
+    note: "plan L58 allows bash -c; stated as a ceiling so L40 and L58 agree"
+    source: [R1-F5, R2-F6, R3-F6]
+  - form: "eval"
+    example: "eval \"python3 x.py\""
+    source: [R1-F5]
+  - form: "xargs"
+    example: "echo x.py | xargs python3"
+    source: [R1-F5, R2-F6, R3-F6]
+  - form: "find -exec"
+    example: "find . -name '*.py' -exec python3 {} \\;"
+    source: [R1-F5, R2-F6, R3-F6]
+  - form: "option-taking wrappers"
+    example: "sudo -u bob python3, nice -n 10 python3, env -u X python3, exec -a name python3"
+    note: "ceiling unless the scanner skips wrapper options (M-CEILINGS)"
+    source: [R1-F4, R3-F6]
+  - form: "path-form and special wrappers"
+    example: "/usr/bin/env python3, coproc python3, command -p python3, time -p python3"
+    source: [INV-014]
+  - form: "leading redirections before the command word"
+    example: "< in.json python3 E7, >out.txt python3 E8"
+    source: [INV-011]
+  - form: "heredoc piped or fed to a shell"
+    example: "cat <<'EOF' | bash / python3 E14 / EOF; also sudo bash, /bin/bash, partly quoted delimiters"
+    source: [INV-012]
+  - form: "Monitor tool shell command"
+    example: "Monitor takes a shell command outside the Bash matcher"
+    source: [INV-022]
+  - form: "jq missing on the host"
+    example: "the hook fails open (exit 0) for every command"
+    note: "plan L21; made visible by R1-F6 / AMD-07"
+    source: [INV-017, R2-F3]
+  - form: "claude --bare sessions"
+    example: "--bare skips settings hooks, so the hook never runs"
+    source: [INV-016]

@@ -11,10 +11,10 @@ For which tool to use when, see [How We Work](how-we-work.md).
 | Architecture | Monolithic command file | Thin command + `sc-brainstorm-protocol` skill |
 | Proposal generation | Single-agent multi-persona dialogue | N parallel proposals across HAIKU/SONNET/OPUS |
 | Merge mechanism | None — dialogue produced one doc | Adversarial debate + scoring + provenance-annotated merge |
-| Codebase context | Single Auggie shot | Auto-routed `/sc:analyze` or Auggie quick scan, gated by complexity |
+| Codebase context | Single Auggie shot | Auto-routed `/sc:analyze` or Auggie quick scan, gated by domain; falls back to codegraph, then Glob/Grep |
 | Research | Mentioned, not wired | Auto-invokes `/sc:research` (light) or `tech-research` (deep) |
 | Handoff | Text suggestion only | Flag-gated invocation of `/sc:design`, `/sc:tasklist`, or `/task-builder` |
-| MCP servers | context7, magic, playwright, morphllm, auggie-mcp | auggie-mcp, tavily |
+| MCP servers | context7, magic, playwright, morphllm, auggie-mcp | auggie-mcp, codegraph, tavily |
 | Personas | 7-persona auto-activation soup | 3 personas auto-selected per detected domain |
 
 v2 does **not** re-implement debate, scoring, or merge logic — those are delegated to `sc-adversarial-protocol`. v2's value is orchestration.
@@ -70,7 +70,7 @@ A topic string. File references via `@<path>` are supported. Empty topic STOPs t
 
 1. **Wave 0 — Prerequisites**: validate flags, model env vars, sc-adversarial-protocol skill version, handoff prereqs, create output dir.
 2. **Wave 1 — Socratic Dialogue**: depth-tiered question batches → `seed-brief.md` with `topic`/`domain`/`strategy`/`depth` frontmatter.
-3. **Wave 2A — Enrichment (partial-OK)**: parallel `/sc:analyze` (codebase), `/sc:research` (light), or `tech-research` (deep). Failures degrade quality but do not abort.
+3. **Wave 2A — Enrichment (partial-OK)**: parallel `/sc:analyze` (codebase), `/sc:research` (light), or `tech-research` (deep). Failures degrade quality but do not abort: if Auggie is down, codebase enrichment falls back to codegraph, then native Glob/Grep, and records `quality_tier: fallback_1` (research falls back to WebSearch).
 4. **Wave 2B — Agent-Spec Composition**: select personas per domain, round-robin assign models, validate via adversarial parser, run token-budget pre-flight.
 5. **Wave 3 — Adversarial Delegation**: invoke `Skill sc-adversarial-protocol` with `--generate spec`. Route by convergence score: ≥0.65 PASS, ≥0.50 PARTIAL, <0.50 FAIL.
 6. **Wave 4 — Handoff (flag-gated)**: invoke `/sc:tasklist` or `/task-builder`, or print text recommendation for `/sc:design`.
@@ -104,7 +104,7 @@ return-contract.yaml            # Versioned return contract (stable + telemetry)
 /sc:brainstorm "add rate limiting to public API endpoints" --depth standard
 ```
 
-Auto: codebase enrichment via Auggie; 3 proposals across opus/sonnet/haiku with architect/refactorer/backend personas; adversarial debate + merge.
+Auto: codebase enrichment via Auggie (falls back to codegraph, then Glob/Grep); 3 proposals across opus/sonnet/haiku with architect/refactorer/backend personas; adversarial debate + merge.
 
 ### Deep incident post-mortem
 
@@ -230,6 +230,6 @@ topic (user)
 ## See Also
 
 - [Commands reference](commands.md) — full command catalog
-- [Modes guide](modes.md) — Brainstorming mode (`--brainstorm` flag) vs `/sc:brainstorm` command
+- [Modes guide](modes.md) — `--brainstorm` is an advisory hint; no mode file is installed. The `/sc:brainstorm` command is the orchestrator this page describes
 - Source: `src/superclaude/commands/brainstorm.md` + `src/superclaude/skills/sc-brainstorm-protocol/SKILL.md`
 - Spec: `.dev/eval-workspaces/sc-brainstorm/SPEC.md`

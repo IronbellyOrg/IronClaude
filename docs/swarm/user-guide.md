@@ -6,9 +6,9 @@ block and reproduce the shown output exactly. To run against real models, swap
 `--transport stub` → `--transport openai_compat` and set the
 [T2 proxy env contract](runbook.md#t2-proxy-env-contract-ac-017).
 
-**Before you start**, skim [What a run emits today](README.md#what-a-run-emits-today):
-`swarm run` currently performs preflight + dispatch and writes four observability
-artifacts; the merged-output / return-contract writer is the pending M5 milestone.
+**Before you start**, skim [What a run emits](README.md#what-a-run-emits):
+`swarm run` performs preflight → dispatch → normalize → reduce and writes the
+observability files, one output per worker, `merged.md` and `return-contract.yaml`.
 
 > **Conventions.** A `VIRTUAL_ENV=… will be ignored` warning may appear as the first
 > output line — it is harmless. Exit codes: **0** success, **1** rule/contract failure,
@@ -64,12 +64,17 @@ swarm run: dispatched job (mode=lens, workers=3, results=3)
 
 ```bash
 ls -A /tmp/quickstart-out
-# .swarm-state.json  execution-log.jsonl  execution-log.md  manifest.json
+# .swarm-state.json
+# bare-review-00-lens-default-model-0.final.md  bare-review-00-lens-default-model-0.meta.json
+# bare-review-01-lens-default-model-0.final.md  bare-review-01-lens-default-model-0.meta.json
+# bare-review-02-lens-default-model-0.final.md  bare-review-02-lens-default-model-0.meta.json
+# execution-log.jsonl  execution-log.md  manifest.json  merged.md  return-contract.yaml
 ```
 
-Those four files are the complete artifact set for a run today (the merged-output and
-return-contract writer is the pending M5 milestone). `bare-review` defaults to **3
-workers**; `--transport stub` means each worker returns a deterministic placeholder, so
+Read `merged.md` first (all workers' normalized output) and `return-contract.yaml` for
+the run status. The four observability files (`.swarm-state.json`,
+`execution-log.{jsonl,md}`, `manifest.json`) are covered in §5. `bare-review` defaults
+to **3 workers**; `--transport stub` means each worker returns a deterministic placeholder, so
 this is safe to run anywhere.
 
 > **Why `--lens`?** It's the shortcut input mode: it expands the named lens's defaults
@@ -82,7 +87,7 @@ this is safe to run anywhere.
 
 ## 2. Validate the bundled lens registry
 
-**Goal:** confirm the 7 bundled lenses are internally consistent (a good first-run
+**Goal:** confirm the 8 bundled lenses are internally consistent (a good first-run
 sanity check and a useful CI gate).
 
 ```bash
@@ -92,12 +97,13 @@ uv run superclaude swarm validate-lenses
 **Expected output / exit:**
 
 ```text
-validate-lenses: registry OK (8 entries inspected, 7 validated)
+validate-lenses: registry OK (9 entries inspected, 8 validated)
 ```
 
-Exit `0`. The registry has **8** entries; **7** are validated — the `custom` escape
-hatch is intentionally skipped (its prompt body arrives at preflight from
-`--custom-prompt-dir`, not the registry). Each lens passes six structural assertions
+Exit `0`. The registry has **9** entries (8 bundled lenses plus `custom`); **8** are
+validated — the `custom` escape hatch is intentionally skipped (its prompt body arrives
+at preflight from the directory in the JobSpec field `custom_prompt_dir`, not the
+registry). Each lens passes six structural assertions
 (file-ref resolves, recipe registered, suspect↔`{suspect_files}` coupling, name unique,
 injection-guard substring present, normalizer strategy registered) — see the
 [Lens Catalog](lens-catalog.md#the-lens-validator-6-assertions).
@@ -197,8 +203,10 @@ downstream hand-off command. Pick by what you're reviewing:
 | An approach, for whether it'll work | `feasibility-probe` | verdict + rationale | `/sc:research` |
 | A failure, for ranked root-cause hypotheses | `troubleshoot-hypothesis` (4 workers) | hypothesis table | `/sc:troubleshoot` |
 | Docs, for missing / stale content | `doc-completeness` | findings table | `/sc:document` |
+| Completed work, as one reviewer in a reflection ensemble | `reflect-review` | free-form body (`passthrough`) | `/sc:adversarial` |
 
-Full per-lens detail (prompts, recipes, templates): [Lens Catalog](lens-catalog.md).
+`reflect-review` is the stable lens that `superclaude reflect` Tier 2 fans out
+headlessly; you rarely run it by hand. Full per-lens detail (prompts, recipes, templates): [Lens Catalog](lens-catalog.md).
 
 ### Example: hunt edge cases (4-worker lens)
 
@@ -246,12 +254,12 @@ uv run superclaude swarm status --output /tmp/quickstart-out
 ```
 
 ```text
-status: phase=terminal job_id=lens-bare-review-xxxxxxxx updated=2026-06-09T00:18:03Z
+status: phase=terminal job_id=lens-bare-review-xxxxxxxx updated=2026-06-09T00:18:03Z terminal_status=success
 ```
 
 Exit `0` for a non-terminal phase, terminal+success, or terminal with no readable
-contract. (Once the M5 contract writer lands, terminal+partial/failed will exit `1`.) A
-missing directory or corrupt state exits `2`. Pass `--job <job_id>` to assert you're
+contract. Terminal+partial or terminal+failed (the `status` recorded in
+`return-contract.yaml`) exits `1`. A missing directory or corrupt state exits `2`. Pass `--job <job_id>` to assert you're
 reading the directory you think you are — a mismatch fails loudly with exit `2`.
 
 ### Execution log
@@ -348,8 +356,20 @@ message, not a crash.
 
 ## 7. Monitoring a long-running job
 
-Real proxy fan-outs take time. Three patterns (full detail:
-[Monitoring Patterns](monitoring-patterns.md)).
+Real proxy fan-outs take time. Watch in the foreground with `--tui`, or use one of three
+patterns (full detail: [Monitoring Patterns](monitoring-patterns.md)).
+
+### Live dashboard — `--tui`
+
+```bash
+uv run superclaude swarm run --lens bare-review --target BIG --output /tmp/j \
+  --transport openai_compat --tui
+```
+
+`--tui` renders a live Rich progress dashboard while Wave 1 dispatch runs. It works on
+fresh runs only (not with `--resume`), needs a TTY (on a non-TTY pipe it silently runs
+the plain path) and cannot be combined with `--detached`. Ctrl-C restores the terminal,
+waits for the dispatch thread and exits `130`.
 
 ### Pattern A — phase watch
 
@@ -384,11 +404,11 @@ re-binds your terminal, `kill <job_id>` tears it down. tmux is **optional** — 
 never need it, and `--detached` without tmux exits `2` with a clear error rather than
 silently falling back.
 
-> **Today's caveat:** the `done.json` terminal sentinel and `status --watch`'s
-> partial/failed exit codes depend on the **M5** Wave-2/3 terminal writer. The current
-> dispatch-only path does **not** emit `done.json`, so the `until [ -f done.json ]`
-> poll in [Monitoring Patterns](monitoring-patterns.md) describes the **target**
-> behavior. For now, poll `.swarm-state.json` reaching `terminal` via `status`.
+> **Caveat — `done.json`:** a run does **not** write the `done.json` sentinel; only
+> `swarm kill <job_id> --output <dir>` writes it. The `until [ -f done.json ]` poll in
+> [Monitoring Patterns](monitoring-patterns.md) therefore only fires for killed jobs.
+> Poll `.swarm-state.json` reaching `terminal` via `status` instead: the state flips to
+> `terminal` only after `merged.md` and `return-contract.yaml` are on disk.
 
 ---
 
@@ -429,19 +449,42 @@ Every bundled lens already embeds the §11.5 injection-guard sentence in its sys
 prompt, and wraps the target between `<<<TARGET>>>` / `<<<END TARGET>>>` delimiters so a
 malicious target can't smuggle instructions. You normally don't touch this.
 
-It matters only when you supply **your own** prompts via the `custom` lens escape hatch:
+It matters only when you supply **your own** prompts via the `custom` lens escape hatch.
+Custom prompts are not a command-line flag (`--lens custom` is rejected): they come from
+a spec file whose `lens` is `"custom"` and whose `custom_prompt_dir` field names a
+directory holding `system.txt`, `user.txt` and `meta.yaml`:
 
 ```bash
-uv run superclaude swarm run \
-  --lens custom --custom-prompt-dir /path/to/prompts \
-  --target /tmp/quickstart.py --output /tmp/c-out \
+mkdir -p /tmp/prompts
+printf 'You review code for bugs.\n' > /tmp/prompts/system.txt
+printf 'Review this:\n<<<TARGET>>>\n{target_content}\n<<<END TARGET>>>\n' > /tmp/prompts/user.txt
+printf 'variables: {}\n' > /tmp/prompts/meta.yaml
+
+uv run superclaude swarm scaffold --lens bare-review --output /tmp/job.json
+python3 - <<'PY'
+import json
+p = "/tmp/job.json"
+d = json.load(open(p))
+d["lens"] = "custom"
+d["custom_prompt_dir"] = "/tmp/prompts"
+d["target"]["path"] = "/tmp/quickstart.py"
+d["output"]["dir"] = "/tmp/c-out"
+json.dump(d, open(p, "w"), indent=2)
+PY
+
+uv run superclaude swarm run /tmp/job.json --output /tmp/c-out \
   --transport stub --auto-inject-guard
 ```
 
+```text
+swarm run: dispatched job (mode=spec-file, workers=3, results=3)
+```
+
 `--auto-inject-guard` prepends the canonical guard sentence to a legacy `system.txt`
-that predates it, so the run passes the guard check. It is **idempotent** (no double
-prepend) and **opt-in** — without it, a custom system prompt lacking the guard sentence
-is rejected at preflight. It's redundant with the bundled lenses (they already carry the
+that predates it, so the run passes the guard check (the file on disk is not rewritten).
+It is **idempotent** (no double prepend) and **opt-in** — without it, this example's
+`system.txt` lacks the guard sentence and preflight rejects the run with
+`injection_guard.required_substring @ custom_prompt_dir/system.txt` (exit `1`). It's redundant with the bundled lenses (they already carry the
 sentence). Migration detail: [Release Notes → custom-prompt migration](release-notes-v1.md#custom-prompt-migration-path-fr-021-escape-hatch).
 
 ---
@@ -474,11 +517,11 @@ only** — no scoring, deduping, or reordering (AC-011).
 |---|---|---|
 | `preflight FAILED (1 rule(s))` / `imm4.target_too_small` (exit 1) | Target has <50 non-whitespace bytes after truncation. | Point at a real target. The output dir is **not** created on preflight failure. |
 | `validate` passes but `run` fails preflight | `validate` is schema-only; IMM-4 / INV-005 / INV-007 are preflight rules. | Run `swarm run` to exercise preflight; don't treat `validate` as a full gate. |
-| Unknown lens (exit 2) | Typo, or `--lens custom` to `scaffold` (no defaults to expand). | Use a registry name (`validate-lenses` lists them); for `custom`, supply `--custom-prompt-dir`. |
+| Unknown lens (exit 2) | Typo, or `--lens custom` to `scaffold` (no defaults to expand). | Use a registry name (`validate-lenses` lists them); for custom prompts, write a spec file with `"lens": "custom"` and a `custom_prompt_dir` field (§9). |
 | `run` exits 0 but no files on disk | Spec-file mode without the `--output` **flag**. | Always pass `--output <dir>`; the flag (not `spec.output.dir`) wires artifacts. |
 | `cannot construct 'openai_compat' transport … incomplete; missing: …` (exit 1) | `openai_compat` with `T2ProxyUrl` / `T2ProxyKey` / `T2Model0*` slots unset. | Export the [env contract](#6a-set-the-env-contract); the `missing:` list names exactly what's absent. |
 | `--detached` exits 2 | tmux not installed / nested in tmux. | Install tmux, or run inline (no `--detached`). |
-| No `merged.md` / `return-contract.yaml` / `done.json` after a normal run | Expected — those are the pending **M5** Wave-2/3 writer. | Use the four observability artifacts (§5); see [README](README.md#what-a-run-emits-today). |
+| No `done.json` after a normal run | Expected — only `swarm kill <job_id> --output <dir>` writes it. | Poll `swarm status` for `phase=terminal` (§7); see [README](README.md#what-a-run-emits). |
 | `VIRTUAL_ENV … will be ignored` warning | Benign uv/venv notice. | Ignore, or filter with `grep -v VIRTUAL_ENV`. |
 
 See also the [Command Reference](command-reference.md) for per-command exit-code tables

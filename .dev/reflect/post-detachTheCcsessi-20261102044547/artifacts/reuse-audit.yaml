@@ -1,0 +1,91 @@
+# reuse-auditor result (sc:reflect Wave 1A step 4a), persisted by the orchestrator on receipt (2026-11-02T04:52Z).
+# Content as returned by the agent; long notes shortened, scores, tiers, verdicts and neighbour refs unchanged.
+stage: post
+candidates_scanned: 4          # candidate 4 covers two tests (5 findings)
+neighbours_found: 9
+max_overlap: 0.93              # candidate 1 against an untracked scratch repro script, not tests/ or src/
+degraded: ["neighbour-search:auggie_unavailable"]   # scores renormalised over C_cap and C_shape; every tier capped at maybe-related
+sampled: false
+summary: >
+  No duplicate of any candidate exists in tests/ or src/. Candidate 1 repeats a process-tree walker
+  from the untracked investigation script orca_close_repro.py (the test's origin, not importable).
+  Candidate 2 repeats a ps-based identity check that the ccsession README shows as a shell snippet.
+  Candidates 3 and 4 are distinct; candidate 4 shares only fixture boilerplate with _real_launch.
+findings:
+  - candidate: "_descendants (tests/unit/test_ccsession_tiers.py:1423-1439)"
+    neighbours:
+      - ref: ".dev/troubleshoot/deployment-ccsession-proxy-4114-stalls-20261102031709/live-check/orca_close_repro.py:58"
+        note: "same ps command, children map and walk; untracked one-off repro, not importable, origin of the test"
+      - ref: "src/superclaude/skills/ccsession-tag/hooks/session-name.sh:80"
+        note: "walks ancestors (opposite direction); nearest in-src process-table reader only"
+    C_cap: 0.95
+    C_shape: 0.90
+    C_aug: 0.0
+    S_reuse: 0.93
+    confidence: 0.85
+    tier: maybe-related
+    verdict: distinct
+    consolidation: {N: 1, recommend_centralize: false, centralize_target: null}
+  - candidate: "_is_running (tests/unit/test_ccsession_tiers.py:1441-1451)"
+    neighbours:
+      - ref: "src/superclaude/skills/ccsession-tag/README.md:487"
+        note: "same identity check as a documentation shell snippet; not importable"
+      - ref: "src/superclaude/cli/sprint/recovery.py:302"
+        note: "pid-reuse protection by recorded /proc starttime; different semantics"
+      - ref: "tests/cli/test_install_codegraph.py:603"
+        note: "liveness only, /proc based"
+      - ref: "tests/cli/test_install_retired_mcp.py:466"
+        note: "liveness only; near-copy of the previous one (pre-existing, not caused by this diff)"
+    C_cap: 0.75
+    C_shape: 0.70
+    C_aug: 0.0
+    S_reuse: 0.73
+    confidence: 0.70
+    tier: maybe-related
+    verdict: distinct
+    consolidation: {N: 1, recommend_centralize: false, centralize_target: null}
+  - candidate: "local-gateway-alias-proxy.py __main__ setsid block (lines 863-867)"
+    neighbours:
+      - ref: "src/superclaude/skills/ccsession-tag/ccsession:804"
+        note: "launcher-side layer of the same fix; complementary"
+      - ref: "src/superclaude/cli/install_mcp.py:782"
+        note: "parent-side start_new_session to killpg on timeout; opposite goal"
+      - ref: "src/superclaude/hooks/scripts/codegraph-session-start.sh:31"
+        note: "nohup descriptor detach; does not leave session or group"
+    C_cap: 0.45
+    C_shape: 0.20
+    C_aug: 0.0
+    S_reuse: 0.37
+    confidence: 0.80
+    tier: distinct
+    verdict: distinct
+    consolidation: {N: 1, recommend_centralize: false, centralize_target: null}
+  - candidate: "test_shim_outlives_the_terminal_that_started_it (tests/unit/test_ccsession_tiers.py:1452-1551)"
+    neighbours:
+      - ref: "tests/unit/test_ccsession_tiers.py:1345"
+        note: "_real_launch builds the same env but runs the launcher synchronously; not reusable as is"
+      - ref: "tests/unit/test_ccsession_tiers.py:994"
+        note: "third copy of the same env setup (pre-existing)"
+      - ref: "tests/unit/test_ccsession_tag.py:1411"
+        note: "_spawn_on_pty: own session on a pty for tty-prompt tests; different purpose"
+    C_cap: 0.50
+    C_shape: 0.55
+    C_aug: 0.0
+    S_reuse: 0.52
+    confidence: 0.75
+    tier: distinct
+    verdict: distinct
+    advisory: "env/fake-claude setup now appears three times in test_ccsession_tiers.py (994, 1345, 1459); a local _launch_env helper would remove it (information only)"
+    consolidation: {N: 1, recommend_centralize: false, centralize_target: null}
+  - candidate: "test_a_directly_started_shim_leaves_the_launchers_session (tests/unit/test_ccsession_tiers.py:1554-1563)"
+    neighbours:
+      - ref: "tests/unit/test_ccsession_tiers.py:575"
+        note: "already reuses the shim fixture"
+    C_cap: 0.10
+    C_shape: 0.10
+    C_aug: 0.0
+    S_reuse: 0.10
+    confidence: 0.90
+    tier: distinct
+    verdict: distinct
+    consolidation: {N: 1, recommend_centralize: false, centralize_target: null}

@@ -19,7 +19,7 @@ Mode files under `src/superclaude/modes/` are not installed or loaded automatica
 
 ## Getting Started (2-Minute Overview)
 
-**Modes activate through behavioral instructions** - Claude Code reads context files to determine which mode behaviors to adopt based on your task patterns and complexity.
+**Modes are a style you ask for, not a loaded file** - no installed context file defines modes in 5.0.0 (the `MODES.md` core file is no longer shipped, and the files under `src/superclaude/modes/` are not installed). Claude may adopt a mode's behaviors when your request fits it or when you pass a mode flag as a hint.
 
 **Quick Examples:**
 
@@ -61,7 +61,7 @@ Mode files under `src/superclaude/modes/` are not installed or loaded automatica
 
 **Example Experience:**
 
-```
+```text
 Standard Approach: "I'll build a user authentication system with JWT tokens..."
 Brainstorming Approach: 
 "🤔 Let's explore this together:
@@ -115,7 +115,7 @@ Brainstorming Approach:
 
 **Example Experience:**
 
-```
+```text
 Standard Approach: "I'll analyze this code structure and suggest improvements..."
 Introspective Approach:
 "🧠 Meta-Analysis: Why did I choose structural analysis over functional flow?
@@ -164,7 +164,7 @@ Introspective Approach:
 
 **Example Experience:**
 
-```
+```text
 Standard Mode: "Here are some search results about quantum computing..."
 Deep Research Mode: 
 "📊 Research Plan: Quantum computing breakthroughs
@@ -216,7 +216,7 @@ Deep Research Mode:
 
 **Example Experience:**
 
-```
+```text
 Standard Approach: "I'll implement user authentication..." → Direct implementation
 Task Management Approach:
 "📋 Multi-Phase Implementation Plan:
@@ -257,15 +257,14 @@ Task Management Approach:
 
 **Example Experience:**
 
-```
+```text
 Standard Approach: Sequential file-by-file analysis and editing
 Orchestration Approach:
 "🎯 Multi-Tool Coordination Strategy:
  🔍 Phase 1: Auggie (codebase retrieval)
- ⚡ Phase 2: Morphllm (pattern edits) + Magic (UI components) 
+ ⚡ Phase 2: Morphllm (pattern edits)
  🧪 Phase 3: Playwright (testing) + Context7 (documentation patterns)
- 🔄 Parallel execution: 3 tools working simultaneously
-\"
+ 🔄 Parallel execution: 3 tools working simultaneously"
 ```
 
 **Works Best With:**
@@ -297,7 +296,7 @@ Orchestration Approach:
 
 **Example Experience:**
 
-```
+```text
 Standard Approach: "The authentication system implementation shows a security vulnerability in the user validation function that needs immediate attention..."
 Token Efficient Approach:
 "🛡️ Security Alert:
@@ -336,7 +335,7 @@ Token Efficient Approach:
 
 **Example Experience:**
 
-```
+```text
 Standard Approach: Consistent, professional baseline for all tasks
 "I'll implement the login function with proper error handling:
  
@@ -485,7 +484,7 @@ For troubleshooting help, see:
 ```bash
 # Problem: Simple tasks getting complex coordination
 # Quick Fix: Reduce scope or use simpler commands
-/sc:implement "function" --no-task-manage     # Disable coordination
+/sc:implement "function"                      # Leave out --task-manage
 /sc:troubleshoot bug.js                       # Use basic commands
 # Check if task really is complex (>3 files, >2 directories)
 ```
@@ -494,9 +493,7 @@ For troubleshooting help, see:
 
 ```bash
 # Problem: Output too compressed or unclear
-# Quick Fix: Disable compression for clarity
-/sc:command --no-uc                           # Disable compression
-/sc:command --verbose                         # Force detailed output
+# Quick Fix: Leave out --uc and ask for plain, full-sentence output
 # Use when clarity is more important than efficiency
 ```
 
@@ -504,8 +501,7 @@ For troubleshooting help, see:
 
 ```bash
 # Problem: Too much meta-commentary, not enough action
-# Quick Fix: Disable introspection for direct work
-/sc:command --no-introspect                   # Direct execution
+# Quick Fix: Leave out --introspect and ask Claude to skip the commentary
 # Use introspection only for learning and debugging
 ```
 
@@ -514,23 +510,9 @@ For troubleshooting help, see:
 ```bash
 # Problem: Tool coordination causing confusion
 # Quick Fix: Simplify tool usage
-/sc:command --no-mcp                          # Native tools only
-/sc:command --simple                          # Basic execution
+/sc:troubleshoot "issue" --no-mcp            # Native tools only (declared by /sc:troubleshoot and /sc:reflect)
 # Check if task complexity justifies orchestration
 ```
-
-### Error Code Reference
-
-| Mode Error | Meaning | Quick Fix |
-|------------|---------|-----------|
-| **B001** | Brainstorming failed to activate | Use explicit `--brainstorm` flag |
-| **T001** | Task management overhead | Use `--no-task-manage` for simple tasks |
-| **U001** | Token efficiency too aggressive | Use `--verbose` or `--no-uc` |
-| **I001** | Introspection mode stuck | Use `--no-introspect` for direct action |
-| **O001** | Orchestration coordination failed | Use `--no-mcp` or `--simple` |
-| **M001** | Mode conflict detected | Check flag priority rules |
-| **M002** | Mode switching loop | Restart session to reset state |
-| **M003** | Mode not recognized | Update SuperClaude or check spelling |
 
 ### Progressive Support Levels
 
@@ -542,12 +524,9 @@ For troubleshooting help, see:
 
 **Level 2: Detailed Help (5-15 min)**
 
-```bash
-# Mode-specific diagnostics
-/sc:help modes                            # List all available modes
-/sc:reflect --type mode-status            # Check current mode state
-# Review request complexity and triggers
-```
+- No command reports or diagnoses modes; modes are not installed or tracked
+- Review your request's complexity and wording against the triggers on this page
+- Restate the request with the mode flag or the style you want
 
 - See [Common Issues Guide](../reference/common-issues.md) for mode installation problems
 
@@ -565,7 +544,7 @@ superclaude install --list                # Show which core files, commands, age
 
 **Level 4: Community Support**
 
-- Report mode issues at [GitHub Issues](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues)
+- Report mode issues at [GitHub Issues](https://github.com/IronbellyOrg/IronClaude/issues)
 - Include examples of unexpected mode behavior
 - Describe desired vs actual mode activation
 
@@ -611,7 +590,7 @@ A: Yes, use manual flags to override automatic detection:
 **Q: Do modes affect execution?**
 A: Modes optimize tool usage through coordination:
 
-- **Token Efficiency**: 30-50% context reduction
+- **Token Efficiency**: Shorter, symbol-based output (token savings not measured)
 - **Orchestration**: Parallel processing
 - **Task Management**: Prevents rework through systematic planning
 
@@ -626,7 +605,7 @@ A: Yes, modes are designed to complement each other:
 
 ## Summary
 
-SuperClaude's 5 behavioral modes create an **intelligent adaptation system** that matches your needs automatically:
+SuperClaude's 6 behavioral modes create an **intelligent adaptation system** that matches your needs automatically:
 
 - **🧠 Brainstorming**: Transforms vague ideas into clear requirements
 - **🔍 Introspection**: Provides transparent reasoning for learning and debugging
@@ -671,4 +650,4 @@ SuperClaude's 5 behavioral modes create an **intelligent adaptation system** tha
 - **Brainstorming**: [Brainstorm Guide](brainstorm.md)
 - **Task Management**: [Session Management Guide](session-management.md)
 - **Orchestration**: [MCP Servers Guide](mcp-servers.md)
-- **Token Efficiency**: [Command Fundamentals](commands.md#token-efficiency)
+- **Token Efficiency**: [Behavioral Mode Flags](flags.md#behavioral-mode-flags)

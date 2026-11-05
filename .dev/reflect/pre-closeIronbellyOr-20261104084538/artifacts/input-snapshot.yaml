@@ -1,0 +1,27 @@
+input_tree_sha256: ac0fd41bb0b2fbc12549bd44c9e04c2f57fe362e5fd12b8b479bc822adea3bd3
+file_count: 12
+file_list:
+  - path: .dev/brainstorms/20261104-063430-ponytail-plugin-install/merged-requirements.md
+    sha256: ff6d92d15bb633c88067cc3f64ad82129f547b0e9bc5cbaa87516d2341475457
+  - path: .dev/releases/current/v5.0.0/post-release/scan/C-install-surface.md
+    sha256: 44b6032b1753fc0952ebd92c6e45102b34ee7e9f5b892499dffeb5c2963a1cab
+  - path: .dev/tasks/to-do/TASK-WF-closeIronbellyOr-20261104-084334/TASK-WF-closeIronbellyOr-20261104-084334.md
+    sha256: c32bc69add2901a2f14c39c096f9190a7de0c01eea38cc772383325d147e97aa
+  - path: .dev/tasks/to-do/TASK-WF-closeIronbellyOr-20261104-084334/source.md
+    sha256: 1d2ab8bd0a85f801c84fd2a6bd989869fb1c1ddc31969fdc61e70f94904fdc07
+  - path: CHANGELOG.md
+    sha256: 187c243402e8a92c4f7abe5f7b2c8ac5e02c46971ff643bca6d6015962e811e3
+  - path: docs/getting-started/installation.md
+    sha256: 36e58379c98cf2fcad0dd350064766ab2b38ca8c727f301a3a69738fb5a399bd
+  - path: src/superclaude/cli/doctor.py
+    sha256: 1708ff8dbfaaf48e3e2b8a27f7833e2232ef9d594b406f01aa250c5b9ef16922
+  - path: src/superclaude/cli/install_user_setup.py
+    sha256: ce8ae04d12fa74923e5dc13bef5a3c50b996059ba07703d416ed399694d4a808
+  - path: src/superclaude/cli/main.py
+    sha256: 4dd5b9bd858e80758bd2e1ed007b89fe52aed36482fe23cad74cf93becb7b005
+  - path: src/superclaude/cli/user_settings_defaults.json
+    sha256: 7c51138256685e0a3017457614b68c86c6fe85ce20bddda1775c3065ce8fce7a
+  - path: tests/cli/test_install_user_setup.py
+    sha256: d3cce42a75398caf7110fd50f682ea15f3b8227bf919a0a6f5bf3ed934d8697c
+  - path: update.sh
+    sha256: 955858e661c347db88285b8cb930cd8f73ac8eb1f6ebcb60ecb415207a359860

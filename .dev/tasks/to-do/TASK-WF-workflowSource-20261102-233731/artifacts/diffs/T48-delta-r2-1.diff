@@ -1,0 +1,11 @@
+--- a/docs/testing/v5.0.0/user/D01-install-upgrade-doctor.md
++++ b/docs/testing/v5.0.0/user/D01-install-upgrade-doctor.md
+@@ -213,7 +213,7 @@
+ run python3 -c 'import json,os;print(sorted(json.load(open(os.path.expanduser("~/.claude.json")))["mcpServers"]))'
+ ```
+ 
+-**Expected result:** The list shows `serena                 will be removed (codegraph is ready)` and `codebase-memory-mcp    absent`. The install prints `Retired MCP registrations (user scope only):`, `Removed the serena user registration (codegraph is ready: uvx --from serena-agent==1.7.0 serena start-mcp-server --context claude-code --project-from-cwd)`, the restart line, `Removed Serena registration: ...`, the line telling you to register Serena as `serena-local` if you want to keep it, and the `uv tool uninstall serena-agent` and `rm -rf ~/.serena` hints; `exit=0`. `serena-local` is not mentioned. The final list is `['codegraph', 'serena-local']`. When codegraph is ready, any Serena launcher registered under a name other than `serena-local` is removed; `serena-local` is never touched. (source: `src/superclaude/cli/install_retired_mcp.py:30,178-195,259-313,385-494`; `src/superclaude/cli/main.py:255-267`)
++**Expected result:** The list shows `serena                 will be removed (codegraph is ready)` and `codebase-memory-mcp    absent`. The install prints `Retired MCP registrations (user scope only):`, `Removed the serena user registration (codegraph is ready: uvx --from serena-agent==1.7.0 serena start-mcp-server --context claude-code --project-from-cwd)`, the restart line, `Removed Serena registration: ...`, the line telling you to register Serena as `serena-local` if you want to keep it, and the `uv tool uninstall serena-agent` and `rm -rf ~/.serena` hints; `exit=0`. No line reports `serena-local` as removed or kept; the name `serena-local` appears only in the re-register hint. The final list is `['codegraph', 'serena-local']`. When codegraph is ready, any Serena launcher registered under a name other than `serena-local` is removed; `serena-local` is never touched. (source: `src/superclaude/cli/install_retired_mcp.py:30,178-195,259-313,385-494`; `src/superclaude/cli/main.py:255-267`)
+ 
+ **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
+ 

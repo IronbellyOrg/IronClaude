@@ -1,0 +1,88 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/post-release-v5.0.0/.dev/reflect/pre-workflowSource-20261102234109/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/post-release-v5.0.0/.dev/reflect/pre-workflowSource-20261102234109/audit.log
+confidence_calibrated: 0.85
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-002, INF-003, INF-004, INF-005, INF-006, INF-007, INF-008, INF-009, INF-010, INF-011, INF-012, INF-013, INF-014, INF-015, INF-016, INF-017]
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256: {tasklist: b21a115bff55fa86d0be255a9ffa679e3bf68306d57cdd91017853635ebd417e, spec: cfd8a06da63dcf05ff2b3d831b7d94388700070dc364ea9157c237611805fde5}
+input_tree_sha256: 77d3be8e759a0dea788affdb8747d27da09020785dac9a429d280555b364018f
+input_tree_file_count: 49
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/post-release-v5.0.0/.dev/reflect/pre-workflowSource-20261102234109/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 36
+citations_revalidated: 36
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 1
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/post-release-v5.0.0/.dev/reflect/pre-workflowSource-20261102234109/reviewer-cards/reviewer-1-card.yaml, /home/coder/workspaces/worktrees/IronClaude/post-release-v5.0.0/.dev/reflect/pre-workflowSource-20261102234109/reviewer-cards/reviewer-2-card.yaml, /home/coder/workspaces/worktrees/IronClaude/post-release-v5.0.0/.dev/reflect/pre-workflowSource-20261102234109/reviewer-cards/reviewer-3-card.yaml]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/post-release-v5.0.0/.dev/reflect/pre-workflowSource-20261102234109/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: true
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+telemetry:
+  degraded_components: ["auggie"]
+  executor_class_source: unknown
+  executor_class_resolved: false
+  executor_exclusion_degraded: false
+  reviewer_models: [claude-sonnet-5-5, glm-5.3, claude-opus-5-5]
+  reviewer_personas: [analyzer, qa, refactorer]
+  memory_hits: 0
+  memory_misses: 2
+  type_hierarchy_invoked: false
+  summarize_changes_invoked: false
+  references_extended_info_used: false

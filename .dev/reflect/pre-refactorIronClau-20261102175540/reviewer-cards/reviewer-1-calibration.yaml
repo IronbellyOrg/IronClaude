@@ -1,0 +1,18 @@
+# Returned by confidence-calibrator (blind, read-only); persisted by the orchestrator.
+card: /home/coder/workspaces/worktrees/IronClaude/orca-default-worktree-paths/.dev/reflect/pre-refactorIronClau-20261102175540/reviewer-cards/reviewer-1-card.yaml
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimensions:
+  citation_grounding: {score: 0.90, reason: "Every cited location matches (CLAUDE.md:64, :66, :251; plan 35, 37, 73, 78, 89, 135; POST-REFLECT-TASK.md:6, :576; .gitignore:242; source.md:1; MEMORY.md line 2). Deductions: T1 disputes cite only R-ids; MEMORY quote lacks a line anchor; R1-2 slightly overstates line 576."}
+  coverage_completeness: {score: 0.80, reason: "Recounted 108 hits in 17 files; covers Constraints and Tasks 1, 3, 4, 6, 7; nothing explicit on Task 2 or Task 5; no coverage map."}
+  deviation_classification_clarity: {score: 0.70, reason: "One label per finding, but R1-3 is labelled necessary while describing a plan labelling defect (drift), R1-2 mixes two claims, R1-4 is a missing-verification gap labelled drift."}
+  risk_surface_coverage: {score: 0.75, reason: "R1-1 surfaces the load-bearing risk; the plan line 82 criterion would not catch check 1 (gh repo view takes a positional repo) and nothing catches check 3. Misses: SKILL.md:267 fallback deliberately not raised; recommended test_git_replay_integration.py skips on shallow clones (lines 3-5)."}
+  recommendation_actionability: {score: 0.85, reason: "Most recommendations name a task, a file and a grep or pytest check; R1-5 leaves the outcome open; R1-2's grep check is weak."}
+C: 0.80
+per_finding:
+  - {id: R1-1, verdict: grounded, reason: "CLAUDE.md:64 runs gh repo view without a repo; :66 closes an upstream PR; plan 73 bans such calls; plan 78 does not name the lines; criteria 81-83 check neither. Medium severity justified."}
+  - {id: R1-2, verdict: weak, reason: "File is Blocked and a third class is a real deviation, but plan 37 never calls it finished and line 576 says the substantive work was validated; the resume claim overstates."}
+  - {id: R1-3, verdict: grounded, reason: "Plan 35 labels the entry 'rewrite' while 89 keeps it; real low-impact labelling inconsistency; 'necessary' fits poorly."}
+  - {id: R1-4, verdict: grounded, reason: "Plan 135 checks only non-change; Tasks 6 and 7 do not run the internal-checkout tests; low severity; one recommended test skips on shallow clones."}
+  - {id: R1-5, verdict: grounded, reason: "CLAUDE.md:251 links upstream issue #419; plan 73 does not say whether static links are allowed; real, low severity."}
+  - {id: R1-6, verdict: grounded, reason: "MEMORY.md line 2 and source.md:1 support plan 73 and 76 as authorized additions."}
