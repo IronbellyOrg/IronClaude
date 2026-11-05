@@ -501,6 +501,11 @@ class TestReturnContract:
 # ---------------------------------------------------------------------------
 
 
+# run_with_timeout joins its worker thread on exit, so each test below pays the full
+# blocker wait. 2s is 4x the longest timeout used (0.5s) and keeps the test fast.
+_BLOCK_S = 2
+
+
 class TestRunWithTimeout:
     """T02.09 acceptance criteria:
     - Input-validation step with mocked 31s execution raises TimeoutError (SC-001).
@@ -523,7 +528,7 @@ class TestRunWithTimeout:
         import threading
 
         def _slow():
-            threading.Event().wait(timeout=10)  # simulate blocking
+            threading.Event().wait(timeout=_BLOCK_S)  # simulate blocking
 
         with pytest.raises(TimeoutError):
             run_with_timeout(_slow, timeout_s=0.1)
@@ -534,7 +539,7 @@ class TestRunWithTimeout:
 
         # Use 0.05s timeout to test boundary behavior without waiting 30s in CI
         def _mock_slow_validate():
-            threading.Event().wait(timeout=10)
+            threading.Event().wait(timeout=_BLOCK_S)
 
         with pytest.raises(TimeoutError):
             run_with_timeout(_mock_slow_validate, timeout_s=0.05)
@@ -545,7 +550,7 @@ class TestRunWithTimeout:
 
         # Use 0.05s timeout to test boundary behavior without waiting 60s in CI
         def _mock_slow_discover():
-            threading.Event().wait(timeout=10)
+            threading.Event().wait(timeout=_BLOCK_S)
 
         with pytest.raises(TimeoutError):
             run_with_timeout(_mock_slow_discover, timeout_s=0.05)
@@ -555,10 +560,10 @@ class TestRunWithTimeout:
         import threading
 
         def _slow():
-            threading.Event().wait(timeout=10)
+            threading.Event().wait(timeout=_BLOCK_S)
 
-        with pytest.raises(TimeoutError, match="5.0"):
-            run_with_timeout(_slow, timeout_s=5.0)
+        with pytest.raises(TimeoutError, match="0.5s"):
+            run_with_timeout(_slow, timeout_s=0.5)
 
     def test_return_value_passed_through(self):
         """Return value from a successful call is passed through unchanged."""

@@ -1145,12 +1145,12 @@ def test_no_time_limit_once_a_reply_starts(shim, model) -> None:
     """Silence mid-reply, longer than every shim timer, never cuts the reply.
 
     Covers the tier path and the plain forwarding path (aliased and real
-    names). Timers are shrunk to 1s; the gateway goes quiet for 8s.
+    names). Timers are shrunk to 1s; the gateway goes quiet for 3s.
     """
     gateway, start, _ = shim
     base = start(CCSESSION_FIRST_BYTE_TIMEOUT="1", _CCSESSION_TEST_CONNECT_TIMEOUT="1")
     for m in ("muse-spark-1.3", "kimi-k3", "gpt-6.1-sol"):
-        gateway.script[m] = [("pause-stream", 8)]
+        gateway.script[m] = [("pause-stream", 3)]
     status, body = _ask_raw(base, model, stream=True)
     assert status == 200 and b"message_stop" in body
     assert len(gateway.calls) == 1
@@ -1160,7 +1160,7 @@ def test_non_streamed_tier_request_waits_without_limit(shim) -> None:
     """A non-streamed request only answers when done; never treated as stalled."""
     gateway, start, log = shim
     base = start(CCSESSION_FIRST_BYTE_TIMEOUT="1")
-    gateway.script["muse-spark-1.3"] = [("sleep", 4)]
+    gateway.script["muse-spark-1.3"] = [("sleep", 2.5)]  # still 2.5x the 1s timer
     status, body = _ask_raw(base, "claude-gw-tier2", stream=False)
     assert status == 200
     assert gateway.models_called() == ["muse-spark-1.3"]

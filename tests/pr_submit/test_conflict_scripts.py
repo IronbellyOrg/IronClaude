@@ -1527,12 +1527,31 @@ _NO_TIMEOUT_TOOLS = (
 
 
 def _run_evidence_without_timeout(
-    repos: Repos, merge: EvidenceMerge, out: Path, *, hang_on_show: bool
+    repos: Repos,
+    merge: EvidenceMerge,
+    out: Path,
+    *,
+    hang_on_show: bool,
+    limit: int = 60,
 ) -> tuple[ProbeRun, float]:
     """Run the collector with a PATH that has no `timeout`; git is a wrapper that,
-    when asked, replaces itself with a 90-second sleep on `show`."""
+    when asked, replaces itself with a 90-second sleep on `show`.
+
+    `limit` below 60 runs a copy of the script whose only difference is the
+    LIMIT_SECONDS constant, so the hang test does not wait out the real 60 seconds.
+    The assert keeps the shipped value pinned: the copy fails if it is not 60."""
     import time
 
+    script = EVIDENCE
+    if limit != 60:
+        text = EVIDENCE.read_text(encoding="utf-8")
+        assert "\nLIMIT_SECONDS=60\n" in text, "the shipped budget is no longer 60s"
+        script = repos.root / "collect-short-budget.sh"
+        script.write_text(
+            text.replace("\nLIMIT_SECONDS=60\n", f"\nLIMIT_SECONDS={limit}\n", 1),
+            encoding="utf-8",
+        )
+        script.chmod(0o755)
     bin_dir = repos.root / "bin-no-timeout"
     bin_dir.mkdir()
     for tool in _NO_TIMEOUT_TOOLS:
@@ -1553,7 +1572,7 @@ def _run_evidence_without_timeout(
     started = time.monotonic()
     res = subprocess.run(
         [
-            str(EVIDENCE),
+            str(script),
             "--path",
             "f.txt",
             "--out",
@@ -1578,16 +1597,17 @@ def _run_evidence_without_timeout(
 @pytest.mark.slow
 def test_without_timeout_a_hung_read_is_stopped_at_the_budget(tmp_path):
     """No `timeout` on PATH: a git read that would hang for 90 seconds is stopped at
-    the 60-second budget and reported as `timeout` (PR #378 review finding)."""
+    the budget and reported as `timeout` (PR #378 review finding). The budget is
+    shortened to 3s for the run (see the helper); the shipped 60s is pinned there."""
     repos = make_repos(tmp_path)
     _content_conflict(repos)
     merge = start_zdiff3_merge(repos)
     res, elapsed = _run_evidence_without_timeout(
-        repos, merge, tmp_path / "evidence-hang", hang_on_show=True
+        repos, merge, tmp_path / "evidence-hang", hang_on_show=True, limit=3
     )
     assert_evidence_fail(res, "timeout")
-    assert "60-second budget" in res.stderr
-    assert elapsed < 75, f"the run took {elapsed:.1f}s; the budget is 60s"
+    assert "3-second budget" in res.stderr
+    assert elapsed < 18, f"the run took {elapsed:.1f}s; the budget is 3s"
 
 
 def test_without_timeout_a_normal_run_still_succeeds(tmp_path):
