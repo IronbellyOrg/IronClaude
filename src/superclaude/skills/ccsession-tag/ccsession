@@ -55,13 +55,36 @@
 #   ccsession --ask [<hint>]  List saved sessions as --here does, ask for a session
 #                             name and print it (empty: untagged; "*" lists every
 #                             worktree's sessions and asks again). The hint goes
-#                             in the question's brackets. Exit 1: not asked (no
-#                             terminal, or keys already waiting), no answer within
-#                             CCSESSION_ASK_TIMEOUT seconds (unset or 0: no
-#                             limit), or end of input; exit 130: Ctrl+C
+#                             in the question's brackets; "@LIMIT@" in it is the
+#                             time limit in seconds. Exit codes:
+#                             0  a name, or empty (untagged) on a blank answer;
+#                             1  not asked (no terminal, or keys already
+#                                waiting), no answer within CCSESSION_ASK_TIMEOUT
+#                                seconds (default 30; 0: no limit), or end of input;
+#                             3  the typed text cannot be a name (a control
+#                                character among other text, too long to save as a
+#                                file name, or several lines pasted after a first
+#                                line that is not blank; a line of only spaces or
+#                                tabs, or a paste starting with one, is a blank
+#                                answer): it is printed as
+#                                typed, as a first message for Claude, not as a name;
+#                             130 Ctrl+C
+#   ccsession --auto-name [<task text>]
+#                             Print a unique session label for a launch with no
+#                             name: folder name, up to four words of the task
+#                             text, and a stamp (never a saved name; always valid).
+#                             Exit 1 and no output when the name list cannot be
+#                             written
+#   ccsession --check-name <name>
+#                             Exit 0 when <name> is a valid session name, else 1
 #   ccsession-orca [<claude args>]
-#                             Orca's Claude command: asks for a name, then starts
-#                             Claude through ccsession (see ccsession-orca)
+#                             Orca's Claude command: asks for a session name only
+#                             when Claude starts with no task, no name and no
+#                             resume. A new session without a name is auto-named,
+#                             except in print mode (-p), with CCSESSION_AUTOSTART=0,
+#                             and for launches that start no session (--version,
+#                             subcommands). Then starts Claude through ccsession
+#                             (see ccsession-orca)
 #   Coder workspaces (tier mode, when the workspace env defines T<N>_WINDOW):
 #   ccsession <topic>         Start or resume on the default tier (CCSESSION_DEFAULT_TIER)
 #   ccsession <topic> --tier <tier>
@@ -592,11 +615,70 @@ orca_tab_reopen() {
   printf '%s\t%s\n' "$session" "$name"
 }
 
+auto_name() {
+  # ccsession --auto-name [<task text>]: print one session label for a launch
+  # that carries no name. The label is the folder name (letters, digits and
+  # hyphens), up to four words of the task text (a-z and 0-9 only), and a stamp
+  # of month, day, time with seconds and a random part. Folder name and words
+  # are cut first, so the stamp always stays. The result passes validate_label
+  # and is not a name already saved for this repo (a saved name resumes that
+  # session, so an auto-name must never equal one). Whatever the text, a valid
+  # label is printed; the one exception is a name list that cannot be written
+  # (no label, status 1), because a launch under a label could not save it.
+  local text="${1:-}" folder words stamp prefix label key dir n=1 cand
+  folder=$(basename "$(pwd -P 2>/dev/null || echo session)" 2>/dev/null) || folder=""
+  folder=$(printf '%s' "$folder" | LC_ALL=C tr -c 'A-Za-z0-9' '-' | LC_ALL=C tr -s '-' | sed 's/^-//; s/-$//') || folder=""
+  [ -n "$folder" ] || folder="session"
+  folder=${folder:0:20}
+  words=$(printf '%s' "$text" | head -c 400 | LC_ALL=C tr -c 'A-Za-z0-9' ' ' | LC_ALL=C tr 'A-Z' 'a-z' |
+    awk '{ out = ""; for (i = 1; i <= NF && i <= 4; i++) out = out (i > 1 ? "-" : "") substr($i, 1, 12); printf "%s", out }') || words=""
+  # CCSESSION_AUTO_NAME_STAMP replaces the stamp (tests use it to make a label
+  # predictable); it is read as text and cut to the same safe characters.
+  if [ -n "${CCSESSION_AUTO_NAME_STAMP:-}" ]; then
+    stamp=$(printf '%s' "$CCSESSION_AUTO_NAME_STAMP" | head -c 24 | LC_ALL=C tr -c 'A-Za-z0-9-' '-')
+  else
+    stamp="$(date +%m%d-%H%M%S 2>/dev/null || echo 0000-000000)-$(printf '%04x' $((RANDOM % 65536)))"
+  fi
+  prefix="$folder${words:+-$words}"
+  prefix=${prefix:0:59}
+  prefix=${prefix%-}
+  label="$prefix-$stamp"
+  if key=$(name_key 2>/dev/null) && [ -n "$key" ]; then
+    dir="$PROJECTS_DIR/$key/topics"
+    # A launch under this label saves it in the name list; when that list cannot
+    # be written the launch would stop, so print nothing and let the caller start
+    # untagged instead.
+    if ! { mkdir -p "$dir" 2>/dev/null && [ -w "$dir" ]; }; then
+      return 1
+    fi
+    cand="$label"
+    while [ -e "$dir/$(name_to_file "$cand").txt" ] && [ "$n" -lt 99 ]; do
+      n=$((n + 1))
+      cand="$label-$n"
+    done
+    label="$cand"
+  fi
+  validate_label "$label" >/dev/null 2>&1 || label="session-$stamp"
+  printf '%s\n' "$label"
+}
+
 # Fast paths that need no settings, env file or model data. The hooks use
 # --key and --sync-name so all of them agree on the name list.
 case "${1:-}" in
   --key)
     name_key
+    exit 0
+    ;;
+  --check-name)
+    # Exit 0 when the text is a valid session name, else 1 (ccsession-orca checks
+    # CCSESSION_NAME with it before using it).
+    if validate_label "${2:-}" >/dev/null 2>&1; then exit 0; else exit 1; fi
+    ;;
+  --auto-name)
+    # Before the argument loop below: task text such as --model or --tier=x is
+    # text here, never an option of ccsession.
+    ensure_names_migrated >/dev/null 2>&1 || true
+    auto_name "${2:-}"
     exit 0
     ;;
   --migrate-names)
@@ -1418,7 +1500,8 @@ ask_session_name() {
   # ccsession --ask: the session-name question for a person opening a terminal
   # (ccsession-orca, the Coder New Terminal hook). The list and the question go
   # to stderr, so a caller reads the answer with name=$(ccsession --ask).
-  local hint="${1:-Enter = untagged, Ctrl+C = plain shell}"
+  # "@LIMIT@" in a hint is the time limit in seconds (see below).
+  local hint="${1:-Enter = untagged, Ctrl+C = plain shell; gives up after @LIMIT@s}"
   [ -t 0 ] && [ -t 2 ] || return 1
   # Keys already waiting (an agent or paste is typing): leave them to whatever
   # runs next. A line-mode terminal only reports complete lines as readable, so
@@ -1466,30 +1549,96 @@ ask_session_name() {
     printf '%sSessions from other repos and folders: ccsession --list%s\n\n' "$dim" "$reset" >&2
   }
   show_saved worktree "Saved sessions in ${PWD/#"$HOME"/\~}"
-  # A caller with something waiting on it (Orca's supervised workers time out
-  # at 60s) sets CCSESSION_ASK_TIMEOUT so an unanswered question gives up.
-  local read_opts=() limit="${CCSESSION_ASK_TIMEOUT:-0}"
+  # Every question gives up after CCSESSION_ASK_TIMEOUT seconds (default 30;
+  # 0 waits for ever): Orca fails a supervised worker whose Claude is not ready
+  # within 60 seconds, and an unanswered question must not outlast that.
+  local read_opts=() limit="${CCSESSION_ASK_TIMEOUT:-30}"
   case "$limit" in
-    '' | *[!0-9]* | 0) : ;;
-    *) read_opts=(-t "$limit") ;;
+    *[!0-9]*) limit=0 ;;
+    # Leading zeros go ("007" is 7, "00" is 0): read -t 0 would not wait at all.
+    *) while [ "${#limit}" -gt 1 ] && [ "${limit:0:1}" = 0 ]; do limit=${limit:1}; done ;;
   esac
+  [ "$limit" = 0 ] || read_opts=(-t "$limit")
+  if [ "$limit" = 0 ]; then
+    # No limit: drop the "; ... @LIMIT@ ..." part of the hint.
+    case "$hint" in *"; "*@LIMIT@*) hint=${hint%%"; "*@LIMIT@*} ;; esac
+  else
+    hint=${hint//@LIMIT@/$limit}
+  fi
   # Ctrl+C ends the question with its own status; the line after ^C stays clean.
-  trap 'echo >&2; exit 130' INT
-  # A name that is not a valid label asks again (validate_label says why).
-  # ccsession-orca passes the answer as --name, so even a name that starts
-  # with "-" is a name, never an option.
+  # It also puts the terminal mode back (tty_mode, saved above), because the
+  # drain below runs with line mode briefly off.
+  trap 'if [ -n "$tty_mode" ]; then stty "$tty_mode" 2>/dev/null || :; fi; echo >&2; exit 130' INT
+  # What the person typed is a name, with one narrow exception that needs no
+  # guessing: a line that cannot be a name (a control character, or too long to
+  # save as a file name) or a paste of several lines is not a name but a first
+  # message for Claude. It is printed as it was typed and the status is 3.
+  # Anything else that is not blank is a name, spaces included. A name that is
+  # not a valid label asks again (validate_label says why). ccsession-orca
+  # passes the answer as --name, so even a name that starts with "-" is a name,
+  # never an option.
+  local line rest msg file
   while :; do
-    read -r ${read_opts[@]+"${read_opts[@]}"} -p "Session name ($hint): " name ||
+    # IFS= keeps the line exactly as typed (a leading or trailing tab is a
+    # control character, not blank space to trim away).
+    IFS= read -r ${read_opts[@]+"${read_opts[@]}"} -p "Session name ($hint): " line ||
       { echo >&2; return 1; }
-    [ -z "$name" ] && break
+    name=$line
+    case "$name" in
+      *[![:space:]]*) ;;
+      *) name=""; break ;;
+    esac
     if [ "$name" = "*" ]; then
       show_saved "" "Saved sessions in every worktree of this repo"
       continue
     fi
+    # More text arriving right behind the line is a paste (several lines).
+    rest=$(ask_drain_waiting)
+    file=$(name_to_file "$line")
+    if [ -n "$rest" ] || [[ "$line" == *[[:cntrl:]]* ]] ||
+      [ "$(printf '%s' "$file" | wc -c)" -gt 245 ]; then
+      msg=$line
+      [ -n "$rest" ] && msg="$line"$'\n'"$rest"
+      trap - INT
+      printf '%s' "$msg"
+      return 3
+    fi
+    # Surrounding spaces are not part of a name.
+    name=${name#"${name%%[![:space:]]*}"}
+    name=${name%"${name##*[![:space:]]}"}
     validate_label "$name" >/dev/null && break
   done
   trap - INT
   printf '%s\n' "$name"
+}
+
+ask_drain_waiting() {
+  # Print the text that arrives within 150 ms of the last line (a paste), up to
+  # 128 KiB, as raw bytes; nothing when none arrives or python3 is missing. A
+  # line-mode terminal only reports complete lines as readable, so line mode is
+  # briefly off (the saved mode is put back; Ctrl+C is handled by the caller's
+  # trap, which restores it too). python3, not `read -t 0.15`: bash 3.2 (macOS)
+  # does not take fractions.
+  local mode="" data=""
+  mode=$(stty -g 2>/dev/null) || mode=""
+  [ -n "$mode" ] && stty -icanon min 0 time 0 2>/dev/null
+  data=$(python3 -c '
+import os, select, sys
+buf = b""
+wait = 0.15
+while len(buf) < 131072:
+    ready = select.select([0], [], [], wait)[0]
+    if not ready:
+        break
+    chunk = os.read(0, 65536)
+    if not chunk:
+        break
+    buf += chunk
+    wait = 0.1
+sys.stdout.buffer.write(buf[:131072])
+' 2>/dev/null) || data=""
+  [ -n "$mode" ] && stty "$mode" 2>/dev/null
+  printf '%s' "$data"
 }
 
 show_help() {

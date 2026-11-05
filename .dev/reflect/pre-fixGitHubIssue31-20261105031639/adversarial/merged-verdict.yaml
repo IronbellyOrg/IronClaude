@@ -1,0 +1,260 @@
+# Merged reflection verdict (adversarial merge of three reviewer cards onto base Variant 1).
+# Executed from adversarial/refactor-plan.md. Nothing here is new content: every note,
+# reference and count is taken from the plan, the variant cards, the debate transcript or the probe.
+merge_method: adversarial
+base_variant: "variant-1 (reviewer-1 analyzer)"
+status: ready-with-notes
+convergence_score: 0.8889
+unresolved_conflicts: 0
+fallback_mode: false
+invariant_probe: {total: 12, unaddressed_high: 0, unaddressed_medium: [INV-002, INV-003, INV-005], unaddressed_low: [INV-004, INV-006, INV-009, INV-010]}
+
+review_status: auto-approved
+standing_rule: >-
+  The plan package is never edited from reflect findings (workflow rule). The required notes below
+  are handed to the /sc:implement run as written context and become acceptance conditions of that run.
+
+required_plan_notes:
+  - id: RN-1
+    title: "An invalid name or a failing auto-name never stops Claude from starting"
+    severity_class: blocking-until-criterion
+    debate_point: X-001
+    risk: Medium
+    source_findings: ["V1 F1", "V2 R2 point (b)", "V3 F4", "INV-003"]
+    target_tasks: ["Task 1", "Task 3", "Task 4", "Task 7"]
+    requirement: >-
+      An invalid CCSESSION_NAME, an invalid or empty --auto-name result (control character, over 245 bytes,
+      folder name with a leading dot or 4-byte characters), or an unexpected --ask status never stops Claude
+      from starting. Fallback order: drop the bad name with a stderr warning, then auto-name, then plain
+      untagged start.
+    acceptance_check: >-
+      Tests cover a folder with a leading dot, a name with a tab, and a 300-character CCSESSION_NAME. A name
+      equal to a saved label is decided and asserted as a new auto-name, never a silent resume. A failing
+      --auto-name (unwritable topics dir) still reaches the fake Claude. The exit status is never 2.
+    provenance: "Variant 1 (base), merged per Change RN-1 with Variant 2 (R2 point b), Variant 3 (F4) and INV-003"
+  - id: RN-2
+    title: "Do not lift Claude --name/-n into ccsession's --name"
+    risk: Medium
+    source_findings: ["V1 F10", "V3 F4", "X-003", "INV-002"]
+    target_tasks: ["Task 3", "Task 4", "Task 7"]
+    requirement: >-
+      Do not lift Claude `--name`/`-n` into ccsession's --name. A launch whose own Claude arguments carry
+      --name/-n (or `--name=`) counts as name-carried: no question, no auto-name, arguments pass through
+      unchanged. CCSESSION_NAME is the supported explicit name, validated (RN-1) and unset before exec.
+      This replaces Task 3 criterion 2 and the Task 7 `--name x` case; report the change to the owner (OQ-2).
+    acceptance_check: >-
+      A launch carrying Claude --name, -n or --name= reaches Claude with its arguments unchanged, with no
+      question and no auto-name. The replaced Task 3 criterion 2 and the Task 7 `--name x` case no longer
+      require the lift.
+    provenance: "Variant 1 (base), merged per Change RN-2 with Variant 3 (F4), debate point X-003 and INV-002"
+  - id: RN-3
+    title: "Dispatch --auto-name in the early fast-path case"
+    risk: Low
+    source_findings: ["V1 F12", "V3 F1", "INV-006"]
+    target_tasks: ["Task 1"]
+    requirement: >-
+      Dispatch --auto-name in the early fast-path case (ccsession:597-628) after ensure_names_migrated, so
+      option-shaped task text is not consumed by the argument loop (ccsession:648-723).
+    acceptance_check: >-
+      Tests for the task texts `--model`, `--claude-args`, `--shim` and `--tier=x` print a valid label and
+      exit 0.
+    provenance: "Variant 1 (base), merged per Change RN-3 with Variant 3 (F1) and INV-006"
+  - id: RN-4
+    title: "Task 5 names the additional tests that must change"
+    risk: Low
+    source_findings: ["V3 F2", "V1 F6", "V1 F7", "V2 F2", "V3 R2 new"]
+    target_tasks: ["Task 5"]
+    requirement: >-
+      Task 5 names these additionally. The two Enter reopen tests (`test_orca_a_new_tab_or_a_rerun_is_still_asked`,
+      `test_orca_relaunch_whose_conversation_is_gone_is_asked`) move to the auto-named result.
+      `test_orca_invalid_name_asks_again` is rewritten. The Ctrl+C line-mode test drops its "the prompt" argument.
+      `test_orca_saved_name_is_listed_and_resumes_before_the_prompt` becomes `--name demo "fix it"` form.
+      CCSESSION_NAME is added to the env exclusion lists in test_ccsession_tag.py and test_ccsession_tiers.py.
+      The sentence "keep the relaunch reopen tests as they are" applies only to tests that do not press Enter.
+    acceptance_check: >-
+      Each named test is updated as listed, both env exclusion lists carry CCSESSION_NAME, and the orca test
+      selection (`uv run pytest tests/unit/test_ccsession_tag.py -k orca`) passes once Task 5 is done.
+    provenance: "Variant 3, merged per Change RN-4 (F2), extended by Variant 1 (base, F6 and F7), Variant 2 (F2) and a Variant 3 Round 2 point"
+  - id: RN-5
+    title: "Read the typed line raw and guard text that starts with a dash"
+    risk: Medium
+    source_findings: ["V1 F2", "V1 F5", "required per V3"]
+    target_tasks: ["Task 2", "Task 4"]
+    requirement: >-
+      Read the typed line with `IFS= read -r`, test the raw line for control characters and the 245-byte rule
+      before any trimming; put `--` before an exit-3 message that starts with `-`.
+    acceptance_check: >-
+      Tests: leading tab, trailing tab, mid-line tab, "- a list" and "--version".
+    provenance: "Variant 1 (base), F2 and F5, required per Variant 3 (debate point C-006)"
+  - id: RN-6
+    title: "ccsession-orca unsets CCSESSION_ASK_TIMEOUT and CCSESSION_NAME before the final exec"
+    risk: Low
+    source_findings: ["V3 new point", "INV-010"]
+    target_tasks: ["Task 4"]
+    requirement: >-
+      ccsession-orca unsets CCSESSION_ASK_TIMEOUT and CCSESSION_NAME before the final exec (the one-second
+      timeout test sets the variable while the record must not contain it).
+    acceptance_check: >-
+      The fake-Claude record contains neither CCSESSION_ASK_TIMEOUT nor CCSESSION_NAME, including in the
+      one-second timeout test.
+    provenance: "Variant 3, merged per Change RN-6 (new point), with INV-010"
+  - id: RN-7
+    title: "Complete the task classification for equals forms and option values"
+    risk: Medium
+    source_findings: ["V1 F11", "A-004", "INV-005"]
+    target_tasks: ["Task 3"]
+    requirement: >-
+      Classification covers `--session-id=*`, `--prefill=*`, `--name=*`, a trailing --name with no value, and
+      values of known value-taking options (--model, --permission-mode, --add-dir, --allowedTools,
+      --mcp-config) are not counted as a task; unknown options fail safe (counted as task).
+    acceptance_check: >-
+      Tests for one of each form.
+    provenance: "Variant 1 (base), merged per Change RN-7 with debate point A-004 and INV-005"
+  - id: RN-8
+    title: "Pin the 30-second default through the hint text"
+    risk: Low
+    source_findings: ["V2 F1"]
+    target_tasks: ["Task 6"]
+    requirement: >-
+      Add a test with CCSESSION_ASK_TIMEOUT=2 asserting the hint reads "auto-named after 2s", plus the
+      default-hint test, so a default left unlimited fails.
+    acceptance_check: >-
+      Both tests exist and the CCSESSION_ASK_TIMEOUT=2 test fails against the current ccsession.
+    provenance: "Variant 2, merged per Change RN-8 (F1)"
+  - id: RN-9
+    title: "Auto-name stamp is unique and survives the 80-character cap"
+    risk: Low
+    source_findings: ["V1 F14", "V2 F5", "V3 F8", "INV-004"]
+    target_tasks: ["Task 1"]
+    requirement: >-
+      The auto-name stamp carries seconds or a short random part; when the 80-character cap applies, the
+      folder name and task words are cut first and the stamp is kept; a "-2" suffix is allowed to exceed the
+      cap or the cap is 76.
+    acceptance_check: >-
+      Test: two calls in the same minute with no saved topic give different labels.
+    provenance: "Variant 1 (base), merged per Change RN-9 with Variant 2 (F5), Variant 3 (F8) and INV-004"
+  - id: RN-10
+    title: "The executor, not the tests, writes launch-paths.md"
+    risk: Low
+    source_findings: ["V3 F3"]
+    target_tasks: ["Task 7"]
+    requirement: >-
+      The executor, not the tests, writes ./artifacts/launch-paths.md from the final `pytest -k orca -v`
+      output.
+    acceptance_check: >-
+      No test opens a path outside tmp_path.
+    provenance: "Variant 3, merged per Change RN-10 (F3)"
+  - id: RN-11
+    title: "Auto-name hint is passed by ccsession-orca only; Coder handoff states the new default"
+    risk: Low
+    source_findings: ["V3 F5"]
+    target_tasks: ["Task 2", "Task 11"]
+    requirement: >-
+      ccsession-orca passes the auto-name hint; the default hint of ask_session_name stays as today for other
+      callers; the Task 11 Coder handoff states that the 30 s default now applies to the New Terminal hook too.
+    acceptance_check: >-
+      ask_session_name keeps its old default hint for callers that pass none, and the Task 11 handoff text
+      contains the 30 s statement.
+    provenance: "Variant 3, merged per Change RN-11 (F5)"
+  - id: RN-12
+    title: "Task 9 pins the --session-id statement"
+    risk: Low
+    source_findings: ["V2 F3"]
+    target_tasks: ["Task 9"]
+    requirement: >-
+      Acceptance criterion also pins the `--session-id` statement (README.md:266).
+    acceptance_check: >-
+      Task 9's criterion covers both the --fork-session and the --session-id statements, checked by grepping
+      README.md for session-id.
+    provenance: "Variant 2, merged per Change RN-12 (F3)"
+
+executor_notes:
+  - id: EN-1
+    source_findings: ["V1 F3"]
+    note: >-
+      Second paste probe with a 100-200 ms wait under `stty -icanon min 0 time 0`, both probes inside if/&&
+      lists because set -e is on (ccsession:98).
+    provenance: "Variant 1 (base), merged per Change EN-1"
+  - id: EN-2
+    source_findings: ["V1 F4", "INV-011"]
+    note: >-
+      Drain the rest of a paste with python3 and raw bytes (bash 3.2 has no `read -t 0.2`, ccsession:1426);
+      cap or refuse text above about 128 KiB.
+    provenance: "Variant 1 (base), merged per Change EN-2 with INV-011"
+  - id: EN-3
+    source_findings: ["V1 F13"]
+    note: >-
+      Capture the --ask status with `rc=0; name=$(...) || rc=$?`; keep a `trap 'exit 130' INT` around the
+      capture; tests accept exactly 130 and check ICANON afterwards.
+    provenance: "Variant 1 (base), merged per Change EN-3"
+  - id: EN-4
+    source_findings: ["V1 F9"]
+    note: >-
+      Verify `--version`, `--help` and non-session subcommands (mcp, doctor, update, install) pass through
+      untagged; V1 gave no evidence that Orca sends them.
+    provenance: "Variant 1 (base), merged per Change EN-4"
+  - id: EN-5
+    source_findings: ["INV-009"]
+    note: >-
+      A launch carrying CCSESSION_NAME is name-carried and therefore skips the pull request 355 reopen;
+      document it.
+    provenance: "Invariant probe INV-009, merged per Change EN-5"
+  - id: EN-6
+    source_findings: ["V3 F6", "V3 F7"]
+    note: >-
+      Write the Task 4 rule as one ordered decision list; state that `-k orca` is expected to fail until
+      Task 5.
+    provenance: "Variant 3, merged per Change EN-6 (F6 and F7)"
+
+owner_questions:
+  - id: OQ-1
+    question: >-
+      Print mode (-p/--print) and CCSESSION_AUTOSTART=0 stay untagged. This is a plan-author decision
+      (V3 keep); the calibrator suggested it may be drift for `-p <prompt>`. Confirm or change.
+    provenance: "Variant 3 (scope_additions keep), merged per the plan's owner-question list"
+  - id: OQ-2
+    question: >-
+      RN-2 reverses the plan Constraint that lifts Claude --name. A Claude --name now passes through
+      unchanged and counts as name-carried. Confirm.
+    provenance: "Variant 1 (base, F10) with Variant 3 (F4), debate point X-003"
+  - id: OQ-3
+    question: >-
+      INV-001 (HIGH, addressed as a documented condition). Nothing in this repo makes an orchestrator pass a
+      task or name; a task typed after the question appears is still read as a name (ccsession:1482-1489).
+      Owner decision (a) accepts this; Task 9 and Task 11 must say so.
+    provenance: "Invariant probe INV-001"
+
+downgraded_or_rejected:
+  - item: "V1 F1 auto-name half as a blocker"
+    disposition: downgraded
+    reason: "Task 1 already requires validate_label; kept as RN-1's folder-name case only."
+  - item: "V1 F3, F8, F9, F13 (no evidence)"
+    disposition: downgraded
+    reason: "Downgraded to executor notes (EN-1, EN-4, EN-3) or folded into RN-6."
+  - item: "V3 F4 class 'authorized'"
+    disposition: rejected
+    reason: "The lift is a plan-author decision and is now dropped (RN-2)."
+  - item: "V2 F5 hook-suffix mitigation"
+    disposition: rejected
+    reason: >-
+      Rejected as a guarantee; the suffix exists in ccsession (sync_name, ccsession:336-337, 391-398) but
+      renames the list only.
+  - item: "Change to the plan package itself"
+    disposition: not made
+    reason: "The plan package is never edited from reflect findings."
+
+findings_by_severity:
+  blocking_until_criterion:
+    count: 1
+    items: ["X-001 / RN-1"]
+  required_plan_notes:
+    count: 12
+    note: "Includes RN-1; the other 11 are non-blocking required notes."
+    by_risk: {medium: 4, low: 8}
+    ids: [RN-1, RN-2, RN-3, RN-4, RN-5, RN-6, RN-7, RN-8, RN-9, RN-10, RN-11, RN-12]
+  executor_notes:
+    count: 6
+    ids: [EN-1, EN-2, EN-3, EN-4, EN-5, EN-6]
+  owner_questions:
+    count: 3
+    ids: [OQ-1, OQ-2, OQ-3]

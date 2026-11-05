@@ -1,0 +1,4 @@
+917c4b9c0a62fb6671c68617e86bf0b8c090bf1e
+A1 r1-1 F3.1 note src/superclaude/skills/ccsession-tag/ccsession-orca:157 ac=T3.AC3 n,n,n,n a valid CCSESSION_NAME also suppresses the pull request 355 reopen (extra reopen condition; an explicit name is not overridden by a recorded session); mention in the report
+A1 r1-1 F3.2 note src/superclaude/skills/ccsession-tag/ccsession-orca:184 ac=scope n,n,n,n a valid CCSESSION_NAME equal to a saved label resumes that saved session (ccsession prints the Resuming line); RN-1 reading: the auto-name path never equals a saved label, an explicit name does resume; decide and test in Task 4 or 7, document in the README
+A1 r1-1 F3.3 note src/superclaude/skills/ccsession-tag/ccsession-orca:183 ac=scope n,n,n,n with trap ':' INT removed, Ctrl+C at the question relies on ccsession --ask exiting 130 (ccsession:1495,1552); Task 4 maps 130 to exit 130 and Task 5 rewrites the Ctrl+C test

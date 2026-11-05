@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-fixGitHubIssue31-20261105-031410
+plan_path: ./TASK-WF-fixGitHubIssue31-20261105-031410.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-315-ccsession-name-prompt/.dev/reflect/pre-fixGitHubIssue31-20261105031639/REPORT.md
+unresolved:
+  - "Orchestrator amended the plan Constraints once before execution started (amendments RN-1..RN-12, routing guide 3.2 step 3: resolve gaps before the first step); source.md is unchanged"
+  - "Advisory reflect verdict ready-with-notes: 12 required plan notes (RN-1..RN-12) in .dev/reflect/pre-fixGitHubIssue31-20261105031639/adversarial/merged-verdict.yaml; the workflow step itself did not edit the plan from findings (the orchestrator amendment above did)"

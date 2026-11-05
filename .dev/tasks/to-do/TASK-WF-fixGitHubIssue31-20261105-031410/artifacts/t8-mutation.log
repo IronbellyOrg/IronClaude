@@ -1,0 +1,1 @@
+T8 mutation: ccsession-orca `auto=1` -> `auto=0` makes test_orca_launch_with_a_prompt_in_tier_mode_is_auto_named_and_goes_through_the_shim fail (see above run: 1 failed); restored from a byte copy, diff empty.

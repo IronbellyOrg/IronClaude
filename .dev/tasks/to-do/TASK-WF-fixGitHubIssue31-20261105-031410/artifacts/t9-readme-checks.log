@@ -1,0 +1,30 @@
+T9 evidence (executor, 2026-11-05T08:31:19Z)
+== AC2: new src/superclaude references in the skill folder (added lines of the diff since the T9 start)
+2
+== AC2: all references now (README, ccsession, ccsession-orca)
+== AC1: topics present in README (line numbers)
+one question rule -> 228 336 
+Automatic names -> 154 271 
+CCSESSION_ASK_TIMEOUT -> 291 355 
+Ctrl+C. cancels -> 
+status 130 -> 244 
+CCSESSION_NAME -> 258 294 
+Claude.s own .--name -> 259 
+cannot be a name -> 246 357 
+Print mode\|-p. / .--print -> 263 
+CCSESSION_AUTOSTART=0 -> 264 
+fork-session. and .--from-pr -> 267 
+Agent Teams -> 313 
+always pass the task or a name -> 306 
+follow-up to issue 315 -> 316 
+== AC1: sentences saying Enter, Ctrl+C or the timeout start an untagged session in Orca
+207:untagged one does not take the session's label either.
+263:| `-p` / `--print` (print mode) | No | None: the run is untagged |
+264:| `CCSESSION_AUTOSTART=0` | No | None: the launch is untagged |
+282:cannot be written, no name is made and Claude starts untagged: a launch never
+350:`Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s):`,
+351:for callers where an empty answer means an untagged session. Exit status:
+366:`<label> · Claude Code`, or `Claude Code` for an untagged session, and starts
+== AC2 recheck: added content lines (not the +++ file headers) naming src/superclaude: 0 (the earlier count of 2 was the +++ file-header lines of two changed files)
+T9 fix pass A2: ccsession-orca reopen block `unset CCSESSION_NAME CCSESSION_ASK_TIMEOUT` replaced by `:` -> test_orca_reopen_leaves_the_name_and_the_limit_out_of_claudes_environment fails (both params); restored from a byte copy, diff empty.
+T9 status: three reviews done (r1-1, r2-1, r3-1); F3.1 open until an operator Ruling; coordinator asked.
