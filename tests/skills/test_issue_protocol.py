@@ -162,6 +162,49 @@ def test_analyze_lookup_names_both_copies(path):
     assert [line for line in lines if ANALYZE_PROJECT not in line] == []
 
 
+# --- create-mode slug (PR #373 review, augment comment 4472776355) ---------------
+
+SLUG_PATTERN = "^[a-z0-9]+(-[a-z0-9]+)*$"
+
+
+def reference_slug(description: str) -> str:
+    """The slug rule of refs/create.md, written out so its examples can be run."""
+    slug = re.sub(r"[^a-z0-9]+", "-", description.lower()).strip("-")
+    slug = slug[:40].rstrip("-")
+    return slug or "untitled"
+
+
+def test_create_slug_rule_keeps_only_safe_characters():
+    text = _text(REFS / "create.md")
+    assert (
+        "replace every run of characters other than `a-z` and `0-9` with one `-`"
+        in text
+    )
+    assert "use `untitled` when nothing is left" in text
+    assert f"`<slug>` matches `{SLUG_PATTERN}`" in text
+
+
+@pytest.mark.parametrize(
+    "description",
+    [
+        "Fix /../../etc/passwd handling",
+        "../../.git/hooks",
+        "a/b\\c d.e",
+        "...",
+        "",
+        "Ünïcode only: ★★★",
+        "x" * 60,
+        "word " * 20,
+    ],
+)
+def test_reference_slug_never_leaves_the_issues_directory(description):
+    slug = reference_slug(description)
+    assert re.fullmatch(SLUG_PATTERN, slug)
+    assert len(slug) <= 40
+    draft = Path(".dev/issues") / f"draft-20261104-000000-{slug}"
+    assert draft.parent == Path(".dev/issues") and ".." not in draft.parts
+
+
 def test_all_five_refs_exist():
     assert sorted(p.name for p in REFS.glob("*.md")) == [
         "chains.md",

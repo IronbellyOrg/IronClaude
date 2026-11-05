@@ -1,6 +1,6 @@
 # Create mode (`/sc:issue --create "<description>"`)
 
-Loaded at the start of create mode. `<R>` is the origin repo (`owner/repo`), `<skill base>` the directory that holds this skill's `SKILL.md`. Files are written to `<D>` = `.dev/issues/draft-<YYYYMMDD-HHMMSS>-<slug>/` until the issue exists, then the directory is renamed to `.dev/issues/<N>/` (default D10). `<slug>` is the first words of the description in lower case, joined by `-`, at most 40 characters.
+Loaded at the start of create mode. `<R>` is the origin repo (`owner/repo`), `<skill base>` the directory that holds this skill's `SKILL.md`. Files are written to `<D>` = `.dev/issues/draft-<YYYYMMDD-HHMMSS>-<slug>/` until the issue exists, then the directory is renamed to `.dev/issues/<N>/` (default D10). `<slug>` is built from the first words of the description: lower-case it, replace every run of characters other than `a-z` and `0-9` with one `-`, drop any leading or trailing `-`, cut it to at most 40 characters (dropping a trailing `-` left by the cut), and use `untitled` when nothing is left. The slug therefore holds only `a-z`, `0-9` and `-`: never `/`, `.`, `\`, a space or `..`, so `<D>` always stays directly under `.dev/issues/`.
 
 Spawn workers with `subagent_type: issue-worker-t<N>` and never pass the `model` parameter.
 
@@ -12,7 +12,7 @@ Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; ev
 
 1. `uv run --no-project python "<skill base>/scripts/origin_repo.py"` prints `<R>` from the `origin` remote; a non-zero exit is STOP `E-NO-ORIGIN`.
 2. `gh auth status` must succeed; else STOP `E-GH-AUTH`.
-3. Create `<D>`.
+3. Check that `<slug>` matches `^[a-z0-9]+(-[a-z0-9]+)*$`; if it does not, rebuild it by the rule above before going on. Create `<D>`.
 4. Write the description to `<D>/description.md` from `templates/description.md`. An `@path` description is read from that file.
 
 ## Wave 1: lookup (issue-worker-t3, B13)
