@@ -1,0 +1,97 @@
+diff --git a/src/superclaude/pr_submit/fsm.py b/src/superclaude/pr_submit/fsm.py
+index 2f310a4f..58c9ed97 100644
+--- a/src/superclaude/pr_submit/fsm.py
++++ b/src/superclaude/pr_submit/fsm.py
+@@ -36,0 +37 @@ DEFAULT_SILENCE_TIMEOUT = 300
++DEFAULT_CONFLICT_MAX_TIER = 1
+@@ -65,0 +67 @@ class SkillArgs:
++    conflict_max_tier: int = DEFAULT_CONFLICT_MAX_TIER
+@@ -98,0 +101,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
++    parser.add_argument(
++        "--conflict-max-tier",
++        dest="conflict_max_tier",
++        type=int,
++        choices=[0, 1, 2],
++        default=DEFAULT_CONFLICT_MAX_TIER,
++    )
+@@ -133,0 +143 @@ def parse_args(argv: list[str]) -> SkillArgs:
++        conflict_max_tier=ns.conflict_max_tier,
+@@ -221,0 +232,9 @@ def push_fail_state(decision: PushDecision) -> MonitorState:
++def should_retrigger(applied_edits: int, push_kind: str | None = None) -> bool:
++    """S5a re-trigger rule: a cycle that applied grounded edits, or a Tier 2
++    merge cycle (push kind "merge"), which applies no finding edit but publishes
++    authored code that the reviewers must see (issue #305, P2)."""
++    return (
++        isinstance(applied_edits, int) and applied_edits > 0
++    ) or push_kind == "merge"
++
++
+@@ -247,0 +267,4 @@ def build_push_triad(
++    push_kind: str | None = None,
++    base_sha: str | None = None,
++    review_terminal: str | None = None,
++    expect_checks: bool | None = None,
+@@ -256,0 +280,11 @@ def build_push_triad(
++
++    Issue #305: the four keyword-only extras default to ``None``; with all four
++    ``None`` the output is byte-identical to the pre-#305 records. ``push_kind``
++    (one of ``fix``, ``merge``, ``sync``, ``ci``; anything else raises
++    :class:`ValueError`) and ``base_sha`` join every record after ``target_remote``;
++    ``review_terminal`` and ``expect_checks`` join ``push_initiated`` after
++    ``remote_ref``, and ``expect_checks`` joins ``push_completed``, each only when
++    not ``None``. A :class:`PushDecision` keeps its five-key predicate dict; any
++    other decision supplies ``audit_predicates`` (the conflict sync gate, read by
++    attribute so this module never imports the conflict core). A decision with
++    neither shape raises :class:`AttributeError`.
+@@ -257,0 +292,2 @@ def build_push_triad(
++    if push_kind is not None and push_kind not in ("fix", "merge", "sync", "ci"):
++        raise ValueError(f"unknown push_kind: {push_kind!r}")
+@@ -267,0 +304,21 @@ def build_push_triad(
++    if push_kind is not None:
++        common["kind"] = push_kind
++    if base_sha is not None:
++        common["base_sha"] = base_sha
++    if isinstance(decision, PushDecision):
++        predicates = {
++            "p1_ordinal": decision.predicate_1_ordinal,
++            "p2_validated": decision.predicate_2_validated,
++            "p3_no_human": decision.predicate_3_no_human,
++            "p4_under_cap": decision.predicate_4_under_cap,
++            "p5_applied_edits": decision.predicate_5_applied_edits,
++        }
++    else:
++        predicates = dict(decision.audit_predicates)
++    initiated_extra: dict = {}
++    if review_terminal is not None:
++        initiated_extra["review_terminal"] = review_terminal
++    completed_extra: dict = {}
++    if expect_checks is not None:
++        initiated_extra["expect_checks"] = expect_checks
++        completed_extra["expect_checks"] = expect_checks
+@@ -273,7 +330 @@ def build_push_triad(
+-            "predicates": {
+-                "p1_ordinal": decision.predicate_1_ordinal,
+-                "p2_validated": decision.predicate_2_validated,
+-                "p3_no_human": decision.predicate_3_no_human,
+-                "p4_under_cap": decision.predicate_4_under_cap,
+-                "p5_applied_edits": decision.predicate_5_applied_edits,
+-            },
++            "predicates": predicates,
+@@ -284,0 +336 @@ def build_push_triad(
++            **initiated_extra,
+@@ -287 +339 @@ def build_push_triad(
+-        {"event_type": "push_completed", **common},
++        {"event_type": "push_completed", **completed_extra, **common},
+@@ -748,0 +801,9 @@ def transition(
++    if edge == (MonitorState.S2_CLASSIFY, "conflicting"):
++        # Issue #305 (P2): a Tier 2 merge cycle at C-initial. Same round gate as
++        # findings; then the G-edit ceiling (S3_FIXING at L2+, else PROPOSED).
++        if should_halt_rounds(
++            int(ctx.get("round_counter", 0)),
++            int(ctx.get("max_rounds", DEFAULT_MAX_ROUNDS)),
++        ):
++            return MonitorState.HALT_MAX_ROUNDS
++        return MonitorState.S3_FIXING if gate_edit(ordinal) else MonitorState.PROPOSED
+@@ -1137 +1198 @@ def run_skill(config: RunConfig | None = None, **overrides) -> SkillResult:
+-        if result.applied_edits > 0:
++        if should_retrigger(result.applied_edits):

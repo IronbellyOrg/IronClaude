@@ -7,8 +7,9 @@ markdown orchestrator and bash glue defer to: the finite state machine
 (:mod:`~superclaude.pr_submit.loop_guard`), the three-state detection classifier
 (:mod:`~superclaude.pr_submit.classifier` / :mod:`~superclaude.pr_submit.detection`),
 the write-ahead JSONL run-log (:mod:`~superclaude.pr_submit.run_log`), the
-crash-window recovery (:mod:`~superclaude.pr_submit.recovery`), and the shared
-data models (:mod:`~superclaude.pr_submit.models`).
+crash-window recovery (:mod:`~superclaude.pr_submit.recovery`), the merge-conflict
+core (:mod:`~superclaude.pr_submit.conflicts`, issue #305), and the shared data
+models (:mod:`~superclaude.pr_submit.models`).
 
 NFR-6 core purity: the modules in this package contain ZERO ``gh``/``git`` tokens.
 All ``gh``/``git`` I/O lives in the skill's bash scripts and the SKILL.md VAL
@@ -27,8 +28,46 @@ from .classifier import (
     is_decline,
     poll_succeeded,
 )
+from .conflicts import (
+    LOCK_TRUST_UNREADABLE,
+    MECHANICAL_RULES,
+    SYNC_CAP,
+    TIER2_MAX_FILES,
+    ConflictAction,
+    ConflictPlan,
+    MechanicalRule,
+    ResumePlan,
+    SyncDecision,
+    conflict_action,
+    conflict_attempt,
+    conflict_cycle_id,
+    conflict_plan,
+    conflict_resume_plan,
+    conflict_validation_status,
+    crash_resume_plan,
+    evaluate_sync_decision,
+    finish_manifest,
+    is_conflict_cycle,
+    lock_trust_findings,
+    merge_commit_message,
+    merge_parent_ok,
+    merge_preflight_ok,
+    mergeability_hint,
+    needs_probe,
+    parse_resolution_record,
+    prior_conflict_cycles,
+    resolution_record_ok,
+    sync_fail_state,
+)
 from .detection import DetectionContract, DetectionContractLocked, poll_augment_review
-from .fsm import RunConfig, evaluate_push_decision, parse_args, run_skill, transition
+from .fsm import (
+    RunConfig,
+    evaluate_push_decision,
+    parse_args,
+    run_skill,
+    should_retrigger,
+    transition,
+)
 from .models import (
     EventType,
     Finding,
@@ -78,6 +117,37 @@ __all__ = [
     "parse_args",
     "evaluate_push_decision",
     "RunConfig",
+    # merge conflicts (issue #305)
+    "LOCK_TRUST_UNREADABLE",
+    "MECHANICAL_RULES",
+    "SYNC_CAP",
+    "TIER2_MAX_FILES",
+    "ConflictAction",
+    "ConflictPlan",
+    "MechanicalRule",
+    "ResumePlan",
+    "SyncDecision",
+    "conflict_action",
+    "conflict_attempt",
+    "conflict_cycle_id",
+    "conflict_plan",
+    "conflict_resume_plan",
+    "conflict_validation_status",
+    "crash_resume_plan",
+    "evaluate_sync_decision",
+    "finish_manifest",
+    "is_conflict_cycle",
+    "lock_trust_findings",
+    "merge_commit_message",
+    "merge_parent_ok",
+    "merge_preflight_ok",
+    "mergeability_hint",
+    "needs_probe",
+    "parse_resolution_record",
+    "prior_conflict_cycles",
+    "resolution_record_ok",
+    "should_retrigger",
+    "sync_fail_state",
     # reviewers (Augment + Codex)
     "REVIEWERS",
     "reviewer_identities",

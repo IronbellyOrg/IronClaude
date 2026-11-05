@@ -1,0 +1,7 @@
+64543aeb313326b3ff49f862f8c1ea2f7d7b8375 tree=c13611f2e6183ffeb6d567a3893b42e89c38d747
+T3.AC1 met: tests/pr_submit/test_conflicts_core.py:154, :245; src/superclaude/pr_submit/conflicts.py:403
+T3.AC2 met: tests/pr_submit/test_conflicts_core.py:596 (boundary rows :570, :576, :582, :588, :590); src/superclaude/pr_submit/conflicts.py:610
+T3.AC3 met: tests/pr_submit/test_conflicts_core.py:760, :767, :773, :690, :696, :715; src/superclaude/pr_submit/conflicts.py:740
+T3.AC4 met: src/superclaude/pr_submit/conflicts.py:21-25; tests/pr_submit/test_conflicts_core.py:820; tests/pr_submit/test_static_grep.py:51-52
+T3.AC5 met: .dev/tasks/to-do/TASK-WF-design-20261104-164423/artifacts/t3-tests.log:17
+F1.1 sev=blocking trigger=B2 ac=scope at=tests/pr_submit/test_conflicts_core.py:19 anchor=tests/pr_submit/test_conflicts_core.py:19 chk=n,y,n,n family=fixture-recipe fix=save the repository root before the `cd "$S"` step (for example `R=$(pwd)` as the first line) and change the copy line to `cp "$S/out.z" "$R/tests/pr_submit/fixtures/merge_tree_conflict.z"` covers="put the capture recipe as a comment at the top of the test file" first=A1 origin=new: The recipe's copy step does not work as written. At that point the working directory is $S/repo, so the relative path tests/pr_submit/fixtures/... does not exist. Replayed, it fails with "cp: cannot create regular file ... No such file or directory" (exit 1). The next line, cd / && rm -rf "$S", then deletes the captured output, so following the recipe as written never produces the fixture.

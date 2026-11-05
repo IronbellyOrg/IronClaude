@@ -2,6 +2,9 @@
 
 Pure: consumes an already-fetched checks payload and (optionally) failed-job
 logs. Does not import or name any version-control command tokens (NFR-6).
+With ``expect_checks`` true (set by ``expect_checks_after_push`` for a wait
+that must see at least one check), an empty, missing or unreadable check list
+stays ``polling`` instead of ``clean`` (issue #305, INV-034).
 """
 
 from __future__ import annotations
@@ -19,14 +22,20 @@ _RUN_ID = re.compile(r"/actions/runs/(\d+)")
 _HUMAN_NAME = "boundary"
 
 
-def classify_checks(payload: dict, *, wait_sha: str | None = None) -> str:
+def classify_checks(
+    payload: dict, *, wait_sha: str | None = None, expect_checks: bool = False
+) -> str:
     """Return ``polling`` / ``clean`` / ``findings``. Pure. No DetectionContract.
 
     If ``wait_sha`` is set and ``payload['head_sha']`` differs, return
     ``polling`` (PR head has not caught up to this wait).
+
+    If ``expect_checks`` is true, a non-dict payload and an empty or missing
+    check list return ``polling`` (never an early ``clean``). A nonempty list
+    classifies the same either way.
     """
     if not isinstance(payload, dict):
-        return STATE_CLEAN
+        return STATE_POLLING if expect_checks else STATE_CLEAN
     head = payload.get("head_sha")
     if wait_sha and head and head != wait_sha:
         return STATE_POLLING
@@ -34,7 +43,7 @@ def classify_checks(payload: dict, *, wait_sha: str | None = None) -> str:
     if payload.get("state") == STATE_POLLING and not checks:
         return STATE_POLLING
     if not isinstance(checks, list) or not checks:
-        return STATE_CLEAN
+        return STATE_POLLING if expect_checks else STATE_CLEAN
     buckets = {str(c.get("bucket", "")).lower() for c in checks if isinstance(c, dict)}
     states = {str(c.get("state", "")).lower() for c in checks if isinstance(c, dict)}
     if "pending" in buckets:
@@ -44,6 +53,27 @@ def classify_checks(payload: dict, *, wait_sha: str | None = None) -> str:
     if any(s == "action_required" for s in states):
         return STATE_FINDINGS
     return STATE_CLEAN
+
+
+def _evidence_is_zero(value: object) -> bool:
+    """True only for an int (not bool) equal to 0; anything else fails closed."""
+    return isinstance(value, int) and not isinstance(value, bool) and value == 0
+
+
+def expect_checks_after_push(
+    *,
+    checks_seen_this_run: bool,
+    pre_push_evidence: int | None,
+    base_evidence: int | None,
+) -> bool:
+    """True when the push's CI wait must see at least one check before clean.
+    Evidence values are check counts from the commit-scoped evidence read;
+    -1 (failed or unparsable read) and None count as "had checks" (fail closed)."""
+    return (
+        checks_seen_this_run is True
+        or not _evidence_is_zero(pre_push_evidence)
+        or not _evidence_is_zero(base_evidence)
+    )
 
 
 def should_arm_ci_wait(state: object) -> bool:

@@ -1,0 +1,10 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: null
+surface_unreached: null
+composite_score: 7
+per_signal_breakdown: {scope_size: 2, task_count: 2, blast_radius: 1, spec_density: 1, ambiguity_signals: 1}
+escalation_reason: "S_domains=3 (code: src/superclaude/pr_submit, tests: tests/pr_submit, docs: SKILL.md/refs/command/CHANGELOG) triggers rule 4; rules 1-2 already fail on S_scope=20 tasks > 10"
+inputs: {confidence_calibrated: 0.86, S_scope: 20, S_domains: 3, S_dev_density: 0.0345, coverage_pct: 1.0, coverage_pct_union: 0.9655}
+t2_model_class_diversity: full
+t2_vendor_diversity: multi

@@ -1,0 +1,27 @@
+python fences in SKILL.md: 1
+E8 note pin (test_static_grep:692): PRESENT (count 1)
+E9 note pin 1: PRESENT (count 1)
+E9 note pin 2: PRESENT (count 1)
+force-push bullet: PRESENT (count 1)
+Task1 pin a: PRESENT (count 1)
+Task1 pin b: PRESENT (count 1)
+command pin (test_static_grep:758): PRESENT
+command version "1.0": True
+E5 full replacement present verbatim in Wave 0 bullet: True
+added lines: 29
+added lines with src/superclaude/: 0
+added lines matching force-push regex: 0
+gh call in added line 15: repo-scoped=False :: `gh repo view --json nameWithOwner -q .nameWithOwner`
+gh call in added line 15: repo-scoped=False :: `gh repo view "$REPO" --json defaultBranchRef -q .defaultBranchRef.name`
+gh call in added line 15: repo-scoped=False :: `gh pr create`
+gh call in added line 15: repo-scoped=True :: `gh pr create --repo "$REPO" --base <base> --head <head> --title "..." --body "..."`
+gh call in added line 15: repo-scoped=False :: `gh pr create`
+gh call in added line 15: repo-scoped=True :: `gh pr view <N> --repo "$REPO" --json url`
+gh call in added line 16: repo-scoped=False :: `gh pr create`
+gh call in added line 16: repo-scoped=True :: `gh pr view <N> --repo "$REPO" --json headRefName,headRefOid,isCrossRepository`
+gh call in added line 17: repo-scoped=True :: `gh pr view <N> --repo "$REPO" --json baseRefName,mergeable,mergeStateStatus`
+gh call in added line 19: repo-scoped=True :: `gh pr view <N> --repo "$REPO" --json headRefName,headRefOid,isCrossRepository`
+gh call in added line 19: repo-scoped=False :: `gh api`
+gh call in added line 20: repo-scoped=True :: `gh run view <id> --repo "$REPO" --log-failed`
+gh call in added line 21: repo-scoped=True :: `gh pr view <N> --repo "$REPO" --json baseRefName,mergeable,mergeStateStatus,headRefName,headRefOid,isCrossRep
+NOTE: the gh calls with repo-scoped=False sit on bullets that already existed and changed in place (Wave 0, head binding, Wave 6, Wave 8). They are pre-existing text: the origin-has-no-URL fallback, `gh repo view "$REPO"` (repo as positional), and bare prose mentions of `gh pr create` and `gh api`. The gh calls added by this task (E6 Wave 0 conflict check, E10 Wave 8a) both carry --repo "$REPO".

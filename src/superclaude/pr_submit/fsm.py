@@ -34,6 +34,9 @@ HARD_CAP_MAX_ROUNDS = 5
 MIN_POLL_INTERVAL = 30
 DEFAULT_TIMEOUT = 600
 DEFAULT_SILENCE_TIMEOUT = 300
+# Tier 1 (`uv lock`) can run the PR's build code, so it is opt-in: the default
+# is detect-and-report only (PR #378 finding C5).
+DEFAULT_CONFLICT_MAX_TIER = 0
 
 POLL_INTERVAL_ERROR = "minimum is 30 seconds"
 MAX_ROUNDS_ERROR = "--max-rounds hard cap is 5"
@@ -63,6 +66,7 @@ class SkillArgs:
     output_dir: str | None = None
     resume: str | None = None
     pr: int | None = None
+    conflict_max_tier: int = DEFAULT_CONFLICT_MAX_TIER
 
     @property
     def armed(self) -> bool:
@@ -96,6 +100,13 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-dir", dest="output_dir", default=None)
     parser.add_argument("--resume", default=None)
     parser.add_argument("--pr", type=int, default=None)
+    parser.add_argument(
+        "--conflict-max-tier",
+        dest="conflict_max_tier",
+        type=int,
+        choices=[0, 1, 2],
+        default=DEFAULT_CONFLICT_MAX_TIER,
+    )
     return parser
 
 
@@ -131,6 +142,7 @@ def parse_args(argv: list[str]) -> SkillArgs:
         output_dir=ns.output_dir,
         resume=ns.resume,
         pr=ns.pr,
+        conflict_max_tier=ns.conflict_max_tier,
     )
 
 
@@ -219,6 +231,15 @@ def push_fail_state(decision: PushDecision) -> MonitorState:
     return MonitorState.REPORT_ONLY
 
 
+def should_retrigger(applied_edits: int, push_kind: str | None = None) -> bool:
+    """S5a re-trigger rule: a cycle that applied grounded edits, or a Tier 2
+    merge cycle (push kind "merge"), which applies no finding edit but publishes
+    authored code that the reviewers must see (issue #305, P2)."""
+    return (
+        isinstance(applied_edits, int) and applied_edits > 0
+    ) or push_kind == "merge"
+
+
 # --------------------------------------------------------------------------- #
 # L3 write-ahead push triad (spec §12.1 / INV-007)
 # --------------------------------------------------------------------------- #
@@ -245,6 +266,10 @@ def build_push_triad(
     target_branch: str,
     target_remote: str,
     decision: PushDecision,
+    push_kind: str | None = None,
+    base_sha: str | None = None,
+    review_terminal: str | None = None,
+    expect_checks: bool | None = None,
 ) -> list[dict]:
     """Build the ordered write-ahead push triad records (spec §12.1, verbatim order).
 
@@ -254,7 +279,20 @@ def build_push_triad(
     actual push side-effect (the version-control push of ``<sha>:<branch>`` to the
     remote) is the SKILL's job. The idempotency key is on every record so recovery
     can match the triad.
+
+    Issue #305: the four keyword-only extras default to ``None``; with all four
+    ``None`` the output is byte-identical to the pre-#305 records. ``push_kind``
+    (one of ``fix``, ``merge``, ``sync``, ``ci``; anything else raises
+    :class:`ValueError`) and ``base_sha`` join every record after ``target_remote``;
+    ``review_terminal`` and ``expect_checks`` join ``push_initiated`` after
+    ``remote_ref``, and ``expect_checks`` joins ``push_completed``, each only when
+    not ``None``. A :class:`PushDecision` keeps its five-key predicate dict; any
+    other decision supplies ``audit_predicates`` (the conflict sync gate, read by
+    attribute so this module never imports the conflict core). A decision with
+    neither shape raises :class:`AttributeError`.
     """
+    if push_kind is not None and push_kind not in ("fix", "merge", "sync", "ci"):
+        raise ValueError(f"unknown push_kind: {push_kind!r}")
     key = push_idempotency_key(run_id, cycle_id, pre_push_sha, target_branch)
     common = {
         "run_id": run_id,
@@ -265,26 +303,42 @@ def build_push_triad(
         "target_branch": target_branch,
         "target_remote": target_remote,
     }
+    if push_kind is not None:
+        common["kind"] = push_kind
+    if base_sha is not None:
+        common["base_sha"] = base_sha
+    if isinstance(decision, PushDecision):
+        predicates = {
+            "p1_ordinal": decision.predicate_1_ordinal,
+            "p2_validated": decision.predicate_2_validated,
+            "p3_no_human": decision.predicate_3_no_human,
+            "p4_under_cap": decision.predicate_4_under_cap,
+            "p5_applied_edits": decision.predicate_5_applied_edits,
+        }
+    else:
+        predicates = dict(decision.audit_predicates)
+    initiated_extra: dict = {}
+    if review_terminal is not None:
+        initiated_extra["review_terminal"] = review_terminal
+    completed_extra: dict = {}
+    if expect_checks is not None:
+        initiated_extra["expect_checks"] = expect_checks
+        completed_extra["expect_checks"] = expect_checks
     return [
         {
             "event_type": "push_decision",
             "round_counter": round_counter,
             "authorized": decision.authorized,
-            "predicates": {
-                "p1_ordinal": decision.predicate_1_ordinal,
-                "p2_validated": decision.predicate_2_validated,
-                "p3_no_human": decision.predicate_3_no_human,
-                "p4_under_cap": decision.predicate_4_under_cap,
-                "p5_applied_edits": decision.predicate_5_applied_edits,
-            },
+            "predicates": predicates,
             **common,
         },
         {
             "event_type": "push_initiated",
             "remote_ref": f"{target_remote}/{target_branch}",
+            **initiated_extra,
             **common,
         },
-        {"event_type": "push_completed", **common},
+        {"event_type": "push_completed", **completed_extra, **common},
     ]
 
 
@@ -746,6 +800,15 @@ def transition(
         ):
             return MonitorState.HALT_MAX_ROUNDS
         return MonitorState.S2B_VERIFY
+    if edge == (MonitorState.S2_CLASSIFY, "conflicting"):
+        # Issue #305 (P2): a Tier 2 merge cycle at C-initial. Same round gate as
+        # findings; then the G-edit ceiling (S3_FIXING at L2+, else PROPOSED).
+        if should_halt_rounds(
+            int(ctx.get("round_counter", 0)),
+            int(ctx.get("max_rounds", DEFAULT_MAX_ROUNDS)),
+        ):
+            return MonitorState.HALT_MAX_ROUNDS
+        return MonitorState.S3_FIXING if gate_edit(ordinal) else MonitorState.PROPOSED
     if edge == (MonitorState.S2B_VERIFY, "verified"):
         return MonitorState.S3_DIAGNOSE
     if edge == (MonitorState.S2B_VERIFY, "unverified"):
@@ -1134,7 +1197,7 @@ def run_skill(config: RunConfig | None = None, **overrides) -> SkillResult:
         # re-trigger comment (the trigger token lives in the bash script, never the core),
         # but ONLY when this cycle actually pushed (applied_edits > 0). The re-trigger
         # itself does NOT tick round_counter (INV-R1).
-        if result.applied_edits > 0:
+        if should_retrigger(result.applied_edits):
             # S5a: visibly enter the re-trigger state, then post the comment (the state
             # is overwritten by S5_AWAITING_REREVIEW below — materialized for topology
             # fidelity with transition()'s RESOLVING→S5A→S5 edges).

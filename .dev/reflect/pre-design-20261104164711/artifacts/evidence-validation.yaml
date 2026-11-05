@@ -1,0 +1,36 @@
+# Persisted by the orchestrator from the read-only evidence-validator return (content verbatim).
+report_draft: .dev/reflect/pre-design-20261104164711/REPORT.md
+citation_budget_policy: full_reread
+citations_total: 117
+citations_revalidated: 117
+citations_dropped: 1
+inf_rows_checked: 34
+inf_rows_dropped: 0
+suggested_status: partial   # one dropped citation
+dropped:
+  - where: D-16
+    citation: ".dev/tasks/to-do/TASK-WF-design-20261104-164423/TASK-WF-design-20261104-164423.md:176"
+    claim_excerpt: "The plan adds light verification artifacts beyond the spec (Task 15 sample-record check, Task 18 negative check, Task 17 diffstat with \"at most 15 lines\")."
+    reason: >
+      Line 176 is Task 9's import check (`uv run python -c "from superclaude.pr_submit import conflict_action,
+      should_retrigger, merge_parent_ok, prior_conflict_cycles"` exits 0). It is none of the three named
+      items; those sit at P:245, P:270 and P:285, which are cited separately and hold. Task 9's check
+      saves no artifact. It also repeats the spec's own done-when for step 8 (S:1423: "from
+      superclaude.pr_submit import conflict_action, should_retrigger works"). No line within 3 of 176
+      holds the claimed content. The extra names are a possible weak reading, so this is borderline.
+notes:
+  - "D-08: the claim attributes 'only exact paths are staged' to P:27. That text is at P:25 (2 lines off). P:27 itself holds '.dev/tasks/ is always staged' and the .claude/ rule. The core claim is true; this is a note, not a drop."
+  - "D-03: the claim says 'S:1070 names both functions'. S:1070 names only ci.expect_checks_after_push; the script line is at S:1075. The cited range S:1063-1080 holds both, so the citation stands."
+  - "D-04: Task 6 is called a 'graph leaf', but Task 9 depends on it (P:171). The closure omission claim is true: the closure of Tasks 18 and 19 is {1,2,3,4,5,7,8,10,11,12,13,14,15,16,17,18,19}, which omits 6 and 9."
+  - "D-09: S:863 (stage only src/ and tests/) supports the missing-index-entry claim only indirectly. S:1429 and P:27 carry the weight. Kept."
+  - "D-12: P:186 is Task 10's make_repos fixture description. It does not mention author or committer; it only shows where the real-git environment is set. The substantive support is P:29 and S:1316. Kept."
+  - "D-21: the claim's 'Task 5 on Task 4 spec-required' rests on S:1419 (spec step 4, depends on 3). The step-to-line mapping is correct: step N is at S:1415+N."
+  - "Source lines S:1416-1429 map to spec steps 1-14 as every deviation claims. IMPL:79 and IMPL:97 hold (depends-on ignored; sequential by default)."
+  - "INF rows: all 34 quotes match the text at the cited source.md line, ignoring whitespace and markdown emphasis. INF-011 and INF-024 are line prefixes (the quote ends at a semicolon). Cited lines for INF-005/009/010/023 hold their lead-in text."
+self_audit: >
+  I did not assume any upstream citation was correct. I re-read the plan in full and the cited source.md ranges
+  (50-72, 192-317, 320-415, 585-600, 665-755, 788-870, 895-1135, 1310-1435). I opened every external file
+  at its cited lines. I checked each plan line number against the claim's wording (which task depends on
+  which, which line holds which AC) and each spec step row (S:1416-1429) against the claimed step number
+  and dependency. I compared each INF quote with its source line character by character. The one drop is
+  P:176 under D-16.

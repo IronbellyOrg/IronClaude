@@ -143,7 +143,8 @@ After the (merged) review classify would be `clean`, reaches `REPORT_ONLY`, **ex
 `max_rounds` (`HALT_MAX_ROUNDS`), **or** ends in `TERMINAL_AUGMENT_NO_RESPONSE`,
 the SKILL sets `source=ci`, resets the wait clock, and polls CI. A spent round
 budget and a silence terminal permit **waiting only**: CI findings are
-`REPORT_ONLY`, never an additional fix or push. `TERMINAL_TIMEOUT` and other
+`REPORT_ONLY`, never an additional fix or fix push. The single exception is the
+one Tier 1 sync push (5.2d), which is not a fix. `TERMINAL_TIMEOUT` and other
 halt states do not arm CI. Never send `transition(clean)` after silence. On Augment `clean` / `REPORT_ONLY`, the SKILL continues at `S2_CLASSIFY`
 **without** sending Augment `clean` to `transition()`. Once the FSM reaches
 `HALT_MAX_ROUNDS`, it stays terminal: the SKILL polls CI separately and reports
@@ -155,6 +156,29 @@ Unparseable logs are `REPORT_ONLY` with no Finding. A CI-phase push skips S5a /
 S6 / RESOLVING (the push itself re-runs checks). `transition()` is unchanged:
 `clean` still means `TERMINAL_CLEAN`, `pushed` still means `S6_REPLYING`. Only
 a non-halted CI-clean path sends `clean` to `transition()`. L0 never enters this phase.
+
+### 5.2d Conflict cycles (issue #305): Tier 1 is SKILL-owned, Tier 2 adds one edge
+
+- **Tier 1 (push kind `sync`)** runs at Wave 8 entry, before the CI wait, with no FSM edge,
+  exactly like the CI phase (5.2c): no round, no re-trigger, no reply, no resolve. It counts in
+  `sync_push_count`, never in `push_count`, and a run has at most `SYNC_CAP = 1` conflict cycle
+  (both tiers together). After `HALT_MAX_ROUNDS` or `TERMINAL_AUGMENT_NO_RESPONSE` that terminal
+  stays and the sync outcome is reported alongside it. At L2 the resolution is left validated and
+  uncommitted; the caller sets `S4'_HALT_BEFORE_PUSH` only when Wave 8 was entered from `clean` or
+  `REPORT_ONLY`.
+- **Tier 2 (push kind `merge`)** adds exactly one edge: `(S2_CLASSIFY, conflicting)` goes to
+  `HALT_MAX_ROUNDS` when the round gate fires (the same gate as `findings`), else to `S3_FIXING`
+  (L2+) or `PROPOSED` (L1) by G-edit. The cycle then follows the existing edges
+  `S3_FIXING → S7_VALIDATING → S4_PUSHING → S6_REPLYING → RESOLVING` (zero threads)
+  `→ S5a_RETRIGGER_REVIEW → S5_AWAITING_REREVIEW → S2_CLASSIFY`, and ticks `round_counter` once
+  on the INV-001 edge. The S5a re-trigger fires when `applied_edits > 0` or the push kind is `merge`.
+- A conflict push is authorized by the sibling conjunction `evaluate_sync_decision` (ordinal,
+  validated, tier allowed, under cap), never by the 5.3 conjunction, whose predicate (5) means
+  grounded finding edits. Its parent check is `merge_parent_ok`: exactly two parents, the stored
+  pre-push SHA first and the recorded base tip second.
+- **Tier 3 never enters the FSM.** At L3 it halts before arming (`terminal_halted`, reason
+  `conflict_tier3`); a Tier 3 found by a later hook takes the human-gate route to `HALT_HUMAN`, or is
+  reported alongside a preserved terminal.
 
 ## 5.3 G-push — the 5-predicate runtime conjunction (INV-016, verbatim)
 

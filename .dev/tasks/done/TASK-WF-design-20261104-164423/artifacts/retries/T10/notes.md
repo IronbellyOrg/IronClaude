@@ -1,0 +1,3 @@
+b6b97b30f2c8a1c4cff292aad80e8ced206a2c94
+A1 r1-1 F1.1 minor src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:149 ac=T10.AC1 n,n,n,n Step 13 (the --program check) runs before step 9 rather than in section 7.1 order; the output is the same, and only a jq rendering failure there would report PROBE_FAIL usage before the capability check. The script comments on the reordering; recorded here as the implementation choice.
+A1 r1-1 F1.2 note src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:114 ac=scope n,n,n,n git check-ref-format --branch expands @{-1}, so --base '@{-1}' passes the step-5 check and later fails as PROBE_FAIL fetch_failed instead of bad_base. Fails safe and follows the 7.1 step-5 text literally; optional hardening.

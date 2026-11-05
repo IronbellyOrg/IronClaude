@@ -36,6 +36,25 @@ All notable changes to IronClaude are documented in this file.
 
 - A plugin that fails to install is now listed by its name in the `Plugins: not installed` warning (it printed `--scope`).
 
+### sc:pr-submit: merge-conflict detection and resolution (#305)
+
+#### Added (pr-submit conflicts)
+
+- At `--monitor 1` and above, the end of Wave 0 checks for a git operation in progress (halts `foreign_op_in_progress`), reads GitHub's `mergeable`, and only on a conflict runs a read-only local probe (`git merge-tree --write-tree`) that classifies every conflicted path into a tier and prints the plan before any edit.
+- Tier 1 (opt-in with `--conflict-max-tier 1`, because `uv lock` can run the PR's build code): a conflicted root `uv.lock` is regenerated with `uv lock` at Wave 8 entry and published as one merge commit of the recorded base tip, pushed fast-forward (never forced). It spends no review round, re-triggers no reviewer, is counted in the new `sync_push_count`, and the CI wait then expects checks on the new head (`expect_checks`), so an empty check list right after the push is no longer read as clean.
+- Tier 2 (off by default): text and tree conflicts resolved by stated intent before the first review, with a per-file resolution record, an `evidence-validator` grounding check, full tests, a reviewer re-trigger and one round. Enable with `--conflict-max-tier 2`.
+- Tier 3 (submodule, symlink, mode change, protected or migration path, binary, lock or generated file without a rule, more than 8 text files, anything unclassifiable) halts at the end of Wave 0 at L3 with nothing touched, and is reported at L1 and L2.
+- New flag `--conflict-max-tier {0,1,2}` (default 0); 0 detects and reports only, so no conflict is resolved unless you pass 1 or 2.
+- New core module `superclaude.pr_submit.conflicts`, refs `conflict-mechanical.md` and `conflict-intent.md`, scripts `probe-merge.sh`, `finish-merge.sh` and `collect-conflict-evidence.sh`, and `poll-ci-checks.sh --evidence-sha`.
+
+#### Changed (pr-submit conflicts)
+
+- At `--monitor 1` and above the create path no longer rebases or halts when the branch is behind its base; it reports how many commits behind. `--monitor 0` is unchanged.
+- Every push record carries a `kind` (`fix`, `merge`, `sync`, `ci`); `--resume` uses it, so a crashed CI or sync push resumes into the CI wait instead of the review re-trigger path. Old run-logs read as `fix`.
+- `push_count` counts fix, CI and Tier 2 merge pushes; Tier 1 sync pushes are in `sync_push_count`. The documented bound is `push_count <= max_rounds + 1`.
+- The run-log event enum has 43 members (`sync_started`, `sync_concluded`).
+- A PR that is still conflicting at Wave 8 with nothing pushed skips the CI wait (`pr_conflicting`) and ends `terminal_halted` instead of waiting for checks that GitHub will not run; a run that saw a conflict re-reads `mergeable` before claiming clean. Late re-sync during the CI wait is #361.
+
 ## [5.0.0] - 2026-11-02
 
 Major release: codegraph replaces codebase-memory-mcp and Serena, and several commands, flags and core files are removed. Read the [5.0.0 release notes](docs/releases/v5.0.0.md) for the breaking changes and upgrade steps. This is the first versioned section of this changelog; it covers every change since the package version was set to 4.3.5 (2026-06-04), which was never tagged.

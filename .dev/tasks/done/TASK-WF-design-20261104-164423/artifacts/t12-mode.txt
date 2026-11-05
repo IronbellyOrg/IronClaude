@@ -1,0 +1,2 @@
+100755 181d96403197b8456449890f3212c9c43b6fda82 0	src/superclaude/skills/sc-pr-submit-protocol/scripts/collect-conflict-evidence.sh
+test -x: ok (exit 0)

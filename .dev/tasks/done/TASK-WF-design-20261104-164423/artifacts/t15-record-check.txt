@@ -1,0 +1,36 @@
+$ PYTHONDONTWRITEBYTECODE=1 uv run python /tmp/t15-check/record_check.py src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md /tmp/t15-check/resolution.md
+sample written to /tmp/t15-check/resolution.md:
+## app/config.py
+kind: additive
+root_cause: both sides appended a setting to the end of the same settings block
+ours_intent: This PR adds a retry limit setting for the HTTP client.
+theirs_intent: The base adds a request timeout setting for the HTTP client.
+resolution: keep_both(ours then theirs)
+behavior_after: The settings block defines both the retry limit and the request timeout.
+dropped: none
+evidence: stage1, stage2, stage3, diff-ours.txt, diff-theirs.txt, log.txt, commits 1a2b3c4 and 5d6e7f8
+
+## src/app/routes.py
+kind: competing
+root_cause: both sides changed the default page size of the same list route
+ours_intent: This PR raises the default page size to 50 for the list route.
+theirs_intent: The base makes the page size configurable through an argument.
+resolution: synthesized
+behavior_after: The list route takes a page size argument whose default is 50.
+dropped: none
+evidence: stage1, stage2, stage3, diff-ours.txt, diff-theirs.txt, log.txt
+
+parsed paths: ['app/config.py', 'src/app/routes.py']
+field order per path: {'app/config.py': ['kind', 'root_cause', 'ours_intent', 'theirs_intent', 'resolution', 'behavior_after', 'dropped', 'evidence'], 'src/app/routes.py': ['kind', 'root_cause', 'ours_intent', 'theirs_intent', 'resolution', 'behavior_after', 'dropped', 'evidence']}
+resolution_record_ok -> []
+--- merge_commit_message(tier=2) ---
+Merge origin/master into feature/x (sc:pr-submit sync, tier 2)
+
+app/config.py: kind additive, resolution keep_both(ours then theirs), dropped none
+src/app/routes.py: kind competing, resolution synthesized, dropped none
+
+negative control [two sentences in ours_intent] -> ['app/config.py: ours_intent is not exactly one sentence']
+negative control [semantic kind] -> ['app/config.py: kind semantic means Tier 3']
+negative control [bullet line] -> ValueError: unknown field: '- kind'
+RESULT: PASS
+exit=0

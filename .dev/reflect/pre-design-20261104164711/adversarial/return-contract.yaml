@@ -1,0 +1,13 @@
+# sc:adversarial return contract (Mode A, sc:reflect Wave 4), written by the merge-executor at Step 5.
+# Fields follow the Return Contract section of ~/.claude/skills/sc-adversarial-protocol/SKILL.md.
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/issue-305-pr-submit-conflicts/.dev/reflect/pre-design-20261104164711/adversarial/merged-verdict.yaml"
+  convergence_score: 0.852
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/issue-305-pr-submit-conflicts/.dev/reflect/pre-design-20261104164711/adversarial"
+  status: success
+  base_variant: "opus:refactorer"
+  unresolved_conflicts: 4
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: task-agent
+  unaddressed_invariants: []

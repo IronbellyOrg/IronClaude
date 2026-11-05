@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import pytest
 
+from superclaude.pr_submit.conflicts import merge_parent_ok
 from superclaude.pr_submit.fsm import (
     needs_rebase,
     origin_ok,
@@ -228,3 +229,11 @@ def test_push_parent_ok_fails_closed_on_bad_ids(bad_sha):
     assert push_parent_ok([SHA], bad_sha) is False
     # Equal on both sides must still fail.
     assert push_parent_ok([bad_sha], bad_sha) is False
+
+
+def test_push_parent_ok_still_rejects_a_valid_merge_commit():
+    """Issue #305: a conflict cycle's merge commit passes its own gate
+    (`merge_parent_ok`) and is still refused by the fix-push gate, so the two parent
+    checks stay disjoint and `push_parent_ok` is unchanged."""
+    assert merge_parent_ok([SHA, OTHER_SHA], SHA, OTHER_SHA) is True
+    assert push_parent_ok([SHA, OTHER_SHA], SHA) is False

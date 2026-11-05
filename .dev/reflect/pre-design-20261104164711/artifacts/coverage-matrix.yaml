@@ -1,0 +1,5440 @@
+# sc:reflect UC-1 Wave 1B coverage matrix (Step 1B.0 two-pass extraction)
+# Spec: .dev/tasks/to-do/TASK-WF-design-20261104-164423/source.md
+# Tasklist: .dev/tasks/to-do/TASK-WF-design-20261104-164423/TASK-WF-design-20261104-164423.md
+# Every parsed anchor and inferred quote was validated against source.md by the generator before emission.
+schema: reflect-coverage-matrix/1
+mode: UC-1
+matching:
+  parsed: "Reference resolution. 'exact' = the task text names the row's own label, its range (e.g. 'P1 to P12', 'E1 to E13'), its function name or the enumerated item list; 'fuzzy' = the task implements the design element the row names without citing the row label (decision/research rows, hooks, final-status rows). Pass 1 extends ID_REGEX to the orchestrator's labelled-item set; 'fuzzy' resolution is a judged step and is declared as such (not LLM-free)."
+  inferred: "Deterministic containment: casefold, split on [^a-z0-9]+, drop the fixed stopword set (articles, conjunctions, prepositions, auxiliaries), match when >= 0.6 of the quote's content words appear in one task's text; best ratio, first-task tie-break."
+  stopwords: ["a", "about", "across", "after", "against", "along", "am", "among", "an", "and", "are", "around", "as", "at", "be", "because", "been", "before", "behind", "being", "below", "beneath", "beside", "between", "beyond", "but", "by", "can", "could", "despite", "did", "do", "does", "during", "except", "for", "from", "had", "has", "have", "if", "in", "inside", "into", "is", "may", "might", "must", "near", "nor", "of", "off", "on", "onto", "or", "out", "outside", "over", "per", "shall", "should", "since", "so", "than", "the", "then", "through", "to", "toward", "towards", "under", "until", "up", "upon", "via", "was", "were", "when", "whether", "while", "will", "with", "within", "without", "would", "yet"]
+summary:
+  parsed_count: 574
+  inferred_count: 34
+  parsed_matched: 574
+  inferred_matched: 13
+  coverage_pct: 1.0
+  coverage_pct_union: 0.9655
+  unmapped_requirements: []
+  unmapped_requirements_union: ["INF-001", "INF-002", "INF-003", "INF-006", "INF-007", "INF-008", "INF-009", "INF-012", "INF-013", "INF-014", "INF-015", "INF-016", "INF-021", "INF-022", "INF-024", "INF-025", "INF-026", "INF-029", "INF-031", "INF-032", "INF-034"]
+  unmapped_count_parsed: 0
+  unmapped_count_union: 21
+  coverage_degraded: null
+  coverage_undefined: false
+  S_dev_density: 0.0345
+  partial_mappings: ["6.5-site-1", "6.5-site-2", "sec-8", "sec-12", "sec-12.5", "13-step-14"]
+  out_of_scope_count: 15
+  out_of_scope_ids: ["OOS-P3-#361", "FR-25", "2.1-out-live-gates", "2.1-out-default-flip", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "11-8-R-19", "11-9-R-20", "11-31-R-161"]
+  inferred_dropped_count: 0
+  telemetry_literal_reference_rows: 352
+  telemetry_literal_reference_pct: 0.6132
+  anchor_validation_problems: []
+excluded_non_requirements:
+  - {span: "source.md:14-42", what: "Revision log B1-B3, M6-M10, N1, m1-m9, n1/n3/n4", why: "change log; every requirement it names is restated in the referenced sections"}
+  - {span: "source.md:88-129", what: "Section 3 grounding facts G1-G32 and verified git behaviour", why: "facts about the current code, not requirements"}
+  - {span: "source.md:1187-1193", what: "10.3 S-001..S-007", why: "declared 'No design impact' / presentation"}
+  - {span: "source.md:1205-1207", what: "10.4 notes 4-6", why: "declared 'No design impact' / 'Moot'"}
+  - {span: "source.md:1473-1483", what: "Section 16 residual risks", why: "risk register, not requirements"}
+  - {span: "headings", what: "title-only headings (1, 2.1, 2.2, 4.2, 4.5, 4.7, 5.3, 6.2, 6.4, 8.5, 8.7, 10.x, 11, 12.1, 12.2)", why: "no normative prose between the heading and its first labelled child; their children are the rows"}
+rows:
+  - id: "S1-1"
+    source: parsed
+    group: "summary"
+    span: "source.md:50"
+    mapped_tasks: ["Task 1"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "S1-2"
+    source: parsed
+    group: "summary"
+    span: "source.md:51"
+    mapped_tasks: ["Task 3", "Task 4", "Task 10", "Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "S1-3"
+    source: parsed
+    group: "summary"
+    span: "source.md:52"
+    mapped_tasks: ["Task 4", "Task 5", "Task 6", "Task 7", "Task 8", "Task 11", "Task 13", "Task 14", "Task 17", "Task 19"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "S1-4"
+    source: parsed
+    group: "summary"
+    span: "source.md:53"
+    mapped_tasks: ["Task 4", "Task 5", "Task 12", "Task 15", "Task 17", "Task 19"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "2.1-in-1"
+    source: parsed
+    group: "scope"
+    span: "source.md:65"
+    mapped_tasks: ["Task 1", "Task 3", "Task 4", "Task 5", "Task 14", "Task 15", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "2.1-in-2"
+    source: parsed
+    group: "scope"
+    span: "source.md:66"
+    mapped_tasks: ["Task 10", "Task 11", "Task 12", "Task 13", "Task 19"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "2.1-in-3"
+    source: parsed
+    group: "scope"
+    span: "source.md:67"
+    mapped_tasks: ["Task 5", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "C1"
+    source: parsed
+    group: "constraint"
+    span: "source.md:75"
+    mapped_tasks: ["Task 14", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Constraints block of the tasklist restates it; mapped to the enforcing task(s)"
+  - id: "C2"
+    source: parsed
+    group: "constraint"
+    span: "source.md:76"
+    mapped_tasks: ["Task 4", "Task 5"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Constraints block of the tasklist restates it; mapped to the enforcing task(s)"
+  - id: "C3"
+    source: parsed
+    group: "constraint"
+    span: "source.md:77"
+    mapped_tasks: ["Task 11", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Constraints block of the tasklist restates it; mapped to the enforcing task(s)"
+  - id: "C4"
+    source: parsed
+    group: "constraint"
+    span: "source.md:78"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Constraints block of the tasklist restates it; mapped to the enforcing task(s)"
+  - id: "C5"
+    source: parsed
+    group: "constraint"
+    span: "source.md:79"
+    mapped_tasks: ["Task 14", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "Constraints block of the tasklist restates it; mapped to the enforcing task(s)"
+  - id: "C6"
+    source: parsed
+    group: "constraint"
+    span: "source.md:80"
+    mapped_tasks: ["Task 3", "Task 5", "Task 16"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "Constraints block of the tasklist restates it; mapped to the enforcing task(s)"
+  - id: "C7"
+    source: parsed
+    group: "constraint"
+    span: "source.md:81"
+    mapped_tasks: ["Task 10", "Task 11", "Task 12", "Task 13", "Task 14", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "Constraints block of the tasklist restates it; mapped to the enforcing task(s)"
+  - id: "C8"
+    source: parsed
+    group: "constraint"
+    span: "source.md:82"
+    mapped_tasks: ["Task 10", "Task 14", "Task 16", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "Constraints block of the tasklist restates it; mapped to the enforcing task(s)"
+  - id: "C9"
+    source: parsed
+    group: "constraint"
+    span: "source.md:83"
+    mapped_tasks: ["Task 3", "Task 20"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "Constraints block of the tasklist restates it; mapped to the enforcing task(s)"
+  - id: "C10"
+    source: parsed
+    group: "constraint"
+    span: "source.md:84"
+    mapped_tasks: ["Task 1"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "Constraints block of the tasklist restates it; mapped to the enforcing task(s)"
+  - id: "C11"
+    source: parsed
+    group: "constraint"
+    span: "source.md:85"
+    mapped_tasks: ["Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "Constraints block of the tasklist restates it; mapped to the enforcing task(s)"
+  - id: "C12"
+    source: parsed
+    group: "constraint"
+    span: "source.md:86"
+    mapped_tasks: ["Task 1", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "Constraints block of the tasklist restates it; mapped to the enforcing task(s)"
+  - id: "sec-4.1"
+    source: parsed
+    group: "heading"
+    span: "source.md:133-158"
+    mapped_tasks: ["Task 3", "Task 4", "Task 5", "Task 6", "Task 7", "Task 8", "Task 10", "Task 11", "Task 12", "Task 13", "Task 14", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.2-wave0-opcheck"
+    source: parsed
+    group: "hook"
+    span: "source.md:164"
+    mapped_tasks: ["Task 4", "Task 10", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.2-precursor"
+    source: parsed
+    group: "hook"
+    span: "source.md:165"
+    mapped_tasks: ["Task 1"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.2-wave0-conflict"
+    source: parsed
+    group: "hook"
+    span: "source.md:166"
+    mapped_tasks: ["Task 3", "Task 4", "Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.2-c-initial"
+    source: parsed
+    group: "hook"
+    span: "source.md:167"
+    mapped_tasks: ["Task 4", "Task 5", "Task 14", "Task 15", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.2-wave8a"
+    source: parsed
+    group: "hook"
+    span: "source.md:168"
+    mapped_tasks: ["Task 4", "Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.2-end-ci-wait"
+    source: parsed
+    group: "hook"
+    span: "source.md:169"
+    mapped_tasks: ["Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "sec-4.3"
+    source: parsed
+    group: "heading"
+    span: "source.md:173-178"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.3-rule-0"
+    source: parsed
+    group: "classify-rule"
+    span: "source.md:181"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the 14-row first-match table of source section 4.3'"
+  - id: "4.3-rule-1"
+    source: parsed
+    group: "classify-rule"
+    span: "source.md:182"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the 14-row first-match table of source section 4.3'"
+  - id: "4.3-rule-2"
+    source: parsed
+    group: "classify-rule"
+    span: "source.md:183"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the 14-row first-match table of source section 4.3'"
+  - id: "4.3-rule-3"
+    source: parsed
+    group: "classify-rule"
+    span: "source.md:184"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the 14-row first-match table of source section 4.3'"
+  - id: "4.3-rule-4"
+    source: parsed
+    group: "classify-rule"
+    span: "source.md:185"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the 14-row first-match table of source section 4.3'"
+  - id: "4.3-rule-5"
+    source: parsed
+    group: "classify-rule"
+    span: "source.md:186"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the 14-row first-match table of source section 4.3'"
+  - id: "4.3-rule-6"
+    source: parsed
+    group: "classify-rule"
+    span: "source.md:187"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the 14-row first-match table of source section 4.3'"
+  - id: "4.3-rule-7"
+    source: parsed
+    group: "classify-rule"
+    span: "source.md:188"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the 14-row first-match table of source section 4.3'"
+  - id: "4.3-rule-8"
+    source: parsed
+    group: "classify-rule"
+    span: "source.md:189"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the 14-row first-match table of source section 4.3'"
+  - id: "4.3-rule-9"
+    source: parsed
+    group: "classify-rule"
+    span: "source.md:190"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the 14-row first-match table of source section 4.3'"
+  - id: "4.3-rule-10"
+    source: parsed
+    group: "classify-rule"
+    span: "source.md:191"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the 14-row first-match table of source section 4.3'"
+  - id: "4.3-rule-11"
+    source: parsed
+    group: "classify-rule"
+    span: "source.md:192"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the 14-row first-match table of source section 4.3'"
+  - id: "4.3-rule-12"
+    source: parsed
+    group: "classify-rule"
+    span: "source.md:193"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the 14-row first-match table of source section 4.3'"
+  - id: "4.3-rule-13"
+    source: parsed
+    group: "classify-rule"
+    span: "source.md:194"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the 14-row first-match table of source section 4.3'"
+  - id: "4.3-plan-1"
+    source: parsed
+    group: "plan-tier"
+    span: "source.md:202"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the plan-tier table of source section 4.3'"
+  - id: "4.3-plan-2"
+    source: parsed
+    group: "plan-tier"
+    span: "source.md:203"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the plan-tier table of source section 4.3'"
+  - id: "4.3-plan-3"
+    source: parsed
+    group: "plan-tier"
+    span: "source.md:204"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the plan-tier table of source section 4.3'"
+  - id: "4.3-plan-4"
+    source: parsed
+    group: "plan-tier"
+    span: "source.md:205"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the plan-tier table of source section 4.3'"
+  - id: "4.3-plan-5"
+    source: parsed
+    group: "plan-tier"
+    span: "source.md:206"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the plan-tier table of source section 4.3'"
+  - id: "4.3-plan-6"
+    source: parsed
+    group: "plan-tier"
+    span: "source.md:207"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the plan-tier table of source section 4.3'"
+  - id: "4.3-plan-7"
+    source: parsed
+    group: "plan-tier"
+    span: "source.md:208"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the plan-tier table of source section 4.3'"
+  - id: "4.3-plan-8"
+    source: parsed
+    group: "plan-tier"
+    span: "source.md:209"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the plan-tier table of source section 4.3'"
+  - id: "4.3-plan-9"
+    source: parsed
+    group: "plan-tier"
+    span: "source.md:210"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 3 cites 'the plan-tier table of source section 4.3'"
+  - id: "sec-4.4"
+    source: parsed
+    group: "heading"
+    span: "source.md:216-219"
+    mapped_tasks: ["Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-domain-guard"
+    source: parsed
+    group: "router"
+    span: "source.md:220"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave0-1"
+    source: parsed
+    group: "router"
+    span: "source.md:226"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave0-2"
+    source: parsed
+    group: "router"
+    span: "source.md:227"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave0-3"
+    source: parsed
+    group: "router"
+    span: "source.md:228"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave0-4"
+    source: parsed
+    group: "router"
+    span: "source.md:229"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave0-5"
+    source: parsed
+    group: "router"
+    span: "source.md:230"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave0-6"
+    source: parsed
+    group: "router"
+    span: "source.md:231"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave0-7"
+    source: parsed
+    group: "router"
+    span: "source.md:232"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave0-8"
+    source: parsed
+    group: "router"
+    span: "source.md:233"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave0-9"
+    source: parsed
+    group: "router"
+    span: "source.md:234"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-c_initial-1"
+    source: parsed
+    group: "router"
+    span: "source.md:240"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-c_initial-2"
+    source: parsed
+    group: "router"
+    span: "source.md:241"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-c_initial-3"
+    source: parsed
+    group: "router"
+    span: "source.md:242"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-c_initial-4"
+    source: parsed
+    group: "router"
+    span: "source.md:243"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-c_initial-5"
+    source: parsed
+    group: "router"
+    span: "source.md:244"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-c_initial-6"
+    source: parsed
+    group: "router"
+    span: "source.md:245"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-c_initial-7"
+    source: parsed
+    group: "router"
+    span: "source.md:246"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-c_initial-8"
+    source: parsed
+    group: "router"
+    span: "source.md:247"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave8a-1"
+    source: parsed
+    group: "router"
+    span: "source.md:253"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave8a-2"
+    source: parsed
+    group: "router"
+    span: "source.md:254"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave8a-3"
+    source: parsed
+    group: "router"
+    span: "source.md:255"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave8a-4"
+    source: parsed
+    group: "router"
+    span: "source.md:256"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave8a-5"
+    source: parsed
+    group: "router"
+    span: "source.md:257"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave8a-6"
+    source: parsed
+    group: "router"
+    span: "source.md:258"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave8a-7"
+    source: parsed
+    group: "router"
+    span: "source.md:259"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave8a-8"
+    source: parsed
+    group: "router"
+    span: "source.md:260"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave8a-9"
+    source: parsed
+    group: "router"
+    span: "source.md:261"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave8a-10"
+    source: parsed
+    group: "router"
+    span: "source.md:262"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave8a-11"
+    source: parsed
+    group: "router"
+    span: "source.md:263"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave8a-12"
+    source: parsed
+    group: "router"
+    span: "source.md:264"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.4-wave8a-13"
+    source: parsed
+    group: "router"
+    span: "source.md:265"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.5-row-1"
+    source: parsed
+    group: "final-status"
+    span: "source.md:273"
+    mapped_tasks: ["Task 4", "Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.5-row-2"
+    source: parsed
+    group: "final-status"
+    span: "source.md:274"
+    mapped_tasks: ["Task 4", "Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.5-row-3"
+    source: parsed
+    group: "final-status"
+    span: "source.md:275"
+    mapped_tasks: ["Task 4", "Task 14", "Task 16"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.5-row-4"
+    source: parsed
+    group: "final-status"
+    span: "source.md:276"
+    mapped_tasks: ["Task 4", "Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.5-row-5"
+    source: parsed
+    group: "final-status"
+    span: "source.md:277"
+    mapped_tasks: ["Task 4", "Task 14", "Task 16"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.5-row-6"
+    source: parsed
+    group: "final-status"
+    span: "source.md:278"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.5-row-7"
+    source: parsed
+    group: "final-status"
+    span: "source.md:279"
+    mapped_tasks: ["Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.5-row-8"
+    source: parsed
+    group: "final-status"
+    span: "source.md:280"
+    mapped_tasks: ["Task 6", "Task 14", "Task 16", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "sec-4.6"
+    source: parsed
+    group: "heading"
+    span: "source.md:284-289"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.6-step-0"
+    source: parsed
+    group: "merge-cycle"
+    span: "source.md:292"
+    mapped_tasks: ["Task 5", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 cites 'source section 4.6 (steps 0 to 13)'"
+  - id: "4.6-step-1"
+    source: parsed
+    group: "merge-cycle"
+    span: "source.md:293"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 cites 'source section 4.6 (steps 0 to 13)'"
+  - id: "4.6-step-2"
+    source: parsed
+    group: "merge-cycle"
+    span: "source.md:294"
+    mapped_tasks: ["Task 4", "Task 10", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 cites 'source section 4.6 (steps 0 to 13)'"
+  - id: "4.6-step-3"
+    source: parsed
+    group: "merge-cycle"
+    span: "source.md:295"
+    mapped_tasks: ["Task 2", "Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 cites 'source section 4.6 (steps 0 to 13)'"
+  - id: "4.6-step-4"
+    source: parsed
+    group: "merge-cycle"
+    span: "source.md:296"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 cites 'source section 4.6 (steps 0 to 13)'"
+  - id: "4.6-step-5"
+    source: parsed
+    group: "merge-cycle"
+    span: "source.md:297"
+    mapped_tasks: ["Task 11", "Task 14", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 cites 'source section 4.6 (steps 0 to 13)'"
+  - id: "4.6-step-6"
+    source: parsed
+    group: "merge-cycle"
+    span: "source.md:298"
+    mapped_tasks: ["Task 4", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 cites 'source section 4.6 (steps 0 to 13)'"
+  - id: "4.6-step-7"
+    source: parsed
+    group: "merge-cycle"
+    span: "source.md:299"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 cites 'source section 4.6 (steps 0 to 13)'"
+  - id: "4.6-step-8"
+    source: parsed
+    group: "merge-cycle"
+    span: "source.md:300"
+    mapped_tasks: ["Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 cites 'source section 4.6 (steps 0 to 13)'"
+  - id: "4.6-step-9"
+    source: parsed
+    group: "merge-cycle"
+    span: "source.md:301"
+    mapped_tasks: ["Task 4", "Task 11", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 cites 'source section 4.6 (steps 0 to 13)'"
+  - id: "4.6-step-10"
+    source: parsed
+    group: "merge-cycle"
+    span: "source.md:302"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 cites 'source section 4.6 (steps 0 to 13)'"
+  - id: "4.6-step-11"
+    source: parsed
+    group: "merge-cycle"
+    span: "source.md:303"
+    mapped_tasks: ["Task 4", "Task 5", "Task 6", "Task 13", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 cites 'source section 4.6 (steps 0 to 13)'"
+  - id: "4.6-step-12"
+    source: parsed
+    group: "merge-cycle"
+    span: "source.md:304"
+    mapped_tasks: ["Task 7", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 cites 'source section 4.6 (steps 0 to 13)'"
+  - id: "4.6-step-13"
+    source: parsed
+    group: "merge-cycle"
+    span: "source.md:305"
+    mapped_tasks: ["Task 5", "Task 14", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 cites 'source section 4.6 (steps 0 to 13)'"
+  - id: "4.7-ev-sync_started"
+    source: parsed
+    group: "events"
+    span: "source.md:315"
+    mapped_tasks: ["Task 2", "Task 7", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.7-ev-sync_concluded"
+    source: parsed
+    group: "events"
+    span: "source.md:316"
+    mapped_tasks: ["Task 2", "Task 7", "Task 8", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.7-invariant"
+    source: parsed
+    group: "events"
+    span: "source.md:318-323"
+    mapped_tasks: ["Task 4", "Task 7", "Task 8", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.7-push-kinds"
+    source: parsed
+    group: "events"
+    span: "source.md:327"
+    mapped_tasks: ["Task 5", "Task 7", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.7-count-push_count"
+    source: parsed
+    group: "counting"
+    span: "source.md:333"
+    mapped_tasks: ["Task 7", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.7-count-sync_push_count"
+    source: parsed
+    group: "counting"
+    span: "source.md:334"
+    mapped_tasks: ["Task 7", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.7-count-conflict_cycles"
+    source: parsed
+    group: "counting"
+    span: "source.md:335"
+    mapped_tasks: ["Task 4", "Task 7"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.7-count-round_counter"
+    source: parsed
+    group: "counting"
+    span: "source.md:336"
+    mapped_tasks: ["Task 5", "Task 19"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.7-count-rereview_request_count"
+    source: parsed
+    group: "counting"
+    span: "source.md:337"
+    mapped_tasks: ["Task 7", "Task 19"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.7-count-pushed_commit_shas"
+    source: parsed
+    group: "counting"
+    span: "source.md:338"
+    mapped_tasks: ["Task 7"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.7-event-sequences"
+    source: parsed
+    group: "events"
+    span: "source.md:340-353"
+    mapped_tasks: ["Task 7", "Task 14", "Task 19"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "4.7-cycle-ids"
+    source: parsed
+    group: "events"
+    span: "source.md:355"
+    mapped_tasks: ["Task 4", "Task 16"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "sec-4.8"
+    source: parsed
+    group: "heading"
+    span: "source.md:357-368"
+    mapped_tasks: ["Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.8-row-1"
+    source: parsed
+    group: "resume-row"
+    span: "source.md:371"
+    mapped_tasks: ["Task 4", "Task 8", "Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 4 enumerates rows 1, 2, 3, 3b, 4c, 4, 4b, 4b', 5, 6, 7, 8"
+  - id: "4.8-row-2"
+    source: parsed
+    group: "resume-row"
+    span: "source.md:372"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 4 enumerates rows 1, 2, 3, 3b, 4c, 4, 4b, 4b', 5, 6, 7, 8"
+  - id: "4.8-row-3"
+    source: parsed
+    group: "resume-row"
+    span: "source.md:373"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 4 enumerates rows 1, 2, 3, 3b, 4c, 4, 4b, 4b', 5, 6, 7, 8"
+  - id: "4.8-row-3b"
+    source: parsed
+    group: "resume-row"
+    span: "source.md:374"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 4 enumerates rows 1, 2, 3, 3b, 4c, 4, 4b, 4b', 5, 6, 7, 8"
+  - id: "4.8-row-4c"
+    source: parsed
+    group: "resume-row"
+    span: "source.md:375"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 4 enumerates rows 1, 2, 3, 3b, 4c, 4, 4b, 4b', 5, 6, 7, 8"
+  - id: "4.8-row-4"
+    source: parsed
+    group: "resume-row"
+    span: "source.md:376"
+    mapped_tasks: ["Task 4", "Task 8", "Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 4 enumerates rows 1, 2, 3, 3b, 4c, 4, 4b, 4b', 5, 6, 7, 8"
+  - id: "4.8-row-4b"
+    source: parsed
+    group: "resume-row"
+    span: "source.md:377"
+    mapped_tasks: ["Task 4", "Task 8", "Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 4 enumerates rows 1, 2, 3, 3b, 4c, 4, 4b, 4b', 5, 6, 7, 8"
+  - id: "4.8-row-4b'"
+    source: parsed
+    group: "resume-row"
+    span: "source.md:378"
+    mapped_tasks: ["Task 4", "Task 8", "Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 4 enumerates rows 1, 2, 3, 3b, 4c, 4, 4b, 4b', 5, 6, 7, 8"
+  - id: "4.8-row-5"
+    source: parsed
+    group: "resume-row"
+    span: "source.md:379"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 4 enumerates rows 1, 2, 3, 3b, 4c, 4, 4b, 4b', 5, 6, 7, 8"
+  - id: "4.8-row-6"
+    source: parsed
+    group: "resume-row"
+    span: "source.md:380"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 4 enumerates rows 1, 2, 3, 3b, 4c, 4, 4b, 4b', 5, 6, 7, 8"
+  - id: "4.8-row-7"
+    source: parsed
+    group: "resume-row"
+    span: "source.md:381"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 4 enumerates rows 1, 2, 3, 3b, 4c, 4, 4b, 4b', 5, 6, 7, 8"
+  - id: "4.8-row-8"
+    source: parsed
+    group: "resume-row"
+    span: "source.md:382"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 4 enumerates rows 1, 2, 3, 3b, 4c, 4, 4b, 4b', 5, 6, 7, 8"
+  - id: "4.8-closing-rule"
+    source: parsed
+    group: "resume"
+    span: "source.md:384"
+    mapped_tasks: ["Task 4", "Task 8", "Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.8-prior-cycles"
+    source: parsed
+    group: "resume"
+    span: "source.md:386"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.8-crash-plan"
+    source: parsed
+    group: "resume"
+    span: "source.md:388"
+    mapped_tasks: ["Task 4", "Task 8"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.8-crash-fix"
+    source: parsed
+    group: "crash-plan"
+    span: "source.md:392"
+    mapped_tasks: ["Task 4", "Task 8"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.8-crash-merge"
+    source: parsed
+    group: "crash-plan"
+    span: "source.md:393"
+    mapped_tasks: ["Task 4", "Task 8"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.8-crash-sync"
+    source: parsed
+    group: "crash-plan"
+    span: "source.md:394"
+    mapped_tasks: ["Task 4", "Task 8"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.8-crash-ci"
+    source: parsed
+    group: "crash-plan"
+    span: "source.md:395"
+    mapped_tasks: ["Task 4", "Task 8"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.8-crash-unknown"
+    source: parsed
+    group: "crash-plan"
+    span: "source.md:396"
+    mapped_tasks: ["Task 4", "Task 8"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.8-B2-closing"
+    source: parsed
+    group: "resume"
+    span: "source.md:400"
+    mapped_tasks: ["Task 8"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.8-B2-A"
+    source: parsed
+    group: "resume"
+    span: "source.md:404"
+    mapped_tasks: ["Task 8"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.8-B2-B"
+    source: parsed
+    group: "resume"
+    span: "source.md:405"
+    mapped_tasks: ["Task 8", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.8-B2-C"
+    source: parsed
+    group: "resume"
+    span: "source.md:406"
+    mapped_tasks: ["Task 8"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "4.8-B2-halt"
+    source: parsed
+    group: "resume"
+    span: "source.md:407"
+    mapped_tasks: ["Task 8"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "sec-5.1"
+    source: parsed
+    group: "heading"
+    span: "source.md:413-418"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "sec-5.2"
+    source: parsed
+    group: "heading"
+    span: "source.md:420-566"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "5.3-mergeability_hint"
+    source: parsed
+    group: "function"
+    span: "source.md:572"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-needs_probe"
+    source: parsed
+    group: "function"
+    span: "source.md:573"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-parse_stage_records"
+    source: parsed
+    group: "function"
+    span: "source.md:574"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-parse_numstat_binary"
+    source: parsed
+    group: "function"
+    span: "source.md:575"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-parse_probe"
+    source: parsed
+    group: "function"
+    span: "source.md:576"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-group_entries"
+    source: parsed
+    group: "function"
+    span: "source.md:577"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-classify_path"
+    source: parsed
+    group: "function"
+    span: "source.md:578"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-conflict_plan"
+    source: parsed
+    group: "function"
+    span: "source.md:579"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-conflict_action"
+    source: parsed
+    group: "function"
+    span: "source.md:580"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-merge_preflight_ok"
+    source: parsed
+    group: "function"
+    span: "source.md:581"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-merge_parent_ok"
+    source: parsed
+    group: "function"
+    span: "source.md:582"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-evaluate_sync_decision"
+    source: parsed
+    group: "function"
+    span: "source.md:583"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-sync_fail_state"
+    source: parsed
+    group: "function"
+    span: "source.md:584"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-conflict_validation_status"
+    source: parsed
+    group: "function"
+    span: "source.md:585"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-conflict_cycle_id"
+    source: parsed
+    group: "function"
+    span: "source.md:586"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-is_conflict_cycle"
+    source: parsed
+    group: "function"
+    span: "source.md:587"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-prior_conflict_cycles"
+    source: parsed
+    group: "function"
+    span: "source.md:588"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-finish_manifest"
+    source: parsed
+    group: "function"
+    span: "source.md:589"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-parse_resolution_record"
+    source: parsed
+    group: "function"
+    span: "source.md:590"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-resolution_record_ok"
+    source: parsed
+    group: "function"
+    span: "source.md:591"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-merge_commit_message"
+    source: parsed
+    group: "function"
+    span: "source.md:592"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-crash_resume_plan"
+    source: parsed
+    group: "function"
+    span: "source.md:593"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "5.3-conflict_resume_plan"
+    source: parsed
+    group: "function"
+    span: "source.md:594"
+    mapped_tasks: ["Task 4"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "function named literally in the task text"
+  - id: "sec-6.1"
+    source: parsed
+    group: "heading"
+    span: "source.md:598-601"
+    mapped_tasks: ["Task 5"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "6.1-item-1"
+    source: parsed
+    group: "fsm"
+    span: "source.md:602"
+    mapped_tasks: ["Task 5"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 5 cites 'source section 6.1 items 1 to 8'"
+  - id: "6.1-item-2"
+    source: parsed
+    group: "fsm"
+    span: "source.md:603"
+    mapped_tasks: ["Task 5"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 5 cites 'source section 6.1 items 1 to 8'"
+  - id: "6.1-item-3"
+    source: parsed
+    group: "fsm"
+    span: "source.md:604-614"
+    mapped_tasks: ["Task 5"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 5 cites 'source section 6.1 items 1 to 8'"
+  - id: "6.1-item-4"
+    source: parsed
+    group: "fsm"
+    span: "source.md:615"
+    mapped_tasks: ["Task 5"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 5 cites 'source section 6.1 items 1 to 8'"
+  - id: "6.1-item-5"
+    source: parsed
+    group: "fsm"
+    span: "source.md:616-623"
+    mapped_tasks: ["Task 5"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 5 cites 'source section 6.1 items 1 to 8'"
+  - id: "6.1-item-6"
+    source: parsed
+    group: "fsm"
+    span: "source.md:624-636"
+    mapped_tasks: ["Task 5"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 5 cites 'source section 6.1 items 1 to 8'"
+  - id: "6.1-item-7"
+    source: parsed
+    group: "fsm"
+    span: "source.md:637-649"
+    mapped_tasks: ["Task 5"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 5 cites 'source section 6.1 items 1 to 8'"
+  - id: "6.1-item-8"
+    source: parsed
+    group: "fsm"
+    span: "source.md:650"
+    mapped_tasks: ["Task 5"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 5 cites 'source section 6.1 items 1 to 8'"
+  - id: "6.2-item-1"
+    source: parsed
+    group: "ci"
+    span: "source.md:654"
+    mapped_tasks: ["Task 6"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "6.2-item-2"
+    source: parsed
+    group: "ci"
+    span: "source.md:655-664"
+    mapped_tasks: ["Task 6"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "6.2-item-3"
+    source: parsed
+    group: "ci"
+    span: "source.md:665"
+    mapped_tasks: ["Task 6"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "sec-6.3"
+    source: parsed
+    group: "heading"
+    span: "source.md:667-670"
+    mapped_tasks: ["Task 2", "Task 7"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "6.3-item-1"
+    source: parsed
+    group: "run_log"
+    span: "source.md:671"
+    mapped_tasks: ["Task 7"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 7 cites 'source section 6.3 items 1 to 6'"
+  - id: "6.3-item-2"
+    source: parsed
+    group: "run_log"
+    span: "source.md:672-675"
+    mapped_tasks: ["Task 7"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 7 cites 'source section 6.3 items 1 to 6'"
+  - id: "6.3-item-3"
+    source: parsed
+    group: "run_log"
+    span: "source.md:676"
+    mapped_tasks: ["Task 7"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 7 cites 'source section 6.3 items 1 to 6'"
+  - id: "6.3-item-4"
+    source: parsed
+    group: "run_log"
+    span: "source.md:677"
+    mapped_tasks: ["Task 7"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 7 cites 'source section 6.3 items 1 to 6'"
+  - id: "6.3-item-5"
+    source: parsed
+    group: "run_log"
+    span: "source.md:678"
+    mapped_tasks: ["Task 7"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 7 cites 'source section 6.3 items 1 to 6'"
+  - id: "6.3-item-6"
+    source: parsed
+    group: "run_log"
+    span: "source.md:679"
+    mapped_tasks: ["Task 7"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 7 cites 'source section 6.3 items 1 to 6'"
+  - id: "6.4-item-1"
+    source: parsed
+    group: "recovery"
+    span: "source.md:683"
+    mapped_tasks: ["Task 8"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "6.4-item-2"
+    source: parsed
+    group: "recovery"
+    span: "source.md:684-711"
+    mapped_tasks: ["Task 8"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "6.4-item-3"
+    source: parsed
+    group: "recovery"
+    span: "source.md:712"
+    mapped_tasks: ["Task 8"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "sec-6.5"
+    source: parsed
+    group: "heading"
+    span: "source.md:714-725"
+    mapped_tasks: ["Task 2"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "6.5-site-1"
+    source: parsed
+    group: "event-count-pin"
+    span: "source.md:728"
+    mapped_tasks: ["Task 2"]
+    match_method: "exact"
+    status: "mapped"
+    partial: true
+    literal_reference: true
+    note: "Task 2 says '41 to 43' but omits the source's added clause 'plus the two conflict-cycle events sync_started and sync_concluded'"
+  - id: "6.5-site-2"
+    source: parsed
+    group: "event-count-pin"
+    span: "source.md:729"
+    mapped_tasks: ["Task 2"]
+    match_method: "exact"
+    status: "mapped"
+    partial: true
+    literal_reference: true
+    note: "Task 2 says '41 to 43' but omits the source's added clause 'plus the two conflict-cycle events sync_started and sync_concluded'"
+  - id: "6.5-site-3"
+    source: parsed
+    group: "event-count-pin"
+    span: "source.md:730"
+    mapped_tasks: ["Task 2"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "6.5-site-4"
+    source: parsed
+    group: "event-count-pin"
+    span: "source.md:731"
+    mapped_tasks: ["Task 2"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "6.5-site-5"
+    source: parsed
+    group: "event-count-pin"
+    span: "source.md:732"
+    mapped_tasks: ["Task 2"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "6.5-site-6"
+    source: parsed
+    group: "event-count-pin"
+    span: "source.md:733"
+    mapped_tasks: ["Task 2"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "6.5-site-7"
+    source: parsed
+    group: "event-count-pin"
+    span: "source.md:734"
+    mapped_tasks: ["Task 2"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "sec-6.6"
+    source: parsed
+    group: "heading"
+    span: "source.md:736-752"
+    mapped_tasks: ["Task 9"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "sec-7"
+    source: parsed
+    group: "heading"
+    span: "source.md:754-757"
+    mapped_tasks: ["Task 10", "Task 11", "Task 12"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10 cites 'the script rules at the top of source section 7'"
+  - id: "sec-7.1"
+    source: parsed
+    group: "heading"
+    span: "source.md:758-768"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "7.1-step-1"
+    source: parsed
+    group: "probe"
+    span: "source.md:769"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10: 'all 14 full-mode steps'"
+  - id: "7.1-step-2"
+    source: parsed
+    group: "probe"
+    span: "source.md:770"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10: 'all 14 full-mode steps'"
+  - id: "7.1-step-3"
+    source: parsed
+    group: "probe"
+    span: "source.md:771"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10: 'all 14 full-mode steps'"
+  - id: "7.1-step-4"
+    source: parsed
+    group: "probe"
+    span: "source.md:772"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10: 'all 14 full-mode steps'"
+  - id: "7.1-step-5"
+    source: parsed
+    group: "probe"
+    span: "source.md:773"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10: 'all 14 full-mode steps'"
+  - id: "7.1-step-6"
+    source: parsed
+    group: "probe"
+    span: "source.md:774"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10: 'all 14 full-mode steps'"
+  - id: "7.1-step-7"
+    source: parsed
+    group: "probe"
+    span: "source.md:775"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10: 'all 14 full-mode steps'"
+  - id: "7.1-step-8"
+    source: parsed
+    group: "probe"
+    span: "source.md:776"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10: 'all 14 full-mode steps'"
+  - id: "7.1-step-9"
+    source: parsed
+    group: "probe"
+    span: "source.md:777"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10: 'all 14 full-mode steps'"
+  - id: "7.1-step-10"
+    source: parsed
+    group: "probe"
+    span: "source.md:778"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10: 'all 14 full-mode steps'"
+  - id: "7.1-step-11"
+    source: parsed
+    group: "probe"
+    span: "source.md:779"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10: 'all 14 full-mode steps'"
+  - id: "7.1-step-12"
+    source: parsed
+    group: "probe"
+    span: "source.md:780"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10: 'all 14 full-mode steps'"
+  - id: "7.1-step-13"
+    source: parsed
+    group: "probe"
+    span: "source.md:781"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10: 'all 14 full-mode steps'"
+  - id: "7.1-step-14"
+    source: parsed
+    group: "probe"
+    span: "source.md:782-791"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 10: 'all 14 full-mode steps'"
+  - id: "sec-7.2"
+    source: parsed
+    group: "heading"
+    span: "source.md:795-807"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "7.2-precheck-1"
+    source: parsed
+    group: "finish"
+    span: "source.md:808"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "7.2-precheck-2"
+    source: parsed
+    group: "finish"
+    span: "source.md:809"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "7.2-precheck-3"
+    source: parsed
+    group: "finish"
+    span: "source.md:810"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "7.2-commit-1"
+    source: parsed
+    group: "finish"
+    span: "source.md:814"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 11: 'commit mode with all nine steps in order'"
+  - id: "7.2-commit-2"
+    source: parsed
+    group: "finish"
+    span: "source.md:815"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 11: 'commit mode with all nine steps in order'"
+  - id: "7.2-commit-3"
+    source: parsed
+    group: "finish"
+    span: "source.md:816"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 11: 'commit mode with all nine steps in order'"
+  - id: "7.2-commit-4"
+    source: parsed
+    group: "finish"
+    span: "source.md:817"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 11: 'commit mode with all nine steps in order'"
+  - id: "7.2-commit-5"
+    source: parsed
+    group: "finish"
+    span: "source.md:818"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 11: 'commit mode with all nine steps in order'"
+  - id: "7.2-commit-6"
+    source: parsed
+    group: "finish"
+    span: "source.md:819"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 11: 'commit mode with all nine steps in order'"
+  - id: "7.2-commit-7"
+    source: parsed
+    group: "finish"
+    span: "source.md:820"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 11: 'commit mode with all nine steps in order'"
+  - id: "7.2-commit-8"
+    source: parsed
+    group: "finish"
+    span: "source.md:821"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 11: 'commit mode with all nine steps in order'"
+  - id: "7.2-commit-9"
+    source: parsed
+    group: "finish"
+    span: "source.md:822"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 11: 'commit mode with all nine steps in order'"
+  - id: "sec-7.3"
+    source: parsed
+    group: "heading"
+    span: "source.md:826-833"
+    mapped_tasks: ["Task 12"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "7.3-step-1"
+    source: parsed
+    group: "evidence"
+    span: "source.md:834"
+    mapped_tasks: ["Task 12"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "7.3-step-2"
+    source: parsed
+    group: "evidence"
+    span: "source.md:835"
+    mapped_tasks: ["Task 12"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "7.3-step-3"
+    source: parsed
+    group: "evidence"
+    span: "source.md:836-840"
+    mapped_tasks: ["Task 12"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "7.3-step-4"
+    source: parsed
+    group: "evidence"
+    span: "source.md:841"
+    mapped_tasks: ["Task 12"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "7.3-step-5"
+    source: parsed
+    group: "evidence"
+    span: "source.md:842"
+    mapped_tasks: ["Task 12"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "sec-7.4"
+    source: parsed
+    group: "heading"
+    span: "source.md:846-853"
+    mapped_tasks: ["Task 13"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "7.4-step-1"
+    source: parsed
+    group: "poll-evidence"
+    span: "source.md:854"
+    mapped_tasks: ["Task 13"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "7.4-step-2"
+    source: parsed
+    group: "poll-evidence"
+    span: "source.md:855"
+    mapped_tasks: ["Task 13"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "7.4-step-3"
+    source: parsed
+    group: "poll-evidence"
+    span: "source.md:856"
+    mapped_tasks: ["Task 13"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "7.4-step-4"
+    source: parsed
+    group: "poll-evidence"
+    span: "source.md:857"
+    mapped_tasks: ["Task 13"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "sec-8"
+    source: parsed
+    group: "heading"
+    span: "source.md:861-864"
+    mapped_tasks: ["Task 14", "Task 15", "Task 16", "Task 17", "Task 20"]
+    match_method: "fuzzy"
+    status: "mapped"
+    partial: true
+    literal_reference: true
+    note: "'stage only src/ and tests/' has no staging step in any task (Constraints line 27 covers .claude/ and .dev/tasks/ only)"
+  - id: "sec-8.1"
+    source: parsed
+    group: "heading"
+    span: "source.md:865-868"
+    mapped_tasks: ["Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "E1"
+    source: parsed
+    group: "skill-edit"
+    span: "source.md:869-873"
+    mapped_tasks: ["Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "edit id cited literally"
+  - id: "E2"
+    source: parsed
+    group: "skill-edit"
+    span: "source.md:875-882"
+    mapped_tasks: ["Task 1"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "edit id cited literally"
+  - id: "E3"
+    source: parsed
+    group: "skill-edit"
+    span: "source.md:884-891"
+    mapped_tasks: ["Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "edit id cited literally"
+  - id: "E4"
+    source: parsed
+    group: "skill-edit"
+    span: "source.md:893-899"
+    mapped_tasks: ["Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "edit id cited literally"
+  - id: "E5"
+    source: parsed
+    group: "skill-edit"
+    span: "source.md:901-909"
+    mapped_tasks: ["Task 1", "Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "edit id cited literally"
+  - id: "E6"
+    source: parsed
+    group: "skill-edit"
+    span: "source.md:911-915"
+    mapped_tasks: ["Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "edit id cited literally"
+  - id: "E7"
+    source: parsed
+    group: "skill-edit"
+    span: "source.md:917-919"
+    mapped_tasks: ["Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "edit id cited literally"
+  - id: "E8"
+    source: parsed
+    group: "skill-edit"
+    span: "source.md:921-929"
+    mapped_tasks: ["Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "edit id cited literally"
+  - id: "E9"
+    source: parsed
+    group: "skill-edit"
+    span: "source.md:931-941"
+    mapped_tasks: ["Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "edit id cited literally"
+  - id: "E10"
+    source: parsed
+    group: "skill-edit"
+    span: "source.md:943-947"
+    mapped_tasks: ["Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "edit id cited literally"
+  - id: "E11"
+    source: parsed
+    group: "skill-edit"
+    span: "source.md:949-959"
+    mapped_tasks: ["Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "edit id cited literally"
+  - id: "E12"
+    source: parsed
+    group: "skill-edit"
+    span: "source.md:961-969"
+    mapped_tasks: ["Task 1", "Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "edit id cited literally"
+  - id: "E13"
+    source: parsed
+    group: "skill-edit"
+    span: "source.md:971-979"
+    mapped_tasks: ["Task 1"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "edit id cited literally"
+  - id: "sec-8.2"
+    source: parsed
+    group: "heading"
+    span: "source.md:983-986"
+    mapped_tasks: ["Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.2-sec-1"
+    source: parsed
+    group: "ref-mechanical"
+    span: "source.md:989"
+    mapped_tasks: ["Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14: 'the thirteen sections of source section 8.2'"
+  - id: "8.2-sec-2"
+    source: parsed
+    group: "ref-mechanical"
+    span: "source.md:990"
+    mapped_tasks: ["Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14: 'the thirteen sections of source section 8.2'"
+  - id: "8.2-sec-3"
+    source: parsed
+    group: "ref-mechanical"
+    span: "source.md:991"
+    mapped_tasks: ["Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14: 'the thirteen sections of source section 8.2'"
+  - id: "8.2-sec-4"
+    source: parsed
+    group: "ref-mechanical"
+    span: "source.md:992"
+    mapped_tasks: ["Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14: 'the thirteen sections of source section 8.2'"
+  - id: "8.2-sec-5"
+    source: parsed
+    group: "ref-mechanical"
+    span: "source.md:993"
+    mapped_tasks: ["Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14: 'the thirteen sections of source section 8.2'"
+  - id: "8.2-sec-6"
+    source: parsed
+    group: "ref-mechanical"
+    span: "source.md:994"
+    mapped_tasks: ["Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14: 'the thirteen sections of source section 8.2'"
+  - id: "8.2-sec-7"
+    source: parsed
+    group: "ref-mechanical"
+    span: "source.md:995"
+    mapped_tasks: ["Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14: 'the thirteen sections of source section 8.2'"
+  - id: "8.2-sec-8"
+    source: parsed
+    group: "ref-mechanical"
+    span: "source.md:996"
+    mapped_tasks: ["Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14: 'the thirteen sections of source section 8.2'"
+  - id: "8.2-sec-9"
+    source: parsed
+    group: "ref-mechanical"
+    span: "source.md:997"
+    mapped_tasks: ["Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14: 'the thirteen sections of source section 8.2'"
+  - id: "8.2-sec-10"
+    source: parsed
+    group: "ref-mechanical"
+    span: "source.md:998"
+    mapped_tasks: ["Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14: 'the thirteen sections of source section 8.2'"
+  - id: "8.2-sec-11"
+    source: parsed
+    group: "ref-mechanical"
+    span: "source.md:999"
+    mapped_tasks: ["Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14: 'the thirteen sections of source section 8.2'"
+  - id: "8.2-sec-12"
+    source: parsed
+    group: "ref-mechanical"
+    span: "source.md:1000"
+    mapped_tasks: ["Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14: 'the thirteen sections of source section 8.2'"
+  - id: "8.2-sec-13"
+    source: parsed
+    group: "ref-mechanical"
+    span: "source.md:1001"
+    mapped_tasks: ["Task 14"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14: 'the thirteen sections of source section 8.2'"
+  - id: "8.2-pinned"
+    source: parsed
+    group: "ref-mechanical"
+    span: "source.md:1003"
+    mapped_tasks: ["Task 14", "Task 18"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "sec-8.3"
+    source: parsed
+    group: "heading"
+    span: "source.md:1005-1008"
+    mapped_tasks: ["Task 15"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.3-sec-1"
+    source: parsed
+    group: "ref-intent"
+    span: "source.md:1011"
+    mapped_tasks: ["Task 15"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 15: 'the ten sections of source section 8.3'"
+  - id: "8.3-sec-2"
+    source: parsed
+    group: "ref-intent"
+    span: "source.md:1012"
+    mapped_tasks: ["Task 15"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 15: 'the ten sections of source section 8.3'"
+  - id: "8.3-sec-3"
+    source: parsed
+    group: "ref-intent"
+    span: "source.md:1013"
+    mapped_tasks: ["Task 15"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 15: 'the ten sections of source section 8.3'"
+  - id: "8.3-sec-4"
+    source: parsed
+    group: "ref-intent"
+    span: "source.md:1014"
+    mapped_tasks: ["Task 15"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 15: 'the ten sections of source section 8.3'"
+  - id: "8.3-sec-5"
+    source: parsed
+    group: "ref-intent"
+    span: "source.md:1015"
+    mapped_tasks: ["Task 15"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 15: 'the ten sections of source section 8.3'"
+  - id: "8.3-sec-6"
+    source: parsed
+    group: "ref-intent"
+    span: "source.md:1016"
+    mapped_tasks: ["Task 15"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 15: 'the ten sections of source section 8.3'"
+  - id: "8.3-sec-7"
+    source: parsed
+    group: "ref-intent"
+    span: "source.md:1017"
+    mapped_tasks: ["Task 15"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 15: 'the ten sections of source section 8.3'"
+  - id: "8.3-sec-8"
+    source: parsed
+    group: "ref-intent"
+    span: "source.md:1018"
+    mapped_tasks: ["Task 15"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 15: 'the ten sections of source section 8.3'"
+  - id: "8.3-sec-9"
+    source: parsed
+    group: "ref-intent"
+    span: "source.md:1019"
+    mapped_tasks: ["Task 15"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 15: 'the ten sections of source section 8.3'"
+  - id: "8.3-sec-10"
+    source: parsed
+    group: "ref-intent"
+    span: "source.md:1020"
+    mapped_tasks: ["Task 15"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 15: 'the ten sections of source section 8.3'"
+  - id: "8.3-pinned"
+    source: parsed
+    group: "ref-intent"
+    span: "source.md:1022"
+    mapped_tasks: ["Task 15", "Task 18"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "sec-8.4"
+    source: parsed
+    group: "heading"
+    span: "source.md:1024-1027"
+    mapped_tasks: ["Task 16"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.4-item-1"
+    source: parsed
+    group: "ref-state-machine"
+    span: "source.md:1028"
+    mapped_tasks: ["Task 16"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.4-item-2"
+    source: parsed
+    group: "ref-state-machine"
+    span: "source.md:1029-1054"
+    mapped_tasks: ["Task 16"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.5-item-1"
+    source: parsed
+    group: "ref-ci-poll"
+    span: "source.md:1060"
+    mapped_tasks: ["Task 16"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.5-item-2"
+    source: parsed
+    group: "ref-ci-poll"
+    span: "source.md:1061"
+    mapped_tasks: ["Task 16"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.5-item-3"
+    source: parsed
+    group: "ref-ci-poll"
+    span: "source.md:1062"
+    mapped_tasks: ["Task 16"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.5-item-4"
+    source: parsed
+    group: "ref-ci-poll"
+    span: "source.md:1063-1080"
+    mapped_tasks: ["Task 16"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "sec-8.6"
+    source: parsed
+    group: "heading"
+    span: "source.md:1084-1087"
+    mapped_tasks: ["Task 2", "Task 16"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.6-item-1"
+    source: parsed
+    group: "ref-loop-guard"
+    span: "source.md:1088"
+    mapped_tasks: ["Task 2"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.6-item-2"
+    source: parsed
+    group: "ref-loop-guard"
+    span: "source.md:1089"
+    mapped_tasks: ["Task 2"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.6-item-3"
+    source: parsed
+    group: "ref-loop-guard"
+    span: "source.md:1090"
+    mapped_tasks: ["Task 16"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.7-item-1"
+    source: parsed
+    group: "command"
+    span: "source.md:1094"
+    mapped_tasks: ["Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.7-item-2"
+    source: parsed
+    group: "command"
+    span: "source.md:1095-1096"
+    mapped_tasks: ["Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.7-item-3"
+    source: parsed
+    group: "command"
+    span: "source.md:1097"
+    mapped_tasks: ["Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "8.7-item-4"
+    source: parsed
+    group: "command"
+    span: "source.md:1098"
+    mapped_tasks: ["Task 17"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "sec-9"
+    source: parsed
+    group: "heading"
+    span: "source.md:1100-1103"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "9-foreign_op_in_progress"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1106"
+    mapped_tasks: ["Task 4", "Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-conflict_tier3"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1107"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-late_conflict"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1108"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-tier_above_cap"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1109"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-github_disagrees"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1110"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-probe_failed"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1111"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-sync_cap"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1112"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-merge_preflight_dirty"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1113"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-sync_foreign_operation"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1114"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-sync_merge_failed"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1115"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-sync_marker_left"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1116"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-sync_commit_failed"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1117"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-sync_head_mismatch"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1118"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-sync_range_mismatch"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1119"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-sync_base_moved"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1120"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-sync_tier3"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1121"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-sync_validation_failed"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1122"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-push_rejected"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1123"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-push_failed"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1124"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-resume_unrepresentable-4b'"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1125"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-resume_unrepresentable"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1126"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "9-router_unreachable"
+    source: parsed
+    group: "halt-reason"
+    span: "source.md:1127"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "Task 14 carries 'the halt reasons and messages of source section 9'; Task 4 pins HALT_REASONS"
+  - id: "OQ-1"
+    source: parsed
+    group: "decision"
+    span: "source.md:1139"
+    mapped_tasks: ["Task 5", "Task 17", "Task 20"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-2"
+    source: parsed
+    group: "decision"
+    span: "source.md:1140"
+    mapped_tasks: ["Task 3", "Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-3"
+    source: parsed
+    group: "decision"
+    span: "source.md:1141"
+    mapped_tasks: ["Task 5", "Task 16", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-4"
+    source: parsed
+    group: "decision"
+    span: "source.md:1142"
+    mapped_tasks: ["Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-5"
+    source: parsed
+    group: "decision"
+    span: "source.md:1143"
+    mapped_tasks: ["Task 10", "Task 11", "Task 12", "Task 13", "Task 19"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-6"
+    source: parsed
+    group: "decision"
+    span: "source.md:1144"
+    mapped_tasks: ["Task 14", "Task 19"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-7"
+    source: parsed
+    group: "decision"
+    span: "source.md:1145"
+    mapped_tasks: ["Task 1"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-8"
+    source: parsed
+    group: "decision"
+    span: "source.md:1146"
+    mapped_tasks: ["Task 3", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-9"
+    source: parsed
+    group: "decision"
+    span: "source.md:1147"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-10"
+    source: parsed
+    group: "decision"
+    span: "source.md:1148"
+    mapped_tasks: ["Task 3", "Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-11"
+    source: parsed
+    group: "decision"
+    span: "source.md:1149"
+    mapped_tasks: ["Task 4", "Task 14", "Task 16"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-12"
+    source: parsed
+    group: "decision"
+    span: "source.md:1150"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-13"
+    source: parsed
+    group: "decision"
+    span: "source.md:1151"
+    mapped_tasks: ["Task 4", "Task 11", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-14"
+    source: parsed
+    group: "decision"
+    span: "source.md:1152"
+    mapped_tasks: ["Task 5"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-15"
+    source: parsed
+    group: "decision"
+    span: "source.md:1153"
+    mapped_tasks: ["Task 10", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-16"
+    source: parsed
+    group: "decision"
+    span: "source.md:1154"
+    mapped_tasks: ["Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-17"
+    source: parsed
+    group: "decision"
+    span: "source.md:1155"
+    mapped_tasks: ["Task 2"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-18"
+    source: parsed
+    group: "decision"
+    span: "source.md:1156"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-19"
+    source: parsed
+    group: "decision"
+    span: "source.md:1157"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-20"
+    source: parsed
+    group: "decision"
+    span: "source.md:1158"
+    mapped_tasks: ["Task 16", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-21"
+    source: parsed
+    group: "decision"
+    span: "source.md:1159"
+    mapped_tasks: ["Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-22"
+    source: parsed
+    group: "decision"
+    span: "source.md:1160"
+    mapped_tasks: ["Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-23"
+    source: parsed
+    group: "decision"
+    span: "source.md:1161"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-24"
+    source: parsed
+    group: "decision"
+    span: "source.md:1162"
+    mapped_tasks: ["Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-25"
+    source: parsed
+    group: "decision"
+    span: "source.md:1163"
+    mapped_tasks: ["Task 11"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-26"
+    source: parsed
+    group: "decision"
+    span: "source.md:1164"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-27"
+    source: parsed
+    group: "decision"
+    span: "source.md:1165"
+    mapped_tasks: ["Task 3", "Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-28"
+    source: parsed
+    group: "decision"
+    span: "source.md:1166"
+    mapped_tasks: ["Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-29"
+    source: parsed
+    group: "decision"
+    span: "source.md:1167"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-30"
+    source: parsed
+    group: "decision"
+    span: "source.md:1168"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-31"
+    source: parsed
+    group: "decision"
+    span: "source.md:1169"
+    mapped_tasks: ["Task 4", "Task 10"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "OQ-32"
+    source: parsed
+    group: "decision"
+    span: "source.md:1170"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes (not cited literally)"
+  - id: "10.2-INV-016"
+    source: parsed
+    group: "decision-low"
+    span: "source.md:1176"
+    mapped_tasks: ["Task 10", "Task 11"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "10.2-INV-019"
+    source: parsed
+    group: "decision-low"
+    span: "source.md:1177"
+    mapped_tasks: ["Task 3", "Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "10.2-INV-020"
+    source: parsed
+    group: "decision-low"
+    span: "source.md:1178"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "10.2-INV-021"
+    source: parsed
+    group: "decision-low"
+    span: "source.md:1179"
+    mapped_tasks: ["Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "10.2-INV-025"
+    source: parsed
+    group: "decision-low"
+    span: "source.md:1180"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "10.2-INV-032"
+    source: parsed
+    group: "decision-low"
+    span: "source.md:1181"
+    mapped_tasks: ["Task 11", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "10.3-C-028"
+    source: parsed
+    group: "diff-point"
+    span: "source.md:1194"
+    mapped_tasks: ["Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "10.3-C-029"
+    source: parsed
+    group: "diff-point"
+    span: "source.md:1195"
+    mapped_tasks: ["Task 2"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "10.3-X-009"
+    source: parsed
+    group: "diff-point"
+    span: "source.md:1196"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "10.4-note-1"
+    source: parsed
+    group: "executor-note"
+    span: "source.md:1202"
+    mapped_tasks: ["Task 11", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "10.4-note-2"
+    source: parsed
+    group: "executor-note"
+    span: "source.md:1203"
+    mapped_tasks: ["Task 11", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "10.4-note-3"
+    source: parsed
+    group: "executor-note"
+    span: "source.md:1204"
+    mapped_tasks: ["Task 3", "Task 10"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "10.4-note-7"
+    source: parsed
+    group: "executor-note"
+    span: "source.md:1208"
+    mapped_tasks: ["Task 3", "Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "10.4-note-8"
+    source: parsed
+    group: "executor-note"
+    span: "source.md:1209"
+    mapped_tasks: ["Task 5"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "10.4-residue"
+    source: parsed
+    group: "executor-note"
+    span: "source.md:1210"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+  - id: "D-1"
+    source: parsed
+    group: "decision"
+    span: "source.md:1216"
+    mapped_tasks: ["Task 3", "Task 10"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-2"
+    source: parsed
+    group: "decision"
+    span: "source.md:1217"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-3"
+    source: parsed
+    group: "decision"
+    span: "source.md:1218"
+    mapped_tasks: ["Task 3", "Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-4"
+    source: parsed
+    group: "decision"
+    span: "source.md:1219"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-5"
+    source: parsed
+    group: "decision"
+    span: "source.md:1220"
+    mapped_tasks: ["Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-6"
+    source: parsed
+    group: "decision"
+    span: "source.md:1221"
+    mapped_tasks: ["Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-7"
+    source: parsed
+    group: "decision"
+    span: "source.md:1222"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-8"
+    source: parsed
+    group: "decision"
+    span: "source.md:1223"
+    mapped_tasks: ["Task 4", "Task 8", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-9"
+    source: parsed
+    group: "decision"
+    span: "source.md:1224"
+    mapped_tasks: ["Task 12"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-10"
+    source: parsed
+    group: "decision"
+    span: "source.md:1225"
+    mapped_tasks: ["Task 5"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-11"
+    source: parsed
+    group: "decision"
+    span: "source.md:1226"
+    mapped_tasks: ["Task 5"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-12"
+    source: parsed
+    group: "decision"
+    span: "source.md:1227"
+    mapped_tasks: ["Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-13"
+    source: parsed
+    group: "decision"
+    span: "source.md:1228"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-14"
+    source: parsed
+    group: "decision"
+    span: "source.md:1229"
+    mapped_tasks: ["Task 10"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-15"
+    source: parsed
+    group: "decision"
+    span: "source.md:1230"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "D-16"
+    source: parsed
+    group: "decision"
+    span: "source.md:1231"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "decision row; mapped through the design element it fixes"
+  - id: "11-1-R-02"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1239"
+    mapped_tasks: ["Task 14", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-2-R-05"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1240"
+    mapped_tasks: ["Task 3", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-3-R-11"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1241"
+    mapped_tasks: ["Task 11"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-4-R-13"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1242"
+    mapped_tasks: ["Task 14", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-5-R-14"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1243"
+    mapped_tasks: ["Task 14", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-6-R-15"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1244"
+    mapped_tasks: ["Task 14", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-7-R-18"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1245"
+    mapped_tasks: ["Task 4", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-10-R-26"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1248"
+    mapped_tasks: ["Task 3", "Task 11", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-11-R-43"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1249"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-12-R-51"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1250"
+    mapped_tasks: ["Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-13-R-54"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1251"
+    mapped_tasks: ["Task 3", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-14-R-56"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1252"
+    mapped_tasks: ["Task 3", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-15-R-57"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1253"
+    mapped_tasks: ["Task 3", "Task 10"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-16-R-58"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1254"
+    mapped_tasks: ["Task 3", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-17-R-59"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1255"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-18-R-60"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1256"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-19-R-84"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1257"
+    mapped_tasks: ["Task 12", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-20-R-101"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1258"
+    mapped_tasks: ["Task 10"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-21-R-112"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1259"
+    mapped_tasks: ["Task 12"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-22-R-128"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1260"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-23-R-146"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1261"
+    mapped_tasks: ["Task 4", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-24-R-149"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1262"
+    mapped_tasks: ["Task 3", "Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-25-R-150"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1263"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-26-R-151"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1264"
+    mapped_tasks: ["Task 4", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-27-R-152"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1265"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-28-R-153"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1266"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-29-R-154"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1267"
+    mapped_tasks: ["Task 3", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-30-R-156"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1268"
+    mapped_tasks: ["Task 4", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-32-R-169"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1270"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-33-R-173"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1271"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-34-R-180"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1272"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-35-R-181"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1273"
+    mapped_tasks: ["Task 12", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-36-R-189"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1274"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-37-R-210"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1275"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-38-R-212"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1276"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-39-R-251"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1277"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-40-S-05"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1278"
+    mapped_tasks: ["Task 10", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-41-S-09"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1279"
+    mapped_tasks: ["Task 14", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-42-S-12"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1280"
+    mapped_tasks: ["Task 12"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-43-S-13"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1281"
+    mapped_tasks: ["Task 12"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-44-S-14"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1282"
+    mapped_tasks: ["Task 11", "Task 12"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-45-S-17"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1283"
+    mapped_tasks: ["Task 14", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-46-S-18"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1284"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-47-S-26"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1285"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-48-S-29"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1286"
+    mapped_tasks: ["Task 4", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-49-S-38"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1287"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-50-S-39"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1288"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-51-S-40"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1289"
+    mapped_tasks: ["Task 3", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-52-S-46"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1290"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-53-S-53"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1291"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-54-J-05"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1292"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-55-J-06"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1293"
+    mapped_tasks: ["Task 14", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-56-J-13"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1294"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-57-J-15"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1295"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-58-J-16"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1296"
+    mapped_tasks: ["Task 10"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-59-J-17"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1297"
+    mapped_tasks: ["Task 4", "Task 10", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-60-J-18"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1298"
+    mapped_tasks: ["Task 4", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-61-J-20"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1299"
+    mapped_tasks: ["Task 14", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-62-J-26"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1300"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-63-J-39"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1301"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-64-J-40"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1302"
+    mapped_tasks: ["Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-65-J-48"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1303"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-66-J-53"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1304"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-67-J-56"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1305"
+    mapped_tasks: ["Task 14", "Task 15"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-68-J-60"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1306"
+    mapped_tasks: ["Task 11", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-69-J-61"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1307"
+    mapped_tasks: ["Task 11"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-70-J-63"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1308"
+    mapped_tasks: ["Task 11", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-71-J-66"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1309"
+    mapped_tasks: ["Task 5", "Task 16", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-72-J-77"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1310"
+    mapped_tasks: ["Task 10", "Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-73-J-83"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1311"
+    mapped_tasks: ["Task 14"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "11-74-J-91"
+    source: parsed
+    group: "research-item"
+    span: "source.md:1312"
+    mapped_tasks: ["Task 14", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "mapped through the 'Design element' column"
+  - id: "sec-12"
+    source: parsed
+    group: "heading"
+    span: "source.md:1314-1317"
+    mapped_tasks: ["Task 3", "Task 10", "Task 19"]
+    match_method: "fuzzy"
+    status: "mapped"
+    partial: true
+    literal_reference: true
+    note: "Task 19 omits the module-level capability skip; the Constraints omit 'a fixed author and committer'"
+  - id: "12.1-row-1"
+    source: parsed
+    group: "new-test-file"
+    span: "source.md:1322"
+    mapped_tasks: ["Task 3", "Task 4", "Task 5"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.1-row-2"
+    source: parsed
+    group: "new-test-file"
+    span: "source.md:1323"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.1-row-3"
+    source: parsed
+    group: "new-test-file"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 18"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.1-row-4"
+    source: parsed
+    group: "new-test-file"
+    span: "source.md:1325"
+    mapped_tasks: ["Task 10", "Task 11", "Task 12", "Task 13"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.1-row-5"
+    source: parsed
+    group: "new-test-file"
+    span: "source.md:1326"
+    mapped_tasks: ["Task 19"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-1"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1332"
+    mapped_tasks: ["Task 2"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-2"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1333"
+    mapped_tasks: ["Task 2"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-3"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1334"
+    mapped_tasks: ["Task 7"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-4"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1335"
+    mapped_tasks: ["Task 2"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-5"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1336"
+    mapped_tasks: ["Task 3"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-6"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1337"
+    mapped_tasks: ["Task 1"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-7"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1338"
+    mapped_tasks: ["Task 18"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-8"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1339"
+    mapped_tasks: ["Task 18"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-9"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1340"
+    mapped_tasks: ["Task 8"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-10"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1341"
+    mapped_tasks: ["Task 5"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-11"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1342"
+    mapped_tasks: ["Task 5"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-12"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1343"
+    mapped_tasks: ["Task 5"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-13"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1344"
+    mapped_tasks: ["Task 6"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-14"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1345"
+    mapped_tasks: ["Task 18"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.2-row-15"
+    source: parsed
+    group: "changed-test"
+    span: "source.md:1346"
+    mapped_tasks: ["Task 18"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "sec-12.3"
+    source: parsed
+    group: "heading"
+    span: "source.md:1350-1353"
+    mapped_tasks: ["Task 5", "Task 8", "Task 13", "Task 20"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "'stay green unmodified' carried by per-task acceptance criteria and Task 20's run"
+  - id: "sec-12.4"
+    source: parsed
+    group: "heading"
+    span: "source.md:1354-1361"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "make_repos fixture helper: Task 10"
+  - id: "12.4-P1"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1362"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'P1 to P12' in Task 10"
+  - id: "12.4-P2"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1363"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'P1 to P12' in Task 10"
+  - id: "12.4-P3"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1364"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'P1 to P12' in Task 10"
+  - id: "12.4-P4"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1365"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'P1 to P12' in Task 10"
+  - id: "12.4-P5"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1366"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'P1 to P12' in Task 10"
+  - id: "12.4-P6"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1367"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'P1 to P12' in Task 10"
+  - id: "12.4-P7"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1368"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'P1 to P12' in Task 10"
+  - id: "12.4-P8"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1369"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'P1 to P12' in Task 10"
+  - id: "12.4-P9"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1370"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'P1 to P12' in Task 10"
+  - id: "12.4-P10"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1371"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'P1 to P12' in Task 10"
+  - id: "12.4-P11"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1372"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'P1 to P12' in Task 10"
+  - id: "12.4-P12"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1373"
+    mapped_tasks: ["Task 10"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'P1 to P12' in Task 10"
+  - id: "12.4-F1"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1379"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'F1 to F12' in Task 11"
+  - id: "12.4-F2"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1380"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'F1 to F12' in Task 11"
+  - id: "12.4-F3"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1381"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'F1 to F12' in Task 11"
+  - id: "12.4-F4"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1382"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'F1 to F12' in Task 11"
+  - id: "12.4-F5"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1383"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'F1 to F12' in Task 11"
+  - id: "12.4-F6"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1384"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'F1 to F12' in Task 11"
+  - id: "12.4-F7"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1385"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'F1 to F12' in Task 11"
+  - id: "12.4-F8"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1386"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'F1 to F12' in Task 11"
+  - id: "12.4-F9"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1387"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'F1 to F12' in Task 11"
+  - id: "12.4-F10"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1388"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'F1 to F12' in Task 11"
+  - id: "12.4-F11"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1389"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'F1 to F12' in Task 11"
+  - id: "12.4-F12"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1390"
+    mapped_tasks: ["Task 11"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "range 'F1 to F12' in Task 11"
+  - id: "12.4-EV1"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1392"
+    mapped_tasks: ["Task 12"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "evidence case E1 (renamed EV1 to avoid the SKILL edit id collision); range 'E1 to E4' in Task 12"
+  - id: "12.4-EV2"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1392"
+    mapped_tasks: ["Task 12"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "evidence case E2 (renamed EV2 to avoid the SKILL edit id collision); range 'E1 to E4' in Task 12"
+  - id: "12.4-EV3"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1392"
+    mapped_tasks: ["Task 12"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "evidence case E3 (renamed EV3 to avoid the SKILL edit id collision); range 'E1 to E4' in Task 12"
+  - id: "12.4-EV4"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1392"
+    mapped_tasks: ["Task 12"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "evidence case E4 (renamed EV4 to avoid the SKILL edit id collision); range 'E1 to E4' in Task 12"
+  - id: "12.4-CI1"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1394"
+    mapped_tasks: ["Task 13"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "poll case C1 (renamed CI1 to avoid the constraint id collision); range 'C1 to C4' in Task 13"
+  - id: "12.4-CI2"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1394"
+    mapped_tasks: ["Task 13"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "poll case C2 (renamed CI2 to avoid the constraint id collision); range 'C1 to C4' in Task 13"
+  - id: "12.4-CI3"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1394"
+    mapped_tasks: ["Task 13"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "poll case C3 (renamed CI3 to avoid the constraint id collision); range 'C1 to C4' in Task 13"
+  - id: "12.4-CI4"
+    source: parsed
+    group: "script-case"
+    span: "source.md:1394"
+    mapped_tasks: ["Task 13"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "poll case C4 (renamed CI4 to avoid the constraint id collision); range 'C1 to C4' in Task 13"
+  - id: "12.4-X1"
+    source: parsed
+    group: "e2e-case"
+    span: "source.md:1400"
+    mapped_tasks: ["Task 19"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.4-X2"
+    source: parsed
+    group: "e2e-case"
+    span: "source.md:1401"
+    mapped_tasks: ["Task 19"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "12.4-X3"
+    source: parsed
+    group: "e2e-case"
+    span: "source.md:1402"
+    mapped_tasks: ["Task 19"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "sec-12.5"
+    source: parsed
+    group: "heading"
+    span: "source.md:1406-1409"
+    mapped_tasks: ["Task 20"]
+    match_method: "fuzzy"
+    status: "mapped"
+    partial: true
+    literal_reference: false
+    note: "CONTRADICTION: the tasklist Constraints (line 28) drop the 'make test' step this section requires; Task 20 runs only the subset"
+  - id: "sec-13"
+    source: parsed
+    group: "heading"
+    span: "source.md:1410-1415"
+    mapped_tasks: ["Task 1", "Task 2", "Task 3", "Task 4", "Task 5", "Task 6", "Task 7", "Task 8", "Task 9", "Task 10", "Task 11", "Task 12", "Task 13", "Task 14", "Task 15", "Task 16", "Task 17", "Task 18", "Task 19", "Task 20"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "'each step ends green on its own tests before the next starts': every task carries its own pytest AC"
+  - id: "13-step-1"
+    source: parsed
+    group: "impl-step"
+    span: "source.md:1416"
+    mapped_tasks: ["Task 1"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "cited literally as 'step 1 of source section 13'"
+  - id: "13-step-2"
+    source: parsed
+    group: "impl-step"
+    span: "source.md:1417"
+    mapped_tasks: ["Task 2"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "cited literally as 'step 2 of source section 13'"
+  - id: "13-step-3"
+    source: parsed
+    group: "impl-step"
+    span: "source.md:1418"
+    mapped_tasks: ["Task 3", "Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "13-step-4"
+    source: parsed
+    group: "impl-step"
+    span: "source.md:1419"
+    mapped_tasks: ["Task 5"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "cited literally as 'step 4 of source section 13'"
+  - id: "13-step-5"
+    source: parsed
+    group: "impl-step"
+    span: "source.md:1420"
+    mapped_tasks: ["Task 6"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "cited literally as 'step 5 of source section 13'"
+  - id: "13-step-6"
+    source: parsed
+    group: "impl-step"
+    span: "source.md:1421"
+    mapped_tasks: ["Task 7"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "cited literally as 'step 6 of source section 13'"
+  - id: "13-step-7"
+    source: parsed
+    group: "impl-step"
+    span: "source.md:1422"
+    mapped_tasks: ["Task 4", "Task 8"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+    note: "cited literally as 'step 7 of source section 13'"
+  - id: "13-step-8"
+    source: parsed
+    group: "impl-step"
+    span: "source.md:1423"
+    mapped_tasks: ["Task 9"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "13-step-9"
+    source: parsed
+    group: "impl-step"
+    span: "source.md:1424"
+    mapped_tasks: ["Task 10", "Task 11", "Task 12", "Task 13"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "13-step-10"
+    source: parsed
+    group: "impl-step"
+    span: "source.md:1425"
+    mapped_tasks: ["Task 14", "Task 15", "Task 16"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "13-step-11"
+    source: parsed
+    group: "impl-step"
+    span: "source.md:1426"
+    mapped_tasks: ["Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "13-step-12"
+    source: parsed
+    group: "impl-step"
+    span: "source.md:1427"
+    mapped_tasks: ["Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "13-step-13"
+    source: parsed
+    group: "impl-step"
+    span: "source.md:1428"
+    mapped_tasks: ["Task 19"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+  - id: "13-step-14"
+    source: parsed
+    group: "impl-step"
+    span: "source.md:1429"
+    mapped_tasks: ["Task 20"]
+    match_method: "fuzzy"
+    status: "mapped"
+    partial: true
+    literal_reference: true
+    note: "Task 20 omits 'make test' from the 12.5 run order and has no staging step"
+  - id: "15-version-note"
+    source: parsed
+    group: "release"
+    span: "source.md:1448"
+    mapped_tasks: ["Task 17", "Task 20"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "15-entry"
+    source: parsed
+    group: "release"
+    span: "source.md:1450-1471"
+    mapped_tasks: ["Task 20"]
+    match_method: "exact"
+    status: "mapped"
+    literal_reference: true
+  - id: "FR-1"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1325"
+    mapped_tasks: ["Task 10"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1325]"
+  - id: "FR-2"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1228,1322"
+    mapped_tasks: ["Task 3"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1228, 1322]"
+  - id: "FR-4"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:166,991,1250,1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [166, 991, 1250, 1324]"
+  - id: "FR-5"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "FR-6"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "FR-7"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "FR-8"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "FR-9"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "FR-10"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:992,1324"
+    mapped_tasks: ["Task 14", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [992, 1324]"
+  - id: "FR-11"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1325"
+    mapped_tasks: ["Task 10", "Task 11", "Task 12", "Task 13"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1325]"
+  - id: "FR-12"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1322"
+    mapped_tasks: ["Task 3", "Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1322]"
+  - id: "FR-13"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1322"
+    mapped_tasks: ["Task 3", "Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1322]"
+  - id: "FR-14"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "FR-15"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1322"
+    mapped_tasks: ["Task 3", "Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1322]"
+  - id: "FR-17"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1322"
+    mapped_tasks: ["Task 3", "Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1322]"
+  - id: "FR-18"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "FR-19"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "FR-20"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "FR-21"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1242,1324"
+    mapped_tasks: ["Task 14", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: true
+    note: "inline id from the merged spec; span = cited line(s) [1242, 1324]"
+  - id: "FR-22"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1325"
+    mapped_tasks: ["Task 10", "Task 11", "Task 12", "Task 13"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1325]"
+  - id: "FR-23"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1322"
+    mapped_tasks: ["Task 3", "Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1322]"
+  - id: "FR-24"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1322"
+    mapped_tasks: ["Task 3", "Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1322]"
+  - id: "FR-26"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:218,1205,1322"
+    mapped_tasks: ["Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [218, 1205, 1322]"
+  - id: "FR-27"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "FR-28"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "FR-29"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "FR-30"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "FR-31"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "FR-33"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1205,1324,1338"
+    mapped_tasks: ["Task 16", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1205, 1324, 1338]"
+  - id: "NFR-1"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "NFR-4"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:171,1227,1324"
+    mapped_tasks: ["Task 14", "Task 17", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [171, 1227, 1324]"
+  - id: "NFR-5"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1219,1322"
+    mapped_tasks: ["Task 3", "Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1219, 1322]"
+  - id: "NFR-6"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:756,1324"
+    mapped_tasks: ["Task 10", "Task 11", "Task 12", "Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [756, 1324]"
+  - id: "NFR-7"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:592,1334"
+    mapped_tasks: ["Task 4", "Task 7"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [592, 1334]"
+  - id: "NFR-8"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1324"
+    mapped_tasks: ["Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1324]"
+  - id: "NFR-9"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:867,985,1324"
+    mapped_tasks: ["Task 14", "Task 17"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [867, 985, 1324]"
+  - id: "NFR-10"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:756,1325"
+    mapped_tasks: ["Task 10", "Task 11", "Task 12"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [756, 1325]"
+  - id: "NFR-11"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:777,1325,1372"
+    mapped_tasks: ["Task 10"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [777, 1325, 1372]"
+  - id: "NFR-12"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:679"
+    mapped_tasks: ["Task 7"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [679]"
+  - id: "NFR-14"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1221,1324"
+    mapped_tasks: ["Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1221, 1324]"
+  - id: "QA-1"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1334"
+    mapped_tasks: ["Task 7"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1334]"
+  - id: "QA-3a"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1339"
+    mapped_tasks: ["Task 18"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1339]"
+  - id: "QA-3b"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1343"
+    mapped_tasks: ["Task 5"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1343]"
+  - id: "QA-6"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:734,1417"
+    mapped_tasks: ["Task 2"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [734, 1417]"
+  - id: "QA-8"
+    source: parsed
+    group: "spec-id-inline"
+    span: "source.md:1322"
+    mapped_tasks: ["Task 4"]
+    match_method: "fuzzy"
+    status: "mapped"
+    literal_reference: false
+    note: "inline id from the merged spec; span = cited line(s) [1322]"
+  - id: "INF-001"
+    source: inferred
+    span: "source.md:55"
+    quote: "Proof in this release is hermetic real-git tests in pytest temporary directories (local bare repository as `origin`, `gh` stubbed, no network)."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.3889
+    best_candidate: "Task 19"
+    status: "unmapped"
+  - id: "INF-002"
+    source: inferred
+    span: "source.md:57"
+    quote: "No new agent, template, FSM state or idempotency set."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.5
+    best_candidate: "Task 5"
+    status: "unmapped"
+  - id: "INF-003"
+    source: inferred
+    span: "source.md:69"
+    quote: "Everything in spec section 11 (\"Out of scope\") stays out: rebasing, history rewriting, PR splitting, external merge tools, rerere, cross-repo heads, resolving in another worktree, a user-override channel, `gh pr update-branch`, migration/submodule/binary/protected/unknown-lockfile resolution."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.2353
+    best_candidate: "Task 19"
+    status: "unmapped"
+  - id: "INF-004"
+    source: inferred
+    span: "source.md:196"
+    quote: "A nested `pkg/uv.lock` fails rule 7 (not the exact root path) and lands in rule 8."
+    mapped_tasks: ["Task 3"]
+    match_method: "containment"
+    containment_ratio: 0.6154
+    best_candidate: "Task 3"
+    status: "mapped"
+  - id: "INF-005"
+    source: inferred
+    span: "source.md:198"
+    quote: "**Plan tier** (`conflict_plan`, first matching row):"
+    mapped_tasks: ["Task 3"]
+    match_method: "containment"
+    containment_ratio: 0.8333
+    best_candidate: "Task 3"
+    status: "mapped"
+  - id: "INF-006"
+    source: inferred
+    span: "source.md:212"
+    quote: "`regen:*` paths do not count toward `TIER2_MAX_FILES` (OQ-9)."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.4444
+    best_candidate: "Task 3"
+    status: "unmapped"
+  - id: "INF-007"
+    source: inferred
+    span: "source.md:212"
+    quote: "In a Tier 2 cycle, `regen:*` paths are handled by their rule after the text paths are resolved and staged (manifest first, R-58), so a conflicted `pyproject.toml` plus `uv.lock` is Tier 2 (OQ-10)."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.4348
+    best_candidate: "Task 3"
+    status: "unmapped"
+  - id: "INF-008"
+    source: inferred
+    span: "source.md:214"
+    quote: "**Escalation is monotone inside a cycle**: a cycle that starts as Tier 1 or 2 can escalate to Tier 3 (halt) at any step and never de-escalates or retries in the same run."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.4211
+    best_candidate: "Task 4"
+    status: "unmapped"
+  - id: "INF-009"
+    source: inferred
+    span: "source.md:236"
+    quote: "**`c_initial`** (ordinal 3 only; entered only after a `wave0` result of `tier2_planned`; the plan is the fresh re-probe):"
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.5
+    best_candidate: "Task 4"
+    status: "unmapped"
+  - id: "INF-010"
+    source: inferred
+    span: "source.md:249"
+    quote: "**`wave8a`** (ordinals 1 to 3; `skip_ci` is true on every row except the two marked):"
+    mapped_tasks: ["Task 4"]
+    match_method: "containment"
+    containment_ratio: 0.7273
+    best_candidate: "Task 4"
+    status: "mapped"
+  - id: "INF-011"
+    source: inferred
+    span: "source.md:267"
+    quote: "Properties pinned by tests (section 12.1): every reachable row is asserted; the default row is reached by each domain violation;"
+    mapped_tasks: ["Task 4"]
+    match_method: "containment"
+    containment_ratio: 0.8
+    best_candidate: "Task 4"
+    status: "mapped"
+  - id: "INF-012"
+    source: inferred
+    span: "source.md:267"
+    quote: "Tier 2 is acted on only at L3 at `C-initial`; at L1 and L2 Tier 2 is reported and never resolved (OQ-21)."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.5
+    best_candidate: "Task 4"
+    status: "unmapped"
+  - id: "INF-013"
+    source: inferred
+    span: "source.md:282"
+    quote: "The `status` enum (`SKILL.md:236`) gains no member."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.5
+    best_candidate: "Task 20"
+    status: "unmapped"
+  - id: "INF-014"
+    source: inferred
+    span: "source.md:307"
+    quote: "Revert of a pushed merge commit is always a new commit, `git revert -m 1 <merge_sha>`; the L2 and L3 reports print it (K13)."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.375
+    best_candidate: "Task 4"
+    status: "unmapped"
+  - id: "INF-015"
+    source: inferred
+    span: "source.md:311"
+    quote: "**Two new event types (41 to 43), used by both conflict tiers** (OQ-17 / C-029 / X-011):"
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.375
+    best_candidate: "Task 2"
+    status: "unmapped"
+  - id: "INF-016"
+    source: inferred
+    span: "source.md:325"
+    quote: "Report-only detection writes no event (the plan is printed); every halt reuses `terminal_halted` with a `reason` (section 9). No other event type is added."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.4737
+    best_candidate: "Task 3"
+    status: "unmapped"
+  - id: "INF-017"
+    source: inferred
+    span: "source.md:398"
+    quote: "For `sync` and `ci`: a missing or unknown `review_terminal`, or (for `sync`) a missing 40-hex `base_sha`, gives `halt`, `resume_unrepresentable`."
+    mapped_tasks: ["Task 4"]
+    match_method: "containment"
+    containment_ratio: 0.7857
+    best_candidate: "Task 4"
+    status: "mapped"
+  - id: "INF-018"
+    source: inferred
+    span: "source.md:398"
+    quote: "`sync` and `ci` never resume into `S4_PUSHING`, S5a or S5 (INV-001)."
+    mapped_tasks: ["Task 8"]
+    match_method: "containment"
+    containment_ratio: 0.8
+    best_candidate: "Task 8"
+    status: "mapped"
+  - id: "INF-019"
+    source: inferred
+    span: "source.md:409"
+    quote: "Kinds `fix`, `ci` and absent have no conflict cycle and append nothing new (byte-equal to today for `fix` / absent)."
+    mapped_tasks: ["Task 8"]
+    match_method: "containment"
+    containment_ratio: 0.8462
+    best_candidate: "Task 8"
+    status: "mapped"
+  - id: "INF-020"
+    source: inferred
+    span: "source.md:409"
+    quote: "The wrapper finds the cycle by the dangling record's `cycle_id` and appends only when `is_conflict_cycle(cycle_id)` and that cycle is open in `rebuild_state()`; it never appends twice."
+    mapped_tasks: ["Task 8"]
+    match_method: "containment"
+    containment_ratio: 0.6471
+    best_candidate: "Task 8"
+    status: "mapped"
+  - id: "INF-021"
+    source: inferred
+    span: "source.md:793"
+    quote: "Exit: `0` on any completed probe; `2` with `PROBE_FAIL <reason>` for `usage`, `not_a_worktree`, `origin_mismatch`, `bad_base`, `fetch_failed`, `no_merge_base`, `merge_tree_failed`."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.55
+    best_candidate: "Task 10"
+    status: "unmapped"
+  - id: "INF-022"
+    source: inferred
+    span: "source.md:793"
+    quote: "The SKILL calls it with `--program uv` (the programs of `MECHANICAL_RULES`)."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.375
+    best_candidate: "Task 3"
+    status: "unmapped"
+  - id: "INF-023"
+    source: inferred
+    span: "source.md:812"
+    quote: "Commit mode, in order:"
+    mapped_tasks: ["Task 11"]
+    match_method: "containment"
+    containment_ratio: 1.0
+    best_candidate: "Task 11"
+    status: "mapped"
+  - id: "INF-024"
+    source: inferred
+    span: "source.md:824"
+    quote: "Token to halt reason: `no_merge_head` and `foreign_merge` to `sync_foreign_operation`; `unmerged` to `sync_unmerged_left`; `markers` to `sync_marker_left`;"
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.3846
+    best_candidate: "Task 11"
+    status: "unmapped"
+  - id: "INF-025"
+    source: inferred
+    span: "source.md:844"
+    quote: "The SKILL passes `--out <output-dir>/sync/<cycle_id>/<n>/` (`<n>` = the path's 1-based position in `plan.text_paths`). `EVIDENCE_FAIL` of any kind escalates the cycle to Tier 3 (`sync_tier3`)."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.375
+    best_candidate: "Task 3"
+    status: "unmapped"
+  - id: "INF-026"
+    source: inferred
+    span: "source.md:859"
+    quote: "Header comment (`:3-12`) gains the usage and output lines for the new mode."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.4
+    best_candidate: "Task 2"
+    status: "unmapped"
+  - id: "INF-027"
+    source: inferred
+    span: "source.md:859"
+    quote: "The existing `src/superclaude/` header line (`:14`) is pre-existing; this change adds no new one."
+    mapped_tasks: ["Task 13"]
+    match_method: "containment"
+    containment_ratio: 0.6154
+    best_candidate: "Task 13"
+    status: "mapped"
+  - id: "INF-028"
+    source: inferred
+    span: "source.md:981"
+    quote: "Line budget: E1 1 + E3 3 + E4 3 + E6 1 + E10 1 + E11 2 + E12 4 = 15; E2, E5, E7, E8, E9, E13 change no line count."
+    mapped_tasks: ["Task 17"]
+    match_method: "containment"
+    containment_ratio: 0.7391
+    best_candidate: "Task 17"
+    status: "mapped"
+  - id: "INF-029"
+    source: inferred
+    span: "source.md:1056"
+    quote: "(The arrow glyphs are the ones the file already uses at `:104`; no em dash.)"
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.2
+    best_candidate: "Task 3"
+    status: "unmapped"
+  - id: "INF-030"
+    source: inferred
+    span: "source.md:1082"
+    quote: "Both `gh api` lines carry a `repos/<owner/repo>/` path, so they satisfy `_repo_scoped` (`test_static_grep.py:103-129`)."
+    mapped_tasks: ["Task 16"]
+    match_method: "containment"
+    containment_ratio: 0.7222
+    best_candidate: "Task 16"
+    status: "mapped"
+  - id: "INF-031"
+    source: inferred
+    span: "source.md:1129"
+    quote: "Whether a reason halts is decided by the `ConflictAction.status` of the row, never by the reason string."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.5
+    best_candidate: "Task 4"
+    status: "unmapped"
+  - id: "INF-032"
+    source: inferred
+    span: "source.md:1129"
+    quote: "CI-side report reasons: `pr_conflicting` (CI wait skipped), `ci_not_started` (CI expiry with no registered check)."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.3571
+    best_candidate: "Task 4"
+    status: "unmapped"
+  - id: "INF-033"
+    source: inferred
+    span: "source.md:1348"
+    quote: "The spec's byte-identical fragments (spec section 8.4), asserted in `test_conflict_sync_protocol.py` as one regression test:"
+    mapped_tasks: ["Task 18"]
+    match_method: "containment"
+    containment_ratio: 0.6875
+    best_candidate: "Task 18"
+    status: "mapped"
+  - id: "INF-034"
+    source: inferred
+    span: "source.md:1404"
+    quote: "Manual verification is never reported as a test pass (section 14 lists it separately)."
+    mapped_tasks: []
+    match_method: "none"
+    containment_ratio: 0.4545
+    best_candidate: "Task 3"
+    status: "unmapped"
+  - id: "OOS-P3-#361"
+    source: parsed
+    span: "source.md:12,65"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "declared out of scope (tasklist Constraints line 30; source 2.1)"
+  - id: "FR-25"
+    source: parsed
+    span: "source.md:65"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "P3 late re-sync (#361); declared out of scope"
+  - id: "2.1-out-live-gates"
+    source: parsed
+    span: "source.md:66"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "post-release follow-ups (section 14), declared out of scope"
+  - id: "2.1-out-default-flip"
+    source: parsed
+    span: "source.md:67"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "decided after the P2 live gate (OQ-1); out of this release"
+  - id: "V1"
+    source: parsed
+    span: "source.md:1437"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "section 14 post-release follow-up; declared out of scope (Constraints line 30)"
+  - id: "V2"
+    source: parsed
+    span: "source.md:1438"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "section 14 post-release follow-up; declared out of scope (Constraints line 30)"
+  - id: "V3"
+    source: parsed
+    span: "source.md:1439"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "section 14 post-release follow-up; declared out of scope (Constraints line 30)"
+  - id: "V4"
+    source: parsed
+    span: "source.md:1440"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "section 14 post-release follow-up; declared out of scope (Constraints line 30)"
+  - id: "V5"
+    source: parsed
+    span: "source.md:1441"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "section 14 post-release follow-up; declared out of scope (Constraints line 30)"
+  - id: "V6"
+    source: parsed
+    span: "source.md:1442"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "section 14 post-release follow-up; declared out of scope (Constraints line 30)"
+  - id: "V7"
+    source: parsed
+    span: "source.md:1443"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "section 14 post-release follow-up; declared out of scope (Constraints line 30)"
+  - id: "V8"
+    source: parsed
+    span: "source.md:1444"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "section 14 post-release follow-up; declared out of scope (Constraints line 30)"
+  - id: "11-8-R-19"
+    source: parsed
+    span: "source.md:1246"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "rejected research item; the design element is an absence (no override channel)"
+  - id: "11-9-R-20"
+    source: parsed
+    span: "source.md:1247"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "rejected research item; same as R-19"
+  - id: "11-31-R-161"
+    source: parsed
+    span: "source.md:1269"
+    mapped_tasks: []
+    match_method: "n/a"
+    status: out-of-scope
+    reason: "rejected research item; no whitespace gate (absence)"
+inferred_dropped: []

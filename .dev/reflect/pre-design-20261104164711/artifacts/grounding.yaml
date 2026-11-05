@@ -1,0 +1,167 @@
+# sc:reflect UC-1 Wave 1A grounding: every repo file:line the TASKLIST cites, re-Read this run.
+# Tasklist: .dev/tasks/to-do/TASK-WF-design-20261104-164423/TASK-WF-design-20261104-164423.md
+# Worktree: /home/coder/workspaces/worktrees/IronClaude/issue-305-pr-submit-conflicts (HEAD 119622e3, tracked tree clean)
+schema: reflect-grounding/1
+mode: UC-1
+wave: 1A
+status: complete
+citation_budget_policy: full_reread
+citations_total: 32
+citations_verified: 32
+citations_failed: 0
+citations_with_range_notes: 3
+evidence_chain_note: "Floor chain used (Read + Grep). Each cited range was Read with offset/limit in this run; no cited file was modified during the run."
+citations:
+  # ---------------- Constraints block
+  - citation: tests/pr_submit/test_static_grep.py:758-776
+    cited_by: Constraints (line 20); C1
+    verified: true
+    note: "test_skill_forbids_force_push: regex \\bgit push\\b[^`\\n]*?(\\s--force\\b|\\s-f\\b|\\s\\+\\S) scanned over every .md/.sh under SKILL_DIR (rglob at :773-776)."
+  - citation: tests/pr_submit/test_static_grep.py:37-51
+    cited_by: Constraints (line 22); Task 3
+    verified: true
+    note: "CORE_PURE_FILES list: state-machine.md, severity-routing.md, loop-guard.md, auggie-fallback.md, fsm.py, severity_router.py, loop_guard.py, ci.py. Task 3 appends conflicts.py here."
+  - citation: tests/pr_submit/test_cosmos_protocol.py:36
+    cited_by: Constraints (line 26)
+    verified: true
+    note: "assert len(blocks) == 1, 'keep one executable snapshot gate, not parallel parsers'"
+  - citation: tests/pr_submit/test_codex_reviews.py:688
+    cited_by: Constraints (line 26)
+    verified: true
+    note: "assert len(blocks) == 1, 'keep one executable snapshot gate'"
+  # ---------------- Task 1
+  - citation: src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:220-223
+    cited_by: Task 1 (E2)
+    verified: true
+    note: "STOP block; :221-222 holds 'a branch behind the base branch (`origin/<default-branch>`) on the create path'. Four lines, matching E2's four-for-four replacement."
+  - citation: src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:267
+    cited_by: Task 1 (E5 rebase sentence); Task 17 (E5 operation check)
+    verified: true
+    note: "Wave 0 bullet holds the exact E5 old substring 'and rebase if behind `origin/<base>` (with `--pr <N>`, at any level, do not rebase: ... instead).' and the AC-1 sentence at its end."
+  - citation: src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:315
+    cited_by: Task 1 (E12 rows 1-2)
+    verified: true
+    note: "'| Wrong origin / behind base branch (create path) / wrong-owner URL | HALT; instruct operator to close the misrouted PR (FM-11). |'"
+  - citation: src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:268
+    cited_by: Task 1 (E13)
+    verified: true
+    note: "Head-binding bullet holds the exact E13 old substring '(push if you are ahead; a branch Wave 0 rebased needs a force-push, which this skill never does for you; `git pull --ff-only` if you are behind)'."
+  - citation: tests/pr_submit/test_static_grep.py:654-661
+    cited_by: Task 1
+    verified: true
+    note: ":654-655 comment; :656 '--pr' pin and :657 rebase pin (kept verbatim); :658 create-path pin; :659-661 Error Handling row pin (replaced)."
+  # ---------------- Task 2
+  - citation: src/superclaude/pr_submit/models.py:3-7
+    cited_by: Task 2
+    verified: true
+    note: "Module docstring 'exactly 41 members ... reviewer_absent and reviewer_incomplete'."
+  - citation: src/superclaude/pr_submit/models.py:23-33
+    cited_by: Task 2
+    verified: true
+    range_note: "The EventType docstring runs to :36 (closing quotes); the count text sits in :23-33 as cited."
+    note: "'Closed enum of run-log event types — EXACTLY 41 members.' at :23."
+  - citation: src/superclaude/pr_submit/models.py:90
+    cited_by: Task 2 ('after REVIEWER_INCOMPLETE')
+    verified: true
+    note: "REVIEWER_INCOMPLETE = 'reviewer_incomplete' is the last enum member (:89-90; comment 'the 40th-41st' at :88)."
+  - citation: src/superclaude/pr_submit/run_log.py:111
+    cited_by: Task 2
+    verified: true
+    note: "'Raises :class:`ValueError` if ``event_type`` is not one of the 41 closed'."
+  - citation: src/superclaude/skills/sc-pr-submit-protocol/refs/loop-guard.md:86-99
+    cited_by: Task 2
+    verified: true
+    range_note: "Heading :86 and the 'EXACTLY 41 members' sentence :88 are in range, but the event list ends at :103 ('`reviewer_incomplete`.'), where 8.6 item 2 appends the two names. The cited range stops 4 lines short of the edit point."
+    note: "Heading 'The 41 event types (§11.3 + §12.1 + V1.1 §6.1 + silence + reviewers)'."
+  - citation: tests/pr_submit/test_run_log.py:165-169
+    cited_by: Task 2
+    verified: true
+    note: "test_eventtype_is_41_members_with_silence_and_reviewer_events; docstring :166-167; asserts == 41 at :168 and :169."
+  - citation: tests/pr_submit/test_run_log.py:204
+    cited_by: Task 2 AC ('RunLog(41, ...)' exception)
+    verified: true
+    note: "rl = RunLog(41, tmp_path), a PR number, not an event count. The QA-6 grep also hits fixture JSON line numbers (finding-max.json:405,416; codex-findings-pr336.json:438,449,534,545,825,828), which are not event counts either; the AC names only the RunLog exception."
+  - citation: tests/pr_submit/test_codex_reviews.py:441
+    cited_by: Task 2
+    verified: true
+    note: "assert len(EventType) == 41"
+  # ---------------- Task 5
+  - citation: src/superclaude/pr_submit/fsm.py:1137
+    cited_by: Task 5
+    verified: true
+    note: "'if result.applied_edits > 0:' inside run_skill's S5a block (:1133-1139)."
+  # ---------------- Task 6
+  - citation: tests/pr_submit/test_ci_classify.py:20-70
+    cited_by: Task 6
+    verified: true
+    range_note: "The last existing test in the region, test_classify_required_fallback, spans :64-72; ':20-70' cuts its body. Read as 'the existing tests at the top of the file'."
+    note: "Includes the empty-is-clean pins test_classify_empty (:36-38) and test_classify_empty_polling_is_not_clean (:41-42) that expect_checks=False must keep."
+  # ---------------- Task 7
+  - citation: tests/pr_submit/test_idempotency.py:89
+    cited_by: Task 7
+    verified: true
+    note: "assert len(IDEMPOTENCY_SETS) == 7"
+  # ---------------- Task 8
+  - citation: src/superclaude/pr_submit/recovery.py:98-110
+    cited_by: Task 8
+    verified: true
+    note: "common = {k: dangling[k] for k in (run_id, cycle_id, idempotency_key, pre_push_sha, target_sha, target_branch, target_remote) if k in dangling}. Branch literals at :28-30; Branch C append at :161-171."
+  - citation: tests/pr_submit/test_augment_review_remediation.py:145
+    cited_by: Task 8
+    verified: true
+    note: "branch, resume_state = resolve_crash_window(rl, dangling, remote_reachable=True)"
+  - citation: tests/pr_submit/test_codex_reviews.py:489
+    cited_by: Task 8
+    verified: true
+    note: "branch, resume_state = resolve_crash_window(rl, dangling, remote_reachable=True)"
+  # ---------------- Task 13
+  - citation: src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:14
+    cited_by: Task 13; C7
+    verified: true
+    note: "'# Source of truth lives in src/superclaude/; do not edit the .claude/ mirror.' (pre-existing). Adjacent fact relevant to Task 13: :30 enforces '--pr' BEFORE the gh/jq checks (:31-32) and REPO resolution (:34-36), so evidence mode must bypass :30; the --help probe is at :39-43; the script uses blanket 'set -euo pipefail' at :16."
+  # ---------------- Task 16
+  - citation: src/superclaude/skills/sc-pr-submit-protocol/refs/state-machine.md:144-146
+    cited_by: Task 16 (8.4 item 1)
+    verified: true
+    note: "Hard-wrapped 'A spent round budget and a silence terminal permit **waiting only**: CI findings are `REPORT_ONLY`, never an additional fix or push.' across :144-146. Section 5.2c at :140; '## 5.3' at :159 (the 5.2d insertion point)."
+  - citation: src/superclaude/skills/sc-pr-submit-protocol/refs/state-machine.md:161-179
+    cited_by: Task 16
+    verified: true
+    note: "INV-016 blockquote; holds 'exactly one parent, that same SHA' (:174) and 'The parent check applies only when the cycle applied edits' (:177-178)."
+  - citation: src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md:21
+    cited_by: Task 16 (8.5 item 1)
+    verified: true
+    note: "'only two parsed empty arrays justify `clean`.'"
+  - citation: src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md:28-29
+    cited_by: Task 16 (8.5 item 2)
+    verified: true
+    note: "HALT_MAX_ROUNDS row ends 'No: CI findings → `REPORT_ONLY`'; TERMINAL_AUGMENT_NO_RESPONSE row ends '| No |'."
+  - citation: tests/pr_submit/test_static_grep.py:746-750
+    cited_by: Task 16
+    verified: true
+    note: "Prose-join of state-machine.md and the two pins ('exactly one parent, that same SHA'; 'The parent check applies only when the cycle applied edits')."
+  # ---------------- Task 17
+  - citation: src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:305
+    cited_by: Task 17
+    verified: true
+    note: "'Force-push (`--force`, `--force-with-lease`, or a `+` refspec): ...' Will Not bullet, pinned at test_static_grep.py:761."
+  - citation: tests/pr_submit/test_static_grep.py:755
+    cited_by: Task 17
+    verified: true
+    note: "assert \"push any commit besides the cycle's one fix commit\" in will_not (pr-submit.md Will Not section)."
+  # ---------------- Task 18
+  - citation: tests/unit/test_cli_install.py:248-262
+    cited_by: Task 18
+    verified: true
+    note: "Whitespace-separated expected list; sc-pr-submit-protocol entries run from the end of :248 (SKILL.md) to the start of :262 (retrigger-review.sh). The five new names (2 refs, 3 scripts) go into this block in sorted position."
+supporting_facts_checked:
+  - fact: "fsm.py defines DEFAULT_MAX_ROUNDS (:32), gate_edit (:147), should_halt_rounds (:152), build_push_triad (:238), run_validation_gates (:453), push_parent_ok (:582), needs_rebase (:603), transition (:716) and the findings edge (:741)."
+    used_by: "Tasks 3, 4, 5 (imports and edge placement)"
+  - fact: "test_static_grep.py defines _command_lines (:67) and _repo_scoped (:103), which source 12.1 reuses for the new protocol test."
+    used_by: "Task 18"
+  - fact: "ci.py classify_checks signature at :22 is (payload, *, wait_sha=None); ci.py imports only re, .classifier and .models."
+    used_by: "Task 6"
+  - fact: "src/superclaude/cli/reflect/commands.py:99 imports superclaude.pr_submit.contract_setup, which runs superclaude/pr_submit/__init__.py (edited by Task 9). tests/cli/reflect/test_contract_status_cli.py exercises it and is outside Task 20's test subset."
+    used_by: "Gap G1 / Risk R1"
+side_effects:
+  - "Running 'uv run python' created .venv/ in the worktree (gitignored at .gitignore:56). No tracked file changed; 'git status --porcelain' shows only the pre-existing untracked .dev/ folders."

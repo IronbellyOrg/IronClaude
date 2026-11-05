@@ -1,0 +1,9 @@
+== A1: conflict-marker-size=9, markers left in f.txt and staged
+marker line written by git: <<<<<<<<< HE
+{"merge_sha":"1b0d4e56bf4f68ef987b6e07e3bceffb395cf96f","parents":["d286323c17dfa26fadf8d9c9a04222a74720a606","5bfc8497b25bd0695436aec80ef86946df69086f"]}
+exit=0
+== C2: resolve f.txt, stage an unrelated mode change on run.sh
+diff --cached --name-only vs merge tree: f.txt run.sh 
+{"merge_sha":"4289c3aa730b69bad5a985c3830f086938d5e84d","parents":["58777b2547cb4e23319056243a9e799c0e3be6d6","5ca141abc79ef9be48b2e3b803d846656d3f2f2a"]}
+exit=0
+committed run.sh mode: 100644
