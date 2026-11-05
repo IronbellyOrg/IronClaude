@@ -83,14 +83,14 @@ preceded by a **write-ahead** record fsynced BEFORE the side effect.
 Default `<output-dir>` = `<repo-root>/.dev/pr-monitor/pr-<N>-<YYYYMMDDHHMMSS>/` (cwd-relative; the
 repo the operator runs `sc:pr-submit` from) unless `--resume` supplies an existing log dir.
 
-### The 41 event types (§11.3 + §12.1 + V1.1 §6.1 + silence + reviewers)
+### The 43 event types (§11.3 + §12.1 + V1.1 §6.1 + silence + reviewers + conflict cycles)
 
-The closed `EventType` enum has EXACTLY 41 members — the 32 from §11.3 plus
+The closed `EventType` enum has EXACTLY 43 members — the 32 from §11.3 plus
 `push_aborted_or_not_landed` (§12.1, the crash-window not-landed branch) — the 33 prior — plus the 4
 V1.1 re-review/fallback events (`rereview_requested`, `decline_detected`, `auggie_fallback_invoked`,
 `max_rounds_clamped`; addendum §6.1), the 2 silence events (`silence_rerequested`,
-`terminal_augment_no_response`) and the 2 reviewer events (`reviewer_absent`,
-`reviewer_incomplete`):
+`terminal_augment_no_response`), the 2 reviewer events (`reviewer_absent`,
+`reviewer_incomplete`) and the 2 conflict-cycle events (`sync_started`, `sync_concluded`):
 `run_started`, `environment_check`, `pr_create_attempted`, `pr_created`, `monitor_armed`,
 `baseline_captured`, `poll_attempt`, `poll_result`, `api_backoff`, `classifier_unknown_shape`,
 `review_detected`, `findings_normalized`, `finding_verified`, `finding_unverified`,
@@ -100,7 +100,7 @@ V1.1 re-review/fallback events (`rereview_requested`, `decline_detected`, `auggi
 `terminal_timeout`, `terminal_max_rounds`, `terminal_halted`, `terminal_failed`,
 `push_aborted_or_not_landed`, `rereview_requested`, `decline_detected`, `auggie_fallback_invoked`,
 `max_rounds_clamped`, `silence_rerequested`, `terminal_augment_no_response`, `reviewer_absent`,
-`reviewer_incomplete`.
+`reviewer_incomplete`, `sync_started`, `sync_concluded`.
 
 Each line carries `schema_version`, a unique+monotonic `event_id`, `event_type`, `timestamp`,
 `run_id`, `pr{repo,number,url,base,head}`, `state_before`, `state_after`,
@@ -115,6 +115,9 @@ Each line carries `schema_version`, a unique+monotonic `event_id`, `event_type`,
 complete by `--timeout` while the other reviewer's result was used. `rereview_requested` carries
 `{cycle_id, reviewer, timestamp}`, `timestamp` being the UTC time taken right after that reviewer's
 successful re-trigger POST.
+
+The `cycle_id` prefixes `sync-` and `conflict-` are reserved for conflict cycles (Tier 1 and Tier 2);
+a fix cycle's `cycle_id` never starts with either.
 
 **Folds.** `rebuild_state()` folds `rereview_requested` into `rereview_request_count` by **distinct
 `cycle_id`**: one push cycle counts once however many reviewers were re-triggered in it (an event

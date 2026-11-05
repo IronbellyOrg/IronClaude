@@ -1,0 +1,121 @@
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md b/plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md
+index 11998722..08365546 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md
+@@ -197,7 +197,7 @@ The earlier operator-written form (`T2: Ruling: drop pagination — AC-2 deferre
+ Retry open:
+ 
+ ```
+-T1: retry n=3 step=open checkpoint=0123456789abcdef0123456789abcdef01234567 tier=T2_Model02
++T1: retry n=3 step=open checkpoint=0123456789abcdef0123456789abcdef01234567 tier=T2Model02
+ ```
+ 
+ Retry revert:
+diff --git a/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md b/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md
+index 50620f60..364ced00 100644
+--- a/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md
++++ b/plugins/superclaude/skills/sc-implement-protocol/refs/retry.md
+@@ -159,17 +159,17 @@ A repair is a local, in-place fix of confirmed blockers that runs after a failed
+ 
+ ### Model ladder
+ 
+-**Ladders.** Rungs are numbered weakest to strongest. The primary ladder (environment variables) is rung 0 `T3_Model01`, rung 1 `T2_Model02`, rung 2 `T1_Model02`, rung 3 `T1_Model01`, the top rung. `T2_Model01` is on par with `T2_Model02`: it is recognized as rung 1 only when matching the executor's own model id and is never used as an adviser. The primary ladder is active only when the four rung variables are all set and non-empty (`T2_Model01` is optional); otherwise the whole fallback ladder is active: rung 0 `haiku`, rung 1 `sonnet`, rung 2 `opus`, the top rung. The two ladders are never mixed.
++**Ladders.** Rungs are numbered weakest to strongest. The primary ladder (environment variables) is rung 0 `T3Model01`, rung 1 `T2Model02`, rung 2 `T1Model02`, rung 3 `T1Model01`, the top rung. `T2Model01` is on par with `T2Model02`: it is recognized as rung 1 only when matching the executor's own model id and is never used as an adviser. The primary ladder is active only when the four rung variables are all set and non-empty (`T2Model01` is optional); otherwise the whole fallback ladder is active: rung 0 `haiku`, rung 1 `sonnet`, rung 2 `opus`, the top rung. The two ladders are never mixed. These are the tier slot variables exported by the workspace environment; `T1Model01` and `T1Model02` are the legacy Tier 1 slots the workspace keeps for readers such as swarm and reflect, and the fallback ladder (`haiku`, `sonnet`, `opus`) applies when they are not all set.
+ 
+-**Executor tier.** A primary rung's model id is the variable's value with any trailing `[...]` suffix stripped (rung 1 also matches the value of `T2_Model01`, when set); a fallback rung's id is `ANTHROPIC_DEFAULT_<ALIAS>_MODEL` when that variable is set, else the Claude model for that alias. The executor's tier is the rung of the active ladder whose id equals the executor's own model id as its system prompt states it, both compared with any trailing `[...]` suffix stripped. No exact match → tier unknown. The tier is recorded as `tier=` (the canonical name of the executor's rung: `T2_Model02` for an executor on either T2 model, otherwise the variable name or fallback alias; or `unknown`).
++**Executor tier.** A primary rung's model id is the variable's value with any trailing `[...]` suffix stripped (rung 1 also matches the value of `T2Model01`, when set); a fallback rung's id is `ANTHROPIC_DEFAULT_<ALIAS>_MODEL` when that variable is set, else the Claude model for that alias. The executor's tier is the rung of the active ladder whose id equals the executor's own model id as its system prompt states it, both compared with any trailing `[...]` suffix stripped. No exact match → tier unknown. The tier is recorded as `tier=` (the canonical name of the executor's rung: `T2Model02` for an executor on either T2 model, otherwise the variable name or fallback alias; or `unknown`).
+ 
+ **Escalation rule.** Escalation 1 always spawns two advisers in one message, never one, from different model families. The family is read from the model id with any trailing `[...]` suffix stripped: a `claude-` prefix is Claude, a `gpt-` prefix is GPT.
+ - `advice-3-a.md`: the executor's own model family, one rung up the active ladder; the top rung when the executor is already on the top rung or its tier is unknown.
+-- `advice-3-b.md`: the other model family. Executor is Claude: adviser B is a GPT model on T1, meaning the id of `T1_Model01`, else `T1_Model02`, that starts with `gpt-`. Executor is GPT: adviser B is the Claude top rung (`opus` when it resolves to a `claude-` id). Executor is neither family or unknown: adviser A uses the top rung, and adviser B uses whichever of the Claude top rung and the GPT T1 model is not adviser A's family.
+-- Every GPT adviser at any escalation is a T1 model. When the executor is GPT, adviser A is the GPT T1 model (`T1_Model01` when the executor is not already on it, else `T1_Model02`, else the same T1 model).
++- `advice-3-b.md`: the other model family. Executor is Claude: adviser B is a GPT model on T1, meaning the id of `T1Model01`, else `T1Model02`, that starts with `gpt-`. Executor is GPT: adviser B is the Claude top rung (`opus` when it resolves to a `claude-` id). Executor is neither family or unknown: adviser A uses the top rung, and adviser B uses whichever of the Claude top rung and the GPT T1 model is not adviser A's family.
++- Every GPT adviser at any escalation is a T1 model. When the executor is GPT, adviser A is the GPT T1 model (`T1Model01` when the executor is not already on it, else `T1Model02`, else the same T1 model).
+ - The pick uses the two-answer rule of procedure step 4 (a tie goes to `-a`); the critique adviser uses adviser A's model.
+ 
+-Escalation 2 = 2 advisers on the top rung, always. Primary-ladder example (Claude executor): an executor on `T2_Model02` or `T2_Model01` gets adviser A on `T1_Model02` and adviser B on the GPT T1 model, then 2 on `T1_Model01`; on `T3_Model01`, adviser A on `T2_Model02`; on `T1_Model02`, adviser A on `T1_Model01`. Worked example with the fallback ladder:
++Escalation 2 = 2 advisers on the top rung, always. Primary-ladder example (Claude executor): an executor on `T2Model02` or `T2Model01` gets adviser A on `T1Model02` and adviser B on the GPT T1 model, then 2 on `T1Model01`; on `T3Model01`, adviser A on `T2Model02`; on `T1Model02`, adviser A on `T1Model01`. Worked example with the fallback ladder:
+ 
+ | Executor tier | Escalation 1 (A3), adviser A | Escalation 1 (A3), adviser B | Escalation 2 (A4) |
+ |---|---|---|---|
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/ledger.md b/src/superclaude/skills/sc-implement-protocol/refs/ledger.md
+index 11998722..08365546 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/ledger.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/ledger.md
+@@ -197,7 +197,7 @@ The earlier operator-written form (`T2: Ruling: drop pagination — AC-2 deferre
+ Retry open:
+ 
+ ```
+-T1: retry n=3 step=open checkpoint=0123456789abcdef0123456789abcdef01234567 tier=T2_Model02
++T1: retry n=3 step=open checkpoint=0123456789abcdef0123456789abcdef01234567 tier=T2Model02
+ ```
+ 
+ Retry revert:
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/retry.md b/src/superclaude/skills/sc-implement-protocol/refs/retry.md
+index 50620f60..364ced00 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/retry.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/retry.md
+@@ -159,17 +159,17 @@ A repair is a local, in-place fix of confirmed blockers that runs after a failed
+ 
+ ### Model ladder
+ 
+-**Ladders.** Rungs are numbered weakest to strongest. The primary ladder (environment variables) is rung 0 `T3_Model01`, rung 1 `T2_Model02`, rung 2 `T1_Model02`, rung 3 `T1_Model01`, the top rung. `T2_Model01` is on par with `T2_Model02`: it is recognized as rung 1 only when matching the executor's own model id and is never used as an adviser. The primary ladder is active only when the four rung variables are all set and non-empty (`T2_Model01` is optional); otherwise the whole fallback ladder is active: rung 0 `haiku`, rung 1 `sonnet`, rung 2 `opus`, the top rung. The two ladders are never mixed.
++**Ladders.** Rungs are numbered weakest to strongest. The primary ladder (environment variables) is rung 0 `T3Model01`, rung 1 `T2Model02`, rung 2 `T1Model02`, rung 3 `T1Model01`, the top rung. `T2Model01` is on par with `T2Model02`: it is recognized as rung 1 only when matching the executor's own model id and is never used as an adviser. The primary ladder is active only when the four rung variables are all set and non-empty (`T2Model01` is optional); otherwise the whole fallback ladder is active: rung 0 `haiku`, rung 1 `sonnet`, rung 2 `opus`, the top rung. The two ladders are never mixed. These are the tier slot variables exported by the workspace environment; `T1Model01` and `T1Model02` are the legacy Tier 1 slots the workspace keeps for readers such as swarm and reflect, and the fallback ladder (`haiku`, `sonnet`, `opus`) applies when they are not all set.
+ 
+-**Executor tier.** A primary rung's model id is the variable's value with any trailing `[...]` suffix stripped (rung 1 also matches the value of `T2_Model01`, when set); a fallback rung's id is `ANTHROPIC_DEFAULT_<ALIAS>_MODEL` when that variable is set, else the Claude model for that alias. The executor's tier is the rung of the active ladder whose id equals the executor's own model id as its system prompt states it, both compared with any trailing `[...]` suffix stripped. No exact match → tier unknown. The tier is recorded as `tier=` (the canonical name of the executor's rung: `T2_Model02` for an executor on either T2 model, otherwise the variable name or fallback alias; or `unknown`).
++**Executor tier.** A primary rung's model id is the variable's value with any trailing `[...]` suffix stripped (rung 1 also matches the value of `T2Model01`, when set); a fallback rung's id is `ANTHROPIC_DEFAULT_<ALIAS>_MODEL` when that variable is set, else the Claude model for that alias. The executor's tier is the rung of the active ladder whose id equals the executor's own model id as its system prompt states it, both compared with any trailing `[...]` suffix stripped. No exact match → tier unknown. The tier is recorded as `tier=` (the canonical name of the executor's rung: `T2Model02` for an executor on either T2 model, otherwise the variable name or fallback alias; or `unknown`).
+ 
+ **Escalation rule.** Escalation 1 always spawns two advisers in one message, never one, from different model families. The family is read from the model id with any trailing `[...]` suffix stripped: a `claude-` prefix is Claude, a `gpt-` prefix is GPT.
+ - `advice-3-a.md`: the executor's own model family, one rung up the active ladder; the top rung when the executor is already on the top rung or its tier is unknown.
+-- `advice-3-b.md`: the other model family. Executor is Claude: adviser B is a GPT model on T1, meaning the id of `T1_Model01`, else `T1_Model02`, that starts with `gpt-`. Executor is GPT: adviser B is the Claude top rung (`opus` when it resolves to a `claude-` id). Executor is neither family or unknown: adviser A uses the top rung, and adviser B uses whichever of the Claude top rung and the GPT T1 model is not adviser A's family.
+-- Every GPT adviser at any escalation is a T1 model. When the executor is GPT, adviser A is the GPT T1 model (`T1_Model01` when the executor is not already on it, else `T1_Model02`, else the same T1 model).
++- `advice-3-b.md`: the other model family. Executor is Claude: adviser B is a GPT model on T1, meaning the id of `T1Model01`, else `T1Model02`, that starts with `gpt-`. Executor is GPT: adviser B is the Claude top rung (`opus` when it resolves to a `claude-` id). Executor is neither family or unknown: adviser A uses the top rung, and adviser B uses whichever of the Claude top rung and the GPT T1 model is not adviser A's family.
++- Every GPT adviser at any escalation is a T1 model. When the executor is GPT, adviser A is the GPT T1 model (`T1Model01` when the executor is not already on it, else `T1Model02`, else the same T1 model).
+ - The pick uses the two-answer rule of procedure step 4 (a tie goes to `-a`); the critique adviser uses adviser A's model.
+ 
+-Escalation 2 = 2 advisers on the top rung, always. Primary-ladder example (Claude executor): an executor on `T2_Model02` or `T2_Model01` gets adviser A on `T1_Model02` and adviser B on the GPT T1 model, then 2 on `T1_Model01`; on `T3_Model01`, adviser A on `T2_Model02`; on `T1_Model02`, adviser A on `T1_Model01`. Worked example with the fallback ladder:
++Escalation 2 = 2 advisers on the top rung, always. Primary-ladder example (Claude executor): an executor on `T2Model02` or `T2Model01` gets adviser A on `T1Model02` and adviser B on the GPT T1 model, then 2 on `T1Model01`; on `T3Model01`, adviser A on `T2Model02`; on `T1Model02`, adviser A on `T1Model01`. Worked example with the fallback ladder:
+ 
+ | Executor tier | Escalation 1 (A3), adviser A | Escalation 1 (A3), adviser B | Escalation 2 (A4) |
+ |---|---|---|---|
+diff --git a/tests/skills/test_task_workspace_lifecycle.py b/tests/skills/test_task_workspace_lifecycle.py
+index 98f115a6..70a34712 100644
+--- a/tests/skills/test_task_workspace_lifecycle.py
++++ b/tests/skills/test_task_workspace_lifecycle.py
+@@ -594,7 +594,7 @@ def test_retry_ref_rules_text():  # STATIC (wording pins only)
+     ) in r
+     # model ladder: both ladder sentences and the four fallback rows, exactly
+     assert "The two ladders are never mixed." in r
+-    assert "never used as an adviser" in r and "`T2_Model01` is on par" in r
++    assert "never used as an adviser" in r and "`T2Model01` is on par" in r
+     for row in (
+         "| `haiku` | 1× `sonnet` | 1× GPT T1 | 2× `opus` |",
+         "| `sonnet` | 1× `opus` | 1× GPT T1 | 2× `opus` |",
+diff --git a/tests/skills/test_workflow_archive.py b/tests/skills/test_workflow_archive.py
+index aaf4dd5d..b40de9d5 100644
+--- a/tests/skills/test_workflow_archive.py
++++ b/tests/skills/test_workflow_archive.py
+@@ -771,10 +771,10 @@ def test_directory_traversal_error_cannot_produce_final_state(p, monkeypatch):
+ # --- retry / halt ledger records -------------------------------------------------
+ CK = "a" * 40
+ RUNGS = [
+-    "T3_Model01",
+-    "T2_Model02",
+-    "T1_Model02",
+-    "T1_Model01",
++    "T3Model01",
++    "T2Model02",
++    "T1Model02",
++    "T1Model01",
+     "haiku",
+     "sonnet",
+     "opus",
+@@ -783,7 +783,7 @@ BRIEF3 = "./artifacts/retries/T1_brief-3.md"
+ 
+ 
+ def _rt(n=3, **kw):
+-    f = {"checkpoint": CK, "tier": "T2_Model02", "brief": BRIEF3, "supersedes": "none"}
++    f = {"checkpoint": CK, "tier": "T2Model02", "brief": BRIEF3, "supersedes": "none"}
+     f.update(kw)
+     return {
+         "open": f"T1: retry n={n} step=open checkpoint={f['checkpoint']} tier={f['tier']}",

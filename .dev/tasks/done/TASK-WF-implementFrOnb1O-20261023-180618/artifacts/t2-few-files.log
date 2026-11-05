@@ -1,0 +1,4 @@
+grep -n "few files" src/superclaude/core/HOW-WE-WORK.md after Task 2 (2026-10-23):
+319: routing row simple-plan intent "a few files; clear scope; one or two sessions" -- routing table rows are Task 3's scope (plan Task 3, simple-plan bullet); not changed in Task 2.
+325: routing row bug, step 3b and notes "a few files with clear scope" -- routing table rows are Task 3's scope (plan Task 3, bug bullet); not changed in Task 2.
+No "few files" wording remains in sections 1-3 prose (section 3.3 step 2 heading, 3.4 steps 1 and 3 reworded in Task 2).

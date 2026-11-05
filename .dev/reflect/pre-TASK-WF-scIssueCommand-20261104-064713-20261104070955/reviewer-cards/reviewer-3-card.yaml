@@ -1,0 +1,49 @@
+reviewer: 3
+persona: refactorer
+model_class: opus
+verdict: FAIL
+findings:
+  - id: S-1
+    severity: blocking
+    category: ordering
+    claim: "Task 16 (only task running the full suite, make lint, final make verify-sync and git add .dev/tasks) is ordered after Tasks 14 and 15, which the plan expects may report blocked; /sc:implement stops on a blocked task (E-HALT-QA), leaving the section 16 / section 20 item 9 deliverables undone."
+    evidence: [plan:213, plan:223, plan:228, plan:236, src/superclaude/skills/sc-implement-protocol/refs/retry.md:14, src/superclaude/skills/sc-implement-protocol/refs/ledger.md:155, source.md:400]
+    recommendation: "Make the full-suite/lint/sync task Task 14 (Depends on Task 13) and the two smoke checks Tasks 15 and 16, run last; if the ClickUp check changes fixtures or the script, re-run its test plus make sync-dev and make verify-sync; move git add .dev/tasks to the final task."
+  - id: S-2
+    severity: minor
+    category: unexecutable
+    claim: "Task 14 needs a session started after Task 13 with no halt-and-resume instruction, and its served-model evidence names no concrete checkable source; a subagent's self-reported model is not proof [INFERRED]."
+    evidence: [plan:209, plan:212]
+    recommendation: "Tell the executor to stop after the sync task, start a new session and re-run the same /sc:implement command; name the evidence source (gateway/proxy request log or transcript model field); reject self-report alone."
+  - id: S-3
+    severity: minor
+    category: non-observable-ac
+    claim: "Task 11 criterion 'git diff --stat shows only this file' cannot hold after Tasks 9 and 10 changed tracked files."
+    evidence: [plan:178, plan:145, plan:159]
+    recommendation: "Use git diff -U0 -- docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md with hunks only between the ### 4.1 heading and the ### 4.4 heading."
+  - id: S-4
+    severity: minor
+    category: false-claim
+    claim: "Task 7 says the chains.md flag test reads ~/.claude/commands/sc/<name>.md first in the 'same check style as test_every_notes_flag_exists_in_its_command', but that model test reads only src/superclaude/commands; reading the installed copy makes the test machine-dependent."
+    evidence: [plan:121, tests/core/test_how_we_work_routing_table.py:141, tests/core/test_how_we_work_routing_table.py:144, tests/core/test_how_we_work_routing_table.py:149]
+    recommendation: "Check flags against src/superclaude/commands/<name>.md and src/superclaude/skills/task/SKILL.md only, noted as a deliberate narrowing of section 16 'installed-or-source' for determinism."
+  - id: S-5
+    severity: minor
+    category: unexecutable
+    claim: "Task 13 compares grep hits with local master, which can be behind origin/master."
+    evidence: [plan:198]
+    recommendation: "git fetch origin, then git grep ... origin/master."
+  - id: S-6
+    severity: minor
+    category: other
+    claim: "Task 10 does not say the new Other-commands row must be ASCII and must not backtick a non-existent /command (test_guide_is_ascii_except_the_ruling_example, test_other_commands_membership_and_live_references)."
+    evidence: [plan:159, tests/core/test_how_we_work_routing_table.py:341]
+    recommendation: "Add the ASCII and live-reference rule to Task 10."
+  - id: S-7
+    severity: minor
+    category: scope
+    claim: "Task 14 writes .dev/issues/smoke/ and Task 16 creates an Orca worktree, both outside the Constraints edit scope; the worktree is never removed."
+    evidence: [plan:20, plan:209, plan:230]
+    recommendation: "Allow the package artifacts/, .dev/issues/smoke/ (unstaged) and the temporary master worktree in Constraints; remove the worktree with orca worktree rm --worktree name:<name>."
+self_reported_confidence: 0.78
+self_audit: "Dependency order for tests before Task 13 sound; repo facts verified (test_routing_refresh.py:32 and :644, test_how_we_work_routing_table.py:27, test_issue_body_templates.py:78, HOW-WE-WORK.md:318/:336, ccsession-models.json:78/93/104, archive loader, dev guide :388/:463, commands.md :105/:114, lint-architecture checks, skill names)."

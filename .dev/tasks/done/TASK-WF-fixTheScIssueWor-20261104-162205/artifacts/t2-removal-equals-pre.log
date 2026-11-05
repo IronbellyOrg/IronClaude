@@ -1,0 +1,5 @@
+$ removal check: current agent file with the early section and Rules bullet removed (as the negative test does) vs the pre-edit copy
+issue-worker-t1: removed-copy == pre-edit copy: True; problems on pre-edit copy: ['tool-input heading missing']
+issue-worker-t2: removed-copy == pre-edit copy: True; problems on pre-edit copy: ['tool-input heading missing']
+issue-worker-t3: removed-copy == pre-edit copy: True; problems on pre-edit copy: ['tool-input heading missing']
+rc=0

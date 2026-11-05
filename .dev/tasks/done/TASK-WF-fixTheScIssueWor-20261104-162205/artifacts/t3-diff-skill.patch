@@ -1,0 +1,13 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-fixTheScIssueWor-20261104-162205/artifacts/pre/SKILL.md b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+index 443d4142..aad4b597 100644
+--- a/.dev/tasks/to-do/TASK-WF-fixTheScIssueWor-20261104-162205/artifacts/pre/SKILL.md
++++ b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+@@ -63,6 +63,8 @@ Claude Code reads the project `.claude/agents/` copy first when one exists. The
+ 
+ Workers make read-only GitHub and git calls, write only under `.dev/issues/`, run `/sc:analyze` by following `~/.claude/commands/sc/analyze.md` when their job needs a codebase pass, and return only the paths they wrote. Read each returned file from disk. A worker that returns no file or an empty one is retried once, then STOP `E-WORKER-NO-OUTPUT` with the expected path.
+ 
++Every spawn prompt names each exact path the job must write under `.dev/issues/` and states that these are input files for the orchestrator's next tool calls, not report files: the worker writes them with the Write tool, and returning their content as text counts as no output (`E-WORKER-NO-OUTPUT`).
++
+ ## Repository and GitHub call rules
+ 
+ - `<R>` is the `origin` repo, printed by `uv run --no-project python "<skill base>/scripts/origin_repo.py"`. Nothing else is consulted: not `gh repo set-default`, not gh's fork-parent default, not a `--repo` flag (B10). There is no `--repo` option on the command.

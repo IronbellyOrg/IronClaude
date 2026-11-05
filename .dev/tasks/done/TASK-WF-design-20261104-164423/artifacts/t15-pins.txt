@@ -1,0 +1,28 @@
+# grep -cF per pinned phrase of source 8.3 in src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md
+1	scripts/collect-conflict-evidence.sh
+2	evidence-validator
+1	One revision pass
+6	one sentence
+4	dropped
+1	high-suspicion
+1	configured reviewers
+1	base_authored
+1	git add -- <path>
+2	git rm -- <path>
+
+$ PYTHONDONTWRITEBYTECODE=1 uv run python /tmp/t15-check/pins_check.py src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md
+  1  scripts/collect-conflict-evidence.sh
+  2  evidence-validator
+  1  One revision pass
+  6  one sentence
+  8  dropped
+  1  high-suspicion
+  2  configured reviewers
+  1  base_authored
+  1  git add -- <path>
+  2  git rm -- <path>
+order [format list]: [('kind', 5858), ('root_cause', 5995), ('ours_intent', 6053), ('theirs_intent', 6114), ('resolution', 6183), ('behavior_after', 6272), ('dropped', 6349), ('evidence', 6405)] -> OK
+order [example]: [('kind', 6736), ('root_cause', 6753), ('ours_intent', 6835), ('theirs_intent', 6906), ('resolution', 6984), ('behavior_after', 7026), ('dropped', 7117), ('evidence', 7133)] -> OK
+order [first in file]: [('kind', 5858), ('root_cause', 5995), ('ours_intent', 6053), ('theirs_intent', 6114), ('resolution', 6183), ('behavior_after', 6272), ('dropped', 6349), ('evidence', 6405)] -> OK
+RESULT: PASS
+exit=0

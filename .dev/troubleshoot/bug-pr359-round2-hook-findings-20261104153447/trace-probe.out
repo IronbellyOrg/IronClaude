@@ -1,0 +1,8 @@
+== \[\[ a \]\]; python3 x
+hook_exit=0
+== < <(printf "") python3 -c 1
+cmdword=printf
+hook_exit=0
+== echo $(( `python3 -c 1` + 1 ))
+cmdword=echo
+hook_exit=0

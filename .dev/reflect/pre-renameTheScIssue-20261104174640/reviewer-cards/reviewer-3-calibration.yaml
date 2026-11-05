@@ -1,0 +1,15 @@
+card: reviewer-3-card.yaml
+calibrator_model_class: opus
+calibrator_diversity: degraded
+scores: {citation_grounding: 0.85, coverage_completeness: 0.75, deviation_classification_clarity: 0.60, risk_surface_coverage: 0.75, recommendation_actionability: 0.80}
+C: 0.75
+finding_verdicts:
+  R3-F1: {real: true, severity: minor, note: "downgraded from blocking: positive test scans real files; line 76 says 'for example'"}
+  R3-F2: {real: true, severity: minor}
+  R3-F3: {real: true, severity: minor}
+  R3-F4: {real: true, severity: minor}
+  R3-F5: {real: partly, severity: minor, note: "only refs/claim.md lacks the exact string"}
+  R3-F6: {real: true, severity: minor}
+  R3-F7: {real: true, severity: minor}
+  R3-F8: {real: true, severity: minor, note: "understated: verify-sync diff -rq flags the extra file"}
+  R3-F9: {real: true, severity: minor, note: "plan Task 4 note already cites #365"}

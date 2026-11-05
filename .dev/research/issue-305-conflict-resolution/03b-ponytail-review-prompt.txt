@@ -1,0 +1,13 @@
+/ponytail-review Score each item of /home/coder/workspaces/worktrees/IronClaude/issue-305-pr-submit-conflicts/.dev/research/issue-305-conflict-resolution/02-analysis-itemized-list.md for ROI on a scale of 1-10.
+
+What is being reviewed: this is not a code diff. It is a list of 424 behaviours and instructions (IDs R-01..R-269, S-01..S-63, J-01..J-92) taken from three community Claude Code merge-conflict skills. The proposed change is to add merge-conflict resolution to an existing tool, sc:pr-submit, by adopting some of these items.
+
+Context for judging ROI: sc:pr-submit is a Claude Code skill plus a small Python core that opens a pull request on a fork, polls AI review bots, fixes verified findings, validates (pytest, ruff, sync check) and pushes. Its push rules are strict: exactly one fix commit per cycle, never force-push, a pre-push guard that the PR head did not move, and a check that the pushed commit's only parent is the PR head. Today it only reports when a PR branch is behind its base and never resolves conflicts. The repo is Python plus Markdown skills; users are single developers running attended sessions, not a fleet.
+
+ROI means: value to that conflict-resolution feature (correct merges, no lost work, safety of the published PR, fewer human interventions) divided by the cost to build, test and maintain it (lines, scripts, tests, process complexity). Apply your lean rules: speculative features, duplicated behaviour, frameworks or heavy scripts for rare cases score low; cheap rules that prevent data loss or a wrong merge score high. An item that conflicts with the push rules above, or duplicates another item, should score low and say which item it duplicates.
+
+Read the whole file first. Output format, and nothing else except one closing summary line:
+one line per item, in file order, for every one of the 424 items, no item skipped or merged:
+<ID> | <score 1-10> | <one-line reason>
+Then one final line: COUNT=<number of scored lines>.
+Do not edit any file.

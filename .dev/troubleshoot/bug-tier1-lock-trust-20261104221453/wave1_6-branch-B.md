@@ -1,0 +1,7 @@
+# Wave 1.6 Branch B (log-config inspection), persisted on receipt; degraded: true (auggie not in roster)
+- fsm.py:37 `DEFAULT_CONFLICT_MAX_TIER = 1`, dataclass default fsm.py:67; parsed `type=int, choices=[0, 1, 2]` (fsm.py:101-107), passed through (fsm.py:143); commands/pr-submit.md:54 and SKILL.md:219 say default 1 regenerates a conflicted root uv.lock. Tier 1 is on unless `--conflict-max-tier 0`.
+- conflicts.py:830 `_router_domain_ok` rejects a cap outside 0..2; conflict_action (conflicts.py:964-976) then returns DEFAULT_ACTION.
+- Tier above cap -> `tier_above_cap`: Wave 0 report (conflicts.py:857-858, :861-862), C-initial report (:886-887), Wave 8a end (:921-922, :937-938, halts at :907-912 when not preserved); push gate p3 `tier <= conflict_max_tier` (:1092-1097); text refs/conflict-mechanical.md:284.
+- Tier 1 programs: the one MECHANICAL_RULES row (conflicts.py:202-210): ("uv","lock") and ("uv","lock","--check"); :198-199 argv[0] must be in SKILL.md allowed-tools.
+- SKILL.md:4 grants Bash(uv *), i.e. any uv subcommand.
+- No setting limits Tier 1 by PR author or trust: conflict_action inputs (conflicts.py:943-955) and evaluate_sync_decision (:1071-1081) carry none; only `isCrossRepository` via pr_head_ok/pr_branch_ok (fsm.py:580-631; refs/conflict-mechanical.md:67, :155), allowed only below L3 (fsm.py:592-593), so at L2 Tier 1 can still regenerate locally on a fork head (resolve_local, conflicts.py:929-934).

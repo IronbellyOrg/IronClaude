@@ -1,0 +1,68 @@
+== pinned phrases (grep -cF) ==
+1	git -c merge.conflictStyle=zdiff3 -c rerere.enabled=false merge --no-commit --no-ff <base_sha>
+1	git push origin <target_sha>:<HEAD_BRANCH>
+1	git checkout --ours -- uv.lock
+3	uv lock --check
+1	git add -- uv.lock
+1	merge_parent_ok(<parents>, pre_push_sha, base_sha)
+1	git merge-base --is-ancestor <base_sha> origin/<base>
+1	The deterministic core DECIDES
+1	evaluate_sync_decision
+2	sync_started
+1	reason `pr_conflicting`
+2	--evidence-sha
+5	expect_checks
+3	push_rejected
+3	push_failed
+1	git revert -m 1 <merge_sha>
+1	Nothing was changed and nothing was pushed.
+2	never stash
+== order pins: first-occurrence line numbers (must ascend within each chain) ==
+chain1	60	Head check
+chain1	69	merge_preflight_ok
+chain1	71	sync_started
+chain1	76	merge --no-commit --no-ff <base_sha>
+chain1	case-insensitive "head check" first at line 60
+chain2	151	--json headRefName,headRefOid,isCrossRepository
+chain2	156	merge_parent_ok
+chain2	166	--is-ancestor
+chain2	175	The deterministic core DECIDES
+chain2	187	git push origin <target_sha>:<HEAD_BRANCH>
+chain2	case-insensitive "head re-read" first at line 148; any "re-read" first at line 148
+== Python names cited in the ref vs definitions in superclaude/pr_submit ==
+build_push_triad             fsm.py 
+classify_checks              ci.py 
+conflict_action              conflicts.py 
+conflict_cycle_id            conflicts.py 
+conflict_plan                conflicts.py 
+conflict_resume_plan         conflicts.py 
+conflict_validation_status   conflicts.py 
+crash_resume_plan            conflicts.py 
+detect_crash_window          recovery.py 
+evaluate_sync_decision       conflicts.py 
+expect_checks_after_push     ci.py 
+finish_manifest              conflicts.py 
+len                          NOT_A_PACKAGE_FUNCTION
+merge_commit_message         conflicts.py 
+merge_parent_ok              conflicts.py 
+merge_preflight_ok           conflicts.py 
+mergeability_hint            conflicts.py 
+needs_probe                  conflicts.py 
+parse_resolution_record      conflicts.py 
+pr_head_ok                   fsm.py 
+prior_conflict_cycles        conflicts.py 
+rebuild_state                run_log.py 
+resolution_record_ok         conflicts.py 
+should_retrigger             fsm.py 
+sync_fail_state              conflicts.py 
+transition                   fsm.py 
+== order pins re-checked after the T14 fix pass (first-occurrence line numbers) ==
+chain1	head check	60
+chain1	merge_preflight_ok	69
+chain1	sync_started	71
+chain1	merge --no-commit	76
+chain2	re-read	149
+chain2	merge_parent_ok	157
+chain2	--is-ancestor	167
+chain2	The deterministic core DECIDES	176
+chain2	git push origin <target_sha>:<HEAD_BRANCH>	188

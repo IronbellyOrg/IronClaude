@@ -1,0 +1,37 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-315-ccsession-name-prompt/.dev/reflect/pre-fixGitHubIssue31-20261105031639/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-315-ccsession-name-prompt/.dev/reflect/pre-fixGitHubIssue31-20261105031639/audit.log
+confidence_calibrated: 0.76
+escalation_rule_matched: 5   # coverage_degraded parsed-sparse pre-filter and S_dev_density 0.2941 > 0.20
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.7059
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-007, INF-008, INF-014, INF-015, INF-016]   # matcher misses; planned in Tasks 2, 4, 7 and the Constraints
+input_tree_sha256: 351c62c94f2bfb28f29a7974722fb3f447b6bd35c66c48ee0f7068de9129cf39
+input_tree_file_count: 9
+input_drift_detected: false
+citations_total: 42
+citations_revalidated: 42
+citations_dropped: 0
+citations_inferred: 2
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+reviewer_cards: [reviewer-cards/reviewer-1-card.yaml, reviewer-cards/reviewer-2-card.yaml, reviewer-cards/reviewer-3-card.yaml]
+adversarial_artifacts_dir: adversarial/
+adversarial_convergence_score: 0.8889
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+calibrator_diversity: degraded
+remediation_offered: false
+regression_present: true   # plan-level (D-001), UC-1 advisory; no code has shipped
+needs_human_decision: false
+user_decision_required: false
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 6, regression: 1}   # plan-level findings, not shipped code

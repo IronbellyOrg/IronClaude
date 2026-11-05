@@ -1,0 +1,15 @@
+calibrated_dimensions: {citation_grounding: 0.85, coverage_completeness: 0.70, deviation_classification_clarity: 0.55, risk_surface_coverage: 0.50, recommendation_actionability: 0.35}
+C: 0.59
+calibrator_model_class: opus
+calibrator_diversity: degraded
+disagreements_with_card:
+  - "R-2/R-3 understated: Task 16 (the full-suite / lint / verify-sync gate) depends on Task 14 and Task 15, both expected to end blocked, so the final verification task is gated behind human-only steps. plan:228, plan:213, plan:223"
+  - "C-2/R-4 overstated: Task 5 makes claim.md carry Waves 0-6 in detail, and Wave 1 contains 'after `git fetch origin`; the fetch targets `origin` only'; Task 3 limits workers to read-only git. Real gap: no test pins it. plan:55, plan:91, source.md:149"
+  - "R-1 overstated: AC 5 ClickUp half is executed by Task 15 and Task 2's no-token run; R-1 conflicts with C-4 which names only items 2, 3, 6. plan:49, plan:219-222, source.md:471"
+  - "R-1 category ambiguous: the plan deliberately limits live runs on B1 grounds; it is a declared scope limit with residual risk. plan:25"
+  - "Missed: AC 4 'no gh call is made without --repo <origin repo>' (fork safety) has no static test that every gh line in SKILL.md and refs carries --repo <R> and gh api paths spell repos/<R>/... source.md:470, source.md:319, plan:121"
+  - "Weak containment matches accepted unchecked: INF-057 -> Task 4, INF-060 -> Task 6, INF-061 -> Task 2 inflate coverage_pct_union."
+  - "Risks lack concrete next actions and target files. t1-card.md:23-26"
+  - "Missed: Task 7 flag check reads installed ~/.claude/commands/sc/<name>.md first; a stale installed copy makes the test machine-dependent. plan:121"
+  - "Structural section cites no line numbers (claims verified correct on read)."
+escalation_recommendation: escalate-t2

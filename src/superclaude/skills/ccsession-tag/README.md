@@ -18,7 +18,7 @@ Neither one changes anything on your gateway. Both run entirely on your machine.
 | File | What it is |
 |---|---|
 | `ccsession` | The `ccsession` shell command |
-| `ccsession-orca` | Orca's Claude command: asks for a session name, then runs ccsession |
+| `ccsession-orca` | Orca's Claude command: asks for a session name only when Claude starts with no task, no name and no resume (a new session without a name is auto-named, except in print mode, with `CCSESSION_AUTOSTART=0`, and for launches that start no session), then runs ccsession |
 | `local-gateway-alias-proxy.py` | The shim, a small local proxy |
 | `ccsession-models.json` | Profiles and the curated model list (data only) |
 | `models.py` | Checks for, validates, and caches the latest model data |
@@ -220,29 +220,119 @@ example:
 /home/coder/.local/bin/ccsession-orca
 ```
 
-Orca accepts one executable there, with no arguments. Each Orca launch then:
+Orca accepts one executable there, with no arguments. Each Orca launch then
+runs through the shim and passes Orca's own arguments (its prompt,
+`--prefill <text>`, resume flags) to Claude Code unchanged, after ccsession's
+`--claude-args`, so a prompt is never read as a session name.
 
-- Lists this worktree's saved sessions (as `ccsession --here` does; `*` lists
-  every worktree's) and asks
-  `Session name (Enter or Ctrl+C = untagged; untagged after 30s):`. A name
-  starts or resumes that session; Enter, Ctrl+C, or no answer within 30
-  seconds starts an untagged one, so the tab never ends at a dead prompt. A
-  name that is not a valid label (too long, or holding a control character)
-  is asked again. Any other name works, one starting with `-` too
-  (it is passed on as `--name`).
-- Reopens the tab's own session without asking when Orca relaunches the tab
-  after a workspace restart (see below).
-- Skips the question when Orca resumes or continues a session
-  (`--resume <id>`, `--fork-session`, `--continue`), when there is no terminal,
-  when keys were already typed into the tab, or when `CCSESSION_AUTOSTART=0`.
-- Runs through the shim, and passes Orca's own arguments (its prompt,
-  `--prefill <text>`, resume flags) to Claude Code unchanged, after
-  ccsession's `--claude-args`, so a prompt is never read as a session name.
+#### The one question rule
 
-Orca also uses this command for supervised workers (`orca orchestration
-worker-start`), and fails a worker whose Claude is not ready within 60 seconds.
-The 30-second limit keeps those workers starting. Change it with
-`CCSESSION_ASK_TIMEOUT=<seconds>` (`0` waits for ever).
+The session-name question is asked **only when Claude starts with no task, no
+name and no resume**, and someone can answer it (stdin, stdout and standard
+error are all a terminal, and `CCSESSION_AUTOSTART` is not `0`). The question lists this
+worktree's saved sessions (as `ccsession --here` does; `*` lists every
+worktree's) and reads:
+
+```
+Session name (Enter = auto-named, Ctrl+C = cancel; auto-named after 30s):
+```
+
+- **A name** starts or resumes the session of that name. Spaces are fine, and
+  a name starting with `-` is passed on as `--name`.
+- **Enter**, or no answer within the time limit, starts the session under an
+  automatic name (below), so with the default limit the tab does not wait at
+  the prompt for ever.
+- **Ctrl+C** cancels: `ccsession-orca` exits with status 130 and Claude is not
+  started, so you are back at the shell.
+- **Text that cannot be a name** is not an error and not a name. A line that
+  holds a control character (a tab) among other text (a line of only spaces
+  or tabs is a blank answer, like Enter), is too long to save as a name (more than
+  245 bytes of file name, where each `/` or `%`, and a leading `.`, count as 3
+  bytes), or is several lines pasted (the first line not blank) becomes
+  Claude's first message (after `--` when it starts with `-`), and the session
+  is auto-named from its first words. A normal line, spaces included, stays a
+  name.
+
+What each launch does:
+
+| Launch | Question | Name Claude gets |
+|---|---|---|
+| The Claude button, a plain relaunch of a new tab | Asked | The name typed; an automatic name on Enter, on the time limit, or on keys typed ahead (no question then) |
+| A prompt, `--prefill <text>`, or `--session-id <id>` (an agent or worktree launch) | No | An automatic name made from the prompt's first words (from the folder and a stamp alone when there is no prompt text, as with `--session-id`); Orca's arguments reach Claude unchanged and in their own order |
+| `CCSESSION_NAME=<name>` in the environment (a worker start) | No | That name (see below) |
+| Claude's own `--name`, `-n` or `--name=` | No | Left for Claude as given; nothing is added |
+| `--resume`, `-r`, `--continue`, `-c`, `--fork-session`, `--from-pr` | No | None: the session names itself |
+| A tab Orca relaunches after a restart, with a recorded session | No | The tab's own session is reopened (below) |
+| No terminal and no task or name (a worker start with nothing given) | No (nobody to ask) | An automatic name |
+| `-p` / `--print` (print mode) | No | None: the run is untagged |
+| `CCSESSION_AUTOSTART=0` | No | None: the launch is untagged |
+| `--version`, `--help`, and Claude's own subcommands (`mcp`, `doctor`, `update`...) | No | None: they start no session |
+
+The rows above describe a launch with no `CCSESSION_NAME`. A valid
+`CCSESSION_NAME` is an explicit instruction. It is passed as `--name` even with
+`-p`, `--version`, a subcommand or `CCSESSION_AUTOSTART=0`, so set it only on a
+launch that starts a new session. Do not combine it with a resume option (with
+`--resume <id>` and a name that is also a saved label, Claude would get two
+`--resume` arguments) or with Claude's own `--name` (Claude would get two
+`--name` arguments).
+
+`--fork-session` and `--from-pr` are resume options like `--resume`, so they
+skip the question and get no name. `--session-id` starts a new session under an
+id you choose: it carries a task, so it skips the question and is auto-named.
+
+#### Automatic names
+
+A launch that needs a name and was given none gets one from
+`ccsession --auto-name [<task text>]`:
+`<folder>-<up to four words of the task>-<MMDD-HHMMSS>-<4 hex digits>`, for
+example `my-repo-fix-the-login-bug-1105-091530-3a7f`. The folder is cut to 20
+characters and each word to 12, and only letters, digits and hyphens are kept,
+so whatever the text holds (quotes, `$(...)`, a path, control characters) the
+label is one safe, valid name, well under the 245-byte limit. It is checked
+against the names already saved for this repo (a saved name resumes its
+session), and the stamp ends in a random part, so launches do not share one in
+practice: a label that matches a saved name gets `-2`, then `-3`. A name is
+saved only when the session starts, so two launches in the same second rely on
+the random part. If the name list
+cannot be written, no name is made and Claude starts untagged: a launch never
+stops here. The name is Claude Code's name for the session too, and joins
+`ccsession --here` once the session has started and the hooks have recorded it.
+
+#### Time limit
+
+The question gives up after 30 seconds (the time runs again after a `*`, which
+lists every worktree's sessions and asks again). Orca fails a supervised worker whose
+Claude is not ready within 60 seconds, so a worker that was started with
+neither a task nor a name still starts. Change the limit with
+`CCSESSION_ASK_TIMEOUT=<seconds>` (`0` waits for ever, and the hint then drops
+the time). The limit lives inside the question itself (`ccsession --ask`), so
+every caller of `--ask` has it, not only `ccsession-orca`. `ccsession-orca`
+removes both this limit and `CCSESSION_NAME` from the environment it starts
+Claude Code with; a plain `ccsession` run leaves its environment as it is.
+
+#### `CCSESSION_NAME`: how an orchestrator names a session
+
+Set `CCSESSION_NAME=<name>` in the launch environment to name a session
+without a prompt. A valid name (the rules above) is used as the session's name
+and nothing is asked. An invalid one (a control character, or too long to save) is dropped with a
+warning on standard error, and the launch is then handled as if none was
+given: Claude still starts. A name equal to a saved label of this repo resumes
+that session, with a visible `Resuming '<name>'` line, while its conversation
+is still saved; if the conversation is gone, a new session starts under that
+name. A launch with a valid
+`CCSESSION_NAME` is never treated as a relaunch to reopen.
+
+**Orchestrators should always pass the task or a name in the launch** (a prompt
+argument, or `CCSESSION_NAME`). Without either, on a terminal the worker waits
+for the question until the time limit; with no terminal it is auto-named at
+once.
+
+#### Known exception
+
+Claude Agent Teams starts its teammates from inside Claude Code, without
+running `ccsession-orca`, so ccsession cannot name those sessions or ask about
+them. This is the one launch path this command does not cover. It is listed as
+a follow-up to issue 315.
 
 ### Reopening a tab after a restart
 
@@ -261,20 +351,39 @@ ran. So the tab reopens its own session instead of asking:
   the tab's recorded session is still saved, was started in this same folder
   and ran in another terminal (Orca relaunched the tab), it resumes that
   session: by its name when it has one in this repo's list, else by its id.
-- Everything else is unchanged. A new tab or split pane has no record and is
-  asked. A launch with a prompt, `--prefill`, a name or a session choice
-  (`--resume`, `--continue`, `--session-id`, `--fork-session`) behaves as
-  before. Running `ccsession-orca` again by hand in the same terminal is
-  asked. A session whose conversation was deleted, or that was started in
-  another folder, falls back to the question.
+- The reopen runs first, before the question and before any automatic name.
+  Everything else follows the one question rule above. A new tab or split pane
+  has no record and is asked. A launch with a prompt, `--prefill`, a name
+  (`CCSESSION_NAME` or Claude's `--name`) or a session choice (`--resume`,
+  `--continue`, `--session-id`, `--fork-session`, `--from-pr`) never reopens:
+  it is named, or resumed, as described above. Running `ccsession-orca` again
+  by hand in the same terminal is asked. A session whose conversation was
+  deleted, or that was started in another folder, falls back to the question.
 - A session belongs to one tab: when another tab opens it, the first tab
   forgets it, so two tabs never reopen the same session.
 
 The question itself is `ccsession --ask [<hint>]`: it prints the list and the
-question on the terminal and only the chosen name on standard output (empty
-for untagged). It exits 1 when it did not ask (no terminal, or keys already
-waiting), got no answer within `CCSESSION_ASK_TIMEOUT` seconds (unset or `0`:
-no limit), or input ended, and 130 on Ctrl+C.
+question on the terminal and only the answer on standard output. A `@LIMIT@`
+in the hint becomes the time limit in seconds. When there is no limit, the hint
+is cut at the first `; ` that has `@LIMIT@` after it; a hint without such a
+`; ` keeps `@LIMIT@` as written. Without a hint the question reads
+`Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s):`,
+for callers where an empty answer means an untagged session. Exit status:
+
+- `0`: a name, or an empty line for a blank answer (Enter);
+- `1`: it did not ask (no terminal, or keys already waiting), got no answer
+  within `CCSESSION_ASK_TIMEOUT` seconds (default `30`; `0` or a value that is
+  not a whole number of seconds, such as `1.5` or `30s`: no limit), or input
+  ended;
+- `3`: the typed text cannot be a name (a control character among other text,
+  over 245 bytes, or several lines pasted after a first line that is not
+  blank; the 245-byte rule is the one above; a line of only spaces or tabs is a
+  blank answer, status `0`, and so is a pasted block that starts with a blank
+  line). It is printed as
+  typed, as a first message for Claude;
+- `130`: Ctrl+C.
+
+`ccsession --check-name <name>` exits 0 when the name is valid, else 1.
 
 ### Tab title in Orca
 

@@ -1,0 +1,425 @@
+R-01 | 5 | Useful detection, but reject unrelated paused operations rather than taking them over.
+R-02 | 8 | Keeps conflict handling bounded and excludes unsafe recovery work.
+R-03 | 2 | Extra command modes enlarge the interface without helping the existing monitor.
+R-04 | 2 | Broad interpreter permissions undermine the claimed restriction and add maintenance.
+R-05 | 10 | Cheap central rule: automate safe work and stop before guessing.
+R-06 | 5 | Keeps optional explanation out of the normal resolution path.
+R-07 | 3 | Separate constitutional machinery adds navigation; put essential rules directly in the skill.
+R-08 | 3 | Mostly duplicates R-01; automatic takeover needs operation ownership checks.
+R-09 | 1 | PR decomposition is a separate feature outside conflict resolution.
+R-10 | 1 | Adds decomposition machinery instead of a simple safe stop.
+R-11 | 10 | A final marker check cheaply prevents publishing visibly unresolved source.
+R-12 | 3 | Blanket documentation exceptions miss real conflicts in this Markdown-heavy repository.
+R-13 | 9 | Prevents silently discarding incoming work across every conflicted file.
+R-14 | 9 | Complements R-13 by protecting the current branch from blanket replacement.
+R-15 | 10 | A cheap prohibition against destroying local resolution work.
+R-16 | 2 | Rebase skipping is outside a feature that must preserve published history.
+R-17 | 4 | Category restrictions help, but generated files still need correct source regeneration.
+R-18 | 9 | Makes the R-05 stop rule concrete before editing human-authored files.
+R-19 | 8 | Visible exceptions make deliberate losses and changed safety assumptions reviewable.
+R-20 | 8 | Prevents one permission from becoming blanket authority over the resolution.
+R-21 | 2 | Duplicates the scoped-override rule in R-20.
+R-22 | 3 | Duplicates R-11; retaining a second prohibition adds little value.
+R-23 | 3 | A separate status script is unnecessary for this narrow integration.
+R-24 | 2 | Broad operation support adds branches; literal .git paths also break linked worktrees.
+R-25 | 1 | Rebase progress reporting is outside the required publication model.
+R-26 | 6 | Listing unresolved paths is useful; a custom tab-separated protocol is unnecessary.
+R-27 | 2 | Handles an extra interface introduced by low-value R-03.
+R-28 | 3 | A clear no-op result helps, but duplicates basic detection in R-01.
+R-29 | 4 | Useful only for an owned operation with approval; unsafe as generic takeover.
+R-30 | 1 | Can finish unrelated operations and creates merge commits rejected by the parent guard.
+R-31 | 1 | Continuing with unresolved paths fails and contradicts R-11.
+R-32 | 2 | Duplicates R-08 and still lacks operation ownership checks.
+R-33 | 3 | A workload limit helps, but this arbitrary rebase threshold misses actual difficulty.
+R-34 | 1 | Tracking consecutive rebase failures adds machinery for an excluded workflow.
+R-35 | 2 | Recurrence may justify stopping, but automatic counting adds little here.
+R-36 | 3 | Correct caution, but configurable heuristics are unnecessary for an attended feature.
+R-37 | 1 | A split-analysis script is excessive for a safe stop.
+R-38 | 1 | Automated re-landing recommendations expand into a separate PR-management feature.
+R-39 | 2 | Sensible caution within the out-of-scope split system; duplicates R-05.
+R-40 | 4 | Simple classification helps; importing a separate categorization script is unnecessary.
+R-41 | 4 | Covers risky file types but overbuilds categories for Python and Markdown.
+R-42 | 2 | A fixed routing hierarchy adds coupling and cannot establish semantic safety.
+R-43 | 7 | Cheaply detects submodule pointers that must not be treated as text.
+R-44 | 4 | Binary detection helps, but this exact unmerged-diff assumption needs testing.
+R-45 | 3 | Seventeen package-manager names exceed the repository's immediate needs.
+R-46 | 3 | Broad filename heuristics create false stops and maintenance across unused ecosystems.
+R-47 | 3 | A large snapshot naming catalog has limited value in this feature.
+R-48 | 4 | Cheap recognition, but notebook-specific support is not an immediate need.
+R-49 | 3 | Filename guesses can misclassify authoritative schemas as generated output.
+R-50 | 2 | Broad routing to an added merge dependency increases installation and testing costs.
+R-51 | 7 | A short pre-edit summary exposes dangerous classifications before changes.
+R-52 | 2 | Blindly taking theirs can lose dependency choices before regeneration.
+R-53 | 3 | Regeneration is useful, but delaying it until after validation tests the wrong tree.
+R-54 | 8 | Stops potentially destructive schema decisions instead of guessing.
+R-55 | 4 | Side labels matter, but rebase-specific handling is outside this feature.
+R-56 | 8 | Prevents publishing an arbitrary submodule revision at little implementation cost.
+R-57 | 8 | Avoids pretending binary conflicts can be safely merged as text.
+R-58 | 9 | Regenerating from resolved sources preserves reproducibility and reduces manual errors.
+R-59 | 9 | Stops unsafe regeneration when the authoritative input is unknown.
+R-60 | 6 | Regeneration helps, but choosing snapshots must follow the resolved code.
+R-61 | 2 | Rebase-specific guidance duplicates R-55 and supports an excluded workflow.
+R-62 | 3 | Output removal can destroy useful notebook content; low demand here.
+R-63 | 5 | Correctly treats notebook code as authored content without a separate resolver.
+R-64 | 2 | Adds a dependency and timeout path for work the attended agent can handle.
+R-65 | 2 | Necessary only if adopting low-value R-64.
+R-66 | 3 | Useful fallback, but duplicates marker protection in R-11.
+R-67 | 2 | Marker removal alone does not justify accepting a tool-generated resolution.
+R-68 | 2 | Global configuration changes and extra tool setup exceed this feature's scope.
+R-69 | 1 | An unsupported size heuristic adds little practical protection.
+R-70 | 1 | A routing framework duplicates decisions the skill can state directly.
+R-71 | 1 | Router bookkeeping costs more than it helps an attended developer.
+R-72 | 3 | Correct caution, but only needed because R-70 introduces an unnecessary router.
+R-73 | 1 | Couples several heavyweight heuristics without proving merge correctness.
+R-74 | 1 | Incorrectly labels migrations, binaries and submodules as high-confidence mechanical work.
+R-75 | 1 | Text similarity cannot authorize dropping one side's behavior.
+R-76 | 1 | Adds a routing lane driven by an unreliable similarity signal.
+R-77 | 3 | Bounded work helps, but line count alone is a poor stop rule.
+R-78 | 3 | Recognizing deletion needs care; a dedicated routing lane is unnecessary.
+R-79 | 1 | Unequal text length does not establish confidence in a merge.
+R-80 | 1 | History-score routing adds machinery without reliable correctness evidence.
+R-81 | 1 | Balanced text does not justify a candidate-search subsystem.
+R-82 | 2 | Missing markers can mean a tree conflict, not an unusable file.
+R-83 | 2 | Missing base context warrants inspection, not a numeric confidence lane.
+R-84 | 8 | Stopping on unreadable input prevents blind edits and false completion.
+R-85 | 2 | Complicated failure handling for optional scripts that need not exist.
+R-86 | 3 | Failure must be surfaced, but a router-specific exit convention adds little.
+R-87 | 1 | Five tunable thresholds create configuration without demonstrated user demand.
+R-88 | 2 | Retracts unsafe automation from R-75; better omit the similarity machinery.
+R-89 | 1 | Maintaining agreement between prose and a heuristic router adds review overhead.
+R-90 | 1 | Mandatory heuristic and risk registries are excessive governance for this feature.
+R-91 | 5 | Fail safely on missing required evidence, not every optional heuristic failure.
+R-92 | 1 | Duplicates the unsupported length heuristic in R-79.
+R-93 | 1 | Text balance does not imply that line combination is correct.
+R-94 | 1 | Duplicates R-77 and adds an out-of-scope decomposition script.
+R-95 | 1 | Adds a specialized tool and workflow for rare oversized conflicts.
+R-96 | 1 | Candidate generation and ranking are excessive and do not prove intent.
+R-97 | 1 | Several candidates deliberately drop work or concatenate incompatible behavior.
+R-98 | 1 | Line-set overlap ignores ordering and behavior, so ranking can reward wrong merges.
+R-99 | 1 | Confidence labels give weak text similarity an unjustified appearance of certainty.
+R-100 | 1 | More thresholds maintain an unnecessary subsystem rather than improve correctness.
+R-101 | 6 | Read-only suggestions protect work, though the proposed subsystem remains low value.
+R-102 | 1 | High similarity does not prove that a small semantic difference is trivial.
+R-103 | 2 | Duplicates intent-based stopping in R-18 with an unreliable numerical trigger.
+R-104 | 1 | Fallback plumbing adds no value without the low-value recombination subsystem.
+R-105 | 4 | Inspection helps, but an empty hunk alone does not prove file deletion.
+R-106 | 1 | Per-file stacked-PR detection is unnecessary for ordinary base synchronization.
+R-107 | 1 | Only supports the low-value detector in R-106.
+R-108 | 1 | Near-identical additions can differ in critical checks; similarity cannot choose safely.
+R-109 | 1 | Adds detector output without a needed resolution behavior.
+R-110 | 1 | Whitespace removal and deduplication erase distinctions that can change behavior.
+R-111 | 1 | Tuning unreliable thresholds creates maintenance rather than correctness.
+R-112 | 9 | Parent diffs and relevant commits provide strong evidence before changing behavior.
+R-113 | 3 | Duplicates the evidence-before-editing procedure in R-112.
+R-114 | 3 | Messages explain intent but must not outrank actual code and tests.
+R-115 | 2 | A custom context collector duplicates existing search and code-graph tools.
+R-116 | 1 | Forbidding targeted search can hide essential callers and Markdown instructions.
+R-117 | 1 | Custom identifier extraction misses context and adds parser maintenance.
+R-118 | 1 | Arbitrary seed limits can exclude the symbol that explains the conflict.
+R-119 | 1 | Excluding Markdown removes core behavior in this Markdown-heavy repository.
+R-120 | 1 | Excluding the conflicted file can omit necessary local definitions and callers.
+R-121 | 3 | Explicit truncation is useful, but the custom collection system is unnecessary.
+R-122 | 1 | Another exit convention for a context script that should not be adopted.
+R-123 | 3 | Targeted history inspection can help; mandatory similarity mining is excessive.
+R-124 | 2 | Adds exclusion rules for the unnecessary history subsystem.
+R-125 | 1 | A dedicated historical-resolution search script has poor value for rare conflicts.
+R-126 | 4 | Correctly limits history to evidence, but overlaps R-112.
+R-127 | 2 | Special handling for absent signals only supports the unnecessary history miner.
+R-128 | 7 | Cheaply prevents stale historical decisions from overwriting current intent.
+R-129 | 2 | Language-specific policy is speculative for this Python and Markdown feature.
+R-130 | 1 | Adds a ranking option to an unnecessary search tool.
+R-131 | 1 | Another environment branch for the low-value history miner.
+R-132 | 4 | Avoiding surprise fetches helps, but partial-clone mining support is unnecessary.
+R-133 | 1 | Adds a Git capability dependency for an optional historical heuristic.
+R-134 | 1 | Convenience behavior for a script the feature does not need.
+R-135 | 2 | Bounds an expensive search, but deleting that search saves more.
+R-136 | 1 | Specialized history filtering adds complexity without required conflict coverage.
+R-137 | 1 | Excludes valid historical choices and adds another ranking assumption.
+R-138 | 1 | Many arbitrary weights produce scores unrelated to semantic correctness.
+R-139 | 1 | A recombination flag adds bookkeeping, not proof of a safe merge.
+R-140 | 2 | Duplicates the advisory-only rule in R-126.
+R-141 | 3 | Direct inspection links help, but R-112 already provides simpler evidence gathering.
+R-142 | 3 | Confidentiality matters, but a snippet mode is unnecessary without external transmission.
+R-143 | 1 | More configuration-like limits for the unnecessary history subsystem.
+R-144 | 3 | Correct caution, but ordinary rename inspection avoids the similarity subsystem.
+R-145 | 1 | A five-code protocol adds integration work for an optional search.
+R-146 | 7 | A brief cause statement distinguishes competing edits from moves and nearby changes.
+R-147 | 2 | Duplicates the two-intent requirement in R-18.
+R-148 | 2 | Duplicates the unknown-intent stop rule in R-18.
+R-149 | 6 | A short category list helps choose the right response without scripts.
+R-150 | 7 | Combining genuinely compatible nearby edits preserves work with little process.
+R-151 | 8 | Explicit ordering prevents additive changes from being combined incorrectly.
+R-152 | 7 | Resolves real competition by evidence, subject to R-18 when intent remains unclear.
+R-153 | 9 | Preserves edits when files or definitions move instead of reviving obsolete locations.
+R-154 | 9 | Prevents silent deletion or accidental resurrection in delete-versus-edit conflicts.
+R-155 | 3 | Semantic inspection matters, but a mandatory custom audit script is excessive.
+R-156 | 9 | A cheap behavior statement exposes resolutions the agent does not understand.
+R-157 | 5 | Resolution and scoped staging help; a formal record per file adds overhead.
+R-158 | 2 | Reuse existing validation rather than add another wrapper and retry system.
+R-159 | 2 | Blanket Markdown exclusions miss real conflicts; whole-tree scans also hit fixtures.
+R-160 | 2 | An inclusion override compensates for R-159 instead of fixing scan scope.
+R-161 | 6 | Cheap staged-diff check, but inherited whitespace must not trigger unrelated cleanup.
+R-162 | 2 | Adds shell execution and duplicates the existing validation path.
+R-163 | 2 | Duplicates existing pytest validation through an unnecessary shell wrapper.
+R-164 | 2 | Retry-code plumbing duplicates the monitor's existing failure handling.
+R-165 | 2 | State cleanup is only needed by the unnecessary reprompt subsystem.
+R-166 | 1 | Persistent reprompt artifacts and counters duplicate the existing attended monitor.
+R-167 | 4 | Path confinement is useful, but literal .git storage needs linked-worktree support.
+R-168 | 4 | Preserving intent matters, but duplicates R-18 and R-156.
+R-169 | 8 | Cheaply prevents a failed check from becoming unrelated cleanup.
+R-170 | 5 | A bounded stop helps, but reuse the monitor's existing retry limit.
+R-171 | 1 | Adds a second orchestration loop inside the existing remediation loop.
+R-172 | 3 | Duplicates bounded stopping in R-170 with separate retry state.
+R-173 | 6 | Keeping orchestration in the existing session avoids another service or model client.
+R-174 | 2 | A custom semantic-audit script adds false positives and language maintenance.
+R-175 | 3 | Reviewing warnings helps, but depends on the unnecessary script in R-174.
+R-176 | 1 | Generic merge-base selection is wrong for some listed operations.
+R-177 | 1 | Regex-style definition mining across 22 languages exceeds this feature's needs.
+R-178 | 2 | Symbol mentions produce noisy suspects without proving a behavior clash.
+R-179 | 1 | Adds another script-specific status protocol to maintain.
+R-180 | 9 | A short checklist directs attention to common clean-but-broken integrations.
+R-181 | 8 | Targeted parent diffs and reference searches reuse existing tools cheaply.
+R-182 | 2 | Node installation is outside the stated stack and can run install scripts.
+R-183 | 2 | Adds another package-manager path without demonstrated demand.
+R-184 | 2 | Adds another package-manager path without demonstrated demand.
+R-185 | 1 | Bun-specific support is speculative for this feature.
+R-186 | 1 | Shrinkwrap handling adds an unused ecosystem branch.
+R-187 | 2 | Correct ecosystem-specific regeneration, but Rust support is not needed here.
+R-188 | 1 | Adds Poetry support with a version-sensitive flag instead of using UV.
+R-189 | 9 | Uses the required Python manager to rebuild the lock after manifest resolution.
+R-190 | 1 | PDM support duplicates the role already covered by UV.
+R-191 | 1 | Ruby installation is out of scope and does not ensure fresh lock resolution.
+R-192 | 1 | Composer install does not reliably regenerate a conflicting lockfile.
+R-193 | 1 | Adds an unused ecosystem path without ensuring intended lock regeneration.
+R-194 | 1 | Swift-specific support is speculative here.
+R-195 | 1 | Adds two unused package-manager paths and their testing burden.
+R-196 | 1 | Restore does not by itself guarantee the required lockfile rewrite.
+R-197 | 1 | Nix-specific regeneration is outside the stated stack.
+R-198 | 1 | Published-history rebasing conflicts with the no-force publication model.
+R-199 | 1 | A merge commit has two parents and fails the strict parent check.
+R-200 | 2 | Generic cherry-pick continuation is outside base-conflict resolution.
+R-201 | 2 | Generic revert continuation is outside base-conflict resolution.
+R-202 | 2 | Repeated operation continuation adds a second loop and broader operation support.
+R-203 | 4 | A short summary helps; category-count tables add little for one developer.
+R-204 | 5 | Relevant warnings help, but avoid separate decomposition and audit reporting machinery.
+R-205 | 1 | A second JSON summary duplicates human reporting without a named consumer.
+R-206 | 2 | Eleven fields per file impose substantial paperwork on attended conflict resolution.
+R-207 | 2 | Duplicates R-18's unknown-intent stop condition.
+R-208 | 2 | A formal action vocabulary mainly supports unnecessary record machinery.
+R-209 | 1 | Per-file JSON duplicates R-206 without an integration requirement.
+R-210 | 7 | A clear stop location makes human intervention faster and safer.
+R-211 | 4 | Evidence helps decisions, but exhaustive command inventories add reporting overhead.
+R-212 | 7 | Concise side-by-side intent makes an unresolved choice understandable.
+R-213 | 5 | Explain outcomes, but offer only choices supported by the evidence.
+R-214 | 3 | Duplicates the safe-abstention rule already established by R-05 and R-18.
+R-215 | 2 | Long-rebase optimization is outside this publication model.
+R-216 | 2 | Rerere setup and management add persistent configuration for rare repeated conflicts.
+R-217 | 2 | Duplicates R-35 and assumes recurrence proves a context-dependent failure.
+R-218 | 1 | Compatibility rules between two unnecessary tools add no immediate value.
+R-219 | 1 | Specialized incremental merging adds a new dependency and workflow.
+R-220 | 2 | Reasonable general advice, but splitting existing PRs is outside scope.
+R-221 | 1 | A split-planning subsystem is not needed to resolve the current conflict.
+R-222 | 1 | Fixed split ordering can ignore actual dependencies and is outside scope.
+R-223 | 1 | Confidence reporting only supports the unnecessary split feature.
+R-224 | 2 | Duplicates caution in R-39 within an out-of-scope subsystem.
+R-225 | 1 | Adds another decision branch and dependency to the split feature.
+R-226 | 1 | Multi-mode split-script plumbing is unrelated to the requested feature.
+R-227 | 1 | Configurable split-analysis scope adds unnecessary interface and tests.
+R-228 | 1 | Directory grouping is not a reliable behavioral dependency boundary.
+R-229 | 1 | Rename similarity cannot establish that a refactor is behavior-preserving.
+R-230 | 1 | Layer classification adds maintenance for an unrequested planner.
+R-231 | 1 | Layer counts are arbitrary confidence proxies, not dependency checks.
+R-232 | 2 | Sound caution, but only useful if implementing the out-of-scope planner.
+R-233 | 1 | Several warning thresholds add noise without validating a safe split.
+R-234 | 3 | Read-only planning protects branches, but the planner itself is unnecessary.
+R-235 | 2 | Broad strategy selection expands the feature into branch-restructuring guidance.
+R-236 | 1 | Explains two out-of-scope strategies without improving normal conflict handling.
+R-237 | 2 | Duplicates refactor-splitting advice in R-220.
+R-238 | 2 | Useful split discipline, but decomposition is outside the requested feature.
+R-239 | 2 | Better than directory grouping, but still implements an unnecessary planner.
+R-240 | 1 | Ownership and co-change analysis are excessive for one attended developer.
+R-241 | 2 | Necessary for splitting, but splitting itself is outside scope.
+R-242 | 2 | Duplicates safe-split caution in R-224.
+R-243 | 1 | Branch surgery expands scope and may require prohibited history rewrites.
+R-244 | 1 | Arbitrary size advice adds noise instead of a correctness check.
+R-245 | 2 | Structural merging may help, but adds tooling for an unrequested split workflow.
+R-246 | 1 | More dependencies for speculative cluster discovery have very low return.
+R-247 | 3 | Useful general discipline; R-169 already bounds conflict-fix scope.
+R-248 | 3 | Duplicates regeneration in R-53 and R-189 with a stronger blanket statement.
+R-249 | 2 | Duplicates keeping generated output with its source in R-238.
+R-250 | 2 | Duplicates keeping tests with implementation in R-238.
+R-251 | 8 | Cheaply prevents breaking callers when resolving removals or moved interfaces.
+R-252 | 1 | Stack maintenance is outside scope and rebasing children conflicts with publication constraints.
+R-253 | 1 | General split advice does not improve the conflict-resolution feature.
+R-254 | 1 | A stacked-PR creation script is a separate product feature.
+R-255 | 2 | Dry-run safety helps only if adopting unnecessary R-254.
+R-256 | 1 | Reconstructing history from paths risks omissions and violates the bounded fix model.
+R-257 | 3 | Confirmation protects external actions, but this stack workflow should not be added.
+R-258 | 2 | An arbitrary explicit remote is weaker than the existing fork-only target rule.
+R-259 | 2 | The dirty-tree escape hatch permits mixing unrelated work into generated commits.
+R-260 | 2 | A short protected-name list and bypass flag weaken branch protection.
+R-261 | 2 | Already part of opening and monitoring PRs; no new conflict-specific value.
+R-262 | 3 | Prevents branch collisions within an out-of-scope stack creator.
+R-263 | 1 | Creates multiple branches, commits and PRs; bare PR creation can target upstream.
+R-264 | 1 | Draft stacked PRs add no value to resolving the existing PR.
+R-265 | 1 | Adds JSON plumbing and branch naming for the unnecessary stack subsystem.
+R-266 | 2 | Duplicates independent split validation in R-241.
+R-267 | 1 | Retargeting other PRs expands external effects beyond the current PR.
+R-268 | 1 | Dependent PR stacks are unrelated to the bounded conflict-resolution feature.
+R-269 | 1 | Tracking-PR machinery adds process for an unrequested stack feature.
+S-01 | 2 | Duplicates R-01 and broadens takeover to unrelated stash and revert conflicts.
+S-02 | 2 | Duplicates the explicit two-intent requirement in R-18.
+S-03 | 3 | Duplicates R-13 and R-14 while explaining why blanket selection loses work.
+S-04 | 1 | Forbidding abort removes a needed recovery path when safe resolution is impossible.
+S-05 | 7 | Cheaply establishes operation ownership and prevents using the wrong completion procedure.
+S-06 | 3 | Duplicates operation and unresolved-path detection in R-01 and R-26.
+S-07 | 2 | Duplicates unresolved-path listing in R-26.
+S-08 | 4 | A small history view helps orientation; all branches can add irrelevant noise.
+S-09 | 7 | Explicit branch meanings prevent accidental side inversion during ordinary merges.
+S-10 | 2 | Rebase-specific support is outside scope; partly duplicates R-55.
+S-11 | 2 | Duplicates side-selection protection in R-13 for an excluded rebase workflow.
+S-12 | 9 | Reading the actual current-side version avoids misleading labels and partial hunks.
+S-13 | 9 | Complements S-12 with the incoming version needed for a correct comparison.
+S-14 | 9 | The ancestor distinguishes genuine edits from unchanged inherited text.
+S-15 | 2 | Duplicates setup in R-68 and changes global preferences unnecessarily.
+S-16 | 3 | Helpful only before edits; re-rendering afterward can destroy resolution work.
+S-17 | 8 | Comparing each side with the ancestor cheaply prevents accidental behavior loss.
+S-18 | 6 | Concrete application of additive merging, but overlaps R-150 and R-151.
+S-19 | 2 | Duplicates the intent requirement in R-18.
+S-20 | 3 | Duplicates history evidence in R-112 and needs operation-aware use.
+S-21 | 3 | Duplicates incoming history inspection in R-112 and only works during merges.
+S-22 | 1 | Unqualified GitHub queries can violate the mandatory fork-only rule.
+S-23 | 5 | Discussion adds intent evidence, but actual implementation must remain authoritative.
+S-24 | 2 | Duplicates preservation of both sides in R-13 and R-18.
+S-25 | 2 | Duplicates intent-preserving combination in R-150 and R-151.
+S-26 | 9 | Cheaply prevents conflict repair from introducing an unrequested product feature.
+S-27 | 2 | Duplicates compatible combination in R-150 and R-151.
+S-28 | 4 | Overlaps R-152; an unstated goal must not justify dropping known behavior.
+S-29 | 9 | Explicitly naming dropped behavior makes otherwise silent work loss reviewable.
+S-30 | 1 | A literal ban on new lines blocks legitimate adaptations and renamed calls.
+S-31 | 1 | A required follow-up commit violates exactly one fix commit per cycle.
+S-32 | 2 | Duplicates the marker prohibition in R-11.
+S-33 | 4 | Explains the failure class already covered by R-180.
+S-34 | 3 | Duplicates targeted reference inspection in R-181 and is overbroad after every resolution.
+S-35 | 3 | Cheap check, but must cover staged changes too; overlaps R-161.
+S-36 | 2 | Duplicates R-11 with an incomplete marker pattern and fixture false positives.
+S-37 | 2 | Duplicates the semantic checklist in R-180.
+S-38 | 9 | Detects tree conflicts that a marker-only procedure would miss.
+S-39 | 6 | Adds useful deletion caution, but overlaps R-154 and can revive moved files.
+S-40 | 7 | Explicit add/add handling avoids losing one newly added implementation.
+S-41 | 2 | Status codes alone do not prove the claimed rename history.
+S-42 | 1 | The edited version is not always theirs; this can select the wrong side.
+S-43 | 2 | Duplicates generated-source handling in R-58 and lock regeneration in R-189.
+S-44 | 2 | Duplicates R-52 and can discard dependency choices without correct regeneration.
+S-45 | 3 | Duplicates R-189 while adding unused managers and install-script exposure.
+S-46 | 9 | Staging regenerated output closes the omission left by delayed regeneration.
+S-47 | 3 | Duplicates generated and snapshot handling in R-58 and R-60.
+S-48 | 3 | Migration ordering matters, but not all migration conflicts are ordering conflicts.
+S-49 | 2 | Framework-specific chain surgery is outside scope and can alter deployed history.
+S-50 | 3 | A useful check only if Alembic support becomes an actual requirement.
+S-51 | 1 | Django-specific support is speculative and the bare Python command violates project rules.
+S-52 | 2 | Adds two unused frameworks and oversimplifies migration ordering.
+S-53 | 8 | A cheap rule prevents rewriting migration identities already used in shared environments.
+S-54 | 3 | Existing validation already provides this gate; ensure it covers the final regenerated tree.
+S-55 | 2 | Duplicates existing pytest, lint and sync validation with unnecessary rediscovery.
+S-56 | 3 | Existing remediation already fixes verified failures; scope it to merge-caused problems.
+S-57 | 1 | Broad staging can publish unrelated tracked or untracked work.
+S-58 | 1 | Completes a two-parent merge rejected by the strict parent check.
+S-59 | 1 | Replaying published commits conflicts with the no-force publication model.
+S-60 | 2 | Duplicates R-200 and supports an unnecessary operation.
+S-61 | 2 | Strengthens R-16, but rebase skipping remains outside scope.
+S-62 | 1 | Duplicates R-216 and changes global state for an excluded long-rebase workflow.
+S-63 | 2 | Duplicates review of replayed resolutions in R-215.
+J-01 | 3 | A separate merge command is unnecessary; integrate detection into the existing monitor.
+J-02 | 2 | An arbitrary base override can conflict with the PR's actual target.
+J-03 | 4 | Useful scope limits, but literal adoption would forbid this tool's PR-opening role.
+J-04 | 4 | Linked-worktree support matters; GitLab and provider-independent support are speculative here.
+J-05 | 8 | Cheaply prevents conflict repair from modifying unrelated branches.
+J-06 | 7 | Avoids disturbing the default branch or another worktree during integration.
+J-07 | 1 | Selecting upstream violates this repository's explicit no-upstream-interaction rule.
+J-08 | 1 | Branch tracking configuration must not override the fork-only push target.
+J-09 | 2 | Reuse the known PR head branch rather than trust unrelated tracking configuration.
+J-10 | 1 | Silent fallback can select the wrong publication target instead of stopping.
+J-11 | 3 | A preflight helps, but remote-head mutation and a separate script are unnecessary.
+J-12 | 4 | Simple structured results help, but reuse the Python core's existing result handling.
+J-13 | 7 | A failed prerequisite must stop later edits and publication.
+J-14 | 3 | Basic prerequisite already inherent in the existing Git-based PR flow.
+J-15 | 6 | Cheap guard against resolving or committing without the intended branch checked out.
+J-16 | 8 | Worktree-aware operation detection avoids incorrect literal .git assumptions.
+J-17 | 9 | Rejecting unrelated operations prevents hijacking the user's paused work.
+J-18 | 8 | Protects pre-existing edits, but resumption must still distinguish unrelated dirty files.
+J-19 | 5 | Enables resumption, but MERGE_HEAD alone does not establish ownership.
+J-20 | 9 | Avoiding shared stash manipulation prevents cross-worktree work loss.
+J-21 | 3 | Existing push-target validation already covers this basic prerequisite.
+J-22 | 3 | Useful prerequisite, but validate the approved fork rather than an arbitrary base remote.
+J-23 | 2 | The PR's actual base is authoritative; remote default branches can differ.
+J-24 | 1 | Unnecessary remote-head mutation can reinforce selection of the wrong PR base.
+J-25 | 2 | Duplicates prerequisite stopping in J-13 for an unnecessary default-branch lookup.
+J-26 | 7 | Protects the default branch, but also verify the exact intended PR head.
+J-27 | 1 | Ancestry does not prove the operation belongs to this run or was not user-started.
+J-28 | 3 | Capturing validated targets helps; a second printed protocol adds little.
+J-29 | 2 | MERGE_HEAD-only resumption can take over an unrelated user merge.
+J-30 | 2 | Manual placeholder copying risks wrong targets; reuse validated Python state.
+J-31 | 5 | Narrow fetching reduces effects, but fetch the actual PR base rather than a default.
+J-32 | 1 | A normal merge creates two parents and fails the mandatory publication guard.
+J-33 | 2 | Default messages are cheap, but this merge commit cannot pass the parent rule.
+J-34 | 2 | Fast-forwarding can import multiple commits, violating the single-fix-parent requirement.
+J-35 | 4 | A clear no-op is useful, but still preserve all existing publication guards.
+J-36 | 1 | Automatically committing integration before validation conflicts with the bounded commit model.
+J-37 | 5 | Distinguishing conflicts from other failures is useful; output text needs careful handling.
+J-38 | 1 | Avoids force-push, but ordinary merge commits still violate the one-parent rule.
+J-39 | 8 | Use the attended agent for judgment instead of importing a large resolver framework.
+J-40 | 6 | Sequential edits reduce confusion while still allowing independent evidence reads in parallel.
+J-41 | 2 | Duplicates unresolved-path listing in R-26 and S-07.
+J-42 | 3 | Duplicates S-12 through S-14; missing stages need explicit handling.
+J-43 | 2 | Duplicates intent preservation in R-18 and R-151.
+J-44 | 3 | Overlaps R-13 and R-14; absolute per-file bans also reject justified selections.
+J-45 | 2 | Duplicates R-45 and R-189 while adding unused package-manager coverage.
+J-46 | 3 | Lockfile-only regeneration helps, but duplicates R-189 and must follow manifest resolution.
+J-47 | 3 | On-demand lookup is leaner than a catalog, but unnecessary for the known UV stack.
+J-48 | 7 | Cheaply avoids introducing a second dependency manager and incompatible lockfile.
+J-49 | 3 | Duplicates R-58; blindly choosing the default side adds no safety.
+J-50 | 3 | Duplicates the unknown-intent stop rule in R-18.
+J-51 | 3 | Duplicates R-154 with an unconditional stop that increases human interventions.
+J-52 | 2 | Duplicates migration escalation in R-54.
+J-53 | 6 | Preserves resolution work during a decision stop, but only for an owned operation.
+J-54 | 3 | Duplicates concise stop reporting in R-210 and R-212.
+J-55 | 2 | Duplicates J-29 and still needs stronger operation ownership than MERGE_HEAD.
+J-56 | 8 | Exact per-file staging avoids sweeping unrelated work into the fix.
+J-57 | 2 | Duplicates the staged-diff check in R-161.
+J-58 | 3 | Added-line scanning reduces old-fixture noise, but duplicates R-11 and omits base markers.
+J-59 | 1 | Creates a two-parent merge commit that the current guard must reject.
+J-60 | 8 | Cheaply prevents bypassing project checks when committing conflict repairs.
+J-61 | 7 | Actual hook output makes failures actionable without weakening the checks.
+J-62 | 3 | Scoped restaging helps, but this merge-completion path violates the parent rule.
+J-63 | 7 | Prevents accidentally amending the previous PR commit after a failed commit attempt.
+J-64 | 3 | Repository guidance matters, but existing validation already supplies the relevant gates.
+J-65 | 2 | Duplicates S-55 and the existing validation path with unused language examples.
+J-66 | 7 | Treating resolution edits as authored changes prevents skipping required review.
+J-67 | 5 | Avoids unnecessary review duplication while retaining the project's integration requirements.
+J-68 | 1 | A follow-up commit violates exactly one fix commit per cycle.
+J-69 | 2 | Untouched code can break through changed callers; these criteria do not prove prior failure.
+J-70 | 1 | Publishing after failed gates weakens the existing validated-push contract.
+J-71 | 2 | Duplicates the no-stash protection in J-20.
+J-72 | 2 | This repository has gates; a no-gates branch is speculative and must not bypass them.
+J-73 | 3 | Reuse existing push checks; being ahead alone does not establish safe ancestry.
+J-74 | 3 | A second remote probe duplicates the existing PR-head guard.
+J-75 | 2 | Ahead counts do not replace the stricter unchanged-head and sole-parent checks.
+J-76 | 2 | First-push handling belongs to existing PR creation, not conflict repair.
+J-77 | 7 | Distinguishing absent branches from connectivity failures prevents unsafe guesses.
+J-78 | 3 | Clear no-op reporting helps, but the existing push path should own it.
+J-79 | 2 | Duplicates initial publication behavior and must not trust an arbitrary remote.
+J-80 | 4 | Explicit branch targeting helps, but reuse the existing guarded fork push.
+J-81 | 3 | No-force protection already exists; retaining hook enforcement is a cheap addition.
+J-82 | 2 | Duplicates target discipline, but J-08's configured remote may itself be forbidden.
+J-83 | 6 | Exact hook failures help the user recover without bypassing publication checks.
+J-84 | 4 | Safe stopping reinforces the existing moved-head guard; rejection can also mean local divergence.
+J-85 | 2 | A fast-forward-only pull cannot combine divergent heads and may not solve the rejection.
+J-86 | 1 | A separate fixed report contract duplicates and constrains the monitor's existing output.
+J-87 | 4 | Concise merge evidence helps, but reuse the existing summary instead of another format.
+J-88 | 4 | Complements J-05 with publication protection, but largely duplicates existing target guards.
+J-89 | 3 | Duplicates J-06, J-20 and J-63 in a second hard-rule list.
+J-90 | 1 | Delegating an unsafe command to the user does not make it a safe recommendation.
+J-91 | 9 | Cheaply protects parallel sessions and the main checkout from unintended changes.
+J-92 | 2 | A second message-mapping table duplicates existing stop and error handling.
+COUNT=424

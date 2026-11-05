@@ -1,0 +1,30 @@
+T11 evidence (executor)
+== sections of the template present in order
+4:## What was tried
+24:## Relevant files and links
+34:## Done when
+42:## Who it is for
+== template placeholders left
+0
+== test names in the handoff that do not exist in the test files (must be none)
+MISSING test_ccsession_tag
+MISSING test_ccsession_tiers
+(end)
+== states the Coder repo was not touched
+2:<!-- Repository to file in: IronbellyOrg/Coder. The Coder repo was NOT touched by the IronClaude work described here. -->
+6:IronClaude issue #315 ("agent-spawned worktree sessions stuck at the ccsession Session name prompt") was split into an IronClaude part and a Coder part. The I
+== open placeholder to fill after the PR exists
+27:- IronClaude branch: `ironbelly/issue-315-ccsession-name-prompt`; pull request: https://github.com/IronbellyOrg/IronC
+installed template differs from the filled copy (as expected); installed template untouched: 4 placeholder lines
+(the two MISSING lines above are test file names matched by the pattern, not test functions: both files exist)
+== (after fix) sections
+4:## What was tried
+41:## Relevant files and links
+51:## Done when
+60:## Who it is for
+== placeholders left
+0
+== cited tests missing from the test files (names only; none expected)
+(end)
+44:- IronClaude branch: `ironbelly/issue-315-ccsession-name-prompt`; pull request: https:/
+T11 note: PR_NUMBER_TO_FILL placeholder replaced by wording that needs no number (the FINAL review digest would go stale if the file changed after it); the PR URL travels in the worker report.

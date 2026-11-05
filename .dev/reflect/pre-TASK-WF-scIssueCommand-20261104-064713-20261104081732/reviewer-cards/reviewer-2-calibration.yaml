@@ -1,0 +1,15 @@
+card: reviewer-2
+calibrated_dimensions: {citation_grounding: 0.90, coverage_completeness: 0.70, deviation_classification_clarity: 0.85, risk_surface_coverage: 0.65, recommendation_actionability: 0.80}
+C: 0.78
+finding_severity_rulings:
+  - {id: Q-1, card_severity: minor, calibrated_severity: minor, reason: "source.md:408 is a process rule; plan:25 defers with the exact command."}
+  - {id: Q-2, card_severity: minor, calibrated_severity: minor, reason: "plan:92 disclosed addition guarding gh's default 30."}
+  - {id: Q-3, card_severity: minor, calibrated_severity: minor, reason: "plan:129 deliberate, documented narrowing."}
+  - {id: Q-4, card_severity: minor, calibrated_severity: minor, reason: "plan:15/254 pending ACs recorded truthfully; B1 justifies holding live writes; no partial offline check offered."}
+missed_by_card:
+  - "AC 7 (source.md:473) static test: plan:126 checks phrase presence only, not that no Agent call passes model."
+  - "AC 5 first half (source.md:471) never marked run or pending in plan:254."
+  - "AC 8 offline half (next-steps.md starts with the /model line, source.md:474) not pinned by any test or AC (plan:77, plan:81-85)."
+  - "Task 16 (plan:243) live ClickUp PUT and key-path comparison have no mechanism or approval rule."
+  - "Task 7 fork-safety scan (plan:131) does not check gh api paths spell repos/<R>/ (source.md:319, 178)."
+calibrator_model_class: opus

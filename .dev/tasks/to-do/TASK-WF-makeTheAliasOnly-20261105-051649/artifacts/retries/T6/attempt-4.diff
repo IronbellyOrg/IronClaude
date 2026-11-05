@@ -1,0 +1,72 @@
+diff --git a/docs/reference/README.md b/docs/reference/README.md
+index e7e0cded..dfc2db61 100644
+--- a/docs/reference/README.md
++++ b/docs/reference/README.md
+@@ -19,3 +19,4 @@ This folder holds reference material: troubleshooting guides, diagnostic procedu
+ | [nfr-conv-2-prose-determinism.md](./nfr-conv-2-prose-determinism.md) | Where task-builder output must be deterministic and where prose may vary |
+ | [pm-agent-autonomous-reflection.md](./pm-agent-autonomous-reflection.md) | How the PM agent reflects on its own work and saves tokens |
+ | [claude-code-history-management.md](./claude-code-history-management.md) | How Claude Code stores conversation history and how to rotate it |
++| [model-aliases.md](./model-aliases.md) | How `opus`, `sonnet` and `haiku` map to ccsession tiers, and the allow-list of the model-alias policy test |
+diff --git a/docs/reference/model-aliases.md b/docs/reference/model-aliases.md
+new file (full content follows, with line numbers)
+     1	# Model aliases and ccsession tiers
+     2	
+     3	This page records the issue #384 owner decision of 2026-11-05 on how the Claude Code aliases `opus`, `sonnet` and `haiku` map to ccsession tiers, and the allow-list of `tests/skills/test_model_alias_policy.py`.
+     4	
+     5	## What a primitive may name
+     6	
+     7	Checks in `tests/skills/test_model_alias_policy.py` that read model names include:
+     8	
+     9	- `test_frontmatter_model_is_an_alias_when_present` reads the `model:` value of `src/superclaude/agents/*.md`, `src/superclaude/skills/*/SKILL.md` and `src/superclaude/commands/*.md` and fails unless it is `opus`, `sonnet`, `haiku` or `inherit`, apart from the pins below; a file without a `model:` line is skipped (test lines 79-97, with the skip at lines 89-90).
+    10	- `test_python_selection_constants_are_not_full_model_ids` reads the Python files under `src/superclaude`, skips `src/superclaude/skills/ccsession-tag/`, and fails on a non-docstring string constant that starts with `claude-opus-`, `claude-sonnet-`, `claude-haiku-` or `claude-fable-` followed by a digit (test lines 48 and 135-157, with the skip at line 140; `RESIDUAL_FULL_IDS` is empty, line 44).
+    11	- `test_markdown_does_not_pass_full_model_ids_to_model_flags` fails when a Markdown line under `src/superclaude/agents`, `src/superclaude/commands` or `src/superclaude/skills` (`ccsession-tag` is skipped) has `--model` or `--models` followed by a full `claude-opus-`, `claude-sonnet-`, `claude-haiku-` or `claude-fable-` id (test lines 49-51, 70-76 and 160-169).
+    12	- `test_tier_ids_appear_only_in_allowed_paths` reads files ending `.md`, `.py`, `.json`, `.yaml`, `.yml`, `.sh`, `.txt` or `.toml` under the `agents`, `commands`, `skills`, `cli`, `hooks` and `core` folders of `src/superclaude` and fails on the text `claude-gw-tier` outside the allow-list paths below (test lines 46-47 and 100-115).
+    13	
+    14	### Allow-list
+    15	
+    16	- `issue-worker-t3` pins `claude-gw-tier3`, `issue-worker-t2` pins `claude-gw-tier2` and `issue-worker-t1` pins `claude-gw-tier1a`, each on line 6 of its file under `src/superclaude/agents/`.
+    17	- The pins are on purpose: when a spawn fails because the picker id is not served, for example outside a ccsession tier workspace, the issue protocol stops with `E-TIER-UNAVAILABLE`, and there is no alias fallback (`src/superclaude/skills/sc-issue-protocol/refs/tiers.md` lines 34 and 40).
+    18	- `TIER_TEXT_ALLOWED` lets the three pinned files, `src/superclaude/skills/sc-issue-protocol/` and `src/superclaude/skills/ccsession-tag/` contain the text `claude-gw-tier` (test lines 36-40).
+    19	
+    20	## The mapping
+    21	
+    22	Owner decision of 2026-11-05: once the launcher sets the three variables, inside a ccsession tier workspace the aliases resolve as follows:
+    23	
+    24	| Alias | Tier model it resolves to | Set by |
+    25	|---|---|---|
+    26	| `opus` | `claude-gw-tier1a` | `ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a` |
+    27	| `sonnet` | `claude-gw-tier1b` | `ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b` |
+    28	| `haiku` | `claude-gw-tier2` | `ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-gw-tier2` |
+    29	
+    30	The exports are:
+    31	
+    32	```text
+    33	ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a
+    34	ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b
+    35	ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-gw-tier2
+    36	```
+    37	
+    38	Target, once the launcher change lands: outside a ccsession tier workspace the launcher sets none of the three variables, so `opus`, `sonnet` and `haiku` keep Claude Code's meaning.
+    39	
+    40	Status on 2026-11-05: the ccsession launcher is to apply these exports in a follow-up change after the #315 pull request merges.
+    41	Until then `/etc/aidev02/aienv.d/defaults.sh` exports real model ids for the three variables: line 92 sets `ANTHROPIC_DEFAULT_HAIKU_MODEL` from `T2Model02` (`glm-5.3`, line 37), line 93 sets `ANTHROPIC_DEFAULT_OPUS_MODEL` from `T1aModel01` (`claude-opus-5-5`, line 23) and line 94 sets `ANTHROPIC_DEFAULT_SONNET_MODEL` from `T1aModel02` (`claude-sonnet-5-5`, line 25).
+    42	
+    43	## Why aliases and not picker ids
+    44	
+    45	Source: <https://code.claude.com/docs/en/sub-agents>, read 2026-11-05.
+    46	
+    47	- The sub-agents page says the Agent-call `model` parameter takes the aliases `sonnet`, `opus`, `haiku` or `fable`, and that Claude cannot pass a full model id or `inherit` on that call.
+    48	- The page says the frontmatter `model` takes an alias, a full model id or `inherit`; it documents no environment lookup in that field, so `model: ${SOMETHING}` is not a documented option.
+    49	- The probe found that a tier id set in `ANTHROPIC_DEFAULT_OPUS_MODEL` or `ANTHROPIC_DEFAULT_HAIKU_MODEL` was served and that `model: opus` and `model: haiku` resolved through it; it did not set `ANTHROPIC_DEFAULT_SONNET_MODEL`.
+    50	- The page also describes an edge case for family aliases: when the main session runs a model of the same family, the alias can resolve to that model. The probe did not cover a main session that runs in the same family as the alias.
+    51	
+    52	On 2026-11-05 a probe against the workspace gateway ([probe record](../../.dev/issues/384/analysis/probe-alias-remap.md)) found that a subagent with `model: opus` ran on `claude-gw-tier1a` and one with `model: haiku` ran on `claude-gw-tier2`, while the main session kept its own model.
+    53	Claude Code logs an `unrecognized_model` notice for the tier ids and serves the request.
+    54	The probe covered the frontmatter path and `--model`; it did not exercise the Agent-call parameter.
+    55	
+    56	## Known consequences
+    57	
+    58	- **Reflect reviewer diversity.** When the three variables hold the tier ids, `count_model_aliases` (`src/superclaude/cli/reflect/runner.py` lines 291-310) counts three distinct values. Tier 1a and tier 1b both list Claude Sonnet 5.5 (`src/superclaude/skills/ccsession-tag/MODEL-TIERS.md` lines 38-39), so the reviewers differ less than the count suggests.
+    59	- **Sprint alternate-model suggestion.** Given the alias `opus`, `suggest_alternate_model` returns `sonnet` when the two slots hold different ids (`src/superclaude/cli/sprint/aienv.py` lines 149-152). When the three `ANTHROPIC_DEFAULT_*_MODEL` slots hold tier ids and no slot that `_load_aliases` reads, including `T2Model01` to `T2Model0N` (lines 78-82), holds a given Claude id from a cooldown message such as `claude-opus-5-5`, it returns `None` (lines 111-128).
+    60	- **Roadmap names.** Step ids such as `generate-opus-architect` (`src/superclaude/skills/sc-roadmap-protocol/SKILL.md` line 114) are built from the agent spec's model text (`src/superclaude/cli/roadmap/models.py` lines 75-90). That text comes from `--agents` when it is given (`src/superclaude/cli/roadmap/commands.py` lines 37-38 and 323-326) and otherwise from the default specs `opus` and `sonnet` (`models.py` lines 102-105). The `/sc:recommend` eval model lists use the alias text (`src/superclaude/cli/recommend/eval_aggregate.py` lines 18-20), so their names stay as they are.
+    61	- **Implement retry ladder.** On 2026-11-05 `/etc/aidev02/aienv.d/defaults.sh` exports `T3Model01`, `T2Model02`, `T1Model02` and `T1Model01` (lines 48, 37, 69 and 67). After Task 5 of this issue's plan, in a workspace that sets these four variables the primary ladder of `refs/retry.md` in `sc-implement-protocol` (names at lines 162, 164, 168, 169 and 172) replaces the alias fallback ladder. The Task 5 notes (`artifacts/t5-notes.md` in this issue's plan package) record that with these values rung 1 is a non-Claude model, rungs 0 and 2 are GPT models, and a claude-sonnet executor sits on no primary rung, so its tier is unknown and adviser A takes the top rung.

@@ -1,0 +1,120 @@
+diff --git a/src/superclaude/core/HOW-WE-WORK.md b/src/superclaude/core/HOW-WE-WORK.md
+index 1574807d..1ef022ad 100644
+--- a/src/superclaude/core/HOW-WE-WORK.md
++++ b/src/superclaude/core/HOW-WE-WORK.md
+@@ -37,7 +37,7 @@ Every research, document, and task skill works from the same four things. If the
+ | Weak request | Strong request |
+ |---|---|
+ | `/tech-research "rate limiting"` | `/tech-research "What would it take to add per-tenant rate limits to the public API? One tenant is overloading it. Look at src/api/middleware/, src/tenants/, and config/limits.yaml. I need options with effort and risk, and a recommended plan."` |
+-| `/task-builder "add rate limits"` | `/task-builder "Add per-tenant rate limits as recommended in .dev/tasks/to-do/TASK-RESEARCH-rate-limits-<timestamp>/RESEARCH-REPORT-rate-limits.md. Code: src/api/middleware/, src/tenants/. Why: one tenant is overloading the API."` |
++| `/sc:workflow "add rate limits"` | `/sc:workflow "Add per-tenant rate limits as recommended in .dev/tasks/to-do/TASK-RESEARCH-rate-limits-<timestamp>/RESEARCH-REPORT-rate-limits.md. Code: src/api/middleware/, src/tenants/. Why: one tenant is overloading the API."` |
+ | `/tech-reference "rate limiting"` | `/tech-reference "Document the rate limiting feature we just built. Code: src/api/middleware/rate_limit/. Audience: engineers who maintain it. Output: docs/api/rate-limiting-technical-reference.md."` |
+ 
+ ---
+@@ -50,7 +50,7 @@ Use this when the work is big enough that people need to agree on *what* is bein
+ 
+ 1. **Shape the idea (only if it is still vague).**
+    `/sc:brainstorm "Usage-based billing for API customers: metering, monthly invoices, overage alerts" --depth standard`
+-   It asks you questions, has several agents propose approaches, and merges them into `.dev/brainstorms/<timestamp>-<name>/merged-requirements.md`. It stops there. If you will build it directly without a PRD, add `--handoff task`: it then builds a task file from the merged requirements (level 4).
++   It asks you questions, has several agents propose approaches, and merges them into `.dev/brainstorms/<timestamp>-<name>/merged-requirements.md`. It stops there. If you will build it directly without a PRD, plan the build with `/sc:workflow <path to merged-requirements.md>` (level 3). Add `--handoff task` only for level-4-sized work: it then builds a task file from the merged requirements (level 4).
+ 
+ 2. **Write the product requirements document (PRD).** The PRD defines *what* to build and *why*: users, problems, requirements, success measures, and scope.
+    `/prd "Create a PRD for usage-based billing. Purpose: align product and engineering on the first release. Start from .dev/brainstorms/<timestamp>-usage-billing/merged-requirements.md. Relevant code: src/billing/, src/api/metering/. Output to docs/billing/PRD_BILLING.md."`
+@@ -97,19 +97,21 @@ Use this when the requirements are already clear and the feature extends somethi
+ 
+ 2. **Write and agree the spec.** Save a short spec file, for example `docs/specs/invoice-csv-export.md`, saying what changes, which files, and how you will know it works. If it includes a new interface or API, `/sc:design invoice-export-api --type api --format spec` drafts that part; paste its output into the spec file. Have your lead approve the spec.
+ 
+-3. **Build the task file, passing the spec.**
+-   `/task-builder "Implement monthly CSV export for the invoices list. Why: finance month-end. Code: src/invoices/, src/api/routes/invoices.py" --spec docs/specs/invoice-csv-export.md`
+-   Passing `--spec` makes task-builder check that every requirement in the spec has a task. The result is in the `reflect_pre` entry at the top of the task file. If the check fails (less than 90% of requirements covered), the missed requirements are added to the task file's Open Questions. Without `--spec` this check is skipped. Read the task file and its Open Questions before running it. To resolve an Open Question: for a spec requirement the task file missed, add it to the existing task file as a new unchecked checklist item (`- [ ]`) in the phase where it belongs (or ask Claude to add it), then run `/task <task file path>`; `/task` picks up from the first unchecked item. For an open question about intent, write the answer under the question in the task file before running `/task`. Do not tick checklist items.
++3. **Plan the build from the spec.**
++   `/sc:workflow docs/specs/invoice-csv-export.md`
++   It writes a plan in which every step has acceptance criteria, then checks the plan against the spec automatically. It prints the plan path (`.dev/tasks/to-do/<id>/<id>.md`; `<id>` is defined in section 1, level 3) and the check result. Read the plan and the check result. If the check lists a spec requirement the plan misses, add it to the plan before its first step starts (3.10).
++
++4. **Run it.** `/sc:implement .dev/tasks/to-do/<id>/<id>.md`. It builds one step at a time, has a reviewer check each step, and runs a final independent review. If a step stops, see 3.3 step 2.
+ 
+-4. **Run it.** `/task <path to task file>`. If it stops partway, see the note at the end of 3.1.
++5. **Ship.** Workflow 3.11.
+ 
+-5. **Confirm and ship.** Read the task file's `reflect_post` verdict (as in 3.1 step 9), then workflow 3.11.
++If the feature is level-4-sized (section 1), build and run a task file instead (3.13).
+ 
+ ### 3.3 Make a small, well-defined change
+ 
+ 1. **One source file (plus its test), five edits or fewer:** use level 2 (section 1).
+ 
+-2. **A few files with clear scope:**
++2. **A planned change with clear requirements, including one that touches many files or takes more than one session:**
+    `/sc:workflow "Make the retry limit in src/jobs/runner.py configurable from settings.yaml, default 3, and cover it with a unit test" --depth quick`
+    Read the plan at the path it prints (`.dev/tasks/to-do/<id>/<id>.md`; `<id>` is defined in section 1, level 3) and the check result printed with it, and check that each step's acceptance criteria clearly say what "done" means. Then:
+    `/sc:implement .dev/tasks/to-do/<id>/<id>.md`
+@@ -123,14 +125,14 @@ Use this when the requirements are already clear and the feature extends somethi
+ 1. **Diagnose it.** Describe what happens, what you expected, how to reproduce it, and paste the exact error.
+    `/sc:troubleshoot "Nightly invoice job fails with KeyError: 'tenant_id' in src/billing/invoice_job.py since yesterday's deploy. Expected: invoices for all tenants. Reproduce: python -m billing.invoice_job --date 2026-09-30" --type bug`
+    Use `--type test`, `build`, `performance`, `deployment`, or `security` when that fits better. It finds the root cause with file and line evidence and changes nothing. A simple bug takes 1-3 minutes. If it is not confident, or the problem is intermittent or spans several areas, it automatically brings in more agents, which can take another 4-15 minutes. `--depth quick` stops it after the first pass; `--depth deep` always brings in several agents testing competing explanations after that first pass.
+-   If you suspect the fix will be larger or riskier than a few files with clear scope, add `--fix` now. If the diagnosis succeeds, it then offers to build a task file for the fix, and changes nothing unless you accept.
++   If you expect the fix to be riskier or longer than a short plan, add `--fix` now. If the diagnosis succeeds, it then offers to plan the fix with `/sc:workflow` (you run the plan with `/sc:implement`), and changes nothing unless you accept. With `--fix --depth deep` the offer is a task file instead (level 4).
+ 
+ 2. **Read the report** at `.dev/troubleshoot/<name>-<timestamp>/REPORT.md`. It says whether the fix belongs in the code, the test, or the documentation.
+ 
+ 3. **Fix it.**
+    - **Small fix (one source file plus its test, five edits or fewer):** first ask Claude to add a test that reproduces the bug (using the report's reproduction steps) and confirm the test fails. Then make the fix and run `/sc:test tests/billing/test_invoice_job.py --coverage` to confirm the new test and the existing ones pass.
+-   - **A few files with clear scope:** `/sc:workflow "<the fix described in REPORT.md, with a test that reproduces the bug>" --depth quick`, then `/sc:implement .dev/tasks/to-do/<id>/<id>.md` (the plan path it prints; level 3).
+-   - **Larger or riskier fix:** accept the task-file offer from step 1. If you did not pass `--fix`, do not diagnose again; build the task file from the report you already have: `/task-builder "Fix the root cause described in .dev/troubleshoot/<name>-<timestamp>/REPORT.md, with a test that reproduces the bug. Code: <files the report cites>"`. Then `/task <path>`; if it stops partway, see the note at the end of 3.1. The task file runs its own reviews, tests, and final audit; read its `reflect_post` verdict when it finishes.
++   - **A clear fix that needs a short plan:** `/sc:workflow "<the fix described in REPORT.md, with a test that reproduces the bug>" --depth quick`, then `/sc:implement .dev/tasks/to-do/<id>/<id>.md` (the plan path it prints; level 3).
++   - **A riskier or multi-session fix:** accept the plan offer from step 1. If you did not pass `--fix`, do not diagnose again; plan the fix from the report you already have, at the default depth: `/sc:workflow "Fix the root cause described in .dev/troubleshoot/<name>-<timestamp>/REPORT.md, with a test that reproduces the bug. Code: <files the report cites>"`. Then `/sc:implement .dev/tasks/to-do/<id>/<id>.md` (the plan path it prints). Build a task file with `/task-builder` and run it with `/task` (3.13) only for a level-4-sized fix.
+    - **If the report says the cause is not confirmed:** do not fix anything yet. Run the checks the report lists, then run `/sc:troubleshoot` again with what you learned added to the description, or with `--depth deep`.
+ 
+ 4. **Ship.** Workflow 3.11.
+@@ -148,7 +150,7 @@ Use this when the requirements are already clear and the feature extends somethi
+ 
+ | Situation | Run |
+ |---|---|
+-| The idea or requirements are still unclear | `/sc:brainstorm "<the idea, who it is for, the main constraint>"`. It ends with merged requirements you can take into `/prd` (3.1). Add `--handoff task` to go straight to a task file instead. |
++| The idea or requirements are still unclear | `/sc:brainstorm "<the idea, who it is for, the main constraint>"`. It ends with merged requirements you can take into `/prd` (3.1). When no PRD is needed, plan the build from them with `/sc:workflow <path to merged-requirements.md>` (level 3). `--handoff task` goes straight to a task file instead, for level-4-sized work only. |
+ | You have two or more competing designs, plans, or drafts | `/sc:adversarial --compare docs/design-a.md,docs/design-b.md`. Agents debate them, score them, and merge the strongest parts into one document. |
+ | A spec, PRD, or TDD needs an outside expert critique | `/sc:spec-panel @docs/specs/invoice-csv-export.md --mode critique`. It only reports; you decide what to apply. |
+ | You want reviewers from other AI model families | `/sc:swarm-wizard`. It asks what you want reviewed, picks the settings, proves them with a safe dry run, and launches the real review only after you say go. Real runs need an OpenAI-compatible model proxy set in `~/.aienv`: one `export KEY=value` line each for `T2ProxyUrl` (proxy base URL), `T2ProxyKey` (API key), and `T2Model01` (model name), and make sure your shell sources the file (for example from your shell profile) before you start Claude; without it you get the dry run only. The full list of review styles by goal is in the IronClaude repository (not installed): https://github.com/IronbellyOrg/IronClaude/blob/master/docs/swarm/wizard-guide.md |
+@@ -165,12 +167,12 @@ Use this when the requirements are already clear and the feature extends somethi
+    `/sc:improve src/billing/ --type quality --safe --interactive` improves code quality.
+    `--interactive` asks before complex changes, but some changes are applied automatically even then: `/sc:cleanup` removes unused imports, code nothing references, empty blocks, and redundant type annotations; `/sc:improve` fixes formatting and naming, removes unused variables, reorders imports, and adds simple type annotations. Review `git diff` before keeping anything.
+ 
+-3. **Large refactors** (many files or a structural change): treat it as a feature. Write a spec and build a task file with `/task-builder ... --spec` (3.2), so every step is checked.
++3. **Large refactors** (many files or a structural change): treat it as a feature. Write a spec and plan it with `/sc:workflow <spec file>`, so every step is checked (3.2; for level-4-sized refactors, 3.13).
+ 
+ ### 3.8 Run tests and check coverage
+ 
+ - `/sc:test tests/billing/ --coverage` runs the tests and reports coverage. Add `--type unit`, `integration`, or `e2e` to narrow it.
+-- `/sc:test` does not write new tests. To add tests, put them in the spec and the task file (3.2), or ask Claude to write them for a small change (3.4 step 3).
++- `/sc:test` does not write new tests. To add tests, put them in the spec and the plan (3.2), or ask Claude to write them for a small change (3.4 step 3).
+ 
+ ### 3.9 Document existing work
+ 
+@@ -198,7 +200,7 @@ For a task file, open it and read the `reflect_pre:` block in the file's header
+ 1. **Commit locally** on your feature branch. Do not push yet.
+ 2. **Bug review.** `/code-review`. Fix what it finds.
+ 3. **Security review.** If you touched login, permissions, secrets, user input, or file paths: `/security-review`. Commit any fixes from steps 2 and 3 before step 4, so the branch review and the push include them.
+-4. **Branch review.** `/sc:auggie-review --diff origin/<main branch>...HEAD --no-post-pr` (`git remote show origin | grep 'HEAD branch'` prints the main branch name). It reviews the whole branch for bugs, architecture risks, and bad patterns, and keeps results local. At the end it offers to plan fixes as a task file; accept only if you want one.
++4. **Branch review.** `/sc:auggie-review --diff origin/<main branch>...HEAD --no-post-pr` (`git remote show origin | grep 'HEAD branch'` prints the main branch name). It reviews the whole branch for bugs, architecture risks, and bad patterns, and keeps results local. At the end it offers to plan fixes with `/sc:design` and then `/sc:workflow` (you run the plan with `/sc:implement`); with `--depth deep` the offer is a task file instead. Accept only if you want one.
+ 5. **Push.** Only after your lead approves.
+ 6. **Open the PR.** You need the GitHub command-line tool (`gh`) installed and logged in.
+    `/sc:pr-submit --monitor 3 --head feature/invoice-csv-export --title "Add monthly CSV export to invoices list" --body "Adds CSV export for finance month-end. Spec: docs/specs/invoice-csv-export.md. Tests: tests/invoices/test_export.py."`
+@@ -217,6 +219,18 @@ There are two ways to resume. Use the first if you set it up; the second always
+ 
+ `/sc:save` and `/sc:load` store and load Serena project memory. (Serena is an optional code-navigation tool; its project memory is notes it keeps between sessions.) They are not a way to resume work.
+ 
++### 3.13 Build and run a task file (level 4)
++
++Use this only for level-4 work (section 1): a whole project or major component built from scratch, from a spec complex enough that it nearly warrants a PRD and TDD, when you or your lead chose the extra time and tokens. It takes much longer and costs far more than `/sc:workflow`; for everything else use 3.2 or 3.3. The commands below reuse the CSV export example from 3.2 to show the shape.
++
++1. **Build the task file, passing the spec.**
++   `/task-builder "Implement monthly CSV export for the invoices list. Why: finance month-end. Code: src/invoices/, src/api/routes/invoices.py" --spec docs/specs/invoice-csv-export.md`
++   Passing `--spec` makes task-builder check that every requirement in the spec has a task. The result is in the `reflect_pre` entry at the top of the task file. If the check fails (less than 90% of requirements covered), the missed requirements are added to the task file's Open Questions. Without `--spec` this check is skipped. Read the task file and its Open Questions before running it. To resolve an Open Question: for a spec requirement the task file missed, add it to the existing task file as a new unchecked checklist item (`- [ ]`) in the phase where it belongs (or ask Claude to add it), then run `/task <task file path>`; `/task` picks up from the first unchecked item. For an open question about intent, write the answer under the question in the task file before running `/task`. Do not tick checklist items.
++
++2. **Run it.** `/task <path to task file>`. If it stops partway, see the note at the end of 3.1.
++
++3. **Confirm and ship.** Read the task file's `reflect_post` verdict (as in 3.1 step 9), then workflow 3.11.
++
+ ---
+ 
+ ## 4. Rules everyone follows

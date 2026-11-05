@@ -1,0 +1,31 @@
+diff --git a/tmp/tmp.eq7vmU88yK/before.html b/docs/onboarding/ironclaude-onboarding.html
+index 2082def9..ed915685 100644
+--- a/tmp/tmp.eq7vmU88yK/before.html
++++ b/docs/onboarding/ironclaude-onboarding.html
+@@ -532,7 +532,7 @@
+     <div class="card"><h3>Work is written to files</h3><p>Plans, research and findings are saved to files, most under <code>.dev/</code>, not only into the chat. If a session dies, the files are what survives.</p></div>
+     <div class="card"><h3><code>superclaude update</code> overwrites</h3><p>It overwrites every file it ships, including an edited <code>~/.claude/CLAUDE.md</code>, keeps no backup, and deletes and re-copies each shipped skill folder, so any file you added inside one is lost. Copy any file you changed or added before you run it.</p></div>
+     <div class="card"><h3>Resume after a crash</h3><p>Before you need it, tag the conversation with <code>/ccsession-tag &lt;name&gt;</code>; later, from a terminal in the same folder, run <code>ccsession &lt;name&gt;</code>.</p><p>This always works: run the same command again on the work's own files, <code>/sc:implement</code> on the plan or <code>/task</code> on the task file.</p></div>
+-    <div class="card"><h3>Not a resume method</h3><p><code>/sc:save</code> and <code>/sc:load</code> store and load project notes. They do not resume a task or a plan.</p></div>
++    <div class="card"><h3>Not a resume method</h3><p><code>/sc:save</code> and <code>/sc:load</code> store and load Serena project memory (project notes). They do not resume a task or a plan.</p></div>
+   </div>
+ </section>
+ 
+@@ -554,7 +554,7 @@
+ </section>
+ 
+ <section class="slide" id="s13" aria-labelledby="s13-h">
+-  <p class="eyebrow"><b>13</b> · Watch out · HOW-WE-WORK section 5, 3.12 and section 4</p>
++  <p class="eyebrow"><b>13</b> · Watch out · HOW-WE-WORK sections 1, 3.12 and 5</p>
+   <h2 id="s13-h">Traps</h2>
+   <h3>Look-alike commands (the guide explains each difference)</h3>
+   <div class="tablewrap">
+@@ -570,7 +570,7 @@
+       </tbody>
+     </table>
+   </div>
+-  <div class="trap"><b>Choosing level 4 for the wrong reason.</b> The guide's rule: use <code>/task-builder</code> and <code>/task</code> only when you explicitly select the task-file (MDTM) format, already have an MDTM task to run, or have an exceptionally complex, long-running phased program that needs their research, checklist and phase-reviewer machinery. File count, several sessions, an existing spec, risk or drift alone never select them (guide sections 1 and 5).</div>
++  <div class="trap"><b>Choosing level 4 for the wrong reason.</b> The guide's rule: use <code>/task-builder</code> and <code>/task</code> only when you explicitly select the task-file (MDTM) format, or have an exceptionally complex, long-running phased program that needs their research, checklist and phase-reviewer machinery; an existing MDTM task goes straight to <code>/task</code>. File count, several sessions, an existing spec, risk, auditability, drift or resume alone never select them (guide sections 1 and 5).</div>
+   <p class="story">The sign, as described in the meeting: a long run starts and many reviewer or quality-check (QA) helper agents, called subagents, start in the background without you asking for them.</p>
+   <div class="trap"><b><code>/sc:save</code> is not a way to resume.</b> Use the steps on slide 11.</div>
+ </section>

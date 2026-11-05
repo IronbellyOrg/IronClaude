@@ -1,0 +1,27 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-TASK-WF-scIssueCommand-20261104-064713-20261104070955/adversarial/merged-verdict.yaml"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-TASK-WF-scIssueCommand-20261104-064713-20261104070955/adversarial/adversarial"
+  status: "partial"   # all 5 steps completed and post-merge validation passed; convergence status BLOCKED_BY_INVARIANTS (3 HIGH UNADDRESSED), depth standard so no Round 3
+  base_variant: "variant-3 (reviewer-3, opus:refactorer)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: INV-001
+      category: sufficiency_challenge
+      assumption: "Moving the suite/lint/sync/staging task ahead of Tasks 14 and 15 resolves C-001 on its own (it leaves the smoke artifacts unstaged and a Task 15 script edit unsynced and unlinted)"
+      severity: HIGH
+    - id: INV-002
+      category: sufficiency_challenge
+      assumption: "The reorder alone removes the contradiction in the 'reported as blocked' ACs (plan:213, plan:223) under /sc:implement"
+      severity: HIGH
+    - id: INV-003
+      category: interaction_effects
+      assumption: "Having the user export the ClickUp token before the session resolves A-001 with no side effects (Task 2's no-token check and the tests would make live ClickUp calls)"
+      severity: HIGH
+  notes:
+    - "Inputs were YAML reviewer cards, not markdown; a warning was logged and the pipeline proceeded."
+    - "INV-001 and INV-002 are folded into finding F-01's recommendation, and INV-003 into F-02's. They are listed here because the debate itself did not address them."
+    - "merged verdict: FAIL; blocking F-01 (ordering) and F-02 (security); 16 minor findings; 7 rejected."

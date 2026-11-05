@@ -1,0 +1,13 @@
+diff --git a/tests/skills/test_issue_worker_agents.py b/tests/skills/test_issue_worker_agents.py
+index d63047fa..2025b2c8 100644
+--- a/tests/skills/test_issue_worker_agents.py
++++ b/tests/skills/test_issue_worker_agents.py
+@@ -414,6 +414,8 @@ def worker_instruction_texts() -> dict[str, str]:
+         ("draft-notes.md", False),
+         ("issue-summary.md", False),
+         ("cheatsheet.md", False),
++        ("analyze-report.md", False),
++        ("notes.md", False),
+         ("analyze-<scope>.md", False),
+         ("<REPORT.md", False),
+     ],

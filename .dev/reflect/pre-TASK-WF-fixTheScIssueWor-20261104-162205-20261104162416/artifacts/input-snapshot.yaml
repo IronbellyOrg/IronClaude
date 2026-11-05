@@ -1,0 +1,24 @@
+input_tree_sha256: pending-recompute-at-wave5   # computed over file_list below at Wave 5 drift check
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-fixTheScIssueWor-20261104-162205/source.md
+    sha256: fbc456a11caa4f40b0b7ddca18dbda78c9680c4ff68e9d9b478e3246a5680da0
+  - path: .dev/tasks/to-do/TASK-WF-fixTheScIssueWor-20261104-162205/TASK-WF-fixTheScIssueWor-20261104-162205.md
+    sha256: 4db972275acfb0beacb89c875202d30cac4ad31711015fe91da03be7d63b4468
+  - path: src/superclaude/agents/issue-worker-t1.md
+    sha256: fe76a7cdd089bde9a0f4e80aa8a3e36b75e62a748c35225eedaabb81709d5cc9
+  - path: src/superclaude/agents/issue-worker-t2.md
+    sha256: aa9b553a4697686795e0a564295772cb90a6fc2923cc0e43557290a6fe22272f
+  - path: src/superclaude/agents/issue-worker-t3.md
+    sha256: 2d4b1f6c840368fb01c98ead1176e28ae4473c963bf25d765705b3375014e688
+  - path: tests/skills/test_issue_worker_agents.py
+    sha256: ae9a040fd7cbc28ce5e27b96df36a9bac12f1e5bb0107ef5019e4e97c6f474ce
+  - path: src/superclaude/skills/sc-issue-protocol/SKILL.md
+    sha256: d646766ebef965a83cd1539ac876447b9071b2f88fb1abef5a1e482ac314d19b
+  - path: src/superclaude/skills/sc-issue-protocol/refs/create.md
+    sha256: 1e4b8717935317158a2c09ae36704a0bd8b38203536530e54ab37075757cd1e7
+file_count: 8
+input_sha256:
+  tasklist: 4db972275acfb0beacb89c875202d30cac4ad31711015fe91da03be7d63b4468
+  spec: fbc456a11caa4f40b0b7ddca18dbda78c9680c4ff68e9d9b478e3246a5680da0
+output_root: /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-TASK-WF-fixTheScIssueWor-20261104-162205-20261104162416
+output_root_overlap: none   # output is outside the work-unit package and every input

@@ -1,0 +1,25 @@
+calibrator_diversity: degraded   # reviewer pool used all three resolvable classes (sonnet, haiku->glm-5.3, opus); no disjoint calibrator class exists
+cards:
+  - card: reviewer-cards/reviewer-1-card.yaml
+    reviewer_model: sonnet
+    calibrator_model: opus
+    dimension_scores: {citation_grounding: 0.92, coverage_completeness: 0.75, deviation_classification_clarity: 0.80, risk_surface_coverage: 0.75, recommendation_actionability: 0.90}
+    calibrated_confidence: 0.82
+    self_reported_confidence: 0.80
+    finding_verdicts: {A-1: true, A-2: true, A-3: true, A-4: true, A-5: partial (plan states the deviation; Refinement not Drift), A-6: true, A-7: true, A-8: true, A-9: partial, A-10: partial, A-11: partial}
+    missed: "Task 11 (F10 merge_parent_ok) and Task 18 (test_push_parent_ok_still_rejects_a_valid_merge_commit) need Task 4 but do not depend on it"
+  - card: reviewer-cards/reviewer-2-card.yaml
+    reviewer_model: glm-5.3 (haiku alias)
+    calibrator_model: sonnet
+    dimension_scores: {citation_grounding: 0.85, coverage_completeness: 0.65, deviation_classification_clarity: 0.80, risk_surface_coverage: 0.70, recommendation_actionability: 0.90}
+    calibrated_confidence: 0.78
+    self_reported_confidence: 0.87
+    finding_verdicts: {Q-1: true (cite source.md:1392 wrong; make-test step is :1408), Q-2: true, Q-3: true, Q-4: true, Q-5: partial, Q-6: true, Q-7: partial, Q-8: true}
+    missed: "Task 11 depends only on Task 10 but F10/F12 use merge_parent_ok and merge_preflight_ok (Task 4)"
+  - card: reviewer-cards/reviewer-3-card.yaml
+    reviewer_model: opus
+    calibrator_model: sonnet
+    dimension_scores: {citation_grounding: 0.90, coverage_completeness: 0.80, deviation_classification_clarity: 0.65, risk_surface_coverage: 0.80, recommendation_actionability: 0.95}
+    calibrated_confidence: 0.82
+    self_reported_confidence: 0.82
+    finding_verdicts: {F-1: true, F-2: true, F-3: true, F-4: true, F-5: true, F-6: partial (medium overstated), F-7: true, F-8: true, F-9: true (drift, not necessary), F-10: true, F-11: true}

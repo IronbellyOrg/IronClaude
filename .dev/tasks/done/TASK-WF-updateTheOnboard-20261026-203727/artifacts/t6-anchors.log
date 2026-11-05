@@ -1,0 +1,11 @@
+# guide anchors in the deck vs current guide headings (GitHub slug rule), 17 links, 9 unique
+OK      #1-how-much-process-does-this-job-need (x6)
+OK      #31-build-a-new-product-or-major-feature-full-specification (x2)
+OK      #311-review-only-or-deliberately-ship-and-open-a-pull-request (x1)
+OK      #312-resume-after-a-crash-or-a-lost-session (x1)
+OK      #32-add-a-feature-to-an-existing-system-no-prd-needed (x1)
+OK      #33-make-a-small-well-defined-change (x2)
+OK      #34-fix-a-bug (x1)
+OK      #35-investigate-how-something-works-or-whether-an-idea-is-feasible (x2)
+OK      #4-rules-everyone-follows (x1)
+missing: 0

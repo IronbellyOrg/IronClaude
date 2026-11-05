@@ -25,8 +25,8 @@ One place to see which model sits in which tier, and the evals and prices that p
 Tier names match the Coder env slots (`T0Model01` is Tier 0, `T1aModel01` is Tier 1a); a tier is a
 number with an optional letter. Prices are USD per million tokens (input / cached input / output).
 Who starts where and which tiers they see come from `CCSESSION_TIER_RULES` in the same Coder env
-file (see the README's "Per-user tiers"): anyone with a Coder role above Member starts on Tier 1a
-with every tier and each model listed in the picker; a Member starts on Tier 2 and sees Tiers 2, 3
+file (see the README's "Per-user tiers"): anyone with a Coder role above Member starts on Tier 1b
+(Coder issue 445, release `20261104-1`; Tier 1a before that) with every tier and each model listed in the picker; a Member starts on Tier 2 and sees Tiers 2, 3
 and 4 only.
 
 Every model also has its own window, used when it is chosen by name (`--model` or the picker's
@@ -35,8 +35,8 @@ individual entries): 850K for each model except Grok 4.7 (500K).
 | Tier | Role | Models in failover order (gateway id) | Intelligence | Price range | Tier window | ccsession profile |
 |---|---|---|---|---|---|---|
 | **Tier 0** | Premium. Top-priced reasoning, used on purpose, never by default. | Claude Fable 5.1 (`claude-fable-5-1`), GPT-6 Astra (`gpt-6-astra`) | 52.7-53.4 | $10.00 / $0.25-1.00 / $50.00 | 850K | none |
-| **Tier 1a** | Claude frontier. Start tier for roles above Member. | Claude Opus 5.5 (`claude-opus-5-5`), Claude Sonnet 5.5 (`claude-sonnet-5-5`) | 56.0-57.6 | $2.00-4.00 / $0.20 / $10.00-20.00 | 850K | `claude` (Opus) |
-| **Tier 1b** | Frontier mix. | Claude Sonnet 5.5 (`claude-sonnet-5-5`), GPT-6.1 Sol (`gpt-6.1-sol`), Muse Wonder Full 1.0 (`muse-wonder-full-1.0`) | 51.8-56.0 | $2.00 / $0.10-0.20 / $10.00; Muse Wonder Full on subscription | 850K | `gpt` (6.1 Sol), `wonderfull` |
+| **Tier 1a** | Claude frontier. | Claude Opus 5.5 (`claude-opus-5-5`), Claude Sonnet 5.5 (`claude-sonnet-5-5`) | 56.0-57.6 | $2.00-4.00 / $0.20 / $10.00-20.00 | 850K | `claude` (Opus) |
+| **Tier 1b** | Frontier mix. Start tier for roles above Member. | Claude Sonnet 5.5 (`claude-sonnet-5-5`), GPT-6.1 Sol (`gpt-6.1-sol`), Muse Wonder Full 1.0 (`muse-wonder-full-1.0`) | 51.8-56.0 | $2.00 / $0.10-0.20 / $10.00; Muse Wonder Full on subscription | 850K | `gpt` (6.1 Sol), `wonderfull` |
 | **Tier 2** | Strong and cheap. Start tier for Members. | GPT-6.1 Sol (`gpt-6.1-sol`), GLM-5.3 (`glm-5.3`), Grok 4.7 (`grok-4.7`), Qwen3.8 Max (`Qwen3.8-max`), Muse Wonder 1.0 (`muse-wonder-1.0`), Muse Spark 1.3 (`muse-spark-1.3`) | 44.8-52 | $1.25-2.00 / $0.10-0.50 / $4.25-10.00; Muse Wonder on subscription | 500K | `grok`, `qwen`, `glm`, `muse`, `wonder` |
 | **Tier 3** | Strong and cheap, GPT-6.1 Terra first. | GPT-6.1 Terra (`gpt-6.1-terra`), GLM-5.3 (`glm-5.3`), Grok 4.7 (`grok-4.7`), Qwen3.8 Max (`Qwen3.8-max`), Muse Wonder 1.0 (`muse-wonder-1.0`), Muse Spark 1.3 (`muse-spark-1.3`) | 44.8-52 (GPT-6.1 Terra not scored yet) | $1.25-2.00 / $0.15-0.50 / $4.25-6.00 (Terra not priced yet); Muse Wonder on subscription | 500K | none |
 | **Tier 4** | Budget. Bulk and low-stakes work. | GPT-6 Luna (`gpt-6-luna`) | 38.1 | $0.10 / $0.01 / $0.50 | 500K | none |

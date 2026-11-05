@@ -74,7 +74,7 @@ Numbered list of all systemic issues found across all passes:
 
 ### Passes Executed
 
-- **Pass 1 (Surface Scan)**: {file count} files, {batch count} batches, Haiku agents
+- **Pass 1 (Surface Scan)**: {file count} files, {batch count} batches, Sonnet agents
 - **Pass 2 (Structural Audit)**: {file count} files, {batch count} batches, Sonnet agents
 - **Pass 3 (Cross-Cutting Sweep)**: {file count} files, {batch count} batches, Sonnet agents
 

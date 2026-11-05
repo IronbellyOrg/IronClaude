@@ -17,10 +17,22 @@ queries the remote for ``target_sha`` and branches three ways:
 Core purity: the LIVE remote query is performed by the SKILL/script; this module
 DECIDES the branch from data, consuming the remote-reachability result as an input.
 It contains no shell or version-control command tokens.
+
+Push kinds (issue #305): a push record may carry ``kind`` (``fix``, ``merge``,
+``sync`` or ``ci``; absent means ``fix``) and ``base_sha``. The recovery events copy
+both only when present, so a legacy record yields byte-equal events.
+``resolve_crash_window_plan`` runs the unchanged three-way resolution and maps its
+result through ``conflicts.crash_resume_plan``: ``fix``, ``merge`` and absent keep
+today's states, while ``sync`` and ``ci`` re-enter the Wave 8 CI wait and never
+resume into ``S4_PUSHING``, ``S5A_RETRIGGER_REVIEW`` or ``S5_AWAITING_REREVIEW``.
+For a conflict cycle that is still open, Branch A, Branch C and every halt
+directive close it once with ``sync_concluded{recovered: true}``; Branch B leaves
+the close to the SKILL after the re-driven push.
 """
 
 from __future__ import annotations
 
+from .conflicts import ResumePlan, crash_resume_plan, is_conflict_cycle
 from .models import EventType, MonitorState
 from .run_log import RunLog
 
@@ -105,6 +117,8 @@ def resolve_crash_window(
             "target_sha",
             "target_branch",
             "target_remote",
+            "kind",
+            "base_sha",
         )
         if k in dangling
     }
@@ -169,3 +183,49 @@ def resolve_crash_window(
         }
     )
     return BRANCH_C_AMBIGUOUS, MonitorState.HALT_HUMAN
+
+
+def resolve_crash_window_plan(
+    run_log: RunLog,
+    dangling: dict,
+    *,
+    remote_reachable: bool | None,
+    observed_remote_sha: str | None = None,
+) -> ResumePlan:
+    """Kind-aware resume: run the unchanged three-way resolution, then map its
+    result through conflicts.crash_resume_plan (fix/merge/absent keep today's
+    state; sync/ci re-enter the Wave 8 CI wait, never S4/S5a/S5)."""
+    branch, state = resolve_crash_window(
+        run_log,
+        dangling,
+        remote_reachable=remote_reachable,
+        observed_remote_sha=observed_remote_sha,
+    )
+    plan = crash_resume_plan(dangling, branch, state)
+    cycle_id = dangling.get("cycle_id")
+    open_cycle = run_log.rebuild_state()["open_conflict_cycle"]
+    if (
+        is_conflict_cycle(cycle_id)
+        and open_cycle is not None
+        and open_cycle.get("cycle_id") == cycle_id
+    ):
+        if plan.directive == "halt":
+            outcome, reason, merge_sha = "halted", plan.reason, None
+        elif branch == BRANCH_A_LANDED:
+            outcome, reason, merge_sha = "pushed", None, dangling.get("target_sha")
+        else:
+            outcome = None  # Branch B: the SKILL closes the cycle after the re-drive
+        if outcome is not None:
+            run_log.append(
+                {
+                    "event_type": EventType.SYNC_CONCLUDED.value,
+                    "cycle_id": cycle_id,
+                    "outcome": outcome,
+                    "merge_sha": merge_sha,
+                    "record_path": None,
+                    "dropped": [],
+                    "reason": reason,
+                    "recovered": True,
+                }
+            )
+    return plan

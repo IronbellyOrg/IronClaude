@@ -1,0 +1,2 @@
+449269c7758608167072ce32eecd3db31e498092
+A1 r1-1 F4.1 minor src/superclaude/skills/ccsession-tag/ccsession-orca:182 ac=scope n,n,n,n RN-6 says unset CCSESSION_NAME and CCSESSION_ASK_TIMEOUT before every exec; the two reopen exec calls (:182, :185) run before the unset at :238, so a reopened tab's Claude still inherits CCSESSION_ASK_TIMEOUT if the user set it (an invalid CCSESSION_NAME is also still in the environment); the reopen path is unchanged from master and is not part of a Task 4 criterion

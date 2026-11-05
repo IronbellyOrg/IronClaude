@@ -1,0 +1,2 @@
+$ PYTHONDONTWRITEBYTECODE=1 uv run python -c "from superclaude.pr_submit import conflict_action, should_retrigger, merge_parent_ok, prior_conflict_cycles"
+exit=0

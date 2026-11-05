@@ -4,6 +4,68 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### onboarding deck: a 15-slide page for new team members, built from the routing guide
+
+#### Added (onboarding deck)
+
+- `docs/onboarding/ironclaude-onboarding.html`: a single-page onboarding deck (15 slides, 6 inline diagrams, light and dark themes, prints one slide per page) that explains why IronClaude exists, how a command and its skill are built, how to pick a process level, the two planners, the path from idea to pull request, review and shipping with the four `--monitor` ceilings, where work is saved, how to resume, and the common traps. It follows `src/superclaude/core/HOW-WE-WORK.md` at commit adaa28d9 and links to it for every command; stories from the onboarding meeting are marked as such. A comment at the top of the file says to update the deck in the same PR when the guide changes in a way a slide depends on.
+- `tests/docs/test_onboarding_deck.py`: checks that every command and flag the deck shows (in code and inside its diagrams) appears in the guide, with `--plugin` checked against `src/superclaude/commands/recommend.md`, and that the deck keeps its "Built from HOW-WE-WORK.md at commit" footer.
+### ccsession: agents no longer get stuck at the session name question (#315)
+
+#### Fixed (ccsession name question)
+
+- An agent or worker started through `ccsession-orca` with a task could stop at `Session name (...)` and wait for a person. The question is now asked only when Claude starts with no task, no name and no resume. A prompt, `--prefill`, `--session-id`, `-p`, `CCSESSION_NAME`, Claude's own `--name`/`-n`, and `--resume`/`--continue`/`--fork-session`/`--from-pr` all skip it.
+- `--fork-session` and `--from-pr` now skip the question like `--resume`. The README said `--fork-session` did; the code still asked.
+- `ccsession --ask` waited for ever unless its caller set `CCSESSION_ASK_TIMEOUT`, and only `ccsession-orca` did (30 seconds). The default now lives in the question itself for every caller: `CCSESSION_ASK_TIMEOUT` seconds, default 30. `0`, or a value that is not a whole number of seconds (such as `1.5` or `30s`), waits for ever. While a limit is set, the default question and a hint containing `@LIMIT@` show it; a caller's own hint without `@LIMIT@` does not, but the limit applies. A caller that relied on the old no-limit default, such as a terminal-start hook that calls `ccsession --ask`, now gives up after 30 seconds unless it sets `CCSESSION_ASK_TIMEOUT=0`.
+- Ctrl+C at the question now ends `ccsession-orca` with status 130 and starts no Claude (it used to start an untagged session). `ccsession --ask` also restores the terminal when Ctrl+C arrives while it collects pasted text.
+- The tab-reopen path of `ccsession-orca` no longer passes `CCSESSION_NAME` or `CCSESSION_ASK_TIMEOUT` on to Claude Code.
+
+#### Added (ccsession automatic names)
+
+- A `ccsession-orca` launch that starts a new session without a name (not a resume, not print mode, not `CCSESSION_AUTOSTART=0`, not `--version` or a subcommand) gets a valid automatic one: Enter at the question, no answer within the limit, keys typed ahead, no terminal, and every launch that carries a task. The label is `<folder>-<up to four words of the task>-<MMDD-HHMMSS>-<4 hex>`, only letters, digits and hyphens, checked against the saved names, and it appears in `ccsession --here` once the session starts. If the name list cannot be written, Claude starts untagged instead of stopping.
+- `ccsession --auto-name [<task text>]` prints such a label; `ccsession --check-name <name>` exits 0 for a valid name.
+- `CCSESSION_NAME=<name>` in the environment names a session without a prompt (for orchestrators). An invalid value is dropped with a warning and Claude still starts; a value equal to a saved label resumes that session (while its conversation is still saved), loudly. A valid value is passed as `--name` even with `-p`, `--version`, a subcommand or `CCSESSION_AUTOSTART=0`, so set it only on a launch that starts a new session; with `--resume <id>` and a name that is also a saved label, Claude would get two `--resume` arguments.
+- `ccsession --ask` exits 3 and prints the text as typed when the line cannot be a name (a control character among other text, too long to save, or several lines pasted after a first line that is not blank; a pasted block that starts with a blank line is read as an empty answer); `ccsession-orca` passes that text to Claude as its first message and auto-names the launch. A normal line, spaces included, stays a name. A hint may contain `@LIMIT@`, replaced by the time limit in seconds; with no limit, the hint is cut at the first `; ` that has `@LIMIT@` after it, and a hint without such a `; ` keeps `@LIMIT@` as written.
+
+#### Changed (ccsession name question)
+
+- The question in `ccsession-orca` reads `Session name (Enter = auto-named, Ctrl+C = cancel; auto-named after 30s):`. Enter and the time limit start an automatically named session; they no longer start an untagged one. Print mode (`-p`), `--version`, `--help` and Claude subcommands (`mcp`, `doctor`...) start untagged and ask nothing; on a terminal they used to ask first. `CCSESSION_AUTOSTART=0` still starts untagged and asks nothing. A valid `CCSESSION_NAME` names any of these launches.
+- The README describes the one question rule, the launch paths and the one documented exception: Claude Agent Teams starts its teammates itself, without `ccsession-orca`, so those sessions are not named (follow-up). Orchestrators should always pass the task or a name. `docs/testing/v5.0.0/user/D08-ccsession.md` tests the question, the automatic names and the launch paths by hand and notes the exception.
+
+### Models: primitives use the plain aliases `opus`, `sonnet` and `haiku`, with a documented ccsession tier mapping (#384)
+
+#### Added (model aliases)
+
+- New reference page `docs/reference/model-aliases.md`: what `tests/skills/test_model_alias_policy.py` checks and its allow-list (the three issue-worker agents pin picker ids on purpose), the owner decision of 2026-11-05 for a ccsession tier workspace (`opus` to `claude-gw-tier1a`, `sonnet` to `claude-gw-tier1b`, `haiku` to `claude-gw-tier2`, through `ANTHROPIC_DEFAULT_*_MODEL`), why aliases and not picker ids, and the known consequences. The launcher sets these variables in tier mode through the follow-up change in the next entry (specified in `.dev/issues/384/launcher-followup.md` with its failing-first test). The workspace defaults file exports real model ids for the same three variables, and the launcher export replaces the ones for tiers the owner may use inside a tier workspace.
+- New test file `tests/skills/test_model_alias_policy.py` (frontmatter `model:` values, `claude-gw-tier` text, full model ids in Python constants and in `--model` flags, and the fixes below) and four tests that record how the sprint alternate-model suggestion and the reflect alias count behave while the variables hold tier ids.
+
+#### Changed (model aliases)
+
+- `superclaude reflect run` now falls back to the alias `opus` when `ANTHROPIC_MODEL` is not set, instead of the dated id `claude-opus-4-8`. The D12 manual test expects `--model opus`.
+- The `/sc:issue` next-step chains no longer pass `--models opus,sonnet` to `/sc:brainstorm`; the brainstorm defaults (`opus,sonnet,haiku`) apply. `refs/tiers.md` no longer states that `haiku` is `glm-5.3`.
+- The cleanup-audit skill, command and report template say that the Pass 1 scanner runs on Sonnet, as `audit-scanner` already did, and drop the 50-70% cost claim that was specific to Haiku.
+- The implement retry ladder (`refs/retry.md`, `refs/ledger.md`) names the slot variables the workspace exports (`T3Model01`, `T2Model01`, `T2Model02`, `T1Model01`, `T1Model02`) instead of spellings with an underscore that no workspace exports. In a workspace that sets the four rung variables the primary ladder now replaces the alias fallback ladder, which changes which models the retry advisers use.
+
+### ccsession: tier mode sets the model aliases (#384 launcher follow-up)
+
+#### Changed (ccsession tier mode)
+
+- In a ccsession tier workspace the launcher now exports `ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a`, `ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b` and `ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-gw-tier2` (`src/superclaude/skills/ccsession-tag/ccsession`), each one only when the workspace owner may use its tier, so the plain aliases `opus`, `sonnet` and `haiku` in agent frontmatter and `--model` resolve to the tiers (the probes did not exercise the Agent-call `model` parameter). "May use" is read with the `tiers` command of `models.py`, the rule the shim applies, without running the shim. A variable whose tier the owner may not use, or every variable when the list cannot be read, keeps its inherited value: an owner limited to tier2 and tier3 gets only the haiku variable and keeps the inherited opus and sonnet values. Outside tier mode the launcher sets none of them. Inside a tier workspace the exported values replace the real model ids that the workspace defaults file exports for the same variables.
+- The pages that said the launcher would set the variables later now say that it does: `docs/reference/model-aliases.md`, `docs/user-guide/brainstorm.md`, `docs/user-guide/commands.md`, `refs/tiers.md` and `refs/chains.md` of the `/sc:issue` protocol, a comment in `src/superclaude/cli/reflect/commands.py` and the docstring of `tests/skills/test_model_alias_policy.py`.
+
+#### Added (tier alias tests and probe)
+
+- Five tests in `tests/unit/test_ccsession_tiers.py`: `test_tier_launch_exports_the_alias_variables` (an unrestricted owner gets all three; it failed before the launcher edit), `test_non_tier_launch_leaves_the_alias_variables_unset`, `test_limited_owner_gets_only_the_haiku_alias_variable`, `test_limited_owner_keeps_inherited_alias_values` and `test_workspace_without_tier1a_and_tier1b_exports_only_its_tiers`, with three keys added to the fake Claude of `_launch_env`.
+- Probe record `.dev/issues/384/analysis/probe-sonnet-alias.md`: `ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b` makes `--model sonnet` and `model: sonnet` run on that tier. In that probe a subagent whose alias is in the main session's own model family stayed on the main session's model.
+
+### Install: harden the pinned-plugin install (#360 follow-ups)
+
+#### Fixed (plugin install)
+
+- A registered `ironclaude` marketplace whose path cannot be resolved (a symlink loop, which raises on Python 3.10 to 3.12, or a path holding a NUL byte) no longer aborts `superclaude install`. The registration is refused like one from another source, and the other plugins still install.
+- The pinned-commit check now looks only at the user-scope copy of a plugin, the copy `superclaude install` installs and updates. A project-scope copy at the pin no longer hides a user-scope copy on another commit, and a plugin installed only at project scope, or listed with no user-scope record, is now installed at user scope.
+- Every `claude plugin` command the installer runs now acts on `$HOME/.claude`, the profile whose plugin records it checks and where it writes its own files (rules, settings, commands, skills, agents, hooks). Before, the commands inherited `CLAUDE_CONFIG_DIR`, so the marketplace check and the commands could use different profiles and a foreign `ironclaude` marketplace in the `CLAUDE_CONFIG_DIR` profile could be used. If you run Claude Code with `CLAUDE_CONFIG_DIR`, the default plugins are now installed into `$HOME/.claude`, not into that profile. The codegraph MCP registration is unchanged: it still follows `CLAUDE_CONFIG_DIR`.
+
 ### Hooks: block bare python, python3, pip and pip3 in Bash calls (#357)
 
 #### Added (UV-only Bash hook)
@@ -27,6 +89,25 @@ All notable changes to IronClaude are documented in this file.
 #### Fixed (plugin install report)
 
 - A plugin that fails to install is now listed by its name in the `Plugins: not installed` warning (it printed `--scope`).
+
+### sc:pr-submit: merge-conflict detection and resolution (#305)
+
+#### Added (pr-submit conflicts)
+
+- At `--monitor 1` and above, the end of Wave 0 checks for a git operation in progress (halts `foreign_op_in_progress`), reads GitHub's `mergeable`, and only on a conflict runs a read-only local probe (`git merge-tree --write-tree`) that classifies every conflicted path into a tier and prints the plan before any edit.
+- Tier 1 (opt-in with `--conflict-max-tier 1`, because `uv lock` can run the PR's build code): a conflicted root `uv.lock` is regenerated with `uv lock` at Wave 8 entry and published as one merge commit of the recorded base tip, pushed fast-forward (never forced). It spends no review round, re-triggers no reviewer, is counted in the new `sync_push_count`, and the CI wait then expects checks on the new head (`expect_checks`), so an empty check list right after the push is no longer read as clean.
+- Tier 2 (off by default): text and tree conflicts resolved by stated intent before the first review, with a per-file resolution record, an `evidence-validator` grounding check, full tests, a reviewer re-trigger and one round. Enable with `--conflict-max-tier 2`.
+- Tier 3 (submodule, symlink, mode change, protected or migration path, binary, lock or generated file without a rule, more than 8 text files, anything unclassifiable) halts at the end of Wave 0 at L3 with nothing touched, and is reported at L1 and L2.
+- New flag `--conflict-max-tier {0,1,2}` (default 0); 0 detects and reports only, so no conflict is resolved unless you pass 1 or 2.
+- New core module `superclaude.pr_submit.conflicts`, refs `conflict-mechanical.md` and `conflict-intent.md`, scripts `probe-merge.sh`, `finish-merge.sh` and `collect-conflict-evidence.sh`, and `poll-ci-checks.sh --evidence-sha`.
+
+#### Changed (pr-submit conflicts)
+
+- At `--monitor 1` and above the create path no longer rebases or halts when the branch is behind its base; it reports how many commits behind. `--monitor 0` is unchanged.
+- Every push record carries a `kind` (`fix`, `merge`, `sync`, `ci`); `--resume` uses it, so a crashed CI or sync push resumes into the CI wait instead of the review re-trigger path. Old run-logs read as `fix`.
+- `push_count` counts fix, CI and Tier 2 merge pushes; Tier 1 sync pushes are in `sync_push_count`. The documented bound is `push_count <= max_rounds + 1`.
+- The run-log event enum has 43 members (`sync_started`, `sync_concluded`).
+- A PR that is still conflicting at Wave 8 with nothing pushed skips the CI wait (`pr_conflicting`) and ends `terminal_halted` instead of waiting for checks that GitHub will not run; a run that saw a conflict re-reads `mergeable` before claiming clean. Late re-sync during the CI wait is #361.
 
 ## [5.0.0] - 2026-11-02
 

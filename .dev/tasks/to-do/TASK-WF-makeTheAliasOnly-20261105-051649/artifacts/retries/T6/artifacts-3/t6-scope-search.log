@@ -1,0 +1,45 @@
+## grep -rnE -- '--models?[ =]+' agents commands skills
+src/superclaude/commands/roadmap.md:31:| `--model TEXT` | No | Per-agent model for generate steps | Override model for all steps. |
+src/superclaude/commands/troubleshoot.md:8:argument-hint: "[<issue description>] [--type bug|build|performance|deployment|security|test] [--depth quick|standard|deep] [--scope <path|symbol>] [--no-escalate] [--
+src/superclaude/commands/brainstorm.md:37:  [--personas p1,p2,...] [--models opus,sonnet,haiku] \
+src/superclaude/commands/validate-roadmap.md:57:  --model opus \
+src/superclaude/skills/sc-auggie-review-protocol/SKILL.md:176:       --model "${AUGGIE_MODEL:-prism-b}" \
+src/superclaude/skills/sc-brainstorm-protocol/refs/agent-spec-builder.md:65:**Example assignments** (default `--models opus,sonnet,haiku`):
+src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:395:| `--personas ""` or `--models ""` | STOP with clear message | None |
+src/superclaude/skills/ccsession-tag/ccsession:70:#   ccsession <topic> --model <name>
+src/superclaude/skills/ccsession-tag/ccsession:639:MODEL_TOKENS=()  # --model exactly as typed, and where (outside tier mode)
+src/superclaude/skills/ccsession-tag/ccsession:703:        echo "ccsession: --model requires a value" >&2
+src/superclaude/skills/ccsession-tag/ccsession:711:    --model=*)
+src/superclaude/skills/ccsession-tag/ccsession:712:      MODEL_ARG="${1#--model=}"
+src/superclaude/skills/ccsession-tag/ccsession:782:    echo "ccsession: --profile is not used in this workspace; choose --tier <tier> or --model <name> (see ccsession --help)" >&2
+src/superclaude/skills/ccsession-tag/ccsession:790:  # Not tier mode: --model goes to Claude Code exactly as given, in place.
+src/superclaude/skills/ccsession-tag/ccsession:932:  # finishes when --model is supplied. Warm the cache synchronously so every
+src/superclaude/skills/ccsession-tag/ccsession:1030:  # Tier mode: --model <name> or --tier <tier> (default CCSESSION_DEFAULT_TIER)
+src/superclaude/skills/ccsession-tag/ccsession:1643:    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" "$@"
+src/superclaude/skills/ccsession-tag/ccsession:1703:    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" --name "$TOPIC" --resume "$SESSION_ID" "$@"
+src/superclaude/skills/ccsession-tag/ccsession:1710:    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" --name "$TOPIC" "$@"
+src/superclaude/skills/ccsession-tag/README.md:311:ccsession notes --model gpt-6-astra   # one model, no failover
+src/superclaude/skills/ccsession-tag/README.md:320:| `--model <name>` | Window from the tier slot that holds that model (a `[1m]` suffix is accepted); for a model in no tier, 1M if it is on the `one_million_con
+src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py:151:    # One rule shared with ccsession's --model window lookup (models.py).
+## grep -rnE 'T[0-9]a?Model0[0-9]' -l (md, py)
+src/superclaude/cli/sprint/aienv.py
+src/superclaude/cli/swarm/config.py
+src/superclaude/cli/swarm/transports/openai_compat.py
+src/superclaude/cli/reflect/commands.py
+src/superclaude/cli/reflect/models.py
+src/superclaude/cli/reflect/ensemble.py
+src/superclaude/core/HOW-WE-WORK.md
+src/superclaude/commands/swarm-wizard.md
+src/superclaude/skills/sc-implement-protocol/refs/ledger.md
+src/superclaude/skills/sc-implement-protocol/refs/retry.md
+src/superclaude/skills/ccsession-tag/models.py
+src/superclaude/skills/ccsession-tag/README.md
+src/superclaude/skills/ccsession-tag/MODEL-TIERS.md
+src/superclaude/skills/sc-swarm-wizard-protocol/refs/run-monitor-summarize.md
+src/superclaude/skills/sc-swarm-wizard-protocol/refs/cli-contract.md
+src/superclaude/skills/sc-swarm-wizard-protocol/SKILL.md
+## grep -rn '^model:'
+     17 model
+src/superclaude/agents/issue-worker-t3.md:6:model: claude-gw-tier3
+src/superclaude/agents/issue-worker-t1.md:6:model: claude-gw-tier1a
+src/superclaude/agents/issue-worker-t2.md:6:model: claude-gw-tier2

@@ -48,6 +48,8 @@ CORE_PURE_FILES = [
     PR_SUBMIT_PKG / "severity_router.py",
     PR_SUBMIT_PKG / "loop_guard.py",
     PR_SUBMIT_PKG / "ci.py",
+    # issue #305: the conflict core is pure (no version-control tokens)
+    PR_SUBMIT_PKG / "conflicts.py",
 ]
 
 AUGGIE_REVIEW_CMD = REPO_ROOT / "src" / "superclaude" / "commands" / "auggie-review.md"
@@ -651,14 +653,15 @@ def test_skill_binds_checkout_and_push_target_to_pr_head():
         "At **L0 (`--monitor 0`)** the FSM never leaves `S0_IDLE` — open the PR and "
         "return, byte-for-byte identical to today (AC-1)."
     ) in text
-    # `--pr` never rebases a published head; the create path still rebases, and only the
-    # create path halts when behind base (STOP block and Error Handling row agree).
+    # `--pr` never rebases a published head; the create path rebases only at L0; at L1+
+    # being behind is a Tier 0 report, not a STOP.
     assert "with `--pr <N>`, at any level, do not rebase" in text
     assert "rebase if behind `origin/<base>`" in text
-    assert "branch (`origin/<default-branch>`) on the create path" in text
-    assert (
-        "| Wrong origin / behind base branch (create path) / wrong-owner URL |" in text
-    )
+    assert "rebase if behind `origin/<base>` only at L0" in text
+    assert "Being behind the base branch is not a STOP at L1+" in text
+    assert "branch (`origin/<default-branch>`) on the create path" not in text
+    assert "| Wrong origin / wrong-owner URL |" in text
+    assert "| Behind base branch (create path at L1+, or `--pr`) |" in text
     assert "reason `pr_head_mismatch`; nothing pushed; do NOT close the PR" in text
 
     wave6 = text[text.index("- **Wave 6 (L3 only):**") :]
@@ -774,3 +777,58 @@ def test_skill_forbids_force_push():
         if path.is_file() and path.suffix in {".md", ".sh"}:
             hit = force.search(path.read_text("utf-8"))
             assert hit is None, (path, hit and hit.group(0))
+
+
+# --- Issue #305: merge-conflict cycles -----------------------------------------
+
+
+def _prose(path: Path) -> str:
+    """The file as prose: hand-wrapping and blockquote markers are not the contract."""
+    raw = path.read_text(encoding="utf-8")
+    return " ".join(raw.replace("\n> ", " ").split())
+
+
+def test_wait_only_sentences_name_the_one_sync_exception():
+    """INV-009 / FR-33: every wait-only sentence names the single Tier 1 sync push of
+    Wave 8a as the only push a wait-only path allows, and says it is not a fix."""
+    skill = _SKILL_MD.read_text(encoding="utf-8")
+    assert (
+        "the single Tier 1 sync push of Wave 8a (`SYNC_CAP = 1`) is the only push a "
+        "wait-only path allows, and it is not a fix"
+    ) in skill
+    machine = _prose(SKILL_DIR / "refs" / "state-machine.md")
+    assert (
+        "never an additional fix or fix push. The single exception is the one Tier 1 "
+        "sync push (5.2d), which is not a fix."
+    ) in machine
+    ci_poll = (SKILL_DIR / "refs" / "ci-poll.md").read_text(encoding="utf-8")
+    assert (
+        "the one Tier 1 sync push of Wave 8a is the only push allowed here, and it is "
+        "not a fix"
+    ) in ci_poll
+
+
+def test_s5a_retrigger_widened_for_merge_cycles_only():
+    """P2 / QA-3a: the Wave 6 S5a re-trigger is widened only for a Tier 2 merge cycle;
+    the zero-edit fix-commit sentence and the state-machine parent-check sentence are
+    unchanged."""
+    text = _SKILL_MD.read_text(encoding="utf-8")
+    wave6 = text[text.index("- **Wave 6 (L3 only):**") :]
+    wave6 = wave6[: wave6.index("\n- **Wave 6b")]
+    assert (
+        "or is a Tier 2 merge cycle (push kind `merge`; "
+        "`superclaude.pr_submit.fsm.should_retrigger`)"
+    ) in wave6
+    # The widening sits inside the S5a sentence, after the applied-edits condition.
+    assert (
+        "AFTER resolve, and ONLY when this cycle applied edits (`applied_edits > 0`) "
+        "or is a Tier 2 merge cycle (push kind `merge`; "
+        "`superclaude.pr_submit.fsm.should_retrigger`), post"
+    ) in wave6
+    # Unchanged pins (test_skill_binds_checkout_and_push_target_to_pr_head).
+    assert (
+        "Next, when the cycle applied edits (a zero-edit cycle has no fix commit"
+        in wave6
+    )
+    machine = _prose(SKILL_DIR / "refs" / "state-machine.md")
+    assert "The parent check applies only when the cycle applied edits" in machine

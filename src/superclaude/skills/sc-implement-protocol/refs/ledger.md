@@ -201,7 +201,7 @@ The earlier operator-written form (`T2: Ruling: drop pagination — AC-2 deferre
 Retry open:
 
 ```
-T1: retry n=3 step=open checkpoint=0123456789abcdef0123456789abcdef01234567 tier=T2_Model02
+T1: retry n=3 step=open checkpoint=0123456789abcdef0123456789abcdef01234567 tier=T2Model02
 ```
 
 Retry revert:

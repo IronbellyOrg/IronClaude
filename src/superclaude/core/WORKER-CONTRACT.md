@@ -20,7 +20,7 @@ The dispatch preamble that Orca gives each worker is the authority for Orca verb
   - (case 3) the command is on the never-as-worker list; the body still starts `guard refused:`.
 
   A command invoked by another command, through the Skill tool or the Agent tool, is never checked; the nested propagation rule governs it. The guard checks once, before the first run: a WC-3 re-invocation keeps every token of the brief's `Command:` line, `--unattended` included, and only adds the answer.
-- **Never-as-worker list**: `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:pm`, `/sc:spawn` and `/sc:swarm-wizard`, plus `/sc:pr-submit` while the answer to decision D3 keeps it off workers. These are never dispatched as workers and get no `--unattended` mode. The list changes only when the coordinator-only command set or D3 changes, never per phase. If D3 adds a worker route for pr-submit, D3 also states how that route passes the brief guard.
+- **Never-as-worker list**: `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:issue`, `/sc:pm`, `/sc:spawn` and `/sc:swarm-wizard`, plus `/sc:pr-submit` while the answer to decision D3 keeps it off workers. These are never dispatched as workers and get no `--unattended` mode. The list changes only when the coordinator-only command set or D3 changes, never per phase. If D3 adds a worker route for pr-submit, D3 also states how that route passes the brief guard.
 - **Nested propagation rule**: under `--unattended`, a command that invokes another `/sc:` command or protocol skill, through the Skill tool or the Agent tool, passes `--unattended` when the invoked command accepts it at this phase, together with its own report directory `<caller report-dir>/nested/<command>-<n>/` (WC-4, WC-11). The caller lists the nested contract in its `artifacts`; only the top-level contract drives WC-5. When the invoked command does not accept the flag yet, that step must be gate-free, or the caller skips it under `--unattended` and records the skip in its contract. Each command's `## Unattended mode` section names its nested invocations.
 
 ## 2. Command-side rules
@@ -83,7 +83,7 @@ The contract only works if the brief carries what the command would otherwise as
 - whether the end-of-Task local commit is authorized, quoting the user's instruction word for word (decision D4);
 - at P0 only, the command's report file and the outcome rule AC-0.4 gives for it (WC-5);
 - that no other outward action can be authorized;
-- the worktree placement: the shared feature worktree, or a child worktree created by Orca with `worker-start --worktree new-child --base-branch <feature branch>` when WC-11 requires one.
+- the worktree placement: the shared feature worktree, or a child worktree created by Orca with `worker-start --worktree new-child --base-branch <feature branch>` when WC-11 requires one, with `--setup skip` unless "Feature worktree and child worktrees" allows setup.
 
 After `worker_done`, the coordinator opens the contract, then releases or reuses the worker.
 
@@ -100,7 +100,7 @@ The coordinator decides whether a `Command:` line carries `--unattended` by the 
 ### Feature worktree and child worktrees
 
 - Every worktree is created by Orca at Orca's default location, never with raw `git worktree add` and never under `.dev/worktrees/`. Each feature has one feature worktree on its feature branch, where the coordinator runs.
-- A child is dispatched only after its setup has succeeded (`--setup run`); if that setup does not run `make sync-dev`, the coordinator runs it before dispatch.
+- The coordinator creates a child with `--setup skip`, because Orca's `worker-start` otherwise defaults a new worktree to `--setup run`, which runs the repository's own setup hooks, or with `--setup run` only when the user's instruction, in the coordinator's own conversation, names that step; after creation it runs `make sync-dev` or any other Makefile target, script or hook that the repository defines only when that instruction names that step, and in both cases it confirms with the person at the moment of action unless that instruction is in its live conversation. This holds in every repository, IronClaude included: an `origin` check proves which repository a checkout is, not that its checked-out branch is trusted. A child is dispatched only after its setup has succeeded.
 - The coordinator keeps a placement map (which Task writes in which worktree, and whether it is the sole writer) in its run notes and in each `worker-start --comment`.
 - A Task placed in a child gets an absolute report directory inside that child, which the coordinator reads by absolute path before merge-back; concurrent `/sc:implement` runs in different worktrees use distinct plan slugs. A resume runs in its existing child, selected with `--worktree id:<worktree id>`.
 - After a child's result is admitted, the coordinator merges the child branch into the feature branch, then removes the child with `orca worktree rm` and deletes its branch; a discarded experiment is removed without merging; a merge conflict is stopped and reported, never resolved automatically.
@@ -171,7 +171,7 @@ Guard: before running anything, check every Command: line below under the brief 
 On a blocked gate: report blocked
 Local commit: not authorized
 Report directory: <directory unique to this Task>
-Worktree: <shared feature worktree | child worktree created by Orca with worker-start --worktree new-child --base-branch <feature branch>>
+Worktree: <shared feature worktree | child worktree created by Orca with worker-start --worktree new-child --base-branch <feature branch> --setup <skip | run (only when named in the user's instruction)>>
 Outward actions: none; the coordinator performs every push, PR, comment, install and paid run.
 P0 only: Report file: <the command's report file under AC-0.4>. Outcome rule: --outcome failed when the file is missing or empty, or its status is failed or blocked; otherwise --outcome succeeded. This rule replaces the WC-5 mapping for this Task.
 Command: /sc:<name> <arguments> <flags this command's brief rule requires>

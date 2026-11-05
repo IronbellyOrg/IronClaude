@@ -1,0 +1,22 @@
+card: reviewer-3
+calibrated_dimensions: {citation_grounding: 0.80, coverage_completeness: 0.75, deviation_classification_clarity: 0.55, risk_surface_coverage: 0.75, recommendation_actionability: 0.85}
+C: 0.74
+finding_severity_rulings:
+  - {id: S-1, card_severity: blocking, calibrated_severity: minor, reason: "Satisfiable by adding --repo <R> to prose/table mentions (source.md:336, 340); plan:131 'runs' is a loose test definition the Task 7 author settles; at worst a red test Task 7 fixes."}
+  - {id: S-2, card_severity: blocking, calibrated_severity: minor, reason: "Resume is possible: a stop before any verdict leaves only a start line (SKILL.md:109-115) and ledger.md:161 Row S re-runs the task, so plan:233 holds; Row P (ledger.md:155) applies only after a blocked verdict; 'pending' allowed by plan:15, plan:236. Clarity gap, not impossibility."}
+  - {id: S-3, card_severity: minor, calibrated_severity: minor, reason: "plan:252/254 confirmed; executor ignores depends-on and runs source order (SKILL.md:79, :97)."}
+  - {id: S-4, card_severity: minor, calibrated_severity: minor, reason: "plan:23 vs plan:50 confirmed; a strict reviewer could halt Task 2 (SKILL.md:93)."}
+  - {id: S-5, card_severity: minor, calibrated_severity: minor, reason: "evidence-validator.md:8 permissionMode: plan; plan:56 says follow that shape."}
+  - {id: S-6, card_severity: minor, calibrated_severity: minor, reason: "plan:243 method gap only."}
+  - {id: S-7, card_severity: minor, calibrated_severity: minor, reason: "local-gateway-alias-proxy.py:17-21 forwards tier requests to a real tier model; logs may never show the picker ID plan:236 requires."}
+  - {id: S-8, card_severity: minor, calibrated_severity: minor, reason: "plan:125 'every file' vs plan:115 scripts/*.py; __pycache__ from path loading."}
+  - {id: S-9, card_severity: minor, calibrated_severity: minor, reason: "Interim red tests recorded per task, never change verdicts (SKILL.md:152-154)."}
+  - {id: S-10, card_severity: minor, calibrated_severity: minor, reason: "D26 wording unpinned; drift risk."}
+  - {id: S-11, card_severity: minor, calibrated_severity: minor, reason: "Overstated: per-task checks already run make lint (SKILL.md:132, :146; Makefile:50)."}
+  - {id: S-12, card_severity: minor, calibrated_severity: minor, reason: "Style only."}
+missed_by_card:
+  - "Task 17 item 4 (plan:254) needs a session with the new skill loaded, the same fresh-session dependency as Task 15, with no stop-and-restart instruction."
+  - "With S-1 and S-2 minor the card's verdict should be PASS with notes."
+  - "S-2 cites ledger.md:161 Row S, which supports the resume path."
+  - "Task 14's master comparison in a temporary Orca worktree never sets up the uv environment there."
+calibrator_model_class: opus

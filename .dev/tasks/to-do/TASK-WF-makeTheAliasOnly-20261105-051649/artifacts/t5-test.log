@@ -1,0 +1,22 @@
+== AC1 grep ==
+grep exit=1
+cmp identical
+== notes self-check ==
+underscore grep exit=1
+66:  `gpt-6.1-sol`. No adviser runs on `glm-5.3` or `gpt-6.1-terra`.
+adviser-glm grep exit=0
+haiku-reach grep exit=1
+== glm/terra hits ==
+30:| 0 | `T3Model01` | `gpt-6.1-terra` (48) | GPT |
+31:| 1 | `T2Model02` | `glm-5.3` (37) | neither (not `claude-` and not `gpt-`) |
+51:| `gpt-6.1-terra` (GPT) | `T3Model01` | `gpt-6.1-sol` (the GPT T1 model) | `claude-opus-5-5` (Claude top ru
+52:| `glm-5.3` (neither) | `T2Model02` | `claude-opus-5-5` (top rung) | `gpt-6.1-sol` (the family that is not 
+61:  the GPT model `gpt-6.1-terra`, so rule 169 applies instead.
+66:  `gpt-6.1-sol`. No adviser runs on `glm-5.3` or `gpt-6.1-terra`.
+== tests ==
+tests/skills/test_implement_retry_revert.py ............................ [ 92%]
+..........................                                               [100%]
+
+============================= 329 passed in 6.59s ==============================
+All checks passed!
+2 files already formatted

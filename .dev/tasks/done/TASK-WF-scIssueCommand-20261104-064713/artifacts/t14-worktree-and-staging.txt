@@ -1,0 +1,5 @@
+$ orca worktree list | grep -c issue302-master-check
+0
+(0 = no issue302-master-check worktree)
+$ git status --short .dev/tasks, run after git add .dev/tasks (lines not staged; this file itself excluded)
+(nothing above = everything under .dev/tasks is staged)

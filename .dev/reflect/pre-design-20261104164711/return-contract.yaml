@@ -1,0 +1,120 @@
+# sc:reflect return contract (stable block, contract 1.8.0) + telemetry. UC-1 (mode pre), run pre-design-20261104164711.
+contract_version: "1.8.0"
+status: partial                 # evidence-validator dropped 1 citation (section 11.2)
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-305-pr-submit-conflicts/.dev/reflect/pre-design-20261104164711/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-305-pr-submit-conflicts/.dev/reflect/pre-design-20261104164711/audit.log
+confidence_calibrated: 0.807
+escalation_rule_matched: 4
+onboarding_ran: false
+
+# UC-1
+coverage_pct: 1.0
+coverage_pct_union: 0.9655
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-002, INF-003, INF-006, INF-007, INF-008, INF-009, INF-012, INF-013, INF-014, INF-015, INF-016, INF-021, INF-022, INF-024, INF-025, INF-026, INF-029, INF-031, INF-032, INF-034]
+best_practice_grade: 4
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 fields (not applicable in mode pre)
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 2, necessary: 1, drift: 17, regression: 0}   # merged findings; CF-07 advisory, CF-14 spec defect and INV-007 unassigned are outside the four classes
+deviation_register_path: null
+grounding_gaps_path: null
+verification_ran: false
+verification_skip_reason: null
+
+# Input integrity
+input_sha256:
+  tasklist: e12fa04a1b503581ad56bd1ba484666173e480e281ae8919bb2ed260035fc3bd
+  spec: 2bcac0b2a0be7cf1ef21b99fd74150a67e0751d01b689b8d3771d81628e4ff9a
+input_tree_sha256: 736679f516a0b5986ecd72099bae4cba1328f55f798ab7b1b02c54b29951bf21
+input_tree_file_count: 25
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-305-pr-submit-conflicts/.dev/reflect/pre-design-20261104164711/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 117
+citations_revalidated: 117
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards:
+  - /home/coder/workspaces/worktrees/IronClaude/issue-305-pr-submit-conflicts/.dev/reflect/pre-design-20261104164711/reviewer-cards/reviewer-1-card.yaml
+  - /home/coder/workspaces/worktrees/IronClaude/issue-305-pr-submit-conflicts/.dev/reflect/pre-design-20261104164711/reviewer-cards/reviewer-2-card.yaml
+  - /home/coder/workspaces/worktrees/IronClaude/issue-305-pr-submit-conflicts/.dev/reflect/pre-design-20261104164711/reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/issue-305-pr-submit-conflicts/.dev/reflect/pre-design-20261104164711/adversarial   # remapped from sc-adversarial artifacts_dir
+adversarial_convergence_score: 0.852
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: degraded
+
+# Tier 3 (no --remediate)
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: true     # 17 drift findings (plan defects to fix during implementation)
+blocked_by_low_confidence: false
+spec_is_wrong: true                      # CF-14: spec cites loop-guard.md:86-99; the list ends at :103
+user_decision_required: false
+needs_human_decision: false
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+telemetry:
+  reviewer_models: [sonnet, glm-5.3, opus]
+  reviewer_personas: [analyzer, qa, refactorer]
+  reviewer_vendors: [anthropic, zhipu, anthropic]
+  degraded_components: [calibrator-diversity]
+  fallback_path: null
+  executor_class_source: unknown
+  executor_class_resolved: false
+  executor_exclusion_degraded: false
+  memory_hits: 0
+  memory_misses: 2
+  memory_retention_actions: 0
+  extra_debate_rounds: ["R-INV invariant-resolution round (gate blocked on INV-001/002/005)"]
+  unresolved_debate_points: [S-004, S-005, S-006, C-013]

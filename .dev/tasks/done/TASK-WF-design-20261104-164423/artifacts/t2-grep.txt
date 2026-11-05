@@ -1,0 +1,9 @@
+tests/pr_submit/fixtures/codex-findings-pr336.json:438:      "originalLine": 41,
+tests/pr_submit/fixtures/codex-findings-pr336.json:449:            "originalLine": 41,
+tests/pr_submit/fixtures/codex-findings-pr336.json:534:      "originalLine": 41,
+tests/pr_submit/fixtures/codex-findings-pr336.json:545:            "originalLine": 41,
+tests/pr_submit/fixtures/codex-findings-pr336.json:825:      "original_line": 41,
+tests/pr_submit/fixtures/codex-findings-pr336.json:828:      "original_position": 41,
+tests/pr_submit/fixtures/finding-max.json:405:      "line": 41,
+tests/pr_submit/fixtures/finding-max.json:416:      "body": "Issue 41 in module 41.",
+tests/pr_submit/test_run_log.py:206:    rl = RunLog(41, tmp_path)

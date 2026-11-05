@@ -1,0 +1,334 @@
+# Provenance: produced by /sc:adversarial (Mode A, depth standard); Base: Variant 1 (reviewer-1, sonnet:analyzer); Merge date: 2026-11-04T13:06:25Z
+# Refactoring plan: adversarial/refactor-plan.md (24 changes; Change 24 reviewer amendments applied over the changes they name). Merge log: adversarial/merge-log.md
+# Sources: Variant 1 (reviewer-1, sonnet:analyzer, base), Variant 2 (reviewer-2, haiku->glm-5.3:qa), Variant 3 (reviewer-3, opus:refactorer),
+#          blind calibrations (reviewer-cards/reviewer-N-calibration.yaml, missed_by_card; named in debate rulings),
+#          Round 2.5 invariant probe (adversarial/invariant-probe.md), refactor-plan review (adversarial/.work/refactor-plan-review.md)
+# Disposition tags: preserved-exact | modified | merged-from-multiple
+# Source: refactor-plan.md Change #1 (top-level schema; X-001 verdict; debate-transcript.md Convergence Assessment)
+merge_method: adversarial
+verdict: PASS
+verdict_note: "PASS with notes: no blocking finding; 18 minor findings"
+convergence_score: 1.0  # convergence threshold 0.80 (debate-transcript.md Convergence Assessment: 19 of 19 points resolved)
+convergence_status: BLOCKED_BY_INVARIANTS
+base_variant: "variant-1 (reviewer-1, sonnet:analyzer)"
+source_cards: [reviewer-1, reviewer-2, reviewer-3]
+citation_legend: "Path prefixes in evidence: plan:N = .dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/TASK-WF-scIssueCommand-20261104-064713.md line N; source.md:N = .dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/source.md line N; .work/... and round1-vN.md / round2-vN.md = files under .dev/reflect/pre-TASK-WF-scIssueCommand-20261104-064713-20261104081732/adversarial/adversarial/.work/; other paths are relative to the repo root /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command."
+# Source: refactor-plan.md Change #1 (kept from the base), Disposition: preserved-exact
+round1_fix_check: {F-01: fixed, F-02: fixed}
+findings:
+  # Source: refactor-plan.md Change #2 (base A-1 regraded + diff point A-005 + V3 Round 2 additions round2-v3.md:63-74 + invariant probe INV-001/INV-002/INV-003; Change 24 amendments 3, 6, 8), Disposition: modified
+  - id: F-01
+    severity: minor
+    category: safety-risk
+    claim: "plan:26 exempts the item-4 run from approval because it 'stops before any GitHub or ClickUp write', which is the behaviour under test; plan:254 runs `/sc:issue --claim https://github.com/octocat/Hello-World/issues/1` live; the URL-vs-origin comparison has no deterministic test (Task 1 tests parsing only), so plan:259 is hoped for, not guaranteed. An escape needs a Wave 0 fault plus a missed Wave 2 inference and lands reversibly on the user's own fork (origin #1 is a merged pull request), so it is minor under the binding rule."
+    evidence:
+      - "plan:26"
+      - "plan:254"
+      - "plan:259"
+      - "plan:32-38"
+      - "plan:111"
+      - "plan:116"
+      - "source.md:142-143"
+      - "source.md:151"
+      - "source.md:155"
+      - "source.md:159"
+      - "source.md:162"
+      - "source.md:336"
+      - "source.md:361"
+      - "source.md:470"
+      - ".work/evidence-sheet.md E4 and E6"
+      - "source.md:66"
+      - "source.md:144"
+      - "source.md:148"
+      - "source.md:178"
+      - "plan:32"
+      - "plan:258"
+    recommendation: "(1) Item 4 uses a foreign URL whose repo and issue number cannot exist on origin and that has no digits outside the `/issues/<N>` segment, e.g. `https://github.com/IronbellyOrg/no-such-repo-sc-issue-probe/issues/999999999` (AC 4 needs only 'any repo other than origin'); the debate's example `.../issue302-no-such-repo/...` is NOT used, because its `302` is the real origin issue (INV-001) (that this repo does not exist is UNVERIFIED; no gh was run). (2) Add a pure URL-vs-origin check (or `--check-url` mode) to `origin_repo.py` that prints `E-FOREIGN-REPO` with an exit code distinct from `E-NO-ORIGIN`, pinned in Task 1 by tests for a same-repo URL, a foreign owner, the same owner with a different repo, a repo-name prefix (`IronClaude` vs `IronClaudeX`), a `/pull/<N>` URL (on origin: rejected, not parsed as an issue number, with a stated code), fragment and trailing `/`, and digits in the owner or repo name never becoming N (INV-001, INV-002); require in Task 6 (text and AC) that Wave 0 calls it; record it as a disclosed addition justified by source.md:361. (3) Rewrite plan:26's carve-out by target ('a run whose URL names a repository and issue that do not exist may run without asking'). (4) Split Task 17's item-4 row: clause 1 (E-FOREIGN-REPO) from the real run; clause 2 ('no `gh` call is made without `--repo <origin repo>`') points at the Task 7 fork-safety test and the F-10 `repos/<R>/` assertion and notes that `gh auth status` and `gh api` carry no `--repo` flag (INV-003). (5) Fallback: if (1) and (2) are not applied, item 4 stays pending (INV-005: the executor cannot ask for approval, refs/qa.md:288, SKILL.md:4; the debate's 'else approval' is replaced)."
+    source_cards: [reviewer-1]  # A-1; A-005 was raised by no card (named by reviewer-1-calibration missed_by_card)
+    debate_ruling: "C-001 minor, unanimous after Round 2 (V3 conceded from blocking, round2-v3.md:3); winner V1, 95%. A-005 minor, unanimous (new). The minor grade holds only with a URL that has no stray digits (INV-001, INV-012); fallback amended by INV-005."
+
+  # Source: refactor-plan.md Change #3 (base A-2 + V3 S-2, regraded; invariant probe INV-005; Change 24 amendments 4, 5), Disposition: merged-from-multiple
+  - id: F-02
+    severity: minor
+    category: ambiguous-ac
+    claim: "Task 15 offers two exits for a stale session: plan:233 says 'stop here and ask the user to start a new session ... it resumes at this task' while plan:236 accepts a pending row; resume does work (a stop before review leaves only a start line, and Row S re-runs the task), so the defect is the choice of exit, not impossibility."
+    evidence:
+      - "plan:233"
+      - "plan:236"
+      - "src/superclaude/skills/sc-implement-protocol/SKILL.md:108-115"
+      - "src/superclaude/skills/sc-implement-protocol/refs/ledger.md:155"
+      - "src/superclaude/skills/sc-implement-protocol/refs/ledger.md:161"
+      - "src/superclaude/skills/sc-implement-protocol/SKILL.md:4"
+      - "src/superclaude/skills/sc-implement-protocol/SKILL.md:97"
+      - "src/superclaude/skills/sc-implement-protocol/refs/qa.md:288"
+    recommendation: "State one exit, and make it pending: the executor may not stop to ask the user (src/superclaude/skills/sc-implement-protocol/refs/qa.md:288; its allowed-tools at SKILL.md:4 have no AskUserQuestion), and the session that runs Tasks 1-14 in source order started before Task 13, so the rule is that on the first pass Task 15 writes a pending row with the reason. This pending outcome is the rule to follow, not a statement about Claude Code (whether a skill hot-loads mid-session is UNVERIFIED). End Task 17's artifact with a short post-restart runbook in source order (export `CLICKUP_API_TOKEN`, `CLICKUP_WORKSPACE_ID` and `CLICKUP_LIST_IDS` (the test list, F-11) and have the test issue URL and task ID ready, start a new session, run Task 15's spawns, Task 16, item 4) so the scheduled checks are not dropped (INV-005). The runbook results are recorded in a new note next to the archived package under `.dev/tasks/done/`, because the package is archived after Task 17 (src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md:47-54). plan:233's 'delete it afterwards only with the user's approval' moves into the runbook. Remove 'it resumes at this task'. Keep 'after Task 13' (it is the agent-load condition, not the dependency)."
+    source_cards: [reviewer-1, reviewer-3]  # A-2, S-2
+    debate_ruling: "C-002 and X-002 minor, unanimous; V3 withdrew 'resume cannot work' (round2-v3.md:24-25). Winner V1, 95%. The debate's 'stop and ask the user to restart' exit is replaced by pending per INV-005."
+
+  # Source: refactor-plan.md Change #4 (V3 S-1 claim verbatim + base A-5; invariant probe INV-004; Change 24 amendment 7), Disposition: merged-from-multiple
+  - id: F-03
+    severity: minor
+    category: cross-task-contradiction
+    claim: "Task 6's mandated error-table rows trip Task 7's fork-safety scan: Task 6 requires SKILL.md to carry the section 14 error table and orchestrator write list, which name gh issue edit/comment/create without --repo; Task 7's fork-safety test requires every line that runs gh issue|pr|label to carry --repo."
+    evidence:
+      - "plan:111"
+      - "plan:131"
+      - "plan:136"
+      - "source.md:336"
+      - "source.md:340"
+      - "plan:56"
+      - "plan:58"
+      - "source.md:319"
+      - "source.md:320"
+    recommendation: "Define the scan once and use it in both Task 3's test (plan:58) and Task 7's test (plan:131): every code span or fenced line that starts with `gh issue|pr|label` carries `--repo`, prohibitions included. Tasks 3, 5 and 6 then write every such mention with `--repo <R>`: the section-14 table cells (source.md:336, :340), the orchestrator write list (source.md:320) and the workers' 'never run ...' prohibition (plan:56). They write the placeholder rule of source.md:319 without the literal token (for example 'never a brace placeholder'), so plan:131's ban holds (INV-004). plan:136's negative case writes its `gh issue view` line as a code span or fenced line."
+    source_cards: [reviewer-3, reviewer-1]  # S-1, A-5
+    debate_ruling: "C-003 minor; V1 handed the better instance to V3 (round2-v1.md:26); winner V3, 95%."
+
+  # Source: refactor-plan.md Change #5 (base A-3 claim verbatim + V3 S-6), Disposition: merged-from-multiple
+  - id: F-04
+    severity: minor
+    category: unexecutable
+    claim: "Task 16 live comparison has no method or safe presence check: Task 16 key-path comparison names no method; the script prints only status JSON; the secrets rule does not ban curl -v/-i/--trace; first run 'assigned' cannot hold if the test task already lists the user."
+    evidence:
+      - "plan:23"
+      - "plan:243"
+      - "plan:246"
+    recommendation: "Name one key-paths-only method (or accept the two status results as the shape check); ban `curl -v/-i/--trace` and header-printing options; check presence with `test -n \"${CLICKUP_API_TOKEN:-}\"`; accept `already_assigned` on the first run with a note."
+    source_cards: [reviewer-1, reviewer-3]  # A-3, S-6
+    debate_ruling: "C-004 minor, unanimous; winner V1, 90%."
+
+  # Source: refactor-plan.md Change #6 (base A-4 claim verbatim + V3 S-4 claim verbatim), Disposition: merged-from-multiple
+  - id: F-05
+    severity: minor
+    category: test-isolation
+    claim: "ClickUp environment hygiene: tests clear only the token and workspace variables; an exported CLICKUP_MAX_PAGES or CLICKUP_LIST_IDS still reaches tests that pin page cap, first page and URLs. The secrets constraint forbids env on the token yet Task 2 uses env -u."
+    evidence:
+      - "plan:23"
+      - "plan:43"
+      - "plan:45"
+      - "plan:50"
+    recommendation: "Every test clears all four `CLICKUP_*` variables; plan:23 says 'no command that prints it; `env -u` to unset it is allowed'."
+    source_cards: [reviewer-1, reviewer-3]  # A-4, S-4
+    debate_ruling: "C-005 minor, unanimous; V3 handed it to V1 (round2-v3.md:106); winner V1, 90%."
+
+  # Source: refactor-plan.md Change #7 (V2 Q-4 claim verbatim; invariant probe INV-005; Change 24 amendments 4, 5), Disposition: modified
+  - id: F-06
+    severity: minor
+    category: acceptance-posture
+    claim: "'Approval at that moment' has no trigger: Section 20 ACs 1, 2, 3, 6, 8 may end pending, so core end-to-end behaviour may ship unverified."
+    evidence:
+      - "plan:15"
+      - "plan:26"
+      - "plan:254"
+      - "src/superclaude/skills/sc-implement-protocol/refs/qa.md:274"
+      - "src/superclaude/skills/sc-implement-protocol/refs/qa.md:288"
+      - "src/superclaude/skills/sc-implement-protocol/SKILL.md:4"
+    recommendation: "The executor cannot prompt (refs/qa.md:288; SKILL.md:4), so the debate's 'add one explicit ask' is not available inside `/sc:implement` (INV-005). Instead: items 1, 2, 3, 5 (first half), 6 and 8 are recorded pending, and Task 17's artifact ends with the explicit request to the user, in the runbook of F-02, to pre-approve one scratch test issue so those items can be run by hand; plan:26's and plan:254's 'approval at that moment' clauses are reworded to 'only in a later, user-started session with the user's explicit approval'."
+    source_cards: [reviewer-2]  # Q-4
+    debate_ruling: "C-006 minor; winner V2, 90%; mechanism amended by INV-005."
+
+  # Source: refactor-plan.md Change #8 (V3 S-3 claim, recommendation and evidence verbatim; C-007 ruling added), Disposition: preserved-exact
+  - id: F-07
+    severity: minor
+    category: dependency-metadata
+    claim: "Task 17 depends on Task 14 only but cites Task 15 and Task 16 evidence."
+    evidence:
+      - "plan:252"
+      - "plan:254"
+    recommendation: "Depends on: Task 14, Task 15, Task 16."
+    source_cards: [reviewer-3]  # S-3
+    debate_ruling: "C-007 minor; winner V3, 90%. Metadata only for this executor (src/superclaude/skills/sc-implement-protocol/SKILL.md:79, :97)."
+
+  # Source: refactor-plan.md Change #9 (diff point A-002; no card; named by reviewer-2-calibration missed_by_card; Change 24 amendment 8), Disposition: modified (new entry)
+  - id: F-08
+    severity: minor
+    category: dependency
+    claim: "AC 5's first half is unplaced: 'with CLICKUP_API_TOKEN unset the claim completes and the comment says ClickUp was skipped' (source.md:471) is never marked run or pending; plan:254 assigns only item 5's ClickUp half."
+    evidence:
+      - "source.md:471"
+      - "plan:50"
+      - "plan:254"
+    recommendation: "Name it in the Task 17 record as pending (it needs a live claim); do not mark it run on Task 2's script-only `no_token` output."
+    source_cards: []
+    debate_ruling: "A-002: minor, unanimous (new). No card raised it; named by reviewer-2-calibration (missed_by_card)."
+
+  # Source: refactor-plan.md Change #10 (diff point A-003 + invariant probe INV-011; no card; named by reviewer-2-calibration missed_by_card; Change 24 amendment 8), Disposition: modified (new entry)
+  - id: F-09
+    severity: minor
+    category: validation-rule
+    claim: "AC 8's `/model` first line is unasserted: AC 8's offline half (next-steps.md starts with the `/model` tier line, source.md:474) is not pinned by any test or AC; plan:77 defines the template but nothing asserts its first line."
+    evidence:
+      - "source.md:474"
+      - "plan:77"
+      - "plan:81-85"
+      - "plan:123-132"
+    recommendation: "Add a Task 4 AC (or Task 7 test) that `templates/next-steps.md` starts with the `/model` tier line; in Task 17, describe this static check as covering the template and default rows only and keep item 8 pending until a live claim, because `/sc:recommend` output can carry other flags (source.md:438; INV-011)."
+    source_cards: []
+    debate_ruling: "A-003: minor, unanimous (new). No card raised it; named by reviewer-2-calibration (missed_by_card)."
+
+  # Source: refactor-plan.md Change #11 (diff point A-004; no card; named by reviewer-2-calibration missed_by_card; Change 24 amendments 1, 8), Disposition: modified (new entry)
+  - id: F-10
+    severity: minor
+    category: validation-rule
+    claim: "No check that `gh api` paths spell `repos/<R>/`: Task 7's fork-safety scan (plan:131) checks `--repo` on `gh issue|pr|label` lines and bans the brace placeholder, but nothing checks section 13's rule that every `gh api` path spells `repos/<R>/...` (source.md:319)."
+    evidence:
+      - "source.md:319"
+      - "plan:131"
+      - "source.md:148"
+      - "plan:92"
+    recommendation: "Extend Task 7's fork-safety test: every `gh api` path in the skill and agents other than `user` (the login lookup of source.md:148) starts with `repos/<R>/`; none uses the brace placeholder."
+    source_cards: []
+    debate_ruling: "A-004: minor, unanimous (new). No card raised it; named by reviewer-2-calibration (missed_by_card)."
+
+  # Source: refactor-plan.md Change #12 (diff point A-006 + invariant probes INV-005/INV-007; no card; named by reviewer-1-calibration and reviewer-2-calibration missed_by_card; Change 24 amendments 4, 8), Disposition: modified (new entry)
+  - id: F-11
+    severity: minor
+    category: guard
+    claim: "Task 16's PUT target is chosen by a workspace-wide match, not the named task, and the PUT happens inside the first run, so comparing the reported `task_id` afterwards cannot prevent a wrong assignment (INV-007)."
+    evidence:
+      - "plan:243"
+      - "plan:246"
+      - "source.md:298"
+      - "source.md:304-309"
+    recommendation: "Task 16 runs only when the user has, before the session, exported `CLICKUP_LIST_IDS` set to the test task's list (narrowing the search before the PUT; INV-007) and supplied the test issue URL and task ID up front (the executor cannot ask mid-run, INV-005); otherwise it is pending. Remove plan:243's 'Ask the user only for the test issue URL and task ID'; the user supplies them before the session in `./artifacts/t16-input.md` (or the `/sc:implement` invocation text). After the first run compare the reported `task_id` with the named one; on a mismatch make no second run, record the wrong `task_id`, and tell the user to remove the assignment."
+    source_cards: []
+    debate_ruling: "A-006: minor; winner V2, 90%; amended by INV-005 and INV-007. No card raised it; named by reviewer-1-calibration and reviewer-2-calibration (missed_by_card)."
+
+  # Source: refactor-plan.md Change #13 (diff point A-007 + invariant probe INV-005; no card; named by reviewer-3-calibration missed_by_card; Change 24 amendments 5, 8), Disposition: modified (new entry)
+  - id: F-12
+    severity: minor
+    category: state
+    claim: "Task 17 item 4 needs a post-Task-13 session with no check: plan:254 runs item 4 in a session that has the skill loaded (after Task 13), the same fresh-session dependency as Task 15, with no stop-and-restart instruction."
+    evidence:
+      - "plan:233"
+      - "plan:254"
+      - "plan:258"
+    recommendation: "State the same session precondition as Task 15; as the rule to follow (not a statement about Claude Code: whether a skill hot-loads mid-session is UNVERIFIED), on the first pass item 4 is pending and goes into the F-02 runbook (INV-005); a read-through or simulated run is not evidence, and the item-4 row quotes the real output when it is run."
+    source_cards: []
+    debate_ruling: "A-007: minor, unanimous after V2 changed (round2-v2.md:72). No card raised it; named by reviewer-3-calibration (missed_by_card)."
+
+  # Source: refactor-plan.md Change #14 (base A-6 claim, category and evidence verbatim; recommendation per plan; invariant probe INV-008), Disposition: modified
+  - id: F-13
+    severity: minor
+    category: underspecified
+    claim: "Task 2 asks to 'define' invalid CLICKUP_MAX_PAGES behaviour without bounding it; the spec reserves exit 2 for bad arguments and exit 0 for everything else."
+    evidence:
+      - "plan:43"
+      - "source.md:310"
+    recommendation: "Fix the rule: fall back to 20 (or print an error status) and exit 0, since exit 2 is reserved for bad arguments."
+    source_cards: [reviewer-1]  # A-6
+    debate_ruling: "V1 Round 1 kept it as low-value minor (round1-v1.md:77); carried as an explicit minor finding per INV-008."
+
+  # Source: refactor-plan.md Change #15 (V3 S-5 claim, category and evidence verbatim; recommendation per plan; invariant probe INV-008; Change 24 amendment 8), Disposition: modified
+  - id: F-14
+    severity: minor
+    category: executability-trap
+    claim: "Copying evidence-validator.md frontmatter would carry permissionMode: plan and block worker writes."
+    evidence:
+      - "plan:56"
+      - "src/superclaude/agents/evidence-validator.md:8"
+    recommendation: "Task 3 sets no `permissionMode: plan`, and its test asserts that."
+    source_cards: [reviewer-3]  # S-5
+    debate_ruling: "Verified by V1 and V3 Round 1 (round1-v1.md:21, round1-v3.md:13). Carried as an explicit minor finding per INV-008, which ranks it first among F-13 to F-17 because a copied `permissionMode: plan` would leave every worker unable to write its file, so every claim or create ends `E-WORKER-NO-OUTPUT` (source.md:335) [INFERRED]."
+
+  # Source: refactor-plan.md Change #16 (V3 S-7 claim verbatim; evidence and recommendation per plan; invariant probe INV-008), Disposition: modified
+  - id: F-15
+    severity: minor
+    category: evidence-definition
+    claim: "The tier proxy rewrites the alias, so the transcript may show a tier member model, not the picker ID [INFERRED]; no transcript or log path named."
+    evidence:
+      - "plan:233"
+      - "plan:236"
+      - "src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py:17-21"
+    recommendation: "Accept the picker ID or a model from that tier's mapping as 'served', and name where the evidence is read."
+    source_cards: [reviewer-3]  # S-7
+    debate_ruling: "Verified by V1 and V3 Round 1 (round1-v1.md:22, round1-v3.md:14); the transcript side stays [INFERRED]. Carried as an explicit minor finding per INV-008."
+
+  # Source: refactor-plan.md Change #17 (V3 S-8 claim and category verbatim; evidence and recommendation per plan; invariant probe INV-008), Disposition: modified
+  - id: F-16
+    severity: minor
+    category: test-spec-ambiguity
+    claim: "Task 7 inventory 'every file in refs/, templates/, scripts/' fails on scripts/__pycache__."
+    evidence:
+      - "plan:125"
+      - "plan:132"
+    recommendation: "Limit the inventory to `refs/*.md`, `templates/*.md`, `scripts/*.py`."
+    source_cards: [reviewer-3]  # S-8
+    debate_ruling: "Minor (round1-v3.md:18). Carried as an explicit minor finding per INV-008."
+
+  # Source: refactor-plan.md Change #18 (V3 S-10 claim, category and evidence verbatim; recommendation per plan; invariant probe INV-008), Disposition: modified
+  - id: F-17
+    severity: minor
+    category: unpinned-literal
+    claim: "The D26 sentence has no fixed wording, so Tasks 6 and 8 can drift."
+    evidence:
+      - "plan:111"
+      - "plan:146"
+    recommendation: "State the exact sentence once in Task 6 and reference it from Task 8 and its test."
+    source_cards: [reviewer-3]  # S-10
+    debate_ruling: "Minor (round1-v3.md:18). Carried as an explicit minor finding per INV-008."
+
+  # Source: refactor-plan.md Change #23 (new entry from invariant probe INV-006; no card; Change 24 amendment 8), Disposition: modified (new entry)
+  - id: F-18
+    severity: minor
+    category: state-variables
+    claim: "Wave 2 cannot see that a number is a pull request: Wave 2 decides from scout.md alone (source.md:154); the scout claim section the plan defines (plan:78) has no `url` or pull-request field although Wave 1 fetches `url` (source.md:148); an open pull request reports `OPEN`, so a user who types an open PR number reaches the assign and two comments (source.md:162, :178-179) without any fault. `E-NOT-AN-ISSUE` (source.md:159) is only checked for presence (plan:116). [INFERRED: an open PR's `state` reads `OPEN`; `gh issue edit` on a PR number is UNVERIFIED]"
+    evidence:
+      - "plan:78"
+      - "plan:116"
+      - "source.md:148"
+      - "source.md:154"
+      - "source.md:159"
+      - "source.md:162"
+    recommendation: "Task 4 adds `url` and `is_pull_request` (true when `url` contains `/pull/`) to the scout claim section, with an AC; Task 5's claim.md makes the Wave 2 STOP read that field. Record it as a disclosed addition (the same kind as the 'whether that list was truncated' field at plan:78). Fix before any live claim."
+    source_cards: []
+    debate_ruling: "INV-006 (MEDIUM, UNADDRESSED in the debate): no card raised it; named by the Round 2.5 invariant probe. Minor: no deliverable is missing and no plan statement is false; plan:92 already requires the pull-request STOP."
+
+# Source: refactor-plan.md Change #19 (V2 Q-2 and Q-3; round-1-directed), Disposition: modified
+authorized_expansions:
+  - id: Q-2
+    item: "`--limit 200` on the merged-PR query"
+    evidence: ["plan:92", "plan:105"]
+    disposition: "Round-1-directed, disclosed; no action (round2-v2.md:17-19)."
+  - id: Q-3
+    item: "Source-only flag check"
+    evidence: ["plan:129"]
+    disposition: "Round-1-directed, disclosed; no action (round2-v2.md:17-19)."
+
+# Source: refactor-plan.md Change #19 (V3 S-9 and S-12), Disposition: modified
+notes:
+  - id: S-9
+    note: "Interim red tests between Tasks 1/8 and Task 9 are `unrelated-red` and change no verdict (src/superclaude/skills/sc-implement-protocol/SKILL.md:152-154)."
+  - id: S-12
+    note: "Heading backticks at plan:197 vs docs/user-guide/commands.md:236 (style)."
+
+# Source: refactor-plan.md Change #20 plus Change 24 amendment 2 (U-019), Disposition: merged-from-multiple
+rejected_findings:
+  - id: S-001
+    reason: "Format only; the verdict basis is settled by X-001."
+  - id: S-002
+    reason: "Format only; the verdict basis is settled by X-001."
+  - id: A-001
+    reason: "source.md:391 defines the static test as phrase presence; plan:126 matches."
+  - id: A-008
+    reason: "pytest is a main dependency (pyproject.toml:34-43)."
+  - id: Q-1
+    reason: "Duplicates plan:25."
+  - id: S-11
+    reason: "Withdrawn by V3 (round2-v3.md:15-16); Q6 extras already run `make lint` (src/superclaude/skills/sc-implement-protocol/SKILL.md:132, :146)."
+  - id: U-019
+    reason: "V1 A-1: read the implemented SKILL.md before the live run: superseded by F-01 (2), a tested URL check that Wave 0 must call, pinned by a Task 6 AC, and by F-12 (a read-through is not evidence). Evidence: diff-analysis.md:63."
+
+# Source: refactor-plan.md Change #21 (debate-transcript.md Convergence Assessment: 19 of 19 points resolved, unresolved none)
+unresolved: []
+
+# Source: refactor-plan.md Change #21 (invariant-probe amendments). Dispositions:
+#   INV-001 (HIGH), INV-002, INV-003 (MEDIUM): folded into F-01.  INV-004 (MEDIUM): folded into F-03.
+#   INV-005 (MEDIUM): folded into F-01 (fallback), F-02, F-06, F-11 and F-12.  INV-006 (MEDIUM): new finding F-18.
+#   INV-007 (MEDIUM): folded into F-11.  INV-008 (MEDIUM): satisfied by F-13 to F-17.  INV-011 (LOW): folded into F-09.
+#   INV-009, INV-010, INV-012 (ADDRESSED): no change.
+# INV-001 is the only HIGH UNADDRESSED item; the adversarial return contract status is partial.
+unaddressed_invariants: [INV-001]
+
+# Source: refactor-plan.md Change #22 (binding rule, refactor-plan.md line 13, verbatim)
+severity_rule: "blocking only for wrong behaviour, a false claim, a missing required deliverable, or a security/data-loss risk. Everything else is minor."

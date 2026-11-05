@@ -112,6 +112,7 @@ This page is the per-command reference: exact syntax, options, and what each com
 | `/sc:save` | Save project memory to `.superclaude/memory/` (not a resume method) | `save.md` | Report only |
 | `/sc:help` | List installed commands, skills, process levels | `help.md` | No |
 | [`/sc:graph`](#scgraph---code-graph-index-status) | Code-graph index status; builds the index only on `init` | `graph.md` | Only with `init` |
+| [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt) or create a templated issue | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
 | `/sc:recommend` | Paste-ready prompt for the right command | `recommend.md` | Report only (inside an IronClaude checkout it writes its cache and telemetry under `.claude/cache/`) |
 | `/sc:init-lite` | Safe audit of project-local context surfaces | `init-lite.md` | Report only |
 | `/sc:pr-submit` | Open fork PR and monitor review fixes | `pr-submit.md` | Yes |
@@ -340,6 +341,54 @@ When codegraph, the index or its lookup tools are not usable, it falls back to G
 ```
 
 **MCP servers:** none
+
+---
+
+### `/sc:issue` - GitHub Issue Claim and Create
+
+**When to use:** Take an existing GitHub issue on the repository `origin` points at, or file a new one. `--claim` assigns the issue to you, checks whether its text is still accurate against today's code and the pull requests merged since it was opened, writes a summary (with an effort estimate in hours) and a next-step prompt under `.dev/issues/<N>/`, posts an accuracy-check comment and a claim comment, then stops. `--create` turns a description into an issue built from one of four templates (feature or bug, simple or complex) with labels from a fixed set.
+
+**Syntax:**
+
+```
+/sc:issue --claim <number|url>
+/sc:issue --create "<description>" [--depth quick|standard|deep] [--mode feature|bug] [--type <type>]
+```
+
+**Options:**
+
+| Flag | Mode | Default | What it does |
+|------|------|---------|--------------|
+| `--claim <number\|url>` | claim | - | The issue to claim: a number (`302`, `#302`) or an issue URL on the origin repo |
+| `--create "<description>"` | create | - | The feature or bug description, as text or `@path` to a file |
+| `--depth quick\|standard\|deep` | create | `quick` | How hard the command checks your flags and fills the body; `deep` uses the complex template |
+| `--mode feature\|bug` | create | chosen by a worker | Picks the feature or bug template and the `enhancement` or `bug` label |
+| `--type <type>` | create | chosen by a worker | Area of the change: `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install` or `other`; maps to a `type: <value>` label |
+
+`--depth`, `--mode` and `--type` work with `--create` only. There is no repository option: the repository is always `origin`.
+
+**Examples:**
+
+```bash
+/sc:issue --claim 302
+/sc:issue --create "The sync check misses deleted skill files" --mode bug --type cli --depth standard
+/sc:issue --create @notes/new-command.md --depth deep
+```
+
+It posts directly to GitHub, without showing the comment or the issue body for approval first. It never creates labels: a label from the fixed set that the repository does not have is skipped and listed. On claim it also assigns the matching ClickUp task, only when `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID` are set; `--create` never touches ClickUp. A claim stops after writing `.dev/issues/<N>/next-steps.md`; you run those commands yourself, in your own session.
+
+**ClickUp settings (claim only, environment variables):**
+
+| Variable | Required | What it does |
+|----------|----------|--------------|
+| `CLICKUP_API_TOKEN` | yes | Your own ClickUp personal token (`pk_...`); never printed or written to disk |
+| `CLICKUP_WORKSPACE_ID` | yes | The ClickUp workspace (team) to search |
+| `CLICKUP_LIST_IDS` | no | Comma-separated list IDs that narrow the search |
+| `CLICKUP_MAX_PAGES` | no | Pages of 100 tasks to search, default `20` |
+
+The task is found by the issue URL in its description or a custom field, or else by `#<N>` in its title, and is assigned only when exactly one task matches. The ClickUp result appears in the claim comment and never stops the claim: `not found`, `ambiguous (<count> candidates)`, `already assigned` and `error (<reason>)` all leave the GitHub assignment in place. `error (page_cap)` means the search reached `CLICKUP_MAX_PAGES` before it saw every task, so nothing was assigned; raise `CLICKUP_MAX_PAGES` or set `CLICKUP_LIST_IDS` and claim again.
+
+**MCP servers:** auggie, codegraph
 
 ---
 
@@ -808,7 +857,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 
 - Runs a depth-tiered Socratic dialogue → `seed-brief.md`
 - Auto-routes codebase + research enrichment (`/sc:analyze`, `/sc:research`, `tech-research`)
-- Composes a `--agents` spec spanning 3 model aliases × domain-detected personas
+- Composes a `--agents` spec spanning 3 model aliases × domain-detected personas (in a ccsession tier workspace the launcher sets each `ANTHROPIC_DEFAULT_*_MODEL` for a tier the owner may use, so the matching aliases `opus`, `sonnet` and `haiku` map to `claude-gw-tier1a`, `claude-gw-tier1b` and `claude-gw-tier2`; see [model-aliases](../reference/model-aliases.md))
 - Delegates to `/sc:adversarial` for N parallel proposals + debate + merge → `merged-requirements.md`
 - Optionally hands off to `/sc:design`, `/sc:tasklist`, or `/task-builder`
 

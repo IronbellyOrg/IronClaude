@@ -1,0 +1,21 @@
+# T1 reflection card calibration (blind; confidence-calibrator on claude-opus-5-5, card only)
+card: t1-card.md
+calibrator_model_class: opus
+calibrator_diversity: degraded     # disjoint set empty: reviewers use sonnet, haiku, opus
+calibration: blind
+dimension_scores:
+  citation_grounding: 0.88
+  coverage_completeness: 0.85
+  deviation_classification_clarity: 0.50
+  risk_surface_coverage: 0.75
+  recommendation_actionability: 0.78
+calibrated_confidence: 0.75        # arithmetic mean
+self_reported_confidence: null     # the card states none
+escalation: ESCALATE               # C < 0.85 (rubric); also coverage_degraded and S_domains 4
+spot_checks: {read: 15, matched: 13}
+notes:
+  - "C-3 range 'plan lines 28-125' is short: Task 9's acceptance block ends at line 129"
+  - "R-4 'exactly one hit' names no scan command (the scan was the ast script run in Wave 1A)"
+  - "INF-011: Tasks 2, 4, 7 do not tell the executor to update tests that pin strings they edit; to be checked by reviewers (search tests/)"
+  - "R-1 adviser blast radius not worked out (T1Model02 gpt-6.1-sol, T2Model02 glm-5.3)"
+  - "card findings are not labelled with the four deviation categories (UC-1 findings are plan-vs-repo; categories apply to UC-2 diffs)"

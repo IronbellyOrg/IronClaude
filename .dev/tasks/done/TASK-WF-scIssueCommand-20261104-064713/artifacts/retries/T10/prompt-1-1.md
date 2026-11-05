@@ -1,0 +1,413 @@
+d98262fc16448956db153545ea40e3e2c9431513
+Review one task for spec compliance.
+
+Task brief: ## Task 10: Register /sc:issue in the routing guide and its plugin copy
+
+Depends on: Task 8
+
+In `src/superclaude/core/HOW-WE-WORK.md`, add one row for `/sc:issue` to the "Other commands" table between `<!-- other-commands:v1 -->` and `<!-- /other-commands -->` (source section 15 row): claim assigns the issue, checks its accuracy, writes a summary and a next-step prompt, then stops; create files a templated GitHub issue on the origin repo; both post directly to GitHub and write `.dev/issues/`. Keep the table's existing row style. The row is ASCII only (`test_guide_is_ascii_except_the_ruling_example`) and backticks no `/...` token other than `/sc:issue` unless it names an existing command (`test_other_commands_membership_and_live_references`), both in `tests/core/test_how_we_work_routing_table.py`. The level table is not changed, so `src/superclaude/core/CLAUDE.md` is not changed.
+
+Copy the edited `src/superclaude/core/HOW-WE-WORK.md` byte-for-byte to `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` (required by `tests/commands/test_routing_plugin_parity.py`; source section 17 item 3).
+
+In `tests/core/test_how_we_work_routing_table.py`, add `"sc:issue"` to `_OTHER_COMMANDS` (source section 16 row); the existing live-reference check then proves the command file exists.
+
+Acceptance criteria:
+- `cmp src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` reports no difference.
+- `_OTHER_COMMANDS` in `tests/core/test_how_we_work_routing_table.py` contains `"sc:issue"`.
+- `uv run pytest tests/core tests/commands -v` passes; its output is saved to `./artifacts/t10-core-commands.log`.
+
+AC ids: T10.AC1..T10.AC3 = the three acceptance bullets in order (byte-identical plugin copy; _OTHER_COMMANDS contains "sc:issue"; tests/core and tests/commands pass with output saved to .dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t10-core-commands.log).
+Design source: .dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/source.md sections 15 (HOW-WE-WORK.md, plugin copy and test rows; "Not changed": src/superclaude/core/CLAUDE.md), 16, 17 item 3.
+
+Global constraints: ## Constraints
+
+- UV only: run Python and tests with `uv run ...` (`uv run pytest`, `uv run --no-project python ...`); never `python -m`, bare `python script.py` or `pip install`.
+- Edit only under `src/superclaude/`, `tests/`, `docs/` and the one plugin guide copy `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` (source section 15 and section 17 item 1). Also allowed: this package's `./artifacts/` folder, the unstaged scratch folder `.dev/issues/smoke/` (Task 15), and one temporary Orca worktree for the master comparison (Task 14), which that task removes. `.claude/` is produced by `make sync-dev`; never edit it by hand and never `git add` any `.claude/` path except `.claude/settings.json` (never `git add -f` on `.claude/`).
+- Inside the new primitives (command, skill, refs, templates, agents) every reference to another primitive uses its installed path (`~/.claude/commands/sc/<name>.md`, `~/.claude/skills/<name>/...`, `~/.claude/agents/<name>.md`) plus, for existence checks, the project `.claude/` copy; no `src/superclaude/...` path appears in them (source section 15, "Path rule").
+- Never interact with the upstream parent `SuperClaude-Org/SuperClaude_Framework`: every `gh` command passes `--repo IronbellyOrg/IronClaude` (or, inside the shipped skill, `--repo <R>` resolved from `origin`), every `gh api` path spells `repos/<owner>/<repo>/...`, and the only fetch is `git fetch origin` (source section 13).
+- Secrets: the executor never asks for, prints, echoes or inlines `CLICKUP_API_TOKEN` (no `echo`, `env`, `printenv` or `set -x` on it). When a live ClickUp run is needed, the user exports the variables in their own shell before starting the session (source section 12, "Never printed, logged or written to disk").
+- Do not commit or push unless the user asks. `.dev/tasks/` is always staged (`git add .dev/tasks`), this package and its `artifacts/` included; staging is not committing.
+- Out of scope for this plan (source section 1 and section 17 item 5): running any next-step chain, creating GitHub labels, creating ClickUp tasks, editing rule 10 of `src/superclaude/core/CLAUDE.md`, changing the level table, adding `plugins/superclaude/` command, agent or skill mirrors, listing the workers in `docs/user-guide/agents.md`, any `src/superclaude/cli/` code, and opening the pull request (done afterwards with `/sc:pr-submit --monitor 3 --head ironbelly/feat-sc-issue-command --title "..." --body "..."`).
+- Live `/sc:issue --claim` or `--create` runs post directly to GitHub (source decision B1). Live checks in this plan are the two the source schedules (Task 15 worker spawns, Task 16 ClickUp smoke claim) and the section 20 acceptance record of Task 17. A run that stops before any GitHub or ClickUp write (section 20 item 4) may run without asking; any run that would assign, comment on or create a real GitHub issue needs the user's explicit approval at that moment.
+
+Start sha: d98262fc16448956db153545ea40e3e2c9431513
+Diff against the start snapshot: diff --git a/src/superclaude/core/HOW-WE-WORK.md b/src/superclaude/core/HOW-WE-WORK.md
+index 43964d22..7b520c8d 100644
+--- a/src/superclaude/core/HOW-WE-WORK.md
++++ b/src/superclaude/core/HOW-WE-WORK.md
+@@ -326,6 +326,7 @@ Additional operations and explicit coordination choices. These entries can be re
+ | `/sc:impact` | Report what depends on named symbols or on a diff (`--diff <base>`), production and test dependents with call-site checks, plus an advisory test list with `--tests`; it writes `impact.md` and `return-contract.yaml` and changes no code. |
+ | `/sc:index` | Coordinated project docs/API/structure/README and requested output format; writes documentation. Distinct from a compact repo map. |
+ | `/sc:index-repo` | Compact PROJECT_INDEX.md and PROJECT_INDEX.json map. Preserve documented keyword mode=quick or mode=update and existing-output intent. Verify invocation naming in the active copy; no measured token-savings promise. |
++| `/sc:issue` | Claim an existing GitHub issue on the origin repo (`--claim <number or url>`): it assigns the issue to you, checks its accuracy against today's code, writes a summary and a next-step prompt, then stops without running them. Create (`--create "<description>"`) files a templated GitHub issue on the origin repo with labels from a fixed set. Both post directly to GitHub and write `.dev/issues/`. |
+ | `/sc:load` | Load/refresh project context from the `.superclaude/memory/` files with supported type/refresh/analyze controls; needs no MCP server. Not executor resume or proof of complete checkpoint restoration; exclude undeclared example-only options. |
+ | `/sc:pm` | Explicit PM coordination with requested strategy/verbosity and available protocol/tools. It can write memory/docs; verify dependencies. Not a default planner, automatic-start guarantee or universal executor-resume method. |
+ | `/sc:save` | Persist requested session/learnings/context/all memory with supported summarize/checkpoint controls. Stores plain markdown files under `.superclaude/memory/` (no MCP server) and writes memory; not durable task execution state or a latency guarantee. |
+diff --git a/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md b/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+index 43964d22..7b520c8d 100644
+--- a/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
++++ b/plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+@@ -326,6 +326,7 @@ Additional operations and explicit coordination choices. These entries can be re
+ | `/sc:impact` | Report what depends on named symbols or on a diff (`--diff <base>`), production and test dependents with call-site checks, plus an advisory test list with `--tests`; it writes `impact.md` and `return-contract.yaml` and changes no code. |
+ | `/sc:index` | Coordinated project docs/API/structure/README and requested output format; writes documentation. Distinct from a compact repo map. |
+ | `/sc:index-repo` | Compact PROJECT_INDEX.md and PROJECT_INDEX.json map. Preserve documented keyword mode=quick or mode=update and existing-output intent. Verify invocation naming in the active copy; no measured token-savings promise. |
++| `/sc:issue` | Claim an existing GitHub issue on the origin repo (`--claim <number or url>`): it assigns the issue to you, checks its accuracy against today's code, writes a summary and a next-step prompt, then stops without running them. Create (`--create "<description>"`) files a templated GitHub issue on the origin repo with labels from a fixed set. Both post directly to GitHub and write `.dev/issues/`. |
+ | `/sc:load` | Load/refresh project context from the `.superclaude/memory/` files with supported type/refresh/analyze controls; needs no MCP server. Not executor resume or proof of complete checkpoint restoration; exclude undeclared example-only options. |
+ | `/sc:pm` | Explicit PM coordination with requested strategy/verbosity and available protocol/tools. It can write memory/docs; verify dependencies. Not a default planner, automatic-start guarantee or universal executor-resume method. |
+ | `/sc:save` | Persist requested session/learnings/context/all memory with supported summarize/checkpoint controls. Stores plain markdown files under `.superclaude/memory/` (no MCP server) and writes memory; not durable task execution state or a latency guarantee. |
+diff --git a/tests/core/test_how_we_work_routing_table.py b/tests/core/test_how_we_work_routing_table.py
+index aec23911..82b79a84 100644
+--- a/tests/core/test_how_we_work_routing_table.py
++++ b/tests/core/test_how_we_work_routing_table.py
+@@ -29,6 +29,7 @@ _OTHER_COMMANDS = {
+     "sc:git",
+     "sc:graph",
+     "sc:impact",
++    "sc:issue",
+     "sc:spawn",
+     "sc:index",
+     "sc:index-repo",
+diff --git a/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t10-core-commands.log b/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t10-core-commands.log
+new file mode 100644
+index 00000000..15a38388
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/artifacts/t10-core-commands.log
+@@ -0,0 +1,313 @@
++$ cmp src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
++cmp exit=0 (0 = identical)
++$ uv run pytest tests/core tests/commands -v
++============================= test session starts ==============================
++platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.venv/bin/python
++SuperClaude: 5.0.0
++rootdir: /home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command
++configfile: pyproject.toml
++plugins: superclaude-5.0.0, anyio-4.16.0
++collecting ... collected 299 items
++
++tests/core/test_claude_md_routing_block.py::test_level_table_copy_matches_guide PASSED [  0%]
++tests/core/test_claude_md_routing_block.py::test_routing_block_rule_and_pointer PASSED [  0%]
++tests/core/test_claude_md_routing_block.py::test_imports_resolve_to_shipped_core_files PASSED [  1%]
++tests/core/test_claude_md_routing_block.py::test_removed_sections_stay_removed PASSED [  1%]
++tests/core/test_claude_md_routing_block.py::test_mcp_flag_column_is_advisory PASSED [  1%]
++tests/core/test_claude_md_routing_block.py::test_always_loaded_policy_keeps_workflow_default_and_mdtm_boundary PASSED [  2%]
++tests/core/test_codegraph_guide.py::test_guide_exists_and_is_short PASSED [  2%]
++tests/core/test_codegraph_guide.py::test_guide_has_seven_sections PASSED [  2%]
++tests/core/test_codegraph_guide.py::test_guide_names_seven_tools_and_closed_token_list PASSED [  3%]
++tests/core/test_codegraph_guide.py::test_guide_fixed_lines_and_pin_parity PASSED [  3%]
++tests/core/test_codegraph_guide.py::test_banned_names_only_in_never_section PASSED [  3%]
++tests/core/test_codegraph_guide.py::test_guide_names_switches_and_status_guard PASSED [  4%]
++tests/core/test_codegraph_guide.py::test_guide_holds_sentinel_and_no_source_path PASSED [  4%]
++tests/core/test_codegraph_guide.py::test_not_initialized_message_names_graph_status PASSED [  4%]
++tests/core/test_codegraph_guide.py::test_plugin_copy_is_byte_identical PASSED [  5%]
++tests/core/test_codegraph_guide.py::test_core_claude_single_codegraph_row_names_guide PASSED [  5%]
++tests/core/test_codegraph_guide.py::test_core_claude_marked_block_names_guide_once PASSED [  5%]
++tests/core/test_codegraph_guide.py::test_refresh_tool_row_puts_codegraph_above_grep PASSED [  6%]
++tests/core/test_codegraph_guide.py::test_core_and_modes_have_no_serena_or_explore PASSED [  6%]
++tests/core/test_codegraph_guide.py::test_orchestration_matrix_has_codegraph_row PASSED [  6%]
++tests/core/test_codegraph_guide.py::test_sentinel_only_in_the_guide PASSED [  7%]
++tests/core/test_how_we_work_routing_table.py::test_each_marker_appears_exactly_once[<!-- level-table:v1 -->] PASSED [  7%]
++tests/core/test_how_we_work_routing_table.py::test_each_marker_appears_exactly_once[<!-- /level-table -->] PASSED [  7%]
++tests/core/test_how_we_work_routing_table.py::test_each_marker_appears_exactly_once[<!-- routing-table:v1 -->] PASSED [  8%]
++tests/core/test_how_we_work_routing_table.py::test_each_marker_appears_exactly_once[<!-- /routing-table -->] PASSED [  8%]
++tests/core/test_how_we_work_routing_table.py::test_markers_are_ordered PASSED [  8%]
++tests/core/test_how_we_work_routing_table.py::test_level_table_block PASSED [  9%]
++tests/core/test_how_we_work_routing_table.py::test_routing_header_and_separator PASSED [  9%]
++tests/core/test_how_we_work_routing_table.py::test_every_row_has_eight_cells_and_no_pipe_in_a_cell PASSED [  9%]
++tests/core/test_how_we_work_routing_table.py::test_ids_unique_kebab_and_stable PASSED [ 10%]
++tests/core/test_how_we_work_routing_table.py::test_level_and_changes_files_vocabulary PASSED [ 10%]
++tests/core/test_how_we_work_routing_table.py::test_every_command_and_skill_token_exists PASSED [ 10%]
++tests/core/test_how_we_work_routing_table.py::test_every_notes_flag_exists_in_its_command PASSED [ 11%]
++tests/core/test_how_we_work_routing_table.py::test_notes_flag_check_still_rejects_unknown_slash_command_flags PASSED [ 11%]
++tests/core/test_how_we_work_routing_table.py::test_notes_flag_check_ignores_flags_of_non_slash_commands PASSED [ 11%]
++tests/core/test_how_we_work_routing_table.py::test_other_commands_membership_and_live_references PASSED [ 12%]
++tests/core/test_how_we_work_routing_table.py::test_mandatory_flags_name_real_steps_and_real_flags PASSED [ 12%]
++tests/core/test_how_we_work_routing_table.py::test_every_section_reference_is_a_heading PASSED [ 12%]
++tests/core/test_how_we_work_routing_table.py::test_guide_is_ascii_except_the_ruling_example PASSED [ 13%]
++tests/core/test_how_we_work_routing_table.py::test_guide_is_not_an_at_import_anywhere PASSED [ 13%]
++tests/core/test_how_we_work_routing_table.py::test_named_mandatory_flags_are_on_their_steps[/sc:auggie-review---no-post-pr] PASSED [ 13%]
++tests/core/test_how_we_work_routing_table.py::test_named_mandatory_flags_are_on_their_steps[/sc:reflect --mode post---no-promote] PASSED [ 14%]
++tests/core/test_how_we_work_routing_table.py::test_direct_change_threshold_and_written_plan_requirement PASSED [ 14%]
++tests/core/test_how_we_work_routing_table.py::test_ordinary_routes_plan_with_workflow_then_implement[simple-plan] PASSED [ 14%]
++tests/core/test_how_we_work_routing_table.py::test_ordinary_routes_plan_with_workflow_then_implement[feature-existing] PASSED [ 15%]
++tests/core/test_how_we_work_routing_table.py::test_ordinary_routes_plan_with_workflow_then_implement[research-first] PASSED [ 15%]
++tests/core/test_how_we_work_routing_table.py::test_mdtm_cannot_be_selected_by_a_proxy_alone[File count] PASSED [ 15%]
++tests/core/test_how_we_work_routing_table.py::test_mdtm_cannot_be_selected_by_a_proxy_alone[multiple sessions] PASSED [ 16%]
++tests/core/test_how_we_work_routing_table.py::test_mdtm_cannot_be_selected_by_a_proxy_alone[existing spec/PRD/TDD] PASSED [ 16%]
++tests/core/test_how_we_work_routing_table.py::test_mdtm_cannot_be_selected_by_a_proxy_alone[risk] PASSED [ 16%]
++tests/core/test_how_we_work_routing_table.py::test_mdtm_cannot_be_selected_by_a_proxy_alone[auditability] PASSED [ 17%]
++tests/core/test_how_we_work_routing_table.py::test_mdtm_cannot_be_selected_by_a_proxy_alone[drift concerns] PASSED [ 17%]
++tests/core/test_how_we_work_routing_table.py::test_mdtm_cannot_be_selected_by_a_proxy_alone[resume] PASSED [ 17%]
++tests/core/test_how_we_work_routing_table.py::test_explicit_mdtm_creation_or_existing_task_execution_is_preserved PASSED [ 18%]
++tests/core/test_how_we_work_routing_table.py::test_existing_approved_plan_and_explicit_executor_keep_their_identity PASSED [ 18%]
++tests/core/test_how_we_work_routing_table.py::test_inspection_breadth_does_not_require_an_implementation_plan PASSED [ 18%]
++tests/core/test_how_we_work_routing_table.py::test_contained_cleanup_exception_retains_safeguards_not_structural_migration PASSED [ 19%]
++tests/core/test_how_we_work_routing_table.py::test_full_spec_ordinary_post_document_planning_is_workflow_first PASSED [ 19%]
++tests/core/test_how_we_work_routing_table.py::test_document_only_full_spec_stops_without_downstream_planning PASSED [ 19%]
++tests/core/test_how_we_work_routing_table.py::test_explicit_roadmap_preserves_its_composer_and_phase_task_outputs PASSED [ 20%]
++tests/core/test_how_we_work_routing_table.py::test_standard_planning_default_and_conditional_quick_are_consistent PASSED [ 20%]
++tests/core/test_how_we_work_routing_table.py::test_bug_planning_and_brainstorm_follow_on_do_not_use_size_to_choose_mdtm PASSED [ 20%]
++tests/core/test_how_we_work_routing_table.py::test_old_size_based_mdtm_policy_is_not_retained[fits in one or two sessions] PASSED [ 21%]
++tests/core/test_how_we_work_routing_table.py::test_old_size_based_mdtm_policy_is_not_retained[level 4 for anything larger, longer, or riskier] PASSED [ 21%]
++tests/core/test_how_we_work_routing_table.py::test_old_size_based_mdtm_policy_is_not_retained[Use the second pair for many files, multi-session work] PASSED [ 21%]
++tests/core/test_how_we_work_routing_table.py::test_old_size_based_mdtm_policy_is_not_retained[Add `--handoff task` to go straight to a task file] PASSED [ 22%]
++tests/core/test_how_we_work_routing_table.py::test_old_size_based_mdtm_policy_is_not_retained[For work that changes code, prefer `/task-builder`] PASSED [ 22%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S01-installed-inventory-targets0-inputs0-boundaries0] PASSED [ 22%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S02-focused-design-targets1-inputs1-boundaries1] PASSED [ 23%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S03-technical-design-document-targets2-inputs2-boundaries2] PASSED [ 23%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S04-cleanup-audit-only-targets3-inputs3-boundaries3] PASSED [ 23%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S05-contained-improve-targets4-inputs4-boundaries4] PASSED [ 24%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S06-auggie-review-only-targets5-inputs5-boundaries5] PASSED [ 24%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S07-localization-review-targets6-inputs6-boundaries6] PASSED [ 24%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S08-context-audit-targets7-inputs7-boundaries7] PASSED [ 25%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S09-cli-eval-create-targets8-inputs8-boundaries8] PASSED [ 25%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S10-cli-eval-run-targets9-inputs9-boundaries9] PASSED [ 25%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S11-cli-portification-spec-targets10-inputs10-boundaries10] PASSED [ 26%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S12-release-boundary-targets11-inputs11-boundaries11] PASSED [ 26%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S13-post-release-targets12-inputs12-boundaries12] PASSED [ 26%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S14-roadmap-artifacts-targets13-inputs13-boundaries13] PASSED [ 27%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S15-sprint-tasklist-bundle-targets14-inputs14-boundaries14] PASSED [ 27%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S16-roadmap-fidelity-targets15-inputs15-boundaries15] PASSED [ 27%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_static_targets_inputs_and_stops[S17-tier-validation-targets16-inputs16-boundaries16] PASSED [ 28%]
++tests/core/test_how_we_work_routing_table.py::test_specialist_matching_and_unavailable_contract_are_shared_not_keyword_first PASSED [ 28%]
++tests/core/test_how_we_work_routing_table.py::test_reports_keep_specialist_objective_instead_of_generic_competitor PASSED [ 28%]
++tests/core/test_how_we_work_routing_table.py::test_requested_analysis_research_explain_modes_are_not_forced_defaults PASSED [ 29%]
++tests/core/test_how_we_work_routing_table.py::test_adversarial_generation_comparison_and_pipeline_remain_exclusive PASSED [ 29%]
++tests/core/test_how_we_work_routing_table.py::test_cleanup_audit_and_improvement_have_separate_authority_boundaries PASSED [ 29%]
++tests/core/test_how_we_work_routing_table.py::test_previews_documentation_and_suite_runs_disclose_actual_writes PASSED [ 30%]
++tests/core/test_how_we_work_routing_table.py::test_diagnosis_reflection_and_review_preserve_remediation_coupling PASSED [ 30%]
++tests/core/test_how_we_work_routing_table.py::test_reflect_optional_inputs_and_report_only_post_flags PASSED [ 30%]
++tests/core/test_how_we_work_routing_table.py::test_pr_monitor_ceiling_is_conditional_and_each_branch_has_one_exact_value PASSED [ 31%]
++tests/core/test_how_we_work_routing_table.py::test_pr_attachment_monitor_log_resume_and_silence_are_not_new_shipping PASSED [ 31%]
++tests/core/test_how_we_work_routing_table.py::test_other_operations_preserve_requested_authority_and_owned_state PASSED [ 31%]
++tests/core/test_how_we_work_routing_table.py::test_lifecycle_and_contract_gaps_do_not_certify_stale_or_mixed_interfaces PASSED [ 32%]
++tests/core/test_how_we_work_routing_table.py::test_swarm_settings_help_retains_inputs_without_inferred_real_launch PASSED [ 32%]
++tests/core/test_how_we_work_routing_table.py::test_explicit_cleanup_controls_and_pr_attachment_do_not_gain_default_actions PASSED [ 32%]
++tests/core/test_how_we_work_routing_table.py::test_grouped_required_flags_still_use_exact_flag_tokens PASSED [ 33%]
++tests/core/test_how_we_work_routing_table.py::test_task_and_implement_verification_claims_are_not_universal_test_guarantees PASSED [ 33%]
++tests/core/test_research_config.py::test_each_depth_profile_names_concrete_params_and_tools PASSED [ 33%]
++tests/core/test_research_config.py::test_advanced_only_with_gating_language PASSED [ 34%]
++tests/core/test_research_config.py::test_discovery_caps_and_crawl_truncation_present PASSED [ 34%]
++tests/core/test_research_config.py::test_map_and_crawl_tool_ids_present PASSED [ 34%]
++tests/commands/test_auggie_review_remediation_chain.py::test_chain_order[command option row] PASSED [ 35%]
++tests/commands/test_auggie_review_remediation_chain.py::test_chain_order[command example] PASSED [ 35%]
++tests/commands/test_auggie_review_remediation_chain.py::test_chain_order[skill step 4] PASSED [ 35%]
++tests/commands/test_auggie_review_remediation_chain.py::test_chain_order[ref offer prompt] PASSED [ 36%]
++tests/commands/test_auggie_review_remediation_chain.py::test_dispatch_never_branches_on_depth[command option row] PASSED [ 36%]
++tests/commands/test_auggie_review_remediation_chain.py::test_dispatch_never_branches_on_depth[command example] PASSED [ 36%]
++tests/commands/test_auggie_review_remediation_chain.py::test_dispatch_never_branches_on_depth[skill step 4] PASSED [ 37%]
++tests/commands/test_auggie_review_remediation_chain.py::test_dispatch_never_branches_on_depth[ref offer prompt] PASSED [ 37%]
++tests/commands/test_auggie_review_remediation_chain.py::test_dispatch_literals PASSED [ 37%]
++tests/commands/test_auggie_review_remediation_chain.py::test_removed_deep_route_is_gone_from_the_primitive PASSED [ 38%]
++tests/commands/test_auggie_review_remediation_chain.py::test_resume_without_spec_or_plan_restarts_at_phase_a PASSED [ 38%]
++tests/commands/test_auggie_review_remediation_chain.py::test_resume_without_plan_reruns_phase_b_not_an_unconditional_fallback PASSED [ 38%]
++tests/commands/test_auggie_review_revagent.py::test_accepted_set_is_exactly_the_agent_tool_enum PASSED [ 39%]
++tests/commands/test_auggie_review_revagent.py::test_command_surface PASSED [ 39%]
++tests/commands/test_auggie_review_revagent.py::test_unsupported_value_stop_and_examples_in_same_bullet PASSED [ 39%]
++tests/commands/test_auggie_review_revagent.py::test_missing_value_stop_and_full_predicate PASSED [ 40%]
++tests/commands/test_auggie_review_revagent.py::test_validation_precedes_env_check_and_is_depth_independent PASSED [ 40%]
++tests/commands/test_auggie_review_revagent.py::test_error_handling_rows PASSED [ 40%]
++tests/commands/test_auggie_review_revagent.py::test_warn_is_in_wave0_conditioned_and_audited PASSED [ 41%]
++tests/commands/test_auggie_review_revagent.py::test_step5_passes_model_and_stays_deep_only PASSED [ 41%]
++tests/commands/test_auggie_review_revagent.py::test_revagent_never_reaches_auggie PASSED [ 41%]
++tests/commands/test_auggie_review_revagent.py::test_tool_coordination_names_only_the_reviewer_spawn PASSED [ 42%]
++tests/commands/test_auggie_review_revagent.py::test_frontmatter_default_unchanged PASSED [ 42%]
++tests/commands/test_auggie_review_revagent.py::test_audit_literals PASSED [ 42%]
++tests/commands/test_graph_command.py::test_graph_command_frontmatter PASSED [ 43%]
++tests/commands/test_graph_command.py::test_graph_command_invokes_protocol_skill PASSED [ 43%]
++tests/commands/test_graph_command.py::test_graph_command_allowed_tools_exact PASSED [ 43%]
++tests/commands/test_graph_command.py::test_graph_skill_allowed_tools_exact PASSED [ 44%]
++tests/commands/test_graph_command.py::test_graph_init_only_in_command PASSED [ 44%]
++tests/commands/test_graph_command.py::test_graph_init_user_typed_guard PASSED [ 44%]
++tests/commands/test_graph_command.py::test_graph_nested_worktree_refusal PASSED [ 45%]
++tests/commands/test_graph_command.py::test_graph_init_preflight_refuses_running_init PASSED [ 45%]
++tests/commands/test_graph_command.py::test_graph_no_sync_or_explore PASSED [ 45%]
++tests/commands/test_graph_command.py::test_graph_index_state_enum PASSED [ 46%]
++tests/commands/test_graph_command.py::test_graph_next_action_enum[none] PASSED [ 46%]
++tests/commands/test_graph_command.py::test_graph_next_action_enum[run_graph_init] PASSED [ 46%]
++tests/commands/test_graph_command.py::test_graph_next_action_enum[run_graph_init_worktree_local] PASSED [ 47%]
++tests/commands/test_graph_command.py::test_graph_next_action_enum[install_codegraph] PASSED [ 47%]
++tests/commands/test_graph_command.py::test_graph_next_action_enum[enable_codegraph] PASSED [ 47%]
++tests/commands/test_graph_command.py::test_graph_next_action_enum[status_only_branch] PASSED [ 48%]
++tests/commands/test_graph_command.py::test_graph_next_action_enum[align_version] PASSED [ 48%]
++tests/commands/test_graph_command.py::test_graph_next_action_enum[wait_for_sync] PASSED [ 48%]
++tests/commands/test_graph_command.py::test_graph_next_action_enum[check_codegraph_error] PASSED [ 49%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[schema_version] PASSED [ 49%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[command] PASSED [ 49%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[subcommand] PASSED [ 50%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[status] PASSED [ 50%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[contract_path] PASSED [ 50%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[output_dir] PASSED [ 51%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[checked_at] PASSED [ 51%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[access] PASSED [ 51%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[index_state] PASSED [ 52%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[worktree_root] PASSED [ 52%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[worktree_relation] PASSED [ 52%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[cli_version] PASSED [ 53%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[pin] PASSED [ 53%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[pin_match] PASSED [ 53%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[mcp_tools_listed] PASSED [ 54%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[counts] PASSED [ 54%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[pending] PASSED [ 54%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[telemetry] PASSED [ 55%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[telemetry_opt_out] PASSED [ 55%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[kill_switch] PASSED [ 55%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[next_action] PASSED [ 56%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[degraded] PASSED [ 56%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[init.requested] PASSED [ 56%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[init.form] PASSED [ 57%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[init.ran] PASSED [ 57%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[init.exit_code] PASSED [ 57%]
++tests/commands/test_graph_command.py::test_graph_contract_fields_documented[init.refused_reason] PASSED [ 58%]
++tests/commands/test_graph_command.py::test_graph_telemetry_opt_out_and_switch PASSED [ 58%]
++tests/commands/test_graph_command.py::test_graph_guide_lookup_line[graph.md] PASSED [ 58%]
++tests/commands/test_graph_command.py::test_graph_guide_lookup_line[SKILL.md] PASSED [ 59%]
++tests/commands/test_graph_command.py::test_graph_no_skill_callers PASSED [ 59%]
++tests/commands/test_help_command.py::test_help_has_no_static_command_table PASSED [ 59%]
++tests/commands/test_help_command.py::test_help_lists_live_locations PASSED [ 60%]
++tests/commands/test_help_command.py::test_help_prints_level_table_by_marker_and_points_to_recommend PASSED [ 60%]
++tests/commands/test_help_command.py::test_help_points_to_guide_as_plain_path PASSED [ 60%]
++tests/commands/test_help_command.py::test_help_size_and_shape PASSED     [ 61%]
++tests/commands/test_help_command.py::test_help_names_builtins PASSED     [ 61%]
++tests/commands/test_impact_command.py::test_impact_command_frontmatter PASSED [ 61%]
++tests/commands/test_impact_command.py::test_impact_command_invokes_protocol_skill PASSED [ 62%]
++tests/commands/test_impact_command.py::test_impact_skill_name PASSED     [ 62%]
++tests/commands/test_impact_command.py::test_impact_allowed_tools_exact PASSED [ 62%]
++tests/commands/test_impact_command.py::test_impact_no_wildcards PASSED   [ 63%]
++tests/commands/test_impact_command.py::test_impact_no_mutating_verbs PASSED [ 63%]
++tests/commands/test_impact_command.py::test_impact_no_explore PASSED     [ 63%]
++tests/commands/test_impact_command.py::test_impact_node_file_mode_has_symbols_only PASSED [ 64%]
++tests/commands/test_impact_command.py::test_impact_guide_lookup_line[impact.md] PASSED [ 64%]
++tests/commands/test_impact_command.py::test_impact_guide_lookup_line[SKILL.md] PASSED [ 64%]
++tests/commands/test_impact_command.py::test_impact_runtime_surface_dual_surface PASSED [ 65%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[schema_version] PASSED [ 65%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[command] PASSED [ 65%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[status] PASSED [ 66%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[caller] PASSED [ 66%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[output_dir] PASSED [ 66%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[report_path] PASSED [ 67%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[contract_path] PASSED [ 67%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[input.mode] PASSED [ 67%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[input.symbols] PASSED [ 68%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[input.diff_base] PASSED [ 68%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[input.changed_files] PASSED [ 68%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[input.depth] PASSED [ 69%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[input.limit] PASSED [ 69%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[input.tests] PASSED [ 69%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[input.test_depth] PASSED [ 70%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[readiness] PASSED [ 70%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[advisory] PASSED [ 70%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[degraded] PASSED [ 71%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[symbols[]] PASSED [ 71%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[ambiguous[]] PASSED [ 71%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[unmapped_files[]] PASSED [ 72%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[dependents[]] PASSED [ 72%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[dependents_omitted] PASSED [ 72%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[call_sites] PASSED [ 73%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[tests[]] PASSED [ 73%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[selection_source] PASSED [ 73%]
++tests/commands/test_impact_command.py::test_impact_contract_fields_documented[errors[]] PASSED [ 74%]
++tests/commands/test_impact_command.py::test_impact_status_enum PASSED    [ 74%]
++tests/commands/test_impact_command.py::test_impact_tokens_closed_vocabulary PASSED [ 74%]
++tests/commands/test_impact_command.py::test_impact_failure_table_rows[codegraph absent-graph:absent] PASSED [ 75%]
++tests/commands/test_impact_command.py::test_impact_failure_table_rows[lookup tools unlisted-graph:unlisted] PASSED [ 75%]
++tests/commands/test_impact_command.py::test_impact_failure_table_rows[switched off-graph:disabled] PASSED [ 75%]
++tests/commands/test_impact_command.py::test_impact_failure_table_rows[not initialized-graph:not_initialized] PASSED [ 76%]
++tests/commands/test_impact_command.py::test_impact_failure_table_rows[foreign index-graph:foreign_index] PASSED [ 76%]
++tests/commands/test_impact_command.py::test_impact_failure_table_rows[stale-graph:stale] PASSED [ 76%]
++tests/commands/test_impact_command.py::test_impact_failure_table_rows[version mismatch-graph:version_mismatch] PASSED [ 77%]
++tests/commands/test_impact_command.py::test_impact_failure_table_rows[truncated-graph:truncated] PASSED [ 77%]
++tests/commands/test_impact_command.py::test_impact_failure_table_rows[parse failure-graph:parse_failed] PASSED [ 77%]
++tests/commands/test_impact_command.py::test_impact_failure_table_rows[ambiguous name-graph:ambiguous] PASSED [ 78%]
++tests/commands/test_impact_command.py::test_impact_failure_table_rows[empty result-graph:empty] PASSED [ 78%]
++tests/commands/test_impact_command.py::test_impact_failure_table_rows[budget-limited rows-graph:unresolved] PASSED [ 78%]
++tests/commands/test_impact_command.py::test_impact_failure_table_rows[bad flags-blocked] PASSED [ 79%]
++tests/commands/test_impact_command.py::test_impact_failure_table_rows[output dir unwritable-failed] PASSED [ 79%]
++tests/commands/test_impact_command.py::test_impact_md_sections_in_order PASSED [ 79%]
++tests/commands/test_impact_command.py::test_impact_call_site_budget PASSED [ 80%]
++tests/commands/test_impact_command.py::test_impact_advisory_rule PASSED  [ 80%]
++tests/commands/test_impact_command.py::test_impact_status_only_cli_transport_before_grep_fallback PASSED [ 80%]
++tests/commands/test_impact_command.py::test_impact_diff_default_compares_against_head PASSED [ 81%]
++tests/commands/test_impact_command.py::test_impact_diff_mode_grep_fallback_lists_files_as_unmapped PASSED [ 81%]
++tests/commands/test_impact_command.py::test_impact_call_site_confirmation_is_direct_callers_only PASSED [ 81%]
++tests/commands/test_impact_command.py::test_name_patterns_are_dollar_safe[path0] PASSED [ 82%]
++tests/commands/test_impact_command.py::test_name_patterns_are_dollar_safe[path1] PASSED [ 82%]
++tests/commands/test_impact_command.py::test_name_patterns_are_dollar_safe[path2] PASSED [ 82%]
++tests/commands/test_impact_command.py::test_impact_example_uses_placeholders_only PASSED [ 83%]
++tests/commands/test_impact_command.py::test_impact_callers_wired[sc-reflect-protocol/SKILL.md-sc-reflect-protocol] PASSED [ 83%]
++tests/commands/test_impact_command.py::test_impact_callers_wired[sc-implement-protocol/SKILL.md-sc-implement-protocol] PASSED [ 83%]
++tests/commands/test_impact_command.py::test_impact_callers_wired[sc-pr-submit-protocol/SKILL.md-sc-pr-submit-protocol] PASSED [ 84%]
++tests/commands/test_impact_command.py::test_impact_callers_wired[sc-pr-submit-protocol/refs/troubleshoot-dispatch.md-sc-pr-submit-protocol] PASSED [ 84%]
++tests/commands/test_impact_command.py::test_impact_callers_wired[sc-troubleshoot-protocol/SKILL.md-sc-troubleshoot-protocol] PASSED [ 84%]
++tests/commands/test_impact_command.py::test_impact_callers_wired[sc-auggie-review-protocol/SKILL.md-sc-auggie-review-protocol] PASSED [ 85%]
++tests/commands/test_impact_command.py::test_impact_callers_wired[sc-task-protocol/SKILL.md-sc-task-protocol] PASSED [ 85%]
++tests/commands/test_impact_command.py::test_impact_troubleshoot_wave1_does_not_call_impact PASSED [ 85%]
++tests/commands/test_impact_command.py::test_impact_callers_may_invoke_skill[sc-task-protocol/SKILL.md] PASSED [ 86%]
++tests/commands/test_impact_command.py::test_impact_callers_may_invoke_skill[sc-pr-submit-protocol/SKILL.md] PASSED [ 86%]
++tests/commands/test_impact_command.py::test_impact_callers_may_invoke_skill[sc-troubleshoot-protocol/SKILL.md] PASSED [ 86%]
++tests/commands/test_impact_command.py::test_impact_callers_may_invoke_skill[sc-auggie-review-protocol/SKILL.md] PASSED [ 87%]
++tests/commands/test_impact_command.py::test_impact_callers_may_invoke_skill[sc-implement-protocol/SKILL.md] PASSED [ 87%]
++tests/commands/test_impact_command.py::test_impact_callers_may_invoke_skill[sc-reflect-protocol/SKILL.md] PASSED [ 87%]
++tests/commands/test_issue_command.py::test_frontmatter_fields PASSED     [ 88%]
++tests/commands/test_issue_command.py::test_options_table_lists_exactly_the_five_flags PASSED [ 88%]
++tests/commands/test_issue_command.py::test_options_table_allowed_values[--depth] PASSED [ 88%]
++tests/commands/test_issue_command.py::test_options_table_allowed_values[--mode] PASSED [ 89%]
++tests/commands/test_issue_command.py::test_options_table_allowed_values[--type] PASSED [ 89%]
++tests/commands/test_issue_command.py::test_option_defaults PASSED        [ 89%]
++tests/commands/test_issue_command.py::test_no_repo_dry_run_or_preview_flag PASSED [ 90%]
++tests/commands/test_issue_command.py::test_stop_rules_come_before_activation PASSED [ 90%]
++tests/commands/test_issue_command.py::test_activation_names_the_skill PASSED [ 90%]
++tests/commands/test_issue_command.py::test_no_source_tree_path PASSED    [ 91%]
++tests/commands/test_issue_command.py::test_rule_10_line_is_carried_verbatim[command] PASSED [ 91%]
++tests/commands/test_issue_command.py::test_rule_10_line_is_carried_verbatim[skill] PASSED [ 91%]
++tests/commands/test_research_command.py::test_research_command_no_param_duplication PASSED [ 92%]
++tests/commands/test_research_command.py::test_research_tiers_match_config PASSED [ 92%]
++tests/commands/test_routing_plugin_parity.py::test_sc_recommend_plugin_tree_mirrors_src_plus_guide PASSED [ 92%]
++tests/commands/test_routing_plugin_parity.py::test_readme_listed_command_mirrors_match_src[help] PASSED [ 93%]
++tests/commands/test_routing_plugin_parity.py::test_readme_listed_command_mirrors_match_src[recommend] PASSED [ 93%]
++tests/commands/test_routing_plugin_parity.py::test_readme_listed_command_mirrors_match_src[workflow] PASSED [ 93%]
++tests/commands/test_routing_plugin_parity.py::test_readme_listed_command_mirrors_match_src[implement] PASSED [ 94%]
++tests/commands/test_workflow_command.py::test_activation_handoff PASSED  [ 94%]
++tests/commands/test_workflow_command.py::test_command_has_no_execute_step PASSED [ 94%]
++tests/commands/test_workflow_command.py::test_skill_and_five_refs_exist PASSED [ 95%]
++tests/commands/test_workflow_command.py::test_mcp_servers_empty PASSED   [ 95%]
++tests/commands/test_workflow_command.py::test_plan_uses_template_00 PASSED [ 95%]
++tests/commands/test_workflow_command.py::test_workflow_template_is_bundled_and_installed PASSED [ 96%]
++tests/commands/test_workflow_command.py::test_plugin_mirror_matches_src PASSED [ 96%]
++tests/commands/test_workflow_command.py::test_all_creation_paths_target_to_do_not_workflow_root PASSED [ 96%]
++tests/commands/test_workflow_command.py::test_output_flag_is_retired_everywhere PASSED [ 97%]
++tests/commands/test_workflow_command.py::test_naming_and_collision_policy_is_specified PASSED [ 97%]
++tests/commands/test_workflow_command.py::test_early_stop_creates_no_package_and_failures_are_separated PASSED [ 97%]
++tests/commands/test_workflow_command.py::test_contract_and_plan_use_stable_portable_identity PASSED [ 98%]
++tests/commands/test_workflow_command.py::test_template_00_authoring_contract PASSED [ 98%]
++tests/commands/test_workflow_command.py::test_plugin_ships_managed_implement_protocol_and_helper PASSED [ 98%]
++tests/commands/test_workflow_command.py::test_digit_prefix_precedes_final_subject_truncation PASSED [ 99%]
++tests/commands/test_workflow_command.py::test_tasklist_referral_uses_positional_roadmap PASSED [ 99%]
++tests/commands/test_workflow_command.py::test_final_reflect_pre_precedes_contract_and_handoff PASSED [100%]
++
++============================= 299 passed in 0.99s ==============================
++rc=0
+
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

@@ -1,0 +1,165 @@
+{
+ "pdf_pages_light": 15,
+ "pdf_pages_dark": 15,
+ "print_light": {
+  "s15_height_css_px": 483,
+  "print_fg": "#000000",
+  "print_muted": "#3a4651"
+ },
+ "print_dark": {
+  "s15_height_css_px": 483,
+  "print_fg": "#000000",
+  "print_muted": "#3a4651"
+ },
+ "network": [
+  "http://127.0.0.1:8765/index.html",
+  "https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap",
+  "https://fonts.gstatic.com/s/bigshouldersdisplay/v24/fC1_PZJEZG-e9gHhdI4-NBbfd2ys3SjJCx1czNDu.woff2",
+  "https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q1w.woff2",
+  "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXzKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1syxeKYY.woff2",
+  "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgg.woff2"
+ ],
+ "errors": [],
+ "runs": [
+  {
+   "w": 1280,
+   "s": "light",
+   "slides": 15,
+   "svgs": 6,
+   "sw": 1280,
+   "iw": 1280,
+   "font": 18.4,
+   "para": 17,
+   "split": [],
+   "minContrast": 5.39,
+   "kb": {
+    "atEnd": "15 / 15",
+    "atHome": "1 / 15",
+    "afterRight": "2 / 15",
+    "afterNextBtn": "3 / 15",
+    "forwardSteps": [
+     "2 / 15",
+     "3 / 15",
+     "4 / 15",
+     "5 / 15",
+     "6 / 15",
+     "7 / 15",
+     "8 / 15",
+     "9 / 15",
+     "10 / 15",
+     "11 / 15",
+     "12 / 15",
+     "13 / 15",
+     "14 / 15",
+     "15 / 15"
+    ],
+    "afterManualTop": "1 / 15"
+   }
+  },
+  {
+   "w": 1280,
+   "s": "dark",
+   "slides": 15,
+   "svgs": 6,
+   "sw": 1280,
+   "iw": 1280,
+   "font": 18.4,
+   "para": 17,
+   "split": [],
+   "minContrast": 5.67,
+   "kb": {
+    "atEnd": "15 / 15",
+    "atHome": "1 / 15",
+    "afterRight": "2 / 15",
+    "afterNextBtn": "3 / 15",
+    "forwardSteps": [
+     "2 / 15",
+     "3 / 15",
+     "4 / 15",
+     "5 / 15",
+     "6 / 15",
+     "7 / 15",
+     "8 / 15",
+     "9 / 15",
+     "10 / 15",
+     "11 / 15",
+     "12 / 15",
+     "13 / 15",
+     "14 / 15",
+     "15 / 15"
+    ],
+    "afterManualTop": "1 / 15"
+   }
+  },
+  {
+   "w": 375,
+   "s": "light",
+   "slides": 15,
+   "svgs": 6,
+   "sw": 375,
+   "iw": 375,
+   "font": 18.4,
+   "para": 16,
+   "split": [],
+   "minContrast": 5.39,
+   "kb": {
+    "atEnd": "15 / 15",
+    "atHome": "1 / 15",
+    "afterRight": "2 / 15",
+    "afterNextBtn": "3 / 15",
+    "forwardSteps": [
+     "2 / 15",
+     "3 / 15",
+     "4 / 15",
+     "5 / 15",
+     "6 / 15",
+     "7 / 15",
+     "8 / 15",
+     "9 / 15",
+     "10 / 15",
+     "11 / 15",
+     "12 / 15",
+     "13 / 15",
+     "14 / 15",
+     "15 / 15"
+    ],
+    "afterManualTop": "1 / 15"
+   }
+  },
+  {
+   "w": 375,
+   "s": "dark",
+   "slides": 15,
+   "svgs": 6,
+   "sw": 375,
+   "iw": 375,
+   "font": 18.4,
+   "para": 16,
+   "split": [],
+   "minContrast": 5.67,
+   "kb": {
+    "atEnd": "15 / 15",
+    "atHome": "1 / 15",
+    "afterRight": "2 / 15",
+    "afterNextBtn": "3 / 15",
+    "forwardSteps": [
+     "2 / 15",
+     "3 / 15",
+     "4 / 15",
+     "5 / 15",
+     "6 / 15",
+     "7 / 15",
+     "8 / 15",
+     "9 / 15",
+     "10 / 15",
+     "11 / 15",
+     "12 / 15",
+     "13 / 15",
+     "14 / 15",
+     "15 / 15"
+    ],
+    "afterManualTop": "1 / 15"
+   }
+  }
+ ]
+}

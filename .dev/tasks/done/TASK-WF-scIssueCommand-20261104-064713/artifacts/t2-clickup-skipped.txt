@@ -1,0 +1,3 @@
+$ env -u CLICKUP_API_TOKEN -u CLICKUP_WORKSPACE_ID uv run --no-project python src/superclaude/skills/sc-issue-protocol/scripts/clickup_claim.py --issue-url https://github.com/IronbellyOrg/IronClaude/issues/302 --issue-number 302 --repo IronbellyOrg/IronClaude
+{"status": "skipped", "reason": "no_token"}
+rc=0

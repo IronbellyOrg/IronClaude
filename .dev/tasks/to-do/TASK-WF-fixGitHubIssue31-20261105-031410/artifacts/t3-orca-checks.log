@@ -1,0 +1,21 @@
+PASS positional prompt on a terminal: no question
+PASS --prefill <text>: no question
+PASS --prefill=<text>: no question
+PASS --session-id <id>: no question
+PASS --session-id=<id>: no question
+PASS CCSESSION_NAME=x: no question, used as the name, not left in Claude's environment
+PASS Claude --name 'my demo': no question, one --name, passed unchanged, no label
+PASS Claude --name=<v>: no question
+PASS Claude -n <v>: no question
+PASS trailing --name with no value: no question
+PASS -p <prompt>: no question
+PASS new tab with no argument still asks
+PASS value of --model is not a task: still asks
+PASS invalid CCSESSION_NAME (tab): warning, Claude still starts
+PASS 300-character CCSESSION_NAME: warning, Claude still starts
+PASS --resume <id>: no question
+PASS --fork-session alone: no question
+PASS --version: passes through
+PASS CCSESSION_AUTOSTART=0: no question
+PASS ccsession --check-name
+ALL PASS

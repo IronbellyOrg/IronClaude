@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/issue-305-pr-submit-conflict-resolution/adversarial/merged-output.md"
+  convergence_score: 0.90
+  artifacts_dir: ".dev/brainstorms/issue-305-pr-submit-conflict-resolution/adversarial/"
+  status: "success"
+  base_variant: "sonnet:refactorer"
+  unresolved_conflicts: 10   # S-001, S-002, S-003, S-004, S-007, C-028, C-029, X-009, X-011, X-019 (carried as OPEN in the merged spec)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # 0 HIGH UNADDRESSED after the two gate-mandated extra rounds (invariant-resolution round; INV-034 focused round)
+  notes:
+    - "Mode B, depth standard, 3 advocates (opus:architect, sonnet:refactorer, haiku:qa); rounds 1, 2, 2.5, plus two extra gate-mandated rounds recorded in debate-transcript.md metadata."
+    - "Base chosen by Level 1 tiebreaker: A scored 0.9497 vs B 0.9019 (inside the 5% band); debate points won B 42.5 vs A 35.0."
+    - "Both qualitative scoring passes ran in the orchestrator's own context (no independent pass agents), so the position-bias check is weaker than specified."
+    - "10 MEDIUM invariant findings remain as warnings (INV-005, 010, 011, 012, 013, 014, 022, 027, 030, 031)."

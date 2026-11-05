@@ -1,0 +1,6 @@
+## grep larger, longer, or riskier
+rc=1
+## grep few files
+rc=1
+## key list and examples unchanged vs start
+rc=1 (1 = no key-list/example lines changed)

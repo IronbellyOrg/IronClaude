@@ -1,0 +1,4 @@
+spec H2 sections: 20 at lines [11, 20, 42, 57, 81, 112, 137, 182, 221, 240, 272, 284, 316, 323, 344, 384, 402, 410, 444, 465]
+V1: RC=0.200 sections=[7, 12, 13, 19] | IC=1.000 (claims 8) | SR=1.000 (cites 22, vague 0) | DC=1.000 refs=['A-1'] | SC=0.889 (8/9 keys ['reviewer', 'persona', 'model_class', 'verdict', 'findings', 'round1_fix_check', 'self_reported_confidence', 'self_audit']) | quant=0.7433
+V2: RC=0.500 sections=[4, 7, 8, 12, 13, 14, 15, 16, 17, 20] | IC=1.000 (claims 6) | SR=1.000 (cites 14, vague 0) | DC=1.000 refs=[] | SC=1.000 (9/9 keys ['reviewer', 'persona', 'model_class', 'resolved_model', 'attempt', 'verdict', 'findings', 'self_reported_confidence', 'self_audit']) | quant=0.8500
+V3: RC=0.150 sections=[13, 14, 20] | IC=1.000 (claims 14) | SR=1.000 (cites 41, vague 0) | DC=1.000 refs=['S-1', 'S-2'] | SC=0.778 (7/9 keys ['reviewer', 'persona', 'model_class', 'verdict', 'findings', 'self_reported_confidence', 'self_audit']) | quant=0.7117

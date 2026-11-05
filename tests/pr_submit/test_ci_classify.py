@@ -5,6 +5,7 @@ from __future__ import annotations
 from superclaude.pr_submit.ci import (
     ci_wait_autofix,
     classify_checks,
+    expect_checks_after_push,
     findings_from_logs,
     is_human_gate,
     should_arm_ci_wait,
@@ -199,3 +200,132 @@ def test_missing_run_link_does_not_borrow_other_log():
         {"1": "tests/foo.py:12: in test_x\n"},
     )
     assert findings == []
+
+
+# issue #305 (source section 6.2): ``expect_checks`` and its setter.
+
+_HEAD = "a" * 40
+
+
+def test_expect_checks_empty_matching_head_is_polling():
+    payload = {"head_sha": _HEAD, "checks": []}
+    assert classify_checks(payload, wait_sha=_HEAD, expect_checks=True) == STATE_POLLING
+    assert classify_checks({"head_sha": _HEAD}, expect_checks=True) == STATE_POLLING
+    assert classify_checks({}, expect_checks=True) == STATE_POLLING
+
+
+def test_expect_checks_nonempty_all_pass_is_clean(load_fixture):
+    payload = {
+        "head_sha": _HEAD,
+        "checks": [{"name": "t", "bucket": "pass", "state": "COMPLETED"}],
+    }
+    assert classify_checks(payload, wait_sha=_HEAD, expect_checks=True) == STATE_CLEAN
+    fixture = load_fixture("checks-pass.json")
+    assert classify_checks(fixture, expect_checks=True) == STATE_CLEAN
+    fail = load_fixture("checks-fail.json")
+    assert classify_checks(fail, expect_checks=True) == STATE_FINDINGS
+
+
+def test_expect_checks_false_keeps_empty_clean():
+    assert classify_checks({"checks": []}, expect_checks=False) == STATE_CLEAN
+    assert classify_checks({}, expect_checks=False) == STATE_CLEAN
+    assert (
+        classify_checks(
+            {"head_sha": _HEAD, "checks": []}, wait_sha=_HEAD, expect_checks=False
+        )
+        == STATE_CLEAN
+    )
+    assert classify_checks("not a dict", expect_checks=False) == STATE_CLEAN
+
+
+def test_expect_checks_head_mismatch_is_polling():
+    payload = {
+        "head_sha": "b" * 40,
+        "checks": [{"name": "t", "bucket": "pass", "state": "COMPLETED"}],
+    }
+    assert classify_checks(payload, wait_sha=_HEAD, expect_checks=True) == STATE_POLLING
+    assert (
+        classify_checks(payload, wait_sha=_HEAD, expect_checks=False) == STATE_POLLING
+    )
+
+
+def test_expect_checks_non_dict_payload_is_polling():
+    for payload in (None, [], "x", 0):
+        assert classify_checks(payload, expect_checks=True) == STATE_POLLING
+        assert classify_checks(payload) == STATE_CLEAN
+
+
+def test_expect_checks_after_push_pre_push_evidence_one_is_true():
+    assert (
+        expect_checks_after_push(
+            checks_seen_this_run=False, pre_push_evidence=1, base_evidence=0
+        )
+        is True
+    )
+
+
+def test_expect_checks_after_push_all_zero_is_false():
+    assert (
+        expect_checks_after_push(
+            checks_seen_this_run=False, pre_push_evidence=0, base_evidence=0
+        )
+        is False
+    )
+
+
+def test_expect_checks_after_push_failed_read_is_true():
+    assert (
+        expect_checks_after_push(
+            checks_seen_this_run=False, pre_push_evidence=-1, base_evidence=0
+        )
+        is True
+    )
+    assert (
+        expect_checks_after_push(
+            checks_seen_this_run=False, pre_push_evidence=0, base_evidence=-1
+        )
+        is True
+    )
+
+
+def test_expect_checks_after_push_none_is_true():
+    assert (
+        expect_checks_after_push(
+            checks_seen_this_run=False, pre_push_evidence=None, base_evidence=0
+        )
+        is True
+    )
+    assert (
+        expect_checks_after_push(
+            checks_seen_this_run=False, pre_push_evidence=0, base_evidence=None
+        )
+        is True
+    )
+
+
+def test_expect_checks_after_push_base_evidence_two_is_true():
+    assert (
+        expect_checks_after_push(
+            checks_seen_this_run=False, pre_push_evidence=0, base_evidence=2
+        )
+        is True
+    )
+
+
+def test_expect_checks_after_push_checks_seen_this_run_is_true():
+    assert (
+        expect_checks_after_push(
+            checks_seen_this_run=True, pre_push_evidence=0, base_evidence=0
+        )
+        is True
+    )
+
+
+def test_expect_checks_after_push_non_int_evidence_fails_closed():
+    for bad in ("0", 0.0, False, True):
+        assert (
+            expect_checks_after_push(
+                checks_seen_this_run=False, pre_push_evidence=bad, base_evidence=0
+            )
+            is True
+        )

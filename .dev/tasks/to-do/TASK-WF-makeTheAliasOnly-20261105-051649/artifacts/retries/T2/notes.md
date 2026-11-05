@@ -1,0 +1,2 @@
+4a15b2ad690a07c22363a96f4fb560d8d18e6e99
+A1 r1-1 F1.1 note docs/testing/v5.0.0/user/D12-reflect.md:243 ac=scope n,y,n,n D12 lines 243 and 267 still cite commands.py:31,359 (now :36,:364 after the 5-line comment) and other commands.py:N citations below line 36 shifted; the text is inherited from the start tree, so the false-claim yes is capped at note. Follow-up outside the loop: refresh the D12 source citations.

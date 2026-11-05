@@ -29,6 +29,7 @@ _OTHER_COMMANDS = {
     "sc:git",
     "sc:graph",
     "sc:impact",
+    "sc:issue",
     "sc:spawn",
     "sc:index",
     "sc:index-repo",

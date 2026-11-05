@@ -1,0 +1,12 @@
+card: reviewer-2
+calibrated_dimensions: {citation_grounding: 0.90, coverage_completeness: 0.70, deviation_classification_clarity: 0.65, risk_surface_coverage: 0.55, recommendation_actionability: 0.75}
+C: 0.71
+finding_severity_rulings:
+  - {id: Q-1, card_severity: minor, calibrated_severity: minor, reason: "Matrix bookkeeping; plan:92, plan:109, plan:24 cover the rows."}
+  - {id: Q-2, card_severity: minor, calibrated_severity: minor, reason: "plan:91 and plan:22 carry source.md:149. Missed: plan:55 limits workers to read-only gh and git calls, yet source.md:149 has the worker run git fetch origin (updates local refs); the plan never reconciles this."}
+  - {id: Q-3, card_severity: minor, calibrated_severity: blocking, reason: "Section 20 (source.md:465-475) is the definition of done; no task checks ACs 1-4, 6, 8 or records them pending; AC 3 and AC 4 (source.md:469-470) stop before any write (source.md:143, 155-156) so plan:25 does not justify skipping them; Task 16 (plan:226-236) would close the plan as complete anyway."}
+  - {id: Q-4, card_severity: minor, calibrated_severity: minor, reason: "source.md:132 says 'SKILL.md and every ref' (missing-requirement, not weak-match); contained because SKILL.md carries it (plan:109). Open: the Task 7 test (plan:121) checks phrase presence only, never that no Agent call passes model (AC 7, source.md:473)."}
+  - {id: Q-5, card_severity: minor, calibrated_severity: minor, reason: "Spot-checks hold: plan:133, plan:91, plan:92, plan:109, plan:94."}
+missed_by_card:
+  - "No test checks every gh issue/pr/label line in SKILL.md and refs carries --repo <R> (source.md:319, AC 4 source.md:470); without --repo gh on a fork targets the upstream parent. Task 7 (plan:121) has no such check."
+calibrator_model_class: opus

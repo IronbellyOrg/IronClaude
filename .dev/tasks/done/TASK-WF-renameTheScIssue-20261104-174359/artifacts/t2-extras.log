@@ -1,0 +1,17 @@
+$ PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/skills/test_issue_worker_agents.py tests/skills/test_issue_protocol.py tests/commands/test_issue_command.py -q -p no:cacheprovider
+E    +    where <built-in method count of str object at 0x643cd85ec3a0> = '---\nname: issue-worker-t2\ndescription: Tier-2 worker for /sc:issue. Runs the accuracy check and summary of simple a... nothing is known.\n- **Return value.** Return only the path of each file you wrote, one per line, and nothing else.\n'.count
+_________ test_tool_input_check_fails_on_pre_fix_text[issue-worker-t3] _________
+tests/skills/test_issue_worker_agents.py:287: in test_tool_input_check_fails_on_pre_fix_text
+    assert text.count(block) == 1
+E   AssertionError: assert 0 == 1
+E    +  where 0 = <built-in method count of str object at 0x643cd85f16c0>('## Your files are tool inputs, not reports\n\nThe files you write under `.dev/issues/` (`scout.md`, `accuracy-check.m...names with the Write tool is mandatory; returning its content as text instead is a failure (`E-WORKER-NO-OUTPUT`).\n\n')
+E    +    where <built-in method count of str object at 0x643cd85f16c0> = '---\nname: issue-worker-t3\ndescription: Tier-3 lookup worker for /sc:issue. Runs the first GitHub lookup of every cl... nothing is known.\n- **Return value.** Return only the path of each file you wrote, one per line, and nothing else.\n'.count
+=========================== short test summary info ============================
+FAILED tests/skills/test_issue_worker_agents.py::test_worker_states_its_files_are_tool_inputs[issue-worker-t1]
+FAILED tests/skills/test_issue_worker_agents.py::test_worker_states_its_files_are_tool_inputs[issue-worker-t2]
+FAILED tests/skills/test_issue_worker_agents.py::test_worker_states_its_files_are_tool_inputs[issue-worker-t3]
+FAILED tests/skills/test_issue_worker_agents.py::test_tool_input_check_fails_on_pre_fix_text[issue-worker-t1]
+FAILED tests/skills/test_issue_worker_agents.py::test_tool_input_check_fails_on_pre_fix_text[issue-worker-t2]
+FAILED tests/skills/test_issue_worker_agents.py::test_tool_input_check_fails_on_pre_fix_text[issue-worker-t3]
+======================== 6 failed, 112 passed in 0.22s =========================
+rc=1

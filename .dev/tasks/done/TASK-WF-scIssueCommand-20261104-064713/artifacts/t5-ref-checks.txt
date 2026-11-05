@@ -1,0 +1,29 @@
+$ ls src/superclaude/skills/sc-issue-protocol/refs
+chains.md
+claim.md
+create.md
+labels.md
+tiers.md
+$ grep -n -- '--handoff' src/superclaude/skills/sc-issue-protocol/refs/chains.md (no '--handoff tasklist' and no '--handoff design' may appear)
+11:| Feature, simple | `/model claude-gw-tier2` | 1. `/sc:brainstorm "<topic> @<S>" --depth quick --models opus,sonnet` (no `--handoff`)<br>2. `/sc:workflow <brainstorm dir>/merged-requirements.md --depth quick --handoff none`<br>3. `/sc:implement <plan path printed by step 2>` |
+12:| Feature, medium | `/model claude-gw-tier1a` | 1. `/sc:brainstorm "<topic> @<S>" --blind --models opus,sonnet`<br>2. `/sc:design <brainstorm dir>/merged-requirements.md --type <architecture\|api\|component\|database> --format spec`<br>3. `/sc:workflow <design doc> --depth standard --handoff none`<br>4. `/sc:implement <plan path>` |
+13:| Feature, complex | `/model claude-gw-tier1a` | 1. `/sc:brainstorm "<topic> @<S>" --depth deep --research deep --codebase --blind --models opus,sonnet`<br>2. `/sc:design <merged-requirements.md> --type <...> --format spec`<br>3. `/sc:workflow <design doc> --depth deep --handoff none`<br>4. `/sc:implement <plan path>` |
+$ grep -c -e '--handoff tasklist' -e '--handoff design' src/superclaude/skills/sc-issue-protocol/refs/chains.md
+0
+$ /sc:brainstorm step spans in the chain table (each must carry --models opus,sonnet)
+`/sc:brainstorm "<topic> @<S>" --depth quick --models opus,sonnet`
+`/sc:brainstorm "<topic> @<S>" --blind --models opus,sonnet`
+`/sc:brainstorm "<topic> @<S>" --depth deep --research deep --codebase --blind --models opus,sonnet`
+$ grep -rIn 'src/superclaude' src/superclaude/skills/sc-issue-protocol/refs
+exit=1 (grep exit 1 = no match)
+$ grep -L 'never pass the `model` parameter' src/superclaude/skills/sc-issue-protocol/refs/*.md (prints the files that lack the phrase)
+(nothing above = all five refs carry the phrase)
+$ grep -n 'git fetch origin\|--limit 200' src/superclaude/skills/sc-issue-protocol/refs/claim.md
+27:- lists pull requests merged since `createdAt` with `gh pr list --repo <R> --state merged --search "merged:>=<createdAt date>" --limit 200 --json number,title,mergedAt,files,url` (gh's default limit is 30) and records in `scout.md` whether the result reached the 200 limit;
+28:- runs `git fetch origin` (origin only; no other remote is added or fetched), then `git log --since=<createdAt> --name-only origin/<B>` for the recent commits on the default branch;
+$ fork-safety scan (gh_lines_missing_repo from tests/skills/test_issue_worker_agents.py) over refs: file, mentions missing --repo, brace placeholder present
+chains.md [] False
+claim.md [] False
+create.md [] False
+labels.md [] False
+tiers.md [] False

@@ -1,0 +1,11 @@
+== C1: first attempt collects into sync/sync-1/1/
+{"dir":"/tmp/ev-probe.Z4o9dm/out/sync/sync-1/1/","files":["s
+exit=0
+== C1: resume restart (same cycle_id) collects into the same directory
+EVIDENCE_FAIL out_not_empty
+exit=2
+== A2: PATH without timeout; git replaced by a wrapper that hangs on 'show'
+timeout on PATH: none; exit=2; elapsed=65s (the first 'git show' sleeps 65s; a bounded run would stop at 60s)
+
+== post-fix run (2026-11-04T22:20:10Z, draft bounded() fix, same probe; stdout discarded by the probe)
+timeout on PATH: none; exit=2; elapsed=61s (the first 'git show' sleeps 65s; a bounded run would stop at 60s)

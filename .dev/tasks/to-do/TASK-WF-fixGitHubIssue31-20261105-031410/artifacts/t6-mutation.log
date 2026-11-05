@@ -1,0 +1,7 @@
+T6.AC2 mutation check (run 2026-11-05 by the executor)
+Change: src/superclaude/skills/ccsession-tag/ccsession line 1594, `return 3` -> `return 0` (the exit 3 path of ask_session_name).
+Command: uv run pytest tests/unit/test_ccsession_tag.py -k "cannot_be_a_name" -p no:cacheprovider -q
+Result with the change: 12 failed (7 new test_ask_a_line_that_cannot_be_a_name_exits_3_and_prints_it_as_typed cases incl. "paste in one write" and "paste in two writes", 5 test_orca_a_line_that_cannot_be_a_name_goes_to_claude_as_a_message cases).
+Restored from a byte copy; `diff` against the copy printed nothing; line 1594 reads `return 3` again.
+Fix pass A2 (after reviewer finding F1.1): the 80-character cap test now uses a 100-character folder and four 12-character words (72 characters before the stamp).
+Mutation: line 635 `prefix=${prefix:0:59}` of ccsession replaced by `:`; test_auto_name_stays_short_and_keeps_its_stamp_for_a_long_folder -> 1 failed. Restored from a byte copy (diff empty); with the line in place -> 1 passed.

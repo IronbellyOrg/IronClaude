@@ -1,0 +1,170 @@
+{
+  "parsed_count": 0,
+  "inferred_count": 13,
+  "invalid_dropped": [],
+  "coverage_pct": null,
+  "coverage_pct_union": 0.9231,
+  "unmapped_requirements": [],
+  "unmapped_requirements_union": [
+    "INF-011"
+  ],
+  "coverage_degraded": "parsed-sparse",
+  "S_dev_density": 0.0769,
+  "S_scope": 9,
+  "matrix": [
+    {
+      "requirement_id": "INF-001",
+      "source": "inferred",
+      "quote": "agents, commands, skills and the Python package keep the plain aliases opus, sonnet, haiku",
+      "citation": ".dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/source.md:1",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "best_ratio": 0.7273,
+      "best_task": "Task 1"
+    },
+    {
+      "requirement_id": "INF-002",
+      "source": "inferred",
+      "quote": "Do NOT edit src/superclaude/skills/ccsession-tag/ or ccsession-orca (read-only, issue #315).",
+      "citation": ".dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/source.md:1",
+      "matched_task_ids": [
+        "Task 9"
+      ],
+      "match_method": "containment",
+      "best_ratio": 0.8,
+      "best_task": "Task 9"
+    },
+    {
+      "requirement_id": "INF-003",
+      "source": "inferred",
+      "quote": "aliases-only tests with an allow-list that scan src/superclaude agents, commands, skills and Python for literal picker ids (claude-gw-tier*), dated or full model ids used as selections (e.g. claude-opus-4-8), and agent frontmatter model values other than opus/sonnet/haiku/inherit, failing before the fixes",
+      "citation": ".dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/source.md:1",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "best_ratio": 0.6667,
+      "best_task": "Task 1"
+    },
+    {
+      "requirement_id": "INF-004",
+      "source": "inferred",
+      "quote": "the existing issue-worker agents (claude-gw-tier1a/2/3) are documented allow-list exceptions",
+      "citation": ".dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/source.md:1",
+      "matched_task_ids": [
+        "Task 7"
+      ],
+      "match_method": "containment",
+      "best_ratio": 0.8182,
+      "best_task": "Task 7"
+    },
+    {
+      "requirement_id": "INF-005",
+      "source": "inferred",
+      "quote": "docs of the mapping and the outside-workspace fallback (the sc-issue-protocol refs/tiers.md, the user-guide and developer-guide pages that describe model selection",
+      "citation": ".dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/source.md:1",
+      "matched_task_ids": [
+        "Task 7"
+      ],
+      "match_method": "containment",
+      "best_ratio": 0.7222,
+      "best_task": "Task 7"
+    },
+    {
+      "requirement_id": "INF-006",
+      "source": "inferred",
+      "quote": "src/superclaude/cli/reflect/commands.py _DEFAULT_MODEL claude-opus-4-8 (and its use at the model argument)",
+      "citation": ".dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/source.md:1",
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment",
+      "best_ratio": 0.9167,
+      "best_task": "Task 2"
+    },
+    {
+      "requirement_id": "INF-007",
+      "source": "inferred",
+      "quote": "the haiku workaround --models opus,sonnet in skills/sc-issue-protocol/refs/chains.md and templates (brainstorm defaults to opus,sonnet,haiku stay)",
+      "citation": ".dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/source.md:1",
+      "matched_task_ids": [
+        "Task 3"
+      ],
+      "match_method": "containment",
+      "best_ratio": 0.875,
+      "best_task": "Task 3"
+    },
+    {
+      "requirement_id": "INF-008",
+      "source": "inferred",
+      "quote": "the audit-scanner Haiku-versus-sonnet contradiction (skills/sc-cleanup-audit-protocol/SKILL.md and commands/cleanup-audit.md say Haiku while agents/audit-scanner.md pins sonnet)",
+      "citation": ".dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/source.md:1",
+      "matched_task_ids": [
+        "Task 4"
+      ],
+      "match_method": "containment",
+      "best_ratio": 0.8235,
+      "best_task": "Task 4"
+    },
+    {
+      "requirement_id": "INF-009",
+      "source": "inferred",
+      "quote": "the T1_Model01-style env names in skills/sc-implement-protocol/refs/retry.md that do not match the T1Model01/T1aModel01 names the workspace exports",
+      "citation": ".dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/source.md:1",
+      "matched_task_ids": [
+        "Task 5"
+      ],
+      "match_method": "containment",
+      "best_ratio": 0.75,
+      "best_task": "Task 5"
+    },
+    {
+      "requirement_id": "INF-010",
+      "source": "inferred",
+      "quote": "plus the plugins/superclaude mirror copies of any edited file",
+      "citation": ".dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/source.md:1",
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment",
+      "best_ratio": 0.6667,
+      "best_task": "Task 1"
+    },
+    {
+      "requirement_id": "INF-011",
+      "source": "inferred",
+      "quote": "update any existing test that pins an edited string",
+      "citation": ".dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/source.md:1",
+      "matched_task_ids": [],
+      "match_method": "none",
+      "best_ratio": 0.5,
+      "best_task": "Task 1"
+    },
+    {
+      "requirement_id": "INF-012",
+      "source": "inferred",
+      "quote": "Do NOT edit the ccsession launcher in this change.",
+      "citation": ".dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/source.md:5",
+      "matched_task_ids": [
+        "Task 6"
+      ],
+      "match_method": "containment",
+      "best_ratio": 0.75,
+      "best_task": "Task 6"
+    },
+    {
+      "requirement_id": "INF-013",
+      "source": "inferred",
+      "quote": "This change must deliver, for that follow-up, the exact edit as a written spec (file, anchor, the three exports and where they go) plus a test that fails before the edit.",
+      "citation": ".dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/source.md:5",
+      "matched_task_ids": [
+        "Task 9"
+      ],
+      "match_method": "containment",
+      "best_ratio": 0.6667,
+      "best_task": "Task 9"
+    }
+  ]
+}

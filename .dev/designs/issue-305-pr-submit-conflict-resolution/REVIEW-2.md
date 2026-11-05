@@ -1,0 +1,64 @@
+# REVIEW-2: DESIGN.md Revision 2 (issue #305 conflict resolution)
+
+Verdict: **FAIL** (1 BLOCKING, 9 MINOR). B1 and B3 are fixed. B2 is fixed for Branch A, Branch C, the crash-plan halt directive, every `conflict_resume_plan` row and the Branch B success path. It is not fixed for an interrupted or failed Branch B re-drive (N1).
+
+Scope: the B1, B2 and B3 fixes, plus new defects introduced by Revision 2. The REVIEW-1 minor findings were not rechecked.
+
+## B1 to B3 status
+
+| ID | Status | Evidence |
+|---|---|---|
+| B1 | **FIXED** | DESIGN.md:239 adds Wave 8a Tier 1 `ordinal == 1 and P` -> `report` / `tier1_l1_preserved`. Every row of the `wave0` and `wave8a` tables was walked at L0 to L3 with every in-domain input fixed:<br>- Tier `None`, Tier 0, the cap rows, the `sync_cap` rows and Tier 2/3 at Wave 8a keep the same action (rank 1) at L1 to L3.<br>- Tier 1 not-`P` gives L1 `propose` (2), L2 `resolve_local` (3), L3 `resolve_push` (4).<br>- Tier 1 with `P` gives L1 `report` (1), L2 `report` (1), L3 `resolve_push` (4).<br>- At `wave0`, Tier 2 and Tier 3 are rank 1 at L1 to L3.<br>- L0 is `none` (0).<br>The property at :248 holds cell by cell. Excluding `c_initial` is consistent with the domain guard at :201, which evaluates before the L0 row, so `c_initial` at L0 gets the default row. The 12.1 router text (:1286) matches the property exactly: hooks `wave0` and `wave8a` only, preserved rows included, a separate assertion for `c_initial` at L0 to L2, and a literal check of the `P` column. Section 9 (:1093) lists `tier1_l1_preserved`. |
+| B2 | **PARTLY FIXED** (see N1) | Closed exactly once on these paths:<br>- **Branch A:** the wrapper appends `sync_concluded{pushed}` after the recovered `push_completed` (:665-672; recovery.py:112-120).<br>- **Branch C:** the wrapper appends `{halted, ambiguous_remote_tip}` (:663, :675).<br>- **The `resume_unrepresentable` halt directive:** closed by the wrapper (:374).<br>- **A crash between the recovered `push_completed` and the wrapper's append:** row 4, `complete_after_push`, closes the cycle on the next resume.<br>- **Every `conflict_resume_plan` halt row** (3b, 4c, 6, 8): closed per :353.<br>- **The restart rows:** close the old attempt and reopen the same id.<br>- **A Branch B re-drive that lands:** the SKILL closes the cycle (:372).<br>The fold pops the cycle on `sync_concluded` (:639), so after any of these a later resume goes through row 2, and `detect_crash_window` returns the later fix record. The test at :1304 covers this.<br>**Not closed:** a Branch B re-drive that is interrupted, or that fails with `push_failed`. Details in N1. |
+| B3 | **FIXED** | `sync_started` carries `hook` and `review_terminal` (:296). The fold copies the whole payload into the open-cycle entry (:638). `ResumePlan` has `hook` and `review_terminal` (:527-528). Row 4c (:347) halts `resume_unrepresentable` on an invalid value before restart rows 5 and 7 (:348, :350), and those rows pass `hook` and `entering := review_terminal`.<br>The other resume directives also have a durable source:<br>- Row 4 `sync` reads `review_terminal` from the open cycle.<br>- The crash-plan `sync` / `ci` rows read it from `push_initiated`, which `build_push_triad` writes (:600, :361, :365).<br>Tests: :1286 (rows 4c, 5, 7) and :1298 / :1304 (the fold carries the fields; a restart uses the recorded `entering`). Only small gaps remain; see m3, m4 and m8. |
+
+## New BLOCKING findings
+
+| ID | Section | Finding | Evidence | Required fix |
+|---|---|---|---|---|
+| N1 | 4.8 (Branch B row, row 4b), 4.6 step 12, 9 (`push_failed`), 10.5 D-8, 14 V8 | **An interrupted or failed Branch B re-drive of a conflict push leaves the cycle open, and the next `--resume` has no defined directive.**<br>1. Branch B appends `push_aborted_or_not_landed{recovered}` under the dangling key.<br>2. The re-drive then runs the Wave 6 triad again with the record's `pre_push_sha`, so it writes a new `push_initiated` under the **same** key.<br>3. `detect_crash_window` collects finalized keys as an unordered set, so that key now counts as finalized forever.<br>Suppose the session crashes anywhere between the Branch B record and the re-drive's `push_completed`, or the re-drive exits with a non-rejection failure. The design deliberately leaves the cycle open in the second case ("except `push_failed`, which leaves the cycle open for the next resume exactly as in step 12"). The next resume then goes: row 1 no, row 2 no (a cycle is open), 3b no (same `cycle_id`), 4 no, 4b yes, giving `crash_window`. `detect_crash_window` then returns `None`.<br>Neither 4.8 nor 5.3 nor 6.4 says what happens next. The cycle is never closed, the remote state of the merge push is never checked, and the claim "exactly as in step 12" is false. Section 14 V8 itself admits that "the re-driven `push_initiated` reuses a key already finalized ... so a second crash in the same window is not detected". That contradicts the Branch B row and section 9's "`--resume` checks whether it landed".<br>The gap in `recovery.py` predates this release for fix pushes. The new part is that row 4b routes a conflict cycle into it with no fallback, which is exactly the open-cycle failure that B2 had to remove. No test covers Branch B closure: `test_conflict_crash_recovery_closes_the_cycle` covers {A, C, halt directive} only. | recovery.py:63-80 (the `finalized` set ignores order), :149-159 (Branch B appends a finalizer with the key); SKILL.md:268 and :274 (a Branch B re-drive runs the Wave 6 guard and the write-ahead triad keyed on `push:<run_id>:<cycle_id>:<pre_push_sha>:<target_branch>`); DESIGN.md:372, :346, :285, :1089, :1187 (D-8), :1408 (V8), :1304 | Make the path fail closed and state it.<br>(a) Row 4b applies only when `detect_crash_window` returns a record whose `cycle_id` is the open cycle's. Add a row 4b' for "open cycle with `push_initiated`, no `push_completed`, and no dangling record for it": `halt`, `resume_unrepresentable`, append `sync_concluded{halted, recovered: true}`, and have the message name `target_sha` so the operator can compare it with `origin/<HEAD_BRANCH>`.<br>(b) Reword the Branch B row, step 12, section 9 `push_failed` and D-8: a failed re-drive is not settled by a later `--resume`. Either close the cycle `halted` at once, or rely on 4b'.<br>(c) Add tests: Branch B, then a crash before the re-driven `push_completed`, then resume, which halts and closes the cycle exactly once; and Branch B, then a re-drive `push_failed`, then resume, with the same result.<br>An alternative is a conflict-cycle-local dangling check that is event-ordered (the last `push_initiated` after the last finalizer for the key). Section 6.4 must then say that this check, not `detect_crash_window`, decides row 4b. |
+
+No other new blocking defect was found. Revision 2 adds no force-flag text: E13 removes the only "force-push" phrase near the head-binding instructions, and the new step 12 text ("never forced") is checked under "Safety" in the Self-Audit below. No new recovery path double-pushes, skips VAL, or pushes anything but the recorded merge or fix commit. Rows 4, 4b and 8 never push. A re-drive pushes only the recorded `target_sha`, which VAL had already passed, and it runs under `merge_parent_ok`. The restart rows rerun from step 1, through VAL.
+
+## MINOR notes
+
+- **m1 (4.7 invariant vs 4.6 step 12 and 4.8 Branch B).** The invariant says every `sync_started` gets its `sync_concluded` "before the run ends (a crash aside)". A `push_failed` halt ends the run with the cycle deliberately left open. Either add "or a `push_failed` halt" to the invariant, or close the cycle (see N1).
+- **m2 (4.8 row 1).** `push_rejected` halts but is not in the list of closing rows (3b, 4c, 6, 8). After a crash between the rejected record and its `sync_concluded`, the cycle stays open forever. That is harmless for routing, because row 1 is sticky, but `sync_outcome` is then wrong. Add row 1 to the closing rule when a cycle is open.
+- **m3 (4.4 / 5.3 `prior_conflict_cycles` at a restart).** The rule "excluding the current `cycle_id`" is stated only for `evaluate_sync_decision`. At a restart the reused id is already in `conflict_cycles`. If the router call is given `len(conflict_cycles)`, it hits `sync_cap`, and `test_restart_row_uses_recorded_review_terminal` (which expects `resolve_push`) fails. State the same exclusion for `conflict_action`.
+- **m4 (4.8 rows 5 and 7, `c_initial`).** Restarting "at step 1" skips step 0 (`transition(S2_CLASSIFY, "conflicting")`). Say which FSM state a restarted Tier 2 cycle resumes from, or restart a `c_initial` cycle at step 0.
+- **m5 (6.4 Branch C order vs section 9).** Section 9 says `sync_concluded` precedes `terminal_halted`. On Branch C, `resolve_crash_window` appends `terminal_halted` first (recovery.py:161-170), and the wrapper appends `sync_concluded` after it. State the exception, so an ordering test does not pin the wrong sequence.
+- **m6 (4.8 row 4, `expect_checks`).** "With the recorded `expect_checks`" has no source among `conflict_resume_plan`'s inputs. The fold (6.3) copies `target_sha` but not `expect_checks`. Passing `None` to `classify_checks(expect_checks=...)` reads as false, which could give a false `clean`. Have the fold copy `expect_checks` from `push_initiated` into the open-cycle entry, and state that a missing value reads as true, as the crash table does.
+- **m7 (4.2, 8.1 E10, 8.2 row 3 vs 4.4 :239).** "L1 proposes", and "the `CONFLICT_PROPOSE_PROMPT` at L1 Wave 8a", are stated without the new `P` exception. With a preserved terminal the router reports `tier1_l1_preserved`, and the prompt must not be printed. Add "(after `clean` / `REPORT_ONLY`)", as E10 already does for L2.
+- **m8 (4.8 row 4c).** Row 4c checks `review_terminal` but not `hook`. An open cycle whose `hook` is missing or not in (`wave8a`, `c_initial`) reaches rows 5 and 7 and fails closed only through the router's `router_unreachable`. Add an invalid `hook` to row 4c.
+- **m9 (9 overlap prose).** The eight-reason overlap is said to "halt at one hook or entering outcome and are only reported at another". `router_unreachable` always halts; it is in `REPORT_REASONS` only because the router can return it. The set definitions in 5.2 are consistent; only the sentence in section 9 is inexact.
+
+## Self-Audit
+
+Evidence read in this session:
+
+1. **B1.**
+   - Rows checked: the full domain guard and the `wave0`, `c_initial` and `wave8a` tables (DESIGN.md:199-248), walked cell by cell for every plan tier, each `P` / not-`P` case, each cap, the sync cap and the hint flag, at L0 to L3.
+   - Consistency: against the 12.1 router requirements (:1286), the section 9 report list (:1093), 4.5 (:256-257) and D-5 / OQ-4 (:1106, :1184).
+2. **B2.**
+   - Crash-recovery branches traced:
+     - in DESIGN.md: 4.6 step 12 (:285), 4.7 (:296-299), 4.8 tables 1 and 2 plus the closing table (:337-376), 6.3 fold (:632-644), 6.4 wrapper (:646-677);
+     - in the code: recovery.py:57-171 (`detect_crash_window`, the key tuple, Branches A, B and C), run_log.py:161-260 (the current fold), and SKILL.md:268 and :274 (how Branch B re-drives and keys its triad).
+   - Second-resume scenarios traced after each branch: A, C, the halt directive, B landed, B with a re-drive crash, and B with `push_failed`. The last two gave N1.
+   - Tests: 12.2 (:1298, :1304).
+3. **B3.**
+   - Design text: the `sync_started` payload (:296), the fold copy (:638), the `ResumePlan` fields (:517-531), rows 4c, 5 and 7, the `crash_resume_plan` `review_terminal` sources (:361, :365), and the `build_push_triad` keywords (:589-600).
+   - Tests: :1286, :1298, :1304.
+4. **Revision 2 consistency.**
+   - Data types and functions: 5.2 (new branch literals, overlap comment, `ResumePlan.hook`) and 5.3 rows.
+   - Code claims:
+     - recovery.py:28-30 (branch literals), :66-76, :98-110;
+     - run_log.py:27-35, :111, :175-189, :238-241;
+     - fsm.py:259-267 and :1137;
+     - import graph: fsm.py, models.py, run_log.py, loop_guard.py and severity_router.py, so `recovery` -> `conflicts` -> `fsm` has no cycle.
+   - Script usage: 7.2 precheck usage (:765-769) against 4.6 step 5 and 8.2 row 5 (consistent).
+   - Skill edits: E13 old substring found verbatim at SKILL.md:268, and no test pins it (grep of `tests/`). The line budget still sums to +15 with 13 edits.
+   - Other sections: implementation step 1 includes E13; the section 9 reasons; section 13 steps 6 and 7.
+5. **Safety.**
+   - The force regex (test_static_grep.py:764) checked against every planned `.md` / `.sh` line that contains "git push": the step 12 push line, the 8.2 row 7 fenced push, and E9 d. None matches `\s--force\b`, `\s-f\b` or `\s\+\S` before a backtick or a newline.
+   - E13's new text has no "git push" and no force flag.
+   - No new recovery path pushes without a recorded, VAL-passed `target_sha`, or without the `merge_parent_ok` check.

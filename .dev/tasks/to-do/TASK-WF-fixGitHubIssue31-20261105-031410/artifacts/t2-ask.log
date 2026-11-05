@@ -1,0 +1,38 @@
+PASS default limit is 30 and Ctrl+C exits 130: rc=130 stdout=b'' icanon_after=True secs=0.6 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s): ^C
+PASS no answer within CCSESSION_ASK_TIMEOUT=1 exits 1: rc=1 stdout=b'' icanon_after=True secs=1.3 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 1s):
+PASS limit 0 drops the limit part of the hint: rc=130 stdout=b'' icanon_after=True secs=0.6 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell): ^C
+PASS custom hint with @LIMIT@ follows the limit (2): rc=130 stdout=b'' icanon_after=True secs=0.6 
+     prompt: Session name (Enter = auto-named; auto-named after 2s): ^C
+PASS custom hint with limit 0 loses the limit part: rc=130 stdout=b'' icanon_after=True secs=0.6 
+     prompt: Session name (Enter = auto-named): ^C
+PASS name with spaces: rc=0 stdout=b'my fix plan\n' icanon_after=True secs=0.7 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s): my fix plan
+PASS surrounding spaces trimmed: rc=0 stdout=b'padded name\n' icanon_after=True secs=0.7 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s):   padded name
+PASS Enter alone is an empty answer: rc=0 stdout=b'\n' icanon_after=True secs=0.6 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s):
+PASS 246-byte line exits 3: rc=3 stdout=b'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'... icanon_after=True secs=0.7 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s): xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+PASS 82 CJK characters (246 bytes) exit 3: rc=3 stdout=b'\xe3\x81\x82\xe3\x81\x82\xe3\x81\x82\xe3\x81\x82\xe3\x81\x82\xe3\x81\x82\xe3\x81\x82\xe3\x81\x82\xe3\x81\x82\xe3\x81\x82\xe3\x81\x82\xe3\x81\x82\xe3\x81\x82\xe3'... icanon_after=True secs=0.7 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s): あああああああああああああああああああああああああああああああああああ
+PASS 245-byte line is a name: rc=0 stdout=b'yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'... icanon_after=True secs=0.7 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s): yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+PASS tab inside the line exits 3: rc=3 stdout=b'foo\tbar' icanon_after=True secs=0.7 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s): foo	bar
+PASS leading tab exits 3: rc=3 stdout=b'\tfoo' icanon_after=True secs=0.7 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s): 	foo
+PASS trailing tab exits 3: rc=3 stdout=b'foo\t' icanon_after=True secs=0.7 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s): foo
+PASS two-line paste in one write exits 3: rc=3 stdout=b'line one\nline two' icanon_after=True secs=0.7 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s): line one
+PASS two-line paste in two writes 50 ms apart exits 3: rc=3 stdout=b'line one\nline two' icanon_after=True secs=0.8 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s): line one
+PASS Ctrl+C during the drain window exits 130 with line mode restored: rc=130 stdout=b'' icanon_after=True secs=0.7 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s): some name
+PASS keys already waiting: not asked (exit 1): rc=1 stdout=b'' icanon_after=True secs=0.2 
+PASS * asks again, then a name: rc=0 stdout=b'after star\n' icanon_after=True secs=1.2 
+     prompt: Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s): *
+ALL PASS

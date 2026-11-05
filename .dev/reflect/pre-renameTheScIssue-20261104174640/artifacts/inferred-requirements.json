@@ -1,0 +1,11 @@
+[
+ {"id": "INF-001", "citation": "source.md:1", "quote": "Rename the /sc:issue claim summary file written by issue-worker-t1/t2 from summary.md to issue-summary.md (the template may be renamed to templates/issue-summary.md)"},
+ {"id": "INF-002", "citation": "source.md:1", "quote": "everywhere it is referenced (SKILL.md, refs/claim.md, refs/chains.md where <S> = .dev/issues/<N>/summary.md, templates claim-comment.md and next-steps.md"},
+ {"id": "INF-003", "citation": "source.md:1", "quote": "the three worker agent files including the fix-2 'tool inputs' paragraph, commands/issue.md Outputs table"},
+ {"id": "INF-004", "citation": "source.md:1", "quote": "the design doc, and the developer and user guide rows"},
+ {"id": "INF-005", "citation": "source.md:1", "quote": "require that files written under <D>/analysis/ use names that do not start with analysis, report, summary or findings (for example analysis/analyze-<scope>.md)"},
+ {"id": "INF-006", "citation": "source.md:1", "quote": "Correct the fix-2 paragraph so it states the real mechanism: Claude Code refuses subagent writes of .md files whose names start with REPORT, SUMMARY, FINDINGS or ANALYSIS, which is why the names avoid them."},
+ {"id": "INF-007", "citation": "source.md:1", "quote": "Add a deterministic regression test that collects every file name a worker is told to write (agent files, SKILL.md, refs, the Outputs table) and asserts that none matches the harness regex ^(REPORT|SUMMARY|FINDINGS|ANALYSIS).*\\.md$ case-insensitively"},
+ {"id": "INF-008", "citation": "source.md:1", "quote": "and that no reference to the old <D>/summary.md path remains"},
+ {"id": "INF-009", "citation": "source.md:1", "quote": "In docs/designs/sc-issue-command.md, add a dated note (2026-11-04) explaining the rename and its cause, and update the file lists."}
+]

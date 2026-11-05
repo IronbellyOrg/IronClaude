@@ -1,0 +1,8 @@
+MOVED ./artifacts/t6-test.log -> .dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/artifacts-3/t6-test.log
+MOVED ./artifacts/t6-claims.md -> .dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/artifacts-3/t6-claims.md
+MOVED ./artifacts/t6-scope-search.log -> .dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T6/artifacts-3/t6-scope-search.log
+SWEEP refs/superclaude/implement/TASK-WF-makeTheAliasOnly-20261105-051649/retry/T6/sweep-3-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+RESTORED docs/reference/README.md
+DELETED docs/reference/model-aliases.md
+DONE

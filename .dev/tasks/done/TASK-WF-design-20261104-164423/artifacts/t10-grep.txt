@@ -1,0 +1,23 @@
+# grep -nE for forbidden items in src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh (expect no matches, exit 1)
+## pattern: \bgit[[:space:]]+push\b
+grep_exit=1
+## pattern: \bstash\b
+grep_exit=1
+## pattern: \bgit[[:space:]]+config\b
+grep_exit=1
+## pattern: --no-verify\b
+grep_exit=1
+## pattern: --amend\b
+grep_exit=1
+## pattern: --force\b
+grep_exit=1
+## pattern: src/superclaude
+grep_exit=1
+## pattern: \bgh\b
+grep_exit=1
+## pattern: SuperClaude-Org
+grep_exit=1
+## pattern: \bgit[[:space:]]+(checkout|switch|reset|commit|add|worktree|rebase)\b
+grep_exit=1
+## pattern: \bgit[[:space:]]+merge([[:space:]]|$)
+grep_exit=1

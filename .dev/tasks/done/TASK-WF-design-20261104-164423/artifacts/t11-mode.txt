@@ -1,0 +1,2 @@
+100755 8ac4c485f5bef0cbc704f0c5af777b81b3bc4af2 0	src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh
+test -x: ok (exit 0)

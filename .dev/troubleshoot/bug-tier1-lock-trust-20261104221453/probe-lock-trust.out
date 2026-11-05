@@ -1,0 +1,6 @@
+== uv lock --offline on a project with backend-path=["."] and dynamic version
+exit=1
+
+      hint: This usually indicates a problem with the package or the build
+      environment.
+in-tree backend executed: yes

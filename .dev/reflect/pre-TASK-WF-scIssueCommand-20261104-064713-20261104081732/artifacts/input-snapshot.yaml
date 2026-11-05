@@ -1,0 +1,27 @@
+input_tree_sha256: c183429736b5e907a3f597cf27632442bca8cb1180bef805f8136ecd2e8e3d13
+hash_method: "sha256sum over sorted path list, then sha256 of that listing"
+file_count: 20
+file_list:
+  - {path: .claude/settings.json, sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c}
+  - {path: .dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/TASK-WF-scIssueCommand-20261104-064713.md, sha256: e54e890380e234377e77d17b785d8ad7940fdadc69528f488b0c06b0ff5964f4}
+  - {path: .dev/tasks/to-do/TASK-WF-scIssueCommand-20261104-064713/source.md, sha256: 043015b3307a2be7e65855d895751f0c42f072040bbfb3cb58b9abe17bd4edcd}
+  - {path: CLAUDE.md, sha256: 4f29df40ad91f5e3be0a1b8efd2f18671acaecf69eda5f3e3213757cd04ce41e}
+  - {path: docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md, sha256: c97492b664c2d5c386fd7c3738a749480b2a958ec02fab21a7b1c6ba05e77304}
+  - {path: docs/user-guide/agents.md, sha256: 3d509bb5e67058e4ebc52c2cce9ec4e2bd6f91e4c6f30609bb60d3bf30c61632}
+  - {path: docs/user-guide/commands.md, sha256: 3e909825fb43b6204a3cc282157e2d82f8911abe8d1bab21a5d2a45f180b2da2}
+  - {path: plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md, sha256: 7083f0c6ca6dfd2ab621ddc2828635ab8bb5e619d99825dfd2f47118fa2ec025}
+  - {path: src/superclaude/agents/evidence-validator.md, sha256: 1a4967d25c7df508a2a46c2138d48acbbd8746ee230d988e0a1b9f211f98cc64}
+  - {path: src/superclaude/commands/workflow.md, sha256: ba09fd7550023a8983126ded904a6699dd9fcde5f3dec27c1509375c95eea482}
+  - {path: src/superclaude/core/CLAUDE.md, sha256: 82d53b38ab0d7e1aa47ac6cf194279545f66302f6bf478358ea03bdda8ed8c18}
+  - {path: src/superclaude/core/HOW-WE-WORK.md, sha256: 7083f0c6ca6dfd2ab621ddc2828635ab8bb5e619d99825dfd2f47118fa2ec025}
+  - {path: src/superclaude/skills/ccsession-tag/ccsession-models.json, sha256: 5507d4b73bc959d66825bb905320bf5d2f6b5dc24f7c042c41d3c5d0a431f084}
+  - {path: src/superclaude/skills/sc-implement-protocol/scripts/archive_workspace.py, sha256: 8fbb5ad55ea5c7d0c4e1cde12a9cacf6a0252865399a14e0e9e243b28b8e9b7c}
+  - {path: src/superclaude/skills/task/SKILL.md, sha256: 2a3edaabec765a5ab9c4c7a42fca4ec5b2baa9799b4babc5763e3450dd8628d7}
+  - {path: tests/cli/test_issue_body_templates.py, sha256: e4a821a32b04b73c71858e0cdc906add79e5d3ac7854dda3541b2c09fe16b823}
+  - {path: tests/commands/test_routing_plugin_parity.py, sha256: c362104ffdea66a1164d0903a251f3fb11e614c02c60258a3b476b7e16aaa123}
+  - {path: tests/core/test_how_we_work_routing_table.py, sha256: dbf96c050ca487bb80b13e28a6c4aa392f333532eeb4f609902730f21164951f}
+  - {path: tests/recommend/test_routing_refresh.py, sha256: 8052e28551d8cc92f7b2c8912b77e47a7763b6c5f0f0ee8a3fb6cfa8317defd9}
+  - {path: tests/skills/test_workflow_archive.py, sha256: 282bf8679786fc80b6997680be0552c50920f0ab0c48250d560f482be4cc1105}
+input_sha256:
+  tasklist: e54e890380e234377e77d17b785d8ad7940fdadc69528f488b0c06b0ff5964f4
+  spec: 043015b3307a2be7e65855d895751f0c42f072040bbfb3cb58b9abe17bd4edcd

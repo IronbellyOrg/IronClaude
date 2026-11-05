@@ -1,0 +1,28 @@
+== secret grep ==
+exit=1
+== retired names ==
+exit=1
+32:| `opus` | `claude-gw-tier1a` | `ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a` |
+33:| `sonnet` | `claude-gw-tier1b` | `ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b` |
+34:| `haiku` | `claude-gw-tier2` | `ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-gw-tier2` |
+42:ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a
+43:ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b
+44:ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-gw-tier2
+probe-link-target-exists
+== tests ==
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collected 13 items
+
+tests/skills/test_model_alias_policy.py .............                    [100%]
+
+============================== 13 passed in 1.37s ==============================
+tests/docs/test_tavily_doc_alignment.py .....                            [100%]
+
+============================== 8 passed in 0.51s ===============================
+== t6 re-run ==
+secret grep exit=1
+
+============================== 21 passed in 1.68s ==============================
+== t6 rerun after repair ==
+secret grep exit=1
+============================== 21 passed in 1.75s ==============================

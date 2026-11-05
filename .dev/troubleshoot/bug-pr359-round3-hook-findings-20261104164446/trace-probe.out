@@ -1,0 +1,7 @@
+== python3() { uv run python "$@"; }; echo ready
+cmdword=python3
+python3
+hook_exit=2
+== {fd}>/dev/null python3 -c 1
+cmdword={fd}
+hook_exit=0

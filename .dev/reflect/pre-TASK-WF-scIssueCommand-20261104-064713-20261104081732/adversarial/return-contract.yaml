@@ -1,0 +1,20 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-TASK-WF-scIssueCommand-20261104-064713-20261104081732/adversarial/merged-verdict.yaml"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/feat-sc-issue-command/.dev/reflect/pre-TASK-WF-scIssueCommand-20261104-064713-20261104081732/adversarial/adversarial"
+  status: "partial"   # all 5 steps completed and post-merge validation passed; convergence status BLOCKED_BY_INVARIANTS (1 HIGH UNADDRESSED, INV-001), depth standard so no Round 3
+  base_variant: "variant-1 (reviewer-1, sonnet:analyzer)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "task-agent"
+  unaddressed_invariants:
+    - id: INV-001
+      category: sufficiency_challenge
+      assumption: "C-001's example item-4 URL https://github.com/IronbellyOrg/issue302-no-such-repo/issues/999999999 makes every escaped write target an issue that cannot exist (its repo name embeds 302, the real origin issue)"
+      severity: HIGH
+  notes:
+    - "Inputs were YAML reviewer cards, not markdown; a warning was logged and the pipeline proceeded."
+    - "Resumed run: Steps 1-2 (Rounds 1 and 2) ran 08:43-09:00 UTC; an API outage interrupted Round 2.5. On resume (after 12:41 UTC) Round 2.5 was re-run, base-selection.md was regenerated (the old worker's 12:40:48 copy is kept as base-selection.partial-1240.md and was not used), and Steps 4-5 ran."
+    - "INV-001 is folded into finding F-01's recommendation (a URL with no digits outside /issues/<N>, plus a parser test). It is listed here because the debate itself did not address it."
+    - "merged verdict: PASS with notes; 0 blocking, 18 minor findings; 7 rejected."

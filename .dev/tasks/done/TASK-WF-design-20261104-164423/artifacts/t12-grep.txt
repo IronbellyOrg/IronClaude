@@ -1,0 +1,35 @@
+# t12 forbidden-item grep over src/superclaude/skills/sc-pr-submit-protocol/scripts/collect-conflict-evidence.sh (no output under a heading = no hit)
+## grep -n -i -E -e 'git[[:space:]]+push'
+exit=1
+## grep -n -i -E -e 'push'
+exit=1
+## grep -n -i -E -e 'stash'
+exit=1
+## grep -n -i -E -e 'force'
+exit=1
+## grep -n -i -E -e '--amend'
+exit=1
+## grep -n -i -E -e '--no-verify'
+exit=1
+## grep -n -i -E -e 'git[[:space:]]+config'
+exit=1
+## grep -n -i -E -e 'src/superclaude'
+exit=1
+## grep -n -i -E -e '\bgh\b'
+exit=1
+## grep -n -i -E -e 'git[[:space:]]+(checkout|switch|reset|commit|add|rm|worktree|rebase|merge)\b'
+exit=1
+## gh calls (each must carry --repo "$REPO"; none expected)
+exit=1
+## set line
+30:set -u -o pipefail
+## git commands used (all read-only)
+135:git rev-parse
+138:git rev-parse
+142:git rev-parse
+155:git rev-parse
+193:git --no-optional-locks --literal-pathspecs ls-files
+212:git --no-optional-locks show
+226:git --no-optional-locks --literal-pathspecs log
+228:git --no-optional-locks --literal-pathspecs diff
+230:git --no-optional-locks --literal-pathspecs diff

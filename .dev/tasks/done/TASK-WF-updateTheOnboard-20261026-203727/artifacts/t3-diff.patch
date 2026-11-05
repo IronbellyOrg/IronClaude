@@ -1,0 +1,47 @@
+diff --git a/tmp/tmp.404BpnpB46/before.html b/docs/onboarding/ironclaude-onboarding.html
+index f19e9774..cc393d53 100644
+--- a/tmp/tmp.404BpnpB46/before.html
++++ b/docs/onboarding/ironclaude-onboarding.html
+@@ -395,11 +395,11 @@
+ <section class="slide" id="s7" aria-labelledby="s7-h">
+   <p class="eyebrow"><b>07</b> · The whole path · HOW-WE-WORK 3.1, 3.2, 3.3 and 3.11</p>
+   <h2 id="s7-h">From idea to merged PR</h2>
+-  <p>Most features follow the same path, from an idea to a merged pull request (PR). Skip the steps you do not need: brainstorm only if the idea is vague, research only if you do not know how the current code works.</p>
++  <p>Most features follow the same path, from an idea to an open pull request (PR). Skip the steps you do not need: brainstorm only if the idea is vague, research only if you do not know how the current code works. Each later step runs only when you ask for it: a plan does not start the implementation, and implementing does not ship anything.</p>
+   <figure class="diagram wide">
+     <svg viewBox="0 0 1170 250" role="img" aria-labelledby="d5-t d5-d">
+       <title id="d5-t">Idea to merged PR</title>
+-      <desc id="d5-d">Seven steps in order: shape the idea, research, spec, plan, implement, review, open the PR. The spec track covers the first three steps; the execution track covers the last four.</desc>
++      <desc id="d5-d">Seven steps in order, each taken only when you ask for it: shape the idea, research, spec, plan, implement, review, open the PR. The spec track covers the first three steps; the execution track covers the last four.</desc>
+       <defs>
+         <marker id="ah5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head" d="M0,0 L10,5 L0,10 z"/></marker>
+       </defs>
+@@ -427,8 +427,8 @@
+       <path class="d-line" d="M662,118 L672,118" marker-end="url(#ah5)"/>
+       <path class="d-line" d="M828,118 L838,118" marker-end="url(#ah5)"/>
+       <path class="d-line" d="M994,118 L1004,118" marker-end="url(#ah5)"/>
+-      <text class="d-ts" x="10" y="200">A new product, a new component, or a major feature other people build against (level 6): /prd, then /tdd, then /roadmap, then /task per phase (guide 3.1).</text>
+-      <text class="d-ts" x="10" y="224">A level-4-sized build swaps Plan and Implement for /task-builder and /task (guide 3.13).</text>
++      <text class="d-ts" x="10" y="200">Level 6, a new product or major feature others build against: /prd, then /tdd, then Plan and Implement as usual; /roadmap only if explicitly chosen (guide 3.1).</text>
++      <text class="d-ts" x="10" y="224">Explicit or exceptional task-file (MDTM) work swaps Plan and Implement for /task-builder and /task (guide 3.1 step 7).</text>
+     </svg>
+     <figcaption class="cap">The guide's feature path (3.2, with brainstorm from 3.1 and the review steps from 3.11), with the two tracks from the onboarding split overlaid.</figcaption>
+   </figure>
+@@ -444,7 +444,7 @@
+     <div class="card"><h3>Check it is not already built</h3><p><code class="long"><span class="nw">/sc:recommend</span> <span class="nw">"&lt;goal&gt;"</span> <span class="nw">--plugin</span></code> searches the Claude plugin marketplaces and community skill repositories instead of the local commands.</p><p class="story">The meeting's advice: before you build anything, look for someone who already built it, then fork it or use it.</p></div>
+     <div class="card"><h3>Get an expert critique</h3><p><code>/sc:spec-panel</code> has a panel of named requirements experts critique a spec. It only reports; you decide what to apply.</p></div>
+   </div>
+-  <p><strong>When are <code>/prd</code> and <code>/tdd</code> warranted?</strong> The full <code>/prd</code> then <code>/tdd</code> pipeline is level 6: a new product, a new component, or a major feature other people will build against. For a feature on an existing system, write a short spec and plan it with <code>/sc:workflow</code> (guide 3.2; a level-4-sized feature uses <code>/task-builder</code> and <code>/task</code> instead, guide 3.13). If one part of that spec is a design other people will build against, the guide says: "Use <code>/tdd</code> when other people will build against the design" (guide section 5).</p>
++  <p><strong>When are <code>/prd</code> and <code>/tdd</code> warranted?</strong> The full <code>/prd</code> then <code>/tdd</code> pipeline is level 6: a new product, a new component, or a major feature other people will build against. For a feature on an existing system, write a short spec and plan it with <code>/sc:workflow</code> (guide 3.2). An existing spec, many files or several sessions do not by themselves make it level 4; <code>/task-builder</code> and <code>/task</code> are only for explicit task-file (MDTM) work or an exceptionally complex, long-running program (guide 3.2 step 5). If one part of that spec is a design other people will build against, the guide says: "Use <code>/tdd</code> when other people will build against the design" (guide section 5).</p>
+ </section>
+ 
+ <section class="slide" id="s9" aria-labelledby="s9-h">
+@@ -452,7 +452,7 @@
+   <h2 id="s9-h">Execution track (William, Leandro)</h2>
+   <ul>
+     <li><strong>Read the plan first.</strong> Check that each step's acceptance criteria clearly say what "done" means.</li>
+-    <li><strong>Run it:</strong> <code class="long"><span class="nw">/sc:implement</span> <span class="nw">.dev/tasks/to-do/&lt;id&gt;/&lt;id&gt;.md</span></code>. It builds one step at a time and a reviewer checks each step against its criteria.</li>
++    <li><strong>Run it:</strong> <code class="long"><span class="nw">/sc:implement</span> <span class="nw">.dev/tasks/to-do/&lt;id&gt;/&lt;id&gt;.md</span></code>. It builds one step at a time and checks each step's compliance with its acceptance criteria (small first-pass checks can be inline); the finished package then gets an independent final review.</li>
+     <li><strong>The retry ladder:</strong> when a step fails its check, it gets one fix pass, then up to three new attempts written from stronger models' advice. The step's acceptance criteria never change.</li>
+     <li><strong>If interrupted,</strong> run the same command again; it continues from the first unfinished step.</li>
+   </ul>

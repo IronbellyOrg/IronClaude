@@ -1,10 +1,11 @@
 """Canonical data models for the ``sc:pr-submit`` deterministic core.
 
-Defines the closed run-log event enum (exactly 41 members — the 32 from spec
+Defines the closed run-log event enum (exactly 43 members — the 32 from spec
 §11.3 plus ``push_aborted_or_not_landed`` from §12.1, plus the 4 V1.1
 re-review/fallback events from addendum §6.1, plus ``silence_rerequested`` and
 ``terminal_augment_no_response``, plus the reviewer events ``reviewer_absent``
-and ``reviewer_incomplete``), the severity tiers, the
+and ``reviewer_incomplete``, plus the two conflict-cycle events
+``sync_started`` and ``sync_concluded``), the severity tiers, the
 single-FSM state lexicon (spec §5.1; Python identifiers drop the spec's prime, so
 ``S4'_HALT_BEFORE_PUSH`` becomes ``S4_HALT_BEFORE_PUSH``), and the ``Finding`` /
 ``SkillResult`` dataclasses the test bodies assert against.
@@ -20,7 +21,7 @@ from enum import Enum
 
 
 class EventType(str, Enum):
-    """Closed enum of run-log event types — EXACTLY 41 members.
+    """Closed enum of run-log event types — EXACTLY 43 members.
 
     The 32 event types listed in spec §11.3 (merged-spec.md:724-731) PLUS
     ``push_aborted_or_not_landed`` (spec §12.1 line 771 — the crash-window
@@ -30,7 +31,8 @@ class EventType(str, Enum):
     ``silence_rerequested`` (INV-S1) and ``terminal_augment_no_response`` PLUS
     the two reviewer events ``reviewer_absent`` (a reviewer with no activity is
     ignored for the rest of the run) and ``reviewer_incomplete`` (a present
-    reviewer did not complete within ``--timeout``).
+    reviewer did not complete within ``--timeout``) PLUS the two conflict-cycle
+    events ``sync_started`` and ``sync_concluded`` (issue #305, both tiers).
     The run-log writer validates every appended event against this closed set;
     an event outside it is a programming error.
     """
@@ -88,6 +90,9 @@ class EventType(str, Enum):
     # --- reviewer presence (Augment + Codex) — the 40th-41st ---
     REVIEWER_ABSENT = "reviewer_absent"
     REVIEWER_INCOMPLETE = "reviewer_incomplete"
+    # --- merge-conflict cycles (issue #305), both tiers - the 42nd-43rd ---
+    SYNC_STARTED = "sync_started"
+    SYNC_CONCLUDED = "sync_concluded"
 
 
 class Severity(str, Enum):
