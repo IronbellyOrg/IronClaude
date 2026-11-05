@@ -29,11 +29,12 @@ Report
 ======
 
 p50 / p95 / min / max / mean (seconds) plus the full sample array are
-written to ``TASKLIST_ROOT/evidence/T02.15/perf.json``. The destination
-can be overridden with the ``T02_15_PERF_REPORT`` env var (used by CI
-matrices to write per-host reports). The report path lives outside the
-test module so trend-tracking tooling can stat it without re-running
-pytest.
+written to a JSON report in pytest's ``tmp_path``, so a plain test run
+leaves the working tree clean (the old default,
+``TASKLIST_ROOT/evidence/T02.15/perf.json``, is tracked in git). Set the
+``T02_15_PERF_REPORT`` env var to write the report elsewhere on purpose
+(used by CI matrices to write per-host reports, or to refresh that
+tracked evidence file by hand).
 
 Budget assertion
 ================
@@ -89,40 +90,19 @@ BUDGET_SEC = 2.0
 # ---------------------------------------------------------------------------
 
 
-def _repo_root() -> Path:
-    """Locate the repo root from this file's path.
+def _report_destination(tmp_path: Path) -> Path:
+    """Resolve where to write the perf report for this run.
 
-    ``tests/cli/eval/test_perf_home_setup.py`` lives 3 directories
-    below the repo root.
+    Honours ``T02_15_PERF_REPORT`` so a deliberate evidence run can pick
+    the destination. Falls back to ``tmp_path`` so a plain test run never
+    rewrites ``.dev/releases/current/cliEval/evidence/T02.15/perf.json``,
+    which is tracked in git.
     """
 
-    return Path(__file__).resolve().parents[3]
-
-
-def _default_report_path() -> Path:
-    """``TASKLIST_ROOT/evidence/T02.15/perf.json``.
-
-    TASKLIST_ROOT is ``.dev/releases/current/cliEval`` per the Phase 2
-    tasklist convention.
-    """
-
-    return (
-        _repo_root()
-        / ".dev"
-        / "releases"
-        / "current"
-        / "cliEval"
-        / "evidence"
-        / "T02.15"
-        / "perf.json"
-    )
-
-
-def _report_path() -> Path:
     override = os.environ.get("T02_15_PERF_REPORT")
     if override:
         return Path(override)
-    return _default_report_path()
+    return tmp_path / "perf.json"
 
 
 # ---------------------------------------------------------------------------
@@ -193,7 +173,7 @@ def test_home_setup_p50_p95_under_15_parallel(tmp_path: Path) -> None:
     2. Run ``N_ITERATIONS`` batches of ``N_PARALLEL`` parallel setups.
     3. Compute p50/p95/min/max/mean over the flat sample array.
     4. Write the JSON report to the path returned by
-       :func:`_report_path` (parents created on demand).
+       :func:`_report_destination` (parents created on demand).
     5. Assert ``p50 <= BUDGET_SEC``. On a slow host this raises and
        the test xfails (the wrapper :func:`pytest.xfail` is unused —
        see the comment below).
@@ -259,7 +239,7 @@ def test_home_setup_p50_p95_under_15_parallel(tmp_path: Path) -> None:
         "durations_sec": samples,
     }
 
-    report_path = _report_path()
+    report_path = _report_destination(tmp_path)
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2, sort_keys=False))
 
@@ -287,3 +267,22 @@ def test_home_setup_p50_p95_under_15_parallel(tmp_path: Path) -> None:
     assert p50 <= BUDGET_SEC, (
         f"NFR-PERF1 budget breached: p50={p50:.3f}s > {BUDGET_SEC:.3f}s"
     )
+
+
+def test_report_destination_defaults_to_tmp_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A plain run must not write into the repo (perf.json is tracked in git)."""
+
+    monkeypatch.delenv("T02_15_PERF_REPORT", raising=False)
+    assert _report_destination(tmp_path).parent == tmp_path
+
+
+def test_report_destination_honours_env_override(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """``T02_15_PERF_REPORT`` stays the way to export a report on purpose."""
+
+    target = tmp_path / "export" / "perf.json"
+    monkeypatch.setenv("T02_15_PERF_REPORT", str(target))
+    assert _report_destination(tmp_path) == target
