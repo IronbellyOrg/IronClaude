@@ -23,7 +23,7 @@ Verified against the Claude Code subagent docs (`https://code.claude.com/docs/en
 1. Claude Code resolves a subagent's model in this order: the Agent call's `model` parameter, then the agent file's `model:` frontmatter, then `CLAUDE_CODE_SUBAGENT_MODEL`, then the main session's model.
 2. The Agent call's `model` parameter accepts only the aliases `sonnet`, `opus`, `haiku`, `fable`. It cannot carry a picker ID, and if passed it overrides the frontmatter.
 3. Frontmatter `model:` accepts an alias, a full model ID (the same values as the `--model` flag) or `inherit`.
-4. The `haiku` alias resolves through `ANTHROPIC_DEFAULT_HAIKU_MODEL`, which on this Coder workspace is `glm-5.3`. So "spawn with haiku" does not guarantee the T3 tier.
+4. The `haiku` alias follows `ANTHROPIC_DEFAULT_HAIKU_MODEL`. Inside a ccsession tier workspace it resolves to `claude-gw-tier2` once the launcher sets that variable (`docs/reference/model-aliases.md`); until then it follows the value in the workspace defaults file. Either way, "spawn with haiku" does not guarantee the T3 tier.
 
 So each tier has its own agent file whose `model:` is the picker ID, and the spawn passes only `subagent_type`.
 
@@ -37,7 +37,9 @@ If a spawn fails because the picker ID is not served (for example, outside a ccs
 E-TIER-UNAVAILABLE: ~/.claude/agents/issue-worker-t3.md pins claude-gw-tier3, which this session cannot serve.
 ```
 
-There is no alias fallback: a fallback to `haiku` can land on a non-Claude model (`glm-5.3` here), which defeats B13.
+There is no alias fallback: a fallback to `haiku` follows `ANTHROPIC_DEFAULT_HAIKU_MODEL` and can land on a model of another tier or family than the pin, which defeats B13.
+
+Within the scope of `tests/skills/test_model_alias_policy.py`, the issue workers are the files that pin a picker ID in frontmatter `model:`; the other agent, skill and command files that have a frontmatter `model:` line name an alias (`docs/reference/model-aliases.md`).
 
 ## Next-step tier (defaults D6 and D25)
 

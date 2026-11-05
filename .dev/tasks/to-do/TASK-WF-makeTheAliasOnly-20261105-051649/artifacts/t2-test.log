@@ -1,0 +1,17 @@
+All checks passed!
+1 file already formatted
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_output_is_metadata_only
+  /home/coder/workspaces/worktrees/IronClaude/issue-384-ccsession-model-aliases/tests/cli/reflect/test_contract_status_cli.py:157: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem():
+
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_validate_output_redacts_raw_payload_body
+  /home/coder/workspaces/worktrees/IronClaude/issue-384-ccsession-model-aliases/tests/cli/reflect/test_contract_status_cli.py:259: DeprecationWarning: 'isolated_filesystem' is deprecated and will be removed in Click 9.0. Use 'tempfile.TemporaryDirectory' or pytest's 'tmp_path' fixture with absolute paths instead.
+    with cli_runner.isolated_filesystem() as fs:
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/skills/test_model_alias_policy.py::test_issue_chains_use_the_default_brainstorm_models
+FAILED tests/skills/test_model_alias_policy.py::test_cleanup_audit_docs_match_the_audit_scanner_pin
+FAILED tests/skills/test_model_alias_policy.py::test_retry_ladder_uses_the_variable_names_the_workspace_exports
+FAILED tests/skills/test_model_alias_policy.py::test_mapping_document_states_the_exports_and_tiers_exist
+============= 4 failed, 363 passed, 1 xpassed, 5 warnings in 3.30s =============

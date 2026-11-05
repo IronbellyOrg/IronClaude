@@ -28,7 +28,12 @@ import click
 # sourced from the ``ANTHROPIC_MODEL`` env var with a default fallback; the
 # Tier-2 reviewer diversity comes from the ``ANTHROPIC_DEFAULT_*`` aliases, not
 # this value. (Flagged decision -- see Task Log.)
-_DEFAULT_MODEL = "claude-opus-4-8"
+# The default is the plain alias ``opus``, not a dated model id: Claude Code
+# resolves it, and inside a ccsession tier workspace it maps to a tier model once
+# the launcher sets ``ANTHROPIC_DEFAULT_OPUS_MODEL``
+# (see docs/reference/model-aliases.md). ``ANTHROPIC_MODEL`` still takes
+# precedence in the ``reflect run`` command when it is set.
+_DEFAULT_MODEL = "opus"
 
 _TMUX_SESSION_PREFIX = "sc-reflect-"
 _EXIT_SENTINEL_NAME = ".reflect-exitcode"

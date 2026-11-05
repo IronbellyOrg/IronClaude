@@ -1,0 +1,78 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-384-ccsession-model-aliases
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collected 13 items
+
+tests/skills/test_model_alias_policy.py ..F.FFFFFF...                    [100%]
+
+=================================== FAILURES ===================================
+____________ test_python_selection_constants_are_not_full_model_ids ____________
+tests/skills/test_model_alias_policy.py:157: in test_python_selection_constants_are_not_full_model_ids
+    assert bad == []
+E   assert ["src/supercl...de-opus-4-8'"] == []
+E     
+E     Left contains one more item: "src/superclaude/cli/reflect/commands.py:31: 'claude-opus-4-8'"
+E     Use -v to get more diff
+____________________ test_reflect_default_model_is_an_alias ____________________
+tests/skills/test_model_alias_policy.py:176: in test_reflect_default_model_is_an_alias
+    assert commands._DEFAULT_MODEL in ALIASES
+E   AssertionError: assert 'claude-opus-4-8' in {'haiku', 'inherit', 'opus', 'sonnet'}
+E    +  where 'claude-opus-4-8' = <module 'superclaude.cli.reflect.commands' from '/home/coder/workspaces/worktrees/IronClaude/issue-384-ccsession-model-aliases/src/superclaude/cli/reflect/commands.py'>._DEFAULT_MODEL
+___________ test_d12_manual_test_does_not_pin_the_old_reflect_model ____________
+tests/skills/test_model_alias_policy.py:184: in test_d12_manual_test_does_not_pin_the_old_reflect_model
+    assert "claude-opus-4-8" not in text
+E   AssertionError: assert 'claude-opus-4-8' not in '# E2E Test ...d953b983)`\n'
+E     
+E     'claude-opus-4-8' is contained here:
+E       n --model claude-opus-4-8
+E       /sc:reflect --mode post --diff <HEAD> --tasklist /tmp/d12/repo/TASK.md --depth standard --output /tmp/d12/repo/reflect/post/<HEAD12>
+E       exit=0
+E       .git
+E       TASK.md...
+E     
+E     ...Full output truncated, use '-vv' to show
+_____________ test_issue_chains_use_the_default_brainstorm_models ______________
+tests/skills/test_model_alias_policy.py:192: in test_issue_chains_use_the_default_brainstorm_models
+    assert [step for step in steps if "--models" in step] == []
+E   assert ['/sc:brainst...orm --models'] == []
+E     
+E     Left contains 4 more items, first extra item: '/sc:brainstorm "<topic> @<S>" --depth quick --models opus,sonnet'
+E     Use -v to get more diff
+_____________ test_cleanup_audit_docs_match_the_audit_scanner_pin ______________
+tests/skills/test_model_alias_policy.py:202: in test_cleanup_audit_docs_match_the_audit_scanner_pin
+    assert [_rel(p) for p in files if "Haiku" in p.read_text(encoding="utf-8")] == []
+E   AssertionError: assert ['src/supercl...nup-audit.md'] == []
+E     
+E     Left contains 3 more items, first extra item: 'src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md'
+E     Use -v to get more diff
+_______ test_retry_ladder_uses_the_variable_names_the_workspace_exports ________
+tests/skills/test_model_alias_policy.py:221: in test_retry_ladder_uses_the_variable_names_the_workspace_exports
+    assert bad == []
+E   AssertionError: assert ['src/supercl...fs/ledger.md'] == []
+E     
+E     Left contains 4 more items, first extra item: 'src/superclaude/skills/sc-implement-protocol/refs/retry.md'
+E     Use -v to get more diff
+___________ test_mapping_document_states_the_exports_and_tiers_exist ___________
+tests/skills/test_model_alias_policy.py:229: in test_mapping_document_states_the_exports_and_tiers_exist
+    doc = (ROOT / "docs/reference/model-aliases.md").read_text(encoding="utf-8")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/pathlib.py:1058: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/pathlib.py:1044: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/home/coder/workspaces/worktrees/IronClaude/issue-384-ccsession-model-aliases/docs/reference/model-aliases.md'
+=========================== short test summary info ============================
+FAILED tests/skills/test_model_alias_policy.py::test_python_selection_constants_are_not_full_model_ids
+FAILED tests/skills/test_model_alias_policy.py::test_reflect_default_model_is_an_alias
+FAILED tests/skills/test_model_alias_policy.py::test_d12_manual_test_does_not_pin_the_old_reflect_model
+FAILED tests/skills/test_model_alias_policy.py::test_issue_chains_use_the_default_brainstorm_models
+FAILED tests/skills/test_model_alias_policy.py::test_cleanup_audit_docs_match_the_audit_scanner_pin
+FAILED tests/skills/test_model_alias_policy.py::test_retry_ladder_uses_the_variable_names_the_workspace_exports
+FAILED tests/skills/test_model_alias_policy.py::test_mapping_document_states_the_exports_and_tiers_exist
+========================= 7 failed, 6 passed in 1.78s ==========================

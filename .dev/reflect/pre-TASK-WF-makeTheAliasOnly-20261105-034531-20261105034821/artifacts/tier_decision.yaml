@@ -1,0 +1,28 @@
+selected_tier: 2
+fired_rule_number: null          # table-wide pre-filter fired before any STOP row (SKILL.md 5.3 precedence paragraph)
+coverage_degraded: parsed-sparse # Step 1B.2b: inferred_count 13 > parsed_count 0
+surface_unreached: null
+composite_score: 5.0             # recording only; the pre-filter decides
+per_signal_breakdown:
+  scope_size: 1                  # 9 tasks
+  task_count: 1
+  blast_radius: 1                # agents/commands/skills/python/tests/docs touched
+  spec_density: 1                # 0 labelled ids, 13 inferred
+  ambiguity_signals: 1           # coverage matrix loose matches disclosed (t1-card C-1)
+escalation_reason: "coverage_degraded: parsed-sparse forbids a Tier 1 stop (SKILL.md Step 1B.2b); no --tier/--depth pin was passed"
+alias_resolution:
+  ANTHROPIC_DEFAULT_OPUS_MODEL: claude-opus-5-5
+  ANTHROPIC_DEFAULT_SONNET_MODEL: claude-sonnet-5-5
+  ANTHROPIC_DEFAULT_HAIKU_MODEL: glm-5.3
+  distinct_models: 3
+  t2_model_class_diversity: full
+  t2_vendor_diversity: multi      # Anthropic x2, Z AI x1
+executor_class_source: unknown
+executor_class_resolved: false    # WARN: anti-self-confirmation guarantee weakened; no --executor-model given
+reviewer_rotation:
+  - {reviewer: 1, model_alias: sonnet, resolves_to: claude-sonnet-5-5, persona: analyzer}
+  - {reviewer: 2, model_alias: haiku, resolves_to: glm-5.3, persona: qa}
+  - {reviewer: 3, model_alias: opus, resolves_to: claude-opus-5-5, persona: refactorer}   # no qwen/kimi/deepseek alias -> opus
+calibrator: {model_alias: opus, calibrator_diversity: degraded}   # disjoint set empty (all three Anthropic-slot classes are reviewers); highest capability chosen
+reviewer_isolation: disabled      # --isolate-reviewers not passed; reviewers read the live tree (read-only agent, no write tools)
+codegraph: {index_state: fresh, files_indexed: 2130, changes_since_index: 0}

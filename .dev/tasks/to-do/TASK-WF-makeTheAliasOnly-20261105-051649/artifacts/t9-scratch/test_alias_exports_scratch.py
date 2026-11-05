@@ -1,0 +1,2880 @@
+"""Tier mode for ccsession: tier settings, launch selection, picker and failover.
+
+Tier mode is the Coder-workspace behaviour (models and windows come from the
+workspace env file); the Mac keeps profiles. These tests never touch the real
+workspace env file, the network, or the model-data cache.
+"""
+
+from __future__ import annotations
+
+import gzip
+import http.server
+import json
+import os
+import re
+import runpy
+import signal
+import socket
+import ssl
+import stat
+import subprocess
+import sys
+import threading
+import time
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+import pytest
+
+REPO_ROOT = Path("/home/coder/workspaces/worktrees/IronClaude/issue-384-ccsession-model-aliases")
+SKILL_DIR = REPO_ROOT / "src" / "superclaude" / "skills" / "ccsession-tag"
+sys.path.insert(0, str(SKILL_DIR))
+import models  # noqa: E402
+
+# The proposed Coder env block (spec 12.1), as it appears in defaults.sh.
+TIER_BLOCK = """\
+# AI defaults (non-secret)
+export T0Model01_WINDOW_DOC=ignored
+export T0_WINDOW=850000
+export T0Model01=claude-fable-5-1
+export T0Model01_WINDOW=1000000
+export T0Model02=gpt-6-astra
+export T0Model02_WINDOW=850000
+export T1a_WINDOW=850000
+export T1aModel01=claude-opus-5-5
+export T1aModel01_WINDOW=1000000
+export T1aModel02=claude-sonnet-5-5
+export T1aModel02_WINDOW=1000000
+export T1b_WINDOW=850000
+export T1bModel01=claude-sonnet-5-5
+export T1bModel01_WINDOW=1000000
+export T1bModel02="gpt-6.1-sol"
+export T1bModel02_WINDOW=850000
+export T1bModel03=muse-wonder-full-1.0
+export T1bModel03_WINDOW=1000000
+export T2_WINDOW=500000
+export T2Model01=muse-spark-1.3
+export T2Model01_WINDOW=950000
+export T2Model02=grok-4.7
+export T2Model02_WINDOW=500000
+export T2Model03='Qwen3.8-max'
+export T2Model03_WINDOW=1000000
+export T2Model04=glm-5.3
+export T2Model04_WINDOW=1000000
+export T2Model05=muse-wonder-1.0
+export T2Model05_WINDOW=1000000
+export T2Model06=gpt-6.1-sol
+export T2Model06_WINDOW=850000
+export T3_WINDOW=500000
+export T3Model01=gpt-6.1-terra
+export T3Model01_WINDOW=850000
+export T3Model02=glm-5.3
+export T3Model02_WINDOW=1000000
+export T3Model03=grok-4.7
+export T3Model03_WINDOW=500000
+export T3Model04='Qwen3.8-max'
+export T3Model04_WINDOW=1000000
+export T3Model05=muse-wonder-1.0
+export T3Model05_WINDOW=1000000
+export T3Model06=muse-spark-1.3
+export T3Model06_WINDOW=950000
+export T4_WINDOW=850000
+export T4Model01=gpt-6-luna
+export T4Model01_WINDOW=850000
+export CCSESSION_DEFAULT_TIER=tier2
+export ANTHROPIC_MODEL="grok-4.6[1m]"
+echo not-an-export
+"""
+
+# Today's Coder env (before the env change): tier models but no windows.
+TODAY_BLOCK = """\
+export T00Model01=gpt-6-astra
+export T0Model01=gpt-6-sol
+export T0Model02=claude-opus-5-5
+export T1Model01=gpt-6-terra
+export T2Model01=grok-4.7
+export codex=gpt-codex
+"""
+
+
+@pytest.fixture(autouse=True)
+def _isolated(monkeypatch, tmp_path_factory):
+    """No network, private cache, and no tier settings unless a test adds them."""
+    monkeypatch.setenv("CCSESSION_MODELS_REFRESH", "0")
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path_factory.mktemp("cache")))
+    monkeypatch.setenv(
+        "AIDEV_AI_DEFAULTS_PATH", "/nonexistent/ccsession-test/defaults.sh"
+    )
+    for name in list(os.environ):
+        if name.startswith("T") and ("Model" in name or name.endswith("_WINDOW")):
+            monkeypatch.delenv(name)
+    for name in (
+        "CCSESSION_DEFAULT_TIER",
+        "CCSESSION_SHOW_ALL_MODELS",
+        "CCSESSION_TIERS",
+        "CCSESSION_ACCESS",
+        "CCSESSION_TIER_RULES",
+        "CCSESSION_MODEL_ORDER",
+        "CODER_WORKSPACE_OWNER_NAME",
+        "CODER_WORKSPACE_OWNER_ROLES",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+
+TIER_IDS = [f"claude-gw-tier{n}[1m]" for n in ("0", "1a", "1b", "2", "3", "4")]
+
+
+def _defaults(tmp_path: Path, text: str = TIER_BLOCK) -> Path:
+    path = tmp_path / "aienv.d" / "defaults.sh"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text)
+    return path
+
+
+# --- tier settings (models.py) -------------------------------------------------
+
+
+def test_defaults_file_is_parsed_not_sourced(tmp_path: Path) -> None:
+    values = models.read_defaults_file(_defaults(tmp_path))
+    assert values["T1bModel02"] == "gpt-6.1-sol"  # double quotes dropped
+    assert values["T2Model03"] == "Qwen3.8-max"  # single quotes dropped
+    assert values["T2_WINDOW"] == "500000"
+    assert values["CCSESSION_DEFAULT_TIER"] == "tier2"
+    # Only tier settings are taken; other exports and commands are ignored.
+    assert "ANTHROPIC_MODEL" not in values
+    assert "T0Model01_WINDOW_DOC" not in values
+    assert models.read_defaults_file(tmp_path / "missing.sh") == {}
+
+
+def test_todays_coder_env_keeps_tier_mode_off(tmp_path: Path, monkeypatch) -> None:
+    """Coder already sets T0Model01; only a tier window may switch tier mode on."""
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, TODAY_BLOCK)))
+    assert not models.tier_mode()
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path)))
+    assert models.tier_mode()
+    monkeypatch.setenv("CCSESSION_TIERS", "0")
+    assert not models.tier_mode()
+
+
+def test_defaults_file_wins_over_stale_shell_env(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("T2Model01", "old-model")
+    monkeypatch.setenv("T2_WINDOW", "200000")
+    assert models.tier_mode()  # env fallback when there is no file
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path)))
+    tiers = models.resolve_tiers()
+    assert tiers["tier2"]["models"][0] == ("T2Model01", "muse-spark-1.3", 950000)
+    assert tiers["tier2"]["window"] == 500000
+    assert [m for _, m, _ in tiers["tier1b"]["models"]] == [
+        "claude-sonnet-5-5",
+        "gpt-6.1-sol",
+        "muse-wonder-full-1.0",
+    ]
+    assert list(tiers) == ["tier0", "tier1a", "tier1b", "tier2", "tier3", "tier4"]
+
+
+def test_missing_tier_variable_is_named(tmp_path: Path, monkeypatch) -> None:
+    text = TIER_BLOCK.replace("export T2Model03_WINDOW=1000000\n", "")
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, text)))
+    with pytest.raises(ValueError, match="T2Model03_WINDOW"):
+        models.resolve_tiers()
+    text = TIER_BLOCK.replace("export T1a_WINDOW=850000\n", "")
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, text)))
+    with pytest.raises(ValueError, match="T1a_WINDOW"):
+        models.resolve_tiers()
+
+
+def test_named_model_window_comes_from_its_tier_slot(
+    tmp_path: Path, monkeypatch
+) -> None:
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path)))
+    assert models.model_window("gpt-6-astra") == (850000, "T0Model02")
+    assert models.model_window("grok-4.7") == (500000, "T2Model02")
+    assert models.model_window("some-new-model") == (200000, "not in any tier")
+    data = json.loads(models.BUNDLED.read_text())
+    data["picker"]["one_million_context"].append("big-new-model")
+    assert models.model_window("big-new-model", data=data) == (
+        models.ONE_MILLION,
+        "not in any tier; 1M list",
+    )
+
+
+def test_named_model_window_ignores_slots_no_tier_uses(
+    tmp_path: Path, monkeypatch
+) -> None:
+    # The workspace file keeps the old T1Model0N slots for older ccsession;
+    # they sort before T1aModel01 but no tier reads them, so a model picked by
+    # name must take the same window as the picker (compact_settings).
+    text = (
+        TIER_BLOCK
+        + "export T1Model01=claude-opus-5-5\nexport T1Model01_WINDOW=300000\n"
+    )
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, text)))
+    window = models.compact_settings()["modelSettings"]["claude-opus-5-5"]
+    assert window["autoCompactWindow"] == 1000000
+    assert models.model_window("claude-opus-5-5") == (1000000, "T1aModel01")
+
+
+def test_version_order_is_numeric() -> None:
+    assert models._version_key("2026-10-01.10") > models._version_key("2026-10-01.9")
+    assert models._version_key("2026-10-02.1") > models._version_key("2026-10-01.99")
+
+
+def test_load_prefers_numerically_newer_copy(tmp_path: Path, monkeypatch) -> None:
+    bundled = json.loads(models.BUNDLED.read_text())
+    cache = Path(os.environ["XDG_CACHE_HOME"]) / "ccsession"
+    cache.mkdir(parents=True)
+    newer = dict(bundled, version=bundled["version"].split(".")[0] + ".10")
+    (cache / "models.json").write_text(json.dumps(newer))
+    monkeypatch.setattr(models, "BUNDLED", tmp_path / "bundled.json")
+    (tmp_path / "bundled.json").write_text(
+        json.dumps(dict(bundled, version=bundled["version"].split(".")[0] + ".9"))
+    )
+    assert models.load()[0]["version"].endswith(".10")
+
+
+def test_old_picker_keys_are_rejected() -> None:
+    data = json.loads(models.BUNDLED.read_text())
+    assert models.validate(data) == ""
+    data["picker"]["remove"] = []
+    assert "replaced by picker.show" in models.validate(data)
+    data = json.loads(models.BUNDLED.read_text())
+    data["tiers"]["tier9"] = {"models_env": ["ANTHROPIC_MODEL"]}
+    assert "models_env" in models.validate(data)
+
+
+def test_shim_port_separates_show_all_and_env_settings(
+    tmp_path: Path, monkeypatch
+) -> None:
+    path = _defaults(tmp_path)
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(path))
+    # A file other than the standard one is a different setting.
+    assert models.shim_port(4010) != 4010
+    monkeypatch.setattr(models, "DEFAULTS_FILE", str(path))
+    assert models.shim_port(4010) == 4010
+    shared = models.settings_digest()
+    monkeypatch.setenv("CCSESSION_SHOW_ALL_MODELS", "1")
+    assert models.settings_digest() != shared
+    show_all = models.shim_port(4010)
+    assert 4011 <= show_all <= 4107
+    monkeypatch.delenv("CCSESSION_SHOW_ALL_MODELS")
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(tmp_path / "none.sh"))
+    monkeypatch.setenv("T2_WINDOW", "500000")
+    first = models.shim_port(4010)
+    monkeypatch.setenv("T2_WINDOW", "400000")
+    assert first != 4010 and models.shim_port(4010) != first
+
+
+def test_refresh_never_replaces_a_newer_cache(tmp_path: Path, monkeypatch) -> None:
+    """A CDN node still serving the previous file must not roll the cache back."""
+    bundled = json.loads(models.BUNDLED.read_text())
+    cache = Path(os.environ["XDG_CACHE_HOME"]) / "ccsession"
+    cache.mkdir(parents=True)
+    newer = dict(bundled, version="2099-01-01.2")
+    (cache / "models.json").write_text(json.dumps(newer))
+    older = json.dumps(dict(bundled, version="2099-01-01.1")).encode()
+
+    class Old(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header("ETag", '"old"')
+            self.end_headers()
+            self.wfile.write(older)
+
+        def log_message(self, *args):
+            pass
+
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Old)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        result = {}
+        models._fetch(f"http://127.0.0.1:{server.server_port}/m.json", result)
+    finally:
+        server.shutdown()
+    assert result["status"] == "older than cached"
+    assert json.loads((cache / "models.json").read_text())["version"] == "2099-01-01.2"
+
+
+# --- launch selection (ccsession) ---------------------------------------------
+
+
+def _launch(
+    tmp_path: Path, *args: str, defaults: str | None = TIER_BLOCK, **extra: str
+):
+    """Run ccsession with a fake claude and a fake running shim; return (rc, out, err, seen)."""
+    env = _launch_env(tmp_path, defaults, **extra)
+    proc = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), *args],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    seen = (
+        json.loads((tmp_path / "seen.json").read_text())
+        if (tmp_path / "seen.json").exists()
+        else None
+    )
+    return proc.returncode, proc.stdout, proc.stderr, seen
+
+
+def _launch_env(
+    tmp_path: Path, defaults: str | None = TIER_BLOCK, **extra: str
+) -> dict[str, str]:
+    """The environment of _launch: a fake claude that writes seen.json and a fake running shim."""
+    home = tmp_path / "home"
+    home.mkdir(exist_ok=True)
+    fake_claude = tmp_path / "claude"
+    fake_claude.write_text(
+        """#!/usr/bin/env python3
+import json, os, sys
+json.dump({
+    "argv": sys.argv[1:],
+    "context": os.environ.get("CLAUDE_CODE_MAX_CONTEXT_TOKENS", ""),
+    "compact": os.environ.get("CLAUDE_CODE_AUTO_COMPACT_WINDOW", ""),
+    "settings": sys.argv[sys.argv.index("--settings") + 1] if "--settings" in sys.argv else "",
+    "custom": os.environ.get("ANTHROPIC_CUSTOM_MODEL_OPTION", ""),
+    "base_url": os.environ.get("ANTHROPIC_BASE_URL", ""),
+    "api_key": os.environ.get("ANTHROPIC_API_KEY", ""),
+    "auth_token": os.environ.get("ANTHROPIC_AUTH_TOKEN", ""),
+    "opus_model": os.environ.get("ANTHROPIC_DEFAULT_OPUS_MODEL", ""),
+    "sonnet_model": os.environ.get("ANTHROPIC_DEFAULT_SONNET_MODEL", ""),
+    "haiku_model": os.environ.get("ANTHROPIC_DEFAULT_HAIKU_MODEL", ""),
+}, open(os.environ["SEEN_FILE"], "w"))
+"""
+    )
+    fake_lsof = tmp_path / "lsof"
+    fake_lsof.write_text("#!/bin/sh\nprintf '4242\\n'\n")
+    fake_curl = tmp_path / "curl"
+    # A running shim with this session's settings (digest from models.py).
+    fake_curl.write_text(
+        f"#!/bin/sh\nd=$(python3 {SKILL_DIR / 'models.py'} settings-digest)\n"
+        f"c=$(python3 {SKILL_DIR / 'models.py'} code-digest "
+        f"{SKILL_DIR / 'local-gateway-alias-proxy.py'})\n"
+        'printf \'{"service":"ccsession-gateway-alias-proxy",'
+        '"upstream":"http://gateway.example:4000/cli","port":4555,'
+        '"model_data":"t","tiers":{},"show_all":false,"settings":"%s",'
+        '"code":"%s"}\' "$d" "$c"\n'
+    )
+    for f in (fake_claude, fake_lsof, fake_curl):
+        f.chmod(f.stat().st_mode | stat.S_IXUSR)
+    env = os.environ.copy()
+    for inherited in (
+        "CLAUDE_CODE_MAX_CONTEXT_TOKENS",
+        "CLAUDE_CODE_AUTO_COMPACT_WINDOW",
+    ):
+        env.pop(
+            inherited, None
+        )  # set when the test runner itself runs inside Claude Code
+    env.update(
+        {
+            "HOME": str(home),
+            "CLAUDE_BIN": str(fake_claude),
+            "PATH": f"{tmp_path}:{env['PATH']}",
+            "ANTHROPIC_BASE_URL": "http://gateway.example:4000/cli",
+            "CC_SHIM_PORT": "4555",
+            "CC_SHIM_SCRIPT": str(SKILL_DIR / "local-gateway-alias-proxy.py"),
+            "SEEN_FILE": str(tmp_path / "seen.json"),
+            "AIDEV_AI_DEFAULTS_PATH": str(_defaults(tmp_path, defaults))
+            if defaults is not None
+            else str(tmp_path / "no-defaults.sh"),
+        }
+    )
+    env.update(extra)
+    (tmp_path / "seen.json").unlink(missing_ok=True)
+    return env
+
+
+def _compact(seen: dict, model: str) -> int:
+    """The auto-compact window ccsession passed for one model (--settings)."""
+    settings = json.loads(seen["settings"])
+    return settings["modelSettings"][model]["autoCompactWindow"]
+
+
+def _model_arg(seen: dict) -> str:
+    argv = seen["argv"]
+    return argv[argv.index("--model") + 1]
+
+
+def test_default_tier_sets_model_and_tier_window(tmp_path: Path) -> None:
+    rc, out, err, seen = _launch(tmp_path, "work")
+    assert rc == 0, err
+    assert _model_arg(seen) == "claude-gw-tier2[1m]"
+    assert seen["context"] == "500000"
+    # One window per tier and model, so a /model switch takes the new
+    # tier's window; no env value pins one window for the whole session.
+    assert seen["compact"] == ""
+    assert _compact(seen, "claude-gw-tier2") == 500000
+    assert _compact(seen, "claude-gw-tier1a") == 850000
+    assert seen["custom"] == ""  # tiers are already in the picker
+    assert seen["base_url"] == "http://127.0.0.1:4555"  # shim is always on
+    assert "tier2" in out and "muse-spark-1.3" in out
+
+
+def test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier(
+    tmp_path: Path,
+) -> None:
+    # Coder #433 in a tier-mode workspace: after a restart Orca relaunches the
+    # tab with ccsession-orca and its default option only; the tab's recorded
+    # session is resumed by name, with the tier settings of a normal launch.
+    import fcntl
+    import pty
+    import termios
+
+    session = "abc12345-0000-0000-0000-000000000000"
+    env = _launch_env(tmp_path)
+    for name in ("CLAUDECODE", "XDG_STATE_HOME", "CCSESSION_ASK_TIMEOUT"):
+        env.pop(name, None)
+    env.update(ORCA_PANE_KEY="tab-1:leaf-1", ORCA_TERMINAL_HANDLE="term_after")
+    folder = str(tmp_path.resolve())
+    projects = tmp_path / "home" / ".claude" / "projects" / folder.replace("/", "-")
+    (projects / "topics").mkdir(parents=True)
+    (projects / "topics" / "brain.txt").write_text(f"{session}\n")
+    (projects / f"{session}.jsonl").write_text("{}\n")
+    tabs = tmp_path / "home" / ".local" / "state" / "ccsession" / "orca-tabs"
+    tabs.mkdir(parents=True)
+    (tabs / "tab-1+leaf-1").write_text(f"{session}\n{folder}\nterm_before\n")
+    master, slave = pty.openpty()
+    proc = subprocess.Popen(
+        [str(SKILL_DIR / "ccsession-orca"), "--dangerously-skip-permissions"],
+        cwd=tmp_path,
+        env=env,
+        stdin=slave,
+        stdout=slave,
+        stderr=slave,
+        start_new_session=True,
+        preexec_fn=lambda: fcntl.ioctl(0, termios.TIOCSCTTY, 0),
+    )
+    os.close(slave)
+    output = b""
+    try:
+        while True:
+            try:
+                chunk = os.read(master, 4096)
+            except OSError:
+                break
+            if not chunk:
+                break
+            output += chunk
+        assert proc.wait(timeout=60) == 0, output
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+    assert b"Session name" not in output
+    seen = json.loads((tmp_path / "seen.json").read_text())
+    assert seen["argv"][-5:] == [
+        "--name",
+        "brain",
+        "--resume",
+        session,
+        "--dangerously-skip-permissions",
+    ]
+    assert _model_arg(seen) == "claude-gw-tier2[1m]"
+    assert _compact(seen, "claude-gw-tier2") == 500000
+    assert seen["base_url"] == "http://127.0.0.1:4555"
+
+
+def test_tier_flag_and_named_model(tmp_path: Path) -> None:
+    rc, _, err, seen = _launch(tmp_path, "work", "--tier", "tier0")
+    assert rc == 0, err
+    assert _model_arg(seen) == "claude-gw-tier0[1m]"
+    assert seen["context"] == "850000"
+    rc, _, err, seen = _launch(tmp_path, "work", "--tier", "1A")
+    assert rc == 0 and _model_arg(seen) == "claude-gw-tier1a[1m]"
+    rc, _, err, seen = _launch(tmp_path, "work", "--tier", "tier4")
+    assert rc == 0 and _model_arg(seen) == "claude-gw-tier4[1m]"
+    rc, _, err, seen = _launch(tmp_path, "work", "--model", "gpt-6-astra")
+    assert rc == 0, err
+    assert _model_arg(seen) == "gpt-6-astra"
+    assert seen["context"] == "850000" and _compact(seen, "gpt-6-astra") == 850000
+    assert seen["custom"] == "gpt-6-astra"
+    rc, _, err, seen = _launch(tmp_path, "work", "--model", "claude-opus-5-5")
+    assert rc == 0 and _model_arg(seen) == "claude-opus-5-5[1m]"
+    assert seen["context"] == "1000000"
+    rc, _, err, seen = _launch(tmp_path, "work", "--model", "brand-new-model")
+    assert rc == 0 and seen["context"] == "200000"
+    assert _compact(seen, "brand-new-model") == 200000
+    assert "not in any tier" in err
+
+
+def test_tier_mode_refuses_profiles_and_bad_tiers(tmp_path: Path) -> None:
+    rc, _, err, seen = _launch(tmp_path, "work", "--profile", "gpt", "--shim")
+    assert rc == 2 and seen is None
+    assert "--tier" in err and "--model" in err
+    rc, _, err, seen = _launch(tmp_path, "work", "--tier", "tier7")
+    assert rc == 2 and seen is None and "tier7" in err
+    broken = TIER_BLOCK.replace("export T2Model02_WINDOW=500000\n", "")
+    rc, _, err, seen = _launch(tmp_path, "work", defaults=broken)
+    assert rc == 2 and seen is None and "T2Model02_WINDOW" in err
+
+
+def test_mac_and_todays_coder_env_keep_profiles(tmp_path: Path) -> None:
+    for defaults in (None, TODAY_BLOCK):
+        rc, out, err, seen = _launch(
+            tmp_path, "work", "--profile", "gpt", "--shim", defaults=defaults
+        )
+        assert rc == 0, err
+        assert _model_arg(seen) == "gpt-6.1-sol"
+        assert seen["context"] == "850000"
+        # Without tier mode --model is Claude Code's flag, passed through as given.
+        rc, _, err, seen = _launch(
+            tmp_path, "work", "--model", "sonnet", defaults=defaults
+        )
+        assert rc == 0, err
+        assert _model_arg(seen) == "sonnet" and seen["context"] == ""
+        rc, _, err, _ = _launch(tmp_path, "work", "--tier", "tier2", defaults=defaults)
+        assert rc == 2 and "T<N>_WINDOW" in err
+
+
+def test_help_lists_tiers_in_tier_mode(tmp_path: Path) -> None:
+    rc, out, err, _ = _launch(tmp_path, "--help")
+    assert rc == 0, err
+    assert "* ccsession --tier tier2" in out
+    assert "gpt-6-luna" in out and "--profile" in out  # usage text still mentions it
+    rc, out, _, _ = _launch(tmp_path, "--help", defaults=None)
+    assert "ccsession --profile gpt --shim" in out and "--tier tier" not in out
+
+
+# --- picker and failover (shim) -------------------------------------------------
+
+OK_SSE = (
+    b'event: message_start\ndata: {"type":"message_start","message":{"model":"%s"}}\n\n'
+    b'event: message_stop\ndata: {"type":"message_stop"}\n\n'
+)
+COOLING = (
+    429,
+    b'{"type":"error","error":{"type":"rate_limit_error","message":"All credentials for model x are cooling down"}}',
+)
+RATE_LIMITED = (
+    429,
+    b'{"type":"error","error":{"type":"rate_limit_error","message":"Rate limited"}}',
+)
+SERVER_ERROR = (
+    500,
+    b'{"type":"error","error":{"type":"api_error","message":"Internal server error"}}',
+)
+TOO_LONG = (
+    400,
+    b'{"type":"error","error":{"type":"invalid_request_error","message":"prompt is too long: 900000 tokens"}}',
+)
+
+
+class StandInGateway:
+    """Scripted gateway: per model, a list of replies used in order (last repeats)."""
+
+    def __init__(self):
+        self.script: dict[str, list] = {}
+        self.calls: list[tuple[str, dict]] = []
+        gateway = self
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            protocol_version = "HTTP/1.0"
+
+            def log_message(self, *args):
+                pass
+
+            def do_GET(self):
+                body = json.dumps(
+                    {
+                        "data": [
+                            {"id": m}
+                            for m in (
+                                "claude-opus-5-5",
+                                "gpt-6.1-sol",
+                                "grok-4.7",
+                                "kimi-k3",
+                            )
+                        ]
+                    }
+                ).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(body)
+
+            def do_POST(self):
+                req = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                gateway.calls.append((self.path, req))
+                steps = gateway.script.get(req["model"], [])
+                step = steps.pop(0) if len(steps) > 1 else (steps[0] if steps else None)
+                if step and step[0] == "sleep":
+                    time.sleep(step[1])
+                    step = None
+                if step and step[0] in ("pause-stream", "cut-stream"):
+                    # Headers and the first event, then a pause; then either
+                    # the rest (pause-stream) or a dropped connection.
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/event-stream")
+                    self.end_headers()
+                    first, rest = (OK_SSE % req["model"].encode()).split(b"\n\n", 1)
+                    self.wfile.write(first + b"\n\n")
+                    self.wfile.flush()
+                    time.sleep(step[1])
+                    if step[0] == "pause-stream":
+                        self.wfile.write(rest)
+                    return
+                if step is None:
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/event-stream")
+                    self.end_headers()
+                    self.wfile.write(OK_SSE % req["model"].encode())
+                    return
+                status, body, *headers = step
+                self.send_response(status)
+                self.send_header("Content-Type", "application/json")
+                for k, v in (headers[0] if headers else {}).items():
+                    self.send_header(k, v)
+                self.end_headers()
+                self.wfile.write(body)
+
+        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        self.url = f"http://127.0.0.1:{self.server.server_port}/cli"
+
+    def models_called(self):
+        return [body["model"] for _, body in self.calls]
+
+    def close(self):
+        self.server.shutdown()
+        self.server.server_close()
+
+
+def _free_port() -> int:
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
+
+
+@pytest.fixture
+def shim(tmp_path: Path):
+    """Start the real shim against a stand-in gateway in tier mode."""
+    gateway = StandInGateway()
+    port = _free_port()
+    procs = []
+
+    def start(defaults: str = TIER_BLOCK, **extra: str):
+        env = os.environ.copy()
+        env.update(
+            {
+                "GW_PROXY_UPSTREAM": gateway.url,
+                "GW_PROXY_PORT": str(port),
+                "CCSESSION_DIR": str(SKILL_DIR),
+                "AIDEV_AI_DEFAULTS_PATH": str(_defaults(tmp_path, defaults)),
+                "CCSESSION_COOLDOWN_SECONDS": "3600",
+                "CCSESSION_FIRST_BYTE_TIMEOUT": "2",
+            }
+        )
+        env.update(extra)
+        proc = subprocess.Popen(
+            [sys.executable, str(SKILL_DIR / "local-gateway-alias-proxy.py")],
+            env=env,
+            stderr=open(tmp_path / "shim.log", "w"),
+        )
+        procs.append(proc)
+        for _ in range(50):
+            try:
+                urllib.request.urlopen(
+                    f"http://127.0.0.1:{port}/__ccsession_shim", timeout=1
+                )
+                break
+            except OSError:
+                time.sleep(0.1)
+        return f"http://127.0.0.1:{port}"
+
+    yield gateway, start, tmp_path / "shim.log"
+    for proc in procs:
+        proc.terminate()
+        proc.wait(timeout=5)
+    gateway.close()
+
+
+def _ask(base: str, model: str, extra: dict | None = None):
+    body = {
+        "model": model,
+        "max_tokens": 10,
+        "stream": True,
+        "messages": [{"role": "user", "content": "hi"}],
+    }
+    body.update(extra or {})
+    req = urllib.request.Request(
+        f"{base}/v1/messages",
+        data=json.dumps(body).encode(),
+        headers={"Content-Type": "application/json", "x-api-key": "test"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            return resp.status, resp.read()
+    except urllib.error.HTTPError as exc:
+        return exc.code, exc.read()
+
+
+def test_picker_shows_tiers_and_show_all_adds_env_models(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    listing = json.loads(urllib.request.urlopen(f"{base}/v1/models", timeout=5).read())[
+        "data"
+    ]
+    ids = [m["id"] for m in listing]
+    assert ids == TIER_IDS
+    assert "Muse Spark 1.3" in listing[3]["display_name"]
+    health = json.loads(
+        urllib.request.urlopen(f"{base}/__ccsession_shim", timeout=5).read()
+    )
+    assert health["tier_mode"] is True and health["show_all"] is False
+    assert health["tiers"]["tier1b"] == [
+        "claude-sonnet-5-5",
+        "gpt-6.1-sol",
+        "muse-wonder-full-1.0",
+    ]
+
+
+def test_show_all_lists_every_tier_model_with_env_windows(shim) -> None:
+    gateway, start, _ = shim
+    base = start(CCSESSION_SHOW_ALL_MODELS="1")
+    ids = [
+        m["id"]
+        for m in json.loads(
+            urllib.request.urlopen(f"{base}/v1/models", timeout=5).read()
+        )["data"]
+    ]
+    assert ids[:6] == TIER_IDS
+    # No CCSESSION_MODEL_ORDER in this file: each model once, in tier order.
+    assert ids[6:] == [
+        "claude-fable-5-1[1m]",
+        "claude-gw-gpt-6-astra[1m]",
+        "claude-opus-5-5[1m]",
+        "claude-sonnet-5-5[1m]",
+        "claude-gw-gpt-6.1-sol[1m]",
+        "claude-gw-muse-wonder-full-1.0[1m]",
+        "claude-gw-muse-spark-1.3[1m]",
+        "claude-gw-grok-4.7[1m]",
+        "claude-gw-qwen3.8-max[1m]",
+        "claude-gw-glm-5.3[1m]",
+        "claude-gw-muse-wonder-1.0[1m]",
+        "claude-gw-gpt-6.1-terra[1m]",
+        "claude-gw-gpt-6-luna[1m]",
+    ]
+    # A model listed only by show-all, and a hidden gateway model, both route.
+    status, _ = _ask(base, "claude-gw-glm-5.3")
+    status2, _ = _ask(base, "claude-gw-kimi-k3")
+    assert status == status2 == 200
+    assert gateway.models_called() == ["glm-5.3", "kimi-k3"]
+
+
+def test_out_of_usage_switches_and_cools_down(shim) -> None:
+    gateway, start, log = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [COOLING]
+    thinking = {
+        "messages": [
+            {"role": "user", "content": "hi"},
+            {
+                "role": "assistant",
+                "content": [
+                    {
+                        "type": "thinking",
+                        "thinking": "x",
+                        "signature": "sig-from-claude",
+                    },
+                    {
+                        "type": "tool_use",
+                        "id": "t1",
+                        "name": "Read",
+                        "input": {"path": "a"},
+                    },
+                ],
+            },
+            {
+                "role": "user",
+                "content": [
+                    {"type": "tool_result", "tool_use_id": "t1", "content": "ok"}
+                ],
+            },
+        ]
+    }
+    status, body = _ask(base, "claude-gw-tier2", thinking)
+    assert status == 200 and b"grok-4.7" in body
+    assert gateway.models_called() == ["muse-spark-1.3", "grok-4.7"]
+    # The backup gets the same conversation; only the model name changes.
+    first, second = gateway.calls[0][1], gateway.calls[1][1]
+    assert {**first, "model": "x"} == {**second, "model": "x"}
+    # Cooling down: the next request skips Muse without asking the gateway.
+    status, _ = _ask(base, "claude-gw-tier2")
+    assert status == 200 and gateway.models_called()[-1] == "grok-4.7"
+    assert gateway.models_called().count("muse-spark-1.3") == 1
+    assert (
+        "T2Model01 muse-spark-1.3 -> next model (429 all accounts out of usage)"
+        in log.read_text()
+    )
+
+
+@pytest.mark.parametrize(
+    "reply",
+    [
+        COOLING,
+        (429, b"You exceed your account's rate limit"),
+        (429, b'{"error":{"type":"usage_limit_reached"}}'),
+        (503, b'{"error":{"message":"auth_unavailable: no account"}}'),
+        (402, b"payment required"),
+        (400, b'{"error":{"type":"billing_error"}}'),
+        (403, b"weekly usage limit reached"),
+        (529, b"busy"),
+        (500, b'{"error":{"type":"overloaded_error","message":"Overloaded"}}'),
+        (400, b"unknown provider for model muse-spark-1.3"),
+        (502, b"unknown provider for model muse-spark-1.3"),
+        (404, b'{"error":{"type":"not_found_error"}}'),
+        (401, b"Incorrect API key provided"),
+        (426, b'{"error":"Your Grok CLI version (0.2.120) is outdated."}'),
+    ],
+)
+def test_every_switch_rule_moves_to_the_next_model(shim, reply) -> None:
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [reply]
+    status, _ = _ask(base, "claude-gw-tier2")
+    assert status == 200
+    assert gateway.models_called() == ["muse-spark-1.3", "grok-4.7"]
+
+
+@pytest.mark.parametrize(
+    "reply",
+    [
+        RATE_LIMITED,
+        SERVER_ERROR,
+        TOO_LONG,
+        (400, b'{"error":{"message":"context_management is not supported"}}'),
+    ],
+)
+def test_errors_outside_the_rules_pass_back_unchanged(shim, reply) -> None:
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [reply]
+    status, body = _ask(base, "claude-gw-tier2")
+    assert (status, body) == reply
+    assert gateway.models_called() == ["muse-spark-1.3"]
+
+
+def test_backup_too_small_for_the_tier_is_never_used(shim) -> None:
+    gateway, start, _ = shim
+    # Tier 0 window 850000: shrink Astra's own window below it.
+    base = start(
+        TIER_BLOCK.replace("T0Model02_WINDOW=850000", "T0Model02_WINDOW=400000")
+    )
+    gateway.script["claude-fable-5-1"] = [COOLING]
+    status, body = _ask(base, "claude-gw-tier0")
+    assert status == 429 and b"all Tier 0 models are out of usage" in body
+    assert gateway.models_called() == ["claude-fable-5-1"]
+
+
+def test_backup_rejecting_size_tries_the_next_one(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [COOLING]
+    gateway.script["grok-4.7"] = [TOO_LONG]
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 200 and b"Qwen3.8-max" in body
+    assert gateway.models_called() == ["muse-spark-1.3", "grok-4.7", "Qwen3.8-max"]
+    # Muse is now cooling, so Grok is the first model tried. Too large is not
+    # out of usage (Grok is not cooling) and the next backup still answers.
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 200 and b"Qwen3.8-max" in body
+    assert gateway.models_called()[3:] == ["grok-4.7", "Qwen3.8-max"]
+
+
+def test_no_backup_can_hold_it_passes_the_error_back(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [COOLING]
+    for m in ("grok-4.7", "Qwen3.8-max", "glm-5.3", "muse-wonder-1.0", "gpt-6.1-sol"):
+        gateway.script[m] = [TOO_LONG]
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 400
+    message = json.loads(body)["error"]["message"]
+    assert "prompt is too long" in message and "can hold this conversation" in message
+    # Muse really is out of usage; the size problem comes first.
+    assert message.index("can hold this conversation") < message.index("out of usage")
+
+
+def test_all_models_out_returns_last_error_with_note(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    for m in (
+        "muse-spark-1.3",
+        "grok-4.7",
+        "Qwen3.8-max",
+        "glm-5.3",
+        "muse-wonder-1.0",
+        "gpt-6.1-sol",
+    ):
+        gateway.script[m] = [COOLING]
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 429
+    message = json.loads(body)["error"]["message"]
+    assert (
+        "cooling down" in message
+        and "all Tier 2 models are out of usage; next retry at" in message
+    )
+    calls = len(gateway.calls)
+    status, body = _ask(base, "claude-gw-tier2")  # everything cooling: nothing sent
+    assert status == 429 and len(gateway.calls) == calls
+    assert json.loads(body)["error"]["type"] == "rate_limit_error"
+
+
+def test_cooldown_expires_and_repeats(shim) -> None:
+    gateway, start, _ = shim
+    base = start(CCSESSION_COOLDOWN_SECONDS="1")
+    gateway.script["muse-spark-1.3"] = [COOLING, COOLING, ("ok",)]
+    gateway.script["muse-spark-1.3"][-1] = None  # third try succeeds
+    _ask(base, "claude-gw-tier2")
+    time.sleep(1.2)
+    _ask(base, "claude-gw-tier2")  # retried once, still out: cools again
+    _ask(base, "claude-gw-tier2")  # within the new cooldown: skipped
+    time.sleep(1.2)
+    status, body = _ask(base, "claude-gw-tier2")  # back in use
+    assert status == 200 and b"muse-spark-1.3" in body
+    assert gateway.models_called().count("muse-spark-1.3") == 3
+
+
+def test_retry_after_sets_the_cooldown(shim) -> None:
+    gateway, start, _ = shim
+    base = start()  # default cooldown is an hour
+    gateway.script["muse-spark-1.3"] = [(*COOLING, {"Retry-After": "1"}), None]
+    _ask(base, "claude-gw-tier2")
+    time.sleep(1.2)
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 200 and b"muse-spark-1.3" in body
+
+
+def test_no_reply_before_timeout_switches(shim) -> None:
+    gateway, start, log = shim
+    base = start(CCSESSION_FIRST_BYTE_TIMEOUT="1")
+    gateway.script["muse-spark-1.3"] = [("sleep", 3)]
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 200 and b"grok-4.7" in body
+    assert "gave no reply in 1s" in log.read_text()
+
+
+def test_unreachable_gateway_is_not_a_switch(shim, tmp_path) -> None:
+    gateway, start, _ = shim
+    base = start(GW_PROXY_UPSTREAM=f"http://127.0.0.1:{_free_port()}/cli")
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 502 and b"gateway unreachable" in body
+
+
+def test_named_model_has_no_failover(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["gpt-6.1-sol"] = [COOLING]
+    status, _ = _ask(base, "gpt-6.1-sol")
+    assert status == 429 and gateway.models_called() == ["gpt-6.1-sol"]
+
+
+def test_changed_env_file_applies_to_a_running_shim(shim, tmp_path) -> None:
+    gateway, start, _ = shim
+    base = start()
+    _defaults(
+        tmp_path, TIER_BLOCK.replace("T2Model01=muse-spark-1.3", "T2Model01=glm-5.3")
+    )
+    _ask(base, "claude-gw-tier2")
+    assert gateway.models_called() == ["glm-5.3"]
+
+
+def test_long_pause_after_a_reply_starts_is_not_cut(shim) -> None:
+    """The first-byte limit applies only until the reply starts (QA F2)."""
+    gateway, start, _ = shim
+    base = start(CCSESSION_FIRST_BYTE_TIMEOUT="1")
+    gateway.script["muse-spark-1.3"] = [("pause-stream", 2.5)]
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 200 and b"message_stop" in body
+    assert gateway.models_called() == ["muse-spark-1.3"]
+
+
+def test_failure_after_the_reply_starts_passes_through(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [("cut-stream", 0.2)]
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 200 and b"message_start" in body and b"message_stop" not in body
+    assert gateway.models_called() == ["muse-spark-1.3"]  # no switch mid-stream
+
+
+def test_connect_timeout_is_unreachable_not_a_switch(shim) -> None:
+    """A gateway that cannot be reached must not cool down every model (QA F1)."""
+    gateway, start, log = shim
+    # 192.0.2.1 is TEST-NET-1: connection attempts hang until the timeout.
+    base = start(
+        GW_PROXY_UPSTREAM="http://192.0.2.1:9/cli", _CCSESSION_TEST_CONNECT_TIMEOUT="1"
+    )
+    for _ in range(2):
+        status, body = _ask(base, "claude-gw-tier2")
+        assert status == 502 and b"gateway unreachable" in body
+    assert "cooling down" not in log.read_text()
+
+
+def test_cooldown_with_an_injected_clock() -> None:
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="clock_test"
+    )
+
+    class Clock:
+        now = 1000.0
+
+        def time(self):
+            return self.now
+
+    clock = Clock()
+    module["cool_down"].__globals__["time"] = clock
+    module["cool_down"]("m1")
+    assert module["cooling_until"]("m1") == 1000.0 + module["COOLDOWN_SECONDS"]
+    clock.now += module["COOLDOWN_SECONDS"] - 1
+    assert module["cooling_until"]("m1")
+    clock.now += 2
+    assert not module["cooling_until"]("m1")
+    module["cool_down"]("m1", retry_after=30)
+    clock.now += 31
+    assert not module["cooling_until"]("m1")
+
+
+def test_compact_overrides_still_apply_in_tier_mode(tmp_path: Path) -> None:
+    rc, _, err, seen = _launch(tmp_path, "work", CCSESSION_COMPACT_WINDOW="300000")
+    assert rc == 0, err
+    assert seen["context"] == "500000" and seen["compact"] == "300000"
+
+
+def test_addon_profile_on_a_tier_machine_skips_tier_mode(tmp_path: Path) -> None:
+    profiles = tmp_path / "home" / ".config" / "ccsession" / "profiles.d"
+    profiles.mkdir(parents=True)
+    addon = profiles / "mine.sh"
+    addon.write_text(
+        'ccsession_profile_mine() { PROFILE_MODEL="addon-model"; PROFILE_CONTEXT=123456;'
+        " PROFILE_COMPACT_WINDOW=123456; PROFILE_REQUIRES_SHIM=0; }\n"
+    )
+    addon.chmod(0o600)
+    rc, _, err, seen = _launch(tmp_path, "work", "--profile", "mine")
+    assert rc == 0, err
+    assert _model_arg(seen) == "addon-model" and seen["context"] == "123456"
+    assert seen["base_url"] == "http://gateway.example:4000/cli"  # no tier shim
+
+
+def test_model_with_1m_suffix_finds_its_tier_window(
+    tmp_path: Path, monkeypatch
+) -> None:
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path)))
+    assert models.model_window("claude-opus-5-5[1m]") == (1000000, "T1aModel01")
+
+
+def test_show_all_launch_runs_its_own_shim(tmp_path: Path) -> None:
+    """Through the real script and a real shim: show-all gets another port."""
+    home = tmp_path / "home"
+    home.mkdir()
+    fake_claude = tmp_path / "bin" / "claude"
+    fake_claude.parent.mkdir()
+    fake_claude.write_text('#!/bin/sh\necho "$ANTHROPIC_BASE_URL" > "$SEEN_FILE"\n')
+    fake_claude.chmod(0o755)
+    path = _defaults(tmp_path)
+    shim_copy = tmp_path / "shim-under-test.py"
+    shim_copy.write_text((SKILL_DIR / "local-gateway-alias-proxy.py").read_text())
+    env = os.environ.copy()
+    for k in ("CC_SHIM_PORT",):
+        env.pop(k, None)
+    env.update(
+        HOME=str(home),
+        CLAUDE_BIN=str(fake_claude),
+        ANTHROPIC_BASE_URL="http://127.0.0.1:9/cli",
+        # A private copy, so cleanup can find exactly this shim (the Coder
+        # image has no lsof).
+        CC_SHIM_SCRIPT=str(shim_copy),
+        CCSESSION_DIR=str(SKILL_DIR),
+        SEEN_FILE=str(tmp_path / "seen"),
+        AIDEV_AI_DEFAULTS_PATH=str(path),
+        CCSESSION_SHOW_ALL_MODELS="1",
+    )
+    expected = subprocess.run(
+        [sys.executable, str(SKILL_DIR / "models.py"), "shim-port", "4010"],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    assert expected != "4010"
+    with socket.socket() as probe:
+        if probe.connect_ex(("127.0.0.1", int(expected))) == 0:
+            pytest.skip(f"port {expected} is in use by a real shim on this machine")
+    try:
+        proc = subprocess.run(
+            [str(SKILL_DIR / "ccsession"), "work"],
+            cwd=tmp_path,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        assert proc.returncode == 0, proc.stderr
+        assert (tmp_path / "seen").read_text().strip() == f"http://127.0.0.1:{expected}"
+        health = json.loads(
+            urllib.request.urlopen(
+                f"http://127.0.0.1:{expected}/__ccsession_shim", timeout=5
+            ).read()
+        )
+        assert health["show_all"] is True and health["port"] == int(expected)
+    finally:
+        subprocess.run(["pkill", "-f", str(shim_copy)], check=False)
+
+
+def _ask_raw(base: str, model: str, stream: bool, timeout: float = 120):
+    body = {
+        "model": model,
+        "max_tokens": 10,
+        "stream": stream,
+        "messages": [{"role": "user", "content": "hi"}],
+    }
+    req = urllib.request.Request(
+        f"{base}/v1/messages",
+        data=json.dumps(body).encode(),
+        headers={"Content-Type": "application/json", "x-api-key": "test"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return resp.status, resp.read()
+
+
+@pytest.mark.parametrize(
+    "model", ["claude-gw-tier2", "claude-gw-kimi-k3", "gpt-6.1-sol"]
+)
+def test_no_time_limit_once_a_reply_starts(shim, model) -> None:
+    """Silence mid-reply, longer than every shim timer, never cuts the reply.
+
+    Covers the tier path and the plain forwarding path (aliased and real
+    names). Timers are shrunk to 1s; the gateway goes quiet for 8s.
+    """
+    gateway, start, _ = shim
+    base = start(CCSESSION_FIRST_BYTE_TIMEOUT="1", _CCSESSION_TEST_CONNECT_TIMEOUT="1")
+    for m in ("muse-spark-1.3", "kimi-k3", "gpt-6.1-sol"):
+        gateway.script[m] = [("pause-stream", 8)]
+    status, body = _ask_raw(base, model, stream=True)
+    assert status == 200 and b"message_stop" in body
+    assert len(gateway.calls) == 1
+
+
+def test_non_streamed_tier_request_waits_without_limit(shim) -> None:
+    """A non-streamed request only answers when done; never treated as stalled."""
+    gateway, start, log = shim
+    base = start(CCSESSION_FIRST_BYTE_TIMEOUT="1")
+    gateway.script["muse-spark-1.3"] = [("sleep", 4)]
+    status, body = _ask_raw(base, "claude-gw-tier2", stream=False)
+    assert status == 200
+    assert gateway.models_called() == ["muse-spark-1.3"]
+    assert "gave no reply" not in log.read_text()
+
+
+# --- round 2 review findings ------------------------------------------------
+
+
+class ChunkedGateway:
+    """HTTP/1.1 chunked stand-in: one small event, a pause, then the rest."""
+
+    def __init__(self, pause: float):
+        self.first_seen = None
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            protocol_version = "HTTP/1.1"
+
+            def log_message(self, *args):
+                pass
+
+            def do_POST(self):
+                self.rfile.read(int(self.headers["Content-Length"]))
+                self.send_response(200)
+                self.send_header("Content-Type", "text/event-stream")
+                self.send_header("Transfer-Encoding", "chunked")
+                self.end_headers()
+
+                def chunk(data: bytes):
+                    self.wfile.write(b"%x\r\n%s\r\n" % (len(data), data))
+                    self.wfile.flush()
+
+                chunk(b'event: ping\ndata: {"type":"ping"}\n\n')
+                time.sleep(pause)
+                chunk(b'event: message_stop\ndata: {"type":"message_stop"}\n\n')
+                self.wfile.write(b"0\r\n\r\n")
+
+        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        self.url = f"http://127.0.0.1:{self.server.server_port}/cli"
+
+    def close(self):
+        self.server.shutdown()
+        self.server.server_close()
+
+
+@pytest.mark.parametrize("model", ["claude-gw-tier2", "gpt-6.1-sol"])
+def test_small_streamed_events_are_passed_on_at_once(shim, model) -> None:
+    """A lone keep-alive or thinking event must not wait for 8 KB (round 2 C2)."""
+    _, start, _ = shim
+    gateway = ChunkedGateway(pause=4)
+    try:
+        base = start(GW_PROXY_UPSTREAM=gateway.url)
+        body = json.dumps(
+            {
+                "model": model,
+                "max_tokens": 5,
+                "stream": True,
+                "messages": [{"role": "user", "content": "hi"}],
+            }
+        ).encode()
+        req = urllib.request.Request(
+            f"{base}/v1/messages",
+            data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        t0 = time.time()
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            first = resp.fp.read1(4096) if hasattr(resp.fp, "read1") else resp.read(10)
+            first_at = time.time() - t0
+            rest = resp.read()
+        assert b"ping" in first and first_at < 2, (first, first_at)
+        assert b"message_stop" in rest
+    finally:
+        gateway.close()
+
+
+class GzipGateway:
+    """Compresses error bodies when the client accepts gzip (like real servers)."""
+
+    def __init__(self):
+        gateway = self
+        self.calls = []
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            protocol_version = "HTTP/1.0"
+
+            def log_message(self, *args):
+                pass
+
+            def do_POST(self):
+                req = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                gateway.calls.append(
+                    (req["model"], self.headers.get_all("Accept-Encoding"))
+                )
+                if req["model"] == "muse-spark-1.3":
+                    body = COOLING[1]
+                    if "gzip" in (self.headers.get("Accept-Encoding") or ""):
+                        body = gzip.compress(body)
+                        self.send_response(429)
+                        self.send_header("Content-Encoding", "gzip")
+                    else:
+                        self.send_response(429)
+                    self.end_headers()
+                    self.wfile.write(body)
+                    return
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(OK_SSE % req["model"].encode())
+
+        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        self.url = f"http://127.0.0.1:{self.server.server_port}/cli"
+
+    def close(self):
+        self.server.shutdown()
+        self.server.server_close()
+
+
+def test_lowercase_accept_encoding_still_fails_over(shim) -> None:
+    """Round 2 H2: a client header `accept-encoding: gzip` must not disable failover."""
+    _, start, _ = shim
+    gateway = GzipGateway()
+    try:
+        base = start(GW_PROXY_UPSTREAM=gateway.url)
+        conn = __import__("http.client").client.HTTPConnection(
+            "127.0.0.1", int(base.rsplit(":", 1)[1])
+        )
+        body = json.dumps(
+            {
+                "model": "claude-gw-tier2",
+                "max_tokens": 5,
+                "stream": True,
+                "messages": [{"role": "user", "content": "hi"}],
+            }
+        )
+        conn.putrequest("POST", "/v1/messages", skip_accept_encoding=True)
+        conn.putheader("content-type", "application/json")
+        conn.putheader("accept-encoding", "gzip, br")
+        conn.putheader("content-length", str(len(body)))
+        conn.endheaders(body.encode())
+        resp = conn.getresponse()
+        data = resp.read()
+        assert resp.status == 200 and b"grok-4.7" in data
+        assert [m for m, _ in gateway.calls] == ["muse-spark-1.3", "grok-4.7"]
+        assert all(enc == ["identity"] for _, enc in gateway.calls)
+    finally:
+        gateway.close()
+
+
+def test_plain_body_decodes_a_compressed_error() -> None:
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="gz_test"
+    )
+    raw, headers = module["plain_body"](
+        {"Content-Encoding": "gzip", "X": "1"}, gzip.compress(b"cooling")
+    )
+    assert (
+        raw == b"cooling" and "Content-Encoding" not in headers and headers["X"] == "1"
+    )
+
+
+def test_headers_slow_after_the_first_byte_are_not_a_stall(shim, tmp_path) -> None:
+    """Round 2 M1: once the gateway sends its first byte, nothing is timed."""
+    _, start, log = shim
+    srv = socket.socket()
+    srv.bind(("127.0.0.1", 0))
+    srv.listen(1)
+    calls = []
+
+    def serve():
+        conn, _ = srv.accept()
+        data = b""
+        while b"\r\n\r\n" not in data:
+            data += conn.recv(65536)
+        head, _, body = data.partition(b"\r\n\r\n")
+        length = int(
+            [h for h in head.split(b"\r\n") if h.lower().startswith(b"content-length")][
+                0
+            ].split(b":")[1]
+        )
+        while len(body) < length:
+            body += conn.recv(65536)
+        calls.append(json.loads(body)["model"])
+        conn.sendall(b"HTTP/1.0 200 OK\r\n")
+        time.sleep(3)  # longer than the 1s start-of-reply limit
+        conn.sendall(
+            b"Content-Type: text/event-stream\r\n\r\n" + OK_SSE % b"muse-spark-1.3"
+        )
+        conn.close()
+
+    threading.Thread(target=serve, daemon=True).start()
+    try:
+        base = start(
+            GW_PROXY_UPSTREAM=f"http://127.0.0.1:{srv.getsockname()[1]}/cli",
+            CCSESSION_FIRST_BYTE_TIMEOUT="1",
+        )
+        status, body = _ask_raw(base, "claude-gw-tier2", stream=True)
+        assert status == 200 and b"message_stop" in body
+        assert calls == ["muse-spark-1.3"] and "gave no reply" not in log.read_text()
+    finally:
+        srv.close()
+
+
+def test_huge_retry_after_is_capped() -> None:
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="ra_test"
+    )
+    assert module["retry_after_seconds"]("99999999999999") == module["MAX_COOLDOWN"]
+    until = module["cool_down"]("m", module["retry_after_seconds"]("99999999999999"))
+    assert module["clock"](until)  # formats without error
+
+
+def test_default_tier_unset_or_invalid_is_reported(tmp_path: Path) -> None:
+    text = TIER_BLOCK.replace("export CCSESSION_DEFAULT_TIER=tier2\n", "")
+    rc, _, err, seen = _launch(tmp_path, "work", defaults=text)
+    assert rc == 0 and "CCSESSION_DEFAULT_TIER is not set" in err
+    assert _model_arg(seen) == "claude-gw-tier2[1m]"
+    bad = TIER_BLOCK.replace(
+        "CCSESSION_DEFAULT_TIER=tier2", "CCSESSION_DEFAULT_TIER=fast"
+    )
+    rc, _, err, seen = _launch(tmp_path, "work", defaults=bad)
+    assert rc == 2 and seen is None and "CCSESSION_DEFAULT_TIER" in err
+    # A well-formed name that is not a defined tier (round 3 R3-4).
+    undefined = TIER_BLOCK.replace(
+        "CCSESSION_DEFAULT_TIER=tier2", "CCSESSION_DEFAULT_TIER=tier9"
+    )
+    rc, _, err, seen = _launch(tmp_path, "work", defaults=undefined)
+    assert rc == 2 and seen is None
+    assert "CCSESSION_DEFAULT_TIER='tier9' is not a defined tier" in err
+
+
+def test_settings_that_change_the_shim_get_their_own_shim(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path)))
+    monkeypatch.setattr(
+        models, "DEFAULTS_FILE", str(tmp_path / "aienv.d" / "defaults.sh")
+    )
+    shared = models.settings_digest()
+    for name, value in (
+        ("CCSESSION_TIERS", "0"),
+        ("CCSESSION_COOLDOWN_SECONDS", "60"),
+        ("CCSESSION_FIRST_BYTE_TIMEOUT", "30"),
+    ):
+        monkeypatch.setenv(name, value)
+        assert models.settings_digest() != shared, name
+        assert models.shim_port(4010) != 4010, name
+        monkeypatch.delenv(name)
+    assert models.settings_digest() == shared
+
+
+def _real_launch(tmp_path: Path, port: int | None, *args: str, **extra: str):
+    """Launch the real script (fake claude) so it starts or reuses real shims.
+
+    port None leaves CC_SHIM_PORT unset, so the script picks the port itself.
+    """
+    fake = tmp_path / "bin" / "claude"
+    fake.parent.mkdir(exist_ok=True)
+    fake.write_text('#!/bin/sh\necho "$ANTHROPIC_BASE_URL" > "$SEEN_FILE"\n')
+    fake.chmod(0o755)
+    env = os.environ.copy()
+    env.update(
+        HOME=str(tmp_path / "home"),
+        CLAUDE_BIN=str(fake),
+        ANTHROPIC_BASE_URL=extra.pop("upstream"),
+        CC_SHIM_SCRIPT=str(tmp_path / "shim-under-test.py"),
+        SEEN_FILE=str(tmp_path / "seen"),
+        AIDEV_AI_DEFAULTS_PATH=str(_defaults(tmp_path)),
+    )
+    env.pop("CC_SHIM_PORT", None)
+    if port is not None:
+        env["CC_SHIM_PORT"] = str(port)
+    env.update(extra)
+    (tmp_path / "home").mkdir(exist_ok=True)
+    proc = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), *args, "work"],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert proc.returncode == 0, proc.stderr
+    return proc.stdout, (tmp_path / "seen").read_text().strip()
+
+
+def test_a_busy_shim_is_never_stopped_by_a_new_launch(tmp_path: Path) -> None:
+    """Round 2 C1: a launch with other settings must not cut other sessions' replies."""
+    (tmp_path / "shim-under-test.py").write_text(
+        (SKILL_DIR / "local-gateway-alias-proxy.py").read_text()
+    )
+    gateway = StandInGateway()
+    gateway.script["muse-spark-1.3"] = [("pause-stream", 6)]
+    port = _free_port()
+    try:
+        out, url = _real_launch(tmp_path, port, upstream=gateway.url)
+        assert url == f"http://127.0.0.1:{port}"
+        result = {}
+        streaming = threading.Thread(
+            target=lambda: result.update(
+                r=_ask_raw(url, "claude-gw-tier2", stream=True)
+            )
+        )
+        streaming.start()
+        time.sleep(1)  # the reply has started and is paused
+        out, url2 = _real_launch(
+            tmp_path, port, upstream=gateway.url, CCSESSION_SHOW_ALL_MODELS="1"
+        )
+        assert url2 == f"http://127.0.0.1:{port + 101}", out
+        assert "leaving it running" in out
+        streaming.join(30)
+        status, body = result["r"]
+        assert status == 200 and b"message_stop" in body  # never cut
+        # Now idle, but sessions still point at it: a launch with other
+        # settings moves on again and never stops it (round 3 N1/R3-2).
+        out, url3 = _real_launch(
+            tmp_path, port, upstream=gateway.url, CCSESSION_COOLDOWN_SECONDS="60"
+        )
+        assert url3 == f"http://127.0.0.1:{port + 202}", out
+        gateway.script["muse-spark-1.3"] = [None]
+        status, body = _ask_raw(url, "claude-gw-tier2", stream=True)
+        assert status == 200 and b"muse-spark-1.3" in body
+    finally:
+        subprocess.run(
+            ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False
+        )
+        gateway.close()
+
+
+def _descendants(root: int) -> set[int]:
+    """Every process whose parent chain leads to root (root excluded)."""
+    children: dict[int, list[int]] = {}
+    out = subprocess.run(
+        ["ps", "-axo", "pid=,ppid="], capture_output=True, text=True, check=True
+    ).stdout
+    for line in out.splitlines():
+        pid, ppid = (int(x) for x in line.split())
+        children.setdefault(ppid, []).append(pid)
+    found, todo = set(), [root]
+    while todo:
+        for child in children.get(todo.pop(), []):
+            if child not in found:
+                found.add(child)
+                todo.append(child)
+    return found
+
+
+def _is_running(pid: int, marker: str) -> bool:
+    """True when pid is alive and its command line names marker (never reused pids)."""
+    try:
+        cmd = subprocess.run(
+            ["ps", "-p", str(pid), "-o", "command="], capture_output=True, text=True
+        ).stdout
+    except OSError:
+        return False
+    return marker in cmd
+
+
+def test_shim_outlives_the_terminal_that_started_it(tmp_path: Path) -> None:
+    """Issue #341: closing the terminal that launched the shim must not stop it.
+
+    Orca closes a terminal by sending SIGTERM, then SIGKILL, to every
+    descendant of the terminal's shell. A shim started by ccsession in that
+    terminal is shared by other sessions, so it must not be one of them.
+    """
+    shim_copy = tmp_path / "shim-under-test.py"
+    shim_copy.write_text((SKILL_DIR / "local-gateway-alias-proxy.py").read_text())
+    fake = tmp_path / "bin" / "claude"
+    fake.parent.mkdir()
+    fake.write_text(
+        '#!/bin/sh\necho "$ANTHROPIC_BASE_URL" > "$SEEN_FILE"\nexec sleep 60\n'
+    )
+    fake.chmod(0o755)
+    (tmp_path / "home").mkdir()
+    seen = tmp_path / "seen"
+    port = _free_port()
+    env = os.environ.copy()
+    env.update(
+        HOME=str(tmp_path / "home"),
+        CLAUDE_BIN=str(fake),
+        CC_SHIM_SCRIPT=str(shim_copy),
+        CC_SHIM_PORT=str(port),
+        SEEN_FILE=str(seen),
+        AIDEV_AI_DEFAULTS_PATH=str(_defaults(tmp_path)),
+    )
+    gateway = StandInGateway()
+    env["ANTHROPIC_BASE_URL"] = gateway.url
+    shim_pid = None
+    terminal = None
+    try:
+        # The terminal: its own session, like a shell in a new pty.
+        with open(tmp_path / "terminal.log", "w") as log:
+            terminal = subprocess.Popen(
+                [str(SKILL_DIR / "ccsession"), "work"],
+                cwd=tmp_path,
+                env=env,
+                stdin=subprocess.DEVNULL,
+                stdout=log,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
+        for _ in range(600):
+            if seen.exists() and seen.read_text().strip():
+                break
+            assert terminal.poll() is None, (tmp_path / "terminal.log").read_text()
+            time.sleep(0.1)
+        url = seen.read_text().strip()
+        assert url == f"http://127.0.0.1:{port}"
+        health_url = f"{url}/__ccsession_shim"
+        shim_pid = json.loads(urllib.request.urlopen(health_url, timeout=5).read())[
+            "pid"
+        ]
+
+        gateway.script["muse-spark-1.3"] = [("pause-stream", 4)]
+        result: dict = {}
+
+        def ask():
+            try:
+                result["r"] = _ask_raw(url, "claude-gw-tier2", stream=True, timeout=30)
+            except Exception as exc:  # recorded and asserted below
+                result["e"] = exc
+
+        streaming = threading.Thread(target=ask, daemon=True)
+        streaming.start()
+        time.sleep(1)  # the reply has started and is paused
+
+        # Close the terminal the way Orca does.
+        under_terminal = _descendants(terminal.pid)
+        for pid in [*under_terminal, terminal.pid]:
+            try:
+                os.kill(pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+        time.sleep(0.5)
+        for pid in [*_descendants(terminal.pid), terminal.pid]:
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+        terminal.wait(timeout=10)
+        streaming.join(30)
+
+        assert shim_pid not in under_terminal
+        assert _is_running(shim_pid, str(shim_copy))
+        assert os.getsid(shim_pid) != terminal.pid  # not in the terminal's session
+        assert "e" not in result, result.get("e")
+        status, body = result["r"]
+        assert status == 200 and b"message_stop" in body  # never cut
+        health = json.loads(urllib.request.urlopen(health_url, timeout=5).read())
+        assert health["pid"] == shim_pid
+    finally:
+        if shim_pid and _is_running(shim_pid, str(shim_copy)):
+            os.kill(shim_pid, signal.SIGKILL)
+        subprocess.run(["pkill", "-f", str(shim_copy)], check=False)
+        gateway.close()
+        if terminal is not None and terminal.poll() is None:
+            terminal.kill()
+            terminal.wait(timeout=10)
+
+
+def test_a_directly_started_shim_leaves_the_launchers_session(shim) -> None:
+    """Issue #341: signals aimed at the starter's session or group miss the shim."""
+    _, start, _ = shim
+    base = start()
+    health = json.loads(
+        urllib.request.urlopen(f"{base}/__ccsession_shim", timeout=5).read()
+    )
+    pid = health["pid"]
+    assert os.getsid(pid) != os.getsid(0)
+    assert os.getpgid(pid) != os.getpgid(0)
+
+
+# --- review round 3 -----------------------------------------------------------
+
+
+class RawGateway:
+    """Gateway on a raw socket (optionally TLS): respond(conn, model) answers."""
+
+    def __init__(self, respond, tls_context=None):
+        self.srv = socket.socket()
+        self.srv.bind(("127.0.0.1", 0))
+        self.srv.listen(8)
+        self.calls: list[str] = []
+        self.respond = respond
+        self.ctx = tls_context
+        threading.Thread(target=self._loop, daemon=True).start()
+        scheme = "https" if tls_context else "http"
+        self.url = f"{scheme}://127.0.0.1:{self.srv.getsockname()[1]}/cli"
+
+    def _loop(self):
+        while True:
+            try:
+                conn, _ = self.srv.accept()
+            except OSError:
+                return
+            threading.Thread(target=self._one, args=(conn,), daemon=True).start()
+
+    def _one(self, conn):
+        try:
+            if self.ctx:
+                conn = self.ctx.wrap_socket(conn, server_side=True)
+            data = b""
+            while b"\r\n\r\n" not in data:
+                chunk = conn.recv(65536)
+                if not chunk:
+                    return
+                data += chunk
+            head, _, body = data.partition(b"\r\n\r\n")
+            lengths = [
+                int(h.split(b":")[1])
+                for h in head.split(b"\r\n")
+                if h.lower().startswith(b"content-length")
+            ]
+            while lengths and len(body) < lengths[0]:
+                body += conn.recv(65536)
+            model = json.loads(body)["model"] if body else ""
+            self.calls.append(model)
+            self.respond(conn, model)
+        except (OSError, ValueError):
+            pass
+        finally:
+            try:
+                conn.close()
+            except OSError:
+                pass
+
+    def close(self):
+        self.srv.close()
+
+
+@pytest.fixture
+def tls_cert(tmp_path: Path):
+    """A throwaway self-signed certificate for 127.0.0.1 (deleted with tmp_path)."""
+    cert, key = tmp_path / "gw-cert.pem", tmp_path / "gw-key.pem"
+    try:
+        subprocess.run(
+            [
+                "openssl",
+                "req",
+                "-x509",
+                "-newkey",
+                "rsa:2048",
+                "-nodes",
+                "-keyout",
+                str(key),
+                "-out",
+                str(cert),
+                "-days",
+                "1",
+                "-subj",
+                "/CN=127.0.0.1",
+                "-addext",
+                "subjectAltName=IP:127.0.0.1",
+            ],
+            check=True,
+            capture_output=True,
+            timeout=60,
+        )
+    except (OSError, subprocess.SubprocessError):
+        pytest.skip("openssl cannot make a test certificate here")
+    ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_3  # sends session tickets
+    ctx.load_cert_chain(cert, key)
+    return cert, ctx
+
+
+def test_https_gateway_start_timer_switches(shim, tls_cert) -> None:
+    """Round 3 N2: TLS session tickets are not the first reply byte."""
+    _, start, log = shim
+    cert, ctx = tls_cert
+
+    def respond(conn, model):
+        if model == "muse-spark-1.3":
+            time.sleep(8)  # request read, never answers
+            return
+        conn.sendall(b"HTTP/1.0 200 OK\r\n")
+        time.sleep(2)  # longer than the 1s timer, after the first byte
+        conn.sendall(
+            b"Content-Type: text/event-stream\r\n\r\n" + OK_SSE % model.encode()
+        )
+
+    gw = RawGateway(respond, ctx)
+    try:
+        base = start(
+            GW_PROXY_UPSTREAM=gw.url,
+            CCSESSION_FIRST_BYTE_TIMEOUT="1",
+            SSL_CERT_FILE=str(cert),
+        )
+        began = time.monotonic()
+        status, body = _ask_raw(base, "claude-gw-tier2", stream=True)
+        assert status == 200 and b"grok-4.7" in body and b"message_stop" in body
+        assert gw.calls == ["muse-spark-1.3", "grok-4.7"]
+        assert "muse-spark-1.3 gave no reply in 1s" in log.read_text()
+        assert time.monotonic() - began < 7
+    finally:
+        gw.close()
+
+
+@pytest.mark.parametrize(
+    "retry_after", ["9" * 5000, "\u00b2"], ids=["5000-digits", "non-ascii-digit"]
+)
+def test_odd_retry_after_still_fails_over(shim, retry_after) -> None:
+    """Round 3 N3: a Retry-After int() cannot parse never stops failover."""
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [(*COOLING, {"Retry-After": retry_after})]
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 200 and b"grok-4.7" in body
+    assert gateway.models_called() == ["muse-spark-1.3", "grok-4.7"]
+
+
+def test_cut_off_error_reply_gets_a_readable_error(shim) -> None:
+    """Round 3 N4: an error body dropped part-way is answered, not dropped."""
+    _, start, log = shim
+
+    def respond(conn, model):
+        body = COOLING[1]
+        conn.sendall(
+            b"HTTP/1.0 429 Too Many Requests\r\nContent-Type: application/json\r\n"
+            b"Content-Length: %d\r\n\r\n" % (len(body) + 500) + body
+        )
+
+    gw = RawGateway(respond)
+    try:
+        base = start(GW_PROXY_UPSTREAM=gw.url)
+        status, body = _ask(base, "claude-gw-tier2")
+        assert status == 502 and b"cut off" in body
+        assert "Traceback" not in log.read_text()
+    finally:
+        gw.close()
+
+
+def test_malformed_status_line_gets_a_readable_error(shim) -> None:
+    """Round 3 N4: a broken status line is reported, not a dropped connection."""
+    _, start, log = shim
+    gw = RawGateway(lambda conn, model: conn.sendall(b"garbage\r\n\r\n"))
+    try:
+        base = start(GW_PROXY_UPSTREAM=gw.url)
+        status, body = _ask(base, "claude-gw-tier2")
+        assert status == 502 and b"gateway unreachable" in body
+        assert "Traceback" not in log.read_text()
+    finally:
+        gw.close()
+
+
+def _shim_copy(tmp_path: Path) -> Path:
+    copy = tmp_path / "shim-under-test.py"
+    copy.write_text((SKILL_DIR / "local-gateway-alias-proxy.py").read_text())
+    return copy
+
+
+def test_tiers_off_launch_never_takes_over_a_tier_shim(tmp_path: Path) -> None:
+    """Round 3 R3-2: tier sessions keep their shim when a tiers-off session starts."""
+    _shim_copy(tmp_path)
+    gateway = StandInGateway()
+    port = _free_port()
+    try:
+        _, url = _real_launch(tmp_path, port, upstream=gateway.url)
+        assert url == f"http://127.0.0.1:{port}"
+        out, url2 = _real_launch(
+            tmp_path, port, "--shim", upstream=gateway.url, CCSESSION_TIERS="0"
+        )
+        assert url2 == f"http://127.0.0.1:{port + 101}", out
+        status, body = _ask_raw(url, "claude-gw-tier2", stream=True)
+        assert status == 200 and b"muse-spark-1.3" in body
+    finally:
+        subprocess.run(
+            ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False
+        )
+        gateway.close()
+
+
+def test_every_shim_launch_gets_the_port_for_its_settings(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """Round 3 R3-2: a non-tier shim launch also uses its settings port."""
+    _shim_copy(tmp_path)
+    gateway = StandInGateway()
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path)))
+    monkeypatch.setenv("CCSESSION_TIERS", "0")
+    expected = models.shim_port(4010)
+    assert expected != 4010
+    try:
+        _, url = _real_launch(
+            tmp_path, None, "--shim", upstream=gateway.url, CCSESSION_TIERS="0"
+        )
+        assert url == f"http://127.0.0.1:{expected}"
+    finally:
+        subprocess.run(
+            ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False
+        )
+        gateway.close()
+
+
+def test_upgraded_code_starts_a_new_shim_and_keeps_the_old(tmp_path: Path) -> None:
+    """Round 3 R3-3: new code is never served by an old shim, and the old one stays."""
+    copy = _shim_copy(tmp_path)
+    gateway = StandInGateway()
+    port = _free_port()
+    try:
+        _, url = _real_launch(tmp_path, port, upstream=gateway.url)
+        assert url == f"http://127.0.0.1:{port}"
+        copy.write_text(copy.read_text() + "\n# upgraded\n")
+        out, url2 = _real_launch(tmp_path, port, upstream=gateway.url)
+        assert url2 == f"http://127.0.0.1:{port + 101}" and "older code" in out
+        status, _ = _ask_raw(url, "claude-gw-tier2", stream=True)
+        assert status == 200  # the old shim still serves its sessions
+        out, url3 = _real_launch(tmp_path, port, upstream=gateway.url)
+        assert url3 == url2 and "reusing" in out
+    finally:
+        subprocess.run(
+            ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False
+        )
+        gateway.close()
+
+
+# --- PR #253 review ------------------------------------------------------------
+
+
+def test_relative_defaults_path_keeps_each_directory_on_its_own_shim(
+    tmp_path: Path,
+) -> None:
+    """A relative AIDEV_AI_DEFAULTS_PATH means the file in the launch directory."""
+    _shim_copy(tmp_path)
+    gateway = StandInGateway()
+    port = _free_port()
+    runs = {}
+    try:
+        for name, first in (("a", "muse-spark-1.3"), ("b", "grok-4.7")):
+            d = tmp_path / name
+            d.mkdir()
+            (d / "defaults.sh").write_text(
+                TIER_BLOCK.replace("T2Model01=muse-spark-1.3", f"T2Model01={first}")
+            )
+            env = os.environ.copy()
+            env.update(
+                HOME=str(tmp_path / "home"),
+                CLAUDE_BIN=str(tmp_path / "bin" / "claude"),
+                ANTHROPIC_BASE_URL=gateway.url,
+                CC_SHIM_SCRIPT=str(tmp_path / "shim-under-test.py"),
+                CC_SHIM_PORT=str(port),
+                SEEN_FILE=str(tmp_path / "seen"),
+                AIDEV_AI_DEFAULTS_PATH="defaults.sh",
+            )
+            (tmp_path / "bin").mkdir(exist_ok=True)
+            (tmp_path / "bin" / "claude").write_text(
+                '#!/bin/sh\necho "$ANTHROPIC_BASE_URL" > "$SEEN_FILE"\n'
+            )
+            (tmp_path / "bin" / "claude").chmod(0o755)
+            (tmp_path / "home").mkdir(exist_ok=True)
+            proc = subprocess.run(
+                [str(SKILL_DIR / "ccsession"), "work"],
+                cwd=d,
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            assert proc.returncode == 0, proc.stderr
+            url = (tmp_path / "seen").read_text().strip()
+            gateway.calls.clear()
+            status, _ = _ask_raw(url, "claude-gw-tier2", stream=True)
+            runs[name] = (url, status, gateway.models_called()[:1])
+        assert runs["a"][0] != runs["b"][0], runs  # b never reuses a's shim
+        assert runs["a"][1:] == (200, ["muse-spark-1.3"])
+        assert runs["b"][1:] == (200, ["grok-4.7"])  # b's shim reads b's file
+    finally:
+        subprocess.run(
+            ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False
+        )
+        gateway.close()
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        b'{"error":"Your Grok CLI version is outdated."}',
+        b'{"error":{"type":"rate_limit_error"}}',
+        b'{"detail":"cooling down"}',
+        b'{"message":"cooling down"}',
+        b'["cooling down"]',
+    ],
+)
+def test_note_keeps_every_json_error_valid_json(body: bytes) -> None:
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="note_test"
+    )
+    out = module["with_note"](body, "ccsession: all Tier 2 models are out of usage")
+    assert "out of usage" in json.dumps(json.loads(out))
+
+
+def test_note_on_plain_text_stays_plain_text() -> None:
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="note_test"
+    )
+    assert module["with_note"](b"Rate limited", "x") == b"Rate limited (x)"
+
+
+def test_exhausted_tier_with_string_errors_returns_valid_json(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    outdated = (426, b'{"error":"Your Grok CLI version (0.2.120) is outdated."}')
+    for model in (
+        "muse-spark-1.3",
+        "grok-4.7",
+        "Qwen3.8-max",
+        "glm-5.3",
+        "muse-wonder-1.0",
+        "gpt-6.1-sol",
+    ):
+        gateway.script[model] = [outdated]
+    status, body = _ask(base, "claude-gw-tier2")
+    error = json.loads(body)["error"]
+    assert status == 426 and "outdated" in error and "out of usage" in error
+
+
+def test_named_model_window_accepts_the_picker_id() -> None:
+    tenv = {
+        "T0_WINDOW": "850000",
+        "T0Model02": "gpt-6-astra",
+        "T0Model02_WINDOW": "850000",
+        "T2Model03": "Qwen3.8-max",
+        "T2Model03_WINDOW": "1000000",
+    }
+    data = models.load()[0]
+    for name in ("gpt-6-astra", "claude-gw-gpt-6-astra", "claude-gw-gpt-6-astra[1m]"):
+        assert models.model_window(name, data=data, tenv=tenv) == (850000, "T0Model02")
+    assert models.model_window("claude-gw-qwen3.8-max[1m]", data=data, tenv=tenv) == (
+        1000000,
+        "T2Model03",
+    )
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="alias_test"
+    )
+    assert module["sanitize"]("Qwen3.8-max") == models.gateway_alias("Qwen3.8-max")
+
+
+def test_model_outside_tier_mode_stays_where_it_was_typed(tmp_path: Path) -> None:
+    """PR #253 review: a prompt after --model must not become the topic."""
+    rc, _, err, seen = _launch(
+        tmp_path, "--model", "sonnet", "review this code", defaults=None
+    )
+    assert rc == 0, err
+    assert seen["argv"][-3:] == ["--model", "sonnet", "review this code"]
+    rc, out, err, seen = _launch(tmp_path, "work", "--model=sonnet", defaults=None)
+    assert rc == 0, err
+    assert "--model=sonnet" in seen["argv"] and "labeled 'work'" in out
+
+
+def test_launch_never_attaches_to_a_shim_that_won_the_port_race(
+    tmp_path: Path,
+) -> None:
+    """PR #253 review: the shim that comes up must carry this session's settings."""
+    copy = _shim_copy(tmp_path)
+    winner = tmp_path / "winner.sh"
+    # Stands in for a simultaneous launch with other settings binding first.
+    winner.write_text(
+        f'#!/bin/sh\nexec env CCSESSION_COOLDOWN_SECONDS=7 "{sys.executable}" "{copy}"\n'
+    )
+    winner.chmod(0o755)
+    gateway = StandInGateway()
+    port = _free_port()
+    fake = tmp_path / "bin" / "claude"
+    fake.parent.mkdir(exist_ok=True)
+    fake.write_text('#!/bin/sh\necho "$ANTHROPIC_BASE_URL" > "$SEEN_FILE"\n')
+    fake.chmod(0o755)
+    env = os.environ.copy()
+    env.update(
+        HOME=str(tmp_path / "home"),
+        CLAUDE_BIN=str(fake),
+        ANTHROPIC_BASE_URL=gateway.url,
+        CC_SHIM_SCRIPT=str(copy),
+        CC_SHIM_PORT=str(port),
+        SEEN_FILE=str(tmp_path / "seen"),
+        AIDEV_AI_DEFAULTS_PATH=str(_defaults(tmp_path)),
+    )
+    (tmp_path / "home").mkdir(exist_ok=True)
+    # ccsession runs "python3 $CC_SHIM_SCRIPT"; a python3 shim on PATH that
+    # execs the winner makes the started process carry other settings.
+    shim_python = tmp_path / "pybin" / "python3"
+    shim_python.parent.mkdir()
+    real = sys.executable
+    shim_python.write_text(
+        f'#!/bin/sh\n[ "$1" = "{copy}" ] && exec "{winner}"\nexec "{real}" "$@"\n'
+    )
+    shim_python.chmod(0o755)
+    env["PATH"] = f"{shim_python.parent}:{env['PATH']}"
+    try:
+        proc = subprocess.run(
+            [str(SKILL_DIR / "ccsession"), "work"],
+            cwd=tmp_path,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        assert proc.returncode == 1, proc.stdout + proc.stderr
+        assert "another shim took" in proc.stderr
+        assert not (tmp_path / "seen").exists()  # claude never started
+    finally:
+        subprocess.run(["pkill", "-f", str(copy)], check=False)
+        gateway.close()
+
+
+def test_size_failure_is_reported_even_when_a_later_model_is_out_of_usage(
+    shim,
+) -> None:
+    """PR #253 review: the reply must not depend on which model failed last."""
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [COOLING]
+    gateway.script["grok-4.7"] = [TOO_LONG]
+    gateway.script["Qwen3.8-max"] = [COOLING]
+    gateway.script["glm-5.3"] = [COOLING]
+    gateway.script["muse-wonder-1.0"] = [COOLING]
+    gateway.script["gpt-6.1-sol"] = [COOLING]
+    status, body = _ask(base, "claude-gw-tier2")
+    message = json.loads(body)["error"]["message"]
+    assert status == TOO_LONG[0]
+    assert "can hold this conversation" in message
+    assert "the others are out of usage" in message
+
+
+def test_colliding_tier_model_names_get_the_shims_suffixed_ids(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """PR #258 review: the window map uses the same -2 id the shim shows."""
+    text = (
+        TIER_BLOCK.replace("T2Model03='Qwen3.8-max'", "T2Model03=foo/bar")
+        .replace("T2Model03_WINDOW=1000000", "T2Model03_WINDOW=850000")
+        .replace("T2Model04_WINDOW=1000000", "T2Model04_WINDOW=500000")
+        .replace("T2Model04=glm-5.3", "T2Model04=foo-bar")
+    )
+    path = _defaults(tmp_path, text)
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(path))
+    tenv = models.read_defaults_file(path)
+    assert tenv["T2Model03"] == "foo/bar" and tenv["T2Model04"] == "foo-bar"
+    data = models.load()[0]
+    per_model = models.compact_settings(data=data, tenv=tenv)["modelSettings"]
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="collide"
+    )
+    assert module["sanitize"]("foo/bar") == "claude-gw-foo-bar"
+    # Tier models are named first, in tier order, whatever the gateway's list
+    # order: foo/bar (T2Model03) is claude-gw-foo-bar, foo-bar is -2.
+    assert tenv["T2Model03_WINDOW"] == "850000" and tenv["T2Model04_WINDOW"] == "500000"
+    module["transform_models"]({"data": [{"id": "foo-bar"}, {"id": "foo/bar"}]})
+    assert module["alias_to_real"]["claude-gw-foo-bar"] == "foo/bar"
+    assert module["alias_to_real"]["claude-gw-foo-bar-2"] == "foo-bar"
+    assert per_model["claude-gw-foo-bar"]["autoCompactWindow"] == 850000
+    assert per_model["claude-gw-foo-bar-2"]["autoCompactWindow"] == 500000
+
+
+def test_show_all_window_map_names_the_ids_the_picker_shows(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """PR #258 review: a gateway model outside the tiers listed first must not
+    take the tier model's picker id; the tier model keeps its window."""
+    text = TIER_BLOCK.replace("T2Model03='Qwen3.8-max'", "T2Model03=foo/bar").replace(
+        "T2Model03_WINDOW=1000000", "T2Model03_WINDOW=500000"
+    )
+    path = _defaults(tmp_path, text)
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(path))
+    monkeypatch.setenv("CCSESSION_SHOW_ALL_MODELS", "1")
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="showall"
+    )
+    listing = module["transform_models"](
+        {"data": [{"id": "foo-bar"}, {"id": "foo/bar"}, {"id": "grok-4.7"}]}
+    )
+    ids = {m["id"].removesuffix("[1m]") for m in listing["data"]}
+    assert "claude-gw-foo-bar" in ids and "claude-gw-foo-bar-2" not in ids
+    tenv = models.read_defaults_file(path)
+    per_model = models.compact_settings(data=models.load()[0], tenv=tenv)
+    assert (
+        per_model["modelSettings"]["claude-gw-foo-bar"]["autoCompactWindow"] == 500000
+    )
+    assert module["alias_to_real"]["claude-gw-foo-bar"] == "foo/bar"
+
+
+def test_windows_go_straight_to_claude_code_with_no_file(tmp_path: Path) -> None:
+    """The per-model windows are one --settings JSON value built from the env
+    at launch: nothing is written to disk, and a user's own --settings is
+    passed through untouched (out of scope for the window switch)."""
+    rc, _, err, seen = _launch(tmp_path, "work")
+    assert rc == 0, err
+    assert seen["argv"].count("--settings") == 1
+    assert json.loads(seen["settings"])["modelSettings"]  # inline JSON, not a path
+    assert not (tmp_path / "home" / ".cache" / "ccsession" / "settings").exists()
+    rc, _, err, seen = _launch(
+        tmp_path, "work", "--settings", '{"effortLevel": "high"}'
+    )
+    assert rc == 0, err
+    assert seen["argv"][-2:] == ["--settings", '{"effortLevel": "high"}']
+
+
+def test_provider_qualified_claude_model_also_gets_its_canonical_key(
+    tmp_path: Path,
+) -> None:
+    """PR #258 review: Claude Code looks modelSettings up by canonical name."""
+    text = TIER_BLOCK.replace(
+        "T1aModel01=claude-opus-5-5", "T1aModel01=anthropic/claude-opus-5-5"
+    ).replace("T1aModel01_WINDOW=1000000", "T1aModel01_WINDOW=500000")
+    tenv = models.read_defaults_file(_defaults(tmp_path, text))
+    assert tenv["T1aModel01"] == "anthropic/claude-opus-5-5"
+    per_model = models.compact_settings(data=models.load()[0], tenv=tenv)[
+        "modelSettings"
+    ]
+    assert per_model["anthropic/claude-opus-5-5"]["autoCompactWindow"] == 500000
+    assert per_model["claude-opus-5-5"]["autoCompactWindow"] == 500000
+
+
+def test_both_spellings_of_one_claude_model_share_the_smaller_window(
+    tmp_path: Path,
+) -> None:
+    """PR #258 review: claude-opus-5-5 and anthropic/claude-opus-5-5 are one
+    Claude Code entry, so it must never exceed either tier slot's window."""
+    text = TIER_BLOCK.replace(
+        "T1aModel01=claude-opus-5-5", "T1aModel01=anthropic/claude-opus-5-5"
+    ).replace("T1aModel01_WINDOW=1000000", "T1aModel01_WINDOW=500000")
+    # A slot tier2 really reads (models_env), holding the bare spelling at 1M.
+    text = text.replace("T2Model03='Qwen3.8-max'", "T2Model03=claude-opus-5-5")
+    tenv = models.read_defaults_file(_defaults(tmp_path, text))
+    assert tenv["T2Model03"] == "claude-opus-5-5"
+    assert tenv["T2Model03_WINDOW"] == "1000000"
+    tiers = models.resolve_tiers(models.load()[0], tenv)
+    assert ("T2Model03", "claude-opus-5-5", 1000000) in tiers["tier2"]["models"]
+    per_model = models.compact_settings(data=models.load()[0], tenv=tenv)[
+        "modelSettings"
+    ]
+    assert per_model["claude-opus-5-5"]["autoCompactWindow"] == 500000
+
+
+def test_every_spelling_of_a_claude_model_gets_its_canonical_key() -> None:
+    """PR #258 review: Claude Code matches dated, provider-qualified and
+    versioned Claude ids to one canonical modelSettings entry."""
+    for model, short in [
+        ("claude-sonnet-4-5-20250929", "claude-sonnet-4-5"),
+        ("anthropic/claude-opus-5-5", "claude-opus-5-5"),
+        ("us.anthropic.claude-opus-5-5-v1:0", "claude-opus-5-5"),
+        ("claude-opus-5-5@20260101", "claude-opus-5-5"),
+        ("claude-opus-5-5[1m]", "claude-opus-5-5"),
+        ("claude-opus-5-5", "claude-opus-5-5"),
+        ("grok-4.7", ""),
+    ]:
+        assert models.canonical_claude_name(model) == short, model
+
+
+def test_dated_claude_tier_model_keeps_its_window(tmp_path: Path) -> None:
+    text = TIER_BLOCK.replace(
+        "T1aModel01=claude-opus-5-5", "T1aModel01=claude-sonnet-4-5-20250929"
+    ).replace("T1aModel01_WINDOW=1000000", "T1aModel01_WINDOW=500000")
+    tenv = models.read_defaults_file(_defaults(tmp_path, text))
+    per_model = models.compact_settings(data=models.load()[0], tenv=tenv)[
+        "modelSettings"
+    ]
+    assert per_model["claude-sonnet-4-5"]["autoCompactWindow"] == 500000
+
+
+def test_shim_sessions_pass_the_gateway_key_as_a_bearer_token(tmp_path: Path) -> None:
+    """Interactive Claude Code ignores an unapproved ANTHROPIC_API_KEY, so /model
+    could not validate another tier in a fresh workspace; through the shim the
+    key goes as ANTHROPIC_AUTH_TOKEN. Without the shim it is left as it was."""
+    keys = {
+        "LITELLM_API_KEY": "sk-gw-test",
+        "ANTHROPIC_API_KEY": "",
+        "ANTHROPIC_AUTH_TOKEN": "",
+    }
+    rc, _, err, seen = _launch(tmp_path, "work", **keys)
+    assert rc == 0, err
+    assert seen["auth_token"] == "sk-gw-test" and seen["api_key"] == ""
+    rc, _, err, seen = _launch(tmp_path, "work", defaults=None, **keys)
+    assert rc == 0, err
+    assert seen["api_key"] == "sk-gw-test" and seen["auth_token"] == ""
+
+
+# --- per-user access (CCSESSION_ACCESS) -------------------------------------------
+
+# alice starts on Tier 1 with every tier; bob starts on Tier 2 with Tiers 2 and 3.
+# Names match the Coder username without regard to case.
+ACCESS_BLOCK = TIER_BLOCK + 'export CCSESSION_ACCESS="Alice=tier1a bob=2:tier2,3"\n'
+
+
+def _access(owner: str, text: str = ACCESS_BLOCK, tmp_path: Path | None = None):
+    tenv = models.read_defaults_file(_defaults(tmp_path, text))
+    every = models._all_tiers(models.load()[0], tenv)
+    return models.user_access(every, tenv, {"CODER_WORKSPACE_OWNER_NAME": owner})
+
+
+def test_access_entry_sets_start_tier_and_tier_list(tmp_path: Path) -> None:
+    alice = _access("alice", tmp_path=tmp_path)
+    assert alice["listed"] and alice["start"] == "tier1a"
+    assert alice["allowed"] == [
+        "tier0",
+        "tier1a",
+        "tier1b",
+        "tier2",
+        "tier3",
+        "tier4",
+    ]  # no list = every tier
+    bob = _access("bob", tmp_path=tmp_path)
+    assert bob["start"] == "tier2" and bob["allowed"] == ["tier2", "tier3"]
+    # Not listed, or no owner name: default tier with every tier.
+    for owner in ("carol", ""):
+        other = _access(owner, tmp_path=tmp_path)
+        assert not other["listed"] and other["start"] == ""
+        assert other["allowed"] == [
+            "tier0",
+            "tier1a",
+            "tier1b",
+            "tier2",
+            "tier3",
+            "tier4",
+        ]
+
+
+# Coder roles (CODER_WORKSPACE_OWNER_ROLES): anyone with a role above member
+# starts on Tier 1; dave also has his own entry, which wins over his role.
+ROLE_BLOCK = TIER_BLOCK + (
+    'export CCSESSION_ACCESS="role:owner=tier1a role:user-admin=tier1a '
+    'role:auditor=tier1a:tier1a,tier2 dave=tier3:tier3"\n'
+)
+
+
+def _role_access(owner: str, roles: str, text: str = ROLE_BLOCK, tmp_path=None):
+    tenv = models.read_defaults_file(_defaults(tmp_path, text))
+    every = models._all_tiers(models.load()[0], tenv)
+    env = {"CODER_WORKSPACE_OWNER_NAME": owner, "CODER_WORKSPACE_OWNER_ROLES": roles}
+    return models.user_access(every, tenv, env)
+
+
+def test_role_entry_applies_to_everyone_with_that_role(tmp_path: Path) -> None:
+    every = ["tier0", "tier1a", "tier1b", "tier2", "tier3", "tier4"]
+    clay = _role_access("clay", "auditor,user-admin", tmp_path=tmp_path)
+    # The first matching role entry in the file decides: user-admin before auditor.
+    assert clay["listed"] and clay["start"] == "tier1a" and clay["allowed"] == every
+    assert clay["via"] == "role:user-admin"
+    erin = _role_access(
+        "erin", " Auditor ", tmp_path=tmp_path
+    )  # case and spaces ignored
+    assert erin["start"] == "tier1a" and erin["allowed"] == ["tier1a", "tier2"]
+    # A plain member holds no deployment role: default tier, every tier.
+    for roles in ("", "organization-member", "template-admin"):
+        member = _role_access("frank", roles, tmp_path=tmp_path)
+        assert (
+            not member["listed"]
+            and member["start"] == ""
+            and member["allowed"] == every
+        )
+    # A username entry wins over the owner's roles.
+    dave = _role_access("dave", "owner", tmp_path=tmp_path)
+    assert (
+        dave["start"] == "tier3" and dave["allowed"] == ["tier3"] and dave["via"] == ""
+    )
+    # Roles without an owner name change nothing.
+    assert not _role_access("", "owner", tmp_path=tmp_path)["listed"]
+
+
+def test_a_broken_role_entry_stops_only_its_holders(tmp_path: Path) -> None:
+    text = TIER_BLOCK + 'export CCSESSION_ACCESS="role:auditor=tier9 alice=tier1a"\n'
+    with pytest.raises(ValueError, match="tier9 is not a defined tier"):
+        _role_access("erin", "auditor", text, tmp_path)
+    assert _role_access("alice", "auditor", text, tmp_path)["start"] == "tier1a"
+    assert not _role_access("frank", "", text, tmp_path)["listed"]
+    # A malformed role entry could be anyone's, so it stops every named owner.
+    text = TIER_BLOCK + 'export CCSESSION_ACCESS="role:=tier1a alice=tier1a"\n'
+    with pytest.raises(ValueError, match="role:<coder role>="):
+        _role_access("frank", "", text, tmp_path)
+
+
+def test_models_status_names_the_role_that_applied(tmp_path: Path) -> None:
+    rc, out, err, _ = _launch(
+        tmp_path,
+        "--models-status",
+        defaults=ROLE_BLOCK,
+        CODER_WORKSPACE_OWNER_NAME="clay",
+        CODER_WORKSPACE_OWNER_ROLES="auditor,user-admin",
+    )
+    assert rc == 0, err
+    assert (
+        "clay starts on tier1a; tiers: tier0, tier1a, tier1b, tier2, tier3, tier4 "
+        "(CCSESSION_ACCESS, role:user-admin)" in out
+    )
+
+
+def test_only_the_owners_broken_entry_stops_it(tmp_path: Path) -> None:
+    for entry, why in (
+        ("bob=tier1a:tier2,tier3", "start tier tier1a is not in its tier list"),
+        ("bob=tier7", "tier7 is not a defined tier"),
+        ("bob=tier2:tier2,tier9", "tier9 is not a defined tier"),
+        ("bob=", "unknown tier"),
+        ("bob=tier2:tier2,", "unknown tier"),
+        ("bob=tier2:", "empty tier list"),
+        ("bob=tier2:tier2 BOB=tier1a", "2 entries for bob"),
+    ):
+        text = TIER_BLOCK + f'export CCSESSION_ACCESS="alice=tier1a {entry}"\n'
+        with pytest.raises(ValueError, match=why):
+            _access("bob", text, tmp_path)
+        assert _access("alice", text, tmp_path)["start"] == "tier1a"
+
+
+def test_a_stray_piece_of_the_value_stops_every_listed_owner(tmp_path: Path) -> None:
+    """A space inside an entry leaves a piece that could be anyone's, so nobody
+    with an owner name is treated as not listed (that would open every tier)."""
+    for value in ("bob=tier2: tier2,tier3", "bob=tier2 :tier2,tier3", "bob=tier2;"):
+        text = TIER_BLOCK + f'export CCSESSION_ACCESS="alice=tier1a {value}"\n'
+        for owner in ("bob", "alice", "carol"):
+            with pytest.raises(ValueError, match="is not <username>="):
+                _access(owner, text, tmp_path)
+        assert not _access("", text, tmp_path)["listed"]  # no owner name: unchanged
+
+
+def test_access_lines_bash_accepts_never_open_every_tier(tmp_path: Path) -> None:
+    # An inline comment after the value is read as bash reads it.
+    text = TIER_BLOCK + 'export CCSESSION_ACCESS="bob=tier2:tier2,tier3"  # limited\n'
+    assert _access("bob", text, tmp_path)["allowed"] == ["tier2", "tier3"]
+    text = TIER_BLOCK + "export CCSESSION_ACCESS=bob=tier2:tier2,tier3 # limited\n"
+    assert _access("bob", text, tmp_path)["allowed"] == ["tier2", "tier3"]
+    # The allowlist's guarded form is read like a plain export.
+    guard = '[ -z "${CCSESSION_ACCESS:-}" ] && export CCSESSION_ACCESS='
+    text = TIER_BLOCK + guard + '"bob=tier2:tier2"  # limited\n'
+    assert _access("bob", text, tmp_path)["allowed"] == ["tier2"]
+    assert not _access("bob", TIER_BLOCK + guard + '""\n', tmp_path)["listed"]
+    # Without whitespace a `#` is part of the value in bash ("a"#b is a#b), so
+    # it is never dropped as a comment: the whole value is refused instead.
+    text = (
+        TIER_BLOCK + 'export CCSESSION_ACCESS="alice=tier2:tier2"#bob=tier1a:tier1a\n'
+    )
+    for owner in ("alice", "bob", "carol"):
+        with pytest.raises(ValueError, match="is not <username>="):
+            _access(owner, text, tmp_path)
+    # A value this parser does not evaluate stops the launch.
+    text = (
+        TIER_BLOCK + 'export CCSESSION_ACCESS="${CCSESSION_ACCESS:-bob=tier2:tier2}"\n'
+    )
+    with pytest.raises(ValueError, match="is not <username>="):
+        _access("carol", text, tmp_path)
+    # The name on any other line (a second assignment, or one bash would read
+    # in another way) stops every launch with an owner name, before or after
+    # the valid line.
+    valid = 'export CCSESSION_ACCESS="bob=tier2:tier2"\n'
+    for line in (
+        guard + '""',  # bash keeps the earlier value; never guess
+        'export CCSESSION_ACCESS=""',
+        'export CCSESSION_ACCESS+=" carol=tier3:tier3"',
+        'export CCSESSION_DEFAULT_TIER=tier2 CCSESSION_ACCESS="carol=tier3:tier3"',
+        'export "CCSESSION_ACCESS=carol=tier3"',
+        "eval 'export CCSESSION_ACCESS=carol=tier3'",
+        "readonly CCSESSION_ACCESS",
+        'export AIDEV_NOTE="see CCSESSION_ACCESS for tiers"',
+        # Comments count too: telling a real one from a quoted # or a string
+        # that spans lines needs a shell parser, and bash sets
+        # CCSESSION_ACCESS on the first four of these.
+        'export FOO="a\\" #" CCSESSION_ACCESS="carol=tier3:tier3"',
+        'export FOO="a\\" # note\n# " CCSESSION_ACCESS="carol=tier3:tier3"',
+        '\r#; export CCSESSION_ACCESS="carol=tier3:tier3"',
+        "\x0b#; export CCSESSION_ACCESS=carol=tier3",
+        "export kimi=kimi-k3  # per-user tiers: see CCSESSION_ACCESS above",
+        '# export CCSESSION_ACCESS="carol=tier3:tier3"',
+        "   # CCSESSION_ACCESS lists per-user tiers",
+        # Bash joins these pieces into the same name.
+        '\r#; export CCSESSION_""ACCESS="carol=tier3:tier3"',
+        "export CCSESSION_ACCES\\S=carol=tier3",
+        "export CCSESSION_$'ACCESS'=carol=tier3",
+        'export FOO="a\\" #\n# " CCSESSION_${NOPE}ACCESS="carol=tier3:tier3"',
+        "\r#; export CCSESSION_${NOPE}ACCESS=carol=tier3",
+        "export CCSESSION_${NOPE:-}ACCESS=carol=tier3",
+        "export CCSESSION_${NOPE-}ACCESS=carol=tier3",
+        'export CCSESSION_$NOPE""ACCESS=carol=tier3',
+    ):
+        for text in (valid + line + "\n", line + "\n" + valid):
+            for owner in ("bob", "carol"):
+                with pytest.raises(ValueError, match="must be set by one line"):
+                    _access(owner, TIER_BLOCK + text, tmp_path)
+            assert not _access("", TIER_BLOCK + text, tmp_path)["listed"]
+    # Other variables whose names only start with it, and odd characters in a
+    # comment that does not name it, are ignored.
+    for line in (
+        "# per-user tiers\r\x0c  see above",
+        "export CCSESSION_ACCESS_NOTE=x",
+    ):
+        text = TIER_BLOCK + valid + line + "\n"
+        assert _access("bob", text, tmp_path)["allowed"] == ["tier2"]
+        assert not _access("carol", text, tmp_path)["listed"]
+
+
+def test_a_nul_byte_in_the_name_is_dropped_as_bash_drops_it(tmp_path: Path) -> None:
+    path = _defaults(tmp_path, TIER_BLOCK)
+    path.write_bytes(
+        path.read_bytes() + b'export CCSESSION_\x00ACCESS="bob=tier2:tier2"\n'
+    )
+    tenv = models.read_defaults_file(path)
+    assert tenv["CCSESSION_ACCESS"] == "bob=tier2:tier2"
+
+
+def test_a_byte_that_is_not_utf8_keeps_the_limits(tmp_path: Path) -> None:
+    path = _defaults(tmp_path, ACCESS_BLOCK)
+    path.write_bytes(b"# caf\xe9\n" + path.read_bytes())
+    tenv = models.read_defaults_file(path)
+    assert tenv["CCSESSION_ACCESS"] == "Alice=tier1a bob=2:tier2,3"
+    assert models.tier_mode(env={}, tenv=tenv)
+
+
+def test_owner_unknown_with_access_set_says_so(tmp_path: Path) -> None:
+    # Every launch path: default tier, --tier and --model.
+    for args in (
+        ("work",),
+        ("work", "--tier", "tier0"),
+        ("work", "--model", "grok-4.7"),
+    ):
+        rc, _, err, seen = _launch(tmp_path, *args, defaults=ACCESS_BLOCK)
+        assert rc == 0 and seen is not None, err
+        assert err.count("workspace owner unknown") == 1, args
+    rc, _, err, _ = _launch(
+        tmp_path, "work", defaults=ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="carol"
+    )
+    assert rc == 0 and "owner unknown" not in err
+
+
+def test_access_in_the_shell_env_when_there_is_no_file(monkeypatch) -> None:
+    """Without the workspace env file the settings come from the environment."""
+    for line in ACCESS_BLOCK.splitlines():
+        m = models._ENV_LINE.match(line)
+        if m and models._ENV_NAME.match(m.group(1)):
+            monkeypatch.setenv(m.group(1), m.group(2).strip("\"'"))
+    monkeypatch.setenv("CODER_WORKSPACE_OWNER_NAME", "bob")
+    assert list(models.resolve_tiers()) == ["tier2", "tier3"]
+
+
+def test_listed_user_starts_on_their_tier(tmp_path: Path) -> None:
+    rc, out, err, seen = _launch(
+        tmp_path, "work", defaults=ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="alice"
+    )
+    assert rc == 0, err
+    assert _model_arg(seen) == "claude-gw-tier1a[1m]" and seen["context"] == "850000"
+    rc, _, err, seen = _launch(
+        tmp_path, "--shim", defaults=ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="alice"
+    )  # the untagged session the terminal starts on Enter
+    assert rc == 0 and _model_arg(seen) == "claude-gw-tier1a[1m]", err
+    rc, _, err, seen = _launch(
+        tmp_path,
+        "work",
+        "--tier",
+        "tier0",
+        defaults=ACCESS_BLOCK,
+        CODER_WORKSPACE_OWNER_NAME="alice",
+    )
+    assert rc == 0 and _model_arg(seen) == "claude-gw-tier0[1m]", err
+
+
+def test_unlisted_user_starts_on_the_default_tier_with_every_tier(
+    tmp_path: Path,
+) -> None:
+    for owner in ("carol", ""):
+        rc, _, err, seen = _launch(
+            tmp_path, "work", defaults=ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME=owner
+        )
+        assert rc == 0 and _model_arg(seen) == "claude-gw-tier2[1m]", err
+        assert _compact(seen, "claude-gw-tier0") == 850000
+        rc, _, err, seen = _launch(
+            tmp_path,
+            "work",
+            "--tier",
+            "tier0",
+            defaults=ACCESS_BLOCK,
+            CODER_WORKSPACE_OWNER_NAME=owner,
+        )
+        assert rc == 0 and _model_arg(seen) == "claude-gw-tier0[1m]", err
+
+
+def test_limited_user_gets_only_their_tiers(tmp_path: Path) -> None:
+    bob = {"defaults": ACCESS_BLOCK, "CODER_WORKSPACE_OWNER_NAME": "bob"}
+    rc, _, err, seen = _launch(tmp_path, "work", **bob)
+    assert rc == 0 and _model_arg(seen) == "claude-gw-tier2[1m]", err
+    # Window settings name only bob's tiers and their models.
+    keys = json.loads(seen["settings"])["modelSettings"]
+    assert "claude-gw-tier3" in keys and "claude-gw-tier1a" not in keys
+    assert "claude-opus-5-5" not in keys
+    rc, _, err, seen = _launch(tmp_path, "work", "--tier", "tier1a", **bob)
+    assert rc == 2 and seen is None
+    assert "tier1a is not available to bob (available: tier2, tier3)" in err
+    rc, _, err, seen = _launch(tmp_path, "work", "--model", "claude-opus-5-5", **bob)
+    assert rc == 2 and seen is None
+    assert "claude-opus-5-5 is not in a tier available to bob" in err
+    rc, _, err, seen = _launch(tmp_path, "work", "--model", "brand-new-model", **bob)
+    assert rc == 2 and seen is None
+    for model in ("grok-4.7", "claude-gw-gpt-6.1-terra[1m]"):
+        rc, _, err, seen = _launch(tmp_path, "work", "--model", model, **bob)
+        assert rc == 0, err
+
+
+def test_limited_user_may_name_a_suffixed_picker_id(tmp_path: Path) -> None:
+    """Two allowed models whose names sanitize alike: the shim shows the second
+    as -2, and --model accepts that id too (PR #310 review)."""
+    # Tier 2 (bob's) gets grok-4.7 and grok/4.7: both sanitize to claude-gw-grok-4.7.
+    text = ACCESS_BLOCK.replace("export T2Model04=glm-5.3", "export T2Model04=grok/4.7")
+    bob = {"defaults": text, "CODER_WORKSPACE_OWNER_NAME": "bob"}
+    # Each id gets its own model's window (grok-4.7: 500000, grok/4.7: 1000000).
+    for model, window in (
+        ("claude-gw-grok-4.7", "500000"),
+        ("claude-gw-grok-4.7-2", "1000000"),
+        ("grok/4.7", "1000000"),
+    ):
+        rc, _, err, seen = _launch(tmp_path, "work", "--model", model, **bob)
+        assert rc == 0, (model, err)
+        assert seen["context"] == window, (model, seen["context"])
+    rc, _, err, _ = _launch(tmp_path, "work", "--model", "claude-gw-grok-4.7-3", **bob)
+    assert rc == 2 and "not in a tier available to bob" in err
+
+
+def test_broken_entry_stops_the_launch_with_the_reason(tmp_path: Path) -> None:
+    text = TIER_BLOCK + 'export CCSESSION_ACCESS="bob=tier1a:tier2,tier3"\n'
+    for args in (
+        ("work",),
+        ("work", "--tier", "tier2"),
+        ("work", "--model", "grok-4.7"),
+    ):
+        rc, _, err, seen = _launch(
+            tmp_path, *args, defaults=text, CODER_WORKSPACE_OWNER_NAME="bob"
+        )
+        assert rc == 2 and seen is None, args
+        assert "start tier tier1a is not in its tier list" in err
+
+
+def test_help_lists_only_the_owners_tiers(tmp_path: Path) -> None:
+    rc, out, err, _ = _launch(
+        tmp_path, "--help", defaults=ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="bob"
+    )
+    assert rc == 0, err
+    assert "* ccsession --tier tier2" in out and "  ccsession --tier tier3" in out
+    assert "--tier tier0" not in out and "--tier tier1a" not in out
+    rc, out, _, _ = _launch(
+        tmp_path, "--help", defaults=ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="alice"
+    )
+    assert "* ccsession --tier tier1a" in out and "  ccsession --tier tier0" in out
+
+
+def test_models_status_reports_the_owners_access(tmp_path: Path) -> None:
+    rc, out, err, _ = _launch(
+        tmp_path,
+        "--models-status",
+        defaults=ACCESS_BLOCK,
+        CODER_WORKSPACE_OWNER_NAME="bob",
+    )
+    assert rc == 0, err
+    assert "bob starts on tier2; tiers: tier2, tier3 (CCSESSION_ACCESS)" in out
+    rc, out, _, _ = _launch(tmp_path, "--models-status", defaults=ACCESS_BLOCK)
+    assert "owner unknown" in out and "every tier" in out
+
+
+def test_shim_applies_the_owners_role(shim, tmp_path) -> None:
+    _, start, _ = shim
+    base = start(
+        ROLE_BLOCK,
+        CODER_WORKSPACE_OWNER_NAME="erin",
+        CODER_WORKSPACE_OWNER_ROLES="auditor",
+        CCSESSION_SHOW_ALL_MODELS="1",
+    )
+    ids = [
+        m["id"]
+        for m in json.loads(
+            urllib.request.urlopen(f"{base}/v1/models", timeout=5).read()
+        )["data"]
+    ]
+    assert ids[:2] == ["claude-gw-tier1a[1m]", "claude-gw-tier2[1m]"]
+    assert "claude-gw-tier0[1m]" not in ids and "claude-gw-tier3[1m]" not in ids
+    status, body = _ask(base, "claude-gw-tier3")
+    assert status == 400 and b"tier3 is not available to erin" in body
+
+
+def test_owner_roles_are_part_of_the_shim_settings() -> None:
+    """Two owners with different roles must not share one shim."""
+    one = models.settings_digest({"CODER_WORKSPACE_OWNER_ROLES": "auditor"}, {})
+    two = models.settings_digest({"CODER_WORKSPACE_OWNER_ROLES": ""}, {})
+    assert one != two
+
+
+# The workspace rules: anyone above member starts on Tier 1a with every tier and
+# each model listed; everyone else starts on Tier 2 with Tiers 2-4 only.
+MODEL_ORDER = (
+    "claude-fable-5-1 claude-opus-5-5 claude-sonnet-5-5 gpt-6-astra gpt-6.1-sol "
+    "gpt-6.1-terra gpt-6-luna muse-wonder-full-1.0 muse-wonder-1.0 muse-spark-1.3 "
+    "glm-5.3 grok-4.7 Qwen3.8-max"
+)
+RULES_BLOCK = TIER_BLOCK + (
+    'export CCSESSION_ACCESS=""\n'
+    'export CCSESSION_TIER_RULES="role:owner=tier1a+models role:user-admin=tier1a+models '
+    "role:template-admin=tier1a+models role:auditor=tier1a+models "
+    '*=tier2:tier2,tier3,tier4"\n'
+    f'export CCSESSION_MODEL_ORDER="{MODEL_ORDER}"\n'
+)
+EVERY_TIER = ["tier0", "tier1a", "tier1b", "tier2", "tier3", "tier4"]
+
+
+def test_tier_rules_give_roles_every_tier_and_members_tiers_2_to_4(tmp_path) -> None:
+    clay = _role_access("clay", "auditor,user-admin", RULES_BLOCK, tmp_path)
+    assert clay["start"] == "tier1a" and clay["allowed"] == EVERY_TIER
+    assert clay["models"] and clay["via"] == "role:user-admin"
+    assert clay["setting"] == "CCSESSION_TIER_RULES"
+    ryan = _role_access("ryan", "owner", RULES_BLOCK, tmp_path)
+    assert ryan["start"] == "tier1a" and ryan["models"]
+    for roles in ("", "member", "organization-member"):
+        member = _role_access("bruno", roles, RULES_BLOCK, tmp_path)
+        assert member["listed"] and member["via"] == "*"
+        assert member["start"] == "tier2" and not member["models"]
+        assert member["allowed"] == ["tier2", "tier3", "tier4"]
+    # A terminal that does not know its owner gets the * entry, never more.
+    unknown = _role_access("", "", RULES_BLOCK, tmp_path)
+    assert unknown["allowed"] == ["tier2", "tier3", "tier4"] and not unknown["models"]
+
+
+def test_tier_rules_replace_the_old_access_line(tmp_path) -> None:
+    """CCSESSION_ACCESS stays for older ccsession; when CCSESSION_TIER_RULES is
+    present, it alone decides (a username entry there still wins over roles)."""
+    text = TIER_BLOCK + (
+        'export CCSESSION_ACCESS="bruno=tier0"\n'
+        'export CCSESSION_TIER_RULES="bruno=tier1b:tier1b *=tier2:tier2,tier3,tier4"\n'
+    )
+    bruno = _role_access("bruno", "", text, tmp_path)
+    assert bruno["start"] == "tier1b" and bruno["allowed"] == ["tier1b"]
+    assert bruno["via"] == "" and not bruno["models"]
+    old = TIER_BLOCK + 'export CCSESSION_ACCESS="bruno=tier0"\n'
+    assert _role_access("bruno", "", old, tmp_path)["start"] == "tier0"
+
+
+def test_tier_rules_line_follows_the_one_line_rule(tmp_path) -> None:
+    for extra in (
+        'export CCSESSION_TIER_RULES="*=tier2"\nexport CCSESSION_TIER_RULES="*=tier0"\n',
+        'export CCSESSION_TIER_RULES="*=tier2"  # see CCSESSION_TIER_RULES\n'
+        "# CCSESSION_TIER_RULES is set above\n",
+        'CCSESSION_TIER_RULES+=" *=tier0"\n',
+    ):
+        # A terminal that does not know its owner stops too: the rules' * entry
+        # was meant to limit it (PR #318 review).
+        for owner in ("bruno", ""):
+            with pytest.raises(
+                ValueError, match="CCSESSION_TIER_RULES must be set by one line"
+            ):
+                _role_access(owner, "", TIER_BLOCK + extra, tmp_path)
+    for value in ("*=tier2 *=tier3", "*=tier2+models+models", "role:=tier2"):
+        text = TIER_BLOCK + f'export CCSESSION_TIER_RULES="{value}"\n'
+        with pytest.raises(ValueError):
+            _role_access("bruno", "", text, tmp_path)
+
+
+def test_older_ccsession_ignores_the_rules_line(tmp_path) -> None:
+    """Older copies treat any CCSESSION_..ACCESS name as their access line; the
+    rules setting must not look like one to them."""
+    for line in RULES_BLOCK.splitlines():
+        if "CCSESSION_TIER_RULES" in line or "CCSESSION_MODEL_ORDER" in line:
+            assert not models._names_access(re.sub(r"[\"'\\]", "", line)), line
+
+
+def test_member_launches_on_tier2_and_cannot_pick_tier1a(tmp_path) -> None:
+    rc, out, err, seen = _launch(
+        tmp_path, "work", defaults=RULES_BLOCK, CODER_WORKSPACE_OWNER_NAME="bruno"
+    )
+    assert rc == 0, err
+    assert _model_arg(seen) == "claude-gw-tier2[1m]" and seen["context"] == "500000"
+    rc, _, err, seen = _launch(
+        tmp_path,
+        "work",
+        "--tier",
+        "1a",
+        defaults=RULES_BLOCK,
+        CODER_WORKSPACE_OWNER_NAME="bruno",
+    )
+    assert rc == 2 and seen is None
+    assert "tier1a is not available to bruno (available: tier2, tier3, tier4)" in err
+
+
+def test_role_holder_launches_on_tier1a_and_named_models_take_env_windows(
+    tmp_path,
+) -> None:
+    env = {
+        "CODER_WORKSPACE_OWNER_NAME": "clay",
+        "CODER_WORKSPACE_OWNER_ROLES": "auditor,user-admin",
+    }
+    text = RULES_BLOCK
+    rc, _, err, seen = _launch(tmp_path, "work", defaults=text, **env)
+    assert rc == 0, err
+    assert _model_arg(seen) == "claude-gw-tier1a[1m]" and seen["context"] == "850000"
+    for model, window in (("grok-4.7", "500000"), ("gpt-6.1-terra", "850000")):
+        rc, _, err, seen = _launch(
+            tmp_path, "work", "--model", model, defaults=text, **env
+        )
+        assert rc == 0, err
+        assert seen["context"] == window and _compact(seen, model) == int(window)
+
+
+def test_shim_lists_each_model_by_provider_for_role_holders(shim) -> None:
+    _, start, _ = shim
+    base = start(
+        RULES_BLOCK,
+        CODER_WORKSPACE_OWNER_NAME="clay",
+        CODER_WORKSPACE_OWNER_ROLES="auditor,user-admin",
+    )
+    listing = json.loads(urllib.request.urlopen(f"{base}/v1/models", timeout=5).read())[
+        "data"
+    ]
+    ids = [m["id"] for m in listing]
+    assert ids[:6] == TIER_IDS
+    assert [m["display_name"] for m in listing[6:]] == [
+        "Claude Fable 5.1",
+        "Claude Opus 5.5",
+        "Claude Sonnet 5.5",
+        "GPT 6 Astra",
+        "GPT 6.1 Sol",
+        "GPT 6.1 Terra",
+        "GPT 6 Luna",
+        "Muse Wonder Full 1.0",
+        "Muse Wonder 1.0",
+        "Muse Spark 1.3",
+        "GLM 5.3",
+        "Grok 4.7",
+        "Qwen 3.8 Max",
+    ]
+    assert listing[3]["display_name"].startswith("Tier 2: ")
+    assert _ask(base, "claude-gw-tier1a")[0] == 200
+
+
+def test_shim_gives_members_tiers_2_to_4_and_no_models(shim) -> None:
+    _, start, _ = shim
+    base = start(RULES_BLOCK, CODER_WORKSPACE_OWNER_NAME="bruno")
+    ids = [
+        m["id"]
+        for m in json.loads(
+            urllib.request.urlopen(f"{base}/v1/models", timeout=5).read()
+        )["data"]
+    ]
+    assert ids == ["claude-gw-tier2[1m]", "claude-gw-tier3[1m]", "claude-gw-tier4[1m]"]
+    status, body = _ask(base, "claude-gw-tier1a")
+    assert status == 400 and b"tier1a is not available to bruno" in body
+
+
+def test_shim_offers_and_routes_only_the_owners_tiers(shim, tmp_path) -> None:
+    gateway, start, _ = shim
+    base = start(
+        ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="bob", CCSESSION_SHOW_ALL_MODELS="1"
+    )
+    ids = [
+        m["id"]
+        for m in json.loads(
+            urllib.request.urlopen(f"{base}/v1/models", timeout=5).read()
+        )["data"]
+    ]
+    assert ids[:2] == ["claude-gw-tier2[1m]", "claude-gw-tier3[1m]"]
+    assert "claude-gw-tier1a[1m]" not in ids and "claude-opus-5-5[1m]" not in ids
+    status, body = _ask(base, "claude-gw-tier1a")
+    assert status == 400 and b"tier1a is not available to bob" in body
+    assert _ask(base, "claude-gw-tier3")[0] == 200
+    assert gateway.models_called() == ["gpt-6.1-terra"]
+    # A changed entry applies to the running shim on the next request.
+    _defaults(tmp_path, ACCESS_BLOCK.replace("bob=2:tier2,3", "bob=1a:1a,2"))
+    assert _ask(base, "claude-gw-tier1a")[0] == 200
+    status, body = _ask(base, "claude-gw-tier3")
+    assert status == 400 and b"tier3 is not available to bob" in body
+
+
+def test_shim_refuses_tiers_while_the_owners_entry_is_broken(shim) -> None:
+    gateway, start, _ = shim
+    base = start(
+        TIER_BLOCK + 'export CCSESSION_ACCESS="bob=tier7"\n',
+        CODER_WORKSPACE_OWNER_NAME="bob",
+    )
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 400 and b"tier7 is not a defined tier" in body
+    assert gateway.models_called() == []
+
+
+def test_each_owner_gets_its_own_shim(tmp_path: Path) -> None:
+    env = {"CCSESSION_SHOW_ALL_MODELS": ""}
+    ports = {
+        models.shim_port(4010, {**env, "CODER_WORKSPACE_OWNER_NAME": owner}, {"x": "1"})
+        for owner in ("alice", "bob")
+    }
+    assert len(ports) == 2
+
+
+# --- issue #384: alias variables exported in tier mode only --------------------
+
+ALIAS_VARIABLES = (
+    "ANTHROPIC_DEFAULT_OPUS_MODEL",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+)
+
+
+def test_tier_launch_exports_the_alias_variables(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # The harness copies os.environ and the workspace exports these three
+    # variables, so remove them first: only the launcher may set them here.
+    for name in ALIAS_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
+    rc, out, err, seen = _launch(tmp_path, "work")
+    assert rc == 0, err
+    assert (seen["opus_model"], seen["sonnet_model"], seen["haiku_model"]) == (
+        "claude-gw-tier1a",
+        "claude-gw-tier1b",
+        "claude-gw-tier2",
+    )
+
+
+def test_non_tier_launch_leaves_the_alias_variables_unset(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for name in ALIAS_VARIABLES:
+        monkeypatch.delenv(name, raising=False)
+    rc, out, err, seen = _launch(tmp_path, "work", defaults=None)
+    assert rc == 0, err
+    assert (seen["opus_model"], seen["sonnet_model"], seen["haiku_model"]) == ("", "", "")

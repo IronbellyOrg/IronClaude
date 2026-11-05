@@ -1,0 +1,18 @@
+# Blind calibration of reviewer-3-card (confidence-calibrator on claude-opus-5-5; calibrator_diversity: degraded)
+card: reviewer-3-card.md
+dimension_scores:
+  citation_grounding: 0.88
+  coverage_completeness: 0.82
+  deviation_classification_clarity: 0.78
+  risk_surface_coverage: 0.85
+  recommendation_actionability: 0.85
+calibrated_confidence: 0.84
+self_reported_confidence: 0.85
+spot_checks: {read: 14, matched: 14}
+blocking_findings_confirmed:
+  R3-1: "genuinely blocking: Task 2 comment (plan:52) puts the literal tier id into cli/, the policy test (plan:30,33) fails, no task runs the whole file (plan:56,66,76,86,98; constraint plan:23)"
+  R3-2: "blocking at its core: spec source.md:5 asks for a failing-first test, Task 9 (plan:125,129) never runs it; the 'fails with KeyError' sub-claim is overstated because plan:125 already tells the implementer to state the harness addition"
+extra_gap_found_by_calibrator: "source.md:1 asks to scan agents, commands and skills for full model ids used as selections; the plan scans Python constants (plan:34) and frontmatter (plan:32) only, never markdown body text such as --model claude-opus-4-8"
+notes:
+  - "R3-8 bundles two unrelated defects (Task 8 scope, Task 6 wording); R3-9 bundles about 7 nits"
+  - "R3-7 correctly minor: Task 4's closing search (plan:72) would likely find final-report.md:77"

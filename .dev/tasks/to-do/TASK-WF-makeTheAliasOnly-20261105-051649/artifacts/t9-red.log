@@ -1,0 +1,24 @@
+E     Full diff: (-: missing in left side, +: extra in left side)
+E       (
+E     -     'claude-gw-tier1a',
+E     -     'claude-gw-tier1b',
+E     -     'claude-gw-tier2',
+E     +     '',
+E     +     '',
+E     +     '',
+E       )
+=========================== short test summary info ============================
+FAILED .dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/t9-scratch/test_alias_exports_scratch.py::test_tier_launch_exports_the_alias_variables - AssertionError: assert ('', '', '') == ('claude-gw-tier1a', 'claude-gw-tier1b', 'claude-gw-tier2')
+  
+  At index 0 diff: '' != 'claude-gw-tier1a'
+  
+  Full diff: (-: missing in left side, +: extra in left side)
+    (
+  -     'claude-gw-tier1a',
+  -     'claude-gw-tier1b',
+  -     'claude-gw-tier2',
+  +     '',
+  +     '',
+  +     '',
+    )
+========================= 1 failed, 1 passed in 1.00s ==========================

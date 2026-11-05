@@ -19,3 +19,4 @@ This folder holds reference material: troubleshooting guides, diagnostic procedu
 | [nfr-conv-2-prose-determinism.md](./nfr-conv-2-prose-determinism.md) | Where task-builder output must be deterministic and where prose may vary |
 | [pm-agent-autonomous-reflection.md](./pm-agent-autonomous-reflection.md) | How the PM agent reflects on its own work and saves tokens |
 | [claude-code-history-management.md](./claude-code-history-management.md) | How Claude Code stores conversation history and how to rotate it |
+| [model-aliases.md](./model-aliases.md) | How `opus`, `sonnet` and `haiku` map to ccsession tiers, and the allow-list of the model-alias policy test |
