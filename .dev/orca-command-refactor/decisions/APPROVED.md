@@ -54,3 +54,11 @@ Source: `.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/p0-p
 | H1 | The looser reading of section 7.2 step 5 condition 4 is accepted. A gap between heartbeats that lies inside a command's own subagent fan-out is accepted, not failed. Spec WC-10 stands as written. Condition 4 limits (a) (at most the cadence once subagent time and `ask` / `check --wait` time are removed) and (b) (at most 20 minutes with nothing removed) are the whole test. The stricter reading (a raw gap longer than the cadence while a subagent runs fails condition 4) is rejected. |
 | H2 | The P0 verdict stays PASS. The condition 4 result of the three P0 live checks stays PASS. No P0 check is re-run for this decision. |
 | H3 | No spec text changes. WC-10 (section 2.2) and condition 4 (a) and (b) in section 7.2 step 5 already state the looser reading, and no other spec line contradicts it. |
+
+## P1 owner decisions (owner decision 2026-11-05, after the P1 static plan review)
+Source: `.dev/reflect/pre-TASK-WF-writeTheP1Static-20261105-033458-20261105034258/REPORT.md`, section "Open owner questions". Plan: `.dev/tasks/to-do/TASK-WF-writeTheP1Static-20261105-033458/`.
+
+| ID | Decision |
+|---|---|
+| P1-D1 | Approved (plan decision D-P1-1). Graph and impact keep the short-name `command` value (`graph`, `impact`) in their contract, and it counts as the worker `command` field. No second key is added. Spec WC-4 ("the exact command line") is read as met by the existing key for these two commands. |
+| P1-D4 | Approved after an adversarial debate between two advocates (one per option, one rebuttal round; both ended on option A). Plan decision D-P1-4 stands: in P1 brainstorm passes `--unattended` and `<report-dir>/nested/<command>-<n>/` to its nested `/sc:analyze` and adversarial calls, research enrichment is off, and the `tasklist` and `task` handoffs are skipped and recorded. Reason: spec section 2.1 (nested propagation) applies to every called command that accepts the flag in this phase, and both are P1 commands; the spec's "from P2" wording (row for brainstorm, section 3.1) and AC-2.1 name research enrichment only. One addition: `<n>` starts at 1 per nested command and a retry of a nested call uses the next number, so a nested directory is never reused. |
