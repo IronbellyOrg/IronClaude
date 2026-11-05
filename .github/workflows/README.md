@@ -12,7 +12,7 @@ This directory contains CI/CD workflows for SuperClaude Framework.
 - **test**: Run the full test suite on Python 3.10
   - Set up uv and Python 3.10, install dependencies
   - Sync `src/superclaude/` → `.claude/` mirrors
-  - Run the full test suite once, with coverage
+  - Run the full test suite once, in parallel (`-n auto`), stopping after 3 failures
 - **swarm-marker-matrix**: Run the swarm `imm` and `inv` acceptance lanes
 - **lint**: Lint, plugin, sync and dependency checks in one job
   - `ruff check` and `ruff format --check`
@@ -74,8 +74,8 @@ uv run superclaude doctor --verbose
     ┌──────▼─────────────────────┐
     │  test.yml (Python 3.10)    │
     │                            │
-    │ • test (full suite +       │
-    │   coverage)                │
+    │ • test (full suite,        │
+    │   parallel)                │
     │ • swarm imm / inv lanes    │
     │ • lint (ruff, plugin,      │
     │   deps, sync, arch)        │
@@ -86,7 +86,7 @@ uv run superclaude doctor --verbose
 
 ## Coverage Reporting
 
-Coverage reports are generated on Python 3.10.
+CI does not generate coverage reports (nothing consumed them).
 
 To view coverage locally:
 
