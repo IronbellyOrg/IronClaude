@@ -1,0 +1,13 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-implementFrOnb1O-20261023-180618
+plan_path: ./TASK-WF-implementFrOnb1O-20261023-180618.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/IronClaude/.dev/worktrees/onboarding-deck/.dev/reflect/pre-implementFrOnb1O-20261023180800/REPORT.md
+unresolved: []

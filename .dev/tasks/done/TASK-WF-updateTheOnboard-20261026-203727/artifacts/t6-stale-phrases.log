@@ -1,0 +1,18 @@
+# Stale-phrase grep of docs/onboarding/ironclaude-onboarding.html, 2026-10-26T21:50Z (case-insensitive, after the Task 6 edits)
+
+| Phrase | Hits | Justification |
+|---|---|---|
+| rare | 0 | |
+| level-4 | 0 | |
+| never choose | 0 | |
+| /roadmap | 4 | deck:343 and deck:429 and deck:598 say `/roadmap` only if explicitly chosen or exceptionally justified (guide:20, :81, :298); deck:564 is the slide 13 look-alike pair `/roadmap` vs `/sc:roadmap` (guide:298) |
+| heavier | 2 | deck:190 and deck:250 say "the heavier skills" (gates, double runs, debates), the meeting explanation on slides 2 and 3 (spec.md:194-195; transcript T119-121, T221-223); not a level or planner rule |
+| 3.13 | 0 | |
+| spec-driven | 0 | |
+| setting to pass | 0 | |
+| merged | 4 | deck:194 and deck:226 are D1's "best parts merged" (spec.md:224; guide:157 "merged artifacts"); deck:396 slide 7 title and deck:400 D5 title "From idea to merged PR" / "Idea to merged PR" are pinned by the spec (spec.md:199, :228); the slide 7 body says "an open pull request" and makes no merge claim |
+| Part A | 0 | |
+
+## Does tests/docs/test_onboarding_deck.py need an update?
+
+No change. The test checks two things: every command and flag shown in `<code>` and in SVG `<text>`, `<title>` and `<desc>` exists in the guide (test:69-87), and the footer keeps the "Built from HOW-WE-WORK.md at commit <sha>" shape (test:23, :90-91). Both still pass on the updated deck (`./artifacts/t6-tests.log`). It cannot tell whether a route or a prose sentence matches the guide (a stale `/roadmap` default would pass because `/roadmap` exists in the guide); this grep log, the per-task reviews and the Task 7 accuracy review cover that. Adding prose-level assertions would pin today's wording and break on every guide edit, so it is left to the review steps rather than the test.

@@ -1,0 +1,30 @@
+diff --git a/src/superclaude/cli/recommend/prompts.py b/src/superclaude/cli/recommend/prompts.py
+index e940c7b1..662a943a 100644
+--- a/src/superclaude/cli/recommend/prompts.py
++++ b/src/superclaude/cli/recommend/prompts.py
+@@ -55,8 +55,10 @@ invent a key outside this set.
+   spec-generation        — write a new PRD or TDD from inputs (/prd, /tdd);
+                            reviewing an existing spec is not this key
+   codebase-research      — understand how THIS codebase / a subsystem works
+-  task-file-generation   — turn a spec, report, or build request into a task file
+-                           (/task-builder, then /task)
++  task-file-generation   — turn a spec, report, or build request into a written
++                           plan: /sc:workflow, then /sc:implement by default;
++                           /task-builder, then /task only for a from-scratch
++                           build whose spec nearly needs a PRD and TDD
+   parallel-agent-fanout  — research/process N independent items, then synthesize
+   roadmap-generation     — generate a phased roadmap plus phase task files from
+                            a PRD/TDD (/roadmap)
+@@ -161,9 +163,9 @@ command. Enumerate the ACTUAL surface every time; never use a static mapping.
+ The parent found no matching routing row, or no guide. Hard limit first: if
+ the work needs more than 5 edits or touches more than one source file (its
+ matching test file does not count), it must go through a written plan, never
+-native edits: level 3 (/sc:workflow --depth quick then /sc:implement) for a
+-few files with clear scope, level 4 (/task-builder then /task) for anything
+-larger, longer, or riskier. The one exception is /sc:cleanup and /sc:improve
++native edits: level 3 (/sc:workflow --depth quick then /sc:implement) by
++default, level 4 (/task-builder then /task) only for the large spec-driven
++builds described in level 4. The one exception is /sc:cleanup and /sc:improve
+ run on a folder (guide section 3.7): commit first and review git diff
+ afterwards. Otherwise, for every surviving
+ candidate answer before recommending: (1) Does delegating beat a 2-3 step

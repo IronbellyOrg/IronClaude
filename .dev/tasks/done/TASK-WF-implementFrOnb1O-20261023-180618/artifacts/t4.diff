@@ -1,0 +1,104 @@
+diff --git a/plugins/superclaude/skills/sc-recommend/SKILL.md b/plugins/superclaude/skills/sc-recommend/SKILL.md
+index 9cb68b31..6078da3e 100644
+--- a/plugins/superclaude/skills/sc-recommend/SKILL.md
++++ b/plugins/superclaude/skills/sc-recommend/SKILL.md
+@@ -32,7 +32,7 @@ Every successful invocation emits one of:
+ 3. **Plugin-search result** (`--plugin` only) — one or more plugin/skill candidates with capability summary, install command, repo URL, and citations.
+ 4. **Ordered workflow** — when Step 0 matched a routing row in the guide: a numbered list of steps in the guide's order, each with the command or skill to run and every flag the guide makes mandatory for that step, plus the level, whether it changes files, and the guide section to read (Phase 2, ordered-workflow template).
+ 
+-If multiple distinct paths are reasonable (e.g., "either `/sc:workflow` + `/sc:implement` (level 3) or `/task-builder` + `/task` (level 4) fits"), emit each as its own clearly-labeled prompt block with a one-line disambiguator — never as a flat "alternatives" list.
++If multiple distinct paths are reasonable (e.g., "`/sc:workflow` + `/sc:implement` (level 3, the default) fits, or `/task-builder` + `/task` (level 4) if this is a from-scratch build whose spec nearly needs a PRD and TDD"), emit each as its own clearly-labeled prompt block with a one-line disambiguator — never as a flat "alternatives" list.
+ 
+ The skill never restates the target's internal logic (see Rule R3).
+ 
+@@ -55,9 +55,9 @@ When the guide is found, add its path to `verified_sources` and extract three bl
+ 
+ **Parse rule:** after the header and separator lines, each routing-table row must split on unescaped `|` into exactly 8 cells. A row that does not is skipped and named in `degradation_notes` (`routing row <n> skipped: <k> cells`). A block is absent only if either of its markers is missing or, for the routing table, no row parses; say so in `degradation_notes`.
+ 
+-**Match the goal to one routing row.** A row matches when the goal states the situation in at least one of its `intent` phrases (separated by `;`; same meaning, not necessarily the same words). If no phrase of any row fits, the result is `no_match`. If two or more rows match: prefer the row whose matching phrase is more specific (it names the artifact, for example "stack trace" or "PRD"). If they are still tied and all tied rows have numeric levels, take the row with the higher `level` (the guide's rule: when unsure between two rows, choose the heavier one). If any tied row has level `-`, ask exactly this and stop: `Is this mainly <intent of row A> or <intent of row B>?`. If the goal is too vague to compare with any intent phrase, ask one clarifying question (Graceful degradation, last row).
++**Match the goal to one routing row.** A row matches when the goal states the situation in at least one of its `intent` phrases (separated by `;`; same meaning, not necessarily the same words). If no phrase of any row fits, the result is `no_match`. If two or more rows match: prefer the row whose matching phrase is more specific (it names the artifact, for example "stack trace" or "PRD"). If they are still tied and all tied rows have numeric levels, take the row with the higher `level`, except that a level-4 row never wins a tie against a level-3 row (the guide's rule: when unsure between levels 3 and 4, choose level 3; when unsure between any other two rows, choose the heavier one). If any tied row has level `-`, ask exactly this and stop: `Is this mainly <intent of row A> or <intent of row B>?`. If the goal is too vague to compare with any intent phrase, ask one clarifying question (Graceful degradation, last row).
+ 
+-- **A row matches:** set `guide_status: matched` and record the row `id`. Skip the Hot-Path Cache Lookup and the Cold-Path Write-Back: a cache row holds one hand-off target and cannot carry an ordered workflow. In matched mode, skip Phase 0 Step B. In Step C, verify each step's command or skill from the matched row directly (Read the Step A path for that name), whether or not auggie would rank it. Then build the answer with the ordered-workflow template in Phase 2. Before using a matched row at level 1 or 2 (for example `small-change`), apply the guide's hard limit: a row's intent phrases describe one situation, and if the goal needs more than five edits or touches more than one source file (its test file does not count), use the `simple-plan` (level 3) or `task-file` (level 4) row instead.
++- **A row matches:** set `guide_status: matched` and record the row `id`. Skip the Hot-Path Cache Lookup and the Cold-Path Write-Back: a cache row holds one hand-off target and cannot carry an ordered workflow. In matched mode, skip Phase 0 Step B. In Step C, verify each step's command or skill from the matched row directly (Read the Step A path for that name), whether or not auggie would rank it. Then build the answer with the ordered-workflow template in Phase 2. Before using a matched row at level 1 or 2 (for example `small-change`), apply the guide's hard limit: a row's intent phrases describe one situation, and if the goal needs more than five edits or touches more than one source file (its test file does not count), use the `simple-plan` (level 3) row instead by default, or the `task-file` (level 4) row only for a level-4-sized build (a whole project or major component built from scratch, from a spec that nearly needs a PRD and TDD).
+ - **No row matches:** set `guide_status: no_match` and continue with the Hot-Path Cache Lookup as written. The level table and the hard limit still apply in Phase 1.
+ 
+ ## Hot-Path Cache Lookup (try the amortized cache before the cold path)
+@@ -152,9 +152,9 @@ Verification is **exempt** for built-in tools (`Read`, `Grep`, `Glob`, `Edit`, `
+ **No row matched, guide found:** place the goal on the guide's level table first, then answer the net-value questions inside that level.
+ 
+ - Level 1 (a question, nothing changes) and level 2 (one source file plus its test, five edits or fewer, exact change known): native tooling is allowed and is often right.
+-- The guide's **hard limit overrides native first.** If the work needs more than 5 edits or touches more than one source file (its matching test file does not count), never recommend a native edit sequence. Recommend a written plan instead: level 3 (`/sc:workflow --depth quick` then `/sc:implement`) for a few files with clear scope, level 4 (`/task-builder` then `/task`) for anything larger, longer, or riskier. The one exception is the guide's own: `/sc:cleanup` or `/sc:improve` on a folder, after a commit, with `git diff` reviewed afterwards.
++- The guide's **hard limit overrides native first.** If the work needs more than 5 edits or touches more than one source file (its matching test file does not count), never recommend a native edit sequence. Recommend a written plan instead: level 3 (`/sc:workflow --depth quick` then `/sc:implement`) by default, level 4 (`/task-builder` then `/task`) only for the large spec-driven builds described in level 4. The one exception is the guide's own: `/sc:cleanup` or `/sc:improve` on a folder, after a commit, with `git diff` reviewed afterwards.
+ 
+-**No guide:** apply the guide's hard limit, then the net-value questions. The hard limit: if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 for a few files with clear scope, level 4 for anything larger, longer, or riskier. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (guide section 3.7): commit first and review `git diff` afterwards.
++**No guide:** apply the guide's hard limit, then the net-value questions. The hard limit: if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 by default, level 4 only for the large spec-driven builds described in level 4. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (guide section 3.7): commit first and review `git diff` afterwards.
+ 
+ For **every** surviving candidate, answer explicitly before recommending:
+ 
+diff --git a/plugins/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md b/plugins/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md
+index f4aa1b65..150333e4 100644
+--- a/plugins/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md
++++ b/plugins/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md
+@@ -35,8 +35,8 @@ Score the candidate delegation across these five axes. The candidate wins only i
+ 
+ ### 2. Scope / breadth
+ 
+-- Scope: the routing guide's hard limit decides (`~/.claude/HOW-WE-WORK.md`, section 1): if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 for a few files with clear scope, level 4 for anything larger, longer, or riskier. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (guide section 3.7): commit first and review `git diff` afterwards. Never recommend a native edit sequence above the limit; native wins only for level 1-2 work.
+-- Scope = 5-20 files: a written plan is required (level 3 or 4); if current behaviour is unknown, start with `/tech-research` (level 5).
++- Scope: the routing guide's hard limit decides (`~/.claude/HOW-WE-WORK.md`, section 1): if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 by default, level 4 only for the large spec-driven builds described in level 4. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (guide section 3.7): commit first and review `git diff` afterwards. Never recommend a native edit sequence above the limit; native wins only for level 1-2 work.
++- Scope = 5-20 files: a written plan is required (level 3 by default; level 4 only for a from-scratch build whose spec nearly needs a PRD and TDD); if current behaviour is unknown, start with `/tech-research` (level 5).
+ - Scope = whole repo or cross-domain (security + perf + arch + maintainability): delegation almost always wins (`/sc:cleanup-audit`, `/sc:troubleshoot` Tier 2+).
+ 
+ ### 3. Output structure required
+diff --git a/src/superclaude/skills/sc-recommend/SKILL.md b/src/superclaude/skills/sc-recommend/SKILL.md
+index 9cb68b31..6078da3e 100644
+--- a/src/superclaude/skills/sc-recommend/SKILL.md
++++ b/src/superclaude/skills/sc-recommend/SKILL.md
+@@ -32,7 +32,7 @@ Every successful invocation emits one of:
+ 3. **Plugin-search result** (`--plugin` only) — one or more plugin/skill candidates with capability summary, install command, repo URL, and citations.
+ 4. **Ordered workflow** — when Step 0 matched a routing row in the guide: a numbered list of steps in the guide's order, each with the command or skill to run and every flag the guide makes mandatory for that step, plus the level, whether it changes files, and the guide section to read (Phase 2, ordered-workflow template).
+ 
+-If multiple distinct paths are reasonable (e.g., "either `/sc:workflow` + `/sc:implement` (level 3) or `/task-builder` + `/task` (level 4) fits"), emit each as its own clearly-labeled prompt block with a one-line disambiguator — never as a flat "alternatives" list.
++If multiple distinct paths are reasonable (e.g., "`/sc:workflow` + `/sc:implement` (level 3, the default) fits, or `/task-builder` + `/task` (level 4) if this is a from-scratch build whose spec nearly needs a PRD and TDD"), emit each as its own clearly-labeled prompt block with a one-line disambiguator — never as a flat "alternatives" list.
+ 
+ The skill never restates the target's internal logic (see Rule R3).
+ 
+@@ -55,9 +55,9 @@ When the guide is found, add its path to `verified_sources` and extract three bl
+ 
+ **Parse rule:** after the header and separator lines, each routing-table row must split on unescaped `|` into exactly 8 cells. A row that does not is skipped and named in `degradation_notes` (`routing row <n> skipped: <k> cells`). A block is absent only if either of its markers is missing or, for the routing table, no row parses; say so in `degradation_notes`.
+ 
+-**Match the goal to one routing row.** A row matches when the goal states the situation in at least one of its `intent` phrases (separated by `;`; same meaning, not necessarily the same words). If no phrase of any row fits, the result is `no_match`. If two or more rows match: prefer the row whose matching phrase is more specific (it names the artifact, for example "stack trace" or "PRD"). If they are still tied and all tied rows have numeric levels, take the row with the higher `level` (the guide's rule: when unsure between two rows, choose the heavier one). If any tied row has level `-`, ask exactly this and stop: `Is this mainly <intent of row A> or <intent of row B>?`. If the goal is too vague to compare with any intent phrase, ask one clarifying question (Graceful degradation, last row).
++**Match the goal to one routing row.** A row matches when the goal states the situation in at least one of its `intent` phrases (separated by `;`; same meaning, not necessarily the same words). If no phrase of any row fits, the result is `no_match`. If two or more rows match: prefer the row whose matching phrase is more specific (it names the artifact, for example "stack trace" or "PRD"). If they are still tied and all tied rows have numeric levels, take the row with the higher `level`, except that a level-4 row never wins a tie against a level-3 row (the guide's rule: when unsure between levels 3 and 4, choose level 3; when unsure between any other two rows, choose the heavier one). If any tied row has level `-`, ask exactly this and stop: `Is this mainly <intent of row A> or <intent of row B>?`. If the goal is too vague to compare with any intent phrase, ask one clarifying question (Graceful degradation, last row).
+ 
+-- **A row matches:** set `guide_status: matched` and record the row `id`. Skip the Hot-Path Cache Lookup and the Cold-Path Write-Back: a cache row holds one hand-off target and cannot carry an ordered workflow. In matched mode, skip Phase 0 Step B. In Step C, verify each step's command or skill from the matched row directly (Read the Step A path for that name), whether or not auggie would rank it. Then build the answer with the ordered-workflow template in Phase 2. Before using a matched row at level 1 or 2 (for example `small-change`), apply the guide's hard limit: a row's intent phrases describe one situation, and if the goal needs more than five edits or touches more than one source file (its test file does not count), use the `simple-plan` (level 3) or `task-file` (level 4) row instead.
++- **A row matches:** set `guide_status: matched` and record the row `id`. Skip the Hot-Path Cache Lookup and the Cold-Path Write-Back: a cache row holds one hand-off target and cannot carry an ordered workflow. In matched mode, skip Phase 0 Step B. In Step C, verify each step's command or skill from the matched row directly (Read the Step A path for that name), whether or not auggie would rank it. Then build the answer with the ordered-workflow template in Phase 2. Before using a matched row at level 1 or 2 (for example `small-change`), apply the guide's hard limit: a row's intent phrases describe one situation, and if the goal needs more than five edits or touches more than one source file (its test file does not count), use the `simple-plan` (level 3) row instead by default, or the `task-file` (level 4) row only for a level-4-sized build (a whole project or major component built from scratch, from a spec that nearly needs a PRD and TDD).
+ - **No row matches:** set `guide_status: no_match` and continue with the Hot-Path Cache Lookup as written. The level table and the hard limit still apply in Phase 1.
+ 
+ ## Hot-Path Cache Lookup (try the amortized cache before the cold path)
+@@ -152,9 +152,9 @@ Verification is **exempt** for built-in tools (`Read`, `Grep`, `Glob`, `Edit`, `
+ **No row matched, guide found:** place the goal on the guide's level table first, then answer the net-value questions inside that level.
+ 
+ - Level 1 (a question, nothing changes) and level 2 (one source file plus its test, five edits or fewer, exact change known): native tooling is allowed and is often right.
+-- The guide's **hard limit overrides native first.** If the work needs more than 5 edits or touches more than one source file (its matching test file does not count), never recommend a native edit sequence. Recommend a written plan instead: level 3 (`/sc:workflow --depth quick` then `/sc:implement`) for a few files with clear scope, level 4 (`/task-builder` then `/task`) for anything larger, longer, or riskier. The one exception is the guide's own: `/sc:cleanup` or `/sc:improve` on a folder, after a commit, with `git diff` reviewed afterwards.
++- The guide's **hard limit overrides native first.** If the work needs more than 5 edits or touches more than one source file (its matching test file does not count), never recommend a native edit sequence. Recommend a written plan instead: level 3 (`/sc:workflow --depth quick` then `/sc:implement`) by default, level 4 (`/task-builder` then `/task`) only for the large spec-driven builds described in level 4. The one exception is the guide's own: `/sc:cleanup` or `/sc:improve` on a folder, after a commit, with `git diff` reviewed afterwards.
+ 
+-**No guide:** apply the guide's hard limit, then the net-value questions. The hard limit: if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 for a few files with clear scope, level 4 for anything larger, longer, or riskier. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (guide section 3.7): commit first and review `git diff` afterwards.
++**No guide:** apply the guide's hard limit, then the net-value questions. The hard limit: if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 by default, level 4 only for the large spec-driven builds described in level 4. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (guide section 3.7): commit first and review `git diff` afterwards.
+ 
+ For **every** surviving candidate, answer explicitly before recommending:
+ 
+diff --git a/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md b/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md
+index f4aa1b65..150333e4 100644
+--- a/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md
++++ b/src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md
+@@ -35,8 +35,8 @@ Score the candidate delegation across these five axes. The candidate wins only i
+ 
+ ### 2. Scope / breadth
+ 
+-- Scope: the routing guide's hard limit decides (`~/.claude/HOW-WE-WORK.md`, section 1): if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 for a few files with clear scope, level 4 for anything larger, longer, or riskier. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (guide section 3.7): commit first and review `git diff` afterwards. Never recommend a native edit sequence above the limit; native wins only for level 1-2 work.
+-- Scope = 5-20 files: a written plan is required (level 3 or 4); if current behaviour is unknown, start with `/tech-research` (level 5).
++- Scope: the routing guide's hard limit decides (`~/.claude/HOW-WE-WORK.md`, section 1): if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 by default, level 4 only for the large spec-driven builds described in level 4. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (guide section 3.7): commit first and review `git diff` afterwards. Never recommend a native edit sequence above the limit; native wins only for level 1-2 work.
++- Scope = 5-20 files: a written plan is required (level 3 by default; level 4 only for a from-scratch build whose spec nearly needs a PRD and TDD); if current behaviour is unknown, start with `/tech-research` (level 5).
+ - Scope = whole repo or cross-domain (security + perf + arch + maintainability): delegation almost always wins (`/sc:cleanup-audit`, `/sc:troubleshoot` Tier 2+).
+ 
+ ### 3. Output structure required

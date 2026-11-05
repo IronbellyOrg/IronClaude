@@ -1,0 +1,662 @@
+<!--
+  IronClaude onboarding deck. Source of truth for commands and flags: src/superclaude/core/HOW-WE-WORK.md.
+  Maintenance rule (FR-ONB.7): when HOW-WE-WORK.md changes in a way a slide depends on, update this deck in the
+  same PR (or file a follow-up issue), update the "Built from HOW-WE-WORK.md at commit" footer, and re-publish
+  the artifact to the same link. tests/docs/test_onboarding_deck.py checks every command and flag shown here.
+-->
+<title>IronClaude Onboarding</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #eef1f4;
+    --surface: #ffffff;
+    --surface-2: #e2e7ec;
+    --fg: #0f1720;
+    --muted: #46535f;
+    --line: #5f6b77;
+    --accent: #1f5596;
+    --accent-soft: #dbe6f3;
+    --warn: #8a4f00;
+    --warn-soft: #f6e7cf;
+    --code-bg: #e6ebf0;
+    --font-display: "Big Shoulders Display", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+    --font-body: "IBM Plex Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d1217; --surface: #151c23; --surface-2: #1d2630; --fg: #e5eaef; --muted: #a9b5c0;
+      --line: #8796a5; --accent: #8fb8ea; --accent-soft: #1b2b3e; --warn: #f0b552; --warn-soft: #33270f;
+      --code-bg: #1d2630; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1217; --surface: #151c23; --surface-2: #1d2630; --fg: #e5eaef; --muted: #a9b5c0;
+    --line: #8796a5; --accent: #8fb8ea; --accent-soft: #1b2b3e; --warn: #f0b552; --warn-soft: #33270f;
+    --code-bg: #1d2630; color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--fg); font-family: var(--font-body);
+    font-size: 17px; line-height: 1.55; margin: 0;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+    z-index: 10; background: var(--surface);
+  }
+  a { color: var(--accent); }
+  code {
+    font-family: var(--font-mono); font-size: 0.86em; background: var(--code-bg);
+    padding: 0.08em 0.35em; border-radius: 4px; white-space: nowrap;
+  }
+  /* Long snippets wrap only at spaces; flags and paths inside them never split. */
+  code.long { white-space: normal; }
+  code .nw { white-space: nowrap; }
+  .topbar {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 10px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  }
+  .brand { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; letter-spacing: 0.02em; margin: 0; }
+  .brand span { color: var(--accent); }
+  .nav { display: flex; align-items: center; gap: 8px; }
+  .nav button {
+    font: inherit; font-size: 0.95rem; color: var(--fg); background: var(--surface-2);
+    border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer;
+  }
+  .nav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .counter { font-family: var(--font-mono); font-size: 0.9rem; color: var(--muted); min-width: 4.5em; text-align: center; }
+  main {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 24px 48px;
+    display: grid; gap: 28px; max-width: 1100px; margin: 0 auto;
+  }
+  .slide {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: clamp(20px, 4vw, 44px); scroll-margin-top: 80px; min-width: 0;
+  }
+  .eyebrow {
+    font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 6px;
+  }
+  .eyebrow b { color: var(--accent); font-weight: 500; }
+  h2 {
+    font-family: var(--font-display); font-weight: 800; font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.05; margin: 0 0 16px; text-wrap: balance;
+  }
+  h3 { font-size: 1.05rem; margin: 18px 0 6px; }
+  p, li { max-width: 68ch; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 1.2em; }
+  li { margin-bottom: 6px; }
+  .lead { font-size: 1.15rem; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .grid2 > * { min-width: 0; }
+  .card { background: var(--surface-2); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+  .card h3 { margin-top: 0; }
+  .term { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 8px 12px; border-radius: 0 8px 8px 0; margin: 12px 0; max-width: 72ch; }
+  .term b { color: var(--accent); }
+  .story { border-left: 3px solid var(--line); padding: 4px 12px; color: var(--muted); font-style: italic; margin: 12px 0; max-width: 72ch; }
+  .trap { border-left: 3px solid var(--warn); background: var(--warn-soft); padding: 8px 12px; border-radius: 0 8px 8px 0; margin: 12px 0; max-width: 72ch; }
+  .trap b { color: var(--warn); }
+  .tablewrap { overflow-x: auto; margin: 12px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+  th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  th { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .diagram { overflow-x: auto; margin: 16px 0 4px; }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .diagram.wide svg { min-width: 980px; }
+  .diagram.mid svg { min-width: 640px; }
+  .cap { font-size: 0.85rem; color: var(--muted); margin-top: 6px; }
+  .d-box { fill: var(--surface-2); stroke: var(--line); stroke-width: 1.5; }
+  .d-box-acc { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+  .d-box-warn { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 2; }
+  .d-band { fill: var(--accent-soft); stroke: none; }
+  .d-band-2 { fill: var(--surface-2); stroke: none; }
+  .d-line { stroke: var(--line); stroke-width: 2; fill: none; }
+  .d-line-acc { stroke: var(--accent); stroke-width: 2.5; fill: none; }
+  .d-line-warn { stroke: var(--warn); stroke-width: 2.5; fill: none; stroke-dasharray: 7 5; }
+  .d-head { fill: var(--line); }
+  .d-head-acc { fill: var(--accent); }
+  .d-t { fill: var(--fg); font-family: var(--font-body); font-size: 15px; }
+  .d-ts { fill: var(--muted); font-family: var(--font-body); font-size: 13px; }
+  .d-tm { fill: var(--fg); font-family: var(--font-mono); font-size: 13.5px; }
+  .d-tm-s { font-size: 12px; }
+  .d-tb { fill: var(--fg); font-family: var(--font-body); font-size: 15px; font-weight: 600; }
+  .d-ta { fill: var(--accent); font-family: var(--font-body); font-size: 14px; font-weight: 600; }
+  .d-tw { fill: var(--warn); font-family: var(--font-body); font-size: 14px; font-weight: 600; }
+  .cheat td:first-child { white-space: nowrap; font-weight: 600; }
+  footer {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 18px 32px; color: var(--muted); font-size: 0.9rem; max-width: 1100px; margin: 0 auto;
+  }
+  footer p { max-width: 90ch; }
+  @media (max-width: 480px) {
+    body { font-size: 16px; }
+    .nav button { padding: 6px 9px; }
+  }
+  @media print {
+    :root, :root[data-theme="dark"], :root:not([data-theme="light"]) {
+      --bg: #ffffff; --surface: #ffffff; --surface-2: #eef1f4; --fg: #000000; --muted: #3a4651;
+      --line: #5f6b77; --accent: #1f5596; --accent-soft: #e4ecf6; --warn: #7a4600; --warn-soft: #f8eedd;
+      --code-bg: #eef1f4; color-scheme: light;
+    }
+    body { background: #fff; color: #000; font-size: 12pt; }
+    .topbar, body::before { display: none; }
+    main { display: block; padding: 0; max-width: none; }
+    .slide { break-after: page; page-break-after: always; break-inside: avoid; border: none; border-radius: 0; padding: 0; }
+    .slide:last-of-type { break-after: auto; page-break-after: auto; }
+    .diagram { overflow: visible; }
+    .diagram svg, .diagram.wide svg, .diagram.mid svg { min-width: 0; max-height: 120mm; }
+    #s15 table { font-size: 9.5pt; }
+    #s15 td, #s15 th { padding: 4px 6px; }
+    footer { break-before: avoid; }
+  }
+</style>
+
+<header class="topbar">
+  <p class="brand">Iron<span>Claude</span> onboarding</p>
+  <nav class="nav" aria-label="Slide navigation">
+    <button type="button" id="prev" aria-label="Previous slide">&larr; Prev</button>
+    <span class="counter" id="counter" aria-live="polite">1 / 15</span>
+    <button type="button" id="next" aria-label="Next slide">Next &rarr;</button>
+  </nav>
+</header>
+
+<main id="deck">
+
+<section class="slide" id="s1" aria-labelledby="s1-h">
+  <p class="eyebrow"><b>01</b> · Why it exists · HOW-WE-WORK intro</p>
+  <h2 id="s1-h">What IronClaude is</h2>
+  <p class="lead">IronClaude is a set of lessons learned about using AI well, wrapped into skills, so that long runs give reliable, repeatable output.</p>
+  <div class="term"><b>Skill:</b> a packaged set of instructions Claude loads for one kind of work, such as planning, debugging or review. You start most of them with a slash command, for example <code>/sc:workflow</code>.</div>
+  <p>The routing guide, <code>HOW-WE-WORK.md</code>, tells you which skill or command to use for each kind of work, and in what order. <code>superclaude install</code> copies it to <code>~/.claude/HOW-WE-WORK.md</code>. Keep it open while you work: this deck explains the <em>why</em>, and the guide holds the exact commands and flags. The one exception is <code>--plugin</code> on slide 8, which comes from the <code>/sc:recommend</code> command file.</p>
+  <p class="story">As it was put in the onboarding meeting: think of the skills as the basic instructions an AI needs to give reliable, repeatable output over a long run.</p>
+  <p><strong>Where anything you hear or read differs from the guide, the guide is the authority.</strong></p>
+</section>
+
+<section class="slide" id="s2" aria-labelledby="s2-h">
+  <p class="eyebrow"><b>02</b> · The core problem · meeting explanation</p>
+  <h2 id="s2-h">The problem: consistency</h2>
+  <p class="lead">Ask an agent to do the same thing five times and you get five different versions. Each one roughly does what you asked, in a slightly different way, and each one skips something different.</p>
+  <p class="story">In the onboarding meeting the view was that, only a few model generations ago, the best models followed instructions about 70% of the time. That is an opinion from the meeting, not a measured figure, but it explains the design: the heavier skills were built for it, so they add gates, run important work twice, and make agents debate the results.</p>
+  <figure class="diagram mid">
+    <svg viewBox="0 0 760 300" role="img" aria-labelledby="d1-t d1-d">
+      <title id="d1-t">Five runs, five answers</title>
+      <desc id="d1-d">Left: one prompt sent five times gives five different results. Right: two agents do the same work, a debate compares them, and the best parts are merged.</desc>
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="aha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <text class="d-tb" x="20" y="26">Asked once, five times</text>
+      <rect class="d-box" x="20" y="120" width="110" height="52" rx="8"/>
+      <text class="d-t" x="75" y="151" text-anchor="middle">One prompt</text>
+      <g class="d-line">
+        <path class="d-line" d="M130,146 L210,58" marker-end="url(#ah)"/>
+        <path class="d-line" d="M130,146 L210,102" marker-end="url(#ah)"/>
+        <path class="d-line" d="M130,146 L210,146" marker-end="url(#ah)"/>
+        <path class="d-line" d="M130,146 L210,190" marker-end="url(#ah)"/>
+        <path class="d-line" d="M130,146 L210,234" marker-end="url(#ah)"/>
+      </g>
+      <rect class="d-box" x="214" y="40" width="120" height="34" rx="6"/><text class="d-t" x="274" y="62" text-anchor="middle">Version A</text>
+      <rect class="d-box" x="214" y="84" width="120" height="34" rx="16"/><text class="d-t" x="274" y="106" text-anchor="middle">Version B</text>
+      <rect class="d-box" x="214" y="128" width="120" height="34" rx="2"/><text class="d-t" x="274" y="150" text-anchor="middle">Version C</text>
+      <rect class="d-box" x="214" y="172" width="120" height="34" rx="12"/><text class="d-t" x="274" y="194" text-anchor="middle">Version D</text>
+      <rect class="d-box" x="214" y="216" width="120" height="34" rx="6"/><text class="d-t" x="274" y="238" text-anchor="middle">Version E</text>
+      <text class="d-ts" x="20" y="280">Five different answers; each misses something different.</text>
+      <text class="d-tb" x="400" y="26">Two agents, then a debate</text>
+      <rect class="d-box" x="400" y="120" width="96" height="52" rx="8"/>
+      <text class="d-t" x="448" y="151" text-anchor="middle">Same job</text>
+      <path class="d-line-acc" d="M496,140 L536,92" marker-end="url(#aha)"/>
+      <path class="d-line-acc" d="M496,152 L536,200" marker-end="url(#aha)"/>
+      <rect class="d-box-acc" x="540" y="66" width="96" height="44" rx="8"/><text class="d-t" x="588" y="93" text-anchor="middle">Agent 1</text>
+      <rect class="d-box-acc" x="540" y="182" width="96" height="44" rx="8"/><text class="d-t" x="588" y="209" text-anchor="middle">Agent 2</text>
+      <path class="d-line-acc" d="M636,88 L668,132" marker-end="url(#aha)"/>
+      <path class="d-line-acc" d="M636,204 L668,162" marker-end="url(#aha)"/>
+      <rect class="d-box-acc" x="652" y="128" width="96" height="40" rx="8"/><text class="d-t" x="700" y="153" text-anchor="middle">Debate</text>
+      <text class="d-ta" x="700" y="206" text-anchor="middle">Best parts</text>
+      <text class="d-ta" x="700" y="224" text-anchor="middle">merged</text>
+      <path class="d-line-acc" d="M700,168 L700,184" marker-end="url(#aha)"/>
+      <text class="d-ts" x="400" y="280">The compare step catches what one run missed.</text>
+    </svg>
+    <figcaption class="cap">One prompt fans out to five different results; two agents plus a debate keep the best parts.</figcaption>
+  </figure>
+</section>
+
+<section class="slide" id="s3" aria-labelledby="s3-h">
+  <p class="eyebrow"><b>03</b> · Team habits · HOW-WE-WORK section 4</p>
+  <h2 id="s3-h">How we work as a team</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>Tokens are cheap; side quests are expensive</h3>
+      <p>Tokens are the units AI usage is measured and paid in.</p>
+      <p class="story">The advice in the onboarding meeting: do not get pulled into optimizing the harness (the IronClaude and Claude Code setup itself). Buying more capacity costs less than the downtime of a rabbit hole.</p>
+    </div>
+    <div class="card">
+      <h3>Drive your work through the commands</h3>
+      <p>Pick the level and the command from the guide before you start (slide 5).</p>
+      <p class="story">In the meeting, the speaker said about 90% of their own recent work runs through these commands, and the aim was stated plainly: if the commands keep proving to be overkill for your work, the skills should change to fit it.</p>
+    </div>
+    <div class="card">
+      <h3>Important work gets checked twice</h3>
+      <p>The heavier skills have two agents do the same job, often on different models, and then compare or debate the results. <code>/sc:adversarial</code> runs that debate; <code>/sc:reflect</code> checks finished work against its plan, and brings in several reviewers on different models when it is not confident or you ask for a deep check.</p>
+    </div>
+    <div class="card">
+      <h3>Some of the guide's rules (section 4)</h3>
+      <ul>
+        <li>Write it down: plans, research and findings are saved to files.</li>
+        <li>Let a skill finish; do not repeat its own checks.</li>
+        <li>Never turn off a quality check; if one seems wrong or too slow, raise it with your lead.</li>
+        <li>Read a plan before you run it.</li>
+        <li>Do only what was asked; suggest anything else.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="s4" aria-labelledby="s4-h">
+  <p class="eyebrow"><b>04</b> · How a command is built · <code>/sc:troubleshoot</code> as the example</p>
+  <h2 id="s4-h">Anatomy of a command</h2>
+  <p>A command is a thin front door. It tells you and the agent how to use the skill and where the skill lives. The skill holds the actual pipeline.</p>
+  <div class="term"><b>Ref:</b> an extra instruction file inside a skill's <code>refs/</code> folder. <b>Progressive disclosure:</b> the skill loads each ref only at the step that needs it, so instructions you do not need never take up room in the conversation.</div>
+  <figure class="diagram mid">
+    <svg viewBox="0 0 760 330" role="img" aria-labelledby="d2-t d2-d">
+      <title id="d2-t">Command layers</title>
+      <desc id="d2-d">The /sc:troubleshoot command points to the sc-troubleshoot-protocol skill. The skill loads refs on demand, including template files, and runs agents. It also calls other skills.</desc>
+      <defs>
+        <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="aha2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <rect class="d-box-acc" x="20" y="20" width="270" height="62" rx="8"/>
+      <text class="d-ts" x="34" y="42">1 · Command (214 lines)</text>
+      <text class="d-tm" x="34" y="66">/sc:troubleshoot</text>
+      <path class="d-line" d="M155,82 L155,108" marker-end="url(#ah2)"/>
+      <rect class="d-box-acc" x="20" y="112" width="270" height="62" rx="8"/>
+      <text class="d-ts" x="34" y="134">2 · Skill: the pipeline (711 lines)</text>
+      <text class="d-tm" x="34" y="158">sc-troubleshoot-protocol</text>
+      <path class="d-line" d="M90,174 L90,206" marker-end="url(#ah2)"/>
+      <path class="d-line" d="M260,174 L260,206" marker-end="url(#ah2)"/>
+      <rect class="d-box" x="20" y="210" width="170" height="104" rx="8"/>
+      <text class="d-ts" x="32" y="230">3 · Refs, on demand</text>
+      <text class="d-tm d-tm-s" x="32" y="254">triage-checklist.md</text>
+      <text class="d-tm d-tm-s" x="32" y="274">escalation-rubric.md</text>
+      <text class="d-tm d-tm-s" x="32" y="294">report-template.md</text>
+      <rect class="d-box" x="200" y="210" width="178" height="104" rx="8"/>
+      <text class="d-ts" x="212" y="230">4 · Agents</text>
+      <text class="d-tm d-tm-s" x="212" y="254">troubleshoot-analyst</text>
+      <text class="d-tm d-tm-s" x="212" y="274">confidence-calibrator</text>
+      <text class="d-tm d-tm-s" x="212" y="294">evidence-validator</text>
+      <text class="d-tb" x="444" y="42">Skills call other skills</text>
+      <path class="d-line-acc" d="M290,143 L440,90" marker-end="url(#aha2)"/>
+      <path class="d-line-acc" d="M290,143 L440,140" marker-end="url(#aha2)"/>
+      <path class="d-line-acc" d="M290,143 L440,190" marker-end="url(#aha2)"/>
+      <path class="d-line-acc" d="M290,143 L440,240" marker-end="url(#aha2)"/>
+      <rect class="d-box" x="444" y="70" width="296" height="38" rx="6"/><text class="d-tm" x="458" y="94">sc:adversarial-protocol</text>
+      <rect class="d-box" x="444" y="120" width="296" height="38" rx="6"/><text class="d-tm" x="458" y="144">sc:workflow-protocol</text>
+      <rect class="d-box" x="444" y="170" width="296" height="38" rx="6"/><text class="d-tm" x="458" y="194">task-builder</text>
+      <rect class="d-box" x="444" y="220" width="296" height="38" rx="6"/><text class="d-tm" x="458" y="244">/sc:reflect</text>
+      <text class="d-ts" x="444" y="290">Skills are interconnected: one skill is</text>
+      <text class="d-ts" x="444" y="308">often used by several others.</text>
+    </svg>
+    <figcaption class="cap">Command, skill, refs (templates such as <code>report-template.md</code> are ref files) and agents, with the skills <code>/sc:troubleshoot</code> calls.</figcaption>
+  </figure>
+  <p class="story">From the meeting: the skills are interconnected, so before you change one, know that several others probably use it.</p>
+</section>
+
+<section class="slide" id="s5" aria-labelledby="s5-h">
+  <p class="eyebrow"><b>05</b> · Choosing the process · HOW-WE-WORK section 1</p>
+  <h2 id="s5-h">Pick your level</h2>
+  <p>The six levels set how much process a change gets. Match the outcome you want first, and any command you named or plan that already exists. Most planned implementation uses level 3; level 4 is only for an explicit or exceptional need for its task-file machinery.</p>
+  <p><strong>Hard limit:</strong> if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: normally level 3, not automatic level 4. The one exception is contained <code>/sc:cleanup</code> and <code>/sc:improve</code> work on a folder (guide 3.7): commit first and review <code>git diff</code> afterwards. It does not cover structural migrations. Naming a command directly does not waive the written plan.</p>
+  <div class="term"><b>Spec:</b> a short written description of what changes, which files, and how you will know it works (guide 3.2).</div>
+  <figure class="diagram mid">
+    <svg viewBox="0 0 760 426" role="img" aria-labelledby="d3-t d3-d">
+      <title id="d3-t">Level ladder</title>
+      <desc id="d3-d">Six levels from ask a question at the bottom to write a full specification at the top. The hard limit sits between level 2 and level 3: above it, work needs a written plan, normally level 3 and not automatically level 4, and naming a command directly does not waive it. The one exception is contained /sc:cleanup and /sc:improve work on a folder, not structural migrations.</desc>
+      <rect class="d-box" x="20" y="18" width="720" height="48" rx="8"/>
+      <text class="d-tb" x="36" y="48">6 · Write a full specification</text><text class="d-tm" x="440" y="48">/prd → /tdd</text>
+      <rect class="d-box" x="20" y="74" width="720" height="48" rx="8"/>
+      <text class="d-tb" x="36" y="104">5 · Research first</text><text class="d-tm" x="440" y="104">/tech-research</text>
+      <rect class="d-box-warn" x="20" y="130" width="720" height="48" rx="8"/>
+      <text class="d-tb" x="36" y="160">4 · Explicit or exceptional task-file work</text><text class="d-tm" x="440" y="160">/task-builder → /task</text>
+      <rect class="d-box-acc" x="20" y="186" width="720" height="48" rx="8"/>
+      <text class="d-tb" x="36" y="216">3 · Follow a checked implementation plan</text><text class="d-tm" x="440" y="216">/sc:workflow → /sc:implement</text>
+      <path class="d-line-warn" d="M20,252 L740,252"/>
+      <text class="d-tw" x="36" y="274">Hard limit: more than 5 edits, or more than one source file (its test file does not count),</text>
+      <text class="d-tw" x="36" y="292">needs a written plan: normally level 3, not automatic level 4. Naming a command does not waive it.</text>
+      <text class="d-tw" x="36" y="310">The one exception: contained /sc:cleanup and /sc:improve work on a folder, not structural migrations</text>
+      <rect class="d-box" x="20" y="322" width="720" height="44" rx="8"/>
+      <text class="d-tb" x="36" y="350">2 · Make a small, direct change</text><text class="d-tm" x="440" y="350">/sc:task, or a plain edit</text>
+      <rect class="d-box" x="20" y="374" width="720" height="44" rx="8"/>
+      <text class="d-tb" x="36" y="402">1 · Ask a question</text><text class="d-tm" x="440" y="402">ask, or /sc:explain</text>
+    </svg>
+    <figcaption class="cap">The six levels. Above the hard limit (which does not apply to contained <code>/sc:cleanup</code> and <code>/sc:improve</code> work on a folder, other than structural migrations), a written plan is normally level 3, not automatically level 4.</figcaption>
+  </figure>
+  <p>Level 4 is for an explicit choice of the task-file (MDTM) format, an existing MDTM task, or an exceptionally complex, long-running phased program that needs its research, checklist and phase-reviewer machinery. File count, sessions, an existing spec, PRD or TDD (product and design documents), risk or drift alone never make work level 4. After the level 6 documents, ordinary planning is level 3 (<code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution); <code>/roadmap</code> only if you explicitly choose it or have the exceptional level 4 need (guide 3.1).</p>
+</section>
+
+<section class="slide" id="s6" aria-labelledby="s6-h">
+  <p class="eyebrow"><b>06</b> · Planning · HOW-WE-WORK sections 1, 3.12 and 5</p>
+  <h2 id="s6-h">Two planners</h2>
+  <p class="lead"><code>/sc:workflow</code> with <code>/sc:implement</code> is the ordinary default for planned implementation. <code>/task-builder</code> with <code>/task</code> is for explicit or exceptional task-file (MDTM) work, level 4.</p>
+  <p><code>/sc:workflow</code> writes a plan in which every step has acceptance criteria: a written definition of "done" for that step.</p>
+  <figure class="diagram mid">
+    <svg viewBox="0 0 760 330" role="img" aria-labelledby="d4-t d4-d">
+      <title id="d4-t">Two planner pairs</title>
+      <desc id="d4-d">Left, the ordinary default: /sc:workflow writes a plan folder; /sc:implement runs it step by step with compliance checks, then a final independent review, and on Linux moves the folder to done (elsewhere it stays in to-do on purpose). Right, explicit or exceptional: /task-builder writes a task file checklist; /task runs it with reviewer panels after each phase except setup, then tests and a final audit.</desc>
+      <defs>
+        <marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="aha4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <text class="d-ta" x="20" y="24">DEFAULT · level 3</text>
+      <rect class="d-box-acc" x="20" y="36" width="340" height="40" rx="8"/><text class="d-tm" x="36" y="61">/sc:workflow</text>
+      <path class="d-line-acc" d="M190,76 L190,96" marker-end="url(#aha4)"/>
+      <rect class="d-box" x="20" y="100" width="340" height="52" rx="8"/>
+      <text class="d-ts" x="36" y="120">A plan with acceptance criteria per step:</text>
+      <text class="d-tm" x="36" y="140">.dev/tasks/to-do/&lt;id&gt;/&lt;id&gt;.md</text>
+      <path class="d-line-acc" d="M190,152 L190,172" marker-end="url(#aha4)"/>
+      <rect class="d-box-acc" x="20" y="176" width="340" height="40" rx="8"/><text class="d-tm" x="36" y="201">/sc:implement</text>
+      <path class="d-line-acc" d="M190,216 L190,236" marker-end="url(#aha4)"/>
+      <rect class="d-box" x="20" y="240" width="340" height="72" rx="8"/>
+      <text class="d-ts" x="36" y="260">progress.md: one line per step;</text>
+      <text class="d-ts" x="36" y="280">step checks, then a final independent</text>
+      <text class="d-ts" x="36" y="300">review; on Linux, moves to done/</text>
+      <text class="d-tw" x="400" y="24">EXPLICIT OR EXCEPTIONAL · level 4</text>
+      <rect class="d-box-warn" x="400" y="36" width="340" height="40" rx="8"/><text class="d-tm" x="416" y="61">/task-builder</text>
+      <path class="d-line" d="M570,76 L570,96" marker-end="url(#ah4)"/>
+      <rect class="d-box" x="400" y="100" width="340" height="52" rx="8"/>
+      <text class="d-ts" x="416" y="120">Researches the code and writes a</text>
+      <text class="d-ts" x="416" y="140">task file: a checklist in .dev/tasks/to-do/</text>
+      <path class="d-line" d="M570,152 L570,172" marker-end="url(#ah4)"/>
+      <rect class="d-box-warn" x="400" y="176" width="340" height="40" rx="8"/><text class="d-tm" x="416" y="201">/task</text>
+      <path class="d-line" d="M570,216 L570,236" marker-end="url(#ah4)"/>
+      <rect class="d-box" x="400" y="240" width="340" height="72" rx="8"/>
+      <text class="d-ts" x="416" y="260">A reviewer panel after each phase but</text>
+      <text class="d-ts" x="416" y="280">setup; then tests and a final audit.</text>
+      <text class="d-ts" x="416" y="300">Resume with the same executor.</text>
+    </svg>
+    <figcaption class="cap">What each pair leaves on disk.</figcaption>
+  </figure>
+  <ul>
+    <li><strong>Run each plan with its own executor.</strong> Folders named <code>TASK-WF-*</code> are <code>/sc:workflow</code> plans: run them with <code>/sc:implement</code>, never with <code>/task</code>. An existing MDTM task file goes directly to <code>/task</code>, without rebuilding it.</li>
+  </ul>
+  <p class="story">In the meeting <code>/sc:workflow</code> was described as "task builder light": faster and cheaper. It assumes you have done your homework, or lets you tell it plainly in a prompt what to plan. The rule of thumb given there: a plan made by an <code>sc:</code> command is followed up by an <code>sc:</code> command, and a plan from a plain slash command, for the most part, by a plain one. The guide's rule wins: when an approved plan already exists, use its own executor and do not rebuild it. A <code>/sc:workflow</code> package runs with <code>/sc:implement</code>; an existing MDTM task file runs with <code>/task</code>.</p>
+</section>
+
+<section class="slide" id="s7" aria-labelledby="s7-h">
+  <p class="eyebrow"><b>07</b> · The whole path · HOW-WE-WORK 3.1, 3.2, 3.3 and 3.11</p>
+  <h2 id="s7-h">From idea to merged PR</h2>
+  <p>Most features follow the same path, from an idea to an open pull request (PR). Skip the steps you do not need: brainstorm only if the idea is vague, research only if you do not know how the current code works. Each later step runs only when you ask for it: a plan does not start the implementation, and implementing does not ship anything.</p>
+  <figure class="diagram wide">
+    <svg viewBox="0 0 1170 250" role="img" aria-labelledby="d5-t d5-d">
+      <title id="d5-t">Idea to merged PR</title>
+      <desc id="d5-d">Seven steps in order, each taken only when you ask for it: shape the idea, research, spec, plan, implement, review, open the PR. The spec track covers the first three steps; the execution track covers the last four.</desc>
+      <defs>
+        <marker id="ah5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <rect class="d-band" x="10" y="16" width="486" height="34" rx="6"/>
+      <text class="d-ta" x="24" y="38">Spec track (Gundy, Philippe)</text>
+      <rect class="d-band-2" x="508" y="16" width="652" height="34" rx="6"/>
+      <text class="d-tb" x="522" y="38">Execution track (William, Leandro)</text>
+      <rect class="d-box" x="10" y="70" width="154" height="96" rx="8"/>
+      <text class="d-tb" x="20" y="94">Shape idea</text><text class="d-tm d-tm-s" x="20" y="118">/sc:brainstorm</text><text class="d-ts" x="20" y="140">only if vague</text>
+      <rect class="d-box" x="176" y="70" width="154" height="96" rx="8"/>
+      <text class="d-tb" x="186" y="94">Research</text><text class="d-tm d-tm-s" x="186" y="118">/tech-research</text><text class="d-ts" x="186" y="140">if you need to</text>
+      <rect class="d-box" x="342" y="70" width="154" height="96" rx="8"/>
+      <text class="d-tb" x="352" y="94">Spec</text><text class="d-ts" x="352" y="118">write it; your</text><text class="d-ts" x="352" y="138">lead approves it</text>
+      <rect class="d-box-acc" x="508" y="70" width="154" height="96" rx="8"/>
+      <text class="d-tb" x="518" y="94">Plan</text><text class="d-tm d-tm-s" x="518" y="118">/sc:workflow</text>
+      <rect class="d-box-acc" x="674" y="70" width="154" height="96" rx="8"/>
+      <text class="d-tb" x="684" y="94">Implement</text><text class="d-tm d-tm-s" x="684" y="118">/sc:implement</text>
+      <rect class="d-box" x="840" y="70" width="154" height="96" rx="8"/>
+      <text class="d-tb" x="850" y="94">Review</text><text class="d-tm d-tm-s" x="850" y="118">/code-review</text><text class="d-tm d-tm-s" x="850" y="140">/sc:auggie-review</text>
+      <rect class="d-box" x="1006" y="70" width="154" height="96" rx="8"/>
+      <text class="d-tb" x="1016" y="94">Open PR</text><text class="d-tm d-tm-s" x="1016" y="118">/sc:pr-submit</text>
+      <path class="d-line" d="M164,118 L174,118" marker-end="url(#ah5)"/>
+      <path class="d-line" d="M330,118 L340,118" marker-end="url(#ah5)"/>
+      <path class="d-line" d="M496,118 L506,118" marker-end="url(#ah5)"/>
+      <path class="d-line" d="M662,118 L672,118" marker-end="url(#ah5)"/>
+      <path class="d-line" d="M828,118 L838,118" marker-end="url(#ah5)"/>
+      <path class="d-line" d="M994,118 L1004,118" marker-end="url(#ah5)"/>
+      <text class="d-ts" x="10" y="196">Level 6 (a new product, component or major feature others build against): /prd, then /tdd, then Plan and Implement as usual;</text>
+      <text class="d-ts" x="10" y="216">/roadmap only if explicitly chosen or exceptionally justified (guide 3.1).</text>
+      <text class="d-ts" x="10" y="238">Explicit or exceptional task-file (MDTM) work swaps Plan and Implement for /task-builder and /task (guide section 1, level 4; 3.2 step 5).</text>
+    </svg>
+    <figcaption class="cap">The guide's feature path (3.2, with brainstorm from 3.1 and the review steps from 3.11), with the two tracks from the onboarding split overlaid.</figcaption>
+  </figure>
+</section>
+
+<section class="slide" id="s8" aria-labelledby="s8-h">
+  <p class="eyebrow"><b>08</b> · Front half · HOW-WE-WORK 3.1, 3.5 and 3.6</p>
+  <h2 id="s8-h">Spec track (Gundy, Philippe)</h2>
+  <p>Your work starts with a goal that still has to become a spec. These are the tools for that.</p>
+  <div class="grid2">
+    <div class="card"><h3>Shape a vague idea</h3><p><code>/sc:brainstorm</code> asks you questions, has several agents propose approaches, and merges them into requirements. It stops there; you decide the next step.</p></div>
+    <div class="card"><h3>Find out what exists</h3><p><code>/tech-research</code> investigates <em>our</em> codebase. <code>/sc:research</code> searches the web. They look alike; they are not.</p></div>
+    <div class="card"><h3>Check it is not already built</h3><p><code class="long"><span class="nw">/sc:recommend</span> <span class="nw">"&lt;goal&gt;"</span> <span class="nw">--plugin</span></code> searches the Claude plugin marketplaces and community skill repositories instead of the local commands.</p><p class="story">The meeting's advice: before you build anything, look for someone who already built it, then fork it or use it.</p></div>
+    <div class="card"><h3>Get an expert critique</h3><p><code>/sc:spec-panel</code> has a panel of named requirements experts critique a spec. It only reports; you decide what to apply.</p></div>
+  </div>
+  <p><strong>When are <code>/prd</code> and <code>/tdd</code> warranted?</strong> The full <code>/prd</code> then <code>/tdd</code> pipeline is level 6: a new product, a new component, or a major feature other people will build against. For a feature on an existing system, write a short spec and plan it with <code>/sc:workflow</code> (guide 3.2). An existing spec, many files or several sessions do not by themselves make it level 4; <code>/task-builder</code> and <code>/task</code> are only for explicit task-file (MDTM) work or an exceptionally complex, long-running program (guide 3.2 steps 3 and 5). If one part of that spec is a design other people will build against, the guide says: "Use <code>/tdd</code> when other people will build against the design" (guide section 5).</p>
+</section>
+
+<section class="slide" id="s9" aria-labelledby="s9-h">
+  <p class="eyebrow"><b>09</b> · Back half · HOW-WE-WORK 3.3</p>
+  <h2 id="s9-h">Execution track (William, Leandro)</h2>
+  <ul>
+    <li><strong>Read the plan first.</strong> Check that each step's acceptance criteria clearly say what "done" means.</li>
+    <li><strong>Run it:</strong> <code class="long"><span class="nw">/sc:implement</span> <span class="nw">.dev/tasks/to-do/&lt;id&gt;/&lt;id&gt;.md</span></code>. It builds one step at a time and checks each step's compliance with its acceptance criteria (small first-pass checks can be inline); the finished package then gets an independent final review.</li>
+    <li><strong>The retry ladder:</strong> when a step fails its check, it gets one fix pass, then up to three new attempts written from stronger models' advice. The step's acceptance criteria never change.</li>
+    <li><strong>If interrupted,</strong> run the same command again; it continues from the first unfinished step.</li>
+  </ul>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Stop code</th><th>What it means</th><th>What you do</th></tr></thead>
+      <tbody>
+        <tr><td><code>E-HALT-QA</code></td><td>A step still fails its check after the retries.</td><td>Fix the code and resume, or have your lead explicitly accept the explained gap.</td></tr>
+        <tr><td><code>E-RESUME-NEEDED</code></td><td>Something outside the step failed, such as the reviewer crashing.</td><td>Run the same command again.</td></tr>
+        <tr><td><code>E-PLAN-CHANGED</code></td><td>The plan was edited after the first step started.</td><td>Do not edit plans once a run has started.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="story">Why plans never change after step one, as the meeting put it: an agent that is allowed to edit its own success criteria will rewrite them so that it always succeeds.</p>
+</section>
+
+<section class="slide" id="s10" aria-labelledby="s10-h">
+  <p class="eyebrow"><b>10</b> · Shipping · HOW-WE-WORK 3.11 and section 4</p>
+  <h2 id="s10-h">Review and ship</h2>
+  <p><strong>Review only:</strong> <code class="long"><span class="nw">/sc:auggie-review</span> <span class="nw">--no-post-pr</span> <span class="nw">--no-remediation-offer</span></code> on a PR, a diff or a snapshot keeps the findings local. Do not add commits, pushes or a PR to findings-only work.</p>
+  <p><strong>Ship only when it is requested and authorized</strong>, in this order:</p>
+  <ul>
+    <li><strong>Commit locally</strong> on your feature branch, only when authorized.</li>
+    <li><strong>Bug review:</strong> <code>/code-review</code>. <strong>Security review</strong> if you touched login, permissions, secrets, user input or file paths: <code>/security-review</code>. Authorize and record any fixes before the branch review.</li>
+    <li><strong>Branch review:</strong> <code class="long"><span class="nw">/sc:auggie-review</span> <span class="nw">--diff origin/&lt;main branch&gt;...HEAD</span> <span class="nw">--no-post-pr</span> <span class="nw">--no-remediation-offer</span></code>.</li>
+    <li><strong>Push only with your lead's approval.</strong></li>
+    <li><strong>Open the PR</strong> with <code>/sc:pr-submit</code> and the one monitor ceiling you chose (below).</li>
+  </ul>
+  <figure class="diagram mid">
+    <svg viewBox="0 0 760 300" role="img" aria-labelledby="d6-t d6-d">
+      <title id="d6-t">PR review loop</title>
+      <desc id="d6-d">At --monitor 3, the full loop and the command's current default, /sc:pr-submit opens the PR, waits for the review bot (the Augment Code review app), checks each finding, fixes confirmed findings of Medium severity or higher and failing CI checks, pushes those fixes to your branch, and replies to and resolves the review comments it fixed; the bot then reviews again. The lower ceilings: --monitor 2 makes the fixes locally and stops before pushing; --monitor 1 only proposes fixes, without editing source; --monitor 0 only opens the PR. You choose exactly one.</desc>
+      <defs>
+        <marker id="ah6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="aha6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <rect class="d-box-acc" x="20" y="24" width="190" height="56" rx="8"/>
+      <text class="d-tm" x="34" y="48">/sc:pr-submit</text><text class="d-tm" x="34" y="68">--monitor 3</text>
+      <path class="d-line-acc" d="M210,52 L262,52" marker-end="url(#aha6)"/>
+      <rect class="d-box" x="266" y="24" width="200" height="56" rx="8"/>
+      <text class="d-tb" x="280" y="48">PR open; review</text><text class="d-tb" x="280" y="68">bot posts findings</text>
+      <path class="d-line-acc" d="M466,52 L518,52" marker-end="url(#aha6)"/>
+      <rect class="d-box" x="522" y="24" width="218" height="56" rx="8"/>
+      <text class="d-tb" x="536" y="48">Checks each finding;</text><text class="d-tb" x="536" y="68">fixes Medium+ and CI</text>
+      <path class="d-line-acc" d="M631,80 L631,128" marker-end="url(#aha6)"/>
+      <rect class="d-box" x="522" y="132" width="218" height="56" rx="8"/>
+      <text class="d-tb" x="536" y="156">Pushes those fixes</text><text class="d-tb" x="536" y="176">to your branch</text>
+      <path class="d-line-acc" d="M522,160 L366,160 L366,84" marker-end="url(#aha6)"/>
+      <text class="d-ta" x="356" y="112" text-anchor="end">next round:</text>
+      <text class="d-ta" x="356" y="128" text-anchor="end">bot reviews again</text>
+      <rect class="d-box" x="20" y="132" width="190" height="56" rx="8"/>
+      <text class="d-tb" x="34" y="156">Replies to and</text><text class="d-tb" x="34" y="176">resolves comments</text>
+      <path class="d-line" d="M366,160 L214,160" marker-end="url(#ah6)"/>
+      <rect class="d-box-warn" x="20" y="214" width="232" height="66" rx="8"/>
+      <text class="d-tm" x="34" y="238">--monitor 2</text>
+      <text class="d-ts" x="34" y="256">makes the fixes locally;</text>
+      <text class="d-ts" x="34" y="272">stops before pushing</text>
+      <rect class="d-box-warn" x="264" y="214" width="232" height="66" rx="8"/>
+      <text class="d-tm" x="278" y="238">--monitor 1</text>
+      <text class="d-ts" x="278" y="256">only proposes fixes;</text>
+      <text class="d-ts" x="278" y="272">edits no source</text>
+      <rect class="d-box-warn" x="508" y="214" width="232" height="66" rx="8"/>
+      <text class="d-tm" x="522" y="238">--monitor 0</text>
+      <text class="d-ts" x="522" y="256">only opens the PR: no review</text>
+      <text class="d-ts" x="522" y="272">app, or unsure it is installed</text>
+    </svg>
+    <figcaption class="cap">The PR loop at <code>--monitor 3</code>, the full loop, and the three lower ceilings. You choose exactly one and pass it explicitly.</figcaption>
+  </figure>
+  <p><strong>Choose exactly one monitor ceiling</strong> for the job and pass it explicitly (guide 3.11): <code>--monitor 0</code> only opens the PR (no Augment Code review app on the repository, or unsure it is installed); <code>--monitor 1</code> proposes fixes without editing source; <code>--monitor 2</code> makes the fixes locally and stops before pushing; <code>--monitor 3</code>, the command's current default, runs the full loop you authorized: it fixes confirmed review findings of Medium severity or higher (lower ones are only reported) and failing CI checks (GitHub's automatic checks on the PR), pushes those fixes, and replies to and resolves the threads it fixed. The push rule (guide section 4): after your lead's approved push, <code>--monitor 3</code> pushes its own review fixes without asking again. If your lead wants to see those fixes first, use <code>--monitor 2</code>. A stronger project rule can require monitor 3; if that conflicts with a lower ceiling you were asked for, the guide says to disclose the conflict and not run it.</p>
+</section>
+
+<section class="slide" id="s11" aria-labelledby="s11-h">
+  <p class="eyebrow"><b>11</b> · Files and recovery · HOW-WE-WORK intro, 3.12 and section 4</p>
+  <h2 id="s11-h">Where things live</h2>
+  <div class="grid2">
+    <div class="card"><h3>Work is written to files</h3><p>Plans, research and findings are saved to files, most under <code>.dev/</code>, not only into the chat. If a session dies, the files are what survives.</p></div>
+    <div class="card"><h3><code>superclaude update</code> overwrites</h3><p>It overwrites every file it ships, including an edited <code>~/.claude/CLAUDE.md</code>, keeps no backup, and deletes and re-copies each shipped skill folder, so any file you added inside one is lost. Copy any file you changed or added before you run it.</p></div>
+    <div class="card"><h3>Resume after a crash</h3><p>Before you need it, tag the conversation with <code>/ccsession-tag &lt;name&gt;</code>; later, from a terminal in the same folder, run <code>ccsession &lt;name&gt;</code>.</p><p>This always works: run the same command again on the work's own files, <code>/sc:implement</code> on the plan or <code>/task</code> on the task file.</p></div>
+    <div class="card"><h3>Not a resume method</h3><p><code>/sc:save</code> and <code>/sc:load</code> store and load Serena project memory (project notes). They do not resume a task or a plan.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="s12" aria-labelledby="s12-h">
+  <p class="eyebrow"><b>12</b> · Open topics · GitHub issues #289 and #290</p>
+  <h2 id="s12-h">Being worked out</h2>
+  <p>Two topics came up in the onboarding meeting that the guide does not cover yet. Each has its own issue. Until they are settled, ask your lead.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Worktree and branch protocol</h3>
+      <div class="term"><b>Worktree:</b> a second checkout of the same repository in its own folder, on its own branch, so parallel sessions do not touch each other's files.</div>
+      <p>When a session should get its own worktree and branch, where they live and how they are named is being worked out in <a href="https://github.com/IronbellyOrg/IronClaude/issues/289">issue #289</a>.</p>
+    </div>
+    <div class="card">
+      <h3>Contributing rules</h3>
+      <p>How team members propose or change skills, commands and agents, and what evidence a change needs, is being worked out in <a href="https://github.com/IronbellyOrg/IronClaude/issues/290">issue #290</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="s13" aria-labelledby="s13-h">
+  <p class="eyebrow"><b>13</b> · Watch out · HOW-WE-WORK sections 1, 3.12 and 5</p>
+  <h2 id="s13-h">Traps</h2>
+  <h3>Look-alike commands (the guide explains each difference)</h3>
+  <div class="tablewrap">
+    <table>
+      <tbody>
+        <tr><td><code>/task</code></td><td><code>/sc:task</code></td></tr>
+        <tr><td><code>/sc:workflow</code> + <code>/sc:implement</code></td><td><code>/task-builder</code> + <code>/task</code></td></tr>
+        <tr><td><code>/sc:design</code></td><td><code>/tdd</code></td></tr>
+        <tr><td><code>/roadmap</code></td><td><code>/sc:roadmap</code></td></tr>
+        <tr><td><code>/tech-reference</code></td><td><code>/sc:document</code></td></tr>
+        <tr><td><code>/tech-research</code></td><td><code>/sc:research</code></td></tr>
+        <tr><td><code>/sc:cleanup-audit</code></td><td><code>/sc:cleanup</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="trap"><b>Choosing level 4 for the wrong reason.</b> The guide's rule: use <code>/task-builder</code> and <code>/task</code> only when you explicitly select the task-file (MDTM) format, or have an exceptionally complex, long-running phased program that needs their research, checklist and phase-reviewer machinery; an existing MDTM task goes straight to <code>/task</code>. File count, several sessions, an existing spec, risk, auditability, drift or resume alone never select them (guide sections 1 and 5).</div>
+  <p class="story">The sign, as described in the meeting: a long run starts and many reviewer or quality-check (QA) helper agents, called subagents, start in the background without you asking for them.</p>
+  <div class="trap"><b><code>/sc:save</code> is not a way to resume.</b> Use the steps on slide 11.</div>
+</section>
+
+<section class="slide" id="s14" aria-labelledby="s14-h">
+  <p class="eyebrow"><b>14</b> · Getting help · HOW-WE-WORK section 4</p>
+  <h2 id="s14-h">When unsure</h2>
+  <div class="grid2">
+    <div class="card"><h3>Ask for a recommendation</h3><p><code class="long"><span class="nw">/sc:recommend</span> <span class="nw">"&lt;what</span> <span class="nw">you</span> <span class="nw">want</span> <span class="nw">to</span> <span class="nw">do,</span> <span class="nw">and</span> <span class="nw">why&gt;"</span></code> picks the right command and writes a ready-to-paste prompt.</p></div>
+    <div class="card"><h3>See what is installed</h3><p><code>/sc:help</code> lists the installed commands and skills and shows the six levels.</p></div>
+    <div class="card"><h3>Ask your lead</h3><p>Before starting anything large, or whenever this deck and the guide leave you unsure. If you work alone, read "your lead" as yourself.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="s15" aria-labelledby="s15-h">
+  <p class="eyebrow"><b>15</b> · One page · HOW-WE-WORK sections 1 and 3</p>
+  <h2 id="s15-h">Cheat sheet</h2>
+  <div class="tablewrap">
+    <table class="cheat">
+      <thead><tr><th>Level or job</th><th>Commands</th><th>Guide section</th></tr></thead>
+      <tbody>
+        <tr><td>1 · Ask a question</td><td>Ask in plain English, or <code>/sc:explain</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#35-investigate-how-something-works-or-whether-an-idea-is-feasible">3.5</a></td></tr>
+        <tr><td>2 · Make a small, direct change</td><td><code>/sc:task</code>, or a plain edit, then run the test</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#33-make-a-small-well-defined-change">3.3</a></td></tr>
+        <tr><td>3 · Follow a checked implementation plan</td><td><code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#32-add-a-feature-to-an-existing-system-no-prd-needed">3.2</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#33-make-a-small-well-defined-change">3.3</a></td></tr>
+        <tr><td>4 · Explicit or exceptional task-file work</td><td><code>/task-builder</code> → <code>/task</code>; an existing MDTM task goes straight to <code>/task</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#31-build-a-new-product-or-major-feature-full-specification">3.1</a></td></tr>
+        <tr><td>5 · Research first</td><td><code>/tech-research</code>; stop at the report, or plan with <code>/sc:workflow</code> if you decide to build</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#35-investigate-how-something-works-or-whether-an-idea-is-feasible">3.5</a></td></tr>
+        <tr><td>6 · Write a full specification</td><td><code>/prd</code> → <code>/tdd</code>; then <code>/sc:workflow</code> → <code>/sc:implement</code> if implementation is requested (<code>/roadmap</code> only if explicitly chosen or exceptionally justified)</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#1-how-much-process-does-this-job-need">1</a>, <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#31-build-a-new-product-or-major-feature-full-specification">3.1</a></td></tr>
+        <tr><td>Fix a bug</td><td><code>/sc:troubleshoot</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#34-fix-a-bug">3.4</a></td></tr>
+        <tr><td>Review only, or ship</td><td>Review only: <code>/sc:auggie-review</code> with <code>--no-post-pr --no-remediation-offer</code>. Ship when requested and authorized: <code>/code-review</code>, <code>/sc:auggie-review</code>, then <code>/sc:pr-submit</code> with the one <code>--monitor</code> ceiling (0 to 3) you chose</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#311-review-only-or-deliberately-ship-and-open-a-pull-request">3.11</a></td></tr>
+        <tr><td>Resume</td><td>The same command again, or <code>ccsession &lt;name&gt;</code></td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#312-resume-after-a-crash-or-a-lost-session">3.12</a></td></tr>
+        <tr><td>Unsure</td><td><code>/sc:recommend</code>, <code>/sc:help</code>, your lead</td><td><a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md#4-rules-everyone-follows">4</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Full guide: <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md">HOW-WE-WORK.md on GitHub</a>, installed at <code>~/.claude/HOW-WE-WORK.md</code>.</p>
+</section>
+
+</main>
+
+<footer>
+  <p>Built from HOW-WE-WORK.md at commit adaa28d9.</p>
+  <p>Source of truth for every command and flag: <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md">HOW-WE-WORK.md</a>, except <code>--plugin</code>, which comes from the <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/commands/recommend.md"><code>/sc:recommend</code> command file</a>.</p>
+</footer>
+
+<script>
+(function () {
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var counter = document.getElementById("counter");
+  var current = 0;
+  var lockUntil = 0;
+  function paint() { counter.textContent = (current + 1) + " / " + slides.length; }
+  function show(i) {
+    current = Math.max(0, Math.min(slides.length - 1, i));
+    // Ignore scroll-driven updates while the jump animates, so the counter keeps the target.
+    lockUntil = Date.now() + 1200;
+    slides[current].scrollIntoView({ behavior: "smooth", block: "start" });
+    paint();
+  }
+  function fromScroll() {
+    if (Date.now() < lockUntil) return;
+    var doc = document.documentElement;
+    if (window.innerHeight + window.scrollY >= doc.scrollHeight - 2) { current = slides.length - 1; paint(); return; }
+    var top = document.querySelector(".topbar").getBoundingClientRect().bottom + 24;
+    var i = 0;
+    for (var k = 0; k < slides.length; k++) { if (slides[k].getBoundingClientRect().top <= top) i = k; }
+    current = i; paint();
+  }
+  document.getElementById("prev").addEventListener("click", function () { show(current - 1); });
+  document.getElementById("next").addEventListener("click", function () { show(current + 1); });
+  document.addEventListener("keydown", function (e) {
+    var t = e.target && e.target.tagName;
+    if (t === "INPUT" || t === "TEXTAREA") return;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "PageDown") { e.preventDefault(); show(current + 1); }
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); show(current - 1); }
+    else if (e.key === "Home") { e.preventDefault(); show(0); }
+    else if (e.key === "End") { e.preventDefault(); show(slides.length - 1); }
+  });
+  var ticking = false;
+  window.addEventListener("scroll", function () {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(function () { ticking = false; fromScroll(); });
+  }, { passive: true });
+  // A jump keeps its target when its scroll ends; ordinary scrolling recomputes.
+  window.addEventListener("scrollend", function () {
+    if (Date.now() < lockUntil) { lockUntil = 0; return; }
+    fromScroll();
+  });
+})();
+</script>
