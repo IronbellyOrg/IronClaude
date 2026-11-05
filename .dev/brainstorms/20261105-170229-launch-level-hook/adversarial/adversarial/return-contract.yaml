@@ -1,0 +1,35 @@
+# sc:adversarial return contract (written by the orchestrator, 2026-11-05)
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/merged-output.md"
+  convergence_score: 1.00   # protocol rule: 44 of 44 diff points and shared assumptions agreed (36 S/C/X points: 26 unanimous + 10 majority; 8 A points). Strict unanimous-label count: 31/44 = 0.70. See convergence-tally.md
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial"
+  status: "partial"   # convergence gate BLOCKED_BY_INVARIANTS (22 HIGH unaddressed findings in the probe); plan failed three reviews; no further review run by owner decision
+  base_variant: "opus:architect"
+  unresolved_conflicts: 0   # diff points; the open items are the review findings below
+  open_blocking_findings: 10   # plan-review-3.md B-1..B-10, amendments applied in the spec and not re-reviewed; plus 2 fixed-but-unconfirmed (OD-R2-F4, OD-R2-F5)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:   # HIGH + UNADDRESSED during the debate; each received a planned change or owner decision in refactor-plan.md, none was debated
+    - {id: INV-001, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-005, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-007, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-009, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-010, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-011, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-012, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-013, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-014, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-016, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-017, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-021, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-022, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-025, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-026, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-027, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-033, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-034, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-035, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-036, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-037, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
+    - {id: INV-038, severity: HIGH, status: UNADDRESSED-IN-DEBATE, see: invariant-probe.md}
