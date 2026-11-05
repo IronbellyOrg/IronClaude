@@ -1,0 +1,24 @@
+PASS Enter at the question -> auto-name, topic equals it, no CCSESSION_ASK_TIMEOUT/NAME in Claude's env: work-1105-043010-6f93
+PASS 1 s timeout -> auto-name; hint follows the limit: work-1105-043012-0ed8
+PASS default hint shows 30 s and 'Ctrl+C = cancel': rc=130
+PASS Ctrl+C at the question -> exit 130, Claude not started, line mode back: exit 130, no Claude start, line mode on
+PASS no terminal + prompt -> auto-name from the prompt words, prompt unchanged and last: work-fix-the-login-bug-1105-043013-509c
+PASS terminal + prompt -> auto-name, no question
+PASS 300-character line -> Claude's last argument, not a label; launch auto-named
+PASS line with a tab -> first message
+PASS two-line paste -> first message
+PASS pasted '- ' list -> after --
+PASS typed name stays the name
+PASS keys typed ahead -> auto-named, no question
+PASS CCSESSION_AUTOSTART=0 -> unchanged, no name
+PASS -p <prompt> -> no --name
+PASS --resume <id> -> no --name
+PASS --version -> no --name
+PASS subcommand 'mcp list' -> no --name
+PASS Claude --name passes through unchanged
+PASS CCSESSION_NAME=worker-7 -> that name
+PASS CCSESSION_NAME equal to a saved label: an explicit CCSESSION_NAME equal to a saved label resumes it, loudly
+PASS invalid CCSESSION_NAME with a prompt -> warning and auto-name
+PASS unwritable name list -> --auto-name prints nothing, Claude starts untagged
+PASS leading-dot folder with CJK characters -> still starts with a valid label: hidden-go-1105-043021-41b8
+ALL PASS

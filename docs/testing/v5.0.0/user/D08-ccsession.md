@@ -1,8 +1,8 @@
 # E2E Test Guide — `ccsession` (`5.0.0`)
 
-- **Capability:** `ccsession <name>` starts or resumes a Claude Code session under a name that ccsession, Claude Code (`--name`, `/rename`) and the Orca tab share; names belong to the repo and the lists follow the worktree (`--here`, `--here --all`, `--list`, `--rm`, `--ask`); `ccsession-orca` is Orca's Claude command; in a Coder workspace with tier settings, `--tier`, `--model`, `--models-status` and `--refresh-models` pick and inspect the gateway models; the shared gateway shim keeps running when the terminal that started it closes (#341).
+- **Capability:** `ccsession <name>` starts or resumes a Claude Code session under a name that ccsession, Claude Code (`--name`, `/rename`) and the Orca tab share; names belong to the repo and the lists follow the worktree (`--here`, `--here --all`, `--list`, `--rm`, `--ask`); `ccsession-orca` is Orca's Claude command (one question rule, automatic names, a 30-second limit, Ctrl+C cancels; #315); in a Coder workspace with tier settings, `--tier`, `--model`, `--models-status` and `--refresh-models` pick and inspect the gateway models; the shared gateway shim keeps running when the terminal that started it closes (#341).
 - **Audience:** end user
-- **Source of truth:** `src/superclaude/skills/ccsession-tag/ccsession:7-93,119-174,267-313,320-412,479-508,555-629,681-701,756-900,936-971,1220-1468,1508-1617`; `src/superclaude/skills/ccsession-tag/ccsession-orca:19-81`; `src/superclaude/skills/ccsession-tag/hooks/session-name.sh:7-18,162-199`; `src/superclaude/skills/ccsession-tag/models.py:53-65,255-328,454-496,630-673,831-1028`; `src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py:525-540,857-867`; `src/superclaude/hooks/hooks.json:33-42,54-73`; `src/superclaude/cli/doctor.py:57-131`; `CHANGELOG.md:11-22,56-76,151-204`; `docs/testing/v5.0.0/c-e2e-transcript.txt:218,342,353-354`; issue [#352](https://github.com/IronbellyOrg/IronClaude/issues/352)
+- **Source of truth:** `src/superclaude/skills/ccsession-tag/ccsession:7-93,119-174,267-313,320-412,479-508,555-629,681-701,756-900,936-971,1220-1468,1508-1617`; `src/superclaude/skills/ccsession-tag/ccsession-orca` (whole file; the `ccsession:` line numbers in this guide were taken from an earlier version of the file and were already off before #315, which moved them further: the help block grew near line 55 and `auto_name` was added near line 610; search the quoted text or the function name); `src/superclaude/skills/ccsession-tag/hooks/session-name.sh:7-18,162-199`; `src/superclaude/skills/ccsession-tag/models.py:53-65,255-328,454-496,630-673,831-1028`; `src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py:525-540,857-867`; `src/superclaude/hooks/hooks.json:33-42,54-73`; `src/superclaude/cli/doctor.py:57-131`; `CHANGELOG.md:11-22,56-76,151-204`; `docs/testing/v5.0.0/c-e2e-transcript.txt:218,342,353-354`; issue [#352](https://github.com/IronbellyOrg/IronClaude/issues/352)
 - **Est. time:** `Tier A: 3 minutes. Tier B: 25-35 minutes. Tier C: 20-40 minutes (Orca needed for Step 17).`
 
 ## Preconditions
@@ -26,8 +26,8 @@
 ## What you're verifying
 
 - One name per session: `ccsession <name>` (spaces allowed, `--name` for a name starting with `-`) is also Claude Code's `--name`; a `/rename` inside Claude Code reaches ccsession's list at the next message.
-- Names belong to the repo, and the lists follow the worktree: `--here` lists this worktree's sessions, then those whose worktree was removed, and counts the others; `--here --all` and `--list` show everything; `--rm` forgets a name; `--ask` asks for a name and exits 1 or 130 when it gets none.
-- In Orca, ccsession owns the tab title (`<name> · Claude Code`), and `ccsession-orca` asks for a name only when someone can answer.
+- Names belong to the repo, and the lists follow the worktree: `--here` lists this worktree's sessions, then those whose worktree was removed, and counts the others; `--here --all` and `--list` show everything; `--rm` forgets a name; `--ask` asks for a name, gives up after 30 seconds (exit 1), exits 130 on Ctrl+C, and exits 3 for text that cannot be a name.
+- In Orca, ccsession owns the tab title (`<name> · Claude Code`), and `ccsession-orca` asks for a name only when Claude starts with no task, no name and no resume and someone can answer; every other launch that needs a name gets an automatic one.
 - The gateway shim no longer dies with the terminal that started it.
 - In tier mode, `--help`, `--models-status`, `--tier`, `--model` and `--refresh-models` behave as the code says.
 
@@ -246,6 +246,7 @@ D8_EXTRA=CCSESSION_ASK_TIMEOUT=3 d8 ccsession --ask; echo "exit=$?"  # type noth
 d8 ccsession --ask; echo "exit=$?"                                   # press Ctrl+C
 d8 ccsession --ask; echo "exit=$?"                                   # press Ctrl+D
 d8 ccsession --ask </dev/null; echo "exit=$?"                        # no terminal
+d8 ccsession --ask; echo "exit=$?"                                   # paste two lines at once (paste, do not type)
 ```
 
 **Expected result:** every question starts with this list on the terminal (source: `ccsession:1345-1375`):
@@ -259,18 +260,21 @@ Sessions whose worktree was removed (they continue here):
 1 more session in other worktrees of this repo: type * to list them
 Sessions from other repos and folders: ccsession --list
 
-Session name (Enter = untagged, Ctrl+C = plain shell):
+Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s):
 ```
+
+(The question gives up after `CCSESSION_ASK_TIMEOUT` seconds, 30 by default. While a limit is set, the default question shows it, and so does a hint written with `@LIMIT@`. `0`, or a value that is not a whole number of seconds (such as `1.5` or `30s`), waits for ever; the default question then has no limit in it. Source: the quoted text in `ccsession`, function `ask_session_name`.)
 
 (`-dash name` is not listed: in Step 7, with its conversation gone, ccsession deleted the name, and the stand-in did not save the new one (source: `ccsession:1584-1590`). `my work-2` was removed with `--rm` (source: `ccsession:1454-1468`).)
 
 1. `picked one` printed on its own line, `exit=0`: only the chosen name goes to standard output (source: `ccsession:1388-1399`; `CHANGELOG.md:199`).
-2. An empty line, `exit=0`: Enter means untagged (source: `ccsession:1389-1391,1399`).
+2. An empty line, `exit=0`: Enter is an empty answer. `ccsession --ask` itself treats it as "no name"; `ccsession-orca` turns it into an automatic name (Step 11). A line of only spaces or tabs is an empty answer too.
 3. `*` prints `Saved sessions in every worktree of this repo (type a name to resume it):` with `my work`, `wt2 task` and `wt3 task`, then asks again; Enter gives an empty line and `exit=0` (source: `ccsession:1392-1395`).
-4. After 3 seconds an empty line and `exit=1` (source: `ccsession:1376-1390`).
+4. The question shows `gives up after 3s` and, after 3 seconds, an empty line and `exit=1` (source: `ccsession`, `ask_session_name`).
 5. `^C`, then `exit=130` (source: `ccsession:1383-1384`).
 6. `exit=1`: end of input (source: `ccsession:1389-1390`).
 7. Nothing printed, `exit=1`: no terminal, no question (source: `ccsession:1329`; help `ccsession:47-53`).
+8. The two pasted lines come back on standard output as typed, `line one` and then `line two` followed directly by `exit=3` (the text has no final newline): text that cannot be a name is not a name. The terminal also shows what you pasted, so the two lines appear twice before `exit=3`: once as echo, once as ccsession's output. `ccsession-orca` hands the text to Claude Code as its first message (source: `ccsession`, `ask_session_name`; help text for exit code 3). The same exit 3 happens for a line with a tab between words and for a line too long to save (more than 245 bytes of file name); a line of only tabs is `exit=0`.
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
@@ -325,7 +329,7 @@ Use an Orca terminal tab for this step if you have Orca (Orca kills a closed tab
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
-#### Step 11 — `ccsession-orca` asks only when someone can answer `[LOCAL-WRITE]`
+#### Step 11 — `ccsession-orca` asks only when Claude starts with no task, no name and no resume `[LOCAL-WRITE]`
 
 **Do:**
 
@@ -333,15 +337,24 @@ Use an Orca terminal tab for this step if you have Orca (Orca kills a closed tab
 d8 ccsession-orca </dev/null 2>&1 | grep -E '^\[ccsession\]|^FAKE-CLAUDE'
 d8 ccsession-orca --resume abc 2>&1 | grep -E '^\[ccsession\]|^FAKE-CLAUDE'
 D8_EXTRA=CCSESSION_AUTOSTART=0 d8 ccsession-orca "fix the bug" --prefill x 2>&1 | grep -E '^\[ccsession\]|^FAKE-CLAUDE'
+d8 ccsession-orca "fix the bug" 2>&1 | grep -E '^\[ccsession\]|^FAKE-CLAUDE'
+D8_EXTRA=CCSESSION_NAME=worker-7 d8 ccsession-orca "do the work" 2>&1 | grep -E '^\[ccsession\]|^FAKE-CLAUDE'
+d8 ccsession-orca -p "hello" 2>&1 | grep -E '^\[ccsession\]|^FAKE-CLAUDE'
 d8 ccsession-orca
 ```
 
-At the last command's question, type `orca pick` and press Enter.
+At the last command's question, type `orca pick` and press Enter. Then run `d8 ccsession-orca` again and press Enter at the question; then once more and press Ctrl+C (run it as `d8 ccsession-orca; echo "exit=$?"`).
 
 **Expected result:**
 
-- The first three each print `[ccsession] Shim already running on 127.0.0.1:4890 (reusing)`, the pre-load warning, `[ccsession] Starting untagged session`, and then the args: `[--dangerously-skip-permissions] [--allowedTools=Grep]` (no terminal: no question); `... [--resume] [abc]` (Orca resuming: no question); `... [fix the bug] [--prefill] [x]` (`CCSESSION_AUTOSTART=0`: no question). Orca's own arguments reach Claude Code unchanged, after `--claude-args`, and every launch goes through the shim (source: `ccsession-orca:19-24,44-59,76-81`; `CHANGELOG.md:198`).
-- The last one shows the Step 8 list, then `Session name (Enter or Ctrl+C = untagged; untagged after 30s):` (source: `ccsession-orca:62-72`). After `orca pick`: the reuse line, a Python error report from the gateway pre-load ending in a connection error, the pre-load warning (both expected here), `[ccsession] Starting new session labeled 'orca pick'` and `FAKE-CLAUDE args: [--dangerously-skip-permissions] [--allowedTools=Grep] [--name] [orca pick]` (source: `ccsession-orca:77-79`). Pressing Enter, Ctrl+C or waiting 30 seconds instead starts an untagged session (`ccsession-orca:72,81`).
+- The first line prints `[ccsession] Shim already running on 127.0.0.1:4890 (reusing)`, the pre-load warning, `[ccsession] Starting new session labeled 'repo-<MMDD>-<HHMMSS>-<4 hex>'` and the args `[--dangerously-skip-permissions] [--allowedTools=Grep] [--name] [repo-<MMDD>-<HHMMSS>-<4 hex>]`: no terminal, nobody to ask, so the launch gets an automatic name (the folder, then the stamp).
+- The second prints the reuse line, the pre-load warning, `[ccsession] Starting untagged session` and `... [--resume] [abc]`: Orca resuming names itself, no question, no label. The third prints the same with `... [fix the bug] [--prefill] [x]`: `CCSESSION_AUTOSTART=0` stays untagged. The sixth prints `... [-p] [hello]` after `Starting untagged session`: print mode stays untagged.
+- The fourth prints `Starting new session labeled 'repo-fix-the-bug-<MMDD>-<HHMMSS>-<4 hex>'` and `... [--name] [repo-fix-the-bug-...] [fix the bug]`: a launch that carries a task gets an automatic name made from its first words, no question. The fifth prints `Starting new session labeled 'worker-7'` and `... [--name] [worker-7] [do the work]`: `CCSESSION_NAME` names the session.
+- Orca's own arguments reach Claude Code unchanged, after `--claude-args`, and every launch goes through the shim (source: `ccsession-orca`, header and the launch classification; README, "The one question rule").
+- The last command shows the Step 8 list, then `Session name (Enter = auto-named, Ctrl+C = cancel; auto-named after 30s):`. After `orca pick`: the reuse line, a Python error report from the gateway pre-load ending in a connection error, the pre-load warning (both expected here), `[ccsession] Starting new session labeled 'orca pick'` and `FAKE-CLAUDE args: [--dangerously-skip-permissions] [--allowedTools=Grep] [--name] [orca pick]`.
+- Enter, or waiting 30 seconds, starts a session under an automatic name (`Starting new session labeled 'repo-<MMDD>-<HHMMSS>-<4 hex>'`), not an untagged one. Ctrl+C prints `exit=130` and no `FAKE-CLAUDE` line: Claude is not started.
+- A valid `CCSESSION_NAME` is passed as `--name` even for `-p`, `--version`, a subcommand or `CCSESSION_AUTOSTART=0`, so set it only on a launch that starts a new session. Do not combine it with a resume option: with `--resume <id>` and a name that is also a saved label, Claude would get two `--resume` arguments.
+- Known exception, not testable here: Claude Agent Teams starts its teammates from inside Claude Code without running `ccsession-orca`, so those sessions are not named or asked about (follow-up to #315). Orchestrators should always pass the task or a name in the launch (a prompt argument, or `CCSESSION_NAME`).
 
 **Pass/Fail:** ☐ PASS ☐ FAIL — notes: `______`
 
@@ -536,14 +549,14 @@ Skip this step (mark N/A) without Orca.
 3. At the question type `d08 orca` and press Enter. Note the tab title.
 4. In the session `/rename d08 orca2`, then `Reply with OK. Do not use any tools.`. Note the tab title.
 5. `/exit`. Note the tab title.
-6. Start Claude with **+** again and press Enter at the question; note the title; `/exit`.
+6. Start Claude with **+** again and press Enter at the question; note the title; `/exit`. Then start Claude with **+** once more and press Ctrl+C at the question; note what happens.
 
 **Expected result:**
 
-- Step 3: the tab shows the saved-session list (`d08 renamed` among them) and `Session name (Enter or Ctrl+C = untagged; untagged after 30s):`; after the answer the session starts with that name and the tab title is `d08 orca · Claude Code` (source: `ccsession-orca:19-28,62-79`; `ccsession:1508-1523`; `CHANGELOG.md:192,198`).
+- Step 3: the tab shows the saved-session list (`d08 renamed` among them) and `Session name (Enter = auto-named, Ctrl+C = cancel; auto-named after 30s):`; after the answer the session starts with that name and the tab title is `d08 orca · Claude Code` (source: `ccsession-orca`, the question; `ccsession:1508-1523`; `CHANGELOG.md:192,198`).
 - Step 4: after the reply, the title is `d08 orca2 · Claude Code`. It needs the `orca` command on that tab's `PATH` (source: `ccsession:479-491`; `hooks/session-name.sh:185-192`; `CHANGELOG.md:62`).
 - Step 5: the `d08 orca2 · Claude Code` title is taken off, unless you typed a title of your own into Orca since (source: `ccsession:493-508`; `hooks/session-name.sh:193-197`). UNVERIFIED: which title Orca shows then.
-- Step 6: an untagged session titled `Claude Code` (source: `ccsession:1521,1543-1544`; `ccsession-orca:81`).
+- Step 6: a session under an automatic name (`<folder>-<MMDD>-<HHMMSS>-<4 hex>`), and the tab title is `<that name> · Claude Code`; the question gave Enter an automatic name, it no longer starts an untagged session. Press Ctrl+C at the question instead and no Claude starts (`ccsession-orca` ends with status 130).
 - UNVERIFIED, not checked while this guide was written: whether the `orca` command still reaches Orca when `c8` sets `HOME` and unsets the `XDG_*` folders. ccsession runs `orca terminal rename` and `orca terminal show` for the Step 4 and Step 5 titles (`ccsession:479-508`). If those two titles do not change, write that down as a remark about this test setup, not as a ccsession FAIL. Orca's own files, outside `~/.claude`, are Orca's and are not part of this check.
 
 **Pass/Fail:** ☐ PASS ☐ FAIL ☐ N/A — notes: `______`

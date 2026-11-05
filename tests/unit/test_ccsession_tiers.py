@@ -421,7 +421,12 @@ def test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier(
 
     session = "abc12345-0000-0000-0000-000000000000"
     env = _launch_env(tmp_path)
-    for name in ("CLAUDECODE", "XDG_STATE_HOME", "CCSESSION_ASK_TIMEOUT"):
+    for name in (
+        "CLAUDECODE",
+        "XDG_STATE_HOME",
+        "CCSESSION_ASK_TIMEOUT",
+        "CCSESSION_NAME",
+    ):
         env.pop(name, None)
     env.update(ORCA_PANE_KEY="tab-1:leaf-1", ORCA_TERMINAL_HANDLE="term_after")
     folder = str(tmp_path.resolve())
@@ -470,6 +475,46 @@ def test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier(
     ]
     assert _model_arg(seen) == "claude-gw-tier2[1m]"
     assert _compact(seen, "claude-gw-tier2") == 500000
+    assert seen["base_url"] == "http://127.0.0.1:4555"
+
+
+def test_orca_launch_with_a_prompt_in_tier_mode_is_auto_named_and_goes_through_the_shim(
+    tmp_path: Path,
+) -> None:
+    # Issue 315 in a tier-mode workspace: an agent launch that carries its task
+    # is not asked for a name; it gets an automatic one, the prompt stays the
+    # last argument, and Claude starts through the shim on the default tier.
+    env = _launch_env(tmp_path)
+    for name in (
+        "CLAUDECODE",
+        "XDG_STATE_HOME",
+        "CCSESSION_ASK_TIMEOUT",
+        "CCSESSION_NAME",
+    ):
+        env.pop(name, None)
+    prompt = "fix the login bug"
+    proc = subprocess.run(
+        [str(SKILL_DIR / "ccsession-orca"), "--dangerously-skip-permissions", prompt],
+        cwd=tmp_path,
+        env=env,
+        stdin=subprocess.DEVNULL,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert "Session name" not in proc.stdout + proc.stderr
+    seen = json.loads((tmp_path / "seen.json").read_text())
+    argv = seen["argv"]
+    assert argv.count("--name") == 1
+    label = argv[argv.index("--name") + 1]
+    # <folder>-<task words>-<MMDD-HHMMSS>-<4 hex>
+    assert re.fullmatch(
+        r"[A-Za-z0-9-]+-fix-the-login-bug-\d{4}-\d{6}-[0-9a-f]{4}", label
+    ), label
+    assert argv[-1] == prompt
+    assert "--dangerously-skip-permissions" in argv
+    assert _model_arg(seen) == "claude-gw-tier2[1m]"
     assert seen["base_url"] == "http://127.0.0.1:4555"
 
 

@@ -4,6 +4,28 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### ccsession: agents no longer get stuck at the session name question (#315)
+
+#### Fixed (ccsession name question)
+
+- An agent or worker started through `ccsession-orca` with a task could stop at `Session name (...)` and wait for a person. The question is now asked only when Claude starts with no task, no name and no resume. A prompt, `--prefill`, `--session-id`, `-p`, `CCSESSION_NAME`, Claude's own `--name`/`-n`, and `--resume`/`--continue`/`--fork-session`/`--from-pr` all skip it.
+- `--fork-session` and `--from-pr` now skip the question like `--resume`. The README said `--fork-session` did; the code still asked.
+- `ccsession --ask` waited for ever unless its caller set `CCSESSION_ASK_TIMEOUT`, and only `ccsession-orca` did (30 seconds). The default now lives in the question itself for every caller: `CCSESSION_ASK_TIMEOUT` seconds, default 30. `0`, or a value that is not a whole number of seconds (such as `1.5` or `30s`), waits for ever. While a limit is set, the default question and a hint containing `@LIMIT@` show it; a caller's own hint without `@LIMIT@` does not, but the limit applies. A caller that relied on the old no-limit default, such as a terminal-start hook that calls `ccsession --ask`, now gives up after 30 seconds unless it sets `CCSESSION_ASK_TIMEOUT=0`.
+- Ctrl+C at the question now ends `ccsession-orca` with status 130 and starts no Claude (it used to start an untagged session). `ccsession --ask` also restores the terminal when Ctrl+C arrives while it collects pasted text.
+- The tab-reopen path of `ccsession-orca` no longer passes `CCSESSION_NAME` or `CCSESSION_ASK_TIMEOUT` on to Claude Code.
+
+#### Added (ccsession automatic names)
+
+- A `ccsession-orca` launch that starts a new session without a name (not a resume, not print mode, not `CCSESSION_AUTOSTART=0`, not `--version` or a subcommand) gets a valid automatic one: Enter at the question, no answer within the limit, keys typed ahead, no terminal, and every launch that carries a task. The label is `<folder>-<up to four words of the task>-<MMDD-HHMMSS>-<4 hex>`, only letters, digits and hyphens, checked against the saved names, and it appears in `ccsession --here` once the session starts. If the name list cannot be written, Claude starts untagged instead of stopping.
+- `ccsession --auto-name [<task text>]` prints such a label; `ccsession --check-name <name>` exits 0 for a valid name.
+- `CCSESSION_NAME=<name>` in the environment names a session without a prompt (for orchestrators). An invalid value is dropped with a warning and Claude still starts; a value equal to a saved label resumes that session (while its conversation is still saved), loudly. A valid value is passed as `--name` even with `-p`, `--version`, a subcommand or `CCSESSION_AUTOSTART=0`, so set it only on a launch that starts a new session; with `--resume <id>` and a name that is also a saved label, Claude would get two `--resume` arguments.
+- `ccsession --ask` exits 3 and prints the text as typed when the line cannot be a name (a control character among other text, too long to save, or several lines pasted after a first line that is not blank; a pasted block that starts with a blank line is read as an empty answer); `ccsession-orca` passes that text to Claude as its first message and auto-names the launch. A normal line, spaces included, stays a name. A hint may contain `@LIMIT@`, replaced by the time limit in seconds; with no limit, the hint is cut at the first `; ` that has `@LIMIT@` after it, and a hint without such a `; ` keeps `@LIMIT@` as written.
+
+#### Changed (ccsession name question)
+
+- The question in `ccsession-orca` reads `Session name (Enter = auto-named, Ctrl+C = cancel; auto-named after 30s):`. Enter and the time limit start an automatically named session; they no longer start an untagged one. Print mode (`-p`), `--version`, `--help` and Claude subcommands (`mcp`, `doctor`...) start untagged and ask nothing; on a terminal they used to ask first. `CCSESSION_AUTOSTART=0` still starts untagged and asks nothing. A valid `CCSESSION_NAME` names any of these launches.
+- The README describes the one question rule, the launch paths and the one documented exception: Claude Agent Teams starts its teammates itself, without `ccsession-orca`, so those sessions are not named (follow-up). Orchestrators should always pass the task or a name. `docs/testing/v5.0.0/user/D08-ccsession.md` tests the question, the automatic names and the launch paths by hand and notes the exception.
+
 ### Install: harden the pinned-plugin install (#360 follow-ups)
 
 #### Fixed (plugin install)
