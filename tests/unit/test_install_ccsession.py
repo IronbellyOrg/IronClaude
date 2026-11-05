@@ -11,6 +11,18 @@ import pytest
 from superclaude.cli.install_ccsession import wire_ccsession
 
 
+@pytest.fixture(autouse=True)
+def _no_ccsession_permission_env(monkeypatch):
+    """Keep the developer's shell out of every ccsession run in this file.
+
+    The install step (``ccsession --migrate-names``) and the symlink tests run
+    ccsession with the inherited environment, and ccsession exits 2 on a bad
+    CCSESSION_PERMISSIONS (and CC_CLAUDE_FLAGS would change its launch flags).
+    """
+    monkeypatch.delenv("CCSESSION_PERMISSIONS", raising=False)
+    monkeypatch.delenv("CC_CLAUDE_FLAGS", raising=False)
+
+
 @pytest.fixture
 def home(tmp_path):
     skill = tmp_path / ".claude/skills/ccsession-tag"

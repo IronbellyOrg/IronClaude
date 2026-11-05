@@ -1,0 +1,437 @@
+# MERGED REVIEWER CARD (/sc:adversarial Step 5, merge-executor)
+# Base: variant-2-original.md (reviewer 2, qa persona, haiku class).
+# Incorporated: variant-1-original.md (reviewer 1, analyzer persona, sonnet class) and
+# invariant-probe.md (Round 2.5 probe, fault-finder).
+# Plan followed: adversarial/refactor-plan.md (13 changes, auto-approved 2026-11-05T18:27:31Z).
+# PLAN:<n> = line n of .dev/tasks/to-do/TASK-WF-implementGitHubI-20261105-170815/TASK-WF-implementGitHubI-20261105-170815.md
+# Paths are repo-relative. Taxonomy: src/superclaude/skills/sc-reflect-protocol/SKILL.md:985-1017,
+# precedence Regression > Drift > Necessary > Authorized at SKILL.md:1056.
+#
+# Source: Base (original, modified) — Change 11 (U-007): B-F7 moved out of the findings list.
+# Coverage-slice note (not a plan finding): matrix rows INF-004 and INF-007 report "none", but the plan
+# carries INF-004 (PLAN:20, 36) and INF-007 (PLAN:25); record both as covered-by-plan.
+merge_method: adversarial
+adversarial_unavailable: false
+convergence_score: 0.9583
+convergence_caveat: "23 of 24 points; four shared assumptions A-001, A-003, A-005 and A-006 were never debated and were counted as agreed; counted as unresolved the score is 19/24 = 0.79"
+base_variant: "variant-2 (reviewer 2, qa persona, haiku class)"
+incorporated_variants: [variant-1, round-2.5-probe]
+unresolved_conflicts: [A-004]
+
+# Source: Round 2.5 probe (fault-finder), INV-022 — merged per Change 12.
+# Verdict rationale (Round 2.5 probe, fault-finder, INV-022): the debate's consensus edits are not
+# sufficient on their own; M-F1, M-F3 and M-F6 close the three gaps.
+# Source: Base (original) — Change 13: verdict FAIL (both variants FAIL).
+verdict: FAIL
+# Source: Base (original, modified) — Change 13: orchestrator-set 0.85, between the two calibrated values
+# 0.82 (reviewer 1) and 0.87 (reviewer 2). Not a new calibration; the three probe-sourced findings
+# (M-F3, M-F5, M-F6) have not been calibrated. Base calibration block not carried for that reason.
+self_confidence: 0.85
+findings:
+  # Source: Base (original, modified) — Change 1: base F1 claim kept; recommended_change replaced with
+  # Variant A F1's remedy (C-001, C-002, U-003) plus the sentinel coupling from Round 2.5 probe
+  # (fault-finder) INV-008; evidence appended from Variant A F1.
+  - id: M-F1
+    claim: >-
+      Task 5 is built on a false premise and, followed literally, either breaks
+      `ccsession --help` or fails its own acceptance criterion. The plan asserts
+      the permissions comment block at ccsession:109-114 is "printed by ccsession
+      --help". It is not: show_help() (ccsession:1651-1652) runs awk over the
+      file's own header and exits at the first line matching /^# The wrapper
+      always runs/ - exactly line 109, the sentence Task 5 rewrites. "always"
+      occurs only on line 109 of that paragraph (it also occurs at ccsession:75
+      and :98, above the sentinel), so any rewrite that satisfies
+      "no longer contains the word always" makes the awk stop-marker stop
+      matching; awk then never exits and prints the ENTIRE script (comment
+      prefix stripped, code verbatim) into --help output. Conversely, keeping
+      line 109 and appending the new paragraph after line 114 means the
+      paragraph is after the stop-marker and never printed, so the acceptance
+      criterion "--help output contains CCSESSION_PERMISSIONS=default" fails.
+      No automated test catches the broken-marker variant: every help test is
+      substring-based (test_ccsession_tag.py:157-169, 2315-2323;
+      test_ccsession_tiers.py:576-582; test_install_ccsession.py:224-238). The
+      plan nowhere mentions updating the awk pattern in show_help().
+    evidence:
+      - PLAN:95
+      - PLAN:97
+      - PLAN:100
+      - src/superclaude/skills/ccsession-tag/ccsession:1652
+      - src/superclaude/skills/ccsession-tag/ccsession:109
+      - tests/unit/test_ccsession_tag.py:150
+      - tests/unit/test_install_ccsession.py:224
+      # Source: Variant A F1 — appended per Change 1
+      - src/superclaude/skills/ccsession-tag/ccsession:96-98
+      - src/superclaude/skills/ccsession-tag/ccsession:109-114
+      - tests/unit/test_ccsession_tag.py:1134-1144
+      # Source: refactor-plan Change 1 anchors (Grep rationale, guard-test tokens)
+      - src/superclaude/skills/ccsession-tag/ccsession:110-113
+      - src/superclaude/skills/ccsession-tag/ccsession:121
+      - src/superclaude/skills/ccsession-tag/ccsession:123
+    class: Regression
+    severity: blocking
+    plan_ref: Task 5
+    recommended_change: >-
+      Rewrite Task 5. (1) Put the usage entry `CCSESSION_PERMISSIONS=default
+      ccsession <topic>` in the usage block next to ccsession:96-97, above the
+      sentinel, so --help prints it. (2) Either keep line 109 starting with
+      `# The wrapper always runs`, or change the regex at ccsession:1652 in the
+      same edit as the sentence. (3) Rewrite PLAN:97's instruction and PLAN:100's
+      criterion accordingly: the criterion checks the usage entry, not "always"
+      in a paragraph --help never prints. (4) Add a test that --help contains
+      `CCSESSION_PERMISSIONS=default` and contains neither `set -e` nor
+      `CLAUDE_BIN=`, so a stale marker fails a test instead of dumping the script.
+
+  # Source: Base (original, modified) — Change 2 (U-004; A R2 response 1; B R2 response 3; B's
+  # calibrator note): claim narrowed to the first prong, second prong stated as an ambiguity;
+  # class Drift -> Regression (SKILL.md:1009 excludes Drift; SKILL.md:1017 Regression). Remedy unchanged.
+  - id: M-F2
+    claim: >-
+      Task 1's red-log acceptance criterion is unsatisfiable as written: "every
+      test that sets CCSESSION_PERMISSIONS=default or bypass fails" against the
+      unchanged launcher. The same task mandates a CC_CLAUDE_FLAGS=--verbose +
+      CCSESSION_PERMISSIONS=default test asserting "--verbose first and neither
+      default flag" - on the old launcher CC_CLAUDE_FLAGS already replaces the
+      default (ccsession:124 uses ${CC_CLAUDE_FLAGS:-...}), so that test PASSES
+      on old code. This first prong alone makes the criterion unmeetable: the
+      plan's own mandated test (PLAN:36) contradicts its own criterion (PLAN:39).
+      A second point is an ambiguity, not a contradiction: the criterion says
+      "the empty-variable and empty-CC_CLAUDE_FLAGS tests pass", but one
+      mandated empty-CC_CLAUDE_FLAGS test (empty flags + variable set to
+      default, expecting the --allowedTools=Grep-only default) must FAIL on old
+      code; the phrase can be read as meaning only the variable-unset one. The
+      executor cannot meet the criterion without dropping or mangling
+      spec-relevant tests, or silently reinterpreting the criterion.
+    evidence:
+      - PLAN:36
+      - PLAN:39
+      - src/superclaude/skills/ccsession-tag/ccsession:124
+      - .dev/tasks/to-do/TASK-WF-implementGitHubI-20261105-170815/source.md:1
+    class: Regression
+    severity: blocking
+    plan_ref: Task 1
+    recommended_change: >-
+      Reword the acceptance criterion to: "every test that asserts the new
+      default-flag behavior or the bad-value error fails; the CC_CLAUDE_FLAGS
+      override test, the empty-variable test and the empty-CC_CLAUDE_FLAGS
+      with variable unset test pass" - matching the spec's own split (set ->
+      fails; unset/override -> unchanged).
+
+  # Source: Round 2.5 probe (fault-finder), INV-007 — merged per Change 3 (new finding, narrowed:
+  # the stdin-hang half is the less likely half under pytest capture; the finding stands on the exec).
+  - id: M-F3
+    claim: >-
+      The Task 1 `CCSESSION_PERMISSIONS=bypass` test, as the plan tells the
+      executor to build it, can start the real Claude Code with
+      --dangerously-skip-permissions during the mandated red run. PLAN:36 says
+      to "call subprocess.run directly with check=False, as
+      test_help_and_unknown_profile_list_data_profiles does"; that model test
+      sets only HOME on a copy of os.environ (test_ccsession_tag.py:1145-1153),
+      with no fake CLAUDE_BIN and no CCSESSION_ENV_FILE, unlike _label_launch
+      (test_ccsession_tag.py:1177-1184). On the old launcher the variable is
+      ignored, CLAUDE_BIN defaults to `claude` (ccsession:123), and ccsession:1868
+      execs it with $CC_CLAUDE_FLAGS, which still starts with
+      --dangerously-skip-permissions. PLAN:39 mandates running this test against
+      the unchanged launcher. The evidence shows the red run reaches an exec of
+      whatever `claude` is on PATH, with the bypass flag, from the pytest
+      working directory; what that process then does is environment-dependent
+      and was not executed (the fresh HOME may leave it without credentials,
+      and pytest's default capture usually gives the child an empty standard
+      input, so a hang on inherited stdin is the less likely outcome).
+    evidence:
+      - PLAN:36
+      - PLAN:39
+      - tests/unit/test_ccsession_tag.py:1145-1153
+      - tests/unit/test_ccsession_tag.py:1177-1184
+      - src/superclaude/skills/ccsession-tag/ccsession:123
+      - src/superclaude/skills/ccsession-tag/ccsession:1868
+    class: Drift
+    severity: blocking
+    plan_ref: Task 1
+    recommended_change: >-
+      Build the `bypass` test on _label_launch's environment (fake CLAUDE_BIN,
+      HOME, CCSESSION_ENV_FILE) via the new `extra_env` argument, add
+      `stdin=subprocess.DEVNULL` and a timeout, and assert the fake Claude did
+      not run.
+
+  # Source: Base (original, modified) — Change 4: base F3 merged with Variant A F2 (U-001 orca trace;
+  # A R2 N1, N4) and Round 2.5 probe (fault-finder) INV-011; claim rewritten to the agreed impact
+  # (X-001 tie), subcommand list replaced by "every invocation, including --help"; class kept Drift
+  # (X-002, not A's Necessary deviation: SKILL.md:987 requires a documented rationale, PLAN:22 has none).
+  - id: M-F4
+    claim: >-
+      The bad-value exit 2 check is global, not launch-scoped, and the plan
+      neither states nor tests this. Task 4 replaces the assignment at
+      ccsession:124, which is top-level and executes before the whole argument
+      dispatch at ccsession:1671 onward, so CCSESSION_PERMISSIONS=typo makes
+      every invocation exit 2, including `ccsession --help` (for example also
+      --list, --rm, --check-name, --ask, --auto-name and the hook-run
+      maintenance subcommands). No bypass leaks: ccsession-orca's final exec of
+      ccsession (ccsession-orca:247, 249) also exits 2 before any Claude
+      starts. The impact splits into visible and silent: --help, --list and
+      --rm fail visibly; the hook calls --sync-name, --orca-tab-session and
+      --orca-tab-clear (hooks/session-name.sh:196-212) become silent no-ops in
+      any session with the hook and a bad exported value; the installer's
+      --migrate-names (install_ccsession.py:104-113) is skipped silently; and
+      ccsession-orca drops a valid CCSESSION_NAME with "not a valid session
+      name; ignoring it" (ccsession-orca:132-137) and prints "the session-name
+      question failed (status 2)" (ccsession-orca:204-212). The plan's only
+      bad-value test uses `ccsession demo` (a launch).
+    evidence:
+      - PLAN:22
+      - PLAN:75
+      - src/superclaude/skills/ccsession-tag/ccsession:124
+      - src/superclaude/skills/ccsession-tag/ccsession:1671
+      # Source: Variant A F2 — appended per Change 4
+      - src/superclaude/skills/ccsession-tag/ccsession-orca:132-137
+      - src/superclaude/skills/ccsession-tag/ccsession-orca:204-212
+      - src/superclaude/skills/ccsession-tag/ccsession-orca:247
+      - src/superclaude/skills/ccsession-tag/ccsession-orca:249
+      # Source: debate (A R2 N1, N4) — appended per Change 4
+      - src/superclaude/skills/ccsession-tag/hooks/session-name.sh:196-212
+      - src/superclaude/cli/install_ccsession.py:104-113
+    class: Drift
+    severity: minor
+    plan_ref: Constraints
+    recommended_change: >-
+      State the scope in Constraints ("every invocation, including --help") and
+      pin it with one test (bad value + `ccsession --help` exits 2); or defer
+      only the exit to the launch paths, under the constraint in M-F5.
+
+  # Source: Round 2.5 probe (fault-finder), INV-017 — merged per Change 5 (new finding).
+  # Class Regression by SKILL.md:1017; latent, because the plan as written does not do it.
+  - id: M-F5
+    claim: >-
+      Latent: launch-scoping the bad-value check, which both cards offer as a
+      remedy and the debate left to the owner, breaks two plan invariants if
+      the whole `case` is moved rather than only the exit. Add-on profiles are
+      sourced and can run ccsession_profile_<name> at ccsession:819-836; the env
+      file is assigned at ccsession:846 and sourced at ccsession:847-849; the
+      dispatch starts at ccsession:1671. If the whole `case` moves below
+      ccsession:847-849, a value set in the env file starts choosing the current
+      launch's flags (contradicting PLAN:23), and an env-file
+      `CC_CLAUDE_FLAGS=""` starts taking the default instead of giving empty
+      flags (contradicting PLAN:20 and source.md:1 "Do NOT change how an empty
+      CC_CLAUDE_FLAGS is handled").
+    evidence:
+      - PLAN:20
+      - PLAN:23
+      - src/superclaude/skills/ccsession-tag/ccsession:124
+      - src/superclaude/skills/ccsession-tag/ccsession:819-836
+      - src/superclaude/skills/ccsession-tag/ccsession:846
+      - src/superclaude/skills/ccsession-tag/ccsession:847-849
+      - src/superclaude/skills/ccsession-tag/ccsession:1671
+      - .dev/tasks/to-do/TASK-WF-implementGitHubI-20261105-170815/source.md:1
+    class: Regression
+    severity: minor
+    plan_ref: Constraints
+    recommended_change: >-
+      If the check is launch-scoped, keep computing _cc_default_flags and
+      CC_CLAUDE_FLAGS at line 124 and defer only the `exit 2`; say so in
+      Constraints.
+
+  # Source: Round 2.5 probe (fault-finder), INV-016 with INV-003 folded in — merged per Change 6
+  # (new finding). plan_ref Constraints: the Goal line PLAN:15 sits above Constraints.
+  - id: M-F6
+    claim: >-
+      The plan's Goal (PLAN:15) says ccsession, "directly and through
+      ccsession-orca", starts Claude without --dangerously-skip-permissions,
+      which overstates the spec. ccsession-orca passes Orca's own arguments
+      after --claude-args unchanged (ccsession-orca:14-17) and execs
+      `ccsession --shim --claude-args "$@"` (ccsession-orca:247, 249); every
+      launch line appends "$@" (ccsession:1799, 1801, 1859, 1861, 1866, 1868);
+      the tests model Orca's default option as ORCA_DEFAULT =
+      "--dangerously-skip-permissions" (test_ccsession_tag.py:1806-1811). So an
+      Orca tab started with CCSESSION_PERMISSIONS=default still runs with the
+      bypass. Likewise an add-on profile (ccsession:819-836) or the env file can
+      reassign CC_CLAUDE_FLAGS after line 124. The spec's wording ("ccsession
+      adds no permission-bypass flag", source.md:1) still holds, and the Coder
+      print-mode path (Task 2, `-p hello`) passes no such flag, so the issue-390
+      use case is unaffected; but no task records the limit, and the planned
+      docs repeat the overstatement.
+    evidence:
+      - PLAN:15
+      - src/superclaude/skills/ccsession-tag/ccsession-orca:14-17
+      - src/superclaude/skills/ccsession-tag/ccsession-orca:247
+      - src/superclaude/skills/ccsession-tag/ccsession-orca:249
+      - src/superclaude/skills/ccsession-tag/ccsession:1799
+      - src/superclaude/skills/ccsession-tag/ccsession:1801
+      - src/superclaude/skills/ccsession-tag/ccsession:1859
+      - src/superclaude/skills/ccsession-tag/ccsession:1861
+      - src/superclaude/skills/ccsession-tag/ccsession:1866
+      - src/superclaude/skills/ccsession-tag/ccsession:1868
+      - src/superclaude/skills/ccsession-tag/ccsession:819-836
+      - tests/unit/test_ccsession_tag.py:1806-1811
+      - .dev/tasks/to-do/TASK-WF-implementGitHubI-20261105-170815/source.md:1
+    class: Drift
+    severity: minor
+    plan_ref: Constraints
+    recommended_change: >-
+      Reword PLAN:15 to "ccsession adds no --dangerously-skip-permissions", and
+      add one sentence to the Task 5 header text, the Task 6 README row and the
+      Task 9 bullet: flags the caller passes (such as Orca's default option) and
+      flags set through CC_CLAUDE_FLAGS, an add-on profile or the env file still
+      apply.
+
+  # Source: Base (original, modified) — Change 7 (U-005, C-005, A-008): citation corrected (assigned
+  # :846, sourced :847-849); PLAN:121 imprecision added; class Drift -> Regression (orchestrator
+  # consistency correction by SKILL.md:1009, :1017, :1056, not a debate ruling); remedy extended.
+  - id: M-F7
+    claim: >-
+      The "read from the shell environment before ~/.claude/ccsession.env is
+      sourced, so not settable from that file" claim (plan Constraints; repeated
+      in the Task 6 README row, Task 7 env.example comment and Task 9 CHANGELOG
+      bullet) is backed by no test in Tasks 1 to 3. The ordering claim is true
+      by construction (the case at the line-124 site precedes the env file,
+      which is assigned at ccsession:846 and sourced at ccsession:847-849), but
+      Task 9's own acceptance requires "every behavior in the bullet matching
+      the tests of Tasks 1 to 3", which this clause fails, so the plan's steps
+      make its own criterion (PLAN:148) unmeetable. Task 7's wording (PLAN:121,
+      "this file is read after the launch flags are chosen") is also imprecise:
+      the file cannot set CCSESSION_PERMISSIONS for the current launch, but a
+      CC_CLAUDE_FLAGS set in it still replaces the flags.
+    evidence:
+      - PLAN:23
+      - PLAN:111
+      - PLAN:121
+      - PLAN:145
+      - PLAN:148
+      - src/superclaude/skills/ccsession-tag/ccsession:124
+      - src/superclaude/skills/ccsession-tag/ccsession:846
+      - src/superclaude/skills/ccsession-tag/ccsession:849
+      - src/superclaude/skills/ccsession-tag/ccsession:847-849
+      - tests/unit/test_ccsession_tag.py:1182
+    class: Regression
+    severity: minor
+    plan_ref: Task 9
+    recommended_change: >-
+      Add a Task 1 test that puts CCSESSION_PERMISSIONS=default inside a
+      CCSESSION_ENV_FILE and asserts the launched argv still starts with
+      --dangerously-skip-permissions (proving the env file cannot enable it;
+      _label_launch already sets CCSESSION_ENV_FILE,
+      test_ccsession_tag.py:1182), or drop the clause from Task 9's acceptance
+      wording. Reword PLAN:121 to "the variable is read before this file is
+      sourced".
+
+  # Source: Base (original, modified) — Change 8 (C-004, A-007): Variant A F3's alternative fix and
+  # evidence appended; the A-007 unisolated test sites added (from A R2 N1, B R2 NB-2; not re-read by
+  # the orchestrator). Variant A's aside about the excluded-names tuple not carried (diff-analysis C-004).
+  - id: M-F8
+    claim: >-
+      Task 3 adds CCSESSION_PERMISSIONS to the tiers _isolated fixture but not
+      CC_CLAUDE_FLAGS, and _launch_env inherits the whole developer
+      environment (tiers:362 os.environ.copy()). The new control assertion
+      "begins with --dangerously-skip-permissions" (plan line 63) is therefore
+      true only when the developer's shell does not export CC_CLAUDE_FLAGS -
+      unlike Task 1, whose tests explicitly delenv it
+      (test_ccsession_tag.py:1251). The plan's own Task 1 acceptance ("new
+      tests do not depend on the developer's own ... CC_CLAUDE_FLAGS values")
+      is not carried to Task 3.
+    evidence:
+      - PLAN:59
+      - PLAN:63
+      - tests/unit/test_ccsession_tiers.py:112
+      - tests/unit/test_ccsession_tiers.py:362
+      - tests/unit/test_ccsession_tag.py:1251
+      # Source: Variant A F3 — appended per Change 8
+      - tests/unit/test_ccsession_tiers.py:101-122
+      - tests/unit/test_ccsession_tiers.py:362-384
+      # Source: debate A-007 — appended per Change 8
+      - tests/unit/test_install_ccsession.py:51-67
+      - tests/unit/test_install_ccsession.py:224-238
+      - tests/cli/test_update_command.py:198-208
+    class: Drift
+    severity: minor
+    plan_ref: Task 3
+    recommended_change: >-
+      Also delete CC_CLAUDE_FLAGS in the tiers _isolated fixture (next to
+      CCSESSION_SHOW_ALL_MODELS) or pop it in _launch_env, so the tier test is
+      independent of the developer's shell; alternatively pass
+      `CC_CLAUDE_FLAGS=""` explicitly in the Task 3 launches or
+      `monkeypatch.delenv` it inside the new test. A bad exported
+      CCSESSION_PERMISSIONS also makes test_install_ccsession.py:51-67, :224-238
+      and tests/cli/test_update_command.py:198-208 fail (a valid `default` does
+      not): clear CCSESSION_PERMISSIONS (with CC_CLAUDE_FLAGS) in those three
+      tests, or launch-scope the check under M-F5.
+
+  # Source: Base (original, modified) — Change 9 (U-006): risk narrowed; remedy unchanged.
+  - id: M-F9
+    claim: >-
+      Task 3's instruction to reuse "one --tier launch that already appears in
+      the neighbouring tests" is ambiguous in a way that could make the test
+      unpassable if an implementer copied the ccsession-orca tests at :445 or
+      :500, which the plan does not point to. Those two neighbouring tier tests
+      pass --dangerously-skip-permissions EXPLICITLY as a ccsession-orca
+      argument (tiers:445, tiers:500), which flows through --claude-args to "$@"
+      and lands in seen["argv"] regardless of the new variable (tiers:472-478
+      asserts it at the argv tail). Copying that pattern, "contains no
+      --dangerously-skip-permissions" can never pass. Other neighbours (e.g.
+      _launch(tmp_path, "work", "--tier", "tier0") at tiers:525) do not pass it
+      and work.
+    evidence:
+      - PLAN:60
+      - tests/unit/test_ccsession_tiers.py:445
+      - tests/unit/test_ccsession_tiers.py:472
+      - tests/unit/test_ccsession_tiers.py:500
+      - tests/unit/test_ccsession_tiers.py:525
+    class: Drift
+    severity: minor
+    plan_ref: Task 3
+    recommended_change: >-
+      Name the exact control invocation in Task 3 (for example
+      _launch(tmp_path, "work", "--tier", "tier0")) and state that neither run
+      may pass --dangerously-skip-permissions (or any flag) explicitly.
+
+  # Source: Variant A F4 (U-002), with Round 2.5 probe (fault-finder) INV-021 folded in — merged per
+  # Change 10 (new finding).
+  - id: M-F10
+    claim: >-
+      Task 8 extends only the "unless CC_CLAUDE_FLAGS is set" sentence. In D08
+      line 23 the same sentence continues "Claude Code then runs tools without
+      asking". That is false for a `CCSESSION_PERMISSIONS=default` launch, so
+      the doc would state the default inaccurately. The task's own premise is
+      that docs stating the permission default "must stay true" (PLAN:130).
+      The same sentence also cites `ccsession:78-83,93` as the source of the
+      default flags, which are now at ccsession:109-114 and ccsession:124
+      (E01-ccsession-tier-policy.md:21 lacks the trailing clause, so only D08
+      needs the clause change).
+    evidence:
+      - docs/testing/v5.0.0/user/D08-ccsession.md:23
+      - docs/testing/v5.0.0/sysop/E01-ccsession-tier-policy.md:21
+      - PLAN:130
+      - PLAN:135
+      - src/superclaude/skills/ccsession-tag/ccsession:109-114
+      - src/superclaude/skills/ccsession-tag/ccsession:124
+    class: Drift
+    severity: minor
+    plan_ref: Task 8
+    recommended_change: >-
+      In D08 line 23, tie the trailing clause to the default launch (for
+      example "by default Claude Code then runs tools without asking"), and
+      update the line citation on the same line. That keeps the change to the
+      one line the acceptance criterion allows (PLAN:135).
+
+# Source: Base (original, modified) — Change 13: union of both cards' not_checked, minus items closed
+# in the debate or probe (A's plugins/ mirror, -k permissions collision, case/:- correctness,
+# install-test header pinning, orca parametrize set), plus two additions.
+not_checked:
+  # Source: Base (original)
+  - No command was run (read-only audit); all "fails on the old launcher" red-test
+    claims are reasoned from the source at ccsession:124 and the six exec lines
+    (1799-1868), not observed by executing pytest.
+  - The runtime behavior of show_help()'s awk was derived by reading
+    ccsession:1651-1652, not by running ccsession --help.
+  - IronbellyOrg/Coder#458 (other repository) was not checked; INF-007 rests on
+    the issue summary's description.
+  - CHANGELOG.md was read only to line 45.
+  - Whether any developer machine actually exports CC_CLAUDE_FLAGS (the M-F8
+    exposure is latent, not observed).
+  # Source: Variant A (narrowed per Change 13)
+  - The Makefile `sync-dev` and `verify-sync` targets.
+  - The behaviour of the hooks that call `ccsession` (`--sync-name`, `--orca-tab-*`)
+    when a VALID `CCSESSION_PERMISSIONS=default` is inherited (the bad-value case
+    was settled in X-001).
+  # Source: refactor-plan Change 13 additions
+  - What the real `claude` does when M-F3's red run reaches it (not executed).
+  - Whether `CCSESSION_PERMISSIONS` should be unset before `exec` or deliberately
+    inherited by nested launches (A-004, unresolved in the debate; owner decision;
+    probe INV-001, INV-002).

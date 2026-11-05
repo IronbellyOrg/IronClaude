@@ -119,6 +119,11 @@ def _isolated(monkeypatch, tmp_path_factory):
         "CCSESSION_MODEL_ORDER",
         "CODER_WORKSPACE_OWNER_NAME",
         "CODER_WORKSPACE_OWNER_ROLES",
+        # A permission choice or flag override exported in the developer's shell
+        # would change the flags the launch tests expect (and a bad value makes
+        # ccsession exit 2).
+        "CCSESSION_PERMISSIONS",
+        "CC_CLAUDE_FLAGS",
     ):
         monkeypatch.delenv(name, raising=False)
 
@@ -544,6 +549,24 @@ def test_tier_flag_and_named_model(tmp_path: Path) -> None:
     assert rc == 0 and seen["context"] == "200000"
     assert _compact(seen, "brand-new-model") == 200000
     assert "not in any tier" in err
+
+
+def test_tier_launch_permissions_default_keeps_tier_routing(tmp_path: Path) -> None:
+    # CCSESSION_PERMISSIONS=default drops only the bypass flag: the tier model,
+    # its settings and the shim address are the control launch's. Neither launch
+    # passes a flag of its own.
+    rc, _, err, control = _launch(tmp_path, "work", "--tier", "tier0")
+    assert rc == 0, err
+    rc, _, err, opted_in = _launch(
+        tmp_path, "work", "--tier", "tier0", CCSESSION_PERMISSIONS="default"
+    )
+    assert rc == 0, err
+    assert control["argv"][0] == "--dangerously-skip-permissions"
+    assert opted_in["argv"][0] == "--allowedTools=Grep"
+    assert "--dangerously-skip-permissions" not in opted_in["argv"]
+    assert opted_in["settings"] == control["settings"]
+    assert _model_arg(opted_in) == _model_arg(control) == "claude-gw-tier0[1m]"
+    assert opted_in["base_url"] == control["base_url"] == "http://127.0.0.1:4555"
 
 
 def test_tier_mode_refuses_profiles_and_bad_tiers(tmp_path: Path) -> None:

@@ -64,6 +64,11 @@ def _offline_model_data(monkeypatch, tmp_path_factory):
         "XDG_STATE_HOME",
         "CLAUDE_TOPIC",
         "CCSESSION_TOPIC_CWD",
+        # A permission choice or flag override exported in the developer's shell
+        # would change the flags every launch test expects (and a bad value
+        # makes ccsession exit 2).
+        "CCSESSION_PERMISSIONS",
+        "CC_CLAUDE_FLAGS",
     ):
         monkeypatch.delenv(name, raising=False)
     for name in (
@@ -1160,7 +1165,10 @@ def test_help_and_unknown_profile_list_data_profiles(tmp_path: Path) -> None:
 
 
 def _label_run(
-    tmp_path: Path, transcript: bool, args: tuple[str, ...] = ("demo",)
+    tmp_path: Path,
+    transcript: bool,
+    args: tuple[str, ...] = ("demo",),
+    extra_env: dict[str, str] | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], bool]:
     """Run ccsession on a saved label; return the finished process and whether the label stayed."""
     home = tmp_path / "home"
@@ -1185,6 +1193,7 @@ def _label_run(
             "HOME": str(home),
             "CLAUDE_BIN": str(fake),
             "CCSESSION_ENV_FILE": str(tmp_path / "none.env"),
+            **(extra_env or {}),
         }
     )
     result = subprocess.run(
@@ -1199,11 +1208,55 @@ def _label_run(
 
 
 def _label_launch(
-    tmp_path: Path, transcript: bool, args: tuple[str, ...] = ("demo",)
+    tmp_path: Path,
+    transcript: bool,
+    args: tuple[str, ...] = ("demo",),
+    extra_env: dict[str, str] | None = None,
 ) -> tuple[str, bool]:
     """Like _label_run, but only the standard output (Claude's last line is its JSON)."""
-    result, label_kept = _label_run(tmp_path, transcript, args)
+    result, label_kept = _label_run(tmp_path, transcript, args, extra_env)
     return result.stdout, label_kept
+
+
+def _run_ccsession(
+    tmp_path: Path, *args: str, **extra: str
+) -> subprocess.CompletedProcess[str]:
+    """Run ccsession without raising, and without any way to start a real Claude.
+
+    The fake Claude only touches ``tmp_path / "claude-ran"``, so a test can tell
+    whether the launcher got as far as starting it, also on a launcher that
+    ignores the setting under test.
+    """
+    home = tmp_path / "home"
+    work = tmp_path / "work"
+    home.mkdir(parents=True, exist_ok=True)
+    work.mkdir(parents=True, exist_ok=True)
+    fake = tmp_path / "fake-claude"
+    fake.write_text(f'#!/bin/sh\ntouch "{tmp_path / "claude-ran"}"\n')
+    fake.chmod(0o700)
+    env = {
+        k: v
+        for k, v in os.environ.items()
+        if k not in ("CC_CLAUDE_FLAGS", "CCSESSION_PERMISSIONS")
+    }
+    env.update(
+        {
+            "HOME": str(home),
+            "CLAUDE_BIN": str(fake),
+            "CCSESSION_ENV_FILE": str(tmp_path / "none.env"),
+            **extra,
+        }
+    )
+    return subprocess.run(
+        [str(SKILL_DIR / "ccsession"), *args],
+        env=env,
+        cwd=work,
+        stdin=subprocess.DEVNULL,
+        text=True,
+        capture_output=True,
+        timeout=60,
+        check=False,
+    )
 
 
 def test_rm_removes_an_existing_label_that_starts_with_a_dash(tmp_path: Path) -> None:
@@ -1282,6 +1335,195 @@ def test_launch_status_lines_are_on_stderr_only(
     assert len(result.stdout.strip().splitlines()) == 1, result.stdout
     assert "[ccsession]" not in result.stdout
     assert "[ccsession]" in result.stderr
+
+
+# CCSESSION_PERMISSIONS=default (issue 390): the same six launch lines as above.
+_BYPASS = "--dangerously-skip-permissions"
+_PERMISSIONS_MATRIX = [
+    (("-p", "x"), False),
+    (("--profile", "claude", "-p", "x"), False),
+    (("demo",), False),
+    (("demo",), True),
+    (("--profile", "claude", "demo"), False),
+    (("--profile", "claude", "demo"), True),
+]
+
+
+@pytest.mark.parametrize(("args", "transcript"), _PERMISSIONS_MATRIX)
+def test_permissions_default_drops_the_bypass_on_every_launch_line(
+    tmp_path: Path, args: tuple[str, ...], transcript: bool
+) -> None:
+    # Only --allowedTools=Grep is added; the model and resume arguments stay.
+    stdout, _ = _label_launch(
+        tmp_path,
+        transcript=transcript,
+        args=args,
+        extra_env={"CCSESSION_PERMISSIONS": "default"},
+    )
+    launched = json.loads(stdout.strip().splitlines()[-1])
+    assert launched[0] == "--allowedTools=Grep"
+    assert _BYPASS not in launched
+    assert ("--model" in launched) == ("--profile" in args)
+    assert ("--resume" in launched) == transcript
+
+
+def test_permissions_default_empty_value_is_unset(tmp_path: Path) -> None:
+    stdout, _ = _label_launch(
+        tmp_path,
+        transcript=False,
+        extra_env={"CCSESSION_PERMISSIONS": ""},
+    )
+    launched = json.loads(stdout.strip().splitlines()[-1])
+    assert launched[:2] == [_BYPASS, "--allowedTools=Grep"]
+
+
+def test_permissions_default_non_empty_claude_flags_still_win(tmp_path: Path) -> None:
+    stdout, _ = _label_launch(
+        tmp_path,
+        transcript=False,
+        extra_env={"CCSESSION_PERMISSIONS": "default", "CC_CLAUDE_FLAGS": "--verbose"},
+    )
+    launched = json.loads(stdout.strip().splitlines()[-1])
+    assert launched[0] == "--verbose"
+    assert _BYPASS not in launched
+    assert "--allowedTools=Grep" not in launched
+
+
+def test_permissions_default_empty_claude_flags_take_the_opt_in_default(
+    tmp_path: Path,
+) -> None:
+    # An empty CC_CLAUDE_FLAGS is not special: the :- default applies, and with
+    # the opt-in that default has no bypass flag.
+    stdout, _ = _label_launch(
+        tmp_path,
+        transcript=False,
+        extra_env={"CCSESSION_PERMISSIONS": "default", "CC_CLAUDE_FLAGS": ""},
+    )
+    launched = json.loads(stdout.strip().splitlines()[-1])
+    assert launched[0] == "--allowedTools=Grep"
+    assert _BYPASS not in launched
+
+
+def test_permissions_default_empty_claude_flags_without_it_take_the_old_default(
+    tmp_path: Path,
+) -> None:
+    stdout, _ = _label_launch(
+        tmp_path, transcript=False, extra_env={"CC_CLAUDE_FLAGS": ""}
+    )
+    launched = json.loads(stdout.strip().splitlines()[-1])
+    assert launched[:2] == [_BYPASS, "--allowedTools=Grep"]
+
+
+def test_permissions_default_in_the_env_file_does_not_enable_it(tmp_path: Path) -> None:
+    # The variable is read at the flag-default line, before the env file is sourced.
+    env_file = tmp_path / "ccsession.env"
+    env_file.write_text("export CCSESSION_PERMISSIONS=default\n")
+    stdout, _ = _label_launch(
+        tmp_path,
+        transcript=False,
+        extra_env={"CCSESSION_ENV_FILE": str(env_file)},
+    )
+    launched = json.loads(stdout.strip().splitlines()[-1])
+    assert launched[:2] == [_BYPASS, "--allowedTools=Grep"]
+
+
+@pytest.mark.parametrize("shell_value", [None, "default"])
+def test_permissions_in_the_env_file_never_reaches_a_nested_launch(
+    tmp_path: Path, shell_value: str | None
+) -> None:
+    # Claude, and so a nested ccsession, must see what the shell set (or nothing),
+    # never a value the env file exported after the flags were chosen.
+    home = tmp_path / "home"
+    work = tmp_path / "work"
+    home.mkdir()
+    work.mkdir()
+    fake = tmp_path / "fake-claude"
+    fake.write_text(
+        "#!/usr/bin/env python3\nimport os\n"
+        "print('PERM=' + repr(os.environ.get('CCSESSION_PERMISSIONS')))\n"
+    )
+    fake.chmod(0o700)
+    env_file = tmp_path / "ccsession.env"
+    env_file.write_text("export CCSESSION_PERMISSIONS=bogus\n")
+    env = {
+        k: v
+        for k, v in os.environ.items()
+        if k not in ("CC_CLAUDE_FLAGS", "CCSESSION_PERMISSIONS")
+    }
+    env.update(HOME=str(home), CLAUDE_BIN=str(fake), CCSESSION_ENV_FILE=str(env_file))
+    if shell_value is not None:
+        env["CCSESSION_PERMISSIONS"] = shell_value
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "-p", "x"],
+        env=env,
+        cwd=work,
+        stdin=subprocess.DEVNULL,
+        text=True,
+        capture_output=True,
+        timeout=60,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert f"PERM={shell_value!r}" in result.stdout
+
+
+def test_permissions_default_claude_flags_in_the_env_file_still_win(
+    tmp_path: Path,
+) -> None:
+    env_file = tmp_path / "ccsession.env"
+    env_file.write_text("CC_CLAUDE_FLAGS=--verbose\n")
+    stdout, _ = _label_launch(
+        tmp_path,
+        transcript=False,
+        extra_env={
+            "CCSESSION_ENV_FILE": str(env_file),
+            "CCSESSION_PERMISSIONS": "default",
+        },
+    )
+    launched = json.loads(stdout.strip().splitlines()[-1])
+    assert launched[0] == "--verbose"
+    assert _BYPASS not in launched
+
+
+def test_permissions_default_keeps_a_flag_the_caller_passes(tmp_path: Path) -> None:
+    # Only the flags ccsession adds change; Claude's own arguments pass through.
+    stdout, _ = _label_launch(
+        tmp_path,
+        transcript=False,
+        args=("demo", "--claude-args", _BYPASS),
+        extra_env={"CCSESSION_PERMISSIONS": "default"},
+    )
+    launched = json.loads(stdout.strip().splitlines()[-1])
+    assert launched[0] == "--allowedTools=Grep"
+    assert launched[-1] == _BYPASS
+
+
+@pytest.mark.parametrize("value", ["bypass", "Default"])
+def test_permissions_default_any_other_value_exits_2(
+    tmp_path: Path, value: str
+) -> None:
+    result = _run_ccsession(tmp_path, "demo", CCSESSION_PERMISSIONS=value)
+    assert result.returncode == 2
+    assert "CCSESSION_PERMISSIONS" in result.stderr
+    assert not (tmp_path / "claude-ran").exists()
+
+
+def test_permissions_default_bad_value_also_stops_help(tmp_path: Path) -> None:
+    # The check runs before the argument dispatch, so it covers every call.
+    result = _run_ccsession(tmp_path, "--help", CCSESSION_PERMISSIONS="bypass")
+    assert result.returncode == 2
+    assert "CCSESSION_PERMISSIONS" in result.stderr
+
+
+def test_permissions_default_help_lists_the_variable_and_stops_at_the_header(
+    tmp_path: Path,
+) -> None:
+    result = _run_ccsession(tmp_path, "--help")
+    assert result.returncode == 0
+    assert "CCSESSION_PERMISSIONS=default" in result.stdout
+    # show_help stops at the header comment; the code below it must not appear.
+    assert "set -e" not in result.stdout
+    assert "CLAUDE_BIN=" not in result.stdout
 
 
 def test_private_addon_profiles_never_download_model_data(
@@ -1441,6 +1683,7 @@ def _orca_env(tmp_path: Path, **extra: str) -> dict[str, str]:
             "ANTHROPIC_AUTH_TOKEN",
             "LITELLM_API_KEY",
             "CC_CLAUDE_FLAGS",
+            "CCSESSION_PERMISSIONS",
             "CCSESSION_AUTOSTART",
             "CCSESSION_ASK_TIMEOUT",
             "CCSESSION_NAME",
@@ -2880,6 +3123,22 @@ def test_orca_print_mode_is_untagged_and_never_asked(
     output, record = _orca_no_tty(tmp_path, *args)
     assert record["topic"] is None
     assert record["argv"] == [*ORCA_FLAGS, *args]
+
+
+def test_orca_print_mode_permissions_default_keeps_shim_routing(
+    tmp_path: Path,
+) -> None:
+    # The path the Coder wrapper uses: ccsession-orca -p ... hands off to
+    # ccsession --shim. The opt-in drops only the bypass flag; the shim and its
+    # credentials stay, and the variable stays exported to Claude (nested launches).
+    _, control = _orca_no_tty(tmp_path, "-p", "hello")
+    _, opted_in = _orca_no_tty(tmp_path, "-p", "hello", CCSESSION_PERMISSIONS="default")
+    assert control["argv"] == [*ORCA_FLAGS, "-p", "hello"]
+    assert opted_in["argv"] == ["--allowedTools=Grep", "-p", "hello"]
+    _assert_through_shim(control)
+    _assert_through_shim(opted_in)
+    assert "CCSESSION_PERMISSIONS" in opted_in["env_names"]
+    assert "CCSESSION_PERMISSIONS" not in control["env_names"]
 
 
 @pytest.mark.parametrize(

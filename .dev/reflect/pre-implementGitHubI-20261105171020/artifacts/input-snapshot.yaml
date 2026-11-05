@@ -1,0 +1,25 @@
+input_tree_sha256: ef609cd79de3ab560c30fdf0b142405979a57c44f47b540ceccf3af9b9ec0639
+file_count: 11
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-implementGitHubI-20261105-170815/TASK-WF-implementGitHubI-20261105-170815.md
+    sha256: 8ed5ebeec1a3ffdeba9d055b885eb3e49eae592a97a545edb4f0ba83d81a05e1
+  - path: .dev/tasks/to-do/TASK-WF-implementGitHubI-20261105-170815/source.md
+    sha256: ca87e2850b36d90981b97e63584b5d340cd1cdb13d13df91f4eecd4d9cb03b3e
+  - path: CHANGELOG.md
+    sha256: efc5b8581ae56e8e43bb5860427044808bdaa5f0f9aef000422d112390b9816f
+  - path: docs/testing/v5.0.0/sysop/E01-ccsession-tier-policy.md
+    sha256: 13603bf9f00d99165069b610ae61ccc0f9ef593297c05ee58f5e061a060281e6
+  - path: docs/testing/v5.0.0/user/D08-ccsession.md
+    sha256: 7255cb3e9b3d4a3ea843d9d0874419b2b2d8ec8d6c4fc7aeeb390a0771e3a05d
+  - path: src/superclaude/skills/ccsession-tag/README.md
+    sha256: ad9513a978dd41931c248c5e6723f1825e9b28c0412204492417d6acf972cd5b
+  - path: src/superclaude/skills/ccsession-tag/ccsession
+    sha256: 98f14c8c381b080ad498e133f1a0cf29c8fbd7b695c57ca3fc09afa389bbb5a7
+  - path: src/superclaude/skills/ccsession-tag/ccsession-orca
+    sha256: 26c2bd2c795f662db03457c834e47ae5285d8a082e5d3b79d265e307d5e4dc86
+  - path: src/superclaude/skills/ccsession-tag/ccsession.env.example
+    sha256: f9111e16da6be429e75e9e315c49cd42fae319c5cbee7734cd59ca770926f036
+  - path: tests/unit/test_ccsession_tag.py
+    sha256: dec492f04d90442aeeb5293d3bb1ab1c5a899f53276835bae79f70a7e26871fc
+  - path: tests/unit/test_ccsession_tiers.py
+    sha256: 59006b65759d769b07be2bfd24dd45ed3e6ffd35df952bce4ab344a225d6458b

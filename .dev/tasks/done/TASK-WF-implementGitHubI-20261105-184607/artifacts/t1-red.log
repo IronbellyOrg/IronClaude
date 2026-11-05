@@ -1,0 +1,102 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/ic-issue-390
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 275 items / 252 deselected / 23 selected
+
+tests/unit/test_ccsession_tag.py ......FFFFFF..F...FFFFF                 [100%]
+
+=================================== FAILURES ===================================
+_ test_permissions_default_drops_the_bypass_on_every_launch_line[args0-False] __
+tests/unit/test_ccsession_tag.py:1333: in test_permissions_default_drops_the_bypass_on_every_launch_line
+    assert launched[0] == "--allowedTools=Grep"
+E   AssertionError: assert '--dangerousl...p-permissions' == '--allowedTools=Grep'
+E     
+E     - --allowedTools=Grep
+E     + --dangerously-skip-permissions
+_ test_permissions_default_drops_the_bypass_on_every_launch_line[args1-False] __
+tests/unit/test_ccsession_tag.py:1333: in test_permissions_default_drops_the_bypass_on_every_launch_line
+    assert launched[0] == "--allowedTools=Grep"
+E   AssertionError: assert '--dangerousl...p-permissions' == '--allowedTools=Grep'
+E     
+E     - --allowedTools=Grep
+E     + --dangerously-skip-permissions
+_ test_permissions_default_drops_the_bypass_on_every_launch_line[args2-False] __
+tests/unit/test_ccsession_tag.py:1333: in test_permissions_default_drops_the_bypass_on_every_launch_line
+    assert launched[0] == "--allowedTools=Grep"
+E   AssertionError: assert '--dangerousl...p-permissions' == '--allowedTools=Grep'
+E     
+E     - --allowedTools=Grep
+E     + --dangerously-skip-permissions
+__ test_permissions_default_drops_the_bypass_on_every_launch_line[args3-True] __
+tests/unit/test_ccsession_tag.py:1333: in test_permissions_default_drops_the_bypass_on_every_launch_line
+    assert launched[0] == "--allowedTools=Grep"
+E   AssertionError: assert '--dangerousl...p-permissions' == '--allowedTools=Grep'
+E     
+E     - --allowedTools=Grep
+E     + --dangerously-skip-permissions
+_ test_permissions_default_drops_the_bypass_on_every_launch_line[args4-False] __
+tests/unit/test_ccsession_tag.py:1333: in test_permissions_default_drops_the_bypass_on_every_launch_line
+    assert launched[0] == "--allowedTools=Grep"
+E   AssertionError: assert '--dangerousl...p-permissions' == '--allowedTools=Grep'
+E     
+E     - --allowedTools=Grep
+E     + --dangerously-skip-permissions
+__ test_permissions_default_drops_the_bypass_on_every_launch_line[args5-True] __
+tests/unit/test_ccsession_tag.py:1333: in test_permissions_default_drops_the_bypass_on_every_launch_line
+    assert launched[0] == "--allowedTools=Grep"
+E   AssertionError: assert '--dangerousl...p-permissions' == '--allowedTools=Grep'
+E     
+E     - --allowedTools=Grep
+E     + --dangerously-skip-permissions
+_____ test_permissions_default_empty_claude_flags_take_the_opt_in_default ______
+tests/unit/test_ccsession_tag.py:1372: in test_permissions_default_empty_claude_flags_take_the_opt_in_default
+    assert launched[0] == "--allowedTools=Grep"
+E   AssertionError: assert '--dangerousl...p-permissions' == '--allowedTools=Grep'
+E     
+E     - --allowedTools=Grep
+E     + --dangerously-skip-permissions
+___________ test_permissions_default_keeps_a_flag_the_caller_passes ____________
+tests/unit/test_ccsession_tag.py:1426: in test_permissions_default_keeps_a_flag_the_caller_passes
+    assert launched[0] == "--allowedTools=Grep"
+E   AssertionError: assert '--dangerousl...p-permissions' == '--allowedTools=Grep'
+E     
+E     - --allowedTools=Grep
+E     + --dangerously-skip-permissions
+___________ test_permissions_default_any_other_value_exits_2[bypass] ___________
+tests/unit/test_ccsession_tag.py:1433: in test_permissions_default_any_other_value_exits_2
+    assert result.returncode == 2
+E   assert 0 == 2
+E    +  where 0 = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/ic-issue-390/src/superclaude/skills/ccsession-tag/ccsession', 'demo'], returncode=0, stdout="[ccsession] Starting new session labeled 'demo'\n", stderr='').returncode
+__________ test_permissions_default_any_other_value_exits_2[Default] ___________
+tests/unit/test_ccsession_tag.py:1433: in test_permissions_default_any_other_value_exits_2
+    assert result.returncode == 2
+E   assert 0 == 2
+E    +  where 0 = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/ic-issue-390/src/superclaude/skills/ccsession-tag/ccsession', 'demo'], returncode=0, stdout="[ccsession] Starting new session labeled 'demo'\n", stderr='').returncode
+______________ test_permissions_default_bad_value_also_stops_help ______________
+tests/unit/test_ccsession_tag.py:1441: in test_permissions_default_bad_value_also_stops_help
+    assert result.returncode == 2
+E   AssertionError: assert 0 == 2
+E    +  where 0 = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/ic-issue-390/src/superclaude/skills/ccsession-tag/...Max and 1M context\n  ccsession --profile glm --shim\n                            GLM 5.3 and 1M context\n', stderr='').returncode
+___ test_permissions_default_help_lists_the_variable_and_stops_at_the_header ___
+tests/unit/test_ccsession_tag.py:1450: in test_permissions_default_help_lists_the_variable_and_stops_at_the_header
+    assert "CCSESSION_PERMISSIONS=default" in result.stdout
+E   assert 'CCSESSION_PERMISSIONS=default' in "ccsession — Claude Code session manager with labeled resume\n\nPart of the 'ccsession' skill. Symlinked from ~/.local...   Qwen 3.8 Max and 1M context\n  ccsession --profile glm --shim\n                            GLM 5.3 and 1M context\n"
+E    +  where "ccsession — Claude Code session manager with labeled resume\n\nPart of the 'ccsession' skill. Symlinked from ~/.local...   Qwen 3.8 Max and 1M context\n  ccsession --profile glm --shim\n                            GLM 5.3 and 1M context\n" = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/ic-issue-390/src/superclaude/skills/ccsession-tag/...Max and 1M context\n  ccsession --profile glm --shim\n                            GLM 5.3 and 1M context\n', stderr='').stdout
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tag.py::test_permissions_default_drops_the_bypass_on_every_launch_line[args0-False]
+FAILED tests/unit/test_ccsession_tag.py::test_permissions_default_drops_the_bypass_on_every_launch_line[args1-False]
+FAILED tests/unit/test_ccsession_tag.py::test_permissions_default_drops_the_bypass_on_every_launch_line[args2-False]
+FAILED tests/unit/test_ccsession_tag.py::test_permissions_default_drops_the_bypass_on_every_launch_line[args3-True]
+FAILED tests/unit/test_ccsession_tag.py::test_permissions_default_drops_the_bypass_on_every_launch_line[args4-False]
+FAILED tests/unit/test_ccsession_tag.py::test_permissions_default_drops_the_bypass_on_every_launch_line[args5-True]
+FAILED tests/unit/test_ccsession_tag.py::test_permissions_default_empty_claude_flags_take_the_opt_in_default
+FAILED tests/unit/test_ccsession_tag.py::test_permissions_default_keeps_a_flag_the_caller_passes
+FAILED tests/unit/test_ccsession_tag.py::test_permissions_default_any_other_value_exits_2[bypass]
+FAILED tests/unit/test_ccsession_tag.py::test_permissions_default_any_other_value_exits_2[Default]
+FAILED tests/unit/test_ccsession_tag.py::test_permissions_default_bad_value_also_stops_help
+FAILED tests/unit/test_ccsession_tag.py::test_permissions_default_help_lists_the_variable_and_stops_at_the_header
+================ 12 failed, 11 passed, 252 deselected in 3.90s =================
+rc=1

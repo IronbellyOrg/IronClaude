@@ -1,0 +1,53 @@
+# Convergence and base-selection summary for /sc:adversarial Mode A, depth standard (debate-orchestrator)
+# Sources: debate-transcript.md (Scoring Matrix, Convergence Assessment), base-selection.md, refactor-plan.md
+generated_at: "2026-11-05T18:27:31Z"
+convergence_score: 0.9583
+threshold: 0.80
+status: CONVERGED
+agreed_points: 23
+total_points: 24          # count(S)=8 + count(C)=6 + count(X)=2 + count(A)=8; U-points excluded
+unresolved_points:
+  - A-004
+convergence_rule_note: >-
+  Agreed = both advocates' final calls (Round 2, else Round 1) name the same winner or both say tie.
+  S-003 (not addressed by either advocate) counts as agreed because neither card disputes it.
+  A-001, A-003, A-005 and A-006 (shared assumptions never promoted to debate, held by both cards,
+  disputed by no card or advocate) are counted as agreed by applying the S-point rule by analogy.
+  Strict-reading sensitivity: counting those four as unresolved gives 19/24 = 0.7917 (NOT_CONVERGED).
+unresolved_unique_contributions_informational:
+  - U-006
+  - U-007
+taxonomy_coverage:
+  L1: 4   # S-002, C-006, X-001, A-002 (lexical signals: style, wording, cosmetic, wording)
+  L2: 18  # default level, no signal term
+  L3: 2   # C-002 (guard), C-003 (state)
+taxonomy_gate: PASS
+high_unaddressed_invariants: 0
+medium_unaddressed_invariants_warning:
+  - INV-007
+  - INV-008
+  - INV-016
+  - INV-017
+  - INV-022
+invariant_gate: PASS
+base_variant: B   # variant-2-original.md, reviewer 2, qa persona, haiku class
+quant_scores:
+  A: 0.8191
+  B: 0.8562
+qual_scores:
+  A: 0.8000   # 24/30
+  B: 0.8333   # 25/30
+combined_scores:
+  A: 0.8095
+  B: 0.8448
+margin: 0.0353
+tiebreaker_applied: true   # margin < 0.05; debate wins on S/C/X points: A 2, B 8
+edge_case_floor:
+  A: 5/5
+  B: 5/5
+merged_card:
+  verdict: FAIL
+  blocking: [M-F1, M-F2, M-F3]
+  minor: [M-F4, M-F5, M-F6, M-F7, M-F8, M-F9, M-F10]
+  planned_changes: 13
+review_status: auto-approved

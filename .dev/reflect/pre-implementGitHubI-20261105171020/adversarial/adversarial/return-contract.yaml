@@ -1,0 +1,15 @@
+# /sc:adversarial return contract (written by the orchestrator on completion; Mode A, depth standard, 2 variants)
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/ic-issue-390/.dev/reflect/pre-implementGitHubI-20261105171020/adversarial/merged-verdict.yaml"
+  convergence_score: 0.9583
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/ic-issue-390/.dev/reflect/pre-implementGitHubI-20261105171020/adversarial/adversarial"
+  status: "partial"          # steps 1-5 completed and post-merge validation passed; one unresolved diff point (A-004) and a convergence caveat (see convergence.yaml)
+  base_variant: "haiku:qa (reviewer 2)"
+  unresolved_conflicts: 1    # A-004
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: [] # no HIGH + UNADDRESSED rows in invariant-probe.md (5 MEDIUM, 7 LOW unaddressed)
+  convergence_caveat: "23 of 24 diff points agreed; A-001, A-003, A-005 and A-006 were not debated and counted as agreed; counted as unresolved: 19/24 = 0.79"
+  combined_scores: {variant_1_sonnet_analyzer: 0.8095, variant_2_haiku_qa: 0.8448}
+  tiebreaker_applied: true   # margin 0.0353 < 0.05; debate points won B 8 vs A 2

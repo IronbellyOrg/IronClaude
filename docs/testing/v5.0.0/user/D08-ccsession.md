@@ -20,7 +20,7 @@
   - The throwaway `HOME` registers only the three ccsession hooks, so the other SuperClaude hooks, which write `~/.claude/state/` and `~/.claude/logs/`, do not run in Tier C (`src/superclaude/hooks/hooks.json:18,33-42,49,54-73`).
 - **Two warnings.**
   - Never run `pkill -f local-gateway-alias-proxy.py` during this test. One shim serves every ccsession session of yours with the same settings, so that command cuts the replies of every session you have open (`ccsession:798`; `CHANGELOG.md:22`). This guide stops only its own test shims, by their `/tmp/d08/home/...` path.
-  - `ccsession` starts Claude Code with `--dangerously-skip-permissions --allowedTools=Grep` unless `CC_CLAUDE_FLAGS` is set (`ccsession:78-83,93`): Claude Code then runs tools without asking. In Tier C, type only the prompts this guide gives.
+  - `ccsession` starts Claude Code with `--dangerously-skip-permissions --allowedTools=Grep` unless `CC_CLAUDE_FLAGS` is set or `CCSESSION_PERMISSIONS=default` is exported (then only `--allowedTools=Grep` is added) (`ccsession:119-125,135-141`): by default Claude Code then runs tools without asking. In Tier C, type only the prompts this guide gives.
 - Known issue, not part of this guide: the ccsession shim tests in `tests/unit/test_ccsession_tiers.py` can fail when the machine is busy (issue [#352](https://github.com/IronbellyOrg/IronClaude/issues/352), open). If you also run the unit tests from a checkout, rerun a failing shim test before you report it.
 
 ## What you're verifying

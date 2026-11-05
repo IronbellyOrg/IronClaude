@@ -519,6 +519,8 @@ failure.
 | `CCSESSION_FIRST_BYTE_TIMEOUT` | Wait for a streamed tier reply to start before trying the next model (default 300) |
 | `CC_SHIM_PORT` | Base shim port (default 4010). Show-all, a non-standard env file, tier settings from the shell, or a workspace owner name or roles (every Coder session) get base + an offset; an explicitly set port is used as-is |
 | `CCSESSION_COMPACT_WINDOW`, `CCSESSION_COMPACT_PCT` | Override the auto-compact window or percentage, in tier mode too |
+| `CCSESSION_PERMISSIONS=default` | Start Claude without `--dangerously-skip-permissions`: only `--allowedTools=Grep` is added, so Grep and Glob stay available. The shim and tier-model routing are unchanged. Set it in the shell environment that starts `ccsession`; it is read before `~/.claude/ccsession.env` is sourced, so it cannot be set from that file (a value exported there is undone, so Claude and a nested `ccsession` see what the shell set). It stays exported to nested launches. Any other non-empty value exits with status 2 on every `ccsession` call, `--help` included (under a bad value, and only when `CCSESSION_NAME` is set, `ccsession-orca` also prints its "CCSESSION_NAME is not a valid session name; ignoring it" warning before the exit). A non-empty `CC_CLAUDE_FLAGS`, from the shell or the env file, still wins; flags the caller passes (such as Orca's default `--dangerously-skip-permissions` option) still apply. Unset or empty: no change |
+| `CC_CLAUDE_FLAGS` | Replaces the flags `ccsession` adds to every Claude it starts (default `--dangerously-skip-permissions --allowedTools=Grep`, or `--allowedTools=Grep` with `CCSESSION_PERMISSIONS=default`). An empty value takes the default |
 
 ---
 
