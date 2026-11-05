@@ -1,0 +1,3 @@
+# T4 ask check: lines added to docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md by T4 (git diff 701fa81abcf419441a31f2e710c534e9c6fc8e93 -U0) matching 'the person|the user|a person'
+guide line 481: - Under `--unattended` nothing asks the person, so an agent resolves a gate the way its command's `## Unattended mode` section says (this guide's convention); only the worker session may put a blocked question to the coordinator, and only when its brief allows it (WC-2, WC-3).
+verdict: states that nothing asks the person (contains 'nothing asks the person')

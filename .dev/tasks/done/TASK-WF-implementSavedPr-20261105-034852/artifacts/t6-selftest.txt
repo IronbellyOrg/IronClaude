@@ -1,0 +1,4 @@
+.dev/tasks/to-do/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-1-exact.md match
+.dev/tasks/to-do/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-2-blank-line-removed.md blank-line-only
+.dev/tasks/to-do/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-3-changed-line.md differs
+.dev/tasks/to-do/TASK-WF-implementSavedPr-20261105-034852/artifacts/selftest-4-no-sha-line.md differs

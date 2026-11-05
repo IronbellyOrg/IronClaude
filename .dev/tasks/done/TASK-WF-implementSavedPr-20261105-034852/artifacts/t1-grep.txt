@@ -1,0 +1,10 @@
+$ grep -c 'differs only in blank lines or trailing whitespace' qa.md
+1
+$ grep -n lines with that phrase and 'after the start-sha header' (same line):
+1
+section of that line (nearest preceding ## heading):
+## FINAL derived test
+$ grep -c 'when they differ' qa.md
+0
+bullet 'The orchestrator saves the exact prompt' contains '## FINAL derived test':
+1

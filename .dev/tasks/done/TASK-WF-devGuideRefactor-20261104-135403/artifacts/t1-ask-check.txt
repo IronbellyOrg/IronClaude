@@ -1,0 +1,5 @@
+# T1 ask check: lines in 7.6 (guide lines 960-1018) matching 'the person|the user|a person'
+guide line 988: - **WC-2, no waiting for a human.** Under `--unattended` nothing asks the person: the command never calls `AskUserQuestion`, never ends its turn on a chat question or a `[yes / no]` offer, and never says STOP AND WAIT. Each gate resolves one of three ways, listed in the command's `## Unattended mode` section: a documented default, a value the caller passed as a flag, or blocked, where the command writes its contract with `worker_status: blocked` and the exact question in `blocked_question`, then stops.
+verdict: states that nothing asks the person (contains 'nothing asks the person')
+guide line 1014: - Under `--unattended` nothing asks the person. Only the worker session may put a blocked question to the coordinator, and only when its brief allows it (WC-2, WC-3).
+verdict: states that nothing asks the person (contains 'nothing asks the person')

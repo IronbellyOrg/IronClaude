@@ -1,0 +1,2 @@
+1a2
+> 100644 698efb39e204844e20d8b3454e5d5caac151ffba 0	.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/prompt-template-check.md

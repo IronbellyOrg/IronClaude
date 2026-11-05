@@ -1,0 +1,6 @@
+$ git diff HEAD --name-only -- docs src plugins tests
+docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+docs/memory/reflect/deviation-patterns-OrcaCLICommandRefactor-Specs.md
+$ git status --porcelain -- docs src plugins tests
+ M docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+ M docs/memory/reflect/deviation-patterns-OrcaCLICommandRefactor-Specs.md

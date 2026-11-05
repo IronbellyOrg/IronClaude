@@ -1,0 +1,6 @@
+# One-home check: 7.6 range is guide lines 998-1056 (heading to '## 8. Development Workflow')
+/sc:swarm-wizard: inside=1 outside=0
+/sc:pm: inside=1 outside=0
+--mode socratic: inside=1 outside=0
+--monitor 1: inside=1 outside=0
+4 minutes: inside=1 outside=0

@@ -1,0 +1,10 @@
+diff --git a/src/superclaude/skills/sc-implement-protocol/refs/qa.md b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+index 4496f6c9..631b22b7 100644
+--- a/src/superclaude/skills/sc-implement-protocol/refs/qa.md
++++ b/src/superclaude/skills/sc-implement-protocol/refs/qa.md
+@@ -297 +297 @@ This is the single statement for both FINALs (the managed archive FINAL and the
+-- Saved prompts: compare each `prompt-<k>-<j>.md` with the reviewer template; when the two differ outside the slots, return `issues` (managed) or record it in `FINAL:` evidence (legacy).
++- Saved prompts: line 1 of every saved prompt `prompt-<k>-<j>.md` is the task's start sha, and FINAL compares the lines after the start-sha header and outside the slots with the reviewer template. A prompt that differs only in blank lines or trailing whitespace (their number or position) is not a template difference: record it as a note (cited `noted`), not `issues`. Any changed, added, removed or reordered non-blank line is `issues` (managed) or recorded in `FINAL:` evidence (legacy), as before.
+@@ -365 +365 @@ Saved prompts and paperwork-only reviews:
+-- The orchestrator saves the exact prompt of review `r<k>-<j>` as `<retries>/T<id>/prompt-<k>-<j>.md`, line 1 the `start` sha, so no saved prompt is overwritten. Both FINALs (managed and legacy) compare every saved prompt with this template outside the slots, and return `issues` (managed) or record it in `FINAL:` evidence (legacy) when they differ.
++- The orchestrator saves the exact prompt of review `r<k>-<j>` as `<retries>/T<id>/prompt-<k>-<j>.md`, line 1 the `start` sha, so no saved prompt is overwritten. The comparison of a saved prompt with this template, and its result, are stated once, in "## FINAL derived test".

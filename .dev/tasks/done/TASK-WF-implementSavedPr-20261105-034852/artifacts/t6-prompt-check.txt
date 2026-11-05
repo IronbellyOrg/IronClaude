@@ -1,0 +1,9 @@
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T1/prompt-1-1.md blank-line-only
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T2/prompt-1-1.md blank-line-only
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T3/prompt-1-1.md blank-line-only
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T4/prompt-1-1.md blank-line-only
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T5/prompt-1-1.md blank-line-only
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T6/prompt-1-1.md blank-line-only
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T7/prompt-1-1.md blank-line-only
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T8/prompt-1-1.md blank-line-only
+.dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/retries/T9/prompt-1-1.md blank-line-only

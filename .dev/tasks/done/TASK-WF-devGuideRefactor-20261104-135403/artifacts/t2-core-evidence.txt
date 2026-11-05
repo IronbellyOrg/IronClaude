@@ -1,0 +1,7 @@
+$ grep -nE '"(HOW-WE-WORK|WORKER-CONTRACT)\.md"' src/superclaude/cli/install_core.py
+20:        "HOW-WE-WORK.md",
+26:        "WORKER-CONTRACT.md",
+$ grep -n 'package_root / "core"' src/superclaude/cli/install_core.py
+121:    package_core_dir = package_root / "core"
+$ grep -n '^@' src/superclaude/core/CLAUDE.md
+3:@BASH_INSPECTION_POLICY.md

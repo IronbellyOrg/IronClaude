@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.16.0
+collected 204 items
+
+tests/docs/test_chrome_devtools_mcp_removed.py .                         [  0%]
+tests/docs/test_retired_docs_absent.py ..                                [  1%]
+tests/docs/test_tavily_doc_alignment.py .....                            [  3%]
+tests/skills/test_worker_contract.py ................................... [ 21%]
+........................................................................ [ 56%]
+........................................................................ [ 91%]
+.................                                                        [100%]
+
+============================= 204 passed in 0.82s ==============================
+rc=0

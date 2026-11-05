@@ -1,0 +1,1 @@
+grammar cmp exit=0 lines=12

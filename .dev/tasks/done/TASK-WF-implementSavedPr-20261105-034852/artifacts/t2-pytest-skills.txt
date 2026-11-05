@@ -1,0 +1,40 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 4.3.5
+rootdir: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.16.0
+collected 804 items
+
+tests/skills/test_brainstorm_protocol.py .                               [  0%]
+tests/skills/test_codegraph_adoption.py ................................ [  4%]
+..................                                                       [  6%]
+tests/skills/test_implement_adviser_family.py ...                        [  6%]
+tests/skills/test_implement_retry_citation.py .....................      [  9%]
+tests/skills/test_implement_retry_revert.py ............................ [ 12%]
+..........................                                               [ 16%]
+tests/skills/test_implement_severity_replay.py ............              [ 17%]
+tests/skills/test_implement_severity_static.py ......................... [ 20%]
+...                                                                      [ 21%]
+tests/skills/test_primitive_dual_surface_lookup.py ...                   [ 21%]
+tests/skills/test_reflect_input_snapshot.py ...............              [ 23%]
+tests/skills/test_repo_inventory_nongit.py .....                         [ 23%]
+tests/skills/test_review_severity_rule.py .............................. [ 27%]
+................................                                         [ 31%]
+tests/skills/test_sc_recommend_routing_contract.py ..................... [ 34%]
+......                                                                   [ 34%]
+tests/skills/test_task_builder_merge.py ................................ [ 38%]
+....................................                                     [ 43%]
+tests/skills/test_task_workspace_lifecycle.py .......................... [ 46%]
+...............................................                          [ 52%]
+tests/skills/test_task_workspace_smoke.py ....                           [ 52%]
+tests/skills/test_tier2_tavily_consistency.py .....                      [ 53%]
+tests/skills/test_worker_contract.py ................................... [ 57%]
+........................................................................ [ 66%]
+........................................................................ [ 75%]
+.................                                                        [ 77%]
+tests/skills/test_workflow_archive.py .................................. [ 82%]
+........................................................................ [ 91%]
+.......................................................................  [100%]
+
+============================= 804 passed in 12.83s =============================

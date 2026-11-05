@@ -1,0 +1,2 @@
+$ git diff HEAD -U0 -- docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md | grep '^+' | grep -v '^+++' | LC_ALL=C grep -P '\xE2\x80[\x93\x94]'
+rc=1 (1 = no match: no em dash or en dash in any added line)
