@@ -1,0 +1,59 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/ic-issue-390/.dev/reflect/pre-implementGitHubI-20261105171020/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/ic-issue-390/.dev/reflect/pre-implementGitHubI-20261105171020/audit.log
+confidence_calibrated: 0.85
+escalation_rule_matched: 4
+onboarding_ran: false
+plan_verdict: FAIL                      # not a contract field: the reviewed plan has 3 blocking and 7 minor findings
+coverage_pct: null
+coverage_pct_union: 0.7143
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-004, INF-007]   # matcher misses; both are covered by plan text (see REPORT.md)
+input_sha256: {tasklist: 57c5982a87b34cb4b737d0727735ee4523f6addd7ea912ffa254eecc64897f17, spec: ca87e2850b36d90981b97e63584b5d340cd1cdb13d13df91f4eecd4d9cb03b3e}   # plan hash is the value at the first snapshot; the input tree hash below is authoritative
+input_tree_sha256: ef609cd79de3ab560c30fdf0b142405979a57c44f47b540ceccf3af9b9ec0639
+input_tree_file_count: 11
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/ic-issue-390/.dev/reflect/pre-implementGitHubI-20261105171020/artifacts/input-snapshot.yaml
+input_drift_detected: false
+citations_total: 50
+citations_revalidated: 50
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+reviewer_cards:
+  - reviewer-cards/reviewer-1-card.yaml
+  - reviewer-cards/reviewer-2-card.yaml
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/ic-issue-390/.dev/reflect/pre-implementGitHubI-20261105171020/adversarial/adversarial
+adversarial_convergence_score: 0.9583
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: full
+executor_class_resolved: false
+remediation_offered: false
+remediation_accepted: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false               # UC-1: no verified-sourced regression flag; plan-level Regression classes are in REPORT.md
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true            # A-004 unresolved (variable exported to nested launches: owner decision)
+needs_human_decision: false             # no grounding-gaps.yaml
+grounding_gaps_path: null
+degraded_components: [executor-class-unresolved, reviewers-2-of-3]
+memory_persisted: false                 # last-pass / deviation-pattern memory files not written (optional, fail-open)
+per_task_verdicts: []
+interaction_effects_scanned: false
+budget_check_skipped: true
+budget_forced_tier_downgrade: false
+budget_forced_stop: false

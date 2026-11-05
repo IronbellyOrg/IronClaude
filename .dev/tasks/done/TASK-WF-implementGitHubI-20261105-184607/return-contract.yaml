@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-implementGitHubI-20261105-184607
+plan_path: ./TASK-WF-implementGitHubI-20261105-184607.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: skipped
+reflect_report_path: null
+unresolved:
+  - "The automatic full /sc:reflect --mode pre was NOT run on this plan, by the user's explicit decision (option B): version 1 got the full review (3 blocking, 7 minor findings; report at .dev/reflect/pre-implementGitHubI-20261105171020/REPORT.md); this version got two fresh single-reviewer checks instead, records at .dev/reflect/pre-implementGitHubI-20261105171020/v2-check-1.md (FAIL, 1 blocking + 6 minor, all fixed) and v2-check-2.md (PASS, 5 minor, wording fixes applied afterwards without a third review). Nothing was executed by any checker."

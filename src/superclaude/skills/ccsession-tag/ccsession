@@ -96,6 +96,16 @@
 #   CCSESSION_SHOW_ALL_MODELS=1 ccsession <topic>
 #                             Also list the tier models one by one in /model
 #   In tier mode --profile is not used and the shim is always on.
+#   CCSESSION_PERMISSIONS=default ccsession <topic>
+#                             Start Claude without --dangerously-skip-permissions
+#                             (only --allowedTools=Grep is added); the shim and the
+#                             tier models are unchanged. Any other non-empty value
+#                             exits 2 on every ccsession call, --help included. Read
+#                             from the shell environment, not from
+#                             ~/.claude/ccsession.env; stays exported to nested
+#                             launches. Flags you pass to Claude, and a
+#                             CC_CLAUDE_FLAGS set in the shell or the env file,
+#                             still apply
 #   ccsession --refresh-models
 #                             Check now for the latest profiles and model list
 #   ccsession --models-status Show which model data is in use and when it was checked
@@ -106,8 +116,9 @@
 # ~/.cache/ccsession/). Private add-on profiles skip it; set
 # CCSESSION_MODELS_REFRESH=0 to skip it everywhere.
 #
-# The wrapper always runs claude with --dangerously-skip-permissions and
-# --allowedTools=Grep. On macOS, Linux, and WSL, Claude Code leaves the Grep and
+# The wrapper always runs claude with --allowedTools=Grep and, unless
+# CCSESSION_PERMISSIONS=default is set, with --dangerously-skip-permissions.
+# On macOS, Linux, and WSL, Claude Code leaves the Grep and
 # Glob tools out by default. Naming either one in --allowedTools when the
 # session starts brings both back; a settings-file allow rule does not. Keep the
 # = form: a bare --allowedTools takes the next arguments as tool names.
@@ -121,7 +132,12 @@
 set -e
 
 CLAUDE_BIN="${CLAUDE_BIN:-claude}"
-CC_CLAUDE_FLAGS="${CC_CLAUDE_FLAGS:---dangerously-skip-permissions --allowedTools=Grep}"
+case "${CCSESSION_PERMISSIONS:-}" in
+  "") _cc_default_flags="--dangerously-skip-permissions --allowedTools=Grep" ;;
+  default) _cc_default_flags="--allowedTools=Grep" ;;
+  *) echo "ccsession: CCSESSION_PERMISSIONS must be 'default' or unset (got '$CCSESSION_PERMISSIONS')" >&2; exit 2 ;;
+esac
+CC_CLAUDE_FLAGS="${CC_CLAUDE_FLAGS:-$_cc_default_flags}"
 # Extra Claude Code arguments for this launch (tier mode: per-model settings).
 CC_SETTINGS_ARGS=()
 PROJECTS_DIR="$HOME/.claude/projects"

@@ -1,0 +1,22 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/ic-issue-390
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 137 items / 136 deselected / 1 selected
+
+tests/unit/test_ccsession_tiers.py F                                     [100%]
+
+=================================== FAILURES ===================================
+___________ test_tier_launch_permissions_default_keeps_tier_routing ____________
+tests/unit/test_ccsession_tiers.py:563: in test_tier_launch_permissions_default_keeps_tier_routing
+    assert opted_in["argv"][0] == "--allowedTools=Grep"
+E   AssertionError: assert '--dangerousl...p-permissions' == '--allowedTools=Grep'
+E     
+E     - --allowedTools=Grep
+E     + --dangerously-skip-permissions
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tiers.py::test_tier_launch_permissions_default_keeps_tier_routing
+====================== 1 failed, 136 deselected in 1.96s =======================
+rc=1

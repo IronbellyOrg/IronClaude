@@ -54,6 +54,18 @@ def isolated_home_guard(tmp_path, monkeypatch):
     return state
 
 
+@pytest.fixture(autouse=True)
+def _no_ccsession_permission_env(monkeypatch):
+    """Keep the developer's shell out of the real ccsession run.
+
+    ``test_real_install_launches_ccsession`` runs the installed ccsession with the
+    inherited environment, and ccsession exits 2 on a bad CCSESSION_PERMISSIONS
+    (and CC_CLAUDE_FLAGS would change its launch flags).
+    """
+    monkeypatch.delenv("CCSESSION_PERMISSIONS", raising=False)
+    monkeypatch.delenv("CC_CLAUDE_FLAGS", raising=False)
+
+
 def _stub_installers(monkeypatch, *, failing: str | None = None):
     calls: list[str] = []
 

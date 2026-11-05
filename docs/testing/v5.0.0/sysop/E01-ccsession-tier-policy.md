@@ -18,7 +18,7 @@
   - Tier A only reads. Tier B writes only under `/tmp/e01`, with a throwaway `HOME` and cache (`/tmp/e01/home`, `/tmp/e01/cache`), `CLAUDE_BIN=/bin/false` and `CCSESSION_MODELS_REFRESH=0`: it never starts Claude Code, never starts a gateway shim and never fetches the model data. Every Tier B launch is one the policy refuses, which ends before the shim and the session folder (`ccsession:1483-1489`; the launch stops at `ccsession:948,954,956`).
   - Tier C copies your real env file into `/tmp/e01/live.sh` (it may hold gateway settings; `/tmp/e01` is made readable only by you, and Cleanup removes it), and runs one Claude Code session with a second throwaway `HOME` (`/tmp/e01/c-home`). That `HOME` has no `settings.json`, so no SuperClaude hooks run: the hooks that write `~/.claude/state/` and `~/.claude/logs/` (`src/superclaude/hooks/hooks.json:18,49,104`) never touch your real `~/.claude`.
   - Never run `pkill -f local-gateway-alias-proxy.py`: one shim serves every ccsession session of yours with the same settings, so that command cuts all of them (`ccsession:766-768`). Cleanup stops only this guide's shim, by its `/tmp/e01/` path.
-  - `ccsession` starts Claude Code with `--dangerously-skip-permissions --allowedTools=Grep` unless `CC_CLAUDE_FLAGS` is set (`ccsession:78-83,93`). In Tier C, type only the prompts this guide gives.
+  - `ccsession` starts Claude Code with `--dangerously-skip-permissions --allowedTools=Grep` unless `CC_CLAUDE_FLAGS` is set or `CCSESSION_PERMISSIONS=default` is exported (then only `--allowedTools=Grep` is added) (`ccsession:119-125,135-140`). In Tier C, type only the prompts this guide gives.
 
 ## What you're verifying
 

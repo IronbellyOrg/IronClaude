@@ -18,6 +18,12 @@ All notable changes to IronClaude are documented in this file.
 
 - Tests that pin the streams: a replay of `ccsession-orca --version` with a stand-in Claude (`test_version_through_orca_keeps_stdout_clean`), `test_launch_status_lines_are_on_stderr_only` (six launch variants), `test_model_list_update_note_goes_to_stderr_at_launch`, `test_refresh_models_report_stays_on_stdout`, a source guard for the lines a launch test cannot reach (`test_status_lines_in_launcher_scripts_go_to_stderr`), and three version-parsing tests in `tests/cli/eval/test_doctor_version.py`.
 
+### ccsession: start Claude without the permission bypass (#390)
+
+#### Added (ccsession permissions)
+
+- `CCSESSION_PERMISSIONS=default`: `ccsession` starts Claude without `--dangerously-skip-permissions`. Only `--allowedTools=Grep` is added, so Grep and Glob stay available. The shim and tier-model routing are unchanged, and unset or empty behaves as before. Set it in the shell environment that starts `ccsession`: it is read before `~/.claude/ccsession.env` is sourced, so it cannot be set from that file, and it stays exported to nested launches. Any other non-empty value (for example `Default` or `bypass`) exits with status 2 on every `ccsession` call, `--help` included, so a typo never falls back to the bypass. A non-empty `CC_CLAUDE_FLAGS` (from the shell or the env file) still replaces the default flags, an empty one still takes the default, and flags the caller passes to Claude (such as Orca's default `--dangerously-skip-permissions` option) still apply. Callers such as the Coder `claude` wrapper opt in themselves; `superclaude reflect` is not changed. It is documented in `ccsession --help`, the skill README and `ccsession.env.example`, and two v5.0.0 testing guides mention it.
+
 ### onboarding deck: a 15-slide page for new team members, built from the routing guide
 
 #### Added (onboarding deck)

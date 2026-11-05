@@ -1,0 +1,23 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/ic-issue-390
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 276 items / 275 deselected / 1 selected
+
+tests/unit/test_ccsession_tag.py F                                       [100%]
+
+=================================== FAILURES ===================================
+_________ test_orca_print_mode_permissions_default_keeps_shim_routing __________
+tests/unit/test_ccsession_tag.py:2963: in test_orca_print_mode_permissions_default_keeps_shim_routing
+    assert opted_in["argv"] == ["--allowedTools=Grep", "-p", "hello"]
+E   AssertionError: assert ['--dangerous...'-p', 'hello'] == ['--allowedTo...'-p', 'hello']
+E     
+E     At index 0 diff: '--dangerously-skip-permissions' != '--allowedTools=Grep'
+E     Left contains one more item: 'hello'
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tag.py::test_orca_print_mode_permissions_default_keeps_shim_routing
+====================== 1 failed, 275 deselected in 1.20s =======================
+rc=1
