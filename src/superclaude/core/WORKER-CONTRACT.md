@@ -181,10 +181,10 @@ Slot rules:
 
 - `On a blocked gate:` is `report blocked` (the default) or `ask the coordinator` (WC-3).
 - `Local commit:` is `not authorized`, or `authorized` followed by the user's instruction naming a local commit for this Task, quoted word for word (WC-9, decision D4).
-- `--unattended` goes on a `Command:` line only when the guard's test shows that every copy of that command file the worker will see has an `## Unattended mode` section. At P0 no command accepts it.
+- `--unattended` goes on a `Command:` line only when the guard's test shows that every copy of that command file the worker will see has an `## Unattended mode` section. At P0 no command accepts it. From P1 the 16 commands converted in P1 do (adversarial, brainstorm, cleanup-audit, graph, impact, index-repo, init-lite, workflow, analyze, build, business-panel, design, document, explain, index, test).
 - The `P0 only:` line is used only before P1, when no command writes a worker contract. At P0 the report files are: troubleshoot, `<dir>/REPORT.md` with the status in its `**Status**:` line; workflow, the `return-contract.yaml` in the one new `TASK-WF-*` package directory the run creates under `.dev/tasks/to-do/`, with the status in its top-level `status`; adversarial, `<dir>/adversarial/merge-log.md` with the status in the `Status:` line of its `## Metadata` section. From P1 the line is dropped and WC-5 applies.
 
-Flags the brief must pass, for the 12 commands that are ready with brief constraints. `--report-dir` is marked "from P1": no command accepts it at P0.
+Flags the brief must pass, for the 12 commands that are ready with brief constraints. `--report-dir` is marked "from P1": no command accepts it at P0. Under `--unattended` the brief passes exactly one report directory (`--report-dir <dir>`, or the command's own directory flag where the row names one); `/sc:index-repo` and `/sc:init-lite` have no directory flag of their own, so they take `--report-dir`.
 
 | Command | Brief must pass |
 |---|---|
@@ -193,8 +193,8 @@ Flags the brief must pass, for the 12 commands that are ready with brief constra
 | `/sc:cleanup-audit` | `--pass <N>` (single pass); `--report-dir <dir>` (from P1) |
 | `/sc:graph` | `status` (the default) with `--output-dir <dir>`; never `init`, which runs only when the user's own message starts with `/sc:graph init` |
 | `/sc:impact` | `--output-dir <dir>` |
-| `/sc:index-repo` | none |
-| `/sc:init-lite` | `--output <file>` |
+| `/sc:index-repo` | none at P0; `--report-dir <dir>` (from P1) |
+| `/sc:init-lite` | `--output <file>` (names the report file); `--report-dir <dir>` (from P1) |
 | `/sc:reflect` | no `--remediate`; `--no-promote` when the coordinator owns folder moves |
 | `/sc:release-split` | spec-shaped input; default `--r1-scope`; never `--interactive` |
 | `/sc:tdd` | a precise component prompt, not a bare topic; `--output <file>` |
