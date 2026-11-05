@@ -1,0 +1,7 @@
+b05660e850bd7cacf711c37b34406e78c981f52a
+family ctrlc-drain-restore
+defect form: an INT trap that exits without putting the saved terminal mode back, while the terminal is in non-canonical mode (stty -icanon) for a probe or drain
+search: grep -n -E "trap .* INT|stty -icanon|stty \"\$(tty_)?mode\"" src/superclaude/skills/ccsession-tag/ccsession
+before-output: 1488:  trap 'if [ -n "$tty_mode" ]; then stty "$tty_mode" 2>/dev/null || :; fi; echo >&2; exit 130' INT|1489:  tty_mode=$(stty -g 2>/dev/null) && stty -icanon min 0 time 0 2>/dev/null|1492:  [ -n "$tty_mode" ] && stty "$tty_mode" 2>/dev/null|1494:    trap - INT|1543:  trap 'echo >&2; exit 130' INT|1574:      trap - INT|1583:  trap - INT|1596:  [ -n "$mode" ] && stty -icanon min 0 time 0 2>/dev/null|1612:  [ -n "$mode" ] && stty "$mode" 2>/dev/null|
+coupled sites: the INT trap before the main loop of ask_session_name; the comment on ask_drain_waiting
+after: 1488:  trap 'if [ -n "$tty_mode" ]; then stty "$tty_mode" 2>/dev/null || :; fi; echo >&2; exit 130' INT|1489:  tty_mode=$(stty -g 2>/dev/null) && stty -icanon min 0 time 0 2>/dev/null|1492:  [ -n "$tty_mode" ] && stty "$tty_mode" 2>/dev/null|1494:    trap - INT|1545:  trap 'if [ -n "$tty_mode" ]; then stty "$tty_mode" 2>/dev/null || :; fi; echo >&2; exit 130' INT|1576:      trap - INT|1585:  trap - INT|1598:  [ -n "$mode" ] && stty -icanon min 0 time 0 2>/dev/null|1614:  [ -n "$mode" ] && stty "$mode" 2>/dev/null|

@@ -9,26 +9,34 @@
 # Settings > Agents > Claude > Command to this file's absolute path, for
 # example /home/coder/.local/bin/ccsession-orca (Orca takes one executable, no
 # arguments). Each launch then gets ccsession's shim, model settings and single
-# credential, and is asked for a session name first, like a New Terminal.
+# credential.
 #
 # Orca's own arguments (a prompt, --prefill <text>, --resume <id>
 # [--fork-session]) reach Claude unchanged: they go after ccsession's
 # --claude-args, so a prompt is never read as a session name or a ccsession
 # option.
 #
-# The question (ccsession --ask) is asked only when someone can answer it:
-# stdin and stdout are terminals, Orca is not resuming or continuing a
-# session, and CCSESSION_AUTOSTART is not 0. A name starts or resumes that
-# ccsession. Enter, Ctrl+C, end of input, keys already waiting, or a question
-# that is not asked all start an untagged session: Orca expects Claude to
-# start in this tab, so it never ends up at a dead prompt.
+# One rule decides whether the session-name question is asked: only when Claude
+# starts with no task, no name and no resume.
+#   - Resume (--resume, -r, --continue, -c, --fork-session, --from-pr): the
+#     session names itself; no question.
+#   - Name carried: CCSESSION_NAME in the environment (the way an orchestrator
+#     names a session; used as the session's name when it is a valid name), or a
+#     Claude --name / -n in the arguments (left in the arguments for Claude as
+#     they are); no question.
+#   - Task carried: any prompt, --prefill <text>, --session-id, or -p / --print;
+#     no question.
+# The question (ccsession --ask) is also not asked when no one can answer it:
+# stdin, stdout and standard error are not all terminals, or CCSESSION_AUTOSTART
+# is 0. A name
+# typed at the question starts or resumes that ccsession.
 #
 # When Orca relaunches a tab after a workspace restart, the tab reopens the
 # session it ran (the one the ccsession hooks recorded for its pane) instead of
 # asking: see the reopen step below.
 #
-# An unanswered question starts untagged after CCSESSION_ASK_TIMEOUT seconds
-# (default 30; 0 waits for ever). Orca also starts supervised workers with
+# The question gives up after CCSESSION_ASK_TIMEOUT seconds (ccsession's
+# default is 30; 0 waits for ever). Orca also starts supervised workers with
 # this command and fails one whose Claude is not ready within 60 seconds.
 
 set -e
@@ -45,30 +53,115 @@ while [ -L "$_self" ]; do
 done
 CCSESSION="$(cd "$(dirname "$_self")" && pwd)/ccsession"
 
-ask=1
-[ -t 0 ] && [ -t 1 ] || ask=0
-[ "${CCSESSION_AUTOSTART:-1}" = 0 ] && ask=0
-# A resume names its own session; a label would start a different one. The
-# --prefill value is text for the input box, never a flag.
-_skip=0
+# Classify the launch from the arguments. The text after --prefill, --session-id
+# and the value-taking options is a value, never a task or a flag.
+resume_like=0
+name_carried=0
+task_carried=0
+no_session=0
+print_mode=0
+task_text=""
+_expect=""
+_dd=0
 for _arg in "$@"; do
-  if [ "$_skip" = 1 ]; then
-    _skip=0
+  if [ -n "$_expect" ]; then
+    case "$_expect" in
+      prefill)
+        task_carried=1
+        [ -n "$task_text" ] || task_text=$_arg
+        ;;
+      name) name_carried=1 ;;
+    esac
+    _expect=""
+    continue
+  fi
+  if [ "$_dd" = 1 ]; then
+    task_carried=1
+    [ -n "$task_text" ] || task_text=$_arg
     continue
   fi
   case "$_arg" in
-    --prefill) _skip=1 ;;
-    --resume|--resume=*|-r|--continue|-c) ask=0 ;;
+    --) _dd=1 ;;
+    --prefill) _expect=prefill ;;
+    --prefill=*)
+      task_carried=1
+      [ -n "$task_text" ] || task_text=${_arg#--prefill=}
+      ;;
+    --resume | -r | --continue | -c | --fork-session | --from-pr) resume_like=1 ;;
+    --resume=* | --from-pr=*) resume_like=1 ;;
+    --name | -n) _expect=name ;;
+    --name=*) name_carried=1 ;;
+    --session-id)
+      task_carried=1
+      _expect=value
+      ;;
+    --session-id=*) task_carried=1 ;;
+    -p | --print)
+      task_carried=1
+      print_mode=1
+      ;;
+    -v | --version | -h | --help) no_session=1 ;;
+    --model | --permission-mode | --add-dir | --allowedTools | --allowed-tools | \
+      --disallowedTools | --disallowed-tools | --mcp-config | --settings | \
+      --append-system-prompt | --system-prompt | --max-turns | --output-format | \
+      --input-format | --fallback-model | --agent | --plugin-dir | --effort | --betas)
+      _expect=value
+      ;;
+    -*) : ;;
+    *)
+      # The first word of a Claude subcommand (mcp, doctor, update ...) starts
+      # no session at all.
+      if [ -z "$task_text" ]; then
+        case "$_arg" in
+          mcp | config | doctor | update | install | auth | plugin | setup-token | agents | migrate-installer) no_session=1 ;;
+        esac
+      fi
+      task_carried=1
+      [ -n "$task_text" ] || task_text=$_arg
+      ;;
   esac
 done
+# A trailing --name with no value is still a name given.
+[ "$_expect" = name ] && name_carried=1
+
+# CCSESSION_NAME names the session. An invalid name is dropped with a warning,
+# never an error: Claude starts either way.
+name_from_env=0
+env_name="${CCSESSION_NAME:-}"
+if [ -n "$env_name" ]; then
+  if "$CCSESSION" --check-name "$env_name" 2>/dev/null; then
+    name_from_env=1
+    name_carried=1
+  else
+    echo "[ccsession] CCSESSION_NAME is not a valid session name; ignoring it" >&2
+    env_name=""
+  fi
+fi
+
+# Someone can answer the question: stdin and stdout are terminals, autostart is
+# not off, and Orca is not resuming a session (a resume names its own session;
+# a label would start a different one).
+ask_ok=1
+[ -t 0 ] && [ -t 1 ] || ask_ok=0
+autostart=1
+[ "${CCSESSION_AUTOSTART:-1}" = 0 ] && autostart=0
+[ "$autostart" = 0 ] && ask_ok=0
+[ "$resume_like" = 1 ] && ask_ok=0
+# --version, --help and the subcommands start no session: nothing to ask or reopen.
+[ "$no_session" = 1 ] && ask_ok=0
+# The one rule: ask only when there is no task, no name and no resume.
+ask=$ask_ok
+[ "$name_carried" = 1 ] && ask=0
+[ "$task_carried" = 1 ] && ask=0
 
 # After a workspace restart Orca relaunches each Claude tab with this command
 # again and nothing that says which session the tab ran (Coder #433). The
 # ccsession hooks remember it per tab; reopen it instead of asking, but only
-# where the question would be asked and only for a plain relaunch: Orca's own
-# options and nothing else (no prompt, name, prefill or session choice). A new
-# tab has no session yet, and anything else behaves as before.
-if [ "$ask" = 1 ] && [ -n "${ORCA_PANE_KEY:-}" ]; then
+# where the question could be asked and only for a plain relaunch: Orca's own
+# options and nothing else (no prompt, name, prefill or session choice, and no
+# CCSESSION_NAME). A new tab has no session yet, and anything else behaves as
+# before.
+if [ "$ask_ok" = 1 ] && [ -n "${ORCA_PANE_KEY:-}" ] && [ "$name_from_env" = 0 ]; then
   plain=1
   for _arg in "$@"; do
     case "$_arg" in
@@ -85,6 +178,9 @@ if [ "$ask" = 1 ] && [ -n "${ORCA_PANE_KEY:-}" ]; then
   if [ -n "$reopen" ]; then
     session=${reopen%%$'\t'*}
     name=${reopen#*$'\t'}
+    # Neither belongs in Claude's environment (an invalid CCSESSION_NAME was
+    # dropped above and does not stop a reopen).
+    unset CCSESSION_NAME CCSESSION_ASK_TIMEOUT
     if [ -n "$name" ]; then
       echo "[ccsession] Reopening this tab's session '$name'"
       exec "$CCSESSION" --name "$name" --shim --claude-args "$@"
@@ -95,19 +191,55 @@ if [ "$ask" = 1 ] && [ -n "${ORCA_PANE_KEY:-}" ]; then
 fi
 
 name=""
-if [ "$ask" = 1 ]; then
-  ask_timeout="${CCSESSION_ASK_TIMEOUT:-30}"
-  hint="Enter or Ctrl+C = untagged"
-  case "$ask_timeout" in
-    '' | *[!0-9]* | 0) : ;;
-    *) hint="$hint; untagged after ${ask_timeout}s" ;;
-  esac
-  # Ctrl+C reaches this script too; a trap (not an ignore, which ccsession
-  # would inherit) keeps it running so it can start the untagged session.
-  trap ':' INT
-  name=$(CCSESSION_ASK_TIMEOUT="$ask_timeout" "$CCSESSION" --ask "$hint") || name=""
+message=""
+if [ "$name_from_env" = 1 ]; then
+  name=$env_name
+elif [ "$ask" = 1 ]; then
+  # The time limit is ccsession's (CCSESSION_ASK_TIMEOUT, default 30); @LIMIT@
+  # in the hint becomes that number.
+  hint="Enter = auto-named, Ctrl+C = cancel; auto-named after @LIMIT@s"
+  rc=0
+  # Ctrl+C reaches this script too: end it with the same status, never go on.
+  trap 'exit 130' INT
+  answer=$("$CCSESSION" --ask "$hint") || rc=$?
   trap - INT
+  case "$rc" in
+    0) name=$answer ;; # a name; an empty answer (Enter) is auto-named below
+    1) : ;;            # not asked (keys already waiting), timed out, or end of input: auto-named below
+    3) message=$answer ;; # not a name (paste, control character, too long): Claude's first message
+    130) exit 130 ;;   # Ctrl+C cancels: no Claude, no session record
+    *) echo "[ccsession] the session-name question failed (status $rc); starting without it" >&2 ;;
+  esac
 fi
+
+# A launch without a name gets an automatic one, unless it is a resume (it names
+# itself), a plain start (CCSESSION_AUTOSTART=0), print mode, or no session at
+# all (--version, a subcommand). The label comes from the task: the prompt, the
+# prefill text, or the message typed at the question. If no label can be made,
+# Claude starts untagged: a launch never stops here.
+auto=1
+if [ "$resume_like" = 1 ] || [ "$autostart" = 0 ] || [ "$print_mode" = 1 ] ||
+  [ "$no_session" = 1 ] || [ "$name_carried" = 1 ]; then
+  auto=0
+fi
+if [ -z "$name" ] && [ "$auto" = 1 ]; then
+  _text=$task_text
+  [ -n "$message" ] && _text=$message
+  name=$("$CCSESSION" --auto-name "$_text" 2>/dev/null) || name=""
+fi
+
+# The typed text that cannot be a name goes to Claude as its first message, after
+# "--" when it starts with "-" so it is never read as an option.
+if [ -n "$message" ]; then
+  case "$message" in
+    -*) set -- "$@" -- "$message" ;;
+    *) set -- "$@" "$message" ;;
+  esac
+fi
+
+# Neither of these belongs in Claude's environment, or a Claude started from
+# inside this one would inherit the name and the limit.
+unset CCSESSION_NAME CCSESSION_ASK_TIMEOUT
 
 # In tier mode the shim is always on; --shim asks for it everywhere else.
 if [ -n "$name" ]; then

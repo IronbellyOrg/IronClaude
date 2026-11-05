@@ -1,0 +1,62 @@
+diff --git a/tmp/tmp.3J0tDK6Nd8/before.html b/docs/onboarding/ironclaude-onboarding.html
+index cc393d53..2082def9 100644
+--- a/tmp/tmp.3J0tDK6Nd8/before.html
++++ b/docs/onboarding/ironclaude-onboarding.html
+@@ -472,17 +472,19 @@
+ <section class="slide" id="s10" aria-labelledby="s10-h">
+   <p class="eyebrow"><b>10</b> · Shipping · HOW-WE-WORK 3.11 and section 4</p>
+   <h2 id="s10-h">Review and ship</h2>
++  <p><strong>Review only:</strong> <code class="long"><span class="nw">/sc:auggie-review</span> <span class="nw">--no-post-pr</span> <span class="nw">--no-remediation-offer</span></code> on a PR, a diff or a snapshot keeps the findings local. Do not add commits, pushes or a PR to findings-only work.</p>
++  <p><strong>Ship only when it is requested and authorized</strong>, in this order:</p>
+   <ul>
+-    <li><strong>Commit locally</strong> on your feature branch. Do not push yet.</li>
+-    <li><strong>Bug review:</strong> <code>/code-review</code>. <strong>Security review</strong> if you touched login, permissions, secrets, user input or file paths: <code>/security-review</code>. Commit the fixes.</li>
+-    <li><strong>Branch review:</strong> <code>/sc:auggie-review</code> on the whole branch, kept local with <code>--no-post-pr</code>.</li>
+-    <li><strong>Push only after your lead approves.</strong></li>
+-    <li><strong>Open the PR</strong> with <code>/sc:pr-submit --monitor 3</code>. It fixes confirmed review findings of Medium severity or higher (lower ones are only reported) and failing CI checks (the automatic tests and checks GitHub runs on the PR).</li>
++    <li><strong>Commit locally</strong> on your feature branch, only when authorized.</li>
++    <li><strong>Bug review:</strong> <code>/code-review</code>. <strong>Security review</strong> if you touched login, permissions, secrets, user input or file paths: <code>/security-review</code>. Authorize and record any fixes before the branch review.</li>
++    <li><strong>Branch review:</strong> <code class="long"><span class="nw">/sc:auggie-review</span> <span class="nw">--diff origin/&lt;main branch&gt;...HEAD</span> <span class="nw">--no-post-pr</span> <span class="nw">--no-remediation-offer</span></code>.</li>
++    <li><strong>Push only with your lead's approval.</strong></li>
++    <li><strong>Open the PR</strong> with <code>/sc:pr-submit</code> and the one monitor ceiling you chose (below).</li>
+   </ul>
+   <figure class="diagram mid">
+     <svg viewBox="0 0 760 300" role="img" aria-labelledby="d6-t d6-d">
+       <title id="d6-t">PR review loop</title>
+-      <desc id="d6-d">/sc:pr-submit with --monitor 3 opens the PR, waits for the review bot, fixes confirmed findings of Medium severity or higher and failing CI checks, pushes those fixes to your branch, and replies to and resolves the review comments it fixed; the bot then reviews again. With --monitor 2 it makes the fixes locally and stops before pushing; with --monitor 0 it only opens the PR.</desc>
++      <desc id="d6-d">At --monitor 3, the full loop and the command's current default, /sc:pr-submit opens the PR, waits for the review bot, checks each finding, fixes confirmed findings of Medium severity or higher and failing CI checks, pushes those fixes to your branch, and replies to and resolves the review comments it fixed; the bot then reviews again. The lower ceilings: --monitor 2 makes the fixes locally and stops before pushing; --monitor 1 only proposes fixes, without editing source; --monitor 0 only opens the PR. You choose exactly one.</desc>
+       <defs>
+         <marker id="ah6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head" d="M0,0 L10,5 L0,10 z"/></marker>
+         <marker id="aha6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+@@ -504,17 +506,23 @@
+       <rect class="d-box" x="20" y="132" width="190" height="56" rx="8"/>
+       <text class="d-tb" x="34" y="156">Replies to and</text><text class="d-tb" x="34" y="176">resolves comments</text>
+       <path class="d-line" d="M366,160 L214,160" marker-end="url(#ah6)"/>
+-      <rect class="d-box-warn" x="20" y="214" width="345" height="66" rx="8"/>
++      <rect class="d-box-warn" x="20" y="214" width="232" height="66" rx="8"/>
+       <text class="d-tm" x="34" y="238">--monitor 2</text>
+-      <text class="d-ts" x="34" y="262">makes the fixes locally; stops before pushing</text>
+-      <rect class="d-box-warn" x="395" y="214" width="345" height="66" rx="8"/>
+-      <text class="d-tm" x="409" y="238">--monitor 0</text>
+-      <text class="d-ts" x="409" y="256">only opens the PR: no review app,</text>
+-      <text class="d-ts" x="409" y="272">or not sure it is installed</text>
++      <text class="d-ts" x="34" y="256">makes the fixes locally;</text>
++      <text class="d-ts" x="34" y="272">stops before pushing</text>
++      <rect class="d-box-warn" x="264" y="214" width="232" height="66" rx="8"/>
++      <text class="d-tm" x="278" y="238">--monitor 1</text>
++      <text class="d-ts" x="278" y="256">only proposes fixes;</text>
++      <text class="d-ts" x="278" y="272">edits no source</text>
++      <rect class="d-box-warn" x="508" y="214" width="232" height="66" rx="8"/>
++      <text class="d-tm" x="522" y="238">--monitor 0</text>
++      <text class="d-ts" x="522" y="256">only opens the PR: no review</text>
++      <text class="d-ts" x="522" y="272">app, or unsure it is installed</text>
+     </svg>
+-    <figcaption class="cap">The PR loop at the setting the guide says to pass, and its two alternatives.</figcaption>
++    <figcaption class="cap">The PR loop at <code>--monitor 3</code>, the full loop, and the three lower ceilings. You choose exactly one and pass it explicitly.</figcaption>
+   </figure>
+-  <p><code>--monitor 3</code> is the setting to pass, and the default. After your lead's approved push, it pushes its own review fixes without asking again. If your lead wants to see those fixes first, use <code>--monitor 2</code>. Without the Augment Code review app on the repository, or if you are not sure it is installed (the repository's Settings &gt; GitHub Apps page lists it), use <code>--monitor 0</code>, which only opens the PR.</p>
++  <p><strong>Choose exactly one monitor ceiling</strong> for the job and pass it explicitly (guide 3.11): <code>--monitor 0</code> only opens the PR (use it when the review app is missing or you are not sure it is installed); <code>--monitor 1</code> proposes fixes without editing source; <code>--monitor 2</code> makes the fixes locally and stops before pushing; <code>--monitor 3</code>, the command's current default, runs the full loop you authorized: it fixes confirmed review findings of Medium severity or higher (lower ones are only reported) and failing CI checks (the automatic tests and checks GitHub runs on the PR), pushes those fixes, and replies to and resolves the threads it fixed.</p>
++  <p>The push rule (guide section 4): after your lead's approved push, <code>--monitor 3</code> pushes its own review fixes without asking again. If your lead wants to see those fixes first, use <code>--monitor 2</code>. A stronger project rule can require monitor 3; if that conflicts with a lower ceiling you were asked for, the guide says to disclose the conflict and not run it.</p>
+ </section>
+ 
+ <section class="slide" id="s11" aria-labelledby="s11-h">

@@ -1,0 +1,12 @@
+# T1 baseline, 2026-10-26T21:33:47Z, before any Task 1 edit
+HEAD=adaa28d91f63a722e344a6372154e10344ffd96e
+--- git status --porcelain
+?? .dev/reflect/post-implementFrOnb2T-20261026174049/
+?? .dev/reflect/pre-implementFrOnb1O-20261023180800/
+?? .dev/reflect/pre-implementFrOnb2T-20261023192341/
+?? .dev/reflect/pre-updateTheOnboard-20261026203936/
+?? .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/
+?? .dev/tasks/done/TASK-WF-implementFrOnb2T-20261023-192153/
+?? .dev/tasks/to-do/TASK-WF-updateTheOnboard-20261026-203727/
+?? docs/onboarding/
+?? tests/docs/test_onboarding_deck.py

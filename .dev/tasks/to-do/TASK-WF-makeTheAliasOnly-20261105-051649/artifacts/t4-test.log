@@ -1,0 +1,16 @@
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collected 200 items
+
+tests/test_cleanup_audit_structure.py .................................. [ 17%]
+....                                                                     [ 19%]
+tests/skills/test_codegraph_adoption.py ................................ [ 35%]
+..................                                                       [ 44%]
+tests/skills/test_repo_inventory_nongit.py .....                         [ 46%]
+tests/skills/test_sc_recommend_routing_contract.py ..................... [ 57%]
+......                                                                   [ 60%]
+tests/core/test_how_we_work_routing_table.py ........................... [ 73%]
+....................................................                     [ 99%]
+tests/skills/test_model_alias_policy.py .                                [100%]
+
+============================= 200 passed in 1.00s ==============================
+All checks passed!

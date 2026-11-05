@@ -265,7 +265,7 @@ def test_every_chain_flag_exists_in_its_command():
     assert missing == []
 
 
-def test_brainstorm_steps_have_no_handoff_and_pin_models():
+def test_brainstorm_steps_have_no_handoff_and_use_default_models():
     rows = chain_rows(_text(REFS / "chains.md"))
     assert len(rows) == 6
     steps = [
@@ -277,7 +277,7 @@ def test_brainstorm_steps_have_no_handoff_and_pin_models():
     assert len(steps) == 3
     for step in steps:
         assert "--handoff tasklist" not in step and "--handoff design" not in step
-        assert "--models opus,sonnet" in step
+        assert "--models" not in step
     text = _text(REFS / "chains.md")
     assert "--handoff tasklist" not in text and "--handoff design" not in text
 

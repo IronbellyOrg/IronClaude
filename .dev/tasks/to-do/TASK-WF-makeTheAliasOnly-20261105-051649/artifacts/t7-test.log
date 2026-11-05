@@ -1,0 +1,16 @@
+== glm in tiers.md ==
+exit=1
+0
+== links ==
+](../reference/model-aliases.md)
+target exists from docs/user-guide
+](../reference/model-aliases.md)
+target exists from docs/user-guide
+](../reference/model-aliases.md)
+target exists from docs/developer-guide
+== tests ==
+tests/skills/test_model_alias_policy.py
+tests/docs/test_retired_docs_absent.py
+
+============================= 168 passed in 1.94s ==============================
+============================= 168 passed in 1.91s ==============================

@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-makeTheAliasOnly-20261105-034531
+plan_path: ./TASK-WF-makeTheAliasOnly-20261105-034531.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-384-ccsession-model-aliases/.dev/reflect/pre-TASK-WF-makeTheAliasOnly-20261105-034531-20261105034821/REPORT.md
+unresolved:
+  - "advisory reflect verdict on this plan is FAIL (4 blocking, 19 minor findings, see reflect_report_path); the plan is superseded by a regenerated package that addresses them"

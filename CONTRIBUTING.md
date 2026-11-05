@@ -68,6 +68,10 @@ gh pr create --repo IronbellyOrg/IronClaude --base master --head <branch> --titl
 
 Check that the returned URL starts with `https://github.com/IronbellyOrg/IronClaude/pull/`.
 
+### Claiming and filing issues
+
+Take an issue with `/sc:issue --claim <number>`: it assigns the issue to you on the fork (and its ClickUp task when your `CLICKUP_*` variables are set), checks whether the issue text still matches the code, and writes a summary and a next-step prompt to `.dev/issues/<N>/` before it stops. File a new issue with `/sc:issue --create "<description>"`; it uses the command's own feature and bug templates and labels. Both modes read the repository from `origin` only, so they always act on `IronbellyOrg/IronClaude` here. The command never commits `.dev/issues/`. See [`/sc:issue`](docs/user-guide/commands.md#scissue---github-issue-claim-and-create) for the flags.
+
 ### Disclaimer: social convention, not a CI-enforced gate
 
 This rot-budget rule is a **social convention** agreed by maintainers, **NOT** a CI-enforced gate. CI will still pass PRs that violate the rot-budget if the underlying job is green (or if the underlying job has been failing on master and continues to fail at the same level). Enforcement relies on PR reviewers checking the rule during code review.

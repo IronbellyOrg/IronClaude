@@ -1,0 +1,20 @@
+# T2 diagram checks (2026-10-26T16:44:39Z)
+## svg count, titles, slides
+s2 svg=1
+s4 svg=1
+s5 svg=1
+s6 svg=1
+s7 svg=1
+s10 svg=1
+svg titles: 6
+## literal colors inside svg (fill=/stroke= with #, rgb or named color)
+(none)
+## external images
+(none)
+## commands/flags in svg text/title/desc vs guide
+s2 [] missing-from-guide: []
+s4 ['/sc:reflect', '/sc:troubleshoot'] missing-from-guide: []
+s5 ['/prd', '/roadmap', '/sc:explain', '/sc:implement', '/sc:task', '/sc:workflow', '/task', '/task-builder', '/tdd', '/tech-research'] missing-from-guide: []
+s6 ['/sc:implement', '/sc:workflow', '/task', '/task-builder'] missing-from-guide: []
+s7 ['/code-review', '/prd', '/roadmap', '/sc:auggie-review', '/sc:brainstorm', '/sc:implement', '/sc:pr-submit', '/sc:workflow', '/task', '/task-builder', '/tdd', '/tech-research'] missing-from-guide: []
+s10 ['--monitor', '/sc:pr-submit'] missing-from-guide: []

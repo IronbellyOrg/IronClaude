@@ -1302,7 +1302,13 @@ def test_plain_double_dash_still_reaches_claude(tmp_path: Path) -> None:
 # the real ccsession against a fake claude that records its argv and env, and a
 # fake shim that ccsession reuses.
 ORCA = SKILL_DIR / "ccsession-orca"
-ORCA_QUESTION = "Session name (Enter or Ctrl+C = untagged; untagged after 30s): "
+ORCA_QUESTION = (
+    "Session name (Enter = auto-named, Ctrl+C = cancel; auto-named after 30s): "
+)
+# What ccsession --auto-name makes in the tests' working folder "work": the
+# folder, up to four words of the task, then month-day, time with seconds and a
+# random part.
+AUTO_LABEL = re.compile(r"^work(-[a-z0-9]+)*-\d{4}-\d{6}-[0-9a-f]{4}$")
 ORCA_FLAGS = ["--dangerously-skip-permissions", "--allowedTools=Grep"]
 SESSION_ID = "abc12345-0000-0000-0000-000000000000"
 
@@ -1341,6 +1347,7 @@ def _orca_env(tmp_path: Path, **extra: str) -> dict[str, str]:
             "CC_CLAUDE_FLAGS",
             "CCSESSION_AUTOSTART",
             "CCSESSION_ASK_TIMEOUT",
+            "CCSESSION_NAME",
             "CLAUDE_TOPIC",
         )
     }
@@ -1491,11 +1498,21 @@ def test_orca_name_starts_a_labeled_session_through_the_shim(tmp_path: Path) -> 
     _assert_through_shim(record)
 
 
-def test_orca_saved_name_is_listed_and_resumes_before_the_prompt(
+def _auto_label(record: dict) -> str:
+    """The automatic name Claude was started with (--name <label>)."""
+    argv = record["argv"]
+    assert "--name" in argv, argv
+    label = argv[argv.index("--name") + 1]
+    assert AUTO_LABEL.match(label), label
+    assert record["topic"] == label
+    return label
+
+
+def test_orca_saved_name_is_listed_and_resumes_at_the_question(
     tmp_path: Path,
 ) -> None:
     _seed_label(tmp_path, "demo")
-    output, record = _orca_tty(tmp_path, "fix it", keys="demo\r")
+    output, record = _orca_tty(tmp_path, keys="demo\r")
     assert "Saved sessions in" in output
     assert "demo" in output.split(ORCA_QUESTION)[0]
     assert record["topic"] == "demo"
@@ -1505,19 +1522,70 @@ def test_orca_saved_name_is_listed_and_resumes_before_the_prompt(
         "demo",
         "--resume",
         SESSION_ID,
-        "fix it",
     ]
 
 
-@pytest.mark.parametrize("keys", ["\r", "\x03"], ids=["enter", "ctrl-c"])
-def test_orca_enter_or_ctrl_c_starts_untagged(tmp_path: Path, keys: str) -> None:
-    output, record = _orca_tty(tmp_path, "the prompt", keys=keys)
-    assert "Starting untagged session" in output
+def test_orca_saved_name_in_ccsession_name_resumes_before_the_prompt(
+    tmp_path: Path,
+) -> None:
+    # An explicit name is not asked about: it resumes the saved session of that
+    # name, loudly, and the prompt still reaches Claude last.
+    _seed_label(tmp_path, "demo")
+    env = _orca_env(tmp_path, CCSESSION_NAME="demo")
+    output, record = _orca_tty(tmp_path, "fix it", keys=None, env=env)
+    assert "Session name" not in output
+    assert "Resuming 'demo'" in output
+    assert record["topic"] == "demo"
+    assert record["argv"] == [
+        *ORCA_FLAGS,
+        "--name",
+        "demo",
+        "--resume",
+        SESSION_ID,
+        "fix it",
+    ]
+    assert "CCSESSION_NAME" not in record["env_names"]
+
+
+def test_orca_claude_name_with_a_saved_label_passes_through_unchanged(
+    tmp_path: Path,
+) -> None:
+    # A Claude --name in Orca's arguments is Claude's own: it is not read as a
+    # ccsession name, so a saved label of the same name is not resumed, the
+    # question is not asked, and the prompt stays last.
+    _seed_label(tmp_path, "demo")
+    output, record = _orca_tty(tmp_path, "--name", "demo", "fix it", keys=None)
+    assert "Session name" not in output
+    assert "Resuming" not in output
+    assert "--resume" not in record["argv"]
     assert record["topic"] is None
-    assert record["argv"] == [*ORCA_FLAGS, "the prompt"]
+    assert record["argv"] == [*ORCA_FLAGS, "--name", "demo", "fix it"]
+
+
+def test_orca_enter_gets_an_auto_name(tmp_path: Path) -> None:
+    output, record = _orca_tty(tmp_path, keys="\r")
+    label = _auto_label(record)
+    assert f"Starting new session labeled '{label}'" in output
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label]
     _assert_through_shim(record)
     # The question's default time limit is not left in Claude's environment.
     assert "CCSESSION_ASK_TIMEOUT" not in record["env_names"]
+
+
+def test_orca_ctrl_c_cancels_without_starting_claude(tmp_path: Path) -> None:
+    proc, master = _spawn_on_pty([str(ORCA)], _orca_env(tmp_path), tmp_path / "work")
+    try:
+        assert ORCA_QUESTION in _read_pty(master, until=ORCA_QUESTION)
+        os.write(master, b"\x03")
+        output = _read_pty(master)
+        assert proc.wait(timeout=60) == 130, output
+        assert termios.tcgetattr(master)[3] & termios.ICANON
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+    assert "Starting" not in output
+    assert not (tmp_path / "record.json").exists()
 
 
 def _slow_probe(tmp_path: Path) -> None:
@@ -1540,12 +1608,15 @@ def test_orca_ctrl_c_while_line_mode_is_off_restores_the_terminal(
     # line mode back, and Claude then started on that terminal.
     env = _orca_env(tmp_path)
     _slow_probe(tmp_path)
-    proc, master = _spawn_on_pty([str(ORCA), "the prompt"], env, tmp_path / "work")
+    # No prompt argument: a launch with a task is never asked, so never probed.
+    proc, master = _spawn_on_pty([str(ORCA)], env, tmp_path / "work")
     try:
         time.sleep(1)
         os.write(master, b"\x03")
         output = _read_pty(master)
-        assert proc.wait(timeout=60) == 0, output
+        # Ctrl+C cancels the launch (status 130); Claude is not started.
+        assert proc.wait(timeout=60) == 130, output
+        assert termios.tcgetattr(master)[3] & termios.ICANON
     finally:
         if proc.poll() is None:
             proc.kill()
@@ -1553,10 +1624,7 @@ def test_orca_ctrl_c_while_line_mode_is_off_restores_the_terminal(
     assert ORCA_QUESTION not in output
     # The probe was interrupted; its traceback must not reach the terminal.
     assert "KeyboardInterrupt" not in output
-    record = json.loads((tmp_path / "record.json").read_text())
-    assert record["icanon"] is True
-    assert record["topic"] is None
-    assert record["argv"] == [*ORCA_FLAGS, "the prompt"]
+    assert not (tmp_path / "record.json").exists()
 
 
 def test_ask_ctrl_c_while_line_mode_is_off_exits_130_and_restores(
@@ -1589,25 +1657,23 @@ def test_ask_ctrl_c_while_line_mode_is_off_exits_130_and_restores(
         os.close(master)
 
 
-def test_orca_invalid_name_asks_again(tmp_path: Path) -> None:
-    # A name too long for a file name can never be saved (one starting with "-"
-    # is fine now: ccsession-orca passes it as --name).
-    env = _orca_env(tmp_path)
-    proc, master = _spawn_on_pty([str(ORCA)], env, tmp_path / "work")
-    try:
-        assert ORCA_QUESTION in _read_pty(master, until=ORCA_QUESTION)
-        for bad in (b"x" * 246, "あ".encode() * 82):
-            os.write(master, bad + b"\r")
-            again = _read_pty(master, until=ORCA_QUESTION)
-            assert "invalid label" in again and again.count(ORCA_QUESTION) == 1
-        os.write(master, b"good\r")
-        _read_pty(master)
-        assert proc.wait(timeout=60) == 0
-    finally:
-        if proc.poll() is None:
-            proc.kill()
-        os.close(master)
-    assert json.loads((tmp_path / "record.json").read_text())["topic"] == "good"
+@pytest.mark.parametrize(
+    "line",
+    ["x" * 246, "あ" * 82, "foo\tbar", "\tfoo", "foo\t"],
+    ids=["246 bytes", "82 CJK characters", "inner tab", "leading tab", "trailing tab"],
+)
+def test_orca_a_line_that_cannot_be_a_name_goes_to_claude_as_a_message(
+    tmp_path: Path, line: str
+) -> None:
+    # A name too long for a file name (or holding a control character) can never
+    # be saved, so it is not a name: it is the first message for Claude, and the
+    # launch is auto-named. (One starting with "-" is fine as a name:
+    # ccsession-orca passes it as --name.)
+    output, record = _orca_tty(tmp_path, keys=line + "\r")
+    assert "invalid label" not in output
+    label = _auto_label(record)
+    assert label != line
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label, line]
 
 
 @pytest.mark.parametrize(
@@ -1617,8 +1683,19 @@ def test_orca_invalid_name_asks_again(tmp_path: Path) -> None:
         ("--resume", SESSION_ID, "--fork-session"),
         (f"--resume={SESSION_ID}",),
         ("--continue",),
+        ("-r", SESSION_ID),
+        ("--fork-session",),
+        ("--from-pr", "12"),
     ],
-    ids=["resume", "resume-fork", "resume-equals", "continue"],
+    ids=[
+        "resume",
+        "resume-fork",
+        "resume-equals",
+        "continue",
+        "resume-short",
+        "fork-session-alone",
+        "from-pr",
+    ],
 )
 def test_orca_resume_skips_the_question(tmp_path: Path, args: tuple[str, ...]) -> None:
     _seed_label(tmp_path, "demo")
@@ -1646,26 +1723,46 @@ def test_orca_prompt_reaches_claude_unchanged_and_is_never_a_label(
     # "demo" is a saved label: read as one, the launch would resume it.
     _seed_label(tmp_path, "demo")
     output, record = _orca_no_tty(tmp_path, prompt)
-    assert record["topic"] is None
-    assert record["argv"] == [*ORCA_FLAGS, prompt]
     assert "Resuming" not in output
+    assert record["topic"] != "demo"
+    assert "--resume" not in record["argv"]
+    # The prompt is Claude's last argument, unchanged. A prompt that is itself
+    # an option (--help) starts no session, so it gets no automatic name.
+    assert record["argv"][-1] == prompt
+    if prompt == "--help":
+        assert record["argv"] == [*ORCA_FLAGS, prompt]
+    else:
+        label = record["argv"][record["argv"].index("--name") + 1]
+        assert label.startswith("work-")
+        assert record["topic"] == label
 
 
 def test_orca_prefill_passes_through_and_its_text_is_not_a_flag(
     tmp_path: Path,
 ) -> None:
-    # The prefill text "--resume" is input-box text, so the question is asked.
-    output, record = _orca_tty(tmp_path, "--prefill", "--resume", keys="\r")
-    assert record["argv"] == [*ORCA_FLAGS, "--prefill", "--resume"]
+    # The prefill text "--resume" is input-box text, not a flag: the launch
+    # carries a task (no question) and is auto-named, not treated as a resume.
+    output, record = _orca_tty(tmp_path, "--prefill", "--resume", keys=None)
+    assert "Session name" not in output
+    label = _auto_label(record)
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label, "--prefill", "--resume"]
     output, record = _orca_no_tty(tmp_path, "--prefill", "draft 'text' here")
-    assert record["argv"] == [*ORCA_FLAGS, "--prefill", "draft 'text' here"]
+    label = _auto_label(record)
+    assert record["argv"] == [
+        *ORCA_FLAGS,
+        "--name",
+        label,
+        "--prefill",
+        "draft 'text' here",
+    ]
 
 
 def test_orca_without_a_terminal_never_asks(tmp_path: Path) -> None:
     output, record = _orca_no_tty(tmp_path, "hello")
     assert "Session name" not in output
-    assert record["topic"] is None
-    assert record["argv"] == [*ORCA_FLAGS, "hello"]
+    label = _auto_label(record)
+    assert label.startswith("work-hello-")
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label, "hello"]
     _assert_through_shim(record)
 
 
@@ -1677,30 +1774,33 @@ def test_orca_autostart_off_never_asks(tmp_path: Path) -> None:
     assert record["argv"] == [*ORCA_FLAGS, "hello"]
 
 
-def test_orca_unanswered_question_starts_untagged(tmp_path: Path) -> None:
+def test_orca_unanswered_question_is_auto_named(tmp_path: Path) -> None:
     # Orca's supervised workers fail when Claude is not ready within 60s.
     env = _orca_env(tmp_path, CCSESSION_ASK_TIMEOUT="1")
-    proc, master = _spawn_on_pty([str(ORCA), "task"], env, tmp_path / "work")
+    proc, master = _spawn_on_pty([str(ORCA)], env, tmp_path / "work")
     try:
-        shown = _read_pty(master, until="untagged after 1s): ")
-        assert "untagged after 1s): " in shown
+        shown = _read_pty(master, until="auto-named after 1s): ")
+        assert "auto-named after 1s): " in shown
         output = _read_pty(master)
         assert proc.wait(timeout=60) == 0, output
     finally:
         if proc.poll() is None:
             proc.kill()
         os.close(master)
-    assert "Starting untagged session" in output
     record = json.loads((tmp_path / "record.json").read_text())
-    assert record["topic"] is None
-    assert record["argv"] == [*ORCA_FLAGS, "task"]
+    label = _auto_label(record)
+    assert f"Starting new session labeled '{label}'" in output
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label]
+    assert "CCSESSION_ASK_TIMEOUT" not in record["env_names"]
 
 
 def test_orca_keys_already_typed_skip_the_question(tmp_path: Path) -> None:
-    # Something typing into the tab before the question would become the name.
+    # Something typing into the tab before the question would become the name:
+    # it is left for Claude instead, and the launch is auto-named.
     output, record = _orca_tty(tmp_path, keys=None, typed_ahead="x")
     assert "Session name" not in output
-    assert record["topic"] is None
+    label = _auto_label(record)
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label]
 
 
 # Reopening an Orca tab's own session when Orca relaunches the tab after a
@@ -1787,6 +1887,22 @@ def test_orca_relaunch_reopens_an_untagged_session_by_id(tmp_path: Path) -> None
     assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT, "--resume", SESSION_ID]
 
 
+@pytest.mark.parametrize("named", [True, False], ids=["by name", "by id"])
+def test_orca_reopen_leaves_the_name_and_the_limit_out_of_claudes_environment(
+    tmp_path: Path, named: bool
+) -> None:
+    # An invalid CCSESSION_NAME is dropped, so it does not stop the reopen; it
+    # and the question's time limit must not reach the Claude that is reopened.
+    if named:
+        _seed_label(tmp_path, "demo")
+    _tab_runs(tmp_path, SESSION_ID)
+    env = _tab_env(tmp_path, CCSESSION_NAME="bad\tname", CCSESSION_ASK_TIMEOUT="7")
+    output, record = _orca_tty(tmp_path, ORCA_DEFAULT, keys=None, env=env)
+    assert "Reopening this tab's session" in output
+    assert "CCSESSION_NAME" not in record["env_names"]
+    assert "CCSESSION_ASK_TIMEOUT" not in record["env_names"]
+
+
 @pytest.mark.parametrize(
     ("pane", "handle"),
     [("tab-2:leaf-1", "term_after"), (PANE, "term_before")],
@@ -1800,28 +1916,37 @@ def test_orca_a_new_tab_or_a_rerun_is_still_asked(
     env = _tab_env(tmp_path, pane=pane, handle=handle)
     output, record = _orca_tty(tmp_path, ORCA_DEFAULT, keys="\r", env=env)
     assert "Reopening" not in output
-    assert record["topic"] is None
-    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT]
+    label = _auto_label(record)
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label, ORCA_DEFAULT]
 
 
 @pytest.mark.parametrize(
-    "args",
+    ("args", "named"),
     [
-        ("fix it",),
-        ("--prefill", "draft"),
-        ("--name", "other"),
-        (ORCA_DEFAULT, "-p"),
-        ("--session-id", OTHER_SESSION),
+        (("fix it",), True),
+        (("--prefill", "draft"), True),
+        (("--name", "other"), False),
+        ((ORCA_DEFAULT, "-p"), False),
+        (("--session-id", OTHER_SESSION), True),
     ],
     ids=["prompt", "prefill", "name", "print", "session-id"],
 )
-def test_orca_a_launch_with_more_than_options_is_asked_as_before(
-    tmp_path: Path, args: tuple[str, ...]
+def test_orca_a_launch_with_more_than_options_is_not_asked_and_never_reopens(
+    tmp_path: Path, args: tuple[str, ...], named: bool
 ) -> None:
+    # A task or a name is carried, so there is no question; the tab's recorded
+    # session is not reopened either. A task gets an automatic name; a Claude
+    # --name or print mode passes through unchanged.
     _tab_runs(tmp_path, SESSION_ID)
-    output, record = _orca_tty(tmp_path, *args, keys="\r", env=_tab_env(tmp_path))
+    output, record = _orca_tty(tmp_path, *args, keys=None, env=_tab_env(tmp_path))
     assert "Reopening" not in output
-    assert record["argv"] == [*ORCA_FLAGS, *args]
+    assert "Session name" not in output
+    if named:
+        label = _auto_label(record)
+        assert record["argv"] == [*ORCA_FLAGS, "--name", label, *args]
+    else:
+        assert record["argv"] == [*ORCA_FLAGS, *args]
+        assert record["topic"] is None
 
 
 @pytest.mark.parametrize(
@@ -1845,7 +1970,8 @@ def test_orca_relaunch_without_a_terminal_or_autostart_changes_nothing(
     extra = {"ORCA_PANE_KEY": PANE, "ORCA_TERMINAL_HANDLE": "term_after"}
     output, record = _orca_no_tty(tmp_path, ORCA_DEFAULT, **extra)
     assert "Reopening" not in output
-    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT]
+    label = _auto_label(record)
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label, ORCA_DEFAULT]
     env = _tab_env(tmp_path, CCSESSION_AUTOSTART="0")
     output, record = _orca_tty(tmp_path, ORCA_DEFAULT, keys=None, env=env)
     assert "Reopening" not in output
@@ -1860,7 +1986,8 @@ def test_orca_relaunch_whose_conversation_is_gone_is_asked(tmp_path: Path) -> No
         tmp_path, ORCA_DEFAULT, keys="\r", env=_tab_env(tmp_path)
     )
     assert "Reopening" not in output
-    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT]
+    label = _auto_label(record)
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label, ORCA_DEFAULT]
 
 
 def test_orca_two_tabs_never_reopen_the_same_session(tmp_path: Path) -> None:
@@ -1875,7 +2002,8 @@ def test_orca_two_tabs_never_reopen_the_same_session(tmp_path: Path) -> None:
         tmp_path, ORCA_DEFAULT, keys="\r", env=_tab_env(tmp_path)
     )
     assert "Reopening" not in output
-    assert record["argv"] == [*ORCA_FLAGS, ORCA_DEFAULT]
+    label = _auto_label(record)
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label, ORCA_DEFAULT]
     env = _tab_env(tmp_path, pane="tab-2:leaf-1")
     _, record = _orca_tty(tmp_path, ORCA_DEFAULT, keys=None, env=env)
     assert record["argv"][-2:] == ["--resume", SESSION_ID]
@@ -1953,7 +2081,9 @@ def test_ask_prints_only_the_name_on_stdout(tmp_path: Path) -> None:
     env = _orca_env(tmp_path)
     _seed_label(tmp_path, "demo")
     command = [str(SKILL_DIR / "ccsession"), "--ask"]
-    question = "Session name (Enter = untagged, Ctrl+C = plain shell): "
+    question = (
+        "Session name (Enter = untagged, Ctrl+C = plain shell; gives up after 30s): "
+    )
     proc, master = _spawn_on_pty(
         command, env, tmp_path / "work", stdout=subprocess.PIPE
     )
@@ -1985,6 +2115,425 @@ def test_ask_prints_only_the_name_on_stdout(tmp_path: Path) -> None:
         command, env=env, stdin=subprocess.DEVNULL, capture_output=True
     )
     assert (no_tty.returncode, no_tty.stdout) == (1, b"")
+
+
+# ccsession --auto-name: the label for a launch that carries no name.
+AUTO_STAMP = r"\d{4}-\d{6}-[0-9a-f]{4}"
+
+
+def _auto_name(
+    tmp_path: Path, text: str | None = None, cwd: Path | None = None, **extra: str
+) -> subprocess.CompletedProcess:
+    """Run `ccsession --auto-name [text]` in the test's work folder, no terminal."""
+    command = [str(SKILL_DIR / "ccsession"), "--auto-name"]
+    if text is not None:
+        command.append(text)
+    return subprocess.run(
+        command,
+        env=_orca_env(tmp_path, **extra),
+        cwd=cwd or tmp_path / "work",
+        stdin=subprocess.DEVNULL,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+
+
+def test_auto_name_without_text_is_the_folder_and_a_stamp(tmp_path: Path) -> None:
+    result = _auto_name(tmp_path)
+    assert result.returncode == 0, result.stderr
+    assert re.fullmatch(rf"work-{AUTO_STAMP}\n", result.stdout), result.stdout
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "fix the 'login' bug and say \"done\"",
+        "$(touch PWNED) `touch PWNED` ; touch PWNED",
+        "../../etc/passwd",
+        "\x1b[31mred\x1b[0m\x07 bell",
+        "line one\nline two\n\tindented",
+        "--model",
+        "--claude-args",
+        "--shim",
+        "--tier=x",
+        "--name",
+        "あいう えお",
+        "%2F %s %n",
+        "!!!",
+    ],
+    ids=[
+        "quotes",
+        "command substitution",
+        "path",
+        "escape codes",
+        "several lines",
+        "--model",
+        "--claude-args",
+        "--shim",
+        "--tier=x",
+        "--name",
+        "CJK",
+        "format characters",
+        "punctuation only",
+    ],
+)
+def test_auto_name_is_valid_and_shell_safe_for_any_text(
+    tmp_path: Path, text: str
+) -> None:
+    result = _auto_name(tmp_path, text)
+    assert result.returncode == 0, result.stderr
+    # One line, only a-z, 0-9 and hyphens (the folder here is lower case), and a
+    # label ccsession itself accepts. Nothing in the text was run.
+    assert re.fullmatch(rf"work(-[a-z0-9]+)*-{AUTO_STAMP}\n", result.stdout), (
+        result.stdout
+    )
+    label = result.stdout.strip()
+    check = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--check-name", label],
+        env=_orca_env(tmp_path),
+        stdin=subprocess.DEVNULL,
+    )
+    assert check.returncode == 0
+    assert not (tmp_path / "work" / "PWNED").exists()
+
+
+def test_auto_name_uses_at_most_four_words_of_twelve_characters(tmp_path: Path) -> None:
+    result = _auto_name(
+        tmp_path, "Alpha beta GAMMA delta epsilon abcdefghijklmnopqrstuvwxyz"
+    )
+    assert re.fullmatch(
+        rf"work-alpha-beta-gamma-delta-{AUTO_STAMP}\n", result.stdout
+    ), result.stdout
+    result = _auto_name(tmp_path, "abcdefghijklmnopqrstuvwxyz")
+    assert re.fullmatch(rf"work-abcdefghijkl-{AUTO_STAMP}\n", result.stdout), (
+        result.stdout
+    )
+
+
+def test_auto_name_stays_short_and_keeps_its_stamp_for_a_long_folder(
+    tmp_path: Path,
+) -> None:
+    folder = tmp_path / ("x" * 100)
+    folder.mkdir()
+    # Folder cut to 20 characters, four words of 12: 20 + 4 * 13 = 72 characters
+    # before the stamp. Without the cut of the folder-and-words part to 59
+    # characters the label would be 89 characters long; with it the fourth word
+    # goes and the stamp stays.
+    words = " ".join(["abcdefghijkl"] * 4 + ["z" * 400])
+    result = _auto_name(tmp_path, words, cwd=folder)
+    label = result.stdout.strip()
+    assert len(label) <= 80, label
+    assert re.fullmatch(rf"x{{20}}(-abcdefghijkl){{3}}-{AUTO_STAMP}", label), label
+
+
+def test_auto_name_two_calls_in_the_same_second_differ(tmp_path: Path) -> None:
+    # A clock that never moves: only the random part can tell the labels apart.
+    _orca_env(tmp_path)
+    fake_date = tmp_path / "tools" / "date"
+    fake_date.write_text("#!/bin/sh\necho 0101-000000\n")
+    fake_date.chmod(0o700)
+    labels = {_auto_name(tmp_path, "same task").stdout for _ in range(3)}
+    assert all(label.startswith("work-same-task-0101-000000-") for label in labels)
+    # The random part differs (a 1 in 65536 chance for each pair to match).
+    assert len(labels) >= 2
+
+
+def test_auto_name_never_equals_a_saved_name(tmp_path: Path) -> None:
+    # A saved name resumes its session, so an auto-name must be a new one: when
+    # the label is taken it gets -2, then -3.
+    stamp = "0101-000000-aaaa"
+    base = f"work-same-task-{stamp}"
+    _orca_env(tmp_path)
+    _seed_label(tmp_path, base)
+    result = _auto_name(tmp_path, "same task", CCSESSION_AUTO_NAME_STAMP=stamp)
+    assert result.stdout == f"{base}-2\n"
+    _seed_label(tmp_path, f"{base}-2")
+    result = _auto_name(tmp_path, "same task", CCSESSION_AUTO_NAME_STAMP=stamp)
+    assert result.stdout == f"{base}-3\n"
+    # Another task, or no saved label, is not touched.
+    assert (
+        _auto_name(tmp_path, "other", CCSESSION_AUTO_NAME_STAMP=stamp).stdout
+        == f"work-other-{stamp}\n"
+    )
+
+
+@pytest.mark.skipif(os.geteuid() == 0, reason="root can write to any folder")
+def test_auto_name_prints_nothing_when_the_name_list_cannot_be_written(
+    tmp_path: Path,
+) -> None:
+    # A launch under a label would stop at the save; with no label, the caller
+    # starts Claude without a name instead.
+    _orca_env(tmp_path)
+    projects = tmp_path / "home" / ".claude" / "projects"
+    projects.mkdir(parents=True)
+    projects.chmod(0o500)
+    try:
+        result = _auto_name(tmp_path, "fix it")
+    finally:
+        projects.chmod(0o700)
+    assert (result.returncode, result.stdout) == (1, "")
+
+
+def test_auto_name_stamp_override_is_cut_to_safe_characters(tmp_path: Path) -> None:
+    result = _auto_name(tmp_path, "x", CCSESSION_AUTO_NAME_STAMP="0101-000000-a b/c;d")
+    assert result.stdout == "work-x-0101-000000-a-b-c-d\n"
+
+
+def test_auto_name_in_a_hidden_folder_with_cjk_characters_is_still_valid(
+    tmp_path: Path,
+) -> None:
+    folder = tmp_path / ".hidden-あいう"
+    folder.mkdir()
+    result = _auto_name(tmp_path, "task", cwd=folder)
+    assert re.fullmatch(rf"hidden-task-{AUTO_STAMP}\n", result.stdout), result.stdout
+
+
+def test_auto_name_check_name_judges_names_and_help_lists_the_new_options(
+    tmp_path: Path,
+) -> None:
+    env = _orca_env(tmp_path)
+    ccsession = str(SKILL_DIR / "ccsession")
+
+    def check(*args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [ccsession, "--check-name", *args],
+            env=env,
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+        )
+
+    for good in ("demo", "my fix plan", "y" * 245):
+        assert check(good).returncode == 0, good
+    for bad in ("", "   ", "bad\tname", "two\nlines", "x" * 246, "あ" * 82):
+        result = check(bad)
+        # Only the status answers; nothing is printed.
+        assert (result.returncode, result.stdout, result.stderr) == (1, "", ""), bad
+    assert check().returncode == 1
+
+    help_text = subprocess.run(
+        [ccsession, "--help"],
+        env=env,
+        stdin=subprocess.DEVNULL,
+        capture_output=True,
+        text=True,
+    ).stdout
+    for text in ("--auto-name", "--check-name", "@LIMIT@", "130 Ctrl+C"):
+        assert text in help_text, text
+
+
+# ccsession --ask on a terminal: the naming question and its exit codes.
+def _ask_on_pty(
+    tmp_path: Path,
+    steps: list[tuple[float, bytes]],
+    *args: str,
+    env: dict[str, str] | None = None,
+    typed_ahead: bytes = b"",
+) -> tuple[int, bytes, str, bool, float]:
+    """Run `ccsession --ask [hint]` on a terminal, then play the steps.
+
+    Each step is (seconds to wait, bytes to type). Returns the exit status,
+    what it printed on stdout, what the terminal showed, whether the terminal is
+    back in line mode, and how long the run took.
+    """
+    env = env or _orca_env(tmp_path)
+    started = time.monotonic()
+    proc, master = _spawn_on_pty(
+        [str(SKILL_DIR / "ccsession"), "--ask", *args],
+        env,
+        tmp_path / "work",
+        typed_ahead.decode(),
+        stdout=subprocess.PIPE,
+    )
+    try:
+        shown = _read_pty(master, until="): ", timeout=15)
+        for delay, data in steps:
+            time.sleep(delay)
+            os.write(master, data)
+        stdout = proc.communicate(timeout=60)[0]
+        shown += _read_pty(master, timeout=5)
+        line_mode = bool(termios.tcgetattr(master)[3] & termios.ICANON)
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+    return proc.returncode, stdout, shown, line_mode, time.monotonic() - started
+
+
+def test_ask_default_limit_is_30_seconds_and_shown_in_the_question(
+    tmp_path: Path,
+) -> None:
+    status, stdout, shown, line_mode, _ = _ask_on_pty(tmp_path, [(0.3, b"\x03")])
+    assert "Enter = untagged, Ctrl+C = plain shell; gives up after 30s): " in shown
+    assert (status, stdout) == (130, b"")
+    assert line_mode
+
+
+def test_ask_gives_up_after_the_limit_with_exit_1(tmp_path: Path) -> None:
+    env = _orca_env(tmp_path, CCSESSION_ASK_TIMEOUT="1")
+    status, stdout, shown, line_mode, seconds = _ask_on_pty(tmp_path, [], env=env)
+    assert "gives up after 1s): " in shown
+    assert (status, stdout) == (1, b"")
+    assert line_mode
+    assert seconds < 20
+
+
+def test_ask_limit_0_waits_for_ever_and_drops_the_limit_from_the_question(
+    tmp_path: Path,
+) -> None:
+    env = _orca_env(tmp_path, CCSESSION_ASK_TIMEOUT="0")
+    status, stdout, shown, _, _ = _ask_on_pty(tmp_path, [(1.5, b"\x03")], env=env)
+    assert "gives up" not in shown
+    assert (status, stdout) == (130, b"")
+    # Not a whole number of seconds (or only zeros): the same as no limit, not
+    # a wait of no time at all.
+    for value in ("soon", "1.5", "30s", "00"):
+        env = _orca_env(tmp_path, CCSESSION_ASK_TIMEOUT=value)
+        status, stdout, shown, _, _ = _ask_on_pty(tmp_path, [(0.8, b"\x03")], env=env)
+        assert "gives up" not in shown, value
+        assert (status, stdout) == (130, b""), value
+
+
+def test_ask_limit_starts_again_after_a_star(tmp_path: Path) -> None:
+    # The limit is for each wait for a typed line: a "*" at 1.2 s of a 2 s limit
+    # lists and asks again, so the question is still open at 2.4 s and gives up
+    # about 2 s after the star, not 2 s after the start.
+    env = _orca_env(tmp_path, CCSESSION_ASK_TIMEOUT="2")
+    status, stdout, _, _, seconds = _ask_on_pty(tmp_path, [(1.2, b"*\r")], env=env)
+    assert (status, stdout) == (1, b"")
+    assert seconds >= 3.0
+
+
+def test_ask_limit_with_leading_zeros_is_read_as_the_number(tmp_path: Path) -> None:
+    env = _orca_env(tmp_path, CCSESSION_ASK_TIMEOUT="002")
+    status, stdout, shown, _, seconds = _ask_on_pty(tmp_path, [], env=env)
+    assert "gives up after 2s): " in shown
+    assert (status, stdout) == (1, b"")
+    assert 1 <= seconds < 20
+
+
+def test_ask_end_of_input_exits_1(tmp_path: Path) -> None:
+    # Ctrl+D on an empty line ends the input.
+    status, stdout, _, line_mode, _ = _ask_on_pty(tmp_path, [(0.3, b"\x04")])
+    assert (status, stdout) == (1, b"")
+    assert line_mode
+
+
+def test_ask_hint_placeholder_follows_the_limit(tmp_path: Path) -> None:
+    hint = "Enter = auto-named; auto-named after @LIMIT@s"
+    env = _orca_env(tmp_path, CCSESSION_ASK_TIMEOUT="2")
+    _, _, shown, _, _ = _ask_on_pty(tmp_path, [(0.3, b"\x03")], hint, env=env)
+    assert "Session name (Enter = auto-named; auto-named after 2s): " in shown
+    # No limit: the part of the hint that names it goes, with its separator.
+    env = _orca_env(tmp_path, CCSESSION_ASK_TIMEOUT="0")
+    _, _, shown, _, _ = _ask_on_pty(tmp_path, [(0.3, b"\x03")], hint, env=env)
+    assert "Session name (Enter = auto-named): " in shown
+    assert "@LIMIT@" not in shown
+
+
+def test_orca_ask_question_hint_follows_the_limit_and_the_timeout_auto_names(
+    tmp_path: Path,
+) -> None:
+    env = _orca_env(tmp_path, CCSESSION_ASK_TIMEOUT="2")
+    proc, master = _spawn_on_pty([str(ORCA)], env, tmp_path / "work")
+    try:
+        shown = _read_pty(master, until="auto-named after 2s): ")
+        assert (
+            "Session name (Enter = auto-named, Ctrl+C = cancel; auto-named after 2s): "
+            in shown
+        )
+        shown += _read_pty(master)
+        assert proc.wait(timeout=60) == 0, shown
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        os.close(master)
+    record = json.loads((tmp_path / "record.json").read_text())
+    assert record["topic"] == _auto_label(record)
+    assert "CCSESSION_ASK_TIMEOUT" not in record["env_names"]
+
+
+@pytest.mark.parametrize(
+    ("steps", "text"),
+    [
+        ([(0.2, b"x" * 246 + b"\r")], b"x" * 246),
+        ([(0.2, "あ".encode() * 82 + b"\r")], "あ".encode() * 82),
+        ([(0.2, b"foo\tbar\r")], b"foo\tbar"),
+        ([(0.2, b"\tfoo\r")], b"\tfoo"),
+        ([(0.2, b"foo\t\r")], b"foo\t"),
+        ([(0.2, b"line one\rline two\r")], b"line one\nline two"),
+        ([(0.2, b"line one\r"), (0.05, b"line two\r")], b"line one\nline two"),
+    ],
+    ids=[
+        "246 bytes",
+        "82 CJK characters",
+        "inner tab",
+        "leading tab",
+        "trailing tab",
+        "paste in one write",
+        "paste in two writes",
+    ],
+)
+def test_ask_a_line_that_cannot_be_a_name_exits_3_and_prints_it_as_typed(
+    tmp_path: Path, steps: list[tuple[float, bytes]], text: bytes
+) -> None:
+    status, stdout, _, line_mode, _ = _ask_on_pty(tmp_path, steps)
+    assert (status, stdout) == (3, text)
+    assert line_mode
+
+
+def test_ask_a_name_with_spaces_is_a_name(tmp_path: Path) -> None:
+    status, stdout, _, _, _ = _ask_on_pty(tmp_path, [(0.2, b"my fix plan\r")])
+    assert (status, stdout) == (0, b"my fix plan\n")
+    # Surrounding spaces are not part of the name.
+    status, stdout, _, _, _ = _ask_on_pty(tmp_path, [(0.2, b"  padded name  \r")])
+    assert (status, stdout) == (0, b"padded name\n")
+    # 245 bytes is the longest name.
+    status, stdout, _, _, _ = _ask_on_pty(tmp_path, [(0.2, b"y" * 245 + b"\r")])
+    assert (status, stdout) == (0, b"y" * 245 + b"\n")
+
+
+def test_ask_a_blank_line_means_enter(tmp_path: Path) -> None:
+    status, stdout, _, line_mode, _ = _ask_on_pty(tmp_path, [(0.2, b"\r")])
+    assert (status, stdout) == (0, b"\n")
+    assert line_mode
+    # A line of only spaces or tabs is blank too, not a message with a tab in it.
+    # So is a paste that starts with a blank line: the lines behind it stay in
+    # the terminal and are not returned as text.
+    for blank in (b"\t\r", b"   \r", b" \t \r", b"\rline two\rline three\r"):
+        status, stdout, _, _, _ = _ask_on_pty(tmp_path, [(0.2, blank)])
+        assert (status, stdout) == (0, b"\n"), blank
+
+
+def test_ask_star_lists_the_saved_sessions_and_asks_again(tmp_path: Path) -> None:
+    _orca_env(tmp_path)
+    _seed_label(tmp_path, "demo")
+    status, stdout, shown, _, _ = _ask_on_pty(
+        tmp_path, [(0.2, b"*\r"), (0.5, b"after star\r")]
+    )
+    assert (status, stdout) == (0, b"after star\n")
+    # Listed once with the question and once more for the star.
+    assert shown.count("Saved sessions in") == 2
+
+
+def test_ask_is_not_asked_when_keys_are_already_waiting(tmp_path: Path) -> None:
+    # Typed ahead means someone is already at the keyboard with a task for Claude.
+    status, stdout, shown, _, _ = _ask_on_pty(tmp_path, [], typed_ahead=b"x")
+    assert (status, stdout) == (1, b"")
+    assert "Session name" not in shown
+
+
+def test_ask_ctrl_c_while_pasted_text_is_collected_exits_130_and_restores(
+    tmp_path: Path,
+) -> None:
+    # After a line, --ask waits briefly for more pasted lines with line mode off;
+    # Ctrl+C in that window must still end it with line mode back on.
+    status, stdout, _, line_mode, _ = _ask_on_pty(
+        tmp_path, [(0.2, b"some name\r"), (0.04, b"\x03")]
+    )
+    assert (status, stdout) == (130, b"")
+    assert line_mode
 
 
 def _title_launch(
@@ -2042,6 +2591,355 @@ print(json.dumps({"disable": os.environ.get("CLAUDE_CODE_DISABLE_TERMINAL_TITLE"
     # The title escape has no newline, so Claude's line follows it on the same line.
     last = output.decode().strip().splitlines()[-1]
     return output, json.loads(last[last.index("{") :])
+
+
+# Every launch path this repo controls, run through ccsession-orca (the real
+# wrapper and ccsession, a fake claude that records its arguments). Each test
+# asserts whether the question is shown, the session's topic and the exact
+# arguments Claude received.
+
+
+@pytest.mark.parametrize("terminal", [True, False], ids=["terminal", "no-terminal"])
+def test_orca_launch_with_a_prompt_is_auto_named_and_never_asked(
+    tmp_path: Path, terminal: bool
+) -> None:
+    # An agent or worktree launch that carries its task.
+    if terminal:
+        output, record = _orca_tty(tmp_path, "fix the login bug", keys=None)
+    else:
+        output, record = _orca_no_tty(tmp_path, "fix the login bug")
+    assert "Session name" not in output
+    label = _auto_label(record)
+    assert label.startswith("work-fix-the-login-bug-")
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label, "fix the login bug"]
+    _assert_through_shim(record)
+
+
+def test_orca_launch_with_nothing_and_no_terminal_is_auto_named(
+    tmp_path: Path,
+) -> None:
+    # A worker start with neither a task nor a name, and nobody to ask.
+    output, record = _orca_no_tty(tmp_path)
+    assert "Session name" not in output
+    label = _auto_label(record)
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label]
+
+
+@pytest.mark.parametrize("terminal", [True, False], ids=["terminal", "no-terminal"])
+@pytest.mark.parametrize("prompt", [None, "do the thing"], ids=["no-prompt", "prompt"])
+def test_orca_ccsession_name_names_the_session_and_is_never_asked(
+    tmp_path: Path, terminal: bool, prompt: str | None
+) -> None:
+    # A worker start that names its session in the environment.
+    args = (prompt,) if prompt else ()
+    env = _orca_env(tmp_path, CCSESSION_NAME="worker-7")
+    if terminal:
+        output, record = _orca_tty(tmp_path, *args, keys=None, env=env)
+    else:
+        output, record = _orca_no_tty(tmp_path, *args, CCSESSION_NAME="worker-7")
+    assert "Session name" not in output
+    assert record["topic"] == "worker-7"
+    assert record["argv"] == [*ORCA_FLAGS, "--name", "worker-7", *args]
+    assert "CCSESSION_NAME" not in record["env_names"]
+    _assert_through_shim(record)
+
+
+@pytest.mark.parametrize(
+    ("args", "extra"),
+    [
+        (("-p", "hello"), {}),
+        (("--version",), {}),
+        (("mcp", "list"), {}),
+        (("hi",), {"CCSESSION_AUTOSTART": "0"}),
+    ],
+    ids=["print mode", "--version", "subcommand", "autostart off"],
+)
+def test_orca_valid_ccsession_name_is_passed_even_where_a_launch_stays_untagged(
+    tmp_path: Path, args: tuple[str, ...], extra: dict[str, str]
+) -> None:
+    # Without a name these launches start untagged; an explicit name wins.
+    output, record = _orca_no_tty(tmp_path, *args, CCSESSION_NAME="worker-7", **extra)
+    assert record["topic"] == "worker-7"
+    assert record["argv"] == [*ORCA_FLAGS, "--name", "worker-7", *args]
+
+
+@pytest.mark.parametrize(
+    "bad",
+    ["bad\tname", "x" * 300, "two\nlines", "   "],
+    ids=["tab", "300 characters", "newline", "blank"],
+)
+def test_orca_invalid_ccsession_name_never_stops_claude(
+    tmp_path: Path, bad: str
+) -> None:
+    # Dropped with a warning; the launch is then handled as if none was given.
+    output, record = _orca_no_tty(tmp_path, "go", CCSESSION_NAME=bad)
+    assert "CCSESSION_NAME is not a valid session name" in output
+    label = _auto_label(record)
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label, "go"]
+    assert "CCSESSION_NAME" not in record["env_names"]
+    # With no task and a terminal, the question is asked after all.
+    tmp2 = tmp_path / "again"
+    tmp2.mkdir()
+    env = _orca_env(tmp2, CCSESSION_NAME=bad)
+    output, record = _orca_tty(tmp2, keys="\r", env=env)
+    assert "CCSESSION_NAME is not a valid session name" in output
+    assert record["argv"] == [*ORCA_FLAGS, "--name", _auto_label(record)]
+
+
+def test_orca_ccsession_name_equal_to_a_saved_label_resumes_it_loudly(
+    tmp_path: Path,
+) -> None:
+    _seed_label(tmp_path, "worker-7")
+    output, record = _orca_no_tty(tmp_path, "go", CCSESSION_NAME="worker-7")
+    assert "Resuming 'worker-7'" in output
+    assert record["argv"] == [
+        *ORCA_FLAGS,
+        "--name",
+        "worker-7",
+        "--resume",
+        SESSION_ID,
+        "go",
+    ]
+
+
+def test_orca_ccsession_name_longer_than_the_limit_is_dropped_not_cut(
+    tmp_path: Path,
+) -> None:
+    # 245 bytes is the longest name; one more is not shortened into a name.
+    output, record = _orca_no_tty(tmp_path, "go", CCSESSION_NAME="n" * 245)
+    assert record["topic"] == "n" * 245
+    output, record = _orca_no_tty(tmp_path, "go", CCSESSION_NAME="n" * 246)
+    assert record["topic"] != "n" * 246
+    assert _auto_label(record)
+
+
+@pytest.mark.parametrize(
+    ("keys", "message", "separator"),
+    [
+        ("line one\rline two\r", "line one\nline two", False),
+        ("- item one\r- item two\r", "- item one\n- item two", True),
+        ("-starts with a dash and is too long " + "x" * 250 + "\r", None, True),
+    ],
+    ids=["paste", "dash-paste", "dash-too-long"],
+)
+def test_orca_typed_text_that_cannot_be_a_name_is_claudes_first_message(
+    tmp_path: Path, keys: str, message: str | None, separator: bool
+) -> None:
+    message = message or keys.rstrip("\r")
+    output, record = _orca_tty(tmp_path, keys=keys)
+    label = _auto_label(record)
+    tail = ["--", message] if separator else [message]
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label, *tail]
+
+
+@pytest.mark.parametrize(
+    "args",
+    [("-p", "hello"), ("--print", "hello"), ("-p",)],
+    ids=["-p", "--print", "-p-only"],
+)
+def test_orca_print_mode_is_untagged_and_never_asked(
+    tmp_path: Path, args: tuple[str, ...]
+) -> None:
+    output, record = _orca_tty(tmp_path, *args, keys=None)
+    assert "Session name" not in output
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, *args]
+    output, record = _orca_no_tty(tmp_path, *args)
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, *args]
+
+
+@pytest.mark.parametrize(
+    "args",
+    [("--version",), ("-h",), ("mcp", "list"), ("doctor",)],
+    ids=["version", "help", "mcp", "doctor"],
+)
+def test_orca_commands_that_start_no_session_get_no_name_and_no_question(
+    tmp_path: Path, args: tuple[str, ...]
+) -> None:
+    output, record = _orca_tty(tmp_path, *args, keys=None)
+    assert "Session name" not in output
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, *args]
+
+
+@pytest.mark.parametrize(
+    "name_args",
+    [("--name", "mine"), ("-n", "mine"), ("--name=mine",)],
+    ids=["--name", "-n", "--name="],
+)
+def test_orca_claude_name_is_kept_once_and_never_asked(
+    tmp_path: Path, name_args: tuple[str, ...]
+) -> None:
+    for terminal in (True, False):
+        if terminal:
+            output, record = _orca_tty(tmp_path, *name_args, "go", keys=None)
+        else:
+            output, record = _orca_no_tty(tmp_path, *name_args, "go")
+        assert "Session name" not in output
+        assert record["topic"] is None
+        assert record["argv"] == [*ORCA_FLAGS, *name_args, "go"]
+        # One --name for Claude, not a second one from ccsession.
+        assert (
+            sum(
+                a in ("--name", "-n") or a.startswith("--name=") for a in record["argv"]
+            )
+            == 1
+        )
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("--prefill=hello world",),
+        (f"--session-id={SESSION_ID}",),
+        ("--some-new-option", "its value"),
+    ],
+    ids=["--prefill=", "--session-id=", "unknown option and its value"],
+)
+def test_orca_equals_forms_and_unknown_options_count_as_a_task(
+    tmp_path: Path, args: tuple[str, ...]
+) -> None:
+    # The classification reads --prefill=<text> and --session-id=<id> as a task;
+    # an option it does not know fails safe: its value is taken as the task.
+    output, record = _orca_tty(tmp_path, *args, keys=None)
+    assert "Session name" not in output
+    label = _auto_label(record)
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label, *args]
+
+
+def test_orca_trailing_name_with_no_value_is_a_name_given(tmp_path: Path) -> None:
+    output, record = _orca_tty(tmp_path, "--name", keys=None)
+    assert "Session name" not in output
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, "--name"]
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("--model", "opus"),
+        ("--permission-mode", "plan"),
+        ("--add-dir", "/tmp"),
+        ("--allowedTools", "Bash"),
+        ("--mcp-config", "servers.json"),
+    ],
+    ids=["--model", "--permission-mode", "--add-dir", "--allowedTools", "--mcp-config"],
+)
+def test_orca_the_value_of_a_known_option_is_not_a_task(
+    tmp_path: Path, args: tuple[str, ...]
+) -> None:
+    # Only options: no task, no name, no resume, so the question is asked.
+    output, record = _orca_tty(tmp_path, *args, keys="\r")
+    assert ORCA_QUESTION in output
+    label = _auto_label(record)
+    assert record["argv"][-2:] == list(args)
+    assert "--name" in record["argv"] and label
+
+
+def test_orca_launch_in_a_hidden_folder_with_cjk_characters_reaches_claude(
+    tmp_path: Path,
+) -> None:
+    # A leading dot and 4-byte-free CJK characters in the folder name must not
+    # stop the launch; the automatic name is built from the cleaned folder name.
+    folder = tmp_path / ".hidden-あいう"
+    folder.mkdir()
+    env = _orca_env(tmp_path)
+    subprocess.run(
+        [str(ORCA), "go"],
+        env=env,
+        cwd=folder,
+        stdin=subprocess.DEVNULL,
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=True,
+    )
+    record = json.loads((tmp_path / "record.json").read_text())
+    label = record["argv"][record["argv"].index("--name") + 1]
+    assert re.fullmatch(rf"hidden-go-{AUTO_STAMP}", label), label
+    assert record["argv"][-1] == "go"
+    assert record["topic"] == label
+
+
+def test_orca_typed_option_looking_text_at_the_question(tmp_path: Path) -> None:
+    # A single typed word that looks like an option is a name, passed as --name
+    # so Claude never reads it as an option.
+    output, record = _orca_tty(tmp_path, keys="--version\r")
+    assert record["topic"] == "--version"
+    assert record["argv"] == [*ORCA_FLAGS, "--name", "--version"]
+    # Pasted with a second line it is a message, after "--".
+    tmp2 = tmp_path / "again"
+    tmp2.mkdir()
+    output, record = _orca_tty(tmp2, keys="--version\rsecond line\r")
+    label = _auto_label(record)
+    assert record["argv"] == [
+        *ORCA_FLAGS,
+        "--name",
+        label,
+        "--",
+        "--version\nsecond line",
+    ]
+
+
+def test_orca_session_id_launch_carries_a_task_and_is_auto_named(
+    tmp_path: Path,
+) -> None:
+    # --session-id starts a chosen new session: no question, but a name.
+    sid = "11111111-2222-3333-4444-555555555555"
+    output, record = _orca_tty(tmp_path, "--session-id", sid, keys=None)
+    assert "Session name" not in output
+    label = _auto_label(record)
+    assert record["argv"] == [*ORCA_FLAGS, "--name", label, "--session-id", sid]
+
+
+def test_orca_autostart_off_with_no_task_is_untagged_and_never_asked(
+    tmp_path: Path,
+) -> None:
+    env = _orca_env(tmp_path, CCSESSION_AUTOSTART="0")
+    output, record = _orca_tty(tmp_path, keys=None, env=env)
+    assert "Session name" not in output
+    assert record["topic"] is None
+    assert record["argv"] == ORCA_FLAGS
+
+
+@pytest.mark.skipif(os.geteuid() == 0, reason="root can write to any folder")
+def test_orca_starts_untagged_when_the_name_list_cannot_be_written(
+    tmp_path: Path,
+) -> None:
+    # No automatic name can be saved, so none is made: Claude still starts,
+    # with the prompt and without a name, and nothing asks or fails.
+    _orca_env(tmp_path)
+    projects = tmp_path / "home" / ".claude" / "projects"
+    projects.mkdir(parents=True)
+    projects.chmod(0o500)
+    try:
+        output, record = _orca_tty(tmp_path, "fix it", keys=None)
+    finally:
+        projects.chmod(0o700)
+    assert "Session name" not in output
+    assert record["topic"] is None
+    assert record["argv"] == [*ORCA_FLAGS, "fix it"]
+
+
+def test_orca_auto_named_session_is_listed_once_the_session_hook_records_it(
+    tmp_path: Path,
+) -> None:
+    _, record = _orca_no_tty(tmp_path, "fix the login bug")
+    label = _auto_label(record)
+    env = _orca_env(tmp_path)
+    work = (tmp_path / "work").resolve()
+    projects = tmp_path / "home" / ".claude" / "projects"
+    # The hook that Claude Code runs at session start saves the launch's name;
+    # the topic Claude was started with is the one it saves.
+    _hook(
+        {**env, "CLAUDE_TOPIC": record["topic"], "CCSESSION_TOPIC_CWD": str(work)},
+        work,
+        SESSION_ID,
+        "SessionStart",
+    )
+    _transcript(projects, work, SESSION_ID)
+    assert _listed(work, env, "--here") == {label: SESSION_ID[:8]}
 
 
 def test_orca_terminal_title_keeps_claude_recognisable(tmp_path: Path) -> None:

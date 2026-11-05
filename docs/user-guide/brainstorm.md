@@ -49,7 +49,7 @@ A topic string. File references via `@<path>` are supported. Empty topic STOPs t
 | `--codebase` / `--no-codebase` | auto | Force or skip codebase enrichment. Auto-detects for `code`/`architecture`/`incident` domains. |
 | `--research` | auto | `light` (Tavily), `deep` (`tech-research` skill), `none`. |
 | `--personas` | auto | Override domain-aware persona selection with a literal comma list. |
-| `--models` | `opus,sonnet,haiku` | Model aliases rotated across proposals (`ANTHROPIC_DEFAULT_*_MODEL` env vars override them; unset ones use Claude Code's built-in models). |
+| `--models` | `opus,sonnet,haiku` | Model aliases rotated across proposals (`ANTHROPIC_DEFAULT_*_MODEL` env vars override them; unset ones use Claude Code's built-in models). In a ccsession tier workspace the launcher sets each of those variables for a tier the owner may use, so the matching aliases `opus`, `sonnet` and `haiku` map to `claude-gw-tier1a`, `claude-gw-tier1b` and `claude-gw-tier2`, and an alias for a tier the owner may not use keeps its inherited value; see [model-aliases](../reference/model-aliases.md). |
 | `--blind` | `false` | Strip model identity before scoring (prevents model bias). |
 | `--convergence` | `0.75` | Adversarial convergence threshold for PASS routing. |
 | `--interactive` | `false` | Pause for user input at Socratic + adversarial decision points. |

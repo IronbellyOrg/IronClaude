@@ -1,0 +1,11 @@
+MOVED ./artifacts/t5-notes.md -> .dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T5/artifacts-2/t5-notes.md
+MOVED ./artifacts/t5-test.log -> .dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-051649/artifacts/retries/T5/artifacts-2/t5-test.log
+SWEEP refs/superclaude/implement/TASK-WF-makeTheAliasOnly-20261105-051649/retry/T5/sweep-2-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+RESTORED plugins/superclaude/skills/sc-implement-protocol/refs/ledger.md
+RESTORED plugins/superclaude/skills/sc-implement-protocol/refs/retry.md
+RESTORED src/superclaude/skills/sc-implement-protocol/refs/ledger.md
+RESTORED src/superclaude/skills/sc-implement-protocol/refs/retry.md
+RESTORED tests/skills/test_task_workspace_lifecycle.py
+RESTORED tests/skills/test_workflow_archive.py
+DONE

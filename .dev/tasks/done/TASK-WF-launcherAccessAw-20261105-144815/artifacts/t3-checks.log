@@ -1,0 +1,8 @@
+$ grep -n "Owners limited to some tiers" docs/reference/model-aliases.md
+grep-exit=1
+$ grep -n "each variable\|`tiers` command" docs/reference/model-aliases.md
+22:Owner decision of 2026-11-05: inside a ccsession tier workspace the launcher sets each variable only when the workspace owner may use its
+40:Status on 2026-11-05: the ccsession launcher (`src/superclaude/skills/ccsession-tag/ccsession`) exports each of these variables in tier m
+$ pytest tests/skills/test_model_alias_policy.py
+
+============================== 13 passed in 1.26s ==============================

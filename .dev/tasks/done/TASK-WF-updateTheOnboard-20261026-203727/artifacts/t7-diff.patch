@@ -1,0 +1,83 @@
+diff --git a/tmp/tmp.VfQYKYsGwI/before.html b/docs/onboarding/ironclaude-onboarding.html
+index 0d6755ac..1410d42f 100644
+--- a/tmp/tmp.VfQYKYsGwI/before.html
++++ b/docs/onboarding/ironclaude-onboarding.html
+@@ -178,7 +178,7 @@
+   <h2 id="s1-h">What IronClaude is</h2>
+   <p class="lead">IronClaude is a set of lessons learned about using AI well, wrapped into skills, so that long runs give reliable, repeatable output.</p>
+   <div class="term"><b>Skill:</b> a packaged set of instructions Claude loads for one kind of work, such as planning, debugging or review. You start most of them with a slash command, for example <code>/sc:workflow</code>.</div>
+-  <p>The routing guide, <code>HOW-WE-WORK.md</code>, tells you which skill or command to use for each kind of work, and in what order. <code>superclaude install</code> copies it to <code>~/.claude/HOW-WE-WORK.md</code>. Keep it open while you work: this deck explains the <em>why</em>, and the guide holds the exact commands and flags.</p>
++  <p>The routing guide, <code>HOW-WE-WORK.md</code>, tells you which skill or command to use for each kind of work, and in what order. <code>superclaude install</code> copies it to <code>~/.claude/HOW-WE-WORK.md</code>. Keep it open while you work: this deck explains the <em>why</em>, and the guide holds the exact commands and flags. The one exception is <code>--plugin</code> on slide 8, which comes from the <code>/sc:recommend</code> command file.</p>
+   <p class="story">As it was put in the onboarding meeting: think of the skills as the basic instructions an AI needs to give reliable, repeatable output over a long run.</p>
+   <p><strong>Where anything you hear or read differs from the guide, the guide is the authority.</strong></p>
+ </section>
+@@ -315,12 +315,12 @@
+   <p class="eyebrow"><b>05</b> · Choosing the process · HOW-WE-WORK section 1</p>
+   <h2 id="s5-h">Pick your level</h2>
+   <p>The six levels set how much process a change gets. Match the outcome you want first, and any command you named or plan that already exists. Most planned implementation uses level 3; level 4 is only for an explicit or exceptional need for its task-file machinery.</p>
+-  <p><strong>Hard limit:</strong> if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: normally level 3, not automatic level 4. The one exception is contained <code>/sc:cleanup</code> and <code>/sc:improve</code> work on a folder (guide 3.7): commit first and review <code>git diff</code> afterwards. Naming a command directly does not waive the written plan.</p>
++  <p><strong>Hard limit:</strong> if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: normally level 3, not automatic level 4. The one exception is contained <code>/sc:cleanup</code> and <code>/sc:improve</code> work on a folder (guide 3.7): commit first and review <code>git diff</code> afterwards. It does not cover structural migrations. Naming a command directly does not waive the written plan.</p>
+   <div class="term"><b>Spec:</b> a short written description of what changes, which files, and how you will know it works (guide 3.2).</div>
+   <figure class="diagram mid">
+     <svg viewBox="0 0 760 426" role="img" aria-labelledby="d3-t d3-d">
+       <title id="d3-t">Level ladder</title>
+-      <desc id="d3-d">Six levels from ask a question at the bottom to write a full specification at the top. The hard limit sits between level 2 and level 3: above it, work needs a written plan, normally level 3 and not automatically level 4, and naming a command directly does not waive it. The one exception is contained /sc:cleanup and /sc:improve work on a folder.</desc>
++      <desc id="d3-d">Six levels from ask a question at the bottom to write a full specification at the top. The hard limit sits between level 2 and level 3: above it, work needs a written plan, normally level 3 and not automatically level 4, and naming a command directly does not waive it. The one exception is contained /sc:cleanup and /sc:improve work on a folder, not structural migrations.</desc>
+       <rect class="d-box" x="20" y="18" width="720" height="48" rx="8"/>
+       <text class="d-tb" x="36" y="48">6 · Write a full specification</text><text class="d-tm" x="440" y="48">/prd → /tdd</text>
+       <rect class="d-box" x="20" y="74" width="720" height="48" rx="8"/>
+@@ -332,13 +332,13 @@
+       <path class="d-line-warn" d="M20,252 L740,252"/>
+       <text class="d-tw" x="36" y="274">Hard limit: more than 5 edits, or more than one source file (its test file does not count),</text>
+       <text class="d-tw" x="36" y="292">needs a written plan: normally level 3, not automatic level 4. Naming a command does not waive it.</text>
+-      <text class="d-tw" x="36" y="310">The one exception: contained /sc:cleanup and /sc:improve work on a folder</text>
++      <text class="d-tw" x="36" y="310">The one exception: contained /sc:cleanup and /sc:improve work on a folder, not structural migrations</text>
+       <rect class="d-box" x="20" y="322" width="720" height="44" rx="8"/>
+       <text class="d-tb" x="36" y="350">2 · Make a small, direct change</text><text class="d-tm" x="440" y="350">/sc:task, or a plain edit</text>
+       <rect class="d-box" x="20" y="374" width="720" height="44" rx="8"/>
+       <text class="d-tb" x="36" y="402">1 · Ask a question</text><text class="d-tm" x="440" y="402">ask, or /sc:explain</text>
+     </svg>
+-    <figcaption class="cap">The six levels. Above the hard limit (which does not apply to contained <code>/sc:cleanup</code> and <code>/sc:improve</code> work on a folder), a written plan is normally level 3, not automatically level 4.</figcaption>
++    <figcaption class="cap">The six levels. Above the hard limit (which does not apply to contained <code>/sc:cleanup</code> and <code>/sc:improve</code> work on a folder, other than structural migrations), a written plan is normally level 3, not automatically level 4.</figcaption>
+   </figure>
+   <p>Level 4 is for an explicit choice of the task-file (MDTM) format, an existing MDTM task, or an exceptionally complex, long-running phased program that needs its research, checklist and phase-reviewer machinery. File count, sessions, an existing spec, PRD or TDD (product and design documents), risk or drift alone never make work level 4. After the level 6 documents, ordinary planning is level 3 (<code>/sc:workflow</code>, then <code>/sc:implement</code> when you ask for execution); <code>/roadmap</code> only if you explicitly choose it or have the exceptional level 4 need (guide 3.1).</p>
+ </section>
+@@ -426,8 +426,9 @@
+       <path class="d-line" d="M662,118 L672,118" marker-end="url(#ah5)"/>
+       <path class="d-line" d="M828,118 L838,118" marker-end="url(#ah5)"/>
+       <path class="d-line" d="M994,118 L1004,118" marker-end="url(#ah5)"/>
+-      <text class="d-ts" x="10" y="200">Level 6, a new product or major feature others build against: /prd, then /tdd, then Plan and Implement as usual; /roadmap only if explicitly chosen or exceptionally justified (guide 3.1).</text>
+-      <text class="d-ts" x="10" y="224">Explicit or exceptional task-file (MDTM) work swaps Plan and Implement for /task-builder and /task (guide 3.1 step 7).</text>
++      <text class="d-ts" x="10" y="196">Level 6 (a new product, component or major feature others build against): /prd, then /tdd, then Plan and Implement as usual;</text>
++      <text class="d-ts" x="10" y="216">/roadmap only if explicitly chosen or exceptionally justified (guide 3.1).</text>
++      <text class="d-ts" x="10" y="238">Explicit or exceptional task-file (MDTM) work swaps Plan and Implement for /task-builder and /task (guide section 1, level 4; 3.2 step 5).</text>
+     </svg>
+     <figcaption class="cap">The guide's feature path (3.2, with brainstorm from 3.1 and the review steps from 3.11), with the two tracks from the onboarding split overlaid.</figcaption>
+   </figure>
+@@ -483,7 +484,7 @@
+   <figure class="diagram mid">
+     <svg viewBox="0 0 760 300" role="img" aria-labelledby="d6-t d6-d">
+       <title id="d6-t">PR review loop</title>
+-      <desc id="d6-d">At --monitor 3, the full loop and the command's current default, /sc:pr-submit opens the PR, waits for the review bot, checks each finding, fixes confirmed findings of Medium severity or higher and failing CI checks, pushes those fixes to your branch, and replies to and resolves the review comments it fixed; the bot then reviews again. The lower ceilings: --monitor 2 makes the fixes locally and stops before pushing; --monitor 1 only proposes fixes, without editing source; --monitor 0 only opens the PR. You choose exactly one.</desc>
++      <desc id="d6-d">At --monitor 3, the full loop and the command's current default, /sc:pr-submit opens the PR, waits for the review bot (the Augment Code review app), checks each finding, fixes confirmed findings of Medium severity or higher and failing CI checks, pushes those fixes to your branch, and replies to and resolves the review comments it fixed; the bot then reviews again. The lower ceilings: --monitor 2 makes the fixes locally and stops before pushing; --monitor 1 only proposes fixes, without editing source; --monitor 0 only opens the PR. You choose exactly one.</desc>
+       <defs>
+         <marker id="ah6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head" d="M0,0 L10,5 L0,10 z"/></marker>
+         <marker id="aha6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-head-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+@@ -520,7 +521,7 @@
+     </svg>
+     <figcaption class="cap">The PR loop at <code>--monitor 3</code>, the full loop, and the three lower ceilings. You choose exactly one and pass it explicitly.</figcaption>
+   </figure>
+-  <p><strong>Choose exactly one monitor ceiling</strong> for the job and pass it explicitly (guide 3.11): <code>--monitor 0</code> only opens the PR (no review app, or unsure it is installed); <code>--monitor 1</code> proposes fixes without editing source; <code>--monitor 2</code> makes the fixes locally and stops before pushing; <code>--monitor 3</code>, the command's current default, runs the full loop you authorized: it fixes confirmed review findings of Medium severity or higher (lower ones are only reported) and failing CI checks (the automatic tests and checks GitHub runs on the PR), pushes those fixes, and replies to and resolves the threads it fixed. The push rule (guide section 4): after your lead's approved push, <code>--monitor 3</code> pushes its own review fixes without asking again. If your lead wants to see those fixes first, use <code>--monitor 2</code>. A stronger project rule can require monitor 3; if that conflicts with a lower ceiling you were asked for, the guide says to disclose the conflict and not run it.</p>
++  <p><strong>Choose exactly one monitor ceiling</strong> for the job and pass it explicitly (guide 3.11): <code>--monitor 0</code> only opens the PR (no Augment Code review app on the repository, or unsure it is installed); <code>--monitor 1</code> proposes fixes without editing source; <code>--monitor 2</code> makes the fixes locally and stops before pushing; <code>--monitor 3</code>, the command's current default, runs the full loop you authorized: it fixes confirmed review findings of Medium severity or higher (lower ones are only reported) and failing CI checks (GitHub's automatic checks on the PR), pushes those fixes, and replies to and resolves the threads it fixed. The push rule (guide section 4): after your lead's approved push, <code>--monitor 3</code> pushes its own review fixes without asking again. If your lead wants to see those fixes first, use <code>--monitor 2</code>. A stronger project rule can require monitor 3; if that conflicts with a lower ceiling you were asked for, the guide says to disclose the conflict and not run it.</p>
+ </section>
+ 
+ <section class="slide" id="s11" aria-labelledby="s11-h">
+@@ -610,7 +611,7 @@
+ 
+ <footer>
+   <p>Built from HOW-WE-WORK.md at commit adaa28d9.</p>
+-  <p>Source of truth for every command and flag: <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md">HOW-WE-WORK.md</a>.</p>
++  <p>Source of truth for every command and flag: <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/core/HOW-WE-WORK.md">HOW-WE-WORK.md</a>, except <code>--plugin</code>, which comes from the <a href="https://github.com/IronbellyOrg/IronClaude/blob/master/src/superclaude/commands/recommend.md"><code>/sc:recommend</code> command file</a>.</p>
+ </footer>
+ 
+ <script>

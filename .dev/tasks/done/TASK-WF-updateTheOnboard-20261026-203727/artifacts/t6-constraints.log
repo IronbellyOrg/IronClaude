@@ -1,0 +1,20 @@
+# constraints check, 2026-10-26T21:49:19Z
+baseline HEAD=adaa28d91f63a722e344a6372154e10344ffd96e
+current  HEAD=adaa28d91f63a722e344a6372154e10344ffd96e
+RESULT no commit made: OK
+--- git status --porcelain
+ M CHANGELOG.md
+?? .dev/reflect/post-implementFrOnb2T-20261026174049/
+?? .dev/reflect/pre-implementFrOnb1O-20261023180800/
+?? .dev/reflect/pre-implementFrOnb2T-20261023192341/
+?? .dev/reflect/pre-updateTheOnboard-20261026203936/
+?? .dev/tasks/done/TASK-WF-implementFrOnb1O-20261023-180618/
+?? .dev/tasks/done/TASK-WF-implementFrOnb2T-20261023-192153/
+?? .dev/tasks/to-do/TASK-WF-updateTheOnboard-20261026-203727/
+?? docs/onboarding/
+?? tests/docs/test_onboarding_deck.py
+--- routing-surface paths in status (HOW-WE-WORK.md, core/CLAUDE.md, sc-recommend, cli/recommend/prompts.py, plugins/, routing tests):
+none: OK
+--- origin/master=adaa28d91f63a722e344a6372154e10344ffd96e
+--- git diff --stat adaa28d9 origin/master -- src/superclaude/core/HOW-WE-WORK.md:
+empty: guide equals origin/master: OK

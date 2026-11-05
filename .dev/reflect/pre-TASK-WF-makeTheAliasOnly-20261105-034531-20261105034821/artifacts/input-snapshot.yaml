@@ -1,0 +1,13 @@
+input_tree_sha256: c215e489bcaf743c5b66f37f145a7e22c8d239de14039d65a085d67fe0f9517a
+file_list:
+  - path: .dev/issues/384/accuracy-check.md
+    sha256: 56cdddb637afd19a7d7bcc212e507c18de6303a6bb9dde569b59f601f9a1dff7
+  - path: .dev/issues/384/analysis/analyze-superclaude.md
+    sha256: a4f2773a76608d400adb6b296e8d678788111bf7944bf9a16eda70af8f56d873
+  - path: .dev/issues/384/issue-summary.md
+    sha256: f823242733413beb76ff4b511ed534a76f7e910ed57c7a9ae59b4c1dffd29005
+  - path: .dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/TASK-WF-makeTheAliasOnly-20261105-034531.md
+    sha256: 636e8b436c06caa3f2b381110edfb6a82c7768bbbad0aa8fe64a550bb73e2644
+  - path: .dev/tasks/to-do/TASK-WF-makeTheAliasOnly-20261105-034531/source.md
+    sha256: 214ad03b1d82f9e248d1833fc6652492ae15bd6f99e0db661b556f5428fce460
+file_count: 5

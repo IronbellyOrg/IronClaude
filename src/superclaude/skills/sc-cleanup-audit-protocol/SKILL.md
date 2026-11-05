@@ -65,13 +65,13 @@ argument-hint: "[target-path] [--pass surface|structural|cross-cutting|all] [--b
    the form `EXCLUDE: <regex>` are added to the exclusion set. The default
    exclusions cannot be removed — they are a floor, not a ceiling.
 2. **Configure**: Parse `$ARGUMENTS` for pass selection and focus area. Load pass-specific rules from `rules/` supporting files. Create TodoWrite tasks for each batch. Initialize output directory at `.claude-audit/`.
-3. **Orchestrate**: Spawn parallel subagents via Task tool in waves of 7-8 concurrent agents. Pass 1 uses `audit-scanner` (Haiku), Pass 2 uses `audit-analyzer` (Sonnet), Pass 3 uses `audit-comparator` (Sonnet). Each agent writes batch reports incrementally to disk. Track progress via TodoWrite.
+3. **Orchestrate**: Spawn parallel subagents via Task tool in waves of 7-8 concurrent agents. Pass 1 uses `audit-scanner` (Sonnet), Pass 2 uses `audit-analyzer` (Sonnet), Pass 3 uses `audit-comparator` (Sonnet). Each agent writes batch reports incrementally to disk. Track progress via TodoWrite.
 4. **Validate**: Spawn `audit-validator` for 10% spot-check sampling (5 findings per 50 files). Verify grep claims match actual results. Enforce quality gates: all batch reports must have required sections and mandatory per-file profiles. Failed reports trigger regeneration.
 5. **Report**: Spawn `audit-consolidator` to merge batch reports into pass summaries. For `--pass all`, produce final report with executive summary, prioritized action items, cross-cutting findings, and discovered issues registry. Apply ultrathink synthesis for cross-pass pattern extraction. The final report of `--pass all` is `.claude-audit/final-report.md`.
 
 Key behaviors:
 
-- **Haiku-first cost optimization**: Pass 1 uses Haiku agents for 50-70% cost reduction; Sonnet reserved for deep analysis in Passes 2-3
+- **Surface-first escalation**: Pass 1 is a fast, read-only surface scan of every file; the deeper structural and comparison analysis of Passes 2-3 runs only on the flagged subset
 - **Evidence-gated classification**: Every DELETE requires grep proof; every KEEP requires reference citation; every CONSOLIDATE requires overlap quantification
 - **Incremental checkpointing**: Agents save after every 5-10 files; progress.json enables resume-from-checkpoint on session interruption
 - **Conservative escalation**: When uncertain, agents classify as REVIEW/FLAG rather than DELETE — false negatives are cheaper than false positives
@@ -92,11 +92,11 @@ Key behaviors:
 - **Bash(git/wc/find/du)**: Controlled shell access for orchestrator only — `git ls-files` for inventory, `wc` for counting, `find` for scope calculation, `du` for size metrics
 - **Write**: Report generation restricted to `.claude-audit/` output directory — batch reports, pass summaries, final report, progress tracking files. Except under `--unattended`: `<report-dir>/return-contract.yaml` is also written (see the Unattended mode section of the command file).
 - **TodoWrite**: Progress tracking with per-batch tasks — create tasks during Configure, update during Orchestrate, verify completion during Validate
-- **Task**: Subagent delegation with 5 specialized agent types — audit-scanner (Haiku, Pass 1), audit-analyzer (Sonnet, Pass 2), audit-comparator (Sonnet, Pass 3), audit-consolidator (Sonnet, reports), audit-validator (Sonnet, spot-check)
+- **Task**: Subagent delegation with 5 specialized agent types — audit-scanner (Sonnet, Pass 1), audit-analyzer (Sonnet, Pass 2), audit-comparator (Sonnet, Pass 3), audit-consolidator (Sonnet, reports), audit-validator (Sonnet, spot-check)
 
 ## Key Patterns
 
-- **Haiku-First Escalation**: All files → Haiku surface scan → flagged subset → Sonnet deep analysis
+- **Surface-First Escalation**: All files → surface scan → flagged subset → deep analysis
 - **Evidence-Gated Classification**: File content → grep references + import check → evidence-backed recommendation
 - **Incremental Checkpoint**: Batch complete → write to disk → update progress.json → resume-safe state
 - **Fan-Out/Fan-In Orchestration**: File inventory → parallel agent waves (7-8) → disk-based results → consolidated report
@@ -111,7 +111,7 @@ Key behaviors:
 /sc:cleanup-audit
 ```
 
-Runs Pass 1 surface scan on the entire repository. Uses Haiku agents to classify every file as DELETE/REVIEW/KEEP. Produces per-batch reports and a consolidated summary at `.claude-audit/pass1-summary.md`.
+Runs Pass 1 surface scan on the entire repository. Uses Sonnet agents to classify every file as DELETE/REVIEW/KEEP. Produces per-batch reports and a consolidated summary at `.claude-audit/pass1-summary.md`.
 
 ### Structural Audit of Source Directory
 
