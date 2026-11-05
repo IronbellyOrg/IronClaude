@@ -212,6 +212,18 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 
 `--yes` was removed from `/sc:pr-submit` in 5.0.0 (it was accepted but never read).
 
+### Issue Command Flags (`/sc:issue`)
+
+| Flag | Purpose | Values |
+|------|---------|--------|
+| `--claim` | Claim an existing issue on the origin repo | Issue number (`302`, `#302`) or issue URL |
+| `--create` | File a new issue | Text, or `@path` to a file holding the description |
+| `--depth` | How hard create mode checks your flags and fills the body (create only) | `quick` (default), `standard`, `deep` |
+| `--mode` | Feature or bug template and label (create only) | `feature`, `bug`; chosen by a worker when omitted |
+| `--type` | Area of the change, mapped to a `type: <value>` label (create only) | `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install`, `other`; chosen by a worker when omitted |
+
+Pass exactly one of `--claim` and `--create`. There is no repository flag: the repository is always `origin`.
+
 ## Advanced Control Flags
 
 Like the flags at the top of this page, the flags under Scope and Focus and Execution Control are hints Claude may honour, not options every command accepts. No installed file defines them since 5.0.0 (`FLAGS.md` is no longer shipped and an old copy in `~/.claude/` is not loaded), so Claude knows them only if you explain them. Check a command's own entry in the [Commands Reference](commands.md) before passing one. The System Flags further down are different: System Flags are options of the `superclaude` command (run in a terminal), not slash-command flags; the table names the command or subcommand for each.
