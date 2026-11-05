@@ -1,0 +1,2 @@
+$ grep '^>' ./artifacts/guide-diff.txt | LC_ALL=C grep -P '\xE2\x80[\x93\x94]'
+rc=1 (1 with no output = no em or en dash)

@@ -1,0 +1,13 @@
+# Ready-with-brief-constraints table membership, in section 5 of src/superclaude/core/WORKER-CONTRACT.md
+$ grep -n '^## ' src/superclaude/core/WORKER-CONTRACT.md
+9:## 1. Terms
+26:## 2. Command-side rules
+47:## 3. Worker-session duties
+63:## 4. Coordinator rules
+165:## 5. Coordinator brief template
+$ grep -n 'ready with brief constraints' src/superclaude/core/WORKER-CONTRACT.md
+187:Flags the brief must pass, for the 12 commands that are ready with brief constraints. `--report-dir` is marked "from P1": no command accepts it at P0.
+$ grep -nE '^\| `/sc:(adversarial|cleanup-audit)`' src/superclaude/core/WORKER-CONTRACT.md
+191:| `/sc:adversarial` | `--output <dir>`; never `--interactive` |
+193:| `/sc:cleanup-audit` | `--pass <N>` (single pass); `--report-dir <dir>` (from P1) |
+Result: both rows sit at lines 191 and 193, after '## 5. Coordinator brief template' (line 165), inside the table introduced at line 187.

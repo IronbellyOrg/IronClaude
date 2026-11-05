@@ -1,0 +1,3 @@
+6043f58f8df35b5b271c051146e687665fce7fc6
+A1 r1-1 F1.1 note docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:1005 ac=scope n,n,n,n forward reference: "as this guide's template convention (Appendix B)" points at the Appendix B `## Unattended mode` slot that Task 8 adds.
+A1 r1-1 F1.2 minor docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:982 ac=scope n,n,n,n "Any other command gets `--unattended` only after each of its gates has an unattended resolution (WC-2)" restates the rollout rule (spec line 221) without a "per the rollout plan" label; it follows from WC-2 and line 974 carries the label.

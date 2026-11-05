@@ -1,0 +1,12 @@
+<!-- ledger-grammar-block: record forms -->
+```
+T<id>: retry n=<3|4|5> step=open checkpoint=<40-hex tree> tier=<ladder entry name|unknown>
+T<id>: retry n=<3|4|5> step=revert brief=<brief path> supersedes=<T<id>_brief-<n-1>.md|none>
+T<id>: retry n=<3|4|5> step=review
+T<id>: halt review=<2|3|4|5> reason=<reason>
+```
+<!-- ledger-grammar-block: regexes -->
+```
+^T([0-9A-Za-z.-]+): retry n=([345]) (?:step=open checkpoint=([0-9a-f]{40}) tier=([A-Za-z0-9_]+)|step=revert brief=(\S+) supersedes=(T[0-9A-Za-z.-]+_brief-[34]\.md|none)|step=review)$
+^T([0-9A-Za-z.-]+): halt review=([2-5]) reason=([a-z][a-z-]*)$
+```

@@ -1,0 +1,10 @@
+step 6 lines matching: 1
+step 6 starts at: 62; first 20 chars: [6. `pass` → run th]
+every `issues` item of the FINAL concerns a saved prompt => 1
+idempotent => 1
+except the recovery's own re-review of a saved-prompt task => 1
+`issues` → STOP `E-ARCHIVE-BLOCKED` => 1
+--- superseded-prompts/ by section:
+37: [## Ledger, artifacts, pins] - A defective saved prompt moved by the saved-prompt recovery (`refs/qa.md`, "De
+88: [## Enforcement map] | saved reviewer prompt (`<retries>/T<id>/prompt-<k>-<j>.md`) matches the review
+enforcement row has 'blank-line and trailing-whitespace differences are a note': 1

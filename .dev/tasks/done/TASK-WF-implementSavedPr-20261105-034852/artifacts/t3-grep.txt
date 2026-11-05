@@ -1,0 +1,7 @@
+heading lines: 1
+no new `start` line => 1
+same verdict fields => 1
+replaces the `notes@` token => 1
+legal only after a `FINAL:` line => 1
+--- superseded-prompts/ in the Managed-package extension:
+241: [## Managed-package extension (`refs/managed-workspace.md`)] - The re-review `complete` lines of the saved-prompt recovery ("Re-review complete line" a

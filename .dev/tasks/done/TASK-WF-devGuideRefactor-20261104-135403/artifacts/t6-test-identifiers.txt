@@ -1,0 +1,25 @@
+# T6 test identifiers in tests/skills/test_worker_contract.py
+$ grep -n 'AUDIT_ROOTS' tests/skills/test_worker_contract.py (first 3)
+346:AUDIT_ROOTS = (
+386:    for root in map(Path, _THIS.AUDIT_ROOTS):
+565:    monkeypatch.setattr(_THIS, "AUDIT_ROOTS", (tmp_path / "skills",))
+$ grep -n 'WRITE_VERB_RE' tests/skills/test_worker_contract.py (first 3)
+354:WRITE_VERB_RE = re.compile(
+395:                found = WRITE_VERB_RE.findall(line)
+546:    assert not WRITE_VERB_RE.search("git merge-base master HEAD")
+$ grep -n 'WRITE_VERB_CLASSIFICATION' tests/skills/test_worker_contract.py (first 3)
+410:        - set(WRITE_VERB_CLASSIFICATION)
+418:WRITE_VERB_CLASSIFICATION = {
+527:    stale = sorted(set(WRITE_VERB_CLASSIFICATION) - live)
+$ grep -n 'UNATTENDED_COMMANDS' tests/skills/test_worker_contract.py (first 3)
+203:UNATTENDED_COMMANDS: frozenset = frozenset()
+250:    assert set(have) == set(UNATTENDED_COMMANDS), f"unexpected `## Unattended mode` sections: {have}"
+$ grep -n 'test_classification_table_has_no_stale_entries' tests/skills/test_worker_contract.py (first 3)
+525:def test_classification_table_has_no_stale_entries():
+$ grep -n 'test_no_command_has_unattended_mode_section_after_p0' tests/skills/test_worker_contract.py (first 3)
+269:def test_no_command_has_unattended_mode_section_after_p0():
+# WRITE_VERB_RE definition
+357-range: WRITE_VERB_RE = re.compile(
+357-range:     r"\b(?:git(?:\s+-C\s+\S+)?\s+(?:add|commit|push|merge|stash|update-ref|worktree\s+(?:add|remove))"
+357-range:     r"|gh\s+(?:pr|api))(?![\w-])"
+357-range: )

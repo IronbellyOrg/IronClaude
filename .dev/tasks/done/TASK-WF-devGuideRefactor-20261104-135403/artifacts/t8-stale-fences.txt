@@ -1,0 +1,10 @@
+# Nested-fence spots outside Appendix B (reported, not fixed; out of scope per the plan)
+# Source: ./artifacts/t8-fence-check.txt ("Inner fence closes outer fence" section), guide line numbers as of the end of Task 8.
+# In each spot a three-backtick outer template fence holds a three-backtick inner block; the inner block's bare closing fence closes the outer fence instead, and the template's own closing fence then opens a new, unlabelled fence that swallows the text after it.
+
+guide lines 136-156, then 177-216 (2.1 Quick Start, "Create a Minimal Command"): the command template's ```markdown fence (line 136) is closed at line 156 by the inner Usage block (opened line 154); the template's closing fence at line 177 then opens a fence that swallows the "### 2.2 Create a Minimal Agent" heading (line 179) and the agent template's headings until line 216.
+guide lines 1322-1344, then 1379-1425 (section 10, Example 1 command file): ```markdown fence (line 1322) closed at line 1344 by the inner block opened at line 1340; the fence from line 1379 swallows the agent file's headings (lines 1392-1417) until line 1425.
+guide lines 1435-1457, then 1501-1594 (section 10, Example 2 command file): ```markdown fence (line 1435) closed at line 1457 by the inner block opened at line 1453; the fence from line 1501 swallows the skill file's headings (lines 1521-1583) until line 1594.
+guide lines 1605-1639 (section 10, Example 2 after "## Will Not Do"): fence from line 1605 closed at line 1639 by the inner block opened at line 1633.
+guide lines 1674-1783 (section 10, Example 3 after "## Boundaries"): fence from line 1674 closed at line 1783 by the inner block opened at line 1678.
+guide lines 1862-1883 and 1884-1949 (section 10, Example 3 advocate prompt, "Response to Opposing Arguments"): fence from line 1862 closed at line 1883 by the inner block opened at line 1868; a new fence from line 1884 is closed at line 1949 by the inner block opened at line 1888.

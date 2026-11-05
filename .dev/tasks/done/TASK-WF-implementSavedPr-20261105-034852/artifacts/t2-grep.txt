@@ -1,0 +1,20 @@
+heading lines: 1
+next unused `j` of the same `k` => 1
+skips the re-review when a later saved prompt => 1
+untracked files => 1
+deleted again when the `complete` line is appended => 1
+appends the task's `complete` line again => 1
+replaces the `notes@` token => 1
+moved unchanged => 1
+ordinary file move => 1
+needs no separate user approval => 1
+In a legacy run => 1
+appends no `blocked` line => 1
+--- FINAL derived test and archive gate:
+296: [## FINAL derived test] - History: a blocking line of a `review-*.md` that a later status line
+298: [## FINAL derived test] - Superseded prompts: FINAL returns `issues` (managed) or records it i
+311: [## Managed FINAL review (archive gate)] Same isolation as above: `Do not trust the implementer's report.` One 
+373: [## Subagent prompt (when not inline)] - Re-review. Re-run that task's review with a template-exact prompt sa
+378: [## Subagent prompt (when not inline)] - Move. The defective prompt is then moved unchanged, never edited or 
+README.md bullet: 1
+when they differ: 0

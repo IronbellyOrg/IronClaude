@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-refactorDocsDeve-20261104-062532
+plan_path: ./TASK-WF-refactorDocsDeve-20261104-062532.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-refactorDocsDeve-20261104-062532-20261104062951/REPORT.md
+unresolved:
+  - "Advisory reflect verdict FAIL: 2 blocking findings (M-01 WC-4 status-field rule stated too broadly in Tasks 1, 7, 8; M-02 Task 4 bullet says the worker session asks the person) and 6 should-fix findings; the plan was not edited from them."

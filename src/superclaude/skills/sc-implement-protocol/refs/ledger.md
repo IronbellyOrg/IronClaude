@@ -81,6 +81,10 @@ T<id>: complete verdict=<unchanged-non-compliant-verdict> ac=... evidence=... ex
 
 Legal **only** when a matching `T<id>: Ruling:` line exists above it, after the latest blocked record. Preserve all verdict fields, not only the verdict label. A later blocked record or new start invalidates prior acceptance. A changed accepted finding/outcome requires new user confirmation; do not reuse the old Ruling. Legacy records with a Ruling before the first verdict remain readable; that first complete verdict binds its scope.
 
+## Re-review complete line
+
+After a FINAL flags a saved prompt (`refs/qa.md`, "Defective saved prompt (recovery)"), a re-review with no blocking finding appends the task's `complete` line again with the same verdict fields as its latest `complete` line and no new `start` line. It uses the verdict grammar above by reference, the latest record of the task counts, and it is legal only after a `FINAL:` line. For a compliant task whose re-review wrote new notes lines, the line replaces the `notes@` token. For a task completed after a user-accepted gap (see "Post-ruling complete line"), the line is byte-identical to its latest `complete` line, notes token included, so the accepted gap stays valid; a re-review finding whose unmet check is that accepted gap is not a confirmed blocker (`refs/qa.md`).
+
 ## Retry and halt records
 
 Two kinds for the escalating retry ladder (`refs/retry.md`): one `retry` kind with three steps, and `halt`. They are part of this main grammar, legacy and managed alike.
@@ -234,6 +238,7 @@ Managed ledgers (`<package>/progress.md`) reuse every record above unchanged and
 - A managed `FINAL:` carries the helper's `state=` digest and must be the last record before the helper's own `ARCHIVE: start id=<id> token=<hex>` line. Any later `PLAN`/`T`/`ARCHIVE` record makes it stale: run a new FINAL on every archive attempt. `ARCHIVE: failed id=<id> token=<hex> reason=<code>` records a refused attempt.
 - Legacy `ARCHIVE: Ruling: <what naming T-ids> — <why> — <cost-if-wrong>` records remain readable but are optional. A matching task Ruling is sufficient for ordinary archiving of unchanged accepted work; never demand duplicate approval. Neither form waives FINAL or authorizes commit, PR, merge or release.
 - Resume dispatch for managed packages: location check → pin check → first non-complete task → the per-task resume table (Resume) → all complete = active all-complete → archive gate. "Already complete" is reported only after the helper answers `already-archived`.
+- The re-review `complete` lines of the saved-prompt recovery ("Re-review complete line" above) and the later move of a defective saved prompt to `superseded-prompts/` (`refs/qa.md`, "Defective saved prompt (recovery)") come before the fresh FINAL of the next archive attempt.
 
 ```
 # implement ledger — source: ./TASK-WF-authLogin-20261001-063000.md — created: 2026-10-01T06:30:00Z

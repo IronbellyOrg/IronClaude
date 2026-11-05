@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-implementSavedPr-20261105-034852
+plan_path: ./TASK-WF-implementSavedPr-20261105-034852.md
+source_path: ./source.md
+source_origin: .dev/orca-command-refactor/review/implement-saved-prompt-gaps-request.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-implementSavedPr-20261105-034852-20261105035020/REPORT.md
+unresolved:
+  - "Advisory reflect verdict FAIL on one finding: 1 blocking (M-01: a re-review of a task completed after a user-accepted gap re-finds that gap, appends blocked and voids the acceptance; reviewers graded it should-fix, both blind calibrators blocking), 3 should-fix (M-02 notes token versus the archive helper; M-03 skip clause versus the final-review rule; M-04 next j after a move) and 8 minor. Reviewer 2 (haiku) stalled and was stopped, so the review has two reviewers. The plan was not edited from the findings; the executor carries execution instructions EI-1 to EI-8 from the report, keeping every acceptance-criterion phrase in place. The request (source) has the same M-01 flaw."

@@ -1,0 +1,4 @@
+$ git show 51b1cdadf233041e33dabff1e2ca0dd7c955a03e:docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md | cmp - ./artifacts/guide-before.md
+rc=0
+$ cmp .dev/tasks/done/TASK-WF-devGuideRefactor-20261104-135403/artifacts/t8-fence-check.py ./artifacts/fence-check.py
+rc=0

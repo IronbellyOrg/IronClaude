@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-devGuideRefactor-20261104-135403
+plan_path: ./TASK-WF-devGuideRefactor-20261104-135403.md
+source_path: ./source.md
+source_origin: .dev/orca-command-refactor/review/dev-guide-refactor-request-r3.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs/.dev/reflect/pre-TASK-WF-devGuideRefactor-20261104-135403-20261104135828/REPORT.md
+unresolved:
+  - "Advisory reflect verdict PASS: 0 blocking, 6 should-fix (M3-01 'competes with the coordinator' credited to SA-2; M3-02 prescribed 'person-mode'/'person-blocking' phrases trip the ask check; M3-03 appending to guide line 118 trips the ask check; M3-04 'before any work' missing from Appendix B and glossary report-dir text; M3-05 touchpoints missing a rule ID or 'section 7.6'; M3-06 skill inheritance not labelled as the guide's convention) and 10 minor; reflect status partial because the evidence gate dropped 1 of 86 citations. The plan was not edited from them."
