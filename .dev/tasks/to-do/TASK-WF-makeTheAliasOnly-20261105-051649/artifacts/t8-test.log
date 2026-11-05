@@ -1,0 +1,9 @@
+tests/sprint/test_aienv.py::test_unset_failed_builtin_skips_a_slot_pinned_to_its_family PASSED [ 41%]
+tests/sprint/test_aienv.py::test_tier_ids_in_the_anthropic_slots_are_returned_unchanged PASSED [ 44%]
+tests/sprint/test_aienv.py::test_alias_failure_with_tier_ids_in_the_slots_suggests_sonnet PASSED [ 48%]
+tests/sprint/test_aienv.py::test_real_model_id_with_tier_ids_in_the_slots_returns_none PASSED [ 51%]
+tests/swarm/test_coder_tier_env_2026_10.py::test_alias_count_survives_removal_of_the_anthropic_default_vars PASSED [ 93%]
+tests/swarm/test_coder_tier_env_2026_10.py::test_alias_count_with_tier_ids_in_the_anthropic_slots_is_three PASSED [ 96%]
+============================== 29 passed in 0.40s ==============================
+All checks passed!
+2 files already formatted

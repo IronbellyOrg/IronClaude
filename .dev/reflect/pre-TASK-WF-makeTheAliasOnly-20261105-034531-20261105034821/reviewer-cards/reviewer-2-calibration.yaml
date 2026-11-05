@@ -1,0 +1,14 @@
+# Blind calibration of reviewer-2-card (confidence-calibrator on claude-opus-5-5; calibrator_diversity: degraded)
+card: reviewer-2-card.md
+dimension_scores:
+  citation_grounding: 0.95
+  coverage_completeness: 0.88
+  deviation_classification_clarity: 0.85
+  risk_surface_coverage: 0.88
+  recommendation_actionability: 0.85
+calibrated_confidence: 0.88
+self_reported_confidence: 0.86
+spot_checks: {read: 18, matched: 18}
+blocking_findings_confirmed:
+  R2-1: "confirmed character by character: plan line 62 mandates 'default models opus,sonnet,haiku' which contains the substring 'models opus,sonnet' that the plan line 65 grep must not find; executor cannot satisfy both"
+notes: "reflect rubric used; troubleshoot cross-tab, gated-minimum and C-rules ignored; docstring claims in R2-3 unchecked"

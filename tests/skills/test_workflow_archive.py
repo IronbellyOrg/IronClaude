@@ -771,10 +771,10 @@ def test_directory_traversal_error_cannot_produce_final_state(p, monkeypatch):
 # --- retry / halt ledger records -------------------------------------------------
 CK = "a" * 40
 RUNGS = [
-    "T3_Model01",
-    "T2_Model02",
-    "T1_Model02",
-    "T1_Model01",
+    "T3Model01",
+    "T2Model02",
+    "T1Model02",
+    "T1Model01",
     "haiku",
     "sonnet",
     "opus",
@@ -783,7 +783,7 @@ BRIEF3 = "./artifacts/retries/T1_brief-3.md"
 
 
 def _rt(n=3, **kw):
-    f = {"checkpoint": CK, "tier": "T2_Model02", "brief": BRIEF3, "supersedes": "none"}
+    f = {"checkpoint": CK, "tier": "T2Model02", "brief": BRIEF3, "supersedes": "none"}
     f.update(kw)
     return {
         "open": f"T1: retry n={n} step=open checkpoint={f['checkpoint']} tier={f['tier']}",

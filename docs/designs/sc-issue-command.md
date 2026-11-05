@@ -234,7 +234,7 @@ These are the default rows `refs/chains.md` carries and passes to `/sc:recommend
 Notes:
 - `--depth quick` with `--fix` is a STOP in `/sc:troubleshoot`, so the simple bug row has no `--fix` and hands the report to `/sc:implement` (issue body: "Hand the output directly off ... /sc:implement").
 - `/sc:troubleshoot --depth deep` STOPs on a description under 10 words without `--scope`; the rows always pass `--scope`.
-- `/sc:brainstorm --models` defaults to `opus,sonnet,haiku`, rotated across proposals, and takes aliases only. Every brainstorm row passes `--models opus,sonnet` so no proposal runs on the `haiku` alias, which on this workspace resolves to `glm-5.3` (section 6), below T2 (B14). Aliases cannot name a picker ID, so this is the closest the chain can get to B14 inside a brainstorm; the session tier itself is pinned by the `/model` line (default D25).
+- `/sc:brainstorm --models` defaults to `opus,sonnet,haiku`, rotated across proposals, and takes aliases only. Every brainstorm row passes `--models opus,sonnet` so no proposal runs on the `haiku` alias, which on this workspace resolves to `glm-5.3` (section 6), below T2 (B14). Aliases cannot name a picker ID, so this is the closest the chain can get to B14 inside a brainstorm; the session tier itself is pinned by the `/model` line (default D25). Superseded by #384: the chains use the default models; see `docs/reference/model-aliases.md`.
 - `/sc:design --type` is chosen per issue by `/sc:recommend` from the four values the command accepts.
 
 ## 10. Output files and templates
@@ -439,7 +439,7 @@ Each is a **design default**: a choice made where the issue and comments are sil
 | D22 | `issue-summary.md` is written on every claim; `/sc:analyze` runs only when the issue is out of date | The issue sizes and summarizes every claim; the analysis is the expensive part |
 | D23 | When `/sc:recommend` differs from the default chain, `next-steps.md` follows `/sc:recommend` and names the unused default row | B4 makes `/sc:recommend` the authority |
 | D24 | `/sc:issue` never stages or commits `.dev/issues/` | Not asked; CLAUDE.md's always-staged rule covers `.dev/tasks/` only |
-| D25 | Every brainstorm step in `next-steps.md` passes `--models opus,sonnet` | Removes the `haiku` alias (here `glm-5.3`) from proposals, keeping brainstorm work at T1/T2 class as far as aliases allow (B14) |
+| D25 | Every brainstorm step in `next-steps.md` passes `--models opus,sonnet` | Removes the `haiku` alias (here `glm-5.3`) from proposals, keeping brainstorm work at T1/T2 class as far as aliases allow (B14). Superseded by #384: the chains use the default models; see `docs/reference/model-aliases.md` |
 | D26 | The command file and `SKILL.md` each state in one line that, for issues filed through `/sc:issue --create`, its four templates replace the `ISSUE-HANDOFF.md` / `ISSUE-BACKLOG.md` instruction of rule 10 in the distributed `CLAUDE.md`; rule 10 itself is not edited | Without that line an agent sees two conflicting instructions; editing rule 10 would break `test_claude_md_has_exactly_one_issue_rule_line` and change behaviour outside `/sc:issue` |
 | D27 | Worker read-only behaviour on GitHub and code is enforced by the agent text and by giving workers no `Edit` tool; `Bash` is not narrowed further | Workers need `gh` and `git` reads and `/sc:analyze` tool runs; the orchestrator holds every write command. A static test checks the agent files carry no `Edit` and state the rule |
 
