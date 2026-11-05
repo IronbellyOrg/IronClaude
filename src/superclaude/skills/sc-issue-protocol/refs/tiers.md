@@ -23,7 +23,7 @@ Verified against the Claude Code subagent docs (`https://code.claude.com/docs/en
 1. Claude Code resolves a subagent's model in this order: the Agent call's `model` parameter, then the agent file's `model:` frontmatter, then `CLAUDE_CODE_SUBAGENT_MODEL`, then the main session's model.
 2. The Agent call's `model` parameter accepts only the aliases `sonnet`, `opus`, `haiku`, `fable`. It cannot carry a picker ID, and if passed it overrides the frontmatter.
 3. Frontmatter `model:` accepts an alias, a full model ID (the same values as the `--model` flag) or `inherit`.
-4. The `haiku` alias follows `ANTHROPIC_DEFAULT_HAIKU_MODEL`. Inside a ccsession tier workspace it resolves to `claude-gw-tier2` once the launcher sets that variable (`docs/reference/model-aliases.md`); until then it follows the value in the workspace defaults file. Either way, "spawn with haiku" does not guarantee the T3 tier.
+4. The `haiku` alias follows `ANTHROPIC_DEFAULT_HAIKU_MODEL`. Inside a ccsession tier workspace the launcher sets that variable to `claude-gw-tier2` when the owner may use tier2 (`docs/reference/model-aliases.md`); otherwise, and outside a tier workspace, it follows the inherited `ANTHROPIC_DEFAULT_HAIKU_MODEL`. Either way, "spawn with haiku" does not guarantee the T3 tier.
 
 So each tier has its own agent file whose `model:` is the picker ID, and the spawn passes only `subagent_type`.
 

@@ -1,0 +1,22 @@
+$ grep -rn "launcher sets" src docs tests (excluding docs/generated, docs/swarm, docs/testing)
+src/superclaude/cli/reflect/commands.py:32:# resolves it, and inside a ccsession tier workspace the launcher sets
+src/superclaude/skills/sc-issue-protocol/refs/tiers.md:26:4. The `haiku` alias follows `ANTHROPIC_DEFAULT_HAIKU_MODEL`. Inside a ccsession tier workspace the launcher sets that variable to `claude-gw-tier2` whe
+src/superclaude/skills/sc-issue-protocol/refs/chains.md:21:- The brainstorm model list defaults to `opus,sonnet,haiku`, rotated across proposals, and takes aliases only; the brainstorm rows use these defaults. 
+docs/user-guide/commands.md:860:- Composes a `--agents` spec spanning 3 model aliases × domain-detected personas (in a ccsession tier workspace the launcher sets each `ANTHROPIC_DEFAULT_*_MODEL` for a tier the
+docs/user-guide/brainstorm.md:52:| `--models` | `opus,sonnet,haiku` | Model aliases rotated across proposals (`ANTHROPIC_DEFAULT_*_MODEL` env vars override them; unset ones use Claude Code's built-in models). I
+docs/reference/model-aliases.md:22:Owner decision of 2026-11-05: inside a ccsession tier workspace the launcher sets each variable only when the workspace owner may use its tier, so for an owner who may use all
+docs/reference/model-aliases.md:38:Outside a ccsession tier workspace the launcher sets none of the three variables, so `opus`, `sonnet` and `haiku` keep Claude Code's meaning.
+tests/skills/test_model_alias_policy.py:6:allow-lists below. In tier mode the launcher sets each ``ANTHROPIC_DEFAULT_*_MODEL``
+--- unconditional wording check (expect none): lines that say the launcher sets all three / the variables without the owner condition
+unconditional-grep-exit=1
+$ git diff -U0 $start -- src/superclaude/cli/reflect/commands.py (changed lines)
+--- a/src/superclaude/cli/reflect/commands.py
++++ b/src/superclaude/cli/reflect/commands.py
+-# ``ANTHROPIC_DEFAULT_OPUS_MODEL``, which maps it to a tier model
+-# (see docs/reference/model-aliases.md). ``ANTHROPIC_MODEL`` still takes
++# ``ANTHROPIC_DEFAULT_OPUS_MODEL`` when the owner may use that tier, which
++# maps it to a tier model (see docs/reference/model-aliases.md).
++# ``ANTHROPIC_MODEL`` still takes
+$ ruff
+All checks passed!
+2 files already formatted

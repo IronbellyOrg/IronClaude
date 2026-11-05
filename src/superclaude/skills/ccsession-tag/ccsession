@@ -865,6 +865,13 @@ if [ "$TIER_MODE" = 1 ]; then
     exit 2
   fi
   USE_SHIM=1
+  # Map an alias to its tier only for a tier this owner may use: the list the
+  # shim, --tier and --help use (models.py tiers). A tier not on the list, or a
+  # list that cannot be read, leaves the inherited variable alone.
+  _usable_tiers=$'\n'"$(python3 "$CCSESSION_MODELS" tiers 2>/dev/null | cut -d$'\x1f' -f1)"$'\n'
+  case "$_usable_tiers" in *$'\n'tier1a$'\n'*) export ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a ;; esac
+  case "$_usable_tiers" in *$'\n'tier1b$'\n'*) export ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b ;; esac
+  case "$_usable_tiers" in *$'\n'tier2$'\n'*) export ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-gw-tier2 ;; esac
 elif [ -n "$TIER_ARG" ]; then
   echo "ccsession: --tier needs tier settings (T<N>_WINDOW) from the workspace env; none found" >&2
   exit 2

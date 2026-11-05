@@ -29,9 +29,10 @@ import click
 # Tier-2 reviewer diversity comes from the ``ANTHROPIC_DEFAULT_*`` aliases, not
 # this value. (Flagged decision -- see Task Log.)
 # The default is the plain alias ``opus``, not a dated model id: Claude Code
-# resolves it, and inside a ccsession tier workspace it maps to a tier model once
-# the launcher sets ``ANTHROPIC_DEFAULT_OPUS_MODEL``
-# (see docs/reference/model-aliases.md). ``ANTHROPIC_MODEL`` still takes
+# resolves it, and inside a ccsession tier workspace the launcher sets
+# ``ANTHROPIC_DEFAULT_OPUS_MODEL`` when the owner may use that tier, which
+# maps it to a tier model (see docs/reference/model-aliases.md).
+# ``ANTHROPIC_MODEL`` still takes
 # precedence in the ``reflect run`` command when it is set.
 _DEFAULT_MODEL = "opus"
 

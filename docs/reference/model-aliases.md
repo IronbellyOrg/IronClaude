@@ -19,7 +19,7 @@ Checks in `tests/skills/test_model_alias_policy.py` that read model names includ
 
 ## The mapping
 
-Owner decision of 2026-11-05: once the launcher sets the three variables, inside a ccsession tier workspace the aliases resolve as follows:
+Owner decision of 2026-11-05: inside a ccsession tier workspace the launcher sets each variable only when the workspace owner may use its tier, so for an owner who may use all three tiers the aliases resolve as follows:
 
 | Alias | Tier model it resolves to | Set by |
 |---|---|---|
@@ -27,7 +27,7 @@ Owner decision of 2026-11-05: once the launcher sets the three variables, inside
 | `sonnet` | `claude-gw-tier1b` | `ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b` |
 | `haiku` | `claude-gw-tier2` | `ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-gw-tier2` |
 
-The exports are:
+When the owner may use the tier, the launcher exports:
 
 ```text
 ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a
@@ -35,10 +35,11 @@ ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b
 ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-gw-tier2
 ```
 
-Target, once the launcher change lands: outside a ccsession tier workspace the launcher sets none of the three variables, so `opus`, `sonnet` and `haiku` keep Claude Code's meaning.
+Outside a ccsession tier workspace the launcher sets none of the three variables, so `opus`, `sonnet` and `haiku` keep Claude Code's meaning.
 
-Status on 2026-11-05: the ccsession launcher is to apply these exports in a follow-up change after the #315 pull request merges.
-Until then `/etc/aidev02/aienv.d/defaults.sh` exports real model ids for the three variables: line 92 sets `ANTHROPIC_DEFAULT_HAIKU_MODEL` from `T2Model02` (`glm-5.3`, line 37), line 93 sets `ANTHROPIC_DEFAULT_OPUS_MODEL` from `T1aModel01` (`claude-opus-5-5`, line 23) and line 94 sets `ANTHROPIC_DEFAULT_SONNET_MODEL` from `T1aModel02` (`claude-sonnet-5-5`, line 25).
+Status on 2026-11-05: the ccsession launcher (`src/superclaude/skills/ccsession-tag/ccsession`) exports each of these variables in tier mode only, in the branch that sets `USE_SHIM=1`, and only when the tier is on the workspace owner's list of usable tiers. That list is the output of the `tiers` command of `src/superclaude/skills/ccsession-tag/models.py` (lines 923-935). The command applies `tier_access`, the rule the shim uses (`CCSESSION_ACCESS`, `CCSESSION_TIER_RULES` and the tier list), so the launcher reads the rule without running the shim and adds no second rule. A variable whose tier is not on the list is left exactly as inherited, and when the list cannot be read no variable is exported.
+So an owner limited to tier2 and tier3 gets only `ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-gw-tier2` and keeps the inherited opus and sonnet values, for example the real model ids from the workspace defaults file; a workspace whose model list has no tier1a and tier1b behaves the same. The list is read when the launcher starts, before that launch's model-data refresh, so a list changed by the refresh applies from the next launch. The five tests `test_tier_launch_exports_the_alias_variables`, `test_limited_owner_gets_only_the_haiku_alias_variable`, `test_limited_owner_keeps_inherited_alias_values`, `test_workspace_without_tier1a_and_tier1b_exports_only_its_tiers` and `test_non_tier_launch_leaves_the_alias_variables_unset` in `tests/unit/test_ccsession_tiers.py` pin these cases.
+`/etc/aidev02/aienv.d/defaults.sh` still exports real model ids for the same three variables; inside a tier workspace the launcher export replaces the ones for tiers the owner may use and the others stay, and outside one the inherited values stay. Line 92 sets `ANTHROPIC_DEFAULT_HAIKU_MODEL` from `T2Model02` (`glm-5.3`, line 37), line 93 sets `ANTHROPIC_DEFAULT_OPUS_MODEL` from `T1aModel01` (`claude-opus-5-5`, line 23) and line 94 sets `ANTHROPIC_DEFAULT_SONNET_MODEL` from `T1aModel02` (`claude-sonnet-5-5`, line 25).
 
 ## Why aliases and not picker ids
 
@@ -46,12 +47,13 @@ Source: <https://code.claude.com/docs/en/sub-agents>, read 2026-11-05.
 
 - The sub-agents page says the Agent-call `model` parameter takes the aliases `sonnet`, `opus`, `haiku` or `fable`, and that Claude cannot pass a full model id or `inherit` on that call.
 - The page says the frontmatter `model` takes an alias, a full model id or `inherit`; it documents no environment lookup in that field, so `model: ${SOMETHING}` is not a documented option.
-- The probe found that a tier id set in `ANTHROPIC_DEFAULT_OPUS_MODEL` or `ANTHROPIC_DEFAULT_HAIKU_MODEL` was served and that `model: opus` and `model: haiku` resolved through it; it did not set `ANTHROPIC_DEFAULT_SONNET_MODEL`.
-- The page also describes an edge case for family aliases: when the main session runs a model of the same family, the alias can resolve to that model. The probe did not cover a main session that runs in the same family as the alias.
+- The probes found that a tier id set in `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL` or `ANTHROPIC_DEFAULT_HAIKU_MODEL` was served, that `model: opus`, `model: sonnet` and `model: haiku` resolved through it, and that `--model sonnet` ran on the tier id as well.
+- The page also describes an edge case for family aliases: when the main session runs a model of the same family, the alias can resolve to that model. In the sonnet probe a `model: sonnet` subagent under a Sonnet main session ran on the main session's model, not on `claude-gw-tier1b`; that is one observation, and the rule behind it is not verified (the Claude Code source was not read). The same case was not probed for an Opus or a Haiku main session.
 
 On 2026-11-05 a probe against the workspace gateway ([probe record](../../.dev/issues/384/analysis/probe-alias-remap.md)) found that a subagent with `model: opus` ran on `claude-gw-tier1a` and one with `model: haiku` ran on `claude-gw-tier2`, while the main session kept its own model.
+A second probe ([sonnet probe record](../../.dev/issues/384/analysis/probe-sonnet-alias.md)) found the same for `ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b`: `--model sonnet` and a `model: sonnet` subagent under an Opus main session ran on `claude-gw-tier1b`.
 Claude Code logs an `unrecognized_model` notice for the tier ids and serves the request.
-The probe covered the frontmatter path and `--model`; it did not exercise the Agent-call parameter.
+The probes covered the frontmatter path and `--model`; they did not exercise the Agent-call parameter.
 
 ## Known consequences
 

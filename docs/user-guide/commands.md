@@ -857,7 +857,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 
 - Runs a depth-tiered Socratic dialogue → `seed-brief.md`
 - Auto-routes codebase + research enrichment (`/sc:analyze`, `/sc:research`, `tech-research`)
-- Composes a `--agents` spec spanning 3 model aliases × domain-detected personas (in a ccsession tier workspace `opus`, `sonnet` and `haiku` map to `claude-gw-tier1a`, `claude-gw-tier1b` and `claude-gw-tier2` once the launcher sets `ANTHROPIC_DEFAULT_*_MODEL`; see [model-aliases](../reference/model-aliases.md))
+- Composes a `--agents` spec spanning 3 model aliases × domain-detected personas (in a ccsession tier workspace the launcher sets each `ANTHROPIC_DEFAULT_*_MODEL` for a tier the owner may use, so the matching aliases `opus`, `sonnet` and `haiku` map to `claude-gw-tier1a`, `claude-gw-tier1b` and `claude-gw-tier2`; see [model-aliases](../reference/model-aliases.md))
 - Delegates to `/sc:adversarial` for N parallel proposals + debate + merge → `merged-requirements.md`
 - Optionally hands off to `/sc:design`, `/sc:tasklist`, or `/task-builder`
 
