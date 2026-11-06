@@ -1,0 +1,153 @@
+{
+  "synthetic": true,
+  "as_of": "2026-11-06T08:00:00Z",
+  "batch": 1,
+  "widths": [
+    160,
+    116,
+    80
+  ],
+  "concepts": [
+    {
+      "name": "Signal Bridge",
+      "question": "What needs attention while the fleet is running?",
+      "omits": "Detailed time history and workspace paths.",
+      "tradeoff": "Strong overview; narrow width becomes a selected session register.",
+      "data": "Current synthetic sessions, human questions and source ages.",
+      "missing": "Missing source evidence remains unknown, never healthy by default.",
+      "slug": "signal-bridge",
+      "exports": {
+        "160": "exports/160/signal-bridge",
+        "116": "exports/116/signal-bridge",
+        "80": "exports/80/signal-bridge"
+      }
+    },
+    {
+      "name": "Fleet Quilt",
+      "question": "How is observed work distributed across owners?",
+      "omits": "Per-session evidence packets and workspace paths.",
+      "tradeoff": "Membership cells make uneven ownership visible; narrow mode selects one strip.",
+      "data": "One literal cell per visible session, grouped by declared owner.",
+      "missing": "Unknown lifecycle has its own marker; hidden records are counted.",
+      "slug": "fleet-quilt",
+      "exports": {
+        "160": "exports/160/fleet-quilt",
+        "116": "exports/116/fleet-quilt",
+        "80": "exports/80/fleet-quilt"
+      }
+    },
+    {
+      "name": "Time Loom",
+      "question": "Where did observed time go?",
+      "omits": "Cost, resource use and admission evidence.",
+      "tradeoff": "Comparable lanes require a fixed window and fewer visible sessions.",
+      "data": "Twenty observed three-minute buckets, never inferred completion.",
+      "missing": "Missing buckets are gaps, not inactivity or failure.",
+      "slug": "time-loom",
+      "exports": {
+        "160": "exports/160/time-loom",
+        "116": "exports/116/time-loom",
+        "80": "exports/80/time-loom"
+      }
+    },
+    {
+      "name": "Worktree Atlas",
+      "question": "Which sessions occupy which workspaces?",
+      "omits": "Cross-owner dependencies and full session timelines.",
+      "tradeoff": "Workspace-first directory prioritizes shared and unmapped membership.",
+      "data": "Explicit session-worktree joins, paths, revisions and policy fields.",
+      "missing": "Unmapped sessions remain visible; absent dirty state is unknown.",
+      "slug": "worktree-atlas",
+      "exports": {
+        "160": "exports/160/worktree-atlas",
+        "116": "exports/116/worktree-atlas",
+        "80": "exports/80/worktree-atlas"
+      }
+    },
+    {
+      "name": "Decision Desk",
+      "question": "Which human question is waiting, and who is affected?",
+      "omits": "Unaffected session inventory and resource telemetry.",
+      "tradeoff": "Decision-first reading sacrifices fleet density.",
+      "data": "Observed requests with explicit owner, age, evidence scope and affected sessions.",
+      "missing": "No requests does not imply complete message coverage.",
+      "slug": "decision-desk",
+      "exports": {
+        "160": "exports/160/decision-desk",
+        "116": "exports/116/decision-desk",
+        "80": "exports/80/decision-desk"
+      }
+    },
+    {
+      "name": "Proof Gate",
+      "question": "Which evidence describes the current revision?",
+      "omits": "Full task inventory and elapsed-time tracks.",
+      "tradeoff": "Revision integrity over fleet density.",
+      "data": "Session revision, check revision, report, review, tests, result and admission.",
+      "missing": "Missing checks remain unknown; an unmatched check cannot certify the current head.",
+      "slug": "proof-gate",
+      "exports": {
+        "160": "exports/160/proof-gate",
+        "116": "exports/116/proof-gate",
+        "80": "exports/80/proof-gate"
+      }
+    },
+    {
+      "name": "Budget Engine",
+      "question": "How much measured spend is visible, and what is missing?",
+      "omits": "No invented budget, forecast or token-progress estimate.",
+      "tradeoff": "Partial-cost honesty over a single reassuring total.",
+      "data": "Recorded session USD, measurement coverage, window and owner; sampled resource coverage.",
+      "missing": "Unmeasured costs are excluded from the subtotal, never replaced by zero spend.",
+      "slug": "budget-engine",
+      "exports": {
+        "160": "exports/160/budget-engine",
+        "116": "exports/116/budget-engine",
+        "80": "exports/80/budget-engine"
+      }
+    },
+    {
+      "name": "Relay Map",
+      "question": "Which recorded dependency crosses owner boundaries?",
+      "omits": "Inferred relationships and generic all-to-all wiring.",
+      "tradeoff": "Legible evidence-backed routes over exhaustive session visibility.",
+      "data": "Only explicit fixture edges with source, target, affected sessions and evidence.",
+      "missing": "Absent relationships remain unknown rather than disconnected by assertion.",
+      "slug": "relay-map",
+      "exports": {
+        "160": "exports/160/relay-map",
+        "116": "exports/116/relay-map",
+        "80": "exports/80/relay-map"
+      }
+    },
+    {
+      "name": "Delta Deck",
+      "question": "What explicitly changed since the saved baseline?",
+      "omits": "Static fleet inventory and inferred resolutions.",
+      "tradeoff": "Change recognition over full current-state coverage.",
+      "data": "Normalized event IDs and sequence, explicit kind, reference and previous snapshot.",
+      "missing": "No baseline is labeled unavailable; silence cannot resolve an item.",
+      "slug": "delta-deck",
+      "exports": {
+        "160": "exports/160/delta-deck",
+        "116": "exports/116/delta-deck",
+        "80": "exports/80/delta-deck"
+      }
+    },
+    {
+      "name": "Watchkeeper",
+      "question": "Which observations are missing or need attention?",
+      "omits": "Work throughput rankings and inferred healthy verdicts.",
+      "tradeoff": "Coverage uncertainty stays visible even when records look quiet.",
+      "data": "Source freshness and coverage plus explicit session exceptions and retry provenance.",
+      "missing": "Unknown, stale and failed remain distinct; missing messages never mean no requests.",
+      "slug": "watchkeeper",
+      "exports": {
+        "160": "exports/160/watchkeeper",
+        "116": "exports/116/watchkeeper",
+        "80": "exports/80/watchkeeper"
+      }
+    }
+  ],
+  "fixture_sha256": "1f17a9075438560e486727bbf737752d9eeff1335238476329ea49b0f1bd42e4"
+}

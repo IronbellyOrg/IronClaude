@@ -1,0 +1,42 @@
+                                                                                                                    
+  * SHIFT BRIEF                                                                            SYNTHETIC . READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                          
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                
+                                                                                                                    
+  +- HANDOVER / OBSERVED ATTENTION ------------------------------------------------------------------------------+  
+  |                                                                                                              |  
+  |                                                                                                              |  
+  |   ###             QUESTIONS NEED A HUMAN                                                                     |  
+  |     #                                                                                                        |  
+  |   ###             Messages partial; this is not an all-clear.                                                |  
+  |     #                                                                                                        |  
+  |   ###             Choose schema compatibility policy                                                         |  
+  |                                                                                                              |  
+  |                                                                                                              |  
+  +--------------------------------------------------------------------------------------------------------------+  
+                                                                                                                    
+                                                                                                                    
+     Q01 / 45m / Human operator                                                                                     
+     Choose schema compatibility policy                                                                             
+     Affects S001, S011, S021, S031 | demo:messages/Q01                                                             
+                                                                                                                    
+                                                                                                                    
+     Q02 / 20m / Human operator                                                                                     
+     Confirm deployment window                                                                                      
+     Affects S002, S012 | demo:messages/Q02                                                                         
+                                                                                                                    
+                                                                                                                    
+     Q03 / 10m / Human operator                                                                                     
+     Name the release reviewer                                                                                      
+     Affects S003, S013 | demo:messages/Q03                                                                         
+                                                                                                                    
+                                                                                                                    
+                                                                                                                    
+                                                                                                                    
+                                                                                                                    
+     8 failed reports retained / 5 stale / 1 policy frozen                                                          
+     Inspection only. Existing tools and humans retain every operational decision.                                  
+                                                                                                                    
+ ------------------------------------------------------------------------------------------------------------------ 
+  j/k select . tab pane . / filter . enter evidence . p hold view                                                   
+  LOCAL FIXTURE . source coverage is not fleet-wide assurance                                                       

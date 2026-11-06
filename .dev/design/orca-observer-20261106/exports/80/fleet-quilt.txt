@@ -1,0 +1,42 @@
+                                                                                
+  ◈ FLEET QUILT                                        SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                            
+                                                                                
+ ┏━ HUMAN QUESTION ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ 
+ ┃ Choose schema compatibility policy                                         ┃ 
+ ┃ Owner: Human operator                                                      ┃ 
+ ┃ Scope: 4 sessions | observed 45m ago                                       ┃ 
+ ┃ Affected: S001, S011, S021, S031                                           ┃ 
+ ┃ Messages partial | 2 other questions                                       ┃ 
+ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ 
+                                                                                
+   ONE CELL = ONE SESSION   R running  S settled  F failed result  P frozen …   
+                                                                                
+                                                                                
+   ATLAS       10 sessions                                                      
+   Billing migration                                                            
+   S001 R S002 R S003 R S004 R S005 R S006 R S007 S S008 S S009 F S010 ?        
+                                                                                
+                                                                                
+   ──────────────────────────────────────────────────────────────────────────   
+                                                                                
+   Beacon        10 sessions (cells omitted)                                    
+                                                                                
+   Cinder        10 sessions (cells omitted)                                    
+                                                                                
+   Delta         10 sessions (cells omitted)                                    
+                                                                                
+   Ember         10 sessions (cells omitted)                                    
+                                                                                
+   Forge         10 sessions (cells omitted)                                    
+                                                                                
+   Grove         10 sessions (cells omitted)                                    
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+   10/80 session IDs shown; 70 omitted | membership, not progress               
+ ────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view               
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                   

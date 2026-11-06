@@ -1,0 +1,48 @@
+                                                                                                                                                                
+  * BUDGET ENGINE                                                                                                                      SYNTHETIC . READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                                                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                                                            
+                                                                                                                                                                
+ +- HUMAN QUESTION -------------------------------------------------------------------------------------------------------------------------------------------+ 
+ | Choose schema compatibility policy                                                                                                                         | 
+ | Owner: Human operator | affected: 4 sessions | observed 45m ago                                                                                            | 
+ | Scope: S001, S011, S021, S031                                                                                                                              | 
+ | demo:messages/Q01 | 2 other requests                                                                                                                       | 
+ +------------------------------------------------------------------------------------------------------------------------------------------------------------+ 
+                                                                                                                                                                
+   USD 47.06 known subtotal | 60/80 measured | NOT TOTAL SPEND                                                                                                  
+                                                                                                                                                                
+ +- OWNER SUBTOTALS / RELATIVE USD ---------------------------------------------------------------+  +- COVERAGE / NOT A BUDGET ------------------------------+ 
+ |                                                                                                |  | Unmeasured: 20 sessions                                | 
+ | Delta      USD 7.36  8/10 measured                                                             |  | Source: partial / age 60s                              | 
+ | #############################################################################################  |  | USD windows: 07:00-08:00 UTC                           | 
+ | Harbor     USD 6.81  8/10 measured                                                             |  | S002 CPU 11% / RSS 215 MiB                             | 
+ | ######################################################################################.......  |  | Worker source age 4s; sample age 4s                    | 
+ | Forge      USD 6.37  8/10 measured                                                             |  | No budget limit supplied.                              | 
+ | ################################################################################.............  |  | No burn forecast available.                            | 
+ | Cinder     USD 5.78  7/10 measured                                                             |  | No token-to-progress conversion.                       | 
+ | #########################################################################....................  |  |                                                        | 
+ | Beacon     USD 5.49  8/10 measured                                                             |  | RESOURCE OBSERVATIONS                                  | 
+ | #####################################################################........................  |  | CPU known: 64/80                                       | 
+ | Ember      USD 5.45  7/10 measured                                                             |  | RSS known: 64/80                                       | 
+ | #####################################################################........................  |  | CPU values are per-session samples.                    | 
+ | Grove      USD 5.12  7/10 measured                                                             |  | Missing costs are not zero.                            | 
+ | #################################################################............................  |  |                                                        | 
+ | Atlas      USD 4.68  7/10 measured                                                             |  |                                                        | 
+ | ###########################################################..................................  |  |                                                        | 
+ |                                                                                                |  |                                                        | 
+ |                                                                                                |  |                                                        | 
+ |                                                                                                |  |                                                        | 
+ |                                                                                                |  |                                                        | 
+ |                                                                                                |  |                                                        | 
+ |                                                                                                |  |                                                        | 
+ |                                                                                                |  |                                                        | 
+ |                                                                                                |  |                                                        | 
+ |                                                                                                |  |                                                        | 
+ |                                                                                                |  |                                                        | 
+ | 8/8 owners shown; bars compare known subtotals                                                 |  | 14/14 text lines shown                                 | 
+ +------------------------------------------------------------------------------------------------+  +--------------------------------------------------------+ 
+                                                                                                                                                                
+ -------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  j/k select . tab pane . / filter . enter evidence . p hold view                                                                                               
+  LOCAL FIXTURE . source coverage is not fleet-wide assurance                                                                                                   

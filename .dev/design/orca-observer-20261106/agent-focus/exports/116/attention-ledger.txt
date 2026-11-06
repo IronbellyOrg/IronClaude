@@ -1,0 +1,42 @@
+                                                                                                                    
+  ◈ ATTENTION LEDGER                                                                       SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                          
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                
+                                                                                                                    
+ ┏━ OPEN HUMAN QUESTIONS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  ╭─ SEEN IS NOT RESOLVED ─────────────────╮ 
+ ┃                                                                    ┃  │                                        │ 
+ ┃                                                                    ┃  │                                        │ 
+ ┃  45 MIN     Choose schema compatibility policy                     ┃  │   ███                                  │ 
+ ┃                                                                    ┃  │     █      observed questions          │ 
+ ┃             O01 requests / Human operator                          ┃  │   ███                                  │ 
+ ┃             Affected: S001, S011, S021, S031                       ┃  │     █                                  │ 
+ ┃                                                                    ┃  │   ███                                  │ 
+ ┃  ───────────────────────────────────────────────────────────────   ┃  │                                        │ 
+ ┃                                                                    ┃  │                                        │ 
+ ┃                                                                    ┃  │                                        │ 
+ ┃  20 MIN     Confirm deployment window                              ┃  │                                        │ 
+ ┃                                                                    ┃  ╰────────────────────────────────────────╯ 
+ ┃             O02 requests / Human operator                          ┃                                             
+ ┃             Affected: S002, S012                                   ┃                                             
+ ┃                                                                    ┃  ╭─ RETAIN CONTEXT ───────────────────────╮ 
+ ┃  ───────────────────────────────────────────────────────────────   ┃  │                                        │ 
+ ┃                                                                    ┃  │ original question                      │ 
+ ┃                                                                    ┃  │ original age                           │ 
+ ┃  10 MIN     Name the release reviewer                              ┃  │ acting owner                           │ 
+ ┃                                                                    ┃  │ requesting orchestrator                │ 
+ ┃             O03 requests / Human operator                          ┃  │ affected stable IDs                    │ 
+ ┃             Affected: S003, S013                                   ┃  │ source coverage                        │ 
+ ┃                                                                    ┃  │ explicit closure evidence              │ 
+ ┃  ───────────────────────────────────────────────────────────────   ┃  │                                        │ 
+ ┃                                                                    ┃  │                                        │ 
+ ┃                                                                    ┃  │                                        │ 
+ ┃                                                                    ┃  │                                        │ 
+ ┃                                                                    ┃  │                                        │ 
+ ┃                                                                    ┃  │                                        │ 
+ ┃                                                                    ┃  │                                        │ 
+ ┃                                                                    ┃  │ 7/7 lines shown                        │ 
+ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  ╰────────────────────────────────────────╯ 
+                                                                                                                    
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view                                                   
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                                                       

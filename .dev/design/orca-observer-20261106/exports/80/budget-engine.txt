@@ -1,0 +1,42 @@
+                                                                                
+  ◈ BUDGET ENGINE                                      SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                            
+                                                                                
+ ╭─ HUMAN QUESTION ───────────────────────────────────────────────────────────╮ 
+ │ Choose schema compatibility policy                                         │ 
+ │ Owner: Human operator | affected: 4 sessions | observed 45m ago            │ 
+ │ Scope: S001, S011, S021, S031                                              │ 
+ │ demo:messages/Q01 | 2 other requests                                       │ 
+ ╰────────────────────────────────────────────────────────────────────────────╯ 
+                                                                                
+   USD 47.06 known subtotal | 60/80 measured | NOT TOTAL SPEND                  
+                                                                                
+ ╭─ COVERAGE / NOT A BUDGET ──────────────────────────────────────────────────╮ 
+ │ Unmeasured: 20 sessions                                                    │ 
+ │ Source: partial / age 60s                                                  │ 
+ │ USD windows: 07:00-08:00 UTC                                               │ 
+ │ 3/14 text lines shown                                                      │ 
+ ╰────────────────────────────────────────────────────────────────────────────╯ 
+                                                                                
+ ╭─ OWNER SUBTOTALS / RELATIVE USD ───────────────────────────────────────────╮ 
+ │                                                                            │ 
+ │ Delta      USD 7.36  8/10 measured                                         │ 
+ │ █████████████████████████████████████████████████████████████████████████  │ 
+ │ Harbor     USD 6.81  8/10 measured                                         │ 
+ │ ████████████████████████████████████████████████████████████████████░░░░░  │ 
+ │ Forge      USD 6.37  8/10 measured                                         │ 
+ │ ███████████████████████████████████████████████████████████████░░░░░░░░░░  │ 
+ │ Cinder     USD 5.78  7/10 measured                                         │ 
+ │ █████████████████████████████████████████████████████████░░░░░░░░░░░░░░░░  │ 
+ │ Beacon     USD 5.49  8/10 measured                                         │ 
+ │ ██████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░  │ 
+ │ Ember      USD 5.45  7/10 measured                                         │ 
+ │ ██████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░  │ 
+ │                                                                            │ 
+ │ 6/8 owners shown; bars compare known subtotals                             │ 
+ ╰────────────────────────────────────────────────────────────────────────────╯ 
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view               
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                   

@@ -1,0 +1,42 @@
+                                                                                
+  ◈ WATCHKEEPER                                        SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                            
+                                                                                
+  ┏━ HUMAN HANDOVER / NO ALL-CLEAR ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  
+  ┃                                                                          ┃  
+  ┃                                                                          ┃  
+  ┃   ███              OBSERVED QUESTIONS STILL OPEN                         ┃  
+  ┃     █                                                                    ┃  
+  ┃   ███              8 failed reports retained / 1 policy frozen           ┃  
+  ┃     █                                                                    ┃  
+  ┃   ███              Message coverage partial; further questions may exi…  ┃  
+  ┃                                                                          ┃  
+  ┃                                                                          ┃  
+  ┃                                                                          ┃  
+  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  
+                                                                                
+                                                                                
+   Choose schema compatibility policy                                           
+   Owner Human operator / 45m / 4 affected sessions                             
+   demo:messages/Q01                                                            
+                                                                                
+   ──────────────────────────────────────────────────────────────────────────   
+                                                                                
+   4 result admissions explicitly recorded.                                     
+   5 stale sessions; 8 lifecycle unknown.                                       
+   Checks are stale: do not infer current readiness.                            
+   Policy-frozen work remains for explicit human handling.                      
+   No automatic retry, approval or worker instruction.                          
+                                                                                
+   ──────────────────────────────────────────────────────────────────────────   
+                                                                                
+   workers: complete fixture / 4s                                               
+   messages: partial / 12s                                                      
+   checks: stale / 840s                                                         
+   cost: partial / 60s                                                          
+   resources: partial / 15s                                                     
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view               
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                   

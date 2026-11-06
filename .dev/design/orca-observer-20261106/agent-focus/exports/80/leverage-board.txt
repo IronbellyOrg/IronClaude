@@ -1,0 +1,42 @@
+                                                                                
+  ◈ LEVERAGE BOARD                                     SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                            
+                                                                                
+                                                                                
+   Choose schema compatibility policy                                           
+   Owner Human operator | 4 sessions | 45m observed                             
+   Evidence demo:messages/Q01                                                   
+                                                                                
+                                                                                
+ ╭─ SELECTED SIGNALS ─────────────────────────────────────────────────────────╮ 
+ │                                                                            │ 
+ │ Q01 45m  Choose schema compatibility policy                                │ 
+ │ Q02 20m  Confirm deployment window                                         │ 
+ │ Q03 10m  Name the release reviewer                                         │ 
+ │ Distinct affected sessions: 8                                              │ 
+ │ Overlap is counted once, not once per request.                             │ 
+ │ Decision owners are humans; requesters are separate.                       │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │ 6/6 lines shown                                                            │ 
+ ╰────────────────────────────────────────────────────────────────────────────╯ 
+                                                                                
+ ────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view               
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                   

@@ -1,0 +1,42 @@
+                                                                                                                    
+  ◈ LEVERAGE BOARD                                                                         SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                          
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                
+                                                                                                                    
+ ┏━ YOUR NEXT ANSWER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓ 
+ ┃                                                                                                                ┃ 
+ ┃                                                                                                                ┃ 
+ ┃   ███            UNIQUE SESSIONS AFFECTED                                                                      ┃ 
+ ┃   █ █                                                                                                          ┃ 
+ ┃   ███            Across observed questions; not additive by question                                           ┃ 
+ ┃   █ █                                                                                                          ┃ 
+ ┃   ███            Answering may unblock work; it does not approve results.                                      ┃ 
+ ┃                                                                                                                ┃ 
+ ┃                                                                                                                ┃ 
+ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ 
+                                                                                                                    
+                                                                                                                    
+ ╭─ Q01 / Human operator ─────────────────────────────────────────────────╮  ╭─ BOUNDARIES ───────────────────────╮ 
+ │                                                                        │  │                                    │ 
+ │  Choose schema compatibility policy                                    │  │ Declared effects only              │ 
+ │  45m | 4 sessions | O01 -> human                                       │  │ No estimated completion ETA        │ 
+ │                                                                        │  │ No automatic approvals             │ 
+ ╰────────────────────────────────────────────────────────────────────────╯  │ Messages: partial                  │ 
+                                                                             │ Evidence in inspector              │ 
+ ╭─ Q02 / Human operator ─────────────────────────────────────────────────╮  │ Full stable IDs available          │ 
+ │                                                                        │  │ Orca remains authority             │ 
+ │  Confirm deployment window                                             │  │                                    │ 
+ │  20m | 2 sessions | O02 -> human                                       │  │                                    │ 
+ │                                                                        │  │                                    │ 
+ ╰────────────────────────────────────────────────────────────────────────╯  │                                    │ 
+                                                                             │                                    │ 
+ ╭─ Q03 / Human operator ─────────────────────────────────────────────────╮  │                                    │ 
+ │                                                                        │  │                                    │ 
+ │  Name the release reviewer                                             │  │                                    │ 
+ │  10m | 2 sessions | O03 -> human                                       │  │                                    │ 
+ │                                                                        │  │                                    │ 
+ ╰────────────────────────────────────────────────────────────────────────╯  │ 7/7 lines shown                    │ 
+                                                                             ╰────────────────────────────────────╯ 
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view                                                   
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                                                       

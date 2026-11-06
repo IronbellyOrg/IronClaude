@@ -1,0 +1,11 @@
+{
+  "archive": "orca-observer-design-package.zip",
+  "files": 406,
+  "bytes": 14438526,
+  "sha256": "5e169becf792219a9ed7f58f4146e0b0d874eb31574783375a2d8160e5860191",
+  "excluded": [
+    "__pycache__"
+  ],
+  "uploaded": false,
+  "publication": "Prepared for user-authorized collaboration branch push; not yet verified remote"
+}
