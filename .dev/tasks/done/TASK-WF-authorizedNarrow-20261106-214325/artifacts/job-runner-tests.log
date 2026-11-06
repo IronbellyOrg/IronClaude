@@ -1,0 +1,62 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 51 items
+
+tests/hooks/test_launch_job_identity.py::test_output_status_stdin_environment_and_cwd PASSED [  1%]
+tests/hooks/test_launch_job_identity.py::test_prepare_requires_exact_existing_governed_session[missing-None] PASSED [  3%]
+tests/hooks/test_launch_job_identity.py::test_prepare_requires_exact_existing_governed_session[old-] PASSED [  5%]
+tests/hooks/test_launch_job_identity.py::test_prepare_requires_exact_existing_governed_session[old-full\nextra] PASSED [  7%]
+tests/hooks/test_launch_job_identity.py::test_prepare_requires_exact_existing_governed_session[old-degraded] PASSED [  9%]
+tests/hooks/test_launch_job_identity.py::test_prepare_requires_exact_existing_governed_session[../bad-None] PASSED [ 11%]
+tests/hooks/test_launch_job_identity.py::test_allowed_levels_and_tool_id[worktree] PASSED [ 13%]
+tests/hooks/test_launch_job_identity.py::test_allowed_levels_and_tool_id[full] PASSED [ 15%]
+tests/hooks/test_launch_job_identity.py::test_allowed_levels_and_tool_id[full-submit] PASSED [ 17%]
+tests/hooks/test_launch_job_identity.py::test_allowed_levels_and_tool_id[full-submit\n] PASSED [ 19%]
+tests/hooks/test_launch_job_identity.py::test_symlink_components_refused[session] PASSED [ 21%]
+tests/hooks/test_launch_job_identity.py::test_symlink_components_refused[sessions] PASSED [ 23%]
+tests/hooks/test_launch_job_identity.py::test_symlink_components_refused[root] PASSED [ 25%]
+tests/hooks/test_launch_job_identity.py::test_symlink_components_refused[request] PASSED [ 27%]
+tests/hooks/test_launch_job_identity.py::test_symlink_components_refused[requests] PASSED [ 29%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[json] PASSED [ 31%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[oversize] PASSED [ 33%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[mode] PASSED [ 35%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[directory] PASSED [ 37%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[bad_sid] PASSED [ 39%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[bad_tool] PASSED [ 41%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[bad_command] PASSED [ 43%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[extra] PASSED [ 45%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[missing] PASSED [ 47%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[hardlink] PASSED [ 49%]
+tests/hooks/test_launch_job_identity.py::test_atomic_concurrent_consumption PASSED [ 50%]
+tests/hooks/test_launch_job_identity.py::test_old_orphan_keeps_origin_new_ordinary_and_forged_environment_do_not PASSED [ 52%]
+tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[pid] PASSED [ 54%]
+tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[start] PASSED [ 56%]
+tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[boot] PASSED [ 58%]
+tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[json] PASSED [ 60%]
+tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[sid] PASSED [ 62%]
+tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[mode] PASSED [ 64%]
+tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[zombie_or_dead] PASSED [ 66%]
+tests/hooks/test_launch_job_identity.py::test_release_live_job_and_invalid_bound_state PASSED [ 68%]
+tests/hooks/test_launch_job_identity.py::test_signal_cancellation_cleans_ordinary_descendants_only[15] PASSED [ 70%]
+tests/hooks/test_launch_job_identity.py::test_signal_cancellation_cleans_ordinary_descendants_only[2] PASSED [ 72%]
+tests/hooks/test_launch_job_identity.py::test_signal_cancellation_cleans_ordinary_descendants_only[1] PASSED [ 74%]
+tests/hooks/test_launch_job_identity.py::test_main_shell_status_survives_cancellation_during_background_wait PASSED [ 76%]
+tests/hooks/test_launch_job_identity.py::test_intentional_new_session_escape_explicitly_unselected PASSED [ 78%]
+tests/hooks/test_launch_job_identity.py::test_missing_and_invalid_proc_identity PASSED [ 80%]
+tests/hooks/test_launch_job_identity.py::test_unsafe_modes_refused[home] PASSED [ 82%]
+tests/hooks/test_launch_job_identity.py::test_unsafe_modes_refused[root] PASSED [ 84%]
+tests/hooks/test_launch_job_identity.py::test_unsafe_modes_refused[sessions] PASSED [ 86%]
+tests/hooks/test_launch_job_identity.py::test_unsafe_modes_refused[session] PASSED [ 88%]
+tests/hooks/test_launch_job_identity.py::test_unsafe_modes_refused[requests] PASSED [ 90%]
+tests/hooks/test_launch_job_identity.py::test_bad_home_and_symlinked_home_are_not_identity_authority PASSED [ 92%]
+tests/hooks/test_launch_job_identity.py::test_invalid_and_symlinked_job_registry_unknown PASSED [ 94%]
+tests/hooks/test_launch_job_identity.py::test_request_release_before_run_consumes_authorization PASSED [ 96%]
+tests/hooks/test_launch_job_identity.py::test_deep_json_and_nul_command_fail_with_plain_diagnostics PASSED [ 98%]
+tests/hooks/test_launch_job_identity.py::test_cancellation_escalates_for_uncooperative_child PASSED [100%]
+
+============================= 51 passed in 17.08s ==============================

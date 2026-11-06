@@ -1,0 +1,218 @@
+{
+  "schema": "actor-context-probe/1",
+  "boot_id": "0f93183c-c3b0-46fa-b016-088783da8d52",
+  "diagnostic_bound": 64,
+  "current_ancestry": {
+    "rows": [
+      {
+        "pid": 1438795,
+        "ppid": 1438775,
+        "start_ticks": 87261796,
+        "comm": "python3"
+      },
+      {
+        "pid": 1438775,
+        "ppid": 1438768,
+        "start_ticks": 87261790,
+        "comm": "uv"
+      },
+      {
+        "pid": 1438768,
+        "ppid": 563897,
+        "start_ticks": 87261789,
+        "comm": "bash"
+      },
+      {
+        "pid": 563897,
+        "ppid": 563508,
+        "start_ticks": 84673165,
+        "comm": "claude"
+      },
+      {
+        "pid": 563508,
+        "ppid": 1212,
+        "start_ticks": 84673132,
+        "comm": "bash"
+      },
+      {
+        "pid": 1212,
+        "ppid": 454,
+        "start_ticks": 83215916,
+        "comm": "orca-ide"
+      },
+      {
+        "pid": 454,
+        "ppid": 393,
+        "start_ticks": 83215809,
+        "comm": "orca-ide"
+      },
+      {
+        "pid": 393,
+        "ppid": 1,
+        "start_ticks": 83215792,
+        "comm": "orca-ide"
+      },
+      {
+        "pid": 1,
+        "ppid": 0,
+        "start_ticks": 83215682,
+        "comm": "coder"
+      }
+    ],
+    "stop": "root"
+  },
+  "controlled_children": [
+    {
+      "rows": [
+        {
+          "pid": 1438796,
+          "ppid": 1438795,
+          "start_ticks": 87261798,
+          "comm": "python3"
+        },
+        {
+          "pid": 1438795,
+          "ppid": 1438775,
+          "start_ticks": 87261796,
+          "comm": "python3"
+        },
+        {
+          "pid": 1438775,
+          "ppid": 1438768,
+          "start_ticks": 87261790,
+          "comm": "uv"
+        },
+        {
+          "pid": 1438768,
+          "ppid": 563897,
+          "start_ticks": 87261789,
+          "comm": "bash"
+        },
+        {
+          "pid": 563897,
+          "ppid": 563508,
+          "start_ticks": 84673165,
+          "comm": "claude"
+        },
+        {
+          "pid": 563508,
+          "ppid": 1212,
+          "start_ticks": 84673132,
+          "comm": "bash"
+        },
+        {
+          "pid": 1212,
+          "ppid": 454,
+          "start_ticks": 83215916,
+          "comm": "orca-ide"
+        },
+        {
+          "pid": 454,
+          "ppid": 393,
+          "start_ticks": 83215809,
+          "comm": "orca-ide"
+        },
+        {
+          "pid": 393,
+          "ppid": 1,
+          "start_ticks": 83215792,
+          "comm": "orca-ide"
+        },
+        {
+          "pid": 1,
+          "ppid": 0,
+          "start_ticks": 83215682,
+          "comm": "coder"
+        }
+      ],
+      "stop": "root"
+    },
+    {
+      "rows": [
+        {
+          "pid": 1438797,
+          "ppid": 1438795,
+          "start_ticks": 87261798,
+          "comm": "python3"
+        },
+        {
+          "pid": 1438795,
+          "ppid": 1438775,
+          "start_ticks": 87261796,
+          "comm": "python3"
+        },
+        {
+          "pid": 1438775,
+          "ppid": 1438768,
+          "start_ticks": 87261790,
+          "comm": "uv"
+        },
+        {
+          "pid": 1438768,
+          "ppid": 563897,
+          "start_ticks": 87261789,
+          "comm": "bash"
+        },
+        {
+          "pid": 563897,
+          "ppid": 563508,
+          "start_ticks": 84673165,
+          "comm": "claude"
+        },
+        {
+          "pid": 563508,
+          "ppid": 1212,
+          "start_ticks": 84673132,
+          "comm": "bash"
+        },
+        {
+          "pid": 1212,
+          "ppid": 454,
+          "start_ticks": 83215916,
+          "comm": "orca-ide"
+        },
+        {
+          "pid": 454,
+          "ppid": 393,
+          "start_ticks": 83215809,
+          "comm": "orca-ide"
+        },
+        {
+          "pid": 393,
+          "ppid": 1,
+          "start_ticks": 83215792,
+          "comm": "orca-ide"
+        },
+        {
+          "pid": 1,
+          "ppid": 0,
+          "start_ticks": 83215682,
+          "comm": "coder"
+        }
+      ],
+      "stop": "root"
+    }
+  ],
+  "controlled_result": {
+    "both_children_match_one_ancestor": [
+      true,
+      true
+    ],
+    "different_start_identity_rejected": true,
+    "nonmatching_pid_rejected": true,
+    "session_reset_observed": false,
+    "meaning": "Kernel ancestry alone does not encode two logical session memberships. This is a controlled topology check, not a real Claude reset observation."
+  },
+  "runtime_cases_not_observed": [
+    "real Claude /clear with old governed child and new ordinary session",
+    "real resume/fork across Claude processes",
+    "main/subagent/nested Bash and Monitor hook event identities",
+    "same-worktree human terminal versus actual claim-launched agent",
+    "detached/reparented actual agent job",
+    "actual process ID reuse or reboot",
+    "release of real bound session while old background child remains alive"
+  ],
+  "gate": "BLOCKED",
+  "self_checks": 3,
+  "production_changes": false
+}

@@ -92,6 +92,16 @@
             "timeout": 3
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/launch-job-identity.sh",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PostToolUse": [

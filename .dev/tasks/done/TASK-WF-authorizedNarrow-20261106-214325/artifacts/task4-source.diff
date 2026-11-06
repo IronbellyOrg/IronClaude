@@ -1,0 +1,778 @@
+--- a/tests/hooks/test_launch_job_identity.py
++++ b/tests/hooks/test_launch_job_identity.py
+@@ -1107,3 +1107,352 @@
+     assert result.stdout == ""
+     assert result.stderr == "launch job: UV is required for this invocation\n"
+     assert not (job.root / "requests").exists()
++
++
++class LocalPushFixture:
++    """Disposable TEST POLICY, not the production O-22 pre-push installation."""
++
++    def __init__(self, job, base):
++        self.base = base
++        self.work = base / "clone"
++        self.remote = base / "remote.git"
++        self.log = base / "pre-push-evidence.jsonl"
++        self.env = {
++            key: value for key, value in job.env.items() if not key.startswith("GIT_")
++        }
++        self.env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL="/dev/null")
++        job.env = self.env.copy()
++        self.git("init", "--bare", "--initial-branch=main", str(self.remote))
++        self.git("clone", str(self.remote), str(self.work))
++        self.local("config", "user.name", "Local identity fixture")
++        self.local("config", "user.email", "fixture@example.invalid")
++        self.a = self.commit("initial")
++        assert self.local("remote", "get-url", "origin").stdout.strip() == str(
++            self.remote
++        )
++        self.local("push", "origin", "HEAD:refs/heads/main", "HEAD:refs/heads/master")
++        self.b = self.commit("human")
++        self.c = self.commit("governed")
++        policy = """import json, os, subprocess, sys
++selected = subprocess.run(['/bin/bash', sys.argv[1], 'identify'], stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=5)
++identity = json.loads(selected.stdout) if selected.returncode == 0 else {'status': 'unknown'}
++blocked = False
++for line in sys.stdin:
++    local_ref, local_sha, remote_ref, remote_sha = line.split()
++    deny = identity.get('status') == 'governed' and remote_ref in ('refs/heads/main', 'refs/heads/master')
++    row = {'policy': 'TEST ONLY: positive-governed exact-protected-ref', 'identity': identity, 'actor_session': os.getsid(0), 'remote_ref': remote_ref, 'local_sha': local_sha, 'remote_sha': remote_sha, 'refused': deny}
++    fd = os.open(sys.argv[2], os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
++    try: os.write(fd, (json.dumps(row) + '\\n').encode())
++    finally: os.close(fd)
++    blocked = blocked or deny
++if blocked: print('fixture policy refuses governed protected ref', file=sys.stderr)
++sys.exit(1 if blocked else 0)
++"""
++        hook = self.work / ".git/hooks/pre-push"
++        hook.write_text(
++            "#!/bin/bash\nexec "
++            + shlex.join(
++                [
++                    "uv",
++                    "run",
++                    "--no-project",
++                    "python",
++                    "-I",
++                    "-c",
++                    policy,
++                    str(SCRIPT),
++                    str(self.log),
++                ]
++            )
++            + "\n"
++        )
++        hook.chmod(0o700)
++
++    def git(self, *args, check=True):
++        result = subprocess.run(
++            ["git", "-C", str(self.base), *args],
++            env=self.env,
++            capture_output=True,
++            text=True,
++            timeout=10,
++        )
++        if check:
++            assert result.returncode == 0, result.stderr
++        return result
++
++    def local(self, *args, check=True):
++        return self.git("-C", str(self.work), *args, check=check)
++
++    def commit(self, label):
++        (self.work / "fixture.txt").write_text(label + "\n")
++        self.local("add", "fixture.txt")
++        self.local("-c", "commit.gpgsign=false", "commit", "-m", label)
++        return self.local("rev-parse", "HEAD").stdout.strip()
++
++    def remote_ref(self, branch):
++        result = self.git(
++            "--git-dir",
++            str(self.remote),
++            "rev-parse",
++            "--verify",
++            "refs/heads/" + branch,
++            check=False,
++        )
++        return result.stdout.strip() if result.returncode == 0 else None
++
++    def push_command(self, branch, sha=None):
++        return shlex.join(
++            [
++                "git",
++                "-C",
++                str(self.work),
++                "push",
++                "origin",
++                (sha or self.c) + ":refs/heads/" + branch,
++            ]
++        )
++
++    def events(self):
++        return (
++            [json.loads(line) for line in self.log.read_text().splitlines()]
++            if self.log.exists()
++            else []
++        )
++
++
++@pytest.fixture
++def local_push(job, tmp_path):
++    return LocalPushFixture(job, tmp_path)
++
++
++@pytest.mark.parametrize("branch", ["main", "master"])
++def test_real_git_old_governed_background_human_same_clone_reset_and_release(
++    job, local_push, tmp_path, branch
++):
++    fixture = local_push
++    ready, go, release, first, second = (
++        tmp_path / name for name in ("ready", "go", "release", "first", "second")
++    )
++    push = fixture.push_command(branch)
++    first_out, second_out = tmp_path / "first-push.out", tmp_path / "second-push.out"
++    command = f'(touch {ready}; while [ ! -e {go} ]; do sleep .03; done; {push} > {first_out} 2>&1; printf "%s" "$?" > {first}; while [ ! -e {release} ]; do sleep .03; done; {push} > {second_out} 2>&1; printf "%s" "$?" > {second}) & exit 0'
++    process = job.start(command)
++    try:
++        wait_for(ready.exists)
++        original = json.loads(job.live_record().read_text())
++        assert fixture.remote_ref(branch) == fixture.a
++        # Independent ordinary process pushes in the identical clone while the old job lives.
++        human = fixture.local(
++            "push", "origin", fixture.b + ":refs/heads/" + branch, check=False
++        )
++        assert human.returncode == 0, human.stderr
++        assert fixture.remote_ref(branch) == fixture.b
++        ordinary_command = f"/bin/bash {shlex.quote(str(SCRIPT))} identify"
++        event = hook_event(ordinary_command, sid="new-unbound-reset")
++        unbound = adapt(job, event)
++        assert (unbound.returncode, unbound.stdout, unbound.stderr) == (0, "", "")
++        ordinary = subprocess.run(
++            ["/bin/bash", "-c", ordinary_command],
++            env=job.env,
++            capture_output=True,
++            text=True,
++            timeout=10,
++        )
++        assert json.loads(ordinary.stdout) == {"status": "ordinary"}
++        assert job.identify(original["pid"]) == {
++            "status": "governed",
++            "session_id": "old",
++        }
++        go.touch()
++        assert int(wait_for(lambda: first.read_text() if first.exists() else "")) != 0
++        assert fixture.remote_ref(branch) == fixture.b
++        assert process.poll() is None
++        assert job.identify(original["pid"])["session_id"] == "old"
++        (job.root / "sessions/old").unlink()
++        release.touch()
++        assert wait_for(lambda: second.read_text() if second.exists() else "") == "0"
++        stdout, stderr = process.communicate(timeout=10)
++        assert (process.returncode, stdout, stderr) == (0, "", "")
++        assert fixture.remote_ref(branch) == fixture.c
++        rows = fixture.events()
++        assert len(rows) == 3
++        assert (
++            rows[0]["identity"] == {"status": "ordinary"}
++            and rows[0]["local_sha"] == fixture.b
++        )
++        assert (
++            rows[1]["identity"] == {"status": "governed", "session_id": "old"}
++            and rows[1]["refused"] is True
++        )
++        assert rows[1]["local_sha"] == fixture.c and rows[1]["remote_sha"] == fixture.b
++        assert (
++            rows[2]["identity"] == {"status": "ordinary", "reason": "released"}
++            and rows[2]["refused"] is False
++        )
++        assert not job.records()
++        print(
++            json.dumps(
++                {
++                    "case": "concurrent-local-protected-push-release",
++                    "branch": branch,
++                    "remote_initial": fixture.a,
++                    "remote_after_human_and_governed_refusal": fixture.b,
++                    "remote_after_release": fixture.remote_ref(branch),
++                    "hook_events": rows,
++                },
++                sort_keys=True,
++            )
++        )
++    finally:
++        go.touch()
++        release.touch()
++
++
++@pytest.mark.parametrize("branch", ["feature/main", "main-extra"])
++def test_real_git_test_policy_only_refuses_exact_protected_refs(
++    job, local_push, branch
++):
++    fixture = local_push
++    assert fixture.remote_ref(branch) is None
++    updated = rewritten(job, hook_event(fixture.push_command(branch)))
++    result = execute_rewritten(job, updated)
++    assert result.returncode == 0, result.stderr
++    assert fixture.remote_ref(branch) == fixture.c
++    (row,) = fixture.events()
++    assert row["identity"] == {"status": "governed", "session_id": "old"}
++    assert row["refused"] is False
++    print(
++        json.dumps(
++            {
++                "case": "exact-ref-test-policy",
++                "remote_after": fixture.remote_ref(branch),
++                "hook_event": row,
++            },
++            sort_keys=True,
++        )
++    )
++
++
++def test_real_git_controlled_resume_same_logical_id_new_job_not_live_cli_resume(
++    job, local_push
++):
++    fixture = local_push
++    for _ in range(2):
++        token = job.token(fixture.push_command("main"))
++        result = job.call("run", token)
++        assert result.returncode != 0
++        assert fixture.remote_ref("main") == fixture.a
++        assert job.call("run", token).returncode == 2
++        assert not job.records()
++    rows = fixture.events()
++    assert len(rows) == 2
++    assert all(
++        row["identity"] == {"status": "governed", "session_id": "old"}
++        and row["refused"]
++        for row in rows
++    )
++    assert rows[0]["actor_session"] != rows[1]["actor_session"]
++    print(
++        json.dumps(
++            {
++                "case": "controlled-resume-new-kernel-job-not-cli-resume",
++                "remote_unchanged": fixture.remote_ref("main"),
++                "hook_events": rows,
++            },
++            sort_keys=True,
++        )
++    )
++
++
++def test_real_git_deliberate_setsid_escape_is_unselected_not_retained(
++    job, local_push, tmp_path
++):
++    fixture = local_push
++    before = tmp_path / "before-escape"
++    command = (
++        job.selector(before)
++        + "; setsid /bin/bash -c "
++        + shlex.quote(fixture.push_command("main"))
++    )
++    result = job.call("run", job.token(command))
++    assert result.returncode == 0, result.stderr
++    assert json.loads(before.read_text()) == {"status": "governed", "session_id": "old"}
++    assert fixture.remote_ref("main") == fixture.c
++    (row,) = fixture.events()
++    assert row["identity"] == {"status": "ordinary"} and row["refused"] is False
++    print(
++        json.dumps(
++            {
++                "case": "LIMIT-deliberate-new-session-escape",
++                "remote_after": fixture.remote_ref("main"),
++                "hook_event": row,
++            },
++            sort_keys=True,
++        )
++    )
++
++
++def test_real_git_killed_supervisor_is_unknown_not_proven_human(
++    job, local_push, tmp_path
++):
++    fixture = local_push
++    ready, go, done = (tmp_path / name for name in ("ready", "go", "done"))
++    push = fixture.push_command("main")
++    output = tmp_path / "push.out"
++    command = f'(printf "%s" "$BASHPID" > {ready}; while [ ! -e {go} ]; do sleep .03; done; {push} > {output} 2>&1; printf "%s" "$?" > {done}) & exit 0'
++    process = job.start(command)
++    record = None
++    try:
++        child = int(wait_for(lambda: ready.read_text() if ready.exists() else ""))
++        record = job.live_record()
++        identity = json.loads(record.read_text())
++        assert job.identify(child)["status"] == "governed"
++        os.kill(identity["pid"], signal.SIGKILL)
++        wait_for(lambda: job.identify(child) == {"status": "unknown"})
++        go.touch()
++        assert wait_for(lambda: done.read_text() if done.exists() else "") == "0"
++        process.communicate(timeout=10)
++        assert process.returncode == 137
++        assert fixture.remote_ref("main") == fixture.c
++        (row,) = fixture.events()
++        assert row["identity"] == {"status": "unknown"} and row["refused"] is False
++        print(
++            json.dumps(
++                {
++                    "case": "LIMIT-supervisor-kill-unknown-test-policy-allows-only-because-not-positive",
++                    "remote_after": fixture.remote_ref("main"),
++                    "hook_event": row,
++                },
++                sort_keys=True,
++            )
++        )
++    finally:
++        go.touch()
++        if record is not None:
++            record.unlink(missing_ok=True)
++
++
++def test_live_probe_redaction_keeps_only_selector_identity(tmp_path):
++    import importlib.util
++
++    path = Path(__file__).parent / "fixtures/launch_level/live_probe.py"
++    spec = importlib.util.spec_from_file_location("launch_level_live_probe", path)
++    probe = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(probe)
++    canary = "fixture-private-canary-not-a-real-credential"
++    data = {
++        "api_key": canary,
++        "stdout": "unrelated text "
++        + canary
++        + "\n"
++        + json.dumps({"status": "governed", "session_id": "safe", "command": canary}),
++    }
++    filtered = probe.identities(data)
++    assert filtered == [{"status": "governed", "session_id": "safe"}]
++    assert probe.identities(
++        {"status": "ordinary", "reason": "released", "extra": canary}
++    ) == [{"status": "ordinary", "reason": "released"}]
++    log = tmp_path / "redacted.jsonl"
++    probe.append(log, {"selector_results": filtered})
++    assert canary not in log.read_text()
++    assert log.stat().st_mode & 0o777 == 0o600
+--- a/tests/hooks/fixtures/launch_level/live_probe.py
++++ b/tests/hooks/fixtures/launch_level/live_probe.py
+@@ -0,0 +1,352 @@
++"""Bounded, opt-in live CLI observation. Never stores raw streams or credentials."""
++
++import argparse
++import hashlib
++import json
++import os
++import re
++import shlex
++import shutil
++import signal
++import subprocess
++import sys
++import tempfile
++import time
++import uuid
++from pathlib import Path
++
++ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}\Z")
++
++
++def append(path, event):
++    fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
++    try:
++        os.write(fd, (json.dumps(event, sort_keys=True) + "\n").encode())
++    finally:
++        os.close(fd)
++
++
++def identities(value):
++    """Keep only selector results, never arbitrary tool output or stream text."""
++    found = []
++    if isinstance(value, dict):
++        if value.get("status") in ("governed", "ordinary", "unknown"):
++            item = {"status": value["status"]}
++            sid = value.get("session_id")
++            if isinstance(sid, str) and ID.fullmatch(sid):
++                item["session_id"] = sid
++            if value.get("reason") == "released":
++                item["reason"] = "released"
++            found.append(item)
++        else:
++            for item in value.values():
++                found.extend(identities(item))
++    elif isinstance(value, list):
++        for item in value:
++            found.extend(identities(item))
++    elif isinstance(value, str):
++        for line in value.splitlines():
++            try:
++                parsed = json.loads(line)
++            except ValueError:
++                continue
++            if isinstance(parsed, (dict, list)):
++                found.extend(identities(parsed))
++    return found
++
++
++def observe(args):
++    raw = sys.stdin.buffer.read((1 << 20) + 1)
++    payload = json.loads(raw)
++    inputs = payload.get("tool_input") or {}
++    record = {"kind": "actual_hook_input", "variant": args.variant}
++    for field in (
++        "hook_event_name",
++        "session_id",
++        "tool_use_id",
++        "agent_id",
++        "agent_type",
++    ):
++        value = payload.get(field)
++        if isinstance(value, str) and ID.fullmatch(value):
++            record[field] = value
++    record["tool_name"] = (
++        payload.get("tool_name") if payload.get("tool_name") == "Bash" else "other"
++    )
++    record["top_level_keys"] = sorted(payload)
++    record["tool_input_keys"] = sorted(inputs) if isinstance(inputs, dict) else []
++    if isinstance(inputs, dict):
++        record["run_in_background"] = inputs.get("run_in_background") is True
++        command = inputs.get("command")
++        if isinstance(command, str):
++            record["command_sha256"] = hashlib.sha256(command.encode()).hexdigest()
++    record["cwd_is_fixture"] = payload.get("cwd") == args.cwd
++    if payload.get("hook_event_name") == "PostToolUse":
++        response = payload.get("tool_response")
++        record["tool_response_keys"] = (
++            sorted(response) if isinstance(response, dict) else []
++        )
++        record["selector_results"] = identities(response)
++        append(args.log, record)
++        return 0
++    result = subprocess.run(
++        ["/bin/bash", args.runner], input=raw, capture_output=True, timeout=8
++    )
++    record["adapter_exit"] = result.returncode
++    record["rewritten"] = False
++    if result.stdout:
++        output = json.loads(result.stdout)
++        specific = output.get("hookSpecificOutput", {})
++        record["rewritten"] = "updatedInput" in specific
++        record["permission_decision_present"] = "permissionDecision" in specific
++    append(args.log, record)
++    sys.stdout.buffer.write(result.stdout)
++    sys.stderr.buffer.write(result.stderr)
++    return result.returncode
++
++
++def cleanup_jobs(home):
++    for path in (home / ".claude/state/launch-level/jobs").glob("*.json"):
++        value = json.loads(path.read_text())
++        pid = value["pid"]
++        try:
++            fields = Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()
++            if int(fields[3]) != pid or int(fields[19]) != value["start"]:
++                continue
++            os.kill(pid, signal.SIGTERM)
++            until = time.monotonic() + 3
++            while Path(f"/proc/{pid}").exists() and time.monotonic() < until:
++                time.sleep(0.03)
++        except ProcessLookupError:
++            pass
++        except FileNotFoundError:
++            pass
++
++
++def probe(args):
++    log = Path(args.output_dir).resolve() / "live-harness-events.jsonl"
++    runner = Path(args.runner).resolve()
++    cli = shutil.which("claude")
++    if not cli:
++        append(log, {"kind": "probe_result", "status": "cli_unavailable"})
++        print("live_cli=cli_unavailable")
++        return 0
++    with tempfile.TemporaryDirectory(prefix="launch-level-live-") as scratch:
++        root = Path(scratch)
++        home = root / "isolated-home"
++        home.mkdir(mode=0o700)
++        work = root / "trusted-fixture"
++        work.mkdir()
++        env = dict(
++            os.environ,
++            HOME=str(home),
++            CLAUDE_CONFIG_DIR=str(home / ".claude"),
++            XDG_CONFIG_HOME=str(home / ".config"),
++            XDG_CACHE_HOME=str(home / ".cache"),
++            UV_PYTHON=sys.executable,
++            UV_PYTHON_DOWNLOADS="never",
++        )
++        # Keep CLAUDECODE and existing auth env intact: never evade a nested guard.
++        git_env = {
++            key: value for key, value in env.items() if not key.startswith("GIT_")
++        }
++        git_env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL="/dev/null")
++        subprocess.run(
++            ["git", "init", str(work)], env=git_env, capture_output=True, check=True
++        )
++        for variant in ("governed", "ordinary"):
++            sid = str(uuid.uuid4())
++            if variant == "governed":
++                store = home / ".claude/state/launch-level"
++                (store / "sessions").mkdir(parents=True, mode=0o700)
++                store.chmod(0o700)
++                level = store / "sessions" / sid
++                level.write_text("worktree\n")
++                level.chmod(0o600)
++            observer = shlex.join(
++                [
++                    "uv",
++                    "run",
++                    "--no-project",
++                    "python",
++                    "-I",
++                    str(Path(__file__).resolve()),
++                    "observe",
++                    "--runner",
++                    str(runner),
++                    "--log",
++                    str(log),
++                    "--variant",
++                    variant,
++                    "--cwd",
++                    str(work),
++                ]
++            )
++            settings = root / (variant + "-settings.json")
++            settings.write_text(
++                json.dumps(
++                    {
++                        "enabledPlugins": {},
++                        "hooks": {
++                            "PreToolUse": [
++                                {
++                                    "matcher": "Bash",
++                                    "hooks": [
++                                        {
++                                            "type": "command",
++                                            "command": observer,
++                                            "timeout": 10,
++                                        }
++                                    ],
++                                }
++                            ],
++                            "PostToolUse": [
++                                {
++                                    "matcher": "Bash",
++                                    "hooks": [
++                                        {
++                                            "type": "command",
++                                            "command": observer,
++                                            "timeout": 10,
++                                        }
++                                    ],
++                                }
++                            ],
++                        },
++                    }
++                )
++            )
++            command = (
++                "printf 'LIVE_IDENTITY\\n'; /bin/bash "
++                + shlex.quote(str(runner))
++                + " identify; printf '%s\\n' \"$PWD\""
++            )
++            prompt = (
++                "In this trusted disposable fixture, use Bash exactly once to execute this literal command, then report only its output: "
++                + command
++            )
++            argv = [
++                cli,
++                "--print",
++                "--setting-sources",
++                "",
++                "--settings",
++                str(settings),
++                "--session-id",
++                sid,
++                "--tools",
++                "Bash",
++                "--allowedTools",
++                "Bash",
++                "--permission-mode",
++                "dontAsk",
++                "--strict-mcp-config",
++                "--mcp-config",
++                '{"mcpServers":{}}',
++                "--max-budget-usd",
++                "0.25",
++                "--output-format",
++                "stream-json",
++                "--include-hook-events",
++                "--verbose",
++                "--no-session-persistence",
++                "--disable-slash-commands",
++                "--no-chrome",
++                prompt,
++            ]
++            process = subprocess.Popen(
++                argv,
++                env=env,
++                cwd=work,
++                stdout=subprocess.PIPE,
++                stderr=subprocess.PIPE,
++                text=True,
++                errors="replace",
++                start_new_session=True,
++            )
++            try:
++                stdout, stderr = process.communicate(timeout=45)
++                status = "completed" if process.returncode == 0 else "cli_error"
++            except subprocess.TimeoutExpired:
++                os.killpg(process.pid, signal.SIGTERM)
++                try:
++                    stdout, stderr = process.communicate(timeout=5)
++                except subprocess.TimeoutExpired:
++                    os.killpg(process.pid, signal.SIGKILL)
++                    stdout, stderr = process.communicate(timeout=5)
++                status = "timeout"
++            finally:
++                cleanup_jobs(home)
++            if "cannot be launched inside another Claude Code session" in stderr:
++                status = "nested_guard_blocked"
++            elif any(
++                text in stderr.lower()
++                for text in ("not logged in", "invalid api key", "authentication")
++            ):
++                status = "authentication_unavailable"
++            streams = []
++            for line in stdout.splitlines():
++                try:
++                    event = json.loads(line)
++                except ValueError:
++                    continue
++                if isinstance(event, dict):
++                    streams.append(
++                        {
++                            "type": event.get("type"),
++                            "subtype": event.get("subtype"),
++                            "selector_results": identities(event.get("message", {})),
++                        }
++                    )
++            result = {
++                "kind": "probe_result",
++                "variant": variant,
++                "requested_session_id": sid,
++                "status": status,
++                "exit_code": process.returncode,
++                "stdout_bytes": len(stdout.encode()),
++                "stderr_bytes": len(stderr.encode()),
++                "stream_events": streams,
++                "unobserved": [
++                    "persistent_cwd",
++                    "background_scheduling",
++                    "clear",
++                    "resume",
++                    "Monitor",
++                    "auto_mode",
++                    "concurrent_hook_composition",
++                    "nested_subagent_payload",
++                ],
++            }
++            if status == "nested_guard_blocked":
++                result["observed_error"] = (
++                    "Claude Code cannot be launched inside another Claude Code session."
++                )
++            append(log, result)
++            print(
++                "live_cli="
++                + status
++                + " variant="
++                + variant
++                + " exit="
++                + str(process.returncode)
++            )
++            if status != "completed":
++                break
++    return 0
++
++
++def main():
++    parser = argparse.ArgumentParser()
++    parser.add_argument("mode", choices=("probe", "observe"))
++    parser.add_argument("--runner", required=True)
++    parser.add_argument("--output-dir")
++    parser.add_argument("--log")
++    parser.add_argument("--variant")
++    parser.add_argument("--cwd")
++    args = parser.parse_args()
++    return observe(args) if args.mode == "observe" else probe(args)
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+--- a/docs/designs/sc-issue-launch-level-hook.md
++++ b/docs/designs/sc-issue-launch-level-hook.md
+@@ -3,8 +3,8 @@
+ issue: IronbellyOrg/IronClaude#394
+ type: architecture
+ format: spec
+-status: design draft, not implemented
+-review_status: "one authorized simulated spec-panel iteration and refinement, 2026-11-06; implementation and live harness behavior not validated"
++status: design draft; scoped job identity foundation implemented; full enforcement pending
++review_status: "one authorized simulated spec-panel iteration, followed by scoped identity implementation and per-task compliance checks; full enforcement not runtime-approved"
+ adversarial_status: partial
+ historical_convergence: "1.00 by the earlier protocol rule (0.70 identical verdicts); not this panel's score"
+ planning_status: "conditional: B-CTX feasibility gate must precede enforcement implementation"
+@@ -14,7 +14,7 @@
+ 
+ # Launch-level enforcement hook: design
+ 
+-> **Design reviewed, not runtime-approved.** The owner authorized one simulated specification panel on 2026-11-06, superseding the earlier stop only for this review. The panel found a blocking actor-selection prerequisite, **B-CTX (§19.1)**: a worktree marker cannot distinguish governed pushes from a person's pushes in that same worktree. O-22 remains accepted; no deployment or unconditional implementation-ready verdict is implied. New planning must put the bounded B-CTX feasibility check first and stop if it fails. OB-H1 to OB-H3 and all implementation tests are still required.
++> **Full enforcement is not runtime-approved.** The authorized specification panel found the blocking actor-selection prerequisite B-CTX (§19.1). The owner subsequently authorized a narrowly scoped launcher/harness identity integration. That Bash job identity foundation is implemented separately (§19.7); isolated live CLI observations distinguish a rewritten governed call from an unchanged ordinary call. This does not build the main classifier, claim pipeline or production pre-push guard, and does not prove real `/clear`, Monitor or every lifecycle variant. O-22 remains accepted. The earlier blocked plan stays blocked; OB-H1 to OB-H3 and full enforcement integration remain required.
+ 
+ This updated design is authoritative for **new planning**. `merged-requirements.md` ("MR"), the Q1–Q4 debate outputs and the earlier plan reviews are historical/advisory inputs, not synchronized copies. Identifiers FR-L-nn, IR-n, O-n, OD-..., R-n, U-n, LL-..., T-... retain traceability; explicit changes here override older wording/expected results. `[B-n]` identifies an earlier amendment's provenance, not a current approval. The earlier failed verdicts remain historical in §12/§15.2. Panel findings, the full guard boundary table, quantity-flow analysis and the written document-change plan are in `.dev/brainstorms/20261105-170229-launch-level-hook/spec-panel-20261106/review.md`. No further panel or debate loop is selected.
+ 
+@@ -492,9 +492,9 @@
+ 
+ **Invariant:** an ordinary human push in the same worktree is never restricted by launch policy. Git's documented pre-push inputs are remote name/location and ref-update records; Git does not supply a Claude session id. A worktree marker is only an installation/eligibility hint. An inherited environment value, `CCSESSION_LAUNCH_ID`, `CLAUDECODE`, pane key, branch or path is never sufficient authority to select a governed push.
+ 
+-**Smallest concrete candidate supported by inspected source:** use the existing bind event to associate a positively bound session with its actual Claude process, then have pre-push inspect its own kernel-reported ancestry. ccsession already execs Claude and has process-ownership code for session naming; reuse that shape, not its environment trust or unreadable-process fail-open ownership policy. No ccsession/launcher implementation change is silently selected.
+-
+-Candidate steps, to be tested before adopting as an implementation contract:
++**Historical controller-process candidate, not the implemented identity contract:** the panel proposed associating a bound session with its Claude ancestor and inspecting ancestry at pre-push. The subsequent scoped integration instead binds each accepted Bash job independently (§19.7); do not implement the controller-only design below as if it solved session resets. The historical candidate remains here to explain the original feasibility blocker.
++
++Historical candidate steps, not adopted as an implementation contract:
+ 
+ 1. On successful main-session binding, identify the actual firing Claude ancestor from the hook process tree on Linux. Record `(session_id, pid, process-start identity)` outside the worktree in the launch store. Include kernel boot identity or an equivalent lifetime discriminator so a PID reused after exit/reboot cannot authorize a push. Record only after matching the real supported executable/wrapper topology observed by OB-CTX; do not assume the nearest non-shell process is Claude. Environment values may aid diagnosis but cannot supply authority.
+ 2. Pre-push walks a **bounded** actual parent chain. Select governed only when an ancestor's PID and start identity match a live registered process and the associated session's level record still exists. A human terminal sharing an Orca ancestor is not a descendant of Claude and is not selected. Script/alias/subprocess pushes under the registered Claude ancestor are selected regardless of command spelling. No global environment toggle is consulted.
+@@ -503,7 +503,7 @@
+ 
+ **OB-CTX / B-CTX completion evidence (not observed here):** a log-only probe must capture the actual main/subagent/nested/background Bash/Monitor-to-Git and hook process trees, same-worktree human terminal, ordinary Claude session, detached/reparented jobs, launch wrapper, process exit/PID reuse, resume in a new process, /clear/fork, and release while a job remains alive. Establish the needed ancestry bound from that evidence, with an explicit exhaustion rule. In particular, prove how an ordinary new session in a reused Claude process and an old governed background child can be distinguished at the same time. Kernel ancestry alone may not supply that distinction. No single PID-label lookup is accepted as a solution to it.
+ 
+-**Current verdict:** B-CTX is **OPEN/BLOCKING**. There is source precedent for a narrow process probe, not proof of a complete selector. Existing claim code has no pipeline-launch implementation; no real hook payload/process observation was performed by this panel. A workflow may plan the bounded feasibility task and stop gate, but must not label the complete enforcement feature ready for unconditional implementation. If the probe cannot satisfy the invariant on the supported launch paths without a new launcher/harness contract, report that exact required integration and obtain separate scope authorization; do not invent a root service or weaken human isolation. No user decision to reopen O-22/O-21/O-13 is needed now.
++**Current full-enforcement verdict:** B-CTX remains **OPEN/BLOCKING for the earlier plan's complete lifecycle coverage**. The owner authorized the new scoped integration; its per-job selector and isolated live Bash evidence are described in §19.7. That is not a retroactive PASS for the old controller-ancestry probe or for unobserved `/clear`, resume, Monitor, nested-subagent and auto-mode variants. Existing claim code still has no pipeline-launch implementation. Keep production activation conditional on the actual supported execution surfaces and their required observations, without a root service or weakening human isolation. O-22/O-21/O-13 are not reopened.
+ 
+ ### 19.2 Placement and coexistence (Q1/Q2, narrowed)
+ 
+@@ -543,3 +543,23 @@
+ - `.dev/brainstorms/20261106-l2-prepush-decisions/q4-testing/run-4/answer-merged.md`: success label with unresolved items; choose local fixture target to avoid real-remote ambiguity.
+ 
+ Their measurements remain their authors' historical observations. This panel did not rerun them. Official interface references: [Git hooks](https://git-scm.com/docs/githooks), [Git push](https://git-scm.com/docs/git-push), [Git core config](https://raw.githubusercontent.com/git/git/master/Documentation/config/core.adoc), [Claude Code hooks](https://code.claude.com/docs/en/hooks). These establish protocol semantics, not runtime proof of B-CTX.
++
++### 19.7 Implemented scoped job identity foundation
++
++The owner's subsequent authorization covers the missing launcher/harness identity integration, not the complete enforcement feature. The implementation is `src/superclaude/hooks/scripts/launch-job-identity.sh`, with a byte-identical plugin mirror and executable installer distribution. Its stdlib Python body runs through UV on Linux; this is a narrowly authorized exception to this component's earlier bash-only design. No new dependency package or service is added. Tests live in `tests/hooks/test_launch_job_identity.py`; installer coverage is in `tests/cli/test_install_hooks.py`.
++
++**Execution binding:** the Bash PreToolUse adapter reads the actual event's top-level `session_id`. Only a positively governed private `sessions/<id>` record with an exact supported level triggers adaptation. It copies the entire `tool_input`, changes only `command`, and returns `updatedInput` without `permissionDecision: allow`. Timeout, background flag, description and other input fields are retained. Ordinary and non-Bash events are unchanged. No long-lived Claude PID, worktree marker or inherited environment label supplies actor authority.
++
++**Permission boundary:** PreToolUse creates no launch ticket. It emits a shell-quoted invocation of `execute SESSION TOOL_ID_OR_EMPTY COMMAND`. Only when normal permission evaluation allows that invocation to start does `execute` create and immediately consume its private single-use request through the runner. A denied or canceled-before-start rewrite creates no request to replay. The standalone launcher interfaces `prepare SESSION COMMAND [TOOL_USE_ID]` and `run TOKEN` remain explicit caller APIs, not proof that a person approved a command.
++
++**Job lifetime:** each supervisor owns a separate Linux process session, records its actual kernel session/PID/start ticks/boot identity and immutable originating logical session, and waits for the main shell plus ordinary live descendants in that kernel session. The subreaper retains/reaps ordinary orphan descendants after an intermediate shell exits. The main shell's stdout, stderr, stdin, environment, initial cwd and exit status are preserved. A new ordinary tool event from the same controller is not assigned to the old job. The supervisor remains live while ordinary background descendants remain; command completion therefore waits for them deliberately.
++
++**Selector contract:** `identify [PID]` inspects actual kernel process-session membership and validates a live supervisor's PID/start/boot identity plus the origin's current governed record. It emits `governed` with the original session ID, `ordinary` for no registered job or explicit release, and `unknown` for malformed/stale/unreadable registered identity. `unknown` is not a trusted-human verdict. Deleting the origin's level record releases its live jobs without changing another session. Starting a new logical session does not relabel an old job. State location is the configured HOME's launch-level store; callers must preserve that execution context. Arbitrary state relocation or hostile same-user modification is not an isolation guarantee.
++
++**Known execution changes:** wrapped commands run in a fresh Bash shell. An internal `cd` does not persist to later Bash tool calls; use an explicit working directory in each governed call. This adapter is not a transparent replacement for every interactive Bash workflow. Deliberate `setsid`/daemonization escapes kernel-session selection; supervisor killing leaves stale/unknown state for surviving registered jobs. Monitor, other shell tools, remote jobs and unmatched execution mechanisms are not silently supported. No universal hostile-agent protection is claimed.
++
++**Runtime preflight:** UV, the supported Linux process/pidfd/subreaper interfaces, Bash and valid private state must exist for governed execution. With UV absent, jq may establish an exact positively bound session and block it plainly; ordinary unbound calls remain silent. If neither runtime nor parser can establish binding, adaptation is unavailable with no rewrite, not proven human identity or active protection. The future governed launcher must check these prerequisites instead of advertising protection on a host that cannot adapt its jobs.
++
++**Observed versus simulated:** isolated actual CLI PreToolUse/PostToolUse records show one governed call rewritten without a permission-approval decision and reporting the same origin UUID from the executed selector; its ordinary counterpart is not rewritten and reports ordinary. Both actual CLI runs exited 0. The managed identity package `TASK-WF-authorizedNarrow-20261106-214325` retains the redacted `artifacts/live-harness-events.jsonl`. Controlled subprocess tests exercise old-background/new-ordinary overlap, release, stale process data, quoting, startup failure and signal behavior; they are not observations of real `/clear` or resume. Actual persistent-cwd tracking, background scheduling, `/clear`, resume, Monitor, auto mode, concurrent-hook composition and nested-subagent payload variants remain unobserved unless later evidence explicitly adds them.
++
++**Next integration:** a future claim launcher must create the private governed level record for the actual logical session, validate effective adapter/runtime availability and install the separately designed production pre-push policy. That policy may use this selector only on the tested local Bash surface; it must retain an explicit unsupported path for unknown or unadapted execution. This increment does not implement the claim pipeline, the full text classifier, automatic session binding from a claim marker or the production pre-push install/release policy. The earlier blocked workflow remains historical and immutable, not retroactively compliant.

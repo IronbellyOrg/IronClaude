@@ -1,0 +1,178 @@
+--- a/plugins/superclaude/hooks/scripts/launch-job-identity.sh
++++ b/plugins/superclaude/hooks/scripts/launch-job-identity.sh
+@@ -23,6 +23,32 @@
+     fi
+ fi
+ if ! command -v uv >/dev/null 2>&1; then
++    if [[ $# == 0 || ( $# == 1 && $1 == hook ) ]]; then
++        # A stale store is not binding authority. With no Python runtime, jq
++        # may establish only an exact top-level Bash session and owned record.
++        # No parser means unavailable adaptation, never proof of a human actor.
++        command -v jq >/dev/null 2>&1 || exit 0
++        fallback_sid=$(jq -ers '
++            select(length == 1) | .[0] | select(type == "object") |
++            select(.tool_name == "Bash") | .session_id |
++            select(type == "string") |
++            select(test("\\A[A-Za-z0-9][A-Za-z0-9_-]{0,127}\\z"))
++        ' 2>/dev/null) || exit 0
++        [[ ${HOME:-} == /* ]] || exit 0
++        fallback_dir=${HOME%/}
++        [[ -d $fallback_dir && -O $fallback_dir ]] || exit 0
++        ancestor=$fallback_dir
++        while [[ -n $ancestor && $ancestor != / ]]; do
++            [[ ! -L $ancestor ]] || exit 0
++            ancestor=${ancestor%/*}
++        done
++        for part in .claude state launch-level sessions; do
++            fallback_dir=$fallback_dir/$part
++            [[ -d $fallback_dir && -O $fallback_dir && ! -L $fallback_dir ]] || exit 0
++        done
++        fallback_record=$fallback_dir/$fallback_sid
++        [[ -f $fallback_record && -O $fallback_record && ! -L $fallback_record ]] || exit 0
++    fi
+     printf '%s\n' 'launch job: UV is required for this invocation' >&2
+     exit 2
+ fi
+--- a/src/superclaude/hooks/scripts/launch-job-identity.sh
++++ b/src/superclaude/hooks/scripts/launch-job-identity.sh
+@@ -23,6 +23,32 @@
+     fi
+ fi
+ if ! command -v uv >/dev/null 2>&1; then
++    if [[ $# == 0 || ( $# == 1 && $1 == hook ) ]]; then
++        # A stale store is not binding authority. With no Python runtime, jq
++        # may establish only an exact top-level Bash session and owned record.
++        # No parser means unavailable adaptation, never proof of a human actor.
++        command -v jq >/dev/null 2>&1 || exit 0
++        fallback_sid=$(jq -ers '
++            select(length == 1) | .[0] | select(type == "object") |
++            select(.tool_name == "Bash") | .session_id |
++            select(type == "string") |
++            select(test("\\A[A-Za-z0-9][A-Za-z0-9_-]{0,127}\\z"))
++        ' 2>/dev/null) || exit 0
++        [[ ${HOME:-} == /* ]] || exit 0
++        fallback_dir=${HOME%/}
++        [[ -d $fallback_dir && -O $fallback_dir ]] || exit 0
++        ancestor=$fallback_dir
++        while [[ -n $ancestor && $ancestor != / ]]; do
++            [[ ! -L $ancestor ]] || exit 0
++            ancestor=${ancestor%/*}
++        done
++        for part in .claude state launch-level sessions; do
++            fallback_dir=$fallback_dir/$part
++            [[ -d $fallback_dir && -O $fallback_dir && ! -L $fallback_dir ]] || exit 0
++        done
++        fallback_record=$fallback_dir/$fallback_sid
++        [[ -f $fallback_record && -O $fallback_record && ! -L $fallback_record ]] || exit 0
++    fi
+     printf '%s\n' 'launch job: UV is required for this invocation' >&2
+     exit 2
+ fi
+--- a/tests/hooks/test_launch_job_identity.py
++++ b/tests/hooks/test_launch_job_identity.py
+@@ -52,7 +52,7 @@
+ 
+     def call(self, *args, **kwargs):
+         return subprocess.run(
+-            ["bash", str(SCRIPT), *args],
++            ["/bin/bash", str(SCRIPT), *args],
+             env=self.env,
+             capture_output=True,
+             text=True,
+@@ -929,8 +929,8 @@
+     assert not (job.root / "requests").exists()
+ 
+ 
+-def test_bound_hook_missing_uv_blocks_before_publication(job, tmp_path):
+-    job.env["PATH"] = str(tmp_path / "no-binaries")
++def test_bound_hook_missing_uv_blocks_only_with_jq_positive_identity(job, tmp_path):
++    jq_only_path(job, tmp_path)
+     result = adapt(job, hook_event("touch NEVER_EXECUTE"))
+     assert result.returncode == 2
+     assert result.stdout == ""
+@@ -1025,3 +1025,85 @@
+     assert list(requests.iterdir()) == [unrelated]
+     assert unrelated.read_text() == "keep"
+     assert not job.records()
++
++
++def jq_only_path(job, tmp_path):
++    import shutil
++
++    jq = shutil.which("jq")
++    assert jq is not None, "jq is required for the fallback parser tests"
++    binary_dir = tmp_path / "jq-only"
++    binary_dir.mkdir()
++    (binary_dir / "jq").symlink_to(jq)
++    job.env["PATH"] = str(binary_dir)
++
++
++@pytest.mark.parametrize("sid", ["ordinary", "different", "old-prefix", "old\n"])
++@pytest.mark.parametrize("explicit_hook", [False, True])
++def test_missing_uv_existing_other_binding_does_not_select_ordinary(
++    job, tmp_path, sid, explicit_hook
++):
++    jq_only_path(job, tmp_path)
++    before = set(job.root.rglob("*"))
++    args = ("hook",) if explicit_hook else ()
++    result = job.call(*args, input=json.dumps(hook_event(sid=sid)))
++    assert (result.returncode, result.stdout, result.stderr) == (0, "", "")
++    assert set(job.root.rglob("*")) == before
++
++
++def test_missing_uv_stale_store_without_session_binding_is_inert(job, tmp_path):
++    jq_only_path(job, tmp_path)
++    (job.root / "sessions/old").unlink()
++    (job.root / "sessions").rmdir()
++    result = adapt(job, hook_event())
++    assert (result.returncode, result.stdout, result.stderr) == (0, "", "")
++    assert not (job.root / "requests").exists()
++
++
++def test_missing_uv_and_jq_is_unavailable_adaptation_not_positive_identity(
++    job, tmp_path
++):
++    job.env["PATH"] = str(tmp_path / "no-binaries")
++    before = set(job.root.rglob("*"))
++    result = adapt(job, hook_event())
++    # No parser can establish the bound event: this is not proof of a human.
++    assert (result.returncode, result.stdout, result.stderr) == (0, "", "")
++    assert set(job.root.rglob("*")) == before
++
++
++@pytest.mark.parametrize(
++    "raw",
++    [
++        "{",
++        '{"tool_name":"Bash","nested":{"session_id":"old"}}',
++        '{"tool_name":"Bash","session_id":123}',
++        '{"tool_name":"Bash","session_id":"../old"}',
++        '{"tool_name":"Monitor","session_id":"old"}',
++        '{"tool_name":"Bash","session_id":"old"} {"session_id":"old"}',
++    ],
++)
++def test_missing_uv_fallback_never_guesses_from_invalid_or_unsupported_envelope(
++    job, tmp_path, raw
++):
++    jq_only_path(job, tmp_path)
++    result = job.call(input=raw)
++    assert (result.returncode, result.stdout, result.stderr) == (0, "", "")
++    assert not (job.root / "requests").exists()
++
++
++@pytest.mark.parametrize(
++    "args",
++    [
++        ("prepare", "old", "true"),
++        ("run", "0" * 32),
++        ("identify",),
++        ("execute", "old", "tool_1", "true"),
++    ],
++)
++def test_explicit_runtime_modes_still_fail_plainly_without_uv(job, tmp_path, args):
++    job.env["PATH"] = str(tmp_path / "no-binaries")
++    result = job.call(*args)
++    assert result.returncode == 2
++    assert result.stdout == ""
++    assert result.stderr == "launch job: UV is required for this invocation\n"
++    assert not (job.root / "requests").exists()

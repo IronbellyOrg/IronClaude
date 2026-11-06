@@ -1,0 +1,667 @@
+Task3 Q5 fix F1.1: ordinary sessions with existing state no longer fail solely because UV is absent.
+Missing UV: jq parses one exact top-level Bash session_id; only a matching owned regular record in nonsymlink owned store directories produces the plain UV-required exit2.
+Unbound/other-session/stale-store events are silent0. Without either parser, adaptation is unavailable with no rewrite; this is not proof of a human or a protection guarantee.
+Explicit launcher/runner/selector/execute modes remain plain exit2 without UV. No bare-Python fallback, global install, or state creation in preflight.
+🔄 Syncing src/superclaude/ → .claude/ for local development...
+✅ Sync complete.
+   Skills:    39 directories
+   Agents:    48 files
+   Commands:  46 files
+   Hooks:     14 files
+   Templates: 52 files
+🔍 Verifying src/superclaude/ ↔ .claude/ sync...
+
+=== Skills ===
+  ✅ ccsession-tag
+  ✅ confidence-check
+  ✅ operational-guide
+  ✅ prd
+  ✅ readme
+  ✅ roadmap
+  ✅ sc-adversarial-protocol
+  ✅ sc-auggie-review-protocol
+  ✅ sc-bare-review
+  ✅ sc-brainstorm-protocol
+  ✅ sc-cleanup-audit-protocol
+  ✅ sc-cli-eval-protocol
+  ✅ sc-cli-portify-protocol
+  ✅ sc-crash-recovery
+  ✅ sc-graph-protocol
+  ✅ sc-impact-protocol
+  ✅ sc-implement-protocol
+  ✅ sc-init-lite-protocol
+  ✅ sc-issue-protocol
+  ✅ sc-pm-protocol
+  ✅ sc-post-release-protocol
+  ✅ sc-pr-submit-protocol
+  ✅ sc-recommend
+  ✅ sc-reflect-protocol
+  ✅ sc-release-split-protocol
+  ✅ sc-review-translation-protocol
+  ✅ sc-roadmap-protocol
+  ✅ sc-swarm-wizard-protocol
+  ✅ sc-task-protocol
+  ✅ sc-tasklist-protocol
+  ✅ sc-troubleshoot-protocol
+  ✅ sc-validate-roadmap-protocol
+  ✅ sc-validate-tests-protocol
+  ✅ sc-workflow-protocol
+  ✅ task-builder
+  ✅ task
+  ✅ tdd
+  ✅ tech-reference
+  ✅ tech-research
+
+=== Agents ===
+  ✅ audit-analyzer.md
+  ✅ audit-comparator.md
+  ✅ audit-consolidator.md
+  ✅ audit-scanner.md
+  ✅ audit-validator.md
+  ✅ auggie-reviewer.md
+  ✅ backend-architect.md
+  ✅ business-panel-experts.md
+  ✅ confidence-calibrator.md
+  ✅ debate-orchestrator.md
+  ✅ deep-research-agent.md
+  ✅ deep-research.md
+  ✅ devops-architect.md
+  ✅ eval-docs-loader.md
+  ✅ eval-run-reporter.md
+  ✅ eval-suite-author.md
+  ✅ evidence-validator.md
+  ✅ frontend-architect.md
+  ✅ implement-retry-adviser.md
+  ✅ issue-worker-t1.md
+  ✅ issue-worker-t2.md
+  ✅ issue-worker-t3.md
+  ✅ learning-guide.md
+  ✅ merge-executor.md
+  ✅ performance-engineer.md
+  ✅ pm-agent.md
+  ✅ python-expert.md
+  ✅ quality-engineer.md
+  ✅ refactoring-expert.md
+  ✅ reflect-reviewer.md
+  ✅ repo-index.md
+  ✅ requirements-analyst.md
+  ✅ reuse-auditor.md
+  ✅ rf-analyst.md
+  ✅ rf-assembler.md
+  ✅ rf-qa-qualitative.md
+  ✅ rf-qa.md
+  ✅ rf-task-builder.md
+  ✅ rf-task-executor.md
+  ✅ rf-task-researcher.md
+  ✅ rf-team-lead.md
+  ✅ root-cause-analyst.md
+  ✅ security-engineer.md
+  ✅ self-review.md
+  ✅ socratic-mentor.md
+  ✅ system-architect.md
+  ✅ technical-writer.md
+  ✅ troubleshoot-analyst.md
+
+=== Commands ===
+  ✅ adversarial.md
+  ✅ agent.md
+  ✅ analyze.md
+  ✅ auggie-review.md
+  ✅ brainstorm.md
+  ✅ build.md
+  ✅ business-panel.md
+  ✅ cleanup-audit.md
+  ✅ cleanup.md
+  ✅ cli-eval.md
+  ✅ cli-portify.md
+  ✅ design.md
+  ✅ document.md
+  ✅ explain.md
+  ✅ git.md
+  ✅ graph.md
+  ✅ help.md
+  ✅ impact.md
+  ✅ implement.md
+  ✅ improve.md
+  ✅ index-repo.md
+  ✅ index.md
+  ✅ init-lite.md
+  ✅ issue.md
+  ✅ load.md
+  ✅ pm.md
+  ✅ post-release.md
+  ✅ pr-submit.md
+  ✅ recommend.md
+  ✅ reflect.md
+  ✅ release-split.md
+  ✅ research.md
+  ✅ review-translation.md
+  ✅ roadmap.md
+  ✅ save.md
+  ✅ spawn.md
+  ✅ spec-panel.md
+  ✅ swarm-wizard.md
+  ✅ task.md
+  ✅ tasklist.md
+  ✅ tdd.md
+  ✅ test.md
+  ✅ troubleshoot.md
+  ✅ validate-roadmap.md
+  ✅ validate-tests.md
+  ✅ workflow.md
+
+=== Hooks ===
+  ✅ auggie-flag-clear.sh
+  ✅ block-bare-python.sh
+  ✅ codegraph-session-start.sh
+  ✅ freshness-file-changed.sh
+  ✅ freshness-post-read.sh
+  ✅ freshness-pre-edit.sh
+  ✅ freshness-session-start.sh
+  ✅ freshness-subagent-start.sh
+  ✅ freshness-subagent-stop.sh
+  ✅ freshness-user-prompt.sh
+  ✅ launch-job-identity.sh
+  ✅ reject-workspace-writes.sh
+  ✅ sc-recommend-phase0.sh
+  ✅ pragmatic-subagent.js
+
+=== Templates ===
+  ✅ workflow/05_prd_template.md
+  ✅ workflow/03_project_plan_template.md
+  ✅ workflow/03_component_authoring_template.md
+  ✅ workflow/00_mdtm_template_simple_task.md
+  ✅ workflow/01_mdtm_template_generic_task__gfdoc.md
+  ✅ workflow/06_architecture_proposal_template.md
+  ✅ workflow/02_mdtm_template_complex_task.md
+  ✅ workflow/04_feature_brief_template.md
+  ✅ workflow/changelog_template.md
+  ✅ workflow/01_mdtm_template_generic_task.md
+  ✅ workflow/99_mdtm_template_generic_task_old.md
+  ✅ documents/prd_template.md
+  ✅ documents/operational_guide_template.md
+  ✅ documents/GFxAI_Master_Documentation_Template.md
+  ✅ documents/tdd_template.md
+  ✅ documents/agent_template_analysis.md
+  ✅ documents/supplemental-doc-creation-checklist.md
+  ✅ documents/agent_template_qa.md
+  ✅ documents/skill_template.md
+  ✅ documents/roadmap_template.md
+  ✅ documents/agent_template_worker.md
+  ✅ documents/release-spec-template.md
+  ✅ documents/supplemental_doc_template.md
+  ✅ documents/technical_reference_template.md
+  ✅ documents/readme_template.md
+  ✅ modularization-template-review/qa-fix-summary_template.md
+  ✅ modularization-template-review/qa-task-research-alignment_report_template.md
+  ✅ modularization-template-review/analyst-synthesis-review_report_template.md
+  ✅ modularization-template-review/research-notes_template.md
+  ✅ modularization-template-review/synthetic-dnsp-finding.contract
+  ✅ modularization-template-review/INDEX.md
+  ✅ modularization-template-review/qa-task-validation-structure_report_template.md
+  ✅ modularization-template-review/qa-cross-source-contradictions_template.md
+  ✅ modularization-template-review/track-scope-map_template.md
+  ✅ modularization-template-review/claim-evidence-matrix_template.md
+  ✅ modularization-template-review/qa-inventory_report_template.md
+  ✅ modularization-template-review/analyst-coverage-matrix_template.md
+  ✅ modularization-template-review/codebase-research_template.md
+  ✅ modularization-template-review/analyst-completeness_report_template.md
+  ✅ modularization-template-review/analyst-gap-analysis_template.md
+  ✅ modularization-template-review/qa-lens_report_template.md
+  ✅ modularization-template-review/qa-consolidated-findings_template.md
+  ✅ modularization-template-review/qa-task-validation-b2_report_template.md
+  ✅ modularization-template-review/qa-research-gap_report_template.md
+  ✅ modularization-template-review/qa-research-evidence_report_template.md
+  ✅ modularization-template-review/qa-qualitative-operational_report_template.md
+  ✅ modularization-template-review/qa-qualitative-sufficiency_report_template.md
+  ✅ modularization-template-review/analyst-cross-validation_report_template.md
+  ✅ modularization-template-review/qa-acceptance-methodology-audit_template.md
+  ✅ modularization-template-review/pipeline-complete_report_template.md
+  ✅ modularization-template-review/qa-source-fidelity_template.md
+  ✅ modularization-template-review/qa-research-depth_report_template.md
+  ✅ modularization-template-review/web-research_template.md
+
+=== Installer Registration ===
+  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 408 items
+
+tests/hooks/test_auggie_first.py::test_auggie_mcp_call_clears_sticky PASSED [  0%]
+tests/hooks/test_auggie_first.py::test_gateway_alias_clears_sticky PASSED [  0%]
+tests/hooks/test_auggie_first.py::test_unrelated_tool_preserves_sticky PASSED [  0%]
+tests/hooks/test_auggie_first.py::test_unknown_session_id_is_noop PASSED [  0%]
+tests/hooks/test_auggie_first.py::test_missing_sticky_is_fail_open PASSED [  1%]
+tests/hooks/test_auggie_flag_clear_mcp_prefix.py::test_auggie_mcp_dash_prefix_ask_question_clears_sticky PASSED [  1%]
+tests/hooks/test_auggie_flag_clear_mcp_prefix.py::test_auggie_mcp_dash_prefix_implement_clears_sticky PASSED [  1%]
+tests/hooks/test_auggie_flag_clear_mcp_prefix.py::test_matcher_and_case_body_reference_same_auggie_prefixes PASSED [  1%]
+tests/hooks/test_auggie_flag_clear_mcp_prefix.py::test_pr47_widened_prefixes_present_in_both_surfaces PASSED [  2%]
+tests/hooks/test_block_bare_python.py::test_blocked[python3-c] PASSED    [  2%]
+tests/hooks/test_block_bare_python.py::test_blocked[python-script] PASSED [  2%]
+tests/hooks/test_block_bare_python.py::test_blocked[pip-install] PASSED  [  2%]
+tests/hooks/test_block_bare_python.py::test_blocked[pip3-install] PASSED [  3%]
+tests/hooks/test_block_bare_python.py::test_blocked[abs-python3] PASSED  [  3%]
+tests/hooks/test_block_bare_python.py::test_blocked[venv-python] PASSED  [  3%]
+tests/hooks/test_block_bare_python.py::test_blocked[and-chain] PASSED    [  3%]
+tests/hooks/test_block_bare_python.py::test_blocked[semicolon-chain] PASSED [  4%]
+tests/hooks/test_block_bare_python.py::test_blocked[pipe-issue-command] PASSED [  4%]
+tests/hooks/test_block_bare_python.py::test_blocked[or-chain] PASSED     [  4%]
+tests/hooks/test_block_bare_python.py::test_blocked[background] PASSED   [  4%]
+tests/hooks/test_block_bare_python.py::test_blocked[second-line] PASSED  [  5%]
+tests/hooks/test_block_bare_python.py::test_blocked[dollar-subst] PASSED [  5%]
+tests/hooks/test_block_bare_python.py::test_blocked[backtick-subst] PASSED [  5%]
+tests/hooks/test_block_bare_python.py::test_blocked[subshell] PASSED     [  5%]
+tests/hooks/test_block_bare_python.py::test_blocked[if-condition] PASSED [  6%]
+tests/hooks/test_block_bare_python.py::test_blocked[for-body] PASSED     [  6%]
+tests/hooks/test_block_bare_python.py::test_blocked[assignment-prefix] PASSED [  6%]
+tests/hooks/test_block_bare_python.py::test_blocked[env-wrapper] PASSED  [  6%]
+tests/hooks/test_block_bare_python.py::test_blocked[sudo-wrapper] PASSED [  7%]
+tests/hooks/test_block_bare_python.py::test_blocked[timeout-wrapper] PASSED [  7%]
+tests/hooks/test_block_bare_python.py::test_blocked[nohup-wrapper] PASSED [  7%]
+tests/hooks/test_block_bare_python.py::test_blocked[exec-wrapper] PASSED [  7%]
+tests/hooks/test_block_bare_python.py::test_blocked[quoted-dollar-subst] PASSED [  8%]
+tests/hooks/test_block_bare_python.py::test_blocked[quoted-backtick-subst] PASSED [  8%]
+tests/hooks/test_block_bare_python.py::test_blocked[nested-quoted-subst] PASSED [  8%]
+tests/hooks/test_block_bare_python.py::test_blocked[comment-then-python3] PASSED [  8%]
+tests/hooks/test_block_bare_python.py::test_blocked[apostrophe-comment-then-python3] PASSED [  9%]
+tests/hooks/test_block_bare_python.py::test_blocked[comment-backslash-no-continuation-E1] PASSED [  9%]
+tests/hooks/test_block_bare_python.py::test_blocked[unquoted-heredoc-apostrophe-E3] PASSED [  9%]
+tests/hooks/test_block_bare_python.py::test_blocked[unquoted-heredoc-subst-E4] PASSED [  9%]
+tests/hooks/test_block_bare_python.py::test_blocked[tab-stripped-heredoc-E5] PASSED [ 10%]
+tests/hooks/test_block_bare_python.py::test_blocked[here-string-E6] PASSED [ 10%]
+tests/hooks/test_block_bare_python.py::test_blocked[quoted-heredoc-apostrophe] PASSED [ 10%]
+tests/hooks/test_block_bare_python.py::test_blocked[redirect-first-E7] PASSED [ 10%]
+tests/hooks/test_block_bare_python.py::test_blocked[redirect-out-first-E8] PASSED [ 11%]
+tests/hooks/test_block_bare_python.py::test_blocked[double-quoted-word-E9] PASSED [ 11%]
+tests/hooks/test_block_bare_python.py::test_blocked[single-quoted-word-E9b] PASSED [ 11%]
+tests/hooks/test_block_bare_python.py::test_blocked[backslash-word-E9c] PASSED [ 11%]
+tests/hooks/test_block_bare_python.py::test_blocked[quoted-path-word-E10] PASSED [ 12%]
+tests/hooks/test_block_bare_python.py::test_blocked[ansi-c-quote-E11] PASSED [ 12%]
+tests/hooks/test_block_bare_python.py::test_blocked[subst-in-assignment-E13] PASSED [ 12%]
+tests/hooks/test_block_bare_python.py::test_blocked[arith-in-subst-E15] PASSED [ 12%]
+tests/hooks/test_block_bare_python.py::test_blocked[continuation] PASSED [ 12%]
+tests/hooks/test_block_bare_python.py::test_blocked[shell-heredoc] PASSED [ 13%]
+tests/hooks/test_block_bare_python.py::test_blocked[sudo-user-option] PASSED [ 13%]
+tests/hooks/test_block_bare_python.py::test_blocked[nice-n-option] PASSED [ 13%]
+tests/hooks/test_block_bare_python.py::test_blocked[env-path-form] PASSED [ 13%]
+tests/hooks/test_block_bare_python.py::test_blocked[function-body] PASSED [ 14%]
+tests/hooks/test_block_bare_python.py::test_blocked[case-body] PASSED    [ 14%]
+tests/hooks/test_block_bare_python.py::test_blocked[process-subst] PASSED [ 14%]
+tests/hooks/test_block_bare_python.py::test_blocked[ansi-c-octal] PASSED [ 14%]
+tests/hooks/test_block_bare_python.py::test_blocked[ansi-c-octal-wraps] PASSED [ 15%]
+tests/hooks/test_block_bare_python.py::test_blocked[ansi-c-hex] PASSED   [ 15%]
+tests/hooks/test_block_bare_python.py::test_blocked[ansi-c-unicode] PASSED [ 15%]
+tests/hooks/test_block_bare_python.py::test_blocked[ansi-c-nul-ends-word] PASSED [ 15%]
+tests/hooks/test_block_bare_python.py::test_blocked[ansi-c-joined-word] PASSED [ 16%]
+tests/hooks/test_block_bare_python.py::test_blocked[ansi-c-pip] PASSED   [ 16%]
+tests/hooks/test_block_bare_python.py::test_blocked[timeout-long-signal] PASSED [ 16%]
+tests/hooks/test_block_bare_python.py::test_blocked[timeout-long-kill-after] PASSED [ 16%]
+tests/hooks/test_block_bare_python.py::test_blocked[timeout-abbreviated-option] PASSED [ 17%]
+tests/hooks/test_block_bare_python.py::test_blocked[timeout-long-equals] PASSED [ 17%]
+tests/hooks/test_block_bare_python.py::test_blocked[sudo-long-user] PASSED [ 17%]
+tests/hooks/test_block_bare_python.py::test_blocked[sudo-short-cluster] PASSED [ 17%]
+tests/hooks/test_block_bare_python.py::test_blocked[sudo-attached-value] PASSED [ 18%]
+tests/hooks/test_block_bare_python.py::test_blocked[nice-long-adjustment] PASSED [ 18%]
+tests/hooks/test_block_bare_python.py::test_blocked[env-long-unset] PASSED [ 18%]
+tests/hooks/test_block_bare_python.py::test_blocked[env-long-chdir] PASSED [ 18%]
+tests/hooks/test_block_bare_python.py::test_blocked[after-double-bracket] PASSED [ 19%]
+tests/hooks/test_block_bare_python.py::test_blocked[subst-in-double-bracket] PASSED [ 19%]
+tests/hooks/test_block_bare_python.py::test_blocked[double-bracket-no-space] PASSED [ 19%]
+tests/hooks/test_block_bare_python.py::test_blocked[double-bracket-then] PASSED [ 19%]
+tests/hooks/test_block_bare_python.py::test_blocked[double-bracket-regex-then-line] PASSED [ 20%]
+tests/hooks/test_block_bare_python.py::test_blocked[escaped-double-bracket] PASSED [ 20%]
+tests/hooks/test_block_bare_python.py::test_blocked[quoted-double-bracket] PASSED [ 20%]
+tests/hooks/test_block_bare_python.py::test_blocked[quoted-case-word] PASSED [ 20%]
+tests/hooks/test_block_bare_python.py::test_blocked[psub-redirect-target] PASSED [ 21%]
+tests/hooks/test_block_bare_python.py::test_blocked[psub-stderr-redirect] PASSED [ 21%]
+tests/hooks/test_block_bare_python.py::test_blocked[arith-expansion-backtick] PASSED [ 21%]
+tests/hooks/test_block_bare_python.py::test_blocked[arith-command-backtick] PASSED [ 21%]
+tests/hooks/test_block_bare_python.py::test_blocked[named-fd-redirect] PASSED [ 22%]
+tests/hooks/test_block_bare_python.py::test_blocked[named-fd-input] PASSED [ 22%]
+tests/hooks/test_block_bare_python.py::test_blocked[function-body-spaced-parens] PASSED [ 22%]
+tests/hooks/test_block_bare_python.py::test_allowed[uv-run-python] PASSED [ 22%]
+tests/hooks/test_block_bare_python.py::test_allowed[uv-run-no-project] PASSED [ 23%]
+tests/hooks/test_block_bare_python.py::test_allowed[uv-pip] PASSED       [ 23%]
+tests/hooks/test_block_bare_python.py::test_allowed[uvx] PASSED          [ 23%]
+tests/hooks/test_block_bare_python.py::test_allowed[and-uv] PASSED       [ 23%]
+tests/hooks/test_block_bare_python.py::test_allowed[grep-pattern] PASSED [ 24%]
+tests/hooks/test_block_bare_python.py::test_allowed[rg-quoted] PASSED    [ 24%]
+tests/hooks/test_block_bare_python.py::test_allowed[path-arg] PASSED     [ 24%]
+tests/hooks/test_block_bare_python.py::test_allowed[file-arg] PASSED     [ 24%]
+tests/hooks/test_block_bare_python.py::test_allowed[echo-double-quoted] PASSED [ 25%]
+tests/hooks/test_block_bare_python.py::test_allowed[echo-single-quoted] PASSED [ 25%]
+tests/hooks/test_block_bare_python.py::test_allowed[commit-message] PASSED [ 25%]
+tests/hooks/test_block_bare_python.py::test_allowed[bash-c-string] PASSED [ 25%]
+tests/hooks/test_block_bare_python.py::test_allowed[command-v] PASSED    [ 25%]
+tests/hooks/test_block_bare_python.py::test_allowed[which] PASSED        [ 26%]
+tests/hooks/test_block_bare_python.py::test_allowed[type] PASSED         [ 26%]
+tests/hooks/test_block_bare_python.py::test_allowed[pipe-jq] PASSED      [ 26%]
+tests/hooks/test_block_bare_python.py::test_allowed[read-parse-line] PASSED [ 26%]
+tests/hooks/test_block_bare_python.py::test_allowed[semicolon-uv] PASSED [ 27%]
+tests/hooks/test_block_bare_python.py::test_allowed[semicolon-echo-mention] PASSED [ 27%]
+tests/hooks/test_block_bare_python.py::test_allowed[and-then-mention] PASSED [ 27%]
+tests/hooks/test_block_bare_python.py::test_allowed[subst-path-arg-E12] PASSED [ 27%]
+tests/hooks/test_block_bare_python.py::test_allowed[multiline-commit-heredoc] PASSED [ 28%]
+tests/hooks/test_block_bare_python.py::test_allowed[uv-continuation] PASSED [ 28%]
+tests/hooks/test_block_bare_python.py::test_allowed[comment-mention] PASSED [ 28%]
+tests/hooks/test_block_bare_python.py::test_allowed[array-assignment] PASSED [ 28%]
+tests/hooks/test_block_bare_python.py::test_allowed[quoted-heredoc-text] PASSED [ 29%]
+tests/hooks/test_block_bare_python.py::test_allowed[here-string-mention] PASSED [ 29%]
+tests/hooks/test_block_bare_python.py::test_allowed[double-bracket-regex-alternation] PASSED [ 29%]
+tests/hooks/test_block_bare_python.py::test_allowed[double-bracket-compare] PASSED [ 29%]
+tests/hooks/test_block_bare_python.py::test_allowed[double-bracket-less-than] PASSED [ 30%]
+tests/hooks/test_block_bare_python.py::test_allowed[ansi-c-mention] PASSED [ 30%]
+tests/hooks/test_block_bare_python.py::test_allowed[sudo-attached-value-other-command] PASSED [ 30%]
+tests/hooks/test_block_bare_python.py::test_allowed[env-split-string-ceiling] PASSED [ 30%]
+tests/hooks/test_block_bare_python.py::test_allowed[psub-argument] PASSED [ 31%]
+tests/hooks/test_block_bare_python.py::test_allowed[psub-redirect-other-command] PASSED [ 31%]
+tests/hooks/test_block_bare_python.py::test_allowed[arith-plain] PASSED  [ 31%]
+tests/hooks/test_block_bare_python.py::test_allowed[function-named-python3] PASSED [ 31%]
+tests/hooks/test_block_bare_python.py::test_allowed[function-named-pip-spaced] PASSED [ 32%]
+tests/hooks/test_block_bare_python.py::test_fail_open[non-json] PASSED   [ 32%]
+tests/hooks/test_block_bare_python.py::test_fail_open[empty-stdin] PASSED [ 32%]
+tests/hooks/test_block_bare_python.py::test_fail_open[read-tool] PASSED  [ 32%]
+tests/hooks/test_block_bare_python.py::test_fail_open[bash-no-command] PASSED [ 33%]
+tests/hooks/test_block_bare_python.py::test_fail_open[bash-empty-command] PASSED [ 33%]
+tests/hooks/test_block_bare_python.py::test_fail_open_when_jq_missing PASSED [ 33%]
+tests/hooks/test_block_bare_python.py::test_100kb_command_blocked_under_one_second PASSED [ 33%]
+tests/hooks/test_block_bare_python.py::test_200kb_command_on_stdin_blocked PASSED [ 34%]
+tests/hooks/test_freshness_pre_edit_create_case.py::test_write_to_nonexistent_file_allows PASSED [ 34%]
+tests/hooks/test_freshness_pre_edit_create_case.py::test_edit_to_existing_unread_file_still_blocks PASSED [ 34%]
+tests/hooks/test_freshness_pre_edit_create_case.py::test_write_to_existing_unread_file_still_blocks PASSED [ 34%]
+tests/hooks/test_freshness_subagent_start_policy.py::test_subagent_start_injects_policy_and_increments_counter PASSED [ 35%]
+tests/hooks/test_freshness_subagent_start_policy.py::test_subagent_start_missing_policy_fails_open PASSED [ 35%]
+tests/hooks/test_freshness_subagent_start_policy.py::test_subagent_start_malformed_input_still_fails_open PASSED [ 35%]
+tests/hooks/test_freshness_subagent_start_policy.py::test_subagent_start_lock_contention_is_bounded PASSED [ 35%]
+tests/hooks/test_freshness_subagent_start_policy.py::test_subagent_start_registration_is_synchronous_without_bash_counter PASSED [ 36%]
+tests/hooks/test_launch_job_identity.py::test_output_status_stdin_environment_and_cwd PASSED [ 36%]
+tests/hooks/test_launch_job_identity.py::test_prepare_requires_exact_existing_governed_session[missing-None] PASSED [ 36%]
+tests/hooks/test_launch_job_identity.py::test_prepare_requires_exact_existing_governed_session[old-] PASSED [ 36%]
+tests/hooks/test_launch_job_identity.py::test_prepare_requires_exact_existing_governed_session[old-full\nextra] PASSED [ 37%]
+tests/hooks/test_launch_job_identity.py::test_prepare_requires_exact_existing_governed_session[old-degraded] PASSED [ 37%]
+tests/hooks/test_launch_job_identity.py::test_prepare_requires_exact_existing_governed_session[../bad-None] PASSED [ 37%]
+tests/hooks/test_launch_job_identity.py::test_allowed_levels_and_tool_id[worktree] PASSED [ 37%]
+tests/hooks/test_launch_job_identity.py::test_allowed_levels_and_tool_id[full] PASSED [ 37%]
+tests/hooks/test_launch_job_identity.py::test_allowed_levels_and_tool_id[full-submit] PASSED [ 38%]
+tests/hooks/test_launch_job_identity.py::test_allowed_levels_and_tool_id[full-submit\n] PASSED [ 38%]
+tests/hooks/test_launch_job_identity.py::test_symlink_components_refused[session] PASSED [ 38%]
+tests/hooks/test_launch_job_identity.py::test_symlink_components_refused[sessions] PASSED [ 38%]
+tests/hooks/test_launch_job_identity.py::test_symlink_components_refused[root] PASSED [ 39%]
+tests/hooks/test_launch_job_identity.py::test_symlink_components_refused[request] PASSED [ 39%]
+tests/hooks/test_launch_job_identity.py::test_symlink_components_refused[requests] PASSED [ 39%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[json] PASSED [ 39%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[oversize] PASSED [ 40%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[mode] PASSED [ 40%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[directory] PASSED [ 40%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[bad_sid] PASSED [ 40%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[bad_tool] PASSED [ 41%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[bad_command] PASSED [ 41%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[extra] PASSED [ 41%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[missing] PASSED [ 41%]
+tests/hooks/test_launch_job_identity.py::test_bad_requests_never_execute[hardlink] PASSED [ 42%]
+tests/hooks/test_launch_job_identity.py::test_atomic_concurrent_consumption PASSED [ 42%]
+tests/hooks/test_launch_job_identity.py::test_old_orphan_keeps_origin_new_ordinary_and_forged_environment_do_not PASSED [ 42%]
+tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[pid] PASSED [ 42%]
+tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[start] PASSED [ 43%]
+tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[boot] PASSED [ 43%]
+tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[json] PASSED [ 43%]
+tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[sid] PASSED [ 43%]
+tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[mode] PASSED [ 44%]
+tests/hooks/test_launch_job_identity.py::test_corrupt_or_stale_job_record_is_unknown_not_human[zombie_or_dead] PASSED [ 44%]
+tests/hooks/test_launch_job_identity.py::test_release_live_job_and_invalid_bound_state PASSED [ 44%]
+tests/hooks/test_launch_job_identity.py::test_signal_cancellation_cleans_ordinary_descendants_only[15] PASSED [ 44%]
+tests/hooks/test_launch_job_identity.py::test_signal_cancellation_cleans_ordinary_descendants_only[2] PASSED [ 45%]
+tests/hooks/test_launch_job_identity.py::test_signal_cancellation_cleans_ordinary_descendants_only[1] PASSED [ 45%]
+tests/hooks/test_launch_job_identity.py::test_main_shell_status_survives_cancellation_during_background_wait PASSED [ 45%]
+tests/hooks/test_launch_job_identity.py::test_intentional_new_session_escape_explicitly_unselected PASSED [ 45%]
+tests/hooks/test_launch_job_identity.py::test_missing_and_invalid_proc_identity PASSED [ 46%]
+tests/hooks/test_launch_job_identity.py::test_unsafe_modes_refused[home] PASSED [ 46%]
+tests/hooks/test_launch_job_identity.py::test_unsafe_modes_refused[root] PASSED [ 46%]
+tests/hooks/test_launch_job_identity.py::test_unsafe_modes_refused[sessions] PASSED [ 46%]
+tests/hooks/test_launch_job_identity.py::test_unsafe_modes_refused[session] PASSED [ 47%]
+tests/hooks/test_launch_job_identity.py::test_unsafe_modes_refused[requests] PASSED [ 47%]
+tests/hooks/test_launch_job_identity.py::test_bad_home_and_symlinked_home_are_not_identity_authority PASSED [ 47%]
+tests/hooks/test_launch_job_identity.py::test_invalid_and_symlinked_job_registry_unknown PASSED [ 47%]
+tests/hooks/test_launch_job_identity.py::test_request_release_before_run_consumes_authorization PASSED [ 48%]
+tests/hooks/test_launch_job_identity.py::test_deep_json_and_nul_command_fail_with_plain_diagnostics PASSED [ 48%]
+tests/hooks/test_launch_job_identity.py::test_cancellation_escalates_for_uncooperative_child PASSED [ 48%]
+tests/hooks/test_launch_job_identity.py::test_hook_replaces_whole_input_without_approval_and_executes PASSED [ 48%]
+tests/hooks/test_launch_job_identity.py::test_hook_unbound_and_unverifiable_ids_are_silent_without_state_creation[unbound] PASSED [ 49%]
+tests/hooks/test_launch_job_identity.py::test_hook_unbound_and_unverifiable_ids_are_silent_without_state_creation[] PASSED [ 49%]
+tests/hooks/test_launch_job_identity.py::test_hook_unbound_and_unverifiable_ids_are_silent_without_state_creation[None] PASSED [ 49%]
+tests/hooks/test_launch_job_identity.py::test_hook_unbound_and_unverifiable_ids_are_silent_without_state_creation[123] PASSED [ 49%]
+tests/hooks/test_launch_job_identity.py::test_hook_unbound_and_unverifiable_ids_are_silent_without_state_creation[../old] PASSED [ 50%]
+tests/hooks/test_launch_job_identity.py::test_hook_missing_ordinary_home_or_store_does_not_require_uv[missing] PASSED [ 50%]
+tests/hooks/test_launch_job_identity.py::test_hook_missing_ordinary_home_or_store_does_not_require_uv[unset] PASSED [ 50%]
+tests/hooks/test_launch_job_identity.py::test_hook_missing_ordinary_home_or_store_does_not_require_uv[fresh] PASSED [ 50%]
+tests/hooks/test_launch_job_identity.py::test_hook_non_bash_is_explicitly_out_of_scope[Monitor] PASSED [ 50%]
+tests/hooks/test_launch_job_identity.py::test_hook_non_bash_is_explicitly_out_of_scope[Read] PASSED [ 51%]
+tests/hooks/test_launch_job_identity.py::test_hook_non_bash_is_explicitly_out_of_scope[Write] PASSED [ 51%]
+tests/hooks/test_launch_job_identity.py::test_unparseable_or_unverifiable_envelope_does_not_guess_governance[{] PASSED [ 51%]
+tests/hooks/test_launch_job_identity.py::test_unparseable_or_unverifiable_envelope_does_not_guess_governance[[]] PASSED [ 51%]
+tests/hooks/test_launch_job_identity.py::test_unparseable_or_unverifiable_envelope_does_not_guess_governance[null] PASSED [ 52%]
+tests/hooks/test_launch_job_identity.py::test_unparseable_or_unverifiable_envelope_does_not_guess_governance[["session_id", "old"]] PASSED [ 52%]
+tests/hooks/test_launch_job_identity.py::test_unparseable_or_unverifiable_envelope_does_not_guess_governance[{"tool_name":"Bash","subagent":{"session_id":"old"}}] PASSED [ 52%]
+tests/hooks/test_launch_job_identity.py::test_unparseable_or_unverifiable_envelope_does_not_guess_governance[raw5] PASSED [ 52%]
+tests/hooks/test_launch_job_identity.py::test_bound_malformed_hook_call_blocks_plainly_without_ticket[change0] PASSED [ 53%]
+tests/hooks/test_launch_job_identity.py::test_bound_malformed_hook_call_blocks_plainly_without_ticket[change1] PASSED [ 53%]
+tests/hooks/test_launch_job_identity.py::test_bound_malformed_hook_call_blocks_plainly_without_ticket[change2] PASSED [ 53%]
+tests/hooks/test_launch_job_identity.py::test_bound_malformed_hook_call_blocks_plainly_without_ticket[change3] PASSED [ 53%]
+tests/hooks/test_launch_job_identity.py::test_bound_malformed_hook_call_blocks_plainly_without_ticket[change4] PASSED [ 54%]
+tests/hooks/test_launch_job_identity.py::test_bound_malformed_hook_call_blocks_plainly_without_ticket[change5] PASSED [ 54%]
+tests/hooks/test_launch_job_identity.py::test_bound_malformed_hook_call_blocks_plainly_without_ticket[change6] PASSED [ 54%]
+tests/hooks/test_launch_job_identity.py::test_bound_malformed_hook_call_blocks_plainly_without_ticket[change7] PASSED [ 54%]
+tests/hooks/test_launch_job_identity.py::test_bound_malformed_hook_call_blocks_plainly_without_ticket[change8] PASSED [ 55%]
+tests/hooks/test_launch_job_identity.py::test_bound_malformed_hook_call_blocks_plainly_without_ticket[change9] PASSED [ 55%]
+tests/hooks/test_launch_job_identity.py::test_bound_malformed_hook_call_blocks_plainly_without_ticket[change10] PASSED [ 55%]
+tests/hooks/test_launch_job_identity.py::test_bound_malformed_hook_call_blocks_plainly_without_ticket[change11] PASSED [ 55%]
+tests/hooks/test_launch_job_identity.py::test_bound_malformed_hook_call_blocks_plainly_without_ticket[change12] PASSED [ 56%]
+tests/hooks/test_launch_job_identity.py::test_bound_malformed_hook_call_blocks_plainly_without_ticket[change13] PASSED [ 56%]
+tests/hooks/test_launch_job_identity.py::test_hook_explicit_but_misconfigured_binding_blocks[bad-level] PASSED [ 56%]
+tests/hooks/test_launch_job_identity.py::test_hook_explicit_but_misconfigured_binding_blocks[mode] PASSED [ 56%]
+tests/hooks/test_launch_job_identity.py::test_hook_explicit_but_misconfigured_binding_blocks[symlink] PASSED [ 57%]
+tests/hooks/test_launch_job_identity.py::test_hook_explicit_but_misconfigured_binding_blocks[root-mode] PASSED [ 57%]
+tests/hooks/test_launch_job_identity.py::test_hook_literal_shell_content_is_not_reparsed_or_evaluated[printf '%s' 'literal $(touch NEVER_EXECUTE) `false` ; & | < >'-literal $(touch NEVER_EXECUTE) `false` ; & | < >] PASSED [ 57%]
+tests/hooks/test_launch_job_identity.py::test_hook_literal_shell_content_is_not_reparsed_or_evaluated[printf '%s' "quotes ' and \\"double\\""\nprintf '\\nline two\\n'-quotes ' and "double"\nline two\n] PASSED [ 57%]
+tests/hooks/test_launch_job_identity.py::test_hook_literal_shell_content_is_not_reparsed_or_evaluated[printf '%s' $'it\\'s\\na Bash literal'-it's\na Bash literal] PASSED [ 58%]
+tests/hooks/test_launch_job_identity.py::test_hook_literal_shell_content_is_not_reparsed_or_evaluated[printf '%s' 'Unicode caf\xe9'-Unicode caf\xe9] PASSED [ 58%]
+tests/hooks/test_launch_job_identity.py::test_hook_origin_and_background_lifetime_survive_new_event_and_release PASSED [ 58%]
+tests/hooks/test_launch_job_identity.py::test_hook_top_level_subagent_session_only_and_no_parent_inference PASSED [ 58%]
+tests/hooks/test_launch_job_identity.py::test_hook_release_before_execution_creates_no_replayable_ticket PASSED [ 59%]
+tests/hooks/test_launch_job_identity.py::test_hook_refuses_conflicting_wrapper_without_second_ticket PASSED [ 59%]
+tests/hooks/test_launch_job_identity.py::test_hook_actual_self_location_with_spaces_and_symlink PASSED [ 59%]
+tests/hooks/test_launch_job_identity.py::test_hook_failed_startup_creates_no_ticket_to_replay[uv] PASSED [ 59%]
+tests/hooks/test_launch_job_identity.py::test_hook_failed_startup_creates_no_ticket_to_replay[interpreter] PASSED [ 60%]
+tests/hooks/test_launch_job_identity.py::test_hook_cleanup_does_not_overwrite_outer_exit_trap_or_status PASSED [ 60%]
+tests/hooks/test_launch_job_identity.py::test_execution_never_follows_symlinked_request_directory PASSED [ 60%]
+tests/hooks/test_launch_job_identity.py::test_hook_fresh_shell_cwd_contract_is_explicit_and_repeatable PASSED [ 60%]
+tests/hooks/test_launch_job_identity.py::test_hook_fault_injection_blocks_bound_unsupported_runtime_before_publication[platform] PASSED [ 61%]
+tests/hooks/test_launch_job_identity.py::test_hook_fault_injection_blocks_bound_unsupported_runtime_before_publication[proc] PASSED [ 61%]
+tests/hooks/test_launch_job_identity.py::test_hook_fault_injection_blocks_bound_unsupported_runtime_before_publication[fcntl] PASSED [ 61%]
+tests/hooks/test_launch_job_identity.py::test_bound_duplicate_json_fields_block_without_leaking_command PASSED [ 61%]
+tests/hooks/test_launch_job_identity.py::test_bound_hook_missing_uv_blocks_only_with_jq_positive_identity PASSED [ 62%]
+tests/hooks/test_launch_job_identity.py::test_withheld_hook_rewrite_leaves_no_authorization_ticket_or_job PASSED [ 62%]
+tests/hooks/test_launch_job_identity.py::test_accepted_execution_creates_and_consumes_exactly_one_runtime_request PASSED [ 62%]
+tests/hooks/test_launch_job_identity.py::test_execution_finally_cleans_only_its_ticket_if_run_startup_fails PASSED [ 62%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_existing_other_binding_does_not_select_ordinary[False-ordinary] PASSED [ 62%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_existing_other_binding_does_not_select_ordinary[False-different] PASSED [ 63%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_existing_other_binding_does_not_select_ordinary[False-old-prefix] PASSED [ 63%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_existing_other_binding_does_not_select_ordinary[False-old\n] PASSED [ 63%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_existing_other_binding_does_not_select_ordinary[True-ordinary] PASSED [ 63%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_existing_other_binding_does_not_select_ordinary[True-different] PASSED [ 64%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_existing_other_binding_does_not_select_ordinary[True-old-prefix] PASSED [ 64%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_existing_other_binding_does_not_select_ordinary[True-old\n] PASSED [ 64%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_stale_store_without_session_binding_is_inert PASSED [ 64%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_and_jq_is_unavailable_adaptation_not_positive_identity PASSED [ 65%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_fallback_never_guesses_from_invalid_or_unsupported_envelope[{] PASSED [ 65%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_fallback_never_guesses_from_invalid_or_unsupported_envelope[{"tool_name":"Bash","nested":{"session_id":"old"}}] PASSED [ 65%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_fallback_never_guesses_from_invalid_or_unsupported_envelope[{"tool_name":"Bash","session_id":123}] PASSED [ 65%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_fallback_never_guesses_from_invalid_or_unsupported_envelope[{"tool_name":"Bash","session_id":"../old"}] PASSED [ 66%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_fallback_never_guesses_from_invalid_or_unsupported_envelope[{"tool_name":"Monitor","session_id":"old"}] PASSED [ 66%]
+tests/hooks/test_launch_job_identity.py::test_missing_uv_fallback_never_guesses_from_invalid_or_unsupported_envelope[{"tool_name":"Bash","session_id":"old"} {"session_id":"old"}] PASSED [ 66%]
+tests/hooks/test_launch_job_identity.py::test_explicit_runtime_modes_still_fail_plainly_without_uv[args0] PASSED [ 66%]
+tests/hooks/test_launch_job_identity.py::test_explicit_runtime_modes_still_fail_plainly_without_uv[args1] PASSED [ 67%]
+tests/hooks/test_launch_job_identity.py::test_explicit_runtime_modes_still_fail_plainly_without_uv[args2] PASSED [ 67%]
+tests/hooks/test_launch_job_identity.py::test_explicit_runtime_modes_still_fail_plainly_without_uv[args3] PASSED [ 67%]
+tests/cli/test_install_hooks.py::test_case_1_missing_target_creates PASSED [ 67%]
+tests/cli/test_install_hooks.py::test_case_2_empty_target_settings PASSED [ 68%]
+tests/cli/test_install_hooks.py::test_case_3_unrelated_events_preserved PASSED [ 68%]
+tests/cli/test_install_hooks.py::test_case_4a_same_event_different_matcher PASSED [ 68%]
+tests/cli/test_install_hooks.py::test_case_4b_same_matcher_preserved_without_force PASSED [ 68%]
+tests/cli/test_install_hooks.py::test_case_4c_same_matcher_preserved_with_force PASSED [ 69%]
+tests/cli/test_install_hooks.py::test_force_refreshes_owned_hook_and_preserves_mixed_user_hook PASSED [ 69%]
+tests/cli/test_install_hooks.py::test_force_refreshes_subagent_start_from_async_to_sync PASSED [ 69%]
+tests/cli/test_install_hooks.py::test_case_5_malformed_target_refused PASSED [ 69%]
+tests/cli/test_install_hooks.py::test_case_6_permission_denied PASSED    [ 70%]
+tests/cli/test_install_hooks.py::test_case_7_backup_before_write PASSED  [ 70%]
+tests/cli/test_install_hooks.py::test_case_8_atomic_write_no_partial PASSED [ 70%]
+tests/cli/test_install_hooks.py::test_backup_path_format PASSED          [ 70%]
+tests/cli/test_install_hooks.py::test_session_id_validator PASSED        [ 71%]
+tests/cli/test_install_hooks.py::test_smoke_install_then_reinstall_force PASSED [ 71%]
+tests/cli/test_install_hooks.py::test_ccsession_legacy_hook_is_owned["-False] PASSED [ 71%]
+tests/cli/test_install_hooks.py::test_ccsession_legacy_hook_is_owned["-True] PASSED [ 71%]
+tests/cli/test_install_hooks.py::test_ccsession_legacy_hook_is_owned['-False] PASSED [ 72%]
+tests/cli/test_install_hooks.py::test_ccsession_legacy_hook_is_owned['-True] PASSED [ 72%]
+tests/cli/test_install_hooks.py::test_ccsession_unrelated_command_is_not_owned PASSED [ 72%]
+tests/cli/test_install_hooks.py::test_ccsession_standalone_name_hook_is_never_registered_twice[False] PASSED [ 72%]
+tests/cli/test_install_hooks.py::test_ccsession_standalone_name_hook_is_never_registered_twice[True] PASSED [ 73%]
+tests/cli/test_install_hooks.py::test_real_hooks_json_registers_ccsession PASSED [ 73%]
+tests/cli/test_install_hooks.py::test_real_hooks_json_registers_codegraph_session_start[src] PASSED [ 73%]
+tests/cli/test_install_hooks.py::test_real_hooks_json_registers_codegraph_session_start[plugins] PASSED [ 73%]
+tests/cli/test_install_hooks.py::test_codegraph_hook_script_is_packaged_listed_and_mirrored PASSED [ 74%]
+tests/cli/test_install_hooks.py::test_real_hooks_json_gates_write_in_pre_tool_use PASSED [ 74%]
+tests/cli/test_install_hooks.py::test_real_hooks_json_registers_block_bare_python[src] PASSED [ 74%]
+tests/cli/test_install_hooks.py::test_real_hooks_json_registers_block_bare_python[plugins] PASSED [ 74%]
+tests/cli/test_install_hooks.py::test_block_bare_python_script_is_packaged_listed_and_mirrored PASSED [ 75%]
+tests/cli/test_install_hooks.py::test_install_hooks_installs_and_registers_block_bare_python PASSED [ 75%]
+tests/cli/test_install_hooks.py::test_real_hooks_json_registers_launch_identity_without_replacing_policy[src] PASSED [ 75%]
+tests/cli/test_install_hooks.py::test_real_hooks_json_registers_launch_identity_without_replacing_policy[plugins] PASSED [ 75%]
+tests/cli/test_install_hooks.py::test_launch_identity_script_is_packaged_listed_executable_and_mirrored PASSED [ 75%]
+tests/cli/test_install_hooks.py::test_launch_identity_real_install_preserves_policies_and_is_idempotent[False] PASSED [ 76%]
+tests/cli/test_install_hooks.py::test_launch_identity_real_install_preserves_policies_and_is_idempotent[True] PASSED [ 76%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_list_available_commands PASSED [ 76%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_install_commands_to_temp_dir PASSED [ 76%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_install_commands_skip_existing PASSED [ 77%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_install_commands_force_reinstall PASSED [ 77%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_list_installed_commands PASSED [ 77%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_install_commands_creates_target_directory PASSED [ 77%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_available_commands_format PASSED [ 78%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_research_command_exists PASSED [ 78%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_all_expected_commands_available PASSED [ 78%]
+tests/unit/test_cli_install.py::TestInstallCommandsEdgeCases::test_install_to_nonexistent_parent PASSED [ 78%]
+tests/unit/test_cli_install.py::TestInstallCommandsEdgeCases::test_empty_target_directory_ok PASSED [ 79%]
+tests/unit/test_cli_install.py::test_cli_integration PASSED              [ 79%]
+tests/unit/test_cli_install.py::TestProtocolSkillInstallMapping::test_new_init_lite_protocol_is_not_command_backed PASSED [ 79%]
+tests/unit/test_cli_install.py::TestProtocolSkillInstallMapping::test_sample_existing_protocol_skills_not_command_backed PASSED [ 79%]
+tests/unit/test_cli_install.py::TestProtocolSkillInstallMapping::test_bare_sc_command_mapping_still_works PASSED [ 80%]
+tests/unit/test_cli_install.py::TestProtocolSkillInstallMapping::test_command_activated_skill_is_not_command_backed PASSED [ 80%]
+tests/unit/test_cli_install.py::TestProtocolSkillInstallMapping::test_install_all_skills_installs_command_activated_skill PASSED [ 80%]
+tests/unit/test_cli_install.py::TestProtocolSkillInstallMapping::test_no_available_protocol_skill_is_command_backed PASSED [ 80%]
+tests/unit/test_cli_install.py::TestProtocolSkillInstallMapping::test_install_all_skills_keeps_protocol_skills_standalone PASSED [ 81%]
+tests/unit/test_cli_install.py::TestPostReleaseCommandContract::test_post_release_command_discoverable PASSED [ 81%]
+tests/unit/test_cli_install.py::TestPostReleaseCommandContract::test_post_release_command_installed_to_target PASSED [ 81%]
+tests/unit/test_cli_install.py::TestPostReleaseCommandContract::test_post_release_command_activation_text PASSED [ 81%]
+tests/unit/test_cli_install.py::TestPostReleaseCommandContract::test_post_release_protocol_skill_discoverable PASSED [ 82%]
+tests/unit/test_cli_install.py::TestPostReleaseCommandContract::test_post_release_protocol_skill_installed_standalone PASSED [ 82%]
+tests/unit/test_cli_install.py::TestPostReleaseCommandContract::test_post_release_command_skill_mapping PASSED [ 82%]
+tests/unit/test_cli_install.py::TestPostReleaseCommandContract::test_post_release_protocol_skill_frontmatter PASSED [ 82%]
+tests/unit/test_cli_install.py::test_commands_readme_not_installed PASSED [ 83%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_package_location_matches_distribution PASSED [ 83%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_baseline_entry_points_registered_and_loadable PASSED [ 83%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_package_resource_class_present[agents] PASSED [ 83%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_package_resource_class_present[cli] PASSED [ 84%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_package_resource_class_present[commands] PASSED [ 84%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_package_resource_class_present[core] PASSED [ 84%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_package_resource_class_present[examples] PASSED [ 84%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_package_resource_class_present[hooks] PASSED [ 85%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_package_resource_class_present[mcp] PASSED [ 85%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_package_resource_class_present[modes] PASSED [ 85%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_package_resource_class_present[output-styles] PASSED [ 85%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_package_resource_class_present[rules] PASSED [ 86%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_package_resource_class_present[scripts] PASSED [ 86%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_package_resource_class_present[skills] PASSED [ 86%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_package_resource_class_present[templates] PASSED [ 86%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_src_duplicate_resource_class_present[agents] PASSED [ 87%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_src_duplicate_resource_class_present[cli] PASSED [ 87%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_src_duplicate_resource_class_present[commands] PASSED [ 87%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_src_duplicate_resource_class_present[core] PASSED [ 87%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_src_duplicate_resource_class_present[examples] PASSED [ 87%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_src_duplicate_resource_class_present[hooks] PASSED [ 88%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_src_duplicate_resource_class_present[mcp] PASSED [ 88%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_src_duplicate_resource_class_present[modes] PASSED [ 88%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_src_duplicate_resource_class_present[output-styles] PASSED [ 88%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_src_duplicate_resource_class_present[rules] PASSED [ 89%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_src_duplicate_resource_class_present[scripts] PASSED [ 89%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_src_duplicate_resource_class_present[skills] PASSED [ 89%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_src_duplicate_resource_class_present[templates] PASSED [ 89%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_plugins_duplicate_resource_class_present[.] PASSED [ 90%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_plugins_duplicate_resource_class_present[agents] PASSED [ 90%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_plugins_duplicate_resource_class_present[commands] PASSED [ 90%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_plugins_duplicate_resource_class_present[core] PASSED [ 90%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_plugins_duplicate_resource_class_present[examples] PASSED [ 91%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_plugins_duplicate_resource_class_present[hooks] PASSED [ 91%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_plugins_duplicate_resource_class_present[mcp] PASSED [ 91%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_plugins_duplicate_resource_class_present[modes] PASSED [ 91%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_plugins_duplicate_resource_class_present[scripts] PASSED [ 92%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_plugins_duplicate_resource_class_present[skills] PASSED [ 92%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_plugins_duplicate_resource_class_present[templates] PASSED [ 92%]
+tests/unit/test_cli_install.py::TestInstalledPackageResources::test_missing_member_fails_not_skips PASSED [ 92%]
+tests/unit/test_cli_install.py::test_installer_source_resolves_inside_package[agents] PASSED [ 93%]
+tests/unit/test_cli_install.py::test_installer_source_resolves_inside_package[commands] PASSED [ 93%]
+tests/unit/test_cli_install.py::test_installer_source_resolves_inside_package[core] PASSED [ 93%]
+tests/unit/test_cli_install.py::test_installer_source_resolves_inside_package[hooks-json] PASSED [ 93%]
+tests/unit/test_cli_install.py::test_installer_source_resolves_inside_package[hooks-legacy-scripts] PASSED [ 94%]
+tests/unit/test_cli_install.py::test_installer_source_resolves_inside_package[hooks-scripts] PASSED [ 94%]
+tests/unit/test_cli_install.py::test_installer_source_resolves_inside_package[hooks-seed-root] PASSED [ 94%]
+tests/unit/test_cli_install.py::test_installer_source_resolves_inside_package[ic-script] PASSED [ 94%]
+tests/unit/test_cli_install.py::test_installer_source_resolves_inside_package[output-styles] PASSED [ 95%]
+tests/unit/test_cli_install.py::test_installer_source_resolves_inside_package[roadmap-examples] PASSED [ 95%]
+tests/unit/test_cli_install.py::test_installer_source_resolves_inside_package[rules] PASSED [ 95%]
+tests/unit/test_cli_install.py::test_installer_source_resolves_inside_package[skill] PASSED [ 95%]
+tests/unit/test_cli_install.py::test_installer_source_resolves_inside_package[templates] PASSED [ 96%]
+tests/unit/test_cli_install.py::test_installer_copies_baseline_resources_to_isolated_target[agents] PASSED [ 96%]
+tests/unit/test_cli_install.py::test_installer_copies_baseline_resources_to_isolated_target[commands] PASSED [ 96%]
+tests/unit/test_cli_install.py::test_installer_copies_baseline_resources_to_isolated_target[core] PASSED [ 96%]
+tests/unit/test_cli_install.py::test_installer_copies_baseline_resources_to_isolated_target[hooks] PASSED [ 97%]
+tests/unit/test_cli_install.py::test_installer_copies_baseline_resources_to_isolated_target[output-styles] PASSED [ 97%]
+tests/unit/test_cli_install.py::test_installer_copies_baseline_resources_to_isolated_target[rules] PASSED [ 97%]
+tests/unit/test_cli_install.py::test_installer_copies_baseline_resources_to_isolated_target[skills] PASSED [ 97%]
+tests/unit/test_cli_install.py::test_installer_copies_baseline_resources_to_isolated_target[templates] PASSED [ 98%]
+tests/unit/test_cli_install.py::test_installer_fails_when_source_missing[agents] PASSED [ 98%]
+tests/unit/test_cli_install.py::test_installer_fails_when_source_missing[commands] PASSED [ 98%]
+tests/unit/test_cli_install.py::test_installer_fails_when_source_missing[core] PASSED [ 98%]
+tests/unit/test_cli_install.py::test_installer_fails_when_source_missing[hooks] PASSED [ 99%]
+tests/unit/test_cli_install.py::test_installer_fails_when_source_missing[output-styles] PASSED [ 99%]
+tests/unit/test_cli_install.py::test_installer_fails_when_source_missing[rules] PASSED [ 99%]
+tests/unit/test_cli_install.py::test_installer_fails_when_source_missing[skill] PASSED [ 99%]
+tests/unit/test_cli_install.py::test_installer_fails_when_source_missing[templates] PASSED [100%]
+
+============================= 408 passed in 30.26s =============================
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 7 items
+
+tests/cli/test_verify_sync_hooks.py::test_V1_clean_tree_exits_zero PASSED [ 14%]
+tests/cli/test_verify_sync_hooks.py::test_V2_missing_claude_hook_detected PASSED [ 28%]
+tests/cli/test_verify_sync_hooks.py::test_V3_missing_from_freshness_scripts PASSED [ 42%]
+tests/cli/test_verify_sync_hooks.py::test_V4_stale_in_freshness_scripts PASSED [ 57%]
+tests/cli/test_verify_sync_hooks.py::test_V5_matcher_drift_detected PASSED [ 71%]
+tests/cli/test_verify_sync_hooks.py::test_V6_case_body_drift_detected PASSED [ 85%]
+tests/cli/test_verify_sync_hooks.py::test_V7_regression_to_master PASSED [100%]
+
+============================== 7 passed in 6.77s ===============================

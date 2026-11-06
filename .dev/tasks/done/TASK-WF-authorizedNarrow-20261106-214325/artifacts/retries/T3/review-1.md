@@ -1,0 +1,6 @@
+start=0a59e7cf7531f1547580a9daf0ca7222f099062f tree=db4b2757e71666cd80f6c97c5a40dd739a03fe8d
+T3.AC1 met src/superclaude/cli/install_hooks.py:87,tests/cli/test_install_hooks.py:860,932
+T3.AC2 unmet F1.1 plugins/superclaude/hooks/scripts/launch-job-identity.sh:25
+T3.AC3 met ./artifacts/distribution-tests.log:1072
+F1.1 sev=blocking trigger=B1 ac=T3.AC2 at=plugins/superclaude/hooks/scripts/launch-job-identity.sh:25 anchor="Without positively governed session state it is inert for ordinary sessions." chk=y,n,n,n family=ordinary-dependency-gate fix=Keep unbound ordinary calls silent even when other launch state exists and UV is missing; add that regression covers="Without positively governed session state it is inert for ordinary sessions." first=start origin=inherited: The registered entry point checks UV after only checking the launch directory, not the event's binding. An isolated unbound event with existing state and PATH=/nonexistent exits 2 instead of remaining inert. The quoted Task3 AC lifts the inherited cap.
+F1.1 resolved by A2 independent review of tree 27dbfe08e40cfcb3315356787aa66e4c7417bfbd; tests/hooks/test_launch_job_identity.py:1041 covers missing-UV ordinary sessions with existing state.

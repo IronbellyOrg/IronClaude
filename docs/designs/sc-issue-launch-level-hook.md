@@ -3,19 +3,20 @@ title: "Launch-level enforcement hook: design"
 issue: IronbellyOrg/IronClaude#394
 type: architecture
 format: spec
-status: design draft, not implemented
-review_status: "NOT REVIEWED after its last amendments (fix cycle 2 and the amendments from plan-review-3); the owner stopped review rounds on 2026-11-05"
+status: design draft; scoped job identity foundation implemented; full enforcement pending
+review_status: "one authorized simulated spec-panel iteration, followed by scoped identity implementation and per-task compliance checks; full enforcement not runtime-approved"
 adversarial_status: partial
-convergence: "1.00 by the protocol rule (0.70 counting only identical verdicts)"
+historical_convergence: "1.00 by the earlier protocol rule (0.70 identical verdicts); not this panel's score"
+planning_status: "conditional: B-CTX feasibility gate must precede enforcement implementation"
 source: .dev/brainstorms/20261105-170229-launch-level-hook/
 generated: 2026-11-05
 ---
 
 # Launch-level enforcement hook: design
 
-> **Not approved.** The final plan review (`plan-review-3.md`) failed with 10 blocking findings. Its reviewer tested the amendments on a copy of a prototype; no one re-reviewed them independently, and the owner decided on 2026-11-05 to stop review rounds. Every rule marked `[AMENDMENT ...]` (written `[B-n]` here) is unreviewed. Acceptance criteria AC-1, AC-2, AC-3, AC-5 and AC-6 were NOT MET by the plan as reviewed. Do not use the hook on real issues until the open decisions in section 15 are settled and the observed checks OB-H1 to OB-H3 pass.
+> **Full enforcement is not runtime-approved.** The authorized specification panel found the blocking actor-selection prerequisite B-CTX (§19.1). The owner subsequently authorized a narrowly scoped launcher/harness identity integration. That Bash job identity foundation is implemented separately (§19.7); isolated live CLI observations distinguish a rewritten governed call from an unchanged ordinary call. This does not build the main classifier, claim pipeline or production pre-push guard, and does not prove real `/clear`, Monitor or every lifecycle variant. O-22 remains accepted. The earlier blocked plan stays blocked; OB-H1 to OB-H3 and full enforcement integration remain required.
 
-Ids match `merged-requirements.md` ("MR"): FR-L-nn, IR-n, O-n, OD-..., R-n, U-n, LL-..., T-... "Proposed" means not built yet. DD-n marks a designer choice (section 17).
+This updated design is authoritative for **new planning**. `merged-requirements.md` ("MR"), the Q1–Q4 debate outputs and the earlier plan reviews are historical/advisory inputs, not synchronized copies. Identifiers FR-L-nn, IR-n, O-n, OD-..., R-n, U-n, LL-..., T-... retain traceability; explicit changes here override older wording/expected results. `[B-n]` identifies an earlier amendment's provenance, not a current approval. The earlier failed verdicts remain historical in §12/§15.2. Panel findings, the full guard boundary table, quantity-flow analysis and the written document-change plan are in `.dev/brainstorms/20261105-170229-launch-level-hook/spec-panel-20261106/review.md`. No further panel or debate loop is selected.
 
 ## 1. Purpose and scope
 
@@ -28,13 +29,16 @@ One script, `launch-level-guard.sh`, enforces the level that `/sc:issue --claim 
 | full | `F` | implement; no commit, push, publish |
 | full with `--submit` | `FS` | commit, push a feature branch, open a PR |
 
-No level allows a merge or a push to `master` or `main`. Targets: TH1 (an honest agent that drifts) and TH2 (one-step workarounds). Not TH3 (deliberate multi-step evasion). In scope: the script, two `hooks.json` entries, one `_FRESHNESS_SCRIPTS` entry, tests, IR-1 to IR-6. Out of scope: the claim feature, ccsession, issue #322, `pipeline.json`. Constraints: agent and hook are the same OS user; bash with `jq`, `sed`, `tr` only; exit 0 allows, exit 2 blocks; no `onFailure`.
+Policy intent: no level authorizes a merge or a push to `master` or `main`. Coverage is the explicitly checked routes, not universal prevention. Targets: TH1 (honest drift) and TH2 (specified one-step workarounds); not TH3 (deliberate evasion). Same-user guardrail, not a sandbox. A person's push from the **same** launched worktree must stay unrestricted by launch policy, even while an agent is active; deleting a marker is not a prerequisite for that right.
+
+In scope: L1 text/skill hook, two Claude registrations, installer-list entry, tests, IR-1 to IR-7 and accepted O-22 L2 pre-push design (§19). L1 uses bash plus `jq`, `sed`, `tr`: exit 0 allows, exit 2 blocks, no `onFailure`. L2 is a separate Git hook with Git's nonzero-veto convention and necessarily uses Git's resolved update stream. Its process-context candidate is Linux-only until proven otherwise; its process reads are not part of the old L1 subprocess budget. No new runtime service, server policy, managed settings deployment, shell parser, forwarding framework or config migration is authorized. Claim launching and ccsession implementation remain separate integration work; current claim code does not implement this proposed pipeline interface. Issue #322's source-write boundary and reading `pipeline.json` remain out of scope.
 
 ## 2. Architecture and files
 
 | File | Role | Change | Status |
 |---|---|---|---|
-| `src/superclaude/hooks/scripts/launch-level-guard.sh` | the only script; flat bash, `LC_ALL=C`, executable (FR-L-60) | new | proposed |
+| `src/superclaude/hooks/scripts/launch-level-guard.sh` | L1 script; flat bash, `LC_ALL=C`, executable (FR-L-60) | new | proposed |
+| shared Git `hooks/pre-push` | separate L2 artifact; owned install only, actor-selection gate (§19) | new | proposed, blocked by B-CTX |
 | `src/superclaude/hooks/hooks.json` | append two entries (section 13) | changed | exists |
 | `src/superclaude/cli/install_hooks.py` `_FRESHNESS_SCRIPTS` | add `"launch-level-guard.sh"` | changed | exists |
 | `Makefile` | none: `verify-sync` imports `_FRESHNESS_SCRIPTS` | unchanged | exists |
@@ -47,7 +51,7 @@ No level allows a merge or a push to `master` or `main`. Targets: TH1 (an honest
 ```
 claim script --pipeline L          write pending/<nonce>; prompt "[sc-launch:v1:<nonce>] ..."  IR-1, IR-2
   v
-first prompt (UserPromptSubmit)    mv pending/<nonce> sessions/<sid>, or "degraded"; else LL-NOBIND  FR-L-09
+first prompt (UserPromptSubmit)    consume nonce; publish sid without replacement, or degraded; else NOBIND
   v
 each matched call (PreToolUse)     no bound id: exit 0 | jq -> level -> classes -> grid -> exit 0 or 2  FR-L-10
   v
@@ -56,7 +60,7 @@ typed prompt (UserPromptSubmit)    "approved" or /sc:implement /sc:task /task at
 release                            a person runs rm sessions/<sid> sessions/<sid>.ok  FR-L-07
 ```
 
-Script layout (DD-1): settings (`LC_ALL=C`, `set -u -o pipefail`, `set -f`, `umask 077`); store path; messages; dispatch; prompt branch; fast paths; one `jq` read; classifiers adding classes; one `case` on `CLASS:LEVEL`; last line LL-BROKEN, exit 2. About 450 lines (NFR-L-03).
+Script layout (DD-1): settings (`LC_ALL=C`, `set -u -o pipefail`, `set -f`, `umask 077`); store path; messages; dispatch; prompt branch; fast paths; one `jq` read; classifiers adding classes; one `case` on `CLASS:LEVEL`; last line LL-BROKEN, exit 2. The earlier estimate was about 450 lines for L1 (NFR-L-03), not a measured size or a budget for L2. Keep added process-context handling separate and gated (§19).
 
 ## 3. State and why the agent cannot edit it
 
@@ -64,15 +68,17 @@ Store: `$HOME/.claude/state/launch-level/`, built from three literal parts so th
 
 | File | Content | Writer | Reader |
 |---|---|---|---|
-| `pending/<nonce>` | name `^[0-9a-f]{32}$`; one word `worktree`, `full`, `full-submit` | claim script; temp `.x` file then rename (IR-1) | hook, by `mv` or `rm -f` only |
-| `sessions/<sid>` | one word; any word other than the three means `worktree` + LL-STATE (FR-L-03) | hook: `mv`, or `degraded` under `set -C` | `read -r level` |
+| `pending/<nonce>` | name `^[0-9a-f]{32}$`; one word `worktree`, `full`, `full-submit` | claim script; complete atomic publication (IR-1) | hook: consume once; never replace a bound sid |
+| `sessions/<sid>` | exactly one allowed word plus optional terminal newline; malformed, empty or unreadable means `worktree` + LL-STATE on a block (FR-L-03) | hook: atomic create-without-replacement; first binding retained | bounded exact record read |
 | `sessions/<sid>.ok` | empty; existence is approval | hook: `touch` | file test |
 
-Valid id: `^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$` (FR-L-05). `mkdir -p` under `umask 077`; no pruning; no in-place edits (FR-L-06). Dispatch: raw input holds `"tool_name"` means tool branch, else prompt branch (FR-L-08).
+Valid id: a **top-level JSON string** matching `^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$` (FR-L-05); never coerce numbers/objects or replace control characters to manufacture an id. `mkdir -p` under `umask 077`; no pruning or in-place edits. Pending/session/approval records must be regular nonsymlink files in owned directories; an invalid object at a positively bound path is state failure, never a valid level/approval. This is integrity hygiene, not same-user access control. Dispatch (FR-L-08) uses parsed top-level `hook_event_name`, exactly UserPromptSubmit or PreToolUse; prompt text or nested `tool_name` keys cannot select the branch. Unknown/inconsistent event shape uses the identity-loss rule below.
 
-**Binding (FR-L-09).** B1 read stdin. B2 no `[sc-launch:` and no bound id seen (P2, P3 tests): exit 0. B3 no `jq`: marker text and no `"tool_name"` gives LL-NOBIND, else exit 0. B4 one `jq` prints `session_id`, `agent_id` (each `// "" | tostring | gsub("[\r\n\u0000]"; " ")`), then `prompt`; `jq` failure as B3. B5 `agent_id` set: exit 0. B6 strict marker: first `\[sc-launch:v1:([0-9a-f]{32})\]` anywhere gives N; loose: prompt starts with `[sc-launch:` after leading space, tab, CR, LF and BOM; either present: EXIT trap to LL-NOBIND. B7 invalid id: marker gives LL-NOBIND, else exit 0. B8 already bound: `rm -f pending/N` if strict and present (level kept), run approval (section 6), exit 0. B9 unbound, no marker: exit 0. B10 `mkdir -p sessions`. B11 strict and `pending/N` exists: `mv pending/N sessions/<sid>` (atomic, single use). B12 still none and loose: `(set -C; printf 'degraded\n' > sessions/<sid>)`. B13 regular file exists: exit 0; else LL-NOBIND, exit 2.
+**Binding (FR-L-09, revised B1–B13).** Read and parse once. No marker and no session records permits the empty-store fast exit. A strict marker is the first `\[sc-launch:v1:([0-9a-f]{32})\]` anywhere; a loose marker starts the prompt after whitespace/BOM with `[sc-launch:`. No `jq`/parseable envelope means no inferred binding; a recognizable launch-marker prompt fails LL-NOBIND rather than launching ungoverned. A nonempty string `agent_id` ignores the prompt. Invalid session id with a marker is LL-NOBIND; without one, apply identity-loss behavior. Already bound: preserve the level, optionally consume a newly supplied pending nonce, and run approval. Unbound with no marker: allow. Otherwise create the store, consume one pending nonce once and publish the level **atomically without replacing an existing binding**. Racing publishers must preserve the first binding and re-read it; no check-then-overwriting `mv`. A missing/used nonce with a leading loose marker publishes `degraded` under the same no-replacement discipline. A strict marker only in the middle without a usable record gives LL-NOBIND (O-20). Failure to obtain a valid binding gives LL-NOBIND. The implementer must test concurrent consumption and publication; exact shell primitive is an implementation choice, not permission to overwrite a winner.
 
-**Resolution (FR-L-10).** P1 read stdin. P2 `compgen -G "$store/sessions/*"` empty: exit 0. P3 pure-bash loop over up to 64 `"session_id"\s*:\s*"<valid id>"` values; some found, none bound: exit 0. P4 EXIT trap; no `jq`: LL-BROKEN. P5 one `jq` prints `session_id`, `tool_name`, `skill // name`, `file_path // notebook_path`, `isolation`, then `command` last; failure LL-BROKEN. P6 bound id: that level; valid unbound id: exit 0; missing or invalid id: `worktree` + LL-STATE. P7 classify. Never read: `cwd`, `agent_id`, git, worktree files, `pipeline.json` (FR-L-11).
+**Resolution (FR-L-10, revised P1–P7).** Empty session store: allow. Otherwise use one `jq` extraction of the actual top-level fields; **remove the fixed-64 raw-id early-allow loop**. Nested/duplicate-looking strings do not establish ordinary status. Extract session id, event, tool name and typed tool fields, preserving command as a string. `skill` is used if present/non-null, otherwise `name`; an explicit empty string stays empty (SKILL), not an alternate-name escape. File-path fallback uses the same missing/null rule. Nonstring tool fields or embedded NUL are input errors, not silently converted commands. Valid unbound id: allow silently. Valid bound id: read its exact level and apply policy. Positively identified governed input errors/internal failures block LL-BROKEN; unreadable/malformed bound level becomes W, approval may still yield WA. L1 tool resolution does not infer authority from `cwd`, git/worktree files, `agent_id` or `pipeline.json`.
+
+**Identity loss (panel F2/F3).** A nonempty store alone never proves this caller is governed. Missing/invalid id or an unparseable envelope without independent positive binding evidence cannot be assigned W or blocked merely because another session exists: allow without claiming enforcement. This replaces the old P6 missing-id fallback and its MR test expectations. It is a declared fail-open limit, not proof of safe operation. OB-H1/OB-H2 must show a valid top-level string id and consistent event shape on every supported governed call; otherwise deployment stops. If fail-closed behavior under identity loss is needed, it requires the independently proven process context of B-CTX (§19.1), not a worktree-wide fallback. No raw substring match or environment variable counts as that proof.
 
 **Lifecycle.** No pruning (O-15). Release: `rm` both files (FR-L-07). Re-claim: new nonce and session (IR-5). `--resume` and renames stay governed (V14); `/clear` and `--fork-session` are ordinary (R4); so is a deleted file (R3).
 
@@ -117,7 +123,8 @@ Message id is `LL-<class>`; PUSHFORM gives LL-PUSH-FORM, GHWRITE gives LL-GH-WRI
 | 34 | typed `approved`, `/sc:implement x` | prompt | A, writes `.ok` | A | A, no write | A, no write |
 | 35 | marker prompt, unbound session | prompt | binds, or NOBIND | n/a | n/a | n/a |
 | 36, 38 | `jq` missing or bad JSON with a bound id; internal error | failure | BROKEN | BROKEN | BROKEN | BROKEN |
-| 37 | bad session file; bad id with non-empty store | failure | W + LL-STATE | WA if `.ok` | n/a | n/a |
+| 37 | bad positively bound session file | failure | W + LL-STATE on block | WA if valid `.ok` | n/a | n/a |
+| panel F2 | missing/invalid id with unrelated nonempty store | identity loss | allow, no enforcement claim | allow | allow | allow |
 
 ## 5. Rules by tool
 
@@ -151,7 +158,7 @@ W=$(printf '%s\n' "$T" | tr '\n;&|()' ';;;;;;' | tr -c 'A-Za-z0-9._/=:@+~$;-' ' 
 | `remote` (next none, `-v`, `--verbose`, `get-url`, `show`); `config` (next `--get --get-all --get-regexp --list -l get list`); `worktree list` | NONE |
 | anything else, `send-pack` included | UNKNOWN |
 
-A git word outside command position gets no G3 class. **G4:** a git word anywhere whose S contains `$`: UNKNOWN.
+A git word outside command position gets no G3 class. **G4:** compute S with the same option/value skipping after **each** git-word occurrence in its segment, even outside command position; if that S contains `$`, add UNKNOWN. Reset S/options for every occurrence and segment. A value-taking Git/gh option with no following value adds UNKNOWN; help/version does not excuse a dangling required value. This is lexical classification, not shell execution or a promise to reconstruct quoted argument boundaries; B-10's explicit last-value-dollar exception remains.
 
 **Canonical push (FR-L-33, FR-L-34).** Any call with PUSH, at every level, tests the raw `cmd`:
 
@@ -161,7 +168,7 @@ A git word outside command position gets no G3 class. **G4:** a git word anywher
 
 No match: PUSHFORM. Match: destination is capture 5, else 3, minus one `refs/heads/` or else `heads/`; `master` or `main` gives PROTECTED; `HEAD` gives PUSHFORM. Accept: PA1 `git push origin feature`, PA4 `git push origin 3f2a9c1e:feature/x`, PA6 `git push origin feature/main:feature/main`. Reject: PR1 backtick, PR3 `git-push`, PR6 `--force`, PR13 `upstream`, PR15 `cd x && ...`, PR24 `origin --all`; PD1 `git push origin main` (PROTECTED). Full lists in MR.
 
-**gh (FR-L-35 to FR-L-39).** H1: group is the first non-option word after a gh word (skip `-R`, `--repo` values); action the next. H2: G holds a gh word and `api`: GHWRITE unless (1) raw `cmd` matches `^[[:space:]]*gh api( +[A-Za-z0-9._/:=,@%+-]+)+[[:space:]]*$`, (2) no word after `api` matches `^(-[A-Za-z]*[XfF].*|--method.*|--field.*|--raw-field.*|--input.*)$`, (3) the endpoint exists, is not `graphql`, and does not end `/merge` or `/merges`. H3, first match wins: `api` no class; no group with `--version`/`--help` NONE; action `merge`, `update-branch`, `sync` MERGE anywhere [B-3]; group `alias`, `extension` or `$` in group or action UNKNOWN anywhere [B-3]; group `search status auth browse help completion` or action `view list status diff checks watch checkout` NONE; `pr create|edit|comment|ready`, `issue create|edit|comment` SUBMIT anywhere; else UNKNOWN in command position. H4: `pr create` with no `-R`, `--repo` or `--repo=` word anywhere adds REPO. H5: no gh word in the segment and a word with `repos/` ending `/merge(s)`: MERGE; a word with `api.github.com` or `uploads.github.com`: GHWRITE [B-7].
+**gh (FR-L-35 to FR-L-39).** H1: group is the first non-option word after a gh word (skip `-R`, `--repo` values); action the next. H2: G holds a gh word and `api`: GHWRITE unless (1) raw `cmd` matches `^[[:space:]]*gh api( +[A-Za-z0-9._/:=,@%+-]+)+[[:space:]]*$`, (2) no word after `api` matches `^(-[A-Za-z]*[XfF].*|--method.*|--field.*|--raw-field.*|--input.*)$`, (3) the endpoint exists, is not `graphql`, and does not end `/merge` or `/merges`. H3, first match wins: `api` no class; no group with `--version`/`--help` NONE; action `merge`, `update-branch`, `sync` MERGE anywhere [B-3]; group `alias`, `extension` or `$` in group or action UNKNOWN anywhere [B-3]; group `search status auth browse help completion` or action `view list status diff checks watch checkout` NONE; `pr create|edit|comment|ready`, `issue create|edit|comment` SUBMIT anywhere; else UNKNOWN in command position. H4: for each recognized `pr create` occurrence, require a nonempty operand after `-R`/`--repo`, or nonempty suffix in `--repo=<value>`, in that occurrence's segment; otherwise add REPO. A detached operand must not be another option. This replaces the anywhere-presence test, but normalization still loses quoted argument boundaries: option-looking title/body text can collide. That is a stated lexical limit, not validated repository selection; O-12 still does not compare the value to origin. H5: no gh word in the segment and a word with `repos/` ending `/merge(s)`: MERGE; a word with `api.github.com` or `uploads.github.com`: GHWRITE [B-7].
 
 **Tamper (FR-L-49 to FR-L-51).** T, or an edit path after the same `/` squeeze, contains `.claude/state`, `.claude/settings`, `.claude/hooks`, `disableAllHooks`, `.gitconfig`, `.git/config` or `.config/git` [B-4]. Bash only: a word ending `.claude` or `.claude/`; a `superclaude` or `superclaude.*` word followed later in the segment by `install` [B-9]; a word containing `install_hooks`. Edit tools only: a `/../` segment or trailing `/..`. Contents, prompts and arguments are never checked.
 
@@ -200,17 +207,18 @@ Ordinary sessions are never blocked by a failure (FR-L-53). Governed: default de
 
 | Failure (FR-L-56) | Decision |
 |---|---|
-| `jq` missing: ordinary / bound id / marker prompt | exit 0 / LL-BROKEN / LL-NOBIND |
-| input not JSON | exit 0 if no bound id seen; else LL-BROKEN |
-| session file bad word, empty, unreadable | `worktree` + LL-STATE |
-| id missing or invalid, store non-empty | `worktree` + LL-STATE |
+| `jq` missing or input not JSON | independently proven governed: LL-BROKEN; recognizable launch-marker prompt: LL-NOBIND; otherwise identity-loss allow (§3), no enforcement claim |
+| positively bound session file bad word, empty, unreadable, wrong file kind | `worktree` + LL-STATE on block |
+| id missing or invalid, even with nonempty store | identity-loss allow (§3); stop deployment if observed on supported governed calls |
 | Skill name unreadable / command over 64 KB | SKILL / BIG |
 | `sed`, `tr` or internal error | LL-BROKEN |
 | bind failure | LL-NOBIND |
 | hook killed at timeout | call goes ahead (V8, R2) |
 | session file deleted | ordinary (R3, O-16) |
 
-Fast path: P2 is one `compgen`, P3 pure bash. Timeout: 5 s, both entries (FR-L-58). Cap: 65,536 bytes, governed only. Subprocesses: one `jq` per call past the prefilter; one `sed` and four `tr` for Bash text; one `sed` for an edit path; no git, network, Python, awk (FR-L-59).
+Empty-store fast path: one directory test. With state present, one typed `jq` parse replaces the unsafe raw-id prefilter; ordinary sessions may therefore cost more than before and must be rebenchmarked. Timeout: 5 s, both entries (FR-L-58). Command cap: 65,536 bytes, governed only. L1 normalization uses one `sed` and four `tr`; one `sed` for an edit path; no git, network, Python or awk on ordinary L1 classification. Bind-time process-context probing, if B-CTX succeeds, is a separately measured L2 integration cost.
+
+The command cap does **not** bound input-envelope size, initial stdin ingestion or jq work. Performance claims apply only to measured fixtures; add a large noncommand-field envelope stress case and report time/memory or a timeout as an explicit result. No arbitrary new wire-size limit is implied. The numbers below are **acceptance targets**, not observed results here; 'reported' means collect/report, not already measured. A failing asserted target cannot be waived silently.
 
 | Budget (NFR-L-01; 100 runs, `time.monotonic()`) | Limit | Asserted |
 |---|---|---|
@@ -246,7 +254,7 @@ To stderr, then exit 2. Header: `Launch-level guard: this session was started by
 
 With an invalid `{sid}`, LL-TAMPER uses the LL-BROKEN wording. Notes, LL-STATE first (DD-4):
 
-- **LL-STATE** (level came from an invalid word or id): `Note: the launch record was missing or unreadable, so the strictest level (worktree) applies.`
+- **LL-STATE** (positively bound level record invalid/unreadable): `Note: the launch record was invalid or unreadable, so the strictest level (worktree) applies.` Attach notes only to a block; an allowed call remains silent. Missing/invalid identity without positive binding is not LL-STATE authority (§3).
 - **LL-TEXT** (class came from Bash or Monitor text): `Note: the guard does not tell quoted text from commands. Any command that names git together with the word commit, push, merge or pull, or gh together with the word api, counts as that action, even if the words are only in a message, a title, a PR body or a search pattern. If that is the case here, write the text to a file with the Write tool and pass it with git commit -F <file> or gh ... --body-file <file>, or reword the search or title.`
 
 ## 10. Edge-case table
@@ -255,7 +263,7 @@ With an invalid `{sid}`, LL-TAMPER uses the LL-BROKEN wording. Notes, LL-STATE f
 |---|---|---|
 | ordinary payload with a forged nested bound id | allow | P3, P6, T-ISO-6 |
 | person's own session or subagent in the worktree | allow | FR-L-11, T-ISO-4 |
-| id missing, store non-empty | `W` + LL-STATE | P6 |
+| id missing, store non-empty, no independent positive binding | allow, no enforcement claim; observed governed occurrence stops deployment | revised P6, panel F2 |
 | invalid id in a marker prompt | LL-NOBIND | B7 |
 | malformed marker at start | binds `degraded` | B12 |
 | strict marker mid-prompt, no record | LL-NOBIND | B13, O-20 |
@@ -300,19 +308,20 @@ With an invalid `{sid}`, LL-TAMPER uses the LL-BROKEN wording. Notes, LL-STATE f
 | AC-7 | T-MSG-1, T-MSG-2, T-MSG-3, T-FC-3 |
 | AC-8 | T-GRID-1, T-GRID-2, T-SPD-1..5, T-COR-1, T-GAP-1 |
 
-**Corpus.** The implementer copies the full corpus from MR section 8 (8.3 and 8.4) unchanged (DD-2). Categories: push routes (T-ATK-1, 13, 25, 29, 50); aliases and variable subcommands (T-ATK-10, 35, 42); `gh api` writes (T-ATK-6, 18, 47); merges (T-ATK-48, 49, 51); tamper and escape (T-ATK-21, 55, 60); accepted leaks pinned `allow` (T-ATK-26 to 28, N-ATK-7, 31, 36); benign (T-OK-1 to 36); pinned over-blocks (T-OVR-1 to 6); amendment attacks (N-ATK-1 to 39). T-COR-2 replays the rows MR marks "real" on a temporary bare remote.
+**Corpus.** Preserve MR section 8 (8.3/8.4) case inputs and historical outcomes as baseline provenance, but do not copy obsolete expected results unchanged (revised DD-2). Explicit overrides here: top-level typed JSON dispatch, identity-loss ordinary allowance instead of store-wide W, removal of the 64-id early allow, exact/no-replacement state publication, nonempty PR repo operands, and combined L2 protected-destination checks. Add panel F1–F8 regression cases and maintain a hand-written current oracle; report each intentional override rather than claiming MR was synchronized. Categories: push routes (T-ATK-1, 13, 25, 29, 50); aliases and variable subcommands (T-ATK-10, 35, 42); `gh api` writes (T-ATK-6, 18, 47); merges (T-ATK-48, 49, 51); tamper and escape (T-ATK-21, 55, 60); accepted leaks pinned `allow` (T-ATK-26 to 28, N-ATK-7, 31, 36); benign (T-OK-1 to 36); pinned over-blocks (T-OVR-1 to 6); amendment attacks (N-ATK-1 to 39). T-COR-2 replays the rows MR marks "real" on a temporary bare remote.
 
 **Observed checks.**
 
 - **OB-H1** (first; log-only hook). Records: (1) subagent and nested-subagent `session_id`, `agent_id`, `agent_type` (U1); (2) Skill keys, name form (U2); (3) Agent name, `isolation` (U3, U13); (4) typed `/sc:implement x` (O-4); (5) exact `prompt` of a Monitor line `approved` and of background-Bash and background-subagent notices (U4, O-17); (6) `TaskCreate` versus the anchored matcher (U15); (7) SendMessage, MCP names (U12); (8) `claude` without `-p` (U14); (9) Bash, Edit, Write, Skill names (U21).
 - **OB-H2** (after the claim feature ships). Session file before the first tool call (U8); exact first prompt and marker position (U7); hook `HOME` and `CLAUDE_CONFIG_DIR`; IR-4 refusals; LL-NOBIND visibility (U20).
-- **OB-H3** (test issue, each level). `W` stops and unlocks by both routes; `F` logs git commands (U10); `FS` runs one `/sc:pr-submit --monitor 3` cycle logging pushes and inline `gh api` (O-18, O-19) and a conflict (O-10); a `main` push and a merge blocked; counts of LL-PUSH-FORM, LL-GH-WRITE, LL-TEXT and NM1a or G2 UNKNOWN (O-21); Orca preamble (O-11); a live message (AC-7); timing.
+- **OB-H3** (test issue, each level, after all prior gates). `W` stops and unlocks by both routes; `F` logs git commands (U10); `FS` runs one authorized `/sc:pr-submit --monitor 3` cycle logging pushes and inline `gh api` (O-18, O-19) and a conflict (O-10). Protected-push/merge refusal tests use disposable repositories, never an actual protected branch on the fork. L2 observation follows §19.5. Count LL-PUSH-FORM, LL-GH-WRITE, LL-TEXT and NM1a/G2 UNKNOWN; separately count **am-only blocked first attempts and retries** before any O-21 reconsideration. Record Orca preamble (O-11), one live message (AC-7), timing, and exact harness/config versions. A skipped observation remains pending, not passed.
+- **OB-CTX** is the first blocking feasibility check described in §19.1. Extend OB-H1/H2 capture to valid top-level event/id types on every supported governed leaf call. No probe or observation in this specification has been executed by this panel.
 
 ## 12. Acceptance criteria map
 
-Verdicts are the final review's, of the plan as reviewed. No review checked the amendments, so no verdict changed.
+**Historical matrix only:** these verdicts belong to `plan-review-3.md` before this panel, not to the current refined design. Its reviewer tested an amended prototype; this panel reviewed/refined the design without rerunning executable behavior. No current AC has a runtime pass here. The earlier wording 'unreviewed' below records that historical review boundary.
 
-| AC | Verdict | Amendments meant to change (unreviewed) | Still open |
+| AC | Historical verdict | Earlier amendments (then unreviewed) | Historical remaining issues |
 |---|---|---|---|
 | AC-1 | NOT MET | B-1, B-2, B-3 close one-line commit, merge, push routes | built names (R1), R9, O-8 |
 | AC-2 | NOT MET | B-3 redirect keys, B-4 `.config/git`, B-10 retry block | O-10, O-18, O-19, O-21 |
@@ -322,6 +331,8 @@ Verdicts are the final review's, of the plan as reviewed. No review checked the 
 | AC-6 | NOT MET | B-1 to B-4, B-7; copy blocked 35 of 38 | R1, R11; O-22 |
 | AC-7 | MET | B-1, B-7 wording | none |
 | AC-8 | MET WITH CAVEAT | amendment corpus added | only corpus routes shown; speed untimed |
+
+**Current acceptance additions (all pending execution):** AC-4 requires concurrent governed/ordinary actors in the same worktree, including a human terminal, with no marker-removal workaround. AC-5 requires no-replacement binding, exact state reads and ordinary isolation under identity loss, with that fail-open limit stated. AC-6 requires actual field-3 L2 checks only after B-CTX; scripts/aliases using ordinary Git push are covered only if actor selection demonstrably follows them. AC-8 adds F1–F8 boundary regressions and all §19.5 lifecycle/fixture checks. Acceptance is limited to tested routes; local hooks do not establish universal no-merge/no-main-write protection. B-CTX blocks declaring the complete feature ready, independently of any old MET label.
 
 ## 13. Registration, install and claim-feature interface requests
 
@@ -333,36 +344,38 @@ Append to `UserPromptSubmit` and to `PreToolUse` in `src/superclaude/hooks/hooks
   "hooks": [ { "type": "command", "command": "~/.claude/hooks/launch-level-guard.sh", "timeout": 5 } ] }
 ```
 
-No UserPromptExpansion, SessionStart or `onFailure` (FR-L-63). Anchors are U15; the script re-checks names (FR-L-66). Add `"launch-level-guard.sh"` to `_FRESHNESS_SCRIPTS` (not the Makefile). Run `make sync-dev`, `make verify-sync`; stage `src/` and `tests/` only.
+No UserPromptExpansion, SessionStart or `onFailure` (FR-L-63). Anchors are U15; the script re-checks names (FR-L-66). Add `"launch-level-guard.sh"` to `_FRESHNESS_SCRIPTS` (not the Makefile). For later implementation, run `make sync-dev` and `make verify-sync`; stage canonical source/tests and all `.dev/tasks/` packages, never generated `.claude/` mirrors. This panel does not run sync or change executable files.
 
 - **IR-1** Before `orca agent launch`, write `pending/<nonce>` (one word) atomically; nothing for `--pipeline none`.
 - **IR-2** Nonce `secrets.token_hex(16)`; prompt starts `[sc-launch:v1:<nonce>] `.
 - **IR-3** `pipeline.json` is documentation only; amend FR-31.
-- **IR-4** Refuse to launch unless `jq` exists, the installed script is executable, and `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/settings.json` registers it on both events.
+- **IR-4** Refuse a governed launch unless jq exists, the expected installed script/version is executable, and the effective configuration actually enables both registrations (not merely matching text in an ignored/disabled settings file). This increment supports `$HOME/.claude` for hook commands and state. An effective `CLAUDE_CONFIG_DIR` resolving elsewhere is unsupported and must refuse the governed launch, not inspect one directory while executing another. Do not edit global configuration to force compliance. OB-H2 must observe actual hook execution and bind-before-first-tool order.
 - **IR-5** Re-claim: new session, new nonce, never `--resume`.
-- **IR-6** Claim output says how to release a session.
+- **IR-6** Claim output says how to release a session and states active L1/L2 status. Release invalidates both layers' session membership; it does not require a person to remove a worktree marker to push ordinarily.
+- **IR-7** Claim integration must verify owned/effective L2 installation and the proven B-CTX context contract before a governed pipeline starts. Conflict/absence preserves foreign hooks, reports W-L2-ABSENT and refuses that governed launch. No-pipeline claims stay unaffected. This is a requested interface, not existing claim capability.
 
 ## 14. Order of work
 
-1. **OB-H1.** Proves U1 and turn wrapping. Gate: item 1 fails, stop (O-9); item 5 bare, apply O-17 alternative.
+0. **B-CTX / OB-CTX feasibility gate (§19.1).** Validate the process-context candidate and same-worktree concurrent human isolation with a log-only bounded probe. If it cannot distinguish required lifecycle cases, stop the enforcement implementation and report the exact missing launcher/harness integration. Do not weaken isolation, add infrastructure or start another review loop. This is the first required task in downstream workflow planning.
+1. **OB-H1.** Validate U1, typed top-level identity/event fields and turn wrapping. Gate: item 1 fails, stop (O-9); item 5 bare, apply O-17 alternative. Identity loss on a supported governed call stops deployment.
 2. Skeleton (dispatch, store, binding, resolution, trap, printer). Proves harmless: T-ISO-1, 5, 6, T-FC-*, T-BIND-*.
 3. Normalisation and classifiers: T-NRM, T-GIT, T-PSH, T-GH, T-MCP, T-SKL, T-ESC, T-TRN, T-TAM, T-COR.
 4. Policy and messages: T-GRID, T-MSG.
 5. Approval: T-APR.
 6. Registration: T-REG, T-SPD.
-7. Hand IR-1 to IR-6 to the claim feature. 7a. The git-level layer (owner decision O-22, yes, 2026-11-06); answer its design questions first (MR section 11.3).
+7. Hand IR-1 to IR-7 to the claim feature. Build L2 only after B-CTX passes, using §19 rather than superseded MR 11.3 alternatives. Preserve foreign hooks and implement the isolated temporary-remote suite before any real launch.
 8. **OB-H2**, then **OB-H3**. Gate: no real governed launch until both pass.
 
 ## 15. Open decisions
 
 ### 15.1 Owner decisions O-1 to O-22 (default is in force)
 
-Decided by the owner on 2026-11-06: **O-22 yes** and **O-13 yes**. Every other decision keeps its default.
+Decided by the owner on 2026-11-06: **O-22 yes**, **O-21 retain the default**, and **O-13 yes**. O-22 keeps the structural git-level guard alongside text checks. Human pushes from the same worktree must remain unrestricted by the launch-level guard; worktree membership alone must not activate it. A trustworthy way to distinguish governed pushes from human pushes remains a design prerequisite, not an implemented capability. O-21 keeps `am` in the broad scan and records `am`-only interruptions during OB-H3 before considering its removal. See the advisory debate at `.dev/brainstorms/20261105-170229-launch-level-hook/o21-o22-debate.md`. Every other decision keeps its default.
 
 | Id | Question | Default | Alternative |
 |---|---|---|---|
-| O-22 | add a structural git-level layer (L2, `pre-push` per worktree refusing `main`, `master`)? | **DECIDED yes (owner, 2026-11-06)**: step 7a, text layer kept; still open before building: install place (U28), hook chaining, removal, tests | text classifier only (R1) |
-| O-21 | quoted-text over-match | accept; LL-TEXT; OB-H3 counts | drop `am` after OB-H3 |
+| O-22 | add a structural git-level layer (L2, `pre-push` refusing governed updates to `main`, `master`)? | **DECIDED yes (owner, 2026-11-06)**: step 7a, text layer kept; human pushes in the same worktree remain unrestricted. Before building: trustworthy governed-push selection, install place (U28), hook chaining, removal, tests. Local hooks do not guarantee AC-6. | text classifier only (R1), not selected |
+| O-21 | quoted-text over-match | **DECIDED retain default (owner, 2026-11-06)**: accept; LL-TEXT; retain global `am`; OB-H3 counts `am`-only blocks and retries separately | drop only global `am` after measurement and a new owner decision; keep command-position `git am` gated |
 | O-1 | `cwd` check at bind | no | mismatch binds `degraded` |
 | O-2 | `--force` at `FS` | blocked | admit `--force-with-lease` |
 | O-3 | `gh pr ready` | SUBMIT | never |
@@ -386,7 +399,7 @@ Decided by the owner on 2026-11-06: **O-22 yes** and **O-13 yes**. Every other d
 
 ### 15.2 Blocking findings of the three plan reviews
 
-Status as in MR 11.2 (which names the confirming review). Default for all: keep the rule now in force.
+Historical status copied from MR 11.2, which names the confirming review. 'OPEN (amended, not re-reviewed)' means open at that earlier review boundary, not that the 2026-11-06 panel did not read it. This panel is one simulated design review, not an independent runtime confirmation; no historical experiment is rerun or relabelled closed. Current requirements and blockers are in §3, §12 and §19.
 
 | Id | Finding | Rule now | Status | Alternative |
 |---|---|---|---|---|
@@ -448,7 +461,7 @@ UNVERIFIED (MR 12): U1 subagent id (ship gate); U2 Skill key; U3 `Task` name; U4
 | Id | Decision | Reason |
 |---|---|---|
 | DD-1 | fixed ten-part script layout (section 2) | follows MR 4 and NFR-L-03 order |
-| DD-2 | tests copy MR 8.3 as one text block and MR 8.4 as tuples | one source, diffable |
+| DD-2 | preserve MR inputs as historical baseline; current hand-written expectations follow this design's explicit overrides (§11) | no false synchronization claim |
 | DD-3 | `[B-n]` marks in messages are not printed | they mark provenance |
 | DD-4 | LL-STATE prints before LL-TEXT | MR gives no order |
 | DD-5 | oracle expects LL-UNKNOWN for PR8, PR9; T-PSH-12 still accepts either | precedence is fixed; MR tolerance kept |
@@ -471,4 +484,82 @@ UNVERIFIED (MR 12): U1 subagent id (ship gate); U2 Skill key; U3 `Task` name; U4
 | O, OD, MR 13 | 15 |
 | R, U | 16 |
 
-Full corpus, debate record and reviews: `.dev/brainstorms/20261105-170229-launch-level-hook/` (`merged-requirements.md`, `enrichment/research-light.md`, `adversarial/adversarial/plan-review*.md`, `refactor-plan.md`).
+Historical corpus, debate record and reviews: `.dev/brainstorms/20261105-170229-launch-level-hook/` (`merged-requirements.md`, `enrichment/research-light.md`, `adversarial/adversarial/plan-review*.md`, `refactor-plan.md`). These files have not been synchronized to this refinement.
+
+## 19. L2 structural pre-push layer: conditional integration contract
+
+### 19.1 Actor selection and blocking prerequisite B-CTX
+
+**Invariant:** an ordinary human push in the same worktree is never restricted by launch policy. Git's documented pre-push inputs are remote name/location and ref-update records; Git does not supply a Claude session id. A worktree marker is only an installation/eligibility hint. An inherited environment value, `CCSESSION_LAUNCH_ID`, `CLAUDECODE`, pane key, branch or path is never sufficient authority to select a governed push.
+
+**Historical controller-process candidate, not the implemented identity contract:** the panel proposed associating a bound session with its Claude ancestor and inspecting ancestry at pre-push. The subsequent scoped integration instead binds each accepted Bash job independently (§19.7); do not implement the controller-only design below as if it solved session resets. The historical candidate remains here to explain the original feasibility blocker.
+
+Historical candidate steps, not adopted as an implementation contract:
+
+1. On successful main-session binding, identify the actual firing Claude ancestor from the hook process tree on Linux. Record `(session_id, pid, process-start identity)` outside the worktree in the launch store. Include kernel boot identity or an equivalent lifetime discriminator so a PID reused after exit/reboot cannot authorize a push. Record only after matching the real supported executable/wrapper topology observed by OB-CTX; do not assume the nearest non-shell process is Claude. Environment values may aid diagnosis but cannot supply authority.
+2. Pre-push walks a **bounded** actual parent chain. Select governed only when an ancestor's PID and start identity match a live registered process and the associated session's level record still exists. A human terminal sharing an Orca ancestor is not a descendant of Claude and is not selected. Script/alias/subprocess pushes under the registered Claude ancestor are selected regardless of command spelling. No global environment toggle is consulted.
+3. Release invalidates the membership when the session record is removed. Dead/reused PID records are inert; no destructive pruning needed. Resuming in a new Claude process must re-establish membership from the existing bound session, not trust an inherited label. A new ordinary session in the same process must not inherit the old session's restriction.
+4. Unknown/unreadable ancestry cannot be called 'trusted human' and cannot justify blocking a human on the basis of the worktree marker. This is an unsupported coverage case until the gate below is resolved. If safe distinction is unavailable, stop deployment; do not substitute a marker-wide block or silently advertise enforcement.
+
+**OB-CTX / B-CTX completion evidence (not observed here):** a log-only probe must capture the actual main/subagent/nested/background Bash/Monitor-to-Git and hook process trees, same-worktree human terminal, ordinary Claude session, detached/reparented jobs, launch wrapper, process exit/PID reuse, resume in a new process, /clear/fork, and release while a job remains alive. Establish the needed ancestry bound from that evidence, with an explicit exhaustion rule. In particular, prove how an ordinary new session in a reused Claude process and an old governed background child can be distinguished at the same time. Kernel ancestry alone may not supply that distinction. No single PID-label lookup is accepted as a solution to it.
+
+**Current full-enforcement verdict:** B-CTX remains **OPEN/BLOCKING for the earlier plan's complete lifecycle coverage**. The owner authorized the new scoped integration; its per-job selector and isolated live Bash evidence are described in §19.7. That is not a retroactive PASS for the old controller-ancestry probe or for unobserved `/clear`, resume, Monitor, nested-subagent and auto-mode variants. Existing claim code still has no pipeline-launch implementation. Keep production activation conditional on the actual supported execution surfaces and their required observations, without a root service or weakening human isolation. O-22/O-21/O-13 are not reopened.
+
+### 19.2 Placement and coexistence (Q1/Q2, narrowed)
+
+The current run-4 merged artifacts prefer one owned shared `hooks/pre-push` plus a private-worktree marker, no config change, and no push-hook forwarding. Adopt this as the **conditional placement**, not the actor selector. Resolve common/private Git paths using Git, never assume `.git` is a directory. Existing `pre-commit`, `commit-msg` and other hook names remain untouched.
+
+Install only if effective hooks lookup is the supported default, there is no foreign pre-push, and publication/self-test succeeds. Publish a complete executable without replacing an existing file, including a concurrent foreign install; recheck exact owned version/content before reuse. A header alone is not sufficient ownership proof. Do not enable `extensions.worktreeConfig`, migrate `core.hooksPath`, shadow foreign hooks, generate name-only stubs, or buffer/replay someone else's push hook in this increment.
+
+Conflict or unsupported lookup: preserve all existing files/configuration; report `W-L2-ABSENT` with the reason. Unlike Q1/Q2's advisory 'continue claim', **do not launch a governed pipeline advertised as protected** when accepted L2 is absent. An ordinary/no-pipeline claim is unaffected. This preserves safety without silently treating a warning as O-22 compliance. A later request for coexistence beyond this boundary requires its own scoped design, not an automatic review loop.
+
+### 19.3 Update stream and limits
+
+After positive actor selection, read every record as `<local-ref> <local-oid> <remote-ref> <remote-oid>`. Refuse the **entire push**, with a plain diagnostic and nonzero status, if field 3 is exactly `refs/heads/main` or `refs/heads/master`, including create/update/delete and force forms. Zero OIDs and `(delete)` are ordinary Git control values, not exemptions. Empty stream allows. A malformed governed stream (missing/extra fields) refuses with a distinct malformed-input diagnostic. Stream until EOF; do not truncate after a fixed ref count or infer ref count from the user's original command. No hardcoded SHA-1 length is necessary for destination selection. Unselected ordinary pushes are allowed without launch-policy output or stream inspection.
+
+`refs/tags/main`, `refs/heads/mainline`, `refs/heads/ma` and `refs/heads/feature/main` are not protected by this rule. A source-only refspec configured to resolve to protected heads is protected because field 3 is authoritative. L2 adds no local commit/merge restriction and does not know the correct remote repository. `--no-verify`, per-process hooksPath overrides, direct send-pack and API/programmatic ref writes can bypass local pre-push; visible forms remain checked by L1. Same-user modification and deliberate detachment remain limitations unless the observation gate establishes the specified coverage. Neither layer guarantees universal AC-6 or a hostile-agent sandbox.
+
+### 19.4 Release and removal (Q3, narrowed)
+
+Private-worktree eligibility data may disappear with Git worktree removal; Q artifacts report that Git behavior in disposable repositories. Actual Orca removal remains unverified. The shared hook file may remain installed and inert for launch policy; do not claim **all** L2 files disappear with one worktree.
+
+Deleting a session's level/approval files is still the person's release route and must invalidate that session's L2 process membership. Retaining a worktree marker after release must not retain a restriction on human pushes. No marker-lift command is required for ordinary humans and no config-unset command is introduced. Re-add/rename, stale records and concurrent sessions must be in the lifecycle tests; renames must not switch the bound session's identity. No whole shared-hook deletion during a single-session release.
+
+### 19.5 Tests and observed checks (Q4, constrained to safe target)
+
+Use production installation and real Git in a pytest temporary bare remote, clone and linked worktrees. Assert hook evidence **and before/after remote refs**, not merely exit status. Cover create, update, delete, forced update, plus refspec, mapped source-only refspec, mixed protected/unprotected updates (protected last), empty stream, SHA-format-independent destination handling, exact-name edges and known bypasses. Synthetic direct-hook inputs are only for malformed/padded records Git does not normally send. Seed existing protected refs where deletion/update requires them.
+
+Actor cases: agent and human concurrent in the **same** eligible worktree; ordinary Claude session there; main checkout; sibling; nested subagent; release/resume/clear; stale or reused process id; unreadable ancestry and bound exhaustion. Mark expected text-layer leaks separately from combined L1+L2 results: historical allow pins for hidden ordinary Git pushes do not mean L2 should also allow a governed protected destination.
+
+OB-H3 L2 observation uses a real claim's installation and a **disposable local bare destination**, never a real origin protected branch or a scratch push to the fork. Check effective hook presence/executable ownership and process membership. Use fixture refs that actually reach pre-push (not up-to-date/nonfastforward rejection), and require the hook's own diagnostic. A dry-run can supplement the fixture test, not replace ref-state assertions. Official Git documents dry-run as not sending updates; Q artifacts report local hook invocation, not this panel's runtime verification. No transport-specific proof for the real fork is claimed.
+
+### 19.6 Provenance and evidence limits
+
+Read-only source fallback: Auggie unavailable; codegraph/native tools used. Current advisory outputs and their sibling `adversarial/return-contract.yaml` files:
+
+- `.dev/brainstorms/20261106-l2-prepush-decisions/q1-install-place/run-4/merged-answer.md`: partial, marker-only isolation insufficient.
+- `.dev/brainstorms/20261106-l2-prepush-decisions/q2-chaining/run-4/merged-q2-answer.md`: partial; use shared-path branch only, no forwarding/stubs.
+- `.dev/brainstorms/20261106-l2-prepush-decisions/q3-removal/run-4/merged-answer.md`: partial; worktree cleanup useful, retained human restriction rejected.
+- `.dev/brainstorms/20261106-l2-prepush-decisions/q4-testing/run-4/answer-merged.md`: success label with unresolved items; choose local fixture target to avoid real-remote ambiguity.
+
+Their measurements remain their authors' historical observations. This panel did not rerun them. Official interface references: [Git hooks](https://git-scm.com/docs/githooks), [Git push](https://git-scm.com/docs/git-push), [Git core config](https://raw.githubusercontent.com/git/git/master/Documentation/config/core.adoc), [Claude Code hooks](https://code.claude.com/docs/en/hooks). These establish protocol semantics, not runtime proof of B-CTX.
+
+### 19.7 Implemented scoped job identity foundation
+
+The owner's subsequent authorization covers the missing launcher/harness identity integration, not the complete enforcement feature. The implementation is `src/superclaude/hooks/scripts/launch-job-identity.sh`, with a byte-identical plugin mirror and executable installer distribution. Its stdlib Python body runs through UV on Linux; this is a narrowly authorized exception to this component's earlier bash-only design. No new dependency package or service is added. Tests live in `tests/hooks/test_launch_job_identity.py`; installer coverage is in `tests/cli/test_install_hooks.py`.
+
+**Execution binding:** the Bash PreToolUse adapter reads the actual event's top-level `session_id`. Only a positively governed private `sessions/<id>` record with an exact supported level triggers adaptation. It copies the entire `tool_input`, changes only `command`, and returns `updatedInput` without `permissionDecision: allow`. Timeout, background flag, description and other input fields are retained. Ordinary and non-Bash events are unchanged. No long-lived Claude PID, worktree marker or inherited environment label supplies actor authority.
+
+**Permission boundary:** PreToolUse creates no launch ticket. It emits a shell-quoted invocation of `execute SESSION TOOL_ID_OR_EMPTY COMMAND`. Only when normal permission evaluation allows that invocation to start does `execute` create and immediately consume its private single-use request through the runner. A denied or canceled-before-start rewrite creates no request to replay. The standalone launcher interfaces `prepare SESSION COMMAND [TOOL_USE_ID]` and `run TOKEN` remain explicit caller APIs, not proof that a person approved a command.
+
+**Job lifetime:** each supervisor owns a separate Linux process session, records its actual kernel session/PID/start ticks/boot identity and immutable originating logical session, and waits for the main shell plus ordinary live descendants in that kernel session. The subreaper retains/reaps ordinary orphan descendants after an intermediate shell exits. The main shell's stdout, stderr, stdin, environment, initial cwd and exit status are preserved. A new ordinary tool event from the same controller is not assigned to the old job. The supervisor remains live while ordinary background descendants remain; command completion therefore waits for them deliberately.
+
+**Selector contract:** `identify [PID]` inspects actual kernel process-session membership and validates a live supervisor's PID/start/boot identity plus the origin's current governed record. It emits `governed` with the original session ID, `ordinary` for no registered job or explicit release, and `unknown` for malformed/stale/unreadable registered identity. `unknown` is not a trusted-human verdict. Deleting the origin's level record releases its live jobs without changing another session. Starting a new logical session does not relabel an old job. State location is the configured HOME's launch-level store; callers must preserve that execution context. Arbitrary state relocation or hostile same-user modification is not an isolation guarantee.
+
+**Known execution changes:** wrapped commands run in a fresh Bash shell. An internal `cd` does not persist to later Bash tool calls; use an explicit working directory in each governed call. This adapter is not a transparent replacement for every interactive Bash workflow. Deliberate `setsid`/daemonization escapes kernel-session selection; supervisor killing leaves stale/unknown state for surviving registered jobs. Monitor, other shell tools, remote jobs and unmatched execution mechanisms are not silently supported. No universal hostile-agent protection is claimed.
+
+**Runtime preflight:** UV, the supported Linux process/pidfd/subreaper interfaces, Bash and valid private state must exist for governed execution. With UV absent, jq may establish an exact positively bound session and block it plainly; ordinary unbound calls remain silent. If neither runtime nor parser can establish binding, adaptation is unavailable with no rewrite, not proven human identity or active protection. The future governed launcher must check these prerequisites instead of advertising protection on a host that cannot adapt its jobs.
+
+**Observed versus simulated:** isolated actual CLI PreToolUse/PostToolUse records show one governed call rewritten without a permission-approval decision and reporting the same origin UUID from the executed selector; its ordinary counterpart is not rewritten and reports ordinary. Both actual CLI runs exited 0. The managed identity package `TASK-WF-authorizedNarrow-20261106-214325` retains the redacted `artifacts/live-harness-events.jsonl`. Controlled subprocess tests exercise old-background/new-ordinary overlap, release, stale process data, quoting, startup failure and signal behavior; they are not observations of real `/clear` or resume. Actual persistent-cwd tracking, background scheduling, `/clear`, resume, Monitor, auto mode, concurrent-hook composition and nested-subagent payload variants remain unobserved unless later evidence explicitly adds them.
+
+**Next integration:** a future claim launcher must create the private governed level record for the actual logical session, validate effective adapter/runtime availability and install the separately designed production pre-push policy. That policy may use this selector only on the tested local Bash surface; it must retain an explicit unsupported path for unknown or unadapted execution. This increment does not implement the claim pipeline, the full text classifier, automatic session binding from a claim marker or the production pre-push install/release policy. The earlier blocked workflow remains historical and immutable, not retroactively compliant.

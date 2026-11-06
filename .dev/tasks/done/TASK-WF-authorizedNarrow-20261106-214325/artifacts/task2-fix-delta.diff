@@ -1,0 +1,352 @@
+--- a/src/superclaude/hooks/scripts/launch-job-identity.sh
++++ b/src/superclaude/hooks/scripts/launch-job-identity.sh
+@@ -8,6 +8,8 @@
+ # containment if hostile isolation is required. Killing the supervisor leaves
+ # unknown stale state, not trusted human identity. Monitor/pipelines unsupported.
+ # With no arguments, adapt documented PreToolUse Bash JSON on stdin only.
++# The hook emits execute SESSION TOOL_ID_OR_EMPTY COMMAND, never a ticket.
++# Accepted execution creates and immediately consumes one private request.
+ # Unverifiable/oversized envelopes are unsupported, not proof of human identity.
+ # updatedInput replaces the WHOLE input; omit permissionDecision so ordinary
+ # permission checks still apply. Other hooks' rewrite ordering is unspecified.
+@@ -406,10 +408,6 @@
+         return 0
+     # Existence is only a reason to validate or block, never rewrite authority.
+     root = None
+-    requests = None
+-    token = None
+-    published = False
+-    delivered = False
+     try:
+         root = store()
+         governed(root, sid)
+@@ -428,7 +426,7 @@
+                          'command': inputs.get('command')})
+         script = os.path.realpath(sys.argv[1])
+         # Reserve runner invocations, without pretending shlex parses Bash.
+-        reserved = re.escape(os.path.basename(script)) + r'''[\x27\x22]?(?:\s+(?:run|hook)(?:\s|$)|\s*$)'''
++        reserved = re.escape(os.path.basename(script)) + r'''[\x27\x22]?(?:\s+(?:run|hook|execute)(?:\s|$)|\s*$)'''
+         if re.search(reserved, value['command']):
+             raise ValueError('conflicting job wrapper')
+         if sys.platform != 'linux' or fcntl is None:
+@@ -441,44 +439,65 @@
+             raise OSError('subreaper unavailable')
+         if not os.path.isfile(script) or not os.access(script, os.R_OK):
+             raise ValueError('runner unavailable')
+-        for executable in ('/bin/bash', '/bin/rm', '/usr/bin/stat'):
+-            if not os.access(executable, os.X_OK):
+-                raise ValueError('startup dependency unavailable')
+-        requests = subdir(root, 'requests', True)
+-        st = os.fstat(requests)
+-        token = uuid.uuid4().hex
+-        request_dir = os.path.join(home, '.claude', 'state', 'launch-level', 'requests')
+-        # Pin the validated directory inode for startup cleanup. The trap lives
+-        # only in this subshell and unlinks exactly one basename via its fd.
+-        cleanup = '/bin/rm -f -- /proc/self/fd/9/' + token
+-        command = '(exec 9< ' + shlex.quote(request_dir) + ' || exit 2; '
+-        command += '[[ "$(/usr/bin/stat -Lc %d:%i /proc/self/fd/9)" == ' + str(st.st_dev) + ':' + str(st.st_ino) + ' ]] || exit 2; '
+-        command += 'trap ' + shlex.quote(cleanup) + ' EXIT; '
+-        command += shlex.join(['/bin/bash', script, 'run', token]) + ')'
++        if not os.access('/bin/bash', os.X_OK):
++            raise ValueError('startup dependency unavailable')
++        # No ticket exists during permission evaluation. Only accepted execution
++        # enters execute(), which creates and immediately consumes its request.
++        command = shlex.join(['/bin/bash', script, 'execute', sid,
++                              value['tool_use_id'] or '', value['command']])
+         updated = dict(inputs)
+         updated['command'] = command
+         output = json.dumps({'hookSpecificOutput': {
+             'hookEventName': 'PreToolUse', 'updatedInput': updated,
+             'additionalContext': 'Launch identity: this call uses a fresh Bash shell and waits for ordinary background descendants. Internal cd does not persist to later Bash calls; use an explicit working directory in each call. Normal permission checks still apply; concurrent hook rewrite ordering and live auto-mode behavior are unverified.'}})
+-        publish(requests, token, value)
+-        published = True
+         print(output, flush=True)
+-        delivered = True
+         return 0
+     except (OSError, ValueError, IndexError, TypeError, RecursionError, AttributeError):
+         print('launch job: governed Bash call cannot be wrapped safely', file=sys.stderr)
+         return 2
+     finally:
+-        if published and not delivered:
+-            os.unlink(token, dir_fd=requests)
+-        for fd in (requests, root):
+-            if fd is not None:
+-                os.close(fd)
++        if root is not None:
++            os.close(root)
++
++
++def execute(sid, tool_id, command):
++    value = request({'session_id': sid, 'tool_use_id': tool_id or None, 'command': command})
++    root = store()
++    requests = None
++    published = False
++    token = uuid.uuid4().hex
++    try:
++        governed(root, sid)
++        requests = subdir(root, 'requests', True)
++        def cancel(signum, frame):
++            raise SystemExit(128 + signum)
++        for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT):
++            signal.signal(sig, cancel)
++        old_mask = signal.pthread_sigmask(signal.SIG_BLOCK, (signal.SIGINT, signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT))
++        try:
++            publish(requests, token, value)
++            published = True
++        finally:
++            signal.pthread_sigmask(signal.SIG_SETMASK, old_mask)
++        return run(token)
++    finally:
++        try:
++            if published:
++                try:
++                    os.unlink(token, dir_fd=requests)
++                except FileNotFoundError:
++                    pass  # run consumed it already
++        finally:
++            for fd in (requests, root):
++                if fd is not None:
++                    os.close(fd)
+ 
+ 
+ def main(args):
+     if not args or args == ['hook']:
+         return hook()
++    if len(args) == 4 and args[0] == 'execute':
++        return execute(*args[1:])
+     if args and args[0] == 'identify' and len(args) in (1, 2):
+         try:
+             pid = os.getpid() if len(args) == 1 else int(args[1])
+--- a/tests/hooks/test_launch_job_identity.py
++++ b/tests/hooks/test_launch_job_identity.py
+@@ -553,7 +553,9 @@
+ 
+ 
+ def rewritten(job, event, script=SCRIPT):
++    before = set(job.root.rglob("*"))
+     result = adapt(job, event, script)
++    assert set(job.root.rglob("*")) == before  # permission evaluation creates no state
+     assert result.returncode == 0, result.stderr
+     assert result.stderr == ""
+     output = json.loads(result.stdout)
+@@ -592,14 +594,13 @@
+     assert {k: v for k, v in updated.items() if k != "command"} == {
+         k: v for k, v in inputs.items() if k != "command"
+     }
+-    request_file = next((job.root / "requests").iterdir())
+-    request_value = json.loads(request_file.read_text())
+-    assert request_value == {
+-        "session_id": "old",
+-        "tool_use_id": "toolu_01ABC123",
+-        "command": command,
+-    }
+-    assert request_file.stat().st_mode & 0o777 == 0o400
++    assert shlex.split(updated["command"])[2:] == [
++        "execute",
++        "old",
++        "toolu_01ABC123",
++        command,
++    ]
++    assert not (job.root / "requests").exists()
+     result = execute_rewritten(job, updated, input="stdin survives\n", cwd=tmp_path)
+     assert (result.returncode, result.stdout, result.stderr) == (
+         13,
+@@ -785,8 +786,8 @@
+             parent_session_id="old",
+         ),
+     )
+-    path = next((job.root / "requests").iterdir())
+-    assert json.loads(path.read_text())["session_id"] == "agent-session"
++    assert shlex.split(updated["command"])[2:4] == ["execute", "agent-session"]
++    assert not (job.root / "requests").exists()
+     assert execute_rewritten(job, updated).returncode == 0
+     result = adapt(
+         job,
+@@ -795,24 +796,22 @@
+     assert (result.returncode, result.stdout, result.stderr) == (0, "", "")
+ 
+ 
+-def test_hook_release_before_run_and_replay_are_rejected(job, tmp_path):
++def test_hook_release_before_execution_creates_no_replayable_ticket(job, tmp_path):
+     marker = tmp_path / "never"
+     updated = rewritten(job, hook_event(f"touch {marker}"))
+-    token = next((job.root / "requests").iterdir()).name
+     (job.root / "sessions/old").unlink()
+     assert execute_rewritten(job, updated).returncode == 2
+-    job.bind("old")
+-    assert job.call("run", token).returncode == 2
++    assert not (job.root / "requests").exists()
++    assert not job.records()
+     assert not marker.exists()
+ 
+ 
+ def test_hook_refuses_conflicting_wrapper_without_second_ticket(job):
+     updated = rewritten(job, hook_event())
+-    before = set((job.root / "requests").iterdir())
+     result = adapt(job, hook_event(updated["command"]))
+     assert result.returncode == 2
+     assert result.stdout == ""
+-    assert set((job.root / "requests").iterdir()) == before
++    assert not (job.root / "requests").exists()
+     assert execute_rewritten(job, updated).returncode == 0
+ 
+ 
+@@ -831,15 +830,9 @@
+ 
+ 
+ @pytest.mark.parametrize("failure", ["uv", "interpreter"])
+-def test_hook_failed_startup_cleans_exact_ticket_and_forbids_replay(
+-    job, tmp_path, failure
+-):
++def test_hook_failed_startup_creates_no_ticket_to_replay(job, tmp_path, failure):
+     marker = tmp_path / "never"
+     updated = rewritten(job, hook_event(f"touch {marker}"))
+-    token = next((job.root / "requests").iterdir()).name
+-    unrelated = job.root / "requests/unrelated"
+-    unrelated.write_text("keep")
+-    old_env = job.env.copy()
+     if failure == "uv":
+         job.env["PATH"] = str(tmp_path / "no-binaries")
+     else:
+@@ -847,10 +840,8 @@
+     result = execute_rewritten(job, updated)
+     assert result.returncode == 2
+     assert not marker.exists()
+-    assert not (job.root / "requests" / token).exists()
+-    assert unrelated.read_text() == "keep"
+-    job.env = old_env
+-    assert job.call("run", token).returncode == 2
++    assert not (job.root / "requests").exists()
++    assert not job.records()
+ 
+ 
+ def test_hook_cleanup_does_not_overwrite_outer_exit_trap_or_status(job, tmp_path):
+@@ -869,27 +860,18 @@
+     assert not list((job.root / "requests").iterdir())
+ 
+ 
+-def test_hook_cleanup_never_unlinks_through_replaced_request_directory(job, tmp_path):
++def test_execution_never_follows_symlinked_request_directory(job, tmp_path):
+     marker = tmp_path / "never"
+     updated = rewritten(job, hook_event(f"touch {marker}"))
+-    requests = job.root / "requests"
+-    token = next(requests.iterdir()).name
+-    original = tmp_path / "original-requests"
+-    requests.rename(original)
+     decoy = tmp_path / "decoy"
+     decoy.mkdir(mode=0o700)
+-    (decoy / token).write_text("do not unlink")
+-    requests.symlink_to(decoy, target_is_directory=True)
+-    try:
+-        assert execute_rewritten(job, updated).returncode == 2
+-        assert not marker.exists()
+-        assert (decoy / token).read_text() == "do not unlink"
+-    finally:
+-        requests.unlink()
+-        original.rename(requests)
+-        (
+-            requests / token
+-        ).unlink()  # deliberate same-user state mutation is outside containment
++    sentinel = decoy / "keep"
++    sentinel.write_text("do not unlink")
++    (job.root / "requests").symlink_to(decoy, target_is_directory=True)
++    assert execute_rewritten(job, updated).returncode == 2
++    assert not marker.exists()
++    assert list(decoy.iterdir()) == [sentinel]
++    assert sentinel.read_text() == "do not unlink"
+ 
+ 
+ def test_hook_fresh_shell_cwd_contract_is_explicit_and_repeatable(job, tmp_path):
+@@ -954,3 +936,92 @@
+     assert result.stdout == ""
+     assert result.stderr == "launch job: UV is required for this invocation\n"
+     assert not (job.root / "requests").exists()
++
++
++def test_withheld_hook_rewrite_leaves_no_authorization_ticket_or_job(job, tmp_path):
++    marker = tmp_path / "rejected-command"
++    before = set(job.root.rglob("*"))
++    updated = rewritten(job, hook_event(f"touch {marker}"))
++    # Model permission rejection: never execute the successfully emitted command.
++    assert shlex.split(updated["command"])[2] == "execute"
++    assert set(job.root.rglob("*")) == before
++    assert not (job.root / "requests").exists()
++    assert not job.records()
++    assert not marker.exists()
++    assert job.call("run", "0" * 32).returncode == 2
++    assert not marker.exists()
++
++
++def test_accepted_execution_creates_and_consumes_exactly_one_runtime_request(job):
++    import ctypes
++    import struct
++
++    requests = job.root / "requests"
++    requests.mkdir(mode=0o700)
++    libc = ctypes.CDLL(None, use_errno=True)
++    fd = libc.inotify_init1(os.O_NONBLOCK | os.O_CLOEXEC)
++    assert fd >= 0
++    try:
++        assert libc.inotify_add_watch(fd, os.fsencode(requests), 0x100 | 0x200) >= 0
++        updated = rewritten(
++            job, hook_event(f"/bin/bash {shlex.quote(str(SCRIPT))} identify")
++        )
++        result = execute_rewritten(job, updated)
++        assert result.returncode == 0, result.stderr
++        assert json.loads(result.stdout) == {"status": "governed", "session_id": "old"}
++        data = os.read(fd, 65536)
++        events = []
++        at = 0
++        while at < len(data):
++            _, mask, _, size = struct.unpack_from("iIII", data, at)
++            name = data[at + 16 : at + 16 + size].split(b"\0")[0].decode()
++            if len(name) == 32 and all(c in "0123456789abcdef" for c in name):
++                events.append((mask, name))
++            at += 16 + size
++        assert len(events) == 2, events
++        assert events[0][0] == 0x100  # IN_CREATE: runtime atomic publication
++        assert events[1] == (0x200, events[0][1])  # IN_DELETE: one-use consumption
++        assert not list(requests.iterdir())
++        assert not job.records()
++    finally:
++        os.close(fd)
++
++
++def test_execution_finally_cleans_only_its_ticket_if_run_startup_fails(job, tmp_path):
++    # Fault injection targets the tiny publication/consumption boundary only.
++    source = SCRIPT.read_text().split("<<'PY'\n", 1)[1].rsplit("\nPY\n", 1)[0]
++    assert source.count("        return run(token)\n") == 1
++    source = source.replace(
++        "        return run(token)\n",
++        "        raise OSError('injected startup failure')\n",
++    )
++    requests = job.root / "requests"
++    requests.mkdir(mode=0o700)
++    unrelated = requests / "untouched"
++    unrelated.write_text("keep")
++    marker = tmp_path / "never"
++    result = subprocess.run(
++        [
++            "uv",
++            "run",
++            "--no-project",
++            "python",
++            "-I",
++            "-c",
++            source,
++            str(SCRIPT),
++            "execute",
++            "old",
++            "tool_1",
++            f"touch {marker}",
++        ],
++        env=job.env,
++        capture_output=True,
++        text=True,
++        timeout=10,
++    )
++    assert result.returncode == 2
++    assert not marker.exists()
++    assert list(requests.iterdir()) == [unrelated]
++    assert unrelated.read_text() == "keep"
++    assert not job.records()
