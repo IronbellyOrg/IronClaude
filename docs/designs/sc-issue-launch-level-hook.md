@@ -97,7 +97,7 @@ Message id is `LL-<class>`; PUSHFORM gives LL-PUSH-FORM, GHWRITE gives LL-GH-WRI
 |---|---|---|---|---|---|---|
 | 1 | Read, Grep, Glob, TaskCreate (unmatched) | n/a | A | A | A | A |
 | 2, 8, 9, 11a, 12, 19, 24, 26, 29, 30 | Edit `/repo/src/x.py`; Skill `sc:workflow`; local Agent; Monitor `tail -f log`; `git status`; `git -C "$(git rev-parse --show-toplevel)" status` [B-10]; `gh api repos/o/r/pulls/5`; `orca worktree current` | NONE | A | A | A | A |
-| 4 | Skill `sc:implement`, `sc:implement-protocol`, `task`, `sc:task-protocol` | IMPL | IMPL | A | A | A |
+| 4 | Skill `sc:implement`, `sc:implement-protocol`, `task`, `sc:task-protocol`, `sc:improve`, `sc:cleanup`, `sc:spawn`, `sc:build` [O-13] | IMPL | IMPL | A | A | A |
 | 11 | CronCreate, ScheduleWakeup | TURN | TURN | A | A | A |
 | 5, 20, 21 | Skill `sc:pr-submit`; `gh pr comment 5`; `gh pr ready 5`; `gh pr create --repo "$REPO" ...` | SUBMIT | SUBMIT | SUBMIT | SUBMIT | A |
 | 22 | `gh pr create --title x` | SUBMIT, REPO | SUBMIT | SUBMIT | SUBMIT | REPO |
@@ -169,7 +169,7 @@ No match: PUSHFORM. Match: destination is capture 5, else 3, minus one `refs/hea
 
 ### 5.2 Other tools
 
-- **Skill (FR-L-40):** name `skill`, else `name`; strip leading space, keep the first word, lower-case, drop one `/`, keep text after the last `:`, drop one leading `sc-` and one trailing `-protocol`. `implement`, `task`: IMPL. `pr-submit`: SUBMIT. `issue`: ESCAPE. Empty: SKILL. Else NONE (`task-builder`).
+- **Skill (FR-L-40):** name `skill`, else `name`; strip leading space, keep the first word, lower-case, drop one `/`, keep text after the last `:`, drop one leading `sc-` and one trailing `-protocol`. `implement`, `task`, `improve`, `cleanup`, `spawn`, `build`: IMPL (the last four by owner decision O-13, 2026-11-06; exact match after normalising, so `cleanup-audit` and `task-builder` stay NONE). `pr-submit`: SUBMIT. `issue`: ESCAPE. Empty: SKILL. Else NONE (`task-builder`).
 - **Agent, Task (FR-L-41):** same decisions; NONE, background or not, unless `isolation` is `remote` (ESCAPE). Prompt never scanned.
 - **Edit, Write, NotebookEdit (FR-L-42):** tamper check only; source edits not gated (O-8).
 - **Cron\*, Schedule\* (FR-L-43):** TURN. RemoteTrigger, Workflow, SendMessage: ESCAPE (FR-L-46).
@@ -225,7 +225,7 @@ To stderr, then exit 2. Header: `Launch-level guard: this session was started by
 
 | Id | Blocked: | Why: | You can: |
 |---|---|---|---|
-| LL-IMPL | starting /sc:implement or /task (or their skills). | At the worktree level the agent stops at a plan until a person approves it. | Read the plan, then type /sc:implement or /task, or reply approved, in this session. |
+| LL-IMPL | starting /sc:implement, /task, /sc:improve, /sc:cleanup, /sc:spawn or /sc:build (or their skills). | At the worktree level the agent stops at a plan until a person approves it. | Read the plan, then type /sc:implement or /task, or reply approved, in this session. |
 | LL-COMMIT | creating a commit (git commit, cherry-pick, revert, am, or moving a branch with update-ref). | Only a launch with --pipeline full --submit lets the agent commit. | Review the changes and commit them yourself, or claim the issue again with --pipeline full --submit. |
 | LL-PUSH | a git push. | Only a launch with --pipeline full --submit lets the agent push. | Push the branch yourself after review, or claim the issue again with --pipeline full --submit. |
 | LL-PUSH-FORM | a push that is not one plain git push command, or a command that names git and push together. | The guard can check a push only when the whole command is git push [-u] origin <branch> (or <source>:<branch>), with nothing before or after it; other forms (force, --all, another remote, variables, backticks, line continuations, chained or piped commands) can reach another remote or the main branch. | Run the push as its own command, exactly: git push origin <branch> or git push -u origin <branch>, with the branch name written out. |
@@ -350,16 +350,18 @@ No UserPromptExpansion, SessionStart or `onFailure` (FR-L-63). Anchors are U15; 
 4. Policy and messages: T-GRID, T-MSG.
 5. Approval: T-APR.
 6. Registration: T-REG, T-SPD.
-7. Hand IR-1 to IR-6 to the claim feature. 7a. Only if the owner confirms O-22: the git-level layer.
+7. Hand IR-1 to IR-6 to the claim feature. 7a. The git-level layer (owner decision O-22, yes, 2026-11-06); answer its design questions first (MR section 11.3).
 8. **OB-H2**, then **OB-H3**. Gate: no real governed launch until both pass.
 
 ## 15. Open decisions
 
 ### 15.1 Owner decisions O-1 to O-22 (default is in force)
 
+Decided by the owner on 2026-11-06: **O-22 yes** and **O-13 yes**. Every other decision keeps its default.
+
 | Id | Question | Default | Alternative |
 |---|---|---|---|
-| O-22 | add a structural git-level layer (L2, `pre-push` per worktree refusing `main`, `master`)? | orchestrator: yes as step 7a, text layer kept; owner decides; open: install place (U28), hook chaining, removal, tests | text classifier only (R1) |
+| O-22 | add a structural git-level layer (L2, `pre-push` per worktree refusing `main`, `master`)? | **DECIDED yes (owner, 2026-11-06)**: step 7a, text layer kept; still open before building: install place (U28), hook chaining, removal, tests | text classifier only (R1) |
 | O-21 | quoted-text over-match | accept; LL-TEXT; OB-H3 counts | drop `am` after OB-H3 |
 | O-1 | `cwd` check at bind | no | mismatch binds `degraded` |
 | O-2 | `--force` at `FS` | blocked | admit `--force-with-lease` |
@@ -373,7 +375,7 @@ No UserPromptExpansion, SessionStart or `onFailure` (FR-L-63). Anchors are U15; 
 | O-10 | sync merge at `FS` | blocked | allow `--no-commit`, `--abort` |
 | O-11 | Orca worker commands | none | allowlist them |
 | O-12 | compare `--repo` to `origin` | no | read at bind |
-| O-13 | more IMPL skills | no | add names |
+| O-13 | more IMPL skills | **DECIDED yes (owner, 2026-11-06)**: `sc:improve`, `sc:cleanup`, `sc:spawn`, `sc:build` join the IMPL set; approval unlocks them like `/sc:implement` | no (the earlier default) |
 | O-14 | MCP writes at `FS` | blocked | allow non-`main` |
 | O-15 | old state files | person removes | prune on re-claim |
 | O-16 | deleted file is ordinary | accept | read `transcript_path` (U27) |

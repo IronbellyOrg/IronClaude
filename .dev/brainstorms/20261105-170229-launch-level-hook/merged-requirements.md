@@ -550,8 +550,8 @@ Tests: T-GH-8, T-GH-14.
 
 1. Name = `tool_input.skill`, else `tool_input.name` (read in FR-L-10 step P5). Absent or empty: class SKILL.
 2. Normalise: remove leading whitespace first [m-5]; keep the text before the first whitespace; lower-case; remove one leading `/`; keep the text after the last `:` (so a plugin namespace such as `superclaude:sc-implement-protocol` and the `sc:` prefix both go); remove one leading `sc-`; remove one trailing `-protocol`. An empty result is class SKILL [m-5]. OB-H1 item 2 records the name form of a plugin-installed skill.
-3. `implement` or `task`: IMPL. `pr-submit`: SUBMIT. `issue`: ESCAPE (a launched agent may not claim or launch another agent; WORKER-CONTRACT lists `/sc:issue` as never-as-worker). Anything else: NONE.
-4. So IMPL covers `sc:implement`, `sc:implement-protocol` (the name `/sc:implement` itself calls), `sc-implement-protocol`, `task`, `sc:task` and `sc:task-protocol`; SUBMIT covers `sc:pr-submit` and `sc:pr-submit-protocol`; `task-builder` and `sc:tasklist-protocol` stay NONE.
+3. `implement`, `task`, `improve`, `cleanup`, `spawn` or `build`: IMPL (the last four by owner decision O-13, 2026-11-06). `pr-submit`: SUBMIT. `issue`: ESCAPE (a launched agent may not claim or launch another agent; WORKER-CONTRACT lists `/sc:issue` as never-as-worker). Anything else: NONE.
+4. So IMPL covers `sc:implement`, `sc:implement-protocol` (the name `/sc:implement` itself calls), `sc-implement-protocol`, `task`, `sc:task` and `sc:task-protocol`, and (O-13) `sc:improve`, `sc:cleanup`, `sc:spawn` and `sc:build` in any spelling that normalises to improve, cleanup, spawn or build; SUBMIT covers `sc:pr-submit` and `sc:pr-submit-protocol`; `task-builder`, `sc:tasklist-protocol` and `sc:cleanup-audit-protocol` stay NONE.
 
 Tests: T-SKL-1 to T-SKL-5.
 
@@ -772,7 +772,7 @@ Requests only; the claim feature builds them in its own sprint. (The plan named 
 - **IR-5** A re-claim always starts a new session with a new nonce. It never uses `--resume` on a governed session to change its level.
 - **IR-6** The claim output tells the person that the session is released by deleting its files in `$HOME/.claude/state/launch-level/sessions/` (block messages print the exact command).
 
-If owner decision O-22 is taken, the claim feature would also install the git-level layer per linked worktree; that request is not written yet (O-22 open questions).
+Owner decision O-22 is taken (yes, 2026-11-06): the claim feature must also install the git-level layer per linked worktree; that interface request is not written yet (O-22 open questions).
 
 ## 5. Non-functional requirements
 
@@ -858,7 +858,7 @@ Every row applies to a governed session; in an ordinary session every row is ALL
 | 1 | Read, Grep, Glob, WebFetch, TodoWrite, TaskCreate (not matched) | n/a | ALLOW | ALLOW | ALLOW | ALLOW |
 | 2 | Edit, Write, NotebookEdit on an ordinary path (`/repo/src/x.py`, `/repo/.dev/tasks/plan.md`) | NONE | ALLOW | ALLOW | ALLOW | ALLOW |
 | 3 | Edit, Write, NotebookEdit on `~/.claude/settings.json`, `~/.claude/hooks/x.sh`, the store, `~/.gitconfig`, `/repo/.git/config`, `~/.config/git/config` [B-4], or a path with a `..` segment | TAMPER | BLOCK LL-TAMPER | BLOCK LL-TAMPER | BLOCK LL-TAMPER | BLOCK LL-TAMPER |
-| 4 | Skill `sc:implement`, `sc:implement-protocol`, `sc-implement-protocol`, `task`, `sc:task`, `sc:task-protocol` | IMPL | BLOCK LL-IMPL | ALLOW | ALLOW | ALLOW |
+| 4 | Skill `sc:implement`, `sc:implement-protocol`, `sc-implement-protocol`, `task`, `sc:task`, `sc:task-protocol`, `sc:improve`, `sc:cleanup`, `sc:spawn`, `sc:build` [O-13] | IMPL | BLOCK LL-IMPL | ALLOW | ALLOW | ALLOW |
 | 5 | Skill `sc:pr-submit`, `sc:pr-submit-protocol` | SUBMIT | BLOCK LL-SUBMIT | BLOCK LL-SUBMIT | BLOCK LL-SUBMIT | ALLOW |
 | 6 | Skill `sc:issue`, `sc:issue-protocol` | ESCAPE | BLOCK LL-ESCAPE | BLOCK LL-ESCAPE | BLOCK LL-ESCAPE | BLOCK LL-ESCAPE |
 | 7 | Skill call with neither `skill` nor `name` | SKILL | BLOCK LL-SKILL | BLOCK LL-SKILL | BLOCK LL-SKILL | ALLOW |
@@ -921,7 +921,7 @@ You can: <next step>
 <!-- Source: refactor-plan Change 23 item 2 (Variant 1 section 11 ids; INV-031, INV-039), LL-UNKNOWN amended per plan-review-3 B-1, LL-GH-WRITE amended per plan-review-3 B-7 -->
 | Id | Blocked: | Why: | You can: |
 |---|---|---|---|
-| LL-IMPL | starting /sc:implement or /task (or their skills). | At the worktree level the agent stops at a plan until a person approves it. | Read the plan, then type /sc:implement or /task, or reply approved, in this session. |
+| LL-IMPL | starting /sc:implement, /task, /sc:improve, /sc:cleanup, /sc:spawn or /sc:build (or their skills). | At the worktree level the agent stops at a plan until a person approves it. | Read the plan, then type /sc:implement or /task, or reply approved, in this session. |
 | LL-COMMIT | creating a commit (git commit, cherry-pick, revert, am, or moving a branch with update-ref). | Only a launch with --pipeline full --submit lets the agent commit. | Review the changes and commit them yourself, or claim the issue again with --pipeline full --submit. |
 | LL-PUSH | a git push. | Only a launch with --pipeline full --submit lets the agent push. | Push the branch yourself after review, or claim the issue again with --pipeline full --submit. |
 | LL-PUSH-FORM | a push that is not one plain git push command, or a command that names git and push together. | The guard can check a push only when the whole command is git push [-u] origin <branch> (or <source>:<branch>), with nothing before or after it; other forms (force, --all, another remote, variables, backticks, line continuations, chained or piped commands) can reach another remote or the main branch. | Run the push as its own command, exactly: git push origin <branch> or git push -u origin <branch>, with the branch name written out. |
@@ -1009,7 +1009,7 @@ Each name is a pytest function; a range like `T-SPD-1..5` is one function per id
 | T-GRID-3 | `test_worktree_stops_at_plan` | at `W`: IMPL, COMMIT, PUSH, SUBMIT blocked; Write of `.dev/tasks/x/plan.md` and Skill `sc:workflow` allowed |
 | T-GRID-4 | `test_full_implements_without_submitting` | at `F`: IMPL allowed; COMMIT, PUSH, SUBMIT blocked |
 | T-GRID-5 | `test_full_submit_allows_commit_push_prsubmit` | at `FS`: commit, a canonical-form push, `sc:pr-submit`, `gh pr create --repo "$REPO"` allowed |
-| T-SKL-1 | `test_impl_name_spellings` | the six IMPL spellings of FR-L-40, plus `SC:IMPLEMENT`, `/sc:implement args`, `superclaude:sc-implement-protocol` and a name with leading whitespace [m-5] |
+| T-SKL-1 | `test_impl_name_spellings` | the ten IMPL spellings of FR-L-40 (the six, plus `sc:improve`, `sc:cleanup`, `sc:spawn`, `sc:build`; O-13), `sc:cleanup-audit-protocol` stays NONE, plus `SC:IMPLEMENT`, `/sc:implement args`, `superclaude:sc-implement-protocol` and a name with leading whitespace [m-5] |
 | T-SKL-2 | `test_submit_name_spellings` | `sc:pr-submit`, `sc:pr-submit-protocol` |
 | T-SKL-3 | `test_skill_name_keys` | name under `skill`, then under `name` |
 | T-SKL-4 | `test_skill_without_name` | LL-SKILL at W, WA, F; allowed at FS; a whitespace-only name gives LL-SKILL [m-5] |
@@ -1305,7 +1305,7 @@ Before step 1, the owner reads section 11 (in particular O-21 and O-22) and sect
 5. Approval (FR-L-15 to FR-L-19): T-APR.
 6. Registration (FR-L-60 to FR-L-66): `hooks.json`, `_FRESHNESS_SCRIPTS`, `make sync-dev`, `make verify-sync`; T-REG, T-SPD.
 7. Hand IR-1 to IR-6 to the claim feature; amend FR-31.
-7a. Only if the owner confirms O-22 (orchestrator default: yes): add the structural git-level layer as a small hardening step. It is not designed yet; its open questions are listed under O-22 and must be answered first.
+7a. Add the structural git-level layer (owner decision O-22: yes, 2026-11-06) as a small hardening step. It is not designed yet; its open questions are listed under O-22 and must be answered first.
 8. OB-H2, then OB-H3, once claim launches exist. Until both pass, `--pipeline full` and `--submit` are not used on real issues (launch-levels addendum section 9).
 
 ## 11. Open decisions for the owner
@@ -1313,7 +1313,7 @@ Before step 1, the owner reads section 11 (in particular O-21 and O-22) and sect
 ### 11.1 Design decisions O-1 to O-22
 
 <!-- Source: refactor-plan "Open decisions for the owner" (Change 33; Round 2 residual splits, INV-020; plan reviews), O-7 and O-16 text aligned with plan-review-3 B-5; O-22 added by the orchestrator -->
-The default is the rule written into this specification. O-1 to O-5 are the Round 2 residual splits, decided by the fewest-edge-cases criterion; O-7 is the AC-6 limit and O-16 the AC-5 limit the owner must accept explicitly; O-16 to O-19 come from the first plan review; O-20 and O-21 from the second; O-22 was added by the orchestrator after the third. O-21 and O-22 should be read first.
+The default is the rule written into this specification. O-1 to O-5 are the Round 2 residual splits, decided by the fewest-edge-cases criterion; O-7 is the AC-6 limit and O-16 the AC-5 limit the owner must accept explicitly; O-16 to O-19 come from the first plan review; O-20 and O-21 from the second; O-22 was added by the orchestrator after the third. O-21 and O-22 should be read first. Owner decisions of 2026-11-06: O-22 yes, O-13 yes; every other decision keeps its default.
 
 | Id | Question | Default (rule in force) | Alternative | Why the default |
 |---|---|---|---|---|
@@ -1329,7 +1329,7 @@ The default is the rule written into this specification. O-1 to O-5 are the Roun
 | O-10 | `/sc:pr-submit`'s conflict-sync merge at `full --submit` | Stays blocked (only people merge), and so does its `git merge --abort` (`conflict-mechanical.md` line 226): after a blocked sync merge the skill has nothing to abort, and the person resolves the conflict | Allow `merge --no-commit` and `merge --abort` at submit | AC-6 says no level permits a merge |
 | O-11 | Launched sessions that carry an Orca worker preamble (WC-9) and need `orca orchestration` report commands | OB-H3 decides; none allowed now | Add the worker-report subcommands to the `orca` allowlist; if the session is a worker, `--submit` is unreachable | U7 unverified |
 | O-12 | Compare a literal `--repo` value with `origin` at submit | No | Read `owner/name` at bind time and block other literal values | The hook is installed in every project; no AC names the fork rule |
-| O-13 | More implement skills (`sc:improve`, `sc:cleanup`, `sc:spawn`, `sc:build`) | No | Add names to the IMPL set (one word each) | The issue names `/sc:implement` and `/task` |
+| O-13 | More implement skills (`sc:improve`, `sc:cleanup`, `sc:spawn`, `sc:build`) | **DECIDED yes (owner, 2026-11-06):** add the names to the IMPL set (one word each) | No (the earlier default) | The issue names `/sc:implement` and `/task`; these four commands also change code, so they are gated the same way |
 | O-14 | MCP writes at `full --submit` | Blocked at every level | Allow at submit unless `branch` is `main`/`master` | MCP argument names are unverified (U12); `/sc:pr-submit` uses gh |
 | O-15 | Old state files | A person removes them; the hook never prunes | The claim script prunes on re-claim | No clean-up state to get wrong |
 | O-16 | AC-5 and a deleted session file (review-1 B-7): a bound session whose `sessions/<sid>` is gone reads as ordinary | Accept (residual R3); deletion is also the release route | When the store holds any session file and `sessions/<sid>` is missing, read the first 2 KB of the payload's `transcript_path` and, if it starts with the launch marker, govern at degraded `worktree`. Cost: one file read per call while the store is non-empty; UNVERIFIED whether the transcript exists at the first call (U27) | Reaching the delete from inside the session needs a command that names the store path or `.claude/state` (blocked, FR-L-49), so only a glob, a brace expansion (`~/.{claude,x}/state`), a variable, a relative path from another subdirectory of `~/.claude` (`cd ~/.claude/skills && rm -rf ../state`), or a script can do it; those are deliberate multi-step routes (TH3), and a person at another terminal can always delete it |
@@ -1338,7 +1338,7 @@ The default is the rule written into this specification. O-1 to O-5 are the Roun
 | O-19 | Inline `gh api` calls that are not one plain GET command (an explicit `--method GET`, `-F` query parameters, any `graphql` call, a write, a read written with a variable, quotes, a pipe or a `jq` program with spaces) | Blocked at every level (LL-GH-WRITE) | Admit an exact `--method GET` with `-F` parameters, or admit single-quoted `--jq` programs with no `$`, or move the needed calls into framework scripts | `/sc:pr-submit` makes its writes and polls inside scripts; OB-H3 records every inline `gh api` command it issues; every widening re-admits a shell-built flag route unless it is checked as carefully as FR-L-36 |
 | O-20 | A strict marker in the middle of a prompt with no launch record (review-1 M-5b) | Blocks the prompt with LL-NOBIND (FR-L-09 step B13, T-BIND-6) | Ignore it like a loose mid-prompt marker (residual R6): a person who quotes an example marker is not blocked, at the cost of the lost-record-plus-preamble case | X-001 ("a marker always governs"); the cost is one blocked prompt for a person quoting a well-formed 32-hex marker, which AC-4 says should be unaffected, so the owner should choose |
 | O-21 | Text over-match: a command that names git and `commit`, `push`, `merge` or `pull` (or their siblings), or gh and `api`, is blocked as that action even when the words are only in a message, PR title or body, or search pattern (FR-L-29, FR-L-36, R8 (a) and (b)) | Accept; LL-TEXT tells the agent and the person to use `-F <file>` or `--body-file <file>` or to reword; OB-H3 counts how often it fires | Exempt quoted text: rejected twice already, because every exemption by position or quoting reopened an evasion (F-1, F-6, F-7, F-8 and review-1 B-8). A narrower option the owner can take after OB-H3: drop `am` from the gated words (an English word; a nested `git am` then joins R9) | The owner's criterion asks for the fewest unwanted blocks, and this is the main source of them; but the blocks are loud, governed-session only and have a one-step way round, while the position rules they replace leaked to `main` |
-| O-22 | Text classifier only, or add a structural git-level layer? | Orchestrator recommendation: include the layer L2 as a small hardening step in the order of work (yes), keep the text layer as defence in depth, and state that AC-6 "through shell wrappers around git" is met only by the combination. **The owner decides.** | Text classifier only (the rules of section 4 as they stand, with residual R1) | See section 11.3 |
+| O-22 | Text classifier only, or add a structural git-level layer? | Orchestrator recommendation: include the layer L2 as a small hardening step in the order of work (yes), keep the text layer as defence in depth, and state that AC-6 "through shell wrappers around git" is met only by the combination. **DECIDED by the owner on 2026-11-06: yes.** | Text classifier only (the rules of section 4 as they stand, with residual R1) | See section 11.3 |
 
 ### 11.2 Blocking findings of the three plan reviews
 
@@ -1385,7 +1385,7 @@ Counts: 26 entries; 14 closed (OD-R1-B1 to B8, OD-R2-F1, F2, F3, F6, F7, F8), 2 
 
 **Known weaknesses.** `git push --no-verify`, `git -c core.hooksPath=...` and `git send-pack` skip it. These need a git word in the command, so the text layer still covers their unobfuscated forms (a `--no-verify` push fails the canonical push form, FR-L-33; `hookspath` is a G2 key, FR-L-30; `send-pack` is a PUSH word, FR-L-28). It needs `extensions.worktreeConfig` or a hooks path set by the claim script.
 
-**Recommendation (orchestrator).** Include L2 as a small hardening step in the order of work (default: yes, step 7a of section 10), keep the text layer as defence in depth, and state that AC-6 "through shell wrappers around git" is met only by the combination. The owner decides. L2 is not designed in detail in this document.
+**Decision (owner, 2026-11-06): yes. L2 is in scope; the open questions below must be answered before it is built.** **Recommendation (orchestrator).** Include L2 as a small hardening step in the order of work (default: yes, step 7a of section 10), keep the text layer as defence in depth, and state that AC-6 "through shell wrappers around git" is met only by the combination. The owner decides. L2 is not designed in detail in this document.
 
 **Open questions before L2 can be designed.**
 
