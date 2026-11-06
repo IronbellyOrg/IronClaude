@@ -105,6 +105,7 @@ RULE_PHRASES = {
             "One report file, known before dispatch, written on every outcome",
             '`worker_contract_version` (`"1"`), `worker_status` (one of `succeeded`, `partial`, `failed`, `blocked`), `command` (the exact command line), `report_path`',
             "`artifacts` (every other file written), `blocked_question` when blocked, and `reason` when failed",
+            "`artifacts` leaves out paths git ignores and paths outside the repository",
         ],
     ),
     "WC-4-mapping": (
@@ -348,7 +349,7 @@ UNATTENDED_EXPECT: dict = {
     },
     "test": {
         "flags": ["--watch", "--output"],
-        "phrases": ["test-report.md", "verdict", "destructive"],
+        "phrases": ["test-report.md", "verdict", "destructive", "left out"],
         "nested": [],
     },
     "explain": {
@@ -774,6 +775,33 @@ def _artifacts_clause(text: str) -> str:
     return re.split(r"`artifacts`|^artifacts:", line, maxsplit=1)[1]
 
 
+def test_wc4_states_the_ignored_path_exclusion():
+    # The exclusion lives once in WC-4; command sections point at it.
+    wc4 = _contract().split("- **WC-4.", 1)[1].split("\n- **WC-8.", 1)[0]
+    for phrase in (
+        "git ignores",
+        "outside the repository",
+        "every command's `artifacts` list",
+    ):
+        assert phrase in wc4, phrase
+
+
+def test_init_lite_status_follows_the_tool_exit_code():
+    # A partial scaffold exits non-zero, so it must never be `succeeded`.
+    skill = (_REPO / "src/superclaude/skills/sc-init-lite-protocol/SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    status_line = next(ln for ln in skill.splitlines() if "`worker_status`" in ln)
+    contract_line = next(
+        ln
+        for ln in _unattended_section("init-lite").splitlines()
+        if ln.startswith("- **Contract.**")
+    )
+    for line in (status_line, contract_line):
+        assert "`succeeded` when `superclaude init-lite` exited 0" in line, line
+        assert "when the audit finished" not in line, line
+
+
 def test_unattended_artifacts_list_only_files_the_run_wrote():
     # WC-4: `artifacts` is every other file written, so each list follows the run's
     # actual writes (PR #411 review: fixed lists over- and under-listed files).
@@ -796,8 +824,14 @@ def test_unattended_artifacts_list_only_files_the_run_wrote():
             clause
         )
     build = _artifacts_clause(_unattended_section("build"))
-    assert "git check-ignore" in build and "left out" in build, build
+    assert "git check-ignore" in build and "paths git ignores are left out" in build, (
+        build
+    )
+    assert "WC-4" in build and "git refuses" not in build, build
     assert not WRITE_VERB_RE.search(build), build
+    test = _artifacts_clause(_unattended_section("test"))
+    assert "paths git ignores are left out" in test and "WC-4" in test, test
+    assert "`[]`" in test and not WRITE_VERB_RE.search(test), test
     cleanup = _artifacts_clause(_unattended_section("cleanup-audit"))
     assert "pass<N>-summary.md" in cleanup and "progress.json" in cleanup, cleanup
     for clause in (
@@ -806,6 +840,8 @@ def test_unattended_artifacts_list_only_files_the_run_wrote():
     ):
         assert "reflect" in clause and "deviation-patterns" in clause, clause
         assert "runs.jsonl" in clause and "left out" in clause, clause
+        # The reason lives in WC-4; the clause only points at it.
+        assert "WC-4" in clause and "git refuses" not in clause, clause
 
 
 def test_explain_declares_write_under_tool_coordination():
