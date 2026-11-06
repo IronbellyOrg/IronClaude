@@ -519,6 +519,7 @@ failure.
 | `CCSESSION_FIRST_BYTE_TIMEOUT` | Wait for a streamed tier reply to start before trying the next model (default 300) |
 | `CC_SHIM_PORT` | Base shim port (default 4010). Show-all, a non-standard env file, tier settings from the shell, or a workspace owner name or roles (every Coder session) get base + an offset; an explicitly set port is used as-is |
 | `CCSESSION_COMPACT_WINDOW`, `CCSESSION_COMPACT_PCT` | Override the auto-compact window or percentage, in tier mode too |
+| `CCSESSION_GATEWAY_URL`, `CCSESSION_SHIM_URL` | Set by ccsession, not by you: a shim session exports the gateway its shim forwards to and the shim's own address. A `ccsession` started inside that session finds `ANTHROPIC_BASE_URL` equal to `CCSESSION_SHIM_URL` and forwards to `CCSESSION_GATEWAY_URL` instead, so one shim never forwards to another |
 | `CCSESSION_PERMISSIONS=default` | Start Claude without `--dangerously-skip-permissions`: only `--allowedTools=Grep` is added, so Grep and Glob stay available. The shim and tier-model routing are unchanged. Set it in the shell environment that starts `ccsession`; it is read before `~/.claude/ccsession.env` is sourced, so it cannot be set from that file (a value exported there is undone, so Claude and a nested `ccsession` see what the shell set). It stays exported to nested launches. Any other non-empty value exits with status 2 on every `ccsession` call, `--help` included (under a bad value, and only when `CCSESSION_NAME` is set, `ccsession-orca` also prints its "CCSESSION_NAME is not a valid session name; ignoring it" warning before the exit). A non-empty `CC_CLAUDE_FLAGS`, from the shell or the env file, still wins; flags the caller passes (such as Orca's default `--dangerously-skip-permissions` option) still apply. Unset or empty: no change |
 | `CC_CLAUDE_FLAGS` | Replaces the flags `ccsession` adds to every Claude it starts (default `--dangerously-skip-permissions --allowedTools=Grep`, or `--allowedTools=Grep` with `CCSESSION_PERMISSIONS=default`). An empty value takes the default |
 
@@ -685,6 +686,8 @@ shim by itself, because other sessions may be using it.
 | "input exceeds the context window" | The size you set is larger than the model truly accepts. Lower the profile number |
 | Image errors on some models | Certain models accept text only. Use a different model for conversations containing screenshots |
 | A named session says it cannot be found | The conversation was deleted. `ccsession --rm <name>` clears the stale name |
+| `API Error: 502 ccsession: gateway unreachable at http://127.0.0.1:<port>` | The shim's upstream is another shim's address, saved in `~/.claude/ccsession.env` or `~/.env` (older installers saved the shell's `ANTHROPIC_BASE_URL`, which inside a session is the shim). Set `ANTHROPIC_BASE_URL` there to the gateway, stop the broken shim (`curl -s http://127.0.0.1:<port>/__ccsession_shim` shows its `pid`), and start a new session. ccsession now refuses such an address before starting a shim |
+| `ccsession: gateway unreachable at <gateway>` | The gateway itself refused or dropped the connection: check that it is up on that host and port (a ping only proves the host is up) |
 
 ---
 

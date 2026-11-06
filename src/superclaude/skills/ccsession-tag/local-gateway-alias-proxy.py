@@ -66,6 +66,24 @@ def listen_port():
 
 
 LISTEN = ("127.0.0.1", listen_port())
+
+
+def unreachable_message(exc):
+    """The 502 text: name the upstream, since Claude Code shows only the shim's address."""
+    return f"ccsession: gateway unreachable at {UPSTREAM}: {exc}"
+
+
+def upstream_is_self():
+    """True when UPSTREAM is this shim's own address (a request would loop)."""
+    u = urllib.parse.urlsplit(UPSTREAM)
+    host = (u.hostname or "").lower()
+    loopback = host in ("localhost", "::1") or host.startswith("127.")
+    try:
+        return loopback and u.port == LISTEN[1]
+    except ValueError:
+        return False
+
+
 HEALTH_PATH = "/__ccsession_shim"
 # Persistent audit file is OPT-IN. Unset (default) => log to the terminal only
 # (ephemeral, never accumulates). Set GW_PROXY_LOGFILE=/path to also persist.
@@ -630,7 +648,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         result = self._open_upstream(body, wait=None, identity=False)
         if result[0] != "reply":
             return self._send_error_json(
-                502, "api_error", f"ccsession: gateway unreachable: {result[-1]}"
+                502, "api_error", unreachable_message(result[-1])
             )
         _, conn, resp = result
         try:
@@ -729,7 +747,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if result[0] == "unreachable":
                 audit(f"TIER {name}: gateway unreachable ({result[1]}); not switching")
                 return self._send_error_json(
-                    502, "api_error", f"ccsession: gateway unreachable: {result[1]}"
+                    502, "api_error", unreachable_message(result[1])
                 )
             if result[0] == "timeout":
                 until = cool_down(model)
@@ -865,6 +883,13 @@ if __name__ == "__main__":
             os.setsid()
         except OSError:
             pass
+    if upstream_is_self():
+        print(
+            f"[proxy] ERROR: upstream {UPSTREAM} is this shim's own address; "
+            "set GW_PROXY_UPSTREAM to the gateway",
+            file=sys.stderr,
+        )
+        sys.exit(1)
     try:
         srv = ThreadingServer(LISTEN, Handler)
     except OSError as e:

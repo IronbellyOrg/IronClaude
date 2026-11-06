@@ -35,6 +35,10 @@ Commands (used by the ccsession script):
                             the launched model when no tier has it
   tiers                     print name, label, models per tier (for --help)
   shim-port BASE            print the shim port for this session's settings
+  shim-upstream-check URL BASE
+                            exit 1 with a reason when URL is a ccsession shim
+                            address (loopback, on a port a shim with base port
+                            BASE can take); exit 0 for any other gateway
   code-digest SHIM          print the fingerprint of the shim code (SHIM + this file)
 """
 
@@ -47,6 +51,7 @@ import tempfile
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -799,6 +804,38 @@ def shim_port(base: int, env=None, tenv=None) -> int:
     return base + 1 + int.from_bytes(digest[:2], "big") % 97
 
 
+# setup_shim tries the settings port and then up to five more ports, each 101
+# above the last (ccsession setup_shim).
+SHIM_PORT_ATTEMPTS = 6
+SHIM_PORT_STEP = 101
+LOOPBACK_HOSTS = ("localhost", "::1")
+
+
+def shim_upstream_problem(url: str, base: int) -> str:
+    """Why URL cannot be a shim's upstream, or "" when it can.
+
+    A shim whose upstream is another shim fails as soon as that shim stops,
+    and nothing on the network can tell a stopped shim from a stopped gateway
+    (both refuse the connection). So the check needs no network: a loopback
+    address on a port that a ccsession shim with this base port can take is a
+    shim address. Any other gateway, a local one on 127.0.0.1:4000 included,
+    is allowed.
+    """
+    parts = urllib.parse.urlsplit(url.strip())
+    host = (parts.hostname or "").lower()
+    try:
+        port = parts.port
+    except ValueError:
+        return ""
+    if port is None or not (host in LOOPBACK_HOSTS or host.startswith("127.")):
+        return ""
+    for attempt in range(SHIM_PORT_ATTEMPTS):
+        offset = port - base - SHIM_PORT_STEP * attempt
+        if 0 <= offset <= 97:
+            return f"{url} is a ccsession shim address (port {port}), not the gateway"
+    return ""
+
+
 def resolve(name: str) -> int:
     data, _ = load()
     for profile_name, p in data["profiles"].items():
@@ -1000,6 +1037,12 @@ def main(argv) -> int:
         return 0
     if command == "code-digest" and len(argv) > 2:
         print(code_digest(argv[2]))
+        return 0
+    if command == "shim-upstream-check" and len(argv) > 3:
+        problem = shim_upstream_problem(argv[2], int(argv[3]))
+        if problem:
+            print(problem)
+            return 1
         return 0
     if command == "shim-port" and len(argv) > 2:
         print(shim_port(int(argv[2])))

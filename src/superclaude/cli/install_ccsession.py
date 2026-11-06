@@ -86,12 +86,13 @@ def wire_ccsession(home: Path | None = None) -> tuple[bool, str]:
             finally:
                 if staged_path is not None:
                     staged_path.unlink(missing_ok=True)
-        # Coder workspaces: record the gateway address so Orca terminals, which
-        # start from a cleared environment, still reach the gateway.
-        seeder = skill / "seed-env.py"
-        if seeder.is_file() and not seeder.is_symlink():
+        # Remove a gateway address an older installer saved in an unedited
+        # env file: the workspace provides it, and a saved copy can be the
+        # address of a shim that has stopped.
+        unseeder = skill / "unseed-env.py"
+        if unseeder.is_file() and not unseeder.is_symlink():
             subprocess.run(
-                [sys.executable, str(seeder), str(env), str(example)],
+                [sys.executable, str(unseeder), str(env), str(example)],
                 check=False,
                 capture_output=True,
                 timeout=30,

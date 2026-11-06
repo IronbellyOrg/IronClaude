@@ -1029,9 +1029,12 @@ def test_no_reply_before_timeout_switches(shim) -> None:
 
 def test_unreachable_gateway_is_not_a_switch(shim, tmp_path) -> None:
     gateway, start, _ = shim
-    base = start(GW_PROXY_UPSTREAM=f"http://127.0.0.1:{_free_port()}/cli")
+    upstream = f"http://127.0.0.1:{_free_port()}/cli"
+    base = start(GW_PROXY_UPSTREAM=upstream)
     status, body = _ask(base, "claude-gw-tier2")
     assert status == 502 and b"gateway unreachable" in body
+    # Claude Code shows only the shim's address, so the error names the upstream.
+    assert upstream.encode() in body
 
 
 def test_named_model_has_no_failover(shim) -> None:

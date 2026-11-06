@@ -76,8 +76,9 @@ else
   echo "[3/4] Env file already exists (leaving untouched):"
   echo "      $ENV_TARGET"
 fi
-# Save the workspace gateway address (Coder) into an unedited env file.
-python3 "$TARGET_SKILL_DIR/seed-env.py" "$ENV_TARGET" "$TARGET_SKILL_DIR/ccsession.env.example" | sed 's/^/      /'
+# Remove a gateway address an older installer saved in an unedited env file:
+# the workspace provides it, and a saved copy can be a stopped shim's address.
+python3 "$TARGET_SKILL_DIR/unseed-env.py" "$ENV_TARGET" "$TARGET_SKILL_DIR/ccsession.env.example" | sed 's/^/      /'
 echo ""
 
 # 4. Register the hooks in ~/.claude/settings.json (idempotent): SessionStart

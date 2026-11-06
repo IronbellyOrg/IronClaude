@@ -968,6 +968,25 @@ setup_shim() {
     echo "[ccsession] ERROR: shim script not found: $CC_SHIM_SCRIPT" >&2
     exit 1
   fi
+  # A launch from inside a shim session inherits that session's shim URL as
+  # ANTHROPIC_BASE_URL. The session also exported the gateway it forwards to
+  # (CCSESSION_GATEWAY_URL, below), so forward there instead.
+  if [ -n "${CCSESSION_GATEWAY_URL:-}" ] && [ -n "${CCSESSION_SHIM_URL:-}" ] \
+    && [ "${ANTHROPIC_BASE_URL%/}" = "${CCSESSION_SHIM_URL%/}" ]; then
+    ANTHROPIC_BASE_URL="$CCSESSION_GATEWAY_URL"
+  fi
+  # Never start or reuse a shim whose upstream is another shim: it fails as
+  # soon as that shim stops, with nothing on the network to tell a stopped
+  # shim from a stopped gateway. The check is local (models.py
+  # shim-upstream-check); a gateway on 127.0.0.1:4000 is still allowed.
+  _upstream_rc=0
+  _upstream_problem=$(python3 "$CCSESSION_MODELS" shim-upstream-check \
+    "$ANTHROPIC_BASE_URL" "${CC_SHIM_BASE_PORT:-4010}") || _upstream_rc=$?
+  if [ "$_upstream_rc" = 1 ]; then
+    echo "[ccsession] ERROR: $_upstream_problem; refusing to start a shim that forwards to another shim" >&2
+    echo "[ccsession] Set ANTHROPIC_BASE_URL to the gateway: check $CCSESSION_ENV_FILE and ~/.env" >&2
+    exit 1
+  fi
   # Find a usable port: reuse a shim with this session's settings and code.
   # Never stop another shim: sessions may be attached to it even when no
   # reply is in flight, and a started reply must never be cut off. A shim with
@@ -1038,7 +1057,11 @@ setup_shim() {
       exit 1
     fi
   fi
+  # Keep the gateway beside the shim URL, so a ccsession started from inside
+  # this session forwards to the gateway and not to this shim.
+  export CCSESSION_GATEWAY_URL="$ANTHROPIC_BASE_URL"
   export ANTHROPIC_BASE_URL="http://127.0.0.1:$CC_SHIM_PORT"
+  export CCSESSION_SHIM_URL="$ANTHROPIC_BASE_URL"
   export CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1
 
   # Claude Code 2.1.269 builds /model before its asynchronous gateway discovery
@@ -1591,13 +1614,12 @@ ask_session_name() {
   # Every question gives up after CCSESSION_ASK_TIMEOUT seconds (default 30;
   # 0 waits for ever): Orca fails a supervised worker whose Claude is not ready
   # within 60 seconds, and an unanswered question must not outlast that.
-  local read_opts=() limit="${CCSESSION_ASK_TIMEOUT:-30}"
+  local limit="${CCSESSION_ASK_TIMEOUT:-30}"
   case "$limit" in
     *[!0-9]*) limit=0 ;;
     # Leading zeros go ("007" is 7, "00" is 0): read -t 0 would not wait at all.
     *) while [ "${#limit}" -gt 1 ] && [ "${limit:0:1}" = 0 ]; do limit=${limit:1}; done ;;
   esac
-  [ "$limit" = 0 ] || read_opts=(-t "$limit")
   if [ "$limit" = 0 ]; then
     # No limit: drop the "; ... @LIMIT@ ..." part of the hint.
     case "$hint" in *"; "*@LIMIT@*) hint=${hint%%"; "*@LIMIT@*} ;; esac
@@ -1620,8 +1642,7 @@ ask_session_name() {
   while :; do
     # IFS= keeps the line exactly as typed (a leading or trailing tab is a
     # control character, not blank space to trim away).
-    IFS= read -r ${read_opts[@]+"${read_opts[@]}"} -p "Session name ($hint): " line ||
-      { echo >&2; return 1; }
+    ask_read_line "Session name ($hint): " "$limit" || { echo >&2; return 1; }
     name=$line
     case "$name" in
       *[![:space:]]*) ;;
@@ -1649,6 +1670,30 @@ ask_session_name() {
   done
   trap - INT
   printf '%s\n' "$name"
+}
+
+ask_read_line() {
+  # Print the prompt ($1) on stderr and read one line into `line`, giving up
+  # after $2 seconds (0 = never). Fails on end of input or when time is up.
+  # The wait is one-second reads, not one long `read -t`: a Ctrl+C that lands
+  # after the prompt but before bash starts reading only marks the INT trap
+  # pending, and the trap runs when the read returns. One long read would hold
+  # that Ctrl+C for the whole limit; a slice holds it for under a second. A
+  # line typed across slices is not lost: a line-mode terminal hands bash
+  # nothing until Enter.
+  local prompt="$1" left="$2" status
+  printf '%s' "$prompt" >&2
+  while :; do
+    status=0
+    IFS= read -r -t 1 line || status=$?
+    [ "$status" = 0 ] && return 0
+    # 1: end of input. Above 128: this slice timed out with no line yet.
+    [ "$status" -gt 128 ] || return 1
+    if [ "$2" != 0 ]; then
+      left=$((left - 1))
+      [ "$left" -gt 0 ] || return 1
+    fi
+  done
 }
 
 ask_drain_waiting() {
@@ -1772,6 +1817,9 @@ elif [ -n "$PROFILE" ]; then
 fi
 # Every shim launch without a user-set port gets the port for its settings, so
 # sessions with different settings (tiers off, show-all, timers) never meet.
+# The base port, before the settings port is picked: shim-upstream-check
+# needs it to know which ports a shim can take.
+CC_SHIM_BASE_PORT="$CC_SHIM_PORT"
 if [ "$USE_SHIM" = 1 ] && [ -z "$CC_SHIM_PORT_EXPLICIT" ]; then
   CC_SHIM_PORT=$(python3 "$CCSESSION_MODELS" shim-port "$CC_SHIM_PORT")
 fi
