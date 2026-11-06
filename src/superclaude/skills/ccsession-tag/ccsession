@@ -1614,13 +1614,12 @@ ask_session_name() {
   # Every question gives up after CCSESSION_ASK_TIMEOUT seconds (default 30;
   # 0 waits for ever): Orca fails a supervised worker whose Claude is not ready
   # within 60 seconds, and an unanswered question must not outlast that.
-  local read_opts=() limit="${CCSESSION_ASK_TIMEOUT:-30}"
+  local limit="${CCSESSION_ASK_TIMEOUT:-30}"
   case "$limit" in
     *[!0-9]*) limit=0 ;;
     # Leading zeros go ("007" is 7, "00" is 0): read -t 0 would not wait at all.
     *) while [ "${#limit}" -gt 1 ] && [ "${limit:0:1}" = 0 ]; do limit=${limit:1}; done ;;
   esac
-  [ "$limit" = 0 ] || read_opts=(-t "$limit")
   if [ "$limit" = 0 ]; then
     # No limit: drop the "; ... @LIMIT@ ..." part of the hint.
     case "$hint" in *"; "*@LIMIT@*) hint=${hint%%"; "*@LIMIT@*} ;; esac
@@ -1643,8 +1642,7 @@ ask_session_name() {
   while :; do
     # IFS= keeps the line exactly as typed (a leading or trailing tab is a
     # control character, not blank space to trim away).
-    IFS= read -r ${read_opts[@]+"${read_opts[@]}"} -p "Session name ($hint): " line ||
-      { echo >&2; return 1; }
+    ask_read_line "Session name ($hint): " "$limit" || { echo >&2; return 1; }
     name=$line
     case "$name" in
       *[![:space:]]*) ;;
@@ -1672,6 +1670,30 @@ ask_session_name() {
   done
   trap - INT
   printf '%s\n' "$name"
+}
+
+ask_read_line() {
+  # Print the prompt ($1) on stderr and read one line into `line`, giving up
+  # after $2 seconds (0 = never). Fails on end of input or when time is up.
+  # The wait is one-second reads, not one long `read -t`: a Ctrl+C that lands
+  # after the prompt but before bash starts reading only marks the INT trap
+  # pending, and the trap runs when the read returns. One long read would hold
+  # that Ctrl+C for the whole limit; a slice holds it for under a second. A
+  # line typed across slices is not lost: a line-mode terminal hands bash
+  # nothing until Enter.
+  local prompt="$1" left="$2" status
+  printf '%s' "$prompt" >&2
+  while :; do
+    status=0
+    IFS= read -r -t 1 line || status=$?
+    [ "$status" = 0 ] && return 0
+    # 1: end of input. Above 128: this slice timed out with no line yet.
+    [ "$status" -gt 128 ] || return 1
+    if [ "$2" != 0 ]; then
+      left=$((left - 1))
+      [ "$left" -gt 0 ] || return 1
+    fi
+  done
 }
 
 ask_drain_waiting() {
