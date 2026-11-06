@@ -766,6 +766,38 @@ def test_init_lite_contract_exception_and_pass_through_are_documented():
     assert "--unattended" in activation and "--report-dir" in activation
 
 
+def _artifacts_clause(text: str) -> str:
+    """The rest of the line after the first `artifacts` key (backticked or YAML)."""
+    line = next(
+        ln for ln in text.splitlines() if re.search(r"`artifacts`|^artifacts:", ln)
+    )
+    return re.split(r"`artifacts`|^artifacts:", line, maxsplit=1)[1]
+
+
+def test_unattended_artifacts_list_only_files_the_run_wrote():
+    # WC-4: `artifacts` is every other file written, so each list follows the run's
+    # actual writes (PR #411 review: fixed lists over- and under-listed files).
+    skill = (_REPO / "src/superclaude/skills/sc-init-lite-protocol/SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    for clause in (
+        _artifacts_clause(_unattended_section("init-lite")),
+        _artifacts_clause(skill),
+    ):
+        assert "`Scaffold:`" in clause and "`[]`" in clause and "--dry-run" in clause, (
+            clause
+        )
+        assert "when `--scaffold` is set" not in clause, clause
+    cleanup = _artifacts_clause(_unattended_section("cleanup-audit"))
+    assert "pass<N>-summary.md" in cleanup and "progress.json" in cleanup, cleanup
+    for clause in (
+        _artifacts_clause(_unattended_section("workflow")),
+        _artifacts_clause(_WORKFLOW_RETURN_REF.read_text(encoding="utf-8")),
+    ):
+        assert "reflect" in clause and "deviation-patterns" in clause, clause
+        assert "runs.jsonl" in clause and "left out" in clause, clause
+
+
 def test_explain_declares_write_under_tool_coordination():
     text = (Path(_THIS.COMMANDS_DIR) / "explain.md").read_text(encoding="utf-8")
     tools = text.split("## Tool Coordination", 1)[1].split("\n## ", 1)[0]
