@@ -1,0 +1,162 @@
+# Provenance: produced by /sc:adversarial
+# Base: Variant 1 (sonnet:analyzer)
+# Merge date: 2026-11-05T20:56:23Z
+# Plan: adversarial/refactor-plan.md (Changes #1-#6). Per-finding provenance is in each finding's `source` field.
+# PLAN = .dev/tasks/to-do/TASK-WF-addOneSentenceTo-20261105-204034/TASK-WF-addOneSentenceTo-20261105-204034.md
+merge_method: adversarial
+base_variant: "sonnet:analyzer (V1)"
+mode: pre
+verdict: sound-with-notes
+verdict_note: >-
+  The plan as written is executable, but its acceptance criterion 2 is weak and its spec sentence
+  is inaccurate, and the debate's own replacement criterion text (V3, Round 2) fails on a correct
+  /sc:implement run, so do not adopt it.
+convergence:
+  diff_point_agreement: 1.0
+  status: BLOCKED_BY_INVARIANTS
+  rounds: 2
+  depth: standard
+findings:
+  - id: M1
+    claim: >-
+      The planned sentence "overwrites files that already exist in ~/.claude" is inaccurate in both
+      directions. It overstates: the seed data file is deployed only when absent and is never
+      overwritten even with --force, settings.json is merged and backed up rather than replaced,
+      and --force is not forwarded to the codegraph phase. It understates: shipped files are
+      overwritten with no backup, and each shipped skill folder is deleted and re-copied, so any
+      file a user added inside one is lost. V1's original "files the installer does not manage are
+      never touched" and V3's "leaves user-created files alone" are both false for that reason and
+      are not carried into this verdict.
+    citation:
+      - .dev/tasks/to-do/TASK-WF-addOneSentenceTo-20261105-204034/TASK-WF-addOneSentenceTo-20261105-204034.md:26
+      - .dev/tasks/to-do/TASK-WF-addOneSentenceTo-20261105-204034/TASK-WF-addOneSentenceTo-20261105-204034.md:29
+      - src/superclaude/cli/install_hooks.py:89-95
+      - src/superclaude/cli/install_hooks.py:404-409
+      - src/superclaude/cli/main.py:52
+      - src/superclaude/cli/install_core.py:69
+      - src/superclaude/cli/install_skill.py:47-48
+      - docs/getting-started/installation.md:593
+    tag: grounded
+    class: gap
+    severity: minor
+    recommendation: >-
+      File: PLAN, Task 1 (line 26) and acceptance criterion 1 (line 29). Change: replace "overwrites
+      files that already exist in `~/.claude`" with `recommended_task1_sentence` below (or, if a
+      shorter sentence is preferred, `minimal_alternative_sentence`). Verify: the README sentence
+      still names `superclaude install --force` and `~/.claude`, says "overwrites" and "already
+      exist", and agrees with docs/getting-started/installation.md:593 and
+      src/superclaude/cli/install_hooks.py:89-95; it must not claim that unmanaged or
+      user-created files are left alone.
+    source: >-
+      V1 F1 (base), corrected by V3 F1 and the Round 2 concessions of all three advocates
+      (debate points C-001, X-002); the wrong install_hooks.py:250 citation from V1 F1 is dropped.
+  - id: M2
+    claim: >-
+      Acceptance criterion 2 is weak. Plain `git diff --stat` cannot see staged or untracked
+      changes, so it can pass when another file changed, and it can list `.dev/tasks` files after
+      /sc:implement stages and edits the package and its progress.md. V1's original staged-files
+      argument was conceded wrong, and a -/+ line pair for an appended sentence is expected by
+      "one changed line". V3's Round 2 baseline-based replacement does not fix this: /sc:implement
+      must stage `.dev/tasks/`, which changes both `git status --porcelain` and
+      `git diff --cached --name-only`, so it fails on a correct run (INV-003), and it does not say
+      where the baseline is stored (INV-001).
+    citation:
+      - .dev/tasks/to-do/TASK-WF-addOneSentenceTo-20261105-204034/TASK-WF-addOneSentenceTo-20261105-204034.md:30
+      - src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md:36
+      - README.md:64
+    tag: inferred
+    class: gap
+    severity: minor
+    recommendation: >-
+      File: PLAN, acceptance criterion 2 (line 30). Change: replace it with this text:
+      "`git status --porcelain -- . ':!.dev/tasks' ':!.dev/reflect'` prints exactly one line, for
+      README.md, and `git diff --word-diff HEAD -- README.md` shows one hunk whose only change is
+      the added sentence {+...+} at the end of the paragraph that starts 'This installs the
+      package', with no [-...-] deletions". This text is orchestrator-derived from INV-003's fix
+      and was not debated. Do not use V3's baseline-based criterion text (debate-transcript.md,
+      Round 2): it fails on a correct run under /sc:implement because staging `.dev/tasks/`
+      changes both of its baseline comparisons. Verify: after a correct run, run both commands and
+      confirm one status line (README.md) and one word-diff hunk containing only {+...+}.
+    source: >-
+      V1 F3 (base), restructured with V3 Round 2 criterion text (rejected) and invariant-probe
+      INV-001, INV-003, INV-012 (debate points C-002, X-001, A-001).
+  - id: M3
+    claim: >-
+      "Framework files" does not tell readers that their own `~/.claude/CLAUDE.md` and
+      `~/.claude/RULES.md` will be replaced. The core installer copies every `core/*.md`, which
+      includes CLAUDE.md and RULES.md, whenever --force is set, and the install guide's warning
+      names both files; the consensus sentence does not, so the README would be weaker than the
+      install guide on the files users most often edit.
+    citation:
+      - src/superclaude/cli/install_core.py:57
+      - src/superclaude/cli/install_core.py:69-73
+      - docs/getting-started/installation.md:593
+    tag: grounded
+    class: gap
+    severity: minor
+    recommendation: >-
+      File: PLAN, Task 1 (line 26). Change: name both files in the sentence by inserting
+      "(including `CLAUDE.md` and `RULES.md`)" right after "already exist in `~/.claude`", as in
+      `recommended_task1_sentence`. Verify: the added README sentence contains `CLAUDE.md` and
+      `RULES.md`, matching docs/getting-started/installation.md:593.
+    source: invariant-probe INV-010 (Round 2.5 fault-finder); not raised by any variant.
+  - id: M4
+    claim: >-
+      Placement and fallout are fine. README.md:64 is the single-line paragraph under
+      "### Install the current package/CLI" (README.md:55), and the plan keeps the change out of
+      "### Upgrading to 5.0.0" (README.md:66-75). The new sentence does not contradict README.md:75,
+      which uses the same "framework files" term. No other doc needs changing
+      (installation.md:283, installation.md:591 and upgrading.md:56-60 already agree), and the only
+      test that reads the repo-root README checks links to retired docs, so a link-free sentence
+      cannot break it, and no test can catch a factually wrong sentence.
+    citation:
+      - README.md:55
+      - README.md:64
+      - README.md:66-75
+      - docs/getting-started/installation.md:283
+      - docs/getting-started/installation.md:591
+      - docs/getting-started/upgrading.md:56-60
+      - tests/docs/test_retired_docs_absent.py:37-49
+    tag: grounded
+    class: none
+    severity: minor
+    recommendation: >-
+      File: none (no plan change). After the README edit, run `uv run pytest tests/docs` and confirm
+      it passes, and confirm by reading README.md that the sentence sits at the end of the paragraph
+      at line 64 and the Upgrading block is unchanged.
+    source: V3 F2, F3, F4 (unique contribution U-001), with V1 F4's anchor check and shared assumption A-002.
+  - id: M5
+    claim: >-
+      INF-001 covers the whole source requirement (one added sentence in README.md's Installation
+      section naming the command, the overwrite behavior and the path); the plan has no missing
+      requirement. Coverage is a separate judgment from the sentence's factual accuracy (M1).
+    citation:
+      - .dev/tasks/to-do/TASK-WF-addOneSentenceTo-20261105-204034/source.md:1
+      - .dev/tasks/to-do/TASK-WF-addOneSentenceTo-20261105-204034/TASK-WF-addOneSentenceTo-20261105-204034.md:19-30
+    tag: grounded
+    class: none
+    severity: minor
+    recommendation: >-
+      File: none (no requirement-matrix change). Verify by comparing source.md:1 with plan lines
+      15, 26 and 29 when the plan is updated for M1 and M3.
+    source: V2 F1 (unique contribution U-003); V2 F2's "falsifiable" claim is not carried (conceded in Round 2, X-001).
+recommended_task1_sentence: 'Running `superclaude install --force` overwrites the framework files it ships that already exist in `~/.claude` (including `CLAUDE.md` and `RULES.md`) without keeping a backup, and deletes and re-copies each shipped skill folder, so any file you added inside one is lost.'
+minimal_alternative_sentence: '`superclaude install --force` overwrites the framework files it ships that already exist in `~/.claude`.'
+plan_alignment_note: >-
+  The plan title and Goal (plan lines 12 and 15) and acceptance criterion 1 (plan line 29) must use
+  the same wording as the chosen sentence; otherwise they still say "overwrites existing files in
+  ~/.claude" and contradict the corrected Task 1 (INV-012).
+unaddressed_invariants:
+  - id: INV-003
+    category: guard_conditions
+    assumption: On a correct run `git status --porcelain` differs from baseline only by ` M README.md` and `git diff --cached --name-only` is unchanged
+    severity: HIGH
+  - id: INV-012
+    category: sufficiency_challenge
+    assumption: The consensus changes alone make the plan correct and executable
+    severity: HIGH
+unaddressed_invariants_warnings:
+  - INV-001
+  - INV-010
+unresolved_conflicts: 2
+self_confidence: 0.80

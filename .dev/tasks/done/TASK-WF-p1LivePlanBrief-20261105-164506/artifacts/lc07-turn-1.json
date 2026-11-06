@@ -1,0 +1,38 @@
+{
+  "id": "31a7d3d3-da36-41a7-9c00-e1d8ff70219e",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_43bf05285989",
+    "messages": [
+      {
+        "id": "msg_20d461501d73",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_c8d5fdb2-67a8-4615-b051-ffb35cdbf7f9",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "index structure doc written",
+        "body": "worker_status: succeeded; guard passed (both copies of index.md identical, have Unattended mode section, line has --unattended). I ran /sc:index on src/superclaude/pm_agent and wrote the structure doc (5 files, 4 classes, dependency map) plus return-contract.yaml in .dev/p1-live/index/. One finding: TokenBudgetManager is in the package docstring but not exported in __init__.py; method bodies were not read, so descriptions come from names and signatures. Nothing staged, committed or pushed; nothing left to do.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_9467c9d7ed1b\",\"dispatchId\":\"ctx_c8adcb940377\",\"outcome\":\"succeeded\",\"filesModified\":[\".dev/p1-live/index/structure.md\",\".dev/p1-live/index/return-contract.yaml\"],\"reportPath\":\".dev/p1-live/index/return-contract.yaml\"}",
+        "created_at": "2026-11-05T19:18:22Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "26478f73-d65d-4b72-935e-f2d1c20b7a3d",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

@@ -1,0 +1,30 @@
+# lc07 session analysis
+## tool calls by name (top-level session; assistant messages with isSidechain=true: 0)
+      5 mcp__codegraph__codegraph_node
+      3 Read
+      3 Bash
+      2 Write
+      1 Grep
+
+## Skill calls
+
+## orca orchestration commands in the top-level session
+19:18:16 check 
+19:18:21 send worker_done
+
+## run length: first user message 19:17:38, worker_done ['19:18:21']
+run length minutes: 0.7
+heartbeats (0): []
+gaps (min): []
+Traceback (most recent call last):
+  File "/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/session-analysis.py", line 47, in <module>
+    if done: print('last heartbeat to worker_done (min): %.1f' % ((done[0] - hbs[-1]) / 60))
+                                                                             ~~~^^^^
+IndexError: list index out of range
+
+## heartbeat coverage
+## heartbeat gaps with subagent run time removed (cadence 5 min)
+Subagent run interval = first to last timestamp of its own session file (0 subagent files); merged into 0 intervals
+from -> to           gap min agent min non-agent min
+19:17:38 -> 19:18:21      0.7       0.0           0.7
+max non-agent stretch since the last heartbeat (or since the brief): 0.7 min

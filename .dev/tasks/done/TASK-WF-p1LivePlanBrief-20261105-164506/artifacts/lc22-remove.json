@@ -1,0 +1,14 @@
+{
+  "id": "f1943592-e216-41ff-a147-a8e0760de572",
+  "ok": true,
+  "result": {
+    "removed": true,
+    "preservedBranch": {
+      "branchName": "ironbelly/p1-live-commit-grant",
+      "head": "c682bb2a26f75c99f554245b03d21aa7f067aea7"
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

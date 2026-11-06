@@ -1,0 +1,11 @@
+calibration: independent
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimensions: {citation_grounding: 0.85, coverage_completeness: 0.80, deviation_classification_clarity: 0.78, risk_surface_coverage: 0.78, recommendation_actionability: 0.88}
+C: 0.82
+unverified_claims:
+  - "F1: 'settings.json hook registrations are merged and refreshed' is not shown at install_hooks.py:89-95 (only an 'additive settings.json merge' comment at main.py:213)"
+  - "F1: 'files the installer does not manage are never touched' has no citation"
+  - "F2: skip-only-when-not-force checked only for install_core.py:69 and install_hooks.py:250"
+  - "F3: the staged .dev/tasks diff-stat claim is inferred"
+notes: Citations match the files. F1 is tagged grounded while two sub-claims go beyond the cited lines.

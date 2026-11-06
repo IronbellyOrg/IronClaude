@@ -292,6 +292,8 @@ UNATTENDED_EXPECT: dict = {
             "nested/analyze-",
             "nested/adversarial-",
             "dry-run",
+            "writes no nested directory and no nested contract",
+            "only by a `/sc:analyze` call",
         ],
         "nested": ["analyze", "adversarial"],
     },

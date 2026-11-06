@@ -1,0 +1,7 @@
+page 1 messages: 40 window ms: [1793905427861,1793905500787]
+last tool calls in page 1:
+Bash {"command":"orca orchestration check --terminal term_c48437a8-0a37-4cff-88cf-5e4c0c57d2d0 --json","description":"Read coordinator follow-ups"}
+Write {"file_path":"/home/coder/workspaces/worktrees/IronClaude/p1-live-business-panel/.dev/p1-live/business-panel/return-contract.yaml","content":"worker_c
+Bash {"command":"git status --porcelain && orca orchestration check --terminal term_c48437a8-0a37-4cff-88cf-5e4c0c57d2d0 --json | grep -E '\"count\"|\"time
+Bash {"command":"orca orchestration send --from term_c48437a8-0a37-4cff-88cf-5e4c0c57d2d0 --type worker_done --subject \"business-panel succeeded\" --body 
+page 2 messages: 0

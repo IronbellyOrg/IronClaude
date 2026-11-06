@@ -1,0 +1,17 @@
+== bullet pins (line 157)
+writes no nested directory and no nested contract: 1
+only by a `/sc:analyze` call: 1
+nested/analyze-: 1
+nested/adversarial-: 1
+`adversarial_artifacts_dir` and the nested contracts are listed in `artifacts`: 1
+== diff stat
+ src/superclaude/commands/brainstorm.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+== numstat
+1	1	src/superclaude/commands/brainstorm.md
+== whole-text
+X_len=361
+plan_cxF=1
+target_cF=1
+== plugins diff stat (expect empty)
+plugins_untracked=0

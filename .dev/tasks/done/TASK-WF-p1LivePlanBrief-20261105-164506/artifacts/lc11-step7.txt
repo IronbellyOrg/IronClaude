@@ -1,0 +1,46 @@
+### worker-release
+{
+  "id": "0a54b32a-d47c-4490-a22c-7eef9e5e3b34",
+  "ok": true,
+  "result": {
+    "dispatchId": "ctx_c548258e9f0b",
+    "state": "retained",
+    "reason": "user_takeover",
+    "processAction": "none",
+    "archive": null,
+    "mutation": {
+      "requestId": "4cb4be21-b12d-49c0-9890-5ddfc3998973",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}
+rc=0
+### worker-list reclaimable
+{
+  "id": "f65f4ae5-b93d-4e57-82ac-53bd23160b68",
+  "ok": true,
+  "result": {
+    "workers": [],
+    "counts": {
+      "retained": 3,
+      "released": 8
+    },
+    "page": {
+      "limit": 100,
+      "total": 0,
+      "hasMore": false,
+      "nextCursor": null
+    },
+    "scope": {
+      "run": "run_92b0ef27e086",
+      "source": "flag"
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}
+rc=0

@@ -1,0 +1,4 @@
+$ test -s /home/coder/workspaces/worktrees/IronClaude/p1-live-impact/.dev/p1-live/impact/return-contract.yaml
+rc=0
+$ uv run python -c "import sys, yaml; d = yaml.safe_load(open(sys.argv[1])); assert d['worker_contract_version'] == '1'; assert d['worker_status'] in {'succeeded','partial','failed','blocked'}; assert d['command']; assert d['worker_status'] != 'blocked' or d.get('blocked_question')" .dev/p1-live/impact/return-contract.yaml
+rc=0

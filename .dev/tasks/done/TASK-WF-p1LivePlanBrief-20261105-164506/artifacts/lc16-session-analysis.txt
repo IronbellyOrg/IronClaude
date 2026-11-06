@@ -1,0 +1,68 @@
+# lc16 session analysis
+## tool calls by name (top-level session; assistant messages with isSidechain=true: 0)
+     31 Write
+     21 Bash
+     18 Agent
+     15 Read
+      5 Edit
+      3 Grep
+      3 Skill
+      1 mcp__codegraph__codegraph_status
+
+## Skill calls
+2026-11-05T20:40:01.576Z sidechain=False skill=sc-workflow-protocol
+2026-11-05T20:41:03.922Z sidechain=False skill=sc-reflect-protocol
+2026-11-05T20:44:55.170Z sidechain=False skill=sc-adversarial-protocol
+
+## orca orchestration commands in the top-level session
+20:41:38 send heartbeat
+20:41:44 check 
+20:44:29 send heartbeat
+20:46:18 send heartbeat
+20:50:37 send heartbeat
+20:55:59 send heartbeat
+21:01:22 check 
+21:01:29 send worker_done
+
+## run length: first user message 20:39:41, worker_done ['21:01:29']
+run length minutes: 21.8
+heartbeats (5): ['20:41:38', '20:44:29', '20:46:18', '20:50:37', '20:55:59']
+gaps (min): [2.9, 1.8, 4.3, 5.4]
+last heartbeat to worker_done (min): 5.5
+first heartbeat after first user message (min): 1.9
+
+## gaps over 5 minutes: top-level activity inside each
+gap 20:50:37 -> 20:55:59 (5.4 min)
+   20:51:15 Write /home/coder/workspaces/worktrees/IronClaude/p1-live-workflow/.dev/refl
+   20:51:21 Agent Round 2.5 invariant probe
+   20:51:50 Agent Qualitative scoring pass 1 (forward)
+   20:51:56 Agent Qualitative scoring pass 2 (reverse)
+   20:53:53 Write /home/coder/workspaces/worktrees/IronClaude/p1-live-workflow/.dev/refl
+   20:54:22 Write /home/coder/workspaces/worktrees/IronClaude/p1-live-workflow/.dev/refl
+   20:54:26 Write /home/coder/workspaces/worktrees/IronClaude/p1-live-workflow/.dev/refl
+   20:54:33 Write /home/coder/workspaces/worktrees/IronClaude/p1-live-workflow/.dev/refl
+   20:54:39 Bash Assemble debate transcript from part files
+   20:55:18 Write /home/coder/workspaces/worktrees/IronClaude/p1-live-workflow/.dev/refl
+   20:55:19 Bash Test the proposed git pathspec exclusion check
+   20:55:36 Agent Merge executor: build merged verdict
+   20:55:57 Write /home/coder/workspaces/worktrees/IronClaude/p1-live-workflow/.dev/refl
+   task-notifications (background agent finished): ['20:51:03', '20:53:01', '20:53:18', '20:54:03']
+
+## Agent launches (top-level): ['20:43:18', '20:43:21', '20:43:25', '20:43:28', '20:44:20', '20:44:23', '20:44:25', '20:46:07', '20:46:10', '20:46:14', '20:48:40', '20:49:38', '20:50:33', '20:51:21', '20:51:50', '20:51:56', '20:55:36', '20:58:27']
+
+## all session files: 19; Bash commands: 44
+WC-13 pattern hits: 0
+orca verbs in all sessions: ['orca orchestration check', 'orca orchestration send']
+tool names containing ask/question (case-insensitive), all sessions: {}
+
+## heartbeat coverage
+## heartbeat gaps with subagent run time removed (cadence 5 min)
+Subagent run interval = first to last timestamp of its own session file (18 subagent files); merged into 9 intervals
+from -> to           gap min agent min non-agent min
+20:39:41 -> 20:41:38      1.9       0.0           1.9
+20:41:38 -> 20:44:29      2.9       0.9           2.0
+20:44:29 -> 20:46:18      1.8       0.5           1.3
+20:46:18 -> 20:50:37      4.3       3.3           1.0
+20:50:37 -> 20:55:59      5.4       3.5           1.9
+20:55:59 -> 21:01:29      5.5       2.8           2.7
+max non-agent stretch since the last heartbeat (or since the brief): 2.7 min

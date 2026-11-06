@@ -1,0 +1,41 @@
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":15005,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":30008,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":45012,"deadlineMs":240000}
+{
+  "id": "ffcc2b6f-c7a8-439e-807a-d94ecc80bda6",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_240ac40f6035",
+    "messages": [
+      {
+        "id": "msg_3eb0f2c02354",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_376361ed-eee2-4802-abe8-7e3b1c42bfe0",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "document install_core: succeeded",
+        "body": "worker_status: succeeded; the brief guard passed (both document.md copies identical, each with an Unattended mode section) and /sc:document wrote a brief API reference for install_core.py. The reference covers KNOWN_CORE_FILES, install_core_files, list_core_files, list_installed_core_files and the private _get_core_source, and notes that list_installed_core_files ignores a custom target_path and that the _get_core_source docstring mentions a fallback the code does not have. Nothing is left; the new files are untracked in .dev/p1-live/ and nothing was staged or committed.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_709375dc11c1\",\"dispatchId\":\"ctx_3263df1371d1\",\"outcome\":\"succeeded\",\"filesModified\":[\".dev/p1-live/document/install_core_api.md\",\".dev/p1-live/document/return-contract.yaml\"],\"reportPath\":\".dev/p1-live/document/return-contract.yaml\"}",
+        "created_at": "2026-11-05T19:12:00Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "57911358-bde9-4b1e-bb44-918ec3afd89a",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

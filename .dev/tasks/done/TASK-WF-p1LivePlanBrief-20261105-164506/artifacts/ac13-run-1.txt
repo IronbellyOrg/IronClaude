@@ -1,0 +1,14 @@
+[claude-code:unrecognized_model] {"model":"gpt-6.1-sol","query_source":"sdk"}
+| Status | Result |
+|---|---|
+| DONE | Quick static analysis of the installer, its callers, and related tests. No files changed. |
+| NEXT | Fix the two failure-handling gaps below and add focused regression tests. |
+
+**1. Medium: Destination setup errors escape the result contract.** At `src/superclaude/cli/install_core.py:55`, creating the destination happens outside error handling. A permission-denied directory or an existing file at that path raises an exception instead of returning the documented `(success, message)` result.
+
+**2. Medium: Forced installation can damage an existing file before reporting failure.** At `src/superclaude/cli/install_core.py:74`, copying writes directly to the destination. A failed write, such as running out of disk space, can leave existing instructions truncated; catching the exception does not restore them.
+
+**Recommended action:** Handle destination creation errors and copy through a temporary sibling file before replacing the destination, with regression tests for both failure paths.
+
+Skipped runtime execution and tests because this command requests static analysis. The findings are source-backed, but their failure paths were not reproduced.
+claude run 1 rc=0

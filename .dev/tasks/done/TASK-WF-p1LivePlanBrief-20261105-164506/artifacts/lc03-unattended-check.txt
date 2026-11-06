@@ -1,0 +1,2 @@
+/home/coder/workspaces/worktrees/IronClaude/p1-live-business-panel/.claude/commands/sc/business-panel.md:1
+/home/coder/.claude/commands/sc/business-panel.md:1

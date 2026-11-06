@@ -1,0 +1,219 @@
+{
+  "id": "8cea518a-2697-4a5c-9726-fde016300e3f",
+  "ok": true,
+  "result": {
+    "dispatch": {
+      "id": "ctx_5fac5090b848",
+      "runId": "run_92b0ef27e086",
+      "taskId": "task_3b8645b3b8bc",
+      "task_id": "task_3b8645b3b8bc",
+      "contractVersion": 1,
+      "assigneeHandle": "term_9df9e181-0d5b-40bb-9fc3-466d762dab7f",
+      "assigneePaneKey": "556487be-5a2a-498a-9085-94f1e459a408:5cec24d8-089d-40a0-a6f9-3a20139bba4a",
+      "processIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-missing-report-dir@@5ee88931:59795297-5f60-4fa4-a214-674ea1d24c73",
+      "capabilityRevokedAt": "2026-11-05T21:05:35.892Z",
+      "retryOfDispatchId": null,
+      "creatorDispatchId": null,
+      "hostScope": {
+        "kind": "local",
+        "hostId": "local"
+      },
+      "status": "failed",
+      "failureCount": 0,
+      "lastFailure": "{\"provenance\":\"worker_report\",\"outcome\":\"failed\",\"messageId\":\"msg_a05f2c5ca353\",\"reportedBy\":\"term_9df9e181-0d5b-40bb-9fc3-466d762dab7f\",\"subject\":\"analyze refused: no report directory\",\"body\":\"worker_status: none (no contract written); the command refused before any work. The guard passed (project and installed copies identical, both have the Unattended mode section, the line has --unattended), but the brief gave 'Report directory: none' and no --report-dir, so /sc:analyze printed 'unattended mode needs exactly one report directory: --report-dir <dir>, or this command's own directory output flag' in chat only, did no analysis and wrote no files. Nothing is left to do here; to get a real analysis, create a new Task whose Command line adds --report-dir <dir>.\",\"completedBy\":\"term_9df9e181-0d5b-40bb-9fc3-466d762dab7f\",\"filesModified\":[],\"reportPath\":null,\"completedAt\":\"2026-11-05T21:05:35.892Z\"}",
+      "terminationReason": null,
+      "depth": 1,
+      "dispatchedAt": "2026-11-05 21:04:36",
+      "completedAt": "2026-11-05T21:05:35.892Z",
+      "createdAt": "2026-11-05 21:04:36",
+      "lastHeartbeatAt": null
+    },
+    "worker": {
+      "dispatchId": "ctx_5fac5090b848",
+      "runtimeEpoch": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc",
+      "state": "failed",
+      "stage": "settled",
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-missing-report-dir",
+      "agentTerminalHandle": "term_9df9e181-0d5b-40bb-9fc3-466d762dab7f",
+      "setupState": "not_applicable",
+      "effects": [
+        {
+          "kind": "worktree",
+          "action": "reused",
+          "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-missing-report-dir"
+        },
+        {
+          "kind": "setup",
+          "action": "not_applicable",
+          "state": "not_applicable"
+        },
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_9df9e181-0d5b-40bb-9fc3-466d762dab7f",
+          "surface": "background",
+          "warning": "Terminal term_9df9e181-0d5b-40bb-9fc3-466d762dab7f is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_9df9e181-0d5b-40bb-9fc3-466d762dab7f` to reveal and focus it."
+        },
+        {
+          "kind": "dispatch_input",
+          "role": "agent",
+          "id": "term_9df9e181-0d5b-40bb-9fc3-466d762dab7f",
+          "state": "accepted"
+        }
+      ],
+      "residualResources": [
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_9df9e181-0d5b-40bb-9fc3-466d762dab7f",
+          "surface": "background",
+          "warning": "Terminal term_9df9e181-0d5b-40bb-9fc3-466d762dab7f is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_9df9e181-0d5b-40bb-9fc3-466d762dab7f` to reveal and focus it."
+        }
+      ],
+      "startOptions": {
+        "worktree": "path:/home/coder/workspaces/worktrees/IronClaude/p1-live-missing-report-dir",
+        "mode": {
+          "mode": "terminal",
+          "preferred": "terminal",
+          "reason": "user_default",
+          "detail": "Started a terminal agent worker, the default for new agent tabs in your settings."
+        },
+        "resolvedWorktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-missing-report-dir",
+        "name": null,
+        "repo": null,
+        "baseBranch": null,
+        "terminal": null,
+        "agent": "claude",
+        "launch": {
+          "requested": {
+            "agent": "claude",
+            "model": null,
+            "effort": null
+          },
+          "effective": {
+            "agent": "claude",
+            "model": null,
+            "effort": null
+          }
+        },
+        "timeoutMs": 60000,
+        "setup": "not_applicable",
+        "setupSource": "existing_worktree"
+      },
+      "lastError": null,
+      "createdAt": "2026-11-05 21:04:36",
+      "updatedAt": "2026-11-05T21:05:35.892Z"
+    },
+    "projection": {
+      "id": "ctx_5fac5090b848",
+      "dispatchId": "ctx_5fac5090b848",
+      "taskId": "task_3b8645b3b8bc",
+      "runId": "run_92b0ef27e086",
+      "role": "worker",
+      "parent": null,
+      "provider": {
+        "id": "claude",
+        "model": null
+      },
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-missing-report-dir",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "failed",
+        "dispatch": "failed",
+        "detail": "settled",
+        "activity": "working"
+      },
+      "outcome": "failed",
+      "liveness": {
+        "verdict": "live",
+        "observedAt": 1793912735929,
+        "source": "agent_status"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "fresh",
+        "lastObservedAt": 1793912735929
+      },
+      "resource": {
+        "state": "owned",
+        "id": "wtr_215d7c0c791c",
+        "ownerDispatchId": "ctx_5fac5090b848",
+        "releaseState": "not_requested",
+        "terminalState": "reclaimable"
+      },
+      "nextAction": {
+        "kind": "release",
+        "argv": [
+          "orchestration",
+          "worker-release",
+          "--dispatch",
+          "ctx_5fac5090b848"
+        ]
+      },
+      "attention": {
+        "categories": [
+          "failure"
+        ],
+        "requiresAction": true
+      }
+    },
+    "terminal": {
+      "handle": "term_9df9e181-0d5b-40bb-9fc3-466d762dab7f",
+      "ptyId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-missing-report-dir@@5ee88931",
+      "incarnationId": "59795297-5f60-4fa4-a214-674ea1d24c73",
+      "orphaned": false,
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-missing-report-dir",
+      "worktreePath": "/home/coder/workspaces/worktrees/IronClaude/p1-live-missing-report-dir",
+      "branch": "refs/heads/ironbelly/p1-live-missing-report-dir",
+      "tabId": "556487be-5a2a-498a-9085-94f1e459a408",
+      "leafId": "5cec24d8-089d-40a0-a6f9-3a20139bba4a",
+      "title": "p1-live-missing-repo-1105-210511-2381 · Claude Code",
+      "connected": true,
+      "writable": true,
+      "lastOutputAt": 1793912736079,
+      "preview": "─────────────────────────────────────────────────────────────────────────────── p1-live-missing-repo-1105-210511-2381 ─\n❯\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n⏵⏵ bypass permissions on (shift+tab to cycle) · ← 1 agent",
+      "executionHostId": "local",
+      "agentIdentity": "claude",
+      "paneRuntimeId": -1,
+      "rendererGraphEpoch": 0,
+      "agentWait": null
+    },
+    "observation": {
+      "status": "live",
+      "exactWorker": true,
+      "agentWait": null
+    },
+    "terminalResource": {
+      "id": "wtr_215d7c0c791c",
+      "ownershipState": "owned",
+      "releaseState": "not_requested",
+      "retainedReason": null,
+      "terminalHandle": "term_9df9e181-0d5b-40bb-9fc3-466d762dab7f",
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-missing-report-dir",
+      "endpointId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc",
+      "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-missing-report-dir@@5ee88931:59795297-5f60-4fa4-a214-674ea1d24c73",
+      "originDispatchId": "ctx_5fac5090b848",
+      "ownerDispatchId": "ctx_5fac5090b848",
+      "releaseRequestedAt": null,
+      "releaseCompletedAt": null,
+      "releaseError": null,
+      "recoveryAttemptCount": 0,
+      "lastRecoveryAt": null,
+      "archive": {
+        "source": null,
+        "status": null
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

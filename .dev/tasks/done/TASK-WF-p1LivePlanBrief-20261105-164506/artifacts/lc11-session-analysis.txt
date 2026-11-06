@@ -1,0 +1,44 @@
+# lc11 session analysis
+## tool calls by name (top-level session; assistant messages with isSidechain=true: 0)
+     15 Read
+     10 Bash
+      9 Write
+      3 Agent
+      3 Edit
+      1 Skill
+
+## Skill calls
+2026-11-05T20:10:55.562Z sidechain=False skill=sc:cleanup-audit-protocol
+
+## orca orchestration commands in the top-level session
+20:10:56 send heartbeat
+20:12:08 send heartbeat
+20:15:03 send heartbeat
+20:15:56 check 
+20:16:02 send worker_done
+
+## run length: first user message 20:10:39, worker_done ['20:16:02']
+run length minutes: 5.4
+heartbeats (3): ['20:10:56', '20:12:08', '20:15:03']
+gaps (min): [1.2, 2.9]
+last heartbeat to worker_done (min): 1.0
+first heartbeat after first user message (min): 0.3
+
+## gaps over 5 minutes: top-level activity inside each
+
+## Agent launches (top-level): ['20:11:59', '20:12:03', '20:14:28']
+
+## all session files: 4; Bash commands: 10
+WC-13 pattern hits: 0
+orca verbs in all sessions: ['orca orchestration check', 'orca orchestration send']
+tool names containing ask/question (case-insensitive), all sessions: {}
+
+## heartbeat coverage
+## heartbeat gaps with subagent run time removed (cadence 5 min)
+Subagent run interval = first to last timestamp of its own session file (3 subagent files); merged into 2 intervals
+from -> to           gap min agent min non-agent min
+20:10:39 -> 20:10:56      0.3       0.0           0.3
+20:10:56 -> 20:12:08      1.2       0.2           1.0
+20:12:08 -> 20:15:03      2.9       2.6           0.3
+20:15:03 -> 20:16:02      1.0       0.1           0.8
+max non-agent stretch since the last heartbeat (or since the brief): 1.0 min

@@ -1,0 +1,45 @@
+| # | Dimension | Criterion (short) | A verdict | A evidence | B verdict | B evidence |
+|---|-----------|-------------------|-----------|------------|-----------|------------|
+| 1 | Completeness | All explicit requirements | MET | Four lenses all present: headings at A:7 Safety, A:12 Reliability, A:17 day to day, A:21 Implementation cost | MET | Four lenses present: B:12 Safety, B:16 Reliability, B:21 day to day, B:24 Implementation cost |
+| 2 | Completeness | Edge cases and failure scenarios | MET | A:8 quoted-argument case `/sc:troubleshoot "the worker ignores --unattended"`; A:19 forgotten flag stalls worker | MET | B:9 coordinator forgets flag; B:13 person in own Orca tab loses prompts; B:19 `claude --print` signal not firing for a worker |
+| 3 | Completeness | Dependencies and prerequisites | MET | A:15 "a command accepts the flag only once its gates are converted"; A:22 shared rule in the contract file | MET | B:18 "It ties every command to Orca"; B:8 relies on Orca's role table; B:25 each command needs detection text naming Orca |
+| 4 | Completeness | Success/completion criteria | MET | A:13 AC-1.1 asserts per phase which commands carry `## Unattended mode`; live 7.2 checks; A:8 AC-2.8 | NOT MET | No pass or done condition for this option. B:25 only says AC-C1's grep "would need an exception" |
+| 5 | Completeness | Explicitly out of scope | MET | A:3 "Nothing in the environment, the conversation or Orca turns it on"; A:23 detection deferred to later as an extra trigger | NOT MET | B:18 "does nothing for other callers" is a stated limitation, not a scope exclusion; no out-of-scope statement |
+| 6 | Correctness | No factual errors or hallucinated claims | NOT MET | A:9 "Detection would misfire" generalises from an observation about the environment variable only; preamble detection was never observed (diff-analysis X-001) | NOT MET | B:9 "removes that whole failure class" overstated; B:14 preamble on the same command line cites CAPS:47, which advocate B says does not show it; B:10 cites SPEC:189-195, which does not support shorter briefs |
+| 7 | Correctness | Feasible within stated constraints | MET | A:22 commands are prompts, so the model applies the rule; quoted-argument rule exists for that reason; A:14 works with no Orca | NOT MET | B:18 admits it breaks non-goal 1 (SPEC:314) and SA-2 (SPEC:170); B:17 says it is not mechanically testable |
+| 8 | Correctness | Terminology consistent and accurate | MET | "unattended", "standalone token", "person", "worker" used the same way throughout (A:3, A:8, A:19) | MET | "Orca worker", "dispatched worker", "preamble", "Task and Dispatch IDs" used the same way (B:3, B:8, B:14) |
+| 9 | Correctness | No internal contradictions | MET | No clash found. A:3 excludes other triggers and A:23 only defers one for later | NOT MET | B:9 "removes that whole failure class" contradicts B:17 "a wrong guess ... is invisible until a run stalls" and B:14 "relies on the model noticing prose"; B:3 proposes the option while B:13 calls environment detection "unsafe" |
+| 10 | Correctness | Claims supported by evidence or rationale | MET | Nearly every claim has a SPEC or CAPS line (A:8, A:9, A:13, A:19); advocate spot-checks confirmed them | MET | B:8 quotes the role table; B:13 gives the observed env versus worker-list mismatch; B:19 cites remediation-handoff.md:239-242 (confirmed in advocate-A spot-check) |
+| 11 | Structure | Logical section ordering | MET | Position (A:3), key (A:5), Safety, Reliability, day to day, Cost | MET | Position (B:3), key (B:5), strongest case, Safety, Reliability, day to day, Cost |
+| 12 | Structure | Consistent hierarchy depth | MET | One `##` level with flat bullets (A:7-23) | MET | One `##` level with flat bullets (B:7-25) |
+| 13 | Structure | Separation of concerns | MET | Each lens section holds its own concern; A:10 is the only edge case, still safety | NOT MET | B:14 puts testability in Safety (belongs in Reliability); B:18 puts spec non-goals and cross-project coupling in Reliability; B:13 and B:14 argue against the option inside Safety |
+| 14 | Structure | Navigation aids | MET | Citation key at A:5 lets a reader jump to SPEC:N and CAPS:N | MET | Citation key at B:5 with three sources (SPEC, CAPS, [G]) |
+| 15 | Structure | Follows decision-option paper convention | MET | Option title, position, then one section per evaluation lens (A:1, A:3, A:7-21) | MET | Option title, position, strongest case, then lens sections (B:1, B:3, B:7-24) |
+| 16 | Clarity | Unambiguous language | MET | No "should consider/might/as appropriate"; "Known weakness" at A:19 is stated plainly | MET | No such hedge phrases; B:13 "A person ... would lose its approval prompts" is stated plainly |
+| 17 | Clarity | Concrete rather than abstract | MET | A:8 concrete example command; A:9 the 11 handles; A:13 AC-1.1 | MET | B:13 `/sc:cleanup --interactive`; B:13 the 11 `agentTerminalHandle` values; B:19 file and lines |
+| 18 | Clarity | Each section has a clear purpose | MET | Safety: flag cannot switch a person's run; Reliability: checkable and caller-neutral | MET | Safety: environment detection unsafe, preamble safer but fuzzy; Reliability: untestable and ties to Orca |
+| 19 | Clarity | Acronyms and domain terms defined | NOT MET | SA-1 (A:10), WC-9 (A:10), AC-1.1 (A:13), AC-2.8 (A:8) and "UNVERIFIED item 13" (A:9) are never defined; "7.2" unexplained | NOT MET | SA-1 (B:13), SA-2 (B:18), AC-C1 (B:25), "UNVERIFIED item 13" (B:13), "preamble" and "Task and Dispatch IDs" (B:8) never defined |
+| 20 | Clarity | Actionable next steps or decision points | MET | A:3 names the spec's current recommendation; A:18 coordinator copies the command line from the brief template; A:23 later path to add detection | NOT MET | No decision point or next step; paper only argues the position (B:3-25) |
+| 21 | Risk | At least 3 risks with probability and impact | NOT MET | Risks named (A:9 misfire, A:19 forgotten flag, A:8 quoted token) but none has a probability or impact rating; only A:9 "observed" hints at likelihood | NOT MET | Risks named (B:13, B:17, B:18) but none has a probability or impact rating; only B:13 "observed" hints at likelihood |
+| 22 | Risk | Mitigation for each risk | MET | A:19 forgotten flag caught by brief template and 7.2 step-3 stall proof; A:8 quoted-token rule; A:10 outward defaults off; A:9 flag immune to misfire | NOT MET | No mitigation is given for the misfire (B:13), model miss (B:14, B:17) or Orca coupling (B:18) |
+| 23 | Risk | Failure modes and recovery procedures | NOT MET | Stall failure mode described (A:19) but only detection after the fact; no recovery steps | NOT MET | Stall and vanished-prompt failure modes described (B:9, B:17); no recovery steps |
+| 24 | Risk | External dependencies and their failure scenarios | MET | A:19 Orca reports a stalled worker as healthy (CAPS:52); A:14 no dependence on Orca by design | MET | B:8 relies on Orca's role table; B:9 Orca reports waiting worker healthy; B:13 variable set in a non-worker terminal |
+| 25 | Risk | Monitoring or validation mechanism | MET | A:13 AC-1.1 per-phase assert and live 7.2 checks; A:8 AC-2.8 live check; A:19 stall proof | NOT MET | B:17 states there is "no token to grep"; no check or monitor proposed |
+| 26 | Invariant/Edge | Collection boundaries (zero/one/many; empty or quoted args) | MET | A:8 quoted argument; A:14 callers with no Orca (`claude -p`, CI); A:15 commands converted per phase | MET | B:10 and B:25 many commands (35) each needing detection text; B:18 callers with no person (`claude -p`, CI) |
+| 27 | Invariant/Edge | State variables across component boundaries | MET | A:9 `ORCA_TERMINAL_HANDLE` set while handle absent from `worker-list` | MET | B:13 same variable versus `worker-list` mismatch; B:14 preamble in conversation versus command line |
+| 28 | Invariant/Edge | Guard condition gaps | MET | A:8 standalone-token-outside-quotes guard; A:19 unguarded case when the flag is forgotten | MET | B:13 variable set in a non-worker terminal; B:14 guard depends on the model noticing prose |
+| 29 | Invariant/Edge | Count divergence scenarios | MET | A:15 commands accept the flag only once converted, so the set of flag-accepting commands cannot run ahead of converted ones; A:13 per-phase count in AC-1.1 | NOT MET | B:10 "35 commands" and B:13 "11 values" are quoted but no scenario where counts diverge is examined |
+| 30 | Invariant/Edge | Interaction effects of combined features | MET | A:10 flag together with WC-9 outward defaults off; A:8 flag with quoted arguments; A:23 flag plus later detection trigger | MET | B:13 environment route combined with `/sc:cleanup --interactive` in a person's tab; B:14 preamble and task arriving together; B:25 detection text with the AC-C1 grep |
+
+## Dimension subtotals
+
+| Dimension | A | B |
+|-----------|---|---|
+| Completeness (1-5) | 5/5 | 3/5 |
+| Correctness (6-10) | 4/5 | 2/5 |
+| Structure (11-15) | 5/5 | 4/5 |
+| Clarity (16-20) | 4/5 | 3/5 |
+| Risk coverage (21-25) | 3/5 | 1/5 |
+| Invariant and edge case (26-30) | 5/5 | 4/5 |
+
+**Total: A = 26/30, B = 17/30**

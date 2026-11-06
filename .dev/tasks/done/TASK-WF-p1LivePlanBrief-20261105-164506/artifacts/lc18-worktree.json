@@ -1,0 +1,76 @@
+{
+  "id": "0e9bf81a-3aa3-4a66-b85c-8b2a1c60ef10",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch",
+      "identity": {
+        "key": "wt2:local:d2826e1b-c011-438f-94ae-dfaa871d7f8b",
+        "executionHostId": "local",
+        "instanceId": "d2826e1b-c011-438f-94ae-dfaa871d7f8b"
+      },
+      "instanceId": "d2826e1b-c011-438f-94ae-dfaa871d7f8b",
+      "repoId": "de550e99-fa3c-42e2-abfe-1d092771c759",
+      "projectId": "github:superclaude-org/superclaude_framework",
+      "hostId": "local",
+      "projectHostSetupId": "de550e99-fa3c-42e2-abfe-1d092771c759",
+      "creatorProvenance": {
+        "kind": "host"
+      },
+      "path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch",
+      "head": "0b44374513780b69f59d9018c06cbf0b4af420ad",
+      "branch": "refs/heads/ironbelly/p1-live-person-mode-watch",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "p1-live-person-mode-watch",
+      "displayNameMode": "fixed",
+      "comment": "",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "linkedWorkItem": null,
+      "linkedTaskSourceContext": null,
+      "isArchived": false,
+      "isUnread": false,
+      "isPinned": false,
+      "sortOrder": 1793912839488,
+      "lastActivityAt": 1793912839488,
+      "createdAt": 1793912839488,
+      "cliProvenance": {
+        "kind": "created-by-cli",
+        "createdAt": 1793912837758,
+        "callerTerminalHandle": "term_558daf54-f38b-4498-b0d1-0d2e8c036e7c"
+      },
+      "baseRef": "refs/heads/ironbelly/OrcaCLICommandRefactor-P1",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": null,
+      "childWorktreeIds": [],
+      "lineage": null,
+      "workspaceLineage": null,
+      "git": {
+        "path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch",
+        "head": "0b44374513780b69f59d9018c06cbf0b4af420ad",
+        "branch": "refs/heads/ironbelly/p1-live-person-mode-watch",
+        "isBare": false,
+        "isMainWorktree": false
+      }
+    },
+    "lineage": null,
+    "workspaceLineage": null,
+    "warnings": [],
+    "catalogVersion": {
+      "epoch": "ea39b32c-2e65-4331-b668-21f494647961",
+      "sequence": 631
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

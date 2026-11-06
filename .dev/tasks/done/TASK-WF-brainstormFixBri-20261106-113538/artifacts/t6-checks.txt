@@ -1,0 +1,26 @@
+== 2.1 bullet (line 62) pins
+1
+only for a nested command that actually ran: 1
+7.2 step 4: 1
+== 7.2 step 4 (line 286) pins
+1
+lc10: 1
+a `source: codebase` entry: 1
+neither `quality_tier` nor `source` records: 1
+invokes `sc:analyze` : 1
+forbidden (expect 0): 0
+== diff stat
+ .dev/orca-command-refactor/specs/orca-worker-contract-spec.md | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+2	2	.dev/orca-command-refactor/specs/orca-worker-contract-spec.md
+== hunk headers
+@@ -62 +62 @@ The evidence supports the decision. Three gaps are stated plainly:
+@@ -286 +286 @@ For each command under test, the coordinator runs the steps below with one worke
+== row 142 unchanged
+same
+== whole-text
+X_len=450 Y_len=1210
+X plan_cxF=1
+X spec_cF=1
+Y plan_cxF=1
+Y spec_cF=1

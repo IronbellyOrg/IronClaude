@@ -1,0 +1,9 @@
+page 1 messages: 40 window ms: [1793909631852,1793909766869]
+last tool calls in page 1:
+Edit {"replace_all":false,"file_path":"/home/coder/workspaces/worktrees/IronClaude/p1-live-cleanup-audit/.claude-audit/pass1-summary.md","old_string":"cove
+Edit {"replace_all":false,"file_path":"/home/coder/workspaces/worktrees/IronClaude/p1-live-cleanup-audit/.claude-audit/pass1-summary.md","old_string":"### 
+Bash {"command":"cd /home/coder/workspaces/worktrees/IronClaude/p1-live-cleanup-audit; orca orchestration check --terminal term_64fb8d96-bd33-447b-a88c-744
+Bash {"command":"orca orchestration send --from term_64fb8d96-bd33-447b-a88c-744846372926 --type worker_done --subject \"cleanup-audit tests/pr_submit surf
+page 2 messages: 0
+page 1 contentComplete: false clipping: ["message_limit_or_scan_window","transcript_payload"]
+page 2 contentComplete: true

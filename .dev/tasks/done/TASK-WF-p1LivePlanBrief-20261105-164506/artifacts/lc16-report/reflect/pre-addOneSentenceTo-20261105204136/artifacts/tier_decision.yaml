@@ -1,0 +1,12 @@
+selected_tier: 2
+fired_rule_number: null            # table-wide pre-filter (coverage_degraded) forced Tier 2 before any STOP row could fire; no first-match row
+coverage_degraded: parsed-sparse   # Step 1B.2b: inferred_count (1) > parsed_count (0)
+surface_unreached: null
+composite_score: 1.0               # recording only
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 0
+  blast_radius: 0
+  spec_density: 1
+  ambiguity_signals: 0
+escalation_reason: "coverage_degraded: parsed-sparse. The spec is one unlabeled sentence, so every requirement is inferred and the parse-density guard forbids a Tier-1 stop (SKILL.md 4.1 Step 1B.2b, 5.3 pre-filter precedence). No explicit --tier 1 / --depth quick pin was passed."

@@ -1,0 +1,77 @@
+{
+  "id": "cf7cd4a6-590d-4fdb-97f3-8255c93fd4a0",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-graph",
+      "identity": {
+        "key": "wt2:local:54f64ca3-ca6a-43a7-b58e-91293d6c2387",
+        "executionHostId": "local",
+        "instanceId": "54f64ca3-ca6a-43a7-b58e-91293d6c2387"
+      },
+      "instanceId": "54f64ca3-ca6a-43a7-b58e-91293d6c2387",
+      "repoId": "de550e99-fa3c-42e2-abfe-1d092771c759",
+      "projectId": "github:superclaude-org/superclaude_framework",
+      "hostId": "local",
+      "projectHostSetupId": "de550e99-fa3c-42e2-abfe-1d092771c759",
+      "creatorProvenance": {
+        "kind": "host"
+      },
+      "path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-graph",
+      "head": "0b44374513780b69f59d9018c06cbf0b4af420ad",
+      "branch": "refs/heads/ironbelly/p1-live-graph",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "p1-live-graph",
+      "displayNameMode": "fixed",
+      "comment": "",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "linkedWorkItem": null,
+      "linkedTaskSourceContext": null,
+      "isArchived": false,
+      "isUnread": false,
+      "isPinned": false,
+      "sortOrder": 1793909926002,
+      "lastActivityAt": 1793909926002,
+      "createdAt": 1793909926002,
+      "cliProvenance": {
+        "kind": "created-by-cli",
+        "createdAt": 1793909923849,
+        "callerTerminalHandle": "term_558daf54-f38b-4498-b0d1-0d2e8c036e7c"
+      },
+      "baseRef": "refs/heads/ironbelly/OrcaCLICommandRefactor-P1",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": null,
+      "childWorktreeIds": [],
+      "lineage": null,
+      "workspaceLineage": null,
+      "git": {
+        "path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-graph",
+        "head": "0b44374513780b69f59d9018c06cbf0b4af420ad",
+        "branch": "refs/heads/ironbelly/p1-live-graph",
+        "isBare": false,
+        "isMainWorktree": false
+      }
+    },
+    "lineage": null,
+    "workspaceLineage": null,
+    "warnings": [],
+    "warning": "orca.yaml setup hook skipped for /home/coder/workspaces/worktrees/IronClaude/p1-live-graph; pass --setup run to run it.",
+    "catalogVersion": {
+      "epoch": "ea39b32c-2e65-4331-b668-21f494647961",
+      "sequence": 496
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

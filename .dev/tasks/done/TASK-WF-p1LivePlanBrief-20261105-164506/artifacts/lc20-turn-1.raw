@@ -1,0 +1,40 @@
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":15005,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":30007,"deadlineMs":240000}
+{
+  "id": "1806fd7e-b845-4699-8a29-29aa9695a1da",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_f4925c3ee595",
+    "messages": [
+      {
+        "id": "msg_fdaf60c63912",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_abd88a77-6741-4cbd-ae39-d12d8569b84a",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "guard refused: no Unattended mode section",
+        "body": "guard refused: loaded command has no Unattended mode section (not converted at this phase, or the loaded copy is stale). I checked the one Command: line (/sc:troubleshoot ... --unattended --report-dir .dev/p1-live/guard2/): the flag is a standalone token, troubleshoot is not on the never-as-worker list, and both copies (the worktree .claude/commands/sc/troubleshoot.md and ~/.claude/commands/sc/troubleshoot.md) are byte-identical with zero '## Unattended mode' sections. Nothing was run, no contract or report was written, and the brief template's P1 list of 16 converted commands does not include troubleshoot, so the coordinator should fix the brief in a new Task.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_6b5b3d8f75d5\",\"dispatchId\":\"ctx_5aba83649960\",\"outcome\":\"failed\"}",
+        "created_at": "2026-11-05T21:16:08Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "2175604f-d2a0-4b49-8e09-2cfa0736a7e8",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

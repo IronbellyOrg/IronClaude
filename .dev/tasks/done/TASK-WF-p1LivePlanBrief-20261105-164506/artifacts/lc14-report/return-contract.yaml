@@ -1,0 +1,6 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:index-repo mode=quick --unattended --report-dir .dev/p1-live/index-repo/"
+report_path: PROJECT_INDEX.md
+artifacts:
+  - PROJECT_INDEX.json

@@ -1,0 +1,6 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:design "a read-only status endpoint that reports whether the installed commands match the repository" --type api --format spec --unattended --report-dir .dev/p1-live/design/'
+report_path: .dev/p1-live/design/design-report.md
+artifacts:
+  - .dev/p1-live/design/return-contract.yaml

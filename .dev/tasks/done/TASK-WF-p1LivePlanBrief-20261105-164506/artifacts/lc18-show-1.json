@@ -1,0 +1,219 @@
+{
+  "id": "f70b71bc-8260-48f0-a2be-02212475f95b",
+  "ok": true,
+  "result": {
+    "dispatch": {
+      "id": "ctx_f3e6bb19b3ef",
+      "runId": "run_92b0ef27e086",
+      "taskId": "task_0520b6a13e2d",
+      "task_id": "task_0520b6a13e2d",
+      "contractVersion": 1,
+      "assigneeHandle": "term_dcc9a0c8-d83d-46f4-b634-d1655a7a19c7",
+      "assigneePaneKey": "88a6cb78-9cb9-4b1d-a6d9-97c3c5e76643:8480a13a-5406-41fc-8f64-a557c21f06a0",
+      "processIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch@@73b48e78:8f81b373-de4c-4b99-b1e2-83ae3f0836bc",
+      "capabilityRevokedAt": "2026-11-05T21:08:27.357Z",
+      "retryOfDispatchId": null,
+      "creatorDispatchId": null,
+      "hostScope": {
+        "kind": "local",
+        "hostId": "local"
+      },
+      "status": "failed",
+      "failureCount": 0,
+      "lastFailure": "{\"provenance\":\"worker_report\",\"outcome\":\"failed\",\"messageId\":\"msg_75a4ccec5d24\",\"reportedBy\":\"term_dcc9a0c8-d83d-46f4-b634-d1655a7a19c7\",\"subject\":\"watch refused under --unattended\",\"body\":\"worker_status: failed; /sc:test refused the person-mode flag --watch under --unattended before any work, which is the expected P1 behavior. The brief guard passed (project and installed copies of test.md are identical and both have the Unattended mode section), and I wrote .dev/p1-live/watch/return-contract.yaml with worker_status failed and --watch named in reason; no test runner started and nothing was committed or staged. The new .dev/p1-live/ folder is untracked, so the coordinator stages it.\",\"completedBy\":\"term_dcc9a0c8-d83d-46f4-b634-d1655a7a19c7\",\"filesModified\":[\".dev/p1-live/watch/return-contract.yaml\"],\"reportPath\":\".dev/p1-live/watch/return-contract.yaml\",\"completedAt\":\"2026-11-05T21:08:27.357Z\"}",
+      "terminationReason": null,
+      "depth": 1,
+      "dispatchedAt": "2026-11-05 21:07:21",
+      "completedAt": "2026-11-05T21:08:27.357Z",
+      "createdAt": "2026-11-05 21:07:21",
+      "lastHeartbeatAt": null
+    },
+    "worker": {
+      "dispatchId": "ctx_f3e6bb19b3ef",
+      "runtimeEpoch": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc",
+      "state": "failed",
+      "stage": "settled",
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch",
+      "agentTerminalHandle": "term_dcc9a0c8-d83d-46f4-b634-d1655a7a19c7",
+      "setupState": "not_applicable",
+      "effects": [
+        {
+          "kind": "worktree",
+          "action": "reused",
+          "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch"
+        },
+        {
+          "kind": "setup",
+          "action": "not_applicable",
+          "state": "not_applicable"
+        },
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_dcc9a0c8-d83d-46f4-b634-d1655a7a19c7",
+          "surface": "background",
+          "warning": "Terminal term_dcc9a0c8-d83d-46f4-b634-d1655a7a19c7 is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_dcc9a0c8-d83d-46f4-b634-d1655a7a19c7` to reveal and focus it."
+        },
+        {
+          "kind": "dispatch_input",
+          "role": "agent",
+          "id": "term_dcc9a0c8-d83d-46f4-b634-d1655a7a19c7",
+          "state": "accepted"
+        }
+      ],
+      "residualResources": [
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_dcc9a0c8-d83d-46f4-b634-d1655a7a19c7",
+          "surface": "background",
+          "warning": "Terminal term_dcc9a0c8-d83d-46f4-b634-d1655a7a19c7 is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_dcc9a0c8-d83d-46f4-b634-d1655a7a19c7` to reveal and focus it."
+        }
+      ],
+      "startOptions": {
+        "worktree": "path:/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch",
+        "mode": {
+          "mode": "terminal",
+          "preferred": "terminal",
+          "reason": "user_default",
+          "detail": "Started a terminal agent worker, the default for new agent tabs in your settings."
+        },
+        "resolvedWorktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch",
+        "name": null,
+        "repo": null,
+        "baseBranch": null,
+        "terminal": null,
+        "agent": "claude",
+        "launch": {
+          "requested": {
+            "agent": "claude",
+            "model": null,
+            "effort": null
+          },
+          "effective": {
+            "agent": "claude",
+            "model": null,
+            "effort": null
+          }
+        },
+        "timeoutMs": 60000,
+        "setup": "not_applicable",
+        "setupSource": "existing_worktree"
+      },
+      "lastError": null,
+      "createdAt": "2026-11-05 21:07:21",
+      "updatedAt": "2026-11-05T21:08:27.357Z"
+    },
+    "projection": {
+      "id": "ctx_f3e6bb19b3ef",
+      "dispatchId": "ctx_f3e6bb19b3ef",
+      "taskId": "task_0520b6a13e2d",
+      "runId": "run_92b0ef27e086",
+      "role": "worker",
+      "parent": null,
+      "provider": {
+        "id": "claude",
+        "model": null
+      },
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "failed",
+        "dispatch": "failed",
+        "detail": "settled",
+        "activity": "working"
+      },
+      "outcome": "failed",
+      "liveness": {
+        "verdict": "live",
+        "observedAt": 1793912907403,
+        "source": "agent_status"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "fresh",
+        "lastObservedAt": 1793912907403
+      },
+      "resource": {
+        "state": "owned",
+        "id": "wtr_87030fdd0cda",
+        "ownerDispatchId": "ctx_f3e6bb19b3ef",
+        "releaseState": "not_requested",
+        "terminalState": "reclaimable"
+      },
+      "nextAction": {
+        "kind": "release",
+        "argv": [
+          "orchestration",
+          "worker-release",
+          "--dispatch",
+          "ctx_f3e6bb19b3ef"
+        ]
+      },
+      "attention": {
+        "categories": [
+          "failure"
+        ],
+        "requiresAction": true
+      }
+    },
+    "terminal": {
+      "handle": "term_dcc9a0c8-d83d-46f4-b634-d1655a7a19c7",
+      "ptyId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch@@73b48e78",
+      "incarnationId": "8f81b373-de4c-4b99-b1e2-83ae3f0836bc",
+      "orphaned": false,
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch",
+      "worktreePath": "/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch",
+      "branch": "refs/heads/ironbelly/p1-live-person-mode-watch",
+      "tabId": "88a6cb78-9cb9-4b1d-a6d9-97c3c5e76643",
+      "leafId": "8480a13a-5406-41fc-8f64-a557c21f06a0",
+      "title": "p1-live-person-mode-1105-210755-025c · Claude Code",
+      "connected": true,
+      "writable": true,
+      "lastOutputAt": 1793912907586,
+      "preview": "──────────────────────────────────────────────────────────────────────────────── p1-live-person-mode-1105-210755-025c ─\n❯\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n⏵⏵ bypass permissions on (shift+tab to cycle) · ← 1 agent",
+      "executionHostId": "local",
+      "agentIdentity": "claude",
+      "paneRuntimeId": -1,
+      "rendererGraphEpoch": 0,
+      "agentWait": null
+    },
+    "observation": {
+      "status": "live",
+      "exactWorker": true,
+      "agentWait": null
+    },
+    "terminalResource": {
+      "id": "wtr_87030fdd0cda",
+      "ownershipState": "owned",
+      "releaseState": "not_requested",
+      "retainedReason": null,
+      "terminalHandle": "term_dcc9a0c8-d83d-46f4-b634-d1655a7a19c7",
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch",
+      "endpointId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc",
+      "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch@@73b48e78:8f81b373-de4c-4b99-b1e2-83ae3f0836bc",
+      "originDispatchId": "ctx_f3e6bb19b3ef",
+      "ownerDispatchId": "ctx_f3e6bb19b3ef",
+      "releaseRequestedAt": null,
+      "releaseCompletedAt": null,
+      "releaseError": null,
+      "recoveryAttemptCount": 0,
+      "lastRecoveryAt": null,
+      "archive": {
+        "source": null,
+        "status": null
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

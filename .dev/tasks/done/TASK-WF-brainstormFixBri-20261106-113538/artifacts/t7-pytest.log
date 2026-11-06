@@ -1,0 +1,24 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collected 459 items
+
+tests/skills/test_brainstorm_protocol.py ...                             [  0%]
+tests/skills/test_worker_contract.py ................................... [  8%]
+........................................................................ [ 23%]
+........................................................................ [ 39%]
+........................................................................ [ 55%]
+........................................................................ [ 71%]
+........................................................................ [ 86%]
+.                                                                        [ 86%]
+tests/skills/test_codegraph_adoption.py ................................ [ 93%]
+..................                                                       [ 97%]
+tests/skills/test_tier2_tavily_consistency.py .....                      [ 98%]
+tests/commands/test_routing_plugin_parity.py .....                       [100%]
+
+============================= 459 passed in 0.77s ==============================
+exit=0

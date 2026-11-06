@@ -1,0 +1,5 @@
+task-create receipt: ./artifacts/lc01-task-create.json (exit 0)
+worker-start receipt: ./artifacts/lc01-worker-start.json (exit 0)
+t0=1793904784.261687966 t1=1793904821.774634151
+elapsed_seconds=37.513
+state=ready dispatchId=ctx_a115f9267f30 taskId=task_087ab96455f4

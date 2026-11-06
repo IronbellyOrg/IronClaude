@@ -1,0 +1,2 @@
+/home/coder/workspaces/worktrees/IronClaude/p1-live-document/.claude/commands/sc/document.md:1
+/home/coder/.claude/commands/sc/document.md:1

@@ -1,0 +1,83 @@
+{
+  "id": "0ca6fd4a-3cd9-41be-bfe8-f59f9d13d8fb",
+  "ok": true,
+  "result": {
+    "dispatchId": "ctx_6c10bde223ae",
+    "source": "transcript",
+    "sourceIdentity": "2_haIxchd_JunZ0LQmYizTmC8csUO0ZF",
+    "provider": "claude",
+    "transcript": {
+      "messages": [],
+      "nextCursor": "owr1_eyJ2IjoxLCJkIjoiY3R4XzZjMTBiZGUyMjNhZSIsInMiOiJ0cmFuc2NyaXB0IiwiaSI6IjJfaGFJeGNoZF9KdW5aMExRbVlpelRtQzhjc1VPMFpGIiwicCI6NDc5ODIyMiwiYyI6IkxXb2ZkcGViR3ZWT29qdHYyTUZ1Vk1pbDg5OXg2ZVZCIn0",
+      "limited": false,
+      "returnedMessageCount": 0
+    },
+    "cursor": "owr1_eyJ2IjoxLCJkIjoiY3R4XzZjMTBiZGUyMjNhZSIsInMiOiJ0cmFuc2NyaXB0IiwiaSI6IjJfaGFJeGNoZF9KdW5aMExRbVlpelRtQzhjc1VPMFpGIiwicCI6NDc5ODIyMiwiYyI6IkxXb2ZkcGViR3ZWT29qdHYyTUZ1Vk1pbDg5OXg2ZVZCIn0",
+    "status": {
+      "worker": "succeeded",
+      "terminal": "running",
+      "liveness": "live"
+    },
+    "fallbackReason": null,
+    "warnings": [],
+    "sourceExact": true,
+    "contentComplete": true,
+    "projection": {
+      "id": "ctx_6c10bde223ae",
+      "dispatchId": "ctx_6c10bde223ae",
+      "taskId": "task_59dcab68472b",
+      "runId": "run_92b0ef27e086",
+      "role": "worker",
+      "parent": null,
+      "provider": {
+        "id": "claude",
+        "model": null
+      },
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-workflow",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "succeeded",
+        "dispatch": "completed",
+        "detail": "settled",
+        "activity": "working"
+      },
+      "outcome": "succeeded",
+      "liveness": {
+        "verdict": "live",
+        "observedAt": 1793912489819,
+        "source": "agent_status"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "fresh",
+        "lastObservedAt": 1793912489819
+      },
+      "resource": {
+        "state": "user_owned",
+        "id": "wtr_5674c74bd619",
+        "ownerDispatchId": "ctx_6c10bde223ae",
+        "releaseState": "retained",
+        "terminalState": "retained"
+      },
+      "nextAction": {
+        "kind": "none",
+        "argv": []
+      },
+      "attention": {
+        "categories": [
+          "root_completion"
+        ],
+        "requiresAction": false
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

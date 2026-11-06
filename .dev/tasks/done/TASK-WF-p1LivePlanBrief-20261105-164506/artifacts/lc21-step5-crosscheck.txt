@@ -1,0 +1,9 @@
+page 1 messages: 11 window ms: [1793913547022,1793913559909]
+last tool calls in page 1:
+Read {"file_path":"/home/coder/.claude/WORKER-CONTRACT.md"}
+Read {"file_path":"/home/coder/.claude/commands/sc/help.md"}
+Bash {"command":"orca orchestration check --terminal term_987184d4-7a23-498f-bc06-5199c4c49e58 --json","description":"Read coordinator follow-up messages"}
+Bash {"command":"orca orchestration send --from term_987184d4-7a23-498f-bc06-5199c4c49e58 --type worker_done --subject \"guard refused: /sc:help is never-a
+page 2 messages: 0
+page 1 contentComplete: false clipping: ["transcript_payload"]
+page 2 contentComplete: true

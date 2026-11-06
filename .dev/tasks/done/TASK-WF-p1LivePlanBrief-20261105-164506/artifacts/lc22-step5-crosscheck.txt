@@ -1,0 +1,9 @@
+page 1 messages: 40 window ms: [1793913892902,1793913964397]
+last tool calls in page 1:
+Bash {"command":"orca orchestration check --terminal term_e9de1d2f-ffd4-46ae-8b4e-f553f063f58a --json 2>&1 | head -30","description":"Read coordinator foll
+Bash {"command":"git symbolic-ref --short HEAD && git status --porcelain && ls -d .dev/tasks 2>&1","description":"Check branch and uncommitted paths before
+Bash {"command":"P1=.dev/p1-live/commit-grant/explain-report.md && P2=.dev/p1-live/commit-grant/return-contract.yaml && git add -- \"$P1\" \"$P2\" && git a
+Bash {"command":"orca orchestration check --terminal term_e9de1d2f-ffd4-46ae-8b4e-f553f063f58a --json 2>&1 | grep -E '\"count\"|consumer_fenced'; orca orch
+page 2 messages: 0
+page 1 contentComplete: false clipping: ["transcript_payload"]
+page 2 contentComplete: true

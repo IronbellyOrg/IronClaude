@@ -1,0 +1,30 @@
+{
+  "id": "a674e468-2c7f-4b0a-a55a-610b432e0b3e",
+  "ok": true,
+  "result": {
+    "task": {
+      "id": "task_7d2701e4eae8",
+      "run_id": "run_92b0ef27e086",
+      "parent_id": null,
+      "created_by_terminal_handle": "term_558daf54-f38b-4498-b0d1-0d2e8c036e7c",
+      "created_by_pane_key": "d43c5efb-b395-4f83-9576-2b7e411fd4b6:a190c0d6-e897-4d14-892d-bc5e6422c2eb",
+      "created_by_process_incarnation": "serve-7828c69e-059b-44e3-ac08-35b78ba9067c:a2847d1a-6973-4aa6-a369-284f3bd1a004",
+      "created_by_run_generation": 1,
+      "task_title": "P1 live check 22: commit-grant",
+      "display_name": "P1 live check 22: commit-grant",
+      "spec": "Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed with a body starting \"guard refused:\".\nOn a blocked gate: report blocked\nLocal commit: authorized for this one Task. Owner instruction, quoted as given: I grant authorization for local commit for check AC-1.8 only.\nReport directory: .dev/p1-live/commit-grant/\nWorktree: child worktree created by Orca (orca worktree create --parent-worktree active) from ironbelly/OrcaCLICommandRefactor-P1 for this check only; you are its only writer.\nOutward actions: none other than the local commit above; the coordinator performs every push, PR, comment, install and paid run.\nCommand: /sc:explain src/superclaude/cli/install_core.py --level basic --format text --unattended --report-dir .dev/p1-live/commit-grant/",
+      "status": "ready",
+      "deps": "[]",
+      "result": null,
+      "created_at": "2026-11-05 21:24:14",
+      "completed_at": null
+    },
+    "mutation": {
+      "requestId": "b4c67795-88b0-4b27-8e9d-4614829eb917",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

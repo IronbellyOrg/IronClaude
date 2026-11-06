@@ -1,0 +1,38 @@
+{
+  "id": "b0956315-9615-4d94-bf1d-fbfc539f50fb",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_844f0a16bc8c",
+    "messages": [
+      {
+        "id": "msg_f723275e8fd6",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_987184d4-7a23-498f-bc06-5199c4c49e58",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "guard refused: /sc:help is never-as-worker",
+        "body": "guard refused: /sc:help is on the never-as-worker list in ~/.claude/WORKER-CONTRACT.md (section 1, case 3), so it is never dispatched as a worker and has no --unattended mode. I read the contract and the help command file only, ran no listing, wrote no contract and changed no files. To get the listing, run /sc:help in an ordinary top-level session, or send a new Task with a different command.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_d3ff69bd9a2a\",\"dispatchId\":\"ctx_284755bb7e4f\",\"outcome\":\"failed\"}",
+        "created_at": "2026-11-05T21:19:19Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "a7a734fa-a6a9-403c-a1f4-c5fa98c1a8df",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

@@ -1,0 +1,7 @@
+c682bb2a26f75c99f554245b03d21aa7f067aea7 0b44374513780b69f59d9018c06cbf0b4af420ad docs(orca): record the AC-1.8 commit-grant explain run report
+---
+c682bb2a26f75c99f554245b03d21aa7f067aea7
+
+ .dev/p1-live/commit-grant/explain-report.md    | 46 ++++++++++++++++++++++++++
+ .dev/p1-live/commit-grant/return-contract.yaml |  5 +++
+ 2 files changed, 51 insertions(+)

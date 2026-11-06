@@ -1,0 +1,212 @@
+{
+  "id": "5765b26b-94d0-4853-bf45-ea16468951be",
+  "ok": true,
+  "result": {
+    "dispatch": {
+      "id": "ctx_6c10bde223ae",
+      "runId": "run_92b0ef27e086",
+      "taskId": "task_59dcab68472b",
+      "task_id": "task_59dcab68472b",
+      "contractVersion": 1,
+      "assigneeHandle": "term_1a6fde09-00c4-42f2-9bda-edbd2b50899c",
+      "assigneePaneKey": "ec61f494-038b-4c5b-a2b2-13e3139342e8:2844c731-8cec-4dee-aa0b-63ff3baac732",
+      "processIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-workflow@@7831db79:6ca6a01e-e217-43ec-bead-5b080fddfd11",
+      "capabilityRevokedAt": null,
+      "retryOfDispatchId": null,
+      "creatorDispatchId": null,
+      "hostScope": {
+        "kind": "local",
+        "hostId": "local"
+      },
+      "status": "dispatched",
+      "failureCount": 0,
+      "lastFailure": null,
+      "terminationReason": null,
+      "depth": 1,
+      "dispatchedAt": "2026-11-05 20:39:02",
+      "completedAt": null,
+      "createdAt": "2026-11-05 20:39:02",
+      "lastHeartbeatAt": "2026-11-05T20:50:37Z"
+    },
+    "worker": {
+      "dispatchId": "ctx_6c10bde223ae",
+      "runtimeEpoch": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc",
+      "state": "ready",
+      "stage": "input_accepted",
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-workflow",
+      "agentTerminalHandle": "term_1a6fde09-00c4-42f2-9bda-edbd2b50899c",
+      "setupState": "not_applicable",
+      "effects": [
+        {
+          "kind": "worktree",
+          "action": "reused",
+          "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-workflow"
+        },
+        {
+          "kind": "setup",
+          "action": "not_applicable",
+          "state": "not_applicable"
+        },
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_1a6fde09-00c4-42f2-9bda-edbd2b50899c",
+          "surface": "background",
+          "warning": "Terminal term_1a6fde09-00c4-42f2-9bda-edbd2b50899c is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_1a6fde09-00c4-42f2-9bda-edbd2b50899c` to reveal and focus it."
+        },
+        {
+          "kind": "dispatch_input",
+          "role": "agent",
+          "id": "term_1a6fde09-00c4-42f2-9bda-edbd2b50899c",
+          "state": "accepted"
+        }
+      ],
+      "residualResources": [
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_1a6fde09-00c4-42f2-9bda-edbd2b50899c",
+          "surface": "background",
+          "warning": "Terminal term_1a6fde09-00c4-42f2-9bda-edbd2b50899c is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_1a6fde09-00c4-42f2-9bda-edbd2b50899c` to reveal and focus it."
+        }
+      ],
+      "startOptions": {
+        "worktree": "path:/home/coder/workspaces/worktrees/IronClaude/p1-live-workflow",
+        "mode": {
+          "mode": "terminal",
+          "preferred": "terminal",
+          "reason": "user_default",
+          "detail": "Started a terminal agent worker, the default for new agent tabs in your settings."
+        },
+        "resolvedWorktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-workflow",
+        "name": null,
+        "repo": null,
+        "baseBranch": null,
+        "terminal": null,
+        "agent": "claude",
+        "launch": {
+          "requested": {
+            "agent": "claude",
+            "model": null,
+            "effort": null
+          },
+          "effective": {
+            "agent": "claude",
+            "model": null,
+            "effort": null
+          }
+        },
+        "timeoutMs": 60000,
+        "setup": "not_applicable",
+        "setupSource": "existing_worktree"
+      },
+      "lastError": null,
+      "createdAt": "2026-11-05 20:39:02",
+      "updatedAt": "2026-11-05 20:39:38"
+    },
+    "projection": {
+      "id": "ctx_6c10bde223ae",
+      "dispatchId": "ctx_6c10bde223ae",
+      "taskId": "task_59dcab68472b",
+      "runId": "run_92b0ef27e086",
+      "role": "worker",
+      "parent": null,
+      "provider": {
+        "id": "claude",
+        "model": null
+      },
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-workflow",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "ready",
+        "dispatch": "dispatched",
+        "detail": "input_accepted",
+        "activity": "working"
+      },
+      "outcome": "in_progress",
+      "liveness": {
+        "verdict": "live",
+        "observedAt": 1793912144597,
+        "source": "agent_status"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "fresh",
+        "lastObservedAt": 1793912144597
+      },
+      "resource": {
+        "state": "user_owned",
+        "id": "wtr_5674c74bd619",
+        "ownerDispatchId": "ctx_6c10bde223ae",
+        "releaseState": "retained",
+        "terminalState": "retained"
+      },
+      "nextAction": {
+        "kind": "none",
+        "argv": []
+      },
+      "attention": {
+        "categories": [],
+        "requiresAction": false
+      }
+    },
+    "terminal": {
+      "handle": "term_1a6fde09-00c4-42f2-9bda-edbd2b50899c",
+      "ptyId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-workflow@@7831db79",
+      "incarnationId": "6ca6a01e-e217-43ec-bead-5b080fddfd11",
+      "orphaned": false,
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-workflow",
+      "worktreePath": "/home/coder/workspaces/worktrees/IronClaude/p1-live-workflow",
+      "branch": "refs/heads/ironbelly/p1-live-workflow",
+      "tabId": "ec61f494-038b-4c5b-a2b2-13e3139342e8",
+      "leafId": "2844c731-8cec-4dee-aa0b-63ff3baac732",
+      "title": "p1-live-workflow-1105-203936-1f54 · Claude Code",
+      "connected": true,
+      "writable": true,
+      "lastOutputAt": 1793912148116,
+      "preview": "───\n⏵⏵ bypass permissions on (shift+tab to cycle) · ← 1 agent\n● main\n◯ merge-executor  Merge executor: build merged verdict                                                                                                                                                            11s · ↓ 102.2k tokens",
+      "executionHostId": "local",
+      "agentIdentity": "claude",
+      "paneRuntimeId": -1,
+      "rendererGraphEpoch": 0,
+      "agentWait": null
+    },
+    "observation": {
+      "status": "live",
+      "exactWorker": true,
+      "agentWait": null
+    },
+    "terminalResource": {
+      "id": "wtr_5674c74bd619",
+      "ownershipState": "user_owned",
+      "releaseState": "retained",
+      "retainedReason": "user_takeover",
+      "terminalHandle": "term_1a6fde09-00c4-42f2-9bda-edbd2b50899c",
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-workflow",
+      "endpointId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc",
+      "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-workflow@@7831db79:6ca6a01e-e217-43ec-bead-5b080fddfd11",
+      "originDispatchId": "ctx_6c10bde223ae",
+      "ownerDispatchId": "ctx_6c10bde223ae",
+      "releaseRequestedAt": null,
+      "releaseCompletedAt": null,
+      "releaseError": null,
+      "recoveryAttemptCount": 0,
+      "lastRecoveryAt": null,
+      "archive": {
+        "source": null,
+        "status": null
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

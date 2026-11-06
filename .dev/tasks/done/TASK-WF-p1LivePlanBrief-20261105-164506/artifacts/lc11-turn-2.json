@@ -1,0 +1,38 @@
+{
+  "id": "c7d75210-a5c1-48a0-86e7-ae320e9812f6",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_a80d4f8412c0",
+    "messages": [
+      {
+        "id": "msg_6c5adc034025",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_64fb8d96-bd33-447b-a88c-744846372926",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "cleanup-audit tests/pr_submit surface pass: succeeded",
+        "body": "worker_status: succeeded; pass 1 verdict PASS. Audited all 81 files in tests/pr_submit (0 DELETE, 5 REVIEW, 76 KEEP): the 5 REVIEW items are fixtures never loaded by any test (review-clean, review-with-findings, review-non-augment, review-interleaved, rereview-then-decline), each named only in a comment or docstring; a validator re-tested 8 claims (7 confirmed, 1 partial on a line list, 0 refuted). Left for the coordinator: stage .claude-audit/ and .dev/p1-live/ (both untracked, no repo file changed), and note two tool defects in .claude-audit/pass1-summary.md (repo-inventory.sh labels every file batch-1; audit-scanner cannot write its own reports).",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_87e1cfb64b67\",\"dispatchId\":\"ctx_c548258e9f0b\",\"outcome\":\"succeeded\",\"reportPath\":\".dev/p1-live/cleanup-audit/return-contract.yaml\"}",
+        "created_at": "2026-11-05T20:16:02Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "96d0ee72-6087-4c9a-acba-4c7578f2bf4d",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

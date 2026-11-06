@@ -1,0 +1,7 @@
+Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed with a body starting "guard refused:".
+On a blocked gate: report blocked
+Local commit: not authorized
+Report directory: .dev/p1-live/business-panel/
+Worktree: disposable worktree created by Orca from ironbelly/OrcaCLICommandRefactor-P1 for this check only; you are its only writer.
+Outward actions: none; the coordinator performs every push, PR, comment, install and paid run.
+Command: /sc:business-panel .dev/orca-command-refactor/decisions/D1/option-a.md --mode discussion --experts "porter,drucker" --unattended --report-dir .dev/p1-live/business-panel/

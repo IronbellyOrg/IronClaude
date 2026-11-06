@@ -1,0 +1,2 @@
+/home/coder/workspaces/worktrees/IronClaude/p1-live-cleanup-audit/.claude/commands/sc/cleanup-audit.md:1
+/home/coder/.claude/commands/sc/cleanup-audit.md:1

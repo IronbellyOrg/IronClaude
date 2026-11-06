@@ -1,0 +1,9 @@
+page 1 messages: 14 window ms: [1793913196307,1793913223697]
+last tool calls in page 1:
+Read {"file_path":"/home/coder/.claude/commands/sc/analyze.md"}
+Bash {"command":"ls -la .claude/commands/sc/analyze.md 2>&1; grep -n '^## Unattended mode' .claude/commands/sc/analyze.md ~/.claude/commands/sc/analyze.md 
+Bash {"command":"orca orchestration check --terminal term_7a3474fe-f675-4f64-b3f6-44a6aca89076 --json","description":"Read coordinator follow-ups before se
+Bash {"command":"orca orchestration send --from term_7a3474fe-f675-4f64-b3f6-44a6aca89076 --type worker_done --subject \"guard refused: brief lacks --unatt
+page 2 messages: 0
+page 1 contentComplete: false clipping: ["transcript_payload"]
+page 2 contentComplete: true

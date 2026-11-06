@@ -1,0 +1,9 @@
+calibration: independent
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimensions: {citation_grounding: 0.85, coverage_completeness: 0.55, deviation_classification_clarity: 0.70, risk_surface_coverage: 0.35, recommendation_actionability: 0.50}
+C: 0.59
+unverified_claims:
+  - "F1: INF-001 coverage of every requirement-bearing span asserted without a cited matrix line"
+  - "F2: implies diff inspection rejects every extra edit; git diff does not show untracked new files"
+notes: Both citations match. The card does not check whether --force really overwrites files, and offers little to act on.

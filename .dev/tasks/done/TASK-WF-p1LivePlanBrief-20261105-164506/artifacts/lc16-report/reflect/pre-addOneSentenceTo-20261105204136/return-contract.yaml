@@ -1,0 +1,131 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/p1-live-workflow/.dev/reflect/pre-addOneSentenceTo-20261105204136/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/p1-live-workflow/.dev/reflect/pre-addOneSentenceTo-20261105204136/audit.log
+confidence_calibrated: 0.73
+escalation_rule_matched: null    # table-wide pre-filter (coverage_degraded) forced Tier 2; no first-match row
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 (not applicable in pre mode)
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+deviation_register_path: null
+grounding_gaps_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+reuse_sweep_ran: false
+
+# Input integrity
+input_sha256:
+  tasklist: 52508a8f83e3665158a83caced4354751bc73e87b990b15a0edc93fad6b15f83
+  spec: 417ef98b725145e1c885122114c63fefb236c87aa429752700b85ab5665127c0
+input_tree_sha256: eda3e8e5c25eaa5581e7c4a5ef4e7c2c0f71de733b3cb01189c874c902634d16
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/p1-live-workflow/.dev/reflect/pre-addOneSentenceTo-20261105204136/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 20
+citations_revalidated: 20
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 3
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards:
+  - .dev/reflect/pre-addOneSentenceTo-20261105204136/reviewer-cards/reviewer-1-card.yaml
+  - .dev/reflect/pre-addOneSentenceTo-20261105204136/reviewer-cards/reviewer-2-card.yaml
+  - .dev/reflect/pre-addOneSentenceTo-20261105204136/reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: .dev/reflect/pre-addOneSentenceTo-20261105204136/adversarial/adversarial   # remapped from sc-adversarial's artifacts_dir
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+# Telemetry (non-stable)
+degraded_components: ["env-aliases-single-vendor"]
+fallback_path: null
+executor_class_source: unknown   # pre-execution mode: there is no executor
+executor_class_resolved: false
+executor_exclusion_degraded: false
+reviewer_models: [sonnet, haiku, opus]
+reviewer_personas: [analyzer, qa, refactorer]
+memory_hits: 0
+memory_misses: 1
+memory_persist_skipped: "unattended worker rule WC-11: single-owner memory files are not written"
+adversarial_status: partial
+adversarial_convergence_status: BLOCKED_BY_INVARIANTS
+adversarial_unaddressed_invariants: [INV-003, INV-012]
+adversarial_unaddressed_invariants_warnings: [INV-001, INV-010]
+merged_verdict_path: .dev/reflect/pre-addOneSentenceTo-20261105204136/adversarial/merged-verdict.yaml
+reviewer_briefs_materialized: 3
+type_hierarchy_invoked: false
+summarize_changes_invoked: false
+references_extended_info_used: false

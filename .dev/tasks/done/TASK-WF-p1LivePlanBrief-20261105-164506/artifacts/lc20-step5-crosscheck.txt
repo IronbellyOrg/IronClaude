@@ -1,0 +1,9 @@
+page 1 messages: 13 window ms: [1793913334959,1793913368152]
+last tool calls in page 1:
+Read {"file_path":"/home/coder/.claude/WORKER-CONTRACT.md"}
+Bash {"command":"cd /home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case2; for f in .claude/commands/sc/troubleshoot.md ~/.claude/commands/sc/tro
+Bash {"command":"cd /home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case2; cmp .claude/commands/sc/troubleshoot.md ~/.claude/commands/sc/troubles
+Bash {"command":"orca orchestration send --from term_abd88a77-6741-4cbd-ae39-d12d8569b84a --type worker_done --subject \"guard refused: no Unattended mode 
+page 2 messages: 0
+page 1 contentComplete: false clipping: ["transcript_payload"]
+page 2 contentComplete: true

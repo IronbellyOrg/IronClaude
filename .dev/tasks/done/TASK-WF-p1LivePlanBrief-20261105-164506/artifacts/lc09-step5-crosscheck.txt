@@ -1,0 +1,9 @@
+page 1 messages: 40 window ms: [1793907883872,1793908116585]
+last tool calls in page 1:
+Write {"file_path":"/home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p1-live/adversarial/return-contract.yaml","content":"worker_contrac
+Bash {"command":"cd /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial && python3 -I -c 'print(1)' >/dev/null 2>&1; echo \"--- yaml parse\"; u
+Bash {"command":"cd /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial && echo \"--- yaml parse\"; uv run python -c \"import yaml; [print(p, s
+Bash {"command":"out=$(orca orchestration check --terminal term_c2a044ba-abb3-4864-b1f8-e1ed62f1288d --json 2>&1); if echo \"$out\" | grep -q consumer_fenc
+page 2 messages: 0
+page 1 contentComplete: false clipping: ["message_limit_or_scan_window","transcript_payload"]
+page 2 contentComplete: true

@@ -1,0 +1,7 @@
+page 1 messages: 25 window ms: [1793905873387,1793905924238]
+last tool calls in page 1:
+Read {"file_path":"/home/coder/workspaces/worktrees/IronClaude/p1-live-document/src/superclaude/cli/main.py","offset":340,"limit":28}
+Write {"file_path":"/home/coder/workspaces/worktrees/IronClaude/p1-live-document/.dev/p1-live/document/return-contract.yaml","content":"worker_contract_vers
+Bash {"command":"git status --porcelain && orca orchestration check --terminal term_376361ed-eee2-4802-abe8-7e3b1c42bfe0 --json","description":"Check workt
+Bash {"command":"orca orchestration send --from term_376361ed-eee2-4802-abe8-7e3b1c42bfe0 --type worker_done --subject \"document install_core: succeeded\"
+page 2 messages: 0

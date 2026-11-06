@@ -1,0 +1,5 @@
+task-create receipt: ./artifacts/lc22-task-create.json (exit 0)
+worker-start receipt: ./artifacts/lc22-worker-start.json (exit 0)
+t0=1793913853.973403021 t1=1793913893.016340987
+elapsed_seconds=39.043
+state=ready dispatchId=ctx_9af122fbb5a4 taskId=task_7d2701e4eae8

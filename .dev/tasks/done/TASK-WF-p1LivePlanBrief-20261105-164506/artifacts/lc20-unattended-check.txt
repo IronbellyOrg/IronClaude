@@ -1,0 +1,2 @@
+/home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case2/.claude/commands/sc/troubleshoot.md:0
+/home/coder/.claude/commands/sc/troubleshoot.md:0

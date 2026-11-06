@@ -1,0 +1,7 @@
+Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed with a body starting "guard refused:".
+On a blocked gate: report blocked
+Local commit: authorized for this one Task. Owner instruction, quoted as given: I grant authorization for local commit for check AC-1.8 only.
+Report directory: .dev/p1-live/commit-grant/
+Worktree: child worktree created by Orca (orca worktree create --parent-worktree active) from ironbelly/OrcaCLICommandRefactor-P1 for this check only; you are its only writer.
+Outward actions: none other than the local commit above; the coordinator performs every push, PR, comment, install and paid run.
+Command: /sc:explain src/superclaude/cli/install_core.py --level basic --format text --unattended --report-dir .dev/p1-live/commit-grant/
