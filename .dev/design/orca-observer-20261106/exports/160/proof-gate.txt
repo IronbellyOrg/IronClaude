@@ -1,0 +1,48 @@
+                                                                                                                                                                
+  ◈ PROOF GATE                                                                                                                         SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                                                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                                                            
+                                                                                                                                                                
+ ╭─ HUMAN QUESTION ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮ 
+ │ Choose schema compatibility policy                                                                                                                         │ 
+ │ Owner: Human operator | affected: 4 sessions | observed 45m ago                                                                                            │ 
+ │ Scope: S001, S011, S021, S031                                                                                                                              │ 
+ │ demo:messages/Q01 | 2 other requests                                                                                                                       │ 
+ ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯ 
+                                                                                                                                                                
+   68/80 revision-matched checks | 4 admitted separately                                                                                                        
+                                                                                                                                                                
+ ╭─ REVISION EVIDENCE LEDGER ────────────────────────────────────────────────────────────────────╮  ╭─ SELECTED / S001 ───────────────────────────────────────╮ 
+ │ S001  O01  UNPINNED    review:?  not admitted                                                 │  │ CURRENT demo-001-b                                      │ 
+ │ S029  O03  UNPINNED    review:recorded  not admitted                                          │  │ CHECKED demo-001-a                                      │ 
+ │ S078  O08  UNPINNED    review:recorded  not admitted                                          │  │ REVISION MISMATCH / UNKNOWN                             │ 
+ │ S008  O01  UNPINNED    review:recorded  not admitted                                          │  │ Tests: unknown                                          │ 
+ │ S015  O02  UNPINNED    review:recorded  not admitted                                          │  │ Review: unknown                                         │ 
+ │ S022  O03  UNPINNED    review:recorded  not admitted                                          │  │ Report: missing                                         │ 
+ │ S036  O04  UNPINNED    review:recorded  not admitted                                          │  │ Worker result: not observed                             │ 
+ │ S043  O05  UNPINNED    review:recorded  not admitted                                          │  │ Admission: not admitted                                 │ 
+ │ S050  O05  UNPINNED    review:recorded  not admitted                                          │  │ Freshness: stale                                        │ 
+ │ S057  O06  UNPINNED    review:recorded  not admitted                                          │  │ Worker success is not admission.                        │ 
+ │ S064  O07  UNPINNED    review:?  not admitted                                                 │  │ Matched revision is not a fresh source.                 │ 
+ │ S071  O08  UNPINNED    review:recorded  not admitted                                          │  │                                                         │ 
+ │ S009  O01  failed      review:recorded  not admitted                                          │  │                                                         │ 
+ │ S012  O02  unknown     review:recorded  not admitted                                          │  │ 11/11 text lines shown                                  │ 
+ │ S019  O02  failed      review:?  not admitted                                                 │  ╰─────────────────────────────────────────────────────────╯ 
+ │ S023  O03  unknown     review:recorded  not admitted                                          │                                                              
+ │ S034  O04  unknown     review:recorded  not admitted                                          │  ╭─ INTERPRETATION ────────────────────────────────────────╮ 
+ │ S039  O04  failed      review:recorded  not admitted                                          │  │ Admission is recorded, not inferred.                    │ 
+ │ S045  O05  unknown     review:recorded  not admitted                                          │  │ Unpinned tests prove no current head.                   │ 
+ │ S049  O05  failed      review:recorded  not admitted                                          │  │ Missing review is unknown, not failed.                  │ 
+ │ S056  O06  unknown     review:recorded  not admitted                                          │  │ Historical records excluded here.                       │ 
+ │ S059  O06  failed      review:recorded  not admitted                                          │  │                                                         │ 
+ │ S067  O07  unknown     review:recorded  admitted                                              │  │                                                         │ 
+ │ S069  O07  failed      review:recorded  not admitted                                          │  │                                                         │ 
+ │ S079  O08  failed      review:recorded  not admitted                                          │  │                                                         │ 
+ │ S002  O01  passed      review:recorded  not admitted                                          │  │                                                         │ 
+ │ S003  O01  passed      review:recorded  not admitted                                          │  │                                                         │ 
+ │ 27/80 text lines shown                                                                        │  │ 4/4 text lines shown                                    │ 
+ ╰───────────────────────────────────────────────────────────────────────────────────────────────╯  ╰─────────────────────────────────────────────────────────╯ 
+                                                                                                                                                                
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view                                                                                               
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                                                                                                   

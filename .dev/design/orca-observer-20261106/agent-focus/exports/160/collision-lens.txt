@@ -1,0 +1,48 @@
+                                                                                                                                                                
+  ◈ COLLISION LENS                                                                                                                     SYNTHETIC · READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                                                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                                                            
+                                                                                                                                                                
+                                                                                                                                                                
+   Choose schema compatibility policy                                                                                                                           
+   Owner Human operator | 4 sessions | 45m observed                                                                                                             
+   Evidence demo:messages/Q01                                                                                                                                   
+                                                                                                                                                                
+                                                                                                                                                                
+  ┏━ SHARED PATH / NOT A PROVEN CONFLICT ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  
+  ┃                                                                                                                                                          ┃  
+  ┃                                                                                                                                                          ┃  
+  ┃   billing/schema.py     3 distinct worktrees                                                                                                             ┃  
+  ┃                                                                                                                                                          ┃  
+  ┃                                                                                                                                                          ┃  
+  ┃                                                                                                                                                          ┃  
+  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  
+                                                                                                                                                                
+                                                                                                                                                                
+  ╭─ W001 ─────────────────────────────────────────╮  ╭─ W011 ─────────────────────────────────────────╮  ╭─ W021 ─────────────────────────────────────────╮    
+  │                                                │  │                                                │  │                                                │    
+  │                                                │  │                                                │  │                                                │    
+  │ BRANCH                                         │  │ BRANCH                                         │  │ BRANCH                                         │    
+  │ demo/atlas-001                                 │  │ demo/beacon-011                                │  │ demo/cinder-021                                │    
+  │ HEAD  demo-001-b                               │  │ HEAD  demo-011-b                               │  │ HEAD  demo-021-b                               │    
+  │ BASE  demo-main@a00                            │  │ BASE  demo-main@a00                            │  │ BASE  demo-main@a00                            │    
+  │ dirty: True                                    │  │ dirty: False                                   │  │ dirty: False                                   │    
+  │ policy: not frozen                             │  │ policy: not frozen                             │  │ policy: not frozen                             │    
+  │ conflict: not established                      │  │ conflict: not established                      │  │ conflict: not established                      │    
+  │                                                │  │                                                │  │                                                │    
+  │                                                │  │                                                │  │                                                │    
+  │                                                │  │                                                │  │                                                │    
+  │                                                │  │                                                │  │                                                │    
+  ╰────────────────────────────────────────────────╯  ╰────────────────────────────────────────────────╯  ╰────────────────────────────────────────────────╯    
+                                                                                                                                                                
+                                                                                                                                                                
+                                                                                                                                                                
+   Inspect actual diffs before making a conflict claim. No merge or worktree actions.                                                                           
+                                                                                                                                                                
+                                                                                                                                                                
+                                                                                                                                                                
+                                                                                                                                                                
+                                                                                                                                                                
+ ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
+  j/k select · tab pane · / filter · enter evidence · p hold view                                                                                               
+  LOCAL FIXTURE · source coverage is not fleet-wide assurance                                                                                                   

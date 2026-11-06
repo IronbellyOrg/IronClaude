@@ -1,0 +1,153 @@
+{
+  "synthetic": true,
+  "as_of": "2026-11-06T08:00:00Z",
+  "batch": 2,
+  "widths": [
+    160,
+    116,
+    80
+  ],
+  "concepts": [
+    {
+      "name": "Leverage Board",
+      "question": "Which answer has the widest declared effect?",
+      "omits": "Routine worker output",
+      "tradeoff": "A focused supervision lens omits secondary fleet detail; inspect records for full context.",
+      "data": "Declared synthetic owner/session/worktree/report relationships and source coverage.",
+      "missing": "Unknown stays unknown; source-loss and partial coverage remain visible. Narrow view prioritizes selected facts.",
+      "slug": "leverage-board",
+      "exports": {
+        "160": "exports/160/leverage-board",
+        "116": "exports/116/leverage-board",
+        "80": "exports/80/leverage-board"
+      }
+    },
+    {
+      "name": "Attention Ledger",
+      "question": "Which human questions remain unanswered?",
+      "omits": "Resource telemetry",
+      "tradeoff": "A focused supervision lens omits secondary fleet detail; inspect records for full context.",
+      "data": "Declared synthetic owner/session/worktree/report relationships and source coverage.",
+      "missing": "Unknown stays unknown; source-loss and partial coverage remain visible. Narrow view prioritizes selected facts.",
+      "slug": "attention-ledger",
+      "exports": {
+        "160": "exports/160/attention-ledger",
+        "116": "exports/116/attention-ledger",
+        "80": "exports/80/attention-ledger"
+      }
+    },
+    {
+      "name": "Handoff Switchboard",
+      "question": "Which owner handoff carries a dependency?",
+      "omits": "Undeclared communication paths",
+      "tradeoff": "A focused supervision lens omits secondary fleet detail; inspect records for full context.",
+      "data": "Declared synthetic owner/session/worktree/report relationships and source coverage.",
+      "missing": "Unknown stays unknown; source-loss and partial coverage remain visible. Narrow view prioritizes selected facts.",
+      "slug": "handoff-switchboard",
+      "exports": {
+        "160": "exports/160/handoff-switchboard",
+        "116": "exports/116/handoff-switchboard",
+        "80": "exports/80/handoff-switchboard"
+      }
+    },
+    {
+      "name": "Loop Detector",
+      "question": "Where does the authoritative log report retries?",
+      "omits": "Inferred retry automation",
+      "tradeoff": "A focused supervision lens omits secondary fleet detail; inspect records for full context.",
+      "data": "Declared synthetic owner/session/worktree/report relationships and source coverage.",
+      "missing": "Unknown stays unknown; source-loss and partial coverage remain visible. Narrow view prioritizes selected facts.",
+      "slug": "loop-detector",
+      "exports": {
+        "160": "exports/160/loop-detector",
+        "116": "exports/116/loop-detector",
+        "80": "exports/80/loop-detector"
+      }
+    },
+    {
+      "name": "Collision Lens",
+      "question": "Which paths are touched by isolated worktrees?",
+      "omits": "Unproven merge-conflict claims",
+      "tradeoff": "A focused supervision lens omits secondary fleet detail; inspect records for full context.",
+      "data": "Declared synthetic owner/session/worktree/report relationships and source coverage.",
+      "missing": "Unknown stays unknown; source-loss and partial coverage remain visible. Narrow view prioritizes selected facts.",
+      "slug": "collision-lens",
+      "exports": {
+        "160": "exports/160/collision-lens",
+        "116": "exports/116/collision-lens",
+        "80": "exports/80/collision-lens"
+      }
+    },
+    {
+      "name": "Outcome Ledger",
+      "question": "Was the finished assignment actually admitted?",
+      "omits": "Token and activity leaderboards",
+      "tradeoff": "A focused supervision lens omits secondary fleet detail; inspect records for full context.",
+      "data": "Declared synthetic owner/session/worktree/report relationships and source coverage.",
+      "missing": "Unknown stays unknown; source-loss and partial coverage remain visible. Narrow view prioritizes selected facts.",
+      "slug": "outcome-ledger",
+      "exports": {
+        "160": "exports/160/outcome-ledger",
+        "116": "exports/116/outcome-ledger",
+        "80": "exports/80/outcome-ledger"
+      }
+    },
+    {
+      "name": "Revision Drift",
+      "question": "Which passing checks belong to an old head?",
+      "omits": "Automatic reruns",
+      "tradeoff": "A focused supervision lens omits secondary fleet detail; inspect records for full context.",
+      "data": "Declared synthetic owner/session/worktree/report relationships and source coverage.",
+      "missing": "Unknown stays unknown; source-loss and partial coverage remain visible. Narrow view prioritizes selected facts.",
+      "slug": "revision-drift",
+      "exports": {
+        "160": "exports/160/revision-drift",
+        "116": "exports/116/revision-drift",
+        "80": "exports/80/revision-drift"
+      }
+    },
+    {
+      "name": "Mission Pulse",
+      "question": "Which missions are producing admitted outcomes?",
+      "omits": "Misleading completion percentages",
+      "tradeoff": "A focused supervision lens omits secondary fleet detail; inspect records for full context.",
+      "data": "Declared synthetic owner/session/worktree/report relationships and source coverage.",
+      "missing": "Unknown stays unknown; source-loss and partial coverage remain visible. Narrow view prioritizes selected facts.",
+      "slug": "mission-pulse",
+      "exports": {
+        "160": "exports/160/mission-pulse",
+        "116": "exports/116/mission-pulse",
+        "80": "exports/80/mission-pulse"
+      }
+    },
+    {
+      "name": "Owner Load",
+      "question": "How uneven is observed ownership?",
+      "omits": "Dispatch and capacity assumptions",
+      "tradeoff": "A focused supervision lens omits secondary fleet detail; inspect records for full context.",
+      "data": "Declared synthetic owner/session/worktree/report relationships and source coverage.",
+      "missing": "Unknown stays unknown; source-loss and partial coverage remain visible. Narrow view prioritizes selected facts.",
+      "slug": "owner-load",
+      "exports": {
+        "160": "exports/160/owner-load",
+        "116": "exports/116/owner-load",
+        "80": "exports/80/owner-load"
+      }
+    },
+    {
+      "name": "Shift Brief",
+      "question": "What must the next human know?",
+      "omits": "Raw transcripts",
+      "tradeoff": "A focused supervision lens omits secondary fleet detail; inspect records for full context.",
+      "data": "Declared synthetic owner/session/worktree/report relationships and source coverage.",
+      "missing": "Unknown stays unknown; source-loss and partial coverage remain visible. Narrow view prioritizes selected facts.",
+      "slug": "shift-brief",
+      "exports": {
+        "160": "exports/160/shift-brief",
+        "116": "exports/116/shift-brief",
+        "80": "exports/80/shift-brief"
+      }
+    }
+  ],
+  "fixture_sha256": "1f17a9075438560e486727bbf737752d9eeff1335238476329ea49b0f1bd42e4"
+}

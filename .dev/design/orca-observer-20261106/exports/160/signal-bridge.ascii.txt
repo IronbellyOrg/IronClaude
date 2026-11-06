@@ -1,0 +1,48 @@
+                                                                                                                                                                
+  * SIGNAL BRIDGE                                                                                                                      SYNTHETIC . READ ONLY    
+  8 owners / 80 sessions / 80 mapped trees                                                                                                                      
+  08:00 UTC | msgs partial | workers 4s | checks 14m                                                                                                            
+                                                                                                                                                                
+ +- HUMAN QUESTION ---------------------------+  +- SESSION REGISTER -----------------------------------------------------+  +- SIGNALS ----------------------+ 
+ | Choose schema compatibility policy         |  | SESSION / LIFECYCLE / PHASE; RESULT / ADMISSION BELOW                  |  |                                | 
+ | Owner: Human operator                      |  |                                                                        |  |                                | 
+ | Scope: 4 sessions | observed 45m ago       |  | S001    running  / work                                                |  |   48  RUNNING                  | 
+ | Affected: S001, S011, S021, S031           |  | not observed / not admitted | stale | not frozen                       |  |                                | 
+ | Messages partial | 2 other questions       |  | S002    running  / review                                              |  |  #################...........  | 
+ |                                            |  | not observed / not admitted | fresh | not frozen                       |  |                                | 
+ +--------------------------------------------+  | S003    running  / queue                                               |  |                                | 
+                                                 | not observed / not admitted | fresh | not frozen                       |  |                                | 
+                                                 | S004    running  / dependency                                          |  |   24  SETTLED                  | 
+ +- OBSERVATION WINDOW -----------------------+  | not observed / not admitted | fresh | not frozen                       |  |                                | 
+ |                                            |  | S005    running  / work                                                |  |  ########....................  | 
+ | WORKERS                                    |  | not observed / not admitted | fresh | not frozen                       |  |                                | 
+ | complete fixture | age 4s                  |  | S006    running  / review                                              |  |                                | 
+ |                                            |  | not observed / not admitted | fresh | not frozen                       |  |                                | 
+ | MESSAGES                                   |  | S007    settled  / work                                                |  |    8  UNKNOWN                  | 
+ | partial | age 12s                          |  | succeeded / admitted | fresh | not frozen                              |  |                                | 
+ |                                            |  | S008    settled  / review                                              |  |  ###.........................  | 
+ | CHECKS                                     |  | partial / not admitted | fresh | not frozen                            |  |                                | 
+ | stale | age 840s                           |  | S009    settled  / queue                                               |  |                                | 
+ |                                            |  | failed / not admitted | fresh | not frozen                             |  |                                | 
+ | COST                                       |  | S010    unknown  / dependency                                          |  |    5  STALE                    | 
+ | partial | age 60s                          |  | not observed / not admitted | fresh | not frozen                       |  |                                | 
+ |                                            |  | S011    running  / work                                                |  |  ##..........................  | 
+ | RESOURCES                                  |  | not observed / not admitted | fresh | not frozen                       |  |                                | 
+ | partial | age 15s                          |  | S012    running  / review                                              |  |                                | 
+ |                                            |  | not observed / not admitted | fresh | not frozen                       |  |                                | 
+ |                                            |  | S013    running  / work                                                |  |    1  POLICY FROZEN            | 
+ |                                            |  | not observed / not admitted | fresh | not frozen                       |  |                                | 
+ |                                            |  | S014    running  / review                                              |  |  ............................  | 
+ |                                            |  | not observed / not admitted | fresh | not frozen                       |  |                                | 
+ |                                            |  | S015    running  / queue                                               |  |                                | 
+ |                                            |  | not observed / not admitted | fresh | frozen                           |  |                                | 
+ |                                            |  | S016    running  / dependency                                          |  |                                | 
+ |                                            |  | not observed / not admitted | fresh | not frozen                       |  |                                | 
+ |                                            |  | S017    settled  / work                                                |  |                                | 
+ |                                            |  | succeeded / not admitted | fresh | not frozen                          |  |                                | 
+ | Stale does not mean failed                 |  | 17/80 shown | result is not admission                                  |  |                                | 
+ +--------------------------------------------+  +------------------------------------------------------------------------+  +--------------------------------+ 
+                                                                                                                                                                
+ -------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  j/k select . tab pane . / filter . enter evidence . p hold view                                                                                               
+  LOCAL FIXTURE . source coverage is not fleet-wide assurance                                                                                                   

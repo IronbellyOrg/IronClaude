@@ -1,0 +1,20 @@
+{
+  "issue_number": 409,
+  "issue_url": "https://github.com/IronbellyOrg/IronClaude/issues/409",
+  "image_attachments_requested": 22,
+  "image_links_verified_in_published_body": 22,
+  "local_image_references_remaining": false,
+  "archive": {
+    "path": ".dev/issues/409/orca-observer-design-package.zip",
+    "files": 405,
+    "bytes": 14435766,
+    "sha256": "ef714378c1f4c902b036409c0ed82ef6d5e60c4be2caca99e78c3ba67f3f90ce",
+    "zip_integrity_check": "passed",
+    "uploaded": false,
+    "reason": "Installed gh 2.103.3 --attach accepts image/video extensions only, not ZIP/PDF. No release, branch, commit or external storage destination was created to work around this."
+  },
+  "labels_applied": ["enhancement"],
+  "labels_missing": ["type: cli", "complexity: simple"],
+  "production_changes": false,
+  "staged_or_committed": false
+}
