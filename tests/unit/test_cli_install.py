@@ -190,7 +190,7 @@ __init__.py ccsession-tag/MODEL-TIERS.md ccsession-tag/README.md
 ccsession-tag/SKILL.md ccsession-tag/ccsession ccsession-tag/ccsession-models.json
 ccsession-tag/ccsession.env.example ccsession-tag/hooks/session-start.sh
 ccsession-tag/install.sh ccsession-tag/local-gateway-alias-proxy.py
-ccsession-tag/models.py ccsession-tag/seed-env.py confidence-check/SKILL.md
+ccsession-tag/models.py ccsession-tag/unseed-env.py confidence-check/SKILL.md
 confidence-check/__init__.py confidence-check/confidence.ts
 operational-guide/SKILL.md prd/SKILL.md prd/refs/agent-prompts.md
 prd/refs/build-request-template.md prd/refs/operational-guidance.md

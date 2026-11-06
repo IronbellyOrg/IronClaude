@@ -59,6 +59,9 @@ def _offline_model_data(monkeypatch, tmp_path_factory):
         "CLAUDE_CODE_DISABLE_TERMINAL_TITLE",
         "CCSESSION_LAUNCH_ID",
         "CCSESSION_LAUNCH_CWD",
+        # Exported by a shim session: a nested launch would forward to them.
+        "CCSESSION_GATEWAY_URL",
+        "CCSESSION_SHIM_URL",
         "CLAUDE_ENV_FILE",
         # Orca tab records go under each test's own HOME.
         "XDG_STATE_HOME",
@@ -246,75 +249,229 @@ def test_local_addon_that_others_can_write_is_ignored(tmp_path: Path) -> None:
     assert "unknown profile 'loose'" in result.stderr
 
 
-def _seed(tmp_path: Path, content: str | None, url: str) -> Path:
+SEED_MARKER = (
+    "# Gateway address captured from the workspace by the ccsession installer."
+)
+
+
+def _unseed(tmp_path: Path, content: str) -> Path:
     env_file = tmp_path / "ccsession.env"
-    example = SKILL_DIR / "ccsession.env.example"
-    env_file.write_text(example.read_text() if content is None else content)
-    env = os.environ.copy()
-    env["ANTHROPIC_BASE_URL"] = url
+    env_file.write_text(content)
+    env_file.chmod(0o600)
     subprocess.run(
-        [sys.executable, str(SKILL_DIR / "seed-env.py"), str(env_file), str(example)],
-        env=env,
+        [
+            sys.executable,
+            str(SKILL_DIR / "unseed-env.py"),
+            str(env_file),
+            str(SKILL_DIR / "ccsession.env.example"),
+        ],
         check=True,
         capture_output=True,
     )
     return env_file
 
 
-def test_seed_records_gateway_only_in_unedited_env(tmp_path: Path) -> None:
-    seeded = _seed(tmp_path, None, "http://gateway.example:4000/cli")
-    text = seeded.read_text()
-    assert "export ANTHROPIC_BASE_URL=http://gateway.example:4000/cli" in text
-    assert "LITELLM" not in text.split("captured from the workspace")[1]
-    assert stat.S_IMODE(seeded.stat().st_mode) == 0o600
-    # A later install with a new address refreshes the installer-owned file.
-    env = os.environ.copy()
-    env["ANTHROPIC_BASE_URL"] = "https://new-gateway.example/cli"
-    subprocess.run(
-        [
-            sys.executable,
-            str(SKILL_DIR / "seed-env.py"),
-            str(seeded),
-            str(SKILL_DIR / "ccsession.env.example"),
-        ],
-        env=env,
-        check=True,
-        capture_output=True,
-    )
-    refreshed = seeded.read_text()
-    assert refreshed.count("\nexport ANTHROPIC_BASE_URL=") == 1
-    assert "new-gateway.example" in refreshed
-
-
-def test_seed_leaves_user_file_and_placeholders_alone(tmp_path: Path) -> None:
-    edited = "export ANTHROPIC_BASE_URL=http://mine:4000/cli\n"
-    assert (
-        _seed(tmp_path, edited, "http://gateway.example:4000/cli").read_text() == edited
-    )
+def _seeded(url: str) -> str:
+    """A file exactly as the old installer (seed-env.py) left it."""
     example = (SKILL_DIR / "ccsession.env.example").read_text()
-    for bad in (
-        "${ANTHROPIC_BASE_URL:-https://anthropic-base-url.coder-agent-env-injected.invalid}",
-        "https://anthropic-base-url.coder-agent-env-injected.invalid",
-        "",
+    return f"{example.rstrip()}\n\n{SEED_MARKER}\nexport ANTHROPIC_BASE_URL={url}\n"
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        # The 2026-11-06 incident: a shim address saved from inside a session.
+        "http://127.0.0.1:4114",
+        "http://192.168.133.101:4000/cli",
+    ],
+)
+def test_unseed_resets_an_installer_owned_file_to_the_example(
+    tmp_path: Path, url: str
+) -> None:
+    env_file = _unseed(tmp_path, _seeded(url))
+    assert env_file.read_text() == (SKILL_DIR / "ccsession.env.example").read_text()
+    assert stat.S_IMODE(env_file.stat().st_mode) == 0o600
+
+
+def test_unseed_leaves_edited_files_alone(tmp_path: Path) -> None:
+    for edited in (
+        "export ANTHROPIC_BASE_URL=http://mine:4000/cli\n",
+        _seeded("http://127.0.0.1:4114") + "export ANTHROPIC_AUTH_TOKEN=user-added\n",
+        _seeded("http://192.168.133.101:4000/cli") + "# pinned by hand\n",
+        (SKILL_DIR / "ccsession.env.example").read_text(),
     ):
-        assert _seed(tmp_path, None, bad).read_text() == example
+        assert _unseed(tmp_path, edited).read_text() == edited
 
 
-def test_seed_keeps_lines_added_after_seeding(tmp_path: Path) -> None:
-    seeded = _seed(tmp_path, None, "http://gateway.example:4000/cli")
-    edited = seeded.read_text() + "export ANTHROPIC_AUTH_TOKEN=user-added\n"
-    seeded.write_text(edited)
-    example = SKILL_DIR / "ccsession.env.example"
-    for url in ("http://gateway.example:4000/cli", "https://new-gateway.example/cli"):
-        env = os.environ.copy()
-        env["ANTHROPIC_BASE_URL"] = url
-        subprocess.run(
-            [sys.executable, str(SKILL_DIR / "seed-env.py"), str(seeded), str(example)],
+def test_installers_no_longer_save_the_gateway_address() -> None:
+    assert not (SKILL_DIR / "seed-env.py").exists()
+    for installer in (
+        SKILL_DIR / "install.sh",
+        REPO_ROOT / "src" / "superclaude" / "cli" / "install_ccsession.py",
+    ):
+        text = installer.read_text()
+        assert "seed-env.py" not in text.replace("unseed-env.py", "")
+        assert "unseed-env.py" in text
+
+
+@pytest.mark.parametrize(
+    ("url", "base", "is_shim"),
+    [
+        ("http://127.0.0.1:4013", 4010, True),
+        ("http://127.0.0.1:4114", 4010, True),
+        ("http://localhost:4010/", 4010, True),
+        ("http://127.0.0.1:4612", 4010, True),
+        ("http://127.0.0.1:4000/cli", 4010, False),  # a local gateway is allowed
+        ("http://127.0.0.1:4009", 4010, False),
+        ("http://127.0.0.1:4108", 4010, False),  # between two attempt ranges
+        ("http://127.0.0.1:4613", 4010, False),
+        ("http://192.168.133.101:4013/cli", 4010, False),
+        ("http://gateway.example:4013/cli", 4010, False),
+        ("http://127.0.0.1/cli", 4010, False),
+        ("http://127.0.0.1:5003", 5000, True),
+    ],
+)
+def test_shim_upstream_check_flags_only_shim_addresses(
+    url: str, base: int, is_shim: bool
+) -> None:
+    assert bool(models.shim_upstream_problem(url, base)) is is_shim
+
+
+def _free_local_port() -> int:
+    with socket.socket() as probe:
+        probe.bind(("127.0.0.1", 0))
+        return probe.getsockname()[1]
+
+
+@pytest.mark.parametrize("source", ["inherited", "env-file"])
+def test_launch_refuses_a_shim_address_as_upstream(tmp_path: Path, source: str) -> None:
+    """The 4013 -> 4114 -> refused failure: refused before any shim starts.
+
+    Nothing listens on the shim address: the check must not need the network.
+    """
+    base = _free_local_port()
+    shim_address = f"http://127.0.0.1:{base + 104}"
+    home = tmp_path / "home"
+    home.mkdir()
+    env_file = tmp_path / "ccsession.env"
+    env_file.write_text(
+        f"export ANTHROPIC_BASE_URL={shim_address}\n" if source == "env-file" else ""
+    )
+    fake = tmp_path / "claude"
+    fake.write_text("#!/bin/sh\necho launched\n")
+    fake.chmod(0o700)
+    shim_copy = tmp_path / "refused-shim.py"
+    shim_copy.write_text((SKILL_DIR / "local-gateway-alias-proxy.py").read_text())
+    env = os.environ.copy()
+    env.update(
+        {
+            "HOME": str(home),
+            "CLAUDE_BIN": str(fake),
+            "ANTHROPIC_BASE_URL": shim_address
+            if source == "inherited"
+            else "http://gateway.example:4000/cli",
+            "ANTHROPIC_AUTH_TOKEN": "t",
+            "CC_SHIM_PORT": str(base),
+            "CC_SHIM_SCRIPT": str(shim_copy),
+            "CCSESSION_ENV_FILE": str(env_file),
+        }
+    )
+    try:
+        result = subprocess.run(
+            [str(SKILL_DIR / "ccsession"), "--profile", "grok", "--shim"],
             env=env,
-            check=True,
+            text=True,
             capture_output=True,
+            timeout=60,
+            stdin=subprocess.DEVNULL,
         )
-        assert seeded.read_text() == edited
+        assert result.returncode == 1, result.stderr
+        assert "refusing to start a shim that forwards to another shim" in result.stderr
+        assert shim_address in result.stderr
+        assert "launched" not in result.stdout
+        assert "Starting model-alias shim" not in result.stderr
+    finally:
+        subprocess.run(["pkill", "-f", str(shim_copy)], check=False)
+
+
+def test_nested_launch_forwards_to_the_gateway_not_the_parent_shim(
+    tmp_path: Path,
+) -> None:
+    """A ccsession started inside a shim session forwards to the real gateway."""
+    base = _free_local_port()
+    parent_shim = f"http://127.0.0.1:{base + 3}"
+    # A local gateway: loopback but not a shim port, so it is allowed.
+    gateway = "http://127.0.0.1:9/cli"
+    home = tmp_path / "home"
+    home.mkdir()
+    fake = tmp_path / "claude"
+    fake.write_text(
+        """#!/usr/bin/env python3
+import json, os
+print(json.dumps({k: os.environ.get(k, "") for k in
+    ("ANTHROPIC_BASE_URL", "CCSESSION_GATEWAY_URL", "CCSESSION_SHIM_URL")}))
+"""
+    )
+    fake.chmod(0o700)
+    shim_copy = tmp_path / "nested-shim.py"
+    shim_copy.write_text((SKILL_DIR / "local-gateway-alias-proxy.py").read_text())
+    env = os.environ.copy()
+    env.update(
+        {
+            "HOME": str(home),
+            "CLAUDE_BIN": str(fake),
+            # What a parent shim session exports.
+            "ANTHROPIC_BASE_URL": parent_shim,
+            "CCSESSION_SHIM_URL": parent_shim,
+            "CCSESSION_GATEWAY_URL": gateway,
+            "ANTHROPIC_AUTH_TOKEN": "t",
+            "CC_SHIM_PORT": str(base),
+            "CC_SHIM_SCRIPT": str(shim_copy),
+            "CCSESSION_ENV_FILE": str(tmp_path / "none.env"),
+        }
+    )
+    try:
+        result = subprocess.run(
+            [str(SKILL_DIR / "ccsession"), "--profile", "grok", "--shim"],
+            env=env,
+            text=True,
+            capture_output=True,
+            timeout=60,
+            stdin=subprocess.DEVNULL,
+        )
+        assert result.returncode == 0, result.stderr
+        seen = json.loads(result.stdout.strip().splitlines()[-1])
+        own_shim = f"http://127.0.0.1:{base}"
+        assert seen == {
+            "ANTHROPIC_BASE_URL": own_shim,
+            "CCSESSION_GATEWAY_URL": gateway,
+            "CCSESSION_SHIM_URL": own_shim,
+        }
+        with urllib.request.urlopen(f"{own_shim}/__ccsession_shim", timeout=5) as r:
+            assert json.loads(r.read())["upstream"] == gateway
+    finally:
+        subprocess.run(["pkill", "-f", str(shim_copy)], check=False)
+
+
+def test_shim_refuses_its_own_address_as_upstream(tmp_path: Path) -> None:
+    port = _free_local_port()
+    env = os.environ.copy()
+    env.update(
+        {
+            "GW_PROXY_UPSTREAM": f"http://127.0.0.1:{port}/cli",
+            "GW_PROXY_PORT": str(port),
+        }
+    )
+    result = subprocess.run(
+        [sys.executable, str(SKILL_DIR / "local-gateway-alias-proxy.py")],
+        env=env,
+        text=True,
+        capture_output=True,
+        timeout=30,
+        stdin=subprocess.DEVNULL,
+    )
+    assert result.returncode == 1
+    assert "is this shim's own address" in result.stderr
 
 
 def _key_env(tmp_path: Path, **values: str) -> dict[str, str]:

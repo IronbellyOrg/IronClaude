@@ -4,6 +4,21 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### ccsession: a shim never forwards to another shim
+
+#### Fixed (ccsession shim upstream)
+
+- Every ccsession launch in a Coder workspace failed with `API Error: 502 ccsession: gateway unreachable: [Errno 111] Connection refused` while the gateway was up. The 4013 shim's upstream was `http://127.0.0.1:4114`, the address of a shim that had stopped. The installer's `seed-env.py` copied the shell's `ANTHROPIC_BASE_URL` into `~/.claude/ccsession.env`; run inside a ccsession session, that value is the session's shim. ccsession sources that file after the inherited environment, so the saved address overrode the right one on every launch, and the health check kept reusing the broken shim because its upstream matched.
+- The installer no longer saves the gateway address. Orca terminals, the Coder terminal and `coder ssh` all receive it from the workspace (Coder `llm-env.tf`), so the reason for saving it (Orca terminals started from a cleared environment) no longer holds. `seed-env.py` is replaced by `unseed-env.py`: `superclaude install` and `install.sh` put a file that is exactly the example plus the installer's marker and one address line back to the example. A file you edited is never touched.
+- A shim session exports `CCSESSION_GATEWAY_URL` (the gateway) beside `CCSESSION_SHIM_URL` (its own address). A `ccsession` started inside it forwards to the gateway, not to the parent shim.
+- ccsession refuses to start or reuse a shim whose upstream is a loopback address on a port a ccsession shim can take (the base port, base + 1 to 97, and the same 101 apart, six times; `models.py shim-upstream-check`). The check needs no network, so it also catches a shim that has stopped. A local gateway such as `http://127.0.0.1:4000/cli` is still allowed. The shim itself refuses its own address as upstream.
+- The shim's 502 names its upstream (`ccsession: gateway unreachable at <upstream>: ...`). Claude Code shows only the shim's address, which hid the cause.
+- A workspace already affected needs the address in `~/.claude/ccsession.env` fixed (or `superclaude install` run again with this version, for a file the installer owns) and the broken shim stopped.
+
+#### Added (ccsession shim upstream)
+
+- Tests: `test_unseed_resets_an_installer_owned_file_to_the_example`, `test_unseed_leaves_edited_files_alone`, `test_installers_no_longer_save_the_gateway_address`, `test_shim_upstream_check_flags_only_shim_addresses` (a local gateway on 4000 allowed), `test_launch_refuses_a_shim_address_as_upstream` (inherited and env-file cases, nothing listening on the shim address), `test_nested_launch_forwards_to_the_gateway_not_the_parent_shim`, `test_shim_refuses_its_own_address_as_upstream`, and the upstream named in `test_unreachable_gateway_is_not_a_switch`.
+
 ### ccsession: status lines go to standard error (#389)
 
 #### Fixed (ccsession output streams)
