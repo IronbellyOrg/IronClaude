@@ -1,0 +1,120 @@
+{
+  "id": "716082dd-efde-4899-b7a6-906725de7a0b",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant",
+      "identity": {
+        "key": "wt2:local:f297c9bb-0812-4016-bb60-40c662a58389",
+        "executionHostId": "local",
+        "instanceId": "f297c9bb-0812-4016-bb60-40c662a58389"
+      },
+      "instanceId": "f297c9bb-0812-4016-bb60-40c662a58389",
+      "repoId": "de550e99-fa3c-42e2-abfe-1d092771c759",
+      "projectId": "github:superclaude-org/superclaude_framework",
+      "hostId": "local",
+      "projectHostSetupId": "de550e99-fa3c-42e2-abfe-1d092771c759",
+      "creatorProvenance": {
+        "kind": "host"
+      },
+      "path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant",
+      "head": "0b44374513780b69f59d9018c06cbf0b4af420ad",
+      "branch": "refs/heads/ironbelly/p1-live-commit-grant",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "p1-live-commit-grant",
+      "displayNameMode": "fixed",
+      "comment": "",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "linkedWorkItem": null,
+      "linkedTaskSourceContext": null,
+      "isArchived": false,
+      "isUnread": false,
+      "isPinned": false,
+      "sortOrder": 1793913851384,
+      "lastActivityAt": 1793913851383,
+      "createdAt": 1793913851383,
+      "cliProvenance": {
+        "kind": "created-by-cli",
+        "createdAt": 1793913849553,
+        "callerTerminalHandle": "term_558daf54-f38b-4498-b0d1-0d2e8c036e7c"
+      },
+      "baseRef": "refs/heads/ironbelly/OrcaCLICommandRefactor-P1",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1",
+      "childWorktreeIds": [],
+      "lineage": {
+        "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant",
+        "worktreeInstanceId": "f297c9bb-0812-4016-bb60-40c662a58389",
+        "parentWorktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1",
+        "parentWorktreeInstanceId": "c71ddbff-8a19-4f5f-bc7f-dfc465594e39",
+        "origin": "cli",
+        "capture": {
+          "source": "explicit-cli-flag",
+          "confidence": "explicit"
+        },
+        "createdAt": 1793913851384
+      },
+      "workspaceLineage": {
+        "childWorkspaceKey": "worktree:de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant",
+        "childInstanceId": "f297c9bb-0812-4016-bb60-40c662a58389",
+        "parentWorkspaceKey": "worktree:de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1",
+        "parentInstanceId": "c71ddbff-8a19-4f5f-bc7f-dfc465594e39",
+        "origin": "cli",
+        "capture": {
+          "source": "explicit-cli-flag",
+          "confidence": "explicit"
+        },
+        "createdAt": 1793913851384
+      },
+      "git": {
+        "path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant",
+        "head": "0b44374513780b69f59d9018c06cbf0b4af420ad",
+        "branch": "refs/heads/ironbelly/p1-live-commit-grant",
+        "isBare": false,
+        "isMainWorktree": false
+      }
+    },
+    "lineage": {
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant",
+      "worktreeInstanceId": "f297c9bb-0812-4016-bb60-40c662a58389",
+      "parentWorktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1",
+      "parentWorktreeInstanceId": "c71ddbff-8a19-4f5f-bc7f-dfc465594e39",
+      "origin": "cli",
+      "capture": {
+        "source": "explicit-cli-flag",
+        "confidence": "explicit"
+      },
+      "createdAt": 1793913851384
+    },
+    "workspaceLineage": {
+      "childWorkspaceKey": "worktree:de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant",
+      "childInstanceId": "f297c9bb-0812-4016-bb60-40c662a58389",
+      "parentWorkspaceKey": "worktree:de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1",
+      "parentInstanceId": "c71ddbff-8a19-4f5f-bc7f-dfc465594e39",
+      "origin": "cli",
+      "capture": {
+        "source": "explicit-cli-flag",
+        "confidence": "explicit"
+      },
+      "createdAt": 1793913851384
+    },
+    "warnings": [],
+    "catalogVersion": {
+      "epoch": "ea39b32c-2e65-4331-b668-21f494647961",
+      "sequence": 663
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

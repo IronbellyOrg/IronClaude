@@ -1,0 +1,17 @@
+[claude-code:unrecognized_model] {"model":"gpt-6.1-sol","query_source":"sdk"}
+| Status | Result |
+|---|---|
+| DONE | Read the source and explained its purpose below. No files changed. |
+| NEXT | None. |
+
+**This file copies SuperClaude’s instruction documents into Claude Code’s configuration folder.** Think of it as a small file installer, not the code that runs the instructions.
+
+- **Find the documents:** It locates the package’s `core` folder and selects its Markdown files (`src/superclaude/cli/install_core.py:107`).
+- **Copy them:** The main installation function creates the destination folder, normally `~/.claude/`, then copies each document there (`src/superclaude/cli/install_core.py:31`).
+- **Protect existing files:** It skips files already present unless `force=True` allows replacement. Replacement can overwrite personal changes (`src/superclaude/cli/install_core.py:69`).
+- **Report the result:** It returns a success value plus a message listing installed, skipped, and failed files. All files being skipped still counts as success (`src/superclaude/cli/install_core.py:79`).
+- **Provide inventories:** Two helpers list available documents and installed documents. The installed list includes only filenames in the predefined known-files list (`src/superclaude/cli/install_core.py:129`).
+
+**Recommended action:** None needed for this explanation.
+Not checked: a live installation or tests. This explains the source behavior, not a verified installation run.
+claude run 2 rc=0

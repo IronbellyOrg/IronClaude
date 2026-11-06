@@ -1,0 +1,3 @@
+7e4752b845e90fdacf3c8cbf71dd0dddceb792c2
+A1 r1-1 F1.1 minor ./artifacts/lc12-result.md:8 ac=T13.AC1 chk=n,n,n,n the extra line says init, index and sync "do not appear" and names `codegraph version`; the worker ran `codegraph --version` and `codegraph telemetry status` and a pgrep pattern that contains the words init and index; no build command is run, so the substance is right.
+A1 r1-1 F1.2 note ./artifacts/lc12-step4.txt:3 ac=T13.AC1 chk=n,n,n,n step 4 file shows a label for the yaml assertion instead of the command text; the contract satisfies every assertion. The driver now records the literal command (from lc13 on).

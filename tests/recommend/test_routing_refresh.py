@@ -581,13 +581,16 @@ def test_unmatched_cache_hints_are_consulted_then_rejected():
 
 
 def test_example_only_flags_are_not_declared_or_routed():
-    """T44: build --validate and cleanup --preview are examples; design has no --output."""
+    """T44: build --validate and cleanup --preview are examples; the guide never routes design --output."""
     for name, flag in (("build", "--validate"), ("cleanup", "--preview")):
         source = (_COMMANDS / f"{name}.md").read_text(encoding="utf-8")
         usage = _section(source, "## Usage", "\n## ")
         examples = _section(source, "## Examples", "\n## ")
         assert flag not in usage and flag in examples, name
-    assert "--output" not in (_COMMANDS / "design.md").read_text(encoding="utf-8")
+    # P1 gave design an optional `--output <file>` for the worker report file; the
+    # routing loop below still pins that the guide does not route it.
+    design = (_COMMANDS / "design.md").read_text(encoding="utf-8")
+    assert "--output" in _section(design, "## Usage", "\n## ")
     for route, flag in (
         ({"block": "other", "command": "sc:build"}, "--validate"),
         ({"block": "routing", "row": "cleanup"}, "--preview"),

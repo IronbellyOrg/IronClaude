@@ -1,0 +1,12 @@
+# sc:adversarial own contract (fields under return_contract:, per the skill)
+return_contract:
+  merged_output_path: ".dev/p1-live/adversarial/merged-output.md"
+  convergence_score: 0.643            # 9 of 14 diff points agreed; threshold 0.80 (depth=quick: 1 round, no rebuttals)
+  artifacts_dir: ".dev/p1-live/adversarial/adversarial/"
+  status: "partial"                   # merge succeeded and validated; partial because the debate did not converge (FR-006)
+  base_variant: "variant-1-original (option-a.md, explicit --unattended flag)"
+  unresolved_conflicts: 5             # S-001, S-002, X-001, A-001, A-003
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []          # Round 2.5 invariant probe skipped at depth=quick

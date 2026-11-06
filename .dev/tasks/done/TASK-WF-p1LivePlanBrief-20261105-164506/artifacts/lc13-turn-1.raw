@@ -1,0 +1,45 @@
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":15005,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":30008,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":45012,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":60013,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":75016,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":90017,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":105018,"deadlineMs":240000}
+{
+  "id": "866c08a2-4317-4c63-b8ed-b2b322c18875",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_c51f7ce97b6f",
+    "messages": [
+      {
+        "id": "msg_d2133a3ef2bd",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_f04018ad-ecaa-4883-89ec-ba734d1271b0",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "impact install_core_files: succeeded",
+        "body": "worker_status: succeeded; /sc:impact install_core_files (depth 1, limit 10) ran through the codegraph MCP tools on a fresh index (version 1.6.2 matches the pin) and wrote the report plus the worker contract. install_core_files (src/superclaude/cli/install_core.py:31-104) has 8 direct callers: 2 production (install at main.py:178 and update at main.py:365, both call sites confirmed by reading the lines) and 6 tests, 0 extra at depth 1, 0 truncated; degraded token graph:unresolved only, because the 6 test rows are listed by definition line, not confirmed. Nothing is left; the files are untracked and uncommitted (no commit was authorized), so the coordinator stages .dev/impact/ and .dev/p1-live/ if it keeps them.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_28d984903107\",\"dispatchId\":\"ctx_c4a671d4bd73\",\"outcome\":\"succeeded\",\"filesModified\":[\".dev/p1-live/impact/return-contract.yaml\",\".dev/impact/install-core-files-20261105T202400Z/impact.md\",\".dev/impact/install-core-files-20261105T202400Z/return-contract.yaml\"],\"reportPath\":\".dev/p1-live/impact/return-contract.yaml\"}",
+        "created_at": "2026-11-05T20:24:56Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "7f0dd975-4bdf-44b4-a4dc-ce7b94cd586e",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

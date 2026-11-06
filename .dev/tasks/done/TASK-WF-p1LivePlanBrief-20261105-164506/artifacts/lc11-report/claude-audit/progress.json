@@ -1,0 +1,16 @@
+{
+  "command": "/sc:cleanup-audit tests/pr_submit --pass surface --unattended --report-dir .dev/p1-live/cleanup-audit/",
+  "target": "tests/pr_submit",
+  "pass": "surface",
+  "batch_size": 50,
+  "files_in_scope": 81,
+  "inventory": ".claude-audit/pass1/inventory.txt",
+  "batches": {
+    "batch-01": {"files": 50, "list": ".claude-audit/pass1/batch-01-files.txt", "report": ".claude-audit/pass1/batch-01.md", "status": "complete", "delete": 0, "review": 5, "keep": 45},
+    "batch-02": {"files": 31, "list": ".claude-audit/pass1/batch-02-files.txt", "report": ".claude-audit/pass1/batch-02.md", "status": "complete", "delete": 0, "review": 0, "keep": 31}
+  },
+  "validation": {"status": "PASS", "claims_checked": 8, "confirmed": 7, "partial": 1, "refuted": 0},
+  "summary": ".claude-audit/pass1-summary.md",
+  "summary_status": "complete",
+  "pass_status": "PASS"
+}

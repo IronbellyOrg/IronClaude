@@ -1,0 +1,30 @@
+{
+  "id": "50161c58-5381-4fd1-8f00-37afb31c5676",
+  "ok": true,
+  "result": {
+    "task": {
+      "id": "task_bd4be7179761",
+      "run_id": "run_92b0ef27e086",
+      "parent_id": null,
+      "created_by_terminal_handle": "term_558daf54-f38b-4498-b0d1-0d2e8c036e7c",
+      "created_by_pane_key": "d43c5efb-b395-4f83-9576-2b7e411fd4b6:a190c0d6-e897-4d14-892d-bc5e6422c2eb",
+      "created_by_process_incarnation": "serve-7828c69e-059b-44e3-ac08-35b78ba9067c:a2847d1a-6973-4aa6-a369-284f3bd1a004",
+      "created_by_run_generation": 1,
+      "task_title": "P1 live check 15: init-lite",
+      "display_name": "P1 live check 15: init-lite",
+      "spec": "Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed with a body starting \"guard refused:\".\nOn a blocked gate: report blocked\nLocal commit: not authorized\nReport directory: .dev/p1-live/init-lite/\nWorktree: disposable worktree created by Orca from ironbelly/OrcaCLICommandRefactor-P1 for this check only; you are its only writer.\nOutward actions: none; the coordinator performs every push, PR, comment, install and paid run.\nCommand: /sc:init-lite --context-optimized --dry-run --unattended --report-dir .dev/p1-live/init-lite/",
+      "status": "ready",
+      "deps": "[]",
+      "result": null,
+      "created_at": "2026-11-05 20:30:53",
+      "completed_at": null
+    },
+    "mutation": {
+      "requestId": "cac5898e-5864-4e44-90a8-94766923a25a",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

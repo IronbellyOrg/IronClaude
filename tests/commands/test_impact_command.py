@@ -257,6 +257,24 @@ def test_impact_advisory_rule():
     assert "no consumer may change a severity, gate or verdict" in advisory
 
 
+def test_impact_unattended_section_between_outputs_and_boundaries():
+    text = _text(_COMMAND)
+    assert (
+        text.index("## Outputs")
+        < text.index("## Unattended mode")
+        < text.index("## Boundaries")
+    )
+
+
+def test_impact_skill_documents_worker_flags_fields_and_cap():
+    skill = _text(_SKILL)
+    flags = _section(skill, "## 1. Flags")
+    assert "`--unattended`" in flags and "`--report-dir`" in flags
+    contract = _section(skill, "## 5. `return-contract.yaml`")
+    assert "worker_status" in contract
+    assert "40 dependent rows" in contract and "6 KB" in contract
+
+
 def test_impact_status_only_cli_transport_before_grep_fallback():
     steps = _section(_text(_SKILL), "## 2. Step sequence")
     cli = steps.index("Status-only branch transport")

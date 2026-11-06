@@ -1,0 +1,5 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:analyze src/superclaude/cli/install_core.py --focus quality --depth quick --unattended --report-dir .dev/p1-live/analyze/"
+report_path: .dev/p1-live/analyze/analyze-report.md
+artifacts: []

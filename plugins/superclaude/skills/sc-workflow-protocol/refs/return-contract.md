@@ -39,3 +39,18 @@ A failed *generation* (no valid plan) and a failed *execution handoff* (valid pl
 STOPs before the package exists (`E-NO-SOURCE`, `E-EMPTY-SOURCE`, `E-LEGACY` including retired `--output`, `E-BAD-FLAG`, `E-PACKAGE-COLLISION`): chat only — **no package directory, no yaml**.
 
 After the package exists: any STOP → write the `failed` contract; delete a draft `<id>.md` that failed the gate.
+
+## Worker contract (`--unattended`)
+
+Written to `<report-dir>/return-contract.yaml` (the one directory passed with `--report-dir`, never the package) on every outcome. The package contract above is unchanged.
+
+```yaml
+worker_contract_version: "1"
+worker_status: succeeded | partial | failed
+command: <the exact command line>
+report_path: <repo path of the plan <id>.md, in to-do/ or, after an archive, done/> | null
+artifacts: [<package return-contract.yaml>, <package source.md if written>, <each file reflect wrote in its .dev/reflect/ run directory, whatever reflect_status is>, <docs/memory/reflect/deviation-patterns-<slug>.md if reflect wrote it>]   # [] before a package exists; gitignored .dev/reflect/runs.jsonl and .superclaude/memory/ are left out (WC-9 stages every listed path, and git refuses ignored paths)
+reason: <the STOP code or the failure>                              # only when failed
+```
+
+Status mapping: package `success` → `succeeded`, `partial` → `partial`, `failed` → `failed`. A pre-creation STOP → `failed` with the STOP code in `reason` and `report_path: null`. A skipped `--handoff implement` makes the package contract `partial` with one `unresolved` line.

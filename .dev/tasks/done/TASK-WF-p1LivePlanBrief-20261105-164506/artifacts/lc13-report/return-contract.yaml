@@ -1,0 +1,43 @@
+schema_version: 1
+command: impact
+status: success
+caller: null
+output_dir: /home/coder/workspaces/worktrees/IronClaude/p1-live-impact/.dev/impact/install-core-files-20261105T202400Z
+report_path: /home/coder/workspaces/worktrees/IronClaude/p1-live-impact/.dev/impact/install-core-files-20261105T202400Z/impact.md
+contract_path: /home/coder/workspaces/worktrees/IronClaude/p1-live-impact/.dev/impact/install-core-files-20261105T202400Z/return-contract.yaml
+input: {mode: symbols, symbols: [install_core_files], diff_base: null, changed_files: [], depth: 1, limit: 10, tests: false, test_depth: null}
+readiness:
+  access: mcp
+  index_state: fresh
+  checked_at: 2026-11-05T20:23:22Z
+  cli_version: 1.6.2
+  pin: 1.6.2
+  pin_match: true
+  worktree_root: /home/coder/workspaces/worktrees/IronClaude/p1-live-impact
+  project_path: /home/coder/workspaces/worktrees/IronClaude/p1-live-impact
+  worktree_relation: own
+advisory: false
+degraded: [graph:unresolved]
+symbols:
+  - {name: install_core_files, file: src/superclaude/cli/install_core.py, start_line: 31, end_line: 104, mapped_by: name, prod: {shown: 2, total: 2}, test: {shown: 6, total: 6}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+ambiguous: []
+unmapped_files: []
+dependents:
+  - {symbol: install_core_files, caller: install, file: src/superclaude/cli/main.py, def_line: 46, call_site_line: 178, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: install_core_files, caller: update, file: src/superclaude/cli/main.py, def_line: 340, call_site_line: 365, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: install_core_files, caller: test_core_install_and_listing_include_policy, file: tests/cli/test_bash_inspection_policy.py, def_line: 36, call_site_line: null, resolution: def-line, partition: test, hop: 1, source: callers}
+  - {symbol: install_core_files, caller: test_how_we_work_installed_and_listed, file: tests/cli/test_how_we_work_install.py, def_line: 27, call_site_line: null, resolution: def-line, partition: test, hop: 1, source: callers}
+  - {symbol: install_core_files, caller: test_install_never_touches_existing_files_without_force, file: tests/cli/test_how_we_work_install.py, def_line: 53, call_site_line: null, resolution: def-line, partition: test, hop: 1, source: callers}
+  - {symbol: install_core_files, caller: test_install_never_removes_unshipped_files, file: tests/cli/test_how_we_work_install.py, def_line: 79, call_site_line: null, resolution: def-line, partition: test, hop: 1, source: callers}
+  - {symbol: install_core_files, caller: test_body_files_shipped_and_installed_flat, file: tests/cli/test_issue_body_templates.py, def_line: 27, call_site_line: null, resolution: def-line, partition: test, hop: 1, source: callers}
+  - {symbol: install_core_files, caller: _install_core, file: tests/unit/test_cli_install.py, def_line: 965, call_site_line: null, resolution: def-line, partition: test, hop: 1, source: callers}
+dependents_omitted: 0
+call_sites: {verified: 2, unresolved: 6, dropped: 0, budget: "5/symbol, 20/run"}
+tests: []
+selection_source: null
+errors: []
+worker_contract_version: "1"
+worker_status: succeeded
+artifacts:
+  - /home/coder/workspaces/worktrees/IronClaude/p1-live-impact/.dev/impact/install-core-files-20261105T202400Z/impact.md
+  - /home/coder/workspaces/worktrees/IronClaude/p1-live-impact/.dev/impact/install-core-files-20261105T202400Z/return-contract.yaml

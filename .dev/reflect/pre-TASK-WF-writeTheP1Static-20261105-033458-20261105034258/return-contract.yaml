@@ -1,0 +1,89 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-writeTheP1Static-20261105-033458-20261105034258/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-writeTheP1Static-20261105-033458-20261105034258/audit.log
+confidence_calibrated: 0.81
+escalation_rule_matched: 4
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null
+coverage_pct_union: 0.5385
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: ["INF-001", "INF-002", "INF-003", "INF-009", "INF-010", "INF-014"]
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# Input integrity (verified unchanged at Wave 5: both hashes equal the snapshot)
+input_sha256:
+  tasklist: 55ca3d355779f5b70c6f1813342e7cbdad8032e26d16c1492ee44c32f421abf5
+  spec: 3630d21d5fa8eb2ad47208623d46e26d8c7ffb2e83d28b83e1d68dcbf4e26e29
+input_tree_sha256: bf4f8f687dde236a46da48b38fe7677b7f94295bf085a746540ed8b5ee92bfac
+input_tree_file_count: 2
+input_tree_snapshot_path: artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 53
+citations_revalidated: 53
+citations_dropped: 1          # INF-006 (quote mismatch), listed in the REPORT.md postscript
+citations_dropped_extrapolated: 1
+citations_inferred: 1
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards:
+  - reviewer-cards/reviewer-1-card.yaml
+  - reviewer-cards/reviewer-2-card.yaml
+  - reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: adversarial/
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true     # two owner questions: D-P1-1 and D-P1-4
+needs_human_decision: false      # no grounding gaps
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+
+# Review result (plan verdict, not in the stable schema)
+plan_verdict: PARTIAL
+findings_blocking: 8
+findings_minor: 12

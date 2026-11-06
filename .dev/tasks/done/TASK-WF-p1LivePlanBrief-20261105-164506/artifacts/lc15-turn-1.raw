@@ -1,0 +1,40 @@
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":15005,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":30008,"deadlineMs":240000}
+{
+  "id": "6bff23d5-6230-47d6-811b-f6498383d20f",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_563a80a7532a",
+    "messages": [
+      {
+        "id": "msg_4979212b061f",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_2bd40974-91d2-4702-9d66-8fa84f9d20a2",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "init-lite dry-run succeeded",
+        "body": "worker_status: succeeded; the init-lite audit finished (exit 0). The brief guard passed (both command copies identical, with an Unattended mode section) and the dry-run found 136 surfaces at about 780687 estimated tokens, with the biggest being sc-reflect-protocol, task-builder and roadmap SKILL.md; the report went to stdout only, so report_path is null. The only new file is .dev/p1-live/init-lite/return-contract.yaml, which is left untracked and unstaged for the coordinator; nothing was committed, pushed or modified.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_bd4be7179761\",\"dispatchId\":\"ctx_f26fd4ca74f4\",\"outcome\":\"succeeded\",\"filesModified\":[\".dev/p1-live/init-lite/return-contract.yaml\"],\"reportPath\":\".dev/p1-live/init-lite/return-contract.yaml\"}",
+        "created_at": "2026-11-05T20:32:13Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "f315dc49-17a6-4756-a133-0e78fa23b650",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

@@ -20,7 +20,10 @@ personas: []
 
 ```
 /sc:analyze [target] [--focus quality|security|performance|architecture] [--depth quick|deep] [--format text|json|report]
+/sc:analyze [target] [--output <file>] [--unattended] [--report-dir <dir>]
 ```
+
+`--output <file>` writes the report to that file. A standalone run writes a file only when you pass it.
 
 ## Behavioral Flow
 
@@ -85,6 +88,17 @@ Key behaviors:
 # Rapid quality assessment of component directory
 # Identifies code smells and maintainability issues
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:analyze` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only (`--output` is file-valued). Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is the `--output` file, or `<report-dir>/analyze-report.md` when `--output` is absent. The run is succeeded when the report is written, and failed otherwise.
+- **Gates.** There is no gate, and no person-mode flag. Under `--unattended` consent is never given: the rule "without explicit user consent" is not answered by assuming consent, so the command still modifies no source.
+- **Nested invocations.** None.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

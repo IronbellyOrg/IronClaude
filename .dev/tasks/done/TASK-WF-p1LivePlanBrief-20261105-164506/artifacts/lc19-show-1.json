@@ -1,0 +1,219 @@
+{
+  "id": "02eb19b5-d0e9-462b-87e4-5324d5ecd6fb",
+  "ok": true,
+  "result": {
+    "dispatch": {
+      "id": "ctx_66e1bd720e23",
+      "runId": "run_92b0ef27e086",
+      "taskId": "task_a2c9926b3e81",
+      "task_id": "task_a2c9926b3e81",
+      "contractVersion": 1,
+      "assigneeHandle": "term_7a3474fe-f675-4f64-b3f6-44a6aca89076",
+      "assigneePaneKey": "ad81aea8-0320-4e90-8b4c-c44209372f19:6728d7c3-9884-4e71-a19d-dc44a73bdc70",
+      "processIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case1@@e6b7649e:a807bab3-993a-4803-bb45-9ef85d98eedb",
+      "capabilityRevokedAt": "2026-11-05T21:13:39.540Z",
+      "retryOfDispatchId": null,
+      "creatorDispatchId": null,
+      "hostScope": {
+        "kind": "local",
+        "hostId": "local"
+      },
+      "status": "failed",
+      "failureCount": 0,
+      "lastFailure": "{\"provenance\":\"worker_report\",\"outcome\":\"failed\",\"messageId\":\"msg_0da0f2daaaab\",\"reportedBy\":\"term_7a3474fe-f675-4f64-b3f6-44a6aca89076\",\"subject\":\"guard refused: brief lacks --unattended\",\"body\":\"guard refused: brief lacks --unattended. The Command line '/sc:analyze src/superclaude/cli/install_core.py --report-dir .dev/p1-live/guard1/' has no standalone --unattended, and both copies of analyze.md (project .claude/commands/sc/analyze.md and ~/.claude/commands/sc/analyze.md) have an '## Unattended mode' section at line 92, which is case 1 of the brief guard. Nothing was run and no contract or report was written; fix the brief by adding --unattended in a new Task.\",\"completedBy\":\"term_7a3474fe-f675-4f64-b3f6-44a6aca89076\",\"filesModified\":[],\"reportPath\":null,\"completedAt\":\"2026-11-05T21:13:39.539Z\"}",
+      "terminationReason": null,
+      "depth": 1,
+      "dispatchedAt": "2026-11-05 21:12:37",
+      "completedAt": "2026-11-05T21:13:39.540Z",
+      "createdAt": "2026-11-05 21:12:37",
+      "lastHeartbeatAt": null
+    },
+    "worker": {
+      "dispatchId": "ctx_66e1bd720e23",
+      "runtimeEpoch": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc",
+      "state": "failed",
+      "stage": "settled",
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case1",
+      "agentTerminalHandle": "term_7a3474fe-f675-4f64-b3f6-44a6aca89076",
+      "setupState": "not_applicable",
+      "effects": [
+        {
+          "kind": "worktree",
+          "action": "reused",
+          "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case1"
+        },
+        {
+          "kind": "setup",
+          "action": "not_applicable",
+          "state": "not_applicable"
+        },
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_7a3474fe-f675-4f64-b3f6-44a6aca89076",
+          "surface": "background",
+          "warning": "Terminal term_7a3474fe-f675-4f64-b3f6-44a6aca89076 is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_7a3474fe-f675-4f64-b3f6-44a6aca89076` to reveal and focus it."
+        },
+        {
+          "kind": "dispatch_input",
+          "role": "agent",
+          "id": "term_7a3474fe-f675-4f64-b3f6-44a6aca89076",
+          "state": "accepted"
+        }
+      ],
+      "residualResources": [
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_7a3474fe-f675-4f64-b3f6-44a6aca89076",
+          "surface": "background",
+          "warning": "Terminal term_7a3474fe-f675-4f64-b3f6-44a6aca89076 is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_7a3474fe-f675-4f64-b3f6-44a6aca89076` to reveal and focus it."
+        }
+      ],
+      "startOptions": {
+        "worktree": "path:/home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case1",
+        "mode": {
+          "mode": "terminal",
+          "preferred": "terminal",
+          "reason": "user_default",
+          "detail": "Started a terminal agent worker, the default for new agent tabs in your settings."
+        },
+        "resolvedWorktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case1",
+        "name": null,
+        "repo": null,
+        "baseBranch": null,
+        "terminal": null,
+        "agent": "claude",
+        "launch": {
+          "requested": {
+            "agent": "claude",
+            "model": null,
+            "effort": null
+          },
+          "effective": {
+            "agent": "claude",
+            "model": null,
+            "effort": null
+          }
+        },
+        "timeoutMs": 60000,
+        "setup": "not_applicable",
+        "setupSource": "existing_worktree"
+      },
+      "lastError": null,
+      "createdAt": "2026-11-05 21:12:37",
+      "updatedAt": "2026-11-05T21:13:39.540Z"
+    },
+    "projection": {
+      "id": "ctx_66e1bd720e23",
+      "dispatchId": "ctx_66e1bd720e23",
+      "taskId": "task_a2c9926b3e81",
+      "runId": "run_92b0ef27e086",
+      "role": "worker",
+      "parent": null,
+      "provider": {
+        "id": "claude",
+        "model": null
+      },
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case1",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "failed",
+        "dispatch": "failed",
+        "detail": "settled",
+        "activity": "working"
+      },
+      "outcome": "failed",
+      "liveness": {
+        "verdict": "live",
+        "observedAt": 1793913219581,
+        "source": "agent_status"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "fresh",
+        "lastObservedAt": 1793913219581
+      },
+      "resource": {
+        "state": "owned",
+        "id": "wtr_14ca7abb1085",
+        "ownerDispatchId": "ctx_66e1bd720e23",
+        "releaseState": "not_requested",
+        "terminalState": "reclaimable"
+      },
+      "nextAction": {
+        "kind": "release",
+        "argv": [
+          "orchestration",
+          "worker-release",
+          "--dispatch",
+          "ctx_66e1bd720e23"
+        ]
+      },
+      "attention": {
+        "categories": [
+          "failure"
+        ],
+        "requiresAction": true
+      }
+    },
+    "terminal": {
+      "handle": "term_7a3474fe-f675-4f64-b3f6-44a6aca89076",
+      "ptyId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case1@@e6b7649e",
+      "incarnationId": "a807bab3-993a-4803-bb45-9ef85d98eedb",
+      "orphaned": false,
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case1",
+      "worktreePath": "/home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case1",
+      "branch": "refs/heads/ironbelly/p1-live-guard-case1",
+      "tabId": "ad81aea8-0320-4e90-8b4c-c44209372f19",
+      "leafId": "6728d7c3-9884-4e71-a19d-dc44a73bdc70",
+      "title": "p1-live-guard-case1-1105-211312-55b1 · Claude Code",
+      "connected": true,
+      "writable": true,
+      "lastOutputAt": 1793913219704,
+      "preview": "──────────────────────────────────────────────────────────────────────────────── p1-live-guard-case1-1105-211312-55b1 ─\n❯\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n⏵⏵ bypass permissions on (shift+tab to cycle) · ← 1 agent",
+      "executionHostId": "local",
+      "agentIdentity": "claude",
+      "paneRuntimeId": -1,
+      "rendererGraphEpoch": 0,
+      "agentWait": null
+    },
+    "observation": {
+      "status": "live",
+      "exactWorker": true,
+      "agentWait": null
+    },
+    "terminalResource": {
+      "id": "wtr_14ca7abb1085",
+      "ownershipState": "owned",
+      "releaseState": "not_requested",
+      "retainedReason": null,
+      "terminalHandle": "term_7a3474fe-f675-4f64-b3f6-44a6aca89076",
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case1",
+      "endpointId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc",
+      "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case1@@e6b7649e:a807bab3-993a-4803-bb45-9ef85d98eedb",
+      "originDispatchId": "ctx_66e1bd720e23",
+      "ownerDispatchId": "ctx_66e1bd720e23",
+      "releaseRequestedAt": null,
+      "releaseCompletedAt": null,
+      "releaseError": null,
+      "recoveryAttemptCount": 0,
+      "lastRecoveryAt": null,
+      "archive": {
+        "source": null,
+        "status": null
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

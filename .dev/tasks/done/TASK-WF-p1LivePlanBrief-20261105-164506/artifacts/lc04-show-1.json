@@ -1,0 +1,219 @@
+{
+  "id": "22730af0-435a-4239-a999-41e02a1163e6",
+  "ok": true,
+  "result": {
+    "dispatch": {
+      "id": "ctx_e44ba3ff8deb",
+      "runId": "run_92b0ef27e086",
+      "taskId": "task_b70aa7078853",
+      "task_id": "task_b70aa7078853",
+      "contractVersion": 1,
+      "assigneeHandle": "term_7c365906-12c0-4262-85e4-4401644ec5d0",
+      "assigneePaneKey": "94856039-7281-45d8-bbea-e32936a998c1:71badb4a-f89b-495a-afb2-5616e1a8cbea",
+      "processIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-design@@27481322:f454a27e-4261-4dcb-b2b9-55130d2f1e93",
+      "capabilityRevokedAt": "2026-11-05T19:09:09.758Z",
+      "retryOfDispatchId": null,
+      "creatorDispatchId": null,
+      "hostScope": {
+        "kind": "local",
+        "hostId": "local"
+      },
+      "status": "completed",
+      "failureCount": 0,
+      "lastFailure": null,
+      "terminationReason": null,
+      "depth": 1,
+      "dispatchedAt": "2026-11-05 19:06:25",
+      "completedAt": "2026-11-05T19:09:09.758Z",
+      "createdAt": "2026-11-05 19:06:25",
+      "lastHeartbeatAt": "2026-11-05T19:07:17Z"
+    },
+    "worker": {
+      "dispatchId": "ctx_e44ba3ff8deb",
+      "runtimeEpoch": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc",
+      "state": "succeeded",
+      "stage": "settled",
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-design",
+      "agentTerminalHandle": "term_7c365906-12c0-4262-85e4-4401644ec5d0",
+      "setupState": "not_applicable",
+      "effects": [
+        {
+          "kind": "worktree",
+          "action": "reused",
+          "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-design"
+        },
+        {
+          "kind": "setup",
+          "action": "not_applicable",
+          "state": "not_applicable"
+        },
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_7c365906-12c0-4262-85e4-4401644ec5d0",
+          "surface": "background",
+          "warning": "Terminal term_7c365906-12c0-4262-85e4-4401644ec5d0 is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_7c365906-12c0-4262-85e4-4401644ec5d0` to reveal and focus it."
+        },
+        {
+          "kind": "dispatch_input",
+          "role": "agent",
+          "id": "term_7c365906-12c0-4262-85e4-4401644ec5d0",
+          "state": "accepted"
+        }
+      ],
+      "residualResources": [
+        {
+          "kind": "terminal",
+          "role": "agent",
+          "action": "created",
+          "id": "term_7c365906-12c0-4262-85e4-4401644ec5d0",
+          "surface": "background",
+          "warning": "Terminal term_7c365906-12c0-4262-85e4-4401644ec5d0 is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_7c365906-12c0-4262-85e4-4401644ec5d0` to reveal and focus it."
+        }
+      ],
+      "startOptions": {
+        "worktree": "path:/home/coder/workspaces/worktrees/IronClaude/p1-live-design",
+        "mode": {
+          "mode": "terminal",
+          "preferred": "terminal",
+          "reason": "user_default",
+          "detail": "Started a terminal agent worker, the default for new agent tabs in your settings."
+        },
+        "resolvedWorktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-design",
+        "name": null,
+        "repo": null,
+        "baseBranch": null,
+        "terminal": null,
+        "agent": "claude",
+        "launch": {
+          "requested": {
+            "agent": "claude",
+            "model": null,
+            "effort": null
+          },
+          "effective": {
+            "agent": "claude",
+            "model": null,
+            "effort": null
+          }
+        },
+        "timeoutMs": 60000,
+        "setup": "not_applicable",
+        "setupSource": "existing_worktree"
+      },
+      "lastError": null,
+      "createdAt": "2026-11-05 19:06:25",
+      "updatedAt": "2026-11-05T19:09:09.758Z"
+    },
+    "projection": {
+      "id": "ctx_e44ba3ff8deb",
+      "dispatchId": "ctx_e44ba3ff8deb",
+      "taskId": "task_b70aa7078853",
+      "runId": "run_92b0ef27e086",
+      "role": "worker",
+      "parent": null,
+      "provider": {
+        "id": "claude",
+        "model": null
+      },
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-design",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "succeeded",
+        "dispatch": "completed",
+        "detail": "settled",
+        "activity": "working"
+      },
+      "outcome": "succeeded",
+      "liveness": {
+        "verdict": "live",
+        "observedAt": 1793905749797,
+        "source": "agent_status"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "fresh",
+        "lastObservedAt": 1793905749797
+      },
+      "resource": {
+        "state": "owned",
+        "id": "wtr_e9491387d6a4",
+        "ownerDispatchId": "ctx_e44ba3ff8deb",
+        "releaseState": "not_requested",
+        "terminalState": "reclaimable"
+      },
+      "nextAction": {
+        "kind": "release",
+        "argv": [
+          "orchestration",
+          "worker-release",
+          "--dispatch",
+          "ctx_e44ba3ff8deb"
+        ]
+      },
+      "attention": {
+        "categories": [
+          "root_completion"
+        ],
+        "requiresAction": false
+      }
+    },
+    "terminal": {
+      "handle": "term_7c365906-12c0-4262-85e4-4401644ec5d0",
+      "ptyId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-design@@27481322",
+      "incarnationId": "f454a27e-4261-4dcb-b2b9-55130d2f1e93",
+      "orphaned": false,
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-design",
+      "worktreePath": "/home/coder/workspaces/worktrees/IronClaude/p1-live-design",
+      "branch": "refs/heads/ironbelly/p1-live-design",
+      "tabId": "94856039-7281-45d8-bbea-e32936a998c1",
+      "leafId": "71badb4a-f89b-495a-afb2-5616e1a8cbea",
+      "title": "p1-live-design-1105-190658-59ec · Claude Code",
+      "connected": true,
+      "writable": true,
+      "lastOutputAt": 1793905749870,
+      "preview": "───────────────────────────────────────────────────────────────────────────────────── p1-live-design-1105-190658-59ec ─\n❯\n────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n⏵⏵ bypass permissions on (shift+tab to cycle) · ← 1 agent",
+      "executionHostId": "local",
+      "agentIdentity": "claude",
+      "paneRuntimeId": -1,
+      "rendererGraphEpoch": 0,
+      "agentWait": null
+    },
+    "observation": {
+      "status": "live",
+      "exactWorker": true,
+      "agentWait": null
+    },
+    "terminalResource": {
+      "id": "wtr_e9491387d6a4",
+      "ownershipState": "owned",
+      "releaseState": "not_requested",
+      "retainedReason": null,
+      "terminalHandle": "term_7c365906-12c0-4262-85e4-4401644ec5d0",
+      "worktreeId": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-design",
+      "endpointId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc",
+      "endpointIncarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-design@@27481322:f454a27e-4261-4dcb-b2b9-55130d2f1e93",
+      "originDispatchId": "ctx_e44ba3ff8deb",
+      "ownerDispatchId": "ctx_e44ba3ff8deb",
+      "releaseRequestedAt": null,
+      "releaseCompletedAt": null,
+      "releaseError": null,
+      "recoveryAttemptCount": 0,
+      "lastRecoveryAt": null,
+      "archive": {
+        "source": null,
+        "status": null
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

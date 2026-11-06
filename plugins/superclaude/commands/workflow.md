@@ -28,6 +28,7 @@ Exactly one source: an existing file path (`@path` ok) **or** leftover `$ARGUMEN
              [--strategy systematic|agile|enterprise]
              [--depth quick|standard|deep]
              [--handoff none|design|implement|tasklist]
+/sc:workflow <path-or-prompt> --unattended --report-dir <dir>   # worker mode, see Unattended mode
 ```
 
 ## Options
@@ -38,6 +39,8 @@ Exactly one source: an existing file path (`@path` ok) **or** leftover `$ARGUMEN
 | `--strategy` | `systematic` | `systematic` \| `agile` \| `enterprise`. Enterprise + omitted depth → `deep` |
 | `--depth` | `standard` | `quick` \| `standard` \| `deep` |
 | `--handoff` | `none` | `none` / `design` / `tasklist` = text; `implement` = Skill invoke |
+| `--unattended` | off | Worker mode: no step waits for a person; see Unattended mode |
+| `--report-dir` | none | With `--unattended`, the directory that holds the worker contract |
 
 Banned (`E-LEGACY`): `--parallel`, `--validate`, `--depth shallow|normal`, and the retired `--output` (every plan goes to a new `.dev/tasks/to-do/<id>/` package; there is no destination override).
 
@@ -59,6 +62,18 @@ The full behavioral specification is in `~/.claude/skills/sc-workflow-protocol/S
 /sc:workflow docs/prd.md --strategy systematic --depth standard
 /sc:workflow "add logout to the header" --handoff none
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:workflow` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument (an inline prompt is a quoted argument); otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only; the retired `--output` stays `E-LEGACY`. Without `--report-dir` the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome, including each pre-creation STOP (`E-NO-SOURCE`, `E-EMPTY-SOURCE`, `E-BAD-FLAG`, `E-LEGACY`, `E-PACKAGE-COLLISION`), with the STOP code in `reason`. The package's own rule for those STOPs (no package, no yaml) is unchanged. Once a package exists, `artifacts` lists every other file the run wrote: the package's `return-contract.yaml`, its `source.md` when the snapshot was written, each file the reflect step wrote in its `.dev/reflect/` run directory (also when reflect failed), and `docs/memory/reflect/deviation-patterns-<slug>.md` when reflect wrote it; reflect's gitignored per-machine files (`.dev/reflect/runs.jsonl`, `.superclaude/memory/`) are left out because WC-9 stages every `artifacts` path and git refuses ignored paths. `report_path` is the plan `<id>.md`. The package statuses success, partial and failed map to succeeded, partial and failed.
+- **Handoff.** A `--handoff implement` is skipped (the implement executor accepts the flag only in a later phase) and recorded in the package contract as `partial` with one `unresolved` line. The `design` and `tasklist` handoffs are text and unchanged.
+- **Gates.** None else, and no person-mode flag.
+- **Nested invocations.** The reflect step runs as today, without `--unattended` and without `--remediate`; in that form it has no gate.
+- **Outward actions.** The command does not stage `.dev/tasks` and leaves that to the coordinator; it pushes and commits nothing.
 
 ## Boundaries
 

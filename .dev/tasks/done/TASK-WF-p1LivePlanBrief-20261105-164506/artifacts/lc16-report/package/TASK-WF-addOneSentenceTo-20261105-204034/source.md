@@ -1,0 +1,1 @@
+Add one sentence to the Installation section of README.md stating that superclaude install --force overwrites files that already exist in ~/.claude

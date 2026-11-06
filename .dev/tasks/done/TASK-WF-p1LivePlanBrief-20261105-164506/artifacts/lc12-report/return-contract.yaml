@@ -1,0 +1,27 @@
+schema_version: 1
+command: graph
+subcommand: status
+status: success
+contract_path: /home/coder/workspaces/worktrees/IronClaude/p1-live-graph/.dev/p1-live/graph/return-contract.yaml
+output_dir: /home/coder/workspaces/worktrees/IronClaude/p1-live-graph/.dev/p1-live/graph
+checked_at: 2026-11-05T20:19:57Z
+access: mcp
+index_state: fresh
+worktree_root: /home/coder/workspaces/worktrees/IronClaude/p1-live-graph
+worktree_relation: own
+cli_version: 1.6.2
+pin: 1.6.2
+pin_match: true
+mcp_tools_listed: true
+counts: {files: 2166, nodes: 33661, edges: 88310}
+pending: []
+telemetry: off
+telemetry_opt_out: "export CODEGRAPH_TELEMETRY=0 (or DO_NOT_TRACK=1) in your shell profile"
+kill_switch: SUPERCLAUDE_CODEGRAPH_PRIMITIVES=off
+next_action: none
+degraded: []
+init: {requested: false, form: null, ran: false, exit_code: null, refused_reason: null}
+worker_contract_version: "1"
+worker_status: succeeded
+report_path: null
+artifacts: []

@@ -1,0 +1,38 @@
+{
+  "id": "c5f90264-7fda-4370-8ebf-7cb149572b2c",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_e2f26ea92f9a",
+    "messages": [
+      {
+        "id": "msg_0da0f2daaaab",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_7a3474fe-f675-4f64-b3f6-44a6aca89076",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "guard refused: brief lacks --unattended",
+        "body": "guard refused: brief lacks --unattended. The Command line '/sc:analyze src/superclaude/cli/install_core.py --report-dir .dev/p1-live/guard1/' has no standalone --unattended, and both copies of analyze.md (project .claude/commands/sc/analyze.md and ~/.claude/commands/sc/analyze.md) have an '## Unattended mode' section at line 92, which is case 1 of the brief guard. Nothing was run and no contract or report was written; fix the brief by adding --unattended in a new Task.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_a2c9926b3e81\",\"dispatchId\":\"ctx_66e1bd720e23\",\"outcome\":\"failed\"}",
+        "created_at": "2026-11-05T21:13:39Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "0ce11991-6437-437c-a7ee-bd2ff9df8434",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

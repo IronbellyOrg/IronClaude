@@ -1,0 +1,453 @@
+{
+  "id": "9793a5fe-b7b9-41d8-a112-4300bed0b744",
+  "ok": true,
+  "result": {
+    "dispatchId": "ctx_e2b737c16ecc",
+    "source": "transcript",
+    "sourceIdentity": "r6eBevAhmQNL8ShWVF6XJudPzjvCymJJ",
+    "provider": "claude",
+    "transcript": {
+      "messages": [
+        {
+          "id": "c58994be-131a-457a-b778-d9b2ab41d5fd",
+          "role": "user",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "Please carry out this task from my Orca coordinator by following the brief I pasted below. \n\n<pasted_content id=\"cb33\">\nYou are working inside Orca, a multi-agent IDE. You are a dispatched worker.\nYour coordinator's terminal handle is: term_558daf54-f38b-4498-b0d1-0d2e8c036e7c\nYour task ID is: task_222c7eecb8ad\n\nThe coordinator cannot see this terminal, so reach it with the `orca orchestration`\ncommands below; a question or result left only in this terminal never gets to it.\nDon't post to Slack, GitHub, or other channels during the run; report through these commands.\n\n=== CLI COMMANDS ===\n\n```sh\n  # Report the task outcome (required, exactly once).\n  #\n  # --body must be a 3-sentence executive summary (what you did,\n  # what you found, what's left). Never send an empty body; the coordinator\n  # reads the body first and only opens artifacts if it needs more detail.\n  # Append --files-modified only when files changed, and append --report-path\n  # only when you produced a durable report. Always pass real values; do not\n  # send the example placeholders literally.\n  #\n  # Send worker_done exactly once. Use --outcome succeeded when the\n  # requested work is done, or replace it with --ou\n… (truncated)"
+            }
+          ],
+          "timestamp": 1793906489704,
+          "source": "transcript",
+          "parentId": "c52eb719-26d9-44a4-9b38-47f75bd113a6"
+        },
+        {
+          "id": "e3685ed2-d335-436c-905e-eb279299f560",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "I'll start with the guard: reading the worker contract and the `/sc:test` command file."
+            }
+          ],
+          "timestamp": 1793906493376,
+          "source": "transcript",
+          "parentId": "b5c4e782-5a3b-4808-a386-03891bae5c3d"
+        },
+        {
+          "id": "6037f37a-d580-4885-94ae-5874f2e416e4",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Read",
+              "input": {
+                "file_path": "/home/coder/.claude/WORKER-CONTRACT.md"
+              },
+              "callId": "toolu_01AWF3Jo3UjuCoAtiJu5myC9"
+            }
+          ],
+          "timestamp": 1793906493549,
+          "source": "transcript",
+          "parentId": "e3685ed2-d335-436c-905e-eb279299f560"
+        },
+        {
+          "id": "453717f5-d47f-40ab-9dea-93304d71499f",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "1\t# Worker contract: IronClaude commands as Orca workers\n2\t\n3\tThis file is installed to `~/.claude/WORKER-CONTRACT.md`. It holds the rules that let an Orca coordinator run IronClaude `/sc:` commands as workers: the terms, the rules a command follows under `--unattended`, the duties of the worker session, and the coordinator's rules with its brief template. Each changed command adds a short `## Unattended mode` section that lists only its own gate resolutions and report file and points to this file, so the shared rules are written once.\n4\t\n5\tA coordinator plans the work, creates Tasks, starts one worker per Task and reads each worker's report. Each `/sc:` command stays a self-contained unit of work: one worker (a top-level Claude session in its own Orca terminal) runs one command and reports it with `worker_done`. Commands themselves contain no Orca calls.\n6\t\n7\tThe dispatch preamble that Orca gives each worker is the authority for Orca verb syntax and heartbeat cadence. This file never copies them, because the preamble is issued per dispatch by the running Orca version.\n8\t\n9\t## 1. Terms\n10\t\n11\t- **Worker run**: a session that received an Orca preamble carrying a Task ID and a Dispat\n… (truncated)",
+              "callId": "toolu_01AWF3Jo3UjuCoAtiJu5myC9"
+            }
+          ],
+          "timestamp": 1793906493836,
+          "source": "transcript",
+          "parentId": "6037f37a-d580-4885-94ae-5874f2e416e4"
+        },
+        {
+          "id": "973b72e2-8e5b-4c2d-9904-30942b6216d9",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Read",
+              "input": {
+                "file_path": "/home/coder/.claude/commands/sc/test.md"
+              },
+              "callId": "toolu_0137yV5SatUSj8ssTPR71XXK"
+            }
+          ],
+          "timestamp": 1793906494032,
+          "source": "transcript",
+          "parentId": "d7cfc040-6278-43b6-a95d-507577ff5154"
+        },
+        {
+          "id": "932e8e71-f8cc-45ec-9db6-47cb68e0eafd",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "1\t---\n2\tname: test\n3\tdescription: \"Execute tests with coverage analysis and automated quality reporting\"\n4\tcategory: utility\n5\tcomplexity: enhanced\n6\tmcp-servers: [playwright]\n7\tpersonas: [qa-specialist]\n8\t---\n9\t\n10\t# /sc:test - Testing and Quality Assurance\n11\t\n12\t## Triggers\n13\t\n14\t- Test execution requests for unit, integration, or e2e tests\n15\t- Coverage analysis and quality gate validation needs\n16\t- Continuous testing and watch mode scenarios\n17\t- Test failure analysis and debugging requirements\n18\t\n19\t## Usage\n20\t\n21\t```\n22\t/sc:test [target] [--type unit|integration|e2e|all] [--coverage] [--watch] [--fix]\n23\t/sc:test [target] [--output <file>] [--unattended] [--report-dir <dir>]\n24\t```\n25\t\n26\t`--output <file>` writes the test and coverage summary to that file. A standalone run writes a file only when you pass it.\n27\t\n28\t## Behavioral Flow\n29\t\n30\t1. **Discover**: Categorize available tests using runner patterns and conventions\n31\t2. **Configure**: Set up appropriate test environment and execution parameters\n32\t3. **Execute**: Run tests with monitoring and real-time progress tracking\n33\t4. **Analyze**: Generate coverage reports and failure diagnostics\n34\t5. **Report**: Provide\n… (truncated)",
+              "callId": "toolu_0137yV5SatUSj8ssTPR71XXK"
+            }
+          ],
+          "timestamp": 1793906494137,
+          "source": "transcript",
+          "parentId": "973b72e2-8e5b-4c2d-9904-30942b6216d9"
+        },
+        {
+          "id": "3cd2b386-b787-4602-8830-0ac9147c3c87",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "The home copy has an `## Unattended mode` section and the line has `--unattended`. Next I need the project copy of the command file in this worktree, to check the two copies agree."
+            }
+          ],
+          "timestamp": 1793906501434,
+          "source": "transcript",
+          "parentId": "8594d94d-46d7-48a9-a3d6-78bc7df20fcc"
+        },
+        {
+          "id": "e8513036-e052-466c-bffa-18a3d20321d2",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "ls -la .claude/commands/sc/test.md 2>&1; grep -c '^## Unattended mode' .claude/commands/sc/test.md ~/.claude/commands/sc/test.md 2>&1; cmp .claude/commands/sc/test.md ~/.claude/commands/sc/test.md && echo IDENTICAL; ls tests/skills/test_worker_contract.py; ls -d .dev/p1-live/test 2>&1; git status --short | head",
+                "description": "Compare project and home test command copies"
+              },
+              "callId": "toolu_01BPjbj7QcUvw8X5njC2LRc1"
+            }
+          ],
+          "timestamp": 1793906502609,
+          "source": "transcript",
+          "parentId": "3cd2b386-b787-4602-8830-0ac9147c3c87"
+        },
+        {
+          "id": "4642eceb-4d91-408b-9442-08f3d5ac4536",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "-rw------- 1 coder coder 4801 Nov  5 19:20 .claude/commands/sc/test.md\n.claude/commands/sc/test.md:1\n/home/coder/.claude/commands/sc/test.md:1\nIDENTICAL\ntests/skills/test_worker_contract.py\nls: cannot access '.dev/p1-live/test': No such file or directory",
+              "callId": "toolu_01BPjbj7QcUvw8X5njC2LRc1"
+            }
+          ],
+          "timestamp": 1793906502840,
+          "source": "transcript",
+          "parentId": "e8513036-e052-466c-bffa-18a3d20321d2"
+        },
+        {
+          "id": "2c30aefb-75fc-4d19-9a6d-e66d53a27c9d",
+          "role": "reasoning",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "The guard check passed, so I'm creating the report directory and running the target tests next."
+            }
+          ],
+          "timestamp": 1793906509678,
+          "source": "transcript",
+          "parentId": "0481d97c-fc4f-4217-92ff-ab41cd5f0669"
+        },
+        {
+          "id": "a8c6ce36-379c-4e66-a17e-a902cc6479fd",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "mkdir -p .dev/p1-live/test && uv run pytest tests/skills/test_worker_contract.py -v -p no:cacheprovider 2>&1 | tee .dev/p1-live/test/pytest-output.txt | tail -60; echo \"EXIT=${PIPESTATUS[0]}\"",
+                "description": "Run worker contract tests",
+                "timeout": 300000
+              },
+              "callId": "toolu_014awFv8zVs4T2Sq5RNQgKHT"
+            }
+          ],
+          "timestamp": 1793906509794,
+          "source": "transcript",
+          "parentId": "2c30aefb-75fc-4d19-9a6d-e66d53a27c9d"
+        },
+        {
+          "id": "1d34b849-8369-453b-911b-1e3c8621c4a4",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "tests/skills/test_worker_contract.py::test_each_classification_has_one_category_and_a_reason[src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:git merge] PASSED [ 85%]\ntests/skills/test_worker_contract.py::test_each_classification_has_one_category_and_a_reason[src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:git push] PASSED [ 85%]\ntests/skills/test_worker_contract.py::test_each_classification_has_one_category_and_a_reason[src/superclaude/skills/sc-pr-submit-protocol/refs/review-retrigger.md:gh api0] PASSED [ 86%]\ntests/skills/test_worker_contract.py::test_each_classification_has_one_category_and_a_reason[src/superclaude/skills/sc-pr-submit-protocol/refs/review-retrigger.md:gh api1] PASSED [ 86%]\ntests/skills/test_worker_contract.py::test_each_classification_has_one_category_and_a_reason[src/superclaude/skills/sc-pr-submit-protocol/refs/review-retrigger.md:gh api2] PASSED [ 86%]\ntests/skills/test_worker_contract.py::test_each_classification_has_one_category_and_a_reason[src/superclaude/skills/sc-pr-submit-protocol/refs/review-retrigger.md:gh api3] PASSED [ 86%]\ntests/skills/test_worker_contract.py::test_each_classification_has_one_cate\n… (truncated)",
+              "callId": "toolu_014awFv8zVs4T2Sq5RNQgKHT"
+            }
+          ],
+          "timestamp": 1793906512701,
+          "source": "transcript",
+          "parentId": "a8c6ce36-379c-4e66-a17e-a902cc6479fd"
+        },
+        {
+          "id": "c087e7df-d1bb-4df3-86e9-92c63ccc1bd5",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "All 394 tests passed. Now I'll write the report and the contract to the report directory."
+            }
+          ],
+          "timestamp": 1793906516024,
+          "source": "transcript",
+          "parentId": "0eb29e19-1df8-4e97-8571-df86dab32ffb"
+        },
+        {
+          "id": "6fe90653-bc91-4dc3-90fa-9d5bc965b358",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Write",
+              "input": {
+                "file_path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-test/.dev/p1-live/test/test-report.md",
+                "content": "# Test report: tests/skills/test_worker_contract.py\n\n- Command: `/sc:test tests/skills/test_worker_contract.py --type unit --unattended --report-dir .dev/p1-live/test/`\n- Runner: `uv run pytest tests/skills/test_worker_contract.py -v -p no:cacheprovider`\n- Branch: ironbelly/p1-live-test (worktree created from ironbelly/OrcaCLICommandRefactor-P1)\n- Verdict: PASS\n- Result: 394 passed, 0 failed, 0 skipped, 0 errors, in 1.21 s\n- Raw output: `.dev/p1-live/test/pytest-output.txt`\n\n## Notes\n\n- `--type unit` was not turned into a marker filter. The file lives in `tests/skills/`, not a `/unit/` folder, so it has no `unit` marker and `-m unit` would have deselected every test. The target file was run as a whole.\n- Coverage was not requested (no `--coverage`), so no coverage figures exist.\n- Brief guard passed before the run: `.claude/commands/sc/test.md` and `~/.claude/commands/sc/test.md` are byte-identical and both carry an `## Unattended mode` section.\n- Nothing was pushed, committed or staged.\n"
+              },
+              "callId": "toolu_01VnBVtuwFmSiDzDQYtyxkta"
+            }
+          ],
+          "timestamp": 1793906518929,
+          "source": "transcript",
+          "parentId": "c087e7df-d1bb-4df3-86e9-92c63ccc1bd5"
+        },
+        {
+          "id": "c296a134-3f2b-41a3-8dd1-ae0f299e974c",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "File created successfully at: /home/coder/workspaces/worktrees/IronClaude/p1-live-test/.dev/p1-live/test/test-report.md (file state is current in your context — no need to Read it back)",
+              "callId": "toolu_01VnBVtuwFmSiDzDQYtyxkta"
+            }
+          ],
+          "timestamp": 1793906519194,
+          "source": "transcript",
+          "parentId": "6fe90653-bc91-4dc3-90fa-9d5bc965b358"
+        },
+        {
+          "id": "9bbe57ca-c396-433c-9af0-489c5899dda8",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Write",
+              "input": {
+                "file_path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-test/.dev/p1-live/test/return-contract.yaml",
+                "content": "worker_contract_version: \"1\"\nworker_status: succeeded\ncommand: \"/sc:test tests/skills/test_worker_contract.py --type unit --unattended --report-dir .dev/p1-live/test/\"\nreport_path: .dev/p1-live/test/test-report.md\nartifacts:\n  - .dev/p1-live/test/pytest-output.txt\n  - .dev/p1-live/test/return-contract.yaml\n"
+              },
+              "callId": "toolu_01TrDxcTwnzXx6UHcDxKbTAA"
+            }
+          ],
+          "timestamp": 1793906519933,
+          "source": "transcript",
+          "parentId": "fcb0ee10-ff50-426e-a7aa-9947d3c6b1ea"
+        },
+        {
+          "id": "ddf9f38b-9faa-40fe-96e4-c984c7c579de",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "File created successfully at: /home/coder/workspaces/worktrees/IronClaude/p1-live-test/.dev/p1-live/test/return-contract.yaml (file state is current in your context — no need to Read it back)",
+              "callId": "toolu_01TrDxcTwnzXx6UHcDxKbTAA"
+            }
+          ],
+          "timestamp": 1793906520194,
+          "source": "transcript",
+          "parentId": "9bbe57ca-c396-433c-9af0-489c5899dda8"
+        },
+        {
+          "id": "7ac105bf-58db-4378-ae35-63f6910e1d75",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "Before settling, I'll check for coordinator follow-ups, as the contract requires."
+            }
+          ],
+          "timestamp": 1793906522115,
+          "source": "transcript",
+          "parentId": "50b96755-e1cf-4643-9b8c-41dbbbfbc165"
+        },
+        {
+          "id": "0cf1ad4e-8148-4935-a9e0-a5da896811a0",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "orca orchestration check --terminal term_d521262b-d62e-489d-957d-f34e00e18cc7 --json 2>&1 | head -30",
+                "description": "Check for coordinator follow-ups"
+              },
+              "callId": "toolu_01KQApnjvZYm3nU3JPCvxUJX"
+            }
+          ],
+          "timestamp": 1793906523011,
+          "source": "transcript",
+          "parentId": "7ac105bf-58db-4378-ae35-63f6910e1d75"
+        },
+        {
+          "id": "1034d509-196d-4b2e-b6a9-e0347b95d0de",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "{\n  \"id\": \"b1a90712-0321-4dfb-b557-8cea4ef78eb6\",\n  \"ok\": true,\n  \"result\": {\n    \"runId\": \"run_92b0ef27e086\",\n    \"dispatchId\": \"ctx_e2b737c16ecc\",\n    \"deliveryId\": null,\n    \"messages\": [],\n    \"count\": 0,\n    \"replayed\": false,\n    \"acknowledged\": null,\n    \"timedOut\": false,\n    \"cancelled\": false,\n    \"connectionLost\": false,\n    \"mutation\": {\n      \"requestId\": \"287bb210-b7ad-4a5c-a27f-c80131b42a69\",\n      \"replayed\": false\n    }\n  },\n  \"_meta\": {\n    \"runtimeId\": \"f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc\"\n  }\n}",
+              "callId": "toolu_01KQApnjvZYm3nU3JPCvxUJX"
+            }
+          ],
+          "timestamp": 1793906523330,
+          "source": "transcript",
+          "parentId": "0cf1ad4e-8148-4935-a9e0-a5da896811a0"
+        },
+        {
+          "id": "38c66570-f49e-4f8e-aac3-6dd8a6b81a17",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "No follow-ups. Sending the single `worker_done`."
+            }
+          ],
+          "timestamp": 1793906526131,
+          "source": "transcript",
+          "parentId": "ffe9e892-90c8-4ffa-ab6d-f62ff0058a77"
+        },
+        {
+          "id": "25e48f96-c5b2-4407-9362-b174a495ebf0",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "orca orchestration send --from term_d521262b-d62e-489d-957d-f34e00e18cc7 --type worker_done --subject \"test passed: 394/394\" --body \"worker_status: succeeded; verdict PASS. The brief guard passed (project and home copies of /sc:test are identical and both have an Unattended mode section), then I ran tests/skills/test_worker_contract.py: 394 passed, 0 failed, 0 skipped in 1.21 s. --type unit was not applied as a marker filter because the file has no unit marker (it would have deselected every test); nothing was committed, staged or pushed, and nothing is left to do. Contract: .dev/p1-live/test/return-contract.yaml, report: .dev/p1-live/test/test-report.md (untracked files under .dev/p1-live/test/, for you to stage).\" --task-id task_222c7eecb8ad --dispatch-id ctx_e2b737c16ecc --outcome succeeded --report-path .dev/p1-live/test/return-contract.yaml --files-modified .dev/p1-live/test/test-report.md,.dev/p1-live/test/return-contract.yaml,.dev/p1-live/test/pytest-output.txt 2>&1 | head -20",
+                "description": "Send worker_done to coordinator"
+              },
+              "callId": "toolu_01QuNTUnBNFw9YL3SYqSMXnU"
+            }
+          ],
+          "timestamp": 1793906529095,
+          "source": "transcript",
+          "parentId": "38c66570-f49e-4f8e-aac3-6dd8a6b81a17"
+        },
+        {
+          "id": "61464c58-5e97-443c-9864-e325b8d3aa8d",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "Sent msg_d765a478e600",
+              "callId": "toolu_01QuNTUnBNFw9YL3SYqSMXnU"
+            }
+          ],
+          "timestamp": 1793906529400,
+          "source": "transcript",
+          "parentId": "25e48f96-c5b2-4407-9362-b174a495ebf0"
+        },
+        {
+          "id": "96eca511-0ac8-4178-b764-7aecc97086a7",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "| Status | Result |\n|---|---|\n| DONE | Brief guard passed. The project and home copies of `/sc:test` are identical and both have an Unattended mode section. |\n| DONE | Ran `tests/skills/test_worker_contract.py`: 394 passed, 0 failed, 0 skipped, in 1.21 s. |\n| DONE | Wrote the report files to `.dev/p1-live/test/` and sent `worker_done` (succeeded) to the coordinator. |\n| NEXT | None. The coordinator reads the contract and stages the files. |\n\nRUNS: the test file and its audit checks. I did not apply `--type unit` as a marker filter, because this file has no `unit` marker and the filter would have deselected every test. I ran no coverage, since none was requested. The three new files under `.dev/p1-live/test/` are untracked, and I committed, staged and pushed nothing."
+            }
+          ],
+          "timestamp": 1793906534209,
+          "source": "transcript",
+          "parentId": "c02b9552-fd65-478c-a3ca-cec39d030d28"
+        }
+      ],
+      "nextCursor": "owr1_eyJ2IjoxLCJkIjoiY3R4X2UyYjczN2MxNmVjYyIsInMiOiJ0cmFuc2NyaXB0IiwiaSI6InI2ZUJldkFobVFOTDhTaFdWRjZYSnVkUHpqdkN5bUpKIiwicCI6MTIyODYyNiwiYyI6Ii01YVpCWlNDTWF6TDFyZGk3UVpfakhkMjlwSXM5cGVqIn0",
+      "limited": true,
+      "returnedMessageCount": 24
+    },
+    "cursor": "owr1_eyJ2IjoxLCJkIjoiY3R4X2UyYjczN2MxNmVjYyIsInMiOiJ0cmFuc2NyaXB0IiwiaSI6InI2ZUJldkFobVFOTDhTaFdWRjZYSnVkUHpqdkN5bUpKIiwicCI6MTIyODYyNiwiYyI6Ii01YVpCWlNDTWF6TDFyZGk3UVpfakhkMjlwSXM5cGVqIn0",
+    "status": {
+      "worker": "succeeded",
+      "terminal": "running",
+      "liveness": "live"
+    },
+    "fallbackReason": null,
+    "warnings": [
+      "Oversized transcript text was clipped."
+    ],
+    "sourceExact": true,
+    "contentComplete": false,
+    "clipping": [
+      "transcript_payload"
+    ],
+    "projection": {
+      "id": "ctx_e2b737c16ecc",
+      "dispatchId": "ctx_e2b737c16ecc",
+      "taskId": "task_222c7eecb8ad",
+      "runId": "run_92b0ef27e086",
+      "role": "worker",
+      "parent": null,
+      "provider": {
+        "id": "claude",
+        "model": null
+      },
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-test",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "succeeded",
+        "dispatch": "completed",
+        "detail": "settled",
+        "activity": "done"
+      },
+      "outcome": "succeeded",
+      "liveness": {
+        "verdict": "live",
+        "observedAt": 1793906534274,
+        "source": "agent_status"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "fresh",
+        "lastObservedAt": 1793906534274
+      },
+      "resource": {
+        "state": "owned",
+        "id": "wtr_b7cf85324363",
+        "ownerDispatchId": "ctx_e2b737c16ecc",
+        "releaseState": "not_requested",
+        "terminalState": "reclaimable"
+      },
+      "nextAction": {
+        "kind": "release",
+        "argv": [
+          "orchestration",
+          "worker-release",
+          "--dispatch",
+          "ctx_e2b737c16ecc"
+        ]
+      },
+      "attention": {
+        "categories": [
+          "root_completion"
+        ],
+        "requiresAction": false
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

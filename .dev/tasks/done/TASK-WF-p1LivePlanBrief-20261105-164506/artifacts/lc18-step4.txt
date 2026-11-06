@@ -1,0 +1,10 @@
+$ test -s /home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch/.dev/p1-live/watch/return-contract.yaml
+rc=0
+$ uv run python -c "import sys, yaml; d = yaml.safe_load(open(sys.argv[1])); assert d['worker_contract_version'] == '1'; assert d['worker_status'] in {'succeeded','partial','failed','blocked'}; assert d['command']; assert d['worker_status'] != 'blocked' or d.get('blocked_question')" .dev/p1-live/watch/return-contract.yaml
+rc=0
+--- extra assertions (AC-1.6), read from the saved copy ./artifacts/lc18-report/return-contract.yaml (the worktree is removed; no live step was rerun)
+2:worker_status: failed
+4:reason: "Refused person-mode flag --watch under --unattended: watch mode never ends, so it is refused before any work. No test runner was started."
+worker_status is failed: yes
+reason names --watch: yes
+worker_done outcome (lc18-step3.json payload): failed

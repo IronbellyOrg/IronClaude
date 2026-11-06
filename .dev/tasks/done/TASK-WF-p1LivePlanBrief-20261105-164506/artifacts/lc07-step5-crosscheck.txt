@@ -1,0 +1,7 @@
+page 1 messages: 36 window ms: [1793906258188,1793906305766]
+last tool calls in page 1:
+Write {"file_path":"/home/coder/workspaces/worktrees/IronClaude/p1-live-index/.dev/p1-live/index/return-contract.yaml","content":"worker_contract_version: \
+Grep {"pattern":"pm_agent|ConfidenceChecker|ReflexionPattern|SelfCheckProtocol","path":"/home/coder/workspaces/worktrees/IronClaude/p1-live-index/src/super
+Bash {"command":"orca orchestration check --terminal term_c8d5fdb2-67a8-4615-b051-ffb35cdbf7f9 --json","description":"Read coordinator follow-up messages"}
+Bash {"command":"orca orchestration send --from term_c8d5fdb2-67a8-4615-b051-ffb35cdbf7f9 --type worker_done --subject \"index structure doc written\" --bo
+page 2 messages: 0

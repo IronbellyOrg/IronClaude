@@ -1,0 +1,749 @@
+{
+  "id": "69a627d3-6a93-4b2b-8dd3-a8915f29cc35",
+  "ok": true,
+  "result": {
+    "dispatchId": "ctx_6ee392638456",
+    "source": "transcript",
+    "sourceIdentity": "rFbL2YK_Y7dL290ljmkHfc904G_HmhmZ",
+    "provider": "claude",
+    "transcript": {
+      "messages": [
+        {
+          "id": "89b6aa1e-e0cc-40f5-9078-848c386bdcd2",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "D=/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/adversarial\nT=$D/debate-transcript.md\ncat > \"$T\" <<'EOF'\n# Adversarial Debate Transcript\n\n## Metadata\n\n- Depth: quick\n- Rounds completed: 1 (Round 2, Round 2.5 invariant probe and Round 3 are skipped at depth quick)\n- Convergence achieved: 62.5% (10 of 16 diff points agreed)\n- Convergence threshold: 75% (not met)\n- Focus areas: All\n- Advocate count: 2 (Variant 1 opus:scribe, Variant 2 sonnet:analyzer)\n- Taxonomy coverage: L1 (S-002, C-002, C-006, C-007), L2 (S-001, S-003, C-001, C-003, X-001, A-002), L3 (C-004, C-005, C-008, X-002, A-001, A-003); every level was addressed in Round 1, so no forced round was needed\n- Shared-assumption omissions: none (both advocates answered A-001, A-002 and A-003)\n- Orchestrator corrections after Round 1 (checked against `.dev/README.md` and `src/superclaude/commands/reflect.md`): `.dev/README.md:63` lists `.dev/workflow/<slug>/` and `.dev/implement/` as preserved legacy locations, not as the current home of implement ledgers (current ledgers sit in the plan package, `.dev/README.md:54`), so diff point X-001 overstated that part; `src… (truncated)",
+                "…": "truncated"
+              },
+              "callId": "toolu_01N6zvxzbmfcGVTiy2y9vAd1"
+            }
+          ],
+          "timestamp": 1793908835824,
+          "source": "transcript",
+          "parentId": "df4d572b-34c8-4c7f-91a3-2ca4af754627"
+        },
+        {
+          "id": "770f5c7a-641e-473c-922c-dfdb06f63393",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "177 /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/debate-transcript.md\n16",
+              "callId": "toolu_01N6zvxzbmfcGVTiy2y9vAd1"
+            }
+          ],
+          "timestamp": 1793908835982,
+          "source": "transcript",
+          "parentId": "89b6aa1e-e0cc-40f5-9078-848c386bdcd2"
+        },
+        {
+          "id": "922ecd5f-cad4-4699-80bb-61f5b20e8522",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "T=/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/debate-transcript.md\nsed -i 's/^| C-007 | L1 | V1 65 | V1 60 | Variant 1 | 63% |/| C-007 | L1 | V1 65 | V1 60 | Variant 1 | 68% |/; s/^| C-008 | L3 | V2 85 | V2 82 | Variant 2 | 84% |/| C-008 | L3 | V2 85 | V2 82 | Variant 2 | 88% |/' \"$T\"\ngrep -n '^| C-00[78]' \"$T\"\norca orchestration send --from term_236db55f-83ff-4a83-ae22-29529f7d3ed5 --type heartbeat --subject \"alive\" --task-id task_6b435657612a --dispatch-id ctx_6ee392638456 --phase \"implementing: scoring and merge plan\"",
+                "description": "Fix two confidence values, send heartbeat"
+              },
+              "callId": "toolu_01PV7pcdCWqesHqHphQmBgqk"
+            }
+          ],
+          "timestamp": 1793908845479,
+          "source": "transcript",
+          "parentId": "fd272a83-32c0-45e7-bd17-368e95ab142f"
+        },
+        {
+          "id": "edd9c955-a7d7-4959-85f0-3af295729b7b",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "160:| C-007 | L1 | V1 65 | V1 60 | Variant 1 | 68% | yes | `-1` from the first run as a requirement, not a risk |\n161:| C-008 | L3 | V2 85 | V2 82 | Variant 2 | 88% | yes | WC-3 re-invocation keeps the same report directory (WORKER-CONTRACT.md lines 22, 53 and 98) |\nSent msg_9bbdda8726a6",
+              "callId": "toolu_01PV7pcdCWqesHqHphQmBgqk"
+            }
+          ],
+          "timestamp": 1793908845808,
+          "source": "transcript",
+          "parentId": "922ecd5f-cad4-4699-80bb-61f5b20e8522"
+        },
+        {
+          "id": "fdf19699-6e4b-4c0e-9b24-9877694c796e",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Write",
+              "input": {
+                "file_path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/base-selection.md",
+                "content": "# Base Selection\n\nScoring was done by the orchestrator in one session, not by a script. The quantitative figures are manual counts and are marked as estimates; the protocol asks for deterministic scores, so treat differences under about 0.03 as noise. That is why the tiebreaker below decides the result.\n\n## Quantitative Scoring (50% weight)\n\nSource requirements for RC: the 4 success criteria and 4 open questions of `seed-brief.md` (it has no formal requirement IDs, so section-level topic matching applies).\n\n| Metric | Weight | Variant 1 | Variant 2 | Computation |\n|---|---|---|---|---|\n| Requirement coverage (RC) | 0.30 | 1.00 | 1.00 | Both cover 8 of 8 topics: V1 via FR-003, naming table, FR-004, FR-002, decisions table; V2 via FR-003, pattern, FR-010, FR-001/FR-007, FR-008, FR-009 and risk 1 |\n| Internal consistency (IC) | 0.25 | 0.97 | 0.94 | V1: 1 conflict (FR-004 absolute wording against the WC-3 case) in about 30 claims. V2: 2 conflicts (FR-005 and risk 2 against FR-012; FR-011 against the contract's two-token tdd example) in… (truncated)"
+              },
+              "callId": "toolu_01T4vJmiGwPHFxRp15dXS696"
+            }
+          ],
+          "timestamp": 1793908872746,
+          "source": "transcript",
+          "parentId": "5f3002f4-4495-4229-bee5-2749d0440634"
+        },
+        {
+          "id": "8937a7fe-8686-4fa2-a6fc-2d3ddcf9f789",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "File created successfully at: /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/base-selection.md (file state is current in your context — no need to Read it back)",
+              "callId": "toolu_01T4vJmiGwPHFxRp15dXS696"
+            }
+          ],
+          "timestamp": 1793908873009,
+          "source": "transcript",
+          "parentId": "fdf19699-6e4b-4c0e-9b24-9877694c796e"
+        },
+        {
+          "id": "498e0818-7455-44dd-8b28-f5da2a548039",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Write",
+              "input": {
+                "file_path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/refactor-plan.md",
+                "content": "# Refactoring Plan\n\n## Overview\n\n- Base variant: Variant 2 (sonnet:analyzer), `variant-2-sonnet-analyzer.md`\n- Incorporated from: Variant 1 (opus:scribe), `variant-1-opus-scribe.md`\n- Planned changes: 5 (4 edits to base requirements, 1 new section)\n- Rejected changes: 5 (listed below)\n- Overall risk: Medium (change 1 records an open decision and does not settle it)\n- Unresolved debate points carried into the merged output: S-001, C-001, C-002, C-006, X-001, A-002\n\n## Planned Changes\n\n### Change 1: Add a tool-owned-folders requirement (from Variant 1, with Variant 2's reserved-name idea)\n\n- Source: V1 R4 and its separate-root design (diff points C-001, X-001, A-002); V2 advocate concession \"a reserved-name rule is needed\".\n- Target: new requirement FR-017 in the base, after FR-007.\n- Integration: insert.\n- Rationale: both advocates agreed the clash is real (debate-transcript.md, X-001 and A-002 rows). Verified facts to state: `src/superclaude/commands/reflect.md:101` makes `.dev/reflect/<mode>-<slug>-<ts>/` the default output of `ref… (truncated)"
+              },
+              "callId": "toolu_01MSQP1WTdVLYCvFtmDxqcoN"
+            }
+          ],
+          "timestamp": 1793908898232,
+          "source": "transcript",
+          "parentId": "c59e244b-93b6-4329-919c-767a5601aace"
+        },
+        {
+          "id": "a356bc90-8408-4d6d-a8ce-06f07c3cc630",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "File created successfully at: /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/refactor-plan.md (file state is current in your context — no need to Read it back)",
+              "callId": "toolu_01MSQP1WTdVLYCvFtmDxqcoN"
+            }
+          ],
+          "timestamp": 1793908898509,
+          "source": "transcript",
+          "parentId": "498e0818-7455-44dd-8b28-f5da2a548039"
+        },
+        {
+          "id": "797db450-9a7a-446d-bbdd-ab79f3a0c115",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Agent",
+              "input": {
+                "description": "Merge executor: apply refactor plan",
+                "subagent_type": "merge-executor",
+                "model": "opus",
+                "prompt": "Execute a refactoring plan to produce one merged requirements document.\n\nInputs (read-only, all in /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/):\n- BASE: variant-2-sonnet-analyzer.md\n- PLAN: refactor-plan.md (5 planned changes, 5 rejected changes)\n- SOURCE for incorporated material: variant-1-opus-scribe.md\n- Evidence: debate-transcript.md (scoring matrix and convergence), base-selection.md\n- You may re-check these facts yourself: /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/src/superclaude/commands/reflect.md line 101, .../src/superclaude/commands/brainstorm.md line 62, .../.dev/README.md lines 47, 54 and 63, /home/coder/.claude/WORKER-CONTRACT.md line 159.\n\nDo:\n1. Start from the BASE text. Apply Changes 1 to 5 of the PLAN in plan order, exactly as the plan describes. Do not apply anything under \"Changes NOT Being Made\". Do not add new decisions: where the plan says UNRESOLVED, the merged text must say UNRESOLVED and show both options without choosing.\n2. Keep the base's own structure (H2 sections). Nu… (truncated)"
+              },
+              "callId": "toolu_019B7Cphnet2QkAMoa8UhKLJ"
+            }
+          ],
+          "timestamp": 1793908915546,
+          "source": "transcript",
+          "parentId": "90b67712-2e09-444f-b7c6-913e796b0ee6"
+        },
+        {
+          "id": "32572bb7-5f19-43d8-aaf6-55fad5a7f26f",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "Async agent launched successfully. (This tool result is internal metadata — never quote or paste any part of it, including the agentId below, into a user-facing reply.)\nagentId: aed60732cea2d073a (internal ID - do not mention to user. Use SendMessage with to: 'aed60732cea2d073a', summary: '<5-10 word recap>' to continue this agent.)\nThe agent is working in the background. You will be notified automatically when it completes. You know nothing about its results until that notification arrives — do not report, assume, or predict them; continue other work or respond to the user in the meantime.\nDo not duplicate this agent's work — avoid working with the same files or topics it is using.\noutput_file: /tmp/claude-1000/-home-coder-workspaces-worktrees-IronClaude-p1-live-brainstorm/447b8ad0-6fc7-420e-8927-293e8f45ce2e/tasks/aed60732cea2d073a.output\nDo NOT Read or tail this file via the shell tool — it is the full subagent JSONL transcript and reading it will overflow your context. If the user asks for progress, say the agent is still running; you'll get a completion notification.",
+              "callId": "toolu_019B7Cphnet2QkAMoa8UhKLJ"
+            }
+          ],
+          "timestamp": 1793908915662,
+          "source": "transcript",
+          "parentId": "797db450-9a7a-446d-bbdd-ab79f3a0c115"
+        },
+        {
+          "id": "b48b42f9-6223-450c-a24a-3fc3c9a689af",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "The merge agent is running. I'll validate its output and write both return contracts once it finishes.\n\n| Status | Result |\n|---|---|\n| DONE | Debate transcript, base selection (Variant 2, chosen by the tiebreaker), and refactor plan are written under `.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/`. |\n| DONE | Convergence is 62.5% (10 of 16 points), below the 75% threshold, so this will report as partial. |\n| NEXT | Check the merge output, write the adversarial contracts, copy the result to `merged-requirements.md`, and write the worker contract. |"
+            }
+          ],
+          "timestamp": 1793908918612,
+          "source": "transcript",
+          "parentId": "354a717b-2cf7-42ab-8baa-8202d4ac25af"
+        },
+        {
+          "id": "f35881c1-3005-4c0c-a27f-2ffa32f8739f",
+          "role": "user",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "<task-notification>\n<task-id>aed60732cea2d073a</task-id>\n<tool-use-id>toolu_019B7Cphnet2QkAMoa8UhKLJ</tool-use-id>\n<output-file>/tmp/claude-1000/-home-coder-workspaces-worktrees-IronClaude-p1-live-brainstorm/447b8ad0-6fc7-420e-8927-293e8f45ce2e/tasks/aed60732cea2d073a.output</output-file>\n<status>completed</status>\n<summary>Agent \"Merge executor: apply refactor plan\" finished</summary>\n<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>\n<result>- /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/merged-output.md\n- /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/merge-log.md\n\nStatus: success</result>\n<usage><subagent_tokens>138138</subagent_tokens><tool_uses>20</tool_uses><duration_ms>225680</duration_ms></usage>\n</task-notification>"
+            }
+          ],
+          "timestamp": 1793909141321,
+          "source": "transcript",
+          "parentId": "39434001-c6d6-4d4f-a280-f3ab5558164a"
+        },
+        {
+          "id": "a0d8305c-3e4d-4020-975c-a7a30de20bea",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Read",
+              "input": {
+                "file_path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/merged-output.md"
+              },
+              "callId": "toolu_01RUX7nagPrJHfkvd4WsYPy1"
+            }
+          ],
+          "timestamp": 1793909147773,
+          "source": "transcript",
+          "parentId": "acf9e141-3f8f-4cd2-b958-ec6efc33f4bc"
+        },
+        {
+          "id": "f7af0f72-0989-42d2-893a-40ab3cdb8226",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "1\t<!-- Provenance: produced by /sc:adversarial -->\n2\t<!-- Base: Variant 2 (sonnet:analyzer) -->\n3\t<!-- Incorporated: Variant 1 (opus:scribe), per refactor-plan.md Changes 1 to 5 -->\n4\t<!-- Merge date: 2026-11-05 -->\n5\t\n6\t# Requirements: naming report directories for parallel workers\n7\t\n8\t<!-- Source: Base (original, modified) - second sentence added so the evidence statement covers the files cited by FR-017 (Change 1) -->\n9\tPersona: analyzer. Evidence sources: `seed-brief.md`, `enrichment/codebase-context.md`, and `~/.claude/WORKER-CONTRACT.md` (cited as WC-n or by section). Anything I could not confirm from those three files is marked UNVERIFIED. This merged version also cites `src/superclaude/commands/reflect.md`, `src/superclaude/commands/brainstorm.md` and `.dev/README.md` (FR-017), whose lines were checked during the debate.\n10\t\n11\t## Problem and root cause\n12\t\n13\t<!-- Source: Base (original) -->\n14\tThe contract requires one report directory per Task, known before dispatch, never shared, never reused by a retry (WC-4, WC-6, WC-11), but fixes no format. The only enforcement today is after the fact: a command refuses a directory that already holds a `return-contract.yaml` (WC-4)\n… (truncated)",
+              "callId": "toolu_01RUX7nagPrJHfkvd4WsYPy1"
+            }
+          ],
+          "timestamp": 1793909147859,
+          "source": "transcript",
+          "parentId": "a0d8305c-3e4d-4020-975c-a7a30de20bea"
+        },
+        {
+          "id": "5a2cbc0a-5174-49bd-b73c-97449274a8b6",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "orca orchestration send --from term_236db55f-83ff-4a83-ae22-29529f7d3ed5 --type heartbeat --subject \"alive\" --task-id task_6b435657612a --dispatch-id ctx_6ee392638456 --phase \"reviewing merge output\"; wc -l /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/merge-log.md",
+                "description": "Send heartbeat, size merge log"
+              },
+              "callId": "toolu_01SdpQYFjGn1PPWJeajHdjuX"
+            }
+          ],
+          "timestamp": 1793909149635,
+          "source": "transcript",
+          "parentId": "131f9dc6-12f0-4d9d-a34d-73c6e01a87df"
+        },
+        {
+          "id": "1fa00c45-c2cd-4a60-a312-c667f62b98e9",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "Sent msg_c001e2fbd1a0\n108 /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/merge-log.md",
+              "callId": "toolu_01SdpQYFjGn1PPWJeajHdjuX"
+            }
+          ],
+          "timestamp": 1793909149947,
+          "source": "transcript",
+          "parentId": "5a2cbc0a-5174-49bd-b73c-97449274a8b6"
+        },
+        {
+          "id": "9522257f-e10a-4863-80ee-2deefb6649e1",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Grep",
+              "input": {
+                "pattern": "Status:|Total:|Broken|broken|Planned|planned|Applied|failed|skipped",
+                "path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/merge-log.md",
+                "output_mode": "content",
+                "-n": true,
+                "head_limit": 30
+              },
+              "callId": "toolu_01KLiNZSHBQoiyspdcMduSPk"
+            }
+          ],
+          "timestamp": 1793909156068,
+          "source": "transcript",
+          "parentId": "874a9ec9-1e8b-4513-8397-0cd2d3179742"
+        },
+        {
+          "id": "6768b0b7-7212-418a-a3ea-3758b0bc7684",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "7:- Plan: `refactor-plan.md` (5 planned changes, 5 rejected changes)\n11:- Status: success\n18:## Changes Applied\n22:- Status: applied\n24:- After (excerpt): \"**FR-017. Report directories never sit directly in a folder another tool owns.** ... Option A (Variant 1). A dedicated root for every command: `.dev/orca/<runStamp>-<runSlug>/<command>-<subject>-<attempt>/` ... Option B (Variant 2). Keep `.dev/<command>/<subject>-<n>/` and give the reserved commands a parent folder that no tool owns. The folder name is to be decided by the person. Status: UNRESOLVED.\"\n34:- Status: applied\n36:- After (excerpt): \"**FR-011. Only the attempt number changes between retries.** ... The path can appear more than once on the `Command:` line: the contract's own example passes `--output .dev/tdd/auth-1/tdd.md --report-dir .dev/tdd/auth-1/` (WORKER-CONTRACT.md line 159). Before it compares command lines for the three-failed-starts limit, the coordinator removes every path token that carries the attempt number (the directory and any file path inside it).\"\n43:- Status: applied\n56:- Status: applied\n57:- Before (risk 1): \"... has no attempt suffix ... Recommendation: add `-1` from the start; renaming existing p\n… (truncated)",
+              "callId": "toolu_01KLiNZSHBQoiyspdcMduSPk"
+            }
+          ],
+          "timestamp": 1793909156154,
+          "source": "transcript",
+          "parentId": "9522257f-e10a-4863-80ee-2deefb6649e1"
+        },
+        {
+          "id": "7002248a-5145-427e-ad71-00acd7803bd9",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "B=/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm\n{\ncat <<'EOF'\n---\ntopic: \"how a coordinator should name report directories for parallel workers\"\ndomain: process\nstrategy: systematic\ndepth: quick\nadversarial_status: partial\nconvergence_score: 0.625\nconvergence_threshold: 0.75\nsource_seed_brief: seed-brief.md\nadversarial_merged_output: nested/adversarial-1/merged-output.md\ncreated: 2026-11-05T20:07:00Z\n---\n\n> Caution: the adversarial debate reached 62.5% agreement against a 75% threshold. Six points are unresolved and listed at the end of this document (section \"Unresolved conflicts\"). Review `nested/adversarial-1/adversarial/debate-transcript.md` before relying on the root-folder choice (FR-017).\n\nEOF\ncat \"$B/nested/adversarial-1/merged-output.md\"\n} > \"$B/merged-requirements.md\"\nhead -16 \"$B/merged-requirements.md\" | tail -4; wc -l \"$B/merged-requirements.md\"; ls \"$B/nested/adversarial-1/adversarial\"",
+                "description": "Create merged-requirements.md with partial-status frontmatter"
+              },
+              "callId": "toolu_01F8ucfe2SwZS1hjSAqAKsv3"
+            }
+          ],
+          "timestamp": 1793909179959,
+          "source": "transcript",
+          "parentId": "d4155582-8520-4b6d-8b69-ed549d29d7e3"
+        },
+        {
+          "id": "922124fc-0dad-49cd-a6c7-064da13d4bfa",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "> Caution: the adversarial debate reached 62.5% agreement against a 75% threshold. Six points are unresolved and listed at the end of this document (section \"Unresolved conflicts\"). Review `nested/adversarial-1/adversarial/debate-transcript.md` before relying on the root-folder choice (FR-017).\n\n<!-- Provenance: produced by /sc:adversarial -->\n170 /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/merged-requirements.md\nbase-selection.md\ndebate-transcript.md\ndiff-analysis.md\nmerge-log.md\nrefactor-plan.md\nround1-advocate-1.md\nround1-advocate-2.md\nvariant-1-opus-scribe.md\nvariant-2-sonnet-analyzer.md",
+              "callId": "toolu_01F8ucfe2SwZS1hjSAqAKsv3"
+            }
+          ],
+          "timestamp": 1793909180079,
+          "source": "transcript",
+          "parentId": "7002248a-5145-427e-ad71-00acd7803bd9"
+        },
+        {
+          "id": "337e0f20-2944-4663-8633-d3f7c6d87b7a",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "Now the adversarial contracts (its own and its worker one)."
+            }
+          ],
+          "timestamp": 1793909186354,
+          "source": "transcript",
+          "parentId": "76d9c0e7-c151-4bde-90dd-d73c01a5ad47"
+        },
+        {
+          "id": "157c62fa-03b7-4e7d-a34e-fdddb14ea024",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Write",
+              "input": {
+                "file_path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/return-contract.yaml",
+                "content": "return_contract:\n  merged_output_path: \".dev/p1-live/brainstorm/nested/adversarial-1/merged-output.md\"\n  convergence_score: 0.625\n  artifacts_dir: \".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/\"\n  status: \"partial\"                 # completed with non-convergence: 10 of 16 points agreed, threshold 0.75\n  base_variant: \"sonnet:analyzer\"   # chosen by the tiebreaker (combined scores 0.885 against 0.888)\n  unresolved_conflicts: 6           # S-001, C-001, C-002, C-006, X-001, A-002\n  fallback_mode: false\n  failure_stage: null\n  invocation_method: \"skill-direct\"\n  unaddressed_invariants: []        # Round 2.5 invariant probe skipped at --depth quick\n"
+              },
+              "callId": "toolu_01Bb2DoThM8jJU3qHbUnV1t1"
+            }
+          ],
+          "timestamp": 1793909188651,
+          "source": "transcript",
+          "parentId": "337e0f20-2944-4663-8633-d3f7c6d87b7a"
+        },
+        {
+          "id": "ae5a27b5-dfcb-45a9-af30-5a53319c02cf",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "File created successfully at: /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/return-contract.yaml (file state is current in your context — no need to Read it back)",
+              "callId": "toolu_01Bb2DoThM8jJU3qHbUnV1t1"
+            }
+          ],
+          "timestamp": 1793909188890,
+          "source": "transcript",
+          "parentId": "157c62fa-03b7-4e7d-a34e-fdddb14ea024"
+        },
+        {
+          "id": "17273e00-3028-4e59-8e04-a7a4a3a32b8b",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Write",
+              "input": {
+                "file_path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/return-contract.yaml",
+                "content": "worker_contract_version: \"1\"\nworker_status: partial\ncommand: \"/sc:adversarial --unattended --source .dev/p1-live/brainstorm/seed-brief.md --generate spec --agents opus:scribe,sonnet:analyzer --depth quick --convergence 0.75 --output .dev/p1-live/brainstorm/nested/adversarial-1/\"\nreport_path: \".dev/p1-live/brainstorm/nested/adversarial-1/merged-output.md\"\nartifacts:\n  - \".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/return-contract.yaml\"\n  - \".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/variant-1-opus-scribe.md\"\n  - \".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/variant-2-sonnet-analyzer.md\"\n  - \".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/diff-analysis.md\"\n  - \".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/round1-advocate-1.md\"\n  - \".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/round1-advocate-2.md\"\n  - \".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/debate-transcript.md\"\n  - \".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/base-selection.md\"\n  - \".dev/p… (truncated)"
+              },
+              "callId": "toolu_01Uh6RNDfSCchPQcJY7LgZhC"
+            }
+          ],
+          "timestamp": 1793909191709,
+          "source": "transcript",
+          "parentId": "df76ee21-c56c-4368-b0af-6c08e9aa33a8"
+        },
+        {
+          "id": "150bd052-1d70-456e-a210-fd691d0e79b0",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "File created successfully at: /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/nested/adversarial-1/return-contract.yaml (file state is current in your context — no need to Read it back)",
+              "callId": "toolu_01Uh6RNDfSCchPQcJY7LgZhC"
+            }
+          ],
+          "timestamp": 1793909191964,
+          "source": "transcript",
+          "parentId": "17273e00-3028-4e59-8e04-a7a4a3a32b8b"
+        },
+        {
+          "id": "b45bedcd-6a23-4b49-9fa2-06d01099539a",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Write",
+              "input": {
+                "file_path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/return-contract.yaml",
+                "content": "contract_version: \"1.0\"\nstatus: partial   # adversarial convergence 0.625 is in the 0.50 to 0.65 band: PARTIAL, merged output copied with adversarial_status: partial\nseed_brief_path: \".dev/p1-live/brainstorm/seed-brief.md\"\nmerged_output_path: \".dev/p1-live/brainstorm/merged-requirements.md\"\nconvergence_score: 0.625\nadversarial_artifacts_dir: \".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/\"\ndomain: process\nproposal_count: 2\nenrichment_used:\n  - source: codebase\n    quality_tier: fallback_1   # auggie retrieval tool not available in this session; codegraph search, Grep and Read were used\n  - source: research-light\n    quality_tier: skipped      # research is off under --unattended\n  - source: research-deep\n    quality_tier: skipped      # research is off under --unattended\nhandoff_action: none\nhandoff_output_path: null\nunresolved_conflicts:\n  - \"S-001: section order (cosmetic): MERGE against Variant 2\"\n  - \"C-001: root folder shape: new run folder (.dev/orca/...) against per-command root (.dev/<command>/...)\"\n  - \"C-002: date in the path: one run stamp… (truncated)"
+              },
+              "callId": "toolu_01YXeFYANfua616bK6kVJs4f"
+            }
+          ],
+          "timestamp": 1793909206321,
+          "source": "transcript",
+          "parentId": "4f47d827-67ed-4e6b-a823-500076200343"
+        },
+        {
+          "id": "accb9614-7b50-4821-aa78-8ff8be43c85e",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "File created successfully at: /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/return-contract.yaml (file state is current in your context — no need to Read it back)",
+              "callId": "toolu_01YXeFYANfua616bK6kVJs4f"
+            }
+          ],
+          "timestamp": 1793909206553,
+          "source": "transcript",
+          "parentId": "b45bedcd-6a23-4b49-9fa2-06d01099539a"
+        },
+        {
+          "id": "073d1f71-3318-49c7-98ae-f28848643bca",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "cd /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm && wc -c .dev/p1-live/brainstorm/enrichment/codebase-context.md && uv run python -c \"\nimport yaml,sys\nfor p in ['.dev/p1-live/brainstorm/return-contract.yaml','.dev/p1-live/brainstorm/nested/adversarial-1/return-contract.yaml','.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/return-contract.yaml']:\n    d=yaml.safe_load(open(p)); print(p, 'OK', list(d)[:4])\n\" ; git status --porcelain | head; git diff --cached --name-only | head -3",
+                "description": "Check file size, parse contracts, confirm nothing staged"
+              },
+              "callId": "toolu_01E7FL45e1PyR2zd7Yovj1ro"
+            }
+          ],
+          "timestamp": 1793909207970,
+          "source": "transcript",
+          "parentId": "6b71a83f-df38-4fa6-8e73-8dc2e723f492"
+        },
+        {
+          "id": "e640345c-d6d3-471d-801d-54b53f73a896",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "2880 .dev/p1-live/brainstorm/enrichment/codebase-context.md\nUsing CPython 3.11.15\nCreating virtual environment at: .venv\n   Building superclaude @ file:///home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm\n      Built superclaude @ file:///home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm\nInstalled 27 packages in 30ms\n.dev/p1-live/brainstorm/return-contract.yaml OK ['contract_version', 'status', 'seed_brief_path', 'merged_output_path']\n.dev/p1-live/brainstorm/nested/adversarial-1/return-contract.yaml OK ['worker_contract_version', 'worker_status', 'command', 'report_path']\n.dev/p1-live/brainstorm/nested/adversarial-1/adversarial/return-contract.yaml OK ['return_contract']\n?? .dev/p1-live/",
+              "callId": "toolu_01E7FL45e1PyR2zd7Yovj1ro"
+            }
+          ],
+          "timestamp": 1793909209425,
+          "source": "transcript",
+          "parentId": "073d1f71-3318-49c7-98ae-f28848643bca"
+        },
+        {
+          "id": "3df7ed81-f007-4999-a390-9b30657b3959",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Read",
+              "input": {
+                "file_path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/return-contract.yaml",
+                "offset": 68
+              },
+              "callId": "toolu_01MUeQkXoxWqFUxbLZpm5d3T"
+            }
+          ],
+          "timestamp": 1793909213992,
+          "source": "transcript",
+          "parentId": "11951e78-66ff-4da1-9b4a-dbf1b12b575d"
+        },
+        {
+          "id": "8d88f7a1-3638-4279-ba7e-5dca9ef17a88",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "<system-reminder>Warning: the file exists but is shorter than the provided offset (68). The file has 67 lines.</system-reminder>",
+              "callId": "toolu_01MUeQkXoxWqFUxbLZpm5d3T"
+            }
+          ],
+          "timestamp": 1793909214094,
+          "source": "transcript",
+          "parentId": "3df7ed81-f007-4999-a390-9b30657b3959"
+        },
+        {
+          "id": "5cb4a892-6152-42d3-808b-8c309513a0f3",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Read",
+              "input": {
+                "file_path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/return-contract.yaml",
+                "offset": 62
+              },
+              "callId": "toolu_01RQNZmZb4ZMKgGiUPN55t5j"
+            }
+          ],
+          "timestamp": 1793909215934,
+          "source": "transcript",
+          "parentId": "daf8ac5f-ba12-45a4-8acb-7211e4291b36"
+        },
+        {
+          "id": "0250d9eb-79ea-4a47-98e9-e02f810241cf",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "62\t  budget_note: \"Estimate was 18400 tokens with the refs/agent-spec-builder.md multiplier (quick = 8000) and 184000 with the SKILL.md multiplier (quick = 80000). Measured 560220 is above 1.25 x either estimate (23000 or 230000). The hard-kill check was applied only after the run, once the agent counts were known; the run was not aborted. The two skill files disagree on the multiplier.\"\n63\tagent_spec: \"opus:scribe,sonnet:analyzer\"\n64\tenrichment_artifact_sizes:\n65\t  codebase-context.md: 3478\n66\t  research-light.md: 0\n67\t",
+              "callId": "toolu_01RQNZmZb4ZMKgGiUPN55t5j"
+            }
+          ],
+          "timestamp": 1793909216030,
+          "source": "transcript",
+          "parentId": "5cb4a892-6152-42d3-808b-8c309513a0f3"
+        },
+        {
+          "id": "fb6e6913-b3f6-4510-be3f-fcf5364e539c",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Edit",
+              "input": {
+                "replace_all": false,
+                "file_path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/return-contract.yaml",
+                "old_string": "  codebase-context.md: 3478",
+                "new_string": "  codebase-context.md: 2880"
+              },
+              "callId": "toolu_011ZJrNLJUMzgN2uk8aZPKeR"
+            }
+          ],
+          "timestamp": 1793909220563,
+          "source": "transcript",
+          "parentId": "e2494739-1703-45d6-82d7-52030de49f8f"
+        },
+        {
+          "id": "a595ced5-491b-4b39-b73d-e2f73ca4222a",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "The file /home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/return-contract.yaml has been updated successfully.",
+              "callId": "toolu_011ZJrNLJUMzgN2uk8aZPKeR",
+              "editPatch": {
+                "filePath": "/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.dev/p1-live/brainstorm/return-contract.yaml",
+                "hunks": [
+                  {
+                    "oldStart": 62,
+                    "oldLines": 5,
+                    "newStart": 62,
+                    "newLines": 5,
+                    "lines": [
+                      "   budget_note: \"Estimate was 18400 tokens with the refs/agent-spec-builder.md multiplier (quick = 8000) and 184000 with the SKILL.md multiplier (quick = 80000). Measured 560220 is above 1.25 x either estimate (23000 or 230000). The hard-kill check was applied only after the run, once the agent counts were known; the run was not aborted. The two skill files disagree on the multiplier.\"",
+                      " agent_spec: \"opus:scribe,sonnet:analyzer\"",
+                      " enrichment_artifact_sizes:",
+                      "-  codebase-context.md: 3478",
+                      "+  codebase-context.md: 2880",
+                      "   research-light.md: 0"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "timestamp": 1793909220683,
+          "source": "transcript",
+          "parentId": "fb6e6913-b3f6-4510-be3f-fcf5364e539c"
+        },
+        {
+          "id": "3f3ed11a-06a7-44d5-ab2f-d79d4bde28cc",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "orca orchestration check --terminal term_236db55f-83ff-4a83-ae22-29529f7d3ed5 --json; orca orchestration send --help 2>&1 | grep -iE 'files-modified|report-path' | head",
+                "description": "Check coordinator follow-ups and send flags"
+              },
+              "callId": "toolu_01RD8VJrDoiJsUcXLTZPAy4b"
+            }
+          ],
+          "timestamp": 1793909227580,
+          "source": "transcript",
+          "parentId": "c872ef02-f72f-4313-8682-4a9dab820a5c"
+        },
+        {
+          "id": "b6beed79-8ca2-42e8-9195-f54a8612ef13",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "{\n  \"id\": \"8a97bd14-d3b3-45f4-aa6f-6d35c48ba680\",\n  \"ok\": true,\n  \"result\": {\n    \"runId\": \"run_92b0ef27e086\",\n    \"dispatchId\": \"ctx_6ee392638456\",\n    \"deliveryId\": null,\n    \"messages\": [],\n    \"count\": 0,\n    \"replayed\": false,\n    \"acknowledged\": null,\n    \"timedOut\": false,\n    \"cancelled\": false,\n    \"connectionLost\": false,\n    \"mutation\": {\n      \"requestId\": \"1aa38089-5fd8-4a38-bf1e-cb1c385516ed\",\n      \"replayed\": false\n    }\n  },\n  \"_meta\": {\n    \"runtimeId\": \"f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc\"\n  }\n}\nUsage: orca orchestration send --subject <text> [--to <run:id|dispatch:id|legacy_handle>] [--run <run_id>] [--from <handle>] [--body <text>] [--type <type>] [--priority <level>] [--thread-id <id>] [--payload <json>] [--task-id <id>] [--dispatch-id <id>] [--outcome <succeeded|failed>] [--files-modified <csv>] [--report-path <path>] [--phase <text>] [--retry-request <id>] [--json]\n  --files-modified <csv> Comma-separated files for orchestration payload JSON\n  --report-path <path>  Report path to include in orchestration payload JSON",
+              "callId": "toolu_01RD8VJrDoiJsUcXLTZPAy4b"
+            }
+          ],
+          "timestamp": 1793909227959,
+          "source": "transcript",
+          "parentId": "3f3ed11a-06a7-44d5-ab2f-d79d4bde28cc"
+        },
+        {
+          "id": "7a1b05aa-c5e8-4b76-80e0-86e80faad024",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "No follow-ups from the coordinator. Sending `worker_done` once: the contract reads `worker_status: partial`, which maps to `--outcome succeeded`."
+            }
+          ],
+          "timestamp": 1793909230769,
+          "source": "transcript",
+          "parentId": "8be7441a-0b71-46d6-958b-997f21bd5137"
+        },
+        {
+          "id": "844696b0-db9f-4877-8f22-0b7b5802cdfa",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "orca orchestration send --from term_236db55f-83ff-4a83-ae22-29529f7d3ed5 --type worker_done --subject \"brainstorm live check: partial\" --body \"worker_status: partial (brainstorm own status partial): the guard passed and /sc:brainstorm ran under --unattended with --output; the merged requirements are in merged-requirements.md but the nested adversarial debate agreed on 10 of 16 points (0.625, threshold 0.75), so 6 points (root folder choice, date, subject style) are listed as unresolved and the merge was marked partial. Findings for the coordinator: research was skipped as required, codebase enrichment used the fallback tier because the auggie tool was absent, the nested adversarial call got --unattended and its own directory nested/adversarial-1/, and the brainstorm skill's two token-estimate multipliers disagree (8000 against 80000 per proposal), so the measured 560220 subagent tokens exceeded 1.25 times either estimate and the abort check ran only after the fact. Nothing was staged, committed or pushed; the run also created an ignored .venv in the worktree through uv run; nothing is left for me except the coordinator's read of return-contract.yaml.\" --task-id task_6b435657… (truncated)",
+                "…": "truncated"
+              },
+              "callId": "toolu_01XxVruAXEmE1nM1ShF2tEMk"
+            }
+          ],
+          "timestamp": 1793909235541,
+          "source": "transcript",
+          "parentId": "7a1b05aa-c5e8-4b76-80e0-86e80faad024"
+        },
+        {
+          "id": "3a7c8ce5-7bd5-470a-8971-13b8b3059ebd",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "Sent msg_291d8df2d406",
+              "callId": "toolu_01XxVruAXEmE1nM1ShF2tEMk"
+            }
+          ],
+          "timestamp": 1793909235854,
+          "source": "transcript",
+          "parentId": "844696b0-db9f-4877-8f22-0b7b5802cdfa"
+        }
+      ],
+      "nextCursor": "owr1_eyJ2IjoxLCJkIjoiY3R4XzZlZTM5MjYzODQ1NiIsInMiOiJ0cmFuc2NyaXB0IiwiaSI6InJGYkwyWUtfWTdkTDI5MGxqbWtIZmM5MDRHX0htaG1aIiwicCI6MzE3MzE4OSwiYyI6Ilo5VzN2bWRQSU5ocHBZQ1IzbVFKV3J6LTZRa00zSGFWIn0",
+      "limited": true,
+      "returnedMessageCount": 40
+    },
+    "cursor": "owr1_eyJ2IjoxLCJkIjoiY3R4XzZlZTM5MjYzODQ1NiIsInMiOiJ0cmFuc2NyaXB0IiwiaSI6InJGYkwyWUtfWTdkTDI5MGxqbWtIZmM5MDRHX0htaG1aIiwicCI6MzE3MzE4OSwiYyI6Ilo5VzN2bWRQSU5ocHBZQ1IzbVFKV3J6LTZRa00zSGFWIn0",
+    "status": {
+      "worker": "succeeded",
+      "terminal": "running",
+      "liveness": "live"
+    },
+    "fallbackReason": null,
+    "warnings": [
+      "Oversized tool input was clipped.",
+      "Oversized transcript text was clipped."
+    ],
+    "sourceExact": true,
+    "contentComplete": false,
+    "clipping": [
+      "message_limit_or_scan_window",
+      "transcript_payload"
+    ],
+    "projection": {
+      "id": "ctx_6ee392638456",
+      "dispatchId": "ctx_6ee392638456",
+      "taskId": "task_6b435657612a",
+      "runId": "run_92b0ef27e086",
+      "role": "worker",
+      "parent": null,
+      "provider": {
+        "id": "claude",
+        "model": null
+      },
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "succeeded",
+        "dispatch": "completed",
+        "detail": "settled",
+        "activity": "working"
+      },
+      "outcome": "succeeded",
+      "liveness": {
+        "verdict": "live",
+        "observedAt": 1793909235830,
+        "source": "agent_status"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "fresh",
+        "lastObservedAt": 1793909235830
+      },
+      "resource": {
+        "state": "owned",
+        "id": "wtr_4649d53c2c2a",
+        "ownerDispatchId": "ctx_6ee392638456",
+        "releaseState": "not_requested",
+        "terminalState": "reclaimable"
+      },
+      "nextAction": {
+        "kind": "release",
+        "argv": [
+          "orchestration",
+          "worker-release",
+          "--dispatch",
+          "ctx_6ee392638456"
+        ]
+      },
+      "attention": {
+        "categories": [
+          "root_completion"
+        ],
+        "requiresAction": false
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

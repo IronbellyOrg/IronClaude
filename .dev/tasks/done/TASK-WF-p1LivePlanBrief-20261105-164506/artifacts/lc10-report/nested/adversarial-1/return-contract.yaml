@@ -1,0 +1,15 @@
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:adversarial --unattended --source .dev/p1-live/brainstorm/seed-brief.md --generate spec --agents opus:scribe,sonnet:analyzer --depth quick --convergence 0.75 --output .dev/p1-live/brainstorm/nested/adversarial-1/"
+report_path: ".dev/p1-live/brainstorm/nested/adversarial-1/merged-output.md"
+artifacts:
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/return-contract.yaml"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/variant-1-opus-scribe.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/variant-2-sonnet-analyzer.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/diff-analysis.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/round1-advocate-1.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/round1-advocate-2.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/debate-transcript.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/base-selection.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/refactor-plan.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/merge-log.md"

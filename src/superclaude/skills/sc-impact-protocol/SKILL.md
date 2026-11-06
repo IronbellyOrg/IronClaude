@@ -18,7 +18,7 @@ Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without 
 
 ## 1. Flags (step 1 validates them)
 
-| Flag | Default | Validation | STOP → `status: blocked` (contract still written when `--output-dir` resolves) |
+| Flag | Default | Validation | STOP → `status: blocked` (contract still written when `--output-dir` resolves, or `--report-dir` under `--unattended`) |
 |---|---|---|---|
 | `<symbol>...` | none | 1-30 items, each `^[A-Za-z_$][A-Za-z0-9_$]*$` | none and no `--diff`; both symbols and `--diff`; more than 30; a dotted or path-qualified name ("pass the bare name; codegraph has no `Class/method` addressing") |
 | `--diff [<base>]` | `HEAD` when given without a value | `git rev-parse --verify --quiet <base>^{commit}` succeeds | the ref does not resolve |
@@ -28,6 +28,8 @@ Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without 
 | `--test-depth` | unset | integer 1-5, only with `--tests` | without `--tests`; outside 1-5 |
 | `--output-dir` | `<worktree_root>/.dev/impact/<slug>-<YYYYMMDDTHHMMSSZ>/`; `<slug>` = first symbol or `diff-<base>`, lowercased, non-alphanumerics → `-`, max 40 chars | absolute after resolution; not inside `.git/` or `.codegraph/`; created if missing; existing outputs are overwritten | inside `.git`/`.codegraph` → blocked; not creatable or writable → `status: failed`, reason printed |
 | `--caller` | unset | `^[a-z0-9][a-z0-9:-]{0,63}$` | malformed |
+| `--unattended` | `false` | standalone argument token outside any quoted argument; needs exactly one of `--output-dir` / `--report-dir`, passed explicitly | neither or both (the default directory does not satisfy it) → no work, the refusal is printed in chat only |
+| `--report-dir` | unset | only with `--unattended`; same rules as `--output-dir` | inside `.git`/`.codegraph` → blocked, printed in chat only; not creatable or writable → printed in chat only |
 
 With `--caller` set, chat output is three lines: status, `degraded`, contract path. Without it, print the `## Summary` table of `impact.md`.
 
@@ -46,7 +48,7 @@ With `--caller` set, chat output is three lines: status, `degraded`, contract pa
 | 7 | Call-site confirmation | the guide's call-site procedure CS1-CS5 (section 4 below) for the rows shown in `impact.md` tables: first 5 `prod` rows with `hop: 1` per symbol (sort order of step 10), at most 20 per run. A `hop` 2 row (step 5) is never confirmed: its body need not call the queried symbol, so it keeps `resolution: def-line`, is cited only as a definition and is never dropped by CS5 | `resolution: call-site-verified` with `call_site_line`; rows over the budget stay `def-line` (graph) or `unresolved` (grep) and are only counted (token `graph:unresolved`); failing rows are dropped from the tables and counted in `call_sites.dropped` |
 | 8 | Tests (only `--tests`) | changed files = definition files (symbol mode) or D1 files that exist (diff mode); `codegraph affected <file>... --json --quiet` (+ `--depth <--test-depth>`), files as arguments, never a pipeline | `tests[]` with `source: affected`. Heuristic: for each changed `<stem>.<ext>`, Glob `**/test_<stem>.*`, `**/<stem>_test.*`, `**/<stem>.test.*`, `**/<stem>.spec.*`, plus every `test` partition file of steps 4-5 → `source: heuristic`; both → `both`. `selection_source: advisory` when `affected` contributed, else `heuristic_only`. Unparsable JSON → `graph:parse_failed`, heuristic only. Skipped when `index_state` is not `fresh` or `stale` |
 | 9 | Grep fallback (lookups not allowed in step 2, or the CLI transport failed) | symbol mode: Grep `(^|[^A-Za-z0-9_$])<sym>\s*\(` over the worktree, excluding `.git/`, `.codegraph/`, `.dev/`; cap 100 hits per symbol. Diff mode: D1 and D2 still run (git only); D3-D4 need codegraph and do not run, so no symbol is derived | symbol mode: rows `source: grep`, `resolution: unresolved`, `caller: null`, partition by step 6; definitions from the step-3 Grep. Diff mode: every D1 file goes to `unmapped_files[]` with `reason: no_graph`, no dependent row is invented, and step 8's heuristic still uses the D1 files. `status: partial` |
-| 10 | Write outputs | Write `<output-dir>/impact.md` (section 6), then `<output-dir>/return-contract.yaml` (section 5) | rows sorted by `symbol`, `partition` (prod first), `file`, `def_line`; the contract holds at most 40 dependent rows and 6 KB, the rest only in `impact.md` |
+| 10 | Write outputs | Write `<output-dir>/impact.md` (section 6), then `<output-dir>/return-contract.yaml` (section 5); under `--unattended` with `--report-dir` also `<report-dir>/return-contract.yaml` (the existing fields plus the worker fields, listing `impact.md` and the own contract in `artifacts`) | rows sorted by `symbol`, `partition` (prod first), `file`, `def_line`; the contract holds at most 40 dependent rows and 6 KB, the rest only in `impact.md` |
 
 Sort before the step-7 selection, so the confirmed rows are deterministic. Same inputs and the same index give byte-identical files.
 
@@ -94,6 +96,12 @@ Every row carries `resolution: def-line|call-site-verified|unresolved`. Rows are
 | `tests[]` | list[map] or `[]` | with `--tests`: `{path, source: heuristic \| affected \| both}`, sorted by path |
 | `selection_source` | enum or null | `advisory` \| `heuristic_only`; `null` without `--tests` |
 | `errors[]` | list[string] | one line per failed call, verbatim first line |
+| `worker_contract_version` | string | `"1"` (only with `--unattended`) |
+| `worker_status` | enum | `succeeded` \| `partial` \| `failed` (only with `--unattended`); from `status`: `success` → `succeeded`, `partial` → `partial`, `failed` → `failed`, a flag STOP `blocked` → `failed` |
+| `artifacts` | list[string] | other files written: `[]` with `--output-dir`; `impact.md` and the own contract with `--report-dir` (only with `--unattended`) |
+| `reason` | string | the STOP or failure text, when `worker_status` is `failed` (only with `--unattended`) |
+
+The contract holds at most 40 dependent rows and 6 KB. The worker fields (only with `--unattended`) count toward that 6 KB cap; the cap itself is unchanged.
 
 Status merge, `failed > blocked > partial > success`:
 
@@ -179,7 +187,7 @@ The run continues, outputs are written, and the caller is never stopped.
 
 ## Will Not
 
-- Edit code, run tests, or build, sync or remove an index (Write and Edit touch only `impact.md` and `return-contract.yaml` under `--output-dir`)
+- Edit code, run tests, or build, sync or remove an index (Write and Edit touch only `impact.md` and `return-contract.yaml` under `--output-dir`, and, under `--unattended` with `--report-dir`, `<report-dir>/return-contract.yaml`)
 - Use a file-mode `codegraph_node` call without `"symbolsOnly": true`
 - Run CLI `codegraph status` while `pgrep -f 'codegraph\.js (init|index)'` prints a line
 - Prefix a CLI call with environment variables

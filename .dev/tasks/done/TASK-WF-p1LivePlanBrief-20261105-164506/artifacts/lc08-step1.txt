@@ -1,0 +1,5 @@
+task-create receipt: ./artifacts/lc08-task-create.json (exit 0)
+worker-start receipt: ./artifacts/lc08-worker-start.json (exit 0)
+t0=1793906450.840067965 t1=1793906489.832317105
+elapsed_seconds=38.992
+state=ready dispatchId=ctx_e2b737c16ecc taskId=task_222c7eecb8ad

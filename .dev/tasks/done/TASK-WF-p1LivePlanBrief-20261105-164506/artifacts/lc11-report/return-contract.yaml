@@ -1,0 +1,12 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:cleanup-audit tests/pr_submit --pass surface --unattended --report-dir .dev/p1-live/cleanup-audit/"
+report_path: .claude-audit/pass1-summary.md
+artifacts:
+  - .claude-audit/progress.json
+  - .claude-audit/pass1/batch-01.md
+  - .claude-audit/pass1/batch-02.md
+  - .claude-audit/pass1/inventory.txt
+  - .claude-audit/pass1/all-files.txt
+  - .claude-audit/pass1/batch-01-files.txt
+  - .claude-audit/pass1/batch-02-files.txt

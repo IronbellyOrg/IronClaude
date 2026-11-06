@@ -1,0 +1,716 @@
+{
+  "id": "5cb59faf-64cf-44b7-b2bb-535c6a89fada",
+  "ok": true,
+  "result": {
+    "dispatchId": "ctx_9af122fbb5a4",
+    "source": "transcript",
+    "sourceIdentity": "KISjQrdszsdm_VXPsU7TpE0DB-0_XqUq",
+    "provider": "claude",
+    "transcript": {
+      "messages": [
+        {
+          "id": "dbeb99a0-9eea-42fa-b376-f8397ea991c0",
+          "role": "user",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "Please carry out this task from my Orca coordinator by following the brief I pasted below. \n\n<pasted_content id=\"3a3b\">\nYou are working inside Orca, a multi-agent IDE. You are a dispatched worker.\nYour coordinator's terminal handle is: term_558daf54-f38b-4498-b0d1-0d2e8c036e7c\nYour task ID is: task_7d2701e4eae8\n\nThe coordinator cannot see this terminal, so reach it with the `orca orchestration`\ncommands below; a question or result left only in this terminal never gets to it.\nDon't post to Slack, GitHub, or other channels during the run; report through these commands.\n\n=== CLI COMMANDS ===\n\n```sh\n  # Report the task outcome (required, exactly once).\n  #\n  # --body must be a 3-sentence executive summary (what you did,\n  # what you found, what's left). Never send an empty body; the coordinator\n  # reads the body first and only opens artifacts if it needs more detail.\n  # Append --files-modified only when files changed, and append --report-path\n  # only when you produced a durable report. Always pass real values; do not\n  # send the example placeholders literally.\n  #\n  # Send worker_done exactly once. Use --outcome succeeded when the\n  # requested work is done, or replace it with --ou\n… (truncated)"
+            }
+          ],
+          "timestamp": 1793913892902,
+          "source": "transcript",
+          "parentId": "33ec1dc4-aca3-465d-9ac7-d27bf35d1551"
+        },
+        {
+          "id": "a1fa67ee-ecaa-4058-8583-22ac86a387c6",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "I'll start with the guard: read the worker contract and the explain command file."
+            }
+          ],
+          "timestamp": 1793913896256,
+          "source": "transcript",
+          "parentId": "df79edcf-96cd-4eaa-be07-1a5d6206ef0a"
+        },
+        {
+          "id": "a108f4a8-6e8e-4cf0-ad0a-168708f533ba",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Read",
+              "input": {
+                "file_path": "/home/coder/.claude/WORKER-CONTRACT.md"
+              },
+              "callId": "toolu_01RTjrt8guPJ4ogTAJLzkcSU"
+            }
+          ],
+          "timestamp": 1793913896598,
+          "source": "transcript",
+          "parentId": "a1fa67ee-ecaa-4058-8583-22ac86a387c6"
+        },
+        {
+          "id": "d350d664-eb91-44d3-aba2-2f65a1c18a97",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "1\t# Worker contract: IronClaude commands as Orca workers\n2\t\n3\tThis file is installed to `~/.claude/WORKER-CONTRACT.md`. It holds the rules that let an Orca coordinator run IronClaude `/sc:` commands as workers: the terms, the rules a command follows under `--unattended`, the duties of the worker session, and the coordinator's rules with its brief template. Each changed command adds a short `## Unattended mode` section that lists only its own gate resolutions and report file and points to this file, so the shared rules are written once.\n4\t\n5\tA coordinator plans the work, creates Tasks, starts one worker per Task and reads each worker's report. Each `/sc:` command stays a self-contained unit of work: one worker (a top-level Claude session in its own Orca terminal) runs one command and reports it with `worker_done`. Commands themselves contain no Orca calls.\n6\t\n7\tThe dispatch preamble that Orca gives each worker is the authority for Orca verb syntax and heartbeat cadence. This file never copies them, because the preamble is issued per dispatch by the running Orca version.\n8\t\n9\t## 1. Terms\n10\t\n11\t- **Worker run**: a session that received an Orca preamble carrying a Task ID and a Dispat\n… (truncated)",
+              "callId": "toolu_01RTjrt8guPJ4ogTAJLzkcSU"
+            }
+          ],
+          "timestamp": 1793913896856,
+          "source": "transcript",
+          "parentId": "a108f4a8-6e8e-4cf0-ad0a-168708f533ba"
+        },
+        {
+          "id": "a88abed1-68a3-456e-8fd7-76f5847760f6",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Read",
+              "input": {
+                "file_path": "/home/coder/.claude/commands/sc/explain.md"
+              },
+              "callId": "toolu_01JcXkdeQcYjcypAu51SCzCZ"
+            }
+          ],
+          "timestamp": 1793913896905,
+          "source": "transcript",
+          "parentId": "80044ca9-e695-4e0b-812c-6f1c3000631e"
+        },
+        {
+          "id": "ee61aa27-fd9c-4f62-ae67-2e8cc2dce2a1",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "1\t---\n2\tname: explain\n3\tdescription: \"Provide clear explanations of code, concepts, and system behavior with educational clarity\"\n4\tcategory: workflow\n5\tcomplexity: standard\n6\tmcp-servers: [context7, codegraph]\n7\tpersonas: [educator, architect, security]\n8\t---\n9\t\n10\t# /sc:explain - Code and Concept Explanation\n11\t\n12\t## Triggers\n13\t\n14\t- Code understanding and documentation requests for complex functionality\n15\t- System behavior explanation needs for architectural components\n16\t- Educational content generation for knowledge transfer\n17\t- Framework-specific concept clarification requirements\n18\t\n19\t## Usage\n20\t\n21\t```\n22\t/sc:explain [target] [--level basic|intermediate|advanced] [--format text|examples|interactive] [--context domain]\n23\t/sc:explain [target] [--output <file>] [--unattended] [--report-dir <dir>]\n24\t```\n25\t\n26\t`--output <file>` writes the explanation to that file. A standalone run writes a file only when you pass it.\n27\t\n28\t## Behavioral Flow\n29\t\n30\t1. **Analyze**: Examine target code, concept, or system for comprehensive understanding\n31\t2. **Assess**: Determine audience level and appropriate explanation depth and format\n32\t3. **Structure**: Plan explanation sequence \n… (truncated)",
+              "callId": "toolu_01JcXkdeQcYjcypAu51SCzCZ"
+            }
+          ],
+          "timestamp": 1793913897015,
+          "source": "transcript",
+          "parentId": "a88abed1-68a3-456e-8fd7-76f5847760f6"
+        },
+        {
+          "id": "880447a4-5434-4ae4-82f0-89f85d6d2ceb",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "ls -la .claude/commands/sc/explain.md 2>&1; grep -c '^## Unattended mode' .claude/commands/sc/explain.md ~/.claude/commands/sc/explain.md 2>&1; cmp .claude/commands/sc/explain.md ~/.claude/commands/sc/explain.md && echo SAME; git rev-parse --abbrev-ref HEAD; git status --porcelain; ls .dev/p1-live/ 2>&1; ls ~/.claude/CODEGRAPH.md; ls src/superclaude/cli/install_core.py",
+                "description": "Check both explain command copies and worktree state"
+              },
+              "callId": "toolu_01W2tXK8vu3fAoCGw8f7uksS"
+            }
+          ],
+          "timestamp": 1793913902253,
+          "source": "transcript",
+          "parentId": "7a14a428-822e-4cc1-bceb-1215ad4fdcde"
+        },
+        {
+          "id": "86236d68-e5c6-49ca-8d4a-a3402a4f9b06",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "-rw------- 1 coder coder 5824 Nov  5 21:24 .claude/commands/sc/explain.md\n.claude/commands/sc/explain.md:1\n/home/coder/.claude/commands/sc/explain.md:1\nSAME\nironbelly/p1-live-commit-grant\nls: cannot access '.dev/p1-live/': No such file or directory\n/home/coder/.claude/CODEGRAPH.md\nsrc/superclaude/cli/install_core.py",
+              "callId": "toolu_01W2tXK8vu3fAoCGw8f7uksS"
+            }
+          ],
+          "timestamp": 1793913902507,
+          "source": "transcript",
+          "parentId": "880447a4-5434-4ae4-82f0-89f85d6d2ceb"
+        },
+        {
+          "id": "6640c749-b138-4f15-9338-d38d9592c309",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "Guard passes: both copies of the command are identical, both have the Unattended section, and the line carries `--unattended`. Now I'll send a heartbeat and read the target."
+            }
+          ],
+          "timestamp": 1793913906699,
+          "source": "transcript",
+          "parentId": "d64b15ae-4b46-4e80-b1a7-66aee613136b"
+        },
+        {
+          "id": "fe9e78f8-4054-4397-8f70-907b5df94943",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "orca orchestration send --from term_e9de1d2f-ffd4-46ae-8b4e-f553f063f58a --type heartbeat --subject \"alive\" --task-id task_7d2701e4eae8 --dispatch-id ctx_9af122fbb5a4 --phase \"implementing\" 2>&1 | tail -3; mkdir -p .dev/p1-live/commit-grant",
+                "description": "Send heartbeat and create report directory"
+              },
+              "callId": "toolu_01Jv4ZDejbGgRxGKwy6kQuRo"
+            }
+          ],
+          "timestamp": 1793913908021,
+          "source": "transcript",
+          "parentId": "6640c749-b138-4f15-9338-d38d9592c309"
+        },
+        {
+          "id": "53226269-0fd1-467b-a5e2-9e9cae606f5a",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "Sent msg_c4086a85201b",
+              "callId": "toolu_01Jv4ZDejbGgRxGKwy6kQuRo"
+            }
+          ],
+          "timestamp": 1793913908331,
+          "source": "transcript",
+          "parentId": "fe9e78f8-4054-4397-8f70-907b5df94943"
+        },
+        {
+          "id": "ca47ebe1-7ab3-478a-a1fd-95f2670e61c2",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Read",
+              "input": {
+                "file_path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant/src/superclaude/cli/install_core.py"
+              },
+              "callId": "toolu_01GhWJYqCFMtCDY3jnTkhspi"
+            }
+          ],
+          "timestamp": 1793913908526,
+          "source": "transcript",
+          "parentId": "5dec4aca-3cb8-482d-9a35-5fdbb8bd11a6"
+        },
+        {
+          "id": "76604f75-5a30-48e1-9fba-139874422983",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "1\t\"\"\"\n2\tCore Framework Installation\n3\t\n4\tInstalls SuperClaude core framework files to ~/.claude/ directory.\n5\tThese are the behavioral instruction files that Claude Code reads on startup.\n6\t\"\"\"\n7\t\n8\timport shutil\n9\tfrom pathlib import Path\n10\tfrom typing import List, Tuple\n11\t\n12\t# Core files this version ships; list_installed_core_files reports only these.\n13\tKNOWN_CORE_FILES = frozenset(\n14\t    {\n15\t        \"BASH_INSPECTION_POLICY.md\",\n16\t        \"BUSINESS_PANEL_EXAMPLES.md\",\n17\t        \"BUSINESS_SYMBOLS.md\",\n18\t        \"CLAUDE.md\",\n19\t        \"CODEGRAPH.md\",\n20\t        \"HOW-WE-WORK.md\",\n21\t        \"ISSUE-BACKLOG.md\",\n22\t        \"ISSUE-HANDOFF.md\",\n23\t        \"PRINCIPLES.md\",\n24\t        \"RESEARCH_CONFIG.md\",\n25\t        \"RULES.md\",\n26\t        \"WORKER-CONTRACT.md\",\n27\t    }\n28\t)\n29\t\n30\t\n31\tdef install_core_files(\n32\t    target_path: Path = None, force: bool = False\n33\t) -> Tuple[bool, str]:\n34\t    \"\"\"\n35\t    Install SuperClaude core framework files to Claude Code config directory.\n36\t\n37\t    Copies all .md files from src/superclaude/core/ to ~/.claude/,\n38\t    providing the behavioral instructions that power the SuperClaude framework.\n39\t\n40\t    Args:\n41\t        target_path: Target\n… (truncated)",
+              "callId": "toolu_01GhWJYqCFMtCDY3jnTkhspi"
+            }
+          ],
+          "timestamp": 1793913908607,
+          "source": "transcript",
+          "parentId": "ca47ebe1-7ab3-478a-a1fd-95f2670e61c2"
+        },
+        {
+          "id": "f6beaf8d-6a1e-4097-a1e0-90b04004b9ac",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Read",
+              "input": {
+                "file_path": "/home/coder/.claude/CODEGRAPH.md"
+              },
+              "callId": "toolu_014HFHxgn951iMDwEtyLbDWn"
+            }
+          ],
+          "timestamp": 1793913908728,
+          "source": "transcript",
+          "parentId": "68e48392-f789-4204-a83e-2d56cfc271c9"
+        },
+        {
+          "id": "38681da3-e206-41a3-8f7f-4f71e4cdcaba",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "1\t# CODEGRAPH.md - codegraph usage rules for IronClaude primitives\n2\t\n3\tRead this file when a command, skill or agent uses codegraph. It is not loaded into every session. Primitives point here with one line and never copy these rules.\n4\t\n5\t## 1. What it is\n6\t\n7\tcodegraph is a read-only code graph of the current git worktree: symbols, call edges, file outlines and impact, kept as one SQLite index per worktree in `<worktree>/.codegraph/` (gitignored). Markdown, files over 1 MB, ignored files and dependency folders are not indexed. A graph answer locates code; it is never a citation.\n8\t\n9\t## 2. Readiness check (once per run)\n10\t\n11\t1. Switch: `printenv SUPERCLAUDE_CODEGRAPH_PRIMITIVES` prints `off` → `index_state: disabled`, `access: none`, token `graph:disabled`; use the Phase 1 floor (Grep, Glob, Read) and stop the check.\n12\t2. Worktree: `worktree_root` = realpath of `git rev-parse --show-toplevel`; pass it as `projectPath` on every MCP call.\n13\t3. MCP detection: read the session's own tool list, never the kind of run. `mcp__codegraph__codegraph_status` listed → call it with `projectPath`. Not listed → CLI `codegraph status` in `worktree_root`, and only when `pgrep -f 'codegraph\\.js\n… (truncated)",
+              "callId": "toolu_014HFHxgn951iMDwEtyLbDWn"
+            }
+          ],
+          "timestamp": 1793913908811,
+          "source": "transcript",
+          "parentId": "f6beaf8d-6a1e-4097-a1e0-90b04004b9ac"
+        },
+        {
+          "id": "ab5cfeb2-92f7-40e1-bc08-97c2783de015",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "mcp__codegraph__codegraph_status",
+              "input": {
+                "projectPath": "/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant"
+              },
+              "callId": "toolu_01BtkPWBG1x7KMerNTc2J7gU"
+            }
+          ],
+          "timestamp": 1793913913996,
+          "source": "transcript",
+          "parentId": "7a8f06e1-85c2-4e53-ad40-a7e0b6b821b9"
+        },
+        {
+          "id": "980444c3-07d8-4b69-ba9b-501208536889",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "mcp__codegraph__codegraph_callers",
+              "input": {
+                "symbol": "install_core_files",
+                "projectPath": "/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant",
+                "limit": 10
+              },
+              "callId": "toolu_016DKWPsyzL8UXcX81d8s31y"
+            }
+          ],
+          "timestamp": 1793913914416,
+          "source": "transcript",
+          "parentId": "ab5cfeb2-92f7-40e1-bc08-97c2783de015"
+        },
+        {
+          "id": "193ce68c-202d-4b77-b188-0ee94b0118aa",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "mcp__codegraph__codegraph_callers",
+              "input": {
+                "symbol": "list_installed_core_files",
+                "projectPath": "/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant",
+                "limit": 10
+              },
+              "callId": "toolu_01CWWHf36Rh2cL3eVkmuQ7hr"
+            }
+          ],
+          "timestamp": 1793913914933,
+          "source": "transcript",
+          "parentId": "980444c3-07d8-4b69-ba9b-501208536889"
+        },
+        {
+          "id": "6c1328aa-7c97-40dd-bb19-0e106d74b3de",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "**Callers of install_core_files (8 found)**\n\n- test_core_install_and_listing_include_policy (function) - tests/cli/test_bash_inspection_policy.py:36\n- test_body_files_shipped_and_installed_flat (function) - tests/cli/test_issue_body_templates.py:27\n- test_install_never_removes_unshipped_files (function) - tests/cli/test_how_we_work_install.py:79\n- install (function) - src/superclaude/cli/main.py:46\n- test_how_we_work_installed_and_listed (function) - tests/cli/test_how_we_work_install.py:27\n- _install_core (function) - tests/unit/test_cli_install.py:965\n- test_install_never_touches_existing_files_without_force (function) - tests/cli/test_how_we_work_install.py:53\n- update (function) - src/superclaude/cli/main.py:340",
+              "callId": "toolu_016DKWPsyzL8UXcX81d8s31y"
+            }
+          ],
+          "timestamp": 1793913915805,
+          "source": "transcript",
+          "parentId": "980444c3-07d8-4b69-ba9b-501208536889"
+        },
+        {
+          "id": "3d02ac68-32ad-4fa6-860d-6968911562f4",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "**Callers of list_installed_core_files (3 found)**\n\n- test_core_install_and_listing_include_policy (function) - tests/cli/test_bash_inspection_policy.py:36\n- install (function) - src/superclaude/cli/main.py:46\n- test_how_we_work_installed_and_listed (function) - tests/cli/test_how_we_work_install.py:27",
+              "callId": "toolu_01CWWHf36Rh2cL3eVkmuQ7hr"
+            }
+          ],
+          "timestamp": 1793913915860,
+          "source": "transcript",
+          "parentId": "193ce68c-202d-4b77-b188-0ee94b0118aa"
+        },
+        {
+          "id": "895baed2-89f4-4def-a7c0-580c7990eef0",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "**CodeGraph Status**\n\n**Files indexed:** 2166\n**Total nodes:** 33661\n**Total edges:** 88310\n**Database size:** 106.96 MB\n**Latest file indexed:** 2026-11-05T21:24:54.746Z\n**Changes since index:** 0 added, 0 modified, 0 removed\n**Backend:** node:sqlite (Node built-in) — full WAL + FTS5\n**Journal mode:** wal (concurrent reads safe)\n\n**Nodes by Kind:**\n- class: 2504\n- constant: 77\n- file: 1348\n- function: 11042\n- import: 6311\n- interface: 3\n- method: 8508\n- property: 30\n- variable: 3838\n\n**Languages:**\n- javascript: 6\n- liquid: 12\n- python: 1327\n- typescript: 3\n- yaml: 818",
+              "callId": "toolu_01BtkPWBG1x7KMerNTc2J7gU"
+            }
+          ],
+          "timestamp": 1793913916082,
+          "source": "transcript",
+          "parentId": "ab5cfeb2-92f7-40e1-bc08-97c2783de015"
+        },
+        {
+          "id": "cec13ece-c8e2-4fd7-867d-53f7fb89d586",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Grep",
+              "input": {
+                "pattern": "(^|[^A-Za-z0-9_$])(install_core_files|list_installed_core_files)\\s*\\(",
+                "path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant/src/superclaude/cli/main.py",
+                "output_mode": "content",
+                "-n": true
+              },
+              "callId": "toolu_01NnJzngy1h1UUAVKLSYRXze"
+            }
+          ],
+          "timestamp": 1793913922838,
+          "source": "transcript",
+          "parentId": "ecf5ef95-1de9-415f-a8db-016d11889800"
+        },
+        {
+          "id": "7f1104b1-1623-4cdc-aa22-89cf1fec31a5",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "90:        core_installed = list_installed_core_files()\n178:    core_success, core_message = install_core_files(force=force)\n365:    core_success, core_message = install_core_files(force=True)",
+              "callId": "toolu_01NnJzngy1h1UUAVKLSYRXze"
+            }
+          ],
+          "timestamp": 1793913922921,
+          "source": "transcript",
+          "parentId": "cec13ece-c8e2-4fd7-867d-53f7fb89d586"
+        },
+        {
+          "id": "58b16b24-af83-4f00-8e37-7ffde25639bb",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "ls src/superclaude/core/ && git check-ignore -v .dev/p1-live/commit-grant/ ; echo \"ignore-rc=$?\"",
+                "description": "List core source files and check report dir ignore status"
+              },
+              "callId": "toolu_01G2kmWurWmnz82haE2N2oq3"
+            }
+          ],
+          "timestamp": 1793913923673,
+          "source": "transcript",
+          "parentId": "cf48b58d-bd22-4b20-893f-7be04246982f"
+        },
+        {
+          "id": "bc4a9b1f-3d82-4530-9ba4-575aee73f600",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "BASH_INSPECTION_POLICY.md\nBUSINESS_PANEL_EXAMPLES.md\nBUSINESS_SYMBOLS.md\nCLAUDE.md\nCODEGRAPH.md\nHOW-WE-WORK.md\nISSUE-BACKLOG.md\nISSUE-HANDOFF.md\nPRINCIPLES.md\nRESEARCH_CONFIG.md\nRULES.md\nWORKER-CONTRACT.md\n__init__.py\nignore-rc=1",
+              "callId": "toolu_01G2kmWurWmnz82haE2N2oq3"
+            }
+          ],
+          "timestamp": 1793913923780,
+          "source": "transcript",
+          "parentId": "58b16b24-af83-4f00-8e37-7ffde25639bb"
+        },
+        {
+          "id": "7f84328a-12bb-47f9-95ca-a8e674465c4f",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Write",
+              "input": {
+                "file_path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant/.dev/p1-live/commit-grant/explain-report.md",
+                "content": "# Explanation: src/superclaude/cli/install_core.py\n\nLevel: basic. Format: text. Source read: `src/superclaude/cli/install_core.py` (156 lines).\n\n## What this file does\n\nIt copies SuperClaude's core instruction files (plain `.md` files such as `CLAUDE.md`, `RULES.md` and `WORKER-CONTRACT.md`) from the package into the user's `~/.claude/` folder. Claude Code reads those files when a session starts, so this copy step is how the framework's rules reach a user's machine.\n\n## The four functions\n\n1. `install_core_files(target_path=None, force=False)` is the main one. It returns a pair: `True` or `False` for success, and a text message for the user.\n   - It picks the target folder (`~/.claude` unless told otherwise) and creates it if missing.\n   - It finds the source folder with `_get_core_source()` and lists every `*.md` file there.\n   - For each file: if the destination already exists and `force` is off, it skips the file (the user's copy is never overwritten by accident). Otherwise it copies it with `shutil.copy2`, which keeps the file's timestamps.\n   - A failure … (truncated)"
+              },
+              "callId": "toolu_01QusQmwY34NVdpZ1WvE5gWN"
+            }
+          ],
+          "timestamp": 1793913940858,
+          "source": "transcript",
+          "parentId": "f5bf3144-9088-42a0-b50e-bb91f29ffbac"
+        },
+        {
+          "id": "31883247-7acb-475e-bbcb-3abe58679640",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "File created successfully at: /home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant/.dev/p1-live/commit-grant/explain-report.md (file state is current in your context — no need to Read it back)",
+              "callId": "toolu_01QusQmwY34NVdpZ1WvE5gWN"
+            }
+          ],
+          "timestamp": 1793913941154,
+          "source": "transcript",
+          "parentId": "7f84328a-12bb-47f9-95ca-a8e674465c4f"
+        },
+        {
+          "id": "12c67b63-9cd8-401a-b178-b89a678d088a",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Write",
+              "input": {
+                "file_path": "/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant/.dev/p1-live/commit-grant/return-contract.yaml",
+                "content": "worker_contract_version: \"1\"\nworker_status: succeeded\ncommand: \"/sc:explain src/superclaude/cli/install_core.py --level basic --format text --unattended --report-dir .dev/p1-live/commit-grant/\"\nreport_path: .dev/p1-live/commit-grant/explain-report.md\nartifacts: []\n"
+              },
+              "callId": "toolu_01HQtbAt9DW8xH6WL5b4eQCi"
+            }
+          ],
+          "timestamp": 1793913946420,
+          "source": "transcript",
+          "parentId": "a37c12fa-4d56-4bfd-ad25-b6d8449beb96"
+        },
+        {
+          "id": "1a836d24-0210-4ff4-a53a-6894d3578fe9",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "File created successfully at: /home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant/.dev/p1-live/commit-grant/return-contract.yaml (file state is current in your context — no need to Read it back)",
+              "callId": "toolu_01HQtbAt9DW8xH6WL5b4eQCi"
+            }
+          ],
+          "timestamp": 1793913946659,
+          "source": "transcript",
+          "parentId": "12c67b63-9cd8-401a-b178-b89a678d088a"
+        },
+        {
+          "id": "ab09d748-51f5-481f-b742-c25aa20729c8",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "orca orchestration check --terminal term_e9de1d2f-ffd4-46ae-8b4e-f553f063f58a --json 2>&1 | head -30",
+                "description": "Read coordinator follow-ups before committing"
+              },
+              "callId": "toolu_012zs3xoBmSMKNyd2WGu81Cj"
+            }
+          ],
+          "timestamp": 1793913947314,
+          "source": "transcript",
+          "parentId": "8bcbcc9c-f103-46ab-ab6a-097aff981285"
+        },
+        {
+          "id": "4e2363f1-f338-49c2-9136-94c25bb0861d",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "{\n  \"id\": \"7a3207e1-fc60-4613-8d64-59fd7fb6895b\",\n  \"ok\": true,\n  \"result\": {\n    \"runId\": \"run_92b0ef27e086\",\n    \"dispatchId\": \"ctx_9af122fbb5a4\",\n    \"deliveryId\": null,\n    \"messages\": [],\n    \"count\": 0,\n    \"replayed\": false,\n    \"acknowledged\": null,\n    \"timedOut\": false,\n    \"cancelled\": false,\n    \"connectionLost\": false,\n    \"mutation\": {\n      \"requestId\": \"a032182f-f4b3-4432-a24a-7724ca6bc2c7\",\n      \"replayed\": false\n    }\n  },\n  \"_meta\": {\n    \"runtimeId\": \"f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc\"\n  }\n}",
+              "callId": "toolu_012zs3xoBmSMKNyd2WGu81Cj"
+            }
+          ],
+          "timestamp": 1793913947623,
+          "source": "transcript",
+          "parentId": "ab09d748-51f5-481f-b742-c25aa20729c8"
+        },
+        {
+          "id": "a4ddaef6-8177-4cfa-b268-90f63dc3ad3f",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "No follow-ups, and the command ended `succeeded`. Now the authorized local commit, with only the allowed paths."
+            }
+          ],
+          "timestamp": 1793913951894,
+          "source": "transcript",
+          "parentId": "78b7f1d5-8ae3-4d39-84c9-74dc34d8ebdf"
+        },
+        {
+          "id": "e9186a30-f35a-49c3-bcc9-99a235fad4e1",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "git symbolic-ref --short HEAD && git status --porcelain && ls -d .dev/tasks 2>&1",
+                "description": "Check branch and uncommitted paths before commit"
+              },
+              "callId": "toolu_01CytGQUKBYcS9BmaqtXCMCM"
+            }
+          ],
+          "timestamp": 1793913952308,
+          "source": "transcript",
+          "parentId": "a4ddaef6-8177-4cfa-b268-90f63dc3ad3f"
+        },
+        {
+          "id": "e724b47a-a6d7-48f8-a06b-5ac812441275",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "ironbelly/p1-live-commit-grant\n?? .dev/p1-live/\n.dev/tasks",
+              "callId": "toolu_01CytGQUKBYcS9BmaqtXCMCM"
+            }
+          ],
+          "timestamp": 1793913952465,
+          "source": "transcript",
+          "parentId": "e9186a30-f35a-49c3-bcc9-99a235fad4e1"
+        },
+        {
+          "id": "1ff6d366-9e6e-437f-9485-3c41918c2a98",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "P1=.dev/p1-live/commit-grant/explain-report.md && P2=.dev/p1-live/commit-grant/return-contract.yaml && git add -- \"$P1\" \"$P2\" && git add .dev/tasks && git commit --only -m \"docs(orca): record the AC-1.8 commit-grant explain run report\n\nCo-Authored-By: Claude Code <noreply@anthropic.com>\" -- \"$P1\" \"$P2\" 2>&1 | tail -15; echo \"rc=${PIPESTATUS[0]}\"; git log --oneline -1; git status --porcelain",
+                "description": "Stage allowed paths and make the local commit"
+              },
+              "callId": "toolu_01GBLBckyPSB8NG4bikkEe1R"
+            }
+          ],
+          "timestamp": 1793913954937,
+          "source": "transcript",
+          "parentId": "f58a678a-fcff-4539-b0b3-4f5de3ea9e1f"
+        },
+        {
+          "id": "8b12a12e-bd59-400d-99b4-19c60be0d991",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "[ironbelly/p1-live-commit-grant c682bb2a] docs(orca): record the AC-1.8 commit-grant explain run report\n 2 files changed, 51 insertions(+)\n create mode 100644 .dev/p1-live/commit-grant/explain-report.md\n create mode 100644 .dev/p1-live/commit-grant/return-contract.yaml\nrc=0\nc682bb2a docs(orca): record the AC-1.8 commit-grant explain run report",
+              "callId": "toolu_01GBLBckyPSB8NG4bikkEe1R"
+            }
+          ],
+          "timestamp": 1793913955220,
+          "source": "transcript",
+          "parentId": "1ff6d366-9e6e-437f-9485-3c41918c2a98"
+        },
+        {
+          "id": "820f1216-ab03-4a6f-bba6-769f0f55d29a",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "Committed cleanly, nothing pushed, worktree clean. One last follow-up check, then report."
+            }
+          ],
+          "timestamp": 1793913956463,
+          "source": "transcript",
+          "parentId": "2b46008a-88b2-47da-9a93-385bd0c5be32"
+        },
+        {
+          "id": "f7c456fa-5774-4ef2-8c18-8f6564fb144a",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "orca orchestration check --terminal term_e9de1d2f-ffd4-46ae-8b4e-f553f063f58a --json 2>&1 | grep -E '\"count\"|consumer_fenced'; orca orchestration send --from term_e9de1d2f-ffd4-46ae-8b4e-f553f063f58a --type worker_done --subject \"explain install_core.py done, local commit made\" --body \"worker_status: succeeded; /sc:explain on src/superclaude/cli/install_core.py ran unattended (level basic, text) and wrote explain-report.md plus return-contract.yaml in .dev/p1-live/commit-grant/. The guard passed (both explain.md copies identical, with an Unattended mode section) and the report found nothing blocking; it notes two small gaps: KNOWN_CORE_FILES must be kept in step with the core folder, and the _get_core_source docstring lists two lookups while the code checks one. The granted local commit is c682bb2a on ironbelly/p1-live-commit-grant (2 files, only the report directory); nothing was pushed and the coordinator performs every push.\" --task-id task_7d2701e4eae8 --dispatch-id ctx_9af122fbb5a4 --outcome succeeded --report-path .dev/p1-live/commit-grant/return-contract.yaml --files-modified \".dev/p1-live/commit-grant/explain-report.md,.dev/p1-live/commit-grant/return-contract.yaml\" … (truncated)",
+                "…": "truncated"
+              },
+              "callId": "toolu_01QyvQd46aEqasqkDSuGeXYZ"
+            }
+          ],
+          "timestamp": 1793913960239,
+          "source": "transcript",
+          "parentId": "820f1216-ab03-4a6f-bba6-769f0f55d29a"
+        },
+        {
+          "id": "38644d18-12ba-4a3a-86a7-5a14ddd7ff22",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "    \"count\": 0,\nSent msg_d43a591dbf07",
+              "callId": "toolu_01QyvQd46aEqasqkDSuGeXYZ"
+            }
+          ],
+          "timestamp": 1793913960859,
+          "source": "transcript",
+          "parentId": "f7c456fa-5774-4ef2-8c18-8f6564fb144a"
+        },
+        {
+          "id": "1cf3b8e0-5646-4acd-b939-b2b874863c53",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "| Status | Result |\n|---|---|\n| DONE | Guard passed: both copies of the explain command match, both have the Unattended section, and the brief carries `--unattended`. |\n| DONE | `/sc:explain` on `install_core.py` ran unattended and ended `succeeded`. The report and contract are in `.dev/p1-live/commit-grant/`. |\n| DONE | The granted local commit `c682bb2a` is on `ironbelly/p1-live-commit-grant`. It holds only those two files, and the worktree is clean. |\n| DONE | `worker_done` was sent once with `--outcome succeeded`. |\n| NEXT | None. The coordinator handles any push. |\n\nRUNS: the explanation and the commit. NOT BUILT: nothing was pushed, per the brief.\n\nThe report found no problems. It flags two small gaps for later:\n- **File list:** a new core file would install but not show in `list_installed_core_files()` until it is added to `KNOWN_CORE_FILES`.\n- **Docstring:** the `_get_core_source` docstring names two lookup places, but the code checks only one.\n\nI did not check the end line of each caller's body in `main.py`, so which function each call sits in is graph-level evidence only."
+            }
+          ],
+          "timestamp": 1793913964397,
+          "source": "transcript",
+          "parentId": "03b191c5-6758-4d1b-b097-339e7f426ca3"
+        }
+      ],
+      "nextCursor": "owr1_eyJ2IjoxLCJkIjoiY3R4XzlhZjEyMmZiYjVhNCIsInMiOiJ0cmFuc2NyaXB0IiwiaSI6IktJU2pRcmRzenNkbV9WWFBzVTdUcEUwREItMF9YcVVxIiwicCI6MTM4NDY5NiwiYyI6IjBUc1FUcFlGSjZ3bXN2YXJ6cTNld3pOb3JWZ2tOZ3QwIn0",
+      "limited": true,
+      "returnedMessageCount": 40
+    },
+    "cursor": "owr1_eyJ2IjoxLCJkIjoiY3R4XzlhZjEyMmZiYjVhNCIsInMiOiJ0cmFuc2NyaXB0IiwiaSI6IktJU2pRcmRzenNkbV9WWFBzVTdUcEUwREItMF9YcVVxIiwicCI6MTM4NDY5NiwiYyI6IjBUc1FUcFlGSjZ3bXN2YXJ6cTNld3pOb3JWZ2tOZ3QwIn0",
+    "status": {
+      "worker": "succeeded",
+      "terminal": "running",
+      "liveness": "live"
+    },
+    "fallbackReason": null,
+    "warnings": [
+      "Oversized transcript text was clipped.",
+      "Oversized tool input was clipped."
+    ],
+    "sourceExact": true,
+    "contentComplete": false,
+    "clipping": [
+      "transcript_payload"
+    ],
+    "projection": {
+      "id": "ctx_9af122fbb5a4",
+      "dispatchId": "ctx_9af122fbb5a4",
+      "taskId": "task_7d2701e4eae8",
+      "runId": "run_92b0ef27e086",
+      "role": "worker",
+      "parent": null,
+      "provider": {
+        "id": "claude",
+        "model": null
+      },
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "succeeded",
+        "dispatch": "completed",
+        "detail": "settled",
+        "activity": "done"
+      },
+      "outcome": "succeeded",
+      "liveness": {
+        "verdict": "live",
+        "observedAt": 1793913967545,
+        "source": "agent_status"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "fresh",
+        "lastObservedAt": 1793913967545
+      },
+      "resource": {
+        "state": "owned",
+        "id": "wtr_5677ca200d2c",
+        "ownerDispatchId": "ctx_9af122fbb5a4",
+        "releaseState": "not_requested",
+        "terminalState": "reclaimable"
+      },
+      "nextAction": {
+        "kind": "release",
+        "argv": [
+          "orchestration",
+          "worker-release",
+          "--dispatch",
+          "ctx_9af122fbb5a4"
+        ]
+      },
+      "attention": {
+        "categories": [
+          "root_completion"
+        ],
+        "requiresAction": false
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

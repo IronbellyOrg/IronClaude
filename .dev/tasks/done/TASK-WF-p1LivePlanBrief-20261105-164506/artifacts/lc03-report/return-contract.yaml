@@ -1,0 +1,5 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:business-panel .dev/orca-command-refactor/decisions/D1/option-a.md --mode discussion --experts "porter,drucker" --unattended --report-dir .dev/p1-live/business-panel/'
+report_path: .dev/p1-live/business-panel/business-panel-report.md
+artifacts: []

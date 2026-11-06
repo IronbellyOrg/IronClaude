@@ -20,7 +20,10 @@ personas: [educator, architect, security]
 
 ```
 /sc:explain [target] [--level basic|intermediate|advanced] [--format text|examples|interactive] [--context domain]
+/sc:explain [target] [--output <file>] [--unattended] [--report-dir <dir>]
 ```
+
+`--output <file>` writes the explanation to that file. A standalone run writes a file only when you pass it.
 
 ## Behavioral Flow
 
@@ -47,6 +50,7 @@ Key behaviors:
 
 - **Read/Grep/Glob**: Code analysis and pattern identification for explanation content
 - **TodoWrite**: Progress tracking for complex multi-part explanations
+- **Write**: Used only for the explanation file under `--output` or `--unattended`
 - **Task**: Delegation for comprehensive explanation workflows requiring systematic breakdown
 - **Codegraph one-hop view** (code targets only, when codegraph is usable): `codegraph_search` (limit 10) to find the target symbol, then `codegraph_callers` and `codegraph_callees` (limit 10 each) for its direct callers and callees; Read every row before citing it, and use Read/Grep alone when codegraph is unusable. Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`).
 
@@ -89,6 +93,17 @@ Key behaviors:
 # Security persona explains authentication concepts and best practices
 # Framework-agnostic security principles with practical examples
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:explain` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only (`--output` is file-valued). Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. The explanation is written to the `--output` file, or to `<report-dir>/explain-report.md` when `--output` is absent; Write is used only for that file. `report_path` is that file. The run is succeeded when the explanation is written, and failed otherwise.
+- **Person-mode flags.** `--format interactive` and `--format=interactive` are refused before any work (contract `worker_status: failed`, the flag in `reason`).
+- **Gates.** There is no other gate. Nested invocations: none.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

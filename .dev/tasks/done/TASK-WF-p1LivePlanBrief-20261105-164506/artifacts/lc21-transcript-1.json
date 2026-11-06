@@ -1,0 +1,259 @@
+{
+  "id": "2231e152-9792-4248-9978-ade406478654",
+  "ok": true,
+  "result": {
+    "dispatchId": "ctx_284755bb7e4f",
+    "source": "transcript",
+    "sourceIdentity": "DFltoJey7whzzkmi3-gQMHx1fScGq2O3",
+    "provider": "claude",
+    "transcript": {
+      "messages": [
+        {
+          "id": "029ecf52-aae6-4861-b1ce-ca15728bdde4",
+          "role": "user",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "Please carry out this task from my Orca coordinator by following the brief I pasted below. \n\n<pasted_content id=\"db40\">\nYou are working inside Orca, a multi-agent IDE. You are a dispatched worker.\nYour coordinator's terminal handle is: term_558daf54-f38b-4498-b0d1-0d2e8c036e7c\nYour task ID is: task_d3ff69bd9a2a\n\nThe coordinator cannot see this terminal, so reach it with the `orca orchestration`\ncommands below; a question or result left only in this terminal never gets to it.\nDon't post to Slack, GitHub, or other channels during the run; report through these commands.\n\n=== CLI COMMANDS ===\n\n```sh\n  # Report the task outcome (required, exactly once).\n  #\n  # --body must be a 3-sentence executive summary (what you did,\n  # what you found, what's left). Never send an empty body; the coordinator\n  # reads the body first and only opens artifacts if it needs more detail.\n  # Append --files-modified only when files changed, and append --report-path\n  # only when you produced a durable report. Always pass real values; do not\n  # send the example placeholders literally.\n  #\n  # Send worker_done exactly once. Use --outcome succeeded when the\n  # requested work is done, or replace it with --ou\n… (truncated)"
+            }
+          ],
+          "timestamp": 1793913547022,
+          "source": "transcript",
+          "parentId": "957ae167-4117-4d66-a1df-d4393c3427a7"
+        },
+        {
+          "id": "f1455907-7dd6-4b2b-88bb-8abb7ed98156",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "I'll start with the brief guard in the worker contract, then look at the `/sc:help` command file."
+            }
+          ],
+          "timestamp": 1793913550093,
+          "source": "transcript",
+          "parentId": "4417d775-d099-44f1-b3f0-205bef955cd7"
+        },
+        {
+          "id": "6e7674ae-287c-4187-9576-9423ca7adc88",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Read",
+              "input": {
+                "file_path": "/home/coder/.claude/WORKER-CONTRACT.md"
+              },
+              "callId": "toolu_01EFhYtHiTLuUkuNe8UntmRo"
+            }
+          ],
+          "timestamp": 1793913550434,
+          "source": "transcript",
+          "parentId": "f1455907-7dd6-4b2b-88bb-8abb7ed98156"
+        },
+        {
+          "id": "6b27efed-fbd5-4594-aa94-bc4992f9cd38",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "1\t# Worker contract: IronClaude commands as Orca workers\n2\t\n3\tThis file is installed to `~/.claude/WORKER-CONTRACT.md`. It holds the rules that let an Orca coordinator run IronClaude `/sc:` commands as workers: the terms, the rules a command follows under `--unattended`, the duties of the worker session, and the coordinator's rules with its brief template. Each changed command adds a short `## Unattended mode` section that lists only its own gate resolutions and report file and points to this file, so the shared rules are written once.\n4\t\n5\tA coordinator plans the work, creates Tasks, starts one worker per Task and reads each worker's report. Each `/sc:` command stays a self-contained unit of work: one worker (a top-level Claude session in its own Orca terminal) runs one command and reports it with `worker_done`. Commands themselves contain no Orca calls.\n6\t\n7\tThe dispatch preamble that Orca gives each worker is the authority for Orca verb syntax and heartbeat cadence. This file never copies them, because the preamble is issued per dispatch by the running Orca version.\n8\t\n9\t## 1. Terms\n10\t\n11\t- **Worker run**: a session that received an Orca preamble carrying a Task ID and a Dispat\n… (truncated)",
+              "callId": "toolu_01EFhYtHiTLuUkuNe8UntmRo"
+            }
+          ],
+          "timestamp": 1793913550663,
+          "source": "transcript",
+          "parentId": "6e7674ae-287c-4187-9576-9423ca7adc88"
+        },
+        {
+          "id": "e205be47-60a1-4367-ba99-dcaaba28f712",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Read",
+              "input": {
+                "file_path": "/home/coder/.claude/commands/sc/help.md"
+              },
+              "callId": "toolu_0193WeWPa91QCmxFSqhobDS3"
+            }
+          ],
+          "timestamp": 1793913550987,
+          "source": "transcript",
+          "parentId": "4ef30225-397a-4a41-b9e5-0ec8655c920d"
+        },
+        {
+          "id": "1865eaaa-6e43-45ee-8627-133f875489f1",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "1\t---\n2\tname: help\n3\tdescription: \"List the SuperClaude commands and skills installed here, show the six process levels, and point to the routing guide\"\n4\tcategory: utility\n5\tcomplexity: low\n6\tallowed-tools: Read, Glob, Grep, Bash(find:*), Bash(ls:*), Bash(grep:*), Bash(echo:*), Bash(test:*), Bash(basename:*), Bash(dirname:*), Bash(sed:*), Bash(while:*), Bash(read:*), Bash([:*), Bash(case:*), Bash(continue:*), Bash(git rev-parse:*)\n7\tmcp-servers: []\n8\tpersonas: []\n9\t---\n10\t\n11\t# /sc:help - What is installed and where to start\n12\t\n13\t## Triggers\n14\t\n15\t- \"What commands do I have?\", \"what can SuperClaude do?\", or `/sc:help`\n16\t- Choosing where to start before running a command\n17\t- Checking whether an install or update worked\n18\t\n19\t## Behavioral Flow\n20\t\n21\tRun only the listing commands below (they read files and change nothing). Run each of the four listings below as its own Bash call. Then do steps 2-4. Do nothing else.\n22\t\n23\t### 1. List what is installed, read live\n24\t\n25\tList only what exists on disk. Show each name with the `description:` line from its frontmatter, in up to four groups. Skip `README.md`. Each listing prints the name Claude Code shows; do not invent a prefix. T\n… (truncated)",
+              "callId": "toolu_0193WeWPa91QCmxFSqhobDS3"
+            }
+          ],
+          "timestamp": 1793913551093,
+          "source": "transcript",
+          "parentId": "e205be47-60a1-4367-ba99-dcaaba28f712"
+        },
+        {
+          "id": "de7e6dc8-ff4c-447c-a1ee-27a26d3f778a",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "text",
+              "text": "`/sc:help` is on the never-as-worker list, so the brief guard refuses it (case 3). I'll check for coordinator follow-ups once, then report the refusal."
+            }
+          ],
+          "timestamp": 1793913555372,
+          "source": "transcript",
+          "parentId": "5be99100-b354-43f1-a695-b273916ee647"
+        },
+        {
+          "id": "40014139-6627-4993-af7c-f800c4148cb0",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "orca orchestration check --terminal term_987184d4-7a23-498f-bc06-5199c4c49e58 --json",
+                "description": "Read coordinator follow-up messages"
+              },
+              "callId": "toolu_01T4ugUcGFviMvF8yQ5wSV7J"
+            }
+          ],
+          "timestamp": 1793913555929,
+          "source": "transcript",
+          "parentId": "de7e6dc8-ff4c-447c-a1ee-27a26d3f778a"
+        },
+        {
+          "id": "6d334c1c-1bea-47b9-9ebc-0e4ef539ee98",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "{\n  \"id\": \"5a0f9e7f-2b35-4a3b-9ac5-6a3f0977d055\",\n  \"ok\": true,\n  \"result\": {\n    \"runId\": \"run_92b0ef27e086\",\n    \"dispatchId\": \"ctx_284755bb7e4f\",\n    \"deliveryId\": null,\n    \"messages\": [],\n    \"count\": 0,\n    \"replayed\": false,\n    \"acknowledged\": null,\n    \"timedOut\": false,\n    \"cancelled\": false,\n    \"connectionLost\": false,\n    \"mutation\": {\n      \"requestId\": \"5ea604a8-1b5a-47c5-b4a7-de786f4ee7e2\",\n      \"replayed\": false\n    }\n  },\n  \"_meta\": {\n    \"runtimeId\": \"f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc\"\n  }\n}",
+              "callId": "toolu_01T4ugUcGFviMvF8yQ5wSV7J"
+            }
+          ],
+          "timestamp": 1793913556261,
+          "source": "transcript",
+          "parentId": "40014139-6627-4993-af7c-f800c4148cb0"
+        },
+        {
+          "id": "66261c28-29c4-4908-a887-35410b3314f0",
+          "role": "assistant",
+          "blocks": [
+            {
+              "type": "tool-call",
+              "name": "Bash",
+              "input": {
+                "command": "orca orchestration send --from term_987184d4-7a23-498f-bc06-5199c4c49e58 --type worker_done --subject \"guard refused: /sc:help is never-as-worker\" --body \"guard refused: /sc:help is on the never-as-worker list in ~/.claude/WORKER-CONTRACT.md (section 1, case 3), so it is never dispatched as a worker and has no --unattended mode. I read the contract and the help command file only, ran no listing, wrote no contract and changed no files. To get the listing, run /sc:help in an ordinary top-level session, or send a new Task with a different command.\" --task-id task_d3ff69bd9a2a --dispatch-id ctx_284755bb7e4f --outcome failed",
+                "description": "Send worker_done failed with guard refusal"
+              },
+              "callId": "toolu_01To3gCVsnrZ8pvXWW9GdrAt"
+            }
+          ],
+          "timestamp": 1793913559614,
+          "source": "transcript",
+          "parentId": "f23086ef-eaeb-4ea4-a281-af3c810291cd"
+        },
+        {
+          "id": "5f90f446-e98b-49e9-a467-86a30e86d589",
+          "role": "tool",
+          "blocks": [
+            {
+              "type": "tool-result",
+              "output": "Sent msg_f723275e8fd6",
+              "callId": "toolu_01To3gCVsnrZ8pvXWW9GdrAt"
+            }
+          ],
+          "timestamp": 1793913559909,
+          "source": "transcript",
+          "parentId": "66261c28-29c4-4908-a887-35410b3314f0"
+        }
+      ],
+      "nextCursor": "owr1_eyJ2IjoxLCJkIjoiY3R4XzI4NDc1NWJiN2U0ZiIsInMiOiJ0cmFuc2NyaXB0IiwiaSI6IkRGbHRvSmV5N3doenprbWkzLWdRTUh4MWZTY0dxMk8zIiwicCI6MTEyNzI4MiwiYyI6InpXaDMwYzFwdkNETC1PdlBlS244OGlHWktLeTBzUEZ3In0",
+      "limited": true,
+      "returnedMessageCount": 11
+    },
+    "cursor": "owr1_eyJ2IjoxLCJkIjoiY3R4XzI4NDc1NWJiN2U0ZiIsInMiOiJ0cmFuc2NyaXB0IiwiaSI6IkRGbHRvSmV5N3doenprbWkzLWdRTUh4MWZTY0dxMk8zIiwicCI6MTEyNzI4MiwiYyI6InpXaDMwYzFwdkNETC1PdlBlS244OGlHWktLeTBzUEZ3In0",
+    "status": {
+      "worker": "failed",
+      "terminal": "running",
+      "liveness": "live"
+    },
+    "fallbackReason": null,
+    "warnings": [
+      "Oversized transcript text was clipped."
+    ],
+    "sourceExact": true,
+    "contentComplete": false,
+    "clipping": [
+      "transcript_payload"
+    ],
+    "projection": {
+      "id": "ctx_284755bb7e4f",
+      "dispatchId": "ctx_284755bb7e4f",
+      "taskId": "task_d3ff69bd9a2a",
+      "runId": "run_92b0ef27e086",
+      "role": "worker",
+      "parent": null,
+      "provider": {
+        "id": "claude",
+        "model": null
+      },
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-guard-case3",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "failed",
+        "dispatch": "failed",
+        "detail": "settled",
+        "activity": "working"
+      },
+      "outcome": "failed",
+      "liveness": {
+        "verdict": "live",
+        "observedAt": 1793913559886,
+        "source": "agent_status"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "fresh",
+        "lastObservedAt": 1793913559886
+      },
+      "resource": {
+        "state": "owned",
+        "id": "wtr_93ca7a261e39",
+        "ownerDispatchId": "ctx_284755bb7e4f",
+        "releaseState": "not_requested",
+        "terminalState": "reclaimable"
+      },
+      "nextAction": {
+        "kind": "release",
+        "argv": [
+          "orchestration",
+          "worker-release",
+          "--dispatch",
+          "ctx_284755bb7e4f"
+        ]
+      },
+      "attention": {
+        "categories": [
+          "failure"
+        ],
+        "requiresAction": true
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

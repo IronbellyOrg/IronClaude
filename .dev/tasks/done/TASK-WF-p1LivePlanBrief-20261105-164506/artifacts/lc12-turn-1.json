@@ -1,0 +1,38 @@
+{
+  "id": "3e0c1f32-4f18-49cd-b9d0-4db5ee81d01e",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_0dfbcff5925d",
+    "messages": [
+      {
+        "id": "msg_05216b284cd0",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_fd6db212-b8d1-4411-9267-53354662ea11",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "graph status: succeeded, index fresh",
+        "body": "worker_status: succeeded; /sc:graph status verdict: index fresh, success. Guard passed (project and installed graph.md copies identical, both have Unattended mode). Index is this worktree's own, read over MCP: 2166 files, 33661 nodes, 88310 edges, 0 pending; codegraph 1.6.2 matches the pin 1.6.2, MCP lookup tools listed, telemetry off, next_action none. The contract is the only file written (.dev/p1-live/graph/return-contract.yaml, report_path null); nothing committed, staged or pushed, and nothing is left to do.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_837780f3b89d\",\"dispatchId\":\"ctx_237eaf5a0b95\",\"outcome\":\"succeeded\",\"filesModified\":[\".dev/p1-live/graph/return-contract.yaml\"],\"reportPath\":\".dev/p1-live/graph/return-contract.yaml\"}",
+        "created_at": "2026-11-05T20:20:13Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "0be622e3-bab5-43b4-8808-d3520ff50519",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

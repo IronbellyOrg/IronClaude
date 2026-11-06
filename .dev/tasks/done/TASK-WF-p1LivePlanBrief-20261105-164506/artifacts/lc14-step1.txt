@@ -1,0 +1,5 @@
+task-create receipt: ./artifacts/lc14-task-create.json (exit 0)
+worker-start receipt: ./artifacts/lc14-worker-start.json (exit 0)
+t0=1793910411.419582965 t1=1793910449.015471556
+elapsed_seconds=37.596
+state=ready dispatchId=ctx_48a2e2b39f5a taskId=task_0bf60c885998

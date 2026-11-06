@@ -381,7 +381,8 @@ Default (non-interactive): All decisions auto-resolved with rationale documented
     ├── debate-transcript.md        # Step 2 output
     ├── base-selection.md           # Step 3 output
     ├── refactor-plan.md            # Step 4 output
-    └── merge-log.md                # Step 5 execution log
+    ├── merge-log.md                # Step 5 execution log
+    └── return-contract.yaml        # This skill's own return contract (every invocation)
 ```
 
 **Naming conventions**:
@@ -425,6 +426,10 @@ error_handling:
 ## Return Contract (MANDATORY)
 
 **This is the final pipeline step.** sc:adversarial MUST write this return contract on every invocation, including failures. When a field's value cannot be determined (pipeline aborted before reaching that step), use `null`.
+
+The contract is written to `<output>/adversarial/return-contract.yaml`, with the fields below under a `return_contract:` block, on every invocation including failures.
+
+When invoked with `--unattended` (by a brief or by another skill), also apply the `## Unattended mode` section of the `adversarial` command file: the installed copy `~/.claude/commands/sc/adversarial.md`, or the project copy `.claude/commands/sc/adversarial.md`.
 
 When invoked by another command, sc:adversarial returns:
 
@@ -2083,6 +2088,7 @@ artifact_assembly_step_5:
 ```yaml
 return_contract:
   purpose: "Enable programmatic integration with other commands (sc:roadmap, sc:design)"
+  file: "<output>/adversarial/return-contract.yaml (every invocation, failures included; the fields sit under a return_contract: block)"
 
   fields:
     merged_output_path:

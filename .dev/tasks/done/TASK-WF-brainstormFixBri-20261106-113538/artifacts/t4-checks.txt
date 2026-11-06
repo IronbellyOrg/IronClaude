@@ -1,0 +1,12 @@
+== HEAD SKILL.md count (expect 0)
+0
+== HEAD handoff-routing.md count (expect 0)
+0
+== cat-file -e HEAD paths
+skill_exit=0
+routing_exit=0
+== existing test unchanged (diff of old test body)
+0
+== ruff
+All checks passed!
+ruff_exit=0

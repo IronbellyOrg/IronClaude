@@ -1,0 +1,39 @@
+# lc22 session analysis
+## tool calls by name (top-level session; assistant messages with isSidechain=true: 0)
+      7 Bash
+      4 Read
+      2 mcp__codegraph__codegraph_callers
+      2 Write
+      1 mcp__codegraph__codegraph_status
+      1 Grep
+
+## Skill calls
+
+## orca orchestration commands in the top-level session
+21:25:08 send heartbeat
+21:25:47 check 
+21:26:00 check worker_done
+
+## run length: first user message 21:24:52, worker_done ['21:26:00']
+run length minutes: 1.1
+heartbeats (1): ['21:25:08']
+gaps (min): []
+last heartbeat to worker_done (min): 0.9
+first heartbeat after first user message (min): 0.3
+
+## gaps over 5 minutes: top-level activity inside each
+
+## Agent launches (top-level): []
+
+## all session files: 1; Bash commands: 7
+WC-13 pattern hits: 0
+orca verbs in all sessions: ['orca orchestration check', 'orca orchestration send']
+tool names containing ask/question (case-insensitive), all sessions: {}
+
+## heartbeat coverage
+## heartbeat gaps with subagent run time removed (cadence 5 min)
+Subagent run interval = first to last timestamp of its own session file (0 subagent files); merged into 0 intervals
+from -> to           gap min agent min non-agent min
+21:24:52 -> 21:25:08      0.3       0.0           0.3
+21:25:08 -> 21:26:00      0.9       0.0           0.9
+max non-agent stretch since the last heartbeat (or since the brief): 0.9 min

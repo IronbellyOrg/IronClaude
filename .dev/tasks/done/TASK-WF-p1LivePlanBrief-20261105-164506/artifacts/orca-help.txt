@@ -1,0 +1,466 @@
+===== orca status --help =====
+orca status
+
+Usage: orca status [--json]
+
+Show app/runtime/graph readiness
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+
+Notes:
+  caller.orcaSessionId is this agent's Orca session ID, as Orca resolved it, when the agent runs as an Orca session; otherwise caller is omitted.
+
+Examples:
+  $ orca status
+  $ orca status --json
+rc=0
+
+===== orca repo list --help =====
+orca repo list
+
+Usage: orca repo list [--json]
+
+List repos registered in Orca
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+rc=0
+
+===== orca worktree create --help =====
+orca worktree create
+
+Usage: orca worktree create --name <name> [--repo <selector>|--project <id-or-name> [--host <host>]|--project-host-setup <id>] [--agent <id>] [--prompt <text>] [--model <id>] [--effort <level>] [--surface chat|terminal] [--setup run|skip|inherit] [--base-branch <ref>] [--branch <name>] [--reference <url-or-jira-key>...] [--reference-site <id>] [--issue <number>] [--pr <number>] [--linear-issue <identifier-or-url>] [--gitlab-issue <number-or-url>] [--gitlab-mr <number-or-url>] [--comment <text>] [--parent-worktree <selector>] [--no-parent] [--run-hooks] [--activate] [--retry-launch <operationId>] [--json]
+
+Create a new Orca-managed worktree
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --repo <selector>      Repo selector such as id:<id>, name:<name>, or path:<path>
+  --project
+  --host
+  --project-host-setup
+  --name <name>          Name for the new worktree or automation
+  --agent <id>          Launch a known TUI agent in the first terminal
+  --prompt <text>        Prompt text for agent-backed commands
+  --model <id>          Provider model id for a new agent launch
+  --effort <level>      Reasoning effort for the selected model
+  --surface chat|terminal Start the agent as a chat or in a terminal, instead of your setting
+  --retry-launch
+  --base-branch <ref>    Base branch/ref to create the worktree from
+  --branch <name>        Git branch name to use instead of the prefixed default
+  --reference <url-or-jira-key> Attach an issue/review URL or Jira key; repeat for several
+  --reference-site <id> Jira site for bare keys; see orca jira connection
+  --issue <number|null>  Linked GitHub issue number
+  --pr <number>          Linked GitHub pull request number
+  --linear-issue <id|url|null> Linked Linear issue identifier or URL; null clears on set
+  --gitlab-issue <number|url> Linked GitLab issue in the source project
+  --gitlab-mr <number|url> Linked GitLab merge request in the source project
+  --comment <text>       Comment stored in Orca metadata
+  --setup run|skip|inherit Setup policy for repo-defined setup hooks
+  --parent-worktree <selector> Parent selector such as identity:<identity>, active/current, id:<repo-id>::<path>, branch:<branch>, issue:<number>, path:<path>, folder:<id>, or worktree:<worktreeId>
+  --no-parent            Force no parent lineage for unrelated work
+  --run-hooks
+  --activate             Reveal the new worktree in the Orca app
+
+Notes:
+  Repeat --reference to attach full issue or review URLs, or Jira issue keys, before setup or agent startup. Use --reference-site to choose the Jira site for keys. Other providers require full URLs. Cannot combine with legacy link flags.
+  This creates a new checkout. For a fresh agent in an existing worktree, use `orca agent launch` instead.
+  By default, Orca records the new worktree as a child of the caller context when it can infer one from the Orca terminal or current directory.
+  If --repo is omitted, Orca infers the repo from the current Orca-managed worktree.
+  Use --project to create on a ready project host setup without spelling the backing repo id. --project takes the project id or the display name from `orca project list`.
+  --host is only needed when the project is set up on more than one host; with a single setup Orca uses it. When it is ambiguous the error names every host the project is set up on.
+  --host takes local, ssh:<target-id>, runtime:<environment-id>, or the bare host name `orca host list` prints for any of them.
+  For related work, use the inferred parent or pass --parent-worktree active, folder:<id>, or worktree:<worktreeId> to make the relationship explicit. Worktree ids are the full <repo-id>::<path> values returned by `orca worktree list --json`.
+  Use --no-parent when the new worktree should be independent of the current context.
+  Pass --branch to name the Git branch without the configured prefix (a taken name gets a numeric suffix); --base-branch selects the starting ref instead.
+  --no-parent only affects Orca lineage; omit --base-branch to use the repo default base, or pass the default base ref explicitly for independent top-level work.
+  By default this creates the worktree and its first terminal without switching the active Orca view.
+  Pass --agent to start an agent with the worktree, as a chat or a terminal per your Chat UI setting, exactly as a new agent tab does; --prompt sends initial work to it. --model and --effort pick its model and reasoning effort, and --surface chat|terminal picks chat or terminal for this launch instead of your setting.
+  After a lost agent launch reply, re-issue the same command from the same directory on the same host with --retry-launch <operationId> from the error. Never retry as a fresh launch; older hosts require inspecting the workspace first.
+  With --agent --json, result.launch says what started: launch.outcome.kind (structured chat or terminal), launch.outcome.handle, and launch.receipt.detail for why. An Orca host older than this returns the terminal agent handle in result.agentTerminalHandle instead.
+  Repo-defined setup hooks follow the repository setup policy; pass --setup run to force them.
+  Pass --activate when the CLI caller intentionally wants to reveal the new worktree in the app.
+  Passing --run-hooks is kept as a legacy alias for --setup run and reveals the worktree.
+  Use --pr for GitHub pull requests; --gitlab-issue and --gitlab-mr write separate GitLab links. GitLab URLs must match the stored source project or remote; they cannot select a foreign project.
+
+Examples:
+  $ orca worktree create --name agent-task --agent codex --prompt "hi" --json
+  $ orca worktree create --name design --no-parent --agent codex --model gpt-6-astra --effort high --prompt "Write the design doc" --json
+  $ orca worktree create --repo id:<repoId> --name related-task --json
+  $ orca worktree create --project github:stablyai/orca --host runtime:03ef704c-b180-4b10-998d-e28fbd5de9a3 --name benchmark --json
+  $ orca worktree create --repo id:<repoId> --name linear-task --linear-issue https://linear.app/stably/issue/STA-335/test-issue --json
+  $ orca worktree create --repo id:<repoId> --name agent-task --agent codex --prompt "hi" --json
+  $ orca worktree create --repo id:<repoId> --name folder-child --parent-worktree folder:<folderId> --json
+  $ orca worktree create --repo id:<repoId> --name related-task --parent-worktree active --json
+  $ orca worktree create --repo id:<repoId> --name independent-task --no-parent --json
+rc=0
+
+===== orca worktree rm --help =====
+orca worktree rm
+
+Usage: orca worktree rm --worktree <selector> [--force] [--run-hooks] [--allow-failed-archive-hook] [--json]
+
+Remove a Git worktree or a folder workspace entry from Orca
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --worktree <selector>  Worktree selector such as identity:<identity>, id:<repo-id>::<path>, name:<displayName>, branch:<branch>, issue:<number>, path:<path>, or active/current
+  --force                Force worktree removal when supported; does not force branch deletion
+  --run-hooks
+  --allow-failed-archive-hook
+
+Notes:
+  For a non-root folder workspace, removes its Orca entry and stops its sessions without deleting the folder or touching Git. The folder project root cannot be removed with this command.
+  Use --worktree "id:<full-instance-id>" with the full id from orca worktree list --json to select one folder workspace; several entries can share the same path.
+  Repo-defined orca.yaml archive hooks are skipped unless --run-hooks is passed.
+  With --run-hooks, a failed archive hook blocks the removal: nothing is stopped, deleted or deregistered, and the command exits non-zero with error code worktree_archive_hook_failed. --force does not waive this.
+  Pass --allow-failed-archive-hook to delete anyway after the hook has run and failed; the waived failure is reported back on result.archiveHookOverride. It requires --run-hooks and is rejected without it, because with no hook running there is no failure to waive.
+  For Git worktrees, removal also attempts to delete the checked-out local branch, with or without --force. Orca retains branches it knows predated the worktree and any branch whose changes it cannot prove are already merged.
+rc=0
+
+===== orca worktree list --help =====
+orca worktree list
+
+Usage: orca worktree list [--repo <selector>] [--limit <n>] [--json]
+
+List Orca-managed worktrees
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --repo <selector>      Repo selector such as id:<id>, name:<name>, or path:<path>
+  --limit <n>            Maximum number of rows to return
+
+Notes:
+  Each row carries the execution host that owns it (`host=`), and the trailing `scope:` line names every host the page covers plus the ones it does not.
+  A host named under `not covered` may still have workspaces; an empty answer for it is not evidence that it has none. A paired server is annotated with the `--environment` flag that reaches it; this machine and its SSH targets are reached through the same runtime, so no flag selects them.
+  The row cap is shared across hosts, so a host whose rows sort last is not starved out of the page.
+rc=0
+
+===== orca worktree current --help =====
+orca worktree current
+
+Usage: orca worktree current [--json]
+
+Show the Orca-managed worktree for the current directory
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+
+Notes:
+  Resolves the current shell directory to a path: selector so agents can target the enclosing Orca worktree without spelling out $PWD.
+
+Examples:
+  $ orca worktree current
+  $ orca worktree current --json
+rc=0
+
+===== orca orchestration run-create --help =====
+orca orchestration run-create
+
+Usage: orca orchestration run-create --objective <text> [--from <handle>] [--retry-request <id>] [--json]
+
+Create and bind a lightweight orchestration Run
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --objective
+  --from
+  --retry-request
+
+Notes:
+  A Run is a namespace and home inbox. It never schedules or places workers.
+  --retry-request is only for exact recovery after an unknown mutation result.
+rc=0
+
+===== orca orchestration run-use --help =====
+orca orchestration run-use
+
+Usage: orca orchestration run-use --id <run_id> [--from <handle>] [--takeover-legacy] [--retry-request <id>] [--json]
+
+Resume coordinating a Run
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --id <id>             Identifier for a target item or permission
+  --from
+  --takeover-legacy
+  --retry-request
+
+Notes:
+  A worker cannot bind its own or ancestor Run or use --takeover-legacy. --takeover-legacy must run in the live coordinator agent terminal it binds; it preserves existing worker assignments.
+rc=0
+
+===== orca orchestration task-create --help =====
+orca orchestration task-create
+
+Usage: orca orchestration task-create --spec <text> [--task-title <text>] [--display-name <text>] [--deps <json_array>] [--parent <task_id>] [--run <run_id>] [--from <handle>] [--retry-request <id>] [--json]
+
+Create an orchestration task
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --spec
+  --task-title <text>  Concise title for the orchestration task
+  --display-name <text> UI label shown for dispatched worker rows
+  --deps
+  --parent
+  --run
+  --from
+  --retry-request
+rc=0
+
+===== orca orchestration worker-start --help =====
+orca orchestration worker-start
+
+Usage: orca orchestration worker-start (--task <task_id> | --spec <text>) [--on <saved-environment>] [--worktree <current|selector|new-child|new-top-level>] (--agent <agent> | --terminal <handle>) [--task-title <text>] [--deps <json_array>] [--parent <task_id>] [--model <id>] [--effort <level>] [--name <name>] [--repo <selector>] [--base-branch <ref>] [--display-name <text>] [--comment <text>] [--setup <run|skip|inherit>] [--retry-of <dispatch_id>] [--timeout-ms <n>] [--run <run_id>] [--from <handle>] [--retry-request <id>] [--json]
+
+Start one supervised worker on the Run home or a connected Orca server
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --task
+  --spec
+  --task-title <text>    Concise title for an orchestration task
+  --deps
+  --parent
+  --on
+  --worktree <selector>  Worktree selector such as identity:<identity>, id:<repo-id>::<path>, name:<displayName>, branch:<branch>, issue:<number>, path:<path>, or active/current
+  --name <name>          Name for the new worktree or automation
+  --repo <selector>      Repo selector such as id:<id>, name:<name>, or path:<path>
+  --base-branch <ref>    Base branch/ref to create the worktree from
+  --display-name <name>  Override the Orca display name
+  --comment <text>       Comment stored in Orca metadata
+  --setup run|skip|inherit Setup policy for repo-defined setup hooks
+  --agent <id>          Launch a known TUI agent in the first terminal
+  --model <id>          Provider model id for a new agent launch
+  --effort <level>      Reasoning effort for the selected model
+  --terminal <handle>  Runtime-issued terminal handle
+  --retry-of
+  --timeout-ms <ms>     Maximum wait time before timing out
+  --run
+  --from
+  --retry-request
+
+Notes:
+  Current and existing worktrees never rerun setup; a fresh agent terminal is created unless --terminal is explicit.
+  When reusing --terminal, pass --worktree for that terminal; current means the coordinator worktree.
+  --agent takes an Orca agent id enabled on the worker server, such as claude, codex, cursor, antigravity, muse, zcode, opencode, or opencode2.
+  --model supports Claude, Codex, Cursor, Antigravity, and Muse opaque provider model ids; --effort requires --model. OMP accepts --model only; --effort is unsupported. Neither can combine with --terminal. OpenCode model selection requires an existing worktree, a verified execution-host CLI, and an available model; effort is unsupported. Other agents, including zcode, launch with the model from their own config.
+  New worktrees use agent-first creation and default --setup to run. Repository start-immediately runs setup beside the agent; wait-for-setup gates agent readiness and task input.
+  New worktrees without --name get the name Orca gives an unnamed workspace; the receipt names it. Servers older than this change still require --name.
+  Creation flags (--name, --repo, --base-branch, --display-name, --comment, --setup) are rejected for current/existing worktrees. Use exact --repo on the selected server; project/host convenience routing remains on worktree create.
+  How the worker runs follows the user's own setting for new agent tabs; there is no flag for it and no caller needs to ask. A dispatch the setting cannot apply to still starts, so the placement, agent, and launch options passed here are always the ones honoured.
+  Drive every worker the same way whichever way it was started: the same orchestration verbs, the same handle. Mail, dispatch, worker-show, worker-read and the whole lifecycle behave identically. The start receipt records which one ran, for operators and telemetry.
+  Not every worker has a terminal. Read output with worker-read --source auto or --source transcript, which always work; --source terminal is refused when there is none, and orca terminal verbs do not accept every worker handle. Nothing above needs you to know which kind you have — the orchestration verbs cover all of them.
+  --on selects only the worker server; the Run and this command remain on the current Orca server.
+  Remote current and new-child are invalid; discover an exact remote selector or use new-top-level.
+  --retry-of needs --task naming the failed Task (--spec creates a new one) and does not inherit placement; repeat the intended --on/worktree and --agent/terminal choices.
+  The call exits 0 only for ready. Failed or outcome_unknown exits 1 and JSON includes stage/failedStage, setup, effects, residualResources, and recovery commands when needed.
+rc=0
+
+===== orca orchestration check --help =====
+orca orchestration check
+
+Usage: orca orchestration check [--terminal <handle>] [--run <run_id>] [--ack <delivery_id>] [--unread | --peek | --all] [--types <type,...>] [--format] [--wait] [--timeout-ms <n>] [--retry-request <id>] [--json]
+  default: return the bound Run's oldest unacknowledged FIFO batch.
+  --ack: acknowledge the prior whole batch before checking/waiting.
+  --peek: return only unread messages without marking them read.
+  --all: return every message for the handle; does not mark read.
+  --wait: block until a matching message arrives or --timeout-ms expires.
+          Emits JSON keepalive lines to stderr every 15s so the caller can
+          tell the process is alive. `_keepalive` is unrelated to heartbeat
+          messages; `_heartbeat` remains as a deprecated compatibility alias.
+          Filter with `jq "select(._keepalive|not)"` when merging streams.
+
+Check this agent's messages
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --terminal <handle>  Runtime-issued terminal handle
+  --run
+  --ack
+  --unread
+  --peek
+  --all
+  --types
+  --format <png|jpeg>    Screenshot image format
+  --wait
+  --timeout-ms <ms>     Maximum wait time before timing out
+  --retry-request
+
+Notes:
+  On Windows PowerShell, quote comma-separated type filters, e.g. --types "worker_done,escalation".
+  --types is the wake condition for --wait; a returned Delivery is always the whole FIFO batch, so it is never filtered by type. Without --wait it has no effect on consuming checks. Only --peek and --all filter their rows.
+  --format renders the returned rows as local text only; it never writes to another terminal.
+  A bound Run replays the same Delivery until --ack or all its messages are marked read, even with --types; process every message before acknowledging. Several --wait calls may wait on one Run inbox; waiting reserves nothing, listeners woken together get the same Delivery, and a repeated --ack is a no-op. --peek and --all return no deliveryId, so they do not drain a mailbox on their own; --all and a Run --peek show at most 100 rows. To drain, repeat plain check with --ack <previous deliveryId> until deliveryId is null.
+rc=0
+
+===== orca orchestration worker-show --help =====
+orca orchestration worker-show
+
+Usage: orca orchestration worker-show --dispatch <dispatch_id> [--json]
+
+Inspect one supervised worker Dispatch
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --dispatch
+
+Notes:
+  A Dispatch created by orchestration dispatch is shown as unsupervised and reports the exact adopted terminal when its identity is still provable.
+  observation.agentWait names a worker parked on a prompt only a human can answer, with the evidence that proved it (hook, prompt-text, or title). Null means Orca looked and found no wait. An absent field means it never looked — an older host, an unverifiable worker identity, an unreadable pane, or an agent probe that did not answer in time — and never means the worker is not waiting. A waiting worker is healthy, not failed.
+rc=0
+
+===== orca orchestration worker-read --help =====
+orca orchestration worker-read
+
+Usage: orca orchestration worker-read --dispatch <dispatch_id> [--source <auto|transcript|terminal>] [--cursor <cursor>] [--limit <n>] [--json]
+
+Read bounded output from one supervised worker
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --dispatch
+  --source
+  --cursor <cursor>      Opaque cursor returned by a previous worker-read page
+  --limit <n>            Maximum number of rows to return
+
+Notes:
+  The default auto source uses an exact hook-reported transcript when available and otherwise returns labeled terminal output.
+  A Dispatch created by orchestration dispatch reads from its adopted terminal with worker status unsupervised.
+  A returned cursor is pinned to the exact source; start a fresh read if Orca reports source_changed.
+rc=0
+
+===== orca orchestration worker-release --help =====
+orca orchestration worker-release
+
+Usage: orca orchestration worker-release --dispatch <dispatch_id> [--retry-request <id>] [--json]
+
+Release the terminal of one settled supervised worker
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --dispatch
+  --retry-request
+
+Notes:
+  Post-completion cleanup for a settled (succeeded or failed) worker; closes only the exact coordinator-owned agent terminal of that worker.
+  A settled Dispatch created by orchestration dispatch has no owned terminal resource and is reported retained without process action.
+  An inspectable output archive is preserved before the terminal closes, so worker-read still returns output afterwards.
+  Never closes setup terminals, configured tabs, reused or pre-existing terminals, user-taken-over terminals, or unproven identities.
+  Idempotent: repeating the call reports already_released. Only release_unknown exits 1; retained, release_pending, and already_released exit 0.
+rc=0
+
+===== orca orchestration worker-list --help =====
+orca orchestration worker-list
+
+Usage: orca orchestration worker-list [--run <run_id>] [--terminal-state <active|reclaimable|retained|release_pending|release_unknown|released>] [--include-remote] [--cursor <cursor>] [--limit <1-100>] [--json]
+
+List supervised worker terminal resource accounting
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --run
+  --terminal-state <state> Terminal accounting filter: active, reclaimable, retained, release_pending, release_unknown, or released
+  --include-remote      Include connected-server worker observations
+  --cursor <cursor>      Opaque page cursor copied from page.nextCursor
+  --limit <n>            Maximum number of rows to return
+
+Notes:
+  Terminal state is process accounting and is reported separately from Task status; a completed Task can still own a live terminal.
+  Context-only Dispatches created by orchestration dispatch are included as unsupervised with terminal state retained.
+  Returns at most 100 local rows, newest first, by default; --include-remote adds connected-server observations when the host supports fleet listing. Continue with the opaque page.nextCursor value unchanged.
+  Without --run the list is scoped to the Run bound to the calling terminal, and to every Run when there is no binding; the receipt reports which in scope.source (flag, bound, or all).
+rc=0
+
+===== orca orchestration worker-stop --help =====
+orca orchestration worker-stop
+
+Usage: orca orchestration worker-stop --dispatch <dispatch_id> [--retry-request <id>] [--json]
+
+Fence one Dispatch and stop its supervised agent terminal
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --dispatch
+  --retry-request
+
+Notes:
+  A Dispatch created by orchestration dispatch is fenced without closing its unsupervised terminal process.
+  processAction closed_agent_terminal means Orca issued the close (do not also run terminal close); stop_unknown exits 1 and may still report it when the agent exit was not proven.
+  Never deletes the worktree, setup terminal, configured tabs, or unrelated processes.
+rc=0
+
+===== orca orchestration task-update --help =====
+orca orchestration task-update
+
+Usage: orca orchestration task-update --id <task_id> --status <status> [--result <text>] [--run <run_id>] [--from <handle>] [--retry-request <id>] [--json]
+
+Update a task status
+
+Options:
+  --help                 Show this help message
+  --json                 Emit machine-readable JSON
+  --pairing-code <code>  Run against a remote Orca server using an orca://pair?... code
+  --environment <selector> Run against a saved paired Orca server (id or name); terminal handles belong to the server that issued them
+  --id <id>             Identifier for a target item or permission
+  --status
+  --result
+  --run
+  --from
+  --retry-request
+
+Notes:
+  Valid --status values: pending, ready, dispatched, completed, failed, blocked.
+  To cancel a Task, stop or abandon its worker, then set --status failed --result cancelled; a later worker-start --retry-of reopens it.
+rc=0
+

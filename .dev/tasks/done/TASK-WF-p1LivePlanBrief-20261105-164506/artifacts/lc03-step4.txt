@@ -1,0 +1,4 @@
+$ test -s /home/coder/workspaces/worktrees/IronClaude/p1-live-business-panel/.dev/p1-live/business-panel/return-contract.yaml
+rc=0
+$ yaml assertion
+rc=0

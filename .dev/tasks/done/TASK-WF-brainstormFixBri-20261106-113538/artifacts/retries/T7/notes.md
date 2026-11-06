@@ -1,0 +1,2 @@
+9e7b92f95a016aa6491c1b7364c26a801810d0d0
+A1 r1-1 F1.1 note .dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-113538/artifacts/t7-status-compare.txt:1 ac=scope chk=n,n,n,n Task 7 wrote one extra evidence file the brief does not name (the status comparison output); it is a log in substance, sits in the package artifacts folder and changes no source or tracked data. Reviewer suggested no fix (optional rename).

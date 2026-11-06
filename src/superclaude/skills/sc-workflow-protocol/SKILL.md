@@ -27,6 +27,8 @@ STOP codes in the ref. No package, no plan file, no yaml on a pre-creation STOP.
 
 `.dev/tasks/` is always staged (`git add .dev/tasks`): the package and its `artifacts/` included. Never gitignore it, never leave it untracked, and never write "never stage" about it in a generated plan (Constraints included). Staging is not committing.
 
+Under `--unattended` that staging is deferred to the coordinator (`~/.claude/WORKER-CONTRACT.md`): this run does not stage `.dev/tasks`. Also apply the `## Unattended mode` section of the `workflow` command file: the installed copy `~/.claude/commands/sc/workflow.md`, or the project copy `.claude/commands/sc/workflow.md`.
+
 `--strategy enterprise` and omitted `--depth` → set `deep` + INFO.
 
 ## Wave 1 — Structure

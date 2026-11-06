@@ -1,0 +1,2 @@
+48b3b824758ad62183db7f54ad7583f02f67b848
+A1 r1-1 F1.1 note ./artifacts/lc08-step5.md:7 ac=scope chk=n,n,n,n lc08-step5.md and lc08-step5-crosscheck.txt record the page 1 window and that page 2 is empty but not the contentComplete value; the reviewer quoted spec 7.2 line 293 as the constraint, which is not byte-present in the plan Constraints (plan line 44 words it differently), so the quoted-constraint-breach answer failed its Read-back and the finding is a note. The values exist in lc08-transcript-1.json (false) and lc08-transcript-2.json (true).

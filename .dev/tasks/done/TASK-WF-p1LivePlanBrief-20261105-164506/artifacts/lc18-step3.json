@@ -1,0 +1,38 @@
+{
+  "id": "c4af7746-8b50-4d68-9967-ddeb480dde0e",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_466139a1a7f8",
+    "messages": [
+      {
+        "id": "msg_75a4ccec5d24",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_dcc9a0c8-d83d-46f4-b634-d1655a7a19c7",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "watch refused under --unattended",
+        "body": "worker_status: failed; /sc:test refused the person-mode flag --watch under --unattended before any work, which is the expected P1 behavior. The brief guard passed (project and installed copies of test.md are identical and both have the Unattended mode section), and I wrote .dev/p1-live/watch/return-contract.yaml with worker_status failed and --watch named in reason; no test runner started and nothing was committed or staged. The new .dev/p1-live/ folder is untracked, so the coordinator stages it.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_0520b6a13e2d\",\"dispatchId\":\"ctx_f3e6bb19b3ef\",\"outcome\":\"failed\",\"filesModified\":[\".dev/p1-live/watch/return-contract.yaml\"],\"reportPath\":\".dev/p1-live/watch/return-contract.yaml\"}",
+        "created_at": "2026-11-05T21:08:27Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "ea855ed2-10e6-4c6d-b597-44e240523fad",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

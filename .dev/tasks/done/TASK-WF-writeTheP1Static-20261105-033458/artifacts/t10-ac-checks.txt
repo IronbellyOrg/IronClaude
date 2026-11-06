@@ -1,0 +1,24 @@
+# T10 acceptance checks
+## AC1: section counts
+src/superclaude/commands/analyze.md:1
+src/superclaude/commands/build.md:1
+src/superclaude/commands/design.md:1
+## AC2: pytest
+.......................................................                  [100%]
+
+============================= 417 passed in 1.13s ==============================
+tests/skills/test_worker_contract.py::test_unattended_section_content[analyze] PASSED [ 14%]
+tests/skills/test_worker_contract.py::test_unattended_section_content[build] PASSED [ 14%]
+tests/skills/test_worker_contract.py::test_unattended_section_content[design] PASSED [ 15%]
+## AC3
+## Check ADDITIVE (merge-base 38eb3c58afe6988b51060ae14117172869ea4c1e): a line below means a deleted line
+numstat analyze: 14	0	src/superclaude/commands/analyze.md
+numstat build: 14	0	src/superclaude/commands/build.md
+numstat design: 14	0	src/superclaude/commands/design.md
+## Check SCAN: a line below is a hit
+scan done
+## Check WRITEVERB on lines added since task start under src/superclaude: a line below is a hit
+writeverb done
+## extras
+All checks passed!
+1 file already formatted

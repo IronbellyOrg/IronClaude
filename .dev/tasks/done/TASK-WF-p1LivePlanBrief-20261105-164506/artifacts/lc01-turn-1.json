@@ -1,0 +1,38 @@
+{
+  "id": "fb7b16a0-b183-42ff-a852-8d4e08a78206",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_cb337ad292f3",
+    "messages": [
+      {
+        "id": "msg_5024b99c75ee",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_3b533604-b089-4948-94af-266d844ac308",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "analyze install_core.py: succeeded",
+        "body": "worker_status: succeeded; the brief guard passed (both analyze.md copies identical, Unattended mode section present, --unattended standalone) and /sc:analyze ran with no source changes. The quality report found no high or critical issues and four low ones in src/superclaude/cli/install_core.py: an unreachable branch at lines 98-99, a no-op if in _get_core_source, a Path = None type hint, and the hand-kept KNOWN_CORE_FILES set (it matches the core folder today). Nothing is left; git status shows only the untracked .dev/p1-live/ report directory, which the coordinator stages. No commit was made, as the brief says.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_087ab96455f4\",\"dispatchId\":\"ctx_a115f9267f30\",\"outcome\":\"succeeded\",\"filesModified\":[\".dev/p1-live/analyze/analyze-report.md\",\".dev/p1-live/analyze/return-contract.yaml\"],\"reportPath\":\".dev/p1-live/analyze/return-contract.yaml\"}",
+        "created_at": "2026-11-05T18:54:35Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "ac890a10-fb2a-4e57-9d5e-7c247903a8d3",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

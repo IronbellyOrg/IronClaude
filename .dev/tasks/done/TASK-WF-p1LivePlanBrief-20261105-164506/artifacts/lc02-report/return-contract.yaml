@@ -1,0 +1,7 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:build --type dev --unattended --report-dir .dev/p1-live/build/"
+report_path: .dev/p1-live/build/build-report.md
+artifacts:
+  - .dev/p1-live/build/dist/superclaude-5.0.0-py3-none-any.whl
+  - .dev/p1-live/build/build.log

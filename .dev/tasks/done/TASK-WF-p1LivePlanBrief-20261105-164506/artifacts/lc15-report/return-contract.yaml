@@ -1,0 +1,5 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:init-lite --context-optimized --dry-run --unattended --report-dir .dev/p1-live/init-lite/"
+report_path: null
+artifacts: []

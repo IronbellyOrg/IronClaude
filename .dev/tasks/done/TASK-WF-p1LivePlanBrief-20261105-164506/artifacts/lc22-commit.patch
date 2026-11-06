@@ -1,0 +1,71 @@
+commit c682bb2a26f75c99f554245b03d21aa7f067aea7
+Author: coder <coder@coder.local>
+Date:   Thu Nov 5 21:25:55 2026 +0000
+
+    docs(orca): record the AC-1.8 commit-grant explain run report
+    
+    Co-Authored-By: Claude Code <noreply@anthropic.com>
+
+diff --git a/.dev/p1-live/commit-grant/explain-report.md b/.dev/p1-live/commit-grant/explain-report.md
+new file mode 100644
+index 00000000..2b86ba17
+--- /dev/null
++++ b/.dev/p1-live/commit-grant/explain-report.md
+@@ -0,0 +1,46 @@
++# Explanation: src/superclaude/cli/install_core.py
++
++Level: basic. Format: text. Source read: `src/superclaude/cli/install_core.py` (156 lines).
++
++## What this file does
++
++It copies SuperClaude's core instruction files (plain `.md` files such as `CLAUDE.md`, `RULES.md` and `WORKER-CONTRACT.md`) from the package into the user's `~/.claude/` folder. Claude Code reads those files when a session starts, so this copy step is how the framework's rules reach a user's machine.
++
++## The four functions
++
++1. `install_core_files(target_path=None, force=False)` is the main one. It returns a pair: `True` or `False` for success, and a text message for the user.
++   - It picks the target folder (`~/.claude` unless told otherwise) and creates it if missing.
++   - It finds the source folder with `_get_core_source()` and lists every `*.md` file there.
++   - For each file: if the destination already exists and `force` is off, it skips the file (the user's copy is never overwritten by accident). Otherwise it copies it with `shutil.copy2`, which keeps the file's timestamps.
++   - A failure on one file is recorded and the loop carries on with the rest.
++   - The message lists what was installed, skipped and failed. Success is `True` only when nothing failed, so an all-skipped run still counts as success.
++   - It returns `False` early when the source folder is missing or holds no `.md` files.
++2. `_get_core_source()` returns the folder `core/` next to the `cli/` folder, one level up from this file. It returns that path even when the folder does not exist, so the caller can print a clear "not found" error.
++3. `list_core_files()` lists the `.md` file names available in that source folder (empty list if the folder is missing).
++4. `list_installed_core_files()` lists which core files are already in `~/.claude/`. It counts only names in `KNOWN_CORE_FILES`, so other `.md` files the user keeps there are ignored.
++
++## The list at the top
++
++`KNOWN_CORE_FILES` is a fixed set of the 12 file names this version ships. It matches the 12 `.md` files in `src/superclaude/core/` today. It is used only for the "what is installed" listing, not for the copy itself: the copy takes whatever `.md` files are in the source folder.
++
++## Who uses it (one hop, from the code graph)
++
++Production callers, both in `src/superclaude/cli/main.py`:
++- `install` calls `install_core_files(force=force)` at line 178 and `list_installed_core_files()` at line 90.
++- `update` calls `install_core_files(force=True)` at line 365, so an update always overwrites.
++
++Tests that call it: `tests/cli/test_how_we_work_install.py`, `tests/cli/test_bash_inspection_policy.py`, `tests/cli/test_issue_body_templates.py` and `tests/unit/test_cli_install.py`.
++
++Resolution of those rows: the three line numbers in `main.py` were matched by a text search and show a real call on that line; I did not read the end line of each caller's body, so treat them as `def-line` level for which function they sit in. Test callers are graph rows only.
++
++## Things worth knowing
++
++- A new core file added to `src/superclaude/core/` will be installed automatically, but it will not show up in `list_installed_core_files()` until it is also added to `KNOWN_CORE_FILES`.
++- The docstring of `_get_core_source()` lists two lookup locations ("installed package" and "source checkout"), but the code checks only one, the `core/` folder beside the package. In a source checkout that is the same folder, so it works; the docstring is just wider than the code.
++- Copy errors are caught with a broad `except Exception`, so any error on a single file is reported in the message instead of stopping the install.
++
++## Evidence
++
++- Source: `src/superclaude/cli/install_core.py` lines 13-28 (known files), 31-104 (install), 107-126 (source folder), 129-141 (list available), 144-156 (list installed).
++- Folder listing of `src/superclaude/core/`: 12 `.md` files plus `__init__.py`.
++- Graph state when read: index fresh (0 changes since index), access via MCP. Degraded tokens: none.
+diff --git a/.dev/p1-live/commit-grant/return-contract.yaml b/.dev/p1-live/commit-grant/return-contract.yaml
+new file mode 100644
+index 00000000..5384bb01
+--- /dev/null
++++ b/.dev/p1-live/commit-grant/return-contract.yaml
+@@ -0,0 +1,5 @@
++worker_contract_version: "1"
++worker_status: succeeded
++command: "/sc:explain src/superclaude/cli/install_core.py --level basic --format text --unattended --report-dir .dev/p1-live/commit-grant/"
++report_path: .dev/p1-live/commit-grant/explain-report.md
++artifacts: []

@@ -1,0 +1,5 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:index src/superclaude/pm_agent --type structure --format md --output .dev/p1-live/index/structure.md --unattended --report-dir .dev/p1-live/index/"
+report_path: .dev/p1-live/index/structure.md
+artifacts: []

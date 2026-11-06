@@ -1,0 +1,66 @@
+contract_version: "1.0"
+status: partial   # adversarial convergence 0.625 is in the 0.50 to 0.65 band: PARTIAL, merged output copied with adversarial_status: partial
+seed_brief_path: ".dev/p1-live/brainstorm/seed-brief.md"
+merged_output_path: ".dev/p1-live/brainstorm/merged-requirements.md"
+convergence_score: 0.625
+adversarial_artifacts_dir: ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/"
+domain: process
+proposal_count: 2
+enrichment_used:
+  - source: codebase
+    quality_tier: fallback_1   # auggie retrieval tool not available in this session; codegraph search, Grep and Read were used
+  - source: research-light
+    quality_tier: skipped      # research is off under --unattended
+  - source: research-deep
+    quality_tier: skipped      # research is off under --unattended
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "S-001: section order (cosmetic): MERGE against Variant 2"
+  - "C-001: root folder shape: new run folder (.dev/orca/...) against per-command root (.dev/<command>/...)"
+  - "C-002: date in the path: one run stamp against no date"
+  - "C-006: subject style: camelCase 16 against kebab 24"
+  - "X-001: per-command root clashes with folders other tools own (.dev/reflect/, legacy .dev/implement/ and .dev/workflow/)"
+  - "A-002: assumption that a per-command root under .dev/ is free"
+
+# Worker fields (only with --unattended)
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:brainstorm \"how a coordinator should name report directories for parallel workers\" --depth quick --proposals 2 --codebase --handoff none --unattended --output .dev/p1-live/brainstorm/"
+report_path: ".dev/p1-live/brainstorm/merged-requirements.md"
+artifacts:
+  - ".dev/p1-live/brainstorm/seed-brief.md"
+  - ".dev/p1-live/brainstorm/enrichment/codebase-context.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/return-contract.yaml"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/merged-output.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/return-contract.yaml"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/variant-1-opus-scribe.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/variant-2-sonnet-analyzer.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/diff-analysis.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/round1-advocate-1.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/round1-advocate-2.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/debate-transcript.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/base-selection.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/refactor-plan.md"
+  - ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/merge-log.md"
+
+# Telemetry (non-stable). Values not measured in this run are null.
+wave_durations_ms:
+  wave_0: null
+  wave_1: null
+  wave_2a: null
+  wave_2b: null
+  wave_3: null
+  wave_4: null
+token_usage:
+  wave_0: null
+  wave_1: null
+  wave_2a: null
+  wave_2b: null
+  wave_3: 560220   # sum of the five subagent token counts reported on completion (variants 103723 + 104073, advocates 100105 + 114181, merge 138138)
+  wave_4: null
+  budget_note: "Estimate was 18400 tokens with the refs/agent-spec-builder.md multiplier (quick = 8000) and 184000 with the SKILL.md multiplier (quick = 80000). Measured 560220 is above 1.25 x either estimate (23000 or 230000). The hard-kill check was applied only after the run, once the agent counts were known; the run was not aborted. The two skill files disagree on the multiplier."
+agent_spec: "opus:scribe,sonnet:analyzer"
+enrichment_artifact_sizes:
+  codebase-context.md: 2880
+  research-light.md: 0

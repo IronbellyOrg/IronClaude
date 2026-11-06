@@ -1,0 +1,9 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: '/sc:workflow "Add one sentence to the Installation section of README.md stating that superclaude install --force overwrites files that already exist in ~/.claude" --depth quick --handoff none --unattended --report-dir .dev/p1-live/workflow/'
+report_path: .dev/tasks/to-do/TASK-WF-addOneSentenceTo-20261105-204034/TASK-WF-addOneSentenceTo-20261105-204034.md
+artifacts:
+  - .dev/tasks/to-do/TASK-WF-addOneSentenceTo-20261105-204034/return-contract.yaml
+  - .dev/tasks/to-do/TASK-WF-addOneSentenceTo-20261105-204034/source.md
+  - .dev/reflect/pre-addOneSentenceTo-20261105204136/REPORT.md
+  - .dev/reflect/pre-addOneSentenceTo-20261105204136/return-contract.yaml

@@ -1,0 +1,16 @@
+== new lines in status-after (not in status-before)
+ M .dev/orca-command-refactor/specs/orca-worker-contract-spec.md
+ M src/superclaude/commands/brainstorm.md
+ M src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+ M src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md
+ M tests/skills/test_brainstorm_protocol.py
+ M tests/skills/test_worker_contract.py
+?? .dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-113538/progress.md
+== new lines naming .claude/ or plugins/ (expect 0)
+0
+== new lines outside the six files and the package (expect 0)
+0
+== .dev/tasks/done/ lines before vs after (expect identical)
+identical
+953
+== lines removed from before (for information)

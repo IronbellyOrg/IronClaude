@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/p1-live/brainstorm/nested/adversarial-1/merged-output.md"
+  convergence_score: 0.625
+  artifacts_dir: ".dev/p1-live/brainstorm/nested/adversarial-1/adversarial/"
+  status: "partial"                 # completed with non-convergence: 10 of 16 points agreed, threshold 0.75
+  base_variant: "sonnet:analyzer"   # chosen by the tiebreaker (combined scores 0.885 against 0.888)
+  unresolved_conflicts: 6           # S-001, C-001, C-002, C-006, X-001, A-002
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []        # Round 2.5 invariant probe skipped at --depth quick

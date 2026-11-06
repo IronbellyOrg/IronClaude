@@ -1,6 +1,3 @@
-# /sc:business-panel - Business Panel Analysis System
-
-```yaml
 ---
 command: "/sc:business-panel"
 category: "Analysis & Strategic Planning"  
@@ -8,7 +5,8 @@ purpose: "Multi-expert business analysis with adaptive interaction modes"
 wave-enabled: true
 performance-profile: "complex"
 ---
-```
+
+# /sc:business-panel - Business Panel Analysis System
 
 ## Overview
 
@@ -78,6 +76,7 @@ Question-driven exploration for deep learning and strategic thinking development
 - `--structured` - Use symbol system for efficiency
 - `--verbose` - Full detailed analysis
 - `--questions` - Focus on strategic questions
+- `--output <file>` - Write the analysis to that file (a standalone run writes a file only when you pass it)
 
 ## Auto-Persona Activation
 
@@ -90,6 +89,17 @@ Question-driven exploration for deep learning and strategic thinking development
 - Compatible with all thinking flags (--think, --think-hard, --ultrathink)
 - Supports wave orchestration for comprehensive business analysis
 - Integrates with scribe persona for professional business communication
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:business-panel` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only (`--output` is file-valued). Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is the `--output` file, or `<report-dir>/business-panel-report.md` when `--output` is absent. The run is succeeded when the analysis document is written, and failed otherwise.
+- **Person-mode flags.** `--mode socratic` and `--mode=socratic` are refused before any work (contract `worker_status: failed`, the flag in `reason`). `--mode adaptive` never selects the Socratic mode under `--unattended`; it chooses between discussion and debate only.
+- **Gates.** There is no other gate. Nested invocations: none.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## CRITICAL BOUNDARIES
 

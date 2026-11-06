@@ -1,0 +1,39 @@
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":15002,"deadlineMs":240000}
+{
+  "id": "f27ccc34-96ff-412d-83e1-356409ee692e",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_63a1aef3499e",
+    "messages": [
+      {
+        "id": "msg_a05f2c5ca353",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_9df9e181-0d5b-40bb-9fc3-466d762dab7f",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "analyze refused: no report directory",
+        "body": "worker_status: none (no contract written); the command refused before any work. The guard passed (project and installed copies identical, both have the Unattended mode section, the line has --unattended), but the brief gave 'Report directory: none' and no --report-dir, so /sc:analyze printed 'unattended mode needs exactly one report directory: --report-dir <dir>, or this command's own directory output flag' in chat only, did no analysis and wrote no files. Nothing is left to do here; to get a real analysis, create a new Task whose Command line adds --report-dir <dir>.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_3b8645b3b8bc\",\"dispatchId\":\"ctx_5fac5090b848\",\"outcome\":\"failed\"}",
+        "created_at": "2026-11-05T21:05:35Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "25dc31d1-96c8-4fae-87b3-589c56a76129",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

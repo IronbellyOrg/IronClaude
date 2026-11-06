@@ -1,0 +1,13 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-addOneSentenceTo-20261105204136/adversarial/merged-verdict.yaml"
+  convergence_score: 1.0   # diff-point agreement 8 of 8; status BLOCKED_BY_INVARIANTS (see unaddressed_invariants)
+  artifacts_dir: ".dev/reflect/pre-addOneSentenceTo-20261105204136/adversarial/adversarial"
+  status: "partial"   # standard depth has no Round 3, so two HIGH invariants stayed open
+  base_variant: "sonnet:analyzer"
+  unresolved_conflicts: 2
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-003, category: guard_conditions, assumption: "On a correct run git status --porcelain differs from baseline only by ' M README.md' and git diff --cached --name-only is unchanged (V3 replacement for criterion 2)", severity: HIGH}
+    - {id: INV-012, category: sufficiency_challenge, assumption: "The consensus changes alone make the plan correct and executable", severity: HIGH}

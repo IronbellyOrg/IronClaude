@@ -1,0 +1,4 @@
+feature worktree id (orca worktree current --json): de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1
+new worktree id: de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p1-live-commit-grant
+parent in the create receipt: de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1
+parent in orca worktree list --json: de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1

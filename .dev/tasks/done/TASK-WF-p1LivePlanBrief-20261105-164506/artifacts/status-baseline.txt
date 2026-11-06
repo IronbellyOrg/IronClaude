@@ -1,0 +1,6 @@
+M  .dev/tasks/to-do/TASK-WF-p1LivePlanBrief-20261105-164506/TASK-WF-p1LivePlanBrief-20261105-164506.md
+M  .dev/tasks/to-do/TASK-WF-p1LivePlanBrief-20261105-164506/return-contract.yaml
+?? .dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/
+?? .dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/
+?? .dev/tasks/to-do/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/
+?? .dev/tasks/to-do/TASK-WF-p1LivePlanBrief-20261105-164506/progress.md

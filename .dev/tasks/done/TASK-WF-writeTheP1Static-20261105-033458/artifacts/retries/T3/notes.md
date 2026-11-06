@@ -1,0 +1,3 @@
+d9e07ac03f797d7e8752e18927555da8b2083805
+A1 r1-1 F1.1 minor src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:319 ac=scope n,n,n,n The Wave 3 exit-criteria sentence "Adversarial artifacts archived under <output>/adversarial/" and the error-table -N suffix row still describe the default; the --unattended overrides sit at Wave 0 step 8 and Wave 3, so nothing is contradicted.
+A1 r1-1 F1.2 note src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:112 ac=scope n,n,n,n With --report-dir the own default output directory is not "passed" and keeps the -N rule; this matches the command section and is intended.

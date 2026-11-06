@@ -1,0 +1,85 @@
+# lc09 session analysis
+## tool calls by name (top-level session; assistant messages with isSidechain=true: 0)
+     34 Edit
+     17 Bash
+     15 Read
+      6 Write
+      5 Agent
+      1 Glob
+      1 Skill
+      1 Grep
+
+## Skill calls
+2026-11-05T19:25:34.846Z sidechain=False skill=sc:adversarial-protocol
+
+## orca orchestration commands in the top-level session
+19:25:45 send heartbeat
+19:27:58 check heartbeat
+19:32:15 send heartbeat
+19:39:08 send heartbeat
+19:44:43 send heartbeat
+19:45:00 check 
+19:48:14 send 
+19:48:29 check worker_done
+
+## run length: first user message 19:25:19, worker_done ['19:48:29']
+run length minutes: 23.2
+heartbeats (5): ['19:25:45', '19:27:58', '19:32:15', '19:39:08', '19:44:43']
+gaps (min): [2.2, 4.3, 6.9, 5.6]
+last heartbeat to worker_done (min): 3.8
+first heartbeat after first user message (min): 0.4
+
+## gaps over 5 minutes: top-level activity inside each
+gap 19:32:15 -> 19:39:08 (6.9 min)
+   19:32:30 Grep 
+   19:38:49 Agent Rubric judge pass 1 (A then B)
+   19:38:49 Agent Rubric judge pass 2 (B then A)
+   19:38:49 Bash Verify key citations in spec files
+   19:38:56 Bash Compute specificity and section counts for both variants
+   task-notifications (background agent finished): []
+gap 19:39:08 -> 19:44:43 (5.6 min)
+   19:41:04 Read /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:41:04 Read /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:42:23 Write /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:42:25 Write /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:42:26 Write /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:42:29 Read /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:42:29 Read /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:42:29 Read /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:43:04 Bash Verify reflect precedent lines and get timestamp
+   19:43:13 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:43:16 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:43:17 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:43:18 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:43:26 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:43:31 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:43:35 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:43:47 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:43:53 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:43:55 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:44:01 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:44:08 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:44:22 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:44:28 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:44:31 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   19:44:32 Edit /home/coder/workspaces/worktrees/IronClaude/p1-live-adversarial/.dev/p
+   task-notifications (background agent finished): []
+
+## Agent launches (top-level): ['19:27:43', '19:27:49', '19:38:49', '19:38:49', '19:44:57']
+
+## all session files: 6; Bash commands: 20
+WC-13 pattern hits: 0
+orca verbs in all sessions: ['orca orchestration check', 'orca orchestration send']
+tool names containing ask/question (case-insensitive), all sessions: {}
+
+## heartbeat coverage
+## heartbeat gaps with subagent run time removed (cadence 5 min)
+Subagent run interval = first to last timestamp of its own session file (5 subagent files); merged into 3 intervals
+from -> to           gap min agent min non-agent min
+19:25:19 -> 19:25:45      0.4       0.0           0.4
+19:25:45 -> 19:27:58      2.2       0.2           2.0
+19:27:58 -> 19:32:15      4.3       4.3           0.0
+19:32:15 -> 19:39:08      6.9       0.4           6.5   <-- over 5
+19:39:08 -> 19:44:43      5.6       1.8           3.8
+19:44:43 -> 19:48:29      3.8       1.9           1.8
+max non-agent stretch since the last heartbeat (or since the brief): 6.5 min

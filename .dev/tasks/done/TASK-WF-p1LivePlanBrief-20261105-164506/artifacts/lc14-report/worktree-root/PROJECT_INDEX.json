@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "project": "SuperClaude (IronClaude fork)",
+    "package": "superclaude",
+    "version": "5.0.0",
+    "version_source": "pyproject.toml",
+    "version_file_mismatches": {"VERSION": "3.7", "package.json": "4.1.7"},
+    "generated_at": "2026-11-05",
+    "mode": "quick",
+    "tests_analyzed": false,
+    "python": ">=3.10",
+    "build_system": "hatchling",
+    "excluded_paths": [".dev/", ".claude/", ".venv/", "node_modules/", "dist/", ".git/"],
+    "counts": {
+      "src_python_files": 358,
+      "core_md_files": 11,
+      "commands": 46,
+      "agents": 48,
+      "skills": 39,
+      "modes": 7,
+      "docs_md_files": 132,
+      "plugin_files": 120,
+      "script_files": 24
+    },
+    "dependencies": [
+      "pytest>=7.0.0", "click>=8.0.0", "rich>=13.0.0", "pyyaml>=6.0",
+      "jsonschema>=4.0.0", "jinja2>=3.0", "pexpect>=4.9", "httpx>=0.27"
+    ]
+  },
+  "entry_points": {
+    "cli": [
+      {"name": "superclaude", "path": "src/superclaude/cli/main.py", "target": "superclaude.cli.main:main"},
+      {"name": "ic", "path": "src/superclaude/cli/ic.py", "target": "superclaude.cli.ic:main"}
+    ],
+    "cli_groups": ["sprint", "roadmap", "cleanup-audit", "tasklist", "cli-portify", "prd", "eval", "swarm", "recommend", "init-lite", "reflect"],
+    "pytest_plugin": {"name": "superclaude", "path": "src/superclaude/pytest_plugin.py"},
+    "installers": "src/superclaude/cli/install_*.py"
+  },
+  "structure": {
+    "source_of_truth": "src/superclaude/",
+    "packages": {
+      "cli": "superclaude and ic CLIs",
+      "core": "framework .md files installed to ~/.claude/",
+      "commands": "slash command definitions",
+      "agents": "agent definitions",
+      "skills": "skill packages",
+      "modes": "behavioral modes",
+      "pm_agent": "confidence, self_check, reflexion, token_budget",
+      "execution": "parallel, reflection, self_correction",
+      "pr_submit": "PR-review auto-remediation state machine",
+      "tools": "arch_lint.py"
+    },
+    "other_top_level": ["plugins/superclaude/", "tests/", "docs/", "scripts/", "agents/", "commands/", "skills/", "superclaude/", "repro/"]
+  },
+  "configuration": {
+    "pyproject.toml": "package, deps, pytest options, entry points",
+    "Makefile": "install, test, lint, format, sync-dev, verify-sync, build-plugin, verify-deps, lint-architecture, eval-skill, reflect-eval",
+    ".pre-commit-config.yaml": "pre-commit hooks",
+    ".github/workflows": ["test.yml", "boundary-guard.yml", "contract3-generator-constraint-lint.yml"]
+  },
+  "documentation": {
+    "root": ["README.md", "CONTRIBUTING.md", "SECURITY.md", "CHANGELOG.md", "KNOWLEDGE.md", "CLAUDE.md", "AGENTS.md"],
+    "docs_folders": ["Templates", "agents", "designs", "dev", "developer-guide", "eval", "generated", "getting-started", "guides", "mcp", "memory", "onboarding", "reference", "releases", "swarm", "testing", "user-guide"]
+  },
+  "quick_start": [
+    "make install",
+    "uv run superclaude install",
+    "make test",
+    "make sync-dev && make verify-sync"
+  ]
+}

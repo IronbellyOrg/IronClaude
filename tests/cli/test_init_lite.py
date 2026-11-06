@@ -235,6 +235,32 @@ def test_scaffold_creates_only_two_files(runner: CliRunner, tmp_path: Path) -> N
     assert created == {"SKILL.md", "refs/README.md"}
 
 
+def test_scaffold_partial_failure_prints_written_file(
+    runner: CliRunner, tmp_path: Path
+) -> None:
+    # The unattended worker contract lists the `Scaffold:` lines as `artifacts`,
+    # so a file written before a later scaffold write fails must still get its line.
+    _make_project(tmp_path)
+    guidance = tmp_path / ".dev" / "superclaude" / "project-guidance"
+    guidance.mkdir(parents=True)
+    (guidance / "refs").write_text("not a directory", encoding="utf-8")
+    result = runner.invoke(
+        main,
+        [
+            "init-lite",
+            "--context-optimized",
+            "--project-root",
+            str(tmp_path),
+            "--scaffold",
+        ],
+    )
+    assert result.exit_code != 0
+    assert isinstance(result.exception, FileExistsError), result.output
+    assert (guidance / "SKILL.md").is_file()
+    lines = [ln for ln in result.output.splitlines() if ln.startswith("Scaffold: ")]
+    assert len(lines) == 1 and lines[0].endswith("project-guidance/SKILL.md"), lines
+
+
 # --- CLI: CLAUDE.md byte preservation across all modes --------------------
 
 

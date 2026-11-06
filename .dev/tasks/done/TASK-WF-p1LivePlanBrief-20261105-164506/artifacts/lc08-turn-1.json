@@ -1,0 +1,38 @@
+{
+  "id": "93d7179a-ed39-441c-90e7-78e8d8ced84c",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_eebf51798183",
+    "messages": [
+      {
+        "id": "msg_d765a478e600",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_d521262b-d62e-489d-957d-f34e00e18cc7",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "test passed: 394/394",
+        "body": "worker_status: succeeded; verdict PASS. The brief guard passed (project and home copies of /sc:test are identical and both have an Unattended mode section), then I ran tests/skills/test_worker_contract.py: 394 passed, 0 failed, 0 skipped in 1.21 s. --type unit was not applied as a marker filter because the file has no unit marker (it would have deselected every test); nothing was committed, staged or pushed, and nothing is left to do. Contract: .dev/p1-live/test/return-contract.yaml, report: .dev/p1-live/test/test-report.md (untracked files under .dev/p1-live/test/, for you to stage).",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_222c7eecb8ad\",\"dispatchId\":\"ctx_e2b737c16ecc\",\"outcome\":\"succeeded\",\"filesModified\":[\".dev/p1-live/test/test-report.md\",\".dev/p1-live/test/return-contract.yaml\",\".dev/p1-live/test/pytest-output.txt\"],\"reportPath\":\".dev/p1-live/test/return-contract.yaml\"}",
+        "created_at": "2026-11-05T19:22:09Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "c51e7796-bcec-415d-a43f-79c92ad868bc",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

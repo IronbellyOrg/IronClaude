@@ -1,0 +1,8 @@
+# lc15 session analysis supplement (the P0 script crashed on a run with 0 heartbeats; these are jq counts over the same session file, first 1239064 bytes)
+session: /home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-p1-live-init-lite/873248bb-33e1-495c-bcd2-ea01fc859f98.jsonl  first-recorded size 1239064 sha256 4aca41f86e31fcc28b378dc382ca4d3d0e5054cdf1b1c67b83e1602b1a01bb1f
+## tool_use tally: Bash 5, Read 2, Skill 1
+## sidechain assistant messages: 0
+## tool names containing ask or question (case-insensitive): 0
+## Agent/Task/Skill tool calls: 1
+## WC-13 pattern hits in Bash commands: 0
+## orca commands: orca orchestration check (x1); orca orchestration send (x1); 

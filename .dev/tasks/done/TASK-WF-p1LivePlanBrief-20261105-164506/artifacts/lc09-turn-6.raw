@@ -1,0 +1,49 @@
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":15003,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":30009,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":45011,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":60011,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":75014,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":90014,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":105016,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":120017,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":135023,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":150024,"deadlineMs":240000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":165026,"deadlineMs":240000}
+{
+  "id": "02b99e82-0696-4b38-bfd2-623e128aaeb3",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_e3035e868622",
+    "messages": [
+      {
+        "id": "msg_65822276e27d",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_c2a044ba-abb3-4864-b1f8-e1ed62f1288d",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "adversarial D1 compare done (partial: debate did not converge)",
+        "body": "worker_status: partial; the debate did not converge (9 of 14 points agreed, 64.3%, against the 80% threshold at depth quick), but the merge finished and Variant A (the explicit --unattended flag, option-a.md) was selected as base at 0.855 against 0.772 for Variant B. I ran all five steps and applied 6 of 6 planned changes into .dev/p1-live/adversarial/merged-output.md with post-merge validation passing; the advocates also found that both option papers cite the pre-decision spec (spec-v4-after-round3.md) while the current spec line 401 already records the flag plus brief guard, which I checked. Left open: 5 unresolved points (S-001, S-002, X-001, A-001, A-003), one minor wording tension in merged-output.md line 8 ('current recommendation') noted in adversarial/merge-log.md, and nothing was staged or committed (only untracked .dev/p1-live/ exists, for the coordinator to stage).",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_ba14f6fc4292\",\"dispatchId\":\"ctx_df434d14e765\",\"outcome\":\"succeeded\",\"filesModified\":[\".dev/p1-live/adversarial/return-contract.yaml\",\".dev/p1-live/adversarial/merged-output.md\",\".dev/p1-live/adversarial/adversarial/return-contract.yaml\",\".dev/p1-live/adversarial/adversarial/diff-analysis.md\",\".dev/p1-live/adversarial/adversarial/debate-transcript.md\",\".dev/p1-live/adversarial/adversarial/base-selection.md\",\".dev/p1-live/adversarial/adversarial/refactor-plan.md\",\".dev/p1-live/adversarial/adversarial/merge-log.md\",\".dev/p1-live/adversarial/adversarial/variant-1-original.md\",\".dev/p1-live/adversarial/adversarial/variant-2-original.md\",\".dev/p1-live/adversarial/adversarial/round1-advocate-A.md\",\".dev/p1-live/adversarial/adversarial/round1-advocate-B.md\",\".dev/p1-live/adversarial/adversarial/judge-pass-1.md\",\".dev/p1-live/adversarial/adversarial/judge-pass-2.md\"],\"reportPath\":\".dev/p1-live/adversarial/return-contract.yaml\"}",
+        "created_at": "2026-11-05T19:48:30Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "c848f72f-3afc-4dcd-ac89-c70fde3adc33",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

@@ -1,0 +1,7 @@
+page 1 messages: 24 window ms: [1793906489704,1793906534209]
+last tool calls in page 1:
+Write {"file_path":"/home/coder/workspaces/worktrees/IronClaude/p1-live-test/.dev/p1-live/test/test-report.md","content":"# Test report: tests/skills/test_w
+Write {"file_path":"/home/coder/workspaces/worktrees/IronClaude/p1-live-test/.dev/p1-live/test/return-contract.yaml","content":"worker_contract_version: \"1
+Bash {"command":"orca orchestration check --terminal term_d521262b-d62e-489d-957d-f34e00e18cc7 --json 2>&1 | head -30","description":"Check for coordinator
+Bash {"command":"orca orchestration send --from term_d521262b-d62e-489d-957d-f34e00e18cc7 --type worker_done --subject \"test passed: 394/394\" --body \"wo
+page 2 messages: 0

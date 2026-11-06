@@ -1,0 +1,26 @@
+# T1 acceptance checks (run after the edit)
+## AC1: the six baseline files exist; no tracked file changed except the intended test edit
+.dev/tasks/to-do/TASK-WF-writeTheP1Static-20261105-033458/artifacts/ac-c3-baseline.txt
+.dev/tasks/to-do/TASK-WF-writeTheP1Static-20261105-033458/artifacts/format-baseline.txt
+.dev/tasks/to-do/TASK-WF-writeTheP1Static-20261105-033458/artifacts/lint-baseline.txt
+.dev/tasks/to-do/TASK-WF-writeTheP1Static-20261105-033458/artifacts/t1-accepted-failures.md
+.dev/tasks/to-do/TASK-WF-writeTheP1Static-20261105-033458/artifacts/t1-baseline-wider.txt
+.dev/tasks/to-do/TASK-WF-writeTheP1Static-20261105-033458/artifacts/verify-sync-baseline.txt
+tracked files differing from the Q0 snapshot:
+.dev/tasks/to-do/TASK-WF-writeTheP1Static-20261105-033458/progress.md
+tests/skills/test_worker_contract.py
+## AC2: worker contract tests; old test name count
+
+======================== 258 passed, 2 skipped in 0.53s ========================
+old name count: 0
+## AC3: constants
+257:P1_COMMANDS = (
+280:UNATTENDED_EXPECT: dict = {}
+284:UNATTENDED_COMMANDS: frozenset = frozenset(UNATTENDED_EXPECT)
+P1_COMMANDS count 16 unique 16
+adversarial brainstorm cleanup-audit graph impact index-repo init-lite workflow analyze build business-panel design document explain index test
+## AC4: ruff
+All checks passed!
+ruff check rc=0
+1 file already formatted
+ruff format rc=0

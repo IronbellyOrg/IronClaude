@@ -1,0 +1,22 @@
+{
+  "id": "581eedf1-46cd-413f-aa21-5f1b5de8bb9e",
+  "ok": true,
+  "result": {
+    "run": {
+      "id": "run_92b0ef27e086",
+      "objective": "P1 live checks AC-1.2, AC-1.3, AC-1.5, AC-1.6, AC-1.7, AC-1.8 for the Orca worker contract",
+      "coordinator_handle": "term_558daf54-f38b-4498-b0d1-0d2e8c036e7c",
+      "consumer_generation": 1,
+      "legacy": 0,
+      "created_at": "2026-11-05T18:49:44Z",
+      "updated_at": "2026-11-05T18:49:44Z"
+    },
+    "mutation": {
+      "requestId": "005a91b7-bf21-4e4a-87cc-a3b1f1110e4d",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

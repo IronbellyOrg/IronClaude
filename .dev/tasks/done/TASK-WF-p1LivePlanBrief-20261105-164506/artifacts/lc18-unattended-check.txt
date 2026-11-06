@@ -1,0 +1,2 @@
+/home/coder/workspaces/worktrees/IronClaude/p1-live-person-mode-watch/.claude/commands/sc/test.md:1
+/home/coder/.claude/commands/sc/test.md:1

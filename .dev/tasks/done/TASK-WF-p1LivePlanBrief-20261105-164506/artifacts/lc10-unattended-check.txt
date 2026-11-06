@@ -1,0 +1,2 @@
+/home/coder/workspaces/worktrees/IronClaude/p1-live-brainstorm/.claude/commands/sc/brainstorm.md:1
+/home/coder/.claude/commands/sc/brainstorm.md:1

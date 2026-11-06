@@ -1,0 +1,7 @@
+worker_contract_version: "1"
+worker_status: succeeded
+command: "/sc:test tests/skills/test_worker_contract.py --type unit --unattended --report-dir .dev/p1-live/test/"
+report_path: .dev/p1-live/test/test-report.md
+artifacts:
+  - .dev/p1-live/test/pytest-output.txt
+  - .dev/p1-live/test/return-contract.yaml

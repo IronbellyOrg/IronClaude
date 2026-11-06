@@ -1,0 +1,19 @@
+# T6 acceptance checks (after the Q5 fix pass)
+## AC1: section count and final-report.md counts
+section: 1
+src/superclaude/commands/cleanup-audit.md:1
+src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md:2
+## AC2: pytest
+..................                                                       [100%]
+
+============================= 341 passed in 0.63s ==============================
+## AC3
+## Check ADDITIVE (merge-base 38eb3c58afe6988b51060ae14117172869ea4c1e): a line below means a deleted line
+numstat cleanup-audit: 17	0	src/superclaude/commands/cleanup-audit.md
+## Check SCAN: a line below is a hit
+scan done
+## Check WRITEVERB on lines added since task start under src/superclaude: a line below is a hit
+writeverb done
+## extras
+All checks passed!
+1 file already formatted

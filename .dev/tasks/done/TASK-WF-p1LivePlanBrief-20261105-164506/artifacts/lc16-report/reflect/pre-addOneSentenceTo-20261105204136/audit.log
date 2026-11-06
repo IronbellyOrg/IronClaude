@@ -1,0 +1,23 @@
+{wave: 0, step: 1, timestamp: 2026-11-05T20:41:36Z, outcome: ok, evidence_ref: null}   # flags: --mode pre --spec source.md --tasklist <id>.md; rule 1 (explicit --mode pre)
+{wave: 0, step: 2, timestamp: 2026-11-05T20:41:36Z, outcome: ok, evidence_ref: artifacts/input-snapshot.yaml}   # spec and tasklist exist
+{wave: 0, step: 3, timestamp: 2026-11-05T20:41:37Z, outcome: ok, evidence_ref: null}   # sc-adversarial-protocol listed as installed skill
+{wave: 0, step: 4, timestamp: 2026-11-05T20:41:37Z, outcome: ok, evidence_ref: artifacts/input-snapshot.yaml}   # input_tree_sha256 over 2 files; output root outside package, no overlap
+{wave: 0, step: 5, timestamp: 2026-11-05T20:41:38Z, outcome: ok, evidence_ref: null}   # aliases resolved: opus=claude-gw-tier1a sonnet=claude-gw-tier1b haiku=claude-gw-tier2 (3 distinct) -> T2 allowed, 3 reviewers
+{wave: 0, step: 6, timestamp: 2026-11-05T20:41:38Z, outcome: warn, evidence_ref: null}   # t2_vendor_diversity: single (all gateway tiers), warn-only
+{wave: 0, step: 7, timestamp: 2026-11-05T20:41:38Z, outcome: ok, evidence_ref: null}   # memory: .superclaude/memory/reflect absent (miss); docs/memory/reflect/deviation-patterns-IronClaude.md present
+{wave: 0, step: 8, timestamp: 2026-11-05T20:41:39Z, outcome: ok, evidence_ref: audit.log}   # audit log opened
+{wave: 0, step: readiness, timestamp: 2026-11-05T20:41:39Z, outcome: ok, evidence_ref: null}   # codegraph index_state=fresh, checked_at=2026-11-05T20:41Z, worktree_root=/home/coder/workspaces/worktrees/IronClaude/p1-live-workflow, 0 changes since index
+{wave: 1, step: "1A-1B", timestamp: 2026-11-05T20:42:00Z, outcome: ok, evidence_ref: artifacts/tier1-card.md}   # Pass 1 zero parsed rows; Pass 2 one inferred row (INF-001); coverage_degraded parsed-sparse
+{wave: 1, step: "1D", timestamp: 2026-11-05T20:43:50Z, outcome: ok, evidence_ref: artifacts/tier1-calibration.yaml}   # blind calibration C=0.76, calibrator opus, diversity degraded
+{wave: 2, step: 1, timestamp: 2026-11-05T20:42:30Z, outcome: ok, evidence_ref: artifacts/tier_decision.yaml}   # Tier 2 forced by coverage_degraded pre-filter; no --tier/--depth pin
+{wave: 3, step: "3B.0", timestamp: 2026-11-05T20:42:50Z, outcome: ok, evidence_ref: reviewer-briefs/}   # 3 briefs; reviewer_briefs_materialized=3
+{wave: 3, step: "3B", timestamp: 2026-11-05T20:44:08Z, outcome: ok, evidence_ref: reviewer-cards/}   # reflect-reviewer x3 (sonnet, haiku, opus); cards persisted by orchestrator
+{wave: 3, step: "3C", timestamp: 2026-11-05T20:44:47Z, outcome: warn, evidence_ref: artifacts/}   # calibrations V1 0.82, V2 0.59, V3 0.78; calibrator_diversity degraded (all classes are reviewers)
+{wave: 4, step: 5.0, timestamp: 2026-11-05T20:45:00Z, outcome: ok, evidence_ref: null}   # sc-adversarial-protocol loaded; no fallback
+{wave: 4, step: merge, timestamp: 2026-11-05T20:57:27Z, outcome: warn, evidence_ref: adversarial/adversarial/return-contract.yaml}   # adversarial status partial: BLOCKED_BY_INVARIANTS (INV-003, INV-012 HIGH)
+{wave: 4, step: EV-1, timestamp: 2026-11-05T20:58:00Z, outcome: ok, evidence_ref: adversarial/merged-verdict.yaml}   # disk check: merge_method adversarial, 3 reviewer cards
+{wave: 5, step: drift-guard, timestamp: 2026-11-05T21:00:30Z, outcome: ok, evidence_ref: artifacts/input-snapshot.yaml}   # input hashes unchanged
+{wave: 5, step: evidence-validator, timestamp: 2026-11-05T20:59:50Z, outcome: warn, evidence_ref: REPORT.md}   # 20/20 verified, zero-drop-flag: true (suspect by protocol; validator listed the lines it checked hardest)
+{wave: 5, step: memory-persist, timestamp: 2026-11-05T21:00:40Z, outcome: skip, evidence_ref: null}   # WC-11: single-owner memory files not written by an unattended worker
+{wave: 5, step: contract, timestamp: 2026-11-05T21:00:50Z, outcome: ok, evidence_ref: return-contract.yaml}
+# NOTE: wave 1-5 row timestamps above were written after the fact and are approximate (+/- a few minutes); order and outcomes are accurate.

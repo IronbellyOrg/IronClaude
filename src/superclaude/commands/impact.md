@@ -22,6 +22,7 @@ Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without 
 /sc:impact --diff                               # symbols changed in the working tree vs HEAD
 /sc:impact --diff origin/master --tests         # symbols a branch changed, plus advisory tests
 /sc:impact parse_config --caller sc-implement-protocol --output-dir .dev/impact/t3
+/sc:impact parse_config --unattended --report-dir .dev/impact/run1   # worker mode: contract written there
 ```
 
 ## Options
@@ -36,6 +37,8 @@ Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without 
 | `--test-depth` | codegraph's own | 1-5, only with `--tests`. |
 | `--output-dir` | `<worktree>/.dev/impact/<slug>-<timestamp>/` | Where `impact.md` and `return-contract.yaml` are written. Never inside `.git/` or `.codegraph/`. |
 | `--caller` | unset | Name of the calling skill; shortens chat output to three lines (status, degraded tokens, contract path). |
+| `--unattended` | `false` | Worker mode: no step waits for a person; see Unattended mode. |
+| `--report-dir` | unset | With `--unattended`, the directory that holds the worker contract (instead of `--output-dir`, never both). |
 
 ## Activation
 
@@ -48,6 +51,16 @@ Pass the user's arguments unchanged. Do NOT proceed with protocol execution usin
 
 - `<output-dir>/impact.md`: the human report (12 fixed sections).
 - `<output-dir>/return-contract.yaml`: the capped machine contract (at most 40 dependent rows, 6 KB). Calling skills read only this file.
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:impact` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** Exactly one of `--output-dir <dir>` or `--report-dir <dir>`, passed explicitly: the default `<worktree>/.dev/impact/...` directory does not satisfy it, and both, or neither, is refused before any work. `--report-dir` follows the path rules of `--output-dir` (never inside `.git/` or `.codegraph/`, never under the distributable skill, agent or command folders of a `.claude/` folder, created if missing and writable); a directory that fails them counts as no report directory known, so the refusal is printed in chat only.
+- **Contract.** With `--output-dir` the worker fields (`worker_contract_version`, `worker_status`, `artifacts`, and `reason` when failed) are added to the existing `<output-dir>/return-contract.yaml` beside every existing field. With `--report-dir` alone, `impact.md` and the command's own contract stay in the default directory, and the skill writes `<report-dir>/return-contract.yaml` with the existing fields plus the worker fields, listing `impact.md` and the own contract in `artifacts`. `command` and `report_path` keep their existing values (`report_path` is already `impact.md`). The own status values success, partial and failed map to succeeded, partial and failed, and a flag-STOP `blocked` maps to failed with the STOP in `reason`.
+- **Gates.** None: the command never stops its caller and falls back to Grep. Nested invocations: none.
+- **Outward actions.** It edits no code, runs no tests, and pushes, commits and stages nothing.
 
 ## Boundaries
 

@@ -1,0 +1,26 @@
+# T9 acceptance checks
+## AC1: section count and the four cmp calls (no output = identical)
+section: 1
+cmp command ok
+cmp skill ok
+cmp input-parse ok
+cmp return-contract ok
+## AC2: pytest
+...............................................                          [100%]
+
+============================= 407 passed in 1.40s ==============================
+tests/commands/test_workflow_command.py::test_plugin_mirror_matches_src PASSED [  2%]
+tests/commands/test_workflow_command.py::test_output_flag_is_retired_everywhere PASSED [  2%]
+tests/commands/test_workflow_command.py::test_worker_flags_and_worker_contract_are_documented_in_refs PASSED [  3%]
+tests/skills/test_worker_contract.py::test_every_write_verb_hit_is_classified PASSED [ 57%]
+tests/skills/test_worker_contract.py::test_classification_table_has_no_stale_entries PASSED [ 58%]
+## AC3
+## Check ADDITIVE (merge-base 38eb3c58afe6988b51060ae14117172869ea4c1e): a line below means a deleted line
+numstat workflow: 15	0	src/superclaude/commands/workflow.md
+## Check SCAN: a line below is a hit
+scan done
+## Check WRITEVERB on lines added since task start under src/superclaude: a line below is a hit
+writeverb done
+## extras
+All checks passed!
+2 files already formatted

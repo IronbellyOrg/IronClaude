@@ -1,0 +1,30 @@
+{
+  "id": "18042f6a-67d6-4396-864e-e9c3ce188704",
+  "ok": true,
+  "result": {
+    "task": {
+      "id": "task_a2c9926b3e81",
+      "run_id": "run_92b0ef27e086",
+      "parent_id": null,
+      "created_by_terminal_handle": "term_558daf54-f38b-4498-b0d1-0d2e8c036e7c",
+      "created_by_pane_key": "d43c5efb-b395-4f83-9576-2b7e411fd4b6:a190c0d6-e897-4d14-892d-bc5e6422c2eb",
+      "created_by_process_incarnation": "serve-7828c69e-059b-44e3-ac08-35b78ba9067c:a2847d1a-6973-4aa6-a369-284f3bd1a004",
+      "created_by_run_generation": 1,
+      "task_title": "P1 live check 19: guard-case1",
+      "display_name": "P1 live check 19: guard-case1",
+      "spec": "Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed with a body starting \"guard refused:\".\nOn a blocked gate: report blocked\nLocal commit: not authorized\nReport directory: .dev/p1-live/guard1/\nWorktree: disposable worktree created by Orca from ironbelly/OrcaCLICommandRefactor-P1 for this check only; you are its only writer.\nOutward actions: none; the coordinator performs every push, PR, comment, install and paid run.\nCommand: /sc:analyze src/superclaude/cli/install_core.py --report-dir .dev/p1-live/guard1/",
+      "status": "ready",
+      "deps": "[]",
+      "result": null,
+      "created_at": "2026-11-05 21:12:37",
+      "completed_at": null
+    },
+    "mutation": {
+      "requestId": "c59225bf-5436-4bf9-b4f8-f15efc500c01",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

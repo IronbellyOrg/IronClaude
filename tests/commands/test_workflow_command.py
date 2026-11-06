@@ -129,6 +129,14 @@ def test_output_flag_is_retired_everywhere():
     assert "Validate every input and flag **before any write**" in parse
 
 
+def test_worker_flags_and_worker_contract_are_documented_in_refs():
+    parse, contract = _ref("input-parse.md"), _ref("return-contract.md")
+    worker_flags = parse.split("## Worker flags", 1)[1].split("\n## ", 1)[0]
+    assert "--report-dir" in worker_flags
+    assert "## Worker contract (`--unattended`)" in contract
+    assert "no package directory, no yaml" in contract
+
+
 def test_naming_and_collision_policy_is_specified():
     parse = _ref("input-parse.md")
     for token in (

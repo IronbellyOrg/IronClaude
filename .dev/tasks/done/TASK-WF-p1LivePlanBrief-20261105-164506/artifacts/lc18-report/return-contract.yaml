@@ -1,0 +1,5 @@
+worker_contract_version: "1"
+worker_status: failed
+command: "/sc:test --watch --unattended --report-dir .dev/p1-live/watch/"
+reason: "Refused person-mode flag --watch under --unattended: watch mode never ends, so it is refused before any work. No test runner was started."
+artifacts: []

@@ -1,0 +1,38 @@
+{
+  "id": "3eb76f6b-6a2b-45a6-b0ce-c39ad93b538e",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_86e4a72553ef",
+    "messages": [
+      {
+        "id": "msg_9c2bbdd3e8c5",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_8389dc6b-519b-4b79-a349-614c09fe849e",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "index-repo succeeded",
+        "body": "worker_status: succeeded. The brief guard passed (both command copies identical, with an Unattended mode section and a standalone --unattended). I regenerated PROJECT_INDEX.md (3.8KB) and PROJECT_INDEX.json (3.0KB, valid JSON) at the repo root in quick mode, replacing the stale 4.3.5 index with 5.0.0 facts, and wrote the contract at .dev/p1-live/index-repo/return-contract.yaml. Nothing is staged or committed; the index also notes that VERSION (3.7) and package.json (4.1.7) disagree with pyproject (5.0.0). Running uv created an untracked .venv in this worktree.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_0bf60c885998\",\"dispatchId\":\"ctx_48a2e2b39f5a\",\"outcome\":\"succeeded\",\"filesModified\":[\"PROJECT_INDEX.md\",\"PROJECT_INDEX.json\",\".dev/p1-live/index-repo/return-contract.yaml\"],\"reportPath\":\".dev/p1-live/index-repo/return-contract.yaml\"}",
+        "created_at": "2026-11-05T20:29:25Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "cca9d3e4-6b47-43d9-b602-90318bf3d493",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

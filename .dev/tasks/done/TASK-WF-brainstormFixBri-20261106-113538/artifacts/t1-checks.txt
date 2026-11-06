@@ -1,0 +1,19 @@
+== diff stat
+ src/superclaude/skills/sc-brainstorm-protocol/SKILL.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+== numstat
+1	1	src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+== line 195 pins
+fallback_1: 1
+write no nested directory and no nested contract: 1
+only by a `/sc:analyze` call: 1
+nested/analyze-: 1
+skipped: 1
+== ends with
+1
+== forbidden regex (expect 0)
+0
+== whole-text
+X_len=412
+plan_cxF=1
+target_cF=1

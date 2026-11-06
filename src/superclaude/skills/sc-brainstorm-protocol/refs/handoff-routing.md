@@ -20,6 +20,7 @@ Loaded in Wave 2A. Defines the matrix of enrichment options and quality-tier fal
   - Query 2: `"Project architecture, structure, patterns, and conventions related to {topic_domain_area}"`
 - Output budget: ~800-1200 tokens summary per query
 - quality_tier: `primary`
+- Under `--unattended` this tier writes no nested directory and no nested contract; `nested/analyze-<n>/` is written only by a `/sc:analyze` call (the skill's other codebase action), and the scan is recorded in `enrichment_used` with this tier's `quality_tier`.
 
 **Tier 2 (fallback_1)**: codegraph, then native Glob/Grep
 
@@ -29,6 +30,7 @@ Loaded in Wave 2A. Defines the matrix of enrichment options and quality-tier fal
 - Output budget: ~300-500 tokens (raw file list + grep hits)
 - quality_tier: `fallback_1`
 - Activation: if Tier 1 returns error OR empty result
+- Under `--unattended` this tier writes no nested directory and no nested contract; `nested/analyze-<n>/` is written only by a `/sc:analyze` call (the skill's other codebase action), and the scan is recorded in `enrichment_used` with this tier's `quality_tier`.
 
 **Final fallback**: skip enrichment, set quality_tier: `skipped`, log to seed-brief Note section.
 
@@ -99,6 +101,8 @@ Optional pass-throughs:
 
 - `--blind` (if brainstorm `--blind` was set)
 - `--interactive` (if brainstorm `--interactive` was set)
+
+**Under `--unattended`** the argument string is the same except: `--unattended` is added; `--output` is `<report-dir>/nested/adversarial-<n>/` in place of `<output>/adversarial/` (`<n>` starts at 1, and the F1 retry uses the next number, so a nested directory is never reused); and `--interactive` is never forwarded, because brainstorm refuses it. The nested worker contract `<report-dir>/nested/adversarial-<n>/return-contract.yaml` and the returned `artifacts_dir` are listed in the `artifacts` of the brainstorm contract.
 
 ### Return contract consumption (inline from Skill response)
 

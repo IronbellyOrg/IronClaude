@@ -38,6 +38,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
   [--blind] [--convergence FLOAT] [--interactive] \
   [--handoff none|design|tasklist|task] [--output DIR] \
   [--dry-run] [--resume-from PATH] [--force-stale]
+/sc:brainstorm "<topic>" --unattended --report-dir DIR   # worker mode, see Unattended mode
 ```
 
 ## Options
@@ -62,6 +63,8 @@ A topic string (free-form text). File references via `@<path>` are supported.
 | `--dry-run` | | `false` | Execute Waves 0–2B, skip 3-4, print agent-spec preview |
 | `--resume-from` | | — | Resume from a saved seed-brief, skipping Socratic dialogue |
 | `--force-stale` | | `false` | Allow `--resume-from` even if domain re-classification differs |
+| `--unattended` | | `false` | Worker mode: no step waits for a person; see Unattended mode |
+| `--report-dir` | | — | With `--unattended`, the directory that holds the worker contract (instead of `--output`, never both) |
 
 **Flag interactions** (enforced in Wave 0):
 
@@ -141,6 +144,19 @@ Produces a versioned return contract with stable + telemetry blocks.
 > Skill sc:brainstorm-protocol
 
 Do NOT proceed with protocol execution using only this command file. The full behavioral specification is in the protocol skill at `~/.claude/skills/sc-brainstorm-protocol/SKILL.md`.
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:brainstorm` resolves itself. `<report-dir>` below is the one report directory the caller passes.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument (the topic is a quoted argument); otherwise nothing here applies and no worker contract is written.
+- **Report directory.** Exactly one of `--output <dir>` (short form `-o`) or `--report-dir <dir>`; both, or neither, is refused before any work. A directory the caller passes is used exactly as passed, never with the usual `-N` suffix. One that already holds a `return-contract.yaml`, one inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, is refused before any work as no usable report directory (printed in chat only), so no earlier contract is overwritten.
+- **Contract.** With `--output` the worker fields are added to the command's own `<output>/return-contract.yaml` beside every existing field, its own `status` included. With `--report-dir` the worker contract is a separate `<report-dir>/return-contract.yaml` that lists the own contract in `artifacts`. It is written on every other outcome, including each stop of Wave 0 of the skill (the stop text goes to `reason`). `report_path` is `merged-requirements.md` (null when the merge was not reached, and on `--dry-run`). The own status values success, partial, failed and dry-run map to succeeded, partial, failed and succeeded.
+- **Person-mode flags.** `--interactive` and its short form `-i` are refused before any work (contract `worker_status: failed`, the flag in `reason`). The Socratic dialogue proceeds on the best available context, and there is no other gate.
+- **Research.** Under `--unattended`, research enrichment is off: the automatic route and an explicit `--research light` or `--research deep` are skipped, each recorded in `enrichment_used` with `quality_tier: skipped`.
+- **Nested invocations.** The `/sc:analyze` codebase enrichment receives `--unattended --report-dir <report-dir>/nested/analyze-<n>/`, and the Wave 3 adversarial call receives `--unattended --output <report-dir>/nested/adversarial-<n>/` in place of `<output>/adversarial/`. `adversarial_artifacts_dir` and the nested contracts are listed in `artifacts`. `<n>` starts at 1 for each nested command, and the one retry of a nested call (the adversarial `F1` retry) uses the next number, so a nested directory is never reused. A codebase scan through `mcp__auggie__codebase-retrieval` or through the `fallback_1` tier (codegraph, then Glob and Grep) is not a nested command and writes no nested directory and no nested contract, so `nested/analyze-<n>/` is written only by a `/sc:analyze` call; `enrichment_used` records the scan's tier, which does not show whether that directory exists.
+- **Handoffs.** The `tasklist` and `task` handoffs are skipped and recorded: `status: partial` with one line in `unresolved_conflicts` (their skills do not accept the flag at this phase), and the Wave 0 check that their skills are installed is skipped too. The `design` and `none` handoffs are unchanged.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

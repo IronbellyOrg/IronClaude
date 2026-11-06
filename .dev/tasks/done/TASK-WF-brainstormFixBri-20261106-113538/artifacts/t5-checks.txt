@@ -1,0 +1,15 @@
+== collect before
+=============== 17/394 tests collected (377 deselected) in 0.05s ===============
+== collect after
+=============== 19/396 tests collected (377 deselected) in 0.08s ===============
+== new cases
+== phrases present in UNATTENDED_EXPECT brainstorm
+10:            "writes no nested directory and no nested contract",
+11:            "only by a `/sc:analyze` call",
+== HEAD brainstorm.md count (expect 0)
+0
+== cat-file -e
+exit=0
+== ruff
+All checks passed!
+ruff_exit=0

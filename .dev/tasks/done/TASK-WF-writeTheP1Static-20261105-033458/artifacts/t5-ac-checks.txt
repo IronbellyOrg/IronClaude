@@ -1,0 +1,31 @@
+# T5 acceptance checks (after the Q5 fix pass)
+## AC1: section count, pytest
+section: 1
+17:## Usage
+28:## Options
+43:## Activation
+50:## Outputs
+55:## Unattended mode
+65:## Boundaries
+..................                                                       [100%]
+
+============================= 416 passed in 0.71s ==============================
+## AC2: 6 KB and --report-dir in the skill
+51:| 10 | Write outputs | Write `<output-dir>/impact.md` (section 6), then `<output-dir>/return-contract.yaml` (section 5); under `--unatten
+104:The contract holds at most 40 dependent rows and 6 KB. The worker fields (only with `--unattended`) count toward that 6 KB cap; the cap 
+21:| Flag | Default | Validation | STOP → `status: blocked` (contract still written when `--output-dir` resolves, or `--report-dir` under `--unatten
+31:| `--unattended` | `false` | standalone argument token outside any quoted argument; needs exactly one of `--output-dir` / `--report-dir`, passed ex
+32:| `--report-dir` | unset | only with `--unattended`; same rules as `--output-dir` | inside `.git`/`.codegraph` → blocked, printed in chat only; n
+51:| 10 | Write outputs | Write `<output-dir>/impact.md` (section 6), then `<output-dir>/return-contract.yaml` (section 5); under `--unattended` with 
+101:| `artifacts` | list[string] | other files written: `[]` with `--output-dir`; `impact.md` and the own contract with `--report-dir` (only with `--u
+190:- Edit code, run tests, or build, sync or remove an index (Write and Edit touch only `impact.md` and `return-contract.yaml` under `--output-dir`, 
+## AC3
+## Check ADDITIVE (merge-base 38eb3c58afe6988b51060ae14117172869ea4c1e): a line below means a deleted line
+numstat impact: 13	0	src/superclaude/commands/impact.md
+## Check SCAN: a line below is a hit
+scan done
+## Check WRITEVERB on lines added since task start under src/superclaude: a line below is a hit
+writeverb done
+## extras
+All checks passed!
+2 files already formatted

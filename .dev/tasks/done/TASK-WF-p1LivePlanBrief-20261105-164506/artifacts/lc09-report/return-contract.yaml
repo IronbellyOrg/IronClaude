@@ -1,0 +1,20 @@
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:adversarial --compare .dev/orca-command-refactor/decisions/D1/option-a.md,.dev/orca-command-refactor/decisions/D1/option-b.md --depth quick --unattended --output .dev/p1-live/adversarial/"
+report_path: ".dev/p1-live/adversarial/merged-output.md"
+artifacts:
+  - ".dev/p1-live/adversarial/adversarial/return-contract.yaml"   # the command's own contract (return_contract block), unchanged
+  - ".dev/p1-live/adversarial/adversarial/diff-analysis.md"
+  - ".dev/p1-live/adversarial/adversarial/debate-transcript.md"
+  - ".dev/p1-live/adversarial/adversarial/base-selection.md"
+  - ".dev/p1-live/adversarial/adversarial/refactor-plan.md"
+  - ".dev/p1-live/adversarial/adversarial/merge-log.md"
+  - ".dev/p1-live/adversarial/adversarial/variant-1-original.md"
+  - ".dev/p1-live/adversarial/adversarial/variant-2-original.md"
+  - ".dev/p1-live/adversarial/adversarial/round1-advocate-A.md"
+  - ".dev/p1-live/adversarial/adversarial/round1-advocate-B.md"
+  - ".dev/p1-live/adversarial/adversarial/judge-pass-1.md"
+  - ".dev/p1-live/adversarial/adversarial/judge-pass-2.md"
+# worker_status is partial because the debate did not converge (64.3% against the 80% threshold at depth=quick);
+# the merge itself completed and passed post-merge validation. No nested /sc: commands were invoked.
+# No push, commit or git add was made by this run.

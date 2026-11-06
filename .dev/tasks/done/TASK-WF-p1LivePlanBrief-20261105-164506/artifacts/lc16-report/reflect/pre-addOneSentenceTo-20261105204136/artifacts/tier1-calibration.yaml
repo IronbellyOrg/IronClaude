@@ -1,0 +1,11 @@
+calibration: independent
+calibrator_model_class: opus
+calibrator_diversity: degraded   # all three Anthropic-gateway classes are reviewers
+dimensions: {citation_grounding: 0.90, coverage_completeness: 0.85, deviation_classification_clarity: 0.75, risk_surface_coverage: 0.70, recommendation_actionability: 0.60}
+C: 0.76
+unverified_claims:
+  - "Task 1 match has 'containment well above 0.6': no score or method is shown"
+  - "src/superclaude/cli/main.py --force help text: no line number in the card (text is at main.py:38)"
+  - "superclaude install --force overwrites files that already exist in ~/.claude: marked [INFERRED] in the card; main.py:178,188,196 only show force=force passed to installers"
+  - "README paragraphs are single lines: stated as a rule, only lines 64 and 75 were checked"
+notes: Every cited line matches the file. The card misses a nearby limit of the claim: main.py:52 says --force is not passed on to the codegraph phase, and --target (main.py:31-33) can install outside ~/.claude.

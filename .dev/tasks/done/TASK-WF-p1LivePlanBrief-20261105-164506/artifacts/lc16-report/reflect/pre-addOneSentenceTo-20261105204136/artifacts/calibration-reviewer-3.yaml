@@ -1,0 +1,10 @@
+calibration: independent
+calibrator_model_class: opus
+calibrator_diversity: degraded
+dimensions: {citation_grounding: 0.85, coverage_completeness: 0.80, deviation_classification_clarity: 0.80, risk_surface_coverage: 0.60, recommendation_actionability: 0.85}
+C: 0.78
+unverified_claims:
+  - "F1: '--force leaves user-created files in ~/.claude alone' is contradicted by docs/getting-started/installation.md:593, which says --force deletes and re-copies each shipped skill folder, so files a user added inside one are lost"
+  - "F1: 'merges settings.json rather than overwriting it' rests only on upgrading.md:86-87; the merge code was not read"
+  - "F4: says installation.md:283 already agrees, but that line reads 'Overwrite existing files', the same broad wording F1 calls imprecise"
+notes: Citations match the files. The card misses the data-loss warning at installation.md:593 (no backup of edited files, skill folders wiped), which weakens F1 and leaves risk coverage thin.

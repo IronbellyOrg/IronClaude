@@ -1,0 +1,38 @@
+{
+  "id": "85d342bb-ffda-44e7-b9e3-45a10bc9d5f2",
+  "ok": true,
+  "result": {
+    "runId": "run_92b0ef27e086",
+    "deliveryId": "delivery_e17a56fdc8d8",
+    "messages": [
+      {
+        "id": "msg_a3264b7956d2",
+        "run_id": "run_92b0ef27e086",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_7c365906-12c0-4262-85e4-4401644ec5d0",
+        "to_handle": "run:run_92b0ef27e086",
+        "subject": "design done: succeeded",
+        "body": "worker_status: succeeded; the design document is written. I ran /sc:design --type api --format spec --unattended and wrote a spec for GET /v1/commands/status (loopback-only, standard-library server, SHA-256 comparison of src/superclaude/commands against ~/.claude/commands/sc, 200 with match flag, error table, test plan, 4 open questions); the brief guard passed (project and installed copies of design.md identical, both have the Unattended mode section). Nothing was implemented, staged, committed or pushed; the report and return-contract.yaml sit untracked in .dev/p1-live/design/, and running uv run created an ignored .venv in this worktree.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_b70aa7078853\",\"dispatchId\":\"ctx_e44ba3ff8deb\",\"outcome\":\"succeeded\",\"filesModified\":[\".dev/p1-live/design/design-report.md\",\".dev/p1-live/design/return-contract.yaml\"],\"reportPath\":\".dev/p1-live/design/return-contract.yaml\"}",
+        "created_at": "2026-11-05T19:09:09Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "74c1a89b-d4c3-4fa5-a050-613f4a6c6229",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "f03c04aa-bfec-42ed-aad0-6d0e9c1cc7bc"
+  }
+}

@@ -1,0 +1,25 @@
+# lc09 (adversarial) Step 5: transcript conditions
+
+Session file: `/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-p1-live-adversarial/241a20e0-1f6c-4673-a2b4-8ea742438ddb.jsonl` (3309070 bytes at analysis time, sha256 `0899e9f9fca23b0cca306608b0353e6aff66e5de98661eaa80c63f0a59c69bdf`; the file keeps growing after worker_done, so this is the first recorded length). Top-level .jsonl files in the folder: 1; subagent session files: 5. Analysis: `lc09-session-analysis.txt` (P0 scripts `session-analysis.py` and `session-hbcover.py`).
+
+Cadence quoted from the worker's preamble: "Send a heartbeat every 5 minutes while actively working on the task." Run length 23.2 min; heartbeats (5): ['19:25:45', '19:27:58', '19:32:15', '19:39:08', '19:44:43'].
+
+Cross-check: `lc09-transcript-1.json` (page 1) holds 40 messages, `contentComplete: false`, clipping ["message_limit_or_scan_window","transcript_payload"]; `lc09-transcript-2.json` (page 2, read with the returned cursor) holds 0 messages. Final `check` call and `worker_done` in the session file: `19:48:29 check worker_done` / `19:48:29 check worker_done`; page 1 ends with the same `orca orchestration check` and `orca orchestration send ... --type worker_done` calls (checked in `lc09-step5-crosscheck.txt`).
+
+| # | Condition | Verdict | Evidence |
+|---|---|---|---|
+| 1 | No AskUserQuestion call (WC-2) | PASS | `lc09-session-analysis.txt`: "tool names containing ask/question (case-insensitive), all sessions: {}" |
+| 2 | Command run in the worker's top-level session, not inside an Agent-tool call (WC-7) | PASS | `lc09-session-analysis.txt`: "2026-11-05T19:25:34.846Z sidechain=False skill=sc:adversarial-protocol" (a top-level Skill call, 10 s after the brief at 19:25:19); assistant messages with isSidechain=true in the top-level session: 0. The 5 top-level Agent launches (19:27:43, 19:27:49, 19:38:49 x2, 19:44:57) are the command's own advocate, judge and merge-executor subagents (5 subagent session files), launched after the Skill call. |
+| 3 | A `check` call after the command finished and before `worker_done` (WC-12) | PASS | The last work call (Bash, yaml and id-count verification) ran at 19:48:14; the final Bash call at 19:48:29 runs `out=$(orca orchestration check --terminal term_c2a044ba-... --json)` and sends `worker_done` only when the check shows no follow-ups and no `consumer_fenced`; the `check` therefore precedes `worker_done` inside that call (earlier `check` calls at 19:27:58 and 19:45:00 are not counted). |
+| 4 | Heartbeats within the cadence (WC-10), limits (a) and (b) of spec 7.2 step 5 | FAIL (limit a) | Run length 23.2 min (longer than the cadence). Heartbeats as the script timed them (Bash call start): 19:25:45, 19:27:58, 19:32:15, 19:39:08, 19:44:43; raw gaps 2.2, 4.3, 6.9, 5.6 min; brief to first heartbeat 0.4; last heartbeat to `worker_done` 3.8; script max non-agent stretch 6.5 min. Refined timing (see below) gives the same result: limit (a) fails with 6.4 min, limit (b) holds (largest raw gap 8.6 min, at most 20). |
+| 5 | No worker-start, dispatch or task-create, no worktree create --agent or agent launch (WC-13) | PASS | WC-13 pattern hits: 0; orca verbs in all sessions: ['orca orchestration check', 'orca orchestration send'] |
+
+Step 5 verdict: FAIL (condition 4, limit a)
+
+## Condition 4 detail (heartbeat timing refined)
+
+Three of the five heartbeat `send` calls sit inside longer Bash calls, so the P0 script's time (the start of the Bash call) is not always when the heartbeat was sent. Tool-result times of the Bash calls that contain `--type heartbeat` (read from the session file, first 3309070 bytes): call 1 19:25:45.6 to 19:25:46.0; call 2 19:27:58.2 to 19:27:58.7; call 3 19:32:15.5 to 19:32:25.9 (a wait loop that ended after 10 s, then the heartbeat); call 4 19:39:08.7 to 19:40:59.2 (the Bash command begins with a polling loop for the judge files and sends the heartbeat after it); call 5 19:44:43.9 to 19:44:44.2. So the heartbeats were sent at about 19:25:46, 19:27:58, 19:32:26, 19:40:59 and 19:44:44.
+
+Subagent run intervals (first to last timestamp of each subagent session file): advocate A 19:27:43.9 to 19:32:21.0; advocate B 19:27:49.2 to 19:30:33.1; judge pass 1 19:38:49.7 to 19:40:45.1; judge pass 2 19:38:49.8 to 19:40:58.5; merge-executor 19:44:57.1 to 19:46:52.8.
+
+The longest stretch is 19:32:26 to 19:40:59 (8.6 min raw). Subagents ran during 19:38:49.7 to 19:40:58.5 (2.2 min) of it, which limit (a) removes. The other 19:32:26 to 19:38:49.7 (6.4 min) had no subagent running and no `ask` or `check --wait` block: the top-level session made one Grep (19:32:30) and then launched the two judges. Limit (a) allows at most the 5-minute cadence, so condition 4 fails on limit (a); limit (b) (at most 20 min with nothing removed) holds. Owner decision H1 accepts a gap that lies inside a command's own subagent fan-out; this stretch lies between the end of the advocate round and the start of the judge round, with no subagent running, so it is recorded as a failure and not accepted under H1 (the phase report names it; the owner can decide).

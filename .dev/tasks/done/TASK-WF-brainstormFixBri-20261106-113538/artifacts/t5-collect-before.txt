@@ -1,0 +1,33 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collected 394 items / 377 deselected / 17 selected
+
+<Dir OrcaCLICommandRefactor-P1>
+  <Package tests>
+    <Package skills>
+      <Module test_worker_contract.py>
+        <Function test_unattended_section_content[brainstorm]>
+        <Function test_unattended_section_check_fails_when_token_removed[brainstorm:flag:--output]>
+        <Function test_unattended_section_check_fails_when_token_removed[brainstorm:flag:-o]>
+        <Function test_unattended_section_check_fails_when_token_removed[brainstorm:flag:--interactive]>
+        <Function test_unattended_section_check_fails_when_token_removed[brainstorm:flag:-i]>
+        <Function test_unattended_section_check_fails_when_token_removed[brainstorm:phrase:research enrichment is off]>
+        <Function test_unattended_section_check_fails_when_token_removed[brainstorm:phrase:exactly as passed]>
+        <Function test_unattended_section_check_fails_when_token_removed[brainstorm:phrase:never reused]>
+        <Function test_unattended_section_check_fails_when_token_removed[brainstorm:phrase:nested/analyze-]>
+        <Function test_unattended_section_check_fails_when_token_removed[brainstorm:phrase:nested/adversarial-]>
+        <Function test_unattended_section_check_fails_when_token_removed[brainstorm:phrase:dry-run]>
+        <Function test_unattended_section_check_fails_when_token_removed[brainstorm:nested:nested/analyze-]>
+        <Function test_unattended_section_check_fails_when_token_removed[brainstorm:nested:nested/adversarial-]>
+        <Function test_ac_1_4_assertion_holds[brainstorm-section]>
+        <Function test_ac_1_4_check_fails_when_phrase_removed[brainstorm-section:research enrichment is off]>
+        <Function test_nested_propagation_text_matches_the_nested_list[brainstorm]>
+        <Function test_only_brainstorm_lists_nested_commands>
+
+=============== 17/394 tests collected (377 deselected) in 0.05s ===============
+exit=0

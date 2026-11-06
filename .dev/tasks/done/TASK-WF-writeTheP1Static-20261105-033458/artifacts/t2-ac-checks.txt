@@ -1,0 +1,24 @@
+# T2 acceptance checks
+## AC1: section count and skill contract lines
+section count: 1
+385:    └── return-contract.yaml        # This skill's own return contract (every invocation)
+430:The contract is written to `<output>/adversarial/return-contract.yaml`, with the fields below under a `return_contract:` block, on every invocation including failures.
+2091:  file: "<output>/adversarial/return-contract.yaml (every invocation, failures included; the fields sit under a return_contract: block)"
+## AC2: pytest
+tests/skills/test_tier2_tavily_consistency.py .....                      [100%]
+
+============================= 273 passed in 0.57s ==============================
+tests/skills/test_worker_contract.py::test_unattended_section_content[adversarial] PASSED [ 14%]
+tests/skills/test_worker_contract.py::test_unattended_section_check_fails_when_token_removed[adversarial:flag:--output] PASSED [ 28%]
+tests/skills/test_worker_contract.py::test_unattended_section_check_fails_when_token_removed[adversarial:flag:-o] PASSED [ 42%]
+tests/skills/test_worker_contract.py::test_unattended_section_check_fails_when_token_removed[adversarial:flag:--interactive] PASSED [ 57%]
+tests/skills/test_worker_contract.py::test_unattended_section_check_fails_when_token_removed[adversarial:flag:-i] PASSED [ 71%]
+tests/skills/test_worker_contract.py::test_unattended_section_check_fails_when_token_removed[adversarial:phrase:<output>/adversarial/return-contract.y
+tests/skills/test_worker_contract.py::test_unattended_section_check_fails_when_token_removed[adversarial:phrase:artifacts] PASSED [100%]
+## AC3: Check ADDITIVE (adversarial.md) -- prints nothing when additive
+numstat: 14	0	src/superclaude/commands/adversarial.md
+## AC3: Check SCAN -- prints nothing
+scan done
+## extras
+All checks passed!
+1 file already formatted
