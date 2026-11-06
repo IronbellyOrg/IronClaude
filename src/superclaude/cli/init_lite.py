@@ -277,6 +277,8 @@ def _write_scaffold(project_root: Path, force: bool) -> List[str]:
             continue
         _atomic_write(path, body)
         created.append(path.as_posix())
+        # Print per file, so a later failed write still reports this one.
+        click.echo(f"Scaffold: {path.as_posix()}")
     return created
 
 
@@ -354,5 +356,4 @@ def init_lite_command(
     click.echo(f"Surfaces: {len(surfaces)}; estimated tokens: {total_tokens}")
 
     if scaffold:
-        for created_path in _write_scaffold(root, force):
-            click.echo(f"Scaffold: {created_path}")
+        _write_scaffold(root, force)

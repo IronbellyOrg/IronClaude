@@ -788,6 +788,16 @@ def test_unattended_artifacts_list_only_files_the_run_wrote():
             clause
         )
         assert "when `--scaffold` is set" not in clause, clause
+        # A file written before a later scaffold write failed is still listed.
+        assert "failed tool run" not in clause and "on a failed run" not in clause, (
+            clause
+        )
+        assert "as each file is written" in clause or "as it is written" in clause, (
+            clause
+        )
+    build = _artifacts_clause(_unattended_section("build"))
+    assert "git check-ignore" in build and "left out" in build, build
+    assert not WRITE_VERB_RE.search(build), build
     cleanup = _artifacts_clause(_unattended_section("cleanup-audit"))
     assert "pass<N>-summary.md" in cleanup and "progress.json" in cleanup, cleanup
     for clause in (
