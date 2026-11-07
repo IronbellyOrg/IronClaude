@@ -2196,7 +2196,7 @@ WRITE_VERB_CLASSIFICATION = {
     (
         "src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md",
         "gh pr",
-        "1. Check that no pull request is already open or merged for this branch: `gh pr list --repo IronbellyOrg/IronClaude --head <branch> --state all`. If one exists, stop and report it; do not commit or push.",
+        "1. Check that no pull request is already open or merged for this branch: `gh pr list --repo <R> --head <branch> --state all`. If one exists, stop and report it; do not commit or push.",
     ): (
         "read-only",
         "a read: gh pr list on the fork, run by the launched agent before it commits",

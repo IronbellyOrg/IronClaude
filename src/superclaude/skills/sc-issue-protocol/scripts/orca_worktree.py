@@ -30,7 +30,7 @@ only these commands: ``git rev-parse --path-format=absolute --git-common-dir``,
 file never commits, pushes, stages or removes anything.
 
 ``prompt --template <file> --level worktree|full [--submit] --number <N>
---out <file>`` renders ``launch-prompt.md`` from the four blocks of
+--repo <owner/repo> --out <file>`` renders ``launch-prompt.md`` from the four blocks of
 ``templates/launch-prompt.md`` (``common``, the level block, ``submit`` with
 ``--submit``) and prints ``{"status": "written", "path": "<out>"}``. ``--submit``
 with ``--level worktree`` is a bad argument (exit 2).
@@ -58,6 +58,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -147,6 +148,27 @@ def parse_json(text: str) -> object | None:
         return None
 
 
+def atomic_write_text(path: Path, text: str) -> None:
+    """Write ``text`` to ``path`` through a random, exclusive temp file and a rename.
+
+    A fixed temp name next to the target could be a planted symlink that a plain
+    ``write_text`` would follow. ``mkstemp`` creates a fresh name with O_EXCL, and
+    ``os.replace`` swaps the directory entry, so a symlink or hard link at the
+    final name is replaced, never written through.
+    """
+    fd, tmp_name = tempfile.mkstemp(
+        dir=path.parent, prefix=path.name + ".", suffix=".tmp"
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(text)
+        os.chmod(tmp_name, 0o644)
+        os.replace(tmp_name, path)
+    except BaseException:
+        Path(tmp_name).unlink(missing_ok=True)
+        raise
+
+
 def emit(payload: dict) -> int:
     """Print one JSON object on stdout; every runtime outcome exits 0."""
     print(json.dumps(payload))
@@ -162,7 +184,8 @@ def cmd_preflight(_args: argparse.Namespace) -> int:
         return emit({"ok": False, "detail": "orca status did not print a JSON object"})
     if data.get("ok") is not True:
         return emit({"ok": False, "detail": "orca status reported ok is not true"})
-    runtime = (data.get("result") or {}).get("runtime")
+    result = data.get("result")
+    runtime = result.get("runtime") if isinstance(result, dict) else None
     if not isinstance(runtime, dict) or runtime.get("reachable") is not True:
         return emit({"ok": False, "detail": "the Orca runtime is not reachable"})
     return emit({"ok": True})
@@ -365,20 +388,57 @@ def tracked_under(worktree: str, number: int) -> tuple[set[str], bool]:
     return set(lines), True
 
 
+def first_symlink(root: Path, target: Path) -> Path | None:
+    """The first symlink among the components of ``target`` below ``root``, if any.
+
+    A symlinked directory in the worktree (a tracked symlink arrives through git)
+    would send the copy to wherever it points, so every component is checked, not
+    only the ones that resolve outside the worktree.
+    """
+    current = root
+    for part in target.relative_to(root).parts:
+        current = current / part
+        if current.is_symlink():
+            return current
+    return None
+
+
 def copy_issue_dir(
-    source: Path, dest: Path, number: int, tracked: set[str], tracked_known: bool
+    source: Path,
+    dest: Path,
+    number: int,
+    tracked: set[str],
+    tracked_known: bool,
+    root: Path,
 ) -> tuple[list[str], list[str]]:
-    """Copy ``source`` into ``dest`` file by file; return (named files, errors)."""
+    """Copy ``source`` into ``dest`` file by file; return (named files, errors).
+
+    ``root`` is the worktree directory; nothing is written through a symlink below it.
+    """
     named: list[str] = []
     errors: list[str] = []
-    for root, dirs, files in os.walk(source):
+
+    def walk_error(exc: OSError) -> None:
+        errors.append(f"{exc.filename}: {exc.strerror or exc}")
+
+    for walk_root, dirs, files in os.walk(source, onerror=walk_error):
         dirs.sort()
+        for name in list(dirs):
+            if (Path(walk_root) / name).is_symlink():
+                shown = (Path(walk_root) / name).relative_to(source)
+                named.append(f"{shown} (a symlinked source directory, not copied)")
         for name in sorted(files):
-            src_file = Path(root) / name
+            src_file = Path(walk_root) / name
             rel = src_file.relative_to(source)
             if rel.as_posix() == RECORD_NAME:
                 continue
             dst_file = dest / rel
+            bad = first_symlink(root, dst_file.parent)
+            if bad is not None:
+                errors.append(
+                    f"{rel}: {bad} is a symlink, nothing was written through it"
+                )
+                continue
             try:
                 if f".dev/issues/{number}/{rel.as_posix()}" in tracked:
                     named.append(f"{rel} (tracked in the worktree, not copied)")
@@ -406,14 +466,23 @@ def copy_issue_dir(
 
 
 def write_record(source: Path, path: str, status: str) -> None:
-    """Write ``worktree.json``, keeping any ``launch`` entry already in it."""
+    """Write ``worktree.json``.
+
+    An earlier ``launch`` entry is kept only for a reused worktree at the same path:
+    a newly created worktree has never had an agent, and a replacement at another
+    path must not inherit the old worktree's launch.
+    """
     record: dict = {"path": path, "status": status}
     old = read_record(source)
-    if old and isinstance(old.get("launch"), dict):
+    if (
+        status == "reused"
+        and old
+        and isinstance(old.get("launch"), dict)
+        and isinstance(old.get("path"), str)
+        and real(old["path"]) == real(path)
+    ):
         record["launch"] = old["launch"]
-    tmp = source / (RECORD_NAME + ".tmp")
-    tmp.write_text(json.dumps(record, indent=2) + "\n")
-    os.replace(tmp, source / RECORD_NAME)
+    atomic_write_text(source / RECORD_NAME, json.dumps(record, indent=2) + "\n")
 
 
 def finish(
@@ -443,7 +512,7 @@ def finish(
         out.fail("W-WORKTREE-COPY-FAILED", f"source directory {source} is missing")
         return
     if real(str(source)) != real(str(dest)):
-        named, errors = copy_issue_dir(source, dest, number, tracked, known)
+        named, errors = copy_issue_dir(source, dest, number, tracked, known, Path(wt))
         if errors:
             out.fail("W-WORKTREE-COPY-FAILED", "; ".join(errors))
             return
@@ -576,8 +645,14 @@ def cmd_worktree(args: argparse.Namespace) -> int:
 BLOCK_MARKER = re.compile(r"^<!-- block:([a-z]+) -->[ \t]*$", re.M)
 
 
-def render_prompt(template: str, level: str, submit: bool, number: int) -> str:
-    """Keep ``common`` + the level block (+ ``submit``); drop markers and the rest."""
+def render_prompt(
+    template: str, level: str, submit: bool, number: int, repo: str
+) -> str:
+    """Keep ``common`` + the level block (+ ``submit``); drop markers and the rest.
+
+    ``<N>`` becomes the issue number and ``<R>`` the origin repository (validated as
+    ``owner/repo`` by the argument parser, so it carries no markup).
+    """
     parts = BLOCK_MARKER.split(template)  # [preamble, name, body, name, body, ...]
     blocks = dict(zip(parts[1::2], parts[2::2]))
     wanted = ["common", level] + (["submit"] if submit else [])
@@ -585,20 +660,17 @@ def render_prompt(template: str, level: str, submit: bool, number: int) -> str:
     if missing:
         raise ValueError(f"template has no block: {', '.join(missing)}")
     text = "\n\n".join(blocks[name].strip() for name in wanted) + "\n"
-    return text.replace("<N>", str(number))
+    return text.replace("<N>", str(number)).replace("<R>", repo)
 
 
 def cmd_prompt(args: argparse.Namespace) -> int:
     try:
         template = Path(args.template).read_text(encoding="utf-8")
-        text = render_prompt(template, args.level, args.submit, args.number)
-        out = Path(args.out)
-        tmp = out.with_name(out.name + ".tmp")
-        tmp.write_text(text, encoding="utf-8")
-        os.replace(tmp, out)
+        text = render_prompt(template, args.level, args.submit, args.number, args.repo)
+        atomic_write_text(Path(args.out), text)
     except (OSError, ValueError) as exc:
         return emit({"status": "failed", "detail": str(exc)})
-    return emit({"status": "written", "path": str(out)})
+    return emit({"status": "written", "path": str(args.out)})
 
 
 # --- launch ---------------------------------------------------------------
@@ -706,12 +778,64 @@ def behind_ccsession(handle: str) -> bool:
     return False
 
 
-def record_launch(source: Path, level: str, submit: bool, at: str) -> None:
+def launch_mirror(wt: str, number: int) -> Path | None:
+    """Where the worktree itself remembers a launch: a file in its own git directory.
+
+    It is untracked by construction, never inside the working tree, and disappears
+    with the worktree, so a claim run from the worktree (or from another checkout
+    with a fresh record) still sees that an agent was started there.
+    """
+    res = run(["git", "-C", wt, "rev-parse", "--absolute-git-dir"])
+    out = res.out.strip()
+    if not res.ok or not out:
+        return None
+    return Path(out) / f"sc-issue-launch-{number}.json"
+
+
+def read_mirror(wt: str, number: int) -> tuple[Path | None, dict | None]:
+    """The mirror path and its ``launch`` entry (only when it names this worktree)."""
+    path = launch_mirror(wt, number)
+    if path is None:
+        return None, None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return path, None
+    if (
+        isinstance(data, dict)
+        and isinstance(data.get("launch"), dict)
+        and isinstance(data.get("path"), str)
+        and real(data["path"]) == real(wt)
+    ):
+        return path, data["launch"]
+    return path, None
+
+
+def record_launch(
+    source: Path, level: str, submit: bool, at: str, wt: str, number: int
+) -> list[str]:
+    """Write the ``launch`` entry to the source record and to the worktree mirror.
+
+    Returns one message per file that could not be written.
+    """
+    entry = {"level": level, "submit": submit, "at": at}
+    errors: list[str] = []
     record = read_record(source) or {}
-    record["launch"] = {"level": level, "submit": submit, "at": at}
-    tmp = source / (RECORD_NAME + ".tmp")
-    tmp.write_text(json.dumps(record, indent=2) + "\n")
-    os.replace(tmp, source / RECORD_NAME)
+    record["launch"] = entry
+    try:
+        atomic_write_text(source / RECORD_NAME, json.dumps(record, indent=2) + "\n")
+    except OSError as exc:
+        errors.append(f"{source / RECORD_NAME}: {exc}")
+    mirror = launch_mirror(wt, number)
+    if mirror is None:
+        errors.append(f"{wt}: could not find the worktree's git directory")
+    else:
+        body = json.dumps({"path": wt, "launch": entry}, indent=2) + "\n"
+        try:
+            atomic_write_text(mirror, body)
+        except OSError as exc:
+            errors.append(f"{mirror}: {exc}")
+    return errors
 
 
 def launch_result(status: str, notes: list[tuple[str, str]], **fields: object) -> dict:
@@ -740,15 +864,21 @@ def cmd_launch(args: argparse.Namespace) -> int:
     if wt is None:
         return emit(launch_result("failed", [(failed, "no usable worktree record")]))
     record = read_record(source) or {}
+    mirror_path, mirrored = read_mirror(wt, number)
     earlier = record.get("launch")
+    if not isinstance(earlier, dict):
+        earlier = mirrored
     if isinstance(earlier, dict):
         at = str(earlier.get("at") or "")
+        files = [str(source / RECORD_NAME)] + (
+            [str(mirror_path)] if mirror_path else []
+        )
         return emit(
             launch_result(
                 "already_launched",
                 [],
-                detail=f"agent already launched at {at}; remove the launch entry "
-                f"of {source / RECORD_NAME} to launch again",
+                detail=f"agent already launched at {at}; to launch again, remove the "
+                f"launch entry from {' and from '.join(files)}",
                 launched_at=at or None,
             )
         )
@@ -807,13 +937,13 @@ def cmd_launch(args: argparse.Namespace) -> int:
         )
     at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     unrecorded = ""
-    try:
-        record_launch(source, args.level, args.submit, at)
-    except OSError as exc:
+    problems = record_launch(source, args.level, args.submit, at, wt, number)
+    if problems:
         # The agent is running, so "re-run the claim" would start a second one.
         unrecorded = (
-            f"the agent is running but {RECORD_NAME} was not updated ({exc}); "
-            f"do not re-run the claim, add the launch entry to {source / RECORD_NAME} by hand"
+            f"the agent is running but its launch was not fully recorded "
+            f"({'; '.join(problems)}); do not re-run the claim, add the launch entry "
+            f"to {source / RECORD_NAME} by hand"
         )
     result = launch_result(
         "launched",
@@ -834,7 +964,9 @@ def issue_number(text: str) -> int:
 
 
 def repo_name(text: str) -> str:
-    if not re.fullmatch(r"[A-Za-z0-9._-]+/[A-Za-z0-9._-]+", text):
+    if not re.fullmatch(
+        r"[A-Za-z0-9_][A-Za-z0-9._-]*/[A-Za-z0-9_][A-Za-z0-9._-]*", text
+    ):
         raise argparse.ArgumentTypeError("must look like owner/repo")
     return text
 
@@ -864,6 +996,7 @@ def build_parser() -> argparse.ArgumentParser:
     pr.add_argument("--level", required=True, choices=["worktree", "full"])
     pr.add_argument("--submit", action="store_true")
     pr.add_argument("--number", required=True, type=issue_number)
+    pr.add_argument("--repo", required=True, type=repo_name)
     pr.add_argument("--out", required=True)
     pr.set_defaults(func=cmd_prompt)
     la = sub.add_parser("launch", help="launch one agent in the issue worktree")

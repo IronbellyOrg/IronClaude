@@ -3,7 +3,8 @@ Template of `launch-prompt.md` (claim Wave 5). Four blocks, each opened by a mar
 line of the form `block:<name>` inside an HTML comment. `orca_worktree.py prompt`
 keeps `common` plus the level block (`worktree` or `full`), plus `submit` when
 `--submit` was passed, drops every other block and every marker line, and replaces
-`<N>` with the issue number. Text before the first marker is dropped. Code, not the
+`<N>` with the issue number and `<R>` with the origin repository (`owner/repo`).
+Text before the first marker is dropped. Code, not the
 model, assembles the file, so a block cannot be paraphrased away.
 -->
 
@@ -22,12 +23,12 @@ Level: worktree. Follow the steps of `next-steps.md` up to the line `Plan bounda
 When the plan exists, print its path and the words `Waiting for approval`, then wait. A human approves by replying `approved` in this session or by running the printed implement command. After that, run the remaining steps, still with no commit, no push and no `/sc:pr-submit`.
 
 <!-- block:full -->
-Level: full. Run every step of `next-steps.md` through the last one; the `Plan boundary` line does not apply. Leave all changes in the working tree and stage nothing. Finish by printing `git status --short`.
+Level: full. Run every step of `next-steps.md` through the last one; the `Plan boundary` line does not apply. Leave all changes in the working tree and stage nothing. Make no commit, push no branch and open no pull request, by any command or skill; if a step would do any of these, skip that part and say so. Finish by printing `git status --short`.
 
 <!-- block:submit -->
-The owner asked for the commit and push by passing `--submit`. After the last step:
+The owner asked for the commit and push by passing `--submit`. This replaces the no-commit, no-push and nothing-staged rule of the level block above, for the following steps only. After the last step:
 
-1. Check that no pull request is already open or merged for this branch: `gh pr list --repo IronbellyOrg/IronClaude --head <branch> --state all`. If one exists, stop and report it; do not commit or push.
+1. Check that no pull request is already open or merged for this branch: `gh pr list --repo <R> --head <branch> --state all`. If one exists, stop and report it; do not commit or push.
 2. Commit with `git commit` and a conventional-commit message. Stage `.dev/tasks` and the files you changed; never anything under `.claude/` and never `.dev/issues/`.
 3. Push the current feature branch with `git push origin <branch>`, never `master` or `main`.
 4. Run `/sc:pr-submit --monitor 3 --head <branch> --title "..." --body "..."` through the Skill tool. Never merge.

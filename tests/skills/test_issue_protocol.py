@@ -318,9 +318,8 @@ def test_st8_common_block_carries_the_required_statements():
 def test_st12_launch_prompt_gh_calls_name_the_fork():
     text = _text(LAUNCH_TEMPLATE)
     assert gh_lines_missing_repo(text) == []
-    assert (
-        "gh pr list --repo IronbellyOrg/IronClaude --head <branch> --state all" in text
-    )
+    assert "gh pr list --repo <R> --head <branch> --state all" in text
+    assert "IronbellyOrg" not in text  # the repository comes from origin, rendered
 
 
 def test_st6_skill_steps_name_the_orca_check_and_the_worktree_step():

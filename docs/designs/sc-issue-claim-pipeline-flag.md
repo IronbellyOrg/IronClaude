@@ -435,6 +435,17 @@ One `/sc:workflow` plan, two phases (AD section 9). Both phases ship in one PR; 
 - **A7, pending records (m-5).** Pending launch records keep accumulating until the hook of #394 consumes them; the claim never prunes them.
 - **A8, change table (B-1).** Section 12 gains `tests/skills/test_worker_contract.py`: one exact-text classification entry per new line that names `git add|commit|push|merge|stash|update-ref|worktree add|remove` or `gh pr|api` under `src/superclaude/{skills,commands,agents}`.
 
+### 18.3 Amendments from the PR review (PR 425, 2026-11-07; they win over sections 8 and 9)
+
+Augment and Codex reviewed PR 425; eight findings were verified against the code, reproduced as failing tests (`test_pr425_*` in `tests/skills/test_issue_orca_worktree.py`) and fixed.
+
+- **A9, launch state per worktree.** `launch` also writes `{path, launch}` to `sc-issue-launch-<N>.json` in the worktree's own git directory (`git -C <wt> rev-parse --absolute-git-dir`): untracked by construction, never inside the working tree, removed with the worktree. `launch` returns `already_launched` when the source record or this file (whose `path` names this worktree) holds a `launch` entry, so a re-claim from inside the worktree, or from a checkout with a fresh record, starts no second agent. The `detail` of `already_launched` names both files; the user removes the entry from both to launch again. Section 8.4 step 2 and section 10 are read this way.
+- **A10, a replacement worktree starts clean.** `write_record` keeps an earlier `launch` entry only for status `reused` at the same path; a `created` worktree, or one at a different path, has none.
+- **A11, no write through a symlink.** `copy_issue_dir` refuses (error, `W-WORKTREE-COPY-FAILED`, nothing written) when any component from the worktree root down to a destination file's directory is a symlink; a symlinked source directory is named and not copied; an unreadable source directory is an error. The three writers of section 8 (`worktree.json`, `launch-prompt.md`, the launch entry) use a random exclusive temp file and a rename (`atomic_write_text`), never a fixed temp name.
+- **A12, the repository comes from origin.** The `submit` block reads `gh pr list --repo <R> ...`; `prompt` takes a required `--repo <owner/repo>` and renders `<R>` next to `<N>`; Wave 5 passes the `<R>` printed by `origin_repo.py`. This replaces the literal fork name of A2; every `gh` call in the template still names a repository (ST-12). The `full` block now says in words (no pinned token) that it makes no commit, pushes no branch and opens no pull request, and the `submit` block says it replaces that rule.
+- **A13, preflight.** A `result` that is not an object makes `preflight` print `{"ok": false, ...}` instead of raising.
+- **Not changed.** A re-claim from inside the worktree rewrites `launch-prompt.md` there with the same text (A6 covers the main-checkout case); the check and the write of the launch state are not atomic across two simultaneous claims.
+
 ### 18.2 Implementer notes (plan only)
 
 - **B-1 [Tasks 1 to 5, 7].** Run `uv run pytest tests/skills/test_worker_contract.py -q` in every task that adds or edits such a line. Choose the category per line (`never-worker`, `no-command`, `read-only` or `wc9-allowed`, as the existing sc-issue keys do). When a task edits an already-classified line (`SKILL.md:72`, `SKILL.md:135`, `refs/claim.md:9` and the other sc-issue keys), update its key in the same task.

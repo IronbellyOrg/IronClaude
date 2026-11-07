@@ -759,7 +759,7 @@ def test_fo16_worktree_json_is_never_copied_and_keeps_its_launch_entry(
     wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
     launch = {"level": "full", "submit": False, "at": "2026-11-07T07:00:00Z"}
     (issue_dir / "worktree.json").write_text(
-        json.dumps({"path": "/old", "status": "created", "launch": launch})
+        json.dumps({"path": str(wt), "status": "created", "launch": launch})
     )
     fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
     data = run_wt(fake_orca, git_repo, issue_dir)
@@ -854,7 +854,7 @@ def render(
 ) -> tuple[subprocess.CompletedProcess[str], Path]:
     out = tmp_path / f"launch-prompt-{level}-{submit}.md"
     args = ["prompt", "--template", str(template), "--level", level]
-    args += ["--number", "302", "--out", str(out)]
+    args += ["--number", "302", "--repo", REPO, "--out", str(out)]
     if submit:
         args.append("--submit")
     return run_script(*args, env=dict(os.environ)), out
@@ -925,16 +925,44 @@ def test_prompt_unusable_template_is_reported_not_raised(tmp_path: Path) -> None
 def test_arg1_prompt_bad_arguments_exit_2(tmp_path: Path) -> None:
     env = dict(os.environ)
     good = ["--template", str(TEMPLATE), "--level", "full", "--number", "302"]
-    good += ["--out", str(tmp_path / "x.md")]
+    good += ["--repo", REPO, "--out", str(tmp_path / "x.md")]
     assert run_script("prompt", env=env).returncode == 2
-    for flag in ("--template", "--level", "--number", "--out"):
+    for flag in ("--template", "--level", "--number", "--repo", "--out"):
         i = good.index(flag)
         assert run_script("prompt", *good[:i], *good[i + 2 :], env=env).returncode == 2
-    for flag, value in {"--level": "none", "--number": "0"}.items():
+    for flag, value in {
+        "--level": "none",
+        "--number": "0",
+        "--repo": "no-slash",
+    }.items():
         args = list(good)
         args[args.index(flag) + 1] = value
         assert run_script("prompt", *args, env=env).returncode == 2
     assert not (tmp_path / "x.md").exists()
+
+
+def test_pr425_prompt_renders_the_origin_repo_into_the_submit_block(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "p.md"
+    args = ["prompt", "--template", str(TEMPLATE), "--level", "full", "--submit"]
+    args += ["--number", "302", "--repo", "Acme/Widgets", "--out", str(out)]
+    assert (
+        json.loads(run_script(*args, env=dict(os.environ)).stdout)["status"]
+        == "written"
+    )
+    text = out.read_text()
+    assert "gh pr list --repo Acme/Widgets --head <branch> --state all" in text
+    assert "<R>" not in text and "IronbellyOrg" not in text
+
+
+def test_pr425_full_level_forbids_commit_push_and_pr_without_the_pinned_tokens(
+    tmp_path: Path,
+) -> None:
+    full = render(tmp_path, "full")[1].read_text()
+    assert "Make no commit" in full and "open no pull request" in full
+    for token in PR_TOKENS:
+        assert token not in full, token
 
 
 # --- launch ------------------------------------------------------------------
@@ -1074,11 +1102,23 @@ def test_la2_launch_record_is_private_and_published_before_the_launch(
 def test_la2_launch_nonce_is_fresh_for_every_launch(
     fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
 ) -> None:
-    launch_scene(fake_orca, git_repo, issue_dir)
-    run_launch(fake_orca, git_repo, issue_dir)
+    wt = launch_scene(fake_orca, git_repo, issue_dir)
+    first = run_launch(fake_orca, git_repo, issue_dir)
     record = json.loads((issue_dir / "worktree.json").read_text())
     del record["launch"]
     (issue_dir / "worktree.json").write_text(json.dumps(record))
+    # Launching again means clearing the entry in both files; the detail names them.
+    mirror = (
+        Path(git(wt, "rev-parse", "--absolute-git-dir")) / "sc-issue-launch-302.json"
+    )
+    blocked = run_launch(fake_orca, git_repo, issue_dir)
+    assert blocked["status"] == "already_launched"
+    assert (
+        str(mirror) in blocked["detail"]
+        and str(issue_dir / "worktree.json") in blocked["detail"]
+    )
+    assert first["status"] == "launched"
+    mirror.unlink()
     run_launch(fake_orca, git_repo, issue_dir)
     nonces = {PROMPT_RE.match(c[9]).group(1) for c in launch_calls(fake_orca)}
     assert len(nonces) == 2 and len(list(pending_dir(fake_orca).iterdir())) == 2
@@ -1139,12 +1179,16 @@ def test_la4_launch_entry_gives_already_launched_without_any_orca_call(
     assert not (fake_orca.home / ".claude").exists()
 
 
+@pytest.mark.skipif(os.geteuid() == 0, reason="root can write to a read-only directory")
 def test_la4_launch_record_update_failure_never_says_to_rerun_the_claim(
     fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
 ) -> None:
     launch_scene(fake_orca, git_repo, issue_dir)
-    (issue_dir / "worktree.json.tmp").mkdir()  # makes the record update fail
-    data = run_launch(fake_orca, git_repo, issue_dir)
+    issue_dir.chmod(0o500)  # the record can be read but not rewritten
+    try:
+        data = run_launch(fake_orca, git_repo, issue_dir)
+    finally:
+        issue_dir.chmod(0o755)
     assert data["status"] == "launched" and data["warning"] is None
     assert data["launched_at"] and data["terminal"] == "term_abc"
     assert "the agent is running" in data["detail"]
@@ -1325,3 +1369,159 @@ def test_arg1_launch_bad_arguments_exit_2(fake_orca: FakeOrca, issue_dir: Path) 
     worktree = ["--number", "302", "--source", str(issue_dir), "--level", "worktree"]
     assert run_script("launch", *worktree, "--submit", env=env).returncode == 2
     assert fake_orca.calls() == []
+
+
+# --- regression tests for the review findings of PR 425 ----------------------
+
+
+@pytest.mark.parametrize("result", ["x", [1, 2], 5, True], ids=str)
+def test_pr425_preflight_non_mapping_result_is_a_failed_check_not_a_traceback(
+    fake_orca: FakeOrca, result: object
+) -> None:
+    fake_orca.respond("status", {"stdout": {"ok": True, "result": result}})
+    data = run_json("preflight", env=fake_orca.env())
+    assert data["ok"] is False and data["detail"]
+
+
+def test_pr425_copy_refuses_a_symlinked_destination_directory(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, tmp_path: Path
+) -> None:
+    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "issue-summary.md").write_text("precious\n")
+    (wt / ".dev/issues").mkdir(parents=True)
+    (wt / ".dev/issues/302").symlink_to(outside, target_is_directory=True)
+    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "failed" and data["warning"] == "W-WORKTREE-COPY-FAILED"
+    assert "symlink" in data["detail"]
+    assert (outside / "issue-summary.md").read_text() == "precious\n"
+    assert sorted(p.name for p in outside.iterdir()) == ["issue-summary.md"]
+    assert not (issue_dir / "worktree.json").exists()
+
+
+def test_pr425_copy_refuses_a_symlinked_subdirectory(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, tmp_path: Path
+) -> None:
+    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    dest = wt / ".dev/issues/302"
+    dest.mkdir(parents=True)
+    (dest / "analysis").symlink_to(outside, target_is_directory=True)
+    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "failed" and data["warning"] == "W-WORKTREE-COPY-FAILED"
+    assert list(outside.iterdir()) == []
+    assert not (issue_dir / "worktree.json").exists()
+
+
+@pytest.mark.skipif(os.geteuid() == 0, reason="root reads every directory")
+def test_pr425_copy_reports_an_unreadable_source_subdirectory(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
+    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
+    locked = issue_dir / "analysis"
+    locked.chmod(0o000)
+    try:
+        data = run_wt(fake_orca, git_repo, issue_dir)
+    finally:
+        locked.chmod(0o755)
+    assert data["status"] == "failed" and data["warning"] == "W-WORKTREE-COPY-FAILED"
+    assert "analysis" in data["detail"]
+    assert not (issue_dir / "worktree.json").exists()
+
+
+def test_pr425_record_writes_never_follow_a_planted_temp_symlink(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, tmp_path: Path
+) -> None:
+    victim = tmp_path / "victim.txt"
+    victim.write_text("keep me\n")
+    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
+    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
+    (issue_dir / "worktree.json.tmp").symlink_to(victim)
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "reused"
+    assert victim.read_text() == "keep me\n"
+    assert read_record(issue_dir)["path"] == str(wt)
+
+
+def test_pr425_prompt_write_never_follows_a_planted_temp_symlink(
+    tmp_path: Path,
+) -> None:
+    victim = tmp_path / "victim.txt"
+    victim.write_text("keep me\n")
+    out = tmp_path / "launch-prompt.md"
+    (tmp_path / "launch-prompt.md.tmp").symlink_to(victim)
+    args = ["prompt", "--template", str(TEMPLATE), "--level", "full"]
+    args += ["--number", "302", "--repo", REPO, "--out", str(out)]
+    proc = run_script(*args, env=dict(os.environ))
+    assert json.loads(proc.stdout)["status"] == "written"
+    assert victim.read_text() == "keep me\n" and out.read_text().strip()
+
+
+def test_pr425_launch_record_never_follows_a_planted_temp_symlink(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, tmp_path: Path
+) -> None:
+    victim = tmp_path / "victim.txt"
+    victim.write_text("keep me\n")
+    launch_scene(fake_orca, git_repo, issue_dir)
+    (issue_dir / "worktree.json.tmp").symlink_to(victim)
+    data = run_launch(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "launched"
+    assert victim.read_text() == "keep me\n"
+    assert "launch" in json.loads((issue_dir / "worktree.json").read_text())
+
+
+def test_pr425_launch_is_remembered_when_the_issue_is_reclaimed_inside_the_worktree(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    wt = launch_scene(fake_orca, git_repo, issue_dir)
+    run_launch(fake_orca, git_repo, issue_dir)  # first claim, from the main checkout
+    assert len(launch_calls(fake_orca)) == 1
+    inside = wt / ".dev/issues/302"  # the copy of the issue folder in the worktree
+    inside.mkdir(parents=True, exist_ok=True)
+    (inside / "next-steps.md").write_text("steps\n")
+    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
+    again = run_json(
+        "worktree", "--repo", REPO, "--number", "302", "--base", "origin/master",
+        "--source", str(inside), env=fake_orca.env(), cwd=wt,
+    )  # fmt: skip
+    assert again["status"] == "reused"
+    data = run_json(
+        "launch", "--number", "302", "--source", str(inside), "--level", "full",
+        env=fake_orca.env(SC_ORCA_SHIM_INTERVAL="0"), cwd=wt,
+    )  # fmt: skip
+    assert data["status"] == "already_launched"
+    assert len(launch_calls(fake_orca)) == 1
+
+
+def test_pr425_launch_is_remembered_in_the_worktree_for_a_later_main_checkout_claim(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, tmp_path: Path
+) -> None:
+    wt = launch_scene(fake_orca, git_repo, issue_dir)
+    run_launch(fake_orca, git_repo, issue_dir)
+    other = tmp_path / "second-claim" / "302"  # a fresh issue folder, no record
+    other.mkdir(parents=True)
+    (other / "next-steps.md").write_text("steps\n")
+    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
+    assert run_wt(fake_orca, git_repo, other)["status"] == "reused"
+    assert run_launch(fake_orca, git_repo, other)["status"] == "already_launched"
+    assert len(launch_calls(fake_orca)) == 1
+
+
+def test_pr425_a_replacement_worktree_does_not_inherit_the_old_launch_entry(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    old = launch_scene(fake_orca, git_repo, issue_dir)
+    run_launch(fake_orca, git_repo, issue_dir)
+    git(git_repo, "worktree", "remove", "--force", str(old))
+    new = created_scene(fake_orca, git_repo, name="issue-302-2")
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "created" and data["path"] == str(new)
+    assert "launch" not in read_record(issue_dir)
+    again = run_launch(fake_orca, git_repo, issue_dir)
+    assert again["status"] == "launched"
+    assert len(launch_calls(fake_orca)) == 2
