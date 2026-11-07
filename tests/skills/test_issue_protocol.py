@@ -449,8 +449,9 @@ def test_st9_prompt_is_written_before_wave_7_and_wave_8_skips_none():
 
 def test_st9_a_reclaim_does_not_rewrite_the_prompt_of_a_running_agent():
     wave5 = _wave(_text(REFS / "claim.md"), 5)
-    assert "already has a `launch` entry" in wave5
-    assert "do not rewrite `<D>/launch-prompt.md`" in wave5
+    assert '--source "<D>"' in wave5
+    assert "`status: kept`" in wave5
+    assert "worktree still exists" in wave5
 
 
 def test_st9_final_output_lists_the_launch_results_and_every_launch_code():

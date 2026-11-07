@@ -30,7 +30,7 @@ only these commands: ``git rev-parse --path-format=absolute --git-common-dir``,
 file never commits, pushes, stages or removes anything.
 
 ``prompt --template <file> --level worktree|full [--submit] --number <N>
---repo <owner/repo> --out <file>`` renders ``launch-prompt.md`` from the four blocks of
+--repo <owner/repo> [--source <D>] --out <file>`` renders ``launch-prompt.md`` from the four blocks of
 ``templates/launch-prompt.md`` (``common``, the level block, ``submit`` with
 ``--submit``) and prints ``{"status": "written", "path": "<out>"}``. ``--submit``
 with ``--level worktree`` is a bad argument (exit 2).
@@ -452,6 +452,12 @@ def copy_issue_dir(
                         "so it was not overwritten)"
                     )
                     continue
+                if exists and f".dev/issues/{number}/{rel.as_posix()}.prev" in tracked:
+                    named.append(
+                        f"{rel} (differs; its backup name {rel}.prev is tracked in "
+                        "the worktree, so it was not overwritten)"
+                    )
+                    continue
                 if exists:
                     prev = dst_file.with_name(dst_file.name + ".prev")
                     os.replace(dst_file, prev)
@@ -664,6 +670,19 @@ def render_prompt(
 
 
 def cmd_prompt(args: argparse.Namespace) -> int:
+    if args.source:
+        # A prompt that a running agent has read is kept, but only while that agent's
+        # worktree still exists: a replacement worktree gets a freshly rendered prompt.
+        source, common = Path(args.source), git_common_dir()
+        record = read_record(source)
+        if (
+            record
+            and isinstance(record.get("launch"), dict)
+            and common
+            and guarded_record_path(source, common)
+            and Path(args.out).is_file()
+        ):
+            return emit({"status": "kept", "path": str(args.out)})
     try:
         template = Path(args.template).read_text(encoding="utf-8")
         text = render_prompt(template, args.level, args.submit, args.number, args.repo)
@@ -997,6 +1016,7 @@ def build_parser() -> argparse.ArgumentParser:
     pr.add_argument("--submit", action="store_true")
     pr.add_argument("--number", required=True, type=issue_number)
     pr.add_argument("--repo", required=True, type=repo_name)
+    pr.add_argument("--source", help="issue folder; keeps the prompt of a live launch")
     pr.add_argument("--out", required=True)
     pr.set_defaults(func=cmd_prompt)
     la = sub.add_parser("launch", help="launch one agent in the issue worktree")

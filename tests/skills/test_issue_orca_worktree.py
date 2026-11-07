@@ -1525,3 +1525,69 @@ def test_pr425_a_replacement_worktree_does_not_inherit_the_old_launch_entry(
     again = run_launch(fake_orca, git_repo, issue_dir)
     assert again["status"] == "launched"
     assert len(launch_calls(fake_orca)) == 2
+
+
+def test_pr425_round2_a_tracked_prev_name_is_never_overwritten(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
+    dest = wt / ".dev/issues/302"
+    dest.mkdir(parents=True)
+    (dest / "issue-summary.md").write_text("differs from the source\n")
+    (dest / "issue-summary.md.prev").write_text("tracked backup\n")
+    git(wt, "add", ".dev/issues/302/issue-summary.md.prev")
+    git(wt, "commit", "-m", "track the backup name")
+    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    assert data["warning"] == "W-WORKTREE-COPY-FAILED"
+    assert "issue-summary.md" in data["detail"] and "tracked" in data["detail"]
+    assert (dest / "issue-summary.md.prev").read_text() == "tracked backup\n"
+    assert (dest / "issue-summary.md").read_text() == "differs from the source\n"
+    assert (
+        git(wt, "status", "--short", "--", ".dev/issues/302/issue-summary.md.prev")
+        == ""
+    )
+
+
+def run_prompt(issue_dir: Path, out: Path, git_repo: Path, env: dict[str, str]) -> dict:
+    args = ["prompt", "--template", str(TEMPLATE), "--level", "worktree"]
+    args += ["--number", "302", "--repo", REPO, "--source", str(issue_dir)]
+    args += ["--out", str(out)]
+    return run_json(*args, env=env, cwd=git_repo)
+
+
+def test_pr425_round2_prompt_of_a_live_launch_is_kept(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    launch_scene(fake_orca, git_repo, issue_dir)
+    assert run_launch(fake_orca, git_repo, issue_dir)["status"] == "launched"
+    out = issue_dir / "launch-prompt.md"
+    out.write_text("the prompt the running agent read\n")
+    data = run_prompt(issue_dir, out, git_repo, fake_orca.env())
+    assert data["status"] == "kept"
+    assert out.read_text() == "the prompt the running agent read\n"
+
+
+def test_pr425_round2_prompt_is_rendered_again_for_a_replacement_worktree(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    old = launch_scene(fake_orca, git_repo, issue_dir)
+    run_launch(fake_orca, git_repo, issue_dir, "full", submit=True)
+    out = issue_dir / "launch-prompt.md"
+    out.write_text("old full and submit prompt\n")
+    git(git_repo, "worktree", "remove", "--force", str(old))
+    created_scene(fake_orca, git_repo, name="issue-302-2")
+    assert run_wt(fake_orca, git_repo, issue_dir)["status"] == "created"
+    data = run_prompt(issue_dir, out, git_repo, fake_orca.env())
+    assert data["status"] == "written"
+    assert "old full and submit prompt" not in out.read_text()
+
+
+def test_pr425_round2_prompt_without_a_launch_entry_is_written(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    launch_scene(fake_orca, git_repo, issue_dir)
+    out = issue_dir / "launch-prompt.md"
+    out.write_text("stale\n")
+    assert run_prompt(issue_dir, out, git_repo, fake_orca.env())["status"] == "written"
+    assert out.read_text() != "stale\n"
