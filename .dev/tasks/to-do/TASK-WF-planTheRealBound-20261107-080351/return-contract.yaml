@@ -1,0 +1,16 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-planTheRealBound-20261107-080351
+plan_path: ./TASK-WF-planTheRealBound-20261107-080351.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/finish-leftover-implement-plans/.dev/reflect/pre-TASK-WF-planTheRealBound-20261107-080351-20261107080543/REPORT.md
+unresolved:
+  - "advisory /sc:reflect --mode pre status partial and plan_verdict FAIL-ADVISORY: as written the plan cannot produce a meaningful binary B-CTX result; 4 high findings M-01 to M-04 (PASS predetermined FAIL, decisive old-child case has no mechanism, throwaway HOME lifetime, Task 4 reparent shape) and 13 medium or low findings are in merged-verdict.yaml next to the report; the plan was not edited from the findings (advisory rule)"
+  - "after the review above, PR #426 review comment 4500924129 (Codex, medium) was fixed by editing the plan before any ledger existed: the Task 8 result rule (line 119) now says B-CTX: FAIL is the expected result, adds contract-gap and evidence-gap lists and says an observed documented escape never counts toward PASS; lines 105, 114 and 118 got matching one-clause edits. The reflect report under reflect_report_path describes the plan as it stood before that edit, so its input hashes no longer match; findings M-01 and M-06 are the ones this edit addresses"
+  - "reflect debate convergence BLOCKED_BY_INVARIANTS: INV-001, INV-002, INV-003 HIGH and unaddressed; advocates were one model class and the position-bias dual pass was not run; see the report's degraded_components"

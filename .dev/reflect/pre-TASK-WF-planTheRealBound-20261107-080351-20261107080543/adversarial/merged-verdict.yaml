@@ -1,0 +1,294 @@
+# Provenance: produced by /sc:adversarial via sc:reflect-protocol Wave 4; Base: Variant 1 (analyzer, sonnet); merge date 2026-11-07
+# Plan executed: refactor-plan.md (Planned Changes 1-17 -> M-01..M-17), auto-approved (non-interactive)
+# Inputs: variant-1-original.md (base), variant-2-original.md, variant-3-original.md, debate-transcript.md, invariant-probe.md, base-selection.md
+# Reviewed plan: .dev/tasks/to-do/TASK-WF-planTheRealBound-20261107-080351/TASK-WF-planTheRealBound-20261107-080351.md (advisory review; plan file NOT changed)
+# Citation key: helper = src/superclaude/hooks/scripts/launch-job-identity.sh; live_probe.py = tests/hooks/fixtures/launch_level/live_probe.py;
+#   plan = the reviewed plan file above; design = docs/designs/sc-issue-launch-level-hook.md; test = tests/hooks/test_launch_job_identity.py
+# Every citation without [INFERRED] was re-read by the merge executor on 2026-11-07 and confirmed.
+
+merge_method: adversarial
+base_variant: "variant-1 (reviewer 1, analyzer persona, sonnet-class)"
+convergence_status: BLOCKED_BY_INVARIANTS
+convergence_score: 1.0
+convergence_note: "Diff-point agreement was 27/27 (100%, threshold 80%), but the Round 2.5 invariant probe found INV-001, INV-002 and INV-003 HIGH and UNADDRESSED. Depth standard has no Round 3, so the base was force-selected by score and non-convergence is recorded."
+calibrated_confidence:
+  - card: variant-1
+    reviewer: 1
+    persona: analyzer
+    model_class: sonnet
+    self_report: 0.72
+    calibrated: 0.79
+  - card: variant-2
+    reviewer: 2
+    persona: qa
+    model_class: haiku
+    self_report: 0.94
+    calibrated: 0.70
+  - card: variant-3
+    reviewer: 3
+    persona: refactorer
+    model_class: opus
+    self_report: 0.74
+    calibrated: 0.81
+
+plan_verdict:
+  reflect_verdict: FAIL-ADVISORY
+  meaning: "As written, the plan cannot produce a meaningful binary B-CTX result unless changes M-01 to M-04 are made."
+  reason: "PASS is ruled out before any run (plan:79, :119), the decisive old-child case is killed by the copied cleanup and the supervisor wait (helper:16-17, live_probe.py:279), the throwaway HOME does not survive across runs (live_probe.py:134), and the Task 4 reparent shape is identified only after the descendant has died."
+
+findings:
+  - id: M-01
+    severity: HIGH
+    claim: "B-CTX: PASS cannot happen under the plan's own rules. Task 8 allows PASS only when every required case is observed, but Task 5 runs release with a live child, PID reuse and boot identity only as controlled cases, so FAIL is decided before any run and the plan never says so. If the plan only adds a per-case evidence class, it can still report PASS while the documented escapes (setsid, supervisor kill, Monitor) remain."
+    citations:
+      - "plan:79 (Task 5 labels every result controlled)"
+      - "plan:119 (PASS only if every required case is observed)"
+      - "plan:118 (a finding may be closed by a controlled result)"
+      - "design:504 (required case list)"
+      - "helper:7-9 (setsid escapes selection; a killed supervisor leaves unknown; Monitor unsupported)"
+      - "helper:427-428 (Monitor and other named tools have no adapter)"
+      - "design:559 (documented escapes)"
+      - "test:473-488 (setsid escape selects ordinary)"
+    recommendation: "Pick exactly one fix and write it into Task 8. Option (a), preferred by the V2 and V3 advocates: give each case a required evidence class (observed, controlled-by-necessity, accepted-documented-limit). State that controlled-by-necessity and accepted-documented-limit cases, and any F2.x finding closed by a controlled result, never count toward PASS. Option (b): state that B-CTX: FAIL is the expected result and say what the run still measures."
+    provenance:
+      source_findings: [R1-04, QA-1, R3-F1, R3-F13, INV-003, INV-004]
+      tag: "Source: refactor-plan.md Planned Changes #1; base Variant 1 findings R1-04 (severity raised medium->high in Round 2); Variant 2 findings QA-1 (fix); Variant 3 findings R3-F1 (severity), R3-F13 (folded in); invariant-probe INV-003, INV-004"
+
+  - id: M-02
+    severity: HIGH
+    claim: "The decisive F2.2 case needs the old governed child to outlive the first Claude process, and the plan never says how. The supervisor waits for ordinary live descendants. The live_probe cleanup that Task 1 copies SIGTERMs every recorded supervisor after each run, and the supervisor then forwards the signal and SIGKILLs every member. No criterion requires proof that the child was still alive when the new session started."
+    citations:
+      - "helper:16-17 (completion waits for ordinary background descendants)"
+      - "design:555 (supervisor stays live while descendants remain)"
+      - "live_probe.py:108-123 (cleanup_jobs SIGTERMs each recorded supervisor)"
+      - "live_probe.py:279 (cleanup_jobs runs in finally after every run)"
+      - "helper:333-337 (pending signal forwarded to members, then SIGKILL after deadline)"
+      - "helper:343-344 (final SIGKILL of every member)"
+      - "plan:31 (runner told to read live_probe's exit and cleanup handling)"
+      - "plan:55, :59, :60 (Task 3 body, decisive case, cleanup criterion)"
+    recommendation: "In Task 3: state exactly how the child outlives the first process. After that process exits, check the child's PID and start ticks, and record 'unavailable: harness terminates the job at process exit' if it was reaped. Exempt the job from runner cleanup until resume and fork have been observed. Require linked captures of the old child's PID and start identity and of both selector results inside one overlap interval, tied by run id to run-status.jsonl."
+    provenance:
+      source_findings: [R1-03, R3-F4, QA-3, INV-002]
+      tag: "Source: refactor-plan.md Planned Changes #2; base Variant 1 findings R1-03; Variant 3 findings R3-F4; Variant 2 findings QA-3 (high->medium, reworded per Round 2 V2 rebuttal); invariant-probe INV-002"
+
+  - id: M-03
+    severity: HIGH
+    claim: "The resume, fork and /clear runs need the same throwaway HOME (config folder and launch-level store) as the first run. live_probe creates that HOME inside a per-call temporary directory, and a missing store makes identify return ordinary. A fresh HOME per run would make the old governed child look ordinary."
+    citations:
+      - "live_probe.py:134 (TemporaryDirectory per probe call)"
+      - "live_probe.py:142-143 (HOME and CLAUDE_CONFIG_DIR inside it)"
+      - "live_probe.py:160 (launch-level store under that HOME)"
+      - "helper:220-225 (store or job record missing -> status ordinary)"
+      - "plan:31 (runner creates its disposable HOME)"
+      - "plan:35 (HOME removed afterwards)"
+    recommendation: "State in Task 1 that one throwaway HOME persists across the initial, resume and fork runs of Task 3 (and the Task 4 runs) and is removed only after the last run that depends on it. Before each dependent run, check that the store and the governed session record still exist."
+    provenance:
+      source_findings: [INV-001]
+      tag: "Source: refactor-plan.md Planned Changes #3; invariant-probe INV-001 (undebated, probe-sourced)"
+
+  - id: M-04
+    severity: "HIGH (foreground-reparent shape only)"
+    claim: "In Task 4's foreground-reparent shape, the first governed call does not return while its descendant lives. A second Bash call therefore finds the descendant dead, and identify returns unknown for the wrong reason. Also, the 'ordinary Bash tool call' inside a governed session is itself governed, so the label is wrong."
+    citations:
+      - "helper:16-17 (completion waits for ordinary background descendants)"
+      - "design:555"
+      - "helper:251-265 (members(): kernel-session membership scan)"
+      - "plan:66 (identify from a second, ordinary Bash tool call)"
+      - "design:551 (adapter selects on the event's session_id)"
+    recommendation: "For the foreground-reparent shape, run identify against the descendant inside the same governed command, and record the wait as an observed fact. Rename the observer 'a second Bash tool call' and record its own selector status."
+    provenance:
+      source_findings: [R1-01, QA-2, R3-F11]
+      tag: "Source: refactor-plan.md Planned Changes #4; base Variant 1 findings R1-01 (scoped to reparent shape per Round 2 concession); Variant 2 findings QA-2 and Variant 3 findings R3-F11 (label, merged)"
+
+  - id: M-05
+    severity: MEDIUM
+    claim: "Task 7 has nowhere to get real tree depth from. The ledger has no depth field, the Task 2-4 commands print only the identify result, and Task 7 depends only on Task 5."
+    citations:
+      - "plan:31 (ledger fields)"
+      - "plan:44 (exactly one Bash command printing the identify result)"
+      - "plan:99 (Depends on: Task 5)"
+      - "plan:104 (depths from Task 2-4 runs)"
+    recommendation: "Add a PPID-chain depth count to the Task 2-4 command and a depth field to the ledger. Change Task 7 to 'Depends on: Task 2, Task 3, Task 4, Task 5'."
+    provenance:
+      source_findings: [R1-05, R3-F2]
+      tag: "Source: refactor-plan.md Planned Changes #5; base Variant 1 findings R1-05; Variant 3 findings R3-F2"
+
+  - id: M-06
+    severity: "LOW to MEDIUM"
+    claim: "Two of the plan's conditional branches can already be settled from the code. identify() reads the target's kernel session and jobs/<sid>.json with no parent-chain walk, so Task 7's exhaustion branch is answered now. The helper compares boot identity, so Task 5's 'not compared' branch is dead. Task 8 has no state for findings that the merged selector superseded."
+    citations:
+      - "helper:219-223 (kernel session id, jobs/<sid>.json)"
+      - "helper:234 (start ticks and boot identity compared)"
+      - "helper:253 (no bounded ancestry walk)"
+      - "plan:84 (dead boot-identity branch)"
+      - "plan:101 (either/or exhaustion branch)"
+      - "plan:118 (closed or open only)"
+      - "review-2.md:9, :10, :12 [INFERRED]"
+      - "actor-context-probe.sh:37-39 [INFERRED]"
+    recommendation: "Add a third Task 8 state, 'superseded or not applicable (cite)'. Record that F2.3 and F2.6 describe the historical probe and that F2.4's boot point is closed by helper:234. Keep the deep-nested-shell control and drop both dead branches. Before each state-copy edit, require a governed control on the same record, and keep mode 0400 and nlink 1 (helper:83, :149)."
+    provenance:
+      source_findings: [R1-06, R1-07, R3-F9, R3-F10]
+      tag: "Source: refactor-plan.md Planned Changes #6; base Variant 1 findings R1-06 (medium->low per Changes NOT Being Made), R1-07; Variant 3 findings R3-F9, R3-F10"
+
+  - id: M-07
+    severity: MEDIUM
+    claim: "The cap of twelve real Claude runs is never allocated. A plain reading of Tasks 2-4 needs 10-14 runs plus the preflight. No criterion counts runs, and later tasks are not told to stop when the preflight reports a refused nested launch or missing authentication."
+    citations:
+      - "plan:22 (twelve-run cap; refusal recorded as unavailable)"
+      - "plan:31 (preflight records refusal and authentication)"
+      - "live_probe.py:280-286 (nested-guard and authentication detection)"
+    recommendation: "Add a run-budget table per case. Add a Task 8 criterion that counts real runs from run-status.jsonl, including refused runs, at no more than twelve. State that Tasks 2-4 record unavailable without spending runs when the preflight reports a refused nested launch or missing authentication."
+    provenance:
+      source_findings: [R1-08, R3-F12, INV-010, INV-011]
+      tag: "Source: refactor-plan.md Planned Changes #7; base Variant 1 findings R1-08; Variant 3 findings R3-F12 (low->medium in Round 2); invariant-probe INV-010, INV-011"
+
+  - id: M-08
+    severity: MEDIUM
+    claim: "Resume and fork need a persisted session. live_probe passes a fixed --session-id and --no-session-persistence on every run, and plan:22 says to run 'exactly like' live_probe, so following the plan makes resume unavailable."
+    citations:
+      - "live_probe.py:235-236 (--session-id)"
+      - "live_probe.py:252 (--no-session-persistence)"
+      - "plan:22 ('exactly like' live_probe)"
+      - "plan:55 (claude --resume, --fork-session)"
+    recommendation: "State that the initial, resume and fork runs use session persistence inside the throwaway HOME. Name the exact flag set and confirm it in the preflight."
+    provenance:
+      source_findings: [R1-02]
+      tag: "Source: refactor-plan.md Planned Changes #8; base Variant 1 findings R1-02"
+
+  - id: M-09
+    severity: MEDIUM
+    claim: "live_probe offers only the Bash tool, so the subagent and Monitor cases would end 'unavailable: tool not offered' because of the executor's own flags. The helper also ignores tools other than Bash."
+    citations:
+      - "live_probe.py:237-240 (--tools Bash, --allowedTools Bash)"
+      - "helper:427-428 (non-Bash tools return without adaptation)"
+      - "plan:44, :48 (subagent and Monitor runs)"
+    recommendation: "State the tool list for the subagent and Monitor runs. Accept unavailable only after a run that actually offered the tool."
+    provenance:
+      source_findings: [R1-09]
+      tag: "Source: refactor-plan.md Planned Changes #9; base Variant 1 findings R1-09"
+
+  - id: M-10
+    severity: MEDIUM
+    claim: "The Constraints allow a refused nested launch or missing authentication as unavailable. Task 2's first criterion, Task 6 and Task 7 still require successful results and have no unavailable branch. Task 3, Task 4 and Task 2's second criterion already have one."
+    citations:
+      - "plan:22 (unavailable allowed)"
+      - "plan:47 (Task 2 criterion 1)"
+      - "plan:93-94 (Task 6 criteria)"
+      - "plan:104 (Task 7 numerical depths)"
+      - "plan:48, :58-59, :69 (branches already present)"
+    recommendation: "Add an explicit unavailable acceptance branch, backed by the redacted refusal result and the ledger, to Task 2 criterion 1, Task 6 and Task 7. The report then proceeds with FAIL."
+    provenance:
+      source_findings: [QA-4]
+      tag: "Source: refactor-plan.md Planned Changes #10; Variant 2 findings QA-4 (narrowed per Round 2 V1 rebuttal)"
+
+  - id: M-11
+    severity: MEDIUM
+    claim: "Several criteria summarize selector results without linking captured selector output, and the ledger records exit status, not responses. A prompt-driven run may not execute the exact command, so the model's own report is not evidence."
+    citations:
+      - "plan:31 (ledger records exit code or signal and a result label)"
+      - "plan:47, :60, :82, :93 (criteria that summarize selector results)"
+      - "hook record supplying the selector line for background shapes [INFERRED: INV-008, Claude Code behavior not in the repo]"
+    recommendation: "Require each result row to reference a runner-captured, redacted selector-output record by run id, taken from the hook or command record rather than the model's report. Keep hook-generated push records and machine-captured refs."
+    provenance:
+      source_findings: [QA-5, A-001, INV-008]
+      tag: "Source: refactor-plan.md Planned Changes #11; Variant 2 findings QA-5; debate shared assumption A-001 (promoted); invariant-probe INV-008"
+
+  - id: M-12
+    severity: MEDIUM
+    claim: "Task 8's case list leaves out cases that design 19.1 requires: the launch wrapper, the Git and hook process trees, the auto-mode variants, and a row for the decisive simultaneous old-child versus new-session distinction."
+    citations:
+      - "design:504 (launch wrapper, hook process trees, decisive distinction)"
+      - "design:506 (auto-mode variants unobserved)"
+      - "plan:114 (Task 8 case list)"
+      - "plan:104 (Task 7 asks only Claude-to-Bash depth)"
+      - "coverage-matrix.yaml:23 [INFERRED]"
+    recommendation: "Add Task 8 rows for the launch wrapper, the Git and hook process trees, auto mode and the decisive distinction. Mark each row observed, or unavailable with the missing interface named."
+    provenance:
+      source_findings: [R3-F3, QA-6]
+      tag: "Source: refactor-plan.md Planned Changes #12; Variant 3 findings R3-F3; Variant 2 findings QA-6 (merged)"
+
+  - id: M-13
+    severity: MEDIUM
+    claim: "Task 6 never says whether the governed pusher is a real Claude run or a prepare/run job. The 'human' shell is started by the agent, so it is not a human terminal. The hook must run with the throwaway HOME because store() reads HOME. An existing real-Git test already covers a governed and a human push in one clone; its hook refuses, while Task 6's hook only logs. Two concurrent pushes to the same ref can race."
+    citations:
+      - "plan:88 (Depends on: Task 5, no reason given)"
+      - "plan:90 (log-only hook; plain shell and governed job)"
+      - "plan:93-94 (labels and concurrent criterion)"
+      - "helper:102-106 (store() reads HOME)"
+      - "test:1291-1354 (old governed background job and human push in one real-Git clone)"
+      - "test:1306-1331 (human push, then refused governed push)"
+      - "test:1347-1348 (governed row refused)"
+    recommendation: "Name and label the governed pusher. Label the shell controlled, or record the Orca-terminal case as unavailable. Pin HOME and git config for both actors. Cite test:1291-1354 as the controlled baseline and state what Task 6 adds (a log-only hook and a push started by real Claude). Push to separate refs, or order the pushes, so a same-ref race cannot hide whether the human push landed. Give a reason for the Task 5 dependency or remove it."
+    provenance:
+      source_findings: [R1-10, R3-F7, R3-F8, INV-007]
+      tag: "Source: refactor-plan.md Planned Changes #13; base Variant 1 findings R1-10; Variant 3 findings R3-F7, R3-F8 (Task 6 part, test lines per Round 2 V2 correction); invariant-probe INV-007"
+
+  - id: M-14
+    severity: MEDIUM
+    claim: "Task 8 requires the blocked package's git status to be unchanged, and the plan stages .dev/tasks throughout, but no baseline is recorded. The blocked package already shows a modified progress.md."
+    citations:
+      - "plan:25 (stage .dev/tasks throughout)"
+      - "plan:120 (src/, plugins/, tests/ and blocked package unchanged)"
+      - "blocked package already modified [INFERRED: session git status snapshot]"
+    recommendation: "In Task 1, record diff checksums of the blocked package and of src/, plugins/ and tests/, and compare against them in Task 8. Limit staging to this package's folder."
+    provenance:
+      source_findings: [R1-11, R3-F6]
+      tag: "Source: refactor-plan.md Planned Changes #14; base Variant 1 findings R1-11 (low->medium); Variant 3 findings R3-F6"
+
+  - id: M-15
+    severity: MEDIUM
+    claim: "The adapter selects on the hook event's top-level session_id. Whether --resume, --fork-session and /clear keep or change that id has not been observed. Each resume and fork starts a new process, so neither can test the design's case of a new ordinary session inside a reused Claude process."
+    citations:
+      - "helper:429-437 (session_id read from the event; sessions/<sid> lookup)"
+      - "design:501 (resume in a new process; new ordinary session in the same process)"
+      - "design:504 (reused Claude process distinction)"
+      - "plan:55, :58, :59"
+      - "session-id behavior across resume/fork//clear [INFERRED: INV-005, INV-006, Claude Code behavior not observed]"
+    recommendation: "Record the session id carried by the hook event in each resume, fork and /clear run. Either name a run that reuses one Claude process for a new ordinary session (for example the pty /clear session), or record that case as unavailable with the interface named."
+    provenance:
+      source_findings: [INV-005, INV-006]
+      tag: "Source: refactor-plan.md Planned Changes #15; invariant-probe INV-005, INV-006 (undebated, inferred)"
+
+  - id: M-16
+    severity: MEDIUM
+    claim: "On timeout the runner kills Claude's process group, but each supervisor calls setsid and sits outside that group. The copied cleanup only SIGTERMs recorded supervisors, so setsid, orphaned or killed-supervisor descendants are never swept."
+    citations:
+      - "live_probe.py:271, :275 (killpg on Claude's group)"
+      - "live_probe.py:108-123 (cleanup only of recorded supervisors)"
+      - "helper:292 (supervisor setsid)"
+      - "test:1472-1474 (killed supervisor leaves a live child selecting unknown)"
+    recommendation: "Add a sweep of /proc for processes whose cwd is under the fixture or temporary directory. Kill them by PID plus start ticks and record the result in phase2-cleanup.log."
+    provenance:
+      source_findings: [R1-12, INV-009]
+      tag: "Source: refactor-plan.md Planned Changes #16; base Variant 1 findings R1-12 (low->medium per INV-009); invariant-probe INV-009"
+
+  - id: M-17
+    severity: LOW
+    claim: "The rule against touching global settings is checked only once, in Task 1's self-check. No later real run, and not the Task 8 cleanup record, compares the settings checksum."
+    citations:
+      - "plan:36 (checksum in Task 1 self-check only)"
+      - "plan:120 (Task 8 cleanup record)"
+    recommendation: "Add one clause to the Task 8 cleanup record: the real settings checksum is unchanged before and after every real Claude run."
+    provenance:
+      source_findings: [R3-F5]
+      tag: "Source: refactor-plan.md Planned Changes #17; Variant 3 findings R3-F5 (medium->low in Round 2)"
+
+unaddressed_invariants:
+  - id: INV-001
+    category: state_variables
+    assumption: "The throwaway HOME (config folder plus launch-level store) lasts across all runs that need it."
+    severity: HIGH
+  - id: INV-002
+    category: interaction_effects
+    assumption: "Cleanup copied from live_probe leaves the old child alive until resume and fork run."
+    severity: HIGH
+  - id: INV-003
+    category: sufficiency_challenge
+    assumption: "After the C-001 fix, a PASS means the actors are kept apart."
+    severity: HIGH
+
+limits:
+  - "All three advocates ran as sonnet-class agents, so model diversity among advocates is not claimed, and the 27/27 agreement may reflect shared bias."
+  - "The position-bias dual pass (a second evaluation in reverse order) was not run; the V1-over-V3 margin of 0.016 is inside the tiebreaker band."
+  - "Probe items INV-001 to INV-011 came from Round 2.5 and were not debated by the advocates."
+  - "INV-005, INV-006 and INV-008 are inferred from Claude Code behavior this review did not observe."

@@ -1,0 +1,89 @@
+reviewer: 1
+persona: analyzer
+model_class: sonnet
+calibration_self_report: 0.72
+verified_true_claims:
+  - "identify action exists: launch-job-identity.sh:530 (main), identify() at :215"
+  - "release reason exists: launch-job-identity.sh:241"
+  - "start ticks AND boot id are both compared: launch-job-identity.sh:234"
+  - "live_probe isolated HOME/--settings/--max-budget-usd 0.25: live_probe.py:140-145, :231-234, :246-247"
+  - "every inferred requirement maps to a task; the gaps are task feasibility and acceptance criteria"
+findings:
+  - id: R1-01
+    severity: high
+    type: infeasible-task
+    claim: "Task 4 starts a descendant then identifies it from a second call, but the governed supervisor waits for ordinary live descendants, so the first call does not return while the descendant lives; the second call finds it dead and identify returns unknown for the wrong reason. Only setsid and killed-supervisor shapes escape the wait."
+    citation: "src/superclaude/hooks/scripts/launch-job-identity.sh:16; docs/designs/sc-issue-launch-level-hook.md:555; launch-job-identity.sh:251-265"
+    recommendation: "Run identify against the descendant inside the same governed command, or use run_in_background plus a runner-held sentinel; record the wait itself as an observed fact."
+  - id: R1-02
+    severity: medium
+    type: infeasible-task
+    claim: "Task 3 resume/fork needs a persisted session, but live_probe.py passes --no-session-persistence and --session-id on every run; copying its argv makes resume unavailable by the plan's own doing."
+    citation: "tests/hooks/fixtures/launch_level/live_probe.py:235-236, :252"
+    recommendation: "State that the initial, resume and fork runs use persistence inside the throwaway HOME and name the flag set, confirmed in the preflight."
+  - id: R1-03
+    severity: medium
+    type: infeasible-task
+    claim: "The decisive F2.2 case needs the old governed child to outlive the first Claude process; Task 3 does not say how, and print-mode Claude may reap its Bash children at exit. No step checks survival before resuming."
+    citation: "plan Task 3 body and decisive-case criterion; live_probe.py:108-123"
+    recommendation: "After the first process exits, check the child's PID and start ticks; if reaped, record 'unavailable: harness terminates the job at process exit'."
+  - id: R1-04
+    severity: medium
+    type: coverage-gap
+    claim: "PASS is unreachable by construction: Task 8 allows PASS only if every required case is observed, but release with a live child and PID reuse/boot are handled only as controlled in Task 5."
+    citation: "plan Task 5 (all controlled) and Task 8 PASS rule; docs/designs/sc-issue-launch-level-hook.md:504, :506"
+    recommendation: "Add a real-harness release observation to Task 3 or 4, or state in Task 8 that PID reuse is controlled-only by necessity and define what PASS requires."
+  - id: R1-05
+    severity: medium
+    type: coverage-gap
+    claim: "Task 7 has no data source for real tree depth: the Task 1 ledger has no depth field and Tasks 2-4 run one command that prints only the identify result; Task 7 also depends only on Task 5."
+    citation: "plan Task 1 ledger fields, Task 2 'exactly one Bash command', Task 7 dependency and criterion"
+    recommendation: "Add a PPID-chain depth count to the command in Tasks 2-4 and a depth field to the ledger; make Task 7 depend on Tasks 2, 3, 4."
+  - id: R1-06
+    severity: medium
+    type: other
+    claim: "Task 7's exhaustion branch is answered statically: identify() reads the target's kernel session and jobs/<sid>.json, with no parent walk; F2.3/F2.6 describe the historical probe. Task 8 has no 'not applicable' state for those findings."
+    citation: "launch-job-identity.sh:219, :223, :253; actor-context-probe.sh:37-39; review-2.md:9, :12"
+    recommendation: "Resolve the branch in the plan, keep the deep-nested-shell control, add a 'superseded / not applicable (cite)' Task 8 state."
+  - id: R1-07
+    severity: low
+    type: other
+    claim: "Task 5's 'helper does not compare boot identity' branch is dead (launch-job-identity.sh:234 compares both); editing the state copy risks rejecting for mode or hard-link reasons instead of the edited field."
+    citation: "launch-job-identity.sh:234, :83, :149, :218-244"
+    recommendation: "Require a same-record governed control before each edit and keep mode 0400 and nlink 1."
+  - id: R1-08
+    severity: medium
+    type: infeasible-task
+    claim: "The twelve-run Claude cap is not allocated and a plain reading of Tasks 2-4 needs 10-13 runs plus the preflight probe."
+    citation: "plan Constraints, Tasks 1-4"
+    recommendation: "Add a run-budget table and say which unavailable outcomes spend no run."
+  - id: R1-09
+    severity: medium
+    type: infeasible-task
+    claim: "live_probe offers only the Bash tool, so Task 2's subagent and Monitor cases would end 'unavailable: tool not offered' by the executor's own flag; the helper also ignores non-Bash tools."
+    citation: "live_probe.py:237-240; launch-job-identity.sh:427; plan Task 2"
+    recommendation: "State the tool list for those runs; accept unavailable only after a run that offered the tool."
+  - id: R1-10
+    severity: low
+    type: other
+    claim: "Task 6 does not say whether the governed pusher is a real Claude run or a prepare/run job, and the hook must run with the throwaway HOME because store() reads HOME."
+    citation: "launch-job-identity.sh:102-106; live_probe.py:150-153"
+    recommendation: "Name and label the governed pusher; pin HOME and git config for both actors."
+  - id: R1-11
+    severity: low
+    type: other
+    claim: "No baseline is captured for 'git status unchanged'; the blocked package already shows a modified progress.md. [INFERRED for src/plugins/tests]"
+    citation: "initial git status snapshot; plan Task 1 and Task 8 criteria"
+    recommendation: "Record diff checksums of the blocked package and src/plugins/tests in Task 1 and compare against them."
+  - id: R1-12
+    severity: low
+    type: other
+    claim: "No mechanism cleans up setsid or orphaned descendants; live_probe's cleanup only SIGTERMs the recorded supervisor."
+    citation: "live_probe.py:108-123; plan Task 4"
+    recommendation: "Sweep /proc for processes whose cwd is under the fixture or temp directory and kill by PID plus start ticks."
+calibration:
+  calibrator: confidence-calibrator (opus class), blind, citations checked by Read
+  calibrated_confidence: 0.79
+  dimensions: {citation_grounding: 0.90, coverage_completeness: 0.85, deviation_classification_clarity: 0.55, risk_surface_coverage: 0.85, recommendation_actionability: 0.80}
+  escalation: ESCALATE (C below 0.85)
+  calibrator_diversity: degraded   # all three model classes are reviewers; tie broken to opus

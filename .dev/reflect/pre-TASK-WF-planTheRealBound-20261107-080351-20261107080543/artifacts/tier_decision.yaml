@@ -1,0 +1,16 @@
+selected_tier: 2
+fired_rule_number: null            # table-wide pre-filter fired before any STOP row (coverage_degraded)
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 6.0
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 2
+  blast_radius: 0
+  spec_density: 2
+  ambiguity_signals: 1
+escalation_reason: "coverage_degraded: parsed-sparse (10 inferred requirements, 0 parsed IDs): Tier-1 stop forbidden by Step 1B.2b; aliases resolved: 3 distinct (claude-gw-tier1a, claude-gw-tier1b, claude-gw-tier2); executor class unresolved"
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+calibrator_diversity: degraded      # all three classes are reviewers; tie broken to opus
+executor_class_resolved: false

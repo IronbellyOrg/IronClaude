@@ -1,0 +1,61 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/finish-leftover-implement-plans/.dev/reflect/pre-TASK-WF-planTheRealBound-20261107-080351-20261107080543/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/finish-leftover-implement-plans/.dev/reflect/pre-TASK-WF-planTheRealBound-20261107-080351-20261107080543/audit.log
+confidence_calibrated: 0.77
+escalation_rule_matched: null            # table-wide pre-filter (coverage_degraded: parsed-sparse) forced Tier 2
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+input_sha256:
+  tasklist: 29e8d122ce463d46e72d1a09cd583a3c0f9db9cb89d31af8aa898c16ba1d2301
+  spec: 3d93a745905e0e9bb6ac71f57b173f43cbfc571bab5f97e5bf3359d0c97923ff
+input_drift_detected: false              # hashes taken at Wave 0; plan and source were not edited afterwards
+citations_total: 32
+citations_revalidated: 32
+citations_dropped: 2
+citations_inferred: 6
+citation_budget_policy: sampled
+evidence_validator_ran: true
+reviewer_cards:
+  - reviewer-cards/reviewer-1-card.yaml
+  - reviewer-cards/reviewer-2-card.yaml
+  - reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: adversarial/
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false              # grounding-gaps.yaml was not created
+unaddressed_invariants:                  # from the sc:adversarial run; HIGH and UNADDRESSED
+  - {id: INV-001, category: state_variables, severity: HIGH}
+  - {id: INV-002, category: interaction_effects, severity: HIGH}
+  - {id: INV-003, category: sufficiency_challenge, severity: HIGH}
+convergence_status: BLOCKED_BY_INVARIANTS
+plan_verdict: FAIL-ADVISORY              # the plan as written cannot produce a meaningful binary B-CTX result without M-01 to M-04
+degraded_components:
+  - position-bias-dual-pass-not-run
+  - advocate-model-class-single           # all three advocates ran as sonnet-class agents
+  - executor-class-unresolved
+  - memory-persist-skipped                # tracked docs/memory file not written, to keep the PR scoped
+  - metrics-not-written
+promotion_action: not-applicable
