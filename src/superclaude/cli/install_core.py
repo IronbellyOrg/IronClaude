@@ -5,6 +5,7 @@ Installs SuperClaude core framework files to ~/.claude/ directory.
 These are the behavioral instruction files that Claude Code reads on startup.
 """
 
+import filecmp
 import shutil
 from pathlib import Path
 from typing import List, Tuple
@@ -90,6 +91,19 @@ def install_core_files(
         for name in skipped:
             messages.append(f"   - {name}")
 
+        # A kept file that differs from this version's copy is stale: say so,
+        # because the run still reports success (existing files are never edited).
+        stale = [
+            n for n in skipped if not _same_content(core_source / n, target_path / n)
+        ]
+        if stale:
+            messages.append(
+                f"\n⚠️  {len(stale)} kept file(s) differ from this version and were "
+                "NOT updated (run with --force or `superclaude update` to refresh):"
+            )
+            for name in stale:
+                messages.append(f"   - {name}")
+
     if failed:
         messages.append(f"\n❌ Failed to install {len(failed)} files:")
         for fail in failed:
@@ -102,6 +116,13 @@ def install_core_files(
 
     success = len(failed) == 0
     return success, "\n".join(messages)
+
+
+def _same_content(a: Path, b: Path) -> bool:
+    try:
+        return filecmp.cmp(a, b, shallow=False)
+    except OSError:
+        return False
 
 
 def _get_core_source() -> Path:

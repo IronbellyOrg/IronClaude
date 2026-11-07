@@ -96,3 +96,19 @@ def test_install_never_removes_unshipped_files(tmp_path, force):
     for path, data in seeded.items():
         assert path.is_file(), f"{path} was removed or moved"
         assert path.read_bytes() == data, f"{path} was edited"
+
+
+def test_skip_without_force_names_only_stale_files(tmp_path):
+    """A kept file that differs from the shipped copy is reported as not updated;
+    a kept file identical to the shipped copy is not."""
+    target = tmp_path / ".claude"
+    _seed(target / "RULES.md", b"old RULES.md\n")
+    same = install_core._get_core_source() / "PRINCIPLES.md"
+    _seed(target / "PRINCIPLES.md", same.read_bytes())
+
+    ok, message = install_core.install_core_files(target_path=target, force=False)
+
+    assert ok, message
+    stale_part = message.split("NOT updated")[1]
+    assert "RULES.md" in stale_part
+    assert "PRINCIPLES.md" not in stale_part
