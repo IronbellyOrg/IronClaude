@@ -1,0 +1,4 @@
+FINAL_OUTPUT_CHECK PASS: completed advisory contract/report, actual merge, 26 verified file-line items, zero drops, no input drift, no implementation.
+finished_at=2026-11-06T22:39:54.917913+00:00
+wall_clock_ms=2498918
+Checks: YAML header/contract agree on success, tier 2 and confidence 0.6867; review_stage complete and plan_verdict PASS; all 26 file-line items revalidated with zero drops; three command claims separately passed through; actual adversarial merge score 1.0 with three calibrated cards; final outputs contain no unresolved placeholders; all audit rows retain the fixed five-field shape; pinned input hash unchanged; tests_ran false and promotion not-applicable.

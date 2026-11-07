@@ -1,0 +1,33 @@
+checks:
+- check: Auggie grounding availability
+  method: inspected session tool inventory
+  result: codebase-retrieval tool was not listed
+  disposition: used native Read/Grep and fresh codegraph; degraded_components includes auggie
+- check: environment switches and aliases
+  method: printenv of graph switch, three model aliases and executor identity
+  result: exit 1 because optional switch/executor variables were absent; three distinct model alias values were returned
+  disposition: unset graph switch does not disable graph; executor identity unresolved, aliases retained as aliases only
+- check: initial audit.log edit
+  method: Edit after Write without a tracked Read
+  result: freshness hook blocked the edit before mutation
+  disposition: Read the exact file and retried Edit successfully; no tool bypass or source-file edit
+- check: Tier-1 calibrator matrix lookup
+  method: calibrator Read attempted a misresolved coverage-matrix.json location
+  result: matrix not read by that calibrator
+  disposition: retained low 0.70 score and lookup limit; actual matrix exists at artifacts/coverage-matrix.json and matcher was executed by parent
+- check: reviewer 1 helper citation
+  method: blind calibration against actual installer source
+  result: original emitted helper range 113-119 is wrong; actual helper is at 230-263
+  disposition: retained pathology in reviewer card, excluded original range from final report
+- check: reviewer 3 plan line numbers
+  method: compared supplied brief hunk numbering with canonical plan
+  result: brief-local 81-82 are not canonical plan line numbers
+  disposition: retained pathology in reviewer card; final citations must use original plan ranges
+- check: additional-test risk suggested by reviewer 3
+  method: bounded searches plus one codegraph-guide test range read
+  result: other test paths are search leads, not observed failing tests
+  disposition: minor suggestion only, no claim of regression or failure
+- check: runtime incident and historical evidence
+  method: review boundary in source.md
+  result: failing transcript and historical New Terminal semantic-change evidence not independently established in this review
+  disposition: no reconstruction, no causal claim, no new issue or diagnosis

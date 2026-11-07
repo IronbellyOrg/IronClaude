@@ -1,0 +1,29 @@
+selected_tier: 2
+fired_rule_number: 4
+confidence_calibrated: 0.70
+S_scope: 2
+S_domains: 3
+domains: [code, docs, tests]
+S_dev_density: 0.38095238095238093
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 5
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 0
+  blast_radius: 1
+  spec_density: 2
+  ambiguity_signals: 1
+composite_note: ordinal audit-only assessment; priority rubric decides routing
+escalation_reason: parsed-sparse pre-filter forbids Tier-1 stop; rule 4 independently fires for three domains, rule 5 density and rule 6 confidence also support escalation
+reviewers: 3
+reviewer_models: [sonnet, haiku, opus]
+executor_class_source: unknown
+executor_class_resolved: false
+calibrator_diversity: degraded
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+warnings:
+- Executor class unknown; exclusion cannot be enforced.
+- Model aliases differ but actual gateway model/vendor routing is unverified.
+- All three available alias slots are reviewer slots; calibration cannot be class-disjoint at Tier 2.

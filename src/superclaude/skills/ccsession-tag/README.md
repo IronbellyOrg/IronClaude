@@ -225,6 +225,17 @@ runs through the shim and passes Orca's own arguments (its prompt,
 `--prefill <text>`, resume flags) to Claude Code unchanged, after ccsession's
 `--claude-args`, so a prompt is never read as a session name.
 
+### Orca session launches
+
+For a new ccsession-backed Claude session, choose **Claude (CLI)**, never **New Terminal**.
+Load the version-matched `orca-cli` guide before choosing commands. Use `agent launch`
+in an existing worktree or `worktree create --agent` for a new checkout; request
+`--surface terminal` when a CLI session is required. `terminal create` is for shells,
+not agent sessions. This requires the `ccsession-orca` Claude command configuration above;
+choosing an agent does not configure ccsession automatically.
+For supervised workers, keep `worker-start` and the dispatch preamble authoritative;
+this rule does not replace supervised dispatch or commands' internal Agent-tool subagents.
+
 #### The one question rule
 
 The session-name question is asked **only when Claude starts with no task, no

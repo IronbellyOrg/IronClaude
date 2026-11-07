@@ -1,0 +1,19 @@
+merged_output_path: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/reflect-pre-20261106-215816/adversarial/merged-review.md
+convergence_score: 1.00
+artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/reflect-pre-20261106-215816/adversarial
+status: success
+base_variant: 3
+unresolved_conflicts: []
+fallback_mode: false
+failure_stage: null
+invocation_method: task-agent
+unaddressed_invariants:
+  - {id: INV-005, severity: MEDIUM, summary: stderr-only exit-0 skip fixture}
+  - {id: INV-006, severity: MEDIUM, summary: empty-output expectation}
+  - {id: INV-009, severity: MEDIUM, summary: forced-path network deadline spend}
+  - {id: INV-010, severity: LOW, summary: update path not named}
+  - {id: INV-011, severity: LOW, summary: force passed by keyword after deadline}
+  - {id: INV-014, severity: LOW, summary: nonzero-exit message ambiguous when 3/3 present}
+  - {id: INV-015, severity: LOW, summary: timeout message says not installed when guides exist}
+  - {id: INV-017, severity: LOW, summary: how-we-work routing-table test not checked}
+  - {id: INV-019, severity: LOW, summary: plan:52 regression list missing three tests}

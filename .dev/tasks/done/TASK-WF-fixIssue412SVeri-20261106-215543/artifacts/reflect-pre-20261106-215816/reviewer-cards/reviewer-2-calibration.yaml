@@ -1,0 +1,21 @@
+reviewer: 2
+calibrator_model: opus
+calibrator_diversity: degraded
+scores:
+  citation_grounding: 0.70
+  coverage_completeness: 0.80
+  deviation_classification_clarity: 0.70
+  risk_surface_coverage: 0.50
+  recommendation_actionability: 0.60
+confidence_calibrated: 0.66
+formula: arithmetic mean of five supplied reflection dimensions
+support_verdict: PASS
+recommendation: ESCALATE
+verified_ranges:
+- reviewer-briefs/reviewer-2.md:49-82
+- reviewer-briefs/reviewer-2.md:137
+unsupported_citations: []
+notes:
+- The semantic 21/21 count is reviewer judgment, not a validated deterministic coverage count; do not substitute it for 13/21 lexical coverage.
+- Actual model behind haiku alias not verified.
+- Risk discussion and actionable file-specific verifiers are sparse in the card.

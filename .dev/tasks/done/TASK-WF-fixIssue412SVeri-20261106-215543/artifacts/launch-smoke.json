@@ -1,0 +1,19 @@
+{
+  "command": "orca-ide agent launch --agent claude --worktree path:/home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch --surface terminal --prompt <bounded independent plan review> --json",
+  "outcome_kind": "terminal",
+  "handle": "term_ca645db1-3d7b-4e6d-8e5d-caaa1be1471b",
+  "operation_id": "1794002254421-b724ee61b5e74b5b964f38dd1e0dfc23",
+  "prompt_outcome": "handed-to-terminal",
+  "screen_verification": {
+    "command": "orca-ide terminal read --terminal term_ca645db1-3d7b-4e6d-8e5d-caaa1be1471b --screen --json",
+    "status": "running",
+    "observed_lines": [
+      "Skill(sc-reflect-protocol)",
+      "Successfully loaded skill",
+      "Read(/home/coder/.claude/skills/sc-reflect-protocol/refs/input-resolution.md)",
+      "Read(.../TASK-WF-fixIssue412SVeri-20261106-215543/source.md)",
+      "Gallivanting..."
+    ],
+    "conclusion": "Actual Claude CLI reviewer turn began; not merely a plain shell or an accepted-input receipt. Does not prove which input caused an earlier wrong launch or validate all Orca UI routes."
+  }
+}

@@ -1,0 +1,112 @@
+# Merged verdict from sc:adversarial Mode A over 3 reflect UC-1 reviewer cards.
+# Plan-level only. No tests, installs, Orca commands or product changes were executed.
+merge_method: adversarial
+mode: pre
+plan: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md
+cards:
+  - path: reviewer-cards/reviewer-1-card.yaml
+    variant: 1
+    agent: sonnet/analyzer
+    card_verdict: PASS
+    minor_findings: 3
+    calibrated_confidence: 0.72
+  - path: reviewer-cards/reviewer-2-card.yaml
+    variant: 2
+    agent: haiku/qa
+    card_verdict: PASS
+    minor_findings: 0
+    calibrated_confidence: 0.66
+  - path: reviewer-cards/reviewer-3-card.yaml
+    variant: 3
+    agent: opus/refactorer
+    card_verdict: PASS
+    minor_findings: 2
+    calibrated_confidence: 0.68
+plan_verdict: PASS
+blocking_findings: []
+minor_notes:
+  - id: R3-2
+    summary: >-
+      The output relay must cover exit-0 safe skips. Use three mocked fixtures,
+      each forced, exit 0, with all three SKILL.md files present:
+      (a) skip on stdout, (b) skip only on stderr (INV-005),
+      (c) empty output (INV-006).
+      For (a) and (b): the skip text is visible and there is no refresh-success claim.
+      For (c): a presence-only line is acceptable; "refreshed" or "updated" wording is not.
+      No keyword parser.
+    plan_ref: [plan:24, plan:45-51]
+    evidence: [install_user_setup.py:230-263, orca-discovery.md:21, orca-discovery.md:25]
+    sources: [V3, V1, invariant-probe]
+  - id: R1-3
+    summary: >-
+      Task 1 acceptance-criterion wording ("explicitly distinguish") is weaker
+      than the source ("never New Terminal"). The prohibition reaches Task 1
+      only through its Inputs. Tighten the AC wording and the test so that
+      shell routes are prohibited for ccsession sessions.
+    plan_ref: [plan:30, plan:35]
+    evidence: [source.md:1, orca-discovery.md:12-16]
+    sources: [V1]
+  - id: R3-1
+    summary: >-
+      Add tests/core/test_codegraph_guide.py to the wider regression run.
+      It reads core CLAUDE.md with placement-sensitive assertions.
+      Also run tests/cli/test_update_command.py and
+      tests/core/test_how_we_work_routing_table.py (unverified, run-it recommendation).
+    plan_ref: [plan:52]
+    evidence: [tests/core/test_codegraph_guide.py:137-174]
+    sources: [V3, invariant-probe]
+  - id: INV-009
+    summary: >-
+      Every forced run, including every `superclaude update`, now spends Orca
+      probe and install time out of the 30 s network budget it shares with
+      install_plugins. This is nonfatal and reported as "(time limit)". Record the
+      plugin outcome and name the update path in the Task 2 evidence.
+    plan_ref: [plan:45, plan:51]
+    evidence: [install_user_setup.py:39, install_user_setup.py:40, install_user_setup.py:213, install_user_setup.py:397-399, install_user_setup.py:436, main.py:404]
+    sources: [invariant-probe]
+  - id: INV-011+INV-014+INV-015
+    severity: LOW
+    summary: >-
+      force follows deadline, defaults to False, and is passed by keyword at
+      install_user_setup.py:441. Assert "--force" not in command. Pin the
+      wording of the failure messages for the case where the guides already exist.
+    plan_ref: [plan:23, plan:45, plan:50, plan:51]
+    evidence: [install_user_setup.py:230-232, install_user_setup.py:252-256, install_user_setup.py:258-262, tests/cli/test_update_command.py:47-51]
+    sources: [invariant-probe]
+  - id: R1-1
+    optional: true
+    summary: >-
+      Optionally run the routing and sync checks right after Task 1. Sync is
+      part of Task 2 by design (plan:47), so this is not an omission.
+    plan_ref: [plan:47, plan:52]
+    sources: [V1]
+excluded_citations:
+  - install_user_setup.py:113-119 (V1; outside the helper, inside install_rules)
+  - plan lines 81-82 (V3; brief-local, plan has 53 lines)
+convergence_score: 1.00
+convergence_status: CONVERGED
+calibrated_confidence_aggregation:
+  method: arithmetic_mean_of_per_card_calibrated_confidence
+  per_reviewer: {reviewer-1: 0.72, reviewer-2: 0.66, reviewer-3: 0.68}
+  value: 0.6867
+  calibrator_diversity: degraded (all three cards)
+  card_recommendation: ESCALATE (all three cards)
+  note: Values copied from the cards. Not recalibrated by this pipeline.
+coverage:
+  lexical: {matched: 13, total: 21, ratio: 0.6190, note: shared Constraints outside the matcher}
+  reviewer_judgment_semantic: {matched: 21, total: 21, source: V2, note: not independently checked; not a measured value}
+invariants:
+  total: 22
+  addressed: 13
+  unaddressed: {high: 0, medium: [INV-005, INV-006, INV-009], low: [INV-010, INV-011, INV-014, INV-015, INV-017, INV-019]}
+supplemental_context: ../artifacts/core-install-grounding.yaml (install_core copies top-level core markdown flat to the global config; recorded as context; review not broadened)
+runtime_causation: UNDETERMINED (plan:19)
+execution: none. No tests, installs, Orca commands, Git, GitHub, Tasks or Runs.
+stage_evidence:
+  step1_diff_analysis: diff-analysis.md
+  step2_debate: [rounds/round-1-variant-1.md, rounds/round-1-variant-2.md, rounds/round-1-variant-3.md, rounds/round-2-variant-1.md, rounds/round-2-variant-2.md, rounds/round-2-variant-3.md, debate-transcript.md]
+  step2_round_2_5: [rounds/round-2-5-fault-finder.md, invariant-probe.md]
+  step3_base_selection: {file: base-selection.md, base: variant-3, scores: {V1: 0.7371, V2: 0.7172, V3: 0.8113}}
+  step4_refactor_plan: refactor-plan.md
+  step5_merge: [merged-review.md, merge-log.md]
+  log: pipeline.log

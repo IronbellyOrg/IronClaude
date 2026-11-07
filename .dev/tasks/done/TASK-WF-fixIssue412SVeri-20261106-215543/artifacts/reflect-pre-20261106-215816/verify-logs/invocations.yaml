@@ -1,0 +1,11 @@
+- cmd: timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run --no-sync ruff check --no-fix --no-cache src/superclaude/cli/install_user_setup.py tests/cli/test_install_user_setup.py
+  exit_code: 0
+  duration_ms: null
+  duration_note: tool did not expose precise elapsed time
+  stdout_path: stdout.txt
+  stderr_path: stderr.txt
+  blocked_reason: null
+  deviation_class: none
+  scope: existing installer and matching tests only
+  safety: fixed token template; no shell control characters; fix disabled; cache disabled
+  test_run: false

@@ -1,0 +1,307 @@
+{
+  "parsed_count": 0,
+  "inferred_count": 21,
+  "task_count": 2,
+  "coverage_pct": null,
+  "coverage_pct_union": 0.619,
+  "coverage_undefined": false,
+  "coverage_degraded": "parsed-sparse",
+  "unmapped_requirements": [],
+  "unmapped_requirements_union": [
+    "INF-001",
+    "INF-011",
+    "INF-016",
+    "INF-017",
+    "INF-018",
+    "INF-019",
+    "INF-020",
+    "INF-021"
+  ],
+  "S_dev_density": 0.38095238095238093,
+  "stopword_set": [
+    "a",
+    "after",
+    "also",
+    "an",
+    "and",
+    "are",
+    "as",
+    "at",
+    "be",
+    "been",
+    "before",
+    "being",
+    "but",
+    "by",
+    "can",
+    "could",
+    "did",
+    "do",
+    "does",
+    "even",
+    "for",
+    "from",
+    "if",
+    "in",
+    "into",
+    "is",
+    "it",
+    "its",
+    "may",
+    "might",
+    "must",
+    "no",
+    "nor",
+    "not",
+    "of",
+    "on",
+    "only",
+    "onto",
+    "or",
+    "our",
+    "shall",
+    "should",
+    "so",
+    "than",
+    "that",
+    "the",
+    "their",
+    "them",
+    "then",
+    "these",
+    "they",
+    "this",
+    "those",
+    "to",
+    "was",
+    "we",
+    "were",
+    "when",
+    "while",
+    "will",
+    "with",
+    "without",
+    "would",
+    "yet",
+    "you",
+    "your"
+  ],
+  "tokenization": "lowercase unique alphanumeric word tokens",
+  "rows": [
+    {
+      "id": "INF-001",
+      "source": "inferred",
+      "quote": "Fix issue #412's verified instruction-delivery gaps, not Orca shell behavior.",
+      "citation": "source.md:1",
+      "containment_ratio": 0.272727,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "id": "INF-002",
+      "source": "inferred",
+      "quote": "Add an explicit globally loaded rule in src/superclaude/core/CLAUDE.md and matching src/superclaude/skills/ccsession-tag/README.md guidance",
+      "citation": "source.md:1",
+      "containment_ratio": 0.875,
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-003",
+      "source": "inferred",
+      "quote": "new ccsession-backed Claude sessions use Claude (CLI), never New Terminal",
+      "citation": "source.md:1",
+      "containment_ratio": 0.777778,
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-004",
+      "source": "inferred",
+      "quote": "programmatic creation uses the version-matched Orca agent launch or worktree create --agent",
+      "citation": "source.md:1",
+      "containment_ratio": 1.0,
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-005",
+      "source": "inferred",
+      "quote": "explicit terminal surface when CLI required",
+      "citation": "source.md:1",
+      "containment_ratio": 1.0,
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-006",
+      "source": "inferred",
+      "quote": "Reserve terminal create for shells.",
+      "citation": "source.md:1",
+      "containment_ratio": 0.75,
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-007",
+      "source": "inferred",
+      "quote": "Preserve supervised worker-start/dispatch-preamble rules and internal Agent-tool subagents.",
+      "citation": "source.md:1",
+      "containment_ratio": 0.818182,
+      "matched_task_ids": [
+        "Task 1"
+      ],
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-008",
+      "source": "inferred",
+      "quote": "Repair src/superclaude/cli/install_user_setup.py so install_user_setup(force=True) requests safe refresh even with existing Orca guides",
+      "citation": "source.md:1",
+      "containment_ratio": 0.8125,
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-009",
+      "source": "inferred",
+      "quote": "ordinary nonforce setup still skips existing copies.",
+      "citation": "source.md:1",
+      "containment_ratio": 0.714286,
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-010",
+      "source": "inferred",
+      "quote": "Do not forward --force to Orca or overwrite edited guides",
+      "citation": "source.md:1",
+      "containment_ratio": 0.666667,
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-011",
+      "source": "inferred",
+      "quote": "show meaningful skipped/warning output rather than claiming refresh succeeded.",
+      "citation": "source.md:1",
+      "containment_ratio": 0.555556,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "id": "INF-012",
+      "source": "inferred",
+      "quote": "Add minimal regression checks in tests/cli/test_install_user_setup.py and tests/core/test_orca_session_launch_guidance.py with observed pre-fix failures",
+      "citation": "source.md:1",
+      "containment_ratio": 0.75,
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-013",
+      "source": "inferred",
+      "quote": "force propagation, default skip and nonfatal absent/failing Orca.",
+      "citation": "source.md:1",
+      "containment_ratio": 0.875,
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-014",
+      "source": "inferred",
+      "quote": "Canonical edits only then make sync-dev and make verify-sync",
+      "citation": "source.md:1",
+      "containment_ratio": 0.833333,
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-015",
+      "source": "inferred",
+      "quote": "never stage .claude mirrors, stage .dev/tasks.",
+      "citation": "source.md:1",
+      "containment_ratio": 0.666667,
+      "matched_task_ids": [
+        "Task 2"
+      ],
+      "match_method": "containment"
+    },
+    {
+      "id": "INF-016",
+      "source": "inferred",
+      "quote": "No commit/push/PR, global install or other repo edits.",
+      "citation": "source.md:1",
+      "containment_ratio": 0.25,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "id": "INF-017",
+      "source": "inferred",
+      "quote": "Issue412 already contains verified refresh-introducing PR245 and intentional Orca CLI-label PR29074, not shell-causation proof.",
+      "citation": "source.md:1",
+      "containment_ratio": 0.266667,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "id": "INF-018",
+      "source": "inferred",
+      "quote": "Actual failing agent transcript and a historical New Terminal semantic-change PR remain unverified; preserve boundary.",
+      "citation": "source.md:1",
+      "containment_ratio": 0.428571,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "id": "INF-019",
+      "source": "inferred",
+      "quote": "Current diagnosis independent validation returned partial with static findings verified; runtime cause UNDETERMINED.",
+      "citation": "source.md:1",
+      "containment_ratio": 0.25,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "id": "INF-020",
+      "source": "inferred",
+      "quote": "User explicitly authorizes execution after reading checked plan.",
+      "citation": "source.md:1",
+      "containment_ratio": 0.142857,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "id": "INF-021",
+      "source": "inferred",
+      "quote": "Two-phase bounded plan, no verification-only task.",
+      "citation": "source.md:1",
+      "containment_ratio": 0.5,
+      "matched_task_ids": [],
+      "match_method": "none"
+    }
+  ]
+}

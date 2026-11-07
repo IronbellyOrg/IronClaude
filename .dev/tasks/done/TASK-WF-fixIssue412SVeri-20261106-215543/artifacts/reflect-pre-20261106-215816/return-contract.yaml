@@ -1,0 +1,141 @@
+contract_version: '1.8.0'
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/reflect-pre-20261106-215816/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/reflect-pre-20261106-215816/audit.log
+review_stage: complete
+review_verdict: PASS
+evidence_validation_path: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/reflect-pre-20261106-215816/artifacts/evidence-validation.md
+plan_verdict: PASS
+confidence_calibrated: 0.6867
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 0.619
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-011, INF-016, INF-017, INF-018, INF-019, INF-020, INF-021]
+best_practice_grade: 4
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+deviation_register_path: null
+grounding_gaps_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: true
+verification_scope: existing-installer-baseline-lint-only
+verification_invocations: 1
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+tests_ran: false
+runtime_surface_requirements: []
+runtime_surface_sweep_ran: false
+runtime_surface_ledger_path: null
+runtime_surface_unreached: 0
+runtime_surface_degraded: false
+unreached_surfaces: []
+reuse_sweep_ran: false
+reuse_skip_reason: no-new-component-proposed; shared-existing-helper-reused
+reuse_audit_path: null
+reuse_miss_blocking: 0
+reuse_miss_advisory: 0
+reuse_verdict_count_by_type: {reuse_by_import: 0, mirror_shape: 0, extract_shared: 0, distinct: 0}
+reuse_grounding_gap_count: 0
+neighbour_search_sampled: false
+neighbour_search_degraded: false
+max_overlap_score: null
+input_sha256:
+  tasklist: 70f07e6a00069214f3fb755890d1d365ed6c5593bd5abb0b78738061f4ce4240
+  spec: 0dbef3544e24fa7a8c3e927c8886ef582ea66bff00233e0dd0a4eac95b1ea3c7
+input_tree_sha256: 299e613343449889daf2f740af9786c74b78fdf2069e09d2e101d26a1d911fc8
+input_tree_file_count: 8
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/reflect-pre-20261106-215816/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: []
+citations_total: 26
+citations_revalidated: 26
+citation_count_scope: file-line evidence items; 21 source quotes plus 5 body ranges
+command_claims_passed_through: 3
+zero_drop_flag: true
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+- /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/reflect-pre-20261106-215816/reviewer-cards/reviewer-1-card.yaml
+- /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/reflect-pre-20261106-215816/reviewer-cards/reviewer-2-card.yaml
+- /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/reflect-pre-20261106-215816/reviewer-cards/reviewer-3-card.yaml
+reviewer_briefs_materialized: 3
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/reflect-pre-20261106-215816/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+minor_note_count: 6
+producer_contract_note: adversarial unaddressed_invariants includes MEDIUM/LOW notes; actual merged verdict has zero HIGH or blocking findings
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+reviewer_models: [sonnet, haiku, opus]
+reviewer_calibrated_confidences: [0.72, 0.66, 0.68]
+executor_class_source: unknown
+executor_class_resolved: false
+executor_exclusion_degraded: false
+model_identity_resolution: aliases-only; underlying-gateway-models-and-vendors-unverified
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+degraded_components: [auggie, calibrator-diversity, executor-class-unknown, gateway-routing-unverified]
+memory_hits: 0
+memory_misses: 2
+memory_retention_actions: 0
+memory_persistence_suppressed: user-authorized-review-outputs-only
+global_metrics_append_suppressed: user-authorized-review-outputs-only
+verify_blocked: false
+verify_blocked_reason: null
+verify_timeout_hit: false
+verify_flaky_suspected: false
+verify_timeout_default: 120
+verify_invocations_path: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/reflect-pre-20261106-215816/verify-logs/invocations.yaml
+type_hierarchy_invoked: false
+summarize_changes_invoked: false
+references_extended_info_used: false
