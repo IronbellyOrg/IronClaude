@@ -508,6 +508,7 @@ UNATTENDED_EXPECT: dict = {
             "pr_review_url",
             "`--unattended` implies `--no-post-pr` and `--no-remediation-offer`",
             "`--post-pr` and `--remediation-offer` are refused",
+            "map to the worker values `succeeded`, `partial` and `failed`",
         ],
         "nested": ["impact"],
     },
@@ -585,6 +586,8 @@ UNATTENDED_EXPECT: dict = {
         "phrases": [
             "tasklist-index.md",
             "validation/ValidationReport.md",
+            "validation/gate-results.txt",
+            "validation/PatchChecklist.md",
             "blocked_question",
             "--compliance strict --unattended --report-dir <report-dir>/nested/task-<n>/",
             "the unresolved High or Medium HALT resolves as blocked",
