@@ -1,0 +1,6 @@
+$ uv run pytest tests/pr_submit -q
+======================= 2014 passed, 1 skipped in 41.91s =======================
+$ make lint
+All checks passed!
+$ make verify-sync
+✅ All components in sync.

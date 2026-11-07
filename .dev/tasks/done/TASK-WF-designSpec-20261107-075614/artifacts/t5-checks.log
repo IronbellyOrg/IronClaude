@@ -1,0 +1,4 @@
+$ uv run pytest tests/pr_submit/test_run_log.py tests/pr_submit/test_static_grep.py tests/pr_submit/test_idempotency.py -q -p no:cacheprovider
+============================== 61 passed in 1.18s ==============================
+$ uv run python -c "from superclaude.pr_submit import fold_draft_guard, engage_decision, release_decision, resume_decision, held_cycle_published, fix_cycle_id; import superclaude.pr_submit.run_log"
+rc=0

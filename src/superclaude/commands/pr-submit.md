@@ -5,7 +5,7 @@ category: quality
 complexity: advanced
 mcp-servers: [auggie]
 personas: [analyzer, architect, security, qa, devops]
-argument-hint: "[--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 600] [--silence-timeout 300] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--pr <N>] [--conflict-max-tier {0,1,2}] [--output-dir <dir>] [--resume <run-log.jsonl>]"
+argument-hint: "[--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 600] [--silence-timeout 300] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--pr <N>] [--conflict-max-tier {0,1,2}] [--merge-guard {draft,off}] [--output-dir <dir>] [--resume <run-log.jsonl>]"
 version: "1.0"
 ---
 
@@ -52,6 +52,7 @@ Explicit only — two activation paths:
 | `--head <branch>` | — | PR head branch. |
 | `--pr <N>` | — | Attach to an existing PR instead of opening one. |
 | `--conflict-max-tier {0,1,2}` | 0 | Highest merge-conflict tier to act on: 0 (default) detect and report only; 1 also regenerate a conflicted root `uv.lock` (Tier 1, opt-in because `uv lock` can run the PR's build code); 2 also resolve text conflicts by stated intent (Tier 2, off by default). Tier 3 always halts at L3. Tier 1 halts before `uv lock` when the merged `pyproject.toml` declares `build-system.backend-path`, a non-empty `project.dynamic`, or a path or editable `[tool.uv.sources]` entry. Conflict resolution and validation run the project's build and test code, so run pr-submit only on PRs from collaborators you trust with your credentials. |
+| `--merge-guard {draft,off}` | draft | Effective only at `--monitor 3`. `draft` holds the PR as a draft while a fix cycle runs and marks it ready again once the fix push is confirmed (see "Merge guard"); `off` leaves the PR untouched and prints "Remediation is unprotected: --merge-guard off." once. |
 | `--title` / `--body` | — | PR title / body. |
 | `--output-dir <dir>` | `.dev/pr-monitor/pr-<N>-<ts>/` | Run-log + artifacts dir. |
 | `--resume <jsonl>` | — | Reconstruct state from a write-ahead run-log. |
@@ -77,6 +78,21 @@ After a merge push, CI is checked against the new head. Expected checks that hav
 
 The protocol's `refs/conflict-mechanical.md` owns detection, validation and recovery; `refs/conflict-intent.md` adds Tier 2 judgment and evidence requirements. Load them through the protocol, not as a replacement for its mandatory activation.
 
+## Merge guard (`--merge-guard`)
+
+`--merge-guard {draft,off}` is on by default (`draft`) and acts only at `--monitor 3`. Below that, and with `off`, the skill makes no draft or ready change. A run at `--monitor 2` that applies fixes and halts before the push reports that the PR is still mergeable and the fixes are local only.
+
+- **When the PR becomes a draft:** at the end of Wave 3, when at least one verified finding of Medium severity or higher is routed to a fix, once per fix cycle (a CI-fix cycle counts as its own cycle). The PR becomes a draft before any edit, so nobody merges it while the fix exists only locally. A PR that was already a draft is left alone and this run never makes it ready.
+- **When it becomes ready:** only after the cycle's fix push is confirmed on the PR head (or a cycle that applied no edit is proven), and before any reply, resolve or re-trigger comment, so the reviewers see a ready PR.
+- **Held outcome:** an exit with unpublished or uncertain work (a validation failure, a halt before the push, a rejected or failed push, a push whose landing is unknown, a release that could not be confirmed, a PR that was merged or closed) leaves the PR a draft. The output then reports `merge_guard: held` with the reason and the clear command, which marks the PR ready by hand once you have checked it:
+
+```text
+gh pr ready <N> --repo "$REPO"
+```
+
+- **Unreadable timeline:** the guard decides from the PR's draft and ready history. If that history cannot be read, the guard never marks the PR ready: at the start of a cycle the run halts with reason `draft_guard_unavailable` before any edit, and at a later checkpoint it keeps the PR a draft and reports `held`. If someone else changes the draft state, the guard stands down and reports `user_override`.
+- **Effects on reviewers and workflows:** drafts and ready transitions may change which reviews and workflows run. Whether the Augment and Codex reviews and the CI workflows behave as expected on a draft or on a ready transition (release gates G4 and G5 of the design) is unverified until the owner's run on a disposable PR; do not rely on it, and the PR body states this release gate. Pass `--merge-guard off` to run without the guard.
+
 ## Behavioral Flow
 
 This command does ONLY parse + environment-validate + handoff. It parses the flags, verifies the PR target is the resolved origin repo (origin's `owner/repo`, never an upstream parent the host's CLI might default to), and hands off to the protocol skill via the Activation section below. The full behavioral specification — the FSM, the detection contract, severity routing, verify-before-remediate, troubleshoot dispatch, validation gates, the push triad, reply/resolve, and the loop guard — lives in the skill.
@@ -92,7 +108,7 @@ This command does ONLY parse + environment-validate + handoff. It parses the fla
 
 Pass the following context:
 
-- `--monitor` ordinal (0/1/2/3) and `--max-rounds` / `--poll-interval` / `--timeout` / `--silence-timeout` / `--conflict-max-tier`.
+- `--monitor` ordinal (0/1/2/3) and `--max-rounds` / `--poll-interval` / `--timeout` / `--silence-timeout` / `--conflict-max-tier` / `--merge-guard`.
 - PR context: `--base` / `--head` / `--title` / `--body`, or the existing PR number (`--pr <N>`).
 - `--output-dir` and `--resume` if supplied.
 

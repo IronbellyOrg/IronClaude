@@ -2592,6 +2592,54 @@ WRITE_VERB_CLASSIFICATION = {
         "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
     ),
     (
+        "src/superclaude/skills/sc-pr-submit-protocol/scripts/set-draft-state.sh",
+        "gh pr",
+        'answer="$(gh pr view "$PR" --repo "$REPO" --json state,isDraft,headRefOid,autoMergeRequest 2>/dev/null)" || return 1',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/scripts/set-draft-state.sh",
+        "gh api",
+        'if count="$(gh api --paginate "repos/${REPO}/issues/${PR}/timeline" --jq \'.[] | select(.event=="convert_to_draft" or .event=="ready_for_review") | .event\' 2>/dev/null | wc -l | tr -d \' \')"; then',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/scripts/set-draft-state.sh",
+        "gh pr",
+        'gh pr ready "$PR" --repo "$REPO" --undo >/dev/null 2>&1 || { emit_to false false mutation_failed; exit 1; }',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/scripts/set-draft-state.sh",
+        "gh pr",
+        'gh pr ready "$PR" --repo "$REPO" >/dev/null 2>&1 || { emit_to false false mutation_failed; exit 1; }',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/skills/sc-pr-submit-protocol/refs/merge-guard.md",
+        "gh pr",
+        'gh pr ready <N> --repo "$REPO"',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
+        "src/superclaude/commands/pr-submit.md",
+        "gh pr",
+        'gh pr ready <N> --repo "$REPO"',
+    ): (
+        "never-worker",
+        "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
+    ),
+    (
         "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
         "git worktree add",
         "2. **STOP-on-non-committable predicate (COR-1)** — `committable = base resolves AND HEAD resolves AND not audit_tree_dirty`. If NOT committable, the wrapper STOPs with `status: stopped-precondition` (verdict BLOCKED, exit 2 — the fail-closed contract is unchanged) and `reason ∈ {dirty, no-committable-ref, head-moved-precondition, snapshot-precleanup-failed, worktree-add-failed}` (any non-zero `git worktree add` exit STOPs with the captured stderr, never falling back to the live tree). It never points reviewers at a committed-ref snapshot that omits the uncommitted target.",

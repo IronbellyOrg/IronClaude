@@ -1,0 +1,8 @@
+MOVED ./artifacts/base-format.log -> .dev/tasks/to-do/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/artifacts-2/base-format.log
+MOVED ./artifacts/base-full-suite.log -> .dev/tasks/to-do/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/artifacts-2/base-full-suite.log
+MOVED ./artifacts/base-lint.log -> .dev/tasks/to-do/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/artifacts-2/base-lint.log
+MOVED ./artifacts/pre-build-gate.md -> .dev/tasks/to-do/TASK-WF-designSpec-20261107-075614/artifacts/retries/T1/artifacts-2/pre-build-gate.md
+SWEEP refs/superclaude/implement/TASK-WF-designSpec-20261107-075614/retry/T1/sweep-2-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+DONE
+exit=0

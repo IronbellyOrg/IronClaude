@@ -8,7 +8,8 @@ markdown orchestrator and bash glue defer to: the finite state machine
 (:mod:`~superclaude.pr_submit.classifier` / :mod:`~superclaude.pr_submit.detection`),
 the write-ahead JSONL run-log (:mod:`~superclaude.pr_submit.run_log`), the
 crash-window recovery (:mod:`~superclaude.pr_submit.recovery`), the merge-conflict
-core (:mod:`~superclaude.pr_submit.conflicts`, issue #305), and the shared data
+core (:mod:`~superclaude.pr_submit.conflicts`, issue #305), the merge guard
+(:mod:`~superclaude.pr_submit.merge_guard`, issue #375), and the shared data
 models (:mod:`~superclaude.pr_submit.models`).
 
 NFR-6 core purity: the modules in this package contain ZERO ``gh``/``git`` tokens.
@@ -68,6 +69,27 @@ from .fsm import (
     run_skill,
     should_retrigger,
     transition,
+)
+from .merge_guard import (
+    BRANCH_AMBIGUOUS,
+    BRANCH_LANDED,
+    BRANCH_NOT_LANDED,
+    Direction,
+    GuardAction,
+    GuardDecision,
+    GuardMode,
+    GuardRead,
+    Phase,
+    classify_toggles,
+    engage_decision,
+    fix_cycle_id,
+    fold_draft_guard,
+    guard_status,
+    held_cycle_published,
+    next_cycle_number,
+    pending_requests,
+    release_decision,
+    resume_decision,
 )
 from .models import (
     EventType,
@@ -150,6 +172,26 @@ __all__ = [
     "resolution_record_ok",
     "should_retrigger",
     "sync_fail_state",
+    # merge guard (issue #375)
+    "BRANCH_AMBIGUOUS",
+    "BRANCH_LANDED",
+    "BRANCH_NOT_LANDED",
+    "Direction",
+    "GuardAction",
+    "GuardDecision",
+    "GuardMode",
+    "GuardRead",
+    "Phase",
+    "classify_toggles",
+    "engage_decision",
+    "fix_cycle_id",
+    "fold_draft_guard",
+    "guard_status",
+    "held_cycle_published",
+    "next_cycle_number",
+    "pending_requests",
+    "release_decision",
+    "resume_decision",
     # reviewers (Augment + Codex)
     "REVIEWERS",
     "reviewer_identities",

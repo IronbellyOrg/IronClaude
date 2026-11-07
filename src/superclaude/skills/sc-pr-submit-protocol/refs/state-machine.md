@@ -184,6 +184,10 @@ a non-halted CI-clean path sends `clean` to `transition()`. L0 never enters this
   `conflict_tier3`); a Tier 3 found by a later hook takes the human-gate route to `HALT_HUMAN`, or is
   reported alongside a preserved terminal.
 
+### 5.2e Merge guard overlay (issue #375)
+
+The merge guard's phases (`ENGAGE_PENDING`, `HELD`, `RELEASE_PENDING`, `RELEASED` and `DISABLED`) are folded values of the run log's `draft_guard` state, read by `fold_draft_guard`. They are not `MonitorState` members: the guard adds no state and no transition, and a guard decision never changes the FSM state. The procedure is `refs/merge-guard.md`.
+
 ## 5.3 G-push — the 5-predicate runtime conjunction (INV-016, verbatim)
 
 > **INV-016.** A push is authorized at the `S4_PUSHING` transition if and only if ALL of the

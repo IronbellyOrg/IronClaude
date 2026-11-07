@@ -1,0 +1,7 @@
+MOVED ./artifacts/t9-checks.log -> .dev/tasks/to-do/TASK-WF-designSpec-20261107-075614/artifacts/retries/T9/artifacts-2/t9-checks.log
+SWEEP refs/superclaude/implement/TASK-WF-designSpec-20261107-075614/retry/T9/sweep-2-1
+SUBMODULE .vendor/anthropic-skills 98669c11ca63e9c81c11501e1437e5c47b556621
+RESTORED src/superclaude/skills/sc-pr-submit-protocol/SKILL.md
+RESTORED tests/pr_submit/test_merge_guard_protocol.py
+DONE
+exit=0

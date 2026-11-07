@@ -1,0 +1,7 @@
+$ uv run pytest tests/pr_submit/test_merge_guard.py -q -p no:cacheprovider
+
+============================== 46 passed in 0.07s ==============================
+$ uv run ruff check src/superclaude/pr_submit/merge_guard.py tests/pr_submit/test_merge_guard.py
+All checks passed!
+$ uv run ruff format --check src/superclaude/pr_submit/merge_guard.py tests/pr_submit/test_merge_guard.py
+2 files already formatted

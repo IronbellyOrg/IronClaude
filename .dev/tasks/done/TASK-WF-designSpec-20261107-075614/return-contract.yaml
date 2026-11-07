@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-designSpec-20261107-075614
+plan_path: ./TASK-WF-designSpec-20261107-075614.md
+source_path: ./source.md
+source_origin: .dev/issues/375/design-spec.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-375-pr-submit-draft-guard/.dev/reflect/pre-designSpec-20261107075755/REPORT.md
+unresolved:
+  - "Advisory review 3 of 3 (last allowed): all three reviewers returned ready-with-notes; the calibrator grades ONE finding blocking (R1-1: the fold does not set disabled_cause for a user_override settle, so guard_status cannot report user_override). Escalated to the coordinator; see the reflect REPORT.md."
+  - "Reflect Wave 4 (adversarial merge) and the Wave 5 evidence-validator gate were not run; the reviewer cards were calibrated and their citations re-Read by the calibrators."

@@ -1,0 +1,13 @@
+$ grep -n "merge-guard" src/superclaude/commands/pr-submit.md | cut -c1-80
+8:argument-hint: "[--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval �
+55:| `--merge-guard {draft,off}` | draft | Effective only at `--monitor 3`. `dra
+81:## Merge guard (`--merge-guard`)
+83:`--merge-guard {draft,off}` is on by default (`draft`) and acts only at `--mo
+94:- **Effects on reviewers and workflows:** drafts and ready transitions may ch
+111:- `--monitor` ordinal (0/1/2/3) and `--max-rounds` / `--poll-interval` / `--
+$ uv run pytest tests/pr_submit tests/skills tests/docs -q
+======================= 3354 passed, 1 skipped in 57.05s =======================
+$ make lint
+All checks passed!
+$ make verify-sync
+✅ All components in sync.

@@ -168,11 +168,14 @@ def test_rebuild_from_jsonl_is_authoritative(tmp_path):
 # --- V1.1 closed-enum count + new-event folds (addendum §6.1/§6.3) ------------
 
 
-def test_eventtype_is_43_members_with_silence_reviewer_and_conflict_events():
-    """The closed EventType enum has EXACTLY 43 members, including INV-S1, the two
-    reviewer-presence events and the two conflict-cycle events."""
-    assert len(EventType) == 43
-    assert len(list(EventType)) == 43
+def test_eventtype_is_45_members_with_silence_reviewer_conflict_and_guard_events():
+    """The closed EventType enum has EXACTLY 45 members, including INV-S1, the two
+    reviewer-presence events, the two conflict-cycle events and the two merge-guard
+    events."""
+    assert len(EventType) == 45
+    assert len(list(EventType)) == 45
+    assert EventType.DRAFT_GUARD_REQUESTED.value == "draft_guard_requested"
+    assert EventType.DRAFT_GUARD_SETTLED.value == "draft_guard_settled"
     assert EventType.SYNC_STARTED.value == "sync_started"
     assert EventType.SYNC_CONCLUDED.value == "sync_concluded"
     assert EventType.REVIEWER_ABSENT.value == "reviewer_absent"
@@ -202,6 +205,17 @@ def test_new_v11_events_pass_closed_enum_append_validation(tmp_path):
         assert rec["event_type"] == member.value
     # And an UNKNOWN event_type still raises (the closed set is enforced).
     with pytest.raises(ValueError):
+        rl.append({"event_type": "not_a_real_event"})
+
+
+def test_guard_events_pass_closed_enum_append_validation(tmp_path):
+    """The two merge-guard events are valid closed-enum values, and an unknown type
+    is still rejected with the updated member count in the message."""
+    rl = RunLog(32, tmp_path)
+    for member in (EventType.DRAFT_GUARD_REQUESTED, EventType.DRAFT_GUARD_SETTLED):
+        rec = rl.append({"event_type": member.value})
+        assert rec["event_type"] == member.value
+    with pytest.raises(ValueError, match=r"not one of the 45 closed EventType values"):
         rl.append({"event_type": "not_a_real_event"})
 
 
@@ -314,6 +328,7 @@ _NEW_KEY_DEFAULTS = {
     "conflict_cycles": [],
     "open_conflict_cycle": None,
     "push_rejected": False,
+    "draft_guard": None,
 }
 
 
@@ -397,11 +412,77 @@ def _sync_concluded(rl: RunLog, cycle_id: str, outcome: str = "pushed", **extra)
 
 def test_fold_old_log_without_kind_rebuilds_identically(tmp_path):
     """NFR-12: a recorded legacy log rebuilds every pre-existing key unchanged and
-    the four new keys at their defaults; no other key is added."""
+    the new keys at their defaults; no other key is added."""
     state = _legacy_runlog(tmp_path).rebuild_state()
     assert {k: state[k] for k in _LEGACY_EXPECTED} == _LEGACY_EXPECTED
     assert set(state) == set(_LEGACY_EXPECTED) | set(_NEW_KEY_DEFAULTS)
     assert state == {**_LEGACY_EXPECTED, **_NEW_KEY_DEFAULTS}
+
+
+def test_legacy_log_rebuilds_with_draft_guard_none(tmp_path):
+    """A log written before the merge guard existed has no guard record."""
+    state = _legacy_runlog(tmp_path).rebuild_state()
+    assert state["draft_guard"] is None
+    assert {k: state[k] for k in _LEGACY_EXPECTED} == _LEGACY_EXPECTED
+
+
+def _guard_requested(rl: RunLog, to: str, **extra) -> None:
+    rl.append(
+        {
+            "event_type": EventType.DRAFT_GUARD_REQUESTED.value,
+            "run_id": "r1",
+            "cycle_id": "fix-1",
+            "to": to,
+            "idempotency_key": f"guard:r1:fix-1:{to}:a1",
+            **extra,
+        }
+    )
+
+
+def _guard_settled(rl: RunLog, to: str, outcome: str, **extra) -> None:
+    rl.append(
+        {
+            "event_type": EventType.DRAFT_GUARD_SETTLED.value,
+            "run_id": "r1",
+            "cycle_id": "fix-1",
+            "to": to,
+            "idempotency_key": f"guard:r1:fix-1:{to}:a1",
+            "outcome": outcome,
+            "changed": outcome == "confirmed",
+            "cause": None,
+            **extra,
+        }
+    )
+
+
+def test_fold_guard_request_and_confirmed_settle_rebuild_phase_held(tmp_path):
+    rl = RunLog(301, tmp_path)
+    _guard_requested(rl, "draft", timeline_baseline=2, original_is_draft=False)
+    _guard_settled(rl, "draft", "confirmed")
+    guard = rl.rebuild_state()["draft_guard"]
+    assert guard["phase"] == "held"
+    assert guard["owned_draft"] is True
+    assert guard["run_toggles"] == 1
+    assert guard["unsettled"] == 0
+    assert guard["baseline"] == 2
+
+
+def test_fold_guard_request_alone_is_engage_pending_with_one_unsettled(tmp_path):
+    rl = RunLog(302, tmp_path)
+    _guard_requested(rl, "draft", timeline_baseline=0, original_is_draft=False)
+    guard = rl.rebuild_state()["draft_guard"]
+    assert guard["phase"] == "engage_pending"
+    assert guard["unsettled"] == 1
+    assert guard["owned_draft"] is False
+
+
+def test_guard_state_survives_the_snapshot_round_trip(tmp_path):
+    """The folded record is plain data, so the rebuildable snapshot can store it."""
+    rl = RunLog(303, tmp_path)
+    _guard_requested(rl, "draft", timeline_baseline=1, original_is_draft=False)
+    _guard_settled(rl, "draft", "confirmed")
+    state = rl.materialize_snapshot()
+    assert json.loads(rl.snapshot_path.read_text(encoding="utf-8")) == state
 
 
 def test_fold_sync_push_counts_in_sync_push_count_not_push_count(tmp_path):

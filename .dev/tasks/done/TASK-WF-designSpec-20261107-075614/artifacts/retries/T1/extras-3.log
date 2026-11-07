@@ -1,0 +1,1 @@
+extras skipped for T1: the task changed only files under .dev/ (a record, a read-only scan script and base-commit logs); no lint, type-check or test command applies to them. lint=skip typecheck=skip test=skip

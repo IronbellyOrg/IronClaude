@@ -1,0 +1,6 @@
+$ make lint
+uv run ruff check .
+All checks passed!
+$ uv run pytest tests/pr_submit tests/skills -q -p no:cacheprovider
+
+======================= 3312 passed, 1 skipped in 50.63s =======================

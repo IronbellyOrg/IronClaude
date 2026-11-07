@@ -1,0 +1,3 @@
+68b9da66f0b14bac92cd6226f8ac1429a65c8d99
+A1 r1-1 F1.4 minor src/superclaude/skills/sc-pr-submit-protocol/refs/merge-guard.md:176 ac=scope n,n,n,n The ref's not_applied condition says only that the live state does not match and its row 4 omits the no-read hold; row 3 not_applied also needs the transition count to equal the run's own count and row 4 returns HOLD (read_failed) when the live read is None. Neither is false because anything else is ambiguous.
+A1 r1-1 F1.5 minor src/superclaude/skills/sc-pr-submit-protocol/refs/merge-guard.md:142 ac=scope n,n,n,n The sentence "every exit after engage reports held" conflicts with the user_override and unavailable rows of the table above it; qualify it with unless the phase is disabled or the guard is unavailable.

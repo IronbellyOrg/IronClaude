@@ -50,6 +50,8 @@ CORE_PURE_FILES = [
     PR_SUBMIT_PKG / "ci.py",
     # issue #305: the conflict core is pure (no version-control tokens)
     PR_SUBMIT_PKG / "conflicts.py",
+    # issue #375: the merge-guard core is pure (no version-control tokens)
+    PR_SUBMIT_PKG / "merge_guard.py",
 ]
 
 AUGGIE_REVIEW_CMD = REPO_ROOT / "src" / "superclaude" / "commands" / "auggie-review.md"
@@ -481,6 +483,7 @@ _RESOLUTION_SCRIPTS = (
     SKILL_DIR / "scripts" / "poll-ci-checks.sh",
     SKILL_DIR / "scripts" / "retrigger-review.sh",
     SKILL_DIR / "scripts" / "reply-resolve-thread.sh",
+    SKILL_DIR / "scripts" / "set-draft-state.sh",
 )
 
 # Every remote-URL shape `git remote get-url origin` can emit, → the expected owner/repo.

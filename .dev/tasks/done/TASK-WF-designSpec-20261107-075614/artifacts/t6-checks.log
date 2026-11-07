@@ -1,0 +1,2 @@
+$ uv run pytest tests/pr_submit/test_skill_parse.py tests/pr_submit/test_autonomy_gates.py tests/pr_submit/test_static_grep.py -q -p no:cacheprovider
+============================== 45 passed in 0.56s ==============================

@@ -1,0 +1,1 @@
+(revert domain empty: every change of attempt 3 lies under the package folder .dev/tasks/to-do/TASK-WF-designSpec-20261107-075614/, which the revert excludes; the failed attempt's files are ./artifacts/pre-build-gate.md and ./artifacts/o3-pin-scan.py in the live tree)
