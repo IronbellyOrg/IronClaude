@@ -1,0 +1,14 @@
+# sc:adversarial return contract (Mode A, --depth quick)
+# Reading note: base_variant names the document skeleton picked by score and the edge-case floor.
+# The debate winner is variant-1-original (option A, inline). The merged output carries that verdict.
+return_contract:
+  merged_output_path: ".dev/tasks/to-do/TASK-WF-writeTheP2Static-20261107-011441/artifacts/debates/D-P2-25/result/D-P2-25-merged-decision.md"
+  convergence_score: 0.714          # 10 of 14 diff points; threshold 0.80; NOT_CONVERGED at max rounds for depth quick
+  artifacts_dir: ".dev/tasks/to-do/TASK-WF-writeTheP2Static-20261107-011441/artifacts/debates/D-P2-25/result/adversarial"
+  status: "partial"                 # non-convergence documented (error-handling matrix: no_convergence -> partial)
+  base_variant: "variant-2-original"  # option B document, skeleton only; debate winner: variant-1-original (option A)
+  unresolved_conflicts: 4           # S-001, S-004, C-004, X-001 (all lean A; no advocate argued B wins them)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []        # Round 2.5 skipped at --depth quick

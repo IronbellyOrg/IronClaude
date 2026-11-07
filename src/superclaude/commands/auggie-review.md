@@ -55,6 +55,8 @@ The trigger discipline exists because deep reviews are expensive (Auggie indexin
 | `--output-dir` | `.dev/reviews/<target-slug>-<timestamp>/` | Where to write the markdown report, raw auggie JSON, and audit log |
 | `--auggie-model` | `prism-b` | Override the model auggie uses; when omitted and `AUGGIE_MODEL` is unset, uses `prism-b` (e.g., `--auggie-model <model-id>`) |
 | `--revagent` | unset: reviewer agents use their frontmatter model | Model for the INTERNAL review-agent spawns only (the `--depth deep` `auggie-reviewer` pass and any re-spawn of it); it does not change the lead session model or `--auggie-model`. Accepted: `opus`, `sonnet`, `haiku`, `fable`. These are the native Agent tool `model` aliases; a missing value or any other value (e.g. `connect`, a full model ID, a gateway alias) STOPs with an error before any work, and never falls back to the default. `--revagent` picks the request alias; which concrete model an alias resolves to is Claude Code / gateway configuration (e.g. `ANTHROPIC_DEFAULT_SONNET_MODEL`, a LiteLLM alias), and `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` overrides per-invocation models. At `--depth quick` or `standard` no internal reviewer runs, so the flag only prints a WARN |
+| `--unattended` | off | Worker mode for a coordinator; applies only as a standalone argument token. It implies `--no-post-pr` and `--no-remediation-offer`. Behaviour is in `## Unattended mode`; without it nothing changes |
+| `--report-dir` | — | With `--unattended`: the directory that holds the worker contract and the report, instead of `--output-dir`, never both |
 
 ## Behavioral Flow
 
@@ -132,6 +134,18 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 #   4. User sign-off OR refactor plan          → user runs /sc:implement <tasklist>
 #   5. /sc:reflect --mode post                 → pre-commit validation
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:auggie-review` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** Exactly one of `--output-dir <dir>` or `--report-dir <dir>`; both, or neither, is refused before any work and the refusal is printed in chat only. `--report-dir` follows the path rules of `--output-dir` and is the skill's `<output-dir>`. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome and holds the skill's Output Contract fields beside the worker fields, with `pr_review_url` empty. `report_path` is `<report-dir>/REVIEW.md`, the skill's `<output-dir>/REVIEW.md`. `artifacts` lists `audit.log` and the other files of the output directory the run wrote, and the nested contract; paths git ignores are left out (WC-4). The skill's own `status` values `success`, `partial` and `failed` map to the worker values `succeeded`, `partial` and `failed`; the skill's `status` field itself keeps its value.
+- **Person-mode flags.** `--post-pr` and `--remediation-offer` are refused before any work (contract `worker_status: failed`, the flag in `reason`).
+- **Gates.** `--unattended` implies `--no-post-pr` and `--no-remediation-offer`: nothing is posted to the PR, and the coordinator posts the summary from `REVIEW.md`; the remediation chain and its sign-off prompts never run. There is no other gate.
+- **Nested invocations.** The diff- and PR-mode `sc:impact-protocol` call receives `--unattended --output-dir <report-dir>/nested/impact-<n>/` in place of `<output-dir>/inputs/impact`, `<n>` counting from 1 and never reused, and its contract is listed in `artifacts`, also when the call failed. A nested contract is read by the nested-result rule of `~/.claude/WORKER-CONTRACT.md`.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

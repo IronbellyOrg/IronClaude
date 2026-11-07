@@ -1,0 +1,13 @@
+Grounding run state (Wave 1A)
+codegraph: index_state fresh, checked_at 2026-11-07T01:31:09Z, worktree_root /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P2, projectPath same.
+The plan and spec are Markdown; their anchors are command/skill Markdown lines and test functions. The native Read/Grep floor grounded them.
+
+Anchors re-read by the orchestrator (P2 worktree):
+- src/superclaude/commands/workflow.md:75  "- **Nested invocations.** The reflect step runs as today, without `--unattended` and without `--remediate`; in that form it has no gate."  (plan Task 17 replaces this one line)
+- src/superclaude/commands/brainstorm.md:156 "- **Research.** Under `--unattended`, research enrichment is off: ..." (plan Task 18 replaces this one line)
+- src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:189 research-light row names `Skill sc-research-protocol` "(or `/sc:research` if standalone)"; :190 research-deep row invokes `Skill tech-research`; :195 the "Under `--unattended`" paragraph.
+- src/superclaude/skills/ has no sc-research-protocol folder (only tech-research matches *research*), basis of D-P2-1.
+- src/superclaude/cli/reflect/commands.py:317 `--isolate-reviewers/--no-isolate-reviewers` (CLI flag), basis of D-P2-2.
+- src/superclaude/core/WORKER-CONTRACT.md:185 P1 commands bullet; :199-202 brief-flag rows reflect, release-split, tdd, troubleshoot ("no `--fix` (and no `--depth deep` until P2)"); no plugin copy of WORKER-CONTRACT.md exists.
+- tests/skills/test_worker_contract.py:258 P1_COMMANDS; :281 UNATTENDED_EXPECT; :379 UNATTENDED_COMMANDS; :464 _check_no_unattended_sections; :770 _artifacts_clause; :898 _check_p1_set (len 16 and set equality); :1061 test_only_brainstorm_lists_nested_commands; :1066 test_nested_check_fails_on_nested_text_without_a_nested_list (reads workflow); deferred:P2 entries at :1377, :1400, :1408, :1429 (auggie), :1890, :1898, :1906 (reflect), :2036 (task), :2044, :2052 (task-builder), :2065 (auggie command).
+- tests/unit/test_review_translation.py exists; src/superclaude/skills/tdd/refs/build-request-template.md and validation-checklists.md exist.

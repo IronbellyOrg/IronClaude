@@ -58,6 +58,8 @@ Pipeline hardening verdict: <pass | blocked | advisory | not_applicable>   (waiv
 Proceed with <sc:workflow | task-builder>?  [yes / no]
 ```
 
+Under `--unattended` this offer is never shown: it resolves as blocked, with this question in `blocked_question`.
+
 ## Decision matrix
 
 | User response | Action |

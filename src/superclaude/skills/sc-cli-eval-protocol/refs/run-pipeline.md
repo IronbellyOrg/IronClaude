@@ -56,6 +56,8 @@ grep -E --line-buffered "PASS|FAIL|SKIP|ERROR|TIMEOUT|INTERRUPT|summary.json|Tra
 Report per-eval signals as they stream and the terminal exit code. Silence is not success — if the
 job crashes, the filter must still emit something.
 
+Under `--unattended` each wait on the job is at most 240 s and is repeated until the job ends, so the session can send a heartbeat between waits (the per-eval timeout above is not a single wait).
+
 **Authoritativeness probe**: prefer `--verbose` over (or in addition to) `--json` for the run, because
 `--json` suppresses the executor warning line. The harness may run a non-production executor (e.g. a
 milestone-gated `_NullLifecycleExecutor` that emits canned PASS before the real PTY executor lands);

@@ -60,6 +60,8 @@ If the user provides only a topic name or a vague request, **do NOT proceed imme
 
 Proceed once you have at least #1 answered clearly. Items #2-4 improve quality but aren't blockers.
 
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this question is not asked: a bare topic resolves as blocked, with the template above in `blocked_question`.
+
 ---
 
 ## Tier Selection
@@ -160,6 +162,7 @@ Before creating a new task file, check if one already exists:
 2. If found, read the task file and check for unchecked `- [ ]` items
 3. If unchecked items exist → skip to Stage B (resume execution)
 4. If all items are checked → inform user that TDD is already complete, offer to update or re-run
+   Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this offer is not made: the run resolves as blocked, with the update-or-re-run question in `blocked_question`.
 5. Check for existing task folder at `.dev/tasks/to-do/TASK-TDD-*/`:
    a. If `research-notes.md` exists inside the task folder with `Status: Complete` → skip to A.5 (review sufficiency, then build task file)
    b. If `research-notes.md` exists inside the task folder with `Status: In Progress` → read it, resume A.3 scope discovery from where it left off, then continue to A.4 to update the file
@@ -385,6 +388,8 @@ These refs are loaded by the builder (not the orchestrator). The builder uses th
 
 Use the Agent tool with `subagent_type: "rf-task-builder"` and `mode: "bypassPermissions"`. Pass the full BUILD_REQUEST as the prompt.
 
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) add one line to the BUILD_REQUEST saying that the caller runs under `--unattended`, so the task builder leaves the `.dev/tasks` staging to the coordinator and skips its CLI-mode reflect gate.
+
 ### A.8: Receive & Verify the Task File
 
 The builder subagent returns the path to the created task file. Read the file and verify:
@@ -409,6 +414,7 @@ Stage B delegates execution to the `/task` skill, which provides the canonical F
 ### Delegation Protocol
 
 1. **Invoke /task** using the Skill tool with `skill: "task"` and `args` set to the task file path from Stage A (e.g., `.dev/tasks/to-do/TASK-TDD-20260309-120000/TASK-TDD-20260309-120000.md`).
+   Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) put `--unattended` after the task file path in `args`, also when resuming under A.1; the two ask-the-user points of the `task` skill then come back as a question, which this run writes as a blocked contract.
 2. **Execution transfers to /task**, which reads the task file and processes each checklist item via the F1 loop — spawning subagents as specified in B2 items and running phase-gate QA after each phase
 3. No additional execution logic is needed in this skill — all execution rules (F1 loop, F2 prohibited actions, parallel spawning, F4 modification restrictions, F5 frontmatter protocol, error handling, session resumption) are provided by `/task`
 4. **QA coverage:** The task file already contains skill-specific QA items (rf-analyst + rf-qa at gates, rf-qa-qualitative for content review). `/task` adds its own phase-gate QA on top, resulting in intentional, acceptable double QA at gate phases

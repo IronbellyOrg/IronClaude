@@ -141,6 +141,8 @@ revagent: <opus|sonnet|haiku|fable|default>
    > Skill sc:impact-protocol
    with `--diff <base> --depth 1 --output-dir <output-dir>/inputs/impact --caller sc-auggie-review-protocol` and read only `status`, `degraded`, `readiness.index_state`, `dependents[].caller` and `dependents[].file` from its `return-contract.yaml`. Put only those dependent names and files into the Auggie prompt, as context, and copy `degraded` into the audit log. The Wave 3 diff-hunk rule is unchanged: a finding citing a line outside the diff hunks is still downgraded to "context" or dropped by severity, and a dependent file never brings a finding into scope. `status: blocked|failed` counts as `graph:absent` (continue without it).
 
+   Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) the call passes `--unattended --output-dir <report-dir>/nested/impact-<n>/` in place of `--output-dir <output-dir>/inputs/impact` (`<n>` counts from 1 and is never reused), and the nested contract is listed in `artifacts`, also when the call failed.
+
 **Exit criteria**: `diff.patch` (if applicable), `files.txt`, and `metadata.json` saved under `<output-dir>/inputs/`. Chunking strategy decided. Codegraph run state recorded.
 
 ---
@@ -330,6 +332,7 @@ duration_sec: <N>
 
    - Capture the review URL from `gh pr view <PR> --json reviews -q '.reviews[-1].url'` and record it.
    - **Never** use `--approve` or `--request-changes`; this is a `--comment` review only. The human merges; the skill advises.
+   - Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this step is off: nothing is posted to the PR, `pr_review_url` stays empty, and the coordinator posts the summary from `REVIEW.md`.
 2. **Surface results to the user** in the chat:
    - Counts by severity
    - Path to `REVIEW.md`
@@ -337,6 +340,7 @@ duration_sec: <N>
 3. **Offer the remediation chain** (only if `--remediation-offer` AND `findings_count.critical + findings_count.high > 0`):
    - Read `refs/remediation-handoff.md` and use the exact prompt template there.
    - The offer must list the five phases and ask one yes/no question.
+   - Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this step is off: the offer is not made and `remediation_offered` is `false`.
 4. If the user accepts, run the same chain for every review `--depth` (see `refs/remediation-handoff.md`):
    - **Phase A**: Invoke `/sc:design <REVIEW.md path> --type architecture --format spec --output <output-dir>/remediation-spec.md`
    - **Phase B**: build `remediation-workflow-source.md` (spec copy + `## References` + any `## Review Feedback` from `remediation-review-notes.md`, list syntax flattened with every line's text kept) and invoke `Skill sc:workflow-protocol` on THAT file (not the bare spec) with `--depth standard --handoff none` (never `--handoff implement`, never `--output`), yielding the tasklist package `.dev/tasks/to-do/<id>/<id>.md`

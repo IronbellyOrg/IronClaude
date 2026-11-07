@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/tasks/to-do/TASK-WF-writeTheP2Static-20261107-011441/artifacts/debates/D-P2-22/result/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/tasks/to-do/TASK-WF-writeTheP2Static-20261107-011441/artifacts/debates/D-P2-22/result/adversarial/"
+  status: "success"
+  base_variant: "option A (variant 1, original)"
+  unresolved_conflicts: 0
+  fallback_mode: true   # merge applied by the orchestrator, no merge-executor agent; dual-pass rubric not run (see base-selection.md)
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped at depth quick

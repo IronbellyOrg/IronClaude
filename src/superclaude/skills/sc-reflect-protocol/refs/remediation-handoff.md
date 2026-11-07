@@ -72,6 +72,7 @@ The route is keyed on the `--depth` the user **requested**, never on the tier re
 
    **Flatten list syntax.** Anything copied verbatim into this source (the REPORT.md summary, register rows, test names) must first be flattened: rewrite every numbered line (`1.`, `1)`) and every checkbox line (`- [ ]`, `- [x]`, `* [ ]`) as a plain `- ` bullet or a prose sentence, keeping its full text (never delete a line). A single leftover list line makes the `sc:workflow` gate fail with `E-GATE` (or makes `sc:implement` enumerate it as a task).
 3. Invoke `Skill sc:workflow-protocol` with `<output-dir>/remediation-source.md --depth standard --handoff none`. Never pass `--handoff implement`: that auto-invokes `sc:implement`, which edits product code, and the execution gate (Phase C) is always user-initiated. Do not pass `--output` (retired in `sc:workflow`; it STOPs `E-LEGACY`). The package is always created at `.dev/tasks/to-do/<slug>/`.
+   Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) pass `--unattended --report-dir <report-dir>/nested/workflow-<n>/ --handoff none` (`<n>` counts from 1 and is never reused), list the nested contract in `artifacts`, also when the call failed, and read the plan path from that nested worker contract's `report_path` in step 4 instead of `<pkg>/return-contract.yaml`.
 4. Read `<pkg>/return-contract.yaml` (contract 1.1). `status: success` → resolve the absolute tasklist path (`<pkg>` + `plan_path`, which is package-relative `./<slug>.md`), record it as `plan_path` in `audit.log` and emit it as the `remediation_plan_path` contract field (§9.1, 1.8.0). Any other status (for example `E-GATE`) → surface it, record `plan_path=null`, do not retry automatically.
 5. `<pkg>/source.md` is the byte-exact snapshot of `remediation-source.md`, so the `## Reflect Verdict State` section is already carried there. Verify the tasklist `<slug>.md` also carries the `needs_human_decision` / `regression_count` lines; if missing, append the section to the tasklist verbatim, keeping it free of checkbox and numbered-list lines. (`sc:workflow` has no such field of its own, so reflect owns this carry.)
 
@@ -243,6 +244,8 @@ which is the nested-gate suppressor, not the headless signal), `--remediate` MUS
 author** the corrective artifact **without presenting the yes/no prompt** — but ONLY for **AUTO-FIXABLE**
 registers (solely §10.3 Drift and/or §10.2 Necessary). The authored path is then emitted as
 `remediation_plan_path` (plan route) or `remediation_task_path` (MDTM route) (§9.1) for the wrapper to auto-run.
+
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this headless rule is selected whatever the terminal state, so the yes/no prompt is never shown; with `--depth deep` the MDTM route is skipped and recorded, because `task-builder` is not a command.
 
 **Headless plan route skips Phases B and C.** There is no user to gate on, and the wrapper's own re-audit after the apply (same `--base`, bounded by `--max-fix-iterations`) is the verification. Phase A (build the plan) still runs in full, including the flatten rule and the `## Reflect Verdict State` carry. The built-in advisory pre-review still runs inside `sc:workflow` (extra cost) but the wrapper does not gate on its findings.
 

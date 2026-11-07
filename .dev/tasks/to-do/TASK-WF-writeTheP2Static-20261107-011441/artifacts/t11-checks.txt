@@ -1,0 +1,44 @@
+$ pytest tests/skills/test_worker_contract.py tests/skills/test_tier2_tavily_consistency.py tests/troubleshoot -q -p no:cacheprovider
+tests/troubleshoot/test_threshold_bracket.py ...                         [ 86%]
+tests/troubleshoot/test_timestamp_tolerance.py ...                       [ 86%]
+tests/troubleshoot/test_validator_assertions.py ........................ [ 89%]
+........................................................................ [ 96%]
+..........................                                               [ 99%]
+tests/troubleshoot/test_verdict_source.py ...                            [100%]
+
+============================= 919 passed in 16.60s =============================
+$ Check SCAN (pass: prints nothing)
+(end SCAN)
+$ Check ADDITIVE (pass: prints nothing per file)
+-- troubleshoot
+(end ADDITIVE)
+$ ruff check / format --check on tests/skills/test_worker_contract.py
+All checks passed!
+ruff-check rc=0
+1 file already formatted
+ruff-format rc=0
+$ git status --short -- src tests plugins
+ M plugins/superclaude/commands/recommend.md
+ M plugins/superclaude/skills/sc-recommend/SKILL.md
+ M src/superclaude/commands/auggie-review.md
+ M src/superclaude/commands/cleanup.md
+ M src/superclaude/commands/cli-portify.md
+ M src/superclaude/commands/improve.md
+ M src/superclaude/commands/recommend.md
+ M src/superclaude/commands/release-split.md
+ M src/superclaude/commands/research.md
+ M src/superclaude/commands/review-translation.md
+ M src/superclaude/commands/spec-panel.md
+ M src/superclaude/commands/troubleshoot.md
+ M src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+ M src/superclaude/skills/sc-auggie-review-protocol/refs/remediation-handoff.md
+ M src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
+ M src/superclaude/skills/sc-recommend/SKILL.md
+ M src/superclaude/skills/sc-release-split-protocol/SKILL.md
+ M src/superclaude/skills/sc-release-split-protocol/refs/adversarial-integration.md
+ M src/superclaude/skills/sc-review-translation-protocol/SKILL.md
+ M src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
+ M src/superclaude/skills/sc-troubleshoot-protocol/refs/diagnosability-audit.md
+ M src/superclaude/skills/sc-troubleshoot-protocol/refs/remediation-handoff.md
+ M tests/skills/test_sc_recommend_routing_contract.py
+ M tests/skills/test_worker_contract.py

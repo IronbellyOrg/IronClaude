@@ -1,0 +1,10 @@
+# D-P2-25, option A (recommended): release-split Part 3 writes the specs inline under --unattended
+
+`src/superclaude/skills/sc-release-split-protocol/SKILL.md` Part 3 can invoke `/sc:design`, `/sc:workflow` or `/sc:tasklist` (see the Part 3 text near lines 262-282 and the Error Handling table). Under `--unattended` the section and the skill make Part 3 produce the specs inline with the Write tool (the skill's own Error Handling fallback) and make no nested command call. So release-split's nested list stays brainstorm and adversarial (`EXPECTED_NESTING`). `src/superclaude/commands/release-split.md` Unattended section carries the matching sentence.
+
+Claimed strengths: no unplanned nested call; the three callees (design is dialogue-heavy; workflow and tasklist write plan packages and stage files) are avoided; one sentence; uses an existing fallback.
+Claimed weakness: the specs are authored without those commands' structure and checks; quality of Part 3 output under a worker may be lower.
+
+## How to judge (the same for every decision)
+
+Read the cited files in the working tree (they hold uncommitted P2 edits) before arguing. Judge each option on: (1) is the command or skill text true and unambiguous when a worker runs it under `--unattended`; (2) does it respect the spec: `.dev/orca-command-refactor/specs/orca-worker-contract-spec.md` section 2.1 (nested propagation: a step whose callee does not accept `--unattended` is made gate-free or skipped and recorded), WC-4 (report and contract), WC-9 (no commit, push or staging by a worker; the coordinator owns outward actions) and WC-11 (parallel-safe writes), and SA-1/SA-4 (a standalone run behaves as today; edits to command files are additive unless a named defect fix); (3) size of the change and risk to existing pinned tests (`tests/skills/test_worker_contract.py`, the Check ADDITIVE rule, the write-verb classification table); (4) what a coordinator and the owner gain or lose. End with one recommended option and the one-sentence reason.

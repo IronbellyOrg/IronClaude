@@ -46,6 +46,8 @@ Key flags: `--strategy`, `--compliance`, `--verify`, `--skip-compliance`, `--for
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--no-escalation` | `false` | Bypass TFEP (Test Failure Escalation Protocol) triggers. When set, agents may fix test failures directly without structured diagnostic escalation analysis. **WARNING**: Using `--no-escalation` voids TFEP protection against ad-hoc fixes. |
+| `--unattended` | `false` | Worker mode for a coordinator; applies only as a standalone argument token. Behaviour is in `## Unattended mode`; without it nothing changes. |
+| `--report-dir` | (none) | With `--unattended`: the directory that holds `return-contract.yaml` and `task-report.md`. |
 
 ## Classification (MANDATORY FIRST OUTPUT)
 
@@ -159,6 +161,18 @@ RATIONALE: Typical feature addition, moderate scope
 > Skill sc:task-protocol
 
 Do NOT proceed with protocol execution using only this command file. The full behavioral specification — classification rubric, tier logic, TFEP escalation protocol, sub-agent delegation, MCP compliance enforcement — is defined in the protocol skill at `~/.claude/skills/sc-task-protocol/SKILL.md`.
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:task` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only. Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome, and on every tier, not only on TFEP. `report_path` is `<report-dir>/task-report.md` for every run, a short summary the run writes (tier, verification result, files changed). `artifacts` lists every changed file, `tfep-incident-report.md` when TFEP ran, and the nested contracts; paths git ignores are left out (WC-4).
+- **Person-mode flags.** None is refused.
+- **Gates.** Under `--unattended` confidence below 0.70 resolves as blocked, with the `--compliance [tier]` override question in `blocked_question`. The TFEP "present to user" points resolve as blocked, with the review question in `blocked_question`, and every FULL STOP resolves as blocked, with the report to the user in `blocked_question`. The TFEP report `tfep-incident-report.md` is written and listed in `artifacts` and is not committed. There is no other gate.
+- **Nested invocations.** The STRICT `sc:impact-protocol` call receives `--unattended --output-dir <report-dir>/nested/impact-<n>/` in place of `.dev/impact/task-<slug>`, and the TFEP `/sc:troubleshoot` call receives `--unattended --output-dir <report-dir>/nested/troubleshoot-<n>/` in place of `{output_dir}`, each `<n>` counting from 1 per nested command and never reused (a retry or an escalated re-invocation takes the next number); each contract is listed in `artifacts`, also when the call failed. A nested contract is read by the nested-result rule of `~/.claude/WORKER-CONTRACT.md`.
+- **Outward actions.** It pushes, commits and stages nothing: EXEMPT `commit` and `push` are refused (contract `worker_status: failed`, the operation in `reason`).
 
 ## Boundaries
 

@@ -1541,6 +1541,8 @@ Rules:
 - Input: `"Execute TASKLIST_ROOT/validation/PatchChecklist.md"` (full resolved path)
 - Compliance: `--compliance strict`
 
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) every Stage 9 call passes `--compliance strict --unattended --report-dir <report-dir>/nested/task-<n>/` (`<n>` counts every call from 1 and is never reused), and the nested contract is listed in `artifacts`, also when the call failed.
+
 The `sc:task` skill handles:
 
 - Reading the checklist
@@ -1554,7 +1556,11 @@ The orchestrator does NOT apply patches itself. Separation of concerns: the task
 
 **Stage gate**: `sc:task` reports completion. All checklist items addressed.
 
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) the gate reads completion from each nested `sc:task` worker contract by the nested-result rule: `blocked` stops this run as `blocked` with the nested question, and `failed` or a missing contract takes this stage's own failure path.
+
 **P2 loop-back target:** Stage 9 is the loop-back target re-entered by the P2 bounded patch loop (see the Stage-10 gate). On a loop-back, the orchestrator re-delegates `sc:task --compliance strict` against a **residual `PatchChecklist.md` scoped to `F_k`** — the patchable failing set computed at the end of the prior Stage-10 pass — and Stage 9 still delegates all patching to `sc:task` (the orchestrator never patches itself).
+
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) a loop-back re-delegation passes the same `--compliance strict --unattended --report-dir <report-dir>/nested/task-<n>/` arguments, with the next `<n>`.
 
 ### Stage 10: Spot-Check Verification
 
@@ -1606,6 +1612,7 @@ Let `k` be the pass index (`k = 1` is the initial Stage 7→10 pass). At the end
    - **Hard-cap:** if `k+1 > 2` (i.e. one re-patch pass already ran), STOP — the cap is 2 TOTAL passes.
    - **Proceed (loop):** otherwise, if `F_k` is non-empty AND `|F_k|` strictly shrank AND no regression AND `k < 2`, loop back to **Stage 9** — re-delegate `sc:task --compliance strict` against a **residual PatchChecklist scoped to `F_k`** — then re-run Stage 10.
 3. On any STOP outcome (clean: `F_k` empty | capped at `k=2` | monotonicity/regression halt), finalize `ValidationReport.md`. High or Medium (blocking) findings that remain `UNRESOLVED` at termination HALT the skill: escalate them to the user as the open blocking findings in `ValidationReport.md` (the bundle does not ship as clean); Low findings stay as notes. The P2 loop keeps its OWN independent `F_n` history (never collapsed with any other counter).
+   Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this HALT resolves as blocked: the open blocking findings go in `blocked_question` and the run ends as `blocked`.
 
 ---
 
@@ -1628,7 +1635,11 @@ After Stage 10 (the final roadmap re-verification) completes, fan out one `/sc:r
   --output TASKLIST_ROOT/validation/reflect-pre/phase-<P>/
 ```
 
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) each call also passes `--unattended` and uses `--output <report-dir>/nested/reflect-<n>/` (`<n>` in phase order from 1, never reused) in place of `TASKLIST_ROOT/validation/reflect-pre/phase-<P>/`, so the reflect headless rule applies; `validation/ValidationReport.md` cites those directories, and each nested contract is listed in `artifacts`, also when the call failed. Without `--unattended` this stage is unchanged.
+
 **Handle each per-phase verdict (non-blocking).** PASS → record `reflect_pre: PASS (depth=<d>, coverage=<pct>)` in the index "Pre-Reflect Sign-off" column. PARTIAL/FAIL → record the verdict + link the reflect `REPORT.md`; the bundle **still ships** (audit-first). Because `--remediate` is passed, reflect *offers* a Tier-3 `task-builder` remediation but NEVER auto-mutates the phase file; any `needs_human_decision` item in that remediation HALTs (per `feedback_human_decision_items_must_halt`). Write a bundle-level `reflect_pre_summary: {pass: x, partial: y, fail: z}` to the index metadata.
+
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) a `needs_human_decision` item in that remediation resolves as blocked: the item goes in `blocked_question` and the run ends as `blocked`.
 
 **Skip when disabled.** If `--no-reflect` is set (or `--dry-run`), skip this stage entirely (under `--dry-run`, print "would run N pre-reflects + template N post-reflect tasks" and run neither, per `feedback_dryrun_skips_subskills`).
 

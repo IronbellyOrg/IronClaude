@@ -1,0 +1,50 @@
+$ pytest tests/skills/test_worker_contract.py tests/skills/test_review_severity_rule.py tests/core/test_how_we_work_routing_table.py tests/unit/test_cli_install.py -q -p no:cacheprovider
+tests/skills/test_review_severity_rule.py .............................. [ 73%]
+................................                                         [ 77%]
+tests/core/test_how_we_work_routing_table.py ........................... [ 81%]
+....................................................                     [ 87%]
+tests/unit/test_cli_install.py ......................................... [ 92%]
+.......................................................                  [100%]
+
+============================= 779 passed in 5.05s ==============================
+$ Check SCAN (pass: prints nothing)
+(end SCAN)
+$ Check ADDITIVE (pass: prints nothing per file)
+-- cli-eval
+(end ADDITIVE)
+$ ruff check / format --check on tests/skills/test_worker_contract.py
+All checks passed!
+ruff-check rc=0
+1 file already formatted
+ruff-format rc=0
+$ git status --short -- src tests plugins
+ M plugins/superclaude/commands/recommend.md
+ M plugins/superclaude/skills/sc-recommend/SKILL.md
+ M src/superclaude/commands/auggie-review.md
+ M src/superclaude/commands/cleanup.md
+ M src/superclaude/commands/cli-eval.md
+ M src/superclaude/commands/cli-portify.md
+ M src/superclaude/commands/improve.md
+ M src/superclaude/commands/recommend.md
+ M src/superclaude/commands/release-split.md
+ M src/superclaude/commands/research.md
+ M src/superclaude/commands/review-translation.md
+ M src/superclaude/commands/spec-panel.md
+ M src/superclaude/commands/task.md
+ M src/superclaude/commands/troubleshoot.md
+ M src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+ M src/superclaude/skills/sc-auggie-review-protocol/refs/remediation-handoff.md
+ M src/superclaude/skills/sc-cli-eval-protocol/SKILL.md
+ M src/superclaude/skills/sc-cli-eval-protocol/refs/integration-map.md
+ M src/superclaude/skills/sc-cli-eval-protocol/refs/run-pipeline.md
+ M src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
+ M src/superclaude/skills/sc-recommend/SKILL.md
+ M src/superclaude/skills/sc-release-split-protocol/SKILL.md
+ M src/superclaude/skills/sc-release-split-protocol/refs/adversarial-integration.md
+ M src/superclaude/skills/sc-review-translation-protocol/SKILL.md
+ M src/superclaude/skills/sc-task-protocol/SKILL.md
+ M src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
+ M src/superclaude/skills/sc-troubleshoot-protocol/refs/diagnosability-audit.md
+ M src/superclaude/skills/sc-troubleshoot-protocol/refs/remediation-handoff.md
+ M tests/skills/test_sc_recommend_routing_contract.py
+ M tests/skills/test_worker_contract.py

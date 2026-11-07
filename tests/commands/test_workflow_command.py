@@ -240,6 +240,14 @@ def test_tasklist_referral_uses_positional_roadmap():
     assert "<id>.md" in do_not and "workflow plan" in do_not
 
 
+def test_wave_4_names_the_nested_reflect_directory_under_unattended():
+    skill = (_SKILL / "SKILL.md").read_text(encoding="utf-8")
+    wave4 = skill.split("## Wave 4 — Reflect", 1)[1].split("\n## ", 1)[0]
+    assert any(
+        "nested/reflect-" in ln and "--unattended" in ln for ln in wave4.splitlines()
+    )
+
+
 def test_final_reflect_pre_precedes_contract_and_handoff():
     skill = (_SKILL / "SKILL.md").read_text(encoding="utf-8")
     assert skill.index("## Wave 3 — Gate") < skill.index("## Wave 4 — Reflect")

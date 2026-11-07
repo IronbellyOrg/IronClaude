@@ -1,0 +1,4 @@
+3bdba3a8d32771fe9567b7e8c94c5e410584c782 tree=2e487f01633de7aedb0805bda812b6e5a1c94428
+AC marks (reviewer, verbatim): T3.AC1 met src/superclaude/commands/improve.md:97; T3.AC2 met tests/skills/test_worker_contract.py:406-416; T3.AC3 met src/superclaude/commands/improve.md:97-107.
+F1.1 sev=blocking trigger=B4 ac=scope at=tests/skills/test_worker_contract.py:406-416 anchor="each command task adds them to that command's `UNATTENDED_EXPECT` `phrases`" chk=n,n,n,y family=gate-sentence-pins fix=add the phrases `every item under "Approval Required" is listed as not applied` and ``--force` is refused` to the improve entry's phrases covers="improve: the cleanup sentence, and "`--force` is refused" => `refused` != `honoured`" first=A1 origin=new: The improve entry lists only the task's five phrases plus the flag tokens. Neither gate sentence is pinned, so a section reading "--force is honoured" would still pass.
+F1.1 resolved

@@ -1,0 +1,38 @@
+# UC-1 coverage matrix (Step 1B.0). Spec = source.md (19 lines, no requirement IDs) -> Pass 1 parsed 0 rows.
+# Pass 2 inferred rows, each with a verbatim quote and a source.md line. Plan = <id>.md (line refs to the plan).
+parsed_count: 0
+inferred_count: 30              # INF-029 and INF-030 added at Wave 5 from the qa reviewer's recall backstop (R2-F5)
+coverage_pct: null              # parsed-only denominator is 0
+coverage_pct_union: 1.0         # 30/30 matched; INF-006 matched with a partial-coverage finding (merged M-09)
+coverage_degraded: parsed-sparse
+rows:
+  - {id: INF-001, source: inferred, cite: "source.md:1", quote: "Static plan only: the edits and the checks that need no live Orca run.", match: "plan:21, Task 21", result: matched}
+  - {id: INF-002, source: inferred, cite: "source.md:1", quote: "per .dev/orca-command-refactor/specs/orca-worker-contract-spec.md section 6 (row P2), section 7.1 and 7.3 (the P2 checks) and the section 3 rows of the P2 commands", match: "plan:19, Tasks 2-16", result: matched}
+  - {id: INF-003, source: inferred, cite: "source.md:1", quote: "applying .dev/orca-command-refactor/decisions/APPROVED.md", match: "plan:19", result: matched}
+  - {id: INF-004, source: inferred, cite: "source.md:3", quote: "The P1 static plan is the model for this plan's structure and conventions", match: "plan:25-43, Task 1", result: matched}
+  - {id: INF-005, source: inferred, cite: "source.md:6", quote: "P1 verdict PASS (lc09 and lc10 reclassified PASS by the owner on 2026-11-05). P2 may start.", match: "plan:19", result: matched}
+  - {id: INF-006, source: inferred, cite: "source.md:7", quote: "Each P2 command's `artifacts` clause lists only files the run wrote, names the ignored files it leaves out and points at WC-4 for the reason (\"left out (WC-4)\")", match: "plan:19, plan:25 (skeleton), Tasks 2,3,4,13,14", result: matched, note: "pinned by a test only for 5 of 15 commands; the 'one short local sentence' clause has no task (T1-F1)"}
+  - {id: INF-007, source: inferred, cite: "source.md:8", quote: "This static plan does not depend on it; list it as an open owner question in the plan.", match: "plan:20, Task 21", result: matched}
+  - {id: INF-008, source: inferred, cite: "source.md:10", quote: "each default-on gate resolves per its section 3 row under `--unattended`", match: "Tasks 2-16", result: matched}
+  - {id: INF-009, source: inferred, cite: "source.md:10", quote: "WC-10 wait splitting for cli-eval (eval waits of at most 240 s)", match: "Task 13", result: matched}
+  - {id: INF-010, source: inferred, cite: "source.md:10", quote: "Commands gaining `--unattended` and a `## Unattended mode` section in P2 (15)", match: "Tasks 2-16, Task 20", result: matched}
+  - {id: INF-011, source: inferred, cite: "source.md:10", quote: "workflow (its reflect step passes `--unattended` and a nested report directory `<report-dir>/nested/reflect-<n>/`)", match: "Task 17", result: matched}
+  - {id: INF-012, source: inferred, cite: "source.md:10", quote: "brainstorm (its automatic research enrichment passes `--unattended` and a nested report directory instead of being off)", match: "Task 18", result: matched}
+  - {id: INF-013, source: inferred, cite: "source.md:10", quote: "Where a command has an outward default (auggie-review posting, task's `commit`/`push` and committed TFEP report), P2 only turns it off under `--unattended` (WC-9).", match: "Tasks 10, 12", result: matched}
+  - {id: INF-014, source: inferred, cite: "source.md:10", quote: "P2 touches no safety rule and adds no outward capability.", match: "plan:23", result: matched}
+  - {id: INF-015, source: inferred, cite: "source.md:10", quote: "AC-2.1's deletions check on src/superclaude/skills/sc-reflect-protocol/refs/remediation-handoff.md must print nothing (SA-6).", match: "Task 15, Task 21", result: matched}
+  - {id: INF-016, source: inferred, cite: "source.md:12", quote: "Decide, with the spec's nested-propagation rule (section 2.1), what each arm does under `--unattended` ... and record it as a plan decision for owner approval.", match: "plan D-P2-1, Task 18", result: matched}
+  - {id: INF-017, source: inferred, cite: "source.md:14", quote: "pin each rule with an exact phrase, never a single token that a clause can contain while saying the opposite", match: "plan:27", result: matched}
+  - {id: INF-018, source: inferred, cite: "source.md:14", quote: "a \"phrase present\" check that replaces old wording also asserts the old wording is absent, scoped to the line that carries the rule", match: "plan:27, Tasks 17, 18", result: matched}
+  - {id: INF-019, source: inferred, cite: "source.md:16", quote: "the exact files to edit ... acceptance criteria that are observable (a command, a grep, a test), and the tests to add or extend", match: "Tasks 1-21", result: matched}
+  - {id: INF-020, source: inferred, cite: "source.md:16", quote: "never hardcode src/superclaude/ paths inside installed primitives; edit the src/superclaude/ sources, byte-copy the pinned plugin mirrors, run make sync-dev", match: "plan:23-24, Tasks 6, 17, 21", result: matched}
+  - {id: INF-021, source: inferred, cite: "source.md:16", quote: "extend UNATTENDED_EXPECT and the commands-with-a-section list to the P2 commands", match: "Task 1, Tasks 2-18", result: matched}
+  - {id: INF-022, source: inferred, cite: "source.md:16", quote: "plus one assertion per gate as AC-2.1 lists", match: "Task 20 (P2_GATES)", result: matched}
+  - {id: INF-023, source: inferred, cite: "source.md:16", quote: "and the nested-invocation assertions for workflow and brainstorm", match: "Tasks 17, 18, 20", result: matched}
+  - {id: INF-024, source: inferred, cite: "source.md:16", quote: "Include the static checks of section 7.1 and 7.3 that apply to P2 (AC-2.1, AC-C1 to AC-C6)", match: "Task 21", result: matched}
+  - {id: INF-025, source: inferred, cite: "source.md:16", quote: "make lint, the ruff format check with the pinned ruff (`uv run --extra dev ruff`), make verify-sync", match: "plan:43, Task 21", result: matched}
+  - {id: INF-026, source: inferred, cite: "source.md:16", quote: "the pre-existing tests that read the edited files", match: "plan:44, Task 21", result: matched}
+  - {id: INF-027, source: inferred, cite: "source.md:16", quote: "a static report that states each result and the exact list of paths for the owner-approved commit", match: "Task 21", result: matched}
+  - {id: INF-028, source: inferred, cite: "source.md:18", quote: "Do not execute the plan: no /sc:implement, no commit, no push, no superclaude install, no live Orca run. Stage nothing under .claude/.", match: "plan:22", result: matched}
+  - {id: INF-029, source: inferred, cite: "source.md:14", quote: "when a test reads a clause with `_artifacts_clause`, the text the test needs sits after the first backticked `artifacts` on that line", match: "plan:27", result: matched, note: "added at Wave 5 (R2-F5); no task-level AC applies it to the P2 sections (see merged M-09, M-17)"}
+  - {id: INF-030, source: inferred, cite: "source.md:14", quote: "each check must fail on the pre-change text", match: "plan:27, Tasks 2, 17, 18, 19 ACs", result: matched, note: "added at Wave 5 (R2-F5)"}

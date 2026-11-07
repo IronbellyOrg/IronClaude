@@ -1,0 +1,4 @@
+0403d1f44280976c2cede916e71d0c23a4d6ab3e tree=43f9cb23462d8437d09c693bbe8225d92bc704aa
+AC marks (reviewer, verbatim): T14.AC1 met src/superclaude/commands/tdd.md:160 and task/SKILL.md:53, task-builder/SKILL.md:410; T14.AC2 met tests/skills/test_worker_contract.py:550 (1132 passed); T14.AC3 met (ADDITIVE and SCAN print nothing).
+F1.1 sev=blocking trigger=B2 ac=scope at=src/superclaude/commands/tdd.md:168 anchor="src/superclaude/skills/tdd/SKILL.md:389" chk=n,y,n,n family=builder-unattended-handoff fix=add one --unattended sentence at the Spawning the builder step of tdd/SKILL.md telling the orchestrator to state in the BUILD_REQUEST that the caller runs under --unattended covers="when the build request says the caller runs under `--unattended`" first=A1 origin=new: tdd.md:168 says the task builder is told the caller is unattended, but no step of the tdd skill tells it, so the builder-side paragraph (task-builder/SKILL.md:410) never fires.
+F1.1 resolved

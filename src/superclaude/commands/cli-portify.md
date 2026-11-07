@@ -33,6 +33,9 @@ Both `@file` syntax and explicit file paths are supported for `--workflow`.
 | `--name` | No | Derived from workflow name | CLI subcommand name (kebab-case). |
 | `--output` | No | `src/superclaude/cli/<derived-name>/` | Output directory for the generated CLI module. |
 | `--dry-run` | No | false | Execute Phases 0-2 only — emit Phase 0-2 contracts only. No spec synthesis (Phase 3) or panel review (Phase 4) artifacts are produced. |
+| `--resume <contract>` | No | -- | With `--unattended`: continue from the `resume_phase` and `resume_substep` of that prior return contract (see `## Unattended mode`). |
+| `--unattended` | No | false | Worker mode for a coordinator; applies only as a standalone argument token. Behaviour is in `## Unattended mode`; without it nothing changes. |
+| `--report-dir` | No | -- | With `--unattended`: the directory that holds `return-contract.yaml` (`--output` names the generated package, not the report). |
 
 ### Name Derivation
 
@@ -86,6 +89,7 @@ Pass the following context:
 - CLI name: resolved name (derived or from --name)
 - Output directory: resolved output path
 - Dry run: boolean flag value
+- Under `--unattended`: that flag, the report directory, and the `--resume` contract path when given
 
 Do NOT attempt to execute portification using only this command file.
 The full portification protocol is in the protocol skill.
@@ -105,6 +109,18 @@ The full portification protocol is in the protocol skill.
 # Full invocation
 /sc:cli-portify --workflow src/superclaude/skills/sc-tasklist-protocol/ --name tasklist --output src/superclaude/cli/tasklist/
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:cli-portify` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only, because `--output` names the generated package directory and a contract must not ship with the generated code. Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. It is the skill's return contract (the `contract_version: "2.0"` fields) with the worker fields beside them, and the skill's `status` maps `success` to `succeeded`, `partial` to `partial`, `failed` to `failed` and `dry_run` to `succeeded`. `report_path` is the contract's `spec_file`, or the artifact awaiting review when the run is blocked. `artifacts` lists the phase artifacts written in the run's working directory (`portify-analysis.md`, `portify-spec.md`, `portify-prompts.md` when written, `portify-release-spec.md`, `panel-report.md` when produced); paths git ignores are left out (WC-4).
+- **Person-mode flags.** None is refused. The `user_rejected` failure type is never produced under `--unattended`.
+- **Gates.** Under `--unattended` each of the three approval gates resolves as blocked, with the artifact to review named in `blocked_question` and `artifacts`: before Phase 2 `portify-analysis.md`; before Phase 3 `portify-spec.md` (and `portify-prompts.md` when written); before delivery `portify-release-spec.md`. `--resume <contract>` reads `resume_phase` and `resume_substep` from that contract, and resuming past a gate counts as the caller's approval of that gate's artifact. An ESCALATED convergence resolves as blocked, with the remaining CRITICAL findings in `blocked_question`. The run needs an IronClaude checkout (the release-spec template must exist); outside one it is `failed` with that reason. There is no other gate.
+- **Nested invocations.** None; the brainstorm and spec-panel passes are embedded behaviour of the skill, not calls.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

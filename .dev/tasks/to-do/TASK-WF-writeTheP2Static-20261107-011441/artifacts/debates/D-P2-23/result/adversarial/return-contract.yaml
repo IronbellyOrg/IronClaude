@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/tasks/to-do/TASK-WF-writeTheP2Static-20261107-011441/artifacts/debates/D-P2-23/result/merged-decision-D-P2-23.md"
+  convergence_score: 0.833
+  artifacts_dir: ".dev/tasks/to-do/TASK-WF-writeTheP2Static-20261107-011441/artifacts/debates/D-P2-23/result/adversarial/"
+  status: "success"            # converged (83.3% >= 80%), post-merge validation passed; 2 non-blocking unresolved points
+  base_variant: "variant-1 (option A: skip the whole CLI-mode reflect gate under --unattended)"
+  unresolved_conflicts: 2      # C-003 (Medium), C-006 (Low); neither affects the base choice
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped at --depth quick

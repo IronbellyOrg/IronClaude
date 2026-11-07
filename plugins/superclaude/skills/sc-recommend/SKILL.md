@@ -383,6 +383,8 @@ R3 enforces: **invoke, don't reimplement**. Duplicating a target's protocol inli
 | `guide_status` | string | `matched` (a routing row decided the answer), `no_match`, `absent` (guide not found), `not_applicable` (`--plugin` mode) |
 | `routing_row_id` | string | The matched row's `id`; empty unless `guide_status` is `matched` |
 
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`; the command's `## Unattended mode` section is the home of this paragraph): the one clarifying question is not asked at any of its sites (Step 0, where it says to ask one clarifying question and stop; the hot-path rule and the Phase 2 rule that a missing required input needs clarification; the rule that uncertain ownership of a custom override needs clarification; the Phase 2 rule that a conflict with the authority ceiling stops for clarification; and Graceful degradation, where the request is too vague); the run returns `status: clarification_needed`, which the worker contract records as `blocked`, with the question in `blocked_question`, and the handoff envelope is written to `<report-dir>/recommendation.md` and still printed. The writes under `.claude/cache/` (lookup cache, plugin cache, telemetry) are skipped and reads are unchanged, and `--eval` is refused before any work.
+
 ## Boundaries
 
 **Will:**

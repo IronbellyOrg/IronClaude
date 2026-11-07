@@ -1,0 +1,15 @@
+Resolved 48 packages in 1ms
+Installed 12 packages in 30ms
+ + ast-serialize==0.13.1
+ + coverage==7.17.2
+ + librt==0.16.0
+ + mypy==2.4.1
+ + mypy-extensions==1.2.0
+ + numpy==2.4.6
+ + pathspec==1.1.1
+ + py-cpuinfo2==10.1.1
+ + pytest-benchmark==5.3.1
+ + pytest-cov==7.1.0
+ + ruff==0.15.20
+ + scipy==1.17.1
+rc=0

@@ -59,6 +59,14 @@ Or delegate to the `technical-writer` agent for the inventory-table edits. Targe
 Task the `evidence-validator` agent over the doc edits to confirm every `file:line` cite resolves and
 no unfounded claim slipped in. Read-only; drops/【flags unfounded items.
 
+## Arguments under `--unattended`
+
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) the three calls above gain these arguments. `<n>` counts from 1 per nested command and is never reused (a retry takes the next number), and each nested contract is listed in `artifacts`, also when the call failed:
+
+- `/sc:spec-panel`: `--unattended --report-dir <report-dir>/nested/spec-panel-<n>/`, run as a command.
+- `Skill sc:adversarial-protocol`: `--unattended --output <report-dir>/nested/adversarial-<n>/`.
+- `/sc:document`: `--unattended --report-dir <report-dir>/nested/document-<n>/` and an explicit `--output`, run as a command; the `technical-writer` agent alternative is skipped and recorded.
+
 ## Notes on nesting (important when testing in a subagent)
 
 `/sc:spec-panel` and `/sc:adversarial` themselves fan out to sub-agents. An Agent-tool subagent

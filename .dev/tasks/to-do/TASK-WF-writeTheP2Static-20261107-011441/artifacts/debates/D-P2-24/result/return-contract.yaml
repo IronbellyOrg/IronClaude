@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: ".dev/tasks/to-do/TASK-WF-writeTheP2Static-20261107-011441/artifacts/debates/D-P2-24/result/merged-decision.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/tasks/to-do/TASK-WF-writeTheP2Static-20261107-011441/artifacts/debates/D-P2-24/result/adversarial/"
+  status: "success"
+  base_variant: "option-a-recommended (Variant 1, original)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes:
+    - "depth quick: Round 2, Round 2.5 (invariant probe) and Round 3 skipped by design"
+    - "scoring done by the orchestrator, not separate scoring agents"
+    - "Variant B advocate conceded most points; convergence of 100% is partly an artifact of that"

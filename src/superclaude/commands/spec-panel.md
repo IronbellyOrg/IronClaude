@@ -20,6 +20,7 @@ personas: [technical-writer, system-architect, quality-engineer]
 
 ```text
 /sc:spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--experts "name1,name2"] [--focus area1,area2,...] [--iterations N] [--format standard|structured|detailed] [--re-review <prior-findings-file> --baseline <saved-copy>]
+/sc:spec-panel [specification_content|@file] [--target-release <release>] [--output <file>] [--unattended] [--report-dir <dir>] [--improve]
 ```
 
 Focus areas (comma-separated, one or more): `requirements`, `architecture`, `testing`, `compliance`, `correctness`
@@ -33,6 +34,7 @@ Focus areas (comma-separated, one or more): `requirements`, `architecture`, `tes
 5. **Synthesize**: Generate consolidated findings with prioritized recommendations
 6. **Improve**: Create enhanced specification incorporating expert feedback and best practices
 6a. **TDD Input Detection** (conditional — TDD input detected): If the input document is a TDD (detected by 4-signal weighted scoring with threshold ≥ 5: numbered headings `## N.` ≥20 = +3/≥15 = +2/≥10 = +1, TDD-exclusive frontmatter `parent_doc`/`coordinator` +2 each, TDD section names like "Data Models"/"API Specifications"/"Component Inventory" +1 each, "Technical Design Document" in first 1000 chars +2), scope the improved output to a single release increment using `target_release` from TDD frontmatter. If `target_release` is empty or absent, ask the user to specify the target release before proceeding.
+    When `--target-release <release>` is passed (in any run), that value is used as the target release and the question above is not asked.
 6b. **Downstream Roadmap Frontmatter** (conditional — output intended for sc:roadmap): If the user's intent is to feed the output into sc:roadmap (indicated by user instruction or by `--downstream roadmap` flag), ensure the output document contains the following frontmatter fields populated from the TDD frontmatter or computed from TDD content analysis: `spec_type` (copy from TDD; if absent, infer from content), `complexity_score` (copy if populated; else leave as placeholder), `complexity_class` (copy if populated; else leave as placeholder), `target_release` (copy from TDD), `feature_id` (copy from TDD).
 6c. **PRD Input Detection** (conditional — PRD input detected): If the input document is a PRD (detected by presence of `## User Personas` heading OR `## Jobs To Be Done` heading OR YAML frontmatter `type` contains "Product Requirements Document" OR 3+ PRD section headings: "Market Analysis", "User Stories", "Success Metrics", "Go-to-Market", "Stakeholder Requirements", "Competitive Landscape"), validate completeness of personas, stories, acceptance criteria and assess business alignment. Unlike TDD input, PRD input does NOT require `target_release` scoping since PRDs describe full product scope.
 6d. **Downstream Roadmap Frontmatter for PRD** (conditional — PRD output intended for sc:roadmap): Ensure the output document contains: `spec_type: "product-requirements"`, `complexity_score` (computed from PRD scope breadth), `target_audience` (derived from User Personas), `success_metrics_count` (count from Success Metrics section). Expert panel adjustments: Wiegers emphasizes traceability from user stories to FRs, Cockburn validates user story structure (actor-goal-acceptance_criteria), Adzic checks metric measurability, Fowler/Newman assess architectural sufficiency for stated product scope.
@@ -445,6 +447,18 @@ The following integration points connect spec-panel outputs to downstream SuperC
 - **Custom Expert Panels**: domain-specific expert selection, industry-specific methodology, custom quality criteria
 - **Dev Workflow Integration**: CI/CD spec validation, VCS spec evolution tracking, IDE inline quality feedback, automated quality-gate enforcement
 - **Learning and Mentoring**: progressive skill tracking, spec-writing pattern teaching, best-practice library sharing, educational/mentoring mode
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:spec-panel` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument (quoted specification content is a quoted argument); otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only (`--output` is file-valued). Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is the `--output` file, or `<report-dir>/spec-panel-report.md`. `artifacts` lists `<report-dir>/improved-spec.md` when the Improve step ran; paths git ignores are left out (WC-4), and it is `[]` otherwise. The run is succeeded when the report is written, blocked at the gate below, and failed otherwise.
+- **Person-mode flags.** None is refused. `--mode socratic` only writes its questions into the report and does not wait for answers.
+- **Gates.** Under `--unattended` a TDD input without `--target-release` resolves as blocked, with the `target_release` question in `blocked_question`; PRD inputs are unchanged, because they need no `target_release`. The Improve step (step 6) runs only when `--improve` is passed, and then writes `<report-dir>/improved-spec.md`; the input specification is never modified. There is no other gate.
+- **Nested invocations.** None.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

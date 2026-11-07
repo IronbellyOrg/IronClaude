@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-writeTheP2Static-20261107-011441
+plan_path: ./TASK-WF-writeTheP2Static-20261107-011441.md
+source_path: ./source.md
+source_origin: /tmp/p2/p2-static-brief.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P2/.dev/reflect/pre-TASK-WF-writeTheP2Static-20261107-011441-20261107013500/REPORT.md
+unresolved:
+  - "advisory reflect: 31 findings (5 P1, 13 P2, 13 P3) on the plan; convergence blocked by INV-001 (which cli-eval safety flags a run brief must carry) and INV-002 (no rule maps a nested blocked or failed result to the caller's status); see reflect_report_path"
+  - "plan version 3 (owner instructions 2026-11-07, 'fix top severity gaps' then 'approve D-P2-18 to 21 and fix mid-severity'): the five P1 findings M-01 to M-05 and the 13 P2 findings M-06 to M-18 are fixed; D-P2-18 to D-P2-21 are owner-approved; D-P2-22 to D-P2-24 (workflow.md two-line exemption, task-builder CLI-mode gate skipped, two nested-call skips) await owner approval; five P3 collisions that would stop the executor are fixed too (M-20, M-21, M-22, M-24, M-27); the other P3 findings stay open; the reflect report reviewed version 1 only"

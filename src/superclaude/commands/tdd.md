@@ -49,6 +49,8 @@ personas: [architect, analyzer, backend]
 | `--output` | `-o` | No | Auto | Output path for the final TDD document |
 | `--focus` | `-f` | No | All | Comma-separated directories or files to investigate |
 | `--from-prd` | | No | - | PRD file path to translate into engineering specifications |
+| `--unattended` | | No | `false` | Worker mode for a coordinator; applies only as a standalone argument token. Behaviour is in `## Unattended mode`; without it nothing changes |
+| `--report-dir` | | No | - | With `--unattended`: the directory that holds `return-contract.yaml` (`--output` names the TDD file, not the report directory) |
 
 ### Tier Selection Reference
 
@@ -154,6 +156,18 @@ Do NOT proceed with protocol execution using only this command file.
 The full behavioral specification, tier logic, and execution pipeline are defined in the skill.
 
 (Heading uses `Skill Invocation` rather than `Activation` because the paired skill directory is named `tdd` — predating the `sc-<name>-protocol` naming convention enforced by `make lint-architecture` Check 1. Renaming the skill would break tests at `tests/cli/test_tdd_extract_prompt.py`, `tests/roadmap/test_prd_prompts.py`, and downstream task files; the runtime directive still works.)
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:tdd` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument (the component is a quoted argument); otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only (`--output` names the TDD file). Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is the `--output` TDD file. `artifacts` lists the MDTM task folder files the run wrote; paths git ignores are left out (WC-4).
+- **Person-mode flags.** None is refused. `--resume <task-file>` resumes as today.
+- **Gates.** Under `--unattended` a bare topic resolves as blocked (a topic or vague request with no component detail), with the clarification template in `blocked_question`; a TDD that is already complete resolves as blocked, with the update-or-re-run question in `blocked_question`. The nested `/task` call receives `--unattended` after the task file path, and its two ask-the-user points come back as a question that tdd writes as a blocked contract. The build request's cleanup question defaults to keeping the sources, and the archive confirmation defaults to not archiving. The task builder, told the caller is unattended, leaves `.dev/tasks` staging to the coordinator and skips its CLI-mode reflect gate, recording `reflect gate skipped (unattended)` in the task log. There is no other gate.
+- **Nested invocations.** None with a report directory: the `task` skill and the builder agent write no worker contract, so no nested directory is created.
+- **Outward actions.** It pushes and commits nothing and does not stage `.dev/tasks`; the coordinator stages it (WC-9).
 
 ## Boundaries
 

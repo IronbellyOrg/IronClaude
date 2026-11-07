@@ -58,6 +58,8 @@ personas: [architect, analyzer, scribe]
 | `--r1-scope` | | No | `fidelity-schema` | Release 1 default scope bias: fidelity-schema, minimal-viable, custom |
 | `--smoke-gate` | | No | `r2` | Default smoke gate placement: r1, r2 |
 | `--agents` | `-a` | No | `opus:architect,sonnet:analyzer` | Agent specs for variant generation in Part 2. Format: `model[:persona[:"instruction"]]`, comma-separated. Minimum 2 agents. |
+| `--unattended` | | No | `false` | Worker mode for a coordinator; applies only as a standalone argument token. Behaviour is in `## Unattended mode`; without it nothing changes. |
+| `--report-dir` | | No | - | With `--unattended`: the report directory, instead of `--output`, never both (see `## Unattended mode`). |
 
 ## Behavioral Summary
 
@@ -104,6 +106,18 @@ personas: [architect, analyzer, scribe]
 
 Do NOT proceed with protocol execution using only this command file.
 The full behavioral specification is in the protocol skill.
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:release-split` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** Exactly one of `--output <dir>` (short form `-o`) or `--report-dir <dir>`; both, or neither, is refused before any work and the refusal is printed in chat only. `--report-dir` follows the same path rules as `--output`, and a directory the caller passes is used exactly as passed. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome and holds the skill's return-contract fields beside the worker fields. `report_path` is `<report-dir>/release-split-report.md`, the skill's `<output>/release-split-report.md`. `artifacts` lists the skill's `artifacts` paths and the nested contracts, also when a nested call failed; paths git ignores are left out (WC-4). The status maps `split-approved` and `no-split` to `succeeded`, `split-with-remediation` to `partial`, and `failed` to `failed`.
+- **Person-mode flags.** `--interactive` and its short form `-i` are refused before any work (contract `worker_status: failed`, the flag in `reason`).
+- **Gates.** Under `--unattended` the tasklist-input warning resolves as blocked, with the question whether the file is a spec in `blocked_question`; `--r1-scope custom` resolves as blocked, with the Release 1 scope question in `blocked_question`. The convergence band that would prompt in interactive mode (0.5 to 0.59) aborts as it does today in non-interactive mode. There is no other gate.
+- **Nested invocations.** The Part 1 `sc:brainstorm` call receives `--unattended --output <report-dir>/nested/brainstorm-<n>/` and the Part 2 `sc:adversarial-protocol` call receives `--unattended --output <report-dir>/nested/adversarial-<n>/`, each `<n>` counting from 1 per nested command and never reused (a retry or the Mode A fallback takes the next number). Part 3 writes the specs inline and Part 4 uses inline verification, so neither makes a nested call. A nested contract is read by the nested-result rule of `~/.claude/WORKER-CONTRACT.md`.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

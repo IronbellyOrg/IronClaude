@@ -1,0 +1,25 @@
+$ pytest tests/skills/test_worker_contract.py tests/unit/test_cli_install.py -q -p no:cacheprovider
+........................................................................ [ 46%]
+........................................................................ [ 60%]
+........................................................................ [ 73%]
+.............................................                            [ 82%]
+tests/unit/test_cli_install.py ......................................... [ 89%]
+.......................................................                  [100%]
+
+============================= 536 passed in 1.37s ==============================
+$ Check SCAN (pass: prints nothing)
+(end SCAN)
+$ Check ADDITIVE (pass: prints nothing per file)
+-- spec-panel
+(end ADDITIVE)
+$ ruff check / format --check on tests/skills/test_worker_contract.py
+All checks passed!
+ruff-check rc=0
+1 file already formatted
+ruff-format rc=0
+$ git status --short -- src tests plugins
+ M src/superclaude/commands/cleanup.md
+ M src/superclaude/commands/improve.md
+ M src/superclaude/commands/research.md
+ M src/superclaude/commands/spec-panel.md
+ M tests/skills/test_worker_contract.py

@@ -1,0 +1,61 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P2
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collected 1604 items
+
+tests/skills/test_brainstorm_protocol.py ....                            [  0%]
+tests/skills/test_clickup_claim.py ..................................... [  2%]
+....                                                                     [  2%]
+tests/skills/test_codegraph_adoption.py ................................ [  4%]
+..................                                                       [  5%]
+tests/skills/test_implement_adviser_family.py ...                        [  6%]
+tests/skills/test_implement_retry_citation.py .....................      [  7%]
+tests/skills/test_implement_retry_revert.py ............................ [  9%]
+..........................                                               [ 10%]
+tests/skills/test_implement_saved_prompt_rule.py ....................... [ 12%]
+.................                                                        [ 13%]
+tests/skills/test_implement_severity_replay.py ............              [ 14%]
+tests/skills/test_implement_severity_static.py ......................... [ 15%]
+...                                                                      [ 15%]
+tests/skills/test_issue_protocol.py .................................... [ 18%]
+..........................................                               [ 20%]
+tests/skills/test_issue_repo_resolution.py ............................. [ 22%]
+...................................                                      [ 24%]
+tests/skills/test_issue_worker_agents.py ............................... [ 26%]
+......................................                                   [ 28%]
+tests/skills/test_model_alias_policy.py .............                    [ 29%]
+tests/skills/test_primitive_dual_surface_lookup.py ...                   [ 29%]
+tests/skills/test_reflect_input_snapshot.py ...............              [ 30%]
+tests/skills/test_repo_inventory_nongit.py .....                         [ 31%]
+tests/skills/test_review_severity_rule.py .............................. [ 33%]
+................................                                         [ 35%]
+tests/skills/test_sc_recommend_routing_contract.py ..................... [ 36%]
+.......                                                                  [ 36%]
+tests/skills/test_task_builder_merge.py ................................ [ 38%]
+....................................                                     [ 41%]
+tests/skills/test_task_workspace_lifecycle.py .......................... [ 42%]
+...............................................                          [ 45%]
+tests/skills/test_task_workspace_smoke.py ....                           [ 45%]
+tests/skills/test_tier2_tavily_consistency.py .....                      [ 46%]
+tests/skills/test_worker_contract.py ................................... [ 48%]
+........................................................................ [ 52%]
+........................................................................ [ 57%]
+........................................................................ [ 61%]
+........................................................................ [ 66%]
+........................................................................ [ 70%]
+........................................................................ [ 75%]
+........................................................................ [ 79%]
+........................................................................ [ 84%]
+........................................................................ [ 88%]
+.                                                                        [ 88%]
+tests/skills/test_workflow_archive.py .................................. [ 90%]
+........................................................................ [ 95%]
+........................................................................ [ 99%]
+..                                                                       [100%]
+
+============================ 1604 passed in 14.02s =============================
+rc=0

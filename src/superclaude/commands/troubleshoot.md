@@ -58,6 +58,8 @@ The trigger is intentionally pushy because the most common reason users skip a d
 | `--no-mcp` | `false` | Run in native-tools-only mode (skip auggie/codegraph/context7/tavily). Tier 1 quality degrades; surfaced in the report. |
 | `--context` | (none) | Path to a caller-supplied context file (e.g. TFEP `context.yaml` consumer brief). Ingested in Wave 0; recorded in the audit-log header and echoed in the Wave 5 return. |
 | `--caller` | (none) | Name of the invoking pipeline/command (e.g. `task-unified`). When set, Wave 5 emits a `return-contract.yaml` adapter and the audit header records `caller:`. |
+| `--unattended` | `false` | Worker mode for a coordinator; applies only as a standalone argument token. Behaviour is in `## Unattended mode`; without it nothing changes. |
+| `--report-dir` | (none) | With `--unattended`: the directory that holds the worker contract and REPORT.md, instead of `--output-dir`, never both. |
 
 ## Behavioral Summary
 
@@ -163,6 +165,18 @@ Do NOT proceed with protocol execution using only this command file. The full be
 # - Tier 1 quality degrades; flagged in REPORT.md's Grounding Gaps
 # - Useful when MCPs are unavailable or the user wants pure local execution
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:troubleshoot` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument (the issue description is a quoted argument); otherwise nothing here applies and no worker contract is written.
+- **Report directory.** Exactly one of `--output-dir <dir>` or `--report-dir <dir>`; both, or neither, is refused before any work and the refusal is printed in chat only. `--report-dir` follows the path rules of `--output-dir` and is the skill's `<output-dir>`. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is `REPORT.md` in the report directory. `artifacts` lists the other files the run wrote (hypothesis cards, fix proposals, `audit.log`) and the nested contracts; paths git ignores are left out (WC-4). The skill's Output Contract `status` values `success`, `partial` and `failed` map to `succeeded`, `partial` and `failed`, and `blocked` to `blocked`. When called with `--caller task-unified`, the TFEP fields stay as today and the worker fields are added beside them.
+- **Person-mode flags.** None is refused.
+- **Gates.** Under `--unattended` the short input STOP resolves as blocked (a `--depth deep` run with an issue description under 10 words and no `--scope`), with the ask-for-detail question in `blocked_question`; the `--fix` offer resolves as blocked after REPORT.md is written, with the yes/no question in `blocked_question`, so no remediation route runs. Tier 2 fan-out is unchanged. There is no other gate.
+- **Nested invocations.** The Tier 2 fix debate `sc:adversarial-protocol --compare` call receives `--unattended --output <report-dir>/nested/adversarial-<n>/` in place of `<output-dir>/adversarial/`, and the opt-in `--diagnosability-handoff` packaging call to `sc:workflow-protocol` receives `--unattended --report-dir <report-dir>/nested/workflow-<n>/ --handoff none`, each `<n>` counting from 1 per nested command and never reused; both contracts are listed in `artifacts`, also when the call failed. The handoff reads the plan path from that nested worker contract's `report_path` instead of `.dev/tasks/to-do/<id>/return-contract.yaml`. A nested contract is read by the nested-result rule of `~/.claude/WORKER-CONTRACT.md`.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

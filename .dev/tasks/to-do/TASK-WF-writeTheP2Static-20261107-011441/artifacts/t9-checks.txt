@@ -1,0 +1,37 @@
+$ pytest tests/skills/test_worker_contract.py tests/skills/test_review_severity_rule.py tests/skills/test_sc_recommend_routing_contract.py tests/cli_portify -q -p no:cacheprovider
+tests/cli_portify/test_section_hashing.py ......                         [ 90%]
+tests/cli_portify/test_semantic_checks.py .............................. [ 92%]
+...................................                                      [ 94%]
+tests/cli_portify/test_synthesize_spec.py .........                      [ 95%]
+tests/cli_portify/test_tui.py ......................................     [ 97%]
+tests/cli_portify/test_validate_config.py .............................  [100%]
+
+============================ 1442 passed in 14.22s =============================
+$ Check SCAN (pass: prints nothing)
+(end SCAN)
+$ Check ADDITIVE (pass: prints nothing per file)
+-- cli-portify
+(end ADDITIVE)
+$ ruff check / format --check on tests/skills/test_worker_contract.py
+All checks passed!
+ruff-check rc=0
+1 file already formatted
+ruff-format rc=0
+$ git status --short -- src tests plugins
+ M plugins/superclaude/commands/recommend.md
+ M plugins/superclaude/skills/sc-recommend/SKILL.md
+ M src/superclaude/commands/cleanup.md
+ M src/superclaude/commands/cli-portify.md
+ M src/superclaude/commands/improve.md
+ M src/superclaude/commands/recommend.md
+ M src/superclaude/commands/release-split.md
+ M src/superclaude/commands/research.md
+ M src/superclaude/commands/review-translation.md
+ M src/superclaude/commands/spec-panel.md
+ M src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
+ M src/superclaude/skills/sc-recommend/SKILL.md
+ M src/superclaude/skills/sc-release-split-protocol/SKILL.md
+ M src/superclaude/skills/sc-release-split-protocol/refs/adversarial-integration.md
+ M src/superclaude/skills/sc-review-translation-protocol/SKILL.md
+ M tests/skills/test_sc_recommend_routing_contract.py
+ M tests/skills/test_worker_contract.py

@@ -78,6 +78,7 @@ If the TDD was created by consolidating existing docs:
 - Archive approved sources to `docs/archive/[appropriate-subdir]/`
 - Update any references to the archived files in other documents
 - Check off items in the stub's consolidation checklist if one exists
+- Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) the archive confirmation defaults to not archiving: the sources are kept and nothing is archived.
 
 ---
 
