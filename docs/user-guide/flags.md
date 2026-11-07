@@ -208,7 +208,12 @@ Since 5.0.0 `FLAGS.md` and `MODES.md` are no longer shipped, and old copies left
 | `--pr` | Attach to an existing PR instead of opening one | PR number |
 | `--resume` | Rebuild state from a run log | Path to `monitor-run-<N>.jsonl` |
 | `--max-rounds` | Remediation cycles | Number (default `2`, hard cap `5`) |
+| `--conflict-max-tier` | Highest merge-conflict tier permitted, subject to the monitor ceiling | `0` (default: detect and report only), `1` (also root `uv.lock` regeneration, opt-in), `2` (also initial intent-based text/tree resolution at monitor `3`) |
 | `--head` / `--base` / `--title` / `--body` | PR details | Branch names, text |
+
+The monitor ceiling and conflict cap are independent: monitor defaults to `3`, conflict cap to `0`. Raising the cap does not authorize Tier 3 resolution or bypass monitor limits; monitor `0` skips conflict handling entirely. Eligible Tier 1 cases at monitor `1` propose, at `2` leave a validated uncommitted merge, and at `3` may push. Tier 2 requires monitor `3`, cap `2`, at least two remaining rounds and at most eight text-conflict files, and runs only before the first review. Thus `--max-rounds 1` cannot fund Tier 2 resolution. Only one conflict cycle is allowed per run; late text conflicts halt.
+
+Opt in only for PRs from collaborators trusted with your credentials: lock regeneration, validation and commit hooks execute project code. The lock trust gate is not a sandbox and does not cover Git/URL dependency sources; without a TOML parser (including Python 3.10) it fails closed. See [the command guide](commands.md#scpr-submit---pr-review-auto-remediation-monitor) for examples, review/CI behavior, safety and recovery.
 
 `--yes` was removed from `/sc:pr-submit` in 5.0.0 (it was accepted but never read).
 

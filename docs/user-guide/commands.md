@@ -487,8 +487,30 @@ PM Agent:
 **Syntax:**
 
 ```
-/sc:pr-submit [--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 600] [--silence-timeout 300] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--pr <N>] [--output-dir <dir>] [--resume <run-log.jsonl>]
+/sc:pr-submit [--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 600] [--silence-timeout 300] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--pr <N>] [--conflict-max-tier {0,1,2}] [--output-dir <dir>] [--resume <run-log.jsonl>]
 ```
+
+**Merge conflicts:** `--monitor` defaults to `3`, but `--conflict-max-tier` defaults to `0` (detect and report only). These are independent ceilings: raising the conflict cap does not grant more monitor authority. Monitor 0 skips conflict handling; monitor 1 and above detect conflicts before the first review and report a per-file plan before editing. A branch that is merely behind the base is reported, not automatically rebased.
+
+| Conflict cap | What it permits |
+|---|---|
+| `0` (default) | Detect and report only. Unresolved conflicts can still halt the run or skip CI; this is not a promise of a clean result. |
+| `1` (opt-in) | Also regenerate a conflicted root `uv.lock` before CI. For eligible Tier 1 cases after a clean or report-only review, monitor 1 proposes and monitor 2 leaves a validated, uncommitted merge in progress; monitor 3 may push one validated merge of the recorded base tip. |
+| `2` (opt-in) | Also resolve text/tree conflicts by stated intent, only before the first review at monitor 3. Requires at least two remaining review rounds, at most eight text-conflict files, a resolution record, a read-only grounding check and full tests. Re-triggers configured reviewers; an attributed re-review spends a round. |
+
+Tier 3 conflicts need human resolution: for example protected/migration paths, binary files, symlinks, mode changes, unsupported lock/generated files or unclear intent. They are reported at monitor 1 or 2 and halt at monitor 3. There is at most one conflict cycle per run; late text conflicts halt rather than triggering continuous repair. A Tier 1 sync push uses no review round and sends no reviewer re-trigger, reply or thread resolution; it does not clear a non-clean review outcome. After a merge push, CI follows the new head: expected-but-missing checks keep polling and may time out as `ci_not_started`; unresolved conflicts skip CI as `pr_conflicting`.
+
+**Examples (run in Claude Code, not a shell):**
+
+```text
+/sc:pr-submit --pr 42 --monitor 3                         # conflicts detected and reported only
+/sc:pr-submit --pr 42 --monitor 3 --conflict-max-tier 1   # opt in to root uv.lock regeneration
+/sc:pr-submit --pr 42 --monitor 3 --conflict-max-tier 2 --max-rounds 2
+```
+
+**Safety and recovery:** use conflict resolution only on PRs from collaborators you trust with your credentials. Regeneration, tests and commit hooks execute project code. The lock trust gate is a narrow check, not a sandbox: Git/URL dependency sources are not covered, and Python 3.10 has no built-in TOML parser so that gate fails closed. The tracked tree must be clean and no foreign operation may be in progress. The skill does not stash changes, rebase a published head or force-push. At monitor 2, review and finish the uncommitted merge yourself, or abort it. Other halt messages say whether the owned merge was aborted or left for inspection; resume checks its recorded ownership and push state, never aborting a foreign merge or blindly publishing an uncovered local commit. Undo a published merge with a new revert commit, not rewritten history.
+
+The run reports the highest conflict tier, the conflict outcome and a separate Tier 1 sync-push count (`sync_tier`, `sync_outcome`, `sync_push_count`). See [PR Submit Command Flags](flags.md#pr-submit-command-flags-scpr-submit) and the shipped protocol's `refs/conflict-mechanical.md` (cycle/recovery) and `refs/conflict-intent.md` (Tier 2) for details. This is an attended skill workflow, not a background conflict-resolution service.
 
 `--yes` was removed in 5.0.0 (it was accepted but never read); drop it from your scripts.
 

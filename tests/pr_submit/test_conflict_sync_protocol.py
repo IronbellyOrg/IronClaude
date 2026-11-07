@@ -61,6 +61,28 @@ def _assert_in_order(text: str, needles: tuple[str, ...]) -> None:
         assert pa < pb, f"{a!r} (at {pa}) must come before {b!r} (at {pb})"
 
 
+@pytest.mark.parametrize("guide", ["commands.md", "flags.md"])
+def test_user_guides_document_conflict_cap_and_limits(guide):
+    text = _prose(REPO_ROOT / "docs" / "user-guide" / guide)
+    assert "`--conflict-max-tier" in text
+    assert re.search(r"[Dd]efaults? to `0`|`0` \(default", text)
+    assert "two remaining" in text
+    assert "eight text-conflict files" in text
+    assert "not a sandbox" in text
+
+
+def test_command_summarizes_conflict_protocol_without_replacing_activation():
+    text = _prose(COMMAND_MD)
+    assert "## Merge-conflict handling" in text
+    assert "`--conflict-max-tier` (default 0)" in text
+    assert "before the first review" in text
+    assert "at most one conflict cycle per run" in text
+    assert "uncommitted merge in progress" in text
+    assert "no review round" in text
+    assert "not a sandbox" in text
+    assert "Skill sc:pr-submit-protocol" in text
+
+
 # --- Pinned phrases and order pins (design sections 8.2 and 8.3) --------------
 
 MECHANICAL_PINS = (

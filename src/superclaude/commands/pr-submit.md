@@ -58,6 +58,25 @@ Explicit only — two activation paths:
 
 `status` enum: `terminal_clean` / `terminal_max_rounds` / `terminal_halted` / `terminal_timeout` / `terminal_augment_no_response` / `terminal_failed` / `proposed` / `halt_before_push`. Silence of every configured reviewer (Augment and Codex) is `terminal_augment_no_response`, not `terminal_clean`; the output also reports each reviewer as `present` / `absent` / `incomplete` (`reviewers`).
 
+## Merge-conflict handling
+
+`--monitor` (default 3) and `--conflict-max-tier` (default 0) are independent ceilings. Monitor 0 skips conflict handling. At monitor 1 and above, the skill checks for an operation already in progress, detects conflicts before the first review, and reports a per-path plan before editing. Being behind the base without conflicts is reported, not automatically rebased. Cap 0 detects and reports only: it does not guarantee a clean outcome or allow Tier 3 resolution.
+
+| Conflict tier | Permission and timing |
+|---|---|
+| 0: no local conflicts | Report the result; no conflict merge is needed. A contradictory GitHub result still needs investigation. |
+| 1: conflicted root `uv.lock` | Opt in with cap 1 or 2. Before the CI wait, an eligible cycle at monitor 1 proposes; at monitor 2 it resolves and validates but leaves an uncommitted merge in progress; at monitor 3 it may publish one validated merge of the recorded base tip. Proposing or resolving locally happens only after a clean or report-only review outcome. |
+| 2: text/tree conflicts with statable intent | Cap 2 and monitor 3 only, before the first review, with at least two remaining review rounds and at most eight text-conflict files. The skill records both sides' intent and any dropped behavior, requires a read-only grounding check and full tests, then may publish the merge and re-trigger configured reviewers. An attributed re-review spends a round. |
+| 3: unsafe or unclassifiable | Report at monitor 1 or 2; halt for human resolution at monitor 3. Examples include protected or migration paths, binaries, symlinks, submodules, mode changes and unsupported lock/generated files. Unclear or semantic intent escalates here rather than being invented. |
+
+There is at most one conflict cycle per run across both resolving tiers. Late text conflicts halt; this is not continuous automatic conflict repair. A Tier 1 sync push spends no review round and sends no reviewer re-trigger, reply or thread resolution. It is the single sync exception on otherwise wait-only paths; it does not turn reviewer silence or round exhaustion into a clean review. Normal fix-cycle re-trigger behavior described below is unchanged.
+
+After a merge push, CI is checked against the new head. Expected checks that have not appeared keep the wait open and can time out as `ci_not_started`; they are not read as success. Unresolved conflicts skip the CI wait with reason `pr_conflicting`. The run output includes `sync_tier`, `sync_outcome` and `sync_push_count` alongside the review result.
+
+**Trust and recovery:** conflict resolution requires a clean tracked tree and no foreign operation; it never stashes changes or rewrites a published head. The lock trust gate is not a sandbox: it does not cover Git/URL dependency sources, and it fails closed without a TOML parser (including Python 3.10). Regeneration, tests and commit hooks can execute project code. Opt in only for collaborators trusted with your credentials. A monitor-2 result leaves the merge resolved and validated but uncommitted: review and finish it yourself, or abort it. Incomplete owned resolutions are aborted; some finish failures deliberately leave the merge for inspection. Resume uses the recorded ownership and push state, never aborts a foreign merge, and never blindly publishes an uncovered local commit. A published merge is undone with a new revert commit, not history rewriting.
+
+The protocol's `refs/conflict-mechanical.md` owns detection, validation and recovery; `refs/conflict-intent.md` adds Tier 2 judgment and evidence requirements. Load them through the protocol, not as a replacement for its mandatory activation.
+
 ## Behavioral Flow
 
 This command does ONLY parse + environment-validate + handoff. It parses the flags, verifies the PR target is the resolved origin repo (origin's `owner/repo`, never an upstream parent the host's CLI might default to), and hands off to the protocol skill via the Activation section below. The full behavioral specification — the FSM, the detection contract, severity routing, verify-before-remediate, troubleshoot dispatch, validation gates, the push triad, reply/resolve, and the loop guard — lives in the skill.
