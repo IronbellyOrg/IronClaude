@@ -1497,6 +1497,25 @@ def test_nested_call_passes_the_flag_and_a_nested_directory(cmd, name):
         _check_nested_lines(stripped, name)
 
 
+def test_task_skill_returns_the_qa_halt_to_an_unattended_caller():
+    # PR #422 review: the phase-gate QA halt and the unfixable-FAIL rule also ask a person.
+    text = (_REPO / "src/superclaude/skills/task/SKILL.md").read_text(encoding="utf-8")
+    para = next(
+        p
+        for p in text.split("\n\n")
+        if p.startswith("The same applies to the two other")
+    )
+    for phrase in (
+        "Phase-Gate QA step that halts after the second fix cycle",
+        "Any step FAIL with unfixable issues",
+        "returns the open blocking findings",
+        "writes its blocked worker contract",
+    ):
+        assert phrase in para, phrase
+        with pytest.raises(AssertionError):
+            assert phrase in para.replace(phrase, "")
+
+
 def test_reflect_skill_passes_the_nested_impact_directory():
     # Owner decision (2026-11-07): the UC-2 Step 1B.3 impact call is a nested call too.
     skill = (_REPO / "src/superclaude/skills/sc-reflect-protocol/SKILL.md").read_text(

@@ -52,6 +52,8 @@ Examples of weak input (skill will search for the task file):
 
 Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`): when the arguments carry `--unattended` after the task file path, the "ask the user which one" point above and the "ask the user" point under Prohibited Actions stop and return the question to the caller instead of asking it, and the `.dev/tasks` staging described above is left to the coordinator.
 
+The same applies to the two other "ask the user" points that wait for a person: the Phase-Gate QA step that halts after the second fix cycle ("present the QA report findings to the user, and ask for guidance") and the "Any step FAIL with unfixable issues" rule. Under `--unattended` (token after the task file path), each stops the run and returns the open blocking findings, as a question, to the caller instead of asking and waiting; the caller (tdd) writes its blocked worker contract from it.
+
 ---
 
 ## Task File Discovery
