@@ -1,0 +1,4 @@
+219c219
+< - **Native reasoning**: Expert panel coordination and iterative analysis
+---
+> - **Sequential**: Expert panel coordination and iterative analysis

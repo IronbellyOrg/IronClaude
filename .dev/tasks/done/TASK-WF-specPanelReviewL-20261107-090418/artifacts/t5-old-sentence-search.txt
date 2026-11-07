@@ -1,0 +1,5 @@
+src/superclaude/core/HOW-WE-WORK.md:0
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:0
+docs/guides/prd-skill-release-guide.md:0
+docs/guides/tdd-skill-release-guide.md:0
+exit=1

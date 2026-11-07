@@ -1,0 +1,9 @@
+pinned ruff (pyproject.toml ruff==0.15.20): ruff 0.15.20
+1 file already formatted
+format-check exit=0
+All checks passed!
+pinned-check exit=0
+Running linter...
+uv run ruff check .
+All checks passed!
+make-lint exit=0
