@@ -1,0 +1,4 @@
+[ccsession] tier1a (Tier 1a: claude-opus-5-5, claude-sonnet-5-5): model claude-gw-tier1a[1m], context 850000, auto-compact window 850000
+[ccsession] Shim already running on 127.0.0.1:47413 (reusing)
+[ccsession] Cached 6 curated gateway models before launch
+[ccsession] Starting new session labeled 'work'

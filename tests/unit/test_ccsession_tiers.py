@@ -551,6 +551,49 @@ def test_tier_flag_and_named_model(tmp_path: Path) -> None:
     assert "not in any tier" in err
 
 
+@pytest.mark.parametrize(
+    "tier,window",
+    [
+        ("0", 850000),
+        ("1a", 850000),
+        ("1b", 850000),
+        ("2", 500000),
+        ("3", 500000),
+        ("4", 850000),
+    ],
+)
+@pytest.mark.parametrize("suffix", ["", "[1m]"])
+def test_named_tier_uses_its_own_window(
+    tmp_path: Path, monkeypatch, tier, window, suffix
+) -> None:
+    model = f"claude-gw-tier{tier}{suffix}"
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path)))
+    assert models.model_window(model) == (window, f"T{tier}_WINDOW")
+    rc, _, err, seen = _launch(tmp_path, "work", "--model", model)
+    assert rc == 0, err
+    assert _model_arg(seen) == f"claude-gw-tier{tier}[1m]"
+    assert seen["context"] == str(window)
+    assert _compact(seen, f"claude-gw-tier{tier}") == window
+
+
+@pytest.mark.parametrize("tier", ["1a", "2", "7"])
+@pytest.mark.parametrize("suffix", ["", "[1m]"])
+def test_named_tier_checks_definition_and_owner(tmp_path: Path, tier, suffix) -> None:
+    rc, _, err, seen = _launch(
+        tmp_path,
+        "work",
+        "--model",
+        f"claude-gw-tier{tier}{suffix}",
+        defaults=ACCESS_BLOCK,
+        CODER_WORKSPACE_OWNER_NAME="bob",
+    )
+    assert (rc == 0) == (tier == "2"), err
+    if tier == "2":
+        assert seen["context"] == "500000"
+    else:
+        assert seen is None and ("not available" in err or "not defined" in err)
+
+
 def test_tier_launch_permissions_default_keeps_tier_routing(tmp_path: Path) -> None:
     # CCSESSION_PERMISSIONS=default drops only the bypass flag: the tier model,
     # its settings and the shim address are the control launch's. Neither launch
@@ -1115,6 +1158,139 @@ def test_compact_overrides_still_apply_in_tier_mode(tmp_path: Path) -> None:
     rc, _, err, seen = _launch(tmp_path, "work", CCSESSION_COMPACT_WINDOW="300000")
     assert rc == 0, err
     assert seen["context"] == "500000" and seen["compact"] == "300000"
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "ordinary",
+        "show-all",
+        "member-models",
+        "restricted",
+        "compact-override",
+        "individual",
+        "non-tier",
+        "warmup-failure",
+    ],
+)
+def test_native_picker_uses_current_curated_rows(
+    tmp_path: Path, monkeypatch, case
+) -> None:
+    defaults = None if case == "non-tier" else TIER_BLOCK
+    extra = {}
+    args = ["work"]
+    if case == "non-tier":
+        args += ["--profile", "gpt", "--shim"]
+    if case == "individual":
+        args += ["--model", "gpt-6.1-sol"]
+    if case == "show-all":
+        extra["CCSESSION_SHOW_ALL_MODELS"] = "1"
+    if case in ("member-models", "restricted"):
+        defaults += (
+            'export CCSESSION_ACCESS="bob=tier2:tier2,tier3'
+            + ("+models" if case == "member-models" else "")
+            + '"\n'
+        )
+        extra["CODER_WORKSPACE_OWNER_NAME"] = "bob"
+    if case == "compact-override":
+        extra["CCSESSION_COMPACT_WINDOW"] = "300000"
+    user_settings = '{"effortLevel":"high"}'
+    args += ["--settings", user_settings]
+    env = _launch_env(tmp_path, defaults, **extra)
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", env["AIDEV_AI_DEFAULTS_PATH"])
+    for key, value in extra.items():
+        monkeypatch.setenv(key, value)
+    module = runpy.run_path(str(SKILL_DIR / "local-gateway-alias-proxy.py"))
+    rows = module["transform_models"](
+        {"data": [{"id": "gpt-6.1-sol", "description": "Actual upstream description"}]}
+    )["data"]
+
+    class Models(http.server.BaseHTTPRequestHandler):
+        def log_message(self, *args):
+            pass
+
+        def do_GET(self):
+            assert self.path == "/v1/models?limit=1000"
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(
+                json.dumps({"data": [] if case == "warmup-failure" else rows}).encode()
+            )
+
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Models)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    env["CC_SHIM_PORT"] = str(server.server_port)
+    curl = tmp_path / "curl"
+    curl.write_text(
+        curl.read_text()
+        .replace('"port":4555', f'"port":{server.server_port}')
+        .replace(
+            '"show_all":false',
+            '"show_all":true' if case == "show-all" else '"show_all":false',
+        )
+    )
+    cache = tmp_path / "home/.claude/cache/gateway-models.json"
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    cache.write_text(
+        json.dumps(
+            {"baseUrl": "http://foreign.invalid", "models": [{"id": "foreign-stale"}]}
+        )
+    )
+    try:
+        proc = subprocess.run(
+            [str(SKILL_DIR / "ccsession"), *args],
+            cwd=tmp_path,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+    finally:
+        server.shutdown()
+        server.server_close()
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout == ""
+    seen = json.loads((tmp_path / "seen.json").read_text())
+    assert seen["argv"][-2:] == ["--settings", user_settings]
+    settings = json.loads(seen["settings"])
+    if case in ("warmup-failure", "non-tier"):
+        assert "modelPicker" not in settings
+        if case == "warmup-failure":
+            assert "could not pre-load" in proc.stderr
+            assert _compact(seen, "claude-gw-tier2") == 500000
+            assert "foreign-stale" not in seen["settings"]
+        else:
+            assert seen["compact"] == "850000"
+        return
+    expected = [
+        {
+            "model": row["id"],
+            **({"label": row["display_name"]} if row.get("display_name") else {}),
+            **({"description": row["description"]} if row.get("description") else {}),
+        }
+        for row in rows
+    ]
+    assert settings["modelPicker"] == {
+        "replaceBuiltInOptions": True,
+        "options": expected,
+    }
+    if case == "compact-override":
+        assert seen["compact"] == "300000" and "modelSettings" not in settings
+    else:
+        assert _compact(seen, "claude-gw-tier2") == 500000
+    if case == "individual":
+        assert _model_arg(seen) == "gpt-6.1-sol"
+    if case in ("ordinary", "restricted"):
+        assert all(option["model"].startswith("claude-gw-tier") for option in expected)
+    if case == "restricted":
+        assert [row["model"] for row in expected] == [
+            "claude-gw-tier2[1m]",
+            "claude-gw-tier3[1m]",
+        ]
+    if case in ("show-all", "member-models"):
+        assert any(
+            not option["model"].startswith("claude-gw-tier") for option in expected
+        )
 
 
 def test_addon_profile_on_a_tier_machine_skips_tier_mode(tmp_path: Path) -> None:
@@ -2938,10 +3114,12 @@ def test_tier_launch_exports_the_alias_variables(
     rc, out, err, seen = _launch(tmp_path, "work")
     assert rc == 0, err
     assert (seen["opus_model"], seen["sonnet_model"], seen["haiku_model"]) == (
-        "claude-gw-tier1a",
-        "claude-gw-tier1b",
-        "claude-gw-tier2",
+        "claude-gw-tier1a[1m]",
+        "claude-gw-tier1b[1m]",
+        "claude-gw-tier2[1m]",
     )
+    for alias, window in zip(_seen_aliases(seen), (850000, 850000, 500000)):
+        assert _compact(seen, alias.removesuffix("[1m]")) == window
 
 
 def test_non_tier_launch_leaves_the_alias_variables_unset(
@@ -2973,7 +3151,7 @@ def test_limited_owner_gets_only_the_haiku_alias_variable(
         tmp_path, "work", defaults=ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="bob"
     )
     assert rc == 0, err
-    assert _seen_aliases(seen) == ("", "", "claude-gw-tier2")
+    assert _seen_aliases(seen) == ("", "", "claude-gw-tier2[1m]")
 
 
 def test_limited_owner_keeps_inherited_alias_values(
@@ -2991,7 +3169,7 @@ def test_limited_owner_keeps_inherited_alias_values(
     assert _seen_aliases(seen) == (
         "inherited-opus",
         "inherited-sonnet",
-        "claude-gw-tier2",
+        "claude-gw-tier2[1m]",
     )
 
 
@@ -3018,7 +3196,7 @@ def test_workspace_without_tier1a_and_tier1b_exports_only_its_tiers(
     unset_dir.mkdir()
     rc, out, err, seen = _launch(unset_dir, "work")
     assert rc == 0, err
-    assert _seen_aliases(seen) == ("", "", "claude-gw-tier2")
+    assert _seen_aliases(seen) == ("", "", "claude-gw-tier2[1m]")
 
     # ... and inherited values already set.
     monkeypatch.setenv("ANTHROPIC_DEFAULT_OPUS_MODEL", "inherited-opus")
@@ -3030,7 +3208,7 @@ def test_workspace_without_tier1a_and_tier1b_exports_only_its_tiers(
     assert _seen_aliases(seen) == (
         "inherited-opus",
         "inherited-sonnet",
-        "claude-gw-tier2",
+        "claude-gw-tier2[1m]",
     )
 
 

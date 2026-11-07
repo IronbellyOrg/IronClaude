@@ -1,0 +1,5 @@
+Parent-persisted tail excerpt from inline tool result supplied by reflection executor, not entire stream.
+Command: timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE make verify-sync
+exit_code:0
+stdout final line:
+✅ All components in sync.

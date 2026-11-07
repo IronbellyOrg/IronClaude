@@ -1,0 +1,15 @@
+{"wave":0,"step":"0.1","timestamp":"2026-11-06T19:50:39Z","outcome":"ok","evidence_ref":null}
+{"wave":0,"step":"0.2","timestamp":"2026-11-06T19:50:39Z","outcome":"ok","evidence_ref":"source/tasklist/progress input paths resolved"}
+{"wave":0,"step":"0.4","timestamp":"2026-11-06T19:50:39Z","outcome":"ok","evidence_ref":"artifacts/input-snapshot.yaml"}
+{"wave":0,"step":"0.5","timestamp":"2026-11-06T19:50:39Z","outcome":"warn","evidence_ref":"executor class unresolved; quick pin Tier1; distinct tier1a/tier1b/tier2 aliases"}
+{"wave":0,"step":"0.7","timestamp":"2026-11-06T19:50:39Z","outcome":"warn","evidence_ref":"memory inventory absent, fail-open"}
+{"wave":0,"step":"0.8","timestamp":"2026-11-06T19:50:39Z","outcome":"ok","evidence_ref":"REPORT.md parent-owned template stub"}
+{"wave":1,"step":"grounding-and-mapping","timestamp":"2026-11-06T20:30:53Z","outcome":"warn","evidence_ref":"artifacts/hunk-to-declaration-map.yaml; native search EACCES recorded, Read/codegraph fallback"}
+{"wave":1,"step":"reuse-and-impact","timestamp":"2026-11-06T20:30:53Z","outcome":"warn","evidence_ref":"artifacts/reuse-audit.yaml and artifacts/impact/return-contract.yaml; advisory counts/caps only"}
+{"wave":1,"step":"verification","timestamp":"2026-11-06T20:30:53Z","outcome":"warn","evidence_ref":"verify-logs/invocations.yaml; initialtimeout124 then491pass278.27s; unknown initialF"}
+{"wave":1,"step":"calibration","timestamp":"2026-11-06T20:30:53Z","outcome":"warn","evidence_ref":"artifacts/t1-calibration.md; five-dimensionmean0.71"}
+{"wave":2,"step":"decision","timestamp":"2026-11-06T20:30:53Z","outcome":"warn","evidence_ref":"explicitquickpin Tier1 overrides ordinary lowconfidence escalation; Bashcoveragegap retained"}
+{"wave":5,"step":"input-recheck","timestamp":"2026-11-06T20:30:53Z","outcome":"warn","evidence_ref":"artifacts/input-recheck.yaml; original307hashstable but referenceddiagnosticfileomitted, no retrofit"}
+{"wave":5,"step":"citation-validation","timestamp":"2026-11-06T20:30:53Z","outcome":"warn","evidence_ref":"artifacts/evidence-validation.md; independentworker unavailable/cutoff, documentedparentinlinefallback14units0drops,notindependentPASS"}
+{"wave":5,"step":"finalize","timestamp":"2026-11-06T20:30:53Z","outcome":"warn","evidence_ref":"return-contract.yaml partial needs_human_decision; zero-drop-flagtrue scopedinlineonly; no conditionalshipping"}
+{"wave":7,"step":"promotion","timestamp":"2026-11-06T20:30:53Z","outcome":"skip","evidence_ref":"alreadyarchivedmanagedpackage, no adapter or move; no fabricatedstatus"}

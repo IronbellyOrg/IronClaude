@@ -1,0 +1,1446 @@
+[
+  {
+    "type": "system",
+    "subtype": "ui_invalidate",
+    "event": "ui.render",
+    "uuid": "5a7cf8ec-7bdc-49da-b1da-f730370838f6",
+    "session_id": "34efc4f6-95c7-4458-bc28-5d87b65adab5"
+  },
+  {
+    "type": "control_response",
+    "response": {
+      "subtype": "success",
+      "request_id": "initialize",
+      "response": {
+        "commands": [],
+        "agents": [
+          {
+            "name": "claude",
+            "description": "Catch-all for any task that doesn't fit a more specific agent. FleetView's default when no agent name is typed."
+          },
+          {
+            "name": "Explore",
+            "description": "Fast read-only search agent for locating code. Use it to find files by pattern (eg. \"src/components/**/*.tsx\"), grep for symbols or keywords (eg. \"API endpoints\"), or answer \"where is X defined / which files reference Y.\" Do NOT use it for code review, design-doc auditing, cross-file consistency checks, or open-ended analysis \u2014 it reads excerpts rather than whole files and will miss content past its read window. When calling, specify search breadth: \"quick\" for a single targeted lookup, \"medium\" for moderate exploration, or \"very thorough\" to search across multiple locations and naming conventions.",
+            "model": "inherit"
+          },
+          {
+            "name": "general-purpose",
+            "description": "General-purpose agent for researching complex questions, searching for code, and executing multi-step tasks. When you are searching for a keyword or file and are not confident that you will find the right match in the first few tries use this agent to perform the search for you."
+          },
+          {
+            "name": "Plan",
+            "description": "Software architect agent for designing implementation plans. Use this when you need to plan the implementation strategy for a task. Returns step-by-step plans, identifies critical files, and considers architectural trade-offs.",
+            "model": "inherit"
+          },
+          {
+            "name": "statusline-setup",
+            "description": "Use this agent to configure the user's Claude Code status line setting.",
+            "model": "sonnet"
+          }
+        ],
+        "output_style": "default",
+        "available_output_styles": [
+          "default",
+          "Proactive",
+          "Concise",
+          "Explanatory",
+          "Learning"
+        ],
+        "user_output_styles_dir": "/home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-opus/native-home/.claude/output-styles",
+        "models": [
+          {
+            "value": "default",
+            "resolvedModel": "claude-gw-tier1a[1m]",
+            "displayName": "Default (recommended)",
+            "description": "Use the default model (currently Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5)",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          },
+          {
+            "value": "claude-gw-tier0[1m]",
+            "resolvedModel": "claude-gw-tier0[1m]",
+            "displayName": "Tier 0: Claude Fable 5.1, GPT 6 Astra",
+            "description": "Custom model (claude-gw-tier0[1m])",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          },
+          {
+            "value": "claude-gw-tier1a[1m]",
+            "resolvedModel": "claude-gw-tier1a[1m]",
+            "displayName": "Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5",
+            "description": "Custom model (claude-gw-tier1a[1m])",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          },
+          {
+            "value": "claude-gw-tier1b[1m]",
+            "resolvedModel": "claude-gw-tier1b[1m]",
+            "displayName": "Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0",
+            "description": "Custom model (claude-gw-tier1b[1m])",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          },
+          {
+            "value": "claude-gw-tier2[1m]",
+            "resolvedModel": "claude-gw-tier2[1m]",
+            "displayName": "Tier 2: Muse Spark 1.3, Grok 4.7, Qwen 3.8 Max, GLM 5.3, Muse Wonder 1.0, GPT 6.1 Sol",
+            "description": "Custom model (claude-gw-tier2[1m])",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          },
+          {
+            "value": "claude-gw-tier3[1m]",
+            "resolvedModel": "claude-gw-tier3[1m]",
+            "displayName": "Tier 3: GPT 6.1 Terra, GLM 5.3, Grok 4.7, Qwen 3.8 Max, Muse Wonder 1.0, Muse Spark 1.3",
+            "description": "Custom model (claude-gw-tier3[1m])",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          },
+          {
+            "value": "claude-gw-tier4[1m]",
+            "resolvedModel": "claude-gw-tier4[1m]",
+            "displayName": "Tier 4: GPT 6 Luna",
+            "description": "Custom model (claude-gw-tier4[1m])",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          },
+          {
+            "value": "opus",
+            "resolvedModel": "claude-gw-tier1a[1m]",
+            "displayName": "Opus",
+            "description": "Opus 5.5 \u00b7 Best for everyday, complex tasks",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          }
+        ],
+        "account": {
+          "tokenSource": "none",
+          "apiProvider": "firstParty"
+        },
+        "pid": 789435,
+        "claude_code_version": "2.1.318",
+        "current_permission_mode": "default",
+        "hook_on_failure_supported": true,
+        "feedback_mode": {
+          "kind": "disabled"
+        },
+        "analytics_disabled": true,
+        "remote_control_auto_enable": false,
+        "remote_control_auto_connect_default": false,
+        "remote_control_available": false,
+        "remote_control_auto_on_by_default": false,
+        "ide_rc_auto_enable_gate": false,
+        "fast_mode_state": "off",
+        "fast_mode_disabled_reason": "sdk_opt_in_required",
+        "session_state": "idle",
+        "capabilities": [
+          "ui_surface_v1",
+          "mcp_call_result_not_for_model_v1"
+        ]
+      },
+      "pending_permission_requests": [],
+      "pending_user_dialog_requests": []
+    }
+  },
+  {
+    "type": "control_response",
+    "response": {
+      "subtype": "success",
+      "request_id": "list_models",
+      "response": {
+        "models": [
+          {
+            "value": "default",
+            "resolvedModel": "claude-gw-tier1a[1m]",
+            "displayName": "Default (recommended)",
+            "description": "Use the default model (currently Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5)",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          },
+          {
+            "value": "claude-gw-tier0[1m]",
+            "resolvedModel": "claude-gw-tier0[1m]",
+            "displayName": "Tier 0: Claude Fable 5.1, GPT 6 Astra",
+            "description": "Custom model (claude-gw-tier0[1m])",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          },
+          {
+            "value": "claude-gw-tier1a[1m]",
+            "resolvedModel": "claude-gw-tier1a[1m]",
+            "displayName": "Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5",
+            "description": "Custom model (claude-gw-tier1a[1m])",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          },
+          {
+            "value": "claude-gw-tier1b[1m]",
+            "resolvedModel": "claude-gw-tier1b[1m]",
+            "displayName": "Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0",
+            "description": "Custom model (claude-gw-tier1b[1m])",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          },
+          {
+            "value": "claude-gw-tier2[1m]",
+            "resolvedModel": "claude-gw-tier2[1m]",
+            "displayName": "Tier 2: Muse Spark 1.3, Grok 4.7, Qwen 3.8 Max, GLM 5.3, Muse Wonder 1.0, GPT 6.1 Sol",
+            "description": "Custom model (claude-gw-tier2[1m])",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          },
+          {
+            "value": "claude-gw-tier3[1m]",
+            "resolvedModel": "claude-gw-tier3[1m]",
+            "displayName": "Tier 3: GPT 6.1 Terra, GLM 5.3, Grok 4.7, Qwen 3.8 Max, Muse Wonder 1.0, Muse Spark 1.3",
+            "description": "Custom model (claude-gw-tier3[1m])",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          },
+          {
+            "value": "claude-gw-tier4[1m]",
+            "resolvedModel": "claude-gw-tier4[1m]",
+            "displayName": "Tier 4: GPT 6 Luna",
+            "description": "Custom model (claude-gw-tier4[1m])",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          },
+          {
+            "value": "opus",
+            "resolvedModel": "claude-gw-tier1a[1m]",
+            "displayName": "Opus",
+            "description": "Opus 5.5 \u00b7 Best for everyday, complex tasks",
+            "supportsEffort": true,
+            "supportedEffortLevels": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "supportsAdaptiveThinking": true,
+            "supportsAutoMode": true,
+            "supportsThinkingOff": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "control_response",
+    "response": {
+      "subtype": "success",
+      "request_id": "get_context_usage",
+      "response": {
+        "categories": [
+          {
+            "id": "system_prompt",
+            "name": "System prompt",
+            "tokens": 8,
+            "color": "promptBorder",
+            "kind": "used"
+          },
+          {
+            "id": "autocompact_buffer",
+            "name": "Autocompact buffer",
+            "tokens": 33000,
+            "color": "inactive",
+            "kind": "buffer"
+          },
+          {
+            "id": "free_space",
+            "name": "Free space",
+            "tokens": 816992,
+            "color": "promptBorder",
+            "kind": "free"
+          }
+        ],
+        "totalTokens": 8,
+        "maxTokens": 850000,
+        "rawMaxTokens": 850000,
+        "autocompactSource": "settings",
+        "percentage": 0,
+        "gridRows": [
+          [
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "System prompt",
+              "tokens": 8,
+              "percentage": 0,
+              "squareFullness": 0.0009411764705882352
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            }
+          ],
+          [
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            }
+          ],
+          [
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            }
+          ],
+          [
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            }
+          ],
+          [
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            }
+          ],
+          [
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            }
+          ],
+          [
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            }
+          ],
+          [
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            }
+          ],
+          [
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            }
+          ],
+          [
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "promptBorder",
+              "isFilled": true,
+              "categoryName": "Free space",
+              "tokens": 816992,
+              "percentage": 96,
+              "squareFullness": 1
+            },
+            {
+              "color": "inactive",
+              "isFilled": true,
+              "categoryName": "Autocompact buffer",
+              "tokens": 33000,
+              "percentage": 4,
+              "squareFullness": 1
+            },
+            {
+              "color": "inactive",
+              "isFilled": true,
+              "categoryName": "Autocompact buffer",
+              "tokens": 33000,
+              "percentage": 4,
+              "squareFullness": 1
+            },
+            {
+              "color": "inactive",
+              "isFilled": true,
+              "categoryName": "Autocompact buffer",
+              "tokens": 33000,
+              "percentage": 4,
+              "squareFullness": 1
+            },
+            {
+              "color": "inactive",
+              "isFilled": true,
+              "categoryName": "Autocompact buffer",
+              "tokens": 33000,
+              "percentage": 4,
+              "squareFullness": 0.882352941176471
+            }
+          ]
+        ],
+        "model": "claude-gw-tier1a[1m]",
+        "memoryFiles": [],
+        "mcpTools": [],
+        "mcpInstructions": [],
+        "agents": [],
+        "autoCompactThreshold": 817000,
+        "isAutoCompactEnabled": true,
+        "messageBreakdown": {
+          "toolCallTokens": 0,
+          "toolResultTokens": 0,
+          "attachmentTokens": 0,
+          "assistantMessageTokens": 0,
+          "userMessageTokens": 0,
+          "redirectedContextTokens": 0,
+          "unattributedTokens": 0,
+          "toolCallsByType": [],
+          "attachmentsByType": []
+        },
+        "apiUsage": null
+      }
+    }
+  },
+  {
+    "type": "system",
+    "subtype": "init",
+    "cwd": "/home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-opus/native-home",
+    "session_id": "34efc4f6-95c7-4458-bc28-5d87b65adab5",
+    "tools": [],
+    "mcp_servers": [],
+    "model": "claude-gw-tier1a[1m]",
+    "permissionMode": "default",
+    "slash_commands": [],
+    "apiKeySource": "none",
+    "claude_code_version": "2.1.318",
+    "output_style": "default",
+    "agents": [
+      "claude",
+      "Explore",
+      "general-purpose",
+      "Plan",
+      "statusline-setup"
+    ],
+    "skills": [],
+    "plugins": [
+      {
+        "name": "cc-plugin-sec-default",
+        "path": "builtin",
+        "source": "cc-plugin-sec-default@builtin"
+      },
+      {
+        "name": "cc-plugin-agents-md",
+        "path": "builtin",
+        "source": "cc-plugin-agents-md@builtin"
+      },
+      {
+        "name": "cc-plugin-privacy",
+        "path": "builtin",
+        "source": "cc-plugin-privacy@builtin"
+      },
+      {
+        "name": "cc-plugin-plugin-authoring",
+        "path": "builtin",
+        "source": "cc-plugin-plugin-authoring@builtin"
+      }
+    ],
+    "capabilities": [
+      "interrupt_receipt_v1",
+      "interrupt_cancel_queued_v1",
+      "interrupt_send_now_v1",
+      "interrupt_requeue_taken_v1",
+      "msg_lifecycle_v1",
+      "request_marker_lists_v1",
+      "ask_user_question_unanswered_v1",
+      "lifecycle_wakeup_source_v1",
+      "sdk_mcp_tools_list_changed",
+      "sdk_mcp_manifests",
+      "mcp_read_resource_v1",
+      "mcp_tool_ui_meta_v1",
+      "ui_surface_v1",
+      "mcp_call_result_not_for_model_v1"
+    ],
+    "analytics_disabled": true,
+    "product_feedback_disabled": true,
+    "uuid": "c4dc18c3-e92c-45f2-b5b6-870f90fbe761",
+    "original_cwd": "/home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-opus/native-home",
+    "additional_directories": [],
+    "fast_mode_state": "off",
+    "fast_mode_disabled_reason": "sdk_opt_in_required",
+    "per_turn_effort_active": false,
+    "ultrathink_available": false,
+    "ultrathink_typed_raises": false,
+    "view_mode": "default"
+  },
+  {
+    "type": "assistant",
+    "message": {
+      "id": "msg_local",
+      "type": "message",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "text",
+          "text": "local synthetic reply"
+        }
+      ],
+      "model": "claude-opus-5-5",
+      "stop_reason": null,
+      "stop_sequence": null,
+      "usage": {
+        "input_tokens": 1,
+        "output_tokens": 0
+      },
+      "context_management": null
+    },
+    "parent_tool_use_id": null,
+    "session_id": "34efc4f6-95c7-4458-bc28-5d87b65adab5",
+    "uuid": "6669641d-ba0b-4bec-9e78-b4297373b1e4",
+    "timestamp": "2026-11-06T14:51:39.183Z"
+  },
+  {
+    "duration_api_ms": 14,
+    "stop_reason": "end_turn",
+    "session_id": "34efc4f6-95c7-4458-bc28-5d87b65adab5",
+    "total_cost_usd": 2.9999999999999997e-05,
+    "usage": {
+      "input_tokens": 1,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "output_tokens": 1,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "",
+      "iterations": [],
+      "speed": "standard",
+      "fallback_credit": null
+    },
+    "modelUsage": {
+      "claude-gw-tier1a[1m]": {
+        "inputTokens": 1,
+        "outputTokens": 1,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 2.9999999999999997e-05,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 32000,
+        "thinkingTokens": 0,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationEphemeral1hInputTokens": 0,
+        "canonicalModel": "claude-gw-tier1a[1m]",
+        "provider": "firstParty",
+        "costBasis": "unknown"
+      }
+    },
+    "permission_denials": [],
+    "terminal_reason": "completed",
+    "fast_mode_state": "off",
+    "fast_mode_disabled_reason": "sdk_opt_in_required",
+    "subagent_stats": {
+      "spawned": 0,
+      "requested": {
+        "background": 0,
+        "foreground": 0,
+        "unset": 0
+      },
+      "started_in_background": 0,
+      "max_depth": 0,
+      "spawned_by_subagents": 0,
+      "completed": 0,
+      "failed": 0,
+      "killed": {
+        "parent": 0,
+        "user": 0,
+        "system": 0
+      },
+      "refused": {
+        "depth_limit": 0,
+        "concurrency_limit": 0,
+        "budget": 0
+      },
+      "by_type": {}
+    },
+    "safety_stops": 0,
+    "is_error": false,
+    "num_turns": 1,
+    "subtype": "success",
+    "api_error_status": null,
+    "result": "local synthetic reply",
+    "ttft_ms": 38,
+    "type": "result",
+    "duration_ms": 45,
+    "uuid": "e69c5d8b-18b0-499b-8297-3e2fce089a6f",
+    "ttft_stream_ms": 38,
+    "time_to_request_ms": 31,
+    "first_content_frame_ms": 38,
+    "queued_turn_count": 0,
+    "result_index": 0,
+    "model_usage_since_last_result": {
+      "claude-gw-tier1a[1m]": {
+        "inputTokens": 1,
+        "outputTokens": 1,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 2.9999999999999997e-05,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 32000,
+        "thinkingTokens": 0,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationEphemeral1hInputTokens": 0,
+        "canonicalModel": "claude-gw-tier1a[1m]",
+        "provider": "firstParty",
+        "costBasis": "unknown"
+      }
+    }
+  }
+]

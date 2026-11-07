@@ -1,0 +1,149 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 165 items / 147 deselected / 18 selected
+
+tests/unit/test_ccsession_tiers.py FFFFFFFFFFFFFFFFFF                    [100%]
+
+=================================== FAILURES ===================================
+________________ test_named_tier_uses_its_own_window[-0-850000] ________________
+tests/unit/test_ccsession_tiers.py:559: in test_named_tier_uses_its_own_window
+    assert models.model_window(model) == (window, f"T{tier}_WINDOW")
+E   AssertionError: assert (200000, 'not in any tier') == (850000, 'T0_WINDOW')
+E     
+E     At index 0 diff: 200000 != 850000
+E     Use -v to get more diff
+_______________ test_named_tier_uses_its_own_window[-1a-850000] ________________
+tests/unit/test_ccsession_tiers.py:559: in test_named_tier_uses_its_own_window
+    assert models.model_window(model) == (window, f"T{tier}_WINDOW")
+E   AssertionError: assert (200000, 'not in any tier') == (850000, 'T1a_WINDOW')
+E     
+E     At index 0 diff: 200000 != 850000
+E     Use -v to get more diff
+_______________ test_named_tier_uses_its_own_window[-1b-850000] ________________
+tests/unit/test_ccsession_tiers.py:559: in test_named_tier_uses_its_own_window
+    assert models.model_window(model) == (window, f"T{tier}_WINDOW")
+E   AssertionError: assert (200000, 'not in any tier') == (850000, 'T1b_WINDOW')
+E     
+E     At index 0 diff: 200000 != 850000
+E     Use -v to get more diff
+________________ test_named_tier_uses_its_own_window[-2-500000] ________________
+tests/unit/test_ccsession_tiers.py:559: in test_named_tier_uses_its_own_window
+    assert models.model_window(model) == (window, f"T{tier}_WINDOW")
+E   AssertionError: assert (200000, 'not in any tier') == (500000, 'T2_WINDOW')
+E     
+E     At index 0 diff: 200000 != 500000
+E     Use -v to get more diff
+________________ test_named_tier_uses_its_own_window[-3-500000] ________________
+tests/unit/test_ccsession_tiers.py:559: in test_named_tier_uses_its_own_window
+    assert models.model_window(model) == (window, f"T{tier}_WINDOW")
+E   AssertionError: assert (200000, 'not in any tier') == (500000, 'T3_WINDOW')
+E     
+E     At index 0 diff: 200000 != 500000
+E     Use -v to get more diff
+________________ test_named_tier_uses_its_own_window[-4-850000] ________________
+tests/unit/test_ccsession_tiers.py:559: in test_named_tier_uses_its_own_window
+    assert models.model_window(model) == (window, f"T{tier}_WINDOW")
+E   AssertionError: assert (200000, 'not in any tier') == (850000, 'T4_WINDOW')
+E     
+E     At index 0 diff: 200000 != 850000
+E     Use -v to get more diff
+______________ test_named_tier_uses_its_own_window[[1m]-0-850000] ______________
+tests/unit/test_ccsession_tiers.py:559: in test_named_tier_uses_its_own_window
+    assert models.model_window(model) == (window, f"T{tier}_WINDOW")
+E   AssertionError: assert (200000, 'not in any tier') == (850000, 'T0_WINDOW')
+E     
+E     At index 0 diff: 200000 != 850000
+E     Use -v to get more diff
+_____________ test_named_tier_uses_its_own_window[[1m]-1a-850000] ______________
+tests/unit/test_ccsession_tiers.py:559: in test_named_tier_uses_its_own_window
+    assert models.model_window(model) == (window, f"T{tier}_WINDOW")
+E   AssertionError: assert (200000, 'not in any tier') == (850000, 'T1a_WINDOW')
+E     
+E     At index 0 diff: 200000 != 850000
+E     Use -v to get more diff
+_____________ test_named_tier_uses_its_own_window[[1m]-1b-850000] ______________
+tests/unit/test_ccsession_tiers.py:559: in test_named_tier_uses_its_own_window
+    assert models.model_window(model) == (window, f"T{tier}_WINDOW")
+E   AssertionError: assert (200000, 'not in any tier') == (850000, 'T1b_WINDOW')
+E     
+E     At index 0 diff: 200000 != 850000
+E     Use -v to get more diff
+______________ test_named_tier_uses_its_own_window[[1m]-2-500000] ______________
+tests/unit/test_ccsession_tiers.py:559: in test_named_tier_uses_its_own_window
+    assert models.model_window(model) == (window, f"T{tier}_WINDOW")
+E   AssertionError: assert (200000, 'not in any tier') == (500000, 'T2_WINDOW')
+E     
+E     At index 0 diff: 200000 != 500000
+E     Use -v to get more diff
+______________ test_named_tier_uses_its_own_window[[1m]-3-500000] ______________
+tests/unit/test_ccsession_tiers.py:559: in test_named_tier_uses_its_own_window
+    assert models.model_window(model) == (window, f"T{tier}_WINDOW")
+E   AssertionError: assert (200000, 'not in any tier') == (500000, 'T3_WINDOW')
+E     
+E     At index 0 diff: 200000 != 500000
+E     Use -v to get more diff
+______________ test_named_tier_uses_its_own_window[[1m]-4-850000] ______________
+tests/unit/test_ccsession_tiers.py:559: in test_named_tier_uses_its_own_window
+    assert models.model_window(model) == (window, f"T{tier}_WINDOW")
+E   AssertionError: assert (200000, 'not in any tier') == (850000, 'T4_WINDOW')
+E     
+E     At index 0 diff: 200000 != 850000
+E     Use -v to get more diff
+_______________ test_named_tier_checks_definition_and_owner[-1a] _______________
+tests/unit/test_ccsession_tiers.py:575: in test_named_tier_checks_definition_and_owner
+    assert seen is None and ("not available" in err or "not defined" in err)
+E   AssertionError: assert (None is None and ('not available' in 'ccsession: claude-gw-tier1a is not in a tier available to bob (available: tier2, tier3)\n' or 'not defined' in 'ccsession: claude-gw-tier1a is not in a tier available to bob (available: tier2, tier3)\n'))
+_______________ test_named_tier_checks_definition_and_owner[-2] ________________
+tests/unit/test_ccsession_tiers.py:571: in test_named_tier_checks_definition_and_owner
+    assert (rc == 0) == (tier == "2"), err
+E   AssertionError: ccsession: claude-gw-tier2 is not in a tier available to bob (available: tier2, tier3)
+E     
+E   assert (2 == 0) == ('2' == '2'
+E     
+E       2)
+_______________ test_named_tier_checks_definition_and_owner[-7] ________________
+tests/unit/test_ccsession_tiers.py:575: in test_named_tier_checks_definition_and_owner
+    assert seen is None and ("not available" in err or "not defined" in err)
+E   AssertionError: assert (None is None and ('not available' in 'ccsession: claude-gw-tier7 is not in a tier available to bob (available: tier2, tier3)\n' or 'not defined' in 'ccsession: claude-gw-tier7 is not in a tier available to bob (available: tier2, tier3)\n'))
+_____________ test_named_tier_checks_definition_and_owner[[1m]-1a] _____________
+tests/unit/test_ccsession_tiers.py:575: in test_named_tier_checks_definition_and_owner
+    assert seen is None and ("not available" in err or "not defined" in err)
+E   AssertionError: assert (None is None and ('not available' in 'ccsession: claude-gw-tier1a is not in a tier available to bob (available: tier2, tier3)\n' or 'not defined' in 'ccsession: claude-gw-tier1a is not in a tier available to bob (available: tier2, tier3)\n'))
+_____________ test_named_tier_checks_definition_and_owner[[1m]-2] ______________
+tests/unit/test_ccsession_tiers.py:571: in test_named_tier_checks_definition_and_owner
+    assert (rc == 0) == (tier == "2"), err
+E   AssertionError: ccsession: claude-gw-tier2 is not in a tier available to bob (available: tier2, tier3)
+E     
+E   assert (2 == 0) == ('2' == '2'
+E     
+E       2)
+_____________ test_named_tier_checks_definition_and_owner[[1m]-7] ______________
+tests/unit/test_ccsession_tiers.py:575: in test_named_tier_checks_definition_and_owner
+    assert seen is None and ("not available" in err or "not defined" in err)
+E   AssertionError: assert (None is None and ('not available' in 'ccsession: claude-gw-tier7 is not in a tier available to bob (available: tier2, tier3)\n' or 'not defined' in 'ccsession: claude-gw-tier7 is not in a tier available to bob (available: tier2, tier3)\n'))
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[-0-850000]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[-1a-850000]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[-1b-850000]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[-2-500000]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[-3-500000]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[-4-850000]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[[1m]-0-850000]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[[1m]-1a-850000]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[[1m]-1b-850000]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[[1m]-2-500000]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[[1m]-3-500000]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[[1m]-4-850000]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_checks_definition_and_owner[-1a]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_checks_definition_and_owner[-2]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_checks_definition_and_owner[-7]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_checks_definition_and_owner[[1m]-1a]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_checks_definition_and_owner[[1m]-2]
+FAILED tests/unit/test_ccsession_tiers.py::test_named_tier_checks_definition_and_owner[[1m]-7]
+====================== 18 failed, 147 deselected in 2.00s ======================
+
+Command: uv run pytest tests/unit/test_ccsession_tiers.py -k "named_tier_" -q

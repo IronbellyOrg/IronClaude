@@ -1,0 +1,1904 @@
+Review one task for spec compliance.
+
+Task brief: ## Task 4: Add launch-path and runtime boundary regressions
+Depends on: Task 3
+
+Inputs: all three scoped files, existing fake-launch/shim harness, existing diagnosis artifacts at .dev/troubleshoot/bug-ensure-the-850k-limit-of-20261106114037/artifacts/sdk_probe.py and source acceptance. Add the smallest missing integration regressions to tests/unit/test_ccsession_tiers.py covering normal/compact-override launches, restricted owners, all requested tiers and native-to-shim routing boundary. Extend or adapt the diagnostic control driver only as package-owned evidence under ./artifacts/, consuming repo-produced launch settings/env rather than hand-coded proposed configuration. Outputs: completed regression coverage plus ./artifacts/t4-runtime.json, ./artifacts/t4-tests.log and ./artifacts/t4-checks.log. Do not modify the original report's pre-fix captures.
+
+Acceptance criteria:
+- Actual installed Claude Code tool-free restricted controls using repo-produced configuration show tier0/tier1a/tier1b = 850000 and tier2 = 500000 with fixture windows; ordinary tier picker has exactlyDefault plus curated Tier rows. No real model inference/credentials/global settings changes.
+- Routing preservation is demonstrated at a native-to-local-shim boundary or equivalent existing real request-capture fixture; bare routing aliases still work and context suffix does not reach upstream as an unknown alias. If a required boundary cannot be observed, report the precise limitation without claiming proof.
+- uv run pytest tests/unit/test_ccsession_tiers.py tests/unit/test_ccsession_tag.py tests/skills/test_model_alias_policy.py completes with observed result recorded. New per-tier/window/picker regressions are runnable, no dependency added.
+- Targeted lint/format checks plus make sync-dev and make verify-sync have observed outcomes. Product diff stays in scoped canonical files; .dev/tasks package/ledger/artifacts staged, generated .claude mirrors not staged.
+- Final delivery names exact issue408 URL, diagnosis report path, plan path, changed files, pytest command/result and external manual-bare-ID/native-selected-individual limitations, preserving hardening advisory. No commit,push,PR.
+
+T4.AC1: Actual installed Claude Code tool-free restricted controls using repo-produced configuration show tier0/tier1a/tier1b = 850000 and tier2 = 500000 with fixture windows; ordinary tier picker has exactlyDefault plus curated Tier rows. No real model inference/credentials/global settings changes.
+T4.AC2: Routing preservation is demonstrated at a native-to-local-shim boundary or equivalent existing real request-capture fixture; bare routing aliases still work and context suffix does not reach upstream as an unknown alias. If a required boundary cannot be observed, report the precise limitation without claiming proof.
+T4.AC3: uv run pytest tests/unit/test_ccsession_tiers.py tests/unit/test_ccsession_tag.py tests/skills/test_model_alias_policy.py completes with observed result recorded. New per-tier/window/picker regressions are runnable, no dependency added.
+T4.AC4: Targeted lint/format checks plus make sync-dev and make verify-sync have observed outcomes. Product diff stays in scoped canonical files; .dev/tasks package/ledger/artifacts staged, generated .claude mirrors not staged.
+T4.AC5: Final delivery names exact issue408 URL, diagnosis report path, plan path, changed files, pytest command/result and external manual-bare-ID/native-selected-individual limitations, preserving hardening advisory. No commit,push,PR.
+Global constraints: - Scope product changes to src/superclaude/skills/ccsession-tag/ccsession, src/superclaude/skills/ccsession-tag/models.py and tests/unit/test_ccsession_tiers.py. Source sections Summary/Files/Acceptance in ./source.md govern every task. Coordinator approval is required if another source file becomes necessary.
+- Keep routing aliases, actual per-tier/per-model windows, access checks, inherited unavailable default aliases, non-tier profiles, explicit individual-model routing, explicit show-all/+models and user-settings precedence. No dependencies, global settings/env changes, other-worktree edits, commits, push, PR or Orca link flags.
+- Native runtime2.1.318 is verified; do not claim all older versions support picker replacement. Manually typing bare IDs inside running Claude Code bypasses launcher normalization; report this external limit rather than a fake fix. Selected individual models may be re-added by native UI, never silently route them to a tier.
+- Source is canonical; run make sync-dev after changes, never stage generated .claude mirrors. Always stage .dev/tasks including progress and artifacts. Evidence paths in tasks are package-relative under ./artifacts/.
+- Pipeline hardening stays advisory/latched from source; successful tests/reviews cannot promote that to production pipeline signoff. No provider inference is required or authorized for local control probes.
+
+Start sha: 1ea511de645c43cef804dd2e2b2a1f9e8c713113
+Diff against the start snapshot: diff --git a/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/capture_shim.py b/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/capture_shim.py
+new file mode 100644
+index 00000000..7a5cf9eb
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/capture_shim.py
+@@ -0,0 +1,26 @@
++"""Run the unchanged repository shim, recording the native HTTP body before routing."""
++import io
++import json
++import os
++from pathlib import Path
++import runpy
++import sys
++
++skill = Path(os.environ['CCSESSION_DIR'])
++sys.path.insert(0, str(skill))
++module = runpy.run_path(str(skill / 'local-gateway-alias-proxy.py'))
++Handler = module['Handler']
++original = Handler.do_POST
++
++
++def capture(self):
++    body = self.rfile.read(int(self.headers.get('Content-Length', 0)))
++    with open(os.environ['BOUNDARY_CAPTURE'], 'a') as log:
++        log.write(json.dumps({'path': self.path, 'body': json.loads(body)}) + '\n')
++    self.rfile = io.BytesIO(body)
++    return original(self)
++
++
++Handler.do_POST = capture
++server = module['ThreadingServer'](module['LISTEN'], Handler)
++server.serve_forever()
+diff --git a/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime_probe.py b/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime_probe.py
+new file mode 100644
+index 00000000..ee6d04d0
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime_probe.py
+@@ -0,0 +1,225 @@
++"""Installed Claude controls and actual native→unchanged shim→local synthetic gateway.
++No provider inference, real credentials, user settings, or original diagnosis artifacts.
++Run with: uv run python <this file>. All evidence stays beside this script.
++"""
++from pathlib import Path
++import http.server
++import json
++import os
++import runpy
++import select
++import subprocess
++import sys
++import threading
++import time
++
++HERE = Path(__file__).resolve().parent
++ROOT = HERE.parents[4]
++NATIVE = '/opt/nvm/versions/node/v24.22.2/bin/claude'
++WORK = HERE / ('runtime-work-' + (sys.argv[1] if len(sys.argv) > 1 else '1'))
++HELPERS = runpy.run_path(str(ROOT / 'tests/unit/test_ccsession_tiers.py'))
++MODELS = HELPERS['models']
++SKILL = HELPERS['SKILL_DIR']
++ENV_KEYS = ['ANTHROPIC_BASE_URL', 'ANTHROPIC_API_KEY', 'ANTHROPIC_AUTH_TOKEN',
++            'ANTHROPIC_DEFAULT_OPUS_MODEL', 'ANTHROPIC_DEFAULT_SONNET_MODEL',
++            'ANTHROPIC_DEFAULT_HAIKU_MODEL', 'ANTHROPIC_CUSTOM_MODEL_OPTION',
++            'ANTHROPIC_CUSTOM_MODEL_OPTION_NAME', 'ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION',
++            'CLAUDE_CODE_MAX_CONTEXT_TOKENS', 'CLAUDE_CODE_AUTO_COMPACT_WINDOW',
++            'CLAUDE_AUTOCOMPACT_PCT_OVERRIDE', 'CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY']
++
++
++def synthetic(self):
++    body = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
++    self.server.gateway.calls.append((self.path, body))
++    if self.path.endswith('/count_tokens'):
++        self.send_response(200)
++        self.end_headers()
++        self.wfile.write(b'{"input_tokens":1}')
++        return
++    message = {'id': 'msg_local', 'type': 'message', 'role': 'assistant', 'content': [],
++               'model': body['model'], 'stop_reason': None, 'stop_sequence': None,
++               'usage': {'input_tokens': 1, 'output_tokens': 0}}
++    self.send_response(200)
++    self.send_header('Content-Type', 'text/event-stream')
++    self.end_headers()
++    events = [('message_start', {'type': 'message_start', 'message': message}),
++              ('content_block_start', {'type': 'content_block_start', 'index': 0, 'content_block': {'type': 'text', 'text': ''}}),
++              ('content_block_delta', {'type': 'content_block_delta', 'index': 0, 'delta': {'type': 'text_delta', 'text': 'local synthetic reply'}}),
++              ('content_block_stop', {'type': 'content_block_stop', 'index': 0}),
++              ('message_delta', {'type': 'message_delta', 'delta': {'stop_reason': 'end_turn', 'stop_sequence': None}, 'usage': {'output_tokens': 1}}),
++              ('message_stop', {'type': 'message_stop'})]
++    for name, value in events:
++        self.wfile.write(f'event: {name}\ndata: {json.dumps(value)}\n\n'.encode())
++    self.wfile.flush()
++
++
++def native(case, launch, selected=None, request=False):
++    folder = WORK / case
++    home = folder / 'native-home'
++    home.mkdir(parents=True, exist_ok=True)
++    env = {'PATH': os.environ['PATH'], 'HOME': str(home), 'TERM': 'dumb',
++           'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC': '1', **launch['env']}
++    argv = launch['argv']
++    settings = argv[argv.index('--settings') + 1]
++    model = selected or argv[argv.index('--model') + 1]
++    cmd = [NATIVE, '--bare', '--restricted', '--setting-sources', '', '--strict-mcp-config',
++           '--mcp-config', '{"mcpServers":{}}', '--tools', '', '--disable-slash-commands',
++           '--no-session-persistence', '--system-prompt', 'Local boundary control.',
++           '--model', model, '--settings', settings, '--print', '--verbose',
++           '--input-format', 'stream-json', '--output-format', 'stream-json']
++    replies = []
++    buffer = b''
++    log = (folder / 'native-stderr.log').open('w')
++    proc = subprocess.Popen(cmd, cwd=home, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=log)
++
++    def wait_for(predicate):
++        nonlocal buffer
++        deadline = time.monotonic() + 40
++        while time.monotonic() < deadline:
++            while b'\n' in buffer:
++                line, buffer = buffer.split(b'\n', 1)
++                if not line.strip():
++                    continue
++                item = json.loads(line)
++                replies.append(item)
++                if predicate(item):
++                    return item
++            if not select.select([proc.stdout], [], [], 0.5)[0]:
++                if proc.poll() is not None:
++                    raise RuntimeError(f'{case}: native exited {proc.returncode}')
++                continue
++            chunk = os.read(proc.stdout.fileno(), 65536)
++            if not chunk:
++                raise RuntimeError(f'{case}: native EOF')
++            buffer += chunk
++        raise TimeoutError(case)
++
++    controls = {}
++    try:
++        for name in ('initialize', 'list_models', 'get_context_usage'):
++            msg = {'type': 'control_request', 'request_id': name, 'request': {'subtype': name}}
++            proc.stdin.write((json.dumps(msg) + '\n').encode())
++            proc.stdin.flush()
++            item = wait_for(lambda i: i.get('type') == 'control_response' and i.get('response', {}).get('request_id') == name)
++            assert item['response']['subtype'] == 'success', item
++            controls[name] = item['response'].get('response', {})
++        result = None
++        if request:
++            msg = {'type': 'user', 'message': {'role': 'user', 'content': 'Return the local synthetic reply.'}}
++            proc.stdin.write((json.dumps(msg) + '\n').encode())
++            proc.stdin.flush()
++            result = wait_for(lambda i: i.get('type') == 'result')
++            assert not result.get('is_error'), result
++    finally:
++        proc.terminate()
++        try:
++            proc.wait(timeout=5)
++        except subprocess.TimeoutExpired:
++            proc.kill()
++            proc.wait()
++        log.close()
++        (folder / 'responses.json').write_text(json.dumps(replies, indent=2))
++        (folder / 'command.json').write_text(json.dumps(cmd, indent=2))
++    usage = controls['get_context_usage']
++    return {'case': case, 'selected': model,
++            'models': [{k: row.get(k) for k in ('value', 'displayName', 'description', 'resolvedModel')} for row in controls['list_models'].get('models', [])],
++            'context': {k: usage.get(k) for k in ('model', 'maxTokens', 'rawMaxTokens', 'autocompactSource', 'autoCompactThreshold')},
++            'local_result': result and result.get('result'),
++            'responses': str((folder / 'responses.json').relative_to(HERE))}
++
++
++def main():
++    work = WORK
++    work.mkdir(exist_ok=True)
++    gateway = HELPERS['StandInGateway']()
++    gateway.server.gateway = gateway
++    gateway.server.RequestHandlerClass.do_POST = synthetic
++    env = {'PATH': os.environ['PATH'], 'HOME': str(work), 'CCSESSION_MODELS_REFRESH': '0',
++           'XDG_CACHE_HOME': str(work / 'model-cache'), 'CCSESSION_DIR': str(SKILL),
++           'AIDEV_AI_DEFAULTS_PATH': str(HELPERS['_defaults'](work)),
++           'GW_PROXY_UPSTREAM': gateway.url, 'BOUNDARY_CAPTURE': str(work / 'shim-requests.jsonl')}
++    port = HELPERS['_free_port']()
++    while MODELS.shim_upstream_problem(gateway.url, port):
++        port = HELPERS['_free_port']()
++    env['GW_PROXY_PORT'] = str(port)
++    shim_log = (work / 'shim-stderr.log').open('w')
++    shim = subprocess.Popen([sys.executable, str(HERE / 'capture_shim.py')], env=env, cwd=ROOT, stderr=shim_log)
++    import urllib.request
++    base = f'http://127.0.0.1:{port}'
++    output = {'native_version': subprocess.check_output([NATIVE, '--version'], text=True).strip(),
++              'provider_inference': False, 'pipeline_hardening_verdict': 'advisory', 'waiver_status': 'latched', 'cases': []}
++    try:
++        for _ in range(100):
++            try:
++                with urllib.request.urlopen(base + '/__ccsession_shim', timeout=0.5) as response:
++                    json.load(response)
++                break
++            except OSError:
++                if shim.poll() is not None:
++                    raise RuntimeError('shim exited before health')
++                time.sleep(0.05)
++        else:
++            raise TimeoutError('shim health')
++        rows = json.load(urllib.request.urlopen(base + '/v1/models'))['data']
++        output['actual_shim_rows'] = rows
++        for case, args, selected, expected, request in [
++            ('tier0', ['--model', 'claude-gw-tier0'], None, 850000, False),
++            ('tier1a', ['--model', 'claude-gw-tier1a[1m]'], None, 850000, False),
++            ('tier1b', ['--tier', '1b'], None, 850000, False),
++            ('tier2', ['--tier', '2'], None, 500000, False),
++            ('compact-override', ['--tier', '0'], None, 300000, False),
++            ('alias-opus', ['--tier', '2'], 'opus', 850000, True),
++            ('alias-sonnet', ['--tier', '2'], 'sonnet', 850000, True),
++            ('alias-haiku', ['--tier', '2'], 'haiku', 500000, True),
++            ('bare-route', ['--tier', '1a'], 'claude-gw-tier1a', 200000, True),
++        ]:
++            folder = work / case
++            folder.mkdir(exist_ok=True)
++            launch_env = HELPERS['_launch_env'](folder, ANTHROPIC_BASE_URL=gateway.url,
++                        CC_SHIM_PORT=str(port), ANTHROPIC_API_KEY='local-probe-not-a-secret',
++                        ANTHROPIC_AUTH_TOKEN='local-probe-not-a-secret',
++                        CCSESSION_MODELS_REFRESH='0', CCSESSION_COMPACT_WINDOW='300000' if case == 'compact-override' else '',
++                        AIDEV_AI_DEFAULTS_PATH=env['AIDEV_AI_DEFAULTS_PATH'],
++                        CCSESSION_ENV_FILE=str(folder / 'no-session.env'))
++            for key in ('CODER_WORKSPACE_OWNER_NAME', 'CODER_WORKSPACE_OWNER_ROLES', 'CCSESSION_ACCESS', 'CCSESSION_TIER_RULES', 'CCSESSION_TIERS', 'CCSESSION_COOLDOWN_SECONDS', 'CCSESSION_FIRST_BYTE_TIMEOUT', 'CCSESSION_SHOW_ALL_MODELS', 'CCSESSION_GATEWAY_URL', 'CCSESSION_SHIM_URL', 'ANTHROPIC_MODEL'):
++                launch_env.pop(key, None)
++            launch_env['CCSESSION_PERMISSIONS'] = 'default'
++            (folder / 'curl').write_text('#!/bin/sh\nexec /usr/bin/curl "$@"\n')
++            (folder / 'claude').write_text('#!/usr/bin/env python3\nimport json,os,sys\njson.dump({"argv":sys.argv[1:],"env":{k:os.environ[k] for k in '+repr(ENV_KEYS)+' if k in os.environ}},open(os.environ["SEEN_FILE"],"w"))\n')
++            proc = subprocess.run([str(SKILL / 'ccsession'), 'work', *args], cwd=folder, env=launch_env, capture_output=True, text=True, timeout=60)
++            (folder / 'launch-stderr.log').write_text(proc.stderr)
++            assert proc.returncode == 0, proc.stderr
++            launch = json.loads((folder / 'seen.json').read_text())
++            before = len(gateway.calls)
++            item = native(case, launch, selected, request)
++            assert item['context']['maxTokens'] == expected, item
++            expected_rows = ['default', *[r['id'] for r in rows]]
++            if selected is None:
++                assert [m['value'] for m in item['models']] == expected_rows, item
++            else:
++                assert [m['value'] for m in item['models']] == [*expected_rows, selected], item
++                item['native_selected_row_readded'] = selected
++            item['upstream_models'] = [b['model'] for _, b in gateway.calls[before:]]
++            if request:
++                assert item['upstream_models'], item
++                assert not any('[1m]' in m or m.startswith('claude-gw-') for m in item['upstream_models']), item
++            output['cases'].append(item)
++            (HERE / 't4-runtime.json').write_text(json.dumps(output, indent=2))
++            print(case, item['context']['maxTokens'], item['upstream_models'], flush=True)
++        captured = [json.loads(line) for line in (work / 'shim-requests.jsonl').read_text().splitlines()]
++        output['native_to_shim'] = [{'path': row['path'], 'model': row['body'].get('model')} for row in captured]
++        expected_bare = {'claude-gw-tier1a', 'claude-gw-tier1b', 'claude-gw-tier2'}
++        assert expected_bare <= {r['model'] for r in output['native_to_shim']}, output
++        assert not any('[1m]' in (r['model'] or '') for r in output['native_to_shim']), output
++        output['boundary_observed'] = True
++        output['outcome'] = 'success_with_hardening_advisory'
++        (HERE / 't4-runtime.json').write_text(json.dumps(output, indent=2))
++    finally:
++        shim.terminate()
++        shim.wait(timeout=5)
++        shim_log.close()
++        gateway.close()
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-checks-final.log b/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-checks-final.log
+new file mode 100644
+index 00000000..5bab107a
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-checks-final.log
+@@ -0,0 +1,233 @@
++Command: uv run ruff check src/superclaude/skills/ccsession-tag/models.py tests/unit/test_ccsession_tiers.py
++All checks passed!
++Command: uv run ruff format --check src/superclaude/skills/ccsession-tag/models.py tests/unit/test_ccsession_tiers.py
++2 files already formatted
++Command: bash -n src/superclaude/skills/ccsession-tag/ccsession
++Command: make sync-dev
++🔄 Syncing src/superclaude/ → .claude/ for local development...
++✅ Sync complete.
++   Skills:    39 directories
++   Agents:    48 files
++   Commands:  46 files
++   Hooks:     13 files
++   Templates: 52 files
++Command: make verify-sync
++🔍 Verifying src/superclaude/ ↔ .claude/ sync...
++
++=== Skills ===
++  ✅ ccsession-tag
++  ✅ confidence-check
++  ✅ operational-guide
++  ✅ prd
++  ✅ readme
++  ✅ roadmap
++  ✅ sc-adversarial-protocol
++  ✅ sc-auggie-review-protocol
++  ✅ sc-bare-review
++  ✅ sc-brainstorm-protocol
++  ✅ sc-cleanup-audit-protocol
++  ✅ sc-cli-eval-protocol
++  ✅ sc-cli-portify-protocol
++  ✅ sc-crash-recovery
++  ✅ sc-graph-protocol
++  ✅ sc-impact-protocol
++  ✅ sc-implement-protocol
++  ✅ sc-init-lite-protocol
++  ✅ sc-issue-protocol
++  ✅ sc-pm-protocol
++  ✅ sc-post-release-protocol
++  ✅ sc-pr-submit-protocol
++  ✅ sc-recommend
++  ✅ sc-reflect-protocol
++  ✅ sc-release-split-protocol
++  ✅ sc-review-translation-protocol
++  ✅ sc-roadmap-protocol
++  ✅ sc-swarm-wizard-protocol
++  ✅ sc-task-protocol
++  ✅ sc-tasklist-protocol
++  ✅ sc-troubleshoot-protocol
++  ✅ sc-validate-roadmap-protocol
++  ✅ sc-validate-tests-protocol
++  ✅ sc-workflow-protocol
++  ✅ task-builder
++  ✅ task
++  ✅ tdd
++  ✅ tech-reference
++  ✅ tech-research
++
++=== Agents ===
++  ✅ audit-analyzer.md
++  ✅ audit-comparator.md
++  ✅ audit-consolidator.md
++  ✅ audit-scanner.md
++  ✅ audit-validator.md
++  ✅ auggie-reviewer.md
++  ✅ backend-architect.md
++  ✅ business-panel-experts.md
++  ✅ confidence-calibrator.md
++  ✅ debate-orchestrator.md
++  ✅ deep-research-agent.md
++  ✅ deep-research.md
++  ✅ devops-architect.md
++  ✅ eval-docs-loader.md
++  ✅ eval-run-reporter.md
++  ✅ eval-suite-author.md
++  ✅ evidence-validator.md
++  ✅ frontend-architect.md
++  ✅ implement-retry-adviser.md
++  ✅ issue-worker-t1.md
++  ✅ issue-worker-t2.md
++  ✅ issue-worker-t3.md
++  ✅ learning-guide.md
++  ✅ merge-executor.md
++  ✅ performance-engineer.md
++  ✅ pm-agent.md
++  ✅ python-expert.md
++  ✅ quality-engineer.md
++  ✅ refactoring-expert.md
++  ✅ reflect-reviewer.md
++  ✅ repo-index.md
++  ✅ requirements-analyst.md
++  ✅ reuse-auditor.md
++  ✅ rf-analyst.md
++  ✅ rf-assembler.md
++  ✅ rf-qa-qualitative.md
++  ✅ rf-qa.md
++  ✅ rf-task-builder.md
++  ✅ rf-task-executor.md
++  ✅ rf-task-researcher.md
++  ✅ rf-team-lead.md
++  ✅ root-cause-analyst.md
++  ✅ security-engineer.md
++  ✅ self-review.md
++  ✅ socratic-mentor.md
++  ✅ system-architect.md
++  ✅ technical-writer.md
++  ✅ troubleshoot-analyst.md
++
++=== Commands ===
++  ✅ adversarial.md
++  ✅ agent.md
++  ✅ analyze.md
++  ✅ auggie-review.md
++  ✅ brainstorm.md
++  ✅ build.md
++  ✅ business-panel.md
++  ✅ cleanup-audit.md
++  ✅ cleanup.md
++  ✅ cli-eval.md
++  ✅ cli-portify.md
++  ✅ design.md
++  ✅ document.md
++  ✅ explain.md
++  ✅ git.md
++  ✅ graph.md
++  ✅ help.md
++  ✅ impact.md
++  ✅ implement.md
++  ✅ improve.md
++  ✅ index-repo.md
++  ✅ index.md
++  ✅ init-lite.md
++  ✅ issue.md
++  ✅ load.md
++  ✅ pm.md
++  ✅ post-release.md
++  ✅ pr-submit.md
++  ✅ recommend.md
++  ✅ reflect.md
++  ✅ release-split.md
++  ✅ research.md
++  ✅ review-translation.md
++  ✅ roadmap.md
++  ✅ save.md
++  ✅ spawn.md
++  ✅ spec-panel.md
++  ✅ swarm-wizard.md
++  ✅ task.md
++  ✅ tasklist.md
++  ✅ tdd.md
++  ✅ test.md
++  ✅ troubleshoot.md
++  ✅ validate-roadmap.md
++  ✅ validate-tests.md
++  ✅ workflow.md
++
++=== Hooks ===
++  ✅ auggie-flag-clear.sh
++  ✅ block-bare-python.sh
++  ✅ codegraph-session-start.sh
++  ✅ freshness-file-changed.sh
++  ✅ freshness-post-read.sh
++  ✅ freshness-pre-edit.sh
++  ✅ freshness-session-start.sh
++  ✅ freshness-subagent-start.sh
++  ✅ freshness-subagent-stop.sh
++  ✅ freshness-user-prompt.sh
++  ✅ reject-workspace-writes.sh
++  ✅ sc-recommend-phase0.sh
++  ✅ pragmatic-subagent.js
++
++=== Templates ===
++  ✅ workflow/05_prd_template.md
++  ✅ workflow/03_project_plan_template.md
++  ✅ workflow/03_component_authoring_template.md
++  ✅ workflow/00_mdtm_template_simple_task.md
++  ✅ workflow/01_mdtm_template_generic_task__gfdoc.md
++  ✅ workflow/06_architecture_proposal_template.md
++  ✅ workflow/02_mdtm_template_complex_task.md
++  ✅ workflow/04_feature_brief_template.md
++  ✅ workflow/changelog_template.md
++  ✅ workflow/01_mdtm_template_generic_task.md
++  ✅ workflow/99_mdtm_template_generic_task_old.md
++  ✅ documents/prd_template.md
++  ✅ documents/operational_guide_template.md
++  ✅ documents/GFxAI_Master_Documentation_Template.md
++  ✅ documents/tdd_template.md
++  ✅ documents/agent_template_analysis.md
++  ✅ documents/supplemental-doc-creation-checklist.md
++  ✅ documents/agent_template_qa.md
++  ✅ documents/skill_template.md
++  ✅ documents/roadmap_template.md
++  ✅ documents/agent_template_worker.md
++  ✅ documents/release-spec-template.md
++  ✅ documents/supplemental_doc_template.md
++  ✅ documents/technical_reference_template.md
++  ✅ documents/readme_template.md
++  ✅ modularization-template-review/qa-fix-summary_template.md
++  ✅ modularization-template-review/qa-task-research-alignment_report_template.md
++  ✅ modularization-template-review/analyst-synthesis-review_report_template.md
++  ✅ modularization-template-review/research-notes_template.md
++  ✅ modularization-template-review/synthetic-dnsp-finding.contract
++  ✅ modularization-template-review/INDEX.md
++  ✅ modularization-template-review/qa-task-validation-structure_report_template.md
++  ✅ modularization-template-review/qa-cross-source-contradictions_template.md
++  ✅ modularization-template-review/track-scope-map_template.md
++  ✅ modularization-template-review/claim-evidence-matrix_template.md
++  ✅ modularization-template-review/qa-inventory_report_template.md
++  ✅ modularization-template-review/analyst-coverage-matrix_template.md
++  ✅ modularization-template-review/codebase-research_template.md
++  ✅ modularization-template-review/analyst-completeness_report_template.md
++  ✅ modularization-template-review/analyst-gap-analysis_template.md
++  ✅ modularization-template-review/qa-lens_report_template.md
++  ✅ modularization-template-review/qa-consolidated-findings_template.md
++  ✅ modularization-template-review/qa-task-validation-b2_report_template.md
++  ✅ modularization-template-review/qa-research-gap_report_template.md
++  ✅ modularization-template-review/qa-research-evidence_report_template.md
++  ✅ modularization-template-review/qa-qualitative-operational_report_template.md
++  ✅ modularization-template-review/qa-qualitative-sufficiency_report_template.md
++  ✅ modularization-template-review/analyst-cross-validation_report_template.md
++  ✅ modularization-template-review/qa-acceptance-methodology-audit_template.md
++  ✅ modularization-template-review/pipeline-complete_report_template.md
++  ✅ modularization-template-review/qa-source-fidelity_template.md
++  ✅ modularization-template-review/qa-research-depth_report_template.md
++  ✅ modularization-template-review/web-research_template.md
++
++=== Installer Registration ===
++  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
++
++=== Hooks Cross-Consistency ===
++  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
++
++✅ All components in sync.
++Command: git diff --check
+diff --git a/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-delivery.txt b/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-delivery.txt
+new file mode 100644
+index 00000000..5985e396
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-delivery.txt
+@@ -0,0 +1,19 @@
++Issue: https://github.com/IronbellyOrg/IronClaude/issues/408
++Diagnosis: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/troubleshoot/bug-ensure-the-850k-limit-of-20261106114037/REPORT.md
++Plan at review time: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/TASK-WF-remediationSourc-20261106-121243.md
++Stable package-local plan: ../TASK-WF-remediationSourc-20261106-121243.md (the archive helper alone may later move the package).
++Product changes only:
++- src/superclaude/skills/ccsession-tag/models.py
++- src/superclaude/skills/ccsession-tag/ccsession
++- tests/unit/test_ccsession_tiers.py
++Required command: uv run pytest tests/unit/test_ccsession_tiers.py tests/unit/test_ccsession_tag.py tests/skills/test_model_alias_policy.py
++Observed final-source result: 491 passed in 274.21s (0:04:34), exit 0; t4-tests-rerun.log:503. The original Task4 run (t4-tests.log) retains 490 passed/1 failed against an existing literal stderr-opener assertion. This was resolved in ccsession itself with a real FD3 settings handoff, preserving the old Python stdout-to-stderr contract; no fourth source/test file was edited and no inert test-appeasing line was inserted. Targeted final stderr/picker check: 9 passed (t4-focused.log:12).
++Earlier Task1 full runs each retain 164 passed/1 failed from different existing random upstream/shim-port collisions. Task1 extras remain honestly test=fail in the append-only ledger; its 19 focused related regressions passed. No unrelated random-port helper was changed. These historical failures are not represented as green runs.
++Quality checks: targeted ruff check passed; ruff format --check reported two files already formatted; bash -n passed; make sync-dev completed; make verify-sync reported all components in sync (t4-checks-final.log:232); git diff --check exited 0. No separate type checker was detected or run. .dev/tasks is staged, including artifacts; generated project .claude mirrors and project-root artifacts are not staged.
++Observed installed runtime: Claude Code 2.1.318, restricted and tool-free, isolated HOME, explicit empty MCP configuration, local dummy credentials, local synthetic gateway only. No real provider inference, real credentials, user-global settings/environment changes or original-user-session restart. New driver runtime_probe.py reuses the existing launcher harness/defaults; captures are package-owned. capture_shim.py records the original native HTTP body then delegates to the unchanged repository shim handler, preserving its routing implementation.
++Final-source native controls: tier0/tier1a/tier1b=850000; tier2=500000; explicit compact override=300000. Ordinary tier launch lists exactly Default plus the six actual configured Tier rows (0,1a,1b,2,3,4), retaining actual labels. The test fixture also pins nonempty upstream description preservation. No custom default-alias/profile duplicates occur in ordinary tier launch. Detailed controls, repo-produced argv/env and warmed cache copies are under runtime-work-3/; t4-runtime.json records the exact actual shim rows and native control results.
++Actual native alias boundary: native --model opus/sonnet/haiku, consuming repository-exported suffixed default aliases and repository-produced settings, reports 850000/850000/500000. Real /v1/messages bodies arriving at the local shim contain bare claude-gw-tier1a/tier1b/tier2 (t4-runtime.json:710-743), and the local synthetic upstream receives the real first-slot model IDs, never an unknown suffixed tier alias. Raw request bodies are retained in runtime-work-3/shim-requests.jsonl. Both count-token controls and complete synthetic replies were observed; these are not inferred from a code comment or a fake client assuming suffix removal. Bare native tier1a still routes correctly but reports 200000, preserving the external limitation.
++External limits: manually typing a bare tier ID in an already-running native process bypasses launcher normalization and still has its unknown-model 200k ceiling. Native may re-add an explicitly selected model outside the curated list; final probes directly observed this for explicit native opus/sonnet/haiku/bare selections. Explicit individual models remain on their own routing path, never silently mapped to a tier. The first new probe incorrectly demanded no selected-row re-add for an explicit native alias; its failed log/captures are preserved. The final probe admits only that specific selected row rather than rerouting or filtering the observed UI. This is not a claim about all older native versions or the original user's live gateway/UI.
++All twelve pre-review cautions retained: exported-alias boundary separately captured (NC01); bare/suffixed tier identity/access and individual fallback preserved (NC02); deterministic successful /v1/models fixture (NC03); rows come directly from current successful fetch, not shared cache reread (NC04); compaction override and generated-before-user settings order preserved (NC05); graceful warm-up failure can retain the existing named-model custom option without replacement (NC06); non-tier shared caller unchanged (NC07); actual shell/Python callers and tests inspected, impact not proof of absence (NC08); configuration-only replay not mislabeled integration (NC09); observed counts only, no invented standalone typecheck (NC10); out-of-scope bare-export docs and substring policy test left unchanged and disclosed (NC11); in_my_tiers/default-model policy left unchanged (NC12).
++Pipeline outcome remains success_with_hardening_advisory; pipeline_hardening_verdict=advisory; waiver_status=latched. Per-task QA and a successful test suite do not become production pipeline-health signoff. Managed FINAL and helper archive are still separate required gates at this file's creation.
++No commit, push, PR, other-worktree edit, upstream interaction, dependency addition, global setting/environment mutation or Orca link flag.
+diff --git a/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-runtime.json b/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-runtime.json
+new file mode 100644
+index 00000000..f5ac1534
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-runtime.json
+@@ -0,0 +1,764 @@
++{
++  "native_version": "2.1.318 (Claude Code)",
++  "provider_inference": false,
++  "pipeline_hardening_verdict": "advisory",
++  "waiver_status": "latched",
++  "cases": [
++    {
++      "case": "tier0",
++      "selected": "claude-gw-tier0[1m]",
++      "models": [
++        {
++          "value": "default",
++          "displayName": "Default (recommended)",
++          "description": "Use the default model (currently Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5)",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier0[1m]",
++          "displayName": "Tier 0: Claude Fable 5.1, GPT 6 Astra",
++          "description": "Custom model (claude-gw-tier0[1m])",
++          "resolvedModel": "claude-gw-tier0[1m]"
++        },
++        {
++          "value": "claude-gw-tier1a[1m]",
++          "displayName": "Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5",
++          "description": "Custom model (claude-gw-tier1a[1m])",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier1b[1m]",
++          "displayName": "Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0",
++          "description": "Custom model (claude-gw-tier1b[1m])",
++          "resolvedModel": "claude-gw-tier1b[1m]"
++        },
++        {
++          "value": "claude-gw-tier2[1m]",
++          "displayName": "Tier 2: Muse Spark 1.3, Grok 4.7, Qwen 3.8 Max, GLM 5.3, Muse Wonder 1.0, GPT 6.1 Sol",
++          "description": "Custom model (claude-gw-tier2[1m])",
++          "resolvedModel": "claude-gw-tier2[1m]"
++        },
++        {
++          "value": "claude-gw-tier3[1m]",
++          "displayName": "Tier 3: GPT 6.1 Terra, GLM 5.3, Grok 4.7, Qwen 3.8 Max, Muse Wonder 1.0, Muse Spark 1.3",
++          "description": "Custom model (claude-gw-tier3[1m])",
++          "resolvedModel": "claude-gw-tier3[1m]"
++        },
++        {
++          "value": "claude-gw-tier4[1m]",
++          "displayName": "Tier 4: GPT 6 Luna",
++          "description": "Custom model (claude-gw-tier4[1m])",
++          "resolvedModel": "claude-gw-tier4[1m]"
++        }
++      ],
++      "context": {
++        "model": "claude-gw-tier0[1m]",
++        "maxTokens": 850000,
++        "rawMaxTokens": 850000,
++        "autocompactSource": "settings",
++        "autoCompactThreshold": 817000
++      },
++      "local_result": null,
++      "responses": "runtime-work-3/tier0/responses.json",
++      "upstream_models": [
++        "claude-fable-5-1",
++        "claude-fable-5-1",
++        "claude-fable-5-1"
++      ]
++    },
++    {
++      "case": "tier1a",
++      "selected": "claude-gw-tier1a[1m]",
++      "models": [
++        {
++          "value": "default",
++          "displayName": "Default (recommended)",
++          "description": "Use the default model (currently Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5)",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier0[1m]",
++          "displayName": "Tier 0: Claude Fable 5.1, GPT 6 Astra",
++          "description": "Custom model (claude-gw-tier0[1m])",
++          "resolvedModel": "claude-gw-tier0[1m]"
++        },
++        {
++          "value": "claude-gw-tier1a[1m]",
++          "displayName": "Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5",
++          "description": "Custom model (claude-gw-tier1a[1m])",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier1b[1m]",
++          "displayName": "Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0",
++          "description": "Custom model (claude-gw-tier1b[1m])",
++          "resolvedModel": "claude-gw-tier1b[1m]"
++        },
++        {
++          "value": "claude-gw-tier2[1m]",
++          "displayName": "Tier 2: Muse Spark 1.3, Grok 4.7, Qwen 3.8 Max, GLM 5.3, Muse Wonder 1.0, GPT 6.1 Sol",
++          "description": "Custom model (claude-gw-tier2[1m])",
++          "resolvedModel": "claude-gw-tier2[1m]"
++        },
++        {
++          "value": "claude-gw-tier3[1m]",
++          "displayName": "Tier 3: GPT 6.1 Terra, GLM 5.3, Grok 4.7, Qwen 3.8 Max, Muse Wonder 1.0, Muse Spark 1.3",
++          "description": "Custom model (claude-gw-tier3[1m])",
++          "resolvedModel": "claude-gw-tier3[1m]"
++        },
++        {
++          "value": "claude-gw-tier4[1m]",
++          "displayName": "Tier 4: GPT 6 Luna",
++          "description": "Custom model (claude-gw-tier4[1m])",
++          "resolvedModel": "claude-gw-tier4[1m]"
++        }
++      ],
++      "context": {
++        "model": "claude-gw-tier1a[1m]",
++        "maxTokens": 850000,
++        "rawMaxTokens": 850000,
++        "autocompactSource": "settings",
++        "autoCompactThreshold": 817000
++      },
++      "local_result": null,
++      "responses": "runtime-work-3/tier1a/responses.json",
++      "upstream_models": [
++        "claude-opus-5-5",
++        "claude-opus-5-5",
++        "claude-opus-5-5"
++      ]
++    },
++    {
++      "case": "tier1b",
++      "selected": "claude-gw-tier1b[1m]",
++      "models": [
++        {
++          "value": "default",
++          "displayName": "Default (recommended)",
++          "description": "Use the default model (currently Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5)",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier0[1m]",
++          "displayName": "Tier 0: Claude Fable 5.1, GPT 6 Astra",
++          "description": "Custom model (claude-gw-tier0[1m])",
++          "resolvedModel": "claude-gw-tier0[1m]"
++        },
++        {
++          "value": "claude-gw-tier1a[1m]",
++          "displayName": "Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5",
++          "description": "Custom model (claude-gw-tier1a[1m])",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier1b[1m]",
++          "displayName": "Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0",
++          "description": "Custom model (claude-gw-tier1b[1m])",
++          "resolvedModel": "claude-gw-tier1b[1m]"
++        },
++        {
++          "value": "claude-gw-tier2[1m]",
++          "displayName": "Tier 2: Muse Spark 1.3, Grok 4.7, Qwen 3.8 Max, GLM 5.3, Muse Wonder 1.0, GPT 6.1 Sol",
++          "description": "Custom model (claude-gw-tier2[1m])",
++          "resolvedModel": "claude-gw-tier2[1m]"
++        },
++        {
++          "value": "claude-gw-tier3[1m]",
++          "displayName": "Tier 3: GPT 6.1 Terra, GLM 5.3, Grok 4.7, Qwen 3.8 Max, Muse Wonder 1.0, Muse Spark 1.3",
++          "description": "Custom model (claude-gw-tier3[1m])",
++          "resolvedModel": "claude-gw-tier3[1m]"
++        },
++        {
++          "value": "claude-gw-tier4[1m]",
++          "displayName": "Tier 4: GPT 6 Luna",
++          "description": "Custom model (claude-gw-tier4[1m])",
++          "resolvedModel": "claude-gw-tier4[1m]"
++        }
++      ],
++      "context": {
++        "model": "claude-gw-tier1b[1m]",
++        "maxTokens": 850000,
++        "rawMaxTokens": 850000,
++        "autocompactSource": "settings",
++        "autoCompactThreshold": 817000
++      },
++      "local_result": null,
++      "responses": "runtime-work-3/tier1b/responses.json",
++      "upstream_models": [
++        "claude-sonnet-5-5",
++        "claude-sonnet-5-5",
++        "claude-sonnet-5-5"
++      ]
++    },
++    {
++      "case": "tier2",
++      "selected": "claude-gw-tier2[1m]",
++      "models": [
++        {
++          "value": "default",
++          "displayName": "Default (recommended)",
++          "description": "Use the default model (currently Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5)",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier0[1m]",
++          "displayName": "Tier 0: Claude Fable 5.1, GPT 6 Astra",
++          "description": "Custom model (claude-gw-tier0[1m])",
++          "resolvedModel": "claude-gw-tier0[1m]"
++        },
++        {
++          "value": "claude-gw-tier1a[1m]",
++          "displayName": "Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5",
++          "description": "Custom model (claude-gw-tier1a[1m])",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier1b[1m]",
++          "displayName": "Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0",
++          "description": "Custom model (claude-gw-tier1b[1m])",
++          "resolvedModel": "claude-gw-tier1b[1m]"
++        },
++        {
++          "value": "claude-gw-tier2[1m]",
++          "displayName": "Tier 2: Muse Spark 1.3, Grok 4.7, Qwen 3.8 Max, GLM 5.3, Muse Wonder 1.0, GPT 6.1 Sol",
++          "description": "Custom model (claude-gw-tier2[1m])",
++          "resolvedModel": "claude-gw-tier2[1m]"
++        },
++        {
++          "value": "claude-gw-tier3[1m]",
++          "displayName": "Tier 3: GPT 6.1 Terra, GLM 5.3, Grok 4.7, Qwen 3.8 Max, Muse Wonder 1.0, Muse Spark 1.3",
++          "description": "Custom model (claude-gw-tier3[1m])",
++          "resolvedModel": "claude-gw-tier3[1m]"
++        },
++        {
++          "value": "claude-gw-tier4[1m]",
++          "displayName": "Tier 4: GPT 6 Luna",
++          "description": "Custom model (claude-gw-tier4[1m])",
++          "resolvedModel": "claude-gw-tier4[1m]"
++        }
++      ],
++      "context": {
++        "model": "claude-gw-tier2[1m]",
++        "maxTokens": 500000,
++        "rawMaxTokens": 500000,
++        "autocompactSource": "settings",
++        "autoCompactThreshold": 467000
++      },
++      "local_result": null,
++      "responses": "runtime-work-3/tier2/responses.json",
++      "upstream_models": [
++        "muse-spark-1.3",
++        "muse-spark-1.3",
++        "muse-spark-1.3"
++      ]
++    },
++    {
++      "case": "compact-override",
++      "selected": "claude-gw-tier0[1m]",
++      "models": [
++        {
++          "value": "default",
++          "displayName": "Default (recommended)",
++          "description": "Use the default model (currently Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5)",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier0[1m]",
++          "displayName": "Tier 0: Claude Fable 5.1, GPT 6 Astra",
++          "description": "Custom model (claude-gw-tier0[1m])",
++          "resolvedModel": "claude-gw-tier0[1m]"
++        },
++        {
++          "value": "claude-gw-tier1a[1m]",
++          "displayName": "Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5",
++          "description": "Custom model (claude-gw-tier1a[1m])",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier1b[1m]",
++          "displayName": "Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0",
++          "description": "Custom model (claude-gw-tier1b[1m])",
++          "resolvedModel": "claude-gw-tier1b[1m]"
++        },
++        {
++          "value": "claude-gw-tier2[1m]",
++          "displayName": "Tier 2: Muse Spark 1.3, Grok 4.7, Qwen 3.8 Max, GLM 5.3, Muse Wonder 1.0, GPT 6.1 Sol",
++          "description": "Custom model (claude-gw-tier2[1m])",
++          "resolvedModel": "claude-gw-tier2[1m]"
++        },
++        {
++          "value": "claude-gw-tier3[1m]",
++          "displayName": "Tier 3: GPT 6.1 Terra, GLM 5.3, Grok 4.7, Qwen 3.8 Max, Muse Wonder 1.0, Muse Spark 1.3",
++          "description": "Custom model (claude-gw-tier3[1m])",
++          "resolvedModel": "claude-gw-tier3[1m]"
++        },
++        {
++          "value": "claude-gw-tier4[1m]",
++          "displayName": "Tier 4: GPT 6 Luna",
++          "description": "Custom model (claude-gw-tier4[1m])",
++          "resolvedModel": "claude-gw-tier4[1m]"
++        }
++      ],
++      "context": {
++        "model": "claude-gw-tier0[1m]",
++        "maxTokens": 300000,
++        "rawMaxTokens": 300000,
++        "autocompactSource": "env",
++        "autoCompactThreshold": 267000
++      },
++      "local_result": null,
++      "responses": "runtime-work-3/compact-override/responses.json",
++      "upstream_models": [
++        "claude-fable-5-1",
++        "claude-fable-5-1",
++        "claude-fable-5-1"
++      ]
++    },
++    {
++      "case": "alias-opus",
++      "selected": "opus",
++      "models": [
++        {
++          "value": "default",
++          "displayName": "Default (recommended)",
++          "description": "Use the default model (currently Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5)",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier0[1m]",
++          "displayName": "Tier 0: Claude Fable 5.1, GPT 6 Astra",
++          "description": "Custom model (claude-gw-tier0[1m])",
++          "resolvedModel": "claude-gw-tier0[1m]"
++        },
++        {
++          "value": "claude-gw-tier1a[1m]",
++          "displayName": "Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5",
++          "description": "Custom model (claude-gw-tier1a[1m])",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier1b[1m]",
++          "displayName": "Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0",
++          "description": "Custom model (claude-gw-tier1b[1m])",
++          "resolvedModel": "claude-gw-tier1b[1m]"
++        },
++        {
++          "value": "claude-gw-tier2[1m]",
++          "displayName": "Tier 2: Muse Spark 1.3, Grok 4.7, Qwen 3.8 Max, GLM 5.3, Muse Wonder 1.0, GPT 6.1 Sol",
++          "description": "Custom model (claude-gw-tier2[1m])",
++          "resolvedModel": "claude-gw-tier2[1m]"
++        },
++        {
++          "value": "claude-gw-tier3[1m]",
++          "displayName": "Tier 3: GPT 6.1 Terra, GLM 5.3, Grok 4.7, Qwen 3.8 Max, Muse Wonder 1.0, Muse Spark 1.3",
++          "description": "Custom model (claude-gw-tier3[1m])",
++          "resolvedModel": "claude-gw-tier3[1m]"
++        },
++        {
++          "value": "claude-gw-tier4[1m]",
++          "displayName": "Tier 4: GPT 6 Luna",
++          "description": "Custom model (claude-gw-tier4[1m])",
++          "resolvedModel": "claude-gw-tier4[1m]"
++        },
++        {
++          "value": "opus",
++          "displayName": "Opus",
++          "description": "Opus 5.5 \u00b7 Best for everyday, complex tasks",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        }
++      ],
++      "context": {
++        "model": "claude-gw-tier1a[1m]",
++        "maxTokens": 850000,
++        "rawMaxTokens": 850000,
++        "autocompactSource": "settings",
++        "autoCompactThreshold": 817000
++      },
++      "local_result": "local synthetic reply",
++      "responses": "runtime-work-3/alias-opus/responses.json",
++      "native_selected_row_readded": "opus",
++      "upstream_models": [
++        "claude-opus-5-5",
++        "claude-opus-5-5",
++        "claude-opus-5-5",
++        "claude-opus-5-5"
++      ]
++    },
++    {
++      "case": "alias-sonnet",
++      "selected": "sonnet",
++      "models": [
++        {
++          "value": "default",
++          "displayName": "Default (recommended)",
++          "description": "Use the default model (currently Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5)",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier0[1m]",
++          "displayName": "Tier 0: Claude Fable 5.1, GPT 6 Astra",
++          "description": "Custom model (claude-gw-tier0[1m])",
++          "resolvedModel": "claude-gw-tier0[1m]"
++        },
++        {
++          "value": "claude-gw-tier1a[1m]",
++          "displayName": "Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5",
++          "description": "Custom model (claude-gw-tier1a[1m])",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier1b[1m]",
++          "displayName": "Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0",
++          "description": "Custom model (claude-gw-tier1b[1m])",
++          "resolvedModel": "claude-gw-tier1b[1m]"
++        },
++        {
++          "value": "claude-gw-tier2[1m]",
++          "displayName": "Tier 2: Muse Spark 1.3, Grok 4.7, Qwen 3.8 Max, GLM 5.3, Muse Wonder 1.0, GPT 6.1 Sol",
++          "description": "Custom model (claude-gw-tier2[1m])",
++          "resolvedModel": "claude-gw-tier2[1m]"
++        },
++        {
++          "value": "claude-gw-tier3[1m]",
++          "displayName": "Tier 3: GPT 6.1 Terra, GLM 5.3, Grok 4.7, Qwen 3.8 Max, Muse Wonder 1.0, Muse Spark 1.3",
++          "description": "Custom model (claude-gw-tier3[1m])",
++          "resolvedModel": "claude-gw-tier3[1m]"
++        },
++        {
++          "value": "claude-gw-tier4[1m]",
++          "displayName": "Tier 4: GPT 6 Luna",
++          "description": "Custom model (claude-gw-tier4[1m])",
++          "resolvedModel": "claude-gw-tier4[1m]"
++        },
++        {
++          "value": "sonnet",
++          "displayName": "sonnet",
++          "description": "Custom model",
++          "resolvedModel": "claude-gw-tier1b[1m]"
++        }
++      ],
++      "context": {
++        "model": "claude-gw-tier1b[1m]",
++        "maxTokens": 850000,
++        "rawMaxTokens": 850000,
++        "autocompactSource": "settings",
++        "autoCompactThreshold": 817000
++      },
++      "local_result": "local synthetic reply",
++      "responses": "runtime-work-3/alias-sonnet/responses.json",
++      "native_selected_row_readded": "sonnet",
++      "upstream_models": [
++        "claude-sonnet-5-5",
++        "claude-sonnet-5-5",
++        "claude-sonnet-5-5",
++        "claude-sonnet-5-5"
++      ]
++    },
++    {
++      "case": "alias-haiku",
++      "selected": "haiku",
++      "models": [
++        {
++          "value": "default",
++          "displayName": "Default (recommended)",
++          "description": "Use the default model (currently Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5)",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier0[1m]",
++          "displayName": "Tier 0: Claude Fable 5.1, GPT 6 Astra",
++          "description": "Custom model (claude-gw-tier0[1m])",
++          "resolvedModel": "claude-gw-tier0[1m]"
++        },
++        {
++          "value": "claude-gw-tier1a[1m]",
++          "displayName": "Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5",
++          "description": "Custom model (claude-gw-tier1a[1m])",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier1b[1m]",
++          "displayName": "Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0",
++          "description": "Custom model (claude-gw-tier1b[1m])",
++          "resolvedModel": "claude-gw-tier1b[1m]"
++        },
++        {
++          "value": "claude-gw-tier2[1m]",
++          "displayName": "Tier 2: Muse Spark 1.3, Grok 4.7, Qwen 3.8 Max, GLM 5.3, Muse Wonder 1.0, GPT 6.1 Sol",
++          "description": "Custom model (claude-gw-tier2[1m])",
++          "resolvedModel": "claude-gw-tier2[1m]"
++        },
++        {
++          "value": "claude-gw-tier3[1m]",
++          "displayName": "Tier 3: GPT 6.1 Terra, GLM 5.3, Grok 4.7, Qwen 3.8 Max, Muse Wonder 1.0, Muse Spark 1.3",
++          "description": "Custom model (claude-gw-tier3[1m])",
++          "resolvedModel": "claude-gw-tier3[1m]"
++        },
++        {
++          "value": "claude-gw-tier4[1m]",
++          "displayName": "Tier 4: GPT 6 Luna",
++          "description": "Custom model (claude-gw-tier4[1m])",
++          "resolvedModel": "claude-gw-tier4[1m]"
++        },
++        {
++          "value": "haiku",
++          "displayName": "haiku",
++          "description": "Custom model",
++          "resolvedModel": "claude-gw-tier2[1m]"
++        }
++      ],
++      "context": {
++        "model": "claude-gw-tier2[1m]",
++        "maxTokens": 500000,
++        "rawMaxTokens": 500000,
++        "autocompactSource": "settings",
++        "autoCompactThreshold": 467000
++      },
++      "local_result": "local synthetic reply",
++      "responses": "runtime-work-3/alias-haiku/responses.json",
++      "native_selected_row_readded": "haiku",
++      "upstream_models": [
++        "muse-spark-1.3",
++        "muse-spark-1.3",
++        "muse-spark-1.3",
++        "muse-spark-1.3"
++      ]
++    },
++    {
++      "case": "bare-route",
++      "selected": "claude-gw-tier1a",
++      "models": [
++        {
++          "value": "default",
++          "displayName": "Default (recommended)",
++          "description": "Use the default model (currently Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5)",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier0[1m]",
++          "displayName": "Tier 0: Claude Fable 5.1, GPT 6 Astra",
++          "description": "Custom model (claude-gw-tier0[1m])",
++          "resolvedModel": "claude-gw-tier0[1m]"
++        },
++        {
++          "value": "claude-gw-tier1a[1m]",
++          "displayName": "Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5",
++          "description": "Custom model (claude-gw-tier1a[1m])",
++          "resolvedModel": "claude-gw-tier1a[1m]"
++        },
++        {
++          "value": "claude-gw-tier1b[1m]",
++          "displayName": "Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0",
++          "description": "Custom model (claude-gw-tier1b[1m])",
++          "resolvedModel": "claude-gw-tier1b[1m]"
++        },
++        {
++          "value": "claude-gw-tier2[1m]",
++          "displayName": "Tier 2: Muse Spark 1.3, Grok 4.7, Qwen 3.8 Max, GLM 5.3, Muse Wonder 1.0, GPT 6.1 Sol",
++          "description": "Custom model (claude-gw-tier2[1m])",
++          "resolvedModel": "claude-gw-tier2[1m]"
++        },
++        {
++          "value": "claude-gw-tier3[1m]",
++          "displayName": "Tier 3: GPT 6.1 Terra, GLM 5.3, Grok 4.7, Qwen 3.8 Max, Muse Wonder 1.0, Muse Spark 1.3",
++          "description": "Custom model (claude-gw-tier3[1m])",
++          "resolvedModel": "claude-gw-tier3[1m]"
++        },
++        {
++          "value": "claude-gw-tier4[1m]",
++          "displayName": "Tier 4: GPT 6 Luna",
++          "description": "Custom model (claude-gw-tier4[1m])",
++          "resolvedModel": "claude-gw-tier4[1m]"
++        },
++        {
++          "value": "claude-gw-tier1a",
++          "displayName": "claude-gw-tier1a",
++          "description": "Custom model",
++          "resolvedModel": "claude-gw-tier1a"
++        }
++      ],
++      "context": {
++        "model": "claude-gw-tier1a",
++        "maxTokens": 200000,
++        "rawMaxTokens": 200000,
++        "autocompactSource": "settings",
++        "autoCompactThreshold": 167000
++      },
++      "local_result": "local synthetic reply",
++      "responses": "runtime-work-3/bare-route/responses.json",
++      "native_selected_row_readded": "claude-gw-tier1a",
++      "upstream_models": [
++        "claude-opus-5-5",
++        "claude-opus-5-5",
++        "claude-opus-5-5",
++        "claude-opus-5-5"
++      ]
++    }
++  ],
++  "actual_shim_rows": [
++    {
++      "type": "model",
++      "id": "claude-gw-tier0[1m]",
++      "display_name": "Tier 0: Claude Fable 5.1, GPT 6 Astra",
++      "created_at": "2026-01-01T00:00:00Z"
++    },
++    {
++      "type": "model",
++      "id": "claude-gw-tier1a[1m]",
++      "display_name": "Tier 1a: Claude Opus 5.5, Claude Sonnet 5.5",
++      "created_at": "2026-01-01T00:00:00Z"
++    },
++    {
++      "type": "model",
++      "id": "claude-gw-tier1b[1m]",
++      "display_name": "Tier 1b: Claude Sonnet 5.5, GPT 6.1 Sol, Muse Wonder Full 1.0",
++      "created_at": "2026-01-01T00:00:00Z"
++    },
++    {
++      "type": "model",
++      "id": "claude-gw-tier2[1m]",
++      "display_name": "Tier 2: Muse Spark 1.3, Grok 4.7, Qwen 3.8 Max, GLM 5.3, Muse Wonder 1.0, GPT 6.1 Sol",
++      "created_at": "2026-01-01T00:00:00Z"
++    },
++    {
++      "type": "model",
++      "id": "claude-gw-tier3[1m]",
++      "display_name": "Tier 3: GPT 6.1 Terra, GLM 5.3, Grok 4.7, Qwen 3.8 Max, Muse Wonder 1.0, Muse Spark 1.3",
++      "created_at": "2026-01-01T00:00:00Z"
++    },
++    {
++      "type": "model",
++      "id": "claude-gw-tier4[1m]",
++      "display_name": "Tier 4: GPT 6 Luna",
++      "created_at": "2026-01-01T00:00:00Z"
++    }
++  ],
++  "native_to_shim": [
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier0"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier0"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier0"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1a"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1a"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1a"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1b"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1b"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1b"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier2"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier2"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier2"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier0"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier0"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier0"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1a"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1a"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1a"
++    },
++    {
++      "path": "/v1/messages?beta=true",
++      "model": "claude-gw-tier1a"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1b"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1b"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1b"
++    },
++    {
++      "path": "/v1/messages?beta=true",
++      "model": "claude-gw-tier1b"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier2"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier2"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier2"
++    },
++    {
++      "path": "/v1/messages?beta=true",
++      "model": "claude-gw-tier2"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1a"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1a"
++    },
++    {
++      "path": "/v1/messages/count_tokens?beta=true",
++      "model": "claude-gw-tier1a"
++    },
++    {
++      "path": "/v1/messages?beta=true",
++      "model": "claude-gw-tier1a"
++    }
++  ],
++  "boundary_observed": true,
++  "outcome": "success_with_hardening_advisory"
++}
+\ No newline at end of file
+diff --git a/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-tests-rerun.log b/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-tests-rerun.log
+new file mode 100644
+index 00000000..fdfabe30
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-tests-rerun.log
+@@ -0,0 +1,503 @@
++Command: uv run pytest tests/unit/test_ccsession_tiers.py tests/unit/test_ccsession_tag.py tests/skills/test_model_alias_policy.py
++============================= test session starts ==============================
++platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.venv/bin/python
++cachedir: .pytest_cache
++SuperClaude: 5.0.0
++rootdir: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker
++configfile: pyproject.toml
++plugins: superclaude-5.0.0, anyio-4.16.0
++collecting ... collected 491 items
++
++tests/unit/test_ccsession_tiers.py::test_defaults_file_is_parsed_not_sourced PASSED [  0%]
++tests/unit/test_ccsession_tiers.py::test_todays_coder_env_keeps_tier_mode_off PASSED [  0%]
++tests/unit/test_ccsession_tiers.py::test_defaults_file_wins_over_stale_shell_env PASSED [  0%]
++tests/unit/test_ccsession_tiers.py::test_missing_tier_variable_is_named PASSED [  0%]
++tests/unit/test_ccsession_tiers.py::test_named_model_window_comes_from_its_tier_slot PASSED [  1%]
++tests/unit/test_ccsession_tiers.py::test_named_model_window_ignores_slots_no_tier_uses PASSED [  1%]
++tests/unit/test_ccsession_tiers.py::test_version_order_is_numeric PASSED [  1%]
++tests/unit/test_ccsession_tiers.py::test_load_prefers_numerically_newer_copy PASSED [  1%]
++tests/unit/test_ccsession_tiers.py::test_old_picker_keys_are_rejected PASSED [  1%]
++tests/unit/test_ccsession_tiers.py::test_shim_port_separates_show_all_and_env_settings PASSED [  2%]
++tests/unit/test_ccsession_tiers.py::test_refresh_never_replaces_a_newer_cache PASSED [  2%]
++tests/unit/test_ccsession_tiers.py::test_default_tier_sets_model_and_tier_window PASSED [  2%]
++tests/unit/test_ccsession_tiers.py::test_orca_relaunch_reopens_the_tabs_session_on_the_default_tier PASSED [  2%]
++tests/unit/test_ccsession_tiers.py::test_orca_launch_with_a_prompt_in_tier_mode_is_auto_named_and_goes_through_the_shim PASSED [  2%]
++tests/unit/test_ccsession_tiers.py::test_tier_flag_and_named_model PASSED [  3%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[-0-850000] PASSED [  3%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[-1a-850000] PASSED [  3%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[-1b-850000] PASSED [  3%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[-2-500000] PASSED [  3%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[-3-500000] PASSED [  4%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[-4-850000] PASSED [  4%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[[1m]-0-850000] PASSED [  4%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[[1m]-1a-850000] PASSED [  4%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[[1m]-1b-850000] PASSED [  4%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[[1m]-2-500000] PASSED [  5%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[[1m]-3-500000] PASSED [  5%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_uses_its_own_window[[1m]-4-850000] PASSED [  5%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_checks_definition_and_owner[-1a] PASSED [  5%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_checks_definition_and_owner[-2] PASSED [  5%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_checks_definition_and_owner[-7] PASSED [  6%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_checks_definition_and_owner[[1m]-1a] PASSED [  6%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_checks_definition_and_owner[[1m]-2] PASSED [  6%]
++tests/unit/test_ccsession_tiers.py::test_named_tier_checks_definition_and_owner[[1m]-7] PASSED [  6%]
++tests/unit/test_ccsession_tiers.py::test_tier_launch_permissions_default_keeps_tier_routing PASSED [  6%]
++tests/unit/test_ccsession_tiers.py::test_tier_mode_refuses_profiles_and_bad_tiers PASSED [  7%]
++tests/unit/test_ccsession_tiers.py::test_mac_and_todays_coder_env_keep_profiles PASSED [  7%]
++tests/unit/test_ccsession_tiers.py::test_help_lists_tiers_in_tier_mode PASSED [  7%]
++tests/unit/test_ccsession_tiers.py::test_picker_shows_tiers_and_show_all_adds_env_models PASSED [  7%]
++tests/unit/test_ccsession_tiers.py::test_show_all_lists_every_tier_model_with_env_windows PASSED [  7%]
++tests/unit/test_ccsession_tiers.py::test_out_of_usage_switches_and_cools_down PASSED [  8%]
++tests/unit/test_ccsession_tiers.py::test_every_switch_rule_moves_to_the_next_model[reply0] PASSED [  8%]
++tests/unit/test_ccsession_tiers.py::test_every_switch_rule_moves_to_the_next_model[reply1] PASSED [  8%]
++tests/unit/test_ccsession_tiers.py::test_every_switch_rule_moves_to_the_next_model[reply2] PASSED [  8%]
++tests/unit/test_ccsession_tiers.py::test_every_switch_rule_moves_to_the_next_model[reply3] PASSED [  8%]
++tests/unit/test_ccsession_tiers.py::test_every_switch_rule_moves_to_the_next_model[reply4] PASSED [  9%]
++tests/unit/test_ccsession_tiers.py::test_every_switch_rule_moves_to_the_next_model[reply5] PASSED [  9%]
++tests/unit/test_ccsession_tiers.py::test_every_switch_rule_moves_to_the_next_model[reply6] PASSED [  9%]
++tests/unit/test_ccsession_tiers.py::test_every_switch_rule_moves_to_the_next_model[reply7] PASSED [  9%]
++tests/unit/test_ccsession_tiers.py::test_every_switch_rule_moves_to_the_next_model[reply8] PASSED [  9%]
++tests/unit/test_ccsession_tiers.py::test_every_switch_rule_moves_to_the_next_model[reply9] PASSED [ 10%]
++tests/unit/test_ccsession_tiers.py::test_every_switch_rule_moves_to_the_next_model[reply10] PASSED [ 10%]
++tests/unit/test_ccsession_tiers.py::test_every_switch_rule_moves_to_the_next_model[reply11] PASSED [ 10%]
++tests/unit/test_ccsession_tiers.py::test_every_switch_rule_moves_to_the_next_model[reply12] PASSED [ 10%]
++tests/unit/test_ccsession_tiers.py::test_every_switch_rule_moves_to_the_next_model[reply13] PASSED [ 10%]
++tests/unit/test_ccsession_tiers.py::test_errors_outside_the_rules_pass_back_unchanged[reply0] PASSED [ 11%]
++tests/unit/test_ccsession_tiers.py::test_errors_outside_the_rules_pass_back_unchanged[reply1] PASSED [ 11%]
++tests/unit/test_ccsession_tiers.py::test_errors_outside_the_rules_pass_back_unchanged[reply2] PASSED [ 11%]
++tests/unit/test_ccsession_tiers.py::test_errors_outside_the_rules_pass_back_unchanged[reply3] PASSED [ 11%]
++tests/unit/test_ccsession_tiers.py::test_backup_too_small_for_the_tier_is_never_used PASSED [ 12%]
++tests/unit/test_ccsession_tiers.py::test_backup_rejecting_size_tries_the_next_one PASSED [ 12%]
++tests/unit/test_ccsession_tiers.py::test_no_backup_can_hold_it_passes_the_error_back PASSED [ 12%]
++tests/unit/test_ccsession_tiers.py::test_all_models_out_returns_last_error_with_note PASSED [ 12%]
++tests/unit/test_ccsession_tiers.py::test_cooldown_expires_and_repeats PASSED [ 12%]
++tests/unit/test_ccsession_tiers.py::test_retry_after_sets_the_cooldown PASSED [ 13%]
++tests/unit/test_ccsession_tiers.py::test_no_reply_before_timeout_switches PASSED [ 13%]
++tests/unit/test_ccsession_tiers.py::test_unreachable_gateway_is_not_a_switch PASSED [ 13%]
++tests/unit/test_ccsession_tiers.py::test_named_model_has_no_failover PASSED [ 13%]
++tests/unit/test_ccsession_tiers.py::test_changed_env_file_applies_to_a_running_shim PASSED [ 13%]
++tests/unit/test_ccsession_tiers.py::test_long_pause_after_a_reply_starts_is_not_cut PASSED [ 14%]
++tests/unit/test_ccsession_tiers.py::test_failure_after_the_reply_starts_passes_through PASSED [ 14%]
++tests/unit/test_ccsession_tiers.py::test_connect_timeout_is_unreachable_not_a_switch PASSED [ 14%]
++tests/unit/test_ccsession_tiers.py::test_cooldown_with_an_injected_clock PASSED [ 14%]
++tests/unit/test_ccsession_tiers.py::test_compact_overrides_still_apply_in_tier_mode PASSED [ 14%]
++tests/unit/test_ccsession_tiers.py::test_native_picker_uses_current_curated_rows[ordinary] PASSED [ 15%]
++tests/unit/test_ccsession_tiers.py::test_native_picker_uses_current_curated_rows[show-all] PASSED [ 15%]
++tests/unit/test_ccsession_tiers.py::test_native_picker_uses_current_curated_rows[member-models] PASSED [ 15%]
++tests/unit/test_ccsession_tiers.py::test_native_picker_uses_current_curated_rows[restricted] PASSED [ 15%]
++tests/unit/test_ccsession_tiers.py::test_native_picker_uses_current_curated_rows[compact-override] PASSED [ 15%]
++tests/unit/test_ccsession_tiers.py::test_native_picker_uses_current_curated_rows[individual] PASSED [ 16%]
++tests/unit/test_ccsession_tiers.py::test_native_picker_uses_current_curated_rows[non-tier] PASSED [ 16%]
++tests/unit/test_ccsession_tiers.py::test_native_picker_uses_current_curated_rows[warmup-failure] PASSED [ 16%]
++tests/unit/test_ccsession_tiers.py::test_addon_profile_on_a_tier_machine_skips_tier_mode PASSED [ 16%]
++tests/unit/test_ccsession_tiers.py::test_model_with_1m_suffix_finds_its_tier_window PASSED [ 16%]
++tests/unit/test_ccsession_tiers.py::test_show_all_launch_runs_its_own_shim PASSED [ 17%]
++tests/unit/test_ccsession_tiers.py::test_no_time_limit_once_a_reply_starts[claude-gw-tier2] PASSED [ 17%]
++tests/unit/test_ccsession_tiers.py::test_no_time_limit_once_a_reply_starts[claude-gw-kimi-k3] PASSED [ 17%]
++tests/unit/test_ccsession_tiers.py::test_no_time_limit_once_a_reply_starts[gpt-6.1-sol] PASSED [ 17%]
++tests/unit/test_ccsession_tiers.py::test_non_streamed_tier_request_waits_without_limit PASSED [ 17%]
++tests/unit/test_ccsession_tiers.py::test_small_streamed_events_are_passed_on_at_once[claude-gw-tier2] PASSED [ 18%]
++tests/unit/test_ccsession_tiers.py::test_small_streamed_events_are_passed_on_at_once[gpt-6.1-sol] PASSED [ 18%]
++tests/unit/test_ccsession_tiers.py::test_lowercase_accept_encoding_still_fails_over PASSED [ 18%]
++tests/unit/test_ccsession_tiers.py::test_plain_body_decodes_a_compressed_error PASSED [ 18%]
++tests/unit/test_ccsession_tiers.py::test_headers_slow_after_the_first_byte_are_not_a_stall PASSED [ 18%]
++tests/unit/test_ccsession_tiers.py::test_huge_retry_after_is_capped PASSED [ 19%]
++tests/unit/test_ccsession_tiers.py::test_default_tier_unset_or_invalid_is_reported PASSED [ 19%]
++tests/unit/test_ccsession_tiers.py::test_settings_that_change_the_shim_get_their_own_shim PASSED [ 19%]
++tests/unit/test_ccsession_tiers.py::test_a_busy_shim_is_never_stopped_by_a_new_launch PASSED [ 19%]
++tests/unit/test_ccsession_tiers.py::test_shim_outlives_the_terminal_that_started_it PASSED [ 19%]
++tests/unit/test_ccsession_tiers.py::test_a_directly_started_shim_leaves_the_launchers_session PASSED [ 20%]
++tests/unit/test_ccsession_tiers.py::test_https_gateway_start_timer_switches PASSED [ 20%]
++tests/unit/test_ccsession_tiers.py::test_odd_retry_after_still_fails_over[5000-digits] PASSED [ 20%]
++tests/unit/test_ccsession_tiers.py::test_odd_retry_after_still_fails_over[non-ascii-digit] PASSED [ 20%]
++tests/unit/test_ccsession_tiers.py::test_cut_off_error_reply_gets_a_readable_error PASSED [ 20%]
++tests/unit/test_ccsession_tiers.py::test_malformed_status_line_gets_a_readable_error PASSED [ 21%]
++tests/unit/test_ccsession_tiers.py::test_tiers_off_launch_never_takes_over_a_tier_shim PASSED [ 21%]
++tests/unit/test_ccsession_tiers.py::test_every_shim_launch_gets_the_port_for_its_settings PASSED [ 21%]
++tests/unit/test_ccsession_tiers.py::test_upgraded_code_starts_a_new_shim_and_keeps_the_old PASSED [ 21%]
++tests/unit/test_ccsession_tiers.py::test_relative_defaults_path_keeps_each_directory_on_its_own_shim PASSED [ 21%]
++tests/unit/test_ccsession_tiers.py::test_note_keeps_every_json_error_valid_json[{"error":"Your Grok CLI version is outdated."}] PASSED [ 22%]
++tests/unit/test_ccsession_tiers.py::test_note_keeps_every_json_error_valid_json[{"error":{"type":"rate_limit_error"}}] PASSED [ 22%]
++tests/unit/test_ccsession_tiers.py::test_note_keeps_every_json_error_valid_json[{"detail":"cooling down"}] PASSED [ 22%]
++tests/unit/test_ccsession_tiers.py::test_note_keeps_every_json_error_valid_json[{"message":"cooling down"}] PASSED [ 22%]
++tests/unit/test_ccsession_tiers.py::test_note_keeps_every_json_error_valid_json[["cooling down"]] PASSED [ 23%]
++tests/unit/test_ccsession_tiers.py::test_note_on_plain_text_stays_plain_text PASSED [ 23%]
++tests/unit/test_ccsession_tiers.py::test_exhausted_tier_with_string_errors_returns_valid_json PASSED [ 23%]
++tests/unit/test_ccsession_tiers.py::test_named_model_window_accepts_the_picker_id PASSED [ 23%]
++tests/unit/test_ccsession_tiers.py::test_model_outside_tier_mode_stays_where_it_was_typed PASSED [ 23%]
++tests/unit/test_ccsession_tiers.py::test_launch_never_attaches_to_a_shim_that_won_the_port_race PASSED [ 24%]
++tests/unit/test_ccsession_tiers.py::test_size_failure_is_reported_even_when_a_later_model_is_out_of_usage PASSED [ 24%]
++tests/unit/test_ccsession_tiers.py::test_colliding_tier_model_names_get_the_shims_suffixed_ids PASSED [ 24%]
++tests/unit/test_ccsession_tiers.py::test_show_all_window_map_names_the_ids_the_picker_shows PASSED [ 24%]
++tests/unit/test_ccsession_tiers.py::test_windows_go_straight_to_claude_code_with_no_file PASSED [ 24%]
++tests/unit/test_ccsession_tiers.py::test_provider_qualified_claude_model_also_gets_its_canonical_key PASSED [ 25%]
++tests/unit/test_ccsession_tiers.py::test_both_spellings_of_one_claude_model_share_the_smaller_window PASSED [ 25%]
++tests/unit/test_ccsession_tiers.py::test_every_spelling_of_a_claude_model_gets_its_canonical_key PASSED [ 25%]
++tests/unit/test_ccsession_tiers.py::test_dated_claude_tier_model_keeps_its_window PASSED [ 25%]
++tests/unit/test_ccsession_tiers.py::test_shim_sessions_pass_the_gateway_key_as_a_bearer_token PASSED [ 25%]
++tests/unit/test_ccsession_tiers.py::test_access_entry_sets_start_tier_and_tier_list PASSED [ 26%]
++tests/unit/test_ccsession_tiers.py::test_role_entry_applies_to_everyone_with_that_role PASSED [ 26%]
++tests/unit/test_ccsession_tiers.py::test_a_broken_role_entry_stops_only_its_holders PASSED [ 26%]
++tests/unit/test_ccsession_tiers.py::test_models_status_names_the_role_that_applied PASSED [ 26%]
++tests/unit/test_ccsession_tiers.py::test_only_the_owners_broken_entry_stops_it PASSED [ 26%]
++tests/unit/test_ccsession_tiers.py::test_a_stray_piece_of_the_value_stops_every_listed_owner PASSED [ 27%]
++tests/unit/test_ccsession_tiers.py::test_access_lines_bash_accepts_never_open_every_tier PASSED [ 27%]
++tests/unit/test_ccsession_tiers.py::test_a_nul_byte_in_the_name_is_dropped_as_bash_drops_it PASSED [ 27%]
++tests/unit/test_ccsession_tiers.py::test_a_byte_that_is_not_utf8_keeps_the_limits PASSED [ 27%]
++tests/unit/test_ccsession_tiers.py::test_owner_unknown_with_access_set_says_so PASSED [ 27%]
++tests/unit/test_ccsession_tiers.py::test_access_in_the_shell_env_when_there_is_no_file PASSED [ 28%]
++tests/unit/test_ccsession_tiers.py::test_listed_user_starts_on_their_tier PASSED [ 28%]
++tests/unit/test_ccsession_tiers.py::test_unlisted_user_starts_on_the_default_tier_with_every_tier PASSED [ 28%]
++tests/unit/test_ccsession_tiers.py::test_limited_user_gets_only_their_tiers PASSED [ 28%]
++tests/unit/test_ccsession_tiers.py::test_limited_user_may_name_a_suffixed_picker_id PASSED [ 28%]
++tests/unit/test_ccsession_tiers.py::test_broken_entry_stops_the_launch_with_the_reason PASSED [ 29%]
++tests/unit/test_ccsession_tiers.py::test_help_lists_only_the_owners_tiers PASSED [ 29%]
++tests/unit/test_ccsession_tiers.py::test_models_status_reports_the_owners_access PASSED [ 29%]
++tests/unit/test_ccsession_tiers.py::test_shim_applies_the_owners_role PASSED [ 29%]
++tests/unit/test_ccsession_tiers.py::test_owner_roles_are_part_of_the_shim_settings PASSED [ 29%]
++tests/unit/test_ccsession_tiers.py::test_tier_rules_give_roles_every_tier_and_members_tiers_2_to_4 PASSED [ 30%]
++tests/unit/test_ccsession_tiers.py::test_tier_rules_replace_the_old_access_line PASSED [ 30%]
++tests/unit/test_ccsession_tiers.py::test_tier_rules_line_follows_the_one_line_rule PASSED [ 30%]
++tests/unit/test_ccsession_tiers.py::test_older_ccsession_ignores_the_rules_line PASSED [ 30%]
++tests/unit/test_ccsession_tiers.py::test_member_launches_on_tier2_and_cannot_pick_tier1a PASSED [ 30%]
++tests/unit/test_ccsession_tiers.py::test_role_holder_launches_on_tier1a_and_named_models_take_env_windows PASSED [ 31%]
++tests/unit/test_ccsession_tiers.py::test_shim_lists_each_model_by_provider_for_role_holders PASSED [ 31%]
++tests/unit/test_ccsession_tiers.py::test_shim_gives_members_tiers_2_to_4_and_no_models PASSED [ 31%]
++tests/unit/test_ccsession_tiers.py::test_shim_offers_and_routes_only_the_owners_tiers PASSED [ 31%]
++tests/unit/test_ccsession_tiers.py::test_shim_refuses_tiers_while_the_owners_entry_is_broken PASSED [ 31%]
++tests/unit/test_ccsession_tiers.py::test_each_owner_gets_its_own_shim PASSED [ 32%]
++tests/unit/test_ccsession_tiers.py::test_tier_launch_exports_the_alias_variables PASSED [ 32%]
++tests/unit/test_ccsession_tiers.py::test_non_tier_launch_leaves_the_alias_variables_unset PASSED [ 32%]
++tests/unit/test_ccsession_tiers.py::test_limited_owner_gets_only_the_haiku_alias_variable PASSED [ 32%]
++tests/unit/test_ccsession_tiers.py::test_limited_owner_keeps_inherited_alias_values PASSED [ 32%]
++tests/unit/test_ccsession_tiers.py::test_workspace_without_tier1a_and_tier1b_exports_only_its_tiers PASSED [ 33%]
++tests/unit/test_ccsession_tiers.py::test_anthropic_model_is_the_default_when_in_an_allowed_tier PASSED [ 33%]
++tests/unit/test_ccsession_tiers.py::test_model_and_tier_flags_win_over_anthropic_model PASSED [ 33%]
++tests/unit/test_ccsession_tiers.py::test_anthropic_model_not_in_a_tier_keeps_the_tier_default[] PASSED [ 33%]
++tests/unit/test_ccsession_tiers.py::test_anthropic_model_not_in_a_tier_keeps_the_tier_default[brand-new-model] PASSED [ 34%]
++tests/unit/test_ccsession_tiers.py::test_anthropic_model_not_in_a_tier_keeps_the_tier_default[grok-4.6[1m]] PASSED [ 34%]
++tests/unit/test_ccsession_tiers.py::test_anthropic_model_not_in_a_tier_keeps_the_tier_default[bad name!] PASSED [ 34%]
++tests/unit/test_ccsession_tiers.py::test_anthropic_model_not_in_a_tier_keeps_the_tier_default[tier1b] PASSED [ 34%]
++tests/unit/test_ccsession_tiers.py::test_anthropic_model_from_a_tier_the_user_may_not_use_is_ignored PASSED [ 34%]
++tests/unit/test_ccsession_tiers.py::test_anthropic_model_is_ignored_outside_tier_mode PASSED [ 35%]
++tests/unit/test_ccsession_tiers.py::test_in_my_tiers_command_is_silent_and_exit_coded PASSED [ 35%]
++tests/unit/test_ccsession_tag.py::test_profiles_launch_expected_models_and_windows PASSED [ 35%]
++tests/unit/test_ccsession_tag.py::test_help_lists_all_commands_and_profiles PASSED [ 35%]
++tests/unit/test_ccsession_tag.py::test_local_addon_profile_controls_env_model_and_shim PASSED [ 35%]
++tests/unit/test_ccsession_tag.py::test_local_addon_that_others_can_write_is_ignored PASSED [ 36%]
++tests/unit/test_ccsession_tag.py::test_unseed_resets_an_installer_owned_file_to_the_example[http://127.0.0.1:4114] PASSED [ 36%]
++tests/unit/test_ccsession_tag.py::test_unseed_resets_an_installer_owned_file_to_the_example[http://192.168.133.101:4000/cli] PASSED [ 36%]
++tests/unit/test_ccsession_tag.py::test_unseed_leaves_edited_files_alone PASSED [ 36%]
++tests/unit/test_ccsession_tag.py::test_installers_no_longer_save_the_gateway_address PASSED [ 36%]
++tests/unit/test_ccsession_tag.py::test_shim_upstream_check_flags_only_shim_addresses[http://127.0.0.1:4013-4010-True] PASSED [ 37%]
++tests/unit/test_ccsession_tag.py::test_shim_upstream_check_flags_only_shim_addresses[http://127.0.0.1:4114-4010-True] PASSED [ 37%]
++tests/unit/test_ccsession_tag.py::test_shim_upstream_check_flags_only_shim_addresses[http://localhost:4010/-4010-True] PASSED [ 37%]
++tests/unit/test_ccsession_tag.py::test_shim_upstream_check_flags_only_shim_addresses[http://127.0.0.1:4612-4010-True] PASSED [ 37%]
++tests/unit/test_ccsession_tag.py::test_shim_upstream_check_flags_only_shim_addresses[http://127.0.0.1:4000/cli-4010-False] PASSED [ 37%]
++tests/unit/test_ccsession_tag.py::test_shim_upstream_check_flags_only_shim_addresses[http://127.0.0.1:4009-4010-False] PASSED [ 38%]
++tests/unit/test_ccsession_tag.py::test_shim_upstream_check_flags_only_shim_addresses[http://127.0.0.1:4108-4010-False] PASSED [ 38%]
++tests/unit/test_ccsession_tag.py::test_shim_upstream_check_flags_only_shim_addresses[http://127.0.0.1:4613-4010-False] PASSED [ 38%]
++tests/unit/test_ccsession_tag.py::test_shim_upstream_check_flags_only_shim_addresses[http://192.168.133.101:4013/cli-4010-False] PASSED [ 38%]
++tests/unit/test_ccsession_tag.py::test_shim_upstream_check_flags_only_shim_addresses[http://gateway.example:4013/cli-4010-False] PASSED [ 38%]
++tests/unit/test_ccsession_tag.py::test_shim_upstream_check_flags_only_shim_addresses[http://127.0.0.1/cli-4010-False] PASSED [ 39%]
++tests/unit/test_ccsession_tag.py::test_shim_upstream_check_flags_only_shim_addresses[http://127.0.0.1:5003-5000-True] PASSED [ 39%]
++tests/unit/test_ccsession_tag.py::test_launch_refuses_a_shim_address_as_upstream[inherited] PASSED [ 39%]
++tests/unit/test_ccsession_tag.py::test_launch_refuses_a_shim_address_as_upstream[env-file] PASSED [ 39%]
++tests/unit/test_ccsession_tag.py::test_nested_launch_forwards_to_the_gateway_not_the_parent_shim PASSED [ 39%]
++tests/unit/test_ccsession_tag.py::test_shim_refuses_its_own_address_as_upstream PASSED [ 40%]
++tests/unit/test_ccsession_tag.py::test_launch_maps_workspace_key_without_changing_explicit_auth PASSED [ 40%]
++tests/unit/test_ccsession_tag.py::test_shim_is_detected_without_lsof PASSED [ 40%]
++tests/unit/test_ccsession_tag.py::test_package_contains_no_personal_account_routing PASSED [ 40%]
++tests/unit/test_ccsession_tag.py::test_renamed_profiles_are_rejected PASSED [ 40%]
++tests/unit/test_ccsession_tag.py::test_profile_warms_complete_gateway_cache_before_claude_starts PASSED [ 41%]
++tests/unit/test_ccsession_tag.py::test_profile_keeps_same_shim_cache_when_warmup_fails PASSED [ 41%]
++tests/unit/test_ccsession_tag.py::test_gateway_profile_requires_shim PASSED [ 41%]
++tests/unit/test_ccsession_tag.py::test_shim_refuses_an_unrelated_listener PASSED [ 41%]
++tests/unit/test_ccsession_tag.py::test_shim_curates_models_and_preserves_wire_aliases PASSED [ 41%]
++tests/unit/test_ccsession_tag.py::test_shim_uses_a_local_placeholder_default PASSED [ 42%]
++tests/unit/test_ccsession_tag.py::test_shim_uses_custom_port_and_requests_uncompressed_models PASSED [ 42%]
++tests/unit/test_ccsession_tag.py::test_installer_wires_complete_package_without_overwriting_secrets PASSED [ 42%]
++tests/unit/test_ccsession_tag.py::test_packaged_skill_installer_copies_the_shim PASSED [ 42%]
++tests/unit/test_ccsession_tag.py::test_shipped_model_data_is_valid PASSED [ 42%]
++tests/unit/test_ccsession_tag.py::test_refresh_downloads_then_uses_not_modified PASSED [ 43%]
++tests/unit/test_ccsession_tag.py::test_refresh_rejects_bad_or_older_data PASSED [ 43%]
++tests/unit/test_ccsession_tag.py::test_numeric_versions_win_and_rollbacks_keep_the_cache PASSED [ 43%]
++tests/unit/test_ccsession_tag.py::test_help_resolves_symlink_without_readlink_f PASSED [ 43%]
++tests/unit/test_ccsession_tag.py::test_refresh_never_waits_past_its_limit PASSED [ 43%]
++tests/unit/test_ccsession_tag.py::test_help_and_unknown_profile_list_data_profiles PASSED [ 44%]
++tests/unit/test_ccsession_tag.py::test_rm_removes_an_existing_label_that_starts_with_a_dash PASSED [ 44%]
++tests/unit/test_ccsession_tag.py::test_label_with_missing_transcript_starts_new_session PASSED [ 44%]
++tests/unit/test_ccsession_tag.py::test_label_with_saved_transcript_resumes PASSED [ 44%]
++tests/unit/test_ccsession_tag.py::test_every_launch_restores_grep_and_glob[args0-False] PASSED [ 45%]
++tests/unit/test_ccsession_tag.py::test_every_launch_restores_grep_and_glob[args1-False] PASSED [ 45%]
++tests/unit/test_ccsession_tag.py::test_every_launch_restores_grep_and_glob[args2-False] PASSED [ 45%]
++tests/unit/test_ccsession_tag.py::test_every_launch_restores_grep_and_glob[args3-True] PASSED [ 45%]
++tests/unit/test_ccsession_tag.py::test_every_launch_restores_grep_and_glob[args4-False] PASSED [ 45%]
++tests/unit/test_ccsession_tag.py::test_every_launch_restores_grep_and_glob[args5-True] PASSED [ 46%]
++tests/unit/test_ccsession_tag.py::test_launch_status_lines_are_on_stderr_only[args0-False] PASSED [ 46%]
++tests/unit/test_ccsession_tag.py::test_launch_status_lines_are_on_stderr_only[args1-False] PASSED [ 46%]
++tests/unit/test_ccsession_tag.py::test_launch_status_lines_are_on_stderr_only[args2-False] PASSED [ 46%]
++tests/unit/test_ccsession_tag.py::test_launch_status_lines_are_on_stderr_only[args3-True] PASSED [ 46%]
++tests/unit/test_ccsession_tag.py::test_launch_status_lines_are_on_stderr_only[args4-False] PASSED [ 47%]
++tests/unit/test_ccsession_tag.py::test_launch_status_lines_are_on_stderr_only[args5-True] PASSED [ 47%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_drops_the_bypass_on_every_launch_line[args0-False] PASSED [ 47%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_drops_the_bypass_on_every_launch_line[args1-False] PASSED [ 47%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_drops_the_bypass_on_every_launch_line[args2-False] PASSED [ 47%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_drops_the_bypass_on_every_launch_line[args3-True] PASSED [ 48%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_drops_the_bypass_on_every_launch_line[args4-False] PASSED [ 48%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_drops_the_bypass_on_every_launch_line[args5-True] PASSED [ 48%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_empty_value_is_unset PASSED [ 48%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_non_empty_claude_flags_still_win PASSED [ 48%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_empty_claude_flags_take_the_opt_in_default PASSED [ 49%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_empty_claude_flags_without_it_take_the_old_default PASSED [ 49%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_in_the_env_file_does_not_enable_it PASSED [ 49%]
++tests/unit/test_ccsession_tag.py::test_permissions_in_the_env_file_never_reaches_a_nested_launch[None] PASSED [ 49%]
++tests/unit/test_ccsession_tag.py::test_permissions_in_the_env_file_never_reaches_a_nested_launch[default] PASSED [ 49%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_claude_flags_in_the_env_file_still_win PASSED [ 50%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_keeps_a_flag_the_caller_passes PASSED [ 50%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_any_other_value_exits_2[bypass] PASSED [ 50%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_any_other_value_exits_2[Default] PASSED [ 50%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_bad_value_also_stops_help PASSED [ 50%]
++tests/unit/test_ccsession_tag.py::test_permissions_default_help_lists_the_variable_and_stops_at_the_header PASSED [ 51%]
++tests/unit/test_ccsession_tag.py::test_private_addon_profiles_never_download_model_data PASSED [ 51%]
++tests/unit/test_ccsession_tag.py::test_model_list_update_note_goes_to_stderr_at_launch PASSED [ 51%]
++tests/unit/test_ccsession_tag.py::test_refresh_models_report_stays_on_stdout PASSED [ 51%]
++tests/unit/test_ccsession_tag.py::test_claude_args_passes_the_rest_to_claude_unchanged PASSED [ 51%]
++tests/unit/test_ccsession_tag.py::test_plain_double_dash_still_reaches_claude PASSED [ 52%]
++tests/unit/test_ccsession_tag.py::test_status_lines_in_launcher_scripts_go_to_stderr PASSED [ 52%]
++tests/unit/test_ccsession_tag.py::test_version_through_orca_keeps_stdout_clean PASSED [ 52%]
++tests/unit/test_ccsession_tag.py::test_orca_name_starts_a_labeled_session_through_the_shim PASSED [ 52%]
++tests/unit/test_ccsession_tag.py::test_orca_saved_name_is_listed_and_resumes_at_the_question PASSED [ 52%]
++tests/unit/test_ccsession_tag.py::test_orca_saved_name_in_ccsession_name_resumes_before_the_prompt PASSED [ 53%]
++tests/unit/test_ccsession_tag.py::test_orca_claude_name_with_a_saved_label_passes_through_unchanged PASSED [ 53%]
++tests/unit/test_ccsession_tag.py::test_orca_enter_gets_an_auto_name PASSED [ 53%]
++tests/unit/test_ccsession_tag.py::test_orca_ctrl_c_cancels_without_starting_claude PASSED [ 53%]
++tests/unit/test_ccsession_tag.py::test_orca_ctrl_c_while_line_mode_is_off_restores_the_terminal PASSED [ 53%]
++tests/unit/test_ccsession_tag.py::test_ask_ctrl_c_while_line_mode_is_off_exits_130_and_restores PASSED [ 54%]
++tests/unit/test_ccsession_tag.py::test_orca_a_line_that_cannot_be_a_name_goes_to_claude_as_a_message[246 bytes] PASSED [ 54%]
++tests/unit/test_ccsession_tag.py::test_orca_a_line_that_cannot_be_a_name_goes_to_claude_as_a_message[82 CJK characters] PASSED [ 54%]
++tests/unit/test_ccsession_tag.py::test_orca_a_line_that_cannot_be_a_name_goes_to_claude_as_a_message[inner tab] PASSED [ 54%]
++tests/unit/test_ccsession_tag.py::test_orca_a_line_that_cannot_be_a_name_goes_to_claude_as_a_message[leading tab] PASSED [ 54%]
++tests/unit/test_ccsession_tag.py::test_orca_a_line_that_cannot_be_a_name_goes_to_claude_as_a_message[trailing tab] PASSED [ 55%]
++tests/unit/test_ccsession_tag.py::test_orca_resume_skips_the_question[resume] PASSED [ 55%]
++tests/unit/test_ccsession_tag.py::test_orca_resume_skips_the_question[resume-fork] PASSED [ 55%]
++tests/unit/test_ccsession_tag.py::test_orca_resume_skips_the_question[resume-equals] PASSED [ 55%]
++tests/unit/test_ccsession_tag.py::test_orca_resume_skips_the_question[continue] PASSED [ 56%]
++tests/unit/test_ccsession_tag.py::test_orca_resume_skips_the_question[resume-short] PASSED [ 56%]
++tests/unit/test_ccsession_tag.py::test_orca_resume_skips_the_question[fork-session-alone] PASSED [ 56%]
++tests/unit/test_ccsession_tag.py::test_orca_resume_skips_the_question[from-pr] PASSED [ 56%]
++tests/unit/test_ccsession_tag.py::test_orca_prompt_reaches_claude_unchanged_and_is_never_a_label[fix the 'login' bug and say "done"] PASSED [ 56%]
++tests/unit/test_ccsession_tag.py::test_orca_prompt_reaches_claude_unchanged_and_is_never_a_label[-p looks like a flag] PASSED [ 57%]
++tests/unit/test_ccsession_tag.py::test_orca_prompt_reaches_claude_unchanged_and_is_never_a_label[--shim] PASSED [ 57%]
++tests/unit/test_ccsession_tag.py::test_orca_prompt_reaches_claude_unchanged_and_is_never_a_label[--help] PASSED [ 57%]
++tests/unit/test_ccsession_tag.py::test_orca_prompt_reaches_claude_unchanged_and_is_never_a_label[demo] PASSED [ 57%]
++tests/unit/test_ccsession_tag.py::test_orca_prompt_reaches_claude_unchanged_and_is_never_a_label[two words; $(not run) `either`] PASSED [ 57%]
++tests/unit/test_ccsession_tag.py::test_orca_prefill_passes_through_and_its_text_is_not_a_flag PASSED [ 58%]
++tests/unit/test_ccsession_tag.py::test_orca_without_a_terminal_never_asks PASSED [ 58%]
++tests/unit/test_ccsession_tag.py::test_orca_autostart_off_never_asks PASSED [ 58%]
++tests/unit/test_ccsession_tag.py::test_orca_unanswered_question_is_auto_named PASSED [ 58%]
++tests/unit/test_ccsession_tag.py::test_orca_keys_already_typed_skip_the_question PASSED [ 58%]
++tests/unit/test_ccsession_tag.py::test_orca_relaunch_reopens_the_tabs_named_session PASSED [ 59%]
++tests/unit/test_ccsession_tag.py::test_orca_relaunch_reopens_an_untagged_session_by_id PASSED [ 59%]
++tests/unit/test_ccsession_tag.py::test_orca_reopen_leaves_the_name_and_the_limit_out_of_claudes_environment[by name] PASSED [ 59%]
++tests/unit/test_ccsession_tag.py::test_orca_reopen_leaves_the_name_and_the_limit_out_of_claudes_environment[by id] PASSED [ 59%]
++tests/unit/test_ccsession_tag.py::test_orca_a_new_tab_or_a_rerun_is_still_asked[new tab] PASSED [ 59%]
++tests/unit/test_ccsession_tag.py::test_orca_a_new_tab_or_a_rerun_is_still_asked[same terminal, run again by hand] PASSED [ 60%]
++tests/unit/test_ccsession_tag.py::test_orca_a_launch_with_more_than_options_is_not_asked_and_never_reopens[prompt] PASSED [ 60%]
++tests/unit/test_ccsession_tag.py::test_orca_a_launch_with_more_than_options_is_not_asked_and_never_reopens[prefill] PASSED [ 60%]
++tests/unit/test_ccsession_tag.py::test_orca_a_launch_with_more_than_options_is_not_asked_and_never_reopens[name] PASSED [ 60%]
++tests/unit/test_ccsession_tag.py::test_orca_a_launch_with_more_than_options_is_not_asked_and_never_reopens[print] PASSED [ 60%]
++tests/unit/test_ccsession_tag.py::test_orca_a_launch_with_more_than_options_is_not_asked_and_never_reopens[session-id] PASSED [ 61%]
++tests/unit/test_ccsession_tag.py::test_orca_a_session_choice_wins_over_the_tabs_record[resume] PASSED [ 61%]
++tests/unit/test_ccsession_tag.py::test_orca_a_session_choice_wins_over_the_tabs_record[continue] PASSED [ 61%]
++tests/unit/test_ccsession_tag.py::test_orca_relaunch_without_a_terminal_or_autostart_changes_nothing PASSED [ 61%]
++tests/unit/test_ccsession_tag.py::test_orca_relaunch_whose_conversation_is_gone_is_asked PASSED [ 61%]
++tests/unit/test_ccsession_tag.py::test_orca_two_tabs_never_reopen_the_same_session PASSED [ 62%]
++tests/unit/test_ccsession_tag.py::test_orca_clear_in_the_tab_moves_its_record_to_the_new_session PASSED [ 62%]
++tests/unit/test_ccsession_tag.py::test_orca_only_the_launched_claude_records_the_tab[claude not launched by ccsession] PASSED [ 62%]
++tests/unit/test_ccsession_tag.py::test_orca_only_the_launched_claude_records_the_tab[claude inside the session] PASSED [ 62%]
++tests/unit/test_ccsession_tag.py::test_orca_tab_record_follows_the_launch_folder_and_worktree PASSED [ 62%]
++tests/unit/test_ccsession_tag.py::test_ask_prints_only_the_name_on_stdout PASSED [ 63%]
++tests/unit/test_ccsession_tag.py::test_auto_name_without_text_is_the_folder_and_a_stamp PASSED [ 63%]
++tests/unit/test_ccsession_tag.py::test_auto_name_is_valid_and_shell_safe_for_any_text[quotes] PASSED [ 63%]
++tests/unit/test_ccsession_tag.py::test_auto_name_is_valid_and_shell_safe_for_any_text[command substitution] PASSED [ 63%]
++tests/unit/test_ccsession_tag.py::test_auto_name_is_valid_and_shell_safe_for_any_text[path] PASSED [ 63%]
++tests/unit/test_ccsession_tag.py::test_auto_name_is_valid_and_shell_safe_for_any_text[escape codes] PASSED [ 64%]
++tests/unit/test_ccsession_tag.py::test_auto_name_is_valid_and_shell_safe_for_any_text[several lines] PASSED [ 64%]
++tests/unit/test_ccsession_tag.py::test_auto_name_is_valid_and_shell_safe_for_any_text[--model] PASSED [ 64%]
++tests/unit/test_ccsession_tag.py::test_auto_name_is_valid_and_shell_safe_for_any_text[--claude-args] PASSED [ 64%]
++tests/unit/test_ccsession_tag.py::test_auto_name_is_valid_and_shell_safe_for_any_text[--shim] PASSED [ 64%]
++tests/unit/test_ccsession_tag.py::test_auto_name_is_valid_and_shell_safe_for_any_text[--tier=x] PASSED [ 65%]
++tests/unit/test_ccsession_tag.py::test_auto_name_is_valid_and_shell_safe_for_any_text[--name] PASSED [ 65%]
++tests/unit/test_ccsession_tag.py::test_auto_name_is_valid_and_shell_safe_for_any_text[CJK] PASSED [ 65%]
++tests/unit/test_ccsession_tag.py::test_auto_name_is_valid_and_shell_safe_for_any_text[format characters] PASSED [ 65%]
++tests/unit/test_ccsession_tag.py::test_auto_name_is_valid_and_shell_safe_for_any_text[punctuation only] PASSED [ 65%]
++tests/unit/test_ccsession_tag.py::test_auto_name_uses_at_most_four_words_of_twelve_characters PASSED [ 66%]
++tests/unit/test_ccsession_tag.py::test_auto_name_stays_short_and_keeps_its_stamp_for_a_long_folder PASSED [ 66%]
++tests/unit/test_ccsession_tag.py::test_auto_name_two_calls_in_the_same_second_differ PASSED [ 66%]
++tests/unit/test_ccsession_tag.py::test_auto_name_never_equals_a_saved_name PASSED [ 66%]
++tests/unit/test_ccsession_tag.py::test_auto_name_prints_nothing_when_the_name_list_cannot_be_written PASSED [ 67%]
++tests/unit/test_ccsession_tag.py::test_auto_name_stamp_override_is_cut_to_safe_characters PASSED [ 67%]
++tests/unit/test_ccsession_tag.py::test_auto_name_in_a_hidden_folder_with_cjk_characters_is_still_valid PASSED [ 67%]
++tests/unit/test_ccsession_tag.py::test_auto_name_check_name_judges_names_and_help_lists_the_new_options PASSED [ 67%]
++tests/unit/test_ccsession_tag.py::test_ask_default_limit_is_30_seconds_and_shown_in_the_question PASSED [ 67%]
++tests/unit/test_ccsession_tag.py::test_ask_gives_up_after_the_limit_with_exit_1 PASSED [ 68%]
++tests/unit/test_ccsession_tag.py::test_ask_limit_0_waits_for_ever_and_drops_the_limit_from_the_question PASSED [ 68%]
++tests/unit/test_ccsession_tag.py::test_ask_limit_starts_again_after_a_star PASSED [ 68%]
++tests/unit/test_ccsession_tag.py::test_ask_limit_with_leading_zeros_is_read_as_the_number PASSED [ 68%]
++tests/unit/test_ccsession_tag.py::test_ask_end_of_input_exits_1 PASSED   [ 68%]
++tests/unit/test_ccsession_tag.py::test_ask_hint_placeholder_follows_the_limit PASSED [ 69%]
++tests/unit/test_ccsession_tag.py::test_orca_ask_question_hint_follows_the_limit_and_the_timeout_auto_names PASSED [ 69%]
++tests/unit/test_ccsession_tag.py::test_ask_a_line_that_cannot_be_a_name_exits_3_and_prints_it_as_typed[246 bytes] PASSED [ 69%]
++tests/unit/test_ccsession_tag.py::test_ask_a_line_that_cannot_be_a_name_exits_3_and_prints_it_as_typed[82 CJK characters] PASSED [ 69%]
++tests/unit/test_ccsession_tag.py::test_ask_a_line_that_cannot_be_a_name_exits_3_and_prints_it_as_typed[inner tab] PASSED [ 69%]
++tests/unit/test_ccsession_tag.py::test_ask_a_line_that_cannot_be_a_name_exits_3_and_prints_it_as_typed[leading tab] PASSED [ 70%]
++tests/unit/test_ccsession_tag.py::test_ask_a_line_that_cannot_be_a_name_exits_3_and_prints_it_as_typed[trailing tab] PASSED [ 70%]
++tests/unit/test_ccsession_tag.py::test_ask_a_line_that_cannot_be_a_name_exits_3_and_prints_it_as_typed[paste in one write] PASSED [ 70%]
++tests/unit/test_ccsession_tag.py::test_ask_a_line_that_cannot_be_a_name_exits_3_and_prints_it_as_typed[paste in two writes] PASSED [ 70%]
++tests/unit/test_ccsession_tag.py::test_ask_a_name_with_spaces_is_a_name PASSED [ 70%]
++tests/unit/test_ccsession_tag.py::test_ask_a_blank_line_means_enter PASSED [ 71%]
++tests/unit/test_ccsession_tag.py::test_ask_star_lists_the_saved_sessions_and_asks_again PASSED [ 71%]
++tests/unit/test_ccsession_tag.py::test_ask_is_not_asked_when_keys_are_already_waiting PASSED [ 71%]
++tests/unit/test_ccsession_tag.py::test_ask_ctrl_c_while_pasted_text_is_collected_exits_130_and_restores PASSED [ 71%]
++tests/unit/test_ccsession_tag.py::test_orca_launch_with_a_prompt_is_auto_named_and_never_asked[terminal] PASSED [ 71%]
++tests/unit/test_ccsession_tag.py::test_orca_launch_with_a_prompt_is_auto_named_and_never_asked[no-terminal] PASSED [ 72%]
++tests/unit/test_ccsession_tag.py::test_orca_launch_with_nothing_and_no_terminal_is_auto_named PASSED [ 72%]
++tests/unit/test_ccsession_tag.py::test_orca_ccsession_name_names_the_session_and_is_never_asked[no-prompt-terminal] PASSED [ 72%]
++tests/unit/test_ccsession_tag.py::test_orca_ccsession_name_names_the_session_and_is_never_asked[no-prompt-no-terminal] PASSED [ 72%]
++tests/unit/test_ccsession_tag.py::test_orca_ccsession_name_names_the_session_and_is_never_asked[prompt-terminal] PASSED [ 72%]
++tests/unit/test_ccsession_tag.py::test_orca_ccsession_name_names_the_session_and_is_never_asked[prompt-no-terminal] PASSED [ 73%]
++tests/unit/test_ccsession_tag.py::test_orca_valid_ccsession_name_is_passed_even_where_a_launch_stays_untagged[print mode] PASSED [ 73%]
++tests/unit/test_ccsession_tag.py::test_orca_valid_ccsession_name_is_passed_even_where_a_launch_stays_untagged[--version] PASSED [ 73%]
++tests/unit/test_ccsession_tag.py::test_orca_valid_ccsession_name_is_passed_even_where_a_launch_stays_untagged[subcommand] PASSED [ 73%]
++tests/unit/test_ccsession_tag.py::test_orca_valid_ccsession_name_is_passed_even_where_a_launch_stays_untagged[autostart off] PASSED [ 73%]
++tests/unit/test_ccsession_tag.py::test_orca_invalid_ccsession_name_never_stops_claude[tab] PASSED [ 74%]
++tests/unit/test_ccsession_tag.py::test_orca_invalid_ccsession_name_never_stops_claude[300 characters] PASSED [ 74%]
++tests/unit/test_ccsession_tag.py::test_orca_invalid_ccsession_name_never_stops_claude[newline] PASSED [ 74%]
++tests/unit/test_ccsession_tag.py::test_orca_invalid_ccsession_name_never_stops_claude[blank] PASSED [ 74%]
++tests/unit/test_ccsession_tag.py::test_orca_ccsession_name_equal_to_a_saved_label_resumes_it_loudly PASSED [ 74%]
++tests/unit/test_ccsession_tag.py::test_orca_ccsession_name_longer_than_the_limit_is_dropped_not_cut PASSED [ 75%]
++tests/unit/test_ccsession_tag.py::test_orca_typed_text_that_cannot_be_a_name_is_claudes_first_message[paste] PASSED [ 75%]
++tests/unit/test_ccsession_tag.py::test_orca_typed_text_that_cannot_be_a_name_is_claudes_first_message[dash-paste] PASSED [ 75%]
++tests/unit/test_ccsession_tag.py::test_orca_typed_text_that_cannot_be_a_name_is_claudes_first_message[dash-too-long] PASSED [ 75%]
++tests/unit/test_ccsession_tag.py::test_orca_print_mode_is_untagged_and_never_asked[-p] PASSED [ 75%]
++tests/unit/test_ccsession_tag.py::test_orca_print_mode_is_untagged_and_never_asked[--print] PASSED [ 76%]
++tests/unit/test_ccsession_tag.py::test_orca_print_mode_is_untagged_and_never_asked[-p-only] PASSED [ 76%]
++tests/unit/test_ccsession_tag.py::test_orca_print_mode_permissions_default_keeps_shim_routing PASSED [ 76%]
++tests/unit/test_ccsession_tag.py::test_orca_commands_that_start_no_session_get_no_name_and_no_question[version] PASSED [ 76%]
++tests/unit/test_ccsession_tag.py::test_orca_commands_that_start_no_session_get_no_name_and_no_question[help] PASSED [ 76%]
++tests/unit/test_ccsession_tag.py::test_orca_commands_that_start_no_session_get_no_name_and_no_question[mcp] PASSED [ 77%]
++tests/unit/test_ccsession_tag.py::test_orca_commands_that_start_no_session_get_no_name_and_no_question[doctor] PASSED [ 77%]
++tests/unit/test_ccsession_tag.py::test_orca_claude_name_is_kept_once_and_never_asked[--name] PASSED [ 77%]
++tests/unit/test_ccsession_tag.py::test_orca_claude_name_is_kept_once_and_never_asked[-n] PASSED [ 77%]
++tests/unit/test_ccsession_tag.py::test_orca_claude_name_is_kept_once_and_never_asked[--name=] PASSED [ 78%]
++tests/unit/test_ccsession_tag.py::test_orca_equals_forms_and_unknown_options_count_as_a_task[--prefill=] PASSED [ 78%]
++tests/unit/test_ccsession_tag.py::test_orca_equals_forms_and_unknown_options_count_as_a_task[--session-id=] PASSED [ 78%]
++tests/unit/test_ccsession_tag.py::test_orca_equals_forms_and_unknown_options_count_as_a_task[unknown option and its value] PASSED [ 78%]
++tests/unit/test_ccsession_tag.py::test_orca_trailing_name_with_no_value_is_a_name_given PASSED [ 78%]
++tests/unit/test_ccsession_tag.py::test_orca_the_value_of_a_known_option_is_not_a_task[--model] PASSED [ 79%]
++tests/unit/test_ccsession_tag.py::test_orca_the_value_of_a_known_option_is_not_a_task[--permission-mode] PASSED [ 79%]
++tests/unit/test_ccsession_tag.py::test_orca_the_value_of_a_known_option_is_not_a_task[--add-dir] PASSED [ 79%]
++tests/unit/test_ccsession_tag.py::test_orca_the_value_of_a_known_option_is_not_a_task[--allowedTools] PASSED [ 79%]
++tests/unit/test_ccsession_tag.py::test_orca_the_value_of_a_known_option_is_not_a_task[--mcp-config] PASSED [ 79%]
++tests/unit/test_ccsession_tag.py::test_orca_launch_in_a_hidden_folder_with_cjk_characters_reaches_claude PASSED [ 80%]
++tests/unit/test_ccsession_tag.py::test_orca_typed_option_looking_text_at_the_question PASSED [ 80%]
++tests/unit/test_ccsession_tag.py::test_orca_session_id_launch_carries_a_task_and_is_auto_named PASSED [ 80%]
++tests/unit/test_ccsession_tag.py::test_orca_autostart_off_with_no_task_is_untagged_and_never_asked PASSED [ 80%]
++tests/unit/test_ccsession_tag.py::test_orca_starts_untagged_when_the_name_list_cannot_be_written PASSED [ 80%]
++tests/unit/test_ccsession_tag.py::test_orca_auto_named_session_is_listed_once_the_session_hook_records_it PASSED [ 81%]
++tests/unit/test_ccsession_tag.py::test_orca_terminal_title_keeps_claude_recognisable PASSED [ 81%]
++tests/unit/test_ccsession_tag.py::test_title_untouched_outside_orca PASSED [ 81%]
++tests/unit/test_ccsession_tag.py::test_name_key_is_the_repo_origin_in_every_worktree[https://github.com/Org/Repo] PASSED [ 81%]
++tests/unit/test_ccsession_tag.py::test_name_key_is_the_repo_origin_in_every_worktree[https://github.com/Org/Repo.git] PASSED [ 81%]
++tests/unit/test_ccsession_tag.py::test_name_key_is_the_repo_origin_in_every_worktree[https://github.com/Org/Repo/] PASSED [ 82%]
++tests/unit/test_ccsession_tag.py::test_name_key_is_the_repo_origin_in_every_worktree[https://user:REDACTED@github.com/Org/Repo.git] PASSED [ 82%]
++tests/unit/test_ccsession_tag.py::test_name_key_is_the_repo_origin_in_every_worktree[git@github.com:Org/Repo.git] PASSED [ 82%]
++tests/unit/test_ccsession_tag.py::test_name_key_is_the_repo_origin_in_every_worktree[ssh://git@github.com/Org/Repo.git] PASSED [ 82%]
++tests/unit/test_ccsession_tag.py::test_name_key_without_origin_is_the_main_worktree PASSED [ 82%]
++tests/unit/test_ccsession_tag.py::test_name_key_with_a_separate_git_dir_is_that_git_dir PASSED [ 83%]
++tests/unit/test_ccsession_tag.py::test_name_key_outside_git_is_the_folder_as_before PASSED [ 83%]
++tests/unit/test_ccsession_tag.py::test_name_from_one_worktree_resumes_in_another PASSED [ 83%]
++tests/unit/test_ccsession_tag.py::test_session_start_hook_saves_the_name_under_the_repo PASSED [ 83%]
++tests/unit/test_ccsession_tag.py::test_retired_ccsession_tag_command_can_not_run PASSED [ 83%]
++tests/unit/test_ccsession_tag.py::test_names_saved_per_folder_move_to_the_repo_once PASSED [ 84%]
++tests/unit/test_ccsession_tag.py::test_migration_never_overwrites_a_label_written_meanwhile PASSED [ 84%]
++tests/unit/test_ccsession_tag.py::test_migration_keeps_going_past_an_unreadable_list PASSED [ 84%]
++tests/unit/test_ccsession_tag.py::test_migration_never_hides_a_repo_list_whose_last_folder_moved_on PASSED [ 84%]
++tests/unit/test_ccsession_tag.py::test_name_key_ignores_local_relative_or_unsafe_origins[.] PASSED [ 84%]
++tests/unit/test_ccsession_tag.py::test_name_key_ignores_local_relative_or_unsafe_origins[..] PASSED [ 85%]
++tests/unit/test_ccsession_tag.py::test_name_key_ignores_local_relative_or_unsafe_origins[../Repo.git] PASSED [ 85%]
++tests/unit/test_ccsession_tag.py::test_name_key_ignores_local_relative_or_unsafe_origins[/srv/repos/Repo] PASSED [ 85%]
++tests/unit/test_ccsession_tag.py::test_name_key_ignores_local_relative_or_unsafe_origins[file:///srv/repos/Repo] PASSED [ 85%]
++tests/unit/test_ccsession_tag.py::test_name_key_ignores_local_relative_or_unsafe_origins[https://user:pa/ss@github.com/Org/Repo] PASSED [ 85%]
++tests/unit/test_ccsession_tag.py::test_name_key_ignores_local_relative_or_unsafe_origins[relative/dir:foo] PASSED [ 86%]
++tests/unit/test_ccsession_tag.py::test_name_key_ignores_local_relative_or_unsafe_origins[C:/x/y] PASSED [ 86%]
++tests/unit/test_ccsession_tag.py::test_name_key_drops_query_port_and_case[https://github.com/Org/Repo.git?token=abc#frag] PASSED [ 86%]
++tests/unit/test_ccsession_tag.py::test_name_key_drops_query_port_and_case[ssh://git@github.com:22/Org/Repo.git] PASSED [ 86%]
++tests/unit/test_ccsession_tag.py::test_name_key_drops_query_port_and_case[HTTPS://GitHub.com:443/Org/Repo//] PASSED [ 86%]
++tests/unit/test_ccsession_tag.py::test_name_key_drops_query_port_and_case[https://github.com//Org//Repo.git] PASSED [ 87%]
++tests/unit/test_ccsession_tag.py::test_name_key_drops_query_port_and_case[git@github.com:/Org/Repo.git] PASSED [ 87%]
++tests/unit/test_ccsession_tag.py::test_name_key_ignores_git_dir_from_the_environment PASSED [ 87%]
++tests/unit/test_ccsession_tag.py::test_nested_claude_in_another_worktree_keeps_the_parent_name PASSED [ 87%]
++tests/unit/test_ccsession_tag.py::test_symlinked_hook_still_saves_under_the_repo PASSED [ 87%]
++tests/unit/test_ccsession_tag.py::test_a_name_with_spaces_and_slashes_starts_lists_and_resumes PASSED [ 88%]
++tests/unit/test_ccsession_tag.py::test_blank_names_and_control_characters_are_refused[] PASSED [ 88%]
++tests/unit/test_ccsession_tag.py::test_blank_names_and_control_characters_are_refused[   ] PASSED [ 88%]
++tests/unit/test_ccsession_tag.py::test_blank_names_and_control_characters_are_refused[tab\there] PASSED [ 88%]
++tests/unit/test_ccsession_tag.py::test_blank_names_and_control_characters_are_refused[line\nbreak] PASSED [ 89%]
++tests/unit/test_ccsession_tag.py::test_rename_in_claude_code_renames_the_listed_name PASSED [ 89%]
++tests/unit/test_ccsession_tag.py::test_a_rename_just_before_quitting_is_kept PASSED [ 89%]
++tests/unit/test_ccsession_tag.py::test_a_name_another_session_has_gets_a_number PASSED [ 89%]
++tests/unit/test_ccsession_tag.py::test_sessions_without_a_name_never_join_the_list PASSED [ 89%]
++tests/unit/test_ccsession_tag.py::test_orca_tab_follows_a_rename_of_the_launched_session[native] PASSED [ 90%]
++tests/unit/test_ccsession_tag.py::test_orca_tab_follows_a_rename_of_the_launched_session[standalone] PASSED [ 90%]
++tests/unit/test_ccsession_tag.py::test_where_processes_cannot_be_read_the_hook_acts_for_the_launch PASSED [ 90%]
++tests/unit/test_ccsession_tag.py::test_a_claude_started_inside_a_session_takes_neither_its_name_nor_its_tab PASSED [ 90%]
++tests/unit/test_ccsession_tag.py::test_ccsession_inside_claude_code_leaves_the_tab_and_label_alone PASSED [ 90%]
++tests/unit/test_ccsession_tag.py::test_launch_clears_only_a_tab_title_ccsession_set[ours] PASSED [ 91%]
++tests/unit/test_ccsession_tag.py::test_launch_clears_only_a_tab_title_ccsession_set[typed since] PASSED [ 91%]
++tests/unit/test_ccsession_tag.py::test_launch_clears_only_a_tab_title_ccsession_set[never set] PASSED [ 91%]
++tests/unit/test_ccsession_tag.py::test_a_name_starting_with_a_dash_is_listed_and_resumes PASSED [ 91%]
++tests/unit/test_ccsession_tag.py::test_orca_question_takes_a_name_starting_with_a_dash PASSED [ 91%]
++tests/unit/test_ccsession_tag.py::test_labels_older_versions_saved_with_a_leading_dot_still_resume PASSED [ 92%]
++tests/unit/test_ccsession_tag.py::test_a_hidden_label_in_an_old_per_folder_list_reaches_the_repo_list[False] PASSED [ 92%]
++tests/unit/test_ccsession_tag.py::test_a_hidden_label_in_an_old_per_folder_list_reaches_the_repo_list[True] PASSED [ 92%]
++tests/unit/test_ccsession_tag.py::test_a_hidden_label_whose_name_the_repo_list_has_gets_a_number PASSED [ 92%]
++tests/unit/test_ccsession_tag.py::test_sessions_renamed_to_one_name_at_once_both_stay_listed PASSED [ 92%]
++tests/unit/test_ccsession_tag.py::test_a_lock_folder_left_by_the_earlier_build_is_handled[empty] PASSED [ 93%]
++tests/unit/test_ccsession_tag.py::test_a_lock_folder_left_by_the_earlier_build_is_handled[not empty] PASSED [ 93%]
++tests/unit/test_ccsession_tag.py::test_a_live_lock_holder_is_waited_for_and_a_killed_one_frees_it PASSED [ 93%]
++tests/unit/test_ccsession_tag.py::test_the_name_length_limit_is_the_documented_one[/////////////////////////////////////////////////////////////////////////////////-True] PASSED [ 93%]
++tests/unit/test_ccsession_tag.py::test_the_name_length_limit_is_the_documented_one[//////////////////////////////////////////////////////////////////////////////////-False] PASSED [ 93%]
++tests/unit/test_ccsession_tag.py::test_the_name_length_limit_is_the_documented_one[\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042-True] PASSED [ 94%]
++tests/unit/test_ccsession_tag.py::test_the_name_length_limit_is_the_documented_one[\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042\u3042-False] PASSED [ 94%]
++tests/unit/test_ccsession_tag.py::test_the_name_length_limit_is_the_documented_one[name4-True] PASSED [ 94%]
++tests/unit/test_ccsession_tag.py::test_the_name_length_limit_is_the_documented_one[name5-False] PASSED [ 94%]
++tests/unit/test_ccsession_tag.py::test_orca_tab_is_left_to_claude_code_where_ccsession_does_not_own_it PASSED [ 94%]
++tests/unit/test_ccsession_tag.py::test_names_given_before_ccsession_kept_them_are_imported_once PASSED [ 95%]
++tests/unit/test_ccsession_tag.py::test_orca_question_takes_a_name_with_spaces PASSED [ 95%]
++tests/unit/test_ccsession_tag.py::test_framework_hooks_register_the_rename_hook PASSED [ 95%]
++tests/unit/test_ccsession_tag.py::test_here_lists_this_worktree_then_removed_ones_and_counts_the_rest PASSED [ 95%]
++tests/unit/test_ccsession_tag.py::test_resuming_a_session_of_another_live_worktree_warns PASSED [ 95%]
++tests/unit/test_ccsession_tag.py::test_name_question_lists_this_worktree_and_star_lists_every_one PASSED [ 96%]
++tests/unit/test_ccsession_tag.py::test_a_session_belongs_to_the_worktree_it_was_started_in PASSED [ 96%]
++tests/unit/test_ccsession_tag.py::test_worktree_list_ignores_git_variables_from_the_caller PASSED [ 96%]
++tests/unit/test_ccsession_tag.py::test_a_deleted_folder_of_a_live_worktree_stays_with_that_worktree PASSED [ 96%]
++tests/unit/test_ccsession_tag.py::test_a_removed_worktree_inside_an_ignored_folder_is_still_removed PASSED [ 96%]
++tests/unit/test_ccsession_tag.py::test_a_deleted_ignored_folder_of_a_live_worktree_stays_with_it PASSED [ 97%]
++tests/unit/test_ccsession_tag.py::test_a_deleted_folder_of_another_copy_of_the_repo_stays_with_that_copy PASSED [ 97%]
++tests/skills/test_model_alias_policy.py::test_frontmatter_model_is_an_alias_when_present PASSED [ 97%]
++tests/skills/test_model_alias_policy.py::test_tier_ids_appear_only_in_allowed_paths PASSED [ 97%]
++tests/skills/test_model_alias_policy.py::test_python_selection_constants_are_not_full_model_ids PASSED [ 97%]
++tests/skills/test_model_alias_policy.py::test_markdown_does_not_pass_full_model_ids_to_model_flags PASSED [ 98%]
++tests/skills/test_model_alias_policy.py::test_reflect_default_model_is_an_alias PASSED [ 98%]
++tests/skills/test_model_alias_policy.py::test_d12_manual_test_does_not_pin_the_old_reflect_model PASSED [ 98%]
++tests/skills/test_model_alias_policy.py::test_issue_chains_use_the_default_brainstorm_models PASSED [ 98%]
++tests/skills/test_model_alias_policy.py::test_cleanup_audit_docs_match_the_audit_scanner_pin PASSED [ 98%]
++tests/skills/test_model_alias_policy.py::test_retry_ladder_uses_the_variable_names_the_workspace_exports PASSED [ 99%]
++tests/skills/test_model_alias_policy.py::test_mapping_document_states_the_exports_and_tiers_exist PASSED [ 99%]
++tests/skills/test_model_alias_policy.py::test_issue_worker_allow_list_entries_exist[src/superclaude/agents/issue-worker-t1.md] PASSED [ 99%]
++tests/skills/test_model_alias_policy.py::test_issue_worker_allow_list_entries_exist[src/superclaude/agents/issue-worker-t2.md] PASSED [ 99%]
++tests/skills/test_model_alias_policy.py::test_issue_worker_allow_list_entries_exist[src/superclaude/agents/issue-worker-t3.md] PASSED [100%]
++
++======================= 491 passed in 274.21s (0:04:34) ========================
+diff --git a/src/superclaude/skills/ccsession-tag/ccsession b/src/superclaude/skills/ccsession-tag/ccsession
+index 2ff03004..d53e399c 100755
+--- a/src/superclaude/skills/ccsession-tag/ccsession
++++ b/src/superclaude/skills/ccsession-tag/ccsession
+@@ -1070,13 +1070,15 @@ setup_shim() {
+   cache_file="$HOME/.claude/cache/gateway-models.json"
+   # Status goes to stderr: stdout carries only Claude's output (issue 389).
+   local _picker_settings
+-  if _picker_settings=$(CC_CACHE_BASE_URL="$ANTHROPIC_BASE_URL" \
++  if _picker_settings=$(
++    exec 3>&1  # Settings handoff only; the warm-up's stdout remains stderr.
++    CC_CACHE_BASE_URL="$ANTHROPIC_BASE_URL" \
+     CC_CACHE_FILE="$cache_file" \
+     CC_CACHE_AUTH_TOKEN="${ANTHROPIC_AUTH_TOKEN:-}" \
+     CC_CACHE_API_KEY="${ANTHROPIC_API_KEY:-}" \
+     CC_CACHE_TIER_MODE="$TIER_MODE" \
+     CC_CACHE_SETTINGS="${CC_SETTINGS_ARGS[1]:-}" \
+-    python3 - <<'PY'
++    python3 - >&2 <<'PY'
+ import json
+ import os
+ import pathlib
+@@ -1140,7 +1142,8 @@ if os.environ["CC_CACHE_TIER_MODE"] == "1":
+             for row in models
+         ],
+     }
+-    print(json.dumps(settings, separators=(",", ":")))
++    with os.fdopen(3, "w") as handoff:
++        print(json.dumps(settings, separators=(",", ":")), file=handoff)
+ PY
+   ); then
+     if [ -n "$_picker_settings" ]; then
+diff --git a/tests/unit/test_ccsession_tiers.py b/tests/unit/test_ccsession_tiers.py
+index dadacced..0a1a90dd 100644
+--- a/tests/unit/test_ccsession_tiers.py
++++ b/tests/unit/test_ccsession_tiers.py
+@@ -1201,7 +1201,9 @@ def test_native_picker_uses_current_curated_rows(
+     for key, value in extra.items():
+         monkeypatch.setenv(key, value)
+     module = runpy.run_path(str(SKILL_DIR / "local-gateway-alias-proxy.py"))
+-    rows = module["transform_models"]({"data": [{"id": "gpt-6.1-sol"}]})["data"]
++    rows = module["transform_models"](
++        {"data": [{"id": "gpt-6.1-sol", "description": "Actual upstream description"}]}
++    )["data"]
+ 
+     class Models(http.server.BaseHTTPRequestHandler):
+         def log_message(self, *args):
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

@@ -1,0 +1,15 @@
+Command: uv run ruff check src/superclaude/skills/ccsession-tag/models.py tests/unit/test_ccsession_tiers.py
+All checks passed!
+Command: uv run pytest tests/unit/test_ccsession_tag.py::test_status_lines_in_launcher_scripts_go_to_stderr tests/unit/test_ccsession_tiers.py -k "status_lines or native_picker" -q
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 174 items / 165 deselected / 9 selected
+
+tests/unit/test_ccsession_tag.py .                                       [ 11%]
+tests/unit/test_ccsession_tiers.py ........                              [100%]
+
+====================== 9 passed, 165 deselected in 9.34s =======================

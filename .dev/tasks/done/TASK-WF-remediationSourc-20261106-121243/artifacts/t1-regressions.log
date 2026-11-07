@@ -1,0 +1,12 @@
+Command: uv run pytest tests/unit/test_ccsession_tiers.py -k "named_tier_ or tier_flag_and_named_model" -q
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 165 items / 146 deselected / 19 selected
+
+tests/unit/test_ccsession_tiers.py ...................                   [100%]
+
+===================== 19 passed, 146 deselected in 12.93s ======================

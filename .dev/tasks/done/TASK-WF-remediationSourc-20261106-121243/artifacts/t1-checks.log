@@ -1,0 +1,6 @@
+Command: uv run ruff check src/superclaude/skills/ccsession-tag/models.py tests/unit/test_ccsession_tiers.py
+All checks passed!
+Command: git diff --check -- src/superclaude/skills/ccsession-tag/models.py tests/unit/test_ccsession_tiers.py
+Exit 0 (no whitespace errors).
+Extras classification: lint=pass,typecheck=skip,test=fail. Two full tier-suite runs each had 164 passed and one different existing random upstream-port collision rejected by shim-upstream-check; failures are in the touched test file, not unrelated-red. Focused named-tier/named-model regressions: 19 passed,146 deselected (t1-regressions.log:12). Before-fix named-tier regressions: 18 failed (t1-before.log).
+Auggie unavailable (tool not listed); actual callers model_window/main and export_selection/apply_tier_selection inspected via native Grep/Read. No signature, rename, or deletion; no new impact invocation required. Parent-supplied prior impact was warning-only, not proof of no callers. All NC-01 through NC-12 remain binding, including actual alias boundary proof pending Task4, no foreign shared-cache reread, deterministic successful warm-up fixture, compact override/user precedence and unchanged non-tier/default-model policy. Hardening advisory/latched.

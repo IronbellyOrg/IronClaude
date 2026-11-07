@@ -1,0 +1,136 @@
+contract_version: "1.8.0"
+status: partial
+mode: post
+tier_reached: 1
+requested_depth: quick
+tier_override: depth-quick
+ordinary_escalation_advice: low_confidence
+report_path: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/reflect-post-quick/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/reflect-post-quick/audit.log
+confidence_calibrated: 0.71
+escalation_rule_matched: null
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: null
+coverage_undefined: false
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: 1.0
+completion_scope: Functional task outcomes only; not clean review coverage
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+deviation_register_path: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/reflect-post-quick/deviation-ledger.yaml
+grounding_gaps_path: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/reflect-post-quick/grounding-gaps.yaml
+hunk_to_declaration_map_path: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/reflect-post-quick/artifacts/hunk-to-declaration-map.yaml
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: true
+verification_invocations: 5
+verification_failures: 1
+verification_regressions_detected: 0
+verification_skip_reason: null
+verify_timeout_hit: true
+verify_timeout_default: 120
+verify_flaky_suspected: true
+flaky_scope: Suspicion only; initial F identity and cause unproven
+verification_retry_timeout: 600
+verification_retry_passed: true
+runtime_surface_requirements: [T1, T3]
+runtime_surface_sweep_ran: true
+runtime_surface_ledger_path: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/reflect-post-quick/artifacts/runtime-surface-ledger.yaml
+runtime_surface_unreached: 0
+runtime_surface_degraded: true
+unreached_surfaces: []
+reachability_gate_ran: true
+reachability_ledger_path: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/reflect-post-quick/artifacts/reachability-ledger.yaml
+reachability_requirements_scanned: 3
+reachability_unreachable: 0
+reachability_unproven: 0
+reachability_real_boot_ran: false
+reachability_skip_reason: null
+reuse_sweep_ran: true
+reuse_audit_path: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/reflect-post-quick/artifacts/reuse-audit.yaml
+reuse_miss_blocking: 0
+reuse_miss_advisory: 2
+reuse_verdict_count_by_type: {reuse_by_import: 0, mirror_shape: 1, extract_shared: 1, distinct: 1}
+reuse_grounding_gap_count: 2
+neighbour_search_sampled: false
+neighbour_search_degraded: true
+max_overlap_score: 0.87
+input_tree_sha256: 15714fa95760574a1915dc082cbce16a4a31adb04ab609064a243f6df0c79408
+input_tree_file_count: 307
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/reflect-post-quick/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: false
+validation_pending: false
+validation_method: inline-fallback-after-independent-timeout
+independent_validator_result: unavailable
+zero_drop_flag: true
+zero_drop_scope: Parent inline Read fallback only; not independent PASS
+input_snapshot_incomplete: true
+omitted_initial_input: .dev/troubleshoot/bug-ensure-the-850k-limit-of-20261106114037/artifacts/sdk_probe.py
+input_drift_scope: Only initially hashed307files; no unchanged proof for omitted input
+citation_revalidation_at_promotion: false
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_not_applicable: Tier2 skipped by explicit quick depth; no merge method fabricated
+calibrator_diversity: full
+calibrator_diversity_scope: Nominal requested model classes only
+backend_vendor_identity_unproven: true
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: true
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true
+needs_human_decision: true
+per_task_verdicts:
+  - {task_id: T1, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.80, evidence_anchor: "src/superclaude/skills/ccsession-tag/models.py:720-745"}
+  - {task_id: T2, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.80, evidence_anchor: "src/superclaude/skills/ccsession-tag/ccsession:891-898"}
+  - {task_id: T3, status: partial, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.70, evidence_anchor: "src/superclaude/skills/ccsession-tag/ccsession:1099-1154"}
+  - {task_id: T4, status: partial, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.70, evidence_anchor: "verify-logs/pytest-attempt-2.raw.log:19"}
+interaction_effects_scanned: true
+interaction_effects_findings: 0
+budget_check_skipped: true
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+forced_tier: null
+promotion_action: skipped
+promotion_adapter: none
+promotion_source: null
+promotion_destination: null
+promotion_gate_passed: null
+promotion_skip_reason: adapter-unresolved
+promotion_pending: false
+promotion_cross_fs: false
+pipeline_hardening_verdict: advisory
+waiver_status: latched
+production_signoff: false
+degraded_components: [auggie, "neighbour-search:auggie_unavailable", "graph:stale", "graph:unresolved"]
+native_search_warning: Later Grep/Glob returned EACCES; Read and codegraph used without shell bypass
+memory_hits: 0
+memory_misses: 2
+memory_persist_skipped: readonly
+type_hierarchy_invoked: false
+summarize_changes_invoked: false
+references_extended_info_used: false
+shipping_authorized_by_review: false

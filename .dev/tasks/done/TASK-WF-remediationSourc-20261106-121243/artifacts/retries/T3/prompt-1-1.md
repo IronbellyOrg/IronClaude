@@ -1,0 +1,246 @@
+3cbc42e3ac50ef0401f43887881e6c05d0a22260
+Review one task for spec compliance.
+
+Task brief: ## Task 3: Build native picker replacement from actual shim rows
+Depends on: Task 2
+
+Inputs: ./source.md picker/merge/warm-up requirements, ccsession setup_shim synchronous model-cache warm-up and export_selection, models.py compact_settings, existing proxy transform_models output shape (read-only), and existing launcher harness. In ccsession compose native modelPicker options from the actual successful curated shim list after warm-up, retaining exact ids/display labels/descriptions, with replaceBuiltInOptions true in tier mode. Merge this into existing inline session settings without pinning one model window or discarding explicit compact overrides/user settings. Keep failure behavior graceful; never use stale foreign-base rows. Add minimal exact-row tests in tests/unit/test_ccsession_tiers.py. Outputs: integrated native picker configuration and tests; evidence ./artifacts/t3-tests.log.
+
+Acceptance criteria:
+- Ordinary tier-only successful launch supplies only actual gateway Tier options, yielding Default plus those tiers, not custom default aliases or unrelated GPT profile rows; no second tier-label/curation policy is created.
+- Explicit show-all/+models options preserve actual curated individual rows. Non-tier profiles/custom behavior unchanged; explicitly selected individual model is not silently routed to tier. Native re-add limitation is reported, not hidden.
+- Existing modelSettings windows remain per model. CCSESSION_COMPACT_WINDOW explicit override still works and picker replacement is present; user-provided --settings arguments retain existing precedence/order.
+- Warm-up failure does not read stale foreign-base cache or crash normal launch. Tests use deterministic existing fake shim/HTTP fixtures and assert exact options, compaction preservation, override and failure cases.
+
+T3.AC1: Ordinary tier-only successful launch supplies only actual gateway Tier options, yielding Default plus those tiers, not custom default aliases or unrelated GPT profile rows; no second tier-label/curation policy is created.
+T3.AC2: Explicit show-all/+models options preserve actual curated individual rows. Non-tier profiles/custom behavior unchanged; explicitly selected individual model is not silently routed to tier. Native re-add limitation is reported, not hidden.
+T3.AC3: Existing modelSettings windows remain per model. CCSESSION_COMPACT_WINDOW explicit override still works and picker replacement is present; user-provided --settings arguments retain existing precedence/order.
+T3.AC4: Warm-up failure does not read stale foreign-base cache or crash normal launch. Tests use deterministic existing fake shim/HTTP fixtures and assert exact options, compaction preservation, override and failure cases.
+Global constraints: - Scope product changes to src/superclaude/skills/ccsession-tag/ccsession, src/superclaude/skills/ccsession-tag/models.py and tests/unit/test_ccsession_tiers.py. Source sections Summary/Files/Acceptance in ./source.md govern every task. Coordinator approval is required if another source file becomes necessary.
+- Keep routing aliases, actual per-tier/per-model windows, access checks, inherited unavailable default aliases, non-tier profiles, explicit individual-model routing, explicit show-all/+models and user-settings precedence. No dependencies, global settings/env changes, other-worktree edits, commits, push, PR or Orca link flags.
+- Native runtime2.1.318 is verified; do not claim all older versions support picker replacement. Manually typing bare IDs inside running Claude Code bypasses launcher normalization; report this external limit rather than a fake fix. Selected individual models may be re-added by native UI, never silently route them to a tier.
+- Source is canonical; run make sync-dev after changes, never stage generated .claude mirrors. Always stage .dev/tasks including progress and artifacts. Evidence paths in tasks are package-relative under ./artifacts/.
+- Pipeline hardening stays advisory/latched from source; successful tests/reviews cannot promote that to production pipeline signoff. No provider inference is required or authorized for local control probes.
+
+Start sha: 3cbc42e3ac50ef0401f43887881e6c05d0a22260
+Diff against the start snapshot: diff --git a/src/superclaude/skills/ccsession-tag/ccsession b/src/superclaude/skills/ccsession-tag/ccsession
+index 9b8cc4c3..2ff03004 100755
+--- a/src/superclaude/skills/ccsession-tag/ccsession
++++ b/src/superclaude/skills/ccsession-tag/ccsession
+@@ -1069,14 +1069,18 @@ setup_shim() {
+   # profile starts with the complete curated shim list.
+   cache_file="$HOME/.claude/cache/gateway-models.json"
+   # Status goes to stderr: stdout carries only Claude's output (issue 389).
+-  if ! CC_CACHE_BASE_URL="$ANTHROPIC_BASE_URL" \
++  local _picker_settings
++  if _picker_settings=$(CC_CACHE_BASE_URL="$ANTHROPIC_BASE_URL" \
+     CC_CACHE_FILE="$cache_file" \
+     CC_CACHE_AUTH_TOKEN="${ANTHROPIC_AUTH_TOKEN:-}" \
+     CC_CACHE_API_KEY="${ANTHROPIC_API_KEY:-}" \
+-    python3 - >&2 <<'PY'
++    CC_CACHE_TIER_MODE="$TIER_MODE" \
++    CC_CACHE_SETTINGS="${CC_SETTINGS_ARGS[1]:-}" \
++    python3 - <<'PY'
+ import json
+ import os
+ import pathlib
++import sys
+ import time
+ import urllib.request
+ 
+@@ -1122,9 +1126,27 @@ try:
+     temp_file.replace(cache_file)
+ finally:
+     temp_file.unlink(missing_ok=True)
+-print(f"[ccsession] Cached {len(models)} curated gateway models before launch")
++print(f"[ccsession] Cached {len(models)} curated gateway models before launch", file=sys.stderr)
++if os.environ["CC_CACHE_TIER_MODE"] == "1":
++    settings = json.loads(os.environ["CC_CACHE_SETTINGS"] or "{}")
++    settings["modelPicker"] = {
++        "replaceBuiltInOptions": True,
++        "options": [
++            {"model": row["id"], **{
++                target: row[source]
++                for source, target in (("display_name", "label"), ("description", "description"))
++                if source in row
++            }}
++            for row in models
++        ],
++    }
++    print(json.dumps(settings, separators=(",", ":")))
+ PY
+-  then
++  ); then
++    if [ -n "$_picker_settings" ]; then
++      CC_SETTINGS_ARGS=(--settings "$_picker_settings")
++    fi
++  else
+     echo "[ccsession] WARNING: could not pre-load gateway models; Claude Code will retry discovery after launch" >&2
+   fi
+ }
+diff --git a/tests/unit/test_ccsession_tiers.py b/tests/unit/test_ccsession_tiers.py
+index cfb734f6..dadacced 100644
+--- a/tests/unit/test_ccsession_tiers.py
++++ b/tests/unit/test_ccsession_tiers.py
+@@ -1160,6 +1160,137 @@ def test_compact_overrides_still_apply_in_tier_mode(tmp_path: Path) -> None:
+     assert seen["context"] == "500000" and seen["compact"] == "300000"
+ 
+ 
++@pytest.mark.parametrize(
++    "case",
++    [
++        "ordinary",
++        "show-all",
++        "member-models",
++        "restricted",
++        "compact-override",
++        "individual",
++        "non-tier",
++        "warmup-failure",
++    ],
++)
++def test_native_picker_uses_current_curated_rows(
++    tmp_path: Path, monkeypatch, case
++) -> None:
++    defaults = None if case == "non-tier" else TIER_BLOCK
++    extra = {}
++    args = ["work"]
++    if case == "non-tier":
++        args += ["--profile", "gpt", "--shim"]
++    if case == "individual":
++        args += ["--model", "gpt-6.1-sol"]
++    if case == "show-all":
++        extra["CCSESSION_SHOW_ALL_MODELS"] = "1"
++    if case in ("member-models", "restricted"):
++        defaults += (
++            'export CCSESSION_ACCESS="bob=tier2:tier2,tier3'
++            + ("+models" if case == "member-models" else "")
++            + '"\n'
++        )
++        extra["CODER_WORKSPACE_OWNER_NAME"] = "bob"
++    if case == "compact-override":
++        extra["CCSESSION_COMPACT_WINDOW"] = "300000"
++    user_settings = '{"effortLevel":"high"}'
++    args += ["--settings", user_settings]
++    env = _launch_env(tmp_path, defaults, **extra)
++    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", env["AIDEV_AI_DEFAULTS_PATH"])
++    for key, value in extra.items():
++        monkeypatch.setenv(key, value)
++    module = runpy.run_path(str(SKILL_DIR / "local-gateway-alias-proxy.py"))
++    rows = module["transform_models"]({"data": [{"id": "gpt-6.1-sol"}]})["data"]
++
++    class Models(http.server.BaseHTTPRequestHandler):
++        def log_message(self, *args):
++            pass
++
++        def do_GET(self):
++            assert self.path == "/v1/models?limit=1000"
++            self.send_response(200)
++            self.end_headers()
++            self.wfile.write(
++                json.dumps({"data": [] if case == "warmup-failure" else rows}).encode()
++            )
++
++    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Models)
++    threading.Thread(target=server.serve_forever, daemon=True).start()
++    env["CC_SHIM_PORT"] = str(server.server_port)
++    curl = tmp_path / "curl"
++    curl.write_text(
++        curl.read_text()
++        .replace('"port":4555', f'"port":{server.server_port}')
++        .replace(
++            '"show_all":false',
++            '"show_all":true' if case == "show-all" else '"show_all":false',
++        )
++    )
++    cache = tmp_path / "home/.claude/cache/gateway-models.json"
++    cache.parent.mkdir(parents=True, exist_ok=True)
++    cache.write_text(
++        json.dumps(
++            {"baseUrl": "http://foreign.invalid", "models": [{"id": "foreign-stale"}]}
++        )
++    )
++    try:
++        proc = subprocess.run(
++            [str(SKILL_DIR / "ccsession"), *args],
++            cwd=tmp_path,
++            env=env,
++            capture_output=True,
++            text=True,
++            timeout=60,
++        )
++    finally:
++        server.shutdown()
++        server.server_close()
++    assert proc.returncode == 0, proc.stderr
++    assert proc.stdout == ""
++    seen = json.loads((tmp_path / "seen.json").read_text())
++    assert seen["argv"][-2:] == ["--settings", user_settings]
++    settings = json.loads(seen["settings"])
++    if case in ("warmup-failure", "non-tier"):
++        assert "modelPicker" not in settings
++        if case == "warmup-failure":
++            assert "could not pre-load" in proc.stderr
++            assert _compact(seen, "claude-gw-tier2") == 500000
++            assert "foreign-stale" not in seen["settings"]
++        else:
++            assert seen["compact"] == "850000"
++        return
++    expected = [
++        {
++            "model": row["id"],
++            **({"label": row["display_name"]} if row.get("display_name") else {}),
++            **({"description": row["description"]} if row.get("description") else {}),
++        }
++        for row in rows
++    ]
++    assert settings["modelPicker"] == {
++        "replaceBuiltInOptions": True,
++        "options": expected,
++    }
++    if case == "compact-override":
++        assert seen["compact"] == "300000" and "modelSettings" not in settings
++    else:
++        assert _compact(seen, "claude-gw-tier2") == 500000
++    if case == "individual":
++        assert _model_arg(seen) == "gpt-6.1-sol"
++    if case in ("ordinary", "restricted"):
++        assert all(option["model"].startswith("claude-gw-tier") for option in expected)
++    if case == "restricted":
++        assert [row["model"] for row in expected] == [
++            "claude-gw-tier2[1m]",
++            "claude-gw-tier3[1m]",
++        ]
++    if case in ("show-all", "member-models"):
++        assert any(
++            not option["model"].startswith("claude-gw-tier") for option in expected
++        )
++
++
+ def test_addon_profile_on_a_tier_machine_skips_tier_mode(tmp_path: Path) -> None:
+     profiles = tmp_path / "home" / ".config" / "ccsession" / "profiles.d"
+     profiles.mkdir(parents=True)
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

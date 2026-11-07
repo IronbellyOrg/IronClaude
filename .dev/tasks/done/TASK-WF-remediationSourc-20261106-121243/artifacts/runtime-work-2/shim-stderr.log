@@ -1,0 +1,123 @@
+[proxy] "GET /__ccsession_shim HTTP/1.1" 200 -
+[proxy] "GET /v1/models HTTP/1.1" 200 -
+[proxy] /v1/models -> 11 aliases exposed
+[proxy] "GET /__ccsession_shim HTTP/1.1" 200 -
+[proxy] "GET /v1/models?limit=1000 HTTP/1.1" 200 -
+[proxy] /v1/models -> 11 aliases exposed
+[proxy] 2026-11-06T14:48:35 TIER tier0: T0Model01 -> claude-fable-5-1
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:35 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-fable-5-1
+[proxy] 2026-11-06T14:48:35 TIER tier0: T0Model01 -> claude-fable-5-1
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:35 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-fable-5-1
+[proxy] 2026-11-06T14:48:35 TIER tier0: T0Model01 -> claude-fable-5-1
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:35 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-fable-5-1
+[proxy] "GET /__ccsession_shim HTTP/1.1" 200 -
+[proxy] "GET /v1/models?limit=1000 HTTP/1.1" 200 -
+[proxy] /v1/models -> 11 aliases exposed
+[proxy] 2026-11-06T14:48:35 TIER tier1a: T1aModel01 -> claude-opus-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:35 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-opus-5-5
+[proxy] 2026-11-06T14:48:35 TIER tier1a: T1aModel01 -> claude-opus-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:35 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-opus-5-5
+[proxy] 2026-11-06T14:48:35 TIER tier1a: T1aModel01 -> claude-opus-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:35 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-opus-5-5
+[proxy] "GET /__ccsession_shim HTTP/1.1" 200 -
+[proxy] "GET /v1/models?limit=1000 HTTP/1.1" 200 -
+[proxy] /v1/models -> 11 aliases exposed
+[proxy] 2026-11-06T14:48:36 TIER tier1b: T1bModel01 -> claude-sonnet-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:36 TIER tier1b: T1bModel01 -> claude-sonnet-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:36 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-sonnet-5-5
+[proxy] 2026-11-06T14:48:36 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-sonnet-5-5
+[proxy] 2026-11-06T14:48:36 TIER tier1b: T1bModel01 -> claude-sonnet-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:36 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-sonnet-5-5
+[proxy] "GET /__ccsession_shim HTTP/1.1" 200 -
+[proxy] "GET /v1/models?limit=1000 HTTP/1.1" 200 -
+[proxy] /v1/models -> 11 aliases exposed
+[proxy] 2026-11-06T14:48:37 TIER tier2: T2Model01 -> muse-spark-1.3
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:37 TIER tier2: T2Model01 -> muse-spark-1.3
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:37 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=muse-spark-1.3
+[proxy] 2026-11-06T14:48:37 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=muse-spark-1.3
+[proxy] 2026-11-06T14:48:37 TIER tier2: T2Model01 -> muse-spark-1.3
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:37 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=muse-spark-1.3
+[proxy] "GET /__ccsession_shim HTTP/1.1" 200 -
+[proxy] "GET /v1/models?limit=1000 HTTP/1.1" 200 -
+[proxy] /v1/models -> 11 aliases exposed
+[proxy] 2026-11-06T14:48:38 TIER tier0: T0Model01 -> claude-fable-5-1
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:38 TIER tier0: T0Model01 -> claude-fable-5-1
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:38 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-fable-5-1
+[proxy] 2026-11-06T14:48:38 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-fable-5-1
+[proxy] 2026-11-06T14:48:38 TIER tier0: T0Model01 -> claude-fable-5-1
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:38 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-fable-5-1
+[proxy] "GET /__ccsession_shim HTTP/1.1" 200 -
+[proxy] "GET /v1/models?limit=1000 HTTP/1.1" 200 -
+[proxy] /v1/models -> 11 aliases exposed
+[proxy] 2026-11-06T14:48:39 TIER tier1a: T1aModel01 -> claude-opus-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:39 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-opus-5-5
+[proxy] 2026-11-06T14:48:39 TIER tier1a: T1aModel01 -> claude-opus-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:39 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-opus-5-5
+[proxy] 2026-11-06T14:48:39 TIER tier1a: T1aModel01 -> claude-opus-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:39 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-opus-5-5
+[proxy] 2026-11-06T14:48:39 TIER tier1a: T1aModel01 -> claude-opus-5-5
+[proxy] "POST /v1/messages?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:39 RESPONSE /v1/messages?beta=true  backend served model=claude-opus-5-5
+[proxy] "GET /__ccsession_shim HTTP/1.1" 200 -
+[proxy] "GET /v1/models?limit=1000 HTTP/1.1" 200 -
+[proxy] /v1/models -> 11 aliases exposed
+[proxy] 2026-11-06T14:48:40 TIER tier1b: T1bModel01 -> claude-sonnet-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:40 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-sonnet-5-5
+[proxy] 2026-11-06T14:48:40 TIER tier1b: T1bModel01 -> claude-sonnet-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:40 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-sonnet-5-5
+[proxy] 2026-11-06T14:48:40 TIER tier1b: T1bModel01 -> claude-sonnet-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:40 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-sonnet-5-5
+[proxy] 2026-11-06T14:48:40 TIER tier1b: T1bModel01 -> claude-sonnet-5-5
+[proxy] "POST /v1/messages?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:40 RESPONSE /v1/messages?beta=true  backend served model=claude-sonnet-5-5
+[proxy] "GET /__ccsession_shim HTTP/1.1" 200 -
+[proxy] "GET /v1/models?limit=1000 HTTP/1.1" 200 -
+[proxy] /v1/models -> 11 aliases exposed
+[proxy] 2026-11-06T14:48:41 TIER tier2: T2Model01 -> muse-spark-1.3
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:41 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=muse-spark-1.3
+[proxy] 2026-11-06T14:48:41 TIER tier2: T2Model01 -> muse-spark-1.3
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:41 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=muse-spark-1.3
+[proxy] 2026-11-06T14:48:41 TIER tier2: T2Model01 -> muse-spark-1.3
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:41 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=muse-spark-1.3
+[proxy] 2026-11-06T14:48:41 TIER tier2: T2Model01 -> muse-spark-1.3
+[proxy] "POST /v1/messages?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:41 RESPONSE /v1/messages?beta=true  backend served model=muse-spark-1.3
+[proxy] "GET /__ccsession_shim HTTP/1.1" 200 -
+[proxy] "GET /v1/models?limit=1000 HTTP/1.1" 200 -
+[proxy] /v1/models -> 11 aliases exposed
+[proxy] 2026-11-06T14:48:41 TIER tier1a: T1aModel01 -> claude-opus-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:41 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-opus-5-5
+[proxy] 2026-11-06T14:48:41 TIER tier1a: T1aModel01 -> claude-opus-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:41 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-opus-5-5
+[proxy] 2026-11-06T14:48:41 TIER tier1a: T1aModel01 -> claude-opus-5-5
+[proxy] "POST /v1/messages/count_tokens?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:41 RESPONSE /v1/messages/count_tokens?beta=true  backend served model=claude-opus-5-5
+[proxy] 2026-11-06T14:48:41 TIER tier1a: T1aModel01 -> claude-opus-5-5
+[proxy] "POST /v1/messages?beta=true HTTP/1.1" 200 -
+[proxy] 2026-11-06T14:48:41 RESPONSE /v1/messages?beta=true  backend served model=claude-opus-5-5

@@ -1,0 +1,27 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 165 items
+
+tests/unit/test_ccsession_tiers.py ..................................... [ 22%]
+..............................................................F......... [ 66%]
+........................................................                 [100%]
+
+=================================== FAILURES ===================================
+_______ test_relative_defaults_path_keeps_each_directory_on_its_own_shim _______
+tests/unit/test_ccsession_tiers.py:2046: in test_relative_defaults_path_keeps_each_directory_on_its_own_shim
+    assert proc.returncode == 0, proc.stderr
+E   AssertionError: [ccsession] tier2 (Tier 2: muse-spark-1.3, grok-4.7, Qwen3.8-max, glm-5.3, muse-wonder-1.0, gpt-6.1-sol): model claude-gw-tier2[1m], context 500000, auto-compact window 500000
+E     [ccsession] ERROR: http://127.0.0.1:46677/cli is a ccsession shim address (port 46677), not the gateway; refusing to start a shim that forwards to another shim
+E     [ccsession] Set ANTHROPIC_BASE_URL to the gateway: check /tmp/pytest-of-coder/pytest-3/test_relative_defaults_path_ke0/home/.claude/ccsession.env and ~/.env
+E     
+E   assert 1 == 0
+E    +  where 1 = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/src/superclaude/skill... gateway: check /tmp/pytest-of-coder/pytest-3/test_relative_defaults_path_ke0/home/.claude/ccsession.env and ~/.env\n').returncode
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tiers.py::test_relative_defaults_path_keeps_each_directory_on_its_own_shim
+================== 1 failed, 164 passed in 147.41s (0:02:27) ===================
+Command: uv run pytest tests/unit/test_ccsession_tiers.py -q
+Observed transient local port collision; focused regression rerun: t1-regressions.log. No unrelated-red classification: touched test file.

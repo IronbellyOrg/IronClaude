@@ -1,0 +1,21 @@
+- requirement: T1 tier-window and owner access
+  verdict: reachable
+  entrypoint: "src/superclaude/skills/ccsession-tag/models.py:945-989"
+  result_consumed: true
+  non_sentinel: true
+  new_real_boot: false
+  proof: Static actual branch consumption plus separately qualified archived local native controls
+- requirement: T2 allowed default aliases
+  verdict: reachable
+  entrypoint: "src/superclaude/skills/ccsession-tag/ccsession:891-898"
+  result_consumed: true
+  non_sentinel: true
+  new_real_boot: false
+  proof: Export consumed by installed native in archived captured requests; not a new reflection boot
+- requirement: T3 native picker configuration
+  verdict: reachable
+  entrypoint: "src/superclaude/skills/ccsession-tag/ccsession:1099-1154"
+  result_consumed: true
+  non_sentinel: true
+  new_real_boot: false
+  proof: Fresh rows -> FD3 -> generated settings -> native exec; archived control separately qualified

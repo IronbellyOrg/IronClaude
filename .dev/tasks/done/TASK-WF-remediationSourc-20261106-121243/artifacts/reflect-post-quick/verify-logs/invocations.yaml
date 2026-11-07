@@ -1,0 +1,36 @@
+- cmd: timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run pytest tests/unit/test_ccsession_tiers.py tests/unit/test_ccsession_tag.py tests/skills/test_model_alias_policy.py -q
+  exit_code: 124
+  duration_ms: null
+  stdout_path: pytest-attempt-1.raw.log
+  stderr_path: null
+  blocked_reason: null
+  deviation_class: grounding-gap
+- cmd: timeout 600 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run pytest tests/unit/test_ccsession_tiers.py tests/unit/test_ccsession_tag.py tests/skills/test_model_alias_policy.py -q
+  exit_code: 0
+  duration_ms: null
+  pytest_reported_elapsed_sec: 278.27
+  stdout_path: pytest-attempt-2.raw.log
+  stderr_path: null
+  blocked_reason: null
+  deviation_class: none
+- cmd: timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run ruff check src/superclaude/skills/ccsession-tag/models.py tests/unit/test_ccsession_tiers.py
+  exit_code: 0
+  duration_ms: null
+  stdout_path: ruff-check.log
+  stderr_path: null
+  blocked_reason: null
+  deviation_class: none
+- cmd: timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run ruff format --check src/superclaude/skills/ccsession-tag/models.py tests/unit/test_ccsession_tiers.py
+  exit_code: 0
+  duration_ms: null
+  stdout_path: ruff-format.log
+  stderr_path: null
+  blocked_reason: null
+  deviation_class: none
+- cmd: timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE make verify-sync
+  exit_code: 0
+  duration_ms: null
+  stdout_path: verify-sync.log
+  stderr_path: null
+  blocked_reason: null
+  deviation_class: none

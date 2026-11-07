@@ -1,0 +1,4 @@
+[ccsession] tier0 (Tier 0: claude-fable-5-1, gpt-6-astra): model claude-gw-tier0[1m], context 850000, auto-compact window 300000
+[ccsession] Shim already running on 127.0.0.1:45351 (reusing)
+[ccsession] Cached 6 curated gateway models before launch
+[ccsession] Starting new session labeled 'work'

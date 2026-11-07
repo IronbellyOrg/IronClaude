@@ -1,0 +1,42 @@
+- hunk_ref: "src/superclaude/skills/ccsession-tag/ccsession:1072-1154"
+  evidence_missing: Supported Bash production/test/comment partition in installed runtime-surface oracle
+  why_not_classifiable: Unsupported-language rule mandates DEGRADE; observed functional captures do not override static rule
+  next_evidence_needed: Explicit acceptance of bounded review gap, or separately authorized protocol support followed by re-review; no product fix shown
+  owner: user
+  decision_needed_by_user: true
+- hunk_ref: verify-logs/pytest-attempt-1.raw.log
+  evidence_missing: Identity and traceback for progress F before timeout
+  why_not_classifiable: Exit124 timeout and later pass do not identify first failure or prove its cause
+  next_evidence_needed: If investigation authorized, reproduce named failure and traceback under same scoped command; preserve both attempts
+  owner: user
+  decision_needed_by_user: true
+- hunk_ref: "src/superclaude/skills/ccsession-tag/models.py:726"
+  evidence_missing: Stronger name-agnostic neighbour evidence under unavailable Auggie
+  why_not_classifiable: maybe-related regex fragment only, below blocking confidence; advisoryL2 not product deviation
+  next_evidence_needed: Explicitly accept advisory reuse uncertainty or stronger neighbour evidence; current worker recommends leave code unchanged
+  owner: user
+  decision_needed_by_user: true
+  reuse_candidate: model_window
+  nearest_neighbour: "src/superclaude/skills/ccsession-tag/models.py:954"
+  similarity_tier: maybe-related
+- hunk_ref: "src/superclaude/skills/ccsession-tag/models.py:945-990"
+  evidence_missing: Stronger access-check neighbour evidence under unavailable Auggie
+  why_not_classifiable: maybe-related membership fragment, advisoryL2; shared helpers already reused
+  next_evidence_needed: Explicitly accept advisory reuse uncertainty or stronger neighbour evidence; no new helper recommended
+  owner: user
+  decision_needed_by_user: true
+  reuse_candidate: models.main model-resolve
+  nearest_neighbour: "src/superclaude/skills/ccsession-tag/models.py:901"
+  similarity_tier: maybe-related
+- hunk_ref: "TASK-WF-remediationSourc-20261106-121243.md:60"
+  evidence_missing: Initial hash of referenced external diagnostic sdk_probe.py
+  why_not_classifiable: Referenced file exists but was omitted from original307snapshot; no initial unchanged-file proof
+  next_evidence_needed: Accept bounded incomplete snapshot coverage or separately re-review complete inputs; do not retrofit historical hash
+  owner: user
+  decision_needed_by_user: true
+- hunk_ref: artifacts/evidence-validation.md
+  evidence_missing: Completed independent citation validation result
+  why_not_classifiable: Independent worker returned no result before bounded cutoff; parent inline Read fallback is not independent
+  next_evidence_needed: Accept qualified partial review or separately rerun independent validation; no shipping from conditional pass
+  owner: user
+  decision_needed_by_user: true
