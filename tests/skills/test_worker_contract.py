@@ -404,6 +404,7 @@ UNATTENDED_EXPECT: dict = {
             "Approval Required",
             "not applied",
             "cleanup-report.md",
+            "partial when changes were applied and a validation failed or did not run",
             "every changed file",
             "left out (WC-4)",
             'every item under "Approval Required" is listed as not applied',
@@ -416,6 +417,7 @@ UNATTENDED_EXPECT: dict = {
             "Approval Required",
             "not applied",
             "improve-report.md",
+            "partial when changes were applied and a validation failed or did not run",
             "every changed file",
             "left out (WC-4)",
             'every item under "Approval Required" is listed as not applied',
@@ -461,6 +463,7 @@ UNATTENDED_EXPECT: dict = {
         "flags": ["--context"],
         "phrases": [
             "context-summary.md",
+            "(the path itself, never the pattern)",
             "blocked_question",
             "SKIP IMPLEMENTATION",
             "reports/localization/",
