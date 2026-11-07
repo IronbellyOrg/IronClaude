@@ -20,7 +20,7 @@ gh pr checks <N> --repo <owner/repo> --json name,state,bucket,link,workflow
 
 No `conclusion` field — `gh pr checks --json` does not emit it. Empty, malformed, or multiple-document stdout is **not** a parsed empty array. A valid nonempty required list takes precedence; otherwise a valid all-checks list is used. If the chosen list is empty and either query failed to parse, emit `state:polling`, `checks:[]`; only two parsed empty arrays, with `expect_checks` false, justify `clean`; with `expect_checks` true an empty chosen list is `polling` (see Expected checks after a push). Pending exit 8 may still contain valid JSON — keep it.
 
-The poll line also carries `merge_state`, an object `{"mergeable": <string>, "status": <string>}` that holds GitHub's `mergeable` and `mergeStateStatus` values and is appended after `checks`; both strings are empty when the read failed, the early-return payload included. It is data only: `classify_checks` never reads it.
+The poll line also carries `merge_state`, an object `{"mergeable": <string>, "status": <string>}` that holds GitHub's `mergeable` and `mergeStateStatus` values and is appended after `checks`; both strings are empty when the read failed, the early-return payload included; a failed second view of the PR, taken after the check queries, returns that same early-return payload (`head_sha` empty, `checks` empty, `state:polling`) so a stale first read is never reported. It is data only: `classify_checks` never reads it.
 
 ## Wave 8 entry (SKILL-owned, not an FSM edge)
 

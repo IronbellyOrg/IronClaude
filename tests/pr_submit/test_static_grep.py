@@ -821,6 +821,14 @@ def test_ci_poll_documents_the_merge_state_object():
     ) in _prose(_CI_POLL_REF)
 
 
+def test_ci_poll_says_a_failed_second_view_returns_the_early_return_payload():
+    assert (
+        "a failed second view of the PR, taken after the check queries, returns that "
+        "same early-return payload (`head_sha` empty, `checks` empty, "
+        "`state:polling`) so a stale first read is never reported."
+    ) in _prose(_CI_POLL_REF)
+
+
 def test_ci_poll_division_of_labour_names_merge_state():
     assert (
         "returns a coarse `state`, the raw `checks` array and GitHub's `merge_state`"

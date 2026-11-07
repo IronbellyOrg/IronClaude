@@ -1866,14 +1866,18 @@ def install_pr_poll_gh_stub(repos: Repos) -> None:
     stub.chmod(0o755)
 
 
-def run_pr_poll(repos: Repos, view_1: str, view_2: str | None = None) -> ProbeRun:
+def run_pr_poll(
+    repos: Repos, view_1: str, view_2: str | None = None, checks: str = "[]"
+) -> ProbeRun:
     """Run `poll-ci-checks.sh --pr 7 --repo ...` against the stub; `view_2` defaults
-    to `view_1` (the re-sample after the checks)."""
+    to `view_1` (the re-sample after the checks); `checks` is what both `pr checks`
+    queries print."""
     install_pr_poll_gh_stub(repos)
     env = {
         **repos.env,
         "GH_VIEW_1": view_1,
         "GH_VIEW_2": view_1 if view_2 is None else view_2,
+        "GH_CHECKS": checks,
     }
     res = subprocess.run(
         [str(POLL_CI), "--pr", "7", "--repo", PR_POLL_REPO],
@@ -1937,6 +1941,28 @@ def test_poll_pr_mode_first_view_failing_gives_empty_merge_state(tmp_path):
         "checks": [],
         "merge_state": {"mergeable": "", "status": ""},
     }
+
+
+def test_poll_pr_mode_second_view_failing_discards_the_stale_first_read(tmp_path):
+    """The re-sample after the checks failed: the first view's head and merge state are
+    stale and the checks cannot be paired with a current head, so the poll must
+    fail closed (the same line as a failed first view), never report them."""
+    repos = make_repos(tmp_path)
+    first = _pr_view(mergeable="MERGEABLE", mergeStateStatus="CLEAN")
+    passing = json.dumps([{"name": "ci", "state": "SUCCESS", "bucket": "pass"}])
+    res = run_pr_poll(repos, first, "FAIL", checks=passing)
+    assert res.returncode == 0, res.stderr
+    assert res.payload == {
+        "pr": 7,
+        "head_sha": "",
+        "source": "ci",
+        "state": "polling",
+        "checks": [],
+        "merge_state": {"mergeable": "", "status": ""},
+    }
+    assert list(res.payload) == PR_POLL_KEYS
+    calls = repos.gh_call_lines()
+    assert sum(line.startswith("pr view 7 --repo ") for line in calls) == 2
 
 
 def test_poll_pr_mode_changed_head_is_polling_and_merge_state_is_from_second_view(

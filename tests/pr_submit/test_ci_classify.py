@@ -392,4 +392,3 @@ def test_classify_merge_state_conflicting_does_not_turn_clean_checks_into_findin
         "merge_state": _CONFLICTING_STATE,
     }
     assert classify_checks(payload, wait_sha=_HEAD) == STATE_CLEAN
-
