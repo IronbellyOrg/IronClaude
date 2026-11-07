@@ -705,6 +705,13 @@ if [ "$LL_BRANCH" = tool ]; then
     case $LL_TT in
     *"$LL_S1/$LL_S2"* | *.claude/settings* | *.claude/hooks* | *disableAllHooks* | *.gitconfig* | *.git/config* | *.config/git*) LL_CLASSES+='TAMPER ' ;;
     esac
+    # A dot segment, a doubled slash or a ".." after the config directory can
+    # reach the store without naming it joined (cd ~/.claude/. && mv state x).
+    # shortcut: text only; variables and quoting tricks still pass, so the
+    # real fix is the L2 layer.
+    case $LL_TT in
+    *"$LL_S1"/. | *"$LL_S1"/.[!a-zA-Z0-9_]* | *"$LL_S1"//* | *"$LL_S1"/*/..*) LL_CLASSES+='TAMPER ' ;;
+    esac
     # LL-TEXT: every class of a Bash or Monitor call came from its text.
     if [ "$LL_TOOL" = Bash ] || [ "$LL_TOOL" = Monitor ]; then
         LL_NOTE_TEXT=1
