@@ -130,6 +130,27 @@ def test_output_status_stdin_environment_and_cwd(job, tmp_path):
     assert job.call("run", token).returncode == 2
 
 
+@pytest.mark.parametrize("mode", ["run", "execute"])
+def test_child_restores_python_ignored_signals(job, mode):
+    signals = [
+        name[3:] for name in ("SIGPIPE", "SIGXFZ", "SIGXFSZ") if hasattr(signal, name)
+    ]
+    command = (
+        f"trap -p {' '.join(signals)}; "
+        "yes | head -n 1; printf 'producer=%s\\n' \"${PIPESTATUS[0]}\""
+    )
+    args = (
+        ("run", job.token(command))
+        if mode == "run"
+        else ("execute", "old", "", command)
+    )
+    result = job.call(*args)
+    assert result.returncode == 0
+    assert result.stdout == "y\nproducer=141\n"
+    assert result.stderr == ""
+    assert not job.records()
+
+
 @pytest.mark.parametrize(
     "sid,content",
     [
@@ -649,7 +670,7 @@ def test_hook_non_bash_is_explicitly_out_of_scope(job, tool):
         "null",
         '["session_id", "old"]',
         '{"tool_name":"Bash","subagent":{"session_id":"old"}}',
-        " " * ((1 << 20) + 1),
+        pytest.param(" " * ((1 << 20) + 1), id="oversized-envelope"),
     ],
 )
 def test_unparseable_or_unverifiable_envelope_does_not_guess_governance(job, raw):

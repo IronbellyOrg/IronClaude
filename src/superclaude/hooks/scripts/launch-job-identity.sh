@@ -310,8 +310,9 @@ def supervise(value, jobs, old_mask):
             return 128 + pending[0]
         shell = os.fork()
         if shell == 0:
-            for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT):
-                signal.signal(sig, signal.SIG_DFL)
+            for name in ('SIGINT', 'SIGTERM', 'SIGHUP', 'SIGQUIT', 'SIGPIPE', 'SIGXFZ', 'SIGXFSZ'):
+                if hasattr(signal, name):
+                    signal.signal(getattr(signal, name), signal.SIG_DFL)
             try:
                 os.execv('/bin/bash', ['bash', '-c', value['command']])
             except OSError:
