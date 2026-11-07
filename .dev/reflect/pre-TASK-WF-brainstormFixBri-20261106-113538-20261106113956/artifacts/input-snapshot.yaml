@@ -1,0 +1,39 @@
+# Step 0.4 input tree: tasklist, spec, and every file the tasklist body names by path (depth 1)
+input_tree_sha256: 3567a459beffbcaf82f7d6ec9d221b22c2723ae7ce4f650c0b2c336dca3568e0
+file_list:
+  - path: .dev/orca-command-refactor/specs/orca-worker-contract-spec.md
+    sha256: cb0248072b91f700b3c3a5ab9acaf829c7cce1efc792f37e32e683b67f95c065
+  - path: .dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc10-result.md
+    sha256: 03a34f44dcc5a18f60d0a45d207dfa65f21a815cbac4172bc56980ea839d93f9
+  - path: .dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/p1-owner-decisions-20261105.md
+    sha256: 0ca3a7cf5de0c0abf974b809f6ab55467ca55bd96abbb2977038af16afc612db
+  - path: .dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-113538/TASK-WF-brainstormFixBri-20261106-113538.md
+    sha256: 63754762c439faab1da19f0ccf26cb60b29cea8db06b8478fa436b387ad4e025
+  - path: .dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-113538/source.md
+    sha256: 099131fd97ab170cf740317737eb96756427a0a43a5c4fe0be1b6cf7b92f1073
+  - path: plugins/superclaude/commands/brainstorm.md
+    sha256: d413f091f3a8b628a4ea098a8681c09438c952130f6e7956904bfc51b29bb6b5
+  - path: src/superclaude/cli/install_core.py
+    sha256: 7b2012d4c351ac0ea64f73ed43e8d163e858f2a1f17971727b1738d268978627
+  - path: src/superclaude/commands/brainstorm.md
+    sha256: 3eec51e4ca8482cf3ab3b0fcf0b4aa7856c1bf517ded94a63a697a5ca5267a9f
+  - path: src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+    sha256: a05ba2aa22a05508cf36a2fca8b957e14ddc12a05b4a68f3b355c5c760a96865
+  - path: src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md
+    sha256: cbb71bec161111ced8bf07872af4e88346f884a9be0a9a6e5b33b3b5d4416f5d
+  - path: tests/cli/test_how_we_work_install.py
+    sha256: c4b8265909df98b1ec7db5481df34471d9c04f9189f18bb2e3a36d254385e8aa
+  - path: tests/commands/test_routing_plugin_parity.py
+    sha256: c362104ffdea66a1164d0903a251f3fb11e614c02c60258a3b476b7e16aaa123
+  - path: tests/skills/test_brainstorm_protocol.py
+    sha256: 8152cc13ab844723ce88406402e086e1737c858b96f028ae1d8c7c719e81f22e
+  - path: tests/skills/test_codegraph_adoption.py
+    sha256: d8e0dad075ee723fdd6366bd8b78fffebad9943df33cb09a781078294c7dc549
+  - path: tests/skills/test_tier2_tavily_consistency.py
+    sha256: 269ecc651ccb2d9715299df65fcd313559c68a3dcad54a228ad7ddec18c942c7
+  - path: tests/skills/test_worker_contract.py
+    sha256: a0eb6da84007cf56486c6159c37a533b24cfb787d2c826c33e4f2ce6cfd7c954
+file_count: 16
+legacy_input_sha256:
+  tasklist: 63754762c439faab1da19f0ccf26cb60b29cea8db06b8478fa436b387ad4e025
+  spec: 099131fd97ab170cf740317737eb96756427a0a43a5c4fe0be1b6cf7b92f1073

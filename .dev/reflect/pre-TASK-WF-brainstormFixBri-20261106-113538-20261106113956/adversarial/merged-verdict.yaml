@@ -1,0 +1,487 @@
+# Merged consolidated verdict card, /sc:adversarial Step 5 (Mode A).
+# Provenance: produced by /sc:adversarial; base = Variant 2 (haiku:qa); executed from adversarial/refactor-plan.md.
+# Subject: plan .dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-113538/TASK-WF-brainstormFixBri-20261106-113538.md ("plan")
+# against its brief, the package's source.md ("source"); "spec" = .dev/orca-command-refactor/specs/orca-worker-contract-spec.md.
+# "plan:N", "source:N" and "spec:N" mean line N of those files. No finding, priority or wording was re-decided by the merge executor;
+# every exact_change is copied verbatim from refactor-plan.md.
+merge_method: adversarial
+base_variant: "haiku:qa"
+base_variant_id: variant-2
+base_score: 0.897
+merged_at: "2026-11-06T12:25:00Z"
+subject:
+  plan: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-113538/TASK-WF-brainstormFixBri-20261106-113538.md"
+  source: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-113538/source.md"
+  spec: ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+sources:
+  - id: variant-1
+    persona: analyzer
+    model_class: sonnet
+    role: incorporated
+    calibrated_confidence: 0.74
+    variant_file: ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/adversarial/variant-1-original.md"
+    reviewer_card: ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-cards/reviewer-1-card.yaml"
+  - id: variant-2
+    persona: qa
+    model_class: haiku-slot
+    role: base
+    calibrated_confidence: 0.81
+    variant_file: ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/adversarial/variant-2-original.md"
+    reviewer_card: ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-cards/reviewer-2-card.yaml"
+  - id: variant-3
+    persona: refactorer
+    model_class: opus
+    role: incorporated
+    calibrated_confidence: 0.81
+    variant_file: ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/adversarial/variant-3-original.md"
+    reviewer_card: ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-cards/reviewer-3-card.yaml"
+  - id: orchestrator
+    persona: invariant-probe
+    role: insertion (Round 2.5 fixes folded into M-01 and M-13)
+    artifact: ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/adversarial/invariant-probe.md"
+convergence_score: 1.0
+status: success
+failure_stage: null
+status_note: >-
+  Debate converged at 100% (22 of 22 diff points, transcript status CONVERGED, no unresolved
+  point). The invariant gate had 0 HIGH UNADDRESSED and 3 MEDIUM warnings (INV-001, INV-002,
+  INV-015). The refactor plan folds all three into M-01's AC text: one path base (run from the
+  repository root with `S` = this package's source.md) fixes INV-001; the "non-empty" plus
+  "`grep -cxF` on this plan prints 1" self-check fixes INV-002; with INV-001, INV-002 and INV-003
+  (the `.grep` regex) covered, INV-015's sufficiency gap has no remaining blocker. No MEDIUM
+  invariant stays UNADDRESSED in this merged verdict, so the status is success. The ACs are
+  addressed in the verdict, not yet in the plan file: they apply once M-01 is added to the plan.
+  All 14 planned changes were applied; none was skipped.
+
+verdict:
+  summary: |-
+    No P1. One P2 (M-01) and thirteen P3 items (M-02..M-13, plus the carried owner block M-14).
+    The plan copies every brief text byte for byte (E-4) and is ready for /sc:implement as
+    written. M-01 is recommended before running: it adds the whole-text acceptance checks that
+    source:34 requires, so a mis-copied edit cannot pass. M-02..M-07 are optional plan hardening;
+    M-08 is a review-artifact record; M-09..M-14 are owner notes with no plan edit.
+  readiness_gate_kind: >-
+    Recommendation, not an executor gate. Nothing in /sc:implement stops on the missing ACs;
+    the per-task reviewer reads the task's explicit instructions (E-3), which lowers but does not
+    remove the paraphrase risk.
+  suggested_card_confidence: 0.79
+  confidence_basis: "mean blind-calibrated 0.787 (V1 0.74, V2 0.81, V3 0.81), not adjusted"
+
+unresolved_conflicts: []
+unresolved_conflicts_count: 0
+
+unaddressed_invariants: []
+unaddressed_invariants_note: |-
+  No HIGH invariant was UNADDRESSED. The three MEDIUM warnings (INV-001, INV-002, INV-015) are
+  addressed by M-01's AC text; INV-003 and INV-014 (LOW) are addressed by M-01 as well; INV-006
+  (LOW) is recorded as an accepted hardening note in M-13. See invariant_disposition.
+
+finding_counts:
+  total: 14
+  P1: 0
+  P2: 1
+  P3: 13
+  confirmations: 6
+
+findings:
+  - id: M-01
+    priority: P2
+    tag: Grounded
+    title: "Whole-text acceptance checks for Tasks 1, 2, 3 and 6"
+    claim: |-
+      source:34 says each task's acceptance criteria "must contain a check equivalent to its
+      verifier"; the F-1 verifier (source:45) and the F-3 verifier (source:71) are byte-for-byte
+      checks. Every current AC is a substring pin or a diff shape. E-3 (the per-task reviewer reads
+      explicit instructions) lowers the chance of a paraphrase passing but does not satisfy
+      source:34.
+    evidence:
+      - "source:34"
+      - "source:45"
+      - "source:71"
+      - "plan:45-46"
+      - "plan:60-61"
+      - "plan:75-77"
+      - "plan:143-145"
+      - "plan:131"
+      - "source:219"
+      - "source:223"
+      - "source:231-233"
+      - "invariant-probe.md INV-001, INV-002, INV-003, INV-005, INV-014"
+      - "read-only run 2026-11-06 from the repository root: extraction lengths 412, 261, 361, 450, 1210; `grep -cxF` on the plan prints 1 for each; every target prints 0 today (re-run by the merge executor at 2026-11-06T12:24:50Z, same results)"
+    source_variants: [variant-3, variant-1, variant-2, orchestrator]
+    file: "plan Tasks 1 (after plan:46), 2 (after plan:61), 3 (after plan:77), 6 (after plan:145); Task 6 body plan:131"
+    exact_change: |-
+      **Exact AC texts** (one shell, run from the repository root, `S` = this package's `source.md`; INV-001 one path base, INV-014 no hard-coded `to-do/` path):
+        - Task 1: "With `S` set to this package's `source.md` and the command run from the repository root, `X=$(sed -n '231s/.*with: "\(.*\)" Task 1 AC.*/\1/p' "$S")` is non-empty, `grep -cxF -- "$X"` on this plan prints 1, and `grep -cF -- "$X" src/superclaude/skills/sc-brainstorm-protocol/SKILL.md` prints 1."
+        - Task 2: "With `S` as in Task 1, `X=$(sed -n '232s/.*31): "\(.*\)" .grep.*/\1/p' "$S")` is non-empty, `grep -cxF -- "$X"` on this plan prints 1, and `grep -cxF -- "$X" src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md` prints 2."
+        - Task 3: "With `S` as in Task 1, `X=$(sed -n '233s/.*bullet: "\(.*\)" Leave.*/\1/p' "$S")` is non-empty, `grep -cxF -- "$X"` on this plan prints 1, and `grep -cF -- "$X" src/superclaude/commands/brainstorm.md` prints 1."
+        - Task 6: "With `S` as in Task 1, `X=$(sed -n 223p "$S")` and `Y=$(sed -n 219p "$S")` are non-empty, `grep -cxF` on this plan prints 1 for each, and `grep -cF` against `.dev/orca-command-refactor/specs/orca-worker-contract-spec.md` prints 1 for each."
+        - Task 6 body, appended to the Necessary-deviation paragraph (plan:131): "The whole-text check in the acceptance criteria is required by the brief's rule that each correction's verifier has an equivalent check; it is not one of the pins correction F-7 lists."
+    verifier: |-
+      Each of the four new ACs fails before the edit (every target count is 0 today) and passes
+      after an exact copy; each extraction is non-empty and `grep -cxF` on the plan prints 1 for it
+      (INV-002 self-check); an empty extraction fails loudly (INV-005). plan:131 carries the
+      appended sentence.
+    risk: "Low (additive ACs). Rollback: drop the four ACs."
+    provenance: "Change #1"
+
+  - id: M-02
+    priority: P3
+    tag: Grounded
+    title: "Copy residual risks 1, 2 and 4 verbatim"
+    claim: |-
+      Part 4's "copy exactly, do not paraphrase" instruction is not followed for residual risks 1,
+      2 and 4: plan:134, :135 and :137 drop the INV-022 and INV-023 identifiers and the exact spec
+      line references. Risks 3 and 5 (plan:136, :138) already equal source:242 and :244.
+    evidence:
+      - "source:213"
+      - "source:240-244"
+      - "plan:134"
+      - "plan:135"
+      - "plan:137"
+    source_variants: [variant-2]
+    file: "plan:134, plan:135, plan:137"
+    exact_change: |-
+      replace each bullet's text with the brief's text after its number: plan:134 with source:240 ("A `/sc:analyze` call made without the nested `--report-dir` (a broken propagation, itself a defect) is not seen, so its missing folder passes. Related: INV-022 (no live check can force the analyze route)."), plan:135 with source:241, plan:137 with source:243. Plan bullets stay "- " bullets (the workflow gate forbids numbered lines).
+    verifier: |-
+      for N in 240, 241, 243, the text of source line N after "N. " occurs in the plan (`grep -cF` prints 1); plan:136 and :138 already equal source:242 and :244 after the number.
+    risk: "Low."
+    provenance: "Change #2"
+
+  - id: M-03
+    priority: P3
+    tag: Grounded
+    title: "Record the extra negative pin in Task 6 as a deviation, keep it"
+    claim: |-
+      F-7's literal verifier (source:111) fails: Task 6's second AC (plan:144) adds a negative
+      check beyond the pins F-7 lists (source:109). The check is useful, because the positive pins
+      are shared by the old and the amended sentence, so it stays and is recorded.
+    evidence:
+      - "source:109-111"
+      - "plan:144"
+      - "plan:131"
+    source_variants: [variant-2, variant-1, variant-3]
+    file: "plan:131 (Task 6 Necessary-deviation paragraph)"
+    exact_change: |-
+      append "Task 6's second acceptance criterion also checks that the old trigger wording ``a `Skill`, `Agent` or `Task` tool call`` is gone; this goes beyond the pins correction F-7 lists, on purpose, because the positive pins are shared by the old and the amended sentence."
+    verifier: "plan:131 names the extra check and its reason; plan:144 is unchanged."
+    risk: "Low."
+    provenance: "Change #3"
+
+  - id: M-04
+    priority: P3
+    tag: Grounded
+    title: "F-14 absence check without the literal"
+    claim: |-
+      F-14's whole-task absence check (source:181) fails because Task 1's negative AC (plan:45)
+      quotes the forbidden wording. The applied skill text is correct; this is a verifier-scope
+      defect. A regular-expression class keeps the absence check without the literal.
+    evidence:
+      - "source:181"
+      - "plan:38"
+      - "plan:45"
+    source_variants: [variant-2, variant-1]
+    file: "plan:45"
+    exact_change: |-
+      replace `and does not contain "only for a nested command that ran".` with ``and a regular-expression search for `only for a nested command that r[a]n` finds nothing in it.``
+    verifier: |-
+      Task 1 no longer contains the literal "only for a nested command that ran" (`grep -cF` on plan:31-47 prints 0) and still carries the absence check. Tested: the regex `only for a nested command that r[a]n` matches the old literal.
+    risk: "Low."
+    provenance: "Change #4"
+
+  - id: M-05
+    priority: P3
+    tag: Grounded
+    title: "Task 3 diff-shape AC"
+    claim: |-
+      Task 3 is the only wording task with no diff-shape AC (Tasks 1, 2 and 6 pin one with
+      `git diff --stat`). A new physical line after the bullet would pass every Task 3 AC and
+      Task 5's section-wide phrase check.
+    evidence:
+      - "plan:66"
+      - "plan:74-77"
+      - "plan:46"
+      - "plan:61"
+      - "plan:145"
+      - "tests/skills/test_worker_contract.py:483-496"
+    source_variants: [variant-3]
+    file: "plan Task 3 ACs (after plan:77)"
+    exact_change: |-
+      add "`git diff --stat -- src/superclaude/commands/brainstorm.md` shows one line changed (one insertion, one deletion)."
+    verifier: "Task 3's AC list contains a git diff --stat bullet for src/superclaude/commands/brainstorm.md."
+    risk: "Low."
+    provenance: "Change #5"
+
+  - id: M-06
+    priority: P3
+    tag: Grounded
+    title: "Task 5 HEAD guard and Task 4 claim"
+    claim: |-
+      Task 4 guards its `git show HEAD:... | grep -c` check with `git cat-file -e` (plan:95);
+      Task 5's identical check (plan:111) has no guard, so a wrong path prints 0 and passes for
+      nothing. plan:95 says "the pins fail" although it tests only the shared directory pin.
+    evidence:
+      - "plan:95"
+      - "plan:111"
+    source_variants: [variant-3]
+    file: "plan:111 and plan:95"
+    exact_change: |-
+      plan:111 append ", and `git cat-file -e HEAD:src/superclaude/commands/brainstorm.md` exits 0"; plan:95 replace "which shows the pins fail on the pre-change text" with "which shows the shared directory pins fail on the pre-change text".
+    verifier: "plan:111 contains `git cat-file -e HEAD:src/superclaude/commands/brainstorm.md`; plan:95 reads \"which shows the shared directory pins fail on the pre-change text\"."
+    risk: "Low."
+    provenance: "Change #6"
+
+  - id: M-07
+    priority: P3
+    tag: Grounded
+    title: "Exit status in the Task 7 logs"
+    claim: |-
+      Task 7's ACs say the logs show each command "exiting 0", but the body does not ask the
+      executor to record exit status. The lint-baseline half of the original finding is dropped:
+      `make lint` exits 0 today (E-2).
+    evidence:
+      - "plan:153"
+      - "plan:156-157"
+      - "diff-analysis.md E-2"
+    source_variants: [variant-3]
+    file: "plan:153"
+    exact_change: |-
+      after "save the output of `git status --porcelain` to `./artifacts/status-after.txt`." insert "Append the line `exit=<status>` after each command's output in its log."
+    verifier: "Task 7's body at plan:153 asks for `exit=<status>` after each command's output in its log."
+    risk: "Low."
+    provenance: "Change #7"
+
+  - id: M-08
+    priority: P3
+    tag: Grounded
+    title: "Verifier rows in the coverage matrix (review artifact)"
+    claim: |-
+      The coverage matrix has rows for correction instructions but none for the 17 Verifier
+      lines, which carry exact pins, whole-task absence and the F-12 quantifier. This is a repair
+      of this review's report, not of the plan.
+    evidence:
+      - ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/artifacts/coverage-matrix.yaml:1-54"
+      - "source:45"
+      - "source:111"
+      - "source:161"
+      - "source:181"
+      - "variant-2-original.md:144-167 (per_correction table)"
+    source_variants: [variant-2]
+    file: "this review's report, not the plan"
+    exact_change: |-
+      the report carries V2's per-correction table (F-1..F-17: 14 literal pass, 3 literal fail, all three fails explained by M-03, M-04 and M-12) as the verifier-level coverage record.
+    verifier: "The report includes the F-1..F-17 table with 14 pass and 3 fail rows, and the F-7, F-14 and F-12 fails point to M-03, M-04 and M-12."
+    risk: "None (notes only)."
+    provenance: "Change #8"
+
+  - id: M-09
+    priority: P3
+    tag: INFERRED
+    title: "Owner item (top of the owner list): step 5 condition 2 scope"
+    claim: |-
+      the amended sentence accepts the analyze `Skill` call "in one of its subagent files" (plan:128); the skill runs enrichment sources "in parallel via `Task` agents" (SKILL.md:183); spec 7.2 step 5 condition 2 requires the command call to be a top-level message (spec:296), and the lc10 record applied condition 2 to nested calls (lc10-result.md:13). A checker that follows lc10 fails a correct run whose nested analyze call sits in a subagent.
+    inferred_note: "Conditional path (debate X-003: plausible, not known); no session record reproduces the false FAIL."
+    evidence:
+      - "plan:128"
+      - "src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:183"
+      - "spec:296"
+      - "lc10-result.md:13"
+    source_variants: [variant-1]
+    file: "owner note for the P2 live-plan author; no plan or spec edit"
+    exact_change: |-
+      decide that condition 2 applies to the command under test only, and record it for the P2 live-plan author (and, if wanted, as residual risk 6 in brief Part 4). No plan or spec edit in this plan.
+    verifier: "The owner's decision on condition 2 scope is recorded for the P2 live-plan author (or as residual risk 6 in brief Part 4); plan and spec are unchanged by this item."
+    risk: "None (notes only)."
+    provenance: "Change #9"
+
+  - id: M-10
+    priority: P3
+    tag: INFERRED
+    title: "Owner item: refusal has no recorded marker"
+    claim: |-
+      `/sc:analyze` prints a refused directory "in chat only" (`src/superclaude/commands/analyze.md:97`), so the "did not refuse that directory" clause is judged from chat text; a checker that misses it requires a folder that was never written. With M-09 this qualifies the brief's "no known false FAIL on a correct run" (source:239, plan:133). The `--report-dir` match is literal (a relative path or a missing trailing slash is not matched: false PASS).
+    inferred_note: "Debate C-008: an inferred checker risk, not a reproduced false FAIL."
+    evidence:
+      - "src/superclaude/commands/analyze.md:97"
+      - "src/superclaude/commands/analyze.md:98"
+      - "plan:128"
+      - "plan:133"
+      - "source:239"
+    source_variants: [variant-1]
+    file: "owner note on brief Part 4; the plan copies Part 4 and cannot change it alone"
+    exact_change: |-
+      decide whether brief Part 4 gains residual risks 6 and 7 (these two paths) and a narrowed lead-in; the plan copies Part 4 and cannot change it alone.
+    verifier: "The owner's decision on residual risks 6 and 7 and the lead-in is recorded; if adopted, brief Part 4 and the plan's residual-risk list carry them byte for byte."
+    risk: "None (notes only)."
+    provenance: "Change #10"
+
+  - id: M-11
+    priority: P3
+    tag: Grounded
+    title: "Owner item: \"only when\" reads as a necessary condition"
+    claim: |-
+      "a `nested/analyze-<n>/` directory is required ... only when ..." (source:219) does not say the folder is required when every condition holds; the intended reading is "exactly when".
+    evidence:
+      - "source:219"
+      - "plan:128"
+    source_variants: [variant-1]
+    file: "owner note on brief Part 4 (source:219), mirrored by plan:128 if adopted"
+    exact_change: |-
+      optional wording change in brief Part 4 ("exactly when"); otherwise none.
+    verifier: "plan:128 equals source:219 byte for byte; if the owner adopts the change, both read \"exactly when\"."
+    risk: "None (notes only)."
+    provenance: "Change #11"
+
+  - id: M-12
+    priority: P3
+    tag: Grounded
+    title: "Owner item: F-12 verifier contradicts F-3"
+    claim: |-
+      F-12's verifier says every pin added under F-3 contains `no nested directory and no nested contract` (source:161), but F-3 also requires the separate ``only by a `/sc:analyze` call`` pin (source:63). The plan correctly keeps both pins.
+    evidence:
+      - "source:63"
+      - "source:68-69"
+      - "source:159-161"
+      - "plan:87-88"
+      - "plan:108"
+    source_variants: [variant-2]
+    file: "owner note for future briefs; no plan change"
+    exact_change: |-
+      none needed for this plan; note for future briefs.
+    verifier: "The plan keeps both the no-directory pins and the independent analyze-only pin (plan:87-88, :108); F-12 is reported as a literal fail explained by this note, not as a pass."
+    risk: "None (notes only)."
+    provenance: "Change #12"
+
+  - id: M-13
+    priority: P3
+    tag: Grounded
+    title: "Hardening notes on M-01"
+    claim: |-
+      Two invariant-probe items qualify M-01's ACs: `grep -c` counts lines, not occurrences
+      (INV-006), and a hard-coded `.dev/tasks/to-do/` path breaks a re-run after the package moves
+      to `done/` (INV-014).
+    evidence:
+      - "invariant-probe.md INV-006"
+      - "invariant-probe.md INV-014"
+    source_variants: [orchestrator]
+    file: "notes attached to M-01"
+    exact_change: |-
+      `grep -c` counts lines, not occurrences (a text pasted twice on one line still prints 1; the per-task reviewer sees the diff); do not hard-code `.dev/tasks/to-do/` in an AC, because the package moves to `done/` after the final review.
+    verifier: "No M-01 AC hard-codes `.dev/tasks/to-do/` (each uses `S` = this package's `source.md`); the line-count limit is recorded here as an accepted residual."
+    risk: "None (notes only)."
+    provenance: "Change #13"
+
+  - id: M-14
+    priority: P3
+    tag: Grounded
+    title: "Carried owner items from the previous review"
+    claim: |-
+      Four owner items from the previous review (Tier 1 card F-4; previous report M-12, M-13,
+      M-14, INV-020, INV-021) remain open and are carried unchanged.
+    carried_note: "Carried as recorded in the previous review; not re-verified in this merge."
+    evidence:
+      - "plan:26"
+      - "plan:54"
+      - "previous report M-12, M-13, M-14, INV-020, INV-021"
+    source_variants: [orchestrator]
+    file: "owner list; no plan edit"
+    exact_change: |-
+      research enrichment from P2 stays an open conflict (plan:26); no pointer for the P2 author to the new 7.2 step 4 sentence (INV-020); the routing bullet's "with this tier's `quality_tier`" against a timeout's `skipped` (plan:54); the 2.1 companion sentence's installed twin `WORKER-CONTRACT.md` is not edited.
+    verifier: "Each of the four items appears on the owner list of the report; no plan line changes for them."
+    risk: "None (notes only)."
+    provenance: "Change #14"
+
+confirmations:
+  - id: OK-1
+    source_variants: [variant-1, variant-2, variant-3, orchestrator]
+    debate: "E-4 (added before Round 2 rebuttal 2)"
+    statement: |-
+      E-4 byte-exact copies: plan:38, :54, :69, :122 and :128 are byte-exact substrings of
+      source:231, :232, :233, :223 and :219. Re-run by the merge executor: the five extractions
+      (412, 261, 361, 450, 1210 characters) each match the plan with `grep -cxF` = 1.
+    evidence: ["plan:38", "plan:54", "plan:69", "plan:122", "plan:128", "source:219", "source:223", "source:231-233", "variant-1-original.md:146", "variant-2-original.md:153", "variant-3-original.md:140"]
+  - id: OK-2
+    source_variants: [variant-1, variant-2, variant-3]
+    debate: "S-001, C-014 (no anchor dispute)"
+    statement: |-
+      Anchors match the files on disk: SKILL.md:195 is the Wave 2A `**Under `--unattended`**`
+      paragraph (the other bold hits at :93, :286, :352 are outside Wave 2A); handoff-routing.md
+      tier lines 16/22/24/31/33; brainstorm.md:157; spec:62 and spec:286.
+    evidence: ["variant-1-original.md:138", "variant-3-original.md:133", "variant-2-original.md:155", "invariant-probe.md INV-009"]
+  - id: OK-3
+    source_variants: [variant-1, variant-2, variant-3, orchestrator]
+    debate: "invariant-probe.md INV-011"
+    statement: |-
+      Task 5's two new phrases add exactly 2 parametrized cases: `_removals()` yields one case per
+      phrase (tests/skills/test_worker_contract.py:519-531), so "before-count plus 2" holds.
+    evidence: ["tests/skills/test_worker_contract.py:286", "tests/skills/test_worker_contract.py:288", "tests/skills/test_worker_contract.py:519-531", "variant-1-original.md:140", "variant-3-original.md:135", "variant-2-original.md:158"]
+  - id: OK-4
+    source_variants: [orchestrator]
+    debate: "C-010 half dropped, C-009 dropped"
+    statement: |-
+      `make lint` exits 0 today ("All checks passed!", architecture policy PASS with 5 warnings);
+      `uv run ruff format --check` on the four relevant files exits 0 (E-2). None of the six plan
+      files is modified at the start (E-1). V1 and V3 could not run git or make and listed these
+      as unverified; the orchestrator's E-1 and E-2 settled them and all three advocates accepted.
+    evidence: ["diff-analysis.md E-1", "diff-analysis.md E-2", "variant-1-original.md:152"]
+  - id: OK-5
+    source_variants: [variant-1, variant-2, variant-3]
+    debate: "diff-analysis.md Shared Assumptions"
+    statement: |-
+      The amended trigger removes the lc10 Task-prompt false FAIL: a Task prompt followed by an
+      auggie or fallback_1 scan has no Skill call to sc:analyze, so no folder is required.
+    evidence: ["plan:128", "source:219", "variant-1-original.md:144", "variant-2-original.md:189"]
+  - id: OK-6
+    source_variants: [variant-1, variant-2, variant-3]
+    debate: "invariant-probe.md INV-008"
+    statement: |-
+      Task 4's tier slicing is sound: separate exactly-once pins per tier slice cannot be satisfied
+      by two bullets in one tier; the Task 2 `grep -c` of 2 is a smoke check only.
+    evidence: ["variant-1-original.md:139", "variant-1-original.md:143", "variant-3-original.md:137", "variant-2-original.md:155"]
+
+invariant_disposition:
+  - {inv: INV-001, severity: MEDIUM, probe_status: UNADDRESSED, disposition: "M-01: one path base (run from the repository root, `S` = this package's source.md)", status: "Addressed in the merged verdict; open in the plan until the M-01 ACs are added"}
+  - {inv: INV-002, severity: MEDIUM, probe_status: UNADDRESSED, disposition: "M-01: each extraction is non-empty and `grep -cxF` on the plan prints 1", status: "Addressed in the merged verdict; open in the plan until the M-01 ACs are added"}
+  - {inv: INV-003, severity: LOW, probe_status: UNADDRESSED, disposition: "M-01: Task 2 regex uses `.grep` instead of a backtick", status: "Addressed in the merged verdict; open in the plan until the M-01 ACs are added"}
+  - {inv: INV-004, severity: LOW, probe_status: ADDRESSED, disposition: "M-01 keeps `--` in every grep", status: "Addressed"}
+  - {inv: INV-005, severity: LOW, probe_status: ADDRESSED, disposition: "An empty extraction fails loudly (M-01 evidence); with `-cxF` the empty pattern counts blank lines, not all lines", status: "Addressed"}
+  - {inv: INV-006, severity: LOW, probe_status: UNADDRESSED, disposition: "M-13 note: `grep -c` counts lines; the per-task reviewer sees the diff", status: "Accepted, open (hardening note)"}
+  - {inv: INV-007, severity: LOW, probe_status: ADDRESSED, disposition: "No change", status: "Addressed"}
+  - {inv: INV-008, severity: LOW, probe_status: ADDRESSED, disposition: "No change (Task 4 tier slices catch two bullets in one tier)", status: "Addressed"}
+  - {inv: INV-009, severity: LOW, probe_status: ADDRESSED, disposition: "No change", status: "Addressed"}
+  - {inv: INV-010, severity: LOW, probe_status: ADDRESSED, disposition: "No change (backs M-01 evidence)", status: "Addressed"}
+  - {inv: INV-011, severity: LOW, probe_status: ADDRESSED, disposition: "No change (OK-3)", status: "Addressed"}
+  - {inv: INV-012, severity: LOW, probe_status: ADDRESSED, disposition: "No change", status: "Addressed"}
+  - {inv: INV-013, severity: LOW, probe_status: ADDRESSED, disposition: "No change (no progress.md yet, so adding the M-01 ACs re-pins the plan)", status: "Addressed"}
+  - {inv: INV-014, severity: LOW, probe_status: UNADDRESSED, disposition: "M-01 (no hard-coded `to-do/` path) and M-13 note", status: "Addressed in the merged verdict; open in the plan until the M-01 ACs are added"}
+  - {inv: INV-015, severity: MEDIUM, probe_status: UNADDRESSED, disposition: "M-01 covers INV-001, INV-002 and INV-003; no other blocker; dropped items stay dropped", status: "Addressed in the merged verdict; open in the plan until the M-01 ACs are added"}
+
+changes_not_made:
+  - {item: "C-009: R1-F4, R3-6", non_base_approach: "Guard that the six files are clean before Task 1", rationale: "Void today (E-1); plan:33 records the start state; a dirty file would make a diff-shape AC fail loudly"}
+  - {item: "C-010 half: R1-F5, R3-5 baseline", non_base_approach: "Lint baseline / outside-six-files waiver", rationale: "`make lint` exits 0 today (E-2)"}
+  - {item: "C-012: R1-F7, R3-8", non_base_approach: "Narrow residual risk 4", rationale: "Risk 4 is conditioned on a missing or ambiguous session file and spec:300 then blocks PASS; it is true as written"}
+  - {item: "C-013: R3-1", non_base_approach: "Widen Task 7's status exemption", rationale: "Void: E-1 meets the finding's own void condition"}
+  - {item: "C-016: R3-7", non_base_approach: "Reword the Task 7 \"writes only the logs\" sentence", rationale: "source:169 mandates it and source:171 verifies it; plan:153 already names the exceptions"}
+  - {item: "A-001", non_base_approach: "\"QA checks only the AC\"", rationale: "Refuted by E-3; M-01 rests on source:34 instead"}
+
+provenance:
+  M-01: {base: true, source: "variant-3 R3-2 (mechanism, corrected in Round 2) + variant-1 R1-F1 + variant-2 R2-01 + orchestrator INV-001, INV-002, INV-003, INV-014 (Change #1)", variants: [variant-1, variant-2, variant-3]}
+  M-02: {base: true, source: "variant-2 R2-05 (Change #2)", variants: [variant-2]}
+  M-03: {base: true, source: "variant-2 R2-02 detection; keep-the-pin action from variant-1 and variant-3 (Change #3)", variants: [variant-1, variant-2, variant-3]}
+  M-04: {base: true, source: "variant-2 R2-04 detection; regex fix from variant-1 Round 2 (Change #4)", variants: [variant-1, variant-2]}
+  M-05: {base: false, source: "variant-3 R3-3 (Change #5)", variants: [variant-3]}
+  M-06: {base: false, source: "variant-3 R3-4 (Change #6)", variants: [variant-3]}
+  M-07: {base: false, source: "variant-3 R3-5, narrowed to exit status (Change #7)", variants: [variant-3]}
+  M-08: {base: true, source: "variant-2 R2-06 and its per_correction table (Change #8)", variants: [variant-2]}
+  M-09: {base: false, source: "variant-1 R1-F6 (Change #9)", variants: [variant-1]}
+  M-10: {base: false, source: "variant-1 R1-F3 (Change #10)", variants: [variant-1]}
+  M-11: {base: false, source: "variant-1 R1-F2 (Change #11)", variants: [variant-1]}
+  M-12: {base: true, source: "variant-2 R2-03 (Change #12)", variants: [variant-2]}
+  M-13: {base: false, source: "orchestrator invariant probe INV-006, INV-014 (Change #13)", variants: []}
+  M-14: {base: false, source: "previous review: Tier 1 card F-4; previous report M-12, M-13, M-14, INV-020, INV-021 (Change #14)", variants: []}
+  OK-1: {base: true, source: "all three cards' checked_clean rows + orchestrator E-4", variants: [variant-1, variant-2, variant-3]}
+  OK-2: {base: true, source: "variant-1 and variant-3 checked_clean; variant-2 F-5 row", variants: [variant-1, variant-2, variant-3]}
+  OK-3: {base: true, source: "variant-1 and variant-3 checked_clean; variant-2 F-8 row; INV-011", variants: [variant-1, variant-2, variant-3]}
+  OK-4: {base: false, source: "orchestrator E-1, E-2", variants: []}
+  OK-5: {base: true, source: "all three cards (diff-analysis.md agreement points)", variants: [variant-1, variant-2, variant-3]}
+  OK-6: {base: true, source: "variant-1 and variant-3 checked_clean; variant-2 F-5 row; INV-008", variants: [variant-1, variant-2, variant-3]}

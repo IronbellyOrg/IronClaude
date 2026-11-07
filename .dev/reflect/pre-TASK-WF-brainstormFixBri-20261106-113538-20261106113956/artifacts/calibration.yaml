@@ -1,0 +1,29 @@
+# Blind calibration results, copied from the calibrator replies (calibrator agents return text; they write no file).
+calibrator_diversity: degraded   # all three model classes are reviewer slots; calibrators run on opus (highest capability), per the disjoint-set fallback
+tier1_card:
+  file: reflection-card.yaml
+  calibrator_model: opus
+  scores: {citation_grounding: 0.88, coverage_completeness: 0.75, deviation_classification_clarity: 0.78, risk_surface_coverage: 0.85, recommendation_actionability: 0.75}
+  calibrated_confidence: 0.80
+  self_reported_confidence: 0.90
+  notes: "Spot-checked plan:128 = source.md:219, plan:122 = source.md:223, plan:144, plan:153, plan:157, test.yml:99 (all match). Gaps named: INF-007 explanation has no evidence; INF-008 says 'checked row by row below' but no per-correction rows exist (only about 5 of 17 corrections are shown); F-4 bundles four owner items; F-3 has no recommendation; tests and make lint were not run."
+  escalation: ESCALATE
+reviewer_cards:   # Wave 3C, one independent opus calibrator per card
+  - file: reviewer-cards/reviewer-1-card.yaml
+    reviewer: {persona: analyzer, model_slot: sonnet}
+    scores: {citation_grounding: 0.60, coverage_completeness: 0.85, deviation_classification_clarity: 0.70, risk_surface_coverage: 0.80, recommendation_actionability: 0.75}
+    calibrated_confidence: 0.74
+    self_reported_confidence: 0.70
+    priority_notes: "R1-F1 P2 about right (maybe slightly over); R1-F2 P3 right; R1-F3 P3 right; R1-F4 P3 overstated (git diff --stat compares to the index; Task 7 bullet 3 only checks new lines); R1-F5 P3 right; R1-F6 P3 right or slightly under; R1-F7 overstated, drop or informational (plan:137 already limits risk 4). Citation remaps: plan:114/115 -> 26/27; spec:375/379 -> 296/300; lc10-result.md:396/401 -> 8/13; test_codegraph_adoption.py:532-540 -> 75-82; plan:46 -> 44 (Task 1 AC1); plan:136 -> 137 (risk 4)."
+  - file: reviewer-cards/reviewer-3-card.yaml
+    reviewer: {persona: refactorer, model_slot: opus}
+    scores: {citation_grounding: 0.90, coverage_completeness: 0.85, deviation_classification_clarity: 0.65, risk_surface_coverage: 0.80, recommendation_actionability: 0.85}
+    calibrated_confidence: 0.81
+    self_reported_confidence: 0.74
+    priority_notes: "R3-1 P2 overstated, withdraw (its own void condition holds per the orchestrator's git status check); R3-2 P2 probably overstated (P3 defensible; its grep compares against an executor-written file); R3-3, R3-4, R3-6, R3-8 P3 right; R3-5 P3 right or slightly under; R3-7 P3 overstated (wording nit). Citation remap: R3-4 'which shows the pins fail' is plan:95, not plan:90."
+  - file: reviewer-cards/reviewer-2-card.yaml
+    reviewer: {persona: qa, model_slot: haiku}
+    scores: {citation_grounding: 0.93, coverage_completeness: 0.85, deviation_classification_clarity: 0.75, risk_surface_coverage: 0.70, recommendation_actionability: 0.80}
+    calibrated_confidence: 0.81
+    self_reported_confidence: 0.93
+    priority_notes: "R2-01 P2 about right; R2-02 P3 right; R2-03 P2 over-stated (the contradiction is in the brief, P3); R2-04 P3 right; R2-05 P3 right or slightly under; R2-06 P2 over-stated (a gap in the review's own matrix, P3). Missed: plan:145 adds a second check beyond F-7 (git diff -U0 hunks); plan:153 'writes only the logs' then names a non-log file."

@@ -1,0 +1,393 @@
+# UC-1 coverage matrix. Pass 1 parsed rows: 0 (ID_REGEX found none). Pass 2 inferred rows below.
+# Matching: deterministic containment (stopword-stripped content words, threshold 0.6) against single task items.
+# C0 = the plan-wide Constraints section, reported separately because it is not a task item.
+- id: INF-001
+  source: inferred
+  citation: source.md:8
+  quote: 'AC-1.2: the section 7.2 live check (all seven steps) on each of the sixteen P1 commands, run with `--unattended` and its report directory.'
+  best_task: T24
+  task_ratio: 0.88
+  constraints_ratio: 0.94
+  match_method: containment
+  matched_task_ids: [T24]
+  covered_by_constraints: true
+- id: INF-002
+  source: inferred
+  citation: source.md:9
+  quote: 'AC-1.3: the file-creation part (two flagless runs, then `git status --short`).'
+  best_task: T23
+  task_ratio: 1.00
+  constraints_ratio: 0.82
+  match_method: containment
+  matched_task_ids: [T23]
+  covered_by_constraints: true
+- id: INF-003
+  source: inferred
+  citation: source.md:10
+  quote: 'AC-1.5: missing report directory. AC-1.6: person-mode refusal. AC-1.7: the three brief-guard refusal cases. AC-1.8: the WC-9 commit grant.'
+  best_task: T25
+  task_ratio: 0.74
+  constraints_ratio: 0.95
+  match_method: containment
+  matched_task_ids: [T25]
+  covered_by_constraints: true
+- id: INF-004
+  source: inferred
+  citation: source.md:11
+  quote: 'The P1 phase report that cites the passed static report, adds the live results and states the phase verdict.'
+  best_task: T25
+  task_ratio: 0.64
+  constraints_ratio: 0.82
+  match_method: containment
+  matched_task_ids: [T25]
+  covered_by_constraints: true
+- id: INF-005
+  source: inferred
+  citation: source.md:17
+  quote: 'If the installed files differ from the branch, Task 1 records FAIL and every later live task records `not run: install precondition failed` and starts nothing.'
+  best_task: T24
+  task_ratio: 0.75
+  constraints_ratio: 0.94
+  match_method: containment
+  matched_task_ids: [T24]
+  covered_by_constraints: true
+- id: INF-006
+  source: inferred
+  citation: source.md:18
+  quote: 'No edit to any source, command, skill, agent or test file'
+  best_task: T22
+  task_ratio: 0.57
+  constraints_ratio: 1.00
+  match_method: none
+  matched_task_ids: []
+  covered_by_constraints: true
+- id: INF-007
+  source: inferred
+  citation: source.md:19
+  quote: 'No git commit, push, merge, rebase, reset, stash, branch deletion, PR, `gh` write of any kind, no `superclaude install`'
+  best_task: T24
+  task_ratio: 0.60
+  constraints_ratio: 1.00
+  match_method: containment
+  matched_task_ids: [T24]
+  covered_by_constraints: true
+- id: INF-008
+  source: inferred
+  citation: source.md:20
+  quote: 'UV for every Python command, in the executor and in every subagent it starts'
+  best_task: T21
+  task_ratio: 0.33
+  constraints_ratio: 1.00
+  match_method: none
+  matched_task_ids: []
+  covered_by_constraints: true
+- id: INF-009
+  source: inferred
+  citation: source.md:21
+  quote: 'Staging: never stage anything under `.claude/`. At the end `git add .dev/tasks`.'
+  best_task: T25
+  task_ratio: 0.82
+  constraints_ratio: 0.91
+  match_method: containment
+  matched_task_ids: [T25]
+  covered_by_constraints: true
+- id: INF-010
+  source: inferred
+  citation: source.md:22
+  quote: 'A failed live check is a recorded result: it is not retried, rerun or repaired, and no second worker is started for it.'
+  best_task: T23
+  task_ratio: 0.64
+  constraints_ratio: 1.00
+  match_method: containment
+  matched_task_ids: [T23]
+  covered_by_constraints: true
+- id: INF-011
+  source: inferred
+  citation: source.md:24
+  quote: 'Every `orca orchestration check --wait` call runs with a Bash tool timeout of at least 300000 ms'
+  best_task: T24
+  task_ratio: 0.33
+  constraints_ratio: 1.00
+  match_method: none
+  matched_task_ids: []
+  covered_by_constraints: true
+- id: INF-012
+  source: inferred
+  citation: source.md:25
+  quote: 'At least one checked run in the phase must last longer than the heartbeat cadence the preamble states; the report names it.'
+  best_task: T25
+  task_ratio: 0.69
+  constraints_ratio: 1.00
+  match_method: containment
+  matched_task_ids: [T25]
+  covered_by_constraints: true
+- id: INF-013
+  source: inferred
+  citation: source.md:26
+  quote: "step 5 is read from the worker's own Claude session file with the P0 scripts"
+  best_task: T24
+  task_ratio: 0.73
+  constraints_ratio: 1.00
+  match_method: containment
+  matched_task_ids: [T24]
+  covered_by_constraints: true
+- id: INF-014
+  source: inferred
+  citation: source.md:34
+  quote: 'one fenced block per check, saved to `./artifacts/lc<NN>-brief.txt` and passed to `task-create --spec` unchanged'
+  best_task: T25
+  task_ratio: 0.71
+  constraints_ratio: 1.00
+  match_method: containment
+  matched_task_ids: [T25]
+  covered_by_constraints: true
+- id: INF-015
+  source: inferred
+  citation: source.md:32
+  quote: "Step 3 pass: exactly one `worker_done`; `--outcome` matches the contract's `worker_status` under WC-5"
+  best_task: T18
+  task_ratio: 0.86
+  constraints_ratio: 1.00
+  match_method: containment
+  matched_task_ids: [T18]
+  covered_by_constraints: true
+- id: INF-016
+  source: inferred
+  citation: source.md:51
+  quote: 'lc01 analyze: `/sc:analyze src/superclaude/cli/install_core.py --focus quality --depth quick --unattended --report-dir .dev/p1-live/analyze/`.'
+  best_task: T2
+  task_ratio: 1.00
+  constraints_ratio: 0.68
+  match_method: containment
+  matched_task_ids: [T2]
+  covered_by_constraints: true
+- id: INF-017
+  source: inferred
+  citation: source.md:52
+  quote: 'lc02 build: `/sc:build --type dev --unattended --report-dir .dev/p1-live/build/`.'
+  best_task: T3
+  task_ratio: 1.00
+  constraints_ratio: 0.70
+  match_method: containment
+  matched_task_ids: [T3]
+  covered_by_constraints: true
+- id: INF-018
+  source: inferred
+  citation: source.md:53
+  quote: 'lc03 business-panel: `/sc:business-panel .dev/orca-command-refactor/decisions/D1/option-a.md --mode discussion --experts "porter,drucker" --unattended --report-dir .dev/p1-live/business-panel/`.'
+  best_task: T4
+  task_ratio: 1.00
+  constraints_ratio: 0.59
+  match_method: containment
+  matched_task_ids: [T4]
+  covered_by_constraints: false
+- id: INF-019
+  source: inferred
+  citation: source.md:54
+  quote: 'lc04 design: `/sc:design "a read-only status endpoint that reports whether the installed commands match the repository" --type api --format spec --unattended --report-dir .dev/p1-live/design/`.'
+  best_task: T5
+  task_ratio: 1.00
+  constraints_ratio: 0.68
+  match_method: containment
+  matched_task_ids: [T5]
+  covered_by_constraints: true
+- id: INF-020
+  source: inferred
+  citation: source.md:55
+  quote: 'lc05 document: `/sc:document src/superclaude/cli/install_core.py --type api --style brief --output .dev/p1-live/document/install_core_api.md --unattended --report-dir .dev/p1-live/document/`.'
+  best_task: T6
+  task_ratio: 1.00
+  constraints_ratio: 0.81
+  match_method: containment
+  matched_task_ids: [T6]
+  covered_by_constraints: true
+- id: INF-021
+  source: inferred
+  citation: source.md:56
+  quote: 'lc06 explain: `/sc:explain src/superclaude/cli/install_core.py --level basic --format text --unattended --report-dir .dev/p1-live/explain/`.'
+  best_task: T7
+  task_ratio: 1.00
+  constraints_ratio: 0.68
+  match_method: containment
+  matched_task_ids: [T7]
+  covered_by_constraints: true
+- id: INF-022
+  source: inferred
+  citation: source.md:57
+  quote: 'lc07 index: `/sc:index src/superclaude/pm_agent --type structure --format md --output .dev/p1-live/index/structure.md --unattended --report-dir .dev/p1-live/index/`.'
+  best_task: T8
+  task_ratio: 1.00
+  constraints_ratio: 0.72
+  match_method: containment
+  matched_task_ids: [T8]
+  covered_by_constraints: true
+- id: INF-023
+  source: inferred
+  citation: source.md:58
+  quote: 'lc08 test: `/sc:test tests/skills/test_worker_contract.py --type unit --unattended --report-dir .dev/p1-live/test/`.'
+  best_task: T9
+  task_ratio: 1.00
+  constraints_ratio: 0.75
+  match_method: containment
+  matched_task_ids: [T9]
+  covered_by_constraints: true
+- id: INF-024
+  source: inferred
+  citation: source.md:61
+  quote: 'lc09 adversarial (own flag): `/sc:adversarial --compare .dev/orca-command-refactor/decisions/D1/option-a.md,.dev/orca-command-refactor/decisions/D1/option-b.md --depth quick --unattended --output .dev/p1-live/adversarial/`.'
+  best_task: T10
+  task_ratio: 1.00
+  constraints_ratio: 0.76
+  match_method: containment
+  matched_task_ids: [T10]
+  covered_by_constraints: true
+- id: INF-025
+  source: inferred
+  citation: source.md:62
+  quote: 'lc10 brainstorm (own flag): `/sc:brainstorm "how a coordinator should name report directories for parallel workers" --depth quick --proposals 2 --codebase --handoff none --unattended --output .dev/p1-live/brainstorm/`.'
+  best_task: T11
+  task_ratio: 1.00
+  constraints_ratio: 0.62
+  match_method: containment
+  matched_task_ids: [T11]
+  covered_by_constraints: true
+- id: INF-026
+  source: inferred
+  citation: source.md:63
+  quote: 'lc11 cleanup-audit: `/sc:cleanup-audit tests/pr_submit --pass surface --unattended --report-dir .dev/p1-live/cleanup-audit/`.'
+  best_task: T12
+  task_ratio: 1.00
+  constraints_ratio: 0.67
+  match_method: containment
+  matched_task_ids: [T12]
+  covered_by_constraints: true
+- id: INF-027
+  source: inferred
+  citation: source.md:64
+  quote: 'lc12 graph (own flag): `/sc:graph status --unattended --output-dir .dev/p1-live/graph/`.'
+  best_task: T13
+  task_ratio: 1.00
+  constraints_ratio: 0.92
+  match_method: containment
+  matched_task_ids: [T13]
+  covered_by_constraints: true
+- id: INF-028
+  source: inferred
+  citation: source.md:65
+  quote: 'lc13 impact (report-dir flag on a command with its own flag): `/sc:impact install_core_files --depth 1 --limit 10 --unattended --report-dir .dev/p1-live/impact/`.'
+  best_task: T14
+  task_ratio: 0.95
+  constraints_ratio: 0.84
+  match_method: containment
+  matched_task_ids: [T14]
+  covered_by_constraints: true
+- id: INF-029
+  source: inferred
+  citation: source.md:66
+  quote: 'lc14 index-repo: `/sc:index-repo mode=quick --unattended --report-dir .dev/p1-live/index-repo/`.'
+  best_task: T15
+  task_ratio: 1.00
+  constraints_ratio: 0.83
+  match_method: containment
+  matched_task_ids: [T15]
+  covered_by_constraints: true
+- id: INF-030
+  source: inferred
+  citation: source.md:67
+  quote: 'lc15 init-lite: `/sc:init-lite --context-optimized --dry-run --unattended --report-dir .dev/p1-live/init-lite/`.'
+  best_task: T16
+  task_ratio: 1.00
+  constraints_ratio: 0.79
+  match_method: containment
+  matched_task_ids: [T16]
+  covered_by_constraints: true
+- id: INF-031
+  source: inferred
+  citation: source.md:68
+  quote: 'lc16 workflow: `/sc:workflow "Add one sentence to the Installation section of README.md stating that superclaude install --force overwrites files that already exist in ~/.claude" --depth quick --handoff none --unattended --report-dir .dev/p1-live/workflow/`.'
+  best_task: T17
+  task_ratio: 1.00
+  constraints_ratio: 0.61
+  match_method: containment
+  matched_task_ids: [T17]
+  covered_by_constraints: true
+- id: INF-032
+  source: inferred
+  citation: source.md:71
+  quote: "lc17 AC-1.5: `Command: /sc:analyze src/ --unattended` (no report directory; the brief's `Report directory:` line reads `none`)."
+  best_task: T18
+  task_ratio: 0.94
+  constraints_ratio: 0.88
+  match_method: containment
+  matched_task_ids: [T18]
+  covered_by_constraints: true
+- id: INF-033
+  source: inferred
+  citation: source.md:72
+  quote: 'lc18 AC-1.6: `Command: /sc:test --watch --unattended --report-dir .dev/p1-live/watch/`.'
+  best_task: T19
+  task_ratio: 1.00
+  constraints_ratio: 0.86
+  match_method: containment
+  matched_task_ids: [T19]
+  covered_by_constraints: true
+- id: INF-034
+  source: inferred
+  citation: source.md:73
+  quote: 'lc19 AC-1.7 case 1: `Command: /sc:analyze src/superclaude/cli/install_core.py --report-dir .dev/p1-live/guard1/` (no `--unattended`).'
+  best_task: T20
+  task_ratio: 1.00
+  constraints_ratio: 0.81
+  match_method: containment
+  matched_task_ids: [T20]
+  covered_by_constraints: true
+- id: INF-035
+  source: inferred
+  citation: source.md:74
+  quote: 'lc20 AC-1.7 case 2: `Command: /sc:troubleshoot "the install check prints nothing" --unattended --report-dir .dev/p1-live/guard2/`'
+  best_task: T21
+  task_ratio: 1.00
+  constraints_ratio: 0.90
+  match_method: containment
+  matched_task_ids: [T21]
+  covered_by_constraints: true
+- id: INF-036
+  source: inferred
+  citation: source.md:75
+  quote: 'lc21 AC-1.7 case 3: `Command: /sc:help`.'
+  best_task: T22
+  task_ratio: 1.00
+  constraints_ratio: 0.89
+  match_method: containment
+  matched_task_ids: [T22]
+  covered_by_constraints: true
+- id: INF-037
+  source: inferred
+  citation: source.md:79
+  quote: 'If the file is missing or empty, record AC-1.8 as `not run: no owner instruction` and start nothing.'
+  best_task: T24
+  task_ratio: 1.00
+  constraints_ratio: 0.92
+  match_method: containment
+  matched_task_ids: [T24]
+  covered_by_constraints: true
+- id: INF-038
+  source: inferred
+  citation: source.md:79
+  quote: "Pass: the only change is new commits on the child's own branch, made only after the contract showed `succeeded`"
+  best_task: T24
+  task_ratio: 1.00
+  constraints_ratio: 0.77
+  match_method: containment
+  matched_task_ids: [T24]
+  covered_by_constraints: true
+- id: INF-039
+  source: inferred
+  citation: source.md:83
+  quote: 'The verdict has the form `P1 verdict: PASS` only when every check the plan ran passed and nothing was `not verifiable`'
+  best_task: T25
+  task_ratio: 0.80
+  constraints_ratio: 0.90
+  match_method: containment
+  matched_task_ids: [T25]
+  covered_by_constraints: true

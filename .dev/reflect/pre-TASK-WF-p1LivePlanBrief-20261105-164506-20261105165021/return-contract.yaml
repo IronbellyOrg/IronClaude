@@ -1,0 +1,34 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105165021/audit.log
+confidence_calibrated: 0.55
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+input_tree_snapshot_path: artifacts/input-snapshot.yaml
+input_drift_detected: true   # plan edited in place after the snapshot, on purpose (post-fix-rechecks.md)
+evidence_validator_ran: false
+citations_dropped: 0
+reviewer_cards:
+  - reviewer-cards/summary.md
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: none   # adversarial merge not run; findings applied by hand
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+remediation_task_path: null
+remediation_plan_path: null
+regression_present: true   # reviewer finding (stale tip pin), fixed in place
+needs_human_decision: false

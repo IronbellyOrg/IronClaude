@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-021737/adversarial/merged-verdict.yaml"
+  convergence_score: 0.885
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-021737/adversarial/"
+  status: partial
+  base_variant: "sonnet:analyzer"
+  unresolved_conflicts: 3
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: task-agent
+  unaddressed_invariants:
+    - INV-019

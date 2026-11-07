@@ -1,0 +1,51 @@
+# Tier 1 reflection card (Wave 1C, inline orchestrator card; UC-1 has no 1C agent at standard depth).
+mode: pre
+spec: .dev/tasks/to-do/TASK-WF-workerContractFo-20261106-214402/source.md
+tasklist: .dev/tasks/to-do/TASK-WF-workerContractFo-20261106-214402/TASK-WF-workerContractFo-20261106-214402.md
+self_confidence: 0.90
+coverage_pct_union: 1.0
+best_practice_grade: 4
+summary: >
+  All 15 requirements in the source map to a task. Every line anchor the plan cites was re-read in this
+  worktree and matches (WORKER-CONTRACT.md:31-32 and :39-41, workflow.md:72, return-contract.md:52,
+  build.md:104, test.md:103, init-lite SKILL.md:61, init-lite.md:92, test_worker_contract.py:107, :324-353, :769, :777).
+  Each ignored path the texts name is in fact ignored by git (artifacts/grounding.txt and the git check-ignore run).
+findings:
+  - id: RF-1
+    severity: P3
+    claim: >
+      Task 1 searches only tests/ and plugins/ for other copies of the WC-4 text. The developer guide also
+      restates the WC-4 worker contract and defines `artifacts` as "every other file written"
+      (docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:1002). After Task 1 that
+      summary omits the new ignored-path rule.
+    evidence:
+      - docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md:1002
+      - .dev/tasks/to-do/TASK-WF-workerContractFo-20261106-214402/TASK-WF-workerContractFo-20261106-214402.md:30
+    recommendation: >
+      Widen the Task 1 search to docs/ and add one clause to the developer guide's WC-4 worker-contract
+      bullet, or record that the guide is a summary and is left as is. Verify with
+      grep -n 'git ignores' docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md.
+  - id: RF-2
+    severity: P3
+    claim: >
+      plugins/superclaude/commands/test.md exists and differs from src (it has no Unattended mode section),
+      like build.md. Task 4 edits only src/superclaude/commands/test.md; no parity test covers test.md, so
+      this is consistent, but the plan does not say the plugin copy is intentionally left unchanged.
+    evidence:
+      - src/superclaude/commands/test.md:97
+      - src/superclaude/commands/test.md:103
+    recommendation: >
+      No change needed; optionally add one sentence to Task 4 that the plugin copy has no Unattended section
+      and stays unchanged, matching build.md.
+  - id: RF-3
+    severity: P3
+    claim: >
+      Task 5's final acceptance criterion writes command output to ./artifacts/t5-checks.txt without naming the
+      base directory; under /sc:implement the package-relative reading (.dev/tasks/to-do/<id>/artifacts/) is
+      intended, and the repository-root artifacts/ folder is never staged.
+    evidence:
+      - .dev/tasks/to-do/TASK-WF-workerContractFo-20261106-214402/TASK-WF-workerContractFo-20261106-214402.md:81
+    recommendation: Read ./artifacts/ as the package's artifacts folder when executing Task 5.
+risks:
+  - "Task 1's new WC-4 sentence must not contain the literal phrase `git add`; WC-9 already carries `git add -- <paths>` at WORKER-CONTRACT.md:41, so a reworded pointer to WC-9 is safer than quoting it."
+inferred_claims: 0

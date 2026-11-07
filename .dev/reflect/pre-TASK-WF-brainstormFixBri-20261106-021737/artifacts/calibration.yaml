@@ -1,0 +1,20 @@
+# Blind calibration results, copied from the calibrator replies (agents returned them in chat; they wrote no file).
+calibrator_diversity: degraded   # all three model classes were used by reviewers; Tier 2 calibrators ran on opus
+tier1_card:
+  file: reflection-card.yaml
+  scores: {citation_grounding: 0.80, coverage_completeness: 0.80, deviation_classification_clarity: 0.65, risk_surface_coverage: 0.70, recommendation_actionability: 0.70}
+  calibrated_confidence: 0.73
+  self_reported_confidence: 0.88
+reviewer_cards:
+  - file: reviewer-cards/reviewer-1-card.yaml
+    scores: {citation_grounding: 0.80, coverage_completeness: 0.80, deviation_classification_clarity: 0.55, risk_surface_coverage: 0.85, recommendation_actionability: 0.65}
+    calibrated_confidence: 0.73
+    self_reported_confidence: 0.80
+  - file: reviewer-cards/reviewer-2-card.yaml
+    scores: {citation_grounding: 0.88, coverage_completeness: 0.80, deviation_classification_clarity: 0.75, risk_surface_coverage: 0.70, recommendation_actionability: 0.50}
+    calibrated_confidence: 0.73
+    self_reported_confidence: 0.87
+  - file: reviewer-cards/reviewer-3-card.yaml
+    scores: {citation_grounding: 0.85, coverage_completeness: 0.85, deviation_classification_clarity: 0.70, risk_surface_coverage: 0.80, recommendation_actionability: 0.55}
+    calibrated_confidence: 0.75
+    self_reported_confidence: 0.74

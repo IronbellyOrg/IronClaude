@@ -1,0 +1,558 @@
+# merged-verdict.yaml
+# Produced by /sc:adversarial (Mode A, --depth standard), Step 5 merge-executor.
+# Base variant: Variant 2 (reviewer 2, qa, haiku slot), variant-2-original.md.
+# Non-base contributors: Variant 1 (reviewer 1, analyzer, sonnet), Variant 3 (reviewer 3, refactorer, opus).
+# Plan executed: refactor-plan.md (Changes 1-12, auto-approved 2026-11-06T01:24:00Z).
+# Other inputs: base-selection.md, diff-analysis.md, debate-transcript.md, invariant-probe.md.
+# Merge date: 2026-11-06.
+# ID mapping: merged F-N = refactor-plan M-0N (F-1 = M-01 ... F-18 = M-18). These are NOT the
+#   Tier-1 card's F-1..F-4; that card's IDs appear below only as "Tier-1 F-n".
+# Claim and change texts are copied from refactor-plan.md "Final consolidated finding list",
+#   with M-NN renamed to F-N; the path aliases they use are defined in path_aliases.
+# Every evidence file:line was re-Read by the merge executor on 2026-11-06.
+
+# Source: merge-executor (fixed values requested by the orchestrator)
+merge_method: adversarial
+subject: .dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md
+base_variant: "V2 (qa, haiku slot)"
+
+# Source: debate-transcript.md Convergence Assessment (lines 701-720)
+adversarial_status: partial
+convergence_score: 1.0
+convergence_note: "All 24 scored diff points were agreed in Round 2 (23 unanimous, 1 majority), but the invariant gate is BLOCKED_BY_INVARIANTS because INV-020 (HIGH) is unaddressed, so the result is partial."
+
+# Source: refactor-plan.md header (aliases used inside claim and change texts)
+path_aliases:
+  plan: .dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md
+  src: .dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/source.md
+  spec: .dev/orca-command-refactor/specs/orca-worker-contract-spec.md
+  SKILL: src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+  routing: src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md
+  cmd: src/superclaude/commands/brainstorm.md
+  diagnostics.txt: .dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-001016/artifacts/diagnostics.txt
+
+# Source: invariant-probe.md INV-020; refactor-plan.md "Invariant probe disposition"
+unresolved_conflicts:
+  - "INV-020: from P2 brainstorm's research enrichment passes --unattended and a nested report directory, and research-deep fallback_1 is itself a nested command, but the corrected live-check sentence covers only the codebase wave; outside this plan's brief, so it is passed to the owner and the P2 live-plan author, not resolved."
+
+unaddressed_invariants:
+  - id: INV-020
+    category: sufficiency_challenge
+    severity: HIGH
+    assumption: "The claim \"the next live plan will not repeat lc10\" fails at P2. From P2, brainstorm's research enrichment passes `--unattended` and a nested report directory (spec:142, spec:222). The research tiers break the \"fallback writes no folder\" rule: research-deep `fallback_1` is `Skill sc:research-protocol`, which is itself a nested command (routing:69); deep's final fallback \"inherits\" the tier (routing:73); research-light `fallback_1` is plain WebSearch (routing:48-52). The corrected live-check sentence covers only the codebase wave."
+
+# Source: refactor-plan.md "Card verdict to write", restated in plain words with merged IDs
+verdict: >-
+  The plan covers all five brief items but is not ready for /sc:implement. Three P1 fixes come
+  first: rewrite Task 6's live-check sentence so it no longer decides the nested folder by
+  quality_tier (F-1), make Task 7's git-status check passable by comparing a before and after
+  snapshot (F-2), and pin both halves of the owner's rule in all three primitives (F-3); the
+  P2 edits F-4 to F-17 follow, and the Tier-1 card's "ready after one fix" verdict is rejected.
+  INV-020 (F-18) stays an open conflict for the owner and the P2 live-plan author.
+confidence_note: "Not re-calibrated for the merged card; the input cards were calibrated 0.85 (V1), 0.82 (V2) and 0.82 (V3)."
+
+findings:
+  # Source: Variant 3 R3-1 (diagnosis), widened by a3 New evidence 1; remedy from refactor-plan
+  #   "Replacement wording", per Change #1. V3's source-field remedy is NOT carried.
+  - id: F-1
+    plan_id: M-01
+    priority: P1
+    severity: High
+    tag: Grounded
+    title: "Task 6 live-check sentence decides the nested folder by quality_tier"
+    claim: |-
+      Task 6's live-check sentence ("a `primary` or `fallback_1` scan is recorded as the tier used, with no nested folder") decides the folder by `quality_tier`. Tier does not decide it: a clean `/sc:analyze` run is also `primary` (SKILL:187,198), and no field of `enrichment_used` names the tool (SKILL:372). A checker following it fails a correct analyze run, which is lc10 in reverse.
+    evidence:
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:81"
+      - "src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:187"
+      - "src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:195"
+      - "src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:198"
+      - "src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:372"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/source.md:9"
+    sources: [R3-1, R1-5, C-007, X-003, INV-007, INV-011, INV-012, INV-024]
+    debate_basis: "C-007 V3 92%; X-003 V3 92%"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Task 6, line 81)"
+      change: |-
+        Replace plan:81's second sentence with the exact sentence in "Replacement wording" (live-check sentence), and its first sentence with the companion sentence there. Record in the plan that both depart from src:9's sketch on purpose (Necessary deviation).
+        (In this card: replacement_wording.task6_live_check_sentence and replacement_wording.task6_companion_sentence.)
+      verifier: |-
+        The revised Task 6 no longer contains "a `primary` or `fallback_1` scan is recorded as the tier used"; it carries the live-check sentence and the companion sentence byte for byte as in replacement_wording; and the plan records the Necessary deviation from source.md:9.
+
+  # Source: Base (original) R2-1 diagnosis, "doubly" dropped per X-005; remedy from Variant 1 R1-2
+  #   with the INV-001 capture point, per Change #2.
+  - id: F-2
+    plan_id: M-02
+    priority: P1
+    severity: High
+    tag: Grounded
+    title: "Task 7 bullet 3 cannot pass on today's tree"
+    claim: |-
+      Task 7 bullet 3 cannot pass: its first clause ("lists, among tracked paths, only the six files ... plus this package") fails on today's tree under any reading (950 staged `A` and 3 `R` under the archived P1 package; `git ls-files` = 953), and this package is untracked, so "plus this package" misdescribes it. The `.dev/tasks/done/` clause is reading-dependent. An infeasible AC reaches `E-HALT-QA`.
+    evidence:
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:98"
+      - ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-001016/artifacts/diagnostics.txt:3-7"
+      - "src/superclaude/skills/sc-implement-protocol/refs/managed-workspace.md:36"
+    evidence_note: "The 953 tracked-path count and the E-HALT-QA path come from the debate (C-001, A-002), where all three advocates re-ran the baseline; the merge executor did not re-run git."
+    sources: [R2-1, R1-2, C-001, X-005, A-002, A-004, INV-001]
+    debate_basis: "C-001 split V2+V1 95%; X-005 V2 95%; A-002, A-004"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Task 1 first step; Task 7, lines 93-98)"
+      change: |-
+        Task 1 gains a first step: before any edit, save `git status --porcelain` to `./artifacts/status-before.txt`. Task 7 saves `./artifacts/status-after.txt` and its bullet 3 becomes: "Every line that is in `./artifacts/status-after.txt` and not in `./artifacts/status-before.txt` names one of the six files in Constraints or a path under this package's folder; no such line names a path under `.claude/` or `plugins/`; and every line of `./artifacts/status-before.txt` that names a path under `.dev/tasks/done/` is unchanged in `./artifacts/status-after.txt`." The package-path exemption covers the `??` to `A` flip that `/sc:implement`'s `git add .dev/tasks` causes (INV-001).
+      verifier: |-
+        Task 1's first step writes ./artifacts/status-before.txt before any edit; Task 7 writes ./artifacts/status-after.txt; Task 7 bullet 3 reads exactly the quoted text; the "among tracked paths" clause of plan:98 is gone.
+
+  # Source: Base (original) R2-2 diagnosis at P1; remedy shape from Variant 1 R1-4 and Variant 3
+  #   R3-6 shared phrase (C-012), per Change #6; applied text from refactor-plan "Replacement wording".
+  - id: F-3
+    plan_id: M-03
+    priority: P1
+    severity: High
+    tag: Grounded
+    title: "Neither half of the owner rule is pinned in the three primitives"
+    claim: |-
+      The owner rule has two halves (src:6: the fallback tier "writes no nested folder and lists no nested contract in artifacts"). No planned pin covers the contract half, and the conditional "exists only when `/sc:analyze` ran" is pinned only in the spec. An implementer can drop either from the three primitives and every planned check stays green.
+    evidence:
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/source.md:6"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:33"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:60"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:74"
+    sources: [R2-2, R1-4, R3-6, C-004, C-012, U-001]
+    debate_basis: "C-004 V2 94%; C-012 V3 91%"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Tasks 1-5)"
+      change: |-
+        Write Tasks 1-3 by the wording rule in "Replacement wording" and pin the shared phrases `no nested directory and no nested contract` and `` only by a `/sc:analyze` call `` in all three primitives (Task 4 for the skill and routing ref, Task 5 for the command file), as listed there.
+        Applied text (exact; copied from refactor-plan.md "Replacement wording"; also in replacement_wording.tasks_1_to_3_applied_text):
+        - **Task 1** (SKILL:195): replace everything after "(`<n>` starts at 1)" with: "; the `mcp__auggie__codebase-retrieval` alternative and the `fallback_1` tier (codegraph, then native Glob and Grep, `refs/handoff-routing.md` Tier 2) are unchanged and write no nested directory and no nested contract, so `nested/analyze-<n>/` is written only by a `/sc:analyze` call, and `enrichment_used` does not show whether it exists. The nested contract is listed in `artifacts`, also when the call failed." Task 1 AC: the paragraph contains `fallback_1`, `write no nested directory`, `nested/analyze-`, `skipped` and `` only by a `/sc:analyze` call ``; one line replaced.
+        - **Task 2** (routing): add one bullet as the last bullet of each codebase tier list (after routing:22 and after routing:31): "- Under `--unattended` this tier writes no nested directory and no nested contract; `nested/analyze-<n>/` is written only by a `/sc:analyze` call (the skill's other codebase action), and the scan is recorded in `enrichment_used` with this tier's `quality_tier`." `grep -c 'writes no nested directory'` still prints 2; two lines added, none deleted.
+        - **Task 3** (cmd:157): append to the `**Nested invocations.**` bullet: "A codebase scan through `mcp__auggie__codebase-retrieval` or through the `fallback_1` tier (codegraph, then Glob and Grep) is not a nested command and writes no nested directory and no nested contract, so `nested/analyze-<n>/` is written only by a `/sc:analyze` call; `enrichment_used` records the scan's tier, which does not show whether that directory exists." Leave "`adversarial_artifacts_dir` and the nested contracts are listed in `artifacts`" unchanged.
+        - **Task 4 pins**: in the paragraph slice (F-4): `fallback_1`, `write no nested directory and no nested contract`, `` only by a `/sc:analyze` call ``, and `Quality-tier tracking` absent; in each routing tier slice (F-5): `writes no nested directory and no nested contract` and `` only by a `/sc:analyze` call ``.
+        - **Task 5 pins**: add `writes no nested directory and no nested contract` and `` only by a `/sc:analyze` call `` to `UNATTENDED_EXPECT["brainstorm"]["phrases"]` (two new removed-token cases, F-8).
+      verifier: |-
+        Tasks 1-3 carry the applied text byte for byte; Task 4 and Task 5 list the two shared pins (in the file's own write/writes form); no applied text says "only for a command that ran" or states a tier for any /sc:analyze outcome.
+
+  # Source: Base (original) R2-3, sharpened to the paragraph boundary from Variant 3 R3-3 first half,
+  #   per Change #3; INV-005 absence check per Change #12.
+  - id: F-4
+    plan_id: M-04
+    priority: P2
+    severity: Medium
+    tag: Grounded
+    title: "Task 4's section-wide fallback_1 assertion is vacuous; Task 1's paragraph clause is unpinned"
+    claim: |-
+      Task 4's new `fallback_1` assertion over the whole Wave 2A section passes on the old text (SKILL:199 holds `fallback_1` inside Wave 2A), contradicting plan:65. Task 1's paragraph clause is not vacuous (SKILL:195 lacks `fallback_1`) but is pinned by nothing.
+    evidence:
+      - "src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:195"
+      - "src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:197-199"
+      - "tests/skills/test_brainstorm_protocol.py:24-29"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:60"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:65"
+    sources: [R2-3, R1-1, R3-3, C-002, X-001, INV-004, INV-005]
+    debate_basis: "C-002 V3 96%; X-001 V2+V3 95%"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Task 4, lines 60-65)"
+      change: |-
+        Task 4 slices the paragraph that starts with the bold lead-in "Under `--unattended`" (up to the next blank line) and asserts `fallback_1`, `write no nested directory and no nested contract` and `` only by a `/sc:analyze` call `` in that slice, plus `"Quality-tier tracking" not in` the slice, so a slicer that returns the whole section fails (INV-005). Correct plan:65 to name the assertions that fail on the old text.
+      verifier: |-
+        Task 4 names the paragraph slice, the three pinned strings and the "Quality-tier tracking" absence check; plan:65 names which assertions fail on the old text.
+
+  # Source: Variant 1 R1-3 and Variant 3 R3-3 second half, per Change #4 (new finding).
+  - id: F-5
+    plan_id: M-05
+    priority: P2
+    severity: Medium
+    tag: Grounded
+    title: "Routing-ref checks are file-wide, not one per codebase tier"
+    claim: |-
+      The routing-ref checks are file-wide: `grep -c ... prints 2` (plan:42) and "at least twice" (plan:60) pass with both copies in one tier or in the research tiers.
+    evidence:
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:42"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:60"
+      - "src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md:16-33"
+      - "tests/skills/test_codegraph_adoption.py:56-59"
+    sources: [R1-3, R3-3, C-005, U-004, INV-009]
+    debate_basis: "C-005 V1+V3 95%"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Task 4, line 60; Task 2 AC, line 42)"
+      change: |-
+        Task 4 asserts each pinned phrase once in the Tier 1 slice (from the first `**Tier 1 (primary)**` to `**Tier 2 (fallback_1)**: codegraph`) and once in the Tier 2 slice (from there to `**Final fallback`), using the slicing pattern of `tests/skills/test_codegraph_adoption.py:56-59`. Keep the `grep -c` check as a smoke test (it still prints 2, INV-009).
+      verifier: |-
+        Task 4 names both tier slices with these anchors and the `_section` pattern; Task 2's `grep -c` AC is kept.
+
+  # Source: Base (original) R2-5, with Variant 1 R1-7; P2 per X-002 (V3 R3-2's P1 not taken).
+  - id: F-6
+    plan_id: M-06
+    priority: P2
+    severity: Medium
+    tag: Grounded
+    title: "Task 7 omits two tests that read the edited files"
+    claim: |-
+      Task 7's test set omits `tests/skills/test_codegraph_adoption.py` (reads SKILL, routing, both `brainstorm.md` copies; its Tier 2 slice test spans the Task 2 edit) and `tests/skills/test_tier2_tavily_consistency.py` (reads SKILL). The one extra file it runs, `tests/commands/test_routing_plugin_parity.py`, reads none of the edited files. The planned text breaks neither omitted test (read, not run), so this is a coverage gap, not a missed break.
+    evidence:
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:93"
+      - "tests/skills/test_codegraph_adoption.py:20-23"
+      - "tests/skills/test_codegraph_adoption.py:75-82"
+      - "tests/skills/test_tier2_tavily_consistency.py:19"
+      - "tests/skills/test_tier2_tavily_consistency.py:49"
+      - "tests/commands/test_routing_plugin_parity.py:16"
+    sources: [R2-5, R1-7, R3-2, C-003, C-013, X-002, A-001]
+    debate_basis: "C-003 V1+V2 96%; C-013 V1+V2 93%; X-002 97%; A-001 ACCEPT 95%"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Task 7, lines 93 and 97)"
+      change: |-
+        Add both files to Task 7's pytest command and to its AC bullet 2.
+      verifier: |-
+        Task 7's pytest command and AC bullet 2 both name tests/skills/test_codegraph_adoption.py and tests/skills/test_tier2_tavily_consistency.py.
+
+  # Source: Base (original) R2-4 diagnosis; placement from Variant 1 R1-8 and Variant 3 R3-5,
+  #   per Change #5; AC rewrite per INV-017, placement reason per INV-021.
+  - id: F-7
+    plan_id: M-07
+    priority: P2
+    severity: Medium
+    tag: Grounded
+    title: "Task 6 placement is not evaluated against the brief's rule"
+    claim: |-
+      Task 6 puts a brainstorm-specific live-check instruction inside the general 2.1 bullet, and the plan never records that it evaluated src:9's placement rule. Spec 7.2 and 7.3 define no per-command extras (spec:281-327).
+    evidence:
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:81"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:84-85"
+      - ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md:62"
+      - ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md:281-327"
+      - ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md:286"
+      - ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md:376"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/source.md:9"
+    sources: [R2-4, R1-8, R3-5, C-006, X-004, INV-017, INV-021]
+    debate_basis: "C-006 V1+V3 90%; X-004 V1+V3 90%"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Task 6, lines 81-85)"
+      change: |-
+        Keep the general (companion) sentence in the 2.1 bullet (spec:62), ending with a pointer "brainstorm's live-check extra for this is in 7.2 step 4". Append the live-check sentence to 7.2 step 4 (spec:286, after "At P0, AC-0.4 replaces this step."). Replace Task 6's AC with: the 2.1 bullet contains `only for a nested command that actually ran` and `7.2 step 4`; the 7.2 step 4 line contains `lc10`, `` a `source: codebase` entry `` and `` neither `quality_tier` nor `source` records ``; `git diff --stat` on the spec shows two lines changed. Do not pin `session file` (the spec already holds it many times, INV-017(a)). Record the departure from src:9's literal second branch as a Necessary deviation, reason: 7.2 step 4 is where every later live plan attaches its step-4 extras (INV-021).
+      verifier: |-
+        Task 6 names both spec targets (2.1 bullet, 7.2 step 4), its AC lists exactly these pins and "two lines changed", does not pin `session file`, and records the Necessary deviation with the INV-021 reason.
+
+  # Source: Base (original) R2-7 number kept as today's value; method from Variant 1 R1-6 and
+  #   Variant 3 R3-7, per Change #7.
+  - id: F-8
+    plan_id: M-08
+    priority: P2
+    severity: Low
+    tag: Grounded
+    title: "Task 5's collect-only check has no recorded baseline"
+    claim: |-
+      Task 5's "lists more cases than before the edit" has no recorded baseline.
+    evidence:
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:75"
+      - ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-001016/artifacts/diagnostics.txt:11"
+      - "tests/skills/test_worker_contract.py:519-527"
+      - "tests/skills/test_worker_contract.py:559-568"
+    sources: [R2-7, R1-6, R3-7, C-008, A-004, INV-008]
+    debate_basis: "C-008 V2+V1/V3 93%"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Task 5, line 75)"
+      change: |-
+        Task 5 first saves the `--collect-only -q -k brainstorm` output to `./artifacts/t5-collect-before.txt`; AC: the count after the edit equals the before-count plus the number of phrases added (2 under F-3). 17 is today's value (`diagnostics.txt:11`), not a constant; no AC hard-codes 18 or 19 (INV-008).
+      verifier: |-
+        Task 5 saves ./artifacts/t5-collect-before.txt before the edit and its AC states before-count plus 2; no AC in the plan contains a fixed 18 or 19.
+
+  # Source: Base (original) R2-6, with Variant 1 R1-10 second half; remedy text from refactor-plan.
+  - id: F-9
+    plan_id: M-09
+    priority: P2
+    severity: Low
+    tag: Grounded
+    title: "Task 2 misdescribes where the Tier 2 list ends"
+    claim: |-
+      Task 2 says each codebase tier list "ends with its `quality_tier` line"; the Tier 2 list ends with the Activation bullet (routing:31).
+    evidence:
+      - "src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md:22"
+      - "src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md:30-33"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:39"
+      - "tests/skills/test_codegraph_adoption.py:75-82"
+    sources: [R2-6, R1-10, C-009]
+    debate_basis: "C-009 V1+V2 96%"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Task 2, line 39)"
+      change: |-
+        Task 2 places the Tier 1 bullet after routing:22 and the Tier 2 bullet after the Activation bullet (routing:31), both before `**Final fallback` (routing:33), so the Tier 2 bullet stays inside the slice `test_codegraph_adoption.py:75-82` reads.
+      verifier: |-
+        Task 2 names both insertion points (after the Tier 1 quality_tier line, after the Tier 2 Activation bullet) and no longer says each list "ends with its quality_tier line".
+
+  # Source: Base (original) R2-8, with Variant 1 R1-9 (line-711 note).
+  - id: F-10
+    plan_id: M-10
+    priority: P2
+    severity: Low
+    tag: Grounded
+    title: "Stale line offsets in Tasks 4 and 5"
+    claim: |-
+      Stale offsets: Task 4 says the test is at line 37 (it is at 39); Task 5 says the phrase list is at line 286 (the entry starts at 286, the list at 288). The brief's line-711 reference is a synthetic-section mutation and needs no change.
+    evidence:
+      - "tests/skills/test_brainstorm_protocol.py:39"
+      - "tests/skills/test_worker_contract.py:286-292"
+      - "tests/skills/test_worker_contract.py:704-729"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:60"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:71"
+    sources: [R2-8, R1-9, C-010, INV-010]
+    debate_basis: "C-010 V1+V2 94%"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Task 4, line 60; Task 5, line 71)"
+      change: |-
+        Correct both numbers; add one line to Task 5 saying line 711 needs no change.
+      verifier: |-
+        Task 4 says line 39, Task 5 says the phrase list is at line 288, and Task 5 states that line 711 needs no change.
+
+  # Source: Variant 3 R3-4, per Change #8 (new finding).
+  - id: F-11
+    plan_id: M-11
+    priority: P2
+    severity: Low
+    tag: Grounded
+    title: "Task 6 names the wrong spec section for line 142"
+    claim: |-
+      Task 6 calls spec line 142 "the `brainstorm` row of the section 6 table"; line 142 is in the section 3.1 table (spec:136-153), and section 6 starts at spec:215 (its brainstorm text is the P2 row, spec:222).
+    evidence:
+      - ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md:136-142"
+      - ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md:215"
+      - ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md:222"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:81"
+    sources: [R3-4, C-011, U-003]
+    debate_basis: "C-011 V3 98%"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Task 6, line 81)"
+      change: |-
+        Say "the `brainstorm` row of the section 3.1 table (line 142)".
+      verifier: |-
+        Task 6 says "section 3.1 table (line 142)" and no longer says "section 6 table".
+
+  # Source: Variant 3 R3-6, per Change #6 (resolved through F-3).
+  - id: F-12
+    plan_id: M-12
+    priority: P2
+    severity: Low
+    tag: Grounded
+    title: "Verb forms write/writes are pinned separately per file"
+    claim: |-
+      `write no nested directory` (skill) is not a substring of `writes no nested directory` (routing, cmd), so each file is held to its own verb form.
+    evidence:
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:30"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:39"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:47"
+    sources: [R3-6, C-012]
+    debate_basis: "C-012 V3 91%"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Tasks 1-5)"
+      change: |-
+        Covered by F-3: the shared pinned phrase `no nested directory and no nested contract` is a substring of both forms.
+      verifier: |-
+        Every pin added under F-3 contains `no nested directory and no nested contract`.
+
+  # Source: Variant 1 R1-10 first half, per Change #9 (new finding).
+  - id: F-13
+    plan_id: M-13
+    priority: P2
+    severity: Low
+    tag: Grounded
+    title: "Task 7 says it edits no file but writes logs"
+    claim: |-
+      Task 7 says "Do not edit any file in this task" but writes three logs under `./artifacts/`.
+    evidence:
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:93"
+    sources: [R1-10, U-006]
+    debate_basis: "U-006 (uncontested)"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Task 7, line 93)"
+      change: |-
+        Say "Do not edit any source file in this task; it writes only the logs under `./artifacts/`."
+      verifier: |-
+        Task 7 contains the quoted sentence and no longer says "Do not edit any file in this task".
+
+  # Source: Variant 3 R3-9 as reframed in Round 2 (a3 criticism 10) and the V2 Round 2 caveat
+  #   (debate-transcript.md:394), per Change #10 (new finding).
+  - id: F-14
+    plan_id: M-14
+    priority: P2
+    severity: Low
+    tag: INFERRED
+    title: "Task 1's 'listed only for a nested command that ran' can unlist a failed call's contract"
+    claim: |-
+      plan:30's new clause "a nested contract is listed in `artifacts` only for a nested command that ran" can be read as "succeeded" and would unlist a failed call's contract, which WC-4 writes on every outcome; cmd:157's unconditional "the nested contracts are listed in `artifacts`" is right.
+    evidence:
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:30"
+      - "src/superclaude/commands/brainstorm.md:157"
+      - ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md:72"
+      - "src/superclaude/commands/analyze.md:98"
+    sources: [R3-9, U-005]
+    debate_basis: "U-005 reframed (a3 criticism 10; a2 caveat)"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Task 1, line 30)"
+      change: |-
+        Drop the clause; keep the skill's unconditional sentence, extended to "The nested contract is listed in `artifacts`, also when the call failed." (Tasks 1-3 rule).
+      verifier: |-
+        Task 1 no longer contains "only for a nested command that ran" and its applied text ends with "The nested contract is listed in `artifacts`, also when the call failed."
+
+  # Source: invariant-probe.md INV-016, per Change #12 (new finding).
+  - id: F-15
+    plan_id: M-15
+    priority: P2
+    severity: Medium
+    tag: INFERRED
+    title: "After Task 2 the routing ref implies codebase enrichment never nests"
+    claim: |-
+      After Task 2 both codebase tiers in the routing ref say "writes no nested directory" and the ref never names `/sc:analyze` (Tier 1 is auggie only), while Wave 2A loads only that ref section. A reader of the ref concludes codebase enrichment never nests.
+    evidence:
+      - "src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md:9-33"
+      - "src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:179"
+      - "src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:187"
+      - "src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:195"
+    sources: [INV-016]
+    debate_basis: "INV-016"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Task 2, line 39)"
+      change: |-
+        Task 2's bullet text is the one in "Replacement wording" (it names `/sc:analyze` as the only writer of `nested/analyze-<n>/`).
+      verifier: |-
+        Task 2's bullet text contains "is written only by a `/sc:analyze` call (the skill's other codebase action)".
+
+  # Source: invariant-probe.md INV-002, per Change #12 (new finding).
+  - id: F-16
+    plan_id: M-16
+    priority: P2
+    severity: Medium
+    tag: Grounded
+    title: "Uncommitted edits do not reach the next live plan"
+    claim: |-
+      The plan claims future live plans will see the fix, but it forbids commits (plan:24) and 7.2 builds each live-check worktree from a committed branch (spec:282). Until the owner commits and merges these edits, a P2 author on another branch sees neither the spec sentence nor the new skill text.
+    evidence:
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:23-24"
+      - ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md:282"
+    sources: [INV-002]
+    debate_basis: "INV-002"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Constraints, lines 17-24)"
+      change: |-
+        Add one line to Constraints: "The edits reach the next live plan only after the owner commits and merges them; this plan does not commit."
+      verifier: |-
+        Constraints contains the quoted line.
+
+  # Source: Variant 1 R1-8 last sentence (spec line 443), per Change #11 (new finding).
+  - id: F-17
+    plan_id: M-17
+    priority: P2
+    severity: Low
+    tag: Grounded
+    title: "Plugin-mirror decision is not recorded as the resolution of spec open item 8"
+    claim: |-
+      spec:443 (open item 8) says each phase's plan must resolve how the plugin command copies are kept in step before editing; plan:21 decides "not edited by this plan" but does not say it resolves item 8 for this change.
+    evidence:
+      - ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md:443"
+      - ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md:21"
+    sources: [R1-8]
+    debate_basis: "V1 R1-8 (not a scored point)"
+    recommended_action:
+      file: ".dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md (Constraints, line 21)"
+      change: |-
+        Add to plan:21: "This is this plan's resolution of spec open item 8 for `brainstorm.md`."
+      verifier: |-
+        plan:21 contains the quoted sentence.
+
+  # Source: invariant-probe.md INV-020 (HIGH, UNADDRESSED); refactor-plan M-18. Priority is OPEN
+  #   as the plan fixes it; it is an open conflict, NOT resolved.
+  - id: F-18
+    plan_id: M-18
+    priority: OPEN
+    severity: High
+    status: open_conflict
+    tag: Grounded
+    title: "Research-wave nesting from P2 is not covered by the corrected wording (INV-020)"
+    claim: |-
+      INV-020: from P2, brainstorm's research enrichment passes `--unattended` and a nested report directory (spec:142, spec:222); research-deep `fallback_1` is itself a nested command (`Skill sc:research-protocol`, routing:69), and the deep final fallback inherits the tier (routing:73). The corrected live-check sentence covers only the codebase wave.
+    evidence:
+      - ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md:142"
+      - ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md:222"
+      - "src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md:42-73"
+    sources: [INV-020]
+    debate_basis: "Invariant probe, HIGH, blocking"
+    recommended_action:
+      file: "none in this plan (owner and P2 live-plan author)"
+      change: |-
+        No change in this plan (outside the brief, which covers the codebase wave). Pass to the user and to the P2 live-plan author as an open conflict. Not resolved.
+      verifier: |-
+        The owner records acceptance of INV-020 as a risk, or a P2 plan adds research-wave live-check wording; until then convergence stays BLOCKED_BY_INVARIANTS.
+
+# Source: refactor-plan.md "Withdrawn or replaced card claims" (M-IDs renamed to merged F-IDs)
+withdrawn_or_replaced_claims:
+  - "V1 R1-1's \"Task 1's first clause is vacuous\" (X-001)"
+  - "V1 R1-5's \"say an auggie scan (tier primary)\" remedy (a1 New evidence (a))"
+  - "V2 R2-1's \"doubly\" (X-005)"
+  - "V2 R2-7's fixed 18 (INV-008)"
+  - "V3 R3-1's `source`-field remedy (SKILL:372)"
+  - "V3 R3-2's P1 (now F-6 at P2)"
+  - "V3 R3-8 (withdrawn, a3 criticism 5)"
+  - "V3 R3-5's \"wrong spot\" (now the F-7 split)"
+  - "Tier-1 F-1 superseded by F-2; Tier-1 F-2 by F-9; Tier-1 F-4 by F-10; Tier-1 F-3 (lint-architecture baseline) stays as an unverified note covered by Task 7's `make lint`"
+
+# Source: refactor-plan.md "Replacement wording" (lines 142-201). Copied verbatim; only the
+#   Markdown blockquote markers ("> ") were removed, and M-NN references renamed to F-N.
+replacement_wording:
+  task6_live_check_sentence: |-
+    A live-check extra for brainstorm's codebase-enrichment wave reads: "when the brief passes `--codebase`, or the contract's `domain` is `code`, `architecture` or `incident` and the brief does not pass `--no-codebase`, `enrichment_used` holds a `source: codebase` entry; every `nested/analyze-` path listed in `artifacts` exists and holds its own `return-contract.yaml`, and every `nested/analyze-<n>/` directory that holds a `return-contract.yaml` is listed in `artifacts`; such a directory is required only when a `Skill`, `Agent` or `Task` tool call in the worker's session file or in one of its subagent files (7.2 step 5) passes `--report-dir <report directory>/nested/analyze-<n>/` with a number for `<n>`, the `codebase` entry is not `skipped` (the per-source enrichment timeout records `skipped` and can stop `/sc:analyze` before it writes) and `/sc:analyze` did not refuse that directory, because neither `quality_tier` nor `source` records whether `/sc:analyze` ran; when the session file is not verifiable, this last clause is recorded `not verifiable`, never PASS" (P1 check lc10 is the origin of this rule).
+  task6_companion_sentence: |-
+    A nested directory `nested/<command>-<n>/` exists only for a nested command that actually ran, a run that failed included; a command that does the same work through a tool or a native-search fallback (brainstorm's codebase scan through `mcp__auggie__codebase-retrieval`, or through codegraph, then Glob and Grep) writes no nested directory and records the tier it used in its own contract, and brainstorm's live-check extra for this is in 7.2 step 4.
+  tasks_1_to_3_rule: |-
+    **Rule:** every "no nested directory" statement names its writer (the `mcp__auggie__codebase-retrieval` scan, the `fallback_1` tier of codegraph then native Glob and Grep), never a recorded `quality_tier` or a run; it says that `nested/analyze-<n>/` is written only by a `/sc:analyze` call and that `enrichment_used` does not show whether that directory exists; it states no tier for any `/sc:analyze` outcome and no step from a failed `/sc:analyze` to `fallback_1`; it uses the shared phrase `no nested directory and no nested contract`; and it keeps the nested contract listed in `artifacts` unconditionally, a failed call's included, never "only for a command that ran".
+  tasks_1_to_3_applied_text: |-
+    - **Task 1** (SKILL:195): replace everything after "(`<n>` starts at 1)" with: "; the `mcp__auggie__codebase-retrieval` alternative and the `fallback_1` tier (codegraph, then native Glob and Grep, `refs/handoff-routing.md` Tier 2) are unchanged and write no nested directory and no nested contract, so `nested/analyze-<n>/` is written only by a `/sc:analyze` call, and `enrichment_used` does not show whether it exists. The nested contract is listed in `artifacts`, also when the call failed." Task 1 AC: the paragraph contains `fallback_1`, `write no nested directory`, `nested/analyze-`, `skipped` and `` only by a `/sc:analyze` call ``; one line replaced.
+    - **Task 2** (routing): add one bullet as the last bullet of each codebase tier list (after routing:22 and after routing:31): "- Under `--unattended` this tier writes no nested directory and no nested contract; `nested/analyze-<n>/` is written only by a `/sc:analyze` call (the skill's other codebase action), and the scan is recorded in `enrichment_used` with this tier's `quality_tier`." `grep -c 'writes no nested directory'` still prints 2; two lines added, none deleted.
+    - **Task 3** (cmd:157): append to the `**Nested invocations.**` bullet: "A codebase scan through `mcp__auggie__codebase-retrieval` or through the `fallback_1` tier (codegraph, then Glob and Grep) is not a nested command and writes no nested directory and no nested contract, so `nested/analyze-<n>/` is written only by a `/sc:analyze` call; `enrichment_used` records the scan's tier, which does not show whether that directory exists." Leave "`adversarial_artifacts_dir` and the nested contracts are listed in `artifacts`" unchanged.
+    - **Task 4 pins**: in the paragraph slice (F-4): `fallback_1`, `write no nested directory and no nested contract`, `` only by a `/sc:analyze` call ``, and `Quality-tier tracking` absent; in each routing tier slice (F-5): `writes no nested directory and no nested contract` and `` only by a `/sc:analyze` call ``.
+    - **Task 5 pins**: add `writes no nested directory and no nested contract` and `` only by a `/sc:analyze` call `` to `UNATTENDED_EXPECT["brainstorm"]["phrases"]` (two new removed-token cases, F-8).
+  residual_risks: |-
+    No single sentence survives the probe with zero residual risk. This is the sentence with the smallest remaining risk: it has no known false FAIL on a correct run. Its exact residual risks, all in the false-PASS direction:
+    1. A `/sc:analyze` call made without the nested `--report-dir` (a broken propagation, itself a defect) is not seen, so its missing folder passes. Related: INV-022 (no live check can force the analyze route).
+    2. The call names `Skill`, `Agent` and `Task` are INFERRED from Claude Code's session format (spec:302 says only "`tool_use` blocks with a `name`"); a call through another tool name is missed and its missing folder passes.
+    3. The `skipped` carve-out also exempts an invoked `/sc:analyze` that wrote nothing and was recorded `skipped` for a reason other than the timeout.
+    4. The required-folder clause depends on the session file; when it is missing or ambiguous the clause is `not verifiable`, and spec:300 then blocks a PASS until the owner accepts the gap in writing (accepted by design, INV-023).
+  lc10_check: |-
+    Check against lc10: `--codebase` was passed and `enrichment_used` held a `codebase` entry on `fallback_1`; no `/sc:analyze` call was made (lc10-result.md, step 5 note); no nested analyze folder existed or was listed. Every clause holds, so lc10 passes the corrected extra, which is the owner's decision (`p1-owner-decisions-20261105.md:9`).
+
+# Source: refactor-plan.md "Invariant probe disposition" (UNADDRESSED rows only); category and
+#   severity from invariant-probe.md.
+invariant_disposition:
+  - {id: INV-001, category: state_variables, severity: MEDIUM, merged_status: addressed_in_merge, handled_by: F-2, disposition: "Before snapshot taken in Task 1 before any edit; the package's own path is exempt, covering the ?? to A flip from git add .dev/tasks."}
+  - {id: INV-002, category: state_variables, severity: MEDIUM, merged_status: addressed_in_merge, handled_by: F-16, disposition: "Constraints line: the edits reach the next live plan only after the owner commits and merges them."}
+  - {id: INV-005, category: guard_conditions, severity: LOW, merged_status: addressed_in_merge, handled_by: F-4, disposition: "Quality-tier tracking must be absent from the paragraph slice, so a slicer that returns the whole section fails."}
+  - {id: INV-006, category: guard_conditions, severity: LOW, merged_status: not_made, handled_by: none, disposition: "Not being made. _check_unattended_section is shared by every command's section test; scoping it to one bullet is a helper change outside the brief. The new pin 'only by a /sc:analyze call' occurs only in the Nested invocations bullet today, which lowers the residual."}
+  - {id: INV-007, category: guard_conditions, severity: MEDIUM, merged_status: addressed_in_merge, handled_by: F-1, disposition: "Live-check sentence's first clause requires a source: codebase entry whenever the codebase row applied."}
+  - {id: INV-008, category: count_divergence, severity: LOW, merged_status: addressed_in_merge, handled_by: F-8, disposition: "Before-count plus the number of phrases added; no hard-coded 18 or 19."}
+  - {id: INV-011, category: collection_boundaries, severity: MEDIUM, merged_status: addressed_in_merge, handled_by: "F-1, F-3", disposition: "Tasks 1-3 rule and live-check sentence state no tier for any /sc:analyze outcome."}
+  - {id: INV-012, category: collection_boundaries, severity: MEDIUM, merged_status: addressed_in_merge, handled_by: F-1, disposition: "Only directories holding a contract must be listed; the required-folder clause is lifted when the codebase entry is skipped. Residual 3 remains."}
+  - {id: INV-016, category: interaction_effects, severity: MEDIUM, merged_status: addressed_in_merge, handled_by: F-15, disposition: "Routing bullets name /sc:analyze as the only writer of nested/analyze-<n>/."}
+  - {id: INV-017, category: interaction_effects, severity: MEDIUM, merged_status: addressed_in_merge, handled_by: F-7, disposition: "Task 6's AC rewritten for two changed lines; pins are phrases unique to each new sentence instead of session file."}
+  - {id: INV-020, category: sufficiency_challenge, severity: HIGH, merged_status: open_conflict, handled_by: F-18, disposition: "OPEN CONFLICT, not resolved. Outside the brief; passed to the user and the P2 live-plan author. Convergence stays BLOCKED_BY_INVARIANTS until the owner accepts it as a risk or a P2 plan addresses it."}
+  - {id: INV-021, category: sufficiency_challenge, severity: MEDIUM, merged_status: addressed_in_merge, handled_by: F-7, disposition: "Live-check sentence goes into 7.2 step 4, which every live plan follows, with a pointer from the 2.1 bullet."}
+  - {id: INV-022, category: sufficiency_challenge, severity: MEDIUM, merged_status: not_made, handled_by: none, disposition: "Not being made. No flag forces /sc:analyze (SKILL:187); adding one changes the skill's routing, outside the brief. Residual: no live check proves the nested analyze route works; passed to the owner with INV-020."}
+  - {id: INV-024, category: sufficiency_challenge, severity: LOW, merged_status: addressed_in_merge, handled_by: F-1, disposition: "Call detected by its nested --report-dir argument in top-level and subagent files, not by a tool name. Residual 2 remains."}
+
+# Source: refactor-plan.md "Changes NOT Being Made (with rationale)"
+changes_not_made:
+  - {item: "C-007 / X-003 remedy", non_base_approach: "V3: decide by the source field of enrichment_used", rationale: "source holds only codebase | research-light | research-deep (SKILL:372); conceded by V3 (a3 criticism 1)."}
+  - {item: "C-007 remedy", non_base_approach: "V1 card: say 'an auggie scan (tier primary)'", rationale: "Fixes the primary half only; the fallback_1 half stays false (a3 criticism 12)."}
+  - {item: "C-007 remedy", non_base_approach: "V1 Round 2 session-file sentence (a1:52) as written", rationale: "Clause overlap in the failed-analyze case (a2 caveat 1); top-level-only reading (INV-024)."}
+  - {item: "C-007 remedy", non_base_approach: "V3 Round 2 folder-plus-session-file sentence (a3:69) as written", rationale: "INV-007, INV-011, INV-012, INV-024."}
+  - {item: "Tasks 1-3 wording", non_base_approach: "V3 rule 'also when it failed and the scan fell back to fallback_1'", rationale: "Undefined tier step (INV-011)."}
+  - {item: "Task 6 pin", non_base_approach: "V1/V2: add 'session file' to Task 6's pinned phrases", rationale: "Not unique in the spec (INV-017(a))."}
+  - {item: "Task 6 placement", non_base_approach: "Literal src:9 second branch, a note in the P1 rows of 7.3 (AC-1.2)", rationale: "Later live-plan authors read 7.2, not the P1 rows (INV-021); the debate allowed either (a1:58, a3:73)."}
+  - {item: "enrichment_used", non_base_approach: "Add a tool field to the contract", rationale: "Changes the stable contract (SKILL:360-377); owner's decision (a1 consequence 3, a2 caveat 2)."}
+  - {item: "src:9 sketch", non_base_approach: "Copy it verbatim", rationale: "Falsified by the analyze-clean and analyze-failed cases (a2 New evidence 2)."}
+  - {item: "C-003 / X-002", non_base_approach: "V3: P1", rationale: "All three agree P2 (a3 criticism 4)."}
+  - {item: "C-013", non_base_approach: "V3 R3-8", rationale: "Withdrawn as a misreading of plan:21 (a3 criticism 5)."}
+  - {item: "X-005", non_base_approach: "V2: 'doubly unpassable'", rationale: "Second clause is reading-dependent (a2 criticism 3)."}
+  - {item: "C-008", non_base_approach: "V2: fixed post-edit count 18", rationale: "Depends on the number of phrases added and on the tree state (INV-008, A-004)."}
+  - {item: "X-001", non_base_approach: "V1: Task 1's first clause is vacuous", rationale: "False (SKILL:195 lacks fallback_1; a1 criticism 1)."}
+  - {item: "F-3 (Tier-1 card)", non_base_approach: "V1: partly disputes the lint-architecture note", rationale: "Not debated; Task 7's make lint runs lint-architecture, so no plan change is needed."}
+  - {item: "INV-006", non_base_approach: "Bullet-scoped command-file check", rationale: "Shared helper change outside the brief (see disposition)."}
+  - {item: "INV-022", non_base_approach: "Force the analyze route in a live check", rationale: "No such flag; skill routing change outside the brief."}
+  - {item: "INV-020", non_base_approach: "Research-wave wording", rationale: "Outside the brief; open conflict for the owner and the P2 author."}

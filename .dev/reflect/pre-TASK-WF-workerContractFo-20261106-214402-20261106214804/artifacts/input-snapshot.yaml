@@ -1,0 +1,39 @@
+input_tree_sha256: 0ff29e9f9333ba3298e5014e7f156770f7712635208d59c57ef80428fca06ba9
+file_count: 18
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-workerContractFo-20261106-214402/TASK-WF-workerContractFo-20261106-214402.md
+    sha256: de8cbefe19ba38010eaf43b5d98cef84da40c7a4d54f72894b44e5887abb4a38
+  - path: .dev/tasks/to-do/TASK-WF-workerContractFo-20261106-214402/source.md
+    sha256: b88416e87bbb88df65ecfa2fbdef85cb02ac4f714e5acd0248d2142118d04ea0
+  - path: src/superclaude/core/WORKER-CONTRACT.md
+    sha256: f2bef78f782387cd384b8f9ccc07edef4af8622cb1f4169c204a3282abe568f0
+  - path: tests/skills/test_worker_contract.py
+    sha256: 2cfd2fd1279dff4eadf776af4186c15c2cfb3de55755836900b5b191af0fe251
+  - path: src/superclaude/commands/workflow.md
+    sha256: 03ffcd18d50bf7c723e8fec64b57f4053488b60e109c9ddb07524b26c0108f53
+  - path: src/superclaude/skills/sc-workflow-protocol/refs/return-contract.md
+    sha256: 3115e9b05220ae44fbfcb162398d9bc05132bd3545a03cabe2000e3eb7296c76
+  - path: plugins/superclaude/commands/workflow.md
+    sha256: 03ffcd18d50bf7c723e8fec64b57f4053488b60e109c9ddb07524b26c0108f53
+  - path: plugins/superclaude/skills/sc-workflow-protocol/refs/return-contract.md
+    sha256: 3115e9b05220ae44fbfcb162398d9bc05132bd3545a03cabe2000e3eb7296c76
+  - path: src/superclaude/commands/build.md
+    sha256: fedfd20f30f5dac343af3b2a4b5f297247417280f15441457364f35f93f718d2
+  - path: src/superclaude/commands/test.md
+    sha256: e7d4ff070d4ddc451557890c14c8099df074354ec8d6436e7e632c578233720e
+  - path: src/superclaude/skills/sc-init-lite-protocol/SKILL.md
+    sha256: 8629ab6c5bc454d47b9f3c396729047dce865a328d9220fab7a1f4c473df82fc
+  - path: src/superclaude/commands/init-lite.md
+    sha256: 802f6beee1af33a91c69b560a34f29c42d7d8eeaabf2d1b80e6a94f82b0841c6
+  - path: tests/commands/test_workflow_command.py
+    sha256: 32c7db1efaf48d9e5ab31caa281323fd2535889034dc6ad62d3eeff1485eae1d
+  - path: tests/skills/test_task_workspace_smoke.py
+    sha256: 777dcdbf4619272b0893d81719c9b9af575b61ac31d8d4b456ac0e6096452a4b
+  - path: tests/commands/test_routing_plugin_parity.py
+    sha256: c362104ffdea66a1164d0903a251f3fb11e614c02c60258a3b476b7e16aaa123
+  - path: tests/cli/test_init_lite.py
+    sha256: ad8bcf3bc1971fb61311e0a1df22ca5c46e2e82ce1f8d7b21cb7a1a73cf4408c
+  - path: src/superclaude/cli/init_lite.py
+    sha256: 9ad27bb60617efafcf69a07a7c29ecc4b98e49d67e0df69211b6da150e5da6a2
+  - path: tests/cli/test_how_we_work_install.py
+    sha256: 283b32140385c6f55638d12ce5949ff743caf94dc14e46484e85eebc65f0597f

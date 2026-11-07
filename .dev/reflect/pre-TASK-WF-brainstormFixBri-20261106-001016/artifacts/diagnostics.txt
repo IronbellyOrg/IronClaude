@@ -1,0 +1,15 @@
+# diagnostics captured 2026-11-06T00:14:31Z in /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1
+## git status --porcelain, grouped by status letter and first 40 chars of path
+    950 A .dev/tasks/done/TASK-WF-p1LivePlanBrief-
+      3 R .dev/tasks/to-do/TASK-WF-p1LivePlanBrief
+      2 ?? .dev/reflect/pre-TASK-WF-p1LivePlanBrief
+      1 ?? .dev/tasks/to-do/TASK-WF-brainstormFixBr
+      1 ?? .dev/reflect/pre-TASK-WF-brainstormFixBr
+## ruff check . (repo wide)
+All checks passed!
+## pytest --collect-only -k brainstorm (tests/skills/test_worker_contract.py), last line
+=============== 17/394 tests collected (377 deselected) in 0.04s ===============
+## make lint recipe
+lint: lint-architecture
+	@echo "Running linter..."
+	uv run ruff check .

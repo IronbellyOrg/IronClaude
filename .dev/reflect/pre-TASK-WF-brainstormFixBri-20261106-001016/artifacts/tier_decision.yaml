@@ -1,0 +1,11 @@
+selected_tier: 2
+fired_rule_number: 6        # C < 0.85 (0.84) -> ESCALATE; rules 1-5 did not fire (S_scope 6 files, S_domains 2, S_dev_density 0.0)
+coverage_degraded: null
+surface_unreached: null
+composite_score: 2
+per_signal_breakdown: {scope_size: 1, task_count: 1, blast_radius: 0, spec_density: 0, ambiguity_signals: 0}
+escalation_reason: "Blind calibrated confidence 0.84 is below the 0.85 floor; Tier 1 stop rule 2 needs 0.85."
+t2_model_class_diversity: full      # three aliases set: sonnet, opus, and the haiku slot (glm-5.3)
+t2_vendor_diversity: multi          # glm-5.3 plus two Anthropic models
+executor_class_source: unknown
+executor_class_resolved: false

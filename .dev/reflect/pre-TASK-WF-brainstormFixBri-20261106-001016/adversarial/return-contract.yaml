@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-001016/adversarial/merged-verdict.yaml"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-001016/adversarial/"
+  status: "partial"
+  base_variant: "V2 (qa, haiku slot)"
+  unresolved_conflicts: 1
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: INV-020
+      category: sufficiency_challenge
+      assumption: "The corrected live-check wording covers only the codebase-enrichment wave; from phase P2 the research wave also passes a nested report directory, so the next live plan can still produce a false FAIL there."
+      severity: HIGH
+  notes: "Convergence on the 24 diff points was 100% (Round 1 87.5%). Final debate status BLOCKED_BY_INVARIANTS because INV-020 (HIGH, unaddressed) is outside the brief and is passed on as an open conflict. Round 3 does not run at --depth standard."

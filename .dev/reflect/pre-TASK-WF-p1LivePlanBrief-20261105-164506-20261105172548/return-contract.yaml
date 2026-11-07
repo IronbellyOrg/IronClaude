@@ -1,0 +1,36 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-p1LivePlanBrief-20261105-164506-20261105172548/audit.log
+confidence_calibrated: 0.65   # per-card values 0.65, 0.65, 0.69 from session notes; calibrator output not saved, UNVERIFIED
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+input_tree_snapshot_path: artifacts/input-snapshot.yaml
+input_drift_detected: true   # plan edited in place after the snapshot, on purpose (post-fix-rechecks.md)
+evidence_validator_ran: true
+citations_dropped: 1   # repointed to the round-1 fix list after re-reading it
+reviewer_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+  - reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: adversarial/
+adversarial_convergence_score: null   # not recorded in the merge artifacts read for this report
+adversarial_unavailable: false
+merge_method: sc-adversarial-protocol-mode-a
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+remediation_task_path: null
+remediation_plan_path: null
+regression_present: true   # install check could never pass; fixed in place (revision 2)
+needs_human_decision: false

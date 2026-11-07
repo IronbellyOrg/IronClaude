@@ -1,0 +1,36 @@
+# Pass 2 coverage matrix (deterministic containment rule, threshold 0.6; targets: Task 1..7 bodies plus the Constraints block as a pseudo-item)
+parsed_rows: 0   # strict ID_REGEX (R-, REQ-, SPEC-, T-) finds no labelled ID; F-n and INV-n do not match
+inferred_rows: 28
+matched: 23
+coverage_pct: null
+coverage_pct_union: 0.8214
+s_dev_density: 0.1786
+rows:
+  - {id: INF-001, line: 10, best_item: 'Task 1', ratio: 0.947, method: containment}
+  - {id: INF-002, line: 11, best_item: 'Task 4', ratio: 0.588, method: none}
+  - {id: INF-003, line: 12, best_item: 'Constraints', ratio: 0.684, method: containment}
+  - {id: INF-004, line: 13, best_item: 'Task 6', ratio: 0.789, method: containment}
+  - {id: INF-005, line: 14, best_item: 'Task 7', ratio: 1.0, method: containment}
+  - {id: INF-006, line: 16, best_item: 'Constraints', ratio: 0.667, method: containment}
+  - {id: INF-007, line: 42, best_item: 'Task 6', ratio: 0.562, method: none}
+  - {id: INF-008, line: 53, best_item: 'Task 1', ratio: 0.667, method: containment}
+  - {id: INF-009, line: 63, best_item: 'Task 4', ratio: 0.588, method: none}
+  - {id: INF-010, line: 79, best_item: 'Task 4', ratio: 1.0, method: containment}
+  - {id: INF-011, line: 89, best_item: 'Task 4', ratio: 0.867, method: containment}
+  - {id: INF-012, line: 99, best_item: 'Task 6', ratio: 0.833, method: containment}
+  - {id: INF-013, line: 109, best_item: 'Task 6', ratio: 0.6, method: containment}
+  - {id: INF-014, line: 119, best_item: 'Task 5', ratio: 0.789, method: containment}
+  - {id: INF-015, line: 129, best_item: 'Task 2', ratio: 0.769, method: containment}
+  - {id: INF-016, line: 139, best_item: 'Task 5', ratio: 0.625, method: containment}
+  - {id: INF-017, line: 149, best_item: 'Task 6', ratio: 0.833, method: containment}
+  - {id: INF-018, line: 159, best_item: 'Constraints', ratio: 0.444, method: none}
+  - {id: INF-019, line: 169, best_item: 'Task 7', ratio: 0.889, method: containment}
+  - {id: INF-020, line: 179, best_item: 'Task 6', ratio: 0.667, method: containment}
+  - {id: INF-021, line: 189, best_item: 'Task 1', ratio: 0.778, method: containment}
+  - {id: INF-022, line: 199, best_item: 'Constraints', ratio: 0.571, method: none}
+  - {id: INF-023, line: 209, best_item: 'Constraints', ratio: 0.857, method: containment}
+  - {id: INF-024, line: 245, best_item: 'Constraints', ratio: 0.895, method: containment}
+  - {id: INF-025, line: 246, best_item: 'Constraints', ratio: 1.0, method: containment}
+  - {id: INF-026, line: 247, best_item: 'Constraints', ratio: 0.714, method: containment}
+  - {id: INF-027, line: 248, best_item: 'Constraints', ratio: 0.917, method: containment}
+  - {id: INF-028, line: 249, best_item: 'Constraints', ratio: 1.0, method: containment}

@@ -1,0 +1,91 @@
+# UC-1 coverage matrix (Wave 1B, Step 1B.0 two-pass extraction).
+# Spec: .dev/tasks/to-do/TASK-WF-workerContractFo-20261106-214402/source.md
+# Tasklist: .dev/tasks/to-do/TASK-WF-workerContractFo-20261106-214402/TASK-WF-workerContractFo-20261106-214402.md
+# Pass 1 (ID_REGEX + range expansion): 0 labeled requirement IDs in the spec.
+# Pass 2 (inference): 15 quote-pinned rows. Matching: content-word containment, threshold 0.6, single best task.
+parsed_count: 0
+inferred_count: 15
+coverage_pct: null              # parsed-only denominator is 0
+coverage_pct_union: 1.0         # 15 / 15
+coverage_undefined: false       # Pass 2 produced valid rows
+coverage_degraded: parsed-sparse   # inferred_count > parsed_count (Step 1B.2b)
+unmapped_requirements: []
+unmapped_requirements_union: []
+S_dev_density: 0.0
+rows:
+  - id: INF-001
+    source: inferred
+    quote: "add one sentence to WC-4 in WORKER-CONTRACT.md saying `artifacts` leaves out paths git ignores and paths outside the repository, because WC-9 stages every listed path, and the report names where those files were written."
+    citation: source.md:13
+    match: Task 1
+  - id: INF-002
+    source: inferred
+    quote: "Then shorten the per-command copies to a pointer to that WC-4 rule (keep each command's own list of which ignored files it writes"
+    citation: source.md:13
+    match: Task 2, Task 3
+  - id: INF-003
+    source: inferred
+    quote: "`tests/skills/test_worker_contract.py` pins the WC-4 phrase \"`artifacts` (every other file written), `blocked_question` when blocked, and `reason` when failed\" (around line 107) and must keep passing"
+    citation: source.md:14
+    match: Task 1 (acceptance criterion 2), Constraints
+  - id: INF-004
+    source: inferred
+    quote: "update those assertions to the new wording and add one assertion that WC-4 carries the rule."
+    citation: source.md:14
+    match: Task 1, Task 2, Task 3
+  - id: INF-005
+    source: inferred
+    quote: "Avoid the literal phrase `git add` in new command-section text (the write-verb classification test flags unclassified hits)."
+    citation: source.md:14
+    match: Constraints, Task 2 and Task 3 acceptance criteria
+  - id: INF-006
+    source: inferred
+    quote: "`workflow.md` and the whole `sc-workflow-protocol` folder must be byte-copied to `plugins/superclaude/`"
+    citation: source.md:14
+    match: Task 2
+  - id: INF-007
+    source: inferred
+    quote: "check whether any test or mirror pins its text beyond line 107 (for example a plugin or spec copy) and keep them consistent."
+    citation: source.md:14
+    match: Task 1 (grep of tests/ and plugins/)
+    note: "Matched, but the grep scope omits docs/; see reflection-card finding RF-1."
+  - id: INF-008
+    source: inferred
+    quote: "add an `artifacts` clause: every other file the run wrote, leaving out ignored paths per the WC-4 rule from follow-up 1 (so coverage output in an ignored location is named in the test report, not listed); `[]` when nothing else was written."
+    citation: source.md:19
+    match: Task 4
+  - id: INF-009
+    source: inferred
+    quote: "add the test section to `test_unattended_artifacts_list_only_files_the_run_wrote` (or a sibling test) so the clause is pinned."
+    citation: source.md:20
+    match: Task 4
+  - id: INF-010
+    source: inferred
+    quote: "Keep the existing pins for test.md in `UNATTENDED_EXPECT` (test_worker_contract.py:349-353: flags `--watch`, `--output`; phrases `test-report.md`, `verdict`, `destructive`)."
+    citation: source.md:20
+    match: Task 4
+  - id: INF-011
+    source: inferred
+    quote: "`succeeded` when `superclaude init-lite` exited 0 (the audit finished and every requested scaffold write succeeded); otherwise `failed`, with the tool's error in `reason`; `artifacts` still lists the `Scaffold:` lines printed before the failure."
+    citation: source.md:25
+    match: Task 5
+  - id: INF-012
+    source: inferred
+    quote: "Change both lines (SKILL.md:61 and init-lite.md:92) consistently; keep their test pins"
+    citation: source.md:26
+    match: Task 5
+  - id: INF-013
+    source: inferred
+    quote: "assert both texts tie `succeeded` to the tool's exit status (for example the phrase \"exited 0\")."
+    citation: source.md:27
+    match: Task 5
+  - id: INF-014
+    source: inferred
+    quote: "then `make lint`, `uv run ruff format --check src/ tests/`, `make sync-dev` and `make verify-sync`."
+    citation: source.md:36
+    match: Task 5 (acceptance criterion 3)
+  - id: INF-015
+    source: inferred
+    quote: "Never stage `.claude/`. Stage `.dev/tasks` (do not commit unless asked)."
+    citation: source.md:36
+    match: Constraints
