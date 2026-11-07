@@ -2,7 +2,9 @@
 
 # Next steps for #<N>
 
-Run these in your own session, in order. `/sc:issue` does not run them.
+Plan boundary: after step <K>
+
+Run these in order, after the `/model` line. `/sc:issue` itself does not run them: the agent it launches does (up to the plan boundary at the default level), or you do after `--pipeline none`.
 
 1. `<command with its flags>`
    - Input: `@.dev/issues/<N>/issue-summary.md`

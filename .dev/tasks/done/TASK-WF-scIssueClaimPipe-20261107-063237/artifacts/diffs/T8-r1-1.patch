@@ -1,0 +1,89 @@
+diff --git a/docs/designs/sc-issue-command.md b/docs/designs/sc-issue-command.md
+index 253a6276..73530bea 100644
+--- a/docs/designs/sc-issue-command.md
++++ b/docs/designs/sc-issue-command.md
+@@ -10,6 +10,8 @@
+ 
+ ## 1. Purpose and scope
+ 
++> **Amended 2026-11-07:** `--claim` no longer stops after the next-step prompt. It creates an Orca worktree and launches an agent at the `--pipeline` level (B2, B16 to B18). See `docs/designs/sc-issue-claim-pipeline-flag.md`.
++
+ `/sc:issue` has two modes:
+ 
+ - **`--claim <number|url>`**: take an existing GitHub issue. Assign it to the current user on GitHub and, when it exists, on its ClickUp task; check whether the issue text is still accurate against today's code and the pull requests merged since the issue was opened; write a summary cheatsheet; build the next-step prompt (which commands to run, with which flags, on which model tier); post the results to the issue; then **stop**. It never starts the brainstorm, design, plan or implementation itself.
+@@ -24,7 +26,7 @@ Every row is binding. "Owner" is the issue author's comments of 2026-10-30; "Com
+ | # | Decision | Source |
+ |---|---|---|
+ | B1 | Posts go up directly (assigning, comments, new issues). The user is not shown each post first. | Comment 1 |
+-| B2 | `--claim` stops after writing the next-step prompt to `.dev/issues/<number>/next-steps.md` and links it in the issue comment. | Comment 1 |
++| B2 | `--claim` writes the summary and the next-step prompt to `.dev/issues/<number>/next-steps.md`, links it in the issue comment, then creates an Orca worktree and launches one agent in it. Neither the skill nor the default agent runs `/sc:implement` or `/task`; `--pipeline full` lets the agent run them; `--submit` additionally lets it commit, push and run `/sc:pr-submit`. Merging never happens. (Amended 2026-11-07; before this the claim ended at the prompt file.) | Comment 1; amended by `docs/designs/sc-issue-claim-pipeline-flag.md` |
+ | B3 | "Time" is an effort estimate in hours, recorded in the summary. | Comment 1 |
+ | B4 | `/sc:recommend` picks the starting chain and depth; downstream skills size their own work. | Comment 1 |
+ | B5 | Every output comes from a template and is saved under `.dev/issues/<number>/`: four issue-body templates, the summary doc, the accuracy-check comment. Issue templates start from GFxAI `ISSUE_TEMPLATE/bug_report.md` and `feature_request.md`. | Comment 1 |
+@@ -38,6 +40,9 @@ Every row is binding. "Owner" is the issue author's comments of 2026-10-30; "Com
+ | B13 | Claiming or creating starts by spawning a sub-agent on the Haiku-class T3 tier that does the lookup work and reports back; it must be pinned so an alias cannot change it. | Owner, 2026-10-30 14:15 |
+ | B14 | Brainstorm and implement work after a claim runs on T1 or T2 by complexity. | Owner, 2026-10-30 14:15 |
+ | B15 | Order of work for this feature: `/sc:design`, then `/sc:workflow`, then `/sc:implement` (the issue body's "before invoking Brainstorm" is superseded). | Coordinator brief carrying the owner instruction |
++| B16 | After `next-steps.md` is written and both comments are posted, the claim creates (or reuses) an Orca worktree `issue-<N>` and copies `.dev/issues/<N>/` into it. Orca is required (`E-ORCA-REQUIRED`); every later failure is a warning and the claim stays a success. | Owner, 2026-11-05; `docs/designs/sc-issue-claim-pipeline-flag.md` |
++| B17 | Launch levels through `--pipeline`: `worktree` (default, plans and waits for approval), `full` (also implements, no commit or push), `none` (worktree only, no agent). The agent starts behind the ccsession shim through `orca agent launch --surface terminal`. | Owner, 2026-11-05; `docs/designs/sc-issue-claim-pipeline-flag.md` |
++| B18 | `--submit` (with `--pipeline full` only) turns on the commit, the push of a feature branch and `/sc:pr-submit --monitor 3`. Nothing merges at any level; humans only review and merge. | Owner, 2026-11-05; `docs/designs/sc-issue-claim-pipeline-flag.md` |
+ 
+ ## 3. Corrections to the issue text
+ 
+@@ -56,6 +61,8 @@ Every row is binding. "Owner" is the issue author's comments of 2026-10-30; "Com
+ 
+ ## 4. Command interface
+ 
++> **Amended 2026-11-07:** `--claim` also takes `--pipeline worktree|full|none` (default `worktree`) and `--submit`; their STOP rules (`E-CLAIM-ONLY-FLAG`, `E-SUBMIT-NEEDS-FULL`) follow the existing ones. See `docs/designs/sc-issue-claim-pipeline-flag.md` section 4.
++
+ ```text
+ /sc:issue --claim <number|url>
+ /sc:issue --create "<description>" [--depth quick|standard|deep] [--mode feature|bug] [--type <type>]
+@@ -136,6 +143,8 @@ Therefore:
+ 
+ ## 7. `--claim` flow
+ 
++> **Amended 2026-11-07:** Wave 0 gains an Orca check; Wave 5 adds the plan boundary line and the launch prompt; Wave 6 hands off to Wave 7 (worktree) and Wave 8 (launch). See `docs/designs/sc-issue-claim-pipeline-flag.md` section 7.
++
+ Load `refs/claim.md` at the start of this mode. `<R>` is the origin repo (`owner/repo`), `<N>` the issue number, `<D>` = `.dev/issues/<N>/`.
+ 
+ **Wave 0: prerequisites (orchestrator).**
+@@ -324,6 +333,8 @@ Implementation-time check: the response shapes of `GET /user` and the task list
+ 
+ ## 14. Error handling
+ 
++> **Amended 2026-11-07:** new STOPs `E-ORCA-REQUIRED`, `E-CLAIM-ONLY-FLAG`, `E-SUBMIT-NEEDS-FULL` and the worktree and launch warnings are listed in `docs/designs/sc-issue-claim-pipeline-flag.md` section 11.
++
+ | Scenario | Behavior |
+ |---|---|
+ | Both or neither of `--claim` / `--create`; bad flag value; empty description | Command STOPs with usage before Activation |
+@@ -360,6 +371,9 @@ All under `src/superclaude/` unless stated. Nothing under `.claude/` is edited o
+ | `src/superclaude/skills/sc-issue-protocol/refs/tiers.md` | Tier map, the pinning rule and its verified reason, `E-TIER-UNAVAILABLE` |
+ | `src/superclaude/skills/sc-issue-protocol/templates/` | `issue-feature-simple.md`, `issue-feature-complex.md`, `issue-bug-simple.md`, `issue-bug-complex.md`, `issue-summary.md`, `accuracy-check-comment.md`, `claim-comment.md`, `next-steps.md`, `scout-report.md`, `recommend-record.md`, `description.md`, `flags-decision.md`, `draft-notes.md`, `create-review-comment.md` |
+ | `src/superclaude/skills/sc-issue-protocol/scripts/clickup_claim.py` | Section 12; standard library only; no secrets in output |
++| `src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py` | Added 2026-11-07: the only file that calls `orca`; subcommands `preflight`, `prompt`, `worktree`, `launch`; standard library only (`docs/designs/sc-issue-claim-pipeline-flag.md` section 8) |
++| `src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md` | Added 2026-11-07: four blocks (`common`, `worktree`, `full`, `submit`) that `orca_worktree.py prompt` assembles into `launch-prompt.md` |
++| `tests/skills/test_issue_orca_worktree.py` | Added 2026-11-07: tests of the script with a fake `orca` and a throwaway git repository |
+ | `src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py` | Section 13: runs `git remote get-url origin` and prints `owner/repo`; standard library only; exits non-zero with `E-NO-ORIGIN` otherwise. Wave 0 of both modes calls it, so the parsing is tested code rather than prose |
+ | `src/superclaude/agents/issue-worker-t3.md` | `model: claude-gw-tier3`; `tools: Read, Grep, Glob, Write, Bash`; read-only on GitHub and code; writes only under `.dev/issues/`; returns its file path |
+ | `src/superclaude/agents/issue-worker-t2.md` | Same shape, `model: claude-gw-tier2` |
+@@ -385,6 +399,8 @@ No CLI (`src/superclaude/cli/`) code: the only program is the skill's own script
+ 
+ ## 16. Tests
+ 
++> **Amended 2026-11-07:** `tests/skills/test_issue_orca_worktree.py` (new) and the extended command and skill tests are listed in `docs/designs/sc-issue-claim-pipeline-flag.md` section 13.
++
+ New and changed tests, all run with `uv run pytest`.
+ 
+ | Test file | What it pins |
+@@ -466,7 +482,9 @@ Checked on 2026-11-04 against the installed files `~/.claude/commands/sc/<name>.
+ 
+ ## 20. Acceptance criteria for the implementation
+ 
+-1. `/sc:issue --claim <N>` on an open, unassigned issue of the origin repo: the T3 worker runs first; the issue is assigned to the current user; `.dev/issues/<N>/` holds `scout.md`, `clickup.json`, `accuracy-check.md`, `issue-summary.md` (with an hours estimate), `recommend.md`, `next-steps.md`, `claim-comment.md`; two marked comments are posted; the command stops without running any next-step command.
++> **Amended 2026-11-07:** criterion 1 below now ends with the worktree and the launched agent instead of "stops"; the new criteria are in `docs/designs/sc-issue-claim-pipeline-flag.md` section 17.
++
++1. `/sc:issue --claim <N>` on an open, unassigned issue of the origin repo: the T3 worker runs first; the issue is assigned to the current user; `.dev/issues/<N>/` holds `scout.md`, `clickup.json`, `accuracy-check.md`, `issue-summary.md` (with an hours estimate), `recommend.md`, `next-steps.md`, `claim-comment.md`; two marked comments are posted; the skill itself runs no next-step command (with the default `--pipeline worktree` the launched agent plans and waits for approval).
+ 2. Running the same claim again edits both comments; the comment count on the issue does not grow.
+ 3. A closed issue, or one assigned to someone else, stops with the stated message and makes no GitHub or ClickUp write.
+ 4. A claim URL for any repo other than origin stops with `E-FOREIGN-REPO`; no `gh` call is made without `--repo <origin repo>`.

@@ -1,0 +1,1129 @@
+diff --git a/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py b/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py
+index 316ed11f..1801cba8 100644
+--- a/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py
++++ b/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py
+@@ -16,16 +16,32 @@ replaces every timeout; tests use it so a hanging fake ``orca`` is cut fast.
+ reports ``ok: true`` and ``result.runtime.reachable: true``; otherwise
+ ``{"ok": false, "detail": "<first stderr line, or why the JSON failed>"}``. A
+ missing ``orca`` binary gives the same shape.
++
++``worktree --repo <owner/repo> --number <N> --base origin/<B> --source <D>``
++finds or creates the Orca worktree ``issue-<N>`` and copies ``<D>`` (the
++``.dev/issues/<N>/`` directory) into it, file by file. It prints
++``{status, path, branch, match_key, warning, detail, tracked_files,
++tracked_known}`` with ``status`` ``created``, ``reused`` or ``failed``. It runs
++only these commands: ``git rev-parse --path-format=absolute --git-common-dir``,
++``git fetch origin``, ``git rev-parse --verify origin/<B>``,
++``orca worktree list``, ``orca worktree create`` (no link flag, no agent flag),
++``git -C <wt> rev-parse --path-format=absolute --git-common-dir`` and
++``git -C <wt> ls-files .dev/issues/<N>``. Only Orca makes the worktree; this
++file never commits, pushes, stages or removes anything.
+ """
+ 
+ from __future__ import annotations
+ 
+ import argparse
++import filecmp
+ import json
+ import os
++import re
++import shutil
+ import subprocess
+ import sys
+-from dataclasses import dataclass
++from dataclasses import dataclass, field
++from pathlib import Path
+ 
+ DEFAULT_TIMEOUT = 120.0
+ PREFLIGHT_TIMEOUT = 30.0
+@@ -71,7 +87,9 @@ def _timeout(default: float) -> float:
+     return default
+ 
+ 
+-def run(argv: list[str], timeout: float = DEFAULT_TIMEOUT) -> Result:
++def run(
++    argv: list[str], timeout: float = DEFAULT_TIMEOUT, cwd: str | None = None
++) -> Result:
+     """Run ``argv`` without a shell; return a failed Result on any problem."""
+     try:
+         proc = subprocess.run(
+@@ -80,6 +98,7 @@ def run(argv: list[str], timeout: float = DEFAULT_TIMEOUT) -> Result:
+             text=True,
+             timeout=_timeout(timeout),
+             check=False,
++            cwd=cwd,
+         )
+     except subprocess.TimeoutExpired as exc:
+         return Result(
+@@ -130,6 +149,427 @@ def cmd_preflight(_args: argparse.Namespace) -> int:
+     return emit({"ok": True})
+ 
+ 
++# --- worktree -------------------------------------------------------------
++
++# When several codes apply to a created or reused worktree, the first of these
++# is the ``warning`` field and the rest are appended to ``detail``.
++WARNING_ORDER = [
++    "W-ORCA-LIST-FAILED",
++    "W-ORIGIN-BASE-MISSING",
++    "W-WORKTREE-CREATE-FAILED",
++    "W-WORKTREE-AMBIGUOUS",
++    "W-WORKTREE-STALE",
++    "W-WORKTREE-COPY-FAILED",
++    "W-ORIGIN-BASE-STALE",
++]
++RECORD_NAME = "worktree.json"
++
++
++@dataclass
++class Outcome:
++    """The one JSON object ``worktree`` prints."""
++
++    status: str = "failed"
++    path: str | None = None
++    branch: str | None = None
++    match_key: str | None = None
++    primary: str | None = None
++    notes: list[tuple[str, str]] = field(default_factory=list)
++    tracked_files: list[str] = field(default_factory=list)
++    tracked_known: bool = False
++
++    def note(self, code: str, text: str) -> None:
++        self.notes.append((code, text))
++
++    def fail(self, code: str, text: str) -> Outcome:
++        self.status = "failed"
++        self.primary = code
++        self.note(code, text)
++        return self
++
++    def as_dict(self) -> dict:
++        warning = self.primary
++        if warning is None and self.notes:
++            warning = min((c for c, _ in self.notes), key=WARNING_ORDER.index)
++        parts = [t for c, t in self.notes if c == warning]
++        parts += [f"also {c}: {t}" for c, t in self.notes if c != warning]
++        return {
++            "status": self.status,
++            "path": self.path,
++            "branch": self.branch,
++            "match_key": self.match_key,
++            "warning": warning,
++            "detail": "; ".join(parts),
++            "tracked_files": self.tracked_files,
++            "tracked_known": self.tracked_known,
++        }
++
++
++def real(path: str) -> str:
++    return os.path.realpath(path)
++
++
++def git_common_dir(checkout: str | None = None) -> str | None:
++    argv = ["git"] + (["-C", checkout] if checkout else [])
++    res = run(argv + ["rev-parse", "--path-format=absolute", "--git-common-dir"])
++    out = res.out.strip()
++    return out if res.ok and out else None
++
++
++def main_checkout(common_dir: str) -> str:
++    common = real(common_dir)
++    return os.path.dirname(common) if os.path.basename(common) == ".git" else common
++
++
++def row_id(row: dict) -> str:
++    return str(row.get("id") or row.get("path") or "")
++
++
++def row_basename(row: dict) -> str:
++    return os.path.basename(str(row.get("path") or "").rstrip("/"))
++
++
++def short_branch(row: dict) -> str | None:
++    branch = row.get("branch")
++    if not isinstance(branch, str) or not branch:
++        return None
++    return branch.removeprefix("refs/heads/")
++
++
++def list_rows(main: str) -> tuple[list[dict] | None, str]:
++    """``orca worktree list`` rows, or ``(None, why)`` when the list is unusable."""
++    res = run(
++        [
++            "orca",
++            "worktree",
++            "list",
++            "--repo",
++            f"path:{main}",
++            "--limit",
++            "500",
++            "--json",
++        ]
++    )
++    if not res.ok:
++        return None, f"orca worktree list failed: {res.first_error_line()}"
++    data = parse_json(res.out)
++    result = data.get("result") if isinstance(data, dict) else None
++    if not isinstance(data, dict) or data.get("ok") is not True:
++        return None, "orca worktree list did not report ok"
++    if not isinstance(result, dict) or not isinstance(result.get("worktrees"), list):
++        return None, "orca worktree list printed no worktree rows"
++    rows = [r for r in result["worktrees"] if isinstance(r, dict)]
++    if result.get("truncated") is True:
++        return None, (
++            f"orca worktree list is truncated ({len(rows)} rows of "
++            f"{result.get('totalCount')})"
++        )
++    host = result.get("hostScope")
++    omitted = host.get("omittedHostIds") if isinstance(host, dict) else None
++    if omitted:
++        return None, f"orca worktree list omits hosts {omitted}"
++    if not rows:
++        return None, "orca worktree list has zero rows"
++    if not any(r.get("isMainWorktree") is True for r in rows):
++        return None, f"orca worktree list has no main worktree row ({len(rows)} rows)"
++    return rows, ""
++
++
++def read_record(source: Path) -> dict | None:
++    try:
++        data = json.loads((source / RECORD_NAME).read_text())
++    except (OSError, ValueError):
++        return None
++    return data if isinstance(data, dict) else None
++
++
++def guarded_record_path(source: Path, main_common: str) -> str | None:
++    """The path in ``worktree.json`` when it exists and shares the main git dir."""
++    record = read_record(source)
++    path = record.get("path") if record else None
++    if not isinstance(path, str) or not os.path.isdir(path):
++        return None
++    common = git_common_dir(path)
++    if common is None or real(common) != real(main_common):
++        return None
++    return real(path)
++
++
++def lookup(
++    rows: list[dict], repo: str, number: int, record_real: str | None
++) -> tuple[str | None, list[dict]]:
++    """Duplicate detection: first key with a hit decides; hits are deduplicated."""
++    pattern = re.compile(rf"^issue-{number}(-|$)")
++    marker = re.compile(
++        r"(?<![\w./-])" + re.escape(f"sc:issue {repo}#{number}") + r"(?!\d)"
++    )
++
++    def by_marker(row: dict) -> bool:
++        return bool(marker.search(str(row.get("comment") or "")))
++
++    def by_record(row: dict) -> bool:
++        return (
++            record_real is not None and real(str(row.get("path") or "")) == record_real
++        )
++
++    def by_basename(row: dict) -> bool:
++        return bool(pattern.match(row_basename(row)))
++
++    def by_branch(row: dict) -> bool:
++        return bool(pattern.match(str(row.get("branch") or "").rsplit("/", 1)[-1]))
++
++    candidates = [
++        r for r in rows if not r.get("isArchived") and not r.get("isMainWorktree")
++    ]
++    for key, test in (
++        ("marker", by_marker),
++        ("record", by_record),
++        ("basename", by_basename),
++        ("branch", by_branch),
++    ):
++        hits: dict[str, dict] = {}
++        for row in candidates:
++            if test(row):
++                hits.setdefault(row_id(row), row)
++        if hits:
++            return key, list(hits.values())
++    return None, []
++
++
++def tracked_under(worktree: str, number: int) -> tuple[set[str], bool]:
++    """Paths git tracks under ``.dev/issues/<N>`` in the worktree, and whether known."""
++    res = run(["git", "-C", worktree, "ls-files", f".dev/issues/{number}"])
++    lines = [ln for ln in res.out.splitlines() if ln]
++    # A quoted line means git escaped an unusual name; we cannot trust the set.
++    if not res.ok or any(ln.startswith('"') for ln in lines):
++        return set(), False
++    return set(lines), True
++
++
++def copy_issue_dir(
++    source: Path, dest: Path, number: int, tracked: set[str], tracked_known: bool
++) -> tuple[list[str], list[str]]:
++    """Copy ``source`` into ``dest`` file by file; return (named files, errors)."""
++    named: list[str] = []
++    errors: list[str] = []
++    for root, dirs, files in os.walk(source):
++        dirs.sort()
++        for name in sorted(files):
++            src_file = Path(root) / name
++            rel = src_file.relative_to(source)
++            if rel.as_posix() == RECORD_NAME:
++                continue
++            dst_file = dest / rel
++            try:
++                if f".dev/issues/{number}/{rel.as_posix()}" in tracked:
++                    named.append(f"{rel} (tracked in the worktree, not copied)")
++                    continue
++                exists = dst_file.exists() or dst_file.is_symlink()
++                if exists and filecmp.cmp(src_file, dst_file, shallow=False):
++                    continue
++                if exists and not tracked_known:
++                    named.append(
++                        f"{rel} (differs; git could not be asked what it tracks, "
++                        "so it was not overwritten)"
++                    )
++                    continue
++                if exists:
++                    prev = dst_file.with_name(dst_file.name + ".prev")
++                    os.replace(dst_file, prev)
++                    named.append(f"{rel} (the older copy was kept as {rel}.prev)")
++                dst_file.parent.mkdir(parents=True, exist_ok=True)
++                shutil.copyfile(src_file, dst_file)
++                if not filecmp.cmp(src_file, dst_file, shallow=False):
++                    errors.append(f"{rel}: bytes differ after the copy")
++            except OSError as exc:
++                errors.append(f"{rel}: {exc}")
++    return named, errors
++
++
++def write_record(source: Path, path: str, status: str) -> None:
++    """Write ``worktree.json``, keeping any ``launch`` entry already in it."""
++    record: dict = {"path": path, "status": status}
++    old = read_record(source)
++    if old and isinstance(old.get("launch"), dict):
++        record["launch"] = old["launch"]
++    tmp = source / (RECORD_NAME + ".tmp")
++    tmp.write_text(json.dumps(record, indent=2) + "\n")
++    os.replace(tmp, source / RECORD_NAME)
++
++
++def finish(
++    out: Outcome,
++    row: dict | None,
++    wt: str,
++    source: Path,
++    number: int,
++    main_common: str,
++    status: str,
++    key: str,
++) -> None:
++    """Check the worktree, copy the issue directory into it, write the record."""
++    out.path, out.match_key = wt, key
++    out.branch = short_branch(row) if row else None
++    common = git_common_dir(wt)
++    if common is None or real(common) != real(main_common):
++        out.fail(
++            "W-WORKTREE-STALE",
++            f"{wt} does not belong to this repository (git common dir differs)",
++        )
++        return
++    tracked, known = tracked_under(wt, number)
++    out.tracked_files, out.tracked_known = sorted(tracked), known
++    dest = Path(wt) / ".dev" / "issues" / str(number)
++    if not source.is_dir():
++        out.fail("W-WORKTREE-COPY-FAILED", f"source directory {source} is missing")
++        return
++    if real(str(source)) != real(str(dest)):
++        named, errors = copy_issue_dir(source, dest, number, tracked, known)
++        if errors:
++            out.fail("W-WORKTREE-COPY-FAILED", "; ".join(errors))
++            return
++        if named:
++            out.note("W-WORKTREE-COPY-FAILED", "not copied as is: " + "; ".join(named))
++    try:
++        write_record(source, str(Path(wt).resolve()), status)
++    except OSError as exc:
++        out.fail("W-WORKTREE-COPY-FAILED", f"could not write {RECORD_NAME}: {exc}")
++        return
++    out.status = status
++
++
++def cmd_worktree(args: argparse.Namespace) -> int:
++    out = Outcome()
++    source = Path(args.source)
++    number = args.number
++    main_common = git_common_dir()
++    if main_common is None:
++        out.fail("W-WORKTREE-CREATE-FAILED", "not inside a git checkout")
++        return emit(out.as_dict())
++    main = main_checkout(main_common)
++
++    def reuse_record(why: str) -> bool:
++        path = guarded_record_path(source, main_common)
++        if path is None:
++            out.fail("W-ORCA-LIST-FAILED", why)
++            return False
++        out.note("W-ORCA-LIST-FAILED", f"unverified, reused from {RECORD_NAME}: {why}")
++        finish(out, None, path, source, number, main_common, "reused", "record")
++        return True
++
++    rows, why = list_rows(main)
++    if rows is None:
++        reuse_record(why)
++        return emit(out.as_dict())
++
++    key, hits = lookup(
++        rows, args.repo, number, guarded_record_path(source, main_common)
++    )
++    if key is not None:
++        live = [r for r in hits if os.path.isdir(str(r.get("path") or ""))]
++        paths = ", ".join(str(r.get("path")) for r in hits)
++        if len(live) > 1:
++            out.fail(
++                "W-WORKTREE-AMBIGUOUS", f"several worktrees match ({key}): {paths}"
++            )
++        elif not live:
++            out.fail(
++                "W-WORKTREE-STALE", f"the worktree is gone from disk ({key}): {paths}"
++            )
++        else:
++            row = live[0]
++            finish(
++                out, row, str(row["path"]), source, number, main_common, "reused", key
++            )
++        return emit(out.as_dict())
++
++    # No existing worktree: make sure the base ref exists, then create one.
++    fetch = run(["git", "fetch", "origin"])
++    if not run(["git", "rev-parse", "--verify", args.base]).ok:
++        out.fail(
++            "W-ORIGIN-BASE-MISSING",
++            f"{args.base} does not resolve; run git fetch origin",
++        )
++        return emit(out.as_dict())
++    if not fetch.ok:
++        out.note(
++            "W-ORIGIN-BASE-STALE",
++            f"git fetch origin failed: {fetch.first_error_line()}",
++        )
++    ids_before = {row_id(r) for r in rows}
++    created = run(
++        [
++            "orca",
++            "worktree",
++            "create",
++            "--repo",
++            f"path:{main}",
++            "--name",
++            f"issue-{number}",
++            "--base-branch",
++            args.base,
++            "--no-parent",
++            "--comment",
++            f"sc:issue {args.repo}#{number}",
++            "--json",
++        ]
++    )
++    if not created.ok and not created.timed_out:
++        out.fail("W-WORKTREE-CREATE-FAILED", created.first_error_line())
++        return emit(out.as_dict())
++    after, why = list_rows(main)
++    if after is None:
++        reuse_record(why)
++        return emit(out.as_dict())
++    pattern = re.compile(rf"^issue-{number}(-|$)")
++    new = [
++        r
++        for r in after
++        if row_id(r) not in ids_before and pattern.match(row_basename(r))
++    ]
++    if len(new) > 1:
++        paths = ", ".join(str(r.get("path")) for r in new)
++        out.fail("W-WORKTREE-AMBIGUOUS", f"several new worktrees appeared: {paths}")
++    elif not new:
++        text = "orca worktree create timed out" if created.timed_out else "created"
++        out.fail("W-WORKTREE-CREATE-FAILED", f"{text} but not listed")
++    elif not os.path.isdir(str(new[0].get("path") or "")):
++        out.fail(
++            "W-WORKTREE-CREATE-FAILED",
++            f"created but {new[0].get('path')} is not on disk",
++        )
++    else:
++        finish(
++            out,
++            new[0],
++            str(new[0]["path"]),
++            source,
++            number,
++            main_common,
++            "created",
++            "create",
++        )
++    return emit(out.as_dict())
++
++
++def issue_number(text: str) -> int:
++    if not text.isdigit() or int(text) < 1:
++        raise argparse.ArgumentTypeError("must be a positive integer")
++    return int(text)
++
++
++def repo_name(text: str) -> str:
++    if not re.fullmatch(r"[A-Za-z0-9._-]+/[A-Za-z0-9._-]+", text):
++        raise argparse.ArgumentTypeError("must look like owner/repo")
++    return text
++
++
++def origin_ref(text: str) -> str:
++    if not re.fullmatch(r"origin/[A-Za-z0-9._/-]+", text):
++        raise argparse.ArgumentTypeError("must look like origin/<branch>")
++    return text
++
++
+ def build_parser() -> argparse.ArgumentParser:
+     parser = argparse.ArgumentParser(
+         prog="orca_worktree.py",
+@@ -138,6 +578,12 @@ def build_parser() -> argparse.ArgumentParser:
+     sub = parser.add_subparsers(dest="command", required=True)
+     pre = sub.add_parser("preflight", help="check that the Orca runtime is reachable")
+     pre.set_defaults(func=cmd_preflight)
++    wt = sub.add_parser("worktree", help="create or reuse the worktree issue-<N>")
++    wt.add_argument("--repo", required=True, type=repo_name)
++    wt.add_argument("--number", required=True, type=issue_number)
++    wt.add_argument("--base", required=True, type=origin_ref)
++    wt.add_argument("--source", required=True)
++    wt.set_defaults(func=cmd_worktree)
+     return parser
+ 
+ 
+diff --git a/tests/skills/test_issue_orca_worktree.py b/tests/skills/test_issue_orca_worktree.py
+index 0cecf1a6..def4d5c5 100644
+--- a/tests/skills/test_issue_orca_worktree.py
++++ b/tests/skills/test_issue_orca_worktree.py
+@@ -29,13 +29,15 @@ SCRIPT = (
+ 
+ # The fake logs one JSON argv per line to calls.jsonl and answers from
+ # "<subcommand words joined by ->.json" (for example "worktree-list.json").
+-# A response file holds {"responses": [{"stdout", "stderr", "rc", "sleep"}, ...]};
+-# call number n gets responses[min(n, len - 1)], so a list called twice can
+-# answer differently the second time. "stdout" may be a string or any JSON value.
++# A response file holds {"responses": [{"stdout", "stderr", "rc", "sleep",
++# "effect"}, ...]}; call number n gets responses[min(n, len - 1)], so a list
++# called twice can answer differently the second time. "stdout" may be a string
++# or any JSON value; "effect" is an argv run first (a real git command that
++# makes the worktree the fake pretends Orca created).
+ FAKE_ORCA = textwrap.dedent(
+     """\
+     #!{python}
+-    import json, os, sys, time
++    import json, os, subprocess, sys, time
+     d = os.environ["FAKE_ORCA_DIR"]
+     argv = sys.argv[1:]
+     with open(os.path.join(d, "calls.jsonl"), "a") as f:
+@@ -50,6 +52,8 @@ FAKE_ORCA = textwrap.dedent(
+     open(counter, "w").write(str(n + 1))
+     responses = json.load(open(path))["responses"]
+     r = responses[min(n, len(responses) - 1)]
++    if r.get("effect"):
++        subprocess.run(r["effect"], check=True, capture_output=True)
+     time.sleep(r.get("sleep", 0))
+     out = r.get("stdout", "")
+     sys.stdout.write(out if isinstance(out, str) else json.dumps(out))
+@@ -87,6 +91,9 @@ class FakeOrca:
+         env["PATH"] = f"{self.bin}{os.pathsep}{env['PATH']}"
+         env["FAKE_ORCA_DIR"] = str(self.dir)
+         env["HOME"] = str(self.home)
++        # Hermetic git: the script's own git calls ignore the user's config.
++        env["GIT_CONFIG_GLOBAL"] = "/dev/null"
++        env["GIT_CONFIG_SYSTEM"] = "/dev/null"
+         env.update(extra)
+         return env
+ 
+@@ -234,3 +241,587 @@ def test_arg1_bad_subcommand_and_missing_subcommand_exit_2(fake_orca: FakeOrca)
+     assert run_script(env=fake_orca.env()).returncode == 2
+     assert run_script("preflight", "--bogus", env=fake_orca.env()).returncode == 2
+     assert fake_orca.calls() == []
++
++
++# --- worktree ----------------------------------------------------------------
++
++REPO = "IronbellyOrg/IronClaude"
++NUMBER = 302
++MARKER = f"sc:issue {REPO}#{NUMBER}"
++FORBIDDEN_FLAGS = (
++    "--issue",
++    "--pr",
++    "--reference",
++    "--linear-issue",
++    "--gitlab",
++    "--agent",
++    "--prompt",
++    "--model",
++    "--effort",
++    "--surface",
++    "--setup",
++    "--branch",
++    "--activate",
++    "--run-hooks",
++)
++
++
++def row(
++    path: Path | str,
++    branch: str = "refs/heads/ironbelly/other",
++    *,
++    comment: str = "",
++    main: bool = False,
++    archived: bool = False,
++    row_id: str | None = None,
++) -> dict:
++    """One row of ``orca worktree list --json`` (shape copied from a live run)."""
++    return {
++        "id": row_id or f"repo::{path}",
++        "path": str(path),
++        "branch": branch,
++        "comment": comment,
++        "isMainWorktree": main,
++        "isArchived": archived,
++    }
++
++
++def listing(*rows: dict, truncated: bool = False, omitted: tuple = ()) -> dict:
++    return {
++        "ok": True,
++        "result": {
++            "worktrees": list(rows),
++            "totalCount": len(rows),
++            "truncated": truncated,
++            "hostScope": {"omittedHostIds": list(omitted)},
++        },
++    }
++
++
++def add_worktree(git_repo: Path, name: str, branch: str) -> Path:
++    """A real linked worktree (the fake Orca only reports it)."""
++    path = git_repo.parent / "wts" / name
++    git(git_repo, "worktree", "add", "-b", branch, str(path), "origin/master")
++    return path
++
++
++@pytest.fixture
++def issue_dir(tmp_path: Path) -> Path:
++    path = tmp_path / "claim" / str(NUMBER)
++    (path / "analysis").mkdir(parents=True)
++    (path / "issue-summary.md").write_text("summary\n")
++    (path / "next-steps.md").write_text("steps\n")
++    (path / "analysis" / "notes.md").write_text("notes\n")
++    return path
++
++
++def main_row(git_repo: Path) -> dict:
++    return row(git_repo, "refs/heads/master", main=True, row_id="main")
++
++
++def run_wt(
++    fake: FakeOrca,
++    git_repo: Path,
++    source: Path,
++    base: str = "origin/master",
++    **env: str,
++) -> dict:
++    return run_json(
++        "worktree",
++        "--repo",
++        REPO,
++        "--number",
++        str(NUMBER),
++        "--base",
++        base,
++        "--source",
++        str(source),
++        env=fake.env(**env),
++        cwd=git_repo,
++    )
++
++
++def orca_calls(fake: FakeOrca, *words: str) -> list[list[str]]:
++    return [c for c in fake.calls() if c[: len(words)] == list(words)]
++
++
++def read_record(source: Path) -> dict:
++    return json.loads((source / "worktree.json").read_text())
++
++
++def created_scene(
++    fake: FakeOrca, git_repo: Path, *, effect: bool = True, name: str = "issue-302"
++) -> Path:
++    """Orca lists only the main row, creates `name`, then lists the new row too."""
++    wt = git_repo.parent / "wts" / name
++    cmd = [
++        "git", "-C", str(git_repo), "worktree", "add", "-b", f"ironbelly/{name}",
++        str(wt), "origin/master",
++    ]  # fmt: skip
++    fake.respond(
++        "worktree-create",
++        {"stdout": "opaque, not json"} | ({"effect": cmd} if effect else {}),
++    )
++    fake.respond(
++        "worktree-list",
++        {"stdout": listing(main_row(git_repo))},
++        {
++            "stdout": listing(
++                main_row(git_repo), row(wt, f"refs/heads/ironbelly/{name}")
++            )
++        },
++    )
++    return wt
++
++
++def test_fo1_list_fails_with_guarded_record_reuses_it(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
++    (issue_dir / "worktree.json").write_text(
++        json.dumps({"path": str(wt), "status": "created"})
++    )
++    fake_orca.respond("worktree-list", {"stdout": "", "stderr": "down\n", "rc": 1})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "reused"
++    assert data["match_key"] == "record"
++    assert data["warning"] == "W-ORCA-LIST-FAILED"
++    assert "unverified" in data["detail"]
++    assert data["path"] == str(wt)
++    assert (wt / ".dev/issues/302/analysis/notes.md").read_text() == "notes\n"
++    assert orca_calls(fake_orca, "worktree", "create") == []
++
++
++def test_fo1_list_fails_without_a_usable_record_fails(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, tmp_path: Path
++) -> None:
++    fake_orca.respond("worktree-list", {"stdout": "", "stderr": "down\n", "rc": 1})
++    assert run_wt(fake_orca, git_repo, issue_dir)["warning"] == "W-ORCA-LIST-FAILED"
++    # A record whose path is a directory of some other repository is not trusted.
++    other = tmp_path / "other"
++    other.mkdir()
++    subprocess.run(["git", "init", "-q", str(other)], check=True)
++    (issue_dir / "worktree.json").write_text(json.dumps({"path": str(other)}))
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "failed" and data["warning"] == "W-ORCA-LIST-FAILED"
++    assert orca_calls(fake_orca, "worktree", "create") == []
++    assert not (other / ".dev").exists()
++
++
++def test_fo2_marker_decides_before_basename(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    by_marker = add_worktree(git_repo, "renamed-by-hand", "ironbelly/renamed")
++    by_name = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
++    fake_orca.respond(
++        "worktree-list",
++        {
++            "stdout": listing(
++                main_row(git_repo),
++                row(by_name),
++                row(by_marker, comment=f"hello {MARKER} bye"),
++            )
++        },
++    )
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert (data["status"], data["match_key"], data["path"]) == (
++        "reused",
++        "marker",
++        str(by_marker),
++    )
++    assert read_record(issue_dir) == {"path": str(by_marker), "status": "reused"}
++
++
++def test_fo3_longer_issue_number_in_marker_does_not_match(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
++    fake_orca.respond(
++        "worktree-list",
++        {
++            "stdout": listing(
++                main_row(git_repo), row(wt, comment=f"{MARKER}0 and x{MARKER}")
++            )
++        },
++    )
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert (data["status"], data["match_key"]) == ("reused", "basename")
++
++
++@pytest.mark.parametrize("name", ["issue-302", "issue-302-2"])
++def test_fo4_basename_with_and_without_suffix(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, name: str
++) -> None:
++    wt = add_worktree(git_repo, name, f"ironbelly/{name}")
++    fake_orca.respond(
++        "worktree-list", {"stdout": listing(main_row(git_repo), row(wt, comment=""))}
++    )
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert (data["status"], data["match_key"], data["path"]) == (
++        "reused",
++        "basename",
++        str(wt),
++    )
++
++
++def test_fo4_issue_3020_is_not_issue_302(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    other = add_worktree(git_repo, "issue-3020", "ironbelly/issue-3020")
++    wt = created_scene(fake_orca, git_repo)
++    fake_orca.respond(
++        "worktree-list",
++        {"stdout": listing(main_row(git_repo), row(other))},
++        {"stdout": listing(main_row(git_repo), row(other), row(wt))},
++    )
++    assert run_wt(fake_orca, git_repo, issue_dir)["status"] == "created"
++
++
++def test_fo13_prefixed_branch_matches_on_its_last_segment(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    wt = add_worktree(git_repo, "picked-by-hand", "ironbelly/issue-302")
++    fake_orca.respond(
++        "worktree-list",
++        {
++            "stdout": listing(
++                main_row(git_repo), row(wt, "refs/heads/ironbelly/issue-302")
++            )
++        },
++    )
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert (data["status"], data["match_key"]) == ("reused", "branch")
++    assert data["branch"] == "ironbelly/issue-302"
++
++
++def test_fo8_two_live_hits_are_ambiguous_and_nothing_is_created(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    a = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
++    b = add_worktree(git_repo, "issue-302-2", "ironbelly/issue-302-2")
++    fake_orca.respond(
++        "worktree-list", {"stdout": listing(main_row(git_repo), row(a), row(b))}
++    )
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "failed" and data["warning"] == "W-WORKTREE-AMBIGUOUS"
++    assert str(a) in data["detail"] and str(b) in data["detail"]
++    assert orca_calls(fake_orca, "worktree", "create") == []
++    assert not (issue_dir / "worktree.json").exists()
++
++
++def test_fo10_stale_hit_only_fails_without_creating(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, tmp_path: Path
++) -> None:
++    gone = tmp_path / "wts" / "issue-302"
++    fake_orca.respond(
++        "worktree-list", {"stdout": listing(main_row(git_repo), row(gone))}
++    )
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "failed" and data["warning"] == "W-WORKTREE-STALE"
++    assert orca_calls(fake_orca, "worktree", "create") == []
++
++
++def test_fo9_archived_row_is_ignored_and_a_worktree_is_created(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, tmp_path: Path
++) -> None:
++    old = row(tmp_path / "wts" / "old-issue-302", archived=True, comment=MARKER)
++    wt = created_scene(fake_orca, git_repo)
++    fake_orca.respond(
++        "worktree-list",
++        {"stdout": listing(main_row(git_repo), old)},
++        {"stdout": listing(main_row(git_repo), old, row(wt))},
++    )
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "created"
++    assert len(orca_calls(fake_orca, "worktree", "create")) == 1
++
++
++def test_fo11_created_worktree_path_comes_from_the_list_not_the_create_json(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    wt = created_scene(fake_orca, git_repo)
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "created" and data["match_key"] == "create"
++    assert data["path"] == str(wt) and data["branch"] == "ironbelly/issue-302"
++    assert data["warning"] is None
++    assert (wt / ".dev/issues/302/issue-summary.md").read_text() == "summary\n"
++    assert read_record(issue_dir) == {"path": str(wt), "status": "created"}
++
++
++def test_fo11_create_that_never_shows_up_in_the_list_fails(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    created_scene(fake_orca, git_repo, effect=False)
++    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo))})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "failed" and data["warning"] == "W-WORKTREE-CREATE-FAILED"
++    assert "not listed" in data["detail"]
++    assert not (issue_dir / "worktree.json").exists()
++    assert len(orca_calls(fake_orca, "worktree", "create")) == 1
++
++
++def test_fo11_two_new_rows_are_ambiguous_without_copy_or_record(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    a = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
++    b = add_worktree(git_repo, "issue-302-2", "ironbelly/issue-302-2")
++    fake_orca.respond("worktree-create", {"stdout": "{}"})
++    fake_orca.respond(
++        "worktree-list",
++        {"stdout": listing(main_row(git_repo))},
++        {"stdout": listing(main_row(git_repo), row(a), row(b))},
++    )
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "failed" and data["warning"] == "W-WORKTREE-AMBIGUOUS"
++    assert not (a / ".dev").exists() and not (b / ".dev").exists()
++    assert not (issue_dir / "worktree.json").exists()
++
++
++def test_fo11_create_nonzero_exit_is_failed_and_never_retried(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo))})
++    fake_orca.respond(
++        "worktree-create", {"stdout": "", "stderr": "no such base\nmore\n", "rc": 3}
++    )
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "failed" and data["warning"] == "W-WORKTREE-CREATE-FAILED"
++    assert data["detail"] == "no such base"
++    assert len(orca_calls(fake_orca, "worktree", "create")) == 1
++    assert len(orca_calls(fake_orca, "worktree", "list")) == 1
++
++
++def test_fo6_create_timeout_is_followed_by_the_second_list(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    wt = created_scene(fake_orca, git_repo)
++    cmd = [
++        "git", "-C", str(git_repo), "worktree", "add", "-b", "ironbelly/issue-302",
++        str(wt), "origin/master",
++    ]  # fmt: skip
++    fake_orca.respond("worktree-create", {"effect": cmd, "sleep": 30})
++    data = run_wt(fake_orca, git_repo, issue_dir, SC_ORCA_TIMEOUT="3")
++    assert data["status"] == "created" and data["path"] == str(wt)
++    assert len(orca_calls(fake_orca, "worktree", "list")) == 2
++
++
++def test_fo6_create_timeout_with_no_new_row_is_failed_not_a_crash(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo))})
++    fake_orca.respond("worktree-create", {"sleep": 30})
++    data = run_wt(fake_orca, git_repo, issue_dir, SC_ORCA_TIMEOUT="1")
++    assert data["status"] == "failed" and data["warning"] == "W-WORKTREE-CREATE-FAILED"
++    assert "timed out" in data["detail"]
++    assert len(orca_calls(fake_orca, "worktree", "list")) == 2
++
++
++def test_fo7_copy_error_is_failed_and_writes_no_record(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
++    (wt / ".dev/issues/302").mkdir(parents=True)
++    (wt / ".dev/issues/302/analysis").write_text("a file where a directory belongs\n")
++    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "failed" and data["warning"] == "W-WORKTREE-COPY-FAILED"
++    assert "analysis" in data["detail"]
++    assert not (issue_dir / "worktree.json").exists()
++
++
++@pytest.mark.parametrize(
++    "payload",
++    [
++        {"ok": False, "result": {}},
++        "truncated",
++        "omitted",
++        "zero",
++        "no-main",
++        "garbage",
++    ],
++)
++def test_fo12_unusable_list_never_creates(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, payload: object
++) -> None:
++    main = main_row(git_repo)
++    other = row("/nowhere/x")
++    stdout: object = {
++        "truncated": listing(main, other, truncated=True),
++        "omitted": listing(main, other, omitted=("host-2",)),
++        "zero": listing(),
++        "no-main": listing(other),
++        "garbage": "not json",
++    }.get(payload if isinstance(payload, str) else "", payload)
++    fake_orca.respond("worktree-list", {"stdout": stdout})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "failed" and data["warning"] == "W-ORCA-LIST-FAILED"
++    assert data["detail"]
++    assert orca_calls(fake_orca, "worktree", "create") == []
++
++
++def test_fo12_unusable_list_after_the_create_is_failed_too(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    created_scene(fake_orca, git_repo)
++    fake_orca.respond(
++        "worktree-list",
++        {"stdout": listing(main_row(git_repo))},
++        {"stdout": listing(main_row(git_repo), truncated=True)},
++    )
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "failed" and data["warning"] == "W-ORCA-LIST-FAILED"
++    assert not (issue_dir / "worktree.json").exists()
++
++
++def test_fo14_prev_files_and_tracked_files(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
++    dest = wt / ".dev/issues/302"
++    (dest / "analysis").mkdir(parents=True)
++    (dest / "issue-summary.md").write_text("an older, hand-edited summary\n")
++    (dest / "issue-summary.md.prev").write_text("even older\n")
++    (dest / "analysis/notes.md").write_text("notes\n")  # identical: untouched
++    (dest / "next-steps.md").write_text("tracked on the branch\n")
++    git(wt, "add", ".dev/issues/302/next-steps.md")
++    git(wt, "commit", "-m", "track next-steps")
++    (issue_dir / "extra.md").write_text("new file\n")
++    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "reused" and data["warning"] == "W-WORKTREE-COPY-FAILED"
++    assert "issue-summary.md" in data["detail"] and "next-steps.md" in data["detail"]
++    assert "analysis/notes.md" not in data["detail"]
++    assert (dest / "issue-summary.md").read_text() == "summary\n"
++    assert (
++        dest / "issue-summary.md.prev"
++    ).read_text() == "an older, hand-edited summary\n"
++    assert (dest / "next-steps.md").read_text() == "tracked on the branch\n"
++    assert (dest / "extra.md").read_text() == "new file\n"
++    assert data["tracked_known"] is True
++    assert data["tracked_files"] == [".dev/issues/302/next-steps.md"]
++
++
++def test_fo14_when_git_cannot_say_what_is_tracked_nothing_is_overwritten(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    # git quotes an unusual file name in ls-files output, so the tracked set
++    # cannot be trusted: copy only what is missing, rename or overwrite nothing.
++    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
++    dest = wt / ".dev/issues/302"
++    dest.mkdir(parents=True)
++    (dest / "café.md").write_text("tracked version\n")
++    git(wt, "add", ".")
++    git(wt, "commit", "-m", "track cafe")
++    (dest / "issue-summary.md").write_text("different\n")
++    (issue_dir / "café.md").write_text("source version\n")
++    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["tracked_known"] is False and data["tracked_files"] == []
++    assert data["warning"] == "W-WORKTREE-COPY-FAILED"
++    assert (dest / "café.md").read_text() == "tracked version\n"
++    assert (dest / "issue-summary.md").read_text() == "different\n"
++    assert not list(dest.rglob("*.prev"))
++    assert (dest / "next-steps.md").read_text() == "steps\n"  # missing: copied
++
++
++def test_fo15_source_inside_the_worktree_is_not_copied_onto_itself(
++    fake_orca: FakeOrca, git_repo: Path, tmp_path: Path
++) -> None:
++    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
++    source = wt / ".dev/issues/302"
++    source.mkdir(parents=True)
++    (source / "next-steps.md").write_text("steps\n")
++    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
++    data = run_wt(fake_orca, git_repo, source)
++    assert data["status"] == "reused" and data["warning"] is None
++    assert sorted(p.name for p in source.iterdir()) == [
++        "next-steps.md",
++        "worktree.json",
++    ]
++
++
++def test_fo16_worktree_json_is_never_copied_and_keeps_its_launch_entry(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
++    launch = {"level": "full", "submit": False, "at": "2026-11-07T07:00:00Z"}
++    (issue_dir / "worktree.json").write_text(
++        json.dumps({"path": "/old", "status": "created", "launch": launch})
++    )
++    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "reused"
++    assert not (wt / ".dev/issues/302/worktree.json").exists()
++    assert read_record(issue_dir) == {
++        "path": str(wt),
++        "status": "reused",
++        "launch": launch,
++    }
++
++
++def test_fo17_missing_base_ref_means_no_create(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo))})
++    data = run_wt(fake_orca, git_repo, issue_dir, base="origin/no-such-branch")
++    assert data["status"] == "failed" and data["warning"] == "W-ORIGIN-BASE-MISSING"
++    assert orca_calls(fake_orca, "worktree", "create") == []
++
++
++def test_fo17_failed_fetch_with_the_ref_present_warns_and_creates(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, tmp_path: Path
++) -> None:
++    git(git_repo, "remote", "set-url", "origin", str(tmp_path / "gone.git"))
++    created_scene(fake_orca, git_repo)
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "created" and data["warning"] == "W-ORIGIN-BASE-STALE"
++    assert len(orca_calls(fake_orca, "worktree", "create")) == 1
++
++
++def test_fo18_exact_commands_and_no_forbidden_flag(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    created_scene(fake_orca, git_repo)
++    run_wt(fake_orca, git_repo, issue_dir)
++    main = os.path.realpath(git_repo)
++    assert fake_orca.calls() == [
++        ["worktree", "list", "--repo", f"path:{main}", "--limit", "500", "--json"],
++        [
++            "worktree",
++            "create",
++            "--repo",
++            f"path:{main}",
++            "--name",
++            "issue-302",
++            "--base-branch",
++            "origin/master",
++            "--no-parent",
++            "--comment",
++            MARKER,
++            "--json",
++        ],
++        ["worktree", "list", "--repo", f"path:{main}", "--limit", "500", "--json"],
++    ]
++    for call in fake_orca.calls():
++        for arg in call:
++            assert not arg.startswith(FORBIDDEN_FLAGS), arg
++
++
++def test_arg1_worktree_bad_arguments_exit_2(
++    fake_orca: FakeOrca, issue_dir: Path
++) -> None:
++    good = ["--repo", REPO, "--number", "302", "--base", "origin/master"]
++    good += ["--source", str(issue_dir)]
++    env = fake_orca.env()
++    assert run_script("worktree", env=env).returncode == 2
++    for flag in ("--repo", "--number", "--base", "--source"):
++        i = good.index(flag)
++        assert (
++            run_script("worktree", *good[:i], *good[i + 2 :], env=env).returncode == 2
++        )
++    bad = {"--repo": "no-slash", "--number": "abc", "--base": "master"}
++    for flag, value in bad.items():
++        args = list(good)
++        args[args.index(flag) + 1] = value
++        assert run_script("worktree", *args, env=env).returncode == 2
++    assert fake_orca.calls() == []

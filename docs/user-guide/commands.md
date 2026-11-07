@@ -112,7 +112,7 @@ This page is the per-command reference: exact syntax, options, and what each com
 | `/sc:save` | Save project memory to `.superclaude/memory/` (not a resume method) | `save.md` | Report only |
 | `/sc:help` | List installed commands, skills, process levels | `help.md` | No |
 | [`/sc:graph`](#scgraph---code-graph-index-status) | Code-graph index status; builds the index only on `init` | `graph.md` | Only with `init` |
-| [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt) or create a templated issue | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
+| [`/sc:issue`](#scissue---github-issue-claim-and-create) | Claim a GitHub issue (assign, accuracy check, summary, next-step prompt, then an Orca worktree and a launched agent) or create a templated issue | `issue.md` | Yes (posts to GitHub; writes `.dev/issues/`) |
 | `/sc:recommend` | Paste-ready prompt for the right command | `recommend.md` | Report only (inside an IronClaude checkout it writes its cache and telemetry under `.claude/cache/`) |
 | `/sc:init-lite` | Safe audit of project-local context surfaces | `init-lite.md` | Report only |
 | `/sc:pr-submit` | Open fork PR and monitor review fixes | `pr-submit.md` | Yes |
@@ -346,12 +346,12 @@ When codegraph, the index or its lookup tools are not usable, it falls back to G
 
 ### `/sc:issue` - GitHub Issue Claim and Create
 
-**When to use:** Take an existing GitHub issue on the repository `origin` points at, or file a new one. `--claim` assigns the issue to you, checks whether its text is still accurate against today's code and the pull requests merged since it was opened, writes a summary (with an effort estimate in hours) and a next-step prompt under `.dev/issues/<N>/`, posts an accuracy-check comment and a claim comment, then stops. `--create` turns a description into an issue built from one of four templates (feature or bug, simple or complex) with labels from a fixed set.
+**When to use:** Take an existing GitHub issue on the repository `origin` points at, or file a new one. `--claim` assigns the issue to you, checks whether its text is still accurate against today's code and the pull requests merged since it was opened, writes a summary (with an effort estimate in hours) and a next-step prompt under `.dev/issues/<N>/`, posts an accuracy-check comment and a claim comment, then creates (or reuses) an Orca worktree named `issue-<N>` and launches one Claude Code agent in it. How far that agent goes is the `--pipeline` level (below); nothing ever merges. Orca must be running: without it the claim stops with `E-ORCA-REQUIRED` before it assigns or posts anything. `--create` turns a description into an issue built from one of four templates (feature or bug, simple or complex) with labels from a fixed set.
 
 **Syntax:**
 
 ```
-/sc:issue --claim <number|url>
+/sc:issue --claim <number|url> [--pipeline worktree|full|none] [--submit]
 /sc:issue --create "<description>" [--depth quick|standard|deep] [--mode feature|bug] [--type <type>]
 ```
 
@@ -364,18 +364,34 @@ When codegraph, the index or its lookup tools are not usable, it falls back to G
 | `--depth quick\|standard\|deep` | create | `quick` | How hard the command checks your flags and fills the body; `deep` uses the complex template |
 | `--mode feature\|bug` | create | chosen by a worker | Picks the feature or bug template and the `enhancement` or `bug` label |
 | `--type <type>` | create | chosen by a worker | Area of the change: `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install` or `other`; maps to a `type: <value>` label |
+| `--pipeline worktree\|full\|none` | claim | `worktree` | How far the launched agent goes (see the levels below); every value creates the worktree, `none` launches no agent |
+| `--submit` | claim | off | Only with `--pipeline full`: the agent also commits, pushes a feature branch and opens a PR through `/sc:pr-submit --monitor 3`. Takes no value |
 
-`--depth`, `--mode` and `--type` work with `--create` only. There is no repository option: the repository is always `origin`.
+`--depth`, `--mode` and `--type` work with `--create` only; `--pipeline` and `--submit` work with `--claim` only (`E-CLAIM-ONLY-FLAG`), and `--submit` without `--pipeline full` stops with `E-SUBMIT-NEEDS-FULL`. There is no repository option: the repository is always `origin`.
+
+**Claim levels (`--pipeline`):**
+
+| Level | What the launched agent does | Commit, push, PR |
+|-------|------------------------------|------------------|
+| `worktree` (default) | Runs the steps of `next-steps.md` up to the plan boundary, prints the plan path and `Waiting for approval`, then waits until you reply `approved` (or run the printed implement command) | No |
+| `full` | Runs every step, implementation included, and leaves the changes in the working tree, nothing staged | No |
+| `full` with `--submit` | Does the same, then commits, pushes a feature branch to `origin` and opens a PR through `/sc:pr-submit --monitor 3` | Yes; never merges |
+| `none` | Creates the worktree and copies the files; launches no agent. You run `next-steps.md` there yourself | No |
+
+No level merges anything: people review and merge. The agent starts behind the ccsession shim (the claim warns with `W-LAUNCH-NOT-CCSESSION` if it cannot confirm that). The levels are instructions in the agent's prompt until the launch-level enforcement hook (issue 394) is installed; until then the claim warns with `W-ENFORCEMENT-ABSENT` and you should not use `full` or `--submit` on a real issue.
 
 **Examples:**
 
 ```bash
 /sc:issue --claim 302
+/sc:issue --claim 302 --pipeline none
+/sc:issue --claim 302 --pipeline full
+/sc:issue --claim 302 --pipeline full --submit
 /sc:issue --create "The sync check misses deleted skill files" --mode bug --type cli --depth standard
 /sc:issue --create @notes/new-command.md --depth deep
 ```
 
-It posts directly to GitHub, without showing the comment or the issue body for approval first. It never creates labels: a label from the fixed set that the repository does not have is skipped and listed. On claim it also assigns the matching ClickUp task, only when `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID` are set; `--create` never touches ClickUp. A claim stops after writing `.dev/issues/<N>/next-steps.md`; you run those commands yourself, in your own session.
+It posts directly to GitHub, without showing the comment or the issue body for approval first. It never creates labels: a label from the fixed set that the repository does not have is skipped and listed. On claim it also assigns the matching ClickUp task, only when `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID` are set; `--create` never touches ClickUp. The claim itself never runs a step of `.dev/issues/<N>/next-steps.md`: the launched agent does, at the level you chose (with `--pipeline none` you run them yourself in the worktree). A re-claim reuses the existing worktree and does not launch a second agent, also when you re-claim from inside the worktree; the claim output names the two files that hold the launch (`.dev/issues/<N>/worktree.json` and a file in the worktree's git directory), and removing the `launch` entry from both launches again. Worktree or launch problems are warnings: the issue stays assigned and the comments stay posted.
 
 **ClickUp settings (claim only, environment variables):**
 

@@ -14,10 +14,11 @@ Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; ev
    `uv run --no-project python "<skill base>/scripts/origin_repo.py" --claim "<argument>"`
    It reads only the `origin` remote and prints `{"repo": "<owner/repo>", "number": <N>}`. Exit 1 = STOP `E-NO-ORIGIN` (no `origin`, or not a GitHub URL). Exit 3 = STOP `E-FOREIGN-REPO` (a URL naming any repo other than origin, B10). Exit 4 = STOP `E-NOT-AN-ISSUE` (a `/pull/<N>` URL, or not an issue number or URL). Print the script's stderr line with the STOP.
 2. `gh auth status` must succeed; else STOP `E-GH-AUTH`.
-3. Resolve the default branch `<B>` with `gh repo view <R> --json defaultBranchRef -q .defaultBranchRef.name` (the repo is named explicitly).
-4. Create `<D>`.
+3. Orca check: `uv run --no-project python "<skill base>/scripts/orca_worktree.py" preflight`. It prints `{"ok": true}` or `{"ok": false, "detail": "..."}`. `ok: false` is STOP `E-ORCA-REQUIRED`: print "/sc:issue --claim needs Orca running; start Orca and re-run" and then the script's `detail`. This is the only Orca call before Wave 7.
+4. Resolve the default branch `<B>` with `gh repo view <R> --json defaultBranchRef -q .defaultBranchRef.name` (the repo is named explicitly).
+5. Create `<D>`.
 
-No GitHub or ClickUp write happens before Wave 3.
+No GitHub or ClickUp write happens before Wave 3, and none happens before the Orca check passes.
 
 ## Wave 1: lookup (issue-worker-t3, B13)
 
@@ -77,7 +78,9 @@ Load `refs/chains.md`.
 
 1. Invoke `Skill sc-recommend` with the goal format of `refs/chains.md`: issue URL, type, complexity, the summary path and the default chain row for that type and complexity as the suggested route. `/sc:recommend` picks the starting chain and depth (B4). Save its output verbatim to `<D>/recommend.md` from `templates/recommend-record.md`.
 2. Write `<D>/next-steps.md` from `templates/next-steps.md`: the `/model` tier line first (simple -> `claude-gw-tier2`, medium and complex -> `claude-gw-tier1a`, default D6), then the commands in order with their flags and the inputs each needs (`@.dev/issues/<N>/issue-summary.md`), the effort estimate, and, when `/sc:recommend` chose differently from the default row, one line naming the default row and why it was not used (default D23). When `/sc:recommend` asks a question or finds no route, record that in `recommend.md` and use the default row, saying so.
-3. Do not run any of those commands (B2).
+3. Set the plan boundary. `next-steps.md` carries the line `Plan boundary: after step <K>` under its title. `<K>` is the number of the last step before the first step whose command is `/sc:implement` or `/task` (default D7); when the first step is itself the implementation step the line reads `Plan boundary: before step 1`. Level `worktree` stops there until a human approves; `--pipeline full` ignores the line.
+4. Render the launch prompt, for `--pipeline` `worktree` or `full` (not `none`): `uv run --no-project python "<skill base>/scripts/orca_worktree.py" prompt --template "<skill base>/templates/launch-prompt.md" --level <L> [--submit] --number <N> --repo <R> --source "<D>" --out "<D>/launch-prompt.md"`, where `<L>` is the `--pipeline` value. It is written before Wave 7 so the copy into the worktree carries it. The script keeps an existing `<D>/launch-prompt.md` (it prints `status: kept`) only while `<D>/worktree.json` has a `launch` entry whose worktree still exists, because that agent reads the file; when the worktree was removed and replaced, it renders a fresh prompt for the new launch.
+5. Do not run any of the steps of `next-steps.md` (B2): the launched agent runs them, at the level the user chose.
 
 ## Wave 6: post (orchestrator, directly, B1)
 
@@ -87,4 +90,49 @@ Load `refs/chains.md`.
    `gh issue comment <N> --repo <R> --body-file <D>/accuracy-check.md`
 2. Claim comment: write `<D>/claim-comment.md` from `templates/claim-comment.md`: who claimed it, the ClickUp result from `clickup.json`, the summary overview, effort estimate, complexity, accuracy verdict, the first next step, and repo-relative links to `<D>/issue-summary.md`, `<D>/next-steps.md` and `<D>/analysis/` with the one-line note that they open on GitHub only after someone commits and pushes the files (default D9). It ends with `<!-- sc:issue:claim -->`. Edit the earlier claim comment with `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<D>/claim-comment.md`, or post it with `gh issue comment <N> --repo <R> --body-file <D>/claim-comment.md`.
 3. A post or edit that fails -> STOP `E-POST-FAILED`; the files stay in `<D>`, and a re-run edits rather than duplicates because of the markers.
-4. Print the `next-steps.md` path and STOP. Do not stage or commit `.dev/issues/` (default D24).
+4. After both comments are posted, run Wave 7, then Wave 8. A STOP anywhere in Waves 0 to 6, including `E-POST-FAILED`, means no Orca call after the Wave 0 check. Do not stage or commit `.dev/issues/` (default D24).
+
+## Wave 7: worktree (orchestrator, no worker)
+
+Runs for every `--pipeline` value, after both comments are posted:
+
+`uv run --no-project python "<skill base>/scripts/orca_worktree.py" worktree --repo <R> --number <N> --base origin/<B> --source <D>`
+
+Read the one JSON object it prints: `status` (`created`, `reused` or `failed`), `path`, `branch`, `match_key`, `warning`, `detail`, `tracked_files` and `tracked_known`. Every failure is a warning, never a STOP: the assignment and the comments cannot be undone, so the claim `status` stays `success`. The script copies `<D>` into `<wt>/.dev/issues/<N>/` (it never copies `worktree.json`) and writes `<D>/worktree.json`. The skill itself runs no `git worktree` command and no other `orca` command here. Remedy lines of the worktree warning codes (printed in the final output below):
+
+| Code | Remedy line |
+|---|---|
+| `W-ORCA-LIST-FAILED` | check Orca, re-run the claim |
+| `W-ORIGIN-BASE-MISSING` | `git fetch origin`, re-run |
+| `W-ORIGIN-BASE-STALE` | `git fetch origin`, rebase in `<wt>` |
+| `W-WORKTREE-CREATE-FAILED` | re-run; a finished create is reused |
+| `W-WORKTREE-AMBIGUOUS` | remove the extra worktrees, re-run |
+| `W-WORKTREE-STALE` | `git worktree prune`, then `orca worktree rm` |
+| `W-WORKTREE-COPY-FAILED` | copy the named files by hand |
+
+## Wave 8: launch (orchestrator, no worker)
+
+Runs only when `--pipeline` is not `none` and the Wave 7 `status` is `created` or `reused`. It is never attempted for a `failed` worktree, and never for `none`.
+
+`uv run --no-project python "<skill base>/scripts/orca_worktree.py" launch --number <N> --source <D> --level <L> [--submit]`
+
+Read the one JSON object it prints: `status` (`launched`, `already_launched` or `failed`), `warning`, `detail`, `terminal`, `launched_at`, `enforcement_hook` and `hand_command`. The script starts one agent behind the ccsession shim in the worktree and records the level where the enforcement hook of issue 394 can read it. A `launch` entry in `<D>/worktree.json` makes it return `already_launched` without calling Orca. Every failure is a warning, never a STOP: the claim `status` stays `success`. Remedy lines of the launch codes:
+
+| Code | Remedy line |
+|---|---|
+| `W-LAUNCH-FAILED` | re-run the claim; the hand command is printed for reference (an agent started by hand is not governed by the hook). When the `detail` says the worktree's `launch-prompt.md` is not the one rendered for this claim, no agent was started and no hand command is printed: make that file match `<D>/launch-prompt.md` first, a re-run alone fails again |
+| `W-LAUNCH-NOT-CCSESSION` | this agent is NOT behind the ccsession shim, or could not be verified; close it. Orca's Claude command must be the ccsession-orca wrapper |
+| `W-ENFORCEMENT-ABSENT` | the level is an instruction in the prompt only until the launch-level hook (#394) ships; do not use `full` or `--submit` on a real issue yet |
+
+## Final output (replaces "print the path and STOP")
+
+Print, in this order:
+
+1. The `next-steps.md` path, then `Worktree: <path> (<status>)`, adding `, matched by <match_key>` when `match_key` is not null (a newly created worktree has none). For `match_key` `basename` or `branch` add "reused a worktree not created by /sc:issue". For `record` after `W-ORCA-LIST-FAILED` add "unverified: Orca could not be listed".
+2. "`.dev/issues/<N>/` in the worktree is untracked: do not stage it" only when `tracked_known` is true and `tracked_files` is empty. When `tracked_known` is false, print nothing about tracking. Add "run `make sync-dev` there first" when `<wt>/.claude/` is absent and a step of `next-steps.md` needs a primitive that is not synced into the worktree.
+3. The launch result:
+   - `launched`: "Agent launched in <wt> (level <L>[, submit]). It stops at the plan boundary and waits; reply `approved` in its tab to let it continue." For `full`: "It runs every step and stops after implementation." For `full` with `--submit`: "It then commits, pushes <branch> and opens the PR through /sc:pr-submit; it never merges."
+   - `already_launched`: "agent already launched at <launched_at>" plus the script's `detail`, which names the two files that hold the `launch` entry (`<D>/worktree.json` and a file in the worktree's git directory); the user removes the entry from both to launch again.
+   - `--pipeline none`: "No agent launched. Open <wt> and run .dev/issues/<N>/next-steps.md there."
+4. Every warning, the worktree one first: the code, its `detail`, and its remedy line from the two tables above. For `W-LAUNCH-FAILED`, also print the launch JSON's `hand_command` when it is not null (the remedy line promises it), and tell the user that an agent started by hand is not governed by the enforcement hook.
+5. The return contract (`SKILL.md`) and STOP.

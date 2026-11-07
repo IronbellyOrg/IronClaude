@@ -1,0 +1,65 @@
+diff --git a/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py b/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py
+index 6acb8f6f..a139657a 100644
+--- a/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py
++++ b/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py
+@@ -806,21 +806,25 @@ def cmd_launch(args: argparse.Namespace) -> int:
+             ("W-ENFORCEMENT-ABSENT", "the launch-level hook script is not installed")
+         )
+     at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
++    unrecorded = ""
+     try:
+         record_launch(source, args.level, args.submit, at)
+     except OSError as exc:
+-        notes.append(
+-            (failed, f"agent launched but {RECORD_NAME} was not updated: {exc}")
+-        )
+-    return emit(
+-        launch_result(
+-            "launched",
+-            notes,
+-            terminal=handle,
+-            launched_at=at,
+-            enforcement_hook=hook,
++        # The agent is running, so "re-run the claim" would start a second one.
++        unrecorded = (
++            f"the agent is running but {RECORD_NAME} was not updated ({exc}); "
++            f"do not re-run the claim, add the launch entry to {source / RECORD_NAME} by hand"
+         )
++    result = launch_result(
++        "launched",
++        notes,
++        terminal=handle,
++        launched_at=at,
++        enforcement_hook=hook,
+     )
++    if unrecorded:
++        result["detail"] = "; ".join(filter(None, [result["detail"], unrecorded]))
++    return emit(result)
+ 
+ 
+ def issue_number(text: str) -> int:
+diff --git a/tests/skills/test_issue_orca_worktree.py b/tests/skills/test_issue_orca_worktree.py
+index e3ea426a..e8e23f99 100644
+--- a/tests/skills/test_issue_orca_worktree.py
++++ b/tests/skills/test_issue_orca_worktree.py
+@@ -1139,6 +1139,20 @@ def test_la4_launch_entry_gives_already_launched_without_any_orca_call(
+     assert not (fake_orca.home / ".claude").exists()
+ 
+ 
++def test_la4_launch_record_update_failure_never_says_to_rerun_the_claim(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    launch_scene(fake_orca, git_repo, issue_dir)
++    (issue_dir / "worktree.json.tmp").mkdir()  # makes the record update fail
++    data = run_launch(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "launched" and data["warning"] is None
++    assert data["launched_at"] and data["terminal"] == "term_abc"
++    assert "the agent is running" in data["detail"]
++    assert "do not re-run the claim" in data["detail"]
++    assert "re-run the claim; the hand command" not in data["detail"]
++    assert len(launch_calls(fake_orca)) == 1
++
++
+ def test_la4_launch_entry_is_written_even_when_the_shim_check_fails(
+     fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+ ) -> None:

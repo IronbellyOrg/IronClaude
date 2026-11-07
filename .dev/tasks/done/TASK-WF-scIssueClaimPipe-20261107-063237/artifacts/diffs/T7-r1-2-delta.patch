@@ -1,0 +1,34 @@
+diff --git a/src/superclaude/skills/sc-issue-protocol/refs/claim.md b/src/superclaude/skills/sc-issue-protocol/refs/claim.md
+index 904baded..bf99d793 100644
+--- a/src/superclaude/skills/sc-issue-protocol/refs/claim.md
++++ b/src/superclaude/skills/sc-issue-protocol/refs/claim.md
+@@ -134,5 +134,5 @@ Print, in this order:
+    - `launched`: "Agent launched in <wt> (level <L>[, submit]). It stops at the plan boundary and waits; reply `approved` in its tab to let it continue." For `full`: "It runs every step and stops after implementation." For `full` with `--submit`: "It then commits, pushes <branch> and opens the PR through /sc:pr-submit; it never merges."
+    - `already_launched`: "agent already launched at <launched_at>; remove the `launch` entry of <D>/worktree.json to launch again".
+    - `--pipeline none`: "No agent launched. Open <wt> and run .dev/issues/<N>/next-steps.md there."
+-4. Every warning, the worktree one first: the code, its `detail`, and its remedy line from the two tables above.
++4. Every warning, the worktree one first: the code, its `detail`, and its remedy line from the two tables above. For `W-LAUNCH-FAILED`, also print the launch JSON's `hand_command` when it is not null (the remedy line promises it), and tell the user that an agent started by hand is not governed by the enforcement hook.
+ 5. The return contract (`SKILL.md`) and STOP.
+diff --git a/tests/skills/test_issue_protocol.py b/tests/skills/test_issue_protocol.py
+index e5a44286..58be2044 100644
+--- a/tests/skills/test_issue_protocol.py
++++ b/tests/skills/test_issue_protocol.py
+@@ -468,6 +468,18 @@ def test_st9_final_output_lists_the_launch_results_and_every_launch_code():
+         assert code in claim and code in _text(SKILL), code
+ 
+ 
++def test_st9_final_output_prints_the_hand_command_the_remedy_line_promises():
++    claim = _text(REFS / "claim.md")
++    assert "the hand command is printed" in claim.split("## Wave 8", 1)[1]
++    warnings_item = next(
++        ln
++        for ln in claim.split("## Final output", 1)[1].splitlines()
++        if "Every warning" in ln
++    )
++    assert "`hand_command`" in warnings_item and "`W-LAUNCH-FAILED`" in warnings_item
++    assert "not governed by the enforcement hook" in warnings_item
++
++
+ def _yaml_keys(block: str) -> list[str]:
+     return re.findall(r"^([a-z_]+):", block, re.M)
+ 

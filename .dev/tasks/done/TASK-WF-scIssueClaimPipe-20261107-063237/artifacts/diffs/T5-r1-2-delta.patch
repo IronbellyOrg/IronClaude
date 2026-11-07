@@ -1,0 +1,49 @@
+diff --git a/tests/skills/test_issue_orca_worktree.py b/tests/skills/test_issue_orca_worktree.py
+index 18e8442c..645bfa00 100644
+--- a/tests/skills/test_issue_orca_worktree.py
++++ b/tests/skills/test_issue_orca_worktree.py
+@@ -847,7 +847,7 @@ def render(
+     return run_script(*args, env=dict(os.environ)), out
+ 
+ 
+-def test_pr1_levels_keep_only_their_own_block(tmp_path: Path) -> None:
++def test_pr1_prompt_levels_keep_only_their_own_block(tmp_path: Path) -> None:
+     worktree_proc, worktree_out = render(tmp_path, "worktree")
+     full_proc, full_out = render(tmp_path, "full")
+     for proc, out in ((worktree_proc, worktree_out), (full_proc, full_out)):
+@@ -864,7 +864,7 @@ def test_pr1_levels_keep_only_their_own_block(tmp_path: Path) -> None:
+     assert "owner asked for the commit" not in worktree + full
+ 
+ 
+-def test_pr2_submit_adds_the_submit_block(tmp_path: Path) -> None:
++def test_pr2_prompt_submit_adds_the_submit_block(tmp_path: Path) -> None:
+     proc, out = render(tmp_path, "full", submit=True)
+     assert proc.returncode == 0, proc.stderr
+     text = out.read_text()
+@@ -875,13 +875,15 @@ def test_pr2_submit_adds_the_submit_block(tmp_path: Path) -> None:
+     assert text.startswith(plain.rstrip("\n"))
+ 
+ 
+-def test_pr3_submit_with_worktree_level_is_a_bad_argument(tmp_path: Path) -> None:
++def test_pr3_prompt_submit_with_worktree_level_is_a_bad_argument(
++    tmp_path: Path,
++) -> None:
+     proc, out = render(tmp_path, "worktree", submit=True)
+     assert proc.returncode == 2
+     assert not out.exists()
+ 
+ 
+-def test_pr4_no_pr_tokens_outside_the_worktree_prohibition_and_submit(
++def test_pr4_prompt_no_pr_tokens_outside_the_worktree_prohibition_and_submit(
+     tmp_path: Path,
+ ) -> None:
+     full = render(tmp_path, "full")[1].read_text()
+@@ -895,7 +897,7 @@ def test_pr4_no_pr_tokens_outside_the_worktree_prohibition_and_submit(
+         assert token not in common, token
+ 
+ 
+-def test_pr_unusable_template_is_reported_not_raised(tmp_path: Path) -> None:
++def test_prompt_unusable_template_is_reported_not_raised(tmp_path: Path) -> None:
+     proc, out = render(tmp_path, "full", template=tmp_path / "missing.md")
+     data = json.loads(proc.stdout)
+     assert proc.returncode == 0 and data["status"] == "failed" and data["detail"]

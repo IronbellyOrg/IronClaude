@@ -1,0 +1,20 @@
+{
+  "metrics_schema_version": "1.0",
+  "run_id": "2026-11-07T06:36:00Z-scIssueClaimPipe",
+  "skill": "sc-reflect",
+  "skill_version": "1.8.0",
+  "mode": "pre",
+  "tier_reached": 2,
+  "status": "partial",
+  "wall_clock_ms": 2700000,
+  "calibration": {"calibrator_diversity": "degraded", "calibrated_confidence_initial": 0.81, "calibrated_confidence_final": 0.78, "calibration_delta": -0.03},
+  "ensemble": {"t2_model_class_diversity": "full", "t2_vendor_diversity": "single", "t2_effective_diversity": "model-only", "reviewer_count": 3, "executor_class_resolved": false, "executor_exclusion_degraded": false},
+  "evidence_validator": {"ran": true, "citations_total": 202, "citations_revalidated": 202, "citations_dropped": 1, "citations_dropped_extrapolated": 1, "drop_rate": 0.005, "budget_policy": "full_reread"},
+  "deviation_counts": {"authorized": 0, "necessary": 0, "drift": 20, "regression": 0, "total": 20},
+  "adversarial": {"convergence_score": 1.0, "merge_method": "adversarial", "adversarial_unavailable": false, "fallback_path": null},
+  "promotion": {"action": "not-applicable", "gate_conditions_passed": 0, "gate_conditions_total": 9, "cross_fs": false},
+  "degraded_components": ["calibrator-diversity", "vendor-diversity", "executor-class-unresolved"],
+  "input_drift_detected": false,
+  "needs_human_decision": false,
+  "wall_clock_note": "approximate, from session timestamps; per-wave durations and token usage were not instrumented"
+}

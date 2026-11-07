@@ -1,0 +1,410 @@
+diff --git a/src/superclaude/skills/sc-issue-protocol/SKILL.md b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+index 6d05027d..a9e9304f 100644
+--- a/src/superclaude/skills/sc-issue-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+@@ -32,6 +32,7 @@ For issues filed through `/sc:issue --create`, its four templates replace the `I
+ | `refs/tiers.md` | before the first worker spawn of either mode: tier map, pinning rule, `E-TIER-UNAVAILABLE` |
+ | `scripts/origin_repo.py` | Wave 0 of both modes: prints `owner/repo` from `origin`; with `--claim` also checks the claim argument against it |
+ | `scripts/clickup_claim.py` | claim Wave 3: assigns the matching ClickUp task |
++| `scripts/orca_worktree.py` | claim Wave 0 (`preflight`), Wave 5 (`prompt`), Wave 7 (`worktree`) and Wave 8 (`launch`): the only file that calls `orca` |
+ | `templates/scout-report.md` | `scout.md` (both modes) |
+ | `templates/accuracy-check-comment.md` | `accuracy-check.md` (claim, posted) |
+ | `templates/issue-summary.md` | `issue-summary.md` (claim) |
+diff --git a/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py b/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py
+new file mode 100644
+index 00000000..316ed11f
+--- /dev/null
++++ b/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py
+@@ -0,0 +1,150 @@
++#!/usr/bin/env python3
++"""Orca worktree and agent-launch steps of ``/sc:issue --claim``.
++
++Standard library only. Called by the claim flow as
++``orca_worktree.py <subcommand> ...`` (subcommands ``preflight``, ``worktree``,
++``prompt``, ``launch``); the skill reads the one JSON object printed on stdout.
++
++Every runtime outcome exits 0 with a JSON object; exit code 2 is reserved for
++bad command-line arguments (argparse). Every subprocess runs without a shell,
++with captured output and a timeout: 120 s by default, 30 s for ``preflight``
++and 15 s for each ``orca terminal read``. A timeout is a failed command, never
++an exception. The environment variable ``SC_ORCA_TIMEOUT`` (seconds, a float)
++replaces every timeout; tests use it so a hanging fake ``orca`` is cut fast.
++
++``preflight`` prints ``{"ok": true}`` when ``orca status --json`` exits 0 and
++reports ``ok: true`` and ``result.runtime.reachable: true``; otherwise
++``{"ok": false, "detail": "<first stderr line, or why the JSON failed>"}``. A
++missing ``orca`` binary gives the same shape.
++"""
++
++from __future__ import annotations
++
++import argparse
++import json
++import os
++import subprocess
++import sys
++from dataclasses import dataclass
++
++DEFAULT_TIMEOUT = 120.0
++PREFLIGHT_TIMEOUT = 30.0
++TERMINAL_READ_TIMEOUT = 15.0
++TIMEOUT_ENV = "SC_ORCA_TIMEOUT"
++
++
++@dataclass
++class Result:
++    """Outcome of one subprocess call. ``run`` never raises."""
++
++    rc: int | None
++    out: str = ""
++    err: str = ""
++    timed_out: bool = False
++    missing: bool = False
++
++    @property
++    def ok(self) -> bool:
++        return self.rc == 0 and not self.timed_out and not self.missing
++
++    def first_error_line(self) -> str:
++        """First non-empty stderr line, else a short reason for the failure."""
++        for line in self.err.splitlines():
++            if line.strip():
++                return line.strip()
++        if self.timed_out:
++            return "timed out"
++        if self.missing:
++            return "command not found"
++        return f"exit {self.rc}"
++
++
++def _timeout(default: float) -> float:
++    raw = os.environ.get(TIMEOUT_ENV)
++    if raw:
++        try:
++            value = float(raw)
++        except ValueError:
++            return default
++        if value > 0:
++            return value
++    return default
++
++
++def run(argv: list[str], timeout: float = DEFAULT_TIMEOUT) -> Result:
++    """Run ``argv`` without a shell; return a failed Result on any problem."""
++    try:
++        proc = subprocess.run(
++            argv,
++            capture_output=True,
++            text=True,
++            timeout=_timeout(timeout),
++            check=False,
++        )
++    except subprocess.TimeoutExpired as exc:
++        return Result(
++            rc=None,
++            out=_text(exc.stdout),
++            err=_text(exc.stderr),
++            timed_out=True,
++        )
++    except (FileNotFoundError, PermissionError) as exc:
++        return Result(rc=None, err=str(exc), missing=True)
++    except OSError as exc:
++        return Result(rc=None, err=str(exc), missing=True)
++    return Result(rc=proc.returncode, out=proc.stdout or "", err=proc.stderr or "")
++
++
++def _text(value: object) -> str:
++    if isinstance(value, bytes):
++        return value.decode("utf-8", "replace")
++    return value if isinstance(value, str) else ""
++
++
++def parse_json(text: str) -> object | None:
++    """Parse ``text`` as JSON; ``None`` when it is not valid JSON."""
++    try:
++        return json.loads(text)
++    except (ValueError, TypeError):
++        return None
++
++
++def emit(payload: dict) -> int:
++    """Print one JSON object on stdout; every runtime outcome exits 0."""
++    print(json.dumps(payload))
++    return 0
++
++
++def cmd_preflight(_args: argparse.Namespace) -> int:
++    res = run(["orca", "status", "--json"], PREFLIGHT_TIMEOUT)
++    if not res.ok:
++        return emit({"ok": False, "detail": res.first_error_line()})
++    data = parse_json(res.out)
++    if not isinstance(data, dict):
++        return emit({"ok": False, "detail": "orca status did not print a JSON object"})
++    if data.get("ok") is not True:
++        return emit({"ok": False, "detail": "orca status reported ok is not true"})
++    runtime = (data.get("result") or {}).get("runtime")
++    if not isinstance(runtime, dict) or runtime.get("reachable") is not True:
++        return emit({"ok": False, "detail": "the Orca runtime is not reachable"})
++    return emit({"ok": True})
++
++
++def build_parser() -> argparse.ArgumentParser:
++    parser = argparse.ArgumentParser(
++        prog="orca_worktree.py",
++        description="Orca worktree and agent-launch steps of /sc:issue --claim.",
++    )
++    sub = parser.add_subparsers(dest="command", required=True)
++    pre = sub.add_parser("preflight", help="check that the Orca runtime is reachable")
++    pre.set_defaults(func=cmd_preflight)
++    return parser
++
++
++def main(argv: list[str] | None = None) -> int:
++    args = build_parser().parse_args(argv)
++    return args.func(args)
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/skills/test_issue_orca_worktree.py b/tests/skills/test_issue_orca_worktree.py
+new file mode 100644
+index 00000000..0cecf1a6
+--- /dev/null
++++ b/tests/skills/test_issue_orca_worktree.py
+@@ -0,0 +1,236 @@
++"""Tests for ``scripts/orca_worktree.py`` (the Orca step of ``/sc:issue --claim``).
++
++No test calls a real ``orca``, ``gh``, the network or a real agent. A fake
++``orca`` executable is put first on ``PATH``; it logs every argv and answers
++from JSON files the test writes. ``HOME`` is a temporary directory.
++"""
++
++from __future__ import annotations
++
++import json
++import os
++import subprocess
++import sys
++import textwrap
++from pathlib import Path
++
++import pytest
++
++REPO_ROOT = Path(__file__).resolve().parents[2]
++SCRIPT = (
++    REPO_ROOT
++    / "src"
++    / "superclaude"
++    / "skills"
++    / "sc-issue-protocol"
++    / "scripts"
++    / "orca_worktree.py"
++)
++
++# The fake logs one JSON argv per line to calls.jsonl and answers from
++# "<subcommand words joined by ->.json" (for example "worktree-list.json").
++# A response file holds {"responses": [{"stdout", "stderr", "rc", "sleep"}, ...]};
++# call number n gets responses[min(n, len - 1)], so a list called twice can
++# answer differently the second time. "stdout" may be a string or any JSON value.
++FAKE_ORCA = textwrap.dedent(
++    """\
++    #!{python}
++    import json, os, sys, time
++    d = os.environ["FAKE_ORCA_DIR"]
++    argv = sys.argv[1:]
++    with open(os.path.join(d, "calls.jsonl"), "a") as f:
++        f.write(json.dumps(argv) + "\\n")
++    key = "status" if argv[:1] == ["status"] else "-".join(argv[:2])
++    path = os.path.join(d, key + ".json")
++    if not os.path.exists(path):
++        sys.stderr.write("fake orca: no response for " + key + "\\n")
++        sys.exit(1)
++    counter = os.path.join(d, key + ".count")
++    n = int(open(counter).read()) if os.path.exists(counter) else 0
++    open(counter, "w").write(str(n + 1))
++    responses = json.load(open(path))["responses"]
++    r = responses[min(n, len(responses) - 1)]
++    time.sleep(r.get("sleep", 0))
++    out = r.get("stdout", "")
++    sys.stdout.write(out if isinstance(out, str) else json.dumps(out))
++    sys.stderr.write(r.get("stderr", ""))
++    sys.exit(r.get("rc", 0))
++    """
++)
++
++
++class FakeOrca:
++    def __init__(self, root: Path, home: Path) -> None:
++        self.dir = root / "orca-state"
++        self.bin = root / "orca-bin"
++        self.dir.mkdir()
++        self.bin.mkdir()
++        self.home = home
++        exe = self.bin / "orca"
++        exe.write_text(FAKE_ORCA.format(python=sys.executable))
++        exe.chmod(0o755)
++
++    def respond(self, key: str, *responses: dict) -> None:
++        """Set the answers for one orca subcommand (``status``, ``worktree-list``...)."""
++        (self.dir / f"{key}.json").write_text(
++            json.dumps({"responses": list(responses)})
++        )
++
++    def calls(self) -> list[list[str]]:
++        log = self.dir / "calls.jsonl"
++        if not log.exists():
++            return []
++        return [json.loads(line) for line in log.read_text().splitlines() if line]
++
++    def env(self, **extra: str) -> dict[str, str]:
++        env = dict(os.environ)
++        env["PATH"] = f"{self.bin}{os.pathsep}{env['PATH']}"
++        env["FAKE_ORCA_DIR"] = str(self.dir)
++        env["HOME"] = str(self.home)
++        env.update(extra)
++        return env
++
++
++@pytest.fixture
++def home(tmp_path: Path) -> Path:
++    path = tmp_path / "home"
++    path.mkdir()
++    return path
++
++
++@pytest.fixture
++def fake_orca(tmp_path: Path, home: Path) -> FakeOrca:
++    return FakeOrca(tmp_path, home)
++
++
++def run_script(
++    *args: str, env: dict[str, str], cwd: Path | None = None
++) -> subprocess.CompletedProcess[str]:
++    return subprocess.run(
++        [sys.executable, str(SCRIPT), *args],
++        capture_output=True,
++        text=True,
++        env=env,
++        cwd=cwd,
++        timeout=60,
++        check=False,
++    )
++
++
++def run_json(*args: str, env: dict[str, str], cwd: Path | None = None) -> dict:
++    proc = run_script(*args, env=env, cwd=cwd)
++    assert proc.returncode == 0, proc.stderr
++    lines = proc.stdout.strip().splitlines()
++    assert len(lines) == 1, f"expected one JSON object on stdout, got {proc.stdout!r}"
++    data = json.loads(lines[0])
++    assert isinstance(data, dict)
++    return data
++
++
++def git(cwd: Path, *args: str) -> str:
++    env = dict(os.environ, GIT_CONFIG_GLOBAL="/dev/null", GIT_CONFIG_SYSTEM="/dev/null")
++    proc = subprocess.run(
++        ["git", "-C", str(cwd), *args],
++        capture_output=True,
++        text=True,
++        env=env,
++        check=True,
++    )
++    return proc.stdout.strip()
++
++
++@pytest.fixture
++def git_repo(tmp_path: Path) -> Path:
++    """A throwaway checkout whose ``origin`` is a local bare repository."""
++    bare = tmp_path / "origin.git"
++    subprocess.run(
++        ["git", "init", "--bare", "-b", "master", str(bare)],
++        capture_output=True,
++        check=True,
++    )
++    main = tmp_path / "main"
++    subprocess.run(
++        ["git", "init", "-b", "master", str(main)], capture_output=True, check=True
++    )
++    git(main, "config", "user.email", "test@example.invalid")
++    git(main, "config", "user.name", "Test")
++    git(main, "remote", "add", "origin", str(bare))
++    (main / "README.md").write_text("fixture\n")
++    git(main, "add", "README.md")
++    git(main, "commit", "-m", "init")
++    git(main, "push", "origin", "master")
++    git(main, "fetch", "origin")
++    return main
++
++
++def test_fixture_git_repo_has_origin(git_repo: Path) -> None:
++    assert git(git_repo, "rev-parse", "--verify", "origin/master")
++    assert git(git_repo, "remote", "get-url", "origin").endswith("origin.git")
++
++
++STATUS_OK = {"ok": True, "result": {"runtime": {"reachable": True}}}
++
++
++def test_preflight_pf1_ok(fake_orca: FakeOrca) -> None:
++    fake_orca.respond("status", {"stdout": STATUS_OK})
++    data = run_json("preflight", env=fake_orca.env())
++    assert data == {"ok": True}
++    assert fake_orca.calls() == [["status", "--json"]]
++
++
++@pytest.mark.parametrize(
++    "response",
++    [
++        {"stdout": {"ok": True, "result": {"runtime": {"reachable": False}}}},
++        {"stdout": {"ok": True, "result": {}}},
++        {"stdout": {"ok": False, "result": {"runtime": {"reachable": True}}}},
++        {"stdout": [1, 2]},
++        {"stdout": "not json at all"},
++        {"stdout": "", "stderr": "orca: runtime not running\nmore\n", "rc": 1},
++    ],
++    ids=[
++        "unreachable",
++        "no-runtime",
++        "ok-false",
++        "json-not-object",
++        "invalid-json",
++        "nonzero-exit",
++    ],
++)
++def test_preflight_pf2_not_ok(fake_orca: FakeOrca, response: dict) -> None:
++    fake_orca.respond("status", response)
++    data = run_json("preflight", env=fake_orca.env())
++    assert data["ok"] is False
++    assert isinstance(data["detail"], str) and data["detail"].strip()
++
++
++def test_preflight_pf2_nonzero_exit_detail_is_first_stderr_line(
++    fake_orca: FakeOrca,
++) -> None:
++    fake_orca.respond(
++        "status", {"stdout": "", "stderr": "orca: runtime not running\nmore\n", "rc": 1}
++    )
++    data = run_json("preflight", env=fake_orca.env())
++    assert data == {"ok": False, "detail": "orca: runtime not running"}
++
++
++def test_preflight_pf2_no_orca_on_path(tmp_path: Path, home: Path) -> None:
++    empty = tmp_path / "empty-bin"
++    empty.mkdir()
++    env = dict(os.environ, PATH=str(empty), HOME=str(home))
++    data = run_json("preflight", env=env)
++    assert data["ok"] is False
++    assert data["detail"].strip()
++
++
++def test_preflight_hanging_orca_is_cut_by_the_timeout(fake_orca: FakeOrca) -> None:
++    fake_orca.respond("status", {"stdout": STATUS_OK, "sleep": 30})
++    data = run_json("preflight", env=fake_orca.env(SC_ORCA_TIMEOUT="0.5"))
++    assert data == {"ok": False, "detail": "timed out"}
++
++
++def test_arg1_bad_subcommand_and_missing_subcommand_exit_2(fake_orca: FakeOrca) -> None:
++    assert run_script("nonsense", env=fake_orca.env()).returncode == 2
++    assert run_script(env=fake_orca.env()).returncode == 2
++    assert run_script("preflight", "--bogus", env=fake_orca.env()).returncode == 2
++    assert fake_orca.calls() == []

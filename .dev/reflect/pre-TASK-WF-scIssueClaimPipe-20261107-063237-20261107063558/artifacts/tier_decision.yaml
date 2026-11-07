@@ -1,0 +1,17 @@
+selected_tier: 2
+fired_rule_number: 4
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 7
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 1
+  blast_radius: 2
+  spec_density: 2
+  ambiguity_signals: 1
+escalation_reason: "Step 1B.2b parse-density guard (0 parsed IDs, 56 inferred rows) forbids the Tier-1 stop table-wide; rule 4 (S_domains 3: code, tests, docs) and rule 6 (calibrated C 0.81 < 0.85) also escalate."
+calibrated_confidence_initial: 0.81
+S_scope: 9
+S_domains: 3
+S_dev_density_union: 0.0893
+coverage_pct_union: 0.9107

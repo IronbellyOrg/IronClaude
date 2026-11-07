@@ -1,0 +1,35 @@
+input_tree_sha256: a99de5cfb1060b8b9505f991bb599b761ffa749af57758b880ce82392d28b4cd
+file_list:
+  - path: .claude/settings.json
+    sha256: 1f535104e6bb9145585a88418d0a094a4b38d6432e3b5fbd6226d550da33d41c
+  - path: .dev/tasks/to-do/TASK-WF-scIssueClaimPipe-20261107-063237/TASK-WF-scIssueClaimPipe-20261107-063237.md
+    sha256: 81cf9cc6829b4a5c05ca8308aeb332623ecaba791deddbcd4c55205e30ca4fcb
+  - path: .dev/tasks/to-do/TASK-WF-scIssueClaimPipe-20261107-063237/source.md
+    sha256: bd3ecc9f18815610c11c5932e286916ea4d53bf93aa958e10de2c215715ffa19
+  - path: docs/designs/sc-issue-claim-pipeline-flag.md
+    sha256: bd3ecc9f18815610c11c5932e286916ea4d53bf93aa958e10de2c215715ffa19
+  - path: docs/designs/sc-issue-command.md
+    sha256: 9ba1668e8e9243738aa9739abd88d0e534ad689fb6d4fc7899927ff6a930bb55
+  - path: docs/designs/sc-issue-launch-level-hook.md
+    sha256: 0197934df6e602a3d0f90892d2896258802a6967ce0deeae1b931b10e7dc8eaf
+  - path: docs/user-guide/commands.md
+    sha256: fa935837912099a1841b876c03f8076e8ff20983187754f7792a8323909a858f
+  - path: plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+    sha256: 9ef784ce264ef31a82c956a79271fe1953f87601e955980e0dcf07f855509814
+  - path: src/superclaude/commands/issue.md
+    sha256: dd2f8300f059e445a87b7be9e750cf1067df252e8c2d70958298de78415c888b
+  - path: src/superclaude/core/HOW-WE-WORK.md
+    sha256: 9ef784ce264ef31a82c956a79271fe1953f87601e955980e0dcf07f855509814
+  - path: src/superclaude/skills/sc-issue-protocol/SKILL.md
+    sha256: f6132a6c6e45435b09c90465ded36acc2ca5d7bf5d40e743be01c806c6f9cae6
+  - path: src/superclaude/skills/sc-issue-protocol/refs/claim.md
+    sha256: 43d45d78be4d3d8fb9307056d02b4f9b468f25acc19a08a5d38d6f82ccb0e2c7
+  - path: src/superclaude/skills/sc-issue-protocol/templates/next-steps.md
+    sha256: 9704bc3c6329deb890860ec12fb7e050bafdb9f9149a3a8112c0059798dbe690
+  - path: tests/cli/test_issue_body_templates.py
+    sha256: 844a1b1dfe8d2ede522cb8b2e62980007a33aa66f85be9f15ab662833dffe882
+  - path: tests/commands/test_issue_command.py
+    sha256: d11ed5b04255017ffff6b52a9d2d9cbd12db39e0524bca836f58bae0634b973b
+  - path: tests/skills/test_issue_protocol.py
+    sha256: cd1103fdf1b9ddb82b32667455e6bf46da17e7252a263bafd01d21fff18f7fc5
+file_count: 16

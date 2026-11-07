@@ -1,0 +1,41 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20261105-024132-issue-claim-orca-worktree-flag/seed-brief.md
+merged_output_path: .dev/brainstorms/20261105-024132-issue-claim-orca-worktree-flag/merged-requirements.md
+# 29 of 29 debate points have a majority winner (>= 2 of 3 advocates). Three sub-decisions were 2 to 1.
+# Above the 0.75 threshold and the 0.65 PASS line. Computed by the orchestrator from the Round 1 and Round 2 verdict tables.
+convergence_score: 1.0
+# Note: the skill's output path was passed as .../adversarial/, so the skill's own adversarial/ folder is nested one level down.
+adversarial_artifacts_dir: .dev/brainstorms/20261105-024132-issue-claim-orca-worktree-flag/adversarial/adversarial/
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "RESOLVED 2026-11-05: owner accepted that creating a worktree after next-steps.md is allowed under design decision B2 (merged spec 2.7, risk R9). Owner is also open to loosening the next-step restriction (stop at an approved plan, or the full pipeline); not yet decided or specified."
+  - "Dissent: advocate B would drop the worktree.json record file (2 of 3 keep it, path only and guarded)."
+  - "Open item: which code worktree_warning carries when two warnings apply (merged spec section 9; proposal: the one that set the status, the rest in detail)."
+  - "UNVERIFIED Orca behaviour, to check in one observed run (AC-1): --comment filling the comment field, create JSON shape, branch prefix, taken-name suffix, .claude/ present in a new worktree, projectId exposure."
+
+# --- telemetry (non-stable) ---
+wave_durations_ms: null        # not measured
+token_usage: null              # not measured
+agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'"
+adversarial:
+  base_variant: "opus:architect"
+  base_score: 0.9215
+  runner_up: "sonnet:refactorer 0.8960 (margin 0.0255, tiebreaker by input order)"
+  third: "haiku:qa 0.8250"
+  invariant_probe: "16 findings, 0 HIGH; 12 unaddressed (6 MEDIUM, 6 LOW), 10 folded into the merge, 2 accepted as risk (INV-006, INV-008)"
+  position_bias: "84 of 90 verdicts agreed between passes; 6 re-evaluated"
+  review_gap: "refactor-plan.md was drafted by the orchestrator and auto-approved; no separate reviewer agent ran on it"
+enrichment_artifact_sizes:
+  codebase-context.md: 6057
+  research-light.md: null
