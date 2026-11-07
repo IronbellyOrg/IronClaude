@@ -961,8 +961,13 @@ def session_report(wt: str, l2: str) -> tuple[str, list[str]]:
     release = (
         "to release this session, a person runs in their own terminal: "
         f'rm "{store}/sessions/<session id>" "{store}/sessions/<session id>.ok" '
-        "(the session id is the one the session's 'Launch-level guard' block "
-        "message shows)"
+        "(every file in the sessions folder is named by a session id and holds "
+        "only the level word, and a name ending in .ok is an approval; the launch "
+        "does not print the id, so run ls -lt on the sessions folder and take the "
+        "newest name that does not end in .ok, which is this launch's session once "
+        "the agent has read its first prompt; with several launched sessions "
+        "running, cat the file to check the level word; a guard block about "
+        "touching the launch-level state prints the exact rm command)"
     )
     l2_line = (
         "L2 pre-push: absent (no executable pre-push hook in this worktree; the "

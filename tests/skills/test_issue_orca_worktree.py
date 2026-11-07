@@ -1411,7 +1411,11 @@ def test_ir6_launched_result_states_the_release_and_both_layers(
     assert f'rm "{store}/sessions/<session id>" "{store}/sessions/<session id>.ok"' in (
         release
     )
-    assert "own terminal" in release and "'Launch-level guard' block" in release
+    # The id is not printed by an ordinary block message (only LL-TAMPER names it),
+    # so the instruction says where to find it instead.
+    assert "own terminal" in release and "'Launch-level guard' block" not in release
+    assert "named by a session id" in release and "ls -lt" in release
+    assert "does not end in .ok" in release and "exact rm command" in release
     l1, l2 = data["layers"]
     assert l1.startswith("L1 guard: effective")
     assert l2.startswith("L2 pre-push: absent")  # git init makes only *.sample hooks
