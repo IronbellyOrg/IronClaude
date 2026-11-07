@@ -1,0 +1,8 @@
+$ uv run pytest tests/hooks/test_launch_level_guard.py -k "APR or approval" -q
+tests/hooks/test_launch_level_guard.py ................................. [ 52%]
+..............................                                           [100%]
+
+===================== 63 passed, 3103 deselected in 1.85s ======================
+
+$ uv run pytest tests/hooks/test_launch_level_guard.py -q (summary)
+============================ 3166 passed in 57.35s =============================

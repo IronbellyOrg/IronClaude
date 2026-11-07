@@ -464,7 +464,12 @@ def test_st9_final_output_lists_the_launch_results_and_every_launch_code():
         "never merges",
     ):
         assert text in final, text
-    for code in ("W-LAUNCH-FAILED", "W-LAUNCH-NOT-CCSESSION", "W-ENFORCEMENT-ABSENT"):
+    for code in (
+        "W-LAUNCH-FAILED",
+        "W-LAUNCH-NOT-CCSESSION",
+        "W-ENFORCEMENT-ABSENT",
+        "W-L2-ABSENT",
+    ):
         assert code in claim and code in _text(SKILL), code
 
 

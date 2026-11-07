@@ -37,13 +37,19 @@ with ``--level worktree`` is a bad argument (exit 2).
 
 ``launch --number <N> --source <D> --level worktree|full [--submit]`` starts one
 Claude Code agent in the worktree recorded in ``<D>/worktree.json``. It first
-publishes the launch record the enforcement hook reads
+runs the IR-4 preflight (jq, uv, Linux, the installed guard and its settings
+registrations; read only) and refuses the launch with ``W-ENFORCEMENT-ABSENT``
+when the guard would not be effective. A worktree without an executable
+pre-push hook only adds the warning ``W-L2-ABSENT`` (IR-7 is a warning until an
+L2 layer is built); the launch goes ahead. It then publishes the launch record the enforcement hook reads
 (``$HOME/.claude/state/launch-level/pending/<nonce>``, one word), then runs
 ``orca agent launch --surface terminal`` with a prompt that starts with
 ``[sc-launch:v1:<nonce>]``, checks the agent's screen for the ccsession shim, and
 writes a ``launch`` entry into ``worktree.json``. It prints ``{status, warning,
-detail, terminal, launched_at, enforcement_hook, hand_command}`` with ``status``
-``launched``, ``failed`` or ``already_launched``.
+detail, terminal, launched_at, enforcement_hook, hand_command, release,
+layers}`` with ``status`` ``launched``, ``failed`` or ``already_launched``;
+``release`` (how a person releases the session) and ``layers`` (one status line
+for L1 and one for L2) are set only for ``launched``, else null.
 """
 
 from __future__ import annotations
@@ -709,20 +715,263 @@ REMEDY = {
         "close it. Orca's Claude command must be the ccsession-orca wrapper"
     ),
     "W-ENFORCEMENT-ABSENT": (
-        "the level is an instruction in the prompt only until the launch-level "
-        "hook (#394) ships; do not use full or --submit on a real issue yet"
+        "the launch was refused and no agent was started; fix each condition "
+        "named above (most are fixed by running superclaude install), then "
+        "claim the issue again"
+    ),
+    "W-L2-ABSENT": (
+        "the L2 layer is not built yet and the limits are enforced by the L1 "
+        "guard only; the agent was started"
     ),
 }
+# IR-7 (design section 13) says refuse; this plan builds no L2 layer, so the
+# claim warns instead and the launch goes ahead.
+L2_ABSENT_WHY = (
+    "the worktree has no executable pre-push hook at git's hook path, so no L2 "
+    "pre-push layer checks this session's pushes"
+)
+# IR-4: what the claim checks before a governed launch. It reads files and the
+# environment only and never edits any configuration.
+GUARD_COMMAND = "~/.claude/hooks/launch-level-guard.sh"
+IDENTITY_COMMAND = "~/.claude/hooks/launch-job-identity.sh"
+GUARD_VERSION_LINE = "# launch-level-guard-version: 1"
+GOVERNED_TOOLS = (
+    "Bash",
+    "Skill",
+    "Agent",
+    "Task",
+    "Edit",
+    "Write",
+    "NotebookEdit",
+    "Monitor",
+    "Workflow",
+    "RemoteTrigger",
+    "SendMessage",
+    "CronCreate",
+    "CronDelete",
+    "ScheduleWakeup",
+    # The mcp__ branch of the design matcher: a registration without it misses these.
+    "mcp__x__merge_pull_request",
+    "mcp__x__push_files",
+    "mcp__x__create_or_update_file",
+)
+FIRE_ALWAYS = (None, "", "*")
+LINUX_FILES = ("/proc/self/stat", "/proc/sys/kernel/random/boot_id")
+PR_GET_CHILD_SUBREAPER = 37  # linux/prctl.h
+
+
+def process_interface_gaps() -> list[str]:
+    """The process interfaces of the job identity hook that this host lacks.
+
+    Read-only probes on the claim process itself: the /proc files, pidfd_open of
+    its own pid, and the query form of the child-subreaper call.
+    """
+    if not sys.platform.startswith("linux"):
+        return [f"sys.platform is {sys.platform}, not Linux"]
+    gaps = [p for p in LINUX_FILES if not os.path.exists(p)]
+    try:
+        import ctypes
+
+        libc = ctypes.CDLL(None, use_errno=True)
+    except OSError:
+        return gaps + ["pidfd_open", "prctl(PR_GET_CHILD_SUBREAPER)"]
+    try:
+        # libc, like the hook: some UV Python builds omit os.pidfd_open.
+        fd = libc.pidfd_open(os.getpid(), 0)
+        if fd < 0:
+            gaps.append("pidfd_open")
+        else:
+            os.close(fd)
+    except AttributeError:
+        gaps.append("pidfd_open")
+    try:
+        flag = ctypes.c_int()
+        if libc.prctl(PR_GET_CHILD_SUBREAPER, ctypes.byref(flag), 0, 0, 0) != 0:
+            gaps.append("prctl(PR_GET_CHILD_SUBREAPER)")
+    except AttributeError:
+        gaps.append("prctl(PR_GET_CHILD_SUBREAPER)")
+    return gaps
 
 
 def home_dir() -> Path:
     return Path(os.environ.get("HOME") or Path.home())
 
 
-def enforcement_status() -> str:
-    """``installed`` when the hook script exists and is executable, else ``missing``."""
-    hook = home_dir() / HOOK_SCRIPT
-    return "installed" if hook.is_file() and os.access(hook, os.X_OK) else "missing"
+def read_settings(path: Path, required: bool) -> tuple[dict, str | None]:
+    """The settings object at ``path`` and why it could not be used, else None."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return (
+            {},
+            f"{path} does not exist (run superclaude install)" if required else None,
+        )
+    except (OSError, ValueError) as exc:
+        return {}, f"{path} cannot be read as JSON: {exc} (fix that file)"
+    if not isinstance(data, dict):
+        return {}, f"{path} is not a JSON object (fix that file)"
+    return data, None
+
+
+def matchers_for(settings: dict, event: str, command: str) -> list[object]:
+    """The matcher of every ``event`` registration that holds ``command``."""
+    hooks = settings.get("hooks")
+    groups = hooks.get(event) if isinstance(hooks, dict) else None
+    found: list[object] = []
+    for group in groups if isinstance(groups, list) else []:
+        inner = group.get("hooks") if isinstance(group, dict) else None
+        if isinstance(inner, list) and any(
+            isinstance(h, dict) and h.get("command") == command for h in inner
+        ):
+            found.append(group.get("matcher"))
+    return found
+
+
+def fires_for(matcher: object, tool: str) -> bool:
+    if matcher in FIRE_ALWAYS:
+        return True
+    if not isinstance(matcher, str):
+        return False
+    try:
+        return re.search(matcher, tool) is not None
+    except re.error:
+        return False
+
+
+def enforcement_preflight(wt: str) -> list[str]:
+    """IR-4: every reason the launch-level guard would not be effective; [] if none.
+
+    Only the claim process is seen: its HOME, PATH and environment, and the
+    settings files on disk. The agent Orca starts may run with another one.
+    """
+    home = home_dir()
+    stale = "run superclaude install --force to replace it"
+    restale = "run superclaude install --force to replace the registration"
+    failures: list[str] = []
+    for tool in ("jq", "uv"):
+        if shutil.which(tool) is None:
+            failures.append(f"{tool} is not on PATH (install {tool})")
+    gaps = process_interface_gaps()
+    if gaps:
+        failures.append(
+            "this host lacks "
+            + ", ".join(gaps)
+            + ", which the job identity hook needs (governed launches are Linux only)"
+        )
+    script = home / HOOK_SCRIPT
+    if not script.is_file():
+        failures.append(f"{script} is not installed (run superclaude install)")
+    else:
+        if not os.access(script, os.X_OK):
+            failures.append(f"{script} is installed but not executable ({stale})")
+        try:
+            lines = script.read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError as exc:
+            lines, why = [], f"cannot be read: {exc}"
+        else:
+            why = f"lacks the line '{GUARD_VERSION_LINE}'"
+        if GUARD_VERSION_LINE not in (line.rstrip() for line in lines):
+            failures.append(f"{script} is installed but stale: it {why} ({stale})")
+    config = os.environ.get("CLAUDE_CONFIG_DIR")
+    if config and os.path.realpath(os.path.expanduser(config)) != os.path.realpath(
+        home / ".claude"
+    ):
+        failures.append(
+            f"CLAUDE_CONFIG_DIR is {config}, not {home / '.claude'}, so the user "
+            "settings checked here may not be the ones Claude Code loads (unset it "
+            "or point it at $HOME/.claude)"
+        )
+    user_path = home / ".claude" / "settings.json"
+    user, user_why = read_settings(user_path, required=True)
+    failures += [user_why] if user_why else []
+    files = [(user_path, user)]
+    for name in ("settings.json", "settings.local.json"):
+        path = Path(wt) / ".claude" / name
+        data, why = read_settings(path, required=False)
+        failures += [why] if why else []
+        files.append((path, data))
+    for path, data in files:
+        if data.get("disableAllHooks") is True:
+            failures.append(
+                f"{path} sets disableAllHooks to true, so no hook runs (remove that "
+                "setting; the claim never edits it)"
+            )
+    if not user_why:
+        prompt = matchers_for(user, "UserPromptSubmit", GUARD_COMMAND)
+        if not prompt:
+            failures.append(
+                f"{user_path} has no UserPromptSubmit registration of "
+                f"{GUARD_COMMAND} (run superclaude install)"
+            )
+        elif not any(m in FIRE_ALWAYS or m == ".*" for m in prompt):
+            failures.append(
+                f"the UserPromptSubmit registration of {GUARD_COMMAND} in {user_path} "
+                f"has a matcher that may stop it firing ({restale})"
+            )
+        tools = matchers_for(user, "PreToolUse", GUARD_COMMAND)
+        missed = [t for t in GOVERNED_TOOLS if not any(fires_for(m, t) for m in tools)]
+        if not tools:
+            failures.append(
+                f"{user_path} has no PreToolUse registration of {GUARD_COMMAND} "
+                "(run superclaude install)"
+            )
+        elif missed:
+            failures.append(
+                f"the PreToolUse registration of {GUARD_COMMAND} in {user_path} "
+                f"does not fire for {', '.join(missed)} ({restale})"
+            )
+        identity = matchers_for(user, "PreToolUse", IDENTITY_COMMAND)
+        if not any(fires_for(m, "Bash") for m in identity):
+            failures.append(
+                f"{user_path} has no PreToolUse registration of {IDENTITY_COMMAND} "
+                "that fires for Bash (run superclaude install"
+                + (", with --force" if identity else "")
+                + ")"
+            )
+    return failures
+
+
+def l2_status(wt: str) -> str:
+    """IR-6: the L2 pre-push layer of the worktree, read only.
+
+    ``absent`` when git's ``hooks/pre-push`` path for ``wt`` (``core.hooksPath``
+    and the common git directory of a linked worktree honoured) is not an
+    executable file, else ``present-unverified``: this file did not build that
+    hook, so it never claims to know what the hook enforces.
+    """
+    res = run(["git", "-C", wt, "rev-parse", "--git-path", "hooks/pre-push"])
+    out = res.out.strip()
+    if not res.ok or not out:
+        return "absent"
+    hook = Path(wt) / out  # a relative answer is relative to wt
+    return (
+        "present-unverified"
+        if hook.is_file() and os.access(hook, os.X_OK)
+        else "absent"
+    )
+
+
+def session_report(wt: str, l2: str) -> tuple[str, list[str]]:
+    """IR-6: how a person releases the launched session, and one line per layer.
+
+    Called only after the IR-4 preflight passed, so L1 is effective. ``l2`` is
+    the l2_status() answer the launch already used, so both always agree.
+    """
+    store = home_dir().joinpath(*PENDING_PARTS[:-1])
+    release = (
+        "to release this session, a person runs in their own terminal: "
+        f'rm "{store}/sessions/<session id>" "{store}/sessions/<session id>.ok" '
+        "(the session id is the one the session's 'Launch-level guard' block "
+        "message shows)"
+    )
+    l2_line = (
+        "L2 pre-push: absent (no executable pre-push hook in this worktree; the "
+        "limits are enforced by the L1 guard only)"
+        if l2 == "absent"
+        else "L2 pre-push: present-unverified (a pre-push hook exists; the claim "
+        "did not build it and does not check what it enforces)"
+    )
+    return release, ["L1 guard: effective (the IR-4 preflight passed)", l2_line]
 
 
 def publish_pending(word: str) -> tuple[str, Path]:
@@ -870,6 +1119,8 @@ def launch_result(status: str, notes: list[tuple[str, str]], **fields: object) -
         "launched_at": None,
         "enforcement_hook": None,
         "hand_command": None,
+        "release": None,
+        "layers": None,
     }
     base.update(fields)
     return base
@@ -934,8 +1185,37 @@ def cmd_launch(args: argparse.Namespace) -> int:
     stale = stale_prompt(source, Path(wt), number)
     if stale:
         return emit(launch_result("failed", [(failed, stale)]))
-    hook = enforcement_status()
+    # Order: the already-launched and stale-prompt checks above come first, the
+    # IR-4 preflight next, and only then publish_pending, so a refusal leaves no
+    # launch record and starts no agent. enforcement_hook in the result means:
+    # "installed" the preflight passed, "missing" it failed and the launch was
+    # refused, null (the launch_result default) no preflight ran.
+    absent = enforcement_preflight(wt)
+    if absent:
+        return emit(
+            launch_result(
+                "failed",
+                [
+                    (
+                        "W-ENFORCEMENT-ABSENT",
+                        "the launch-level guard would not be effective: "
+                        + "; ".join(absent)
+                        + ". This check verified the claim process only (its "
+                        "HOME, PATH, environment and the settings files on "
+                        "disk), not the environment the agent would run in",
+                    )
+                ],
+                enforcement_hook="missing",
+            )
+        )
+    hook = "installed"
     notes: list[tuple[str, str]] = []
+    # IR-7 as a warning, before publish_pending: reads the hook path only, looks
+    # for no ownership marker (design section 19.2) and never touches the hook.
+    # To make it the design's refusal, add after the l2_notes line:
+    # if l2_notes: return emit(launch_result("failed", l2_notes, enforcement_hook=hook))
+    l2 = l2_status(wt)
+    l2_notes = [("W-L2-ABSENT", L2_ABSENT_WHY)] if l2 == "absent" else []
     word = "full-submit" if args.submit else args.level
     try:
         nonce, pending = publish_pending(word)
@@ -983,10 +1263,6 @@ def cmd_launch(args: argparse.Namespace) -> int:
                 else "the launch result named no terminal",
             )
         )
-    if hook == "missing":
-        notes.append(
-            ("W-ENFORCEMENT-ABSENT", "the launch-level hook script is not installed")
-        )
     at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     unrecorded = ""
     problems = record_launch(source, args.level, args.submit, at, wt, number)
@@ -997,12 +1273,15 @@ def cmd_launch(args: argparse.Namespace) -> int:
             f"({'; '.join(problems)}); do not re-run the claim, add the launch entry "
             f"to {source / RECORD_NAME} by hand"
         )
+    release, layers = session_report(wt, l2)
     result = launch_result(
         "launched",
-        notes,
+        notes + l2_notes,  # the ccsession warning, when any, stays first
         terminal=handle,
         launched_at=at,
         enforcement_hook=hook,
+        release=release,
+        layers=layers,
     )
     if unrecorded:
         result["detail"] = "; ".join(filter(None, [result["detail"], unrecorded]))

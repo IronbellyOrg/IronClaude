@@ -1,0 +1,94 @@
+$ uv run pytest tests/hooks/test_launch_level_guard.py -k "bind or BIND" -v
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-394-launch-level-hook/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-394-launch-level-hook
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 158 items / 99 deselected / 59 selected
+
+tests/hooks/test_launch_level_guard.py::test_trap_in_prompt_branch_gives_nobind PASSED [  1%]
+tests/hooks/test_launch_level_guard.py::test_trap_after_marker_gives_nobind_bare_header PASSED [  3%]
+tests/hooks/test_launch_level_guard.py::test_bind_marker_with_record_binds_level[worktree] PASSED [  5%]
+tests/hooks/test_launch_level_guard.py::test_bind_marker_with_record_binds_level[full] PASSED [  6%]
+tests/hooks/test_launch_level_guard.py::test_bind_marker_with_record_binds_level[full-submit] PASSED [  8%]
+tests/hooks/test_launch_level_guard.py::test_bind_marker_at_start_without_record_binds_degraded PASSED [ 10%]
+tests/hooks/test_launch_level_guard.py::test_bind_malformed_marker_at_start_binds_degraded[[sc-launch:v1:ABCDEF0123456789ABCDEF0123456789]] PASSED [ 11%]
+tests/hooks/test_launch_level_guard.py::test_bind_malformed_marker_at_start_binds_degraded[[sc-launch:v1:01234567-89ab-cdef-0123-456789abcdef]] PASSED [ 13%]
+tests/hooks/test_launch_level_guard.py::test_bind_malformed_marker_at_start_binds_degraded[[sc-launch:v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]] PASSED [ 15%]
+tests/hooks/test_launch_level_guard.py::test_bind_malformed_marker_at_start_binds_degraded[[sc-launch:v2:0123456789abcdef0123456789abcdef]] PASSED [ 16%]
+tests/hooks/test_launch_level_guard.py::test_bind_malformed_marker_at_start_binds_degraded[[sc-launch:v1:<nonce>]] PASSED [ 18%]
+tests/hooks/test_launch_level_guard.py::test_bind_marker_after_whitespace_or_bom_binds[   ] PASSED [ 20%]
+tests/hooks/test_launch_level_guard.py::test_bind_marker_after_whitespace_or_bom_binds[\n\n] PASSED [ 22%]
+tests/hooks/test_launch_level_guard.py::test_bind_marker_after_whitespace_or_bom_binds[\t\r\n ] PASSED [ 23%]
+tests/hooks/test_launch_level_guard.py::test_bind_marker_after_whitespace_or_bom_binds[\ufeff] PASSED [ 25%]
+tests/hooks/test_launch_level_guard.py::test_bind_marker_after_whitespace_or_bom_binds[ \ufeff\n\ufeff\t] PASSED [ 27%]
+tests/hooks/test_launch_level_guard.py::test_bind_loose_marker_after_whitespace_or_bom_binds_degraded[   ] PASSED [ 28%]
+tests/hooks/test_launch_level_guard.py::test_bind_loose_marker_after_whitespace_or_bom_binds_degraded[\n\n] PASSED [ 30%]
+tests/hooks/test_launch_level_guard.py::test_bind_loose_marker_after_whitespace_or_bom_binds_degraded[\t\r\n ] PASSED [ 32%]
+tests/hooks/test_launch_level_guard.py::test_bind_loose_marker_after_whitespace_or_bom_binds_degraded[\ufeff] PASSED [ 33%]
+tests/hooks/test_launch_level_guard.py::test_bind_loose_marker_after_whitespace_or_bom_binds_degraded[ \ufeff\n\ufeff\t] PASSED [ 35%]
+tests/hooks/test_launch_level_guard.py::test_bind_strict_marker_mid_prompt_with_record_binds PASSED [ 37%]
+tests/hooks/test_launch_level_guard.py::test_bind_strict_marker_mid_prompt_without_record_blocks_prompt PASSED [ 38%]
+tests/hooks/test_launch_level_guard.py::test_bind_failure_blocks_prompt PASSED [ 40%]
+tests/hooks/test_launch_level_guard.py::test_bind_sessions_dir_created PASSED [ 42%]
+tests/hooks/test_launch_level_guard.py::test_bind_nonce_single_use PASSED [ 44%]
+tests/hooks/test_launch_level_guard.py::test_bind_later_marker_consumes_record_keeps_level[worktree] PASSED [ 45%]
+tests/hooks/test_launch_level_guard.py::test_bind_later_marker_consumes_record_keeps_level[garbage] PASSED [ 47%]
+tests/hooks/test_launch_level_guard.py::test_bind_later_marker_consumes_record_keeps_level[] PASSED [ 49%]
+tests/hooks/test_launch_level_guard.py::test_bind_resume_same_id_governed PASSED [ 50%]
+tests/hooks/test_launch_level_guard.py::test_bind_rename_still_governed PASSED [ 52%]
+tests/hooks/test_launch_level_guard.py::test_bind_reclaim_new_session_new_level PASSED [ 54%]
+tests/hooks/test_launch_level_guard.py::test_bind_invalid_session_ids[.] PASSED [ 55%]
+tests/hooks/test_launch_level_guard.py::test_bind_invalid_session_ids[..] PASSED [ 57%]
+tests/hooks/test_launch_level_guard.py::test_bind_invalid_session_ids[x.ok] PASSED [ 59%]
+tests/hooks/test_launch_level_guard.py::test_bind_invalid_session_ids[a/b] PASSED [ 61%]
+tests/hooks/test_launch_level_guard.py::test_bind_invalid_session_ids[] PASSED [ 62%]
+tests/hooks/test_launch_level_guard.py::test_bind_invalid_session_ids[sid5] PASSED [ 64%]
+tests/hooks/test_launch_level_guard.py::test_bind_invalid_session_ids[7] PASSED [ 66%]
+tests/hooks/test_launch_level_guard.py::test_bind_invalid_session_ids[sid7] PASSED [ 67%]
+tests/hooks/test_launch_level_guard.py::test_bind_invalid_session_ids[None] PASSED [ 69%]
+tests/hooks/test_launch_level_guard.py::test_bind_marker_prompt_with_agent_id_ignored[agent-1] PASSED [ 71%]
+tests/hooks/test_launch_level_guard.py::test_bind_marker_prompt_with_agent_id_ignored[x] PASSED [ 72%]
+tests/hooks/test_launch_level_guard.py::test_bind_jq_missing_marker_prompt_blocked PASSED [ 74%]
+tests/hooks/test_launch_level_guard.py::test_bind_unparseable_marker_prompt_blocked PASSED [ 76%]
+tests/hooks/test_launch_level_guard.py::test_bind_loose_marker_mid_prompt_ignored[False] PASSED [ 77%]
+tests/hooks/test_launch_level_guard.py::test_bind_loose_marker_mid_prompt_ignored[True] PASSED [ 79%]
+tests/hooks/test_launch_level_guard.py::test_bind_two_sessions_isolated PASSED [ 81%]
+tests/hooks/test_launch_level_guard.py::test_bind_same_worktree_other_session_ordinary PASSED [ 83%]
+tests/hooks/test_launch_level_guard.py::test_bind_person_subagent_not_governed PASSED [ 84%]
+tests/hooks/test_launch_level_guard.py::test_bind_forged_nested_session_id PASSED [ 86%]
+tests/hooks/test_launch_level_guard.py::test_bind_jq_missing_ordinary_prompt_allows PASSED [ 88%]
+tests/hooks/test_launch_level_guard.py::test_bind_concurrent_same_session_same_nonce PASSED [ 89%]
+tests/hooks/test_launch_level_guard.py::test_bind_concurrent_other_sessions_same_nonce PASSED [ 91%]
+tests/hooks/test_launch_level_guard.py::test_every_message_prints_the_design_text[F-LL-NOBIND] PASSED [ 93%]
+tests/hooks/test_launch_level_guard.py::test_every_message_prints_the_design_text[FS-LL-NOBIND] PASSED [ 94%]
+tests/hooks/test_launch_level_guard.py::test_every_message_prints_the_design_text[W-LL-NOBIND] PASSED [ 96%]
+tests/hooks/test_launch_level_guard.py::test_every_message_prints_the_design_text[WA-LL-NOBIND] PASSED [ 98%]
+tests/hooks/test_launch_level_guard.py::test_unknown_level_prints_bare_header[LL-NOBIND] PASSED [100%]
+
+====================== 59 passed, 99 deselected in 1.94s =======================
+
+$ for i in 1..10: uv run pytest tests/hooks/test_launch_level_guard.py -k concurren -q
+run 1: ====================== 2 passed, 156 deselected in 1.06s =======================
+run 2: ====================== 2 passed, 156 deselected in 0.14s =======================
+run 3: ====================== 2 passed, 156 deselected in 0.10s =======================
+run 4: ====================== 2 passed, 156 deselected in 0.09s =======================
+run 5: ====================== 2 passed, 156 deselected in 0.09s =======================
+run 6: ====================== 2 passed, 156 deselected in 0.08s =======================
+run 7: ====================== 2 passed, 156 deselected in 0.08s =======================
+run 8: ====================== 2 passed, 156 deselected in 0.08s =======================
+run 9: ====================== 2 passed, 156 deselected in 0.08s =======================
+run 10: ====================== 2 passed, 156 deselected in 0.08s =======================
+
+$ uv run pytest tests/hooks/test_launch_level_guard.py -q
+============================= 158 passed in 1.61s ==============================
+
+$ bash -n src/superclaude/hooks/scripts/launch-level-guard.sh
+syntax ok
+$ grep -c .claude/state src/superclaude/hooks/scripts/launch-level-guard.sh
+0
+$ uv run ruff check / format --check tests/hooks/test_launch_level_guard.py
+All checks passed!
+1 file already formatted

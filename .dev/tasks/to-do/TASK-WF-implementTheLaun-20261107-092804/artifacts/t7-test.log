@@ -1,0 +1,5 @@
+$ uv run pytest tests/hooks/test_launch_level_guard.py -k "GIT or PSH or git or push" -q  (after the fix pass)
+
+==================== 1041 passed, 459 deselected in 19.04s =====================
+$ uv run pytest tests/hooks/test_launch_level_guard.py -q
+====================== 1464 passed, 36 xfailed in 27.66s =======================

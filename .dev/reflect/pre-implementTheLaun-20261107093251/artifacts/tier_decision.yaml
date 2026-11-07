@@ -1,0 +1,18 @@
+selected_tier: 2
+fired_rule_number: 6          # C < 0.85 (calibrated C = 0.61). Rule 8 default and rows 1/2 are also blocked by the table-wide pre-filter below.
+coverage_degraded: parsed-sparse   # Step 1B.2b: inferred_count (3) > parsed_count (0); forbids any Tier-1 stop
+surface_unreached: null
+composite_score: 6.0
+per_signal_breakdown:
+  scope_size: 2          # 22 tasklist items
+  task_count: 2
+  blast_radius: 1        # hooks.json, installer, claim script; no runtime service
+  spec_density: 0        # one-sentence prompt spec, no labeled ids
+  ambiguity_signals: 1   # C-gap between self-reported 0.72 and calibrated 0.61
+escalation_reason: "calibrated C 0.61 < 0.85 (rule 6) and the parse-density guard (coverage_degraded: parsed-sparse) forbids the Tier-1 stop; the spec is a one-sentence prompt, so every requirement is inferred."
+structural_signals:
+  S_scope: 22
+  S_domains: 4
+  S_dev_density: 0.0
+  coverage_pct: null
+  coverage_pct_union: 1.0

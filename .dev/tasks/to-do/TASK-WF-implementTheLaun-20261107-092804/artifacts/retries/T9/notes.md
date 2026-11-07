@@ -1,0 +1,3 @@
+f63cf1234e6b12d99fdf0a03387947a5de13a0ab
+A1 r1-1 F1.1 note ac=scope at=src/superclaude/hooks/scripts/launch-level-guard.sh:454 chk=n,n,n,n: an orca escape can end in -h by a comment, a here-string or quotes (orca terminal send --text approved # -h) and then counts as NONE; this follows FR-L-47 and undercuts the claim that the agent cannot type approved; record as a residual.
+A1 r1-1 F1.2 note ac=scope at=src/superclaude/hooks/scripts/launch-level-guard.sh:428 chk=n,n,n,n: allowed by the design word rules: cd ~/.claude/. then rm -rf state, cat ~/.claude/x/../settings.json, uvx superclaude@latest install; byobu and zellij are not escape words; both file_path and notebook_path in one payload check file_path only.

@@ -1,0 +1,7 @@
+# uv run pytest tests/hooks/ -q  (last 3 lines)
+tests/hooks/test_launch_level_observations.py .....ssssssssssss          [100%]
+
+================= 4121 passed, 12 skipped in 351.70s (0:05:51) =================
+
+# uv run pytest tests/hooks/test_launch_level_guard.py -k "ATK or MSG or AC"  (summary line)
+=============== 1731 passed, 2069 deselected in 85.11s (0:01:25) ===============

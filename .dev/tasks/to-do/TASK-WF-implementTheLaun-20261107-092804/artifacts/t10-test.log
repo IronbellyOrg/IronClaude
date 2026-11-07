@@ -1,0 +1,7 @@
+$ uv run pytest tests/hooks/test_launch_level_guard.py -k "GRID or TRN or MCP or COR or GAP" -q
+tests/hooks/test_launch_level_guard.py ................................. [100%]
+==================== 1143 passed, 1960 deselected in 19.69s ====================
+(-v run of the same selection: 1143 PASSED, 0 FAILED/ERROR)
+
+$ uv run pytest tests/hooks/test_launch_level_guard.py -q
+============================ 3103 passed in 52.38s =============================

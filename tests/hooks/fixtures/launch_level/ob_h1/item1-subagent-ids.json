@@ -1,0 +1,1 @@
+{"hook_event_name": "PreToolUse", "session_id": "parent-session-0001", "agent_id": "subagent-0001", "agent_type": "general-purpose", "tool_name": "Bash", "tool_input": {"command": "git status"}}

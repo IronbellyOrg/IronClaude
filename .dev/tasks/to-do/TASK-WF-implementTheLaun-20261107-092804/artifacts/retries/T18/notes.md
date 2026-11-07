@@ -1,0 +1,4 @@
+2972aa6ec7b94a4518c3976bb881929401428f0b
+A1 r1-1 F1.2 note ac=T18.AC6 at=src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:783 chk=n,n,n,n: re.search accepts a plain-word matcher that omits NotebookEdit but names Edit; Claude Code may treat plain-word matchers as exact lists; unverifiable in the repo.
+A1 r1-1 F3 note ac=scope at=src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:842 chk=n,n,n,n: disableAllHooks is read only as boolean true; string forms and enterprise-managed settings files are not checked.
+A1 r1-1 F4 note ac=scope at=tests/skills/test_issue_orca_worktree.py:1539 chk=n,n,n,n: the pipeline-none test calls launch --level none (argument error), so its no-call assertion is vacuous; the real coverage is the claim.md pin test_issue_protocol.py:443.

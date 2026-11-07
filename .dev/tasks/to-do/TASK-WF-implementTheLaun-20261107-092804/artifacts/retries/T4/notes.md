@@ -1,0 +1,3 @@
+a4bab76aa7e7d02540ebdca26dd5fa10f9dd73c0
+A1 r1-1 note ac=T4.AC4 at=tests/hooks/test_launch_level_guard.py:535 chk=n,n,n,n: the pre-created-file test hits the early exit for an already bound session; the no-replace ln path is covered only by the concurrency tests.
+A1 r1-1 note ac=scope at=tests/hooks/test_launch_level_guard.py:722 chk=n,n,n,n: concurrency losers are checked for exit 0 and a surviving regular file, not for reading back the winner's word (no output carries it before Task 5); the Task 5 level reader can assert it. Hard links are required on the HOME filesystem; none were tested without them.

@@ -1,0 +1,6 @@
+$ uv run pytest tests/hooks/test_launch_level_guard.py -k "TAM or ESC or tamper or escape" -q
+..........                                                               [100%]
+
+==================== 619 passed, 2100 deselected in 10.43s =====================
+$ uv run pytest tests/hooks/test_launch_level_guard.py -q (summary)
+============================ 2719 passed in 47.77s =============================

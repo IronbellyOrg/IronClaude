@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import stat
 import subprocess
 import sys
@@ -79,6 +80,23 @@ class FakeOrca:
         exe = self.bin / "orca"
         exe.write_text(FAKE_ORCA.format(python=sys.executable))
         exe.chmod(0o755)
+        # Known jq and uv stubs (the IR-4 preflight only looks them up on PATH).
+        self.tools = root / "tool-bin"
+        self.tools.mkdir()
+        for name in ("jq", "uv"):
+            stub = self.tools / name
+            stub.write_text("#!/bin/sh\nexit 0\n")
+            stub.chmod(0o755)
+
+    def path_without(self, *names: str) -> str:
+        """A PATH holding orca, git and the tool stubs, minus ``names``."""
+        bare = self.bin.parent / ("bare-" + "-".join(names))
+        bare.mkdir()
+        (bare / "git").symlink_to(shutil.which("git"))
+        for stub in self.tools.iterdir():
+            if stub.name not in names:
+                (bare / stub.name).symlink_to(stub)
+        return f"{self.bin}{os.pathsep}{bare}"
 
     def respond(self, key: str, *responses: dict) -> None:
         """Set the answers for one orca subcommand (``status``, ``worktree-list``...)."""
@@ -101,7 +119,8 @@ class FakeOrca:
 
     def env(self, **extra: str) -> dict[str, str]:
         env = dict(os.environ)
-        env["PATH"] = f"{self.bin}{os.pathsep}{env['PATH']}"
+        env["PATH"] = os.pathsep.join([str(self.bin), str(self.tools), env["PATH"]])
+        env.pop("CLAUDE_CONFIG_DIR", None)
         env["FAKE_ORCA_DIR"] = str(self.dir)
         env["HOME"] = str(self.home)
         # Hermetic git: the script's own git calls ignore the user's config.
@@ -994,7 +1013,13 @@ PROMPT_RE = re.compile(
 def launch_scene(
     fake: FakeOrca, git_repo: Path, issue_dir: Path, *, hook: str | None = "exec"
 ) -> Path:
-    """A real worktree with a guarded record, an Orca that launches and a hook."""
+    """A real worktree with a guarded record, an Orca that launches and the guard.
+
+    ``hook="exec"`` installs what the IR-4 preflight needs: the versioned,
+    executable guard and a user settings.json holding the shipped hooks.json
+    registrations (both guard entries and the identity entry). ``"plain"`` is
+    the same without the executable bit; ``None`` creates nothing in HOME.
+    """
     wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
     (issue_dir / "worktree.json").write_text(
         json.dumps({"path": str(wt), "status": "created"})
@@ -1008,9 +1033,19 @@ def launch_scene(
     if hook:
         script = fake.home / ".claude" / "hooks" / "launch-level-guard.sh"
         script.parent.mkdir(parents=True)
-        script.write_text("#!/bin/sh\n")
+        script.write_text("#!/bin/sh\n# launch-level-guard-version: 1\n")
         script.chmod(0o755 if hook == "exec" else 0o644)
+        user_settings(fake).write_text(HOOKS_JSON.read_text())
     return wt
+
+
+HOOKS_JSON = REPO_ROOT / "src/superclaude/hooks/hooks.json"
+GUARD = "~/.claude/hooks/launch-level-guard.sh"
+IDENTITY = "~/.claude/hooks/launch-job-identity.sh"
+
+
+def user_settings(fake: FakeOrca) -> Path:
+    return fake.home / ".claude" / "settings.json"
 
 
 def run_launch(
@@ -1108,6 +1143,13 @@ def test_la2_launch_nonce_is_fresh_for_every_launch(
 ) -> None:
     wt = launch_scene(fake_orca, git_repo, issue_dir)
     first = run_launch(fake_orca, git_repo, issue_dir)
+    (first_nonce,) = [p.name for p in pending_dir(fake_orca).iterdir()]
+    # IR-5: with the launch entry in place a re-claim launches nothing and
+    # writes no new pending record.
+    again = run_launch(fake_orca, git_repo, issue_dir)
+    assert again["status"] == "already_launched"
+    assert len(launch_calls(fake_orca)) == 1
+    assert [p.name for p in pending_dir(fake_orca).iterdir()] == [first_nonce]
     record = json.loads((issue_dir / "worktree.json").read_text())
     del record["launch"]
     (issue_dir / "worktree.json").write_text(json.dumps(record))
@@ -1122,10 +1164,16 @@ def test_la2_launch_nonce_is_fresh_for_every_launch(
         and str(issue_dir / "worktree.json") in blocked["detail"]
     )
     assert first["status"] == "launched"
+    assert len(list(pending_dir(fake_orca).iterdir())) == 1
     mirror.unlink()
-    run_launch(fake_orca, git_repo, issue_dir)
-    nonces = {PROMPT_RE.match(c[9]).group(1) for c in launch_calls(fake_orca)}
-    assert len(nonces) == 2 and len(list(pending_dir(fake_orca).iterdir())) == 2
+    # Removed from both the record and the git-dir mirror: a new launch with a
+    # new nonce, never a resumed earlier session.
+    assert run_launch(fake_orca, git_repo, issue_dir)["status"] == "launched"
+    calls = launch_calls(fake_orca)
+    nonces = [PROMPT_RE.match(c[9]).group(1) for c in calls]
+    assert len(calls) == 2 and nonces[0] == first_nonce != nonces[1]
+    assert sorted(p.name for p in pending_dir(fake_orca).iterdir()) == sorted(nonces)
+    assert not any("--resume" in arg or "--continue" in arg for c in calls for arg in c)
 
 
 @pytest.mark.parametrize(
@@ -1159,8 +1207,8 @@ def test_la3_launch_failure_removes_the_record_and_prints_a_hand_command(
 def test_la3_launch_with_an_unwritable_record_store_makes_no_launch_call(
     fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
 ) -> None:
-    launch_scene(fake_orca, git_repo, issue_dir, hook=None)
-    (fake_orca.home / ".claude").write_text("a file where the store should be\n")
+    launch_scene(fake_orca, git_repo, issue_dir)  # the IR-4 preflight passes
+    (fake_orca.home / ".claude/state").write_text("a file where the store should be\n")
     data = run_launch(fake_orca, git_repo, issue_dir)
     assert data["status"] == "failed" and data["warning"] == "W-LAUNCH-FAILED"
     assert "launch record" in data["detail"]
@@ -1193,7 +1241,8 @@ def test_la4_launch_record_update_failure_never_says_to_rerun_the_claim(
         data = run_launch(fake_orca, git_repo, issue_dir)
     finally:
         issue_dir.chmod(0o755)
-    assert data["status"] == "launched" and data["warning"] is None
+    # IR-7: the scene's worktree has no pre-push hook, so W-L2-ABSENT is the warning.
+    assert data["status"] == "launched" and data["warning"] == "W-L2-ABSENT"
     assert data["launched_at"] and data["terminal"] == "term_abc"
     assert "the agent is running" in data["detail"]
     assert "do not re-run the claim" in data["detail"]
@@ -1231,7 +1280,7 @@ def test_la5_launch_shim_check_passes_on_either_text(
     launch_scene(fake_orca, git_repo, issue_dir)
     fake_orca.respond("terminal-read", {"stdout": screen})
     data = run_launch(fake_orca, git_repo, issue_dir)
-    assert data["status"] == "launched" and data["warning"] is None
+    assert data["status"] == "launched" and data["warning"] == "W-L2-ABSENT"
     assert orca_calls(fake_orca, "terminal", "read") == [
         ["terminal", "read", "--terminal", "term_abc", "--screen", "--json"]
     ]
@@ -1243,7 +1292,7 @@ def test_la5_launch_shim_check_retries_up_to_five_times(
     launch_scene(fake_orca, git_repo, issue_dir)
     plain = {"stdout": SCREEN_PLAIN}
     fake_orca.respond("terminal-read", plain, plain, {"stdout": SCREEN_OK})
-    assert run_launch(fake_orca, git_repo, issue_dir)["warning"] is None
+    assert run_launch(fake_orca, git_repo, issue_dir)["warning"] == "W-L2-ABSENT"
     assert len(orca_calls(fake_orca, "terminal", "read")) == 3
 
 
@@ -1264,6 +1313,7 @@ def test_la5_launch_shim_check_failure_keeps_the_launch_and_warns(
     data = run_launch(fake_orca, git_repo, issue_dir)
     assert data["status"] == "launched"
     assert data["warning"] == "W-LAUNCH-NOT-CCSESSION" and "close it" in data["detail"]
+    assert "; also W-L2-ABSENT: " in data["detail"]  # the ccsession warning stays first
     assert len(orca_calls(fake_orca, "terminal", "read")) == reads
 
 
@@ -1292,36 +1342,382 @@ def test_la5_launch_handle_is_found_anywhere_in_the_result(
     assert orca_calls(fake_orca, "terminal", "read")[0][3] == "term_deep"
 
 
+def assert_refused(fake: FakeOrca, data: dict, *names: str) -> None:
+    """An IR-4 refusal: no agent, no launch record, and the condition is named."""
+    assert data["status"] == "failed" and data["warning"] == "W-ENFORCEMENT-ABSENT"
+    assert data["enforcement_hook"] == "missing" and data["hand_command"] is None
+    assert data["terminal"] is None and data["launched_at"] is None
+    assert "verified the claim process only" in data["detail"]
+    assert "superclaude install" in data["detail"]  # the REMEDY text
+    for name in names:
+        assert name in data["detail"], (name, data["detail"])
+    assert launch_calls(fake) == [] and orca_calls(fake, "terminal", "read") == []
+    assert not (fake.home / ".claude/state").exists()  # so no pending/<nonce>
+
+
 @pytest.mark.parametrize("hook", [None, "plain"], ids=["absent", "not-executable"])
-def test_la6_launch_without_an_executable_hook_warns_and_still_launches(
+def test_la6_launch_without_an_executable_hook_is_refused(
     fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, hook: str | None
 ) -> None:
     launch_scene(fake_orca, git_repo, issue_dir, hook=hook)
     data = run_launch(fake_orca, git_repo, issue_dir)
-    assert data["status"] == "launched"
-    assert data["enforcement_hook"] == "missing"
-    assert data["warning"] == "W-ENFORCEMENT-ABSENT"
-    assert "#394" in data["detail"]
-    assert len(launch_calls(fake_orca)) == 1
+    assert_refused(
+        fake_orca, data, "not installed" if hook is None else "not executable"
+    )
+    assert "launch" not in json.loads((issue_dir / "worktree.json").read_text())
 
 
-def test_la6_launch_with_the_hook_installed_has_no_warning(
-    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+@pytest.mark.parametrize(
+    "env",
+    [{}, {"CLAUDE_CONFIG_DIR": "same"}],
+    ids=["default", "config-dir-same"],
+)
+def test_la6_launch_with_the_hook_installed_has_only_the_l2_warning(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, env: dict
 ) -> None:
     launch_scene(fake_orca, git_repo, issue_dir)
-    data = run_launch(fake_orca, git_repo, issue_dir)
-    assert data["enforcement_hook"] == "installed" and data["warning"] is None
+    if env:
+        env = {"CLAUDE_CONFIG_DIR": str(fake_orca.home / ".claude") + "/"}
+    before = user_settings(fake_orca).read_bytes()
+    data = run_launch(fake_orca, git_repo, issue_dir, **env)
+    assert data["status"] == "launched"
+    assert data["enforcement_hook"] == "installed"
+    assert data["warning"] == "W-L2-ABSENT"  # the scene has no pre-push hook
     assert len(launch_calls(fake_orca)) == 1
+    assert user_settings(fake_orca).read_bytes() == before
 
 
-def test_la6_launch_two_warnings_put_the_shim_one_first(
+def test_la6_launch_refusal_comes_before_any_shim_check(
     fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
 ) -> None:
     launch_scene(fake_orca, git_repo, issue_dir, hook=None)
     fake_orca.respond("terminal-read", {"stdout": SCREEN_PLAIN})
     data = run_launch(fake_orca, git_repo, issue_dir)
-    assert data["warning"] == "W-LAUNCH-NOT-CCSESSION"
-    assert "also W-ENFORCEMENT-ABSENT" in data["detail"]
+    assert_refused(fake_orca, data)
+    assert "W-LAUNCH-NOT-CCSESSION" not in data["detail"]
+
+
+# --- IR-6: release instructions and layer status ------------------------------
+
+
+def test_ir6_launched_result_states_the_release_and_both_layers(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    launch_scene(fake_orca, git_repo, issue_dir)
+    data = run_launch(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "launched"
+    store = fake_orca.home / ".claude/state/launch-level"
+    release = data["release"]
+    assert f'rm "{store}/sessions/<session id>" "{store}/sessions/<session id>.ok"' in (
+        release
+    )
+    assert "own terminal" in release and "'Launch-level guard' block" in release
+    l1, l2 = data["layers"]
+    assert l1.startswith("L1 guard: effective")
+    assert l2.startswith("L2 pre-push: absent")  # git init makes only *.sample hooks
+    # Not launched: neither field is set.
+    again = run_launch(fake_orca, git_repo, issue_dir)
+    assert again["status"] == "already_launched"
+    assert again["release"] is None and again["layers"] is None
+    wave8, final = (
+        (SCRIPT.parents[1] / "refs/claim.md").read_text().split("## Final output")
+    )
+    assert "sessions/<session id>.ok" in wave8 and "present-unverified" in wave8
+    for text in ("`release`", "`layers`", "L1 guard", "L2 pre-push"):
+        assert text in final, text
+
+
+def test_ir6_refused_launch_has_no_release_or_layers(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    launch_scene(fake_orca, git_repo, issue_dir, hook=None)
+    data = run_launch(fake_orca, git_repo, issue_dir)
+    assert_refused(fake_orca, data)
+    assert data["release"] is None and data["layers"] is None
+
+
+@pytest.mark.parametrize(
+    ("case", "expected"),
+    [
+        ("no-file", "absent"),
+        ("not-executable", "absent"),
+        ("foreign-executable", "present-unverified"),
+        ("hooks-path", "present-unverified"),
+        ("hooks-path-elsewhere", "absent"),
+    ],
+)
+def test_ir6_l2_status_follows_the_git_hook_path(
+    fake_orca: FakeOrca,
+    git_repo: Path,
+    issue_dir: Path,
+    tmp_path: Path,
+    case: str,
+    expected: str,
+) -> None:
+    # The scene's worktree is a linked worktree: git keeps its hooks in the
+    # main checkout's common directory, or in core.hooksPath when set.
+    launch_scene(fake_orca, git_repo, issue_dir)
+    default = git_repo / ".git/hooks/pre-push"
+    elsewhere = tmp_path / "hooks-elsewhere"
+    elsewhere.mkdir()
+    hook = {
+        "no-file": None,
+        "not-executable": default,
+        "foreign-executable": default,
+        "hooks-path": elsewhere / "pre-push",
+        "hooks-path-elsewhere": default,
+    }[case]
+    if case.startswith("hooks-path"):
+        git(git_repo, "config", "core.hooksPath", str(elsewhere))
+    if hook:
+        hook.write_text("#!/bin/sh\n# someone else's hook\nexit 0\n")
+        hook.chmod(0o644 if case == "not-executable" else 0o755)
+        before = (hook.read_bytes(), hook.stat().st_mode)
+    data = run_launch(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "launched"
+    assert data["layers"][1].startswith(f"L2 pre-push: {expected} ")
+    # IR-7: W-L2-ABSENT exactly when the L2 line says absent.
+    assert (data["warning"] == "W-L2-ABSENT") is (expected == "absent")
+    assert ("L2 layer is not built yet" in data["detail"]) is (expected == "absent")
+    if hook:  # never modified, never adopted
+        assert (hook.read_bytes(), hook.stat().st_mode) == before
+
+
+# --- IR-7: a missing L2 layer is a warning, not a refusal ---------------------
+
+
+def test_ir7_l2_absent_warns_and_the_launch_proceeds(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    launch_scene(fake_orca, git_repo, issue_dir)
+    hooks = git_repo / ".git/hooks"
+    before = {p.name: p.read_bytes() for p in hooks.iterdir()}
+    data = run_launch(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "launched" and data["warning"] == "W-L2-ABSENT"
+    assert data["enforcement_hook"] == "installed"
+    assert "no executable pre-push hook" in data["detail"]
+    assert "the L2 layer is not built yet" in data["detail"]
+    assert "enforced by the L1 guard only" in data["detail"]
+    assert data["layers"][1].startswith("L2 pre-push: absent ")
+    (argv,) = launch_calls(fake_orca)
+    nonce = PROMPT_RE.match(argv[9]).group(1)
+    assert [p.name for p in pending_dir(fake_orca).iterdir()] == [nonce]
+    assert "launch" in json.loads((issue_dir / "worktree.json").read_text())
+    # No hook file is created, adopted or changed.
+    assert {p.name: p.read_bytes() for p in hooks.iterdir()} == before
+
+
+# --- IR-4 preflight: one refusal per failing condition ------------------------
+
+
+def edit_settings(path: Path, change) -> None:
+    data = json.loads(path.read_text()) if path.exists() else {}
+    change(data)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2))
+
+
+def drop(event: str, command: str):
+    def change(data: dict) -> None:
+        data["hooks"][event] = [
+            g
+            for g in data["hooks"][event]
+            if not any(h["command"] == command for h in g["hooks"])
+        ]
+
+    return change
+
+
+def set_matcher(event: str, command: str, matcher: str):
+    def change(data: dict) -> None:
+        for group in data["hooks"][event]:
+            if any(h["command"] == command for h in group["hooks"]):
+                group["matcher"] = matcher
+
+    return change
+
+
+def disable_hooks(data: dict) -> None:
+    data["disableAllHooks"] = True
+
+
+def guard_script(fake: FakeOrca) -> Path:
+    return fake.home / ".claude/hooks/launch-level-guard.sh"
+
+
+# Each case: what to break (given the fake and the worktree; returns extra env)
+# and the text the refusal must contain to name that condition.
+IR4_CASES = {
+    "no-jq": (
+        lambda f, wt: {"PATH": f.path_without("jq")},
+        ["jq is not on PATH"],
+    ),
+    "no-uv": (
+        lambda f, wt: {"PATH": f.path_without("uv")},
+        ["uv is not on PATH"],
+    ),
+    "script-not-executable": (
+        lambda f, wt: guard_script(f).chmod(0o644),
+        ["not executable", "superclaude install --force"],
+    ),
+    "wrong-version-line": (
+        lambda f, wt: guard_script(f).write_text(
+            "#!/bin/sh\n# launch-level-guard-version: 0\n"
+        ),
+        ["launch-level-guard-version: 1", "stale", "superclaude install --force"],
+    ),
+    "no-user-prompt-registration": (
+        lambda f, wt: edit_settings(user_settings(f), drop("UserPromptSubmit", GUARD)),
+        [f"no UserPromptSubmit registration of {GUARD}"],
+    ),
+    "no-pretooluse-registration": (
+        lambda f, wt: edit_settings(user_settings(f), drop("PreToolUse", GUARD)),
+        [f"no PreToolUse registration of {GUARD}"],
+    ),
+    "matcher-excludes-governed-tools": (
+        lambda f, wt: edit_settings(
+            user_settings(f), set_matcher("PreToolUse", GUARD, "^(Bash|Edit|Write)$")
+        ),
+        ["does not fire for Skill, Agent, Task", "ScheduleWakeup"],
+    ),
+    # The design matcher minus its mcp__ branch: the plain tools fire, the
+    # GitHub write tools of an MCP server do not.
+    "matcher-without-mcp-branch": (
+        lambda f, wt: edit_settings(
+            user_settings(f),
+            set_matcher(
+                "PreToolUse",
+                GUARD,
+                "^(Bash|Skill|Agent|Task|Edit|Write|NotebookEdit|Monitor|Workflow"
+                "|RemoteTrigger|SendMessage|Cron[A-Za-z]*|Schedule[A-Za-z]*)$",
+            ),
+        ),
+        ["does not fire for mcp__x__merge_pull_request", "mcp__x__push_files"],
+    ),
+    "user-prompt-matcher-cannot-fire": (
+        lambda f, wt: edit_settings(
+            user_settings(f), set_matcher("UserPromptSubmit", GUARD, "never")
+        ),
+        ["UserPromptSubmit registration", "may stop it firing"],
+    ),
+    "disable-all-hooks-user": (
+        lambda f, wt: edit_settings(user_settings(f), disable_hooks),
+        ["settings.json sets disableAllHooks"],
+    ),
+    "disable-all-hooks-project": (
+        lambda f, wt: edit_settings(wt / ".claude/settings.json", disable_hooks),
+        [".claude/settings.json sets disableAllHooks"],
+    ),
+    "disable-all-hooks-project-local": (
+        lambda f, wt: edit_settings(wt / ".claude/settings.local.json", disable_hooks),
+        ["settings.local.json sets disableAllHooks"],
+    ),
+    "config-dir-elsewhere": (
+        lambda f, wt: {"CLAUDE_CONFIG_DIR": str(f.home / "other-claude")},
+        ["CLAUDE_CONFIG_DIR is", "unset it"],
+    ),
+    "no-identity-registration": (
+        lambda f, wt: edit_settings(user_settings(f), drop("PreToolUse", IDENTITY)),
+        [f"no PreToolUse registration of {IDENTITY} that fires for Bash"],
+    ),
+}
+
+
+@pytest.mark.parametrize("case", sorted(IR4_CASES))
+def test_ir4_each_failing_condition_refuses_the_launch(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, case: str
+) -> None:
+    wt = launch_scene(fake_orca, git_repo, issue_dir)
+    breaker, names = IR4_CASES[case]
+    env = breaker(fake_orca, wt)
+    env = env if isinstance(env, dict) else {}
+    files = [user_settings(fake_orca)] + [
+        wt / ".claude" / n for n in ("settings.json", "settings.local.json")
+    ]
+    before = {p: p.read_bytes() for p in files if p.exists()}
+    data = run_launch(fake_orca, git_repo, issue_dir, **env)
+    assert_refused(fake_orca, data, *names)
+    if "disable-all-hooks-project" in case:
+        assert str(wt) in data["detail"]
+    # The check never edits configuration.
+    assert {p: p.read_bytes() for p in files if p.exists()} == before
+    assert "launch" not in json.loads((issue_dir / "worktree.json").read_text())
+
+
+def test_ir4_stale_registrations_name_the_force_flag(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    launch_scene(fake_orca, git_repo, issue_dir)
+    edit_settings(user_settings(fake_orca), set_matcher("PreToolUse", GUARD, "Bash"))
+    data = run_launch(fake_orca, git_repo, issue_dir)
+    assert_refused(
+        fake_orca, data, "run superclaude install --force to replace the registration"
+    )
+
+
+def test_ir4_non_linux_host_is_refused(
+    monkeypatch: pytest.MonkeyPatch,
+    fake_orca: FakeOrca,
+    git_repo: Path,
+    issue_dir: Path,
+) -> None:
+    import importlib.util
+
+    wt = launch_scene(fake_orca, git_repo, issue_dir)
+    spec = importlib.util.spec_from_file_location("orca_worktree_ir4", SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, module)  # dataclasses need it
+    spec.loader.exec_module(module)
+    for key, value in fake_orca.env().items():
+        monkeypatch.setenv(key, value)
+    assert module.enforcement_preflight(str(wt)) == []
+    monkeypatch.setattr(module.sys, "platform", "darwin")
+    (reason,) = module.enforcement_preflight(str(wt))
+    assert "not Linux" in reason and "job identity hook needs" in reason
+
+    # The process interfaces the identity hook uses are probed on the claim
+    # process itself, read-only: pidfd_open and the child-subreaper query.
+    monkeypatch.undo()
+    for key, value in fake_orca.env().items():
+        monkeypatch.setenv(key, value)
+
+    import ctypes
+
+    class FakeLibc:
+        def __init__(self, pidfd: int, prctl: int) -> None:
+            self.pidfd, self.prctl_result = pidfd, prctl
+
+        def pidfd_open(self, pid: int, flags: int) -> int:
+            return self.pidfd
+
+        def prctl(self, *_args) -> int:
+            return self.prctl_result
+
+    real_cdll = ctypes.CDLL
+    monkeypatch.setattr(ctypes, "CDLL", lambda *a, **k: FakeLibc(-1, 0))
+    (reason,) = module.enforcement_preflight(str(wt))
+    assert "lacks pidfd_open" in reason and "prctl" not in reason
+    monkeypatch.setattr(ctypes, "CDLL", lambda *a, **k: FakeLibc(-1, -1))
+    (reason,) = module.enforcement_preflight(str(wt))
+    assert "pidfd_open, prctl(PR_GET_CHILD_SUBREAPER)" in reason
+    monkeypatch.setattr(ctypes, "CDLL", lambda *a, **k: object())  # no symbols
+    (reason,) = module.enforcement_preflight(str(wt))
+    assert "pidfd_open, prctl(PR_GET_CHILD_SUBREAPER)" in reason
+    monkeypatch.setattr(ctypes, "CDLL", real_cdll)
+    assert module.enforcement_preflight(str(wt)) == []
+
+
+def test_ir4_pipeline_none_never_reaches_the_preflight(
+    fake_orca: FakeOrca, issue_dir: Path
+) -> None:
+    # Nothing is installed in HOME; --level none is still a bad argument (exit 2),
+    # and the claim runs Wave 8 only when --pipeline is not none.
+    args = ["--number", "302", "--source", str(issue_dir), "--level", "none"]
+    proc = run_script("launch", *args, env=fake_orca.env())
+    assert proc.returncode == 2 and "W-ENFORCEMENT-ABSENT" not in proc.stdout
+    assert fake_orca.calls() == [] and not (fake_orca.home / ".claude").exists()
+    claim = (SCRIPT.parents[1] / "refs/claim.md").read_text()
+    assert "Runs only when `--pipeline` is not `none`" in claim
 
 
 def test_la7_launch_without_a_usable_worktree_record_calls_nothing(

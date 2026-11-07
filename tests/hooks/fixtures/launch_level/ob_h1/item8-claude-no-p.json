@@ -1,0 +1,1 @@
+{"hook_event_name": "PreToolUse", "session_id": "parent-session-0001", "tool_name": "Bash", "tool_input": {"command": "claude --dangerously-skip-permissions"}}

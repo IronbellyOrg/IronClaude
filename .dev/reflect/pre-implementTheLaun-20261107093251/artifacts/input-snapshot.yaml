@@ -1,0 +1,7 @@
+input_tree_sha256: 8cffc813a5b552876320840d30689797a1655530644017126eebeb13804bc45f
+file_list:
+  - path: TASK-WF-implementTheLaun-20261107-092804.md
+    sha256: 564033da6e03e9b4e47b211ff9a70be1ddb15669c7806ed5e90a3e8699240a30
+  - path: source.md
+    sha256: 24ff2f77afa61caab8201a097245ba2531f07f88c128dfb5c591d41a2b1f9927
+file_count: 2

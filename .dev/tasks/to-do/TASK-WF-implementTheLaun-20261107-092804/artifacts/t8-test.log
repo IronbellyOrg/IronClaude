@@ -1,0 +1,8 @@
+$ uv run pytest tests/hooks/test_launch_level_guard.py -k "GH or gh" -q
+==================== 635 passed, 1490 deselected in 11.74s =====================
+$ uv run pytest tests/hooks/test_launch_level_guard.py -q
+====================== 2101 passed, 24 xfailed in 38.59s =======================
+$ bash -n src/superclaude/hooks/scripts/launch-level-guard.sh
+syntax ok
+$ grep -c '.claude/state' src/superclaude/hooks/scripts/launch-level-guard.sh
+0

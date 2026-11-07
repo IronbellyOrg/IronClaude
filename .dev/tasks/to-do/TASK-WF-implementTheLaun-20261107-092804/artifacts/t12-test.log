@@ -1,0 +1,14 @@
+$ uv run pytest tests/hooks/test_launch_level_guard_registration.py tests/cli/test_install_hooks.py tests/hooks/test_freshness_subagent_start_policy.py -q
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-394-launch-level-hook
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 53 items
+
+tests/hooks/test_launch_level_guard_registration.py ............         [ 22%]
+tests/cli/test_install_hooks.py ....................................     [ 90%]
+tests/hooks/test_freshness_subagent_start_policy.py .....                [100%]
+
+============================== 53 passed in 2.27s ==============================
