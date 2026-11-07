@@ -1,0 +1,33 @@
+# AC4: other copies of WORKER-CONTRACT.md text
+-- files named WORKER-CONTRACT.md anywhere tracked or untracked (excl .git):
+14458:src/superclaude/core/WORKER-CONTRACT.md
+-- .claude mirror (gitignored, sync-dev output):
+ls: cannot access '.claude/WORKER-CONTRACT.md': No such file or directory
+-- grep -rnF "Chain: run every Command: line" plugins/ src/superclaude/core/HOW-WE-WORK.md:
+exit=1 (1 = no match)
+-- grep -rnF "Liveness supervision" plugins/ src/superclaude/core/HOW-WE-WORK.md:
+exit=1 (1 = no match)
+-- grep -rnF "after three empty waits" plugins/ src/superclaude/core/HOW-WE-WORK.md:
+exit=1 (1 = no match)
+-- grep -rnF "Nudges, asks, heartbeats, repeated identical reads" plugins/ src/superclaude/core/HOW-WE-WORK.md:
+exit=1 (1 = no match)
+-- references to WORKER-CONTRACT in plugins/ and HOW-WE-WORK.md (pointers, not copies):
+plugins/superclaude/commands/workflow.md:68:The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:workflow` resolves itself.
+plugins/superclaude/commands/workflow.md:75:- **Nested invocations.** Under `--unattended` the Wave 4 reflect step receives `--unattended --output <report-dir>/nested/reflect-<n>/` (reflect's own directory flag; workflow's `--output` stays retired; `<n>` counts from 1 and is never reused), still without `--remediate`, and its contract is listed in `artifacts`, also when the call failed. A nested contract is read by the nested-result rule of `~/.claude/WORKER-CONTRACT.md`.
+plugins/superclaude/commands/recommend.md:116:The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:recommend` resolves itself.
+plugins/superclaude/skills/sc-workflow-protocol/refs/input-parse.md:16:`--unattended` and `--report-dir <dir>` are removed from the arguments before the source is resolved and are never part of it. They are validated in the same pass as the other flags, before any write. Under `--unattended` without exactly one report directory (`--report-dir`; the retired `--output` is never a report directory) the command writes nothing and prints the refusal of `~/.claude/WORKER-CONTRACT.md` (rule WC-4). Under `--unattended` with a valid `--report-dir`, each pre-creation STOP of this ref also writes the worker contract `<report-dir>/return-contract.yaml` (fields in `refs/return-contract.md`); the STOP codes, and the rule that these STOPs create no package, are unchanged.
+plugins/superclaude/skills/sc-workflow-protocol/refs/return-contract.md:52:artifacts: [<package return-contract.yaml>, <package source.md if written>, <each file reflect wrote in its <report-dir>/nested/reflect-<n>/ run directory, whatever reflect_status is>, <docs/memory/reflect/deviation-patterns-<slug>.md if reflect wrote it>]   # [] before a package exists; gitignored .dev/reflect/runs.jsonl and .superclaude/memory/ are left out (WC-4 in ~/.claude/WORKER-CONTRACT.md)
+plugins/superclaude/skills/sc-workflow-protocol/SKILL.md:30:Under `--unattended` that staging is deferred to the coordinator (`~/.claude/WORKER-CONTRACT.md`): this run does not stage `.dev/tasks`. Also apply the `## Unattended mode` section of the `workflow` command file: the installed copy `~/.claude/commands/sc/workflow.md`, or the project copy `.claude/commands/sc/workflow.md`.
+plugins/superclaude/skills/sc-workflow-protocol/SKILL.md:62:Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) that call passes `--unattended --output <report-dir>/nested/reflect-<n>/` (reflect's own directory flag; workflow's `--output` stays retired; `<n>` counts from 1 and is never reused), still without `--remediate`, and the nested contract is listed in `artifacts`, also when the call failed.
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:398:Orca can run IronClaude commands as workers. The rules live in `~/.claude/WORKER-CONTRACT.md`; this section only says how the pieces fit.
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:401:- **Each worker runs one IronClaude command.** The coordinator writes each Task's brief from the brief template in `~/.claude/WORKER-CONTRACT.md`, with the guard line first and the command on its own `Command:` line. The command runs at the top level of the worker session, never inside a subagent, and commands themselves never call Orca.
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md:403:- **Some commands are never workers.** `/sc:pr-submit` and the other commands on the never-as-worker list in `~/.claude/WORKER-CONTRACT.md` stay with the coordinator or the person.
+plugins/superclaude/skills/sc-recommend/SKILL.md:386:Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`; the command's `## Unattended mode` section is the home of this paragraph): the one clarifying question is not asked at any of its sites (Step 0, where it says to ask one clarifying question and stop; the hot-path rule and the Phase 2 rule that a missing required input needs clarification; the rule that uncertain ownership of a custom override needs clarification; the Phase 2 rule that a conflict with the authority ceiling stops for clarification; and Graceful degradation, where the request is too vague); the run returns `status: clarification_needed`, which the worker contract records as `blocked`, with the question in `blocked_question`, and the handoff envelope is written to `<report-dir>/recommendation.md` and still printed. The writes under `.claude/cache/` (lookup cache, plugin cache, telemetry) are skipped and reads are unchanged, and `--eval` is refused before any work.
+src/superclaude/core/HOW-WE-WORK.md:398:Orca can run IronClaude commands as workers. The rules live in `~/.claude/WORKER-CONTRACT.md`; this section only says how the pieces fit.
+src/superclaude/core/HOW-WE-WORK.md:401:- **Each worker runs one IronClaude command.** The coordinator writes each Task's brief from the brief template in `~/.claude/WORKER-CONTRACT.md`, with the guard line first and the command on its own `Command:` line. The command runs at the top level of the worker session, never inside a subagent, and commands themselves never call Orca.
+src/superclaude/core/HOW-WE-WORK.md:403:- **Some commands are never workers.** `/sc:pr-submit` and the other commands on the never-as-worker list in `~/.claude/WORKER-CONTRACT.md` stay with the coordinator or the person.
+exit=0
+-- tests that compare WORKER-CONTRACT.md byte-for-byte with another file:
+tests/skills/test_worker_contract.py
+tests/skills/__pycache__/test_worker_contract.cpython-311-pytest-9.2.0.pyc
+RESULT: no other copy of the contract text under plugins/ or in HOW-WE-WORK.md; nothing to update.

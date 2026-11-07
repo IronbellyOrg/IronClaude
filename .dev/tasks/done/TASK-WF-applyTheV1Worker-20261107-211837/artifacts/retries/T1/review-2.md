@@ -1,0 +1,5 @@
+651fb0e3be5e92da95891c886044a8dde836a78b d9acca547e0e8957aa175efbca77ce721442cd33
+F1.1 resolved
+- T1.AC1 **met**. Cited at T1.AC1@src/superclaude/core/WORKER-CONTRACT.md:46. The first three sentences of WC-10 match the start snapshot byte for byte. The rule ends with the full C-1 text from merged-requirements.md:577, including "it never stops, retries or releases a worker because a heartbeat is late, and it stops, retries or releases only on Orca's stall proofs or the person's recorded stop under WC-6". The design's `[amended by Change 5]` tag is an editorial note and is left out. The old phrase "acts only on Orca's stall proofs" is gone.
+- T1.AC2 **met**. Cited at T1.AC2@src/superclaude/core/WORKER-CONTRACT.md:47. WC-11 ends with the C-17 sentence.
+- T1.AC3 **met**. Cited at T1.AC3@tests/skills/test_worker_contract.py:229 and T1.AC3@tests/skills/test_worker_contract.py:237. `wc10-absence-not-death` holds three phrases, all verbatim in contract line 46. `wc11-liveness-stat` holds the full C-17 sentence. Both use ident `None`. `uv run pytest tests/skills/test_worker_contract.py -q` gave 705 passed.

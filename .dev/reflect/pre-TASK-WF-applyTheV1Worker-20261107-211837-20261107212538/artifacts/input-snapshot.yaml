@@ -1,0 +1,9 @@
+snapshot_at: "2026-11-07T21:25:38Z"
+files:
+  - path: .dev/tasks/to-do/TASK-WF-applyTheV1Worker-20261107-211837/source.md
+    sha256: 310693b3c7ad699243773b14df8ab81a70cc5b08bbb53c5fee5dfb05f002c0b4
+  - path: .dev/tasks/to-do/TASK-WF-applyTheV1Worker-20261107-211837/TASK-WF-applyTheV1Worker-20261107-211837.md
+    sha256: 2da8dc1d6e06cf9a184d60842a7a79012d17e24d428a6f885f95a80a56569c06
+input_sha256: 2da8dc1d6e06cf9a184d60842a7a79012d17e24d428a6f885f95a80a56569c06
+recheck_at_wave5: "2026-11-07T21:33:00Z"
+recheck_result: unchanged

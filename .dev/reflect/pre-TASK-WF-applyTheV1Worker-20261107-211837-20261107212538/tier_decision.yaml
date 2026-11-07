@@ -1,0 +1,11 @@
+selected_tier: 1
+fired_rule_number: 1
+composite_score: 0.91
+per_signal_breakdown:
+  C_calibrated: 0.91
+  S_scope_files: 2            # WORKER-CONTRACT.md, test_worker_contract.py
+  S_domains: 1                # contract documentation + its pins
+  S_dev_density: 0.04         # 2 partial rows over 23 union rows, weighted 0.5
+  coverage_pct: 1.00
+  coverage_pct_union: 0.913
+escalation_reason: null
