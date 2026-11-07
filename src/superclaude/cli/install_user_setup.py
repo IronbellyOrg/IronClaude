@@ -252,10 +252,15 @@ def install_orca_skills(
             stdin=subprocess.DEVNULL,
         )
     except (OSError, subprocess.SubprocessError) as exc:
-        return (
-            True,
-            f"⚠️  Orca skills: not installed ({exc}); rerun `{orca} skills install`",
+        message = (
+            f"⚠️  Orca skills: not installed ({exc}); rerun `{orca} skills install`"
         )
+        for stream in (getattr(exc, "stdout", None), getattr(exc, "stderr", None)):
+            if isinstance(stream, bytes):
+                stream = stream.decode("utf-8", errors="replace")
+            if stream and stream.strip():
+                message += f"\n{stream.strip()}"
+        return True, message
     installed = [n for n in _ORCA_SKILLS if (skills_dir / n / "SKILL.md").exists()]
     if result.returncode != 0 or len(installed) != len(_ORCA_SKILLS):
         message = (

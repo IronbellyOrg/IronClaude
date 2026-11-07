@@ -392,6 +392,49 @@ def test_orca_forced_refresh_absent_or_timeout_is_nonfatal(
     assert ("not installed" if available else "not found") in message
 
 
+@pytest.mark.parametrize(
+    "stdout,stderr,expected",
+    [
+        (
+            b"Skipped edited guide\xff",
+            b"warning\xff",
+            ("Skipped edited guide�", "warning�"),
+        ),
+        ("Skipped edited guide", "warning", ("Skipped edited guide", "warning")),
+        (None, None, ()),
+        (b"", b"", ()),
+        ("", "", ()),
+        (b"stdout only", None, ("stdout only",)),
+        (None, "stderr only", ("stderr only",)),
+    ],
+)
+def test_orca_timeout_retains_partial_output(
+    tmp_path: Path, monkeypatch, stdout, stderr, expected
+) -> None:
+    paths = [
+        tmp_path / ".claude/skills" / name / "SKILL.md" for name in setup._ORCA_SKILLS
+    ]
+    for path in paths:
+        path.parent.mkdir(parents=True)
+        path.write_text("user edited")
+    monkeypatch.setattr(setup, "_find_orca", lambda: "/bin/orca-ide")
+
+    def timeout(command, **kwargs):
+        assert "--force" not in command
+        assert kwargs["stdin"] == subprocess.DEVNULL
+        assert kwargs["timeout"] == setup._ORCA_TIMEOUT
+        raise subprocess.TimeoutExpired(
+            command, setup._ORCA_TIMEOUT, output=stdout, stderr=stderr
+        )
+
+    monkeypatch.setattr(setup.subprocess, "run", timeout)
+    ok, message = setup.install_orca_skills(home=tmp_path, force=True)
+    assert ok and message.startswith("⚠️  Orca skills: not installed")
+    for text in expected:
+        assert text in message
+    assert all(path.read_text() == "user edited" for path in paths)
+
+
 @pytest.mark.parametrize("force", [False, True])
 def test_user_setup_passes_force_to_orca_without_skipping_plugins(
     monkeypatch, force: bool

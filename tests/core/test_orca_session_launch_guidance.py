@@ -7,7 +7,9 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2] / "src" / "superclaude"
 
 
-@pytest.mark.parametrize("relative", ["core/CLAUDE.md", "skills/ccsession-tag/README.md"])
+@pytest.mark.parametrize(
+    "relative", ["core/CLAUDE.md", "skills/ccsession-tag/README.md"]
+)
 def test_orca_session_launch_guidance(relative: str) -> None:
     text = (ROOT / relative).read_text()
     start = text.index("### Orca session launches")
