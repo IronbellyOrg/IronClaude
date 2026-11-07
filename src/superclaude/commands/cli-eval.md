@@ -37,6 +37,8 @@ underlying `superclaude eval` CLI — selection and monitoring are orchestration
 | `--agents` | create | `opus,sonnet,haiku` | Advocate specs for adversarial variant generation |
 | `--suite` | run | (menu) | Pre-select a suite by name; otherwise an interactive menu is shown |
 | `--eval` | run | (all) | Pre-select a single eval id to drill into / filter |
+| `--unattended` | both | off | Worker mode for a coordinator; applies only as a standalone argument token. Behaviour is in `## Unattended mode`; without it nothing changes |
+| `--report-dir` | both | — | With `--unattended`: the directory that holds the worker contract and the report |
 
 ## Behavioral Summary
 
@@ -71,6 +73,18 @@ hardcoded flag list or schema field.
 
 Do NOT proceed with protocol execution using only this command file.
 The full behavioral specification is in the protocol skill.
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:cli-eval` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only (the `run` pipeline's `--output-dir` names the eval run directory, not the report directory). Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome, for both pipelines. `report_path` is the run's `summary.md` (run) or the design spec (create). `artifacts` lists `summary.json` and the other files the run wrote; paths git ignores are left out (WC-4), and the report names the run directory. The skill's own `status` values `success`, `partial` and `failed` map to `succeeded`, `partial` and `failed`.
+- **Person-mode flags.** None is refused.
+- **Gates.** Under `--unattended` a missing pipeline (`create` or `run`) resolves as blocked, and so does every W0 "confirm with the user" case. `run` without both `--suite` and `--output-dir` resolves as blocked, with the missing flag named in `blocked_question`, so no suite menu is shown and two workers never share a run directory. The W3 "confirm the exact invocation" step is replaced by the command line as given: each other safety flag takes its command-line value or the CLI default, and the resolved set is the confirmed invocation. The doctor preflight still runs, and an FR-G5 preflight failure resolves as blocked, with the empty-HOME workaround offer in `blocked_question`; the empty-HOME workaround is not applied on the worker's own choice. The eval job is waited on in waits of at most 240 s each (WC-10), so the session can send a heartbeat between them, and the waits repeat until the job ends.
+- **Nested invocations.** In the create pipeline `/sc:spec-panel` receives `--unattended --report-dir <report-dir>/nested/spec-panel-<n>/`, `sc:adversarial-protocol` receives `--unattended --output <report-dir>/nested/adversarial-<n>/`, and `/sc:document` receives `--unattended --report-dir <report-dir>/nested/document-<n>/` with an explicit `--output`, each `<n>` counting from 1 per nested command and never reused (a retry takes the next number); each contract is listed in `artifacts`, also when the call failed. `/sc:spec-panel` and `/sc:document` are command-only (no backing skill), so the create pipeline runs them as commands and never through the `Skill` tool; the `technical-writer` agent alternative for the documentation step is skipped under `--unattended` and recorded, because an agent run yields no nested directory. A nested contract is read by the nested-result rule of `~/.claude/WORKER-CONTRACT.md`.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

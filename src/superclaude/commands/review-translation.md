@@ -37,6 +37,9 @@ personas: [localization-reviewer, linguistic-validator, cultural-consultant, res
 | `--tone-matrix` | Enable quantified tone calibration |
 | `--platform [name]` | steam, playstation, mobile, web, enterprise (default: auto) |
 | `--export` | Generate team handoff format |
+| `--context <file>` | A context summary the caller has already confirmed; with `--unattended` it is used as the Phase 1 confirmation |
+| `--unattended` | Worker mode for a coordinator; applies only as a standalone argument token. Behaviour is in `## Unattended mode`; without it nothing changes |
+| `--report-dir <dir>` | With `--unattended`: the directory that holds `return-contract.yaml` and `context-summary.md` |
 
 ## Behavioral Summary
 
@@ -79,6 +82,18 @@ The full behavioral specification is in the protocol skill.
 ```bash
 /sc:review-translation source.json *.json --export
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:review-translation` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only. Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is the `reports/localization/PROJECT_SUMMARY_*.md` file, or `<report-dir>/context-summary.md` when the run is blocked at Phase 1. `artifacts` lists every `reports/localization/[lang]_review_*.md` file written, and the context summary when the run is blocked; paths git ignores are left out (WC-4).
+- **Person-mode flags.** None is refused.
+- **Gates.** Under `--unattended` Phase 1 (the mandatory context confirmation) uses the summary in `--context <file>` as the confirmed context and does not wait. Phase 1 without `--context` resolves as blocked: the run writes the context summary to `<report-dir>/context-summary.md` and stops with the confirmation question in `blocked_question`; a re-run with `--context` is a fresh run. Phase 7 resolves to SKIP IMPLEMENTATION, so no fix is implemented. There is no other gate.
+- **Nested invocations.** None.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

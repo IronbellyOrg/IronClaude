@@ -50,6 +50,8 @@ Examples of weak input (skill will search for the task file):
 4. If none found, search for status "🟡 To Do" and list candidates
 5. If still none, inform the user no task files were found
 
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`): when the arguments carry `--unattended` after the task file path, the "ask the user which one" point above and the "ask the user" point under Prohibited Actions stop and return the question to the caller instead of asking it, and the `.dev/tasks` staging described above is left to the coordinator.
+
 ---
 
 ## Task File Discovery

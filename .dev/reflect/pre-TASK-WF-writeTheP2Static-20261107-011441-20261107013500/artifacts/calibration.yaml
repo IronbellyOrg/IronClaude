@@ -1,0 +1,35 @@
+# Wave 1D blind calibration of reflection-card.yaml (confidence-calibrator, opus slot). Persisted verbatim by the orchestrator.
+tier1:
+  calibrator_model: opus
+  self_reported_confidence: 0.85
+  dimensions:
+    citation_grounding: 0.65      # T1-F1 wrongly lists Task 4 as pinning `left out (WC-4)` and omits Task 5; T1-F4 and T1-F5 lack line cites
+    coverage_completeness: 0.55   # missed: Tasks 2/3 prose says "leaves out paths git ignores (WC-4)" but pin phrase `left out (WC-4)` (plan:97)
+    deviation_classification_clarity: 0.60
+    risk_surface_coverage: 0.50
+    recommendation_actionability: 0.45
+  calibrated_confidence: 0.55
+  delta: -0.30
+  escalation: escalate_to_tier_2
+  calibrator_extra_findings:
+    - "plan:97 cleanup section text 'leaves out paths git ignores (WC-4)' vs pinned phrase `left out (WC-4)`; Task 3 inherits (likely P2)"
+    - "T1-F1 correction: only Tasks 2 and 3 pin `left out (WC-4)`; Tasks 4, 13, 14 state the rule in prose; Tasks 5-12, 15, 16 do not mention it"
+    - "Task 7 runs tests/unit/test_review_translation.py, which plan:44 does not list among pre-existing tests"
+calibrator_diversity: degraded   # every available class (opus, sonnet, haiku slot) is also a reviewer slot
+tier2_cards:   # Wave 3C, one independent opus calibrator per card; self scores read, not used
+  reviewer-1:
+    self: 0.70
+    dimensions: {citation_grounding: 0.75, coverage_completeness: 0.70, deviation_classification_clarity: 0.60, risk_surface_coverage: 0.70, recommendation_actionability: 0.75}
+    calibrated: 0.70
+    per_finding: {R1-F1: confirmed, R1-F2: "confirmed (P1 defensible)", R1-F3: confirmed, R1-F4: confirmed, R1-F5: confirmed, R1-F6: "partly (misreads D-P2-13: plan already maps both HALTs to blocked; the High/Medium HALT at SKILL.md:1608 is Stage 10, not 10.5)", R1-F7: partly, R1-F8: "partly (plan:42 already forbids editing classified lines; risk is wording)", R1-F9: "partly (plan:45 already records the decisions)", R1-F10: confirmed}
+  reviewer-2:
+    self: 0.94
+    dimensions: {citation_grounding: 0.92, coverage_completeness: 0.75, deviation_classification_clarity: 0.70, risk_surface_coverage: 0.75, recommendation_actionability: 0.80}
+    calibrated: 0.78
+    per_finding: {R2-F1: "confirmed (P1 fits; needs an owner decision: the spec never defines cli-eval 'safety flags')", R2-F2: confirmed, R2-F3: "confirmed (matrix overstated 5 of 15 pinned; real number 2)", R2-F4: "confirmed (P2/P3 borderline)", R2-F5: "confirmed (matrix gap, not plan drift)"}
+  reviewer-3:
+    self: 0.80
+    dimensions: {citation_grounding: 0.85, coverage_completeness: 0.80, deviation_classification_clarity: 0.65, risk_surface_coverage: 0.80, recommendation_actionability: 0.85}
+    calibrated: 0.79
+    per_finding: {R3-F1: "confirmed (P1; harm is sc:task's prompts gating an unattended run, commit/push overstated)", R3-F2: "partly (W3 replacement implicitly settles FR-G5 and --no-pty; the safety-flag 'else blocked' is the real gap)", R3-F3: "confirmed (test pin does not name the .dev/reflect/ path)", R3-F4: confirmed, R3-F5: confirmed, R3-F6: "partly (still true for the task handoff, false only for tasklist)", R3-F7: "partly (Task 3 names improve's anchors; only the Safety Threshold clause lacks a target)", R3-F8: confirmed, R3-F9: "confirmed (observation, not a spec deviation)", R3-F10: confirmed, R3-F11: confirmed, R3-F12: "partly (path mismatch confirmed; missing skill already recorded in D-P2-1)", R3-F13: "partly (AC scoped to src tests plugins; .dev/reflect cannot fail it)", R3-F14: confirmed}
+calibrated_mean_t2: 0.757

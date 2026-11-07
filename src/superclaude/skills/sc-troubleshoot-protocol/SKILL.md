@@ -57,6 +57,8 @@ The skill receives at least one of:
 
 **STOP** if `--depth deep` is requested but the issue description is under 10 words and no scope was given — too vague for a deep pass to add value; ask the user to add detail first.
 
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this STOP resolves as blocked: the ask-for-detail question goes in `blocked_question` and the run ends as `blocked` without asking anyone.
+
 ## Output Contract
 
 The skill returns a structured dictionary on completion:
@@ -467,6 +469,7 @@ Verification command: run one initial on-disk completeness check per tier over t
 
    - Use `--depth quick` if all proposals share the same diagnosis and only differ in the fix mechanism (fast debate is sufficient).
    - Use `--depth standard` otherwise.
+   - Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) pass `--unattended --output <report-dir>/nested/adversarial-<n>/` in place of `--output <output-dir>/adversarial/` (`<n>` counts from 1 and is never reused), read the six artifacts of step 3 from the `artifacts_dir` its contract returns, and list the nested contract in `artifacts`, also when the call failed.
 3. **Collect adversarial output** — `<output-dir>/adversarial/` will contain the standard 6 artifacts (`diff-analysis.md`, `debate-transcript.md`, `base-selection.md`, `refactor-plan.md`, `merge-log.md`, `merged-output.md`). The merged output is the **chosen fix proposal**. If the debate flagged that the winning proposal requires a doc update to remove or rewrite a documented constraint (surfaced via the embedded `## Documented constraints to honor` section in the source fix-<N>.md), the merged output is structured as a **doc-update + fix bundle**: the bundle lists the doc file(s) to update alongside the code change(s), and Wave 5's Proposed Fix section renders both atoms.
 4. **Sanity-check the merge**: spawn `subagent_type=troubleshoot-analyst` via `Task` with `lens_name=self-review` against the merged fix proposal and the four standard questions (tests? edge cases? requirements? follow-up?). The orchestrator writes the returned review to `self-review.md` on receipt, before reading it or recording its verdict in the audit log. If self-review flags a blocker, surface it and STOP — do not proceed to Wave 5 with a known-broken proposal.
 
@@ -583,6 +586,7 @@ return_contract_path: <abs-path|none>
 
 1. **Select the route** from the `--depth` the user requested (not the tier reached): `--fix` alone → **plan route**; `--fix --depth deep` → **MDTM route**. (`--depth quick --fix` already STOPped at Wave 0.) Set `remediation_route` accordingly. Full route table: `refs/remediation-handoff.md`.
 2. **Present the remediation offer** to the user — read the prompt template in `refs/remediation-handoff.md`. Ask one yes/no question. Wait.
+   Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) the offer is not shown: the run ends as `blocked` with that yes/no question in `blocked_question`, `remediation_offered` is `false`, and no route (and so no `sc:impact-protocol` call) runs.
 3. On accept, run the selected route (phase detail lives in `refs/remediation-handoff.md`):
    - **Plan route (`--fix`)**
      - **Phase A — Build the plan**: first, impact warning: invoke `> Skill sc:impact-protocol` with `<symbols named in Proposed Fix> --depth 2 --output-dir <output-dir>/impact --caller sc-troubleshoot-protocol` and read only `status`, `degraded`, `symbols[].prod.total` and `report_path` from its `return-contract.yaml`; print one warning line per symbol, copy `degraded` into the audit log, and list `report_path` under `## References` in `remediation-source.md` (`status: blocked|failed` counts as `graph:absent`; the warning changes no gate, severity or route). Then write `<output-dir>/remediation-source.md` from REPORT.md (summary, files, acceptance, references, `## Pipeline Hardening` block), then invoke `Skill sc:workflow-protocol` on it with `--depth standard --handoff none`. Never `--handoff implement`.

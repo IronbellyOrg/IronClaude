@@ -20,7 +20,10 @@ personas: [architect, quality, security]
 
 ```
 /sc:cleanup [target] [--type code|imports|files|all] [--safe|--aggressive] [--interactive]
+/sc:cleanup [target] [--output <file>] [--unattended] [--report-dir <dir>]
 ```
+
+`--output <file>` writes the cleanup summary to that file; a run without `--unattended` writes a file only when the caller passes it.
 
 ## Behavioral Flow
 
@@ -89,6 +92,18 @@ Key behaviors:
 /sc:cleanup components/ --aggressive
 # Thorough cleanup with Context7 framework patterns
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:cleanup` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only (`--output` is file-valued). Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is the `--output` file, or `<report-dir>/cleanup-report.md`, holding the items applied, the items not applied and every changed file. `artifacts` lists every changed file, because the rollback mechanism is unverified; paths git ignores are left out (WC-4), and the report still names them. It is `[]` when nothing changed. The run is succeeded when the report is written, and failed otherwise.
+- **Person-mode flags.** `--interactive` is refused before any work (contract `worker_status: failed`, the flag in `reason`).
+- **Gates.** Under `--unattended` only the items of the auto-fix list are applied: every item under "Approval Required" is listed as not applied, and so is every item the "Safety Threshold" would prompt for (code with any usage path, code that affects the public API, anything uncertain). There is no other gate.
+- **Nested invocations.** None.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

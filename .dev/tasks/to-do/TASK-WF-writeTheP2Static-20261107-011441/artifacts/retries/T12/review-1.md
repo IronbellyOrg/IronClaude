@@ -1,0 +1,4 @@
+60262eab54a984b8c7d8afcfcf04e985a43233f7 tree=a743c74d5bcbcd677c11ca1ee084f8bc890c3820
+AC marks (reviewer, verbatim): T12.AC1 met src/superclaude/commands/task.md:165 and SKILL.md (7 hits of --unattended); T12.AC2 met tests/skills/test_worker_contract.py:518 and :1234 (752 passed); T12.AC3 met (ADDITIVE and SCAN print nothing).
+F1.1 sev=blocking trigger=B4 ac=scope at=src/superclaude/commands/task.md:171 anchor="`<report-dir>/return-contract.yaml` written on every outcome with" chk=n,n,n,y family=section-skeleton fix=open the Contract bullet with "`<report-dir>/return-contract.yaml` is written on every outcome, and on every tier, not only on TFEP." covers="written on every outcome" first=A1 origin=new: The Contract bullet says only "written on every tier, not only on TFEP"; the other sections use "is written on every outcome".
+F1.1 resolved

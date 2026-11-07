@@ -1,0 +1,18 @@
+$ pytest test_worker_contract
+........................................................................ [ 98%]
+.....                                                                    [100%]
+
+============================= 400 passed in 0.84s ==============================
+$ grep constants
+279:P2_COMMANDS = (
+1089:EXPECTED_NESTING = {"brainstorm": ["analyze", "adversarial"]}
+$ P2 names
+15
+$ grep -c old test name
+0
+$ ruff check
+All checks passed!
+rc=0
+$ ruff format --check
+1 file already formatted
+rc=0

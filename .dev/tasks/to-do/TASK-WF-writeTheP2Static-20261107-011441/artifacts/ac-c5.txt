@@ -1,0 +1,19 @@
+# AC-C5 (Check ADDITIVE): added/deleted lines per command file. master = merge base of master and HEAD (the plan's literal command); HEAD = the P2 start.
+# Local master is behind HEAD, so the master column cannot see edits to lines P1 added; the HEAD column does.
+PASS auggie-review: vs master [14 0]; vs HEAD [14 0]
+PASS cleanup: vs master [15 0]; vs HEAD [15 0]
+PASS improve: vs master [15 0]; vs HEAD [15 0]
+PASS cli-eval: vs master [14 0]; vs HEAD [14 0]
+PASS cli-portify: vs master [16 0]; vs HEAD [16 0]
+PASS recommend: vs master [16 0]; vs HEAD [16 0]
+PASS research: vs master [13 0]; vs HEAD [13 0]
+PASS review-translation: vs master [15 0]; vs HEAD [15 0]
+PASS spec-panel: vs master [14 0]; vs HEAD [14 0]
+PASS task: vs master [14 0]; vs HEAD [14 0]
+PASS tasklist: vs master [14 0]; vs HEAD [14 0]
+PASS reflect: vs master [14 0]; vs HEAD [14 0]
+PASS release-split: vs master [14 0]; vs HEAD [14 0]
+PASS tdd: vs master [14 0]; vs HEAD [14 0]
+PASS troubleshoot: vs master [14 0]; vs HEAD [14 0]
+PASS workflow: vs master [15 0]; vs HEAD [2 2] (named exemption: exactly 2 deleted lines)
+PASS brainstorm: vs master [16 0]; vs HEAD [1 1] (named exemption: exactly 1 deleted line)

@@ -37,6 +37,8 @@ Transforms a roadmap into a Sprint CLI-compatible multi-file tasklist bundle. Th
 | `--spec <spec-path>` | No | -- | Supplementary spec/context file for additional generation context. |
 | `--output <output-dir>` | No | Auto-derived from roadmap `TASKLIST_ROOT` | Output directory for the tasklist bundle. |
 | `--no-reflect` | No | off (false) | Escape hatch: skip both reflect gates (pre-reflect sign-off + templated post-reflect task). Set automatically by `--dry-run`. |
+| `--unattended` | No | off (false) | Worker mode for a coordinator; applies only as a standalone argument token. Behaviour is in `## Unattended mode`; without it nothing changes. |
+| `--report-dir <dir>` | No | -- | With `--unattended`: the directory that holds the worker contract and the nested contracts, instead of `--output`, never both. |
 
 ### TASKLIST_ROOT Auto-Derivation
 
@@ -99,6 +101,18 @@ The full generation algorithm is in the protocol skill.
 # Full invocation with all options
 /sc:tasklist @.dev/releases/current/v3.0/roadmap.md --spec @specs/v3-prd.md --output .dev/releases/current/v3.0/tasklist/
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:tasklist` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** Exactly one of `--output <output-dir>` or `--report-dir <dir>`; both, or neither, is refused before any work and the refusal is printed in chat only. `--report-dir` follows the path rules of `--output`, and with `--report-dir` the bundle's `TASKLIST_ROOT` is derived as today. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is `tasklist-index.md`. `artifacts` lists `validation/ValidationReport.md`, the phase files and the nested contracts; paths git ignores are left out (WC-4).
+- **Person-mode flags.** None is refused. `--no-reflect` still skips Stage 10.5.
+- **Gates.** Under `--unattended` the unresolved High or Medium HALT resolves as blocked, with the open blocking findings in `blocked_question`; the `needs_human_decision` HALT resolves as blocked too, with that item in `blocked_question`. There is no other gate.
+- **Nested invocations.** Stage 9 passes `--compliance strict --unattended --report-dir <report-dir>/nested/task-<n>/` to every `sc:task` call, the Stage 10 loop-back re-entries included (`<n>` counts every call, from 1, never reused), and the Stage 9 gate reads each nested `sc:task` worker contract by the nested-result rule of `~/.claude/WORKER-CONTRACT.md`. Stage 10.5 passes `--unattended --output <report-dir>/nested/reflect-<n>/` to each reflect call (`<n>` in phase order, from 1) in place of `TASKLIST_ROOT/validation/reflect-pre/phase-<P>/`, so the reflect headless rule applies, and `validation/ValidationReport.md` cites those directories. Every nested contract is listed in `artifacts`, also when the call failed. Without `--unattended` Stage 10.5 is unchanged.
+- **Outward actions.** It pushes, commits and stages nothing; no Python module or `superclaude tasklist` CLI behaviour changes.
 
 ## Boundaries
 

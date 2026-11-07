@@ -84,6 +84,17 @@ def test_brainstorm_unattended_codebase_scan_writes_no_nested_directory():
             assert tier.count(phrase) == 1, f"{name}: {phrase}"
 
 
+def test_brainstorm_unattended_research_light_runs_nested_and_deep_is_skipped():
+    """Under --unattended research-light is a nested /sc:research call; research-deep is skipped (D-P2-1)."""
+    lead = "**Under `--unattended`**"
+    parts = _wave2a_section().split(lead, 1)
+    assert len(parts) == 2, "Wave 2A missing the Under --unattended paragraph"
+    paragraph = re.split(r"\n\s*\n", parts[1], maxsplit=1)[0]
+    for phrase in ("/sc:research", "nested/research-", "quality_tier: skipped"):
+        assert phrase in paragraph, phrase
+    assert "the two research rows are skipped" not in paragraph
+
+
 def test_brainstorm_no_tavily_param_duplication():
     """Wave-2A enrichment matrix routes only — no Tavily params / map/crawl tool names."""
     section = _wave2a_section()

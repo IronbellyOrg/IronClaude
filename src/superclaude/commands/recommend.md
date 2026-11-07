@@ -34,8 +34,12 @@ argument-hint: "<goal description> [--plugin] [--eval <mode>] [--minstar <N>]"
 | `--plugin` | Ignore the local project surface; search the Claude Code plugin marketplace + community skill repos instead. Out: install commands, repo URLs, capability summaries, citations. |
 | `--eval <mode>` | **Opt-in** per-row `best_model` evaluation, triggered on a cold-path cache insert. Modes: `none` (default — no eval), `quick` (opus ×1), `normal` (opus+sonnet ×2 each), `deep` (opus+sonnet+haiku ×3 each). Spawns parallel per-model subagents, grades their deliverables, aggregates per-model metrics, and writes a deterministic `best_model` into the lookup row. Auto-eval was rejected — evaluation runs **only** when `--eval` is passed. |
 | `--minstar <N>` | **`--plugin` mode only.** Minimum GitHub-star floor a candidate repo must meet to appear in the primary results. Default **500** — the floor applies even when the flag is omitted. Surviving GitHub candidates are sorted by stars descending; credible candidates with no own-repo star count (Anthropic-curated marketplace entries, non-GitHub sources, or skills nested inside a larger repo) are not dropped but moved to a separate "Bonus — not ranked by GitHub stars" section. `--minstar 0` disables the floor. Must be a non-negative integer. In default (local) mode `--minstar` has no stars to act on, so it is **warned-and-ignored**. |
+| `--unattended` | Worker mode for a coordinator; applies only as a standalone argument token. Behaviour is in `## Unattended mode`; without it nothing changes. |
+| `--report-dir <dir>` | With `--unattended`: the directory that holds `return-contract.yaml` and `recommendation.md`. |
 
 `--plugin`, `--eval`, and `--minstar` are the only flags. The skill picks the smallest delegation that wins; there is no `--alternatives` (multi-path output is automatic when two paths are genuinely distinct), no `--estimate`, no `--stream`, no `--community`, no `--maxstar`, no `--sort`, no language toggle.
+
+`--unattended` and `--report-dir` are the two worker-mode flags of the last two table rows; they leave the three flags above unchanged.
 
 ## Behavioral Summary
 
@@ -106,6 +110,18 @@ Where it is registered (this repository's project `.claude/settings.json`), a Pr
 # curated/non-GitHub/nested candidates separately. (Omit --minstar to use the
 # default 500 floor; --minstar 0 disables the floor entirely.)
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:recommend` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument (the goal description is a quoted argument); otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only. Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is `<report-dir>/recommendation.md`, the handoff envelope (the paste-ready prompt block), which is still printed. `artifacts` is `[]`, because the envelope is the report; paths git ignores are left out (WC-4). The Return Contract `status` values map `success`, `degraded` and `plugin_search` to `succeeded` and `clarification_needed` to `blocked`.
+- **Person-mode flags.** `--eval` is refused before any work (contract `worker_status: failed`, the flag in `reason`), because its with-resource runs are paid runs.
+- **Gates.** Under `--unattended` the one clarifying question resolves as blocked, with that question in `blocked_question`; every point where the skill would ask for clarification (an ambiguous goal, a missing required input, uncertain ownership of a custom override, a conflict with the authority ceiling) counts as that question. The writes under `.claude/cache/` (lookup cache, plugin cache, telemetry) are skipped, because they are shared files; reads are unchanged. There is no other gate.
+- **Nested invocations.** None; the command recommends and never runs the target.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

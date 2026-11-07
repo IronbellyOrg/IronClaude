@@ -86,6 +86,7 @@ These constraints apply across ALL four parts of the protocol. They are non-nego
 
 - File is very large (> 500 lines) — chunked analysis will be used
 - File appears to be a tasklist rather than a spec — confirm with user
+  Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this confirmation is not asked: the run stops as `blocked`, with the question whether the file is a spec in `blocked_question`.
 
 **`--agents` handling**: Optional. Comma-separated agent specs in `model[:persona[:"instruction"]]` format.
 
@@ -159,6 +160,7 @@ Part 4: Fidelity Verification            → /sc:analyze
    - Is there a natural **foundation vs. application** boundary where Release 1 lays groundwork that Release 2 consumes?
    - Could splitting INCREASE risk by shipping an incomplete mental model, a misleading intermediate state, or a half-baked experience?
 3. Invoke Skill `sc:brainstorm` with the context above and `--interactive` if the user requested it.
+   Under `--unattended`, invoke it with `--unattended --output <report-dir>/nested/brainstorm-<n>/` instead (`<n>` counts from 1 per nested command and is never reused; a retry takes the next number), and list that nested contract in `artifacts`, also when the call failed.
 4. The brainstorm must produce a proposal with:
    - **Recommendation**: Split or Do Not Split (with confidence level)
    - If split:
@@ -173,6 +175,7 @@ Part 4: Fidelity Verification            → /sc:analyze
      - What risks remain and how to mitigate them without splitting
      - Alternative strategies for early validation without splitting
 5. Apply `--r1-scope` flag: if `fidelity-schema` (default), bias Release 1 toward planning fidelity and schema hardening. If `minimal-viable`, bias toward smallest independently valuable subset. If `custom`, prompt user for Release 1 scope guidance.
+   Under `--unattended`, `custom` does not prompt: the run stops as `blocked`, with the Release 1 scope question in `blocked_question`.
 6. Apply `--smoke-gate` flag: if `r2` (default), place smoke gate in Release 2 unless analysis proves it necessary and low-risk for Release 1.
 
 **Output**: Write proposal to `<output>/split-proposal.md`
@@ -204,6 +207,7 @@ Part 4: Fidelity Verification            → /sc:analyze
    - `--agents <parsed-agent-specs-with-instructions>`
    - `--depth` propagated from command
    - `--interactive` propagated if set
+   - Under `--unattended`: `--unattended --output <report-dir>/nested/adversarial-<n>/` (same `<n>` rule; the Mode B retry and the Mode A fallback each take the next number), the nested contract listed in `artifacts`, also when the call failed.
 5. The adversarial pipeline executes:
    - **Variant generation** (parallel): Each agent independently analyzes the source spec and generates a split proposal
    - **Diff analysis**: Structural and content differences between variants
@@ -274,6 +278,8 @@ Part 4: Fidelity Verification            → /sc:analyze
 
 **Do NOT** use `/sc:roadmap` or `/sc:tasklist` unless the approved proposal explicitly says they are appropriate at this stage. Default to `/sc:design` for producing release specs.
 
+Under `--unattended`, Part 3 produces the specs inline with the Write tool (the fallback of the Error Handling table) and makes no nested command call.
+
 **Behavioral Instructions — Split Approved**:
 
 1. Read the final proposal (Read tool).
@@ -322,6 +328,7 @@ Part 4: Fidelity Verification            → /sc:analyze
 **Entry Criteria**: Part 3 outputs exist.
 
 **Delegation**: Invoke appropriate analysis (Skill `sc:analyze` or inline verification).
+**Under `--unattended`**: use inline verification; no `sc:analyze` call is made.
 
 **Refs Loaded**: Read `refs/verification-protocol.md` for the full verification checklist.
 
@@ -416,6 +423,8 @@ The skill returns these fields to the calling context:
 | `fidelity_score` | float | 0.0-1.0 coverage completeness |
 | `remediation_items` | list | Items requiring remediation (empty if fully verified) |
 | `artifacts` | list | Paths to all produced artifacts |
+
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) these fields go into `<report-dir>/return-contract.yaml` beside the worker fields, with `report_path` set to `<output>/release-split-report.md`; `status` maps `split-approved` and `no-split` to `succeeded`, `split-with-remediation` to `partial` and `failed` to `failed`.
 
 ## 7. Error Handling
 

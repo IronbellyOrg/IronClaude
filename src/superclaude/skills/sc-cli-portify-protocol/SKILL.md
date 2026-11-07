@@ -104,6 +104,8 @@ Load `refs/analysis-protocol.md` before this phase. It contains the discovery ch
 
 **Present to user for review before Phase 2.**
 
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this gate resolves as blocked: stop with `portify-analysis.md` named in `blocked_question` and listed in `artifacts`.
+
 ### Phase 2: Pipeline Specification
 
 Load `refs/pipeline-spec.md` before this phase. It contains Step definition patterns, model design patterns, gate patterns, executor patterns, and the new unified-audit-gating patterns (TurnLedger, gate modes, subprocess isolation, context injection, resume semantics).
@@ -150,6 +152,8 @@ Load `refs/pipeline-spec.md` before this phase. It contains Step definition patt
 **Output**: `portify-spec.md` (+ optional `portify-prompts.md`) — Complete code spec with models, gates, executor design, pure-programmatic implementations, and integration plan.
 
 **Present to user for approval before Phase 3.**
+
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this gate resolves as blocked: stop with `portify-spec.md` (and `portify-prompts.md` when written) named in `blocked_question` and listed in `artifacts`.
 
 ### Phase 3: Release Spec Synthesis
 
@@ -392,6 +396,8 @@ After convergence loop terminates (either CONVERGED or ESCALATED):
 
 **Present final spec to user for approval before delivering.**
 
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this gate resolves as blocked: stop with `portify-release-spec.md` named in `blocked_question` and listed in `artifacts`. An ESCALATED convergence resolves as blocked in the same way, with the remaining CRITICAL findings in `blocked_question`.
+
 ## Decision Framework: What Becomes Programmatic
 
 The value of portification is moving orchestration out of inference. Here are concrete examples from tested workflows:
@@ -462,6 +468,8 @@ These inform Phase 2 pipeline specification and align with the unified-audit-gat
 ## Return Contract Schema
 
 The return contract is emitted on **every invocation** including success, partial completion, failure, and dry-run (SC-009). All fields are always present; default values apply on failure paths.
+
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this contract is written to `<report-dir>/return-contract.yaml` with the worker fields beside the fields below; its `status` maps `success` to `succeeded`, `partial` to `partial`, `failed` to `failed` and `dry_run` to `succeeded`. A gate stop is `worker_status: blocked` with the skill's own `status: partial`, and a run outside an IronClaude checkout (release-spec template missing) is `failed` with `failure_type: template_failed`.
 
 ### Contract Fields
 
@@ -564,6 +572,8 @@ On any failure path, the contract is emitted with these defaults:
 - All subsequent steps (4b, 4c, 4d) re-run in sequence
 - Convergence loop resets iteration counter to 1
 - All Phase 1, Phase 2, and Phase 3 artifacts are preserved unchanged
+
+**Resume under `--unattended`** (`--resume <contract>`): read `resume_phase` and `resume_substep` from that prior contract and continue there, in that contract's `output_directory`, with the artifacts of earlier phases preserved. A run blocked at the first gate writes `resume_phase: 2` and `resume_substep: null`; at the second gate `resume_phase: 3` and `resume_substep: null`; at the delivery gate `resume_phase: 4` and `resume_substep: "delivery"`, which delivers the preserved final spec without re-running the panel. Resuming past a gate counts as the caller's approval of that gate's artifact. A contract that cannot be read, or that has no `resume_phase`, ends the run as `failed` with that reason.
 
 ### Contract Emission on Dry Run
 

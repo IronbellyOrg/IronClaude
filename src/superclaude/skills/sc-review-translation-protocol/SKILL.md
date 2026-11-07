@@ -75,6 +75,8 @@ Automated Technical Validation:
 
 Output: Context Summary for User Confirmation → STOP AND WAIT for user.
 
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this wait does not happen: with `--context <file>` the summary in that file is the confirmed context and Phase 2 starts; without it, write the Context Summary to `<report-dir>/context-summary.md` and stop as `blocked` with the confirmation question in `blocked_question`.
+
 ## Phase 2: Review Framework Definition
 
 ### Scoring KPIs (Weighted - 6 Dimensions)
@@ -181,6 +183,8 @@ Options presented:
 4. PROVIDE FEEDBACK: Re-evaluate with user input
 5. EXPORT FOR TEAM: Generate handoff package
 6. SKIP IMPLEMENTATION: Keep reports only
+
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) no option is presented and option 6, SKIP IMPLEMENTATION, is taken: no fix is implemented.
 
 ## Special Handling Rules
 

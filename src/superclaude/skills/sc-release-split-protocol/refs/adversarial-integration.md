@@ -52,6 +52,8 @@ Invoke Skill `sc:adversarial-protocol` with args:
   --interactive <propagated if set>
 ```
 
+Under `--unattended`, add `--unattended --output <report-dir>/nested/adversarial-<n>/` to these args (`<n>` counts from 1 and is never reused; the Mode B retry and the Mode A fallback each take the next number) and list the nested contract in `artifacts`, also when the call failed.
+
 **Important**: Use `--generate spec` (not `--generate split-proposal`). The artifact
 type `spec` is a recognized sc:adversarial type. The agent instruction context
 (below) shapes the output as a split proposal — the `--generate` value only

@@ -1,0 +1,32 @@
+$ pytest tests/skills/test_worker_contract.py tests/skills/test_sc_recommend_routing_contract.py tests/commands/test_routing_plugin_parity.py tests/skills/test_task_workspace_smoke.py tests/recommend tests/docs/test_onboarding_deck.py tests/unit/test_cli_doctor.py -q -p no:cacheprovider
+........................................................................ [ 86%]
+........................................................................ [ 94%]
+                                                                         [ 94%]
+tests/recommend/test_telemetry.py .........                              [ 96%]
+tests/docs/test_onboarding_deck.py ...                                   [ 96%]
+tests/unit/test_cli_doctor.py ..............................             [100%]
+
+============================= 830 passed in 5.14s ==============================
+$ Check SCAN (pass: prints nothing)
+(end SCAN)
+$ Check ADDITIVE (pass: prints nothing per file)
+-- recommend
+(end ADDITIVE)
+$ ruff check / format --check on tests/skills/test_worker_contract.py
+All checks passed!
+ruff-check rc=0
+1 file already formatted
+ruff-format rc=0
+$ git status --short -- src tests plugins
+ M plugins/superclaude/commands/recommend.md
+ M plugins/superclaude/skills/sc-recommend/SKILL.md
+ M src/superclaude/commands/cleanup.md
+ M src/superclaude/commands/improve.md
+ M src/superclaude/commands/recommend.md
+ M src/superclaude/commands/research.md
+ M src/superclaude/commands/spec-panel.md
+ M src/superclaude/skills/sc-recommend/SKILL.md
+ M tests/skills/test_sc_recommend_routing_contract.py
+ M tests/skills/test_worker_contract.py
+$ cmp of the two recommend pairs (prints nothing when identical)
+(end cmp)

@@ -37,6 +37,7 @@ adds NO flags to the `superclaude eval` CLI.
 ### Required (STOP if missing)
 
 - `$1` ∈ {`create`, `run`} — the pipeline selector. STOP and ask if neither is present.
+  Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this question is not asked: a missing `$1` resolves as blocked, with the which-pipeline question in `blocked_question`.
 
 ### Optional
 
@@ -56,6 +57,7 @@ adds NO flags to the `superclaude eval` CLI.
    user before proceeding — do NOT substitute a remembered value. The digest is the ONLY authority
    for flags/fields the rest of this protocol uses. If you ever need a flag/field not in the digest,
    re-invoke the loader; never hardcode.
+   Under `--unattended` this confirmation is not asked: the missing or moved source resolves as blocked, with that source in `blocked_question`.
 
 **Refs Loaded**: none yet. (The digest the loader returns supersedes any remembered contract.)
 
@@ -81,6 +83,7 @@ claim (flags, schema fields) in the Wave-0 digest.
 Invoke the `/sc:spec-panel` command: `@<stem>-spec.md --mode critique --focus requirements,architecture`
 (spec-panel is command-only — its protocol is inline in the command, there is no `sc:spec-panel` skill).
 Fold the panel's findings back into the spec. Do not reimplement a review panel.
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) add `--unattended --report-dir <report-dir>/nested/spec-panel-<n>/` (`<n>` counts from 1 per nested command and is never reused) and list the nested contract in `artifacts`, also when the call failed; run it as a command, never through the `Skill` tool.
 
 ### W3 — Produce 2-3 competing designs + debate/merge (REUSE)
 
@@ -90,6 +93,7 @@ isolation). Then merge them with `Skill sc:adversarial-protocol`:
 - Mode-B (generate then merge): `--source <stem>-spec.md --generate eval-suite --agents <agents>`.
 - Mode-A (you already wrote the variants): `--compare designA.md,designB.md,designC.md`.
 Capture the merged design + transcript under `.dev/eval-workspaces/cli-eval/design/`.
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) add `--unattended --output <report-dir>/nested/adversarial-<n>/` to either mode (a retry takes the next `<n>`) and list the nested contract in `artifacts`, also when the call failed.
 
 ### W4 — Author the manifest schema-first (DELEGATE)
 
@@ -109,6 +113,7 @@ Update the inventory in `docs/guides/suites-guide.md` and the "what lives in thi
 `src/superclaude/cli/eval/suites/README.md` via the `/sc:document` command (or the `technical-writer`
 agent — `document` is command-only, so use the command, not a `Skill` call).
 Optionally run `evidence-validator` over the doc edits to confirm every cite resolves.
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) run `/sc:document` as a command with `--unattended --report-dir <report-dir>/nested/document-<n>/` and an explicit `--output`, and list the nested contract in `artifacts`, also when the call failed; the `technical-writer` agent alternative above is skipped and recorded, because an agent run yields no nested directory.
 
 **Create return contract**: see the Return Contract section.
 
@@ -131,6 +136,7 @@ Present the suites as an `AskUserQuestion` menu (name — version — eval_count
 drill in with `uv run superclaude eval describe --suite <name>` and show its evals, isolation
 strategy, timeouts, and any `no_pty: skip` markers. Honor `--suite`/`--eval` pre-selections by
 pre-filling the menu.
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) no menu is shown: the suite is the `--suite` value, and `run` without `--suite` resolves as blocked, with the missing flag named in `blocked_question`.
 
 ### W3 — Confirm the invocation + flags (AskUserQuestion)
 
@@ -145,12 +151,15 @@ Before launching, confirm the EXACT invocation with the user: the suite (+ optio
   `skip_reason="--no-pty"`. Make clear whether the user wants a real run (omit `--no-pty`) or the
   CI-canary skip path.
 
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this confirmation is not asked: `run` needs both `--suite` and `--output-dir <dir>` (else it resolves as blocked, the missing flag named in `blocked_question`), each other safety flag takes its command-line value or the CLI's own default, and the resolved set is the confirmed invocation. If the FR-G5 doctor preflight would fail, `run` resolves as blocked with the empty-HOME workaround offer in `blocked_question`, and the workaround is not applied.
+
 ### W4 — Monitor a live run (background Bash + Monitor)
 
 Launch `uv run superclaude eval run --suite <name> [confirmed flags]` as a **background** Bash job and
 attach a **Monitor** that emits per-eval PASS/SKIP/FAIL/ERROR signals and the terminal exit (per-eval
 timeouts can reach 3600s, so do not block). Capture the run output path. Prefer `--verbose` (not only
 `--json`) so a non-production-executor warning is not suppressed (see W5 authoritativeness).
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) wait on the job in waits of at most 240 s each (WC-10), repeated until the job ends; the 3600s above is the per-eval timeout, not a single wait.
 
 ### W5 — Parse + report (DELEGATE)
 
@@ -206,6 +215,8 @@ stubbed PASS is never reported as a real eval pass.
 | Run exits non-zero / any FAIL/ERRORED/TIMEOUT | Report it as the result via reporter | Preserve + cite failed HOMEs |
 | All evals SKIPPED (e.g. `--no-pty`) | Report as skipped, NOT pass; state why | Offer the real-run (no `--no-pty`) invocation |
 | Non-production/stubbed executor (canned PASS) | Label run NON-AUTHORITATIVE; state what unblocks a real run | Re-run `--verbose` to surface the warning `--json` suppressed |
+
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) the `$1` not create/run row, the fresh-context row and the FR-G5 row are not asked or worked around: each resolves as blocked, with its question in `blocked_question` (for FR-G5, the empty-HOME workaround offer).
 
 ## Will Do
 

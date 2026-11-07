@@ -77,6 +77,8 @@ Classified as STANDARD:
 
 If confidence <70%, add prompt: "⚠️ Low confidence. Override with: `--compliance [strict|standard|light|exempt]`"
 
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) this prompt is not shown: confidence below 0.70 resolves as blocked, with the `--compliance [tier]` override question in `blocked_question`.
+
 **Note**: The machine-readable header (Section 0) is for telemetry/A/B testing. This human-readable display is for user understanding.
 
 ### 3. Execution Phase
@@ -93,6 +95,7 @@ Execute task according to tier requirements:
 6. Identify all files that import changed code: invoke
    > Skill sc:impact-protocol
    with `<changed symbols> --depth 2 --output-dir .dev/impact/task-<slug> --caller sc-task-protocol` and read only `status`, `degraded`, `dependents[].file` and `unmapped_files` from its `return-contract.yaml`; the dependent files are candidates, and every unmapped file is checked with Grep too. Confirm every candidate file with Grep (word-boundary pattern for the symbol, then Read the call site) and copy `degraded` into the task notes. `status: blocked|failed` counts as `graph:absent`: then, or when it returns no rows, Grep alone, and record that fallback in the task notes. The call changes no tier, gate or verification step
+   Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) the call passes `--unattended --output-dir <report-dir>/nested/impact-<n>/` in place of `--output-dir .dev/impact/task-<slug>` (`<n>` counts from 1 and is never reused), and the nested contract is listed in `artifacts`, also when the call failed.
 7. Update all affected files
 8. Spawn verification agent (quality-engineer)
 9. Run comprehensive tests: `pytest [path] -v`
@@ -117,6 +120,8 @@ Execute task according to tier requirements:
 
 1. Execute immediately
 2. No verification overhead
+
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) an EXEMPT `commit` or `push` is refused (`worker_status: failed`, the operation in `reason`); the coordinator performs those actions. Every tier ends by writing `<report-dir>/task-report.md` (tier, verification result, files changed) and the worker contract.
 
 ### 4. Verification Phase
 
@@ -215,7 +220,10 @@ When TFEP triggers, execute the following steps:
 - systemic failure OR ≥3 new failing tests → `--depth deep`
 - 3rd TFEP trigger → **FULL STOP** (report to user, no further fixes)
 
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) every FULL STOP in this protocol resolves as blocked: the report to the user goes in `blocked_question` and the run ends as `blocked`.
+
 6. Invoke: `/sc:troubleshoot --caller task-unified --context {context_path} --output-dir {output_dir} --depth {depth}` where `{depth}` is determined by the depth mapping above (this step's bullets): `--depth standard` for the 1st/simple TFEP trigger, and `--depth deep` for a systemic failure, ≥3 new failing tests, or a 2nd (escalation) trigger. Pass NO `--fix` — TFEP invokes troubleshoot for DIAGNOSIS ONLY; remediation insertion and resume stay with task-protocol.
+   Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) the call also passes `--unattended` and uses `--output-dir <report-dir>/nested/troubleshoot-<n>/` as `{output_dir}` (`<n>` counts from 1 and is never reused; every retry or escalated re-invocation of this step takes the next number), and the nested contract is listed in `artifacts`, also when the call failed.
 7. The diagnostic escalation backend runs autonomously through all its phases and returns a structured return contract.
 
 **Step 4: Consume diagnostic results**
@@ -231,6 +239,8 @@ Evaluate the branches top-to-bottom, first match wins; the asymmetric-cost gates
 - If `recommended_escalation == "retry"`: re-run `/sc:troubleshoot` once at the SAME `--depth` (re-enter Step 3; increment `escalation_count`).
 - If `recommended_escalation == "escalate_depth"`: re-invoke `/sc:troubleshoot` at `--depth deep` (re-enter Step 3; increment `escalation_count`). If the run was already at `--depth deep`, there is no deeper level — treat as FULL STOP.
 - If `recommended_escalation == "halt"` (or `status == "failed"`): **FULL STOP** — report to user, no further fixes (immediate FULL STOP regardless of `escalation_count`).
+
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`), a nested troubleshoot worker contract that says `blocked` (for example its short-input STOP) makes this run `blocked` by the nested-result rule, before any branch above is evaluated; the two "present to user" branches above resolve as blocked too, with the review question in `blocked_question`.
 
 **Step 5: Tasklist insertion**
 10. Read `tasklist_insertion_path` from the return contract; when it is `null` (the default in diagnosis-only mode), compose the block from the summary fields per item 11.
@@ -264,6 +274,8 @@ After each TFEP resolution (success or escalation), produce `tfep-incident-repor
 ```
 
 This report is committed to git alongside other diagnostic artifacts.
+
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) the report is written to `<report-dir>/tfep-incident-report.md` and listed in `artifacts`, and it is not committed; the coordinator decides.
 
 #### Escalation Budget
 

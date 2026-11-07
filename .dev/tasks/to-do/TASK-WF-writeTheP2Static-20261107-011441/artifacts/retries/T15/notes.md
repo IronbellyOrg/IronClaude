@@ -1,0 +1,4 @@
+ea47de70c2734af993ca9288b2cf2c255abcb5fa
+A1 r1-1 F1.2 minor src/superclaude/commands/reflect.md:262 ac=scope n,n,n,n With --report-dir instead of --output, REPORT.md is in the run output directory, not in the report directory, so the bare name report_path is ambiguous; the task text does not define it.
+A2 r2-1 F2.1 note src/superclaude/skills/sc-reflect-protocol/SKILL.md:309 ac=scope n,n,n,n The Step 5.0 --help probe of sc-adversarial-protocol is another call site without --unattended; it runs no pipeline and writes no nested directory.
+A2 r2-1 F2.2 note src/superclaude/skills/sc-reflect-protocol/SKILL.md:652 ac=scope n,n,n,n The EV-1 redirect wording "the adversarial/ child that contract artifacts_dir names" is slightly ambiguous, because artifacts_dir already names the adversarial/ directory.

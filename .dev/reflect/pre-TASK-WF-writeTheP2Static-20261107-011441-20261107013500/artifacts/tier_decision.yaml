@@ -1,0 +1,13 @@
+selected_tier: 2
+fired_rule_number: 6               # C 0.55 < 0.85 (calibrated); the parsed-sparse pre-filter already forbade every STOP row
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 7.0
+per_signal_breakdown:
+  scope_size: 2          # plan names ~60 files to edit
+  task_count: 2          # 21 tasks
+  blast_radius: 1        # command, skill, core and test files; no Python module
+  spec_density: 1        # 19-line brief over a 468-line spec
+  ambiguity_signals: 1   # 17 plan decisions where the spec is silent
+escalation_reason: "calibrated confidence 0.55 (rule 6) and parsed-sparse pre-filter (0 parsed, 28 inferred requirement rows)"
+inputs: {C: 0.55, S_scope: 60, S_domains: 3, S_dev_density: 0.0}

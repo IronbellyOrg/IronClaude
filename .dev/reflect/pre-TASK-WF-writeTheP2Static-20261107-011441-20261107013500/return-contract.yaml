@@ -1,0 +1,93 @@
+contract_version: "1.8.0"
+status: partial   # evidence gate dropped 3 citations; adversarial convergence BLOCKED_BY_INVARIANTS (INV-001, INV-002)
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P2/.dev/reflect/pre-TASK-WF-writeTheP2Static-20261107-011441-20261107013500/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P2/.dev/reflect/pre-TASK-WF-writeTheP2Static-20261107-011441-20261107013500/audit.log
+confidence_calibrated: 0.76
+escalation_rule_matched: 6
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# Input integrity
+input_sha256: {tasklist: 774f73998193a4d3686b59fc01e99e0b4cf1fea187e2b5bd8bc9a724576c8211, spec: 35eb62d23cb73feed12513fee6fd0d0052076172ffce4d7c198c1712bd340233}
+input_tree_sha256: 0cfafa6de2c2f825cd127fe63503e6689df84d8e4a7935ed650e33fb96b64df0
+input_tree_file_count: 83
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P2/.dev/reflect/pre-TASK-WF-writeTheP2Static-20261107-011441-20261107013500/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 184
+citations_revalidated: 108
+citations_dropped: 3
+citations_dropped_extrapolated: 5
+citations_inferred: 3
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards:
+  - /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P2/.dev/reflect/pre-TASK-WF-writeTheP2Static-20261107-011441-20261107013500/reviewer-cards/reviewer-1-card.yaml
+  - /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P2/.dev/reflect/pre-TASK-WF-writeTheP2Static-20261107-011441-20261107013500/reviewer-cards/reviewer-2-card.yaml
+  - /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P2/.dev/reflect/pre-TASK-WF-writeTheP2Static-20261107-011441-20261107013500/reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P2/.dev/reflect/pre-TASK-WF-writeTheP2Static-20261107-011441-20261107013500/adversarial
+adversarial_convergence_score: 1.0   # 16/16 points agreed; status BLOCKED_BY_INVARIANTS
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi   # inferred from earlier runs' record of the haiku slot (warn-only check)
+t2_effective_diversity: full
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: true   # INV-001 needs the owner's choice of cli-eval safety flags
+regression_present: false
+unauthorized_deviation_present: true       # 30 findings classed drift
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true               # 8 findings need an owner decision; convergence blocked by INV-001, INV-002
+needs_human_decision: false                # no grounding-gaps.yaml rows
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false

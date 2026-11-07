@@ -1,0 +1,6 @@
+$ grep -ho '"nestedWorkerMaxDepth":[0-9]*' "${ORCA_RUNTIME_SOURCE_PROFILE_PATH:-$HOME/.config/orca}"/profiles/*/orca-data.json   (AC-C6, spec section 7.1)
+profiles dir: /home/coder/.config/orca/profiles/
+/home/coder/.config/orca/profiles/local-default/orca-data.json
+--- command output:
+"nestedWorkerMaxDepth":1
+--- grep rc=0

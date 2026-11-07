@@ -1,0 +1,10 @@
+# D-P2-25, option B (alternative): pass the flag to the Part 3 callees that accept it
+
+Under `--unattended`, Part 3 invokes `/sc:design`, `/sc:workflow` or `/sc:tasklist` with `--unattended` and a nested report directory `<report-dir>/nested/<command>-<n>/` (all three accept the flag: design and workflow since P1, tasklist since P2), lists each nested contract in `artifacts`, and reads each result by the nested-result rule (a nested `blocked` stops release-split as `blocked`). release-split's nested list grows by design, workflow and tasklist; the spec row, `EXPECTED_NESTING`, the section and the skill change accordingly.
+
+Claimed strengths: follows spec section 2.1 literally; keeps the callees' structure and checks.
+Claimed weakness: three more nested calls, each with its own gates, blocked paths and staging behaviour (workflow and tasklist write packages under `.dev/tasks`, which a worker must not stage, WC-9); a larger test and spec change; interacts with D-P2-24 and D-P2-13.
+
+## How to judge (the same for every decision)
+
+Read the cited files in the working tree (they hold uncommitted P2 edits) before arguing. Judge each option on: (1) is the command or skill text true and unambiguous when a worker runs it under `--unattended`; (2) does it respect the spec: `.dev/orca-command-refactor/specs/orca-worker-contract-spec.md` section 2.1 (nested propagation: a step whose callee does not accept `--unattended` is made gate-free or skipped and recorded), WC-4 (report and contract), WC-9 (no commit, push or staging by a worker; the coordinator owns outward actions) and WC-11 (parallel-safe writes), and SA-1/SA-4 (a standalone run behaves as today; edits to command files are additive unless a named defect fix); (3) size of the change and risk to existing pinned tests (`tests/skills/test_worker_contract.py`, the Check ADDITIVE rule, the write-verb classification table); (4) what a coordinator and the owner gain or lose. End with one recommended option and the one-sentence reason.

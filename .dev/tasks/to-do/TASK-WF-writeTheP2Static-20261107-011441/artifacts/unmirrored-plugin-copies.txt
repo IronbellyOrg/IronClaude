@@ -1,0 +1,19 @@
+# plugin command copies left unmirrored by this plan: plugin copy compared with its source before this plan (HEAD) and now
+cleanup: before this plan different; now different
+research: before this plan different; now different
+spec-panel: before this plan different; now different
+reflect: before this plan different; now different
+troubleshoot: before this plan different; now different
+brainstorm: before this plan different; now different
+improve: before this plan identical; now different
+task: before this plan identical; now different
+auggie-review: no plugin copy
+cli-eval: no plugin copy
+cli-portify: no plugin copy
+review-translation: no plugin copy
+release-split: no plugin copy
+tdd: no plugin copy
+tasklist: no plugin copy
+# whole-folder comparison of the two pinned mirror folders (a difference here that is not in mirror-check.txt predates this plan)
+Only in plugins/superclaude/skills/sc-recommend/refs: HOW-WE-WORK.md
+# folder comparison done

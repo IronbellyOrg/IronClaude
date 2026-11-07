@@ -355,6 +355,20 @@ def test_recommend_command_summary_is_accurate_and_flags_unchanged():
     assert "defense-in-depths" not in text
 
 
+def test_skill_states_the_unattended_clarification_and_envelope_rule():
+    # Under --unattended the one clarifying question is returned as blocked and
+    # the envelope goes to recommendation.md (spec 3.2 row recommend).
+    lines = [
+        ln
+        for ln in _text().splitlines()
+        if "recommendation.md" in ln
+        and "clarification_needed" in ln
+        and "`blocked`" in ln
+        and "--unattended" in ln
+    ]
+    assert lines, "no skill line ties --unattended, clarification_needed, blocked"
+
+
 def test_hook_reminder_matches_branches_and_stays_advisory():
     script = _HOOK.read_text(encoding="utf-8")
     assert "sc-recommend|sc:recommend|sc-recommend-protocol) ;;" in script

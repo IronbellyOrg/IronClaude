@@ -23,6 +23,7 @@ personas: [deep-research-agent]
 
 ```text
 /sc:research "[query]" [--depth quick|standard|deep|exhaustive] [--strategy planning|intent|unified]
+/sc:research "[query]" [--unattended] [--report-dir <dir>]
 ```
 
 ## Behavioral Flow
@@ -112,6 +113,18 @@ Per-tier `search_depth`/`extract_depth` and map/crawl selection are defined by t
 /sc:research "competitive analysis of AI coding assistants" --depth deep
 /sc:research "best practices for distributed systems" --strategy unified
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:research` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument (the query is a quoted argument); otherwise nothing here applies and no worker contract is written.
+- **Report directory.** `--report-dir <dir>` only. Without it the run is refused before any work and the refusal is printed in chat only. A directory inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.claude/` folder, or one that cannot be created or written, counts as no report directory known (refusal printed in chat only).
+- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is the generated `claudedocs/research_<topic>_<timestamp>.md` file. `artifacts` lists any other file the run wrote; paths git ignores are left out (WC-4), and it is `[]` when nothing else listable was written. The run is succeeded when the report is written, and failed otherwise.
+- **Person-mode flags.** Only `--strategy planning` runs without clarification, so an explicit `--strategy intent` or `--strategy unified` is refused before any work (contract `worker_status: failed`, the flag in `reason`).
+- **Gates.** Under `--unattended` the strategy is `--strategy planning`, the strategy that runs without clarification; a run with no `--strategy` uses it. There is no other gate.
+- **Nested invocations.** None.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

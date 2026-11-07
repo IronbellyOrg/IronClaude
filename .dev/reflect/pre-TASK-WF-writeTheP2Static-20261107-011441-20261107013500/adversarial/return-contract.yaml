@@ -1,0 +1,13 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P2/.dev/reflect/pre-TASK-WF-writeTheP2Static-20261107-011441-20261107013500/adversarial/merged-verdict.yaml
+  convergence_score: 1.0
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P2/.dev/reflect/pre-TASK-WF-writeTheP2Static-20261107-011441-20261107013500/adversarial
+  status: partial          # 16/16 points agreed, but convergence BLOCKED_BY_INVARIANTS (2 HIGH UNADDRESSED); --depth standard has no Round 3
+  base_variant: "opus:refactorer"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants:
+    - {id: INV-001, category: guard_conditions, assumption: "the cli-eval safety-flag subset a brief must carry is defined", severity: HIGH}
+    - {id: INV-002, category: state_variables, assumption: "a nested blocked or failed worker status has a defined path into the caller's own return contract", severity: HIGH}

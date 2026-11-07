@@ -1,0 +1,2 @@
+fd7fd9e94da8fdd73bf5fcee5579ec9bc6453632
+A1 r1-1 F1.1 minor src/superclaude/core/WORKER-CONTRACT.md:209 ac=T19.AC2 n,n,n,n The troubleshoot brief row says "no `--fix` under `--unattended` (the offer resolves as blocked)"; the plan text can also be read as keeping "no `--fix`" only for runs without `--unattended`. The row as written matches src/superclaude/commands/troubleshoot.md (the --fix offer resolves as blocked under --unattended), so it is the safer brief rule and a defensible reading.

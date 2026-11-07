@@ -1,0 +1,75 @@
+$ pytest tests/skills/test_worker_contract.py tests/unit/test_cli_install.py -q -p no:cacheprovider
+........................................................................ [ 65%]
+........................................................................ [ 76%]
+........................................................................ [ 86%]
+..                                                                       [ 86%]
+tests/unit/test_cli_install.py ......................................... [ 92%]
+.......................................................                  [100%]
+
+============================= 709 passed in 1.93s ==============================
+$ Check SCAN (pass: prints nothing)
+(end SCAN)
+$ Check ADDITIVE (pass: prints nothing per file)
+(end ADDITIVE)
+$ Check ADDITIVE against HEAD (the P2 start; local master is behind HEAD, so master cannot see edits to P1 lines)
+(end ADDITIVE vs HEAD)
+$ ruff check / format --check on tests/skills/test_worker_contract.py
+All checks passed!
+ruff-check rc=0
+1 file already formatted
+ruff-format rc=0
+$ git status --short -- src tests plugins
+ M plugins/superclaude/commands/recommend.md
+ M plugins/superclaude/commands/workflow.md
+ M plugins/superclaude/skills/sc-recommend/SKILL.md
+ M plugins/superclaude/skills/sc-workflow-protocol/SKILL.md
+ M plugins/superclaude/skills/sc-workflow-protocol/refs/return-contract.md
+ M src/superclaude/commands/auggie-review.md
+ M src/superclaude/commands/brainstorm.md
+ M src/superclaude/commands/cleanup.md
+ M src/superclaude/commands/cli-eval.md
+ M src/superclaude/commands/cli-portify.md
+ M src/superclaude/commands/improve.md
+ M src/superclaude/commands/recommend.md
+ M src/superclaude/commands/reflect.md
+ M src/superclaude/commands/release-split.md
+ M src/superclaude/commands/research.md
+ M src/superclaude/commands/review-translation.md
+ M src/superclaude/commands/spec-panel.md
+ M src/superclaude/commands/task.md
+ M src/superclaude/commands/tasklist.md
+ M src/superclaude/commands/tdd.md
+ M src/superclaude/commands/troubleshoot.md
+ M src/superclaude/commands/workflow.md
+ M src/superclaude/core/WORKER-CONTRACT.md
+ M src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+ M src/superclaude/skills/sc-auggie-review-protocol/refs/remediation-handoff.md
+ M src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+ M src/superclaude/skills/sc-cli-eval-protocol/SKILL.md
+ M src/superclaude/skills/sc-cli-eval-protocol/refs/integration-map.md
+ M src/superclaude/skills/sc-cli-eval-protocol/refs/run-pipeline.md
+ M src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
+ M src/superclaude/skills/sc-recommend/SKILL.md
+ M src/superclaude/skills/sc-reflect-protocol/SKILL.md
+ M src/superclaude/skills/sc-reflect-protocol/refs/remediation-handoff.md
+ M src/superclaude/skills/sc-release-split-protocol/SKILL.md
+ M src/superclaude/skills/sc-release-split-protocol/refs/adversarial-integration.md
+ M src/superclaude/skills/sc-review-translation-protocol/SKILL.md
+ M src/superclaude/skills/sc-task-protocol/SKILL.md
+ M src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+ M src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
+ M src/superclaude/skills/sc-troubleshoot-protocol/refs/diagnosability-audit.md
+ M src/superclaude/skills/sc-troubleshoot-protocol/refs/remediation-handoff.md
+ M src/superclaude/skills/sc-workflow-protocol/SKILL.md
+ M src/superclaude/skills/sc-workflow-protocol/refs/return-contract.md
+ M src/superclaude/skills/task-builder/SKILL.md
+ M src/superclaude/skills/task/SKILL.md
+ M src/superclaude/skills/tdd/SKILL.md
+ M src/superclaude/skills/tdd/refs/build-request-template.md
+ M src/superclaude/skills/tdd/refs/validation-checklists.md
+ M tests/commands/test_workflow_command.py
+ M tests/skills/test_brainstorm_protocol.py
+ M tests/skills/test_sc_recommend_routing_contract.py
+ M tests/skills/test_worker_contract.py
+SCAN-count-before=2 SCAN-count-after=2 until-P2=0
+$ guard-order and RULE_PHRASES tests are inside the pytest run above

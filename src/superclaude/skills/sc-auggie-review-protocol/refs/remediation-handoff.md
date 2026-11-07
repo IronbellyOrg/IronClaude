@@ -19,6 +19,8 @@ The remediation offer is presented only if **all** the following hold:
 
 If the conditions are not met, the skill returns the structured output contract and stops.
 
+Under `--unattended` the offer never fires: `--unattended` implies `--no-remediation-offer`, so condition 2 is false and `remediation_offered` is `false`.
+
 ## The offer prompt (exact text)
 
 The skill emits this message verbatim to the user (substituting only the bracketed values):

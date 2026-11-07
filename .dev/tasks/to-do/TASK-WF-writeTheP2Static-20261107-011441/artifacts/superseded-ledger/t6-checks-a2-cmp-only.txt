@@ -1,0 +1,2 @@
+$ cmp of the two recommend pairs after the fix (prints nothing when identical)
+(end cmp)

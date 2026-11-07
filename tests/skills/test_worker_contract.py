@@ -1,10 +1,10 @@
-"""Static checks for the Orca worker contract (~/.claude/WORKER-CONTRACT.md), Phases P0 and P1.
+"""Static checks for the Orca worker contract (~/.claude/WORKER-CONTRACT.md), Phases P0 to P2.
 
 The contract file is read through the module-level CONTRACT_PATH and the command
 files through COMMANDS_DIR, so the negative tests can point both at a tmp_path copy.
 Each rule is pinned by phrases that carry its meaning, not only its label. The
 phrases are copied here as data; the tests never read the plan's artifacts.
-After P1 the commands that have an `## Unattended mode` section are exactly the
+After P2 the commands that have an `## Unattended mode` section are exactly the
 keys of UNATTENDED_EXPECT, and each section is checked against its entry there.
 CI-safe, no network.
 """
@@ -274,6 +274,26 @@ P1_COMMANDS = (
     "test",
 )
 
+# The fifteen commands that get an `## Unattended mode` section in P2, in the order
+# of the P2 static plan. UNATTENDED_EXPECT gains their entries one task at a time.
+P2_COMMANDS = (
+    "auggie-review",
+    "cleanup",
+    "improve",
+    "cli-eval",
+    "cli-portify",
+    "recommend",
+    "research",
+    "review-translation",
+    "spec-panel",
+    "task",
+    "tasklist",
+    "reflect",
+    "release-split",
+    "tdd",
+    "troubleshoot",
+)
+
 # command -> {"flags": tokens its section must contain (whole tokens),
 #             "phrases": further text it must contain,
 #             "nested": optional list of nested commands that receive --unattended}.
@@ -287,7 +307,8 @@ UNATTENDED_EXPECT: dict = {
     "brainstorm": {
         "flags": ["--output", "-o", "--interactive", "-i"],
         "phrases": [
-            "research enrichment is off",
+            "nested/research-",
+            "research-deep is skipped",
             "exactly as passed",
             "never reused",
             "nested/analyze-",
@@ -296,7 +317,7 @@ UNATTENDED_EXPECT: dict = {
             "writes no nested directory and no nested contract",
             "only by a `/sc:analyze` call",
         ],
-        "nested": ["analyze", "adversarial"],
+        "nested": ["analyze", "adversarial", "research"],
     },
     "graph": {
         "flags": ["--output-dir"],
@@ -329,8 +350,13 @@ UNATTENDED_EXPECT: dict = {
     },
     "workflow": {
         "flags": ["--handoff"],
-        "phrases": ["pre-creation", "--handoff implement", "does not stage"],
-        "nested": [],
+        "phrases": [
+            "pre-creation",
+            "--handoff implement",
+            "does not stage",
+            "nested/reflect-",
+        ],
+        "nested": ["reflect"],
     },
     "analyze": {
         "flags": ["--output"],
@@ -372,9 +398,203 @@ UNATTENDED_EXPECT: dict = {
         "phrases": ["knowledge-base mode", "index-report.md", "consent is never given"],
         "nested": [],
     },
+    "cleanup": {
+        "flags": ["--interactive", "--output"],
+        "phrases": [
+            "Approval Required",
+            "not applied",
+            "cleanup-report.md",
+            "every changed file",
+            "left out (WC-4)",
+            'every item under "Approval Required" is listed as not applied',
+        ],
+        "nested": [],
+    },
+    "improve": {
+        "flags": ["--interactive", "--force", "--output"],
+        "phrases": [
+            "Approval Required",
+            "not applied",
+            "improve-report.md",
+            "every changed file",
+            "left out (WC-4)",
+            'every item under "Approval Required" is listed as not applied',
+            "`--force` is refused",
+        ],
+        "nested": [],
+    },
+    "research": {
+        "flags": ["--strategy planning"],
+        "phrases": [
+            "without clarification",
+            "--strategy intent",
+            "--strategy unified",
+            "claudedocs/research_",
+            "an explicit `--strategy intent` or `--strategy unified` is refused",
+        ],
+        "nested": [],
+    },
+    "spec-panel": {
+        "flags": ["--target-release", "--improve", "--output"],
+        "phrases": [
+            "target_release",
+            "blocked_question",
+            "improved-spec.md",
+            "spec-panel-report.md",
+            "never modified",
+            "a TDD input without `--target-release` resolves as blocked",
+        ],
+        "nested": [],
+    },
+    "recommend": {
+        "flags": ["--eval"],
+        "phrases": [
+            "clarifying question",
+            "blocked_question",
+            "recommendation.md",
+            ".claude/cache/",
+            "the one clarifying question resolves as blocked",
+        ],
+        "nested": [],
+    },
+    "review-translation": {
+        "flags": ["--context"],
+        "phrases": [
+            "context-summary.md",
+            "blocked_question",
+            "SKIP IMPLEMENTATION",
+            "reports/localization/",
+            "Phase 1 without `--context` resolves as blocked",
+            "Phase 7 resolves to SKIP IMPLEMENTATION",
+        ],
+        "nested": [],
+    },
+    "release-split": {
+        "flags": ["--output", "-o", "--interactive", "-i", "--r1-scope custom"],
+        "phrases": [
+            "blocked_question",
+            "release-split-report.md",
+            "split-with-remediation",
+            "the tasklist-input warning resolves as blocked",
+            "`--r1-scope custom` resolves as blocked",
+            "both, or neither, is refused before any work",
+        ],
+        "nested": ["brainstorm", "adversarial"],
+    },
+    "cli-portify": {
+        "flags": ["--resume", "--output"],
+        "phrases": [
+            "portify-analysis.md",
+            "portify-spec.md",
+            "portify-release-spec.md",
+            "resume_phase",
+            "resume_substep",
+            "IronClaude checkout",
+            "blocked_question",
+            "each of the three approval gates resolves as blocked",
+        ],
+        "nested": [],
+    },
+    "auggie-review": {
+        "flags": [
+            "--output-dir",
+            "--no-post-pr",
+            "--no-remediation-offer",
+            "--post-pr",
+            "--remediation-offer",
+        ],
+        "phrases": [
+            "REVIEW.md",
+            "pr_review_url",
+            "`--unattended` implies `--no-post-pr` and `--no-remediation-offer`",
+            "`--post-pr` and `--remediation-offer` are refused",
+        ],
+        "nested": ["impact"],
+    },
+    "troubleshoot": {
+        "flags": ["--output-dir", "--fix", "--depth deep", "--diagnosability-handoff"],
+        "phrases": [
+            "short input",
+            "blocked_question",
+            "REPORT.md",
+            "the short input STOP resolves as blocked",
+            "the `--fix` offer resolves as blocked",
+        ],
+        "nested": ["adversarial", "workflow"],
+    },
+    "task": {
+        "flags": ["--compliance"],
+        "phrases": [
+            "0.70",
+            "present to user",
+            "FULL STOP",
+            "EXEMPT",
+            "tfep-incident-report.md",
+            "not committed",
+            "task-report.md",
+            "every tier",
+            "confidence below 0.70 resolves as blocked",
+            "every FULL STOP resolves as blocked",
+            "EXEMPT `commit` and `push` are refused",
+        ],
+        "nested": ["impact", "troubleshoot"],
+    },
+    "cli-eval": {
+        "flags": ["--suite", "--output-dir"],
+        "phrases": [
+            "240 s",
+            "blocked_question",
+            "summary.json",
+            "the resolved set is the confirmed invocation",
+            "empty-HOME workaround",
+            "command-only",
+            "technical-writer",
+            "`run` without both `--suite` and `--output-dir` resolves as blocked",
+            "an FR-G5 preflight failure resolves as blocked",
+        ],
+        "nested": ["spec-panel", "adversarial", "document"],
+    },
+    "tdd": {
+        "flags": ["--output", "--resume"],
+        "phrases": [
+            "bare topic",
+            "blocked_question",
+            "its two ask-the-user points come back as a question",
+            "does not stage",
+            "reflect gate skipped (unattended)",
+            "a bare topic resolves as blocked",
+            "a TDD that is already complete resolves as blocked",
+        ],
+        "nested": [],
+    },
+    "reflect": {
+        "flags": ["--output", "--remediate", "--no-promote"],
+        "phrases": [
+            "headless",
+            "AUTO-FIXABLE",
+            "stopped-precondition",
+            "review snapshot",
+            "task-builder",
+            "the Wave 1B tech-research step is skipped",
+            "`--remediate` is answered by the headless auto-accept rule",
+        ],
+        "nested": ["adversarial", "workflow", "impact"],
+    },
+    "tasklist": {
+        "flags": ["--output", "--no-reflect"],
+        "phrases": [
+            "tasklist-index.md",
+            "validation/ValidationReport.md",
+            "blocked_question",
+            "--compliance strict --unattended --report-dir <report-dir>/nested/task-<n>/",
+            "the unresolved High or Medium HALT resolves as blocked",
+            "the `needs_human_decision` HALT resolves as blocked",
+        ],
+        "nested": ["reflect", "task"],
+    },
 }
 
-# Commands with an `## Unattended mode` section after P1 (./source.md section 6
+# Commands with an `## Unattended mode` section after P2 (./source.md section 6
 # table). Later phases extend this set.
 UNATTENDED_COMMANDS: frozenset = frozenset(UNATTENDED_EXPECT)
 
@@ -548,6 +768,96 @@ def test_never_as_worker_list_names_all_seven_commands():
 
 def test_brief_template_puts_guard_line_before_first_command_line():
     _check_guard_before_command(_contract())
+
+
+# --- P2 coordinator brief and the nested-result rule (D-P2-20) -------------
+
+P2_NEW_BRIEF_ROWS = (
+    "auggie-review",
+    "cli-eval",
+    "cli-portify",
+    "review-translation",
+    "spec-panel",
+)
+NESTED_RESULT_PHRASES = (
+    "the caller stops at that step",
+    "prefixed with the nested command's name",
+    "its own documented failure path for that step",
+    "`succeeded` and `partial` count as the step completing",
+)
+
+
+def _name_pattern(name: str) -> str:
+    return rf"(?<![\w-]){re.escape(name)}(?![\w-])"
+
+
+def _p2_bullet(text: str) -> str:
+    bullets = [ln for ln in text.splitlines() if ln.startswith("- From P2 ")]
+    assert len(bullets) == 1, f"expected one 'From P2' bullet, found {len(bullets)}"
+    return bullets[0]
+
+
+def _check_p2_brief(text: str) -> None:
+    assert "until P2" not in text, "the brief table still says 'until P2'"
+    for name in P2_NEW_BRIEF_ROWS:
+        assert re.search(rf"^\| `/sc:{re.escape(name)}` \|", text, re.M), (
+            f"brief table lacks the {name} row"
+        )
+    bullet = _p2_bullet(text)
+    for name in P2_COMMANDS:
+        assert re.search(_name_pattern(name), bullet), f"P2 bullet lacks {name}"
+
+
+def _check_nested_result_rule(text: str) -> None:
+    lines = text.splitlines()
+    at = [
+        i
+        for i, ln in enumerate(lines)
+        if ln.startswith("- **Nested propagation rule**")
+    ]
+    assert len(at) == 1, "nested propagation rule line not found exactly once"
+    assert at[0] + 1 < len(lines), "nothing follows the nested propagation rule"
+    following = lines[at[0] + 1]
+    for phrase in NESTED_RESULT_PHRASES:
+        assert phrase in following, f"line after the nested rule lacks: {phrase}"
+
+
+def test_p2_brief_table_rows_and_bullet():
+    _check_p2_brief(_contract())
+
+
+def test_nested_result_rule_follows_the_nested_propagation_rule():
+    _check_nested_result_rule(_contract())
+
+
+def test_p2_brief_check_fails_when_until_p2_is_back():
+    with pytest.raises(AssertionError):
+        _check_p2_brief(_contract() + "\nno `--depth deep` until P2\n")
+
+
+@pytest.mark.parametrize("name", P2_NEW_BRIEF_ROWS)
+def test_p2_brief_check_fails_when_a_row_is_removed(name):
+    kept = [
+        ln for ln in _contract().splitlines() if not ln.startswith(f"| `/sc:{name}` |")
+    ]
+    with pytest.raises(AssertionError):
+        _check_p2_brief("\n".join(kept))
+
+
+@pytest.mark.parametrize("name", P2_COMMANDS)
+def test_p2_brief_check_fails_when_the_bullet_drops_a_command(name):
+    text = _contract()
+    bullet = _p2_bullet(text)
+    cut = re.sub(_name_pattern(name), "x", bullet, count=1)
+    assert cut != bullet
+    with pytest.raises(AssertionError):
+        _check_p2_brief(text.replace(bullet, cut))
+
+
+@pytest.mark.parametrize("phrase", NESTED_RESULT_PHRASES)
+def test_nested_result_check_fails_when_a_phrase_is_removed(phrase):
+    with pytest.raises(AssertionError):
+        _check_nested_result_rule(_contract().replace(phrase, ""))
 
 
 def test_unattended_sections_match_the_listed_commands():
@@ -898,7 +1208,9 @@ _WORKER_CONTRACT_HEADING = "## Worker contract (`--unattended`)"
 def _check_p1_set(commands, expect) -> None:
     assert len(commands) == 16, f"P1 lists {len(commands)} commands, not 16"
     assert len(set(commands)) == 16, "P1_COMMANDS has a duplicate"
-    assert set(expect) == set(commands), (
+    # The P2 entries arrive one task at a time, so `expect` may also hold any of
+    # P2_COMMANDS; a name outside both sets, or a missing P1 name, fails.
+    assert set(commands) <= set(expect) <= set(commands) | set(P2_COMMANDS), (
         f"UNATTENDED_EXPECT and P1_COMMANDS differ: {sorted(set(expect) ^ set(commands))}"
     )
 
@@ -937,8 +1249,11 @@ def _check_workflow_ref(text: str) -> None:
     )
 
 
-def _check_brainstorm_research_off(section: str) -> None:
-    assert "research enrichment is off" in section, "section lacks the research line"
+def _check_brainstorm_research_nested(section: str) -> None:
+    # P2 (D-P2-1): research-light runs /sc:research nested, research-deep is skipped.
+    assert "nested/research-" in section, "section lacks the nested research directory"
+    assert "research-deep is skipped" in section, "section lacks the research-deep skip"
+    assert "research enrichment is off" not in section, "section keeps the P1 line"
 
 
 def _check_nested_text(section: str, expect: dict) -> None:
@@ -981,8 +1296,8 @@ _AC14_CASES = (
     (
         "brainstorm-section",
         lambda: _unattended_section("brainstorm"),
-        _check_brainstorm_research_off,
-        ["research enrichment is off"],
+        _check_brainstorm_research_nested,
+        ["nested/research-", "research-deep is skipped"],
     ),
 )
 _AC14_REMOVALS = [
@@ -1010,6 +1325,10 @@ def test_p1_set_check_fails_on_a_missing_extra_or_repeated_command():
         _check_p1_set(P1_COMMANDS, without_test)
     with pytest.raises(AssertionError):
         _check_p1_set(P1_COMMANDS, dict(UNATTENDED_EXPECT, extra={}))
+    # A P2 name is allowed beside the P1 names; a name in neither set is not.
+    _check_p1_set(P1_COMMANDS, dict(UNATTENDED_EXPECT, **{P2_COMMANDS[0]: {}}))
+    with pytest.raises(AssertionError):
+        _check_p1_set(P1_COMMANDS, dict(UNATTENDED_EXPECT, **{"not-a-command": {}}))
 
 
 @pytest.mark.parametrize("name", NOT_CONVERTED_IN_P1)
@@ -1053,20 +1372,385 @@ def test_ac_1_4_check_fails_when_phrase_removed(case, getter, check, phrase):
         check(text.replace(phrase, ""))
 
 
+def test_brainstorm_research_check_fails_on_the_p1_research_line():
+    section = _unattended_section("brainstorm")
+    with pytest.raises(AssertionError):
+        _check_brainstorm_research_nested(section + "\nresearch enrichment is off\n")
+
+
 @pytest.mark.parametrize("cmd", sorted(UNATTENDED_EXPECT))
 def test_nested_propagation_text_matches_the_nested_list(cmd):
     _check_nested_text(_unattended_section(cmd), UNATTENDED_EXPECT[cmd])
 
 
-def test_only_brainstorm_lists_nested_commands():
+# command -> nested commands that receive --unattended; each P2 task adds or extends
+# its own key in the task that gives the command a nested call.
+EXPECTED_NESTING = {
+    "brainstorm": ["analyze", "adversarial", "research"],
+    "workflow": ["reflect"],
+    "release-split": ["brainstorm", "adversarial"],
+    "auggie-review": ["impact"],
+    "troubleshoot": ["adversarial", "workflow"],
+    "task": ["impact", "troubleshoot"],
+    "cli-eval": ["spec-panel", "adversarial", "document"],
+    "reflect": ["adversarial", "workflow", "impact"],
+    "tasklist": ["reflect", "task"],
+}
+
+
+def test_nested_lists_match_the_p2_nesting():
     listed = {c: e["nested"] for c, e in UNATTENDED_EXPECT.items() if e.get("nested")}
-    assert listed == {"brainstorm": ["analyze", "adversarial"]}
+    assert listed == EXPECTED_NESTING
+
+
+# --- the full P2 set, the nested pin, the gate sentences, the F1 clause (AC-2.1) ---
+
+
+def _check_p2_set(p1, p2, expect) -> None:
+    assert len(p2) == 15, f"P2 lists {len(p2)} commands, not 15"
+    assert len(set(p2)) == 15, "P2_COMMANDS has a duplicate"
+    assert set(p1).isdisjoint(p2), f"P1 and P2 share {sorted(set(p1) & set(p2))}"
+    both = set(p1) | set(p2)
+    assert set(expect) == both, (
+        f"UNATTENDED_EXPECT differs from P1 + P2: {sorted(set(expect) ^ both)}"
+    )
+    assert len(expect) == 31, f"UNATTENDED_EXPECT has {len(expect)} entries, not 31"
+    for name in (*p1, *p2):
+        assert (Path(_THIS.COMMANDS_DIR) / f"{name}.md").exists(), f"{name}: no file"
+
+
+def test_p2_command_set_is_complete():
+    _check_p2_set(P1_COMMANDS, P2_COMMANDS, UNATTENDED_EXPECT)
+
+
+_P2_SET_DEFECTS = {
+    "missing": (P1_COMMANDS, P2_COMMANDS[:-1], UNATTENDED_EXPECT),
+    "extra": (P1_COMMANDS, P2_COMMANDS + ("extra",), UNATTENDED_EXPECT),
+    "repeated": (
+        P1_COMMANDS,
+        P2_COMMANDS[:-1] + (P2_COMMANDS[0],),
+        UNATTENDED_EXPECT,
+    ),
+    "in-p1-too": (
+        P1_COMMANDS,
+        P2_COMMANDS[:-1] + (P1_COMMANDS[0],),
+        UNATTENDED_EXPECT,
+    ),
+    "no-entry": (
+        P1_COMMANDS,
+        P2_COMMANDS,
+        {k: v for k, v in UNATTENDED_EXPECT.items() if k != P2_COMMANDS[0]},
+    ),
+    "stray-entry": (P1_COMMANDS, P2_COMMANDS, dict(UNATTENDED_EXPECT, extra={})),
+}
+
+
+@pytest.mark.parametrize("defect", sorted(_P2_SET_DEFECTS))
+def test_p2_set_check_fails_on_a_missing_extra_or_repeated_command(defect):
+    with pytest.raises(AssertionError):
+        _check_p2_set(*_P2_SET_DEFECTS[defect])
+
+
+def test_p2_set_check_fails_when_a_command_file_is_missing(tmp_path, monkeypatch):
+    monkeypatch.setattr(_THIS, "COMMANDS_DIR", tmp_path)
+    with pytest.raises(AssertionError):
+        _check_p2_set(P1_COMMANDS, P2_COMMANDS, UNATTENDED_EXPECT)
+
+
+def test_expected_nesting_is_the_spec_nesting():
+    assert EXPECTED_NESTING == {
+        "brainstorm": ["analyze", "adversarial", "research"],
+        "workflow": ["reflect"],
+        "tasklist": ["reflect", "task"],
+        "reflect": ["adversarial", "workflow", "impact"],
+        "release-split": ["brainstorm", "adversarial"],
+        "task": ["impact", "troubleshoot"],
+        "troubleshoot": ["adversarial", "workflow"],
+        "auggie-review": ["impact"],
+        "cli-eval": ["spec-panel", "adversarial", "document"],
+    }
+
+
+def _check_nested_lines(section: str, name: str) -> None:
+    assert any(
+        f"nested/{name}-" in ln and "--unattended" in ln for ln in section.splitlines()
+    ), f"no line gives nested/{name}- together with --unattended"
+
+
+_NESTED_PAIRS = [(c, n) for c, names in EXPECTED_NESTING.items() for n in names]
+
+
+@pytest.mark.parametrize(
+    ("cmd", "name"), _NESTED_PAIRS, ids=[f"{c}:{n}" for c, n in _NESTED_PAIRS]
+)
+def test_nested_call_passes_the_flag_and_a_nested_directory(cmd, name):
+    section = _unattended_section(cmd)
+    _check_nested_lines(section, name)
+    stripped = "\n".join(
+        ln.replace("--unattended", "") if f"nested/{name}-" in ln else ln
+        for ln in section.splitlines()
+    )
+    with pytest.raises(AssertionError):
+        _check_nested_lines(stripped, name)
+
+
+def test_reflect_skill_passes_the_nested_impact_directory():
+    # Owner decision (2026-11-07): the UC-2 Step 1B.3 impact call is a nested call too.
+    skill = (_REPO / "src/superclaude/skills/sc-reflect-protocol/SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    _check_nested_lines(skill, "impact")
+    stripped = "\n".join(
+        ln.replace("--unattended", "") if "nested/impact-" in ln else ln
+        for ln in skill.splitlines()
+    )
+    with pytest.raises(AssertionError):
+        _check_nested_lines(stripped, "impact")
+
+
+# command, gate sentence (word for word), outcome words, the opposite words the
+# reverse-outcome negative test substitutes. Built from the plan's Gate sentences.
+_CLEANUP_GATE = 'every item under "Approval Required" is listed as not applied'
+P2_GATES = [
+    ("cleanup", _CLEANUP_GATE, "not applied", "applied"),
+    ("improve", _CLEANUP_GATE, "not applied", "applied"),
+    ("improve", "`--force` is refused", "refused", "honoured"),
+    (
+        "research",
+        "an explicit `--strategy intent` or `--strategy unified` is refused",
+        "refused",
+        "honoured",
+    ),
+    (
+        "spec-panel",
+        "a TDD input without `--target-release` resolves as blocked",
+        "blocked",
+        "answered",
+    ),
+    (
+        "recommend",
+        "the one clarifying question resolves as blocked",
+        "blocked",
+        "asked",
+    ),
+    (
+        "review-translation",
+        "Phase 1 without `--context` resolves as blocked",
+        "blocked",
+        "confirmed",
+    ),
+    (
+        "review-translation",
+        "Phase 7 resolves to SKIP IMPLEMENTATION",
+        "SKIP IMPLEMENTATION",
+        "IMPLEMENT FIXES",
+    ),
+    (
+        "release-split",
+        "the tasklist-input warning resolves as blocked",
+        "blocked",
+        "prompted",
+    ),
+    (
+        "release-split",
+        "`--r1-scope custom` resolves as blocked",
+        "blocked",
+        "prompted",
+    ),
+    (
+        "cli-portify",
+        "each of the three approval gates resolves as blocked",
+        "blocked",
+        "approved",
+    ),
+    (
+        "auggie-review",
+        "`--unattended` implies `--no-post-pr` and `--no-remediation-offer`",
+        "implies",
+        "allows",
+    ),
+    (
+        "auggie-review",
+        "`--post-pr` and `--remediation-offer` are refused",
+        "refused",
+        "honoured",
+    ),
+    (
+        "troubleshoot",
+        "the short input STOP resolves as blocked",
+        "blocked",
+        "shown",
+    ),
+    (
+        "troubleshoot",
+        "the `--fix` offer resolves as blocked",
+        "blocked",
+        "shown",
+    ),
+    (
+        "task",
+        "confidence below 0.70 resolves as blocked",
+        "blocked",
+        "reported to the user",
+    ),
+    (
+        "task",
+        "every FULL STOP resolves as blocked",
+        "blocked",
+        "reported to the user",
+    ),
+    ("task", "EXEMPT `commit` and `push` are refused", "refused", "allowed"),
+    (
+        "cli-eval",
+        "`run` without both `--suite` and `--output-dir` resolves as blocked",
+        "blocked",
+        "confirmed",
+    ),
+    (
+        "cli-eval",
+        "an FR-G5 preflight failure resolves as blocked",
+        "blocked",
+        "worked around",
+    ),
+    ("tdd", "a bare topic resolves as blocked", "blocked", "re-run"),
+    (
+        "tdd",
+        "a TDD that is already complete resolves as blocked",
+        "blocked",
+        "re-run",
+    ),
+    (
+        "tasklist",
+        "the unresolved High or Medium HALT resolves as blocked",
+        "blocked",
+        "escalated",
+    ),
+    (
+        "tasklist",
+        "the `needs_human_decision` HALT resolves as blocked",
+        "blocked",
+        "escalated",
+    ),
+    (
+        "reflect",
+        "`--remediate` is answered by the headless auto-accept rule",
+        "headless auto-accept rule",
+        "yes/no prompt",
+    ),
+]
+
+
+def _check_gate(section: str, sentence: str, outcome: str, opposite: str) -> None:
+    assert sentence in section, f"section lacks the gate sentence: {sentence}"
+    assert outcome in sentence, f"{outcome!r} is not in {sentence!r}"
+    assert sentence.replace(outcome, opposite) not in section, (
+        f"section also states the reversed gate: {opposite!r}"
+    )
+
+
+@pytest.mark.parametrize(
+    ("cmd", "sentence", "outcome", "opposite"),
+    P2_GATES,
+    ids=[f"{g[0]}:{i}" for i, g in enumerate(P2_GATES)],
+)
+def test_p2_gate_resolution_is_stated(cmd, sentence, outcome, opposite):
+    section = _unattended_section(cmd)
+    _check_gate(section, sentence, outcome, opposite)
+    reversed_gate = sentence.replace(outcome, opposite)
+    # (1) the sentence removed; (2) the sentence kept with its outcome reversed;
+    # (3) the reversed sentence added beside the right one.
+    for broken in (
+        section.replace(sentence, ""),
+        section.replace(sentence, reversed_gate),
+        section + "\n" + reversed_gate,
+    ):
+        with pytest.raises(AssertionError):
+            _check_gate(broken, sentence, outcome, opposite)
+
+
+F1_PHRASE = "paths git ignores are left out (WC-4)"
+
+
+def _check_f1_clause(clause: str) -> None:
+    assert F1_PHRASE in clause, f"artifacts clause lacks {F1_PHRASE!r}"
+    assert "git add" not in clause, "artifacts clause names git add"
+    assert "git refuses" not in clause, "artifacts clause names git refuses"
+
+
+@pytest.mark.parametrize("cmd", P2_COMMANDS)
+def test_p2_artifacts_clause_follows_f1(cmd):
+    clause = _artifacts_clause(_unattended_section(cmd))
+    _check_f1_clause(clause)
+    for broken in (
+        clause.replace(F1_PHRASE, ""),
+        clause + " git refuses it",
+        clause + " git add it",
+    ):
+        with pytest.raises(AssertionError):
+            _check_f1_clause(broken)
+
+
+def _check_workflow_reflect_wording(section: str) -> None:
+    lines = section.splitlines()
+    nested = next(ln for ln in lines if ln.startswith("- **Nested invocations.**"))
+    contract = next(ln for ln in lines if ln.startswith("- **Contract.**"))
+    assert "runs as today, without" not in nested, "old Nested invocations wording"
+    assert "nested/reflect-" in nested and "--unattended" in nested, nested
+    assert "`.dev/reflect/` run directory" not in contract, "old Contract wording"
+    assert "`<report-dir>/nested/reflect-<n>/` run directory" in contract, contract
+
+
+def test_workflow_section_passes_the_nested_reflect_directory():
+    # P2 replaces the two P1 lines whose `.dev/reflect/` wording turns false under
+    # --unattended (D-P2-22).
+    section = _unattended_section("workflow")
+    _check_workflow_reflect_wording(section)
+    old_nested = (
+        "- **Nested invocations.** The reflect step runs as today, without "
+        "`--unattended` and without `--remediate`; in that form it has no gate."
+    )
+    pre_change_nested = re.sub(
+        r"^- \*\*Nested invocations\.\*\*.*$",
+        lambda _m: old_nested,
+        section,
+        flags=re.M,
+    )
+    with pytest.raises(AssertionError):
+        _check_workflow_reflect_wording(pre_change_nested)
+    with pytest.raises(AssertionError):
+        _check_workflow_reflect_wording(
+            section.replace(
+                "`<report-dir>/nested/reflect-<n>/` run directory",
+                "`.dev/reflect/` run directory",
+            )
+        )
+
+
+_CLI_EVAL_RUN_REF = (
+    _REPO / "src/superclaude/skills/sc-cli-eval-protocol/refs/run-pipeline.md"
+)
+
+
+def _check_eval_wait_limit(text: str) -> None:
+    assert any("--unattended" in ln and "240 s" in ln for ln in text.splitlines()), (
+        "no line names --unattended and a 240 s single-wait limit"
+    )
+
+
+def test_cli_eval_eval_wait_names_a_single_wait_limit_of_240_s():
+    # spec AC-2.1: the eval wait step names a single-wait limit of at most 240 s.
+    text = _read(_CLI_EVAL_RUN_REF)
+    _check_eval_wait_limit(text)
+    with pytest.raises(AssertionError):
+        _check_eval_wait_limit(text.replace("240 s", ""))
+    with pytest.raises(AssertionError):
+        _check_eval_wait_limit(text.replace("--unattended", ""))
 
 
 def test_nested_check_fails_on_nested_text_without_a_nested_list():
-    # workflow's reflect step runs without the flag, so workflow lists no nested name.
-    section = _unattended_section("workflow")
-    expect = UNATTENDED_EXPECT["workflow"]
+    # graph has an empty nested list, so any nested/ text in its section must fail.
+    section = _unattended_section("graph")
+    expect = UNATTENDED_EXPECT["graph"]
     _check_nested_text(section, expect)
     with pytest.raises(AssertionError):
         _check_nested_text(section + "\nnested/reflect-<n>/\n", expect)
@@ -1375,7 +2059,7 @@ WRITE_VERB_CLASSIFICATION = {
         "| `pr_review_url` | string | URL of the posted `gh pr review` comment (empty if `--no-post-pr` or non-PR target) |",
     ): (
         "deferred:P2",
-        "auggie-review PR posting (gh pr review --comment, inline gh api comments) is turned off under --unattended in P2 (WC-9)",
+        "auggie-review PR posting (gh pr review --comment, inline gh api comments) is off under --unattended (WC-9); the deferral is in force",
     ),
     (
         "src/superclaude/skills/sc-auggie-review-protocol/SKILL.md",
@@ -1398,7 +2082,7 @@ WRITE_VERB_CLASSIFICATION = {
         "- Summary comment: `gh pr review <PR> --comment --body-file <output-dir>/REVIEW.md`",
     ): (
         "deferred:P2",
-        "auggie-review PR posting (gh pr review --comment, inline gh api comments) is turned off under --unattended in P2 (WC-9)",
+        "auggie-review PR posting (gh pr review --comment, inline gh api comments) is off under --unattended (WC-9); the deferral is in force",
     ),
     (
         "src/superclaude/skills/sc-auggie-review-protocol/SKILL.md",
@@ -1406,7 +2090,7 @@ WRITE_VERB_CLASSIFICATION = {
         "gh api repos/<owner>/<repo>/pulls/<PR>/comments \\",
     ): (
         "deferred:P2",
-        "auggie-review PR posting (gh pr review --comment, inline gh api comments) is turned off under --unattended in P2 (WC-9)",
+        "auggie-review PR posting (gh pr review --comment, inline gh api comments) is off under --unattended (WC-9); the deferral is in force",
     ),
     (
         "src/superclaude/skills/sc-auggie-review-protocol/SKILL.md",
@@ -1427,7 +2111,7 @@ WRITE_VERB_CLASSIFICATION = {
         "| `gh pr review` post fails | Save the body to `<output-dir>/REVIEW.md`, surface the path to the user, status `partial` | None |",
     ): (
         "deferred:P2",
-        "auggie-review PR posting (gh pr review --comment, inline gh api comments) is turned off under --unattended in P2 (WC-9)",
+        "auggie-review PR posting (gh pr review --comment, inline gh api comments) is off under --unattended (WC-9); the deferral is in force",
     ),
     (
         "src/superclaude/skills/sc-auggie-review-protocol/refs/severity-rubric.md",
@@ -1888,7 +2572,7 @@ WRITE_VERB_CLASSIFICATION = {
         "2. **STOP-on-non-committable predicate (COR-1)** — `committable = base resolves AND HEAD resolves AND not audit_tree_dirty`. If NOT committable, the wrapper STOPs with `status: stopped-precondition` (verdict BLOCKED, exit 2 — the fail-closed contract is unchanged) and `reason ∈ {dirty, no-committable-ref, head-moved-precondition, snapshot-precleanup-failed, worktree-add-failed}` (any non-zero `git worktree add` exit STOPs with the captured stderr, never falling back to the live tree). It never points reviewers at a committed-ref snapshot that omits the uncommitted target.",
     ): (
         "deferred:P2",
-        "/sc:reflect review-snapshot worktree; reflect is converted in P2, when its git writes under --unattended are resolved",
+        "/sc:reflect review-snapshot worktree; the snapshot is created only by the superclaude reflect run --isolate-reviewers CLI wrapper and never under /sc:reflect --unattended; the deferral is in force",
     ),
     (
         "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
@@ -1896,7 +2580,7 @@ WRITE_VERB_CLASSIFICATION = {
         "3. **Snapshot creation (COR-2 / A-2)** — on the committable path, pre-clean a leftover `<output>/_review-snapshot`, re-resolve HEAD immediately before `git worktree add --detach <output>/_review-snapshot <ref>` and STOP `head-moved-precondition` on drift (the parallel-session HEAD-moved hazard), then create a REAL worktree checkout (NOT an archive, so auggie stays indexed).",
     ): (
         "deferred:P2",
-        "/sc:reflect review-snapshot worktree; reflect is converted in P2, when its git writes under --unattended are resolved",
+        "/sc:reflect review-snapshot worktree; the snapshot is created only by the superclaude reflect run --isolate-reviewers CLI wrapper and never under /sc:reflect --unattended; the deferral is in force",
     ),
     (
         "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
@@ -1904,7 +2588,7 @@ WRITE_VERB_CLASSIFICATION = {
         "5. **`finally` teardown (A-3)** — the snapshot is always removed via `git worktree remove --force` (never `rm -rf` / `git stash`), on success / STOP / exception, while the always-write sidecar still emits inside the try.",
     ): (
         "deferred:P2",
-        "/sc:reflect review-snapshot worktree; reflect is converted in P2, when its git writes under --unattended are resolved",
+        "/sc:reflect review-snapshot worktree; the snapshot is created only by the superclaude reflect run --isolate-reviewers CLI wrapper and never under /sc:reflect --unattended; the deferral is in force",
     ),
     (
         "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
@@ -2034,7 +2718,7 @@ WRITE_VERB_CLASSIFICATION = {
         "Under the centralized path convention, each task file lives inside its own folder: `.dev/tasks/to-do/TASK-[ID]/TASK-[ID].md`. All intermediate artifacts (research, synthesis, QA reports) go into typed subfolders within that folder. The task folder is the self-contained workspace for the entire execution. `.dev/tasks/` is always staged (`git add .dev/tasks`); never gitignore it or leave it untracked. Staging is not committing.",
     ): (
         "deferred:P2",
-        "the MDTM task skill runs as tdd's nested /task, converted in P2; under --unattended its .dev/tasks staging defers to the coordinator (WC-9)",
+        "the MDTM task skill runs as tdd's nested /task, converted in P2; under --unattended its .dev/tasks staging is left to the coordinator (WC-9); the deferral is in force",
     ),
     (
         "src/superclaude/skills/task-builder/SKILL.md",
@@ -2042,7 +2726,7 @@ WRITE_VERB_CLASSIFICATION = {
         "Compute `<subject>` from the goal slug of the user's request using the rules in the Subject Derivation section. If no clean subject is derivable, use `general`. Create the task folder: `.dev/tasks/to-do/TASK-RF-<subject>-YYYYMMDD-HHMMSS/` with subfolders `research/` and `qa/`. For multi-track: `.dev/tasks/to-do/TASK-RF-track-T-YYYYMMDD-HHMMSS/` per track. `.dev/tasks/` is always staged (`git add .dev/tasks`); never gitignore it or leave it untracked. Staging is not committing.",
     ): (
         "deferred:P2",
-        "task-builder is reached through tdd, reflect --remediate and troubleshoot --fix, converted in P2; under --unattended its staging and CLI-mode git add -A are refused (WC-9)",
+        "task-builder is reached through tdd, reflect --remediate and troubleshoot --fix, converted in P2; under --unattended its staging is left to the coordinator and its CLI-mode reflect gate (git add -A, --fix, --promote) is skipped (WC-9); the deferral is in force",
     ),
     (
         "src/superclaude/skills/task-builder/SKILL.md",
@@ -2050,7 +2734,7 @@ WRITE_VERB_CLASSIFICATION = {
         '- **Action**: Ensure new task artifacts are staged so the working-tree diff is complete (`git add -A`, because the wrapper\'s audit omits never-`git add`-ed files). Then emit the recursion-breaker-guarded wrapper shell-out as a single Bash command: first the §3.2 skip guard `if [ "${SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE:-0}" = "1" ]; then echo "reflect-wrapper recursion breaker: nested gate suppressed"; exit 0; fi`, then `superclaude reflect run {TASK_FILE} --depth deep --fix --promote`. `{TASK_FILE}` is the absolute tasklist path (the wrapper absolutizes its positional). NO `--base` is passed: the wrapper resolves the audit base from frontmatter `start_commit` as a SINGLE ref diffed against the working tree (so uncommitted task edits ARE audited; this is why a single-ref base is correct where a `start_commit..HEAD` range would not be). Base precedence is `--base` > frontmatter `start_commit` > `git merge-base HEAD master` (contract §6). `--depth deep` is fixed (O4 (CLI mode) fixes the POST depth at `deep`, forcing Tier-2 fan-out); `--fix` runs the bounded auto-fix loop; `--promote` lets the `task` adapter move the tasklist dir to `done/` on a clean/auto-fixed PASS. Emit NO `--reflect`, NO `--max-turns`, NO `<base>..HEAD` range, and no agent-spawn directive of any kind (the gate is a flat shell-out, never a subagent, per NFR-7 it carries none of the nesting tokens). Consume the EXIT CODE: only `0` completes the gate (clean OR auto-fixed-and-verified); `10` (halted: human-required deviations / non-convergent fix loop), `11` (degraded: audit untrustworthy), and `2` (blocked: child crash / missing-or-bad contract) all FAIL -> surface the wrapper report and HALT before Update-status-to-Done. The gate uses `superclaude reflect run` and never `/sc:task`; any re-execution uses `/task`.',
     ): (
         "deferred:P2",
-        "task-builder is reached through tdd, reflect --remediate and troubleshoot --fix, converted in P2; under --unattended its staging and CLI-mode git add -A are refused (WC-9)",
+        "task-builder is reached through tdd, reflect --remediate and troubleshoot --fix, converted in P2; under --unattended its staging is left to the coordinator and its CLI-mode reflect gate (git add -A, --fix, --promote) is skipped (WC-9); the deferral is in force",
     ),
     (
         "src/superclaude/commands/auggie-review.md",
@@ -2063,7 +2747,7 @@ WRITE_VERB_CLASSIFICATION = {
         "| `--post-pr` | `true` when target is a PR | Auto-post the markdown report as a `gh pr review --comment`. Inline comments for `Critical` and `High` findings via `gh api`. **No confirmation prompt — the user opted in by invoking the command on a PR.** |",
     ): (
         "deferred:P2",
-        "auggie-review PR posting (gh pr review --comment, inline gh api comments) is turned off under --unattended in P2 (WC-9)",
+        "auggie-review PR posting (gh pr review --comment, inline gh api comments) is off under --unattended (WC-9); the deferral is in force",
     ),
     (
         "src/superclaude/commands/git.md",

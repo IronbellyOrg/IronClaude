@@ -112,6 +112,8 @@ This path calls `superclaude.pr_submit.contract_setup`, prints readiness/blocker
 | `--promote-dry-run` | `false` (UC-2) | Print the `mv` command + gate evaluation; perform no mutation. |
 | `--promote-mode` | `auto` (UC-2) | Force a specific promotion adapter: `auto` / `task` / `sprint-release` / `none`. |
 | `--promote-resume` | (none) | Resume an interrupted cross-filesystem promotion from a `promotion-checkpoint.yaml`. |
+| `--unattended` | `false` | Worker mode for a coordinator; applies only as a standalone argument token. Behaviour is in `## Unattended mode`; without it nothing changes. |
+| `--report-dir` | (none) | With `--unattended`: the directory that holds the worker contract, instead of `--output`, never both. |
 
 ### Legacy grammar mapping
 
@@ -252,6 +254,18 @@ Do NOT proceed with protocol execution using only this command file. The full be
 # - No filesystem mutation; promotion-log.yaml is NOT written
 # - Useful for debugging gate conditions before flipping --no-promote off
 ```
+
+## Unattended mode
+
+The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:reflect` resolves itself.
+
+- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument; otherwise nothing here applies and no worker contract is written.
+- **Report directory.** Exactly one of `--output <dir>` or `--report-dir <dir>`; both, or neither, is refused before any work and the refusal is printed in chat only. `--report-dir` follows the path rules of `--output`: a directory under the `.claude/` skill, agent or command folders, one inside `.git/` or `.codegraph/`, or one that cannot be created or written counts as no report directory known (refusal printed in chat only).
+- **Contract.** The worker fields are added to the command's own `<output>/return-contract.yaml` beside every existing field; with `--report-dir` instead, the worker contract is a separate `<report-dir>/return-contract.yaml` that lists the own contract in `artifacts`. `report_path` is `REPORT.md`. `artifacts` lists every other file the run wrote: the files of its output directory, `docs/memory/reflect/deviation-patterns-<slug>.md` when it wrote it, and the nested contracts; paths git ignores are left out (WC-4), among them `.dev/reflect/runs.jsonl` and `.superclaude/memory/`. The own `status` values `success`, `partial`, `failed`, `dry-run` and `stopped-precondition` map to `succeeded`, `partial`, `failed`, `succeeded` and `failed` (the precondition in `reason`).
+- **Person-mode flags.** None is refused.
+- **Gates.** Under `--unattended`, `--remediate` is answered by the headless auto-accept rule whatever the terminal state: only AUTO-FIXABLE registers are authored, without the yes/no prompt, and HUMAN-REQUIRED registers author nothing auto-runnable. The MDTM route (`--depth deep`) is skipped and recorded, because `task-builder` is not a command. The run creates no review snapshot and runs no git write; the snapshot belongs to the `superclaude reflect run --isolate-reviewers` wrapper, not to this command. The optional `--depth deep` call is dropped too: the Wave 1B tech-research step is skipped and recorded, because `tech-research` has no Unattended mode. Wave 7 promotion is unchanged, and the brief passes `--no-promote` when the coordinator owns folder moves. There is no other gate.
+- **Nested invocations.** The Wave 4 `sc-adversarial-protocol --compare` merge receives `--unattended --output <report-dir>/nested/adversarial-<n>/`, the plan route's `sc:workflow-protocol` call receives `--unattended --report-dir <report-dir>/nested/workflow-<n>/ --handoff none`, and the UC-2 Step 1B.3 `sc:impact-protocol` call receives `--unattended --output-dir <report-dir>/nested/impact-<n>/` in place of `<output>/artifacts/impact`, each `<n>` counting from 1 per nested command and never reused (a retry takes the next number); each contract is listed in `artifacts`, also when the call failed. A nested contract is read by the nested-result rule of `~/.claude/WORKER-CONTRACT.md`.
+- **Outward actions.** It pushes, commits and stages nothing.
 
 ## Boundaries
 

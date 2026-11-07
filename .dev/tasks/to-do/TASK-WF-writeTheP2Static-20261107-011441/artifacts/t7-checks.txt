@@ -1,0 +1,32 @@
+$ pytest tests/skills/test_worker_contract.py tests/unit/test_review_translation.py tests/unit/test_cli_install.py -q -p no:cacheprovider
+........................................................................ [ 66%]
+..............................................................           [ 76%]
+tests/unit/test_review_translation.py .................................. [ 82%]
+..........                                                               [ 83%]
+tests/unit/test_cli_install.py ......................................... [ 90%]
+.......................................................                  [100%]
+
+============================= 597 passed in 1.50s ==============================
+$ Check SCAN (pass: prints nothing)
+(end SCAN)
+$ Check ADDITIVE (pass: prints nothing per file)
+-- review-translation
+(end ADDITIVE)
+$ ruff check / format --check on tests/skills/test_worker_contract.py
+All checks passed!
+ruff-check rc=0
+1 file already formatted
+ruff-format rc=0
+$ git status --short -- src tests plugins
+ M plugins/superclaude/commands/recommend.md
+ M plugins/superclaude/skills/sc-recommend/SKILL.md
+ M src/superclaude/commands/cleanup.md
+ M src/superclaude/commands/improve.md
+ M src/superclaude/commands/recommend.md
+ M src/superclaude/commands/research.md
+ M src/superclaude/commands/review-translation.md
+ M src/superclaude/commands/spec-panel.md
+ M src/superclaude/skills/sc-recommend/SKILL.md
+ M src/superclaude/skills/sc-review-translation-protocol/SKILL.md
+ M tests/skills/test_sc_recommend_routing_contract.py
+ M tests/skills/test_worker_contract.py
