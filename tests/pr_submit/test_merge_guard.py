@@ -1054,3 +1054,108 @@ def test_resume_row_8_ownership_unproven_when_live_draft():
     unowned = guard("release_pending", owned_draft=False)
     check(resume(guard=unowned, read=rd(is_draft=True)), A.HOLD, "ownership_unproven")
     check(resume(guard=unowned, read=rd(is_draft=False)), A.NOOP, "nothing_to_do")
+
+
+# --- reconcile allows for earlier failed mutations (review finding on PR 428) --------
+
+
+def _failed_then_retried_release_log(*, crash_after: str):
+    """Cycle 1: engage; the release flips the PR but its check fails; the retry answers
+    changed false. Cycle 2: engage, then a ready request that crashed before the call."""
+    events = []
+
+    def request(cycle, to, key, **fields):
+        events.append(
+            {
+                "event_type": "draft_guard_requested",
+                "cycle_id": cycle,
+                "to": to,
+                "idempotency_key": key,
+                **fields,
+            }
+        )
+
+    def settle(cycle, to, key, outcome, **fields):
+        events.append(
+            {
+                "event_type": "draft_guard_settled",
+                "cycle_id": cycle,
+                "to": to,
+                "idempotency_key": key,
+                "outcome": outcome,
+                **fields,
+            }
+        )
+
+    request("fix-1", "draft", "k1", timeline_baseline=0, original_is_draft=False)
+    settle("fix-1", "draft", "k1", "confirmed", changed=True)
+    request("fix-1", "ready", "k2a1")
+    settle("fix-1", "ready", "k2a1", "failed", changed=False)
+    request("fix-1", "ready", "k2a2")
+    settle("fix-1", "ready", "k2a2", "confirmed", changed=False)
+    request("fix-2", "draft", "k3")
+    settle("fix-2", "draft", "k3", "confirmed", changed=True)
+    request("fix-2", "ready", "k4")
+    if crash_after == "mutation":
+        pass  # the ready call landed too: one more transition, never settled
+    return events
+
+
+def _resume_after(events, *, is_draft: bool, transitions: int):
+    guard = mg.fold_draft_guard(events)
+    read = mg.GuardRead(
+        ok=True,
+        state="OPEN",
+        is_draft=is_draft,
+        head_sha="a" * 40,
+        transitions=transitions,
+        complete=True,
+    )
+    return mg.resume_decision(
+        mode=mg.GuardMode.DRAFT,
+        ordinal=3,
+        guard=guard,
+        read=read,
+        pending=mg.pending_requests(events),
+        dangling_branch=None,
+        published=True,
+        target_sha="a" * 40,
+    )
+
+
+def test_reconcile_not_applied_allows_for_an_earlier_failed_mutation():
+    events = _failed_then_retried_release_log(crash_after="request")
+    guard = mg.fold_draft_guard(events)
+    assert (guard["run_toggles"], guard["failed_mutations"]) == (2, 1)
+    # Timeline: engage 1, the failed release really flipped 2, engage 3. Still a draft.
+    decision = _resume_after(events, is_draft=True, transitions=3)
+    assert (decision.action, decision.reason, decision.cause) == (
+        mg.GuardAction.RECONCILE,
+        "not_applied",
+        "not_applied",
+    )
+
+
+def test_reconcile_resume_reconciled_allows_for_an_earlier_failed_mutation():
+    events = _failed_then_retried_release_log(crash_after="mutation")
+    # The ready call landed before the crash: one more transition, and the PR is ready.
+    decision = _resume_after(events, is_draft=False, transitions=4)
+    assert (decision.reason, decision.cause) == (
+        "resume_reconciled",
+        "resume_reconciled",
+    )
+
+
+def test_reconcile_stays_exact_without_a_failed_mutation_and_beyond_the_allowance():
+    events = _failed_then_retried_release_log(crash_after="request")
+    # Without any failed mutation the old exact rule still applies.
+    only_draft = [e for e in events if e["idempotency_key"] in ("k1", "k4")]
+    assert mg.fold_draft_guard(only_draft)["failed_mutations"] == 0
+    assert (
+        _resume_after(only_draft, is_draft=True, transitions=1).reason == "not_applied"
+    )
+    assert _resume_after(only_draft, is_draft=True, transitions=2).reason == "ambiguous"
+    # With one failed mutation the allowance is one: two extra transitions stay ambiguous.
+    assert _resume_after(events, is_draft=True, transitions=4).reason == "ambiguous"
+    # A live state that matches the request with no new transition is never reconciled.
+    assert _resume_after(events, is_draft=False, transitions=2).reason == "ambiguous"

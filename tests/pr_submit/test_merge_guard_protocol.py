@@ -828,3 +828,12 @@ def _command_section_free_resume() -> str:
     text = _text()
     start = text.index("## 7. Resume")
     return text[start:]
+
+
+def test_resume_row_3_states_the_allowance_for_earlier_failed_mutations():
+    row = next(
+        line for line in _text().splitlines() if line.startswith("| 3 | `RECONCILE` |")
+    )
+    row = " ".join(row.split())
+    assert "plus up to one more for each earlier failed mutation" in row
+    assert "the transition count is the run's (plus the same allowance)" in row

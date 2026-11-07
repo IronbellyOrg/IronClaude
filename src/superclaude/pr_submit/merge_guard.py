@@ -487,13 +487,17 @@ def _reconcile(guard: dict, read: GuardRead | None, pending: list) -> GuardDecis
         return GuardDecision(GuardAction.RECONCILE, "ambiguous")
     observed = read.transitions - guard["baseline"]
     run_toggles = guard.get("run_toggles", 0)
+    # A failed mutation may have changed the PR before its check failed, and a retry then
+    # answered "already in state", so up to `failed_mutations` transitions are not in
+    # `run_toggles`. The live state decides; the count only has to fit that allowance.
+    uncertain = guard.get("failed_mutations", 0)
     wants_draft = request.get("to") == Direction.DRAFT.value
     matches = read.is_draft is wants_draft
-    if matches and observed == run_toggles + 1:
+    if matches and run_toggles + 1 <= observed <= run_toggles + 1 + uncertain:
         return GuardDecision(
             GuardAction.RECONCILE, "resume_reconciled", cause="resume_reconciled"
         )
-    if not matches and observed == run_toggles:
+    if not matches and run_toggles <= observed <= run_toggles + uncertain:
         return GuardDecision(GuardAction.RECONCILE, "not_applied", cause="not_applied")
     return GuardDecision(GuardAction.RECONCILE, "ambiguous")
 
