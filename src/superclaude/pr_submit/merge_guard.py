@@ -73,6 +73,7 @@ class GuardAction(str, Enum):
     ENGAGE = "engage"
     RELEASE = "release"
     RETRY_RELEASE = "retry_release"
+    REBIND = "rebind"
     HOLD = "hold"
     REPORT_HELD = "report_held"
     SKIP_ALREADY_DRAFT = "skip_already_draft"
@@ -187,12 +188,13 @@ def fold_draft_guard(events: object) -> dict | None:
     """
     record: dict | None = None
     pending: dict[str, str | None] = {}  # key -> phase before that request
+    failed_open: dict[tuple, int] = {}  # (cycle, direction) -> failed, not yet resolved
     for event in _iter_events(events):
         event_type = event.get("event_type")
         if event_type == REQUESTED:
             record = _fold_requested(record, pending, event)
         elif event_type == SETTLED:
-            record = _fold_settled(record, pending, event)
+            record = _fold_settled(record, pending, event, failed_open)
     if record is not None:
         record["unsettled"] = len(pending)
     return record
@@ -224,7 +226,9 @@ def _fold_requested(record: dict | None, pending: dict, event: dict) -> dict:
     return record
 
 
-def _fold_settled(record: dict | None, pending: dict, event: dict) -> dict | None:
+def _fold_settled(
+    record: dict | None, pending: dict, event: dict, failed_open: dict
+) -> dict | None:
     key = event.get("idempotency_key")
     had_request = isinstance(key, str) and key in pending
     before = pending.pop(key, None) if had_request else None
@@ -254,9 +258,11 @@ def _fold_settled(record: dict | None, pending: dict, event: dict) -> dict | Non
 
     if record is None:
         return None
+    scope = (event.get("cycle_id"), to)
     if outcome == "failed":
         record["phase"] = Phase.RELEASE_PENDING.value
         record["failed_mutations"] += 1
+        failed_open[scope] = failed_open.get(scope, 0) + 1
         return record
     if outcome == "confirmed":
         if to == Direction.DRAFT.value:
@@ -265,8 +271,18 @@ def _fold_settled(record: dict | None, pending: dict, event: dict) -> dict | Non
         else:
             record["phase"] = Phase.RELEASED.value
             record["owned_draft"] = False
+        if isinstance(event.get("cycle_id"), str):
+            record["cycle_id"] = event["cycle_id"]  # a re-bound held guard follows it
         if changed:
             record["run_toggles"] += 1
+        # A later confirmed settle of the same cycle and direction resolves the earlier
+        # failed attempts: `changed` true means they changed nothing; `changed` false
+        # means the PR was already in the target state, so one of them landed.
+        resolved = failed_open.pop(scope, 0)
+        if resolved:
+            record["failed_mutations"] -= resolved
+            if not changed:
+                record["run_toggles"] += 1
     return record
 
 
@@ -419,6 +435,11 @@ def engage_decision(
             return GuardDecision(GuardAction.RETRY_RELEASE, "release_pending")
         return GuardDecision(GuardAction.HOLD, "ownership_unproven")  # row 6
     if phase == Phase.HELD.value:  # row 7
+        held_cycle = guard.get("cycle_id")
+        if held_cycle not in (None, cycle_id):
+            # A later cycle reuses the held draft: the guard must follow it, or resume
+            # would judge the release against the earlier cycle's push.
+            return GuardDecision(GuardAction.REBIND, "cycle_rebound")
         return GuardDecision(GuardAction.NOOP, "already_held")
     if not read.complete or read.transitions is None:  # row 8
         return GuardDecision(GuardAction.HALT_UNAVAILABLE, "timeline_unreadable")
@@ -487,9 +508,11 @@ def _reconcile(guard: dict, read: GuardRead | None, pending: list) -> GuardDecis
         return GuardDecision(GuardAction.RECONCILE, "ambiguous")
     observed = read.transitions - guard["baseline"]
     run_toggles = guard.get("run_toggles", 0)
-    # A failed mutation may have changed the PR before its check failed, and a retry then
-    # answered "already in state", so up to `failed_mutations` transitions are not in
-    # `run_toggles`. The live state decides; the count only has to fit that allowance.
+    # `failed_mutations` counts only failed attempts that no later settle of the same cycle
+    # and direction resolved (the fold folds a landed one into `run_toggles`), so up to that
+    # many transitions may have happened without being counted. The live state decides; the
+    # count only has to fit that allowance. A person's single toggle in the request's own
+    # direction cannot be told from the request, so it reconciles as applied.
     uncertain = guard.get("failed_mutations", 0)
     wants_draft = request.get("to") == Direction.DRAFT.value
     matches = read.is_draft is wants_draft

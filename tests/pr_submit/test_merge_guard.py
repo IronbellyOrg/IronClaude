@@ -202,6 +202,8 @@ FOLD_CASES = {
             "run_toggles": 1,
         },
     ),
+    # A later confirmed settle of the same cycle and direction resolves the failed attempt:
+    # changed true means the failed call changed nothing, so it no longer widens the count.
     "retry_after_failed_engage": (
         [
             req("draft", baseline=1, original=False),
@@ -211,10 +213,38 @@ FOLD_CASES = {
         ],
         {
             "phase": "held",
-            "failed_mutations": 1,
+            "failed_mutations": 0,
             "run_toggles": 1,
             "owned_draft": True,
             "baseline": 1,
+            "unsettled": 0,
+        },
+    ),
+    # changed false means the PR was already in the target state: the failed call landed,
+    # so its transition is counted exactly and no allowance is left.
+    "retry_changed_false_counts_the_landed_attempt": (
+        ENGAGED
+        + [
+            req("ready"),
+            settled("ready", "failed"),
+            req("ready", attempt=2),
+            settled("ready", "confirmed", changed=False, attempt=2),
+        ],
+        {
+            "phase": "released",
+            "failed_mutations": 0,
+            "run_toggles": 2,
+            "owned_draft": False,
+            "unsettled": 0,
+        },
+    ),
+    "unresolved_failed_release_keeps_one_allowance": (
+        ENGAGED + [req("ready"), settled("ready", "failed")],
+        {
+            "phase": "release_pending",
+            "failed_mutations": 1,
+            "run_toggles": 1,
+            "owned_draft": True,
             "unsettled": 0,
         },
     ),
@@ -1056,16 +1086,17 @@ def test_resume_row_8_ownership_unproven_when_live_draft():
     check(resume(guard=unowned, read=rd(is_draft=False)), A.NOOP, "nothing_to_do")
 
 
-# --- reconcile allows for earlier failed mutations (review finding on PR 428) --------
+# --- failed mutations, reconcile and held-cycle re-binding (review findings on PR 428) --
 
 
-def _failed_then_retried_release_log(*, crash_after: str):
-    """Cycle 1: engage; the release flips the PR but its check fails; the retry answers
-    changed false. Cycle 2: engage, then a ready request that crashed before the call."""
-    events = []
+class _Log:
+    """A tiny builder of guard events for the cases below."""
 
-    def request(cycle, to, key, **fields):
-        events.append(
+    def __init__(self):
+        self.events = []
+
+    def request(self, cycle, to, key, **fields):
+        self.events.append(
             {
                 "event_type": "draft_guard_requested",
                 "cycle_id": cycle,
@@ -1075,8 +1106,8 @@ def _failed_then_retried_release_log(*, crash_after: str):
             }
         )
 
-    def settle(cycle, to, key, outcome, **fields):
-        events.append(
+    def settle(self, cycle, to, key, outcome, **fields):
+        self.events.append(
             {
                 "event_type": "draft_guard_settled",
                 "cycle_id": cycle,
@@ -1086,19 +1117,6 @@ def _failed_then_retried_release_log(*, crash_after: str):
                 **fields,
             }
         )
-
-    request("fix-1", "draft", "k1", timeline_baseline=0, original_is_draft=False)
-    settle("fix-1", "draft", "k1", "confirmed", changed=True)
-    request("fix-1", "ready", "k2a1")
-    settle("fix-1", "ready", "k2a1", "failed", changed=False)
-    request("fix-1", "ready", "k2a2")
-    settle("fix-1", "ready", "k2a2", "confirmed", changed=False)
-    request("fix-2", "draft", "k3")
-    settle("fix-2", "draft", "k3", "confirmed", changed=True)
-    request("fix-2", "ready", "k4")
-    if crash_after == "mutation":
-        pass  # the ready call landed too: one more transition, never settled
-    return events
 
 
 def _resume_after(events, *, is_draft: bool, transitions: int):
@@ -1123,10 +1141,26 @@ def _resume_after(events, *, is_draft: bool, transitions: int):
     )
 
 
-def test_reconcile_not_applied_allows_for_an_earlier_failed_mutation():
-    events = _failed_then_retried_release_log(crash_after="request")
+def _landed_then_retried_release_log():
+    """Cycle 1 release: the call flips the PR, its own check fails, the retry answers
+    changed false. Cycle 2 engages, then its ready request crashes before the call."""
+    log = _Log()
+    log.request("fix-1", "draft", "k1", timeline_baseline=0, original_is_draft=False)
+    log.settle("fix-1", "draft", "k1", "confirmed", changed=True)
+    log.request("fix-1", "ready", "k2a1")
+    log.settle("fix-1", "ready", "k2a1", "failed", changed=False)
+    log.request("fix-1", "ready", "k2a2")
+    log.settle("fix-1", "ready", "k2a2", "confirmed", changed=False)
+    log.request("fix-2", "draft", "k3")
+    log.settle("fix-2", "draft", "k3", "confirmed", changed=True)
+    log.request("fix-2", "ready", "k4")
+    return log.events
+
+
+def test_a_failed_attempt_that_landed_is_counted_exactly_after_its_retry():
+    events = _landed_then_retried_release_log()
     guard = mg.fold_draft_guard(events)
-    assert (guard["run_toggles"], guard["failed_mutations"]) == (2, 1)
+    assert (guard["run_toggles"], guard["failed_mutations"]) == (3, 0)
     # Timeline: engage 1, the failed release really flipped 2, engage 3. Still a draft.
     decision = _resume_after(events, is_draft=True, transitions=3)
     assert (decision.action, decision.reason, decision.cause) == (
@@ -1134,28 +1168,131 @@ def test_reconcile_not_applied_allows_for_an_earlier_failed_mutation():
         "not_applied",
         "not_applied",
     )
+    # The ready call landed before the crash: one more transition, the PR is ready.
+    applied = _resume_after(events, is_draft=False, transitions=4)
+    assert (applied.reason, applied.cause) == ("resume_reconciled", "resume_reconciled")
 
 
-def test_reconcile_resume_reconciled_allows_for_an_earlier_failed_mutation():
-    events = _failed_then_retried_release_log(crash_after="mutation")
-    # The ready call landed before the crash: one more transition, and the PR is ready.
-    decision = _resume_after(events, is_draft=False, transitions=4)
-    assert (decision.reason, decision.cause) == (
-        "resume_reconciled",
-        "resume_reconciled",
-    )
+def _resolved_failures_log(cycles: int):
+    """`cycles` cycles whose first ready attempt failed without changing the PR and whose
+    retry changed it, then one more engage with a ready request that crashed."""
+    log = _Log()
+    for n in range(1, cycles + 1):
+        cycle = f"fix-{n}"
+        first = {"timeline_baseline": 0, "original_is_draft": False} if n == 1 else {}
+        log.request(cycle, "draft", f"d{n}", **first)
+        log.settle(cycle, "draft", f"d{n}", "confirmed", changed=True)
+        log.request(cycle, "ready", f"r{n}a1")
+        log.settle(cycle, "ready", f"r{n}a1", "failed", changed=False)
+        log.request(cycle, "ready", f"r{n}a2")
+        log.settle(cycle, "ready", f"r{n}a2", "confirmed", changed=True)
+    last = f"fix-{cycles + 1}"
+    log.request(last, "draft", "dl")
+    log.settle(last, "draft", "dl", "confirmed", changed=True)
+    log.request(last, "ready", "rl")
+    return log.events
 
 
-def test_reconcile_stays_exact_without_a_failed_mutation_and_beyond_the_allowance():
-    events = _failed_then_retried_release_log(crash_after="request")
-    # Without any failed mutation the old exact rule still applies.
-    only_draft = [e for e in events if e["idempotency_key"] in ("k1", "k4")]
-    assert mg.fold_draft_guard(only_draft)["failed_mutations"] == 0
+def test_a_resolved_failure_no_longer_widens_the_count_for_a_persons_toggles():
+    events = _resolved_failures_log(2)
+    guard = mg.fold_draft_guard(events)
     assert (
-        _resume_after(only_draft, is_draft=True, transitions=1).reason == "not_applied"
+        guard["failed_mutations"] == 0
+    )  # both failures were resolved by their retries
+    assert guard["run_toggles"] == 5  # engage, ready, engage, ready, engage
+    # A person readies and re-drafts the held PR while the request is unsettled: two extra
+    # transitions. The old cumulative allowance accepted this as `not_applied`.
+    assert _resume_after(events, is_draft=True, transitions=7).reason == "ambiguous"
+    # A person's three toggles that end in a ready PR are not the guard's request either.
+    assert _resume_after(events, is_draft=False, transitions=8).reason == "ambiguous"
+    # With no person involved the exact count still reconciles.
+    assert _resume_after(events, is_draft=True, transitions=5).reason == "not_applied"
+    assert (
+        _resume_after(events, is_draft=False, transitions=6).reason
+        == "resume_reconciled"
     )
-    assert _resume_after(only_draft, is_draft=True, transitions=2).reason == "ambiguous"
-    # With one failed mutation the allowance is one: two extra transitions stay ambiguous.
-    assert _resume_after(events, is_draft=True, transitions=4).reason == "ambiguous"
-    # A live state that matches the request with no new transition is never reconciled.
-    assert _resume_after(events, is_draft=False, transitions=2).reason == "ambiguous"
+
+
+def _unresolved_failure_log():
+    log = _Log()
+    log.request("fix-1", "draft", "k1", timeline_baseline=0, original_is_draft=False)
+    log.settle("fix-1", "draft", "k1", "confirmed", changed=True)
+    log.request("fix-1", "ready", "k2a1")
+    log.settle(
+        "fix-1", "ready", "k2a1", "failed", changed=False
+    )  # may or may not have landed
+    log.request("fix-1", "ready", "k2a2")  # the retry crashed before its call
+    return log.events
+
+
+def test_an_unresolved_failure_keeps_one_allowance_and_no_more():
+    events = _unresolved_failure_log()
+    assert mg.fold_draft_guard(events)["failed_mutations"] == 1
+    # The failed call did not land: still a draft, the count is the run's.
+    assert _resume_after(events, is_draft=True, transitions=1).reason == "not_applied"
+    # Ready either because the failed call landed or the retry did: one more transition.
+    assert (
+        _resume_after(events, is_draft=False, transitions=2).reason
+        == "resume_reconciled"
+    )
+    # Beyond the one allowance the count cannot be explained.
+    assert _resume_after(events, is_draft=False, transitions=4).reason == "ambiguous"
+    assert _resume_after(events, is_draft=True, transitions=3).reason == "ambiguous"
+
+
+def test_a_held_guard_follows_the_next_cycle():
+    events = _Log()
+    events.request("fix-1", "draft", "k1", timeline_baseline=0, original_is_draft=False)
+    events.settle("fix-1", "draft", "k1", "confirmed", changed=True)
+    guard = mg.fold_draft_guard(events.events)
+    read = mg.GuardRead(
+        ok=True,
+        state="OPEN",
+        is_draft=True,
+        head_sha="a" * 40,
+        transitions=1,
+        complete=True,
+    )
+
+    def engage(cycle, guard):
+        return mg.engage_decision(
+            mode=mg.GuardMode.DRAFT, ordinal=3, cycle_id=cycle, guard=guard, read=read
+        )
+
+    assert (
+        engage("fix-1", guard).reason == "already_held"
+    )  # the same cycle: nothing to do
+    decision = engage("fix-2", guard)
+    assert (decision.action, decision.reason) == (
+        mg.GuardAction.REBIND,
+        "cycle_rebound",
+    )
+    assert engage("ci-1", guard).action == mg.GuardAction.REBIND
+    # A guard record without a cycle id has nothing to re-bind.
+    assert (
+        engage("fix-2", {"phase": "held", "owned_draft": True}).reason == "already_held"
+    )
+    # The re-bind is a confirmed settle with no request: the cycle id moves, nothing else.
+    events.events.append(
+        {
+            "event_type": "draft_guard_settled",
+            "cycle_id": "fix-2",
+            "to": "draft",
+            "outcome": "confirmed",
+            "changed": False,
+            "cause": "cycle_rebound",
+        }
+    )
+    rebound = mg.fold_draft_guard(events.events)
+    assert rebound["cycle_id"] == "fix-2" and rebound["phase"] == "held"
+    assert rebound["run_toggles"] == guard["run_toggles"] and rebound["owned_draft"]
+    assert engage("fix-2", rebound).reason == "already_held"
+    # Publication is now judged on the new cycle's push, not the earlier one's.
+    push = {"event_type": "push_completed", "cycle_id": "fix-1", "target_sha": "1" * 40}
+    assert mg.held_cycle_published([*events.events, push], rebound) is False
+    push2 = {
+        "event_type": "push_completed",
+        "cycle_id": "fix-2",
+        "target_sha": "2" * 40,
+    }
+    assert mg.held_cycle_published([*events.events, push2], rebound) is True

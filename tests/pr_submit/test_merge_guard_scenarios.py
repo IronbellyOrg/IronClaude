@@ -205,6 +205,10 @@ class Guarded:
             self.append("terminal_halted", reason="draft_guard_unavailable")
         elif d.action == A.HALT_PR_NOT_OPEN:
             self.append("terminal_halted", reason="pr_not_open")
+        elif d.action == A.REBIND:
+            self.settle(
+                cycle, "draft", None, "confirmed", changed=False, cause=d.reason
+            )
         elif d.action in (A.SKIP_ALREADY_DRAFT, A.SKIP_USER_OVERRIDE):
             self.settle(
                 cycle,
@@ -231,7 +235,7 @@ class Guarded:
             return False
         return True
 
-    def push_start(self, cycle):
+    def push_start(self, cycle, target=TARGET):
         self.append("push_decision", cycle_id=cycle)
         key = push_idempotency_key(self.run_id, cycle, HEAD, BRANCH)
         self.append(
@@ -239,29 +243,37 @@ class Guarded:
             cycle_id=cycle,
             idempotency_key=key,
             pre_push_sha=HEAD,
-            target_sha=TARGET,
+            target_sha=target,
             target_branch=BRANCH,
             kind="fix",
         )
         return key
 
-    def push_land(self, cycle, key):
-        self.head = TARGET
+    def push_land(self, cycle, key, target=TARGET):
+        self.head = target
         self.sync()
         self.append(
             "push_completed",
             cycle_id=cycle,
             idempotency_key=key,
             pre_push_sha=HEAD,
-            target_sha=TARGET,
+            target_sha=target,
             target_branch=BRANCH,
             kind="fix",
         )
 
-    def push(self, cycle):
-        self.push_land(cycle, self.push_start(cycle))
+    def push(self, cycle, target=TARGET):
+        self.push_land(cycle, self.push_start(cycle, target), target)
 
-    def release(self, cycle, *, applied_edits=1, push_completed=True, between=None):
+    def release(
+        self,
+        cycle,
+        *,
+        applied_edits=1,
+        push_completed=True,
+        between=None,
+        target=TARGET,
+    ):
         guard = self.guard()
         read = self.live_read()
         d = mg.release_decision(
@@ -271,7 +283,7 @@ class Guarded:
             guard=guard,
             read=read,
             applied_edits=applied_edits,
-            target_sha=TARGET,
+            target_sha=target,
             push_completed=push_completed,
         )
         if d.action == A.RELEASE:
@@ -947,3 +959,45 @@ def test_guard_script_contract_scoping_and_legacy_fold(fake_gh, tmp_path):
     new.engage("fix-1")
     assert new.log.rebuild_state()["draft_guard"] == mg.fold_draft_guard(new.events())
     assert re.fullmatch(r"fix-[0-9]+", new.guard()["cycle_id"])
+
+
+def test_guard_rebinds_a_held_guard_to_the_next_cycle(fake_gh, tmp_path):
+    second_target = "c" * 40
+    # Cycle 1 pushes, but its release read fails (the guard stays held); cycle 2 engages.
+    run = engaged(tmp_path, fake_gh)
+    run.edit("fix-1")
+    run.push("fix-1")
+    fake_gh.flag("fail_timeline")
+    assert run.release("fix-1").action == A.HOLD
+    fake_gh.flag("fail_timeline", False)
+    d = run.engage("fix-2")
+    assert (d.action, d.reason) == (A.REBIND, "cycle_rebound")
+    assert run.guard()["cycle_id"] == "fix-2" and run.guard()["phase"] == "held"
+    assert run.ready_calls() == []
+
+    # Cycle 2's push completes, then a crash before the release: resume judges the release
+    # against cycle 2's push and its own target, so the PR is readied (not head_mismatch).
+    run.edit("fix-2")
+    run.push("fix-2", second_target)
+    inputs = run.resume_inputs()
+    assert inputs["published"] is True
+    d = run.decide_resume(target_sha=second_target)
+    assert (d.action, d.reason) == (A.RELEASE, "pushed")
+    run.release("fix-2", target=second_target)
+    assert fake_gh.is_draft() is False
+
+    # The variant where cycle 2's push never happened: the earlier push no longer counts as
+    # publication, so a crash does not release a PR whose newest fix is still local only.
+    other = engaged(tmp_path, fake_gh, name="other")
+    other.edit("fix-1")
+    other.push("fix-1")
+    fake_gh.flag("fail_timeline")
+    other.release("fix-1")
+    fake_gh.flag("fail_timeline", False)
+    assert other.engage("fix-2").action == A.REBIND
+    other.edit("fix-2")  # edits applied, push not made
+    assert other.resume_inputs()["published"] is False
+    d = other.decide_resume()
+    assert (d.action, d.reason) == (A.NOOP, "nothing_to_do")
+    assert other.ready_calls() == []
+    assert fake_gh.is_draft() is True

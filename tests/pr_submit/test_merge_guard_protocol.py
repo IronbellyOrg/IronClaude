@@ -837,3 +837,18 @@ def test_resume_row_3_states_the_allowance_for_earlier_failed_mutations():
     row = " ".join(row.split())
     assert "plus up to one more for each earlier failed mutation" in row
     assert "the transition count is the run's (plus the same allowance)" in row
+
+
+def test_the_engage_table_names_the_rebind_action_and_the_fold_wording():
+    from superclaude.pr_submit import merge_guard as guard_module
+
+    engage = _section("Engage")
+    assert "| `REBIND` |" in engage and "`cycle_rebound`" in engage
+    assert "the held guard follows the new cycle" in engage
+    assert guard_module.GuardAction.REBIND.name == "REBIND"
+    row = " ".join(
+        next(line for line in _text().splitlines() if line.startswith("| 3 |")).split()
+    )
+    assert "no later settle of the same cycle and direction has resolved" in row
+    assert "`changed: false` means it landed" in row
+    assert "cannot be told from the request itself" in row
