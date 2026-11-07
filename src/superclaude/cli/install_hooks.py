@@ -83,6 +83,8 @@ _FRESHNESS_SCRIPTS = [
     # python/python3/pip/pip3 with exit 2 and a message naming `uv run python`
     # and `jq`; fails open (exit 0) on anything it cannot judge, including no jq.
     "block-bare-python.sh",
+    # PreToolUse Bash identity adapter; ordinary sessions stay unmodified.
+    "launch-job-identity.sh",
 ]
 _LEGACY_SCRIPTS = ["session-init.sh"]
 

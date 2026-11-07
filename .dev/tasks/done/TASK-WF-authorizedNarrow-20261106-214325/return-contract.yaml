@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-authorizedNarrow-20261106-214325
+plan_path: ./TASK-WF-authorizedNarrow-20261106-214325.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: skipped
+reflect_report_path: null
+unresolved:
+  - 'Advisory reflect was invoked but not completed: the prior run in this session encountered a report-write denial for subagents. That denied report path was not retried or bypassed; no advisory PASS is claimed for this plan.'
+  - 'Identity component scope only: the full launch-level classifier, claim pipeline and production pre-push integration remain pending in the earlier blocked package.'

@@ -1,0 +1,981 @@
+--- a/src/superclaude/cli/install_hooks.py
++++ b/src/superclaude/cli/install_hooks.py
+@@ -83,6 +83,8 @@
+     # python/python3/pip/pip3 with exit 2 and a message naming `uv run python`
+     # and `jq`; fails open (exit 0) on anything it cannot judge, including no jq.
+     "block-bare-python.sh",
++    # PreToolUse Bash identity adapter; ordinary sessions stay unmodified.
++    "launch-job-identity.sh",
+ ]
+ _LEGACY_SCRIPTS = ["session-init.sh"]
+ 
+--- a/src/superclaude/hooks/hooks.json
++++ b/src/superclaude/hooks/hooks.json
+@@ -92,6 +92,16 @@
+             "timeout": 3
+           }
+         ]
++      },
++      {
++        "matcher": "Bash",
++        "hooks": [
++          {
++            "type": "command",
++            "command": "~/.claude/hooks/launch-job-identity.sh",
++            "timeout": 5
++          }
++        ]
+       }
+     ],
+     "PostToolUse": [
+--- a/tests/cli/test_install_hooks.py
++++ b/tests/cli/test_install_hooks.py
+@@ -21,6 +21,9 @@
+ 
+ import json
+ import os
++import shlex
++import subprocess
++import sys
+ from pathlib import Path
+ from unittest.mock import patch
+ 
+@@ -97,6 +100,7 @@
+         "pragmatic-subagent.js",
+         "codegraph-session-start.sh",
+         "block-bare-python.sh",
++        "launch-job-identity.sh",
+     ]:
+         (scripts_pkg / name).write_text("#!/usr/bin/env bash\nexit 0\n")
+     (legacy_scripts_pkg / "session-init.sh").write_text("#!/usr/bin/env bash\nexit 0\n")
+@@ -813,3 +817,179 @@
+     ok, message = install_hooks()
+     assert ok, message
+     _assert_block_bare_python_installed(fake_home / ".claude")
++
++
++_LAUNCH_IDENTITY_HOOK = "~/.claude/hooks/launch-job-identity.sh"
++
++
++@pytest.mark.parametrize("tree", ["src", "plugins"])
++def test_real_hooks_json_registers_launch_identity_without_replacing_policy(tree):
++    root = Path(__file__).resolve().parents[2]
++    pre_tool = json.loads((root / tree / "superclaude/hooks/hooks.json").read_text())[
++        "hooks"
++    ]["PreToolUse"]
++    entries = [
++        reg
++        for reg in pre_tool
++        if any(h.get("command") == _LAUNCH_IDENTITY_HOOK for h in reg["hooks"])
++    ]
++    assert entries == [
++        {
++            "matcher": "Bash",
++            "hooks": [
++                {"type": "command", "command": _LAUNCH_IDENTITY_HOOK, "timeout": 5}
++            ],
++        }
++    ]
++    assert pre_tool[-1] == entries[0]
++    assert any(
++        reg.get("matcher") == "Bash"
++        and any(h.get("command") == _BLOCK_BARE_PYTHON_HOOK for h in reg["hooks"])
++        for reg in pre_tool
++    )
++    assert any(
++        reg.get("matcher") == "Edit|Write"
++        and any(
++            h.get("command") == "~/.claude/hooks/freshness-pre-edit.sh"
++            for h in reg["hooks"]
++        )
++        for reg in pre_tool
++    )
++
++
++def test_launch_identity_script_is_packaged_listed_executable_and_mirrored():
++    from superclaude.cli import install_hooks
++
++    root = Path(__file__).resolve().parents[2]
++    source = root / "src/superclaude/hooks/scripts/launch-job-identity.sh"
++    mirror = root / "plugins/superclaude/hooks/scripts/launch-job-identity.sh"
++    assert "launch-job-identity.sh" in install_hooks._FRESHNESS_SCRIPTS
++    assert os.access(source, os.X_OK) and os.access(mirror, os.X_OK)
++    assert source.read_bytes() == mirror.read_bytes()
++    assert source.read_text().startswith("#!/bin/bash\n")
++
++
++@pytest.mark.parametrize("force", [False, True])
++def test_launch_identity_real_install_preserves_policies_and_is_idempotent(
++    tmp_path, force
++):
++    root = Path(__file__).resolve().parents[2]
++    home = tmp_path / "isolated-home"
++    target = home / ".claude/settings.json"
++    assert target.resolve() != (Path.home() / ".claude/settings.json").resolve()
++    target.parent.mkdir(parents=True)
++    source_hooks = json.loads((root / "src/superclaude/hooks/hooks.json").read_text())[
++        "hooks"
++    ]
++    prior_policy = [
++        reg
++        for reg in source_hooks["PreToolUse"]
++        if not any(h.get("command") == _LAUNCH_IDENTITY_HOOK for h in reg["hooks"])
++    ]
++    user_bash = {
++        "matcher": "Bash",
++        "hooks": [{"type": "command", "command": "/user/bash-policy", "timeout": 9}],
++        "userMetadata": "preserve",
++    }
++    user_stop = {
++        "hooks": [{"type": "command", "command": "/user/stop-policy", "timeout": 2}]
++    }
++    permissions = {"deny": ["Bash(rm *)"], "ask": ["Bash(git push *)"]}
++    original = {
++        "permissions": permissions,
++        "customSetting": [1, "keep"],
++        "hooks": {"PreToolUse": prior_policy + [user_bash], "Stop": [user_stop]},
++    }
++    target.write_text(json.dumps(original))
++
++    for _ in range(2):
++        ok, message = install_hooks(target_path=target, force=force)
++        assert ok, message
++        settings = json.loads(target.read_text())
++        assert settings["permissions"] == permissions
++        assert settings["customSetting"] == original["customSetting"]
++        assert settings["hooks"]["Stop"] == [user_stop]
++        registrations = settings["hooks"]["PreToolUse"]
++        assert all(reg in registrations for reg in prior_policy + [user_bash])
++        identity = [
++            reg
++            for reg in registrations
++            if any(h.get("command") == _LAUNCH_IDENTITY_HOOK for h in reg["hooks"])
++        ]
++        assert identity == [
++            {
++                "matcher": "Bash",
++                "hooks": [
++                    {"type": "command", "command": _LAUNCH_IDENTITY_HOOK, "timeout": 5}
++                ],
++            }
++        ]
++        if _ == 0:
++            first_install = settings
++        else:
++            assert settings == first_install
++
++    installed = target.parent / "hooks/launch-job-identity.sh"
++    source = root / "src/superclaude/hooks/scripts/launch-job-identity.sh"
++    assert installed.read_bytes() == source.read_bytes()
++    assert os.access(installed, os.X_OK)
++    env = dict(
++        os.environ,
++        HOME=str(home),
++        UV_PYTHON=sys.executable,
++        UV_PYTHON_DOWNLOADS="never",
++    )
++    event = {
++        "hook_event_name": "PreToolUse",
++        "tool_name": "Bash",
++        "session_id": "ordinary",
++        "tool_use_id": "tool_install",
++        "tool_input": {"command": "printf distributed"},
++    }
++    ordinary = subprocess.run(
++        ["/bin/bash", str(installed)],
++        input=json.dumps(event),
++        capture_output=True,
++        text=True,
++        env=env,
++        timeout=10,
++    )
++    assert (ordinary.returncode, ordinary.stdout, ordinary.stderr) == (0, "", "")
++    state = home / ".claude/state/launch-level"
++    assert not state.exists()
++
++    (state / "sessions").mkdir(parents=True, mode=0o700)
++    state.chmod(0o700)
++    level = state / "sessions/installed"
++    level.write_text("worktree\n")
++    level.chmod(0o600)
++    event["session_id"] = "installed"
++    governed = subprocess.run(
++        ["/bin/bash", str(installed)],
++        input=json.dumps(event),
++        capture_output=True,
++        text=True,
++        env=env,
++        timeout=10,
++    )
++    assert governed.returncode == 0, governed.stderr
++    output = json.loads(governed.stdout)["hookSpecificOutput"]
++    assert "permissionDecision" not in output
++    command = output["updatedInput"]["command"]
++    assert shlex.split(command)[1] == str(installed)
++    assert not (state / "requests").exists()
++    executed = subprocess.run(
++        ["/bin/bash", "-c", command],
++        capture_output=True,
++        text=True,
++        env=env,
++        cwd=tmp_path,
++        timeout=10,
++    )
++    assert (executed.returncode, executed.stdout, executed.stderr) == (
++        0,
++        "distributed",
++        "",
++    )
++    assert not list((state / "requests").iterdir())
++    assert not list((state / "jobs").iterdir())
+--- a/tests/hooks/test_freshness_subagent_start_policy.py
++++ b/tests/hooks/test_freshness_subagent_start_policy.py
+@@ -99,13 +99,16 @@
+         if hook["command"] == "~/.claude/hooks/freshness-subagent-start.sh"
+     )
+     assert "async" not in subagent_hook
+-    # No Bash counter hook: the only command registered under a Bash matcher is
+-    # the UV-only gate from issue #357. Any other Bash PreToolUse hook must be
+-    # added here on purpose.
++    # No Bash counter hook: only the UV-only gate and per-job identity adapter
++    # are registered for Bash. Any other Bash PreToolUse hook must be added
++    # here on purpose.
+     bash_commands = {
+         hook["command"]
+         for registration in hooks.get("PreToolUse", [])
+         if registration.get("matcher") == "Bash"
+         for hook in registration["hooks"]
+     }
+-    assert bash_commands == {"~/.claude/hooks/block-bare-python.sh"}
++    assert bash_commands == {
++        "~/.claude/hooks/block-bare-python.sh",
++        "~/.claude/hooks/launch-job-identity.sh",
++    }
+--- a/plugins/superclaude/hooks/hooks.json
++++ b/plugins/superclaude/hooks/hooks.json
+@@ -62,6 +62,16 @@
+             "timeout": 3
+           }
+         ]
++      },
++      {
++        "matcher": "Bash",
++        "hooks": [
++          {
++            "type": "command",
++            "command": "~/.claude/hooks/launch-job-identity.sh",
++            "timeout": 5
++          }
++        ]
+       }
+     ],
+     "PostToolUse": [
+--- a/plugins/superclaude/hooks/scripts/launch-job-identity.sh
++++ b/plugins/superclaude/hooks/scripts/launch-job-identity.sh
+@@ -0,0 +1,563 @@
++#!/bin/bash
++# Linux same-user job identity, not a sandbox or controller-PID binding.
++# prepare SESSION COMMAND [TOOL_USE_ID] prints a single-use token; run TOKEN
++# waits for the main bash AND ordinary non-zombie descendants, returning bash's
++# status. identify [PID] prints governed/ordinary/unknown, never command text.
++# Release is deletion of sessions/SESSION; malformed live state is unknown.
++# shortcut: deliberate setsid/daemonization escapes selection; upgrade to OS
++# containment if hostile isolation is required. Killing the supervisor leaves
++# unknown stale state, not trusted human identity. Monitor/pipelines unsupported.
++# With no arguments, adapt documented PreToolUse Bash JSON on stdin only.
++# The hook emits execute SESSION TOOL_ID_OR_EMPTY COMMAND, never a ticket.
++# Accepted execution creates and immediately consumes one private request.
++# Unverifiable/oversized envelopes are unsupported, not proof of human identity.
++# updatedInput replaces the WHOLE input; omit permissionDecision so ordinary
++# permission checks still apply. Other hooks' rewrite ordering is unspecified.
++# Each call uses a fresh bash: cd is local, and completion waits for ordinary
++# background descendants. Always use an explicit cwd/cd in each governed call;
++# persistent Claude Bash cwd tracking and live auto-mode rewrites need Task4.
++# Missing ordinary state must not require UV or create any launch state.
++if [[ $# == 0 || ( $# == 1 && $1 == hook ) ]]; then
++    if [[ -z ${HOME:-} || ! -e "$HOME/.claude/state/launch-level" && ! -L "$HOME/.claude/state/launch-level" ]]; then
++        exit 0
++    fi
++fi
++if ! command -v uv >/dev/null 2>&1; then
++    if [[ $# == 0 || ( $# == 1 && $1 == hook ) ]]; then
++        # A stale store is not binding authority. With no Python runtime, jq
++        # may establish only an exact top-level Bash session and owned record.
++        # No parser means unavailable adaptation, never proof of a human actor.
++        command -v jq >/dev/null 2>&1 || exit 0
++        fallback_sid=$(jq -ers '
++            select(length == 1) | .[0] | select(type == "object") |
++            select(.tool_name == "Bash") | .session_id |
++            select(type == "string") |
++            select(test("\\A[A-Za-z0-9][A-Za-z0-9_-]{0,127}\\z"))
++        ' 2>/dev/null) || exit 0
++        [[ ${HOME:-} == /* ]] || exit 0
++        fallback_dir=${HOME%/}
++        [[ -d $fallback_dir && -O $fallback_dir ]] || exit 0
++        ancestor=$fallback_dir
++        while [[ -n $ancestor && $ancestor != / ]]; do
++            [[ ! -L $ancestor ]] || exit 0
++            ancestor=${ancestor%/*}
++        done
++        for part in .claude state launch-level sessions; do
++            fallback_dir=$fallback_dir/$part
++            [[ -d $fallback_dir && -O $fallback_dir && ! -L $fallback_dir ]] || exit 0
++        done
++        fallback_record=$fallback_dir/$fallback_sid
++        [[ -f $fallback_record && -O $fallback_record && ! -L $fallback_record ]] || exit 0
++    fi
++    printf '%s\n' 'launch job: UV is required for this invocation' >&2
++    exit 2
++fi
++IFS= read -r -d '' launch_identity_code <<'PY'
++import ctypes
++try:
++    import fcntl
++except ImportError:
++    fcntl = None
++import json
++import os
++import re
++import shlex
++import signal
++import stat
++import sys
++import time
++import uuid
++
++LIMIT = 65536
++ID = re.compile(r'[A-Za-z0-9][A-Za-z0-9_-]{0,127}\Z')
++TOKEN = re.compile(r'[0-9a-f]{32}\Z')
++LEVELS = {b'worktree', b'full', b'full-submit'}
++
++
++def valid_id(value):
++    return isinstance(value, str) and ID.fullmatch(value) is not None
++
++
++def private(st, directory=False):
++    kind = stat.S_ISDIR if directory else stat.S_ISREG
++    if not kind(st.st_mode) or st.st_uid != os.geteuid() or st.st_mode & 0o077:
++        raise ValueError('unsafe state')
++
++
++def directory(parts):
++    fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY)
++    try:
++        for part in parts:
++            if part in ('', '.', '..'):
++                raise ValueError('invalid state path')
++            nxt = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
++            os.close(fd)
++            fd = nxt
++        return fd
++    except BaseException:
++        os.close(fd)
++        raise
++
++
++def store():
++    home = os.environ.get('HOME', '')
++    if not home.startswith('/'):
++        raise ValueError('invalid home')
++    fd = directory(home.strip('/').split('/'))
++    try:
++        st = os.fstat(fd)
++        if st.st_uid != os.geteuid() or st.st_mode & 0o022:
++            raise ValueError('unsafe home')
++        for name in ('.claude', 'state', 'launch-level'):
++            nxt = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
++            os.close(fd)
++            fd = nxt
++            st = os.fstat(fd)
++            if st.st_uid != os.geteuid() or st.st_mode & 0o022:
++                raise ValueError('unsafe store')
++        private(st, True)
++        return fd
++    except BaseException:
++        os.close(fd)
++        raise
++
++
++def subdir(root, name, create=False):
++    if create:
++        try:
++            os.mkdir(name, 0o700, dir_fd=root)
++        except FileExistsError:
++            pass
++    fd = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=root)
++    try:
++        private(os.fstat(fd), True)
++        return fd
++    except BaseException:
++        os.close(fd)
++        raise
++
++
++def read_file(parent, name, consume=False):
++    fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
++    try:
++        if consume:
++            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        st = os.fstat(fd)
++        private(st)
++        if st.st_nlink != 1 or st.st_size > LIMIT:
++            raise ValueError('invalid state file')
++        data = os.read(fd, LIMIT + 1)
++        if len(data) > LIMIT:
++            raise ValueError('oversized state')
++        if consume:
++            current = os.stat(name, dir_fd=parent, follow_symlinks=False)
++            if (st.st_dev, st.st_ino) != (current.st_dev, current.st_ino):
++                raise ValueError('changed request')
++            os.unlink(name, dir_fd=parent)
++        return data
++    finally:
++        os.close(fd)
++
++
++def publish(parent, name, value):
++    tmp = '.' + uuid.uuid4().hex
++    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
++    try:
++        with os.fdopen(fd, 'wb') as out:
++            out.write(json.dumps(value, separators=(',', ':')).encode())
++            out.flush()
++            os.fchmod(out.fileno(), 0o400)
++        os.link(tmp, name, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)
++    finally:
++        os.unlink(tmp, dir_fd=parent)
++
++
++def governed(root, sid):
++    if not valid_id(sid):
++        raise ValueError('invalid session')
++    fd = subdir(root, 'sessions')
++    try:
++        data = read_file(fd, sid)
++        if data not in LEVELS and not (data.endswith(b'\n') and data[:-1] in LEVELS):
++            raise ValueError('invalid level')
++    finally:
++        os.close(fd)
++
++
++def request(value):
++    if not isinstance(value, dict) or set(value) != {'session_id', 'tool_use_id', 'command'}:
++        raise ValueError('invalid request')
++    if not valid_id(value['session_id']):
++        raise ValueError('invalid session')
++    if value['tool_use_id'] is not None and not valid_id(value['tool_use_id']):
++        raise ValueError('invalid tool identity')
++    command = value['command']
++    if not isinstance(command, str) or '\0' in command or len(command.encode()) > 32768:
++        raise ValueError('invalid command')
++    return value
++
++
++def proc(pid):
++    if type(pid) is not int or pid <= 0:
++        raise ValueError('invalid process')
++    with open('/proc/%d/stat' % pid) as source:
++        fields = source.read().rsplit(')', 1)[1].split()
++    return fields[0], int(fields[3]), int(fields[19])
++
++
++def boot():
++    with open('/proc/sys/kernel/random/boot_id') as source:
++        return str(uuid.UUID(source.read().strip()))
++
++
++def identify(pid):
++    root = None
++    jobs = None
++    try:
++        _, sid, _ = proc(pid)
++        try:
++            root = store()
++            jobs = subdir(root, 'jobs')
++            raw = read_file(jobs, str(sid) + '.json')
++        except FileNotFoundError:
++            return {'status': 'ordinary'}
++        value = json.loads(raw)
++        if not isinstance(value, dict) or set(value) != {'pid', 'start', 'boot', 'kernel_sid', 'session_id'}:
++            raise ValueError('invalid record')
++        if type(value['pid']) is not int or value['pid'] != sid or type(value['kernel_sid']) is not int or value['kernel_sid'] != sid:
++            raise ValueError('invalid supervisor')
++        if type(value['start']) is not int or not valid_id(value['session_id']):
++            raise ValueError('invalid identity')
++        state, actual_sid, start = proc(value['pid'])
++        if state == 'Z' or actual_sid != sid or start != value['start'] or boot() != value['boot']:
++            raise ValueError('stale supervisor')
++        if os.stat('/proc/%d' % sid).st_uid != os.geteuid():
++            raise ValueError('foreign supervisor')
++        try:
++            governed(root, value['session_id'])
++        except FileNotFoundError:
++            return {'status': 'ordinary', 'reason': 'released'}
++        return {'status': 'governed', 'session_id': value['session_id']}
++    except (OSError, ValueError, IndexError, TypeError, RecursionError, AttributeError):
++        return {'status': 'unknown'}
++    finally:
++        for fd in (jobs, root):
++            if fd is not None:
++                os.close(fd)
++
++
++def members(sid):
++    found = []
++    # No bounded ancestry walk or truncated scan is interpreted as ordinary.
++    for name in os.listdir('/proc'):
++        if not name.isdecimal() or int(name) == os.getpid():
++            continue
++        try:
++            state, current, start = proc(int(name))
++        except FileNotFoundError:
++            continue
++        except ProcessLookupError:
++            continue
++        if current == sid and state != 'Z':
++            found.append((int(name), start))
++    return found
++
++
++def forward(live, sid, signum):
++    libc = ctypes.CDLL(None, use_errno=True)
++    for pid, start in live:
++        fd = -1
++        try:
++            # Pin the process before checking: PID reuse cannot hit outsiders.
++            # Some UV Python builds omit os.pidfd_open; libc provides it.
++            fd = libc.pidfd_open(pid, 0)
++            if fd < 0:
++                raise OSError(ctypes.get_errno(), 'process handle unavailable')
++            state, current, actual = proc(pid)
++            if current == sid and actual == start and state != 'Z':
++                if libc.pidfd_send_signal(fd, signum, None, 0) < 0:
++                    raise OSError(ctypes.get_errno(), 'process signal failed')
++        except ProcessLookupError:
++            pass
++        except FileNotFoundError:
++            pass
++        finally:
++            if fd >= 0:
++                os.close(fd)
++
++
++def supervise(value, jobs, old_mask):
++    os.setsid()
++    sid = os.getpid()
++    # Linux prctl.h: PR_SET_CHILD_SUBREAPER = 36; adopted orphans can be reaped.
++    if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
++        raise OSError('subreaper unavailable')
++    _, kernel_sid, start = proc(sid)
++    forward([(sid, start)], sid, 0)  # verify pidfd support before any command
++    record = {'pid': sid, 'start': start, 'boot': boot(), 'kernel_sid': kernel_sid,
++              'session_id': value['session_id']}
++    name = str(sid) + '.json'
++    pending = []
++    for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT):
++        signal.signal(sig, lambda signum, frame: pending.append(signum))
++    publish(jobs, name, record)
++    shell = None
++    status = None
++    deadline = None
++    try:
++        signal.pthread_sigmask(signal.SIG_SETMASK, old_mask)
++        if pending:
++            return 128 + pending[0]
++        shell = os.fork()
++        if shell == 0:
++            for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT):
++                signal.signal(sig, signal.SIG_DFL)
++            try:
++                os.execv('/bin/bash', ['bash', '-c', value['command']])
++            except OSError:
++                os._exit(126)
++        while True:
++            while True:
++                try:
++                    child, code = os.waitpid(-1, os.WNOHANG)
++                except ChildProcessError:
++                    break
++                if child == 0:
++                    break
++                if child == shell:
++                    status = os.waitstatus_to_exitcode(code)
++            live = members(sid)
++            if pending:
++                forward(live, sid, pending.pop(0))
++                deadline = time.monotonic() + 1 if deadline is None else deadline
++            if deadline is not None and time.monotonic() >= deadline:
++                forward(live, sid, signal.SIGKILL)
++            if status is not None and not live:
++                return status if status >= 0 else 128 - status
++            time.sleep(0.03)
++    finally:
++        # Only this job's session is ever signalled, including error cleanup.
++        try:
++            forward(members(sid), sid, signal.SIGKILL)
++            # Reap even children that became zombies during the final scan.
++            until = time.monotonic() + 2
++            while time.monotonic() < until:
++                try:
++                    child, _ = os.waitpid(-1, os.WNOHANG)
++                except ChildProcessError:
++                    break
++                if child == 0:
++                    if not members(sid):
++                        break  # intentionally detached children are unsupported
++                    time.sleep(0.03)
++        finally:
++            # Failed cleanup retains stale evidence: survivors select unknown.
++            if not members(sid):
++                os.unlink(name, dir_fd=jobs)
++
++
++def run(token):
++    if not TOKEN.fullmatch(token):
++        raise ValueError('invalid token')
++    root = store()
++    requests = subdir(root, 'requests')
++    jobs = None
++    try:
++        value = request(json.loads(read_file(requests, token, consume=True)))
++        governed(root, value['session_id'])
++        jobs = subdir(root, 'jobs', True)
++        # Block cancellation until both sides have installed their handlers.
++        signals = (signal.SIGINT, signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT)
++        old_mask = signal.pthread_sigmask(signal.SIG_BLOCK, signals)
++        # A dedicated child always can setsid, even when the caller is a leader.
++        child = os.fork()
++        if child == 0:
++            try:
++                code = supervise(value, jobs, old_mask)
++            except (OSError, ValueError, IndexError, TypeError, RecursionError, AttributeError):
++                print('launch job: supervisor failed', file=sys.stderr)
++                code = 2
++            os._exit(code)
++        for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT):
++            def relay(signum, frame):
++                try:
++                    os.kill(child, signum)
++                except ProcessLookupError:
++                    pass
++            signal.signal(sig, relay)
++        signal.pthread_sigmask(signal.SIG_SETMASK, old_mask)
++        _, code = os.waitpid(child, 0)
++        result = os.waitstatus_to_exitcode(code)
++        return result if result >= 0 else 128 - result
++    finally:
++        for fd in (jobs, requests, root):
++            if fd is not None:
++                os.close(fd)
++
++
++def json_object(pairs):
++    value = {}
++    for key, item in pairs:
++        if key in value:
++            raise ValueError('duplicate JSON field')
++        value[key] = item
++    return value
++
++
++def json_constant(value):
++    raise ValueError('non-JSON constant')
++
++
++def hook():
++    # Parse enough for a bounded, positively identified size error. Beyond this
++    # hard cap no identity is inferred; arbitrary text never supplies authority.
++    raw = sys.stdin.buffer.read((1 << 20) + 1)
++    if len(raw) > 1 << 20:
++        return 0
++    try:
++        event = json.loads(raw)
++    except (ValueError, RecursionError):
++        return 0
++    if not isinstance(event, dict):
++        return 0
++    tool = event.get('tool_name')
++    if isinstance(tool, str) and tool != 'Bash':
++        return 0  # Monitor and other named tools have no adapter here
++    sid = event.get('session_id')
++    if not valid_id(sid):
++        return 0  # do not guess from agent_id, parent fields, cwd or environment
++    home = os.environ.get('HOME', '')
++    if not home.startswith('/'):
++        return 0
++    path = os.path.join(home, '.claude', 'state', 'launch-level', 'sessions', sid)
++    if not os.path.lexists(path):
++        return 0
++    # Existence is only a reason to validate or block, never rewrite authority.
++    root = None
++    try:
++        root = store()
++        governed(root, sid)
++        json.loads(raw, object_pairs_hook=json_object, parse_constant=json_constant)
++        if tool != 'Bash' or event.get('hook_event_name') != 'PreToolUse':
++            raise ValueError('unsupported bound event')
++        if len(raw) > LIMIT:
++            raise ValueError('oversized bound event')
++        for field in ('agent_id', 'agent_type'):
++            if field in event and not isinstance(event[field], str):
++                raise ValueError('unsupported subagent shape')
++        inputs = event.get('tool_input')
++        if not isinstance(inputs, dict):
++            raise ValueError('invalid tool input')
++        value = request({'session_id': sid, 'tool_use_id': event.get('tool_use_id'),
++                         'command': inputs.get('command')})
++        script = os.path.realpath(sys.argv[1])
++        # Reserve runner invocations, without pretending shlex parses Bash.
++        reserved = re.escape(os.path.basename(script)) + r'''[\x27\x22]?(?:\s+(?:run|hook|execute)(?:\s|$)|\s*$)'''
++        if re.search(reserved, value['command']):
++            raise ValueError('conflicting job wrapper')
++        if sys.platform != 'linux' or fcntl is None:
++            raise ValueError('unsupported platform')
++        _, kernel_sid, start = proc(os.getpid())
++        boot()
++        forward([(os.getpid(), start)], kernel_sid, 0)
++        libc = ctypes.CDLL(None, use_errno=True)
++        if libc.prctl(36, 1, 0, 0, 0) != 0:
++            raise OSError('subreaper unavailable')
++        if not os.path.isfile(script) or not os.access(script, os.R_OK):
++            raise ValueError('runner unavailable')
++        if not os.access('/bin/bash', os.X_OK):
++            raise ValueError('startup dependency unavailable')
++        # No ticket exists during permission evaluation. Only accepted execution
++        # enters execute(), which creates and immediately consumes its request.
++        command = shlex.join(['/bin/bash', script, 'execute', sid,
++                              value['tool_use_id'] or '', value['command']])
++        updated = dict(inputs)
++        updated['command'] = command
++        output = json.dumps({'hookSpecificOutput': {
++            'hookEventName': 'PreToolUse', 'updatedInput': updated,
++            'additionalContext': 'Launch identity: this call uses a fresh Bash shell and waits for ordinary background descendants. Internal cd does not persist to later Bash calls; use an explicit working directory in each call. Normal permission checks still apply; concurrent hook rewrite ordering and live auto-mode behavior are unverified.'}})
++        print(output, flush=True)
++        return 0
++    except (OSError, ValueError, IndexError, TypeError, RecursionError, AttributeError):
++        print('launch job: governed Bash call cannot be wrapped safely', file=sys.stderr)
++        return 2
++    finally:
++        if root is not None:
++            os.close(root)
++
++
++def execute(sid, tool_id, command):
++    value = request({'session_id': sid, 'tool_use_id': tool_id or None, 'command': command})
++    root = store()
++    requests = None
++    published = False
++    token = uuid.uuid4().hex
++    try:
++        governed(root, sid)
++        requests = subdir(root, 'requests', True)
++        def cancel(signum, frame):
++            raise SystemExit(128 + signum)
++        for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT):
++            signal.signal(sig, cancel)
++        old_mask = signal.pthread_sigmask(signal.SIG_BLOCK, (signal.SIGINT, signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT))
++        try:
++            publish(requests, token, value)
++            published = True
++        finally:
++            signal.pthread_sigmask(signal.SIG_SETMASK, old_mask)
++        return run(token)
++    finally:
++        try:
++            if published:
++                try:
++                    os.unlink(token, dir_fd=requests)
++                except FileNotFoundError:
++                    pass  # run consumed it already
++        finally:
++            for fd in (requests, root):
++                if fd is not None:
++                    os.close(fd)
++
++
++def main(args):
++    if not args or args == ['hook']:
++        return hook()
++    if len(args) == 4 and args[0] == 'execute':
++        return execute(*args[1:])
++    if args and args[0] == 'identify' and len(args) in (1, 2):
++        try:
++            pid = os.getpid() if len(args) == 1 else int(args[1])
++            result = identify(pid)
++        except ValueError:
++            result = {'status': 'unknown'}
++        print(json.dumps(result))
++        return 0
++    if args and args[0] == 'prepare' and len(args) in (3, 4):
++        value = request({'session_id': args[1], 'command': args[2],
++                         'tool_use_id': args[3] if len(args) == 4 else None})
++        root = store()
++        requests = None
++        try:
++            governed(root, value['session_id'])
++            requests = subdir(root, 'requests', True)
++            token = uuid.uuid4().hex
++            publish(requests, token, value)
++            print(token)
++            return 0
++        finally:
++            for fd in (requests, root):
++                if fd is not None:
++                    os.close(fd)
++    if len(args) == 2 and args[0] == 'run':
++        return run(args[1])
++    raise ValueError('invalid invocation')
++
++
++try:
++    sys.exit(main(sys.argv[2:]))
++except (OSError, ValueError, IndexError, TypeError, RecursionError, AttributeError):
++    # Do not echo exceptions: file names and JSON can contain command secrets.
++    print('launch job: invalid invocation or unavailable private state', file=sys.stderr)
++    sys.exit(2)
++PY
++exec uv run --no-project python -I -c "$launch_identity_code" "$0" "$@"
+--- a/src/superclaude/hooks/scripts/launch-job-identity.sh
++++ b/src/superclaude/hooks/scripts/launch-job-identity.sh
+@@ -23,6 +23,32 @@
+     fi
+ fi
+ if ! command -v uv >/dev/null 2>&1; then
++    if [[ $# == 0 || ( $# == 1 && $1 == hook ) ]]; then
++        # A stale store is not binding authority. With no Python runtime, jq
++        # may establish only an exact top-level Bash session and owned record.
++        # No parser means unavailable adaptation, never proof of a human actor.
++        command -v jq >/dev/null 2>&1 || exit 0
++        fallback_sid=$(jq -ers '
++            select(length == 1) | .[0] | select(type == "object") |
++            select(.tool_name == "Bash") | .session_id |
++            select(type == "string") |
++            select(test("\\A[A-Za-z0-9][A-Za-z0-9_-]{0,127}\\z"))
++        ' 2>/dev/null) || exit 0
++        [[ ${HOME:-} == /* ]] || exit 0
++        fallback_dir=${HOME%/}
++        [[ -d $fallback_dir && -O $fallback_dir ]] || exit 0
++        ancestor=$fallback_dir
++        while [[ -n $ancestor && $ancestor != / ]]; do
++            [[ ! -L $ancestor ]] || exit 0
++            ancestor=${ancestor%/*}
++        done
++        for part in .claude state launch-level sessions; do
++            fallback_dir=$fallback_dir/$part
++            [[ -d $fallback_dir && -O $fallback_dir && ! -L $fallback_dir ]] || exit 0
++        done
++        fallback_record=$fallback_dir/$fallback_sid
++        [[ -f $fallback_record && -O $fallback_record && ! -L $fallback_record ]] || exit 0
++    fi
+     printf '%s\n' 'launch job: UV is required for this invocation' >&2
+     exit 2
+ fi
+--- a/tests/hooks/test_launch_job_identity.py
++++ b/tests/hooks/test_launch_job_identity.py
+@@ -52,7 +52,7 @@
+ 
+     def call(self, *args, **kwargs):
+         return subprocess.run(
+-            ["bash", str(SCRIPT), *args],
++            ["/bin/bash", str(SCRIPT), *args],
+             env=self.env,
+             capture_output=True,
+             text=True,
+@@ -929,8 +929,8 @@
+     assert not (job.root / "requests").exists()
+ 
+ 
+-def test_bound_hook_missing_uv_blocks_before_publication(job, tmp_path):
+-    job.env["PATH"] = str(tmp_path / "no-binaries")
++def test_bound_hook_missing_uv_blocks_only_with_jq_positive_identity(job, tmp_path):
++    jq_only_path(job, tmp_path)
+     result = adapt(job, hook_event("touch NEVER_EXECUTE"))
+     assert result.returncode == 2
+     assert result.stdout == ""
+@@ -1025,3 +1025,85 @@
+     assert list(requests.iterdir()) == [unrelated]
+     assert unrelated.read_text() == "keep"
+     assert not job.records()
++
++
++def jq_only_path(job, tmp_path):
++    import shutil
++
++    jq = shutil.which("jq")
++    assert jq is not None, "jq is required for the fallback parser tests"
++    binary_dir = tmp_path / "jq-only"
++    binary_dir.mkdir()
++    (binary_dir / "jq").symlink_to(jq)
++    job.env["PATH"] = str(binary_dir)
++
++
++@pytest.mark.parametrize("sid", ["ordinary", "different", "old-prefix", "old\n"])
++@pytest.mark.parametrize("explicit_hook", [False, True])
++def test_missing_uv_existing_other_binding_does_not_select_ordinary(
++    job, tmp_path, sid, explicit_hook
++):
++    jq_only_path(job, tmp_path)
++    before = set(job.root.rglob("*"))
++    args = ("hook",) if explicit_hook else ()
++    result = job.call(*args, input=json.dumps(hook_event(sid=sid)))
++    assert (result.returncode, result.stdout, result.stderr) == (0, "", "")
++    assert set(job.root.rglob("*")) == before
++
++
++def test_missing_uv_stale_store_without_session_binding_is_inert(job, tmp_path):
++    jq_only_path(job, tmp_path)
++    (job.root / "sessions/old").unlink()
++    (job.root / "sessions").rmdir()
++    result = adapt(job, hook_event())
++    assert (result.returncode, result.stdout, result.stderr) == (0, "", "")
++    assert not (job.root / "requests").exists()
++
++
++def test_missing_uv_and_jq_is_unavailable_adaptation_not_positive_identity(
++    job, tmp_path
++):
++    job.env["PATH"] = str(tmp_path / "no-binaries")
++    before = set(job.root.rglob("*"))
++    result = adapt(job, hook_event())
++    # No parser can establish the bound event: this is not proof of a human.
++    assert (result.returncode, result.stdout, result.stderr) == (0, "", "")
++    assert set(job.root.rglob("*")) == before
++
++
++@pytest.mark.parametrize(
++    "raw",
++    [
++        "{",
++        '{"tool_name":"Bash","nested":{"session_id":"old"}}',
++        '{"tool_name":"Bash","session_id":123}',
++        '{"tool_name":"Bash","session_id":"../old"}',
++        '{"tool_name":"Monitor","session_id":"old"}',
++        '{"tool_name":"Bash","session_id":"old"} {"session_id":"old"}',
++    ],
++)
++def test_missing_uv_fallback_never_guesses_from_invalid_or_unsupported_envelope(
++    job, tmp_path, raw
++):
++    jq_only_path(job, tmp_path)
++    result = job.call(input=raw)
++    assert (result.returncode, result.stdout, result.stderr) == (0, "", "")
++    assert not (job.root / "requests").exists()
++
++
++@pytest.mark.parametrize(
++    "args",
++    [
++        ("prepare", "old", "true"),
++        ("run", "0" * 32),
++        ("identify",),
++        ("execute", "old", "tool_1", "true"),
++    ],
++)
++def test_explicit_runtime_modes_still_fail_plainly_without_uv(job, tmp_path, args):
++    job.env["PATH"] = str(tmp_path / "no-binaries")
++    result = job.call(*args)
++    assert result.returncode == 2
++    assert result.stdout == ""
++    assert result.stderr == "launch job: UV is required for this invocation\n"
++    assert not (job.root / "requests").exists()

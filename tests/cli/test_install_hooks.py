@@ -21,6 +21,9 @@ from __future__ import annotations
 
 import json
 import os
+import shlex
+import subprocess
+import sys
 from pathlib import Path
 from unittest.mock import patch
 
@@ -97,6 +100,7 @@ def fake_source_hooks(tmp_path, monkeypatch):
         "pragmatic-subagent.js",
         "codegraph-session-start.sh",
         "block-bare-python.sh",
+        "launch-job-identity.sh",
     ]:
         (scripts_pkg / name).write_text("#!/usr/bin/env bash\nexit 0\n")
     (legacy_scripts_pkg / "session-init.sh").write_text("#!/usr/bin/env bash\nexit 0\n")
@@ -813,3 +817,179 @@ def test_install_hooks_installs_and_registers_block_bare_python(tmp_path, monkey
     ok, message = install_hooks()
     assert ok, message
     _assert_block_bare_python_installed(fake_home / ".claude")
+
+
+_LAUNCH_IDENTITY_HOOK = "~/.claude/hooks/launch-job-identity.sh"
+
+
+@pytest.mark.parametrize("tree", ["src", "plugins"])
+def test_real_hooks_json_registers_launch_identity_without_replacing_policy(tree):
+    root = Path(__file__).resolve().parents[2]
+    pre_tool = json.loads((root / tree / "superclaude/hooks/hooks.json").read_text())[
+        "hooks"
+    ]["PreToolUse"]
+    entries = [
+        reg
+        for reg in pre_tool
+        if any(h.get("command") == _LAUNCH_IDENTITY_HOOK for h in reg["hooks"])
+    ]
+    assert entries == [
+        {
+            "matcher": "Bash",
+            "hooks": [
+                {"type": "command", "command": _LAUNCH_IDENTITY_HOOK, "timeout": 5}
+            ],
+        }
+    ]
+    assert pre_tool[-1] == entries[0]
+    assert any(
+        reg.get("matcher") == "Bash"
+        and any(h.get("command") == _BLOCK_BARE_PYTHON_HOOK for h in reg["hooks"])
+        for reg in pre_tool
+    )
+    assert any(
+        reg.get("matcher") == "Edit|Write"
+        and any(
+            h.get("command") == "~/.claude/hooks/freshness-pre-edit.sh"
+            for h in reg["hooks"]
+        )
+        for reg in pre_tool
+    )
+
+
+def test_launch_identity_script_is_packaged_listed_executable_and_mirrored():
+    from superclaude.cli import install_hooks
+
+    root = Path(__file__).resolve().parents[2]
+    source = root / "src/superclaude/hooks/scripts/launch-job-identity.sh"
+    mirror = root / "plugins/superclaude/hooks/scripts/launch-job-identity.sh"
+    assert "launch-job-identity.sh" in install_hooks._FRESHNESS_SCRIPTS
+    assert os.access(source, os.X_OK) and os.access(mirror, os.X_OK)
+    assert source.read_bytes() == mirror.read_bytes()
+    assert source.read_text().startswith("#!/bin/bash\n")
+
+
+@pytest.mark.parametrize("force", [False, True])
+def test_launch_identity_real_install_preserves_policies_and_is_idempotent(
+    tmp_path, force
+):
+    root = Path(__file__).resolve().parents[2]
+    home = tmp_path / "isolated-home"
+    target = home / ".claude/settings.json"
+    assert target.resolve() != (Path.home() / ".claude/settings.json").resolve()
+    target.parent.mkdir(parents=True)
+    source_hooks = json.loads((root / "src/superclaude/hooks/hooks.json").read_text())[
+        "hooks"
+    ]
+    prior_policy = [
+        reg
+        for reg in source_hooks["PreToolUse"]
+        if not any(h.get("command") == _LAUNCH_IDENTITY_HOOK for h in reg["hooks"])
+    ]
+    user_bash = {
+        "matcher": "Bash",
+        "hooks": [{"type": "command", "command": "/user/bash-policy", "timeout": 9}],
+        "userMetadata": "preserve",
+    }
+    user_stop = {
+        "hooks": [{"type": "command", "command": "/user/stop-policy", "timeout": 2}]
+    }
+    permissions = {"deny": ["Bash(rm *)"], "ask": ["Bash(git push *)"]}
+    original = {
+        "permissions": permissions,
+        "customSetting": [1, "keep"],
+        "hooks": {"PreToolUse": prior_policy + [user_bash], "Stop": [user_stop]},
+    }
+    target.write_text(json.dumps(original))
+
+    for _ in range(2):
+        ok, message = install_hooks(target_path=target, force=force)
+        assert ok, message
+        settings = json.loads(target.read_text())
+        assert settings["permissions"] == permissions
+        assert settings["customSetting"] == original["customSetting"]
+        assert settings["hooks"]["Stop"] == [user_stop]
+        registrations = settings["hooks"]["PreToolUse"]
+        assert all(reg in registrations for reg in prior_policy + [user_bash])
+        identity = [
+            reg
+            for reg in registrations
+            if any(h.get("command") == _LAUNCH_IDENTITY_HOOK for h in reg["hooks"])
+        ]
+        assert identity == [
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {"type": "command", "command": _LAUNCH_IDENTITY_HOOK, "timeout": 5}
+                ],
+            }
+        ]
+        if _ == 0:
+            first_install = settings
+        else:
+            assert settings == first_install
+
+    installed = target.parent / "hooks/launch-job-identity.sh"
+    source = root / "src/superclaude/hooks/scripts/launch-job-identity.sh"
+    assert installed.read_bytes() == source.read_bytes()
+    assert os.access(installed, os.X_OK)
+    env = dict(
+        os.environ,
+        HOME=str(home),
+        UV_PYTHON=sys.executable,
+        UV_PYTHON_DOWNLOADS="never",
+    )
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "Bash",
+        "session_id": "ordinary",
+        "tool_use_id": "tool_install",
+        "tool_input": {"command": "printf distributed"},
+    }
+    ordinary = subprocess.run(
+        ["/bin/bash", str(installed)],
+        input=json.dumps(event),
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=10,
+    )
+    assert (ordinary.returncode, ordinary.stdout, ordinary.stderr) == (0, "", "")
+    state = home / ".claude/state/launch-level"
+    assert not state.exists()
+
+    (state / "sessions").mkdir(parents=True, mode=0o700)
+    state.chmod(0o700)
+    level = state / "sessions/installed"
+    level.write_text("worktree\n")
+    level.chmod(0o600)
+    event["session_id"] = "installed"
+    governed = subprocess.run(
+        ["/bin/bash", str(installed)],
+        input=json.dumps(event),
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=10,
+    )
+    assert governed.returncode == 0, governed.stderr
+    output = json.loads(governed.stdout)["hookSpecificOutput"]
+    assert "permissionDecision" not in output
+    command = output["updatedInput"]["command"]
+    assert shlex.split(command)[1] == str(installed)
+    assert not (state / "requests").exists()
+    executed = subprocess.run(
+        ["/bin/bash", "-c", command],
+        capture_output=True,
+        text=True,
+        env=env,
+        cwd=tmp_path,
+        timeout=10,
+    )
+    assert (executed.returncode, executed.stdout, executed.stderr) == (
+        0,
+        "distributed",
+        "",
+    )
+    assert not list((state / "requests").iterdir())
+    assert not list((state / "jobs").iterdir())

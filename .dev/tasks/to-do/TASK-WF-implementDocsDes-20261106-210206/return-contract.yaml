@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-implementDocsDes-20261106-210206
+plan_path: ./TASK-WF-implementDocsDes-20261106-210206.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: failed
+reflect_report_path: null
+unresolved:
+  - 'Advisory pre-reflection failed: subagent report stub Write was denied by a hook: Subagents should return findings as text, not write report files. No bypass or passing report was produced.'
+  - 'B-CTX feasibility is OPEN/BLOCKING; Task 1 must pass with observed actor/lifecycle evidence before later enforcement tasks.'

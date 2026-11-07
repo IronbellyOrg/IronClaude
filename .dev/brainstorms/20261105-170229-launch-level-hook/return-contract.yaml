@@ -1,0 +1,18 @@
+contract_version: "1.0"
+status: partial   # adversarial_status partial: invariant gate blocked, final plan review failed (10 blocking findings open), spec marked not reviewed after its last amendments (owner decision 2026-11-05)
+seed_brief_path: /home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/.dev/brainstorms/20261105-170229-launch-level-hook/seed-brief.md
+merged_output_path: /home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/.dev/brainstorms/20261105-170229-launch-level-hook/merged-requirements.md
+convergence_score: 1.00   # protocol rule; strict unanimous-label count 0.70
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial
+domain: code
+proposal_count: 3
+enrichment_used:
+  - {source: codebase, quality_tier: fallback_1}
+  - {source: research-light, quality_tier: fallback_1}
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: ["OD-R3-B1..OD-R3-B10 (open)", "OD-R2-F4", "OD-R2-F5 (fixed, not confirmed)", "O-22 (structural git layer)", "O-21 (quoted text over-blocked)"]
+telemetry:
+  agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'"
+  wave_durations_ms: "not recorded; wall time about 5 h (17:02 to 22:12 UTC)"
+  enrichment_artifact_sizes_bytes: {codebase-context.md: 5106, research-light.md: 7151}
