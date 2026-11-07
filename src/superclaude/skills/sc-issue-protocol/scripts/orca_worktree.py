@@ -875,6 +875,36 @@ def launch_result(status: str, notes: list[tuple[str, str]], **fields: object) -
     return base
 
 
+def stale_prompt(source: Path, wt: Path, number: int) -> str | None:
+    """Why the worktree's launch prompt is not the one rendered for this claim, else None.
+
+    The copy never overwrites a tracked file, so the worktree can hold an older,
+    possibly more permissive prompt than ``<source>/launch-prompt.md``.
+    """
+    rel = f".dev/issues/{number}/launch-prompt.md"
+    mine, theirs = source / "launch-prompt.md", wt / rel
+    bad = first_symlink(wt, theirs.parent)
+    try:
+        if bad is not None or theirs.is_symlink():
+            why = f"{bad or theirs} is a symlink"
+        elif not mine.is_file():
+            why = f"no prompt was rendered at {mine}"
+        elif not theirs.is_file():
+            why = "the file is missing there"
+        elif filecmp.cmp(mine, theirs, shallow=False):
+            return None
+        else:
+            why = f"it differs from {mine}"
+    except OSError as exc:
+        why = str(exc)
+    return (
+        f"{rel} in the worktree is not the launch prompt rendered for this claim "
+        f"({why}), so no agent was started: it would follow another prompt. Make "
+        f"that file match {mine} (a tracked copy needs git rm or git checkout), "
+        "then re-run the claim"
+    )
+
+
 def cmd_launch(args: argparse.Namespace) -> int:
     source, number = Path(args.source), args.number
     failed = "W-LAUNCH-FAILED"
@@ -901,6 +931,9 @@ def cmd_launch(args: argparse.Namespace) -> int:
                 launched_at=at or None,
             )
         )
+    stale = stale_prompt(source, Path(wt), number)
+    if stale:
+        return emit(launch_result("failed", [(failed, stale)]))
     hook = enforcement_status()
     notes: list[tuple[str, str]] = []
     word = "full-submit" if args.submit else args.level

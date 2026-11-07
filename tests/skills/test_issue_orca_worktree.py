@@ -999,6 +999,10 @@ def launch_scene(
     (issue_dir / "worktree.json").write_text(
         json.dumps({"path": str(wt), "status": "created"})
     )
+    # the prompt rendered for this claim, already present in the worktree
+    (issue_dir / "launch-prompt.md").write_text("the rendered prompt\n")
+    (wt / ".dev/issues/302").mkdir(parents=True, exist_ok=True)
+    (wt / ".dev/issues/302/launch-prompt.md").write_text("the rendered prompt\n")
     fake.respond("agent-launch", {"stdout": LAUNCH_OK})
     fake.respond("terminal-read", {"stdout": SCREEN_OK})
     if hook:
@@ -1348,11 +1352,15 @@ def test_launch_creates_no_file_in_the_worktree_or_the_source_directory(
     fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
 ) -> None:
     wt = launch_scene(fake_orca, git_repo, issue_dir)
-    before = (tree_listing(wt), tree_listing(issue_dir))
+    before = (
+        tree_listing(wt),
+        tree_listing(issue_dir),
+        git(wt, "status", "--porcelain"),
+    )
     run_launch(fake_orca, git_repo, issue_dir)
     assert tree_listing(wt) == before[0]
     assert tree_listing(issue_dir) == before[1]
-    assert git(wt, "status", "--porcelain") == ""
+    assert git(wt, "status", "--porcelain") == before[2]
 
 
 def test_arg1_launch_bad_arguments_exit_2(fake_orca: FakeOrca, issue_dir: Path) -> None:
@@ -1576,11 +1584,15 @@ def test_pr425_round2_prompt_is_rendered_again_for_a_replacement_worktree(
     out = issue_dir / "launch-prompt.md"
     out.write_text("old full and submit prompt\n")
     git(git_repo, "worktree", "remove", "--force", str(old))
-    created_scene(fake_orca, git_repo, name="issue-302-2")
-    assert run_wt(fake_orca, git_repo, issue_dir)["status"] == "created"
+    # the claim renders the prompt (Wave 5) before it creates the worktree (Wave 7)
     data = run_prompt(issue_dir, out, git_repo, fake_orca.env())
     assert data["status"] == "written"
     assert "old full and submit prompt" not in out.read_text()
+    created_scene(fake_orca, git_repo, name="issue-302-2")
+    assert run_wt(fake_orca, git_repo, issue_dir)["status"] == "created"
+    assert (
+        run_launch(fake_orca, git_repo, issue_dir, "worktree")["status"] == "launched"
+    )
 
 
 def test_pr425_round2_prompt_without_a_launch_entry_is_written(
@@ -1591,3 +1603,75 @@ def test_pr425_round2_prompt_without_a_launch_entry_is_written(
     out.write_text("stale\n")
     assert run_prompt(issue_dir, out, git_repo, fake_orca.env())["status"] == "written"
     assert out.read_text() != "stale\n"
+
+
+def no_launch_happened(fake: FakeOrca, source: Path) -> bool:
+    pending = pending_dir(fake)
+    return (
+        not launch_calls(fake)
+        and not (pending.exists() and list(pending.iterdir()))
+        and "launch" not in read_record(source)
+    )
+
+
+def test_pr425_round3_a_tracked_older_prompt_blocks_the_launch(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    wt = launch_scene(fake_orca, git_repo, issue_dir)
+    old = wt / ".dev/issues/302/launch-prompt.md"
+    old.write_text("old prompt: implement, commit and push\n")
+    git(wt, "add", ".dev/issues/302/launch-prompt.md")
+    git(wt, "commit", "-m", "track an older prompt")
+    (issue_dir / "launch-prompt.md").write_text("new prompt: stop at the plan\n")
+    fake_orca.respond("worktree-list", {"stdout": listing(main_row(git_repo), row(wt))})
+    copied = run_wt(fake_orca, git_repo, issue_dir)
+    assert copied["status"] == "reused" and "launch-prompt.md" in copied["detail"]
+    data = run_launch(fake_orca, git_repo, issue_dir, "worktree")
+    assert data["status"] == "failed" and data["warning"] == "W-LAUNCH-FAILED"
+    assert "launch-prompt.md" in data["detail"] and "re-run the claim" in data["detail"]
+    assert data["hand_command"] is None
+    assert old.read_text() == "old prompt: implement, commit and push\n"
+    assert no_launch_happened(fake_orca, issue_dir)
+
+
+def test_pr425_round3_an_untracked_older_prompt_blocks_the_launch_too(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    wt = launch_scene(fake_orca, git_repo, issue_dir)
+    (wt / ".dev/issues/302/launch-prompt.md").write_text("an older prompt\n")
+    data = run_launch(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "failed" and "differs" in data["detail"]
+    assert no_launch_happened(fake_orca, issue_dir)
+
+
+def test_pr425_round3_a_missing_prompt_blocks_the_launch(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    wt = launch_scene(fake_orca, git_repo, issue_dir)
+    (wt / ".dev/issues/302/launch-prompt.md").unlink()
+    assert run_launch(fake_orca, git_repo, issue_dir)["status"] == "failed"
+    assert no_launch_happened(fake_orca, issue_dir)
+
+
+def test_pr425_round3_a_source_without_a_rendered_prompt_blocks_the_launch(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    launch_scene(fake_orca, git_repo, issue_dir)
+    (issue_dir / "launch-prompt.md").unlink()
+    data = run_launch(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "failed" and "no prompt was rendered" in data["detail"]
+    assert no_launch_happened(fake_orca, issue_dir)
+
+
+def test_pr425_round3_a_symlinked_prompt_blocks_the_launch(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, tmp_path: Path
+) -> None:
+    wt = launch_scene(fake_orca, git_repo, issue_dir)
+    elsewhere = tmp_path / "elsewhere.md"
+    elsewhere.write_text("the rendered prompt\n")  # same bytes, still refused
+    target = wt / ".dev/issues/302/launch-prompt.md"
+    target.unlink()
+    target.symlink_to(elsewhere)
+    data = run_launch(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "failed" and "symlink" in data["detail"]
+    assert no_launch_happened(fake_orca, issue_dir)

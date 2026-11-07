@@ -120,7 +120,7 @@ Read the one JSON object it prints: `status` (`launched`, `already_launched` or 
 
 | Code | Remedy line |
 |---|---|
-| `W-LAUNCH-FAILED` | re-run the claim; the hand command is printed for reference (an agent started by hand is not governed by the hook) |
+| `W-LAUNCH-FAILED` | re-run the claim; the hand command is printed for reference (an agent started by hand is not governed by the hook). When the `detail` says the worktree's `launch-prompt.md` is not the one rendered for this claim, no agent was started and no hand command is printed: make that file match `<D>/launch-prompt.md` first, a re-run alone fails again |
 | `W-LAUNCH-NOT-CCSESSION` | this agent is NOT behind the ccsession shim, or could not be verified; close it. Orca's Claude command must be the ccsession-orca wrapper |
 | `W-ENFORCEMENT-ABSENT` | the level is an instruction in the prompt only until the launch-level hook (#394) ships; do not use `full` or `--submit` on a real issue yet |
 
