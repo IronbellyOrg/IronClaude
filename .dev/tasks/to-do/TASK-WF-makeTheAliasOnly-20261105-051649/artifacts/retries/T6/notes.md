@@ -1,4 +1,0 @@
-40950c4008013a396f395a09d8206bc392d6458a
-A5 r5-1 F5.1 note docs/reference/model-aliases.md:60 ac=T6.AC1 y,n,n,n anchor quote 'recommend best_model values stay unchanged because the aliases stay' is task-brief text and is not byte-present in T6.AC1, so the anchor failed the Read-back; the bullet names step ids and eval lists but not best_model (not edited)
-superseded A1 r1-1 F1.2 minor docs/reference/model-aliases.md:65 ac=scope n,n,n,n the page omits the docs' family-alias edge case (a family alias can resolve to the main session's exact model when it is in that family); an omission, not edited
-superseded A4 r4-2 F4.3 minor docs/reference/model-aliases.md:60 ac=T6.AC1 n,n,n,n the closing 'so their names stay as they are' refers grammatically only to the eval model lists; best_model is not named (not edited)

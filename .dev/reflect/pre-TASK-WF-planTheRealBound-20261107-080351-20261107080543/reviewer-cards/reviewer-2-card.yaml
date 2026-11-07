@@ -1,0 +1,47 @@
+reviewer: 2
+persona: qa
+model_class: haiku
+calibration_self_report: 0.94
+findings:
+  - id: QA-1
+    severity: medium
+    type: contradiction
+    claim: "PASS is unreachable even if every planned experiment succeeds: Task 5 keeps release and PID-reuse evidence controlled while Task 8 forbids PASS whenever any required case is controlled."
+    citation: "plan lines 79, 114, 119"
+    recommendation: "Define the required evidence class per case before execution; keep the real-observation gate for lifecycle cases and either add the real experiments or state this bounded plan cannot establish PASS."
+  - id: QA-2
+    severity: medium
+    type: contradiction
+    claim: "Task 4 asks for an 'ordinary' Bash call inside a governed session; under the merged adapter another Bash event with that governed session id is also wrapped."
+    citation: "plan line 66; docs/designs/sc-issue-launch-level-hook.md:551"
+    recommendation: "Specify whether the observer is another governed call or a separate ordinary session; account for any extra launch in the run cap."
+  - id: QA-3
+    severity: high
+    type: fabricable-evidence
+    claim: "Task 3's decisive-case criteria can accept two sequential selector snapshots or a different controller process; they do not require proof that the old child stayed alive during the ordinary command or that the ordinary command came from the reused Claude process."
+    citation: "plan lines 58-60; docs/designs/sc-issue-launch-level-hook.md:504"
+    recommendation: "Require linked captures of both selector results in one overlap interval, the old child's PID/start identity and the unchanged controller identity; otherwise unavailable and F2.2 stays open."
+  - id: QA-4
+    severity: medium
+    type: contradiction
+    claim: "The unavailable path cannot complete the plan: Constraints allow a nested-launch refusal or missing authentication, but Task 2 requires successful governed and ordinary results and Task 7 requires numerical depths from real runs, with no unavailable branch."
+    citation: "plan lines 22, 47, 104"
+    recommendation: "Add explicit unavailable acceptance branches backed by the redacted refusal result and ledger; let the report proceed with FAIL."
+  - id: QA-5
+    severity: medium
+    type: fabricable-evidence
+    claim: "Several criteria require summaries of selector results without linking captured selector output; the run-status ledger records exit status, not responses."
+    citation: "plan lines 31, 47, 82, 93"
+    recommendation: "Require each result row to reference a runner-generated redacted selector-output record tied to a run id; keep hook-generated push records and machine-captured refs."
+  - id: QA-6
+    severity: medium
+    type: other
+    claim: "The plan does not cover the full process-tree requirement it adopts: design 19.1 requires main/subagent/nested/background-to-Git and hook process trees including the launch wrapper; Task 7 asks only for Claude-to-Bash depth and Task 8's list omits the launch wrapper."
+    citation: "docs/designs/sc-issue-launch-level-hook.md:504; plan lines 93, 104, 114"
+    recommendation: "Require redacted process-topology captures per supported path or an unavailable result, and add the wrapper case to the report."
+calibration:
+  calibrator: confidence-calibrator (opus class), blind, citations checked by Read
+  calibrated_confidence: 0.70
+  dimensions: {citation_grounding: 0.92, coverage_completeness: 0.60, deviation_classification_clarity: 0.45, risk_surface_coverage: 0.80, recommendation_actionability: 0.75}
+  escalation: ESCALATE (C below 0.85)
+  calibrator_diversity: degraded
