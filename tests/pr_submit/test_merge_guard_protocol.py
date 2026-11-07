@@ -785,3 +785,46 @@ def test_the_user_guides_document_the_flag_the_clear_command_and_the_open_gate()
         if line.startswith("| `--")
     ]
     assert names.index("`--merge-guard`") == names.index("`--conflict-max-tier`") + 1
+
+
+# --- resume row 4 branches on the held cycle's push kind (review finding) ----------
+
+
+def test_resume_row_4_sends_a_ci_cycle_to_the_ci_wait_and_not_to_the_re_trigger():
+    """A crashed CI-fix cycle must not post review re-trigger comments: Wave 8 forbids it
+    and crash recovery routes a landed `ci` push to the Wave 8 CI wait."""
+    from superclaude.pr_submit.conflicts import crash_resume_plan
+    from superclaude.pr_submit.models import MonitorState
+
+    row = next(
+        line
+        for line in _command_section_free_resume().splitlines()
+        if line.startswith("| 4 |")
+    )
+    row = " ".join(row.split())
+    assert "branch on the held cycle's push kind" in row
+    assert "A `fix` cycle runs the S5a logic of `refs/review-retrigger.md`" in row
+    assert "A `ci` cycle posts no re-trigger, reply or resolve" in row
+    assert "`wave8_ci_wait` plan of `crash_resume_plan`" in row
+    sha = "a" * 40
+    ci = {
+        "kind": "ci",
+        "cycle_id": "ci-1",
+        "target_sha": sha,
+        "review_terminal": "clean",
+        "expect_checks": True,
+    }
+    plan = crash_resume_plan(ci, "landed", MonitorState.S5A_RETRIGGER_REVIEW)
+    assert plan.directive == "wave8_ci_wait"
+    fix = crash_resume_plan(
+        {"kind": "fix", "cycle_id": "fix-1", "target_sha": sha},
+        "landed",
+        MonitorState.S5A_RETRIGGER_REVIEW,
+    )
+    assert fix.directive == "fsm" and fix.state == MonitorState.S5A_RETRIGGER_REVIEW
+
+
+def _command_section_free_resume() -> str:
+    text = _text()
+    start = text.index("## 7. Resume")
+    return text[start:]
