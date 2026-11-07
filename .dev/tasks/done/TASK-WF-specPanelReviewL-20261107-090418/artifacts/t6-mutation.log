@@ -1,0 +1,7 @@
+backup: .dev/tasks/to-do/TASK-WF-specPanelReviewL-20261107-090418/artifacts/spec-panel.md.backup
+occurrences before: 1
+occurrences after mutation: 0
+FAILED tests/skills/test_spec_panel_review_loop.py::test_t7_spec_review_fixes[t7-no-first-review-src/superclaude/commands/spec-panel.md]
+========================= 1 failed, 45 passed in 0.11s =========================
+restore: cmp identical (exit 0)
+occurrences after restore: 1

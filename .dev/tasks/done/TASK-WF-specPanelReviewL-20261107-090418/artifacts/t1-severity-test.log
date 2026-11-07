@@ -1,0 +1,12 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-346-review-loop-convergence
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 62 items
+
+tests/skills/test_review_severity_rule.py .............................. [ 48%]
+................................                                         [100%]
+
+============================== 62 passed in 2.94s ==============================

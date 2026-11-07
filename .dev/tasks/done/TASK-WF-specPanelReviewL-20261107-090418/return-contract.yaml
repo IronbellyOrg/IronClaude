@@ -1,0 +1,14 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-specPanelReviewL-20261107-090418
+plan_path: ./TASK-WF-specPanelReviewL-20261107-090418.md
+source_path: ./source.md
+source_origin: docs/designs/spec-panel-review-loop.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-346-review-loop-convergence/.dev/reflect/pre-specPanelReviewL-20261107090643/REPORT.md
+unresolved:
+  - "advisory reflect --mode pre returned FAIL: Task 5 (plan line 74) and Task 7 (plan line 102) acceptance criteria cannot be satisfied at the final review; replacement text is in the reflect report folder (adversarial-run/merged-output.md, B1 and B2). The plan was not edited by the workflow."

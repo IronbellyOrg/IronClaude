@@ -1,0 +1,25 @@
+== make sync-dev
+   Skills:    39 directories
+   Agents:    48 files
+   Commands:  46 files
+   Hooks:     14 files
+   Templates: 52 files
+sync-dev exit=0
+== make verify-sync
+
+=== Installer Registration ===
+  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+verify-sync exit=0
+== make lint
+Running linter...
+uv run ruff check .
+All checks passed!
+lint exit=0
+== pinned ruff format check (ruff 0.15.20)
+1 file already formatted
+format-check exit=0

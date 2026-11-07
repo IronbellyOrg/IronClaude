@@ -1,0 +1,14 @@
+# git diff --name-only HEAD -- . ':!.dev' exit=0
+# git ls-files --others --exclude-standard -- . ':!.dev' exit=0
+# combined sort -u:
+docs/designs/spec-panel-review-loop.md
+docs/guides/prd-skill-release-guide.md
+docs/guides/tdd-skill-release-guide.md
+plugins/superclaude/commands/spec-panel.md
+plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md
+src/superclaude/commands/spec-panel.md
+src/superclaude/core/HOW-WE-WORK.md
+tests/skills/test_spec_panel_review_loop.py
+# git diff --cached --name-only -- .claude (exit follows, output between markers):
+<<<
+>>> exit=0

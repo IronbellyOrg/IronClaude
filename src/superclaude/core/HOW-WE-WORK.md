@@ -62,7 +62,7 @@ Use this when people need to agree on *what* is being built and *how* before any
 
 3. **Get an expert critique of the PRD.**
    `/sc:spec-panel @docs/billing/PRD_BILLING.md --mode critique --focus requirements`
-   A panel of named software-requirements experts judges whether the requirements are measurable, testable, and complete. It only reports. Decide which findings to accept, ask Claude to apply them to the PRD, then run the same command again until no critical findings remain.
+   A panel of named software-requirements experts judges whether the requirements are measurable, testable, and complete. It only reports. Decide which findings to accept, save a copy of the PRD, ask Claude to apply them to the PRD, then run it again with `--re-review <this report> --baseline <the saved copy>`; stop after 2 fix cycles (3 reviews) and decide with the open blocking findings.
 
 4. **Write the technical design document (TDD) from the PRD.** The TDD defines *how* it will be built: architecture, data, interfaces, testing, and migration.
    `/tdd "Create a TDD for the billing service from docs/billing/PRD_BILLING.md. Relevant code: src/billing/, src/api/metering/. Output to docs/billing/TDD_BILLING.md."`

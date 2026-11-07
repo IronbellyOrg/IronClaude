@@ -490,7 +490,7 @@ Produces a comprehensive PRD at `docs/docs-product/tech/[feature]/PRD_[FEATURE].
 /sc:spec-panel @<PRD path> --mode critique --focus requirements
 ```
 
-It only reports. Decide which findings to accept, ask Claude to apply them to the PRD, then run the same command again until no critical findings remain.
+It only reports. Decide which findings to accept, save a copy of the PRD, ask Claude to apply them to the PRD, then run it again with `--re-review <this report> --baseline <the saved copy>`; stop after 2 fix cycles (3 reviews) and decide with the open blocking findings.
 
 ### Stage B: TDD (technical design)
 
