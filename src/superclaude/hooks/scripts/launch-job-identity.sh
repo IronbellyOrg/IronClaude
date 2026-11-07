@@ -138,16 +138,18 @@ def subdir(root, name, create=False):
 
 
 def read_file(parent, name, consume=False):
+    # Only requests are consumed; allow sixfold JSON escaping plus bounded metadata.
+    limit = 6 * 32768 + 1024 if consume else LIMIT
     fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
     try:
         if consume:
             fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
         st = os.fstat(fd)
         private(st)
-        if st.st_nlink != 1 or st.st_size > LIMIT:
+        if st.st_nlink != 1 or st.st_size > limit:
             raise ValueError('invalid state file')
-        data = os.read(fd, LIMIT + 1)
-        if len(data) > LIMIT:
+        data = os.read(fd, limit + 1)
+        if len(data) > limit:
             raise ValueError('oversized state')
         if consume:
             current = os.stat(name, dir_fd=parent, follow_symlinks=False)

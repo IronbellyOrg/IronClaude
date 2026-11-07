@@ -151,6 +151,46 @@ def test_child_restores_python_ignored_signals(job, mode):
     assert not job.records()
 
 
+@pytest.mark.parametrize("mode", ["run", "execute"])
+@pytest.mark.parametrize(
+    "char",
+    ["😀", "é", "\x01", '"', "\\"],
+    ids=["emoji", "bmp", "control", "quote", "slash"],
+)
+def test_maximum_command_survives_json_expansion(job, mode, char):
+    sid, tool = "s" * 128, "t" * 128
+    job.bind(sid)
+    prefix = "printf request-ok; # "
+    command = prefix + char * ((32768 - len(prefix.encode())) // len(char.encode()))
+    assert 32765 <= len(command.encode()) <= 32768
+    if mode == "run":
+        prepared = job.call("prepare", sid, command, tool)
+        assert prepared.returncode == 0, prepared.stderr
+        result = job.call("run", prepared.stdout.strip())
+    else:
+        result = job.call("execute", sid, tool, command)
+    assert (result.returncode, result.stdout, result.stderr) == (0, "request-ok", "")
+    assert not job.records()
+    assert not list((job.root / "requests").iterdir())
+
+
+@pytest.mark.parametrize("char", ["😀", "é"], ids=["emoji", "bmp"])
+def test_hook_unicode_command_survives_request_serialization(job, char):
+    prefix = "printf request-ok; # "
+    command = prefix + char * ((32768 - len(prefix.encode())) // len(char.encode()))
+    result = job.call(input=json.dumps(hook_event(command), ensure_ascii=False))
+    assert result.returncode == 0, result.stderr
+    output = json.loads(result.stdout)["hookSpecificOutput"]
+    assert "permissionDecision" not in output
+    executed = execute_rewritten(job, output["updatedInput"])
+    assert (executed.returncode, executed.stdout, executed.stderr) == (
+        0,
+        "request-ok",
+        "",
+    )
+    assert not job.records()
+
+
 @pytest.mark.parametrize(
     "sid,content",
     [
@@ -237,7 +277,7 @@ def test_bad_requests_never_execute(job, tmp_path, damage):
         if damage == "json":
             path.write_text("{")
         elif damage == "oversize":
-            path.write_text("x" * 65537)
+            path.write_text("x" * (6 * 32768 + 1025))
         elif damage == "mode":
             path.chmod(0o644)
         else:
@@ -252,6 +292,8 @@ def test_bad_requests_never_execute(job, tmp_path, damage):
             path.write_text(json.dumps(data))
     assert job.call("run", token).returncode == 2
     assert not marker.exists()
+    if damage == "oversize":
+        assert path.exists()  # rejected by the size guard before consumption
     assert job.call("run", "../../invalid").returncode == 2
 
 
