@@ -1,0 +1,11 @@
+selected_tier: 2
+fired_rule_number: 6        # C < 0.85 (0.73); the parse-density pre-filter (coverage_degraded) independently forbids a Tier 1 stop
+coverage_degraded: parsed-sparse   # strict Pass 1 found 0 labelled IDs (F-n and INV-n do not match ID_REGEX); 28 inferred rows
+surface_unreached: null
+composite_score: 3
+per_signal_breakdown: {scope_size: 1, task_count: 1, blast_radius: 0, spec_density: 1, ambiguity_signals: 0}
+escalation_reason: "Blind calibrated confidence 0.73 is below the 0.85 floor, and the sparse-labels guard (inferred_count 28 > parsed_count 0) forbids the Tier 1 stop."
+t2_model_class_diversity: full      # three aliases set: sonnet, opus, and the haiku slot (glm-5.3)
+t2_vendor_diversity: multi
+executor_class_source: unknown
+executor_class_resolved: false

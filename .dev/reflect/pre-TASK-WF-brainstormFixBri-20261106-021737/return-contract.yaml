@@ -1,0 +1,102 @@
+contract_version: "1.8.0"
+status: partial   # debate invariant gate blocked (INV-019 open in the plan) and three debate points unresolved
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-021737/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-021737/audit.log
+confidence_calibrated: 0.73
+escalation_rule_matched: 6
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null
+coverage_pct_union: 0.8214
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-002, INF-007, INF-009, INF-018, INF-022]   # unmatched by wording; manual review found them covered or deliberately narrowed (see REPORT.md)
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# Input integrity
+input_sha256: {tasklist: 3766ca517a3f095d55618dec2282f03b318daa1c27c2c978ddceb5d8699abb13, spec: ee73890e14600c77ef6e785ff6912a4d7832c647e87b57118abff3291feb1c62}
+input_tree_sha256: 503dc440de2f5d305e931d52f53c4fdf1c6c5cdc4ac6606be38ec86e0aeb1492
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-021737/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 49
+citations_revalidated: 47
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 3
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-021737/reviewer-cards/reviewer-1-card.yaml, /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-021737/reviewer-cards/reviewer-2-card.yaml, /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-021737/reviewer-cards/reviewer-3-card.yaml]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-021737/adversarial
+adversarial_convergence_score: 0.885
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true      # INV-019 is open in the plan until the owner amends brief Part 4; INV-021 and INV-020 are owner items
+needs_human_decision: false       # no grounding-gaps.yaml was produced
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion (UC-2 only)
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+# Telemetry (non-stable)
+telemetry:
+  degraded_components: [executor-class-unresolved, calibrator-diversity, codegraph-not-used, parsed-sparse-labels]
+  executor_class_source: unknown
+  executor_class_resolved: false
+  reviewer_models: [sonnet, haiku-slot-glm-5.3, opus]
+  reviewer_personas: [analyzer, qa, refactorer]
+  memory_hits: 0
+  memory_misses: 0
+  memory_note: "Wave 0 step 0.7 memory hydrate and the Wave 5 memory writes were not performed in this run."
+  advocate_substitution: "Round 1 advocate 2 ran on sonnet because the haiku slot was too slow."

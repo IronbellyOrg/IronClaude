@@ -1,0 +1,273 @@
+=== src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:181-200
+   181	**Behavioral Instructions**:
+   182	
+   183	1. **Enrichment routing matrix** (apply in parallel via `Task` agents):
+   184	
+   185	   | Condition | Action | Output |
+   186	   |-----------|--------|--------|
+   187	   | `domain ∈ {code, architecture, incident}` AND NOT `--no-codebase` | Invoke `/sc:analyze <relevant-paths> --focus quality --depth quick` OR `mcp__auggie__codebase-retrieval` for quick scan | `enrichment/codebase-context.md` |
+   188	   | `--codebase` (forced) | Same as above regardless of domain | Same |
+   189	   | `--research light` OR (auto: topic mentions framework/library names not in project) | Invoke `Skill sc-research-protocol` with `--depth quick` (or `/sc:research` if standalone) | `enrichment/research-light.md` |
+   190	   | `--research deep` OR (auto: `--strategy enterprise` + novel topic) | Invoke `Skill tech-research` with topic | `enrichment/research-deep.md` |
+   191	   | Otherwise | Skip enrichment | — |
+   192	
+   193	   Research depth/params are owned by `/sc:research` and `tech-research` — see RESEARCH_CONFIG.md; brainstorm selects the route only.
+   194	
+   195	   **Under `--unattended`**: the two research rows are skipped, also for an explicit `--research light` or `--research deep` (recorded in `enrichment_used` with `quality_tier: skipped`). The codebase row invokes `/sc:analyze` with `--unattended --report-dir <report-dir>/nested/analyze-<n>/` (`<n>` starts at 1); the `mcp__auggie__codebase-retrieval` alternative is unchanged and writes no nes
+   196	
+   197	2. **Quality-tier tracking** (mandatory per enrichment source):
+   198	   - `primary` — first-choice source ran cleanly
+   199	   - `fallback_1` — primary failed, used codegraph and native Glob/Grep (codebase) or WebSearch (research)
+   200	   - `skipped` — enrichment not invoked
+=== src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:368-390
+   368	adversarial_artifacts_dir: <path> | null
+   369	domain: code | architecture | product | process | incident | research
+   370	proposal_count: <int>
+   371	enrichment_used:
+   372	  - source: codebase | research-light | research-deep
+   373	    quality_tier: primary | fallback_1 | skipped
+   374	handoff_action: none | design | tasklist | task
+   375	handoff_output_path: <path> | null
+   376	unresolved_conflicts: [<list of strings>]
+   377	```
+   378	
+   379	### Worker fields (only with `--unattended`)
+   380	
+   381	Added beside the fields above in `<output>/return-contract.yaml` (with `--report-dir`: written to `<report-dir>/return-contract.yaml`, which lists the own contract in `artifacts`), on every outcome:
+   382	
+   383	```yaml
+   384	worker_contract_version: "1"
+   385	worker_status: succeeded | partial | failed
+   386	command: <the exact command line>
+   387	report_path: <output>/merged-requirements.md | null   # null when the merge was not reached, and on dry-run
+   388	artifacts: [<every other file written, adversarial_artifacts_dir, the nested contracts>]
+   389	reason: <the STOP or refused flag>                     # only when failed
+   390	```
+=== src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md:12-36
+    12	
+    13	- `domain ∈ {code, architecture, incident}` AND NOT `--no-codebase`, OR
+    14	- `--codebase` (forced) regardless of domain
+    15	
+    16	**Tier 1 (primary)**: `mcp__auggie__codebase-retrieval`
+    17	
+    18	- Two parallel queries (per existing brainstorm v1 pattern):
+    19	  - Query 1: `"{topic} - find relevant code, existing implementations, related components, and integration points"`
+    20	  - Query 2: `"Project architecture, structure, patterns, and conventions related to {topic_domain_area}"`
+    21	- Output budget: ~800-1200 tokens summary per query
+    22	- quality_tier: `primary`
+    23	
+    24	**Tier 2 (fallback_1)**: codegraph, then native Glob/Grep
+    25	
+    26	- codegraph first (Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`)): run the guide's readiness check once; only when `index_state` is `fresh` and the tools are listed, call `codegraph_files {format: "grouped", maxDepth: 2, path: <relevant dir>, projectPath}` on the relevant directories 
+    27	- Glob for files matching topic keywords
+    28	- Grep for symbol/entity names mentioned in topic (for a named function or class, Grep for `def name|class name|function name`, then Read the range)
+    29	- Output budget: ~300-500 tokens (raw file list + grep hits)
+    30	- quality_tier: `fallback_1`
+    31	- Activation: if Tier 1 returns error OR empty result
+    32	
+    33	**Final fallback**: skip enrichment, set quality_tier: `skipped`, log to seed-brief Note section.
+    34	
+    35	### Research enrichment (light)
+    36	
+=== src/superclaude/commands/brainstorm.md:150-160
+   150	The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This section lists only what `/sc:brainstorm` resolves itself. `<report-dir>` below is the one report directory the caller passes.
+   151	
+   152	- **Switch.** It applies only when `--unattended` is a standalone argument token outside any quoted argument (the topic is a quoted argument); otherwise nothing here applies and no worker contract is written.
+   153	- **Report directory.** Exactly one of `--output <dir>` (short form `-o`) or `--report-dir <dir>`; both, or neither, is refused before any work. A directory the caller passes is used exactly as passed, never with the usual `-N` suffix. One that already holds a `return-contract.yaml`, one inside `.git/` or `.codegraph/`, one under the distributable skill, agent or command folders of a `.clau
+   154	- **Contract.** With `--output` the worker fields are added to the command's own `<output>/return-contract.yaml` beside every existing field, its own `status` included. With `--report-dir` the worker contract is a separate `<report-dir>/return-contract.yaml` that lists the own contract in `artifacts`. It is written on every other outcome, including each stop of Wave 0 of the skill (the stop
+   155	- **Person-mode flags.** `--interactive` and its short form `-i` are refused before any work (contract `worker_status: failed`, the flag in `reason`). The Socratic dialogue proceeds on the best available context, and there is no other gate.
+   156	- **Research.** Under `--unattended`, research enrichment is off: the automatic route and an explicit `--research light` or `--research deep` are skipped, each recorded in `enrichment_used` with `quality_tier: skipped`.
+   157	- **Nested invocations.** The `/sc:analyze` codebase enrichment receives `--unattended --report-dir <report-dir>/nested/analyze-<n>/`, and the Wave 3 adversarial call receives `--unattended --output <report-dir>/nested/adversarial-<n>/` in place of `<output>/adversarial/`. `adversarial_artifacts_dir` and the nested contracts are listed in `artifacts`. `<n>` starts at 1 for each nested comma
+   158	- **Handoffs.** The `tasklist` and `task` handoffs are skipped and recorded: `status: partial` with one line in `unresolved_conflicts` (their skills do not accept the flag at this phase), and the Wave 0 check that their skills are installed is skipped too. The `design` and `none` handoffs are unchanged.
+   159	- **Outward actions.** It pushes, commits and stages nothing.
+   160	
+=== tests/skills/test_brainstorm_protocol.py:1-50
+     1	"""Drift guard for the sc:brainstorm protocol (Cluster C4).
+     2	
+     3	The Wave-2A enrichment matrix must ROUTE to the research engine only — it must not
+     4	duplicate Tavily params or name the map/crawl tools (X5/X6). CI-safe.
+     5	"""
+     6	
+     7	import re
+     8	from pathlib import Path
+     9	
+    10	_REPO = Path(__file__).resolve().parents[2]
+    11	_BRAINSTORM = (
+    12	    _REPO / "src" / "superclaude" / "skills" / "sc-brainstorm-protocol" / "SKILL.md"
+    13	)
+    14	
+    15	_FORBIDDEN = [
+    16	    "search_depth:",
+    17	    "extract_depth:",
+    18	    "max_results:",
+    19	    "tavily-map",
+    20	    "tavily-crawl",
+    21	]
+    22	
+    23	
+    24	def _wave2a_section() -> str:
+    25	    text = _BRAINSTORM.read_text(encoding="utf-8")
+    26	    parts = re.split(r"###\s*Wave 2A", text, maxsplit=1)
+    27	    assert len(parts) == 2, "brainstorm SKILL missing the 'Wave 2A' section"
+    28	    # Up to the next '### Wave ' heading.
+    29	    return re.split(r"\n###\s*Wave ", parts[1], maxsplit=1)[0]
+    30	
+    31	
+    32	def _wave_section(n: str) -> str:
+    33	    text = _BRAINSTORM.read_text(encoding="utf-8")
+    34	    parts = re.split(rf"###\s*Wave {n}\b", text, maxsplit=1)
+    35	    assert len(parts) == 2, f"brainstorm SKILL missing the 'Wave {n}' section"
+    36	    return re.split(r"\n###\s*Wave ", parts[1], maxsplit=1)[0]
+    37	
+    38	
+    39	def test_brainstorm_unattended_nested_directories_are_named():
+    40	    """Under --unattended the nested calls get their own directories (P1 worker contract)."""
+    41	    wave3 = _wave_section("3")
+    42	    assert "--unattended" in wave3 and "nested/adversarial-" in wave3
+    43	    wave2a = _wave2a_section()
+    44	    assert "nested/analyze-" in wave2a and "skipped" in wave2a
+    45	    assert "exactly as passed" in _wave_section("0")
+    46	    refs = _BRAINSTORM.parent / "refs" / "handoff-routing.md"
+    47	    assert "nested/adversarial-" in refs.read_text(encoding="utf-8")
+    48	
+    49	
+    50	def test_brainstorm_no_tavily_param_duplication():
+=== tests/skills/test_worker_contract.py:284-296
+   284	        "nested": [],
+   285	    },
+   286	    "brainstorm": {
+   287	        "flags": ["--output", "-o", "--interactive", "-i"],
+   288	        "phrases": [
+   289	            "research enrichment is off",
+   290	            "exactly as passed",
+   291	            "never reused",
+   292	            "nested/analyze-",
+   293	            "nested/adversarial-",
+   294	            "dry-run",
+   295	        ],
+   296	        "nested": ["analyze", "adversarial"],
+=== tests/skills/test_worker_contract.py:700-726
+   700	    _check_unattended_section(text, ok)
+   701	    _check_unattended_section(text + " -i\n", _SYNTHETIC_EXPECT)
+   702	
+   703	
+   704	@pytest.mark.parametrize(
+   705	    "mutate",
+   706	    [
+   707	        lambda s: s.replace("return-contract.yaml", "the-file"),
+   708	        lambda s: s.replace("~/.claude/WORKER-CONTRACT.md", "the-contract"),
+   709	        lambda s: s.replace("--report-dir", "--dir"),
+   710	        lambda s: s.replace("alpha-gate", "beta"),
+   711	        lambda s: s.replace("nested/analyze-", "nested/other-"),
+   712	        lambda s: s + "See src/superclaude/skills/x.\n",
+   713	        lambda s: s + "Then run orca worktree create.\n",
+   714	    ],
+   715	    ids=[
+   716	        "no-contract-file",
+   717	        "no-contract-path",
+   718	        "no-report-dir",
+   719	        "no-phrase",
+   720	        "no-nested-name",
+   721	        "src-path",
+   722	        "orca-name",
+   723	    ],
+   724	)
+   725	def test_unattended_section_check_fails_on_synthetic_defects(
+   726	    tmp_path, monkeypatch, mutate
+=== tests/skills/test_codegraph_adoption.py:50-85
+    50	
+    51	
+    52	def _text(path: Path) -> str:
+    53	    return path.read_text(encoding="utf-8")
+    54	
+    55	
+    56	def _section(text: str, start: str, end_pattern: str) -> str:
+    57	    after = text.split(start, 1)
+    58	    assert len(after) == 2, f"missing anchor {start!r}"
+    59	    return re.split(end_pattern, after[1], maxsplit=1, flags=re.M)[0]
+    60	
+    61	
+    62	def _rel(path: Path) -> str:
+    63	    return str(path.relative_to(_REPO))
+    64	
+    65	
+    66	def test_validate_roadmap_step05_puts_codegraph_above_grep_and_never_skips():
+    67	    step = _section(_text(_VR_SKILL), "#### Step 0.5", r"^#### |^### ")
+    68	    assert "codegraph_search" in step and "Grep" in step
+    69	    assert step.index("codegraph_search") < step.index("call `Grep` for its definition")
+    70	    assert "skip" not in step.lower(), (
+    71	        "Step 0.5 must never skip where the Grep floor exists"
+    72	    )
+    73	
+    74	
+    75	def test_brainstorm_tier2_names_codegraph_files_and_search():
+    76	    tier2 = _section(
+    77	        _text(_BS_ROUTING), "**Tier 2 (fallback_1)**: codegraph", r"^\*\*Final fallback"
+    78	    )
+    79	    assert "codegraph_files" in tier2 and "codegraph_search" in tier2
+    80	    assert "Glob for files matching topic keywords" in tier2, (
+    81	        "native Glob/Grep floor must stay"
+    82	    )
+    83	
+    84	
+    85	def test_task_protocol_standard_step2_names_codegraph_callers():
+=== .dev/orca-command-refactor/specs/orca-worker-contract-spec.md:58-64
+    58	- **Report directory**: the directory that holds the worker contract (WC-4). Under `--unattended` the brief passes exactly one: either the command's own existing directory-valued output flag (`--output <dir>` or `--output-dir <dir>`), or the new flag `--report-dir <dir>` (for a command without such a flag, or a brief that does not pass it). An output flag a section 3 row adds is file-valued
+    59	- **Contract file**: one shared document, proposed as `src/superclaude/core/WORKER-CONTRACT.md`, installed to `~/.claude/WORKER-CONTRACT.md`. Core `.md` files install to `~/.claude/`: the installer copies every `*.md` in `core/` (`src/superclaude/cli/install_core.py:36,56,65-70`; `CLAUDE.md:83,408`). The new name is also added to `KNOWN_CORE_FILES` (`src/superclaude/cli/install_core.py:13-2
+    60	- **Brief guard** (worker session, from P1): it applies only in a session whose current prompt carries a live Orca preamble with Task and Dispatch IDs (see "Worker run"). Before invoking anything, the worker checks every `Command:` line of its brief (section 2.3, "Brief layout"), and only those lines. It decides case 3 from the command name alone. For the other cases it reads, as plain file
+    61	- **Never-as-worker list**: `/sc:agent`, `/sc:git`, `/sc:help`, `/sc:pm`, `/sc:spawn` and `/sc:swarm-wizard` (section 4), plus `/sc:pr-submit` while the answer to D3 keeps it off workers. The list changes only when section 4 or D3 changes, never per phase. If D3 adds a worker route for pr-submit, D3 also states how that route passes the brief guard.
+    62	- **Nested propagation rule**: under `--unattended`, a command that invokes another `/sc:` command or protocol skill, through the Skill tool or the Agent tool, passes `--unattended` when the invoked command accepts it at this phase, together with its own report directory `<caller report-dir>/nested/<command>-<n>/` (WC-4, WC-11). The caller lists the nested contract in its `artifacts`; only 
+    63	
+    64	### 2.2 Requirements
+=== .dev/orca-command-refactor/specs/orca-worker-contract-spec.md:280-305
+   280	
+   281	### 7.2 Live worker check (used by P0-P4)
+   282	For each command under test, the coordinator runs the steps below with one worker in a fresh disposable worktree that holds the phase's edits, so step 6 can attribute every change to the worker under test (WC-11 allows sharing a worktree in normal use; the check does not). Orca creates worktrees from a git base, and the phase's edits are uncommitted until the user asks (`CLAUDE.md:37`), so 
+   283	1. `ORCA orchestration task-create --spec "<brief per section 2.3>" --json`. Then either `ORCA orchestration worker-start --task <task_id> --worktree new-top-level --base-branch <branch> --setup run --agent claude --json`, when the setup is confirmed to run `make sync-dev`; or create the worktree first with `ORCA worktree create` from `<branch>`, run `make sync-dev` inside it, and start the
+   284	2. While it runs, `ORCA orchestration worker-show --dispatch <dispatch_id> --json` at least once per 5 minutes. **Pass:** `observation.agentWait` is never non-null (a non-null value means the worker is parked on a prompt only a person can answer, `CAPS:129`). Sampling can only find a wait, not prove there was none; step 3 adds the positive proof.
+   285	3. `ORCA orchestration check --wait --types "worker_done,escalation,question" --timeout-ms 900000 --json` until `worker_done` arrives. If the wait ends without one, read `ORCA orchestration worker-read --dispatch <dispatch_id> --source transcript --json`: a final agent turn that sent no `worker_done` is Orca's positive proof of a stall (`CAPS:126`), and the check fails; a transcript still g
+   286	4. Check the contract (PyYAML is a declared dependency, `pyproject.toml:38`). **Pass:** both commands exit 0. At P0, AC-0.4 replaces this step.
+   287	   ```sh
+   288	   test -s <contract>
+   289	   uv run python -c "import sys, yaml; d = yaml.safe_load(open(sys.argv[1])); assert d['worker_contract_version'] == '1'; assert d['worker_status'] in {'succeeded','partial','failed','blocked'}; assert d['command']; assert d['worker_status'] != 'blocked' or d.get('blocked_question')" <contract>
+   290	   ```
+   291	5. Check the worker's behaviour over the whole run. The primary source is the worker's own session file; `worker-read` is the cross-check for the end of the run (P0 found that `worker-read` returns only the last 40 to 50 messages of a long run and its cursor never ends, so it cannot show the start of a run; UNVERIFIED items 28-33).
+   292	   - **Source file.** For a Claude worker started on this machine the file is `~/.claude/projects/<dir>/<session id>.jsonl`, where `<dir>` is the worker's worktree path with each `/` replaced by `-`; each subagent's own file is under `~/.claude/projects/<dir>/<session id>/subagents/`. The disposable worktree is fresh, so `<dir>` must hold exactly one top-level `.jsonl` file; none or several
+   293	   - **Cross-check.** `ORCA orchestration worker-read --dispatch <dispatch_id> --source transcript --json`, page 1, then once more with the returned `cursor`. Record `contentComplete`, the time window page 1 covers, and whether the second page is empty. It must show the same final `check` call and the same `worker_done` as the session file, and tool calls by name (AC-0.6). If the two source
+   294	   - **Pass conditions, all read from the session file:**
+   295	     1. No `AskUserQuestion` call, in the top-level session or in any subagent session (WC-2).
+   296	     2. The command was run in the worker's top-level session, not inside an Agent-tool call (WC-7): the Skill or command call is a top-level message, not a subagent message.
+   297	     3. A `check` call appears after the command finished and before `worker_done` (WC-12).
+   298	     4. Heartbeats (WC-10), against the cadence in the worker's own dispatch preamble (5 minutes in Orca 1.4.237). Measure the time between consecutive heartbeats, from the brief to the first heartbeat, and from the last heartbeat to `worker_done`. Both limits must hold: (a) after removing the time during which any subagent of the worker was running or the worker was blocked in `ask` or `ch
+   299	     5. No `worker-start`, `dispatch` or `task-create` call and no `worktree create --agent` or `agent launch` call (WC-13), searching every Bash command of the top-level and all subagent sessions under any Orca binary name. Read-only calls through the Orca binary (for example `orca-ide skills get ...`, `orca-ide --version`, `orca-ide orchestration worker-list --json`) are not these calls a
+   300	   - **Not verifiable.** If the session file is missing, ambiguous, unreadable or contains no tool calls (it is Claude Code's format, not Orca's), conditions 1, 2, 4 and 5 are recorded `not verifiable`. Step 5 is then not passed, the live check is not recorded as passed, and the phase report lists the gap; the phase is not reported PASS until the owner accepts the gap in writing in the phas
+   301	   - A run shorter than the cadence passes condition 4 vacuously, so each phase report names at least one checked run that lasted longer than the cadence.
+   302	   - AC-0.6 (P0) confirmed that tool calls appear by name in `worker-read`; the session file records them as `tool_use` blocks with a `name`.
+   303	6. `git status --porcelain` in the disposable worktree. **Pass:** every path it prints that the phase did not edit is under the brief's output or report directory or is a documented artifact of the command. Ignored paths (tool caches, `.venv/`) are not checked.
+   304	7. `ORCA orchestration worker-release` for the settled worker, then `ORCA orchestration worker-list --run <run_id> --terminal-state reclaimable --json` returns no rows (`CAPS:107-113`).
+   305	
+=== .dev/orca-command-refactor/specs/orca-worker-contract-spec.md:440-445
+   440	5. Whether a depth-1 worker may call `task-create` (`CAPS:180`); WC-8 forbids it either way. Resolve: AC-0.7; WC-13 and the coordinator's Task-ownership rule forbid or ignore it either way.
+   441	6. Whether `/sc:business-panel --mode socratic`, `/sc:explain --format interactive` and `/sc:index`'s knowledge-base mode wait for a person (`INV-A:113`); section 3 refuses or pins them under `--unattended` regardless.
+   442	7. Whether the frontmatter defect in `cmd/business-panel.md:3-10` stops Claude Code loading the command (`INV-A:120`).
+   443	8. How `plugins/superclaude/commands/` (which holds copies such as `agent.md`, `analyze.md`, `brainstorm.md`) is kept in step with `src/superclaude/commands/`; `CLAUDE.md:76` names it as a mirror and `Makefile:68-74` builds plugin artefacts, but the update rule for a command edit was not read. Each phase's plan must resolve this before editing.
+   444	9. Whether `/sc:reflect` treats an Orca worker as headless; assumed not, because the headless signal is `claude --print` with no TTY (`sk/sc-reflect-protocol/refs/remediation-handoff.md:239-242`) and Orca launches Claude interactively with the prompt on the command line (`CAPS:47`).
+   445	10. The `ask` default timeout when `--timeout-ms` is omitted (`CAPS:68`); WC-3 relies on resuming by message ID, not on a value.
+=== .dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/lc10-result.md:1-20
+     1	# lc10 result: /sc:brainstorm
+     2	
+     3	- Worktree setup: PASS (`lc10-worktree.json`, `lc10-branch.txt` = ironbelly/p1-live-brainstorm, `lc10-sync-dev.txt`, `lc10-status-before.txt`; worktree HEAD equals `branch-tip.txt`)
+     4	- Section check: PASS (`lc10-unattended-check.txt`: brainstorm.md:1 brainstorm.md:1)
+     5	- Step 1: PASS (`lc10-step1.txt`: state ready, 38.505 s)
+     6	- Step 2: PASS (`lc10-step2-samples.txt`: 4 sample(s), all agentWait=null)
+     7	- Step 3: PASS (`lc10-step3.json`: 1 worker_done, outcome `succeeded` vs contract worker_status `partial`; report path `.dev/p1-live/brainstorm/return-contract.yaml` vs `.dev/p1-live/brainstorm/return-contract.yaml`; acknowledged in `lc10-step3-ack.json`)
+     8	- Step 4: PASS (`lc10-step4.txt`). Extra: FAIL. Extra as written FAILS in part. Holds: the contract keeps the command's own fields beside the worker fields (`contract_version`, `status: partial`, `seed_brief_path`, `merged_output_path`, `convergence_score`, `enrichment_used`, ...); research enrichment is recorded as skipped (`research-light` and `research-deep`, `quality_tier: skipped`); th
+     9	- Step 5: PASS (`lc10-step5.md`)
+    10	- Step 6: PASS (`lc10-step6.md`, `lc10-status-after.txt`, `lc10-index-after.txt`)
+    11	- Step 7: PASS (`lc10-step7.txt`)
+    12	- Remove: PASS (`lc10-remove.json`, `lc10-worktree-list-after.json`, `lc10-head-after.txt`, `lc10-branch-after.txt`)
+    13	- Step 5 condition 2 also covers the nested calls: the session file holds two top-level Skill calls (`sc:brainstorm-protocol` at 19:53:39.9 and, made by the command, `sc:adversarial-protocol` at 19:55:18.0), both with sidechain False; no nested `/sc:analyze` call was made. The run lasted 13.9 min (longer than the 5-minute heartbeat cadence); it is a checked run longer than the cadence for o
+    14	
+    15	Overall verdict: FAIL
+    16	
+    17	Recording status: complete (verdict recorded, not a task failure)

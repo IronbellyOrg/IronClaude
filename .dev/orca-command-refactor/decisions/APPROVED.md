@@ -70,3 +70,21 @@ Source: the owner's own words to the IronClaude orchestrator in session, 2026-11
 |---|---|
 | G1 | The owner's own instruction naming a local commit for the AC-1.8 Task, given in the session in any plain wording, is the quoted grant of WC-9 and D4. The brief copies it as given. No separate grant file is created and none is checked for. |
 | G2 | WC-9 and D4 are otherwise unchanged: the brief still quotes the owner's instruction, the worker still runs alone in its own child worktree, commits once with `git commit --only -- <paths>`, never pushes, never uses `--no-verify`. |
+
+## P1 closeout (owner decisions 2026-11-05, recorded 2026-11-07)
+Source: `.dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/p1-owner-decisions-20261105.md`, the owner's answers to the open items of `p1-phase-report.md` in the same folder. The phase report is unchanged and still reads `P1 verdict: FAIL`; these rows record why the phase now passes.
+
+| ID | Decision |
+|---|---|
+| P1-C1 | lc09 (`/sc:adversarial`, 7.2 step 5 condition 4 limit (a), 6.4 minutes with no subagent running) is reclassified PASS. Owner's words: "A single slow model call is not a workers fault". The raw numbers stay in `lc09-step5.md`. Owner decisions H1-H3 are unchanged; this row covers a gap made of the worker's own single model request. |
+| P1-C2 | lc10 (`/sc:brainstorm`, 7.2 step 4 extra, no `nested/analyze-1/` when the codebase scan used the fallback tier) is reclassified PASS: the check wording was wrong, not the worker. Owner's words: "Reco approved for brainstorm fallback procedure". Done in PR #411 (commit `50356149`, plan `.dev/tasks/done/TASK-WF-brainstormFixBri-20261106-113538/`): spec 7.2 step 4 now requires the nested folder only after a `Skill` call that invokes `sc:analyze`, and `sc-brainstorm-protocol/SKILL.md` says the auggie and fallback tiers write no nested folder. |
+| P1-C3 | The manual part of AC-1.3 passed in both a plain session and an Orca coordinator session with `WORKER-CONTRACT.md` loaded (owner-run, evidence in the source file). |
+| P1-C4 | **P1 verdict: PASS.** The static report passed 11 of 11; the live report has 23 rows, 21 PASS plus lc09 and lc10 reclassified by P1-C1 and P1-C2. Phase P2 may start (spec section 6). |
+| P1-C5 | Open for P2 (not decided): 11 P1 workers read the command file and carried it out in their top-level session without a `Skill` call (`p1-phase-report.md`, "Notes for the coordinator and owner"). 7.2 step 5 condition 2 was recorded PASS for them. Whether that satisfies WC-7 is for the owner to answer before the P2 live plan. |
+
+## Worker-contract follow-ups (owner decision 2026-11-06, PR #413)
+Source: `.dev/tasks/done/TASK-WF-workerContractFo-20261106-214402/` (plan version 2, "Revision note"), after its `/sc:reflect --mode pre` review (`.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/REPORT.md`, finding M-3).
+
+| ID | Decision |
+|---|---|
+| F1 | WC-4 states only the `artifacts` exclusion and its reason: `artifacts` leaves out paths git ignores and paths outside the repository, because WC-9 stages every listed path and git refuses them, for every command's list. A command whose report names where those files went says so in its own section (build and test do); workflow does not, because its report is the plan file. Later phases' Unattended sections point at WC-4 instead of restating the reason. |

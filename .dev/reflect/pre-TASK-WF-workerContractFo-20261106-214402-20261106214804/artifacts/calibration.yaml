@@ -1,0 +1,17 @@
+# Wave 1D blind calibration of reflection-card.yaml (confidence-calibrator, opus slot), persisted by the orchestrator on receipt.
+self_confidence: 0.90
+calibrated_confidence: 0.75
+calibrator_model_class: opus
+dimensions: {citation_grounding: 0.85, coverage_completeness: 0.80, deviation_classification_clarity: 0.85, risk_surface_coverage: 0.60, recommendation_actionability: 0.65}
+escalation_recommendation: stop_at_tier1
+notes:
+  - "Verified: WORKER-CONTRACT.md:31-32 and :39-41 (git add -- <paths> at :41), workflow.md:72, return-contract.md:52, build.md:104, test.md:97/:103, init-lite SKILL.md:61, init-lite.md:92, test_worker_contract.py:107, :324-353, :769, :777 say what the card claims."
+  - "Verified RF-1: developer guide :1002 defines artifacts as 'every other file written'; plan :30 searches only tests/ and plugins/."
+  - "Verified RF-2: plugins/superclaude/commands/test.md:92-94 has no Unattended mode section; the card cites only src lines."
+  - "Overclaim: card summary says the git check-ignore run confirmed every ignored path, but grounding.txt held only .gitignore matches. (Orchestrator: the check-ignore output is now appended to artifacts/grounding.txt.)"
+  - "Coverage gap: grounding lists sc-brainstorm-protocol/SKILL.md as another WC-4 description; the card does not say whether it needs the rule."
+  - "Missed risk: plan Task 1 AC3 can never fail; the write-verb scan covers only skills/commands/agents (AUDIT_ROOTS, test_worker_contract.py:1054-1058), not core/WORKER-CONTRACT.md."
+  - "Missed risk: at init-lite.md:92 the succeeded/failed sentence follows the artifacts key on the same line, so _artifacts_clause (test_worker_contract.py:769-774) includes Task 5's new wording and the pin at :792 rejects 'failed tool run'; the plan (:76) only warns against 'on a failed run'."
+  - "Missed nuance: _artifacts_clause on the contract would pick WORKER-CONTRACT.md:24 (first artifacts line), not WC-4 at :32; plan :30 does not say which helper to use."
+  - "Actionability: RF-2 and RF-3 have no check."
+  - "Delta -0.15, mainly risk coverage and recommendations without checks."

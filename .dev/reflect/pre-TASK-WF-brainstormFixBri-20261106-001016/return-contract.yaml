@@ -1,0 +1,101 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-001016/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-001016/audit.log
+confidence_calibrated: 0.84
+escalation_rule_matched: 6
+onboarding_ran: false
+
+# UC-1
+coverage_pct: 1.0
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# Input integrity
+input_sha256: {tasklist: 55b0c3535af353682aceed10589463b10a772fb42af681b2d164e862c5ada676, spec: 077042bb3168acc6a8f680c8b12fb77aa080fc807e22d3d6d79cecb58b43d411}
+input_tree_sha256: a40480f2d2006e9b41109c72b91f1e319ffe9461b976a9e17fa95d06bc3c0680
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-001016/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 45
+citations_revalidated: 38
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 2
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-001016/reviewer-cards/reviewer-1-card.yaml, /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-001016/reviewer-cards/reviewer-2-card.yaml, /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-001016/reviewer-cards/reviewer-3-card.yaml]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-001016/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true      # INV-020 is an open conflict that only the owner can accept or route to the P2 live-plan author
+needs_human_decision: false       # no grounding-gaps.yaml was produced
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion (UC-2 only)
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+# Telemetry (non-stable)
+telemetry:
+  degraded_components: [executor-class-unresolved, calibrator-diversity, codegraph-not-used]
+  executor_class_source: unknown
+  executor_class_resolved: false
+  reviewer_models: [sonnet, haiku-slot-glm-5.3, opus]
+  reviewer_personas: [analyzer, qa, refactorer]
+  memory_hits: 0
+  memory_misses: 0
+  memory_note: "Wave 0 step 0.7 memory hydrate and the Wave 5 memory writes were not performed in this run."

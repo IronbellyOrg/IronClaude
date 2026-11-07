@@ -1,0 +1,68 @@
+card_version: "1.0"
+mode: pre
+subject: "Plan TASK-WF-brainstormFixBri-20261106-113538 (7 tasks, 4 phases), regenerated from the owner-amended brief (source.md, Parts 1 to 5, Part 4 amended 2026-11-06), checked against that brief"
+claim: >
+  The plan covers the five original brief items, applies all 17 corrections (F-1 to F-17) and carries the
+  amended Part 4 texts byte for byte: the live-check sentence now requires the nested analyze folder only
+  after an actual Skill call that invokes sc:analyze, and the five residual risks are recorded. Every
+  correction's verifier string checks out against the plan, and every anchor the plan cites matches the
+  files on disk today. No P1 or P2 defect was found; the remaining items are P3 notes and owner items
+  carried over from the previous review.
+self_reported_confidence: 0.90
+blind_calibration: {calibrated_confidence: PENDING}
+tier_routing: "Forced to Tier 2: strict Pass 1 finds no labelled ID (F-n and INV-n do not match ID_REGEX) and Pass 2 yields 45 inferred rows, so the parse-density guard (coverage_degraded: parsed-sparse) forbids the Tier 1 stop."
+coverage:
+  parsed_rows: 0
+  inferred_rows: 45
+  matched_by_containment_rule: 39
+  coverage_pct: null
+  coverage_pct_union: 0.8667
+  s_dev_density: 0.1333
+  rows_added_since_the_previous_review: "Part 2 (source.md:20), the Part 3 preamble (source.md:34) and every Part 4 text (source.md:215-244) are now rows, closing the previous review's note M-15."
+  manual_review_of_the_6_unmatched_rows: "INF-002 (source.md:11, tests pin the wording) is covered by Tasks 4 and 5 together; INF-007 (source.md:20, keep 7 tasks in 4 phases) holds structurally; INF-008 (source.md:34, every AC carries its verifier) is checked row by row below; INF-020 (source.md:159, F-12) is covered by the shared pins in Tasks 4 and 5; INF-026 (source.md:215, the amendment note) is reflected in Constraints line 20; INF-035 (source.md:239, 'no known false FAIL') is stated in Task 6 (plan:133)."
+  artifact: artifacts/coverage-matrix.yaml
+grounded_checks_passed:
+  - "Part 4 live-check sentence: plan:128 equals source.md:219 byte for byte; companion sentence plan:122 equals source.md:223 (grep -xF on the plan, both found)."
+  - "Plan contains no 'a `Skill`, `Agent` or `Task` tool call' outside the Task 6 negative AC; 'invokes `sc:analyze`' appears in plan:128, plan:131, plan:135, plan:144."
+  - "F-2: Task 7 bullet 3 (plan:158) equals the quoted text of source.md:53 (grep -cF = 1); 'among tracked paths', 'section 6 table' and 'Do not edit any file in this task' are absent (grep -c = 0)."
+  - "F-13: plan:153 contains 'Do not edit any source file in this task; it writes only the logs under `./artifacts/`.' verbatim; F-16: plan:25 equals source.md:199's quoted line."
+  - "F-8: no acceptance bullet contains 18 or 19; collect-only -k brainstorm reports 17/394 today (run 2026-11-06)."
+  - "Anchors: SKILL.md:195 tail, :196 blank, :197 'Quality-tier tracking'; handoff-routing.md:16, 22, 24, 31, 33; brainstorm.md:157 ends 'so a nested directory is never reused.'; spec:62 and spec:286 ('4. Check the contract ... At P0, AC-0.4 replaces this step.') (artifacts/grounding.txt)."
+  - "HEAD copies of SKILL.md, handoff-routing.md and brainstorm.md contain neither new pin (git show HEAD: ... | grep -c = 0 for both phrases), so the 'fails on pre-change text' ACs hold."
+  - "/sc:implement keeps every write inside the package (sc-implement-protocol refs/managed-workspace.md:33-34), so Task 7 bullet 3 is not tripped by the executor."
+findings:
+  - id: F-1
+    priority: P3
+    claim: "Task 6's second AC adds a negative check ('does not contain a `Skill`, `Agent` or `Task` tool call') to the pins F-7 lists, and F-7's verifier asks that the AC list 'exactly these pins'. The extra check is useful (it tells the old sentence from the new one) but the departure is not recorded."
+    evidence: "plan:144; source.md:109; source.md:111"
+  - id: F-2
+    priority: P3
+    claim: "Task 7 still runs no format check on the two edited test files, while CI runs ruff format --check (carried over from the previous review, M-09)."
+    evidence: "plan:153; plan:157; .github/workflows/test.yml:99"
+  - id: F-3
+    priority: P3
+    claim: "Task 1's first AC still checks status-before.txt only for existence and order, with no checkable guard that it was taken before the first edit (carried over, M-11)."
+    evidence: "plan:44"
+  - id: F-4
+    priority: P3
+    claim: "Owner items carried over unchanged from the brief: research enrichment from P2 (Constraints, plan:26); no pointer for the P2 author to the new 7.2 step 4 sentence (INV-020); the routing bullet's 'with this tier's quality_tier' versus a timeout's 'skipped' (M-14); the 2.1 companion sentence states a rule for every command and its installed twin is not edited (M-13)."
+    evidence: "plan:26; plan:54; plan:122; source.md:232; source.md:248"
+risk_surface:
+  blast_radius: "Documentation and test text only: six files, no runtime code. A wrong pin turns a test red; a wrong spec sentence misleads a live-plan author."
+  interaction_effects: "Tasks 4 and 5 pin text written by Tasks 1 to 3 (Depends on lines). The shared phrase 'no nested directory and no nested contract' is a substring of both the skill's 'write' form and the ref and command's 'writes' form."
+  amended_sentence_probe: "Checked by hand against the cases that broke the previous wording: a Task prompt that names /sc:analyze followed by an auggie or fallback_1 scan now requires no folder (no Skill call to sc:analyze); a Skill call to sc:analyze that fails after the directory is usable still requires the folder and its contract (analyze.md:98), which is the brief's 'a run that failed included' rule; a timed-out (skipped) or refused call requires none."
+  residual_risks_recorded_in_plan: "Five false-PASS risks in Task 6 (plan:134-138), including the inferred session-file encoding of a Skill call."
+recommendations:
+  - id: R-1
+    priority: P3
+    file: "TASK-WF-brainstormFixBri-20261106-113538.md (Task 6 body, near plan:131)"
+    change: "Add one clause recording that Task 6's AC adds a negative check beyond F-7's pin list, because the positive pins alone are shared by the old and new sentences."
+    verifier: "Task 6 names the extra check and its reason."
+  - id: R-2
+    priority: P3
+    file: "TASK-WF-brainstormFixBri-20261106-113538.md (Task 7 body and second AC)"
+    change: "Add `uv run ruff format --check tests/skills/test_brainstorm_protocol.py tests/skills/test_worker_contract.py` to the commands logged in ./artifacts/t7-lint.log and to the second AC."
+    verifier: "Task 7 body and its second AC both name ruff format --check."
+unverified:
+  - "How the session file records a Skill call's input (skill name and args) and a tool error (recorded as residual risk 2 in the plan)."
+  - "make lint and the five test files were not run against the planned text; the text was read against them."

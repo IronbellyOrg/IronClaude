@@ -1,0 +1,7 @@
+input_tree_sha256: 9f016b182652d43466a41063aad523b13582fa13121f924358546ac1d906e28f
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-p1LivePlanBrief-20261105-164506/TASK-WF-p1LivePlanBrief-20261105-164506.md
+    sha256: f3239688086ae80bf4a3aadc49d78a3d172d2c42e8b13f4c94957e267cd4afb7
+  - path: .dev/tasks/to-do/TASK-WF-p1LivePlanBrief-20261105-164506/source.md
+    sha256: 489b5ac877993e2d4137b0ba066b5cde25c21fb8baf1ca3e8cae41b5ac42aff5
+file_count: 2

@@ -1,0 +1,67 @@
+# Grounding anchors (Wave 1A), worktree /home/coder/workspaces/worktrees/IronClaude/WorkerContractFollowups, 2026-11-06T21:48:04Z
+## WORKER-CONTRACT.md WC-4/WC-9
+31:- **WC-4. One report file, known before dispatch, written on every outcome.** In unattended mode the command writes `<report-dir>/return-contract.yaml`, where `<report-dir>` is the one report directory the brief passes (section 1): either the command's own directory-valued `--output` / `--output-dir`, or `--report-dir`. The coordinator therefore knows the path before dispatch even when the command's own deliverable lands at a generated or fixed location (for example workflow's `TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>` package, cleanup-audit's `.claude-audit/`, implement's ledger, research's `claudedocs/research_[topic]_[timestamp].md`); the contract then points at that deliverable.
+32:  - The worker fields are top-level keys: `worker_contract_version` (`"1"`), `worker_status` (one of `succeeded`, `partial`, `failed`, `blocked`), `command` (the exact command line), `report_path` (the main human-readable deliverable, if any), `artifacts` (every other file written), `blocked_question` when blocked, and `reason` when failed (for `/sc:implement`, also when blocked, carrying the STOP code).
+39:- **WC-9. No outward action from a worker; local commits only by grant.** Under `--unattended` every outward default (push, merge into a shared branch, PR, GitHub post, install on a shared or real target, VM, paid external run) is off, and no brief can turn it on (decision D4); the coordinator performs those actions (section 4).
+41:  - The worker then reads coordinator follow-ups, refuses on a detached HEAD, the default branch or any path outside its report directory, `report_path`, `artifacts` and `.dev/tasks`, stages with `git add -- <paths>` plus `.dev/tasks`, commits with `git commit --only -- <paths>` and never `--no-verify`, never pushes, and gives the commit ID in its `worker_done` body; a refused or failed commit is reported as WC-5 states. A command's own commit step stays off under `--unattended`.
+## test_worker_contract.py pins
+19:CONTRACT_PATH = _REPO / "src" / "superclaude" / "core" / "WORKER-CONTRACT.md"
+107:            "`artifacts` (every other file written), `blocked_question` when blocked, and `reason` when failed",
+324:    "init-lite": {
+329:    "workflow": {
+339:    "build": {
+349:    "test": {
+351:        "phrases": ["test-report.md", "verdict", "destructive"],
+769:def _artifacts_clause(text: str) -> str:
+777:def test_unattended_artifacts_list_only_files_the_run_wrote():
+778:    # WC-4: `artifacts` is every other file written, so each list follows the run's
+799:    assert "git check-ignore" in build and "left out" in build, build
+808:        assert "runs.jsonl" in clause and "left out" in clause, clause
+1062:WRITE_VERB_RE = re.compile(
+## workflow.md / return-contract.md artifacts lines
+src/superclaude/commands/workflow.md:72:- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome, including each pre-creation STOP (`E-NO-SOURCE`, `E-EMPTY-SOURCE`, `E-BAD-FLAG`, `E-LEGACY`, `E-PACKAGE-COLLISION`), with the STOP code in `reason`. The package's own rule for those STOPs (no package, no yaml) is unchanged. Once a package exists, `artifacts` lists every other file the run wrote: the package's `return-contract.yaml`, its `source.md` when the snapshot was written, each file the reflect step wrote in its `.dev/reflect/` run directory (also when reflect failed), and `docs/memory/reflect/deviation-patterns-<slug>.md` when reflect wrote it; reflect's gitignored per-machine files (`.dev/reflect/runs.jsonl`, `.superclaude/memory/`) are left out because WC-9 stages every `artifacts` path and git refuses ignored paths. `report_path` is the plan `<id>.md`. The package statuses success, partial and failed map to succeeded, partial and failed.
+src/superclaude/skills/sc-workflow-protocol/refs/return-contract.md:52:artifacts: [<package return-contract.yaml>, <package source.md if written>, <each file reflect wrote in its .dev/reflect/ run directory, whatever reflect_status is>, <docs/memory/reflect/deviation-patterns-<slug>.md if reflect wrote it>]   # [] before a package exists; gitignored .dev/reflect/runs.jsonl and .superclaude/memory/ are left out (WC-9 stages every listed path, and git refuses ignored paths)
+plugins/superclaude/commands/workflow.md:72:- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome, including each pre-creation STOP (`E-NO-SOURCE`, `E-EMPTY-SOURCE`, `E-BAD-FLAG`, `E-LEGACY`, `E-PACKAGE-COLLISION`), with the STOP code in `reason`. The package's own rule for those STOPs (no package, no yaml) is unchanged. Once a package exists, `artifacts` lists every other file the run wrote: the package's `return-contract.yaml`, its `source.md` when the snapshot was written, each file the reflect step wrote in its `.dev/reflect/` run directory (also when reflect failed), and `docs/memory/reflect/deviation-patterns-<slug>.md` when reflect wrote it; reflect's gitignored per-machine files (`.dev/reflect/runs.jsonl`, `.superclaude/memory/`) are left out because WC-9 stages every `artifacts` path and git refuses ignored paths. `report_path` is the plan `<id>.md`. The package statuses success, partial and failed map to succeeded, partial and failed.
+plugins/superclaude/skills/sc-workflow-protocol/refs/return-contract.md:52:artifacts: [<package return-contract.yaml>, <package source.md if written>, <each file reflect wrote in its .dev/reflect/ run directory, whatever reflect_status is>, <docs/memory/reflect/deviation-patterns-<slug>.md if reflect wrote it>]   # [] before a package exists; gitignored .dev/reflect/runs.jsonl and .superclaude/memory/ are left out (WC-9 stages every listed path, and git refuses ignored paths)
+## build.md
+src/superclaude/commands/build.md:104:- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is the `--output` file, or `<report-dir>/build-report.md` when `--output` is absent; `artifacts` lists the build output files the build tool reports, except paths outside the repository and paths git ignores (in a git repository, check each with `git check-ignore`; typically `build/`, `dist/` and `*.egg-info/`): those are left out, because WC-9 stages every listed path and git refuses them, and the build report names where they were written. A build that completes is succeeded; one that fails is failed, with its error analysis in the report.
+## test.md Contract bullet + plugin
+src/superclaude/commands/test.md:97:## Unattended mode
+src/superclaude/commands/test.md:103:- **Contract.** `<report-dir>/return-contract.yaml` is written on every outcome. `report_path` is the `--output` file, or `<report-dir>/test-report.md`, holding the coverage and test summary. A failing suite is a verdict in that report and the run still ends succeeded; it ends failed only when no test runner could run.
+## init-lite
+src/superclaude/skills/sc-init-lite-protocol/SKILL.md:61:6. **Worker contract** (only with `--unattended`; follow the `## Unattended mode` section of the `init-lite` command file, installed copy `~/.claude/commands/sc/init-lite.md` or project copy `.claude/commands/sc/init-lite.md`): after the tool returns, on every outcome including `--dry-run` and a failed tool run, write `<report-dir>/return-contract.yaml` with `worker_contract_version: "1"`, `worker_status` (`succeeded` when the audit finished, else `failed`), `command` (the exact command line), `report_path` (the report path; null on `--dry-run`), `artifacts` (only the scaffold files this run wrote, as printed on the tool's `Scaffold:` lines, which the tool prints as each file is written, including files `--force` overwrote and a file written before a later scaffold write failed; `[]` on `--dry-run` and when no `Scaffold:` line was printed) and `reason` when failed.
+src/superclaude/commands/init-lite.md:92:- **Contract.** `<report-dir>/return-contract.yaml` is the exception to Safety Invariants 2 and 3 of the protocol: it is the one write besides the report and the scaffold, and it is written also on `--dry-run`. `report_path` is the audit report (the `--output` path or `.dev/superclaude/context-audit.md`), null on `--dry-run`; `artifacts` lists only the scaffold files this run wrote, as printed on the tool's `Scaffold:` lines, one per file as it is written (files `--force` overwrote and a file written before a later scaffold write failed included), and is `[]` on `--dry-run` and when no `Scaffold:` line was printed. The run is succeeded when the audit finished, and failed otherwise.
+0
+## parity tests
+tests/commands/test_workflow_command.py:15:_CMD = _REPO / "src" / "superclaude" / "commands" / "workflow.md"
+tests/commands/test_workflow_command.py:16:_SKILL = _REPO / "src" / "superclaude" / "skills" / "sc-workflow-protocol"
+tests/commands/test_workflow_command.py:86:    ok, message = install_skill_command("sc-workflow-protocol", tmp_path / "skills")
+tests/commands/test_workflow_command.py:88:    installed = tmp_path / "skills" / "sc-workflow-protocol"
+tests/commands/test_workflow_command.py:94:    plugin = _REPO / "plugins" / "superclaude" / "skills" / "sc-workflow-protocol"
+tests/commands/test_workflow_command.py:102:    plugin_cmd = _REPO / "plugins" / "superclaude" / "commands" / "workflow.md"
+tests/skills/test_task_workspace_smoke.py:41:    for name in ("workflow.md", "implement.md", "help.md", "recommend.md"):
+## other WC-4 descriptions
+./tests/skills/test_worker_contract.py
+./src/superclaude/core/WORKER-CONTRACT.md
+./src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+./docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md
+## gitignore coverage
+7:build/
+9:dist/
+21:*.egg-info/
+37:htmlcov/
+40:.coverage
+41:.coverage.*
+44:coverage.xml
+48:.pytest_cache/
+114:.superclaude/
+## git check-ignore -v (run 2026-11-06, appended after calibration note)
+.dev/reflect/.gitignore:3:runs.jsonl	.dev/reflect/runs.jsonl
+.gitignore:114:.superclaude/	.superclaude/memory/x.md
+.gitignore:37:htmlcov/	htmlcov/index.html
+.gitignore:40:.coverage	.coverage
+.gitignore:44:coverage.xml	coverage.xml
+.gitignore:48:.pytest_cache/	.pytest_cache/x
+.gitignore:9:dist/	dist/a.whl
+.gitignore:7:build/	build/x
+.gitignore:21:*.egg-info/	*.egg-info/x

@@ -1,0 +1,46 @@
+## routing ref anchors (lines 16,22,24,30,31,33,35)
+**Tier 1 (primary)**: `mcp__auggie__codebase-retrieval`
+- quality_tier: `primary`
+**Tier 2 (fallback_1)**: codegraph, then native Glob/Grep
+- quality_tier: `fallback_1`
+- Activation: if Tier 1 returns error OR empty result
+**Final fallback**: skip enrichment, set quality_tier: `skipped`, log to seed-brief Note section.
+### Research enrichment (light)
+## SKILL.md line 195 tail
+(`<n>` starts at 1); the `mcp__auggie__codebase-retrieval` alternative is unchanged and writes no nested contract. The nested contract is listed in `artifacts`.
+## SKILL.md line 197 and 196
+
+2. **Quality-tier tracking** (mandatory per enrichment source):
+## command bullet tail (line 157)
+rsarial `F1` retry) uses the next number, so a nested directory is never reused.
+## spec line 62 tail
+in its contract. Each command's `## Unattended mode` section names its nested invocations.
+## spec line 286 head/tail
+4. Check the contract (PyYAML is a declared dependency, `pyp
+s:** both commands exit 0. At P0, AC-0.4 replaces this step.
+## tests referencing the spec file
+## HEAD copies lack the new pins (must print 0)
+0
+0
+0
+## test files named by Task 7 exist
+tests/commands/test_routing_plugin_parity.py
+tests/skills/test_brainstorm_protocol.py
+tests/skills/test_codegraph_adoption.py
+tests/skills/test_tier2_tavily_consistency.py
+tests/skills/test_worker_contract.py
+## parity test scope
+1:"""The plugin copy of sc-recommend mirrors src, plus the routing guide.
+4:plugin's sc-recommend skill as refs/HOW-WE-WORK.md. Every other file in the
+16:_SRC_SKILL = _REPO / "src/superclaude/skills/sc-recommend"
+17:_PLUG_SKILL = _REPO / "plugins/superclaude/skills/sc-recommend"
+## codegraph_adoption helper and Tier1/2 anchors
+def _section(text: str, start: str, end_pattern: str) -> str:
+    after = text.split(start, 1)
+    assert len(after) == 2, f"missing anchor {start!r}"
+    return re.split(end_pattern, after[1], maxsplit=1, flags=re.M)[0]
+## make targets
+48:lint: lint-architecture
+109:sync-dev:
+166:verify-sync:
+362:lint-architecture:

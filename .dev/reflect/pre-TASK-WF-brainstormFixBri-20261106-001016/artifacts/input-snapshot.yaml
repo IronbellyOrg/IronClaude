@@ -1,0 +1,7 @@
+input_tree_sha256: a40480f2d2006e9b41109c72b91f1e319ffe9461b976a9e17fa95d06bc3c0680
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/TASK-WF-brainstormFixBri-20261106-001016.md
+    sha256: 55b0c3535af353682aceed10589463b10a772fb42af681b2d164e862c5ada676
+  - path: .dev/tasks/to-do/TASK-WF-brainstormFixBri-20261106-001016/source.md
+    sha256: 077042bb3168acc6a8f680c8b12fb77aa080fc807e22d3d6d79cecb58b43d411
+file_count: 2

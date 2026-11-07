@@ -1,0 +1,126 @@
+contract_version: "1.8.0"
+status: partial   # evidence gate dropped 1 stray citation (M-1 duplicate of M-5's range); no finding dropped
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/WorkerContractFollowups/.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/WorkerContractFollowups/.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/audit.log
+confidence_calibrated: 0.75
+escalation_rule_matched: 6
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 3
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 (not applicable in pre mode)
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 0, regression: 0}
+deviation_register_path: null
+grounding_gaps_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+
+# Input integrity
+input_sha256:
+  tasklist: see artifacts/input-snapshot.yaml
+  spec: see artifacts/input-snapshot.yaml
+input_tree_sha256: 0ff29e9f9333ba3298e5014e7f156770f7712635208d59c57ef80428fca06ba9
+input_tree_file_count: 18
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/WorkerContractFollowups/.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 73
+citations_revalidated: 73
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 1
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards:
+  - reviewer-cards/reviewer-1-card.yaml
+  - reviewer-cards/reviewer-2-card.yaml
+  - reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/WorkerContractFollowups/.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: true   # M-3: the brief's unconditional WC-4 report sentence (source.md:13) is false for workflow
+user_decision_required: true   # M-3 owner decision before /sc:implement
+needs_human_decision: false   # grounding-gaps empty
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+# Findings summary (merged verdict)
+findings_by_priority: {P1: 2, P2: 4, P3: 5}
+
+telemetry:
+  reviewer_models: [claude-gw-tier1b, claude-gw-tier2, claude-gw-tier1a]
+  reviewer_personas: [analyzer, qa, refactorer]
+  degraded_components: [env-aliases-vendor-unknown, calibrator-diversity]
+  fallback_path: null
+  executor_class_source: unknown
+  executor_class_resolved: false
+  executor_exclusion_degraded: false
+  memory_hits: 0
+  memory_misses: 2
+  type_hierarchy_invoked: false
+  summarize_changes_invoked: false
+  references_extended_info_used: false

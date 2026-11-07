@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/WorkerContractFollowups/.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/adversarial/merged-verdict.yaml
+  convergence_score: 1.0
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/WorkerContractFollowups/.dev/reflect/pre-TASK-WF-workerContractFo-20261106-214402-20261106214804/adversarial
+  status: success
+  base_variant: "opus:refactorer"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []   # no HIGH-severity UNADDRESSED items; 5 MEDIUM warnings (INV-001, INV-003, INV-005, INV-006, INV-007) carried into the merged verdict

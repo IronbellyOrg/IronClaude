@@ -1,0 +1,105 @@
+contract_version: "1.8.0"
+status: partial   # the evidence gate dropped 1 citation (confirmation OK-2); no finding is P1
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/audit.log
+confidence_calibrated: 0.80
+escalation_rule_matched: 6
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null
+coverage_pct_union: 0.8667
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-002, INF-007, INF-008, INF-020, INF-026, INF-035]   # unmatched by wording; manual review found each covered (REPORT.md, Inferred requirements)
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# Input integrity
+input_sha256: {tasklist: 63754762c439faab1da19f0ccf26cb60b29cea8db06b8478fa436b387ad4e025, spec: 099131fd97ab170cf740317737eb96756427a0a43a5c4fe0be1b6cf7b92f1073}
+input_tree_sha256: 3567a459beffbcaf82f7d6ec9d221b22c2723ae7ce4f650c0b2c336dca3568e0
+input_tree_file_count: 16
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 106
+citations_revalidated: 106
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 2
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-cards/reviewer-1-card.yaml, /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-cards/reviewer-2-card.yaml, /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/reviewer-cards/reviewer-3-card.yaml]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-P1/.dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi   # inferred: the previous run recorded the haiku slot as glm-5.3
+t2_effective_diversity: full
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false     # debate converged; the P2 fix and owner items are recommendations, not a split decision
+needs_human_decision: false       # no grounding-gaps.yaml was produced
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion (UC-2 only)
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+# Telemetry (non-stable)
+telemetry:
+  finding_counts: {P1: 0, P2: 1, P3: 13}
+  degraded_components: [executor-class-unresolved, calibrator-diversity, parsed-sparse-labels]
+  executor_class_source: unknown
+  executor_class_resolved: false
+  reviewer_models: [sonnet, haiku-slot, opus]
+  reviewer_personas: [analyzer, qa, refactorer]
+  memory_hits: 0
+  memory_misses: 2
+  type_hierarchy_invoked: false
+  summarize_changes_invoked: false
+  references_extended_info_used: false
+  codegraph_index_state: fresh   # readiness checked; inputs are Markdown and test text, so the native Read/Grep floor grounded every anchor

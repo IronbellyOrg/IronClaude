@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/adversarial/merged-verdict.yaml"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/reflect/pre-TASK-WF-brainstormFixBri-20261106-113538-20261106113956/adversarial"
+  status: "success"
+  base_variant: "haiku:qa"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes:
+    - "Artifacts are written flat into <reflect output>/adversarial/ (the --output value), not into a nested adversarial/adversarial/."
+    - "Step 1 diff analysis was run inline by the orchestrator; Steps 2-5 used advocate, fault-finder, debate-orchestrator and merge-executor agents."
+    - "Round 2.5: 0 HIGH UNADDRESSED; 3 MEDIUM warnings (INV-001, INV-002, INV-015) folded into finding M-01's acceptance-criterion text."

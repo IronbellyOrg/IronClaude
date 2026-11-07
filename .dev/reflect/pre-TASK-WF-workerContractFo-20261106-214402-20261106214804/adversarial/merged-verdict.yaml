@@ -1,0 +1,337 @@
+# Produced by /sc:adversarial (reflect Wave 4); Base: Variant 3 (opus:refactorer); Merge date: 2026-11-06T22:16:56Z
+# Plan: refactor-plan.md (12 planned changes, 5 rejected). Executor: merge-executor. Log: merge-log.md.
+# Inputs: variant-3-original.md (base), variant-1-original.md, variant-2-original.md, invariant-probe.md, debate-transcript.md.
+merge_method: adversarial
+base_variant: "opus:refactorer"
+convergence_score: 1.0
+grading_rule: >
+  P1 = false pass shown under the plan's literal instruction, or a blocker; P2 = needs a reading choice,
+  or a coverage or rule-text defect without a literal false pass; P3 = vacuous, cosmetic or owner note.
+  Per-task AC review does not lower grades.
+# delivery_note source_tag: Plan Change #12 (A-001, INV-006)
+delivery_note: >
+  /sc:workflow never edits the plan from these findings (sc-workflow-protocol SKILL.md:62). The owner revises
+  the plan (or decides M-3) before /sc:implement, or the executor applies the P1/P2 fixes in-task where no
+  owner decision is needed (M-1, M-2, M-4, M-5, M-6). M-3 blocks Task 1, and Tasks 2-4 depend on Task 1
+  (INV-006).
+findings:
+  - id: M-1
+    priority: P1
+    source: [R1-1, INV-001, INV-002]
+    source_tag: "Variant 1 R1-1 merged per Change #1 (with INV-001, INV-002 and the base calibration's missed note on :792)"
+    claim: >
+      Task 5's planned check asks only that both init-lite texts contain "exited 0" (plan :76), so it passes
+      with the old contradicting rule still in place: "The run is succeeded when the audit finished, and failed
+      otherwise" (init-lite.md:92) and "`succeeded` when the audit finished, else `failed`" (SKILL.md:61). No
+      existing pin catches this (test_worker_contract.py:787-797). Asserting "when the audit finished" absent is
+      not enough on its own: synonyms such as "succeeded once the audit finished" or "if the audit finished"
+      pass, and "audit finished" cannot be banned outright because the new wording keeps "(the audit finished
+      and every requested scaffold write succeeded)" (INV-001). A whole-text "exited 0" check also passes on a
+      hit anywhere in SKILL.md, not only on the line carrying `worker_status` (INV-002). Separately,
+      test_worker_contract.py:792 rejects "failed tool run" inside the init-lite artifacts clause, which
+      includes the status sentence on init-lite.md:92; the plan names only "on a failed run".
+    evidence:
+      - "TASK-WF-workerContractFo-20261106-214402.md:76"
+      - "src/superclaude/commands/init-lite.md:92"
+      - "src/superclaude/skills/sc-init-lite-protocol/SKILL.md:61"
+      - "tests/skills/test_worker_contract.py:777-797"
+      - "test_worker_contract.py:792"
+      - "test_worker_contract.py:102-108"
+      - "source.md:25"
+    exact_change: >
+      Task 5: pin the exact positive phrase "`succeeded` when `superclaude init-lite` exited 0" on the line
+      carrying `worker_status` (SKILL.md:61) and on init-lite.md's Contract line; assert "when the audit
+      finished" absent from those lines; keep the new init-lite.md wording free of both "failed tool run"
+      (test_worker_contract.py:792) and "on a failed run".
+    verifier: >
+      Revert only the old-wording removal and run `uv run pytest tests/skills/test_worker_contract.py -q`; the
+      "not in" assertion must fail. A scratch copy that replaces the pinned phrase with "succeeded once the
+      audit finished" must fail the exact-phrase assertion (INV-001).
+    owner_decision_required: false
+  - id: M-2
+    priority: P1
+    source: [QA-1, INV-003]
+    source_tag: "Variant 2 QA-1 merged per Change #2, narrowed by Variant 3 (round-2-variant-3.md point 4) and INV-003"
+    claim: >
+      Task 4's planned check of the test.md artifacts clause asserts only WC-4, `[]` and no write verb (plan
+      :66), unlike build and workflow, whose clauses are pinned on "left out" (test_worker_contract.py:799,
+      :808); the plan's own AC at :69 requires the exclusion. A clause that lists ignored coverage output
+      passes, for example "every other file written, `htmlcov/` and `.coverage` included (nothing is left out;
+      WC-4); `[]` when nothing else was written" (INV-003). Pinning "left out" alone is gameable by the same
+      witness, and the build and workflow pins (:799, :808) share the weakness. Narrowed: Variant 2 withdrew
+      its demand for report-location wording in this clause (see rejected X-001).
+    evidence:
+      - ".dev/tasks/to-do/TASK-WF-workerContractFo-20261106-214402/TASK-WF-workerContractFo-20261106-214402.md:66-70"
+      - ".dev/tasks/to-do/TASK-WF-workerContractFo-20261106-214402/source.md:19-20"
+      - "tests/skills/test_worker_contract.py:769-774"
+      - "src/superclaude/commands/test.md:103"
+      - "test_worker_contract.py:799"
+      - "test_worker_contract.py:808"
+      - "test_worker_contract.py:349-353"
+      - "test_worker_contract.py:561-570"
+    exact_change: >
+      Task 4: require an exact exclusion phrase (for example "paths git ignores are left out") plus "WC-4" and
+      `[]` inside the extracted test.md artifacts clause, and add "left out" to
+      `UNATTENDED_EXPECT["test"]["phrases"]` (test_worker_contract.py:349-353) so the removal test
+      `test_unattended_section_check_fails_when_token_removed` (:561-570) covers it. Do not require
+      report-location wording in this pin.
+    verifier: >
+      The new pin must reject the INV-003 witness clause quoted above, and a copy that removes the exclusion
+      phrase while keeping WC-4 and `[]` must fail. Run `uv run pytest tests/skills/test_worker_contract.py -q`.
+    owner_decision_required: false
+  - id: M-3
+    priority: P2
+    source: [R1-2, R3-A1, INV-005, INV-006]
+    source_tag: "Variant 1 R1-2 merged with Base advisory R3-A1 (promoted to gating) per Change #3, plus INV-005 and INV-006"
+    claim: >
+      Task 1 adds the unconditional WC-4 sentence "the report names where those files were written" (plan :30,
+      source.md:13). It is false for workflow: workflow's report_path is the plan `<id>.md` (workflow.md:72,
+      return-contract.md:52), which never names .dev/reflect/runs.jsonl or .superclaude/memory/, and the skill
+      forbids editing that file after reflect (sc-workflow-protocol SKILL.md:62). After Task 2 replaces
+      workflow's reason with a WC-4 pointer, the shared rule demands something workflow does not do. If WC-4 is
+      made conditional instead, test.md no longer says the coverage output is named in the report, which
+      source.md:19 requires, and build likewise if Task 3 drops build.md:104's sentence (INV-005). The wording
+      is an owner decision: source.md:13 asks for the unconditional sentence and Task 1 tells the executor to
+      write it (INV-006).
+    evidence:
+      - "src/superclaude/commands/workflow.md:72"
+      - "src/superclaude/skills/sc-workflow-protocol/refs/return-contract.md:52"
+      - "src/superclaude/commands/build.md:104"
+      - "source.md:13"
+      - "source.md:19"
+      - "TASK-WF-workerContractFo-20261106-214402.md:30"
+      - "sc-workflow-protocol SKILL.md:62"
+    exact_change: >
+      Owner decision, made before /sc:implement because Task 1 fixes the wording and Tasks 2-4 depend on it
+      (INV-006). Option A: conditional WC-4 wording (for example "...; where the command's report can say so, it
+      names where those files were written") plus one short local "the report names them" sentence in build and
+      test (INV-005). Option B: keep the unconditional wording and name workflow as the exception in WC-4.
+      Record the choice as an owner note.
+    verifier: >
+      Read WC-4 and workflow.md:72 after the edit; no command's pointer contradicts the WC-4 wording, and
+      test.md and build.md still say where their ignored output is named, or WC-4 says it for them (INV-005).
+    owner_decision_required: true
+  - id: M-4
+    priority: P2
+    source: [R3-1, INV-010]
+    source_tag: "Base (original, modified) R3-1 per Change #4, with INV-010"
+    claim: >
+      The brief asks to keep "a plugin or spec copy" of WC-4 text consistent (source.md:14). Task 1 searches
+      only tests/ and plugins/ (plan :30). The design spec
+      .dev/orca-command-refactor/specs/orca-worker-contract-spec.md:72 holds a full WC-4 restatement with
+      "`artifacts` (every other file written)", which the plan never names; its header (:3) marks it "Planning
+      only". Separate from RF-1 (docs/ developer guide). No plugin copy of WORKER-CONTRACT.md exists. A wider
+      search also returns about 20 frozen hits in .dev/tasks/done/, .dev/orca-command-refactor/decisions/ and
+      .dev/reflect/; the live copies are src/, plugins/, tests/ and the one spec, and the plan does not say
+      where the decision is recorded (INV-010).
+    evidence:
+      - "source.md:14"
+      - "TASK-WF-workerContractFo-20261106-214402.md:30"
+      - ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md:72"
+      - ".dev/orca-command-refactor/specs/orca-worker-contract-spec.md:3"
+    exact_change: >
+      Task 1: record the decision that the planning spec (orca-worker-contract-spec.md:72) stays unchanged
+      (header :3 "Planning only"); state the search scope as src/, plugins/, tests/ and that spec, excluding
+      specs/history/, .dev/tasks/done/, .dev/orca-command-refactor/decisions/ and .dev/reflect/; record the
+      decision in the package progress.md note or the commit body.
+    verifier: >
+      The package progress.md note or the commit body states the search scope and the decision that
+      orca-worker-contract-spec.md stays unchanged.
+    owner_decision_required: false
+  - id: M-5
+    priority: P2
+    source: [R3-3, R1-4, INV-008]
+    source_tag: "Base R3-3 merged with Variant 1 R1-4 per Change #5, plus INV-008 (priority P3 -> P2 per blind calibration and C-002)"
+    claim: >
+      The planned WC-4 assertion ("the WC-4 text read from CONTRACT_PATH", plan :30) does not say how the WC-4
+      text is cut out; _contract() returns the whole file (test_worker_contract.py:383-384) and _check_rule
+      matches anywhere, so a sentence placed in WC-9 would still pass. A slice plus two tokens also ignores
+      polarity. Slice markers are verified: WORKER-CONTRACT.md:31 is the only "- **WC-4." line and :38 starts
+      WC-8 (INV-008).
+    evidence:
+      - "TASK-WF-workerContractFo-20261106-214402.md:30"
+      - "tests/skills/test_worker_contract.py:383-394"
+      - "source.md:14"
+      - "src/superclaude/core/WORKER-CONTRACT.md:31-37"
+      - "WORKER-CONTRACT.md:31"
+      - "WORKER-CONTRACT.md:38"
+      - "test_worker_contract.py:102-108"
+      - "test_worker_contract.py:586-593"
+    exact_change: >
+      Task 1: assert on the WC-4 span only (from "- **WC-4." to "\n- **WC-8.", for example
+      text.split("- **WC-4.", 1)[1].split("\n- **WC-8.", 1)[0]) containing "git ignores" and "outside the
+      repository"; add the new sentence's key phrase to RULE_PHRASES["WC-4"] (test_worker_contract.py:102-108)
+      so test_rule_check_fails_when_rule_removed (:586-593) covers it.
+    verifier: >
+      Move the sentence into WC-9 in a scratch copy (monkeypatch CONTRACT_PATH as in
+      test_worker_contract.py:581-583); the span assertion must fail. Removing the key phrase must fail
+      test_rule_check_fails_when_rule_removed.
+    owner_decision_required: false
+  - id: M-6
+    priority: P2
+    source: [INV-007, R3-A3, R1-5]
+    source_tag: "Invariant probe INV-007 per Change #6, merged with Base advisory R3-A3 and Variant 1 R1-5"
+    claim: >
+      init-lite.md:92 and SKILL.md:61 list every printed `Scaffold:` file under .dev/superclaude/ with no WC-4
+      link or exclusion. `--project-root` accepts any directory (init_lite.py:294-298, :338) and .dev/ may be
+      ignored in other projects, so a project that ignores .dev/ puts the new global WC-4 exclusion in conflict
+      with init-lite's unconditional list (R3-A3, INV-007). index-repo.md:189 has the same shape.
+    evidence:
+      - "src/superclaude/commands/init-lite.md:92"
+      - "src/superclaude/skills/sc-init-lite-protocol/SKILL.md:61"
+      - "init_lite.py:294-298"
+      - "init_lite.py:338"
+      - "index-repo.md:189"
+    exact_change: >
+      Task 1: add one WC-4 clause stating that its exclusion applies to every command's `artifacts` list,
+      including init-lite's and index-repo's (index-repo.md:189).
+    verifier: >
+      Read WC-4 after the edit; it states that the exclusion applies to every command's `artifacts` list and
+      names init-lite and index-repo.
+    owner_decision_required: false
+  - id: M-7
+    priority: P3
+    source: [R3-2, R1-3, QA-2, INV-009]
+    source_tag: "Base R3-2 merged with Variant 1 R1-3 and Variant 2 QA-2 per Change #7, qualified by INV-009"
+    claim: >
+      Task 1 AC3 says the write-verb classification tests guard new WORKER-CONTRACT.md text (plan :35), but the
+      scan covers only skills, commands and agents (AUDIT_ROOTS, test_worker_contract.py:1054-1058); WC-9
+      already holds an unclassified literal `git add` (WORKER-CONTRACT.md:41-42). The criterion passes for any
+      sentence. R1-3's replacement, test_every_repo_setup_line_is_gated (:573), is also near-vacuous: it reads
+      only lines with setup flags or launcher spans (:429-460), and a WC-4 sentence has none. The real guard is
+      M-5's pins (RULE_PHRASES :102-108 and the WC-4 span assertion).
+    evidence:
+      - "tests/skills/test_worker_contract.py:1054-1058"
+      - "tests/skills/test_worker_contract.py:445-461"
+      - "tests/skills/test_worker_contract.py:1095-1107"
+      - "tests/skills/test_worker_contract.py:1119-1124"
+      - "test_worker_contract.py:573"
+      - "test_worker_contract.py:429-460"
+      - "src/superclaude/core/WORKER-CONTRACT.md:41-42"
+      - "TASK-WF-workerContractFo-20261106-214402.md:35"
+    exact_change: >
+      Drop Task 1 AC3, or reword it to "the new WC-4 sentence holds no literal `git add`".
+    verifier: >
+      Read tests/skills/test_worker_contract.py:1054-1058 and confirm core/ is absent from AUDIT_ROOTS; Task 1's
+      AC list no longer cites the write-verb classification tests as a guard for WORKER-CONTRACT.md.
+    owner_decision_required: false
+  - id: M-8
+    priority: P3
+    source: [R3-4, INV-005]
+    source_tag: "Base (original, modified) R3-4 per Change #8, with INV-005 note"
+    claim: >
+      Tasks 3 and 4 remove only the restated reason but keep other parts of the WC-4 rule: build keeps "except
+      paths outside the repository and paths git ignores" and "the build report names where they were written";
+      the new test.md clause adds "which the test report names instead". Those parts stay written twice. If
+      M-3's decision keeps a short local report sentence in build and test (INV-005), that sentence is required,
+      not duplication.
+    evidence:
+      - "src/superclaude/commands/build.md:104"
+      - "TASK-WF-workerContractFo-20261106-214402.md:54"
+      - "TASK-WF-workerContractFo-20261106-214402.md:66"
+      - "source.md:13"
+    exact_change: >
+      Task 3: keep only build-specific parts (files the build tool reports, git check-ignore, typical ignored
+      paths, "left out per WC-4"). Task 4: "left out per WC-4", drop "which the test report names instead".
+      Keep local text only where M-3's decision requires it. Or record that the repetition is deliberate.
+    verifier: >
+      grep -n 'outside the repository\|names where' src/superclaude/commands/build.md
+      src/superclaude/commands/test.md returns no hit in the Unattended sections, except a local sentence that
+      M-3's decision keeps.
+    owner_decision_required: false
+  - id: M-9
+    priority: P3
+    source: [R3-5, INV-004]
+    source_tag: "Base (original, modified) R3-5 per Change #9, narrowed to return-contract.md (C-008), with INV-004"
+    claim: >
+      return-contract.md (installed skill ref) never mentions WORKER-CONTRACT.md (return-contract.md:43-54), so a
+      bare "WC-4" pointer in its YAML comment cannot be followed. The sibling ref
+      sc-workflow-protocol/refs/input-parse.md:16 already uses "`~/.claude/WORKER-CONTRACT.md` (rule WC-4)".
+      _artifacts_clause reads the first backticked `artifacts` line (test_worker_contract.py:769-774), so a new
+      backticked `artifacts` placed above return-contract.md:52 would hide the YAML line from the check
+      (INV-004). Narrowed: the `src/superclaude/` path concern applies to return-contract.md only, because
+      command sections are already guarded (test_worker_contract.py:517).
+    evidence:
+      - "src/superclaude/skills/sc-workflow-protocol/refs/return-contract.md:43-54"
+      - "TASK-WF-workerContractFo-20261106-214402.md:43"
+      - "sc-workflow-protocol/refs/input-parse.md:16"
+      - "test_worker_contract.py:769-774"
+      - "test_worker_contract.py:517"
+    exact_change: >
+      Task 2: write the pointer in return-contract.md in the input-parse.md:16 form
+      "`~/.claude/WORKER-CONTRACT.md` (rule WC-4)"; the command files may use bare "WC-4". Do not add a
+      backticked `artifacts` above return-contract.md:52. Task 2 AC: no `src/superclaude/` path in the new
+      return-contract.md text.
+    verifier: >
+      grep -n 'WORKER-CONTRACT' src/superclaude/skills/sc-workflow-protocol/refs/return-contract.md finds a hit;
+      grep -n 'src/superclaude' on its changed lines finds none; the return-contract artifacts check still reads
+      the YAML line at :52.
+    owner_decision_required: false
+  - id: M-10
+    priority: P3
+    source: [INV-011]
+    source_tag: "Invariant probe INV-011 per Change #10"
+    claim: >
+      "`[]` when nothing else was written" is not accurate for test.md: a `--coverage` run that writes only
+      ignored files (.gitignore:37, :40, :44, :48) wrote files yet ends with `[]`. Build has the same edge.
+    evidence:
+      - ".gitignore:37"
+      - ".gitignore:40"
+      - ".gitignore:44"
+      - ".gitignore:48"
+    exact_change: >
+      Tasks 3 and 4: word the empty case as "`[]` when nothing else listable was written" for test.md (and
+      build).
+    verifier: >
+      grep -n 'nothing else listable was written' src/superclaude/commands/test.md
+      src/superclaude/commands/build.md finds a hit in each Unattended section.
+    owner_decision_required: false
+  - id: M-11
+    priority: P3
+    source: [INV-016, R1-5, INV-015]
+    source_tag: "Invariant probe INV-016 merged with Variant 1 R1-5 per Change #11 (traceback note from INV-015 residual)"
+    claim: >
+      SKILL.md:63 only prefers the CLI; when the audit runs without the tool, "exited 0" is undefined (INV-016,
+      R1-5 gap). Otherwise "exited 0" agrees with superclaude init-lite: --dry-run returns before the scaffold
+      with exit 0 (init_lite.py:348-352), an audit failure raises ClickException (init_lite.py:247-262), and a
+      partial scaffold failure exits non-zero (test_init_lite.py:257-258). A failed scaffold write leaves a raw
+      OSError traceback in `reason` (init_lite.py:278, INV-015 residual).
+    evidence:
+      - "src/superclaude/skills/sc-init-lite-protocol/SKILL.md:63"
+      - "src/superclaude/cli/init_lite.py:247-262"
+      - "src/superclaude/cli/init_lite.py:348-359"
+      - "tests/cli/test_init_lite.py:238-261"
+      - "init_lite.py:278"
+    exact_change: >
+      Task 5: state that the tool's exit code is the only basis for `succeeded`; note that a failed scaffold
+      write leaves a raw OSError traceback in `reason`.
+    verifier: >
+      Read the two edited init-lite texts against init_lite.py:348-359 and test_init_lite.py:257-261.
+    owner_decision_required: false
+advisory:
+  - id: R3-A2
+    source_tag: "Base advisory R3-A2, kept non-gating per rejected row C-010"
+    calibrated_priority: P3
+    claim: >
+      WC-9 also stages report_path; a report_path inside an ignored path is not covered by the new exclusion
+      (out of brief scope). Blind calibration: partly confirmed, speculative and outside the brief.
+    evidence:
+      - "src/superclaude/core/WORKER-CONTRACT.md:41"
+      - "src/superclaude/commands/build.md:104"
+rejected:
+  - diff_point: X-001
+    proposal: "QA-1's original demand for report-location wording in the test.md clause"
+    rationale: "V2 withdrew it (round-2-variant-2.md item 2); WC-4 owns that duty, subject to M-3"
+  - diff_point: C-001
+    proposal: "QA-2's synthetic write-verb test for WORKER-CONTRACT.md"
+    rationale: "Conceded by V2; scan roots exclude core/"
+  - diff_point: C-001
+    proposal: "R3-2's `git add` grep as the AC3 fix"
+    rationale: "V3 conceded R1-3 is better; INV-009 shows both are weak; M-7 keeps only the drop/reword"
+  - diff_point: C-008
+    proposal: "R3-5's criterion 'no src/superclaude/ path' on all command sections"
+    rationale: "Already guarded at test_worker_contract.py:517; applies to return-contract.md only"
+  - diff_point: C-010
+    proposal: "R3-A2 (report_path in an ignored path) as a finding"
+    rationale: "Out of the brief; stays advisory"
+counts: {P1: 2, P2: 4, P3: 5}

@@ -1,0 +1,13 @@
+selected_tier: 2
+fired_rule_number: 6               # C = 0.75 < 0.85
+coverage_degraded: parsed-sparse   # Step 1B.2b pre-filter also forbids any Tier 1 stop
+surface_unreached: null
+composite_score: 3.0
+per_signal_breakdown:
+  scope_size: 1        # about 10 files across src/, plugins/ and tests/
+  task_count: 1        # 5 tasks
+  blast_radius: 0      # wording and test pins only
+  spec_density: 0      # 15 inferred requirements, all mapped
+  ambiguity_signals: 1 # spec has no labelled requirement IDs
+escalation_reason: "Calibrated confidence 0.75 is below 0.85 (rule 6), and the parsed-sparse pre-filter forbids a Tier 1 stop; Tier 2 with 3 reviewers (sonnet, haiku, opus slots)."
+inputs: {C: 0.75, S_scope: 10, S_domains: 2, S_dev_density: 0.0}
