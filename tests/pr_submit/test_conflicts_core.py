@@ -50,6 +50,7 @@ from superclaude.pr_submit.conflicts import (
     classify_path,
     conflict_plan,
     group_entries,
+    late_conflict_trigger,
     mergeability_hint,
     needs_probe,
     parse_numstat_binary,
@@ -159,6 +160,85 @@ def test_hint_not_mergeable_is_unknown_unless_dirty(mergeable, state):
 )
 def test_needs_probe(hint, expected):
     assert needs_probe(hint) is expected
+
+
+# --- late_conflict_trigger (issue #361, FR-24 / FR-25) ---------------------------
+
+
+def _poll(mergeable, status, *, checks=None, state="polling", head=SHA_A):
+    return {
+        "pr": 7,
+        "head_sha": head,
+        "source": "ci",
+        "state": state,
+        "checks": [] if checks is None else checks,
+        "merge_state": {"mergeable": mergeable, "status": status},
+    }
+
+
+_PENDING_CHECK = [{"name": "ci", "state": "PENDING", "bucket": "pending"}]
+
+
+@pytest.mark.parametrize(
+    "payload, expected",
+    [
+        # conflicting, whatever the checks say
+        (_poll("CONFLICTING", "DIRTY", checks=_PENDING_CHECK), True),
+        (_poll("CONFLICTING", "DIRTY", checks=[], state="polling"), True),
+        (_poll("CONFLICTING", "DIRTY", state="clean"), True),
+        (_poll("MERGEABLE", "DIRTY"), True),
+        (_poll("conflicting", "dirty"), True),
+        # every other hint
+        (_poll("MERGEABLE", "BEHIND"), False),
+        (_poll("MERGEABLE", "BLOCKED"), False),
+        (_poll("MERGEABLE", "CLEAN"), False),
+        (_poll("UNKNOWN", "UNKNOWN"), False),
+        (_poll("", ""), False),
+        (_poll(None, None), False),
+        (_poll(7, ["DIRTY"]), False),
+        (_poll("junk", "junk"), False),
+        # malformed payloads
+        ({"state": "polling", "checks": []}, False),
+        ({"merge_state": "CONFLICTING"}, False),
+        ({"merge_state": None}, False),
+        ({"merge_state": ["CONFLICTING", "DIRTY"]}, False),
+        ({"merge_state": {}}, False),
+        (None, False),
+        ([], False),
+        ("CONFLICTING", False),
+        (7, False),
+    ],
+)
+def test_late_conflict_trigger_reads_the_merge_state_object(payload, expected):
+    assert late_conflict_trigger(payload) is expected
+
+
+@pytest.mark.parametrize(
+    "head, wait_sha, expected",
+    [
+        (SHA_A, SHA_A, True),  # same head
+        (SHA_A, SHA_B, False),  # a payload for another head is not evidence
+        (SHA_A, None, True),  # no wait sha: no mismatch information
+        (SHA_A, "", True),
+        ("", SHA_B, True),  # empty head_sha: no mismatch information
+        (None, SHA_B, True),
+        (7, SHA_B, True),  # non-string head_sha
+        (SHA_A, 7, True),  # non-string wait_sha
+        (SHA_A, ["x"], True),
+    ],
+)
+def test_late_conflict_trigger_ignores_a_payload_for_another_head(
+    head, wait_sha, expected
+):
+    payload = _poll("CONFLICTING", "DIRTY", head=head)
+    assert late_conflict_trigger(payload, wait_sha=wait_sha) is expected
+    assert late_conflict_trigger(payload, wait_sha) is expected
+
+
+def test_late_conflict_trigger_polling_with_no_checks_and_clean_merge_state():
+    """A wait stuck at polling with no checks only fires on a conflicting reading."""
+    assert late_conflict_trigger(_poll("MERGEABLE", "CLEAN", checks=[])) is False
+    assert late_conflict_trigger(_poll("CONFLICTING", "DIRTY", checks=[])) is True
 
 
 # ---------------------------------------------------------------------------

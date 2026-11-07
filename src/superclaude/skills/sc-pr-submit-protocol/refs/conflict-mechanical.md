@@ -10,6 +10,7 @@ This ref sequences merge-conflict detection and the merge cycle (issue #305). Th
 - Terms: "ours" is the PR head in this checkout (stage 2); "theirs" is the recorded base tip `base_sha` (stage 3); stage 1 is the merge base (S-09).
 - The core decides the class of each path, the plan tier, the route (`conflict_action`), the gates, the cycle ids, the commit message and the resume plans. Nothing in this ref overrides a core answer.
 - Tier 2 steps also need `refs/conflict-intent.md` (Tier 2 only: L3, `--conflict-max-tier 2`, loaded at `C-initial`).
+- The Wave 8 late trigger (`SKILL.md`) re-enters hook `wave8a`; it adds no hook label, and its cycle id is `conflict_cycle_id(plan.tier, len(conflict_cycles) + 1)`, as in Step 3 of section 5. An open `wave8a` cycle that `--resume` restarts begins again at step 1 (section 10).
 
 ## 2. Detection
 
@@ -211,7 +212,7 @@ Step 13.
 - **Tier 2:** append `sync_concluded{pushed, merge_sha}`; `transition(S4_PUSHING, "pushed")`, then S6 and RESOLVING with zero threads; `should_retrigger(0, "merge")` is true, so S5a re-triggers the configured reviewers (see `refs/conflict-intent.md`, Tier 2), and the S5 wait is the run's first review wait.
 - **Skip rule:** a PR still conflicting with nothing pushed skips the CI wait with reason `pr_conflicting` (GitHub runs no `pull_request` checks on a conflicting PR, so the lists would read empty).
 - With `expect_checks` true an empty check list is `polling`; expiry is the existing Wave 8 CI timeout with reason `ci_not_started`, never `clean`, and the report never says tests passed.
-- **End of the CI wait:** when any hook this run read `conflicting` (or the run was resumed), read `mergeable` once more before sending `transition(clean)`. `CONFLICTING` means no `transition(clean)`: `terminal_halted`, reason `late_conflict` (late re-sync is #361).
+- **End of the CI wait:** when any hook this run read `conflicting` (or the run was resumed), read `mergeable` once more before sending `transition(clean)`; a fired late trigger counts as a hook that read `conflicting`, so this re-read stays the backstop behind the late pass. `CONFLICTING` means no `transition(clean)`: `terminal_halted`, reason `late_conflict` (the Wave 8 late trigger in `SKILL.md` runs before this backstop).
 
 ```bash
 gh pr view <N> --repo "$REPO" --json mergeable
@@ -286,7 +287,7 @@ The `merge_preflight_dirty` message: "Your checkout has uncommitted changes to t
 |---|---|---|
 | `foreign_op_in_progress` | Wave 0 operation check; resume row 3 | A merge, rebase, cherry-pick, revert or sequencer operation is in progress (named). Nothing was created or pushed. Finish or abort it yourself, then re-run. For a merge left by an earlier L2 run: commit and push it yourself, or abort it, then re-run. |
 | `conflict_tier3` | Wave 0 (L3); `C-initial`; Wave 8a from `clean` / `REPORT_ONLY` | The Tier 3 template of section 4. |
-| `late_conflict` | Wave 8a Tier 2; end of the CI wait when `mergeable` reads `CONFLICTING` again | PR #N conflicts with `origin/<base>`; a text conflict is resolved only before the first review (`--conflict-max-tier 2`, L3). Nothing was pushed for it. Late re-sync is #361. |
+| `late_conflict` | Wave 8a Tier 2 with `--conflict-max-tier 2`; the end-of-wait `mergeable` re-read when it reads `CONFLICTING` (it needs no earlier conflict cycle, only an earlier `conflicting` read or a resume) | PR #N conflicts with `origin/<base>`; a text conflict is resolved only before the first review (`--conflict-max-tier 2`, L3). Nothing was pushed for it. A Tier 1 conflict first seen during the CI wait gets the one allowed cycle only when no conflict cycle started earlier and `--conflict-max-tier` is at least 1: at L3 it merges and pushes, at L2 it resolves locally and halts before the push, and at L1 it only proposes; after a preserved review outcome (`HALT_MAX_ROUNDS`, `TERMINAL_AUGMENT_NO_RESPONSE`) the outcome is only reported and that terminal status is kept. |
 | `tier_above_cap` | Wave 8a | The conflict is Tier t, above `--conflict-max-tier c`. Nothing was pushed. Re-run with a higher cap or resolve it yourself. |
 | `github_disagrees` | Wave 8a | GitHub reads conflicting, a local merge of `origin/<base>`@<base_sha> is clean; CI was not waited for. Re-run in a few minutes. |
 | `probe_failed`, `merge_tree_unsupported` | Wave 8a (tier unclassified) | Conflict detection could not run (reason); the PR reads conflicting, so CI was not waited for. |

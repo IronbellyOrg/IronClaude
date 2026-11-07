@@ -1,0 +1,24 @@
+# implement ledger — source: ./TASK-WF-p3Requirements-20261107-070713.md — created: 2026-11-07T07:22:56Z
+PLAN: sha256=04bf23bd06cb079e1698b333b414dacce8960ab2730b40600966dd4b3053e87c source_sha256=021b89b4fa89dba171edcc07e99073230e9c1c1d6fc00a0b50ed5849a16aaa36
+T1: start sha=76c8e162fa691dc0e348ea9c9dbfcd29d649431e
+T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3 evidence=T1.AC1@src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:121-122,T1.AC2@src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:75-77,T1.AC3@tests/skills/test_worker_contract.py:1808 extras=lint:skip,typecheck:skip,test:pass files=src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh,tests/skills/test_worker_contract.py
+T2: start sha=5356848cd02421cf5ba8b5a3e840f3bd3dcaf083
+T2: complete verdict=compliant ac=T2.AC1,T2.AC2,T2.AC3 evidence=T2.AC1@tests/pr_submit/test_conflict_scripts.py:1895-1960,T2.AC2@tests/pr_submit/test_conflict_scripts.py:1959-1960,T2.AC3@tests/pr_submit/test_conflict_scripts.py:1831 extras=lint:pass,typecheck:skip,test:pass files=tests/pr_submit/test_conflict_scripts.py
+T3: start sha=157b784ddbdae5736756fa94b2d3c61e84c9cc82
+T3: complete verdict=compliant ac=T3.AC1,T3.AC2,T3.AC3 evidence=T3.AC1@src/superclaude/pr_submit/conflicts.py:470-485,T3.AC2@src/superclaude/pr_submit/conflicts.py:464-485,T3.AC3@src/superclaude/pr_submit/__init__.py:51 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/pr_submit/conflicts.py,src/superclaude/pr_submit/__init__.py,tests/pr_submit/test_conflicts_core.py
+T4: start sha=bc1400fa3ea604d9a68598157baf459e648ad1ff
+T4: complete verdict=compliant ac=T4.AC1,T4.AC2 evidence=T4.AC1@tests/pr_submit/test_ci_classify.py:336-394,T4.AC2@tests/pr_submit/test_ci_classify.py:371-376 extras=lint:pass,typecheck:skip,test:pass files=tests/pr_submit/test_ci_classify.py
+T5: start sha=839b1b9a39ca44a9e2586b337fdef6ffd5120585
+T5: complete verdict=compliant ac=T5.AC1,T5.AC2,T5.AC3 evidence=T5.AC1@src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:285,T5.AC2@tests/pr_submit/test_conflict_sync_protocol.py:371,T5.AC3@tests/skills/test_worker_contract.py:1194 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/skills/sc-pr-submit-protocol/SKILL.md,tests/pr_submit/test_conflict_sync_protocol.py,tests/skills/test_worker_contract.py
+T6: start sha=a19cded4aa916fc7a49de082e19c5e0b36223905
+T6: complete verdict=compliant ac=T6.AC1,T6.AC2 evidence=T6.AC1@tests/pr_submit/test_static_grep.py:816-842,T6.AC2@tests/skills/test_worker_contract.py:1654-1660,notes@./artifacts/retries/T6/notes.md:1-2 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md,tests/pr_submit/test_static_grep.py,tests/skills/test_worker_contract.py
+T7: start sha=e4045437001da9cf42cb3deb70e8da4bf51041f4
+T7: complete verdict=compliant ac=T7.AC1,T7.AC2,T7.AC3 evidence=T7.AC1@src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:215,T7.AC2@tests/pr_submit/test_conflict_sync_protocol.py:139-189,T7.AC3@src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:13,notes@./artifacts/retries/T7/notes.md:1-2 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md,tests/pr_submit/test_conflict_sync_protocol.py
+T8: start sha=7bb99a1ab07d3093cefe6119b64b21c08f00ff59
+T8: complete verdict=compliant ac=T8.AC1,T8.AC2 evidence=T8.AC1@tests/pr_submit/test_static_grep.py:848-869,T8.AC2@src/superclaude/skills/sc-pr-submit-protocol/refs/state-machine.md:168-172 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/skills/sc-pr-submit-protocol/refs/state-machine.md,tests/pr_submit/test_static_grep.py
+T9: start sha=6a41381d7f180b28081e65efd61167483d80f0a6
+T9: complete verdict=compliant ac=T9.AC1,T9.AC2 evidence=T9.AC1@tests/pr_submit/test_conflict_sync_protocol.py:88-96,T9.AC2@tests/pr_submit/test_conflict_sync_protocol.py:98-111 extras=lint:pass,typecheck:skip,test:pass files=src/superclaude/commands/pr-submit.md,docs/user-guide/commands.md,docs/user-guide/flags.md,tests/pr_submit/test_conflict_sync_protocol.py
+T10: start sha=1ca93e0d4094bb86ea615bf3aec65c952501c996
+T10: complete verdict=compliant ac=T10.AC1,T10.AC2,T10.AC3,T10.AC4 evidence=T10.AC1@CHANGELOG.md:139,T10.AC2@CHANGELOG.md:147,T10.AC3@tests/pr_submit/test_conflict_sync_protocol.py:116-121,T10.AC4@CHANGELOG.md:139,notes@./artifacts/retries/T10/notes.md:1-2 extras=lint:pass,typecheck:skip,test:pass files=CHANGELOG.md,tests/pr_submit/test_conflict_sync_protocol.py
+FINAL: pass evidence=final-review@./artifacts/final-review-prompt-1.md:1-40,minors@./artifacts/retries/T6/notes.md:2,minors@./artifacts/retries/T7/notes.md:2,minors@./artifacts/retries/T10/notes.md:2 state=95b39cb41fad8b33e83bd16fdc97ceaef094780815a579fb85ece85751dcf8b6
+ARCHIVE: start id=TASK-WF-p3Requirements-20261107-070713 token=36d27e553b3728d9

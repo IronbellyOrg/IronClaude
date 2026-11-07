@@ -808,6 +808,58 @@ def test_wait_only_sentences_name_the_one_sync_exception():
     ) in ci_poll
 
 
+# --- Issue #361 (P3): refs/ci-poll.md documents merge_state and the late trigger --
+
+_CI_POLL_REF = SKILL_DIR / "refs" / "ci-poll.md"
+
+
+def test_ci_poll_documents_the_merge_state_object():
+    assert (
+        "The poll line also carries `merge_state`, an object "
+        '`{"mergeable": <string>, "status": <string>}` that holds GitHub\'s '
+        "`mergeable` and `mergeStateStatus` values and is appended after `checks`"
+    ) in _prose(_CI_POLL_REF)
+
+
+def test_ci_poll_division_of_labour_names_merge_state():
+    assert (
+        "returns a coarse `state`, the raw `checks` array and GitHub's `merge_state`"
+    ) in _prose(_CI_POLL_REF)
+
+
+def test_ci_poll_pr_conflicting_sentence_points_at_the_late_trigger():
+    assert (
+        "A PR that turns conflicting while the wait runs is noticed through "
+        "`merge_state` instead (see Late conflict trigger (P3) below)"
+    ) in _prose(_CI_POLL_REF)
+
+
+def test_ci_poll_has_the_late_conflict_trigger_section():
+    assert (
+        "## Late conflict trigger (P3) On every poll the SKILL evaluates "
+        "`superclaude.pr_submit.conflicts.late_conflict_trigger(payload, "
+        "wait_sha=...)` before it acts on the classification."
+    ) in _prose(_CI_POLL_REF)
+
+
+# --- Issue #361 (P3): refs/state-machine.md section 5.2d names the late pass ----
+
+
+def test_state_machine_5_2d_names_the_late_trigger_sync():
+    machine = _prose(SKILL_DIR / "refs" / "state-machine.md")
+    assert (
+        "The same sync can also run once from the Wave 8 late trigger (`SKILL.md`), "
+        "still with no FSM edge, no round and no re-trigger: the cap counts a conflict "
+        "cycle whether or not it landed, so the late sync runs only when no conflict "
+        "cycle started earlier and the run has `--conflict-max-tier` of at least 1, at "
+        "every monitor level; only monitor 3 pushes, and monitors 1 and 2 act only "
+        "after `clean` or `report_only`."
+    ) in machine
+    # The section keeps its cap, counter and "never in push_count" statements.
+    assert "`SYNC_CAP = 1`" in machine
+    assert "`sync_push_count`, never in `push_count`" in machine
+
+
 def test_s5a_retrigger_widened_for_merge_cycles_only():
     """P2 / QA-3a: the Wave 6 S5a re-trigger is widened only for a Tier 2 merge cycle;
     the zero-edit fix-commit sentence and the state-machine parent-check sentence are

@@ -165,7 +165,11 @@ a non-halted CI-clean path sends `clean` to `transition()`. L0 never enters this
   (both tiers together). After `HALT_MAX_ROUNDS` or `TERMINAL_AUGMENT_NO_RESPONSE` that terminal
   stays and the sync outcome is reported alongside it. At L2 the resolution is left validated and
   uncommitted; the caller sets `S4'_HALT_BEFORE_PUSH` only when Wave 8 was entered from `clean` or
-  `REPORT_ONLY`.
+  `REPORT_ONLY`. The same sync can also run once from the Wave 8 late trigger (`SKILL.md`), still
+  with no FSM edge, no round and no re-trigger: the cap counts a conflict cycle whether or not it
+  landed, so the late sync runs only when no conflict cycle started earlier and the run has
+  `--conflict-max-tier` of at least 1, at every monitor level; only monitor 3 pushes, and monitors
+  1 and 2 act only after `clean` or `report_only`.
 - **Tier 2 (push kind `merge`)** adds exactly one edge: `(S2_CLASSIFY, conflicting)` goes to
   `HALT_MAX_ROUNDS` when the round gate fires (the same gate as `findings`), else to `S3_FIXING`
   (L2+) or `PROPOSED` (L1) by G-edit. The cycle then follows the existing edges

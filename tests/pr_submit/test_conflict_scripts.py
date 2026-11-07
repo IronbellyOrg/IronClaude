@@ -1826,3 +1826,135 @@ def test_poll_ci_evidence_mode_static_rules():
     assert text.index('if [ "$EVIDENCE_MODE" -eq 1 ]; then') < text.index(
         "gh pr checks --repo"
     )
+
+
+# ---------------------------------------------------------------------------
+# poll-ci-checks.sh --pr mode: the merge_state key (issue #361, FR-25)
+# ---------------------------------------------------------------------------
+
+PR_POLL_REPO = "IronbellyOrg/IronClaude"
+PR_POLL_KEYS = ["pr", "head_sha", "source", "state", "checks", "merge_state"]
+
+
+def install_pr_poll_gh_stub(repos: Repos) -> None:
+    """Recording `gh` stub for `poll-ci-checks.sh --pr` (not for evidence mode).
+
+    The first `pr view` prints ``$GH_VIEW_1`` and every later one ``$GH_VIEW_2``
+    (a counter file keeps the count); the value ``FAIL`` makes that call exit 1.
+    ``pr checks`` prints ``$GH_CHECKS`` (default ``[]``) and answers ``--help``
+    with a line holding ``--json``. Any other call exits 1."""
+    counter = repos.bin_dir / "gh-view-count"
+    stub = repos.bin_dir / "gh"
+    stub.write_text(
+        "#!/usr/bin/env bash\n"
+        f"printf '%s\\n' \"$*\" >> '{repos.gh_calls}'\n"
+        'case "$1 $2" in\n'
+        '  "pr checks")\n'
+        '    case " $* " in\n'
+        "      *\" --help \"*) printf '  --json  fields\\n'; exit 0 ;;\n"
+        "    esac\n"
+        "    printf '%s\\n' \"${GH_CHECKS:-[]}\"; exit 0 ;;\n"
+        '  "pr view")\n'
+        f"    n=$(cat '{counter}' 2>/dev/null || echo 0); n=$((n + 1)); printf '%s' \"$n\" > '{counter}'\n"
+        '    if [ "$n" -eq 1 ]; then out="$GH_VIEW_1"; else out="$GH_VIEW_2"; fi\n'
+        '    if [ "$out" = FAIL ]; then printf "HTTP 502\\n" >&2; exit 1; fi\n'
+        "    printf '%s\\n' \"$out\"; exit 0 ;;\n"
+        "  *) printf 'unexpected gh call: %s\\n' \"$*\" >&2; exit 1 ;;\n"
+        "esac\n",
+        encoding="utf-8",
+    )
+    stub.chmod(0o755)
+
+
+def run_pr_poll(repos: Repos, view_1: str, view_2: str | None = None) -> ProbeRun:
+    """Run `poll-ci-checks.sh --pr 7 --repo ...` against the stub; `view_2` defaults
+    to `view_1` (the re-sample after the checks)."""
+    install_pr_poll_gh_stub(repos)
+    env = {
+        **repos.env,
+        "GH_VIEW_1": view_1,
+        "GH_VIEW_2": view_1 if view_2 is None else view_2,
+    }
+    res = subprocess.run(
+        [str(POLL_CI), "--pr", "7", "--repo", PR_POLL_REPO],
+        cwd=repos.work,
+        env=env,
+        text=True,
+        capture_output=True,
+        timeout=60,
+    )
+    return ProbeRun(res.returncode, res.stdout, res.stderr)
+
+
+def _pr_view(sha: str = "a" * 40, **fields: str) -> str:
+    return json.dumps(
+        {"number": 7, "url": "https://example.test/pull/7", "headRefOid": sha, **fields}
+    )
+
+
+@pytest.mark.parametrize(
+    ("fields", "expected"),
+    [
+        (
+            {"mergeable": "CONFLICTING", "mergeStateStatus": "DIRTY"},
+            {"mergeable": "CONFLICTING", "status": "DIRTY"},
+        ),
+        (
+            {"mergeable": "MERGEABLE", "mergeStateStatus": "CLEAN"},
+            {"mergeable": "MERGEABLE", "status": "CLEAN"},
+        ),
+        (
+            {"mergeable": "MERGEABLE", "mergeStateStatus": "BEHIND"},
+            {"mergeable": "MERGEABLE", "status": "BEHIND"},
+        ),
+        (
+            {"mergeable": "UNKNOWN", "mergeStateStatus": "UNKNOWN"},
+            {"mergeable": "UNKNOWN", "status": "UNKNOWN"},
+        ),
+        ({}, {"mergeable": "", "status": ""}),  # fields missing from the view JSON
+    ],
+)
+def test_poll_pr_mode_reports_merge_state(tmp_path, fields, expected):
+    repos = make_repos(tmp_path)
+    payload = run_pr_poll(repos, _pr_view(**fields)).payload
+    assert payload["merge_state"] == expected
+    assert payload["pr"] == 7 and payload["head_sha"] == "a" * 40
+    # Only the pr-mode reads ran: the probe, two views and two check queries.
+    calls = repos.gh_call_lines()
+    assert sum(line.startswith("pr view 7 --repo ") for line in calls) == 2
+    assert all(f"--repo {PR_POLL_REPO}" in line for line in calls)
+
+
+def test_poll_pr_mode_first_view_failing_gives_empty_merge_state(tmp_path):
+    repos = make_repos(tmp_path)
+    res = run_pr_poll(repos, "FAIL", _pr_view(mergeable="CONFLICTING"))
+    assert res.returncode == 0, res.stderr
+    assert res.payload == {
+        "pr": 7,
+        "head_sha": "",
+        "source": "ci",
+        "state": "polling",
+        "checks": [],
+        "merge_state": {"mergeable": "", "status": ""},
+    }
+
+
+def test_poll_pr_mode_changed_head_is_polling_and_merge_state_is_from_second_view(
+    tmp_path,
+):
+    repos = make_repos(tmp_path)
+    first = _pr_view("a" * 40, mergeable="MERGEABLE", mergeStateStatus="CLEAN")
+    second = _pr_view("b" * 40, mergeable="CONFLICTING", mergeStateStatus="DIRTY")
+    payload = run_pr_poll(repos, first, second).payload
+    assert payload["state"] == "polling"
+    assert payload["head_sha"] == "b" * 40
+    assert payload["merge_state"] == {"mergeable": "CONFLICTING", "status": "DIRTY"}
+
+
+def test_poll_pr_mode_key_order_appends_merge_state_after_checks(tmp_path):
+    repos = make_repos(tmp_path)
+    payload = run_pr_poll(
+        repos, _pr_view(mergeable="MERGEABLE", mergeStateStatus="CLEAN")
+    ).payload
+    assert list(payload) == PR_POLL_KEYS
+    assert list(payload["merge_state"]) == ["mergeable", "status"]
