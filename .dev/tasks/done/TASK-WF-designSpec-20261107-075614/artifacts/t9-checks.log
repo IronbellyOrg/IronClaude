@@ -1,0 +1,8 @@
+$ uv run pytest tests/pr_submit/test_static_grep.py tests/pr_submit/test_conflict_sync_protocol.py tests/pr_submit/test_cosmos_protocol.py tests/pr_submit/test_codex_reviews.py tests/pr_submit/test_merge_guard_protocol.py tests/skills/test_worker_contract.py -q
+============================= 610 passed in 1.86s ==============================
+$ uv run pytest tests/pr_submit tests/skills tests/docs -q
+======================= 3324 passed, 1 skipped in 52.18s =======================
+$ make lint
+All checks passed!
+$ make verify-sync
+✅ All components in sync.

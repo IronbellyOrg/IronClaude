@@ -1,0 +1,5 @@
+$ uv run pytest tests/pr_submit/test_set_draft_state.py tests/pr_submit/test_static_grep.py tests/pr_submit/test_conflict_sync_protocol.py tests/skills/test_worker_contract.py -q -p no:cacheprovider
+============================= 532 passed in 2.41s ==============================
+$ make verify-sync
+✅ All components in sync.
+rc=0

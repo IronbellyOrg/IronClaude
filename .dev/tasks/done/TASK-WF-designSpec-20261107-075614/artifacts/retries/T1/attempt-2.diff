@@ -1,0 +1,1 @@
+(revert domain empty: every change of attempt 2 lies under the package folder .dev/tasks/to-do/TASK-WF-designSpec-20261107-075614/, which the revert excludes; the failed attempt's file is ./artifacts/pre-build-gate.md in the live tree)

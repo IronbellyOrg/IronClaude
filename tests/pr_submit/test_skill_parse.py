@@ -13,6 +13,7 @@ import pytest
 from superclaude.pr_submit.fsm import (
     DEFAULT_CONFLICT_MAX_TIER,
     DEFAULT_MAX_ROUNDS,
+    DEFAULT_MERGE_GUARD,
     DEFAULT_MONITOR,
     DEFAULT_TIMEOUT,
     POLL_INTERVAL_ERROR,
@@ -117,3 +118,20 @@ def test_conflict_max_tier_default_and_bounds():
     for bad in ("3", "x"):
         with pytest.raises(SystemExit):
             parse_args(["--conflict-max-tier", bad])
+
+
+def test_merge_guard_default_and_choices():
+    """Issue #375: `--merge-guard` defaults to `draft`, accepts `draft` and `off`
+    at any `--monitor` ordinal, and rejects every other value."""
+    assert parse_args([]).merge_guard == DEFAULT_MERGE_GUARD == "draft"
+    assert SkillArgs().merge_guard == "draft"
+    assert parse_args(["--merge-guard", "off"]).merge_guard == "off"
+    assert parse_args(["--merge-guard", "draft"]).merge_guard == "draft"
+    for ordinal in (0, 1, 2, 3):
+        args = parse_args(["--monitor", str(ordinal), "--merge-guard", "off"])
+        assert (args.monitor, args.merge_guard) == (ordinal, "off")
+    for bad in ("label", "on", "", "OFF"):
+        with pytest.raises(SystemExit):
+            parse_args(["--merge-guard", bad])
+    with pytest.raises(SystemExit):
+        parse_args(["--merge-guard"])

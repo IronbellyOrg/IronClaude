@@ -438,7 +438,7 @@ def test_dedup_groups_same_line_across_reviewers(findings336):
 
 
 def test_event_enum_has_the_two_reviewer_events():
-    assert len(EventType) == 43
+    assert len(EventType) == 45
     assert {EventType.REVIEWER_ABSENT.value, EventType.REVIEWER_INCOMPLETE.value} == {
         "reviewer_absent",
         "reviewer_incomplete",

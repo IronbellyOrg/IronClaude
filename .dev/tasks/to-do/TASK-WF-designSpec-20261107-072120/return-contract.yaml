@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: partial
+slug: TASK-WF-designSpec-20261107-072120
+plan_path: ./TASK-WF-designSpec-20261107-072120.md
+source_path: ./source.md
+source_origin: .dev/issues/375/design-spec.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-375-pr-submit-draft-guard/.dev/reflect/pre-designSpec-20261107072500/REPORT.md
+unresolved:
+  - "SUPERSEDED: the advisory pre-execution review returned not-ready (3 of 3 reviewers). Do NOT run /sc:implement on this package. A corrected design (v2) and a new plan package replace it; see the reflect REPORT.md findings 1 to 13."
+  - "Reflect Wave 4 (adversarial merge) and the Wave 5 evidence-validator gate were not run for this superseded plan; the reviewer cards were calibrated and their citations re-Read by the calibrators."

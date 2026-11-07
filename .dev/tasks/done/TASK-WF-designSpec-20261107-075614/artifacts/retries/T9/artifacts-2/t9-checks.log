@@ -1,0 +1,9 @@
+$ uv run pytest tests/pr_submit tests/skills tests/docs -q -p no:cacheprovider
+tests/docs/test_retired_docs_absent.py ..                                [ 99%]
+tests/docs/test_tavily_doc_alignment.py .....                            [100%]
+
+======================= 3323 passed, 1 skipped in 50.48s =======================
+$ make lint
+All checks passed!
+$ make verify-sync
+✅ All components in sync.

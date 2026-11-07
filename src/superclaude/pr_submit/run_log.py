@@ -21,6 +21,7 @@ import os
 import re
 from pathlib import Path
 
+from .merge_guard import fold_draft_guard
 from .models import EventType
 
 # The 7 idempotency sets (§11.4 + V1.1 addendum §6.3 + INV-S1).
@@ -114,7 +115,7 @@ class RunLog:
     def append(self, event: dict) -> dict:
         """Append a validated, redacted event with a monotonic ``event_id`` and fsync.
 
-        Raises :class:`ValueError` if ``event_type`` is not one of the 43 closed
+        Raises :class:`ValueError` if ``event_type`` is not one of the 45 closed
         enum values (the run-log writer validates against ``models.EventType``).
         """
         event_type = event.get("event_type")
@@ -198,9 +199,18 @@ class RunLog:
         - ``push_rejected``: ``True`` once a ``push_aborted_or_not_landed`` event
           carries ``rejected is True``.
 
-        A log without ``kind`` fields or conflict-cycle events rebuilds every
-        pre-existing key exactly as before, with the four keys at their defaults
-        (``0``, ``[]``, ``None``, ``False``) (NFR-12).
+        Issue #375 (merge guard) adds one key:
+
+        - ``draft_guard``: :func:`~superclaude.pr_submit.merge_guard.fold_draft_guard`
+          over the events, or ``None`` when the log holds no guard record. It is a
+          plain dict (``phase``, ``phase_before_request``, ``cycle_id``,
+          ``original_is_draft``, ``baseline``, ``run_toggles``, ``unsettled``,
+          ``failed_mutations``, ``owned_draft``, ``disabled_cause``).
+
+        A log without ``kind`` fields, conflict-cycle events or guard events
+        rebuilds every pre-existing key exactly as before, with the four #305 keys
+        at their defaults (``0``, ``[]``, ``None``, ``False``) and ``draft_guard``
+        ``None`` (NFR-12).
         """
         state = {
             "pr_number": self.pr_number,
@@ -221,6 +231,8 @@ class RunLog:
             "conflict_cycles": [],
             "open_conflict_cycle": None,
             "push_rejected": False,
+            # Issue #375: the folded merge-guard record (None until a guard event).
+            "draft_guard": None,
         }
         sets = {s: set() for s in IDEMPOTENCY_SETS}
         retriggered_cycles: set = set()
@@ -228,7 +240,8 @@ class RunLog:
         # Open conflict cycles by id; insertion order is sync_started order (a
         # re-opened id is moved to the end), so the last entry is the newest.
         open_cycles: dict = {}
-        for ev in self.read_events():
+        events = self.read_events()
+        for ev in events:
             state["last_event_id"] = ev.get("event_id", state["last_event_id"])
             et = ev.get("event_type")
             if ev.get("state_after"):
@@ -343,6 +356,7 @@ class RunLog:
         state["open_conflict_cycle"] = (
             list(open_cycles.values())[-1] if open_cycles else None
         )
+        state["draft_guard"] = fold_draft_guard(events)
         return state
 
     def materialize_snapshot(self) -> dict:

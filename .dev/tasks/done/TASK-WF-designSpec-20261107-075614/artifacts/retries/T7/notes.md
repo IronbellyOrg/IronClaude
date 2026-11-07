@@ -1,0 +1,2 @@
+adeb4a04f7b6501deb77d04d2550897a2a18771a
+A1 r1-1 F1.1 minor src/superclaude/skills/sc-pr-submit-protocol/scripts/set-draft-state.sh:66 ac=scope n,n,n,n On a failed view the read-failed line reports autoMergeRequest false (not null), so an unreadable PR reads as "auto-merge not armed"; --pr 0 is accepted although the error text says positive integer; --read together with --to lets the last flag win. None is in section 4.4 or the acceptance criteria; the sibling scripts have the same checks.

@@ -37,6 +37,9 @@ DEFAULT_SILENCE_TIMEOUT = 300
 # Tier 1 (`uv lock`) can run the PR's build code, so it is opt-in: the default
 # is detect-and-report only (PR #378 finding C5).
 DEFAULT_CONFLICT_MAX_TIER = 0
+# Issue #375: at --monitor 3 the merge guard holds the PR as a draft while a fix
+# cycle runs. The flag is accepted and inert below ordinal 3; ``off`` disables it.
+DEFAULT_MERGE_GUARD = "draft"
 
 POLL_INTERVAL_ERROR = "minimum is 30 seconds"
 MAX_ROUNDS_ERROR = "--max-rounds hard cap is 5"
@@ -67,6 +70,7 @@ class SkillArgs:
     resume: str | None = None
     pr: int | None = None
     conflict_max_tier: int = DEFAULT_CONFLICT_MAX_TIER
+    merge_guard: str = DEFAULT_MERGE_GUARD
 
     @property
     def armed(self) -> bool:
@@ -107,6 +111,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         choices=[0, 1, 2],
         default=DEFAULT_CONFLICT_MAX_TIER,
     )
+    parser.add_argument(
+        "--merge-guard",
+        dest="merge_guard",
+        choices=["draft", "off"],
+        default=DEFAULT_MERGE_GUARD,
+    )
     return parser
 
 
@@ -143,6 +153,7 @@ def parse_args(argv: list[str]) -> SkillArgs:
         resume=ns.resume,
         pr=ns.pr,
         conflict_max_tier=ns.conflict_max_tier,
+        merge_guard=ns.merge_guard,
     )
 
 

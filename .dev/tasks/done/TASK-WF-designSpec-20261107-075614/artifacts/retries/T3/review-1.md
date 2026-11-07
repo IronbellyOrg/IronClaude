@@ -1,0 +1,11 @@
+start=bb05a78128b0ec419876a148437ce898b8960c30 tree=c6ba610c7fde3b14115642403a38c1e897a38eda
+F1.1 sev=blocking trigger=B1 ac=T3.AC2 at=tests/pr_submit/test_merge_guard.py:602 anchor="without touching `owned_draft` or the toggle counters" chk=y,n,n,n family=fold-notapplied-draft-direction fix=in draft_not_applied_after_failed_engage_returns_to_release_pending, assert owned_draft, run_toggles == 0 and phase_before_request; add a case with a held, released or disabled earlier cycle so owned_draft is not already False covers="settled(any direction, skipped, not_applied) clears the pending key and restores phase_before_request without touching owned_draft or the toggle counters" first=start origin=new: The only draft-direction not_applied case asserts just phase, unsettled, failed_mutations and disabled_cause; owned_draft is False and run_toggles is 0 by default, so a wrong implementation that touched either for a draft request would pass every test.
+F1.2 sev=minor trigger=none ac=T3.AC4 at=tests/pr_submit/test_merge_guard.py:734 anchor="with retries distinguished by the `:a<k>` suffix" chk=n,n,n,n family=pending-suffix-test fix=add a log where the a1 request is unsettled, the a2 request exists and only a2 is settled, then assert exactly the a1 request is pending first=start origin=new: the pending-requests test passes even if the :a<k> suffix were ignored, because a1 is settled before a2 is requested. The code is correct.
+F1.3 sev=note trigger=none ac=scope at=src/superclaude/pr_submit/merge_guard.py:211 anchor=none chk=n,n,n,n family=fold-cycle-id-not-restored fix=none required for this task first=start origin=new: a not_applied draft request for a new cycle leaves cycle_id at the new id while the phase goes back to the old one; harmless today because engage_decision never issues a draft request in RELEASE_PENDING.
+- T3.AC1 met. T3.AC1@src/superclaude/pr_submit/merge_guard.py:120-139.
+- T3.AC2 unmet (F1.1). T3.AC2@tests/pr_submit/test_merge_guard.py:602.
+- T3.AC3 met. T3.AC3@src/superclaude/pr_submit/merge_guard.py:320-343.
+- T3.AC4 met. T3.AC4@src/superclaude/pr_submit/merge_guard.py:270-301.
+- T3.AC5 met. T3.AC5@tests/pr_submit/test_merge_guard.py:767-770.
+- T3.AC6 met. T3.AC6@tests/pr_submit/test_merge_guard.py:1-20.
+F1.1 resolved

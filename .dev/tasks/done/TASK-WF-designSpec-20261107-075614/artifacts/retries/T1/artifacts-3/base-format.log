@@ -1,0 +1,505 @@
+unformatted: File would be reformatted
+   --> src/superclaude/examples/release-spec-template.md:142:18
+    |
+141 | ```python
+    - {{SC_PLACEHOLDER:data_model_code}}
+142 + {{SC_PLACEHOLDER: data_model_code}}
+143 | ```
+    |
+
+unformatted: File would be reformatted
+  --> src/superclaude/skills/sc-cleanup-audit-protocol/rules/dynamic-use-checklist.md:25:49
+   |
+24 | ```python
+   - module = importlib.import_module(os.environ.get('PLUGIN_MODULE'))
+   - handler = __import__(os.getenv('HANDLER_CLASS'))
+25 + module = importlib.import_module(os.environ.get("PLUGIN_MODULE"))
+26 + handler = __import__(os.getenv("HANDLER_CLASS"))
+27 | ```
+--------------------------------------------------------------------------------
+88 | ```python
+   - for path in Path('handlers').glob('*.py'):
+89 + for path in Path("handlers").glob("*.py"):
+90 |     importlib.import_module(f"handlers.{path.stem}")
+   |
+
+unformatted: File would be reformatted
+   --> src/superclaude/skills/sc-cli-portify-protocol/refs/code-templates.md:250:40
+    |
+249 | # Collected for iteration
+    - ALL_GATES: dict[str, GateCriteria] = {{
+    -     {GATE_DICT_ENTRIES}
+    - }}
+250 + ALL_GATES: dict[str, GateCriteria] = {{{GATE_DICT_ENTRIES}}}
+251 | ```
+    |
+
+unformatted: File would be reformatted
+   --> src/superclaude/skills/sc-cli-portify-protocol/refs/pipeline-spec.md:23:20
+    |
+22  | Step(
+    -     id="step-id",              # kebab-case, unique within pipeline
+    -     prompt=build_X_prompt(),   # Function from prompts.py
+    -     output_file="artifact.md", # Relative to work_dir
+    -     gate=STEP_GATE,            # From gates.py
+23  +     id="step-id",  # kebab-case, unique within pipeline
+24  +     prompt=build_X_prompt(),  # Function from prompts.py
+25  +     output_file="artifact.md",  # Relative to work_dir
+26  +     gate=STEP_GATE,  # From gates.py
+27  |     gate_mode=GateMode.BLOCKING,  # BLOCKING (default) or TRAILING
+    -     timeout_seconds=600,       # Per-step timeout
+    -     inputs=["dep1.md"],        # Files this step reads
+    -     retry_limit=1,             # How many retries on gate failure
+    -     model=None,                # None = use default from config
+28  +     timeout_seconds=600,  # Per-step timeout
+29  +     inputs=["dep1.md"],  # Files this step reads
+30  +     retry_limit=1,  # How many retries on gate failure
+31  +     model=None,  # None = use default from config
+32  | )
+--------------------------------------------------------------------------------
+55  |     [parallel_step_a, parallel_step_b],  # Run concurrently
+    -     single_step_2,                        # Waits for parallel group
+56  +     single_step_2,  # Waits for parallel group
+57  | ]
+--------------------------------------------------------------------------------
+78  |     """Pipeline-specific configuration."""
+79  +
+80  |     # Required: identify the input
+81  |     source_path: Path
+82  |
+83  |     # Optional: control behavior
+    -     depth: str = "standard"       # quick|standard|deep
+84  +     depth: str = "standard"  # quick|standard|deep
+85  |
+--------------------------------------------------------------------------------
+104 |     PASS = "pass"
+    -     PASS_NO_SIGNAL = "pass_no_signal"    # Completed but no structured report
+    -     PASS_NO_REPORT = "pass_no_report"    # Output exists but no result file
+    -     INCOMPLETE = "incomplete"             # Budget exhausted
+    -     HALT = "halt"                         # Step recommends stopping
+    -     TIMEOUT = "timeout"                   # Hard timeout exceeded
+    -     ERROR = "error"                       # Process crash
+    -     SKIPPED = "skipped"                   # Skipped by config
+105 +     PASS_NO_SIGNAL = "pass_no_signal"  # Completed but no structured report
+106 +     PASS_NO_REPORT = "pass_no_report"  # Output exists but no result file
+107 +     INCOMPLETE = "incomplete"  # Budget exhausted
+108 +     HALT = "halt"  # Step recommends stopping
+109 +     TIMEOUT = "timeout"  # Hard timeout exceeded
+110 +     ERROR = "error"  # Process crash
+111 +     SKIPPED = "skipped"  # Skipped by config
+112 | ```
+--------------------------------------------------------------------------------
+205 |
+206 +
+207 | def _has_required_sections(content: str) -> bool:
+--------------------------------------------------------------------------------
+424 | from superclaude.cli.my_pipeline import my_pipeline_group
+425 +
+426 | app.add_command(my_pipeline_group)
+--------------------------------------------------------------------------------
+457 |
+458 +
+459 | @dataclass
+--------------------------------------------------------------------------------
+464 |
+465 +
+466 | # In executor:
+--------------------------------------------------------------------------------
+529 |     for result in prior_results[-3:]:  # Keep recent, compress older
+    -         context_block += result.to_context_summary(verbose=(result == prior_results[-1]))
+530 +         context_block += result.to_context_summary(
+531 +             verbose=(result == prior_results[-1])
+532 +         )
+533 |         context_block += "\n\n"
+--------------------------------------------------------------------------------
+550 |             return None
+    -         remaining = [r.step.id for r in self.step_results
+    -                      if r.status == MyStatus.PENDING]
+551 +         remaining = [
+552 +             r.step.id for r in self.step_results if r.status == MyStatus.PENDING
+553 +         ]
+554 |         return (
+--------------------------------------------------------------------------------
+562 |         """Estimate turns needed to complete remaining work."""
+    -         remaining_steps = sum(1 for r in self.step_results
+    -                               if r.status in (MyStatus.PENDING, MyStatus.INCOMPLETE))
+563 +         remaining_steps = sum(
+564 +             1
+565 +             for r in self.step_results
+566 +             if r.status in (MyStatus.PENDING, MyStatus.INCOMPLETE)
+567 +         )
+568 |         return remaining_steps * 25  # Default allocation per step
+--------------------------------------------------------------------------------
+584 |
+585 +
+586 | def run_programmatic_step(step, config) -> StepResult:
+--------------------------------------------------------------------------------
+591 |         PROGRAMMATIC_RUNNERS[step.id](config)
+    -         return StepResult(step=step, status=StepStatus.PASS,
+    -                          started_at=started, finished_at=time.time())
+592 +         return StepResult(
+593 +             step=step,
+594 +             status=StepStatus.PASS,
+595 +             started_at=started,
+596 +             finished_at=time.time(),
+597 +         )
+598 |     except Exception as e:
+    -         return StepResult(step=step, status=StepStatus.FAIL,
+    -                          gate_failure_reason=str(e),
+    -                          started_at=started, finished_at=time.time())
+599 +         return StepResult(
+600 +             step=step,
+601 +             status=StepStatus.FAIL,
+602 +             gate_failure_reason=str(e),
+603 +             started_at=started,
+604 +             finished_at=time.time(),
+605 +         )
+606 | ```
+--------------------------------------------------------------------------------
+624 |         return {
+    -             "none": " ", "checking": "...",
+    -             "pass": "ok", "fail_deferred": "!",
+    -             "remediating": "~", "remediated": "ok",
+625 +             "none": " ",
+626 +             "checking": "...",
+627 +             "pass": "ok",
+628 +             "fail_deferred": "!",
+629 +             "remediating": "~",
+630 +             "remediated": "ok",
+631 |             "halt": "X",
+    |
+
+unformatted: File would be reformatted
+   --> src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:99:33
+    |
+98  | from superclaude.pr_submit import (
+    -     actionable_finding_comments, classify, classify_codex, codex_finding_comments,
+    -     finding_from_comment, remap_severity, reviewer_activity, route,
+99  +     actionable_finding_comments,
+100 +     classify,
+101 +     classify_codex,
+102 +     codex_finding_comments,
+103 +     finding_from_comment,
+104 +     remap_severity,
+105 +     reviewer_activity,
+106 +     route,
+107 | )
+--------------------------------------------------------------------------------
+117 |     review_state = classify(
+    -         payload, contract, watermark=watermark, current_head_sha=expected_head,
+118 +         payload,
+119 +         contract,
+120 +         watermark=watermark,
+121 +         current_head_sha=expected_head,
+122 |     )
+123 |     if review_state == "findings":
+124 |         selected = actionable_finding_comments(
+    -             payload, contract, watermark=watermark, current_head_sha=expected_head,
+125 +             payload,
+126 +             contract,
+127 +             watermark=watermark,
+128 +             current_head_sha=expected_head,
+129 |         )
+--------------------------------------------------------------------------------
+148 |     codex_state = classify_codex(
+    -         payload, contract, watermark=codex_watermark, current_head_sha=expected_head,
+149 +         payload,
+150 +         contract,
+151 +         watermark=codex_watermark,
+152 +         current_head_sha=expected_head,
+153 |     )
+154 |     if codex_state == "findings":
+155 |         selected = codex_finding_comments(
+    -             payload, contract, watermark=codex_watermark, current_head_sha=expected_head,
+156 +             payload,
+157 +             contract,
+158 +             watermark=codex_watermark,
+159 +             current_head_sha=expected_head,
+160 |         )
+161 |         try:
+162 |             if not selected:
+    -                 raise ValueError("Codex findings signal without actionable root details")
+163 +                 raise ValueError(
+164 +                     "Codex findings signal without actionable root details"
+165 +                 )
+166 |             codex_findings = [finding_from_comment(raw) for raw in selected]
+    |
+
+unformatted: File would be reformatted
+   --> src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md:30:23
+    |
+29  | ```python
+    - def citation_resolves(report_path: str, fixture_root: str = None) -> AssertionResult: ...
+30  + def citation_resolves(
+31  +     report_path: str, fixture_root: str = None
+32  + ) -> AssertionResult: ...
+33  | ```
+--------------------------------------------------------------------------------
+42  |
+43  +
+44  | def check_citation_resolves(assertion: dict, base_dir: Path) -> tuple[bool, str]:
+--------------------------------------------------------------------------------
+49  |         rel_path, line_no = m.group(1), int(m.group(2))
+    -         target = (fixture_root / rel_path) if not Path(rel_path).is_absolute() else Path(rel_path)
+50  +         target = (
+51  +             (fixture_root / rel_path)
+52  +             if not Path(rel_path).is_absolute()
+53  +             else Path(rel_path)
+54  +         )
+55  |         if not target.exists():
+56  |             failed.append(f"{rel_path}:{line_no} (file missing)")
+57  |             continue
+58  |         lines = target.read_text(encoding="utf-8").splitlines()
+    -         window = "\n".join(lines[max(0, line_no - 6):line_no + 5])
+59  +         window = "\n".join(lines[max(0, line_no - 6) : line_no + 5])
+60  |         # Optional snippet check: assertion may carry expected substring
+--------------------------------------------------------------------------------
+66  |     total = resolved + len(failed)
+    -     return (len(failed) == 0, f"{resolved}/{total} citations resolved; failures={failed}")
+67  +     return (
+68  +         len(failed) == 0,
+69  +         f"{resolved}/{total} citations resolved; failures={failed}",
+70  +     )
+71  | ```
+--------------------------------------------------------------------------------
+83  |
+84  +
+85  | def check_regex_present(assertion: dict, base_dir: Path) -> tuple[bool, str]:
+--------------------------------------------------------------------------------
+90  |     if matches:
+    -         return True, f"Pattern {assertion['pattern']!r} found {len(matches)} match(es) in {assertion['target']}"
+91  +         return (
+92  +             True,
+93  +             f"Pattern {assertion['pattern']!r} found {len(matches)} match(es) in {assertion['target']}",
+94  +         )
+95  |     return False, f"Pattern {assertion['pattern']!r} NOT found in {assertion['target']}"
+--------------------------------------------------------------------------------
+108 |
+109 +
+110 | def check_regex_absent(assertion: dict, base_dir: Path) -> tuple[bool, str]:
+--------------------------------------------------------------------------------
+115 |     if m is None:
+    -         return True, f"Pattern {assertion['pattern']!r} correctly absent from {assertion['target']}"
+    -     return False, f"Pattern {assertion['pattern']!r} unexpectedly present at offset {m.start()}: {m.group(0)[:80]!r}"
+116 +         return (
+117 +             True,
+118 +             f"Pattern {assertion['pattern']!r} correctly absent from {assertion['target']}",
+119 +         )
+120 +     return (
+121 +         False,
+122 +         f"Pattern {assertion['pattern']!r} unexpectedly present at offset {m.start()}: {m.group(0)[:80]!r}",
+123 +     )
+124 | ```
+--------------------------------------------------------------------------------
+137 |
+138 +
+139 | def check_yaml_list_contains(assertion: dict, base_dir: Path) -> tuple[bool, str]:
+--------------------------------------------------------------------------------
+149 |     if not isinstance(node, list):
+    -         return False, f"field_path {assertion['field_path']!r} is not a list (got {type(node).__name__})"
+150 +         return (
+151 +             False,
+152 +             f"field_path {assertion['field_path']!r} is not a list (got {type(node).__name__})",
+153 +         )
+154 |     expected = assertion["value"]
+155 |     if expected in node:
+    -         return True, f"List at {assertion['field_path']} contains {expected!r}; members={node}"
+    -     return False, f"List at {assertion['field_path']} missing {expected!r}; members={node}"
+156 +         return (
+157 +             True,
+158 +             f"List at {assertion['field_path']} contains {expected!r}; members={node}",
+159 +         )
+160 +     return (
+161 +         False,
+162 +         f"List at {assertion['field_path']} missing {expected!r}; members={node}",
+163 +     )
+164 | ```
+--------------------------------------------------------------------------------
+191 |     except (TypeError, ValueError):
+    -         return False, f"count field {count_field!r} not an integer: {data.get(count_field)!r}"
+192 +         return (
+193 +             False,
+194 +             f"count field {count_field!r} not an integer: {data.get(count_field)!r}",
+195 +         )
+196 |     actual = len(items)
+--------------------------------------------------------------------------------
+220 | ```python
+    - def matrix_covers_items(matrix: str, source: str, threshold: float) -> AssertionResult: ...
+221 + def matrix_covers_items(
+222 +     matrix: str, source: str, threshold: float
+223 + ) -> AssertionResult: ...
+224 | ```
+--------------------------------------------------------------------------------
+230 |
+231 +
+232 | def check_matrix_covers_items(assertion: dict, base_dir: Path) -> tuple[bool, str]:
+--------------------------------------------------------------------------------
+238 |     source_items = {item["id"] for item in source.get("items", [])}
+    -     covered = {row["item_id"] for row in matrix if row.get("status") and row["status"] != "uncovered"}
+239 +     covered = {
+240 +         row["item_id"]
+241 +         for row in matrix
+242 +         if row.get("status") and row["status"] != "uncovered"
+243 +     }
+244 |     if not source_items:
+245 |         return False, "Source fixture has no items to cover"
+246 |     ratio = len(covered & source_items) / len(source_items)
+247 |     if ratio >= threshold:
+    -         return True, f"Coverage {ratio:.2%} >= {threshold:.2%} ({len(covered & source_items)}/{len(source_items)} items)"
+    -     return False, f"Coverage {ratio:.2%} < {threshold:.2%}; missing={sorted(source_items - covered)}"
+248 +         return (
+249 +             True,
+250 +             f"Coverage {ratio:.2%} >= {threshold:.2%} ({len(covered & source_items)}/{len(source_items)} items)",
+251 +         )
+252 +     return (
+253 +         False,
+254 +         f"Coverage {ratio:.2%} < {threshold:.2%}; missing={sorted(source_items - covered)}",
+255 +     )
+256 | ```
+--------------------------------------------------------------------------------
+268 |
+269 +
+270 | def check_checkpoint_logged(assertion: dict, base_dir: Path) -> tuple[bool, str]:
+--------------------------------------------------------------------------------
+292 | ```python
+    - def deviation_class_matches(report: str, annotated_fixture: str, diff_hunk_id: str) -> AssertionResult: ...
+293 + def deviation_class_matches(
+294 +     report: str, annotated_fixture: str, diff_hunk_id: str
+295 + ) -> AssertionResult: ...
+296 | ```
+--------------------------------------------------------------------------------
+302 |
+303 +
+304 | def check_deviation_class_matches(assertion: dict, base_dir: Path) -> tuple[bool, str]:
+    -     fixture = yaml.safe_load((base_dir / assertion["annotated_fixture"]).read_text(encoding="utf-8")) or {}
+    -     report = yaml.safe_load((base_dir / assertion["report"]).read_text(encoding="utf-8")) or {}
+305 +     fixture = (
+306 +         yaml.safe_load(
+307 +             (base_dir / assertion["annotated_fixture"]).read_text(encoding="utf-8")
+308 +         )
+309 +         or {}
+310 +     )
+311 +     report = (
+312 +         yaml.safe_load((base_dir / assertion["report"]).read_text(encoding="utf-8"))
+313 +         or {}
+314 +     )
+315 |     hunk_id = assertion["diff_hunk_id"]
+    -     expected = next((h["deviation_class"] for h in fixture.get("hunks", []) if h["id"] == hunk_id), None)
+    -     actual = next((e["deviation_class"] for e in report.get("deviation_register", []) if e.get("hunk_id") == hunk_id), None)
+316 +     expected = next(
+317 +         (h["deviation_class"] for h in fixture.get("hunks", []) if h["id"] == hunk_id),
+318 +         None,
+319 +     )
+320 +     actual = next(
+321 +         (
+322 +             e["deviation_class"]
+323 +             for e in report.get("deviation_register", [])
+324 +             if e.get("hunk_id") == hunk_id
+325 +         ),
+326 +         None,
+327 +     )
+328 |     if expected is None:
+--------------------------------------------------------------------------------
+345 |
+346 +
+347 | def check_path_exists(assertion: dict, base_dir: Path) -> tuple[bool, str]:
+--------------------------------------------------------------------------------
+367 |
+368 +
+369 | def check_path_does_not_exist(assertion: dict, base_dir: Path) -> tuple[bool, str]:
+--------------------------------------------------------------------------------
+396 |
+    - def check_falsifier_skeleton_present(assertion: dict, base_dir: Path) -> tuple[bool, str]:
+397 +
+398 + def check_falsifier_skeleton_present(
+399 +     assertion: dict, base_dir: Path
+400 + ) -> tuple[bool, str]:
+401 |     case = base_dir / assertion["case_yaml"]
+--------------------------------------------------------------------------------
+409 |     if status == "skeleton-pending-iteration-3-fixture":
+    -         return True, f"skeleton present (pending iteration-3 fixture); id={data.get('id')!r}"
+410 +         return (
+411 +             True,
+412 +             f"skeleton present (pending iteration-3 fixture); id={data.get('id')!r}",
+413 +         )
+414 |     if status == "active":
+--------------------------------------------------------------------------------
+422 |         return True, f"active falsifier with canonical fields; id={data.get('id')!r}"
+    -     return False, f"unexpected status {status!r}; expected 'skeleton-pending-iteration-3-fixture' or 'active'"
+423 +     return (
+424 +         False,
+425 +         f"unexpected status {status!r}; expected 'skeleton-pending-iteration-3-fixture' or 'active'",
+426 +     )
+427 | ```
+    |
+
+unformatted: File would be reformatted
+  --> src/superclaude/skills/sc-roadmap-protocol/refs/adversarial-integration.md:41:31
+   |
+40 |     prompt=build_debate_prompt(diff_file, roadmap_a, roadmap_b, config.depth),
+   -     output_file=debate_file,                  # out / "debate-transcript.md"
+41 +     output_file=debate_file,  # out / "debate-transcript.md"
+42 |     gate=DEBATE_GATE,
+   |
+
+unformatted: File would be reformatted
+  --> src/superclaude/skills/sc-roadmap-protocol/refs/extraction-pipeline.md:25:47
+   |
+24 | if config.input_type == "tdd":
+   -     extract_prompt = build_extract_prompt_tdd(..., tool_write=config.tool_write_extract_tdd)
+25 +     extract_prompt = build_extract_prompt_tdd(
+26 +         ..., tool_write=config.tool_write_extract_tdd
+27 +     )
+28 | else:
+   |
+
+unformatted: File would be reformatted
+   --> src/superclaude/skills/sc-validate-tests-protocol/SKILL.md:254:20
+    |
+253 |     # Boost for compound phrases
+    -     if context.get('compound_phrase_matched'):
+254 +     if context.get("compound_phrase_matched"):
+255 |         base_confidence = min(0.95, base_confidence + 0.15)
+256 |
+257 |     # Reduce for vague input
+    -     if context.get('vague_input') or context.get('no_keywords'):
+258 +     if context.get("vague_input") or context.get("no_keywords"):
+259 |         base_confidence *= 0.7
+    |
+
+unformatted: File would be reformatted
+   --> src/superclaude/templates/documents/release-spec-template.md:140:18
+    |
+139 | ```python
+    - {{SC_PLACEHOLDER:data_model_code}}
+140 + {{SC_PLACEHOLDER: data_model_code}}
+141 | ```
+    |
+
+unformatted: File would be reformatted
+  --> tests/roadmap/fixtures/recurrence/dispatch_reachability/skipped_verification_step_case.md:44:30
+   |
+43 |     steps = _build_steps(config)
+   -     execute_pipeline(steps)          # ends at remediate
+44 +     execute_pipeline(steps)  # ends at remediate
+45 |     # verify-implementation / certify terminal steps NEVER dispatched
+   |
+
+unformatted: File would be reformatted
+  --> tests/roadmap/fixtures/recurrence/retry_contract/retry_loop_no_terminal_case.md:41:17
+   |
+40 |     id="spec-fidelity",
+   -     prompt="",            # deterministic: output is f(inputs), inputs unchanged
+41 +     prompt="",  # deterministic: output is f(inputs), inputs unchanged
+42 |     output_file=spec_fidelity_file,
+43 |     gate=SPEC_FIDELITY_GATE,
+44 |     timeout_seconds=600,
+   -     inputs=[spec_file, roadmap_file],   # never rewritten between attempts
+   -     retry_limit=2,        # <-- futile: attempt 2 == attempt 1, byte-identical
+45 +     inputs=[spec_file, roadmap_file],  # never rewritten between attempts
+46 +     retry_limit=2,  # <-- futile: attempt 2 == attempt 1, byte-identical
+47 | )
+   |
+
+12 files would be reformatted, 1757 files already formatted
+rc=1
