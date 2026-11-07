@@ -49,7 +49,7 @@ worker_contract_version: "1"
 worker_status: succeeded | partial | failed
 command: <the exact command line>
 report_path: <repo path of the plan <id>.md, in to-do/ or, after an archive, done/> | null
-artifacts: [<package return-contract.yaml>, <package source.md if written>, <each file reflect wrote in its .dev/reflect/ run directory, whatever reflect_status is>, <docs/memory/reflect/deviation-patterns-<slug>.md if reflect wrote it>]   # [] before a package exists; gitignored .dev/reflect/runs.jsonl and .superclaude/memory/ are left out (WC-9 stages every listed path, and git refuses ignored paths)
+artifacts: [<package return-contract.yaml>, <package source.md if written>, <each file reflect wrote in its .dev/reflect/ run directory, whatever reflect_status is>, <docs/memory/reflect/deviation-patterns-<slug>.md if reflect wrote it>]   # [] before a package exists; gitignored .dev/reflect/runs.jsonl and .superclaude/memory/ are left out (WC-4 in ~/.claude/WORKER-CONTRACT.md)
 reason: <the STOP code or the failure>                              # only when failed
 ```
 

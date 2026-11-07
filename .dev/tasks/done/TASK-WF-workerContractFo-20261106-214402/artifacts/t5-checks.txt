@@ -1,0 +1,11 @@
+## pytest (6 files)
+============================= 479 passed in 1.65s ==============================
+## make lint
+All checks passed!
+## ruff format --check src/ tests/ (ruff 0.15.20, the pyproject pin)
+1201 files already formatted
+## make sync-dev
+   Templates: 52 files
+## make verify-sync
+
+✅ All components in sync.
