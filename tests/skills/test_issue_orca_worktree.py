@@ -1414,8 +1414,13 @@ def test_ir6_launched_result_states_the_release_and_both_layers(
     # The id is not printed by an ordinary block message (only LL-TAMPER names it),
     # so the instruction says where to find it instead.
     assert "own terminal" in release and "'Launch-level guard' block" not in release
-    assert "named by a session id" in release and "ls -lt" in release
-    assert "does not end in .ok" in release and "exact rm command" in release
+    # The claim hands out the inode number of its own record: the guard binds the
+    # session file as a hard link of it, so `ls -i` picks this launch's file out.
+    (record,) = (store / "pending").iterdir()
+    inode = record.stat().st_ino
+    assert "named by a session id" in release and "ls -i" in release
+    assert f"inode number {inode}" in release and f"whose number is {inode}" in release
+    assert "newest" not in release and "exact rm command" in release
     l1, l2 = data["layers"]
     assert l1.startswith("L1 guard: effective")
     assert l2.startswith("L2 pre-push: absent")  # git init makes only *.sample hooks
@@ -1596,7 +1601,28 @@ IR4_CASES = {
                 "|RemoteTrigger|SendMessage|Cron[A-Za-z]*|Schedule[A-Za-z]*)$",
             ),
         ),
-        ["does not fire for mcp__x__merge_pull_request", "mcp__x__push_files"],
+        ["does not fire for mcp__x__merge_it", "mcp__x__delete_file"],
+    ),
+    # A partly stale matcher that keeps only three of the nine MCP keywords.
+    "matcher-with-partial-mcp-keywords": (
+        lambda f, wt: edit_settings(
+            user_settings(f),
+            set_matcher(
+                "PreToolUse",
+                GUARD,
+                "^(Bash|Skill|Agent|Task|Edit|Write|NotebookEdit|Monitor|Workflow"
+                "|RemoteTrigger|SendMessage|Cron[A-Za-z]*|Schedule[A-Za-z]*)$"
+                "|^mcp__.*(merge|push|create_or_update_file)",
+            ),
+        ),
+        [
+            "does not fire for mcp__x__commit_it",
+            "mcp__x__pull_request_it",
+            "mcp__x__delete_file",
+            "mcp__x__update_ref",
+            "mcp__x__create_ref",
+            "mcp__x__create_branch",
+        ],
     ),
     "user-prompt-matcher-cannot-fire": (
         lambda f, wt: edit_settings(
@@ -1646,6 +1672,25 @@ def test_ir4_each_failing_condition_refuses_the_launch(
     # The check never edits configuration.
     assert {p: p.read_bytes() for p in files if p.exists()} == before
     assert "launch" not in json.loads((issue_dir / "worktree.json").read_text())
+
+
+@pytest.mark.parametrize("missing", ["cat", "sed", "tr", "mkdir", "mv", "ln", "rm"])
+def test_ir4_a_missing_guard_command_refuses_the_launch(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, missing: str
+) -> None:
+    # Without `cat` the guard reads an empty payload and allows, so a session
+    # would run ungoverned; the other commands are what it needs to bind one.
+    launch_scene(fake_orca, git_repo, issue_dir)
+    bare = fake_orca.bin.parent / f"guard-commands-no-{missing}"
+    bare.mkdir()
+    for name in ("git", "cat", "sed", "tr", "mkdir", "mv", "ln", "rm"):
+        if name != missing:
+            (bare / name).symlink_to(shutil.which(name))
+    for stub in fake_orca.tools.iterdir():
+        (bare / stub.name).symlink_to(stub)
+    path = f"{fake_orca.bin}{os.pathsep}{bare}"
+    data = run_launch(fake_orca, git_repo, issue_dir, PATH=path)
+    assert_refused(fake_orca, data, f"{missing} is not on PATH")
 
 
 def test_ir4_stale_registrations_name_the_force_flag(

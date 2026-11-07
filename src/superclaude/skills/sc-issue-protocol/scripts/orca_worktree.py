@@ -750,11 +750,22 @@ GOVERNED_TOOLS = (
     "CronCreate",
     "CronDelete",
     "ScheduleWakeup",
-    # The mcp__ branch of the design matcher: a registration without it misses these.
-    "mcp__x__merge_pull_request",
-    "mcp__x__push_files",
+    # The mcp__ branch of the design matcher: one name per keyword (each holds only
+    # that keyword), so a registration that dropped any one of them is refused.
+    "mcp__x__merge_it",
+    "mcp__x__push_it",
+    "mcp__x__commit_it",
+    "mcp__x__pull_request_it",
     "mcp__x__create_or_update_file",
+    "mcp__x__delete_file",
+    "mcp__x__update_ref",
+    "mcp__x__create_ref",
+    "mcp__x__create_branch",
 )
+# External commands the guard script calls. A missing `cat` makes it read an empty
+# payload and allow (the session runs ungoverned); the others fail closed or leave
+# files behind, but a host without them cannot bind a session either.
+GUARD_COMMANDS = ("cat", "sed", "tr", "mkdir", "mv", "ln", "rm")
 FIRE_ALWAYS = (None, "", "*")
 LINUX_FILES = ("/proc/self/stat", "/proc/sys/kernel/random/boot_id")
 PR_GET_CHILD_SUBREAPER = 37  # linux/prctl.h
@@ -848,7 +859,7 @@ def enforcement_preflight(wt: str) -> list[str]:
     stale = "run superclaude install --force to replace it"
     restale = "run superclaude install --force to replace the registration"
     failures: list[str] = []
-    for tool in ("jq", "uv"):
+    for tool in ("jq", "uv", *GUARD_COMMANDS):
         if shutil.which(tool) is None:
             failures.append(f"{tool} is not on PATH (install {tool})")
     gaps = process_interface_gaps()
@@ -951,23 +962,34 @@ def l2_status(wt: str) -> str:
     )
 
 
-def session_report(wt: str, l2: str) -> tuple[str, list[str]]:
+def session_report(wt: str, l2: str, inode: int | None = None) -> tuple[str, list[str]]:
     """IR-6: how a person releases the launched session, and one line per layer.
 
     Called only after the IR-4 preflight passed, so L1 is effective. ``l2`` is
     the l2_status() answer the launch already used, so both always agree.
     """
     store = home_dir().joinpath(*PENDING_PARTS[:-1])
+    if inode is None:
+        find = (
+            "the claim could not read its record's inode number, so check which "
+            "session file belongs to this launch before removing anything"
+        )
+    else:
+        find = (
+            f"this launch's record has inode number {inode}: run ls -i on the "
+            f"sessions folder and take the name whose number is {inode} (once the "
+            "agent has read its first prompt the guard keeps the session file as a "
+            "hard link of this record, so the number matches); if no name has that "
+            "number, the session was bound another way, so check which session "
+            "file belongs to this launch before removing anything"
+        )
     release = (
         "to release this session, a person runs in their own terminal: "
         f'rm "{store}/sessions/<session id>" "{store}/sessions/<session id>.ok" '
         "(every file in the sessions folder is named by a session id and holds "
         "only the level word, and a name ending in .ok is an approval; the launch "
-        "does not print the id, so run ls -lt on the sessions folder and take the "
-        "newest name that does not end in .ok, which is this launch's session once "
-        "the agent has read its first prompt; with several launched sessions "
-        "running, cat the file to check the level word; a guard block about "
-        "touching the launch-level state prints the exact rm command)"
+        f"does not print the id; {find}; a guard block about touching the "
+        "launch-level state prints the exact rm command)"
     )
     l2_line = (
         "L2 pre-push: absent (no executable pre-push hook in this worktree; the "
@@ -1224,6 +1246,12 @@ def cmd_launch(args: argparse.Namespace) -> int:
     word = "full-submit" if args.submit else args.level
     try:
         nonce, pending = publish_pending(word)
+        # The guard keeps the bound session file as a hard link of this record, so
+        # its inode number picks this launch's session file out of the sessions folder.
+        try:
+            inode: int | None = pending.stat().st_ino
+        except OSError:
+            inode = None
     except OSError as exc:
         return emit(
             launch_result(
@@ -1278,7 +1306,7 @@ def cmd_launch(args: argparse.Namespace) -> int:
             f"({'; '.join(problems)}); do not re-run the claim, add the launch entry "
             f"to {source / RECORD_NAME} by hand"
         )
-    release, layers = session_report(wt, l2)
+    release, layers = session_report(wt, l2, inode)
     result = launch_result(
         "launched",
         notes + l2_notes,  # the ccsession warning, when any, stays first
