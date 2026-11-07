@@ -1,0 +1,1235 @@
+{
+  "input_tree_sha256": "15714fa95760574a1915dc082cbce16a4a31adb04ab609064a243f6df0c79408",
+  "file_count": 307,
+  "file_list": [
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/TASK-WF-remediationSourc-20261106-121243.md",
+      "sha256": "76033cce2ce0415b7d35a127f07d3684f6c3b868ea375e5d9bb32bcf87da8fb1"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/capture_shim.py",
+      "sha256": "88c800031a6358f4571a0bee8c035fa18797a7657077b225b5318205bf331ce2"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/final-review-1-clarification.txt",
+      "sha256": "ee8c7323190bc339fc47c3c0c58c50f49444d75adae6bc92ae97fabee29f7c85"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/final-review-1.txt",
+      "sha256": "265424963fe1c4931632a1eb9fc05cdbc5e73e619ec0249101b3c17aa282155b"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/final-review-2.txt",
+      "sha256": "f17d6114fe4e505028016d7af30cab38cf11c32500402a400d9e2d85a4869ee7"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/final-review-prompt.txt",
+      "sha256": "fc97f196647642b9dbd79310e45ae6d6fba327106c7ceb291890f390d075fc67"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/protocol_io.py",
+      "sha256": "2237fbe461735f55739c06cc71e0809793e2a98a34d10d34be82316f48d5cd14"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T1/prompt-1-1.md",
+      "sha256": "d969d69b1dffca5fdef6ee7030bb6d44d55d581c125facad827c27f3e56d0eab"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T1/q0-head",
+      "sha256": "cc9e423ba72620fc02a7f01947be7c0276df9ffae966138eadef713f3649e6ef"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T1/review-1.md",
+      "sha256": "d9c012faeea25f0c25b8869a5370fdc6ec7f65c9c7d7c59f9ca3ca12ff2c0f8b"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T1/reviewed-tree",
+      "sha256": "dbe2f3d061c805c345c5568327cc2607cba43a23585388f4c729551ba6067707"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T2/prompt-1-1.md",
+      "sha256": "85a0eb11a0ca25cf5c663941cc3ed88fdfb001bacacb848637a00c0cf9ac07f3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T2/q0-head",
+      "sha256": "cc9e423ba72620fc02a7f01947be7c0276df9ffae966138eadef713f3649e6ef"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T2/review-1.md",
+      "sha256": "84e2e8c4baafb3c335754c5a15b4d52c01344850b59dcb0b5719e605bcedab99"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T2/reviewed-tree",
+      "sha256": "2052fc756f47acb2e5f0f0d9c69a1d041d7510cb9a42f75fb3219278b7200a68"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T3/prompt-1-1.md",
+      "sha256": "d9f11f42dae6e40bf05d45e6d057854b98402385362b2d91c2e4b6fce9d7edaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T3/q0-head",
+      "sha256": "cc9e423ba72620fc02a7f01947be7c0276df9ffae966138eadef713f3649e6ef"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T3/review-1.md",
+      "sha256": "35ccbeff58975e95f4f1cb17fa6bcff6f2a84e33eccef412d390eb8b1e731820"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T3/reviewed-tree",
+      "sha256": "da552cedd0e389f3e6956915cd8ecd9001094cc0c109473cbd504f9f03285f76"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T4/prompt-1-1.md",
+      "sha256": "54b2c12a74943d95cfba9eef6d361c0add566af496b10870622b562706efc290"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T4/q0-head",
+      "sha256": "cc9e423ba72620fc02a7f01947be7c0276df9ffae966138eadef713f3649e6ef"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T4/review-1.md",
+      "sha256": "82d1c328062b64d030faa7cbf7ba212825a30c4e1ec6bc9c05922f56c66d8de3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/retries/T4/reviewed-tree",
+      "sha256": "6e037d130ba2330693f61827da2efe8ddd8b31569382699427bb4b600247ae63"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/alias-opus/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/alias-opus/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/alias-opus/command.json",
+      "sha256": "8b7c69f6c7886640e5351ab3ea486c7b378215b96280ac29e128b7cf89fee197"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/alias-opus/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/alias-opus/launch-stderr.log",
+      "sha256": "68e72ea0162dbf9c5e1a235ff39a6d722979439a153377ff883302bc7d50be30"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/alias-opus/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/alias-opus/native-stderr.log",
+      "sha256": "176eeb020ac7963c4009937eac959001ef52aa0f2ab671838e63994b18c33cc1"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/alias-opus/responses.json",
+      "sha256": "655f78f2aad943b77169ea702d9768afad65abde2e4cc59a0ab3f310e01387b6"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/alias-opus/seen.json",
+      "sha256": "4023a295c0099a3f40ff0830b912b29effb9b82e6e3905bbcc19a74155c35e61"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/alias-opus/warmup-cache.json",
+      "sha256": "d3d9989938a34548a4ef51282eaf5ccbc0b84662a45ce68b6dd8bdc6d6fb4384"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/compact-override/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/compact-override/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/compact-override/command.json",
+      "sha256": "c76eeca106d8260f9c3d6fe978bcdc69fd03f16c5ecee1e5802f15dd1c1e1fac"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/compact-override/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/compact-override/launch-stderr.log",
+      "sha256": "8bf3da59d8200ebbf842ca854f08e3e47cb0e3b98d03dd3e34379eaad603aba7"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/compact-override/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/compact-override/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/compact-override/responses.json",
+      "sha256": "db9e8c890d4d4d505352fbc6f050d40cf04571364693d09baf1bac51861272d2"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/compact-override/seen.json",
+      "sha256": "efeecc8a03a7a0c68f57a858d787d030632aa193cd3e5598ccd036b066ff55f4"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/compact-override/warmup-cache.json",
+      "sha256": "6f1723ea9cb482307da85bf1ef565740043710f890da1b5b428a25a837c448a3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/shim-requests.jsonl",
+      "sha256": "2146b1a395ebaa8e0675255183f4563799769cb48fc8660d60b31d9e0b8e5756"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/shim-stderr.log",
+      "sha256": "e0e0023a7281accda445b01114c282e1f4bb8f6d5882923ed3bcfb2ed11e4350"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier0/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier0/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier0/command.json",
+      "sha256": "6800f6a896c5176fec059f527710d456d6ebb7fbf03390528ce30b54bab6df5b"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier0/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier0/launch-stderr.log",
+      "sha256": "201bfa86b4560081bd48d10d7c9c48f060122bdd4e04557966ddc7fbf1f4195f"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier0/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier0/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier0/responses.json",
+      "sha256": "20cdea8e8121ae51c49a4127241470a00612684ffc05ffe46371954c00f7165a"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier0/seen.json",
+      "sha256": "f290590f67add47993ea66c0e9226de3b7deafa4a8404e29d9fa6731cf263f1d"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier0/warmup-cache.json",
+      "sha256": "aa8f0fdc172b7bcf3200ba423837b86b11aea4357f63368082385342d91b0b72"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1a/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1a/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1a/command.json",
+      "sha256": "4279fb00d897c03871c2f8d0e93f4706756f6659f1712e6d0d30a71be2163c7f"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1a/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1a/launch-stderr.log",
+      "sha256": "9edb2a0fe4c639e44d9063bf3f58c595cf1373eef38cd995f8f74af9122e21f8"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1a/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1a/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1a/responses.json",
+      "sha256": "45026ef7dbb97b987076efa029c154f6bafe4a5a2bd5d3b2aadcd77111bafa87"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1a/seen.json",
+      "sha256": "08c740f740709bc833d8dcae85a65a9b5be10c496efd6764f6d8c0b96c7c5f25"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1a/warmup-cache.json",
+      "sha256": "551d2d47bd2c9531db29baf28dd41a624462c797ab45c3dc7166f9dc621fa8c8"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1b/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1b/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1b/command.json",
+      "sha256": "38b5f675351040a9c376e41801c7a292053e84a48d3b90169afee2c5f0cac646"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1b/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1b/launch-stderr.log",
+      "sha256": "923489d9cc2563e88faf8a2eb598ebe98b8f432c041108bed1989166bb3a7ee1"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1b/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1b/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1b/responses.json",
+      "sha256": "8f551f9fdbb72c6628acfce3186bfecc2a2d65c213f6378b6237ff635e04f7d4"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1b/seen.json",
+      "sha256": "30ed0450d23a93d7a5c95fc3dbd8e869ad53cbde962668f945b6403f0d54bbad"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier1b/warmup-cache.json",
+      "sha256": "925e0caae6c55a634601a504f42d90a0a94b16450d34dec74109ffd25c59b7ad"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier2/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier2/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier2/command.json",
+      "sha256": "d538382d008fef4a676b0c3006fc634a8770143c5b57dc46a8a3aacce9bd3b4e"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier2/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier2/launch-stderr.log",
+      "sha256": "68e72ea0162dbf9c5e1a235ff39a6d722979439a153377ff883302bc7d50be30"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier2/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier2/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier2/responses.json",
+      "sha256": "da5b40021abe801e2a881f61fa7ccd3ae59490ebeb900aef4cf8cff311e2be55"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier2/seen.json",
+      "sha256": "4023a295c0099a3f40ff0830b912b29effb9b82e6e3905bbcc19a74155c35e61"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work/tier2/warmup-cache.json",
+      "sha256": "747fb74d41ad41f8a3be3c58847c75c36dad3449e3bd7931725633d28c767935"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-haiku/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-haiku/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-haiku/command.json",
+      "sha256": "faec3f2ff6b52b2c7fbd5360d265a51d09c84ecd280996edb21d400b8f59f9f8"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-haiku/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-haiku/launch-stderr.log",
+      "sha256": "21bd1cc71b4a56a5f75afbf07dd932c27177a2a43dc44369cf39d827e3f7478b"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-haiku/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-haiku/native-stderr.log",
+      "sha256": "dc807c92cd7afc4a250a7af2ac333dd434bca80f11ef5ff804c9dee2f3cb0eba"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-haiku/responses.json",
+      "sha256": "5c168f672199a917b6e8a143cf0ade040486b3a4a3f8042927ba59ee317ecf9e"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-haiku/seen.json",
+      "sha256": "7be30a0676b282ae9c55edc916d0a1f75009f0e45e2b54e1dd00793508fc6411"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-haiku/warmup-cache.json",
+      "sha256": "6bf04e927a5fe77c4b7e7781addaa72b77f45911846cf3d0e562a8e42250d33f"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-opus/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-opus/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-opus/command.json",
+      "sha256": "8b7c69f6c7886640e5351ab3ea486c7b378215b96280ac29e128b7cf89fee197"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-opus/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-opus/launch-stderr.log",
+      "sha256": "21bd1cc71b4a56a5f75afbf07dd932c27177a2a43dc44369cf39d827e3f7478b"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-opus/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-opus/native-stderr.log",
+      "sha256": "176eeb020ac7963c4009937eac959001ef52aa0f2ab671838e63994b18c33cc1"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-opus/responses.json",
+      "sha256": "5156ad4c2d5eb96d357180cb70721f59be95a25febcbe8a2fb4d8e819bf6d3d0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-opus/seen.json",
+      "sha256": "7be30a0676b282ae9c55edc916d0a1f75009f0e45e2b54e1dd00793508fc6411"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-opus/warmup-cache.json",
+      "sha256": "451c69e14a818559e018dee03a36818821378cd1319ebd75c7c93af0959f51da"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-sonnet/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-sonnet/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-sonnet/command.json",
+      "sha256": "e375b4deecbc266ec617ff66dc3b4e7d9c5521705ac1bda973d54b013c50bc8b"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-sonnet/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-sonnet/launch-stderr.log",
+      "sha256": "21bd1cc71b4a56a5f75afbf07dd932c27177a2a43dc44369cf39d827e3f7478b"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-sonnet/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-sonnet/native-stderr.log",
+      "sha256": "491d961998ae94359b11328da2e18ba8ab11307de6b3dc9c3e1f0fee95f914b1"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-sonnet/responses.json",
+      "sha256": "5625556e44417d5d7207d25a51508c6b9336595234a1b3034b089593050ab6ec"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-sonnet/seen.json",
+      "sha256": "7be30a0676b282ae9c55edc916d0a1f75009f0e45e2b54e1dd00793508fc6411"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/alias-sonnet/warmup-cache.json",
+      "sha256": "2847e76cf3c3671e2ac58875988fe9fea915e19f5acff40a85e2e9cad63ae7a7"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/bare-route/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/bare-route/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/bare-route/command.json",
+      "sha256": "5c44bd0e84665ea77f751248e6d781d49e2a6b64824a74eb354de3b267cc8bda"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/bare-route/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/bare-route/launch-stderr.log",
+      "sha256": "62f7fd6afd8d48348ed01ffc26a26be76d05ae96c2b26bd2105f911557521878"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/bare-route/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/bare-route/native-stderr.log",
+      "sha256": "26801f00727305859269d7204d6aa8c851967141cb69983c62ace800a68efefd"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/bare-route/responses.json",
+      "sha256": "d076e3a7c4bff428c766d163cb18029d46ac75a37c113e9682fe6fb1708627ec"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/bare-route/seen.json",
+      "sha256": "2bc2328afa247633a648e74807c3befbbcecdadb751c401c609c7e856f340ad3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/bare-route/warmup-cache.json",
+      "sha256": "013b30d523c43bbbe0ecf02746b53aaa4cf951835a903137fe579e3401e35e7c"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/compact-override/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/compact-override/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/compact-override/command.json",
+      "sha256": "c76eeca106d8260f9c3d6fe978bcdc69fd03f16c5ecee1e5802f15dd1c1e1fac"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/compact-override/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/compact-override/launch-stderr.log",
+      "sha256": "60ecdb2949c1972c9bbdeeb2a08545ce3d879c8de6c1bf2902433d1e3bccf386"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/compact-override/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/compact-override/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/compact-override/responses.json",
+      "sha256": "1ceb3ba615c791499872d0da7403bfb71b67e6402ae56212d1b1ab4772b72ab7"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/compact-override/seen.json",
+      "sha256": "572b059ef5e2d88565e7d64ddcc4d426f701dbd3beecc300ef6e79c2cb0cbb8c"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/compact-override/warmup-cache.json",
+      "sha256": "c072d83b6a83b38a60e5e41b62e9096875c28c0da6d0674ff0e249ce0d22057e"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/shim-requests.jsonl",
+      "sha256": "827fc685987341abcceaa9ac463b5bcbfa224cb96191837a64c9cd28585cd215"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/shim-stderr.log",
+      "sha256": "436dc1604bd625544999978efb9055d505b5ae5f83feda5a53077814c118d075"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier0/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier0/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier0/command.json",
+      "sha256": "6800f6a896c5176fec059f527710d456d6ebb7fbf03390528ce30b54bab6df5b"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier0/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier0/launch-stderr.log",
+      "sha256": "bb58e02f815d953dd81eb17d86f29cdb2c2e2e3b34fe9927a4b479685197a2de"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier0/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier0/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier0/responses.json",
+      "sha256": "b2d980f04eac2efb8f0218676a871c66d777bb493f93f3835b7fa39da5dfd6ce"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier0/seen.json",
+      "sha256": "cf98005d99f82c7a5f6cd22653ed75ea184ef779795770e11a29b3b5d85abf7a"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier0/warmup-cache.json",
+      "sha256": "5eccf1f7e22698224c62ae6285c39443198eb6d1bef9e50cd4d44c1041e36afb"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1a/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1a/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1a/command.json",
+      "sha256": "4279fb00d897c03871c2f8d0e93f4706756f6659f1712e6d0d30a71be2163c7f"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1a/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1a/launch-stderr.log",
+      "sha256": "02ec54539e60debb61a7d3c8c39d0a6d3a4ef29652e51bf8b6b1ddd9fe04d3ec"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1a/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1a/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1a/responses.json",
+      "sha256": "57427cf3d1fac4187caa45c61b91a1fbe8391b1aa9c684e50837db35beee2ebe"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1a/seen.json",
+      "sha256": "d7caede0aa70695225ee020a7ff0387301a218ebd7f96cf884885f5877211b71"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1a/warmup-cache.json",
+      "sha256": "6a71209f63367bc17ad4967f1bd784ddd0b43dc3c86e708fb2a8b1327cf0f6d9"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1b/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1b/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1b/command.json",
+      "sha256": "38b5f675351040a9c376e41801c7a292053e84a48d3b90169afee2c5f0cac646"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1b/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1b/launch-stderr.log",
+      "sha256": "4e1fc4813f2635e9bcbcafe286442d57fc510298107a3ad26a7f10b5926e7fbd"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1b/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1b/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1b/responses.json",
+      "sha256": "cd17fd3e2cd88c3f78943bb45c2704cb9c6e9704ec0266fc7e9e8a023d9be641"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1b/seen.json",
+      "sha256": "018eb259036d50d0c006f4fdc4141ec6e270ae1c21df4ffc78ed352b887ace2a"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier1b/warmup-cache.json",
+      "sha256": "c39d9ec41f45b6f22ae1fe4ab5284b27605c34838737d9c696baafcdf1ab9463"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier2/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier2/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier2/command.json",
+      "sha256": "d538382d008fef4a676b0c3006fc634a8770143c5b57dc46a8a3aacce9bd3b4e"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier2/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier2/launch-stderr.log",
+      "sha256": "21bd1cc71b4a56a5f75afbf07dd932c27177a2a43dc44369cf39d827e3f7478b"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier2/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier2/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier2/responses.json",
+      "sha256": "bc4f8584b48ef774f3938f5a1d1f5482fc35298ea2ec347979f1ee8ff85faf0a"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier2/seen.json",
+      "sha256": "7be30a0676b282ae9c55edc916d0a1f75009f0e45e2b54e1dd00793508fc6411"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-2/tier2/warmup-cache.json",
+      "sha256": "bc21ee683d5f2d500291ec8117a68a3746c91e762009b84766840dd2a1c903e9"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-haiku/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-haiku/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-haiku/command.json",
+      "sha256": "faec3f2ff6b52b2c7fbd5360d265a51d09c84ecd280996edb21d400b8f59f9f8"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-haiku/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-haiku/launch-stderr.log",
+      "sha256": "fe67a6a0ce657119464cfc71fa9b5155b0a10a68b907d79a8a54a37f97641071"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-haiku/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-haiku/native-stderr.log",
+      "sha256": "dc807c92cd7afc4a250a7af2ac333dd434bca80f11ef5ff804c9dee2f3cb0eba"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-haiku/responses.json",
+      "sha256": "73a4e843514d1c69c584e232c5757a6df28e4f23b3aebcc1a9a98041e68261a7"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-haiku/seen.json",
+      "sha256": "a6120cafddc105535ece00dd4969e054b767e41558540072e62e1365da0f5636"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-haiku/warmup-cache.json",
+      "sha256": "b08037f69fa679266d478ef4ab0d6e9308628a1d42ccec4b4f38e02e8b47bd2b"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-opus/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-opus/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-opus/command.json",
+      "sha256": "8b7c69f6c7886640e5351ab3ea486c7b378215b96280ac29e128b7cf89fee197"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-opus/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-opus/launch-stderr.log",
+      "sha256": "fe67a6a0ce657119464cfc71fa9b5155b0a10a68b907d79a8a54a37f97641071"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-opus/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-opus/native-stderr.log",
+      "sha256": "176eeb020ac7963c4009937eac959001ef52aa0f2ab671838e63994b18c33cc1"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-opus/responses.json",
+      "sha256": "1a7e0bb95d08c793fb275bc3b500f56d281bce8bbdce5bdc9c8d7b743ab4437e"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-opus/seen.json",
+      "sha256": "a6120cafddc105535ece00dd4969e054b767e41558540072e62e1365da0f5636"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-opus/warmup-cache.json",
+      "sha256": "4b30cef72302dd5f10a7eaf5994876d93ba755e864cd140e25cf9c17f8f87979"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-sonnet/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-sonnet/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-sonnet/command.json",
+      "sha256": "e375b4deecbc266ec617ff66dc3b4e7d9c5521705ac1bda973d54b013c50bc8b"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-sonnet/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-sonnet/launch-stderr.log",
+      "sha256": "fe67a6a0ce657119464cfc71fa9b5155b0a10a68b907d79a8a54a37f97641071"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-sonnet/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-sonnet/native-stderr.log",
+      "sha256": "491d961998ae94359b11328da2e18ba8ab11307de6b3dc9c3e1f0fee95f914b1"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-sonnet/responses.json",
+      "sha256": "69ee7db75b7febd8d4c6fd778db95c0e75d5d0b82f0509e7f6d7c924f4a4edec"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-sonnet/seen.json",
+      "sha256": "a6120cafddc105535ece00dd4969e054b767e41558540072e62e1365da0f5636"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/alias-sonnet/warmup-cache.json",
+      "sha256": "9069fc5d0f806a5b3bc437b0c0d26de84d5f2cc37ff012a772a2b445a5025b6d"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/bare-route/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/bare-route/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/bare-route/command.json",
+      "sha256": "5c44bd0e84665ea77f751248e6d781d49e2a6b64824a74eb354de3b267cc8bda"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/bare-route/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/bare-route/launch-stderr.log",
+      "sha256": "7ee31b3b22c6a52b26512ae8818ca4721d0554e9f155a5a3e27d67510de36a1d"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/bare-route/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/bare-route/native-stderr.log",
+      "sha256": "26801f00727305859269d7204d6aa8c851967141cb69983c62ace800a68efefd"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/bare-route/responses.json",
+      "sha256": "c4e5dd76455fb23ef43aa9ad09e363a08ffe6ab46483ed9bcac690bdc9c231a2"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/bare-route/seen.json",
+      "sha256": "6279d064b5d3a3135c2cbfdbc15d32242359fb10add73000df2e1a0c557251c3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/bare-route/warmup-cache.json",
+      "sha256": "80e031db7e18a4d0a4cb0b356607efac4c842d9fd242207654ac2fe2e9fe7233"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/compact-override/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/compact-override/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/compact-override/command.json",
+      "sha256": "c76eeca106d8260f9c3d6fe978bcdc69fd03f16c5ecee1e5802f15dd1c1e1fac"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/compact-override/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/compact-override/launch-stderr.log",
+      "sha256": "b79d28af6386df6a7659655727efc2793b99a0d733892a9165a21345dc5f0cde"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/compact-override/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/compact-override/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/compact-override/responses.json",
+      "sha256": "40b8633c0dd5918af3d5b225c6c739f7fd1c3f5b25d831c1b76e7c1e067636c9"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/compact-override/seen.json",
+      "sha256": "4cc3c6d2d319dd8b2a480422ff48638d396659540ea61e14c0854152167aaef0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/compact-override/warmup-cache.json",
+      "sha256": "c301a5623992d4034055f5efc21647d79e9b4224ba3d93f0449f23dc645e67f6"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/shim-requests.jsonl",
+      "sha256": "d3e3f7948d5072755d85097127acc8018b78dd6d1d75073efdb209ba20c58f4e"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/shim-stderr.log",
+      "sha256": "ed5ea57352f8e215a5f2a87ecc36d0684990ad958832d5b554515e90e7ab76e0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier0/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier0/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier0/command.json",
+      "sha256": "6800f6a896c5176fec059f527710d456d6ebb7fbf03390528ce30b54bab6df5b"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier0/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier0/launch-stderr.log",
+      "sha256": "570f1c80a170880a288497c03168d53f633fc32730c908d4f5c394b126f7f25e"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier0/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier0/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier0/responses.json",
+      "sha256": "2360891c71395f47babe1a7d2325ebf734fef400137857bd387b0da4e0b9c00a"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier0/seen.json",
+      "sha256": "3a14ccca0b8b948dbab7bbe2c5071a119a4598b5dece89645051dd488a665180"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier0/warmup-cache.json",
+      "sha256": "ea7d98972b933fe8fdf7c11292fbadcf1431f92ded271ff1f025541b8594a7d1"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1a/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1a/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1a/command.json",
+      "sha256": "4279fb00d897c03871c2f8d0e93f4706756f6659f1712e6d0d30a71be2163c7f"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1a/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1a/launch-stderr.log",
+      "sha256": "8f3ff1f860ece961f87374c96d700340f37e57b5238280a7dae9e157381d10b6"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1a/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1a/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1a/responses.json",
+      "sha256": "9b15ed82478d7379a60c0a4ead1a0499f1f30feb648e51d0c8cd49b98fe3becb"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1a/seen.json",
+      "sha256": "61fbcb84c180dcf6ab6d0c767e6060eb16a8b514a901ace3be5e353d4934d603"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1a/warmup-cache.json",
+      "sha256": "069d871a42008f265d9ec48c357283cc11903564c8085ef5f7be56352931932f"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1b/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1b/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1b/command.json",
+      "sha256": "38b5f675351040a9c376e41801c7a292053e84a48d3b90169afee2c5f0cac646"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1b/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1b/launch-stderr.log",
+      "sha256": "2e9aff4a9e2c8deafb59b4a9fc5a8260af1c7f9014686667a5018b9c4745ca62"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1b/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1b/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1b/responses.json",
+      "sha256": "41a89f572c519808222b0e6174b6816b726040d005ebea3930feabfc4cc910c4"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1b/seen.json",
+      "sha256": "e52a3d227caaf5727be8c579d042f9e32fe476a99b2abfade97bbd0ea6e318f2"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier1b/warmup-cache.json",
+      "sha256": "12675bcd2792ca78995d810ba28daa98aeb75e2c1bac7402afc87e5ea935cd1d"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier2/aienv.d/defaults.sh",
+      "sha256": "04c8a1c0fe13fafee840325b0aafff9ec95ee1a7902da33ef9a8f229ecffcd34"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier2/claude",
+      "sha256": "4926586e78487ad8a10ad799982a389e3f485d99cd04173ff3e56db129b7feaf"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier2/command.json",
+      "sha256": "d538382d008fef4a676b0c3006fc634a8770143c5b57dc46a8a3aacce9bd3b4e"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier2/curl",
+      "sha256": "b9540377a88e2e76de9f07dc1e003bdf0f34e00f40f03be436343e64b4d2a8f0"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier2/launch-stderr.log",
+      "sha256": "fe67a6a0ce657119464cfc71fa9b5155b0a10a68b907d79a8a54a37f97641071"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier2/lsof",
+      "sha256": "c32fd12f71511c89380ef82f2626425924f609ec77b79c45c3d3c82fbba62fc3"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier2/native-stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier2/responses.json",
+      "sha256": "88cfcbebdf69c7ff050ef5f4951189ef42489ed43ac11e270b1dfed370a5f5e5"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier2/seen.json",
+      "sha256": "a6120cafddc105535ece00dd4969e054b767e41558540072e62e1365da0f5636"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime-work-3/tier2/warmup-cache.json",
+      "sha256": "abb28827713eff38280e42eae5b5c5f9001e416bf3dd1cb384e147a9c897b8dc"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/runtime_probe.py",
+      "sha256": "8933a0aa040b1c56c15c0f5bc1fcede32bd7879a71fede2c43eef74db736ab2a"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t1-before.log",
+      "sha256": "a480278d6e6d38e88b8ad1412e9ce2548a89a5d91eb8f0b17263a3105627f9f9"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t1-checks.log",
+      "sha256": "746b7485cf10df8b88d1af13be245101707c670d83f545f5975257ad2f0fb2a6"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t1-qa-input.txt",
+      "sha256": "d3b76fb1c75d9093e09486c53710ebf8fcf6dfd81021e9e228f84172968320fe"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t1-regressions.log",
+      "sha256": "ad5113c12a3aa2d226313766ac4ead4eebef02ea852b7f0906f80a612ed223be"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t1-tests-rerun.log",
+      "sha256": "a7cbe6fe92ae7853cd81df138aaeaf443972ff4b0cbc40feee50b2662af44d7e"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t1-tests.log",
+      "sha256": "83e5bc086b48b697edce1ff57bf9625bb4d1a2ec85ed012c1c870951a5228e5b"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t2-qa-input.txt",
+      "sha256": "ec097eb525b28af5608bf7c880710cb34868815b79a9c2cbf57ef869c3673559"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t2-tests.log",
+      "sha256": "0e42f32fcb8712cf5d04444e87d724c5f3f4e41960909bc7935b581b5ac4f3ea"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t3-checks.log",
+      "sha256": "7879857f56b36c11b651220719fce7903a21f26d355c30c5f1eefac800c7fb48"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t3-qa-input.txt",
+      "sha256": "3e22842df7132ee54dd882b9b350d8060f242d7d89ad966e1a33af20c8e677b4"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t3-tests.log",
+      "sha256": "64c19b1586c798de375dc8dfe08ce713b1aac37128986e6a782f405caebff86e"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-checks-final.log",
+      "sha256": "b4c696647d65cbbb07f88241f13ee1e9e8ca78332fc7d384b0b012b0128a5776"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-checks.log",
+      "sha256": "b4c696647d65cbbb07f88241f13ee1e9e8ca78332fc7d384b0b012b0128a5776"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-delivery.txt",
+      "sha256": "d47ce90f603aa8df546cba3998b7bd318db33b2461890e493d2ced7de6ab1d63"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-extras.log",
+      "sha256": "51ced6d24db70fe81b9eebfb41579a7d6bd1cfca23a34bb90e77a05cfd86244a"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-focused.log",
+      "sha256": "056b0b4695ab093082c91fc530209719b55e4e8a824cb5b9ad7743ee98cd0516"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-qa-input.txt",
+      "sha256": "e8b50bae7d8bd471d920caa7bb4e5fcc7c3a0a8cd579cde4a16dea8bacd72aca"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-runtime-final.log",
+      "sha256": "caf1f945bf9eb72b363072c00ecb320bb06f5f5de61323b9551501b8acac62d8"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-runtime-rerun.log",
+      "sha256": "caf1f945bf9eb72b363072c00ecb320bb06f5f5de61323b9551501b8acac62d8"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-runtime.json",
+      "sha256": "764b9e360bcaa2114abd6a63a5b95fed2f1b3ca732bccea372a2dcdd8d070b2f"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-runtime.log",
+      "sha256": "2c628579e03fae63cb644295f114775005c78146bcd5ae18b1e6690a746512c1"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-tests-rerun.log",
+      "sha256": "0a74438761ae0eaeb971571351719fb6bafb236d82ff958cf25409f41566025f"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-tests.log",
+      "sha256": "c095d8ee49075a89f863b55ccbd8ff167e86f578198f2578032d26ce3a8e4d71"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/typecheck-detection.log",
+      "sha256": "a7d0ae2b77932aa06184c87e812fefb0abc264b25fa6f3aa05c7e0ac2e5e7adb"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/progress.md",
+      "sha256": "7d5c8a121d87fde15927cf73763d86e428ce9838755e8b39ab98a7832eab7fec"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/return-contract.yaml",
+      "sha256": "d9afad839fd3ed292d139708b2d25c3572482c7b2cda7dfff84b06adc70c4db8"
+    },
+    {
+      "path": ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/source.md",
+      "sha256": "4a64669f92369768468fda4f2b6c9af8b1c815a92a76c2e6b976c5644c55c4c1"
+    },
+    {
+      "path": ".dev/troubleshoot/bug-ensure-the-850k-limit-of-20261106114037/REPORT.md",
+      "sha256": "3be50f6bd5928bc2fca6f89de990378096a26ff2ec95ac70fa8602817ff4b2be"
+    },
+    {
+      "path": ".dev/troubleshoot/bug-ensure-the-850k-limit-of-20261106114037/audit.log",
+      "sha256": "4f6bfa3980681e565390026d8e25246837efe61198666d1cc8c13ed8e9025b0b"
+    },
+    {
+      "path": ".dev/troubleshoot/bug-ensure-the-850k-limit-of-20261106114037/impact/impact.md",
+      "sha256": "3f6bc0cdcee6018fcef829c19ceb63815178aeb0875ebcb9d9b338a6f591dc4d"
+    },
+    {
+      "path": ".dev/troubleshoot/bug-ensure-the-850k-limit-of-20261106114037/tier1-hypothesis.md",
+      "sha256": "1327a266791ece676e5c9afd2d257e4c42a8266cac8b13e5fec59f7b2dd9bf94"
+    },
+    {
+      "path": "src/superclaude/skills/ccsession-tag/ccsession",
+      "sha256": "82dac9139b84a3b8aa186c87d4d36f3c7ef666ddb80e6af32a132cb06519da86"
+    },
+    {
+      "path": "src/superclaude/skills/ccsession-tag/models.py",
+      "sha256": "da90ca706353fc13b26dc69ddf6fbbd231125d850e35e27cbf87387629b57167"
+    },
+    {
+      "path": "tests/unit/test_ccsession_tiers.py",
+      "sha256": "a8f24e5f3f8399c5eab79d35573b2ed2e91e7a578cf7e277b5002c1a79e25b05"
+    }
+  ],
+  "output_root": "/home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/reflect-post-quick"
+}

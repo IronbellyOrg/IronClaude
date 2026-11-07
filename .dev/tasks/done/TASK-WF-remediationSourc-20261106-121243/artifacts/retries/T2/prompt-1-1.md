@@ -1,0 +1,118 @@
+b9cda9f19902855fd30b5c78f3753f74bf7602e8
+Review one task for spec compliance.
+
+Task brief: ## Task 2: Export context-capable allowed-tier aliases
+Depends on: Task 1
+
+Inputs: ./source.md access-aware alias/window requirements, ccsession tier-mode alias-export block, models.py tier resolution from Task1 and existing alias-export tests in tests/unit/test_ccsession_tiers.py. Use the gateway-compatible context spelling for allowed opus/sonnet/haiku tier exports without changing which tier each alias routes to. Extend existing tests rather than new helpers. Outputs: alias export fix and matching regression; evidence ./artifacts/t2-tests.log.
+
+Acceptance criteria:
+- Allowed opus/sonnet/haiku still route to tier1a/tier1b/tier2 respectively, now with context capability consistent with gateway Tier entries and per-tier settings.
+- Unavailable tier aliases preserve inherited values or stay unset exactly as before; non-tier launches unchanged. Existing restricted-owner and missing-tier fixtures cover those cases.
+- Alias regressions and Task1 regressions pass under UV; tests assert selected spelling and intended window, not just presence of an env variable.
+
+T2.AC1: Allowed opus/sonnet/haiku still route to tier1a/tier1b/tier2 respectively, now with context capability consistent with gateway Tier entries and per-tier settings.
+T2.AC2: Unavailable tier aliases preserve inherited values or stay unset exactly as before; non-tier launches unchanged. Existing restricted-owner and missing-tier fixtures cover those cases.
+T2.AC3: Alias regressions and Task1 regressions pass under UV; tests assert selected spelling and intended window, not just presence of an env variable.
+Global constraints: - Scope product changes to src/superclaude/skills/ccsession-tag/ccsession, src/superclaude/skills/ccsession-tag/models.py and tests/unit/test_ccsession_tiers.py. Source sections Summary/Files/Acceptance in ./source.md govern every task. Coordinator approval is required if another source file becomes necessary.
+- Keep routing aliases, actual per-tier/per-model windows, access checks, inherited unavailable default aliases, non-tier profiles, explicit individual-model routing, explicit show-all/+models and user-settings precedence. No dependencies, global settings/env changes, other-worktree edits, commits, push, PR or Orca link flags.
+- Native runtime2.1.318 is verified; do not claim all older versions support picker replacement. Manually typing bare IDs inside running Claude Code bypasses launcher normalization; report this external limit rather than a fake fix. Selected individual models may be re-added by native UI, never silently route them to a tier.
+- Source is canonical; run make sync-dev after changes, never stage generated .claude mirrors. Always stage .dev/tasks including progress and artifacts. Evidence paths in tasks are package-relative under ./artifacts/.
+- Pipeline hardening stays advisory/latched from source; successful tests/reviews cannot promote that to production pipeline signoff. No provider inference is required or authorized for local control probes.
+
+Start sha: b9cda9f19902855fd30b5c78f3753f74bf7602e8
+Diff against the start snapshot: diff --git a/src/superclaude/skills/ccsession-tag/ccsession b/src/superclaude/skills/ccsession-tag/ccsession
+index 956fd0f0..9b8cc4c3 100755
+--- a/src/superclaude/skills/ccsession-tag/ccsession
++++ b/src/superclaude/skills/ccsession-tag/ccsession
+@@ -893,9 +893,9 @@ if [ "$TIER_MODE" = 1 ]; then
+   # shim, --tier and --help use (models.py tiers). A tier not on the list, or a
+   # list that cannot be read, leaves the inherited variable alone.
+   _usable_tiers=$'\n'"$(python3 "$CCSESSION_MODELS" tiers 2>/dev/null | cut -d$'\x1f' -f1)"$'\n'
+-  case "$_usable_tiers" in *$'\n'tier1a$'\n'*) export ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a ;; esac
+-  case "$_usable_tiers" in *$'\n'tier1b$'\n'*) export ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b ;; esac
+-  case "$_usable_tiers" in *$'\n'tier2$'\n'*) export ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-gw-tier2 ;; esac
++  case "$_usable_tiers" in *$'\n'tier1a$'\n'*) export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-gw-tier1a[1m]' ;; esac
++  case "$_usable_tiers" in *$'\n'tier1b$'\n'*) export ANTHROPIC_DEFAULT_SONNET_MODEL='claude-gw-tier1b[1m]' ;; esac
++  case "$_usable_tiers" in *$'\n'tier2$'\n'*) export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-gw-tier2[1m]' ;; esac
+ elif [ -n "$TIER_ARG" ]; then
+   echo "ccsession: --tier needs tier settings (T<N>_WINDOW) from the workspace env; none found" >&2
+   exit 2
+diff --git a/tests/unit/test_ccsession_tiers.py b/tests/unit/test_ccsession_tiers.py
+index a12c4b51..cfb734f6 100644
+--- a/tests/unit/test_ccsession_tiers.py
++++ b/tests/unit/test_ccsession_tiers.py
+@@ -2981,10 +2981,12 @@ def test_tier_launch_exports_the_alias_variables(
+     rc, out, err, seen = _launch(tmp_path, "work")
+     assert rc == 0, err
+     assert (seen["opus_model"], seen["sonnet_model"], seen["haiku_model"]) == (
+-        "claude-gw-tier1a",
+-        "claude-gw-tier1b",
+-        "claude-gw-tier2",
++        "claude-gw-tier1a[1m]",
++        "claude-gw-tier1b[1m]",
++        "claude-gw-tier2[1m]",
+     )
++    for alias, window in zip(_seen_aliases(seen), (850000, 850000, 500000)):
++        assert _compact(seen, alias.removesuffix("[1m]")) == window
+ 
+ 
+ def test_non_tier_launch_leaves_the_alias_variables_unset(
+@@ -3016,7 +3018,7 @@ def test_limited_owner_gets_only_the_haiku_alias_variable(
+         tmp_path, "work", defaults=ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="bob"
+     )
+     assert rc == 0, err
+-    assert _seen_aliases(seen) == ("", "", "claude-gw-tier2")
++    assert _seen_aliases(seen) == ("", "", "claude-gw-tier2[1m]")
+ 
+ 
+ def test_limited_owner_keeps_inherited_alias_values(
+@@ -3034,7 +3036,7 @@ def test_limited_owner_keeps_inherited_alias_values(
+     assert _seen_aliases(seen) == (
+         "inherited-opus",
+         "inherited-sonnet",
+-        "claude-gw-tier2",
++        "claude-gw-tier2[1m]",
+     )
+ 
+ 
+@@ -3061,7 +3063,7 @@ def test_workspace_without_tier1a_and_tier1b_exports_only_its_tiers(
+     unset_dir.mkdir()
+     rc, out, err, seen = _launch(unset_dir, "work")
+     assert rc == 0, err
+-    assert _seen_aliases(seen) == ("", "", "claude-gw-tier2")
++    assert _seen_aliases(seen) == ("", "", "claude-gw-tier2[1m]")
+ 
+     # ... and inherited values already set.
+     monkeypatch.setenv("ANTHROPIC_DEFAULT_OPUS_MODEL", "inherited-opus")
+@@ -3073,7 +3075,7 @@ def test_workspace_without_tier1a_and_tier1b_exports_only_its_tiers(
+     assert _seen_aliases(seen) == (
+         "inherited-opus",
+         "inherited-sonnet",
+-        "claude-gw-tier2",
++        "claude-gw-tier2[1m]",
+     )
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

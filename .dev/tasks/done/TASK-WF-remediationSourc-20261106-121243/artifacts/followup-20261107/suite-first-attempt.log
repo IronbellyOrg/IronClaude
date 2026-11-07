@@ -1,0 +1,30 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 491 items
+
+tests/unit/test_ccsession_tiers.py ..................................... [  7%]
+...........................................................F
+
+=================================== FAILURES ===================================
+______________ test_a_busy_shim_is_never_stopped_by_a_new_launch _______________
+tests/unit/test_ccsession_tiers.py:1726: in test_a_busy_shim_is_never_stopped_by_a_new_launch
+    out, url2 = _real_launch(
+tests/unit/test_ccsession_tiers.py:1702: in _real_launch
+    assert proc.returncode == 0, proc.stderr
+E   AssertionError: [ccsession] tier2 (Tier 2: muse-spark-1.3, grok-4.7, Qwen3.8-max, glm-5.3, muse-wonder-1.0, gpt-6.1-sol): model claude-gw-tier2[1m], context 500000, auto-compact window 500000
+E     [ccsession] A shim with other settings or older code is on 127.0.0.1:48839; leaving it running for its sessions
+E     [ccsession] Starting model-alias shim on 127.0.0.1:48940
+E     [ccsession] ERROR: shim failed to start (try: python3 /tmp/pytest-of-coder/pytest-95/test_a_busy_shim_is_never_stop0/shim-under-test.py)
+E     
+E   assert 1 == 0
+E    +  where 1 = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/src/superclaude/skill...im failed to start (try: python3 /tmp/pytest-of-coder/pytest-95/test_a_busy_shim_is_never_stop0/shim-under-test.py)\n').returncode
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tiers.py::test_a_busy_shim_is_never_stopped_by_a_new_launch
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+=================== 1 failed, 96 passed in 91.48s (0:01:31) ====================
+
+[exited with code 1]

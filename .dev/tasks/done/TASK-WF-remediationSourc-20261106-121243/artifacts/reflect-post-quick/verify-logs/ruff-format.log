@@ -1,0 +1,5 @@
+Parent-persisted exact inline tool-result excerpt supplied by reflection executor.
+Command: timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run ruff format --check src/superclaude/skills/ccsession-tag/models.py tests/unit/test_ccsession_tiers.py
+exit_code:0
+stdout:
+2 files already formatted

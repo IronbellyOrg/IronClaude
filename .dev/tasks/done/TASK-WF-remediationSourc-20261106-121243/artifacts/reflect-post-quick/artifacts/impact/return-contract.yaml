@@ -1,0 +1,123 @@
+schema_version: 1
+command: impact
+status: partial
+caller: sc-reflect-protocol
+output_dir: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/reflect-post-quick/artifacts/impact
+report_path: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/reflect-post-quick/artifacts/impact/impact.md
+contract_path: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/reflect-post-quick/artifacts/impact/return-contract.yaml
+input:
+  mode: diff
+  symbols: []
+  diff_base: 54aba77250794b856a0c78fac026425243e157f9
+  # Counts-only adaptation: retained sample, NOT the exhaustive inventory.
+  changed_files:
+    - .dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/capture_shim.py
+    - .dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/protocol_io.py
+    - src/superclaude/skills/ccsession-tag/ccsession
+    - src/superclaude/skills/ccsession-tag/models.py
+    - tests/unit/test_ccsession_tiers.py
+  depth: 1
+  limit: 100
+  tests: false
+  test_depth: null
+readiness:
+  access: mcp
+  index_state: fresh
+  checked_at: 2026-11-06T19:53:11Z
+  cli_version: 1.6.2
+  pin: 1.6.2
+  pin_match: true
+  worktree_root: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker
+  project_path: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker
+  worktree_relation: own
+advisory: true
+degraded: [graph:stale, graph:unresolved]
+symbols:
+  - name: append
+    file: .dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/protocol_io.py
+    start_line: 31
+    end_line: 33
+    mapped_by: hunk
+    prod: {shown: 0, total: 7}
+    test: {shown: 0, total: 1}
+    unknown: {shown: 0, total: 0}
+    transitive: {count: 0, depth: 1}
+    truncated: false
+  - name: capture
+    file: .dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/capture_shim.py
+    start_line: 16
+    end_line: 21
+    mapped_by: hunk
+    prod: {shown: 0, total: 1}
+    test: {shown: 0, total: 0}
+    unknown: {shown: 0, total: 0}
+    transitive: {count: 0, depth: 1}
+    truncated: false
+  - name: git
+    file: .dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/protocol_io.py
+    start_line: 17
+    end_line: 18
+    mapped_by: hunk
+    prod: {shown: 0, total: 3}
+    test: {shown: 0, total: 0}
+    unknown: {shown: 0, total: 0}
+    transitive: {count: 0, depth: 1}
+    truncated: false
+  - name: snapshot
+    file: .dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/protocol_io.py
+    start_line: 20
+    end_line: 29
+    mapped_by: hunk
+    prod: {shown: 0, total: 2}
+    test: {shown: 0, total: 0}
+    unknown: {shown: 0, total: 0}
+    transitive: {count: 0, depth: 1}
+    truncated: false
+ambiguous: []
+# Retained cap sample, NOT an exhaustive inventory.
+unmapped_files:
+  - {file: src/superclaude/skills/ccsession-tag/ccsession, reason: cap}
+  - {file: src/superclaude/skills/ccsession-tag/models.py, reason: cap}
+  - {file: tests/unit/test_ccsession_tiers.py, reason: cap}
+dependents: []
+# No row-level appendix is produced in explicitly requested counts-only mode.
+dependents_omitted: 0
+call_sites: {verified: 0, unresolved: 14, dropped: 0, budget: '5/symbol, 20/run'}
+tests: []
+selection_source: null
+errors:
+  - "EACCES: permission denied, posix_spawn 'rg'"
+counts_only:
+  requested: true
+  inventory_complete: false
+  changed_files_total: 303
+  changed_files_retained: 5
+  changed_files_omitted: 298
+  task_package_files: 300
+  product_test_files: 3
+  file_cap: 30
+  symbol_cap: 30
+  selected_path_slots: 30
+  outlined_python_files: 2
+  mapped_callable_symbols: 4
+  non_callable_symbols_exhaustive: false
+  files_beyond_cap: 273
+  within_cap_non_python_artifacts_not_inspected: 28
+  unmapped_files_total: 301
+  unmapped_files_retained: 3
+  unmapped_files_omitted: 298
+  direct_rows_raw: 14
+  production_path_rows_raw: 13
+  test_path_rows_raw: 1
+  unknown_path_rows_raw: 0
+  dependent_rows_not_materialized: 14
+  additional_transitive_rows: 0
+  native_floor: bounded_read_after_grep_error
+  gate_effect: none
+  limitations:
+    - All product/test diff paths were beyond the lexical first-30-file cap.
+    - Inventory arrays are samples to stay within 6 KB; do not infer exhaustive coverage.
+    - Four callable definitions mapped; variable declarations not exhaustively mapped.
+    - Raw graph counts may include name-collision edges and do not establish behavioral reachability.
+    - A concurrent reflection-card write was pending during lookups; final status was fresh.
+    - No absence conclusion follows from any empty list or zero count.

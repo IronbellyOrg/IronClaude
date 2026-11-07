@@ -1,0 +1,65 @@
+stage: post
+candidates_scanned: 3
+neighbours_found: 6
+max_overlap: 0.87
+degraded: ["neighbour-search:auggie_unavailable"]
+sampled: false
+findings:
+  - candidate: model_window
+    ref: "src/superclaude/skills/ccsession-tag/models.py:720"
+    capability_tag: recognize tier picker id and resolve first matching tier/model window
+    neighbours:
+      - {ref: "src/superclaude/skills/ccsession-tag/models.py:954", snippet: 'tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", bare)'}
+      - {ref: "src/superclaude/skills/ccsession-tag/models.py:699", snippet: 'per_model.setdefault(model, window)'}
+      - {ref: "src/superclaude/skills/ccsession-tag/models.py:69", snippet: '_TIER = re.compile(r"^tier([0-9]{1,2}[a-z]?)$")'}
+    C_cap: 0.85
+    C_shape: 0.90
+    C_aug: 0.0
+    S_reuse: 0.87
+    confidence: 0.80
+    tier: maybe-related
+    advisory_ceiling: L2
+    verdict: extract-shared
+    shape_divergence: false
+    consolidation: {N: 2, recommend_centralize: false, centralize_target: null}
+    evidence_grounded: true
+    notes: One-line regex fragment overlap only. Whole compact_settings behavior differs in access filtering, clamping and output, so reusing it changes semantics. Optional constant not required.
+  - candidate: models.main model-resolve
+    ref: "src/superclaude/skills/ccsession-tag/models.py:945-990"
+    capability_tag: enforce owner model/tier access then print PROFILE fields
+    neighbours:
+      - {ref: "src/superclaude/skills/ccsession-tag/models.py:901", snippet: 'return bare in set(mine) | set(picker)'}
+      - {ref: "src/superclaude/skills/ccsession-tag/models.py:964", snippet: 'if bare not in set(mine) | set(picker):'}
+      - {ref: "src/superclaude/skills/ccsession-tag/models.py:923", snippet: 'tier = every.get(name) if name in access["allowed"] else None'}
+      - {ref: "src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py:728", snippet: 'why = rules["tier_problem"] or model_data.unavailable(name, rules["access"])'}
+    C_cap: 0.70
+    C_shape: 0.60
+    C_aug: 0.0
+    S_reuse: 0.66
+    confidence: 0.60
+    tier: maybe-related
+    advisory_ceiling: L2
+    verdict: mirror-shape
+    shape_divergence: false
+    consolidation: {N: 2, recommend_centralize: false, centralize_target: null}
+    evidence_grounded: true
+    notes: Existing unavailable and _my_models reused. Calling in_my_tiers reloads settings and loses errors/tier case; helper for one membership expression unwarranted.
+  - candidate: ccsession.setup_shim modelPicker mapper
+    ref: "src/superclaude/skills/ccsession-tag/ccsession:1132-1146"
+    capability_tag: translate fresh model rows into native picker options and merge settings
+    neighbours:
+      - {ref: "src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py:290", snippet: 'def _entry(model_id, label):'}
+      - {ref: "src/superclaude/skills/ccsession-tag/ccsession:1255", snippet: 'compact-settings producer'}
+    C_cap: 0.20
+    C_shape: 0.30
+    C_aug: 0.0
+    S_reuse: 0.24
+    confidence: 0.80
+    tier: distinct
+    verdict: distinct
+    shape_divergence: false
+    consolidation: {N: 1, recommend_centralize: false, centralize_target: null}
+    evidence_grounded: true
+    notes: No second mapper found; fetch and mapper use same parsed rows, JSON assembly boilerplate not duplicated behavior.
+recommendation: Leave all three unchanged; optional regex constant is not a blocking finding or required fix.
+limits: Tests and NFR import-ban markers not read by reuse worker; all suggested edges inside same module.

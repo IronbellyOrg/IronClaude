@@ -1,0 +1,17 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-remediationSourc-20261106-121243
+plan_path: ./TASK-WF-remediationSourc-20261106-121243.md
+source_path: ./source.md
+source_origin: .dev/troubleshoot/bug-ensure-the-850k-limit-of-20261106114037/remediation-source.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker/.dev/reflect/pre-remediationSourc-20261106121619/REPORT.md
+qualified_outcome: success_with_hardening_advisory
+pipeline_hardening_verdict: advisory
+waiver_status: latched
+unresolved:
+  - "Advisory pre-review confidence0.65 and token coverage0.6829; no accepted blocking plan defect. Preserve all acceptance oracles and execution cautions."

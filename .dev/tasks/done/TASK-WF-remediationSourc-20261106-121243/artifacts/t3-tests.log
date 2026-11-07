@@ -1,0 +1,12 @@
+Command: uv run pytest tests/unit/test_ccsession_tiers.py -k "native_picker or compact_overrides or windows_go_straight or addon_profile" -q
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/fix-tier-limits-model-picker
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 173 items / 162 deselected / 11 selected
+
+tests/unit/test_ccsession_tiers.py ...........                           [100%]
+
+===================== 11 passed, 162 deselected in 10.36s ======================

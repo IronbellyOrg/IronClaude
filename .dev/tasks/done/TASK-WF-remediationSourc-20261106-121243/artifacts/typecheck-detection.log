@@ -1,0 +1,4 @@
+pyproject.toml declares mypy>=1.0 and a [tool.mypy] configuration; package.json has no typecheck script.
+Command: uv run --no-project mypy --version
+Observed exit 2: error: Failed to spawn: `mypy`; Caused by: No such file or directory (os error 2).
+No checker was installed. Extras typecheck=skip means configured but unavailable, not a passed type check.

@@ -893,9 +893,9 @@ if [ "$TIER_MODE" = 1 ]; then
   # shim, --tier and --help use (models.py tiers). A tier not on the list, or a
   # list that cannot be read, leaves the inherited variable alone.
   _usable_tiers=$'\n'"$(python3 "$CCSESSION_MODELS" tiers 2>/dev/null | cut -d$'\x1f' -f1)"$'\n'
-  case "$_usable_tiers" in *$'\n'tier1a$'\n'*) export ANTHROPIC_DEFAULT_OPUS_MODEL=claude-gw-tier1a ;; esac
-  case "$_usable_tiers" in *$'\n'tier1b$'\n'*) export ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b ;; esac
-  case "$_usable_tiers" in *$'\n'tier2$'\n'*) export ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-gw-tier2 ;; esac
+  case "$_usable_tiers" in *$'\n'tier1a$'\n'*) export ANTHROPIC_DEFAULT_OPUS_MODEL='claude-gw-tier1a[1m]' ;; esac
+  case "$_usable_tiers" in *$'\n'tier1b$'\n'*) export ANTHROPIC_DEFAULT_SONNET_MODEL='claude-gw-tier1b[1m]' ;; esac
+  case "$_usable_tiers" in *$'\n'tier2$'\n'*) export ANTHROPIC_DEFAULT_HAIKU_MODEL='claude-gw-tier2[1m]' ;; esac
 elif [ -n "$TIER_ARG" ]; then
   echo "ccsession: --tier needs tier settings (T<N>_WINDOW) from the workspace env; none found" >&2
   exit 2
@@ -1069,14 +1069,20 @@ setup_shim() {
   # profile starts with the complete curated shim list.
   cache_file="$HOME/.claude/cache/gateway-models.json"
   # Status goes to stderr: stdout carries only Claude's output (issue 389).
-  if ! CC_CACHE_BASE_URL="$ANTHROPIC_BASE_URL" \
+  local _picker_settings
+  if _picker_settings=$(
+    exec 3>&1  # Settings handoff only; the warm-up's stdout remains stderr.
+    CC_CACHE_BASE_URL="$ANTHROPIC_BASE_URL" \
     CC_CACHE_FILE="$cache_file" \
     CC_CACHE_AUTH_TOKEN="${ANTHROPIC_AUTH_TOKEN:-}" \
     CC_CACHE_API_KEY="${ANTHROPIC_API_KEY:-}" \
+    CC_CACHE_TIER_MODE="$TIER_MODE" \
+    CC_CACHE_SETTINGS="${CC_SETTINGS_ARGS[1]:-}" \
     python3 - >&2 <<'PY'
 import json
 import os
 import pathlib
+import sys
 import time
 import urllib.request
 
@@ -1122,9 +1128,28 @@ try:
     temp_file.replace(cache_file)
 finally:
     temp_file.unlink(missing_ok=True)
-print(f"[ccsession] Cached {len(models)} curated gateway models before launch")
+print(f"[ccsession] Cached {len(models)} curated gateway models before launch", file=sys.stderr)
+if os.environ["CC_CACHE_TIER_MODE"] == "1":
+    settings = json.loads(os.environ["CC_CACHE_SETTINGS"] or "{}")
+    settings["modelPicker"] = {
+        "replaceBuiltInOptions": True,
+        "options": [
+            {"model": row["id"], **{
+                target: row[source]
+                for source, target in (("display_name", "label"), ("description", "description"))
+                if source in row
+            }}
+            for row in models
+        ],
+    }
+    with os.fdopen(3, "w") as handoff:
+        print(json.dumps(settings, separators=(",", ":")), file=handoff)
 PY
-  then
+  ); then
+    if [ -n "$_picker_settings" ]; then
+      CC_SETTINGS_ARGS=(--settings "$_picker_settings")
+    fi
+  else
     echo "[ccsession] WARNING: could not pre-load gateway models; Claude Code will retry discovery after launch" >&2
   fi
 }

@@ -1,0 +1,12 @@
+aggregation: per-file
+product_hunks: 12
+mappings:
+  - {file: src/superclaude/skills/ccsession-tag/models.py, declarations: [model_window, main], tasks: [T1]}
+  - {file: src/superclaude/skills/ccsession-tag/ccsession, declarations: [top-level alias exports, setup_shim], tasks: [T2, T3, T4]}
+  - {file: tests/unit/test_ccsession_tiers.py, declarations: [named-tier tests, picker HTTP fixture tests, alias launch tests], tasks: [T1, T2, T3, T4]}
+package_outputs: Expected four-task evidence, not extra product capability
+cross_task_interactions:
+  scanned: true
+  findings: 0
+  rationale: Sequential dependencies explicit T2->T1,T3->T2,T4->T3; shared test file intentional, no undeclared shared production-symbol interaction found
+limits: Graph diff impact caps first30files on package evidence; no product-absence inference

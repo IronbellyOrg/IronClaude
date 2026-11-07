@@ -1,0 +1,61 @@
+mode: post
+depth: quick
+tier_reached: 1
+reviewer_model_class: gpt-6.1-sol
+reviewer_type: inline-Tier1
+calibration_pending: true
+summary: No confirmed product regression or unauthorized scope change in three changed source/test files; all four task outputs have current-source and archived runtime evidence. Operational verdict pending verification and runtime-surface language rule.
+questions:
+  requirements: Tier identity/window/access, access-aware default exports, picker from fresh shim rows, merge/override/user precedence and native routing boundary are addressed.
+  tests: "Current exact scoped suite retry exited0:491passed in278.27s; actual captured run in verify-logs/pytest-attempt-2.log (parent Read bui8lqxie.output). Attempt1 exited124 after120s with unidentified progressF and no traceback, preserved in verify-logs/pytest-attempt-1.log (parent Read bekigah2m.output). Current lint/format/sync exit0. Timeout/flaky-suspected gap retained; no identified current Regression. This is the selected three-file suite, not full repository suite."
+  edges: Restricted/missing tiers, non-tier, show-all/+models, explicit individual, stale foreign cache, warmup failure, explicit compact override, manual bare IDs and native selected-row re-add considered.
+  rollback: No product changes in review; no promotion; archived managed package stays in place.
+claims:
+  - id: C1
+    text: Tier IDs strip optional suffix, validate definition, and select their own window before individual fallback; model-resolve separately enforces owner access and existing suffix normalization.
+    citations: ["src/superclaude/skills/ccsession-tag/models.py:720-745", "src/superclaude/skills/ccsession-tag/models.py:945-989"]
+    task: T1
+  - id: C2
+    text: Alias exports retain access-aware tier1a/tier1b/tier2 routing using context-capable suffixes.
+    citations: ["src/superclaude/skills/ccsession-tag/ccsession:891-898"]
+    task: T2
+  - id: C3
+    text: Successful synchronous warmup creates picker options from fetched rows, merges previous inline settings, and hands generated settings through FD3; failure warns instead. No cache reread for picker rows.
+    citations: ["src/superclaude/skills/ccsession-tag/ccsession:1099-1154"]
+    task: T3
+  - id: C4
+    text: Launcher applies tier selection before warmup, retains compact override and per-model settings, then consumes generated settings before user passthrough arguments at native exec.
+    citations: ["src/superclaude/skills/ccsession-tag/ccsession:1235-1262", "src/superclaude/skills/ccsession-tag/ccsession:1838-1851", "src/superclaude/skills/ccsession-tag/ccsession:1896-1906"]
+    task: T3
+  - id: C5
+    text: Parameterized tests cover tier identities/access, exact current rows, compaction/user precedence, individual/show-all/restricted/failure behavior, allowed/default/inherited alias windows.
+    citations: ["tests/unit/test_ccsession_tiers.py:554-594", "tests/unit/test_ccsession_tiers.py:1248-1293", "tests/unit/test_ccsession_tiers.py:3107-3212"]
+    task: T4
+  - id: C6
+    text: Archived restricted installed-native capture reports tier0=850000 and current alias messages reach shim as bare tier1a/tier1b/tier2; boundary_observed true and outcome explicitly advisory. This is local synthetic upstream evidence, not live provider proof.
+    citations: [".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-runtime.json:1-59", ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-runtime.json:710-763"]
+    task: T4
+  - id: C7
+    text: Original Task1 failed165-test attempt is retained; later archived exact three-file suite passed491. Do not relabel failures or equate to repository fullsuite.
+    citations: [".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t1-tests.log:23-27", ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-tests-rerun.log:503"]
+    task: T4
+  - id: C8
+    text: Source explicitly latches hardening advisory; native manual bare-ID200k and selected-individual re-add limits remain documented.
+    citations: [".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/source.md:35-39", ".dev/tasks/done/TASK-WF-remediationSourc-20261106-121243/artifacts/t4-delivery.txt:13-18"]
+    task: T4
+deviations: []
+regression_present: false
+unauthorized_deviation_present: false
+risk_notes:
+  - Native version-specific local proof only
+  - Warm-up failure intentionally does not force replacement
+  - No live-provider validation
+  - "Static protocol coverage gap: runtime-surface.md does not support Bash, so launcher surface must DEGRADE despite observed invocation and archived functional captures."
+grounding_gaps:
+  - hunk_ref: "src/superclaude/skills/ccsession-tag/ccsession:1072-1154"
+    evidence_missing: Supported Bash production/test/comment partition in installed runtime-surface oracle
+    why_not_classifiable: "Unsupported-language rule mandates DEGRADE; observed functional behavior does not override static rule."
+    next_evidence_needed: Explicit acceptance of bounded review gap, or separately authorized Bash protocol support followed by re-review; no product fix shown
+    owner: user
+    decision_needed_by_user: true
+recommendation: Keep hardening advisory/latched and external limits; no product fix recommended. Parent decides conditional shipping only after final persisted contract.

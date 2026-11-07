@@ -1,0 +1,8 @@
+Command: timeout 600 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run pytest tests/unit/test_ccsession_tiers.py tests/unit/test_ccsession_tag.py tests/skills/test_model_alias_policy.py -q
+Parent Read original background output bui8lqxie.output, run-local provenance.
+platform linux,Python3.11.15,pytest9.2.0
+collected491items
+All three selected files completed.
+======================= 491 passed in 278.27s (0:04:38) ========================
+[exited with code0]
+Not the full repository suite. First timed-out attempt is preserved separately; unidentifiedF cause not established.

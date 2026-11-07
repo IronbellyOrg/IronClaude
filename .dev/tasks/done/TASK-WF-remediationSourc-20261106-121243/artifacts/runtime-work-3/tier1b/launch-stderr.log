@@ -1,0 +1,4 @@
+[ccsession] tier1b (Tier 1b: claude-sonnet-5-5, gpt-6.1-sol, muse-wonder-full-1.0): model claude-gw-tier1b[1m], context 850000, auto-compact window 850000
+[ccsession] Shim already running on 127.0.0.1:45351 (reusing)
+[ccsession] Cached 6 curated gateway models before launch
+[ccsession] Starting new session labeled 'work'

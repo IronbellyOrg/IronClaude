@@ -1,0 +1,13 @@
+- requirement_id: T1
+  symbol: models.main model-resolve
+  edge: models.main -> ccsession named-model invocation
+  status: REACHED
+  production_referrers: ["src/superclaude/skills/ccsession-tag/ccsession:1210"]
+  evidence_ref: "src/superclaude/skills/ccsession-tag/models.py:945-989; models.py:1110-1111"
+- requirement_id: T3
+  symbol: ccsession.setup_shim
+  edge: setup_shim -> launcher warm-up invocation
+  status: DEGRADE
+  production_referrers: ["src/superclaude/skills/ccsession-tag/ccsession:1851"]
+  evidence_ref: "~/.claude/skills/sc-reflect-protocol/refs/runtime-surface.md:19-47; ccsession:1099-1154"
+  reason: Bash absent from supported static language partition; functional observed invocation does not override oracle

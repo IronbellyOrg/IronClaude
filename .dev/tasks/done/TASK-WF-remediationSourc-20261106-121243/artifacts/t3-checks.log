@@ -1,0 +1,5 @@
+Command: uv run ruff check src/superclaude/skills/ccsession-tag/models.py tests/unit/test_ccsession_tiers.py
+All checks passed!
+Command: uv run ruff format --check src/superclaude/skills/ccsession-tag/models.py tests/unit/test_ccsession_tiers.py
+2 files already formatted
+Command: bash -n src/superclaude/skills/ccsession-tag/ccsession

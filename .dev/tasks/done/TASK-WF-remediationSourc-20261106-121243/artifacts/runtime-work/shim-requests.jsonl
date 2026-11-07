@@ -1,0 +1,19 @@
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier0", "messages": [{"role": "user", "content": "foo"}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier0", "messages": [{"role": "user", "content": "Local boundary control."}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier0", "messages": [{"role": "user", "content": "foo"}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier1a", "messages": [{"role": "user", "content": "foo"}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier1a", "messages": [{"role": "user", "content": "Local boundary control."}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier1a", "messages": [{"role": "user", "content": "foo"}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier1b", "messages": [{"role": "user", "content": "foo"}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier1b", "messages": [{"role": "user", "content": "Local boundary control."}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier1b", "messages": [{"role": "user", "content": "foo"}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier2", "messages": [{"role": "user", "content": "foo"}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier2", "messages": [{"role": "user", "content": "Local boundary control."}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier2", "messages": [{"role": "user", "content": "foo"}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier0", "messages": [{"role": "user", "content": "foo"}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier0", "messages": [{"role": "user", "content": "Local boundary control."}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier0", "messages": [{"role": "user", "content": "foo"}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier1a", "messages": [{"role": "user", "content": "foo"}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier1a", "messages": [{"role": "user", "content": "Local boundary control."}], "tools": []}}
+{"path": "/v1/messages/count_tokens?beta=true", "body": {"model": "claude-gw-tier1a", "messages": [{"role": "user", "content": "foo"}], "tools": []}}
+{"path": "/v1/messages?beta=true", "body": {"model": "claude-gw-tier1a", "messages": [{"role": "user", "content": [{"type": "text", "text": "Return the local synthetic reply.", "cache_control": {"type": "ephemeral"}}]}], "system": [{"type": "text", "text": "x-anthropic-billing-header: cc_version=2.1.318.655; cc_entrypoint=sdk-cli;"}, {"type": "text", "text": "You are a Claude agent, built on Anthropic's Claude Agent SDK.", "cache_control": {"type": "ephemeral"}}, {"type": "text", "text": "Local boundary control.", "cache_control": {"type": "ephemeral"}}], "tools": [], "metadata": {"user_id": "{\"device_id\":\"e3aaf4fc4f264b9737b86b15e59ad114b726dae7c92d327dac64061f4f391ab2\",\"account_uuid\":\"\",\"session_id\":\"607b6868-2806-4d2d-b603-e4d7f19186b7\"}"}, "max_tokens": 32000, "thinking": {"type": "adaptive", "display": "updates"}, "context_management": {"edits": [{"type": "clear_thinking_20251015", "keep": "all"}]}, "output_config": {"effort": "high"}, "stream": true}}

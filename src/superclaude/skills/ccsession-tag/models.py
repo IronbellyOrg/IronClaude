@@ -723,6 +723,14 @@ def model_window(model: str, data=None, tenv=None) -> tuple:
     tenv = tier_env() if tenv is None else tenv
     # Accept the "[1m]" form users copy from the picker or the Mac profiles.
     model = model[: -len("[1m]")] if model.endswith("[1m]") else model
+    tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", model)
+    if tier:
+        name = tier.group(1)
+        if name not in data["tiers"]:
+            raise ValueError(f"{name} is not defined")
+        return _window(
+            tenv, f"T{tier_number(name)}_WINDOW"
+        ), f"T{tier_number(name)}_WINDOW"
     # Only slots a tier uses, in tier order: the first one naming the model
     # gives its window, as in compact_settings. The workspace file can keep
     # slots no tier reads (old Tier 1 for older ccsession); they must not win.
@@ -943,13 +951,16 @@ def main(argv) -> int:
         try:
             every, access = tier_access()
             mine, picker = _my_models(every, access)
+            tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", bare)
+            if tier and tier.group(1) not in access["allowed"]:
+                raise ValueError(unavailable(tier.group(1), access))
             # A -2 picker id takes its own model's window, not the default.
             window, where = model_window(picker.get(bare, model))
         except ValueError as exc:
             print(f"ccsession: {exc}", file=sys.stderr)
             return 3
         # An owner limited to some tiers may name only those tiers' models.
-        if access["allowed"] != access["defined"]:
+        if not tier and access["allowed"] != access["defined"]:
             if bare not in set(mine) | set(picker):
                 print(
                     f"ccsession: {bare} is not in a tier available to {access['user']} "
