@@ -58,9 +58,12 @@ class TestParallelGenerateGroup:
             enforcement_tier="LIGHT",
         )
         thread_ids = []
+        # Both runners must be alive at once; otherwise a finished thread's ident can be reused.
+        both_running = threading.Barrier(2, timeout=5)
 
         def runner(step, cfg, cancel_check):
             thread_ids.append(threading.current_thread().ident)
+            both_running.wait()
             step.output_file.parent.mkdir(parents=True, exist_ok=True)
             step.output_file.write_text("content\n")
             return StepResult(
