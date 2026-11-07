@@ -1,0 +1,9 @@
+claim: The canonical core CLAUDE.md is part of the flat global core-file installation, not an on-demand-only document.
+evidence:
+- source: src/superclaude/cli/install_core.py:47-74
+  observation: Default target is Path.home()/.claude; source glob selects all top-level markdown; each destination is target_path/src_file.name and shutil.copy2 copies it.
+- source: src/superclaude/core/CLAUDE.md
+  observation: Existing canonical file was Read in full; the plan adds the global selection rule directly there.
+limits:
+- No global installation executed.
+- Existing nonforce target copies can be skipped; this is installer source behavior, not proof of the current user's global file contents.

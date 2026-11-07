@@ -1,0 +1,26 @@
+input_tree_sha256: 299e613343449889daf2f740af9786c74b78fdf2069e09d2e101d26a1d911fc8
+file_count: 8
+serialization: compact-json-array-of-path-hash-pairs
+file_list:
+- path: .dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/TASK-WF-fixIssue412SVeri-20261106-215543.md
+  sha256: 70f07e6a00069214f3fb755890d1d365ed6c5593bd5abb0b78738061f4ce4240
+- path: .dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/source.md
+  sha256: 0dbef3544e24fa7a8c3e927c8886ef582ea66bff00233e0dd0a4eac95b1ea3c7
+- path: src/superclaude/cli/install_user_setup.py
+  sha256: c64f62c7e1e7347e44e12928deb47ecd8534a9a204d4cb4c0276ecd403c1a077
+- path: src/superclaude/core/CLAUDE.md
+  sha256: 82d53b38ab0d7e1aa47ac6cf194279545f66302f6bf478358ea03bdda8ed8c18
+- path: src/superclaude/skills/ccsession-tag/README.md
+  sha256: a39bcbd8bcae84001e6e352fbad5d215ed2bcd8f1ea0fc5f023a767961cf0a0c
+- path: tests/cli/test_install_user_setup.py
+  sha256: ff0e3408ea248dabf255e30582c69e9f79d44b3b795960b2fb071d7da11368f1
+- path: tests/core/test_claude_md_routing_block.py
+  sha256: 1558f0deb3fe3ecaa1606e4d40de76858b53bd5defdc7bc8554c94ea7687be23
+- path: tests/unit/test_cli_install.py
+  sha256: 74cc6be1c50bc8366945af7bc37d59c66b9ed31a43d7be57fde5d0b2d7b19d58
+missing_links:
+- tests/core/test_orca_session_launch_guidance.py
+- .dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/t1-tests.log
+- .dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/t2-tests.log
+- .dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/sync.log
+output_root: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/reflect-pre-20261106-215816

@@ -1,0 +1,25 @@
+reviewer: 3
+calibrator_model: opus
+calibrator_diversity: degraded
+scores:
+  citation_grounding: 0.85
+  coverage_completeness: 0.65
+  deviation_classification_clarity: 0.35
+  risk_surface_coverage: 0.75
+  recommendation_actionability: 0.80
+confidence_calibrated: 0.68
+formula: arithmetic mean of five supplied reflection dimensions
+support_verdict: PASS
+recommendation: ESCALATE
+verified_ranges:
+- tests/core/test_codegraph_guide.py:137-174
+- src/superclaude/cli/install_user_setup.py:230-263
+unchecked_leads:
+- tests/cli/test_bash_inspection_policy.py:32
+- tests/cli/test_issue_body_templates.py:18
+- tests/core/test_how_we_work_routing_table.py
+- TASK-WF-fixIssue412SVeri-20261106-215543.md:45-51
+notes:
+- Only minor suggestions supplied, no post-execution taxonomy classifications; low classification score is not itself a defect in proposed code.
+- Wider regression suggestion is conditional; no affected-test failure established.
+- Underlying gateway model identity unverified.

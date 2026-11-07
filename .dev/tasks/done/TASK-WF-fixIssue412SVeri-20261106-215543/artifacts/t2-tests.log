@@ -1,0 +1,88 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 38 items / 29 deselected / 9 selected
+
+tests/cli/test_install_user_setup.py FFFFFFFFF                           [100%]
+
+=================================== FAILURES ===================================
+_ test_orca_forced_refresh_preserves_edits_and_reports_output[0-Skipped edited guide--True] _
+tests/cli/test_install_user_setup.py:341: in test_orca_forced_refresh_preserves_edits_and_reports_output
+    ok, message = setup.install_orca_skills(tmp_path, None, force=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: install_orca_skills() got an unexpected keyword argument 'force'
+_ test_orca_forced_refresh_preserves_edits_and_reports_output[0--Skipped foreign guide-True] _
+tests/cli/test_install_user_setup.py:341: in test_orca_forced_refresh_preserves_edits_and_reports_output
+    ok, message = setup.install_orca_skills(tmp_path, None, force=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: install_orca_skills() got an unexpected keyword argument 'force'
+____ test_orca_forced_refresh_preserves_edits_and_reports_output[0---True] _____
+tests/cli/test_install_user_setup.py:341: in test_orca_forced_refresh_preserves_edits_and_reports_output
+    ok, message = setup.install_orca_skills(tmp_path, None, force=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: install_orca_skills() got an unexpected keyword argument 'force'
+_ test_orca_forced_refresh_preserves_edits_and_reports_output[1-partial output-installation failed-True] _
+tests/cli/test_install_user_setup.py:341: in test_orca_forced_refresh_preserves_edits_and_reports_output
+    ok, message = setup.install_orca_skills(tmp_path, None, force=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: install_orca_skills() got an unexpected keyword argument 'force'
+____ test_orca_forced_refresh_preserves_edits_and_reports_output[0---False] ____
+tests/cli/test_install_user_setup.py:341: in test_orca_forced_refresh_preserves_edits_and_reports_output
+    ok, message = setup.install_orca_skills(tmp_path, None, force=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: install_orca_skills() got an unexpected keyword argument 'force'
+________ test_orca_forced_refresh_absent_or_timeout_is_nonfatal[False] _________
+tests/cli/test_install_user_setup.py:374: in test_orca_forced_refresh_absent_or_timeout_is_nonfatal
+    ok, message = setup.install_orca_skills(home=tmp_path, force=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: install_orca_skills() got an unexpected keyword argument 'force'
+_________ test_orca_forced_refresh_absent_or_timeout_is_nonfatal[True] _________
+tests/cli/test_install_user_setup.py:374: in test_orca_forced_refresh_absent_or_timeout_is_nonfatal
+    ok, message = setup.install_orca_skills(home=tmp_path, force=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: install_orca_skills() got an unexpected keyword argument 'force'
+_____ test_user_setup_passes_force_to_orca_without_skipping_plugins[False] _____
+tests/cli/test_install_user_setup.py:400: in test_user_setup_passes_force_to_orca_without_skipping_plugins
+    assert calls == [
+E   AssertionError: assert [('orca', {'d...ine': 130.0})] == [('orca', {'f...ine': 130.0})]
+E     
+E     At index 0 diff: ('orca', {'deadline': 130.0}) != ('orca', {'force': False, 'deadline': 130.0})
+E     Use -v to get more diff
+_____ test_user_setup_passes_force_to_orca_without_skipping_plugins[True] ______
+tests/cli/test_install_user_setup.py:400: in test_user_setup_passes_force_to_orca_without_skipping_plugins
+    assert calls == [
+E   AssertionError: assert [('orca', {'d...ine': 130.0})] == [('orca', {'f...ine': 130.0})]
+E     
+E     At index 0 diff: ('orca', {'deadline': 130.0}) != ('orca', {'force': True, 'deadline': 130.0})
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/cli/test_install_user_setup.py::test_orca_forced_refresh_preserves_edits_and_reports_output[0-Skipped edited guide--True]
+FAILED tests/cli/test_install_user_setup.py::test_orca_forced_refresh_preserves_edits_and_reports_output[0--Skipped foreign guide-True]
+FAILED tests/cli/test_install_user_setup.py::test_orca_forced_refresh_preserves_edits_and_reports_output[0---True]
+FAILED tests/cli/test_install_user_setup.py::test_orca_forced_refresh_preserves_edits_and_reports_output[1-partial output-installation failed-True]
+FAILED tests/cli/test_install_user_setup.py::test_orca_forced_refresh_preserves_edits_and_reports_output[0---False]
+FAILED tests/cli/test_install_user_setup.py::test_orca_forced_refresh_absent_or_timeout_is_nonfatal[False]
+FAILED tests/cli/test_install_user_setup.py::test_orca_forced_refresh_absent_or_timeout_is_nonfatal[True]
+FAILED tests/cli/test_install_user_setup.py::test_user_setup_passes_force_to_orca_without_skipping_plugins[False]
+FAILED tests/cli/test_install_user_setup.py::test_user_setup_passes_force_to_orca_without_skipping_plugins[True]
+======================= 9 failed, 29 deselected in 0.47s =======================
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 157 items
+
+tests/cli/test_install_user_setup.py ................................... [ 22%]
+...                                                                      [ 24%]
+tests/unit/test_cli_install.py ......................................... [ 50%]
+.......................................................                  [ 85%]
+tests/core/test_orca_session_launch_guidance.py ..                       [ 86%]
+tests/core/test_claude_md_routing_block.py ......                        [ 90%]
+tests/core/test_codegraph_guide.py ...............                       [100%]
+
+============================= 157 passed in 0.83s ==============================

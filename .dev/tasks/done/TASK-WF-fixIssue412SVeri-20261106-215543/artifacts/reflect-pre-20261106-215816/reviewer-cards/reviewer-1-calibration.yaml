@@ -1,0 +1,22 @@
+reviewer: 1
+calibrator_model: opus
+calibrator_diversity: degraded
+scores:
+  citation_grounding: 0.85
+  coverage_completeness: 0.75
+  deviation_classification_clarity: 0.55
+  risk_surface_coverage: 0.65
+  recommendation_actionability: 0.80
+confidence_calibrated: 0.72
+formula: arithmetic mean of five supplied reflection dimensions
+support_verdict: PASS
+recommendation: ESCALATE
+verified_ranges:
+- TASK-WF-fixIssue412SVeri-20261106-215543.md:24-52
+- src/superclaude/cli/install_user_setup.py:230-263
+unsupported_citations:
+- src/superclaude/cli/install_user_setup.py:113-119
+notes:
+- Original wrong helper line range is already flagged in card; exclude from final findings.
+- Literal plan AC says distinguish; prohibition is stronger and must be adjudicated against source and Task 1 Inputs.
+- Actual gateway models and vendors unverified.

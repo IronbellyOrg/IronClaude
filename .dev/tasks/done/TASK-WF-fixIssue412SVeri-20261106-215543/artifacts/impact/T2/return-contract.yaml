@@ -1,0 +1,35 @@
+schema_version: 1
+command: impact
+status: success
+caller: sc-implement-protocol
+output_dir: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/impact/T2
+report_path: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/impact/T2/impact.md
+contract_path: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch/.dev/tasks/to-do/TASK-WF-fixIssue412SVeri-20261106-215543/artifacts/impact/T2/return-contract.yaml
+input: {mode: symbols, symbols: [install_orca_skills], diff_base: null, changed_files: [], depth: 1, limit: 10, tests: false, test_depth: null}
+readiness:
+  access: mcp
+  index_state: fresh
+  checked_at: 2026-11-06T22:44:26Z
+  cli_version: 1.6.2
+  pin: 1.6.2
+  pin_match: true
+  worktree_root: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch
+  project_path: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch
+  worktree_relation: own
+advisory: false
+degraded: []
+symbols:
+  - {name: install_orca_skills, file: src/superclaude/cli/install_user_setup.py, start_line: 230, end_line: 263, mapped_by: name, prod: {shown: 1, total: 1}, test: {shown: 4, total: 4}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+ambiguous: []
+unmapped_files: []
+dependents:
+  - {symbol: install_orca_skills, caller: install_user_setup, file: src/superclaude/cli/install_user_setup.py, def_line: 434, call_site_line: 441, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: install_orca_skills, caller: test_orca_skills_skip_when_orca_is_absent, file: tests/cli/test_install_user_setup.py, def_line: 247, call_site_line: null, resolution: def-line, partition: test, hop: 1, source: callers}
+  - {symbol: install_orca_skills, caller: test_orca_skills_ignore_a_non_orca_program, file: tests/cli/test_install_user_setup.py, def_line: 255, call_site_line: null, resolution: def-line, partition: test, hop: 1, source: callers}
+  - {symbol: install_orca_skills, caller: test_orca_skills_request_the_three_skills, file: tests/cli/test_install_user_setup.py, def_line: 264, call_site_line: null, resolution: def-line, partition: test, hop: 1, source: callers}
+  - {symbol: install_orca_skills, caller: test_orca_failure_never_fails_install, file: tests/cli/test_install_user_setup.py, def_line: 297, call_site_line: null, resolution: def-line, partition: test, hop: 1, source: callers}
+dependents_omitted: 0
+call_sites: {verified: 1, unresolved: 4, dropped: 0, budget: '5/symbol, 20/run'}
+tests: []
+selection_source: null
+errors: []

@@ -1,0 +1,22 @@
+checked_at: 2026-11-06T21:59:00Z
+index_state: fresh
+worktree_root: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch
+projectPath: /home/coder/workspaces/worktrees/IronClaude/fix-claude-cli-session-launch
+aliases:
+  opus: claude-gw-tier1a
+  sonnet: claude-gw-tier1b
+  haiku: claude-gw-tier2
+alias_count: 3
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+vendor_resolution: alias-name-heuristic-only; gateway underlying vendors unverified
+executor_class_source: unknown
+executor_class_resolved: false
+warnings:
+- Executor model not resolved; anti-self-confirmation guarantee weakened.
+- Gateway alias names do not establish independent underlying vendors or models.
+degraded_components: [auggie]
+memory_hits: 0
+memory_misses: 2
+memory_writes_suppressed: user authorized review outputs only
+cross_run_metrics_suppressed: user authorized review outputs only

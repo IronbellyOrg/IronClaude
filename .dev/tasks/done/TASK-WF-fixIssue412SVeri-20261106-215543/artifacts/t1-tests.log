@@ -1,0 +1,13 @@
+Observed tool-output excerpts, not a UI reproduction.
+
+Before instruction edits:
+$ uv run pytest tests/core/test_orca_session_launch_guidance.py -q
+exit 1; collected 2 items; 2 failed in 0.16s.
+Both source surfaces raised ValueError: substring not found at text.index("### Orca session launches").
+
+After instruction edits:
+$ uv run pytest tests/core/test_orca_session_launch_guidance.py tests/core/test_claude_md_routing_block.py tests/core/test_codegraph_guide.py -q
+exit 0; collected 23 items; 23 passed in 0.33s.
+New static checks: 2 passed. Existing routing/guide checks: 21 passed.
+
+These tests pin the installed wording, shell versus CLI distinction, configured ccsession-orca prerequisite and supervised/internal-agent boundaries. They do not prove historical incident causation or all Orca UI routes.

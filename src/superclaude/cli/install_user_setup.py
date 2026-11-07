@@ -228,12 +228,14 @@ def _orca_timeout(deadline: float | None) -> float:
 
 
 def install_orca_skills(
-    home: Path | None = None, deadline: float | None = None
+    home: Path | None = None, deadline: float | None = None, force: bool = False
 ) -> Tuple[bool, str]:
-    """Ask Orca to install its skills for Claude Code; never fails the install."""
+    """Request Orca's safe guide install/refresh; never force-replace edited guides."""
     home = Path.home() if home is None else Path(home)
     skills_dir = home / ".claude" / "skills"
-    if all((skills_dir / name / "SKILL.md").exists() for name in _ORCA_SKILLS):
+    if not force and all(
+        (skills_dir / name / "SKILL.md").exists() for name in _ORCA_SKILLS
+    ):
         return True, "✅ Orca skills: already installed"
     orca = _find_orca()
     if orca is None:
@@ -250,17 +252,30 @@ def install_orca_skills(
             stdin=subprocess.DEVNULL,
         )
     except (OSError, subprocess.SubprocessError) as exc:
-        return (
-            True,
-            f"⚠️  Orca skills: not installed ({exc}); rerun `{orca} skills install`",
+        message = (
+            f"⚠️  Orca skills: not installed ({exc}); rerun `{orca} skills install`"
         )
+        for stream in (getattr(exc, "stdout", None), getattr(exc, "stderr", None)):
+            if isinstance(stream, bytes):
+                stream = stream.decode("utf-8", errors="replace")
+            if stream and stream.strip():
+                message += f"\n{stream.strip()}"
+        return True, message
     installed = [n for n in _ORCA_SKILLS if (skills_dir / n / "SKILL.md").exists()]
     if result.returncode != 0 or len(installed) != len(_ORCA_SKILLS):
-        return True, (
-            f"⚠️  Orca skills: installed {len(installed)}/{len(_ORCA_SKILLS)}; "
+        message = (
+            f"⚠️  Orca skills: install request failed or incomplete "
+            f"({len(installed)}/{len(_ORCA_SKILLS)} files present); "
             f"rerun `{orca} skills install`"
         )
-    return True, f"✅ Orca skills: {', '.join(installed)}"
+    else:
+        message = (
+            "✅ Orca skills: install request completed (see Orca output for any skips)"
+        )
+    details = "\n".join(
+        part.strip() for part in (result.stdout, result.stderr) if part.strip()
+    )
+    return True, "\n".join(part for part in (message, details) if part)
 
 
 def _read_json(path: Path) -> dict:
@@ -438,7 +453,7 @@ def install_user_setup(force: bool = False) -> Tuple[bool, str]:
         install_rules(force=force),
         install_output_styles(force=force),
         apply_settings_defaults(),
-        install_orca_skills(deadline=deadline),
+        install_orca_skills(deadline=deadline, force=force),
         install_plugins(deadline=deadline),
     ]
     return all(ok for ok, _ in results), "\n".join(msg for _, msg in results)

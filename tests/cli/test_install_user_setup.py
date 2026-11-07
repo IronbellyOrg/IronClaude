@@ -8,6 +8,8 @@ import re
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from superclaude.cli import install_user_setup as setup
 
 PKG = Path(setup.__file__).resolve().parent.parent
@@ -306,6 +308,161 @@ def test_orca_failure_never_fails_install(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(setup.subprocess, "run", fake_run)
     ok, message = setup.install_orca_skills(home=tmp_path)
     assert ok and message.startswith("⚠️  Orca skills")
+
+
+@pytest.mark.parametrize(
+    "returncode,stdout,stderr,present",
+    [
+        (0, "Skipped edited guide", "", True),
+        (0, "", "Skipped foreign guide", True),
+        (0, "", "", True),
+        (1, "partial output", "installation failed", True),
+        (0, "", "", False),
+    ],
+)
+def test_orca_forced_refresh_preserves_edits_and_reports_output(
+    tmp_path: Path,
+    monkeypatch,
+    returncode: int,
+    stdout: str,
+    stderr: str,
+    present: bool,
+) -> None:
+    paths = [
+        tmp_path / ".claude/skills" / name / "SKILL.md" for name in setup._ORCA_SKILLS
+    ]
+    if present:
+        for path in paths:
+            path.parent.mkdir(parents=True)
+            path.write_text("user edited")
+    calls = []
+    monkeypatch.setattr(setup, "_find_orca", lambda: "/bin/orca-ide")
+
+    def fake_run(command, **kwargs):
+        calls.append(command)
+        assert kwargs["stdin"] == subprocess.DEVNULL
+        assert 0 < kwargs["timeout"] <= setup._ORCA_TIMEOUT
+        return subprocess.CompletedProcess(command, returncode, stdout, stderr)
+
+    monkeypatch.setattr(setup.subprocess, "run", fake_run)
+    ok, message = setup.install_orca_skills(tmp_path, None, force=True)
+    assert ok
+    assert len(calls) == 1
+    assert calls[0][:5] == [
+        "/bin/orca-ide",
+        "skills",
+        "install",
+        "--agent",
+        "claude-code",
+    ]
+    assert calls[0].count("--skill") == 3
+    assert "--force" not in calls[0]
+    assert "already installed" not in message
+    assert "refreshed" not in message.lower()
+    for output in (stdout, stderr):
+        if output:
+            assert output in message
+    if returncode or not present:
+        assert message.startswith("⚠️  Orca skills")
+    if present:
+        assert all(path.read_text() == "user edited" for path in paths)
+    else:
+        assert not any(path.exists() for path in paths)
+
+
+@pytest.mark.parametrize("available", [False, True])
+def test_orca_forced_refresh_absent_or_timeout_is_nonfatal(
+    tmp_path: Path, monkeypatch, available: bool
+) -> None:
+    for name in setup._ORCA_SKILLS:
+        path = tmp_path / ".claude/skills" / name / "SKILL.md"
+        path.parent.mkdir(parents=True)
+        path.write_text("existing")
+    monkeypatch.setattr(
+        setup, "_find_orca", lambda: "/bin/orca-ide" if available else None
+    )
+
+    def fail_run(command, **_kwargs):
+        raise subprocess.TimeoutExpired(command, setup._ORCA_TIMEOUT)
+
+    monkeypatch.setattr(setup.subprocess, "run", fail_run)
+    ok, message = setup.install_orca_skills(home=tmp_path, force=True)
+    assert ok
+    assert "already installed" not in message
+    assert ("not installed" if available else "not found") in message
+
+
+@pytest.mark.parametrize(
+    "stdout,stderr,expected",
+    [
+        (
+            b"Skipped edited guide\xff",
+            b"warning\xff",
+            ("Skipped edited guide�", "warning�"),
+        ),
+        ("Skipped edited guide", "warning", ("Skipped edited guide", "warning")),
+        (None, None, ()),
+        (b"", b"", ()),
+        ("", "", ()),
+        (b"stdout only", None, ("stdout only",)),
+        (None, "stderr only", ("stderr only",)),
+    ],
+)
+def test_orca_timeout_retains_partial_output(
+    tmp_path: Path, monkeypatch, stdout, stderr, expected
+) -> None:
+    paths = [
+        tmp_path / ".claude/skills" / name / "SKILL.md" for name in setup._ORCA_SKILLS
+    ]
+    for path in paths:
+        path.parent.mkdir(parents=True)
+        path.write_text("user edited")
+    monkeypatch.setattr(setup, "_find_orca", lambda: "/bin/orca-ide")
+
+    def timeout(command, **kwargs):
+        assert "--force" not in command
+        assert kwargs["stdin"] == subprocess.DEVNULL
+        assert kwargs["timeout"] == setup._ORCA_TIMEOUT
+        raise subprocess.TimeoutExpired(
+            command, setup._ORCA_TIMEOUT, output=stdout, stderr=stderr
+        )
+
+    monkeypatch.setattr(setup.subprocess, "run", timeout)
+    ok, message = setup.install_orca_skills(home=tmp_path, force=True)
+    assert ok and message.startswith("⚠️  Orca skills: not installed")
+    for text in expected:
+        assert text in message
+    assert all(path.read_text() == "user edited" for path in paths)
+
+
+@pytest.mark.parametrize("force", [False, True])
+def test_user_setup_passes_force_to_orca_without_skipping_plugins(
+    monkeypatch, force: bool
+) -> None:
+    calls = []
+    monkeypatch.setattr(setup.time, "monotonic", lambda: 100.0)
+    monkeypatch.setattr(setup, "install_rules", lambda **_kwargs: (True, "rules"))
+    monkeypatch.setattr(
+        setup, "install_output_styles", lambda **_kwargs: (True, "styles")
+    )
+    monkeypatch.setattr(setup, "apply_settings_defaults", lambda: (True, "settings"))
+
+    def orca(**kwargs):
+        calls.append(("orca", kwargs))
+        return True, "Skipped edited guide"
+
+    def plugins(**kwargs):
+        calls.append(("plugins", kwargs))
+        return True, "plugins"
+
+    monkeypatch.setattr(setup, "install_orca_skills", orca)
+    monkeypatch.setattr(setup, "install_plugins", plugins)
+    ok, message = setup.install_user_setup(force=force)
+    assert ok and "Skipped edited guide" in message and "plugins" in message
+    assert calls == [
+        ("orca", {"force": force, "deadline": 100.0 + setup._NETWORK_BUDGET}),
+        ("plugins", {"deadline": 100.0 + setup._NETWORK_BUDGET}),
+    ]
 
 
 def _plugin_home(tmp_path: Path, enabled: dict) -> Path:

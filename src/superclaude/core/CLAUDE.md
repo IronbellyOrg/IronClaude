@@ -42,6 +42,16 @@ The Flag column is advisory: these are hints Claude may honour, not options ever
 9. **Temporal** — verify current date from env context before any date/version reasoning
 10. **Issues** — before filing a GitHub issue, copy the matching template (`~/.claude/ISSUE-HANDOFF.md` for work handed to another person or agent, `~/.claude/ISSUE-BACKLOG.md` for parked work) to a temporary file, fill every section in the copy, then run `gh issue create --title "<title>" --body-file <the copy>`; never edit the installed template
 
+### Orca session launches
+
+For a new ccsession-backed Claude session, choose **Claude (CLI)**, never **New Terminal**.
+Load the version-matched `orca-cli` guide before choosing commands. Use `agent launch`
+in an existing worktree or `worktree create --agent` for a new checkout; request
+`--surface terminal` when a CLI session is required. `terminal create` is for shells,
+not agent sessions. The Claude command must be configured as `ccsession-orca` to use ccsession.
+For supervised workers, keep `worker-start` and the dispatch preamble authoritative;
+this rule does not replace supervised dispatch or commands' internal Agent-tool subagents.
+
 ## Key Docs
 
 - `~/.claude/HOW-WE-WORK.md` — which command or skill to use for each kind of work, in what order (read it when you choose a workflow; it is not loaded automatically)

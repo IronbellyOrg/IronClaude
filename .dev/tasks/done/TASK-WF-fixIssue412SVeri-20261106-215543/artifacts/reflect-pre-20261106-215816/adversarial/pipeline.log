@@ -1,0 +1,12 @@
+2026-11-06T22:15:48Z step0 Mode A: 3 inputs parsed from reviewer-cards/*.yaml
+2026-11-06T22:15:48Z step0 WARNING: inputs are YAML, not markdown; copied verbatim (trailing whitespace stripped, single trailing newline) to variant-N-original.md
+2026-11-06T22:15:48Z step0 depth=standard rounds=2 + Round 2.5; convergence_threshold=0.80; focus=correctness,coverage,deviation-classification
+2026-11-06T22:17:22Z step1 diff-analysis.md written: S=2 C=5 X=2 U=5 A=4 (promoted 2); taxonomy L1/L2/L3 covered; supplemental core-install-grounding.yaml recorded as context
+2026-11-06T22:17:22Z step2 round1 dispatched: 3 advocate agents in parallel -> rounds/round-1-variant-{1,2,3}.md
+2026-11-06T22:20:39Z step2 round2 V1 rebuttal received -> rounds/round-2-variant-1.md (C-002 CHANGED to V3; A-001 CHANGED to V1/V3 tie, ACCEPT->QUALIFY); V2 rebuttal dispatched (sequential)
+2026-11-06T22:21:32Z step2 round2 V2 rebuttal received -> rounds/round-2-variant-2.md (all criticisms conceded; C-005 CHANGED to V1/V3 tie; A-001 CHANGED to V1/V3 tie; PASS survives, zero-minors-complete does not); V3 rebuttal dispatched (sequential)
+2026-11-06T22:23:09Z step2 round2 V3 rebuttal received -> rounds/round-2-variant-3.md (A-001 CHANGED to V1/V3 tie; C-001 merge note); debate-transcript.md written: 11/11 agreed, convergence 1.00; round2.5 fault-finder dispatched -> rounds/round-2-5-fault-finder.md
+2026-11-06T22:25:02Z step3 base-selection.md written: V1 0.7371, V2 0.7172, V3 0.8113; base=Variant 3 (margin 0.0742); 1 position-bias disagreement re-evaluated
+2026-11-06T22:28:51Z step2 round2.5 fault-finder received -> rounds/round-2-5-fault-finder.md: 22 items, ADDRESSED 13, UNADDRESSED 9 (HIGH 0, MEDIUM 3, LOW 6); invariant-probe.md written; status CONVERGED (not BLOCKED_BY_INVARIANTS)
+2026-11-06T22:29:42Z step4 refactor-plan.md written: base V3, 8 changes, 6 not made, auto-approved; step5 merge-executor dispatched -> merged-review.md, merge-log.md
+2026-11-06T22:33:13Z step5 merged-review.md validated by orchestrator (headers, source tags, exclusion grep 0, orca-discovery anchors re-read); merged-verdict.yaml and return-contract.yaml written: status success, PASS, 0 blocking, convergence 1.00
