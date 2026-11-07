@@ -35,6 +35,7 @@ ALLOWED = {
         "install",
         "other",
     ],
+    "--pipeline": ["worktree", "full", "none"],
 }
 
 
@@ -72,11 +73,25 @@ def test_frontmatter_fields():
     assert fields["mcp-servers"] == "[auggie, codegraph]"
     assert fields["personas"] == "[analyzer]"
     assert fields["argument-hint"]
+    assert "--pipeline worktree|full|none" in fields["argument-hint"]
+    assert "--submit" in fields["argument-hint"]
 
 
-def test_options_table_lists_exactly_the_five_flags():
+def test_st3_version_is_1_1_0():
+    assert _frontmatter()["version"] == '"1.1.0"'
+
+
+def test_st1_options_table_lists_exactly_the_seven_flags():
     assert sorted(_options_rows()) == sorted(
-        ["--claim", "--create", "--depth", "--mode", "--type"]
+        [
+            "--claim",
+            "--create",
+            "--depth",
+            "--mode",
+            "--type",
+            "--pipeline",
+            "--submit",
+        ]
     )
 
 
@@ -94,6 +109,11 @@ def test_option_defaults():
     assert all(
         rows[f][1] == "create" for f in ("--create", "--depth", "--mode", "--type")
     )
+    assert rows["--pipeline"][1] == rows["--submit"][1] == "claim"
+    assert rows["--pipeline"][2] == "`worktree`"
+    assert rows["--submit"][2] == "off"
+    assert rows["--submit"][3] == "no value"
+    assert "`--pipeline full`" in rows["--submit"][4]
 
 
 def test_no_repo_dry_run_or_preview_flag():
@@ -112,6 +132,51 @@ def test_stop_rules_come_before_activation():
     assert "E-CREATE-ONLY-FLAG" in rules
     assert "allowed values" in rules
     assert "empty `--create` description" in rules.lower()
+
+
+def test_st2_pipeline_and_submit_stop_rules_come_after_the_old_ones():
+    text = _text()
+    stops = text.index("## STOP rules")
+    rules = text[stops : text.index("\n## ", stops + 1)]
+    old = rules.index("E-CREATE-ONLY-FLAG")
+    claim_only = rules.index("E-CLAIM-ONLY-FLAG")
+    values = rules.index("`--pipeline` value that is not `worktree`, `full` or `none`")
+    submit = rules.index("E-SUBMIT-NEEDS-FULL")
+    assert old < claim_only < values < submit
+    assert stops < text.index("## Activation")
+    assert '"--pipeline and --submit apply to --claim only"' in rules
+    assert '"--submit needs --pipeline full"' in rules
+    assert "with no value" in rules[values:submit]
+
+
+def test_st3_will_not_names_what_the_command_never_runs_itself():
+    text = _text()
+    will_not = text.split("**Will Not:**", 1)[1].split("## Activation", 1)[0]
+    assert "Run any next-step command" not in text
+    for token in (
+        "`/sc:implement`",
+        "`/task`",
+        "a commit",
+        "a push",
+        "`/sc:pr-submit`",
+    ):
+        assert token in will_not
+    assert "Pass an Orca link flag" in will_not
+    assert "Merge anything" in will_not
+    assert "the launched agent may" in will_not
+
+
+def test_claim_outputs_and_examples_cover_the_new_flags():
+    text = _text()
+    claim_row = next(ln for ln in text.splitlines() if ln.startswith("| claim |"))
+    assert "launch-prompt.md" in claim_row and "worktree.json" in claim_row
+    for example in (
+        "/sc:issue --claim 302 --pipeline none",
+        "/sc:issue --claim 302 --pipeline full",
+        "/sc:issue --claim 302 --pipeline full --submit",
+    ):
+        assert example in text.splitlines()
+    assert "E-ORCA-REQUIRED" in text
 
 
 def test_activation_names_the_skill():

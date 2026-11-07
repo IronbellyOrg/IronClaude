@@ -1,0 +1,90 @@
+card_id: t1-pre-scIssueClaimPipe
+mode: pre
+subject: "Plan TASK-WF-scIssueClaimPipe-20261107-063237 (9 tasks, 3 phases) vs its source design"
+spec_path: .dev/tasks/to-do/TASK-WF-scIssueClaimPipe-20261107-063237/source.md
+tasklist_path: .dev/tasks/to-do/TASK-WF-scIssueClaimPipe-20261107-063237/TASK-WF-scIssueClaimPipe-20261107-063237.md
+method:
+  pass1_regex_ids: 0            # spec labels are P1/D1/FR-/ST-/OB-; ID_REGEX is R-/REQ-/SPEC-/T- only
+  pass2_inferred_rows: 56       # every quote verified verbatim against its cited spec line by script
+  matching: deterministic containment (stopword-stripped, threshold 0.6, best single task)
+  matrix_artifact: artifacts/coverage-matrix.json
+coverage:
+  coverage_pct_union: 0.9107    # 51 of 56
+  coverage_pct: null            # parsed-only denominator is zero
+  unmapped_union: [INF-001, INF-004, INF-048, INF-050, INF-056]
+  unmapped_disposition: "All five are constraint or negative requirements (Orca is a dependency; hook not built; no real orca in tests; FO-5/AC-5 not built; no live run). Four are carried by the plan's ## Constraints section (plan:17). INF-001 (Orca is a dependency, no text for non-Orca projects; source.md:39) is NOT stated in plan Constraints."
+  coverage_degraded: parsed-sparse
+structural_signals:
+  S_scope: 9                    # tasks
+  S_domains: 3                  # code, tests, docs
+  S_dev_density_union: 0.0893
+findings:
+  - id: F-1
+    kind: plan-sequencing
+    severity_proposed: IMPORTANT
+    claim: >-
+      Task 1 creates scripts/orca_worktree.py but its SKILL.md files-table row is only added in Task 4;
+      Task 5 creates templates/launch-prompt.md but its row is only added in Task 7. The existing test
+      requires every scripts/*.py and templates/*.md on disk to be named in SKILL.md, so the existing
+      suite is red between those tasks.
+    evidence:
+      - "tests/skills/test_issue_protocol.py:131 def test_every_named_path_exists_and_every_file_is_named"
+      - "tests/skills/test_issue_protocol.py:141 assert sorted(on_disk - named) == []"
+      - "plan:30 Task 1 creates the script; plan:78 Task 4 adds the table row"
+      - "plan:95 Task 5 creates the template; plan:122 Task 7 adds the table row"
+    recommendation: "Add the SKILL.md files-table row for the script to Task 1 and for the template to Task 5, and keep Tasks 4 and 7 for the prose edits."
+  - id: F-2
+    kind: spec-ambiguity-inherited
+    severity_proposed: IMPORTANT
+    claim: >-
+      The final output must print the 'untracked, do not stage' line only when no file under the
+      worktree's .dev/issues/<N>/ is tracked, but the worktree subcommand's output schema
+      {status, path, branch, match_key, warning, detail} has no field that tells the skill this, and
+      all worktree git calls are reserved to the script. The plan (Task 2 and Task 4) copies the gap.
+    evidence:
+      - "source.md:177 worktree output schema"
+      - "source.md:158 final-output item 2 (untracked line)"
+      - "plan:84 Task 4 final-output text"
+    recommendation: "Add a field (for example tracked_files: [..]) to the worktree JSON in Task 2 and have Task 4 print the line from it."
+  - id: F-3
+    kind: doc-staleness
+    severity_proposed: MINOR
+    claim: >-
+      The frontmatter description of commands/issue.md and of SKILL.md both say the claim 'then stop(s)'.
+      That becomes false after this change. Task 3 and Task 4/7 list body sections but not the frontmatter
+      description line.
+    evidence:
+      - "src/superclaude/commands/issue.md:3"
+      - "src/superclaude/skills/sc-issue-protocol/SKILL.md:3"
+      - "source.md:303 (design names SKILL.md 'description'; source.md:302 for commands/issue.md omits it)"
+    recommendation: "Name the frontmatter description in Task 3 (command) and Task 4 (skill)."
+  - id: F-4
+    kind: coverage-gap
+    severity_proposed: MINOR
+    claim: "Requirement INF-001 (Orca is a dependency; no non-Orca accommodation anywhere) has no task and is absent from the plan Constraints."
+    evidence:
+      - "source.md:39"
+      - "plan:17 ## Constraints (no such line)"
+    recommendation: "Add one Constraints bullet."
+  - id: F-5
+    kind: reviewability
+    severity_proposed: MINOR
+    claim: "Task 2 packs list, four-key lookup, create, set difference, file-by-file copy and the record into one task with 17 named test cases."
+    evidence:
+      - "plan:45 Task 2"
+    recommendation: "Optionally split copy and record (steps 5 to 7 of design 8.3) into a second task."
+verified_ok:
+  - "All 12 existing paths the plan names exist; the 3 new paths are absent (bash existence check)."
+  - "make targets lint, sync-dev, verify-sync, test exist (Makefile:13,48,109,166); ruff is pinned ==0.15.20 (pyproject.toml:54)."
+  - "tests/skills/test_model_alias_policy.py allows the text claude-gw-tier under sc-issue-protocol and scans Python constants only for full model ids; no conflict with the planned script."
+  - "tests/skills/test_issue_protocol.py gh --repo scan covers SKILL.md, refs and agents only; no new gh text is planned."
+  - "Plan has no checkbox or numbered lines, no absolute paths, schema-min gate passed."
+risk_surface:
+  - "Plan sequencing red windows (F-1)."
+  - "Launch-record and shim-check behaviour depend on UNVERIFIED Orca JSON shapes; the plan keeps them tolerant (recursive handle walk) and tests them with fakes only."
+  - "Plan Constraints forbid live runs, so end-to-end behaviour stays unobserved until owner runs OB-1 to OB-9."
+recommendations:
+  - {id: R-1, file: ".dev/tasks/to-do/TASK-WF-scIssueClaimPipe-20261107-063237/TASK-WF-scIssueClaimPipe-20261107-063237.md", change: "Move the SKILL.md files-table rows into Tasks 1 and 5", verifier: "uv run pytest tests/skills/test_issue_protocol.py::test_every_named_path_exists_and_every_file_is_named passes after Task 1 and after Task 5"}
+  - {id: R-2, file: ".dev/tasks/to-do/TASK-WF-scIssueClaimPipe-20261107-063237/TASK-WF-scIssueClaimPipe-20261107-063237.md", change: "Add a tracked-files field to the worktree JSON (Task 2) and use it in Task 4", verifier: "Task 2 test asserts the field; Task 4 final-output text reads it"}
+  - {id: R-3, file: ".dev/tasks/to-do/TASK-WF-scIssueClaimPipe-20261107-063237/TASK-WF-scIssueClaimPipe-20261107-063237.md", change: "Name the frontmatter description in Tasks 3 and 4; add the Orca-dependency Constraints bullet", verifier: "grep -n 'then stop' src/superclaude/commands/issue.md src/superclaude/skills/sc-issue-protocol/SKILL.md finds nothing after the tasks"}
+tier_decision_hint: "coverage_degraded parsed-sparse forces Tier 2 (Step 1B.2b); S_domains 3 also escalates (rule 4)."

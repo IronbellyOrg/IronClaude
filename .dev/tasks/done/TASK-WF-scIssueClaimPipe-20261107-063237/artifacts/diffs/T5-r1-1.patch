@@ -1,0 +1,347 @@
+diff --git a/src/superclaude/skills/sc-issue-protocol/SKILL.md b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+index c5756da6..a0558919 100644
+--- a/src/superclaude/skills/sc-issue-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+@@ -39,6 +39,7 @@ For issues filed through `/sc:issue --create`, its four templates replace the `I
+ | `templates/recommend-record.md` | `recommend.md` (claim) |
+ | `templates/next-steps.md` | `next-steps.md` (claim) |
+ | `templates/claim-comment.md` | `claim-comment.md` (claim, posted) |
++| `templates/launch-prompt.md` | `launch-prompt.md` (claim, not for `--pipeline none`): four blocks that `scripts/orca_worktree.py prompt` assembles |
+ | `templates/description.md` | `description.md` (create) |
+ | `templates/flags-decision.md` | `flags.md`, `flags-user.md`, `flags-t1.md` (create) |
+ | `templates/issue-feature-simple.md` | `issue-body.md` (create, feature, quick or standard) |
+diff --git a/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py b/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py
+index 1801cba8..0efffc15 100644
+--- a/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py
++++ b/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py
+@@ -28,6 +28,12 @@ only these commands: ``git rev-parse --path-format=absolute --git-common-dir``,
+ ``git -C <wt> rev-parse --path-format=absolute --git-common-dir`` and
+ ``git -C <wt> ls-files .dev/issues/<N>``. Only Orca makes the worktree; this
+ file never commits, pushes, stages or removes anything.
++
++``prompt --template <file> --level worktree|full [--submit] --number <N>
++--out <file>`` renders ``launch-prompt.md`` from the four blocks of
++``templates/launch-prompt.md`` (``common``, the level block, ``submit`` with
++``--submit``) and prints ``{"status": "written", "path": "<out>"}``. ``--submit``
++with ``--level worktree`` is a bad argument (exit 2).
+ """
+ 
+ from __future__ import annotations
+@@ -552,6 +558,36 @@ def cmd_worktree(args: argparse.Namespace) -> int:
+     return emit(out.as_dict())
+ 
+ 
++# --- prompt ---------------------------------------------------------------
++
++BLOCK_MARKER = re.compile(r"^<!-- block:([a-z]+) -->[ \t]*$", re.M)
++
++
++def render_prompt(template: str, level: str, submit: bool, number: int) -> str:
++    """Keep ``common`` + the level block (+ ``submit``); drop markers and the rest."""
++    parts = BLOCK_MARKER.split(template)  # [preamble, name, body, name, body, ...]
++    blocks = dict(zip(parts[1::2], parts[2::2]))
++    wanted = ["common", level] + (["submit"] if submit else [])
++    missing = [name for name in wanted if name not in blocks]
++    if missing:
++        raise ValueError(f"template has no block: {', '.join(missing)}")
++    text = "\n\n".join(blocks[name].strip() for name in wanted) + "\n"
++    return text.replace("<N>", str(number))
++
++
++def cmd_prompt(args: argparse.Namespace) -> int:
++    try:
++        template = Path(args.template).read_text(encoding="utf-8")
++        text = render_prompt(template, args.level, args.submit, args.number)
++        out = Path(args.out)
++        tmp = out.with_name(out.name + ".tmp")
++        tmp.write_text(text, encoding="utf-8")
++        os.replace(tmp, out)
++    except (OSError, ValueError) as exc:
++        return emit({"status": "failed", "detail": str(exc)})
++    return emit({"status": "written", "path": str(out)})
++
++
+ def issue_number(text: str) -> int:
+     if not text.isdigit() or int(text) < 1:
+         raise argparse.ArgumentTypeError("must be a positive integer")
+@@ -584,11 +620,21 @@ def build_parser() -> argparse.ArgumentParser:
+     wt.add_argument("--base", required=True, type=origin_ref)
+     wt.add_argument("--source", required=True)
+     wt.set_defaults(func=cmd_worktree)
++    pr = sub.add_parser("prompt", help="render launch-prompt.md from the template")
++    pr.add_argument("--template", required=True)
++    pr.add_argument("--level", required=True, choices=["worktree", "full"])
++    pr.add_argument("--submit", action="store_true")
++    pr.add_argument("--number", required=True, type=issue_number)
++    pr.add_argument("--out", required=True)
++    pr.set_defaults(func=cmd_prompt)
+     return parser
+ 
+ 
+ def main(argv: list[str] | None = None) -> int:
+-    args = build_parser().parse_args(argv)
++    parser = build_parser()
++    args = parser.parse_args(argv)
++    if args.command == "prompt" and args.submit and args.level != "full":
++        parser.error("--submit needs --level full")
+     return args.func(args)
+ 
+ 
+diff --git a/src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md b/src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md
+new file mode 100644
+index 00000000..8ceb7b31
+--- /dev/null
++++ b/src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md
+@@ -0,0 +1,33 @@
++<!--
++Template of `launch-prompt.md` (claim Wave 5). Four blocks, each opened by a marker
++line of the form `block:<name>` inside an HTML comment. `orca_worktree.py prompt`
++keeps `common` plus the level block (`worktree` or `full`), plus `submit` when
++`--submit` was passed, drops every other block and every marker line, and replaces
++`<N>` with the issue number. Text before the first marker is dropped. Code, not the
++model, assembles the file, so a block cannot be paraphrased away.
++-->
++
++<!-- block:common -->
++You were started by `/sc:issue --claim <N>` in this worktree. Read `.dev/issues/<N>/issue-summary.md` and `.dev/issues/<N>/next-steps.md` first.
++
++Run each step of `next-steps.md`, in order, by invoking its command through the Skill tool in this session. Never read a command file and carry it out by hand, and never run a step inside a subagent.
++
++`next-steps.md` names the model tier it was written for on its first line. If this session runs on a lower tier, say so in your first message and carry on.
++
++Never merge anything, and never push to `master` or `main`.
++
++<!-- block:worktree -->
++Level: worktree. Follow the steps of `next-steps.md` up to the line `Plan boundary: after step <K>` (the number after `after step` is the last step you may run before a human approves). If the line reads `Plan boundary: before step 1`, there is nothing to run yet. Do not run `/sc:implement`, `/task`, `git commit`, `git push` or `/sc:pr-submit`.
++
++When the plan exists, print its path and the words `Waiting for approval`, then wait. A human approves by replying `approved` in this session or by running the printed implement command. After that, run the remaining steps, still with no commit, no push and no `/sc:pr-submit`.
++
++<!-- block:full -->
++Level: full. Run every step of `next-steps.md` through the last one; the `Plan boundary` line does not apply. Leave all changes in the working tree and stage nothing. Finish by printing `git status --short`.
++
++<!-- block:submit -->
++The owner asked for the commit and push by passing `--submit`. After the last step:
++
++1. Check that no pull request is already open or merged for this branch: `gh pr list --repo IronbellyOrg/IronClaude --head <branch> --state all`. If one exists, stop and report it; do not commit or push.
++2. Commit with `git commit` and a conventional-commit message. Stage `.dev/tasks` and the files you changed; never anything under `.claude/` and never `.dev/issues/`.
++3. Push the current feature branch with `git push origin <branch>`, never `master` or `main`.
++4. Run `/sc:pr-submit --monitor 3 --head <branch> --title "..." --body "..."` through the Skill tool. Never merge.
+diff --git a/tests/skills/test_issue_orca_worktree.py b/tests/skills/test_issue_orca_worktree.py
+index def4d5c5..18e8442c 100644
+--- a/tests/skills/test_issue_orca_worktree.py
++++ b/tests/skills/test_issue_orca_worktree.py
+@@ -825,3 +825,98 @@ def test_arg1_worktree_bad_arguments_exit_2(
+         args[args.index(flag) + 1] = value
+         assert run_script("worktree", *args, env=env).returncode == 2
+     assert fake_orca.calls() == []
++
++
++# --- prompt ------------------------------------------------------------------
++
++TEMPLATE = SCRIPT.parents[1] / "templates" / "launch-prompt.md"
++PR_TOKENS = ("/sc:pr-submit", "git push", "git commit", "--monitor")
++PROMPT_NOT_RUN = (
++    "Do not run `/sc:implement`, `/task`, `git commit`, `git push` or `/sc:pr-submit`."
++)
++
++
++def render(
++    tmp_path: Path, level: str, *, submit: bool = False, template: Path = TEMPLATE
++) -> tuple[subprocess.CompletedProcess[str], Path]:
++    out = tmp_path / f"launch-prompt-{level}-{submit}.md"
++    args = ["prompt", "--template", str(template), "--level", level]
++    args += ["--number", "302", "--out", str(out)]
++    if submit:
++        args.append("--submit")
++    return run_script(*args, env=dict(os.environ)), out
++
++
++def test_pr1_levels_keep_only_their_own_block(tmp_path: Path) -> None:
++    worktree_proc, worktree_out = render(tmp_path, "worktree")
++    full_proc, full_out = render(tmp_path, "full")
++    for proc, out in ((worktree_proc, worktree_out), (full_proc, full_out)):
++        assert proc.returncode == 0, proc.stderr
++        assert json.loads(proc.stdout) == {"status": "written", "path": str(out)}
++        text = out.read_text()
++        assert "<!--" not in text and "block:" not in text
++        assert "<N>" not in text and ".dev/issues/302/next-steps.md" in text
++        assert "Never merge anything" in text  # the common block
++    worktree, full = worktree_out.read_text(), full_out.read_text()
++    assert "Level: worktree." in worktree and "Level: full." not in worktree
++    assert "Level: full." in full and "Level: worktree." not in full
++    assert "Waiting for approval" in worktree and "Waiting for approval" not in full
++    assert "owner asked for the commit" not in worktree + full
++
++
++def test_pr2_submit_adds_the_submit_block(tmp_path: Path) -> None:
++    proc, out = render(tmp_path, "full", submit=True)
++    assert proc.returncode == 0, proc.stderr
++    text = out.read_text()
++    assert "Level: full." in text and "owner asked for the commit" in text
++    assert "/sc:pr-submit --monitor 3" in text
++    assert text.index("Level: full.") < text.index("owner asked for the commit")
++    plain = render(tmp_path, "full")[1].read_text()
++    assert text.startswith(plain.rstrip("\n"))
++
++
++def test_pr3_submit_with_worktree_level_is_a_bad_argument(tmp_path: Path) -> None:
++    proc, out = render(tmp_path, "worktree", submit=True)
++    assert proc.returncode == 2
++    assert not out.exists()
++
++
++def test_pr4_no_pr_tokens_outside_the_worktree_prohibition_and_submit(
++    tmp_path: Path,
++) -> None:
++    full = render(tmp_path, "full")[1].read_text()
++    worktree = render(tmp_path, "worktree")[1].read_text()
++    for token in PR_TOKENS:
++        assert token not in full, token
++    assert PROMPT_NOT_RUN in worktree
++    assert "--monitor" not in worktree
++    common = worktree.split("Level: worktree.", 1)[0]
++    for token in PR_TOKENS:
++        assert token not in common, token
++
++
++def test_pr_unusable_template_is_reported_not_raised(tmp_path: Path) -> None:
++    proc, out = render(tmp_path, "full", template=tmp_path / "missing.md")
++    data = json.loads(proc.stdout)
++    assert proc.returncode == 0 and data["status"] == "failed" and data["detail"]
++    assert not out.exists()
++    short = tmp_path / "short.md"
++    short.write_text("<!-- block:common -->\nonly the common block\n")
++    proc, out = render(tmp_path, "full", template=short)
++    assert json.loads(proc.stdout)["status"] == "failed"
++    assert "full" in json.loads(proc.stdout)["detail"] and not out.exists()
++
++
++def test_arg1_prompt_bad_arguments_exit_2(tmp_path: Path) -> None:
++    env = dict(os.environ)
++    good = ["--template", str(TEMPLATE), "--level", "full", "--number", "302"]
++    good += ["--out", str(tmp_path / "x.md")]
++    assert run_script("prompt", env=env).returncode == 2
++    for flag in ("--template", "--level", "--number", "--out"):
++        i = good.index(flag)
++        assert run_script("prompt", *good[:i], *good[i + 2 :], env=env).returncode == 2
++    for flag, value in {"--level": "none", "--number": "0"}.items():
++        args = list(good)
++        args[args.index(flag) + 1] = value
++        assert run_script("prompt", *args, env=env).returncode == 2
++    assert not (tmp_path / "x.md").exists()
+diff --git a/tests/skills/test_issue_protocol.py b/tests/skills/test_issue_protocol.py
+index 10c7aacb..75be4734 100644
+--- a/tests/skills/test_issue_protocol.py
++++ b/tests/skills/test_issue_protocol.py
+@@ -260,6 +260,68 @@ def test_st6_preflight_is_in_wave_0_and_worktree_is_wave_7_after_the_posts():
+         assert code in wave7 and code in _text(SKILL)
+ 
+ 
++LAUNCH_TEMPLATE = TEMPLATES / "launch-prompt.md"
++_BLOCK_MARKER = re.compile(r"^<!-- block:([a-z]+) -->[ \t]*$", re.M)
++
++
++def _launch_blocks() -> dict[str, str]:
++    parts = _BLOCK_MARKER.split(_text(LAUNCH_TEMPLATE))
++    return dict(zip(parts[1::2], parts[2::2]))
++
++
++def test_st5_launch_prompt_template_is_in_the_files_table_and_exists():
++    rows = [ln for ln in _text(SKILL).splitlines() if ln.startswith("| `templates/")]
++    assert any(ln.startswith("| `templates/launch-prompt.md` |") for ln in rows)
++    assert LAUNCH_TEMPLATE.is_file()
++    assert len(list(REFS.glob("*.md"))) == 5
++
++
++def test_st8_launch_prompt_has_exactly_the_four_blocks():
++    assert list(_launch_blocks()) == ["common", "worktree", "full", "submit"]
++    assert len(_BLOCK_MARKER.findall(_text(LAUNCH_TEMPLATE))) == 4
++
++
++def test_st8_pr_tokens_live_only_in_the_submit_block_and_the_worktree_prohibition():
++    blocks = _launch_blocks()
++    holders = {
++        token: {name for name, body in blocks.items() if token in body}
++        for token in ("/sc:pr-submit", "git push", "git commit", "--monitor")
++    }
++    assert holders["--monitor"] == {"submit"}
++    for token in ("/sc:pr-submit", "git push", "git commit"):
++        assert holders[token] == {"worktree", "submit"}, token
++    assert "/sc:pr-submit --monitor 3" in blocks["submit"]
++    assert "conventional-commit" in blocks["submit"]
++    assert "conventional-commit" not in "".join(
++        body for name, body in blocks.items() if name != "submit"
++    )
++    prohibition = "Do not run `/sc:implement`, `/task`, `git commit`, `git push` or `/sc:pr-submit`."
++    assert prohibition in blocks["worktree"]
++    for name in ("common", "full"):
++        assert not any(t in blocks[name] for t in holders), name
++
++
++def test_st8_common_block_carries_the_required_statements():
++    common = _launch_blocks()["common"]
++    for text in (
++        ".dev/issues/<N>/issue-summary.md",
++        ".dev/issues/<N>/next-steps.md",
++        "through the Skill tool in this session",
++        "never run a step inside a subagent",
++        "model tier",
++        "Never merge anything",
++    ):
++        assert text in common, text
++
++
++def test_st12_launch_prompt_gh_calls_name_the_fork():
++    text = _text(LAUNCH_TEMPLATE)
++    assert gh_lines_missing_repo(text) == []
++    assert (
++        "gh pr list --repo IronbellyOrg/IronClaude --head <branch> --state all" in text
++    )
++
++
+ def test_st6_skill_steps_name_the_orca_check_and_the_worktree_step():
+     skill = _text(SKILL)
+     claim_mode = skill.split("## Claim mode", 1)[1].split("## Create mode", 1)[0]
+diff --git a/tests/skills/test_worker_contract.py b/tests/skills/test_worker_contract.py
+index bb01c70c..a278c5c2 100644
+--- a/tests/skills/test_worker_contract.py
++++ b/tests/skills/test_worker_contract.py
+@@ -2193,6 +2193,38 @@ WRITE_VERB_CLASSIFICATION = {
+         "read-only",
+         "prose: every gh call passes --repo and every gh api path is user or repos/<R>/; it names no write",
+     ),
++    (
++        "src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md",
++        "gh pr",
++        "1. Check that no pull request is already open or merged for this branch: `gh pr list --repo IronbellyOrg/IronClaude --head <branch> --state all`. If one exists, stop and report it; do not commit or push.",
++    ): (
++        "read-only",
++        "a read: gh pr list on the fork, run by the launched agent before it commits",
++    ),
++    (
++        "src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md",
++        "git commit",
++        "2. Commit with `git commit` and a conventional-commit message. Stage `.dev/tasks` and the files you changed; never anything under `.claude/` and never `.dev/issues/`.",
++    ): (
++        "never-worker",
++        "/sc:issue is on the never-as-worker list; this instruction is rendered into the launched agent's prompt only when the owner passes --submit, and no worker runs it",
++    ),
++    (
++        "src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md",
++        "git commit+git push",
++        "Level: worktree. Follow the steps of `next-steps.md` up to the line `Plan boundary: after step <K>` (the number after `after step` is the last step you may run before a human approves). If the line reads `Plan boundary: before step 1`, there is nothing to run yet. Do not run `/sc:implement`, `/task`, `git commit`, `git push` or `/sc:pr-submit`.",
++    ): (
++        "read-only",
++        "prose that forbids the verbs: the worktree level never commits or pushes",
++    ),
++    (
++        "src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md",
++        "git push",
++        "3. Push the current feature branch with `git push origin <branch>`, never `master` or `main`.",
++    ): (
++        "never-worker",
++        "/sc:issue is on the never-as-worker list; this instruction is rendered into the launched agent's prompt only when the owner passes --submit, and no worker runs it",
++    ),
+ }
+ 
+ 

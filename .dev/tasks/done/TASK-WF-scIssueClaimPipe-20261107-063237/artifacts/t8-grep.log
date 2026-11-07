@@ -1,0 +1,12 @@
+13:> **Amended 2026-11-07:** `--claim` no longer stops after the next-step promp
+43:| B16 | After `next-steps.md` is written and both comments are posted, the cl
+44:| B17 | Launch levels through `--pipeline`: `worktree` (default, plans and wa
+45:| B18 | `--submit` (with `--pipeline full` only) turns on the commit, the pus
+adversarial
+enrichment
+hook-session-prompt.md
+hook-session-result.md
+launch-levels-addendum.md
+merged-requirements.md
+return-contract.yaml
+seed-brief.md

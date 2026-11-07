@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-scIssueClaimPipe-20261107-063237
+plan_path: ./TASK-WF-scIssueClaimPipe-20261107-063237.md
+source_path: ./source.md
+source_origin: docs/designs/sc-issue-claim-pipeline-flag.md
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/sc-issue-claim-pipeline-flag/.dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md
+unresolved:
+  - "Advisory reflect verdict FAIL: 6 blocking findings (B-1 write-verb audit in tests/skills/test_worker_contract.py, B-2 tracked-files data, B-3 launch-prompt fork safety, B-4 shared return contract, B-5 ST-4 rule, B-6 missing required tests and dropped Task 6 safeguards). The plan was not edited from the findings, as the workflow protocol requires."
+  - "Reflect status partial: one citation was dropped by the evidence validator (a forward reference to its own evidence file)."

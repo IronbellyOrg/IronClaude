@@ -2193,6 +2193,38 @@ WRITE_VERB_CLASSIFICATION = {
         "read-only",
         "prose: every gh call passes --repo and every gh api path is user or repos/<R>/; it names no write",
     ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md",
+        "gh pr",
+        "1. Check that no pull request is already open or merged for this branch: `gh pr list --repo IronbellyOrg/IronClaude --head <branch> --state all`. If one exists, stop and report it; do not commit or push.",
+    ): (
+        "read-only",
+        "a read: gh pr list on the fork, run by the launched agent before it commits",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md",
+        "git commit",
+        "2. Commit with `git commit` and a conventional-commit message. Stage `.dev/tasks` and the files you changed; never anything under `.claude/` and never `.dev/issues/`.",
+    ): (
+        "never-worker",
+        "/sc:issue is on the never-as-worker list; this instruction is rendered into the launched agent's prompt only when the owner passes --submit, and no worker runs it",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md",
+        "git commit+git push",
+        "Level: worktree. Follow the steps of `next-steps.md` up to the line `Plan boundary: after step <K>` (the number after `after step` is the last step you may run before a human approves). If the line reads `Plan boundary: before step 1`, there is nothing to run yet. Do not run `/sc:implement`, `/task`, `git commit`, `git push` or `/sc:pr-submit`.",
+    ): (
+        "read-only",
+        "prose that forbids the verbs: the worktree level never commits or pushes",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md",
+        "git push",
+        "3. Push the current feature branch with `git push origin <branch>`, never `master` or `main`.",
+    ): (
+        "never-worker",
+        "/sc:issue is on the never-as-worker list; this instruction is rendered into the launched agent's prompt only when the owner passes --submit, and no worker runs it",
+    ),
 }
 
 

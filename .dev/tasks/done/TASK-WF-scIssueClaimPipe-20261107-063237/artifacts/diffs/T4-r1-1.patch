@@ -1,0 +1,174 @@
+diff --git a/src/superclaude/skills/sc-issue-protocol/SKILL.md b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+index a9e9304f..c5756da6 100644
+--- a/src/superclaude/skills/sc-issue-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+@@ -1,6 +1,6 @@
+ ---
+ name: sc:issue-protocol
+-description: "Behavioral protocol for /sc:issue: --claim assigns an existing GitHub issue on the origin repo (and its ClickUp task), checks its accuracy, writes a summary and a next-step prompt, then stops; --create files a templated GitHub issue with labels from a fixed set. Spawns tier-pinned worker agents for every lookup and draft; the orchestrator makes every GitHub and ClickUp write."
++description: "Behavioral protocol for /sc:issue: --claim assigns an existing GitHub issue on the origin repo (and its ClickUp task), checks its accuracy, writes a summary and a next-step prompt, then creates an Orca worktree for it; --create files a templated GitHub issue with labels from a fixed set. Spawns tier-pinned worker agents for every lookup and draft; the orchestrator makes every GitHub and ClickUp write."
+ allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, Skill, AskUserQuestion
+ ---
+ 
+@@ -14,7 +14,7 @@ mcp-servers: [auggie, codegraph]
+ 
+ Two modes, chosen by the command (`~/.claude/commands/sc/issue.md`), which has already validated the flags:
+ 
+-- **`--claim <number|url>`**: assign an existing issue of the origin repo to the current user on GitHub and, when one exists, on its ClickUp task; check whether the issue text is still accurate; write a summary cheatsheet and the next-step prompt; post two marked comments; then **stop**. The claim never runs a next-step command (B2).
++- **`--claim <number|url>`**: assign an existing issue of the origin repo to the current user on GitHub and, when one exists, on its ClickUp task; check whether the issue text is still accurate; write a summary cheatsheet and the next-step prompt; post two marked comments; then create or reuse the Orca worktree `issue-<N>` and copy `.dev/issues/<N>/` into it. This skill never runs a next-step command itself (B2).
+ - **`--create "<description>"`**: turn a description into a GitHub issue built from one of four templates, with labels from a fixed set, and post it. GitHub only: no ClickUp task and no self-assignment (B6).
+ 
+ For issues filed through `/sc:issue --create`, its four templates replace the `ISSUE-HANDOFF.md` / `ISSUE-BACKLOG.md` instruction of rule 10 in the distributed `CLAUDE.md`; rule 10 itself is unchanged and still governs issues filed without `/sc:issue`.
+@@ -25,7 +25,7 @@ For issues filed through `/sc:issue --create`, its four templates replace the `I
+ 
+ | Path (skill-relative) | Loaded or used |
+ |---|---|
+-| `refs/claim.md` | at the start of claim mode: Waves 0-6 in detail, the effort and complexity rubric, marker handling |
++| `refs/claim.md` | at the start of claim mode: Waves 0-7 in detail, the effort and complexity rubric, marker handling |
+ | `refs/create.md` | at the start of create mode: Waves 0-5, flag-settling table, depth-to-worker table, contradiction prompt rule |
+ | `refs/chains.md` | claim Wave 5: the six default next-step chains and the `/sc:recommend` goal format |
+ | `refs/labels.md` | create Wave 5: the fixed label set and the maintainer's one-time creation lines |
+@@ -80,13 +80,14 @@ Every spawn prompt names each exact path the job must write under `.dev/issues/`
+ 
+ Load `refs/claim.md` now. `<N>` is the issue number, `<D>` = `.dev/issues/<N>/`.
+ 
+-1. **Wave 0, prerequisites.** `uv run --no-project python "<skill base>/scripts/origin_repo.py" --claim "<argument>"` resolves `<R>` and `<N>`: exit 1 STOP `E-NO-ORIGIN`, exit 3 STOP `E-FOREIGN-REPO`, exit 4 STOP `E-NOT-AN-ISSUE`. Then `gh auth status` (else STOP `E-GH-AUTH`), the default branch, and create `<D>`.
++1. **Wave 0, prerequisites.** `uv run --no-project python "<skill base>/scripts/origin_repo.py" --claim "<argument>"` resolves `<R>` and `<N>`: exit 1 STOP `E-NO-ORIGIN`, exit 3 STOP `E-FOREIGN-REPO`, exit 4 STOP `E-NOT-AN-ISSUE`. Then `gh auth status` (else STOP `E-GH-AUTH`), the Orca check `uv run --no-project python "<skill base>/scripts/orca_worktree.py" preflight` (`ok: false` is STOP `E-ORCA-REQUIRED`, before any GitHub or ClickUp write), the default branch, and create `<D>`.
+ 2. **Wave 1, lookup.** Load `refs/tiers.md`. Spawn `issue-worker-t3` first (B13); it writes `<D>/scout.md` from `templates/scout-report.md`.
+ 3. **Wave 2, edge cases** from `scout.md`: a pull request is STOP `E-NOT-AN-ISSUE`; closed or assigned to someone else stops with the stated message and no write (B9); re-claim continues; earlier marked comment IDs are kept for Wave 6.
+ 4. **Wave 3, assign.** `gh issue edit <N> --repo <R> --add-assignee @me` (failure STOP `E-ASSIGN-FAILED`, before ClickUp and any comment), then `scripts/clickup_claim.py` with stdout to `<D>/clickup.json`; every ClickUp outcome except an argument error is non-fatal.
+ 5. **Wave 4, accuracy check and summary.** Spawn `issue-worker-t2`, or `issue-worker-t1` when `scout.md` says `complex`; it writes `<D>/accuracy-check.md`, `<D>/issue-summary.md` (effort in hours) and, when out of date, the analysis report as `<D>/analysis/analyze-<scope>.md` (`<scope>` in this file name is the last segment of the main path the issue touches). No file under `<D>/analysis/` has a name that starts with analysis, report, summary or findings.
+ 6. **Wave 5, next steps.** Load `refs/chains.md`. Invoke `Skill sc-recommend` with the goal format of `refs/chains.md`; save its output verbatim to `<D>/recommend.md` from `templates/recommend-record.md`. Write `<D>/next-steps.md` from `templates/next-steps.md`, starting with the `/model` tier line.
+-7. **Wave 6, post.** Post or edit (by marker) the accuracy-check comment and the claim comment (`templates/claim-comment.md`). Print the `next-steps.md` path and STOP. Never run a next-step command (B2).
++7. **Wave 6, post.** Post or edit (by marker) the accuracy-check comment and the claim comment (`templates/claim-comment.md`). Then continue with Wave 7. A STOP in Waves 0 to 6 means no Orca call after the Wave 0 check. Never run a next-step command (B2).
++8. **Wave 7, worktree.** `orca_worktree.py worktree --repo <R> --number <N> --base origin/<B> --source <D>` creates or reuses the worktree and copies `<D>` into it. Every failure is a warning: the claim `status` stays `success`. Print the worktree line, the tracking note and each warning with its remedy line (`refs/claim.md`), then the return contract and STOP.
+ 
+ ## Create mode
+ 
+@@ -125,6 +126,8 @@ On a STOP, also print the STOP code and its message.
+ | No `origin`, or `origin` is not GitHub | STOP `E-NO-ORIGIN` |
+ | Claim URL on another repo | STOP `E-FOREIGN-REPO` |
+ | `gh auth status` fails | STOP `E-GH-AUTH` |
++| `orca_worktree.py preflight` prints `ok: false` (Orca not installed, not running or not reachable) | STOP `E-ORCA-REQUIRED` with the script's `detail`, before any GitHub or ClickUp write |
++| Worktree step fails or needs attention (`W-ORCA-LIST-FAILED`, `W-ORIGIN-BASE-MISSING`, `W-ORIGIN-BASE-STALE`, `W-WORKTREE-CREATE-FAILED`, `W-WORKTREE-AMBIGUOUS`, `W-WORKTREE-STALE`, `W-WORKTREE-COPY-FAILED`) | Warning only: the claim `status` stays `success`; print the code with its remedy line from `refs/claim.md` |
+ | Issue closed | STOP, message "Issue #N is closed; not claimed.", no writes |
+ | Assigned to someone else | STOP, message names the assignee, no writes |
+ | Number or URL is a pull request | STOP `E-NOT-AN-ISSUE` |
+diff --git a/src/superclaude/skills/sc-issue-protocol/refs/claim.md b/src/superclaude/skills/sc-issue-protocol/refs/claim.md
+index ae4b0c2c..77bc065d 100644
+--- a/src/superclaude/skills/sc-issue-protocol/refs/claim.md
++++ b/src/superclaude/skills/sc-issue-protocol/refs/claim.md
+@@ -14,10 +14,11 @@ Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; ev
+    `uv run --no-project python "<skill base>/scripts/origin_repo.py" --claim "<argument>"`
+    It reads only the `origin` remote and prints `{"repo": "<owner/repo>", "number": <N>}`. Exit 1 = STOP `E-NO-ORIGIN` (no `origin`, or not a GitHub URL). Exit 3 = STOP `E-FOREIGN-REPO` (a URL naming any repo other than origin, B10). Exit 4 = STOP `E-NOT-AN-ISSUE` (a `/pull/<N>` URL, or not an issue number or URL). Print the script's stderr line with the STOP.
+ 2. `gh auth status` must succeed; else STOP `E-GH-AUTH`.
+-3. Resolve the default branch `<B>` with `gh repo view <R> --json defaultBranchRef -q .defaultBranchRef.name` (the repo is named explicitly).
+-4. Create `<D>`.
++3. Orca check: `uv run --no-project python "<skill base>/scripts/orca_worktree.py" preflight`. It prints `{"ok": true}` or `{"ok": false, "detail": "..."}`. `ok: false` is STOP `E-ORCA-REQUIRED` with the script's `detail` ("/sc:issue --claim needs Orca running; start Orca and re-run"). This is the only Orca call before Wave 7.
++4. Resolve the default branch `<B>` with `gh repo view <R> --json defaultBranchRef -q .defaultBranchRef.name` (the repo is named explicitly).
++5. Create `<D>`.
+ 
+-No GitHub or ClickUp write happens before Wave 3.
++No GitHub or ClickUp write happens before Wave 3, and none happens before the Orca check passes.
+ 
+ ## Wave 1: lookup (issue-worker-t3, B13)
+ 
+@@ -87,4 +88,31 @@ Load `refs/chains.md`.
+    `gh issue comment <N> --repo <R> --body-file <D>/accuracy-check.md`
+ 2. Claim comment: write `<D>/claim-comment.md` from `templates/claim-comment.md`: who claimed it, the ClickUp result from `clickup.json`, the summary overview, effort estimate, complexity, accuracy verdict, the first next step, and repo-relative links to `<D>/issue-summary.md`, `<D>/next-steps.md` and `<D>/analysis/` with the one-line note that they open on GitHub only after someone commits and pushes the files (default D9). It ends with `<!-- sc:issue:claim -->`. Edit the earlier claim comment with `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<D>/claim-comment.md`, or post it with `gh issue comment <N> --repo <R> --body-file <D>/claim-comment.md`.
+ 3. A post or edit that fails -> STOP `E-POST-FAILED`; the files stay in `<D>`, and a re-run edits rather than duplicates because of the markers.
+-4. Print the `next-steps.md` path and STOP. Do not stage or commit `.dev/issues/` (default D24).
++4. After both comments are posted, run Wave 7. A STOP anywhere in Waves 0 to 6, including `E-POST-FAILED`, means no Orca call after the Wave 0 check. Do not stage or commit `.dev/issues/` (default D24).
++
++## Wave 7: worktree (orchestrator, no worker)
++
++Runs for every `--pipeline` value, after both comments are posted:
++
++`uv run --no-project python "<skill base>/scripts/orca_worktree.py" worktree --repo <R> --number <N> --base origin/<B> --source <D>`
++
++Read the one JSON object it prints: `status` (`created`, `reused` or `failed`), `path`, `branch`, `match_key`, `warning`, `detail`, `tracked_files` and `tracked_known`. Every failure is a warning, never a STOP: the assignment and the comments cannot be undone, so the claim `status` stays `success`. The script copies `<D>` into `<wt>/.dev/issues/<N>/` (it never copies `worktree.json`) and writes `<D>/worktree.json`. The skill itself runs no `git worktree` command and no other `orca` command here.
++
++Print, in this order:
++
++1. The `next-steps.md` path, then `Worktree: <path> (<status>, matched by <match_key>)`. For `match_key` `basename` or `branch` add "reused a worktree not created by /sc:issue". For `record` after `W-ORCA-LIST-FAILED` add "unverified: Orca could not be listed".
++2. "`.dev/issues/<N>/` in the worktree is untracked: do not stage it" only when `tracked_known` is true and `tracked_files` is empty. When `tracked_known` is false, print nothing about tracking.
++3. "run `make sync-dev` there first" when `<wt>/.claude/` is absent and a step of `next-steps.md` needs a primitive that is not synced into the worktree.
++4. The `warning` code, if any, then each other code in `detail`, each with its remedy line:
++
++| Code | Remedy line |
++|---|---|
++| `W-ORCA-LIST-FAILED` | check Orca, re-run the claim |
++| `W-ORIGIN-BASE-MISSING` | `git fetch origin`, re-run |
++| `W-ORIGIN-BASE-STALE` | `git fetch origin`, rebase in `<wt>` |
++| `W-WORKTREE-CREATE-FAILED` | re-run; a finished create is reused |
++| `W-WORKTREE-AMBIGUOUS` | remove the extra worktrees, re-run |
++| `W-WORKTREE-STALE` | `git worktree prune`, then `orca worktree rm` |
++| `W-WORKTREE-COPY-FAILED` | copy the named files by hand |
++
++Then print the return contract and STOP.
+diff --git a/tests/skills/test_issue_protocol.py b/tests/skills/test_issue_protocol.py
+index 7bb652e2..10c7aacb 100644
+--- a/tests/skills/test_issue_protocol.py
++++ b/tests/skills/test_issue_protocol.py
+@@ -215,6 +215,61 @@ def test_all_five_refs_exist():
+     ]
+ 
+ 
++# --- the Orca worktree step (design pipeline-flag, ST-5 and ST-6) ----------------
++
++
++def _wave(text: str, number: int) -> str:
++    """The text of `## Wave <number>` up to the next `## ` heading."""
++    match = re.search(rf"^## Wave {number}\b.*?(?=^## |\Z)", text, re.M | re.S)
++    assert match, f"refs/claim.md has no Wave {number}"
++    return match.group(0)
++
++
++def test_st5_orca_script_is_named_in_the_files_table_and_exists():
++    rows = [ln for ln in _text(SKILL).splitlines() if ln.startswith("| `scripts/")]
++    assert any(ln.startswith("| `scripts/orca_worktree.py` |") for ln in rows)
++    assert (SKILL_DIR / "scripts/orca_worktree.py").is_file()
++    assert len(list(REFS.glob("*.md"))) == 5
++
++
++def test_st6_preflight_is_in_wave_0_and_worktree_is_wave_7_after_the_posts():
++    claim = _text(REFS / "claim.md")
++    wave0 = _wave(claim, 0)
++    assert 'orca_worktree.py" preflight' in wave0
++    assert "E-ORCA-REQUIRED" in wave0
++    assert wave0.index("gh auth status") < wave0.index("preflight")
++    assert wave0.index("preflight") < wave0.index("default branch")
++    assert claim.index("## Wave 0") < claim.index("## Wave 1")
++    assert claim.index("## Wave 6") < claim.index("## Wave 7")
++    wave6, wave7 = _wave(claim, 6), _wave(claim, 7)
++    assert "After both comments are posted, run Wave 7" in wave6
++    assert (
++        'orca_worktree.py" worktree --repo <R> --number <N> --base origin/<B>' in wave7
++    )
++    assert "--source <D>" in wave7
++    assert "never a STOP" in wave7
++    for code in (
++        "W-ORCA-LIST-FAILED",
++        "W-ORIGIN-BASE-MISSING",
++        "W-ORIGIN-BASE-STALE",
++        "W-WORKTREE-CREATE-FAILED",
++        "W-WORKTREE-AMBIGUOUS",
++        "W-WORKTREE-STALE",
++        "W-WORKTREE-COPY-FAILED",
++    ):
++        assert code in wave7 and code in _text(SKILL)
++
++
++def test_st6_skill_steps_name_the_orca_check_and_the_worktree_step():
++    skill = _text(SKILL)
++    claim_mode = skill.split("## Claim mode", 1)[1].split("## Create mode", 1)[0]
++    assert "E-ORCA-REQUIRED" in claim_mode and "preflight" in claim_mode
++    assert claim_mode.index("preflight") < claim_mode.index("**Wave 1, lookup.**")
++    assert "**Wave 7, worktree.**" in claim_mode
++    assert "Print the `next-steps.md` path and STOP" not in skill
++    assert "E-ORCA-REQUIRED" in skill.split("## Error handling", 1)[1]
++
++
+ # --- templates ------------------------------------------------------------------
+ 
+ 

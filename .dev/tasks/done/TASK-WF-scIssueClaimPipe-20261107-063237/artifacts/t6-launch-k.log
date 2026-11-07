@@ -1,0 +1,11 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/sc-issue-claim-pipeline-flag
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 79 items / 50 deselected / 29 selected
+
+tests/skills/test_issue_orca_worktree.py .............................   [100%]
+
+====================== 29 passed, 50 deselected in 7.10s =======================

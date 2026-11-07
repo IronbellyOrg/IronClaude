@@ -1,0 +1,118 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/sc-issue-claim-pipeline-flag/.dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/sc-issue-claim-pipeline-flag/.dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/audit.log
+confidence_calibrated: 0.78
+escalation_rule_matched: 4
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null
+coverage_pct_union: 0.9107
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-001, INF-004, INF-048, INF-050, INF-056]
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 (not applicable in pre mode)
+tasklist_completion_pct: null
+deviation_count_by_class: {authorized: 0, necessary: 0, drift: 20, regression: 0}
+deviation_register_path: null
+grounding_gaps_path: null
+hunk_to_declaration_map_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+runtime_surface_requirements: []
+runtime_surface_sweep_ran: false
+runtime_surface_ledger_path: null
+runtime_surface_unreached: 0
+runtime_surface_degraded: false
+unreached_surfaces: []
+reachability_gate_ran: false
+reachability_skip_reason: null
+reuse_sweep_ran: false
+
+# Input integrity
+input_sha256: {tasklist: null, spec: null}
+input_tree_sha256: a99de5cfb1060b8b9505f991bb599b761ffa749af57758b880ce82392d28b4cd
+input_tree_file_count: 16
+input_tree_snapshot_path: .dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 202
+citations_revalidated: 202
+citations_dropped: 1
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# Tier 2
+reviewer_cards:
+  - .dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/reviewer-cards/reviewer-1-card.yaml
+  - .dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/reviewer-cards/reviewer-2-card.yaml
+  - .dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: .dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/adversarial/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+reviewer_briefs_materialized: 3
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+
+# Findings summary (additive, human reading aid)
+verdict: FAIL
+blocking_findings: 6
+non_blocking_findings: 14
+advisory_gaps: 3
+unresolved:
+  - "Executor class not resolved (no --executor-model, EXECUTOR_MODEL_CLASS or log hint): anti-self-confirmation guarantee weakened."
+  - "Calibrator diversity degraded and vendor diversity single: all gateway ids are Anthropic."
+  - "One HIGH invariant (INV-007, launch prompt fork safety) was unaddressed at the probe gate and was recorded as blocking finding B-3, not fixed."
+  - "No test, command or live run was executed by reflect; every test-state claim comes from reading."

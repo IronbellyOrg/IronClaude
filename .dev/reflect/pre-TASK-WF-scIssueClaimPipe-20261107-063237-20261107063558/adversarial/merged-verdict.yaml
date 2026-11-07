@@ -1,0 +1,27 @@
+merge_method: adversarial
+status: partial
+verdict: FAIL
+base_variant: "sonnet:analyzer (variant 1)"
+convergence_score: 1.0
+convergence_threshold: 0.80
+rounds_completed: 2
+invariant_probe_ran: true
+merged_output_path: .dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/adversarial/adversarial/merged-output.md
+artifacts_dir: .dev/reflect/pre-TASK-WF-scIssueClaimPipe-20261107-063237-20261107063558/adversarial/adversarial
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: skill-direct
+blocking_findings: 6
+non_blocking_findings: 14
+advisory_gaps: 3
+unaddressed_invariants:
+  - id: INV-007
+    category: sufficiency_challenge
+    assumption: "A green suite means the feature works (launch prompt fork safety)"
+    severity: HIGH
+    resolution: "Debate point C-013 had been agreed in Round 2 but the orchestrator's consensus summary omitted its fix; recorded as blocking finding B-3 in the merged card. Not closed by any code change."
+status_reason: "partial because one HIGH invariant was unaddressed at the gate and was resolved by recording it as a blocking finding, not by a fix"
+reviewer_models: [sonnet, haiku, opus]
+calibrator_diversity: degraded
+t2_vendor_diversity: single
