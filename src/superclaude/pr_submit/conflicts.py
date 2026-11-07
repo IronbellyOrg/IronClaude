@@ -461,6 +461,30 @@ def needs_probe(hint: str) -> bool:
     return hint in ("conflicting", "unknown")
 
 
+def late_conflict_trigger(payload: object, wait_sha: object = None) -> bool:
+    """True when a CI poll payload's ``merge_state`` object reads ``"conflicting"``
+    through ``mergeability_hint``, whatever its checks say (FR-24, FR-25). A payload
+    for another head than ``wait_sha``, a missing or malformed ``merge_state`` and
+    every other hint give False; it never raises.
+    """
+    if not isinstance(payload, dict):
+        return False
+    head = payload.get("head_sha")
+    if (
+        isinstance(wait_sha, str)
+        and wait_sha
+        and isinstance(head, str)
+        and head
+        and head != wait_sha
+    ):
+        return False
+    state = payload.get("merge_state")
+    if not isinstance(state, dict):
+        return False
+    hint = mergeability_hint(state.get("mergeable"), state.get("status"))
+    return hint == "conflicting"
+
+
 # ---------------------------------------------------------------------------
 # Parsing (design section 5.3)
 # ---------------------------------------------------------------------------

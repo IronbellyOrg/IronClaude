@@ -1,0 +1,2 @@
+e4045437001da9cf42cb3deb70e8da4bf51041f4
+A2 r2-1 F2.1 minor src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:290 ac=scope amiss:n,false:n,harm:n,constraint:n In the late_conflict row, the clause 'after a preserved review outcome ... the outcome is only reported' follows the L1 clause but the router gives resolve_push at Tier 1 L3 even after a preserved outcome (conflicts.py:1021); the sentence is true for L1, L2 and the halt rows only.

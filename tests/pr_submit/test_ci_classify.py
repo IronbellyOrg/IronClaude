@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from superclaude.pr_submit.ci import (
     ci_wait_autofix,
     classify_checks,
@@ -329,3 +331,64 @@ def test_expect_checks_after_push_non_int_evidence_fails_closed():
             )
             is True
         )
+
+
+# issue #361 (FR-25): the CI poll payload also carries ``merge_state``. These tests
+# are regression guards: they pass on today's code because ``classify_checks`` never
+# reads that key, and they fail if a later change makes it read it.
+
+_CONFLICTING_STATE = {"mergeable": "CONFLICTING", "status": "DIRTY"}
+_PASS_CHECK = {"name": "t", "bucket": "pass", "state": "COMPLETED"}
+_PENDING_CHECK = {"name": "t", "bucket": "pending", "state": "PENDING"}
+_FAIL_CHECK = {"name": "t", "bucket": "fail", "state": "COMPLETED"}
+
+_PAYLOAD_SHAPES = {
+    "pending": {"head_sha": _HEAD, "checks": [_PENDING_CHECK]},
+    "all-pass": {"head_sha": _HEAD, "checks": [_PASS_CHECK]},
+    "fail": {"head_sha": _HEAD, "checks": [_FAIL_CHECK]},
+    "empty": {"head_sha": _HEAD, "checks": []},
+    "empty-polling": {"head_sha": _HEAD, "state": "polling", "checks": []},
+}
+_CLASSIFY_KWARGS = {
+    "default": {},
+    "expect-checks-true": {"expect_checks": True},
+    "expect-checks-false": {"expect_checks": False},
+    "matching-wait-sha": {"wait_sha": _HEAD},
+    "stale-head": {"wait_sha": "b" * 40},
+}
+_MERGE_STATES = [
+    _CONFLICTING_STATE,
+    {"mergeable": "MERGEABLE", "status": "CLEAN"},
+    {"mergeable": "", "status": ""},
+    "junk",
+    None,
+]
+
+
+@pytest.mark.parametrize("merge_state", _MERGE_STATES)
+@pytest.mark.parametrize("kwargs", _CLASSIFY_KWARGS.values(), ids=_CLASSIFY_KWARGS)
+@pytest.mark.parametrize("payload", _PAYLOAD_SHAPES.values(), ids=_PAYLOAD_SHAPES)
+def test_classify_ignores_the_merge_state_key(payload, kwargs, merge_state):
+    """Regression guard (passes on today's code): ``merge_state`` never changes the
+    classification of a payload."""
+    assert classify_checks(
+        {**payload, "merge_state": merge_state}, **kwargs
+    ) == classify_checks(payload, **kwargs)
+
+
+def test_classify_polling_with_no_checks_stays_polling_when_conflicting():
+    """Regression guard (passes on today's code): the late trigger is not the
+    classifier's job, so a conflicting wait with no checks stays ``polling``."""
+    payload = {"state": "polling", "checks": [], "merge_state": _CONFLICTING_STATE}
+    assert classify_checks(payload) == STATE_POLLING
+    assert classify_checks(payload, expect_checks=True) == STATE_POLLING
+
+
+def test_classify_merge_state_conflicting_does_not_turn_clean_checks_into_findings():
+    """Regression guard (passes on today's code): clean checks stay clean."""
+    payload = {
+        "head_sha": _HEAD,
+        "checks": [_PASS_CHECK],
+        "merge_state": _CONFLICTING_STATE,
+    }
+    assert classify_checks(payload, wait_sha=_HEAD) == STATE_CLEAN

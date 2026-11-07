@@ -136,6 +136,7 @@ All notable changes to IronClaude are documented in this file.
 - Tier 3 (submodule, symlink, mode change, protected or migration path, binary, lock or generated file without a rule, more than 8 text files, anything unclassifiable) halts at the end of Wave 0 at L3 with nothing touched, and is reported at L1 and L2.
 - New flag `--conflict-max-tier {0,1,2}` (default 0); 0 detects and reports only, so no conflict is resolved unless you pass 1 or 2.
 - New core module `superclaude.pr_submit.conflicts`, refs `conflict-mechanical.md` and `conflict-intent.md`, scripts `probe-merge.sh`, `finish-merge.sh` and `collect-conflict-evidence.sh`, and `poll-ci-checks.sh --evidence-sha`.
+- pr-submit late conflict re-sync (P3, #361): the CI poll line now carries a `merge_state` object, and when it reads conflicting the SKILL runs the Wave 8a conflict step once more during the CI wait. The one-cycle cap still holds: the late pass runs only when no conflict cycle started earlier in the run, needs `--conflict-max-tier` of at least 1 at every monitor level (with the default cap of 0 it ends with `tier_above_cap`), monitor 1 only proposes, monitor 2 only leaves a validated uncommitted merge, and only monitor 3 pushes. A late Tier 2 (text) conflict halts as `late_conflict` with a cap of 2 and ends as `tier_above_cap` below it. The go/no-go gate of the issue (one real run where the base moved during the CI wait, or a maintainer waiver) is still open; nothing was run against a real PR.
 
 #### Changed (pr-submit conflicts)
 
@@ -143,7 +144,7 @@ All notable changes to IronClaude are documented in this file.
 - Every push record carries a `kind` (`fix`, `merge`, `sync`, `ci`); `--resume` uses it, so a crashed CI or sync push resumes into the CI wait instead of the review re-trigger path. Old run-logs read as `fix`.
 - `push_count` counts fix, CI and Tier 2 merge pushes; Tier 1 sync pushes are in `sync_push_count`. The documented bound is `push_count <= max_rounds + 1`.
 - The run-log event enum has 43 members (`sync_started`, `sync_concluded`).
-- A PR that is still conflicting at Wave 8 with nothing pushed skips the CI wait (`pr_conflicting`) and ends `terminal_halted` instead of waiting for checks that GitHub will not run; a run that saw a conflict re-reads `mergeable` before claiming clean. Late re-sync during the CI wait is #361.
+- A PR that is still conflicting at Wave 8 with nothing pushed skips the CI wait (`pr_conflicting`) and ends `terminal_halted` instead of waiting for checks that GitHub will not run; a run that saw a conflict re-reads `mergeable` before claiming clean. A conflict that first appears during the CI wait now gets one late re-sync pass (see the P3 entry above).
 
 ## [5.0.0] - 2026-11-02
 

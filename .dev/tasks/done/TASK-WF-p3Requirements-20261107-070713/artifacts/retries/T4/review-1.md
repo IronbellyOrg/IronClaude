@@ -1,0 +1,3 @@
+start=bc1400fa3ea604d9a68598157baf459e648ad1ff tree=dbaeda788f1905f8b4295444fe05c74c23064ee9
+AC marks (verbatim): T4.AC1 met test_ci_classify.py:336; T4.AC2 met :368-389
+F1.1 sev=blocking trigger=B4 ac=T4.AC1 at=tests/pr_submit/test_ci_classify.py:336 anchor="Say in a docstring that these are regression guards (they pass on today's code)." chk=amiss:n,false:n,harm:n,constraint:y family=T4-guard-docstring fix=move the regression-guard sentence into a docstring covers="Say in a docstring that these are regression guards" first=A1 origin=new: the regression-guard statement is a comment block at lines 336-338, not a docstring

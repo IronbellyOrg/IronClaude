@@ -1191,7 +1191,7 @@ WRITE_VERB_CLASSIFICATION = {
     (
         "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md",
         "gh pr",
-        '- **Wave 8a (L1+, conflict act before the CI wait; same entry outcomes as Wave 8):** read `gh pr view <N> --repo "$REPO" --json baseRefName,mergeable,mergeStateStatus,headRefName,headRefOid,isCrossRepository` (same `UNKNOWN` re-reads). Only `conflicting` or a persistent `unknown` loads `refs/conflict-mechanical.md`, re-probes and acts on `conflict_action(hook="wave8a", entering=<review outcome>)`: at L3 a Tier 1 conflict becomes one sync merge commit pushed fast-forward (no round, no re-trigger, no reply, no resolve; the one push a wait-only path allows), then the CI wait runs on the new head with `expect_checks`; L2 leaves it resolved and validated but uncommitted (`halt_before_push`, only after `clean` / `REPORT_ONLY`); L1 proposes (also only after `clean` / `REPORT_ONLY`). A PR still conflicting with nothing pushed skips the CI wait with reason `pr_conflicting` (GitHub runs no `pull_request` checks on it) and ends with the status `conflict_action` returns. When any hook this run read `conflicting`, re-read `mergeable` before sending `transition(clean)`; `CONFLICTING` → `terminal_halted`, reason `late_conflict` (late re-sync: #361).',
+        '- **Wave 8a (L1+, conflict act before the CI wait; same entry outcomes as Wave 8):** read `gh pr view <N> --repo "$REPO" --json baseRefName,mergeable,mergeStateStatus,headRefName,headRefOid,isCrossRepository` (same `UNKNOWN` re-reads). Only `conflicting` or a persistent `unknown` loads `refs/conflict-mechanical.md`, re-probes and acts on `conflict_action(hook="wave8a", entering=<review outcome>)`: at L3 a Tier 1 conflict becomes one sync merge commit pushed fast-forward (no round, no re-trigger, no reply, no resolve; the one push a wait-only path allows), then the CI wait runs on the new head with `expect_checks`; L2 leaves it resolved and validated but uncommitted (`halt_before_push`, only after `clean` / `REPORT_ONLY`); L1 proposes (also only after `clean` / `REPORT_ONLY`). A PR still conflicting with nothing pushed skips the CI wait with reason `pr_conflicting` (GitHub runs no `pull_request` checks on it) and ends with the status `conflict_action` returns. When any hook this run read `conflicting`, re-read `mergeable` before sending `transition(clean)`; `CONFLICTING` → `terminal_halted`, reason `late_conflict` (the Wave 8 late trigger re-enters this step).',
     ): (
         "never-worker",
         "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
@@ -1653,7 +1653,7 @@ WRITE_VERB_CLASSIFICATION = {
     (
         "src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md",
         "gh pr",
-        "gh pr view <N> --repo <owner/repo> --json number,url,headRefOid",
+        "gh pr view <N> --repo <owner/repo> --json number,url,headRefOid,mergeable,mergeStateStatus",
     ): (
         "never-worker",
         "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
@@ -1805,7 +1805,7 @@ WRITE_VERB_CLASSIFICATION = {
     (
         "src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh",
         "gh pr",
-        'PR_JSON="$(gh pr view "$PR" --repo "$REPO" --json number,url,headRefOid 2>/dev/null || true)"',
+        'PR_JSON="$(gh pr view "$PR" --repo "$REPO" --json number,url,headRefOid,mergeable,mergeStateStatus 2>/dev/null || true)"',
     ): (
         "never-worker",
         "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",
@@ -1837,7 +1837,7 @@ WRITE_VERB_CLASSIFICATION = {
     (
         "src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh",
         "gh pr",
-        'PR_AFTER="$(gh pr view "$PR" --repo "$REPO" --json number,url,headRefOid 2>/dev/null || true)"',
+        'PR_AFTER="$(gh pr view "$PR" --repo "$REPO" --json number,url,headRefOid,mergeable,mergeStateStatus 2>/dev/null || true)"',
     ): (
         "never-worker",
         "/sc:pr-submit is on the never-as-worker list (decision D3); its PR, poll and reply calls never run in a worker",

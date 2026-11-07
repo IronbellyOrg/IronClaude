@@ -6,7 +6,11 @@
 # Usage   : poll-ci-checks.sh --pr <N> [--repo <owner/repo>]
 #           poll-ci-checks.sh --evidence-sha <40hex> [--repo <owner/repo>]
 # Output  : one line of JSON: {"pr":N,"head_sha":"...","source":"ci",
-#           "state":"polling|clean|findings","checks":[...]}
+#           "state":"polling|clean|findings","checks":[...],
+#           "merge_state":{"mergeable":"...","status":"..."}} where the two
+#           strings are GitHub's mergeable and mergeStateStatus values ("" when
+#           the read failed, a failed re-sample after the checks included); the
+#           late-conflict trigger reads them (issue #361).
 #           Evidence mode (no --pr needed) reads the commit's check runs and
 #           commit statuses: {"evidence_sha":"<sha>","evidence_checks":N,"source":"ci"}
 #           with N = check runs + statuses, or -1 when either read fails or does
@@ -68,9 +72,9 @@ case "$CHECKS_HELP" in
     *) die "installed gh lacks 'gh pr checks --json' (see 'gh --version'); upgrade gh and confirm via 'gh pr checks --help' before CI wait" 2 ;;
 esac
 
-PR_JSON="$(gh pr view "$PR" --repo "$REPO" --json number,url,headRefOid 2>/dev/null || true)"
+PR_JSON="$(gh pr view "$PR" --repo "$REPO" --json number,url,headRefOid,mergeable,mergeStateStatus 2>/dev/null || true)"
 if [ -z "$PR_JSON" ]; then
-    jq -nc --argjson pr "$PR" '{pr:$pr, head_sha:"", source:"ci", state:"polling", checks:[]}'
+    jq -nc --argjson pr "$PR" '{pr:$pr, head_sha:"", source:"ci", state:"polling", checks:[], merge_state:{mergeable:"", status:""}}'
     exit 0
 fi
 
@@ -105,8 +109,13 @@ fi
 
 # Re-sample head after checks so a mid-poll push cannot pair new checks with an old SHA.
 HEAD1="$(printf '%s' "$PR_JSON" | jq -r '.headRefOid // empty')"
-PR_AFTER="$(gh pr view "$PR" --repo "$REPO" --json number,url,headRefOid 2>/dev/null || true)"
-[ -n "$PR_AFTER" ] && PR_JSON="$PR_AFTER"
+PR_AFTER="$(gh pr view "$PR" --repo "$REPO" --json number,url,headRefOid,mergeable,mergeStateStatus 2>/dev/null || true)"
+if [ -z "$PR_AFTER" ]; then
+    # The re-sample failed, so the checks above cannot be paired with a current head or merge state.
+    jq -nc --argjson pr "$PR" '{pr:$pr, head_sha:"", source:"ci", state:"polling", checks:[], merge_state:{mergeable:"", status:""}}'
+    exit 0
+fi
+PR_JSON="$PR_AFTER"
 HEAD2="$(printf '%s' "$PR_JSON" | jq -r '.headRefOid // empty')"
 if [ -n "$HEAD1" ] && [ -n "$HEAD2" ] && [ "$HEAD1" != "$HEAD2" ]; then
     STATE="polling"
@@ -115,6 +124,7 @@ fi
 printf '%s' "$PR_JSON" | jq -c \
     --arg state "$STATE" \
     --argjson checks "$CHECKS_JSON" \
-    '{pr:.number, head_sha:.headRefOid, source:"ci", state:$state, checks:$checks}'
+    '{pr:.number, head_sha:.headRefOid, source:"ci", state:$state, checks:$checks,
+      merge_state:{mergeable:(.mergeable // ""), status:(.mergeStateStatus // "")}}'
 
 exit 0

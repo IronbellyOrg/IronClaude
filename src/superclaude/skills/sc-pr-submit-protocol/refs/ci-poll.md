@@ -12,13 +12,15 @@ split keeps `gh` out of the deterministic core (NFR-6).
 ## Poll surfaces (FR-CI-2 / FR-CI-10 / FR-CI-11)
 
 ```bash
-gh pr view <N> --repo <owner/repo> --json number,url,headRefOid
+gh pr view <N> --repo <owner/repo> --json number,url,headRefOid,mergeable,mergeStateStatus
 gh pr checks <N> --repo <owner/repo> --required --json name,state,bucket,link,workflow
 # if that list is empty, fall back to:
 gh pr checks <N> --repo <owner/repo> --json name,state,bucket,link,workflow
 ```
 
 No `conclusion` field — `gh pr checks --json` does not emit it. Empty, malformed, or multiple-document stdout is **not** a parsed empty array. A valid nonempty required list takes precedence; otherwise a valid all-checks list is used. If the chosen list is empty and either query failed to parse, emit `state:polling`, `checks:[]`; only two parsed empty arrays, with `expect_checks` false, justify `clean`; with `expect_checks` true an empty chosen list is `polling` (see Expected checks after a push). Pending exit 8 may still contain valid JSON — keep it.
+
+The poll line also carries `merge_state`, an object `{"mergeable": <string>, "status": <string>}` that holds GitHub's `mergeable` and `mergeStateStatus` values and is appended after `checks`; both strings are empty when the read failed, the early-return payload included; a failed second view of the PR, taken after the check queries, returns that same early-return payload (`head_sha` empty, `checks` empty, `state:polling`) so a stale first read is never reported. It is data only: `classify_checks` never reads it.
 
 ## Wave 8 entry (SKILL-owned, not an FSM edge)
 
@@ -29,7 +31,7 @@ No `conclusion` field — `gh pr checks --json` does not emit it. Empty, malform
 | `TERMINAL_AUGMENT_NO_RESPONSE` | Arm, wait-only; retain Augment status; report CI alongside. Never `transition(clean)` | No (the one Tier 1 sync push excepted) |
 | `HALT_HUMAN` / `VALIDATION_FAIL` / `TERMINAL_TIMEOUT` / `TERMINAL_FAILED` / L0 | Do not arm | No |
 
-When the PR is still conflicting and no merge commit was pushed, the SKILL skips the CI wait with reason `pr_conflicting`: GitHub runs no `pull_request` checks on a conflicting PR, so the lists would read empty.
+When the PR is still conflicting and no merge commit was pushed, the SKILL skips the CI wait with reason `pr_conflicting`: GitHub runs no `pull_request` checks on a conflicting PR, so the lists would read empty. A PR that turns conflicting while the wait runs is noticed through `merge_state` instead (see Late conflict trigger (P3) below), because its check lists may read empty or stay pending.
 
 The wait consumes no remediation round. A `polling` result (including a failed check query) continues at the configured interval until completion or `--timeout`. A non-zero script exit (e.g. `gh` without `pr checks --json`) is not `polling`: stop and report the missing prerequisite. The observed CI matrix has run longer than the 600s default, so a CI wait needs a `--timeout` sized to the full check run; never promise an indefinite wait. When `--required` returns a nonempty parsed list it is the chosen set; otherwise use the parsed all-checks list. Optional checks outside the chosen set do not block completion.
 
@@ -39,6 +41,10 @@ The wait consumes no remediation round. A `polling` result (including a failed c
   Do not special-case any check by name.
 
 `bucket` values: `pass` | `fail` | `pending` | `skipping` | `cancel`.
+
+## Late conflict trigger (P3)
+
+On every poll the SKILL evaluates `superclaude.pr_submit.conflicts.late_conflict_trigger(payload, wait_sha=...)` before it acts on the classification. The trigger fires for a payload whose `merge_state` reads conflicting, including a wait stuck at `polling` with no checks, and it never changes `classify_checks`; `UNKNOWN`, missing values and a payload for another head never fire it. A fired trigger runs Wave 8a once more under the router, as `SKILL.md` Wave 8 describes.
 
 ## Log fetch (SKILL, only after non-human findings)
 
@@ -70,8 +76,9 @@ never `clean` and the report never says tests passed.
 
 ## Division of labour
 
-- The **poll script** does one poll and returns a coarse `state` plus the raw
-  `checks` array. It performs no arithmetic and holds no state.
+- The **poll script** does one poll and returns a coarse `state`, the raw
+  `checks` array and GitHub's `merge_state`. It performs no arithmetic and holds
+  no state.
 - **`classify_checks`** maps buckets to `polling` / `clean` / `findings`.
 - The **SKILL** owns `source=ci`, the wait-clock reset, human-gate →
   `HALT_HUMAN` only before Augment halts (otherwise report alongside the

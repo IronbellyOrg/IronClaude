@@ -2,7 +2,7 @@
 
 Covers the skill text of design section 8 (FR-4 to FR-10, FR-14, FR-18 to FR-21,
 FR-27 to FR-31, FR-33, NFR-1, NFR-4, NFR-6, NFR-8, NFR-9, NFR-14): the pinned phrases
-and order pins of the two new refs, the thirteen `SKILL.md` edits E1 to E13, Tier 2
+and order pins of the two new refs, the fourteen `SKILL.md` edits E1 to E14, Tier 2
 labelling, repo-scoped `gh` lines, the one `git push` form, the FR-21
 prohibited-operation scan, the allowed-tools check, the static call ceilings and the
 byte-identical fragments of the spec (design section 12.2, last paragraph).
@@ -83,6 +83,44 @@ def test_command_summarizes_conflict_protocol_without_replacing_activation():
     assert "Skill sc:pr-submit-protocol" in text
 
 
+# --- Issue #361 (P3): the late Tier 1 sync sentence in the three user-facing texts ---
+
+LATE_SYNC_SENTENCE = (
+    "A conflict that first appears while the CI wait is running gets one more Tier 1 "
+    "sync only when no conflict cycle started earlier in the run; it needs "
+    "`--conflict-max-tier` of at least 1 at every monitor level (with the default cap "
+    "of 0 it ends with `tier_above_cap`), and with a cap of at least 1 monitor 1 only "
+    "proposes and monitor 2 only leaves a validated uncommitted merge, both only after "
+    "a `clean` or `report_only` review, and only monitor 3 pushes; a late text (Tier 2) "
+    "conflict halts."
+)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        COMMAND_MD,
+        REPO_ROOT / "docs" / "user-guide" / "commands.md",
+        REPO_ROOT / "docs" / "user-guide" / "flags.md",
+    ],
+    ids=lambda p: p.parent.name + "/" + p.name,
+)
+def test_late_tier1_sync_sentence_is_in_each_user_facing_text(path):
+    text = _prose(path)
+    assert LATE_SYNC_SENTENCE in text
+    assert "conflict cycle started earlier" in text
+
+
+def test_changelog_records_the_late_conflict_resync_and_no_longer_defers_it():
+    text = _prose(REPO_ROOT / "CHANGELOG.md")
+    assert "late conflict re-sync" in text
+    assert "is #361" not in text
+    assert (
+        "A conflict that first appears during the CI wait now gets one late re-sync "
+        "pass (see the P3 entry above)."
+    ) in text
+
+
 # --- Pinned phrases and order pins (design sections 8.2 and 8.3) --------------
 
 MECHANICAL_PINS = (
@@ -131,6 +169,62 @@ def test_conflict_mechanical_order_pins():
             PUSH_LINE,
         ),
     )
+
+
+# --- Issue #361 (P3): the late trigger in the mechanical ref, one pin per text ------
+
+
+def test_mechanical_ref_end_of_wait_bullet_counts_a_fired_late_trigger():
+    text = _prose(MECHANICAL_REF)
+    assert (
+        "a fired late trigger counts as a hook that read `conflicting`, so this "
+        "re-read stays the backstop behind the late pass."
+    ) in text
+    assert "#361" not in text
+    assert "unconditional" not in text
+
+
+def test_mechanical_ref_late_conflict_row_lists_both_causes():
+    assert (
+        "| `late_conflict` | Wave 8a Tier 2 with `--conflict-max-tier 2`; the "
+        "end-of-wait `mergeable` re-read when it reads `CONFLICTING` (it needs no "
+        "earlier conflict cycle, only an earlier `conflicting` read or a resume) |"
+    ) in _prose(MECHANICAL_REF)
+
+
+def test_mechanical_ref_late_conflict_row_states_the_tier1_late_cycle_and_preserved_rule():
+    text = _prose(MECHANICAL_REF)
+    assert (
+        "A Tier 1 conflict first seen during the CI wait gets the one allowed cycle "
+        "only when no conflict cycle started earlier and `--conflict-max-tier` is at "
+        "least 1: at L3 it merges and pushes, at L2 it resolves locally and halts "
+        "before the push, and at L1 it only proposes;"
+    ) in text
+    assert (
+        "after a preserved review outcome (`HALT_MAX_ROUNDS`, "
+        "`TERMINAL_AUGMENT_NO_RESPONSE`) the outcome is only reported and that "
+        "terminal status is kept."
+    ) in text
+
+
+def test_mechanical_ref_end_of_wait_bullet_points_at_the_wave_8_late_trigger():
+    assert (
+        "`late_conflict` (the Wave 8 late trigger in `SKILL.md` runs before this "
+        "backstop)."
+    ) in _prose(MECHANICAL_REF)
+
+
+def test_mechanical_ref_section_1_says_the_late_trigger_reenters_wave8a():
+    text = _prose(MECHANICAL_REF)
+    assert (
+        "The Wave 8 late trigger (`SKILL.md`) re-enters hook `wave8a`; it adds no hook "
+        "label, and its cycle id is `conflict_cycle_id(plan.tier, "
+        "len(conflict_cycles) + 1)`, as in Step 3 of section 5."
+    ) in text
+    assert (
+        "An open `wave8a` cycle that `--resume` restarts begins again at step 1 "
+        "(section 10)."
+    ) in text
 
 
 def _section(text: str, start: str, end: str) -> str:
@@ -226,7 +320,7 @@ def test_conflict_intent_record_fields_in_order():
     _assert_in_order(example, tuple(f"\n> {f}: " for f in RECORD_FIELDS))
 
 
-# --- SKILL.md edits E1 to E13 (design section 8.1) ----------------------------
+# --- SKILL.md edits E1 to E14 (design section 8.1, E14 issue #361) -------------
 
 SKILL_EDITS = {
     "E1": (
@@ -331,7 +425,8 @@ SKILL_EDITS = {
         "`pr_conflicting` (GitHub runs no `pull_request` checks on it) and ends with the "
         "status `conflict_action` returns. When any hook this run read `conflicting`, "
         "re-read `mergeable` before sending `transition(clean)`; `CONFLICTING` → "
-        "`terminal_halted`, reason `late_conflict` (late re-sync: #361).",
+        "`terminal_halted`, reason `late_conflict` (the Wave 8 late trigger re-enters "
+        "this step).",
     ),
     "E11": (
         "- Detect merge conflicts at Wave 0 (L1+), report the tier and plan before any "
@@ -366,6 +461,48 @@ SKILL_EDITS = {
         "(push if you are ahead; `git pull --ff-only` if you are behind; this skill "
         "never rewrites a published branch)",
     ),
+    # Issue #361 (P3): the late second Wave 8a pass, appended to the Wave 8 bullet.
+    "E14": (
+        "**Late conflict (P3, issue #361):** on every poll payload, before acting on "
+        "its classification, evaluate "
+        "`superclaude.pr_submit.conflicts.late_conflict_trigger(payload, "
+        "wait_sha=<the wait sha>)`; a payload for another head, a missing or `UNKNOWN` "
+        "merge state and every non-conflicting reading never fire it, and a conflicting "
+        "reading fires it even while checks are pending or the wait is stuck at "
+        "`polling` with no checks.",
+        "When it fires and the late pass is not yet confirmed, run Wave 8a once more "
+        "with the same entering outcome "
+        '(`conflict_action(hook="wave8a", entering=<review outcome>)`); no new hook, '
+        "event or router row is added, and the late pass spends no round and sends no "
+        "re-trigger, reply or resolve.",
+        "The router alone limits the late pass: a late sync needs no conflict cycle "
+        "(Tier 1 sync or Tier 2 merge) started earlier in the run and "
+        "`--conflict-max-tier` of at least 1 at every monitor level (with the default "
+        "cap of 0 every level ends with `tier_above_cap`); with a cap of at least 1, "
+        "monitor 1 only proposes (status `proposed`) and monitor 2 only leaves a "
+        "validated uncommitted merge (status `halt_before_push`), both only after "
+        "`clean` / `REPORT_ONLY` (after `HALT_MAX_ROUNDS` or "
+        "`TERMINAL_AUGMENT_NO_RESPONSE` they only report), and only monitor 3 pushes "
+        "the sync (`resolve_push`), after which the CI wait continues on the new head "
+        "with `expect_checks`.",
+        "A Tier 0 result with GitHub not reading conflicting (`none`, reason "
+        "`no_conflict`) also lets the CI wait continue; the other results end it with "
+        "the reason `conflict_action` returns: `github_disagrees` (Tier 0 with GitHub "
+        "reading conflicting), `late_conflict` (a Tier 2 conflict with a cap of 2) or "
+        "`tier_above_cap` (a lower cap), `conflict_tier3`, `probe_failed` or "
+        "`merge_tree_unsupported`, and `sync_cap` (a conflict cycle started earlier); "
+        "the status of these halt and report outcomes is `terminal_halted` after "
+        "`clean` / `REPORT_ONLY`, and after `HALT_MAX_ROUNDS` or "
+        "`TERMINAL_AUGMENT_NO_RESPONSE` the outcome is only reported and that terminal "
+        "status is kept.",
+        'The SKILL keeps a run-local "late pass confirmed" flag that is not persisted '
+        "and is set only when the late `conflict_action` returns something other than "
+        "`none`; a reading that Wave 8a does not confirm leaves it unset and the CI "
+        "wait goes on, so the trigger may fire again on a later poll (a `--resume` may "
+        "run one more late pass, and pushes stay bounded by `SYNC_CAP`), and a fired "
+        "trigger counts as a hook that read `conflicting` for the end-of-wait "
+        "`mergeable` re-read of Wave 8a.",
+    ),
 }
 
 
@@ -376,9 +513,9 @@ def test_skill_edit_present(edit):
         assert fragment in text, f"{edit}: missing {fragment!r}"
 
 
-def test_skill_edits_cover_e1_to_e13():
+def test_skill_edits_cover_e1_to_e14():
     assert sorted(SKILL_EDITS, key=lambda e: int(e[1:])) == [
-        f"E{i}" for i in range(1, 14)
+        f"E{i}" for i in range(1, 15)
     ]
 
 

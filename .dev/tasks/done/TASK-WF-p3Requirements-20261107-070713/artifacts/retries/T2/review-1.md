@@ -1,0 +1,3 @@
+start=5356848cd02421cf5ba8b5a3e840f3bd3dcaf083 tree=b1cf0bdc3a1eaa76eb71d08fb1e08c1dd5f1d6a2
+AC marks (verbatim): T2.AC1 met test_conflict_scripts.py:106-165; T2.AC2 met by inspection; T2.AC3 met :1826
+F1.1 sev=blocking trigger=B4 ac=scope at=tests/pr_submit/test_conflict_scripts.py:57 anchor="a counter file in the stub directory" chk=amiss:n,false:n,harm:n,constraint:y family=stub-counter-location fix=put the counter at repos.bin_dir / "gh-view-count" first=A1 origin=new: the counter file is created in repos.root, the parent of the stub directory (repos.bin_dir); the task says the counter file is in the stub directory
