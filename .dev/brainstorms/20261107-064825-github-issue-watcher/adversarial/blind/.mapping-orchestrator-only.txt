@@ -1,0 +1,5 @@
+variant-A = variant-1-opus-architect
+variant-B = variant-2-opus-analyzer
+variant-C = variant-3-haiku-backend
+variant-D = variant-4-opus-devops
+variant-E = variant-5-sonnet-performance

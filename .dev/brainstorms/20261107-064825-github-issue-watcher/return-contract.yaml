@@ -1,0 +1,36 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20261107-064825-github-issue-watcher/seed-brief.md
+merged_output_path: .dev/brainstorms/20261107-064825-github-issue-watcher/merged-requirements.md
+convergence_score: 0.98            # 50 of 51 diff points resolved after the Round 2.5 invariant gate cleared in Round 3
+adversarial_artifacts_dir: .dev/brainstorms/20261107-064825-github-issue-watcher/adversarial/
+domain: architecture
+strategy: systematic
+depth: deep
+proposals: 5
+handoff: none
+handoff_output_path: null
+adversarial_return_contract:
+  merged_output_path: .dev/brainstorms/20261107-064825-github-issue-watcher/adversarial/merged-output.md
+  convergence_score: 0.98
+  artifacts_dir: .dev/brainstorms/20261107-064825-github-issue-watcher/adversarial/
+  status: success
+  base_variant: "opus:devops"
+  unresolved_conflicts: 1          # C-007 (keep the `failed` state), decided by majority 3 of 5
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []       # all 6 HIGH findings got an adopted ruling in Round 3; INV-010 (MEDIUM) is a documented residual risk
+telemetry:
+  enrichment_used:
+    - {source: codebase-context (Glob/Grep/code reading, corrected once), quality_tier: primary}
+    - {source: deep research (tech-research task, full report in the research task folder), quality_tier: primary}
+  agent_spec: 'opus:architect,opus:analyzer,haiku:backend,opus:devops,sonnet:performance (instructions per refs/agent-spec-builder.md templates)'
+  rounds: {round1: parallel, round2: sequential, round2_5: invariant probe, round3: parallel}
+  deviations:
+    - token estimate used the reference-file multiplier (35,000 per proposal) because SKILL.md says 350,000 (about 196K estimated against the 250K limit)
+    - agent instructions double-quoted for the adversarial parser (the reference file shows single quotes)
+    - no security persona (auto-excluded unless named); the security model is a required section of every variant
+    - round 3 advocates ran in parallel, not one after another
+    - orchestrator fixed two merge contradictions after the merge executor returned (M1 reset from unknown, M2 exit 7 for spawn_error); see adversarial/merge-log.md
+  reviews_not_run: the late edits M1 and M2 and the three plan-author conflict resolutions K1, K3, K4 have no independent review yet; the spec-panel step reviews the whole document
