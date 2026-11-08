@@ -51,8 +51,9 @@ pre-push hook only adds the warning ``W-L2-ABSENT`` (IR-7 is a warning until an
 L2 layer is built); the launch goes ahead. It then publishes the launch record the enforcement hook reads
 (``$HOME/.claude/state/launch-level/pending/<nonce>``, one word), then runs
 ``orca agent launch --surface terminal`` with a prompt that starts with
-``[sc-launch:v1:<nonce>]``, checks the agent's screen for the ccsession shim, and
-writes a ``launch`` entry into ``worktree.json``. It prints ``{status, warning,
+``[sc-launch:v1:<nonce>]``, checks for the ccsession shim (its screen text, which
+is visible for only 1 to 2 seconds, or the ``sc-launch-v1-...`` session name that
+stays in the tab title, read with ``orca terminal show``), and writes a ``launch`` entry into ``worktree.json``. It prints ``{status, warning,
 detail, terminal, launched_at, enforcement_hook, hand_command, release,
 layers}`` with ``status`` ``launched``, ``failed`` or ``already_launched``;
 ``release`` (how a person releases the session) and ``layers`` (one status line
@@ -771,6 +772,11 @@ def cmd_prompt(args: argparse.Namespace) -> int:
 # edit it: the hook consumes it by nonce, and the agent only sees the nonce.
 PENDING_PARTS = (".claude", "state", "launch-level", "pending")
 SHIM_MARKERS = ("[ccsession]", "Session name (Enter or Ctrl+C")
+# The shim's text is on the screen for only about 1 to 2 seconds before Claude's
+# interface draws over it, so a read can miss it. ccsession also names the session
+# from the launch prompt's first words (sc-launch-v1-<nonce>) plus a stamp, and that
+# name stays in the tab title, so the title is the signal that does not go away.
+SHIM_TITLE = re.compile(r"sc-launch-v1-[0-9a-f]{1,12}-\d{4}-\d{6}-[0-9a-f]{4}\b")
 SHIM_TRIES = 5
 SHIM_INTERVAL_ENV = "SC_ORCA_SHIM_INTERVAL"
 SHIM_INTERVAL = 2.0
@@ -1120,8 +1126,18 @@ def shim_interval() -> float:
         return SHIM_INTERVAL
 
 
+def ccsession_title(handle: str) -> bool:
+    """True when the terminal's tab title carries the name ccsession gave the launch."""
+    res = run(["orca", "terminal", "show", "--terminal", handle, "--json"])
+    data = parse_json(res.out) if res.ok else None
+    result = data.get("result") if isinstance(data, dict) else None
+    terminal = result.get("terminal") if isinstance(result, dict) else None
+    title = terminal.get("title") if isinstance(terminal, dict) else None
+    return isinstance(title, str) and SHIM_TITLE.search(title) is not None
+
+
 def behind_ccsession(handle: str) -> bool:
-    """Read the agent's screen up to five times, looking for the shim's text."""
+    """Look up to five times for the shim's screen text or its session name in the title."""
     for attempt in range(SHIM_TRIES):
         res = run(
             ["orca", "terminal", "read", "--terminal", handle, "--screen", "--json"],
@@ -1134,6 +1150,8 @@ def behind_ccsession(handle: str) -> bool:
         if isinstance(tail, list):
             tail = "\n".join(str(line) for line in tail)
         if isinstance(tail, str) and any(m in tail for m in SHIM_MARKERS):
+            return True
+        if ccsession_title(handle):
             return True
         if attempt < SHIM_TRIES - 1:
             time.sleep(shim_interval())

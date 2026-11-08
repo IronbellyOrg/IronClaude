@@ -1534,6 +1534,75 @@ def test_la5_launch_shim_check_retries_up_to_five_times(
     assert len(orca_calls(fake_orca, "terminal", "read")) == 3
 
 
+def show_title(title: object) -> dict:
+    return {"stdout": {"ok": True, "result": {"terminal": {"title": title}}}}
+
+
+def test_la5_launch_shim_check_passes_on_the_session_name_in_the_tab_title(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    """The shim's screen text can be gone in 2 seconds; its session name stays."""
+    launch_scene(fake_orca, git_repo, issue_dir)
+    fake_orca.respond("terminal-read", {"stdout": SCREEN_PLAIN})
+    # a title copied from a live launch (issue 452, 2026-11-08)
+    title = "issue-452-sc-launch-v1-904e19fa400a-1108-073544-5732 · Claude Code"
+    fake_orca.respond("terminal-show", show_title(title))
+    data = run_launch(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "launched" and data["warning"] == "W-L2-ABSENT"
+    assert len(orca_calls(fake_orca, "terminal", "read")) == 1
+    assert orca_calls(fake_orca, "terminal", "show") == [
+        ["terminal", "show", "--terminal", "term_abc", "--json"]
+    ]
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "CoderOrchestrator · Claude Code",
+        "issue-452 · Claude Code",
+        "issue-452-sc-launch-v1-904e19fa400a · Claude Code",
+        "sc-launch-v1-xyz-1108-073544-5732",
+        "my-sc-launch-v1-904e19fa-1108-073544-57320 · Claude Code",
+        None,
+        42,
+    ],
+    ids=[
+        "other",
+        "no-stamp",
+        "no-clock",
+        "nonce-not-hex",
+        "stamp-too-long",
+        "none",
+        "int",
+    ],
+)
+def test_la5_launch_shim_check_ignores_a_title_that_is_not_ccsessions(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, title: object
+) -> None:
+    launch_scene(fake_orca, git_repo, issue_dir)
+    fake_orca.respond("terminal-read", {"stdout": SCREEN_PLAIN})
+    fake_orca.respond("terminal-show", show_title(title))
+    data = run_launch(fake_orca, git_repo, issue_dir)
+    assert data["warning"] == "W-LAUNCH-NOT-CCSESSION"
+    assert len(orca_calls(fake_orca, "terminal", "read")) == 5
+    assert len(orca_calls(fake_orca, "terminal", "show")) == 5
+
+
+def test_la5_launch_shim_check_title_may_appear_on_a_later_try(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    launch_scene(fake_orca, git_repo, issue_dir)
+    fake_orca.respond("terminal-read", {"stdout": SCREEN_PLAIN})
+    fake_orca.respond(
+        "terminal-show",
+        show_title("Claude Code"),
+        show_title("Claude Code"),
+        show_title("x-sc-launch-v1-0a1b2c3d4e5f-1108-073544-5a5a · Claude Code"),
+    )
+    assert run_launch(fake_orca, git_repo, issue_dir)["warning"] == "W-L2-ABSENT"
+    assert len(orca_calls(fake_orca, "terminal", "read")) == 3
+
+
 @pytest.mark.parametrize(
     ("answer", "reads"),
     [
