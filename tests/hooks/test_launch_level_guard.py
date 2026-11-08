@@ -1300,15 +1300,18 @@ def test_speed_large_commands(tmp_path, speed_report, name):
 
 @pytest.mark.parametrize("name", list(LARGE_COMMANDS))
 def test_speed_large_limit_catches_10x_slower_guard(tmp_path, name):
-    # Negative control for LARGE_LIMIT_S (#440): a guard slow enough to breach
-    # the limit must fail the timed check, so the assert in
-    # test_speed_large_commands is live on every runner (xdist included). The
-    # wrapper runs the real guard once (so a broken guard still fails here),
-    # then spins in pure bash to a fixed wall clock of 2x LARGE_LIMIT_S
-    # ($EPOCHREALTIME needs no PATH tools), so the control is independent of
-    # host speed and of guard speed-ups: it can never false-fail because the
-    # machine or the guard got faster. Exercising the limit logic, not real
-    # slowness, is the point (#457 review).
+    # Negative control for LARGE_LIMIT_S (#440): a wrapper whose wall time
+    # breaches the limit must FAIL the same worst-vs-LARGE_LIMIT_S comparison
+    # the T-SPD-5 rows use, so a regression that inverts or loosens that
+    # comparison is caught here on every runner (xdist included). It times a
+    # deliberately slow wrapper, not the real T-SPD-5 loop, so it does not
+    # prove test_speed_large_commands itself runs — its own unguarded assert
+    # does that on workers now. The wrapper runs the real guard once and
+    # propagates a catastrophic failure (guard exit >= 100: crash, not a
+    # policy exit), then spins in pure bash to a fixed wall clock of
+    # 2x LARGE_LIMIT_S ($EPOCHREALTIME needs no PATH tools), so the control
+    # is independent of host speed and of guard speed-ups: it can never
+    # false-fail because the machine or the guard got faster (#457 review).
     env = _spd_env(tmp_path, tmp_path / "home")
     _bind(tmp_path, "full-submit")
     payload = tmp_path / "in.json"
@@ -1317,11 +1320,16 @@ def test_speed_large_limit_catches_10x_slower_guard(tmp_path, name):
     slow = tmp_path / "slow-guard.sh"
     slow.write_text(
         f"{run} < {shlex.quote(str(payload))} >/dev/null 2>&1\n"
+        "rc=$?\n"
+        "if (( rc >= 100 )); then exit $rc; fi\n"
         f"spin_us={int(LARGE_LIMIT_S * 2 * 1_000_000)}\n"
         "target=$(( 10#${EPOCHREALTIME/./} + spin_us ))\n"
         "while (( 10#${EPOCHREALTIME/./} < target )); do :; done\n"
     )
-    seconds, _ = _spd_once(slow, b"", env, timeout=120)
+    seconds, result = _spd_once(slow, b"", env, timeout=120)
+    assert result.returncode < 100, (
+        f"{name}: guard crashed under the wrapper (exit {result.returncode})"
+    )
     assert seconds > LARGE_LIMIT_S, (
         f"{name}: guard run + spin took {seconds:.3f} s, limit {LARGE_LIMIT_S:g} s"
     )
