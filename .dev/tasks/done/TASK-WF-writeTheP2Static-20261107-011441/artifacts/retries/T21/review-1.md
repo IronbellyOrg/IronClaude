@@ -2,3 +2,5 @@ f328099e253f3285c5dbd993bf892467c0520883 tree=ad5a60ff7393c460e80493cc2e53c8be06
 AC marks (reviewer, verbatim): T21.AC1 met p2-static-report.md:7-17; T21.AC2 met (ac-c4-index.txt and ac-2.1-deletions.txt are 0 bytes, 133 package files staged); T21.AC3 met (52 paths equal git status).
 F1.1 sev=blocking trigger=B4 ac=T21.AC1 at=.dev/tasks/to-do/TASK-WF-writeTheP2Static-20261107-011441/artifacts/ac-c6-depth-setting.txt:1 anchor="$ grep -ho nestedWorkerMaxDepth <profiles>/*/orca-data.json   (AC-C6)" chk=n,y,n,n family=evidence-header fix=change the header to the spec 7.1 command first=A1 origin=new: the header misstates the command that was run
 F1.2 sev=blocking trigger=B4 ac=scope at=.dev/tasks/to-do/TASK-WF-writeTheP2Static-20261107-011441/artifacts/p2-static-report.md:69 anchor="added to the skill's resume points (3c and 4a)" chk=n,y,n,n family=report-wording fix=say it was added to the skill's Resume under --unattended paragraph first=A1 origin=new: the delivery resume point is at src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:576, not in the 3c and 4a sections (lines 561 and 568)
+F1.1 resolved
+F1.2 resolved

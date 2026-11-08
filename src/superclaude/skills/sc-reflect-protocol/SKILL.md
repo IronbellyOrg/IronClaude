@@ -669,7 +669,7 @@ Empty-response / partial-parse / missing-file guards apply per `sc-brainstorm-pr
 
 ## 9. Output Contract (Versioned)
 
-Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) the worker fields are added to this contract beside every field below, with `report_path` set to `REPORT.md`; the own `status` values `success`, `partial`, `failed`, `dry-run` and `stopped-precondition` map to `succeeded`, `partial`, `failed`, `succeeded` and `failed`. With `--report-dir` instead of `--output`, the worker contract is a separate `<report-dir>/return-contract.yaml` that lists this contract in `artifacts`.
+Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) the worker fields are added to this contract beside every field below, with `report_path` set to the absolute path of the `REPORT.md` this run wrote (the same value as the stable `report_path` below, never the bare file name); the own `status` values `success`, `partial`, `failed`, `dry-run` and `stopped-precondition` map to `succeeded`, `partial`, `failed`, `succeeded` and `failed`. With `--report-dir` instead of `--output`, the worker contract is a separate `<report-dir>/return-contract.yaml` that lists this contract in `artifacts`.
 
 Two-block contract: stable + telemetry. Written to `<output>/return-contract.yaml` AND returned inline. (See `refs/report-template.md` for the human-facing REPORT.md skeleton that renders these fields.)
 
