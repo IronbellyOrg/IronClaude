@@ -1,0 +1,11 @@
+   Commands:  46 files
+   Hooks:     15 files
+   Templates: 52 files
+--- verify-sync
+  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+verify-sync rc=0

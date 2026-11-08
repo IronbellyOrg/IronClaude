@@ -1,0 +1,115 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t7-tests.log b/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t7-tests.log
+new file mode 100644
+index 00000000..178f4676
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t7-tests.log
+@@ -0,0 +1,5 @@
++tests/core/test_orca_session_launch_guidance.py .....                    [ 45%]
++tests/core/test_claude_md_routing_block.py ......                        [100%]
++
++============================== 11 passed in 0.04s ==============================
++rc=0
+diff --git a/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t7-verify-sync.log b/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t7-verify-sync.log
+new file mode 100644
+index 00000000..923243d6
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t7-verify-sync.log
+@@ -0,0 +1,11 @@
++   Commands:  46 files
++   Hooks:     15 files
++   Templates: 52 files
++--- verify-sync
++  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
++
++=== Hooks Cross-Consistency ===
++  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
++
++✅ All components in sync.
++verify-sync rc=0
+diff --git a/src/superclaude/core/CLAUDE.md b/src/superclaude/core/CLAUDE.md
+index f728b2c8..21f4dcde 100644
+--- a/src/superclaude/core/CLAUDE.md
++++ b/src/superclaude/core/CLAUDE.md
+@@ -52,6 +52,12 @@ not agent sessions. The Claude command must be configured as `ccsession-orca` to
+ For supervised workers, keep `worker-start` and the dispatch preamble authoritative;
+ this rule does not replace supervised dispatch or commands' internal Agent-tool subagents.
+ 
++Every Orca worktree gets an agent: create it with `worktree create --agent` (supervised workers
++use `worker-start`, and a supervised worker follows its worker contract, which forbids it from
++creating worktrees), and never create a worktree for your own use. The session that creates a
++worktree becomes its orchestrator, or a coordinator under another orchestrator, and
++owns its agent(s). A hook blocks `orca worktree create` without `--agent`.
++
+ ## Key Docs
+ 
+ - `~/.claude/HOW-WE-WORK.md` — which command or skill to use for each kind of work, in what order (read it when you choose a workflow; it is not loaded automatically)
+diff --git a/src/superclaude/skills/ccsession-tag/README.md b/src/superclaude/skills/ccsession-tag/README.md
+index 43029f76..9f3a8525 100644
+--- a/src/superclaude/skills/ccsession-tag/README.md
++++ b/src/superclaude/skills/ccsession-tag/README.md
+@@ -236,6 +236,12 @@ choosing an agent does not configure ccsession automatically.
+ For supervised workers, keep `worker-start` and the dispatch preamble authoritative;
+ this rule does not replace supervised dispatch or commands' internal Agent-tool subagents.
+ 
++Every Orca worktree gets an agent: create it with `worktree create --agent` (supervised workers
++use `worker-start`, and a supervised worker follows its worker contract, which forbids it from
++creating worktrees), and never create a worktree for your own use. The session that creates a
++worktree becomes its orchestrator, or a coordinator under another orchestrator, and
++owns its agent(s). A hook blocks `orca worktree create` without `--agent`.
++
+ #### The one question rule
+ 
+ The session-name question is asked **only when Claude starts with no task, no
+diff --git a/tests/core/test_orca_session_launch_guidance.py b/tests/core/test_orca_session_launch_guidance.py
+index 37d4bb73..a2f25e39 100644
+--- a/tests/core/test_orca_session_launch_guidance.py
++++ b/tests/core/test_orca_session_launch_guidance.py
+@@ -5,11 +5,11 @@ from pathlib import Path
+ import pytest
+ 
+ ROOT = Path(__file__).resolve().parents[2] / "src" / "superclaude"
++COPIES = ["core/CLAUDE.md", "skills/ccsession-tag/README.md"]
++EXISTING_END = "commands' internal Agent-tool subagents.\n\n"
+ 
+ 
+-@pytest.mark.parametrize(
+-    "relative", ["core/CLAUDE.md", "skills/ccsession-tag/README.md"]
+-)
++@pytest.mark.parametrize("relative", COPIES)
+ def test_orca_session_launch_guidance(relative: str) -> None:
+     text = (ROOT / relative).read_text()
+     start = text.index("### Orca session launches")
+@@ -27,5 +27,33 @@ def test_orca_session_launch_guidance(relative: str) -> None:
+         "`worker-start`",
+         "dispatch preamble",
+         "internal Agent-tool subagents",
++        "Every Orca worktree gets an agent",
++        "never create a worktree for your own use",
++        "owns its agent",
+     ):
+         assert required in section, (relative, required)
++
++
++def _appended_paragraph(relative: str) -> str:
++    text = (ROOT / relative).read_text()
++    start = text.index("### Orca session launches")
++    after = text[start:].split(EXISTING_END, 1)[1]
++    return after.split("\n\n", 1)[0]
++
++
++@pytest.mark.parametrize("relative", COPIES)
++def test_appended_paragraph_names_the_owner_roles_and_no_source_path(
++    relative: str,
++) -> None:
++    paragraph = _appended_paragraph(relative)
++    assert paragraph.startswith("Every Orca worktree gets an agent")
++    assert "orchestrator" in paragraph and "coordinator" in paragraph
++    assert "A hook blocks `orca worktree create` without `--agent`" in " ".join(
++        paragraph.split()
++    )
++    assert "src/superclaude/" not in paragraph
++
++
++def test_appended_paragraph_is_identical_in_both_copies() -> None:
++    first, second = (_appended_paragraph(relative) for relative in COPIES)
++    assert first == second

@@ -99,9 +99,9 @@ def test_subagent_start_registration_is_synchronous_without_bash_counter():
         if hook["command"] == "~/.claude/hooks/freshness-subagent-start.sh"
     )
     assert "async" not in subagent_hook
-    # No Bash counter hook: only the UV-only gate and per-job identity adapter
-    # are registered for Bash. Any other Bash PreToolUse hook must be added
-    # here on purpose.
+    # No Bash counter hook: only the UV-only gate, the Orca worktree agent gate
+    # and the per-job identity adapter are registered for Bash. Any other Bash
+    # PreToolUse hook must be added here on purpose.
     bash_commands = {
         hook["command"]
         for registration in hooks.get("PreToolUse", [])
@@ -110,5 +110,6 @@ def test_subagent_start_registration_is_synchronous_without_bash_counter():
     }
     assert bash_commands == {
         "~/.claude/hooks/block-bare-python.sh",
+        "~/.claude/hooks/require-orca-worktree-agent.sh",
         "~/.claude/hooks/launch-job-identity.sh",
     }

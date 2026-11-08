@@ -1,0 +1,4 @@
+grep1 rc=1 (1 means nothing found)
+17:- **`--claim <number|url>`**: assign an existing issue of the origin repo to the current user on GitHub and, when one exists, on its ClickUp task; check whether the issue text is still accurate; write a summary cheatsheet and the next-step prompt; post two 
+170:- After the comments, and unless `--pipeline none`, create or reuse the Orca worktree `issue-<N>` and launch one agent in it at the chosen level through `scripts/orca_worktree.py`; `--pipeline none` stops after the comments with no worktree.
+grep2 rc=0

@@ -52,6 +52,12 @@ not agent sessions. The Claude command must be configured as `ccsession-orca` to
 For supervised workers, keep `worker-start` and the dispatch preamble authoritative;
 this rule does not replace supervised dispatch or commands' internal Agent-tool subagents.
 
+Every Orca worktree gets an agent: create it with `worktree create --agent` (supervised workers
+use `worker-start`, and a supervised worker follows its worker contract, which forbids it from
+creating worktrees), and never create a worktree for your own use. The session that creates a
+worktree becomes its orchestrator, or a coordinator under another orchestrator, and
+owns its agent(s). A hook blocks `orca worktree create` without `--agent`.
+
 ## Key Docs
 
 - `~/.claude/HOW-WE-WORK.md` — which command or skill to use for each kind of work, in what order (read it when you choose a workflow; it is not loaded automatically)

@@ -1,0 +1,103 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t6-tests.log b/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t6-tests.log
+new file mode 100644
+index 00000000..d9bb8798
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t6-tests.log
+@@ -0,0 +1,7 @@
++....................................................                     [ 94%]
++tests/core/test_orca_session_launch_guidance.py ..                       [ 96%]
++tests/core/test_research_config.py ....                                  [100%]
++
++============================= 109 passed in 0.48s ==============================
++rc=0
++grep rc=1 (1 = nothing printed)
+diff --git a/CLAUDE.md b/CLAUDE.md
+index c86c22ef..02dc6134 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -302,13 +302,14 @@ def test_with_budget(token_budget):
+ 
+ ### Parallel Development with Git Worktrees
+ 
+-**CRITICAL**: When running multiple Claude Code sessions in parallel, give each session its own worktree to avoid conflicts.
++**CRITICAL**: When running multiple Claude Code sessions in parallel, each one works in its own worktree to avoid conflicts. A worktree is created by its orchestrator with an agent in it; a session does not open a worktree for itself.
+ 
+ **ABSOLUTE RULE — every project worktree is created through Orca and lives at Orca's default worktree location.**
+-Create it with `orca worktree create --name <name>`, adding `--repo <selector>`, `--base-branch <ref>`, and
+-`--parent-worktree <selector>` or `--no-parent` as needed. Orca places it at its default worktree location,
+-outside the main checkout; `orca worktree current --json` (from inside it) and `orca worktree list` show the real path.
++Create it with `orca worktree create --name <name> --agent claude --prompt "<task>"`, adding `--repo <selector>`,
++`--base-branch <ref>`, and `--parent-worktree <selector>` or `--no-parent` as needed. Orca places it at its default
++worktree location, outside the main checkout; `orca worktree current --json` (from inside it) and `orca worktree list` show the real path.
+ 
++- **Every worktree gets an agent, and its creator owns it.** Because every worktree gets an agent, a bare `orca worktree create` is wrong: always pass `--agent claude --prompt "<task>"`, and never create a worktree for your own use. The session that creates a worktree becomes its orchestrator (or a coordinator under another orchestrator) and owns its agent(s). A worktree a human creates needs an agent too. Supervised workers are started with `orca orchestration worker-start`, which already creates their worktree with an agent. A PreToolUse hook (`require-orca-worktree-agent.sh`) blocks a Bash call that runs `orca worktree create` without `--agent` once it is installed; the other parts of this rule are instructions only.
+ - Never create a project worktree with raw `git worktree add`, under the retired `.dev/worktrees/` location, or under `.claude/worktrees/`.
+ - Do **not** use the `EnterWorktree` tool: it hardcodes `.claude/worktrees/`, which is gitignored sync-dev territory.
+ - Never pass Orca link flags (`--issue`, `--pr`) for this repo; the fork rule above (`## ABSOLUTE RULE: PR Target = Fork`) governs them.
+@@ -316,8 +317,8 @@ outside the main checkout; `orca worktree current --json` (from inside it) and `
+ - **Existing checkouts under the retired `.dev/worktrees/` location** may stay until their branch is merged, then are removed with `git worktree remove <path>`; no new checkout may be created there.
+ 
+ ```bash
+-# Create a worktree named pm-agent, based on origin/master
+-orca worktree create --name pm-agent --base-branch origin/master
++# Create a worktree named pm-agent, based on origin/master, with an agent in it
++orca worktree create --name pm-agent --base-branch origin/master --agent claude --prompt "<task>"
+ 
+ # Show where Orca put it
+ orca worktree list
+@@ -332,9 +333,9 @@ orca worktree list
+ 
+ **Usage**:
+ 
+-- Session A: Open the main checkout (current branch)
+-- Session B: Open the Orca-created worktree `integration` (path from `orca worktree list`)
+-- Session C: Open the Orca-created worktree `pm-agent` (feature branch)
++- Session A: Open the main checkout (current branch); it is the orchestrator that creates the worktrees below
++- Worktree `integration`: created by session A with `--agent claude`; that agent works there (path from `orca worktree list`)
++- Worktree `pm-agent` (feature branch): created by session A with `--agent claude`; that agent works there
+ 
+ **Cleanup**:
+ 
+diff --git a/tests/core/test_claude_md_worktree_rule.py b/tests/core/test_claude_md_worktree_rule.py
+new file mode 100644
+index 00000000..00d4f59c
+--- /dev/null
++++ b/tests/core/test_claude_md_worktree_rule.py
+@@ -0,0 +1,37 @@
++"""Pin the project CLAUDE.md worktree rule: every worktree gets an agent."""
++
++from pathlib import Path
++
++CLAUDE_MD = Path(__file__).resolve().parents[2] / "CLAUDE.md"
++
++
++def _section() -> str:
++    text = CLAUDE_MD.read_text()
++    start = text.index("### Parallel Development with Git Worktrees")
++    return text[start:].split("\n## ", 1)[0]
++
++
++def test_every_worktree_gets_an_agent_and_its_creator_owns_it() -> None:
++    section = _section()
++    assert "--agent claude" in section
++    assert "every worktree gets an agent" in section
++    assert "never create a worktree for your own use" in section
++    first_item = next(ln for ln in section.splitlines() if ln.startswith("- ")).lower()
++    for word in ("orchestrator", "coordinator", "owns"):
++        assert word in first_item, word
++
++
++def test_example_creates_the_worktree_with_an_agent() -> None:
++    lines = [
++        ln for ln in _section().splitlines() if ln.startswith("orca worktree create")
++    ]
++    assert lines, "the example create line is missing"
++    assert all("--agent" in ln for ln in lines), lines
++
++
++def test_existing_worktree_rules_are_kept() -> None:
++    section = _section()
++    assert "every project worktree is created through Orca" in section
++    assert "Never pass Orca link flags (`--issue`, `--pr`)" in section
++    assert "**Exception — internal temporary checkouts:**" in section
++    assert "Do **not** use the `EnterWorktree` tool" in section

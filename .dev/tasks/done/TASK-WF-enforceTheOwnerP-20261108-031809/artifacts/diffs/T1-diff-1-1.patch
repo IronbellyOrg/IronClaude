@@ -1,0 +1,626 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t1-hook-tests.log b/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t1-hook-tests.log
+new file mode 100644
+index 00000000..71b470b4
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t1-hook-tests.log
+@@ -0,0 +1,64 @@
++============================= test session starts ==============================
++platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test/.venv/bin/python
++SuperClaude: 5.0.0
++rootdir: /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test
++configfile: pyproject.toml
++plugins: superclaude-5.0.0, anyio-4.16.0
++collecting ... collected 53 items
++
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[bare-create] PASSED [  1%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[create-with-other-flags] PASSED [  3%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[after-cd-and] PASSED [  5%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[dollar-subst] PASSED [  7%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[backtick-subst] PASSED [  9%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[abs-path] PASSED [ 11%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[env-wrapper] PASSED [ 13%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[sudo-wrapper] PASSED [ 15%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[command-wrapper] PASSED [ 16%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[after-pipe] PASSED [ 18%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[second-line] PASSED [ 20%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[after-comment-line] PASSED [ 22%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[agent-first-bare-second] PASSED [ 24%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[bare-first-agent-second] PASSED [ 26%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[agent-in-other-command] PASSED [ 28%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[inner-bare-in-agent-command] PASSED [ 30%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[inner-bare-in-quoted-subst] PASSED [ 32%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[subshell] PASSED [ 33%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[if-condition] PASSED [ 35%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[or-chain] PASSED [ 37%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[background] PASSED [ 39%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[assignment-prefix] PASSED [ 41%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[redirect-after] PASSED [ 43%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[continuation] PASSED [ 45%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[global-option-first] PASSED [ 47%]
++tests/hooks/test_require_orca_worktree_agent.py::test_blocked[shell-heredoc] PASSED [ 49%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[create-with-agent] PASSED [ 50%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[create-with-agent-equals] PASSED [ 52%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[create-help] PASSED [ 54%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[create-short-help] PASSED [ 56%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[worktree-list] PASSED [ 58%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[list-name-create] PASSED [ 60%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[worktree-rm] PASSED [ 62%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[terminal-list] PASSED [ 64%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[orchestration-worker-start] PASSED [ 66%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[quoted-echo] PASSED [ 67%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[single-quoted-echo] PASSED [ 69%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[commit-message] PASSED [ 71%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[grep-pattern] PASSED [ 73%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[comment-mention] PASSED [ 75%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[quoted-heredoc-text] PASSED [ 77%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[bash-c-ceiling] PASSED [ 79%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[command-v] PASSED [ 81%]
++tests/hooks/test_require_orca_worktree_agent.py::test_allowed[agent-after-chain] PASSED [ 83%]
++tests/hooks/test_require_orca_worktree_agent.py::test_fail_open[non-json] PASSED [ 84%]
++tests/hooks/test_require_orca_worktree_agent.py::test_fail_open[empty-stdin] PASSED [ 86%]
++tests/hooks/test_require_orca_worktree_agent.py::test_fail_open[read-tool] PASSED [ 88%]
++tests/hooks/test_require_orca_worktree_agent.py::test_fail_open[bash-no-command] PASSED [ 90%]
++tests/hooks/test_require_orca_worktree_agent.py::test_fail_open[bash-empty-command] PASSED [ 92%]
++tests/hooks/test_require_orca_worktree_agent.py::test_fail_open_when_jq_missing PASSED [ 94%]
++tests/hooks/test_require_orca_worktree_agent.py::test_fail_open_when_awk_missing PASSED [ 96%]
++tests/hooks/test_require_orca_worktree_agent.py::test_fail_open_when_scanner_fails PASSED [ 98%]
++tests/hooks/test_require_orca_worktree_agent.py::test_script_is_executable_and_runs_no_python PASSED [100%]
++
++============================== 53 passed in 0.57s ==============================
++rc=0
+diff --git a/src/superclaude/hooks/scripts/require-orca-worktree-agent.sh b/src/superclaude/hooks/scripts/require-orca-worktree-agent.sh
+new file mode 100755
+index 00000000..d7a24f30
+--- /dev/null
++++ b/src/superclaude/hooks/scripts/require-orca-worktree-agent.sh
+@@ -0,0 +1,353 @@
++#!/usr/bin/env bash
++# PreToolUse(Bash) gate: every Orca worktree gets an agent.
++#
++# Blocks a Bash tool call whose command runs `orca worktree create` without
++# `--agent` (or `--agent=...`), and tells the agent the exact form to use.
++# Applies to subagent Bash calls too, because PreToolUse hooks fire inside
++# subagents. Only the --agent requirement is enforced here; "no worktree for
++# your own use" and "the creator owns the agent" are instruction text.
++#
++# Decision contract (same as block-bare-python.sh):
++#   allow -> exit 0; block -> one message on stderr + exit 2; never exit 1.
++#   Fail open (exit 0): jq or awk missing, input not valid JSON, tool is not
++#   Bash, no or empty tool_input.command, or any scanner error. The hook
++#   blocks only when the scanner positively reports a bare create.
++#   The hook itself runs no Python.
++#
++# How a command is read: jq extracts tool_input.command and pipes it, on
++# stdin, to one stateful awk scanner (never through awk -v or the
++# environment, which mangle backslashes and fail above 128 KB). The scanner
++# is the block-bare-python.sh tokenizer (quotes, $'...' escapes, `#` comments,
++# backslash-newline continuation, $( ) and backtick substitutions, arithmetic,
++# subshells, process substitution, case patterns, [[ ]] tests, function
++# definitions, redirections, heredocs and here-strings; the wrappers sudo,
++# nice, nohup, time, exec, timeout, env, command and coproc are skipped with
++# their options), copied here because installed hooks are standalone files.
++# Unlike block-bare-python.sh it does not stop at the command word: it collects
++# the words of each simple command, resets the collection at every separator
++# (; & && || | newline) and inside every substitution, and decides once the
++# command's words are complete. A command is blocked when its command word is
++# `orca` (or a path ending in /orca), its first two non-option arguments are
++# `worktree` and `create`, and none of its own words is `--agent`, starts with
++# `--agent=`, or is `--help` or `-h`. A flag in one command never satisfies
++# another command.
++#
++# Not blocked: `orca worktree list`, `orca worktree create --help`, other orca
++# subcommands, text that only mentions the phrase inside a quoted argument
++# (`echo "orca worktree create"`), and any create that carries `--agent`.
++#
++# Known ceilings (creates that are NOT blocked):
++#   - string arguments to another interpreter: bash -c / sh -c "orca ...",
++#     eval "orca ...", env -S "orca ...", ssh host 'orca ...';
++#   - commands started by another program: xargs orca, find -exec orca;
++#   - a heredoc whose body is piped or redirected into a shell
++#     (cat <<'EOF' | bash) instead of being that shell's own heredoc;
++#   - a quoted value equal to --agent (orca worktree create --prompt "--agent")
++#     counts as the flag, because quotes are removed before the comparison;
++#   - ${...} parameter expansions are not parsed (${CMD:-orca} worktree create);
++#   - nested backticks written with \` escapes;
++#   - global orca options that take a separate value before `worktree`
++#     (the value is read as the first non-option argument);
++#   - wrapper options that take a value but are not in the scanner's tables;
++#   - shell commands run by tools other than Bash (for example Monitor);
++#   - hosts without jq or awk: the hook fails open for every command;
++#   - `claude --bare` sessions, which skip settings hooks;
++#   - humans and other agent tools that create worktrees themselves;
++#   - scripts that call Orca as a subprocess (orca_worktree.py runs Orca itself,
++#     not through the Bash tool, so its own create is outside this hook).
++
++set -u
++
++if ! command -v jq >/dev/null 2>&1; then
++    echo "require-orca-worktree-agent: jq not found; allowing the command (fail open)." >&2
++    exit 0
++fi
++if ! command -v awk >/dev/null 2>&1; then
++    echo "require-orca-worktree-agent: awk not found; allowing the command (fail open)." >&2
++    exit 0
++fi
++
++read -r -d '' SCANNER <<'AWK'
++function iscmd(t) { return t == "top" || t == "dol" || t == "bt" || t == "par" || t == "arr" || t == "psub" }
++function isshell(b) { return b == "bash" || b == "sh" || b == "zsh" || b == "dash" || b == "ksh" }
++function iskw(w) {
++    return w == "if" || w == "then" || w == "elif" || w == "else" || w == "do" || \
++        w == "while" || w == "until" || w == "!" || w == "{" || w == "}" || \
++        w == "fi" || w == "done"
++}
++function iswrap(b) {
++    return b == "env" || b == "sudo" || b == "nice" || b == "nohup" || b == "time" || \
++        b == "exec" || b == "timeout" || b == "command" || b == "coproc"
++}
++function base(w,   n, parts) { n = split(w, parts, "/"); return n ? parts[n] : "" }
++function pushc(t) {
++    d++; ct[d] = t; inw[d] = 0; wd[d] = ""; noc[d] = (t == "arr"); need[d] = !noc[d]
++    wrap[d] = ""; parg[d] = 0; skn[d] = 0; cs[d] = 0; cmd[d] = ""; tst[d] = 0; wq[d] = 0
++    isorca[d] = 0
++}
++# Per-command collection: once the command word is `orca`, every later word of
++# that simple command is recorded (first two non-option words, --agent, --help).
++function track(o, w) {
++    if (w == "--agent" || w ~ /^--agent=/) hasagent[o] = 1
++    else if (w == "--help" || w == "-h") hashelp[o] = 1
++    else if (w !~ /^-/) { nargs[o]++; if (nargs[o] == 1) a1[o] = w; else if (nargs[o] == 2) a2[o] = w }
++}
++function fin(o) {
++    if (!isorca[o]) return
++    isorca[o] = 0
++    if (a1[o] == "worktree" && a2[o] == "create" && !hasagent[o] && !hashelp[o]) { print "orca"; exit }
++}
++function pushq(t, o) { d++; ct[d] = t; own[d] = o; inw[o] = 1; wq[o] = 1; anul[d] = 0 }
++function pusha() { d++; ct[d] = "arith"; ad[d] = 2 }
++function owner(l) { return iscmd(ct[l]) ? l : ((ct[l] == "dq" || ct[l] == "sq" || ct[l] == "ansi") ? own[l] : 0) }
++function addc(o, c) { if (o) { inw[o] = 1; wd[o] = wd[o] c } }
++function sep(o) { endword(o); fin(o); need[o] = !noc[o]; wrap[o] = ""; parg[o] = 0; skn[o] = 0; tst[o] = 0 }
++function dig(set, ch) { return ch == "" ? 0 : index(set, ch) }
++function endword(o,   w, b, k, q) {
++    if (!inw[o]) return
++    w = wd[o]; inw[o] = 0; wd[o] = ""; q = wq[o]; wq[o] = 0
++    if (skn[o]) { skn[o] = 0; return }
++    if (cs[o] == 1) { cs[o] = 2; return }
++    if (cs[o] == 2) { if (w == "in") cs[o] = 3; return }
++    if (cs[o] == 3) { if (w == "esac") { cs[o] = 0; need[o] = 0 }; return }
++    if (!need[o]) { if (isorca[o]) track(o, w); return }
++    if (parg[o] > 0) { parg[o]--; return }
++    if (w ~ /^[A-Za-z_][A-Za-z0-9_]*\+?=/) return
++    if (wrap[o] != "") {
++        if (w ~ /^-/) {
++            if (wrap[o] == "command" && w ~ /^-[A-Za-z]*[vV]/) { need[o] = 0; return }
++            if (w ~ /^--[A-Za-z]/) {
++                if (w !~ /=/ && index(lopt[wrap[o]], " " w)) parg[o] = 1
++                return
++            }
++            for (k = 2; k <= length(w); k++)
++                if ((wrap[o], "-" substr(w, k, 1)) in argopt) { if (k == length(w)) parg[o] = 1; break }
++            return
++        }
++        if (wrap[o] == "timeout") { wrap[o] = "timeout-duration"; return }
++    }
++    if (!q) {
++        if (iskw(w)) return
++        if (w == "esac") { cs[o] = 0; return }
++        if (w == "case") { cs[o] = 1; need[o] = 0; return }
++        if (w == "function") { parg[o] = 1; return }
++        if (w == "[[") { tst[o] = 1; need[o] = 0; cmd[o] = w; return }
++    }
++    if (substr(s, i) ~ /^[ \t]*\([ \t]*\)/) { cmd[o] = w; return }
++    b = base(w)
++    if (iswrap(b)) { wrap[o] = b; return }
++    need[o] = 0; cmd[o] = b
++    for (k = qh; k < qt; k++) if (hqown[k] == o && hqwait[k]) { hqwait[k] = 0; hqsh[k] = isshell(b) }
++    if (b == "orca") { isorca[o] = 1; nargs[o] = 0; a1[o] = ""; a2[o] = ""; hasagent[o] = 0; hashelp[o] = 0 }
++}
++function nexthdoc(   k) {
++    while (qh < qt) {
++        k = qh++
++        if (hqsh[k]) continue
++        d++; ct[d] = "hdoc"; hdelim[d] = hqd[k]; hstrip[d] = hqs[k]; hexp[d] = !hqq[k]
++        return
++    }
++}
++function heredoc(o, s, n, strip,   dl, q, ch) {
++    while (substr(s, i + 1, 1) == " " || substr(s, i + 1, 1) == "\t") i++
++    dl = ""; q = 0
++    while (i + 1 <= n) {
++        ch = substr(s, i + 1, 1)
++        if (ch == " " || ch == "\t" || ch == ";" || ch == "&" || ch == "|" || ch == "<" || ch == ">" || ch == "(" || ch == ")") break
++        i++
++        if (ch == "\047") { q = 1; while (i + 1 <= n && substr(s, i + 1, 1) != "\047") { i++; dl = dl substr(s, i, 1) }; i++; continue }
++        if (ch == "\"") { q = 1; while (i + 1 <= n && substr(s, i + 1, 1) != "\"") { i++; dl = dl substr(s, i, 1) }; i++; continue }
++        if (ch == "\\") { q = 1; i++; dl = dl substr(s, i, 1); continue }
++        dl = dl ch
++    }
++    hqd[qt] = dl; hqs[qt] = strip; hqq[qt] = q; hqown[qt] = o
++    if (need[o]) { hqwait[qt] = 1; hqsh[qt] = 0 } else { hqwait[qt] = 0; hqsh[qt] = isshell(cmd[o]) }
++    qt++
++}
++function cmdchar(s, n, c,   o, nx, t, p) {
++    o = d
++    if (c == "\\") { if (i == n) { i = n + 1; return }; i++; wq[o] = 1; addc(o, substr(s, i, 1)); return }
++    if (c == "\047") { pushq("sq", o); return }
++    if (c == "\"") { pushq("dq", o); return }
++    if (c == "`") {
++        if (ct[o] == "bt") { endword(o); fin(o); d--; return }
++        addc(o, "$()"); pushc("bt"); return
++    }
++    if (c == "$") {
++        nx = substr(s, i + 1, 1)
++        if (nx == "(") {
++            addc(o, "$()")
++            if (substr(s, i + 2, 1) == "(") { i += 2; pusha() } else { i++; pushc("dol") }
++            return
++        }
++        if (nx == "\047") { i++; pushq("ansi", o); return }
++        if (nx == "\"") { i++; pushq("dq", o); return }
++        addc(o, c); return
++    }
++    if (tst[o]) {
++        if (c == " " || c == "\t" || c == "\r" || c == "\n") { endword(o); return }
++        nx = substr(s, i + 2, 1)
++        if (c == "]" && !inw[o] && substr(s, i + 1, 1) == "]" && (nx == "" || index(" \t\r;&|)<>", nx))) {
++            i++; tst[o] = 0; return
++        }
++        addc(o, c); return
++    }
++    if (c == "#" && !inw[o]) { i = n; return }
++    if (c == " " || c == "\t" || c == "\r") { endword(o); return }
++    if (c == "\n") { sep(o); if (qh < qt) nexthdoc(); return }
++    if (c == ";") {
++        sep(o); nx = substr(s, i + 1, 1)
++        if (nx == ";" || nx == "&") { i++; if (substr(s, i + 1, 1) == "&") i++; if (cs[o] >= 3) cs[o] = 3 }
++        return
++    }
++    if (c == "&") {
++        nx = substr(s, i + 1, 1)
++        if (nx == ">") { endword(o); i++; if (substr(s, i + 1, 1) == ">") i++; skn[o] = 1; return }
++        sep(o); if (nx == "&") i++
++        return
++    }
++    if (c == "|") { sep(o); nx = substr(s, i + 1, 1); if (nx == "|" || nx == "&") i++; return }
++    if (c == ">" || c == "<") {
++        nx = substr(s, i + 1, 1)
++        if (nx == "(") {
++            endword(o); i++
++            if (skn[o]) skn[o] = 0; else addc(o, "<()")
++            pushc("psub"); return
++        }
++        if (inw[o] && !wq[o] && wd[o] ~ /^([0-9]+|\{[A-Za-z_][A-Za-z0-9_]*\})$/) { inw[o] = 0; wd[o] = ""; wq[o] = 0 } else endword(o)
++        if (c == "<" && nx == "<") {
++            if (substr(s, i + 2, 1) == "<") { i += 2; skn[o] = 1; return }
++            i++
++            if (substr(s, i + 1, 1) == "-") { i++; heredoc(o, s, n, 1) } else heredoc(o, s, n, 0)
++            return
++        }
++        if (nx == ">" || nx == "&" || nx == "|") i++
++        skn[o] = 1; return
++    }
++    if (c == "(") {
++        if (inw[o] && wd[o] ~ /^[A-Za-z_][A-Za-z0-9_]*\+?=$/) { pushc("arr"); return }
++        endword(o)
++        if (match(substr(s, i + 1), /^[ \t]*\)/)) { i += RLENGTH; need[o] = !noc[o]; wrap[o] = ""; parg[o] = 0; return }
++        if (cs[o] == 3) return
++        if (need[o] && substr(s, i + 1, 1) == "(") { i++; pusha(); return }
++        pushc("par"); return
++    }
++    if (c == ")") {
++        if (cs[o] == 3) { endword(o); cs[o] = 4; need[o] = 1; wrap[o] = ""; parg[o] = 0; return }
++        endword(o); fin(o)
++        t = ct[o]
++        if (t == "dol" || t == "par" || t == "arr" || t == "psub") { d--; if (t == "par" && iscmd(ct[d])) need[d] = 0; return }
++        sep(o); return
++    }
++    addc(o, c)
++}
++function achr(v) {
++    v = v % 256
++    if (v == 0) { anul[d] = 1; return "" }
++    return v < 128 ? sprintf("%c", v) : "?"
++}
++function ansiesc(s, o,   e, v, k, m, h) {
++    i++; e = substr(s, i, 1)
++    if (e == "") return
++    if (e == "x" || e == "u" || e == "U") {
++        m = (e == "x") ? 2 : ((e == "u") ? 4 : 8); v = 0
++        for (k = 0; k < m && (h = dig("0123456789abcdef", tolower(substr(s, i + 1, 1)))); k++) { v = v * 16 + h - 1; i++ }
++        if (k == 0) addc(o, "\\" e); else addc(o, achr(v))
++        return
++    }
++    if ((h = dig("01234567", e))) {
++        v = h - 1
++        for (k = 1; k < 3 && (h = dig("01234567", substr(s, i + 1, 1))); k++) { v = v * 8 + h - 1; i++ }
++        addc(o, achr(v)); return
++    }
++    if (e == "c") { i++; addc(o, substr(s, i, 1) == "@" ? achr(0) : "?"); return }
++    if (dig("abeEfnrtv", e)) { addc(o, "?"); return }
++    if (e == "\\" || e == "\047" || e == "\"" || e == "?") { addc(o, e); return }
++    addc(o, "\\" e)
++}
++function qchar(s, n, c,   o, t) {
++    t = ct[d]; o = own[d]
++    if (t == "sq") { if (c == "\047") d--; else addc(o, c); return }
++    if (t == "ansi") {
++        if (c == "\047") { d--; return }
++        if (c == "\\") { if (anul[d]) i++; else ansiesc(s, o); return }
++        if (!anul[d]) addc(o, c)
++        return
++    }
++    if (c == "\"") { d--; return }
++    if (c == "\\") { if (i == n) { i = n + 1; return }; i++; addc(o, substr(s, i, 1)); return }
++    if (c == "`") { addc(o, "$()"); pushc("bt"); return }
++    if (c == "$" && substr(s, i + 1, 1) == "(") {
++        addc(o, "$()")
++        if (substr(s, i + 2, 1) == "(") { i += 2; pusha() } else { i++; pushc("dol") }
++        return
++    }
++    addc(o, c)
++}
++function arithchar(s, n, c) {
++    if (c == "(") { ad[d]++; return }
++    if (c == ")") { ad[d]--; if (ad[d] <= 0) d--; return }
++    if (c == "`") { pushc("bt"); return }
++    if (c == "$" && substr(s, i + 1, 1) == "(" && substr(s, i + 2, 1) != "(") { i++; pushc("dol") }
++}
++function hdocchar(s, n, c) {
++    if (!hexp[d]) return
++    if (c == "\\") { if (i == n) { hjoin = 1; i = n + 1; return }; i++; return }
++    if (c == "`") { pushc("bt"); return }
++    if (c == "$" && substr(s, i + 1, 1) == "(") {
++        if (substr(s, i + 2, 1) == "(") { i += 2; pusha() } else { i++; pushc("dol") }
++    }
++}
++BEGIN {
++    argopt["sudo", "-u"] = 1; argopt["sudo", "-g"] = 1; argopt["sudo", "-C"] = 1
++    argopt["sudo", "-h"] = 1; argopt["sudo", "-p"] = 1; argopt["sudo", "-U"] = 1
++    argopt["sudo", "-r"] = 1; argopt["sudo", "-t"] = 1; argopt["sudo", "-D"] = 1
++    argopt["sudo", "-R"] = 1; argopt["nice", "-n"] = 1; argopt["env", "-u"] = 1
++    argopt["env", "-C"] = 1; argopt["exec", "-a"] = 1; argopt["timeout", "-s"] = 1
++    argopt["timeout", "-k"] = 1; argopt["time", "-f"] = 1; argopt["time", "-o"] = 1
++    argopt["sudo", "-T"] = 1; argopt["env", "-a"] = 1
++    lopt["sudo"] = " --user --group --close-from --host --prompt --other-user --role --type --chdir --chroot --command-timeout "
++    lopt["nice"] = " --adjustment "; lopt["env"] = " --unset --chdir --argv0 "
++    lopt["timeout"] = " --signal --kill-after "; lopt["time"] = " --format --output "
++}
++{ L[NR] = $0 }
++END {
++    d = 0; pushc("top"); qh = 1; qt = 1; hjoin = 0
++    for (li = 1; li <= NR; li++) {
++        s = L[li]; n = length(s)
++        if (ct[d] == "hdoc") {
++            line = s
++            if (hstrip[d]) sub(/^\t+/, "", line)
++            if (!hjoin && line == hdelim[d]) { d--; nexthdoc(); continue }
++            hjoin = 0
++            if (!hexp[d]) continue
++        }
++        for (i = 1; i <= n + 1; i++) {
++            c = (i <= n) ? substr(s, i, 1) : "\n"
++            t = ct[d]
++            if (iscmd(t)) cmdchar(s, n, c)
++            else if (t == "dq" || t == "sq" || t == "ansi") qchar(s, n, c)
++            else if (t == "arith") arithchar(s, n, c)
++            else if (t == "hdoc") hdocchar(s, n, c)
++        }
++    }
++    while (d >= 1) { if (iscmd(ct[d])) { endword(d); fin(d) }; d-- }
++}
++AWK
++
++INPUT="$(cat 2>/dev/null || true)"
++[ -n "$INPUT" ] || exit 0
++
++WORD="$(printf '%s' "$INPUT" \
++    | jq -j 'if .tool_name == "Bash" then (.tool_input.command // "" | strings) else "" end' 2>/dev/null \
++    | LC_ALL=C awk "$SCANNER" 2>/dev/null)" || WORD=""
++
++[ "$WORD" = "orca" ] || exit 0
++
++cat >&2 <<'MSG'
++ORCA WORKTREE BLOCK: every Orca worktree gets an agent, and this command runs `orca worktree create` without `--agent`.
++Use: orca worktree create --name <name> --agent claude --prompt "<task>"
++The session that creates the worktree becomes its orchestrator (or a coordinator under another orchestrator) and owns that agent.
++Supervised workers use `orca orchestration worker-start`.
++MSG
++exit 2
+diff --git a/tests/hooks/test_require_orca_worktree_agent.py b/tests/hooks/test_require_orca_worktree_agent.py
+new file mode 100644
+index 00000000..f0282f4a
+--- /dev/null
++++ b/tests/hooks/test_require_orca_worktree_agent.py
+@@ -0,0 +1,191 @@
++"""Behavioral tests for require-orca-worktree-agent.sh.
++
++The hook is a PreToolUse(Bash) gate: it blocks (exit 2, message on stderr) a
++command that runs `orca worktree create` without `--agent`, allows everything
++else (exit 0), and fails open (exit 0) on any input it cannot judge. Each case
++runs the real script with a JSON payload on stdin and HOME inside tmp_path,
++like tests/hooks/test_block_bare_python.py.
++"""
++
++from __future__ import annotations
++
++import json
++import os
++import shutil
++import stat
++import subprocess
++from pathlib import Path
++
++import pytest
++
++HOOK = (
++    Path(__file__).resolve().parents[2]
++    / "src"
++    / "superclaude"
++    / "hooks"
++    / "scripts"
++    / "require-orca-worktree-agent.sh"
++)
++BASH = shutil.which("bash") or "/bin/bash"
++
++BLOCK_MESSAGE = (
++    "ORCA WORKTREE BLOCK: every Orca worktree gets an agent, and this command runs "
++    "`orca worktree create` without `--agent`.\n"
++    'Use: orca worktree create --name <name> --agent claude --prompt "<task>"\n'
++    "The session that creates the worktree becomes its orchestrator (or a "
++    "coordinator under another orchestrator) and owns that agent.\n"
++    "Supervised workers use `orca orchestration worker-start`.\n"
++)
++
++
++def _run(stdin: bytes, home: Path, env_path: str | None = None):
++    env = os.environ.copy()
++    env["HOME"] = str(home)
++    if env_path is not None:
++        env["PATH"] = env_path
++    return subprocess.run(
++        [BASH, str(HOOK)], input=stdin, capture_output=True, env=env, timeout=10
++    )
++
++
++def _bash(command: str) -> bytes:
++    return json.dumps(
++        {"tool_name": "Bash", "tool_input": {"command": command}}
++    ).encode()
++
++
++BLOCKED = {
++    "bare-create": "orca worktree create --name x",
++    "create-with-other-flags": 'orca worktree create --name x --prompt "do it"',
++    "after-cd-and": "cd /x && orca worktree create --name x",
++    "dollar-subst": "echo $(orca worktree create --name x)",
++    "backtick-subst": "echo `orca worktree create --name x`",
++    "abs-path": "/usr/local/bin/orca worktree create --name x",
++    "env-wrapper": "env X=1 orca worktree create --name x",
++    "sudo-wrapper": "sudo orca worktree create --name x",
++    "command-wrapper": "command orca worktree create --name x",
++    "after-pipe": "echo a | orca worktree create --name x",
++    "second-line": "echo first\norca worktree create --name x",
++    "after-comment-line": "# note\norca worktree create --name x",
++    "agent-first-bare-second": (
++        "orca worktree create --name a --agent claude --prompt t ; "
++        "orca worktree create --name b"
++    ),
++    "bare-first-agent-second": (
++        "orca worktree create --name b ; "
++        "orca worktree create --name a --agent claude --prompt t"
++    ),
++    "agent-in-other-command": "echo --agent ; orca worktree create --name x",
++    "inner-bare-in-agent-command": (
++        "orca worktree create --name $(orca worktree create --name y) --agent claude"
++    ),
++    "inner-bare-in-quoted-subst": (
++        'orca worktree create --name x --agent claude --prompt "$(orca worktree create --name y)"'
++    ),
++    "subshell": "(orca worktree create --name x)",
++    "if-condition": "if orca worktree create --name x; then echo ok; fi",
++    "or-chain": "false || orca worktree create --name x",
++    "background": "make build & orca worktree create --name x",
++    "assignment-prefix": "ORCA_X=1 orca worktree create --name x",
++    "redirect-after": "orca worktree create --name x > out.txt",
++    "continuation": "orca worktree \\\n  create --name x",
++    "global-option-first": "orca --json worktree create --name x",
++    "shell-heredoc": "bash <<'EOF'\norca worktree create --name x\nEOF",
++}
++
++ALLOWED = {
++    "create-with-agent": "orca worktree create --name x --agent claude --prompt t",
++    "create-with-agent-equals": "orca worktree create --name x --agent=claude",
++    "create-help": "orca worktree create --help",
++    "create-short-help": "orca worktree create -h",
++    "worktree-list": "orca worktree list",
++    "list-name-create": "orca worktree list --name create",
++    "worktree-rm": "orca worktree rm --worktree name:x",
++    "terminal-list": "orca terminal list --worktree path:/x --json",
++    "orchestration-worker-start": "orca orchestration worker-start --name x",
++    "quoted-echo": 'echo "orca worktree create"',
++    "single-quoted-echo": "echo 'orca worktree create --name x'",
++    "commit-message": 'git commit -m "block orca worktree create without --agent"',
++    "grep-pattern": "grep -rn 'orca worktree create' docs/",
++    "comment-mention": "# orca worktree create is blocked\nls",
++    "quoted-heredoc-text": "cat > notes.md <<'EOF'\nrun orca worktree create --name x\nEOF",
++    "bash-c-ceiling": 'bash -c "orca worktree create --name x"',
++    "command-v": "command -v orca",
++    "agent-after-chain": "cd /x && orca worktree create --name x --agent claude --prompt t",
++}
++
++
++@pytest.mark.parametrize("command", BLOCKED.values(), ids=BLOCKED.keys())
++def test_blocked(command: str, tmp_path: Path) -> None:
++    result = _run(_bash(command), tmp_path)
++    assert result.returncode == 2, result.stderr.decode()
++    assert result.stdout == b""
++    assert result.stderr.decode() == BLOCK_MESSAGE
++
++
++@pytest.mark.parametrize("command", ALLOWED.values(), ids=ALLOWED.keys())
++def test_allowed(command: str, tmp_path: Path) -> None:
++    result = _run(_bash(command), tmp_path)
++    assert result.returncode == 0, result.stderr.decode()
++    assert result.stdout == b""
++    assert result.stderr == b""
++
++
++FAIL_OPEN = {
++    "non-json": b"this is not json",
++    "empty-stdin": b"",
++    "read-tool": json.dumps(
++        {"tool_name": "Read", "tool_input": {"file_path": "orca worktree create"}}
++    ).encode(),
++    "bash-no-command": json.dumps({"tool_name": "Bash", "tool_input": {}}).encode(),
++    "bash-empty-command": _bash(""),
++}
++
++
++@pytest.mark.parametrize("stdin", FAIL_OPEN.values(), ids=FAIL_OPEN.keys())
++def test_fail_open(stdin: bytes, tmp_path: Path) -> None:
++    result = _run(stdin, tmp_path)
++    assert result.returncode == 0, result.stderr.decode()
++
++
++def _bin_with(tmp_path: Path, names: list[str]) -> Path:
++    """A PATH directory that holds only the named real tools."""
++    bin_dir = tmp_path / "bin"
++    bin_dir.mkdir()
++    for name in names:
++        real = shutil.which(name)
++        assert real, f"{name} is needed on the test host"
++        (bin_dir / name).symlink_to(real)
++    return bin_dir
++
++
++def test_fail_open_when_jq_missing(tmp_path: Path) -> None:
++    bin_dir = _bin_with(tmp_path, ["awk", "cat"])
++    result = _run(_bash("orca worktree create --name x"), tmp_path, str(bin_dir))
++    assert result.returncode == 0
++    assert b"require-orca-worktree-agent: jq not found" in result.stderr
++
++
++def test_fail_open_when_awk_missing(tmp_path: Path) -> None:
++    bin_dir = _bin_with(tmp_path, ["jq", "cat"])
++    result = _run(_bash("orca worktree create --name x"), tmp_path, str(bin_dir))
++    assert result.returncode == 0
++    assert b"require-orca-worktree-agent: awk not found" in result.stderr
++
++
++def test_fail_open_when_scanner_fails(tmp_path: Path) -> None:
++    """An awk that prints the verdict word but exits non-zero must not block."""
++    bin_dir = _bin_with(tmp_path, ["jq", "cat"])
++    fake_awk = bin_dir / "awk"
++    fake_awk.write_text("#!/bin/sh\necho orca\nexit 3\n")
++    fake_awk.chmod(fake_awk.stat().st_mode | stat.S_IXUSR)
++    result = _run(_bash("orca worktree create --name x"), tmp_path, str(bin_dir))
++    assert result.returncode == 0, result.stderr.decode()
++    assert result.stderr == b""
++
++
++def test_script_is_executable_and_runs_no_python() -> None:
++    assert os.access(HOOK, os.X_OK)
++    text = HOOK.read_text()
++    code = [ln for ln in text.splitlines() if not ln.lstrip().startswith("#")]
++    assert not any(w in ("python", "python3", "uv") for ln in code for w in ln.split())

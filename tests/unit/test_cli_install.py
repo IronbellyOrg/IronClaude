@@ -142,7 +142,7 @@ scripts/freshness-post-read.sh scripts/freshness-pre-edit.sh
 scripts/freshness-session-start.sh scripts/freshness-subagent-start.sh
 scripts/freshness-subagent-stop.sh scripts/freshness-user-prompt.sh
 scripts/pragmatic-subagent.js scripts/reject-workspace-writes.sh
-scripts/sc-recommend-phase0.sh
+scripts/require-orca-worktree-agent.sh scripts/sc-recommend-phase0.sh
 """
     ),
     "mcp": _names(

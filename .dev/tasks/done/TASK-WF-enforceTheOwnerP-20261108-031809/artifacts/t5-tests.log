@@ -1,0 +1,9 @@
+tests/core/test_claude_md_routing_block.py ......                        [ 55%]
+tests/core/test_codegraph_guide.py ...............                       [ 62%]
+tests/core/test_how_we_work_routing_table.py ........................... [ 74%]
+....................................................                     [ 97%]
+tests/core/test_orca_session_launch_guidance.py ..                       [ 98%]
+tests/core/test_research_config.py ....                                  [100%]
+
+============================= 226 passed in 0.80s ==============================
+rc=0

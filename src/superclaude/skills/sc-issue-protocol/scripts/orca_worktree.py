@@ -27,7 +27,14 @@ only these commands: ``git rev-parse --path-format=absolute --git-common-dir``,
 ``orca worktree list``, ``orca worktree create`` (no link flag, no agent flag),
 ``git -C <wt> rev-parse --path-format=absolute --git-common-dir`` and
 ``git -C <wt> ls-files .dev/issues/<N>``. Only Orca makes the worktree; this
-file never commits, pushes, stages or removes anything.
+file never commits, pushes, stages or removes anything. The create has no agent
+because the claim must copy ``<D>`` into the worktree before its agent starts; a
+create without ``--agent`` makes Orca open one plain first terminal tab, so after
+a successful copy of a newly created worktree it also runs ``orca terminal list
+--worktree path:<wt> --json`` and, only when that lists exactly one terminal with
+no agent, ``orca terminal close --terminal <handle> --tab --json``. Any reason it
+cannot close the tab is the non-fatal warning ``W-FIRST-TAB-LEFT``; it never
+changes ``status``, and a reused worktree gets no ``terminal`` call.
 
 ``prompt --template <file> --level worktree|full [--submit] --number <N>
 --repo <owner/repo> [--source <D>] --out <file>`` renders ``launch-prompt.md`` from the four blocks of
@@ -209,6 +216,7 @@ WARNING_ORDER = [
     "W-WORKTREE-STALE",
     "W-WORKTREE-COPY-FAILED",
     "W-ORIGIN-BASE-STALE",
+    "W-FIRST-TAB-LEFT",  # cosmetic: an empty tab to close by hand, so it ranks last
 ]
 RECORD_NAME = "worktree.json"
 
@@ -538,6 +546,63 @@ def finish(
     out.status = status
 
 
+def close_first_tab(out: Outcome, created: Result) -> None:
+    """Close the plain first tab Orca opens for a create without ``--agent``.
+
+    Runs only for a worktree this call just created, after the copy succeeded. It
+    never changes ``out.status``: every reason it cannot close the tab becomes the
+    warning ``W-FIRST-TAB-LEFT``, and an unknown create reply never leads to a close.
+    """
+
+    def left(why: str) -> None:
+        out.note("W-FIRST-TAB-LEFT", f"the plain first tab was left open: {why}")
+
+    data = None if created.timed_out else parse_json(created.out)
+    reply = (
+        data.get("result")
+        if isinstance(data, dict) and data.get("ok") is True
+        else None
+    )
+    if not isinstance(reply, dict):
+        left("the create reply is missing, timed out or not an ok JSON object")
+        return
+    if reply.get("setup") or reply.get("defaultTabs"):
+        left("the create reported a setup or default tabs, so the tab count is unknown")
+        return
+    listed = run(
+        ["orca", "terminal", "list", "--worktree", f"path:{out.path}", "--json"]
+    )
+    data = parse_json(listed.out) if listed.ok else None
+    result = (
+        data.get("result")
+        if isinstance(data, dict) and data.get("ok") is True
+        else None
+    )
+    terminals = result.get("terminals") if isinstance(result, dict) else None
+    if not isinstance(terminals, list) or not all(
+        isinstance(t, dict) for t in terminals
+    ):
+        left(
+            f"orca terminal list gave no usable terminal rows ({listed.first_error_line()})"
+        )
+        return
+    if len(terminals) != 1:
+        left(f"{len(terminals)} terminals are listed, not exactly one")
+        return
+    terminal = terminals[0]
+    handle = terminal.get("handle")
+    if terminal.get("agentIdentity"):
+        left("the one terminal runs an agent")
+        return
+    if not isinstance(handle, str) or not handle:
+        left("the one terminal has no handle")
+        return
+    closed = run(["orca", "terminal", "close", "--terminal", handle, "--tab", "--json"])
+    reply = parse_json(closed.out)
+    if not closed.ok or (isinstance(reply, dict) and reply.get("ok") is False):
+        left(f"orca terminal close failed: {closed.first_error_line()}")
+
+
 def cmd_worktree(args: argparse.Namespace) -> int:
     out = Outcome()
     source = Path(args.source)
@@ -649,6 +714,8 @@ def cmd_worktree(args: argparse.Namespace) -> int:
             "created",
             None,  # a new worktree was matched by no lookup key
         )
+        if out.status == "created":
+            close_first_tab(out, created)
     return emit(out.as_dict())
 
 

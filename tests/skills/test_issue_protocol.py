@@ -332,6 +332,20 @@ def test_st6_skill_steps_name_the_orca_check_and_the_worktree_step():
     assert "E-ORCA-REQUIRED" in skill.split("## Error handling", 1)[1]
 
 
+def test_every_worktree_warning_code_is_listed_with_a_remedy_line():
+    """Each code the script can print is named in SKILL.md and in the Wave 7 table."""
+    script = _text(SKILL_DIR / "scripts/orca_worktree.py")
+    block = script.split("WARNING_ORDER = [", 1)[1].split("]", 1)[0]
+    codes = re.findall(r'"(W-[A-Z-]+)"', block)
+    assert "W-FIRST-TAB-LEFT" in codes
+    skill = _text(SKILL).split("## Error handling", 1)[1]
+    wave7 = _text(REFS / "claim.md").split("## Wave 7", 1)[1].split("## Wave 8", 1)[0]
+    for code in codes:
+        assert f"`{code}`" in skill, code
+        assert f"| `{code}` |" in wave7, code
+    assert "| `W-FIRST-TAB-LEFT` | close the plain tab in Orca by hand |" in wave7
+
+
 # --- the launch step (design pipeline-flag, ST-4, ST-7, ST-9, ST-10, ST-11) -------
 
 ORCA_SCRIPT = SKILL_DIR / "scripts/orca_worktree.py"
@@ -483,6 +497,45 @@ def test_st9_final_output_prints_the_hand_command_the_remedy_line_promises():
     )
     assert "`hand_command`" in warnings_item and "`W-LAUNCH-FAILED`" in warnings_item
     assert "not governed by the enforcement hook" in warnings_item
+
+
+def test_pipeline_none_creates_no_worktree_and_wave_7_skips_it():
+    claim = _text(REFS / "claim.md")
+    wave7, wave6 = _wave(claim, 7), _wave(claim, 6)
+    assert "Does not run for `--pipeline none`" in wave7
+    assert "Runs for every `--pipeline` value" not in claim
+    assert "unless `--pipeline` is `none`" in wave6
+    assert "no Wave 7 and no Wave 8" in wave6
+    assert "no `<D>/worktree.json` is written" in wave6
+    # Orca stays a dependency of every claim, so the Wave 0 check still runs for none.
+    wave0 = claim.split("## Wave 0", 1)[1].split("## Wave 1", 1)[0]
+    assert "It also runs for `--pipeline none`" in wave0
+    skill = _text(SKILL).split("## Claim mode", 1)[1].split("## Create mode", 1)[0]
+    assert "**Wave 7, worktree.** Not for `--pipeline none`." in skill
+    assert "except for `--pipeline none`, which ends the claim here" in skill
+
+
+def test_pipeline_none_final_output_has_no_worktree_line_and_names_this_checkout():
+    final = _text(REFS / "claim.md").split("## Final output", 1)[1]
+    item1 = next(ln for ln in final.splitlines() if ln.startswith("1. "))
+    assert "For `--pipeline none` print no `Worktree:` line" in item1
+    none_line = next(ln for ln in final.splitlines() if "`--pipeline none`:" in ln)
+    assert "No worktree created and no agent launched" in none_line
+    assert "in this checkout" in none_line and "<wt>" not in none_line
+
+
+def test_pipeline_none_return_contract_has_null_worktree_fields():
+    section = (
+        _text(SKILL).split("## Return contract", 1)[1].split("## Error handling", 1)[0]
+    )
+    assert "worktree_status: created | reused | failed | not_requested" in section
+    assert (
+        "`worktree_status` is `not_requested` and `worktree_path`, `worktree_branch`, "
+        "`worktree_match_key` and `worktree_warning` are `null`"
+    ) in section
+    command = _text(COMMANDS / "issue.md")
+    assert "Every value creates the worktree" not in command
+    assert "`none` creates no worktree and launches no agent" in command
 
 
 def _yaml_keys(block: str) -> list[str]:

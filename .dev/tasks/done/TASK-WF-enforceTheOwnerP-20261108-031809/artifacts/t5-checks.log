@@ -1,0 +1,32 @@
+cmp-same
+10:> **Amended 2026-11-08** (owner decisions recorded while planning `TASK-WF-enforceTheOwnerP-20261108-031809`): every Orca worktree gets an agent, and the session that creates a worktree owns its ag
+23:| `none` | `--pipeline none` | The claim ends after the comments (amended 2026-11-08): no worktree is created, no agent is launched. | Nothing runs; the user runs `next-steps.md` from the main chec
+42:| P2 | One flag, `--pipeline worktree\|full\|none`, default `worktree`. The `--worktree` flag of MR does not exist. | Owner, AD 1.6 |
+44:| P4 | The default stop is an approved plan. `full` adds implementation. `none` launches no agent. Amended 2026-11-08: `none` also creates no worktree, because every worktree gets an agent. | Owner
+71:/sc:issue --claim <number|url> [--pipeline worktree|full|none] [--submit]
+77:| `--pipeline` | claim | `worktree` | `worktree`, `full`, `none` | How far the launched agent goes (section 1). `worktree` and `full` create the worktree and launch an agent; `none` creates no work
+83:2. A `--pipeline` value that is not one of the three: STOP, list `worktree`, `full`, `none`. `--pipeline` with no value: the same STOP.
+84:3. `--submit` with a value, or with `--pipeline worktree` or `--pipeline none` or no `--pipeline`: STOP `E-SUBMIT-NEEDS-FULL` ("--submit needs --pipeline full").
+86:Examples: `/sc:issue --claim 302` (worktree level), `/sc:issue --claim 302 --pipeline none`, `/sc:issue --claim 302 --pipeline full`, `/sc:issue --claim 302 --pipeline full --submit`.
+124:| Content | exactly one word, no spaces: `worktree`, `full` or `full-submit`. `--pipeline none` writes nothing. | IR-1 |
+140:**Wave 0, new step 3** (after `gh auth status`, before the default-branch lookup and before `<D>` is created): `uv run --no-project python "<skill base>/scripts/orca_worktree.py" preflight`. `ok: 
+147:2. For `<L>` other than `none`: `uv run --no-project python "<skill base>/scripts/orca_worktree.py" prompt --template "<skill base>/templates/launch-prompt.md" --level <L> [--submit] --number <N> 
+151:**Wave 7: worktree (orchestrator, no worker).** `worktree` and `full` only; for `--pipeline none` the claim ends after the Wave 6 posts and Waves 7 and 8 do not run (amended 2026-11-08):
+155:**Wave 8: launch (orchestrator).** Runs when `<L>` is not `none` and Wave 7 `status` is `created` or `reused` (FR-21): `orca_worktree.py launch --number <N> --source <D> --level <L> [--submit]`; r
+161:3. Launch result: `launched` -> "Agent launched in <wt> (level <L>[, submit]). It stops at the plan boundary and waits; reply `approved` in its tab to let it continue." (`full` -> "It runs every s
+243:| `<D>/launch-prompt.md` | `orca_worktree.py prompt` | not for `--pipeline none`; copied to `<wt>` with the other files |
+244:| `<D>/worktree.json` | `orca_worktree.py worktree`, then `launch` | `{path, status}` plus, after a launch, `launch: {level, submit, at}`. Never copied. Not written for `--pipeline none`. To launc
+251:pipeline_level: worktree | full | none
+253:worktree_status: created | reused | failed | not_requested   # not_requested for none
+263:For `none` no worktree is created: `worktree_status` is `not_requested` and `worktree_path`, `worktree_branch`, `worktree_match_key` and `worktree_warning` are `null`. `launch_status` is `not_requ
+331:| PR-1 to PR-4 | `prompt`: `worktree` and `full` keep their own block only; `--submit` adds the `submit` block; `--submit` with `worktree` exits 2; the `full` and `common` blocks and the rendered 
+348:| LA-7 | no launch call for a `failed` worktree record and no pending record for `none` (the skill never calls `worktree` or `launch` for `none`, which creates no worktree since 2026-11-08; the te
+423:4. The pending record exists, is a `0600` file with the right word and nonce, before the launch call; it is removed when the launch fails; `none` writes none; nothing level-related is written insi
+429:**Observed runs** (owner steps after merge, on test issues only; **not run in this change**): OB-1 default claim: one new row at Orca's default location, `git merge-base HEAD origin/<B>` equals `g
+451:- **A10, a replacement worktree starts clean.** `write_record` keeps an earlier `launch` entry only for status `reused` at the same path; a `created` worktree, or one at a different path, has none
+10:> **Amended 2026-11-08** (owner decisions recorded while planning `TASK-WF-enforceTheOw
+189:orca terminal list --worktree path:<wt> --json
+190:orca terminal close --terminal <handle> --tab --json
+204:| 8 | First-tab close (2026-11-08). Only when the status is `created` (never on a reus
+286:| `W-FIRST-TAB-LEFT` | worktree (status `created`) | the plain first tab could not be 
+341:| FO-18 | exact create argv equals section 8.3 (note 2026-11-08: FO-18 stays, and the 
