@@ -1,0 +1,20 @@
+Review: Task 8 (mcp-servers: metadata in the remaining skills), attempt 1-1
+
+Earlier blocking findings: none (first review).
+
+Acceptance criteria:
+- T8.AC1 met. Diff against start b21a58d1 touches exactly these 8 files, 1 insertion and 1 deletion each (git diff --stat). Live lines:
+  - T8.AC1@src/superclaude/skills/sc-issue-protocol/SKILL.md:10 `mcp-servers: [litellm, auggie, codegraph]`
+  - T8.AC1@src/superclaude/skills/sc-cli-portify-protocol/SKILL.md:7 `mcp-servers: [litellm, context7, auggie]` (auggie-mcp replaced by auggie)
+  - T8.AC1@src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md:6 `mcp-servers: [litellm, codegraph, context7]`
+  - T8.AC1@src/superclaude/skills/sc-adversarial-protocol/SKILL.md:12 `mcp-servers: [litellm, context7]`
+  - T8.AC1@src/superclaude/skills/sc-cli-eval-protocol/SKILL.md:11 `mcp-servers: [litellm, context7]`
+  - T8.AC1@src/superclaude/skills/sc-release-split-protocol/SKILL.md:13 `mcp-servers: [litellm, context7]`
+  - T8.AC1@src/superclaude/skills/sc-roadmap-protocol/SKILL.md:13 `mcp-servers: [litellm, context7]`
+  - T8.AC1@src/superclaude/skills/sc-tasklist-protocol/SKILL.md:7 `mcp-servers: [litellm, context7]`
+  grep for `auggie-mcp` across the 8 files: no match. Every original line named auggie, auggie-mcp or context7, so adding litellm is within the "only add litellm where" rule. Other words and their order kept. No plugins/superclaude mirror exists for any of these 8 skills (plugins/superclaude/skills holds only confidence-check, sc-implement-protocol, sc-recommend, sc-workflow-protocol), and no .claude/ path is in the diff.
+- T8.AC2 met. T8.AC2@.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t8-pytest.log:1904 `1893 passed in 52.42s`, no FAILED or ERROR lines. Independent re-run of `uv run pytest tests/skills -q -p no:cacheprovider` by this reviewer: 1893 passed in 53.37s.
+
+Findings: none.
+
+Out-of-scope note (not a T8 finding): src/superclaude/skills/sc-auggie-review-protocol/SKILL.md:10 still reads `mcp-servers: [auggie, codegraph]`; that file is not in the Task 8 list.

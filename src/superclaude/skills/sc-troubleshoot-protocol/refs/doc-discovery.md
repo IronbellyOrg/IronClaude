@@ -8,7 +8,7 @@ This ref defines the three parallel discovery branches (A: release-doc, B: archi
 
 ## Section 1: Auggie query templates per branch
 
-Each branch issues ONE `mcp__auggie__codebase-retrieval` call (single message, fan-out via parallel Task spawns from the Wave 1.5 orchestrator). Each branch is dispatched with `subagent_type=troubleshoot-analyst` (closed read-only tool roster; resolved project `.claude/agents/` first, then `~/.claude/agents/`; if unavailable, use the degraded/reporting path, never an unrestricted substitute). The worker returns the branch result as data; the parent owns the `output_path` and writes it (Section 3). The placeholders `<issue_description>`, `<scope>`, and `<component_paths>` are filled by the Wave 1.5 orchestrator from the parsed Wave 0 input.
+Each branch issues ONE `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) call (single message, fan-out via parallel Task spawns from the Wave 1.5 orchestrator). Each branch is dispatched with `subagent_type=troubleshoot-analyst` (closed read-only tool roster; resolved project `.claude/agents/` first, then `~/.claude/agents/`; if unavailable, use the degraded/reporting path, never an unrestricted substitute). The worker returns the branch result as data; the parent owns the `output_path` and writes it (Section 3). The placeholders `<issue_description>`, `<scope>`, and `<component_paths>` are filled by the Wave 1.5 orchestrator from the parsed Wave 0 input.
 
 ### Branch A — Release-doc lookup
 

@@ -17,7 +17,9 @@
 #      src/, not registered → end-user `superclaude install` skips it) and no
 #      STALE (registered, missing from src/ → install crashes).
 #   3. Cross-consistency between hooks.json PostToolUse matcher prefixes and
-#      auggie-flag-clear.sh case-body prefixes.
+#      auggie-flag-clear.sh case-body prefixes (mcp__auggie__*,
+#      mcp__auggie-mcp__*, mcp__airis-mcp-gateway__auggie_*,
+#      mcp__litellm__augment_code-*).
 #
 # WHY home_strategy=shared:
 #   `make verify-sync` MUST run against the actual repository tree — an
@@ -62,7 +64,9 @@ evals:
     #   - Installer Registration: _FRESHNESS_SCRIPTS list vs.
     #     src/superclaude/hooks/scripts/*.sh — flags MISSING + STALE entries.
     #   - Hooks Cross-Consistency: hooks.json PostToolUse matcher prefixes
-    #     vs. auggie-flag-clear.sh case-body prefixes.
+    #     vs. auggie-flag-clear.sh case-body prefixes (the four globs
+    #     mcp__auggie__*, mcp__auggie-mcp__*, mcp__airis-mcp-gateway__auggie_*,
+    #     mcp__litellm__augment_code-*).
     #
     # On clean tree the target prints "✅ All components in sync." and exits 0.
     # On drift it prints "❌ DRIFT" / "MISSING from _FRESHNESS_SCRIPTS" /

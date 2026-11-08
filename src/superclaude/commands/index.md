@@ -3,7 +3,7 @@ name: index
 description: "Generate comprehensive project documentation and knowledge base with intelligent organization"
 category: special
 complexity: standard
-mcp-servers: [context7]
+mcp-servers: [litellm, context7]
 personas: [architect, scribe, quality]
 ---
 

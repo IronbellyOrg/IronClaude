@@ -23,14 +23,14 @@ hop_configuration: {max_depth: 5, timeout: 60s, parallel: true, loop_detection: 
 confidence_scoring: {relevance: 0.5, completeness: 0.5, min: 0.6, target: 0.8}
 self_reflection: {frequency: after_each_hop, triggers: [low_confidence, contradictions, 80%_time, user_intervention]}
 memory: {case_reasoning: true, pattern_learning: true, session_persistence: true, retention: 30d}
-tools: {discovery: tavily, routing: smart, parallel: true}
+tools: {discovery: tavily, routing: smart, parallel: true}  # tavily = mcp__litellm__Tavily-* through the proxy or mcp__tavily__* directly
 quality_gates: {planning: [objectives, strategy, criteria], execution: min_confidence=0.6, synthesis: coherence+clarity}
 extraction: {strategy: selective, screenshots: contextual, js_rendering: auto, timeout: 15s}
 ```
 
 ## Performance
 
-**Caching**: Tavily 1h, Playwright 24h, case patterns always.
+**Caching**: Tavily (`mcp__litellm__Tavily-*` through the proxy or `mcp__tavily__*` directly) 1h, Playwright 24h, case patterns always.
 **Parallel limits**: searches=5, extractions=3, analysis=2.
 **Resource limits**: 10min/research, 10 iterations, 5 hops, 100MB/session.
 
@@ -51,7 +51,7 @@ extraction: {strategy: selective, screenshots: contextual, js_rendering: auto, t
 | T3 | 0.5-0.7 | Community resources, user docs, verified social, Wikipedia |
 | T4 | 0.3-0.5 | User forums, unverified social, personal blogs, comments |
 
-**Domain filters:** Bind Tavily's `include_domains` / `exclude_domains` to the tiers above —
+**Domain filters:** Tavily is reached as `mcp__litellm__Tavily-*` through the proxy or `mcp__tavily__*` directly. Bind Tavily's `include_domains` / `exclude_domains` to the tiers above —
 use `include_domains` to bias `search` / `map` / `crawl` toward T1–T2 sources (academic,
 official docs, established media) and `exclude_domains` to suppress T4 sources (unverified
 social, comment threads).
@@ -90,8 +90,8 @@ result set is truncated to a maximum of **50 URLs**.
 
 | Operation | Tavily tool id | Use | Enabled at |
 |-----------|----------------|-----|-----------|
-| map | `mcp__tavily__tavily_map` | Site-structure discovery — enumerate a site's URL graph before targeted extraction | deep+ (cap `maps=2`) |
-| crawl | `mcp__tavily__tavily_crawl` | Deep domain traversal — follow links across a domain to gather many pages | exhaustive only (cap `crawls=1`, ≤50 URLs) |
+| map | `mcp__litellm__Tavily-tavily_map` (else `mcp__tavily__tavily_map`) | Site-structure discovery — enumerate a site's URL graph before targeted extraction | deep+ (cap `maps=2`) |
+| crawl | `mcp__litellm__Tavily-tavily_crawl` (else `mcp__tavily__tavily_crawl`) | Deep domain traversal — follow links across a domain to gather many pages | exhaustive only (cap `crawls=1`, ≤50 URLs) |
 
 Typical flow: `map` a domain to surface candidate URLs, then `extract` the high-value ones;
 escalate to `crawl` only at the **exhaustive** tier when broad coverage across a domain is

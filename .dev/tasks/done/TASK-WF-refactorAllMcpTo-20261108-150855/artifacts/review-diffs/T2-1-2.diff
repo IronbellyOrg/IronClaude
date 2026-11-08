@@ -1,0 +1,116 @@
+diff --git a/src/superclaude/cli/eval/coverage.py b/src/superclaude/cli/eval/coverage.py
+index a1dcfeaf..01aad3de 100644
+--- a/src/superclaude/cli/eval/coverage.py
++++ b/src/superclaude/cli/eval/coverage.py
+@@ -5,10 +5,10 @@ hook matcher pattern P registered in ``~/.claude/settings.json``, an
+ eval MUST exist in the suite under test that issues a real tool call
+ whose name matches P. The bug PR #49 fixed was exactly this class of
+ silent regression — a matcher pattern broke and no eval noticed because
+-no eval issued a matching tool call. The v1 surface covers the three
+-known auggie-prefix matchers (``mcp__auggie__*``, ``mcp__auggie-mcp__*``,
+-``mcp__airis-mcp-gateway__*``); future suites extend the coverage by
+-declaring additional ``expect_tool_call`` inputs.
++no eval issued a matching tool call. The v1 surface covers the four
++known MCP-prefix matchers (``mcp__auggie__*``, ``mcp__auggie-mcp__*``,
++``mcp__airis-mcp-gateway__*``, ``mcp__litellm__*``); future suites extend
++the coverage by declaring additional ``expect_tool_call`` inputs.
+ 
+ Public surface
+ ==============
+@@ -93,7 +93,7 @@ so the artifact can also be tar'd up without escaping.
+ """
+ 
+ 
+-# v1 covers these three MCP tool prefixes per design-spec §1.5. The
++# v1 covers these four MCP tool prefixes per design-spec §1.5. The
+ # tuple is module-private because the default filter is exported as a
+ # function — callers that need to extend coverage compose their own
+ # predicate rather than mutating this list.
+@@ -101,6 +101,7 @@ _DEFAULT_MCP_TOOL_PREFIXES: tuple[str, ...] = (
+     "mcp__auggie__",
+     "mcp__auggie-mcp__",
+     "mcp__airis-mcp-gateway__",
++    "mcp__litellm__",
+ )
+ 
+ 
+@@ -196,7 +197,7 @@ def default_matcher_filter(pattern: str) -> bool:
+     tool prefixes with built-in tool names — these are bookkeeping
+     hooks that no eval needs to issue a tool call for. The v1 gate
+     therefore restricts itself to matchers that mention one of the
+-    three known auggie/airis MCP prefixes; T05.25 extends the
++    four known auggie/airis/litellm MCP prefixes; T05.25 extends the
+     predicate as additional MCP tool families come online.
+     """
+     return any(prefix in pattern for prefix in _DEFAULT_MCP_TOOL_PREFIXES)
+@@ -250,7 +251,8 @@ def eval_covers_pattern(spec: EvalSpec, pattern: str) -> bool:
+     """Return ``True`` if ``spec`` issues any tool call matched by ``pattern``.
+ 
+     ``pattern`` is compiled with :func:`re.search` so a matcher like
+-    ``mcp__auggie__.*`` correctly anchors against the prefix. An
++    ``mcp__auggie__.*`` or ``mcp__litellm__augment_code-.*`` correctly
++    anchors against the prefix. An
+     unparseable pattern returns ``False`` rather than raising so the
+     gate can still report it as ``missing`` (with the regex error
+     surfaced via the artifact payload).
+diff --git a/src/superclaude/cli/eval/suites/installer_sync_drift.yaml b/src/superclaude/cli/eval/suites/installer_sync_drift.yaml
+index 76f9cc0c..4364a0e2 100644
+--- a/src/superclaude/cli/eval/suites/installer_sync_drift.yaml
++++ b/src/superclaude/cli/eval/suites/installer_sync_drift.yaml
+@@ -17,7 +17,9 @@
+ #      src/, not registered → end-user `superclaude install` skips it) and no
+ #      STALE (registered, missing from src/ → install crashes).
+ #   3. Cross-consistency between hooks.json PostToolUse matcher prefixes and
+-#      auggie-flag-clear.sh case-body prefixes.
++#      auggie-flag-clear.sh case-body prefixes (mcp__auggie__*,
++#      mcp__auggie-mcp__*, mcp__airis-mcp-gateway__auggie_*,
++#      mcp__litellm__augment_code-*).
+ #
+ # WHY home_strategy=shared:
+ #   `make verify-sync` MUST run against the actual repository tree — an
+@@ -62,7 +64,9 @@ evals:
+     #   - Installer Registration: _FRESHNESS_SCRIPTS list vs.
+     #     src/superclaude/hooks/scripts/*.sh — flags MISSING + STALE entries.
+     #   - Hooks Cross-Consistency: hooks.json PostToolUse matcher prefixes
+-    #     vs. auggie-flag-clear.sh case-body prefixes.
++    #     vs. auggie-flag-clear.sh case-body prefixes (the four globs
++    #     mcp__auggie__*, mcp__auggie-mcp__*, mcp__airis-mcp-gateway__auggie_*,
++    #     mcp__litellm__augment_code-*).
+     #
+     # On clean tree the target prints "✅ All components in sync." and exits 0.
+     # On drift it prints "❌ DRIFT" / "MISSING from _FRESHNESS_SCRIPTS" /
+diff --git a/src/superclaude/cli/eval/suites/real.yaml b/src/superclaude/cli/eval/suites/real.yaml
+index 52b207b3..df75aa00 100644
+--- a/src/superclaude/cli/eval/suites/real.yaml
++++ b/src/superclaude/cli/eval/suites/real.yaml
+@@ -69,8 +69,9 @@ evals:
+   # E2.1 / E2.2 / E2.3 — auggie matcher-coverage trio. T05.03 authors
+   # E2.1 with its full body; T05.04 / T05.05 land E2.2 / E2.3 bodies.
+   # OQ-2 (D-0082 §3 hook-surface coverage map) freezes E2.1-3 as the
+-  # static coverage triad for the PostToolUse `mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*`
+-  # matcher. Splitting the original E2 parameterize block into three
++  # static coverage triad for the PostToolUse `mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*|mcp__litellm__augment_code-.*`
++  # matcher (the `mcp__litellm__augment_code-.*` branch, issue #454, has
++  # no E2 entry here; its hook behaviour is pinned by tests/hooks/). Splitting the original E2 parameterize block into three
+   # static entries (vs. one ``parameterize:`` row) is mandated by two
+   # v1 constraints: (a) per-entry `requires:` capability tags differ
+   # (FR-CAP1 — D-0082 §6), and (b) no runtime template-substitution
+diff --git a/tests/cli/eval/test_coverage_gate.py b/tests/cli/eval/test_coverage_gate.py
+index 287b8014..f47c0dad 100644
+--- a/tests/cli/eval/test_coverage_gate.py
++++ b/tests/cli/eval/test_coverage_gate.py
+@@ -134,6 +134,14 @@ def test_eval_covers_pattern_handles_invalid_regex() -> None:
+     assert eval_covers_pattern(spec, "[broken") is False
+ 
+ 
++def test_litellm_augment_matcher_is_selected_and_covered() -> None:
++    """Issue #454: the LiteLLM proxy Augment matcher is in scope and coverable."""
++    pattern = "mcp__litellm__augment_code-.*"
++    assert default_matcher_filter(pattern) is True
++    spec = _spec("E1", "mcp__litellm__augment_code-augment_code_search")
++    assert eval_covers_pattern(spec, pattern) is True
++
++
+ def test_eval_covers_pattern_ignores_non_string_tool_calls() -> None:
+     spec = EvalSpec(
+         id="E1",

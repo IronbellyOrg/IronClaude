@@ -1,7 +1,7 @@
 ---
 name: sc-recommend
 description: "Build a refined, paste-ready prompt that hands the user's request off to the right local skill, command, agent, or native-tool sequence — only when delegation adds net value. Use this skill whenever the user asks 'which command should I use', 'how do I best prompt for X', 'help me invoke the right skill for Y', 'recommend a workflow for Z', or describes a task without naming a command. Also use proactively whenever the user pastes a goal that could plausibly map onto multiple skills/agents/commands in this repo and you would otherwise have to choose blindly. With --plugin, switches to ecosystem search (Claude plugin marketplaces + community skill repos) instead of the local project surface."
-allowed-tools: Read, Glob, Grep, Bash, mcp__auggie__codebase-retrieval, mcp__tavily__tavily_search, mcp__tavily__tavily_extract, WebFetch, WebSearch, Edit, Write, Agent, Task
+allowed-tools: Read, Glob, Grep, Bash, mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval, mcp__litellm__Tavily-tavily_search, mcp__tavily__tavily_search, mcp__litellm__Tavily-tavily_extract, mcp__tavily__tavily_extract, WebFetch, WebSearch, Edit, Write, Agent, Task
 argument-hint: "[goal description] [--plugin] [--minstar <N>] [--eval none|quick|normal|deep]"
 category: utility
 ---
@@ -131,7 +131,7 @@ See `refs/surface-enumeration.md` for the full algorithm, the verification recor
 
 ### Step B — MANDATORY auggie semantic ranking
 
-Skip this step in matched mode (Step 0 matched a routing row) and set `auggie_status: skipped`. Otherwise, after enumeration, issue **one** `mcp__auggie__codebase-retrieval` query to semantically rank the enumerated surface against the user's request. Auggie is the speed lever: one semantic query ranks the whole surface; do not iterate file-by-file.
+Skip this step in matched mode (Step 0 matched a routing row) and set `auggie_status: skipped`. Otherwise, after enumeration, issue **one** codebase-search query to semantically rank the enumerated surface against the user's request. Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep. Auggie is the speed lever: one semantic query ranks the whole surface; do not iterate file-by-file.
 
 Query shape:
 

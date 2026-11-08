@@ -1,0 +1,44 @@
+Review: Task 13 (Update comments and user docs), attempt 1-1
+Start sha: ac980dee6087a0dafbc2c06717fad85da8a9f454
+
+Earlier blocking findings: none (first review).
+
+Acceptance criteria
+
+T13.AC1 met at src/superclaude/cli/reflect/config.py:162 and src/superclaude/cli/reflect/config.py:200
+  `git diff ac980dee -- src/superclaude/cli/reflect/config.py` changes exactly four lines, all inside the
+  create_review_snapshot docstring (:161-163) and the `# (3)` comment (:200-201). No executable line changed.
+  The new wording ("kept inside the repository so Grep and codegraph reach it") matches design 3.7 item 2.
+
+T13.AC2 met at .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t13-pytest.log:97
+  Log exists at the package's artifacts/ folder and records `uv run pytest tests -k "docs or reflect_config"`
+  output: "86 passed, 1 skipped, 24634 deselected in 27.19s" (log :8 shows 86 selected, no failures).
+
+Scope checks (brief items, verified against live files and the diff)
+
+- docs/user-guide/mcp-servers.md:138 AUG short form appended to the auggie Tools line: present, verbatim.
+- docs/user-guide/mcp-servers.md:161-167 litellm section: served tool list (augment, 5 Tavily, 2 Context7)
+  matches design section 1 table (.dev/issues/454/design/design.md:16-18, which lists Tavily research as
+  served); AUG parameters (repo_owner/repo_name from `git remote get-url origin`, branch = default branch)
+  and the pushed-code-only note with the codegraph/Grep fallback are present. Listing
+  `Tavily-tavily_research` as a served tool is a factual doc of the proxy, not an allow-list addition, so the
+  "TAV-research is not added anywhere" rule (design :52, scoped to callers/allow-lists) is not breached.
+- docs/user-guide/eval-pipeline.md:261-266 now lists four prefixes including `mcp__litellm__*`; this agrees
+  with live code src/superclaude/cli/eval/coverage.py:101-104 (tuple includes "mcp__litellm__") and the
+  module docstring coverage.py:9-10.
+- docs/user-guide/brainstorm.md:17 and docs/user-guide/commands.md:784, :935: `auggie-mcp` replaced by the AUG
+  short form (AUG first, then `mcp__auggie__codebase-retrieval`). The brainstorm v1 column still says
+  auggie-mcp; that column describes the old version and is correctly left alone.
+- docs/guides/prd-skill-release-guide.md:161, :434 and docs/guides/tdd-skill-release-guide.md:160, :441: bare
+  "codebase-retrieval" replaced by the AUG short form, verbatim.
+- docs/eval/validation-commands.md and docs/testing/: not in the diff (unchanged as required).
+- No `.claude/` path, no hard-coded owner/repo/branch, no `src/superclaude/...` path in an installed primitive,
+  no key or token in any changed line.
+
+Findings
+
+F1.1 ac=scope at=src/superclaude/cli/reflect/config.py:162 anchor=src/superclaude/cli/reflect/config.py:359 chk=n,n,n,n family=comment-precision fix=optional: say "kept under the output folder, which by default is inside the repository" : The new comment says the snapshot is "kept inside the repository", but the snapshot is placed under `config.output_dir` (config.py:178), and an explicit `--output` is resolved to any path (config.py:358-359). The claim holds for the default `<task-dir>/reflect/post/<short-sha>/` (config.py:275) and is the wording the brief and design 3.7 item 2 dictate, so it is non-blocking.
+
+F1.2 ac=scope at=docs/user-guide/mcp-servers.md:164 anchor=docs/user-guide/mcp-servers.md:164 chk=n,n,n,n family=doc-precision fix=optional: describe map/crawl/research as "search, extraction, site mapping, crawling and research" : The Tavily line labels all five served tools "Tavily web search and extraction", which under-describes map, crawl and research. Wording only; non-blocking.
+
+No blocking findings.

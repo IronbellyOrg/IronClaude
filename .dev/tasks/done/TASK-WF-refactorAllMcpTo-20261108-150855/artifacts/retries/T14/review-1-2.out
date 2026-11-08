@@ -1,0 +1,19 @@
+Review: Task 14 (Remove the repository `.mcp.json` auggie-mcp stdio entry), attempt 1, review 2
+
+Earlier blocking findings:
+F1.1 resolved
+
+Evidence for F1.1: .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-skipped.md:5 now reads "Owner decision 2 (approval to delete the repository root `.mcp.json` and its `auggie-mcp` stdio entry) was not approved", which matches the plan definition at .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/TASK-WF-refactorAllMcpTo-20261108-150855.md:158 ("Precondition: the owner approved removal (owner question 2)").
+
+Acceptance criteria:
+T14.AC1 met @ .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-skipped.md:3
+- Skip branch taken. The artifact exists and line 3 holds the required literal "skipped: owner decision 2 open".
+- Verified live: `git diff --quiet .mcp.json tests/cli/test_mcp_project_config.py` exits 0 (working tree against index); `git diff --cached --quiet` on the same paths exits 0; `git diff --quiet 9922c336c53dc1d1e012c8fe126c8ca8b7e97072 -- .mcp.json tests/cli/test_mcp_project_config.py` exits 0. Both files are still present (.mcp.json, tests/cli/test_mcp_project_config.py).
+- Product diff against the start sha 9922c336 for `tests`, `src`, `plugins` and `.mcp.json` is empty, so this task made no product change, as the skip branch requires.
+- The artifact's own claim at t14-skipped.md:5 that the git diff check holds is true against live state.
+
+Scope check:
+- The only new file from this task is the skip artifact (currently untracked: `?? .../artifacts/t14-skipped.md`). It is not staged yet; the global constraint "`.dev/tasks/` is always staged" applies at the run's staging step, not as a T14 acceptance criterion, so it is not raised as a blocking finding here. The orchestrator should run `git add .dev/tasks` as usual.
+- Working-tree modifications under docs/, plugins/, src/ and tests/cli/ predate the start sha (diff against 9922c336 for those paths is empty) and belong to earlier tasks.
+
+New findings: none.

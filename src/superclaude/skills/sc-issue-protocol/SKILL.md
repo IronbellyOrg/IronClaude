@@ -7,7 +7,7 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, Skill, AskUserQuestion
 <!-- Extended metadata (for documentation, not parsed):
 category: workflow
 complexity: advanced
-mcp-servers: [auggie, codegraph]
+mcp-servers: [litellm, auggie, codegraph]
 -->
 
 # /sc:issue protocol

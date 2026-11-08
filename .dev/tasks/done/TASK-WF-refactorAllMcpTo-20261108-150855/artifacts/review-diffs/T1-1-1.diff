@@ -1,0 +1,241 @@
+diff --git a/plugins/superclaude/hooks/hooks.json b/plugins/superclaude/hooks/hooks.json
+index 3d6e03a7..005b826b 100644
+--- a/plugins/superclaude/hooks/hooks.json
++++ b/plugins/superclaude/hooks/hooks.json
+@@ -116,7 +116,7 @@
+         ]
+       },
+       {
+-        "matcher": "mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*",
++        "matcher": "mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*|mcp__litellm__augment_code-.*",
+         "hooks": [
+           {
+             "type": "command",
+diff --git a/plugins/superclaude/hooks/scripts/auggie-flag-clear.sh b/plugins/superclaude/hooks/scripts/auggie-flag-clear.sh
+index 7d6af8fb..c4ee84c8 100755
+--- a/plugins/superclaude/hooks/scripts/auggie-flag-clear.sh
++++ b/plugins/superclaude/hooks/scripts/auggie-flag-clear.sh
+@@ -1,5 +1,6 @@
+ #!/usr/bin/env bash
+-# PostToolUse: clear auggie-first sticky after any mcp__auggie__* tool call.
++# PostToolUse: clear auggie-first sticky after any auggie-prefixed or Augment proxy tool call
++# (mcp__auggie__*, mcp__auggie-mcp__*, mcp__airis-mcp-gateway__auggie_*, mcp__litellm__augment_code-*).
+ # auggie-first-hook-proposal-v2.1.md §6 — synchronous (no async:true) per spec-panel Wh-8.
+ # Fail-open per NFR-3.
+ set -u
+@@ -19,7 +20,7 @@ TOOL_NAME=$(printf '%s' "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || tr
+ [ -z "$SESSION_ID" ] && exit 0
+ 
+ case "$TOOL_NAME" in
+-    mcp__auggie__*|mcp__airis-mcp-gateway__auggie_*)
++    mcp__auggie__*|mcp__auggie-mcp__*|mcp__airis-mcp-gateway__auggie_*|mcp__litellm__augment_code-*)
+         STICKY="$STATE_DIR/auggie-first-pending/$SESSION_ID.txt"
+         if [ -f "$STICKY" ]; then
+             rm -f "$STICKY" 2>/dev/null || true
+diff --git a/src/superclaude/hooks/hooks.json b/src/superclaude/hooks/hooks.json
+index 8fa3755c..da09d9b1 100644
+--- a/src/superclaude/hooks/hooks.json
++++ b/src/superclaude/hooks/hooks.json
+@@ -146,7 +146,7 @@
+         ]
+       },
+       {
+-        "matcher": "mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*",
++        "matcher": "mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*|mcp__litellm__augment_code-.*",
+         "hooks": [
+           {
+             "type": "command",
+diff --git a/src/superclaude/hooks/scripts/auggie-flag-clear.sh b/src/superclaude/hooks/scripts/auggie-flag-clear.sh
+index c740392f..c4ee84c8 100755
+--- a/src/superclaude/hooks/scripts/auggie-flag-clear.sh
++++ b/src/superclaude/hooks/scripts/auggie-flag-clear.sh
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env bash
+-# PostToolUse: clear auggie-first sticky after any auggie-prefixed tool call
+-# (mcp__auggie__*, mcp__auggie-mcp__*, mcp__airis-mcp-gateway__auggie_*).
++# PostToolUse: clear auggie-first sticky after any auggie-prefixed or Augment proxy tool call
++# (mcp__auggie__*, mcp__auggie-mcp__*, mcp__airis-mcp-gateway__auggie_*, mcp__litellm__augment_code-*).
+ # auggie-first-hook-proposal-v2.1.md §6 — synchronous (no async:true) per spec-panel Wh-8.
+ # Fail-open per NFR-3.
+ set -u
+@@ -20,7 +20,7 @@ TOOL_NAME=$(printf '%s' "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || tr
+ [ -z "$SESSION_ID" ] && exit 0
+ 
+ case "$TOOL_NAME" in
+-    mcp__auggie__*|mcp__auggie-mcp__*|mcp__airis-mcp-gateway__auggie_*)
++    mcp__auggie__*|mcp__auggie-mcp__*|mcp__airis-mcp-gateway__auggie_*|mcp__litellm__augment_code-*)
+         STICKY="$STATE_DIR/auggie-first-pending/$SESSION_ID.txt"
+         if [ -f "$STICKY" ]; then
+             rm -f "$STICKY" 2>/dev/null || true
+diff --git a/tests/cli/eval/test_expect_settings_json.py b/tests/cli/eval/test_expect_settings_json.py
+index c3d55832..963d9348 100644
+--- a/tests/cli/eval/test_expect_settings_json.py
++++ b/tests/cli/eval/test_expect_settings_json.py
+@@ -325,7 +325,12 @@ def test_equals_supports_list_values(
+     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
+ ) -> None:
+     """``equals`` compares JSON arrays with strict order + element parity."""
+-    matchers = ["mcp__auggie__*", "mcp__auggie-mcp__*", "mcp__airis-mcp-gateway__*"]
++    matchers = [
++        "mcp__auggie__*",
++        "mcp__auggie-mcp__*",
++        "mcp__airis-mcp-gateway__*",
++        "mcp__litellm__augment_code-*",
++    ]
+     _write_settings(home, {"hooks": {"matchers": matchers}})
+     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path)
+     result = Expect.settings_json(
+diff --git a/tests/cli/test_verify_sync_hooks.py b/tests/cli/test_verify_sync_hooks.py
+index a359e2a6..c88e3af9 100644
+--- a/tests/cli/test_verify_sync_hooks.py
++++ b/tests/cli/test_verify_sync_hooks.py
+@@ -213,7 +213,9 @@ def test_V7_regression_to_master():  # noqa: N802 — V1-V7 are release-spec §9
+             if "auggie-flag-clear" in h.get("command", ""):
+                 reg["matcher"] = "mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*"
+     original_script = AUGGIE_FLAG_CLEAR.read_text()
+-    mutated_script = original_script.replace("|mcp__auggie-mcp__*", "")
++    mutated_script = original_script.replace("|mcp__auggie-mcp__*", "").replace(
++        "|mcp__litellm__augment_code-*", ""
++    )
+     with _temporarily_replace_file(HOOKS_JSON, json.dumps(new_data, indent=2)):
+         with _temporarily_replace_file(AUGGIE_FLAG_CLEAR, mutated_script):
+             result = _run_verify_sync()
+diff --git a/tests/hooks/test_auggie_first.py b/tests/hooks/test_auggie_first.py
+index 8ea9e5c6..ed5cacd7 100644
+--- a/tests/hooks/test_auggie_first.py
++++ b/tests/hooks/test_auggie_first.py
+@@ -82,6 +82,40 @@ def test_gateway_alias_clears_sticky(tmp_path: Path) -> None:
+     assert '"event":"sticky_cleared"' in telemetry
+ 
+ 
++def test_litellm_augment_proxy_clears_sticky(tmp_path: Path) -> None:
++    """The LiteLLM proxy name for Augment codebase search also clears the sticky."""
++    home = tmp_path / "home"
++    sid = "test-clear-litellm"
++    (home / ".claude" / "state" / "auggie-first-pending").mkdir(
++        parents=True, exist_ok=True
++    )
++    _sticky_path(home, sid).write_text("pending\n")
++    payload = {
++        "session_id": sid,
++        "tool_name": "mcp__litellm__augment_code-augment_code_search",
++    }
++    result = _run_hook(payload, fake_home=home)
++    assert result.returncode == 0, result.stderr.decode()
++    assert not _sticky_path(home, sid).exists()
++    telemetry = (home / ".claude" / "logs" / "auggie-first.jsonl").read_text()
++    assert '"tool":"mcp__litellm__augment_code-augment_code_search"' in telemetry
++
++
++def test_litellm_non_augment_tool_preserves_sticky(tmp_path: Path) -> None:
++    """Other LiteLLM proxy tools (Tavily) are not codebase search and keep the sticky."""
++    home = tmp_path / "home"
++    sid = "test-preserve-litellm-tavily"
++    (home / ".claude" / "state" / "auggie-first-pending").mkdir(
++        parents=True, exist_ok=True
++    )
++    sticky = _sticky_path(home, sid)
++    sticky.write_text("pending\n")
++    payload = {"session_id": sid, "tool_name": "mcp__litellm__Tavily-tavily_search"}
++    result = _run_hook(payload, fake_home=home)
++    assert result.returncode == 0, result.stderr.decode()
++    assert sticky.exists(), "sticky must survive non-Augment proxy tool calls"
++
++
+ def test_unrelated_tool_preserves_sticky(tmp_path: Path) -> None:
+     """A non-auggie tool name must not clear the sticky."""
+     home = tmp_path / "home"
+diff --git a/tests/hooks/test_auggie_flag_clear_mcp_prefix.py b/tests/hooks/test_auggie_flag_clear_mcp_prefix.py
+index 3ec53a71..c64c13cc 100644
+--- a/tests/hooks/test_auggie_flag_clear_mcp_prefix.py
++++ b/tests/hooks/test_auggie_flag_clear_mcp_prefix.py
+@@ -114,6 +114,11 @@ _AUGGIE_PREFIX_RE = re.compile(
+ )
+ 
+ 
++def _is_search_prefix(part: str) -> bool:
++    """Auggie prefixes plus the LiteLLM proxy's Augment prefix (issue #454)."""
++    return "auggie" in part or "augment_code" in part
++
++
+ def _normalize_prefixes(raw: list[str]) -> set[str]:
+     """Strip trailing ``.*`` (regex) and ``*`` (glob) so both forms compare equal."""
+     out: set[str] = set()
+@@ -131,7 +136,7 @@ def _extract_matcher_prefixes() -> set[str]:
+         if "auggie" not in matcher:
+             continue
+         parts = matcher.split("|")
+-        return _normalize_prefixes([p for p in parts if "auggie" in p])
++        return _normalize_prefixes([p for p in parts if _is_search_prefix(p)])
+     return set()
+ 
+ 
+@@ -142,7 +147,7 @@ def _extract_case_prefixes() -> set[str]:
+     match = re.search(r"case\s+\"\$TOOL_NAME\"\s+in\s*\n\s*([^\n)]+)\)", body)
+     assert match, "could not locate case body in auggie-flag-clear.sh"
+     parts = match.group(1).split("|")
+-    return _normalize_prefixes([p.strip() for p in parts if "auggie" in p])
++    return _normalize_prefixes([p.strip() for p in parts if _is_search_prefix(p)])
+ 
+ 
+ def test_matcher_and_case_body_reference_same_auggie_prefixes() -> None:
+@@ -175,3 +180,59 @@ def test_pr47_widened_prefixes_present_in_both_surfaces() -> None:
+         f"auggie-flag-clear.sh case body missing mcp__auggie-mcp__ prefix; "
+         f"got {sorted(case_prefixes)}"
+     )
++
++
++def test_litellm_augment_prefix_present_in_both_surfaces() -> None:
++    """Issue #454 lands ``mcp__litellm__augment_code-`` in both files. Pin it."""
++    assert "mcp__litellm__augment_code-" in _extract_matcher_prefixes()
++    assert "mcp__litellm__augment_code-" in _extract_case_prefixes()
++
++
++def test_litellm_augment_proxy_clears_sticky(tmp_path: Path) -> None:
++    """The LiteLLM proxy's Augment search tool clears the sticky (issue #454)."""
++    home = tmp_path / "home"
++    sid = "test-litellm-augment"
++    (home / ".claude" / "state" / "auggie-first-pending").mkdir(
++        parents=True, exist_ok=True
++    )
++    _sticky_path(home, sid).write_text("pending\n")
++    payload = {
++        "session_id": sid,
++        "tool_name": "mcp__litellm__augment_code-augment_code_search",
++    }
++    result = _run_hook(payload, fake_home=home)
++    assert result.returncode == 0, result.stderr.decode()
++    assert not _sticky_path(home, sid).exists()
++    telemetry = (home / ".claude" / "logs" / "auggie-first.jsonl").read_text()
++    assert '"tool":"mcp__litellm__augment_code-augment_code_search"' in telemetry
++
++
++def test_litellm_tavily_proxy_does_not_clear_sticky(tmp_path: Path) -> None:
++    """A LiteLLM proxy tool that is not Augment search leaves the sticky in place."""
++    home = tmp_path / "home"
++    sid = "test-litellm-tavily"
++    (home / ".claude" / "state" / "auggie-first-pending").mkdir(
++        parents=True, exist_ok=True
++    )
++    _sticky_path(home, sid).write_text("pending\n")
++    payload = {"session_id": sid, "tool_name": "mcp__litellm__Tavily-tavily_search"}
++    result = _run_hook(payload, fake_home=home)
++    assert result.returncode == 0, result.stderr.decode()
++    assert _sticky_path(home, sid).exists()
++
++
++def _flag_clear_matcher(path: Path) -> str:
++    data = json.loads(path.read_text())
++    for entry in data["hooks"]["PostToolUse"]:
++        for h in entry.get("hooks", []):
++            if "auggie-flag-clear" in h.get("command", ""):
++                return entry.get("matcher", "")
++    return ""
++
++
++def test_plugin_and_src_flag_clear_matchers_agree() -> None:
++    """The plugin hooks.json flag-clear matcher must equal the src one."""
++    plugin_json = REPO_ROOT / "plugins" / "superclaude" / "hooks" / "hooks.json"
++    src_matcher = _flag_clear_matcher(HOOKS_JSON)
++    assert src_matcher, "src hooks.json has no auggie-flag-clear registration"
++    assert _flag_clear_matcher(plugin_json) == src_matcher

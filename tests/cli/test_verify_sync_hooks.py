@@ -213,7 +213,9 @@ def test_V7_regression_to_master():  # noqa: N802 — V1-V7 are release-spec §9
             if "auggie-flag-clear" in h.get("command", ""):
                 reg["matcher"] = "mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*"
     original_script = AUGGIE_FLAG_CLEAR.read_text()
-    mutated_script = original_script.replace("|mcp__auggie-mcp__*", "")
+    mutated_script = original_script.replace("|mcp__auggie-mcp__*", "").replace(
+        "|mcp__litellm__augment_code-*", ""
+    )
     with _temporarily_replace_file(HOOKS_JSON, json.dumps(new_data, indent=2)):
         with _temporarily_replace_file(AUGGIE_FLAG_CLEAR, mutated_script):
             result = _run_verify_sync()

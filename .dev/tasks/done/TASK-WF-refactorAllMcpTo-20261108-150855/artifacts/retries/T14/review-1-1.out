@@ -1,0 +1,23 @@
+Review: Task 14 (Remove the repository `.mcp.json` auggie-mcp stdio entry), attempt 1-1
+Start snapshot: 9922c336c53dc1d1e012c8fe126c8ca8b7e97072 (a git tree object). HEAD 0423fe5f.
+
+Earlier blocking findings: none (first review).
+
+Evidence gathered live (not from the implementer's report):
+- `.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-skipped.md` exists (380 bytes); line 3 reads "skipped: owner decision 2 open".
+- `git diff --quiet .mcp.json tests/cli/test_mcp_project_config.py` -> exit 0 (working tree vs index).
+- `git diff --cached --quiet .mcp.json tests/cli/test_mcp_project_config.py` -> exit 0 (index vs HEAD).
+- `git diff --quiet 9922c336 -- .mcp.json tests/cli/test_mcp_project_config.py` -> exit 0 (no change vs start snapshot).
+- `git diff --stat 9922c336 -- . ':!.dev'` -> empty: the product diff for this task is empty.
+- `.mcp.json:3-5` still holds the `auggie-mcp` stdio entry with `"command": "auggie"`, as expected for the skip branch.
+- No `t14-pytest.log` and no deletion; the approved branch was correctly not taken.
+
+AC status:
+- T14.AC1 met (skip branch) @.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-skipped.md:3 and .mcp.json:3 (unchanged vs start; `git diff --quiet .mcp.json tests/cli/test_mcp_project_config.py` exit 0).
+
+Findings:
+F1.1 ac=scope at=.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-skipped.md:5 anchor=.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/TASK-WF-refactorAllMcpTo-20261108-150855.md:158 chk=n,y,n,n family=artifact-text-accuracy fix=Replace the parenthetical "(whether the project `.mcp.json` should register the LiteLLM proxy)" with "(approval to delete the repository root `.mcp.json` and its `auggie-mcp` stdio entry)", matching plan line 158. covers="Precondition: the owner approved removal (owner question 2)": The skip artifact describes owner decision 2 as "whether the project `.mcp.json` should register the LiteLLM proxy", but the plan (line 158) defines owner question 2 as approval of removal of `.mcp.json`. The required literal "skipped: owner decision 2 open" (line 3) is present and correct, so the AC outcome is unaffected; only the explanatory sentence on line 5 misstates what the open decision is.
+
+Not findings (checked and clean):
+- No edit to `.mcp.json` or `tests/cli/test_mcp_project_config.py` in worktree, index, or vs the start snapshot.
+- No product-file change attributable to this task (diff vs start tree excluding `.dev/` is empty); no harmful write, no secret exposure, no `.claude/` path touched by this task.

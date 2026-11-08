@@ -1,0 +1,14 @@
+# Review T16 attempt 1-1 (spec compliance)
+
+## Earlier blocking findings
+(none: first review)
+
+## Acceptance criteria
+- T16.AC1 met: `make lint` and `make verify-sync` exit 0, with logs at the required paths. Citations: T16.AC1@.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t16-lint.log (tail: "All checks passed!" / "exit=0") and T16.AC1@.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t16-verify-sync.log (tail: "All components in sync." / "exit=0"). Independent rerun by this reviewer: `make lint` exit 0 ("All checks passed!"), `make verify-sync` exit 0 with 0 failure marks.
+- T16.AC2 met: T16.AC2@.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t16-tests.log:5 records the listed directories as 9334 passed, 17 skipped, 1 xpassed, exit 0. Line 10 records `make test` as 24574 passed, 149 skipped, 2 xpassed, exit 0, and line 11 records no failures, so no comparison run on 0423fe5f was needed. Independent rerun of the listed directories by this reviewer gave the same result: 9334 passed, 17 skipped, 1 xpassed, exit 0. The full `make test` run was not repeated (it takes about 16 minutes); its count is accepted from the log.
+- T16.AC3 met: T16.AC3@.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t16-tests.log:14 says count=0. Live check: `git status --short .claude` prints nothing, and `git diff --cached --name-only` lists 0 `.claude/` paths. The three t16 logs and progress.md are staged (`A`), so the `.dev/tasks` staging rule is met.
+
+## Findings
+(none blocking)
+
+Non-blocking note (no finding line): the snapshot diff shows tests/skills/test_mcp_proxy_names.py deleted and then re-added with identical content (index a761f7bc on both sides), so it changes nothing. The file is currently untracked (`??`). It belongs to Task 15, and no Task 16 AC requires it to be staged.

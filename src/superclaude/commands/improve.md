@@ -3,7 +3,7 @@ name: improve
 description: "Apply systematic improvements to code quality, performance, and maintainability"
 category: workflow
 complexity: standard
-mcp-servers: [context7]
+mcp-servers: [litellm, context7]
 personas: [architect, performance, quality, security]
 ---
 

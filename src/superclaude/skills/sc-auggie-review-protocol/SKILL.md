@@ -222,7 +222,8 @@ auggie --print \
 3. **File:line validation pass** (non-negotiable):
    - For each finding, `Read` the cited file at the cited line range. Confirm the line exists and (where possible) confirm the cited snippet actually appears on that line.
    - For PR/diff mode, additionally confirm the line is within the diff hunks (a finding citing a line nowhere near the changes is downgraded to "context" or dropped, depending on severity).
-   - For `needs-grounding` findings, attempt to ground them using `mcp__auggie__codebase-retrieval`, `codegraph_search` / `codegraph_callers` (definition and caller cross-check, only when `index_state: fresh`; then Read the line) or `Grep`. If grounding succeeds, promote; if not, drop and log.
+   - For `needs-grounding` findings, attempt to ground them using codebase search (below), `codegraph_search` / `codegraph_callers` (definition and caller cross-check, only when `index_state: fresh`; then Read the line) or `Grep`. If grounding succeeds, promote; if not, drop and log.
+     Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep.
 4. **Dedupe pass**:
    - Findings on the same `file:line` with similar titles → merge, keep the higher severity and union the evidence.
    - Findings that are restatements of the PR description's own caveats → drop with a note in the audit log.

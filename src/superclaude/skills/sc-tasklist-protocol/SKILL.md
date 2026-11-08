@@ -4,7 +4,7 @@ description: "Deterministic roadmap-to-tasklist generator with integrated roadma
 category: utility
 complexity: high
 allowed-tools: Read, Glob, Grep, Write, Bash, TaskCreate, TaskUpdate, TaskList, TaskGet, Task, Skill
-mcp-servers: [context7]
+mcp-servers: [litellm, context7]
 personas: [analyzer, architect]
 argument-hint: "<roadmap-path> [--spec <spec-path>] [--output <output-dir>] [--no-reflect]"
 ---

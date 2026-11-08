@@ -258,11 +258,12 @@ The FR-G5 hook-matcher coverage gate enforces that **every** PostToolUse hook ma
 - `eval doctor --check-coverage [--suite <name>]` — wires the FR-G5 coverage gate marker into the doctor payload (`eval doctor --help`: "full gate lands in M4 T04.14")
 - `eval run` — implicit at the top of every run, AFTER suite parse and BEFORE any worker is dispatched (so a coverage breach short-circuits without touching any per-eval HOME)
 
-**v1 coverage scope:** the three auggie-prefix matcher families:
+**v1 coverage scope:** the four auggie-prefix matcher families:
 
 - `mcp__auggie__*`
 - `mcp__auggie-mcp__*`
 - `mcp__airis-mcp-gateway__*`
+- `mcp__litellm__*`
 
 **Failure modes:**
 

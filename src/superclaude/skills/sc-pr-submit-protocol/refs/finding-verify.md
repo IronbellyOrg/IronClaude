@@ -8,7 +8,8 @@ rather than authoring a new verifier.
 
 > **Inside the core-purity boundary (NFR-6).** This wave is **read-only**: it `Read`s cited lines and
 > spawns a read-only validator agent. It performs NO version-control mutation and contains no shell
-> command tokens. The verdict it emits (`verified` / `unverified`) is consumed by the FSM.
+> command tokens other than the read-only `git remote get-url origin` lookup that the codebase-search
+> step below names. The verdict it emits (`verified` / `unverified`) is consumed by the FSM.
 
 ## Governing rule — the hallucination contract (reuse, verbatim)
 
@@ -28,8 +29,9 @@ The structural grounding floor is the auggie-review **Wave-3 step-3 "File:line v
 1. For each finding, **`Read` the cited file at the cited line range**; confirm the line exists and
    (where possible) confirm the cited snippet actually appears on that line (`:207`).
 2. For PR/diff mode, additionally confirm the line is within the diff hunks (`:208`).
-3. For `needs-grounding` findings, attempt grounding via `mcp__auggie__codebase-retrieval` or `Grep`;
+3. For `needs-grounding` findings, attempt grounding via codebase search or `Grep`;
    promote on success, **drop and log** on failure (`:209`).
+   Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the PR head branch; it sees pushed commits only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep.
 
 ## The delta C3a adds — "does the defect reproduce"
 

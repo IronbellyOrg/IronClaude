@@ -1,0 +1,21 @@
+Review T10 attempt 1-1 (start sha 7e2d4f62a08882ecf5134701524d1cffbd10dd64)
+
+Earlier blocking findings: none (first review).
+
+AC status:
+- T10.AC1 met @ src/superclaude/commands/validate-roadmap.md:6 -- `grep -rn 'mcp__auggie-mcp__' src/superclaude/commands plugins/superclaude/commands` returns no lines (exit 1). The validate-roadmap allow-list now reads `mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval`, matching src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md:4.
+- T10.AC2 met @ .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t10-pytest.log:1 -- the log exists and ends with "211 passed". I re-ran `uv run pytest tests/commands tests/skills/test_tier2_tavily_consistency.py -q -p no:cacheprovider` myself and got 211 passed.
+
+Brief coverage check (each site re-located by text in the live tree):
+- AUG short form at src/superclaude/commands/auggie-review.md:92, brainstorm.md:157, recommend.md:49, plugins/superclaude/commands/recommend.md:49, reflect.md:157 and 165, plugins/superclaude/commands/reflect.md:146 and 154, troubleshoot.md:90 and 98. All are list items, so the short form is the correct form. Proxy is named first and the direct name is kept.
+- Context7/Tavily phrase at src/superclaude/commands/reflect.md:170-171, plugins/superclaude/commands/reflect.md:159-160, src/superclaude/commands/troubleshoot.md:100-101. Proxy is named first, the direct name is kept and `mcp__litellm__Tavily-tavily_search` has a capital T. `tavily_research` is not added.
+- Codegraph rows are unchanged in every file.
+- No direct-only `mcp__auggie__codebase-retrieval`, `mcp__context7__` or `mcp__tavily__` reference remains in src/superclaude/commands or plugins/superclaude/commands. A grep that excludes lines also naming `mcp__litellm__` finds nothing.
+- No `.claude/` path, hard-coded repository owner, name or branch, or `src/superclaude/...` path was added by the diff.
+
+Out of scope, not a finding: the command `mcp-servers:` lines are unchanged (for example src/superclaude/commands/validate-roadmap.md:7 `[auggie, codegraph]` and brainstorm.md:6 `[auggie-mcp, ...]`). The plan assigns that metadata to Task 11 ("Update `mcp-servers:` metadata in commands").
+
+Findings:
+F10.1 ac=scope at=src/superclaude/commands/reflect.md:170 anchor="Context7 phrase: \"`mcp__litellm__context7-<tool>` (else `mcp__context7__<tool>`)\"" chk=n,n,n,n family=phrase-shorthand fix=optional: spell out `mcp__litellm__context7-query-docs` instead of the bare `/ query-docs` shorthand: The proxy row keeps the original `name / query-docs` shorthand. A reader can resolve it to `mcp__litellm__context7-query-docs`, the proxy name is correct and the direct fallback is kept, so this is advisory only and does not block.
+
+Blocking findings: none.

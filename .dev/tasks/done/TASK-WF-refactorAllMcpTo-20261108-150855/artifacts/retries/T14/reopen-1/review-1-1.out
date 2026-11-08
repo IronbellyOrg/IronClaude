@@ -1,0 +1,26 @@
+Review: Task 14 (reopen 1), attempt 1-1. Start sha d227979bd306fd95922f73e070fc534ae2f6d2a0.
+
+Earlier blocking findings: none given (prior-findings slot empty). No status lines.
+
+AC status
+- T14.AC1 met (removal branch). Evidence:
+  - .mcp.json is deleted in the worktree (`git status` shows ` D .mcp.json`; `ls .mcp.json` fails), diff hunk `deleted file mode 100644` for .mcp.json.
+  - tests/cli/test_mcp_project_config.py:14-25 asserts that, if the root .mcp.json exists, it has no `auggie-mcp` key (line 20) and no stdio entry whose `command` is `auggie` (lines 21-25; a missing `type` defaults to stdio, line 24). This matches the brief's rewrite wording.
+  - Reviewer re-ran `uv run pytest -p no:cacheprovider tests/cli/test_mcp_project_config.py -v`: 1 passed (tests/cli/test_mcp_project_config.py:14).
+  - Evidence log .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-pytest.log:4-7 records the pass (exit=0); lines 8-13 record a negative check (old entry restored temporarily -> FAILED, exit=1) and that .mcp.json is absent again afterwards, which the live worktree confirms.
+
+Reopen checks
+- Owner approval: the reopen note records owner question 2 approved; the removal branch was taken, matching the brief's "If approved" path.
+- Nothing else in the repository reads the root .mcp.json:
+  - Makefile, pyproject.toml, .claude/settings.json, .github/, .pre-commit-config.yaml: no match for `mcp.json`, `auggie-mcp`, `enabledMcpjsonServers` or `enableAllProjectMcpServers`, and none changed since the start sha.
+  - src/superclaude/hooks: only tool-name matchers (src/superclaude/hooks/hooks.json:149, src/superclaude/hooks/scripts/auggie-flag-clear.sh:23); they match tool-name prefixes and do not read .mcp.json.
+  - src/superclaude/cli: src/superclaude/cli/init_lite.py:91 reads `<project_root>/.mcp.json` generically and reports a missing surface (it does not depend on this repo's file); src/superclaude/cli/eval/capabilities.py:226-232 and :345 probe `auggie-mcp` by PATH lookup (`shutil.which`), not through .mcp.json.
+  - tests: tests/cli/test_init_lite.py:41 and tests/cli/test_install_retired_mcp.py:312 write their own .mcp.json inside temporary project dirs; only tests/cli/test_mcp_project_config.py:15 reads the repository root file.
+- Diff scope: against the start sha, only .mcp.json and tests/cli/test_mcp_project_config.py change for this task (tests/skills/test_mcp_proxy_names.py is the excluded untracked Task 15 file). No `.claude/` mirror, `src/superclaude/...` path, owner/name/branch or secret was added.
+
+Findings
+F1.1 ac=scope at=.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-skipped.md:3 anchor=.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-skipped.md:3 chk=n,n,n,n family=stale-artifact fix=delete or annotate the superseded t14-skipped.md (and unstage it) so the package does not carry both branch artifacts: Non-blocking. The staged skip-branch artifact still says "skipped: owner decision 2 open", which no longer matches the approved owner decision; the orchestrator note marks it superseded and outside this review, so it is recorded only for cleanup.
+F1.2 ac=scope at=.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-pytest.log:1 anchor=.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-pytest.log:1 chk=n,n,n,n family=staging fix=run `git add .dev/tasks` so t14-pytest.log is staged with the other task logs: Non-blocking. The evidence log is untracked (`??`) while every other tN log is staged; the global constraint says `.dev/tasks/` is always staged, which the orchestrator's staging step normally covers.
+F1.3 ac=scope at=tests/cli/test_mcp_project_config.py:24 anchor=tests/cli/test_mcp_project_config.py:24 chk=n,n,n,n family=robustness fix=none required: Non-blocking note. `server.get(...)` assumes each server value is an object; a malformed .mcp.json would raise AttributeError instead of a clean assertion failure. That still fails the test, so the contract holds.
+
+Blocking findings: none.

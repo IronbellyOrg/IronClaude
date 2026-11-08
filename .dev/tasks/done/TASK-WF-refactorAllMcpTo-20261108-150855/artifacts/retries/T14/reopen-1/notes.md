@@ -1,0 +1,4 @@
+d227979bd306fd95922f73e070fc534ae2f6d2a0
+A1 r1-1 F1.1 minor .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-skipped.md:3 ac=scope chk=n,n,n,n the skip-branch artifact from the superseded first T14 run still says owner decision 2 is open; kept unchanged as the evidence the first T14 complete line cites; the T14 Ruling line in progress.md records why it is superseded
+A1 r1-1 F1.2 minor .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-pytest.log:1 ac=scope chk=n,n,n,n the evidence log was not yet staged at review time; staged by the orchestrator at task completion (git add .dev/tasks)
+A1 r1-1 F1.3 minor tests/cli/test_mcp_project_config.py:24 ac=scope chk=n,n,n,n a malformed .mcp.json whose server value is not an object raises AttributeError instead of a clean assertion; the test still fails, so the contract holds

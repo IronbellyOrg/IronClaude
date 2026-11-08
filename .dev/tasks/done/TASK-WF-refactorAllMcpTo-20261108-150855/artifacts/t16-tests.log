@@ -1,0 +1,14 @@
+# T16 test log
+## Listed directories
+=== uv run pytest tests/agents tests/skills tests/commands tests/hooks tests/core tests/troubleshoot tests/cli -v
+exit=0
+summary: 9334 passed, 17 skipped, 1 xpassed, 5 warnings in 483.21s (0:08:03); FAILED/ERROR lines: 0
+
+## make test (uv run pytest, full suite)
+=== PYTHONDONTWRITEBYTECODE=1 make test  (target: uv run pytest)
+exit=0
+summary: 24574 passed, 149 skipped, 2 xpassed, 32 warnings in 984.37s (0:16:24); FAILED/ERROR lines: 0
+failures: none, so no comparison run on 0423fe5f was needed
+
+## .claude mirrors
+git status --short .claude: count=0; staged .claude paths: 0

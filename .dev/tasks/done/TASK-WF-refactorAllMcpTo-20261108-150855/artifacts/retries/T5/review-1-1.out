@@ -1,0 +1,26 @@
+# Review T5 attempt 1 (start sha 36c5631536aac27f2178ed77be2a0e924dd4c42a)
+
+## Earlier blocking findings
+None (first review).
+
+## Acceptance criteria
+
+- T5.AC1 met — `cmp` of each src/plugin pair reports identical files (re-run live: `cmp src/superclaude/skills/sc-recommend/SKILL.md plugins/superclaude/skills/sc-recommend/SKILL.md` and the same for `refs/plugin-ecosystem-sources.md` both exit 0). Citations: T5.AC1@src/superclaude/skills/sc-recommend/SKILL.md:4, T5.AC1@plugins/superclaude/skills/sc-recommend/SKILL.md:134, T5.AC1@src/superclaude/skills/sc-recommend/refs/plugin-ecosystem-sources.md:24.
+- T5.AC2 met — `uv run pytest tests -k recommend -v` output saved in the task package artifacts folder; footer "382 passed, 1 skipped, 24338 deselected", no FAILED/ERROR lines. Citation: T5.AC2@.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t5-pytest.log:393. Independently re-run by the reviewer against the live tree (`uv run pytest tests -k recommend -q -p no:cacheprovider`): 382 passed, 1 skipped.
+
+## Brief and constraint checks (no finding)
+
+- allowed-tools: AUG before `mcp__auggie__codebase-retrieval`, `mcp__litellm__Tavily-tavily_search` before `mcp__tavily__tavily_search`, `mcp__litellm__Tavily-tavily_extract` before `mcp__tavily__tavily_extract`; no direct name removed; no `tavily_research` added (src/superclaude/skills/sc-recommend/SKILL.md:4).
+- Step B call matches the AUG full phrase verbatim; the degrade-to-Read path (Graceful degradation table) is unchanged (src/superclaude/skills/sc-recommend/SKILL.md:134, :157-158).
+- Tavily phrase applied to both names in the ecosystem ref; WebFetch/WebSearch fallback line kept (src/superclaude/skills/sc-recommend/refs/plugin-ecosystem-sources.md:24-25).
+- prompts.py: AUG short form + "repo from `git remote get-url origin`, default branch"; "Do not iterate file-by-file." present; "Unavailable/empty ranking degrades to direct Read, never to a fabricated verified target." kept; `auggie_status` output field kept (src/superclaude/cli/recommend/prompts.py:146-150, :247, :250).
+- sc-recommend-phase0.sh: AUG short form + repo/default-branch clause; "Do not iterate file-by-file." kept; `auggie_status: skipped` kept; Auggie-unavailable notice kept verbatim (src/superclaude/hooks/scripts/sc-recommend-phase0.sh:57, :80-83, :93-96). No plugin copy of this hook exists.
+- No hard-coded owner/repo/branch; no new `src/superclaude/...` path; nothing under `.claude/` or `.dev/issues/` staged (`git diff --cached --name-only` has 0 such paths).
+
+## Findings (all non-blocking)
+
+F1.1 ac=scope at=src/superclaude/hooks/scripts/sc-recommend-phase0.sh:82 anchor=src/superclaude/hooks/scripts/sc-recommend-phase0.sh:82 chk=n,n,n,n family=formatting fix=Re-wrap lines 80-83 to the ~78-column width the rest of the heredoc uses: The replaced instruction leaves line 82 at about 120 columns inside an otherwise hand-wrapped reminder block. Cosmetic only; the emitted text is correct.
+
+F1.2 ac=scope at=src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:44 anchor=src/superclaude/skills/sc-recommend/refs/surface-enumeration.md:44 chk=n,n,n,n family=coverage-gap fix=Track in a follow-up (or a later task) a Tavily/AUG-aware rewrite of this ref, e.g. name the proxy's repo_owner/repo_name/branch inputs alongside the direct tool's directory_path: SKILL.md:130 points readers to this ref for "the full algorithm", and line 44 still says "Use the current worktree as `directory_path`", a parameter only the direct `mcp__auggie__codebase-retrieval` takes. Task 5's brief does not list this file and no other task in the plan names it, so this is outside the task's ACs; recorded as a plan-level gap, not a defect of this attempt.
+
+F1.3 ac=scope at=src/superclaude/skills/sc-recommend/SKILL.md:134 anchor=src/superclaude/skills/sc-recommend/SKILL.md:134 chk=n,n,n,n family=design-note fix=None required for this task; consider noting in the design that outside an indexed GitHub repo the proxy call fails and the existing Auggie-unavailable degrade path applies: The AUG phrase says the proxy "sees pushed code only", while the surface Step B ranks includes installed `~/.claude` and gitignored project `.claude/` copies. The verbatim phrase is mandated by the global constraints, and the kept degrade path covers a failed or empty ranking, so behavior stays safe.

@@ -10,7 +10,7 @@ argument-hint: "<spec-file-path> [--specs ...] [--multi-roadmap --agents ...] [-
 <!-- Extended metadata (for documentation, not parsed):
 category: planning
 complexity: advanced
-mcp-servers: [context7]
+mcp-servers: [litellm, context7]
 personas: [architect, scribe, analyzer]
 version: 2.0.0
 spec: SC-ROADMAP-V2-SPEC.md

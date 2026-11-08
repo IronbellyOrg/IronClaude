@@ -2,7 +2,7 @@
 name: sc:reflect-protocol
 description: "Tiered reflection protocol grounded in real code and real citations. UC-1 (pre-execution) validates a proposed strategy/tasklist against its driving spec/PRD for coverage and best-practice compliance. UC-2 (post-execution) audits completed work for 100% adherence and classifies every divergence under a 4-category deviation taxonomy (Authorized expansion / Necessary deviation / Drift / Regression). Tier 1 is a fast single-agent grounded pass; Tier 2 fans out 2-3 heterogeneous reviewer agents on different model classes and merges via sc-adversarial-protocol Mode A; Tier 3 (opt-in via --remediate) hands off to sc:workflow for a corrective tasklist package the user runs with /sc:implement by default, or to task-builder for a corrective MDTM remediation only with --depth deep. Structural mechanisms — heterogeneous reviewers, blind calibration, mandatory evidence-validator gate — exist specifically to neutralise the representational bias that makes single-agent self-review unreliable."
 version: 1.0.0
-allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_callees, mcp__codegraph__codegraph_impact, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
+allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_callees, mcp__codegraph__codegraph_impact, mcp__litellm__context7-resolve-library-id, mcp__context7__resolve-library-id, mcp__litellm__context7-query-docs, mcp__context7__query-docs, mcp__litellm__Tavily-tavily_search, mcp__tavily__tavily_search
 ---
 
 <!-- markdownlint-disable MD013 MD040 -->
@@ -16,7 +16,7 @@ allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp_
 <!-- Extended metadata (for documentation, not parsed):
 category: validation
 complexity: advanced
-mcp-servers: [auggie, codegraph, context7, tavily]
+mcp-servers: [litellm, auggie, codegraph, context7, tavily]
 personas: [analyzer, qa, refactorer, architect]
 spec: .dev/eval-workspaces/sc-reflect/SPEC.md
 supersedes: src/superclaude/commands/reflect.md (legacy scripted-checkpoint surface)
@@ -449,7 +449,7 @@ escalation_decision:
 
 ## 6. Code-graph evidence chain
 
-The protocol grounds every claim in a concrete symbol-anchored evidence chain. The chain's floor is native Grep, Glob and Read plus Bash for diagnostics; `mcp__auggie__codebase-retrieval` is used first wherever the chain says so, and the codegraph tier sits above the floor for definitions, outlines, callers and impact. The floor is permanent and is normal evidence, not a degraded mode: no degraded token is emitted for using it.
+The protocol grounds every claim in a concrete symbol-anchored evidence chain. The chain's floor is native Grep, Glob and Read plus Bash for diagnostics; codebase search is used first wherever the chain says so (call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep), and the codegraph tier sits above the floor for definitions, outlines, callers and impact. The floor is permanent and is normal evidence, not a degraded mode: no degraded token is emitted for using it.
 
 Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`). Run its readiness check once per run in Wave 0 and record `index_state`, `checked_at`, `worktree_root` and `projectPath` in `audit.log`. A codegraph step below runs only when the index is usable (`fresh`; a `stale` index gives leads that never feed a count, a severity or a verdict) and its lookup tools are listed; otherwise, and whenever a lookup fails or returns nothing, the floor step beside it runs unchanged and the matching `graph:*` token goes into `degraded_components` (§6.5). A codegraph row locates code; it is not a citation until the cited range is re-Read (§6.2).
 
@@ -459,7 +459,7 @@ For every touched file in UC-2, or every spec-referenced module in UC-1:
 
 ```
 1. (Wave 0 only) memory hydrate per §6.3 — no project-activation step
-2. mcp__auggie__codebase-retrieval <file/module>; codegraph_node {file, symbolsOnly: true} when usable; then Grep for the file's definitions (`def |class |function `) and Read the file   # structural map
+2. mcp__litellm__augment_code-augment_code_search (else mcp__auggie__codebase-retrieval) <file/module>; codegraph_node {file, symbolsOnly: true} when usable; then Grep for the file's definitions (`def |class |function `) and Read the file   # structural map
 2a. codegraph_node {file, line} for the hunk when usable; else (or no match) Grep for the hunk's symbol definition (`def <name>|class <name>|function <name>`), then Read the range   # diff-hunk → declaration; floor zero hits → find_declaration_no_match
 3. codegraph_node {symbol, includeCode: true} to locate when usable; Read the located range of <relevant-symbol>          # symbol body
 3b. codegraph_search {query: <Type>, kind: "class"} candidates when usable, each confirmed by Grep and Read; Grep for `class .*\(<Base>\)` / `implements <Iface>` / `impl <Trait> for` (best effort, advisory)   # polymorphic surface
@@ -1793,7 +1793,7 @@ Refs loaded by the wave that needs them; never pre-loaded. Session-start footpri
 - Tag every claim as Grounded or `[INFERRED]`; drop claims that fit neither bucket.
 - Respect CLAUDE.md ABSOLUTE RULES: source-of-truth is `src/superclaude/`, never commit `.claude/` mirrors, PR target is fork only.
 - Fail-open on missing MCPs (auggie, context7, tavily) — fall back to native tools and mark degraded.
-- Tavily evidence searches via `mcp__tavily__tavily_search` inherit the server-level DEFAULT_PARAMETERS (C1) baseline — reflect passes no per-call overrides (unlike the troubleshoot Tier-2 advanced override).
+- Tavily evidence searches via `mcp__litellm__Tavily-tavily_search` (else `mcp__tavily__tavily_search`) inherit the server-level DEFAULT_PARAMETERS (C1) baseline — reflect passes no per-call overrides (unlike the troubleshoot Tier-2 advanced override).
 - Persist deviation patterns to the tracked `docs/memory/reflect/deviation-patterns-{slug}.md` file with 90-day expiry.
 - Delegate debate / scoring / merge to `sc-adversarial-protocol`; never re-implement.
 - **Promote validated work-units** (UC-2 only, Wave 7 Promotion Mutation) via the §14.5 strict 9-condition gate (with 11 atomic gate_evaluation fields — sub-splits 5a/5b/6a/6b per §14.5.6): move `.dev/tasks/to-do/TASK-*` → `.dev/tasks/done/TASK-*` and `.dev/releases/current/<release>/` → `.dev/releases/complete/<release>/` when the gate passes. Default-on, `--no-promote` to suppress. Atomic `mv` where filesystem permits (cross-fs uses checkpoint+copy+verify+remove per §14.5.5), SHA-verified, rollback command preserved in promotion-log.

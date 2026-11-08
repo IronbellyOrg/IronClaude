@@ -1,0 +1,84 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-pytest.log b/.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-pytest.log
+new file mode 100644
+index 00000000..b7b7ab01
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-pytest.log
+@@ -0,0 +1,16 @@
++# T14 reopened (coordinator msg_731d81c8caf2): .mcp.json deleted
++## pass run: uv run pytest tests/cli/test_mcp_project_config.py -v
++
++tests/cli/test_mcp_project_config.py::test_project_mcp_config_has_no_auggie_stdio_server PASSED [100%]
++
++============================== 1 passed in 0.14s ===============================
++exit=0
++## negative check: temporary .mcp.json with the old auggie-mcp entry, expected FAIL
++=========================== short test summary info ============================
++FAILED tests/cli/test_mcp_project_config.py::test_project_mcp_config_has_no_auggie_stdio_server
++============================== 1 failed in 0.15s ===============================
++exit=1
++## restored: .mcp.json absent=yes
++## ruff
++All checks passed!
++1 file already formatted
+diff --git a/.mcp.json b/.mcp.json
+deleted file mode 100644
+index a0308c1c..00000000
+--- a/.mcp.json
++++ /dev/null
+@@ -1,13 +0,0 @@
+-{
+-  "mcpServers": {
+-    "auggie-mcp": {
+-      "type": "stdio",
+-      "command": "auggie",
+-      "args": [
+-        "--mcp",
+-        "--mcp-auto-workspace"
+-      ],
+-      "env": {}
+-    }
+-  }
+-}
+\ No newline at end of file
+diff --git a/tests/cli/test_mcp_project_config.py b/tests/cli/test_mcp_project_config.py
+index 23336cf9..aeac9074 100644
+--- a/tests/cli/test_mcp_project_config.py
++++ b/tests/cli/test_mcp_project_config.py
+@@ -1,4 +1,9 @@
+-"""Contracts for the repository-owned Claude MCP configuration."""
++"""Contracts for the repository-owned Claude MCP configuration.
++
++Codebase search now goes through the central LiteLLM proxy (issue #454), so the
++repository must not register the local ``auggie`` stdio server, which fails
++with ENOENT wherever the ``auggie`` binary is absent.
++"""
+ 
+ import json
+ from pathlib import Path
+@@ -6,15 +11,15 @@ from pathlib import Path
+ _REPO_ROOT = Path(__file__).resolve().parents[2]
+ 
+ 
+-def test_project_auggie_configuration_uses_official_cli_and_stable_key():
+-    config = json.loads((_REPO_ROOT / ".mcp.json").read_text())
+-    server = config["mcpServers"]["auggie-mcp"]
++def test_project_mcp_config_has_no_auggie_stdio_server():
++    path = _REPO_ROOT / ".mcp.json"
++    if not path.exists():
++        return
++    servers = json.loads(path.read_text()).get("mcpServers", {})
+ 
+-    assert server == {
+-        "type": "stdio",
+-        "command": "auggie",
+-        "args": ["--mcp", "--mcp-auto-workspace"],
+-        "env": {},
+-    }
+-    assert server["command"] != "npx"
+-    assert "AUGMENT_SESSION_AUTH" not in server["env"]
++    assert "auggie-mcp" not in servers
++    assert not [
++        name
++        for name, server in servers.items()
++        if server.get("type", "stdio") == "stdio" and server.get("command") == "auggie"
++    ]

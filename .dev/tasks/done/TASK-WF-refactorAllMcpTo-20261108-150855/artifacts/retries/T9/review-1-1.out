@@ -1,0 +1,33 @@
+Review: Task 9 (rewrite bare `codebase-retrieval` steps in the generic skills), attempt 1-1
+Start sha: d0ef418b6003a31dc3feca208eba1af9ea4833bb
+
+Earlier blocking findings: none (first review).
+
+Acceptance criteria
+
+T9.AC1 met. `grep -n 'codebase-retrieval'` over every listed file returns only lines that also carry `mcp__litellm__augment_code-augment_code_search`:
+- src/superclaude/skills/sc-task-protocol/SKILL.md:91, :106, :300, :315
+- src/superclaude/skills/prd/SKILL.md:222; src/superclaude/skills/prd/refs/build-request-template.md:100
+- src/superclaude/skills/tdd/SKILL.md:197, :215; src/superclaude/skills/tdd/refs/build-request-template.md:94
+- src/superclaude/skills/task-builder/SKILL.md:339, :1208
+- src/superclaude/skills/roadmap/SKILL.md:253, :491, :2537
+- src/superclaude/skills/readme/SKILL.md:239, :637
+- src/superclaude/skills/tech-reference/SKILL.md:227, :480
+- src/superclaude/skills/tech-research/SKILL.md:217, :454, :1621
+- src/superclaude/skills/operational-guide/SKILL.md:232, :610
+- src/superclaude/skills/task/SKILL.md:600
+- src/superclaude/skills/confidence-check/SKILL.md:50; plugins/superclaude/skills/confidence-check/SKILL.md:48
+- src/superclaude/skills/sc-crash-recovery/SKILL.md:101 (full AUG phrase, verbatim), :146 (row text "Codebase search unreachable (neither `mcp__litellm__augment_code-augment_code_search` nor `mcp__auggie__codebase-retrieval` answers)", recovery action and fallback columns unchanged)
+- src/superclaude/skills/sc-crash-recovery/refs/pipelines.md:49
+- src/superclaude/skills/sc-crash-recovery/refs/investigators.md:139 (full AUG phrase, verbatim), :141
+No bare mention remains. Short form is used inside lists/sentences, full form in the two prose/prompt spots; no repository owner, name or branch is hard-coded; no `src/superclaude/...` path added.
+
+T9.AC2 met. .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t9-pytest.log:1904 reads "1893 passed in 54.17s"; zero FAILED/ERROR lines; header line 5 shows rootdir = this worktree. The log's mtime (1794156852) is later than every file edited in this task (latest src/superclaude/skills/task/SKILL.md at 1794156780), so it reflects the edited tree.
+
+Scope checks
+- `git diff --stat d0ef418b..` limited to src/ and plugins/ shows exactly the 17 files in the brief (31 insertions, 31 deletions); no `.claude/` mirror edited by this task; codegraph-only rows untouched.
+
+Findings
+None blocking. No finding lines.
+
+Non-blocking observation (not a finding): src/superclaude/skills/sc-crash-recovery/SKILL.md:101 and refs/investigators.md:139 read "...using codebase search. Codebase search: call ..." which repeats the words "codebase search"; this is a stylistic consequence of inserting the verbatim full AUG phrase and contradicts no constraint. The section heading "## Auggie usage" (SKILL.md:99) is unchanged, which the brief does not require changing.

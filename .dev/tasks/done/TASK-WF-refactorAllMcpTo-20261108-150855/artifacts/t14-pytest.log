@@ -1,0 +1,16 @@
+# T14 reopened (coordinator msg_731d81c8caf2): .mcp.json deleted
+## pass run: uv run pytest tests/cli/test_mcp_project_config.py -v
+
+tests/cli/test_mcp_project_config.py::test_project_mcp_config_has_no_auggie_stdio_server PASSED [100%]
+
+============================== 1 passed in 0.14s ===============================
+exit=0
+## negative check: temporary .mcp.json with the old auggie-mcp entry, expected FAIL
+=========================== short test summary info ============================
+FAILED tests/cli/test_mcp_project_config.py::test_project_mcp_config_has_no_auggie_stdio_server
+============================== 1 failed in 0.15s ===============================
+exit=1
+## restored: .mcp.json absent=yes
+## ruff
+All checks passed!
+1 file already formatted

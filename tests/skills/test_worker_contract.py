@@ -2905,7 +2905,7 @@ WRITE_VERB_CLASSIFICATION = {
     (
         "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
         "gh api",
-        "- Fetch verbatim: `mcp__context7__query-docs` → remote URL fetch → raw source fetch (e.g. `gh api`); paste the returned lines into `tier1-observation.md` under `## Behaviour definitions` with source coordinates; Status `fetched:<source>`",
+        "- Fetch verbatim: `mcp__litellm__context7-query-docs` (else `mcp__context7__query-docs`) → remote URL fetch → raw source fetch (e.g. `gh api`); paste the returned lines into `tier1-observation.md` under `## Behaviour definitions` with source coordinates; Status `fetched:<source>`",
     ): (
         "read-only",
         "gh api fetch of a CI job log or raw source file; a read, no -f/-F and no write method",
@@ -2913,7 +2913,7 @@ WRITE_VERB_CLASSIFICATION = {
     (
         "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
         "gh api",
-        "| `mcp__context7__query-docs` | Conditional behaviour-definition fetch before S1.6.4 pairs and Tier 1 calibration; same fallback chain as Tier 2 | ✓ when framework/library named; behaviour-definition fetch (Wave 3 step 1; fallback `WebFetch` → raw source fetch, e.g. `gh api`) | — |",
+        "| `mcp__litellm__context7-query-docs` (else `mcp__context7__query-docs`) | Conditional behaviour-definition fetch before S1.6.4 pairs and Tier 1 calibration; same fallback chain as Tier 2 | ✓ when framework/library named; behaviour-definition fetch (Wave 3 step 1; fallback `WebFetch` → raw source fetch, e.g. `gh api`) | — |",
     ): (
         "read-only",
         "gh api fetch of a CI job log or raw source file; a read, no -f/-F and no write method",

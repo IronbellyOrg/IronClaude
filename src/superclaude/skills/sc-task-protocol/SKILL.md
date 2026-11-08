@@ -88,7 +88,7 @@ Execute task according to tier requirements:
 **STRICT Execution**:
 
 1. Verify git working directory clean (git status)
-2. Load codebase context (codebase-retrieval)
+2. Load codebase context: `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)
 3. Check relevant memory files (Glob `.superclaude/memory/**/*.md`, then Read the relevant ones; skip when none exist)
 4. Identify all affected files and test files
 5. Make changes with full checklist
@@ -103,7 +103,7 @@ Execute task according to tier requirements:
 
 **STANDARD Execution**:
 
-1. Load context via codebase-retrieval
+1. Load context via `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)
 2. Search downstream impacts: `codegraph_callers` / `codegraph_impact` on the changed symbol when codegraph is usable (`~/.claude/CODEGRAPH.md`; rows are leads, Read before relying on them), OR Grep with a word-boundary pattern for the changed symbol, then Read the call sites
 3. Make changes
 4. Run affected tests OR document manual verification
@@ -297,7 +297,7 @@ After completion, collect implicit feedback:
 
 **Required Servers by Tier**:
 
-- STRICT: None required (native Read, Grep, Glob, Bash and codebase-retrieval cover the prerequisites); codegraph preferred for the "files that import changed code" step; Grep fallback allowed and recorded
+- STRICT: None required (native Read, Grep, Glob, Bash and `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) cover the prerequisites); codegraph preferred for the "files that import changed code" step; Grep fallback allowed and recorded
 - STANDARD: Context7 (fallback allowed)
 - LIGHT: None required (fallback allowed)
 - EXEMPT: None required
@@ -312,7 +312,7 @@ After completion, collect implicit feedback:
 **Planning Phase**:
 
 1. TodoWrite: Create task breakdown
-2. codebase-retrieval: Load context
+2. `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`): Load context
 3. Glob / Read: Check project state in `.superclaude/memory/**/*.md`
 
 **Execution Phase**:

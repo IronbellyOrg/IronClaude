@@ -1,0 +1,284 @@
+57fbb9bdbaf88a6c6f3cd220812a88d3e079a002
+Review one task for spec compliance.
+
+Task brief: ## Task 6: Update the troubleshoot, reflect and validate-roadmap protocol skills
+
+Design section 3.2 items 2-4. `src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md`: `allowed-tools:` (line 4) gains AUG, both Context7 proxy names and `mcp__litellm__Tavily-tavily_search` before their twins; AUG phrase at about lines 195, 240, 397, 613; Context7 phrase at about lines 395, 402, 615 and Tavily phrase at about lines 396, 616. `refs/diagnosability-audit.md` (about lines 11, 49) and `refs/doc-discovery.md` (about line 11): AUG phrase; the availability test at `diagnosability-audit.md:49` checks "AUG or `mcp__auggie__codebase-retrieval`". Update the verbatim pinned lines in `tests/skills/test_worker_contract.py` (about lines 2908, 2916) to the edited SKILL.md lines. `src/superclaude/skills/sc-reflect-protocol/SKILL.md`: `allowed-tools:` (line 5) as above; AUG phrase at about lines 452, 462; Tavily phrase at about line 1796. `src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md`: in `allowed-tools:` (line 4) replace `mcp__auggie-mcp__codebase-retrieval` with `mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval`; AUG phrase at about lines 127, 253, 262, 871, with the "Requires" gates at 253 and 871 requiring "AUG or `mcp__auggie__codebase-retrieval`" and staying fail-open. Apply the `mcp-servers:` metadata rule to these three skills (troubleshoot line 10, reflect line 19, validate-roadmap line 13).
+
+Depends on: Task 4
+
+Acceptance criteria:
+- `grep -n 'mcp__auggie-mcp__' src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md` finds nothing.
+- `uv run pytest tests/skills/test_worker_contract.py tests/skills/test_tier2_tavily_consistency.py tests/troubleshoot -v` passes; output saved to `./artifacts/t6-pytest.log`.
+Global constraints: - Naming rule (design section 2): name both tools, proxy first, direct kept. Proxy names: Augment search `mcp__litellm__augment_code-augment_code_search` (called AUG below), `mcp__litellm__context7-resolve-library-id`, `mcp__litellm__context7-query-docs`, `mcp__litellm__Tavily-tavily_search`, `mcp__litellm__Tavily-tavily_extract`, `mcp__litellm__Tavily-tavily_crawl`, `mcp__litellm__Tavily-tavily_map` (capital `T`, case-sensitive). Playwright plugin names `mcp__plugin_playwright_playwright__browser_<x>`.
+- AUG phrase (full form, verbatim): "Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep."
+- AUG short form (inside lists and tables): "`mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)".
+- Tavily phrase: "`mcp__litellm__Tavily-tavily_<x>` (else `mcp__tavily__tavily_<x>`)", keeping any existing WebSearch/WebFetch fallback tail. Context7 phrase: "`mcp__litellm__context7-<tool>` (else `mcp__context7__<tool>`)". Wildcards: "`mcp__litellm__Tavily-*` or `mcp__tavily__*`", "`mcp__litellm__context7-*` or `mcp__context7__*`".
+- Allow-lists (`tools:` / `allowed-tools:`): insert each proxy name immediately before its direct twin; never remove a direct name except `mcp__auggie-mcp__codebase-retrieval`, which is replaced by AUG followed by `mcp__auggie__codebase-retrieval`. `mcp__litellm__Tavily-tavily_research` is not added anywhere.
+- `mcp-servers:` metadata: add `litellm` first; replace `auggie-mcp` with `auggie`; keep the other words (`[auggie, codegraph]` becomes `[litellm, auggie, codegraph]`).
+- Availability tests ("if X is not available") become "if neither <proxy name> nor <direct name> is available". Every existing degrade or fail-open path is kept verbatim (design section 4).
+- Never hard-code a repository owner, name or branch; never add a `src/superclaude/...` path to an installed primitive.
+- Edit `src/superclaude/**` and the hand-maintained `plugins/superclaude/**` copies only; never edit or stage `.claude/` mirrors (run `make sync-dev` instead) and never hand-edit `~/.claude`.
+- Line numbers below were recorded at commit 0423fe5f; re-locate each edit by its text before editing.
+- Python only through UV (`uv run pytest ...`). Never print, log or write `LITELLM_API_KEY` or any token.
+- `.dev/tasks/` is always staged (`git add .dev/tasks`); `.dev/issues/` stays out of the index. No push and no PR in this run.
+Start sha: 57fbb9bdbaf88a6c6f3cd220812a88d3e079a002
+Diff against the start snapshot: diff --git a/src/superclaude/skills/sc-reflect-protocol/SKILL.md b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+index efa091bd..be43c804 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+@@ -2,7 +2,7 @@
+ name: sc:reflect-protocol
+ description: "Tiered reflection protocol grounded in real code and real citations. UC-1 (pre-execution) validates a proposed strategy/tasklist against its driving spec/PRD for coverage and best-practice compliance. UC-2 (post-execution) audits completed work for 100% adherence and classifies every divergence under a 4-category deviation taxonomy (Authorized expansion / Necessary deviation / Drift / Regression). Tier 1 is a fast single-agent grounded pass; Tier 2 fans out 2-3 heterogeneous reviewer agents on different model classes and merges via sc-adversarial-protocol Mode A; Tier 3 (opt-in via --remediate) hands off to sc:workflow for a corrective tasklist package the user runs with /sc:implement by default, or to task-builder for a corrective MDTM remediation only with --depth deep. Structural mechanisms — heterogeneous reviewers, blind calibration, mandatory evidence-validator gate — exist specifically to neutralise the representational bias that makes single-agent self-review unreliable."
+ version: 1.0.0
+-allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_callees, mcp__codegraph__codegraph_impact, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
++allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_callees, mcp__codegraph__codegraph_impact, mcp__litellm__context7-resolve-library-id, mcp__context7__resolve-library-id, mcp__litellm__context7-query-docs, mcp__context7__query-docs, mcp__litellm__Tavily-tavily_search, mcp__tavily__tavily_search
+ ---
+ 
+ <!-- markdownlint-disable MD013 MD040 -->
+@@ -16,7 +16,7 @@ allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp_
+ <!-- Extended metadata (for documentation, not parsed):
+ category: validation
+ complexity: advanced
+-mcp-servers: [auggie, codegraph, context7, tavily]
++mcp-servers: [litellm, auggie, codegraph, context7, tavily]
+ personas: [analyzer, qa, refactorer, architect]
+ spec: .dev/eval-workspaces/sc-reflect/SPEC.md
+ supersedes: src/superclaude/commands/reflect.md (legacy scripted-checkpoint surface)
+@@ -449,7 +449,7 @@ escalation_decision:
+ 
+ ## 6. Code-graph evidence chain
+ 
+-The protocol grounds every claim in a concrete symbol-anchored evidence chain. The chain's floor is native Grep, Glob and Read plus Bash for diagnostics; `mcp__auggie__codebase-retrieval` is used first wherever the chain says so, and the codegraph tier sits above the floor for definitions, outlines, callers and impact. The floor is permanent and is normal evidence, not a degraded mode: no degraded token is emitted for using it.
++The protocol grounds every claim in a concrete symbol-anchored evidence chain. The chain's floor is native Grep, Glob and Read plus Bash for diagnostics; codebase search is used first wherever the chain says so (call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep), and the codegraph tier sits above the floor for definitions, outlines, callers and impact. The floor is permanent and is normal evidence, not a degraded mode: no degraded token is emitted for using it.
+ 
+ Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`). Run its readiness check once per run in Wave 0 and record `index_state`, `checked_at`, `worktree_root` and `projectPath` in `audit.log`. A codegraph step below runs only when the index is usable (`fresh`; a `stale` index gives leads that never feed a count, a severity or a verdict) and its lookup tools are listed; otherwise, and whenever a lookup fails or returns nothing, the floor step beside it runs unchanged and the matching `graph:*` token goes into `degraded_components` (§6.5). A codegraph row locates code; it is not a citation until the cited range is re-Read (§6.2).
+ 
+@@ -459,7 +459,7 @@ For every touched file in UC-2, or every spec-referenced module in UC-1:
+ 
+ ```
+ 1. (Wave 0 only) memory hydrate per §6.3 — no project-activation step
+-2. mcp__auggie__codebase-retrieval <file/module>; codegraph_node {file, symbolsOnly: true} when usable; then Grep for the file's definitions (`def |class |function `) and Read the file   # structural map
++2. mcp__litellm__augment_code-augment_code_search (else mcp__auggie__codebase-retrieval) <file/module>; codegraph_node {file, symbolsOnly: true} when usable; then Grep for the file's definitions (`def |class |function `) and Read the file   # structural map
+ 2a. codegraph_node {file, line} for the hunk when usable; else (or no match) Grep for the hunk's symbol definition (`def <name>|class <name>|function <name>`), then Read the range   # diff-hunk → declaration; floor zero hits → find_declaration_no_match
+ 3. codegraph_node {symbol, includeCode: true} to locate when usable; Read the located range of <relevant-symbol>          # symbol body
+ 3b. codegraph_search {query: <Type>, kind: "class"} candidates when usable, each confirmed by Grep and Read; Grep for `class .*\(<Base>\)` / `implements <Iface>` / `impl <Trait> for` (best effort, advisory)   # polymorphic surface
+@@ -1793,7 +1793,7 @@ Refs loaded by the wave that needs them; never pre-loaded. Session-start footpri
+ - Tag every claim as Grounded or `[INFERRED]`; drop claims that fit neither bucket.
+ - Respect CLAUDE.md ABSOLUTE RULES: source-of-truth is `src/superclaude/`, never commit `.claude/` mirrors, PR target is fork only.
+ - Fail-open on missing MCPs (auggie, context7, tavily) — fall back to native tools and mark degraded.
+-- Tavily evidence searches via `mcp__tavily__tavily_search` inherit the server-level DEFAULT_PARAMETERS (C1) baseline — reflect passes no per-call overrides (unlike the troubleshoot Tier-2 advanced override).
++- Tavily evidence searches via `mcp__litellm__Tavily-tavily_search` (else `mcp__tavily__tavily_search`) inherit the server-level DEFAULT_PARAMETERS (C1) baseline — reflect passes no per-call overrides (unlike the troubleshoot Tier-2 advanced override).
+ - Persist deviation patterns to the tracked `docs/memory/reflect/deviation-patterns-{slug}.md` file with 90-day expiry.
+ - Delegate debate / scoring / merge to `sc-adversarial-protocol`; never re-implement.
+ - **Promote validated work-units** (UC-2 only, Wave 7 Promotion Mutation) via the §14.5 strict 9-condition gate (with 11 atomic gate_evaluation fields — sub-splits 5a/5b/6a/6b per §14.5.6): move `.dev/tasks/to-do/TASK-*` → `.dev/tasks/done/TASK-*` and `.dev/releases/current/<release>/` → `.dev/releases/complete/<release>/` when the gate passes. Default-on, `--no-promote` to suppress. Atomic `mv` where filesystem permits (cross-fs uses checkpoint+copy+verify+remove per §14.5.5), SHA-verified, rollback command preserved in promotion-log.
+diff --git a/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md b/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
+index 493efab1..3650fe09 100644
+--- a/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
+@@ -1,13 +1,13 @@
+ ---
+ name: sc:troubleshoot-protocol
+ description: "Tiered debugging protocol — fast Tier 1 triage with auggie + codegraph grounding and a native Grep/Read floor, auto-escalation to parallel hypothesis agents + adversarial fix debate in Tier 2, and an opt-in remediation chain in Tier 3 (sc:workflow → sc:implement with --fix; task-builder → /task with --fix --depth deep). Use this skill whenever the user reports a broken build, runtime error, performance regression, deployment problem, or failing test, even when they don't explicitly say 'troubleshoot' — phrases like 'why is X broken', 'this used to work', 'something's off with...', a pasted stack trace, or a failing-command transcript should all activate it."
+-allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
++allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact, mcp__litellm__context7-resolve-library-id, mcp__context7__resolve-library-id, mcp__litellm__context7-query-docs, mcp__context7__query-docs, mcp__litellm__Tavily-tavily_search, mcp__tavily__tavily_search
+ ---
+ 
+ <!-- Extended metadata (for documentation, not parsed):
+ category: utility
+ complexity: advanced
+-mcp-servers: [auggie, codegraph, context7, tavily]
++mcp-servers: [litellm, auggie, codegraph, context7, tavily]
+ personas: [analyzer, performance, security, qa, refactorer, devops]
+ -->
+ 
+@@ -192,7 +192,7 @@ context_path: <abs-path|none>
+ **Steps**:
+ 
+ 1. **Ground the symptom in real code** — issue the auggie call (or fall back to native tools):
+-   - `mcp__auggie__codebase-retrieval` with query: "Find the code involved in: `<issue description, capped at ~300 chars>`. Include the function or module that produces this behaviour, recent changes near it, and any related test." Scope to `--scope` if set.
++   - Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep. Query: "Find the code involved in: `<issue description, capped at ~300 chars>`. Include the function or module that produces this behaviour, recent changes near it, and any related test." Scope to `--scope` if set.
+    - Codegraph usage rules: read `~/.claude/CODEGRAPH.md` (in a dev checkout without an install, the labelled fallback is `src/superclaude/core/CODEGRAPH.md`).
+    - Codegraph readiness, once per run (guide section 2; skipped under `--no-mcp`): record `index_state`, `checked_at`, `worktree_root` and `projectPath` in the audit log for every later brief, and record any `graph:*` token in the audit log and in REPORT.md Grounding Gaps. Only when `index_state` is `fresh` and the lookup tools are listed: `mcp__codegraph__codegraph_node {file, symbolsOnly:true}` on the target file, or, when the issue names a function or class, `mcp__codegraph__codegraph_node {symbol, includeCode:true}` plus `mcp__codegraph__codegraph_callers {symbol, limit:20}`, each with `projectPath`. In the status-only branch (only `codegraph_status` listed, token `graph:unlisted`), when the guide's readiness check gives `access: cli`, use the CLI read verbs instead: `codegraph node --file <path> --symbols-only`, `codegraph node <name>`, `codegraph callers <name> --json --limit 20`. Write the caller rows to `<output-dir>/tier1-callers.md` with `index_state` and each row's `resolution` (`def-line` until the guide's call-site check confirms it). Graph rows are leads: Read the range before citing it, and an empty result never proves absence. When `index_state` is anything but `fresh` (stale, not initialized, foreign, absent, disabled, error), or a codegraph lookup fails or returns nothing, run the native floor of the next bullet for that lookup (the Grep definition and caller steps), even when auggie answered.
+    - If `--no-mcp` or auggie is unavailable: fall back to `Glob` + `Grep` on the issue keywords; note the fallback in the audit log. When the issue names a specific function or class, `Grep` for its definition (`def name`, `class name`, `function name`) and `Read` the range; for its callers, `Grep` with a word-boundary pattern and `Read` the call sites.
+@@ -237,7 +237,7 @@ context_path: <abs-path|none>
+    - The original `<issue_description>`, `<scope>`, and `<component_paths>` from Wave 0.
+    - The branch-specific Auggie query template from `refs/doc-discovery.md` Section 1 (Branch A = release-doc, Branch B = architectural-doc with Section 2 currency check, Branch C = semantic-restriction).
+    - The parent-owned `output_path` for the returned branch result: `<output-dir>/wave1_5-branch-<A|B|C>.md` per the Section 3 schemas, plus existing captured evidence. Branch B discovers doc paths and returns a preliminary unknown verdict with quoted header markers in `reason`; currency mtimes are collected by the parent after discovery, not required in the dispatch brief. The worker returns data, never writes the file.
+-   - An instruction to issue ONE `mcp__auggie__codebase-retrieval` call against the branch's query target and emit the schema-conformant output (Branch A: single object or `{ "hit": false }`; Branch B: array of `{ doc_path, currency_verdict, reason }`; Branch C: array of `{ source_file, file_line, quoted_text, applies_to }`).
++   - An instruction to issue ONE `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) call against the branch's query target and emit the schema-conformant output (Branch A: single object or `{ "hit": false }`; Branch B: array of `{ doc_path, currency_verdict, reason }`; Branch C: array of `{ source_file, file_line, quoted_text, applies_to }`).
+ 3. **Wait for all three branches** to complete. The orchestrator writes each returned result to its parent-owned output_path on receipt, before reading each output file. After Branch B discovers the doc paths, the parent collects their currency metadata, applies the existing Section 2 mtime/header rules, and writes the finalized Branch B result before step 4 synthesis. Retain unknown when metadata is unavailable; never ask the worker to run a shell.
+ 4. **Synthesise the Documentation Context Card** at `<output-dir>/doc-context.md` using the Section 4 template — merging Branch A's release-doc context (Section: Release context), Branch B's architectural-doc list with currency verdicts (Section: Architectural docs consulted; surface CAUTION lines for `stale` / `unknown` verdicts), Branch C's semantic restrictions (Section: Restrictions / decisions that constrain the fix), and a 1-3 bullet Re-frame signals synthesis tying the three findings back to the bug-as-stated.
+ 5. **Set output-contract pointer** — emit `doc_context_card_path: <output-dir>/doc-context.md` in the audit log so Wave 5 can wire it into the report.
+@@ -392,14 +392,14 @@ Cap at 4 agents. If `--type` is unset and signals point in multiple directions,
+ **Steps**:
+ 
+ 1. **MCP enrichment in parallel with agent spawn** — issue any of the following that match the signals (parallel calls, all kicked off in the same turn):
+-   - `mcp__context7__resolve-library-id` + `mcp__context7__query-docs` when the issue mentions a framework / library by name or the stack trace is in third-party code
+-   - `mcp__tavily__tavily_search` for the exact error message string + "github issue", or for `<library> <version> <symptom>` (rate-limited — at most 2 queries in this wave; for the error-string query use `search_depth: advanced` with recommended `include_domains: [github.com, stackoverflow.com]` — only hard cases reach Tier-2, and the ≤2-query cap bounds cost)
+-   - `mcp__auggie__codebase-retrieval` with a more targeted query than Tier 1 (e.g. "find every call site of `<symbol>` and how they handle the error case")
++   - `mcp__litellm__context7-resolve-library-id` (else `mcp__context7__resolve-library-id`) + `mcp__litellm__context7-query-docs` (else `mcp__context7__query-docs`) when the issue mentions a framework / library by name or the stack trace is in third-party code
++   - `mcp__litellm__Tavily-tavily_search` (else `mcp__tavily__tavily_search`) for the exact error message string + "github issue", or for `<library> <version> <symptom>` (rate-limited — at most 2 queries in this wave; for the error-string query use `search_depth: advanced` with recommended `include_domains: [github.com, stackoverflow.com]` — only hard cases reach Tier-2, and the ≤2-query cap bounds cost)
++   - `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) with a more targeted query than Tier 1 (e.g. "find every call site of `<symbol>` and how they handle the error case")
+    - **Behaviour-definition fetch (conditional, never a halt)** — Shared procedure callable before S1.6.4 pair construction and after card receipt in both tiers. Input is a producer assertion (with its source coordinate) OR a hypothesis card; reuse an existing definition row only for the same primitive and asserted behaviour. Trigger: an input whose `claim_class` is `environment_dependent`, or whose assertion/mechanism sentence says what a primitive (library call, config loader, scheduler, protocol, runtime builtin) *does*, when that behaviour has not been directly observed in this run. For each such input append one row (`# | Primitive | Asserted behaviour | Defining artifact | Fetch query | Status`) to `<output-dir>/behaviour-definitions.md` **before** issuing the fetch:
+      - *Asserted behaviour* = the verb phrase copied verbatim from the producer assertion or card's mechanism sentence
+      - *Defining artifact* = the thing that makes that verb true (function body, spec/RFC clause, schema rule, doc section whose heading contains the verb) — never an example, sample output, format string, tutorial, or web-search summary
+      - *Fetch query* built only from the words in column 3, phrased as "the code or clause that implements/specifies `<asserted behaviour>`" — adding words about output appearance or format is a violation
+-     - Fetch verbatim: `mcp__context7__query-docs` → remote URL fetch → raw source fetch (e.g. `gh api`); paste the returned lines into `tier1-observation.md` under `## Behaviour definitions` with source coordinates; Status `fetched:<source>`
++     - Fetch verbatim: `mcp__litellm__context7-query-docs` (else `mcp__context7__query-docs`) → remote URL fetch → raw source fetch (e.g. `gh api`); paste the returned lines into `tier1-observation.md` under `## Behaviour definitions` with source coordinates; Status `fetched:<source>`
+      - If the return is an example rather than a definition, or every fetch fails: Status `recalled, not load-bearing`, and add a probe row observing the asserted behaviour directly to `diagnosability-tasklist.md` `## Discriminator rows` (create/append via the Shared tasklist creation/append rule above, including after audit bypass)
+      - The card's evidence section MUST cite its row as `behaviour-definition: row N`; the calibrator (C8) and the inline fallback assert the row exists with a non-empty Status — missing/empty caps the card at 0.5 and logs `behaviour-cite: missing`. Never substitute a web-search summary for the artifact; never make the fetch mandatory when the behaviour was observed in this run.
+ 2. **Spawn hypothesis agents** in parallel via `Task` with `subagent_type=troubleshoot-analyst` (single message with multiple Task calls). Set `lens_name` to each selected specialist and preserve its artifact identity and model override. Each agent receives:
+@@ -610,10 +610,10 @@ The table describes orchestrator capabilities. Bash execution, metadata capture
+ 
+ | Tool | Tier 1 | Tier 2 | Tier 3 |
+ |------|--------|--------|--------|
+-| `mcp__auggie__codebase-retrieval` | ✓ (one focused query + Wave 1.5 doc-grounding fan-out: 3 parallel branch queries; Wave 1.6 audit fan-out: 2 parallel branch queries (A log-call, B log-config)) | ✓ (per-hypothesis queries) | — |
++| `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) | ✓ (one focused query + Wave 1.5 doc-grounding fan-out: 3 parallel branch queries; Wave 1.6 audit fan-out: 2 parallel branch queries (A log-call, B log-config)) | ✓ (per-hypothesis queries) | — |
+ | `mcp__codegraph__codegraph_{status,search,node,callers,impact}` | ✓ (one readiness check; Wave 1 outline, symbol body and callers into `tier1-callers.md`; status-only branch: CLI read verbs through `Bash`) | ✓ (orchestrator lookups; analysts use their own codegraph roster when `index_state: fresh`) | — |
+-| `mcp__context7__query-docs` | Conditional behaviour-definition fetch before S1.6.4 pairs and Tier 1 calibration; same fallback chain as Tier 2 | ✓ when framework/library named; behaviour-definition fetch (Wave 3 step 1; fallback `WebFetch` → raw source fetch, e.g. `gh api`) | — |
+-| `mcp__tavily__tavily_search` | — | ✓ rate-limited (≤2 queries) | — |
++| `mcp__litellm__context7-query-docs` (else `mcp__context7__query-docs`) | Conditional behaviour-definition fetch before S1.6.4 pairs and Tier 1 calibration; same fallback chain as Tier 2 | ✓ when framework/library named; behaviour-definition fetch (Wave 3 step 1; fallback `WebFetch` → raw source fetch, e.g. `gh api`) | — |
++| `mcp__litellm__Tavily-tavily_search` (else `mcp__tavily__tavily_search`) | — | ✓ rate-limited (≤2 queries) | — |
+ | `Task` (agent spawn) | ✓ (root-cause-analyst + confidence-calibrator (C-rule structural assertions via `assertions_path`); Wave 1.6: 2 parallel audit branches A/B + 1 orchestrator synthesis) | ✓ (2-4 hypothesis agents in parallel + per-card confidence-calibrator + evidence-validator at Wave 5 (A-rule structural assertions)) | ✓ (self-review for post-exec) |
+ | `Skill` | — | ✓ (`sc:adversarial-protocol`) | ✓ (`sc:workflow-protocol` plan route / `task-builder` MDTM route, `/sc:reflect`) |
+ | `Read` / `Grep` / `Glob` | ✓ (Wave 1 floor when auggie/codegraph are unavailable or empty; Wave 1.6 Grep/Glob fallback when auggie unavailable) | ✓ | — |
+diff --git a/src/superclaude/skills/sc-troubleshoot-protocol/refs/diagnosability-audit.md b/src/superclaude/skills/sc-troubleshoot-protocol/refs/diagnosability-audit.md
+index 1ebc5d47..87d480ee 100644
+--- a/src/superclaude/skills/sc-troubleshoot-protocol/refs/diagnosability-audit.md
++++ b/src/superclaude/skills/sc-troubleshoot-protocol/refs/diagnosability-audit.md
+@@ -8,7 +8,7 @@ This ref defines the two parallel audit branches (A: log-call inspection at and
+ 
+ ## Section 1: Auggie query templates per branch
+ 
+-Each branch issues ONE `mcp__auggie__codebase-retrieval` call (single message, fan-out via parallel Task spawns from the Wave 1.6 orchestrator). Each branch is dispatched with `subagent_type=troubleshoot-analyst` (closed read-only roster: Read/Grep/Glob plus the individually named read-only Auggie retrieval tool and codegraph lookup tools, the latter used only when the brief says `index_state: fresh`; no Bash, Write or Edit; resolved project `.claude/agents/` first, then `~/.claude/agents/`; if unavailable, use the degraded/reporting path, never an unrestricted substitute). Workers return branch results as data; the parent owns `output_path` and writes the file before any consumer reads it (Section 3). The placeholders `<failing_component>`, `<scope>`, and `<symptom>` are filled by the Wave 1.6 orchestrator from the Wave 0 input (issue description, `--scope`, `--type`) and the Wave 1 grounding output (the localized failing component path).
++Each branch issues ONE `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) call (single message, fan-out via parallel Task spawns from the Wave 1.6 orchestrator). Each branch is dispatched with `subagent_type=troubleshoot-analyst` (closed read-only roster: Read/Grep/Glob plus the individually named read-only codebase-search tools (the proxy tool and the direct Auggie retrieval tool) and codegraph lookup tools, the latter used only when the brief says `index_state: fresh`; no Bash, Write or Edit; resolved project `.claude/agents/` first, then `~/.claude/agents/`; if unavailable, use the degraded/reporting path, never an unrestricted substitute). Workers return branch results as data; the parent owns `output_path` and writes the file before any consumer reads it (Section 3). The placeholders `<failing_component>`, `<scope>`, and `<symptom>` are filled by the Wave 1.6 orchestrator from the Wave 0 input (issue description, `--scope`, `--type`) and the Wave 1 grounding output (the localized failing component path).
+ 
+ ### Branch A — Log-Call Inspection
+ 
+@@ -46,7 +46,7 @@ For each hit, return: file path, config_type (file | env_var | pipeline_config),
+ 
+ ## Section 2: Fallback paths (auggie unavailable)
+ 
+-When `mcp__auggie__codebase-retrieval` is not available (Wave 0 detected `--no-mcp`, the gateway is down, or rate limits exhausted the per-session call budget), each branch falls back to Glob/Grep substitutes. The orchestrator MUST set the branch's `degraded` flag to `true` so the sufficiency rubric in Section 4 caps the verdict at `partial`.
++When neither `mcp__litellm__augment_code-augment_code_search` nor `mcp__auggie__codebase-retrieval` is available (Wave 0 detected `--no-mcp`, the gateway is down, or rate limits exhausted the per-session call budget), each branch falls back to Glob/Grep substitutes. The orchestrator MUST set the branch's `degraded` flag to `true` so the sufficiency rubric in Section 4 caps the verdict at `partial`.
+ 
+ The `troubleshoot-analyst` worker has no shell. It performs these fallbacks with the native Grep and Glob tools only, using the patterns below as search patterns (recursive search over the named target; `find`/`grep` command lines are pattern references, not commands the worker runs). The command lines may be run as shell only by the parent, never by a worker.
+ 
+diff --git a/src/superclaude/skills/sc-troubleshoot-protocol/refs/doc-discovery.md b/src/superclaude/skills/sc-troubleshoot-protocol/refs/doc-discovery.md
+index e7f6bdb0..d55c8f25 100644
+--- a/src/superclaude/skills/sc-troubleshoot-protocol/refs/doc-discovery.md
++++ b/src/superclaude/skills/sc-troubleshoot-protocol/refs/doc-discovery.md
+@@ -8,7 +8,7 @@ This ref defines the three parallel discovery branches (A: release-doc, B: archi
+ 
+ ## Section 1: Auggie query templates per branch
+ 
+-Each branch issues ONE `mcp__auggie__codebase-retrieval` call (single message, fan-out via parallel Task spawns from the Wave 1.5 orchestrator). Each branch is dispatched with `subagent_type=troubleshoot-analyst` (closed read-only tool roster; resolved project `.claude/agents/` first, then `~/.claude/agents/`; if unavailable, use the degraded/reporting path, never an unrestricted substitute). The worker returns the branch result as data; the parent owns the `output_path` and writes it (Section 3). The placeholders `<issue_description>`, `<scope>`, and `<component_paths>` are filled by the Wave 1.5 orchestrator from the parsed Wave 0 input.
++Each branch issues ONE `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) call (single message, fan-out via parallel Task spawns from the Wave 1.5 orchestrator). Each branch is dispatched with `subagent_type=troubleshoot-analyst` (closed read-only tool roster; resolved project `.claude/agents/` first, then `~/.claude/agents/`; if unavailable, use the degraded/reporting path, never an unrestricted substitute). The worker returns the branch result as data; the parent owns the `output_path` and writes it (Section 3). The placeholders `<issue_description>`, `<scope>`, and `<component_paths>` are filled by the Wave 1.5 orchestrator from the parsed Wave 0 input.
+ 
+ ### Branch A — Release-doc lookup
+ 
+diff --git a/src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md b/src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md
+index 640640f6..7ca1c058 100644
+--- a/src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: sc-validate-roadmap-protocol
+ description: "Full behavioral protocol for sc:validate-roadmap — multi-agent roadmap-to-spec fidelity validation with adversarial review, coverage matrix, gap registry, and remediation planning. Use this skill whenever verifying roadmap completeness against specifications, auditing coverage before tasklist generation, or checking for requirement gaps between specs and roadmaps."
+-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node
++allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node
+ argument-hint: "<roadmap-path> --specs <spec1.md,...> [--output dir] [--depth quick|standard|deep] [--exclude domains] [--max-agents N]"
+ ---
+ 
+@@ -10,7 +10,7 @@ argument-hint: "<roadmap-path> --specs <spec1.md,...> [--output dir] [--depth qu
+ <!-- Extended metadata (for documentation, not parsed):
+ category: analysis
+ complexity: advanced
+-mcp-servers: [auggie, codegraph]
++mcp-servers: [litellm, auggie, codegraph]
+ personas: [analyzer, architect, qa]
+ version: 2.0.0
+ -->
+@@ -124,7 +124,7 @@ Every verb maps to exactly one Claude Code tool. Never use bare verbs without th
+ | Run validation | `Bash` | File existence checks, line counts |
+ | Find symbol | `codegraph_search` (`mcp__codegraph__codegraph_search`) | Step 0.5 definition lookup — orchestrator only, fail-open to `Grep` |
+ | File outline | `codegraph_node {file, symbolsOnly:true}` (`mcp__codegraph__codegraph_node`) | Step 0.5 structural context — orchestrator only, fail-open to `Read` |
+-| Query codebase (semantic) | `mcp__auggie-mcp__codebase-retrieval` | Codebase-grounded enrichment (Steps 0.2b, 5.1b) — orchestrator only, fail-open |
++| Query codebase (semantic) | `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) | Codebase-grounded enrichment (Steps 0.2b, 5.1b) — orchestrator only, fail-open |
+ | Read session memory | `Read` | `.superclaude/memory/validate-roadmap/<key>.md` — load validation ledger, terminology, patterns (Pre-Phase 0) — fail-open |
+ | Write session memory | `Write` | `.superclaude/memory/validate-roadmap/<key>.md` — persist ledger, terminology, patterns (Post-Phase 6); create `.superclaude/.gitignore` containing `*` first if absent — fail-open |
+ 
+@@ -250,7 +250,7 @@ Write artifact: `{OUTPUT_DIR}/00-requirement-universe.md`
+ 
+ #### Step 0.2b — Codebase-Grounded Requirement Enrichment (Optional)
+ 
+-**Requires**: `mcp__auggie-mcp__codebase-retrieval` (fail-open — skip entirely if Auggie is unavailable).
++**Requires**: `mcp__litellm__augment_code-augment_code_search` or `mcp__auggie__codebase-retrieval` (fail-open — skip entirely if Auggie is unavailable).
+ 
+ After building the requirement universe, scan it for code references that would benefit from codebase context. This step enriches requirements with advisory structural information — it never creates new requirements or changes coverage calculations.
+ 
+@@ -259,7 +259,7 @@ After building the requirement universe, scan it for code references that would
+ 1. **Identify code-referencing requirements**: Scan requirement text for backtick-wrapped identifiers (class names, function names, file paths), import paths, API endpoint paths, and technology-specific keywords (e.g., database table names, config keys).
+ 2. **Triage references by resolution method**:
+    - **Simple references** (file paths, exact symbol names): Resolve with `Grep`/`Glob` first. Do NOT use Auggie for lookups that a pattern search can answer.
+-   - **Semantic references** (architectural concepts, integration patterns, "the auth subsystem"): Query Auggie's `codebase-retrieval` with a focused natural-language query.
++   - **Semantic references** (architectural concepts, integration patterns, "the auth subsystem"): Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep. Use a focused natural-language query.
+ 3. **Query Auggie** for each semantic reference (hard cap: **15 queries maximum**):
+    - Query format: `"What code implements {concept}? Include callers, related tests, and file paths."`
+    - For each response, extract: relevant file paths, function/class names, test file references.
+@@ -868,7 +868,7 @@ Phase R9: Re-validate (rerun this skill after all fixes applied)
+ 
+ #### Step 5.1b — Codebase-Grounded Remediation Enrichment (Optional)
+ 
+-**Requires**: `mcp__auggie-mcp__codebase-retrieval` (fail-open — skip entirely if Auggie is unavailable).
++**Requires**: `mcp__litellm__augment_code-augment_code_search` or `mcp__auggie__codebase-retrieval` (fail-open — skip entirely if Auggie is unavailable).
+ 
+ Before generating the patch checklist, enrich CRITICAL and HIGH remediation entries with codebase context so that implementers know which files and packages are affected.
+ 
+diff --git a/tests/skills/test_worker_contract.py b/tests/skills/test_worker_contract.py
+index ccc565b7..14e537f7 100644
+--- a/tests/skills/test_worker_contract.py
++++ b/tests/skills/test_worker_contract.py
+@@ -2905,7 +2905,7 @@ WRITE_VERB_CLASSIFICATION = {
+     (
+         "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
+         "gh api",
+-        "- Fetch verbatim: `mcp__context7__query-docs` → remote URL fetch → raw source fetch (e.g. `gh api`); paste the returned lines into `tier1-observation.md` under `## Behaviour definitions` with source coordinates; Status `fetched:<source>`",
++        "- Fetch verbatim: `mcp__litellm__context7-query-docs` (else `mcp__context7__query-docs`) → remote URL fetch → raw source fetch (e.g. `gh api`); paste the returned lines into `tier1-observation.md` under `## Behaviour definitions` with source coordinates; Status `fetched:<source>`",
+     ): (
+         "read-only",
+         "gh api fetch of a CI job log or raw source file; a read, no -f/-F and no write method",
+@@ -2913,7 +2913,7 @@ WRITE_VERB_CLASSIFICATION = {
+     (
+         "src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
+         "gh api",
+-        "| `mcp__context7__query-docs` | Conditional behaviour-definition fetch before S1.6.4 pairs and Tier 1 calibration; same fallback chain as Tier 2 | ✓ when framework/library named; behaviour-definition fetch (Wave 3 step 1; fallback `WebFetch` → raw source fetch, e.g. `gh api`) | — |",
++        "| `mcp__litellm__context7-query-docs` (else `mcp__context7__query-docs`) | Conditional behaviour-definition fetch before S1.6.4 pairs and Tier 1 calibration; same fallback chain as Tier 2 | ✓ when framework/library named; behaviour-definition fetch (Wave 3 step 1; fallback `WebFetch` → raw source fetch, e.g. `gh api`) | — |",
+     ): (
+         "read-only",
+         "gh api fetch of a CI job log or raw source file; a read, no -f/-F and no write method",
+Delta diff from the previous reviewed tree (empty on the first review): 
+Earlier blocking findings of this start (empty on the first review): 
+Saved-probe re-check hit locations (may be empty): 
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

@@ -97,7 +97,7 @@ will fail because there is no team. This overrides your agent definition's
 Critical Rule 6 ("ALWAYS broadcast TASK_READY") and Step 6 (TaskCreate + broadcast).
 Instead, return the task file path as your final output.
 
-- **Codebase questions** → use WebSearch or codebase-retrieval (you have access)
+- **Codebase questions** → use WebSearch or `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`); you have access
 - **External docs/syntax** → use WebSearch
 - **If blocked** → create the best task file you can and note gaps in the Task Log section. The skill will review and iterate.
 

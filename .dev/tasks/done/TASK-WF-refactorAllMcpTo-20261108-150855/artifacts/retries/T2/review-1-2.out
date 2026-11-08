@@ -1,0 +1,24 @@
+Review T2 attempt 1, review 2 (spec compliance, adversarial)
+
+Earlier blocking findings:
+F1.1 resolved
+
+Evidence for F1.1: the saved log now ends "1501 passed, 4 skipped in 39.63s" (.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t2-pytest.log:1526) with no "No module named ruff" and no FAILED test lines. I reran `uv run pytest tests/cli/eval -q -p no:cacheprovider` myself against the live tree: "1501 passed, 4 skipped in 39.85s". The counts match the saved log.
+
+AC marks:
+- T2.AC1 met. `_DEFAULT_MCP_TOOL_PREFIXES` has four entries, the fourth being "mcp__litellm__" (src/superclaude/cli/eval/coverage.py:100-105), and the comment above it now says "four" (src/superclaude/cli/eval/coverage.py:96). `git diff --quiet fdeba1a7 -- src/superclaude/cli/eval/capabilities.py` returned 0, and so did the same check against the working tree. `eval_covers_pattern` changed only in its docstring; its body is unchanged (src/superclaude/cli/eval/coverage.py:260-264).
+- T2.AC2 met. The new test `test_litellm_augment_matcher_is_selected_and_covered` (tests/cli/eval/test_coverage_gate.py:137-142) asserts `default_matcher_filter("mcp__litellm__augment_code-.*") is True` and that an eval expecting `mcp__litellm__augment_code-augment_code_search` covers the pattern. It PASSED (T2.AC2@.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t2-pytest.log:185), and the run ends green (T2.AC2@.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t2-pytest.log:1526). My independent rerun confirms it.
+
+Brief items checked beyond the ACs:
+- Docstrings: the module docstring (coverage.py:8-11), `default_matcher_filter` (coverage.py:199-201) and `eval_covers_pattern` (coverage.py:253-255) now list four prefixes or the litellm example.
+- real.yaml: the only whole flag-clear matcher string is the comment at src/superclaude/cli/eval/suites/real.yaml:72. It now matches the Task 1 matcher exactly (src/superclaude/hooks/hooks.json:149). The old line numbers 80/87/94 point at E2.1 structural keys, not matcher assertions, so nothing else needed changing. The diff against the start commit touches only that comment hunk; prompts, gates and E16 are unchanged. The new parenthetical says the litellm branch has no E2 entry and is pinned by tests/hooks/. That claim is true (tests/hooks/test_auggie_flag_clear_mcp_prefix.py:185-191).
+- installer_sync_drift.yaml: the four globs listed (lines 20-22, 67-69) match the live case body (src/superclaude/hooks/scripts/auggie-flag-clear.sh:23).
+- Runtime effect: the only hooks.json matcher containing `mcp__litellm__` (hooks.json:149) also contains `mcp__auggie__`, so the default filter already selected it. Existing E2.1-E2.3 still cover it through `re.search` on the alternation, so the `eval run` coverage gate (src/superclaude/cli/eval/commands.py:1822-1829) gets no new missing matcher.
+
+Findings: none.
+
+Self-Audit (zero findings):
+- I compared the diff against the start commit (4 files) with the brief, file by file. No file outside the brief's scope changed in this task. test_expect_settings_json.py shows in the working tree but not in the start-commit diff, so it belongs to an earlier task.
+- I checked the four-question list against each change: no missing AC output, no false claim found against live source, no writes to tracked or production data (docstrings, comments, a tuple entry and a pure test), and no constraint breach (capabilities.py and eval_covers_pattern logic untouched, no .claude/ edits, no hard-coded owner/repo/branch).
+- I did not trust the saved log alone; I reran the suite myself with the cache provider off, so nothing new was written to the repository.
+- I did not read any retry or troubleshoot folders.

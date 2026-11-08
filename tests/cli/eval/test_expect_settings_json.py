@@ -325,7 +325,12 @@ def test_equals_supports_list_values(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     """``equals`` compares JSON arrays with strict order + element parity."""
-    matchers = ["mcp__auggie__*", "mcp__auggie-mcp__*", "mcp__airis-mcp-gateway__*"]
+    matchers = [
+        "mcp__auggie__*",
+        "mcp__auggie-mcp__*",
+        "mcp__airis-mcp-gateway__*",
+        "mcp__litellm__augment_code-*",
+    ]
     _write_settings(home, {"hooks": {"matchers": matchers}})
     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path)
     result = Expect.settings_json(

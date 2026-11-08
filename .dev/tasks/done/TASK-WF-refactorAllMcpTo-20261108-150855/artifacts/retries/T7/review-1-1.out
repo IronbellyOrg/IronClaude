@@ -1,0 +1,25 @@
+# Review T7 attempt 1-1 (spec compliance)
+
+Earlier blocking findings: none (first review).
+
+## Acceptance criteria
+
+- T7.AC1 met — `T7.AC1@src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md:26`. `git diff f89cc182 -- src/superclaude/skills/sc-brainstorm-protocol | grep '^-' | grep 'fallback_1\|skipped'` returns nothing (rc=1). The fallback_1 and skipped text is still present at handoff-routing.md:26, :32, :36 and SKILL.md:195, :200, :374. SKILL.md:195 (which holds both `fallback_1` and `skipped`) was left alone, and the proxy name was added on a new line, SKILL.md:196. That is the only way to name AUG there without removing a line this AC protects.
+- T7.AC2 met — `T7.AC2@.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t7-pytest.log:2341`: "2329 passed, 2 skipped, 22390 deselected". No FAILED or ERROR lines in the log.
+
+## Brief items checked (no finding)
+
+- Brainstorm Tier 1 names AUG, then `mcp__auggie__codebase-retrieval` (handoff-routing.md:16). The full AUG phrase is at :18. "quality_tier: `primary` (earned by either tool)" is in handoff-routing, and SKILL.md:196 says the same.
+- Brainstorm codebase row uses the AUG short form (SKILL.md:187).
+- `mcp-servers:` metadata: brainstorm SKILL.md:15 is `[litellm, auggie, codegraph, tavily]` and pr-submit SKILL.md:10 is `[litellm, auggie]`. Both are correct under the rule.
+- Auggie-review: the `auggie` CLI path and `mcp-servers:` at line 10 are unchanged. Line 20 is about the Auggie CLI, not the MCP tool, so leaving it alone is correct.
+- No allow-list in these three skills names a direct twin, so no allow-list insertion was needed.
+- No hard-coded owner, repo or branch was added. No `src/superclaude/...` path was added. No `.claude/` path is staged (`make sync-dev` is scheduled for a later task, plan line 174).
+
+## Findings
+
+F7.1 ac=scope at=src/superclaude/skills/sc-pr-submit-protocol/refs/finding-verify.md:35 anchor=src/superclaude/skills/sc-pr-submit-protocol/refs/finding-verify.md:10 chk=n,y,y,n family=readonly-wave-push fix=Delete "so commit and push the PR head before relying on it". Keep only the brief's note: it sees pushed commits only, and unpushed changes use codegraph or Grep. covers="a note that only pushed commits are visible": The added text tells the agent to commit and push the PR head during C3a grounding. That instruction is new: the brief asked only for a note that just pushed commits are visible. The same file says at :9-11 that this wave "is **read-only** ... It performs NO version-control mutation". The new instruction makes that claim false. An agent that follows it would push to the remote from a wave declared read-only, outside the task's declared outputs. It also conflicts with the next sentence at :36, which sends unpushed changes to codegraph or Grep.
+
+F7.2 ac=scope at=src/superclaude/skills/sc-pr-submit-protocol/refs/finding-verify.md:34 anchor=src/superclaude/skills/sc-pr-submit-protocol/refs/finding-verify.md:10 chk=n,y,n,n family=readonly-wave-shell-token fix=Change the NFR-6 note at :9-11 so it allows the read-only `git remote get-url origin` lookup, or move that lookup out of this ref. The file then stays truthful. (tests/pr_submit/test_static_grep.py CORE_PURE_FILES does not include this file, so no test catches it.): The note at :10-11 says the wave "contains no shell command tokens". The AUG phrase added at :34 brings in the shell command `git remote get-url origin`, so that claim is now false. The mandated phrase forces the token, but the file's own claim was not updated to match.
+
+F7.3 ac=scope at=src/superclaude/skills/sc-auggie-review-protocol/SKILL.md:225 anchor="AUG phrase (full form, verbatim)" chk=n,n,n,y family=aug-phrase-verbatim fix=Close the parenthetical after the `mcp__auggie__codebase-retrieval` clause and keep the sentence as given: "... call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep." Or restructure the bullet so the full phrase stands as its own sentence. covers="AUG phrase (full form, verbatim)": The full phrase at :225 is nested inside a parenthetical, and ". For uncommitted" was rewritten to "; for uncommitted". So the phrase is not verbatim. The meaning is unchanged; only the wording differs.

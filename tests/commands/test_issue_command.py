@@ -70,7 +70,7 @@ def test_frontmatter_fields():
     assert fields["description"]
     assert fields["category"] == "workflow"
     assert fields["complexity"] == "advanced"
-    assert fields["mcp-servers"] == "[auggie, codegraph]"
+    assert fields["mcp-servers"] == "[litellm, auggie, codegraph]"
     assert fields["personas"] == "[analyzer]"
     assert fields["argument-hint"]
     assert "--pipeline worktree|full|none" in fields["argument-hint"]

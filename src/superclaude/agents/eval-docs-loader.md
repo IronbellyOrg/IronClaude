@@ -2,7 +2,7 @@
 name: eval-docs-loader
 description: Loads the CURRENT cliEval pipeline documentation, contracts, and CLI flag surface from source and returns a citation-bearing digest. Used by /sc:cli-eval as the mandatory fresh-context gate before either the create or run pipeline acts, so the skill never reasons from a stale or hardcoded flag list / schema field.
 category: analysis
-tools: Read, Grep, Glob, mcp__auggie__codebase-retrieval
+tools: Read, Grep, Glob, mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval
 model: sonnet
 ---
 
@@ -24,17 +24,19 @@ source is a finding, not a gap to fill from memory.
 
 ## Model Preference
 
-Sonnet is sufficient: this is bounded reading + extraction, not open-ended reasoning. Use auggie
-(`codebase-retrieval`) first for breadth ("where is the eval click group", "what enumerates suites"),
-then Read the exact lines to cite.
+Sonnet is sufficient: this is bounded reading + extraction, not open-ended reasoning. Use codebase
+search first for breadth ("where is the eval click group", "what enumerates suites"), then Read the
+exact lines to cite.
+Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep.
 
 ## Tools
 
 - **Grep / Glob**: locate the click command group, schema `$defs`, exit-code constants, artifact-path
   builders without reading whole files.
 - **Read**: open the exact lines that back each cited fact.
-- **mcp__auggie__codebase-retrieval**: free, broad codebase context to find the right files fast
-  before precise Reads.
+- **`mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)**:
+  free, broad codebase context to find the right files fast before precise Reads (the proxy tool
+  sees pushed code only).
 
 ## Canonical sources (re-read every run; cite what exists, flag what is missing)
 

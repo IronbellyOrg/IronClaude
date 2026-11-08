@@ -114,6 +114,11 @@ _AUGGIE_PREFIX_RE = re.compile(
 )
 
 
+def _is_search_prefix(part: str) -> bool:
+    """Auggie prefixes plus the LiteLLM proxy's Augment prefix (issue #454)."""
+    return "auggie" in part or "augment_code" in part
+
+
 def _normalize_prefixes(raw: list[str]) -> set[str]:
     """Strip trailing ``.*`` (regex) and ``*`` (glob) so both forms compare equal."""
     out: set[str] = set()
@@ -131,7 +136,7 @@ def _extract_matcher_prefixes() -> set[str]:
         if "auggie" not in matcher:
             continue
         parts = matcher.split("|")
-        return _normalize_prefixes([p for p in parts if "auggie" in p])
+        return _normalize_prefixes([p for p in parts if _is_search_prefix(p)])
     return set()
 
 
@@ -142,7 +147,7 @@ def _extract_case_prefixes() -> set[str]:
     match = re.search(r"case\s+\"\$TOOL_NAME\"\s+in\s*\n\s*([^\n)]+)\)", body)
     assert match, "could not locate case body in auggie-flag-clear.sh"
     parts = match.group(1).split("|")
-    return _normalize_prefixes([p.strip() for p in parts if "auggie" in p])
+    return _normalize_prefixes([p.strip() for p in parts if _is_search_prefix(p)])
 
 
 def test_matcher_and_case_body_reference_same_auggie_prefixes() -> None:
@@ -175,3 +180,59 @@ def test_pr47_widened_prefixes_present_in_both_surfaces() -> None:
         f"auggie-flag-clear.sh case body missing mcp__auggie-mcp__ prefix; "
         f"got {sorted(case_prefixes)}"
     )
+
+
+def test_litellm_augment_prefix_present_in_both_surfaces() -> None:
+    """Issue #454 lands ``mcp__litellm__augment_code-`` in both files. Pin it."""
+    assert "mcp__litellm__augment_code-" in _extract_matcher_prefixes()
+    assert "mcp__litellm__augment_code-" in _extract_case_prefixes()
+
+
+def test_litellm_augment_proxy_clears_sticky(tmp_path: Path) -> None:
+    """The LiteLLM proxy's Augment search tool clears the sticky (issue #454)."""
+    home = tmp_path / "home"
+    sid = "test-litellm-augment"
+    (home / ".claude" / "state" / "auggie-first-pending").mkdir(
+        parents=True, exist_ok=True
+    )
+    _sticky_path(home, sid).write_text("pending\n")
+    payload = {
+        "session_id": sid,
+        "tool_name": "mcp__litellm__augment_code-augment_code_search",
+    }
+    result = _run_hook(payload, fake_home=home)
+    assert result.returncode == 0, result.stderr.decode()
+    assert not _sticky_path(home, sid).exists()
+    telemetry = (home / ".claude" / "logs" / "auggie-first.jsonl").read_text()
+    assert '"tool":"mcp__litellm__augment_code-augment_code_search"' in telemetry
+
+
+def test_litellm_tavily_proxy_does_not_clear_sticky(tmp_path: Path) -> None:
+    """A LiteLLM proxy tool that is not Augment search leaves the sticky in place."""
+    home = tmp_path / "home"
+    sid = "test-litellm-tavily"
+    (home / ".claude" / "state" / "auggie-first-pending").mkdir(
+        parents=True, exist_ok=True
+    )
+    _sticky_path(home, sid).write_text("pending\n")
+    payload = {"session_id": sid, "tool_name": "mcp__litellm__Tavily-tavily_search"}
+    result = _run_hook(payload, fake_home=home)
+    assert result.returncode == 0, result.stderr.decode()
+    assert _sticky_path(home, sid).exists()
+
+
+def _flag_clear_matcher(path: Path) -> str:
+    data = json.loads(path.read_text())
+    for entry in data["hooks"]["PostToolUse"]:
+        for h in entry.get("hooks", []):
+            if "auggie-flag-clear" in h.get("command", ""):
+                return entry.get("matcher", "")
+    return ""
+
+
+def test_plugin_and_src_flag_clear_matchers_agree() -> None:
+    """The plugin hooks.json flag-clear matcher must equal the src one."""
+    plugin_json = REPO_ROOT / "plugins" / "superclaude" / "hooks" / "hooks.json"
+    src_matcher = _flag_clear_matcher(HOOKS_JSON)
+    assert src_matcher, "src hooks.json has no auggie-flag-clear registration"
+    assert _flag_clear_matcher(plugin_json) == src_matcher

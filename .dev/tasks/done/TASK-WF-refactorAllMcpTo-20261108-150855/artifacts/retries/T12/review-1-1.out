@@ -1,0 +1,25 @@
+# Review T12 attempt 1-1 (spec compliance)
+
+Earlier blocking findings: none (first review).
+
+## Acceptance criteria
+
+- T12.AC1 met @plugins/superclaude/core/RULES.md:61 — the two copies were byte-identical at 0423fe5f (`diff` of both `git show` copies printed nothing), and `cmp src/superclaude/core/RULES.md plugins/superclaude/core/RULES.md` reports them identical now. The edited line, src/superclaude/core/RULES.md:61, carries the exact AUG short form.
+- T12.AC2 met @.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t12-pytest.log:1 — the log exists and ends "213 passed", with 112 `tests/core/` lines all PASSED. I ran `uv run pytest tests/core -q -p no:cacheprovider` myself and got 112 passed. tests/core/test_research_config.py:84-85 assert both proxy names.
+
+## Brief scope check (verified against live source)
+
+- core/CLAUDE.md MCP table: src/superclaude/core/CLAUDE.md:20-24. The auggie row matches design 3.8 item 1 (`litellm` (Augment search) or `auggie`, the proxy tool, pushed code only). The context7 and tavily rows name the proxy prefix first. The playwright row gives the plugin prefix. The Flags column is unchanged.
+- AUG short form at src/superclaude/core/CLAUDE.md:36 and :41. The refresh row at :134 carries the short form plus "pushed code only; use Grep/codegraph for unsaved edits". The level table is untouched, and tests/core/test_claude_md_routing_block.py::test_level_table_copy_matches_guide passes.
+- RESEARCH_CONFIG.md: src/superclaude/core/RESEARCH_CONFIG.md:26, :33 and :54 add the discovery wording. The :61 pin `tavily-mcp@0.2.22` is unchanged. :93-94 put the proxy name first.
+- MCP_Auggie.md: src/superclaude/mcp/MCP_Auggie.md:31-33 add a "Through the LiteLLM proxy" paragraph that names AUG, `repo_owner`/`repo_name`/`branch` and the pushed-code-only scope. It hard-codes no owner, name or branch.
+- MCP_Tavily.md: src/superclaude/mcp/MCP_Tavily.md:40-46 add a proxy column. `mcp__litellm__Tavily-tavily_research` is marked proxy-only, as the brief requires; the brief overrides the global rule against adding it.
+- examples: src/superclaude/examples/deep_research_workflows.md:434, :440 and :458 give the proxy name first and keep the direct name in a YAML comment.
+- skill_template: src/superclaude/templates/documents/skill_template.md:249 and :473 carry the AUG short form.
+- CODEGRAPH.md and HOW-WE-WORK.md have no diff. No `.claude/` file was edited. The diff adds no `src/superclaude/...` path to an installed primitive.
+- Related suites I also ran pass: tests/docs/test_tavily_doc_alignment.py, tests/unit/test_cli_install.py and tests/skills/test_review_severity_rule.py (163 passed).
+
+## Findings (non-blocking)
+
+F1.1 ac=scope at=src/superclaude/mcp/MCP_Tavily.md:38 anchor=src/superclaude/mcp/MCP_Tavily.md:46 chk=n,n,n,n family=doc-wording fix=Change "exposes four tools:" to say the direct 0.2.x server exposes four tools and that the proxy adds `tavily_research`: The lead-in still says "four tools", but the table now has five rows. Row 46 itself says the fifth row is proxy-only and not in the direct server, so the text is not false. This is a clarity nit only.
+F1.2 ac=T12.AC2 at=.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t12-pytest.log:8 anchor=".dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t12-pytest.log:8" chk=n,n,n,n family=evidence-scope fix=Save the output of exactly `uv run pytest tests/core -v` (112 items): The saved log collected 213 items: tests/core plus tests/unit/test_cli_install.py. So it is not the output of the exact AC command, though it contains the full tests/core run and all of it passes. My own re-run confirms 112 passed.

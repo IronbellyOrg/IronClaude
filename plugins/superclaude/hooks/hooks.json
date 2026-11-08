@@ -116,7 +116,7 @@
         ]
       },
       {
-        "matcher": "mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*",
+        "matcher": "mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*|mcp__litellm__augment_code-.*",
         "hooks": [
           {
             "type": "command",

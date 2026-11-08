@@ -10,7 +10,9 @@ tools:
   - Bash
   - Glob
   - Grep
+  - mcp__litellm__Tavily-tavily_search    # PRIMARY via the LiteLLM proxy
   - mcp__tavily__tavily_search    # PRIMARY web search (Tavily MCP first)
+  - mcp__litellm__Tavily-tavily_extract   # PRIMARY via the LiteLLM proxy
   - mcp__tavily__tavily_extract   # PRIMARY web fetch (Tavily MCP first)
   - WebFetch                      # FALLBACK only -- when Tavily MCP unavailable
   - WebSearch                     # FALLBACK only -- when Tavily MCP unavailable
@@ -123,13 +125,13 @@ When such external lookup is required, you MUST use Tavily MCP first.
 
 **Precedence:**
 
-1. `mcp__tavily__tavily_search` -- for queries / discovery.
-2. `mcp__tavily__tavily_extract` -- for fetching a specific URL's content.
+1. `mcp__litellm__Tavily-tavily_search` (else `mcp__tavily__tavily_search`) -- for queries / discovery.
+2. `mcp__litellm__Tavily-tavily_extract` (else `mcp__tavily__tavily_extract`) -- for fetching a specific URL's content.
 3. **Fallback only:** `WebSearch` / `WebFetch` -- and only when Tavily MCP is unavailable (see detection condition below).
 
 **Detection condition for "Tavily unavailable"** (any of):
 
-- The `mcp__tavily__tavily_search` or `mcp__tavily__tavily_extract` tool is not present in your runtime tool list this session (server not loaded).
+- Neither `mcp__litellm__Tavily-tavily_search` nor `mcp__tavily__tavily_search` (or neither `mcp__litellm__Tavily-tavily_extract` nor `mcp__tavily__tavily_extract`) is present in your runtime tool list this session (server not loaded).
 - The Tavily call returns a structured server error (e.g., 5xx, connection refused, "server not configured").
 - The Tavily call returns a rate-limit / quota error (HTTP 429 or equivalent payload).
 
@@ -806,7 +808,7 @@ Before issuing your verdict, answer these questions in your report:
 
 - Maximum 2 fix cycles. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings. Do NOT convert unfixed findings to Open Questions. All blocking findings must be resolved; minor findings are recorded as notes.
 - Each cycle should have fewer issues than the previous one. If issue count increases, flag this as a systemic problem.
-- **Tavily-first for any external lookup** -- When verifying a claim that requires fetching from the open web (a vendor doc page, an external standard, a third-party API surface, an external link in the document under review), you MUST attempt `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` before falling back to `WebSearch` / `WebFetch`. Silent fallback is a process violation; the fallback condition and reason MUST appear in your QA report.
+- **Tavily-first for any external lookup** -- When verifying a claim that requires fetching from the open web (a vendor doc page, an external standard, a third-party API surface, an external link in the document under review), you MUST attempt `mcp__litellm__Tavily-tavily_search` (else `mcp__tavily__tavily_search`) / `mcp__litellm__Tavily-tavily_extract` (else `mcp__tavily__tavily_extract`) before falling back to `WebSearch` / `WebFetch`. Silent fallback is a process violation; the fallback condition and reason MUST appear in your QA report.
 
 ### Fixing Issues (When Authorized)
 

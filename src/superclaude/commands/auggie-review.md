@@ -89,7 +89,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 - **Bash(git *)**: Resolve diff ranges, list changed files
 - **Read / Grep / Glob**: Validate Auggie's file:line citations against actual files
 - **mcp__codegraph__codegraph_status / _search / _node / _callers**: one readiness check, then definition and caller cross-checks of cited lines
-- **mcp__auggie__codebase-retrieval**: In-session codebase queries when validating findings without spawning a full Auggie subprocess
+- **`mcp__litellm__augment_code-augment_code_search`** (else `mcp__auggie__codebase-retrieval`): In-session codebase queries when validating findings without spawning a full Auggie subprocess
 - **Write**: Emit the markdown report and audit log under `--output-dir`
 - **Task**: Spawn the `auggie-reviewer` agent for the `--depth deep` cross-check pass (protocol Wave 2 step 5), passing the `model` parameter when `--revagent` is set (per-persona deep passes are Auggie CLI calls, not agents)
 

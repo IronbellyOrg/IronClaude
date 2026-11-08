@@ -1,0 +1,213 @@
+diff --git a/plugins/superclaude/core/RULES.md b/plugins/superclaude/core/RULES.md
+index 2ac83ba8..18999c25 100644
+--- a/plugins/superclaude/core/RULES.md
++++ b/plugins/superclaude/core/RULES.md
+@@ -58,7 +58,7 @@ Actionable rules for enhanced Claude Code framework operation.
+ 
+ - **Recommendation = Action**: A recommendation is a form of implementation. The confidence-check trigger surface is NOT limited to code edits — it covers any output that names specifics.
+ - **Verify First, Same Turn**: The verification tool call goes BEFORE the message containing the recommendation, in the same turn. Not "let me check if you want" — check, then answer.
+-- **Lightweight Form Allowed**: Full `@confidence-check` skill invocation is not always required. Verifying the specific token via `--help`, `grep`, file read, symbol lookup, or `codebase-retrieval` (Auggie, fastest for project-internal identifiers) satisfies this rule.
++- **Lightweight Form Allowed**: Full `@confidence-check` skill invocation is not always required. Verifying the specific token via `--help`, `grep`, file read, symbol lookup, or `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) (Auggie, fastest for project-internal identifiers) satisfies this rule.
+ - **Mark Unverified Explicitly**: If verification cost is genuinely high (e.g., requires a long-running process), say so and mark the specific token `[UNVERIFIED]` with the command the user can run to confirm — never ship it bare.
+ - **Well-Known Exceptions**: For trivial mentions of universal tokens (`--help`, `-v`, `git status`), the rule still applies but verification is usually already in context or universally true — use judgment.
+ - **Behavior, Not Promises**: This is mandatory, not aspirational. Skipping verification to make a response *look* more finished optimizes appearance over correctness.
+diff --git a/src/superclaude/core/CLAUDE.md b/src/superclaude/core/CLAUDE.md
+index 21f4dcde..5ecc0b58 100644
+--- a/src/superclaude/core/CLAUDE.md
++++ b/src/superclaude/core/CLAUDE.md
+@@ -17,11 +17,11 @@ uv run python script.py          # execute scripts
+ 
+ | Server         | Primary Use                                  | Flag (advisory) |
+ |----------------|----------------------------------------------|-----------------|
+-| auggie         | Codebase search — call before significant edits | (auto)  |
++| `litellm` (Augment search) or `auggie` | Codebase search, call before significant edits; proxy tool `mcp__litellm__augment_code-augment_code_search`, sees pushed code only | (auto)  |
+ | codegraph      | Code graph: symbols, callers, impact, file outlines (guide: ~/.claude/CODEGRAPH.md) | (auto) |
+-| context7       | Official library/framework docs              | --c7       |
+-| tavily         | Web search, current information              | --tavily   |
+-| playwright     | Browser automation, E2E testing              | --play     |
++| context7       | Official library/framework docs; tools `mcp__litellm__context7-*` (proxy) or `mcp__context7__*` | --c7       |
++| tavily         | Web search, current information; tools `mcp__litellm__Tavily-*` (proxy) or `mcp__tavily__*` | --tavily   |
++| playwright     | Browser automation, E2E testing; plugin tools `mcp__plugin_playwright_playwright__*` | --play     |
+ 
+ The Flag column is advisory: these are hints Claude may honour, not options every command accepts. A command's own flags are in its file under `~/.claude/commands/sc/`; check there before passing one.
+ 
+@@ -33,12 +33,12 @@ The Flag column is advisory: these are hints Claude may honour, not options ever
+ 
+ 1. **UV only** — never `python -m` or bare `pip`
+ 2. **Parallel by default** — batch independent tool calls; sequential only for true dependencies
+-3. **Confidence check** — ≥90% proceed, 70-89% present options, <70% ask. Trigger surface is not just code edits: run it (or its lightweight form — verify the specific token via `--help`/grep/file read/`codebase-retrieval`) BEFORE any reply that suggests an action, emits a command/snippet, or names a specific flag/path/function/version. Recommendation = action.
++3. **Confidence check** — ≥90% proceed, 70-89% present options, <70% ask. Trigger surface is not just code edits: run it (or its lightweight form — verify the specific token via `--help`/grep/file read/`mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)) BEFORE any reply that suggests an action, emits a command/snippet, or names a specific flag/path/function/version. Recommendation = action.
+ 4. **Git** — feature branches only; never commit directly to master/main. `.dev/tasks/` is always staged (`git add .dev/tasks`): packages, ledgers and each package's `.dev/tasks/<pkg>/artifacts/` included. Never gitignore it, never leave it untracked. Staging is not committing. The project-root `artifacts/` is a different folder and is never staged
+ 5. **Output paths** — write files next to their source or to the `--output` dir the CLI command specifies; `docs/generated/` is a roadmap pipeline artifact directory, not a general output sink
+ 6. **Finish what you start** — no TODO stubs for core logic; if you begin a feature, complete it to working state
+ 7. **Scope discipline** — build exactly what's asked; no speculative additions
+-8. **Auggie first** — call `codebase-retrieval` before significant edits to load relevant context
++8. **Auggie first** — call `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) before significant edits to load relevant context
+ 9. **Temporal** — verify current date from env context before any date/version reasoning
+ 10. **Issues** — before filing a GitHub issue, copy the matching template (`~/.claude/ISSUE-HANDOFF.md` for work handed to another person or agent, `~/.claude/ISSUE-BACKLOG.md` for parked work) to a temporary file, fill every section in the copy, then run `gh issue create --title "<title>" --body-file <the copy>`; never edit the installed template
+ 
+@@ -131,7 +131,7 @@ Pick the refresh tool by the content type of the claim:
+ |---|---|
+ | Exact line numbers / file content | `Read` |
+ | Symbolic queries (which function, where defined, what references) | `codegraph_search` / `codegraph_callers` (or the CLI, `~/.claude/CODEGRAPH.md`) to locate, else `Grep` for the definition and references; then `Read` before citing |
+-| Semantic / cross-cutting ("is there an X anywhere") | `mcp__auggie__codebase-retrieval` |
++| Semantic / cross-cutting ("is there an X anywhere") | `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`); pushed code only; use Grep/codegraph for unsaved edits |
+ | Runtime state (permissions, mounts, sockets) | `Bash` (user-executed read-only command) |
+ 
+ ### Session context envelope
+diff --git a/src/superclaude/core/RESEARCH_CONFIG.md b/src/superclaude/core/RESEARCH_CONFIG.md
+index 3c51ce59..9f65ac2e 100644
+--- a/src/superclaude/core/RESEARCH_CONFIG.md
++++ b/src/superclaude/core/RESEARCH_CONFIG.md
+@@ -23,14 +23,14 @@ hop_configuration: {max_depth: 5, timeout: 60s, parallel: true, loop_detection:
+ confidence_scoring: {relevance: 0.5, completeness: 0.5, min: 0.6, target: 0.8}
+ self_reflection: {frequency: after_each_hop, triggers: [low_confidence, contradictions, 80%_time, user_intervention]}
+ memory: {case_reasoning: true, pattern_learning: true, session_persistence: true, retention: 30d}
+-tools: {discovery: tavily, routing: smart, parallel: true}
++tools: {discovery: tavily, routing: smart, parallel: true}  # tavily = mcp__litellm__Tavily-* through the proxy or mcp__tavily__* directly
+ quality_gates: {planning: [objectives, strategy, criteria], execution: min_confidence=0.6, synthesis: coherence+clarity}
+ extraction: {strategy: selective, screenshots: contextual, js_rendering: auto, timeout: 15s}
+ ```
+ 
+ ## Performance
+ 
+-**Caching**: Tavily 1h, Playwright 24h, case patterns always.
++**Caching**: Tavily (`mcp__litellm__Tavily-*` through the proxy or `mcp__tavily__*` directly) 1h, Playwright 24h, case patterns always.
+ **Parallel limits**: searches=5, extractions=3, analysis=2.
+ **Resource limits**: 10min/research, 10 iterations, 5 hops, 100MB/session.
+ 
+@@ -51,7 +51,7 @@ extraction: {strategy: selective, screenshots: contextual, js_rendering: auto, t
+ | T3 | 0.5-0.7 | Community resources, user docs, verified social, Wikipedia |
+ | T4 | 0.3-0.5 | User forums, unverified social, personal blogs, comments |
+ 
+-**Domain filters:** Bind Tavily's `include_domains` / `exclude_domains` to the tiers above —
++**Domain filters:** Tavily is reached as `mcp__litellm__Tavily-*` through the proxy or `mcp__tavily__*` directly. Bind Tavily's `include_domains` / `exclude_domains` to the tiers above —
+ use `include_domains` to bias `search` / `map` / `crawl` toward T1–T2 sources (academic,
+ official docs, established media) and `exclude_domains` to suppress T4 sources (unverified
+ social, comment threads).
+@@ -90,8 +90,8 @@ result set is truncated to a maximum of **50 URLs**.
+ 
+ | Operation | Tavily tool id | Use | Enabled at |
+ |-----------|----------------|-----|-----------|
+-| map | `mcp__tavily__tavily_map` | Site-structure discovery — enumerate a site's URL graph before targeted extraction | deep+ (cap `maps=2`) |
+-| crawl | `mcp__tavily__tavily_crawl` | Deep domain traversal — follow links across a domain to gather many pages | exhaustive only (cap `crawls=1`, ≤50 URLs) |
++| map | `mcp__litellm__Tavily-tavily_map` (else `mcp__tavily__tavily_map`) | Site-structure discovery — enumerate a site's URL graph before targeted extraction | deep+ (cap `maps=2`) |
++| crawl | `mcp__litellm__Tavily-tavily_crawl` (else `mcp__tavily__tavily_crawl`) | Deep domain traversal — follow links across a domain to gather many pages | exhaustive only (cap `crawls=1`, ≤50 URLs) |
+ 
+ Typical flow: `map` a domain to surface candidate URLs, then `extract` the high-value ones;
+ escalate to `crawl` only at the **exhaustive** tier when broad coverage across a domain is
+diff --git a/src/superclaude/core/RULES.md b/src/superclaude/core/RULES.md
+index 2ac83ba8..18999c25 100644
+--- a/src/superclaude/core/RULES.md
++++ b/src/superclaude/core/RULES.md
+@@ -58,7 +58,7 @@ Actionable rules for enhanced Claude Code framework operation.
+ 
+ - **Recommendation = Action**: A recommendation is a form of implementation. The confidence-check trigger surface is NOT limited to code edits — it covers any output that names specifics.
+ - **Verify First, Same Turn**: The verification tool call goes BEFORE the message containing the recommendation, in the same turn. Not "let me check if you want" — check, then answer.
+-- **Lightweight Form Allowed**: Full `@confidence-check` skill invocation is not always required. Verifying the specific token via `--help`, `grep`, file read, symbol lookup, or `codebase-retrieval` (Auggie, fastest for project-internal identifiers) satisfies this rule.
++- **Lightweight Form Allowed**: Full `@confidence-check` skill invocation is not always required. Verifying the specific token via `--help`, `grep`, file read, symbol lookup, or `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) (Auggie, fastest for project-internal identifiers) satisfies this rule.
+ - **Mark Unverified Explicitly**: If verification cost is genuinely high (e.g., requires a long-running process), say so and mark the specific token `[UNVERIFIED]` with the command the user can run to confirm — never ship it bare.
+ - **Well-Known Exceptions**: For trivial mentions of universal tokens (`--help`, `-v`, `git status`), the rule still applies but verification is usually already in context or universally true — use judgment.
+ - **Behavior, Not Promises**: This is mandatory, not aspirational. Skipping verification to make a response *look* more finished optimizes appearance over correctness.
+diff --git a/src/superclaude/examples/deep_research_workflows.md b/src/superclaude/examples/deep_research_workflows.md
+index 9641eb44..023dd725 100644
+--- a/src/superclaude/examples/deep_research_workflows.md
++++ b/src/superclaude/examples/deep_research_workflows.md
+@@ -431,13 +431,13 @@ async-related guidance"
+ 
+ ```yaml
+ 1. Site-structure discovery (deep profile enables map; cap maps=2):
+-   - mcp__tavily__tavily_map:
++   - mcp__litellm__Tavily-tavily_map:   # (else mcp__tavily__tavily_map)
+        url: "https://fastapi.tiangolo.com"
+        include_domains: ["fastapi.tiangolo.com"]   # bound to T1/T2 source tier
+    - Returns: the site's URL graph (sections, pages)
+ 
+ 2. Targeted extraction of the high-value URLs found by map:
+-   - mcp__tavily__tavily_extract:
++   - mcp__litellm__Tavily-tavily_extract:   # (else mcp__tavily__tavily_extract)
+        urls: [ ".../async/", ".../advanced/async-sql/", ".../tutorial/..." ]
+        extract_depth: advanced        # deep profile → advanced
+    - Returns: full content of the selected pages only
+@@ -455,7 +455,7 @@ async-related guidance"
+ 
+ ```yaml
+ 1. Crawl is enabled ONLY at the exhaustive profile (cap crawls=1, ≤50 URLs):
+-   - mcp__tavily__tavily_crawl:
++   - mcp__litellm__Tavily-tavily_crawl:   # (else mcp__tavily__tavily_crawl)
+        url: "https://vendor.example.com/changelog"
+        include_domains: ["vendor.example.com"]
+        search_depth: advanced          # exhaustive profile → advanced
+diff --git a/src/superclaude/mcp/MCP_Auggie.md b/src/superclaude/mcp/MCP_Auggie.md
+index ddcceab4..ec59f783 100644
+--- a/src/superclaude/mcp/MCP_Auggie.md
++++ b/src/superclaude/mcp/MCP_Auggie.md
+@@ -28,6 +28,10 @@
+ - **ask_question** — Q&A over the repository using Auggie's context engine
+ - **implement** — Apply a change in the repo (optional commit)
+ 
++### Through the LiteLLM proxy
++
++When the session reaches MCP servers through the central LiteLLM proxy, codebase search is the tool `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval` on a direct install). Pass `repo_owner` and `repo_name` from `git remote get-url origin` and `branch` = the repository's default branch. It searches pushed code only; for uncommitted or unpushed changes use codegraph or Grep.
++
+ ## Examples
+ 
+ ```
+diff --git a/src/superclaude/mcp/MCP_Tavily.md b/src/superclaude/mcp/MCP_Tavily.md
+index 67b42473..48a6e76b 100644
+--- a/src/superclaude/mcp/MCP_Tavily.md
++++ b/src/superclaude/mcp/MCP_Tavily.md
+@@ -37,12 +37,15 @@ Requires TAVILY_API_KEY environment variable from <https://app.tavily.com>
+ 
+ The 0.2.x server exposes four tools:
+ 
+-| Tool id | Operation | Notes |
+-|---------|-----------|-------|
+-| `mcp__tavily__tavily_search` | Web/news search with ranking + filtering | primary search |
+-| `mcp__tavily__tavily_extract` | Full-text extraction from one or more URLs | page content |
+-| `mcp__tavily__tavily_map` | Site-structure discovery (URL graph of a domain) | research engine only |
+-| `mcp__tavily__tavily_crawl` | Deep domain traversal across linked pages | research engine only |
++| Proxy tool id (LiteLLM) | Direct tool id | Operation | Notes |
++|-------------------------|---------------|-----------|-------|
++| `mcp__litellm__Tavily-tavily_search` | `mcp__tavily__tavily_search` | Web/news search with ranking + filtering | primary search |
++| `mcp__litellm__Tavily-tavily_extract` | `mcp__tavily__tavily_extract` | Full-text extraction from one or more URLs | page content |
++| `mcp__litellm__Tavily-tavily_map` | `mcp__tavily__tavily_map` | Site-structure discovery (URL graph of a domain) | research engine only |
++| `mcp__litellm__Tavily-tavily_crawl` | `mcp__tavily__tavily_crawl` | Deep domain traversal across linked pages | research engine only |
++| `mcp__litellm__Tavily-tavily_research` | (none) | Multi-source research report | proxy-only; not in the pinned direct server |
++
++Prefer the proxy id when the session reaches MCP servers through the LiteLLM proxy; use the direct id on a direct install.
+ 
+ ### Parameters
+ 
+diff --git a/src/superclaude/templates/documents/skill_template.md b/src/superclaude/templates/documents/skill_template.md
+index f07641e8..aa7ee89a 100644
+--- a/src/superclaude/templates/documents/skill_template.md
++++ b/src/superclaude/templates/documents/skill_template.md
+@@ -246,7 +246,7 @@ Example: "[Scenario B example prompt showing minimal/vague request]"
+ <!-- CLASSIFICATION: SUBSTITUTE structure + GENERATE discovery targets -->
+ ### A.3: Perform Scope Discovery
+ 
+-Use Glob, Grep, and codebase-retrieval to map the [domain — e.g., problem, feature, product, system] space. This must happen BEFORE building the task file so the builder can enumerate specific [assignment type — e.g., investigation assignments, documentation sections, requirement areas].
++Use Glob, Grep, and `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) to map the [domain — e.g., problem, feature, product, system] space. This must happen BEFORE building the task file so the builder can enumerate specific [assignment type — e.g., investigation assignments, documentation sections, requirement areas].
+ 
+ **Adjust depth by scenario:**
+ - **Scenario A**: Focused discovery — verify the files/directories the user mentioned exist, scan for related code, identify gaps in what the user specified.
+@@ -470,7 +470,7 @@ Do NOT broadcast TASK_READY, use TaskCreate, or use SendMessage — these tools
+ will fail because there is no team. This overrides your agent definition's
+ Critical Rule 6 ("ALWAYS broadcast TASK_READY") and Step 6 (TaskCreate + broadcast).
+ Instead, return the task file path as your final output.
+-- **Codebase questions** → use WebSearch or codebase-retrieval (you have access)
++- **Codebase questions** → use WebSearch or `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) (you have access)
+ - **External docs/syntax** → use WebSearch
+ - **If blocked** → create the best task file you can and note gaps in the Task Log section. The skill will review and iterate.
+ 
+diff --git a/tests/core/test_research_config.py b/tests/core/test_research_config.py
+index 0b09051a..504b72af 100644
+--- a/tests/core/test_research_config.py
++++ b/tests/core/test_research_config.py
+@@ -81,3 +81,5 @@ def test_map_and_crawl_tool_ids_present():
+     text = _read()
+     assert "mcp__tavily__tavily_map" in text
+     assert "mcp__tavily__tavily_crawl" in text
++    assert "mcp__litellm__Tavily-tavily_map" in text
++    assert "mcp__litellm__Tavily-tavily_crawl" in text

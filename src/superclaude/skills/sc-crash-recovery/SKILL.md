@@ -98,7 +98,7 @@ If the user follows up with "go ahead, run #2", do it then — but each command 
 
 ## Auggie usage
 
-Auggie's `codebase-retrieval` is the primary tool for the `auggie-semantic` investigator, and also useful as a secondary check in `pipeline-artifacts` when manifest data is ambiguous. Specific queries to use:
+Codebase search is the primary tool for the `auggie-semantic` investigator, and also useful as a secondary check in `pipeline-artifacts` when manifest data is ambiguous. Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep. Specific queries to use:
 
 - *"What files contain in-progress markers (TODO-WIP, FIXME-RECENT, status fields like 🟡 InProgress) modified in the last 72 hours?"*
 - *"Where are recovery or resume instructions documented for the sprint, roadmap, or task pipelines?"*
@@ -143,7 +143,7 @@ When an investigator's tool layer fails, do not silently drop its signal — the
 | Failure | Behavior | Fallback |
 |---|---|---|
 | `bootstrap_scan.sh` exits non-zero or returns malformed JSON | Continue with the investigators that don't depend on it (git-state, claude-sessions); mark pipeline-artifacts and project-memory as `unscanned: bootstrap_failed` in the final report | Read .dev/releases/current/* directly via Glob+Read as a degraded fallback |
-| Auggie MCP unreachable / `codebase-retrieval` returns error | Skip the auggie-semantic investigator; emit `unscanned: auggie_unavailable` in the report; offer the user the option to run a Grep-based fallback for `TODO-WIP`/`status: 🟡` markers | Grep over the tree for the explicit marker strings |
+| Codebase search unreachable (neither `mcp__litellm__augment_code-augment_code_search` nor `mcp__auggie__codebase-retrieval` answers) | Skip the auggie-semantic investigator; emit `unscanned: auggie_unavailable` in the report; offer the user the option to run a Grep-based fallback for `TODO-WIP`/`status: 🟡` markers | Grep over the tree for the explicit marker strings |
 | Task subagent times out or returns empty string | Re-spawn that one investigator once with a tighter prompt (cap output, narrower scope); if still empty, emit `unscanned: subagent_failure` and continue synthesis | None — the report is honest about the gap |
 | Wave exit criterion: any investigator that returns neither a structured fragment nor an explicit "no signal" marker | Wait briefly, then treat as `unscanned`. Never let a silent-empty investigator slip through into a synthesis that looks complete | None |
 

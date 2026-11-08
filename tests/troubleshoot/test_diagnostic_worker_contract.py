@@ -21,6 +21,7 @@ TOOLS = {
     "Read",
     "Grep",
     "Glob",
+    "mcp__litellm__augment_code-augment_code_search",
     "mcp__auggie__codebase-retrieval",
     "mcp__codegraph__codegraph_search",
     "mcp__codegraph__codegraph_node",
