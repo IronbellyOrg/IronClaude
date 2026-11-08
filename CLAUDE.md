@@ -302,13 +302,14 @@ def test_with_budget(token_budget):
 
 ### Parallel Development with Git Worktrees
 
-**CRITICAL**: When running multiple Claude Code sessions in parallel, give each session its own worktree to avoid conflicts.
+**CRITICAL**: When running multiple Claude Code sessions in parallel, each one works in its own worktree to avoid conflicts. A worktree is created by its orchestrator with an agent in it; a session does not open a worktree for itself.
 
 **ABSOLUTE RULE — every project worktree is created through Orca and lives at Orca's default worktree location.**
-Create it with `orca worktree create --name <name>`, adding `--repo <selector>`, `--base-branch <ref>`, and
-`--parent-worktree <selector>` or `--no-parent` as needed. Orca places it at its default worktree location,
-outside the main checkout; `orca worktree current --json` (from inside it) and `orca worktree list` show the real path.
+Create it with `orca worktree create --name <name> --agent claude --prompt "<task>"`, adding `--repo <selector>`,
+`--base-branch <ref>`, and `--parent-worktree <selector>` or `--no-parent` as needed. Orca places it at its default
+worktree location, outside the main checkout; `orca worktree current --json` (from inside it) and `orca worktree list` show the real path.
 
+- **Every worktree gets an agent, and its creator owns it.** Because every worktree gets an agent, a bare `orca worktree create` is wrong: always pass `--agent claude --prompt "<task>"`, and never create a worktree for your own use. The session that creates a worktree becomes its orchestrator (or a coordinator under another orchestrator) and owns its agent(s). A worktree a human creates needs an agent too. Supervised workers are started with `orca orchestration worker-start`, which already creates their worktree with an agent. A PreToolUse hook (`require-orca-worktree-agent.sh`) blocks a Bash call that runs `orca worktree create` without `--agent` once it is installed; the other parts of this rule are instructions only.
 - Never create a project worktree with raw `git worktree add`, under the retired `.dev/worktrees/` location, or under `.claude/worktrees/`.
 - Do **not** use the `EnterWorktree` tool: it hardcodes `.claude/worktrees/`, which is gitignored sync-dev territory.
 - Never pass Orca link flags (`--issue`, `--pr`) for this repo; the fork rule above (`## ABSOLUTE RULE: PR Target = Fork`) governs them.
@@ -316,8 +317,8 @@ outside the main checkout; `orca worktree current --json` (from inside it) and `
 - **Existing checkouts under the retired `.dev/worktrees/` location** may stay until their branch is merged, then are removed with `git worktree remove <path>`; no new checkout may be created there.
 
 ```bash
-# Create a worktree named pm-agent, based on origin/master
-orca worktree create --name pm-agent --base-branch origin/master
+# Create a worktree named pm-agent, based on origin/master, with an agent in it
+orca worktree create --name pm-agent --base-branch origin/master --agent claude --prompt "<task>"
 
 # Show where Orca put it
 orca worktree list
@@ -332,9 +333,9 @@ orca worktree list
 
 **Usage**:
 
-- Session A: Open the main checkout (current branch)
-- Session B: Open the Orca-created worktree `integration` (path from `orca worktree list`)
-- Session C: Open the Orca-created worktree `pm-agent` (feature branch)
+- Session A: Open the main checkout (current branch); it is the orchestrator that creates the worktrees below
+- Worktree `integration`: created by session A with `--agent claude`; that agent works there (path from `orca worktree list`)
+- Worktree `pm-agent` (feature branch): created by session A with `--agent claude`; that agent works there
 
 **Cleanup**:
 

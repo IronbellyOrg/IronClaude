@@ -1,0 +1,222 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t4-grep.log b/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t4-grep.log
+new file mode 100644
+index 00000000..502f8c01
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t4-grep.log
+@@ -0,0 +1,4 @@
++grep1 rc=1 (1 means nothing found)
++17:- **`--claim <number|url>`**: assign an existing issue of the origin repo to the current user on GitHub and, when one exists, on its ClickUp task; check whether the issue text is still accurate; write a summary cheatsheet and the next-step prompt; post two 
++170:- After the comments, and unless `--pipeline none`, create or reuse the Orca worktree `issue-<N>` and launch one agent in it at the chosen level through `scripts/orca_worktree.py`; `--pipeline none` stops after the comments with no worktree.
++grep2 rc=0
+diff --git a/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t4-tests.log b/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t4-tests.log
+new file mode 100644
+index 00000000..b02fafde
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t4-tests.log
+@@ -0,0 +1,7 @@
++
++tests/commands/test_issue_command.py .................                   [ 14%]
++tests/skills/test_issue_protocol.py .................................... [ 44%]
++...................................................................      [100%]
++
++============================= 120 passed in 0.57s ==============================
++rc=0
+diff --git a/src/superclaude/commands/issue.md b/src/superclaude/commands/issue.md
+index a0db85ff..4d3d1433 100644
+--- a/src/superclaude/commands/issue.md
++++ b/src/superclaude/commands/issue.md
+@@ -13,7 +13,7 @@ argument-hint: "--claim <number|url> [--pipeline worktree|full|none] [--submit]
+ 
+ Two modes on the repository that `origin` points at:
+ 
+-- `--claim` takes an existing issue: assigns it to you on GitHub and, when one exists, on its ClickUp task; checks whether the issue text is still accurate against today's code and the pull requests merged since it was opened; writes a summary and a next-step prompt under `.dev/issues/<N>/`; posts two marked comments; then creates (or reuses) the Orca worktree `issue-<N>` and launches one Claude Code agent in it at the `--pipeline` level. Orca must be running (STOP `E-ORCA-REQUIRED` otherwise, before anything is assigned or posted). The levels: `worktree` (the default) stops at a plan a human approves, `full` also implements without a commit or a push, `full` with `--submit` also commits, pushes a feature branch and opens a PR through `/sc:pr-submit --monitor 3`, and `none` creates the worktree and launches no agent. Nothing ever merges.
++- `--claim` takes an existing issue: assigns it to you on GitHub and, when one exists, on its ClickUp task; checks whether the issue text is still accurate against today's code and the pull requests merged since it was opened; writes a summary and a next-step prompt under `.dev/issues/<N>/`; posts two marked comments; then, unless `--pipeline none`, creates (or reuses) the Orca worktree `issue-<N>` and launches one Claude Code agent in it at the `--pipeline` level. Orca must be running (STOP `E-ORCA-REQUIRED` otherwise, before anything is assigned or posted). The levels: `worktree` (the default) stops at a plan a human approves, `full` also implements without a commit or a push, `full` with `--submit` also commits, pushes a feature branch and opens a PR through `/sc:pr-submit --monitor 3`, and `none` stops after the comments: it creates no worktree and launches no agent. Nothing ever merges.
+ - `--create` turns a description into a GitHub issue built from one of four templates, with labels from a fixed set. GitHub only: no ClickUp task.
+ 
+ Both modes post directly to GitHub; nothing is shown for approval first.
+@@ -40,7 +40,7 @@ Explicit only: the user types `/sc:issue --claim ...` or `/sc:issue --create ...
+ | `--depth` | create | `quick` | `quick`, `standard`, `deep` | How hard the command checks the flags and fills the body |
+ | `--mode` | create | chosen by a worker when omitted | `feature`, `bug` | Picks the feature or bug template and the `enhancement` / `bug` label |
+ | `--type` | create | chosen by a worker when omitted | `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install`, `other` | Area of the change; maps to a `type: <value>` label |
+-| `--pipeline` | claim | `worktree` | `worktree`, `full`, `none` | How far the launched agent goes. Every value creates the worktree; `none` launches no agent |
++| `--pipeline` | claim | `worktree` | `worktree`, `full`, `none` | How far the launched agent goes. `worktree` and `full` create the worktree and launch an agent; `none` creates no worktree and launches no agent |
+ | `--submit` | claim | off | no value | Only with `--pipeline full`: the agent also commits, pushes a feature branch to `origin` and runs `/sc:pr-submit --monitor 3`. Never merges |
+ 
+ There is no repository option (the repo is always `origin`), no dry-run option and no preview option.
+@@ -74,10 +74,10 @@ Every file starts from a template of the skill and stays under `.dev/issues/`:
+ 
+ | Mode | Directory | Files |
+ |---|---|---|
+-| claim | `.dev/issues/<N>/` | `scout.md`, `clickup.json`, `accuracy-check.md` (posted), `issue-summary.md` (effort in hours), `analysis/analyze-<scope>.md` (only when the issue is out of date), `recommend.md`, `next-steps.md`, `launch-prompt.md` (the launched agent's instructions; not written for `--pipeline none`), `claim-comment.md` (posted), `worktree.json` (the worktree path and launch record; never copied into the worktree) |
++| claim | `.dev/issues/<N>/` | `scout.md`, `clickup.json`, `accuracy-check.md` (posted), `issue-summary.md` (effort in hours), `analysis/analyze-<scope>.md` (only when the issue is out of date), `recommend.md`, `next-steps.md`, `launch-prompt.md` (the launched agent's instructions; not written for `--pipeline none`), `claim-comment.md` (posted), `worktree.json` (the worktree path and launch record; never copied into the worktree; not written for `--pipeline none`) |
+ | create | `.dev/issues/draft-<YYYYMMDD-HHMMSS>-<slug>/`, renamed to `.dev/issues/<N>/` once the issue exists | `description.md`, `scout.md`, `flags.md`, `issue-body.md` (posted), `draft-notes.md`, and `create-review.md` (posted only when a standard or deep check disagrees with your flags) |
+ 
+-After a claim, the launched agent works from `.dev/issues/<N>/launch-prompt.md` and `next-steps.md` in the worktree, in order, after the `/model` line `next-steps.md` starts with. With `--pipeline none` no agent is launched: open `.dev/issues/<N>/next-steps.md` and run its commands in your own session.
++After a claim, the launched agent works from `.dev/issues/<N>/launch-prompt.md` and `next-steps.md` in the worktree, in order, after the `/model` line `next-steps.md` starts with. With `--pipeline none` no worktree is created and no agent is launched: open `.dev/issues/<N>/next-steps.md` in this checkout and run its commands in your own session.
+ 
+ ## Boundaries
+ 
+@@ -85,7 +85,7 @@ After a claim, the launched agent works from `.dev/issues/<N>/launch-prompt.md`
+ - Resolve the repository from the `origin` remote only.
+ - Spawn tier-pinned worker agents for every lookup, accuracy check and draft.
+ - Write every artifact under `.dev/issues/` from a template.
+-- On claim: assign the issue, assign the ClickUp task when `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID` are set, post or update the accuracy-check and claim comments, create or reuse the Orca worktree `issue-<N>`, and (unless `--pipeline none`) launch one agent in it at the chosen level. Nothing is ever merged.
++- On claim: assign the issue, assign the ClickUp task when `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID` are set, post or update the accuracy-check and claim comments and, unless `--pipeline none`, create or reuse the Orca worktree `issue-<N>` and launch one agent in it at the chosen level (`--pipeline none` stops after the comments, with no worktree). Nothing is ever merged.
+ - On create: apply only the labels of the fixed set that already exist in the repo, and list the rest as not applied.
+ 
+ **Will Not:**
+@@ -108,4 +108,4 @@ The full behavioral specification is in `~/.claude/skills/sc-issue-protocol/SKIL
+ | Command | Difference |
+ |---|---|
+ | `/sc:recommend` | Picks the next-step chain that a claim writes into `next-steps.md` |
+-| `/sc:brainstorm`, `/sc:design`, `/sc:workflow`, `/sc:implement`, `/sc:troubleshoot` | The next-step commands a claim recommends; the launched agent runs them at the chosen level, or you run them after `--pipeline none` |
++| `/sc:brainstorm`, `/sc:design`, `/sc:workflow`, `/sc:implement`, `/sc:troubleshoot` | The next-step commands a claim recommends; the launched agent runs them at the chosen level, or you run them from this checkout's `.dev/issues/<N>/` after `--pipeline none` |
+diff --git a/src/superclaude/skills/sc-issue-protocol/SKILL.md b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+index 6ddd4973..c2d56bed 100644
+--- a/src/superclaude/skills/sc-issue-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+@@ -14,7 +14,7 @@ mcp-servers: [auggie, codegraph]
+ 
+ Two modes, chosen by the command (`~/.claude/commands/sc/issue.md`), which has already validated the flags:
+ 
+-- **`--claim <number|url>`**: assign an existing issue of the origin repo to the current user on GitHub and, when one exists, on its ClickUp task; check whether the issue text is still accurate; write a summary cheatsheet and the next-step prompt; post two marked comments; then create or reuse the Orca worktree `issue-<N>` and copy `.dev/issues/<N>/` into it, and (unless `--pipeline none`) launch one agent there at the level `--pipeline` names: `worktree` (default) plans and waits for approval, `full` also implements without a commit or a push, `full` with `--submit` also commits, pushes a feature branch and opens a PR through `/sc:pr-submit --monitor 3`. Nothing ever merges. This skill never runs a step of `next-steps.md` itself (B2).
++- **`--claim <number|url>`**: assign an existing issue of the origin repo to the current user on GitHub and, when one exists, on its ClickUp task; check whether the issue text is still accurate; write a summary cheatsheet and the next-step prompt; post two marked comments; then, unless `--pipeline none` (which creates no worktree, launches no agent and ends after the comments), create or reuse the Orca worktree `issue-<N>`, copy `.dev/issues/<N>/` into it and launch one agent there at the level `--pipeline` names: `worktree` (default) plans and waits for approval, `full` also implements without a commit or a push, `full` with `--submit` also commits, pushes a feature branch and opens a PR through `/sc:pr-submit --monitor 3`. Nothing ever merges. This skill never runs a step of `next-steps.md` itself (B2).
+ - **`--create "<description>"`**: turn a description into a GitHub issue built from one of four templates, with labels from a fixed set, and post it. GitHub only: no ClickUp task and no self-assignment (B6).
+ 
+ For issues filed through `/sc:issue --create`, its four templates replace the `ISSUE-HANDOFF.md` / `ISSUE-BACKLOG.md` instruction of rule 10 in the distributed `CLAUDE.md`; rule 10 itself is unchanged and still governs issues filed without `/sc:issue`.
+@@ -81,14 +81,14 @@ Every spawn prompt names each exact path the job must write under `.dev/issues/`
+ 
+ Load `refs/claim.md` now. `<N>` is the issue number, `<D>` = `.dev/issues/<N>/`.
+ 
+-1. **Wave 0, prerequisites.** `uv run --no-project python "<skill base>/scripts/origin_repo.py" --claim "<argument>"` resolves `<R>` and `<N>`: exit 1 STOP `E-NO-ORIGIN`, exit 3 STOP `E-FOREIGN-REPO`, exit 4 STOP `E-NOT-AN-ISSUE`. Then `gh auth status` (else STOP `E-GH-AUTH`), the Orca check `uv run --no-project python "<skill base>/scripts/orca_worktree.py" preflight` (`ok: false` is STOP `E-ORCA-REQUIRED`, before any GitHub or ClickUp write), the default branch, and create `<D>`.
++1. **Wave 0, prerequisites.** `uv run --no-project python "<skill base>/scripts/origin_repo.py" --claim "<argument>"` resolves `<R>` and `<N>`: exit 1 STOP `E-NO-ORIGIN`, exit 3 STOP `E-FOREIGN-REPO`, exit 4 STOP `E-NOT-AN-ISSUE`. Then `gh auth status` (else STOP `E-GH-AUTH`), the Orca check `uv run --no-project python "<skill base>/scripts/orca_worktree.py" preflight` (`ok: false` is STOP `E-ORCA-REQUIRED`, before any GitHub or ClickUp write; it runs for `--pipeline none` too, because Orca is a dependency of every claim), the default branch, and create `<D>`.
+ 2. **Wave 1, lookup.** Load `refs/tiers.md`. Spawn `issue-worker-t3` first (B13); it writes `<D>/scout.md` from `templates/scout-report.md`.
+ 3. **Wave 2, edge cases** from `scout.md`: a pull request is STOP `E-NOT-AN-ISSUE`; closed or assigned to someone else stops with the stated message and no write (B9); re-claim continues; earlier marked comment IDs are kept for Wave 6.
+ 4. **Wave 3, assign.** `gh issue edit <N> --repo <R> --add-assignee @me` (failure STOP `E-ASSIGN-FAILED`, before ClickUp and any comment), then `scripts/clickup_claim.py` with stdout to `<D>/clickup.json`; every ClickUp outcome except an argument error is non-fatal.
+ 5. **Wave 4, accuracy check and summary.** Spawn `issue-worker-t2`, or `issue-worker-t1` when `scout.md` says `complex`; it writes `<D>/accuracy-check.md`, `<D>/issue-summary.md` (effort in hours) and, when out of date, the analysis report as `<D>/analysis/analyze-<scope>.md` (`<scope>` in this file name is the last segment of the main path the issue touches). No file under `<D>/analysis/` has a name that starts with analysis, report, summary or findings.
+ 6. **Wave 5, next steps.** Load `refs/chains.md`. Invoke `Skill sc-recommend` with the goal format of `refs/chains.md`; save its output verbatim to `<D>/recommend.md` from `templates/recommend-record.md`. Write `<D>/next-steps.md` from `templates/next-steps.md`, starting with the `/model` tier line and carrying the `Plan boundary: after step <K>` line. Unless `--pipeline none`, render `<D>/launch-prompt.md` with `orca_worktree.py prompt` (the script keeps the existing prompt only while a launch entry's worktree still exists).
+-7. **Wave 6, post.** Post or edit (by marker) the accuracy-check comment and the claim comment (`templates/claim-comment.md`). Then continue with Wave 7 and Wave 8. A STOP in Waves 0 to 6 means no Orca call after the Wave 0 check. This skill never runs a step of `next-steps.md` (B2).
+-8. **Wave 7, worktree.** `orca_worktree.py worktree --repo <R> --number <N> --base origin/<B> --source <D>` creates or reuses the worktree and copies `<D>` into it. Every failure is a warning: the claim `status` stays `success`.
++7. **Wave 6, post.** Post or edit (by marker) the accuracy-check comment and the claim comment (`templates/claim-comment.md`). Then continue with Wave 7 and Wave 8, except for `--pipeline none`, which ends the claim here (print the final output and the return contract). A STOP in Waves 0 to 6 means no Orca call after the Wave 0 check. This skill never runs a step of `next-steps.md` (B2).
++8. **Wave 7, worktree.** Not for `--pipeline none`. `orca_worktree.py worktree --repo <R> --number <N> --base origin/<B> --source <D>` creates or reuses the worktree and copies `<D>` into it. Every failure is a warning: the claim `status` stays `success`.
+ 9. **Wave 8, launch.** Only when `--pipeline` is not `none` and Wave 7 `status` is `created` or `reused`: `orca_worktree.py launch --number <N> --source <D> --level <L> [--submit]` starts one agent in the worktree at the chosen level, behind the ccsession shim, and records the level for the enforcement hook. The agent, not this skill, runs the steps. Every failure is a warning. Then print the final output of `refs/claim.md` (worktree line, tracking note, launch result, every warning with its remedy line), the return contract, and STOP.
+ 
+ ## Create mode
+@@ -123,7 +123,7 @@ Claim mode adds these ten fields after the block above (create mode prints none
+ ```yaml
+ pipeline_level: worktree | full | none
+ submit: true | false
+-worktree_status: created | reused | failed
++worktree_status: created | reused | failed | not_requested
+ worktree_path: <absolute path or null>
+ worktree_branch: <branch or null>
+ worktree_match_key: marker | record | basename | branch | null
+@@ -133,7 +133,7 @@ launch_warning: <W- code or null>
+ enforcement_hook: installed | missing | null
+ ```
+ 
+-`launch_status` is `not_requested` for `--pipeline none` and when `worktree_status` is `failed`. `worktree_match_key` is `null` for a newly created worktree. `enforcement_hook` is `null` when no agent was requested or the launch was `already_launched`; otherwise it is `installed` or `missing`, also after a failed launch. The claim `status` stays `success` through any worktree or launch warning.
++For `--pipeline none` no worktree is created: `worktree_status` is `not_requested` and `worktree_path`, `worktree_branch`, `worktree_match_key` and `worktree_warning` are `null`. `launch_status` is `not_requested` for `--pipeline none` and when `worktree_status` is `failed`. `worktree_match_key` is `null` for a newly created worktree. `enforcement_hook` is `null` when no agent was requested or the launch was `already_launched`; otherwise it is `installed` or `missing`, also after a failed launch. The claim `status` stays `success` through any worktree or launch warning.
+ 
+ On a STOP, also print the STOP code and its message.
+ 
+@@ -167,7 +167,7 @@ On a STOP, also print the STOP code and its message.
+ - Spawn the T3 worker before any lookup of its own, and pin every worker by `subagent_type`.
+ - Write every artifact under `.dev/issues/` from its template.
+ - Post directly, and edit an earlier marked comment instead of posting a duplicate.
+-- After the comments, create or reuse the Orca worktree `issue-<N>` and, unless `--pipeline none`, launch one agent in it at the chosen level through `scripts/orca_worktree.py`.
++- After the comments, and unless `--pipeline none`, create or reuse the Orca worktree `issue-<N>` and launch one agent in it at the chosen level through `scripts/orca_worktree.py`; `--pipeline none` stops after the comments with no worktree.
+ 
+ ## Will Not
+ 
+diff --git a/src/superclaude/skills/sc-issue-protocol/refs/claim.md b/src/superclaude/skills/sc-issue-protocol/refs/claim.md
+index 40057c4a..b9233189 100644
+--- a/src/superclaude/skills/sc-issue-protocol/refs/claim.md
++++ b/src/superclaude/skills/sc-issue-protocol/refs/claim.md
+@@ -14,7 +14,7 @@ Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; ev
+    `uv run --no-project python "<skill base>/scripts/origin_repo.py" --claim "<argument>"`
+    It reads only the `origin` remote and prints `{"repo": "<owner/repo>", "number": <N>}`. Exit 1 = STOP `E-NO-ORIGIN` (no `origin`, or not a GitHub URL). Exit 3 = STOP `E-FOREIGN-REPO` (a URL naming any repo other than origin, B10). Exit 4 = STOP `E-NOT-AN-ISSUE` (a `/pull/<N>` URL, or not an issue number or URL). Print the script's stderr line with the STOP.
+ 2. `gh auth status` must succeed; else STOP `E-GH-AUTH`.
+-3. Orca check: `uv run --no-project python "<skill base>/scripts/orca_worktree.py" preflight`. It prints `{"ok": true}` or `{"ok": false, "detail": "..."}`. `ok: false` is STOP `E-ORCA-REQUIRED`: print "/sc:issue --claim needs Orca running; start Orca and re-run" and then the script's `detail`. This is the only Orca call before Wave 7.
++3. Orca check: `uv run --no-project python "<skill base>/scripts/orca_worktree.py" preflight`. It prints `{"ok": true}` or `{"ok": false, "detail": "..."}`. `ok: false` is STOP `E-ORCA-REQUIRED`: print "/sc:issue --claim needs Orca running; start Orca and re-run" and then the script's `detail`. This is the only Orca call before Wave 7. It also runs for `--pipeline none`, which makes no later Orca call: Orca stays a dependency of every claim (design rule P1), so a claim never posts anything while Orca is down.
+ 4. Resolve the default branch `<B>` with `gh repo view <R> --json defaultBranchRef -q .defaultBranchRef.name` (the repo is named explicitly).
+ 5. Create `<D>`.
+ 
+@@ -90,11 +90,11 @@ Load `refs/chains.md`.
+    `gh issue comment <N> --repo <R> --body-file <D>/accuracy-check.md`
+ 2. Claim comment: write `<D>/claim-comment.md` from `templates/claim-comment.md`: who claimed it, the ClickUp result from `clickup.json`, the summary overview, effort estimate, complexity, accuracy verdict, the first next step, and repo-relative links to `<D>/issue-summary.md`, `<D>/next-steps.md` and `<D>/analysis/` with the one-line note that they open on GitHub only after someone commits and pushes the files (default D9). It ends with `<!-- sc:issue:claim -->`. Edit the earlier claim comment with `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<D>/claim-comment.md`, or post it with `gh issue comment <N> --repo <R> --body-file <D>/claim-comment.md`.
+ 3. A post or edit that fails -> STOP `E-POST-FAILED`; the files stay in `<D>`, and a re-run edits rather than duplicates because of the markers.
+-4. After both comments are posted, run Wave 7, then Wave 8. A STOP anywhere in Waves 0 to 6, including `E-POST-FAILED`, means no Orca call after the Wave 0 check. Do not stage or commit `.dev/issues/` (default D24).
++4. After both comments are posted, run Wave 7, then Wave 8, unless `--pipeline` is `none`: then the claim ends here, with no Wave 7 and no Wave 8 (no worktree is created, no agent is launched, no `<D>/worktree.json` is written). A STOP anywhere in Waves 0 to 6, including `E-POST-FAILED`, means no Orca call after the Wave 0 check. Do not stage or commit `.dev/issues/` (default D24).
+ 
+ ## Wave 7: worktree (orchestrator, no worker)
+ 
+-Runs for every `--pipeline` value, after both comments are posted:
++Does not run for `--pipeline none` (the claim ends after the comments). For `worktree` and `full` it runs after both comments are posted:
+ 
+ `uv run --no-project python "<skill base>/scripts/orca_worktree.py" worktree --repo <R> --number <N> --base origin/<B> --source <D>`
+ 
+@@ -129,11 +129,11 @@ Read the one JSON object it prints: `status` (`launched`, `already_launched` or
+ 
+ Print, in this order:
+ 
+-1. The `next-steps.md` path, then `Worktree: <path> (<status>)`, adding `, matched by <match_key>` when `match_key` is not null (a newly created worktree has none). For `match_key` `basename` or `branch` add "reused a worktree not created by /sc:issue". For `record` after `W-ORCA-LIST-FAILED` add "unverified: Orca could not be listed".
++1. The `next-steps.md` path. For `--pipeline none` print no `Worktree:` line (none was created), skip item 2 and print only the `--pipeline none` line of item 3. Otherwise print `Worktree: <path> (<status>)`, adding `, matched by <match_key>` when `match_key` is not null (a newly created worktree has none). For `match_key` `basename` or `branch` add "reused a worktree not created by /sc:issue". For `record` after `W-ORCA-LIST-FAILED` add "unverified: Orca could not be listed".
+ 2. "`.dev/issues/<N>/` in the worktree is untracked: do not stage it" only when `tracked_known` is true and `tracked_files` is empty. When `tracked_known` is false, print nothing about tracking. Add "run `make sync-dev` there first" when `<wt>/.claude/` is absent and a step of `next-steps.md` needs a primitive that is not synced into the worktree.
+ 3. The launch result:
+    - `launched`: "Agent launched in <wt> (level <L>[, submit]). It stops at the plan boundary and waits; reply `approved` in its tab to let it continue." For `full`: "It runs every step and stops after implementation." For `full` with `--submit`: "It then commits, pushes <branch> and opens the PR through /sc:pr-submit; it never merges."
+    - `already_launched`: "agent already launched at <launched_at>" plus the script's `detail`, which names the two files that hold the `launch` entry (`<D>/worktree.json` and a file in the worktree's git directory); the user removes the entry from both to launch again.
+-   - `--pipeline none`: "No agent launched. Open <wt> and run .dev/issues/<N>/next-steps.md there."
++   - `--pipeline none`: "No worktree created and no agent launched. Open .dev/issues/<N>/next-steps.md in this checkout and run its commands in your own session."
+ 4. Every warning, the worktree one first (print the Wave 7 `warning` as `worktree_warning: <code>`, so an unattended run shows it): the code, its `detail`, and its remedy line from the two tables above. For `W-LAUNCH-FAILED`, also print the launch JSON's `hand_command` when it is not null (the remedy line promises it), and tell the user that an agent started by hand is not governed by the enforcement hook.
+ 5. The return contract (`SKILL.md`) and STOP.
+diff --git a/tests/skills/test_issue_protocol.py b/tests/skills/test_issue_protocol.py
+index 4dca4ff9..72f5d60e 100644
+--- a/tests/skills/test_issue_protocol.py
++++ b/tests/skills/test_issue_protocol.py
+@@ -494,6 +494,45 @@ def test_st9_final_output_prints_the_hand_command_the_remedy_line_promises():
+     assert "not governed by the enforcement hook" in warnings_item
+ 
+ 
++def test_pipeline_none_creates_no_worktree_and_wave_7_skips_it():
++    claim = _text(REFS / "claim.md")
++    wave7, wave6 = _wave(claim, 7), _wave(claim, 6)
++    assert "Does not run for `--pipeline none`" in wave7
++    assert "Runs for every `--pipeline` value" not in claim
++    assert "unless `--pipeline` is `none`" in wave6
++    assert "no Wave 7 and no Wave 8" in wave6
++    assert "no `<D>/worktree.json` is written" in wave6
++    # Orca stays a dependency of every claim, so the Wave 0 check still runs for none.
++    wave0 = claim.split("## Wave 0", 1)[1].split("## Wave 1", 1)[0]
++    assert "It also runs for `--pipeline none`" in wave0
++    skill = _text(SKILL).split("## Claim mode", 1)[1].split("## Create mode", 1)[0]
++    assert "**Wave 7, worktree.** Not for `--pipeline none`." in skill
++    assert "except for `--pipeline none`, which ends the claim here" in skill
++
++
++def test_pipeline_none_final_output_has_no_worktree_line_and_names_this_checkout():
++    final = _text(REFS / "claim.md").split("## Final output", 1)[1]
++    item1 = next(ln for ln in final.splitlines() if ln.startswith("1. "))
++    assert "For `--pipeline none` print no `Worktree:` line" in item1
++    none_line = next(ln for ln in final.splitlines() if "`--pipeline none`:" in ln)
++    assert "No worktree created and no agent launched" in none_line
++    assert "in this checkout" in none_line and "<wt>" not in none_line
++
++
++def test_pipeline_none_return_contract_has_null_worktree_fields():
++    section = (
++        _text(SKILL).split("## Return contract", 1)[1].split("## Error handling", 1)[0]
++    )
++    assert "worktree_status: created | reused | failed | not_requested" in section
++    assert (
++        "`worktree_status` is `not_requested` and `worktree_path`, `worktree_branch`, "
++        "`worktree_match_key` and `worktree_warning` are `null`"
++    ) in section
++    command = _text(COMMANDS / "issue.md")
++    assert "Every value creates the worktree" not in command
++    assert "`none` creates no worktree and launches no agent" in command
++
++
+ def _yaml_keys(block: str) -> list[str]:
+     return re.findall(r"^([a-z_]+):", block, re.M)
+ 

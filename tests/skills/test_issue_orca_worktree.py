@@ -381,10 +381,32 @@ def read_record(source: Path) -> dict:
     return json.loads((source / "worktree.json").read_text())
 
 
+# An ok create reply with no setup and no default tabs (the envelope `--json` prints).
+CREATE_OK = {"ok": True, "result": {"worktree": {"id": "wt-1"}}}
+TAB_CLOSED = {"ok": True, "result": {"closed": 1}}
+
+
+def terminal_row(handle: str = "term_plain", **extra: object) -> dict:
+    return {"handle": handle, "title": None, "connected": True} | extra
+
+
+def terminals(*rows: dict) -> dict:
+    return {"ok": True, "result": {"terminals": list(rows)}}
+
+
 def created_scene(
-    fake: FakeOrca, git_repo: Path, *, effect: bool = True, name: str = "issue-302"
+    fake: FakeOrca,
+    git_repo: Path,
+    *,
+    effect: bool = True,
+    name: str = "issue-302",
+    reply: object = "opaque, not json",
 ) -> Path:
-    """Orca lists only the main row, creates `name`, then lists the new row too."""
+    """Orca lists only the main row, creates `name`, then lists the new row too.
+
+    ``reply`` is the create's stdout: opaque text by default (no tab close can
+    follow it), ``CREATE_OK`` for a reply the close step accepts.
+    """
     wt = git_repo.parent / "wts" / name
     cmd = [
         "git", "-C", str(git_repo), "worktree", "add", "-b", f"ironbelly/{name}",
@@ -392,7 +414,7 @@ def created_scene(
     ]  # fmt: skip
     fake.respond(
         "worktree-create",
-        {"stdout": "opaque, not json"} | ({"effect": cmd} if effect else {}),
+        {"stdout": reply} | ({"effect": cmd} if effect else {}),
     )
     fake.respond(
         "worktree-list",
@@ -575,7 +597,9 @@ def test_fo11_created_worktree_path_comes_from_the_list_not_the_create_json(
     data = run_wt(fake_orca, git_repo, issue_dir)
     assert data["status"] == "created" and data["match_key"] is None
     assert data["path"] == str(wt) and data["branch"] == "ironbelly/issue-302"
-    assert data["warning"] is None
+    # An opaque create reply is unknown: the plain first tab is left, nothing is closed.
+    assert data["warning"] == "W-FIRST-TAB-LEFT"
+    assert orca_calls(fake_orca, "terminal") == []
     assert (wt / ".dev/issues/302/issue-summary.md").read_text() == "summary\n"
     assert read_record(issue_dir) == {"path": str(wt), "status": "created"}
 
@@ -813,8 +837,13 @@ def test_fo17_failed_fetch_with_the_ref_present_warns_and_creates(
 def test_fo18_exact_commands_and_no_forbidden_flag(
     fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
 ) -> None:
-    created_scene(fake_orca, git_repo)
-    run_wt(fake_orca, git_repo, issue_dir)
+    wt = created_scene(fake_orca, git_repo, reply=CREATE_OK)
+    fake_orca.respond(
+        "terminal-list", {"stdout": terminals(terminal_row("term_plain"))}
+    )
+    fake_orca.respond("terminal-close", {"stdout": TAB_CLOSED})
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "created" and data["warning"] is None
     main = os.path.realpath(git_repo)
     assert fake_orca.calls() == [
         ["worktree", "list", "--repo", f"path:{main}", "--limit", "500", "--json"],
@@ -833,10 +862,219 @@ def test_fo18_exact_commands_and_no_forbidden_flag(
             "--json",
         ],
         ["worktree", "list", "--repo", f"path:{main}", "--limit", "500", "--json"],
+        ["terminal", "list", "--worktree", f"path:{wt}", "--json"],
+        ["terminal", "close", "--terminal", "term_plain", "--tab", "--json"],
     ]
     for call in fake_orca.calls():
         for arg in call:
             assert not arg.startswith(FORBIDDEN_FLAGS), arg
+
+
+def tab_scene(
+    fake: FakeOrca,
+    git_repo: Path,
+    tab_list: dict | None = None,
+    tab_close: dict | None = None,
+    *,
+    reply: object = CREATE_OK,
+) -> Path:
+    """A created worktree whose Orca answers the two ``terminal`` calls.
+
+    Before each answer the fake runs ``test -f <copied file>``: a ``terminal`` call
+    made before the issue directory was copied fails and shows up as a warning.
+    """
+    wt = created_scene(fake, git_repo, reply=reply)
+    copied = ["test", "-f", str(wt / ".dev/issues/302/issue-summary.md")]
+    answer_list = tab_list or {"stdout": terminals(terminal_row())}
+    fake.respond("terminal-list", {"effect": copied} | answer_list)
+    fake.respond(
+        "terminal-close", {"effect": copied} | (tab_close or {"stdout": TAB_CLOSED})
+    )
+    return wt
+
+
+def left_open(data: dict, fake: FakeOrca, *, closed: bool = False) -> None:
+    """The create succeeded, only W-FIRST-TAB-LEFT is reported, and no tab was closed."""
+    assert data["status"] == "created"
+    assert data["warning"] == "W-FIRST-TAB-LEFT"
+    assert data["detail"].startswith("the plain first tab was left open: ")
+    assert "also" not in data["detail"]
+    assert bool(orca_calls(fake, "terminal", "close")) is closed
+
+
+@pytest.mark.parametrize("identity", ["absent", None, ""])
+def test_ft1_a_created_worktree_gets_its_plain_first_tab_closed_after_the_copy(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, identity: str | None
+) -> None:
+    only = terminal_row("term_plain")
+    if identity != "absent":
+        only["agentIdentity"] = identity
+    wt = tab_scene(fake_orca, git_repo, {"stdout": terminals(only)})
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "created" and data["warning"] is None
+    calls = fake_orca.calls()
+    assert [c[:2] for c in calls] == [
+        ["worktree", "list"],
+        ["worktree", "create"],
+        ["worktree", "list"],
+        ["terminal", "list"],
+        ["terminal", "close"],
+    ]
+    assert calls[3] == ["terminal", "list", "--worktree", f"path:{wt}", "--json"]
+    assert calls[4] == [
+        "terminal",
+        "close",
+        "--terminal",
+        "term_plain",
+        "--tab",
+        "--json",
+    ]
+    assert (wt / ".dev/issues/302/issue-summary.md").read_text() == "summary\n"
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [("setup", {"ran": True}), ("defaultTabs", [{"title": "dev"}])],
+)
+def test_ft2_a_create_that_reports_setup_or_default_tabs_closes_nothing(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, field: str, value: object
+) -> None:
+    created_scene(fake_orca, git_repo, reply={"ok": True, "result": {field: value}})
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    left_open(data, fake_orca)
+    assert "setup or default tabs" in data["detail"]
+    assert orca_calls(fake_orca, "terminal") == []
+
+
+@pytest.mark.parametrize(
+    "reply", ["not json", {"ok": False, "result": {}}, {"ok": True}, [], "null"]
+)
+def test_ft3_an_unknown_create_reply_never_leads_to_a_close(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, reply: object
+) -> None:
+    created_scene(fake_orca, git_repo, reply=reply)
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    left_open(data, fake_orca)
+    assert orca_calls(fake_orca, "terminal") == []
+
+
+def test_ft4_a_timed_out_create_closes_nothing(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    wt = tab_scene(fake_orca, git_repo)
+    cmd = [
+        "git", "-C", str(git_repo), "worktree", "add", "-b", "ironbelly/issue-302",
+        str(wt), "origin/master",
+    ]  # fmt: skip
+    fake_orca.respond("worktree-create", {"effect": cmd, "sleep": 30})
+    data = run_wt(fake_orca, git_repo, issue_dir, SC_ORCA_TIMEOUT="3")
+    left_open(data, fake_orca)
+    assert orca_calls(fake_orca, "terminal") == []
+
+
+def test_ft5_a_failed_terminal_list_leaves_the_tab_and_names_the_reason(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    tab_scene(fake_orca, git_repo, {"rc": 1, "stderr": "boom\n"})
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    left_open(data, fake_orca)
+    assert "boom" in data["detail"]
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        "garbage",
+        {"ok": True, "result": {}},
+        {"ok": True, "result": {"terminals": "x"}},
+        {"ok": True, "result": {"terminals": ["x"]}},
+        {"ok": False, "result": {"terminals": []}},
+    ],
+)
+def test_ft6_a_malformed_terminal_list_reply_leaves_the_tab(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, payload: object
+) -> None:
+    tab_scene(fake_orca, git_repo, {"stdout": payload})
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    left_open(data, fake_orca)
+
+
+@pytest.mark.parametrize(
+    ("rows", "why"),
+    [
+        ([], "0 terminals"),
+        ([terminal_row("a"), terminal_row("b")], "2 terminals"),
+        ([terminal_row("a", agentIdentity="claude")], "runs an agent"),
+        ([terminal_row("")], "no handle"),
+    ],
+)
+def test_ft7_only_exactly_one_plain_terminal_is_closed(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, rows: list, why: str
+) -> None:
+    tab_scene(fake_orca, git_repo, {"stdout": terminals(*rows)})
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    left_open(data, fake_orca)
+    assert why in data["detail"]
+
+
+def test_ft8_a_failed_close_is_a_warning_and_the_status_stays_created(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    tab_scene(fake_orca, git_repo, None, {"rc": 1, "stderr": "nope\n"})
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    left_open(data, fake_orca, closed=True)
+    assert "nope" in data["detail"]
+    assert read_record(issue_dir)["status"] == "created"
+
+
+def test_ft9_a_failed_copy_closes_nothing_and_keeps_its_own_warning(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, tmp_path: Path
+) -> None:
+    tab_scene(fake_orca, git_repo)
+    data = run_wt(fake_orca, git_repo, tmp_path / "no-such-claim-dir")
+    assert data["status"] == "failed" and data["warning"] == "W-WORKTREE-COPY-FAILED"
+    assert orca_calls(fake_orca, "terminal") == []
+
+
+def test_ft10_a_new_row_of_another_repository_is_failed_with_no_terminal_call(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    wt = created_scene(fake_orca, git_repo, effect=False, reply=CREATE_OK)
+    fake_orca.respond(
+        "worktree-create",
+        {"stdout": CREATE_OK, "effect": ["git", "init", "-b", "master", str(wt)]},
+    )
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "failed" and data["warning"] == "W-WORKTREE-STALE"
+    assert orca_calls(fake_orca, "terminal") == []
+
+
+def test_ft11_a_reused_worktree_makes_no_terminal_call(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+) -> None:
+    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
+    fake_orca.respond(
+        "worktree-list",
+        {"stdout": listing(main_row(git_repo), row(wt, comment=MARKER))},
+    )
+    fake_orca.respond("terminal-list", {"stdout": terminals(terminal_row())})
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "reused" and data["warning"] is None
+    assert orca_calls(fake_orca, "terminal") == []
+    assert orca_calls(fake_orca, "worktree", "create") == []
+
+
+def test_ft12_the_tab_warning_ranks_below_a_copy_warning_and_never_raises(
+    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, tmp_path: Path
+) -> None:
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    (issue_dir / "linked").symlink_to(elsewhere, target_is_directory=True)
+    tab_scene(fake_orca, git_repo, {"rc": 1, "stderr": "boom\n"})
+    data = run_wt(fake_orca, git_repo, issue_dir)
+    assert data["status"] == "created"
+    assert data["warning"] == "W-WORKTREE-COPY-FAILED"
+    assert "also W-FIRST-TAB-LEFT" in data["detail"]
 
 
 def test_arg1_worktree_bad_arguments_exit_2(

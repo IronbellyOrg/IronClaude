@@ -83,6 +83,9 @@ _FRESHNESS_SCRIPTS = [
     # python/python3/pip/pip3 with exit 2 and a message naming `uv run python`
     # and `jq`; fails open (exit 0) on anything it cannot judge, including no jq.
     "block-bare-python.sh",
+    # PreToolUse(Bash) gate: blocks `orca worktree create` without `--agent` with
+    # exit 2 and the exact form to use; fails open (exit 0) on anything it cannot judge.
+    "require-orca-worktree-agent.sh",
     # PreToolUse Bash identity adapter; ordinary sessions stay unmodified.
     "launch-job-identity.sh",
     # UserPromptSubmit + PreToolUse launch-level guard (L1); ordinary sessions

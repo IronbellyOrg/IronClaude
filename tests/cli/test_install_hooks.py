@@ -100,6 +100,7 @@ def fake_source_hooks(tmp_path, monkeypatch):
         "pragmatic-subagent.js",
         "codegraph-session-start.sh",
         "block-bare-python.sh",
+        "require-orca-worktree-agent.sh",
         "launch-job-identity.sh",
         "launch-level-guard.sh",
     ]:
@@ -818,6 +819,74 @@ def test_install_hooks_installs_and_registers_block_bare_python(tmp_path, monkey
     ok, message = install_hooks()
     assert ok, message
     _assert_block_bare_python_installed(fake_home / ".claude")
+
+
+_REQUIRE_ORCA_AGENT_HOOK = "~/.claude/hooks/require-orca-worktree-agent.sh"
+
+
+@pytest.mark.parametrize("tree", ["src", "plugins"])
+def test_real_hooks_json_registers_require_orca_worktree_agent(tree):
+    hooks_json = (
+        Path(__file__).resolve().parents[2] / tree / "superclaude/hooks/hooks.json"
+    )
+    registrations = json.loads(hooks_json.read_text())["hooks"]["PreToolUse"]
+    entries = [
+        (reg.get("matcher"), h)
+        for reg in registrations
+        for h in reg["hooks"]
+        if h.get("command") == _REQUIRE_ORCA_AGENT_HOOK
+    ]
+    assert len(entries) == 1
+    matcher, hook = entries[0]
+    assert matcher == "Bash"
+    assert hook == {
+        "type": "command",
+        "command": _REQUIRE_ORCA_AGENT_HOOK,
+        "timeout": 3,
+    }
+
+
+def test_require_orca_worktree_agent_script_is_packaged_listed_and_mirrored():
+    from superclaude.cli import install_hooks
+
+    root = Path(__file__).resolve().parents[2]
+    source = root / "src/superclaude/hooks/scripts/require-orca-worktree-agent.sh"
+    mirror = root / "plugins/superclaude/hooks/scripts/require-orca-worktree-agent.sh"
+    assert "require-orca-worktree-agent.sh" in install_hooks._FRESHNESS_SCRIPTS
+    assert os.access(source, os.X_OK) and os.access(mirror, os.X_OK)
+    assert source.read_bytes() == mirror.read_bytes()
+
+
+def _assert_require_orca_worktree_agent_installed(claude_dir: Path) -> None:
+    script = claude_dir / "hooks" / "require-orca-worktree-agent.sh"
+    assert script.is_file()
+    assert os.access(script, os.X_OK)
+    settings = json.loads((claude_dir / "settings.json").read_text())
+    assert any(
+        reg.get("matcher") == "Bash"
+        and any(h.get("command") == _REQUIRE_ORCA_AGENT_HOOK for h in reg["hooks"])
+        for reg in settings["hooks"]["PreToolUse"]
+    )
+
+
+def test_install_hooks_installs_and_registers_require_orca_worktree_agent(
+    tmp_path, monkeypatch
+):
+    live_settings = Path.home() / ".claude" / "settings.json"
+    target = tmp_path / ".claude" / "settings.json"
+    assert target.resolve() != live_settings.resolve()
+
+    ok, message = install_hooks(target_path=target)
+    assert ok, message
+    _assert_require_orca_worktree_agent_installed(tmp_path / ".claude")
+
+    # The default target, as `superclaude install` calls it, follows $HOME.
+    fake_home = tmp_path / "home"
+    fake_home.mkdir()
+    monkeypatch.setenv("HOME", str(fake_home))
+    ok, message = install_hooks()
+    assert ok, message
+    _assert_require_orca_worktree_agent_installed(fake_home / ".claude")
 
 
 _LAUNCH_IDENTITY_HOOK = "~/.claude/hooks/launch-job-identity.sh"

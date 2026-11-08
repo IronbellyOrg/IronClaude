@@ -8,6 +8,8 @@
 **Source of truth:** `src/superclaude/` -> `make sync-dev` -> `.claude/` (never stage `.claude/`).
 **Produced by:** `/sc:design sc-issue-claim-pipeline-flag --type component --format spec`, 2026-11-07.
 
+> **Amended 2026-11-08** (owner decisions recorded while planning `TASK-WF-enforceTheOwnerP-20261108-031809`): every Orca worktree gets an agent, and the session that creates a worktree owns its agent. So `--pipeline none` now **creates no worktree**: the claim ends after the comments, `issue-summary.md` and `next-steps.md`, and the user runs `next-steps.md` from the main checkout's `.dev/issues/<N>/`. `worktree` and `full` still create the worktree and launch an agent. The Wave 0 Orca check still runs for `none` (P1). The worktree create keeps no `--agent` (D2 and FO-18 stay, see their 2026-11-08 notes); the script closes Orca's plain first tab itself after a successful copy (section 8.3, step 8, warning `W-FIRST-TAB-LEFT`). The owner approved this first-tab close in place of "agent on create" on 2026-11-08 after the pre-execution review. Evidence: `.dev/troubleshoot/bug-agents-run-orca-worktree-create-20261108015205/REPORT.md`; review: `.dev/reflect/pre-TASK-WF-enforceTheOwnerP-20261108-031809-20261108033529/REPORT.md` (Grounding Gap G-1).
+
 ---
 
 ## 1. Purpose and scope
@@ -19,7 +21,7 @@ Today `/sc:issue --claim` assigns the issue, checks its accuracy, writes `next-s
 | `worktree` (default) | `--pipeline worktree` or nothing | An Orca worktree `issue-<N>` is created (or reused) and a Claude Code agent is launched in it. It runs `next-steps.md` up to the plan boundary. | An approved plan: it prints the plan path and "Waiting for approval" until a human approves |
 | `full` | `--pipeline full` | Same, but the agent runs every step including `/sc:implement` or `/task`. | Finished implementation, unstaged, uncommitted, unpushed |
 | `full` + `--submit` | `--pipeline full --submit` | Same, then the agent commits, pushes a feature branch to `origin` and runs `/sc:pr-submit --monitor 3`. | A pushed branch with an open PR on the fork |
-| `none` | `--pipeline none` | The worktree is created (or reused); no agent is launched. | Nothing runs; the user opens the worktree |
+| `none` | `--pipeline none` | The claim ends after the comments (amended 2026-11-08): no worktree is created, no agent is launched. | Nothing runs; the user runs `next-steps.md` from the main checkout's `.dev/issues/<N>/` |
 
 No level merges anything. Humans only review and merge; nobody opens a PR by hand, because with `--submit` the agent's `/sc:pr-submit` opens it.
 
@@ -40,7 +42,7 @@ No level merges anything. Humans only review and merge; nobody opens a PR by han
 | P1 | Orca is a dependency. No code, warning, option or document text exists only for a project without Orca. | Owner, AD 1.2 |
 | P2 | One flag, `--pipeline worktree\|full\|none`, default `worktree`. The `--worktree` flag of MR does not exist. | Owner, AD 1.6 |
 | P3 | `--submit` is a second flag, valid with `--pipeline full` only. It turns on commit, push of a feature branch and `/sc:pr-submit --monitor 3`. It never merges. | Owner, AD 1.4 |
-| P4 | The default stop is an approved plan. `full` adds implementation. `none` launches no agent but still creates the worktree. | Owner, AD 1.3 |
+| P4 | The default stop is an approved plan. `full` adds implementation. `none` launches no agent. Amended 2026-11-08: `none` also creates no worktree, because every worktree gets an agent. | Owner, AD 1.3; owner, 2026-11-08 |
 | P5 | The launched agent is Claude Code behind the ccsession shim, always. | Owner, AD 1.5 |
 | P6 | **B2 is rewritten (new text below).** B16 (worktree after `next-steps.md`), B17 (launch levels) and B18 (`--submit`) are new design decisions in `docs/designs/sc-issue-command.md`. | Owner, AD 1.1 and 3 |
 | P7 | The agent is started with `orca agent launch --agent claude --surface terminal`, a Claude CLI session. Never a plain terminal, and never `--surface chat` (a chat is not behind the shim). | #412 (merged), AD FR-22 |
@@ -73,7 +75,7 @@ No level merges anything. Humans only review and merge; nobody opens a PR by han
 
 | Flag | Mode | Default | Values | Meaning |
 |---|---|---|---|---|
-| `--pipeline` | claim | `worktree` | `worktree`, `full`, `none` | How far the launched agent goes (section 1). Every value creates the worktree; `none` launches no agent |
+| `--pipeline` | claim | `worktree` | `worktree`, `full`, `none` | How far the launched agent goes (section 1). `worktree` and `full` create the worktree and launch an agent; `none` creates no worktree and launches no agent |
 | `--submit` | claim | off | no value | With `--pipeline full` only: after implementation the agent commits, pushes the feature branch to `origin` and runs `/sc:pr-submit --monitor 3`. Never merges |
 
 STOP rules added to the command file, checked in this order after the existing ones (before Activation, no external call):
@@ -136,7 +138,7 @@ The word-to-level map the hook applies: `worktree` = W (planning only, `WA` afte
 
 `<L>` is the `--pipeline` value, `<submit>` the `--submit` flag, `<wt>` the worktree's absolute path, `<main>` the main checkout (parent of the absolute git-common-dir, so a linked worktree still names it), `<B>` the default branch, `<D>` = `.dev/issues/<N>/`.
 
-**Wave 0, new step 3** (after `gh auth status`, before the default-branch lookup and before `<D>` is created): `uv run --no-project python "<skill base>/scripts/orca_worktree.py" preflight`. `ok: false` is STOP `E-ORCA-REQUIRED` with the script's `detail`. No GitHub or ClickUp write has happened yet, and none happens after a STOP.
+**Wave 0, new step 3** (after `gh auth status`, before the default-branch lookup and before `<D>` is created): `uv run --no-project python "<skill base>/scripts/orca_worktree.py" preflight`. `ok: false` is STOP `E-ORCA-REQUIRED` with the script's `detail`. No GitHub or ClickUp write has happened yet, and none happens after a STOP. The check also runs for `--pipeline none` (P1: Orca is a dependency), although `none` makes no later Orca call.
 
 **Waves 1 to 4 and Wave 6** are unchanged.
 
@@ -147,7 +149,7 @@ The word-to-level map the hook applies: `worktree` = W (planning only, `WA` afte
 
 **Wave 6** posts the two comments as today; its step 4 ("print the `next-steps.md` path and STOP") is replaced by Waves 7 and 8 and the final output below. Wave 7 runs only after both comments are posted. Any STOP in Waves 0-6, including `E-POST-FAILED`, means no Orca call after the Wave 0 check (FR-4).
 
-**Wave 7: worktree (orchestrator, no worker).** Every `--pipeline` value:
+**Wave 7: worktree (orchestrator, no worker).** `worktree` and `full` only; for `--pipeline none` the claim ends after the Wave 6 posts and Waves 7 and 8 do not run (amended 2026-11-08):
 
 Run `orca_worktree.py worktree --repo <R> --number <N> --base origin/<B> --source <D>` and read its JSON. Any failure is a warning, never a STOP (FR-10).
 
@@ -157,7 +159,7 @@ Run `orca_worktree.py worktree --repo <R> --number <N> --base origin/<B> --sourc
 
 1. The `next-steps.md` path, then `Worktree: <wt>` (status, `match_key`; on key `basename` or `branch` the line "reused a worktree not created by /sc:issue").
 2. The "untracked, do not stage" line (MR 2.4) when it applies, and "run `make sync-dev` there first" when `<wt>/.claude/` is absent and the plan needs an unsynced primitive (MR 5 step 2).
-3. Launch result: `launched` -> "Agent launched in <wt> (level <L>[, submit]). It stops at the plan boundary and waits; reply `approved` in its tab to let it continue." (`full` -> "It runs every step and stops after implementation." `full --submit` -> "It then commits, pushes <branch> and opens the PR through /sc:pr-submit; it never merges.") `already_launched` -> "agent already launched at <time>; remove the `launch` entry of <D>/worktree.json to launch again". `none` -> "No agent launched. Open <wt> and run .dev/issues/<N>/next-steps.md there."
+3. Launch result: `launched` -> "Agent launched in <wt> (level <L>[, submit]). It stops at the plan boundary and waits; reply `approved` in its tab to let it continue." (`full` -> "It runs every step and stops after implementation." `full --submit` -> "It then commits, pushes <branch> and opens the PR through /sc:pr-submit; it never merges.") `already_launched` -> "agent already launched at <time>; remove the `launch` entry of <D>/worktree.json to launch again". `none` -> no `Worktree:` line, and "No worktree created and no agent launched. Open .dev/issues/<N>/next-steps.md in this checkout and run its commands in your own session."
 4. Every warning with its remedy line (section 11), the worktree warning first.
 5. The return contract (section 10) and STOP. The claim `status` stays `success` through any Wave 7 or Wave 8 failure: the assignment and comments cannot be undone (AD 4.5, FR-10, FR-29).
 
@@ -185,7 +187,11 @@ orca worktree list --repo path:<main> --limit 500 --json
 orca worktree create --repo path:<main> --name issue-<N> --base-branch origin/<B> --no-parent --comment "sc:issue <R>#<N>" --json
 git -C <wt> rev-parse --path-format=absolute --git-common-dir
 git -C <wt> ls-files .dev/issues/<N>
+orca terminal list --worktree path:<wt> --json
+orca terminal close --terminal <handle> --tab --json
 ```
+
+The last two lines run only for a worktree the call just created (step 8). Amended 2026-11-08: the create still carries no `--agent`, because the claim must copy `<D>` (including `launch-prompt.md`), pass the repository check and write the launch-level pending record before the agent starts; Orca opens one plain first tab for a create without `--agent`, so the script closes it itself.
 
 | Step | Rule | MR |
 |---|---|---|
@@ -196,6 +202,7 @@ git -C <wt> ls-files .dev/issues/<N>
 | 5 | Copy `<D>` to `<wt>/.dev/issues/<N>/` file by file (MR 2.4): skip when source and destination share a `realpath`; exclude `worktree.json`; a file tracked in the worktree is skipped and named; a missing file is copied; an identical file is skipped; a differing untracked file is renamed to `<name>.prev` (replacing an older `.prev`), then copied and named. Never one recursive directory copy. `analysis/` is included. | 2.4 |
 | 6 | Post-condition (FR-17): `<wt>` exists, its git-common-dir equals `<main>`'s by `realpath`, and every `<D>` file is byte-identical at the destination or named in a warning; else `failed` with a named warning (`W-WORKTREE-COPY-FAILED` for a copy problem, `W-WORKTREE-STALE` for a wrong common dir). | FR-17 |
 | 7 | Only on `created` or `reused`, write `<D>/worktree.json` `{"path": "<absolute>", "status": "created\|reused"}`. It keeps an existing `launch` entry. It is never copied. | FR-18 |
+| 8 | First-tab close (2026-11-08). Only when the status is `created` (never on a reused worktree), after step 6 passed and step 5 copied without error, and before the call returns, so before any launch. Read the create's `--json` reply (`{"ok": ..., "result": {...}}`): a missing, non-JSON, not-ok or timed-out reply, or `result.setup` or `result.defaultTabs` reporting anything, closes nothing. Otherwise run `orca terminal list --worktree path:<wt> --json`; when it lists exactly one terminal whose `agentIdentity` is absent or empty, run `orca terminal close --terminal <handle> --tab --json`. Any list or close failure, a malformed list reply, zero or several terminals, or a terminal with an agent leaves the tab and adds the warning `W-FIRST-TAB-LEFT` (reason in `detail`); it never changes `status`. A failed copy closes nothing and reports its own copy warning. | owner, 2026-11-08 |
 
 The record guard: the path exists and its git-common-dir equals `<main>`'s, compared by `realpath`.
 
@@ -235,7 +242,7 @@ The `full` and `common` blocks never contain the tokens `/sc:pr-submit`, `git pu
 | Path | Written by | Notes |
 |---|---|---|
 | `<D>/launch-prompt.md` | `orca_worktree.py prompt` | not for `--pipeline none`; copied to `<wt>` with the other files |
-| `<D>/worktree.json` | `orca_worktree.py worktree`, then `launch` | `{path, status}` plus, after a launch, `launch: {level, submit, at}`. Never copied. To launch again, remove the `launch` entry. |
+| `<D>/worktree.json` | `orca_worktree.py worktree`, then `launch` | `{path, status}` plus, after a launch, `launch: {level, submit, at}`. Never copied. Not written for `--pipeline none`. To launch again, remove the `launch` entry. |
 | `<wt>/.dev/issues/<N>/*` | `orca_worktree.py worktree` | copy of `<D>`; untracked, never staged by the claim (D24) |
 | `$HOME/.claude/state/launch-level/pending/<nonce>` | `orca_worktree.py launch` | section 6; consumed by the hook |
 
@@ -244,7 +251,7 @@ Return contract, every claim (replaces the fixed list of `SKILL.md` for claim mo
 ```yaml
 pipeline_level: worktree | full | none
 submit: true | false
-worktree_status: created | reused | failed
+worktree_status: created | reused | failed | not_requested   # not_requested for none
 worktree_path: <absolute path or null>
 worktree_branch: <branch or null>
 worktree_match_key: marker | record | basename | branch | null
@@ -254,7 +261,7 @@ launch_warning: <W- code or null>
 enforcement_hook: installed | missing | null    # null: no agent requested, already_launched, or failed before the IR-4 preflight
 ```
 
-`launch_status` is `not_requested` for `none` and when Wave 7 `failed`. On a STOP the fields that do not apply are `null`.
+For `none` no worktree is created: `worktree_status` is `not_requested` and `worktree_path`, `worktree_branch`, `worktree_match_key` and `worktree_warning` are `null`. `launch_status` is `not_requested` for `none` and when Wave 7 `failed`. On a STOP the fields that do not apply are `null`.
 
 ## 11. STOP and warning codes
 
@@ -277,6 +284,7 @@ Warnings (the claim `status` stays `success` for all of them). `W-ORCA-MISSING` 
 | `W-WORKTREE-AMBIGUOUS` | worktree | two or more live hits, or two or more new ids | remove the extras, re-run |
 | `W-WORKTREE-STALE` | worktree | stale hits only, or wrong git-common-dir | `git worktree prune`, then `orca worktree rm` |
 | `W-WORKTREE-COPY-FAILED` | worktree (created, reused or failed) | files skipped as tracked, kept as `.prev`, or not copied | copy the named files by hand |
+| `W-FIRST-TAB-LEFT` | worktree (status `created`) | the plain first tab could not be closed: unknown or not-ok create reply, setup or default tabs reported, list or close failed, zero or several terminals, or the one terminal runs an agent (2026-11-08) | close the plain tab in Orca by hand |
 | `W-LAUNCH-FAILED` | launch | no usable record, pending record not written, or `orca agent launch` failed | re-run the claim; the hand command is printed for reference |
 | `W-LAUNCH-NOT-CCSESSION` | launch (status `launched`) | the screen shows no `[ccsession]` and no session-name question, or could not be read | "this agent is NOT behind the ccsession shim; close it"; Orca's Claude command must be `/home/coder/.local/bin/ccsession-orca` (OB-5) |
 | `W-ENFORCEMENT-ABSENT` | launch (status `failed`; updated by #394) | the guard is missing or not effective (IR-4 preflight) | the launch was refused and no agent was started; fix each condition the `detail` names (usually `superclaude install`), then claim again |
@@ -332,14 +340,14 @@ All run with `uv run pytest`. The Orca and git seams are faked; no test calls a 
 | FO-12 | each unusable-list condition (not ok, truncated, omitted host, zero rows, no main row), also after the create |
 | FO-14, FO-15, FO-16 | `.prev` and tracked files; self-copy skipped; `worktree.json` never copied |
 | FO-17 | `origin/<B>` missing: `W-ORIGIN-BASE-MISSING`, no create call; fetch failing with the ref present: `W-ORIGIN-BASE-STALE`, create called |
-| FO-18 | exact create argv equals section 8.3; no forbidden flag (`--issue`, `--pr`, `--reference*`, `--linear-issue`, `--gitlab-*`, `--agent`, `--prompt`, `--model`, `--effort`, `--surface`, `--setup`, `--branch`, `--activate`, `--run-hooks`) in any list or create call |
+| FO-18 | exact create argv equals section 8.3 (note 2026-11-08: FO-18 stays, and the create still has no `--agent`, because the claim must copy `<D>` and write the pending record before its agent starts; a created run with a valid create reply now also records `terminal list` and `terminal close --tab` after the second `worktree list`); no forbidden flag (`--issue`, `--pr`, `--reference*`, `--linear-issue`, `--gitlab-*`, `--agent`, `--prompt`, `--model`, `--effort`, `--surface`, `--setup`, `--branch`, `--activate`, `--run-hooks`) in any list or create call |
 | LA-1 | exact launch argv equals section 8.4 step 5, `--prompt` starts with `[sc-launch:v1:` plus 32 hex characters and `] `, no leading `/`, no `--model`, no `--effort`, no link flag |
 | LA-2 | the pending record is a regular file of mode `0600` holding exactly `worktree`, `full` or `full-submit` (matching the call), published before the launch call, in a `0700` directory; the same nonce appears in the prompt |
 | LA-3 | launch failure (nonzero exit, timeout, `ok: false`) removes the pending record and gives `W-LAUNCH-FAILED` with a hand command; pending write failure (read-only store) makes no launch call |
 | LA-4 | a `launch` entry in the record: `already_launched`, no `orca` call, no new pending record; a record without one launches; the entry is written after a launch even when the shim check fails |
 | LA-5 | shim check: a screen with `[ccsession]` and a screen with the session-name question pass; a screen without either, an unreadable terminal and a launch JSON with no `handle` give `W-LAUNCH-NOT-CCSESSION` and status `launched` |
 | LA-6 | `enforcement_hook`: `missing` and `W-ENFORCEMENT-ABSENT` without `$HOME/.claude/hooks/launch-level-guard.sh`; `installed` with an executable file. Updated by #394: `installed` only when the whole IR-4 preflight passes (executable guard with the version line, both registrations that can fire, `jq`, `uv`, the commands the guard calls, the Linux process interfaces); `missing` refuses the launch (no agent, no launch record), and `W-L2-ABSENT` is a warning on a `launched` result |
-| LA-7 | no launch call for a `failed` worktree record and no pending record for `none` (the skill never calls `launch` for `none`; the test pins the skill text, ST-9) |
+| LA-7 | no launch call for a `failed` worktree record and no pending record for `none` (the skill never calls `worktree` or `launch` for `none`, which creates no worktree since 2026-11-08; the test pins the skill text, ST-9) |
 | ARG-1 | bad arguments of every subcommand exit 2 |
 
 **Static pins** (`tests/commands/test_issue_command.py`, `tests/skills/test_issue_protocol.py`):
@@ -354,7 +362,7 @@ All run with `uv run pytest`. The Orca and git seams are faked; no test calls a 
 | ST-6 | in `refs/claim.md`, `preflight` is in Wave 0 before Wave 1; Wave 7 is after the Wave 6 posts; Wave 8 is after Wave 7 and says it runs for `created` or `reused` only |
 | ST-7 | `templates/next-steps.md` contains `Plan boundary`; `refs/claim.md` states the `<K>` rule |
 | ST-8 | `templates/launch-prompt.md` has exactly the four blocks; the `submit` block alone contains `/sc:pr-submit --monitor 3`, `git push` and the commit instruction; the `worktree` block contains the prohibition line; no other block contains those tokens |
-| ST-9 | `refs/claim.md` skips Wave 8 for `none` and names `launch-prompt.md` as written before Wave 7 |
+| ST-9 | `refs/claim.md` skips Wave 7 and Wave 8 for `none` (Wave 7 since 2026-11-08) and names `launch-prompt.md` as written before Wave 7 |
 | ST-10 | the claim return contract in `SKILL.md` lists the ten fields of section 10 |
 | ST-11 | no `src/superclaude/` path in any new or changed primitive file; `HOW-WE-WORK.md` and its plugin mirror are byte-identical (existing parity test) |
 
@@ -369,7 +377,7 @@ Each is a **design default**: a choice made where MR, AD and the hook design are
 | ID | Default | Why |
 |---|---|---|
 | D1 | This design lives at `docs/designs/sc-issue-claim-pipeline-flag.md` | The existing design-doc folder |
-| D2 | Worktree name `issue-<N>`, `--no-parent`, base `origin/<B>`, `--repo path:<main>`, `--comment "sc:issue <R>#<N>"`, no `--agent` on create | MR 2.3, AD 4.6: the create command stays as accepted; the agent is started by `agent launch` so a re-claimed worktree can be launched too |
+| D2 | Worktree name `issue-<N>`, `--no-parent`, base `origin/<B>`, `--repo path:<main>`, `--comment "sc:issue <R>#<N>"`, no `--agent` on create | MR 2.3, AD 4.6: the create command stays as accepted; the agent is started by `agent launch` so a re-claimed worktree can be launched too. **Note 2026-11-08: D2 stays.** The owner's rule "every worktree gets an agent" does not move the agent into the create, because the claim must copy `.dev/issues/<N>/` (including `launch-prompt.md`), pass the repository check and write the launch-level pending record before the agent starts, and a failed copy must mean no agent. The owner approved closing Orca's plain first tab from the script instead (section 8.3, step 8) |
 | D3 | Replaced by #394: a guard that is missing or not effective refuses the launch (`W-ENFORCEMENT-ABSENT`; no agent, no launch record) for every level; a missing L2 layer is the warning `W-L2-ABSENT` and the launch continues | Originally a warning because the hook did not exist; #394 built the guard and its IR-4 preflight. No governed claim is used on a real issue until OB-H1 item 1, OB-H2 and OB-H3 pass (hook design section 7, U1: item 1 before `full` or `--submit`, item 5 before any level; OB-H2 and OB-H3: its sections 11 and 14) |
 | D4 | `version: "1.1.0"` in `commands/issue.md` only | MR 2.7 |
 | D5 | Pending-record words `worktree`, `full`, `full-submit` | The hook design's `pending/<nonce>` content (section 3) |

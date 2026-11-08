@@ -106,6 +106,7 @@ def test_existing_bash_registrations_stay_and_identity_hook_stays_last(name):
     }
     assert commands == {
         "~/.claude/hooks/block-bare-python.sh",
+        "~/.claude/hooks/require-orca-worktree-agent.sh",
         "~/.claude/hooks/launch-job-identity.sh",
     }
     assert (

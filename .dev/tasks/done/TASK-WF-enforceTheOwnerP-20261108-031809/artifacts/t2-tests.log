@@ -1,0 +1,21 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/fix-flaky-parallel-thread-test
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 279 items
+
+tests/cli/test_install_hooks.py ........................................ [ 14%]
+                                                                         [ 14%]
+tests/unit/test_cli_install.py ......................................... [ 29%]
+.......................................................                  [ 48%]
+tests/hooks/test_freshness_subagent_start_policy.py .....                [ 50%]
+tests/hooks/test_block_bare_python.py .................................. [ 62%]
+........................................................................ [ 88%]
+........................                                                 [ 97%]
+tests/cli/test_verify_sync_hooks.py .......                              [ 99%]
+tests/hooks/test_require_orca_worktree_agent_governed.py .               [100%]
+
+============================= 279 passed in 10.04s =============================
+rc=0

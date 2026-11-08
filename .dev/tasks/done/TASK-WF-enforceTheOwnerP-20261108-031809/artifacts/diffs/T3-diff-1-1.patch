@@ -1,0 +1,477 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t3-tests.log b/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t3-tests.log
+new file mode 100644
+index 00000000..76db7bba
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-enforceTheOwnerP-20261108-031809/artifacts/t3-tests.log
+@@ -0,0 +1,7 @@
++........................................................................ [ 44%]
++..........................                                               [ 56%]
++tests/skills/test_issue_protocol.py .................................... [ 72%]
++................................................................         [100%]
++
++============================= 229 passed in 30.85s =============================
++rc=0
+diff --git a/src/superclaude/skills/sc-issue-protocol/SKILL.md b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+index cb08de2c..6ddd4973 100644
+--- a/src/superclaude/skills/sc-issue-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+@@ -146,7 +146,7 @@ On a STOP, also print the STOP code and its message.
+ | Claim URL on another repo | STOP `E-FOREIGN-REPO` |
+ | `gh auth status` fails | STOP `E-GH-AUTH` |
+ | `orca_worktree.py preflight` prints `ok: false` (Orca not installed, not running or not reachable) | STOP `E-ORCA-REQUIRED` with the script's `detail`, before any GitHub or ClickUp write |
+-| Worktree step fails or needs attention (`W-ORCA-LIST-FAILED`, `W-ORIGIN-BASE-MISSING`, `W-ORIGIN-BASE-STALE`, `W-WORKTREE-CREATE-FAILED`, `W-WORKTREE-AMBIGUOUS`, `W-WORKTREE-STALE`, `W-WORKTREE-COPY-FAILED`) | Warning only: the claim `status` stays `success`; print the code with its remedy line from `refs/claim.md` |
++| Worktree step fails or needs attention (`W-ORCA-LIST-FAILED`, `W-ORIGIN-BASE-MISSING`, `W-ORIGIN-BASE-STALE`, `W-WORKTREE-CREATE-FAILED`, `W-WORKTREE-AMBIGUOUS`, `W-WORKTREE-STALE`, `W-WORKTREE-COPY-FAILED`, `W-FIRST-TAB-LEFT`) | Warning only: the claim `status` stays `success`; print the code with its remedy line from `refs/claim.md` (`W-FIRST-TAB-LEFT`: close the plain tab in Orca by hand) |
+ | Launch step fails or needs attention (`W-LAUNCH-FAILED`, `W-LAUNCH-NOT-CCSESSION`, `W-ENFORCEMENT-ABSENT`) | Warning only: the claim `status` stays `success`; print the code with its remedy line from `refs/claim.md`; no launch is attempted for a failed worktree or for `--pipeline none` |
+ | Issue closed | STOP, message "Issue #N is closed; not claimed.", no writes |
+ | Assigned to someone else | STOP, message names the assignee, no writes |
+diff --git a/src/superclaude/skills/sc-issue-protocol/refs/claim.md b/src/superclaude/skills/sc-issue-protocol/refs/claim.md
+index 0c432a01..40057c4a 100644
+--- a/src/superclaude/skills/sc-issue-protocol/refs/claim.md
++++ b/src/superclaude/skills/sc-issue-protocol/refs/claim.md
+@@ -98,7 +98,7 @@ Runs for every `--pipeline` value, after both comments are posted:
+ 
+ `uv run --no-project python "<skill base>/scripts/orca_worktree.py" worktree --repo <R> --number <N> --base origin/<B> --source <D>`
+ 
+-Read the one JSON object it prints: `status` (`created`, `reused` or `failed`), `path`, `branch`, `match_key`, `warning`, `detail`, `tracked_files` and `tracked_known`. Every failure is a warning, never a STOP: the assignment and the comments cannot be undone, so the claim `status` stays `success`. The script copies `<D>` into `<wt>/.dev/issues/<N>/` (it never copies `worktree.json`) and writes `<D>/worktree.json`. The skill itself runs no `git worktree` command and no other `orca` command here. Remedy lines of the worktree warning codes (printed in the final output below):
++Read the one JSON object it prints: `status` (`created`, `reused` or `failed`), `path`, `branch`, `match_key`, `warning`, `detail`, `tracked_files` and `tracked_known`. Every failure is a warning, never a STOP: the assignment and the comments cannot be undone, so the claim `status` stays `success`. The script copies `<D>` into `<wt>/.dev/issues/<N>/` (it never copies `worktree.json`) and writes `<D>/worktree.json`. The skill itself runs no `git worktree` command and no other `orca` command here. The create carries no agent flag (the copy and the pending record must come before the agent starts), so Orca opens one plain first tab: for a newly created worktree the script closes it itself after a successful copy, with `orca terminal list --worktree path:<wt> --json` and then `orca terminal close --terminal <handle> --tab --json`, only when exactly one terminal without an agent is listed and the create reply reports no setup and no default tabs. A reused worktree gets no `terminal` call. When it cannot close the tab it adds `W-FIRST-TAB-LEFT`, which never changes `status`. Remedy lines of the worktree warning codes (printed in the final output below):
+ 
+ | Code | Remedy line |
+ |---|---|
+@@ -109,6 +109,7 @@ Read the one JSON object it prints: `status` (`created`, `reused` or `failed`),
+ | `W-WORKTREE-AMBIGUOUS` | remove the extra worktrees, re-run |
+ | `W-WORKTREE-STALE` | `git worktree prune`, then `orca worktree rm` |
+ | `W-WORKTREE-COPY-FAILED` | copy the named files by hand |
++| `W-FIRST-TAB-LEFT` | close the plain tab in Orca by hand |
+ 
+ ## Wave 8: launch (orchestrator, no worker)
+ 
+@@ -134,5 +135,5 @@ Print, in this order:
+    - `launched`: "Agent launched in <wt> (level <L>[, submit]). It stops at the plan boundary and waits; reply `approved` in its tab to let it continue." For `full`: "It runs every step and stops after implementation." For `full` with `--submit`: "It then commits, pushes <branch> and opens the PR through /sc:pr-submit; it never merges."
+    - `already_launched`: "agent already launched at <launched_at>" plus the script's `detail`, which names the two files that hold the `launch` entry (`<D>/worktree.json` and a file in the worktree's git directory); the user removes the entry from both to launch again.
+    - `--pipeline none`: "No agent launched. Open <wt> and run .dev/issues/<N>/next-steps.md there."
+-4. Every warning, the worktree one first: the code, its `detail`, and its remedy line from the two tables above. For `W-LAUNCH-FAILED`, also print the launch JSON's `hand_command` when it is not null (the remedy line promises it), and tell the user that an agent started by hand is not governed by the enforcement hook.
++4. Every warning, the worktree one first (print the Wave 7 `warning` as `worktree_warning: <code>`, so an unattended run shows it): the code, its `detail`, and its remedy line from the two tables above. For `W-LAUNCH-FAILED`, also print the launch JSON's `hand_command` when it is not null (the remedy line promises it), and tell the user that an agent started by hand is not governed by the enforcement hook.
+ 5. The return contract (`SKILL.md`) and STOP.
+diff --git a/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py b/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py
+index f3cfe846..a05c664b 100644
+--- a/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py
++++ b/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py
+@@ -27,7 +27,14 @@ only these commands: ``git rev-parse --path-format=absolute --git-common-dir``,
+ ``orca worktree list``, ``orca worktree create`` (no link flag, no agent flag),
+ ``git -C <wt> rev-parse --path-format=absolute --git-common-dir`` and
+ ``git -C <wt> ls-files .dev/issues/<N>``. Only Orca makes the worktree; this
+-file never commits, pushes, stages or removes anything.
++file never commits, pushes, stages or removes anything. The create has no agent
++because the claim must copy ``<D>`` into the worktree before its agent starts; a
++create without ``--agent`` makes Orca open one plain first terminal tab, so after
++a successful copy of a newly created worktree it also runs ``orca terminal list
++--worktree path:<wt> --json`` and, only when that lists exactly one terminal with
++no agent, ``orca terminal close --terminal <handle> --tab --json``. Any reason it
++cannot close the tab is the non-fatal warning ``W-FIRST-TAB-LEFT``; it never
++changes ``status``, and a reused worktree gets no ``terminal`` call.
+ 
+ ``prompt --template <file> --level worktree|full [--submit] --number <N>
+ --repo <owner/repo> [--source <D>] --out <file>`` renders ``launch-prompt.md`` from the four blocks of
+@@ -203,6 +210,7 @@ WARNING_ORDER = [
+     "W-WORKTREE-STALE",
+     "W-WORKTREE-COPY-FAILED",
+     "W-ORIGIN-BASE-STALE",
++    "W-FIRST-TAB-LEFT",  # cosmetic: an empty tab to close by hand, so it ranks last
+ ]
+ RECORD_NAME = "worktree.json"
+ 
+@@ -532,6 +540,63 @@ def finish(
+     out.status = status
+ 
+ 
++def close_first_tab(out: Outcome, created: Result) -> None:
++    """Close the plain first tab Orca opens for a create without ``--agent``.
++
++    Runs only for a worktree this call just created, after the copy succeeded. It
++    never changes ``out.status``: every reason it cannot close the tab becomes the
++    warning ``W-FIRST-TAB-LEFT``, and an unknown create reply never leads to a close.
++    """
++
++    def left(why: str) -> None:
++        out.note("W-FIRST-TAB-LEFT", f"the plain first tab was left open: {why}")
++
++    data = None if created.timed_out else parse_json(created.out)
++    reply = (
++        data.get("result")
++        if isinstance(data, dict) and data.get("ok") is True
++        else None
++    )
++    if not isinstance(reply, dict):
++        left("the create reply is missing, timed out or not an ok JSON object")
++        return
++    if reply.get("setup") or reply.get("defaultTabs"):
++        left("the create reported a setup or default tabs, so the tab count is unknown")
++        return
++    listed = run(
++        ["orca", "terminal", "list", "--worktree", f"path:{out.path}", "--json"]
++    )
++    data = parse_json(listed.out) if listed.ok else None
++    result = (
++        data.get("result")
++        if isinstance(data, dict) and data.get("ok") is True
++        else None
++    )
++    terminals = result.get("terminals") if isinstance(result, dict) else None
++    if not isinstance(terminals, list) or not all(
++        isinstance(t, dict) for t in terminals
++    ):
++        left(
++            f"orca terminal list gave no usable terminal rows ({listed.first_error_line()})"
++        )
++        return
++    if len(terminals) != 1:
++        left(f"{len(terminals)} terminals are listed, not exactly one")
++        return
++    terminal = terminals[0]
++    handle = terminal.get("handle")
++    if terminal.get("agentIdentity"):
++        left("the one terminal runs an agent")
++        return
++    if not isinstance(handle, str) or not handle:
++        left("the one terminal has no handle")
++        return
++    closed = run(["orca", "terminal", "close", "--terminal", handle, "--tab", "--json"])
++    reply = parse_json(closed.out)
++    if not closed.ok or (isinstance(reply, dict) and reply.get("ok") is False):
++        left(f"orca terminal close failed: {closed.first_error_line()}")
++
++
+ def cmd_worktree(args: argparse.Namespace) -> int:
+     out = Outcome()
+     source = Path(args.source)
+@@ -643,6 +708,8 @@ def cmd_worktree(args: argparse.Namespace) -> int:
+             "created",
+             None,  # a new worktree was matched by no lookup key
+         )
++        if out.status == "created":
++            close_first_tab(out, created)
+     return emit(out.as_dict())
+ 
+ 
+diff --git a/tests/skills/test_issue_orca_worktree.py b/tests/skills/test_issue_orca_worktree.py
+index 4c9f374d..361089a5 100644
+--- a/tests/skills/test_issue_orca_worktree.py
++++ b/tests/skills/test_issue_orca_worktree.py
+@@ -362,10 +362,32 @@ def read_record(source: Path) -> dict:
+     return json.loads((source / "worktree.json").read_text())
+ 
+ 
++# An ok create reply with no setup and no default tabs (the envelope `--json` prints).
++CREATE_OK = {"ok": True, "result": {"worktree": {"id": "wt-1"}}}
++TAB_CLOSED = {"ok": True, "result": {"closed": 1}}
++
++
++def terminal_row(handle: str = "term_plain", **extra: object) -> dict:
++    return {"handle": handle, "title": None, "connected": True} | extra
++
++
++def terminals(*rows: dict) -> dict:
++    return {"ok": True, "result": {"terminals": list(rows)}}
++
++
+ def created_scene(
+-    fake: FakeOrca, git_repo: Path, *, effect: bool = True, name: str = "issue-302"
++    fake: FakeOrca,
++    git_repo: Path,
++    *,
++    effect: bool = True,
++    name: str = "issue-302",
++    reply: object = "opaque, not json",
+ ) -> Path:
+-    """Orca lists only the main row, creates `name`, then lists the new row too."""
++    """Orca lists only the main row, creates `name`, then lists the new row too.
++
++    ``reply`` is the create's stdout: opaque text by default (no tab close can
++    follow it), ``CREATE_OK`` for a reply the close step accepts.
++    """
+     wt = git_repo.parent / "wts" / name
+     cmd = [
+         "git", "-C", str(git_repo), "worktree", "add", "-b", f"ironbelly/{name}",
+@@ -373,7 +395,7 @@ def created_scene(
+     ]  # fmt: skip
+     fake.respond(
+         "worktree-create",
+-        {"stdout": "opaque, not json"} | ({"effect": cmd} if effect else {}),
++        {"stdout": reply} | ({"effect": cmd} if effect else {}),
+     )
+     fake.respond(
+         "worktree-list",
+@@ -556,7 +578,9 @@ def test_fo11_created_worktree_path_comes_from_the_list_not_the_create_json(
+     data = run_wt(fake_orca, git_repo, issue_dir)
+     assert data["status"] == "created" and data["match_key"] is None
+     assert data["path"] == str(wt) and data["branch"] == "ironbelly/issue-302"
+-    assert data["warning"] is None
++    # An opaque create reply is unknown: the plain first tab is left, nothing is closed.
++    assert data["warning"] == "W-FIRST-TAB-LEFT"
++    assert orca_calls(fake_orca, "terminal") == []
+     assert (wt / ".dev/issues/302/issue-summary.md").read_text() == "summary\n"
+     assert read_record(issue_dir) == {"path": str(wt), "status": "created"}
+ 
+@@ -794,8 +818,13 @@ def test_fo17_failed_fetch_with_the_ref_present_warns_and_creates(
+ def test_fo18_exact_commands_and_no_forbidden_flag(
+     fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
+ ) -> None:
+-    created_scene(fake_orca, git_repo)
+-    run_wt(fake_orca, git_repo, issue_dir)
++    wt = created_scene(fake_orca, git_repo, reply=CREATE_OK)
++    fake_orca.respond(
++        "terminal-list", {"stdout": terminals(terminal_row("term_plain"))}
++    )
++    fake_orca.respond("terminal-close", {"stdout": TAB_CLOSED})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "created" and data["warning"] is None
+     main = os.path.realpath(git_repo)
+     assert fake_orca.calls() == [
+         ["worktree", "list", "--repo", f"path:{main}", "--limit", "500", "--json"],
+@@ -814,12 +843,221 @@ def test_fo18_exact_commands_and_no_forbidden_flag(
+             "--json",
+         ],
+         ["worktree", "list", "--repo", f"path:{main}", "--limit", "500", "--json"],
++        ["terminal", "list", "--worktree", f"path:{wt}", "--json"],
++        ["terminal", "close", "--terminal", "term_plain", "--tab", "--json"],
+     ]
+     for call in fake_orca.calls():
+         for arg in call:
+             assert not arg.startswith(FORBIDDEN_FLAGS), arg
+ 
+ 
++def tab_scene(
++    fake: FakeOrca,
++    git_repo: Path,
++    tab_list: dict | None = None,
++    tab_close: dict | None = None,
++    *,
++    reply: object = CREATE_OK,
++) -> Path:
++    """A created worktree whose Orca answers the two ``terminal`` calls.
++
++    Before each answer the fake runs ``test -f <copied file>``: a ``terminal`` call
++    made before the issue directory was copied fails and shows up as a warning.
++    """
++    wt = created_scene(fake, git_repo, reply=reply)
++    copied = ["test", "-f", str(wt / ".dev/issues/302/issue-summary.md")]
++    answer_list = tab_list or {"stdout": terminals(terminal_row())}
++    fake.respond("terminal-list", {"effect": copied} | answer_list)
++    fake.respond(
++        "terminal-close", {"effect": copied} | (tab_close or {"stdout": TAB_CLOSED})
++    )
++    return wt
++
++
++def left_open(data: dict, fake: FakeOrca, *, closed: bool = False) -> None:
++    """The create succeeded, only W-FIRST-TAB-LEFT is reported, and no tab was closed."""
++    assert data["status"] == "created"
++    assert data["warning"] == "W-FIRST-TAB-LEFT"
++    assert data["detail"].startswith("the plain first tab was left open: ")
++    assert "also" not in data["detail"]
++    assert bool(orca_calls(fake, "terminal", "close")) is closed
++
++
++@pytest.mark.parametrize("identity", ["absent", None, ""])
++def test_ft1_a_created_worktree_gets_its_plain_first_tab_closed_after_the_copy(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, identity: str | None
++) -> None:
++    only = terminal_row("term_plain")
++    if identity != "absent":
++        only["agentIdentity"] = identity
++    wt = tab_scene(fake_orca, git_repo, {"stdout": terminals(only)})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "created" and data["warning"] is None
++    calls = fake_orca.calls()
++    assert [c[:2] for c in calls] == [
++        ["worktree", "list"],
++        ["worktree", "create"],
++        ["worktree", "list"],
++        ["terminal", "list"],
++        ["terminal", "close"],
++    ]
++    assert calls[3] == ["terminal", "list", "--worktree", f"path:{wt}", "--json"]
++    assert calls[4] == [
++        "terminal",
++        "close",
++        "--terminal",
++        "term_plain",
++        "--tab",
++        "--json",
++    ]
++    assert (wt / ".dev/issues/302/issue-summary.md").read_text() == "summary\n"
++
++
++@pytest.mark.parametrize(
++    ("field", "value"),
++    [("setup", {"ran": True}), ("defaultTabs", [{"title": "dev"}])],
++)
++def test_ft2_a_create_that_reports_setup_or_default_tabs_closes_nothing(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, field: str, value: object
++) -> None:
++    created_scene(fake_orca, git_repo, reply={"ok": True, "result": {field: value}})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    left_open(data, fake_orca)
++    assert "setup or default tabs" in data["detail"]
++    assert orca_calls(fake_orca, "terminal") == []
++
++
++@pytest.mark.parametrize(
++    "reply", ["not json", {"ok": False, "result": {}}, {"ok": True}, [], "null"]
++)
++def test_ft3_an_unknown_create_reply_never_leads_to_a_close(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, reply: object
++) -> None:
++    created_scene(fake_orca, git_repo, reply=reply)
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    left_open(data, fake_orca)
++    assert orca_calls(fake_orca, "terminal") == []
++
++
++def test_ft4_a_timed_out_create_closes_nothing(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    wt = tab_scene(fake_orca, git_repo)
++    cmd = [
++        "git", "-C", str(git_repo), "worktree", "add", "-b", "ironbelly/issue-302",
++        str(wt), "origin/master",
++    ]  # fmt: skip
++    fake_orca.respond("worktree-create", {"effect": cmd, "sleep": 30})
++    data = run_wt(fake_orca, git_repo, issue_dir, SC_ORCA_TIMEOUT="3")
++    left_open(data, fake_orca)
++    assert orca_calls(fake_orca, "terminal") == []
++
++
++def test_ft5_a_failed_terminal_list_leaves_the_tab_and_names_the_reason(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    tab_scene(fake_orca, git_repo, {"rc": 1, "stderr": "boom\n"})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    left_open(data, fake_orca)
++    assert "boom" in data["detail"]
++
++
++@pytest.mark.parametrize(
++    "payload",
++    [
++        "garbage",
++        {"ok": True, "result": {}},
++        {"ok": True, "result": {"terminals": "x"}},
++        {"ok": True, "result": {"terminals": ["x"]}},
++        {"ok": False, "result": {"terminals": []}},
++    ],
++)
++def test_ft6_a_malformed_terminal_list_reply_leaves_the_tab(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, payload: object
++) -> None:
++    tab_scene(fake_orca, git_repo, {"stdout": payload})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    left_open(data, fake_orca)
++
++
++@pytest.mark.parametrize(
++    ("rows", "why"),
++    [
++        ([], "0 terminals"),
++        ([terminal_row("a"), terminal_row("b")], "2 terminals"),
++        ([terminal_row("a", agentIdentity="claude")], "runs an agent"),
++        ([terminal_row("")], "no handle"),
++    ],
++)
++def test_ft7_only_exactly_one_plain_terminal_is_closed(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, rows: list, why: str
++) -> None:
++    tab_scene(fake_orca, git_repo, {"stdout": terminals(*rows)})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    left_open(data, fake_orca)
++    assert why in data["detail"]
++
++
++def test_ft8_a_failed_close_is_a_warning_and_the_status_stays_created(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    tab_scene(fake_orca, git_repo, None, {"rc": 1, "stderr": "nope\n"})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    left_open(data, fake_orca, closed=True)
++    assert "nope" in data["detail"]
++    assert read_record(issue_dir)["status"] == "created"
++
++
++def test_ft9_a_failed_copy_closes_nothing_and_keeps_its_own_warning(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, tmp_path: Path
++) -> None:
++    tab_scene(fake_orca, git_repo)
++    data = run_wt(fake_orca, git_repo, tmp_path / "no-such-claim-dir")
++    assert data["status"] == "failed" and data["warning"] == "W-WORKTREE-COPY-FAILED"
++    assert orca_calls(fake_orca, "terminal") == []
++
++
++def test_ft10_a_new_row_of_another_repository_is_failed_with_no_terminal_call(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    wt = created_scene(fake_orca, git_repo, effect=False, reply=CREATE_OK)
++    fake_orca.respond(
++        "worktree-create",
++        {"stdout": CREATE_OK, "effect": ["git", "init", "-b", "master", str(wt)]},
++    )
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "failed" and data["warning"] == "W-WORKTREE-STALE"
++    assert orca_calls(fake_orca, "terminal") == []
++
++
++def test_ft11_a_reused_worktree_makes_no_terminal_call(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
++) -> None:
++    wt = add_worktree(git_repo, "issue-302", "ironbelly/issue-302")
++    fake_orca.respond(
++        "worktree-list",
++        {"stdout": listing(main_row(git_repo), row(wt, comment=MARKER))},
++    )
++    fake_orca.respond("terminal-list", {"stdout": terminals(terminal_row())})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "reused" and data["warning"] is None
++    assert orca_calls(fake_orca, "terminal") == []
++    assert orca_calls(fake_orca, "worktree", "create") == []
++
++
++def test_ft12_the_tab_warning_ranks_below_a_copy_warning_and_never_raises(
++    fake_orca: FakeOrca, git_repo: Path, issue_dir: Path, tmp_path: Path
++) -> None:
++    elsewhere = tmp_path / "elsewhere"
++    elsewhere.mkdir()
++    (issue_dir / "linked").symlink_to(elsewhere, target_is_directory=True)
++    tab_scene(fake_orca, git_repo, {"rc": 1, "stderr": "boom\n"})
++    data = run_wt(fake_orca, git_repo, issue_dir)
++    assert data["status"] == "created"
++    assert data["warning"] == "W-WORKTREE-COPY-FAILED"
++    assert "also W-FIRST-TAB-LEFT" in data["detail"]
++
++
+ def test_arg1_worktree_bad_arguments_exit_2(
+     fake_orca: FakeOrca, issue_dir: Path
+ ) -> None:
+diff --git a/tests/skills/test_issue_protocol.py b/tests/skills/test_issue_protocol.py
+index 42b3fcc5..4dca4ff9 100644
+--- a/tests/skills/test_issue_protocol.py
++++ b/tests/skills/test_issue_protocol.py
+@@ -332,6 +332,20 @@ def test_st6_skill_steps_name_the_orca_check_and_the_worktree_step():
+     assert "E-ORCA-REQUIRED" in skill.split("## Error handling", 1)[1]
+ 
+ 
++def test_every_worktree_warning_code_is_listed_with_a_remedy_line():
++    """Each code the script can print is named in SKILL.md and in the Wave 7 table."""
++    script = _text(SKILL_DIR / "scripts/orca_worktree.py")
++    block = script.split("WARNING_ORDER = [", 1)[1].split("]", 1)[0]
++    codes = re.findall(r'"(W-[A-Z-]+)"', block)
++    assert "W-FIRST-TAB-LEFT" in codes
++    skill = _text(SKILL).split("## Error handling", 1)[1]
++    wave7 = _text(REFS / "claim.md").split("## Wave 7", 1)[1].split("## Wave 8", 1)[0]
++    for code in codes:
++        assert f"`{code}`" in skill, code
++        assert f"| `{code}` |" in wave7, code
++    assert "| `W-FIRST-TAB-LEFT` | close the plain tab in Orca by hand |" in wave7
++
++
+ # --- the launch step (design pipeline-flag, ST-4, ST-7, ST-9, ST-10, ST-11) -------
+ 
+ ORCA_SCRIPT = SKILL_DIR / "scripts/orca_worktree.py"
