@@ -1,0 +1,150 @@
+- hunk_ref: tracked in merged-verdict.yaml (C-020)
+  evidence_missing: The dead-code list (MAX_LAUNCHES_PER_CYCLE, record.disabled_present, the status_report audit argument, CommandResult.duration_s) was not re-read by the judge.
+  why_not_classifiable: 'judge could not re-read the evidence this run: dead code'
+  next_evidence_needed: A reference search for each of the four names across src/ and tests/ to show whether any reader exists.
+  owner: reviewer
+  decision_needed_by_user: false
+  source: adversarial-judge
+- hunk_ref: tracked in merged-verdict.yaml (C-021)
+  evidence_missing: The mark_pending state-versus-launches check was not re-read line by line by the judge.
+  why_not_classifiable: 'judge could not re-read the evidence this run: mark_pending state check'
+  next_evidence_needed: A trace showing whether any reachable document can hold state None or failed with launches 1, which would make the missing launches == 0 check matter.
+  owner: reviewer
+  decision_needed_by_user: false
+  source: adversarial-judge
+- hunk_ref: tracked in merged-verdict.yaml (C-027)
+  evidence_missing: Variant-1 did not confirm the approvers-file fstat gap; the judge did not either.
+  why_not_classifiable: 'judge could not re-read the evidence this run: approvers-file fstat'
+  next_evidence_needed: A spec or design line that requires an fstat after the open or a parent directory mode check; without one this is advisory at most.
+  owner: reviewer
+  decision_needed_by_user: false
+  source: adversarial-judge
+- hunk_ref: tracked in merged-verdict.yaml (C-028)
+  evidence_missing: The re-approved branch at cycle.py:641 was located but its reachability was not traced.
+  why_not_classifiable: 'judge could not re-read the evidence this run: re-approved branch near cycle.py:641'
+  next_evidence_needed: A trace of the callers of this decision path showing whether an entry with a different approval_event_id can reach it.
+  owner: reviewer
+  decision_needed_by_user: false
+  source: adversarial-judge
+- hunk_ref: tracked in merged-verdict.yaml (C-029)
+  evidence_missing: The seven DF anchors (dry-run skips, Retry-After on the user call, full retry argv, halt on any launch outcome, cwd=worktree) were not all re-read.
+  why_not_classifiable: 'judge could not re-read the evidence this run: seven anchored departures'
+  next_evidence_needed: A re-read of each of the seven DF rows in the DF register against the code site it names.
+  owner: reviewer
+  decision_needed_by_user: false
+  source: adversarial-judge
+- hunk_ref: tracked in merged-verdict.yaml (C-039)
+  evidence_missing: The wiring and subprocess-coverage claim (only init-state and once have real-subprocess tests) was not verified by the judge.
+  why_not_classifiable: 'judge could not re-read the evidence this run: wiring and subprocess coverage'
+  next_evidence_needed: A search of tests/issue_watch for subprocess invocations of each verb.
+  owner: reviewer
+  decision_needed_by_user: false
+  source: adversarial-judge
+- hunk_ref: src/superclaude/cli/issue_watch/cli.py:94
+  evidence_missing: 'static reachability of Click symbol issue_watch_group cannot be decided: the degrade oracle matches (a) command decorator, and for the group also (b) [project.scripts] and (c) main.add_command
+    registry'
+  why_not_classifiable: 'runtime-surface DEGRADE (refs/runtime-surface.md section 3): never UNREACHED, never Regression'
+  next_evidence_needed: real-process run of the verb (tests/issue_watch/test_cli_e2e.py runs only once and init-state through python -m); the registration facts are src/superclaude/cli/main.py:565 and pyproject.toml:71
+  owner: reviewer
+  decision_needed_by_user: false
+  source: runtime-surface
+- hunk_ref: src/superclaude/cli/issue_watch/cli.py:111
+  evidence_missing: 'static reachability of Click symbol once_command cannot be decided: the degrade oracle matches (a) command decorator, and for the group also (b) [project.scripts] and (c) main.add_command
+    registry'
+  why_not_classifiable: 'runtime-surface DEGRADE (refs/runtime-surface.md section 3): never UNREACHED, never Regression'
+  next_evidence_needed: real-process run of the verb (tests/issue_watch/test_cli_e2e.py runs only once and init-state through python -m); the registration facts are src/superclaude/cli/main.py:565 and pyproject.toml:71
+  owner: reviewer
+  decision_needed_by_user: false
+  source: runtime-surface
+- hunk_ref: src/superclaude/cli/issue_watch/cli.py:164
+  evidence_missing: 'static reachability of Click symbol status_command cannot be decided: the degrade oracle matches (a) command decorator, and for the group also (b) [project.scripts] and (c) main.add_command
+    registry'
+  why_not_classifiable: 'runtime-surface DEGRADE (refs/runtime-surface.md section 3): never UNREACHED, never Regression'
+  next_evidence_needed: real-process run of the verb (tests/issue_watch/test_cli_e2e.py runs only once and init-state through python -m); the registration facts are src/superclaude/cli/main.py:565 and pyproject.toml:71
+  owner: reviewer
+  decision_needed_by_user: false
+  source: runtime-surface
+- hunk_ref: src/superclaude/cli/issue_watch/cli.py:185
+  evidence_missing: 'static reachability of Click symbol check_config_command cannot be decided: the degrade oracle matches (a) command decorator, and for the group also (b) [project.scripts] and (c) main.add_command
+    registry'
+  why_not_classifiable: 'runtime-surface DEGRADE (refs/runtime-surface.md section 3): never UNREACHED, never Regression'
+  next_evidence_needed: real-process run of the verb (tests/issue_watch/test_cli_e2e.py runs only once and init-state through python -m); the registration facts are src/superclaude/cli/main.py:565 and pyproject.toml:71
+  owner: reviewer
+  decision_needed_by_user: false
+  source: runtime-surface
+- hunk_ref: src/superclaude/cli/issue_watch/cli.py:201
+  evidence_missing: 'static reachability of Click symbol init_state_command cannot be decided: the degrade oracle matches (a) command decorator, and for the group also (b) [project.scripts] and (c) main.add_command
+    registry'
+  why_not_classifiable: 'runtime-surface DEGRADE (refs/runtime-surface.md section 3): never UNREACHED, never Regression'
+  next_evidence_needed: real-process run of the verb (tests/issue_watch/test_cli_e2e.py runs only once and init-state through python -m); the registration facts are src/superclaude/cli/main.py:565 and pyproject.toml:71
+  owner: reviewer
+  decision_needed_by_user: false
+  source: runtime-surface
+- hunk_ref: src/superclaude/cli/issue_watch/cli.py:282
+  evidence_missing: 'static reachability of Click symbol reset_command cannot be decided: the degrade oracle matches (a) command decorator, and for the group also (b) [project.scripts] and (c) main.add_command
+    registry'
+  why_not_classifiable: 'runtime-surface DEGRADE (refs/runtime-surface.md section 3): never UNREACHED, never Regression'
+  next_evidence_needed: real-process run of the verb (tests/issue_watch/test_cli_e2e.py runs only once and init-state through python -m); the registration facts are src/superclaude/cli/main.py:565 and pyproject.toml:71
+  owner: reviewer
+  decision_needed_by_user: false
+  source: runtime-surface
+- hunk_ref: record.py:370
+  evidence_missing: reuse neighbour search ran without auggie (degraded, capped at maybe-related); verdict reuse-by-import, S_reuse 0.66
+  why_not_classifiable: maybe-related reuse finding is advisory (section 10.8); the design deliberately mirrors this across a banned import edge with a parity test where marked
+  next_evidence_needed: semantic neighbour search with auggie available; nearest neighbour src/superclaude/cli/swarm/atomic.py:14
+  owner: reviewer
+  decision_needed_by_user: false
+  source: reuse-audit
+  reuse_candidate: record.py FileStore.save (record.py:370)
+  nearest_neighbour: src/superclaude/cli/swarm/atomic.py:14
+  similarity_tier: maybe-related
+  composite_scores:
+    C_cap: 0.75
+    C_shape: 0.55
+    C_aug: 0.0
+    S_reuse: 0.66
+- hunk_ref: launch.py:163
+  evidence_missing: reuse neighbour search ran without auggie (degraded, capped at maybe-related); verdict mirror-shape, S_reuse 0.88
+  why_not_classifiable: maybe-related reuse finding is advisory (section 10.8); the design deliberately mirrors this across a banned import edge with a parity test where marked
+  next_evidence_needed: semantic neighbour search with auggie available; nearest neighbour src/superclaude/cli/install_user_setup.py:198
+  owner: reviewer
+  decision_needed_by_user: false
+  source: reuse-audit
+  reuse_candidate: launch.py find_orca (launch.py:163) with _lists_orca_cli (launch.py:144)
+  nearest_neighbour: src/superclaude/cli/install_user_setup.py:198
+  similarity_tier: maybe-related
+  composite_scores:
+    C_cap: 0.95
+    C_shape: 0.8
+    C_aug: 0.0
+    S_reuse: 0.88
+- hunk_ref: launch.py:200
+  evidence_missing: reuse neighbour search ran without auggie (degraded, capped at maybe-related); verdict mirror-shape, S_reuse 0.98
+  why_not_classifiable: maybe-related reuse finding is advisory (section 10.8); the design deliberately mirrors this across a banned import edge with a parity test where marked
+  next_evidence_needed: semantic neighbour search with auggie available; nearest neighbour src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py:86
+  owner: reviewer
+  decision_needed_by_user: false
+  source: reuse-audit
+  reuse_candidate: launch.py parse_origin (launch.py:200) and check_origin (launch.py:218)
+  nearest_neighbour: src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py:86
+  similarity_tier: maybe-related
+  composite_scores:
+    C_cap: 1.0
+    C_shape: 0.95
+    C_aug: 0.0
+    S_reuse: 0.98
+- hunk_ref: predicates.py:27
+  evidence_missing: reuse neighbour search ran without auggie (degraded, capped at maybe-related); verdict mirror-shape, S_reuse 0.74
+  why_not_classifiable: maybe-related reuse finding is advisory (section 10.8); the design deliberately mirrors this across a banned import edge with a parity test where marked
+  next_evidence_needed: semantic neighbour search with auggie available; nearest neighbour src/superclaude/cli/swarm/recipes/_primitives.py:15
+  owner: reviewer
+  decision_needed_by_user: false
+  source: reuse-audit
+  reuse_candidate: predicates.py parse_utc / format_utc (predicates.py:27, 42)
+  nearest_neighbour: src/superclaude/cli/swarm/recipes/_primitives.py:15
+  similarity_tier: maybe-related
+  composite_scores:
+    C_cap: 0.85
+    C_shape: 0.6
+    C_aug: 0.0
+    S_reuse: 0.74

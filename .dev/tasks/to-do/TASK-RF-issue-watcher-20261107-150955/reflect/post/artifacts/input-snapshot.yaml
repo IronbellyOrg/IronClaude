@@ -1,0 +1,619 @@
+input_tree_sha256: e7aaa7de77aa8a4d48c7763cdd7e8fd69617450faa2b13ab6562e96688c10ef3
+file_count: 308
+file_list:
+  - path: ".dev/brainstorms/20261107-064825-github-issue-watcher/spec-final.md"
+    sha256: e9ae4520c8f5a895c0eb2019f80b4b69a51748b3583e1fae1e44416215533514
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/BUILD-REQUEST.md"
+    sha256: 3755c516a02b92e2dd28e1201d1e3c26b3879ba6cbc557e4f1802c27a249f747
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md"
+    sha256: 1cab181642d91d71bbce0d653f5823ee76a6d94c61164dc68d873ca8bd917f76
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/discovery/citation-anchors.md"
+    sha256: 559321457c7be9d2f9fa6f212e993b8039b5a607f0cffc1c741ef5dd3efe9b95
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/discovery/git-baseline.md"
+    sha256: 13f06140589ec3055b869cc63c12f997d488e6c7dc0986d8b4c4faaf84ce6ecb
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/discovery/tool-versions.md"
+    sha256: e05d2eabaa6d6b5ec698153e8d073b3163fbc65bbe433948edfd429c1b7964ce
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/base-sha.txt"
+    sha256: d744bdd3260dd7ba92d5fedf1b0a3352627e855c06b46019b6308b2ef33ee59f
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/commit-allowlist-check.md"
+    sha256: 48f0e80b8d4306aeb9958608af2d651baef26b2b505ad7715b9501ee938e51de
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/commit-result.md"
+    sha256: 51c2a87fe13618d84e5bac42d8f2d2894214165f1ca77e8e5dc7f3aefd4a15a9
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/final-gate-cycle-decision.md"
+    sha256: bf1945deebb531fb7bddbf8d224208c0f030c0bdeb5830db05e6a7835e57ff9e
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/final-gate-verdict.md"
+    sha256: 5e01bf7060fd9390e146ecdfb9db0ca6a177ba48416b089c5ca4377dbea03fef
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/gate-a-cycle-decision.md"
+    sha256: 95ea04223acdf4791e42f8b8e068bf5b70b9bebe53930c7e0b04c4416306e854
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/gate-a-verdict.md"
+    sha256: ab26cc24d0c6ef30f76f206c3ab7ae224088a54a2fe92c4ef47349afa99c6525
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/gate-b-cycle-decision.md"
+    sha256: bf1945deebb531fb7bddbf8d224208c0f030c0bdeb5830db05e6a7835e57ff9e
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/gate-b-verdict.md"
+    sha256: 1e646630476257edd67a1e4e4192220b45c8a2d714bce2b393429d5329a564b1
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/gate-c-cycle-decision.md"
+    sha256: 95ea04223acdf4791e42f8b8e068bf5b70b9bebe53930c7e0b04c4416306e854
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/gate-c-verdict.md"
+    sha256: 26e01d51d28290ed8570dd1f15b0a5d9a0f55e0d25669a86d2f042785dae1c93
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/gate-d-cycle-decision.md"
+    sha256: bf1945deebb531fb7bddbf8d224208c0f030c0bdeb5830db05e6a7835e57ff9e
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/gate-d-verdict.md"
+    sha256: e3b97baa981b98d1df03801fd00cea62a2faaa808c5121076648b6c2065dd975
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/m4-cycle-decision.md"
+    sha256: bf1945deebb531fb7bddbf8d224208c0f030c0bdeb5830db05e6a7835e57ff9e
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/m4-verdict.md"
+    sha256: c696be344eeb67d68867fef1510eaa5b2e9739aaed3bd405101c585b5a2f6e1b
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/reports/ac-trace.md"
+    sha256: ac32dd265ba3059823574d9d0b912d9f3daf463dc5f59fdb731bfd77b23920d9
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/reports/deviation-register.md"
+    sha256: 8dac284f7e5fe5a5121dbdb9d07374a3fa0082ce44dfb5186638b773ec8ae4b9
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/reports/final-change-set.md"
+    sha256: 95f1cac043ca27d4ba9ec05286c0006e37c6cfe21f7d23aa21723ce872f85134
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/reports/final-gate-record.md"
+    sha256: 442455dc279053e9990feb59865061fec1338fd45bf93deb0a09938298e4ebff
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/reports/gate-a-change-set.md"
+    sha256: 742e1e3b38d9f36b16927bf5cef2d0e963e21c4f86401b7b336e6aaba028a799
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/reports/gate-b-change-set.md"
+    sha256: bb03bfb69448ea8a7fbe64083d035f51bf621f394c888ef9b757f015e4ea12bd
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/reports/gate-c-change-set.md"
+    sha256: 13a3d25fe4879647298e8e86e01e7090e13e61dfe0c9ab76d1557efdb08a7c10
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/reports/gate-d-change-set.md"
+    sha256: 62503637c9198a587bc249a5cfe1e386defbfff5d12741aaed4e4c0c78f82b51
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/reports/post-completion-validation.md"
+    sha256: 545b7f8f44d54f11569321a3b07f9853748188ae3031806bc3a7fde72e906419
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/reviews/p2-leaf-imports.md"
+    sha256: 535d321da7c9aefaddb76d89c3c8e66a64f7f67fb36d57250d3e9af3468826a9
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/reviews/runbook-check.md"
+    sha256: f7956b51093c8dbba87f8a59f4bda0a3a9b7c26555f9cacbd0dc688ebd839024
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/gate-a-postfix-cycle2.txt"
+    sha256: c95fdd4550199622c65caf1fb4a0f7ca301e202aa061f24ead5060e9097e4099
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/gate-b-postfix.txt"
+    sha256: 06f4f0186daeeb4ba0ac783d245fe9c51805dd3582dc325c0f30c02db80b1c4b
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/gate-c-postfix-cycle2.txt"
+    sha256: abcc486869c7398f3bf2f92b37b31f7260859d6fe97d1c5cbfd2bdd6a6af46e6
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/gate-d-postfix.txt"
+    sha256: da111fd12095724811264b367ba135dbfb80434eab1cd95d55af444e37f3b2df
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/m4-postfix.txt"
+    sha256: e5c85bd4f433b2eca59640570c6bcc0c8ea63bd464ca4e6bf2671dd3a2294714
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p1-g1-raw.txt"
+    sha256: 57a16c5f4ab4e63ba15505d4c5bf6e0b82bb2b0902624746a371b72cb09489f8
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p1-g1-summary.md"
+    sha256: 3fc7e59cecc99c191a29c8233449fa7e0589f8ee65114cc6d162d5dfb761e681
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p2-g1-raw.txt"
+    sha256: 70d16dc97736da7c917694a019d7451537567fd5d3e0df3c6830b526745c1065
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p2-g1-summary.md"
+    sha256: 17422f22f232236ba5b6f67b1431ff7bf0204679144f42122b3470697370032a
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p2-ruff.txt"
+    sha256: c5bfc51ceca2b8ea4d3ed20ebe60c9e2929a732bbf87a5423db4b44a013879f3
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p3-g1-raw.txt"
+    sha256: 9eb91d03a5755a81aa5e23a18211a3ecc71284f37124e440c439a8935563280b
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p3-g1-summary.md"
+    sha256: 02523d4aeebe80e9dcb86826d1d75ac9cf80adb9f5da79dd03e6f073ace7156f
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p3-g4-raw.txt"
+    sha256: 74d32c92c675956380992e5a1f987ed25bb7bb2ae8743a0b8f77ce6529d1f6e4
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p3-g4-summary.md"
+    sha256: 7d920bdf4062f91003fde5c270b9aeca08d5ac51af70cf5c23a2d2e974f3e1d1
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p3-g8.txt"
+    sha256: 51840a36043d212aaca3b8733fec011eeec6f7f600960040cceb1112245b66d6
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p3-ruff.txt"
+    sha256: 75942fe13c04a5c65a065d23115a1604fb822cd6e032022869acd4b8d3cabf96
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p4-g1-raw.txt"
+    sha256: 390bd456e7a861ef5fb3b98d6a42806522a9593a2a797545f621ea7fb475d8d9
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p4-g1-summary.md"
+    sha256: 7626ec6b281de5be1c58d83a2ce6ef95abf309d9fa4d0d0b2a84b6297437dd85
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p4-ruff.txt"
+    sha256: 75942fe13c04a5c65a065d23115a1604fb822cd6e032022869acd4b8d3cabf96
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p5-g1-raw.txt"
+    sha256: 7ef792499d28f87aef061841328ff0c764a91ad4fc18fe2c4fdf0a187a8e16ab
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p5-g1-summary.md"
+    sha256: e820827037eb8f5b9e6b7da14781eff70a55c68a2af4de9736262b1963bee4d5
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p5-g4-raw.txt"
+    sha256: 74d32c92c675956380992e5a1f987ed25bb7bb2ae8743a0b8f77ce6529d1f6e4
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p5-g4-summary.md"
+    sha256: 1043575c9e7714c5bd59e09117a2750eb8b790895bb51749b06253519e69b7d8
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p5-ruff.txt"
+    sha256: ed89725c5447885c74ae815579f8ffe03d794fcafa2d764e6ddefb227ce46fd8
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p6-g1-raw.txt"
+    sha256: 03fc8f3b48a89c528879f8ba6e57e5c2ace727c89c823b0041db63e85cfd59b2
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p6-g1-summary.md"
+    sha256: f915c4dca638129f7b5566b423cfbc0f42b84162826ce57442ddc3522af7e411
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p6-ruff.txt"
+    sha256: 8239c146c5688e475791f43ed50ec06b9c438c7b07852ac8586ba4cec99e4987
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p7-g2-raw.txt"
+    sha256: 86ff41335ca69d1e8b602db0c9103933ec7401623069c4eff900a91dc16a3860
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p7-g2-summary.md"
+    sha256: 358fef2bd4ad87ab08d7a802af1cd5df675a369f25e97240b434573db8450630
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p7-g4-raw.txt"
+    sha256: 74d32c92c675956380992e5a1f987ed25bb7bb2ae8743a0b8f77ce6529d1f6e4
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p7-g4-summary.md"
+    sha256: d1f2957c59f8552e82e5cdc6376845b43eccba18bc149cd30173a4b29ff9ffcf
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p7-g9.txt"
+    sha256: 468a4283fe6751f2a4ac5545f9b655f999bf04670f89f5cf6a451091d862561a
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p7-ruff.txt"
+    sha256: ab7c5ae4216595c0a847bfdca437ea8f2fe71a6d6ade94a1ce9cc00fc84c65b5
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p8-g1-raw.txt"
+    sha256: de69a9dfb10038e246be9a071af34da9253b6b4456d6e0e062e259aba3ba8b5b
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p8-g1-summary.md"
+    sha256: c2f665120894943edbede6d8e8aa6b89c37f8164bb41a1332ed6e4468a226a7f
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p8-g3-raw.txt"
+    sha256: 138dbd033caabd9f09f942d8b61ca43b7cdbca270116ea3e3f4e18c2ddf43fcc
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p8-g3-summary.md"
+    sha256: c1e47fe0ef3fb16722b6a1446c53b1390b153d96d3d8ba8c25313b5ca5b0c2c7
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p8-g8.txt"
+    sha256: 97cf70d3201d401e525bbddce36f0612a055b471ce955a02d63332749f595c8b
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p8-ruff.txt"
+    sha256: 9cb1d82b1d7b4787b3b86358205b12b05f88718baeb0fcf109323d46aa367d26
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g1-raw.txt"
+    sha256: c5e5c2a5e669dc521507de1c14814f9a5e3a124ec6e495588adcd680e9b987dd
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g1-summary.md"
+    sha256: 8e0fa8b7f72a7d80927ce736479bb73980c4f9b17d590851eed48a58152cba60
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g10.txt"
+    sha256: 02bf765b75a362a1e0a181637410fe5e070d5375a451bf17dd74f02655617c45
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g11.txt"
+    sha256: b11957bf4b642471b0f16ed9d90f96c77a7e1cd5ee15b29f5e77c32bec2aa96e
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g2-raw.txt"
+    sha256: 5fed628580243832737847e48bbb0f1fcd6c6967aa0ce11604f6a5db813e274c
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g2-summary.md"
+    sha256: 184938a9289504b69e067b69e841ead1b2859b1d548fe3b6c9403edadb7154e3
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g3-raw.txt"
+    sha256: f2600734eceffdc285240738e6c02f739985ed9751c0644d814d7caa6a84b9f4
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g3-summary.md"
+    sha256: 7979b6e99004d28a930a4662eb2387291f7dcb52ac646f1db118e8aeebd22779
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g4-raw.txt"
+    sha256: 74d32c92c675956380992e5a1f987ed25bb7bb2ae8743a0b8f77ce6529d1f6e4
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g4-summary.md"
+    sha256: 10f185627c8de6dba1bec38f472ea840dc54f75e2bf5f2841b17660e5afa53fb
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g5.txt"
+    sha256: 63af08ddfc155d067964f2ad01ed91f6f104604ebd4d8bb9275bf931f58d373a
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g6-sync-dev.txt"
+    sha256: 749f53cf30b4a12ea2192dff6dd4665a74c4d46ed8b80d8546a8922fa66cca3c
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g6-verify-deps.txt"
+    sha256: 3010a889c12e7f55588f01e69bf9206f9b6832b4566547455ee59ae317f1a62a
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g6-verify-sync.txt"
+    sha256: 3bd5d9a87aeb9f67482c214f4779e974acb969cf62b547ab20cae01bd1339e0a
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g7.txt"
+    sha256: c090727116ba2cb01bc7df24ebb76f0baab6de97e130b44f6492502bbab3e3a6
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g8.txt"
+    sha256: 4bf4fca02e6eeaf7f1c510b82c756e7f8a3c567a230bae1094b254adc774f38b
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/test-results/p9-g9.txt"
+    sha256: 468a4283fe6751f2a4ac5545f9b655f999bf04670f89f5cf6a451091d862561a
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/.fix2-done"
+    sha256: d117fa006ba9208500b2930ce69cbde436c647afa917cb7396a9bc9111a46dd2
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/analyst-completeness-report-r2.md"
+    sha256: ab93ca1205255da6192ebc84d05a31fbff36d1312fbe98962f65ae08dd24d78e
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/analyst-completeness-report.md"
+    sha256: cf28ed7841b0027b324103c02ac6dbfcaf4d0da5af1ed81f1888396ad98f06f4
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/analyst-cross-validation-report-r2.md"
+    sha256: 8446ac9a5042e6b1b7cc9c0b492dd9e7ff1c0430ebbe14306ef75e5e12a1c18e
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/analyst-cross-validation-report-r3.md"
+    sha256: b4e9015fb8dcf69b64ea8e2bb69e4ff0ddcfd7cf1f7b6a476dc2b76fc162b012
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/analyst-cross-validation-report.md"
+    sha256: ca76f6ecb024b948dcd568493eba15b7d88b78bb2d3f2b881fef682b464813dd
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-consolidated-findings-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-consolidated-findings.md"
+    sha256: f00c6575ed6b2b3be27df87479400aa1d293d9919d84dbbc2f4061dbf8f61337
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-content-design-correctness-report.md"
+    sha256: 996bf61e91e6e844bca1b8d2f882b2661bcd083bf8a9d7b7fece4e5c06fe7a6f
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-content-security-invariants-report.md"
+    sha256: 85693867cfe9f57d546cb9a851ee7816efbf81487dc713988e00150743490f47
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-content-test-adequacy-report.md"
+    sha256: d90d35fe89a83c0b515d9d2e5c1919204c7950b05353f85d251d29513d3afeef
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-domain-ac-coverage-report.md"
+    sha256: d9f0ba5a71dc8a5418753eb2e719bec14671711c6a2d7ba4ebf997a069e1d8f9
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-fix-report-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-fix-report.md"
+    sha256: 4e659223737565cf7ac385286379497ac676a1b30954b90f8690e1b2bfacf8ea
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-structural-citation-evidence-report.md"
+    sha256: 6008db8ad4b415c88997f5e7971b7fc2c65a65d1c41ca1f853a8fdb02257e6d9
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-structural-gate-command-reproduction-report.md"
+    sha256: e3f8fbc791d2d3dd6f0f6831f7080ca691e84b6615d035590dc0002a166970dc
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-structural-module-boundaries-report.md"
+    sha256: a847407ef9a4bba2ec5486591ee742db838bed456a0ebdc55a24ce95177f7803
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-verification-content-report-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-verification-content-report.md"
+    sha256: 5249ae5950b4a1e620eb238c5dd4ad56d851ff703caf45e656a2298b229e4b8f
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-verification-structural-report-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/final/qa-verification-structural-report.md"
+    sha256: 6088253e7436fbfb202ea250d2e95b0210e76270e065628ca0f422b80758d1d6
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-a/qa-consolidated-findings-cycle2.md"
+    sha256: 2a81685492e7d62dd3d4f417f708fbbf2db949ad205e780f9bf3aa378832e1c6
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-a/qa-consolidated-findings.md"
+    sha256: dfd4a31f5da277aded307790f782b8ba6da04abe4df4f25725fbc3c06ee3cf1f
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-a/qa-content-design-correctness-report.md"
+    sha256: 483d8142f26f1e9ad61957fd759aaaf1a210726f63b32f16704eafd53533850a
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-a/qa-content-security-invariants-report.md"
+    sha256: 7ebbbf6743cbc21b99cab65d9551faf17c0a3b76daece23751e98aa94f870261
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-a/qa-content-test-adequacy-report.md"
+    sha256: e3cf7dcca3ce2f5575363e7d99809354a23dcda0fc3dc9c66c9adc5b572b29c8
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-a/qa-fix-report-cycle2.md"
+    sha256: 10cdd919809f5758dc96837f37dcc1bca8890efe3c242de8b3abf99a0ac2ee1d
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-a/qa-fix-report.md"
+    sha256: a14ed2ea8e2124604e89c574100c59e063a8998791429a2f4b2bc82d9574a67d
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-a/qa-structural-citation-evidence-report.md"
+    sha256: 27d6fe45e12b07954b618686e10d1e270080ac266b2cd2a46b6d955620e58b9c
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-a/qa-structural-gate-command-reproduction-report.md"
+    sha256: 67dfc8daae8c00230ecbb7efcca05e91cc13055e49274ed00e0e6f2284348f63
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-a/qa-structural-module-boundaries-report.md"
+    sha256: e0588dd93808fdec163f6f0467e1fd068fda863effa2360e97c4af54848553b9
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-a/qa-verification-content-report-cycle2.md"
+    sha256: 9dcf9011607f07b2aee2ddff640414c59d40e31f6c5ec51d5ec4e111e933b1e3
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-a/qa-verification-content-report.md"
+    sha256: 83c414c31a1affca463c2454b6705d6b40de9baa58f266e4f773261eebeb2598
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-a/qa-verification-structural-report-cycle2.md"
+    sha256: acad5688e7e10cf0f411890294446d3f1ae96f1edc9f4a3035a17d6b6a78cec8
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-a/qa-verification-structural-report.md"
+    sha256: deaf6f11ab5f76fd37cdf0ccef4f348e58e8b382f3825738370f3d8500fb5cb3
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-consolidated-findings-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-consolidated-findings.md"
+    sha256: 2bb60268a3cd20c13c7aa24bad7a2d4b4aa347c5bc01adea8cd011bd7504cc20
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-content-design-correctness-report.md"
+    sha256: adddacff111f7bf431087afef7ff5974981b82aece4f865683d379a8e2b1b9c8
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-content-security-invariants-report.md"
+    sha256: b04f6384e1d5e983a0d25431ed18e86783f2a761591867d7f3cc9d36902ffd18
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-content-test-adequacy-report.md"
+    sha256: fe73169cc7c58291326cc98bc634773ad2fcb3acc081fe7acedc8a086316ecea
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-fix-report-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-fix-report.md"
+    sha256: b4be60c7f538026d8814f0bf6ec1094ff0666d27cce0acbae7450efd5687d5ec
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-structural-citation-evidence-report.md"
+    sha256: 47ef6375d34c93f465320e874f8a4b5836687e10c0adda8d9df2bebf4dd4bf03
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-structural-gate-command-reproduction-report.md"
+    sha256: 70a659d98e9188aab239be7e50c4440d545ea6b39b775d59efbf68ea0abddd35
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-structural-module-boundaries-report.md"
+    sha256: 0c7e6ba1e844e3e6cd00fb1edc9fc21c435f2685327ad2e21c663a54b906901d
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-verification-content-report-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-verification-content-report.md"
+    sha256: 40ee5f2d5e3b3c93cb4b4e2188891f3514ca9e07f39d4f1389f441f423d4af53
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-verification-structural-report-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-verification-structural-report.md"
+    sha256: c877d1a42c8d7124d835e5c28b42f09e7d1a1af36d64bad5437356053c27e4d6
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-consolidated-findings-cycle2.md"
+    sha256: 17d46be134b5814c14eafb0711360f884a772b724b39276c1eadd71dee840ad1
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-consolidated-findings.md"
+    sha256: 196c482925cfe1d817531e4c9cb326b78036d2d9d22ba74f777842ab99159a8f
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-content-design-correctness-report-run2.md"
+    sha256: bc9d1498c0ec21471f977b209b4a308cc88d6e1b9ace89cccc6090ad50ab00b9
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-content-design-correctness-report.md"
+    sha256: 937a87493d170b14469f9efb11f68ce9f23c662bc1a439dcdf9177e3fa97292d
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-content-security-invariants-report.md"
+    sha256: b356d6b254062219520f6f9aa1a8fe36a1d7b86e5a14366f4546dfb6fe329b0c
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-content-test-adequacy-report.md"
+    sha256: 70d65a2ed4c1c494affc85d0a143d7421fc55935521ff44a5b09d21ddd3b55b0
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-fix-report-cycle2.md"
+    sha256: bfa7d91d7163b2271c74908e6591ac95c95e7557e0f0ae95dfbe84f83dbf879a
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-fix-report.md"
+    sha256: eecc1ffba71ee5a584642ead6752823fdc669f746c83a428fa9ae0c3cfc47820
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-structural-citation-evidence-report.md"
+    sha256: 2de23bcd587c42315ae7f4831f3ce81e6f372efb79f15b76320f98de8ea1e127
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-structural-gate-command-reproduction-report.md"
+    sha256: 766d6f8d9191368c45e79380e28cde8332f751e11f280d09307346d2e911dc49
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-structural-module-boundaries-report.md"
+    sha256: e8520a914c598cee240e36ff6fd9a05f9315ab348b5bb0f043b296446c5e1bdf
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-verification-content-report-cycle2.md"
+    sha256: 84491848cd8bcd6a84af570d1adc4dd04ef72e987ea5130ef365c38e606a6cbb
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-verification-content-report.md"
+    sha256: 2a6f2ea7f2e3982a53fe6f3cebe8911ac3d06a001073a7783609eacd57073a39
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-verification-structural-report-cycle2.md"
+    sha256: dd5d58dc04a9facbb03385e61f2266935cf45948561d053fe40e3200159eba24
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-verification-structural-report.md"
+    sha256: b0bc171df41e88578c94e7a79a211038abf13fa7a881a6dc4d929ce38f092baf
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-d/qa-consolidated-findings-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-d/qa-consolidated-findings.md"
+    sha256: bfefe9442d3f0bd6021d8c74abb08f530a5e260f1aa8722fb18a873a80117059
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-d/qa-content-design-correctness-report.md"
+    sha256: 91ff74ef861c1cd779057d176a0b977a5b6a1020402f4943780d31aec78302a2
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-d/qa-content-security-invariants-report.md"
+    sha256: f59a57ff062a6b9a6cb8ae0138dc3859bd47ac478771b044f5ab98b819b7cd86
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-d/qa-content-test-adequacy-report.md"
+    sha256: 8502d97ebc687ed17a93978ad4986e14258bb39572697f4e269ac3e7a395fab7
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-d/qa-fix-report-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-d/qa-fix-report.md"
+    sha256: 39ae8286a352930f0458dc9b388bd20cb5e79bc03708f0dd3caa6721d067e3f2
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-d/qa-structural-citation-evidence-report.md"
+    sha256: 6d711a6216078048b2d3b7b0b61e53e562b0ce3c07a7bdc1b0ef361ee3d6a14a
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-d/qa-structural-gate-command-reproduction-report.md"
+    sha256: 27ea063c5bd9278fbef7e3633f68d5d18fd60cf70c26deb5f712268131c5fe46
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-d/qa-structural-module-boundaries-report.md"
+    sha256: 3626b3c7e2a8ce0fb12180053e39213a9c316c093969a8ffb45e7e836b29f6c6
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-d/qa-verification-content-report-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-d/qa-verification-content-report.md"
+    sha256: 10c814952e9fc08b2ec257e07f87a09cf1802528eb217dd612e350aa5886384b
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-d/qa-verification-structural-report-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-d/qa-verification-structural-report.md"
+    sha256: 16ac6de19280326bca325fdf5afe8b92c54a3929dd078d2d2847ee0457327937
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/m4/qa-cross-source-contradictions-report.md"
+    sha256: 18254461d433134812bd20be8819bdf0337a3ba64f411b300ec99cc93c13a399
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/m4/qa-fidelity-consolidated-findings-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/m4/qa-fidelity-consolidated-findings.md"
+    sha256: 2f3b70ae26f91230f2880c629bd2cfa0d460813ffee42f171522e4a7ab0cc513
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/m4/qa-fidelity-fix-report-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/m4/qa-fidelity-fix-report.md"
+    sha256: 74aff084f4ccf4060d66666abfc87ddae51b8b708608fa9b1fe0dc6e5ef4d1ef
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/m4/qa-fidelity-verification-content-report-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/m4/qa-fidelity-verification-content-report.md"
+    sha256: 88f2bb69436dfef4e8593b01ce9d195b9860efb0b4e2496d8e4e13221dd42476
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/m4/qa-fidelity-verification-structural-report-cycle2.md"
+    sha256: 462d58fe6c2eedc23ed0e06c3f9be240eda125402ef46ac2ceac4ae423a01c59
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/m4/qa-fidelity-verification-structural-report.md"
+    sha256: d3a46342f572da9657811821f93fae3093b5e30d2eb9cd60dc157a32c4d78b5b
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/m4/qa-source-fidelity-report-1.md"
+    sha256: 32fb91becffea56edb9ee8b184be57a697571dff8b2863fbb67c716a49787df0
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/m4/qa-source-fidelity-report-2.md"
+    sha256: 29f6f02349444e51d13bbd6d02bf4b99701d074c580cd244f486e81f2801568f
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-qualitative-consolidated.md"
+    sha256: 887f841022c4b06b9e7568e65b492b48801e26313644fae1b683b4c9ce3492a4
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-qualitative-fix-log.md"
+    sha256: ee45f9de480c556ff33c7574d07b811b806b85f69b001049db6636e799ed7781
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-qualitative-operational-report-part1.md"
+    sha256: 3d4f8026aa69b7e28881366ddf61bd1c23a13c7d88b216232addbfec4d24960a
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-qualitative-operational-report-part2.md"
+    sha256: 323a21e96eebda744c0050ba704d11c24238e832be1f2baf4d1e1b281db52ff3
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-qualitative-sufficiency-report.md"
+    sha256: 16d331d61450ead625280cf743ea35db2a755db2051acf3ed69e1cfe21ef55e3
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-research-depth-report-r2.md"
+    sha256: 61193159dd1864cb362d379c72f1c3ae204358912e6c9049a93218326bd7dfa0
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-research-depth-report.md"
+    sha256: 5d5044f7229efac4bf13a833b03780a78be380fa0e7d9d80701105518b8da9ad
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-research-evidence-report-r2.md"
+    sha256: 3a6d32f58c6a1da7763e6ce84bb1f31d17f78557c51444b016d33b99e525bec0
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-research-evidence-report-r3.md"
+    sha256: 084e112a3fa2d6670d39dd21922fb910399358799edb4f0dc9392a2a1f7a00cf
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-research-evidence-report.md"
+    sha256: f08b9fa791aff44dd05c715c121fdad06a954c836cdb27dfd5aeb30edd1ebd0e
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-research-gap-report-r2.md"
+    sha256: 8bbf82be531690ea88b708cade8ff3852ca4126657d8949536286a9bf1247dfa
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-research-gap-report-r3.md"
+    sha256: a8a8d7ed24ff482d428078ae38c008c8b21b0aab24466e4708bcdc33f5703507
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-research-gap-report.md"
+    sha256: 108500408ac8edb17f0cdfef911cb5b47b4e4746ce6d0ff3461394ba0920a617
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-task-research-alignment-report.md"
+    sha256: 2ed9c16bcc709f313d1c40a82f382d8a0f3908f5da92b1367ff0b5b8d5c852cb
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-task-validation-b2-report-part1.md"
+    sha256: b248f789cc119ebfbe8ade8acacaa45900d3569270d352e4bda12facfc78c8ec
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-task-validation-b2-report-part2.md"
+    sha256: 3db54b70b54d8f39b125df00d2256613edf59235477b5893486c47a498200659
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-task-validation-consolidated.md"
+    sha256: 139c67d3579a5c1b0b2fbaeacdcb6773fc9196d65bd2b1130774423eef1ca8b0
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-task-validation-fix-log.md"
+    sha256: b9725f835381cb0ff6208099867a7664852f0f7a89e445238dc4ba96c66b3c43
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-task-validation-structure-report.md"
+    sha256: 555212397abe162a15dc6b9a23e9f7c9e69de08e51c32f4398641c4f26a676fc
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/qa-task-validation-verification.md"
+    sha256: c6a3b4afef52ac2b46fcd3b812e48a0c53886e9d2ad41a83a69d168589c1b04d
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/advocate-brief.md"
+    sha256: 4ea2557398fb9828853aad1b2ee81b93d283d9139027b66c55fc66a71d6ed714
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/base-selection.md"
+    sha256: 4a1493ed924ef13dd2818496d269ed3a179d05a97f8686b54a892200768b5c45
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/debate-transcript.md"
+    sha256: 54c482887768ccf0190d7c72f1bb6846c29f474608ba669eaeb7b8b31fad74ed
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/diff-analysis.md"
+    sha256: 1441aa9a2d9a7b574c45be587b7f8cca12cfdff96fa4685d37848d20ee56e87a
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/invariant-probe.md"
+    sha256: 7ca198b04a0466374f2e75c652d51909b18ee6565093ac3b92d9da5c97a376f2
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/merge-log.md"
+    sha256: 7b53a75e63982fa8462f48f829115d987f15e77ceef45cd613edaa610d879420
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/refactor-plan.md"
+    sha256: a69e6b68e18c069ffb0424c7df49a2c2c83e02bc451d734ca60cadb73bacdee1
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/return-contract.yaml"
+    sha256: 5ec378344ac974001b0b602724d2dad5e479bf737ec86889aace08d949e0b48e
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/round1-advocate-v1.md"
+    sha256: 0a3a05fba1b5095ed9dccb43f38baaedd59dbc4deb405f2397a1dddfca09defa
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/round1-advocate-v2.md"
+    sha256: 6574df957fa2489de7be9af12367ec446da304f077b4b1368f55e3283534a28f
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/round1-advocate-v3.md"
+    sha256: c97433fed5bf64aae92d4a87007167c54cececcecfbc8839840ba527cd655547
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/round2-advocate-v1.md"
+    sha256: 82e2bc2e176f58c21f082540b03188d20a886a3debcc6a63abdfc647defe50a6
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/round2-advocate-v2.md"
+    sha256: 35db1c695a4c833b630f785036a744979201e14a430e5af57a8d574eafaac0be
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/round2-advocate-v3.md"
+    sha256: edefe3d7b4c2263eddebb9f67ff15ac62c3a1102a30b1e2bed680e6036d03621
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/variant-1-original.md"
+    sha256: d0bfbc8023ed98d1792e955ae04846ddb0f5d2510673b7a6e580094416a9b47a
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/variant-2-original.md"
+    sha256: 7be1e142d67dee9bf0935eb63b18177d5c147bb07af5b4ff2f1e17aaf22ea323
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/variant-3-original.md"
+    sha256: 9703f837c46c63ef17f3e8ed485f1fbc181b26f2fb5c1a85e37725ea91152368
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/merged-verdict.yaml"
+    sha256: 98ac4115aa7ba2d3f1603616e0b0e0bd06f3562dad7ecb92ae8a80b5f3dde550
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/artifacts/citation-counts.json"
+    sha256: 60c16fe2f9af96544f81df2780b05c6bba39bb2694eee689ababa63b090f2e1c
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/artifacts/citations-findings.yaml"
+    sha256: 1500e933960ec8b717de7f52699087d322dc60af9bdf2ea62c98a9a4b341cb11
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/artifacts/citations-inferred-sample.yaml"
+    sha256: b41ed03f8f4745e78774bc40af738c531315ab2c1ccb9280b7b8bd46371c46bb
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/artifacts/coverage-matrix.yaml"
+    sha256: a46a0632c1123d8277147db88631fbd3034cb4e0eee14ebb93dfe3e542d396a8
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/artifacts/coverage-summary.yaml"
+    sha256: c18734a5e8c8a1fc440fa2ae4cf781305d76f6da384016ace4d7a31266a55cfa
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/artifacts/inferred-requirements.yaml"
+    sha256: ab1ac7abf7df0e47f4b4eac207c934b47b6e23bde92524a5f700497d5b1bedff
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/artifacts/input-snapshot.yaml"
+    sha256: 0092f33522a5afb29470df3057b82d95b19e0c4584994cda37f63dad5b15df08
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/artifacts/tier_decision.yaml"
+    sha256: 275f1ab771a0117b4f28b29ea8da728f0f246eba0b6040dc32067bbc58174dd9
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/artifacts/validator-findings.yaml"
+    sha256: 16eaca9b4bad44541329280304bf6e7d75a9da5a09decc0108e424631c40bfd6
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/artifacts/validator-inferred.yaml"
+    sha256: 826f84433581de0de37facf1af4518cdb7b0007df17f6728d612f3ffa706d6e8
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/audit.log"
+    sha256: 42a9214371e88fd915cc0acb79c005402b5a55a9c5ef0032265e480370b497a5
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/metrics.json"
+    sha256: b9c652b6bc0880f32fcf4e82a99983cf83d4a20b0bd07fc724e7687b66d1d47d
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/reflection-card.yaml"
+    sha256: 502a3d14e58d68d9add2dcce1177f88dd8ca1264b7931656d3bc54734fbedbe6
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/report.md"
+    sha256: 0c95e5b21cc919fdad994be1ddb6f85d0861e3017d0e121dad073540b3304f50
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/return-contract.yaml"
+    sha256: e83929453f2f80456cda80d0e350e3d0fc866ceb5a9324b6e56f2ad064078411
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/reviewer-briefs/reviewer-1.md"
+    sha256: 93be4ea4428ce53c65e8803d1e4da96fe86c9a417f213ea03da8d0063689589c
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/reviewer-briefs/reviewer-2.md"
+    sha256: 4b25fba37aa206d62a0b4529120bd3e8bebd829d05daeedf3446e702ee09f7bf
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/reviewer-briefs/reviewer-3.md"
+    sha256: a7c30006a1f59135bfd64d0b157edc01a9d77a02a5cb6398b472bdd2c6dcc25e
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/reviewer-cards/reviewer-1-calibration.yaml"
+    sha256: e1f26dd5aec7d9874b04cc6724a73e610c2724aaccc8d6f10c2ba6ee15ce95be
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/reviewer-cards/reviewer-1-card.yaml"
+    sha256: d0bfbc8023ed98d1792e955ae04846ddb0f5d2510673b7a6e580094416a9b47a
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/reviewer-cards/reviewer-2-calibration.yaml"
+    sha256: 2502252d0efcf2a61025338dc76441508e2e8ab55609a83e8818ce3a255241f4
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/reviewer-cards/reviewer-2-card.md"
+    sha256: 9c4a46f684f4768cbf0e96d041a7a119955aa151532fa5f7035434a7b9fa67cc
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/reviewer-cards/reviewer-3-calibration.yaml"
+    sha256: 6fdfb7eb98a5149b558f1176fe7ad601a88439ba186b11f0799db171fd38c2b6
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/reviewer-cards/reviewer-3-card.yaml"
+    sha256: 9703f837c46c63ef17f3e8ed485f1fbc181b26f2fb5c1a85e37725ea91152368
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/t1-card.md"
+    sha256: 37b10ce6ef0cc68c99b8769d3805f0f970398a38bf5dfa185d581a75852f8b12
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research-notes.md"
+    sha256: c32434525498c43a68463bdfc94e244ee380920ad5af6a6be69e05c3957e463c
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/01-cli-package-conventions.md"
+    sha256: f1a5b4a586ab081eee5ca072c0133412f53b13255f19a59f0c75066219842c31
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/02-integration-points-and-citation-check.md"
+    sha256: 66909a8b7e3c6407289ba017d2675829f325f418b3348118b166300eac68007b
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/03-test-and-verification.md"
+    sha256: d8aab3ac9e7a32196418e24371016a963579671c4e81da67ed7ae7698ccdf33a
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/04-template-and-examples.md"
+    sha256: 104f25c4ec3efc0bc61e564180283e7aa287ad9b792f7c16f7396cc279e10838
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/05-work-breakdown.md"
+    sha256: 52ca5d7a29ded3f322f35e38ec9e251c4821b1b0aa312eb1930c491081cdbf41
+  - path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md"
+    sha256: 905e609ca8db804b23f87395f39093f1383fd3947050b5fe1c0eb9f81490bef1
+  - path: ".github/workflows/test.yml"
+    sha256: e3faf4089d727aa4e8bbe392e0066577da8556a4efb8fbccb8c3bc345ba4d48e
+  - path: ".markdownlint.json"
+    sha256: fe443facdaec2695a41d2a1fc5170574fce0ee4b933b4ebf655e1f8974d05fa2
+  - path: ".pre-commit-config.yaml"
+    sha256: 9cb8663ccf37accef1c038fb2d258da09e5e8825d70df0b709ca2f213b35f39c
+  - path: "docs/designs/issue-watcher-setup.md"
+    sha256: 343a4e545bf027d959adafdff8b060f8aeb909b169ab3af61b9711a94d4fb562
+  - path: "docs/designs/issue-watcher.md"
+    sha256: 6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32
+  - path: "pyproject.toml"
+    sha256: fd45cf449d396da9e24ab6f6b7e0a49373b545d104adb25fa321d86405033971
+  - path: "src/superclaude/cli/install_user_setup.py"
+    sha256: 48f140321cf8ba5d0d19e105ef032b5a1fbc18ff721156965a36b0778118bed0
+  - path: "src/superclaude/cli/issue_watch/__init__.py"
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - path: "src/superclaude/cli/issue_watch/audit.py"
+    sha256: 0698d8fe53112efe084287cf12062665d574d35e201465c6eaf9259b6a6efa45
+  - path: "src/superclaude/cli/issue_watch/cli.py"
+    sha256: 9a45149de219af0d548ffae4ad3f98953b279a51ef866eacbbda86ade4e795dc
+  - path: "src/superclaude/cli/issue_watch/cycle.py"
+    sha256: fe36db752a5e6f9d812549ee042e8c462a6b10f4a2ae4a5f8fd9fc57cf0c8435
+  - path: "src/superclaude/cli/issue_watch/github.py"
+    sha256: 681220f7e42199c1cc9c2c221d176040e93537fe5717824d6fc35c6ac91c181e
+  - path: "src/superclaude/cli/issue_watch/launch.py"
+    sha256: 857a38fe85f8ab93c1754fca4c5474790d746068597548aafe215e0fba2f8bd0
+  - path: "src/superclaude/cli/issue_watch/predicates.py"
+    sha256: b8f192d1b8b19663cb9a9db21e1dfdd7c473d5c88762587b355bc1355c9a242c
+  - path: "src/superclaude/cli/issue_watch/record.py"
+    sha256: 8f0ea1d0b8c4ceae50604a8d2c2eee4bf1fa0b74e0329da49959ccfd42452a2e
+  - path: "src/superclaude/cli/issue_watch/runner.py"
+    sha256: daf03f9181150a367eb772626dbe540bd30f02e672f816658683524fb7b4d553
+  - path: "src/superclaude/cli/main.py"
+    sha256: 9e811bec7d2e8bd5196eed293dbd947c643ed071317c86c88ad9487cde663c4b
+  - path: "src/superclaude/cli/reflect/commands.py"
+    sha256: 39b7b5f5add695e4e0b5f5eafb2a654ce6db272a3b0c5b84c14739620a083f05
+  - path: "src/superclaude/cli/swarm/atomic.py"
+    sha256: a858a3dbba2404388d39ff3e6a6cc6595786ca760e4387dd91d618fd867411ca
+  - path: "src/superclaude/skills/sc-issue-protocol/refs/claim.md"
+    sha256: 43d45d78be4d3d8fb9307056d02b4f9b468f25acc19a08a5d38d6f82ccb0e2c7
+  - path: "src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py"
+    sha256: 47bd0d899aaa2a1b03b2fe2f297118c99850a3a15a292794270337475916cf0d
+  - path: "src/superclaude/skills/sc-issue-protocol/templates/claim-comment.md"
+    sha256: fbb661f42cf433e47a5a7d92f4c62c3841b2f30df5ae90d963576d39837695ca
+  - path: "src/superclaude/templates/workflow/02_mdtm_template_complex_task.md"
+    sha256: f9f5283ceae1074bc4e0ccf9586c31db274bbef0c08dd19c6de5ecacb1535f81
+  - path: "tests/cli/reflect/test_cli_smoke.py"
+    sha256: 6f2a7d11c2be1a79c848aedab99034cd064bc5add0c6c91bc12af3adeec15e67
+  - path: "tests/cli/test_cli_registration.py"
+    sha256: edc94350396df76cfb6c55d56ffb6cbb06fe149f2ad1a3a39f159169960b1973
+  - path: "tests/cli/test_install_user_setup.py"
+    sha256: 0055c3d81384b08f8ae60823b82023b1985f6fdd46c7b2bb74ddf77b80f33359
+  - path: "tests/cli/test_verify_sync_hooks.py"
+    sha256: 31f153bcaf38ff82f0e8813080260e54542fd32e5f12b6fcd002d869e5ac1223
+  - path: "tests/cli_portify/__init__.py"
+    sha256: d86755daf3ed5e0b845333c5bcfe8d29bbcc233b2911794cf6eaa2c74b3b98fb
+  - path: "tests/cli_portify/test_cli.py"
+    sha256: 03da64e2278305142eafe11193648b5cc713126c2042540c0287c7b6538fd1ee
+  - path: "tests/conftest.py"
+    sha256: e567e4f50130a3ad08b2e08e1181148d24b1bc8293f5d239f6afbb78ee6e46d1
+  - path: "tests/docs/test_retired_docs_absent.py"
+    sha256: 280b2197c9fe79b4bbdc591ea80167202b27c33f0358a349c4ff6a0102221732
+  - path: "tests/issue_watch/__init__.py"
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - path: "tests/issue_watch/conftest.py"
+    sha256: 260be51c6b25f3c9d78040e9927e621a4ac710f31a62d60f501ec776ac5a079c
+  - path: "tests/issue_watch/test_audit.py"
+    sha256: 640a4c09c682a24e96085ac8dafd5f229e2d946ebf2e2297f2cd317bf2e42fdd
+  - path: "tests/issue_watch/test_cli.py"
+    sha256: eea07c8597a68ed358965a9ff1138b957de1d06c409193454676944829af6bab
+  - path: "tests/issue_watch/test_cli_e2e.py"
+    sha256: 5bb3e9d793fd046f6a2423bab05fb1fe672d9e4d1711104f4f2c456fa890ab0f
+  - path: "tests/issue_watch/test_concurrency.py"
+    sha256: ea2f896a28244aad931f14089dfae2286ab7e1bd3128aa63728bde73f6438c7d
+  - path: "tests/issue_watch/test_crash_injection.py"
+    sha256: 01dbb4ffb6d7640f4a840c2bcde2ce9962077ccc7eadd330bdb3512a0c530bb6
+  - path: "tests/issue_watch/test_cycle.py"
+    sha256: f3e4e5313b297ea07738b93fba54e7e8ff7e2b052c4487b4fb55dbafc3029647
+  - path: "tests/issue_watch/test_find_orca_parity.py"
+    sha256: 7317c2fd42ffedcf8ba64377f059aa8b83ea3721a4bf29e29e5ab57521a22503
+  - path: "tests/issue_watch/test_github.py"
+    sha256: 28e8789cea18ffc430ede084489e81d5dc122bbff5c42fbb8186120a61f8ac56
+  - path: "tests/issue_watch/test_launch.py"
+    sha256: 34d729c40950406228a3f0fb48ac01fcb9747bf20c96077e323c6989ff7f10cb
+  - path: "tests/issue_watch/test_marker_contract.py"
+    sha256: ceed729cffc862305509ba3f607f542b3c1cac2482234c018c294fd9cf4a9b74
+  - path: "tests/issue_watch/test_module_boundaries.py"
+    sha256: b413f2eb90330c52d129b3c52055705730c9210b3c1523cca35f9e7e561df918
+  - path: "tests/issue_watch/test_no_shell.py"
+    sha256: d9609a3dad0fce9015e6f9c41807fb60eb33d7d80dd9c00d59b7ceff073f6479
+  - path: "tests/issue_watch/test_no_text.py"
+    sha256: 1e4251f611a2db0bd0b43a66ad7e4a88f2c5db60f428243124e1ba400f5aa841
+  - path: "tests/issue_watch/test_origin_parity.py"
+    sha256: 2e90fc03839716fde93d9beeac474d5d18ffadaf642908ad00a008f32bef9f37
+  - path: "tests/issue_watch/test_predicates.py"
+    sha256: e6a4a642bb5f332c9d8157f5577edb9ae31f911128c5a4526f82631850bbe916
+  - path: "tests/issue_watch/test_record.py"
+    sha256: f4b34eddd221d30b0756f71a8e97b116196e5ca93eba632cd24c040eb206e307
+  - path: "tests/issue_watch/test_runner.py"
+    sha256: 7610160959573748c8884e5217106fa315e1f065bfd2c0e01466ff049eb5e36a
+  - path: "tests/issue_watch/test_security_invariants.py"
+    sha256: ba4f499f43d621f345c80c6644620fd91e4608ce182b4d62a41bc5f014cdfa95
+  - path: "tests/issue_watch/test_slo_helper.py"
+    sha256: 7db0b9dc37d5fc9e13a60f90eece65ff05c5dfd557e9821834f2ce4a0b5f5bb7
+  - path: "tests/pr_submit/__init__.py"
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - path: "tests/pr_submit/test_conflict_scripts.py"
+    sha256: a563d37ffa5a7a890e7a8223b1d5bc8371b56eda93185aedebb6d4b09a0952c1
+  - path: "tests/recommend/test_cli_registration.py"
+    sha256: a1d1696bf66d19739e00fdee48593df0c42f54821e7427ea6d7cbae8a9e3802d
+  - path: "tests/skills/test_issue_repo_resolution.py"
+    sha256: 126d0cad4c5ed2f94a4945aa68b1766704604805774dab380819777ff544e53c
+  - path: "tests/skills/test_model_alias_policy.py"
+    sha256: 344fc147008fa05363766f8e7235977dade888c3ba6af9ad6f6719a938937237
+  - path: "tests/swarm/test_cli_registration.py"
+    sha256: 6313ff9e34bb7a6c46c62d75560cbce633c0b0f3b3321687a733e9317761eb35
+  - path: "tests/swarm/test_inv012_tui_opt_in.py"
+    sha256: eb3ac5f0185dce3ba6ec6ab0799b76eb66dcdbaa7aa33c040afe37d3d3a4e738
+  - path: "tests/swarm/test_parallel_executor_routing.py"
+    sha256: e1286276b54501daddd1acbbf9560c1467dfbf899e0e960e615d9becfeeccfe3
+  - path: "tests/unit/test_ccsession_tag.py"
+    sha256: 2f61b4a5f1ca153a2d7892ed73ab1fff3c1c1ac3a4fbfa3dc908f86a99c96587

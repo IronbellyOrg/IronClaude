@@ -1,0 +1,496 @@
+# hunk-to-declaration-map.yaml  (Wave 1A helper A; generated from AST of 26f551f4 working tree, verified equal to HEAD for these paths)
+# BASE e8db2fe660d9104cbe8cdbcdc6f2c967f4994f4b  HEAD 26f551f41edece1f05c07a3c02d78325e365f6d1
+# Every source file is entirely new (one hunk = whole file) except main.py (+4 added lines, one hunk).
+# Line ranges are start-end (decorators included in start); kind: class|function|method|variable.
+hunk_map:
+  - file: src/superclaude/cli/issue_watch/__init__.py
+    hunk: "whole new file (+0 lines)"
+    tasklist_steps:
+      - "Step 1.6 (Phase 1 setup; tasklist line 177)"
+    design_sections:
+      - "design 5.1 module diagram; file list in tasklist line 888"
+    declarations:
+      []   # empty file: no declarations
+  - file: src/superclaude/cli/issue_watch/runner.py
+    hunk: "whole new file (+130 lines)"
+    tasklist_steps:
+      - "Step 2.1"
+    design_sections:
+      - "design 5.2 row runner (line 218); 5.4 Protocols and seams (CommandResult, Runner: lines 252-265); 8.5 Timeouts (638-649); threat T11"
+    declarations:
+      - {name: STDERR_CAP_BYTES, kind: variable, lines: "15-15"}
+      - {name: CommandResult, kind: class, lines: "19-35"}
+      - {name: Runner, kind: class, lines: "38-45"}
+      - {name: Runner.run, kind: method, lines: "41-45"}
+      - {name: _as_text, kind: function, lines: "48-54"}
+      - {name: _cap_stderr, kind: function, lines: "57-64"}
+      - {name: SubprocessRunner, kind: class, lines: "67-130"}
+      - {name: SubprocessRunner.run, kind: method, lines: "70-130"}
+  - file: src/superclaude/cli/issue_watch/predicates.py
+    hunk: "whole new file (+312 lines)"
+    tasklist_steps:
+      - "Step 2.2"
+    design_sections:
+      - "design 5.2 row predicates (line 220); spec section 3 definitions; 7.5 Lease/backoff/windows (494-505); 9.1 threats T2-T4"
+    declarations:
+      - {name: CLAIM_MARKER, kind: variable, lines: "14-14"}
+      - {name: SKEW_TOLERANCE_S, kind: variable, lines: "17-17"}
+      - {name: MAX_ISSUE_NUMBER, kind: variable, lines: "20-20"}
+      - {name: _UTC_FORMAT, kind: variable, lines: "23-23"}
+      - {name: _UTC_SHAPE, kind: variable, lines: "24-24"}
+      - {name: parse_utc, kind: function, lines: "27-39"}
+      - {name: format_utc, kind: function, lines: "42-49"}
+      - {name: valid_issue_number, kind: function, lines: "52-54"}
+      - {name: OPERATION_ID_PATTERN, kind: variable, lines: "57-57"}
+      - {name: valid_operation_id, kind: function, lines: "65-67"}
+      - {name: Login, kind: class, lines: "70-76"}
+      - {name: DiscoveredIssue, kind: class, lines: "79-86"}
+      - {name: LabelEvent, kind: class, lines: "89-99"}
+      - {name: IssueSnapshot, kind: class, lines: "102-109"}
+      - {name: ProjectItem, kind: class, lines: "112-118"}
+      - {name: MarkerEvidence, kind: class, lines: "121-129"}
+      - {name: CommentEdit, kind: class, lines: "132-139"}
+      - {name: EditEvidence, kind: class, lines: "142-148"}
+      - {name: ApprovalResult, kind: class, lines: "151-159"}
+      - {name: is_intended_owner, kind: function, lines: "162-174"}
+      - {name: _not_approved, kind: function, lines: "177-178"}
+      - {name: _second, kind: function, lines: "181-182"}
+      - {name: approval_of, kind: function, lines: "185-234"}
+      - {name: unchanged_since, kind: function, lines: "237-259"}
+      - {name: project_check, kind: function, lines: "262-271"}
+      - {name: marker_time, kind: function, lines: "274-276"}
+      - {name: marker_in_window, kind: function, lines: "279-296"}
+      - {name: eligibility_order, kind: function, lines: "299-312"}
+  - file: src/superclaude/cli/issue_watch/audit.py
+    hunk: "whole new file (+404 lines)"
+    tasklist_steps:
+      - "Step 2.3"
+    design_sections:
+      - "design 5.2 row audit (line 223); 10.1 Audit line schema (697-722); closed reason table (spec 330-358); 7.1 (392-401)"
+    declarations:
+      - {name: REASON_TABLE, kind: variable, lines: "26-102"}
+      - {name: REASONS, kind: variable, lines: "104-104"}
+      - {name: ROTATE_BYTES, kind: variable, lines: "106-106"}
+      - {name: _ROTATIONS, kind: variable, lines: "107-107"}
+      - {name: _fsync_dir, kind: function, lines: "110-115"}
+      - {name: _encode, kind: function, lines: "118-120"}
+      - {name: AuditLog, kind: class, lines: "123-156"}
+      - {name: AuditLog.__init__, kind: method, lines: "126-128"}
+      - {name: AuditLog.append, kind: method, lines: "130-139"}
+      - {name: AuditLog.rotate_if_needed, kind: method, lines: "141-156"}
+      - {name: _COMMON, kind: variable, lines: "159-159"}
+      - {name: _KEYS, kind: variable, lines: "162-175"}
+      - {name: _TYPES, kind: variable, lines: "178-197"}
+      - {name: _UTC_TS_FORMAT, kind: variable, lines: "200-200"}
+      - {name: _UTC_TS_SHAPE, kind: variable, lines: "201-201"}
+      - {name: _CYCLE_ID_SHAPE, kind: variable, lines: "202-202"}
+      - {name: _MAX_ISSUE, kind: variable, lines: "203-203"}
+      - {name: _ENTRY_STATES, kind: variable, lines: "204-206"}
+      - {name: _is_utc_ts, kind: function, lines: "209-216"}
+      - {name: _is_token, kind: function, lines: "219-221"}
+      - {name: _RULES, kind: variable, lines: "229-243"}
+      - {name: _check_value, kind: function, lines: "246-258"}
+      - {name: line, kind: function, lines: "261-285"}
+      - {name: _optional, kind: function, lines: "288-289"}
+      - {name: cycle_line, kind: function, lines: "292-319"}
+      - {name: decision_line, kind: function, lines: "322-351"}
+      - {name: warning_line, kind: function, lines: "354-378"}
+      - {name: stderr_fallback, kind: function, lines: "381-404"}
+  - file: src/superclaude/cli/issue_watch/github.py
+    hunk: "whole new file (+960 lines)"
+    tasklist_steps:
+      - "Step 3.1a (constants, jq/GraphQL, argv builders)"
+      - "Step 3.1b (classify, rate_limit_wait, CallBudget, Read)"
+      - "Step 3.1c (typed reads, paging)"
+    design_sections:
+      - "design 5.2 row github (line 219); 8.1 GitHub argv (537-561); 8.2 Paging/classification (562-591); 8.3 Rate-limit time (592-603)"
+    declarations:
+      - {name: REPO, kind: variable, lines: "37-37"}
+      - {name: PAGE_SIZE, kind: variable, lines: "40-40"}
+      - {name: PAGE_CAP, kind: variable, lines: "43-43"}
+      - {name: CALL_CAP, kind: variable, lines: "46-46"}
+      - {name: RESERVED_CALLS, kind: variable, lines: "49-49"}
+      - {name: EVENTS_JQ, kind: variable, lines: "54-57"}
+      - {name: MARKER_JQ, kind: variable, lines: "61-64"}
+      - {name: REREAD_JQ, kind: variable, lines: "67-67"}
+      - {name: EDITS_QUERY, kind: variable, lines: "74-85"}
+      - {name: PROJECT_ITEMS_QUERY, kind: variable, lines: "88-103"}
+      - {name: _issue_arg, kind: function, lines: "111-115"}
+      - {name: _page_arg, kind: function, lines: "118-122"}
+      - {name: _CURSOR_RE, kind: variable, lines: "127-127"}
+      - {name: TRIGGER_MAX_CHARS, kind: variable, lines: "129-129"}
+      - {name: _LOGIN_RE, kind: variable, lines: "134-134"}
+      - {name: _valid_cursor, kind: function, lines: "137-138"}
+      - {name: _cursor_args, kind: function, lines: "141-147"}
+      - {name: _trigger_arg, kind: function, lines: "150-165"}
+      - {name: _login_arg, kind: function, lines: "168-172"}
+      - {name: argv_user, kind: function, lines: "175-177"}
+      - {name: argv_discover, kind: function, lines: "180-198"}
+      - {name: _argv_rest_page, kind: function, lines: "201-215"}
+      - {name: argv_events, kind: function, lines: "218-220"}
+      - {name: argv_comments, kind: function, lines: "223-225"}
+      - {name: _argv_graphql, kind: function, lines: "228-239"}
+      - {name: argv_edits, kind: function, lines: "242-244"}
+      - {name: argv_project_items, kind: function, lines: "247-249"}
+      - {name: argv_reread, kind: function, lines: "252-262"}
+      - {name: GH_ERROR_SIGNS, kind: variable, lines: "269-277"}
+      - {name: Reply, kind: class, lines: "281-287"}
+      - {name: _split_include, kind: function, lines: "290-306"}
+      - {name: _body, kind: function, lines: "309-314"}
+      - {name: _parse_json, kind: function, lines: "317-324"}
+      - {name: _graphql_error_types, kind: function, lines: "327-337"}
+      - {name: _any_in, kind: function, lines: "340-342"}
+      - {name: classify, kind: function, lines: "345-371"}
+      - {name: RATE_LIMIT_MAX_WAIT_S, kind: variable, lines: "376-376"}
+      - {name: _g1_header, kind: function, lines: "380-385"}
+      - {name: _header_int, kind: function, lines: "388-393"}
+      - {name: retry_after, kind: function, lines: "396-398"}
+      - {name: date_header, kind: function, lines: "401-415"}
+      - {name: rate_limit_wait, kind: function, lines: "418-431"}
+      - {name: CallBudget, kind: class, lines: "437-463"}
+      - {name: CallBudget.__init__, kind: method, lines: "444-446"}
+      - {name: CallBudget.spend, kind: method, lines: "448-454"}
+      - {name: CallBudget.spend_shared, kind: method, lines: "456-458"}
+      - {name: CallBudget.total, kind: method, lines: "460-463"}
+      - {name: Read, kind: class, lines: "466-477"}
+      - {name: DISCOVERY_BOUND, kind: variable, lines: "486-486"}
+      - {name: _SHARED_REASONS, kind: variable, lines: "489-495"}
+      - {name: _Malformed, kind: class, lines: "499-500"}
+      - {name: _check, kind: function, lines: "503-505"}
+      - {name: _obj, kind: function, lines: "508-511"}
+      - {name: _list, kind: function, lines: "514-517"}
+      - {name: _pos_int, kind: function, lines: "520-524"}
+      - {name: _text, kind: function, lines: "527-530"}
+      - {name: _opt_text, kind: function, lines: "533-534"}
+      - {name: _time, kind: function, lines: "537-541"}
+      - {name: _opt_time, kind: function, lines: "544-545"}
+      - {name: _names, kind: function, lines: "548-550"}
+      - {name: _texts, kind: function, lines: "553-554"}
+      - {name: _call, kind: function, lines: "557-577"}
+      - {name: _failed, kind: function, lines: "580-581"}
+      - {name: _shared_failed, kind: function, lines: "584-585"}
+      - {name: _NO_CALL, kind: variable, lines: "588-588"}
+      - {name: _SHARED_NO_CALL, kind: variable, lines: "589-589"}
+      - {name: _rest_read, kind: function, lines: "592-628"}
+      - {name: _errors_kind, kind: function, lines: "631-638"}
+      - {name: _I, kind: variable, lines: "641-641"}
+      - {name: _N, kind: variable, lines: "642-642"}
+      - {name: _graphql_read, kind: function, lines: "645-702"}
+      - {name: _event, kind: function, lines: "708-722"}
+      - {name: _marker, kind: function, lines: "725-736"}
+      - {name: _edited_at, kind: function, lines: "739-746"}
+      - {name: _edit_issue, kind: function, lines: "749-750"}
+      - {name: _comment_edit, kind: function, lines: "753-761"}
+      - {name: _project_item, kind: function, lines: "764-775"}
+      - {name: user, kind: function, lines: "784-801"}
+      - {name: discover, kind: function, lines: "804-842"}
+      - {name: events, kind: function, lines: "845-863"}
+      - {name: marker_comments, kind: function, lines: "866-883"}
+      - {name: edits, kind: function, lines: "886-904"}
+      - {name: project_items, kind: function, lines: "907-931"}
+      - {name: reread, kind: function, lines: "934-960"}
+  - file: src/superclaude/cli/issue_watch/record.py
+    hunk: "whole new file (+865 lines)"
+    tasklist_steps:
+      - "Step 4.1a (errors, dataclasses, validation, migration)"
+      - "Step 4.1b (Store, FileStore, lock)"
+      - "Step 4.1c (transitions, sweep, day cap, init_state, dry-run helpers)"
+    design_sections:
+      - "design 5.2 row record (line 221); 7.1 Files (392); 7.2 Store schema (403); 7.3 State machine (451); 7.4 Transitions (474); 7.5 Lease/backoff/caps (494); 7.6 Atomic write and lock (507)"
+    declarations:
+      - {name: SCHEMA_VERSION, kind: variable, lines: "31-31"}
+      - {name: ENTRY_STATES, kind: variable, lines: "34-36"}
+      - {name: StoreError, kind: class, lines: "40-45"}
+      - {name: StoreError.__init__, kind: method, lines: "43-45"}
+      - {name: LockHeld, kind: class, lines: "48-49"}
+      - {name: LockError, kind: class, lines: "52-57"}
+      - {name: LockError.__init__, kind: method, lines: "55-57"}
+      - {name: TransitionError, kind: class, lines: "60-61"}
+      - {name: StateExists, kind: class, lines: "64-65"}
+      - {name: Entry, kind: class, lines: "68-88"}
+      - {name: StoreDoc, kind: class, lines: "91-101"}
+      - {name: PendingContext, kind: class, lines: "104-117"}
+      - {name: _STORE_KEYS, kind: variable, lines: "120-130"}
+      - {name: _ENTRY_KEYS, kind: variable, lines: "131-131"}
+      - {name: _DECIMAL_KEY, kind: variable, lines: "132-132"}
+      - {name: _invalid, kind: function, lines: "135-136"}
+      - {name: _is_int, kind: function, lines: "139-140"}
+      - {name: _time, kind: function, lines: "143-147"}
+      - {name: _opt_time, kind: function, lines: "150-151"}
+      - {name: _opt, kind: function, lines: "154-156"}
+      - {name: _issue_key, kind: function, lines: "159-165"}
+      - {name: _entry, kind: function, lines: "168-210"}
+      - {name: validate, kind: function, lines: "213-244"}
+      - {name: MIGRATIONS, kind: variable, lines: "247-247"}
+      - {name: migrate, kind: function, lines: "251-278"}
+      - {name: STORE_FILE, kind: variable, lines: "281-281"}
+      - {name: LOCK_FILE, kind: variable, lines: "282-282"}
+      - {name: DISABLED_FILE, kind: variable, lines: "283-283"}
+      - {name: _opt_utc, kind: function, lines: "286-287"}
+      - {name: _entry_raw, kind: function, lines: "290-294"}
+      - {name: _to_raw, kind: function, lines: "297-307"}
+      - {name: _fsync_dir, kind: function, lines: "310-315"}
+      - {name: Store, kind: class, lines: "318-331"}
+      - {name: Store.load, kind: method, lines: "323-323"}
+      - {name: Store.save, kind: method, lines: "325-325"}
+      - {name: Store.lock, kind: method, lines: "327-327"}
+      - {name: Store.disabled, kind: method, lines: "329-329"}
+      - {name: Store.disabled_since, kind: method, lines: "331-331"}
+      - {name: FileStore, kind: class, lines: "334-431"}
+      - {name: FileStore.__init__, kind: method, lines: "337-345"}
+      - {name: FileStore.load, kind: method, lines: "347-368"}
+      - {name: FileStore.save, kind: method, lines: "370-378"}
+      - {name: FileStore.lock, kind: method, lines: "380-419"}
+      - {name: FileStore.disabled, kind: method, lines: "421-423"}
+      - {name: FileStore.disabled_since, kind: method, lines: "425-431"}
+      - {name: MAX_ATTEMPTS, kind: variable, lines: "434-434"}
+      - {name: BACKOFF, kind: variable, lines: "437-437"}
+      - {name: LEASE, kind: variable, lines: "440-440"}
+      - {name: DAY_CAP_WINDOW, kind: variable, lines: "443-443"}
+      - {name: _FAIL_REASONS, kind: variable, lines: "446-446"}
+      - {name: _CLAIMABLE, kind: variable, lines: "447-447"}
+      - {name: _RESETTABLE, kind: variable, lines: "448-448"}
+      - {name: _refuse, kind: function, lines: "451-452"}
+      - {name: _state_of, kind: function, lines: "455-457"}
+      - {name: _with_entry, kind: function, lines: "460-463"}
+      - {name: _new_entry, kind: function, lines: "466-487"}
+      - {name: _positive_id, kind: function, lines: "490-491"}
+      - {name: _check_approval, kind: function, lines: "494-500"}
+      - {name: fail, kind: function, lines: "503-525"}
+      - {name: backoff_elapsed, kind: function, lines: "528-535"}
+      - {name: mark_pending, kind: function, lines: "538-568"}
+      - {name: _pending_to, kind: function, lines: "571-577"}
+      - {name: mark_launched, kind: function, lines: "580-596"}
+      - {name: mark_unknown, kind: function, lines: "599-617"}
+      - {name: mark_spawn_error, kind: function, lines: "620-624"}
+      - {name: sweep, kind: function, lines: "627-651"}
+      - {name: mark_claimed, kind: function, lines: "654-686"}
+      - {name: _in_window, kind: function, lines: "689-690"}
+      - {name: prune_consumed_log, kind: function, lines: "693-696"}
+      - {name: day_cap_count, kind: function, lines: "699-703"}
+      - {name: reset_entry, kind: function, lines: "706-720"}
+      - {name: reset_rate_limit, kind: function, lines: "723-725"}
+      - {name: set_next_permitted, kind: function, lines: "728-730"}
+      - {name: set_last_completed, kind: function, lines: "733-735"}
+      - {name: set_considered, kind: function, lines: "738-745"}
+      - {name: disabled_present, kind: function, lines: "748-750"}
+      - {name: init_state, kind: function, lines: "753-802"}
+      - {name: DRY_RUN_FILE, kind: variable, lines: "805-805"}
+      - {name: _DRY_RUN_KEYS, kind: variable, lines: "806-806"}
+      - {name: DryRunDoc, kind: class, lines: "809-814"}
+      - {name: _dry_run_doc, kind: function, lines: "817-828"}
+      - {name: load_dry_run, kind: function, lines: "831-848"}
+      - {name: save_dry_run, kind: function, lines: "851-865"}
+  - file: src/superclaude/cli/issue_watch/launch.py
+    hunk: "whole new file (+355 lines)"
+    tasklist_steps:
+      - "Step 5.1"
+    design_sections:
+      - "design 5.2 row launch (line 222); 8.4 Orca contract (604-637); 5.4 Launcher protocol (248-)"
+    declarations:
+      - {name: ORCA_AGENT, kind: variable, lines: "28-28"}
+      - {name: MAX_ISSUE_NUMBER, kind: variable, lines: "30-30"}
+      - {name: PROMPT_PATTERN, kind: variable, lines: "33-33"}
+      - {name: OPERATION_ID_PATTERN, kind: variable, lines: "36-36"}
+      - {name: OPERATION_ID_PATHS, kind: variable, lines: "42-45"}
+      - {name: OP_UNKNOWN_TEXT, kind: variable, lines: "47-47"}
+      - {name: ORIGIN_REPO, kind: variable, lines: "50-50"}
+      - {name: ORIGIN_MISMATCH, kind: variable, lines: "53-53"}
+      - {name: LaunchKind, kind: variable, lines: "56-56"}
+      - {name: LAUNCH_DETAILS, kind: variable, lines: "58-69"}
+      - {name: _check_timeout, kind: function, lines: "73-81"}
+      - {name: build_claim_prompt, kind: function, lines: "84-92"}
+      - {name: launch_argv, kind: function, lines: "95-116"}
+      - {name: retry_argv, kind: function, lines: "119-132"}
+      - {name: _json_object, kind: function, lines: "135-141"}
+      - {name: _lists_orca_cli, kind: function, lines: "144-160"}
+      - {name: find_orca, kind: function, lines: "163-188"}
+      - {name: _NAME, kind: variable, lines: "193-193"}
+      - {name: _ORIGIN_PATTERNS, kind: variable, lines: "194-197"}
+      - {name: parse_origin, kind: function, lines: "200-215"}
+      - {name: check_origin, kind: function, lines: "218-236"}
+      - {name: LaunchOutcome, kind: class, lines: "239-259"}
+      - {name: LaunchOutcome.__post_init__, kind: method, lines: "251-259"}
+      - {name: Launcher, kind: class, lines: "262-269"}
+      - {name: Launcher.launch, kind: method, lines: "265-269"}
+      - {name: _valid_id, kind: function, lines: "272-274"}
+      - {name: _first_hit, kind: function, lines: "277-288"}
+      - {name: _unknown_id, kind: function, lines: "291-303"}
+      - {name: _unknown, kind: function, lines: "306-308"}
+      - {name: outcome_of, kind: function, lines: "311-334"}
+      - {name: OrcaLauncher, kind: class, lines: "337-355"}
+      - {name: OrcaLauncher.__init__, kind: method, lines: "340-341"}
+      - {name: OrcaLauncher.launch, kind: method, lines: "343-355"}
+  - file: src/superclaude/cli/issue_watch/cycle.py
+    hunk: "whole new file (+1369 lines)"
+    tasklist_steps:
+      - "Step 6.1 (constants, config, approvers, fs check, clock, deadline, deps, exit precedence)"
+      - "Step 6.2 (run_cycle)"
+      - "Step 6.3 (status_report, slo_numbers)"
+    design_sections:
+      - "design 5.2 row cycle (line 224); 4.2 Configuration (123); 4.3 Exit codes (153); 6.1-6.3 Cycle (306-391); 8.5 Deadline (638); 10.2 status (724); 10.3 SLO helper (743)"
+    declarations:
+      - {name: MAX_CANDIDATES, kind: variable, lines: "34-34"}
+      - {name: MAX_LAUNCHES_PER_CYCLE, kind: variable, lines: "35-35"}
+      - {name: DAY_CAP, kind: variable, lines: "36-36"}
+      - {name: GH_TIMEOUT_S, kind: variable, lines: "37-37"}
+      - {name: PROBE_TIMEOUT_S, kind: variable, lines: "38-38"}
+      - {name: GIT_TIMEOUT_S, kind: variable, lines: "39-39"}
+      - {name: LAUNCH_TIMEOUT_S, kind: variable, lines: "40-40"}
+      - {name: DEADLINE_TOTAL_S, kind: variable, lines: "41-41"}
+      - {name: GH_FLOOR_S, kind: variable, lines: "42-42"}
+      - {name: LAUNCH_CUTOFF_S, kind: variable, lines: "43-43"}
+      - {name: SKEW_WARN_S, kind: variable, lines: "44-44"}
+      - {name: HEALTH_AGE_S, kind: variable, lines: "45-45"}
+      - {name: STALE_AGE_S, kind: variable, lines: "46-46"}
+      - {name: DISCOVERY_WARN, kind: variable, lines: "47-47"}
+      - {name: NETWORK_FS_TYPES, kind: variable, lines: "50-52"}
+      - {name: SCHEMA_VERSION, kind: variable, lines: "54-54"}
+      - {name: DEFAULT_TRIGGER_LABEL, kind: variable, lines: "55-55"}
+      - {name: DEFAULT_APPROVAL_LABEL, kind: variable, lines: "56-56"}
+      - {name: _TOP_KEYS, kind: variable, lines: "58-69"}
+      - {name: _LABEL_KEYS, kind: variable, lines: "70-70"}
+      - {name: _LABEL_MAX, kind: variable, lines: "71-71"}
+      - {name: _PROJECT_ID, kind: variable, lines: "72-72"}
+      - {name: _APPROVER_LINE, kind: variable, lines: "73-73"}
+      - {name: _ACCOUNT_ID_MAX, kind: variable, lines: "74-74"}
+      - {name: _APPROVERS_MAX_BYTES, kind: variable, lines: "75-75"}
+      - {name: _UTC_TS_FORMAT, kind: variable, lines: "76-76"}
+      - {name: _MOUNTINFO, kind: variable, lines: "77-77"}
+      - {name: _OCTAL_ESCAPE, kind: variable, lines: "78-78"}
+      - {name: ConfigError, kind: class, lines: "81-93"}
+      - {name: ConfigError.__init__, kind: method, lines: "90-93"}
+      - {name: Config, kind: class, lines: "96-107"}
+      - {name: _invalid, kind: function, lines: "110-111"}
+      - {name: _is_int, kind: function, lines: "114-115"}
+      - {name: _is_abs_path, kind: function, lines: "118-124"}
+      - {name: _label, kind: function, lines: "127-139"}
+      - {name: _decode_mount_point, kind: function, lines: "142-143"}
+      - {name: fs_type_of, kind: function, lines: "146-175"}
+      - {name: _read_mountinfo, kind: function, lines: "178-184"}
+      - {name: _default_state_dir, kind: function, lines: "187-192"}
+      - {name: load_config, kind: function, lines: "195-283"}
+      - {name: check_platform, kind: function, lines: "286-291"}
+      - {name: _approvers_invalid, kind: function, lines: "294-295"}
+      - {name: validate_approvers, kind: function, lines: "298-342"}
+      - {name: approvers_summary, kind: function, lines: "345-349"}
+      - {name: validate_setup, kind: function, lines: "352-358"}
+      - {name: Clock, kind: class, lines: "361-370"}
+      - {name: Clock.now, kind: method, lines: "364-366"}
+      - {name: Clock.monotonic, kind: method, lines: "368-370"}
+      - {name: SystemClock, kind: class, lines: "373-380"}
+      - {name: SystemClock.now, kind: method, lines: "376-377"}
+      - {name: SystemClock.monotonic, kind: method, lines: "379-380"}
+      - {name: Deadline, kind: class, lines: "383-412"}
+      - {name: Deadline.__init__, kind: method, lines: "386-389"}
+      - {name: Deadline.elapsed, kind: method, lines: "391-393"}
+      - {name: Deadline.remaining, kind: method, lines: "395-397"}
+      - {name: Deadline.timeout_for, kind: method, lines: "399-408"}
+      - {name: Deadline.launch_allowed, kind: method, lines: "410-412"}
+      - {name: Deps, kind: class, lines: "415-426"}
+      - {name: CycleResult, kind: class, lines: "429-439"}
+      - {name: _PRECEDENCE, kind: variable, lines: "443-443"}
+      - {name: _LOCK_HELD_EXIT, kind: variable, lines: "444-444"}
+      - {name: resolve_exit, kind: function, lines: "447-458"}
+      - {name: exit_for, kind: function, lines: "461-463"}
+      - {name: _LOGIN, kind: variable, lines: "468-468"}
+      - {name: _RATE_CLAMP, kind: variable, lines: "469-469"}
+      - {name: _Skip, kind: class, lines: "472-477"}
+      - {name: _Skip.__init__, kind: method, lines: "475-477"}
+      - {name: _Transient, kind: class, lines: "480-481"}
+      - {name: _Stop, kind: class, lines: "484-494"}
+      - {name: _Stop.__init__, kind: method, lines: "491-494"}
+      - {name: _Cand, kind: class, lines: "497-505"}
+      - {name: _LastResult, kind: class, lines: "508-519"}
+      - {name: _LastResult.__init__, kind: method, lines: "511-513"}
+      - {name: _LastResult.run, kind: method, lines: "515-519"}
+      - {name: _Cycle, kind: class, lines: "522-1174"}
+      - {name: _Cycle.__init__, kind: method, lines: "525-547"}
+      - {name: _Cycle.now, kind: method, lines: "551-552"}
+      - {name: _Cycle._ts, kind: method, lines: "554-555"}
+      - {name: _Cycle._tf, kind: method, lines: "557-559"}
+      - {name: _Cycle._tf_shared, kind: method, lines: "561-566"}
+      - {name: _Cycle._cond, kind: method, lines: "568-569"}
+      - {name: _Cycle._stopped, kind: method, lines: "571-573"}
+      - {name: _Cycle._exit, kind: method, lines: "575-576"}
+      - {name: _Cycle._set, kind: method, lines: "578-580"}
+      - {name: _Cycle._save, kind: method, lines: "582-587"}
+      - {name: _Cycle._warn, kind: method, lines: "589-600"}
+      - {name: _Cycle._decision, kind: method, lines: "602-625"}
+      - {name: _Cycle._issue_line, kind: method, lines: "627-642"}
+      - {name: _Cycle._rate_stop, kind: method, lines: "644-649"}
+      - {name: _Cycle._origin_ok, kind: method, lines: "651-659"}
+      - {name: _Cycle.run, kind: method, lines: "663-683"}
+      - {name: _Cycle._locked_body, kind: method, lines: "685-690"}
+      - {name: _Cycle._steps, kind: method, lines: "692-718"}
+      - {name: _Cycle._load, kind: method, lines: "720-731"}
+      - {name: _Cycle._login_step, kind: method, lines: "733-756"}
+      - {name: _Cycle._sweep, kind: method, lines: "758-773"}
+      - {name: _Cycle._discover, kind: method, lines: "775-789"}
+      - {name: _Cycle._candidates, kind: method, lines: "793-815"}
+      - {name: _Cycle._val, kind: method, lines: "817-827"}
+      - {name: _Cycle._hit, kind: method, lines: "829-846"}
+      - {name: _Cycle._day_cap_reached, kind: method, lines: "848-857"}
+      - {name: _Cycle._approve, kind: method, lines: "859-875"}
+      - {name: _Cycle._claim, kind: method, lines: "877-880"}
+      - {name: _Cycle._reclaim, kind: method, lines: "882-894"}
+      - {name: _Cycle._examine, kind: method, lines: "896-942"}
+      - {name: _Cycle._rv, kind: method, lines: "946-958"}
+      - {name: _Cycle._revalidate, kind: method, lines: "960-997"}
+      - {name: _Cycle._fail, kind: method, lines: "999-1005"}
+      - {name: _Cycle._launch, kind: method, lines: "1007-1075"}
+      - {name: _Cycle._commit, kind: method, lines: "1079-1089"}
+      - {name: _Cycle._commit_store, kind: method, lines: "1091-1107"}
+      - {name: _Cycle._commit_shadow, kind: method, lines: "1109-1125"}
+      - {name: _Cycle._cycle_reason, kind: method, lines: "1127-1137"}
+      - {name: _Cycle._conclude, kind: method, lines: "1139-1174"}
+      - {name: run_cycle, kind: function, lines: "1177-1185"}
+      - {name: _SLO_WINDOW, kind: variable, lines: "1190-1190"}
+      - {name: _SLO_EXCLUDED_REASONS, kind: variable, lines: "1191-1191"}
+      - {name: _read_store_doc, kind: function, lines: "1194-1211"}
+      - {name: _is_stale, kind: function, lines: "1214-1222"}
+      - {name: _retry_orca, kind: function, lines: "1225-1230"}
+      - {name: status_report, kind: function, lines: "1233-1298"}
+      - {name: SloNumbers, kind: class, lines: "1301-1308"}
+      - {name: _line_time, kind: function, lines: "1311-1319"}
+      - {name: slo_numbers, kind: function, lines: "1322-1369"}
+  - file: src/superclaude/cli/issue_watch/cli.py
+    hunk: "whole new file (+348 lines)"
+    tasklist_steps:
+      - "Step 7.1 (group, helpers, once, status, check-config, init-state)"
+      - "Step 7.2 (reset)"
+    design_sections:
+      - "design 5.2 row cli (line 225); 4.1 Verbs (108); 4.3 Exit codes (153); 5.4 build_deps (248-); 10.2 status text form (724); DF-03/DF-04/DF-57 for reset"
+    declarations:
+      - {name: _DEFAULT_CONFIG, kind: variable, lines: "31-31"}
+      - {name: _EXIT_UNHEALTHY, kind: variable, lines: "34-34"}
+      - {name: _EXIT_CRASH, kind: variable, lines: "35-35"}
+      - {name: _EXIT_CONFIG, kind: variable, lines: "36-36"}
+      - {name: _EXIT_STORE, kind: variable, lines: "37-37"}
+      - {name: _EXIT_LOCK_HELD, kind: variable, lines: "38-38"}
+      - {name: _expand_config, kind: function, lines: "41-46"}
+      - {name: _config_option, kind: function, lines: "49-59"}
+      - {name: build_deps, kind: function, lines: "62-74"}
+      - {name: _config_exit, kind: function, lines: "77-81"}
+      - {name: _load_config, kind: function, lines: "84-91"}
+      - {name: issue_watch_group, kind: function, lines: "94-108"}
+      - {name: once_command, kind: function, lines: "111-137"}
+      - {name: _print_status, kind: function, lines: "140-161"}
+      - {name: status_command, kind: function, lines: "164-182"}
+      - {name: check_config_command, kind: function, lines: "185-198"}
+      - {name: init_state_command, kind: function, lines: "201-214"}
+      - {name: _refuse_reset, kind: function, lines: "217-221"}
+      - {name: _save, kind: function, lines: "224-229"}
+      - {name: _reset_locked, kind: function, lines: "232-252"}
+      - {name: _write_reset, kind: function, lines: "255-279"}
+      - {name: reset_command, kind: function, lines: "282-348"}
+  - file: src/superclaude/cli/main.py
+    hunk: "@@ -560,6 +560,10 @@ (one hunk, +4 lines)"
+    tasklist_steps: ["Step 7.3 (tasklist line 503); decision DF-29"]
+    design_sections: ["design 4.1 Verbs (108); R-003 DF-29 (registration after reflect)"]
+    declarations: []   # no new definition; two statements added
+    added_lines:
+      - {line: 563, text: "from superclaude.cli.issue_watch.cli import issue_watch_group  # noqa: E402,I001  # intentional: deferred subcommand registration to avoid circular imports"}
+      - {line: 564, text: ""}
+      - {line: 565, text: "main.add_command(issue_watch_group, name=\"issue-watch\")"}
+      - {line: 566, text: ""}

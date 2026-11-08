@@ -1057,8 +1057,15 @@ class _Cycle:
             launch_login=self.login,
             launch_account_id=self.account_id,
         )
+        before_pending = self.doc  # restored whole: a partial undo fails validate
         self._set(record.mark_pending(self.doc, c.n, ctx, self.now()))
         self._save()  # FR-010: durable before the launch call
+        # Reflect R-1: the pending save may itself have crossed the 120 s cut-off
+        # (design 647, AC-19). Put the previous document back and start no launch.
+        if not self.deadline.launch_allowed():
+            self._set(before_pending)
+            self._save()
+            raise _Skip("budget_exhausted")
         outcome = d.launcher.launch(orca, cfg.worktree, prompt, LAUNCH_TIMEOUT_S)
         now = self.now()
         if outcome.kind == "launched":

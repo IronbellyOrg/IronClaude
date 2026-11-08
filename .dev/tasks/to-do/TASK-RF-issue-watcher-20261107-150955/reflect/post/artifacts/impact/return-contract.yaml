@@ -1,0 +1,91 @@
+schema_version: 1
+command: impact
+status: partial
+caller: sc-reflect-protocol
+output_dir: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/artifacts/impact
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/artifacts/impact/impact.md
+contract_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/artifacts/impact/return-contract.yaml
+input: {mode: diff, symbols: [], diff_base: e8db2fe660d9104cbe8cdbcdc6f2c967f4994f4b, changed_files: ["(379 files; 11 indexed source files under src/superclaude/cli, 20 under tests/issue_watch; full list in impact.md)"], depth: 1, limit: 100, tests: false, test_depth: null}
+readiness:
+  access: mcp
+  index_state: stale
+  checked_at: 2026-11-08T04:21:00Z
+  cli_version: 1.6.2
+  pin: 1.6.2
+  pin_match: true
+  worktree_root: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher
+  project_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher
+  worktree_relation: own
+advisory: false
+degraded: [graph:stale, graph:unresolved]
+# Candidate cap: D4 allows 30 candidate symbols per run; the diff adds ~400. The 30 below
+# were chosen by the cross-task scan (shared across modules); the rest are NOT mapped.
+symbols:
+  - {name: REASON_TABLE, file: src/superclaude/cli/issue_watch/audit.py, start_line: 26, end_line: 102, mapped_by: hunk, prod: {shown: 2, total: 2}, test: {shown: 1, total: 1}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: cycle_line, file: src/superclaude/cli/issue_watch/audit.py, start_line: 292, end_line: 319, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 8, total: 8}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: decision_line, file: src/superclaude/cli/issue_watch/audit.py, start_line: 322, end_line: 351, mapped_by: hunk, prod: {shown: 2, total: 2}, test: {shown: 9, total: 9}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: warning_line, file: src/superclaude/cli/issue_watch/audit.py, start_line: 354, end_line: 378, mapped_by: hunk, prod: {shown: 2, total: 2}, test: {shown: 17, total: 17}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: stderr_fallback, file: src/superclaude/cli/issue_watch/audit.py, start_line: 381, end_line: 404, mapped_by: hunk, prod: {shown: 5, total: 5}, test: {shown: 6, total: 6}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: AuditLog, file: src/superclaude/cli/issue_watch/audit.py, start_line: 123, end_line: 156, mapped_by: hunk, prod: {shown: 3, total: 3}, test: {shown: 15, total: 15}, unknown: {shown: 0, total: 0}, transitive: {count: 4, depth: 1}, truncated: false}
+  - {name: exit_for, file: src/superclaude/cli/issue_watch/cycle.py, start_line: 461, end_line: 463, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 6, total: 6}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: resolve_exit, file: src/superclaude/cli/issue_watch/cycle.py, start_line: 447, end_line: 458, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 12, total: 12}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: run_cycle, file: src/superclaude/cli/issue_watch/cycle.py, start_line: 1177, end_line: 1185, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 12, total: 12}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: Deadline, file: src/superclaude/cli/issue_watch/cycle.py, start_line: 383, end_line: 412, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 2, total: 2}, unknown: {shown: 0, total: 0}, transitive: {count: 23, depth: 1}, truncated: false}
+  - {name: Config, file: src/superclaude/cli/issue_watch/cycle.py, start_line: 97, end_line: null, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 3, total: 3}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: Deps, file: src/superclaude/cli/issue_watch/cycle.py, start_line: 416, end_line: 426, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 1, total: 1}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: load_config, file: src/superclaude/cli/issue_watch/cycle.py, start_line: 195, end_line: null, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 27, total: 27}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: status_report, file: src/superclaude/cli/issue_watch/cycle.py, start_line: 1233, end_line: 1298, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 0, total: 0}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: slo_numbers, file: src/superclaude/cli/issue_watch/cycle.py, start_line: 1322, end_line: 1369, mapped_by: hunk, prod: {shown: 0, total: 0}, test: {shown: 5, total: 5}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: build_deps, file: src/superclaude/cli/issue_watch/cli.py, start_line: 62, end_line: 74, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 2, total: 2}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: format_utc, file: src/superclaude/cli/issue_watch/predicates.py, start_line: 42, end_line: 49, mapped_by: hunk, prod: {shown: 11, total: 11}, test: {shown: 15, total: 15}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: parse_utc, file: src/superclaude/cli/issue_watch/predicates.py, start_line: 27, end_line: 39, mapped_by: hunk, prod: {shown: 6, total: 6}, test: {shown: 7, total: 7}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: approval_of, file: src/superclaude/cli/issue_watch/predicates.py, start_line: 185, end_line: 234, mapped_by: hunk, prod: {shown: 2, total: 2}, test: {shown: 5, total: 5}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: marker_in_window, file: src/superclaude/cli/issue_watch/predicates.py, start_line: 279, end_line: 296, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 2, total: 2}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: FileStore, file: src/superclaude/cli/issue_watch/record.py, start_line: 334, end_line: null, mapped_by: hunk, prod: {shown: 5, total: 5}, test: {shown: 21, total: 21}, unknown: {shown: 0, total: 0}, transitive: {count: 10, depth: 1}, truncated: false}
+  - {name: StoreDoc, file: src/superclaude/cli/issue_watch/record.py, start_line: 92, end_line: null, mapped_by: hunk, prod: {shown: 3, total: 3}, test: {shown: 5, total: 5}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: Entry, file: src/superclaude/cli/issue_watch/record.py, start_line: 69, end_line: null, mapped_by: hunk, prod: {shown: 3, total: 3}, test: {shown: 6, total: 6}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: mark_pending, file: src/superclaude/cli/issue_watch/record.py, start_line: 538, end_line: 568, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 14, total: 14}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: mark_launched, file: src/superclaude/cli/issue_watch/record.py, start_line: 580, end_line: 596, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 6, total: 6}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: mark_claimed, file: src/superclaude/cli/issue_watch/record.py, start_line: 654, end_line: 686, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 9, total: 9}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: fail, file: src/superclaude/cli/issue_watch/record.py, start_line: 503, end_line: null, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 7, total: 7}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: sweep, file: src/superclaude/cli/issue_watch/record.py, start_line: 627, end_line: null, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 10, total: 10}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+  - {name: OrcaLauncher, file: src/superclaude/cli/issue_watch/launch.py, start_line: 337, end_line: 355, mapped_by: hunk, prod: {shown: 2, total: 2}, test: {shown: 11, total: 11}, unknown: {shown: 0, total: 0}, transitive: {count: 2, depth: 1}, truncated: false}
+  - {name: check_origin, file: src/superclaude/cli/issue_watch/launch.py, start_line: 218, end_line: 236, mapped_by: hunk, prod: {shown: 1, total: 1}, test: {shown: 13, total: 13}, unknown: {shown: 0, total: 0}, transitive: {count: 0, depth: 1}, truncated: false}
+ambiguous: []
+unmapped_files:
+  - {file: src/superclaude/cli/main.py, reason: no_span_match}
+  - {file: src/superclaude/cli/issue_watch/__init__.py, reason: no_span_match}
+  - {file: "docs/designs/issue-watcher*.md (2 files)", reason: not_indexed}
+  - {file: "tests/issue_watch/*.py (31 files incl. conftest.py)", reason: cap}
+  - {file: ".dev/** (327 files: md, json, yaml, txt, log)", reason: not_indexed}
+dependents:
+  - {symbol: cycle_line, caller: _conclude, file: src/superclaude/cli/issue_watch/cycle.py, def_line: 1139, call_site_line: 1143, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: decision_line, caller: _decision, file: src/superclaude/cli/issue_watch/cycle.py, def_line: 602, call_site_line: 612, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: decision_line, caller: _write_reset, file: src/superclaude/cli/issue_watch/cli.py, def_line: 255, call_site_line: 269, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: warning_line, caller: _warn, file: src/superclaude/cli/issue_watch/cycle.py, def_line: 589, call_site_line: 591, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: warning_line, caller: _write_reset, file: src/superclaude/cli/issue_watch/cli.py, def_line: 255, call_site_line: 271, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: stderr_fallback, caller: _conclude, file: src/superclaude/cli/issue_watch/cycle.py, def_line: 1139, call_site_line: 1165, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: AuditLog, caller: build_deps, file: src/superclaude/cli/issue_watch/cli.py, def_line: 62, call_site_line: 70, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: AuditLog, caller: reset_command, file: src/superclaude/cli/issue_watch/cli.py, def_line: 295, call_site_line: 316, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: AuditLog, caller: status_command, file: src/superclaude/cli/issue_watch/cli.py, def_line: 167, call_site_line: 173, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: exit_for, caller: _cond, file: src/superclaude/cli/issue_watch/cycle.py, def_line: 568, call_site_line: 569, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: resolve_exit, caller: _exit, file: src/superclaude/cli/issue_watch/cycle.py, def_line: 575, call_site_line: 576, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: run_cycle, caller: once_command, file: src/superclaude/cli/issue_watch/cli.py, def_line: 118, call_site_line: 122, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: Deadline, caller: __init__, file: src/superclaude/cli/issue_watch/cycle.py, def_line: 525, call_site_line: 529, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: Deps, caller: build_deps, file: src/superclaude/cli/issue_watch/cli.py, def_line: 62, call_site_line: 65, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: load_config, caller: _load_config, file: src/superclaude/cli/issue_watch/cli.py, def_line: 84, call_site_line: 89, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: status_report, caller: status_command, file: src/superclaude/cli/issue_watch/cli.py, def_line: 167, call_site_line: 172, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: format_utc, caller: reset_command, file: src/superclaude/cli/issue_watch/cli.py, def_line: 295, call_site_line: 319, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: approval_of, caller: _approve, file: src/superclaude/cli/issue_watch/cycle.py, def_line: 859, call_site_line: 864, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: approval_of, caller: _revalidate, file: src/superclaude/cli/issue_watch/cycle.py, def_line: 960, call_site_line: 979, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+  - {symbol: marker_in_window, caller: _hit, file: src/superclaude/cli/issue_watch/cycle.py, def_line: 829, call_site_line: 839, resolution: call-site-verified, partition: prod, hop: 1, source: callers}
+dependents_omitted: 43
+call_sites: {verified: 20, unresolved: 43, dropped: 0, budget: "5/symbol, 20/run"}
+tests: []
+selection_source: null
+errors:
+  - "D4 candidate cap: 30 of ~400 new symbols mapped; the rest of the diff is not mapped"
+  - "D3 file cap: tests/issue_watch/*.py not outlined (only 11 src files); test symbols are not candidates"
+  - "D4 jq parse failed (control characters in the CLI JSON) for 9 of 30 queries: Deadline, Config, Deps, load_config, FileStore, StoreDoc, Entry, fail, sweep; their start lines come from codegraph_node symbolsOnly, end_line null (Deadline 412 and Deps 426 were read from source/other query output)"
+  - "index_state stale: one pending file (.dev/.../reflect/post/verify-logs/invocations.yaml, not source); all src/tests rows are from the indexed tree"
+  - "transitive.count is derived (impact rows minus the queried definition minus step-4 rows); depth-1 impact adds no hop-2 rows"

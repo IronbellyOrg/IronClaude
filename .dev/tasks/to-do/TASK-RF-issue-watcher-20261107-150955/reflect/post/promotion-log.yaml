@@ -1,0 +1,39 @@
+promotion_log_version: '1.0'
+adapter: task
+mode: auto
+action: skipped
+source: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955
+destination: null
+source_sha256_before: e7aaa7de77aa8a4d48c7763cdd7e8fd69617450faa2b13ab6562e96688c10ef3
+source_sha256_after_move: null
+sha_match: null
+gate_evaluation:
+  mode_post: pass
+  status_success: fail
+  tasklist_completion_pct_1_0: fail
+  no_drift_no_regression: fail
+  frontmatter_present: pass
+  frontmatter_status_matches: fail
+  no_citations_dropped: fail
+  no_grounding_gaps: fail
+  no_input_drift: pass
+  no_user_decision_pending: fail
+  adversarial_result_present: pass
+gate_evaluation_failures:
+- status_success
+- tasklist_completion_pct_1_0
+- no_drift_no_regression
+- frontmatter_status_matches
+- no_citations_dropped
+- no_grounding_gaps
+- no_user_decision_pending
+gate_passed: false
+citation_revalidation_at_promotion: false
+pending: false
+cross_fs_promotion: false
+checkpoint_path: null
+skip_reason: gate-failed
+fail_reason: null
+override_used: null
+rollback_command: null
+timestamp: '2026-11-08T06:10:47Z'

@@ -1,0 +1,17 @@
+# Wave 1D / 3C calibration record (aggregated). Per-card reports are under artifacts/ and reviewer-cards/.
+tier1_card:
+  card_path: t1-card.md
+  author_agent: root-cause-analyst            # model inherited from the runner (alias tier1b, sonnet-class)
+  hypothesis_source: agent                    # not inline-fallback
+  self_reported_confidence: 0.72              # NOT an input to any score
+  calibration_report: artifacts/t1-calibration-report.md
+  calibrator_agent: confidence-calibrator
+  calibrator_model_class: opus
+  calibrated_confidence: 0.83
+  dimensions: {citation_grounding: 0.90, coverage_completeness: 0.75, deviation_classification_clarity: 0.65, risk_surface_coverage: 0.95, recommendation_actionability: 0.90}
+  escalation_recommendation: ESCALATE (low_confidence, C < 0.85)
+reviewer_model_classes: [sonnet, haiku, opus]
+executor_class_source: unknown
+executor_class_resolved: false
+calibrator_diversity: degraded                # disjoint set {qwen, kimi, deepseek} is empty in this environment (Anthropic-gateway aliases only); fallback = highest-capability class (opus), per reflection-rubric Example C
+calibration_mode: independent_instances_per_card

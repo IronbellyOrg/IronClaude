@@ -1992,6 +1992,71 @@ def test_a_launch_still_starts_at_exactly_120_s_with_its_full_timeout__fr029_ac1
     assert tmp_state.load().entries[9].state == "launched"
 
 
+class _SlowPendingSaveStore:
+    """A ``Store`` over ``real`` whose pending save takes ``seconds`` on ``clock``.
+
+    ``saved`` keeps every document handed to ``save``, in order. Every other
+    method is the wrapped store's.
+    """
+
+    def __init__(self, real, clock: FakeClock, seconds: float) -> None:
+        self._real = real
+        self._clock = clock
+        self._seconds = seconds
+        self.saved: list[record.StoreDoc] = []
+
+    def __getattr__(self, name):
+        return getattr(self._real, name)
+
+    def save(self, doc) -> None:
+        self.saved.append(doc)
+        self._real.save(doc)
+        entry = doc.entries.get(9)
+        if entry is not None and entry.state == "pending":
+            self._clock.advance(self._seconds)
+
+
+def test_a_launch_does_not_start_when_the_pending_save_crosses_120_s__fr011_ac19(
+    tmp_path, tmp_state, gh_world
+):
+    world = gh_world()
+    world.issue(9)
+    _seed_doc(tmp_state)  # dispatch.json exists before the cycle
+    before = tmp_state.load()
+    store = _SlowPendingSaveStore(tmp_state, world.clock, 121)
+    deps = replace(world.deps(tmp_path, tmp_state), store=store)
+    res = cycle.run_cycle(deps, False)
+    assert res.exit_code == 0
+    assert res.launched_issue is None
+    assert deps.launcher.calls == []  # the launch call was never made
+    pending, restored = store.saved[0], store.saved[1]
+    assert (pending.entries[9].state, pending.entries[9].launches) == ("pending", 1)
+    assert restored == before  # the whole document, not field by field
+    assert 9 not in restored.entries  # no entry, so launches 0
+    lines = _lines_of(tmp_state, res)
+    (decision,) = _of_kind(lines, "decision")
+    assert (decision["issue"], decision["reason"]) == (9, "budget_exhausted")
+    assert "state" not in decision
+    stored = tmp_state.load()
+    assert stored.entries == {}  # nothing stays on disk
+    assert 9 not in stored.considered  # budget_exhausted is never stamped
+    assert store.saved[-1].entries == {}
+
+
+def test_a_launch_still_starts_when_the_pending_save_ends_at_exactly_120_s__fr011_ac19(
+    tmp_path, tmp_state, gh_world
+):
+    world = gh_world()
+    world.issue(9)
+    store = _SlowPendingSaveStore(tmp_state, world.clock, 120)
+    deps = replace(world.deps(tmp_path, tmp_state), store=store)
+    res = cycle.run_cycle(deps, False)
+    assert (res.exit_code, res.launched_issue) == (0, 9)
+    assert len(deps.launcher.calls) == 1
+    assert deps.launcher.calls[0][3] == 120.0  # never shortened
+    assert tmp_state.load().entries[9].state == "launched"
+
+
 # ==============================================================================
 # AC-14, FR-020: one cycle line per exit, one decision line per examined issue
 # ==============================================================================

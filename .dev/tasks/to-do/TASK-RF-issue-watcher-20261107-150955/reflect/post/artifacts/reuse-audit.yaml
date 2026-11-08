@@ -1,0 +1,214 @@
+stage: post
+candidates_scanned: 12
+neighbours_found: 20
+max_overlap: 0.98
+degraded: ["neighbour-search:auggie_unavailable"]   # no auggie tool in this run; codegraph + Grep + Read used; every tier capped at maybe-related; C_aug dropped and S_reuse renormalized over C_cap/C_shape
+sampled: false
+findings:
+  - candidate: "record.py FileStore.save (record.py:370)"
+    capability_tag: "atomic JSON store write: tmp + fsync + replace, then chmod 0600 and directory fsync. The atomic core already delegates to swarm.atomic.write_prepared_bytes through a lazy import (record.py:372); only chmod and directory fsync are added here"
+    neighbours:
+      - ref: "src/superclaude/cli/swarm/atomic.py:14"
+        snippet: "def write_prepared_bytes(path: Path, data: bytes) -> int:"
+      - ref: "src/superclaude/cli/install_hooks.py:485"
+        snippet: "def _atomic_write_json(target: Path, payload: dict) -> None:"
+      - ref: "src/superclaude/cli/install_codegraph.py:79"
+        snippet: "def _write_private(path: Path, text: str) -> None:"
+    C_cap: 0.75
+    C_shape: 0.55
+    C_aug: 0.0
+    S_reuse: 0.66
+    confidence: 0.80
+    tier: maybe-related
+    verdict: reuse-by-import        # already satisfied for the atomic core; the allowed edge is superclaude.cli.swarm.atomic from record
+    shape_divergence: false
+    consolidation: { N: 1, recommend_centralize: false, centralize_target: null }
+    evidence_grounded: true
+
+  - candidate: "record.py FileStore.lock (record.py:381)"
+    capability_tag: "non-blocking exclusive flock on a pre-created lock file, opened O_NOFOLLOW, with a regular-file/uid check and an inode re-check after locking. Negative evidence: Grep for flock|fcntl across src/superclaude finds it only in issue_watch/record.py; the O_NOFOLLOW opens elsewhere (archive_workspace.py:451, install_retired_mcp.py:345, install_codegraph.py:212) are read or create paths with no lock"
+    neighbours: []
+    C_cap: 0.10
+    C_shape: 0.20
+    C_aug: 0.0
+    S_reuse: 0.14
+    confidence: 0.85
+    tier: distinct
+    verdict: distinct
+    shape_divergence: false
+    consolidation: { N: 1, recommend_centralize: false, centralize_target: null }
+    evidence_grounded: true
+
+  - candidate: "launch.py find_orca (launch.py:163) with _lists_orca_cli (launch.py:144)"
+    capability_tag: "prove a PATH binary is the Orca CLI by running `skills list --json` and requiring a topic named orca-cli. Same probe, same _ORCA_CLIS candidate order. Differences: runner and which are injected, a non-absolute which() result is skipped, and a malformed reply returns False instead of raising. Tier capped at maybe-related by the degraded substrate; uncapped S_reuse would pass the 0.82 floor"
+    neighbours:
+      - ref: "src/superclaude/cli/install_user_setup.py:198"
+        snippet: "def _find_orca() -> str | None:"
+      - ref: "src/superclaude/cli/install_user_setup.py:219"
+        snippet: "if probe.returncode == 0 and any(t.get(\"name\") == \"orca-cli\" for t in topics):"
+    C_cap: 0.95
+    C_shape: 0.80
+    C_aug: 0.0
+    S_reuse: 0.88
+    confidence: 0.90
+    tier: maybe-related
+    verdict: mirror-shape           # launch.py:7-8 allows only the standard library, runner and _ORCA_CLIS; the _find_orca import is banned, so import is downgraded to a mirror (NFR-import-ban). tests/issue_watch/test_find_orca_parity.py exists
+    shape_divergence: false
+    consolidation: { N: 2, recommend_centralize: false, centralize_target: null }
+    evidence_grounded: true
+
+  - candidate: "launch.py parse_origin (launch.py:200) and check_origin (launch.py:218)"
+    capability_tag: "parse owner/repo from a GitHub origin URL with two anchored patterns (https and git@), strip .git, reject '.' and '..'; check_origin runs `git remote get-url origin` and compares the result to one repo. parse_origin is a line-for-line copy of parse_origin_url (the launch.py:191-192 comment says so). check_origin matches read_origin apart from the Runner seam, timeout and comparison. Tier capped at maybe-related by the degraded substrate; uncapped S_reuse would pass the 0.82 floor"
+    neighbours:
+      - ref: "src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py:86"
+        snippet: "def parse_origin_url(url: str) -> str | None:"
+      - ref: "src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py:66"
+        snippet: "re.compile(rf\"^https://github\\.com/(?P<owner>{_NAME})/(?P<repo>{_NAME})/?$\"),"
+      - ref: "src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py:156"
+        snippet: "def read_origin() -> str:"
+    C_cap: 1.0
+    C_shape: 0.95
+    C_aug: 0.0
+    S_reuse: 0.98
+    confidence: 0.95
+    tier: maybe-related
+    verdict: mirror-shape           # the neighbour is an installed skill script outside the package, and launch.py:7-8 bans the import; tests/issue_watch/test_origin_parity.py exists
+    shape_divergence: false
+    consolidation: { N: 2, recommend_centralize: false, centralize_target: null }
+    evidence_grounded: true
+
+  - candidate: "runner.py SubprocessRunner (runner.py:67) and CommandResult (runner.py:20)"
+    capability_tag: "run one argv with shell=False, a timeout and stdin closed, and fold timeout / spawn failure / capped stderr into a typed result. Prior art is only ad hoc subprocess.run call sites, each with its own try/except and none returning a result type. No shared wrapper exists in src/superclaude. install_codegraph.py:43 Runner is a bare Callable alias with a different shape"
+    neighbours:
+      - ref: "src/superclaude/cli/install_user_setup.py:209"
+        snippet: "probe = subprocess.run("
+      - ref: "src/superclaude/cli/install_ccsession.py:107"
+        snippet: "subprocess.run("
+      - ref: "src/superclaude/cli/sprint/summarizer.py:339"
+        snippet: "proc = subprocess.run("
+    C_cap: 0.45
+    C_shape: 0.35
+    C_aug: 0.0
+    S_reuse: 0.41
+    confidence: 0.70
+    tier: distinct
+    verdict: distinct
+    shape_divergence: false
+    consolidation: { N: 1, recommend_centralize: false, centralize_target: null }
+    evidence_grounded: true
+
+  - candidate: "audit.py AuditLog.append / rotate_if_needed (audit.py:130, 141)"
+    capability_tag: "append-only JSONL: one os.write on an O_APPEND fd, then size-triggered rotation .1 to .4 with a directory fsync. Other JSONL appenders exist (listed) but they are plain open('a') writes (generic CRUD guardrail 2). No rotation prior art: Grep for 'rotat' (case-insensitive) finds none outside issue_watch except account-rotation text"
+    neighbours:
+      - ref: "src/superclaude/pr_submit/run_log.py:133"
+        snippet: "with self.jsonl_path.open(\"a\", encoding=\"utf-8\") as fh:"
+      - ref: "src/superclaude/cli/swarm/logging_.py:155"
+        snippet: "with open(self.jsonl_path, \"a\") as jsonl_fh:"
+      - ref: "src/superclaude/cli/recommend/telemetry.py:61"
+        snippet: "with events_path.open(\"a\", encoding=\"utf-8\") as fh:"
+    C_cap: 0.45
+    C_shape: 0.35
+    C_aug: 0.0
+    S_reuse: 0.41
+    confidence: 0.75
+    tier: distinct
+    verdict: distinct
+    shape_divergence: false
+    consolidation: { N: 1, recommend_centralize: false, centralize_target: null }
+    evidence_grounded: true
+
+  - candidate: "predicates.py parse_utc / format_utc (predicates.py:27, 42)"
+    capability_tag: "render an aware datetime as YYYY-MM-DDTHH:MM:SSZ (format_utc, with a naive-datetime refusal) and strictly parse that shape (parse_utc). The format half has the same input and output as three existing helpers. The parse half has no neighbour, and none of the three validates tzinfo"
+    neighbours:
+      - ref: "src/superclaude/cli/swarm/recipes/_primitives.py:15"
+        snippet: "def format_timestamp(value: datetime) -> str:"
+      - ref: "src/superclaude/cli/swarm/state.py:127"
+        snippet: "def _utc_now_iso() -> str:"
+      - ref: "src/superclaude/cli/eval/disk_budget.py:495"
+        snippet: "return time.strftime(\"%Y-%m-%dT%H:%M:%SZ\", time.gmtime())"
+    C_cap: 0.85
+    C_shape: 0.60
+    C_aug: 0.0
+    S_reuse: 0.74
+    confidence: 0.65
+    tier: maybe-related
+    verdict: mirror-shape           # predicates.py:4 says it imports nothing from superclaude, so the import is banned; the swarm helper is also a private leaf
+    shape_divergence: false
+    consolidation: { N: 2, recommend_centralize: false, centralize_target: null }
+    evidence_grounded: true
+
+  - candidate: "github.py classify / _rest_read / _graphql_read (github.py:345, 592, 645)"
+    capability_tag: "classify a gh CLI reply (timeout, auth, scope, rate limit, transient, non-JSON) and page REST / GraphQL reads under a call budget. Negative evidence: the only literal \"gh\" argv in src/superclaude is github.py; pr_submit mentions gh only in evidence filenames (contract_setup/evidence.py:12-14)"
+    neighbours: []
+    C_cap: 0.10
+    C_shape: 0.15
+    C_aug: 0.0
+    S_reuse: 0.12
+    confidence: 0.85
+    tier: distinct
+    verdict: distinct
+    shape_divergence: false
+    consolidation: { N: 1, recommend_centralize: false, centralize_target: null }
+    evidence_grounded: true
+
+  - candidate: "cycle.py load_config (cycle.py:195) / validate_approvers (cycle.py:298)"
+    capability_tag: "strict closed-key JSON config load with typed field checks, absolute-path rules and a network-filesystem refusal. Only generic JSON load and unknown-key checks exist elsewhere (for example pr_submit/conflicts.py unknown-field handling, a different artifact), which guardrail 2 excludes"
+    neighbours: []
+    C_cap: 0.25
+    C_shape: 0.30
+    C_aug: 0.0
+    S_reuse: 0.27
+    confidence: 0.70
+    tier: distinct
+    verdict: distinct
+    shape_divergence: false
+    consolidation: { N: 1, recommend_centralize: false, centralize_target: null }
+    evidence_grounded: true
+
+  - candidate: "cycle.py Deadline (cycle.py:383) / CallBudget (github.py:437) / Clock Protocol (cycle.py:361)"
+    capability_tag: "per-cycle time budget from an injected monotonic clock: timeout_for returns min(configured, time left), or None under a 5 s floor. The closest prior art is _orca_timeout in a one-shot installer (a different, one-way clamp with no floor-to-None, no launch cutoff and no clock seam). CallBudget and Clock have no neighbour; the repo's other budgets count tokens (audit/budget.py, cli_portify/convergence.py) and were not Read"
+    neighbours:
+      - ref: "src/superclaude/cli/install_user_setup.py:224"
+        snippet: "def _orca_timeout(deadline: float | None) -> float:"
+    C_cap: 0.50
+    C_shape: 0.45
+    C_aug: 0.0
+    S_reuse: 0.48
+    confidence: 0.70
+    tier: distinct
+    verdict: distinct
+    shape_divergence: false
+    consolidation: { N: 1, recommend_centralize: false, centralize_target: null }
+    evidence_grounded: true
+
+  - candidate: "cli.py issue_watch_group wiring (cli.py:94, registered at main.py:565)"
+    capability_tag: "Click group plus deferred add_command registration in main.py. Framework boilerplate (guardrail 5), excluded. It follows the established reflect_group registration idiom, including the noqa comment, so there is no shape divergence"
+    neighbours:
+      - ref: "src/superclaude/cli/reflect/commands.py:53"
+        snippet: "@click.group(\"reflect\")"
+      - ref: "src/superclaude/cli/main.py:561"
+        snippet: "main.add_command(reflect_group, name=\"reflect\")"
+    C_cap: 0.30
+    C_shape: 0.90
+    C_aug: 0.0
+    S_reuse: 0.56
+    confidence: 0.80
+    tier: distinct
+    verdict: distinct
+    shape_divergence: false
+    consolidation: { N: 1, recommend_centralize: false, centralize_target: null }
+    evidence_grounded: true
+
+  - candidate: "record.py MIGRATIONS / migrate (record.py:247, 251)"
+    capability_tag: "schema_version migration chain: version-to-version pure steps with strict result checks. Negative evidence: Grep for MIGRATIONS|def migrate across src/superclaude finds only issue_watch/record.py, plus cycle.py:1207 which reads it"
+    neighbours: []
+    C_cap: 0.10
+    C_shape: 0.15
+    C_aug: 0.0
+    S_reuse: 0.12
+    confidence: 0.85
+    tier: distinct
+    verdict: distinct
+    shape_divergence: false
+    consolidation: { N: 1, recommend_centralize: false, centralize_target: null }
+    evidence_grounded: true

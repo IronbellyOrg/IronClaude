@@ -50,7 +50,7 @@ The output must name `IronbellyOrg/IronClaude` on github.com. `check-config` onl
 
 ### 1.4 The watcher's own check
 
-The watcher runs on Linux only: `once`, `check-config` and `init-state` exit 2 on any other platform. Confirm the command is installed:
+The watcher runs on Linux only: `once`, `check-config`, `init-state` and `reset` exit 2 on any other platform. (`status` does not check the platform.) Confirm the command is installed:
 
 ```bash
 superclaude issue-watch --help
@@ -316,7 +316,7 @@ While the file exists, `status` goes unhealthy (exit 1) once 900 seconds have pa
 |---|---|---|
 | 0 | The cycle ended without a fault: it ran to its end or stopped on purpose. Skipped issues are not faults | `cycle_complete`, `disabled`, `disabled_mid_cycle`, `not_enabled` |
 | 1 | `status`: unhealthy. `once`: an unexpected exception ended the cycle | `cycle_crashed` |
-| 2 | Usage, configuration, platform, origin or Orca probe. `reset` also uses it for a refused request | `config_invalid`, `approvers_invalid`, `platform_unsupported`, `worktree_invalid`, `origin_mismatch`, `orca_not_found`, `account_id_mismatch` |
+| 2 | Usage, configuration, platform, origin or Orca probe. `status` uses it for an invalid configuration file. `reset` also uses it for a refused request | `config_invalid`, `approvers_invalid`, `platform_unsupported`, `worktree_invalid`, `origin_mismatch`, `orca_not_found`, `account_id_mismatch` |
 | 3 | GitHub login, scope, timeout or a reply that is not JSON | `login_invalid`, `gh_auth_failed`, `gh_timeout`, `gh_non_json`, `project_read_failed` |
 | 4 | Discovery was cut off or repeated an issue | `truncated`, `discovery_duplicate` |
 | 5 | Rate limited | `rate_limited`, `rate_limit_clamped` |
@@ -429,7 +429,7 @@ Three facts help when you read it:
 
 ### 10.4 The status command
 
-`superclaude issue-watch status` reads `dispatch.json` and the `DISABLED` file and nothing else: it takes no lock, writes nothing and calls neither GitHub nor Orca. It exits 0 when healthy, 1 when unhealthy (the last completed cycle is more than 900 seconds old, or there is none) and 6 when the store cannot be read. `superclaude issue-watch status --json` prints these fields:
+`superclaude issue-watch status` reads `dispatch.json` and the `DISABLED` file and nothing else: it takes no lock, writes nothing and calls neither GitHub nor Orca. It exits 0 when healthy, 1 when unhealthy (the last completed cycle is more than 900 seconds old, or there is none), 2 when the configuration file is invalid and 6 when the store cannot be read. `superclaude issue-watch status --json` prints these fields:
 
 | Field | Type | Meaning |
 |---|---|---|

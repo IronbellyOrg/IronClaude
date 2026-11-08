@@ -1,0 +1,234 @@
+contract_version: 1.8.0
+status: partial
+mode: post
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/audit.log
+confidence_calibrated: 0.76
+escalation_rule_matched: 4
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: null
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: 0.9904
+deviation_count_by_class:
+  authorized: 5
+  necessary: 3
+  drift: 4
+  regression: 7
+deviation_register_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/deviation-ledger.yaml
+grounding_gaps_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/grounding-gaps.yaml
+hunk_to_declaration_map_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/artifacts/hunk-to-declaration-map.yaml
+third_party_api_grounding: []
+third_party_api_verified: false
+verification_ran: true
+verification_invocations: 3
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+runtime_surface_requirements:
+- FR-026
+runtime_surface_sweep_ran: true
+runtime_surface_ledger_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/artifacts/runtime-surface-ledger.yaml
+runtime_surface_unreached: 0
+runtime_surface_degraded: true
+unreached_surfaces: []
+reachability_gate_ran: true
+reachability_ledger_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/artifacts/reachability-ledger.yaml
+reachability_requirements_scanned: 5
+reachability_unreachable: 0
+reachability_unproven: 0
+reachability_real_boot_ran: false
+reachability_skip_reason: null
+reuse_sweep_ran: true
+reuse_audit_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/artifacts/reuse-audit.yaml
+reuse_miss_blocking: 0
+reuse_miss_advisory: 4
+reuse_verdict_count_by_type:
+  reuse_by_import: 1
+  mirror_shape: 3
+  extract_shared: 0
+  distinct: 8
+reuse_grounding_gap_count: 4
+neighbour_search_sampled: false
+neighbour_search_degraded: true
+max_overlap_score: 0.98
+input_sha256:
+  tasklist: 1cab181642d91d71bbce0d653f5823ee76a6d94c61164dc68d873ca8bd917f76
+  spec: 6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32
+input_tree_sha256: e7aaa7de77aa8a4d48c7763cdd7e8fd69617450faa2b13ab6562e96688c10ef3
+input_tree_file_count: 308
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 177
+citations_revalidated: 177
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 11
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+- /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/reviewer-cards/reviewer-1-card.md
+- /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/reviewer-cards/reviewer-2-card.md
+- /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/adversarial/adversarial
+adversarial_convergence_score: 0.836
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: true
+remediation_accepted: false
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: reflect/handoff-issue-331-github-issue-watcher-20261108T0620Z
+cannot_validate_without_user_input: false
+regression_present: true
+unauthorized_deviation_present: true
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true
+needs_human_decision: true
+per_task_verdicts:
+- task_id: P1
+  status: success
+  deviation_class: none
+  citations_dropped: 0
+  per_task_validation_strength: 0.9
+  evidence_anchor: artifacts/coverage-matrix.yaml
+- task_id: P2
+  status: partial
+  deviation_class: regression
+  citations_dropped: 0
+  per_task_validation_strength: 0.8
+  evidence_anchor: src/superclaude/cli/issue_watch/audit.py:62-64
+- task_id: P3
+  status: success
+  deviation_class: none
+  citations_dropped: 0
+  per_task_validation_strength: 0.85
+  evidence_anchor: artifacts/coverage-matrix.yaml
+- task_id: P4
+  status: partial
+  deviation_class: regression
+  citations_dropped: 0
+  per_task_validation_strength: 0.8
+  evidence_anchor: src/superclaude/cli/issue_watch/record.py:23-29
+- task_id: P5
+  status: partial
+  deviation_class: regression
+  citations_dropped: 0
+  per_task_validation_strength: 0.8
+  evidence_anchor: src/superclaude/cli/issue_watch/launch.py:322
+- task_id: P6
+  status: partial
+  deviation_class: regression
+  citations_dropped: 0
+  per_task_validation_strength: 0.6
+  evidence_anchor: src/superclaude/cli/issue_watch/cycle.py:1060-1062
+- task_id: P7
+  status: partial
+  deviation_class: regression
+  citations_dropped: 0
+  per_task_validation_strength: 0.78
+  evidence_anchor: src/superclaude/cli/issue_watch/cli.py:123-129
+- task_id: P8
+  status: partial
+  deviation_class: regression
+  citations_dropped: 0
+  per_task_validation_strength: 0.75
+  evidence_anchor: tests/issue_watch/test_cli.py:1070
+- task_id: P9
+  status: success
+  deviation_class: drift
+  citations_dropped: 0
+  per_task_validation_strength: 0.82
+  evidence_anchor: docs/designs/issue-watcher-setup.md:53
+- task_id: P10
+  status: success
+  deviation_class: none
+  citations_dropped: 0
+  per_task_validation_strength: 0.85
+  evidence_anchor: artifacts/coverage-matrix.yaml
+interaction_effects_scanned: true
+interaction_effects_findings: 5
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: skipped
+promotion_adapter: task
+promotion_source: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955
+promotion_destination: null
+promotion_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/promotion-log.yaml
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+verdict: FAIL
+run_id: reflect-post-20261108T0410Z-issuewatch331
+blocking_findings:
+- R-1
+telemetry:
+  wave_durations_ms:
+    wave_0: 120000
+    wave_1: 2100000
+    wave_2: 1000
+    wave_3: 800000
+    wave_4: 4200000
+    wave_5: 1500000
+    wave_6: 60000
+    wave_7: 5000
+  durations_note: estimated from audit.log timestamps
+  reviewer_models:
+  - sonnet
+  - haiku
+  - opus
+  reviewer_personas:
+  - analyzer
+  - qa
+  - refactorer
+  reviewer_vendors:
+  - anthropic-gateway
+  degraded_components:
+  - neighbour-search:auggie_unavailable
+  - graph:stale
+  - graph:unresolved
+  - calibrator_diversity
+  - t2_vendor_diversity:single
+  - executor_class_unresolved
+  - judge_class_collision
+  fallback_path: null
+  executor_class_source: unknown
+  executor_class_resolved: false
+  executor_exclusion_degraded: false
+  memory_hits: 1
+  memory_misses: 1
+  memory_retention_actions: 0
+  verify_blocked: false
+  verify_timeout_hit: false
+  verify_flaky_suspected: false
+  verify_timeout_default: 120
+  verify_invocations_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/verify-logs/invocations.yaml
+  handoff_memory_written: true
+  handoff_persist_failed: false
+  type_hierarchy_invoked: false
+  summarize_changes_invoked: false
+  references_extended_info_used: false

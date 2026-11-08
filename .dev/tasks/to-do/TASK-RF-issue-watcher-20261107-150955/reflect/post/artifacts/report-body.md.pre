@@ -1,0 +1,589 @@
+
+# Reflect report: POST (UC-2) audit of the issue-watch poller (issue 331)
+
+- **Work audited:** commit `26f551f41edece1f05c07a3c02d78325e365f6d1` on top of BASE `e8db2fe660d9104cbe8cdbcdc6f2c967f4994f4b` (one commit, 379 files, all additions): the `superclaude issue-watch` package, its registration in `main.py`, the `tests/issue_watch` suite, the owner runbook, and the task package under `.dev/tasks`.
+- **Driving documents:** `docs/designs/issue-watcher.md`, the executed task file `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md` (Open Questions OQ-1..OQ-51 and the decision register DF-01..DF-60 are the authorizing artifacts).
+- **Run id:** `reflect-post-20261108T0410Z-issuewatch331` (tier 2, depth deep, `--remediate`).
+
+## Verdict
+
+**FAIL, status needs_human_decision.** One Regression of severity LOW is blocking (R-1). Six more Regression-class rows are non-blocking (four are document amendments, one is test hygiene, one is effectively unreachable). The work is otherwise in good order: the verdict becomes PASS-with-deviations once R-1 is fixed and its test lands.
+
+| Item | Result |
+|---|---|
+| Blocking | R-1: a launch can start after the 120 s cutoff if the durable pending save crosses it (design line 647, AC-19). Compatible fix and verifier are in the register and in Recommendation R-001. |
+| Non-blocking Regression-class rows | R-2 (exit 1 `cycle_crashed`), R-3 (59 reason names against 57/52), R-4 (`valid_operation_id` import), R-5 (five skip sites), R-6 (500-byte stderr cap vs operation-unknown marker), R-7 (retry list edge, effectively unreachable) |
+| Drift | D-1 runbook/design exit and platform facts, D-2 `cli` -> `cycle.format_utc`, D-3 duplicated login regex and UTC format in `cycle`, D-4 wall-clock read in `stderr_fallback` |
+| Necessary | N-1 local copies forced by the import rules, N-2 day-cap test reading, N-3 `launch._ORCA_CLIS` access |
+| Authorized | A-1..A-5 (task Step 4.1a imports, runner duration clock, five proposed reasons, CI-only full suite, eager registration) |
+| Advisory gaps (never gate) | 17 rows, see below |
+| Grounding gaps | 16 rows (6 runtime-surface DEGRADE, one per Click symbol; 6 judge evidence gaps; 4 reuse maybe-related), so `needs_human_decision: true` |
+
+## What was verified independently
+
+- The orchestrator ran the suite: `pytest tests/issue_watch` gave 2635 passed, 0 failed, 0 errors, 0 skipped on Python 3.11.15; `ruff check` and `ruff format --check` were clean (`verify-logs/invocations.yaml`).
+- Coverage matrix (Wave 1B helper, then re-checked by the reviewers): 68 rows (29 FR, 14 NFR, 25 AC): 63 covered, 3 partial (NFR-008, AC-19, NFR-014), 2 gate-only (NFR-012, AC-23), 0 gaps. Tasklist: 207 of 209 items checked; the two open items are Step 10.6 (this run) and Step 10.7 (Done).
+- Safety properties held under a three-reviewer audit and a fault-finder probe (12 findings, 0 HIGH unaddressed): durable pending record before the spawn, integer-only prompt, no GitHub write, no shell, fail-closed reads, kill switch, day cap. At-most-once holds within one store; two stores on one login break it, which the design already names as residual risk R12.
+- Required-capability reachability (SKILL step 5.6a): 5 of 5 capabilities reachable, none unreachable or unproven. The spec has no `durable_sink:` annotation, so the durable-sink gate (step 5.6) is advisory only.
+- Executor claims that did not hold: 6 fixture files were added after the Step 10.1 text says 13 (19 on disk); the reason table has 59 names while the task body still says 57; Python 3.10 and markdownlint were found although the task text says they do not exist locally. All are disclosed or minor.
+
+## Run integrity notes
+
+- Reviewer independence: three fresh read-only `reflect-reviewer` agents on different model classes (sonnet, haiku, opus); the executor's model class could not be resolved (`executor_class_resolved: false`), so the executor-vs-reviewer partition is unverified.
+- Calibrator diversity is degraded: all three Anthropic classes are reviewers, so the highest-capability class (opus) calibrated; vendor diversity is single.
+- The adversarial judge is the same class as one reviewer and one advocate (`judge_class_collision: true`).
+- Two reviewer cards carried wrong line numbers (`cycle.py:335-337`, `cycle.py:308`, and `src/superclaude/main.py`); the blind calibration and the merge corrected them and the evidence-validator re-read every citation below.
+- The neighbour (reuse) search ran without auggie, so every reuse finding is capped at advisory.
+- The `/sc:impact` call returned `graph:stale` and `graph:unresolved` and mapped 30 of about 400 new symbols (protocol cap).
+
+## Deviations
+
+Every deviation below is rendered from `adversarial/merged-verdict.yaml`. Regression-class rows other than R-1 are non-blocking; their classification follows the debate judge strict definition (a Regression contradicts a quoted acceptance criterion, documented invariant or task rule).
+
+### Deviation R-1: A launch can start after the 120 s cutoff.
+
+- **Location:** `src/superclaude/cli/issue_watch/cycle.py:1060-1062`, `src/superclaude/cli/issue_watch/cycle.py:1048`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** X-007, C-014
+- **Evidence:**
+  - `src/superclaude/cli/issue_watch/cycle.py:1048-1049` - last check: if not self.deadline.launch_allowed(), raise _Skip budget_exhausted
+  - `src/superclaude/cli/issue_watch/cycle.py:1060` - self._set(record.mark_pending(self.doc, c.n, ctx, self.now()))
+  - `src/superclaude/cli/issue_watch/cycle.py:1061` - self._save() with the comment FR-010: durable before the launch call
+  - `src/superclaude/cli/issue_watch/cycle.py:1062` - outcome = d.launcher.launch(orca, cfg.worktree, prompt, LAUNCH_TIMEOUT_S), no cutoff check between 1061 and 1062
+  - `src/superclaude/cli/issue_watch/cycle.py:410-412` - launch_allowed returns self.elapsed() <= LAUNCH_CUTOFF_S
+  - `docs/designs/issue-watcher.md:647` - Orca launch not started when elapsed() > 120; the step ends with no entry and no reason other than a budget_exhausted decision line
+  - `docs/designs/issue-watcher.md:892` - AC-19: no launch starts after 120 s
+  - `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:901` - Gate C: the fix of the deadline exit code let a launch start after the 120 s cut-off; fixed in cycle 2 (the git-call window only)
+- **Classification:** regression (severity LOW, blocking: YES)
+- **Classification rationale:** Design :647 "not started when `elapsed() > 120`; the step ends with no entry and no reason other than a `budget_exhausted` decision line"; AC-19 (design :892) "no launch starts after 120 s".
+- **Debate outcome:** X-007 merged (confidence 0.85): variant-2 finding, LOW severity from variant-1 and variant-3, blocking flag from variant-2 and variant-3. V2 HIGH and calibrator MEDIUM rejected (see rejected_claims).
+- **Default remediation:** src/superclaude/cli/issue_watch/cycle.py - Capture the document before mark_pending, re-check launch_allowed() after self._save(), and if the cutoff has passed restore and save the captured document and raise _Skip("budget_exhausted") (see late_launch_ruling). Verifier: New tests/issue_watch/test_cycle.py case whose clock passes 120 s inside store.save: asserts no launcher call, the document restored, and a budget_exhausted decision line.
+
+### Deviation R-2: `once` can exit 1 (cycle_crashed), an exit code the design does not list for the verb.
+
+- **Location:** `src/superclaude/cli/issue_watch/cli.py:35`, `src/superclaude/cli/issue_watch/cli.py:123-129`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** X-001, C-001
+- **Evidence:**
+  - `src/superclaude/cli/issue_watch/cli.py:35` - _EXIT_CRASH = 1 with the comment [PROPOSAL] C-3
+  - `src/superclaude/cli/issue_watch/cli.py:123-129` - crash path calls audit.stderr_fallback(cycle_crashed, _EXIT_CRASH), then sys.exit(_EXIT_CRASH)
+  - `docs/designs/issue-watcher.md:114` - once exit codes: 0, 2, 3, 4, 5, 6, 7, 75
+  - `docs/designs/issue-watcher.md:890` - AC-17: each verb exit codes match section 4
+- **Classification:** regression (severity LOW, blocking: no)
+- **Classification rationale:** Design :114 `once` exits "0, 2, 3, 4, 5, 6, 7, 75"; AC-17 (design :890) "Each verb's exit codes match section 4". The [PROPOSAL] comment at cli.py:35 is not authority.
+- **Debate outcome:** X-001 won by variant-2 and variant-3 (confidence 0.85); variant-1 Necessary rejected (A-002).
+- **Default remediation:** docs/designs/issue-watcher.md (:114 and section 4.3); spec reason table - Add exit 1 (cycle_crashed) as an amended exit; behaviour stays. Verifier: tests/issue_watch/test_cli.py:630 (crash exit) unchanged and passing
+
+### Deviation R-3: The reason table has 59 names (cycle_complete and cycle_crashed added), not the 57 the task and DF-41 fix, so audit.R...
+
+- **Location:** `src/superclaude/cli/issue_watch/audit.py:55-57`, `src/superclaude/cli/issue_watch/audit.py:62-64`, `src/superclaude/cli/issue_watch/cycle.py:1134-1137`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** X-002, X-010, C-002, C-003
+- **Evidence:**
+  - `src/superclaude/cli/issue_watch/audit.py:55-57` - cycle_crashed mapped to (cycle, 1) with a [PROPOSAL] comment
+  - `src/superclaude/cli/issue_watch/audit.py:62-64` - cycle_complete mapped to (cycle, 0) with a [PROPOSAL] comment
+  - `src/superclaude/cli/issue_watch/cycle.py:1134-1137` - [PROPOSAL] comment and return cycle_complete
+  - `tests/issue_watch/test_audit.py:214-220` - test_reasons_pin_59_names asserts 59 names
+  - `docs/designs/issue-watcher-setup.md:344` - the audit log accepts only the 59 names
+  - `docs/designs/issue-watcher.md:718` - audit.REASONS is a frozenset equal to the spec reason table
+  - `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:199` - Ensuring the table has exactly 57 entries (52 spec rows plus five proposals)
+  - `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md:175` - DF-41: the 52 spec rows plus five named proposals; test_audit.py listed with 57 names
+- **Classification:** regression (severity LOW, blocking: no)
+- **Classification rationale:** Design :718 "`audit.REASONS` is a `frozenset` equal to the spec's reason table"; task :199 "exactly 57 entries"; DF-41 (DF register :175) names 57.
+- **Debate outcome:** X-002 won by variant-2 and variant-3 (0.80), variant-1 MEDIUM rejected; X-010 won by variant-2 and variant-3 (0.80) and folded into this row.
+- **Default remediation:** docs/designs/issue-watcher.md:718; task:199; DF register DF-41; spec reason table - Record 59 names, including cycle_complete and cycle_crashed. Verifier: tests/issue_watch/test_audit.py:215-219 (pins 59)
+
+### Deviation R-4: record.py imports the function valid_operation_id from predicates, which neither the design import rule (types only) ...
+
+- **Location:** `src/superclaude/cli/issue_watch/record.py:23-29`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** X-003, C-005
+- **Evidence:**
+  - `src/superclaude/cli/issue_watch/record.py:23-29` - imports ApprovalResult, format_utc, parse_utc, valid_issue_number, valid_operation_id from superclaude.cli.issue_watch.predicates
+  - `src/superclaude/cli/issue_watch/record.py:183` - _opt(raw[operation_id], valid_operation_id) is the use site
+  - `docs/designs/issue-watcher.md:239` - record may import predicates (types only)
+  - `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:332` - allowed imports from predicates: parse_utc, format_utc, valid_issue_number
+  - `tests/issue_watch/test_module_boundaries.py:20-21` - docstring says record imports three functions and one type (miscount, C-038)
+  - `tests/issue_watch/test_module_boundaries.py:57-61` - record Rule allows the predicates sibling with no name limit
+  - `src/superclaude/cli/issue_watch/launch.py:36` - OPERATION_ID_PATTERN local copy, the precedent for a local copy
+- **Classification:** regression (severity LOW, blocking: no)
+- **Classification rationale:** Design :239 `record` may import `predicates` "(types only, ...)"; task :332 lists only `parse_utc`, `format_utc`, `valid_issue_number`.
+- **Debate outcome:** X-003 merged (0.85) and split: Authorized for the three functions and ApprovalResult (A-1), Regression LOW for valid_operation_id (this row). C-038 folded into this row.
+- **Default remediation:** task:332 and design :239, or src/superclaude/cli/issue_watch/record.py; tests/issue_watch/test_module_boundaries.py:20-21 - Either amend task :332 and design :239 to name valid_operation_id, or give record.py a local copy as launch.py:36 does; fix the miscounted docstring at test_module_boundaries.py:20-21 (C-038). Verifier: tests/issue_watch/test_module_boundaries.py:57-61
+
+### Deviation R-5: Five test sites use skipif or pytest.skip, which the task forbids;
+
+- **Location:** `tests/issue_watch/test_cli.py:967`, `tests/issue_watch/test_cli.py:1070`, `tests/issue_watch/test_record.py:739`, `tests/issue_watch/test_cycle.py:735`, `tests/issue_watch/test_cycle.py:4694`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** X-006, C-013
+- **Evidence:**
+  - `tests/issue_watch/test_cli.py:967` - skipif when os.geteuid() == 0 (root reads any file)
+  - `tests/issue_watch/test_cli.py:1070` - NOT_ROOT = pytest.mark.skipif when os.geteuid() == 0
+  - `tests/issue_watch/test_record.py:739` - skipif when os.geteuid() == 0
+  - `tests/issue_watch/test_cycle.py:735` - skipif when os.geteuid() == 0
+  - `tests/issue_watch/test_cycle.py:4694` - pytest.skip: /proc/self/mountinfo exists on Linux only
+  - `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:188` - No test may use pytest.skip, skipif or xfail, because gates G-1 and G-3 require zero skipped tests
+  - `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:908` - pytest.skip/skipif still appears in five test sites; nothing was skipped in any recorded run (graded minor)
+- **Classification:** regression (severity MEDIUM, blocking: no)
+- **Classification rationale:** Task :188 "No test may use `pytest.skip`, `skipif` or `xfail`, because gates G-1 and G-3 require zero skipped tests." (graded minor at task :908)
+- **Debate outcome:** X-006 merged (0.80): variant-2 class with the non-blocking ruling of variant-1 and variant-3.
+- **Default remediation:** tests/issue_watch/test_cli.py, tests/issue_watch/test_record.py, tests/issue_watch/test_cycle.py - Replace the root-only skipif marks with checks that hold for root and non-root, and give test_cycle.py:4694 a stubbed mountinfo text instead of reading /proc/self/mountinfo. Verifier: uv run pytest tests/issue_watch -rs reports 0 skipped
+
+### Deviation R-6: The operation-unknown marker is searched only in stderr already cut to 500 bytes, so a marker after byte 500 is misse...
+
+- **Location:** `src/superclaude/cli/issue_watch/runner.py:57-64`, `src/superclaude/cli/issue_watch/runner.py:126`, `src/superclaude/cli/issue_watch/launch.py:322`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** C-026
+- **Evidence:**
+  - `src/superclaude/cli/issue_watch/runner.py:15` - STDERR_CAP_BYTES = 500
+  - `src/superclaude/cli/issue_watch/runner.py:57-64` - _cap_stderr cuts text to STDERR_CAP_BYTES UTF-8 bytes
+  - `src/superclaude/cli/issue_watch/runner.py:126` - stderr=_cap_stderr(proc.stderr) in the returned CommandResult
+  - `src/superclaude/cli/issue_watch/launch.py:322` - OP_UNKNOWN_TEXT checked in result.stdout or result.stderr (the capped text)
+  - `docs/designs/issue-watcher.md:634` - agent_session_operation_unknown anywhere in stdout or stderr maps to unknown
+- **Classification:** regression (severity LOW, blocking: no)
+- **Classification rationale:** Design :634 "`agent_session_operation_unknown` anywhere in stdout or stderr" maps to `unknown`.
+- **Debate outcome:** C-026 won by variant-2 and variant-3 (0.70): Regression.
+- **Default remediation:** src/superclaude/cli/issue_watch/runner.py, src/superclaude/cli/issue_watch/launch.py - Detect the operation-unknown marker on the full stderr before the 500-byte cap is applied (runner.py:15). Verifier: New launch test with the marker after byte 500, expecting unknown
+
+### Deviation R-7: status drops an unknown entry with an operation id from the retry list when its retry argv cannot be built;
+
+- **Location:** `src/superclaude/cli/issue_watch/cycle.py:1271`, `src/superclaude/cli/issue_watch/cycle.py:1279-1280`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** C-036
+- **Evidence:**
+  - `src/superclaude/cli/issue_watch/cycle.py:1271` - retry only when entry.state == unknown and entry.operation_id and entry.launch_cwd
+  - `src/superclaude/cli/issue_watch/cycle.py:1279-1280` - except ValueError: continue (the entry is dropped)
+  - `src/superclaude/cli/issue_watch/record.py:182-184` - operation_id validated with valid_operation_id; launch_cwd must be absolute when present
+  - `src/superclaude/cli/issue_watch/record.py:548` - mark_pending requires an absolute launch_cwd
+  - `docs/designs/issue-watcher.md:739` - retry lists unknown entries with an operation_id
+- **Classification:** regression (severity LOW (effectively unreachable), blocking: no)
+- **Classification rationale:** Design :739 `retry` lists "`unknown` entries with an `operation_id`".
+- **Debate outcome:** C-036 won by variant-2 and variant-3 (0.70): Regression, effectively unreachable.
+- **Default remediation:** src/superclaude/cli/issue_watch/cycle.py - When an unknown entry with an id has no usable retry argv, print it with a warning instead of dropping it. Verifier: New tests/issue_watch/test_cycle.py case
+
+### Deviation D-1: The setup guide and design 10.2 misstate two verb facts: setup :53 leaves reset out of the Linux-only verbs although ...
+
+- **Location:** `docs/designs/issue-watcher-setup.md:53`, `docs/designs/issue-watcher-setup.md:432`, `docs/designs/issue-watcher.md:726`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** C-034
+- **Evidence:**
+  - `docs/designs/issue-watcher-setup.md:53` - Linux-only list names once, check-config and init-state (no reset)
+  - `docs/designs/issue-watcher-setup.md:432` - status exits 0, 1, 6
+  - `docs/designs/issue-watcher.md:726` - status exits 0, 1, 6 (no 2)
+  - `docs/designs/issue-watcher.md:115` - status exits 0, 1, 2, 6
+  - `src/superclaude/cli/issue_watch/cli.py:169` - status calls _load_config(config_path, platform=False); a config error exits 2 through cli.py:84-91 and cli.py:77-81
+  - `src/superclaude/cli/issue_watch/cli.py:314` - reset calls _load_config(config_path), which runs check_platform (cli.py:84-91, platform defaults to true)
+- **Classification:** drift (severity LOW, blocking: no)
+- **Classification rationale:** Rationale: the docs disagree with design :115 (status 0, 1, 2, 6), cli.py:169 (exit 2) and cli.py:314 (reset runs the platform check).
+- **Debate outcome:** C-034 won by all three variants (0.85): Drift.
+- **Default remediation:** docs/designs/issue-watcher-setup.md:53, :432; docs/designs/issue-watcher.md:726 - Add reset at setup :53; add exit 2 at setup :432 and design :726. Verifier: Re-read against cli.py:169 and cli.py:314
+
+### Deviation D-2: cli.py stamps the reset line with cycle.format_utc, a predicates function re-exported through cycle;
+
+- **Location:** `src/superclaude/cli/issue_watch/cli.py:319`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** C-006
+- **Evidence:**
+  - `src/superclaude/cli/issue_watch/cli.py:319` - ts: cycle.format_utc(now)
+  - `docs/designs/issue-watcher.md:242` - cli may import cycle, record, audit, launch, runner
+- **Classification:** drift (severity LOW, blocking: no)
+- **Classification rationale:** Rationale: cycle.format_utc is re-exported from predicates; design :242 does not list predicates for cli.
+- **Debate outcome:** C-006 won by variant-1 and variant-3: Drift.
+- **Default remediation:** docs/designs/issue-watcher.md:242, or src/superclaude/cli/issue_watch/cycle.py - Amend design :242 to note the transitive use, or give cycle a public stamp helper. Verifier: tests/issue_watch/test_module_boundaries.py
+
+### Deviation D-3: cycle.py keeps its own copies of the login pattern and the UTC timestamp format although design :241 lets it import g...
+
+- **Location:** `src/superclaude/cli/issue_watch/cycle.py:468`, `src/superclaude/cli/issue_watch/cycle.py:76`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** C-008, C-009
+- **Evidence:**
+  - `src/superclaude/cli/issue_watch/cycle.py:468` - _LOGIN = re.compile with the pattern [A-Za-z0-9][A-Za-z0-9-]{0,38}
+  - `src/superclaude/cli/issue_watch/github.py:134` - _LOGIN_RE = re.compile with the same pattern
+  - `src/superclaude/cli/issue_watch/cycle.py:76` - _UTC_TS_FORMAT = %Y-%m-%dT%H:%M:%SZ
+  - `docs/designs/issue-watcher.md:241` - cycle may import runner, github, predicates, record, launch, audit
+- **Classification:** drift (severity LOW, blocking: no)
+- **Classification rationale:** Rationale: they copy github.py:134 `_LOGIN_RE` and the predicates format; design :241 allows the imports.
+- **Debate outcome:** C-008 won by variant-1 and variant-3; C-009 won by variant-3: Drift for the cycle copy.
+- **Default remediation:** src/superclaude/cli/issue_watch/cycle.py - Use the github and predicates values. Verifier: The existing login and timestamp tests in tests/issue_watch/test_cycle.py
+
+### Deviation D-4: audit.stderr_fallback reads the wall clock when no ts is passed, against the rule that audit never reads the clock;
+
+- **Location:** `src/superclaude/cli/issue_watch/audit.py:395-397`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** C-012
+- **Evidence:**
+  - `src/superclaude/cli/issue_watch/audit.py:395-397` - if ts is None: now = datetime.datetime.now(datetime.timezone.utc); ts = now.strftime(_UTC_TS_FORMAT)
+  - `src/superclaude/cli/issue_watch/audit.py:390-391` - docstring: ts and host default to the current UTC time and socket.gethostname() (a stamp, not a decision)
+- **Classification:** drift (severity LOW, blocking: no)
+- **Classification rationale:** Rationale: wall clock; the docstring says "a stamp, not a decision".
+- **Debate outcome:** C-012 won by variant-1 and variant-3; split into D-4 (Drift) and A-2 (Authorized).
+- **Default remediation:** src/superclaude/cli/issue_watch/audit.py and its callers - Pass ts where the caller holds the cycle clock. Verifier: The test_audit.py fallback cases
+
+### Deviation N-1: Leaf modules keep local copies of shared constants and helpers (issue bound, operation-id pattern, directory fsync, t...
+
+- **Location:** `src/superclaude/cli/issue_watch/audit.py:203`, `src/superclaude/cli/issue_watch/launch.py:30`, `src/superclaude/cli/issue_watch/launch.py:36`, `src/superclaude/cli/issue_watch/record.py:310-315`, `src/superclaude/cli/issue_watch/audit.py:110-115`, `src/superclaude/cli/issue_watch/audit.py:200`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** X-004, C-007, C-010, C-011, C-009
+- **Evidence:**
+  - `src/superclaude/cli/issue_watch/audit.py:203` - _MAX_ISSUE = 999_999_999, the same bound as predicates.MAX_ISSUE_NUMBER
+  - `src/superclaude/cli/issue_watch/launch.py:30` - MAX_ISSUE_NUMBER = 999_999_999
+  - `src/superclaude/cli/issue_watch/launch.py:36` - OPERATION_ID_PATTERN = re.compile(^[A-Za-z0-9._:-]{1,128}$)
+  - `src/superclaude/cli/issue_watch/record.py:310-315` - _fsync_dir: os.open O_RDONLY | O_DIRECTORY, os.fsync, os.close in finally
+  - `src/superclaude/cli/issue_watch/audit.py:110-115` - _fsync_dir: the same four-line helper (CORRECTED from plan audit.py:204-206)
+  - `src/superclaude/cli/issue_watch/audit.py:200` - _UTC_TS_FORMAT = %Y-%m-%dT%H:%M:%SZ (the C-009 audit copy)
+  - `docs/designs/issue-watcher.md:237` - audit imports nothing from the package
+  - `docs/designs/issue-watcher.md:240` - launch imports runner and _ORCA_CLIS only
+- **Classification:** necessary (severity LOW, blocking: no)
+- **Classification rationale:** Design :237 and :240 force the copies.
+- **Debate outcome:** X-004 won by all three variants (0.90): Necessary. C-010 from variant-1, C-011 and C-009 from variant-3.
+- **Default remediation:** none (document only).
+
+### Deviation N-2: The day-cap test bounds the second day at 6 launches, following the module constant.
+
+- **Location:** `tests/issue_watch/test_cycle.py:4150-4154`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** C-030
+- **Evidence:**
+  - `tests/issue_watch/test_cycle.py:4150-4154` - comment on the 6-per-24h cap and second_day = min(count - capped, 6)
+  - `src/superclaude/cli/issue_watch/cycle.py:36` - DAY_CAP = 6
+- **Classification:** necessary (severity LOW, blocking: no)
+- **Classification rationale:** Rationale: cycle.py:36 DAY_CAP = 6.
+- **Debate outcome:** C-030 won by variant-2: Necessary.
+- **Default remediation:** none (document only).
+
+### Deviation N-3: status picks the retry Orca name by reading launch._ORCA_CLIS instead of importing install_user_setup directly.
+
+- **Location:** `src/superclaude/cli/issue_watch/cycle.py:1225-1230`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** C-033
+- **Evidence:**
+  - `src/superclaude/cli/issue_watch/cycle.py:1225-1230` - _retry_orca returns the first launch._ORCA_CLIS name which resolves, else the first name
+  - `src/superclaude/cli/issue_watch/launch.py:22` - from superclaude.cli.install_user_setup import _ORCA_CLIS
+  - `docs/designs/issue-watcher.md:240` - launch imports runner and _ORCA_CLIS only
+- **Classification:** necessary (severity LOW, blocking: no)
+- **Classification rationale:** Rationale: reads launch._ORCA_CLIS (design :240).
+- **Debate outcome:** C-033 won by variant-3: Necessary.
+- **Default remediation:** none (document only).
+
+### Deviation A-1: record.py imports parse_utc, format_utc, valid_issue_number and the type ApprovalResult from predicates.
+
+- **Location:** `src/superclaude/cli/issue_watch/record.py:23-29`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** X-003, C-005
+- **Evidence:**
+  - `src/superclaude/cli/issue_watch/record.py:23-29` - imports ApprovalResult, format_utc, parse_utc, valid_issue_number (and valid_operation_id, see R-4)
+  - `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:332` - allowed imports from predicates: parse_utc, format_utc, valid_issue_number
+  - `docs/designs/issue-watcher.md:239` - record may import predicates (types only)
+- **Classification:** authorized (severity n/a, blocking: no)
+- **Classification rationale:** Task :332; design :239.
+- **Debate outcome:** X-003 merged (0.85) and split; this is the Authorized part.
+- **Default remediation:** none (document only).
+
+### Deviation A-2: runner.py reads time.monotonic() to measure duration_s around the child.
+
+- **Location:** `src/superclaude/cli/issue_watch/runner.py:89`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** X-005, C-012
+- **Evidence:**
+  - `src/superclaude/cli/issue_watch/runner.py:89` - start = time.monotonic()
+  - `src/superclaude/cli/issue_watch/runner.py:35` - duration_s: float
+  - `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:193` - measures duration_s with time.monotonic() around the child only; it is never used for a decision
+- **Classification:** authorized (severity n/a, blocking: no)
+- **Classification rationale:** Task :193.
+- **Debate outcome:** X-005 won by all three variants (0.85): Authorized.
+- **Default remediation:** none (document only).
+
+### Deviation A-3: The reason table carries the five proposed reasons the task names (marker_unreadable, edits_unreadable, operator_rese...
+
+- **Location:** ~~dropped~~ (C-0113)
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** C-004
+- **Evidence:**
+  - `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:199` - plus the two proposals marker_unreadable and edits_unreadable; dry_run_shadow_reset (DF-22); reset_refused (DF-57); operator_reset (DF-03)
+  - `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md:175` - DF-41 names the same five proposals
+- **Classification:** authorized (severity n/a, blocking: no)
+- **Classification rationale:** Task :199 five proposed reasons.
+- **Debate outcome:** C-004 won by variant-1: Authorized.
+- **Default remediation:** none (document only).
+
+### Deviation A-4: The full suite depends on gh and runs in CI only.
+
+- **Location:** `gh dependency`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** C-031
+- **Evidence:**
+  - `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md:28` - DF-05: CI-only full suite
+- **Classification:** authorized (severity n/a, blocking: no)
+- **Classification rationale:** DF-05 (DF register :28).
+- **Debate outcome:** C-031 won by variant-2: Authorized.
+- **Default remediation:** none (document only).
+
+### Deviation A-5: The issue-watch group is registered on the main CLI after line 561.
+
+- **Location:** `src/superclaude/cli/main.py:563-565`
+- **Mapped tasklist item:** see Per-Task Verdicts
+- **Source ids:** C-032
+- **Evidence:**
+  - `src/superclaude/cli/main.py:563` - from superclaude.cli.issue_watch.cli import issue_watch_group
+  - `src/superclaude/cli/main.py:565` - main.add_command(issue_watch_group, name=issue-watch)
+  - `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md:156` - DF-29 row: main.py registration after line 561 (CORRECTED from plan DF register :208; :208 is the P7 phase row that references DF-29)
+- **Classification:** authorized (severity n/a, blocking: no)
+- **Classification rationale:** DF-29 (DF register :156; the plan cites :208, the P7 phase row that references DF-29).
+- **Debate outcome:** C-032 won by variant-3: Authorized. Variant-3 path src/superclaude/main.py corrected to src/superclaude/cli/main.py.
+- **Default remediation:** none (document only).
+
+### Citation postscript
+
+- Citation C-0113 (location of Deviation A-3, `audit.py:55-57 region`) was dropped by the evidence-validator: that range holds only the `cycle_crashed` entry. The orchestrator re-read `src/superclaude/cli/issue_watch/audit.py:78-102` and records the corrected anchors `src/superclaude/cli/issue_watch/audit.py:81-82` (`marker_unreadable`, `edits_unreadable`), `src/superclaude/cli/issue_watch/audit.py:98-99` (`dry_run_shadow_reset`, `reset_refused`) and `src/superclaude/cli/issue_watch/audit.py:101` (`operator_reset`). Their text matches Deviation A-3. The orchestrator also re-read five references that sit inside evidence text or remediation fields and were not separate validator entries: `src/superclaude/cli/issue_watch/cli.py:77-81` and `src/superclaude/cli/issue_watch/cli.py:84-91` (config exit and platform check), `tests/issue_watch/test_cli.py:630` (the crash-exit test), `pyproject.toml:71` (console script) and `.dev/brainstorms/20261107-064825-github-issue-watcher/spec-final.md:456` (residual R16); all five match what the report says. These eight are counted as orchestrator-validated citations.
+
+## Grounding Gaps
+
+Sixteen rows, mirrored one to one in `grounding-gaps.yaml`. Each is a missing-evidence item, not a deviation. Because the file is non-empty the run carries `needs_human_decision: true` and `status: partial` in the return contract.
+
+### Gap G-01 (C-020)
+
+- **Hunk ref:** tracked in merged-verdict.yaml (C-020)
+- **Evidence missing:** The dead-code list (MAX_LAUNCHES_PER_CYCLE, record.disabled_present, the status_report audit argument, CommandResult.duration_s) was not re-read by the judge.
+- **Why not classifiable:** judge could not re-read the evidence this run: dead code
+- **Next evidence needed:** A reference search for each of the four names across src/ and tests/ to show whether any reader exists.
+
+### Gap G-02 (C-021)
+
+- **Hunk ref:** tracked in merged-verdict.yaml (C-021)
+- **Evidence missing:** The mark_pending state-versus-launches check was not re-read line by line by the judge.
+- **Why not classifiable:** judge could not re-read the evidence this run: mark_pending state check
+- **Next evidence needed:** A trace showing whether any reachable document can hold state None or failed with launches 1, which would make the missing launches == 0 check matter.
+
+### Gap G-03 (C-027)
+
+- **Hunk ref:** tracked in merged-verdict.yaml (C-027)
+- **Evidence missing:** Variant-1 did not confirm the approvers-file fstat gap; the judge did not either.
+- **Why not classifiable:** judge could not re-read the evidence this run: approvers-file fstat
+- **Next evidence needed:** A spec or design line that requires an fstat after the open or a parent directory mode check; without one this is advisory at most.
+
+### Gap G-04 (C-028)
+
+- **Hunk ref:** tracked in merged-verdict.yaml (C-028)
+- **Evidence missing:** The re-approved branch at cycle.py:641 was located but its reachability was not traced.
+- **Why not classifiable:** judge could not re-read the evidence this run: re-approved branch near cycle.py:641
+- **Next evidence needed:** A trace of the callers of this decision path showing whether an entry with a different approval_event_id can reach it.
+
+### Gap G-05 (C-029)
+
+- **Hunk ref:** tracked in merged-verdict.yaml (C-029)
+- **Evidence missing:** The seven DF anchors (dry-run skips, Retry-After on the user call, full retry argv, halt on any launch outcome, cwd=worktree) were not all re-read.
+- **Why not classifiable:** judge could not re-read the evidence this run: seven anchored departures
+- **Next evidence needed:** A re-read of each of the seven DF rows in the DF register against the code site it names.
+
+### Gap G-06 (C-039)
+
+- **Hunk ref:** tracked in merged-verdict.yaml (C-039)
+- **Evidence missing:** The wiring and subprocess-coverage claim (only init-state and once have real-subprocess tests) was not verified by the judge.
+- **Why not classifiable:** judge could not re-read the evidence this run: wiring and subprocess coverage
+- **Next evidence needed:** A search of tests/issue_watch for subprocess invocations of each verb.
+
+### Gap G-07 (RS-issue_watch_group)
+
+- **Hunk ref:** src/superclaude/cli/issue_watch/cli.py:94
+- **Evidence missing:** static reachability of Click symbol issue_watch_group cannot be decided: the degrade oracle matches (a) command decorator, and for the group also (b) [project.scripts] and (c) main.add_command registry
+- **Why not classifiable:** runtime-surface DEGRADE (refs/runtime-surface.md section 3): never UNREACHED, never Regression
+- **Next evidence needed:** real-process run of the verb (tests/issue_watch/test_cli_e2e.py runs only once and init-state through python -m); the registration facts are src/superclaude/cli/main.py:565 and pyproject.toml:71
+
+### Gap G-08 (RS-once_command)
+
+- **Hunk ref:** src/superclaude/cli/issue_watch/cli.py:111
+- **Evidence missing:** static reachability of Click symbol once_command cannot be decided: the degrade oracle matches (a) command decorator, and for the group also (b) [project.scripts] and (c) main.add_command registry
+- **Why not classifiable:** runtime-surface DEGRADE (refs/runtime-surface.md section 3): never UNREACHED, never Regression
+- **Next evidence needed:** real-process run of the verb (tests/issue_watch/test_cli_e2e.py runs only once and init-state through python -m); the registration facts are src/superclaude/cli/main.py:565 and pyproject.toml:71
+
+### Gap G-09 (RS-status_command)
+
+- **Hunk ref:** src/superclaude/cli/issue_watch/cli.py:164
+- **Evidence missing:** static reachability of Click symbol status_command cannot be decided: the degrade oracle matches (a) command decorator, and for the group also (b) [project.scripts] and (c) main.add_command registry
+- **Why not classifiable:** runtime-surface DEGRADE (refs/runtime-surface.md section 3): never UNREACHED, never Regression
+- **Next evidence needed:** real-process run of the verb (tests/issue_watch/test_cli_e2e.py runs only once and init-state through python -m); the registration facts are src/superclaude/cli/main.py:565 and pyproject.toml:71
+
+### Gap G-10 (RS-check_config_command)
+
+- **Hunk ref:** src/superclaude/cli/issue_watch/cli.py:185
+- **Evidence missing:** static reachability of Click symbol check_config_command cannot be decided: the degrade oracle matches (a) command decorator, and for the group also (b) [project.scripts] and (c) main.add_command registry
+- **Why not classifiable:** runtime-surface DEGRADE (refs/runtime-surface.md section 3): never UNREACHED, never Regression
+- **Next evidence needed:** real-process run of the verb (tests/issue_watch/test_cli_e2e.py runs only once and init-state through python -m); the registration facts are src/superclaude/cli/main.py:565 and pyproject.toml:71
+
+### Gap G-11 (RS-init_state_command)
+
+- **Hunk ref:** src/superclaude/cli/issue_watch/cli.py:201
+- **Evidence missing:** static reachability of Click symbol init_state_command cannot be decided: the degrade oracle matches (a) command decorator, and for the group also (b) [project.scripts] and (c) main.add_command registry
+- **Why not classifiable:** runtime-surface DEGRADE (refs/runtime-surface.md section 3): never UNREACHED, never Regression
+- **Next evidence needed:** real-process run of the verb (tests/issue_watch/test_cli_e2e.py runs only once and init-state through python -m); the registration facts are src/superclaude/cli/main.py:565 and pyproject.toml:71
+
+### Gap G-12 (RS-reset_command)
+
+- **Hunk ref:** src/superclaude/cli/issue_watch/cli.py:282
+- **Evidence missing:** static reachability of Click symbol reset_command cannot be decided: the degrade oracle matches (a) command decorator, and for the group also (b) [project.scripts] and (c) main.add_command registry
+- **Why not classifiable:** runtime-surface DEGRADE (refs/runtime-surface.md section 3): never UNREACHED, never Regression
+- **Next evidence needed:** real-process run of the verb (tests/issue_watch/test_cli_e2e.py runs only once and init-state through python -m); the registration facts are src/superclaude/cli/main.py:565 and pyproject.toml:71
+
+### Gap G-13 (RU-record.py:370)
+
+- **Hunk ref:** record.py:370
+- **Evidence missing:** reuse neighbour search ran without auggie (degraded, capped at maybe-related); verdict reuse-by-import, S_reuse 0.66
+- **Why not classifiable:** maybe-related reuse finding is advisory (section 10.8); the design deliberately mirrors this across a banned import edge with a parity test where marked
+- **Next evidence needed:** semantic neighbour search with auggie available; nearest neighbour src/superclaude/cli/swarm/atomic.py:14
+
+### Gap G-14 (RU-launch.py:163)
+
+- **Hunk ref:** launch.py:163
+- **Evidence missing:** reuse neighbour search ran without auggie (degraded, capped at maybe-related); verdict mirror-shape, S_reuse 0.88
+- **Why not classifiable:** maybe-related reuse finding is advisory (section 10.8); the design deliberately mirrors this across a banned import edge with a parity test where marked
+- **Next evidence needed:** semantic neighbour search with auggie available; nearest neighbour src/superclaude/cli/install_user_setup.py:198
+
+### Gap G-15 (RU-launch.py:200)
+
+- **Hunk ref:** launch.py:200
+- **Evidence missing:** reuse neighbour search ran without auggie (degraded, capped at maybe-related); verdict mirror-shape, S_reuse 0.98
+- **Why not classifiable:** maybe-related reuse finding is advisory (section 10.8); the design deliberately mirrors this across a banned import edge with a parity test where marked
+- **Next evidence needed:** semantic neighbour search with auggie available; nearest neighbour src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py:86
+
+### Gap G-16 (RU-predicates.py:27)
+
+- **Hunk ref:** predicates.py:27
+- **Evidence missing:** reuse neighbour search ran without auggie (degraded, capped at maybe-related); verdict mirror-shape, S_reuse 0.74
+- **Why not classifiable:** maybe-related reuse finding is advisory (section 10.8); the design deliberately mirrors this across a banned import edge with a parity test where marked
+- **Next evidence needed:** semantic neighbour search with auggie available; nearest neighbour src/superclaude/cli/swarm/recipes/_primitives.py:15
+
+## Reachability & Oracle Admissibility
+
+- **Gate:** ran as the annotation-free required-capability pass (step 5.6a): scanned 5, real boot: false (`artifacts/reachability-ledger.yaml`).
+- **Unreachable (real-boot-proven Regression):** 0
+- **Unproven (annotated-sink Grounding Gap):** 0
+- The durable-sink gate (step 5.6) is advisory only: neither the design nor the spec carries a `durable_sink:` or `@sink` annotation. The five required capabilities (cycle runs end to end, pending record before the spawn, launch through `OrcaLauncher` with the integer-only prompt and the outcome consumed, audit append, `status` reads the store) were traced hop by hop with the result consumed at each hop; no dead error-guard and no sentinel-only callee was found.
+
+## Runtime surface
+
+- `runtime_surface_sweep_ran: true`; six Click symbols (the group and five verbs) tagged; `runtime_surface_unreached: 0`; `runtime_surface_degraded: true` (the degrade oracle matches decorator commands, the `[project.scripts]` entrypoint and the `main.add_command` registry for all six, so each is a Grounding Gap, never a Regression). Ledger: `artifacts/runtime-surface-ledger.yaml`.
+
+## Per-Task Verdicts
+
+Tasks are the ten phases of the executed task file. Strength values are [INFERRED] from the coverage matrix (share of rows whose test would fail if the behaviour were removed) and the severity of the register rows mapped to the phase; they are not measured.
+
+### Task P1 Preflight and Setup
+
+- **Status:** success
+- **Deviation class:** none
+- **Citations dropped:** 0
+- **Per-task validation strength:** strong (0.90) [INFERRED]
+- **Evidence anchor:** `artifacts/coverage-matrix.yaml` (task items 1.1-1.8 done)
+
+### Task P2 Leaf modules (runner, predicates, audit)
+
+- **Status:** partial
+- **Deviation class:** regression (R-3 LOW non-blocking; D-4, N-1, A-2, A-3 also map here)
+- **Citations dropped:** 0
+- **Per-task validation strength:** strong (0.80) [INFERRED]
+- **Evidence anchor:** `src/superclaude/cli/issue_watch/audit.py:62-64`
+
+### Task P3 GitHub access
+
+- **Status:** success
+- **Deviation class:** none (advisory gaps C-019, INV-007 only)
+- **Citations dropped:** 0
+- **Per-task validation strength:** strong (0.85) [INFERRED]
+- **Evidence anchor:** `artifacts/coverage-matrix.yaml` (FR-003, FR-004, FR-028, NFR-002, NFR-009 covered)
+
+### Task P4 Store (record)
+
+- **Status:** partial
+- **Deviation class:** regression (R-4 LOW non-blocking; A-1 authorized)
+- **Citations dropped:** 0
+- **Per-task validation strength:** strong (0.80) [INFERRED]
+- **Evidence anchor:** `src/superclaude/cli/issue_watch/record.py:23-29`
+
+### Task P5 Launcher
+
+- **Status:** partial
+- **Deviation class:** regression (R-6 LOW non-blocking)
+- **Citations dropped:** 0
+- **Per-task validation strength:** strong (0.80) [INFERRED]
+- **Evidence anchor:** `src/superclaude/cli/issue_watch/launch.py:322`
+
+### Task P6 Cycle
+
+- **Status:** partial
+- **Deviation class:** regression (R-1 LOW BLOCKING; R-7 LOW effectively unreachable; D-3, N-3)
+- **Citations dropped:** 0
+- **Per-task validation strength:** weak (0.60) [INFERRED]
+- **Evidence anchor:** `src/superclaude/cli/issue_watch/cycle.py:1060-1062`
+
+### Task P7 CLI and registration
+
+- **Status:** partial
+- **Deviation class:** regression (R-2 LOW non-blocking; D-2; A-5)
+- **Citations dropped:** 0
+- **Per-task validation strength:** strong (0.78) [INFERRED]
+- **Evidence anchor:** `src/superclaude/cli/issue_watch/cli.py:123-129`
+
+### Task P8 Cross-cutting tests
+
+- **Status:** partial
+- **Deviation class:** regression (R-5 MEDIUM non-blocking, skip sites; N-2)
+- **Citations dropped:** 0
+- **Per-task validation strength:** strong (0.75) [INFERRED]
+- **Evidence anchor:** `tests/issue_watch/test_cli.py:1070`
+
+### Task P9 Runbook and final verification
+
+- **Status:** success
+- **Deviation class:** drift (D-1 LOW documentation)
+- **Citations dropped:** 0
+- **Per-task validation strength:** strong (0.82) [INFERRED]
+- **Evidence anchor:** `docs/designs/issue-watcher-setup.md:53`
+
+### Task P10 Checkpoint commit, POST reflect and completion
+
+- **Status:** success (commit and gates); this reflect run is the POST item itself
+- **Deviation class:** none
+- **Citations dropped:** 0
+- **Per-task validation strength:** strong (0.85) [INFERRED]
+- **Evidence anchor:** `artifacts/coverage-matrix.yaml` (steps 10.1-10.5 done; 10.6 this run; 10.7 open)
+
+## Advisory correctness gaps (non-gating)
+
+Code or doc behaviour with no spec anchor, or accepted residual risks. They never set `regression_present` and never gate. Rows marked "no (inferred)" were not re-read by the judge.
+
+| id | location | severity | verified by judge |
+|---|---|---|---|
+| C-016 | `src/superclaude/cli/issue_watch/record.py:689-703` | LOW (accepted residual R16, spec-final.md:456) | yes |
+| C-017 | `src/superclaude/cli/issue_watch/record.py:421-431` | LOW | yes |
+| C-018 | `src/superclaude/cli/issue_watch/cycle.py:685-690` | LOW | yes |
+| C-019 | `src/superclaude/cli/issue_watch/runner.py:91-101` | MEDIUM | no (inferred) |
+| C-022 | `src/superclaude/cli/issue_watch/predicates.py:205-209` | LOW | yes |
+| C-023 | `src/superclaude/cli/issue_watch/launch.py:318-319` | LOW | yes |
+| C-024 | `src/superclaude/cli/issue_watch/launch.py:326-334`, `src/superclaude/cli/issue_watch/launch.py:39-45`, `docs/designs/issue-watcher.md:636` | MEDIUM | no (inferred) |
+| X-008/C-025 | `src/superclaude/cli/issue_watch/predicates.py:57`, `src/superclaude/cli/issue_watch/launch.py:127-130` | LOW | yes |
+| C-035 | `src/superclaude/cli/issue_watch/cli.py:309-311` | LOW | yes |
+| C-037 | `src/superclaude/cli/issue_watch/audit.py:393-402` | LOW | yes |
+| parity-tests | `src/superclaude/cli/issue_watch/audit.py:203`, `src/superclaude/cli/issue_watch/launch.py:30`, `src/superclaude/cli/issue_watch/launch.py:36` | LOW | yes |
+| INV-001 | `docs/designs/issue-watcher.md:17` | MEDIUM (scope) | yes |
+| INV-005 | `src/superclaude/cli/issue_watch/cycle.py:1062` | LOW | yes |
+| INV-006 | `src/superclaude/cli/issue_watch/cycle.py:1033`, `src/superclaude/cli/issue_watch/cycle.py:1041-1045`, `src/superclaude/cli/issue_watch/cycle.py:1061` | LOW | yes |
+| INV-007 | `src/superclaude/cli/issue_watch/github.py:448-454` | LOW | no (inferred) |
+| INV-008 | `src/superclaude/cli/issue_watch/record.py:689-690`, `src/superclaude/cli/issue_watch/record.py:696` | LOW | yes |
+| INV-009 | `src/superclaude/cli/issue_watch/cycle.py:1060` | LOW | no (inferred) |
+
+## Changes considered and not made
+
+| proposed by | change not made |
+|---|---|
+| variant-2 | HIGH (and calibrator MEDIUM) severity for the late launch |
+| variant-2 | "Blocking" label on its Drift row 2 |
+| calibrator | Reading the fix as "skip after the save and leave the entry pending" |
+| variant-1 | "Regression 0" |
+| variant-1 | Line ranges cycle.py:335-337 and cycle.py:308 |
+| variant-1 | MEDIUM for X-002 |
+| variant-3 | Path src/superclaude/main.py:563-565 |
+| any | Consolidating _fsync_dir (record.py:310-315, audit.py:110-115) |
+| invariant-probe | Treating INV-005 as a defect |
+
+## Inferred-claim audit
+

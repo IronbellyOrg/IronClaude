@@ -1,0 +1,21 @@
+selected_tier: 2
+fired_rule_number: 4            # natural first-match of the section 5.3 table (rules 1-3a do not fire: C 0.83 < 0.90 and S_scope > 5; no Regression candidate in Wave 1); rule 4 S_domains >= 3
+hard_override: "--depth deep (section 5.1: ALWAYS escalate to T2)"
+coverage_degraded: null         # UC-1 only
+surface_unreached: null         # runtime_surface_unreached == 0 (all six Click symbols DEGRADE, none UNREACHED)
+reachability_unreachable: 0
+composite_score: 8              # recording, not deciding
+per_signal_breakdown:
+  scope_size: 2                 # S_scope = 379 changed paths (52 outside .dev/)
+  task_count: 2                 # 209 checklist items, 10 phases, 6 QA gates
+  blast_radius: 1               # new package behind a new CLI group; launches agent sessions but disabled by default and never run live
+  spec_density: 2               # 43 FR/NFR ids, 25 AC, 60 decisions
+  ambiguity_signals: 1          # six DEGRADE gaps, 29 authorized departures, unverified gh/Orca shapes
+inputs:
+  C: 0.83                       # calibrated confidence of the Tier-1 card (blind calibrator, 5-dimension mean)
+  S_scope: 379
+  S_domains: 3                  # code, tests, docs (.dev process artifacts counted as docs)
+  S_dev_density: 0.314          # 119 unmapped of 379 whole-file hunks (all unmapped files are process/research artifacts; 0 of 51 source+test+runbook files unmapped)
+  coverage_pct: null            # UC-1 only
+  regression_candidate_count: 0
+escalation_reason: "--depth deep forces Tier 2; independently rule 4 (S_domains = 3), rule 5 (S_dev_density 0.314 > 0.20) and rule 6 (C 0.83 < 0.85) would escalate"

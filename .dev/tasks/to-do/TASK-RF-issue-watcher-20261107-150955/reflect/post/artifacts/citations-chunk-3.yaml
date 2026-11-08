@@ -1,0 +1,330 @@
+- cid: C-0115
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md
+  start: 175
+  end: 175
+  claim: DF-41 names the same five proposals
+  owner: A-3
+- cid: C-0116
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md
+  start: 28
+  end: 28
+  claim: 'DF-05: CI-only full suite'
+  owner: A-4
+- cid: C-0117
+  path: src/superclaude/cli/main.py
+  start: 563
+  end: 565
+  claim: The issue-watch group is registered on the main CLI after line 561.
+  owner: A-5
+- cid: C-0118
+  path: src/superclaude/cli/main.py
+  start: 563
+  end: 563
+  claim: from superclaude.cli.issue_watch.cli import issue_watch_group
+  owner: A-5
+- cid: C-0119
+  path: src/superclaude/cli/main.py
+  start: 565
+  end: 565
+  claim: main.add_command(issue_watch_group, name=issue-watch)
+  owner: A-5
+- cid: C-0120
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md
+  start: 156
+  end: 156
+  claim: 'DF-29 row: main.py registration after line 561 (CORRECTED from plan DF register :208; :208 is the P7 phase row that references DF-29)'
+  owner: A-5
+- cid: C-0121
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 689
+  end: 703
+  claim: advisory gap C-016
+  owner: C-016
+- cid: C-0122
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 421
+  end: 431
+  claim: advisory gap C-017
+  owner: C-017
+- cid: C-0123
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 685
+  end: 690
+  claim: advisory gap C-018
+  owner: C-018
+- cid: C-0124
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 91
+  end: 101
+  claim: advisory gap C-019
+  owner: C-019
+- cid: C-0125
+  path: src/superclaude/cli/issue_watch/predicates.py
+  start: 205
+  end: 209
+  claim: advisory gap C-022
+  owner: C-022
+- cid: C-0126
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 318
+  end: 319
+  claim: advisory gap C-023
+  owner: C-023
+- cid: C-0127
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 326
+  end: 334
+  claim: advisory gap C-024
+  owner: C-024
+- cid: C-0128
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 39
+  end: 45
+  claim: advisory gap C-024
+  owner: C-024
+- cid: C-0129
+  path: docs/designs/issue-watcher.md
+  start: 636
+  end: 636
+  claim: advisory gap C-024
+  owner: C-024
+- cid: C-0130
+  path: src/superclaude/cli/issue_watch/predicates.py
+  start: 57
+  end: 57
+  claim: advisory gap X-008/C-025
+  owner: X-008/C-025
+- cid: C-0131
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 127
+  end: 130
+  claim: advisory gap X-008/C-025
+  owner: X-008/C-025
+- cid: C-0132
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 309
+  end: 311
+  claim: advisory gap C-035
+  owner: C-035
+- cid: C-0133
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 393
+  end: 402
+  claim: advisory gap C-037
+  owner: C-037
+- cid: C-0134
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 203
+  end: 203
+  claim: advisory gap parity-tests
+  owner: parity-tests
+- cid: C-0135
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 30
+  end: 30
+  claim: advisory gap parity-tests
+  owner: parity-tests
+- cid: C-0136
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 36
+  end: 36
+  claim: advisory gap parity-tests
+  owner: parity-tests
+- cid: C-0137
+  path: docs/designs/issue-watcher.md
+  start: 17
+  end: 17
+  claim: advisory gap INV-001
+  owner: INV-001
+- cid: C-0138
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1062
+  end: 1062
+  claim: advisory gap INV-005
+  owner: INV-005
+- cid: C-0139
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1033
+  end: 1033
+  claim: advisory gap INV-006
+  owner: INV-006
+- cid: C-0140
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1041
+  end: 1045
+  claim: advisory gap INV-006
+  owner: INV-006
+- cid: C-0141
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1061
+  end: 1061
+  claim: advisory gap INV-006
+  owner: INV-006
+- cid: C-0142
+  path: src/superclaude/cli/issue_watch/github.py
+  start: 448
+  end: 454
+  claim: advisory gap INV-007
+  owner: INV-007
+- cid: C-0143
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 689
+  end: 690
+  claim: advisory gap INV-008
+  owner: INV-008
+- cid: C-0144
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 696
+  end: 696
+  claim: advisory gap INV-008
+  owner: INV-008
+- cid: C-0145
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1060
+  end: 1060
+  claim: advisory gap INV-009
+  owner: INV-009
+- cid: C-0146
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 35
+  end: 35
+  claim: MAX_LAUNCHES_PER_CYCLE = 1
+  owner: C-020
+- cid: C-0147
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 748
+  end: 750
+  claim: disabled_present uses os.path.lexists
+  owner: C-020
+- cid: C-0148
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1235
+  end: 1235
+  claim: audit parameter; cycle.py:1243-1244 docstring says audit is accepted for the fixed signature and not read
+  owner: C-020
+- cid: C-0149
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 35
+  end: 35
+  claim: 'duration_s: float'
+  owner: C-020
+- cid: C-0150
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 544
+  end: 546
+  claim: mark_pending accepts only state None or failed
+  owner: C-021
+- cid: C-0151
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 208
+  end: 209
+  claim: validate rejects failed with launches other than 0
+  owner: C-021
+- cid: C-0152
+  path: .dev/brainstorms/20261107-064825-github-issue-watcher/spec-final.md
+  start: 272
+  end: 272
+  claim: a fresh launch requires launches == 0
+  owner: C-021
+- cid: C-0153
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 305
+  end: 325
+  claim: os.lstat with S_ISREG, uid and mode checks, then os.open with O_RDONLY | O_NOFOLLOW | O_CLOEXEC and no fstat after the open
+  owner: C-027
+- cid: C-0154
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 635
+  end: 641
+  claim: reapproved is true when an entry approval_event_id is set and differs from the new approval; note = re-approved
+  owner: C-028
+- cid: C-0155
+  path: src/superclaude/cli/main.py
+  start: 563
+  end: 565
+  claim: issue_watch_group imported and registered as issue-watch
+  owner: C-039
+- cid: C-0156
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 94
+  end: 94
+  claim: runtime-surface symbol issue_watch_group
+  owner: RS-issue_watch_group
+- cid: C-0157
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 111
+  end: 111
+  claim: runtime-surface symbol once_command
+  owner: RS-once_command
+- cid: C-0158
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 164
+  end: 164
+  claim: runtime-surface symbol status_command
+  owner: RS-status_command
+- cid: C-0159
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 185
+  end: 185
+  claim: runtime-surface symbol check_config_command
+  owner: RS-check_config_command
+- cid: C-0160
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 201
+  end: 201
+  claim: runtime-surface symbol init_state_command
+  owner: RS-init_state_command
+- cid: C-0161
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 282
+  end: 282
+  claim: runtime-surface symbol reset_command
+  owner: RS-reset_command
+- cid: C-0162
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 370
+  end: 370
+  claim: record.py FileStore.save (record.py:370)
+  owner: RU-record.py:370
+- cid: C-0163
+  path: src/superclaude/cli/swarm/atomic.py
+  start: 14
+  end: 14
+  claim: neighbour of record.py FileStore.save (record.py:370)
+  owner: RU-record.py:370
+- cid: C-0164
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 163
+  end: 163
+  claim: launch.py find_orca (launch.py:163) with _lists_orca_cli (launch.py:144)
+  owner: RU-launch.py:163
+- cid: C-0165
+  path: src/superclaude/cli/install_user_setup.py
+  start: 198
+  end: 198
+  claim: neighbour of launch.py find_orca (launch.py:163) with _lists_orca_cli (launch.py:144)
+  owner: RU-launch.py:163
+- cid: C-0166
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 200
+  end: 200
+  claim: launch.py parse_origin (launch.py:200) and check_origin (launch.py:218)
+  owner: RU-launch.py:200
+- cid: C-0167
+  path: src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py
+  start: 86
+  end: 86
+  claim: neighbour of launch.py parse_origin (launch.py:200) and check_origin (launch.py:218)
+  owner: RU-launch.py:200
+- cid: C-0168
+  path: src/superclaude/cli/issue_watch/predicates.py
+  start: 27
+  end: 27
+  claim: predicates.py parse_utc / format_utc (predicates.py:27, 42)
+  owner: RU-predicates.py:27
+- cid: C-0169
+  path: src/superclaude/cli/swarm/recipes/_primitives.py
+  start: 15
+  end: 15
+  claim: neighbour of predicates.py parse_utc / format_utc (predicates.py:27, 42)
+  owner: RU-predicates.py:27

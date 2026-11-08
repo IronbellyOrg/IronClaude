@@ -1,0 +1,1031 @@
+- cid: C-0001
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1060
+  end: 1062
+  claim: A launch can start after the 120 s cutoff. cycle.py:1048 is the last cutoff check; the entry is then marked pending (1060) and saved durably (1061), and the launch (1062) runs with no further check,
+    so a save that crosses 120 s lets a launch start after the cutoff.
+  owner: R-1
+- cid: C-0002
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1048
+  end: 1048
+  claim: A launch can start after the 120 s cutoff. cycle.py:1048 is the last cutoff check; the entry is then marked pending (1060) and saved durably (1061), and the launch (1062) runs with no further check,
+    so a save that crosses 120 s lets a launch start after the cutoff.
+  owner: R-1
+- cid: C-0003
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1048
+  end: 1049
+  claim: 'last check: if not self.deadline.launch_allowed(), raise _Skip budget_exhausted'
+  owner: R-1
+- cid: C-0004
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1060
+  end: 1060
+  claim: self._set(record.mark_pending(self.doc, c.n, ctx, self.now()))
+  owner: R-1
+- cid: C-0005
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1061
+  end: 1061
+  claim: 'self._save() with the comment FR-010: durable before the launch call'
+  owner: R-1
+- cid: C-0006
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1062
+  end: 1062
+  claim: outcome = d.launcher.launch(orca, cfg.worktree, prompt, LAUNCH_TIMEOUT_S), no cutoff check between 1061 and 1062
+  owner: R-1
+- cid: C-0007
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 410
+  end: 412
+  claim: launch_allowed returns self.elapsed() <= LAUNCH_CUTOFF_S
+  owner: R-1
+- cid: C-0008
+  path: docs/designs/issue-watcher.md
+  start: 647
+  end: 647
+  claim: Orca launch not started when elapsed() > 120; the step ends with no entry and no reason other than a budget_exhausted decision line
+  owner: R-1
+- cid: C-0009
+  path: docs/designs/issue-watcher.md
+  start: 892
+  end: 892
+  claim: 'AC-19: no launch starts after 120 s'
+  owner: R-1
+- cid: C-0010
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 901
+  end: 901
+  claim: 'Gate C: the fix of the deadline exit code let a launch start after the 120 s cut-off; fixed in cycle 2 (the git-call window only)'
+  owner: R-1
+- cid: C-0011
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 35
+  end: 35
+  claim: '`once` can exit 1 (cycle_crashed), an exit code the design does not list for the verb.'
+  owner: R-2
+- cid: C-0012
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 123
+  end: 129
+  claim: '`once` can exit 1 (cycle_crashed), an exit code the design does not list for the verb.'
+  owner: R-2
+- cid: C-0013
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 35
+  end: 35
+  claim: _EXIT_CRASH = 1 with the comment [PROPOSAL] C-3
+  owner: R-2
+- cid: C-0014
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 123
+  end: 129
+  claim: crash path calls audit.stderr_fallback(cycle_crashed, _EXIT_CRASH), then sys.exit(_EXIT_CRASH)
+  owner: R-2
+- cid: C-0015
+  path: docs/designs/issue-watcher.md
+  start: 114
+  end: 114
+  claim: 'once exit codes: 0, 2, 3, 4, 5, 6, 7, 75'
+  owner: R-2
+- cid: C-0016
+  path: docs/designs/issue-watcher.md
+  start: 890
+  end: 890
+  claim: 'AC-17: each verb exit codes match section 4'
+  owner: R-2
+- cid: C-0017
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 55
+  end: 57
+  claim: The reason table has 59 names (cycle_complete and cycle_crashed added), not the 57 the task and DF-41 fix, so audit.REASONS no longer equals the spec reason table.
+  owner: R-3
+- cid: C-0018
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 62
+  end: 64
+  claim: The reason table has 59 names (cycle_complete and cycle_crashed added), not the 57 the task and DF-41 fix, so audit.REASONS no longer equals the spec reason table.
+  owner: R-3
+- cid: C-0019
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1134
+  end: 1137
+  claim: The reason table has 59 names (cycle_complete and cycle_crashed added), not the 57 the task and DF-41 fix, so audit.REASONS no longer equals the spec reason table.
+  owner: R-3
+- cid: C-0020
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 55
+  end: 57
+  claim: cycle_crashed mapped to (cycle, 1) with a [PROPOSAL] comment
+  owner: R-3
+- cid: C-0021
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 62
+  end: 64
+  claim: cycle_complete mapped to (cycle, 0) with a [PROPOSAL] comment
+  owner: R-3
+- cid: C-0022
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1134
+  end: 1137
+  claim: '[PROPOSAL] comment and return cycle_complete'
+  owner: R-3
+- cid: C-0023
+  path: tests/issue_watch/test_audit.py
+  start: 214
+  end: 220
+  claim: test_reasons_pin_59_names asserts 59 names
+  owner: R-3
+- cid: C-0024
+  path: docs/designs/issue-watcher-setup.md
+  start: 344
+  end: 344
+  claim: the audit log accepts only the 59 names
+  owner: R-3
+- cid: C-0025
+  path: docs/designs/issue-watcher.md
+  start: 718
+  end: 718
+  claim: audit.REASONS is a frozenset equal to the spec reason table
+  owner: R-3
+- cid: C-0026
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 199
+  end: 199
+  claim: Ensuring the table has exactly 57 entries (52 spec rows plus five proposals)
+  owner: R-3
+- cid: C-0027
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md
+  start: 175
+  end: 175
+  claim: 'DF-41: the 52 spec rows plus five named proposals; test_audit.py listed with 57 names'
+  owner: R-3
+- cid: C-0028
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 23
+  end: 29
+  claim: record.py imports the function valid_operation_id from predicates, which neither the design import rule (types only) nor the task list of allowed names covers. (Applies to valid_operation_id only;
+    the other imports are A-1.)
+  owner: R-4
+- cid: C-0029
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 23
+  end: 29
+  claim: imports ApprovalResult, format_utc, parse_utc, valid_issue_number, valid_operation_id from superclaude.cli.issue_watch.predicates
+  owner: R-4
+- cid: C-0030
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 183
+  end: 183
+  claim: _opt(raw[operation_id], valid_operation_id) is the use site
+  owner: R-4
+- cid: C-0031
+  path: docs/designs/issue-watcher.md
+  start: 239
+  end: 239
+  claim: record may import predicates (types only)
+  owner: R-4
+- cid: C-0032
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 332
+  end: 332
+  claim: 'allowed imports from predicates: parse_utc, format_utc, valid_issue_number'
+  owner: R-4
+- cid: C-0033
+  path: tests/issue_watch/test_module_boundaries.py
+  start: 20
+  end: 21
+  claim: docstring says record imports three functions and one type (miscount, C-038)
+  owner: R-4
+- cid: C-0034
+  path: tests/issue_watch/test_module_boundaries.py
+  start: 57
+  end: 61
+  claim: record Rule allows the predicates sibling with no name limit
+  owner: R-4
+- cid: C-0035
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 36
+  end: 36
+  claim: OPERATION_ID_PATTERN local copy, the precedent for a local copy
+  owner: R-4
+- cid: C-0036
+  path: tests/issue_watch/test_cli.py
+  start: 967
+  end: 967
+  claim: Five test sites use skipif or pytest.skip, which the task forbids; nothing was skipped in any recorded run.
+  owner: R-5
+- cid: C-0037
+  path: tests/issue_watch/test_cli.py
+  start: 1070
+  end: 1070
+  claim: Five test sites use skipif or pytest.skip, which the task forbids; nothing was skipped in any recorded run.
+  owner: R-5
+- cid: C-0038
+  path: tests/issue_watch/test_record.py
+  start: 739
+  end: 739
+  claim: Five test sites use skipif or pytest.skip, which the task forbids; nothing was skipped in any recorded run.
+  owner: R-5
+- cid: C-0039
+  path: tests/issue_watch/test_cycle.py
+  start: 735
+  end: 735
+  claim: Five test sites use skipif or pytest.skip, which the task forbids; nothing was skipped in any recorded run.
+  owner: R-5
+- cid: C-0040
+  path: tests/issue_watch/test_cycle.py
+  start: 4694
+  end: 4694
+  claim: Five test sites use skipif or pytest.skip, which the task forbids; nothing was skipped in any recorded run.
+  owner: R-5
+- cid: C-0041
+  path: tests/issue_watch/test_cli.py
+  start: 967
+  end: 967
+  claim: skipif when os.geteuid() == 0 (root reads any file)
+  owner: R-5
+- cid: C-0042
+  path: tests/issue_watch/test_cli.py
+  start: 1070
+  end: 1070
+  claim: NOT_ROOT = pytest.mark.skipif when os.geteuid() == 0
+  owner: R-5
+- cid: C-0043
+  path: tests/issue_watch/test_record.py
+  start: 739
+  end: 739
+  claim: skipif when os.geteuid() == 0
+  owner: R-5
+- cid: C-0044
+  path: tests/issue_watch/test_cycle.py
+  start: 735
+  end: 735
+  claim: skipif when os.geteuid() == 0
+  owner: R-5
+- cid: C-0045
+  path: tests/issue_watch/test_cycle.py
+  start: 4694
+  end: 4694
+  claim: 'pytest.skip: /proc/self/mountinfo exists on Linux only'
+  owner: R-5
+- cid: C-0046
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 188
+  end: 188
+  claim: No test may use pytest.skip, skipif or xfail, because gates G-1 and G-3 require zero skipped tests
+  owner: R-5
+- cid: C-0047
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 908
+  end: 908
+  claim: pytest.skip/skipif still appears in five test sites; nothing was skipped in any recorded run (graded minor)
+  owner: R-5
+- cid: C-0048
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 57
+  end: 64
+  claim: The operation-unknown marker is searched only in stderr already cut to 500 bytes, so a marker after byte 500 is missed and the outcome is not forced to unknown.
+  owner: R-6
+- cid: C-0049
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 126
+  end: 126
+  claim: The operation-unknown marker is searched only in stderr already cut to 500 bytes, so a marker after byte 500 is missed and the outcome is not forced to unknown.
+  owner: R-6
+- cid: C-0050
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 322
+  end: 322
+  claim: The operation-unknown marker is searched only in stderr already cut to 500 bytes, so a marker after byte 500 is missed and the outcome is not forced to unknown.
+  owner: R-6
+- cid: C-0051
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 15
+  end: 15
+  claim: STDERR_CAP_BYTES = 500
+  owner: R-6
+- cid: C-0052
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 57
+  end: 64
+  claim: _cap_stderr cuts text to STDERR_CAP_BYTES UTF-8 bytes
+  owner: R-6
+- cid: C-0053
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 126
+  end: 126
+  claim: stderr=_cap_stderr(proc.stderr) in the returned CommandResult
+  owner: R-6
+- cid: C-0054
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 322
+  end: 322
+  claim: OP_UNKNOWN_TEXT checked in result.stdout or result.stderr (the capped text)
+  owner: R-6
+- cid: C-0055
+  path: docs/designs/issue-watcher.md
+  start: 634
+  end: 634
+  claim: agent_session_operation_unknown anywhere in stdout or stderr maps to unknown
+  owner: R-6
+- cid: C-0056
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1271
+  end: 1271
+  claim: status drops an unknown entry with an operation id from the retry list when its retry argv cannot be built; effectively unreachable because record validation only stores a safe id and an absolute
+    launch_cwd.
+  owner: R-7
+- cid: C-0057
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1279
+  end: 1280
+  claim: status drops an unknown entry with an operation id from the retry list when its retry argv cannot be built; effectively unreachable because record validation only stores a safe id and an absolute
+    launch_cwd.
+  owner: R-7
+- cid: C-0058
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1271
+  end: 1271
+  claim: retry only when entry.state == unknown and entry.operation_id and entry.launch_cwd
+  owner: R-7
+- cid: C-0059
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1279
+  end: 1280
+  claim: 'except ValueError: continue (the entry is dropped)'
+  owner: R-7
+- cid: C-0060
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 182
+  end: 184
+  claim: operation_id validated with valid_operation_id; launch_cwd must be absolute when present
+  owner: R-7
+- cid: C-0061
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 548
+  end: 548
+  claim: mark_pending requires an absolute launch_cwd
+  owner: R-7
+- cid: C-0062
+  path: docs/designs/issue-watcher.md
+  start: 739
+  end: 739
+  claim: retry lists unknown entries with an operation_id
+  owner: R-7
+- cid: C-0063
+  path: docs/designs/issue-watcher-setup.md
+  start: 53
+  end: 53
+  claim: 'The setup guide and design 10.2 misstate two verb facts: setup :53 leaves reset out of the Linux-only verbs although reset runs the platform check, and setup :432 and design :726 leave exit 2
+    out of the status exits.'
+  owner: D-1
+- cid: C-0064
+  path: docs/designs/issue-watcher-setup.md
+  start: 432
+  end: 432
+  claim: 'The setup guide and design 10.2 misstate two verb facts: setup :53 leaves reset out of the Linux-only verbs although reset runs the platform check, and setup :432 and design :726 leave exit 2
+    out of the status exits.'
+  owner: D-1
+- cid: C-0065
+  path: docs/designs/issue-watcher.md
+  start: 726
+  end: 726
+  claim: 'The setup guide and design 10.2 misstate two verb facts: setup :53 leaves reset out of the Linux-only verbs although reset runs the platform check, and setup :432 and design :726 leave exit 2
+    out of the status exits.'
+  owner: D-1
+- cid: C-0066
+  path: docs/designs/issue-watcher-setup.md
+  start: 53
+  end: 53
+  claim: Linux-only list names once, check-config and init-state (no reset)
+  owner: D-1
+- cid: C-0067
+  path: docs/designs/issue-watcher-setup.md
+  start: 432
+  end: 432
+  claim: status exits 0, 1, 6
+  owner: D-1
+- cid: C-0068
+  path: docs/designs/issue-watcher.md
+  start: 726
+  end: 726
+  claim: status exits 0, 1, 6 (no 2)
+  owner: D-1
+- cid: C-0069
+  path: docs/designs/issue-watcher.md
+  start: 115
+  end: 115
+  claim: status exits 0, 1, 2, 6
+  owner: D-1
+- cid: C-0070
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 169
+  end: 169
+  claim: status calls _load_config(config_path, platform=False); a config error exits 2 through cli.py:84-91 and cli.py:77-81
+  owner: D-1
+- cid: C-0071
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 314
+  end: 314
+  claim: reset calls _load_config(config_path), which runs check_platform (cli.py:84-91, platform defaults to true)
+  owner: D-1
+- cid: C-0072
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 319
+  end: 319
+  claim: cli.py stamps the reset line with cycle.format_utc, a predicates function re-exported through cycle; design :242 does not list predicates for cli.
+  owner: D-2
+- cid: C-0073
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 319
+  end: 319
+  claim: 'ts: cycle.format_utc(now)'
+  owner: D-2
+- cid: C-0074
+  path: docs/designs/issue-watcher.md
+  start: 242
+  end: 242
+  claim: cli may import cycle, record, audit, launch, runner
+  owner: D-2
+- cid: C-0075
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 468
+  end: 468
+  claim: cycle.py keeps its own copies of the login pattern and the UTC timestamp format although design :241 lets it import github and predicates. (C-009 here is the cycle copy only; the audit copy is
+    N-1.)
+  owner: D-3
+- cid: C-0076
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 76
+  end: 76
+  claim: cycle.py keeps its own copies of the login pattern and the UTC timestamp format although design :241 lets it import github and predicates. (C-009 here is the cycle copy only; the audit copy is
+    N-1.)
+  owner: D-3
+- cid: C-0077
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 468
+  end: 468
+  claim: _LOGIN = re.compile with the pattern [A-Za-z0-9][A-Za-z0-9-]{0,38}
+  owner: D-3
+- cid: C-0078
+  path: src/superclaude/cli/issue_watch/github.py
+  start: 134
+  end: 134
+  claim: _LOGIN_RE = re.compile with the same pattern
+  owner: D-3
+- cid: C-0079
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 76
+  end: 76
+  claim: _UTC_TS_FORMAT = %Y-%m-%dT%H:%M:%SZ
+  owner: D-3
+- cid: C-0080
+  path: docs/designs/issue-watcher.md
+  start: 241
+  end: 241
+  claim: cycle may import runner, github, predicates, record, launch, audit
+  owner: D-3
+- cid: C-0081
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 395
+  end: 397
+  claim: audit.stderr_fallback reads the wall clock when no ts is passed, against the rule that audit never reads the clock; the docstring calls it a stamp, not a decision. (C-012 here is the stderr_fallback
+    part only; the runner part is A-2.)
+  owner: D-4
+- cid: C-0082
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 395
+  end: 397
+  claim: 'if ts is None: now = datetime.datetime.now(datetime.timezone.utc); ts = now.strftime(_UTC_TS_FORMAT)'
+  owner: D-4
+- cid: C-0083
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 390
+  end: 391
+  claim: 'docstring: ts and host default to the current UTC time and socket.gethostname() (a stamp, not a decision)'
+  owner: D-4
+- cid: C-0084
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 203
+  end: 203
+  claim: Leaf modules keep local copies of shared constants and helpers (issue bound, operation-id pattern, directory fsync, timestamp format) because the design import rules forbid the import that would
+    share them. (C-009 here is the audit copy only.)
+  owner: N-1
+- cid: C-0085
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 30
+  end: 30
+  claim: Leaf modules keep local copies of shared constants and helpers (issue bound, operation-id pattern, directory fsync, timestamp format) because the design import rules forbid the import that would
+    share them. (C-009 here is the audit copy only.)
+  owner: N-1
+- cid: C-0086
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 36
+  end: 36
+  claim: Leaf modules keep local copies of shared constants and helpers (issue bound, operation-id pattern, directory fsync, timestamp format) because the design import rules forbid the import that would
+    share them. (C-009 here is the audit copy only.)
+  owner: N-1
+- cid: C-0087
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 310
+  end: 315
+  claim: Leaf modules keep local copies of shared constants and helpers (issue bound, operation-id pattern, directory fsync, timestamp format) because the design import rules forbid the import that would
+    share them. (C-009 here is the audit copy only.)
+  owner: N-1
+- cid: C-0088
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 110
+  end: 115
+  claim: Leaf modules keep local copies of shared constants and helpers (issue bound, operation-id pattern, directory fsync, timestamp format) because the design import rules forbid the import that would
+    share them. (C-009 here is the audit copy only.)
+  owner: N-1
+- cid: C-0089
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 200
+  end: 200
+  claim: Leaf modules keep local copies of shared constants and helpers (issue bound, operation-id pattern, directory fsync, timestamp format) because the design import rules forbid the import that would
+    share them. (C-009 here is the audit copy only.)
+  owner: N-1
+- cid: C-0090
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 203
+  end: 203
+  claim: _MAX_ISSUE = 999_999_999, the same bound as predicates.MAX_ISSUE_NUMBER
+  owner: N-1
+- cid: C-0091
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 30
+  end: 30
+  claim: MAX_ISSUE_NUMBER = 999_999_999
+  owner: N-1
+- cid: C-0092
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 36
+  end: 36
+  claim: OPERATION_ID_PATTERN = re.compile(^[A-Za-z0-9._:-]{1,128}$)
+  owner: N-1
+- cid: C-0093
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 310
+  end: 315
+  claim: '_fsync_dir: os.open O_RDONLY | O_DIRECTORY, os.fsync, os.close in finally'
+  owner: N-1
+- cid: C-0094
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 110
+  end: 115
+  claim: '_fsync_dir: the same four-line helper (CORRECTED from plan audit.py:204-206)'
+  owner: N-1
+- cid: C-0095
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 200
+  end: 200
+  claim: _UTC_TS_FORMAT = %Y-%m-%dT%H:%M:%SZ (the C-009 audit copy)
+  owner: N-1
+- cid: C-0096
+  path: docs/designs/issue-watcher.md
+  start: 237
+  end: 237
+  claim: audit imports nothing from the package
+  owner: N-1
+- cid: C-0097
+  path: docs/designs/issue-watcher.md
+  start: 240
+  end: 240
+  claim: launch imports runner and _ORCA_CLIS only
+  owner: N-1
+- cid: C-0098
+  path: tests/issue_watch/test_cycle.py
+  start: 4150
+  end: 4154
+  claim: The day-cap test bounds the second day at 6 launches, following the module constant.
+  owner: N-2
+- cid: C-0099
+  path: tests/issue_watch/test_cycle.py
+  start: 4150
+  end: 4154
+  claim: comment on the 6-per-24h cap and second_day = min(count - capped, 6)
+  owner: N-2
+- cid: C-0100
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 36
+  end: 36
+  claim: DAY_CAP = 6
+  owner: N-2
+- cid: C-0101
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1225
+  end: 1230
+  claim: status picks the retry Orca name by reading launch._ORCA_CLIS instead of importing install_user_setup directly.
+  owner: N-3
+- cid: C-0102
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1225
+  end: 1230
+  claim: _retry_orca returns the first launch._ORCA_CLIS name which resolves, else the first name
+  owner: N-3
+- cid: C-0103
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 22
+  end: 22
+  claim: from superclaude.cli.install_user_setup import _ORCA_CLIS
+  owner: N-3
+- cid: C-0104
+  path: docs/designs/issue-watcher.md
+  start: 240
+  end: 240
+  claim: launch imports runner and _ORCA_CLIS only
+  owner: N-3
+- cid: C-0105
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 23
+  end: 29
+  claim: record.py imports parse_utc, format_utc, valid_issue_number and the type ApprovalResult from predicates. (valid_operation_id is R-4.)
+  owner: A-1
+- cid: C-0106
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 23
+  end: 29
+  claim: imports ApprovalResult, format_utc, parse_utc, valid_issue_number (and valid_operation_id, see R-4)
+  owner: A-1
+- cid: C-0107
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 332
+  end: 332
+  claim: 'allowed imports from predicates: parse_utc, format_utc, valid_issue_number'
+  owner: A-1
+- cid: C-0108
+  path: docs/designs/issue-watcher.md
+  start: 239
+  end: 239
+  claim: record may import predicates (types only)
+  owner: A-1
+- cid: C-0109
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 89
+  end: 89
+  claim: runner.py reads time.monotonic() to measure duration_s around the child.
+  owner: A-2
+- cid: C-0110
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 89
+  end: 89
+  claim: start = time.monotonic()
+  owner: A-2
+- cid: C-0111
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 35
+  end: 35
+  claim: 'duration_s: float'
+  owner: A-2
+- cid: C-0112
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 193
+  end: 193
+  claim: measures duration_s with time.monotonic() around the child only; it is never used for a decision
+  owner: A-2
+- cid: C-0113
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 55
+  end: 57
+  claim: The reason table carries the five proposed reasons the task names (marker_unreadable, edits_unreadable, operator_reset, dry_run_shadow_reset, reset_refused).
+  owner: A-3
+- cid: C-0114
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 199
+  end: 199
+  claim: plus the two proposals marker_unreadable and edits_unreadable; dry_run_shadow_reset (DF-22); reset_refused (DF-57); operator_reset (DF-03)
+  owner: A-3
+- cid: C-0115
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md
+  start: 175
+  end: 175
+  claim: DF-41 names the same five proposals
+  owner: A-3
+- cid: C-0116
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md
+  start: 28
+  end: 28
+  claim: 'DF-05: CI-only full suite'
+  owner: A-4
+- cid: C-0117
+  path: src/superclaude/cli/main.py
+  start: 563
+  end: 565
+  claim: The issue-watch group is registered on the main CLI after line 561.
+  owner: A-5
+- cid: C-0118
+  path: src/superclaude/cli/main.py
+  start: 563
+  end: 563
+  claim: from superclaude.cli.issue_watch.cli import issue_watch_group
+  owner: A-5
+- cid: C-0119
+  path: src/superclaude/cli/main.py
+  start: 565
+  end: 565
+  claim: main.add_command(issue_watch_group, name=issue-watch)
+  owner: A-5
+- cid: C-0120
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md
+  start: 156
+  end: 156
+  claim: 'DF-29 row: main.py registration after line 561 (CORRECTED from plan DF register :208; :208 is the P7 phase row that references DF-29)'
+  owner: A-5
+- cid: C-0121
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 689
+  end: 703
+  claim: advisory gap C-016
+  owner: C-016
+- cid: C-0122
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 421
+  end: 431
+  claim: advisory gap C-017
+  owner: C-017
+- cid: C-0123
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 685
+  end: 690
+  claim: advisory gap C-018
+  owner: C-018
+- cid: C-0124
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 91
+  end: 101
+  claim: advisory gap C-019
+  owner: C-019
+- cid: C-0125
+  path: src/superclaude/cli/issue_watch/predicates.py
+  start: 205
+  end: 209
+  claim: advisory gap C-022
+  owner: C-022
+- cid: C-0126
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 318
+  end: 319
+  claim: advisory gap C-023
+  owner: C-023
+- cid: C-0127
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 326
+  end: 334
+  claim: advisory gap C-024
+  owner: C-024
+- cid: C-0128
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 39
+  end: 45
+  claim: advisory gap C-024
+  owner: C-024
+- cid: C-0129
+  path: docs/designs/issue-watcher.md
+  start: 636
+  end: 636
+  claim: advisory gap C-024
+  owner: C-024
+- cid: C-0130
+  path: src/superclaude/cli/issue_watch/predicates.py
+  start: 57
+  end: 57
+  claim: advisory gap X-008/C-025
+  owner: X-008/C-025
+- cid: C-0131
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 127
+  end: 130
+  claim: advisory gap X-008/C-025
+  owner: X-008/C-025
+- cid: C-0132
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 309
+  end: 311
+  claim: advisory gap C-035
+  owner: C-035
+- cid: C-0133
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 393
+  end: 402
+  claim: advisory gap C-037
+  owner: C-037
+- cid: C-0134
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 203
+  end: 203
+  claim: advisory gap parity-tests
+  owner: parity-tests
+- cid: C-0135
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 30
+  end: 30
+  claim: advisory gap parity-tests
+  owner: parity-tests
+- cid: C-0136
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 36
+  end: 36
+  claim: advisory gap parity-tests
+  owner: parity-tests
+- cid: C-0137
+  path: docs/designs/issue-watcher.md
+  start: 17
+  end: 17
+  claim: advisory gap INV-001
+  owner: INV-001
+- cid: C-0138
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1062
+  end: 1062
+  claim: advisory gap INV-005
+  owner: INV-005
+- cid: C-0139
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1033
+  end: 1033
+  claim: advisory gap INV-006
+  owner: INV-006
+- cid: C-0140
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1041
+  end: 1045
+  claim: advisory gap INV-006
+  owner: INV-006
+- cid: C-0141
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1061
+  end: 1061
+  claim: advisory gap INV-006
+  owner: INV-006
+- cid: C-0142
+  path: src/superclaude/cli/issue_watch/github.py
+  start: 448
+  end: 454
+  claim: advisory gap INV-007
+  owner: INV-007
+- cid: C-0143
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 689
+  end: 690
+  claim: advisory gap INV-008
+  owner: INV-008
+- cid: C-0144
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 696
+  end: 696
+  claim: advisory gap INV-008
+  owner: INV-008
+- cid: C-0145
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1060
+  end: 1060
+  claim: advisory gap INV-009
+  owner: INV-009
+- cid: C-0146
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 35
+  end: 35
+  claim: MAX_LAUNCHES_PER_CYCLE = 1
+  owner: C-020
+- cid: C-0147
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 748
+  end: 750
+  claim: disabled_present uses os.path.lexists
+  owner: C-020
+- cid: C-0148
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1235
+  end: 1235
+  claim: audit parameter; cycle.py:1243-1244 docstring says audit is accepted for the fixed signature and not read
+  owner: C-020
+- cid: C-0149
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 35
+  end: 35
+  claim: 'duration_s: float'
+  owner: C-020
+- cid: C-0150
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 544
+  end: 546
+  claim: mark_pending accepts only state None or failed
+  owner: C-021
+- cid: C-0151
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 208
+  end: 209
+  claim: validate rejects failed with launches other than 0
+  owner: C-021
+- cid: C-0152
+  path: .dev/brainstorms/20261107-064825-github-issue-watcher/spec-final.md
+  start: 272
+  end: 272
+  claim: a fresh launch requires launches == 0
+  owner: C-021
+- cid: C-0153
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 305
+  end: 325
+  claim: os.lstat with S_ISREG, uid and mode checks, then os.open with O_RDONLY | O_NOFOLLOW | O_CLOEXEC and no fstat after the open
+  owner: C-027
+- cid: C-0154
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 635
+  end: 641
+  claim: reapproved is true when an entry approval_event_id is set and differs from the new approval; note = re-approved
+  owner: C-028
+- cid: C-0155
+  path: src/superclaude/cli/main.py
+  start: 563
+  end: 565
+  claim: issue_watch_group imported and registered as issue-watch
+  owner: C-039
+- cid: C-0156
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 94
+  end: 94
+  claim: runtime-surface symbol issue_watch_group
+  owner: RS-issue_watch_group
+- cid: C-0157
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 111
+  end: 111
+  claim: runtime-surface symbol once_command
+  owner: RS-once_command
+- cid: C-0158
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 164
+  end: 164
+  claim: runtime-surface symbol status_command
+  owner: RS-status_command
+- cid: C-0159
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 185
+  end: 185
+  claim: runtime-surface symbol check_config_command
+  owner: RS-check_config_command
+- cid: C-0160
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 201
+  end: 201
+  claim: runtime-surface symbol init_state_command
+  owner: RS-init_state_command
+- cid: C-0161
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 282
+  end: 282
+  claim: runtime-surface symbol reset_command
+  owner: RS-reset_command
+- cid: C-0162
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 370
+  end: 370
+  claim: record.py FileStore.save (record.py:370)
+  owner: RU-record.py:370
+- cid: C-0163
+  path: src/superclaude/cli/swarm/atomic.py
+  start: 14
+  end: 14
+  claim: neighbour of record.py FileStore.save (record.py:370)
+  owner: RU-record.py:370
+- cid: C-0164
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 163
+  end: 163
+  claim: launch.py find_orca (launch.py:163) with _lists_orca_cli (launch.py:144)
+  owner: RU-launch.py:163
+- cid: C-0165
+  path: src/superclaude/cli/install_user_setup.py
+  start: 198
+  end: 198
+  claim: neighbour of launch.py find_orca (launch.py:163) with _lists_orca_cli (launch.py:144)
+  owner: RU-launch.py:163
+- cid: C-0166
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 200
+  end: 200
+  claim: launch.py parse_origin (launch.py:200) and check_origin (launch.py:218)
+  owner: RU-launch.py:200
+- cid: C-0167
+  path: src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py
+  start: 86
+  end: 86
+  claim: neighbour of launch.py parse_origin (launch.py:200) and check_origin (launch.py:218)
+  owner: RU-launch.py:200
+- cid: C-0168
+  path: src/superclaude/cli/issue_watch/predicates.py
+  start: 27
+  end: 27
+  claim: predicates.py parse_utc / format_utc (predicates.py:27, 42)
+  owner: RU-predicates.py:27
+- cid: C-0169
+  path: src/superclaude/cli/swarm/recipes/_primitives.py
+  start: 15
+  end: 15
+  claim: neighbour of predicates.py parse_utc / format_utc (predicates.py:27, 42)
+  owner: RU-predicates.py:27

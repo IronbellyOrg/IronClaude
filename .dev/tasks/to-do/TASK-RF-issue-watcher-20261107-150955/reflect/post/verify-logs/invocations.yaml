@@ -1,0 +1,33 @@
+# Verification invocations (SKILL 6.1.1 control g). Wrapper per control (d)/(i):
+#   timeout <N> env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE <validated base command>
+# Controls (a)-(c): fixed template, verb in {pytest, ruff, mypy, make, uv, npm, tsc, cargo} = uv, no shell metacharacters.
+- cmd: "timeout 600 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run pytest tests/issue_watch -q -p no:cacheprovider"
+  step: "5.5"
+  cwd: "/home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher"
+  exit_code: 0
+  duration_ms: 17250
+  stdout_path: null
+  stderr_path: null
+  summary: "2635 passed in 17.25s on Python 3.11.15; 0 failed, 0 errors, 0 skipped (the -q summary line shows no 'skipped' segment); stdout tail kept in the orchestrator transcript"
+  blocked_reason: null
+  deviation_class: none
+- cmd: "timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run ruff check src/superclaude/cli/issue_watch tests/issue_watch src/superclaude/cli/main.py"
+  step: "5"
+  cwd: "/home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher"
+  exit_code: 0
+  duration_ms: null
+  stdout_path: null
+  stderr_path: null
+  summary: "All checks passed!"
+  blocked_reason: null
+  deviation_class: none
+- cmd: "timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run ruff format --check src/superclaude/cli/issue_watch tests/issue_watch src/superclaude/cli/main.py"
+  step: "5"
+  cwd: "/home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher"
+  exit_code: 0
+  duration_ms: null
+  stdout_path: null
+  stderr_path: null
+  summary: "31 files already formatted"
+  blocked_reason: null
+  deviation_class: none

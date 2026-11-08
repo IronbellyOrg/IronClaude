@@ -1,0 +1,62 @@
+Chunk 3 evidence validation result (55 entries, all read from disk at the cited ranges).
+
+- {cid: C-0115, verdict: VALID, reason: "ok; 06-gap-fill-decisions.md:175 is the DF-41 row naming the five proposals"}
+- {cid: C-0116, verdict: VALID, reason: "ok; line 28 is DF-05 (full suite in CI only)"}
+- {cid: C-0117, verdict: VALID, reason: "ok; main.py:563-565 import and add_command after the reflect_group registration at 559-561"}
+- {cid: C-0118, verdict: VALID, reason: "ok; main.py:563 is the issue_watch_group import"}
+- {cid: C-0119, verdict: VALID, reason: "ok; main.py:565 is main.add_command(issue_watch_group, name=\"issue-watch\")"}
+- {cid: C-0120, verdict: VALID, reason: "ok; line 156 is the DF-29 row with the 'after main.py:561' text"}
+- {cid: C-0121, verdict: VALID, reason: "ok; record.py:689-703 is _in_window, prune_consumed_log, day_cap_count (day-cap window code)"}
+- {cid: C-0122, verdict: VALID, reason: "ok; record.py:421-431 is disabled() (lexists) vs disabled_since() (os.stat, FileNotFoundError only)"}
+- {cid: C-0123, verdict: VALID, reason: "ok; cycle.py:685-690 _locked_body catches only _Stop"}
+- {cid: C-0124, verdict: VALID, reason: "ok; runner.py:91-101 is the subprocess.run call with capture_output"}
+- {cid: C-0125, verdict: VALID, reason: "ok; predicates.py:205-209 same-second approval/trigger tie gives events_incomplete"}
+- {cid: C-0126, verdict: VALID, reason: "ok; launch.py:318-319 spawn_error outcome"}
+- {cid: C-0127, verdict: VALID, reason: "ok; launch.py:326-334 launch reply parsing and operation id handling"}
+- {cid: C-0128, verdict: VALID, reason: "ok; launch.py:39-45 OPERATION_ID_PATHS marked PROPOSAL, UNVERIFIED"}
+- {cid: C-0129, verdict: VALID, reason: "ok; design line 636 says the operation id JSON path is UNVERIFIED"}
+- {cid: C-0130, verdict: VALID, reason: "ok; predicates.py:57 OPERATION_ID_PATTERN (second copy noted at 60)"}
+- {cid: C-0131, verdict: VALID, reason: "ok; launch.py:127-130 uses OPERATION_ID_PATTERN in the retry argv builder"}
+- {cid: C-0132, verdict: VALID, reason: "ok; cli.py:309-311 reset argument validation"}
+- {cid: C-0133, verdict: VALID, reason: "ok; audit.py:393-402 stderr_fallback reads the clock, checks reason only, always writes kind cycle"}
+- {cid: C-0134, verdict: VALID, reason: "ok; audit.py:203 _MAX_ISSUE = 999_999_999 mirrors predicates.MAX_ISSUE_NUMBER"}
+- {cid: C-0135, verdict: VALID, reason: "ok; launch.py:30 MAX_ISSUE_NUMBER copy"}
+- {cid: C-0136, verdict: VALID, reason: "ok; launch.py:36 OPERATION_ID_PATTERN copy"}
+- {cid: C-0137, verdict: VALID, reason: "ok; design line 17 states the guarantee and residual risks R11/R12"}
+- {cid: C-0138, verdict: VALID, reason: "ok; cycle.py:1062 launcher.launch call (INV-005)"}
+- {cid: C-0139, verdict: VALID, reason: "ok; cycle.py:1033 store.disabled() check before launch"}
+- {cid: C-0140, verdict: VALID, reason: "ok; cycle.py:1041-1045 origin check with deadline"}
+- {cid: C-0141, verdict: VALID, reason: "ok; cycle.py:1061 self._save() before the launch"}
+- {cid: C-0142, verdict: VALID, reason: "ok; github.py:448-454 spend() call-cap counter (INV-007)"}
+- {cid: C-0143, verdict: VALID, reason: "ok; record.py:689-690 _in_window"}
+- {cid: C-0144, verdict: VALID, reason: "ok; record.py:696 prune cutoff line"}
+- {cid: C-0145, verdict: VALID, reason: "ok; cycle.py:1060 record.mark_pending call (INV-009)"}
+- {cid: C-0146, verdict: VALID, reason: "ok; cycle.py:35 MAX_LAUNCHES_PER_CYCLE = 1"}
+- {cid: C-0147, verdict: VALID, reason: "ok; record.py:748-750 disabled_present uses os.path.lexists"}
+- {cid: C-0148, verdict: VALID, reason: "ok; cycle.py:1235 audit parameter; docstring 1243-1244 says accepted for the fixed signature and not read"}
+- {cid: C-0149, verdict: VALID, reason: "ok; runner.py:35 duration_s: float"}
+- {cid: C-0150, verdict: VALID, reason: "ok; record.py:544-546 state not in (None, \"failed\") raises"}
+- {cid: C-0151, verdict: VALID, reason: "ok; record.py:208-209 failed with launches != 0 is invalid"}
+- {cid: C-0152, verdict: VALID, reason: "ok; spec-final.md:272 'a fresh launch requires launches == 0'"}
+- {cid: C-0153, verdict: VALID, reason: "ok; cycle.py:307-321 lstat, S_ISREG, uid, mode checks, then os.open with O_RDONLY|O_NOFOLLOW|O_CLOEXEC; no fstat in 305-325"}
+- {cid: C-0154, verdict: VALID, reason: "ok; cycle.py:635-641 reapproved expression and note = re-approved"}
+- {cid: C-0155, verdict: VALID, reason: "ok; main.py:563-565"}
+- {cid: C-0156, verdict: VALID, reason: "ok; cli.py:94 is @click.group(\"issue-watch\"), def issue_watch_group at 95 (offset +1)"}
+- {cid: C-0157, verdict: VALID, reason: "ok; cli.py:111 is the @...command(\"once\") decorator, def once_command at 118; decorator line of the symbol"}
+- {cid: C-0158, verdict: VALID, reason: "ok; cli.py:164 status decorator, def status_command at 167"}
+- {cid: C-0159, verdict: VALID, reason: "ok; cli.py:185 check-config decorator, def check_config_command at 187"}
+- {cid: C-0160, verdict: VALID, reason: "ok; cli.py:201 init-state decorator, def init_state_command at 203"}
+- {cid: C-0161, verdict: VALID, reason: "ok; cli.py:282 reset decorator, def reset_command at 295 (decorator stack start)"}
+- {cid: C-0162, verdict: VALID, reason: "ok; record.py:370 def save"}
+- {cid: C-0163, verdict: VALID, reason: "ok; swarm/atomic.py:14 def write_prepared_bytes"}
+- {cid: C-0164, verdict: VALID, reason: "ok; launch.py:163 def find_orca; _lists_orca_cli at 144"}
+- {cid: C-0165, verdict: VALID, reason: "ok; install_user_setup.py:198 def _find_orca"}
+- {cid: C-0166, verdict: VALID, reason: "ok; launch.py:200 def parse_origin; check_origin at 218"}
+- {cid: C-0167, verdict: VALID, reason: "ok; origin_repo.py:86 def parse_origin_url"}
+- {cid: C-0168, verdict: VALID, reason: "ok; predicates.py:27 def parse_utc; format_utc at 42"}
+- {cid: C-0169, verdict: VALID, reason: "ok; _primitives.py:15 def format_timestamp"}
+
+Summary:
+- VALID 55, DROP 0.
+- No systematic problem. Two notes: C-0156 to C-0161 cite the decorator line, not the def line (def is 1 to 13 lines below, inside the same decorator stack), and the 'advisory gap' claims (C-0121 to C-0145) are bare labels that I matched to the merged-verdict.yaml entries (lines 564-580) and the code at the same ranges, not to a quoted snippet.
+- C-0153 "no fstat" was checked over cycle.py:300-330 only; I did not read the rest of the function.

@@ -1,0 +1,129 @@
+# reachability-ledger.yaml (SKILL step 5.6a, annotation-free; one row per required capability)
+# Step 5.6 durable-sink gate: ADVISORY ONLY. Grep for `durable_sink|@sink` finds 0 matches in docs/designs/issue-watcher.md and in
+# .dev/brainstorms/20261107-064825-github-issue-watcher/spec-final.md, so no sink is declared.
+# Nothing was run against GitHub or Orca; all hops below were Read in the source. Test evidence was Read, not executed.
+# Global defaults/guards seen on the path (apply to rows 1-4):
+#   - Config.enabled defaults to false (cycle.py:228). With enabled=false and not --dry-run, _Cycle.run raises _Stop("not_enabled")
+#     (cycle.py:666-667): exit 0, one cycle audit line, stdout "cycle: not_enabled". Loud, but an effect-free no-op until the operator sets it
+#     (docs/designs/issue-watcher-setup.md:92, :274-277). Capabilities 2 and 3 are also never reached in --dry-run (cycle.py:1010-1016).
+#   - cli.py:123 `except Exception` around run_cycle is NOT silent: it writes a stderr audit fallback `cycle_crashed`, prints the class name,
+#     exit 1 (cli.py:127-129). It writes NO audit.jsonl line for the crash (asserted by tests/issue_watch/test_cli.py:648).
+#   - Reads of external shapes (gh `--include` layout, orca `skills list` topic, launch operation_id) are assumed shapes, exercised only
+#     against PATH stubs/fakes, never against real gh/Orca (design section 15; github.py G1 note). Not provable offline.
+
+- requirement: "RC-1 poll cycle `once` runs run_cycle end to end (FR-001, design 6.2)"
+  entrypoint_chain:
+    - "src/superclaude/cli/main.py:565"
+    - "src/superclaude/cli/issue_watch/cli.py:111-118"
+    - "src/superclaude/cli/issue_watch/cli.py:120"
+    - "src/superclaude/cli/issue_watch/cli.py:62-74"
+    - "src/superclaude/cli/issue_watch/cli.py:122"
+    - "src/superclaude/cli/issue_watch/cycle.py:1177-1185"
+    - "src/superclaude/cli/issue_watch/cycle.py:663-683"
+    - "src/superclaude/cli/issue_watch/cycle.py:685-718"
+    - "src/superclaude/cli/issue_watch/cycle.py:1139-1174"
+  result_consumed: yes          # cli.py:130-137 echoes result.reason and result.exit_code and sys.exit(result.exit_code)
+  callee_non_vacuous: yes       # run_cycle -> _Cycle.run runs lock, _steps (login, origin, sweep, discover, candidates), _commit, _conclude
+  verdict: reachable
+  evidence_ref: "src/superclaude/cli/issue_watch/cli.py:122"
+  notes: >
+    Test chain: tests/issue_watch/test_cli_e2e.py:299-331 runs the real `python -m superclaude.cli.main issue-watch once` against PATH stubs
+    and asserts exit 0, "cycle: cycle_complete", the exact gh call list and the audit cycle line. Default enabled=false makes the cycle a
+    visible no-op (not_enabled) until configured.
+
+- requirement: "RC-2 dispatch record written durably (pending, launches 1) BEFORE the Orca spawn; outcome entry saved after (FR-010, FR-014)"
+  entrypoint_chain:
+    - "src/superclaude/cli/issue_watch/cli.py:122"
+    - "src/superclaude/cli/issue_watch/cycle.py:942"
+    - "src/superclaude/cli/issue_watch/cycle.py:1007"
+    - "src/superclaude/cli/issue_watch/cycle.py:1052-1060"
+    - "src/superclaude/cli/issue_watch/record.py:538-568"
+    - "src/superclaude/cli/issue_watch/cycle.py:1061"
+    - "src/superclaude/cli/issue_watch/cycle.py:582-587"
+    - "src/superclaude/cli/issue_watch/record.py:370-378"
+    - "src/superclaude/cli/issue_watch/cycle.py:1062"
+    - "src/superclaude/cli/issue_watch/cycle.py:1063-1075"
+    - "src/superclaude/cli/issue_watch/record.py:580-624"
+    - "src/superclaude/cli/issue_watch/cycle.py:1079-1107"
+  result_consumed: yes          # _save() failure -> _Stop("state_dir_unwritable") (cycle.py:585-586) so no launch starts; the outcome transition goes through _set (dirty) and is persisted by _commit_store (cycle.py:1096-1106)
+  callee_non_vacuous: yes       # mark_pending sets state=pending, launches=1, consumed_at, pending_at; FileStore.save = write_prepared_bytes + chmod + fsync dir
+  verdict: reachable
+  evidence_ref: "src/superclaude/cli/issue_watch/cycle.py:1060-1062"
+  notes: >
+    Order proven in code: mark_pending (1060) -> self._save() (1061, raises before the launch on OSError) -> launcher.launch (1062).
+    The outcome (launched/unknown/spawn_error) is written to memory at 1066/1070/1073 and saved only by the cycle's one final write
+    (_commit_store, cycle.py:1091-1107), not immediately after the spawn. A crash between spawn and final write leaves `pending`; that is
+    recovered by sweep (cycle.py:758-773) or the marker check (cycle.py:903-912). A failed final save is loud (state_dir_unwritable, exit 6,
+    cycle.py:1088-1089). Test chain: tests/issue_watch/test_cli_e2e.py:377-390 (stub snapshot of dispatch.json at launch time shows
+    state pending, launches 1, consumed_at set; final store shows launched with operation_id) and test_cycle.py:2925-2928.
+    Not reached when enabled=false, --dry-run, or when any guard before 1060 skips (day cap 1031, disabled_mid_cycle 1033, deadline/cutoff
+    1039-1049, origin 1044); each of those ends in a skip/stop reason, never silently.
+
+- requirement: "RC-3 launch step invokes `orca agent launch` through OrcaLauncher with the integer-only prompt `/sc:issue --claim <n>` (build_claim_prompt); the outcome is consumed (launched|unknown|abandoned) (FR-012, FR-013)"
+  entrypoint_chain:
+    - "src/superclaude/cli/issue_watch/cli.py:68"
+    - "src/superclaude/cli/issue_watch/cycle.py:1020"
+    - "src/superclaude/cli/issue_watch/launch.py:163-188"
+    - "src/superclaude/cli/issue_watch/cycle.py:1024"
+    - "src/superclaude/cli/issue_watch/launch.py:84-92"
+    - "src/superclaude/cli/issue_watch/cycle.py:1062"
+    - "src/superclaude/cli/issue_watch/launch.py:343-355"
+    - "src/superclaude/cli/issue_watch/launch.py:95-116"
+    - "src/superclaude/cli/issue_watch/runner.py:70-130"
+    - "src/superclaude/cli/issue_watch/launch.py:311-334"
+    - "src/superclaude/cli/issue_watch/cycle.py:1064-1075"
+  result_consumed: yes          # cycle.py:1064-1075 branches on outcome.kind: launched -> mark_launched; unknown -> mark_unknown + cond launch_unknown (exit 7); else -> mark_spawn_error + cond spawn_error (exit 7)
+  callee_non_vacuous: yes       # OrcaLauncher.launch builds the 12-element argv, runs SubprocessRunner (shell=False, cwd=worktree), maps via outcome_of; no sentinel body
+  verdict: reachable
+  evidence_ref: "src/superclaude/cli/issue_watch/cycle.py:1062-1075"
+  notes: >
+    No `err == nil`-style dead guard: the launch result is the value that drives the store transition and the exit code. build_claim_prompt
+    rejects bool/str/float/out-of-range (launch.py:90-91); launch_argv re-checks PROMPT_PATTERN (launch.py:101-102). find_orca returns None
+    (-> _Stop("orca_not_found"), exit 2, cycle.py:1021-1022) unless a candidate answers `skills list --json` with a topic named orca-cli
+    (launch.py:154-160, assumed shape): a wrong real-world shape would stop every launch loudly, not silently. Dry-run returns "launched"
+    without any Orca call (cycle.py:1010-1016, FR-019; the decision line carries dry_run true and no state). Test chain:
+    tests/issue_watch/test_cli_e2e.py:334-398 asserts the exact 12-element argv, prompt `/sc:issue --claim 9` and cwd == worktree against the
+    orca-ide stub (the real Orca CLI was never run).
+
+- requirement: "RC-4 audit log is appended (FR-020, design 10.1)"
+  entrypoint_chain:
+    - "src/superclaude/cli/issue_watch/cli.py:70"
+    - "src/superclaude/cli/issue_watch/cycle.py:1139-1143"
+    - "src/superclaude/cli/issue_watch/cycle.py:1156-1163"
+    - "src/superclaude/cli/issue_watch/audit.py:130-139"
+    - "src/superclaude/cli/issue_watch/cycle.py:1164-1165"
+    - "src/superclaude/cli/issue_watch/audit.py:381-404"
+  result_consumed: yes          # append returns None by design; failure (OSError or short write, audit.py:138-139) is caught at cycle.py:1164 and turned into a stderr fallback line, not dropped
+  callee_non_vacuous: yes       # one os.write on an O_APPEND fd (audit.py:133-135); rotate_if_needed shifts rotations (audit.py:141-156)
+  verdict: reachable
+  evidence_ref: "src/superclaude/cli/issue_watch/cycle.py:1160-1165"
+  notes: >
+    The only `except` on this hop is `except OSError` (narrow). A ValueError from a line builder (reason outside REASONS, audit.py:279-281)
+    is not caught in _conclude and propagates to cli.py:123 as cycle_crashed. Lines are appended one by one after the final store commit, so
+    a mid-write OSError leaves a partial trail plus ONE stderr fallback carrying only the cycle reason. Test chain:
+    tests/issue_watch/test_cli_e2e.py:317-330 and 392-398 (real process; audit.jsonl contains the decision and cycle lines).
+
+- requirement: "RC-5 `status` reads the store (FR-026, design 10.2)"
+  entrypoint_chain:
+    - "src/superclaude/cli/main.py:565"
+    - "src/superclaude/cli/issue_watch/cli.py:164-169"
+    - "src/superclaude/cli/issue_watch/cli.py:172-174"
+    - "src/superclaude/cli/issue_watch/cycle.py:1233-1249"
+    - "src/superclaude/cli/issue_watch/cycle.py:1194-1211"
+    - "src/superclaude/cli/issue_watch/cycle.py:1289-1298"
+    - "src/superclaude/cli/issue_watch/cli.py:175-182"
+  result_consumed: yes          # report is printed (JSON or text, cli.py:178-181) and its `healthy` field sets the exit code (cli.py:182); StoreError -> exit 6 (cli.py:175-177)
+  callee_non_vacuous: yes       # _read_store_doc opens dispatch.json read-only and validates/migrates it in memory; counts, age, stale and retry argv are computed from entries
+  verdict: reachable
+  evidence_ref: "src/superclaude/cli/issue_watch/cli.py:172-182"
+  notes: >
+    The AuditLog built at cli.py:173 is passed to status_report but never read ("accepted for the fixed signature and not read",
+    cycle.py:1244): a harmless dead argument, so `status` reflects the store only, never audit.jsonl. Test chain: tests/issue_watch/test_cli.py:785-1048
+    (CliRunner through the group; no real-subprocess status test).
+
+# Gate values:
+#   reachability_gate_ran: true      (step 5.6a annotation-free pass; step 5.6 durable-sink gate advisory only: no durable_sink/@sink annotation)
+#   reachability_requirements_scanned: 5
+#   reachability_unreachable: 0
+#   reachability_unproven: 0
+#   reachability_skip_reason: null
