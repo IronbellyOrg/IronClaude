@@ -46,7 +46,24 @@ def sel(entry, key="selector_captured_by_runner"):
     return (items[0].get("line_sha256", "")[:12], items[0].get("status")) if items else ("", None)
 
 
+def blocked_report(block):
+    """Report for a preflight that recorded a refusal: Tasks 2 to 4 hold only unavailable stubs, which the case table cannot tabulate."""
+    text = ("# B-CTX report: observed actor-isolation lifecycle cases\n\n"
+            "Package TASK-WF-planTheRealBound-20261107-080351. The preflight recorded: %s, so no real Claude run was spent after it and every "
+            "real-session case of Tasks 2 to 4 is unavailable (the missing interface is the ability to start Claude here). Nothing is enforced and no "
+            "production file changed. The controlled evidence of Tasks 5 to 7 is in `./artifacts/selector-invariants.json`, `./artifacts/human-vs-governed-push.json` "
+            "and `./artifacts/ancestry-bound.md`.\n\n"
+            "Not every required case is observed, so:\n\nB-CTX: FAIL\n" % block)
+    (ART / "b-ctx-report.md").write_text(text)
+    subprocess.run(["git", "-C", str(ob.REPO), "add", ".dev/tasks"], check=True)
+    print(json.dumps({"verdict": "B-CTX: FAIL", "blocked_by_preflight": block}, indent=2))
+    return 0
+
+
 def main():
+    block = ob.preflight_blocks()
+    if block:
+        return blocked_report(block)
     sw, sm, rfc, bj, inv, push = (load(n) for n in ("same-worktree.json", "subagent-and-monitor.json", "resume-fork-clear.json", "background-jobs.json",
                                                      "selector-invariants.json", "human-vs-governed-push.json"))
     ledger = [json.loads(x) for x in (ART / "run-status.jsonl").read_text().splitlines()]
