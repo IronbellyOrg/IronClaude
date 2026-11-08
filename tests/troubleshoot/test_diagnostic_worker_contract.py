@@ -330,6 +330,41 @@ def test_document_currency_is_finalized_after_discovery() -> None:
     assert "writes the finalized Branch B result before step 4 synthesis" in skill
 
 
+def assert_augment_repo_values(text: str) -> None:
+    # The analyst has no Bash, so the orchestrator must record and pass the repo values.
+    for value in ("`repo_owner`", "`repo_name`", "`branch`"):
+        assert re.search(
+            rf"record the resolved [^\n]*{re.escape(value)}[^\n]*in the audit log for every later brief",
+            section(text, "### Wave 1:", "### Wave 1.5:"),
+        ), f"Wave 1 must record {value}"
+        rule = re.search(
+            r"^- \*\*Augment repo values in every brief:\*\*.*$", text, re.M
+        )
+        assert rule, "Augment repo values brief rule required"
+        assert "mcp__litellm__augment_code-augment_code_search" in rule[0]
+        assert value in rule[0], f"brief rule must carry {value}"
+    assert "the orchestrator recorded in Wave 1" in rule[0]
+    assert "When the values were not recorded, the brief says so" in rule[0]
+
+
+def test_augment_proxy_briefs_carry_repo_values() -> None:
+    text = (SKILL_DIR / "SKILL.md").read_text()
+    assert_augment_repo_values(text)
+    rule = re.search(r"^- \*\*Augment repo values in every brief:\*\*.*$", text, re.M)[
+        0
+    ]
+    record = re.search(r"record the resolved [^\n]*?for every later brief", text)[0]
+    for value in ("`repo_owner`", "`repo_name`", "`branch`"):
+        for line in (rule, record):
+            mutant = text.replace(line, line.replace(value, "`other`"), 1)
+            with pytest.raises(AssertionError):
+                assert_augment_repo_values(mutant)
+    with pytest.raises(AssertionError):
+        assert_augment_repo_values(
+            text.replace("- **Augment repo values in every brief:**", "- dropped:")
+        )
+
+
 def assert_review_mapping(text: str) -> None:
     mapping = section(text, "- **Review outcome mapping:**", "- **Models and lenses:**")
     for rule in (
