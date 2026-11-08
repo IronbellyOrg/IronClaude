@@ -1,0 +1,4 @@
+EXIT=0
+EXIT=0
+0
+(count of staged .claude/ paths above)

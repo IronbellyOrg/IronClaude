@@ -1,0 +1,1653 @@
+- requirement_id: T-1
+  source: parsed
+  matched_task_ids:
+  - Step 4.1c
+  - Step 4.4
+  - Step 5.G5
+  - Step 5.G6
+  - Step 9.M1
+  match_method: exact
+  spec_lines:
+  - 478
+- requirement_id: T-2
+  source: parsed
+  matched_task_ids: []
+  match_method: none
+  spec_lines:
+  - 479
+- requirement_id: T-3
+  source: parsed
+  matched_task_ids:
+  - Step 4.4
+  match_method: exact
+  spec_lines:
+  - 480
+- requirement_id: T-4
+  source: parsed
+  matched_task_ids:
+  - Step 4.1a
+  - Step 4.4
+  match_method: exact
+  spec_lines:
+  - 481
+- requirement_id: T-5
+  source: parsed
+  matched_task_ids:
+  - Step 4.4
+  match_method: exact
+  spec_lines:
+  - 482
+- requirement_id: T-6
+  source: parsed
+  matched_task_ids:
+  - Step 4.4
+  match_method: exact
+  spec_lines:
+  - 483
+- requirement_id: T-7
+  source: parsed
+  matched_task_ids:
+  - Step 4.4
+  match_method: exact
+  spec_lines:
+  - 484
+- requirement_id: T-8
+  source: parsed
+  matched_task_ids:
+  - Step 4.4
+  match_method: exact
+  spec_lines:
+  - 485
+- requirement_id: T-9
+  source: parsed
+  matched_task_ids:
+  - Step 4.4
+  match_method: exact
+  spec_lines:
+  - 486
+- requirement_id: T-10
+  source: parsed
+  matched_task_ids:
+  - Step 4.1c
+  - Step 4.4
+  - Step 6.2
+  match_method: exact
+  spec_lines:
+  - 487
+  - 492
+- requirement_id: T-11
+  source: parsed
+  matched_task_ids:
+  - Step 4.1c
+  - Step 4.4
+  - Step 6.2
+  match_method: exact
+  spec_lines:
+  - 488
+- requirement_id: T-12
+  source: parsed
+  matched_task_ids:
+  - Step 4.1c
+  - Step 4.4
+  - Step 6.2
+  match_method: exact
+  spec_lines:
+  - 489
+  - 492
+- requirement_id: T-13
+  source: parsed
+  matched_task_ids:
+  - Step 4.1c
+  - Step 4.4
+  - Step 5.G5
+  - Step 5.G6
+  - Step 9.M1
+  match_method: exact
+  spec_lines:
+  - 490
+- requirement_id: INF-001
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 5.1
+  match_method: containment
+  ratio: 0.696
+  quote: For at most one such issue per cycle it starts one ordinary top-level agent session through `orca agent launch` with the prompt `/sc:issue --claim <N>`, after durably recording the dispatch.
+  citation: docs/designs/issue-watcher.md:15-15
+  section: 1. Purpose and scope
+- requirement_id: INF-002
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 9.2
+  match_method: containment
+  ratio: 0.6
+  quote: At most one claim session per issue per intact, single dispatch store per login.
+  citation: docs/designs/issue-watcher.md:17-17
+  section: 1. Purpose and scope
+- requirement_id: INF-003
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 2.2
+  match_method: containment
+  ratio: 0.714
+  quote: Trigger label plus approval label, approval actor checked against an allow-list, Project Status `Backlog`
+  citation: docs/designs/issue-watcher.md:21-21
+  section: 1. Purpose and scope
+- requirement_id: INF-004
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.8
+  quote: '`is_intended_owner`: assignee set exactly {own login}; discovery pre-filters with `--assignee`'
+  citation: docs/designs/issue-watcher.md:22-22
+  section: 1. Purpose and scope
+- requirement_id: INF-005
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 9.M2
+  match_method: containment
+  ratio: 0.727
+  quote: Local dispatch record written durably (`pending`, `launches` + 1) before the spawn, plus the claim marker
+  citation: docs/designs/issue-watcher.md:23-23
+  section: 1. Purpose and scope
+- requirement_id: INF-006
+  label: null
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5
+  quote: No cron entry is enabled and `enabled` stays `false` until an owner-run live test (FU-1) shows the prompt running as a slash command, records the session's permission mode, and replaces every `_assumed_shape`
+    fixture with captured replies under which `tests/issue_watch/` still passes.
+  citation: docs/designs/issue-watcher.md:33-33
+  section: 1. Purpose and scope
+- requirement_id: INF-007
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.786
+  quote: The owner commits that record as `docs/designs/issue-watcher-live-test.md`; neither this design nor its implementation writes it.
+  citation: docs/designs/issue-watcher.md:33-33
+  section: 1. Purpose and scope
+- requirement_id: INF-008
+  label: null
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5
+  quote: D1 option A (workspace-side poller, pull); D2 claim-only; D3 only a validated integer issue number reaches a session prompt.
+  citation: docs/designs/issue-watcher.md:39-39
+  section: 2.1 Owner decisions (verbatim from the seed brief, via spec section 2)
+- requirement_id: INF-009
+  label: null
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.571
+  quote: The poller never assigns, comments or moves Project items.
+  citation: docs/designs/issue-watcher.md:44-44
+  section: 2.1 Owner decisions (verbatim from the seed brief, via spec section 2)
+- requirement_id: INF-010
+  label: FR-012
+  source: inferred
+  matched_task_ids:
+  - Step 5.1
+  match_method: containment
+  ratio: 0.938
+  quote: The prompt is built only by `launch.build_claim_prompt(n)`, which accepts an `int` (not `bool`) in 1..999999999 and returns `/sc:issue --claim <n>`. No other text reaches the prompt.
+  citation: docs/designs/issue-watcher.md:45-45
+  section: 2.1 Owner decisions (verbatim from the seed brief, via spec section 2)
+- requirement_id: INF-011
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 5.1
+  match_method: containment
+  ratio: 0.857
+  quote: Module constant `launch.ORCA_AGENT`, pinned by a unit test to the `--agent` value of the seed brief's launch line. Not configurable.
+  citation: docs/designs/issue-watcher.md:66-66
+  section: 2.4 Other fixed spec decisions this design does not reopen
+- requirement_id: INF-012
+  label: NFR-003
+  source: inferred
+  matched_task_ids:
+  - Step 9.F7
+  match_method: containment
+  ratio: 0.733
+  quote: Every repository-scoped `gh` call names `IronbellyOrg/IronClaude`; zero `SuperClaude-Org`, zero `{owner}` placeholder (NFR-003).
+  citation: docs/designs/issue-watcher.md:67-67
+  section: 2.4 Other fixed spec decisions this design does not reopen
+- requirement_id: INF-013
+  label: NFR-004
+  source: inferred
+  matched_task_ids:
+  - Step 8.3
+  match_method: containment
+  ratio: 0.7
+  quote: '`gh`, `git` and Orca run as argv lists with `shell=False` (NFR-004).'
+  citation: docs/designs/issue-watcher.md:68-68
+  section: 2.4 Other fixed spec decisions this design does not reopen
+- requirement_id: INF-014
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.75
+  quote: Linux only; `once`, `check-config`, `init-state` exit 2 elsewhere.
+  citation: docs/designs/issue-watcher.md:69-69
+  section: 2.4 Other fixed spec decisions this design does not reopen
+- requirement_id: INF-015
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.846
+  quote: 'Network-FS deny-list for `state_dir`: nfs, nfs4, cifs, smb3, sshfs, fuse.sshfs, 9p.'
+  citation: docs/designs/issue-watcher.md:69-69
+  section: 2.4 Other fixed spec decisions this design does not reopen
+- requirement_id: INF-016
+  label: null
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.581
+  quote: NG-1 push designs B/C/D; NG-2 no GitHub write (REST GET only; GraphQL POST only with a constant query without `mutation`); NG-3 no Project writes; NG-4 no session constraint beyond the deployment
+    gate; NG-5 no daemon mode, no in-cycle retry, no automatic Orca retry.
+  citation: docs/designs/issue-watcher.md:70-70
+  section: 2.4 Other fixed spec decisions this design does not reopen
+- requirement_id: INF-017
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 2.2
+  match_method: containment
+  ratio: 0.6
+  quote: Fail closed, no label-only mode (OD-4).
+  citation: docs/designs/issue-watcher.md:72-72
+  section: 2.4 Other fixed spec decisions this design does not reopen
+- requirement_id: INF-018
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 5.1
+  match_method: containment
+  ratio: 0.818
+  quote: '`launch.find_orca(runner, which)` mirrors it with injected seams. `_ORCA_CLIS` (line 35) is imported, not copied.'
+  citation: docs/designs/issue-watcher.md:83-83
+  section: 3. Corrections to the issue text and earlier notes
+- requirement_id: INF-019
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 5.1
+  match_method: containment
+  ratio: 0.778
+  quote: The poller runs `git -C <abs worktree> remote get-url origin` with a timeout and compares the parsed `owner/repo` case-insensitively with `ironbellyorg/ironclaude`.
+  citation: docs/designs/issue-watcher.md:84-84
+  section: 3. Corrections to the issue text and earlier notes
+- requirement_id: INF-020
+  label: NFR-011
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.625
+  quote: '`record` calls it, then fsyncs the state directory itself (NFR-011).'
+  citation: docs/designs/issue-watcher.md:85-85
+  section: 3. Corrections to the issue text and earlier notes
+- requirement_id: INF-021
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 3.1c
+  match_method: containment
+  ratio: 0.75
+  quote: 'Only the paging rule is reused: a page under 100 ends the read, a repeated id fails, the read must complete.'
+  citation: docs/designs/issue-watcher.md:86-86
+  section: 3. Corrections to the issue text and earlier notes
+- requirement_id: INF-022
+  label: NFR-014
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.548
+  quote: The NFR-014 dependency rules need a new AST test, `tests/issue_watch/test_module_boundaries.py`. The package must not rebind `ID_PATTERNS`, `THRESHOLDS` or any other `contracts.__all__` name and
+    must not contain an `ID_PATTERNS` body literal such as `FR-\d+(?:\.\d+)?` (`contracts/__init__.py:64-77`).
+  citation: docs/designs/issue-watcher.md:90-90
+  section: 3. Corrections to the issue text and earlier notes
+- requirement_id: INF-023
+  label: NFR-012
+  source: inferred
+  matched_task_ids:
+  - Step 8.3
+  match_method: containment
+  ratio: 0.6
+  quote: NFR-012 forbids a new dependency.
+  citation: docs/designs/issue-watcher.md:96-96
+  section: 3. Corrections to the issue text and earlier notes
+- requirement_id: INF-024
+  label: FR-015
+  source: inferred
+  matched_task_ids:
+  - Step 5.1
+  match_method: containment
+  ratio: 0.833
+  quote: '`status` prints the full original argv plus `--retry-launch <id>`, with `cwd` (section 10.2).'
+  citation: docs/designs/issue-watcher.md:101-101
+  section: 3. Corrections to the issue text and earlier notes
+- requirement_id: INF-025
+  label: FR-016
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.818
+  quote: 'Section 6.3: the text wins; after one launch the remaining candidates get no stamp and no decision line.'
+  citation: docs/designs/issue-watcher.md:104-104
+  section: 3. Corrections to the issue text and earlier notes
+- requirement_id: INF-026
+  label: FR-026
+  source: inferred
+  matched_task_ids:
+  - Step 7.1
+  match_method: containment
+  ratio: 0.857
+  quote: The Click group is `issue_watch_group`, exposed as `superclaude issue-watch`.
+  citation: docs/designs/issue-watcher.md:110-110
+  section: 4.1 Verbs (FR-026)
+- requirement_id: INF-027
+  label: FR-026
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.8
+  quote: '`once` | `--dry-run`, `--config <path>` | Non-blocking `flock`, whole cycle | `dispatch.json` (not in dry-run), `audit.jsonl`, `dry-run.json` (dry-run only) | `gh`, `git`, Orca probe, Orca launch
+    (not in dry-run) | 0, 2, 3, 4, 5, 6, 7, 75'
+  citation: docs/designs/issue-watcher.md:114-114
+  section: 4.1 Verbs (FR-026)
+- requirement_id: INF-028
+  label: FR-021
+  source: inferred
+  matched_task_ids:
+  - Step 7.4
+  match_method: containment
+  ratio: 0.667
+  quote: '`status` | `--json`, `--config <path>` | None (read-only) | None; no file''s mtime changes (FR-021) | None | 0 healthy, 1 unhealthy (age above 900 s or no qualifying cycle), 2 config invalid,
+    6 store unreadable'
+  citation: docs/designs/issue-watcher.md:115-115
+  section: 4.1 Verbs (FR-026)
+- requirement_id: INF-029
+  label: FR-026
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.714
+  quote: '`check-config` | `--config <path>` | None | None | None | 0 valid, 2 invalid or platform unsupported or network-FS `state_dir`'
+  citation: docs/designs/issue-watcher.md:116-116
+  section: 4.1 Verbs (FR-026)
+- requirement_id: INF-030
+  label: FR-026
+  source: inferred
+  matched_task_ids:
+  - Step 7.1
+  match_method: containment
+  ratio: 0.773
+  quote: '`init-state` | `--config <path>` | Creates it | Creates `state_dir` (0700), `dispatch.json` (0600), `lock` (0600) | None | 0 created, 2 config or platform, 6 a store already exists or the directory
+    is unwritable'
+  citation: docs/designs/issue-watcher.md:117-117
+  section: 4.1 Verbs (FR-026)
+- requirement_id: INF-031
+  label: FR-026
+  source: inferred
+  matched_task_ids:
+  - Step 7.5
+  match_method: containment
+  ratio: 0.786
+  quote: '`reset <N> --forfeit-guarantee` | `--config <path>` | Non-blocking `flock` | Removes entry N; appends its `consumed_at` to `consumed_log`; one audit line | None | 0 done, 2 usage (entry not `abandoned`/`unknown`,
+    or flag missing), 6 store, 75 lock held'
+  citation: docs/designs/issue-watcher.md:118-118
+  section: 4.1 Verbs (FR-026)
+- requirement_id: INF-032
+  label: FR-026
+  source: inferred
+  matched_task_ids:
+  - Step 7.2
+  match_method: containment
+  ratio: 0.733
+  quote: '`reset --rate-limit` | `--config <path>` | Non-blocking `flock` | Clears `next_permitted_at`; one audit line | None | 0, 6, 75'
+  citation: docs/designs/issue-watcher.md:119-119
+  section: 4.1 Verbs (FR-026)
+- requirement_id: INF-033
+  label: FR-026
+  source: inferred
+  matched_task_ids:
+  - Step 7.2
+  match_method: containment
+  ratio: 1.0
+  quote: '`reset` with both `<N>` and `--rate-limit`, or with neither, is a usage error (exit 2). `reset <N>` without `--forfeit-guarantee` is a usage error.'
+  citation: docs/designs/issue-watcher.md:121-121
+  section: 4.1 Verbs (FR-026)
+- requirement_id: INF-034
+  label: FR-027
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.636
+  quote: Loaded by `cycle.load_config(path) -> Config`; validated by the same function `check-config` uses.
+  citation: docs/designs/issue-watcher.md:125-125
+  section: 4.2 Configuration file (FR-027)
+- requirement_id: INF-035
+  label: FR-027
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.75
+  quote: '`enabled` | bool | no | `false` | A JSON boolean; `false` makes `once` exit 0 `not_enabled` before any external call'
+  citation: docs/designs/issue-watcher.md:130-130
+  section: 4.2 Configuration file (FR-027)
+- requirement_id: INF-036
+  label: FR-027
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.765
+  quote: '`labels.trigger` | string | no | `issue-watch:trigger` | Non-empty, at most 50 characters, no control characters; matched exact and case-sensitive'
+  citation: docs/designs/issue-watcher.md:131-131
+  section: 4.2 Configuration file (FR-027)
+- requirement_id: INF-037
+  label: FR-027
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.556
+  quote: '`project_id` | string | yes | none | Matches `^PVT_[A-Za-z0-9_-]{1,64}$` [PROPOSAL; Projects v2 node-id prefix is UNVERIFIED, FU-3]'
+  citation: docs/designs/issue-watcher.md:133-133
+  section: 4.2 Configuration file (FR-027)
+- requirement_id: INF-038
+  label: FR-027
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.647
+  quote: "`owner_account_id` | int | no | absent | If present, an `int` (not `bool`) in 1..10^20\u22121; a mismatch with `gh api user` `.id` is exit 2 `account_id_mismatch` at cycle time"
+  citation: docs/designs/issue-watcher.md:134-134
+  section: 4.2 Configuration file (FR-027)
+- requirement_id: INF-039
+  label: FR-027
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.889
+  quote: '`worktree` | string | yes | none | Absolute path, existing directory (`worktree_invalid`)'
+  citation: docs/designs/issue-watcher.md:135-135
+  section: 4.2 Configuration file (FR-027)
+- requirement_id: INF-040
+  label: FR-027
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.7
+  quote: '`approvers_file` | string | yes | none | Absolute path; file rules below (`approvers_invalid`)'
+  citation: docs/designs/issue-watcher.md:136-136
+  section: 4.2 Configuration file (FR-027)
+- requirement_id: INF-041
+  label: FR-027
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.818
+  quote: '`state_dir` | string | no | `${XDG_STATE_HOME:-$HOME/.local/state}/superclaude/issue-watch/` | Absolute after expansion; not on a deny-listed filesystem (`state_dir_unwritable` is exit 6 only
+    when writing fails; a network FS is exit 2 `config_invalid`)'
+  citation: docs/designs/issue-watcher.md:137-137
+  section: 4.2 Configuration file (FR-027)
+- requirement_id: INF-042
+  label: FR-027
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.417
+  quote: Unknown keys are rejected (exit 2), so a typo such as `enable` cannot silently leave the poller on its default.
+  citation: docs/designs/issue-watcher.md:139-139
+  section: 4.2 Configuration file (FR-027)
+- requirement_id: INF-043
+  label: FR-027
+  source: inferred
+  matched_task_ids:
+  - Step 7.4
+  match_method: containment
+  ratio: 0.733
+  quote: '`check-config` prints the file''s mtime (UTC ISO 8601) and the entry count (R10), and nothing else about its content.'
+  citation: docs/designs/issue-watcher.md:151-151
+  section: 4.2 Configuration file (FR-027)
+- requirement_id: INF-044
+  label: FR-022
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.538
+  quote: 2 | Usage, config, platform, origin, Orca probe | `config_invalid`, `approvers_invalid`, `platform_unsupported`, `worktree_invalid`, `origin_mismatch`, `orca_not_found`, `account_id_mismatch`
+  citation: docs/designs/issue-watcher.md:158-158
+  section: 4.3 Exit codes (spec section 8)
+- requirement_id: INF-045
+  label: FR-022
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.909
+  quote: 3 | GitHub auth, scope, timeout, non-JSON | `login_invalid`, `gh_auth_failed`, `gh_timeout`, `gh_non_json`, `project_read_failed`
+  citation: docs/designs/issue-watcher.md:159-159
+  section: 4.3 Exit codes (spec section 8)
+- requirement_id: INF-046
+  label: FR-022
+  source: inferred
+  matched_task_ids:
+  - Step 3.1c
+  match_method: containment
+  ratio: 0.8
+  quote: 4 | Discovery truncated or duplicated | `truncated`, `discovery_duplicate`
+  citation: docs/designs/issue-watcher.md:160-160
+  section: 4.3 Exit codes (spec section 8)
+- requirement_id: INF-047
+  label: FR-022
+  source: inferred
+  matched_task_ids:
+  - Step 3.1b
+  match_method: containment
+  ratio: 0.75
+  quote: 5 | Rate limited | `rate_limited`, `rate_limit_clamped`
+  citation: docs/designs/issue-watcher.md:161-161
+  section: 4.3 Exit codes (spec section 8)
+- requirement_id: INF-048
+  label: FR-022
+  source: inferred
+  matched_task_ids:
+  - Step 7.2
+  match_method: containment
+  ratio: 1.0
+  quote: 6 | Store or lock | `store_invalid`, `store_missing`, `lock_missing`, `lock_invalid`, `state_dir_unwritable`
+  citation: docs/designs/issue-watcher.md:162-162
+  section: 4.3 Exit codes (spec section 8)
+- requirement_id: INF-049
+  label: FR-022
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.909
+  quote: 7 | An entry was written `failed`, `unknown` or `abandoned` `spawn_error` this cycle | `prompt_invalid`, `revalidation_transient`, `launch_unknown`, `spawn_error`
+  citation: docs/designs/issue-watcher.md:163-163
+  section: 4.3 Exit codes (spec section 8)
+- requirement_id: INF-050
+  label: FR-022
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.857
+  quote: 75 | Lock held or the lock inode changed | `lock_held`
+  citation: docs/designs/issue-watcher.md:164-164
+  section: 4.3 Exit codes (spec section 8)
+- requirement_id: INF-051
+  label: FR-022
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5
+  quote: When several conditions hold, the cycle exits with the first of 2, 6, 7, 5, 3, 4.
+  citation: docs/designs/issue-watcher.md:166-166
+  section: 4.3 Exit codes (spec section 8)
+- requirement_id: INF-052
+  label: FR-022
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.6
+  quote: Exit 75 applies only when the lock was not taken, or its inode changed, and nothing else ran.
+  citation: docs/designs/issue-watcher.md:166-166
+  section: 4.3 Exit codes (spec section 8)
+- requirement_id: INF-053
+  label: FR-022
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.909
+  quote: 'Precedence is computed by one pure function, `cycle.resolve_exit(conditions: frozenset[int]) -> int`.'
+  citation: docs/designs/issue-watcher.md:166-166
+  section: 4.3 Exit codes (spec section 8)
+- requirement_id: INF-054
+  label: NFR-004
+  source: inferred
+  matched_task_ids:
+  - Step 2.1
+  match_method: containment
+  ratio: 0.921
+  quote: '`CommandResult` dataclass; `Runner` Protocol; `SubprocessRunner.run(argv, timeout)` which rejects a `str` argv with `TypeError`, runs `subprocess.run(list, shell=False, capture_output=True, text=True,
+    timeout=t, stdin=DEVNULL)`, truncates stderr to 500 bytes (T11), and maps `TimeoutExpired` to `CommandResult(timed_out=True)` and `OSError` to `CommandResult(spawn_error=...)`'
+  citation: docs/designs/issue-watcher.md:218-218
+  section: 5.2 Responsibilities
+- requirement_id: INF-055
+  label: null
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.531
+  quote: Builds every `gh` argv from module constants (section 8); runs it through the runner with a timeout supplied by the cycle; parses JSON; follows paging; classifies replies into `ok`, `timeout`,
+    `non_json`, `auth_failed`, `scope_missing`, `rate_limited`, `transient` (5xx), `failed`; counts calls against the per-cycle `CallBudget`
+  citation: docs/designs/issue-watcher.md:219-219
+  section: 5.2 Responsibilities
+- requirement_id: INF-056
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 2.2
+  match_method: containment
+  ratio: 0.947
+  quote: Frozen dataclasses (`Login`, `DiscoveredIssue`, `LabelEvent`, `IssueSnapshot`, `ProjectItem`, `MarkerEvidence`, `EditEvidence`); pure functions for each Section 3 definition; `CLAIM_MARKER`; `is_intended_owner`;
+    `approval_of(events, ...) -> ApprovalResult`; `eligibility_order(...)`
+  citation: docs/designs/issue-watcher.md:220-220
+  section: 5.2 Responsibilities
+- requirement_id: INF-057
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 4.1a
+  match_method: containment
+  ratio: 0.625
+  quote: '`Store` Protocol; `FileStore` (load, validate, migrate, save); `Lock` (open with `O_NOFOLLOW`, `flock`, inode check); `Entry` and `StoreDoc` dataclasses; one function per section 7 transition
+    row; `sweep(store, now)`; `day_cap_count(store, now)`; `disabled_present(state_dir)`; `init_state(state_dir, now)`'
+  citation: docs/designs/issue-watcher.md:221-221
+  section: 5.2 Responsibilities
+- requirement_id: INF-058
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 5.1
+  match_method: containment
+  ratio: 0.938
+  quote: '`ORCA_AGENT` constant; `build_claim_prompt(n)`; `find_orca(runner, which)`; `parse_origin(url)`; `check_origin(runner, worktree, timeout)`; `Launcher` Protocol; `OrcaLauncher.launch(...) -> LaunchOutcome`'
+  citation: docs/designs/issue-watcher.md:222-222
+  section: 5.2 Responsibilities
+- requirement_id: INF-059
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 2.3
+  match_method: containment
+  ratio: 1.0
+  quote: '`AuditLog.append(line)` (one `os.write` on an `O_APPEND` fd), `AuditLog.rotate_if_needed()` (called only by a lock holder), `stderr_fallback(line)`; the `REASONS` frozenset with kind and exit
+    per reason; line builders `cycle_line(...)`, `decision_line(...)`, `warning_line(...)`'
+  citation: docs/designs/issue-watcher.md:223-223
+  section: 5.2 Responsibilities
+- requirement_id: INF-060
+  label: NFR-013
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.75
+  quote: '`Config` and `load_config`; `validate_approvers`; `Clock` Protocol and `SystemClock`; `Deadline` (240 s, 5 s floor, 120 s launch cutoff); `run_cycle(deps, dry_run) -> CycleResult`; `resolve_exit`;
+    `status_report(store, audit, now)`; the NFR-013 reducer `slo_numbers(lines, store, now)`'
+  citation: docs/designs/issue-watcher.md:224-224
+  section: 5.2 Responsibilities
+- requirement_id: INF-061
+  label: NFR-014
+  source: inferred
+  matched_task_ids:
+  - Step 8.8
+  match_method: containment
+  ratio: 0.786
+  quote: Anything not listed is forbidden; `tests/issue_watch/test_module_boundaries.py` walks each module's AST and fails on any other `superclaude.*` import.
+  citation: docs/designs/issue-watcher.md:231-231
+  section: 5.3 Dependency rules (NFR-014)
+- requirement_id: INF-062
+  label: FR-001
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.81
+  quote: Platform check (`sys.platform == "linux"`), `load_config`, `enabled` (skipped in dry-run), `validate_approvers`, worktree absolute and a directory, network-FS check of `state_dir` via `/proc/self/mountinfo`
+  citation: docs/designs/issue-watcher.md:344-344
+  section: 6.2 Steps
+- requirement_id: INF-063
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 4.1c
+  match_method: containment
+  ratio: 0.933
+  quote: '`record.sweep(store, now)`: every `pending` -> `abandoned` `pending_orphan`; every `launched` past `lease_expires_at` -> `abandoned` `claim_not_observed` (dry-run: report only)'
+  citation: docs/designs/issue-watcher.md:350-350
+  section: 6.2 Steps
+- requirement_id: INF-064
+  label: FR-023
+  source: inferred
+  matched_task_ids:
+  - Step 2.2
+  match_method: containment
+  ratio: 0.727
+  quote: 'Order candidates: never-examined first (ascending number), then by `considered[n]` ascending; drop to `max_candidates`'
+  citation: docs/designs/issue-watcher.md:352-352
+  section: 6.2 Steps
+- requirement_id: INF-065
+  label: FR-005
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.857
+  quote: 'Per candidate, GitHub checks in order: marker (for every entry state that can reach `claimed`), approval events, edit timestamps, `projectItems`'
+  citation: docs/designs/issue-watcher.md:354-354
+  section: 6.2 Steps
+- requirement_id: INF-066
+  label: FR-010
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.778
+  quote: 'First fully eligible candidate: `find_orca` (cached), `build_claim_prompt`, re-read, day cap, DISABLED, origin re-check, `pending` write, spawn'
+  citation: docs/designs/issue-watcher.md:355-355
+  section: 6.2 Steps
+- requirement_id: INF-067
+  label: FR-021
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 1.0
+  quote: 'Health stamp: only an exit-0 cycle that is not DISABLED, `not_enabled`, `disabled_mid_cycle` or dry-run writes `last_completed_cycle_at`'
+  citation: docs/designs/issue-watcher.md:357-357
+  section: 6.2 Steps
+- requirement_id: INF-068
+  label: FR-019
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.769
+  quote: 'Dry-run differences: step 1 ignores `enabled`; steps 7, 12 and 13 compute but do not write `dispatch.json`;'
+  citation: docs/designs/issue-watcher.md:362-362
+  section: 6.2 Steps
+- requirement_id: INF-069
+  label: FR-016
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.778
+  quote: '"Examined" stops at the first eligible candidate: after the launch, and after any launch-step outcome, later candidates are neither read nor stamped (FR-016, PF-029).'
+  citation: docs/designs/issue-watcher.md:386-386
+  section: 6.3 Quantity flow
+- requirement_id: INF-070
+  label: NFR-011
+  source: inferred
+  matched_task_ids:
+  - Step 6.6
+  match_method: containment
+  ratio: 0.833
+  quote: Failure is exit 6 with the file untouched (NFR-011).
+  citation: docs/designs/issue-watcher.md:439-439
+  section: 7.2 Store schema (`dispatch.json`, `schema_version` 1)
+- requirement_id: INF-073
+  label: FR-024
+  source: inferred
+  matched_task_ids:
+  - Step 4.1c
+  match_method: containment
+  ratio: 1.0
+  quote: "Day cap | 6 in (now \u2212 24 h, now] | count `t` with now \u2212 24 h < t <= now over every entry's `consumed_at` and `consumed_log`"
+  citation: docs/designs/issue-watcher.md:500-500
+  section: 7.5 Lease, backoff, caps and windows
+- requirement_id: INF-074
+  label: FR-009
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.7
+  quote: "Marker window | at or after `pending_at` \u2212 300 s; else after the current `approved_at` | `marker_time >= pending_at - 300s`"
+  citation: docs/designs/issue-watcher.md:502-502
+  section: 7.5 Lease, backoff, caps and windows
+- requirement_id: INF-075
+  label: NFR-011
+  source: inferred
+  matched_task_ids:
+  - Step 4.1b
+  match_method: containment
+  ratio: 0.871
+  quote: serialise with `json.dumps(doc, sort_keys=True, indent=2, ensure_ascii=True).encode() + b"\n"`; call `write_prepared_bytes(state_dir / "dispatch.json", data)`; then `os.chmod(path, 0o600)`; then
+    open `state_dir` with `os.open(dir, O_RDONLY | O_DIRECTORY)`, `os.fsync(fd)`, close.
+  citation: docs/designs/issue-watcher.md:509-509
+  section: 7.6 Atomic write and lock protocol
+- requirement_id: INF-076
+  label: FR-017
+  source: inferred
+  matched_task_ids:
+  - Step 4.1b
+  match_method: containment
+  ratio: 0.857
+  quote: '`fd = os.open(lock, O_RDWR \| O_NOFOLLOW \| O_CLOEXEC)` | `FileNotFoundError`: 6 `lock_missing`; `ELOOP` (symlink): 6 `lock_invalid`; `EISDIR`: 6 `lock_invalid`'
+  citation: docs/designs/issue-watcher.md:515-515
+  section: 7.6 Atomic write and lock protocol
+- requirement_id: INF-077
+  label: FR-017
+  source: inferred
+  matched_task_ids:
+  - Step 4.1b
+  match_method: containment
+  ratio: 0.75
+  quote: '`fcntl.flock(fd, LOCK_EX \| LOCK_NB)` | `BlockingIOError`: 75 `lock_held`'
+  citation: docs/designs/issue-watcher.md:517-517
+  section: 7.6 Atomic write and lock protocol
+- requirement_id: INF-078
+  label: NFR-005
+  source: inferred
+  matched_task_ids:
+  - Step 8.4
+  match_method: containment
+  ratio: 0.6
+  quote: At no point can a rerun see `launches == 0` for an issue whose spawn may have started, which is the at-most-once argument.
+  citation: docs/designs/issue-watcher.md:533-533
+  section: 7.6 Atomic write and lock protocol
+- requirement_id: INF-079
+  label: FR-002
+  source: inferred
+  matched_task_ids:
+  - Step 3.2
+  match_method: containment
+  ratio: 0.762
+  quote: G1 | Own login (FR-002) | `gh api user --include` | parse the status line, headers, blank line, then JSON; keep `.login`, `.id`, header `Date`
+  citation: docs/designs/issue-watcher.md:543-543
+  section: 8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)
+- requirement_id: INF-080
+  label: FR-003
+  source: inferred
+  matched_task_ids:
+  - Step 3.1a
+  match_method: containment
+  ratio: 0.95
+  quote: G2 | Discovery (FR-003) | `gh issue list --repo R --state open --label <trigger> --assignee <login> --json number,labels,assignees,state -L 100`
+  citation: docs/designs/issue-watcher.md:544-544
+  section: 8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)
+- requirement_id: INF-081
+  label: FR-005
+  source: inferred
+  matched_task_ids:
+  - Step 3.1a
+  match_method: containment
+  ratio: 0.8
+  quote: G3 | Events (FR-005, FR-006, renamed check) | `gh api --method GET repos/R/issues/N/events -F per_page=100 -F page=P --jq EVENTS_JQ`
+  citation: docs/designs/issue-watcher.md:545-545
+  section: 8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)
+- requirement_id: INF-082
+  label: FR-009
+  source: inferred
+  matched_task_ids:
+  - Step 3.1a
+  match_method: containment
+  ratio: 0.882
+  quote: G4 | Claim marker (FR-009) | `gh api --method GET repos/R/issues/N/comments -F per_page=100 -F page=P --jq MARKER_JQ`
+  citation: docs/designs/issue-watcher.md:546-546
+  section: 8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)
+- requirement_id: INF-083
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 3.1a
+  match_method: containment
+  ratio: 0.75
+  quote: G5 | Edit timestamps (Section 3 Unchanged) | `gh api graphql -f query=EDITS_QUERY -F number=N [-f after=<cursor>]`
+  citation: docs/designs/issue-watcher.md:547-547
+  section: 8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)
+- requirement_id: INF-084
+  label: FR-007
+  source: inferred
+  matched_task_ids:
+  - Step 3.1a
+  match_method: containment
+  ratio: 0.75
+  quote: G6 | Project items (FR-007) | `gh api graphql -f query=PROJECT_ITEMS_QUERY -F number=N [-f after=<cursor>]`
+  citation: docs/designs/issue-watcher.md:548-548
+  section: 8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)
+- requirement_id: INF-085
+  label: FR-011
+  source: inferred
+  matched_task_ids:
+  - Step 3.1a
+  match_method: containment
+  ratio: 0.857
+  quote: G7 | Re-read issue (FR-011) | `gh api --method GET repos/R/issues/N --jq REREAD_JQ`
+  citation: docs/designs/issue-watcher.md:549-549
+  section: 8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)
+- requirement_id: INF-086
+  label: NFR-002
+  source: inferred
+  matched_task_ids:
+  - Step 3.G7
+  match_method: containment
+  ratio: 0.833
+  quote: '`--method GET` is written on every REST path call.'
+  citation: docs/designs/issue-watcher.md:554-554
+  section: 8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)
+- requirement_id: INF-087
+  label: NFR-002
+  source: inferred
+  matched_task_ids:
+  - Step 8.3
+  match_method: containment
+  ratio: 0.909
+  quote: A test asserts no query constant contains `mutation` (NG-2) and every constant contains the literal repository.
+  citation: docs/designs/issue-watcher.md:555-555
+  section: 8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)
+- requirement_id: INF-088
+  label: NFR-002
+  source: inferred
+  matched_task_ids:
+  - Step 3.1a
+  match_method: containment
+  ratio: 0.889
+  quote: No argv names `title`, `body` or a comment body field as an output field.
+  citation: docs/designs/issue-watcher.md:556-556
+  section: 8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)
+- requirement_id: INF-089
+  label: null
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5
+  quote: Project ids are compared in Python (`project.id == config.project_id`); the id never enters an argv, so a hostile config value cannot alter a query.
+  citation: docs/designs/issue-watcher.md:558-558
+  section: 8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)
+- requirement_id: INF-090
+  label: FR-013
+  source: inferred
+  matched_task_ids:
+  - Step 5.1
+  match_method: containment
+  ratio: 0.867
+  quote: 'Launch argv (FR-013), exactly 12 elements, built by `launch.launch_argv(orca, worktree, prompt) -> list[str]`:'
+  citation: docs/designs/issue-watcher.md:618-618
+  section: 8.4 Orca contract
+- requirement_id: INF-091
+  label: FR-014
+  source: inferred
+  matched_task_ids:
+  - Step 5.1
+  match_method: containment
+  ratio: 0.944
+  quote: exit 0 without that id, non-JSON, non-zero exit, `agent_session_operation_unknown` anywhere in stdout or stderr | `unknown` | `unknown`, `operation_id` kept if one was parsed
+  citation: docs/designs/issue-watcher.md:634-634
+  section: 8.4 Orca contract
+- requirement_id: INF-092
+  label: FR-029
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.812
+  quote: Orca launch | 120 s, never shortened | not started when `elapsed() > 120`; the step ends with no entry and no reason other than a `budget_exhausted` decision line
+  citation: docs/designs/issue-watcher.md:647-647
+  section: 8.5 Timeouts and the deadline
+- requirement_id: INF-093
+  label: FR-005
+  source: inferred
+  matched_task_ids:
+  - Step 2.2
+  match_method: containment
+  ratio: 0.9
+  quote: Latest `labeled` approval event; `actor_id` in the approvers set; later `unlabeled` voids it
+  citation: docs/designs/issue-watcher.md:658-658
+  section: 9.1 Threat controls and their tests
+- requirement_id: INF-094
+  label: FR-005
+  source: inferred
+  matched_task_ids:
+  - Step 2.2
+  match_method: containment
+  ratio: 1.0
+  quote: '`actor_type == "User"` and login not ending `[bot]`'
+  citation: docs/designs/issue-watcher.md:659-659
+  section: 9.1 Threat controls and their tests
+- requirement_id: INF-095
+  label: FR-006
+  source: inferred
+  matched_task_ids:
+  - Step 2.2
+  match_method: containment
+  ratio: 0.875
+  quote: Body, non-own comments and `renamed` events all older than the approval
+  citation: docs/designs/issue-watcher.md:660-660
+  section: 9.1 Threat controls and their tests
+- requirement_id: INF-096
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 5.G7
+  match_method: containment
+  ratio: 0.8
+  quote: Deployment gate; no permission flag in the argv
+  citation: docs/designs/issue-watcher.md:666-666
+  section: 9.1 Threat controls and their tests
+- requirement_id: INF-097
+  label: FR-027
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.8
+  quote: '`lstat`, `S_ISREG`, `st_uid`, mode `& 0o022 == 0`, line regex, at least one ID'
+  citation: docs/designs/issue-watcher.md:669-669
+  section: 9.1 Threat controls and their tests
+- requirement_id: INF-098
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 5.1
+  match_method: containment
+  ratio: 0.833
+  quote: An id that fails it is stored as `null` and the outcome is `unknown`.
+  citation: docs/designs/issue-watcher.md:689-689
+  section: 9.2 What crosses each trust boundary
+- requirement_id: INF-099
+  label: NFR-001
+  source: inferred
+  matched_task_ids:
+  - Step 8.3
+  match_method: containment
+  ratio: 0.867
+  quote: The property test draws `n` from integers, hostile strings, floats and booleans, and asserts every recorded `--prompt` matches `^/sc:issue --claim [1-9][0-9]{0,8}$`.
+  citation: docs/designs/issue-watcher.md:693-693
+  section: 9.3 D3 enforcement path
+- requirement_id: INF-100
+  label: FR-020
+  source: inferred
+  matched_task_ids:
+  - Step 2.3
+  match_method: containment
+  ratio: 0.857
+  quote: One JSON object per line, written with one `os.write` on an `O_WRONLY | O_APPEND | O_CREAT` fd (mode 0600).
+  citation: docs/designs/issue-watcher.md:699-699
+  section: 10.1 Audit line schema
+- requirement_id: INF-101
+  label: NFR-006
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.583
+  quote: '`rate_remaining`, titles, bodies, label names and stderr text are never keys (NFR-006, T11).'
+  citation: docs/designs/issue-watcher.md:718-718
+  section: 10.1 Audit line schema
+- requirement_id: INF-102
+  label: FR-020
+  source: inferred
+  matched_task_ids:
+  - Step 2.3
+  match_method: containment
+  ratio: 0.867
+  quote: if `audit.jsonl` is at least 5 MiB, `os.replace` `.3` to `.4`, `.2` to `.3`, `.1` to `.2`, current to `.1`, then a directory fsync. The exit-75 path appends and never rotates.
+  citation: docs/designs/issue-watcher.md:720-720
+  section: 10.1 Audit line schema
+- requirement_id: INF-103
+  label: FR-015
+  source: inferred
+  matched_task_ids:
+  - Step 5.1
+  match_method: containment
+  ratio: 0.941
+  quote: '`retry[].argv` is the original 12-element launch argv with `--retry-launch <operation_id>` inserted before `--json`, rebuilt from the entry, `ORCA_AGENT` and `build_claim_prompt(issue)`'
+  citation: docs/designs/issue-watcher.md:741-741
+  section: 10.2 `status` output
+- requirement_id: INF-104
+  label: NFR-013
+  source: inferred
+  matched_task_ids:
+  - Step 6.3
+  match_method: containment
+  ratio: 0.917
+  quote: (a) p95 of the `launched` decision `ts` minus its `approved_at`; (b) share of exit-0 cycle lines over 7 days, excluding `disabled`, `not_enabled` and `dry_run`; (c) share of `launched` entries
+    that reached `claimed` before `lease_expires_at`; (d) count of `stale` entries.
+  citation: docs/designs/issue-watcher.md:745-745
+  section: 10.3 SLO helper
+- requirement_id: INF-105
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 7.3
+  match_method: containment
+  ratio: 0.867
+  quote: '`src/superclaude/cli/main.py` | Two lines after line 561, same pattern as `reflect_group` (lines 559 and 561)'
+  citation: docs/designs/issue-watcher.md:760-760
+  section: 11. Files to create or change
+- requirement_id: INF-106
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 6.4
+  match_method: containment
+  ratio: 0.714
+  quote: '`tests/issue_watch/__init__.py`, `conftest.py` | Package marker (C14); `FakeRunner`, `FakeClock`, `FakeLauncher`, `tmp_state` fixtures'
+  citation: docs/designs/issue-watcher.md:761-761
+  section: 11. Files to create or change
+- requirement_id: INF-107
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 5.G4
+  match_method: containment
+  ratio: 0.933
+  quote: '`tests/issue_watch/test_{runner,github,predicates,record,launch,audit,cycle,cli}.py` | One file per module'
+  citation: docs/designs/issue-watcher.md:762-762
+  section: 11. Files to create or change
+- requirement_id: INF-108
+  label: null
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.364
+  quote: '`tests/issue_watch/test_{cli_e2e,security_invariants,crash_injection,concurrency,no_shell,no_text,origin_parity,marker_contract,find_orca_parity,module_boundaries,slo_helper}.py` | Spec-named
+    and design-added cross-cutting tests'
+  citation: docs/designs/issue-watcher.md:763-763
+  section: 11. Files to create or change
+- requirement_id: INF-109
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 3.5
+  match_method: containment
+  ratio: 0.818
+  quote: '`tests/issue_watch/fixtures/_assumed_shape/*.json` | Assumed `gh` and Orca replies, replaced by FU-1'
+  citation: docs/designs/issue-watcher.md:764-764
+  section: 11. Files to create or change
+- requirement_id: INF-110
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 8.1
+  match_method: containment
+  ratio: 0.909
+  quote: '`tests/issue_watch/stubs/gh`, `stubs/orca` | Executable PATH stubs for `test_cli_e2e.py`'
+  citation: docs/designs/issue-watcher.md:765-765
+  section: 11. Files to create or change
+- requirement_id: INF-111
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 9.1
+  match_method: containment
+  ratio: 1.0
+  quote: '`docs/designs/issue-watcher-setup.md` | Runbook steps 1 to 10 for the owner'
+  citation: docs/designs/issue-watcher.md:766-766
+  section: 11. Files to create or change
+- requirement_id: INF-112
+  label: NFR-012
+  source: inferred
+  matched_task_ids:
+  - Step 9.15
+  match_method: containment
+  ratio: 1.0
+  quote: 'Not changed: `pyproject.toml` (no dependency, no marker, no entry point), `Makefile`, CI, any file under `.claude/`.'
+  citation: docs/designs/issue-watcher.md:768-768
+  section: 11. Files to create or change
+- requirement_id: INF-113
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 8.G7
+  match_method: containment
+  ratio: 0.6
+  quote: No test runs a real `gh`, `orca`, `git` or network call. Every external effect goes through a fake or a PATH stub.
+  citation: docs/designs/issue-watcher.md:772-772
+  section: 12. Tests
+- requirement_id: INF-114
+  label: NFR-005
+  source: inferred
+  matched_task_ids:
+  - Step 8.4
+  match_method: containment
+  ratio: 0.846
+  quote: "`test_crash_injection.py` | per C1 to C5, run, crash, rerun: total fresh launches per issue \u2264 1 (NFR-005)"
+  citation: docs/designs/issue-watcher.md:784-784
+  section: 12. Tests
+- requirement_id: INF-115
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 8.5
+  match_method: containment
+  ratio: 0.933
+  quote: '`test_concurrency.py` | two `multiprocessing` processes on one `tmp_path` store: one exits 75 `lock_held`, one launch total'
+  citation: docs/designs/issue-watcher.md:785-785
+  section: 12. Tests
+- requirement_id: INF-116
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 6.8
+  match_method: containment
+  ratio: 1.0
+  quote: '`test_cycle.py::test_fifty_cycles` | 50 cycles over a changing fixture: `launches` never exceeds 1 per issue'
+  citation: docs/designs/issue-watcher.md:786-786
+  section: 12. Tests
+- requirement_id: INF-117
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 6.8
+  match_method: containment
+  ratio: 0.947
+  quote: '`test_cycle.py::test_acceptance_property` | for N in {1, 2, 6, 7, 50, 99}: at most 1 launch per cycle; after 24 h of cycles exactly min(N, 6) launched and the rest `day_cap`; after +24 h one more
+    per cycle'
+  citation: docs/designs/issue-watcher.md:787-787
+  section: 12. Tests
+- requirement_id: INF-118
+  label: NFR-004
+  source: inferred
+  matched_task_ids:
+  - Step 8.6
+  match_method: containment
+  ratio: 1.0
+  quote: '`test_no_shell.py` | AST: no `shell=True`, no `os.system`, no `subprocess` outside `runner.py`'
+  citation: docs/designs/issue-watcher.md:788-788
+  section: 12. Tests
+- requirement_id: INF-119
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 8.7
+  match_method: containment
+  ratio: 0.714
+  quote: '`test_no_text.py` | hostile titles, bodies and stderr (`PWNED-TITLE`) never appear in audit, store, prompt or stdout'
+  citation: docs/designs/issue-watcher.md:789-789
+  section: 12. Tests
+- requirement_id: INF-120
+  label: NFR-014
+  source: inferred
+  matched_task_ids:
+  - Step 8.8
+  match_method: containment
+  ratio: 0.8
+  quote: '`test_module_boundaries.py` | AST import graph matches section 5.3; no module named `select`'
+  citation: docs/designs/issue-watcher.md:790-790
+  section: 12. Tests
+- requirement_id: INF-121
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 5.8
+  match_method: containment
+  ratio: 0.8
+  quote: '`test_marker_contract.py` | `CLAIM_MARKER` occurs in `refs/claim.md` and `templates/claim-comment.md`, read through the dual surface'
+  citation: docs/designs/issue-watcher.md:791-791
+  section: 12. Tests
+- requirement_id: INF-122
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 9.M1
+  match_method: containment
+  ratio: 0.7
+  quote: '`uv run pytest tests/issue_watch/ -v` | spec line 366 | fast loop'
+  citation: docs/designs/issue-watcher.md:797-797
+  section: 13. Gates, sync and packaging
+- requirement_id: INF-123
+  label: null
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5
+  quote: '`make test` | `Makefile:13-15` | CI uses `-n auto` (`test.yml:47`), C11'
+  citation: docs/designs/issue-watcher.md:798-798
+  section: 13. Gates, sync and packaging
+- requirement_id: INF-124
+  label: null
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.435
+  quote: '`make lint` | `Makefile:48-50` | includes `lint-architecture` (C8); ruff 0.15.20, select `E,F,I,N,W,TID`, line length 88, py310 (`pyproject.toml:54,174-184`)'
+  citation: docs/designs/issue-watcher.md:799-799
+  section: 13. Gates, sync and packaging
+- requirement_id: INF-125
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 3.G2
+  match_method: containment
+  ratio: 0.692
+  quote: '`uv run ruff format --check src/ tests/` | `test.yml:106` | no make target (C10)'
+  citation: docs/designs/issue-watcher.md:800-800
+  section: 13. Gates, sync and packaging
+- requirement_id: INF-126
+  label: NFR-012
+  source: inferred
+  matched_task_ids:
+  - Step 9.9
+  match_method: containment
+  ratio: 0.667
+  quote: '`make verify-deps` | `Makefile:356-358`, `test.yml:123` | passes with no new dependency'
+  citation: docs/designs/issue-watcher.md:801-801
+  section: 13. Gates, sync and packaging
+- requirement_id: INF-127
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.625
+  quote: 'The Python floor is 3.10 (`pyproject.toml:16`, CI `test.yml:22`): no `tomllib`, no `datetime.UTC` (use `timezone.utc`).'
+  citation: docs/designs/issue-watcher.md:805-805
+  section: 13. Gates, sync and packaging
+- requirement_id: INF-128
+  label: null
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.333
+  quote: '`max_launches_per_cycle` | 1 | caps blast radius of a bad cycle'
+  citation: docs/designs/issue-watcher.md:812-812
+  section: 14. Defaults ([PROPOSAL] values)
+- requirement_id: INF-129
+  label: null
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.545
+  quote: call cap | 35, 3 reserved | worst cycle 37 calls, 8.88% of 5,000 an hour
+  citation: docs/designs/issue-watcher.md:814-814
+  section: 14. Defaults ([PROPOSAL] values)
+- requirement_id: INF-130
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 9.M1
+  match_method: containment
+  ratio: 0.625
+  quote: day cap | 6 per rolling 24 h | bounds sessions the owner must review
+  citation: docs/designs/issue-watcher.md:816-816
+  section: 14. Defaults ([PROPOSAL] values)
+- requirement_id: INF-131
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 5.1
+  match_method: containment
+  ratio: 0.692
+  quote: The implementer records each UNVERIFIED answer in the matching `_assumed_shape` fixture name and in `issue-watcher-live-test.md`.
+  citation: docs/designs/issue-watcher.md:847-847
+  section: 15. Commands and flags cited
+- requirement_id: INF-132
+  label: null
+  source: inferred
+  matched_task_ids:
+  - Step 8.G2
+  match_method: containment
+  ratio: 0.8
+  quote: All criteria run under `uv run pytest tests/issue_watch/` with fakes or PATH stubs only.
+  citation: docs/designs/issue-watcher.md:870-870
+  section: 17. Acceptance criteria
+- requirement_id: INF-133
+  label: AC-1
+  source: inferred
+  matched_task_ids:
+  - Step 6.7
+  match_method: containment
+  ratio: 0.692
+  quote: One `once` runs the FR-001 order; `FakeRunner` sees G1 first and no argv after an exit decision
+  citation: docs/designs/issue-watcher.md:874-874
+  section: 17. Acceptance criteria
+- requirement_id: INF-134
+  label: AC-2
+  source: inferred
+  matched_task_ids:
+  - Step 6.6
+  match_method: containment
+  ratio: 0.818
+  quote: Discovery argv equals the FR-003 literal; 100 results or a repeated number exits 4
+  citation: docs/designs/issue-watcher.md:875-875
+  section: 17. Acceptance criteria
+- requirement_id: INF-135
+  label: AC-3
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.538
+  quote: 'Approval table: outsider, bot, unlabel, relabel, incomplete history, edit after approval each skip with their reason'
+  citation: docs/designs/issue-watcher.md:876-876
+  section: 17. Acceptance criteria
+- requirement_id: INF-136
+  label: AC-4
+  source: inferred
+  matched_task_ids:
+  - Step 2.7
+  match_method: containment
+  ratio: 0.7
+  quote: 'Project and owner tables: wrong project, not Backlog, unassigned, other assignee skip'
+  citation: docs/designs/issue-watcher.md:877-877
+  section: 17. Acceptance criteria
+- requirement_id: INF-137
+  label: AC-5
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.714
+  quote: An own-login marker comment yields `claimed` and no launch
+  citation: docs/designs/issue-watcher.md:878-878
+  section: 17. Acceptance criteria
+- requirement_id: INF-138
+  label: AC-6
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 0.778
+  quote: '`pending` with `launches` 1 is saved before the launcher is called; the re-read failure skips'
+  citation: docs/designs/issue-watcher.md:879-879
+  section: 17. Acceptance criteria
+- requirement_id: INF-139
+  label: AC-7
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.545
+  quote: Every recorded prompt matches the D3 regex over the hostile corpus; non-int input raises
+  citation: docs/designs/issue-watcher.md:880-880
+  section: 17. Acceptance criteria
+- requirement_id: INF-140
+  label: AC-8
+  source: inferred
+  matched_task_ids:
+  - Step 5.1
+  match_method: containment
+  ratio: 0.769
+  quote: Launch argv equals the 12-element list; outcome table maps to `launched`, `failed`, `unknown`, `abandoned`
+  citation: docs/designs/issue-watcher.md:881-881
+  section: 17. Acceptance criteria
+- requirement_id: INF-141
+  label: AC-9
+  source: inferred
+  matched_task_ids:
+  - Step 7.4
+  match_method: containment
+  ratio: 0.889
+  quote: No automatic retry; `status` lists the full retry argv for an `unknown` entry
+  citation: docs/designs/issue-watcher.md:882-882
+  section: 17. Acceptance criteria
+- requirement_id: INF-142
+  label: AC-10
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.4
+  quote: Budget, day cap and `consumed_log` hold through `reset`; acceptance property passes
+  citation: docs/designs/issue-watcher.md:883-883
+  section: 17. Acceptance criteria
+- requirement_id: INF-143
+  label: AC-11
+  source: inferred
+  matched_task_ids:
+  - Step 8.5
+  match_method: containment
+  ratio: 0.75
+  quote: Second process exits 75; symlinked or foreign lock exits 6
+  citation: docs/designs/issue-watcher.md:884-884
+  section: 17. Acceptance criteria
+- requirement_id: INF-144
+  label: AC-12
+  source: inferred
+  matched_task_ids:
+  - Step 6.2
+  match_method: containment
+  ratio: 1.0
+  quote: '`DISABLED` and `enabled: false` exit 0 before any external call'
+  citation: docs/designs/issue-watcher.md:885-885
+  section: 17. Acceptance criteria
+- requirement_id: INF-145
+  label: AC-13
+  source: inferred
+  matched_task_ids:
+  - Step 4.3
+  match_method: containment
+  ratio: 0.818
+  quote: Dry-run writes only `dry-run.json` and audit; the real store is byte-identical
+  citation: docs/designs/issue-watcher.md:886-886
+  section: 17. Acceptance criteria
+- requirement_id: INF-146
+  label: AC-14
+  source: inferred
+  matched_task_ids:
+  - Step 2.8
+  match_method: containment
+  ratio: 0.636
+  quote: Every exit writes a schema-valid audit line or the stderr fallback; rotation keeps 4 files
+  citation: docs/designs/issue-watcher.md:887-887
+  section: 17. Acceptance criteria
+- requirement_id: INF-147
+  label: AC-15
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.5
+  quote: Shared-input failures map to exits 2, 3, 5, 6, 7 with the precedence 2, 6, 7, 5, 3, 4
+  citation: docs/designs/issue-watcher.md:888-888
+  section: 17. Acceptance criteria
+- requirement_id: INF-148
+  label: AC-16
+  source: inferred
+  matched_task_ids:
+  - Step 6.6
+  match_method: containment
+  ratio: 0.625
+  quote: Origin mismatch exits 2; parity table agrees with `origin_repo.py`
+  citation: docs/designs/issue-watcher.md:889-889
+  section: 17. Acceptance criteria
+- requirement_id: INF-149
+  label: AC-17
+  source: inferred
+  matched_task_ids:
+  - Step 6.1
+  match_method: containment
+  ratio: 0.8
+  quote: Each verb's exit codes match section 4; `check-config` and `status` write nothing
+  citation: docs/designs/issue-watcher.md:890-890
+  section: 17. Acceptance criteria
+- requirement_id: INF-150
+  label: AC-18
+  source: inferred
+  matched_task_ids:
+  - Step 6.6
+  match_method: containment
+  ratio: 0.8
+  quote: Rate limit persists `next_permitted_at`, clamps to 3600 s, and `reset --rate-limit` clears it
+  citation: docs/designs/issue-watcher.md:891-891
+  section: 17. Acceptance criteria
+- requirement_id: INF-151
+  label: AC-19
+  source: inferred
+  matched_task_ids: []
+  match_method: none
+  ratio: 0.429
+  quote: A sleeping stub ends with `gh_timeout`; no launch starts after 120 s
+  citation: docs/designs/issue-watcher.md:892-892
+  section: 17. Acceptance criteria
+- requirement_id: INF-152
+  label: AC-20
+  source: inferred
+  matched_task_ids:
+  - Step 3.6
+  match_method: containment
+  ratio: 0.667
+  quote: 'Argv prefix scan: only G1 to G7, `--method GET`, no upstream name'
+  citation: docs/designs/issue-watcher.md:893-893
+  section: 17. Acceptance criteria
+- requirement_id: INF-153
+  label: AC-21
+  source: inferred
+  matched_task_ids:
+  - Step 2.1
+  match_method: containment
+  ratio: 0.667
+  quote: '`test_no_shell.py` passes'
+  citation: docs/designs/issue-watcher.md:894-894
+  section: 17. Acceptance criteria
+- requirement_id: INF-154
+  label: AC-22
+  source: inferred
+  matched_task_ids:
+  - Step 8.G6
+  match_method: containment
+  ratio: 0.727
+  quote: Crash points C1 to C5 and 50 cycles never exceed one launch per issue
+  citation: docs/designs/issue-watcher.md:895-895
+  section: 17. Acceptance criteria
+- requirement_id: INF-155
+  label: AC-23
+  source: inferred
+  matched_task_ids:
+  - Step 9.F4
+  match_method: containment
+  ratio: 0.667
+  quote: No new dependency; gates in section 13 pass
+  citation: docs/designs/issue-watcher.md:896-896
+  section: 17. Acceptance criteria
+- requirement_id: INF-156
+  label: AC-24
+  source: inferred
+  matched_task_ids:
+  - Step 6.9
+  match_method: containment
+  ratio: 0.833
+  quote: '`slo_numbers` returns the four values on a fixture log'
+  citation: docs/designs/issue-watcher.md:897-897
+  section: 17. Acceptance criteria
+- requirement_id: INF-157
+  label: AC-25
+  source: inferred
+  matched_task_ids:
+  - Step 5.G6
+  match_method: containment
+  ratio: 0.8
+  quote: Module-boundary and parity tests pass
+  citation: docs/designs/issue-watcher.md:898-898
+  section: 17. Acceptance criteria

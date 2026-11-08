@@ -1,0 +1,7 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/issue-watcher.md section 15, lines 840-841 (orca agent launch error reply and the agent_session_operation_unknown text): UNVERIFIED",
+  "note": "The error reply is assumed, not captured. stderr holds the TEXT of a JSON object; the operation id sits at error.operation_id, the error path in OPERATION_ID_PATHS (OQ-47: the id is read from the parsed error reply, never scraped from plain text). The owner-run live test (FU-1) replaces this with a captured reply.",
+  "exit": 1,
+  "stderr": "{\"error\": {\"code\": \"agent_session_operation_unknown\", \"message\": \"launch reply lost\", \"operation_id\": \"op-test-0001\"}}\n"
+}

@@ -1,0 +1,14 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/issue-watcher.md section 15, lines 837-838 and section 8.2 line 585 (GraphQL error type names): UNVERIFIED",
+  "note": "The error type and message are assumed, not captured. The owner-run live test replaces them with a captured reply.",
+  "payload": {
+    "data": null,
+    "errors": [
+      {
+        "type": "INSUFFICIENT_SCOPES",
+        "message": "Assumed text: the token lacks the read:project scope."
+      }
+    ]
+  }
+}

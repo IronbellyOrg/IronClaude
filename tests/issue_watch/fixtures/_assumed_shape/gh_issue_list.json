@@ -1,0 +1,27 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/issue-watcher.md section 15, row 'gh issue list --repo --state --label --assignee --json --limit' (line 834): the JSON field names number, labels, assignees are UNVERIFIED; FU-1 replaces this file with a captured reply",
+  "payload": [
+    {
+      "number": 101,
+      "labels": [
+        {"name": "issue-watch:trigger"},
+        {"name": "issue-watch:approved"}
+      ],
+      "assignees": [
+        {"login": "owner-login"}
+      ],
+      "state": "OPEN"
+    },
+    {
+      "number": 102,
+      "labels": [
+        {"name": "issue-watch:trigger"}
+      ],
+      "assignees": [
+        {"login": "owner-login"}
+      ],
+      "state": "OPEN"
+    }
+  ]
+}

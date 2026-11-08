@@ -1,0 +1,571 @@
+# Coverage matrix, UC-2 post-execution reflect, Wave 1B (tasklist-vs-diff and spec coverage).
+# Producer: helper agent (read-only). Evidence rule: every file:line below was Read in this run.
+# Executor reports (ac-trace.md etc.) were used only as leads, never as evidence.
+# BASE=e8db2fe6  HEAD=26f551f4  (one commit, 379 files, 87301 insertions)
+# Short paths: IW = src/superclaude/cli/issue_watch ; T = tests/issue_watch
+#              PKG = .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955
+
+meta:
+  tasklist: PKG/TASK-RF-issue-watcher-20261107-150955.md
+  checklist_items_total: 209          # Grep '^- \[x\]' = 207, '^- \[ \]' = 2
+  checked: 207
+  unchecked: 2                        # tasklist lines 862 (Step 10.6 POST reflect) and 877 (Step 10.7 Done); both expected open
+  frontmatter_state: 'status "Doing", reflect_post "" (lines 6, 33): consistent with 10.6 and 10.7 open'
+  checked_items_with_missing_or_empty_deliverable: []   # none; the only 0-byte files are the two package markers IW/__init__.py and T/__init__.py (empty by design, Steps 1.6 and 1.7)
+
+# =============================================================================
+# SECTION 1: tasklist items (deliverable groups, Steps 1.x to 10.5)
+# status: done | partial | missing | n/a   (checked is the tasklist [x] state)
+# =============================================================================
+tasklist_items:
+  - {step: "1.1",  deliverable: "task frontmatter status",                      exists: true,  checked: true, status: done}
+  - {step: "1.2",  deliverable: "PKG/phase-outputs/{discovery,plans,reports,reviews,test-results}/ and PKG/qa/gate-{a,b,c,d}, final, m4", exists: true, checked: true, status: done}
+  - {step: "1.3",  deliverable: "PKG/phase-outputs/discovery/git-baseline.md",    exists: true,  checked: true, status: done}
+  - {step: "1.4",  deliverable: "PKG/phase-outputs/discovery/tool-versions.md",   exists: true,  checked: true, status: done}
+  - {step: "1.5",  deliverable: "PKG/phase-outputs/discovery/citation-anchors.md", exists: true, checked: true, status: done}
+  - {step: "1.6",  deliverable: "IW/__init__.py (empty by design)",               exists: true,  checked: true, status: done}
+  - {step: "1.7",  deliverable: "T/__init__.py (empty by design)",                exists: true,  checked: true, status: done}
+  - {step: "1.8",  deliverable: "phase-outputs/test-results/p1-g1-{raw.txt,summary.md}", exists: true, checked: true, status: done}
+  - {step: "2.1",  deliverable: "IW/runner.py (130 lines)",                       exists: true,  checked: true, status: done}
+  - {step: "2.2",  deliverable: "IW/predicates.py (312 lines)",                   exists: true,  checked: true, status: done}
+  - {step: "2.3",  deliverable: "IW/audit.py (404 lines)",                        exists: true,  checked: true, status: done}
+  - {step: "2.4",  deliverable: "T/conftest.py part 1 (FakeRunner, FakeClock)",   exists: true,  checked: true, status: done}
+  - {step: "2.5",  deliverable: "T/test_runner.py (16 tests)",                    exists: true,  checked: true, status: done}
+  - {step: "2.6-2.7", deliverable: "T/test_predicates.py (44 tests)",             exists: true,  checked: true, status: done}
+  - {step: "2.8",  deliverable: "T/test_audit.py (46 tests)",                     exists: true,  checked: true, status: done}
+  - {step: "2.9",  deliverable: "phase-outputs/reviews/p2-leaf-imports.md",       exists: true,  checked: true, status: done}
+  - {step: "2.10-2.11", deliverable: "p2-g1-{raw,summary}, p2-ruff",              exists: true,  checked: true, status: done}
+  - {step: "3.1a-c", deliverable: "IW/github.py (960 lines)",                     exists: true,  checked: true, status: done}
+  - {step: "3.2-3.5", deliverable: "tests/issue_watch/fixtures/_assumed_shape/ fixture groups 1 to 4 (all 13 planned names exist; see falsified_claims)", exists: true, checked: true, status: done}
+  - {step: "3.6-3.7", deliverable: "T/test_github.py (141 tests)",                exists: true,  checked: true, status: done}
+  - {step: "3.8-3.11", deliverable: "p3-g1, p3-g4, p3-ruff, p3-g8 (NO_MATCH, exit 1 expected)", exists: true, checked: true, status: done}
+  - {step: "3.G1-3.G17", deliverable: "Gate A: PKG/qa/gate-a (14 files), plans/gate-a-verdict.md (PASS after 2 fix cycles), gate-a-cycle-decision.md, reports/gate-a-change-set.md, test-results/gate-a-postfix-cycle2.txt", exists: true, checked: true, status: done}
+  - {step: "4.1a-c", deliverable: "IW/record.py (865 lines)",                     exists: true,  checked: true, status: done}
+  - {step: "4.2",  deliverable: "T/conftest.py part 2 (tmp_state, CrashingStore)", exists: true,  checked: true, status: done}
+  - {step: "4.3-4.5", deliverable: "T/test_record.py (147 tests)",                exists: true,  checked: true, status: done}
+  - {step: "4.6-4.7", deliverable: "p4-g1, p4-ruff",                              exists: true,  checked: true, status: done}
+  - {step: "5.1",  deliverable: "IW/launch.py (355 lines)",                       exists: true,  checked: true, status: done}
+  - {step: "5.2",  deliverable: "orca_launch_{success,unknown,no_operation_id,empty_operation_id}.json", exists: true, checked: true, status: done}
+  - {step: "5.3",  deliverable: "T/conftest.py part 3 (FakeLauncher)",            exists: true,  checked: true, status: done}
+  - {step: "5.4-5.5", deliverable: "T/test_launch.py (59 tests)",                 exists: true,  checked: true, status: done}
+  - {step: "5.6",  deliverable: "T/test_find_orca_parity.py (10)",                exists: true,  checked: true, status: done}
+  - {step: "5.7",  deliverable: "T/test_origin_parity.py (7)",                    exists: true,  checked: true, status: done}
+  - {step: "5.8",  deliverable: "T/test_marker_contract.py (3)",                  exists: true,  checked: true, status: done}
+  - {step: "5.9-5.11", deliverable: "p5-g1, p5-g4, p5-ruff",                      exists: true,  checked: true, status: done}
+  - {step: "5.G1-5.G17", deliverable: "Gate B: qa/gate-b (14 files), gate-b-verdict.md (PASS, 1 cycle), gate-b-postfix.txt", exists: true, checked: true, status: done}
+  - {step: "6.1-6.3", deliverable: "IW/cycle.py (1369 lines)",                    exists: true,  checked: true, status: done}
+  - {step: "6.4",  deliverable: "T/conftest.py part 4 (deps factory, GhWorld)",   exists: true,  checked: true, status: done}
+  - {step: "6.5-6.8", deliverable: "T/test_cycle.py (4721 lines, 227 tests)",     exists: true,  checked: true, status: done}
+  - {step: "6.9",  deliverable: "T/test_slo_helper.py (14)",                      exists: true,  checked: true, status: done}
+  - {step: "6.10-6.11", deliverable: "p6-g1, p6-ruff",                            exists: true,  checked: true, status: done}
+  - {step: "7.1-7.2", deliverable: "IW/cli.py (348 lines)",                       exists: true,  checked: true, status: done}
+  - {step: "7.3",  deliverable: "src/superclaude/cli/main.py (+4 lines: 2 code, 2 blank)", exists: true, checked: true, status: done}
+  - {step: "7.4-7.5", deliverable: "T/test_cli.py (60 tests)",                    exists: true,  checked: true, status: done}
+  - {step: "7.6-7.9", deliverable: "p7-g9 (five verbs listed), p7-g2, p7-g4, p7-ruff", exists: true, checked: true, status: done}
+  - {step: "7.G1-7.G17", deliverable: "Gate C: qa/gate-c (15 files, includes -run2 report), gate-c-verdict.md (PASS, 2 cycles), gate-c-postfix-cycle2.txt", exists: true, checked: true, status: done}
+  - {step: "8.1",  deliverable: "T/conftest.py part 5 (PATH stubs, scenario helpers)", exists: true, checked: true, status: done}
+  - {step: "8.2",  deliverable: "T/test_cli_e2e.py (4 tests)",                    exists: true,  checked: true, status: done}
+  - {step: "8.3",  deliverable: "T/test_security_invariants.py (15)",             exists: true,  checked: true, status: done}
+  - {step: "8.4",  deliverable: "T/test_crash_injection.py (6)",                  exists: true,  checked: true, status: done}
+  - {step: "8.5",  deliverable: "T/test_concurrency.py (6)",                      exists: true,  checked: true, status: done}
+  - {step: "8.6",  deliverable: "T/test_no_shell.py (9)",                         exists: true,  checked: true, status: done}
+  - {step: "8.7",  deliverable: "T/test_no_text.py (22)",                         exists: true,  checked: true, status: done}
+  - {step: "8.8",  deliverable: "T/test_module_boundaries.py (13)",               exists: true,  checked: true, status: done}
+  - {step: "8.9-8.12", deliverable: "p8-g1, p8-g3 (xdist), p8-g8 (NO_MATCH), p8-ruff", exists: true, checked: true, status: done}
+  - {step: "8.G1-8.G17", deliverable: "Gate D: qa/gate-d (14 files), gate-d-verdict.md (PASS, 1 cycle), gate-d-postfix.txt", exists: true, checked: true, status: done}
+  - {step: "9.1-9.2", deliverable: "docs/designs/issue-watcher-setup.md (651 lines)", exists: true, checked: true, status: done}
+  - {step: "9.3",  deliverable: "phase-outputs/reviews/runbook-check.md",         exists: true,  checked: true, status: done}
+  - {step: "9.4-9.16", deliverable: "p9-g1 (2635 passed), p9-g2 (2665 passed, 1 skipped), p9-g3 (2635 xdist), p9-g4 (make lint 0), p9-g5 (ruff clean, 31 files formatted), p9-g6-{verify-deps,sync-dev,verify-sync}, p9-g7, p9-g8 (NO_MATCH), p9-g9, p9-g10 (pyproject, Makefile, .github unchanged), p9-g11", exists: true, checked: true, status: done}
+  - {step: "9.17", deliverable: "phase-outputs/reports/ac-trace.md (68 rows: 25 AC + 29 FR + 14 NFR)", exists: true, checked: true, status: done}
+  - {step: "9.18", deliverable: "phase-outputs/reports/deviation-register.md",   exists: true,  checked: true, status: done}
+  - {step: "9.19", deliverable: "phase-outputs/reports/final-gate-record.md",     exists: true,  checked: true, status: done}
+  - {step: "9.F1-9.F18", deliverable: "Final gate: qa/final (15 files), final-gate-verdict.md (PASS, 1 cycle), reports/final-change-set.md", exists: true, checked: true, status: done}
+  - {step: "9.M1-9.M13", deliverable: "M4 fidelity gate: qa/m4 (11 files), m4-verdict.md (PASS, 1 cycle), m4-postfix.txt", exists: true, checked: true, status: done}
+  - {step: "10.1", deliverable: "phase-outputs/reports/post-completion-validation.md", exists: true, checked: true, status: done}
+  - {step: "10.2", deliverable: "phase-outputs/plans/base-sha.txt",               exists: true,  checked: true, status: done}
+  - {step: "10.3", deliverable: "phase-outputs/plans/commit-allowlist-check.md (PASS; 379 staged paths; 0 under .claude/, .dev/issues/, .dev/brainstorms/)", exists: true, checked: true, status: done}
+  - {step: "10.4", deliverable: "commit 26f551f4, parent = BASE e8db2fe6 (git rev-parse 26f551f4^), exit 0, count 1; phase-outputs/plans/commit-result.md", exists: true, checked: true, status: done}
+  - {step: "10.5", deliverable: "Task Summary, tasklist lines 881-914 (first line still holds the template placeholder '(Populated by Step 10.5 ...)' at line 883)", exists: true, checked: true, status: done}
+  - {step: "10.6", deliverable: "reflect/post run (this run)", exists: "in progress", checked: false, status: n/a}
+  - {step: "10.7", deliverable: "status Done + staging",       exists: false,         checked: false, status: n/a}
+
+gate_files_check:
+  verdict_files:                      # first lines Read
+    gate-a-verdict.md:     "PASS after 2 fix cycles"
+    gate-b-verdict.md:     "Verdict: PASS ; Fix cycles used: 1"
+    gate-c-verdict.md:     "Verdict: PASS ; Fix cycles used: 2"
+    gate-d-verdict.md:     "Verdict: PASS ; Fix cycles used: 1"
+    final-gate-verdict.md: "Verdict: PASS ; Fix cycles used: 1"
+    m4-verdict.md:         "Verdict: PASS ; Fix cycles used: 1"
+  cycle_decision_files_exist: [gate-a, gate-b, gate-c, gate-d, final-gate, m4]
+  p9_gate_files:
+    p9-g1-summary.md: "2635 passed in 16.56s, failures none"
+    p9-g2-summary.md: "2665 passed, 1 skipped (pre-existing tests/swarm/test_cli_registration.py:127, parametrized with an empty set)"
+    p9-g3-summary.md: "EXIT=0, 2635 passed under xdist"
+    p9-g4-summary.md: "make lint EXIT=0 (5 pre-existing architecture warnings, none in issue_watch)"
+    p9-g5.txt:        "All checks passed; 31 files already formatted; 1234 files already formatted"
+    p9-g6-verify-sync.txt: "All components in sync, EXIT=0"
+    p9-g6-verify-deps.txt: "PASS: installed packages are a subset of the AC3 allow-list, EXIT=0"
+    p9-g7.txt:  "one hit predicates.py:30, a docstring sentence, justified"
+    p9-g8.txt:  "EXIT=1 = grep no-match, expected for shell=True scan"
+    p9-g9.txt:  "five verbs listed, EXIT=0"
+    p9-g10.txt: "EXIT=0 EXIT=0, 0 staged .claude/ paths"
+    p9-g11.txt: "grep no-match EXIT=1 (expected); newline check 48 files, 0 problems"
+  note: "Evidence limited to verdict and result lines; the pre-commit and commit state is also consistent with commit-allowlist-check.md and commit-result.md."
+
+falsified_claims:        # Task Summary (tasklist lines 881-914) checked against disk and git
+  - id: FC-1
+    claim: "Step 10.1 text (tasklist line 847) names 13 files under tests/issue_watch/fixtures/_assumed_shape/"
+    reality: "19 on disk (find -type f = 19). All 13 names planned in Steps 3.2-3.5 and 5.2 exist; 6 were added later: gh_api_user_include_429, gh_issue_reread, gh_stderr_http_502, gh_stderr_scope_read_project, orca_launch_empty_operation_id, orca_launch_no_operation_id."
+    verdict: "Stale statement in the task BODY (line 847), not in the Task Summary. The Summary's '19 fixture files' (line 889) is TRUE."
+    severity: minor
+  - id: FC-2
+    claim: "Task Summary line 883 '(Populated by Step 10.5 from the named result files.)'"
+    reality: "Template instruction line left in place above the populated text."
+    severity: cosmetic
+  - id: FC-3
+    claim: "Task Summary line 905: 'the table has 59 names, not 57', two reason names added by the executor"
+    reality: "59 is TRUE (audit.py:26-102, 59 entries, pinned by test_audit.py:214-225). But the spec-final closed table (spec-final.md:332-358) holds 52 names; the 7 extras are marker_unreadable, edits_unreadable, dry_run_shadow_reset, reset_refused, operator_reset (decisions DF-22/DF-57) and cycle_complete, cycle_crashed (Gate C executor proposals). Wording 'not 57' refers to the plan's own count, not the spec's."
+    verdict: "Not falsified; context for the deviation classifier. The 'closed' enum was widened by 7 against the spec text."
+    severity: note
+  - id: FC-4
+    claim: "Task Summary line 889: AC-1 to AC-25 trace '68 rows PASS'"
+    reality: "68 rows exist (grep) and each is marked PASS, but AC-23 (no dependency change) has no pytest test (gate-only, see requirements AC-23) and AC-19 is a documented split (DF-55). The word PASS is therefore gate-and-test mixed, not 68 test-proven rows."
+    severity: note
+
+claims_verified_true:     # Task Summary statements that match disk and git
+    - "9 src files in IW (8 modules + empty __init__): wc -l 4743 lines total"
+    - "19 test_*.py files + conftest.py + __init__.py + 19 fixtures = 40 test-tree paths (git diff --name-only)"
+    - "five verbs check-config, init-state, once, reset, status (p7-g9.txt; cli.py:111,164,185,201,282)"
+    - "main.py +4 lines (git diff): 2 blank + import + add_command at main.py ~563-566"
+    - "379 files, 87301 insertions, parent == BASE (git show --shortstat, git rev-parse 26f551f4^)"
+    - "pyproject.toml, Makefile, .github unchanged in the commit (git diff --stat over those paths lists only main.py)"
+    - "fix cycles: A 2, B 1, C 2, D 1, Final 1, M4 1 (verdict files)"
+    - "2635 passed / 0 skipped (p9-g1-summary.md); 2665 passed + 1 pre-existing skip (p9-g2-summary.md)"
+    - "pytest.skip/skipif at 5 sites: test_cli.py:967, test_cli.py:1070, test_record.py:739, test_cycle.py:735, test_cycle.py:4694 (all root or platform guards)"
+    - "no remote branch for this issue exists (git for-each-ref refs/remotes shows none), consistent with 'no push, no PR'"
+    - "qa/gate-c has qa-content-design-correctness-report-run2.md (the restore mentioned in the Summary)"
+claims_unverified: ["'Python 3.10.20 ran the suite in Gates D and Final' (only p9-g7.txt and QA reports mention 3.10.20; run output not re-read)", "'4 environmental failures outside issue_watch in a local full run' (not re-run)"]
+
+# =============================================================================
+# S_dev_density inputs (whole files used as hunks)
+# =============================================================================
+s_dev_density:
+  total_changed_paths: 379
+  by_group:
+    src: 10                 # 9 IW files + main.py
+    tests: 40               # 19 test files + conftest + __init__ + 19 fixtures
+    docs: 2                 # docs/designs/issue-watcher.md, docs/designs/issue-watcher-setup.md
+    dev_process_artifacts: 327   # all under .dev/tasks/to-do/
+  dev_breakdown:
+    TASK-RF package: 244
+    TASK-RESEARCH-issue-watcher-20261107-064950 package: 83   # predecessor research task
+  mapped_to_a_tasklist_step:
+    count: 260
+    detail:
+      src: "10 of 10 (Steps 1.6, 2.1-2.3, 3.1, 4.1, 5.1, 6.1-6.3, 7.1-7.3)"
+      tests: "40 of 40 (Steps 1.7, 2.4-2.8, 3.2-3.7, 4.2-4.5, 5.2-5.8, 6.4-6.9, 7.4-7.5, 8.1-8.8)"
+      docs: "1 of 2 (issue-watcher-setup.md, Steps 9.1-9.2)"
+      qa_gate_files: "83 (qa/gate-a 14, gate-b 14, gate-c 15, gate-d 14, final 15, m4 11; Steps x.G*, 9.F*, 9.M*)"
+      phase_outputs: "83 (git ls-tree of HEAD: discovery 3, plans 13, reports 9, reviews 2, test-results 56; Steps 1.3-1.5, 2.9-2.11, ..., 9.4-9.19, 10.2)"
+      reflect_pre: "43 (PRE reflect, frontmatter reflect_pre at tasklist line 31, run before Phase 1; has no numbered Step)"
+  unmapped:
+    count: 119
+    detail:
+      - "docs/designs/issue-watcher.md (1): the driving design, committed unchanged (DF-07/DF-31)"
+      - "PKG/qa top-level files (26): the task-builder's own pre-execution QA reports (qa-*.md, analyst-*.md, .fix2-done)"
+      - "PKG inputs (9): BUILD-REQUEST.md, research/01-06 (6), research-notes.md, the tasklist file itself"
+      - "TASK-RESEARCH-issue-watcher-20261107-064950 package (83): the earlier research task, staged by the Step 10.3 allowlist only"
+    unmapped_in_src_or_tests: 0
+  ratio:
+    unmapped_hunks_over_total_hunks: "119/379 = 0.314"
+    source_and_tests_only: "0/51 unmapped (src 10 + tests 40 + setup doc 1 all map to Steps)"
+  untracked_at_review_time: ["PKG/phase-outputs/plans/commit-allowlist-check.md", "PKG/phase-outputs/plans/commit-result.md", "PKG/reflect/post/", ".dev/brainstorms/20261107-064825-github-issue-watcher/", ".dev/issues/331/"]
+  working_tree_delta_vs_HEAD: "tasklist file +25/-10 lines (Task Summary, Step 10.x ticks written after the commit)"
+
+# =============================================================================
+# SECTION 2: requirements  (status: covered | partial | gap | gate-only)
+# impl = implementing symbols; tests = proving tests (assertions Read);
+# bites = would the test fail if the behaviour were removed (my reading of the assertion)
+# =============================================================================
+requirements_summary:
+  rows: 68
+  covered: 63
+  partial: 3        # NFR-008, NFR-014, AC-19
+  gate_only: 2      # NFR-012, AC-23
+  gap: 0
+  by_group: {FR: {covered: 29}, NFR: {covered: 11, partial: 2, gate_only: 1}, AC: {covered: 23, partial: 1, gate_only: 1}}
+
+requirements:
+  # ---------------------------------------------------------------- FR
+  - id: FR-001
+    status: covered
+    impl: ["IW/cycle.py:663-720 _Cycle.run/_steps (enabled+approvers, lock, DISABLED, next_permitted_at, G1, origin, sweep, discovery, candidates)"]
+    tests: ["T/test_cycle.py:1283 (gh_argvs == [user, discover]; call order gh,git,gh; one cycle line)", "T/test_cli_e2e.py:299 (real process, PATH stubs)"]
+    bites: "yes: asserts exact argv list and order, so any extra or reordered call fails"
+  - id: FR-002
+    status: covered
+    impl: ["IW/cycle.py:733-756 _login_step", "IW/github.py:784-801 user"]
+    tests: ["T/test_cycle.py:1314 (exit 3, no further call)", "T/test_cycle.py:1330 (account_id_mismatch exit 2)", "T/test_cycle.py:1357 (bad_login! exit 3, no discovery)", "T/test_security_invariants.py:605 (hostile logins; argvs == [gh api user --include])"]
+    bites: yes
+  - id: FR-003
+    status: covered
+    impl: ["IW/github.py:180-198 argv_discover (-L 100, no title/body)", "IW/cycle.py:775-789 _discover (warn at >=80)"]
+    tests: ["T/test_github.py:126 (literal argv)", "T/test_cycle.py:1671,1683 (79 no warning, 80 warning)", "T/test_security_invariants.py:637 (allowed forms)", "T/test_no_text.py:816"]
+    bites: yes
+  - id: FR-004
+    status: covered
+    impl: ["IW/github.py:804-842 discover (len>=100 truncated; repeated number discovery_duplicate)", "IW/cycle.py:780-783"]
+    tests: ["T/test_github.py:1271,1279", "T/test_cycle.py:1625 (99 proceeds), 1640 (>=100 exit 4), 1658 (duplicate exit 4)"]
+    bites: yes (99 vs 100 boundary both tested)
+  - id: FR-005
+    status: covered
+    impl: ["IW/predicates.py:185-234 approval_of ((a) to (e), allow-list, [bot], User type, trigger order, store created_at)"]
+    tests: ["T/test_predicates.py:108,147,153,165,198,206,228,234,241,273,278,283", "T/test_cycle.py:2461 (each skip row through a whole cycle)"]
+    bites: yes (table-driven, includes bool actor id and exact-equal timestamps)
+  - id: FR-006
+    status: covered
+    impl: ["IW/predicates.py:199-215 (latest labeled wins; unlabeled after voids)", "IW/github.py:592-628 _rest_read (repeated id => events_incomplete)"]
+    tests: ["T/test_predicates.py:153,165,171", "T/test_github.py:738,750,760 (repeated id, page cap)", "T/test_cycle.py:2461"]
+    bites: yes
+  - id: FR-007
+    status: covered
+    impl: ["IW/predicates.py:262-271 project_check", "IW/github.py:907 project_items, 88-103 PROJECT_ITEMS_QUERY", "IW/cycle.py:823-824 (scope_missing => project_read_failed), 938-941"]
+    tests: ["T/test_predicates.py:460,477,482", "T/test_cycle.py:2493 (issue 8 unreadable, 9 still launches)", "T/test_cycle.py:4436,1575 (missing scope => exit 3, no decision line)", "T/test_github.py:1137,1148"]
+    bites: yes
+  - id: FR-008
+    status: covered
+    impl: ["IW/predicates.py:162-174 is_intended_owner", "IW/cycle.py:919-921 and 972-974 (re-read)"]
+    tests: ["T/test_predicates.py:440", "T/test_cycle.py:3215 (re-read {own, other} => assigned_other)", "T/test_security_invariants.py:567"]
+    bites: yes
+  - id: FR-009
+    status: covered
+    impl: ["IW/predicates.py:14 CLAIM_MARKER, 274-296 marker_in_window (300 s skew floor)", "IW/github.py:61-65 MARKER_JQ (boolean projection)", "IW/cycle.py:877-894 _claim/_reclaim, 903-912, 927-928"]
+    tests: ["T/test_predicates.py:521-563", "T/test_cycle.py:2690,2724,2754,2778,2802,2827", "T/test_marker_contract.py:28 (marker in refs/claim.md and templates/claim-comment.md)"]
+    bites: yes
+    note: "T/test_marker_contract.py:51 only asserts CLAIM_MARKER in MARKER_JQ (weak, but MARKER_JQ is built from the constant)"
+  - id: FR-010
+    status: covered
+    impl: ["IW/cycle.py:1052-1062 (mark_pending, _save, then launcher.launch)", "IW/record.py:538-568 mark_pending"]
+    tests: ["T/test_cycle.py:2925 (launcher callback reads dispatch.json: state pending, launches 1, consumed_at set)", "T/test_cycle.py:4449 (failed pending save => no launch, exit 6)", "T/test_crash_injection.py:287 (C3)"]
+    bites: yes (moving the write after launch fails 2925)
+  - id: FR-011
+    status: covered
+    impl: ["IW/cycle.py:960-997 _revalidate, 946-958 _rv, 1027-1030", "IW/github.py:934 reread (REREAD_JQ), reserved calls 437-463"]
+    tests: ["T/test_cycle.py:3181 (closed/labels gone), 3215, 3231 (transient => failed, launches 0, attempts 1), 3261, 3275, 3314, 3334, 3349, 3369 (budget), 2565 (pending swept)"]
+    bites: yes
+  - id: FR-012
+    status: covered
+    impl: ["IW/launch.py:84-92 build_claim_prompt (type(n) is int, 1..999999999), 101-102 launch_argv guard"]
+    tests: ["T/test_launch.py:41-69 (9 ok; '9', True, 0, -1, 10**9, 9.0, False raise; bounds 1 and 999999999)", "T/test_security_invariants.py:451 (property over ~1600 draws, regex match on every recorded prompt, full cycles for bounds)"]
+    bites: yes (bool rejected via type() check, covered by True and False params)
+  - id: FR-013
+    status: covered
+    impl: ["IW/launch.py:95-116 launch_argv (12 elements), 163-188 find_orca, 343-355 OrcaLauncher (cwd=worktree, DF-01 departure)", "IW/cycle.py:1017-1022 (probe, orca_not_found exit 2)"]
+    tests: ["T/test_launch.py:75 (12-element literal), 225-346 (probe)", "T/test_find_orca_parity.py:145-270", "T/test_cycle.py:3088,3109 (probe failure => exit 2, no entry), 1477 (bad worktree before any gh)"]
+    bites: yes
+    note: "relative-path worktree rejected in load_config (T/test_cycle.py:323 table), not in a dedicated cycle test"
+  - id: FR-014
+    status: covered
+    impl: ["IW/cycle.py:1007-1075 _launch (probe, prompt, re-read, day cap, DISABLED, deadline, origin, pending, spawn)", "IW/launch.py:311-334 outcome_of", "IW/record.py:503-525 fail, 580-624 mark_*"]
+    tests: ["T/test_cycle.py:2925 (_LAUNCH_TRACE order), 3032 (6 unknown outcomes: timeout, non-json, nonzero, no id, empty id, op_unknown => exit 7, launches 1), 3065 (spawn_error), 3122 (prompt ValueError => failed launches 0)", "T/test_launch.py:596-700"]
+    bites: yes
+  - id: FR-015
+    status: covered
+    impl: ["IW/launch.py:119-132 retry_argv (full argv with --retry-launch before --json)", "IW/cycle.py:1271-1288 status retry list", "IW/cli.py:158-161"]
+    tests: ["T/test_launch.py:152,178,185", "T/test_cycle.py:2536 (no orca argv for launched/unknown/spawn_error entry)", "T/test_cli.py:842,885 (only unknown with id and cwd)"]
+    bites: yes
+    note: "implements the FULL argv form (C20, owner question Q2), not FR-015's short form: authorized departure. T/test_cli.py:862 builds its expected text with production retry_argv (independently pinned by test_launch.py:152)"
+  - id: FR-016
+    status: covered
+    impl: ["IW/cycle.py:34-35,717 (MAX_CANDIDATES 10), 797-798 and 814-815 (halt after first launch-step outcome, S1)", "IW/github.py:46-49 CALL_CAP/RESERVED_CALLS"]
+    tests: ["T/test_cycle.py:3495 (15 skipping issues: k=8, 9 and 10 unstamped; next cycle starts with never-examined)", "T/test_cycle.py:3534 (15 eligible: exactly 1 launch, later issues neither read nor stamped)", "T/test_cycle.py:3145,4653,4668"]
+    bites: yes (_touched(world) == {1} fails if the halt is removed)
+    note: "S1 reading (owner Q1, DF-50): any launch-step outcome including a skip at the launch step stops the cycle"
+  - id: FR-017
+    status: covered
+    impl: ["IW/record.py:380-419 FileStore.lock (O_NOFOLLOW, S_ISREG, owner, LOCK_NB, inode and nlink recheck)"]
+    tests: ["T/test_concurrency.py:146 (two real processes, one launch, 0 and 75), 215,230,243,255", "T/test_record.py:703-849 (753 foreign owner)", "T/test_cycle.py:1385"]
+    bites: yes
+  - id: FR-018
+    status: covered
+    impl: ["IW/record.py:421-423 disabled (lexists)", "IW/cycle.py:693-694, 1033-1034 (disabled_mid_cycle), 1101 (no health refresh)"]
+    tests: ["T/test_cycle.py:1430 (disabled: zero calls, no stamp)", "T/test_cycle.py:3417,3449 (created after discovery, no pending, exit 0, stamp unchanged)"]
+    bites: yes
+  - id: FR-019
+    status: covered
+    impl: ["IW/cycle.py:707-713, 1010-1016, 1109-1125 (shadow commit)", "IW/record.py:805-865 dry-run file"]
+    tests: ["T/test_cycle.py:3685 (zero orca calls, store bytes identical, exact trace, shadow file)", "T/test_cycle.py:3659,3739,3747,3773,3827,3845,3860,3873"]
+    bites: yes
+    note: "dry-run skips the FR-011 re-read and the probe (design reading OQ-39); FR-019 wording 'performs all reads' is narrowed accordingly"
+  - id: FR-020
+    status: covered
+    impl: ["IW/audit.py:123-157 AuditLog.append/rotate_if_needed, 159-197 closed key and type schema, 381-404 stderr_fallback", "IW/cycle.py:1139-1174 _conclude"]
+    tests: ["T/test_cycle.py:2017 (exits 0,2,3,4,5,6,7,75: one cycle line, cycle line last, one decision per issue)", "T/test_cycle.py:1403,1417,4533", "T/test_audit.py:490,524 (one os.write),559,580 (4 rotated files),662,674"]
+    bites: yes
+  - id: FR-021
+    status: covered
+    impl: ["IW/cycle.py:1233-1298 status_report (read-only, no lock)", "IW/cli.py:164-182"]
+    tests: ["T/test_cli.py:785,842,885,927 (900 vs 901 s),938,988 (mtimes unchanged, no audit file)", "T/test_cycle.py:1430,3449 (health stamp rules)"]
+    bites: yes
+  - id: FR-022
+    status: covered
+    impl: ["IW/cycle.py:472-497 _Skip/_Stop, 817-827 _val"]
+    tests: ["T/test_cycle.py:1584 (9 shared failures => zero launches)", "T/test_cycle.py:1602,2493 (per-issue failure skips only that issue)"]
+    bites: yes
+  - id: FR-023
+    status: covered
+    impl: ["IW/predicates.py:299-312 eligibility_order", "IW/record.py:738-745 set_considered", "IW/cycle.py:812-813 (budget_exhausted not stamped), 1097-1100"]
+    tests: ["T/test_cycle.py:3584 (order 9,7,8 and 9,8,7; pruning), 3602,3615,3644,3659", "T/test_predicates.py:576,583,590"]
+    bites: yes
+  - id: FR-024
+    status: covered
+    impl: ["IW/record.py:538-568 (consumed_at), 689-703 day_cap_count (half-open), 706-720 reset_entry", "IW/cycle.py:848-857, 917-918, 1031-1032 (checked before reads and again after the re-read)"]
+    tests: ["T/test_cycle.py:2645 (6 in window => day_cap, zero reads), 2662 (exactly 24 h old not counted), 2673 (consumed_log counts)", "T/test_record.py:1444,1451,1460,1581,1606", "T/test_cli.py:1439 (count unchanged after reset)"]
+    bites: yes
+  - id: FR-025
+    status: covered
+    impl: ["IW/launch.py:200-236 parse_origin/check_origin (lower-cased compare)", "IW/cycle.py:651-659, 697-703, 1039-1049 (second check not cached)"]
+    tests: ["T/test_cycle.py:1498 (4 failure modes, exit 2 before discovery)", "T/test_cycle.py:3464 (origin changed before pending => exit 2, no entry, 2 origin calls)", "T/test_origin_parity.py:90", "T/test_launch.py:373-518"]
+    bites: yes
+  - id: FR-026
+    status: covered
+    impl: ["IW/cli.py:94-348 (once, status, check-config, init-state, reset)", "IW/record.py:706-726, 753-802"]
+    tests: ["T/test_cli.py:1213,1234,1406,1439,1488,1536,351,988", "T/test_record.py:1316,1659,1675"]
+    bites: yes
+  - id: FR-027
+    status: covered
+    impl: ["IW/cycle.py:195-283 load_config, 298-342 validate_approvers, 352-358 validate_setup, 666-671"]
+    tests: ["T/test_cycle.py:98-800 (config and approvers tables: mode, owner, empty, login in place of id)", "T/test_cycle.py:1446 (not_enabled: zero calls), 1462 (dry-run ignores enabled), 1477", "T/test_cli.py:351"]
+    bites: yes
+    note: "owner-check and unreadable-file cases are skipif root (test_cycle.py:735): silent skip when the suite runs as root"
+  - id: FR-028
+    status: covered
+    impl: ["IW/github.py:376-431 rate_limit_wait", "IW/cycle.py:644-649 _rate_stop (always 3600 s), 729-731 (window check), 738-742 (G1 uses header)"]
+    tests: ["T/test_cycle.py:1751 (Retry-After 120, block 60 s later, zero calls), 1782 (half-open end), 1812 (1,3600,3601,86400,0,'soon',None), 1835 (every non-G1 call clamps 3600), 1851,1863", "T/test_cli.py:1488 (reset --rate-limit)"]
+    bites: yes
+    note: "AUTHORIZED NARROWING (DF-51, design D 598-602): Retry-After and x-ratelimit-reset are honoured only on G1 (the one call run with --include); every other rate-limit reply stores now+3600 with reason rate_limit_clamped. FR-028 prose says 'from Retry-After or the reset header' generally."
+  - id: FR-029
+    status: covered
+    impl: ["IW/cycle.py:383-412 Deadline (240 s, 5 s floor, 120 s cutoff), 1017-1049", "IW/github.py:557-577 _call (timeout None => no call)"]
+    tests: ["T/test_cycle.py:931-1043", "T/test_cycle.py:1897,1907,1917 (236 s: no gh, record written),1939,1951,1964 (121 s: no launch),1982 (120 s exactly still launches, full 120 s timeout)", "T/test_cycle.py:4286-4394 (C-1, N-1 fixes)", "T/test_github.py:1998,2009"]
+    bites: yes
+  # ---------------------------------------------------------------- NFR
+  - id: NFR-001
+    status: covered
+    impl: ["IW/launch.py:84-92, 101-102"]
+    tests: ["T/test_security_invariants.py:451,522 (hostile labels, logins, commenters never in any argv)", "T/test_launch.py:141"]
+    bites: yes
+  - id: NFR-002
+    status: covered
+    impl: ["IW/github.py:175-262 argv builders (GET on REST, graphql constants without 'mutation', no title/body)"]
+    tests: ["T/test_security_invariants.py:637 (5 scenario cycles), 668,697 (every builder),864 (scan rejects forbidden argv),879 (no 'mutation' in any github.py string constant)", "T/test_no_text.py:816,856"]
+    bites: yes (scan has negative self-tests, so it cannot pass vacuously)
+  - id: NFR-003
+    status: covered
+    impl: ["IW/github.py:37 REPO, 74-103 (literal owner and name in GraphQL)", "IW/launch.py:50"]
+    tests: ["T/test_security_invariants.py:668 (no SuperClaude-Org, no {owner} in any argv),897", "T/test_github.py:314", "T/test_origin_parity.py:90"]
+    bites: yes
+  - id: NFR-004
+    status: covered
+    impl: ["IW/runner.py:82-101 (TypeError on str argv; shell=False)"]
+    tests: ["T/test_runner.py:57,82", "T/test_no_shell.py:150,156 plus mutation guards 229-264"]
+    bites: yes
+  - id: NFR-005
+    status: covered
+    impl: ["IW/cycle.py:1052-1062, 1079-1125", "IW/record.py:627-651 sweep"]
+    tests: ["T/test_crash_injection.py:217,238,287,310,327,347 (C1-C5, 5 reruns each, launches <= 1)", "T/test_concurrency.py:146", "T/test_cycle.py:4074 (50 cycles), 2905 (other login not relaunched), 4449,4476", "T/test_cli_e2e.py:334", "T/conftest.py:103 (FakeRunner returns 99 on unexpected argv)", "T/test_no_text.py:528"]
+    bites: yes
+  - id: NFR-006
+    status: covered
+    impl: ["IW/audit.py:159-197 (closed keys, no rate_remaining), 381-404"]
+    tests: ["T/test_audit.py:214-225,449,490-662", "T/test_no_text.py:528,597,912,937 (PWNED canary never in argv, audit, store, rotated files)"]
+    bites: yes
+  - id: NFR-007
+    status: covered
+    impl: ["IW/cycle.py:472-497, 817-827"]
+    tests: ["T/test_cycle.py:1584 (table over login, discovery, scope, store, rate limit)", "T/test_cycle.py:1602"]
+    bites: yes
+  - id: NFR-008
+    status: partial
+    impl: ["IW/cycle.py:383-412", "IW/runner.py:102-111 (TimeoutExpired => timed_out)", "IW/github.py:352-353 (timed_out => timeout => gh_timeout)"]
+    tests: ["T/test_cycle.py:1897,1907 (FakeRunner timed_out => exit 3 gh_timeout, 20 s timeout)", "T/test_runner.py:217 (a real sleeping child is cut)"]
+    bites: "each half yes; no single test chains a real sleeping stub through `once`"
+    note: "AUTHORIZED SPLIT (DF-55): T/test_cli_e2e.py:11-13 says the sleeping-stub case is split into a runner unit test and in-process cycle tests"
+  - id: NFR-009
+    status: covered
+    impl: ["IW/github.py:437-463 CallBudget, 46-49"]
+    tests: ["T/test_cycle.py:4214 (10 skipping candidates stop at 32+2 calls, 2 unread), 4236 (reserved 3 bring total to 35+2),1283", "T/test_github.py:1330,1338,1349,1356"]
+    bites: yes
+  - id: NFR-010
+    status: covered
+    impl: ["IW/cycle.py:903-912 (already_dispatched)"]
+    tests: ["T/test_cycle.py:4177 (second once: no launch, entry byte-equal, only comments read)", "T/test_cli_e2e.py:401"]
+    bites: yes
+  - id: NFR-011
+    status: covered
+    impl: ["IW/record.py:213-280 validate/migrate, 347-378 load/save (write_prepared_bytes, chmod 0600, dir fsync), 753-802 init_state"]
+    tests: ["T/test_record.py:221 (truncated),419 (bad version),447,473,528,544,613,636,649,666", "T/test_cycle.py:1545 (missing/garbage store: exit 6, bytes untouched),4578,4594"]
+    bites: yes
+    note: "MIGRATIONS ships empty and SCHEMA_VERSION is 1, so migration is exercised with a monkeypatched table only (T/test_record.py:473)"
+  - id: NFR-012
+    status: gate-only
+    impl: ["no code; pyproject.toml, Makefile, .github unchanged (git diff --stat)"]
+    tests: ["none in pytest (grep for pyproject/dependency in T/ finds nothing relevant)", "evidence is gate output: test-results/p9-g6-verify-deps.txt (PASS, subset of AC3 allow-list), p9-g10.txt (EXIT=0)"]
+    bites: "n/a; the 'one new session per cycle' half is covered by FR-016 tests (T/test_cycle.py:3534)"
+  - id: NFR-013
+    status: covered
+    impl: ["IW/cycle.py:1190-1191, 1322-1369 slo_numbers (pure helper; no production caller by design)"]
+    tests: ["T/test_slo_helper.py:399 (four numbers from a rotated fixture log), 204,255,276,321"]
+    bites: yes
+  - id: NFR-014
+    status: partial
+    impl: ["IW package layout; Protocols Runner (runner.py:38), Store (record.py:318), Launcher (launch.py:262), Clock (cycle.py:361)", "IW/record.py:372 reuses swarm.atomic.write_prepared_bytes"]
+    tests: ["T/test_module_boundaries.py:219 (exact module set),241 (import table per module),259,269 (no 'select'),276 (exactly four Protocols)", "T/test_find_orca_parity.py:145-270 (mirror of _find_orca)", "T/test_record.py:666"]
+    bites: "yes for modules, imports, protocols, select, parity"
+    note: "NOT TESTED: 'every time read goes through the clock'. No static scan exists. Wall-clock reads outside the Clock: IW/audit.py:396 (stderr_fallback default ts; cli.py:79,127,219 call it without ts) and IW/runner.py:89-129 (monotonic duration_s). Low risk: only stamps."
+  # ---------------------------------------------------------------- AC
+  - id: AC-1
+    status: covered
+    impl: ["IW/cycle.py:663-720"]
+    tests: ["T/test_cycle.py:1283,1314", "T/test_cli_e2e.py:299"]
+    bites: yes
+  - id: AC-2
+    status: covered
+    impl: ["IW/github.py:180-198, 804-842"]
+    tests: ["T/test_github.py:126,1271,1279", "T/test_cycle.py:1640,1658"]
+    bites: yes
+  - id: AC-3
+    status: covered
+    impl: ["IW/predicates.py:185-259"]
+    tests: ["T/test_predicates.py:147-283,363-415", "T/test_cycle.py:2461"]
+    bites: yes (outsider, bot, unlabel, relabel, incomplete, edit after approval all present)
+  - id: AC-4
+    status: covered
+    impl: ["IW/predicates.py:162-174, 262-271"]
+    tests: ["T/test_predicates.py:440,460,477", "T/test_cycle.py:2461,3215"]
+    bites: yes
+  - id: AC-5
+    status: covered
+    impl: ["IW/cycle.py:877-894, 927-928"]
+    tests: ["T/test_cycle.py:2690"]
+    bites: yes
+  - id: AC-6
+    status: covered
+    impl: ["IW/cycle.py:960-997, 1052-1062"]
+    tests: ["T/test_cycle.py:2925,3181,3261"]
+    bites: yes
+  - id: AC-7
+    status: covered
+    impl: ["IW/launch.py:84-102"]
+    tests: ["T/test_launch.py:41-69", "T/test_security_invariants.py:451"]
+    bites: yes
+  - id: AC-8
+    status: covered
+    impl: ["IW/launch.py:95-116, 311-334", "IW/cycle.py:1062-1075"]
+    tests: ["T/test_launch.py:75,596-700", "T/test_cycle.py:3032,3065,3122,3231"]
+    bites: yes
+  - id: AC-9
+    status: covered
+    impl: ["IW/cycle.py:1271-1288", "IW/launch.py:119-132"]
+    tests: ["T/test_cycle.py:2536", "T/test_cli.py:842,885", "T/test_launch.py:152"]
+    bites: yes
+  - id: AC-10
+    status: covered
+    impl: ["IW/record.py:689-720", "IW/cycle.py:848-857"]
+    tests: ["T/test_cycle.py:4120 (N=1,2,6,7,50,99; 48 cycles + 24 h later)", "T/test_cycle.py:2645,2673", "T/test_cli.py:1439", "T/test_record.py:1606,1622"]
+    bites: yes
+  - id: AC-11
+    status: covered
+    impl: ["IW/record.py:380-419"]
+    tests: ["T/test_concurrency.py:146,215,230,243,255"]
+    bites: yes (real second process)
+  - id: AC-12
+    status: covered
+    impl: ["IW/cycle.py:666-667, 693-694"]
+    tests: ["T/test_cycle.py:1430,1446"]
+    bites: yes
+  - id: AC-13
+    status: covered
+    impl: ["IW/cycle.py:1109-1125", "IW/record.py:805-865"]
+    tests: ["T/test_cycle.py:3685 (store bytes identical, shadow file exact)", "T/test_record.py:2008,2054,2104"]
+    bites: yes
+  - id: AC-14
+    status: covered
+    impl: ["IW/audit.py:123-197, 381-404", "IW/cycle.py:1139-1174"]
+    tests: ["T/test_cycle.py:2017,4533", "T/test_audit.py:580 (keeps exactly 4 rotated files),674"]
+    bites: yes
+  - id: AC-15
+    status: covered
+    impl: ["IW/cycle.py:443-458 resolve_exit (2,6,7,5,3,4 then 75 only if sole)"]
+    tests: ["T/test_cycle.py:813-912 (every pair and subset)", "T/test_cycle.py:1584"]
+    bites: yes
+  - id: AC-16
+    status: covered
+    impl: ["IW/launch.py:200-236"]
+    tests: ["T/test_cycle.py:1498", "T/test_origin_parity.py:90-179"]
+    bites: yes
+  - id: AC-17
+    status: covered
+    impl: ["IW/cli.py:94-348"]
+    tests: ["T/test_cli.py:351,988,1213,1234,1406", "T/test_cli.py:405,952-980 (exit codes)"]
+    bites: yes
+  - id: AC-18
+    status: covered
+    impl: ["IW/github.py:418-431", "IW/cycle.py:644-649", "IW/cli.py:243", "IW/record.py:723"]
+    tests: ["T/test_cycle.py:1751,1812", "T/test_cli.py:1488", "T/test_record.py:1675"]
+    bites: yes
+    note: "Retry-After only on G1 (see FR-028)"
+  - id: AC-19
+    status: partial
+    impl: ["IW/cycle.py:383-412, 1039-1049"]
+    tests: ["T/test_cycle.py:1897,1964 (121 s: no launch),1982", "T/test_runner.py:217"]
+    bites: "yes per half"
+    note: "AUTHORIZED SPLIT (DF-55): no end-to-end sleeping PATH stub (T/test_cli_e2e.py:11-13)"
+  - id: AC-20
+    status: covered
+    impl: ["IW/github.py:175-262"]
+    tests: ["T/test_security_invariants.py:637,668,697,864,879"]
+    bites: yes
+  - id: AC-21
+    status: covered
+    impl: ["IW/runner.py:82-101"]
+    tests: ["T/test_no_shell.py:150,156"]
+    bites: yes
+  - id: AC-22
+    status: covered
+    impl: ["IW/cycle.py:1052-1125", "IW/record.py:627-651"]
+    tests: ["T/test_crash_injection.py:217-347", "T/test_cycle.py:4074,4177"]
+    bites: yes
+  - id: AC-23
+    status: gate-only
+    impl: ["none"]
+    tests: ["no pytest test; gates G-6 (make verify-deps, test-results/p9-g6-verify-deps.txt) and G-10 (p9-g10.txt); git diff --stat confirms pyproject.toml, Makefile, .github unchanged"]
+    bites: "n/a"
+  - id: AC-24
+    status: covered
+    impl: ["IW/cycle.py:1322-1369"]
+    tests: ["T/test_slo_helper.py:399"]
+    bites: yes
+  - id: AC-25
+    status: covered
+    impl: ["IW package layout"]
+    tests: ["T/test_module_boundaries.py:219-281", "T/test_find_orca_parity.py:145-270", "T/test_origin_parity.py:90"]
+    bites: yes
+
+gaps: []
+partials:
+  - {id: NFR-008, reason: "no single end-to-end sleeping-stub test; split by DF-55 into T/test_runner.py:217 and T/test_cycle.py:1897", loc: "T/test_cli_e2e.py:11-13"}
+  - {id: AC-19,   reason: "same authorized split as NFR-008", loc: "T/test_cli_e2e.py:11-13"}
+  - {id: NFR-014, reason: "'every time read goes through the clock' has no test; wall-clock reads remain at IW/audit.py:396 and IW/runner.py:89", loc: "IW/audit.py:396"}
+gate_only:
+  - {id: NFR-012, reason: "dependency-list-unchanged proved only by gate output p9-g6-verify-deps.txt and p9-g10.txt"}
+  - {id: AC-23,   reason: "same as NFR-012"}
+
+weak_spots_not_gaps:
+  - "T/test_cli.py:862 builds the expected retry text with production retry_argv (pinned separately by T/test_launch.py:152)"
+  - "T/test_marker_contract.py:51 asserts only CLAIM_MARKER in MARKER_JQ"
+  - "4 skipif(root) sites (T/test_cli.py:967, T/test_cli.py:1070, T/test_record.py:739, T/test_cycle.py:735) and 1 platform skip (T/test_cycle.py:4694): FR-017 unopenable lock, FR-027 unreadable approvers file, FR-021 unreadable store and reset file-mode cases skip silently if CI runs as root"
+  - "all gh and Orca reply shapes are `_assumed_shape` fixtures (UNVERIFIED, FU-1, FU-3): tests prove behaviour against assumed shapes only; the deployment gate in design section 1 covers this"
+  - "closed reason table widened from 52 spec names to 59 (see falsified_claims FC-3)"
+authorized_departures_seen_in_code: ["FR-013 launch runs with cwd=worktree (DF-01)", "FR-015 full retry argv (Q2, C20)", "FR-016 S1 stop-after-launch-step (Q1, DF-50)", "FR-019 dry-run skips re-read and probe (OQ-39)", "FR-028 header honoured on G1 only (DF-51)", "NFR-008/AC-19 split (DF-55)"]

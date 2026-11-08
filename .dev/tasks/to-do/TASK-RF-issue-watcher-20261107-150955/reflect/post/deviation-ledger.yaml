@@ -1,0 +1,207 @@
+deviation_aggregation_mode: per-file
+hunk_count: 379
+deviations:
+- id: R-1
+  deviation_class: regression
+  severity: LOW
+  blocking: true
+  location:
+  - cycle.py:1060-1062
+  - cycle.py:1048
+  source_ids:
+  - X-007
+  - C-014
+  authority: Design :647 "not started when `elapsed() > 120`; the step ends with no entry and no reason other than a `budget_exhausted` decision line"; AC-19 (design :892) "no launch starts after 120 s".
+- id: R-2
+  deviation_class: regression
+  severity: LOW
+  blocking: false
+  location:
+  - cli.py:35
+  - cli.py:123-129
+  source_ids:
+  - X-001
+  - C-001
+  authority: Design :114 `once` exits "0, 2, 3, 4, 5, 6, 7, 75"; AC-17 (design :890) "Each verb's exit codes match section 4". The [PROPOSAL] comment at cli.py:35 is not authority.
+- id: R-3
+  deviation_class: regression
+  severity: LOW
+  blocking: false
+  location:
+  - audit.py:55-57
+  - audit.py:62-64
+  - cycle.py:1134-1137
+  source_ids:
+  - X-002
+  - X-010
+  - C-002
+  - C-003
+  authority: Design :718 "`audit.REASONS` is a `frozenset` equal to the spec's reason table"; task :199 "exactly 57 entries"; DF-41 (DF register :175) names 57.
+- id: R-4
+  deviation_class: regression
+  severity: LOW
+  blocking: false
+  location:
+  - record.py:23-29
+  source_ids:
+  - X-003
+  - C-005
+  authority: Design :239 `record` may import `predicates` "(types only, ...)"; task :332 lists only `parse_utc`, `format_utc`, `valid_issue_number`.
+- id: R-5
+  deviation_class: regression
+  severity: MEDIUM
+  blocking: false
+  location:
+  - tests/issue_watch/test_cli.py:967
+  - tests/issue_watch/test_cli.py:1070
+  - tests/issue_watch/test_record.py:739
+  - tests/issue_watch/test_cycle.py:735
+  - tests/issue_watch/test_cycle.py:4694
+  source_ids:
+  - X-006
+  - C-013
+  authority: Task :188 "No test may use `pytest.skip`, `skipif` or `xfail`, because gates G-1 and G-3 require zero skipped tests." (graded minor at task :908)
+- id: R-6
+  deviation_class: regression
+  severity: LOW
+  blocking: false
+  location:
+  - runner.py:57-64
+  - runner.py:126
+  - launch.py:322
+  source_ids:
+  - C-026
+  authority: Design :634 "`agent_session_operation_unknown` anywhere in stdout or stderr" maps to `unknown`.
+- id: R-7
+  deviation_class: regression
+  severity: LOW (effectively unreachable)
+  blocking: false
+  location:
+  - cycle.py:1271
+  - cycle.py:1279-1280
+  source_ids:
+  - C-036
+  authority: Design :739 `retry` lists "`unknown` entries with an `operation_id`".
+- id: D-1
+  deviation_class: drift
+  severity: LOW
+  blocking: false
+  location:
+  - docs/designs/issue-watcher-setup.md:53
+  - docs/designs/issue-watcher-setup.md:432
+  - docs/designs/issue-watcher.md:726
+  source_ids:
+  - C-034
+  authority: 'Rationale: the docs disagree with design :115 (status 0, 1, 2, 6), cli.py:169 (exit 2) and cli.py:314 (reset runs the platform check).'
+- id: D-2
+  deviation_class: drift
+  severity: LOW
+  blocking: false
+  location:
+  - cli.py:319
+  source_ids:
+  - C-006
+  authority: 'Rationale: cycle.format_utc is re-exported from predicates; design :242 does not list predicates for cli.'
+- id: D-3
+  deviation_class: drift
+  severity: LOW
+  blocking: false
+  location:
+  - cycle.py:468
+  - cycle.py:76
+  source_ids:
+  - C-008
+  - C-009
+  authority: 'Rationale: they copy github.py:134 `_LOGIN_RE` and the predicates format; design :241 allows the imports.'
+- id: D-4
+  deviation_class: drift
+  severity: LOW
+  blocking: false
+  location:
+  - audit.py:395-397
+  source_ids:
+  - C-012
+  authority: 'Rationale: wall clock; the docstring says "a stamp, not a decision".'
+- id: N-1
+  deviation_class: necessary
+  severity: LOW
+  blocking: false
+  location:
+  - audit.py:203
+  - launch.py:30
+  - launch.py:36
+  - record.py:310-315
+  - audit.py:110-115
+  - audit.py:200
+  source_ids:
+  - X-004
+  - C-007
+  - C-010
+  - C-011
+  - C-009
+  authority: Design :237 and :240 force the copies.
+- id: N-2
+  deviation_class: necessary
+  severity: LOW
+  blocking: false
+  location:
+  - tests/issue_watch/test_cycle.py:4150-4154
+  source_ids:
+  - C-030
+  authority: 'Rationale: cycle.py:36 DAY_CAP = 6.'
+- id: N-3
+  deviation_class: necessary
+  severity: LOW
+  blocking: false
+  location:
+  - cycle.py:1225-1230
+  source_ids:
+  - C-033
+  authority: 'Rationale: reads launch._ORCA_CLIS (design :240).'
+- id: A-1
+  deviation_class: authorized
+  severity: n/a
+  blocking: false
+  location:
+  - record.py:23-29
+  source_ids:
+  - X-003
+  - C-005
+  authority: Task :332; design :239.
+- id: A-2
+  deviation_class: authorized
+  severity: n/a
+  blocking: false
+  location:
+  - runner.py:89
+  source_ids:
+  - X-005
+  - C-012
+  authority: Task :193.
+- id: A-3
+  deviation_class: authorized
+  severity: n/a
+  blocking: false
+  location:
+  - audit.py:55-57 region
+  source_ids:
+  - C-004
+  authority: Task :199 five proposed reasons.
+- id: A-4
+  deviation_class: authorized
+  severity: n/a
+  blocking: false
+  location:
+  - gh dependency
+  source_ids:
+  - C-031
+  authority: DF-05 (DF register :28).
+- id: A-5
+  deviation_class: authorized
+  severity: n/a
+  blocking: false
+  location:
+  - src/superclaude/cli/main.py:563-565
+  source_ids:
+  - C-032
+  authority: DF-29 (DF register :156; the plan cites :208, the P7 phase row that references DF-29).

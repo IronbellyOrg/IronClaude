@@ -560,6 +560,10 @@ from superclaude.cli.reflect.commands import reflect_group  # noqa: E402,I001  #
 
 main.add_command(reflect_group, name="reflect")
 
+from superclaude.cli.issue_watch.cli import issue_watch_group  # noqa: E402,I001  # intentional: deferred subcommand registration to avoid circular imports
+
+main.add_command(issue_watch_group, name="issue-watch")
+
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,27 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/issue-watcher.md section 15 row 'REST events fields' (line 836) and G4 (line 546); projection MARKER_JQ; null login rule from decision DF-18. UNVERIFIED until FU-1 captures a real reply.",
+  "payload": [
+    {
+      "id": 3001,
+      "login": "watcher-bot",
+      "created_at": "2026-01-01T01:00:00Z",
+      "updated_at": "2026-01-01T01:00:00Z",
+      "marker": true
+    },
+    {
+      "id": 3002,
+      "login": "other-user",
+      "created_at": "2026-01-01T01:05:00Z",
+      "updated_at": "2026-01-01T01:05:00Z",
+      "marker": false
+    },
+    {
+      "id": 3003,
+      "login": null,
+      "created_at": "2026-01-01T01:10:00Z",
+      "updated_at": "2026-01-01T01:10:00Z",
+      "marker": false
+    }
+  ]
+}

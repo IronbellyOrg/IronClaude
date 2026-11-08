@@ -1,0 +1,7 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/issue-watcher.md section 15, line 838 (rate-limit and auth stderr substrings): UNVERIFIED",
+  "note": "The stderr text is assumed, not captured. The owner-run live test replaces it with a captured reply.",
+  "exit": 1,
+  "stderr": "gh: HTTP 403: API rate limit exceeded\n"
+}

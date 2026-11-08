@@ -1,0 +1,11 @@
+# Consolidated findings: Phase 3 research gate (Gate 1), fix cycle 2
+
+Sources: cycle-1 verification reports `qa/qa-verification-phase3-structural.md` (VERDICT: PASS) and `qa/qa-verification-phase3-content.md` (VERDICT: FAIL). Halt guards run before this cycle: regression check: no previously resolved blocking finding is FAIL again (the three original findings are confirmed resolved), so no regression halt; monotonicity check: open blocking findings before the fix = 3, now = 1, so |F| shrank and no monotonicity halt; hard cap not reached (fix cycle 2 of 2 allowed).
+
+Count line: blocking 1, minor 0 (resolved and minor findings are not listed again).
+
+| # | Finding | Affected research file | Severity | Blocking | Proposed fix |
+|---|---|---|---|---|---|
+| 1 | New section 2c in file 02 (`02-github-surface-and-cli-patterns.md`) states two incompatible routing rules. Line ~70 says "skip assigned" applies "never to issues assigned to the workspace's own login", while the candidate-4 row (line ~77) says to skip anything already assigned "to the own login or another". Line ~79 attributes the need for a retry cap for candidate 4 to a failed claim that leaves the issue assigned to the own login, but candidate 4 selects only unassigned issues so such an issue would never be picked again; file 01 line ~173 ties that re-select-every-cycle effect to candidate 1. Line ~79 also calls "skip assigned" and "select assigned to me" the same rule seen from two sides, which is wrong because one admits unassigned issues. | 02 (pointers at 01 line ~165 and 03 line ~139 to be aligned) | IMPORTANT | yes | Rewrite about four sentences of section 2c: candidate 1 (assigned to own login) re-selects an issue every cycle after a failed claim, so it needs the retry cap and dispatch record; candidate 4 (unassigned, first come) skips every already-assigned issue (own login or other) and so cannot re-select a failed claim, which is why it needs the dispatch record to avoid abandoning it; "skip assigned to someone else" is the claim's own rule (claim.md:41-42) and is not identical to either candidate's filter. Align the pointer sentences in 01 and 03. Every statement must cite a file:line you read. |
+
+Consolidated verdict: FAIL (1 blocking finding). Minor notes from the cycle-1 content report remain notes.

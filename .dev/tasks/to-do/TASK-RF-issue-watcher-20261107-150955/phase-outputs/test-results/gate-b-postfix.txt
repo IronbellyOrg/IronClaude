@@ -1,0 +1,18 @@
+## pytest
+........................................................................ [ 96%]
+............................................                             [ 98%]
+tests/issue_watch/test_runner.py .................                       [100%]
+
+============================= 1577 passed in 2.78s =============================
+## make lint
+  Errors:   0
+  Warnings: 5
+  ✅ PASS — architecture policy compliant (5 warning(s))
+Running linter...
+uv run ruff check .
+All checks passed!
+make lint exit=0
+## ruff check
+All checks passed!
+## ruff format
+18 files already formatted

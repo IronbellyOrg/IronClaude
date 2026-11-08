@@ -1,0 +1,42 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/issue-watcher.md section 15 row 'REST events fields' (line 836); projection EVENTS_JQ of G3 (line 545); null rule per event kind from decision DF-18. UNVERIFIED until FU-1 captures a real reply.",
+  "payload": [
+    {
+      "id": 1001,
+      "event": "labeled",
+      "label": "trigger-label",
+      "actor_id": 2001,
+      "actor_login": "issue-author",
+      "actor_type": "User",
+      "created_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": 1002,
+      "event": "labeled",
+      "label": "approval-label",
+      "actor_id": 2002,
+      "actor_login": "allowed-approver",
+      "actor_type": "User",
+      "created_at": "2026-01-01T00:05:00Z"
+    },
+    {
+      "id": 1003,
+      "event": "unlabeled",
+      "label": "approval-label",
+      "actor_id": 2002,
+      "actor_login": "allowed-approver",
+      "actor_type": "User",
+      "created_at": "2026-01-01T00:10:00Z"
+    },
+    {
+      "id": 1004,
+      "event": "renamed",
+      "label": null,
+      "actor_id": null,
+      "actor_login": null,
+      "actor_type": null,
+      "created_at": "2026-01-01T00:15:00Z"
+    }
+  ]
+}

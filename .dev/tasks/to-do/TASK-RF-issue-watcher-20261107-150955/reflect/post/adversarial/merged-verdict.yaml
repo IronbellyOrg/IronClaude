@@ -1,0 +1,690 @@
+# Provenance: produced by /sc:adversarial Step 5 (merge-executor agent), 2026-11-08T05:53:31Z
+# provenance: base variant 2 (variant-2-original.md, haiku:qa)
+# provenance: incorporated variants 1 (variant-1-original.md) and 3 (variant-3-original.md)
+# provenance: plan adversarial/refactor-plan.md (final deviation register, 19 rows)
+# provenance: debate agreement 56/67 = 0.836 (adversarial/scoring-matrix.md, CONVERGED)
+# Audited change: e8db2fe6..26f551f4 (issue-watch poller, issue #331)
+# Code paths are under src/superclaude/cli/issue_watch/ unless a full path is given.
+# design = docs/designs/issue-watcher.md; setup = docs/designs/issue-watcher-setup.md
+# task = .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+# DF register = .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md
+# spec = .dev/brainstorms/20261107-064825-github-issue-watcher/spec-final.md
+# Every evidence line below was re-read in the live worktree by the merge executor.
+# Citations corrected from the plan are listed in adversarial/merge-log.md.
+
+merge_method: adversarial
+convergence_score: 0.836
+reviewers: 3
+base_variant: 'variant-2 (haiku:qa)'
+verdict: FAIL
+blocking_findings: [R-1]
+invariant_probe: {total: 12, high_unaddressed: 0, medium_unaddressed: 1, blocked: false}
+judge_class_collision: true
+
+findings:
+  # provenance: base variant-2 row 1 (Regression HIGH at cycle.py:1048); severity from variant-1 and variant-3 debate positions (LOW); plan row R-1
+  - id: R-1
+    source_ids: [X-007, C-014]
+    category: regression
+    severity: LOW
+    blocking: true
+    location: ['cycle.py:1060-1062', 'cycle.py:1048']
+    claim: >-
+      A launch can start after the 120 s cutoff. cycle.py:1048 is the last cutoff
+      check; the entry is then marked pending (1060) and saved durably (1061), and
+      the launch (1062) runs with no further check, so a save that crosses 120 s
+      lets a launch start after the cutoff.
+    evidence:
+      - 'cycle.py:1048-1049 - last check: if not self.deadline.launch_allowed(), raise _Skip budget_exhausted'
+      - 'cycle.py:1060 - self._set(record.mark_pending(self.doc, c.n, ctx, self.now()))'
+      - 'cycle.py:1061 - self._save() with the comment FR-010: durable before the launch call'
+      - 'cycle.py:1062 - outcome = d.launcher.launch(orca, cfg.worktree, prompt, LAUNCH_TIMEOUT_S), no cutoff check between 1061 and 1062'
+      - 'cycle.py:410-412 - launch_allowed returns self.elapsed() <= LAUNCH_CUTOFF_S'
+      - 'docs/designs/issue-watcher.md:647 - Orca launch not started when elapsed() > 120; the step ends with no entry and no reason other than a budget_exhausted decision line'
+      - 'docs/designs/issue-watcher.md:892 - AC-19: no launch starts after 120 s'
+      - 'task:901 - Gate C: the fix of the deadline exit code let a launch start after the 120 s cut-off; fixed in cycle 2 (the git-call window only)'
+    authority: >-
+      Design :647 "not started when `elapsed() > 120`; the step ends with no entry
+      and no reason other than a `budget_exhausted` decision line"; AC-19 (design
+      :892) "no launch starts after 120 s".
+    source_findings:
+      - 'variant-2 row 1: Regression HIGH, late launch at cycle.py:1048'
+      - 'variant-1 and variant-3 debate positions: LOW (scoring-matrix X-007)'
+    debate_outcome: >-
+      X-007 merged (confidence 0.85): variant-2 finding, LOW severity from
+      variant-1 and variant-3, blocking flag from variant-2 and variant-3. V2 HIGH
+      and calibrator MEDIUM rejected (see rejected_claims).
+    remediation:
+      file: 'src/superclaude/cli/issue_watch/cycle.py'
+      change: >-
+        Capture the document before mark_pending, re-check launch_allowed() after
+        self._save(), and if the cutoff has passed restore and save the captured
+        document and raise _Skip("budget_exhausted") (see late_launch_ruling).
+      verifier: >-
+        New tests/issue_watch/test_cycle.py case whose clock passes 120 s inside
+        store.save: asserts no launcher call, the document restored, and a
+        budget_exhausted decision line.
+
+  # provenance: base variant-2 (no row); incorporated variant-1 row 1 (Necessary MEDIUM) and row 2 (Drift MEDIUM), variant-3 row 1 (Drift cycle_crashed); plan row R-2
+  - id: R-2
+    source_ids: [X-001, C-001]
+    category: regression
+    severity: LOW
+    blocking: false
+    location: ['cli.py:35', 'cli.py:123-129']
+    claim: >-
+      `once` can exit 1 (cycle_crashed), an exit code the design does not list for
+      the verb.
+    evidence:
+      - 'cli.py:35 - _EXIT_CRASH = 1 with the comment [PROPOSAL] C-3'
+      - 'cli.py:123-129 - crash path calls audit.stderr_fallback(cycle_crashed, _EXIT_CRASH), then sys.exit(_EXIT_CRASH)'
+      - 'docs/designs/issue-watcher.md:114 - once exit codes: 0, 2, 3, 4, 5, 6, 7, 75'
+      - 'docs/designs/issue-watcher.md:890 - AC-17: each verb exit codes match section 4'
+    authority: >-
+      Design :114 `once` exits "0, 2, 3, 4, 5, 6, 7, 75"; AC-17 (design :890)
+      "Each verb's exit codes match section 4". The [PROPOSAL] comment at cli.py:35
+      is not authority.
+    source_findings:
+      - 'variant-1 row 1: Necessary MEDIUM, cycle_complete and cycle_crashed'
+      - 'variant-1 row 2: Drift MEDIUM, reason table'
+      - 'variant-3 row 1: Drift, cycle_crashed'
+    debate_outcome: >-
+      X-001 won by variant-2 and variant-3 (confidence 0.85); variant-1 Necessary
+      rejected (A-002).
+    remediation:
+      file: 'docs/designs/issue-watcher.md (:114 and section 4.3); spec reason table'
+      change: 'Add exit 1 (cycle_crashed) as an amended exit; behaviour stays.'
+      verifier: 'tests/issue_watch/test_cli.py:630 (crash exit) unchanged and passing'
+
+  # provenance: base variant-2 (no row); incorporated variant-1 rows 1 and 2, variant-3 row 7 (Necessary cycle_complete); plan row R-3
+  - id: R-3
+    source_ids: [X-002, X-010, C-002, C-003]
+    category: regression
+    severity: LOW
+    blocking: false
+    location: ['audit.py:55-57', 'audit.py:62-64', 'cycle.py:1134-1137']
+    claim: >-
+      The reason table has 59 names (cycle_complete and cycle_crashed added), not
+      the 57 the task and DF-41 fix, so audit.REASONS no longer equals the spec
+      reason table.
+    evidence:
+      - 'audit.py:55-57 - cycle_crashed mapped to (cycle, 1) with a [PROPOSAL] comment'
+      - 'audit.py:62-64 - cycle_complete mapped to (cycle, 0) with a [PROPOSAL] comment'
+      - 'cycle.py:1134-1137 - [PROPOSAL] comment and return cycle_complete'
+      - 'tests/issue_watch/test_audit.py:214-220 - test_reasons_pin_59_names asserts 59 names'
+      - 'docs/designs/issue-watcher-setup.md:344 - the audit log accepts only the 59 names'
+      - 'docs/designs/issue-watcher.md:718 - audit.REASONS is a frozenset equal to the spec reason table'
+      - 'task:199 - Ensuring the table has exactly 57 entries (52 spec rows plus five proposals)'
+      - 'DF register:175 - DF-41: the 52 spec rows plus five named proposals; test_audit.py listed with 57 names'
+    authority: >-
+      Design :718 "`audit.REASONS` is a `frozenset` equal to the spec's reason
+      table"; task :199 "exactly 57 entries"; DF-41 (DF register :175) names 57.
+    source_findings:
+      - 'variant-1 row 1: Necessary MEDIUM, cycle_complete and cycle_crashed'
+      - 'variant-1 row 2: Drift MEDIUM'
+      - 'variant-3 row 7: Necessary, cycle_complete'
+    debate_outcome: >-
+      X-002 won by variant-2 and variant-3 (0.80), variant-1 MEDIUM rejected;
+      X-010 won by variant-2 and variant-3 (0.80) and folded into this row.
+    remediation:
+      file: 'docs/designs/issue-watcher.md:718; task:199; DF register DF-41; spec reason table'
+      change: 'Record 59 names, including cycle_complete and cycle_crashed.'
+      verifier: 'tests/issue_watch/test_audit.py:215-219 (pins 59)'
+
+  # provenance: base variant-2 row 5 (Authorized, test_module_boundaries:57); incorporated variant-1 row 9 (Necessary valid_operation_id), variant-3 row 2 (Drift record imports); plan row R-4
+  - id: R-4
+    source_ids: [X-003, C-005]
+    category: regression
+    severity: LOW
+    blocking: false
+    location: ['record.py:23-29']
+    claim: >-
+      record.py imports the function valid_operation_id from predicates, which
+      neither the design import rule (types only) nor the task list of allowed
+      names covers. (Applies to valid_operation_id only; the other imports are A-1.)
+    evidence:
+      - 'record.py:23-29 - imports ApprovalResult, format_utc, parse_utc, valid_issue_number, valid_operation_id from superclaude.cli.issue_watch.predicates'
+      - 'record.py:183 - _opt(raw[operation_id], valid_operation_id) is the use site'
+      - 'docs/designs/issue-watcher.md:239 - record may import predicates (types only)'
+      - 'task:332 - allowed imports from predicates: parse_utc, format_utc, valid_issue_number'
+      - 'tests/issue_watch/test_module_boundaries.py:20-21 - docstring says record imports three functions and one type (miscount, C-038)'
+      - 'tests/issue_watch/test_module_boundaries.py:57-61 - record Rule allows the predicates sibling with no name limit'
+      - 'launch.py:36 - OPERATION_ID_PATTERN local copy, the precedent for a local copy'
+    authority: >-
+      Design :239 `record` may import `predicates` "(types only, ...)"; task :332
+      lists only `parse_utc`, `format_utc`, `valid_issue_number`.
+    source_findings:
+      - 'variant-1 row 9: Necessary, valid_operation_id'
+      - 'variant-3 row 2: Drift, record imports'
+      - 'variant-2 row 5: Authorized, test_module_boundaries:57'
+    debate_outcome: >-
+      X-003 merged (0.85) and split: Authorized for the three functions and
+      ApprovalResult (A-1), Regression LOW for valid_operation_id (this row).
+      C-038 folded into this row.
+    remediation:
+      file: 'task:332 and design :239, or src/superclaude/cli/issue_watch/record.py; tests/issue_watch/test_module_boundaries.py:20-21'
+      change: >-
+        Either amend task :332 and design :239 to name valid_operation_id, or give
+        record.py a local copy as launch.py:36 does; fix the miscounted docstring
+        at test_module_boundaries.py:20-21 (C-038).
+      verifier: 'tests/issue_watch/test_module_boundaries.py:57-61'
+
+  # provenance: base variant-2 row 2 (Drift MEDIUM, labelled Blocking); incorporated variant-1 row 12 (Necessary skips); plan row R-5
+  - id: R-5
+    source_ids: [X-006, C-013]
+    category: regression
+    severity: MEDIUM
+    blocking: false
+    location:
+      - 'tests/issue_watch/test_cli.py:967'
+      - 'tests/issue_watch/test_cli.py:1070'
+      - 'tests/issue_watch/test_record.py:739'
+      - 'tests/issue_watch/test_cycle.py:735'
+      - 'tests/issue_watch/test_cycle.py:4694'
+    claim: >-
+      Five test sites use skipif or pytest.skip, which the task forbids; nothing
+      was skipped in any recorded run.
+    evidence:
+      - 'tests/issue_watch/test_cli.py:967 - skipif when os.geteuid() == 0 (root reads any file)'
+      - 'tests/issue_watch/test_cli.py:1070 - NOT_ROOT = pytest.mark.skipif when os.geteuid() == 0'
+      - 'tests/issue_watch/test_record.py:739 - skipif when os.geteuid() == 0'
+      - 'tests/issue_watch/test_cycle.py:735 - skipif when os.geteuid() == 0'
+      - 'tests/issue_watch/test_cycle.py:4694 - pytest.skip: /proc/self/mountinfo exists on Linux only'
+      - 'task:188 - No test may use pytest.skip, skipif or xfail, because gates G-1 and G-3 require zero skipped tests'
+      - 'task:908 - pytest.skip/skipif still appears in five test sites; nothing was skipped in any recorded run (graded minor)'
+    authority: >-
+      Task :188 "No test may use `pytest.skip`, `skipif` or `xfail`, because gates
+      G-1 and G-3 require zero skipped tests." (graded minor at task :908)
+    source_findings:
+      - 'variant-2 row 2: Drift MEDIUM, skips (its Blocking label rejected)'
+      - 'variant-1 row 12: Necessary, skips'
+    debate_outcome: >-
+      X-006 merged (0.80): variant-2 class with the non-blocking ruling of
+      variant-1 and variant-3.
+    remediation:
+      file: 'tests/issue_watch/test_cli.py, tests/issue_watch/test_record.py, tests/issue_watch/test_cycle.py'
+      change: >-
+        Replace the root-only skipif marks with checks that hold for root and
+        non-root, and give test_cycle.py:4694 a stubbed mountinfo text instead of
+        reading /proc/self/mountinfo.
+      verifier: 'uv run pytest tests/issue_watch -rs reports 0 skipped'
+
+  # provenance: base variant-2 (no row); incorporated variant-1 gap 12 (C-026); plan row R-6
+  - id: R-6
+    source_ids: [C-026]
+    category: regression
+    severity: LOW
+    blocking: false
+    location: ['runner.py:57-64', 'runner.py:126', 'launch.py:322']
+    claim: >-
+      The operation-unknown marker is searched only in stderr already cut to 500
+      bytes, so a marker after byte 500 is missed and the outcome is not forced to
+      unknown.
+    evidence:
+      - 'runner.py:15 - STDERR_CAP_BYTES = 500'
+      - 'runner.py:57-64 - _cap_stderr cuts text to STDERR_CAP_BYTES UTF-8 bytes'
+      - 'runner.py:126 - stderr=_cap_stderr(proc.stderr) in the returned CommandResult'
+      - 'launch.py:322 - OP_UNKNOWN_TEXT checked in result.stdout or result.stderr (the capped text)'
+      - 'docs/designs/issue-watcher.md:634 - agent_session_operation_unknown anywhere in stdout or stderr maps to unknown'
+    authority: >-
+      Design :634 "`agent_session_operation_unknown` anywhere in stdout or stderr"
+      maps to `unknown`.
+    source_findings:
+      - 'variant-1 gap 12: C-026'
+    debate_outcome: 'C-026 won by variant-2 and variant-3 (0.70): Regression.'
+    remediation:
+      file: 'src/superclaude/cli/issue_watch/runner.py, src/superclaude/cli/issue_watch/launch.py'
+      change: >-
+        Detect the operation-unknown marker on the full stderr before the 500-byte
+        cap is applied (runner.py:15).
+      verifier: 'New launch test with the marker after byte 500, expecting unknown'
+
+  # provenance: base variant-2 (no row); incorporated variant-3 gap 4 (C-036); plan row R-7
+  - id: R-7
+    source_ids: [C-036]
+    category: regression
+    severity: 'LOW (effectively unreachable)'
+    blocking: false
+    location: ['cycle.py:1271', 'cycle.py:1279-1280']
+    claim: >-
+      status drops an unknown entry with an operation id from the retry list when
+      its retry argv cannot be built; effectively unreachable because record
+      validation only stores a safe id and an absolute launch_cwd.
+    evidence:
+      - 'cycle.py:1271 - retry only when entry.state == unknown and entry.operation_id and entry.launch_cwd'
+      - 'cycle.py:1279-1280 - except ValueError: continue (the entry is dropped)'
+      - 'record.py:182-184 - operation_id validated with valid_operation_id; launch_cwd must be absolute when present'
+      - 'record.py:548 - mark_pending requires an absolute launch_cwd'
+      - 'docs/designs/issue-watcher.md:739 - retry lists unknown entries with an operation_id'
+    authority: 'Design :739 `retry` lists "`unknown` entries with an `operation_id`".'
+    source_findings:
+      - 'variant-3 gap 4: C-036'
+    debate_outcome: 'C-036 won by variant-2 and variant-3 (0.70): Regression, effectively unreachable.'
+    remediation:
+      file: 'src/superclaude/cli/issue_watch/cycle.py'
+      change: >-
+        When an unknown entry with an id has no usable retry argv, print it with a
+        warning instead of dropping it.
+      verifier: 'New tests/issue_watch/test_cycle.py case'
+
+  # provenance: base variant-2 (no row); incorporated variant-3 row 6 (C-034); plan row D-1
+  - id: D-1
+    source_ids: [C-034]
+    category: drift
+    severity: LOW
+    blocking: false
+    location: ['docs/designs/issue-watcher-setup.md:53', 'docs/designs/issue-watcher-setup.md:432', 'docs/designs/issue-watcher.md:726']
+    claim: >-
+      The setup guide and design 10.2 misstate two verb facts: setup :53 leaves
+      reset out of the Linux-only verbs although reset runs the platform check,
+      and setup :432 and design :726 leave exit 2 out of the status exits.
+    evidence:
+      - 'docs/designs/issue-watcher-setup.md:53 - Linux-only list names once, check-config and init-state (no reset)'
+      - 'docs/designs/issue-watcher-setup.md:432 - status exits 0, 1, 6'
+      - 'docs/designs/issue-watcher.md:726 - status exits 0, 1, 6 (no 2)'
+      - 'docs/designs/issue-watcher.md:115 - status exits 0, 1, 2, 6'
+      - 'cli.py:169 - status calls _load_config(config_path, platform=False); a config error exits 2 through cli.py:84-91 and cli.py:77-81'
+      - 'cli.py:314 - reset calls _load_config(config_path), which runs check_platform (cli.py:84-91, platform defaults to true)'
+    authority: >-
+      Rationale: the docs disagree with design :115 (status 0, 1, 2, 6), cli.py:169
+      (exit 2) and cli.py:314 (reset runs the platform check).
+    source_findings:
+      - 'variant-3 row 6: C-034'
+    debate_outcome: 'C-034 won by all three variants (0.85): Drift.'
+    remediation:
+      file: 'docs/designs/issue-watcher-setup.md:53, :432; docs/designs/issue-watcher.md:726'
+      change: 'Add reset at setup :53; add exit 2 at setup :432 and design :726.'
+      verifier: 'Re-read against cli.py:169 and cli.py:314'
+
+  # provenance: base variant-2 (no row); incorporated variant-1 row 4, variant-3 row 5 (C-006); plan row D-2
+  - id: D-2
+    source_ids: [C-006]
+    category: drift
+    severity: LOW
+    blocking: false
+    location: ['cli.py:319']
+    claim: >-
+      cli.py stamps the reset line with cycle.format_utc, a predicates function
+      re-exported through cycle; design :242 does not list predicates for cli.
+    evidence:
+      - 'cli.py:319 - ts: cycle.format_utc(now)'
+      - 'docs/designs/issue-watcher.md:242 - cli may import cycle, record, audit, launch, runner'
+    authority: >-
+      Rationale: cycle.format_utc is re-exported from predicates; design :242 does
+      not list predicates for cli.
+    source_findings:
+      - 'variant-1 row 4'
+      - 'variant-3 row 5'
+    debate_outcome: 'C-006 won by variant-1 and variant-3: Drift.'
+    remediation:
+      file: 'docs/designs/issue-watcher.md:242, or src/superclaude/cli/issue_watch/cycle.py'
+      change: 'Amend design :242 to note the transitive use, or give cycle a public stamp helper.'
+      verifier: 'tests/issue_watch/test_module_boundaries.py'
+
+  # provenance: base variant-2 (no row); incorporated variant-1 row 5, variant-3 row 3 (C-008, C-009 cycle copy); plan row D-3
+  - id: D-3
+    source_ids: [C-008, C-009]
+    category: drift
+    severity: LOW
+    blocking: false
+    location: ['cycle.py:468', 'cycle.py:76']
+    claim: >-
+      cycle.py keeps its own copies of the login pattern and the UTC timestamp
+      format although design :241 lets it import github and predicates.
+      (C-009 here is the cycle copy only; the audit copy is N-1.)
+    evidence:
+      - 'cycle.py:468 - _LOGIN = re.compile with the pattern [A-Za-z0-9][A-Za-z0-9-]{0,38}'
+      - 'github.py:134 - _LOGIN_RE = re.compile with the same pattern'
+      - 'cycle.py:76 - _UTC_TS_FORMAT = %Y-%m-%dT%H:%M:%SZ'
+      - 'docs/designs/issue-watcher.md:241 - cycle may import runner, github, predicates, record, launch, audit'
+    authority: >-
+      Rationale: they copy github.py:134 `_LOGIN_RE` and the predicates format;
+      design :241 allows the imports.
+    source_findings:
+      - 'variant-1 row 5'
+      - 'variant-3 row 3'
+    debate_outcome: 'C-008 won by variant-1 and variant-3; C-009 won by variant-3: Drift for the cycle copy.'
+    remediation:
+      file: 'src/superclaude/cli/issue_watch/cycle.py'
+      change: 'Use the github and predicates values.'
+      verifier: 'The existing login and timestamp tests in tests/issue_watch/test_cycle.py'
+
+  # provenance: base variant-2 (no row); incorporated variant-1 row 6, variant-3 row 4 (C-012 stderr_fallback part); plan row D-4
+  - id: D-4
+    source_ids: [C-012]
+    category: drift
+    severity: LOW
+    blocking: false
+    location: ['audit.py:395-397']
+    claim: >-
+      audit.stderr_fallback reads the wall clock when no ts is passed, against the
+      rule that audit never reads the clock; the docstring calls it a stamp, not a
+      decision. (C-012 here is the stderr_fallback part only; the runner part is A-2.)
+    evidence:
+      - 'audit.py:395-397 - if ts is None: now = datetime.datetime.now(datetime.timezone.utc); ts = now.strftime(_UTC_TS_FORMAT)'
+      - 'audit.py:390-391 - docstring: ts and host default to the current UTC time and socket.gethostname() (a stamp, not a decision)'
+    authority: 'Rationale: wall clock; the docstring says "a stamp, not a decision".'
+    source_findings:
+      - 'variant-1 row 6'
+      - 'variant-3 row 4'
+    debate_outcome: 'C-012 won by variant-1 and variant-3; split into D-4 (Drift) and A-2 (Authorized).'
+    remediation:
+      file: 'src/superclaude/cli/issue_watch/audit.py and its callers'
+      change: 'Pass ts where the caller holds the cycle clock.'
+      verifier: 'The test_audit.py fallback cases'
+
+  # provenance: base variant-2 (no row); incorporated variant-1 rows 5 and 7, variant-3 row 10 (X-004 plus C-007, C-010, C-011, C-009 audit copy); plan row N-1
+  - id: N-1
+    source_ids: [X-004, C-007, C-010, C-011, C-009]
+    category: necessary
+    severity: LOW
+    blocking: false
+    location: ['audit.py:203', 'launch.py:30', 'launch.py:36', 'record.py:310-315', 'audit.py:110-115', 'audit.py:200']
+    claim: >-
+      Leaf modules keep local copies of shared constants and helpers (issue
+      bound, operation-id pattern, directory fsync, timestamp format) because the
+      design import rules forbid the import that would share them. (C-009 here is
+      the audit copy only.)
+    evidence:
+      - 'audit.py:203 - _MAX_ISSUE = 999_999_999, the same bound as predicates.MAX_ISSUE_NUMBER'
+      - 'launch.py:30 - MAX_ISSUE_NUMBER = 999_999_999'
+      - 'launch.py:36 - OPERATION_ID_PATTERN = re.compile(^[A-Za-z0-9._:-]{1,128}$)'
+      - 'record.py:310-315 - _fsync_dir: os.open O_RDONLY | O_DIRECTORY, os.fsync, os.close in finally'
+      - 'audit.py:110-115 - _fsync_dir: the same four-line helper (CORRECTED from plan audit.py:204-206)'
+      - 'audit.py:200 - _UTC_TS_FORMAT = %Y-%m-%dT%H:%M:%SZ (the C-009 audit copy)'
+      - 'docs/designs/issue-watcher.md:237 - audit imports nothing from the package'
+      - 'docs/designs/issue-watcher.md:240 - launch imports runner and _ORCA_CLIS only'
+    authority: 'Design :237 and :240 force the copies.'
+    source_findings:
+      - 'variant-1 rows 5 and 7'
+      - 'variant-3 row 10'
+    debate_outcome: 'X-004 won by all three variants (0.90): Necessary. C-010 from variant-1, C-011 and C-009 from variant-3.'
+    remediation:
+      file: 'none'
+      change: 'None; the parity test is advisory.'
+      verifier: 'none'
+
+  # provenance: base variant-2 row 3 (C-030); plan row N-2
+  - id: N-2
+    source_ids: [C-030]
+    category: necessary
+    severity: LOW
+    blocking: false
+    location: ['tests/issue_watch/test_cycle.py:4150-4154']
+    claim: >-
+      The day-cap test bounds the second day at 6 launches, following the module
+      constant.
+    evidence:
+      - 'tests/issue_watch/test_cycle.py:4150-4154 - comment on the 6-per-24h cap and second_day = min(count - capped, 6)'
+      - 'cycle.py:36 - DAY_CAP = 6'
+    authority: 'Rationale: cycle.py:36 DAY_CAP = 6.'
+    source_findings:
+      - 'variant-2 row 3'
+    debate_outcome: 'C-030 won by variant-2: Necessary.'
+    remediation:
+      file: 'none'
+      change: 'None.'
+      verifier: 'none'
+
+  # provenance: base variant-2 (no row); incorporated variant-3 row 8 (C-033); plan row N-3
+  - id: N-3
+    source_ids: [C-033]
+    category: necessary
+    severity: LOW
+    blocking: false
+    location: ['cycle.py:1225-1230']
+    claim: >-
+      status picks the retry Orca name by reading launch._ORCA_CLIS instead of
+      importing install_user_setup directly.
+    evidence:
+      - 'cycle.py:1225-1230 - _retry_orca returns the first launch._ORCA_CLIS name which resolves, else the first name'
+      - 'launch.py:22 - from superclaude.cli.install_user_setup import _ORCA_CLIS'
+      - 'docs/designs/issue-watcher.md:240 - launch imports runner and _ORCA_CLIS only'
+    authority: 'Rationale: reads launch._ORCA_CLIS (design :240).'
+    source_findings:
+      - 'variant-3 row 8'
+    debate_outcome: 'C-033 won by variant-3: Necessary.'
+    remediation:
+      file: 'none'
+      change: 'None.'
+      verifier: 'none'
+
+  # provenance: base variant-2 row 5 (Authorized); incorporated variant-1 row 8, variant-3 row 2 (X-003 three functions plus ApprovalResult, C-005 part); plan row A-1
+  - id: A-1
+    source_ids: [X-003, C-005]
+    category: authorized
+    severity: 'n/a'
+    blocking: false
+    location: ['record.py:23-29']
+    claim: >-
+      record.py imports parse_utc, format_utc, valid_issue_number and the type
+      ApprovalResult from predicates. (valid_operation_id is R-4.)
+    evidence:
+      - 'record.py:23-29 - imports ApprovalResult, format_utc, parse_utc, valid_issue_number (and valid_operation_id, see R-4)'
+      - 'task:332 - allowed imports from predicates: parse_utc, format_utc, valid_issue_number'
+      - 'docs/designs/issue-watcher.md:239 - record may import predicates (types only)'
+    authority: 'Task :332; design :239.'
+    source_findings:
+      - 'variant-1 row 8'
+      - 'variant-2 row 5'
+      - 'variant-3 row 2'
+    debate_outcome: 'X-003 merged (0.85) and split; this is the Authorized part.'
+    remediation:
+      file: 'none'
+      change: 'None.'
+      verifier: 'none'
+
+  # provenance: base variant-2 (no row); incorporated variant-1 row 6, variant-3 row 9 (X-005, C-012 runner part); plan row A-2
+  - id: A-2
+    source_ids: [X-005, C-012]
+    category: authorized
+    severity: 'n/a'
+    blocking: false
+    location: ['runner.py:89']
+    claim: 'runner.py reads time.monotonic() to measure duration_s around the child.'
+    evidence:
+      - 'runner.py:89 - start = time.monotonic()'
+      - 'runner.py:35 - duration_s: float'
+      - 'task:193 - measures duration_s with time.monotonic() around the child only; it is never used for a decision'
+    authority: 'Task :193.'
+    source_findings:
+      - 'variant-1 row 6'
+      - 'variant-3 row 9'
+    debate_outcome: 'X-005 won by all three variants (0.85): Authorized.'
+    remediation:
+      file: 'none'
+      change: 'None.'
+      verifier: 'none'
+
+  # provenance: base variant-2 (no row); incorporated variant-1 row 10 (C-004); plan row A-3
+  - id: A-3
+    source_ids: [C-004]
+    category: authorized
+    severity: 'n/a'
+    blocking: false
+    location: ['audit.py:55-57 region']
+    claim: >-
+      The reason table carries the five proposed reasons the task names
+      (marker_unreadable, edits_unreadable, operator_reset, dry_run_shadow_reset,
+      reset_refused).
+    evidence:
+      - 'task:199 - plus the two proposals marker_unreadable and edits_unreadable; dry_run_shadow_reset (DF-22); reset_refused (DF-57); operator_reset (DF-03)'
+      - 'DF register:175 - DF-41 names the same five proposals'
+    authority: 'Task :199 five proposed reasons.'
+    source_findings:
+      - 'variant-1 row 10'
+    debate_outcome: 'C-004 won by variant-1: Authorized.'
+    remediation:
+      file: 'none'
+      change: 'None.'
+      verifier: 'none'
+
+  # provenance: base variant-2 row 4 (C-031); plan row A-4
+  - id: A-4
+    source_ids: [C-031]
+    category: authorized
+    severity: 'n/a'
+    blocking: false
+    location: ['gh dependency']
+    claim: 'The full suite depends on gh and runs in CI only.'
+    evidence:
+      - 'DF register:28 - DF-05: CI-only full suite'
+    authority: 'DF-05 (DF register :28).'
+    source_findings:
+      - 'variant-2 row 4'
+    debate_outcome: 'C-031 won by variant-2: Authorized.'
+    remediation:
+      file: 'none'
+      change: 'None.'
+      verifier: 'none'
+
+  # provenance: base variant-2 (no row); incorporated variant-3 row 11 (C-032); plan row A-5
+  - id: A-5
+    source_ids: [C-032]
+    category: authorized
+    severity: 'n/a'
+    blocking: false
+    location: ['src/superclaude/cli/main.py:563-565']
+    claim: 'The issue-watch group is registered on the main CLI after line 561.'
+    evidence:
+      - 'src/superclaude/cli/main.py:563 - from superclaude.cli.issue_watch.cli import issue_watch_group'
+      - 'src/superclaude/cli/main.py:565 - main.add_command(issue_watch_group, name=issue-watch)'
+      - 'DF register:156 - DF-29 row: main.py registration after line 561 (CORRECTED from plan DF register :208; :208 is the P7 phase row that references DF-29)'
+    authority: 'DF-29 (DF register :156; the plan cites :208, the P7 phase row that references DF-29).'
+    source_findings:
+      - 'variant-3 row 11'
+    debate_outcome: 'C-032 won by variant-3: Authorized. Variant-3 path src/superclaude/main.py corrected to src/superclaude/cli/main.py.'
+    remediation:
+      file: 'none'
+      change: 'None.'
+      verifier: 'none'
+
+# provenance: plan section Advisory gaps (17 rows); advisory rows never gate
+advisory_gaps:
+  - {id: C-016, location: ['record.py:689-703'], severity: 'LOW (accepted residual R16, spec-final.md:456)', verified: true}
+  - {id: C-017, location: ['record.py:421-431'], severity: LOW, verified: true}
+  - {id: C-018, location: ['cycle.py:685-690'], severity: LOW, verified: true}
+  - {id: C-019, location: ['runner.py:91-101'], severity: MEDIUM, verified: false}
+  - {id: C-022, location: ['predicates.py:205-209'], severity: LOW, verified: true}
+  - {id: C-023, location: ['launch.py:318-319'], severity: LOW, verified: true}
+  - {id: C-024, location: ['launch.py:326-334', 'launch.py:39-45', 'docs/designs/issue-watcher.md:636'], severity: MEDIUM, verified: false}
+  - {id: 'X-008/C-025', location: ['predicates.py:57', 'launch.py:127-130'], severity: LOW, verified: true}
+  - {id: C-035, location: ['cli.py:309-311'], severity: LOW, verified: true}
+  - {id: C-037, location: ['audit.py:393-402'], severity: LOW, verified: true}
+  - {id: 'parity-tests', location: ['audit.py:203', 'launch.py:30', 'launch.py:36'], severity: LOW, verified: true}
+  - {id: INV-001, location: ['docs/designs/issue-watcher.md:17'], severity: 'MEDIUM (scope)', verified: true}
+  - {id: INV-005, location: ['cycle.py:1062'], severity: LOW, verified: true}
+  - {id: INV-006, location: ['cycle.py:1033', 'cycle.py:1041-1045', 'cycle.py:1061'], severity: LOW, verified: true}
+  - {id: INV-007, location: ['github.py:448-454'], severity: LOW, verified: false}
+  - {id: INV-008, location: ['record.py:689-690', 'record.py:696'], severity: LOW, verified: true}
+  - {id: INV-009, location: ['cycle.py:1060'], severity: LOW, verified: false}
+
+# provenance: plan Grounding Gaps line; missing evidence from scoring-matrix.md not-agreed rows; grounding gaps never gate
+# plan note: X-009 / C-015 is not a defect (cycle.py:693-694, cycle.py:1033-1034, both re-read); C-038 is folded into R-4.
+grounding_gaps:
+  - id: C-020
+    topic: 'dead code'
+    source: 'variant-1 gap 6'
+    missing_evidence: >-
+      The dead-code list (MAX_LAUNCHES_PER_CYCLE, record.disabled_present, the
+      status_report audit argument, CommandResult.duration_s) was not re-read by
+      the judge.
+    lines_seen_by_executor:
+      - 'cycle.py:35 - MAX_LAUNCHES_PER_CYCLE = 1'
+      - 'record.py:748-750 - disabled_present uses os.path.lexists'
+      - 'cycle.py:1235 - audit parameter; cycle.py:1243-1244 docstring says audit is accepted for the fixed signature and not read'
+      - 'runner.py:35 - duration_s: float'
+    next_evidence_needed: >-
+      A reference search for each of the four names across src/ and tests/ to
+      show whether any reader exists.
+  - id: C-021
+    topic: 'mark_pending state check'
+    source: 'variant-1 gap 7'
+    missing_evidence: >-
+      The mark_pending state-versus-launches check was not re-read line by line
+      by the judge.
+    lines_seen_by_executor:
+      - 'record.py:544-546 - mark_pending accepts only state None or failed'
+      - 'record.py:208-209 - validate rejects failed with launches other than 0'
+      - 'spec-final.md:272 - a fresh launch requires launches == 0'
+    next_evidence_needed: >-
+      A trace showing whether any reachable document can hold state None or
+      failed with launches 1, which would make the missing launches == 0 check
+      matter.
+  - id: C-027
+    topic: 'approvers-file fstat'
+    source: 'variant-1 gap 13'
+    missing_evidence: >-
+      Variant-1 did not confirm the approvers-file fstat gap; the judge did not
+      either.
+    lines_seen_by_executor:
+      - 'cycle.py:305-325 - os.lstat with S_ISREG, uid and mode checks, then os.open with O_RDONLY | O_NOFOLLOW | O_CLOEXEC and no fstat after the open'
+    next_evidence_needed: >-
+      A spec or design line that requires an fstat after the open or a parent
+      directory mode check; without one this is advisory at most.
+  - id: C-028
+    topic: 're-approved branch near cycle.py:641'
+    source: 'variant-1 row 3'
+    missing_evidence: >-
+      The re-approved branch at cycle.py:641 was located but its reachability
+      was not traced.
+    lines_seen_by_executor:
+      - 'cycle.py:635-641 - reapproved is true when an entry approval_event_id is set and differs from the new approval; note = re-approved'
+    next_evidence_needed: >-
+      A trace of the callers of this decision path showing whether an entry with
+      a different approval_event_id can reach it.
+  - id: C-029
+    topic: 'seven anchored departures'
+    source: 'variant-1 row 11 (variant-3 partial adherent note)'
+    missing_evidence: >-
+      The seven DF anchors (dry-run skips, Retry-After on the user call, full
+      retry argv, halt on any launch outcome, cwd=worktree) were not all re-read.
+    lines_seen_by_executor: []
+    next_evidence_needed: 'A re-read of each of the seven DF rows in the DF register against the code site it names.'
+  - id: C-039
+    topic: 'wiring and subprocess coverage'
+    source: 'variant-2 and variant-3 notes'
+    missing_evidence: >-
+      The wiring and subprocess-coverage claim (only init-state and once have
+      real-subprocess tests) was not verified by the judge.
+    lines_seen_by_executor:
+      - 'src/superclaude/cli/main.py:563-565 - issue_watch_group imported and registered as issue-watch'
+    next_evidence_needed: >-
+      A search of tests/issue_watch for subprocess invocations of each verb.
+
+# provenance: plan section Changes NOT being made (9 rows)
+rejected_claims:
+  - {proposed_by: variant-2, change: 'HIGH (and calibrator MEDIUM) severity for the late launch', rationale: "The window is one local fsync'd save; LOW, still blocking because it contradicts AC-19."}
+  - {proposed_by: variant-2, change: '"Blocking" label on its Drift row 2', rationale: 'Only a Regression can block.'}
+  - {proposed_by: calibrator, change: 'Reading the fix as "skip after the save and leave the entry pending"', rationale: 'Leaves a stranded pending entry on every hit; INV-003 and INV-004 require a restore. V2:53 itself is compatible with the restore.'}
+  - {proposed_by: variant-1, change: '"Regression 0"', rationale: 'X-001, X-002, X-003 (part), X-006, X-007, C-026 and C-036 each contradict a quoted criterion.'}
+  - {proposed_by: variant-1, change: 'Line ranges cycle.py:335-337 and cycle.py:308', rationale: 'Wrong; corrected to cycle.py:1060-1062 and cycle.py:693-694 / :1033-1034.'}
+  - {proposed_by: variant-1, change: 'MEDIUM for X-002', rationale: 'Behaviour-neutral (exit 0); LOW.'}
+  - {proposed_by: variant-3, change: 'Path src/superclaude/main.py:563-565', rationale: 'Does not exist; corrected to src/superclaude/cli/main.py:563-565.'}
+  - {proposed_by: any, change: 'Consolidating _fsync_dir (record.py:310-315, audit.py:110-115)', rationale: 'Design :237 forbids audit importing from the package; the copy is Necessary. (audit.py:110-115 CORRECTED from plan audit.py:204-206.)'}
+  - {proposed_by: invariant-probe, change: 'Treating INV-005 as a defect', rationale: 'Design :649 accepts the 240 s worst case.'}
+
+# provenance: plan section Late-launch ruling (base variant-2 row 1, invariant-probe INV-003 to INV-006)
+late_launch_ruling:
+  defect: >-
+    cycle.py:1048 is the last cutoff check. cycle.py:1060 marks the entry
+    pending, cycle.py:1061 saves it, and cycle.py:1062 launches with no further
+    check. The Gate C fix (task :901) closed the git-call window but not the
+    save window.
+  severity: LOW
+  blocking: true
+  required_fix:
+    - 'Capture prev = self.doc before cycle.py:1060.'
+    - 'After self._save() at cycle.py:1061, if not self.deadline.launch_allowed(): call self._set(prev), then self._save(), then raise _Skip("budget_exhausted").'
+    - 'FR-010 is kept: the pending entry is still durable before any launch call.'
+  invariants:
+    INV-003: >-
+      A crash between the save and the restore leaves a pending entry; the sweep
+      turns it into pending_orphan (record.py:638-639). Safe but stranded until
+      reset --forfeit-guarantee. Accepted.
+    INV-004: >-
+      Restore the whole captured document, not field by field: validate rejects
+      launches 1 without consumed_at and pending_at (record.py:206-207) and
+      failed with launches other than 0 (record.py:208-209).
+    INV-005: 'Advisory only; the 240 s worst case is accepted at design :649.'
+    INV-006: 'Advisory LOW; a DISABLED re-check after the save is not required.'

@@ -1,0 +1,63 @@
+```yaml
+- {cid: C-0058, verdict: VALID, reason: "ok"}
+- {cid: C-0059, verdict: VALID, reason: "ok"}
+- {cid: C-0060, verdict: VALID, reason: "ok"}
+- {cid: C-0061, verdict: VALID, reason: "ok"}
+- {cid: C-0062, verdict: VALID, reason: "ok"}
+- {cid: C-0063, verdict: VALID, reason: "ok; setup :53 lists once, check-config, init-state with no reset"}
+- {cid: C-0064, verdict: VALID, reason: "ok; setup :432 says status exits 0, 1, 6"}
+- {cid: C-0065, verdict: VALID, reason: "ok; design :726 says 0, 1, 6"}
+- {cid: C-0066, verdict: VALID, reason: "ok"}
+- {cid: C-0067, verdict: VALID, reason: "ok"}
+- {cid: C-0068, verdict: VALID, reason: "ok"}
+- {cid: C-0069, verdict: VALID, reason: "ok; design :115 lists 0, 1, 2, 6"}
+- {cid: C-0070, verdict: VALID, reason: "ok; _load_config at cli.py:84-91 and _config_exit at cli.py:77-81 match"}
+- {cid: C-0071, verdict: VALID, reason: "ok"}
+- {cid: C-0072, verdict: VALID, reason: "ok; cli.py:319 is cycle.format_utc(now), design :242 lists no predicates for cli"}
+- {cid: C-0073, verdict: VALID, reason: "ok"}
+- {cid: C-0074, verdict: VALID, reason: "ok"}
+- {cid: C-0075, verdict: VALID, reason: "ok; cycle.py:468 is _LOGIN, :76 is _UTC_TS_FORMAT, design :241 allows github and predicates"}
+- {cid: C-0076, verdict: VALID, reason: "ok"}
+- {cid: C-0077, verdict: VALID, reason: "ok"}
+- {cid: C-0078, verdict: VALID, reason: "ok"}
+- {cid: C-0079, verdict: VALID, reason: "ok"}
+- {cid: C-0080, verdict: VALID, reason: "ok"}
+- {cid: C-0081, verdict: VALID, reason: "ok"}
+- {cid: C-0082, verdict: VALID, reason: "ok"}
+- {cid: C-0083, verdict: VALID, reason: "ok"}
+- {cid: C-0084, verdict: VALID, reason: "ok; audit.py:203 is the local _MAX_ISSUE copy"}
+- {cid: C-0085, verdict: VALID, reason: "ok; launch.py:30 is MAX_ISSUE_NUMBER"}
+- {cid: C-0086, verdict: VALID, reason: "ok; launch.py:36 is OPERATION_ID_PATTERN"}
+- {cid: C-0087, verdict: VALID, reason: "ok; record.py:310-315 is _fsync_dir"}
+- {cid: C-0088, verdict: VALID, reason: "ok; audit.py:110-115 is _fsync_dir"}
+- {cid: C-0089, verdict: VALID, reason: "ok; audit.py:200 is _UTC_TS_FORMAT"}
+- {cid: C-0090, verdict: VALID, reason: "ok"}
+- {cid: C-0091, verdict: VALID, reason: "ok"}
+- {cid: C-0092, verdict: VALID, reason: "ok"}
+- {cid: C-0093, verdict: VALID, reason: "ok"}
+- {cid: C-0094, verdict: VALID, reason: "ok"}
+- {cid: C-0095, verdict: VALID, reason: "ok"}
+- {cid: C-0096, verdict: VALID, reason: "ok"}
+- {cid: C-0097, verdict: VALID, reason: "ok"}
+- {cid: C-0098, verdict: VALID, reason: "ok"}
+- {cid: C-0099, verdict: VALID, reason: "ok"}
+- {cid: C-0100, verdict: VALID, reason: "ok"}
+- {cid: C-0101, verdict: VALID, reason: "ok"}
+- {cid: C-0102, verdict: VALID, reason: "ok"}
+- {cid: C-0103, verdict: VALID, reason: "ok"}
+- {cid: C-0104, verdict: VALID, reason: "ok"}
+- {cid: C-0105, verdict: VALID, reason: "ok"}
+- {cid: C-0106, verdict: VALID, reason: "ok"}
+- {cid: C-0107, verdict: VALID, reason: "ok; task line 332 lists parse_utc, format_utc, valid_issue_number from predicates"}
+- {cid: C-0108, verdict: VALID, reason: "ok"}
+- {cid: C-0109, verdict: VALID, reason: "ok"}
+- {cid: C-0110, verdict: VALID, reason: "ok"}
+- {cid: C-0111, verdict: VALID, reason: "ok"}
+- {cid: C-0112, verdict: VALID, reason: "ok"}
+- {cid: C-0113, verdict: DROP, reason: "audit.py:55-57 holds only the cycle_crashed entry and its comment, none of the five reasons; they are at audit.py:81-82 (marker_unreadable, edits_unreadable), :98-99 (dry_run_shadow_reset, reset_refused) and :101 (operator_reset), outside the 3-line tolerance"}
+- {cid: C-0114, verdict: VALID, reason: "ok; task line 199 names all five reasons"}
+```
+
+Summary: 56 VALID, 1 DROP (C-0113).
+The only systematic problem: C-0113 cites one range for a claim about five reasons spread across audit.py:81-101. The correct anchors are audit.py:81-82, 98-99 and 101.
+No offsets were found. Citations C-0063 to C-0065 and C-0084 to C-0089 are whole-finding claims. Each points at code that plausibly matches its finding, so I passed them.

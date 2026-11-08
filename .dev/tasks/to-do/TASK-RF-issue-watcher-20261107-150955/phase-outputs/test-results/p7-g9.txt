@@ -1,0 +1,24 @@
+Usage: superclaude issue-watch [OPTIONS] COMMAND [ARGS]...
+
+  Poll GitHub for approved issues and start one Orca claim session each.
+
+  Run `once` from a timer. `status` and `check-config` are read-only; `init-
+  state` creates the state directory; `reset` forfeits a guarantee.
+
+  Examples:
+
+      superclaude issue-watch check-config
+      superclaude issue-watch init-state
+      superclaude issue-watch once --dry-run
+      superclaude issue-watch status --json
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  check-config  Validate the configuration, worktree and approvers file;...
+  init-state    Create the state directory, store and lock; refuse if a...
+  once          Run one poll cycle and exit with its code (design 4.3).
+  reset         Forfeit the launch guarantee of one issue, or clear the...
+  status        Report health, counts, stale entries and retry commands...
+EXIT=0

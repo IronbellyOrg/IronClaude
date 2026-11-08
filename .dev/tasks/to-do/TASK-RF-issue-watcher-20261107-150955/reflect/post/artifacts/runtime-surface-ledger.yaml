@@ -1,0 +1,138 @@
+# runtime-surface-ledger.yaml (refs/runtime-surface.md section 5; one row per evaluated edge)
+# Tagger: Python Click callbacks in src/superclaude/cli/issue_watch/cli.py (decorators @click.group / @issue_watch_group.command).
+# requirement_id FR-026 comes from design heading "### 4.1 Verbs (FR-026)" (docs/designs/issue-watcher.md:108); the tagger is symbol-anchored.
+# Referrer partition (language table `py`): tests/, test_*.py, conftest.py = test; docstrings/# comments = non-production.
+# Facts found (all Read):
+#   - main.py:563 imports issue_watch_group; main.py:565 `main.add_command(issue_watch_group, name="issue-watch")` (the ONLY production caller of the group).
+#   - main is a Click group (main.py:18 @click.group(), main.py:20 def main); pyproject.toml:71 `superclaude = "superclaude.cli.main:main"` (console script).
+#   - No production code references once_command/status_command/check_config_command/init_state_command/reset_command by name
+#     (word-boundary Grep over *.py/*.toml/*.md: only the definitions in cli.py plus test_cli.py:694 `cli.once_command.callback(...)`).
+#   - tests/issue_watch/test_cli_e2e.py:103-123 runs `python -m superclaude.cli.main issue-watch <verb> --config <file>` as a REAL subprocess
+#     (verbs once and init-state; main.py:568-569 `if __name__ == "__main__": main()`), with PATH stubs for gh/git/orca. It does not go through the
+#     installed console script, but through the same main().
+# Oracle: every symbol matches (a) decorator command; the group also matches (b) packaging entrypoint and (c) registry add_command.
+# Verdict forced by the oracle: DEGRADE for all six symbols (routes to Grounding Gaps, never Regression).
+
+- requirement_id: FR-026
+  symbol: issue_watch_group
+  edge: "issue_watch_group -> main.add_command registry (main.py:565)"
+  status: DEGRADE            # oracle (c) registry assignment/call
+  production_referrers: ["src/superclaude/cli/main.py:563", "src/superclaude/cli/main.py:565"]
+  evidence_ref: "src/superclaude/cli/main.py:565"
+- requirement_id: FR-026
+  symbol: issue_watch_group
+  edge: "issue_watch_group -> @click.group('issue-watch') decorator"
+  status: DEGRADE            # oracle (a) command decorator
+  production_referrers: ["src/superclaude/cli/main.py:565"]
+  evidence_ref: "src/superclaude/cli/issue_watch/cli.py:94"
+- requirement_id: FR-026
+  symbol: issue_watch_group
+  edge: "issue_watch_group -> root [project.scripts] superclaude = superclaude.cli.main:main (depth 1: main -> add_command)"
+  status: DEGRADE            # oracle (b) packaging entrypoint; rootwalk depth-1 does reach the group (main.py:565) but oracle (b) governs
+  production_referrers: ["src/superclaude/cli/main.py:565"]
+  evidence_ref: "pyproject.toml:71"
+- requirement_id: FR-026
+  symbol: issue_watch_group
+  edge: "issue_watch_group -> tests/issue_watch/test_cli.py:124-126 (CliRunner.invoke), test_no_text.py:233-235 (invoke), test_cli.py:279-290"
+  status: UNREACHED          # edge level only: test-only referrers do not count as production (language table)
+  production_referrers: []
+  evidence_ref: "tests/issue_watch/test_cli.py:126"
+- requirement_id: FR-026
+  symbol: once_command
+  edge: "once_command -> @issue_watch_group.command('once') decorator"
+  status: DEGRADE            # oracle (a)
+  production_referrers: []
+  evidence_ref: "src/superclaude/cli/issue_watch/cli.py:111"
+- requirement_id: FR-026
+  symbol: once_command
+  edge: "once_command -> root superclaude.cli.main:main via issue_watch_group.commands (depth 2: main -> group -> verb)"
+  status: DEGRADE            # rootwalk depth bound 1 is hit before the verb is reached (rule 5); never UNREACHED
+  production_referrers: []
+  evidence_ref: "src/superclaude/cli/main.py:565"
+- requirement_id: FR-026
+  symbol: once_command
+  edge: "once_command -> tests: test_cli.py:694 (.callback direct call), test_cli.py:452 and test_cli.py:630-716 (CliRunner), test_cli_e2e.py:103-123 (real subprocess)"
+  status: UNREACHED          # edge level only: test-only referrers
+  production_referrers: []
+  evidence_ref: "tests/issue_watch/test_cli_e2e.py:103"
+- requirement_id: FR-026
+  symbol: status_command
+  edge: "status_command -> @issue_watch_group.command('status') decorator"
+  status: DEGRADE            # oracle (a)
+  production_referrers: []
+  evidence_ref: "src/superclaude/cli/issue_watch/cli.py:164"
+- requirement_id: FR-026
+  symbol: status_command
+  edge: "status_command -> root superclaude.cli.main:main via issue_watch_group.commands (depth 2)"
+  status: DEGRADE            # rootwalk depth bound hit
+  production_referrers: []
+  evidence_ref: "src/superclaude/cli/main.py:565"
+- requirement_id: FR-026
+  symbol: status_command
+  edge: "status_command -> tests: test_cli.py:785-1048 (CliRunner via group; no direct name reference, no real-subprocess test)"
+  status: UNREACHED          # edge level only: test-only referrers
+  production_referrers: []
+  evidence_ref: "tests/issue_watch/test_cli.py:785"
+- requirement_id: FR-026
+  symbol: check_config_command
+  edge: "check_config_command -> @issue_watch_group.command('check-config') decorator"
+  status: DEGRADE            # oracle (a)
+  production_referrers: []
+  evidence_ref: "src/superclaude/cli/issue_watch/cli.py:185"
+- requirement_id: FR-026
+  symbol: check_config_command
+  edge: "check_config_command -> root superclaude.cli.main:main via issue_watch_group.commands (depth 2)"
+  status: DEGRADE            # rootwalk depth bound hit
+  production_referrers: []
+  evidence_ref: "src/superclaude/cli/main.py:565"
+- requirement_id: FR-026
+  symbol: check_config_command
+  edge: "check_config_command -> tests: test_cli.py:319-424 (CliRunner via group)"
+  status: UNREACHED          # edge level only: test-only referrers
+  production_referrers: []
+  evidence_ref: "tests/issue_watch/test_cli.py:319"
+- requirement_id: FR-026
+  symbol: init_state_command
+  edge: "init_state_command -> @issue_watch_group.command('init-state') decorator"
+  status: DEGRADE            # oracle (a)
+  production_referrers: []
+  evidence_ref: "src/superclaude/cli/issue_watch/cli.py:201"
+- requirement_id: FR-026
+  symbol: init_state_command
+  edge: "init_state_command -> root superclaude.cli.main:main via issue_watch_group.commands (depth 2)"
+  status: DEGRADE            # rootwalk depth bound hit
+  production_referrers: []
+  evidence_ref: "src/superclaude/cli/main.py:565"
+- requirement_id: FR-026
+  symbol: init_state_command
+  edge: "init_state_command -> tests: test_cli.py:1241-1283 (CliRunner), test_cli_e2e.py:125-130 (real subprocess `init-state`)"
+  status: UNREACHED          # edge level only: test-only referrers
+  production_referrers: []
+  evidence_ref: "tests/issue_watch/test_cli_e2e.py:127"
+- requirement_id: FR-026
+  symbol: reset_command
+  edge: "reset_command -> @issue_watch_group.command('reset') decorator"
+  status: DEGRADE            # oracle (a)
+  production_referrers: []
+  evidence_ref: "src/superclaude/cli/issue_watch/cli.py:282"
+- requirement_id: FR-026
+  symbol: reset_command
+  edge: "reset_command -> root superclaude.cli.main:main via issue_watch_group.commands (depth 2)"
+  status: DEGRADE            # rootwalk depth bound hit
+  production_referrers: []
+  evidence_ref: "src/superclaude/cli/main.py:565"
+- requirement_id: FR-026
+  symbol: reset_command
+  edge: "reset_command -> tests: test_cli.py:1328-1415 (CliRunner via group)"
+  status: UNREACHED          # edge level only: test-only referrers
+  production_referrers: []
+  evidence_ref: "tests/issue_watch/test_cli.py:1328"
+
+# Per-symbol reduction (DEGRADE-on-any-incompleteness > UNREACHED > REACHED):
+#   issue_watch_group: DEGRADE | once_command: DEGRADE | status_command: DEGRADE
+#   check_config_command: DEGRADE | init_state_command: DEGRADE | reset_command: DEGRADE
+# Contract values:
+#   runtime_surface_requirements: 6 tagged symbols (requirement FR-026, group + 5 verbs)
+#   runtime_surface_sweep_ran: true
+#   runtime_surface_unreached: 0   (unreached_surfaces: [], len 0 == 0)
+#   runtime_surface_degraded: true

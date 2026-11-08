@@ -1,0 +1,5 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/issue-watcher.md section 15, row 'gh api user --include output layout' (line 835): UNVERIFIED, capture one reply and confirm the status line, Date, Retry-After and blank line; FU-1 replaces this file with a captured reply",
+  "raw": "HTTP/2.0 200 OK\nContent-Type: application/json; charset=utf-8\nDate: Sat, 07 Nov 2026 12:00:00 GMT\nX-Ratelimit-Remaining: 4999\n\n{\"login\":\"owner-login\",\"id\":1001}\n"
+}

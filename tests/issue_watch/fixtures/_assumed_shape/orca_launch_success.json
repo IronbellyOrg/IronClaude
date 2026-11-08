@@ -1,0 +1,14 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/issue-watcher.md section 15, lines 840-841 (orca agent launch reply JSON: outcome.kind, receipt.detail, operation id path): UNVERIFIED",
+  "note": "The shape is assumed, not captured: the design names only outcome.kind and receipt.detail, and the operation id path (receipt.operation_id here, the first entry of OPERATION_ID_PATHS) is a proposal. The owner-run live test (FU-1) replaces this with a captured reply.",
+  "payload": {
+    "outcome": {
+      "kind": "launched"
+    },
+    "receipt": {
+      "detail": "launch accepted",
+      "operation_id": "op-test-0001"
+    }
+  }
+}

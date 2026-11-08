@@ -1,0 +1,11 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/issue-watcher.md section 8.1 G7 (REREAD_JQ projection of repos/R/issues/N): the REST field names number, state, labels[].name and assignees[].login and the lower-case state value are UNVERIFIED until FU-1 captures a real reply",
+  "note": "gh's embedded jq evaluates REREAD_JQ, so this is the projected object, not the raw REST issue. The scripted GitHub world of conftest.py overrides number, labels and assignees per issue.",
+  "payload": {
+    "number": 101,
+    "state": "open",
+    "labels": ["issue-watch:trigger", "issue-watch:approved"],
+    "assignees": ["owner-login"]
+  }
+}

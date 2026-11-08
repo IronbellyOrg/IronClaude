@@ -1,0 +1,396 @@
+- id: INF-001
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 15
+  end: 15
+  excerpt: For at most one such issue per cycle it starts one ordinary top-level agent session through `orca agent launch` with the prompt `/sc:issue --claim <N>`, after durably recording the dispatch.
+- id: INF-004
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 22
+  end: 22
+  excerpt: '`is_intended_owner`: assignee set exactly {own login}; discovery pre-filters with `--assignee`'
+- id: INF-006
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 33
+  end: 33
+  excerpt: No cron entry is enabled and `enabled` stays `false` until an owner-run live test (FU-1) shows the prompt running as a slash command, records the session's permission mode, and replaces every `_assumed_shape` fixture with captured replies under
+    which `tests/issue_watch/` still passes.
+- id: INF-007
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 33
+  end: 33
+  excerpt: The owner commits that record as `docs/designs/issue-watcher-live-test.md`; neither this design nor its implementation writes it.
+- id: INF-008
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 39
+  end: 39
+  excerpt: D1 option A (workspace-side poller, pull); D2 claim-only; D3 only a validated integer issue number reaches a session prompt.
+- id: INF-009
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 44
+  end: 44
+  excerpt: The poller never assigns, comments or moves Project items.
+- id: INF-010
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 45
+  end: 45
+  excerpt: The prompt is built only by `launch.build_claim_prompt(n)`, which accepts an `int` (not `bool`) in 1..999999999 and returns `/sc:issue --claim <n>`. No other text reaches the prompt.
+- id: INF-013
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 68
+  end: 68
+  excerpt: '`gh`, `git` and Orca run as argv lists with `shell=False` (NFR-004).'
+- id: INF-016
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 70
+  end: 70
+  excerpt: NG-1 push designs B/C/D; NG-2 no GitHub write (REST GET only; GraphQL POST only with a constant query without `mutation`); NG-3 no Project writes; NG-4 no session constraint beyond the deployment gate; NG-5 no daemon mode, no in-cycle retry,
+    no automatic Orca retry.
+- id: INF-019
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 84
+  end: 84
+  excerpt: The poller runs `git -C <abs worktree> remote get-url origin` with a timeout and compares the parsed `owner/repo` case-insensitively with `ironbellyorg/ironclaude`.
+- id: INF-022
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 90
+  end: 90
+  excerpt: The NFR-014 dependency rules need a new AST test, `tests/issue_watch/test_module_boundaries.py`. The package must not rebind `ID_PATTERNS`, `THRESHOLDS` or any other `contracts.__all__` name and must not contain an `ID_PATTERNS` body literal
+    such as `FR-\d+(?:\.\d+)?` (`contracts/__init__.py:64-77`).
+- id: INF-025
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 104
+  end: 104
+  excerpt: 'Section 6.3: the text wins; after one launch the remaining candidates get no stamp and no decision line.'
+- id: INF-028
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 115
+  end: 115
+  excerpt: '`status` | `--json`, `--config <path>` | None (read-only) | None; no file''s mtime changes (FR-021) | None | 0 healthy, 1 unhealthy (age above 900 s or no qualifying cycle), 2 config invalid, 6 store unreadable'
+- id: INF-031
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 118
+  end: 118
+  excerpt: '`reset <N> --forfeit-guarantee` | `--config <path>` | Non-blocking `flock` | Removes entry N; appends its `consumed_at` to `consumed_log`; one audit line | None | 0 done, 2 usage (entry not `abandoned`/`unknown`, or flag missing), 6 store,
+    75 lock held'
+- id: INF-034
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 125
+  end: 125
+  excerpt: Loaded by `cycle.load_config(path) -> Config`; validated by the same function `check-config` uses.
+- id: INF-037
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 133
+  end: 133
+  excerpt: '`project_id` | string | yes | none | Matches `^PVT_[A-Za-z0-9_-]{1,64}$` [PROPOSAL; Projects v2 node-id prefix is UNVERIFIED, FU-3]'
+- id: INF-040
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 136
+  end: 136
+  excerpt: '`approvers_file` | string | yes | none | Absolute path; file rules below (`approvers_invalid`)'
+- id: INF-042
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 139
+  end: 139
+  excerpt: Unknown keys are rejected (exit 2), so a typo such as `enable` cannot silently leave the poller on its default.
+- id: INF-043
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 151
+  end: 151
+  excerpt: '`check-config` prints the file''s mtime (UTC ISO 8601) and the entry count (R10), and nothing else about its content.'
+- id: INF-044
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 158
+  end: 158
+  excerpt: 2 | Usage, config, platform, origin, Orca probe | `config_invalid`, `approvers_invalid`, `platform_unsupported`, `worktree_invalid`, `origin_mismatch`, `orca_not_found`, `account_id_mismatch`
+- id: INF-046
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 160
+  end: 160
+  excerpt: 4 | Discovery truncated or duplicated | `truncated`, `discovery_duplicate`
+- id: INF-049
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 163
+  end: 163
+  excerpt: 7 | An entry was written `failed`, `unknown` or `abandoned` `spawn_error` this cycle | `prompt_invalid`, `revalidation_transient`, `launch_unknown`, `spawn_error`
+- id: INF-051
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 166
+  end: 166
+  excerpt: When several conditions hold, the cycle exits with the first of 2, 6, 7, 5, 3, 4.
+- id: INF-052
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 166
+  end: 166
+  excerpt: Exit 75 applies only when the lock was not taken, or its inode changed, and nothing else ran.
+- id: INF-055
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 219
+  end: 219
+  excerpt: Builds every `gh` argv from module constants (section 8); runs it through the runner with a timeout supplied by the cycle; parses JSON; follows paging; classifies replies into `ok`, `timeout`, `non_json`, `auth_failed`, `scope_missing`, `rate_limited`,
+    `transient` (5xx), `failed`; counts calls against the per-cycle `CallBudget`
+- id: INF-058
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 222
+  end: 222
+  excerpt: '`ORCA_AGENT` constant; `build_claim_prompt(n)`; `find_orca(runner, which)`; `parse_origin(url)`; `check_origin(runner, worktree, timeout)`; `Launcher` Protocol; `OrcaLauncher.launch(...) -> LaunchOutcome`'
+- id: INF-061
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 231
+  end: 231
+  excerpt: Anything not listed is forbidden; `tests/issue_watch/test_module_boundaries.py` walks each module's AST and fails on any other `superclaude.*` import.
+- id: INF-064
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 352
+  end: 352
+  excerpt: 'Order candidates: never-examined first (ascending number), then by `considered[n]` ascending; drop to `max_candidates`'
+- id: INF-067
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 357
+  end: 357
+  excerpt: 'Health stamp: only an exit-0 cycle that is not DISABLED, `not_enabled`, `disabled_mid_cycle` or dry-run writes `last_completed_cycle_at`'
+- id: INF-070
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 439
+  end: 439
+  excerpt: Failure is exit 6 with the file untouched (NFR-011).
+- id: INF-075
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 509
+  end: 509
+  excerpt: serialise with `json.dumps(doc, sort_keys=True, indent=2, ensure_ascii=True).encode() + b"\n"`; call `write_prepared_bytes(state_dir / "dispatch.json", data)`; then `os.chmod(path, 0o600)`; then open `state_dir` with `os.open(dir, O_RDONLY |
+    O_DIRECTORY)`, `os.fsync(fd)`, close.
+- id: INF-078
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 533
+  end: 533
+  excerpt: At no point can a rerun see `launches == 0` for an issue whose spawn may have started, which is the at-most-once argument.
+- id: INF-081
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 545
+  end: 545
+  excerpt: G3 | Events (FR-005, FR-006, renamed check) | `gh api --method GET repos/R/issues/N/events -F per_page=100 -F page=P --jq EVENTS_JQ`
+- id: INF-084
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 548
+  end: 548
+  excerpt: G6 | Project items (FR-007) | `gh api graphql -f query=PROJECT_ITEMS_QUERY -F number=N [-f after=<cursor>]`
+- id: INF-087
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 555
+  end: 555
+  excerpt: A test asserts no query constant contains `mutation` (NG-2) and every constant contains the literal repository.
+- id: INF-089
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 558
+  end: 558
+  excerpt: Project ids are compared in Python (`project.id == config.project_id`); the id never enters an argv, so a hostile config value cannot alter a query.
+- id: INF-090
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 618
+  end: 618
+  excerpt: 'Launch argv (FR-013), exactly 12 elements, built by `launch.launch_argv(orca, worktree, prompt) -> list[str]`:'
+- id: INF-093
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 658
+  end: 658
+  excerpt: Latest `labeled` approval event; `actor_id` in the approvers set; later `unlabeled` voids it
+- id: INF-096
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 666
+  end: 666
+  excerpt: Deployment gate; no permission flag in the argv
+- id: INF-099
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 693
+  end: 693
+  excerpt: The property test draws `n` from integers, hostile strings, floats and booleans, and asserts every recorded `--prompt` matches `^/sc:issue --claim [1-9][0-9]{0,8}$`.
+- id: INF-101
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 718
+  end: 718
+  excerpt: '`rate_remaining`, titles, bodies, label names and stderr text are never keys (NFR-006, T11).'
+- id: INF-102
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 720
+  end: 720
+  excerpt: if `audit.jsonl` is at least 5 MiB, `os.replace` `.3` to `.4`, `.2` to `.3`, `.1` to `.2`, current to `.1`, then a directory fsync. The exit-75 path appends and never rotates.
+- id: INF-105
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 760
+  end: 760
+  excerpt: '`src/superclaude/cli/main.py` | Two lines after line 561, same pattern as `reflect_group` (lines 559 and 561)'
+- id: INF-108
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 763
+  end: 763
+  excerpt: '`tests/issue_watch/test_{cli_e2e,security_invariants,crash_injection,concurrency,no_shell,no_text,origin_parity,marker_contract,find_orca_parity,module_boundaries,slo_helper}.py` | Spec-named and design-added cross-cutting tests'
+- id: INF-111
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 766
+  end: 766
+  excerpt: '`docs/designs/issue-watcher-setup.md` | Runbook steps 1 to 10 for the owner'
+- id: INF-114
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 784
+  end: 784
+  excerpt: "`test_crash_injection.py` | per C1 to C5, run, crash, rerun: total fresh launches per issue \u2264 1 (NFR-005)"
+- id: INF-117
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 787
+  end: 787
+  excerpt: '`test_cycle.py::test_acceptance_property` | for N in {1, 2, 6, 7, 50, 99}: at most 1 launch per cycle; after 24 h of cycles exactly min(N, 6) launched and the rest `day_cap`; after +24 h one more per cycle'
+- id: INF-120
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 790
+  end: 790
+  excerpt: '`test_module_boundaries.py` | AST import graph matches section 5.3; no module named `select`'
+- id: INF-123
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 798
+  end: 798
+  excerpt: '`make test` | `Makefile:13-15` | CI uses `-n auto` (`test.yml:47`), C11'
+- id: INF-124
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 799
+  end: 799
+  excerpt: '`make lint` | `Makefile:48-50` | includes `lint-architecture` (C8); ruff 0.15.20, select `E,F,I,N,W,TID`, line length 88, py310 (`pyproject.toml:54,174-184`)'
+- id: INF-126
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 801
+  end: 801
+  excerpt: '`make verify-deps` | `Makefile:356-358`, `test.yml:123` | passes with no new dependency'
+- id: INF-128
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 812
+  end: 812
+  excerpt: '`max_launches_per_cycle` | 1 | caps blast radius of a bad cycle'
+- id: INF-129
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 814
+  end: 814
+  excerpt: call cap | 35, 3 reserved | worst cycle 37 calls, 8.88% of 5,000 an hour
+- id: INF-132
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 870
+  end: 870
+  excerpt: All criteria run under `uv run pytest tests/issue_watch/` with fakes or PATH stubs only.
+- id: INF-135
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 876
+  end: 876
+  excerpt: 'Approval table: outsider, bot, unlabel, relabel, incomplete history, edit after approval each skip with their reason'
+- id: INF-138
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 879
+  end: 879
+  excerpt: '`pending` with `launches` 1 is saved before the launcher is called; the re-read failure skips'
+- id: INF-139
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 880
+  end: 880
+  excerpt: Every recorded prompt matches the D3 regex over the hostile corpus; non-int input raises
+- id: INF-141
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 882
+  end: 882
+  excerpt: No automatic retry; `status` lists the full retry argv for an `unknown` entry
+- id: INF-142
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 883
+  end: 883
+  excerpt: Budget, day cap and `consumed_log` hold through `reset`; acceptance property passes
+- id: INF-144
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 885
+  end: 885
+  excerpt: '`DISABLED` and `enabled: false` exit 0 before any external call'
+- id: INF-147
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 888
+  end: 888
+  excerpt: Shared-input failures map to exits 2, 3, 5, 6, 7 with the precedence 2, 6, 7, 5, 3, 4
+- id: INF-150
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 891
+  end: 891
+  excerpt: Rate limit persists `next_permitted_at`, clamps to 3600 s, and `reset --rate-limit` clears it
+- id: INF-151
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 892
+  end: 892
+  excerpt: A sleeping stub ends with `gh_timeout`; no launch starts after 120 s
+- id: INF-153
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 894
+  end: 894
+  excerpt: '`test_no_shell.py` passes'
+- id: INF-156
+  finding: inferred-requirement
+  path: docs/designs/issue-watcher.md
+  start: 897
+  end: 897
+  excerpt: '`slo_numbers` returns the four values on a fixture log'

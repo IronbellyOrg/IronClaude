@@ -1,0 +1,354 @@
+- cid: C-0058
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1271
+  end: 1271
+  claim: retry only when entry.state == unknown and entry.operation_id and entry.launch_cwd
+  owner: R-7
+- cid: C-0059
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1279
+  end: 1280
+  claim: 'except ValueError: continue (the entry is dropped)'
+  owner: R-7
+- cid: C-0060
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 182
+  end: 184
+  claim: operation_id validated with valid_operation_id; launch_cwd must be absolute when present
+  owner: R-7
+- cid: C-0061
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 548
+  end: 548
+  claim: mark_pending requires an absolute launch_cwd
+  owner: R-7
+- cid: C-0062
+  path: docs/designs/issue-watcher.md
+  start: 739
+  end: 739
+  claim: retry lists unknown entries with an operation_id
+  owner: R-7
+- cid: C-0063
+  path: docs/designs/issue-watcher-setup.md
+  start: 53
+  end: 53
+  claim: 'The setup guide and design 10.2 misstate two verb facts: setup :53 leaves reset out of the Linux-only verbs although reset runs the platform check, and setup :432 and design :726 leave exit 2
+    out of the status exits.'
+  owner: D-1
+- cid: C-0064
+  path: docs/designs/issue-watcher-setup.md
+  start: 432
+  end: 432
+  claim: 'The setup guide and design 10.2 misstate two verb facts: setup :53 leaves reset out of the Linux-only verbs although reset runs the platform check, and setup :432 and design :726 leave exit 2
+    out of the status exits.'
+  owner: D-1
+- cid: C-0065
+  path: docs/designs/issue-watcher.md
+  start: 726
+  end: 726
+  claim: 'The setup guide and design 10.2 misstate two verb facts: setup :53 leaves reset out of the Linux-only verbs although reset runs the platform check, and setup :432 and design :726 leave exit 2
+    out of the status exits.'
+  owner: D-1
+- cid: C-0066
+  path: docs/designs/issue-watcher-setup.md
+  start: 53
+  end: 53
+  claim: Linux-only list names once, check-config and init-state (no reset)
+  owner: D-1
+- cid: C-0067
+  path: docs/designs/issue-watcher-setup.md
+  start: 432
+  end: 432
+  claim: status exits 0, 1, 6
+  owner: D-1
+- cid: C-0068
+  path: docs/designs/issue-watcher.md
+  start: 726
+  end: 726
+  claim: status exits 0, 1, 6 (no 2)
+  owner: D-1
+- cid: C-0069
+  path: docs/designs/issue-watcher.md
+  start: 115
+  end: 115
+  claim: status exits 0, 1, 2, 6
+  owner: D-1
+- cid: C-0070
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 169
+  end: 169
+  claim: status calls _load_config(config_path, platform=False); a config error exits 2 through cli.py:84-91 and cli.py:77-81
+  owner: D-1
+- cid: C-0071
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 314
+  end: 314
+  claim: reset calls _load_config(config_path), which runs check_platform (cli.py:84-91, platform defaults to true)
+  owner: D-1
+- cid: C-0072
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 319
+  end: 319
+  claim: cli.py stamps the reset line with cycle.format_utc, a predicates function re-exported through cycle; design :242 does not list predicates for cli.
+  owner: D-2
+- cid: C-0073
+  path: src/superclaude/cli/issue_watch/cli.py
+  start: 319
+  end: 319
+  claim: 'ts: cycle.format_utc(now)'
+  owner: D-2
+- cid: C-0074
+  path: docs/designs/issue-watcher.md
+  start: 242
+  end: 242
+  claim: cli may import cycle, record, audit, launch, runner
+  owner: D-2
+- cid: C-0075
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 468
+  end: 468
+  claim: cycle.py keeps its own copies of the login pattern and the UTC timestamp format although design :241 lets it import github and predicates. (C-009 here is the cycle copy only; the audit copy is
+    N-1.)
+  owner: D-3
+- cid: C-0076
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 76
+  end: 76
+  claim: cycle.py keeps its own copies of the login pattern and the UTC timestamp format although design :241 lets it import github and predicates. (C-009 here is the cycle copy only; the audit copy is
+    N-1.)
+  owner: D-3
+- cid: C-0077
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 468
+  end: 468
+  claim: _LOGIN = re.compile with the pattern [A-Za-z0-9][A-Za-z0-9-]{0,38}
+  owner: D-3
+- cid: C-0078
+  path: src/superclaude/cli/issue_watch/github.py
+  start: 134
+  end: 134
+  claim: _LOGIN_RE = re.compile with the same pattern
+  owner: D-3
+- cid: C-0079
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 76
+  end: 76
+  claim: _UTC_TS_FORMAT = %Y-%m-%dT%H:%M:%SZ
+  owner: D-3
+- cid: C-0080
+  path: docs/designs/issue-watcher.md
+  start: 241
+  end: 241
+  claim: cycle may import runner, github, predicates, record, launch, audit
+  owner: D-3
+- cid: C-0081
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 395
+  end: 397
+  claim: audit.stderr_fallback reads the wall clock when no ts is passed, against the rule that audit never reads the clock; the docstring calls it a stamp, not a decision. (C-012 here is the stderr_fallback
+    part only; the runner part is A-2.)
+  owner: D-4
+- cid: C-0082
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 395
+  end: 397
+  claim: 'if ts is None: now = datetime.datetime.now(datetime.timezone.utc); ts = now.strftime(_UTC_TS_FORMAT)'
+  owner: D-4
+- cid: C-0083
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 390
+  end: 391
+  claim: 'docstring: ts and host default to the current UTC time and socket.gethostname() (a stamp, not a decision)'
+  owner: D-4
+- cid: C-0084
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 203
+  end: 203
+  claim: Leaf modules keep local copies of shared constants and helpers (issue bound, operation-id pattern, directory fsync, timestamp format) because the design import rules forbid the import that would
+    share them. (C-009 here is the audit copy only.)
+  owner: N-1
+- cid: C-0085
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 30
+  end: 30
+  claim: Leaf modules keep local copies of shared constants and helpers (issue bound, operation-id pattern, directory fsync, timestamp format) because the design import rules forbid the import that would
+    share them. (C-009 here is the audit copy only.)
+  owner: N-1
+- cid: C-0086
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 36
+  end: 36
+  claim: Leaf modules keep local copies of shared constants and helpers (issue bound, operation-id pattern, directory fsync, timestamp format) because the design import rules forbid the import that would
+    share them. (C-009 here is the audit copy only.)
+  owner: N-1
+- cid: C-0087
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 310
+  end: 315
+  claim: Leaf modules keep local copies of shared constants and helpers (issue bound, operation-id pattern, directory fsync, timestamp format) because the design import rules forbid the import that would
+    share them. (C-009 here is the audit copy only.)
+  owner: N-1
+- cid: C-0088
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 110
+  end: 115
+  claim: Leaf modules keep local copies of shared constants and helpers (issue bound, operation-id pattern, directory fsync, timestamp format) because the design import rules forbid the import that would
+    share them. (C-009 here is the audit copy only.)
+  owner: N-1
+- cid: C-0089
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 200
+  end: 200
+  claim: Leaf modules keep local copies of shared constants and helpers (issue bound, operation-id pattern, directory fsync, timestamp format) because the design import rules forbid the import that would
+    share them. (C-009 here is the audit copy only.)
+  owner: N-1
+- cid: C-0090
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 203
+  end: 203
+  claim: _MAX_ISSUE = 999_999_999, the same bound as predicates.MAX_ISSUE_NUMBER
+  owner: N-1
+- cid: C-0091
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 30
+  end: 30
+  claim: MAX_ISSUE_NUMBER = 999_999_999
+  owner: N-1
+- cid: C-0092
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 36
+  end: 36
+  claim: OPERATION_ID_PATTERN = re.compile(^[A-Za-z0-9._:-]{1,128}$)
+  owner: N-1
+- cid: C-0093
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 310
+  end: 315
+  claim: '_fsync_dir: os.open O_RDONLY | O_DIRECTORY, os.fsync, os.close in finally'
+  owner: N-1
+- cid: C-0094
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 110
+  end: 115
+  claim: '_fsync_dir: the same four-line helper (CORRECTED from plan audit.py:204-206)'
+  owner: N-1
+- cid: C-0095
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 200
+  end: 200
+  claim: _UTC_TS_FORMAT = %Y-%m-%dT%H:%M:%SZ (the C-009 audit copy)
+  owner: N-1
+- cid: C-0096
+  path: docs/designs/issue-watcher.md
+  start: 237
+  end: 237
+  claim: audit imports nothing from the package
+  owner: N-1
+- cid: C-0097
+  path: docs/designs/issue-watcher.md
+  start: 240
+  end: 240
+  claim: launch imports runner and _ORCA_CLIS only
+  owner: N-1
+- cid: C-0098
+  path: tests/issue_watch/test_cycle.py
+  start: 4150
+  end: 4154
+  claim: The day-cap test bounds the second day at 6 launches, following the module constant.
+  owner: N-2
+- cid: C-0099
+  path: tests/issue_watch/test_cycle.py
+  start: 4150
+  end: 4154
+  claim: comment on the 6-per-24h cap and second_day = min(count - capped, 6)
+  owner: N-2
+- cid: C-0100
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 36
+  end: 36
+  claim: DAY_CAP = 6
+  owner: N-2
+- cid: C-0101
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1225
+  end: 1230
+  claim: status picks the retry Orca name by reading launch._ORCA_CLIS instead of importing install_user_setup directly.
+  owner: N-3
+- cid: C-0102
+  path: src/superclaude/cli/issue_watch/cycle.py
+  start: 1225
+  end: 1230
+  claim: _retry_orca returns the first launch._ORCA_CLIS name which resolves, else the first name
+  owner: N-3
+- cid: C-0103
+  path: src/superclaude/cli/issue_watch/launch.py
+  start: 22
+  end: 22
+  claim: from superclaude.cli.install_user_setup import _ORCA_CLIS
+  owner: N-3
+- cid: C-0104
+  path: docs/designs/issue-watcher.md
+  start: 240
+  end: 240
+  claim: launch imports runner and _ORCA_CLIS only
+  owner: N-3
+- cid: C-0105
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 23
+  end: 29
+  claim: record.py imports parse_utc, format_utc, valid_issue_number and the type ApprovalResult from predicates. (valid_operation_id is R-4.)
+  owner: A-1
+- cid: C-0106
+  path: src/superclaude/cli/issue_watch/record.py
+  start: 23
+  end: 29
+  claim: imports ApprovalResult, format_utc, parse_utc, valid_issue_number (and valid_operation_id, see R-4)
+  owner: A-1
+- cid: C-0107
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 332
+  end: 332
+  claim: 'allowed imports from predicates: parse_utc, format_utc, valid_issue_number'
+  owner: A-1
+- cid: C-0108
+  path: docs/designs/issue-watcher.md
+  start: 239
+  end: 239
+  claim: record may import predicates (types only)
+  owner: A-1
+- cid: C-0109
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 89
+  end: 89
+  claim: runner.py reads time.monotonic() to measure duration_s around the child.
+  owner: A-2
+- cid: C-0110
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 89
+  end: 89
+  claim: start = time.monotonic()
+  owner: A-2
+- cid: C-0111
+  path: src/superclaude/cli/issue_watch/runner.py
+  start: 35
+  end: 35
+  claim: 'duration_s: float'
+  owner: A-2
+- cid: C-0112
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 193
+  end: 193
+  claim: measures duration_s with time.monotonic() around the child only; it is never used for a decision
+  owner: A-2
+- cid: C-0113
+  path: src/superclaude/cli/issue_watch/audit.py
+  start: 55
+  end: 57
+  claim: The reason table carries the five proposed reasons the task names (marker_unreadable, edits_unreadable, operator_reset, dry_run_shadow_reset, reset_refused).
+  owner: A-3
+- cid: C-0114
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 199
+  end: 199
+  claim: plus the two proposals marker_unreadable and edits_unreadable; dry_run_shadow_reset (DF-22); reset_refused (DF-57); operator_reset (DF-03)
+  owner: A-3

@@ -1,0 +1,10 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/issue-watcher.md section 8.4 and section 15, lines 840-841 (orca agent launch reply JSON: outcome.kind, receipt.detail, operation id path): UNVERIFIED",
+  "note": "The shape is assumed, not captured. An exit-0 reply that reports outcome.kind launched but holds no operation id at any OPERATION_ID_PATHS path: FR-014 makes it unknown, never launched. test_launch.py pins that no OPERATION_ID_PATHS path finds an id here, so a changed path fails there. The owner-run live test (FU-1) replaces this with a captured reply.",
+  "payload": {
+    "outcome": {
+      "kind": "launched"
+    }
+  }
+}

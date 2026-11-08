@@ -1,0 +1,28 @@
+# sc:adversarial return contract (Mode A, depth standard)
+# status partial: all 5 steps completed and merged output validated, but convergence was
+# BLOCKED_BY_INVARIANTS (3 HIGH-severity UNADDRESSED invariants; no Round 3 at depth=standard).
+status: partial
+merged_output_path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/merged-verdict.yaml
+convergence_score: 1.00
+artifacts_dir: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/
+base_variant: variant-3
+unresolved_conflicts: [INV-001, INV-004, INV-005]
+fallback_mode: false
+failure_stage: null
+invocation_method: task-agent
+unaddressed_invariants:
+  - id: INV-001
+    category: sufficiency_challenge
+    assumption: Adding gate re-runs after the Step 10.6 remediation is enough to fix X-001
+    severity: HIGH
+  - id: INV-004
+    category: sufficiency_challenge
+    assumption: Editing TF:699, 702, 735 and 745 is enough to give X-008 a consistent passing path
+    severity: HIGH
+  - id: INV-005
+    category: sufficiency_challenge
+    assumption: The X-008 defect is limited to lint and format (G-4, G-5)
+    severity: HIGH
+final_findings_by_severity:
+  blocking: 2
+  minor: 11

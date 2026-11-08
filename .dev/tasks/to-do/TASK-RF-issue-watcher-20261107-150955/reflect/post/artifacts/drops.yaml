@@ -1,0 +1,2 @@
+- cid: C-0113
+  reason: "audit.py:55-57 holds only the cycle_crashed entry and its comment; the five proposed reasons are at audit.py:81-82, 98-99 and 101 (outside the 3-line tolerance)"

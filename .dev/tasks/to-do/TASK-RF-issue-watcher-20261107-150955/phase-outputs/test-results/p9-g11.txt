@@ -1,0 +1,8 @@
+## trailing spaces
+EXIT=1
+## CR
+EXIT=1
+## newline checks
+files checked: 48; problems: 0
+## CR in runbook
+EXIT=1

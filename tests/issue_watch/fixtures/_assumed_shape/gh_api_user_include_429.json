@@ -1,0 +1,8 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/issue-watcher.md section 15, row 'gh api user --include output layout' (line 835) and the Retry-After / x-ratelimit-reset header row (line 838, design 8.3): UNVERIFIED, capture one rate-limited G1 reply; FU-1 replaces this file with a captured reply",
+  "note": "The status line, header names and the stderr text are assumed, not captured. Retry-After is the only header the test reads.",
+  "exit": 1,
+  "raw": "HTTP/2.0 429 Too Many Requests\nContent-Type: application/json; charset=utf-8\nDate: Sat, 07 Nov 2026 12:00:00 GMT\nRetry-After: 120\n\n{\"message\":\"Assumed text: API rate limit exceeded\"}\n",
+  "stderr": "gh: HTTP 429: API rate limit exceeded (https://api.github.com/user)\n"
+}

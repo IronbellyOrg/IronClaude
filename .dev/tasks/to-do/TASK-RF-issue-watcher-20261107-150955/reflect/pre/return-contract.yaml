@@ -1,0 +1,81 @@
+contract_version: 1.8.0
+status: success
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/report.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/audit.log
+confidence_calibrated: 0.82
+escalation_rule_matched: null
+onboarding_ran: false
+coverage_pct: 0.9231
+coverage_pct_union: 0.8631
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements:
+- T-2
+unmapped_requirements_union:
+- T-2
+- INF-006
+- INF-008
+- INF-009
+- INF-016
+- INF-022
+- INF-037
+- INF-042
+- INF-044
+- INF-051
+- INF-055
+- INF-089
+- INF-101
+- INF-108
+- INF-123
+- INF-124
+- INF-128
+- INF-129
+- INF-135
+- INF-139
+- INF-142
+- INF-147
+- INF-151
+best_practice_grade: 4
+input_tree_sha256: fc2750d6b33415c2fb076c6393533ff55a9e7aaf8d61749410e650ba4f636a32
+input_tree_file_count: 36
+input_drift_detected: false
+citations_total: 191
+citations_revalidated: 101
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 8
+citation_budget_policy: sampled
+evidence_validator_ran: true
+reviewer_cards:
+- .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/reviewer-cards/reviewer-1-card.yaml
+- .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/reviewer-cards/reviewer-2-card.md
+- .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/adversarial/adversarial/
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+calibrator_diversity: degraded
+remediation_offered: true
+remediation_accepted: false
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+spec_is_wrong: false
+user_decision_required: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+run_id: reflect-pre-20261107T202030Z-d1ce14
+reviewed_at: '2026-11-07T20:20:30Z'
+final_findings:
+  blocking: 2
+  minor: 11
+degraded_components:
+- auggie
+- graph:unverified

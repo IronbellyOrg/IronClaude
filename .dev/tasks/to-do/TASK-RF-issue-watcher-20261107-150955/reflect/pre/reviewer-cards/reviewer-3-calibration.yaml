@@ -1,0 +1,38 @@
+# persisted by the orchestrator from the reviewer's final message
+dimension_scores:
+  citation_grounding:
+    score: 0.92
+    reason: "All citations I checked matched their files (task file lines 330, 699, 702, 735, 745, 864, 866, 875; design line 239). Lines 384, 502, 520, 690, 742, 757, 778, 800, research/06:30, design:791 and Makefile:50 were not checked."
+  coverage_completeness:
+    score: 0.80
+    reason: "Coverage judgements are broad (INF-105 to INF-157 plus T-2 and a few others), but the self-audit says the Gate D steps (lines 619-672), the bodies of Steps 9.M4 to 9.M13 and BUILD-REQUEST.md were not read. INF-128 to INF-131 have no judgement and no reason is given."
+  deviation_classification_clarity:
+    score: 0.85
+    reason: "Each finding has a severity, a category and a grounded or inferred tag. The two partially_covered judgements name the declared decision (DF-05). R3-002 is graded blocking although it only bites when a lint finding already exists."
+  risk_surface_coverage:
+    score: 0.80
+    reason: "Covers end-state sequencing, gate contradictions, missing attempt caps, a stale change-set file, an import-boundary drift and machine-dependent tests. Because the M4 and Gate D bodies were not read, the halt rules there are assumed rather than checked."
+  recommendation_actionability:
+    score: 0.90
+    reason: "Every fix names the step numbers to change and the exact rule or item to add. Two fixes (R3-001, R3-005) offer either-or choices, but both choices are concrete."
+calibrated_confidence: 0.85
+finding_confidence:
+  R3-001: 0.85
+  R3-002: 0.75
+  R3-003: 0.65
+  R3-004: 0.65
+  R3-005: 0.85
+  R3-006: 0.60
+  R3-007: 0.60
+  R3-008: 0.80
+escalation_recommendation: stop_at_t1
+calibrator_model_class: opus
+notes:
+  - "I made five Read calls. Because each read a range, together they covered 8 cited lines rather than 5. All 8 match the quoted text (ellipses in the quotes for lines 699 and 745 leave out text but do not change the meaning)."
+  - "R3-001 is confirmed. Line 866 tells the reflect run to apply remediations under --remediate. Line 875 only runs `git add .dev/tasks`, makes no second commit, and nothing re-runs the gates afterwards. Any source remediation would therefore be left uncommitted, unstaged and ungated."
+  - "R3-002 is confirmed as a written contradiction. Lines 699 and 702 say findings in files the task did not touch are recorded and not fixed, yet the step still requires exit 0. Line 735 requires every row to be PASS. The only carve-out on line 745 is the swarm skip. Whether this blocks in practice depends on the full tree having a lint or format finding before the task starts, which the card does not show."
+  - "R3-005 is confirmed. Line 330 lets record import the predicates functions parse_utc, format_utc and valid_issue_number, while design line 239 says 'types only'."
+  - "R3-008 is confirmed. Line 875 says a staging failure 'never reverts the Done status'."
+  - "R3-003, R3-004, R3-006 and R3-007 were not checked. They are plausible, and R3-006 and R3-007 are correctly tagged inferred."
+  - "The card's own confidence is 0.78 and mine is 0.85 (+0.07). The checked citations are clean, which offsets the parts the reviewer admits it did not read."
+  - "The card has no claim_class or evidence_class fields and is a reviewer card rather than a hypothesis card. I scored it on the five dimensions requested, not the six-dimension rubric, and applied no gated-minimum formula or C-rule caps (no assertions_path was given)."

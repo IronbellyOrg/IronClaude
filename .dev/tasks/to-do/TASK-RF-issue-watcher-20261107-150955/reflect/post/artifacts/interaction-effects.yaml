@@ -1,0 +1,161 @@
+# Cross-task interaction-effects scan (UC-2 Step 1B.3, tasklist scope)
+# Written by the wave-1 helper. Read-only on the repo; every evidence line was Read in this run.
+scanned: true
+truncated: true   # impact mapped 30 of ~400 new symbols (protocol cap D4); overlap graph capped at the symbols below
+impact:
+  contract: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/artifacts/impact/return-contract.yaml
+  status: partial
+  advisory: false
+  degraded: [graph:stale, graph:unresolved]
+  index_state: stale          # one pending non-source file (reflect/post/verify-logs/invocations.yaml)
+  checked_at: 2026-11-08T04:21:00Z
+  symbols_mapped: 30
+  dependents: {prod_total: 63, test_total: 257, call_sites_verified: 20, call_sites_unresolved: 43, dropped: 0}
+  truncated_symbols: 0        # no caller list was cut (largest total 28)
+  note: "Every symbol is new in this commit; per-task diffs are not separable, so tasks come from tasklist item text (Phases 2-8) and the fix-cycle reports under qa/."
+
+# How "task" ids are written below: P2 = Phase 2 (Steps 2.1-2.11 leaf modules), P3 github, P4 record, P5 launch,
+# P6 cycle, P7 cli, P8 cross-cutting tests; GA..GD = Gates A..D fix cycles; FG = Final gate; M4 = M4 gate.
+
+findings:
+  - id: IE-01
+    symbol: "predicates.{format_utc, parse_utc, valid_issue_number, valid_operation_id} used by record"
+    tasks: [P2 Step 2.2, P4 Step 4.1a, GB fix B-10]
+    call_sites: 15   # record.py: format_utc 287,292,301,304,305,500,857,858; parse_utc 145; valid_issue_number 163,172,467; valid_operation_id 183,585,607
+    severity: HIGH   # by the count rule only; the behavioural risk is low (see note)
+    category: cross_task
+    cited_by_task: partial   # Step 4.1a (tasklist line 332) names parse_utc, format_utc, valid_issue_number; valid_operation_id was added by B-10 and no task item names it
+    evidence:
+      - src/superclaude/cli/issue_watch/record.py:23-29   # imports four functions plus the ApprovalResult type
+      - docs/designs/issue-watcher.md:239                # design 5.3 row for record: predicates "(types only ...)"
+      - tests/issue_watch/test_module_boundaries.py:20-21,57-61   # the test rule was widened to any predicates name for record
+      - .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:332,998   # Step 4.1a allows three functions; PRE-11 logs the mismatch as minor
+      - .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-fix-report.md:20,28   # B-10 adds valid_operation_id and calls it "within design 5.3"
+    note: >
+      Departure from design 5.3 ("types only") is real and widened in the test instead of the design. The design text was not
+      amended and the departure is not in the deviation register (grep of phase-outputs/reports/deviation-register.md for
+      "predicates" gives no match). No import cycle and no runtime break: predicates imports nothing from the package.
+      B-10's claim "within design 5.3" is wrong for a function import. Tests pass (orchestrator run), so this is a design-fidelity
+      finding, not a safety break.
+
+  - id: IE-02
+    symbol: "predicates.format_utc reached as cycle.format_utc from cli.reset_command"
+    tasks: [P2 Step 2.2, P6 cycle, P7 cli]
+    call_sites: 1    # cli.py:319
+    severity: LOW
+    category: cross_task
+    cited_by_task: false   # no task item names cycle.format_utc for cli (grep of the tasklist: only the Phase 8 Task Log line 1046 mentions it)
+    evidence:
+      - src/superclaude/cli/issue_watch/cli.py:26-29,319   # cli imports audit, cycle, record, launch, runner; line 319 calls cycle.format_utc(now)
+      - src/superclaude/cli/issue_watch/cycle.py:29        # cycle's from-import is the only reason cycle.format_utc exists
+      - docs/designs/issue-watcher.md:242                  # design 5.3 row for cli: cycle, record, audit, launch, runner (no predicates)
+      - tests/issue_watch/test_module_boundaries.py:72-75  # the walker checks import statements only, so attribute access passes
+      - .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:1046   # executor noted it in the Phase 8 log, item (3)/(4)
+    note: >
+      cli reaches a predicates helper through cycle's namespace, which skips the boundary table without breaking its letter.
+      It works only while cycle keeps `from .predicates import format_utc` (cycle uses it at 555, 623, 1268, 1292, 1293, so
+      an unused-import cleanup would not remove it today). The reset tests in test_cli.py exercise the line.
+
+  - id: IE-03
+    symbol: "OPERATION_ID_PATTERN (predicates.py:57 and launch.py:36) with valid_operation_id"
+    tasks: [P2 Step 2.2, P5 launch, GB fix B-10]
+    call_sites: 3    # launch.py:127, launch.py:274 (launch copy); predicates.py:67 (predicates copy, which record calls at 183, 585, 607)
+    severity: MEDIUM
+    category: cross_task
+    cited_by_task: false   # grep of the tasklist for OPERATION_ID_PATTERN / valid_operation_id: no match; the pair exists only because of fix B-10
+    evidence:
+      - src/superclaude/cli/issue_watch/predicates.py:57-67
+      - src/superclaude/cli/issue_watch/launch.py:36,127,272-274
+      - tests/issue_watch/test_launch.py:198-200            # parity test: pattern and flags equal
+      - .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-b/qa-fix-report.md:20   # why the copy exists (launch may import only runner)
+    note: >
+      Two copies of the regex that keeps a hostile operation id out of a saved store and out of a printed retry command.
+      Mitigated: a test pins the two patterns and flags equal. The gate is also enforced a third time in
+      launch.LaunchOutcome.__post_init__ (launch.py:256-259) before cycle calls record.mark_launched/mark_unknown, so a
+      divergence would fail closed (ValueError), not open.
+
+  - id: IE-04
+    symbol: "issue-number bound 999_999_999 (predicates.MAX_ISSUE_NUMBER, launch.MAX_ISSUE_NUMBER, audit._MAX_ISSUE)"
+    tasks: [P2 Steps 2.2/2.3, P5 launch, P7 cli]
+    call_sites: 3    # predicates.py:54, launch.py:90 (also cli.py:283 reads launch's copy for the click range), audit.py:236
+    severity: MEDIUM
+    category: cross_task
+    cited_by_task: false
+    evidence:
+      - src/superclaude/cli/issue_watch/predicates.py:20,54
+      - src/superclaude/cli/issue_watch/launch.py:30,90
+      - src/superclaude/cli/issue_watch/audit.py:203,236
+      - src/superclaude/cli/issue_watch/cli.py:27,283
+      - tests/issue_watch/test_audit.py:484                # audit copy pinned equal to predicates
+    note: >
+      No test pins launch.MAX_ISSUE_NUMBER equal to predicates.MAX_ISSUE_NUMBER. Boundary values are tested separately in
+      each module (test_launch.py:46,64; test_predicates.py:651-663), so a drift would fail one of those tests. The
+      build_claim_prompt bound is the one that decides what text reaches `orca`.
+
+  - id: IE-05
+    symbol: "audit.REASON_TABLE grew from 57 to 59 names (cycle_complete, cycle_crashed) while the task text still pins 57"
+    tasks: [P2 Steps 2.3/2.8, GC fixes C-2/C-3, P7 cli, P9 runbook]
+    call_sites: 2    # production uses of the two new names: cycle.py:1137 (cycle_complete), cli.py:127-129 (cycle_crashed)
+    severity: MEDIUM
+    category: cross_task
+    cited_by_task: partial   # Task Log line 1050 (Phase 9) says OQ-2/OQ-49 and the 57 count are stale; no step item was corrected
+    evidence:
+      - src/superclaude/cli/issue_watch/audit.py:57,64
+      - tests/issue_watch/test_audit.py:3-6,38,215-219,125-129   # code and tests consistently pin 59, literal list
+      - docs/designs/issue-watcher-setup.md:344                  # runbook says 59 and marks the two names [PROPOSAL]
+      - .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:199,214,287,417,686,759,923,975   # stale "57" in step items and open questions
+      - .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/reports/deviation-register.md:61
+      - .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/reports/final-change-set.md:218
+    note: >
+      Nothing in src/, tests/ or docs/ still says 57: the pin test, the table and the runbook agree on 59. The stale 57 sits
+      only in the executor's own task file and two delivered reports (10 lines). Risk: a resumed or re-run Step 2.3/2.8 would
+      write or assert a 57-name table and fail the 59-name pin. docs/designs/issue-watcher.md has no count and does not list
+      the two new names (grep: no match), so the design and the code differ on the reason set; the runbook is the only doc that names them.
+
+observed_not_flagged:
+  - id: ON-01
+    what: "Gate C deadline fix (C-1 then C2-1): a launch must not start after the 120 s cut-off"
+    why_not_flagged: "Both tasks and the fix reports cite each other; the current code holds both checks."
+    evidence:
+      - src/superclaude/cli/issue_watch/cycle.py:1039-1049    # launch_allowed() before the origin call and again right after it
+      - src/superclaude/cli/issue_watch/cycle.py:410-412,697-702,1017-1019
+      - tests/issue_watch/test_cycle.py:4352                   # test for the clock crossing the cut-off inside the origin call
+      - .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/gate-c/qa-fix-report-cycle2.md:11,16   # fix and mutant check
+    residual: >
+      After the second check the cycle runs record.mark_pending and a durable store save (cycle.py:1060-1061) before
+      launcher.launch (1062); there is no third check, so a very slow disk write could cross the cut-off. The launch itself
+      takes a fixed 120 s (LAUNCH_TIMEOUT_S), not the time left. Not a defect against design 647, only a limit.
+  - id: ON-02
+    what: "cli exit constants (cli.py:34-38) duplicate REASON_TABLE exits; cycle uses exit_for(table)"
+    why_not_flagged: "Phase 7 item text names audit.stderr_fallback(reason, 2) and the exit table; per-path tests pin each exit."
+    evidence:
+      - src/superclaude/cli/issue_watch/cli.py:34-38,79,127,177,210,219,248,252,330
+      - src/superclaude/cli/issue_watch/audit.py:393-401      # stderr_fallback checks reason membership only, not that exit equals the table exit
+      - tests/issue_watch/test_audit.py:843, tests/issue_watch/test_cli.py:681
+    call_sites: 14
+  - id: ON-03
+    what: "M4 fix M-1 (cycle line carries clock_skew_s every cycle with a known Date)"
+    why_not_flagged: "Fix report lists every touched test; audit accepts 0; slo_numbers does not read the key."
+    evidence:
+      - src/superclaude/cli/issue_watch/cycle.py:751-756,1154
+      - .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/qa/m4/qa-fidelity-fix-report.md:16-23
+  - id: ON-04
+    what: "operation_id passed from cycle._launch to record.mark_launched/mark_unknown after B-10/B-11 made them raise on a bad id"
+    why_not_flagged: "LaunchOutcome.__post_init__ rejects a bad id and a launched outcome without one, so cycle cannot pass an invalid id."
+    evidence:
+      - src/superclaude/cli/issue_watch/launch.py:251-259
+      - src/superclaude/cli/issue_watch/cycle.py:1064-1072
+      - src/superclaude/cli/issue_watch/record.py:585-586,607-608
+  - id: ON-05
+    what: "UTC format string repeated in predicates.py:23, audit.py:200, cycle.py:76"
+    why_not_flagged: "cycle's copy only formats an approvers-file mtime (cycle.py:349); audit's is pinned by its own tests. Cosmetic if they drift."
+
+counts:
+  findings: 5
+  by_severity: {HIGH: 1, MEDIUM: 3, LOW: 1}
+  observed_not_flagged: 5
+
+limits:
+  - "Tasks come from tasklist text and qa fix reports, not from per-task diffs (one commit)."
+  - "Overlap graph was built on the 30 mapped symbols plus the import and constant duplicates found by Grep; the other ~370 new symbols were not checked pairwise."
+  - "pytest results were not re-run here; the orchestrator owns them."

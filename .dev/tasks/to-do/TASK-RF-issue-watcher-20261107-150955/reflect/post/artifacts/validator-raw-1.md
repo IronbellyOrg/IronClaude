@@ -1,0 +1,64 @@
+```yaml
+- {cid: C-0001, verdict: VALID, reason: "ok; cycle.py:1060-1062 is mark_pending, _save, launcher.launch with no cutoff check between them"}
+- {cid: C-0002, verdict: VALID, reason: "ok; cycle.py:1048 is `if not self.deadline.launch_allowed():`"}
+- {cid: C-0003, verdict: VALID, reason: "ok; 1048-1049 is the launch_allowed check followed by raise _Skip(\"budget_exhausted\")"}
+- {cid: C-0004, verdict: VALID, reason: "ok; 1060 is self._set(record.mark_pending(self.doc, c.n, ctx, self.now()))"}
+- {cid: C-0005, verdict: VALID, reason: "ok; 1061 is self._save()  # FR-010: durable before the launch call"}
+- {cid: C-0006, verdict: VALID, reason: "ok; 1062 is outcome = d.launcher.launch(orca, cfg.worktree, prompt, LAUNCH_TIMEOUT_S), directly after 1061"}
+- {cid: C-0007, verdict: VALID, reason: "ok; 410-412 is launch_allowed returning self.elapsed() <= LAUNCH_CUTOFF_S"}
+- {cid: C-0008, verdict: VALID, reason: "ok; design line 647 (Orca launch row) says not started when elapsed() > 120 and budget_exhausted decision line"}
+- {cid: C-0009, verdict: VALID, reason: "ok; design line 892 is AC-19 'no launch starts after 120 s'"}
+- {cid: C-0010, verdict: VALID, reason: "ok; TASK line 901 is the Gate C note on the deadline exit code fix, fixed in cycle 2"}
+- {cid: C-0011, verdict: VALID, reason: "ok; cli.py:35 is _EXIT_CRASH = 1; design line 114 lists once exits as 0,2,3,4,5,6,7,75 without 1"}
+- {cid: C-0012, verdict: VALID, reason: "ok; 123-129 is the except Exception crash path that exits with _EXIT_CRASH"}
+- {cid: C-0013, verdict: VALID, reason: "ok; cli.py:35 is `_EXIT_CRASH = 1  # [PROPOSAL] C-3: ...`"}
+- {cid: C-0014, verdict: VALID, reason: "ok; 127 calls audit.stderr_fallback(\"cycle_crashed\", _EXIT_CRASH), 129 is sys.exit(_EXIT_CRASH)"}
+- {cid: C-0015, verdict: VALID, reason: "ok; design line 114 is the once row with exit codes 0, 2, 3, 4, 5, 6, 7, 75"}
+- {cid: C-0016, verdict: VALID, reason: "ok; design line 890 is AC-17 'Each verb's exit codes match section 4'"}
+- {cid: C-0017, verdict: VALID, reason: "ok; audit.py:55-57 is the cycle_crashed proposal entry (part of the 59-name table)"}
+- {cid: C-0018, verdict: VALID, reason: "ok; audit.py:62-64 is the cycle_complete proposal entry"}
+- {cid: C-0019, verdict: VALID, reason: "ok; cycle.py:1134-1137 is the [PROPOSAL] comment and return \"cycle_complete\""}
+- {cid: C-0020, verdict: VALID, reason: "ok; 57 is \"cycle_crashed\": (\"cycle\", 1) with [PROPOSAL] comment at 55-56"}
+- {cid: C-0021, verdict: VALID, reason: "ok; 64 is \"cycle_complete\": (\"cycle\", 0) with [PROPOSAL] comment at 62-63"}
+- {cid: C-0022, verdict: VALID, reason: "ok; same lines as C-0019"}
+- {cid: C-0023, verdict: VALID, reason: "ok; test_audit.py:214-220 is test_reasons_pin_59_names asserting len == 59"}
+- {cid: C-0024, verdict: VALID, reason: "ok; setup.md:344 says the audit log accepts only the 59 names"}
+- {cid: C-0025, verdict: VALID, reason: "ok; design line 718 says audit.REASONS is a frozenset equal to the spec's reason table"}
+- {cid: C-0026, verdict: VALID, reason: "ok; TASK line 199 (Step 2.3) says 'exactly 57 entries (52 ... plus the five proposals above)'"}
+- {cid: C-0027, verdict: VALID, reason: "ok; research/06 line 175 is DF-41 with 52 spec rows plus five proposals and test_audit.py (57 names)"}
+- {cid: C-0028, verdict: VALID, reason: "ok; record.py:23-29 imports valid_operation_id from predicates"}
+- {cid: C-0029, verdict: VALID, reason: "ok; imports ApprovalResult, format_utc, parse_utc, valid_issue_number, valid_operation_id"}
+- {cid: C-0030, verdict: VALID, reason: "ok; record.py:183 is _opt(raw[\"operation_id\"], valid_operation_id)"}
+- {cid: C-0031, verdict: VALID, reason: "ok; design line 239 record row: predicates (types only, ...)"}
+- {cid: C-0032, verdict: VALID, reason: "ok; TASK line 332 allowed imports: predicates (parse_utc, format_utc, valid_issue_number)"}
+- {cid: C-0033, verdict: VALID, reason: "ok; docstring lines 20-21 say 'three functions and one type' while the import list has four functions and one type (miscount confirmed)"}
+- {cid: C-0034, verdict: VALID, reason: "ok; test_module_boundaries.py:57-61 record Rule allows siblings {predicates} with no names_only limit"}
+- {cid: C-0035, verdict: VALID, reason: "ok; launch.py:36 is OPERATION_ID_PATTERN = re.compile(...)"}
+- {cid: C-0036, verdict: VALID, reason: "ok; test_cli.py:967 is @pytest.mark.skipif(os.geteuid() == 0, ...)"}
+- {cid: C-0037, verdict: VALID, reason: "ok; test_cli.py:1070 is NOT_ROOT = pytest.mark.skipif(...)"}
+- {cid: C-0038, verdict: VALID, reason: "ok; test_record.py:739 is skipif root"}
+- {cid: C-0039, verdict: VALID, reason: "ok; test_cycle.py:735 is skipif root"}
+- {cid: C-0040, verdict: VALID, reason: "ok; test_cycle.py:4694 is pytest.skip(...)"}
+- {cid: C-0041, verdict: VALID, reason: "ok; reason text 'root reads any file'"}
+- {cid: C-0042, verdict: VALID, reason: "ok; NOT_ROOT = pytest.mark.skipif(os.geteuid() == 0, ...)"}
+- {cid: C-0043, verdict: VALID, reason: "ok; skipif os.geteuid() == 0"}
+- {cid: C-0044, verdict: VALID, reason: "ok; skipif os.geteuid() == 0"}
+- {cid: C-0045, verdict: VALID, reason: "ok; pytest.skip(\"/proc/self/mountinfo exists on Linux only\")"}
+- {cid: C-0046, verdict: VALID, reason: "ok; TASK line 188 says 'No test may use pytest.skip, skipif or xfail, because gates G-1 and G-3 require zero skipped tests'"}
+- {cid: C-0047, verdict: VALID, reason: "ok; TASK line 908 says pytest.skip/skipif still appears in five test sites, graded minor"}
+- {cid: C-0048, verdict: VALID, reason: "ok; runner.py:57-64 is _cap_stderr cutting to 500 bytes"}
+- {cid: C-0049, verdict: VALID, reason: "ok; runner.py:126 is stderr=_cap_stderr(proc.stderr)"}
+- {cid: C-0050, verdict: VALID, reason: "ok; launch.py:322 checks OP_UNKNOWN_TEXT in result.stdout or result.stderr (result is the capped CommandResult)"}
+- {cid: C-0051, verdict: VALID, reason: "ok; runner.py:15 is STDERR_CAP_BYTES = 500"}
+- {cid: C-0052, verdict: VALID, reason: "ok; _cap_stderr encodes to UTF-8 and slices [:STDERR_CAP_BYTES]"}
+- {cid: C-0053, verdict: VALID, reason: "ok; line 126 inside the returned CommandResult"}
+- {cid: C-0054, verdict: VALID, reason: "ok; launch.py:322 as above"}
+- {cid: C-0055, verdict: VALID, reason: "ok; design line 634 says agent_session_operation_unknown anywhere in stdout or stderr gives unknown"}
+- {cid: C-0056, verdict: VALID, reason: "ok; cycle.py:1271 is the unknown-with-operation-id condition; the actual drop (continue) is at 1279-1280, plausible whole-finding location"}
+- {cid: C-0057, verdict: VALID, reason: "ok; 1279-1280 is `except ValueError: continue` around launch.retry_argv"}
+```
+
+Summary:
+- VALID: 57. DROP: 0.
+- No systematic problem. I read every cited range with context and each one matched. Line numbers were exact, so there were no offsets.
+- Whole-finding claims point to the right code. C-0056 cites the guard condition (1271) while the drop itself is at 1279-1280, and C-0057 covers that.

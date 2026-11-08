@@ -1,0 +1,28 @@
+🔍 Verifying Python dependency allow-list (AC3 / R-015)...
+Baseline allow-list size: 47
+Currently installed:      27
+Allow-listed but not installed (informational, not a failure):
+  - ast-serialize
+  - black
+  - build
+  - coverage
+  - exceptiongroup
+  - librt
+  - mypy
+  - mypy-extensions
+  - numpy
+  - pathspec
+  - platformdirs
+  - py-cpuinfo
+  - pyproject-hooks
+  - pytest-benchmark
+  - pytest-cov
+  - pytokens
+  - ruff
+  - scipy
+  - sniffio
+  - tomli
+
+PASS: installed packages are a subset of the AC3 allow-list.
+EXIT=0
+EXIT=0

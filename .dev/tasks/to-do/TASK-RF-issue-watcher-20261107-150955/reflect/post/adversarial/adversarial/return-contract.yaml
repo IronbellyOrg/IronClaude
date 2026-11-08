@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/adversarial/merged-verdict.yaml"
+  convergence_score: 0.836            # 56 of 67 points (scoring-matrix.md), threshold 0.80
+  artifacts_dir: ".dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/post/adversarial/adversarial"
+  status: "success"
+  base_variant: "haiku:qa"            # variant 2, final 0.803 vs 0.741 (variant 3) and 0.718 (variant 1)
+  unresolved_conflicts: 0             # the 11 not-agreed points are Grounding Gaps and assumption responses, none a live classification conflict
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []          # invariant probe: 12 findings, 0 HIGH+UNADDRESSED, 1 MEDIUM (INV-001, documented design scope R12)
+  judge_class_collision: true         # judge, one advocate and one reviewer are opus; disclosed in base-selection.md

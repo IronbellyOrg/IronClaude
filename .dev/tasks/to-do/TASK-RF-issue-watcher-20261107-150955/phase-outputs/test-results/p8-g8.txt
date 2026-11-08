@@ -1,0 +1,2 @@
+EXIT=1
+NO_MATCH (grep exit 1, no output) for src/superclaude/cli/issue_watch/ as it now stands

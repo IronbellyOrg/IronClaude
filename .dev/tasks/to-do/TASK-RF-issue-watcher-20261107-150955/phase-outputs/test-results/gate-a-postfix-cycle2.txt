@@ -1,0 +1,17 @@
+== pytest
+tests/issue_watch/test_runner.py::test_real_child_timeout_returns_quickly__nfr008 PASSED [100%]
+
+============================= 686 passed in 1.43s ==============================
+PYTEST_EXIT=0
+== make lint
+  ✅ PASS — architecture policy compliant (5 warning(s))
+Running linter...
+uv run ruff check .
+All checks passed!
+LINT_EXIT=0
+== ruff check
+All checks passed!
+CHECK_EXIT=0
+== ruff format --check
+11 files already formatted
+FORMAT_EXIT=0

@@ -1,0 +1,13 @@
+# Tier-1 card calibration (Wave 1D). Calibrator output saved by the orchestrator (the calibrator agent is read-only).
+card: t1-card.md
+hypothesis_source: inline-fallback
+calibrator_model_class: opus
+calibrator_diversity: degraded   # reviewers use sonnet, haiku and opus; no disjoint class is available, highest-capability class used
+dimension_scores:
+  citation_grounding: 0.90
+  coverage_completeness: 0.70
+  deviation_classification_clarity: 0.55
+  risk_surface_coverage: 0.65
+  recommendation_actionability: 0.75
+calibrated_confidence: 0.71
+escalation_recommendation: escalate
