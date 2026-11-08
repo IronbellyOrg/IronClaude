@@ -1,0 +1,19 @@
+name: Scratch 361 slow check
+on:
+  pull_request:
+    branches: [scratch/361-base]
+jobs:
+  slow:
+    name: scratch-361-wait-for-go
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          for i in $(seq 1 200); do
+            if gh api "repos/$REPO/branches/scratch/361-go" >/dev/null 2>&1; then echo go; exit 0; fi
+            sleep 10
+          done
+          echo "no go signal in time"; exit 1
