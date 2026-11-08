@@ -159,6 +159,7 @@ RULE_PHRASES = {
             "No turn ends between chain steps",
             "ends its turn only after `worker_done`, while blocked in the preamble's `ask`, or on `consumer_fenced`",
             "the next action in the same turn is the next `Command:` line",
+            "The one exception is a coordinator interrupt that asks for a handoff (the S6 nudge, section 4)",
         ],
     ),
     "WC-15": (
@@ -210,7 +211,8 @@ RULE_PHRASES = {
         [
             "at most once every 5 minutes, the coordinator runs one sweep",
             "A message arrival or a repeated identical read is not one",
-            "| S9 finished but unreported |",
+            "| S9 finished but unreported | Contract present, the brief has no `Command:` line after the step that wrote it,",
+            "Token unchanged for W while heartbeats arrive, or the S3 trigger fires;",
             "| S10 settled |",
             "| S11 unknown |",
         ],
