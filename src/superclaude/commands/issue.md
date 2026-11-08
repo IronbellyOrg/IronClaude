@@ -4,7 +4,7 @@ version: "1.1.0"
 description: "Claim a GitHub issue on the origin repo (assign it, check its accuracy, write a summary and a next-step prompt, then create an Orca worktree and launch an agent in it) or create a templated issue with labels from a fixed set"
 category: workflow
 complexity: advanced
-mcp-servers: [auggie, codegraph]
+mcp-servers: [litellm, auggie, codegraph]
 personas: [analyzer]
 argument-hint: "--claim <number|url> [--pipeline worktree|full|none] [--submit] | --create \"<description>\" [--depth quick|standard|deep] [--mode feature|bug] [--type <type>]"
 ---

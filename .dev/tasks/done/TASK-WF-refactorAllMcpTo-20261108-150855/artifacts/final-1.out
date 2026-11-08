@@ -1,0 +1,85 @@
+FINAL review attempt 1. State at start: 6aead53f5721edcd9262b3a7a85521c0f8798ee9f43edb9cef183189f3981dba
+Result: issues
+
+Per-task AC
+T1.AC1 met src/superclaude/hooks/hooks.json:149 and plugins/superclaude/hooks/hooks.json:119 carry the identical four-alternative matcher; src/superclaude/hooks/scripts/auggie-flag-clear.sh:23 and plugins/superclaude/hooks/scripts/auggie-flag-clear.sh:23 carry the identical four-glob case line
+T1.AC2 met artifacts/t1-pytest.log:100 "90 passed"
+T2.AC1 met src/superclaude/cli/eval/coverage.py:104 "mcp__litellm__" (four prefixes); git diff of src/superclaude/cli/eval/capabilities.py is empty
+T2.AC2 met artifacts/t2-pytest.log:185 "1501 passed, 4 skipped" (the unmet finding in retries/T2/review-1-1.out:7 was resolved by review-1-2)
+T3.AC1 met src/superclaude/agents/deep-research.md:6-19 (proxy twin immediately before every direct Tavily/Context7 name); all ten agents checked; no tools: entry removed, old order kept (deep-research 11->17 entries, deep-research-agent 14->23)
+T3.AC2 met artifacts/t3-pytest.log "25 passed"
+T4.AC1 met auggie-reviewer.md, eval-docs-loader.md, reflect-reviewer.md, reuse-auditor.md, troubleshoot-analyst.md line 5 each: AUG immediately before mcp__auggie__codebase-retrieval; codegraph entries unchanged
+T4.AC2 met artifacts/t4-pytest.log:432 "421 passed"
+T5.AC1 met cmp of src/plugins sc-recommend/SKILL.md and refs/plugin-ecosystem-sources.md reports identical files
+T5.AC2 met artifacts/t5-pytest.log:393 "382 passed, 1 skipped"
+T6.AC1 met grep 'mcp__auggie-mcp__' src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md finds nothing; allowed-tools of troubleshoot/reflect/validate-roadmap list AUG then mcp__auggie__codebase-retrieval, proxy Context7 and Tavily twins first; mcp-servers lines troubleshoot:10, reflect:19, validate-roadmap:13 start with litellm
+T6.AC2 met artifacts/t6-pytest.log:1160 "1149 passed"
+T7.AC1 UNMET src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:195 - git diff HEAD shows a removed line containing `fallback_1` and `skipped` (the "**Under `--unattended`**" line; T15 replaced its tool name with the AUG short form). The AC's own test "git diff shows no removed line containing them" fails at the end state (see B-2)
+T7.AC2 met artifacts/t7-pytest.log:103 "2329 passed, 2 skipped"
+T8.AC1 met the eight mcp-servers lines (sc-issue-protocol:10, sc-cli-portify-protocol:7, sc-cleanup-audit-protocol:6, sc-adversarial-protocol:12, sc-cli-eval-protocol:11, sc-release-split-protocol:13, sc-roadmap-protocol:13, sc-tasklist-protocol:7) start with litellm, none names auggie-mcp; each file's diff is exactly one removed and one added line
+T8.AC2 met artifacts/t8-pytest.log:1904 "1893 passed"
+T9.AC1 met all 30 codebase-retrieval mentions in the listed files carry AUG on the same line (0 unpaired); src/superclaude/skills/sc-crash-recovery/SKILL.md:146 "Codebase search unreachable (neither ... nor ...)"
+T9.AC2 met artifacts/t9-pytest.log:1904 "1893 passed"
+T10.AC1 met grep 'mcp__auggie-mcp__' src/superclaude/commands plugins/superclaude/commands finds nothing
+T10.AC2 met artifacts/t10-pytest.log:222 "211 passed"
+T11.AC1 met every mcp-servers line in src/plugins commands naming auggie/context7/tavily starts with litellm (0 bad); research.md:6, pm.md:6, task.md:7 keep playwright/morphllm; issue.md:7 "[litellm, auggie, codegraph]" and tests/commands/test_issue_command.py:73; build.md and test.md unchanged
+T11.AC2 met artifacts/t11-pytest.log:217 "206 passed"
+T12.AC1 met src/superclaude/core/RULES.md and plugins/superclaude/core/RULES.md identical at 0423fe5f and identical now
+T12.AC2 met artifacts/t12-pytest.log:224 "213 passed"
+T13.AC1 met git diff of src/superclaude/cli/reflect/config.py changes comment/docstring lines only
+T13.AC2 met artifacts/t13-pytest.log:97 "86 passed, 1 skipped"
+T14.AC1 met (removal branch) .mcp.json absent from the worktree (tracked at HEAD, unstaged delete); tests/cli/test_mcp_project_config.py:14-25 asserts no auggie-mcp key and no stdio entry with command auggie; artifacts/t14-pytest.log:6 "1 passed", negative run fails, restore recorded; re-run now: 5 passed (with tests/skills/test_mcp_proxy_names.py)
+T15.AC1 met tests/skills/test_mcp_proxy_names.py (untracked, read directly); artifacts/t15-guard.log:17 "4 passed", :48 "1 failed, 3 passed" exit=1 on the removed-AUG run, :73 "4 passed" exit=0 after restore
+T16.AC1 met artifacts/t16-lint.log "All checks passed!" exit=0; artifacts/t16-verify-sync.log "All components in sync." exit=0; post-reopen t16-rerun-lint.log "lint exit=0", t16-rerun-verify-sync.log "verify-sync exit=0", t16-rerun-sync-dev.log "sync-dev exit=0"
+T16.AC2 met artifacts/t16-tests.log:5 "9334 passed, 17 skipped, 1 xpassed", :10 make test "24574 passed, 149 skipped, 2 xpassed" FAILED/ERROR 0; post-reopen t16-rerun-make-test.log last lines "24574 passed, 149 skipped, 2 xpassed" and "make test exit=0"
+T16.AC3 met git diff --cached --name-only -- .claude is empty; artifacts/t16-tests.log:14 staged .claude paths 0
+
+Constraints
+no .claude/ mirror staged: holds (git diff --cached --name-only -- .claude empty)
+nothing under .dev/issues staged: holds (.dev/issues/454/* untracked; no staged path outside .dev/tasks)
+.dev/tasks always staged: holds for package files from the run; the four FINAL-time files (final-1-delivery-files.txt, final-1-prompt.md, final-1.out, review-diffs/final-1-product.diff) are untracked (minor M-1)
+no src/superclaude/... path added to an installed primitive: holds (product diff scan)
+no secret or token value in the diff: holds (product diff scan)
+no commit made: holds (HEAD 0423fe5f1feabe5bf826a2a131c1e24a2dadf188)
+proxy name inserted immediately before its direct twin; no direct name removed except mcp__auggie-mcp__codebase-retrieval: holds (T3/T4/T6 allow-list checks)
+tavily_research not added to any allow-list: holds (only docs/user-guide/mcp-servers.md served-tool list and src/superclaude/mcp/MCP_Tavily.md proxy-only row, both asked by T13/T12)
+mcp-servers metadata litellm first, auggie-mcp replaced by auggie: holds
+no hard-coded repo owner, name or branch: holds
+old names not re-introduced: holds (mcp__auggie-mcp__ remains only in hooks.json, auggie-flag-clear.sh and pre-existing/updated eval matcher comments that describe the hook matcher)
+
+Notes read
+T1 no notes file; T2 no notes file (probe-1-1.md read); T3 none; T4 1 entry, all n; T5 3 entries, all n; T6 4 entries, all n; T7 1 entry, all n (F1.1: line 195 deliberately left unedited for T7.AC1); T8 none; T9 none; T10 1 entry, all n; T11 none; T12 2 entries, all n; T13 3 entries, all n; T14 reopen-1/notes.md 3 entries, all n (probe-1-1.md read); T15 3 entries, all n (probe-1-1.md read); T16 none. No confirmed yes.
+
+Saved prompts
+T1 prompt-1-1 matches template
+T2 prompt-1-1, prompt-1-2 match
+T3 prompt-1-1 matches
+T4 prompt-1-1 matches
+T5 prompt-1-1 matches
+T6 prompt-1-1 matches
+T7 prompt-1-1, prompt-1-2 match
+T8 prompt-1-1 matches
+T9 prompt-1-1 matches
+T10 prompt-1-1 matches
+T11 prompt-1-1 matches
+T12 prompt-1-1 matches
+T13 prompt-1-1 matches
+T14 prompt-1-1 and prompt-1-2: line 23 merges two template lines ("Diff against the start snapshot: Delta diff from the previous reviewed tree (empty on the first review): ") because the empty {diff} slot lost the template newline; this is a removed line break between two non-blank template lines, not a blank-line or trailing-whitespace difference -> issues (B-3)
+T14 reopen-1/prompt-1-1: line 111 is an added non-blank line after the template's closing lines ("Reopen note (orchestrator): ...") -> issues (B-1)
+T15 prompt-1-1, prompt-1-2 match
+T16 prompt-1-1 matches
+No superseded-prompts/ folder; no retry step=revert records.
+
+Blocking findings
+B-1 .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/retries/T14/reopen-1/prompt-1-1.md:111 - the orchestrator added a non-blank "Reopen note (orchestrator)" line after the closed reviewer template, adding review criteria (check repo dependents of .mcp.json, delete only if nothing reads it, scope of the untracked T15 test). qa.md "## FINAL derived test" (added non-blank line is issues, managed) and the closed-template rule ("may not add ... any criterion"). This prompt is the basis of T14's latest complete line (progress.md:37); the T14 end state itself is correct (see T14.AC1)
+B-2 src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:195 - T15 rewrote this line (mcp__auggie__codebase-retrieval -> AUG short form), so git diff now shows a removed line containing `fallback_1` and `skipped`; T7.AC1 says "git diff shows no removed line containing them". A later change contradicts an earlier AC (qa.md Managed FINAL). The tier wording itself is unchanged, only the tool name inside it changed, and T15's guard required the edit, so the plan's T7.AC1 and T15 instruction conflict; needs an owner ruling or AC acceptance
+B-3 .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/retries/T14/prompt-1-1.md:23 and prompt-1-2.md:23 - template lines "Diff against the start snapshot: {diff}" and "Delta diff from the previous reviewed tree ...: {delta_diff}" merged into one line (changed non-blank line under qa.md "## FINAL derived test"). These prompts belong to the pre-reopen T14 chain but are not in superseded-prompts/, so FINAL compares them. If the owner treats a lost line break as whitespace-only, this drops to a note; B-1 and B-2 still make the result issues
+
+Minor findings (non-blocking)
+M-1 The FINAL-time files under artifacts/ (final-1-delivery-files.txt, final-1-prompt.md, final-1.out, review-diffs/final-1-product.diff) are untracked; the .dev/tasks staging rule needs them staged before archive
+M-2 .mcp.json is an unstaged delete (" D"), not staged; consistent with "staging only .dev/tasks" in this run, but it must be staged with the product change at commit time
+M-3 Generic `.mcp.json` mentions remain (src/superclaude/cli/init_lite.py, commands/init-lite.md, docs/user-guide/mcp-installation.md:113, tests/cli/test_init_lite.py, tests/cli/test_install_retired_mcp.py); all refer to a target project's .mcp.json or tmp fixtures, none to this repository's root file; Makefile, pyproject.toml, .pre-commit-config.yaml, .claude/settings.json, .github, hooks and plugins have no reference
+M-4 T15 notes record a block-list coverage gap in the guard (all n); noted
+
+Self-audit
+Checked: HEAD and index (git status, git diff --cached); product diff for secrets, src/superclaude/ paths, owner/repo/branch literals, tavily_research; every AC by current file content or log outcome line; all t*-pytest logs, t14-pytest.log, t15-guard.log, t16-*.log and t16-rerun-*.log outcome lines; .mcp.json absence and repo-wide dependents; re-ran tests/cli/test_mcp_project_config.py and tests/skills/test_mcp_proxy_names.py (5 passed, -p no:cacheprovider); all notes, probes, reviews and saved prompts under retries/T1..T16 including T14/reopen-1, compared prompts with the qa.md template by script. Result is issues because of B-1, B-2 and B-3.

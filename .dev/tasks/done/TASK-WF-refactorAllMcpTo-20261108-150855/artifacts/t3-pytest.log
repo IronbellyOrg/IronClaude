@@ -1,0 +1,36 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/mcp-litellm-migration/.venv/bin/python
+SuperClaude: 5.0.0
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/worktrees/IronClaude/mcp-litellm-migration
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collecting ... collected 25 items
+
+tests/agents/test_codegraph_rosters.py::test_roster_has_exact_codegraph_names[auggie-reviewer] PASSED [  4%]
+tests/agents/test_codegraph_rosters.py::test_roster_has_exact_codegraph_names[reflect-reviewer] PASSED [  8%]
+tests/agents/test_codegraph_rosters.py::test_roster_has_exact_codegraph_names[reuse-auditor] PASSED [ 12%]
+tests/agents/test_codegraph_rosters.py::test_roster_has_exact_codegraph_names[troubleshoot-analyst] PASSED [ 16%]
+tests/agents/test_codegraph_rosters.py::test_body_points_to_shared_guide[auggie-reviewer] PASSED [ 20%]
+tests/agents/test_codegraph_rosters.py::test_body_points_to_shared_guide[reflect-reviewer] PASSED [ 24%]
+tests/agents/test_codegraph_rosters.py::test_body_points_to_shared_guide[reuse-auditor] PASSED [ 28%]
+tests/agents/test_codegraph_rosters.py::test_body_points_to_shared_guide[troubleshoot-analyst] PASSED [ 32%]
+tests/agents/test_codegraph_rosters.py::test_reuse_auditor_keeps_grep_floor_below_codegraph PASSED [ 36%]
+tests/agents/test_codegraph_rosters.py::test_auggie_reviewer_bars_codegraph_cli PASSED [ 40%]
+tests/agents/test_tavily_tool_parity.py::test_prose_tavily_ids_are_declared PASSED [ 44%]
+tests/agents/test_tavily_tool_parity.py::test_documenting_files_have_exact_parity PASSED [ 48%]
+tests/agents/test_tavily_tool_parity.py::test_proxy_tavily_listed_before_direct_twin PASSED [ 52%]
+tests/agents/test_tavily_tool_parity.py::test_declared_tools_parses_list_and_inline_forms PASSED [ 56%]
+tests/agents/test_tavily_tool_parity.py::test_rf_no_map_crawl PASSED     [ 60%]
+tests/agents/test_tavily_tool_parity.py::test_rf_fallback_provenance_present PASSED [ 64%]
+tests/skills/test_tier2_tavily_consistency.py::test_tier2_tool_id_parity PASSED [ 68%]
+tests/skills/test_tier2_tavily_consistency.py::test_brainstorm_no_map_crawl PASSED [ 72%]
+tests/skills/test_tier2_tavily_consistency.py::test_rate_cap_intact PASSED [ 76%]
+tests/skills/test_tier2_tavily_consistency.py::test_fail_open_intact PASSED [ 80%]
+tests/skills/test_tier2_tavily_consistency.py::test_troubleshoot_search_depth_advanced PASSED [ 84%]
+tests/core/test_research_config.py::test_each_depth_profile_names_concrete_params_and_tools PASSED [ 88%]
+tests/core/test_research_config.py::test_advanced_only_with_gating_language PASSED [ 92%]
+tests/core/test_research_config.py::test_discovery_caps_and_crawl_truncation_present PASSED [ 96%]
+tests/core/test_research_config.py::test_map_and_crawl_tool_ids_present PASSED [100%]
+
+============================== 25 passed in 0.10s ==============================

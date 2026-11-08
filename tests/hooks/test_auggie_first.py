@@ -82,6 +82,40 @@ def test_gateway_alias_clears_sticky(tmp_path: Path) -> None:
     assert '"event":"sticky_cleared"' in telemetry
 
 
+def test_litellm_augment_proxy_clears_sticky(tmp_path: Path) -> None:
+    """The LiteLLM proxy name for Augment codebase search also clears the sticky."""
+    home = tmp_path / "home"
+    sid = "test-clear-litellm"
+    (home / ".claude" / "state" / "auggie-first-pending").mkdir(
+        parents=True, exist_ok=True
+    )
+    _sticky_path(home, sid).write_text("pending\n")
+    payload = {
+        "session_id": sid,
+        "tool_name": "mcp__litellm__augment_code-augment_code_search",
+    }
+    result = _run_hook(payload, fake_home=home)
+    assert result.returncode == 0, result.stderr.decode()
+    assert not _sticky_path(home, sid).exists()
+    telemetry = (home / ".claude" / "logs" / "auggie-first.jsonl").read_text()
+    assert '"tool":"mcp__litellm__augment_code-augment_code_search"' in telemetry
+
+
+def test_litellm_non_augment_tool_preserves_sticky(tmp_path: Path) -> None:
+    """Other LiteLLM proxy tools (Tavily) are not codebase search and keep the sticky."""
+    home = tmp_path / "home"
+    sid = "test-preserve-litellm-tavily"
+    (home / ".claude" / "state" / "auggie-first-pending").mkdir(
+        parents=True, exist_ok=True
+    )
+    sticky = _sticky_path(home, sid)
+    sticky.write_text("pending\n")
+    payload = {"session_id": sid, "tool_name": "mcp__litellm__Tavily-tavily_search"}
+    result = _run_hook(payload, fake_home=home)
+    assert result.returncode == 0, result.stderr.decode()
+    assert sticky.exists(), "sticky must survive non-Augment proxy tool calls"
+
+
 def test_unrelated_tool_preserves_sticky(tmp_path: Path) -> None:
     """A non-auggie tool name must not clear the sticky."""
     home = tmp_path / "home"

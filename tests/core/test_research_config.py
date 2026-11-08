@@ -81,3 +81,5 @@ def test_map_and_crawl_tool_ids_present():
     text = _read()
     assert "mcp__tavily__tavily_map" in text
     assert "mcp__tavily__tavily_crawl" in text
+    assert "mcp__litellm__Tavily-tavily_map" in text
+    assert "mcp__litellm__Tavily-tavily_crawl" in text

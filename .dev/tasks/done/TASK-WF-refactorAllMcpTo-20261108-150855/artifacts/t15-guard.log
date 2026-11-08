@@ -1,0 +1,74 @@
+## run 1: guard on the fixed tree
+$ uv run pytest tests/skills/test_mcp_proxy_names.py -v
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/mcp-litellm-migration/.venv/bin/python
+SuperClaude: 5.0.0
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/worktrees/IronClaude/mcp-litellm-migration
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collecting ... collected 4 items
+
+tests/skills/test_mcp_proxy_names.py::test_auggie_lines_also_name_the_proxy_tool PASSED [ 25%]
+tests/skills/test_mcp_proxy_names.py::test_tavily_allow_lists_also_name_the_proxy_tool PASSED [ 50%]
+tests/skills/test_mcp_proxy_names.py::test_auggie_mcp_prefix_only_in_hook_matchers PASSED [ 75%]
+tests/skills/test_mcp_proxy_names.py::test_guard_scans_the_expected_trees PASSED [100%]
+
+============================== 4 passed in 0.26s ===============================
+exit=0
+
+## run 2: AUG temporarily removed from src/superclaude/agents/eval-docs-loader.md (line 31)
+5:tools: Read, Grep, Glob, mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval
+31:call the codebase search; if that tool is not available, call `mcp__auggie__codebase-retrieval`.
+39:- **`mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)**:
+$ uv run pytest tests/skills/test_mcp_proxy_names.py -v
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/mcp-litellm-migration/.venv/bin/python
+SuperClaude: 5.0.0
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/worktrees/IronClaude/mcp-litellm-migration
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collecting ... collected 4 items
+
+tests/skills/test_mcp_proxy_names.py::test_auggie_lines_also_name_the_proxy_tool FAILED [ 25%]
+tests/skills/test_mcp_proxy_names.py::test_tavily_allow_lists_also_name_the_proxy_tool PASSED [ 50%]
+tests/skills/test_mcp_proxy_names.py::test_auggie_mcp_prefix_only_in_hook_matchers PASSED [ 75%]
+tests/skills/test_mcp_proxy_names.py::test_guard_scans_the_expected_trees PASSED [100%]
+
+=================================== FAILURES ===================================
+__________________ test_auggie_lines_also_name_the_proxy_tool __________________
+tests/skills/test_mcp_proxy_names.py:52: in test_auggie_lines_also_name_the_proxy_tool
+    assert not bad, "\n".join(bad)
+E   AssertionError: src/superclaude/agents/eval-docs-loader.md:31: names mcp__auggie__codebase-retrieval without mcp__litellm__augment_code-augment_code_search
+E   assert not ['src/superclaude/agents/eval-docs-loader.md:31: names mcp__auggie__codebase-retrieval without mcp__litellm__augment_code-augment_code_search']
+=========================== short test summary info ============================
+FAILED tests/skills/test_mcp_proxy_names.py::test_auggie_lines_also_name_the_proxy_tool - AssertionError: src/superclaude/agents/eval-docs-loader.md:31: names mcp__auggie__codebase-retrieval without mcp__litellm__augment_code-augment_code_search
+assert not ['src/superclaude/agents/eval-docs-loader.md:31: names mcp__auggie__codebase-retrieval without mcp__litellm__augment_code-augment_code_search']
+========================= 1 failed, 3 passed in 0.23s ==========================
+exit=1
+
+## restored src/superclaude/agents/eval-docs-loader.md; run 3
+============================== 4 passed in 0.20s ===============================
+
+## run 4: after ruff format of the test file
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/mcp-litellm-migration/.venv/bin/python
+SuperClaude: 5.0.0
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/worktrees/IronClaude/mcp-litellm-migration
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collecting ... collected 4 items
+
+tests/skills/test_mcp_proxy_names.py::test_auggie_lines_also_name_the_proxy_tool PASSED [ 25%]
+tests/skills/test_mcp_proxy_names.py::test_tavily_allow_lists_also_name_the_proxy_tool PASSED [ 50%]
+tests/skills/test_mcp_proxy_names.py::test_auggie_mcp_prefix_only_in_hook_matchers PASSED [ 75%]
+tests/skills/test_mcp_proxy_names.py::test_guard_scans_the_expected_trees PASSED [100%]
+
+============================== 4 passed in 0.21s ===============================
+exit=0
+--- run 5 (after F1.1 fix)
+
+============================== 4 passed in 0.82s ===============================
+exit=0

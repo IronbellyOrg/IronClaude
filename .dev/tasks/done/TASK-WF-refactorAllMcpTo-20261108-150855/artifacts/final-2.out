@@ -1,0 +1,112 @@
+FINAL review attempt 2. State at start: 6aead53f5721edcd9262b3a7a85521c0f8798ee9f43edb9cef183189f3981dba
+Result: pass
+
+Attempt 1 blocking findings
+B-1 resolved - the defective artifacts/retries/T14/reopen-1/prompt-1-1.md (extra line 111) was moved unchanged to artifacts/superseded-prompts/T14-reopen1-prompt-1-1.md (README.md:9 names it, old path, flagging line progress.md:38, replacement); superseded-prompts/ is a real directory whose 3 files match README.md:7-9; the live replacement artifacts/retries/T14/prompt-1-3.md is template-exact outside its slots; its review retries/T14/review-1-3.out:21 marks T14.AC1 met; ledger re-appended T14 complete at progress.md:40.
+B-2 resolved (by Ruling progress.md:39) - src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:195 differs from its 0423fe5f text only by the tool name (`mcp__auggie__codebase-retrieval` -> "`mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)"); substituting the old name back reproduces the 0423fe5f line byte-for-byte (cmp identical); fallback_1/skipped tier wording unchanged (5 fallback_1 mentions remain). This is exactly the scope the Ruling accepted.
+B-3 resolved - artifacts/retries/T14/prompt-1-1.md and prompt-1-2.md (merged template lines at line 23) moved unchanged to artifacts/superseded-prompts/T14-prompt-1-1.md and T14-prompt-1-2.md (README.md:7-8); no live T14 prompt other than the template-exact prompt-1-3.md remains under retries/T14/.
+
+Per-task AC
+T1.AC1 met src/superclaude/hooks/hooks.json:149 and plugins/superclaude/hooks/hooks.json:119 carry the identical matcher `mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*|mcp__litellm__augment_code-.*`; src and plugins hooks/scripts/auggie-flag-clear.sh are byte-identical (cmp), header line 3 and four-glob case line 23
+T1.AC2 met artifacts/t1-pytest.log:100 "90 passed"
+T2.AC1 met src/superclaude/cli/eval/coverage.py:100-105 (four entries, `"mcp__litellm__"` at :104, comment at :96 says four); `git diff 6e18703 -- src/superclaude/cli/eval/capabilities.py` empty
+T2.AC2 met artifacts/t2-pytest.log:1526 "1501 passed, 4 skipped"
+T3.AC1 met src/superclaude/agents/deep-research.md:6-19, deep-research-agent.md:6-25, rf-analyst.md:13-16, rf-assembler.md:13-16, rf-qa.md:13-16, rf-qa-qualitative.md:13-16, rf-task-builder.md:13-16, rf-task-executor.md:15-18, rf-task-researcher.md:13-16, rf-team-lead.md:13-16 - each proxy name immediately precedes its direct twin (Context7 and Playwright plugin names too in the two deep-research agents); `git diff 6e18703 -- src/superclaude/agents` has no removed `- mcp__`/WebSearch/WebFetch list entry
+T3.AC2 met artifacts/t3-pytest.log:36 "25 passed"
+T4.AC1 met line 5 of src/superclaude/agents/auggie-reviewer.md, eval-docs-loader.md, reflect-reviewer.md, reuse-auditor.md, troubleshoot-analyst.md lists AUG immediately before `mcp__auggie__codebase-retrieval`; the codegraph entries on each line equal the 0423fe5f line 5
+T4.AC2 met artifacts/t4-pytest.log:432 "421 passed"
+T5.AC1 met cmp identical: src/superclaude/skills/sc-recommend/SKILL.md vs plugins/superclaude/skills/sc-recommend/SKILL.md, and refs/plugin-ecosystem-sources.md pair
+T5.AC2 met artifacts/t5-pytest.log:393 "382 passed, 1 skipped"
+T6.AC1 met `grep -n 'mcp__auggie-mcp__' src/superclaude/skills/sc-validate-roadmap-protocol/SKILL.md` no match
+T6.AC2 met artifacts/t6-pytest.log:1160 "1149 passed"
+T7.AC1 met-with-ruling src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:195 (only the tool name changed; fallback_1/skipped wording unchanged; accepted scoped gap, Ruling progress.md:39); no other removed line contains fallback_1 or skipped
+T7.AC2 met artifacts/t7-pytest.log:103 "2329 passed, 2 skipped"
+T8.AC1 met mcp-servers lines: sc-issue-protocol/SKILL.md:10 [litellm, auggie, codegraph], sc-cli-portify-protocol/SKILL.md:7 [litellm, context7, auggie], sc-cleanup-audit-protocol/SKILL.md:6 [litellm, codegraph, context7], sc-adversarial-protocol/SKILL.md:12, sc-cli-eval-protocol/SKILL.md:11, sc-release-split-protocol/SKILL.md:13, sc-roadmap-protocol/SKILL.md:13, sc-tasklist-protocol/SKILL.md:7 [litellm, context7]; numstat 1/1 for each file vs 6e18703 (no other line changed)
+T8.AC2 met artifacts/t8-pytest.log:1904 "1893 passed"
+T9.AC1 met `grep -n codebase-retrieval` over the 17 listed files: 31 mentions, 0 without AUG on the same line; sc-crash-recovery/SKILL.md:146 reads "Codebase search unreachable (neither `mcp__litellm__augment_code-augment_code_search` nor `mcp__auggie__codebase-retrieval` answers)"
+T9.AC2 met artifacts/t9-pytest.log:1904 "1893 passed"
+T10.AC1 met `grep -rn 'mcp__auggie-mcp__' src/superclaude/commands plugins/superclaude/commands` no match
+T10.AC2 met artifacts/t10-pytest.log:222 "211 passed"
+T11.AC1 met all 23 src/superclaude/commands and 11 plugins/superclaude/commands mcp-servers lines start with `litellm` (e.g. src/superclaude/commands/issue.md:7 [litellm, auggie, codegraph]; research.md/pm.md/task.md keep playwright and morphllm); build.md and test.md (src and plugins) have no diff vs 6e18703
+T11.AC2 met artifacts/t11-pytest.log:217 "206 passed"
+T12.AC1 met cmp src/superclaude/core/RULES.md plugins/superclaude/core/RULES.md identical; AUG short form at src/superclaude/core/RULES.md:61
+T12.AC2 met artifacts/t12-pytest.log:224 "213 passed"
+T13.AC1 met `git diff 6e18703 -- src/superclaude/cli/reflect/config.py` changes only comment/docstring lines (hunks near :162-163 and :200-201)
+T13.AC2 met artifacts/t13-pytest.log:97 "86 passed, 1 skipped"
+T14.AC1 met (approved removal branch) .mcp.json absent on disk (git status " D .mcp.json"); tests/cli/test_mcp_project_config.py:14-25 asserts no `auggie-mcp` key (:20) and no stdio entry with command `auggie` (:21-25), early return if absent (:16-17); artifacts/t14-pytest.log:4-7 PASSED exit=0, negative check :9-12 FAIL exit=1; reviewer spot run passes
+T15.AC1 met tests/skills/test_mcp_proxy_names.py:41,:55,:68,:80 (roots :12-18); artifacts/t15-guard.log run 1 4 passed, run 2 (AUG removed) exit=1 at :49, restore 4 passed at :69-70 and :73-74; reviewer spot run passes
+T16.AC1 met artifacts/t16-lint.log:160-161 "All checks passed!" exit=0, artifacts/t16-verify-sync.log:221-222 "All components in sync." exit=0; post-reopen reruns artifacts/t16-rerun-lint.log:160-161, artifacts/t16-rerun-verify-sync.log:221-222, artifacts/t16-rerun-sync-dev.log:8 exit=0
+T16.AC2 met artifacts/t16-tests.log:5 "9334 passed, 17 skipped, 1 xpassed", :10 make test "24574 passed, 149 skipped, 2 xpassed", FAILED/ERROR 0; final numbers artifacts/t16-rerun-make-test.log:24830-24831 "24574 passed, 149 skipped, 2 xpassed", make test exit=0
+T16.AC3 met `git status --short .claude` empty; `git diff --cached --name-only -- .claude` empty
+
+Constraints
+C1 naming rule (plan :19) holds - proxy names spelled exactly (capital T for Tavily) in every checked site; tests/skills/test_mcp_proxy_names.py passes
+C2/C3 AUG full and short phrases (plan :20-21) hold - src/superclaude/skills/sc-pr-submit-protocol/refs/finding-verify.md:34 (branch = PR head branch, pushed commits only, per Task 7) and src/superclaude/skills/sc-auggie-review-protocol/SKILL.md:226 carry the full phrase; src/superclaude/core/RULES.md:61 the short form
+C4 Tavily/Context7 phrases (plan :22) hold - src/superclaude/agents/deep-research.md:33 uses "proxy (else direct)"
+C5 allow-lists (plan :23) hold - proxy before twin, no direct name removed in agents; no `tools:`/`allowed-tools:` line in the product diff adds `mcp__litellm__Tavily-tavily_research`
+C6 mcp-servers rule (plan :24) holds - every edited metadata line starts with litellm; no auggie-mcp remains in commands or the validate-roadmap skill
+C7 availability/degrade paths kept (plan :25) holds - sc-crash-recovery/SKILL.md:146 recovery action kept; brainstorm fallback tiers unchanged
+C8 no hard-coded owner/repo/branch and no new `src/superclaude/...` path in an installed primitive (plan :26) holds - no added diff line names IronbellyOrg/SuperClaude-Org; no added (non-header) diff line contains `src/superclaude/`
+C9 no `.claude/` edit or staging (plan :27) holds - `git diff --cached --name-only -- .claude` empty, `git status --short .claude` empty
+C10 line-number note (plan :28) is a procedure note; no end-state defect
+C11 UV only, no secret (plan :29) holds - logs use `uv run`; product diff has no LITELLM_API_KEY=, sk-, ghp_, Bearer or api_key literal
+C12 .dev/tasks staged, .dev/issues out of index, no push/PR, no commit (plan :30) holds - 0 staged .dev/issues paths; staged paths outside .dev/tasks: 0; HEAD is 0423fe5f1feabe5bf826a2a131c1e24a2dadf188
+
+Notes read
+T1 no notes.md; none
+T2 no notes.md; none
+T3 no notes.md; none
+T4 retries/T4/notes.md 1 entry, chk n,n,n,n; noted
+T5 retries/T5/notes.md 3 entries, all n,n,n,n; noted
+T6 retries/T6/notes.md 4 entries, all n,n,n,n; noted
+T7 retries/T7/notes.md 1 entry, n,n,n,n; noted
+T8 no notes.md; none
+T9 no notes.md; none
+T10 retries/T10/notes.md 1 entry, n,n,n,n; noted
+T11 no notes.md; none
+T12 retries/T12/notes.md 2 entries, n,n,n,n; noted
+T13 retries/T13/notes.md 3 entries, n,n,n,n; noted
+T14 retries/T14/reopen-1/notes.md 3 entries, n,n,n,n; review-1-3.out:24-25 F1.1 chk=n,y,n,n is inherited (text present at start d227979, no covers=), capped at note; noted
+T15 retries/T15/notes.md 3 entries, n,n,n,n (includes block-list coverage gap); noted
+T16 no notes.md; none
+No confirmed yes outside the inherited cap. No `retry ... step=revert` records in progress.md.
+
+Saved prompts
+T1 prompt-1-1.md compared with the qa.md reviewer template outside slots: exact; header sha matches the task start line
+T2 prompt-1-1.md, prompt-1-2.md: exact
+T3 prompt-1-1.md: exact
+T4 prompt-1-1.md: exact
+T5 prompt-1-1.md: exact
+T6 prompt-1-1.md: exact
+T7 prompt-1-1.md, prompt-1-2.md: exact (prompt-1-2 prior-findings slot is empty; slot content, not a template difference; see minor m-1)
+T8 prompt-1-1.md: exact
+T9 prompt-1-1.md: exact
+T10 prompt-1-1.md: exact
+T11 prompt-1-1.md: exact
+T12 prompt-1-1.md: exact
+T13 prompt-1-1.md: exact
+T14 prompt-1-3.md: exact (the only live T14 prompt); superseded-prompts/T14-prompt-1-1.md, T14-prompt-1-2.md, T14-reopen1-prompt-1-1.md are history per README.md
+T15 prompt-1-1.md, prompt-1-2.md: exact
+T16 prompt-1-1.md: exact
+19 live prompts, all template-exact; no symlinks; every q0-head reads 0423fe5f.
+
+Blocking findings
+none
+
+Minor findings (non-blocking)
+m-1 retries/T7/prompt-1-2.md prior-findings slot was empty although review-1-1 had F7.1 (n,y,y,n), F7.2 (n,y,n,n), F7.3 (n,n,n,y); review-1-2 therefore gives no resolved status lines. Verified independently at the end state: no "commit and push" in src/superclaude/skills/sc-pr-submit-protocol/refs/finding-verify.md; its NFR-6 note at :9-12 names `git remote get-url origin` as the only shell token; :34 holds the AUG phrase with branch = PR head branch and the pushed-commits-only note; src/superclaude/skills/sc-auggie-review-protocol/SKILL.md:226 holds the verbatim AUG phrase and "; for uncommitted" no longer appears. All three fixed; process gap only.
+m-2 .mcp.json is still an unstaged delete (" D"), carried over from attempt-1 M-2; stage it with the product change at commit time.
+m-3 artifacts/t14-skipped.md (stale skip artifact from the pre-approval attempt) is still in the package; inherited note (review-1-3.out:25); does not affect T14.AC1's approved branch.
+m-4 Remaining `.mcp.json` mentions (docs/user-guide/mcp-installation.md:113, docs/reference/mcp-server-guide.md:417, docs/testing/v5.0.0/..., tests/cli/test_init_lite.py:41, tests/cli/test_install_retired_mcp.py:312) concern project-scope `.mcp.json` files in general or temp project roots, not the repository-root file; nothing depends on the deleted root file.
+m-5 FINAL attempt-2 inputs (final-2-prompt.md, final-2-delivery-files.txt, review-diffs/final-2-product.diff, final-2.out) need staging under the .dev/tasks rule (attempt-1 M-1 analogue).
+m-6 T15 guard does not scan YAML block-list allow-lists (one tool per line); already in T15 notes, all n.
+
+Self-audit
+- Re-derived every AC from current files and logs, not from the ledger: hooks matchers and scripts (cmp), coverage tuple, capabilities.py diff, ten Tavily agents and five Auggie agents tools lists (no removed entries; codegraph unchanged vs 0423fe5f), cmp of sc-recommend and RULES.md pairs, auggie-mcp greps, 31 codebase-retrieval mentions all paired, 34 command metadata lines, config.py comment-only diff, T8 numstat 1/1.
+- T7.AC1: proved the brainstorm :195 change is tool-name-only by substituting the old name back and cmp against `git show 0423fe5f`; matches the Ruling at progress.md:39 exactly.
+- T14 reopen: .mcp.json absent, the test asserts absence of the auggie stdio entry, grep of Makefile/docs/hooks/installer/core/tests found no dependent on the root file; ran `uv run pytest -p no:cacheprovider tests/skills/test_mcp_proxy_names.py tests/cli/test_mcp_project_config.py` -> 5 passed.
+- Later-change contradiction: the T15 guard (passes now) enforces AUG pairing, Tavily twins and the auggie-mcp ban across all primitive trees, so no later task re-introduced a removed name; T15's brainstorm edit is the only cross-task overlap and it is ruled.
+- Logs: every cited log's outcome line shows success; t16-rerun-make-test.log:24830-24831 is the final suite (24574 passed, exit 0).
+- Constraints: HEAD 0423fe5f, nothing staged outside .dev/tasks, no .claude or .dev/issues staging, no secret, no src/superclaude path or owner/repo added, no tavily_research in allow-lists.
+- Attempt-1 B-1/B-3 resolved by the superseded-prompts move and template-exact prompt-1-3.md; B-2 resolved by Ruling.
+- Checklist answers for the minor findings m-1..m-6: ac-outcome-missing n, false-claim n, harmful-effect n, quoted-constraint-breach n. No blocking defect at the end state.

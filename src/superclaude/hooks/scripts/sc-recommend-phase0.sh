@@ -77,8 +77,9 @@ Local mode, before emitting any recommendation:
      src/superclaude/examples/*-template.md, under `git rev-parse --show-toplevel`
      (only inside an IronClaude checkout: src/superclaude/commands/ exists there)
 
-3. Unless matched, issue ONE mcp__auggie__codebase-retrieval query that ranks
-   the enumerated surface against the user's verbatim request. Do not iterate
+3. Unless matched, issue ONE mcp__litellm__augment_code-augment_code_search
+   (else mcp__auggie__codebase-retrieval) query, repo from `git remote get-url
+   origin`, default branch, that ranks the enumerated surface against the user's verbatim request. Do not iterate
    file-by-file.
 
 4. Before any candidate enters the recommendation (each selected step when

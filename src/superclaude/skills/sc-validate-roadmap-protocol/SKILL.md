@@ -1,7 +1,7 @@
 ---
 name: sc-validate-roadmap-protocol
 description: "Full behavioral protocol for sc:validate-roadmap — multi-agent roadmap-to-spec fidelity validation with adversarial review, coverage matrix, gap registry, and remediation planning. Use this skill whenever verifying roadmap completeness against specifications, auditing coverage before tasklist generation, or checking for requirement gaps between specs and roadmaps."
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node
 argument-hint: "<roadmap-path> --specs <spec1.md,...> [--output dir] [--depth quick|standard|deep] [--exclude domains] [--max-agents N]"
 ---
 
@@ -10,7 +10,7 @@ argument-hint: "<roadmap-path> --specs <spec1.md,...> [--output dir] [--depth qu
 <!-- Extended metadata (for documentation, not parsed):
 category: analysis
 complexity: advanced
-mcp-servers: [auggie, codegraph]
+mcp-servers: [litellm, auggie, codegraph]
 personas: [analyzer, architect, qa]
 version: 2.0.0
 -->
@@ -124,7 +124,7 @@ Every verb maps to exactly one Claude Code tool. Never use bare verbs without th
 | Run validation | `Bash` | File existence checks, line counts |
 | Find symbol | `codegraph_search` (`mcp__codegraph__codegraph_search`) | Step 0.5 definition lookup — orchestrator only, fail-open to `Grep` |
 | File outline | `codegraph_node {file, symbolsOnly:true}` (`mcp__codegraph__codegraph_node`) | Step 0.5 structural context — orchestrator only, fail-open to `Read` |
-| Query codebase (semantic) | `mcp__auggie-mcp__codebase-retrieval` | Codebase-grounded enrichment (Steps 0.2b, 5.1b) — orchestrator only, fail-open |
+| Query codebase (semantic) | `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) | Codebase-grounded enrichment (Steps 0.2b, 5.1b) — orchestrator only, fail-open |
 | Read session memory | `Read` | `.superclaude/memory/validate-roadmap/<key>.md` — load validation ledger, terminology, patterns (Pre-Phase 0) — fail-open |
 | Write session memory | `Write` | `.superclaude/memory/validate-roadmap/<key>.md` — persist ledger, terminology, patterns (Post-Phase 6); create `.superclaude/.gitignore` containing `*` first if absent — fail-open |
 
@@ -250,7 +250,7 @@ Write artifact: `{OUTPUT_DIR}/00-requirement-universe.md`
 
 #### Step 0.2b — Codebase-Grounded Requirement Enrichment (Optional)
 
-**Requires**: `mcp__auggie-mcp__codebase-retrieval` (fail-open — skip entirely if Auggie is unavailable).
+**Requires**: `mcp__litellm__augment_code-augment_code_search` or `mcp__auggie__codebase-retrieval` (fail-open — skip entirely if Auggie is unavailable).
 
 After building the requirement universe, scan it for code references that would benefit from codebase context. This step enriches requirements with advisory structural information — it never creates new requirements or changes coverage calculations.
 
@@ -259,7 +259,7 @@ After building the requirement universe, scan it for code references that would 
 1. **Identify code-referencing requirements**: Scan requirement text for backtick-wrapped identifiers (class names, function names, file paths), import paths, API endpoint paths, and technology-specific keywords (e.g., database table names, config keys).
 2. **Triage references by resolution method**:
    - **Simple references** (file paths, exact symbol names): Resolve with `Grep`/`Glob` first. Do NOT use Auggie for lookups that a pattern search can answer.
-   - **Semantic references** (architectural concepts, integration patterns, "the auth subsystem"): Query Auggie's `codebase-retrieval` with a focused natural-language query.
+   - **Semantic references** (architectural concepts, integration patterns, "the auth subsystem"): Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep. Use a focused natural-language query.
 3. **Query Auggie** for each semantic reference (hard cap: **15 queries maximum**):
    - Query format: `"What code implements {concept}? Include callers, related tests, and file paths."`
    - For each response, extract: relevant file paths, function/class names, test file references.
@@ -868,7 +868,7 @@ Phase R9: Re-validate (rerun this skill after all fixes applied)
 
 #### Step 5.1b — Codebase-Grounded Remediation Enrichment (Optional)
 
-**Requires**: `mcp__auggie-mcp__codebase-retrieval` (fail-open — skip entirely if Auggie is unavailable).
+**Requires**: `mcp__litellm__augment_code-augment_code_search` or `mcp__auggie__codebase-retrieval` (fail-open — skip entirely if Auggie is unavailable).
 
 Before generating the patch checklist, enrich CRITICAL and HIGH remediation entries with codebase context so that implementers know which files and packages are affected.
 

@@ -1,0 +1,15 @@
+Review: Task 2 (Count proxy tools in the eval coverage gate), first review of start fdeba1a744a7db65b9ac1ea1e65a8997d57f83b4
+
+Earlier blocking findings: none (first review).
+
+AC status:
+- T2.AC1 met @ src/superclaude/cli/eval/coverage.py:100-105 — `_DEFAULT_MCP_TOOL_PREFIXES` has four entries, `"mcp__litellm__"` at coverage.py:104; comment says "four" at coverage.py:96; module docstring coverage.py:8-11 and docstrings coverage.py:200 and coverage.py:254 updated. `git diff --quiet src/superclaude/cli/eval/capabilities.py` exits 0, both against the working tree index and against the start sha. `eval_covers_pattern` body is unchanged (docstring only).
+- T2.AC2 unmet @ .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t2-pytest.log:1539 — findings F1.1. The new test passes (t2-pytest.log:184, `test_litellm_augment_matcher_is_selected_and_covered PASSED`; defined at tests/cli/eval/test_coverage_gate.py:137), but the run summary is "2 failed, 1499 passed, 4 skipped" (t2-pytest.log tail). Both failures (t2-pytest.log:1539, :1542) are in tests/cli/eval/test_claude_process_adapter.py and fail with "No module named ruff" in the project .venv, so they look environmental and unrelated to this diff; the AC still says the suite passes.
+
+Scope checks (no finding):
+- real.yaml: at the start sha the whole flag-clear matcher string appears only once, real.yaml:72 (a comment); lines 80/87/94 hold no matcher-string assertion, so updating line 72 to the Task 1 matcher (src/superclaude/hooks/hooks.json:149) is the complete required change. Prompts, gates and expects at real.yaml:97-178 are unchanged; diffstat shows only 5 lines touched in real.yaml. The added note "its hook behaviour is pinned by tests/hooks/" is true (tests/hooks/test_auggie_flag_clear_mcp_prefix.py and tests/hooks/test_auggie_first.py contain `mcp__litellm__augment_code`).
+- installer_sync_drift.yaml:20-22 and :67-69 list the four globs, which match the case body at src/superclaude/hooks/scripts/auggie-flag-clear.sh:23.
+- No `.claude/` path, no hard-coded repo owner/name/branch, no `src/superclaude/...` path added to an installed primitive.
+
+Findings:
+F1.1 ac=T2.AC2 at=.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t2-pytest.log:1539 anchor="`uv run pytest tests/cli/eval -v` passes including the new test" chk=y,n,n,n family=test-run-not-green fix=Install the dev dependencies so ruff is importable in the project venv (for example `uv sync --extra dev` or `make install`), rerun `uv run pytest tests/cli/eval -v`, and save the green output to artifacts/t2-pytest.log; if the two ruff tests are a known pre-existing environment failure, record that with evidence instead of claiming the AC passes covers="`uv run pytest tests/cli/eval -v` passes including the new test": The saved log ends "2 failed, 1499 passed, 4 skipped"; test_ruff_flags_synthetic_anthropic_import_under_cli_eval and test_ruff_passes_on_real_adapter_module fail because ruff is missing from .venv. The new test itself passes (t2-pytest.log:184).

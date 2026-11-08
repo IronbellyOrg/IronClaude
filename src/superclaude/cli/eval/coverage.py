@@ -5,10 +5,10 @@ hook matcher pattern P registered in ``~/.claude/settings.json``, an
 eval MUST exist in the suite under test that issues a real tool call
 whose name matches P. The bug PR #49 fixed was exactly this class of
 silent regression — a matcher pattern broke and no eval noticed because
-no eval issued a matching tool call. The v1 surface covers the three
-known auggie-prefix matchers (``mcp__auggie__*``, ``mcp__auggie-mcp__*``,
-``mcp__airis-mcp-gateway__*``); future suites extend the coverage by
-declaring additional ``expect_tool_call`` inputs.
+no eval issued a matching tool call. The v1 surface covers the four
+known MCP-prefix matchers (``mcp__auggie__*``, ``mcp__auggie-mcp__*``,
+``mcp__airis-mcp-gateway__*``, ``mcp__litellm__*``); future suites extend
+the coverage by declaring additional ``expect_tool_call`` inputs.
 
 Public surface
 ==============
@@ -93,7 +93,7 @@ so the artifact can also be tar'd up without escaping.
 """
 
 
-# v1 covers these three MCP tool prefixes per design-spec §1.5. The
+# v1 covers these four MCP tool prefixes per design-spec §1.5. The
 # tuple is module-private because the default filter is exported as a
 # function — callers that need to extend coverage compose their own
 # predicate rather than mutating this list.
@@ -101,6 +101,7 @@ _DEFAULT_MCP_TOOL_PREFIXES: tuple[str, ...] = (
     "mcp__auggie__",
     "mcp__auggie-mcp__",
     "mcp__airis-mcp-gateway__",
+    "mcp__litellm__",
 )
 
 
@@ -196,7 +197,7 @@ def default_matcher_filter(pattern: str) -> bool:
     tool prefixes with built-in tool names — these are bookkeeping
     hooks that no eval needs to issue a tool call for. The v1 gate
     therefore restricts itself to matchers that mention one of the
-    three known auggie/airis MCP prefixes; T05.25 extends the
+    four known auggie/airis/litellm MCP prefixes; T05.25 extends the
     predicate as additional MCP tool families come online.
     """
     return any(prefix in pattern for prefix in _DEFAULT_MCP_TOOL_PREFIXES)
@@ -250,7 +251,8 @@ def eval_covers_pattern(spec: EvalSpec, pattern: str) -> bool:
     """Return ``True`` if ``spec`` issues any tool call matched by ``pattern``.
 
     ``pattern`` is compiled with :func:`re.search` so a matcher like
-    ``mcp__auggie__.*`` correctly anchors against the prefix. An
+    ``mcp__auggie__.*`` or ``mcp__litellm__augment_code-.*`` correctly
+    anchors against the prefix. An
     unparseable pattern returns ``False`` rather than raising so the
     gate can still report it as ``missing`` (with the regex error
     surfaced via the artifact payload).

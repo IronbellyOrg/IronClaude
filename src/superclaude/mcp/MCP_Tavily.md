@@ -37,12 +37,15 @@ Requires TAVILY_API_KEY environment variable from <https://app.tavily.com>
 
 The 0.2.x server exposes four tools:
 
-| Tool id | Operation | Notes |
-|---------|-----------|-------|
-| `mcp__tavily__tavily_search` | Web/news search with ranking + filtering | primary search |
-| `mcp__tavily__tavily_extract` | Full-text extraction from one or more URLs | page content |
-| `mcp__tavily__tavily_map` | Site-structure discovery (URL graph of a domain) | research engine only |
-| `mcp__tavily__tavily_crawl` | Deep domain traversal across linked pages | research engine only |
+| Proxy tool id (LiteLLM) | Direct tool id | Operation | Notes |
+|-------------------------|---------------|-----------|-------|
+| `mcp__litellm__Tavily-tavily_search` | `mcp__tavily__tavily_search` | Web/news search with ranking + filtering | primary search |
+| `mcp__litellm__Tavily-tavily_extract` | `mcp__tavily__tavily_extract` | Full-text extraction from one or more URLs | page content |
+| `mcp__litellm__Tavily-tavily_map` | `mcp__tavily__tavily_map` | Site-structure discovery (URL graph of a domain) | research engine only |
+| `mcp__litellm__Tavily-tavily_crawl` | `mcp__tavily__tavily_crawl` | Deep domain traversal across linked pages | research engine only |
+| `mcp__litellm__Tavily-tavily_research` | (none) | Multi-source research report | proxy-only; not in the pinned direct server |
+
+Prefer the proxy id when the session reaches MCP servers through the LiteLLM proxy; use the direct id on a direct install.
 
 ### Parameters
 

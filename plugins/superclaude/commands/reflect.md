@@ -3,7 +3,7 @@ name: reflect
 description: "Tiered reflection protocol — UC-1 pre-execution coverage/gap audit and UC-2 post-execution deviation audit with heterogeneous reviewer ensemble, blind calibration, and mandatory evidence-validator gate"
 category: analysis
 complexity: advanced
-mcp-servers: [auggie, codegraph, context7, tavily]
+mcp-servers: [litellm, auggie, codegraph, context7, tavily]
 personas: [analyzer, qa, refactorer]
 version: 2.0.0
 supersedes: .dev/eval-workspaces/sc-reflect/skill-snapshot/reflect-v1.md
@@ -143,7 +143,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 ## MCP Integration
 
-- **Auggie** (primary, free retrieval): Wave 0-2 codebase grounding via `mcp__auggie__codebase-retrieval`. Offloads heavy retrieval to the free tier, keeping Claude tokens tight.
+- **Auggie** (primary, free retrieval): Wave 0-2 codebase grounding via `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`). Offloads heavy retrieval to the free tier, keeping Claude tokens tight.
 - **codegraph**: Wave 0-6 symbol, caller and impact lookup above the native Grep/Read floor (guide `~/.claude/CODEGRAPH.md`); UC-2 Step 1B.3 calls `/sc:impact` and logs production and test caller counts only.
 - **Context7**: Tier 2 only; consulted when the spec/diff references a framework or library by name.
 - **Tavily**: Tier 2 only; rate-limited; used for external-symptom lookups when documentation grounding can't resolve a deviation.
@@ -151,13 +151,13 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 ## Tool Coordination
 
-- **`mcp__auggie__codebase-retrieval`**: in-repo grounding (all waves)
+- **`mcp__litellm__augment_code-augment_code_search`** (else `mcp__auggie__codebase-retrieval`): in-repo grounding (all waves)
 - **`mcp__codegraph__codegraph_status` / `_search` / `_node` / `_callers` / `_callees` / `_impact`**: one readiness check, then definitions, outlines, callers and impact above the floor (§6 Code-graph evidence chain); `Skill sc:impact-protocol` for the Step 1B.3 counts
 - **`Grep` then `Read`**: symbol navigation floor — Grep for the definition (`def <name>|class <name>|function <name>`) then Read the range (§6.1 steps 2a/3, FR-2); Grep with a word-boundary pattern for references, then Read the call sites (step 4); best-effort Grep for `class .*\(<Base>\)` / `implements <Iface>` for the polymorphic implementor surface (step 3b, FR-1)
 - **`Bash` (verification run)**: UC-2 §6.1 step 5 / 5.5 — the project's own linter or type-checker plus scoped non-mutating tests/build, run under the §6.1.1 safety envelope (timeout, output cap, verb allowlist, mutation denylist) and feeding §10.4 Regression detection; `--no-verify` disables
 - **Read / Write / Edit on `docs/memory/reflect/deviation-patterns-<slug>.md`**: cross-session learning capture (§6.3 — 20-entry, 90-day retention); a tracked project file, no MCP server needed
-- **`mcp__context7__resolve-library-id` / `query-docs`**: external library grounding (Tier 2)
-- **`mcp__tavily__tavily_search`**: targeted web search (Tier 2, rate-limited)
+- **`mcp__litellm__context7-resolve-library-id` / `query-docs`** (else `mcp__context7__resolve-library-id` / `query-docs`): external library grounding (Tier 2)
+- **`mcp__litellm__Tavily-tavily_search`** (else `mcp__tavily__tavily_search`): targeted web search (Tier 2, rate-limited)
 - **`Task`**: spawn `root-cause-analyst`, `self-review`, `requirements-analyst`, `confidence-calibrator`, `rf-qa`, `rf-qa-qualitative`, `audit-validator`, `evidence-validator`, `socratic-mentor`
 - **`Skill`**: invoke `sc:adversarial-protocol` (Wave 4 merge debate), `task-builder` (Wave 6 remediation), `confidence-check` / `tech-research` (auxiliary)
 - **`Read` / `Grep` / `Glob`**: native fallback when MCPs are unavailable; file:line re-Read for evidence-validator

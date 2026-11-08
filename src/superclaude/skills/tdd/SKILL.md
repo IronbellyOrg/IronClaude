@@ -194,7 +194,7 @@ Example: "Create a TDD for the wizard"
 
 ### A.3: Perform Scope Discovery
 
-Use Glob, Grep, and codebase-retrieval to map the component's architecture. This must happen BEFORE building the task file so the builder can enumerate specific investigation assignments.
+Use Glob, Grep, and `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) to map the component's architecture. This must happen BEFORE building the task file so the builder can enumerate specific investigation assignments.
 
 **Adjust depth by scenario:**
 
@@ -212,7 +212,7 @@ Use Glob, Grep, and codebase-retrieval to map the component's architecture. This
    - External integration points (imports from outside the component)
    - **If PRD_REF is provided**, read the PRD and extract: relevant epics, user stories, acceptance criteria, technical requirements, technology stack, success metrics/KPIs, scope definition (in/out/deferred), performance/security/scalability requirements.
 
-2a. **Reuse-neighbour search (orchestrator-level — NOT a nested research subagent)** — for each proposed new component / helper / pipeline-step, delegate to the `reuse-auditor` agent: `Task(reuse-auditor, candidates=<proposed components>, stage=pre, repo_root, output_path=${TASK_DIR}research/reuse-audit.yaml)`. Run this **here, at orchestrator level during scope discovery** — explicitly NOT inside a spawned Phase-2 research subagent (avoids subagent→agent nesting; see `mem:reference_subagent_cannot_nest_skill_fanout`). The agent returns, per proposed component, a name-agnostic capability fingerprint, grounded neighbours (`file:line`), composite scores, similarity tier, and a verdict (`reuse-by-import | mirror-shape | extract-shared | distinct`). Record the findings for A.4 `## REUSE_AUDIT`. Pre-stage is **always advisory** (no code has shipped). Fallback: agent unavailable → inline capability-keyed `codebase-retrieval` + grep-skeleton sweep, findings advisory-only; never STOP.
+2a. **Reuse-neighbour search (orchestrator-level — NOT a nested research subagent)** — for each proposed new component / helper / pipeline-step, delegate to the `reuse-auditor` agent: `Task(reuse-auditor, candidates=<proposed components>, stage=pre, repo_root, output_path=${TASK_DIR}research/reuse-audit.yaml)`. Run this **here, at orchestrator level during scope discovery** — explicitly NOT inside a spawned Phase-2 research subagent (avoids subagent→agent nesting; see `mem:reference_subagent_cannot_nest_skill_fanout`). The agent returns, per proposed component, a name-agnostic capability fingerprint, grounded neighbours (`file:line`), composite scores, similarity tier, and a verdict (`reuse-by-import | mirror-shape | extract-shared | distinct`). Record the findings for A.4 `## REUSE_AUDIT`. Pre-stage is **always advisory** (no code has shipped). Fallback: agent unavailable → inline capability-keyed `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) + grep-skeleton sweep, findings advisory-only; never STOP.
 
 3. **Plan research assignments** — divide the component into specific investigation topics, each becoming a subagent assignment. Common topics for TDDs:
    - Architecture and system design patterns

@@ -158,7 +158,7 @@ The PRD pipeline generates a comprehensive product requirements document through
 Stage A: Scope Discovery (orchestrator)
   A.1: Check for existing task file
   A.2: Parse & triage PRD request
-  A.3: Perform scope discovery (Glob, Grep, codebase-retrieval)
+  A.3: Perform scope discovery (Glob, Grep, `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`))
   A.4: Write research notes file
   A.5: Review research sufficiency (MANDATORY GATE)
   A.6: Template triage (01 or 02)
@@ -431,7 +431,7 @@ These rules come from the PRD template and apply to every generated PRD.
 
 1. **Check for existing task file** — looks in `.dev/tasks/to-do/` for `TASK-PRD-*/` matching this product. If found with unchecked items, resumes from there.
 2. **Parse & triage** — classifies request into Scenario A (explicit, all inputs provided) or Scenario B (vague, broad discovery needed).
-3. **Scope discovery** — uses Glob, Grep, and codebase-retrieval to map files, subsystems, integration points, and existing documentation.
+3. **Scope discovery** — uses Glob, Grep, and `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) to map files, subsystems, integration points, and existing documentation.
 4. **Write research notes** — structured file with 7 categories: EXISTING_FILES, PATTERNS_AND_CONVENTIONS, FEATURE_ANALYSIS, RECOMMENDED_OUTPUTS, SUGGESTED_PHASES, TEMPLATE_NOTES, AMBIGUITIES_FOR_USER.
 5. **Sufficiency gate** — mandatory review of research notes quality (8-point checklist). Max 2 gap-fill rounds.
 6. **Template triage** — almost always Template 02 (Complex Task) for PRD creation.

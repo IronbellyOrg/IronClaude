@@ -1,0 +1,12 @@
+Review: Task 11 (Update `mcp-servers:` metadata in commands), attempt 1-1
+Start sha: c846d2c9b197bb50dc940c586012759861200fb5
+
+Earlier blocking findings: none (first review).
+
+Acceptance criteria:
+- T11.AC1 met @ src/superclaude/commands/issue.md:7 (`[litellm, auggie, codegraph]`). Live grep of `^mcp-servers:` confirms all 23 listed src files and all 11 listed plugin copies name `litellm` first: validate-roadmap.md:7, brainstorm.md:6 (`auggie-mcp` replaced by `auggie`), recommend.md:6, reflect.md:6, troubleshoot.md:6, issue.md:7, pr-submit.md:6, tdd.md:7 (`[litellm, context7, auggie]`, `auggie-mcp` replaced), review-translation.md:6, cleanup-audit.md:7, explain.md:6, adversarial.md:7, cleanup.md:6, cli-eval.md:6, cli-portify.md:7, improve.md:6, index.md:6, release-split.md:7, spec-panel.md:6, tasklist.md:7, research.md:6, pm.md:6, task.md:7; plugins/superclaude/commands/{brainstorm,recommend,reflect,explain,cleanup,improve,index,spec-panel,research,pm,task}.md. `playwright` and `morphllm` kept in research.md:6, pm.md:6, task.md:7 (src and plugin). Other words kept in order. build.md and test.md unchanged: src/superclaude/commands/build.md:6 and src/superclaude/commands/test.md:6 still `[playwright]`; `git diff --stat <start> -- build.md test.md` (src and plugin) is empty. Test updated at tests/commands/test_issue_command.py:73.
+- T11.AC2 met @ .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t11-pytest.log:217 (`206 passed in 1.70s`; test_frontmatter_fields PASSED at line 173). Independent re-run of `uv run pytest tests/commands -q -p no:cacheprovider` on the live tree: 206 passed.
+
+Scope checks: no `.claude/` path in the diff; no repository owner/name/branch hard-coded; no `src/superclaude/...` path added to a primitive; no secret written. Unlisted commands with an empty list or only `codegraph`/`playwright` correctly left alone. No `auggie-mcp` remains in any `mcp-servers:` line under src or plugin commands.
+
+Findings: none.

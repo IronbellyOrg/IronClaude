@@ -9,7 +9,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
 <!-- Extended metadata (for documentation, not parsed):
 category: analysis
 complexity: advanced
-mcp-servers: [context7]
+mcp-servers: [litellm, context7]
 personas: [architect, analyzer, scribe]
 -->
 

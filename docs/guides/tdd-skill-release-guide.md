@@ -157,7 +157,7 @@ The TDD pipeline generates a comprehensive technical design document through par
 Stage A: Scope Discovery (orchestrator)
   A.1: Check for existing task file
   A.2: Parse & triage TDD request (Scenario A vs B)
-  A.3: Perform scope discovery (Glob, Grep, codebase-retrieval)
+  A.3: Perform scope discovery (Glob, Grep, `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`))
   A.4: Write research notes file (8 categories)
   A.5: Review research sufficiency (MANDATORY GATE)
   A.6: Template triage (01 or 02)
@@ -438,7 +438,7 @@ These rules come from the TDD template and apply to every generated TDD.
 
 1. **Check for existing task file** — looks in `.dev/tasks/to-do/` for `TASK-TDD-*/` matching this component. If found with unchecked items, resumes from there. Also checks for `research-notes.md` with partial progress.
 2. **Parse & triage** — classifies request into Scenario A (explicit, most inputs provided) or Scenario B (vague, broad discovery needed). Does NOT interrogate the user — proceeds with what it has.
-3. **Scope discovery** — uses Glob, Grep, and codebase-retrieval to map files, subsystems, integration points, and existing documentation. Optionally spawns `rf-task-researcher` for complex Scenario B discoveries.
+3. **Scope discovery** — uses Glob, Grep, and `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) to map files, subsystems, integration points, and existing documentation. Optionally spawns `rf-task-researcher` for complex Scenario B discoveries.
 4. **Write research notes** — structured file with 8 categories: EXISTING_FILES, PATTERNS_AND_CONVENTIONS, PRD_CONTEXT, SOLUTION_RESEARCH, RECOMMENDED_OUTPUTS, SUGGESTED_PHASES, TEMPLATE_NOTES, AMBIGUITIES_FOR_USER.
 5. **Sufficiency gate** — mandatory review of research notes quality (8-point checklist including doc staleness verification). Max 2 gap-fill rounds.
 6. **Template triage** — almost always Template 02 (Complex Task) for TDD creation.

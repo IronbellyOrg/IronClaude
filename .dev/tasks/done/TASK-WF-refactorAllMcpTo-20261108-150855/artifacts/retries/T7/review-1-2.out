@@ -1,0 +1,20 @@
+Review T7 attempt 1-2 (spec compliance, adversarial, read-only)
+
+Earlier blocking findings: none supplied (prior-findings slot empty); no status lines to emit.
+
+AC status
+- T7.AC1 met: `git diff f89cc182 -- src/superclaude/skills/sc-brainstorm-protocol | grep -E '^-.*(fallback_1|skipped)'` returns no line (exit 1). The `fallback_1`/`skipped` text is intact at T7.AC1@src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:195, T7.AC1@src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md:26, :32, :36. The implementer avoided editing line 195 (which holds both words) and added the naming clarification as a new line at SKILL.md:196.
+- T7.AC2 met: T7.AC2@.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t7-pytest.log:103 shows "2329 passed, 2 skipped, 22390 deselected". The reviewer reran `uv run pytest tests -k "brainstorm or auggie_review or pr_submit" -q -p no:cacheprovider` independently and got the same result (2329 passed, 2 skipped).
+
+Brief items checked against live source
+- Brainstorm Tier 1 names AUG then the direct tool: src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md:16 (full AUG phrase at :18); SKILL.md:187 uses the short form; SKILL.md:196 names both tools.
+- `quality_tier: primary` earned by either tool: handoff-routing.md:23 and SKILL.md:196.
+- `mcp-servers:` rule: src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:15 `[litellm, auggie, codegraph, tavily]` (auggie-mcp replaced with auggie, litellm first); src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:10 `[litellm, auggie]`.
+- auggie-review: the MCP mention at src/superclaude/skills/sc-auggie-review-protocol/SKILL.md:225-226 now carries the full AUG phrase verbatim. Line 20 refers to the Auggie CLI and the generic phrase "codebase-retrieval workloads", not the MCP tool, so it stays unchanged, as the brief requires for the CLI path. The `mcp-servers:` line at :10 is unchanged (`[auggie, codegraph]`), as required.
+- pr-submit finding-verify: src/superclaude/skills/sc-pr-submit-protocol/refs/finding-verify.md:32-36 has the AUG phrase with `branch` = the PR head branch and "it sees pushed commits only". The core-purity note at :9-12 was updated to name the read-only `git remote get-url origin` token. That change is accurate (the file now contains that token, and there is still no version-control mutation) and keeps the boundary statement true.
+- Constraints: there are no hand-maintained plugins/superclaude copies of these three skills (`ls plugins/superclaude/skills` shows none). There are no staged `.claude/` paths, no hard-coded owner, repo or branch, and no new `src/superclaude/...` path. Nothing was added to an allow-list and no `tavily_research` was introduced.
+
+Findings
+F7.1 ac=scope at=src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:195 anchor=src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:195 chk=n,n,n,n family=naming-rule fix=none required; a later pass may fold "the `mcp__auggie__codebase-retrieval` alternative" into a both-names form only if the AC1 no-removed-line rule is relaxed: Line 195 still names only the direct tool as "the alternative ... unchanged". It is left as is because editing it would remove a line containing `fallback_1`/`skipped` and break T7.AC1. The new line :196 states that the alternative is AUG (else direct), so the text as a whole follows the naming rule. Non-blocking.
+
+No blocking findings.

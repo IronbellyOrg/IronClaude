@@ -28,6 +28,10 @@
 - **ask_question** — Q&A over the repository using Auggie's context engine
 - **implement** — Apply a change in the repo (optional commit)
 
+### Through the LiteLLM proxy
+
+When the session reaches MCP servers through the central LiteLLM proxy, codebase search is the tool `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval` on a direct install). Pass `repo_owner` and `repo_name` from `git remote get-url origin` and `branch` = the repository's default branch. It searches pushed code only; for uncommitted or unpushed changes use codegraph or Grep.
+
 ## Examples
 
 ```

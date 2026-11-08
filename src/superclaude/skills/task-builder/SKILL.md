@@ -336,7 +336,7 @@ Independent means ALL of these are true:
 
 ### A.3: Perform Scope Discovery
 
-Use Glob, Grep, and codebase-retrieval to map the problem space. This must happen BEFORE spawning researchers so each researcher gets a focused assignment from the scope map.
+Use Glob, Grep, and `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) to map the problem space. This must happen BEFORE spawning researchers so each researcher gets a focused assignment from the scope map.
 
 **Adjust depth by scenario:**
 
@@ -1205,7 +1205,7 @@ Agent:
     overrides your agent definition's Critical Rule 6 ("ALWAYS broadcast
     TASK_READY") and Step 6 (TaskCreate + broadcast). Instead, return the
     task file path as your final output.
-    - **Codebase questions** → use WebSearch or codebase-retrieval
+    - **Codebase questions** → use WebSearch or `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)
     - **External docs/syntax** → use WebSearch
     - **If blocked** → create the best task file you can and note gaps
       in the Task Log section. The skill will review and iterate.

@@ -1,0 +1,104 @@
+diff --git a/src/superclaude/skills/sc-adversarial-protocol/SKILL.md b/src/superclaude/skills/sc-adversarial-protocol/SKILL.md
+index 59112b78..2b2872b8 100644
+--- a/src/superclaude/skills/sc-adversarial-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-adversarial-protocol/SKILL.md
+@@ -9,7 +9,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
+ <!-- Extended metadata (for documentation, not parsed):
+ category: analysis
+ complexity: advanced
+-mcp-servers: [context7]
++mcp-servers: [litellm, context7]
+ personas: [architect, analyzer, scribe]
+ -->
+ 
+diff --git a/src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md b/src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md
+index 13f408f2..ed2cdcf3 100644
+--- a/src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md
+@@ -3,7 +3,7 @@ name: sc:cleanup-audit-protocol
+ description: "Multi-pass read-only repository audit producing evidence-backed cleanup recommendations"
+ category: utility
+ complexity: high
+-mcp-servers: [codegraph, context7]
++mcp-servers: [litellm, codegraph, context7]
+ personas: [analyzer, architect, devops, qa, refactorer]
+ allowed-tools: Read, Grep, Glob, Bash(git *), Bash(wc *), Bash(find *), Bash(du *), TodoWrite, Task, Write, mcp__codegraph__codegraph_status, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_files
+ argument-hint: "[target-path] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]"
+diff --git a/src/superclaude/skills/sc-cli-eval-protocol/SKILL.md b/src/superclaude/skills/sc-cli-eval-protocol/SKILL.md
+index 9f815bc8..75d1799a 100644
+--- a/src/superclaude/skills/sc-cli-eval-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-cli-eval-protocol/SKILL.md
+@@ -8,7 +8,7 @@ argument-hint: "create|run [--name <stem>] [--from @<spec>] [--suite <name>] [--
+ <!-- Extended metadata (for documentation, not parsed):
+ category: testing
+ complexity: advanced
+-mcp-servers: [context7]
++mcp-servers: [litellm, context7]
+ personas: [architect, analyzer, qa, scribe]
+ version: 1.0.0
+ -->
+diff --git a/src/superclaude/skills/sc-cli-portify-protocol/SKILL.md b/src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
+index 0adfee9d..6d2925df 100644
+--- a/src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-cli-portify-protocol/SKILL.md
+@@ -4,7 +4,7 @@ description: "Full behavioral protocol for sc:cli-portify — port inference-bas
+ category: development
+ complexity: high
+ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
+-mcp-servers: [context7, auggie-mcp]
++mcp-servers: [litellm, context7, auggie]
+ personas: [architect, analyzer, backend]
+ argument-hint: "--workflow <skill-name-or-path> [--name <cli-name>] [--output <dir>] [--dry-run]"
+ ---
+diff --git a/src/superclaude/skills/sc-issue-protocol/SKILL.md b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+index eae97bb2..104ee159 100644
+--- a/src/superclaude/skills/sc-issue-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-issue-protocol/SKILL.md
+@@ -7,7 +7,7 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, Skill, AskUserQuestion
+ <!-- Extended metadata (for documentation, not parsed):
+ category: workflow
+ complexity: advanced
+-mcp-servers: [auggie, codegraph]
++mcp-servers: [litellm, auggie, codegraph]
+ -->
+ 
+ # /sc:issue protocol
+diff --git a/src/superclaude/skills/sc-release-split-protocol/SKILL.md b/src/superclaude/skills/sc-release-split-protocol/SKILL.md
+index 5d76c6fe..fb1d13d1 100644
+--- a/src/superclaude/skills/sc-release-split-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-release-split-protocol/SKILL.md
+@@ -10,7 +10,7 @@ argument-hint: "<spec-file-path> [--output dir] [--depth quick|standard|deep] [-
+ <!-- Extended metadata (for documentation, not parsed):
+ category: planning
+ complexity: advanced
+-mcp-servers: [context7]
++mcp-servers: [litellm, context7]
+ personas: [architect, analyzer, scribe]
+ version: 1.0.0
+ -->
+diff --git a/src/superclaude/skills/sc-roadmap-protocol/SKILL.md b/src/superclaude/skills/sc-roadmap-protocol/SKILL.md
+index b0cba50d..dff34376 100644
+--- a/src/superclaude/skills/sc-roadmap-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-roadmap-protocol/SKILL.md
+@@ -10,7 +10,7 @@ argument-hint: "<spec-file-path> [--specs ...] [--multi-roadmap --agents ...] [-
+ <!-- Extended metadata (for documentation, not parsed):
+ category: planning
+ complexity: advanced
+-mcp-servers: [context7]
++mcp-servers: [litellm, context7]
+ personas: [architect, scribe, analyzer]
+ version: 2.0.0
+ spec: SC-ROADMAP-V2-SPEC.md
+diff --git a/src/superclaude/skills/sc-tasklist-protocol/SKILL.md b/src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+index 0e907517..eabfcd48 100644
+--- a/src/superclaude/skills/sc-tasklist-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+@@ -4,7 +4,7 @@ description: "Deterministic roadmap-to-tasklist generator with integrated roadma
+ category: utility
+ complexity: high
+ allowed-tools: Read, Glob, Grep, Write, Bash, TaskCreate, TaskUpdate, TaskList, TaskGet, Task, Skill
+-mcp-servers: [context7]
++mcp-servers: [litellm, context7]
+ personas: [analyzer, architect]
+ argument-hint: "<roadmap-path> [--spec <spec-path>] [--output <output-dir>] [--no-reflect]"
+ ---

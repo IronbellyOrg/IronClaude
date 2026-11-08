@@ -3,16 +3,25 @@ name: deep-research-agent
 description: Specialist for comprehensive research with adaptive strategies and intelligent exploration. Uses Tavily MCP first for all web search and extraction; falls back to WebSearch/WebFetch only when Tavily MCP is unavailable.
 category: analysis
 tools:
+  - mcp__litellm__Tavily-tavily_search
   - mcp__tavily__tavily_search
+  - mcp__litellm__Tavily-tavily_extract
   - mcp__tavily__tavily_extract
+  - mcp__litellm__Tavily-tavily_map
   - mcp__tavily__tavily_map
+  - mcp__litellm__Tavily-tavily_crawl
   - mcp__tavily__tavily_crawl
   - WebSearch
   - WebFetch
+  - mcp__litellm__context7-resolve-library-id
   - mcp__context7__resolve-library-id
+  - mcp__litellm__context7-query-docs
   - mcp__context7__query-docs
+  - mcp__plugin_playwright_playwright__browser_navigate
   - mcp__playwright__browser_navigate
+  - mcp__plugin_playwright_playwright__browser_snapshot
   - mcp__playwright__browser_snapshot
+  - mcp__plugin_playwright_playwright__browser_evaluate
   - mcp__playwright__browser_evaluate
   - Read
   - Grep
@@ -132,7 +141,7 @@ breadth) — record this loss of fidelity.
 
 `fallback_reason` enum (set whenever a non-`tavily` backend is used in place of a Tavily op):
 
-- `tavily_unavailable` — the Tavily tool was not loaded / not configured this session
+- `tavily_unavailable` — neither `mcp__litellm__Tavily-tavily_search` nor `mcp__tavily__tavily_search` was loaded / configured this session
 - `tavily_error` — Tavily returned a tool-level error after one retry
 - `tavily_rate_limited` — Tavily returned an explicit rate-limit signal
 - `map_unsupported_fallback` — `tavily-map` requested but unavailable; degraded to WebSearch discovery
@@ -142,16 +151,16 @@ breadth) — record this loss of fidelity.
 
 **Search Strategy**
 
-1. Broad initial searches via `mcp__tavily__tavily_search`
+1. Broad initial searches via `mcp__litellm__Tavily-tavily_search` (else `mcp__tavily__tavily_search`)
 2. Identify key sources
-3. Deep extraction via `mcp__tavily__tavily_extract` as needed
-4. Follow interesting leads (re-issuing `mcp__tavily__tavily_search` with refined queries)
+3. Deep extraction via `mcp__litellm__Tavily-tavily_extract` (else `mcp__tavily__tavily_extract`) as needed
+4. Follow interesting leads (re-issuing `mcp__litellm__Tavily-tavily_search` (else `mcp__tavily__tavily_search`) with refined queries)
 
 **Discovery Routing** (map/crawl — research engine only)
 
-- `mcp__tavily__tavily_map` — site-structure discovery: enumerate a site's URL graph before
+- `mcp__litellm__Tavily-tavily_map` (else `mcp__tavily__tavily_map`) — site-structure discovery: enumerate a site's URL graph before
   targeted extraction. Enabled at the **deep** profile and above; cap `maps=2` per run.
-- `mcp__tavily__tavily_crawl` — deep domain traversal: follow links across a domain to gather
+- `mcp__litellm__Tavily-tavily_crawl` (else `mcp__tavily__tavily_crawl`) — deep domain traversal: follow links across a domain to gather
   many pages. Enabled at the **exhaustive** profile only; cap `crawls=1` per run, and the
   result set is truncated to a maximum of **50 URLs**.
 - Typical flow: `map` a domain → `extract` the high-value URLs; escalate to `crawl` only when

@@ -1,0 +1,96 @@
+diff --git a/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md b/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+index 5464616d..5562683a 100644
+--- a/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+@@ -222,7 +222,7 @@ auggie --print \
+ 3. **File:line validation pass** (non-negotiable):
+    - For each finding, `Read` the cited file at the cited line range. Confirm the line exists and (where possible) confirm the cited snippet actually appears on that line.
+    - For PR/diff mode, additionally confirm the line is within the diff hunks (a finding citing a line nowhere near the changes is downgraded to "context" or dropped, depending on severity).
+-   - For `needs-grounding` findings, attempt to ground them using `mcp__auggie__codebase-retrieval`, `codegraph_search` / `codegraph_callers` (definition and caller cross-check, only when `index_state: fresh`; then Read the line) or `Grep`. If grounding succeeds, promote; if not, drop and log.
++   - For `needs-grounding` findings, attempt to ground them using codebase search (call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`; for uncommitted or unpushed changes use codegraph or Grep), `codegraph_search` / `codegraph_callers` (definition and caller cross-check, only when `index_state: fresh`; then Read the line) or `Grep`. If grounding succeeds, promote; if not, drop and log.
+ 4. **Dedupe pass**:
+    - Findings on the same `file:line` with similar titles → merge, keep the higher severity and union the evidence.
+    - Findings that are restatements of the PR description's own caveats → drop with a note in the audit log.
+diff --git a/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md b/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+index 469fbd29..ff4b668b 100644
+--- a/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+@@ -12,7 +12,7 @@ argument-hint: "<topic> [--proposals N] [--depth quick|standard|deep] [--strateg
+ <!-- Extended metadata (for documentation, not parsed):
+ category: orchestration
+ complexity: advanced
+-mcp-servers: [auggie-mcp, codegraph, tavily]
++mcp-servers: [litellm, auggie, codegraph, tavily]
+ personas: [architect, analyzer, scribe]
+ version: 2.0.0
+ spec: .dev/eval-workspaces/sc-brainstorm/SPEC.md
+@@ -184,7 +184,7 @@ Orchestrate parallel brainstorming via:
+ 
+    | Condition | Action | Output |
+    |-----------|--------|--------|
+-   | `domain ∈ {code, architecture, incident}` AND NOT `--no-codebase` | Invoke `/sc:analyze <relevant-paths> --focus quality --depth quick` OR `mcp__auggie__codebase-retrieval` for quick scan | `enrichment/codebase-context.md` |
++   | `domain ∈ {code, architecture, incident}` AND NOT `--no-codebase` | Invoke `/sc:analyze <relevant-paths> --focus quality --depth quick` OR `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) for quick scan | `enrichment/codebase-context.md` |
+    | `--codebase` (forced) | Same as above regardless of domain | Same |
+    | `--research light` OR (auto: topic mentions framework/library names not in project) | Invoke `Skill sc-research-protocol` with `--depth quick` (or `/sc:research` if standalone) | `enrichment/research-light.md` |
+    | `--research deep` OR (auto: `--strategy enterprise` + novel topic) | Invoke `Skill tech-research` with topic | `enrichment/research-deep.md` |
+@@ -193,6 +193,7 @@ Orchestrate parallel brainstorming via:
+    Research depth/params are owned by `/sc:research` and `tech-research` — see RESEARCH_CONFIG.md; brainstorm selects the route only.
+ 
+    **Under `--unattended`**: the research-light row invokes `/sc:research` with `--unattended --strategy planning --depth quick --report-dir <report-dir>/nested/research-<n>/` (`<n>` starts at 1; also for an explicit `--research light`) and lists the nested contract in `artifacts`, also when the call failed; the research-deep row invokes `tech-research`, which has no Unattended mode, so research-deep is skipped, also for an explicit `--research deep`, and recorded in `enrichment_used` with `quality_tier: skipped`. The codebase row invokes `/sc:analyze` with `--unattended --report-dir <report-dir>/nested/analyze-<n>/` (`<n>` starts at 1); the `mcp__auggie__codebase-retrieval` alternative and the `fallback_1` tier (codegraph, then native Glob and Grep, `refs/handoff-routing.md` Tier 2) are unchanged and write no nested directory and no nested contract, so `nested/analyze-<n>/` is written only by a `/sc:analyze` call, and `enrichment_used` does not show whether it exists. The nested contract is listed in `artifacts`, also when the call failed.
++   That codebase alternative is `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`); either tool is the alternative named above and earns `quality_tier: primary`.
+ 
+ 2. **Quality-tier tracking** (mandatory per enrichment source):
+    - `primary` — first-choice source ran cleanly
+diff --git a/src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md b/src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md
+index 5dc0bea0..8646cf33 100644
+--- a/src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md
++++ b/src/superclaude/skills/sc-brainstorm-protocol/refs/handoff-routing.md
+@@ -13,13 +13,14 @@ Loaded in Wave 2A. Defines the matrix of enrichment options and quality-tier fal
+ - `domain ∈ {code, architecture, incident}` AND NOT `--no-codebase`, OR
+ - `--codebase` (forced) regardless of domain
+ 
+-**Tier 1 (primary)**: `mcp__auggie__codebase-retrieval`
++**Tier 1 (primary)**: `mcp__litellm__augment_code-augment_code_search`, then `mcp__auggie__codebase-retrieval`
+ 
++- Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep.
+ - Two parallel queries (per existing brainstorm v1 pattern):
+   - Query 1: `"{topic} - find relevant code, existing implementations, related components, and integration points"`
+   - Query 2: `"Project architecture, structure, patterns, and conventions related to {topic_domain_area}"`
+ - Output budget: ~800-1200 tokens summary per query
+-- quality_tier: `primary`
++- quality_tier: `primary` (earned by either tool)
+ - Under `--unattended` this tier writes no nested directory and no nested contract; `nested/analyze-<n>/` is written only by a `/sc:analyze` call (the skill's other codebase action), and the scan is recorded in `enrichment_used` with this tier's `quality_tier`.
+ 
+ **Tier 2 (fallback_1)**: codegraph, then native Glob/Grep
+diff --git a/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md b/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md
+index 4f125b04..ebb48e78 100644
+--- a/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md
+@@ -7,7 +7,7 @@ allowed-tools: Read, Grep, Glob, Write, Edit, Bash(gh *), Bash(git *), Bash(uv *
+ <!-- Extended metadata (for documentation, not parsed):
+ category: quality
+ complexity: advanced
+-mcp-servers: [auggie]
++mcp-servers: [litellm, auggie]
+ personas: [analyzer, architect, security, qa, devops]
+ -->
+ 
+diff --git a/src/superclaude/skills/sc-pr-submit-protocol/refs/finding-verify.md b/src/superclaude/skills/sc-pr-submit-protocol/refs/finding-verify.md
+index d1d8e8b4..0162a7ec 100644
+--- a/src/superclaude/skills/sc-pr-submit-protocol/refs/finding-verify.md
++++ b/src/superclaude/skills/sc-pr-submit-protocol/refs/finding-verify.md
+@@ -28,8 +28,12 @@ The structural grounding floor is the auggie-review **Wave-3 step-3 "File:line v
+ 1. For each finding, **`Read` the cited file at the cited line range**; confirm the line exists and
+    (where possible) confirm the cited snippet actually appears on that line (`:207`).
+ 2. For PR/diff mode, additionally confirm the line is within the diff hunks (`:208`).
+-3. For `needs-grounding` findings, attempt grounding via `mcp__auggie__codebase-retrieval` or `Grep`;
+-   promote on success, **drop and log** on failure (`:209`).
++3. For `needs-grounding` findings, attempt grounding via codebase search or `Grep`;
++   promote on success, **drop and log** on failure (`:209`). Codebase search: call
++   `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from
++   `git remote get-url origin`, `branch` = the PR head branch; it sees pushed commits only, so
++   commit and push the PR head before relying on it); if that tool is not available, call
++   `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep.
+ 
+ ## The delta C3a adds — "does the defect reproduce"
+ 

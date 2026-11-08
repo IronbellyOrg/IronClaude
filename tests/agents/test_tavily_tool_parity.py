@@ -24,7 +24,8 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 _AGENTS_DIR = _REPO_ROOT / "src" / "superclaude" / "agents"
 _SKILLS_DIR = _REPO_ROOT / "src" / "superclaude" / "skills"
 
-_TAVILY_ID = re.compile(r"mcp__tavily__tavily_[a-z]+")
+_TAVILY_ID = re.compile(r"mcp__(?:tavily__tavily|litellm__Tavily-tavily)_[a-z]+")
+_TOOL_ENTRY = re.compile(r"mcp__[A-Za-z0-9_-]+")
 _TOOL_SURFACE_KEY = re.compile(r"^\s*(tools|allowed-tools):", re.MULTILINE)
 
 
@@ -81,6 +82,49 @@ def test_documenting_files_have_exact_parity():
                 }
             )
     assert not mismatches, f"frontmatter↔prose Tavily parity mismatch: {mismatches}"
+
+
+def _declared_tools(fm: str) -> list[str]:
+    """Ordered tool ids from a ``tools:`` / ``allowed-tools:`` value, YAML list or inline list."""
+    tools: list[str] = []
+    in_list = False
+    for line in fm.splitlines():
+        key = _TOOL_SURFACE_KEY.match(line)
+        if key:
+            tools.extend(_TOOL_ENTRY.findall(line[key.end() :]))
+            in_list = True
+        elif in_list and line.lstrip().startswith("- "):
+            tools.extend(_TOOL_ENTRY.findall(line.split("#", 1)[0]))
+        else:
+            in_list = False
+    return tools
+
+
+def test_proxy_tavily_listed_before_direct_twin():
+    """Issue #454: each agent's declared direct Tavily tool has its LiteLLM proxy twin just before it."""
+    checked, missing = 0, []
+    for f in sorted(_AGENTS_DIR.rglob("*.md")):
+        fm, _ = _split_frontmatter(f.read_text(encoding="utf-8"))
+        tools = _declared_tools(fm)
+        for i, tool in enumerate(tools):
+            if tool.startswith("mcp__tavily__tavily_"):
+                checked += 1
+                twin = tool.replace("mcp__tavily__", "mcp__litellm__Tavily-", 1)
+                if i == 0 or tools[i - 1] != twin:
+                    missing.append((str(f.relative_to(_REPO_ROOT)), tool))
+    assert checked, "proxy-twin guard found 0 direct Tavily tools (vacuous; M1)"
+    assert not missing, (
+        f"direct Tavily tool without its proxy twin right before it: {missing}"
+    )
+
+
+def test_declared_tools_parses_list_and_inline_forms():
+    yaml_list = "tools:\n  - Read\n  - mcp__a__x    # note\n  - mcp__b__y\nmodel: x\n- mcp__c__z\n"
+    assert _declared_tools(yaml_list) == ["mcp__a__x", "mcp__b__y"]
+    assert _declared_tools("allowed-tools: Read, mcp__a__x, mcp__b__y\n") == [
+        "mcp__a__x",
+        "mcp__b__y",
+    ]
 
 
 def test_rf_no_map_crawl():

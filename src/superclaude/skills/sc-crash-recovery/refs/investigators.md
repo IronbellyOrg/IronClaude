@@ -136,9 +136,9 @@ Be brief. Tables and paths, not prose. Do NOT run any write commands.
 **Prompt skeleton:**
 
 ```
-You are doing a semantic sweep of project <PROJECT_PATH> using the auggie codebase-retrieval MCP tool. The user just survived a crash and wants to find any in-progress work that structured scans (manifest.json, frontmatter) might miss.
+You are doing a semantic sweep of project <PROJECT_PATH> using codebase search. Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep. The user just survived a crash and wants to find any in-progress work that structured scans (manifest.json, frontmatter) might miss.
 
-Run the following codebase-retrieval queries IN PARALLEL where possible:
+Run the following queries with `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) IN PARALLEL where possible:
 
 1. "Files containing in-progress markers (TODO-WIP, FIXME-RECENT, XXX-RESUME, status: 🟡 InProgress, draft, WIP) that have been recently modified."
 2. "Notes or comments that say things like 'will continue', 'next step', 'left off', 'TODO next session', 'resume here', 'pause point'."

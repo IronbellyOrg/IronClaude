@@ -1,0 +1,16 @@
+Review T4 attempt 1 (first review; no earlier blocking findings to re-check)
+
+Earlier blocking findings: none.
+
+Acceptance criteria
+- T4.AC1 met: AUG sits immediately before `mcp__auggie__codebase-retrieval` in the five tools lines, and the codegraph entries are byte-identical to the start snapshot (the diff changes only the inserted token). Evidence: src/superclaude/agents/auggie-reviewer.md:5, src/superclaude/agents/eval-docs-loader.md:5 (no codegraph entries before or after), src/superclaude/agents/reflect-reviewer.md:5, src/superclaude/agents/reuse-auditor.md:5, src/superclaude/agents/troubleshoot-analyst.md:5.
+- T4.AC2 met: .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t4-pytest.log:1 ends with "421 passed in 16.48s". It holds 405 tests/troubleshoot rows and 16 tests/agents rows. The log mtime (16:13:54) is later than every edited file (latest 16:13:34, SKILL.md). An independent re-run of `uv run pytest tests/troubleshoot tests/agents -q -p no:cacheprovider` on the live tree gave "421 passed in 16.33s".
+
+Brief items checked beyond the ACs (all satisfied)
+- The prose rewrites are present. src/superclaude/agents/auggie-reviewer.md:37 has the full AUG phrase verbatim; :81, :96 and :115 use the short form. The "in-session" wording at :81 now says the proxy sees the pushed branch only and that the uncommitted diff is read with Read, Grep or codegraph. src/superclaude/agents/eval-docs-loader.md:28-32 has the full phrase, wrapped over several lines but word-identical, and :39-41 has the short form. src/superclaude/agents/rf-team-lead.md:149 has the full phrase.
+- The closed roster at src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:31 matches src/superclaude/agents/troubleshoot-analyst.md:5 exactly, in the same order.
+- The positive roster in tests/troubleshoot/test_diagnostic_worker_contract.py:24 adds AUG. The negative fixtures are kept at tests/troubleshoot/test_diagnostic_worker_contract.py:155-156 (`mcp__*` and `mcp__auggie__codebase-retrieval-extra`).
+- No repository owner, name or branch is hard-coded. No `src/superclaude/...` path was added. No `.claude/` path was edited or staged; git status shows none. plugins/superclaude/agents has no copies of these agents. No secret appears anywhere.
+
+Findings
+F4.1 ac=scope at=src/superclaude/agents/rf-team-lead.md:149 anchor="AUG phrase (full form, verbatim)" chk=n,n,n,n family=aug-phrase-leadin fix=optional: rewrite the item as "3. **Codebase search** — Semantic search for subsystem understanding. Codebase search: call `mcp__litellm__augment_code-augment_code_search` ..." if the orchestrator wants the lead-in byte-verbatim: The lead-in reads "**Codebase search** — Semantic search for subsystem understanding. Call ...", not "Codebase search: call ...". Everything from "`mcp__litellm__augment_code-augment_code_search` (`repo_owner`..." through "use codegraph or Grep." is verbatim. The item is a numbered-list entry that already carries the "Codebase search" label, so this is a cosmetic adaptation, not a breach. It is non-blocking.

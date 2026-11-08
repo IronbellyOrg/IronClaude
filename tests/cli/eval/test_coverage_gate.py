@@ -134,6 +134,14 @@ def test_eval_covers_pattern_handles_invalid_regex() -> None:
     assert eval_covers_pattern(spec, "[broken") is False
 
 
+def test_litellm_augment_matcher_is_selected_and_covered() -> None:
+    """Issue #454: the LiteLLM proxy Augment matcher is in scope and coverable."""
+    pattern = "mcp__litellm__augment_code-.*"
+    assert default_matcher_filter(pattern) is True
+    spec = _spec("E1", "mcp__litellm__augment_code-augment_code_search")
+    assert eval_covers_pattern(spec, pattern) is True
+
+
 def test_eval_covers_pattern_ignores_non_string_tool_calls() -> None:
     spec = EvalSpec(
         id="E1",

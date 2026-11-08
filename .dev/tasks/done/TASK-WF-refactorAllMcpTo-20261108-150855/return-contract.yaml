@@ -1,0 +1,13 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-refactorAllMcpTo-20261108-150855
+plan_path: ./TASK-WF-refactorAllMcpTo-20261108-150855.md
+source_path: ./source.md
+source_origin: "inline"
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/mcp-litellm-migration/.dev/reflect/pre-TASK-WF-refactorAllMcpTo-20261108-150855-20261108151558/REPORT.md
+unresolved: []

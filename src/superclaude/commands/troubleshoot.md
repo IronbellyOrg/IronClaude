@@ -3,7 +3,7 @@ name: troubleshoot
 description: "Tiered debugging — fast Tier 1 triage with auggie + codegraph grounding and a native Grep/Read floor, auto-escalation to parallel hypothesis agents + adversarial fix debate, and an opt-in remediation chain (sc:workflow → sc:implement; task-builder → /task with --depth deep)"
 category: analysis
 complexity: advanced
-mcp-servers: [auggie, codegraph, context7, tavily]
+mcp-servers: [litellm, auggie, codegraph, context7, tavily]
 personas: [analyzer, performance, security, qa, refactorer, devops]
 argument-hint: "[<issue description>] [--type bug|build|performance|deployment|security|test] [--depth quick|standard|deep] [--scope <path|symbol>] [--no-escalate] [--fix] [--models <tier:model,...>] [--output-dir <path>] [--no-doc-discovery] [--no-mcp] [--context <path>] [--caller <name>]"
 ---
@@ -87,7 +87,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 ## MCP Integration
 
-- **Auggie** (primary, free retrieval): Tier 1, Wave 1.5 (documentation grounding fan-out across release artifacts + architectural docs + semantic restrictions), and Tier 2 codebase grounding via `mcp__auggie__codebase-retrieval`. Offloads heavy retrieval to a free / low-cost tier, keeping the Claude token budget tight.
+- **Auggie** (primary, free retrieval): Tier 1, Wave 1.5 (documentation grounding fan-out across release artifacts + architectural docs + semantic restrictions), and Tier 2 codebase grounding via `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`). Offloads heavy retrieval to a free / low-cost tier, keeping the Claude token budget tight.
 - **codegraph**: Tier 1 + Tier 2 symbol, caller and impact lookup (`codegraph_search`, `codegraph_node`, `codegraph_callers`, `codegraph_impact`); guide `~/.claude/CODEGRAPH.md`. Tier 1 writes the caller rows to `tier1-callers.md`; graph rows are leads, Read before citing.
 - **Native floor**: below codegraph, Tier 1 + Tier 2 symbol-level navigation with `Grep` for the definition (`def name`, `class name`, `function name`) then `Read` of the range, and `Grep` with a word-boundary pattern then `Read` of the call sites for references. Critical when the issue names a specific function or class.
 - **Context7**: Tier 2 when the symptom mentions a framework or library by name or the stack trace ends in third-party code; also the skill's conditional Tier 1 behaviour-definition fetch, not general Tier 1 web research.
@@ -95,10 +95,10 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - **Native reasoning**: Tier 2 synthesis when reconciling competing hypotheses.
 ## Tool Coordination
 
-- **`mcp__auggie__codebase-retrieval`**: in-repo grounding (Tier 1 + Tier 2)
+- **`mcp__litellm__augment_code-augment_code_search`** (else `mcp__auggie__codebase-retrieval`): in-repo grounding (Tier 1 + Tier 2)
 - **`mcp__codegraph__codegraph_status` / `_search` / `_node` / `_callers` / `_impact`**: one readiness check, then symbol, caller and impact lookups (Tier 1 + Tier 2)
-- **`mcp__context7__resolve-library-id` / `query-docs`**: external library docs (Tier 2 and the skill's conditional Tier 1 behaviour-definition fetch)
-- **`mcp__tavily__tavily_search`**: targeted web search (Tier 2, rate-limited)
+- **`mcp__litellm__context7-resolve-library-id` / `query-docs`** (else `mcp__context7__resolve-library-id` / `query-docs`): external library docs (Tier 2 and the skill's conditional Tier 1 behaviour-definition fetch)
+- **`mcp__litellm__Tavily-tavily_search`** (else `mcp__tavily__tavily_search`): targeted web search (Tier 2, rate-limited)
 - **`Task`**: spawn `root-cause-analyst`, Tier 2 specialist agents, `confidence-calibrator`, `evidence-validator`, `self-review`
 - **`Skill`**: invoke `sc:adversarial-protocol` (Wave 4), `sc:workflow-protocol` (Wave 6, plan route), `task-builder` (Wave 6, `--depth deep` MDTM route), `/sc:reflect` (Wave 6)
 - **`Read` / `Grep` / `Glob`**: native floor for symbol, definition and caller lookups and the fallback when MCPs are unavailable; file:line validation

@@ -3,7 +3,7 @@ name: research
 description: Deep web research with adaptive planning and intelligent search
 category: command
 complexity: advanced
-mcp-servers: [tavily, playwright]
+mcp-servers: [litellm, tavily, playwright]
 personas: [deep-research-agent]
 ---
 

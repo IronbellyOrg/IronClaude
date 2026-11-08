@@ -8,7 +8,7 @@ This ref defines the two parallel audit branches (A: log-call inspection at and 
 
 ## Section 1: Auggie query templates per branch
 
-Each branch issues ONE `mcp__auggie__codebase-retrieval` call (single message, fan-out via parallel Task spawns from the Wave 1.6 orchestrator). Each branch is dispatched with `subagent_type=troubleshoot-analyst` (closed read-only roster: Read/Grep/Glob plus the individually named read-only Auggie retrieval tool and codegraph lookup tools, the latter used only when the brief says `index_state: fresh`; no Bash, Write or Edit; resolved project `.claude/agents/` first, then `~/.claude/agents/`; if unavailable, use the degraded/reporting path, never an unrestricted substitute). Workers return branch results as data; the parent owns `output_path` and writes the file before any consumer reads it (Section 3). The placeholders `<failing_component>`, `<scope>`, and `<symptom>` are filled by the Wave 1.6 orchestrator from the Wave 0 input (issue description, `--scope`, `--type`) and the Wave 1 grounding output (the localized failing component path).
+Each branch issues ONE `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) call (single message, fan-out via parallel Task spawns from the Wave 1.6 orchestrator). Each branch is dispatched with `subagent_type=troubleshoot-analyst` (closed read-only roster: Read/Grep/Glob plus the individually named read-only codebase-search tools (the proxy tool and the direct Auggie retrieval tool) and codegraph lookup tools, the latter used only when the brief says `index_state: fresh`; no Bash, Write or Edit; resolved project `.claude/agents/` first, then `~/.claude/agents/`; if unavailable, use the degraded/reporting path, never an unrestricted substitute). Workers return branch results as data; the parent owns `output_path` and writes the file before any consumer reads it (Section 3). The placeholders `<failing_component>`, `<scope>`, and `<symptom>` are filled by the Wave 1.6 orchestrator from the Wave 0 input (issue description, `--scope`, `--type`) and the Wave 1 grounding output (the localized failing component path).
 
 ### Branch A — Log-Call Inspection
 
@@ -46,7 +46,7 @@ For each hit, return: file path, config_type (file | env_var | pipeline_config),
 
 ## Section 2: Fallback paths (auggie unavailable)
 
-When `mcp__auggie__codebase-retrieval` is not available (Wave 0 detected `--no-mcp`, the gateway is down, or rate limits exhausted the per-session call budget), each branch falls back to Glob/Grep substitutes. The orchestrator MUST set the branch's `degraded` flag to `true` so the sufficiency rubric in Section 4 caps the verdict at `partial`.
+When neither `mcp__litellm__augment_code-augment_code_search` nor `mcp__auggie__codebase-retrieval` is available (Wave 0 detected `--no-mcp`, the gateway is down, or rate limits exhausted the per-session call budget), each branch falls back to Glob/Grep substitutes. The orchestrator MUST set the branch's `degraded` flag to `true` so the sufficiency rubric in Section 4 caps the verdict at `partial`.
 
 The `troubleshoot-analyst` worker has no shell. It performs these fallbacks with the native Grep and Glob tools only, using the patterns below as search patterns (recursive search over the named target; `find`/`grep` command lines are pattern references, not commands the worker runs). The command lines may be run as shell only by the parent, never by a worker.
 

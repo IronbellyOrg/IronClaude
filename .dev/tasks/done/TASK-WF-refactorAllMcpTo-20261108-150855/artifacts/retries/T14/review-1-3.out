@@ -1,0 +1,25 @@
+d227979bd306fd95922f73e070fc534ae2f6d2a0 f4c0bd5a9e64fc4509a1f89d2f0458da9e97ae63
+# Review T14 attempt 1-3 (spec compliance)
+
+Start sha: d227979bd306fd95922f73e070fc534ae2f6d2a0
+Working tree: /home/coder/workspaces/worktrees/IronClaude/mcp-litellm-migration
+
+## Earlier blocking findings
+None given (first review of this start).
+
+## Precondition check
+Owner decision 2 is approved: .dev/issues/454/owner-decisions.md:6 "Remove the `.mcp.json` auggie-mcp entry and change `tests/cli/test_mcp_project_config.py` to pin its absence. (Plan Task 14 runs; no skip artifact.)". So the approved branch applies.
+
+## Independent evidence
+- `.mcp.json` is absent from the working tree (`ls .mcp.json` -> No such file); `git status` shows ` D .mcp.json`.
+- `uv run pytest tests/cli/test_mcp_project_config.py -v` re-run by reviewer: 1 passed.
+- Reviewer negative checks (copy of the test under a /tmp root, never in the repo): `auggie-mcp` entry of type http -> FAIL; stdio entry with no `type` and `command: auggie` -> FAIL; stdio `npx` entry -> pass; `{}` -> pass. Matches the brief's two assertions.
+- Other tests that touch `.mcp.json` (tests/cli/test_init_lite.py:41, tests/cli/test_install_retired_mcp.py:312) build their own temp project roots, so the deletion breaks none of them.
+- No `src/superclaude/**`, `.claude/` or `~/.claude` path is in the diff; no hard-coded owner/repo/branch; no secret.
+
+## Acceptance criteria
+T14.AC1 met @ tests/cli/test_mcp_project_config.py:14 -- second branch holds: `.mcp.json` deleted (diff `deleted file mode 100644`), test rewritten to assert no `auggie-mcp` key (tests/cli/test_mcp_project_config.py:20) and no stdio entry whose command is `auggie` (tests/cli/test_mcp_project_config.py:21-25), returns early when the file is absent (tests/cli/test_mcp_project_config.py:16-17); pytest output recorded at .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-pytest.log:4-7 (PASSED, exit=0) and reproduced by reviewer. Note F1.1 below: a stale skip artifact from the earlier attempt is still present and staged, so the first branch's artifact also exists while its `git diff --quiet` half is false; the AC's either/or is still satisfied by the second branch.
+
+## Findings
+F1.1 ac=scope at=.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-skipped.md:3 anchor=tests/cli/test_mcp_project_config.py:14 chk=n,y,n,n family=stale-skip-artifact fix=Remove the staged stale artifact .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t14-skipped.md (`git rm -f` on that one path) so the package records only the approved branch; owner-decisions.md:6 says "no skip artifact": The earlier attempt's t14-skipped.md is still in the package (staged `A`) and says "skipped: owner decision 2 open" and, at line 5, "`.mcp.json` and `tests/cli/test_mcp_project_config.py` are left untouched; `git diff --quiet -- .mcp.json tests/cli/test_mcp_project_config.py` holds". Both are false against live source: owner decision 2 is approved (.dev/issues/454/owner-decisions.md:6), `.mcp.json` is deleted, and the test was rewritten (tests/cli/test_mcp_project_config.py:14 now defines `test_project_mcp_config_has_no_auggie_stdio_server`). A reader or checker that tests the AC's first branch by file existence gets a contradictory record.
+Parent (orchestrator) fields: F1.1 first=start origin=inherited sev=note (text present in start tree d227979; no covers= key, so the inherited cap applies; already recorded as minor in retries/T14/reopen-1/notes.md:2)

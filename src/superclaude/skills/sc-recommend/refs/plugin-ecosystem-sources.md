@@ -21,7 +21,7 @@ Use, in order:
 
 1. **`/sc:research "<query>" --depth deep`** — preferred when the user wants depth (compatibility checks, version pinning, multiple candidates compared). Hand off via a refined prompt; do not run it inline.
 2. **`deep-research` agent** — when the user wants a single focused answer (e.g., "find one good Notion plugin"). One `Agent` call.
-3. **Tavily MCP directly** (`mcp__tavily__tavily_search`, `mcp__tavily__tavily_extract`) — when the search is shallow and `/sc:research` overhead is not justified.
+3. **Tavily MCP directly** (`mcp__litellm__Tavily-tavily_search` (else `mcp__tavily__tavily_search`), `mcp__litellm__Tavily-tavily_extract` (else `mcp__tavily__tavily_extract`)) — when the search is shallow and `/sc:research` overhead is not justified.
 4. **WebFetch / WebSearch** — last-resort fallback. Tavily generally has better signal-to-noise for plugin discovery.
 
 Never use `/tech-research` for this search: it investigates the local codebase, not the web.

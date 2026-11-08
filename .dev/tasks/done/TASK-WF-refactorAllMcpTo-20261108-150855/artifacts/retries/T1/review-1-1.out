@@ -1,0 +1,15 @@
+Earlier blocking findings: none (first review).
+
+T1.AC1 met: Both hooks.json files carry the identical four-alternative matcher `mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*|mcp__litellm__augment_code-.*` (T1.AC1@src/superclaude/hooks/hooks.json:149, T1.AC1@plugins/superclaude/hooks/hooks.json:119); both flag-clear scripts carry the identical four-glob case line `mcp__auggie__*|mcp__auggie-mcp__*|mcp__airis-mcp-gateway__auggie_*|mcp__litellm__augment_code-*)` (T1.AC1@src/superclaude/hooks/scripts/auggie-flag-clear.sh:23, T1.AC1@plugins/superclaude/hooks/scripts/auggie-flag-clear.sh:23), and the header comment lists the fourth prefix in both (src and plugin auggie-flag-clear.sh:3). The diff shows both scripts at the same blob c4ee84c8, so the two files are byte-identical.
+
+T1.AC2 met: `.dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t1-pytest.log:100` reads "90 passed in 11.15s". The log covers all five named files (47 test_install_hooks, 7 test_verify_sync_hooks, 21 test_expect_settings_json node lines). The new cases pass at log lines 13-15 and 19-20. They are defined at tests/hooks/test_auggie_flag_clear_mcp_prefix.py:191 (AUG clears), :210 (Tavily keeps), tests/hooks/test_auggie_first.py:85 (AUG clears) and :104 (Tavily keeps). Independent re-run: `uv run pytest tests/hooks/test_auggie_flag_clear_mcp_prefix.py tests/hooks/test_auggie_first.py tests/cli/eval/test_expect_settings_json.py -q` gave 36 passed.
+
+no findings
+
+Self-audit:
+- Checked the live matcher and case strings in all four hook files with Grep against the brief's exact strings.
+- `freshness-user-prompt.sh` is unmodified (git status shows no change), as design 6.2 requires. No `.claude/` path is modified or staged.
+- tests/cli/test_verify_sync_hooks.py:216-218: V7 now also strips `|mcp__litellm__augment_code-*`, so the revert-to-master scenario stays meaningful. V5 (:179) and V6 (:190) still remove one prefix from one surface, so they keep detecting drift.
+- tests/cli/eval/test_expect_settings_json.py:178 and :184 still hold `["mcp__auggie__*"]`. These are self-contained single-element fixtures for dot-path navigation and are not tied to hooks.json. Leaving them unchanged contradicts no AC and leaves no stale claim. The list fixture at :329-332 gained the litellm prefix.
+- tests/hooks/test_auggie_flag_clear_mcp_prefix.py: `_is_search_prefix` widens the extraction to `augment_code`, so the parity test now compares all four prefixes. The added plugin-vs-src matcher equality test enforces AC1 mechanically.
+- Did not run tests/cli/test_verify_sync_hooks.py or test_install_hooks.py myself, because they temporarily rewrite tracked src files. I relied on the saved log for those.

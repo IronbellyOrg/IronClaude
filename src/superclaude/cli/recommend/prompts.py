@@ -143,8 +143,10 @@ A. Enumerate installed $HOME/.claude/commands/sc/*.md,
    prefer project then installed; skills prefer installed then project; agents
    prefer project then installed. Preserve a plugin-qualified namespace. Read
    both relevant surfaces where needed and disclose a material active-copy gap.
-B. Issue one mcp__auggie__codebase-retrieval query for the enumerated surface
-   and verbatim request. Unavailable/empty ranking degrades to direct Read,
+B. Issue one mcp__litellm__augment_code-augment_code_search (else
+   mcp__auggie__codebase-retrieval) query, repo from `git remote get-url
+   origin`, default branch, for the enumerated surface and verbatim request.
+   Do not iterate file-by-file. Unavailable/empty ranking degrades to direct Read,
    never to a fabricated verified target. Use the parent's resolved reference
    paths for the full surface-enumeration and net-value rules.
 C. Read the target's actual interface and relevant backing skill/references.

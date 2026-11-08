@@ -135,7 +135,7 @@ export TAVILY_API_KEY="tvly-your_api_key_here"
 **Purpose**: Augment Code semantic codebase search and retrieval
 **Triggers**: Natural-language questions about an unfamiliar codebase, architectural concepts, cross-file recall before significant edits
 **Requirements**: Node.js 20+, global `@augmentcode/auggie` install (the installer pins `@augmentcode/auggie@0.36.0`), one-time `auggie login` (or `AUGMENT_SESSION_AUTH` env var)
-**Tools**: the shipped description names `codebase-retrieval` and `ask_question`
+**Tools**: the shipped description names `codebase-retrieval` and `ask_question`. Codebase search is `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)
 
 ```bash
 # Install via SuperClaude (handles npm install -g + claude mcp add)
@@ -157,6 +157,14 @@ superclaude mcp --servers litellm
 ```
 
 The registration stores the literal text `Bearer ${LITELLM_API_KEY}` in the `x-litellm-api-key` header, never the key itself. Claude Code reads the variable when it connects, so rotating the key needs no reinstall. Check with `claude mcp list`: litellm should show Connected (a 401 means the variable was empty when Claude Code started).
+
+**Tools served** (each named `mcp__litellm__<tool>`):
+
+- `augment_code-augment_code_search`: Augment codebase search. Pass `repo_owner` and `repo_name` from `git remote get-url origin` and `branch` = the default branch. It searches pushed code only; for uncommitted or unpushed changes use codegraph or Grep.
+- `Tavily-tavily_search`, `Tavily-tavily_extract`, `Tavily-tavily_map`, `Tavily-tavily_crawl`, `Tavily-tavily_research`: Tavily web search and extraction.
+- `context7-resolve-library-id`, `context7-query-docs`: Context7 library documentation.
+
+Commands and agents name the proxy tool first and the direct tool second (for example `mcp__litellm__augment_code-augment_code_search` else `mcp__auggie__codebase-retrieval`), so both direct installs and the proxy work.
 
 ## Unified MCP Gateway (Alternative Setup)
 

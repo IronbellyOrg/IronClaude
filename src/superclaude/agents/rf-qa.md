@@ -10,7 +10,9 @@ tools:
   - Bash
   - Glob
   - Grep
+  - mcp__litellm__Tavily-tavily_search    # PRIMARY via the LiteLLM proxy
   - mcp__tavily__tavily_search    # PRIMARY web search (Tavily MCP first)
+  - mcp__litellm__Tavily-tavily_extract   # PRIMARY via the LiteLLM proxy
   - mcp__tavily__tavily_extract   # PRIMARY web fetch (Tavily MCP first)
   - WebFetch                      # FALLBACK only -- when Tavily MCP unavailable
   - WebSearch                     # FALLBACK only -- when Tavily MCP unavailable
@@ -116,13 +118,13 @@ When any QA verification step legitimately requires fetching external informatio
 
 **Precedence:**
 
-1. `mcp__tavily__tavily_search` -- for queries / discovery.
-2. `mcp__tavily__tavily_extract` -- for fetching a specific URL's content.
+1. `mcp__litellm__Tavily-tavily_search` (else `mcp__tavily__tavily_search`) -- for queries / discovery.
+2. `mcp__litellm__Tavily-tavily_extract` (else `mcp__tavily__tavily_extract`) -- for fetching a specific URL's content.
 3. **Fallback only:** `WebSearch` / `WebFetch` -- and only when Tavily MCP is unavailable (see detection condition below).
 
 **Detection condition for "Tavily unavailable"** (any of):
 
-- The `mcp__tavily__tavily_search` or `mcp__tavily__tavily_extract` tool is not present in your runtime tool list this session (server not loaded).
+- Neither `mcp__litellm__Tavily-tavily_search` nor `mcp__tavily__tavily_search` (or neither `mcp__litellm__Tavily-tavily_extract` nor `mcp__tavily__tavily_extract`) is present in your runtime tool list this session (server not loaded).
 - The Tavily call returns a structured server error (e.g., 5xx, connection refused, "server not configured").
 - The Tavily call returns a rate-limit / quota error (HTTP 429 or equivalent payload).
 
@@ -546,4 +548,4 @@ If your total (Read + Grep + Glob) calls < TOTAL checklist items, the review is 
 9. **Report honestly** — A false PASS is worse than a false FAIL. When in doubt, fail it and explain why.
 10. **Maximum 2 fix cycles** — After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings. All blocking findings must be resolved; minor findings are recorded as notes.
 11. **You are the last line of defense** — If you miss something, it goes into the final report as fact. Take this seriously.
-12. **Tavily-first for any external lookup** -- When verifying a claim that requires fetching from the open web, you MUST attempt `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` before falling back to `WebSearch` / `WebFetch`. Silent fallback is a process violation; the fallback condition and reason MUST appear in your QA report.
+12. **Tavily-first for any external lookup** -- When verifying a claim that requires fetching from the open web, you MUST attempt `mcp__litellm__Tavily-tavily_search` (else `mcp__tavily__tavily_search`) / `mcp__litellm__Tavily-tavily_extract` (else `mcp__tavily__tavily_extract`) before falling back to `WebSearch` / `WebFetch`. Silent fallback is a process violation; the fallback condition and reason MUST appear in your QA report.

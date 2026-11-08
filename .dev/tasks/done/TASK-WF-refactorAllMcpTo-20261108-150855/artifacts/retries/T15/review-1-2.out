@@ -1,0 +1,20 @@
+Review: Task 15 (migration regression guard test), attempt 1, review 2
+
+Earlier blocking findings:
+F1.1 resolved
+
+Evidence for F1.1: both phrases are back to the verbatim full-form word order ("Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` ...); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep."), now joined onto one line: src/superclaude/agents/eval-docs-loader.md:30 and src/superclaude/skills/sc-pr-submit-protocol/refs/finding-verify.md:34. finding-verify.md keeps its task-specific "the PR head branch; it sees pushed commits only" wording, as the fix required.
+
+Acceptance criteria:
+T15.AC1 met — `uv run pytest tests/skills/test_mcp_proxy_names.py -v` re-run by this reviewer: 4 passed (tests/skills/test_mcp_proxy_names.py:41, :55, :68, :80). The required both-runs record exists: pass run at .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t15-guard.log:12-18, failing run with AUG removed from one call site at t15-guard.log:20-49 (exit=1, test_auggie_lines_also_name_the_proxy_tool FAILED), restore and re-pass at t15-guard.log:51-52, post-F1.1-fix re-pass at t15-guard.log:71-74. The live file is restored (src/superclaude/agents/eval-docs-loader.md:30 names AUG).
+
+Scope checks (task brief):
+- Scanned roots match the brief (agents, skills, commands, core, plugins/superclaude): tests/skills/test_mcp_proxy_names.py:12-18.
+- AUG-on-every-auggie-line with freshness-*/hooks.json exclusion, and AUG-before-auggie ordering on tools:/allowed-tools: lines: tests/skills/test_mcp_proxy_names.py:41-52.
+- Tavily proxy twin on tools:/allowed-tools: lines: tests/skills/test_mcp_proxy_names.py:55-65.
+- mcp__auggie-mcp__ only in hooks.json and auggie-flag-clear.sh: tests/skills/test_mcp_proxy_names.py:68-77; live grep of the scanned roots finds it only in src/superclaude/hooks/hooks.json, src/superclaude/hooks/scripts/auggie-flag-clear.sh and their plugins/superclaude/hooks/ copies (the src/superclaude/cli/eval hits are outside the brief's roots).
+- Missed call site fixed with the constraint's short form: src/superclaude/skills/sc-brainstorm-protocol/SKILL.md:195 ("`mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) alternative"); the existing degrade path (fallback_1 tier) text is unchanged.
+- No .claude/ mirror, src/superclaude/... path in a primitive, hard-coded repo owner/name/branch, or secret in the diff.
+
+Findings:
+F2.1 ac=scope at=tests/skills/test_mcp_proxy_names.py:23 anchor="every `tools:`/`allowed-tools:` line naming `mcp__tavily__tavily_<x>` also names `mcp__litellm__Tavily-tavily_<x>`" chk=n,n,n,n family=guard-yaml-list-blindspot fix=Optional hardening: also check YAML block-list allow-list entries (`  - mcp__tavily__tavily_<x>` under a `tools:` key) for a proxy twin on the preceding entry. Non-blocking. covers="every `tools:`/`allowed-tools:` line": `_TOOLS_LINE` only matches lines that begin with `tools:`/`allowed-tools:`, so the ten agents whose allow-lists are YAML block lists (for example src/superclaude/agents/rf-analyst.md:14, src/superclaude/agents/deep-research.md:7-13) are not covered by the Tavily check or the AUG-before-auggie ordering check. The brief's literal "line" wording is met and those agents are compliant today (each carries its `- mcp__litellm__Tavily-...` twin), so this is a coverage gap for future regressions, not an AC miss.

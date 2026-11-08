@@ -781,7 +781,7 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 /sc:tdd --resume .dev/tasks/to-do/TASK-TDD-20260401-143022/TASK-TDD-20260401-143022.md
 ```
 
-**MCP servers:** context7, auggie-mcp
+**MCP servers:** context7, `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)
 
 ---
 
@@ -932,7 +932,7 @@ The command hands its arguments to the `sc-validate-roadmap-protocol` skill, whi
 /sc:brainstorm "improve onboarding workflow" --dry-run --strategy enterprise
 ```
 
-**MCP servers:** auggie-mcp, codegraph, tavily  
+**MCP servers:** `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`), codegraph, tavily  
 **Personas:** architect, analyzer, scribe (auto-selected per detected domain)
 
 → Full guide: [brainstorm.md](brainstorm.md)

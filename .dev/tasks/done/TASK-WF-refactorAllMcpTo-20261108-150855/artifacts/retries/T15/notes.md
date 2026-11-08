@@ -1,0 +1,4 @@
+98e6950ddbe32b85adc2ceb852b750ab48c85dae
+A1 r1-1 F1.2 minor tests/skills/test_mcp_proxy_names.py:23 ac=scope chk=n,n,n,n the Tavily check (and the AUG-before-auggie ordering check) only reads lines that begin with tools:/allowed-tools:, so YAML block-list allow-lists are not covered; the module docstring overclaims "every installed primitive"; optional hardening
+A1 r1-1 F1.3 minor .dev/tasks/to-do/TASK-WF-refactorAllMcpTo-20261108-150855/artifacts/t15-guard.log:1 ac=scope chk=n,n,n,n the T15 logs were not yet staged at review time; staged by the orchestrator at task completion (git add .dev/tasks)
+A1 r1-2 F2.1 minor tests/skills/test_mcp_proxy_names.py:23 ac=scope chk=n,n,n,n same coverage gap as F1.2 (YAML block-list tools: entries, e.g. src/superclaude/agents/rf-analyst.md:14, deep-research.md:7-13); those agents are compliant today

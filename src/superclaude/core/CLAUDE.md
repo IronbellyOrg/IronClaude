@@ -17,11 +17,11 @@ uv run python script.py          # execute scripts
 
 | Server         | Primary Use                                  | Flag (advisory) |
 |----------------|----------------------------------------------|-----------------|
-| auggie         | Codebase search — call before significant edits | (auto)  |
+| `litellm` (Augment search) or `auggie` | Codebase search, call before significant edits; proxy tool `mcp__litellm__augment_code-augment_code_search`, sees pushed code only | (auto)  |
 | codegraph      | Code graph: symbols, callers, impact, file outlines (guide: ~/.claude/CODEGRAPH.md) | (auto) |
-| context7       | Official library/framework docs              | --c7       |
-| tavily         | Web search, current information              | --tavily   |
-| playwright     | Browser automation, E2E testing              | --play     |
+| context7       | Official library/framework docs; tools `mcp__litellm__context7-*` (proxy) or `mcp__context7__*` | --c7       |
+| tavily         | Web search, current information; tools `mcp__litellm__Tavily-*` (proxy) or `mcp__tavily__*` | --tavily   |
+| playwright     | Browser automation, E2E testing; plugin tools `mcp__plugin_playwright_playwright__*` | --play     |
 
 The Flag column is advisory: these are hints Claude may honour, not options every command accepts. A command's own flags are in its file under `~/.claude/commands/sc/`; check there before passing one.
 
@@ -33,12 +33,12 @@ The Flag column is advisory: these are hints Claude may honour, not options ever
 
 1. **UV only** — never `python -m` or bare `pip`
 2. **Parallel by default** — batch independent tool calls; sequential only for true dependencies
-3. **Confidence check** — ≥90% proceed, 70-89% present options, <70% ask. Trigger surface is not just code edits: run it (or its lightweight form — verify the specific token via `--help`/grep/file read/`codebase-retrieval`) BEFORE any reply that suggests an action, emits a command/snippet, or names a specific flag/path/function/version. Recommendation = action.
+3. **Confidence check** — ≥90% proceed, 70-89% present options, <70% ask. Trigger surface is not just code edits: run it (or its lightweight form — verify the specific token via `--help`/grep/file read/`mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`)) BEFORE any reply that suggests an action, emits a command/snippet, or names a specific flag/path/function/version. Recommendation = action.
 4. **Git** — feature branches only; never commit directly to master/main. `.dev/tasks/` is always staged (`git add .dev/tasks`): packages, ledgers and each package's `.dev/tasks/<pkg>/artifacts/` included. Never gitignore it, never leave it untracked. Staging is not committing. The project-root `artifacts/` is a different folder and is never staged
 5. **Output paths** — write files next to their source or to the `--output` dir the CLI command specifies; `docs/generated/` is a roadmap pipeline artifact directory, not a general output sink
 6. **Finish what you start** — no TODO stubs for core logic; if you begin a feature, complete it to working state
 7. **Scope discipline** — build exactly what's asked; no speculative additions
-8. **Auggie first** — call `codebase-retrieval` before significant edits to load relevant context
+8. **Auggie first** — call `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`) before significant edits to load relevant context
 9. **Temporal** — verify current date from env context before any date/version reasoning
 10. **Issues** — before filing a GitHub issue, copy the matching template (`~/.claude/ISSUE-HANDOFF.md` for work handed to another person or agent, `~/.claude/ISSUE-BACKLOG.md` for parked work) to a temporary file, fill every section in the copy, then run `gh issue create --title "<title>" --body-file <the copy>`; never edit the installed template
 
@@ -131,7 +131,7 @@ Pick the refresh tool by the content type of the claim:
 |---|---|
 | Exact line numbers / file content | `Read` |
 | Symbolic queries (which function, where defined, what references) | `codegraph_search` / `codegraph_callers` (or the CLI, `~/.claude/CODEGRAPH.md`) to locate, else `Grep` for the definition and references; then `Read` before citing |
-| Semantic / cross-cutting ("is there an X anywhere") | `mcp__auggie__codebase-retrieval` |
+| Semantic / cross-cutting ("is there an X anywhere") | `mcp__litellm__augment_code-augment_code_search` (else `mcp__auggie__codebase-retrieval`); pushed code only; use Grep/codegraph for unsaved edits |
 | Runtime state (permissions, mounts, sockets) | `Bash` (user-executed read-only command) |
 
 ### Session context envelope

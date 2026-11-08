@@ -13,13 +13,14 @@ Loaded in Wave 2A. Defines the matrix of enrichment options and quality-tier fal
 - `domain ∈ {code, architecture, incident}` AND NOT `--no-codebase`, OR
 - `--codebase` (forced) regardless of domain
 
-**Tier 1 (primary)**: `mcp__auggie__codebase-retrieval`
+**Tier 1 (primary)**: `mcp__litellm__augment_code-augment_code_search`, then `mcp__auggie__codebase-retrieval`
 
+- Codebase search: call `mcp__litellm__augment_code-augment_code_search` (`repo_owner`/`repo_name` from `git remote get-url origin`, `branch` = the repository's default branch; it sees pushed code only); if that tool is not available, call `mcp__auggie__codebase-retrieval`. For uncommitted or unpushed changes use codegraph or Grep.
 - Two parallel queries (per existing brainstorm v1 pattern):
   - Query 1: `"{topic} - find relevant code, existing implementations, related components, and integration points"`
   - Query 2: `"Project architecture, structure, patterns, and conventions related to {topic_domain_area}"`
 - Output budget: ~800-1200 tokens summary per query
-- quality_tier: `primary`
+- quality_tier: `primary` (earned by either tool)
 - Under `--unattended` this tier writes no nested directory and no nested contract; `nested/analyze-<n>/` is written only by a `/sc:analyze` call (the skill's other codebase action), and the scan is recorded in `enrichment_used` with this tier's `quality_tier`.
 
 **Tier 2 (fallback_1)**: codegraph, then native Glob/Grep

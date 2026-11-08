@@ -3,7 +3,7 @@ name: spec-panel
 description: "Multi-expert specification review and improvement using renowned specification and software engineering experts"
 category: analysis
 complexity: enhanced
-mcp-servers: [context7]
+mcp-servers: [litellm, context7]
 personas: [technical-writer, system-architect, quality-engineer]
 ---
 

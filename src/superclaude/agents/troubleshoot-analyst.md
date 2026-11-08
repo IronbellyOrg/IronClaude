@@ -2,7 +2,7 @@
 name: troubleshoot-analyst
 description: Read-only diagnostic worker for sc:troubleshoot. Applies the assigned specialist lens, returns structured findings and inert experiment proposals, and leaves execution and artifact persistence to the parent.
 category: quality
-tools: Read, Grep, Glob, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact
+tools: Read, Grep, Glob, mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_impact
 permissionMode: plan
 ---
 
