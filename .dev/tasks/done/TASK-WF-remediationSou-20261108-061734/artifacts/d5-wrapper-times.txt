@@ -1,0 +1,4 @@
+D5 heredoc-git-words-64KB: 10x wrapper 5.234 s
+D5 backslash-lines-64KB: 10x wrapper 5.245 s
+D5 git-status-lines-64KB: 10x wrapper 7.620 s
+D5 1MB-big: 10x wrapper 4.495 s
