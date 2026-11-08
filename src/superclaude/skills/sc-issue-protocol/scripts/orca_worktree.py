@@ -1128,7 +1128,10 @@ def shim_interval() -> float:
 
 def ccsession_title(handle: str) -> bool:
     """True when the terminal's tab title carries the name ccsession gave the launch."""
-    res = run(["orca", "terminal", "show", "--terminal", handle, "--json"])
+    res = run(
+        ["orca", "terminal", "show", "--terminal", handle, "--json"],
+        TERMINAL_READ_TIMEOUT,  # not the 120 s default: this runs after every screen miss
+    )
     data = parse_json(res.out) if res.ok else None
     result = data.get("result") if isinstance(data, dict) else None
     terminal = result.get("terminal") if isinstance(result, dict) else None

@@ -1588,6 +1588,28 @@ def test_la5_launch_shim_check_ignores_a_title_that_is_not_ccsessions(
     assert len(orca_calls(fake_orca, "terminal", "show")) == 5
 
 
+def test_la5_title_lookup_uses_the_short_terminal_timeout(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """PR 455 review: five stalled `terminal show` calls must not cost 5 x 120 s."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("orca_worktree_title", SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, module)  # dataclasses need it
+    spec.loader.exec_module(module)
+    seen: list[float] = []
+
+    def fake_run(argv, timeout=module.DEFAULT_TIMEOUT, cwd=None):
+        seen.append(timeout)
+        return module.Result(rc=1)
+
+    monkeypatch.setattr(module, "run", fake_run)
+    assert module.ccsession_title("term_abc") is False
+    assert seen == [module.TERMINAL_READ_TIMEOUT]
+    assert module.TERMINAL_READ_TIMEOUT < module.DEFAULT_TIMEOUT
+
+
 def test_la5_launch_shim_check_title_may_appear_on_a_later_try(
     fake_orca: FakeOrca, git_repo: Path, issue_dir: Path
 ) -> None:
