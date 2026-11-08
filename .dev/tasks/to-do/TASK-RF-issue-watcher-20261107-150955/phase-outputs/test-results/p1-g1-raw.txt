@@ -1,0 +1,10 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 0 items
+
+============================ no tests ran in 0.01s =============================

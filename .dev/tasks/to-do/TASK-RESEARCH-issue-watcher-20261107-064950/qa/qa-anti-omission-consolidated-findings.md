@@ -1,0 +1,14 @@
+# Consolidated anti-omission findings (Gate 5, fix cycle 1)
+
+Sources: `qa/qa-anti-omission-report-1.md` (VERDICT: FAIL; 301 findings enumerated: 279 represented, 8 covered by dedup, 14 omitted: 2 IMPORTANT, 12 MINOR; 13 partial sub-detail drops) and `qa/qa-anti-omission-report-2.md` (VERDICT: PASS; 972 enumerated: 959 represented, 2 covered by dedup, 11 omitted, all MINOR, plus about 20 uncounted sub-detail gaps). Consolidated 2026-11-07 by the executor. Report under review: `RESEARCH-REPORT-issue-watcher.md`. Coverage was judged by meaning, not by ID citation. All addendum-conformance items (option A decided by the owner, B/C scored with revisit conditions, Coder#477 boundary and unnecessary-under-A statement, integer-only rule, claim-only scope, `ci.py` and `codebase-context.md` corrections) passed in both reports.
+
+Count line: blocking omissions 2; minor omissions about 25 (not recovered, not blocking).
+
+| # | Omitted source finding | Source file and section | Severity | Blocking | Disposition | Where to add in the report |
+|---|---|---|---|---|---|---|
+| O-05 | `orca agent launch` has no permission-mode or allowed-tools flag and takes the prompt as one free-text argument; this bears on the open permission-mode question (Q6). | research/03-governance-and-security-surface.md section 3.1 (and the launch help text it cites) | IMPORTANT | yes | RECOVER | Section 2.2 (the `orca agent launch` argument contract) or the Q6 row in Section 9.2, with the source section cited; re-read the source finding in file 03 first and phrase it exactly at the evidence level it has there (tag [UNVERIFIED] if file 03 does). |
+| O-04 | Research 01's estimate that the double-claim race window is "seconds to minutes" and a collision "possible but not frequent"; the report says only that the window "was not measured". The estimate bears on revisit condition 4. | research/01-claim-flow-and-session-launch.md section 9 | IMPORTANT (borderline) | yes | RECOVER | Where the report says the race window was not measured (Q13 row and/or the at-most-once discussion and revisit condition 4): add one clause that file 01 estimates the window at seconds to minutes and a collision as possible but not frequent, labelled as an estimate from reading the code (not measured). |
+
+Minor omissions (12 in report 1 Part C plus 11 in report 2, all low-relevance details such as workflow `timeout-minutes`, importer counts, rejected package models, Claude GitHub App permission set, Enterprise Cloud rate limits, a `coder_script` argument, the `repo` scope for private-repo items, the `--bare` future default, GraphQL pagination) are NOT blocking and are justified as intentional dedup / out of scope for a report that states decision-relevant forms; they remain notes.
+
+Consolidated verdict: FAIL (2 blocking omissions). Minor omissions remain notes.

@@ -1,0 +1,7 @@
+{"metrics_schema_version":"1.0","run_id":"reflect-pre-20261107T202030Z-d1ce14","skill":"sc-reflect","skill_version":"1.8.0","mode":"pre","tier_reached":2,"status":"success","wall_clock_ms":null,
+"calibration":{"calibrator_diversity":"degraded","calibrated_confidence_initial":0.71,"calibrated_confidence_final":0.82},
+"ensemble":{"t2_model_class_diversity":"full","t2_vendor_diversity":"single","reviewer_count":3,"executor_class_resolved":false,"executor_exclusion_degraded":false},
+"evidence_validator":{"ran":true,"citations_total":191,"citations_revalidated":101,"citations_dropped":0,"citations_dropped_extrapolated":0,"drop_rate":0.0,"budget_policy":"sampled"},
+"adversarial":{"convergence_score":1.0,"merge_method":"adversarial","adversarial_unavailable":false,"fallback_path":null},
+"promotion":{"action":"not-applicable","gate_conditions_passed":0,"gate_conditions_total":9,"cross_fs":false},
+"degraded_components":["auggie","graph:unverified"],"input_drift_detected":false,"needs_human_decision":false}

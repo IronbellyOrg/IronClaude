@@ -1,0 +1,30 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/issue-watcher.md section 15 row 'GraphQL userContentEdits, projectItems, fieldValueByName' (line 837); PROJECT_ITEMS_QUERY draft in research/06 Table 1.5 (DF-14)",
+  "note": "UNVERIFIED reply shape for G6 (PROJECT_ITEMS_QUERY). Replace with a real capture in FU-1. The project id is a low-entropy placeholder (DF-32) that matches ^PVT_[A-Za-z0-9_-]{1,64}$.",
+  "payload": {
+    "data": {
+      "repository": {
+        "issue": {
+          "projectItems": {
+            "nodes": [
+              {
+                "isArchived": false,
+                "project": {
+                  "id": "PVT_test_project_0001"
+                },
+                "fieldValueByName": {
+                  "name": "Backlog"
+                }
+              }
+            ],
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            }
+          }
+        }
+      }
+    }
+  }
+}

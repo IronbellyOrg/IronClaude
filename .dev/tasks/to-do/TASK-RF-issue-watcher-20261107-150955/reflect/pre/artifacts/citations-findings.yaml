@@ -1,0 +1,216 @@
+- id: M-001-E1
+  finding: M-001
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 864
+  end: 864
+  excerpt: --mode post --remediate --diff <BASE SHA>..HEAD
+- id: M-001-E2
+  finding: M-001
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 866
+  end: 866
+  excerpt: If the skill surfaces any Regression or any unauthorized Drift, apply the remediations the skill offers under `--remediate`
+- id: M-001-E3
+  finding: M-001
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 854
+  end: 854
+  excerpt: ensuring exactly one new commit exists on top of BASE
+- id: M-002-E1
+  finding: M-002
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 699
+  end: 699
+  excerpt: a finding in a file this task did not touch (the local `uv run ruff` is not the pinned 0.15.20) is recorded and NOT fixed
+- id: M-002-E2
+  finding: M-002
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 702
+  end: 702
+  excerpt: ensuring all three commands exit 0; a hit in a file this task did not touch is recorded and not fixed
+- id: M-002-E3
+  finding: M-002
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 693
+  end: 693
+  excerpt: a failure in a file this task did not touch is investigated for causality and recorded, not fixed, if it is pre-existing
+- id: M-002-E4
+  finding: M-002
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 735
+  end: 735
+  excerpt: every row is PASS (a FAIL is fixed and its step re-run before this item is marked complete)
+- id: M-003-E1
+  finding: M-003
+  path: docs/designs/issue-watcher.md
+  start: 887
+  end: 887
+  excerpt: Every exit writes a schema-valid audit line or the stderr fallback; rotation keeps 4 files
+- id: M-003-E2
+  finding: M-003
+  path: docs/designs/issue-watcher.md
+  start: 722
+  end: 722
+  excerpt: 'Stderr fallback (`audit.stderr_fallback(reason, exit)`): one JSON line with `kind`, `ts`, `host`, `exit`, `reason` only'
+- id: M-003-E3
+  finding: M-003
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 460
+  end: 460
+  excerpt: with `audit.stderr_fallback` when the append fails
+- id: M-004-E1
+  finding: M-004
+  path: docs/designs/issue-watcher.md
+  start: 879
+  end: 879
+  excerpt: '`pending` with `launches` 1 is saved before the launcher is called; the re-read failure skips'
+- id: M-004-E2
+  finding: M-004
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 460
+  end: 460
+  excerpt: a closed issue, a lost label, a voided approval or a changed Project status gives `revalidation_failed` with no entry
+- id: M-004-E3
+  finding: M-004
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 475
+  end: 475
+  excerpt: FR-011 (a re-read showing the issue closed gives `revalidation_failed` with no entry;
+- id: M-005-E1
+  finding: M-005
+  path: docs/designs/issue-watcher.md
+  start: 479
+  end: 479
+  excerpt: '| T-2 | `failed` | now >= `updated_at` + 10 min and `attempts` < 3 | eligible | none (re-runs every check) |'
+- id: M-005-E2
+  finding: M-005
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 336
+  end: 336
+  excerpt: '`backoff_elapsed(entry, now)` (now >= `updated_at` + 10 min)'
+- id: M-006-E1
+  finding: M-006
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 848
+  end: 848
+  excerpt: the POST reflect runs with the working-tree diff against HEAD as its change set, and that is documented as an Open Question; see OQ-51
+- id: M-006-E2
+  finding: M-006
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 860
+  end: 860
+  excerpt: first read the SHA from `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/base-sha.txt` and substitute it for the text `<BASE SHA>`
+- id: M-006-E3
+  finding: M-006
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 860
+  end: 860
+  excerpt: do not paraphrase, summarize, reorder or omit any part
+- id: M-007-E1
+  finding: M-007
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 611
+  end: 611
+  excerpt: xdist is not a project dependency, so it is supplied ad hoc exactly as `.github/workflows/test.yml:29` does
+- id: M-007-E2
+  finding: M-007
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 611
+  end: 611
+  excerpt: uv run --offline --with "pytest-xdist>=3.5,<4" pytest -n auto tests/issue_watch/
+- id: M-007-E3
+  finding: M-007
+  path: .github/workflows/test.yml
+  start: 29
+  end: 29
+  excerpt: uv pip install -e ".[dev]" "pytest-xdist>=3.5,<4"
+- id: M-008-E1
+  finding: M-008
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 723
+  end: 723
+  excerpt: git diff --exit-code pyproject.toml Makefile; echo "EXIT=$?"
+- id: M-008-E2
+  finding: M-008
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 723
+  end: 723
+  excerpt: this gate is run again in P10 after staging
+- id: M-008-E3
+  finding: M-008
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 851
+  end: 851
+  excerpt: PASS only when EVERY staged path starts with one of the six prefixes
+- id: M-009-E1
+  finding: M-009
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 690
+  end: 690
+  excerpt: IF FAILED, fix the cause (never weaken an assertion) and re-run until PASSED, recording each fix
+- id: M-009-E2
+  finding: M-009
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 778
+  end: 778
+  excerpt: re-run until it passes, recording each fix; IF it cannot be made to pass, HALT
+- id: M-010-E1
+  finding: M-010
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 742
+  end: 742
+  excerpt: a table of every created or changed file (path, line count, creating phase)
+- id: M-010-E2
+  finding: M-010
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 778
+  end: 778
+  excerpt: re-run Steps 9.4 to 9.16 (gate commands G-1 to G-11) in order
+- id: M-010-E3
+  finding: M-010
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 729
+  end: 729
+  excerpt: a GAP is fixed by adding the missing test
+- id: M-011-E1
+  finding: M-011
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 330
+  end: 330
+  excerpt: '`predicates` of the package (`parse_utc`, `format_utc`, `valid_issue_number`)'
+- id: M-011-E2
+  finding: M-011
+  path: docs/designs/issue-watcher.md
+  start: 239
+  end: 239
+  excerpt: '| `record` | `predicates` (types only, for `Entry` fields that hold an issue number) | `superclaude.cli.swarm.atomic` | none |'
+- id: M-011-E3
+  finding: M-011
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 751
+  end: 751
+  excerpt: check every module of `src/superclaude/cli/issue_watch/` against the import table of `docs/designs/issue-watcher.md` lines 233-242
+- id: M-012-E1
+  finding: M-012
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 502
+  end: 502
+  excerpt: ensuring `git diff -- src/superclaude/cli/main.py` shows only these added lines (two code lines plus blank separators) and nothing else in the file changed
+- id: M-012-E2
+  finding: M-012
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 520
+  end: 520
+  excerpt: fix any finding inside those files
+- id: M-012-E3
+  finding: M-012
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 520
+  end: 520
+  excerpt: re-run until both commands exit 0
+- id: M-013-E1
+  finding: M-013
+  path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+  start: 875
+  end: 875
+  excerpt: a failure of this staging command is logged in that section and never reverts the Done status

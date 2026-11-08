@@ -1,0 +1,4 @@
+All checks passed!
+CHECK_EXIT=0
+7 files already formatted
+FORMAT_EXIT=0

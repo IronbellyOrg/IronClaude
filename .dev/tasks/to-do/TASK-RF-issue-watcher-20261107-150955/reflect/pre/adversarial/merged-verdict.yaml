@@ -1,0 +1,346 @@
+# Merged verdict: /sc:adversarial Mode A, Step 5 (merge-executor, opus)
+# Base: variant-3 (reviewer-3-card.yaml, opus:refactorer), combined score 0.890.
+# Incorporated: variant-1 (sonnet:analyzer), variant-2 (haiku:qa). Plan: adversarial/refactor-plan.md (16 changes).
+# Debate agreement 100% (28/28 diff points).
+# STATUS: BLOCKED_BY_INVARIANTS (HIGH, UNADDRESSED: INV-001, INV-004, INV-005)
+# MEDIUM warnings (do not block convergence, review them): INV-002, INV-003, INV-006, INV-008, INV-010
+# Every evidence line below was re-Read at the cited line on 2026-11-07. Corrections:
+#   INV-004 per-phase G-4 site TF:259 -> TF:260; INV-006 Makefile:500 dropped (it is in eval-skill, not lint-architecture);
+#   plan change #11 "TF:800 M4 exemption list" -> TF:797 (preamble) and TF:806/818/833 (the 29-departure lists).
+# Path shorthand in comments only: TF = the task file, D = docs/designs/issue-watcher.md, R06 = research/06-gap-fill-decisions.md.
+merge_method: adversarial
+convergence_score: 1.00
+reviewers: 3
+findings:
+  # provenance: base variant-3 R3-001; co-source variant-1 R1-002; debate X-001 95% VALID-BLOCKING; plan change #1
+  # invariant: INV-001 (HIGH, unresolved) a re-gate alone leaves remediated source checked but uncommitted, and a second commit breaks DF-07
+  # invariant: INV-002 (MEDIUM) the bypass-mode runner has no user to answer the remediation handoff, so it would self-approve
+  # invariant: INV-003 (MEDIUM) any re-gate after Step 10.6 must use the PASS-baseline verdict of M-002
+  - id: M-001
+    severity: blocking
+    category: sequencing
+    claim: >-
+      Step 10.6 runs the POST reflect with --remediate after the single checkpoint commit and tells the runner to apply
+      the remediations the skill offers. Those edits land after every gate, outside the BASE..HEAD audit range, and are
+      never committed, because Step 10.7 stages only .dev/tasks with no second commit (DF-07). The handoff also needs an
+      explicit yes that the bypass-mode runner subagent has no user to give.
+    evidence:
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:864 - --mode post --remediate --diff <BASE SHA>..HEAD'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:866 - If the skill surfaces any Regression or any unauthorized Drift, apply the remediations the skill offers under `--remediate`'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:854 - ensuring exactly one new commit exists on top of BASE'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:851 - PASS only when EVERY staged path starts with one of the six prefixes'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:875 - run `git add .dev/tasks` from the repository root (staging only: no second commit, no push, no PR'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md:30 - Final item, after the task is marked Done: `git add .dev/tasks` (staging only; no second commit)'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:860 - spawn EXACTLY ONE subagent via the Agent tool (subagent_type: general-purpose, mode: bypassPermissions)'
+      - 'src/superclaude/skills/sc-reflect-protocol/refs/remediation-handoff.md:32 - `yes` proceeds; anything else, including an ambiguous answer, is `no`.'
+    source_findings: [R3-001, R1-002]
+    debate_outcome: 'X-001: unanimous VALID-BLOCKING, 95%. Fix option not agreed (INV-001 HIGH, unresolved).'
+    fix: >-
+      Make the Step 10.6 POST reflect report-only: drop --remediate from the Step 10.6 skill arguments and replace item 3
+      at TF:866 with "any Regression or unauthorized Drift HALTs the task; write it to the Task Log and report it to the
+      owner; do not edit source and do not create a second commit". A re-gate after remediation is not sufficient
+      (INV-001), and the runner must never answer the remediation handoff itself (INV-002). If the owner later chooses a
+      re-gate, it uses the PASS-baseline verdict defined in M-002 (INV-003).
+
+  # provenance: base variant-3 R3-002; debate X-008 95% VALID-BLOCKING; attack A-004 rejected 3/3; plan change #2
+  # invariant: INV-004 (HIGH, unresolved) the same exit-0 plus recorded-not-fixed / HALT pair recurs at every site listed in the evidence
+  # invariant: INV-005 (HIGH, unresolved) G-2 (TF:693) has the same conflict for pre-existing test failures
+  # invariant: INV-006 (MEDIUM) Makefile:48 runs lint-architecture first; its recipe exits 1 (Makefile:489) before ruff (Makefile:50) runs
+  # invariant: INV-007 (LOW) bare uv run ruff is 0.17.3, not the pinned 0.15.20 (DF-09)
+  # site note: TF:514 (P7 test run) and TF:729/732 (re-runs of Steps 9.4-9.16) were seen during the re-Read; they are outside the plan's site list and are not added as evidence
+  - id: M-002
+    severity: blocking
+    category: contradiction
+    claim: >-
+      The lint, format and affected-test gates require exit 0 while also saying a finding or failure in a file the task
+      did not touch is recorded and not fixed. A pre-existing finding therefore makes the gate fail with no permitted fix,
+      yet the gate record requires every row PASS, any failing command is a finding, and the post-fix re-runs HALT when a
+      command cannot be made to pass. The task has no passing path on a repository with any pre-existing lint or test failure.
+    evidence:
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:699 - a finding in a file this task did not touch (the local `uv run ruff` is not the pinned 0.15.20) is recorded and NOT fixed'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:702 - ensuring all three commands exit 0; a hit in a file this task did not touch is recorded and not fixed'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:693 - a failure in a file this task did not touch is investigated for causality and recorded, not fixed, if it is pre-existing'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:735 - every row is PASS (a FAIL is fixed and its step re-run before this item is marked complete)'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:745 - Any command that fails, any unreproducible record, any skipped test, any collection warning and any count mismatch is a finding.'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:260 - ensuring exit 0; a finding in a file this task did not touch'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:390 - ensuring exit 0; a finding in a file this task did not touch is recorded and NOT fixed'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:517 - a finding in a file this task did not touch is recorded and NOT fixed'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:530 - Any command that fails, any recorded result that cannot be reproduced, any skipped or xfailed test'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:306 - re-run until it passes, recording each fix; IF it cannot be made to pass, HALT'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:321 - re-run until it passes, recording each fix; IF it cannot be made to pass, HALT'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:433 - re-run until it passes, recording each fix; IF it cannot be made to pass, HALT'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:448 - re-run until it passes, recording each fix; IF it cannot be made to pass, HALT'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:560 - re-run until it passes, recording each fix; IF it cannot be made to pass, HALT'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:575 - re-run until it passes, recording each fix; IF it cannot be made to pass, HALT'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:657 - re-run until it passes, recording each fix; IF it cannot be made to pass, HALT'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:672 - re-run until it passes, recording each fix; IF it cannot be made to pass, HALT'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:778 - re-run until it passes, recording each fix; IF it cannot be made to pass, HALT'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:793 - re-run until it passes, recording each fix; IF it cannot be made to pass, HALT'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:821 - re-run until it passes, recording each fix; IF it cannot be made to pass, HALT'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:836 - re-run until it passes, recording each fix; IF it cannot be made to pass, HALT'
+      - 'Makefile:48 - lint: lint-architecture'
+      - 'Makefile:489 - exit 1; \'
+      - 'Makefile:50 - uv run ruff check .'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md:32 - bare `uv run ruff` resolves to 0.17.3, not the pinned 0.15.20'
+    source_findings: [R3-002]
+    debate_outcome: 'X-008: unanimous VALID-BLOCKING, 95%; attack A-004 (pre-existing findings are out of scope) rejected 3/3. Site list not agreed complete (INV-004, INV-005 HIGH, unresolved).'
+    fix: >-
+      (a) Add a P1 baseline step that records the output of `make lint`, the pinned ruff 0.15.20 format check and the G-2
+      affected test subset before any source change. (b) Define one PASS-baseline verdict once (exit 0, or every finding
+      and failure is already in the P1 baseline and lies in a file this task did not touch) and reference it at every site:
+      G-2 TF:693; G-4/G-5 TF:699 and TF:702; the gate record TF:735 and the lens TF:745; the per-phase G-4 items TF:260,
+      TF:390 and TF:517; the Gate A-D post-fix re-runs TF:306, 321, 433, 448, 560, 575, 657 and 672; the Final and M4
+      re-runs TF:778, 793, 821 and 836; and the Gate C lens TF:530. (c) Add the same carve-out to the 3.G2, 9.F2, 9.F11
+      and 9.F16 agent prompts. (d) Record the lint-architecture prerequisite as its own baseline row and run
+      `uv run ruff check .` directly as well, so ruff always checks the new package even when lint-architecture exits 1
+      (INV-006). (e) Pin the ruff version used for the baseline and for every comparison (INV-007).
+
+  # provenance: variant-2 R2-002; debate X-006 unanimous VALID-MINOR 95%; plan change #3
+  # invariant: INV-008 (MEDIUM) the Step 9.17 trace and the lens rubric do not catch this gap, so the test must be added explicitly
+  - id: M-003
+    severity: minor
+    category: coverage_gap
+    claim: >-
+      Step 6.2 implements the cycle-level stderr fallback when the audit append fails, and the design requires every exit
+      to write an audit line or the stderr fallback, but the Step 6.6 cycle test list covers only the parseable-line case
+      for each exit code and never injects an append failure into run_cycle.
+    evidence:
+      - 'docs/designs/issue-watcher.md:887 - Every exit writes a schema-valid audit line or the stderr fallback; rotation keeps 4 files'
+      - 'docs/designs/issue-watcher.md:722 - Stderr fallback (`audit.stderr_fallback(reason, exit)`): one JSON line with `kind`, `ts`, `host`, `exit`, `reason` only'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:460 - with `audit.stderr_fallback` when the append fails'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:472 - each of the exits 0, 2, 3, 4, 5, 6, 7 and 75 appends exactly one parseable cycle line whose `exit` matches'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:212 - `stderr_fallback` emits only `kind`, `ts`, `host`, `exit`, `reason`'
+    source_findings: [R2-002]
+    debate_outcome: 'X-006: unanimous VALID-MINOR, 95%.'
+    fix: >-
+      Add a case to the Step 6.6 test item (TF:472): inject an OSError into the audit append inside run_cycle and assert
+      that exactly one stderr line is written with only kind, ts, host, exit and reason, and that the exit code is unchanged.
+
+  # provenance: variant-2 R2-001; debate X-007 unanimous VALID-MINOR 95%; plan change #4
+  # invariant: INV-008 (MEDIUM) not caught by the Step 9.17 AC trace; INV-009 (LOW) INF-138 set to partially_covered to match AC-6
+  - id: M-004
+    severity: minor
+    category: coverage_gap
+    claim: >-
+      Step 6.2 requires a closed issue, a lost label, a voided approval or a changed Project status to give
+      revalidation_failed with no entry, but the Step 6.7 test list covers only the closed-issue case.
+    evidence:
+      - 'docs/designs/issue-watcher.md:879 - `pending` with `launches` 1 is saved before the launcher is called; the re-read failure skips'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:460 - a closed issue, a lost label, a voided approval or a changed Project status gives `revalidation_failed` with no entry'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:475 - FR-011 (a re-read showing the issue closed gives `revalidation_failed` with no entry;'
+    source_findings: [R2-001]
+    debate_outcome: 'X-007: unanimous VALID-MINOR, 95%.'
+    fix: >-
+      Add the lost-label, voided-approval and changed-Project-status re-read cases to the Step 6.7 test list (TF:475),
+      each asserting revalidation_failed and no entry.
+
+  # provenance: variant-1 R1-001; debate X-002 unanimous VALID-MINOR 95%; plan change #5
+  - id: M-005
+    severity: minor
+    category: coverage_gap
+    claim: >-
+      The Step 4.1c wording of backoff_elapsed drops the design's "attempts < 3" conjunct of transition T-2. The
+      behaviour is still covered, because run_cycle applies the attempts check, so the defect is in the wording only.
+    evidence:
+      - 'docs/designs/issue-watcher.md:479 - | T-2 | `failed` | now >= `updated_at` + 10 min and `attempts` < 3 | eligible | none (re-runs every check) |'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:336 - `backoff_elapsed(entry, now)` (now >= `updated_at` + 10 min)'
+    source_findings: [R1-001]
+    debate_outcome: 'X-002: unanimous VALID-MINOR, 95%. T-2 judged covered.'
+    fix: >-
+      Restore the conjunct at TF:336, or state there that the attempts < 3 check of T-2 is applied in run_cycle and name
+      the test that covers attempts == 3.
+
+  # provenance: variant-1 R1-003; debate C-001 95% minor; plan change #6
+  # invariant: INV-010 (MEDIUM) OQ-51 declares the working-tree change set, not the argument text; HEAD..HEAD would give an empty audit that still meets Done
+  - id: M-006
+    severity: minor
+    category: contradiction
+    claim: >-
+      When the owner withdraws the commit, base-sha.txt is never used and the POST reflect is to run on the working-tree
+      diff (OQ-51), but the Step 10.6 prompt allows only the <BASE SHA> substitution and forbids any other change to the
+      prompt, so the runner has no permitted argument text for that branch.
+    evidence:
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:848 - the POST reflect runs with the working-tree diff against HEAD as its change set, and that is documented as an Open Question; see OQ-51'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:860 - first read the SHA from `.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/phase-outputs/plans/base-sha.txt` and substitute it for the text `<BASE SHA>`'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:860 - do not paraphrase, summarize, reorder or omit any part'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:875 - that it records `commit withdrawn by owner` instead and the POST reflect ran with the working-tree diff documented as an Open Question'
+    source_findings: [R1-003]
+    debate_outcome: 'C-001: 95% minor (the branch is declared by OQ-51; only the argument text is missing).'
+    fix: >-
+      Give the Step 10.6 prompt (TF:860) explicit substitution text for the withdrawn-commit branch of TF:848 (the
+      working-tree diff against HEAD), and state that an empty HEAD..HEAD audit is forbidden and does not satisfy Done.
+
+  # provenance: variant-1 R1-004; debate C-002 95% minor; plan change #7
+  - id: M-007
+    severity: minor
+    category: wrong_citation
+    claim: >-
+      The Step 8.x rationale says xdist is supplied "exactly as" CI line 29 does, but CI installs it into the environment
+      with uv pip install, while the task supplies it ad hoc with uv run --offline --with. The cited line names a
+      different mechanism.
+    evidence:
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:611 - xdist is not a project dependency, so it is supplied ad hoc exactly as `.github/workflows/test.yml:29` does'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:611 - uv run --offline --with "pytest-xdist>=3.5,<4" pytest -n auto tests/issue_watch/'
+      - '.github/workflows/test.yml:29 - uv pip install -e ".[dev]" "pytest-xdist>=3.5,<4"'
+    source_findings: [R1-004]
+    debate_outcome: 'C-002: 95% minor.'
+    fix: >-
+      Correct the TF:611 rationale to say the same version range as .github/workflows/test.yml:29 is used, supplied with
+      uv run --with instead of being installed into the environment.
+
+  # provenance: variant-1 R1-005; debate C-003 95% minor; plan change #8
+  # invariant: INV-014 (ADDRESSED) the TF:851 staged-path allowlist HALTs before the commit, so this stays minor
+  # merge note: plan change #8 says "add the two paths"; the re-Read shows TF:723 already names them, so the fix targets the comparison base instead
+  - id: M-008
+    severity: minor
+    category: gate_weakness
+    claim: >-
+      G-10 compares pyproject.toml and the Makefile against the index only (git diff without HEAD or --cached), so a
+      change that is already staged is not seen, and the gate is run again in P10 after staging. The staged-path allowlist
+      at Step 10.3 is the only check that catches it.
+    evidence:
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:723 - git diff --exit-code pyproject.toml Makefile; echo "EXIT=$?"'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:723 - this gate is run again in P10 after staging'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:851 - PASS only when EVERY staged path starts with one of the six prefixes'
+    source_findings: [R1-005]
+    debate_outcome: 'C-003: 95% minor (backstopped by TF:851, INV-014 ADDRESSED).'
+    fix: >-
+      Change G-10 at TF:723 to compare against HEAD so staged changes are seen:
+      git diff --exit-code HEAD -- pyproject.toml Makefile .github/.
+
+  # provenance: base variant-3 R3-003; debate C-004 95% minor; plan change #9
+  # invariant: INV-013 (LOW) stays minor only if M-002 lands; otherwise an unfixable pre-existing failure loops forever
+  - id: M-009
+    severity: minor
+    category: gate_weakness
+    claim: >-
+      The per-phase test-run loop at TF:690 says re-run until PASSED with no attempt cap and no HALT, unlike the Final
+      re-run rule at TF:778.
+    evidence:
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:690 - IF FAILED, fix the cause (never weaken an assertion) and re-run until PASSED, recording each fix'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:778 - re-run until it passes, recording each fix; IF it cannot be made to pass, HALT'
+    source_findings: [R3-003]
+    debate_outcome: 'C-004: 95% minor.'
+    fix: >-
+      Cap the TF:690 loop the way TF:778 does: if the failure cannot be made to pass (or meet the PASS-baseline verdict of
+      M-002), HALT and record it in the Task Log.
+
+  # provenance: base variant-3 R3-004, broadened by INV-012; debate C-005 95% minor; plan change #10
+  # invariant: INV-012 (LOW) final-gate-record.md and ac-trace.md are also left stale, not only final-change-set.md
+  - id: M-010
+    severity: minor
+    category: sequencing
+    claim: >-
+      The post-fix re-runs repeat Steps 9.4 to 9.16 only, so final-change-set.md (Step 9.F1), final-gate-record.md and
+      ac-trace.md are not regenerated after a fix cycle, and the M4 reviewers then read a stale change set.
+    evidence:
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:742 - a table of every created or changed file (path, line count, creating phase)'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:778 - re-run Steps 9.4 to 9.16 (gate commands G-1 to G-11) in order'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:729 - a GAP is fixed by adding the missing test'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:735 - every row is PASS (a FAIL is fixed and its step re-run before this item is marked complete)'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:800 - OUTPUT UNDER REVIEW: the FULL change set listed in'
+    source_findings: [R3-004]
+    debate_outcome: 'C-005: 95% minor.'
+    fix: >-
+      After each post-fix re-run, regenerate final-change-set.md (TF:742), final-gate-record.md (TF:735) and ac-trace.md
+      (TF:729) before any M4 prompt (TF:800) is spawned.
+
+  # provenance: base variant-3 R3-005; debate C-006 67% minor, variant-2 dissent BLOCKING (outvoted 2/3); plan change #11
+  # invariant: INV-011 (LOW) the Final lens and the M4 lists would still flag the import unless the departure is added there
+  # citation correction: the plan's "TF:800 M4 exemption list" is not at TF:800 (that is the 9.M1 prompt); the lists are TF:797, 806, 818, 833
+  - id: M-011
+    severity: minor
+    category: contradiction
+    claim: >-
+      Step 4.1 has record import parse_utc, format_utc and valid_issue_number from predicates, while the design import
+      table allows record to take predicates for types only. The departure is not among the declared decisions, so the
+      Final lens and the M4 reviewers, which check against that table and the 29 listed departures, would report it.
+    evidence:
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:330 - `predicates` of the package (`parse_utc`, `format_utc`, `valid_issue_number`)'
+      - 'docs/designs/issue-watcher.md:239 - | `record` | `predicates` (types only, for `Entry` fields that hold an issue number) | `superclaude.cli.swarm.atomic` | none |'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:751 - check every module of `src/superclaude/cli/issue_watch/` against the import table of `docs/designs/issue-watcher.md` lines 233-242'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:797 - Every agent prompt below carries the 29 DEVIATION decisions so that a listed departure is not reported as drift'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:806 - the 29 authorized departures are DF-01, 02, 03, 04, 05, 06, 07, 09, 10, 12, 13, 15,'
+    source_findings: [R3-005]
+    debate_outcome: 'C-006: 67% minor; variant-2 dissented (BLOCKING) and was outvoted 2/3.'
+    fix: >-
+      Declare the record -> predicates function import as a departure in the TF Open Questions, and add it to the Final
+      lens at TF:751 and to the M4 departure lists (preamble TF:797, prompts TF:806, TF:818 and TF:833).
+
+  # provenance: base variant-3 R3-007; debate C-008 95% minor; plan change #12
+  - id: M-012
+    severity: minor
+    category: contradiction
+    claim: >-
+      Step 7.x requires the main.py diff to show only the added registration lines, while the later format step tells the
+      worker to fix any finding inside the touched files and re-run until exit 0. A pre-existing format hit in main.py
+      would force an edit that breaks the only-these-lines check.
+    evidence:
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:502 - ensuring `git diff -- src/superclaude/cli/main.py` shows only these added lines (two code lines plus blank separators) and nothing else in the file changed'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:520 - fix any finding inside those files'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:520 - re-run until both commands exit 0'
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:517 - a finding in a file this task did not touch is recorded and NOT fixed'
+    source_findings: [R3-007]
+    debate_outcome: 'C-008: 95% minor.'
+    fix: >-
+      Make TF:502 and TF:520 agree: a format hit in main.py outside the added lines is judged by the PASS-baseline verdict
+      of M-002 and is recorded, not fixed.
+
+  # provenance: base variant-3 R3-008; debate C-009 67% minor, variant-2 dissent BLOCKING (outvoted 2/3); plan change #13
+  # invariant: INV-015 (ADDRESSED) staging is ordered after the Done status line and Done does not depend on it, so keeping Done is not a false claim
+  - id: M-013
+    severity: minor
+    category: gate_weakness
+    claim: >-
+      A failure of the final git add .dev/tasks is only logged and never reverts Done, so the owner is not told that the
+      task package is left unstaged.
+    evidence:
+      - '.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md:875 - a failure of this staging command is logged in that section and never reverts the Done status'
+    source_findings: [R3-008]
+    debate_outcome: 'C-009: 67% minor; variant-2 dissented (BLOCKING) and was outvoted 2/3.'
+    fix: >-
+      State at TF:875 that a staging failure is logged as a follow-up for the owner (a NEEDS OWNER DECISION line naming
+      the unstaged paths).
+
+dropped_findings:
+  # provenance: base variant-3 R3-006; debate C-007 conceded 3/3; plan change #15
+  - id: R3-006
+    reason: 'declared deviation DF-46 (R06:180); conceded 3/3 in debate (C-007)'
+
+# provenance: UNION of S-002 (v1 T rows, v2 AC rows, v3 INF register); plan change #14
+coverage_resolution:
+  - requirement: T-2
+    final_judgement: covered
+    task_items: [Step 4.1c, Step 4.4, Step 6.7]
+    note: 'Wording gap only, see M-005 (attempts < 3 applied in run_cycle).'
+  - requirement: INF-016
+    final_judgement: covered
+    task_items: [Step 5.5, Step 6.7, Step 7.4]
+    note: 'Resolved in debate X-005.'
+  - requirement: INF-123
+    final_judgement: partially_covered
+    task_items: [Step 7.7, Step 9.5]
+    note: 'Declared deviation DF-05 (R06:28): affected subset locally, full suite CI only. Not a defect (X-003).'
+  - requirement: INF-155
+    final_judgement: partially_covered
+    task_items: [Step 9.5, Step 9.9, Step 9.15, Step 9.17]
+    note: 'Declared deviation DF-05 (R06:28). Not a defect (X-004).'
+  - requirement: INF-146
+    final_judgement: partially_covered
+    task_items: [Step 2.8, Step 6.6, Step 7.4, Step 7.5]
+    note: 'Cycle-level stderr fallback untested, see M-003 (X-006).'
+  - requirement: AC-14
+    final_judgement: partially_covered
+    task_items: [Step 2.3, Step 6.2, Step 7.1, Step 7.2, Step 2.8, Step 6.6, Step 7.4, Step 7.5, Step 2.10, Step 6.10, Step 7.7, Step 9.4]
+    note: 'Cycle-level stderr fallback untested, see M-003 (X-006).'
+  - requirement: AC-6
+    final_judgement: partially_covered
+    task_items: [Step 4.1b, Step 4.1c, Step 6.2, Step 6.7, Step 8.2, Step 6.10, Step 8.9, Step 9.4]
+    note: 'Lost-label, voided-approval and changed-Project-status revalidation cases untested, see M-004 (X-007).'
+  - requirement: INF-138
+    final_judgement: partially_covered
+    task_items: [Step 6.7]
+    note: 'Set to partially_covered to match AC-6 (INV-009); see M-004.'
+
+# provenance: invariant probe Round 2.5 gate result; plan change #16
+unresolved: [INV-001, INV-004, INV-005]

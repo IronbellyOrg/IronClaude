@@ -1,0 +1,4 @@
+All checks passed!
+check EXIT=0
+31 files already formatted
+format EXIT=0

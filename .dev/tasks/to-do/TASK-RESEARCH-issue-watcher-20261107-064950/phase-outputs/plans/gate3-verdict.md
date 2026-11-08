@@ -1,0 +1,12 @@
+# Gate 3 verdict (Phase 6, report validation)
+
+**Verdict: FAIL (HALT and escalate)** as of 2026-11-07 10:37.
+
+- Cycle 0: seven lens reports, all FAIL, 12 deduplicated blocking findings.
+- Fix cycle 1 (log `qa/qa-fix-log-phase6.md`): 10 of 12 resolved cleanly; structural verification (`qa/qa-fix-verification-phase6.md`, written by the executor from the verifier's returned text because a hook blocked its Write) FAIL with 2 open (NEW-1, NEW-2); content verification (`qa/qa-fix-verification-qualitative.md`) FAIL with 1 open (B1 = NEW-1).
+- Halt guards before cycle 2: regression none; monotonicity 12 -> 2.
+- Fix cycle 2 (log `qa/qa-fix-log-phase6-cycle2.md`): NEW-1 and NEW-2 fixed; structural verification (`qa/qa-fix-verification-cycle2.md`) PASS; content verification (`qa/qa-fix-verification-qualitative-cycle2.md`) FAIL with 2 open blocking findings:
+  - F1: the candidate cap still starves new issues: unhandled issues that stay Backlog/assigned (for example trigger-labelled issues still waiting for approval, since the discovery query has no approval label, or issues rejected after a launch) fill the 10 slots every cycle, oldest first; the sentence "at most one candidate slot before it becomes terminal" is false for them and no test covers it.
+  - F2: `resolve_orca`, `launch_claim` and `run_cycle` bind `which=shutil.which` as a default argument at definition time, so the Test plan summary's claim that `test_cli_once.py` monkeypatches `shutil.which` is wrong (patching later has no effect; the CLI test would hit the real PATH or fail with `E-ORCA-NOT-FOUND`).
+- RESOLUTION (2026-11-07, owner decision relayed by the coordinator on message msg_aac210497d3a): approve. F1 and F2 were fixed by targeted edits to the report (F1: step 3 now sorts least recently examined first using a `considered` map stamped at step 4, plus a new test "Unhandled issues cannot monopolize the cap"; F2: `which` defaults to `None` and is resolved to `shutil.which` at call time in `resolve_orca`, `launch_claim` and `run_cycle`). No fourth Gate 3 review. The fixes are recorded as "fixed after the final review, unverified by a fourth review" in the report (Section 8 review status note) and in the Task Log. Gates 4 and 5 proceed and read the edited report. Final Gate 3 status: PASS WITH OWNER-APPROVED UNVERIFIED FIXES (not a clean pass).
+- Fix cycle count: 2 (3 reviews). Per the task rule no fourth review runs and open blocking findings are not passed: the gate is HALTED and escalated to the coordinator with F1 and F2. Minor findings remain notes.

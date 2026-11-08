@@ -1,0 +1,37 @@
+{
+  "_assumed_shape": true,
+  "source": "docs/designs/issue-watcher.md section 15 row 'GraphQL userContentEdits, projectItems, fieldValueByName' (line 837); EDITS_QUERY draft in research/06 Table 1.5 (DF-14)",
+  "note": "UNVERIFIED reply shape for G5 (EDITS_QUERY). Replace with a real capture in FU-1. Comment 1001 was never edited (lastEditedAt null); comment 1002 has a null author (a deleted account).",
+  "payload": {
+    "data": {
+      "repository": {
+        "issue": {
+          "createdAt": "2026-01-01T00:00:00Z",
+          "lastEditedAt": null,
+          "comments": {
+            "nodes": [
+              {
+                "databaseId": 1001,
+                "author": {
+                  "login": "test-user"
+                },
+                "createdAt": "2026-01-01T00:10:00Z",
+                "lastEditedAt": null
+              },
+              {
+                "databaseId": 1002,
+                "author": null,
+                "createdAt": "2026-01-01T00:20:00Z",
+                "lastEditedAt": "2026-01-01T00:30:00Z"
+              }
+            ],
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": null
+            }
+          }
+        }
+      }
+    }
+  }
+}

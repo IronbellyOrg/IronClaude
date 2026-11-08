@@ -1,0 +1,54 @@
+# persisted by the orchestrator from the reviewer's final message
+verified:
+  - M-001-E1
+  - M-001-E2
+  - M-001-E3
+  - M-002-E1
+  - M-002-E2
+  - M-002-E3
+  - M-002-E4
+  - M-003-E1
+  - M-003-E2
+  - M-003-E3
+  - M-004-E1
+  - M-004-E2
+  - M-004-E3
+  - M-005-E1
+  - M-005-E2
+  - M-006-E1
+  - M-006-E2
+  - M-006-E3
+  - M-007-E1
+  - M-007-E2
+  - M-007-E3
+  - M-008-E1
+  - M-008-E2
+  - M-008-E3
+  - M-009-E1
+  - M-009-E2
+  - M-010-E1
+  - M-010-E2
+  - M-010-E3
+  - M-011-E1
+  - M-011-E2
+  - M-011-E3
+  - M-012-E1
+  - M-012-E2
+  - M-012-E3
+  - M-013-E1
+dropped: []
+context_doubt:
+  - id: M-002-E4
+    reason: "Line 735 says every gate row must be PASS and a FAIL is fixed. M-002-E1 to E3 (lines 693, 699, 702) say a failure in a file this task did not touch is recorded and not fixed. If M-002 claims these rules are consistent, this entry only shows the 'all PASS' requirement. It does not show how a pre-existing failure in an untouched file is meant to resolve. Treat it as support for a contradiction claim only, not for a harmony claim."
+self_audit: >
+  I read the YAML input and then read every cited line from disk with Read, using offset=start and limit=1 (limit=3 for test.yml, to include lines 28-30).
+  The task-file entries came from TASK-RF-issue-watcher-20261107-150955.md at lines 330, 336, 460, 475, 502, 520, 611, 690, 693, 699, 702, 723, 729, 735, 742, 751, 778, 848, 851, 854, 860, 864, 866 and 875.
+  The design entries came from docs/designs/issue-watcher.md at lines 239, 479, 722, 879 and 887.
+  The workflow entry came from .github/workflows/test.yml at line 29.
+  I compared each excerpt to the actual line text, ignoring backticks, bold marks, whitespace runs and trailing truncation.
+  All 36 excerpts appear verbatim in the cited lines, and every file and line number exists. No excerpt needed a one-line widening, because each fit on its cited line.
+  I dropped nothing, and I re-checked the near-duplicate pairs because a pass that drops nothing is suspect.
+  Several entries share a line: M-003-E3 and M-004-E2 both cite line 460, M-009-E2 and M-010-E2 both cite line 778, and M-006-E2 and M-006-E3 both cite line 860. Each excerpt is present in its line.
+  The M-008-E2 excerpt was checked against line 723 specifically, not just line 851.
+  I raised context_doubt only for M-002-E4. I could not see the finding text that each citation supports, so I judged context only from the surrounding sentence of each line, and this review gave no other entry a clear context problem.
+  I did not edit any file.

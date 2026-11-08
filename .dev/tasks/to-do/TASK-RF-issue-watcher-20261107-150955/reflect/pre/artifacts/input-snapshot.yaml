@@ -1,0 +1,75 @@
+input_tree_sha256: fc2750d6b33415c2fb076c6393533ff55a9e7aaf8d61749410e650ba4f636a32
+file_list:
+  - path: .dev/brainstorms/20261107-064825-github-issue-watcher/spec-final.md
+    sha256: e9ae4520c8f5a895c0eb2019f80b4b69a51748b3583e1fae1e44416215533514
+  - path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/BUILD-REQUEST.md
+    sha256: 3755c516a02b92e2dd28e1201d1e3c26b3879ba6cbc557e4f1802c27a249f747
+  - path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/TASK-RF-issue-watcher-20261107-150955.md
+    sha256: 777416bcc3a6265f79c2a82ce00a53f8e2357aea86ea8d4f6688690533b5c6c0
+  - path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research-notes.md
+    sha256: c32434525498c43a68463bdfc94e244ee380920ad5af6a6be69e05c3957e463c
+  - path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/01-cli-package-conventions.md
+    sha256: f1a5b4a586ab081eee5ca072c0133412f53b13255f19a59f0c75066219842c31
+  - path: .dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/research/06-gap-fill-decisions.md
+    sha256: 905e609ca8db804b23f87395f39093f1383fd3947050b5fe1c0eb9f81490bef1
+  - path: .github/workflows/test.yml
+    sha256: e3faf4089d727aa4e8bbe392e0066577da8556a4efb8fbccb8c3bc345ba4d48e
+  - path: .markdownlint.json
+    sha256: fe443facdaec2695a41d2a1fc5170574fce0ee4b933b4ebf655e1f8974d05fa2
+  - path: .pre-commit-config.yaml
+    sha256: 9cb8663ccf37accef1c038fb2d258da09e5e8825d70df0b709ca2f213b35f39c
+  - path: docs/designs/issue-watcher.md
+    sha256: 6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32
+  - path: pyproject.toml
+    sha256: fd45cf449d396da9e24ab6f6b7e0a49373b545d104adb25fa321d86405033971
+  - path: src/superclaude/cli/install_user_setup.py
+    sha256: 48f140321cf8ba5d0d19e105ef032b5a1fbc18ff721156965a36b0778118bed0
+  - path: src/superclaude/cli/main.py
+    sha256: 4dd5b9bd858e80758bd2e1ed007b89fe52aed36482fe23cad74cf93becb7b005
+  - path: src/superclaude/cli/reflect/commands.py
+    sha256: 39b7b5f5add695e4e0b5f5eafb2a654ce6db272a3b0c5b84c14739620a083f05
+  - path: src/superclaude/cli/swarm/atomic.py
+    sha256: a858a3dbba2404388d39ff3e6a6cc6595786ca760e4387dd91d618fd867411ca
+  - path: src/superclaude/skills/sc-issue-protocol/refs/claim.md
+    sha256: 43d45d78be4d3d8fb9307056d02b4f9b468f25acc19a08a5d38d6f82ccb0e2c7
+  - path: src/superclaude/skills/sc-issue-protocol/scripts/origin_repo.py
+    sha256: 47bd0d899aaa2a1b03b2fe2f297118c99850a3a15a292794270337475916cf0d
+  - path: src/superclaude/skills/sc-issue-protocol/templates/claim-comment.md
+    sha256: fbb661f42cf433e47a5a7d92f4c62c3841b2f30df5ae90d963576d39837695ca
+  - path: src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+    sha256: f9f5283ceae1074bc4e0ccf9586c31db274bbef0c08dd19c6de5ecacb1535f81
+  - path: tests/cli/reflect/test_cli_smoke.py
+    sha256: 6f2a7d11c2be1a79c848aedab99034cd064bc5add0c6c91bc12af3adeec15e67
+  - path: tests/cli/test_cli_registration.py
+    sha256: edc94350396df76cfb6c55d56ffb6cbb06fe149f2ad1a3a39f159169960b1973
+  - path: tests/cli/test_install_user_setup.py
+    sha256: 0055c3d81384b08f8ae60823b82023b1985f6fdd46c7b2bb74ddf77b80f33359
+  - path: tests/cli/test_verify_sync_hooks.py
+    sha256: 31f153bcaf38ff82f0e8813080260e54542fd32e5f12b6fcd002d869e5ac1223
+  - path: tests/cli_portify/__init__.py
+    sha256: d86755daf3ed5e0b845333c5bcfe8d29bbcc233b2911794cf6eaa2c74b3b98fb
+  - path: tests/cli_portify/test_cli.py
+    sha256: 03da64e2278305142eafe11193648b5cc713126c2042540c0287c7b6538fd1ee
+  - path: tests/conftest.py
+    sha256: e567e4f50130a3ad08b2e08e1181148d24b1bc8293f5d239f6afbb78ee6e46d1
+  - path: tests/docs/test_retired_docs_absent.py
+    sha256: 280b2197c9fe79b4bbdc591ea80167202b27c33f0358a349c4ff6a0102221732
+  - path: tests/pr_submit/__init__.py
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - path: tests/pr_submit/test_conflict_scripts.py
+    sha256: a563d37ffa5a7a890e7a8223b1d5bc8371b56eda93185aedebb6d4b09a0952c1
+  - path: tests/recommend/test_cli_registration.py
+    sha256: a1d1696bf66d19739e00fdee48593df0c42f54821e7427ea6d7cbae8a9e3802d
+  - path: tests/skills/test_issue_repo_resolution.py
+    sha256: 126d0cad4c5ed2f94a4945aa68b1766704604805774dab380819777ff544e53c
+  - path: tests/skills/test_model_alias_policy.py
+    sha256: 344fc147008fa05363766f8e7235977dade888c3ba6af9ad6f6719a938937237
+  - path: tests/swarm/test_cli_registration.py
+    sha256: 6313ff9e34bb7a6c46c62d75560cbce633c0b0f3b3321687a733e9317761eb35
+  - path: tests/swarm/test_inv012_tui_opt_in.py
+    sha256: eb3ac5f0185dce3ba6ec6ab0799b76eb66dcdbaa7aa33c040afe37d3d3a4e738
+  - path: tests/swarm/test_parallel_executor_routing.py
+    sha256: e1286276b54501daddd1acbbf9560c1467dfbf899e0e960e615d9becfeeccfe3
+  - path: tests/unit/test_ccsession_tag.py
+    sha256: 2f61b4a5f1ca153a2d7892ed73ab1fff3c1c1ac3a4fbfa3dc908f86a99c96587
+file_count: 36

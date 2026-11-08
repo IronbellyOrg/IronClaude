@@ -1,0 +1,6 @@
+All checks passed!
+check EXIT=0
+31 files already formatted
+format(issue_watch) EXIT=0
+1234 files already formatted
+format(src tests) EXIT=0

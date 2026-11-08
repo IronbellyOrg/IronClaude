@@ -1,0 +1,83 @@
+# persisted by the orchestrator from the reviewer's final message
+verified:
+  - INF-001
+  - INF-004
+  - INF-006
+  - INF-007
+  - INF-008
+  - INF-009
+  - INF-010
+  - INF-013
+  - INF-016
+  - INF-019
+  - INF-022
+  - INF-025
+  - INF-028
+  - INF-031
+  - INF-034
+  - INF-037
+  - INF-040
+  - INF-042
+  - INF-043
+  - INF-044
+  - INF-046
+  - INF-049
+  - INF-051
+  - INF-052
+  - INF-055
+  - INF-058
+  - INF-061
+  - INF-064
+  - INF-067
+  - INF-070
+  - INF-075
+  - INF-078
+  - INF-081
+  - INF-084
+  - INF-087
+  - INF-089
+  - INF-090
+  - INF-093
+  - INF-096
+  - INF-099
+  - INF-101
+  - INF-102
+  - INF-105
+  - INF-108
+  - INF-111
+  - INF-114
+  - INF-117
+  - INF-120
+  - INF-123
+  - INF-124
+  - INF-126
+  - INF-128
+  - INF-129
+  - INF-132
+  - INF-135
+  - INF-138
+  - INF-139
+  - INF-141
+  - INF-142
+  - INF-144
+  - INF-147
+  - INF-150
+  - INF-151
+  - INF-153
+  - INF-156
+dropped: []
+self_audit: >-
+  Read all 65 entries from
+  /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/.dev/tasks/to-do/TASK-RF-issue-watcher-20261107-150955/reflect/pre/artifacts/citations-inferred-sample.yaml
+  and all 935 lines of
+  /home/coder/workspaces/worktrees/IronClaude/issue-331-github-issue-watcher/docs/designs/issue-watcher.md
+  in three ranges (1–315, 316–625, 626–935). Independently compared every
+  excerpt with its stated inclusive line range, ignoring Markdown backticks,
+  bold marks, and runs of whitespace. All 65 excerpts are present at their
+  stated lines; none required the permitted one-line widening. Checked
+  table-cell excerpts, YAML continuation lines, backslashes, punctuation,
+  numeric values, and the Unicode inequality rather than accepting semantic
+  similarity alone. Zero drops reflects matching source text, not assumed
+  citation accuracy. This validates excerpt presence only, not the truth of
+  the design's underlying claims or its nested references. No commands or
+  tests were executed, and no files were modified.

@@ -1,0 +1,804 @@
+# Pass-2 inferred requirements for docs/designs/issue-watcher.md
+# Extracted read-only from the spec; every quote is verbatim from the cited lines.
+# T-1..T-13 test-case spans are excluded (covered by a separate deterministic pass).
+# --- Section 1 ---
+- id: INF-001
+  label: null
+  quote: 'For at most one such issue per cycle it starts one ordinary top-level agent session through `orca agent launch` with the prompt `/sc:issue --claim <N>`, after durably recording the dispatch.'
+  citation: docs/designs/issue-watcher.md:15-15
+  section: "1. Purpose and scope"
+- id: INF-002
+  label: null
+  quote: 'At most one claim session per issue per intact, single dispatch store per login.'
+  citation: docs/designs/issue-watcher.md:17-17
+  section: "1. Purpose and scope"
+- id: INF-003
+  label: null
+  quote: 'Trigger label plus approval label, approval actor checked against an allow-list, Project Status `Backlog`'
+  citation: docs/designs/issue-watcher.md:21-21
+  section: "1. Purpose and scope"
+- id: INF-004
+  label: null
+  quote: '`is_intended_owner`: assignee set exactly {own login}; discovery pre-filters with `--assignee`'
+  citation: docs/designs/issue-watcher.md:22-22
+  section: "1. Purpose and scope"
+- id: INF-005
+  label: null
+  quote: 'Local dispatch record written durably (`pending`, `launches` + 1) before the spawn, plus the claim marker'
+  citation: docs/designs/issue-watcher.md:23-23
+  section: "1. Purpose and scope"
+- id: INF-006
+  label: null
+  quote: 'No cron entry is enabled and `enabled` stays `false` until an owner-run live test (FU-1) shows the prompt running as a slash command, records the session''s permission mode, and replaces every `_assumed_shape` fixture with captured replies under which `tests/issue_watch/` still passes.'
+  citation: docs/designs/issue-watcher.md:33-33
+  section: "1. Purpose and scope"
+- id: INF-007
+  label: null
+  quote: 'The owner commits that record as `docs/designs/issue-watcher-live-test.md`; neither this design nor its implementation writes it.'
+  citation: docs/designs/issue-watcher.md:33-33
+  section: "1. Purpose and scope"
+# --- Section 2 ---
+- id: INF-008
+  label: null
+  quote: 'D1 option A (workspace-side poller, pull); D2 claim-only; D3 only a validated integer issue number reaches a session prompt.'
+  citation: docs/designs/issue-watcher.md:39-39
+  section: "2.1 Owner decisions (verbatim from the seed brief, via spec section 2)"
+- id: INF-009
+  label: null
+  quote: 'The poller never assigns, comments or moves Project items.'
+  citation: docs/designs/issue-watcher.md:44-44
+  section: "2.1 Owner decisions (verbatim from the seed brief, via spec section 2)"
+- id: INF-010
+  label: FR-012
+  quote: 'The prompt is built only by `launch.build_claim_prompt(n)`, which accepts an `int` (not `bool`) in 1..999999999 and returns `/sc:issue --claim <n>`. No other text reaches the prompt.'
+  citation: docs/designs/issue-watcher.md:45-45
+  section: "2.1 Owner decisions (verbatim from the seed brief, via spec section 2)"
+- id: INF-011
+  label: null
+  quote: 'Module constant `launch.ORCA_AGENT`, pinned by a unit test to the `--agent` value of the seed brief''s launch line. Not configurable.'
+  citation: docs/designs/issue-watcher.md:66-66
+  section: "2.4 Other fixed spec decisions this design does not reopen"
+- id: INF-012
+  label: NFR-003
+  quote: 'Every repository-scoped `gh` call names `IronbellyOrg/IronClaude`; zero `SuperClaude-Org`, zero `{owner}` placeholder (NFR-003).'
+  citation: docs/designs/issue-watcher.md:67-67
+  section: "2.4 Other fixed spec decisions this design does not reopen"
+- id: INF-013
+  label: NFR-004
+  quote: '`gh`, `git` and Orca run as argv lists with `shell=False` (NFR-004).'
+  citation: docs/designs/issue-watcher.md:68-68
+  section: "2.4 Other fixed spec decisions this design does not reopen"
+- id: INF-014
+  label: null
+  quote: 'Linux only; `once`, `check-config`, `init-state` exit 2 elsewhere.'
+  citation: docs/designs/issue-watcher.md:69-69
+  section: "2.4 Other fixed spec decisions this design does not reopen"
+- id: INF-015
+  label: null
+  quote: 'Network-FS deny-list for `state_dir`: nfs, nfs4, cifs, smb3, sshfs, fuse.sshfs, 9p.'
+  citation: docs/designs/issue-watcher.md:69-69
+  section: "2.4 Other fixed spec decisions this design does not reopen"
+- id: INF-016
+  label: null
+  quote: 'NG-1 push designs B/C/D; NG-2 no GitHub write (REST GET only; GraphQL POST only with a constant query without `mutation`); NG-3 no Project writes; NG-4 no session constraint beyond the deployment gate; NG-5 no daemon mode, no in-cycle retry, no automatic Orca retry.'
+  citation: docs/designs/issue-watcher.md:70-70
+  section: "2.4 Other fixed spec decisions this design does not reopen"
+- id: INF-017
+  label: null
+  quote: 'Fail closed, no label-only mode (OD-4).'
+  citation: docs/designs/issue-watcher.md:72-72
+  section: "2.4 Other fixed spec decisions this design does not reopen"
+# --- Section 3 ---
+- id: INF-018
+  label: null
+  quote: '`launch.find_orca(runner, which)` mirrors it with injected seams. `_ORCA_CLIS` (line 35) is imported, not copied.'
+  citation: docs/designs/issue-watcher.md:83-83
+  section: "3. Corrections to the issue text and earlier notes"
+- id: INF-019
+  label: null
+  quote: 'The poller runs `git -C <abs worktree> remote get-url origin` with a timeout and compares the parsed `owner/repo` case-insensitively with `ironbellyorg/ironclaude`.'
+  citation: docs/designs/issue-watcher.md:84-84
+  section: "3. Corrections to the issue text and earlier notes"
+- id: INF-020
+  label: NFR-011
+  quote: '`record` calls it, then fsyncs the state directory itself (NFR-011).'
+  citation: docs/designs/issue-watcher.md:85-85
+  section: "3. Corrections to the issue text and earlier notes"
+- id: INF-021
+  label: null
+  quote: 'Only the paging rule is reused: a page under 100 ends the read, a repeated id fails, the read must complete.'
+  citation: docs/designs/issue-watcher.md:86-86
+  section: "3. Corrections to the issue text and earlier notes"
+- id: INF-022
+  label: NFR-014
+  quote: 'The NFR-014 dependency rules need a new AST test, `tests/issue_watch/test_module_boundaries.py`. The package must not rebind `ID_PATTERNS`, `THRESHOLDS` or any other `contracts.__all__` name and must not contain an `ID_PATTERNS` body literal such as `FR-\d+(?:\.\d+)?` (`contracts/__init__.py:64-77`).'
+  citation: docs/designs/issue-watcher.md:90-90
+  section: "3. Corrections to the issue text and earlier notes"
+- id: INF-023
+  label: NFR-012
+  quote: 'NFR-012 forbids a new dependency.'
+  citation: docs/designs/issue-watcher.md:96-96
+  section: "3. Corrections to the issue text and earlier notes"
+- id: INF-024
+  label: FR-015
+  quote: '`status` prints the full original argv plus `--retry-launch <id>`, with `cwd` (section 10.2).'
+  citation: docs/designs/issue-watcher.md:101-101
+  section: "3. Corrections to the issue text and earlier notes"
+- id: INF-025
+  label: FR-016
+  quote: 'Section 6.3: the text wins; after one launch the remaining candidates get no stamp and no decision line.'
+  citation: docs/designs/issue-watcher.md:104-104
+  section: "3. Corrections to the issue text and earlier notes"
+# --- Section 4 ---
+- id: INF-026
+  label: FR-026
+  quote: 'The Click group is `issue_watch_group`, exposed as `superclaude issue-watch`.'
+  citation: docs/designs/issue-watcher.md:110-110
+  section: "4.1 Verbs (FR-026)"
+- id: INF-027
+  label: FR-026
+  quote: '`once` | `--dry-run`, `--config <path>` | Non-blocking `flock`, whole cycle | `dispatch.json` (not in dry-run), `audit.jsonl`, `dry-run.json` (dry-run only) | `gh`, `git`, Orca probe, Orca launch (not in dry-run) | 0, 2, 3, 4, 5, 6, 7, 75'
+  citation: docs/designs/issue-watcher.md:114-114
+  section: "4.1 Verbs (FR-026)"
+- id: INF-028
+  label: FR-021
+  quote: '`status` | `--json`, `--config <path>` | None (read-only) | None; no file''s mtime changes (FR-021) | None | 0 healthy, 1 unhealthy (age above 900 s or no qualifying cycle), 2 config invalid, 6 store unreadable'
+  citation: docs/designs/issue-watcher.md:115-115
+  section: "4.1 Verbs (FR-026)"
+- id: INF-029
+  label: FR-026
+  quote: '`check-config` | `--config <path>` | None | None | None | 0 valid, 2 invalid or platform unsupported or network-FS `state_dir`'
+  citation: docs/designs/issue-watcher.md:116-116
+  section: "4.1 Verbs (FR-026)"
+- id: INF-030
+  label: FR-026
+  quote: '`init-state` | `--config <path>` | Creates it | Creates `state_dir` (0700), `dispatch.json` (0600), `lock` (0600) | None | 0 created, 2 config or platform, 6 a store already exists or the directory is unwritable'
+  citation: docs/designs/issue-watcher.md:117-117
+  section: "4.1 Verbs (FR-026)"
+- id: INF-031
+  label: FR-026
+  quote: '`reset <N> --forfeit-guarantee` | `--config <path>` | Non-blocking `flock` | Removes entry N; appends its `consumed_at` to `consumed_log`; one audit line | None | 0 done, 2 usage (entry not `abandoned`/`unknown`, or flag missing), 6 store, 75 lock held'
+  citation: docs/designs/issue-watcher.md:118-118
+  section: "4.1 Verbs (FR-026)"
+- id: INF-032
+  label: FR-026
+  quote: '`reset --rate-limit` | `--config <path>` | Non-blocking `flock` | Clears `next_permitted_at`; one audit line | None | 0, 6, 75'
+  citation: docs/designs/issue-watcher.md:119-119
+  section: "4.1 Verbs (FR-026)"
+- id: INF-033
+  label: FR-026
+  quote: '`reset` with both `<N>` and `--rate-limit`, or with neither, is a usage error (exit 2). `reset <N>` without `--forfeit-guarantee` is a usage error.'
+  citation: docs/designs/issue-watcher.md:121-121
+  section: "4.1 Verbs (FR-026)"
+- id: INF-034
+  label: FR-027
+  quote: 'Loaded by `cycle.load_config(path) -> Config`; validated by the same function `check-config` uses.'
+  citation: docs/designs/issue-watcher.md:125-125
+  section: "4.2 Configuration file (FR-027)"
+- id: INF-035
+  label: FR-027
+  quote: '`enabled` | bool | no | `false` | A JSON boolean; `false` makes `once` exit 0 `not_enabled` before any external call'
+  citation: docs/designs/issue-watcher.md:130-130
+  section: "4.2 Configuration file (FR-027)"
+- id: INF-036
+  label: FR-027
+  quote: '`labels.trigger` | string | no | `issue-watch:trigger` | Non-empty, at most 50 characters, no control characters; matched exact and case-sensitive'
+  citation: docs/designs/issue-watcher.md:131-131
+  section: "4.2 Configuration file (FR-027)"
+- id: INF-037
+  label: FR-027
+  quote: '`project_id` | string | yes | none | Matches `^PVT_[A-Za-z0-9_-]{1,64}$` [PROPOSAL; Projects v2 node-id prefix is UNVERIFIED, FU-3]'
+  citation: docs/designs/issue-watcher.md:133-133
+  section: "4.2 Configuration file (FR-027)"
+- id: INF-038
+  label: FR-027
+  quote: '`owner_account_id` | int | no | absent | If present, an `int` (not `bool`) in 1..10^20−1; a mismatch with `gh api user` `.id` is exit 2 `account_id_mismatch` at cycle time'
+  citation: docs/designs/issue-watcher.md:134-134
+  section: "4.2 Configuration file (FR-027)"
+- id: INF-039
+  label: FR-027
+  quote: '`worktree` | string | yes | none | Absolute path, existing directory (`worktree_invalid`)'
+  citation: docs/designs/issue-watcher.md:135-135
+  section: "4.2 Configuration file (FR-027)"
+- id: INF-040
+  label: FR-027
+  quote: '`approvers_file` | string | yes | none | Absolute path; file rules below (`approvers_invalid`)'
+  citation: docs/designs/issue-watcher.md:136-136
+  section: "4.2 Configuration file (FR-027)"
+- id: INF-041
+  label: FR-027
+  quote: '`state_dir` | string | no | `${XDG_STATE_HOME:-$HOME/.local/state}/superclaude/issue-watch/` | Absolute after expansion; not on a deny-listed filesystem (`state_dir_unwritable` is exit 6 only when writing fails; a network FS is exit 2 `config_invalid`)'
+  citation: docs/designs/issue-watcher.md:137-137
+  section: "4.2 Configuration file (FR-027)"
+- id: INF-042
+  label: FR-027
+  quote: 'Unknown keys are rejected (exit 2), so a typo such as `enable` cannot silently leave the poller on its default.'
+  citation: docs/designs/issue-watcher.md:139-139
+  section: "4.2 Configuration file (FR-027)"
+- id: INF-043
+  label: FR-027
+  quote: '`check-config` prints the file''s mtime (UTC ISO 8601) and the entry count (R10), and nothing else about its content.'
+  citation: docs/designs/issue-watcher.md:151-151
+  section: "4.2 Configuration file (FR-027)"
+- id: INF-044
+  label: FR-022
+  quote: '2 | Usage, config, platform, origin, Orca probe | `config_invalid`, `approvers_invalid`, `platform_unsupported`, `worktree_invalid`, `origin_mismatch`, `orca_not_found`, `account_id_mismatch`'
+  citation: docs/designs/issue-watcher.md:158-158
+  section: "4.3 Exit codes (spec section 8)"
+- id: INF-045
+  label: FR-022
+  quote: '3 | GitHub auth, scope, timeout, non-JSON | `login_invalid`, `gh_auth_failed`, `gh_timeout`, `gh_non_json`, `project_read_failed`'
+  citation: docs/designs/issue-watcher.md:159-159
+  section: "4.3 Exit codes (spec section 8)"
+- id: INF-046
+  label: FR-022
+  quote: '4 | Discovery truncated or duplicated | `truncated`, `discovery_duplicate`'
+  citation: docs/designs/issue-watcher.md:160-160
+  section: "4.3 Exit codes (spec section 8)"
+- id: INF-047
+  label: FR-022
+  quote: '5 | Rate limited | `rate_limited`, `rate_limit_clamped`'
+  citation: docs/designs/issue-watcher.md:161-161
+  section: "4.3 Exit codes (spec section 8)"
+- id: INF-048
+  label: FR-022
+  quote: '6 | Store or lock | `store_invalid`, `store_missing`, `lock_missing`, `lock_invalid`, `state_dir_unwritable`'
+  citation: docs/designs/issue-watcher.md:162-162
+  section: "4.3 Exit codes (spec section 8)"
+- id: INF-049
+  label: FR-022
+  quote: '7 | An entry was written `failed`, `unknown` or `abandoned` `spawn_error` this cycle | `prompt_invalid`, `revalidation_transient`, `launch_unknown`, `spawn_error`'
+  citation: docs/designs/issue-watcher.md:163-163
+  section: "4.3 Exit codes (spec section 8)"
+- id: INF-050
+  label: FR-022
+  quote: '75 | Lock held or the lock inode changed | `lock_held`'
+  citation: docs/designs/issue-watcher.md:164-164
+  section: "4.3 Exit codes (spec section 8)"
+- id: INF-051
+  label: FR-022
+  quote: 'When several conditions hold, the cycle exits with the first of 2, 6, 7, 5, 3, 4.'
+  citation: docs/designs/issue-watcher.md:166-166
+  section: "4.3 Exit codes (spec section 8)"
+- id: INF-052
+  label: FR-022
+  quote: 'Exit 75 applies only when the lock was not taken, or its inode changed, and nothing else ran.'
+  citation: docs/designs/issue-watcher.md:166-166
+  section: "4.3 Exit codes (spec section 8)"
+- id: INF-053
+  label: FR-022
+  quote: 'Precedence is computed by one pure function, `cycle.resolve_exit(conditions: frozenset[int]) -> int`.'
+  citation: docs/designs/issue-watcher.md:166-166
+  section: "4.3 Exit codes (spec section 8)"
+# --- Section 5 ---
+- id: INF-054
+  label: NFR-004
+  quote: '`CommandResult` dataclass; `Runner` Protocol; `SubprocessRunner.run(argv, timeout)` which rejects a `str` argv with `TypeError`, runs `subprocess.run(list, shell=False, capture_output=True, text=True, timeout=t, stdin=DEVNULL)`, truncates stderr to 500 bytes (T11), and maps `TimeoutExpired` to `CommandResult(timed_out=True)` and `OSError` to `CommandResult(spawn_error=...)`'
+  citation: docs/designs/issue-watcher.md:218-218
+  section: "5.2 Responsibilities"
+- id: INF-055
+  label: null
+  quote: 'Builds every `gh` argv from module constants (section 8); runs it through the runner with a timeout supplied by the cycle; parses JSON; follows paging; classifies replies into `ok`, `timeout`, `non_json`, `auth_failed`, `scope_missing`, `rate_limited`, `transient` (5xx), `failed`; counts calls against the per-cycle `CallBudget`'
+  citation: docs/designs/issue-watcher.md:219-219
+  section: "5.2 Responsibilities"
+- id: INF-056
+  label: null
+  quote: 'Frozen dataclasses (`Login`, `DiscoveredIssue`, `LabelEvent`, `IssueSnapshot`, `ProjectItem`, `MarkerEvidence`, `EditEvidence`); pure functions for each Section 3 definition; `CLAIM_MARKER`; `is_intended_owner`; `approval_of(events, ...) -> ApprovalResult`; `eligibility_order(...)`'
+  citation: docs/designs/issue-watcher.md:220-220
+  section: "5.2 Responsibilities"
+- id: INF-057
+  label: null
+  quote: '`Store` Protocol; `FileStore` (load, validate, migrate, save); `Lock` (open with `O_NOFOLLOW`, `flock`, inode check); `Entry` and `StoreDoc` dataclasses; one function per section 7 transition row; `sweep(store, now)`; `day_cap_count(store, now)`; `disabled_present(state_dir)`; `init_state(state_dir, now)`'
+  citation: docs/designs/issue-watcher.md:221-221
+  section: "5.2 Responsibilities"
+- id: INF-058
+  label: null
+  quote: '`ORCA_AGENT` constant; `build_claim_prompt(n)`; `find_orca(runner, which)`; `parse_origin(url)`; `check_origin(runner, worktree, timeout)`; `Launcher` Protocol; `OrcaLauncher.launch(...) -> LaunchOutcome`'
+  citation: docs/designs/issue-watcher.md:222-222
+  section: "5.2 Responsibilities"
+- id: INF-059
+  label: null
+  quote: '`AuditLog.append(line)` (one `os.write` on an `O_APPEND` fd), `AuditLog.rotate_if_needed()` (called only by a lock holder), `stderr_fallback(line)`; the `REASONS` frozenset with kind and exit per reason; line builders `cycle_line(...)`, `decision_line(...)`, `warning_line(...)`'
+  citation: docs/designs/issue-watcher.md:223-223
+  section: "5.2 Responsibilities"
+- id: INF-060
+  label: NFR-013
+  quote: '`Config` and `load_config`; `validate_approvers`; `Clock` Protocol and `SystemClock`; `Deadline` (240 s, 5 s floor, 120 s launch cutoff); `run_cycle(deps, dry_run) -> CycleResult`; `resolve_exit`; `status_report(store, audit, now)`; the NFR-013 reducer `slo_numbers(lines, store, now)`'
+  citation: docs/designs/issue-watcher.md:224-224
+  section: "5.2 Responsibilities"
+- id: INF-061
+  label: NFR-014
+  quote: 'Anything not listed is forbidden; `tests/issue_watch/test_module_boundaries.py` walks each module''s AST and fails on any other `superclaude.*` import.'
+  citation: docs/designs/issue-watcher.md:231-231
+  section: "5.3 Dependency rules (NFR-014)"
+# --- Section 6 ---
+- id: INF-062
+  label: FR-001
+  quote: 'Platform check (`sys.platform == "linux"`), `load_config`, `enabled` (skipped in dry-run), `validate_approvers`, worktree absolute and a directory, network-FS check of `state_dir` via `/proc/self/mountinfo`'
+  citation: docs/designs/issue-watcher.md:344-344
+  section: "6.2 Steps"
+- id: INF-063
+  label: null
+  quote: '`record.sweep(store, now)`: every `pending` -> `abandoned` `pending_orphan`; every `launched` past `lease_expires_at` -> `abandoned` `claim_not_observed` (dry-run: report only)'
+  citation: docs/designs/issue-watcher.md:350-350
+  section: "6.2 Steps"
+- id: INF-064
+  label: FR-023
+  quote: 'Order candidates: never-examined first (ascending number), then by `considered[n]` ascending; drop to `max_candidates`'
+  citation: docs/designs/issue-watcher.md:352-352
+  section: "6.2 Steps"
+- id: INF-065
+  label: FR-005
+  quote: 'Per candidate, GitHub checks in order: marker (for every entry state that can reach `claimed`), approval events, edit timestamps, `projectItems`'
+  citation: docs/designs/issue-watcher.md:354-354
+  section: "6.2 Steps"
+- id: INF-066
+  label: FR-010
+  quote: 'First fully eligible candidate: `find_orca` (cached), `build_claim_prompt`, re-read, day cap, DISABLED, origin re-check, `pending` write, spawn'
+  citation: docs/designs/issue-watcher.md:355-355
+  section: "6.2 Steps"
+- id: INF-067
+  label: FR-021
+  quote: 'Health stamp: only an exit-0 cycle that is not DISABLED, `not_enabled`, `disabled_mid_cycle` or dry-run writes `last_completed_cycle_at`'
+  citation: docs/designs/issue-watcher.md:357-357
+  section: "6.2 Steps"
+- id: INF-068
+  label: FR-019
+  quote: 'Dry-run differences: step 1 ignores `enabled`; steps 7, 12 and 13 compute but do not write `dispatch.json`;'
+  citation: docs/designs/issue-watcher.md:362-362
+  section: "6.2 Steps"
+- id: INF-069
+  label: FR-016
+  quote: '"Examined" stops at the first eligible candidate: after the launch, and after any launch-step outcome, later candidates are neither read nor stamped (FR-016, PF-029).'
+  citation: docs/designs/issue-watcher.md:386-386
+  section: "6.3 Quantity flow"
+# --- Section 7 ---
+- id: INF-070
+  label: NFR-011
+  quote: 'Failure is exit 6 with the file untouched (NFR-011).'
+  citation: docs/designs/issue-watcher.md:439-439
+  section: "7.2 Store schema (`dispatch.json`, `schema_version` 1)"
+- id: INF-071
+  label: null
+  quote: 'Every function takes the document and `now` and returns a new `StoreDoc` (no in-place mutation), so a crash between computing and saving leaves the old file intact.'
+  citation: docs/designs/issue-watcher.md:492-492
+  section: "7.4 Transitions (spec section 7, one function and one test each)"
+- id: INF-072
+  label: null
+  quote: 'Any other (state, trigger) pair raises `TransitionError`; `test_record.py` has one case per row plus a table-driven test that every other pair raises.'
+  citation: docs/designs/issue-watcher.md:492-492
+  section: "7.4 Transitions (spec section 7, one function and one test each)"
+- id: INF-073
+  label: FR-024
+  quote: 'Day cap | 6 in (now − 24 h, now] | count `t` with now − 24 h < t <= now over every entry''s `consumed_at` and `consumed_log`'
+  citation: docs/designs/issue-watcher.md:500-500
+  section: "7.5 Lease, backoff, caps and windows"
+- id: INF-074
+  label: FR-009
+  quote: 'Marker window | at or after `pending_at` − 300 s; else after the current `approved_at` | `marker_time >= pending_at - 300s`'
+  citation: docs/designs/issue-watcher.md:502-502
+  section: "7.5 Lease, backoff, caps and windows"
+- id: INF-075
+  label: NFR-011
+  quote: 'serialise with `json.dumps(doc, sort_keys=True, indent=2, ensure_ascii=True).encode() + b"\n"`; call `write_prepared_bytes(state_dir / "dispatch.json", data)`; then `os.chmod(path, 0o600)`; then open `state_dir` with `os.open(dir, O_RDONLY | O_DIRECTORY)`, `os.fsync(fd)`, close.'
+  citation: docs/designs/issue-watcher.md:509-509
+  section: "7.6 Atomic write and lock protocol"
+- id: INF-076
+  label: FR-017
+  quote: '`fd = os.open(lock, O_RDWR \| O_NOFOLLOW \| O_CLOEXEC)` | `FileNotFoundError`: 6 `lock_missing`; `ELOOP` (symlink): 6 `lock_invalid`; `EISDIR`: 6 `lock_invalid`'
+  citation: docs/designs/issue-watcher.md:515-515
+  section: "7.6 Atomic write and lock protocol"
+- id: INF-077
+  label: FR-017
+  quote: '`fcntl.flock(fd, LOCK_EX \| LOCK_NB)` | `BlockingIOError`: 75 `lock_held`'
+  citation: docs/designs/issue-watcher.md:517-517
+  section: "7.6 Atomic write and lock protocol"
+- id: INF-078
+  label: NFR-005
+  quote: 'At no point can a rerun see `launches == 0` for an issue whose spawn may have started, which is the at-most-once argument.'
+  citation: docs/designs/issue-watcher.md:533-533
+  section: "7.6 Atomic write and lock protocol"
+# --- Section 8 ---
+- id: INF-079
+  label: FR-002
+  quote: 'G1 | Own login (FR-002) | `gh api user --include` | parse the status line, headers, blank line, then JSON; keep `.login`, `.id`, header `Date`'
+  citation: docs/designs/issue-watcher.md:543-543
+  section: "8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)"
+- id: INF-080
+  label: FR-003
+  quote: 'G2 | Discovery (FR-003) | `gh issue list --repo R --state open --label <trigger> --assignee <login> --json number,labels,assignees,state -L 100`'
+  citation: docs/designs/issue-watcher.md:544-544
+  section: "8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)"
+- id: INF-081
+  label: FR-005
+  quote: 'G3 | Events (FR-005, FR-006, renamed check) | `gh api --method GET repos/R/issues/N/events -F per_page=100 -F page=P --jq EVENTS_JQ`'
+  citation: docs/designs/issue-watcher.md:545-545
+  section: "8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)"
+- id: INF-082
+  label: FR-009
+  quote: 'G4 | Claim marker (FR-009) | `gh api --method GET repos/R/issues/N/comments -F per_page=100 -F page=P --jq MARKER_JQ`'
+  citation: docs/designs/issue-watcher.md:546-546
+  section: "8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)"
+- id: INF-083
+  label: null
+  quote: 'G5 | Edit timestamps (Section 3 Unchanged) | `gh api graphql -f query=EDITS_QUERY -F number=N [-f after=<cursor>]`'
+  citation: docs/designs/issue-watcher.md:547-547
+  section: "8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)"
+- id: INF-084
+  label: FR-007
+  quote: 'G6 | Project items (FR-007) | `gh api graphql -f query=PROJECT_ITEMS_QUERY -F number=N [-f after=<cursor>]`'
+  citation: docs/designs/issue-watcher.md:548-548
+  section: "8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)"
+- id: INF-085
+  label: FR-011
+  quote: 'G7 | Re-read issue (FR-011) | `gh api --method GET repos/R/issues/N --jq REREAD_JQ`'
+  citation: docs/designs/issue-watcher.md:549-549
+  section: "8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)"
+- id: INF-086
+  label: NFR-002
+  quote: '`--method GET` is written on every REST path call.'
+  citation: docs/designs/issue-watcher.md:554-554
+  section: "8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)"
+- id: INF-087
+  label: NFR-002
+  quote: 'A test asserts no query constant contains `mutation` (NG-2) and every constant contains the literal repository.'
+  citation: docs/designs/issue-watcher.md:555-555
+  section: "8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)"
+- id: INF-088
+  label: NFR-002
+  quote: 'No argv names `title`, `body` or a comment body field as an output field.'
+  citation: docs/designs/issue-watcher.md:556-556
+  section: "8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)"
+- id: INF-089
+  label: null
+  quote: 'Project ids are compared in Python (`project.id == config.project_id`); the id never enters an argv, so a hostile config value cannot alter a query.'
+  citation: docs/designs/issue-watcher.md:558-558
+  section: "8.1 GitHub argv (every one built by `github.py`, every one counted by `CallBudget`)"
+- id: INF-090
+  label: FR-013
+  quote: 'Launch argv (FR-013), exactly 12 elements, built by `launch.launch_argv(orca, worktree, prompt) -> list[str]`:'
+  citation: docs/designs/issue-watcher.md:618-618
+  section: "8.4 Orca contract"
+- id: INF-091
+  label: FR-014
+  quote: 'exit 0 without that id, non-JSON, non-zero exit, `agent_session_operation_unknown` anywhere in stdout or stderr | `unknown` | `unknown`, `operation_id` kept if one was parsed'
+  citation: docs/designs/issue-watcher.md:634-634
+  section: "8.4 Orca contract"
+- id: INF-092
+  label: FR-029
+  quote: 'Orca launch | 120 s, never shortened | not started when `elapsed() > 120`; the step ends with no entry and no reason other than a `budget_exhausted` decision line'
+  citation: docs/designs/issue-watcher.md:647-647
+  section: "8.5 Timeouts and the deadline"
+# --- Section 9 ---
+- id: INF-093
+  label: FR-005
+  quote: 'Latest `labeled` approval event; `actor_id` in the approvers set; later `unlabeled` voids it'
+  citation: docs/designs/issue-watcher.md:658-658
+  section: "9.1 Threat controls and their tests"
+- id: INF-094
+  label: FR-005
+  quote: '`actor_type == "User"` and login not ending `[bot]`'
+  citation: docs/designs/issue-watcher.md:659-659
+  section: "9.1 Threat controls and their tests"
+- id: INF-095
+  label: FR-006
+  quote: 'Body, non-own comments and `renamed` events all older than the approval'
+  citation: docs/designs/issue-watcher.md:660-660
+  section: "9.1 Threat controls and their tests"
+- id: INF-096
+  label: null
+  quote: 'Deployment gate; no permission flag in the argv'
+  citation: docs/designs/issue-watcher.md:666-666
+  section: "9.1 Threat controls and their tests"
+- id: INF-097
+  label: FR-027
+  quote: '`lstat`, `S_ISREG`, `st_uid`, mode `& 0o022 == 0`, line regex, at least one ID'
+  citation: docs/designs/issue-watcher.md:669-669
+  section: "9.1 Threat controls and their tests"
+- id: INF-098
+  label: null
+  quote: 'An id that fails it is stored as `null` and the outcome is `unknown`.'
+  citation: docs/designs/issue-watcher.md:689-689
+  section: "9.2 What crosses each trust boundary"
+- id: INF-099
+  label: NFR-001
+  quote: 'The property test draws `n` from integers, hostile strings, floats and booleans, and asserts every recorded `--prompt` matches `^/sc:issue --claim [1-9][0-9]{0,8}$`.'
+  citation: docs/designs/issue-watcher.md:693-693
+  section: "9.3 D3 enforcement path"
+# --- Section 10 ---
+- id: INF-100
+  label: FR-020
+  quote: 'One JSON object per line, written with one `os.write` on an `O_WRONLY | O_APPEND | O_CREAT` fd (mode 0600).'
+  citation: docs/designs/issue-watcher.md:699-699
+  section: "10.1 Audit line schema"
+- id: INF-101
+  label: NFR-006
+  quote: '`rate_remaining`, titles, bodies, label names and stderr text are never keys (NFR-006, T11).'
+  citation: docs/designs/issue-watcher.md:718-718
+  section: "10.1 Audit line schema"
+- id: INF-102
+  label: FR-020
+  quote: 'if `audit.jsonl` is at least 5 MiB, `os.replace` `.3` to `.4`, `.2` to `.3`, `.1` to `.2`, current to `.1`, then a directory fsync. The exit-75 path appends and never rotates.'
+  citation: docs/designs/issue-watcher.md:720-720
+  section: "10.1 Audit line schema"
+- id: INF-103
+  label: FR-015
+  quote: '`retry[].argv` is the original 12-element launch argv with `--retry-launch <operation_id>` inserted before `--json`, rebuilt from the entry, `ORCA_AGENT` and `build_claim_prompt(issue)`'
+  citation: docs/designs/issue-watcher.md:741-741
+  section: "10.2 `status` output"
+- id: INF-104
+  label: NFR-013
+  quote: '(a) p95 of the `launched` decision `ts` minus its `approved_at`; (b) share of exit-0 cycle lines over 7 days, excluding `disabled`, `not_enabled` and `dry_run`; (c) share of `launched` entries that reached `claimed` before `lease_expires_at`; (d) count of `stale` entries.'
+  citation: docs/designs/issue-watcher.md:745-745
+  section: "10.3 SLO helper"
+# --- Section 11 ---
+- id: INF-105
+  label: null
+  quote: '`src/superclaude/cli/main.py` | Two lines after line 561, same pattern as `reflect_group` (lines 559 and 561)'
+  citation: docs/designs/issue-watcher.md:760-760
+  section: "11. Files to create or change"
+- id: INF-106
+  label: null
+  quote: '`tests/issue_watch/__init__.py`, `conftest.py` | Package marker (C14); `FakeRunner`, `FakeClock`, `FakeLauncher`, `tmp_state` fixtures'
+  citation: docs/designs/issue-watcher.md:761-761
+  section: "11. Files to create or change"
+- id: INF-107
+  label: null
+  quote: '`tests/issue_watch/test_{runner,github,predicates,record,launch,audit,cycle,cli}.py` | One file per module'
+  citation: docs/designs/issue-watcher.md:762-762
+  section: "11. Files to create or change"
+- id: INF-108
+  label: null
+  quote: '`tests/issue_watch/test_{cli_e2e,security_invariants,crash_injection,concurrency,no_shell,no_text,origin_parity,marker_contract,find_orca_parity,module_boundaries,slo_helper}.py` | Spec-named and design-added cross-cutting tests'
+  citation: docs/designs/issue-watcher.md:763-763
+  section: "11. Files to create or change"
+- id: INF-109
+  label: null
+  quote: '`tests/issue_watch/fixtures/_assumed_shape/*.json` | Assumed `gh` and Orca replies, replaced by FU-1'
+  citation: docs/designs/issue-watcher.md:764-764
+  section: "11. Files to create or change"
+- id: INF-110
+  label: null
+  quote: '`tests/issue_watch/stubs/gh`, `stubs/orca` | Executable PATH stubs for `test_cli_e2e.py`'
+  citation: docs/designs/issue-watcher.md:765-765
+  section: "11. Files to create or change"
+- id: INF-111
+  label: null
+  quote: '`docs/designs/issue-watcher-setup.md` | Runbook steps 1 to 10 for the owner'
+  citation: docs/designs/issue-watcher.md:766-766
+  section: "11. Files to create or change"
+- id: INF-112
+  label: NFR-012
+  quote: 'Not changed: `pyproject.toml` (no dependency, no marker, no entry point), `Makefile`, CI, any file under `.claude/`.'
+  citation: docs/designs/issue-watcher.md:768-768
+  section: "11. Files to create or change"
+# --- Section 12 ---
+- id: INF-113
+  label: null
+  quote: 'No test runs a real `gh`, `orca`, `git` or network call. Every external effect goes through a fake or a PATH stub.'
+  citation: docs/designs/issue-watcher.md:772-772
+  section: "12. Tests"
+- id: INF-114
+  label: NFR-005
+  quote: '`test_crash_injection.py` | per C1 to C5, run, crash, rerun: total fresh launches per issue ≤ 1 (NFR-005)'
+  citation: docs/designs/issue-watcher.md:784-784
+  section: "12. Tests"
+- id: INF-115
+  label: null
+  quote: '`test_concurrency.py` | two `multiprocessing` processes on one `tmp_path` store: one exits 75 `lock_held`, one launch total'
+  citation: docs/designs/issue-watcher.md:785-785
+  section: "12. Tests"
+- id: INF-116
+  label: null
+  quote: '`test_cycle.py::test_fifty_cycles` | 50 cycles over a changing fixture: `launches` never exceeds 1 per issue'
+  citation: docs/designs/issue-watcher.md:786-786
+  section: "12. Tests"
+- id: INF-117
+  label: null
+  quote: '`test_cycle.py::test_acceptance_property` | for N in {1, 2, 6, 7, 50, 99}: at most 1 launch per cycle; after 24 h of cycles exactly min(N, 6) launched and the rest `day_cap`; after +24 h one more per cycle'
+  citation: docs/designs/issue-watcher.md:787-787
+  section: "12. Tests"
+- id: INF-118
+  label: NFR-004
+  quote: '`test_no_shell.py` | AST: no `shell=True`, no `os.system`, no `subprocess` outside `runner.py`'
+  citation: docs/designs/issue-watcher.md:788-788
+  section: "12. Tests"
+- id: INF-119
+  label: null
+  quote: '`test_no_text.py` | hostile titles, bodies and stderr (`PWNED-TITLE`) never appear in audit, store, prompt or stdout'
+  citation: docs/designs/issue-watcher.md:789-789
+  section: "12. Tests"
+- id: INF-120
+  label: NFR-014
+  quote: '`test_module_boundaries.py` | AST import graph matches section 5.3; no module named `select`'
+  citation: docs/designs/issue-watcher.md:790-790
+  section: "12. Tests"
+- id: INF-121
+  label: null
+  quote: '`test_marker_contract.py` | `CLAIM_MARKER` occurs in `refs/claim.md` and `templates/claim-comment.md`, read through the dual surface'
+  citation: docs/designs/issue-watcher.md:791-791
+  section: "12. Tests"
+# --- Section 13 ---
+- id: INF-122
+  label: null
+  quote: '`uv run pytest tests/issue_watch/ -v` | spec line 366 | fast loop'
+  citation: docs/designs/issue-watcher.md:797-797
+  section: "13. Gates, sync and packaging"
+- id: INF-123
+  label: null
+  quote: '`make test` | `Makefile:13-15` | CI uses `-n auto` (`test.yml:47`), C11'
+  citation: docs/designs/issue-watcher.md:798-798
+  section: "13. Gates, sync and packaging"
+- id: INF-124
+  label: null
+  quote: '`make lint` | `Makefile:48-50` | includes `lint-architecture` (C8); ruff 0.15.20, select `E,F,I,N,W,TID`, line length 88, py310 (`pyproject.toml:54,174-184`)'
+  citation: docs/designs/issue-watcher.md:799-799
+  section: "13. Gates, sync and packaging"
+- id: INF-125
+  label: null
+  quote: '`uv run ruff format --check src/ tests/` | `test.yml:106` | no make target (C10)'
+  citation: docs/designs/issue-watcher.md:800-800
+  section: "13. Gates, sync and packaging"
+- id: INF-126
+  label: NFR-012
+  quote: '`make verify-deps` | `Makefile:356-358`, `test.yml:123` | passes with no new dependency'
+  citation: docs/designs/issue-watcher.md:801-801
+  section: "13. Gates, sync and packaging"
+- id: INF-127
+  label: null
+  quote: 'The Python floor is 3.10 (`pyproject.toml:16`, CI `test.yml:22`): no `tomllib`, no `datetime.UTC` (use `timezone.utc`).'
+  citation: docs/designs/issue-watcher.md:805-805
+  section: "13. Gates, sync and packaging"
+# --- Section 14 ---
+- id: INF-128
+  label: null
+  quote: '`max_launches_per_cycle` | 1 | caps blast radius of a bad cycle'
+  citation: docs/designs/issue-watcher.md:812-812
+  section: "14. Defaults ([PROPOSAL] values)"
+- id: INF-129
+  label: null
+  quote: 'call cap | 35, 3 reserved | worst cycle 37 calls, 8.88% of 5,000 an hour'
+  citation: docs/designs/issue-watcher.md:814-814
+  section: "14. Defaults ([PROPOSAL] values)"
+- id: INF-130
+  label: null
+  quote: 'day cap | 6 per rolling 24 h | bounds sessions the owner must review'
+  citation: docs/designs/issue-watcher.md:816-816
+  section: "14. Defaults ([PROPOSAL] values)"
+# --- Section 15 ---
+- id: INF-131
+  label: null
+  quote: 'The implementer records each UNVERIFIED answer in the matching `_assumed_shape` fixture name and in `issue-watcher-live-test.md`.'
+  citation: docs/designs/issue-watcher.md:847-847
+  section: "15. Commands and flags cited"
+# --- Section 17 ---
+- id: INF-132
+  label: null
+  quote: 'All criteria run under `uv run pytest tests/issue_watch/` with fakes or PATH stubs only.'
+  citation: docs/designs/issue-watcher.md:870-870
+  section: "17. Acceptance criteria"
+- id: INF-133
+  label: AC-1
+  quote: 'One `once` runs the FR-001 order; `FakeRunner` sees G1 first and no argv after an exit decision'
+  citation: docs/designs/issue-watcher.md:874-874
+  section: "17. Acceptance criteria"
+- id: INF-134
+  label: AC-2
+  quote: 'Discovery argv equals the FR-003 literal; 100 results or a repeated number exits 4'
+  citation: docs/designs/issue-watcher.md:875-875
+  section: "17. Acceptance criteria"
+- id: INF-135
+  label: AC-3
+  quote: 'Approval table: outsider, bot, unlabel, relabel, incomplete history, edit after approval each skip with their reason'
+  citation: docs/designs/issue-watcher.md:876-876
+  section: "17. Acceptance criteria"
+- id: INF-136
+  label: AC-4
+  quote: 'Project and owner tables: wrong project, not Backlog, unassigned, other assignee skip'
+  citation: docs/designs/issue-watcher.md:877-877
+  section: "17. Acceptance criteria"
+- id: INF-137
+  label: AC-5
+  quote: 'An own-login marker comment yields `claimed` and no launch'
+  citation: docs/designs/issue-watcher.md:878-878
+  section: "17. Acceptance criteria"
+- id: INF-138
+  label: AC-6
+  quote: '`pending` with `launches` 1 is saved before the launcher is called; the re-read failure skips'
+  citation: docs/designs/issue-watcher.md:879-879
+  section: "17. Acceptance criteria"
+- id: INF-139
+  label: AC-7
+  quote: 'Every recorded prompt matches the D3 regex over the hostile corpus; non-int input raises'
+  citation: docs/designs/issue-watcher.md:880-880
+  section: "17. Acceptance criteria"
+- id: INF-140
+  label: AC-8
+  quote: 'Launch argv equals the 12-element list; outcome table maps to `launched`, `failed`, `unknown`, `abandoned`'
+  citation: docs/designs/issue-watcher.md:881-881
+  section: "17. Acceptance criteria"
+- id: INF-141
+  label: AC-9
+  quote: 'No automatic retry; `status` lists the full retry argv for an `unknown` entry'
+  citation: docs/designs/issue-watcher.md:882-882
+  section: "17. Acceptance criteria"
+- id: INF-142
+  label: AC-10
+  quote: 'Budget, day cap and `consumed_log` hold through `reset`; acceptance property passes'
+  citation: docs/designs/issue-watcher.md:883-883
+  section: "17. Acceptance criteria"
+- id: INF-143
+  label: AC-11
+  quote: 'Second process exits 75; symlinked or foreign lock exits 6'
+  citation: docs/designs/issue-watcher.md:884-884
+  section: "17. Acceptance criteria"
+- id: INF-144
+  label: AC-12
+  quote: '`DISABLED` and `enabled: false` exit 0 before any external call'
+  citation: docs/designs/issue-watcher.md:885-885
+  section: "17. Acceptance criteria"
+- id: INF-145
+  label: AC-13
+  quote: 'Dry-run writes only `dry-run.json` and audit; the real store is byte-identical'
+  citation: docs/designs/issue-watcher.md:886-886
+  section: "17. Acceptance criteria"
+- id: INF-146
+  label: AC-14
+  quote: 'Every exit writes a schema-valid audit line or the stderr fallback; rotation keeps 4 files'
+  citation: docs/designs/issue-watcher.md:887-887
+  section: "17. Acceptance criteria"
+- id: INF-147
+  label: AC-15
+  quote: 'Shared-input failures map to exits 2, 3, 5, 6, 7 with the precedence 2, 6, 7, 5, 3, 4'
+  citation: docs/designs/issue-watcher.md:888-888
+  section: "17. Acceptance criteria"
+- id: INF-148
+  label: AC-16
+  quote: 'Origin mismatch exits 2; parity table agrees with `origin_repo.py`'
+  citation: docs/designs/issue-watcher.md:889-889
+  section: "17. Acceptance criteria"
+- id: INF-149
+  label: AC-17
+  quote: 'Each verb''s exit codes match section 4; `check-config` and `status` write nothing'
+  citation: docs/designs/issue-watcher.md:890-890
+  section: "17. Acceptance criteria"
+- id: INF-150
+  label: AC-18
+  quote: 'Rate limit persists `next_permitted_at`, clamps to 3600 s, and `reset --rate-limit` clears it'
+  citation: docs/designs/issue-watcher.md:891-891
+  section: "17. Acceptance criteria"
+- id: INF-151
+  label: AC-19
+  quote: 'A sleeping stub ends with `gh_timeout`; no launch starts after 120 s'
+  citation: docs/designs/issue-watcher.md:892-892
+  section: "17. Acceptance criteria"
+- id: INF-152
+  label: AC-20
+  quote: 'Argv prefix scan: only G1 to G7, `--method GET`, no upstream name'
+  citation: docs/designs/issue-watcher.md:893-893
+  section: "17. Acceptance criteria"
+- id: INF-153
+  label: AC-21
+  quote: '`test_no_shell.py` passes'
+  citation: docs/designs/issue-watcher.md:894-894
+  section: "17. Acceptance criteria"
+- id: INF-154
+  label: AC-22
+  quote: 'Crash points C1 to C5 and 50 cycles never exceed one launch per issue'
+  citation: docs/designs/issue-watcher.md:895-895
+  section: "17. Acceptance criteria"
+- id: INF-155
+  label: AC-23
+  quote: 'No new dependency; gates in section 13 pass'
+  citation: docs/designs/issue-watcher.md:896-896
+  section: "17. Acceptance criteria"
+- id: INF-156
+  label: AC-24
+  quote: '`slo_numbers` returns the four values on a fixture log'
+  citation: docs/designs/issue-watcher.md:897-897
+  section: "17. Acceptance criteria"
+- id: INF-157
+  label: AC-25
+  quote: 'Module-boundary and parity tests pass'
+  citation: docs/designs/issue-watcher.md:898-898
+  section: "17. Acceptance criteria"

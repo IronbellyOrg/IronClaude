@@ -1,0 +1,2 @@
+EXIT=1
+NO_MATCH: `grep -rnE 'shell=True|os\.system' src/superclaude/cli/issue_watch/` printed nothing and exited 1 (the expected no-match code).

@@ -1,0 +1,44 @@
+summary:
+  parsed_total: 13
+  parsed_matched: 12
+  inferred_total: 155
+  inferred_matched: 133
+  inferred_dropped: 2
+  inferred_submitted: 157
+  coverage_pct: 0.9231
+  coverage_pct_union: 0.8631
+  unmapped_requirements:
+  - T-2
+  unmapped_requirements_union:
+  - T-2
+  - INF-006
+  - INF-008
+  - INF-009
+  - INF-016
+  - INF-022
+  - INF-037
+  - INF-042
+  - INF-044
+  - INF-051
+  - INF-055
+  - INF-089
+  - INF-101
+  - INF-108
+  - INF-123
+  - INF-124
+  - INF-128
+  - INF-129
+  - INF-135
+  - INF-139
+  - INF-142
+  - INF-147
+  - INF-151
+  S_dev_density: 0.1369
+  coverage_degraded: parsed-sparse
+  S_scope: 209
+  tasklist_items: 209
+dropped_inferred:
+- id: INF-071
+  reason: overlaps parsed span (parsed wins)
+- id: INF-072
+  reason: overlaps parsed span (parsed wins)

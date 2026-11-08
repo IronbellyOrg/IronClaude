@@ -1,0 +1,37 @@
+# persisted by the orchestrator from the reviewer's final message
+dimension_scores:
+  citation_grounding:
+    score: 0.90
+    reason: "All five spot-checks matched the card's excerpts: design:479, tasklist:336, :611, :723 (both quotes), and :838-876 (which covers :848, :860, :864, :875). test.yml:29 was not checked because the five-check limit was used up."
+  coverage_completeness:
+    score: 0.60
+    reason: "The card says itself that it did not read tasklist Phases 1-3, Gates A-D, the Final gate, the M4 gate (lines 737-837), the frontmatter, or research/06. About 12 INF rows are marked 'not re-read in detail' or 'not line-verified'."
+  deviation_classification_clarity:
+    score: 0.75
+    reason: "Each finding has a severity, a category and a grounded/inferred tag, and the declared deviations (DF-01, 05, 06, 09, 10, 29, 55) are listed as not being defects. But it never uses the Authorized/Necessary/Drift/Regression taxonomy, and R1-005 is tagged 'inferred' even though it follows directly from the command text at :723."
+  risk_surface_coverage:
+    score: 0.65
+    reason: "Covers the state-machine conjunct, Phase 10 commit/remediation ordering, the withdrawn-commit branch, CI parity for xdist, and staged-change gate evasion. The unread phases and gates (the card's own stated residual risk) are uncovered."
+  recommendation_actionability:
+    score: 0.85
+    reason: "Every fix names the exact step and the wording or command to change. One caveat: the extra test row in R1-001 (a 'failed' entry with attempts == 3) describes a state that T-3 already turns into 'abandoned', so the test has limited value."
+calibrated_confidence: 0.75
+finding_confidence:
+  R1-001: 0.80
+  R1-002: 0.75
+  R1-003: 0.65
+  R1-004: 0.70
+  R1-005: 0.85
+escalation_recommendation: escalate
+calibrator_model_class: opus
+notes:
+  - "The mean of five dimensions is (0.90+0.60+0.75+0.65+0.85)/5 = 0.75. The card's self_confidence of 0.7 was read but not used as an input."
+  - "The user's five-dimension rubric replaced the agent's six-dimension hypothesis rubric. The gated-minimum formula and the C-rules were not applied because no rubric_path or assertions_path was supplied and the card is a reflection card, not a hypothesis card."
+  - "Spot-check 1, docs/designs/issue-watcher.md:479: matches. It contains the 'attempts < 3' conjunct."
+  - "Spot-check 2, tasklist:336: matches. backoff_elapsed is written as '(now >= `updated_at` + 10 min)' with no attempts conjunct, so R1-001 is factually grounded. Its practical impact is low because fail() already turns attempts == 3 into 'abandoned'."
+  - "Spot-check 3, tasklist:611: matches the 'exactly as `.github/workflows/test.yml:29` does' wording and the --offline uv run command."
+  - "Spot-check 4, tasklist:723: matches. The first command has no HEAD and no --cached, and the third check only looks for '.claude/'. The R1-005 git behaviour is correct, and the Step 10.3 allowlist (tasklist:851) does catch a staged pyproject.toml, as the card says."
+  - "Spot-check 5, tasklist:838-876: the excerpts at :848, :860, :864 and :875 all match. R1-003 is partly overstated: :848 already lets an owner-named base replace base-sha.txt, so the 'verbatim' conflict really applies only to the case where the owner names no base (working-tree diff)."
+  - "R1-002 is a sound reading: the Step 10.6 prompt (:866) applies --remediate fixes after the :854 commit, and Step 10.7 (:875) stages only .dev/tasks, with no re-run of the gates."
+  - "Not verified: .github/workflows/test.yml:29 (the CI xdist install form claimed in R1-004), and the self_audit claims about install_user_setup.py, main.py, Makefile and the other files."
+  - "Escalation basis: 0.75 is below a typical 0.85 stop threshold, and the card's unread regions (lines 737-837, Phases 1-3) are where undetected defects would most likely sit."

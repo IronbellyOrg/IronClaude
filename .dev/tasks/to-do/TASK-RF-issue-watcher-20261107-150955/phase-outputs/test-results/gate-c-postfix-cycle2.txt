@@ -1,0 +1,18 @@
+## pytest
+tests/issue_watch/test_slo_helper.py::test_stale_count_comes_from_the_store_even_with_an_empty_log PASSED [ 99%]
+tests/issue_watch/test_slo_helper.py::test_the_four_numbers_from_one_rotated_fixture_log PASSED [100%]
+
+============================= 2243 passed in 8.29s =============================
+## make lint
+  Errors:   0
+  Warnings: 5
+  ✅ PASS — architecture policy compliant (5 warning(s))
+Running linter...
+uv run ruff check .
+All checks passed!
+## ruff check
+All checks passed!
+## ruff format
+24 files already formatted
+## git status outside scope
+(end)

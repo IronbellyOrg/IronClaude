@@ -1,0 +1,32 @@
+# persisted by the orchestrator from the reviewer's final message
+dimension_scores:
+  citation_grounding:
+    score: 0.95
+    reason: "I checked five citations: tasklist :460, :472 and :475, and design :879 and :887. All five match the card's excerpts. Two I did not check: design :722 and tasklist :212."
+  coverage_completeness:
+    score: 0.85
+    reason: "The card judges all 25 acceptance criteria, all 46 coverage-slice rows (the table count matches) and all 19 named test files. Most 'Covered' rows name step numbers but give no file:line evidence."
+  deviation_classification_clarity:
+    score: 0.80
+    reason: "Both findings have a category, a MEDIUM severity and a stated boundary (planned coverage, not runtime defects). Calling them 'Drift' fits loosely, since they are test-coverage gaps. The card is also markdown instead of the requested YAML."
+  risk_surface_coverage:
+    score: 0.75
+    reason: "It names the regression each gap would hide (reused approval evidence; a dropped fallback call) and the remaining risk (planned-test adequacy, no execution evidence). It does not check whether other steps (6.8, 7.4/7.5, 8.2) might already cover the gaps."
+  recommendation_actionability:
+    score: 0.90
+    reason: "Each fix names the step to edit, the exact scenarios to inject, the assertions (revalidation_failed / no entry / no launcher call; five-key stderr JSON, exit, lock release) and which steps run the tests."
+calibrated_confidence: 0.85
+finding_confidence:
+  R2-001: 0.85
+  R2-002: 0.80
+escalation_recommendation: stop_at_t1
+calibrator_model_class: opus
+notes:
+  - "Spot checks: tasklist :460 is Step 6.2 run_cycle and includes 'a closed issue, a lost label, a voided approval or a changed Project status gives revalidation_failed'. Matches."
+  - "Tasklist :475: under FR-011 it tests only 're-read showing the issue closed gives revalidation_failed'. The lost-label, voided-approval and changed-Project-status re-read cases are missing, as R2-001 claims. Confirmed."
+  - "Tasklist :472: tests that each exit appends one cycle line and that a missing or invalid store gives exit 6. It never injects an audit-append OSError or a failing final save, and it does not mention stderr_fallback. This confirms the core of R2-002."
+  - "Design :879 (AC-6, 're-read failure skips') and :887 (AC-14, 'audit line or the stderr fallback') match exactly."
+  - "Unchecked (five-check limit): design :722 and tasklist :212. I also did not check whether Steps 6.8, 7.4/7.5 or 8.2 contain the missing scenarios. That is the main uncertainty in both findings, and the larger one for R2-002, since the CLI tests could exercise the fallback."
+  - "The card's self-reported confidence (0.91) was not used as an input. The calibrated score of 0.85 is 0.06 lower."
+  - "Format pathology: the header says the reviewer returned markdown instead of the requested YAML. This lowers the classification-clarity score only. Content is complete."
+  - "Rubric mismatch: the agent spec describes a six-dimension hypothesis-card rubric with gated-minimum formulas. I followed the caller's five-dimension, arithmetic-mean instruction. No rubric_path, assertions_path or flags_context was supplied, so no C-rule structural caps were applied."

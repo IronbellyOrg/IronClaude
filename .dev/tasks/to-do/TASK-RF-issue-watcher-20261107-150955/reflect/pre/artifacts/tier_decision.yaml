@@ -1,0 +1,15 @@
+selected_tier: 2
+fired_rule_number: null          # hard override (section 5.1): --depth deep always escalates
+hard_override: "--depth deep"
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: null            # recording-only signal; not computed for a forced escalation
+per_signal_breakdown: {scope_size: null, task_count: null, blast_radius: null, spec_density: null, ambiguity_signals: null}
+escalation_reason: "Explicit --depth deep. Independent signals also escalate: S_domains 3 (rule 4), coverage_pct_union 0.8631 below floor 0.90, coverage_degraded parsed-sparse."
+S_scope: 209
+S_domains: 3
+S_dev_density: 0.1369
+coverage_pct: 0.9231
+coverage_pct_union: 0.8631
+t2_model_class_diversity: full
+t2_vendor_diversity: single

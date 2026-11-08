@@ -1,0 +1,4 @@
+src/superclaude/cli/issue_watch/predicates.py:30:    Raises ``ValueError`` for any other input (DF-35: no ``fromisoformat``). The
+EXIT=0
+
+Justification (re-run after the Final-gate fix cycle): the single hit is a docstring sentence at predicates.py:30 ("DF-35: no ``fromisoformat``") saying the parser does not use it; no call exists. A real Python 3.10.20 ran the suite in Gates D and Final and passed.

@@ -1,0 +1,29 @@
+## pytest tests/issue_watch
+tests/issue_watch/test_slo_helper.py::test_the_four_numbers_from_one_rotated_fixture_log PASSED [100%]
+
+============================ 2635 passed in 18.47s =============================
+## pytest G-2 set
+=========================== short test summary info ============================
+SKIPPED [1] tests/swarm/test_cli_registration.py:127: got empty parameter set for (subcommand)
+======================= 2665 passed, 1 skipped in 18.55s =======================
+## xdist
+
+============================= 2635 passed in 6.52s =============================
+## make lint
+  ✅ PASS — architecture policy compliant (5 warning(s))
+Running linter...
+uv run ruff check .
+All checks passed!
+## ruff
+All checks passed!
+1234 files already formatted
+## verify-sync
+
+✅ All components in sync.
+## git diff pyproject Makefile .github
+EXIT=0
+## shell grep
+EXIT=1
+## trailing space / CR
+EXIT=1
+EXIT=1
