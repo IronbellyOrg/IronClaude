@@ -1,0 +1,5 @@
+c2fe3180cd764c802a7a0678026de7622e1b351a
+A1 r1-1 F1.1 minor artifacts/subagent-and-monitor.json:43 ac=T2.AC2 n,n,n,n the Monitor case is marked observed from a runner-captured ordinary selector line at 2 hops, but nothing in the file shows the Monitor tool itself was invoked (the stream summary kept event types, not tool names); the artifact states the attribution as an inference.
+A1 r1-1 F1.2 minor artifacts/subagent-and-monitor.json:43 ac=T2.AC2 n,n,n,n the sentence "later runs of Tasks 3 and 4 retain tool names" was a forward claim the runner code did not yet fulfil; Tasks 3 and 4 retain tool names in their own drivers.
+A1 r1-1 F1.3 note artifacts/preflight.json:2 ac=T2.AC1 n,n,n,n the preflight fields nested_launch_refused and authentication_available read unavailable for any non-observed preflight, so they cannot tell refused from not determined; the ledger reason cli_error and the later exit 0 runs show the run was legitimate (same point as T1 F1.1).
+A1 r1-1 F1.4 note artifacts/observe/task2.py:1 ac=scope n,n,n,n the Task 2 files were untracked when reviewed; resolved by git add .dev/tasks before the complete line (staged, not committed).

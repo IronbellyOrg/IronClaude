@@ -1,0 +1,264 @@
+{
+  "clear": {
+    "check_before_run": {
+      "captured_for_this_run": false,
+      "nearest_preceding_check": {
+        "from_run": "fork",
+        "note": "taken immediately before the fork run, the last run before this one; nothing deleted the store between the two runs",
+        "origin_session_record_and_store": {
+          "governed_record_exists": true,
+          "store_exists": true
+        },
+        "run_id": "a2d1d6b085c5"
+      },
+      "reason": "the first version of the driver took its only store check after the pty process ended and for the pty session's own starting id (ledger row run-status.jsonl:23 shows governed_record_exists false for that id, which was never made governed), so no pre-run check of the old child's origin session record exists for this run"
+    },
+    "dialogs_answered_before_prompts": [],
+    "elapsed_seconds": 129.91,
+    "flag_names_used": [
+      "--allowedTools",
+      "--mcp-config",
+      "--no-chrome",
+      "--permission-mode",
+      "--session-id",
+      "--setting-sources",
+      "--settings",
+      "--strict-mcp-config",
+      "--tools"
+    ],
+    "hook_event_records": [],
+    "how_the_process_was_ended": {
+      "sent": true,
+      "signal": "SIGTERM",
+      "target": "the spawned process only (own child handle, no process group)"
+    },
+    "missing_interface": "Keyboard input to the interactive Claude Code terminal UI through a pty: the runner sent the two prompts (\"/clear\", then one governed-command prompt) after the screen settled, but nothing shows that either reached a session. There is no transcript for the pty session's starting id, no PreToolUse hook event, and no selector line, after 129.9 seconds and 6288 bytes of terminal output. The cause was not captured (the screen contents were not retained), so no cause is claimed. One attempt, no retry, as the plan bounds it.",
+    "new_session_selector_session_id": null,
+    "new_session_selector_status": null,
+    "old_child": {
+      "alive_after_new_process": true,
+      "pid": 1416828,
+      "source_of_after_value": "the identity check at group teardown, which ran after the pty process had ended: phase2-cleanup.log:11 stopped the child only after verifying its pid and start ticks still matched the recorded ones. No selector status for the old child was read in this run (the interactive session ran no command).",
+      "start_ticks_after_new_process": 98576077,
+      "start_ticks_before_new_process": 98576077
+    },
+    "old_child_origin_session_id": null,
+    "old_child_selector_status": null,
+    "printed_cost": "not captured: the first version of the driver did not retain the terminal output (6288 bytes were read and discarded), so any cost the session printed is unknown",
+    "prompts_sent": 2,
+    "provenance_note": "Produced by the first version of interactive_clear in artifacts/observe/task3.py. After the first review, task3.py was corrected (pre-run store check for the origin session, old child state before and after, screen tail kept for any printed cost, transcript scan limited to files written during the run). The interactive run was not repeated because the plan allows one attempt and no retry, so the values that version did not capture are recorded above as not captured, with the evidence that does exist and where it came from.",
+    "pty_session_transcript_found": false,
+    "result": "unavailable",
+    "reused_process_form": "unavailable: the single-process /clear form (a new ordinary session started in a reused Claude process) was not observed; the resume and fork runs start new processes and cannot test it",
+    "run_id": "26ebfaffd570",
+    "selector_lines": [],
+    "session_ids_in_all_group_transcripts": [
+      "64b3f68b-b483-42dc-90cf-1a64b2984088",
+      "a590b456-1cb9-4c51-91ec-1bbc34f499c4"
+    ],
+    "session_ids_in_hook_events": [],
+    "stages": {
+      "after_clear_quiet": true,
+      "startup_quiet": true
+    },
+    "starting_session_id": "ebb112e0-5ce0-42f7-ace7-8277dbdba1b9",
+    "timed_out": false,
+    "tool_names_in_all_group_transcripts": [
+      "Bash",
+      "Bash",
+      "Bash",
+      "Bash",
+      "Bash",
+      "Bash",
+      "Bash",
+      "Bash",
+      "Bash",
+      "Bash",
+      "Bash",
+      "Bash"
+    ],
+    "transcript_fields_note": "session_ids_in_all_group_transcripts and tool_names_in_all_group_transcripts were read from every transcript in the shared throwaway HOME, so they list the earlier runs of this group (first call, resume, fork) and say nothing about the pty session; the pty session's own starting id is absent (pty_session_transcript_found), which supports the entry's finding that the typed input never reached a session.",
+    "wall_clock_bound_seconds": 300
+  },
+  "decisive_case": {
+    "distinct_identities": true,
+    "interpretation": "From the fork run: the old background child (started by the first governed session) was alive and reported governed with its origin session id, while the forked session, a new session id with no level record, reported ordinary for its own command. The two reports differ. This was observed in a real forked Claude process; the single-process /clear form stays unavailable.",
+    "new_session_hook_event_session_id": "64b3f68b-b483-42dc-90cf-1a64b2984088",
+    "new_session_id": null,
+    "new_session_status": "ordinary",
+    "old_child_origin_session_id": "a590b456-1cb9-4c51-91ec-1bbc34f499c4",
+    "old_child_status": "governed",
+    "result": "observed",
+    "source": "fork"
+  },
+  "first_call": {
+    "after_kill_before_resume": {
+      "boot_identity_unchanged": true,
+      "child": {
+        "alive": true,
+        "identity_changed": false,
+        "pid": 1416828,
+        "start_ticks_now": 98576077,
+        "start_ticks_recorded": 98576077
+      },
+      "supervisor": {
+        "alive": true,
+        "identity_changed": false,
+        "pid": 1416814,
+        "start_ticks_now": 98576076,
+        "start_ticks_recorded": 98576076
+      }
+    },
+    "before_kill_from_ready_file": {
+      "boot_identity": "0f93183c-c3b0-46fa-b016-088783da8d52",
+      "child": {
+        "pid": 1416828,
+        "start_ticks": 98576077
+      },
+      "supervisor": {
+        "pid": 1416814,
+        "start_ticks": 98576076
+      }
+    },
+    "call_returned_while_child_lived": false,
+    "child_selector_before_kill": [
+      {
+        "line_sha256": "a0266d940410e5ab2a3b2fae01e04a5a38026cc8f64858c9d73921e22763d3e7",
+        "run_id": "23bb376ba27f",
+        "session_id": "a590b456-1cb9-4c51-91ec-1bbc34f499c4",
+        "status": "governed"
+      }
+    ],
+    "depth": {
+      "claude_process_reached": true,
+      "hops": 5,
+      "measured": true
+    },
+    "end_action": {
+      "at_s": 8.19,
+      "sent": true,
+      "signal": "SIGKILL",
+      "target": "the spawned process only (own child handle, no process group)"
+    },
+    "failure": {},
+    "hook_event_session_id": "a590b456-1cb9-4c51-91ec-1bbc34f499c4",
+    "ledger_exit": "signal:SIGKILL",
+    "note_per_case_cleanup": "After the planned SIGKILL of the first Claude process (its own process id only), the runner ended the remaining members of that process's own process group. The old child and its supervisor live in the supervisor's separate session and were not signalled; their identities were read from /proc afterwards (after_kill_before_resume).",
+    "origin_session_id": "a590b456-1cb9-4c51-91ec-1bbc34f499c4",
+    "ready_file_sighted": true,
+    "result": "observed",
+    "run_id": "23bb376ba27f",
+    "runner_side_identify_before_resume": {
+      "session_id": "a590b456-1cb9-4c51-91ec-1bbc34f499c4",
+      "status": "governed"
+    },
+    "same_boot": true,
+    "seconds_held": 8.24,
+    "tool_names": [
+      "Bash"
+    ]
+  },
+  "fork": {
+    "check_before_run": {
+      "governed_record_exists": true,
+      "store_exists": true
+    },
+    "depth": {
+      "claude_process_reached": true,
+      "hops": 2,
+      "measured": true
+    },
+    "hook_event_session_id": "64b3f68b-b483-42dc-90cf-1a64b2984088",
+    "ledger_exit": 0,
+    "new_process": {
+      "selector_status": "ordinary",
+      "session_id": null
+    },
+    "old_child": {
+      "in_new_process_selector_status": "governed",
+      "origin_session_id": "a590b456-1cb9-4c51-91ec-1bbc34f499c4",
+      "pid": 1416828,
+      "start_ticks_after_new_process": 98576077,
+      "start_ticks_before_new_process": 98576077
+    },
+    "old_child_alive_after_new_process": true,
+    "result": "observed",
+    "run_id": "a2d1d6b085c5",
+    "runner_side_identify_after": {
+      "session_id": "a590b456-1cb9-4c51-91ec-1bbc34f499c4",
+      "status": "governed"
+    },
+    "same_identities": false,
+    "selector_lines": [
+      {
+        "line_sha256": "a0266d940410e5ab2a3b2fae01e04a5a38026cc8f64858c9d73921e22763d3e7",
+        "run_id": "a2d1d6b085c5",
+        "session_id": "a590b456-1cb9-4c51-91ec-1bbc34f499c4",
+        "status": "governed"
+      },
+      {
+        "line_sha256": "0d525830bea56e97e6412721a3125f102c7dee7a45f1003a309beddab9a2ad5f",
+        "run_id": "a2d1d6b085c5",
+        "status": "ordinary"
+      }
+    ],
+    "tool_names": [
+      "Bash"
+    ]
+  },
+  "resume": {
+    "check_before_run": {
+      "governed_record_exists": true,
+      "store_exists": true
+    },
+    "depth": {
+      "claude_process_reached": true,
+      "hops": 5,
+      "measured": true
+    },
+    "hook_event_session_id": "a590b456-1cb9-4c51-91ec-1bbc34f499c4",
+    "ledger_exit": 0,
+    "new_process": {
+      "selector_status": "governed",
+      "session_id": "a590b456-1cb9-4c51-91ec-1bbc34f499c4"
+    },
+    "old_child": {
+      "in_new_process_selector_status": "governed",
+      "origin_session_id": "a590b456-1cb9-4c51-91ec-1bbc34f499c4",
+      "pid": 1416828,
+      "start_ticks_after_new_process": 98576077,
+      "start_ticks_before_new_process": 98576077
+    },
+    "old_child_alive_after_new_process": true,
+    "result": "observed",
+    "run_id": "0c6d6a35dc9e",
+    "runner_side_identify_after": {
+      "session_id": "a590b456-1cb9-4c51-91ec-1bbc34f499c4",
+      "status": "governed"
+    },
+    "same_identities": true,
+    "selector_lines": [
+      {
+        "line_sha256": "a0266d940410e5ab2a3b2fae01e04a5a38026cc8f64858c9d73921e22763d3e7",
+        "run_id": "0c6d6a35dc9e",
+        "session_id": "a590b456-1cb9-4c51-91ec-1bbc34f499c4",
+        "status": "governed"
+      },
+      {
+        "line_sha256": "a0266d940410e5ab2a3b2fae01e04a5a38026cc8f64858c9d73921e22763d3e7",
+        "run_id": "0c6d6a35dc9e",
+        "session_id": "a590b456-1cb9-4c51-91ec-1bbc34f499c4",
+        "status": "governed"
+      }
+    ],
+    "tool_names": [
+      "Bash"
+    ]
+  },
+  "sleep_seconds_of_old_child": 900,
+  "task": 3,
+  "teardown": {
+    "directory_removed": true,
+    "leftover_processes": 0
+  }
+}

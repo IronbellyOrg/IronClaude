@@ -1,0 +1,230 @@
+{
+  "monitor": {
+    "case_id": "t2-monitor",
+    "depth": {
+      "claude_process_reached": true,
+      "hops": 2,
+      "measured": true
+    },
+    "failure": {},
+    "held_s": 9.12,
+    "hook_events": [
+      {
+        "adapter_exit": 0,
+        "command_sha256": "c246a4ecc738159e105bda39c0daf6f8e6fb362d00d7069c8bcd013948d2f7a4",
+        "cwd_is_fixture": true,
+        "hook_event_name": "PreToolUse",
+        "kind": "actual_hook_input",
+        "permission_decision_present": false,
+        "rewritten": true,
+        "run_in_background": false,
+        "session_id": "dfca3950-8a0c-478b-8001-86d99d406aa4",
+        "tool_input_keys": [
+          "command",
+          "description"
+        ],
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_01VBJxXTvsiBiVTDKa9y2MnX",
+        "top_level_keys": [
+          "cwd",
+          "effort",
+          "hook_event_name",
+          "permission_mode",
+          "prompt_id",
+          "session_id",
+          "tool_input",
+          "tool_name",
+          "tool_use_id",
+          "transcript_path"
+        ],
+        "variant": "governed"
+      }
+    ],
+    "interpretation": "The runner-captured selector line is ordinary and was written by a process 2 hops below the Claude process, the same depth as the unwrapped ordinary session and unlike the 5 hops of every adapter-rewritten Bash call, so it did not come through the Bash adapter. Attribution of that process to the Monitor tool is an inference: the stream summary kept event types but not tool names, so the tool name was not retained for this run (later runs of Tasks 3 and 4 retain tool names). The same run also holds one rewritten governed Bash PreToolUse event for a command whose output is not in the captured selector file and no matching PostToolUse record. This matches the documented limit that Monitor has no adapter (section 19.7 of docs/designs/sc-issue-launch-level-hook.md); it is not a separation guarantee.",
+    "ledger_exit": 0,
+    "ran_a_tool": true,
+    "requested_session_id": "dfca3950-8a0c-478b-8001-86d99d406aa4",
+    "result": "observed",
+    "run_id": "ee11e0a48d51",
+    "selector_captured_by_runner": [
+      {
+        "line_sha256": "0d525830bea56e97e6412721a3125f102c7dee7a45f1003a309beddab9a2ad5f",
+        "run_id": "ee11e0a48d51",
+        "status": "ordinary"
+      }
+    ],
+    "selector_session_id": null,
+    "selector_status": "ordinary",
+    "store_check": {
+      "governed_record_exists": true,
+      "store_exists": true
+    },
+    "stream_event_types": [
+      "system",
+      "system",
+      "system",
+      "assistant",
+      "assistant",
+      "system",
+      "system",
+      "system",
+      "system",
+      "user",
+      "system",
+      "system",
+      "system",
+      "assistant",
+      "assistant",
+      "result",
+      "system",
+      "assistant",
+      "result"
+    ],
+    "stream_reported_session_ids": [
+      "dfca3950-8a0c-478b-8001-86d99d406aa4"
+    ],
+    "timed_out": false,
+    "variant": "governed"
+  },
+  "subagent": {
+    "case_id": "t2-subagent",
+    "depth": {
+      "claude_process_reached": true,
+      "hops": 5,
+      "measured": true
+    },
+    "failure": {},
+    "held_s": 13.43,
+    "hook_events": [
+      {
+        "adapter_exit": 0,
+        "agent_id": "a938b2352156b849d",
+        "agent_type": "general-purpose",
+        "command_sha256": "88bdb5922e9cf0c3e1f238c5553e5aa69b0d9ee2952696ebe26ad3aebb277d6f",
+        "cwd_is_fixture": true,
+        "hook_event_name": "PreToolUse",
+        "kind": "actual_hook_input",
+        "permission_decision_present": false,
+        "rewritten": true,
+        "run_in_background": false,
+        "session_id": "b9be8d85-39b8-4e7b-8f26-b46ee9be3070",
+        "tool_input_keys": [
+          "command",
+          "description"
+        ],
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_014c6fvxivfXsBwYtgLJ6Sux",
+        "top_level_keys": [
+          "agent_id",
+          "agent_type",
+          "cwd",
+          "effort",
+          "hook_event_name",
+          "permission_mode",
+          "prompt_id",
+          "session_id",
+          "tool_input",
+          "tool_name",
+          "tool_use_id",
+          "transcript_path"
+        ],
+        "variant": "governed"
+      },
+      {
+        "agent_id": "a938b2352156b849d",
+        "agent_type": "general-purpose",
+        "command_sha256": "7ee696210de2b017b8ecd4a72c54225b6bfd574cf1c7d90d4507f1e1c04b862f",
+        "cwd_is_fixture": true,
+        "hook_event_name": "PostToolUse",
+        "kind": "actual_hook_input",
+        "run_in_background": false,
+        "selector_results": [
+          {
+            "session_id": "b9be8d85-39b8-4e7b-8f26-b46ee9be3070",
+            "status": "governed"
+          }
+        ],
+        "session_id": "b9be8d85-39b8-4e7b-8f26-b46ee9be3070",
+        "tool_input_keys": [
+          "command",
+          "description"
+        ],
+        "tool_name": "Bash",
+        "tool_response_keys": [
+          "interrupted",
+          "isImage",
+          "noOutputExpected",
+          "stderr",
+          "stdout"
+        ],
+        "tool_use_id": "toolu_014c6fvxivfXsBwYtgLJ6Sux",
+        "top_level_keys": [
+          "agent_id",
+          "agent_type",
+          "cwd",
+          "duration_ms",
+          "effort",
+          "hook_event_name",
+          "permission_mode",
+          "prompt_id",
+          "session_id",
+          "tool_input",
+          "tool_name",
+          "tool_response",
+          "tool_use_id",
+          "transcript_path"
+        ],
+        "variant": "governed"
+      }
+    ],
+    "interpretation": "The nested subagent's Bash call carried agent_id and agent_type in its hook event and the same top-level session_id as the parent session; it was rewritten by the adapter (5 hops) and the runner-captured selector line reports governed with that same session id. Observed, one run.",
+    "ledger_exit": 0,
+    "ran_a_tool": true,
+    "requested_session_id": "b9be8d85-39b8-4e7b-8f26-b46ee9be3070",
+    "result": "observed",
+    "run_id": "1f6cc0d01ea4",
+    "selector_captured_by_runner": [
+      {
+        "line_sha256": "1425b014e37307d466f9b0d7d605fa83f28c3726b3d2b2b7e2ae269b2ff96d96",
+        "run_id": "1f6cc0d01ea4",
+        "session_id": "b9be8d85-39b8-4e7b-8f26-b46ee9be3070",
+        "status": "governed"
+      }
+    ],
+    "selector_session_id": "b9be8d85-39b8-4e7b-8f26-b46ee9be3070",
+    "selector_status": "governed",
+    "store_check": {
+      "governed_record_exists": true,
+      "store_exists": true
+    },
+    "stream_event_types": [
+      "system",
+      "assistant",
+      "system",
+      "system",
+      "assistant",
+      "assistant",
+      "assistant",
+      "system",
+      "user",
+      "system",
+      "system",
+      "assistant",
+      "system",
+      "system",
+      "system",
+      "user",
+      "system",
+      "system",
+      "user",
+      "assistant",
+      "result"
+    ],
+    "stream_reported_session_ids": [
+      "b9be8d85-39b8-4e7b-8f26-b46ee9be3070"
+    ],
+    "timed_out": false,
+    "variant": "governed"
+  },
+  "task": 2
+}

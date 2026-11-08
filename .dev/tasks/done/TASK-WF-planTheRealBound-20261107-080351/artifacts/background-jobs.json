@@ -1,0 +1,326 @@
+{
+  "real_claude_runs_in_this_task": 3,
+  "runs": [
+    {
+      "bash_calls_seen_by_hook": 2,
+      "failure": {},
+      "held_s": 9.57,
+      "ledger_exit": 0,
+      "ran_a_tool": true,
+      "result": "observed",
+      "run_id": "c321f2bba905",
+      "session_id": "ba4f5c60-c942-436c-b3b5-f2111086521c",
+      "stream_event_types": [
+        "system",
+        "assistant",
+        "system",
+        "system",
+        "system",
+        "system",
+        "user",
+        "assistant",
+        "system",
+        "system",
+        "system",
+        "system",
+        "user",
+        "assistant",
+        "result"
+      ],
+      "timed_out": false,
+      "tool_names": [
+        "Bash",
+        "Bash"
+      ]
+    },
+    {
+      "bash_calls_seen_by_hook": 2,
+      "failure": {},
+      "held_s": 12.08,
+      "ledger_exit": 0,
+      "ran_a_tool": true,
+      "result": "observed",
+      "run_id": "65a6f40544c1",
+      "session_id": "31aa98f6-3ac8-4411-a473-08a1a1af4d1d",
+      "stream_event_types": [
+        "system",
+        "assistant",
+        "system",
+        "system",
+        "user",
+        "assistant",
+        "assistant",
+        "assistant",
+        "assistant",
+        "system",
+        "system",
+        "system",
+        "system",
+        "user",
+        "assistant",
+        "result"
+      ],
+      "timed_out": false,
+      "tool_names": [
+        "Bash",
+        "Bash"
+      ]
+    },
+    {
+      "bash_calls_seen_by_hook": 5,
+      "failure": {},
+      "held_s": 69.51,
+      "ledger_exit": 0,
+      "ran_a_tool": true,
+      "result": "observed",
+      "run_id": "8d2becc8a4c2",
+      "session_id": "8f867a52-453c-472e-8353-04f677428865",
+      "stream_event_types": [
+        "system",
+        "assistant",
+        "system",
+        "system",
+        "system",
+        "system",
+        "system",
+        "system",
+        "user",
+        "assistant",
+        "assistant",
+        "assistant",
+        "system",
+        "system",
+        "system",
+        "system",
+        "user",
+        "assistant",
+        "system",
+        "user",
+        "system",
+        "user",
+        "system",
+        "assistant",
+        "assistant",
+        "assistant",
+        "system",
+        "system",
+        "system",
+        "system",
+        "system",
+        "system",
+        "user",
+        "assistant",
+        "assistant",
+        "system",
+        "system",
+        "system",
+        "system",
+        "user",
+        "assistant",
+        "assistant",
+        "assistant",
+        "assistant",
+        "system",
+        "system",
+        "system",
+        "system",
+        "user",
+        "assistant",
+        "assistant",
+        "result",
+        "system",
+        "system",
+        "system",
+        "system",
+        "system",
+        "system",
+        "system",
+        "assistant",
+        "assistant",
+        "assistant",
+        "assistant",
+        "result"
+      ],
+      "timed_out": false,
+      "tool_names": [
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash",
+        "Bash"
+      ]
+    }
+  ],
+  "shapes": {
+    "foreground_reparent": {
+      "command_self_status_inside": {
+        "line_sha256": "ddd8aac1b8d72e6f08873465cab2ebee9ac38e647ff0646a0fffaa878c1b1fc5",
+        "session_id": "8f867a52-453c-472e-8353-04f677428865",
+        "status": "governed"
+      },
+      "depth": {
+        "claude_process_reached": true,
+        "hops": 5
+      },
+      "descendant_pid": 1531638,
+      "descendant_sleep_seconds": 25,
+      "descendant_status_inside_same_command_before_it_exits": {
+        "line_sha256": "ddd8aac1b8d72e6f08873465cab2ebee9ac38e647ff0646a0fffaa878c1b1fc5",
+        "session_id": "8f867a52-453c-472e-8353-04f677428865",
+        "status": "governed"
+      },
+      "interpretation": "The foreground command started its descendant in a subshell that exited, so the descendant was reparented; identify run against it inside the same governed command, before that command exited, reported governed with the session's own id. The call stayed blocked while the 25 second descendant lived: the next Bash call started 28.2 seconds after this one started (the difference includes the model's own turn time).",
+      "observed_wait_seconds_until_the_next_bash_call_started": 28.2,
+      "result": "observed",
+      "run_id": "8d2becc8a4c2",
+      "session_id": "8f867a52-453c-472e-8353-04f677428865",
+      "shape": "foreground command whose descendant is reparented",
+      "timestamp_call": {
+        "depth": {
+          "claude_process_reached": true,
+          "hops": 5
+        },
+        "own_status": {
+          "line_sha256": "ddd8aac1b8d72e6f08873465cab2ebee9ac38e647ff0646a0fffaa878c1b1fc5",
+          "session_id": "8f867a52-453c-472e-8353-04f677428865",
+          "status": "governed"
+        }
+      },
+      "wait_note": "the wait is the time from the start of the foreground command to the start of the next Bash tool call, both written by the commands themselves"
+    },
+    "killed_supervisor": {
+      "command_self_status_after_kill": {
+        "line_sha256": "44a446afb90ed07c84e184b86544c9da43a720f392b688445a7e443ae6d2d5e9",
+        "status": "unknown"
+      },
+      "depth": {
+        "claude_process_reached": true,
+        "hops": 5
+      },
+      "descendant_pid": 1529148,
+      "descendant_status_after_kill": {
+        "line_sha256": "44a446afb90ed07c84e184b86544c9da43a720f392b688445a7e443ae6d2d5e9",
+        "status": "unknown"
+      },
+      "descendant_status_before_kill": {
+        "line_sha256": "ade4a8fa9f055a59b8b545795f1478631cd75f227c66eea9c28a60598f828378",
+        "session_id": "31aa98f6-3ac8-4411-a473-08a1a1af4d1d",
+        "status": "governed"
+      },
+      "documented_limit": "A documented limit of the merged design (section 19.7 of docs/designs/sc-issue-launch-level-hook.md: deliberate setsid or daemonization escapes kernel-session selection, and killing the supervisor leaves stale state that selects unknown). This is an observed escape, not a failure of the harness, and nothing here claims the case is protected.",
+      "interpretation": "Before the supervisor was killed the child reported governed; after the kill (and later from a second Bash tool call) it reported unknown, the stale-state result of the design, which is not a trusted-human verdict. The command's own process also reported unknown once its supervisor was gone. This matches the documented limit; nothing claims it is protected.",
+      "result": "observed",
+      "run_id": "65a6f40544c1",
+      "second_bash_tool_call": {
+        "depth": {
+          "claude_process_reached": true,
+          "hops": 5
+        },
+        "descendant_status": {
+          "line_sha256": "44a446afb90ed07c84e184b86544c9da43a720f392b688445a7e443ae6d2d5e9",
+          "status": "unknown"
+        },
+        "is_a_governed_call": true,
+        "own_status": {
+          "line_sha256": "ade4a8fa9f055a59b8b545795f1478631cd75f227c66eea9c28a60598f828378",
+          "session_id": "31aa98f6-3ac8-4411-a473-08a1a1af4d1d",
+          "status": "governed"
+        }
+      },
+      "session_id": "31aa98f6-3ac8-4411-a473-08a1a1af4d1d",
+      "shape": "command whose supervisor is killed while a child lives",
+      "supervisor_pid": 1529133
+    },
+    "run_in_background": {
+      "bash_tool_calls_run_in_background_flags_seen_by_hook": [
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      "command_self_status_inside": {
+        "line_sha256": "ddd8aac1b8d72e6f08873465cab2ebee9ac38e647ff0646a0fffaa878c1b1fc5",
+        "session_id": "8f867a52-453c-472e-8353-04f677428865",
+        "status": "governed"
+      },
+      "depth": {
+        "claude_process_reached": true,
+        "hops": 5
+      },
+      "descendant_pid": 1530711,
+      "descendant_status_inside_same_command": {
+        "line_sha256": "ddd8aac1b8d72e6f08873465cab2ebee9ac38e647ff0646a0fffaa878c1b1fc5",
+        "session_id": "8f867a52-453c-472e-8353-04f677428865",
+        "status": "governed"
+      },
+      "extra_bash_call_note": "The hook saw five Bash calls in this session (run_in_background flags: true, false, false, false, false) although four commands were requested. The fifth call's content was not recorded (only a command hash is kept), so it is not interpreted; the four requested scripts each left their own selector files, which are the evidence for the shapes.",
+      "interpretation": "The command sent with run_in_background true was rewritten by the adapter like a foreground call; its descendant reported governed with the session's own id inside the same command and again in a second Bash tool call (itself a governed call). This is an observation of one background call in one session.",
+      "result": "observed",
+      "run_id": "8d2becc8a4c2",
+      "second_bash_tool_call": {
+        "depth": {
+          "claude_process_reached": true,
+          "hops": 5
+        },
+        "descendant_status": {
+          "line_sha256": "ddd8aac1b8d72e6f08873465cab2ebee9ac38e647ff0646a0fffaa878c1b1fc5",
+          "session_id": "8f867a52-453c-472e-8353-04f677428865",
+          "status": "governed"
+        },
+        "is_a_governed_call": true,
+        "own_status": {
+          "line_sha256": "ddd8aac1b8d72e6f08873465cab2ebee9ac38e647ff0646a0fffaa878c1b1fc5",
+          "session_id": "8f867a52-453c-472e-8353-04f677428865",
+          "status": "governed"
+        }
+      },
+      "session_id": "8f867a52-453c-472e-8353-04f677428865",
+      "shape": "ordinary run_in_background Bash command"
+    },
+    "setsid_daemon": {
+      "command_self_status_inside": {
+        "line_sha256": "416585c2aab80be5a7e40c364c472ec4b3cddca1f3a014fd550f8753ab187654",
+        "session_id": "ba4f5c60-c942-436c-b3b5-f2111086521c",
+        "status": "governed"
+      },
+      "depth": {
+        "claude_process_reached": true,
+        "hops": 5
+      },
+      "descendant_pid": 1528136,
+      "descendant_status_inside_same_command": {
+        "line_sha256": "0d525830bea56e97e6412721a3125f102c7dee7a45f1003a309beddab9a2ad5f",
+        "status": "ordinary"
+      },
+      "documented_limit": "A documented limit of the merged design (section 19.7 of docs/designs/sc-issue-launch-level-hook.md: deliberate setsid or daemonization escapes kernel-session selection, and killing the supervisor leaves stale state that selects unknown). This is an observed escape, not a failure of the harness, and nothing here claims the case is protected.",
+      "interpretation": "The deliberately setsid-started child reported ordinary, the status of a process with no registered job in its own kernel session; the command's own process reported governed. The second Bash tool call, itself governed, saw the child still ordinary. This matches the documented escape; nothing claims it is protected.",
+      "result": "observed",
+      "run_id": "c321f2bba905",
+      "second_bash_tool_call": {
+        "depth": {
+          "claude_process_reached": true,
+          "hops": 5
+        },
+        "descendant_status": {
+          "line_sha256": "0d525830bea56e97e6412721a3125f102c7dee7a45f1003a309beddab9a2ad5f",
+          "status": "ordinary"
+        },
+        "is_a_governed_call": true,
+        "own_status": {
+          "line_sha256": "416585c2aab80be5a7e40c364c472ec4b3cddca1f3a014fd550f8753ab187654",
+          "session_id": "ba4f5c60-c942-436c-b3b5-f2111086521c",
+          "status": "governed"
+        }
+      },
+      "session_id": "ba4f5c60-c942-436c-b3b5-f2111086521c",
+      "shape": "setsid daemonized child"
+    }
+  },
+  "task": 4,
+  "teardown": {
+    "directory_removed": true,
+    "leftover_processes": 0
+  }
+}
