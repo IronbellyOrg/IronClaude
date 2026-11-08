@@ -354,6 +354,82 @@ def test_fr013_probe_timeout_none_starts_nothing_and_returns_none(fake_runner):
     assert runner.timeouts == []
 
 
+def test_fr013_probe_timeout_callable_is_asked_before_each_probe_and_none_stops(
+    fake_runner,
+):
+    """FR-013 NFR-008: a callable ``timeout`` is called right before each probe;
+    its None (no time left) ends the search before the second candidate starts."""
+    runner = fake_runner(
+        {
+            PROBE_IDE: result(stdout=BAD_REPLY),
+            PROBE_PLAIN: result(stdout=GOOD_REPLY),
+        }
+    )
+    answers = iter([7.0, None])
+    asked_after_calls = []
+
+    def allowance():
+        asked_after_calls.append(len(runner.calls))
+        return next(answers)
+
+    found = find_orca(
+        runner, which=_which(orca_ide=ORCA_IDE, orca=ORCA_PLAIN), timeout=allowance
+    )
+    assert found is None
+    assert asked_after_calls == [
+        0,
+        1,
+    ]  # asked before the first, and again before the second
+    assert runner.calls == [(PROBE_IDE, None)]
+    assert runner.timeouts == [7.0]
+
+
+def test_fr013_probe_timeout_callable_gives_each_probe_its_own_allowance(fake_runner):
+    """FR-013 NFR-008: the second probe gets the callable's second value."""
+    runner = fake_runner(
+        {
+            PROBE_IDE: result(stdout=BAD_REPLY),
+            PROBE_PLAIN: result(stdout=GOOD_REPLY),
+        }
+    )
+    answers = iter([9.0, 4.5])
+    found = find_orca(
+        runner,
+        which=_which(orca_ide=ORCA_IDE, orca=ORCA_PLAIN),
+        timeout=lambda: next(answers),
+    )
+    assert found == ORCA_PLAIN
+    assert runner.timeouts == [9.0, 4.5]
+
+
+def test_fr013_probe_timeout_callable_is_not_asked_for_a_skipped_candidate(
+    fake_runner,
+):
+    """FR-013 B-13: a candidate that is missing or relative starts no probe and asks nothing."""
+    runner = fake_runner({PROBE_PLAIN: result(stdout=GOOD_REPLY)})
+    asked = []
+
+    def allowance():
+        asked.append(1)
+        return 3.0
+
+    found = find_orca(
+        runner, which=_which(orca_ide="./orca-ide", orca=ORCA_PLAIN), timeout=allowance
+    )
+    assert found == ORCA_PLAIN
+    assert asked == [1]
+    assert runner.timeouts == [3.0]
+
+
+@pytest.mark.parametrize("bad", [0, -1.0, True, "5", float("nan")])
+def test_fr013_probe_timeout_callable_result_is_validated_per_probe(fake_runner, bad):
+    """FR-013: a callable's number must be positive like a plain timeout; no probe starts."""
+    runner = fake_runner()
+    with pytest.raises(ValueError):
+        find_orca(runner, which=_which(orca_ide=ORCA_IDE), timeout=lambda: bad)
+    assert runner.calls == []
+
+
 # --- origin parsing (FR-025, NFR-003) --------------------------------------------
 
 

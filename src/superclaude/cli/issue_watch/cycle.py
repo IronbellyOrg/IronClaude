@@ -311,21 +311,38 @@ def validate_approvers(path: str | os.PathLike[str]) -> frozenset[int]:
         ) from None
     if not stat.S_ISREG(st.st_mode):
         raise _approvers_invalid("the approvers file is not a regular file")
-    if st.st_uid != os.geteuid():
-        raise _approvers_invalid(
-            "the approvers file is not owned by the effective user"
-        )
-    if st.st_mode & (stat.S_IWGRP | stat.S_IWOTH):
-        raise _approvers_invalid("the approvers file is group- or other-writable")
+    unreadable = "the approvers file cannot be read as UTF-8 text"
     try:
         fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
-        with os.fdopen(fd, "rb") as handle:
-            data = handle.read(_APPROVERS_MAX_BYTES + 1)
-        text = data.decode("utf-8")
-    except (OSError, ValueError):
-        raise _approvers_invalid(
-            "the approvers file cannot be read as UTF-8 text"
-        ) from None
+    except OSError:
+        raise _approvers_invalid(unreadable) from None
+    # Owner and mode are judged on the open descriptor, and the descriptor must be
+    # the inode lstat saw: a writer to the parent directory cannot swap the file
+    # between a path check and the open (same pattern as record.py's lock open).
+    try:
+        try:
+            fst = os.fstat(fd)
+            if (fst.st_dev, fst.st_ino) != (st.st_dev, st.st_ino):
+                raise _approvers_invalid(
+                    "the approvers file changed while it was being checked"
+                )
+            if not stat.S_ISREG(fst.st_mode):
+                raise _approvers_invalid("the approvers file is not a regular file")
+            if fst.st_uid != os.geteuid():
+                raise _approvers_invalid(
+                    "the approvers file is not owned by the effective user"
+                )
+            if fst.st_mode & (stat.S_IWGRP | stat.S_IWOTH):
+                raise _approvers_invalid(
+                    "the approvers file is group- or other-writable"
+                )
+            with os.fdopen(fd, "rb", closefd=False) as handle:
+                data = handle.read(_APPROVERS_MAX_BYTES + 1)
+            text = data.decode("utf-8")
+        except (OSError, ValueError):
+            raise _approvers_invalid(unreadable) from None
+    finally:
+        os.close(fd)
     if len(data) > _APPROVERS_MAX_BYTES:
         raise _approvers_invalid("the approvers file is too large")
     ids: set[int] = set()
@@ -1017,8 +1034,19 @@ class _Cycle:
         timeout = self.deadline.timeout_for(PROBE_TIMEOUT_S)
         if timeout is None:
             raise _Skip("budget_exhausted")
-        orca = launch.find_orca(d.runner, which=d.which, timeout=timeout)
+        out_of_time = False
+
+        def probe_allowance() -> float | None:
+            # Re-read before each probe: the first probe may have used the time.
+            nonlocal out_of_time
+            left = self.deadline.timeout_for(PROBE_TIMEOUT_S)
+            out_of_time = left is None
+            return left
+
+        orca = launch.find_orca(d.runner, which=d.which, timeout=probe_allowance)
         if orca is None:
+            if out_of_time:  # a deadline problem is not "orca not found"
+                raise _Skip("budget_exhausted")
             raise _Stop("orca_not_found", stamp=True)
         try:
             prompt = launch.build_claim_prompt(c.n)
