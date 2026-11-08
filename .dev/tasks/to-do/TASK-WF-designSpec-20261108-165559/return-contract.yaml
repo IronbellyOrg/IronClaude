@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-designSpec-20261108-165559
+plan_path: ./TASK-WF-designSpec-20261108-165559.md
+source_path: ./source.md
+source_origin: .dev/brainstorms/20261108-094705-l2-pre-push-guard/design-spec.md
+strategy: systematic
+depth: deep
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: null
+unresolved:
+  - "reflect partial: REPORT.md was not written (the harness refused a report .md write from the reflect sub-agent); evidence gate clean 0/119 dropped; contract at /home/coder/workspaces/worktrees/IronClaude/issue-441/.dev/reflect/pre-TASK-WF-designSpec-20261108-165559-20261108170356/return-contract.yaml"
+  - "reflect blocking gap M-01 (advisory, plan not edited): Task 7 AC (plan line 107) requires l2_status and install_l2 to report the same state, which rests on the proposed resolutions of open conflicts OC-9, OC-10 and OC-12 (source.md:779-782); owner may override"
