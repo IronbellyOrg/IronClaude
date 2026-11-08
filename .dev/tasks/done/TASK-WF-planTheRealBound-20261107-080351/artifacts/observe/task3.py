@@ -305,6 +305,9 @@ def interactive_clear(runner, g, sid_pty, old, sid_origin, timeout=300):
         "old_child_selector_status": sel[0]["status"] if sel else None, "old_child_origin_session_id": sel[0].get("session_id") if sel else None,
         "new_session_selector_status": sel[1]["status"] if len(sel) > 1 else None, "new_session_selector_session_id": sel[1].get("session_id") if len(sel) > 1 else None,
         "selector_lines": sel, "hook_event_records": hooks,
+        "reused_process_form": ("unavailable: the single-process /clear form (a new ordinary session started in a reused Claude process) was not observed; "
+                                "the resume and fork runs start new processes and cannot test it") if not done
+        else "observed: a reused process started a new session; see the old child and new session selector fields",
     }
     if not done:
         entry["missing_interface"] = ("a pty-driven interactive Claude session could not be driven to a /clear plus one governed command within the %d second bound "
@@ -313,6 +316,12 @@ def interactive_clear(runner, g, sid_pty, old, sid_origin, timeout=300):
 
 
 def main():
+    block = ob.preflight_blocks()
+    if block:  # the plan spends no run once the preflight has recorded a refusal
+        miss = {"result": "unavailable", "missing_interface": "the preflight recorded: " + block, "detail": "not run: no run spent"}
+        out = {"task": 3, "sleep_seconds_of_old_child": SLEEP_S, "first_call": miss, "resume": miss, "fork": miss, "clear": miss, "decisive_case": miss}
+        (ART / "resume-fork-clear.json").write_text(json.dumps(out, indent=2, sort_keys=True) + "\n")
+        return 0
     runner = ob.Runner()
     g = ob.Group.create("t3")
     out = {"task": 3, "sleep_seconds_of_old_child": SLEEP_S}

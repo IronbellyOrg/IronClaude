@@ -51,14 +51,19 @@ def main():
     cases = {}
     stopped = None
     try:
-        sid_g = str(uuid.uuid4())
-        g.make_governed(sid_g)
-        cases["governed"] = real_case(runner, g, "t2-governed", "governed", sid_g, "task2: governed print session, one Bash identify", timeout=120)
-        gov = cases["governed"]
-        if gov["ledger_exit"] != 0 and not gov["ran_a_tool"]:
-            stopped = {"reason": "the first governed run failed before any tool ran", "ledger_exit": gov["ledger_exit"],
-                       "result": gov["result"], "failure": gov["failure"],
-                       "preflight_result": json.loads(ob.PREFLIGHT.read_text()).get("preflight_result")}
+        block = ob.preflight_blocks()
+        if block:
+            # The plan spends no run once the preflight has recorded a refusal.
+            stopped = {"reason": "the preflight recorded: " + block, "result": "unavailable"}
+        else:
+            sid_g = str(uuid.uuid4())
+            g.make_governed(sid_g)
+            cases["governed"] = real_case(runner, g, "t2-governed", "governed", sid_g, "task2: governed print session, one Bash identify", timeout=120)
+            gov = cases["governed"]
+            if gov["ledger_exit"] != 0 and not gov["ran_a_tool"]:
+                stopped = {"reason": "the first governed run failed before any tool ran", "ledger_exit": gov["ledger_exit"],
+                           "result": gov["result"], "failure": gov["failure"],
+                           "preflight_result": json.loads(ob.PREFLIGHT.read_text()).get("preflight_result")}
         if not stopped:
             sid_o = str(uuid.uuid4())
             cases["ordinary"] = real_case(runner, g, "t2-ordinary", "ordinary", sid_o, "task2: ordinary print session, no record, same worktree",
@@ -78,7 +83,7 @@ def main():
     if stopped:
         why = "a real Claude run could not complete in this environment; failure category recorded, no further run spent"
         same = {"task": 2, "result": "unavailable", "missing_interface": why, "stopped_after": stopped,
-                "governed": summarize(cases["governed"]),
+                "governed": summarize(cases["governed"]) if "governed" in cases else unavailable(why, "not run: the preflight recorded a refusal"),
                 "ordinary": unavailable(why, "not run: no run spent after the first governed run failed"),
                 "ordinary_produced_while_governed_record_existed": "unavailable"}
         sub = {"task": 2,

@@ -198,8 +198,14 @@ class Group:
     """One run group: disposable HOME, fixture repository and temporary directory."""
 
     def __init__(self, name, root):
+        # The registry file is data: only a directory this runner made (mkdtemp, directly under
+        # the temporary directory, named for this group, not a symlink) may ever be torn down.
+        root = Path(root)
+        if not ID.fullmatch(name or "") or root.parent != Path(tempfile.gettempdir()) \
+                or not root.name.startswith("observe-%s-" % name) or root.is_symlink():
+            raise SystemExit("refusing group %r: its root is not a directory this runner created" % (name,))
         self.name = name
-        self.root = Path(root)
+        self.root = root
         self.home = self.root / "home"
         self.fixture = self.root / "fixture"
         self.tmp = self.root / "tmp"
@@ -633,6 +639,19 @@ def check_baseline():
 
 # ---------------------------------------------------------------- preflight
 
+def preflight_blocks():
+    """Why the recorded preflight forbids any further real run, or None (also None when none is recorded)."""
+    try:
+        data = json.loads(PREFLIGHT.read_text())
+    except (OSError, ValueError):
+        return None
+    if data.get("nested_launch_refused") is True:
+        return "nested launch refused"
+    if data.get("authentication_available") is False:
+        return "authentication unavailable"
+    return None
+
+
 def preflight(cli=None, out=PREFLIGHT, ledger=LEDGER, name="pre"):
     cli = cli or claude_bin()
     runner = Runner(ledger)
@@ -651,6 +670,7 @@ def preflight(cli=None, out=PREFLIGHT, ledger=LEDGER, name="pre"):
                      timeout=90, real_claude=True, ok_result="observed", classify=classify_claude, rid=rid)
     events, init = parse_stream(res["out"])
     refused = res["extra"].get("refusal_observed") is True
+    auth_failed = res["extra"].get("reason") == "authentication unavailable"
     transcript = "unavailable"
     ok_run = res["result"] == "observed"
     if ok_run:
@@ -658,7 +678,7 @@ def preflight(cli=None, out=PREFLIGHT, ledger=LEDGER, name="pre"):
     data = {
         "claude_version": init.get("version") or "unavailable",
         "nested_launch_refused": True if refused else (False if ok_run else "unavailable"),
-        "authentication_available": True if ok_run else ("unavailable" if refused else "unavailable"),
+        "authentication_available": True if ok_run else (False if auth_failed else "unavailable"),
         "persisted_session_transcript_found": transcript,
         "print_mode_tools": init.get("tools") if isinstance(init.get("tools"), list) and init.get("tools") else "unavailable",
         "uv_present": bool(shutil.which("uv")),

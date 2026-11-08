@@ -180,21 +180,23 @@ def main():
     g = ob.Group.create("t4")
     out = {"task": 4, "runs": [], "shapes": {}}
     children = []
-    stop_reason = None
+    block = ob.preflight_blocks()  # the plan spends no run once the preflight has recorded a refusal
+    stop_reason = "the preflight recorded: " + block if block else None
     try:
         # Run 1: setsid daemonized child, then a second Bash tool call.
-        r1 = session(runner, g, "t4-setsid", "task4: governed session, setsid daemon child and a second Bash call",
-                     [("a", SETSID), ("b", second("a"))], lambda p: seq_prompt(p, ["a", "b"]), 150)
-        out["runs"].append({k: v for k, v in r1.items() if k != "hook_events"})
-        rid = r1["run_id"]
-        if r1["ledger_exit"] != 0 and not r1["ran_a_tool"]:
-            stop_reason = "the first run failed before any tool ran: %s" % r1["failure"]
-        ch = child(g, rid, "a")
-        children.append(("setsid-daemon", ch))
-        out["shapes"]["setsid_daemon"] = shape_entry("setsid daemonized child", r1, descendant_pid=ch and ch["pid"],
-            descendant_status_inside_same_command=lines(g, rid, "a", "child"), command_self_status_inside=lines(g, rid, "a", "self"),
-            second_bash_tool_call={"is_a_governed_call": True, "descendant_status": lines(g, rid, "b", "child"), "own_status": lines(g, rid, "b", "self"),
-                                   "depth": depth(g, rid, "b")}, depth=depth(g, rid, "a"), documented_limit=LIMITS)
+        if not stop_reason:
+            r1 = session(runner, g, "t4-setsid", "task4: governed session, setsid daemon child and a second Bash call",
+                         [("a", SETSID), ("b", second("a"))], lambda p: seq_prompt(p, ["a", "b"]), 150)
+            out["runs"].append({k: v for k, v in r1.items() if k != "hook_events"})
+            rid = r1["run_id"]
+            if r1["ledger_exit"] != 0 and not r1["ran_a_tool"]:
+                stop_reason = "the first run failed before any tool ran: %s" % r1["failure"]
+            ch = child(g, rid, "a")
+            children.append(("setsid-daemon", ch))
+            out["shapes"]["setsid_daemon"] = shape_entry("setsid daemonized child", r1, descendant_pid=ch and ch["pid"],
+                descendant_status_inside_same_command=lines(g, rid, "a", "child"), command_self_status_inside=lines(g, rid, "a", "self"),
+                second_bash_tool_call={"is_a_governed_call": True, "descendant_status": lines(g, rid, "b", "child"), "own_status": lines(g, rid, "b", "self"),
+                                       "depth": depth(g, rid, "b")}, depth=depth(g, rid, "a"), documented_limit=LIMITS)
         # Run 2: killed supervisor with a live child.
         if not stop_reason:
             r2 = session(runner, g, "t4-killed-supervisor", "task4: governed session, supervisor killed while a child lives, then a second Bash call",
@@ -243,7 +245,7 @@ def main():
     if stop_reason:
         for name in ("setsid_daemon", "killed_supervisor", "run_in_background", "foreground_reparent"):
             if name not in out["shapes"] or out["shapes"][name]["result"] == "unavailable":
-                out["shapes"][name] = unavailable(name, "a real Claude run failed before any tool ran (%s); no further run spent" % stop_reason)
+                out["shapes"][name] = unavailable(name, "%s; no further run spent" % stop_reason)
         out["stopped"] = stop_reason
     for name in ("setsid_daemon", "killed_supervisor", "run_in_background", "foreground_reparent"):
         out["shapes"].setdefault(name, unavailable(name, "the run that holds this shape did not run"))

@@ -61,6 +61,15 @@ def main():
     def srow(x):
         return "run %s, selector line sha256 %s" % (x.get("run_id"), sel(x)[0])
 
+    # A separation is only "observed" when the recorded statuses are the expected ones.
+    def statuses(e):
+        return (e["old_child"]["in_new_process_selector_status"], e["new_process"]["selector_status"])
+
+    res_ok = res["result"] == "observed" and statuses(res) == ("governed", "governed")
+    fork_ok = fork["result"] == "observed" and statuses(fork) == ("governed", "ordinary")
+    dec_ok = dec["result"] == "observed" and dec.get("distinct_identities") is True
+    seen = lambda e: "no: unexpected statuses (old child %s, new session %s)" % statuses(e)  # noqa: E731
+
     rows = [
         ("1", "Main Claude (governed session, Bash adapter)", "observed", ref("same-worktree.json", '  "governed": {'), srow(g),
          "yes: governed with its own session id (%s)" % g["selector_session_id"], "-"),
@@ -91,12 +100,12 @@ def main():
          "-"),
         ("7b", "Boot identity change", "controlled", ref("selector-invariants.json", '  "boot_identity_mismatch": {'),
          "controlled edit of a job record (no real run)", "not governed after the edit (unknown)", "-"),
-        ("8", "Resume into a new process", "observed", ref("resume-fork-clear.json", '  "resume": {'),
+        ("8", "Resume into a new process", "observed" if res_ok else "blocked", ref("resume-fork-clear.json", '  "resume": {'),
          "run %s, selector lines %s" % (res["run_id"], ",".join(x["line_sha256"][:12] for x in res["selector_lines"])),
-         "yes: the resumed session kept the origin id %s and its command reported governed; the old child stayed governed" % res["old_child"]["origin_session_id"], "-"),
-        ("9a", "Fork", "observed", ref("resume-fork-clear.json", '  "fork": {'),
+         ("yes: the resumed session kept the origin id %s and its command reported governed; the old child stayed governed" % res["old_child"]["origin_session_id"]) if res_ok else seen(res), "-"),
+        ("9a", "Fork", "observed" if fork_ok else "blocked", ref("resume-fork-clear.json", '  "fork": {'),
          "run %s, selector lines %s" % (fork["run_id"], ",".join(x["line_sha256"][:12] for x in fork["selector_lines"])),
-         "yes: the forked session (new id %s) reported ordinary while the old child stayed governed" % fork["hook_event_session_id"], "-"),
+         ("yes: the forked session (new id %s) reported ordinary while the old child stayed governed" % fork["hook_event_session_id"]) if fork_ok else seen(fork), "-"),
         ("9b", "/clear", "unavailable", ref("resume-fork-clear.json", '  "clear": {'), "run %s (no selector line)" % clr["run_id"], "not observed", clr["missing_interface"]),
         ("10", "Release with a live old background child", "controlled", ref("selector-invariants.json", '  "release": {'),
          "controlled processes (no real run)", "only the released session's child changed (governed to ordinary, reason released); the other stayed governed", "-"),
@@ -106,9 +115,10 @@ def main():
          "a real Claude Bash call that runs git push so that the pre-push hook's process tree under a real Claude process is read; Task 6 gives controlled evidence only (a plain shell and a governed job started by the runner), and no task of this plan runs Git from a real Claude session (the 12-run budget is fully assigned to Tasks 1 to 4)"),
         ("13", "The auto-mode variants", "unavailable", ref("observe/observe.py", '"--permission-mode", "dontAsk"'), "none (no run used auto mode)", "not observed",
          "a real Claude run in auto permission mode under the Bash adapter: every real run here used the dontAsk permission mode, and the design lists live auto-mode rewrites as unobserved (section 19.7)"),
-        ("14a", "Decisive distinction, new-process form: old governed background child alive while a new ordinary session starts (fork)", "observed",
+        ("14a", "Decisive distinction, new-process form: old governed background child alive while a new ordinary session starts (fork)", "observed" if dec_ok else "blocked",
          ref("resume-fork-clear.json", '  "decisive_case": {'), "run %s (fork)" % fork["run_id"],
-         "yes: the old child reported governed with origin %s and the new forked session reported ordinary" % dec["old_child_origin_session_id"], "-"),
+         ("yes: the old child reported governed with origin %s and the new forked session reported ordinary" % dec["old_child_origin_session_id"]) if dec_ok
+         else "no: the recorded decisive case did not show a governed old child and an ordinary new session", "-"),
         ("14b", "Decisive distinction, reused-process form: an ordinary new session started by /clear in the same Claude process", "unavailable",
          ref("resume-fork-clear.json", '  "reused_process_form"'), "none", "not observed", clr["reused_process_form"]),
     ]
