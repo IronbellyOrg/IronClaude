@@ -1013,9 +1013,9 @@ LARGE_RUNS = SPD_RUNS
 # condition) reached 5536.1 ms, which is why no limit can also cover that arm.
 # Coordinator decision on the owner's "diminishing returns" rule: 3.5 s gives
 # 3.0x margin over CI's worst observed failing max and stays 1.5 s under the
-# 5 s hook timeout where the governed call fails open; a 10x-slower guard
-# (10 runs in a row) takes 5.2-7.6 s and still fails this limit, and one more
-# doubling would reach the fail-open timeout without clearing the
+# 5 s hook timeout where the governed call fails open; a guard slow enough to
+# breach the limit is caught by the deterministic negative control below, and
+# one more doubling would reach the fail-open timeout without clearing the
 # oversubscription arm, so loosening stops here. Design target remains 1 s,
 # reported (not asserted) per row. Revisit if any CI run exceeds 2 s.
 LARGE_LIMIT_S = 3.5
@@ -1300,11 +1300,15 @@ def test_speed_large_commands(tmp_path, speed_report, name):
 
 @pytest.mark.parametrize("name", list(LARGE_COMMANDS))
 def test_speed_large_limit_catches_10x_slower_guard(tmp_path, name):
-    # Negative control for LARGE_LIMIT_S (#440): a guard about 10x slower must
-    # fail the limit, so the assert above is live on every runner (xdist
-    # included). Ten runs of the slowest 64 KB case (~0.9 s each) take well
-    # over LARGE_LIMIT_S; 10x is not a sensitivity bound (measured margins:
-    # 1.3x to 2.2x over the limit at 3.5 s).
+    # Negative control for LARGE_LIMIT_S (#440): a guard slow enough to breach
+    # the limit must fail the timed check, so the assert in
+    # test_speed_large_commands is live on every runner (xdist included). The
+    # wrapper runs the real guard once (so a broken guard still fails here),
+    # then spins in pure bash to a fixed wall clock of 2x LARGE_LIMIT_S
+    # ($EPOCHREALTIME needs no PATH tools), so the control is independent of
+    # host speed and of guard speed-ups: it can never false-fail because the
+    # machine or the guard got faster. Exercising the limit logic, not real
+    # slowness, is the point (#457 review).
     env = _spd_env(tmp_path, tmp_path / "home")
     _bind(tmp_path, "full-submit")
     payload = tmp_path / "in.json"
@@ -1312,12 +1316,14 @@ def test_speed_large_limit_catches_10x_slower_guard(tmp_path, name):
     run = " ".join(shlex.quote(str(p)) for p in (BASH, HOOK))
     slow = tmp_path / "slow-guard.sh"
     slow.write_text(
-        f"for _ in 1 2 3 4 5 6 7 8 9 10; do {run} "
-        f"< {shlex.quote(str(payload))} >/dev/null 2>&1; done\n"
+        f"{run} < {shlex.quote(str(payload))} >/dev/null 2>&1\n"
+        f"spin_us={int(LARGE_LIMIT_S * 2 * 1_000_000)}\n"
+        "target=$(( 10#${EPOCHREALTIME/./} + spin_us ))\n"
+        "while (( 10#${EPOCHREALTIME/./} < target )); do :; done\n"
     )
     seconds, _ = _spd_once(slow, b"", env, timeout=120)
     assert seconds > LARGE_LIMIT_S, (
-        f"{name}: 10 guard runs took {seconds:.3f} s, limit {LARGE_LIMIT_S:g} s"
+        f"{name}: guard run + spin took {seconds:.3f} s, limit {LARGE_LIMIT_S:g} s"
     )
 
 
