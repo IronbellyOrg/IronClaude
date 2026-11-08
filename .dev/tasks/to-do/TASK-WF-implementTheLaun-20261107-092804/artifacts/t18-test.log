@@ -1,0 +1,5 @@
+$ uv run pytest tests/skills/test_issue_orca_worktree.py tests/skills/test_issue_protocol.py tests/skills/test_worker_contract.py -q  (after the fix pass)
+
+============================= 921 passed in 26.48s =============================
+$ make verify-sync
+exit=0

@@ -1,0 +1,8 @@
+# Wave 3C per-card blind calibration (confidence-calibrator, model alias opus -> claude-gw-tier1a)
+reviewer_model_classes: [sonnet, haiku, opus]
+calibrator_model_class: opus
+calibrator_diversity: degraded   # disjoint set {qwen,kimi,deepseek} unavailable; opus is the highest class not used by most reviewers (each class used once)
+cards:
+  reviewer-1: {persona: analyzer, model: sonnet, mean_C: 0.66, calibrated_confidence: 0.62}
+  reviewer-2: {persona: qa, model: haiku, mean_C: 0.71, calibrated_confidence: 0.65}
+  reviewer-3: {persona: refactorer, model: opus, mean_C: 0.78, calibrated_confidence: 0.70}

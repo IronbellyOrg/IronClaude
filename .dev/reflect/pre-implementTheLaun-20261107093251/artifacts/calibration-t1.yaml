@@ -1,0 +1,19 @@
+# Wave 1D blind calibration of the Tier-1 card (agent: confidence-calibrator, model alias opus -> claude-gw-tier1a)
+calibrator_model_class: opus
+calibrator_diversity: n/a-at-T1
+dimensions:
+  citation_grounding: 0.80
+  coverage_completeness: 0.50
+  deviation_classification_clarity: 0.45
+  risk_surface_coverage: 0.75
+  recommendation_actionability: 0.55
+mean_C: 0.61
+calibrated_confidence_in_card_verdict: 0.62
+self_reported_confidence: 0.72
+overclaimed:
+  - "coverage_pct_union 1.0 from 3 coarse inferred requirements"
+  - "INF-001 matched to Task 22 alone"
+  - "S_dev_density 0.0 beside six findings"
+  - "F-3 'cannot occur in production' drawn only from task wording"
+  - "F-6 test line numbers approximate"
+  - "F-4 finding and recommendation contradict"

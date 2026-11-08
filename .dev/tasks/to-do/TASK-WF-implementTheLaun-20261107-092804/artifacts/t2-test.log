@@ -1,0 +1,40 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-394-launch-level-hook/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-394-launch-level-hook
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 17 items
+
+tests/hooks/test_launch_level_observations.py::test_fixtures_are_nine_json_objects_with_an_event_name PASSED [  5%]
+tests/hooks/test_launch_level_observations.py::test_probe_appends_exactly_one_line_per_call PASSED [ 11%]
+tests/hooks/test_launch_level_observations.py::test_probe_flattens_a_multiline_payload_to_one_line PASSED [ 17%]
+tests/hooks/test_launch_level_observations.py::test_probe_with_log_path_unset_prints_nothing_and_exits_zero PASSED [ 23%]
+tests/hooks/test_launch_level_observations.py::test_probe_with_unwritable_log_path_exits_zero_silently PASSED [ 29%]
+tests/hooks/test_launch_level_observations.py::test_pending_live_observation[OB-H1 item 1] SKIPPED [ 35%]
+tests/hooks/test_launch_level_observations.py::test_pending_live_observation[OB-H1 item 2] SKIPPED [ 41%]
+tests/hooks/test_launch_level_observations.py::test_pending_live_observation[OB-H1 item 3] SKIPPED [ 47%]
+tests/hooks/test_launch_level_observations.py::test_pending_live_observation[OB-H1 item 4] SKIPPED [ 52%]
+tests/hooks/test_launch_level_observations.py::test_pending_live_observation[OB-H1 item 5] SKIPPED [ 58%]
+tests/hooks/test_launch_level_observations.py::test_pending_live_observation[OB-H1 item 6] SKIPPED [ 64%]
+tests/hooks/test_launch_level_observations.py::test_pending_live_observation[OB-H1 item 7] SKIPPED [ 70%]
+tests/hooks/test_launch_level_observations.py::test_pending_live_observation[OB-H1 item 8] SKIPPED [ 76%]
+tests/hooks/test_launch_level_observations.py::test_pending_live_observation[OB-H1 item 9] SKIPPED [ 82%]
+tests/hooks/test_launch_level_observations.py::test_pending_live_observation[OB-H2] SKIPPED [ 88%]
+tests/hooks/test_launch_level_observations.py::test_pending_live_observation[OB-H3] SKIPPED [ 94%]
+tests/hooks/test_launch_level_observations.py::test_pending_live_observation[OB-CTX] SKIPPED [100%]
+
+=========================== short test summary info ============================
+SKIPPED [1] tests/hooks/test_launch_level_observations.py:84: OB-H1 item 1: needs a real governed session and has not been run
+SKIPPED [1] tests/hooks/test_launch_level_observations.py:84: OB-H1 item 2: needs a real governed session and has not been run
+SKIPPED [1] tests/hooks/test_launch_level_observations.py:84: OB-H1 item 3: needs a real governed session and has not been run
+SKIPPED [1] tests/hooks/test_launch_level_observations.py:84: OB-H1 item 4: needs a real governed session and has not been run
+SKIPPED [1] tests/hooks/test_launch_level_observations.py:84: OB-H1 item 5: needs a real governed session and has not been run
+SKIPPED [1] tests/hooks/test_launch_level_observations.py:84: OB-H1 item 6: needs a real governed session and has not been run
+SKIPPED [1] tests/hooks/test_launch_level_observations.py:84: OB-H1 item 7: needs a real governed session and has not been run
+SKIPPED [1] tests/hooks/test_launch_level_observations.py:84: OB-H1 item 8: needs a real governed session and has not been run
+SKIPPED [1] tests/hooks/test_launch_level_observations.py:84: OB-H1 item 9: needs a real governed session and has not been run
+SKIPPED [1] tests/hooks/test_launch_level_observations.py:84: OB-H2: needs a real governed session and has not been run
+SKIPPED [1] tests/hooks/test_launch_level_observations.py:84: OB-H3: needs a real governed session and has not been run
+SKIPPED [1] tests/hooks/test_launch_level_observations.py:84: OB-CTX: needs a real governed session and has not been run
+======================== 5 passed, 12 skipped in 0.08s =========================

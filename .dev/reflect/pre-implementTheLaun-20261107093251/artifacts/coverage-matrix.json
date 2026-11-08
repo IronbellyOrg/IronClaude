@@ -1,0 +1,50 @@
+{
+  "parsed_ids": [],
+  "parsed_count": 0,
+  "inferred_count": 3,
+  "coverage_pct": null,
+  "coverage_pct_union": 1.0,
+  "unmapped_requirements_union": [],
+  "coverage_degraded": "parsed-sparse",
+  "coverage_undefined": false,
+  "task_count": 22,
+  "S_dev_density": 0.0,
+  "rows": [
+    {
+      "id": "INF-001",
+      "source": "inferred",
+      "quote": "Implement the launch-level enforcement hook for issue #394 from the design docs/designs/sc-issue-launch-level-hook.md",
+      "citation": "source.md:1",
+      "best_task": 22,
+      "best_ratio": 0.9167,
+      "match_method": "containment",
+      "matched_task_ids": [
+        22
+      ]
+    },
+    {
+      "id": "INF-002",
+      "source": "inferred",
+      "quote": "The B-CTX feasibility gate must be the first plan step.",
+      "citation": "source.md:1",
+      "best_task": 1,
+      "best_ratio": 0.8571,
+      "match_method": "containment",
+      "matched_task_ids": [
+        1
+      ]
+    },
+    {
+      "id": "INF-003",
+      "source": "inferred",
+      "quote": "Code: src/superclaude/hooks/, src/superclaude/cli/install_hooks.py, src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py, tests/hooks/.",
+      "citation": "source.md:1",
+      "best_task": 18,
+      "best_ratio": 0.9333,
+      "match_method": "containment",
+      "matched_task_ids": [
+        18
+      ]
+    }
+  ]
+}

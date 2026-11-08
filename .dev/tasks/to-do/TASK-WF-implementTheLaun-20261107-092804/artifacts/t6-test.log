@@ -1,0 +1,7 @@
+$ uv run pytest tests/hooks/test_launch_level_guard.py -k "NRM or nrm" -q  (after the fix pass)
+............................................                             [100%]
+
+=============== 123 passed, 311 deselected, 98 xfailed in 6.15s ================
+$ uv run pytest tests/hooks/test_launch_level_guard.py -q
+
+======================= 434 passed, 98 xfailed in 10.31s =======================

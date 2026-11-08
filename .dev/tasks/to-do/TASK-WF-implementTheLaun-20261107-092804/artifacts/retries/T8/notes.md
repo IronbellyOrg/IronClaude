@@ -1,0 +1,5 @@
+b6b47cc0ea49c7d90d4925c73e3502c94c740339
+A1 r1-1 F1.1 note ac=scope at=src/superclaude/hooks/scripts/launch-level-guard.sh:499 chk=n,n,n,n: a word with basename gh anywhere in a segment (for example curl ... -d @/tmp/gh) turns off the H5 curl/API classes for that segment, as design H5 words it (no gh word in the segment); a deliberate worker could write through curl this way.
+A1 r1-1 F1.2 note ac=scope at=src/superclaude/hooks/scripts/launch-level-guard.sh:427 chk=n,n,n,n: gh api GET forms with a trailing slash on merge/merges, //graphql or a percent-encoded merge are allowed; any write form still blocks.
+A1 r1-1 F1.3 note ac=scope at=src/superclaude/hooks/scripts/launch-level-guard.sh:427 chk=n,n,n,n: the H2 character class over-blocks read-only api spellings with ? { } $ quotes or spaces, and a gh issue create body that mentions api; design O-21 text rule.
+A1 r1-1 F1.4 note ac=scope at=src/superclaude/hooks/scripts/launch-level-guard.sh:500 chk=n,n,n,n: gh ext list is allowed, gh browse merge gives MERGE, GHE hosts and non-github.com graphql are not covered by H5; design-literal residuals.

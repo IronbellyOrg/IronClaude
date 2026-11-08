@@ -1,0 +1,12 @@
+return_contract:
+  merged_output_path: .dev/reflect/pre-implementTheLaun-20261107093251/adversarial/merged-review.md
+  convergence_score: 1.00
+  artifacts_dir: .dev/reflect/pre-implementTheLaun-20261107093251/adversarial/adversarial
+  status: partial
+  base_variant: "reviewer-3 (refactorer, opus)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants:
+    - {id: INV-001, category: sufficiency_challenge, assumption: "Task 20 owned-L2 test buildable while U28 and the marker are open", severity: HIGH}

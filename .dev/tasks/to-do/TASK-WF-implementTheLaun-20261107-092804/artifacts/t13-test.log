@@ -1,0 +1,22 @@
+## uv run pytest tests/cli/test_install_hooks.py tests/hooks/test_launch_level_guard_registration.py tests/hooks/test_freshness_subagent_start_policy.py -q
+tests/hooks/test_launch_level_guard_registration.py ............         [ 91%]
+tests/hooks/test_freshness_subagent_start_policy.py .....                [100%]
+
+============================== 60 passed in 1.27s ==============================
+
+## cmp src vs plugins launch-level-guard.sh
+identical
+
+## make verify-sync (last 12 lines)
+  ✅ modularization-template-review/qa-source-fidelity_template.md
+  ✅ modularization-template-review/qa-research-depth_report_template.md
+  ✅ modularization-template-review/web-research_template.md
+
+=== Installer Registration ===
+  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+exit=0

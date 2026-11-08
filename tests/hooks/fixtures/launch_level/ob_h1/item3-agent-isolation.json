@@ -1,0 +1,1 @@
+{"hook_event_name": "PreToolUse", "session_id": "parent-session-0001", "tool_name": "Agent", "tool_input": {"subagent_type": "general-purpose", "description": "probe", "prompt": "probe", "isolation": "remote"}}

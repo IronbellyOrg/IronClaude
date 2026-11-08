@@ -1,0 +1,2 @@
+6a1a543e6fd5430eec3e045df561ae73176fb69d
+A1 r1-1 note ac=scope at=src/superclaude/cli/install_hooks.py:467 chk=n,n,n,n: the merge change (insert a missing framework entry before the first existing entry owned by a later source entry) is wider than the task text asked for; the old code already matched per event and per exact command; the upgrade test fails on the old code (guard lands after launch-job-identity); test_one_command_under_two_events_is_owned_per_event also passes on the old code (regression guard only).

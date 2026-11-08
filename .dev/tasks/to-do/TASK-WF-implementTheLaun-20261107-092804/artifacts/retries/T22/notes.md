@@ -1,0 +1,6 @@
+c3ed6e792050896f66c62b4b57c965eb7909edf1
+A3 r1-3 F3.1 note ac=scope at=docs/designs/sc-issue-claim-pipeline-flag.md:341 chk=n,n,n,n: the LA-6 row lists only part of the IR-4 preflight (it also checks the identity-hook Bash registration, CLAUDE_CONFIG_DIR, disableAllHooks, readable settings JSON).
+A3 r1-3 F3.2 note ac=scope at=docs/designs/sc-issue-claim-pipeline-flag.md:423 chk=n,n,n,n: line 423 names full and --submit only; the gate in line 4 covers every governed level.
+A3 r1-3 F3.3 note ac=scope at=docs/designs/sc-issue-claim-pipeline-flag.md:131 chk=n,n,n,n: 'no level runs as a prompt-only instruction' is stronger than the claim process can see; a hand-started agent is not governed.
+A3 r1-3 F3.4 note ac=scope at=docs/designs/sc-issue-claim-pipeline-flag.md:437 chk=n,n,n,n: A7 'never pruned' does not mention that the claim removes its own record when the agent launch fails.
+A1 r1-1 F1.5 note ac=scope at=docs/designs/sc-issue-launch-level-hook.md:1 chk=n,n,n,n: design section 19.8 lists bash, jq, sed, tr only; the guard also calls mkdir, mv, ln, rm to bind a session. A1 F7: SKILL.md says warning only next to a refusal. A1 F8: the NM1a note in design 5.1 was not asked for by Task 22.

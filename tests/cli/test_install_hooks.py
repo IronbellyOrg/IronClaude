@@ -101,6 +101,7 @@ def fake_source_hooks(tmp_path, monkeypatch):
         "codegraph-session-start.sh",
         "block-bare-python.sh",
         "launch-job-identity.sh",
+        "launch-level-guard.sh",
     ]:
         (scripts_pkg / name).write_text("#!/usr/bin/env bash\nexit 0\n")
     (legacy_scripts_pkg / "session-init.sh").write_text("#!/usr/bin/env bash\nexit 0\n")
@@ -993,3 +994,154 @@ def test_launch_identity_real_install_preserves_policies_and_is_idempotent(
     )
     assert not list((state / "requests").iterdir())
     assert not list((state / "jobs").iterdir())
+
+
+_LAUNCH_GUARD_HOOK = "~/.claude/hooks/launch-level-guard.sh"
+_GUARD_EVENTS = ("UserPromptSubmit", "PreToolUse")
+
+
+def _guard_count(registrations: list) -> int:
+    return sum(
+        h.get("command") == _LAUNCH_GUARD_HOOK
+        for reg in registrations
+        for h in reg.get("hooks", [])
+    )
+
+
+def _real_source_hooks() -> dict:
+    root = Path(__file__).resolve().parents[2]
+    return json.loads((root / "src/superclaude/hooks/hooks.json").read_text())["hooks"]
+
+
+def test_launch_level_guard_script_is_packaged_listed_executable_and_mirrored():
+    from superclaude.cli import install_hooks
+
+    root = Path(__file__).resolve().parents[2]
+    source = root / "src/superclaude/hooks/scripts/launch-level-guard.sh"
+    mirror = root / "plugins/superclaude/hooks/scripts/launch-level-guard.sh"
+    assert "launch-level-guard.sh" in install_hooks._FRESHNESS_SCRIPTS
+    assert os.access(source, os.X_OK) and os.access(mirror, os.X_OK)
+    assert source.read_bytes() == mirror.read_bytes()
+    assert source.read_text().startswith("#!/bin/bash\n")
+
+
+@pytest.mark.parametrize("force", [False, True])
+def test_launch_level_guard_real_install_registers_both_events_and_is_idempotent(
+    tmp_path, force
+):
+    root = Path(__file__).resolve().parents[2]
+    home = tmp_path / "isolated-home"
+    target = home / ".claude/settings.json"
+    assert target.resolve() != (Path.home() / ".claude/settings.json").resolve()
+    target.parent.mkdir(parents=True)
+    user_prompt = {
+        "hooks": [{"type": "command", "command": "/user/prompt-policy", "timeout": 4}]
+    }
+    user_bash = {
+        "matcher": "Bash",
+        "hooks": [{"type": "command", "command": "/user/bash-policy", "timeout": 9}],
+    }
+    user_stop = {
+        "hooks": [{"type": "command", "command": "/user/stop-policy", "timeout": 2}]
+    }
+    permissions = {"deny": ["Bash(rm *)"], "ask": ["Bash(git push *)"]}
+    target.write_text(
+        json.dumps(
+            {
+                "permissions": permissions,
+                "hooks": {
+                    "UserPromptSubmit": [user_prompt],
+                    "PreToolUse": [user_bash],
+                    "Stop": [user_stop],
+                },
+            }
+        )
+    )
+    source_hooks = _real_source_hooks()
+
+    ok, message = install_hooks(target_path=target, force=force)
+    assert ok, message
+    first_bytes = target.read_bytes()
+    settings = json.loads(first_bytes)
+    assert settings["permissions"] == permissions
+    hooks = settings["hooks"]
+    assert hooks["Stop"][0] == user_stop
+    assert hooks["UserPromptSubmit"][0] == user_prompt
+    assert hooks["PreToolUse"][0] == user_bash
+    for event in _GUARD_EVENTS:
+        assert _guard_count(hooks[event]) == 1
+    for event, registrations in source_hooks.items():
+        assert all(reg in hooks[event] for reg in registrations), event
+    assert _LAUNCH_IDENTITY_HOOK in [
+        h["command"] for h in hooks["PreToolUse"][-1]["hooks"]
+    ]
+
+    for second_force in (False, True):
+        ok, message = install_hooks(target_path=target, force=second_force)
+        assert ok, message
+        assert target.read_bytes() == first_bytes
+
+    installed = target.parent / "hooks/launch-level-guard.sh"
+    source = root / "src/superclaude/hooks/scripts/launch-level-guard.sh"
+    assert installed.read_bytes() == source.read_bytes()
+    assert os.access(installed, os.X_OK)
+
+
+@pytest.mark.parametrize("force", [False, True])
+def test_launch_level_guard_upgrade_lands_before_launch_identity(tmp_path, force):
+    """An install that predates the guard gains it in source order."""
+    target = tmp_path / "isolated-home/.claude/settings.json"
+    target.parent.mkdir(parents=True)
+    source_hooks = _real_source_hooks()
+    previous = {
+        event: [
+            reg
+            for reg in registrations
+            if not any(h.get("command") == _LAUNCH_GUARD_HOOK for h in reg["hooks"])
+        ]
+        for event, registrations in source_hooks.items()
+    }
+    assert all(_guard_count(previous[event]) == 0 for event in _GUARD_EVENTS)
+    target.write_text(json.dumps({"hooks": previous}))
+
+    ok, message = install_hooks(target_path=target, force=force)
+    assert ok, message
+    hooks = json.loads(target.read_text())["hooks"]
+    for event in _GUARD_EVENTS:
+        assert hooks[event] == source_hooks[event], event
+    assert hooks["PreToolUse"][-1]["hooks"][0]["command"] == _LAUNCH_IDENTITY_HOOK
+
+
+@pytest.mark.parametrize("force", [False, True])
+def test_one_command_under_two_events_is_owned_per_event(
+    fake_source_hooks, target_settings, force
+):
+    """The same command is registered and refreshed separately in each event."""
+    shared = "~/.claude/hooks/launch-level-guard.sh"
+    new_hook = {"type": "command", "command": shared, "timeout": 5}
+    prompt_reg = {"hooks": [new_hook]}
+    tool_reg = {"matcher": "^(Bash|Skill)$", "hooks": [new_hook]}
+    (fake_source_hooks / "hooks/hooks.json").write_text(
+        json.dumps(
+            {"hooks": {"UserPromptSubmit": [prompt_reg], "PreToolUse": [tool_reg]}}
+        )
+    )
+    stale_tool = {
+        "matcher": "Bash",
+        "hooks": [{"type": "command", "command": shared, "timeout": 1}],
+    }
+    user_same_matcher = {
+        "matcher": "^(Bash|Skill)$",
+        "hooks": [{"type": "command", "command": "/user/other", "timeout": 2}],
+    }
+    target_settings.write_text(
+        json.dumps({"hooks": {"PreToolUse": [stale_tool, user_same_matcher]}})
+    )
+
+    for _ in range(2):
+        ok, message = install_hooks(target_path=target_settings, force=force)
+        assert ok, message
+        hooks = json.loads(target_settings.read_text())["hooks"]
+        assert hooks["UserPromptSubmit"] == [prompt_reg]
+        expected_tool = tool_reg if force else stale_tool
+        assert hooks["PreToolUse"] == [expected_tool, user_same_matcher]

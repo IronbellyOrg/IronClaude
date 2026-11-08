@@ -1,0 +1,13 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-implementTheLaun-20261107-092804
+plan_path: ./TASK-WF-implementTheLaun-20261107-092804.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: deep
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-394-launch-level-hook/.dev/reflect/pre-implementTheLaun-20261107093251/REPORT.md
+unresolved: []

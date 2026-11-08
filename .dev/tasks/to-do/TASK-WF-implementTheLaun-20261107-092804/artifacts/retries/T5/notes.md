@@ -1,0 +1,4 @@
+10d7c8f8dac0d54b499bdfabb570e335c2c3eb2f
+A1 r1-1 F1.2 note ac=scope at=src/superclaude/hooks/scripts/launch-level-guard.sh:222 chk=n,n,n,n: a bound id anywhere in broken JSON counts on the failure path, so an ordinary session sending broken JSON with a nested bound id is blocked. Task 5 AC4 and MR T-FC-5 require the raw read while design section 3 says no raw match counts as proof. Orchestrator decision: declared limit; pinned by test_raw_id_scan_declared_limit_blocks_ordinary_with_nested_bound_id; goes to the Task 14 record and the final report.
+A1 r1-1 F1.3 note ac=scope at=src/superclaude/hooks/scripts/launch-level-guard.sh:209 chk=n,n,n,n: comment drift, fixed in the fix pass.
+A2 r1-2 note ac=scope at=src/superclaude/hooks/scripts/launch-level-guard.sh:214 chk=n,n,n,n: one comment line is longer than the others (cosmetic).

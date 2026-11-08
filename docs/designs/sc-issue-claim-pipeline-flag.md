@@ -1,6 +1,7 @@
 # Design: `/sc:issue --claim --pipeline` (worktree, launch levels, `--submit`)
 
-**Status:** Design only (nothing implemented). Next: `/sc:workflow docs/designs/sc-issue-claim-pipeline-flag.md --depth quick --handoff none`, then `/sc:implement` on the plan it prints.
+**Status:** Implemented: `--pipeline` and `--submit` (PR #425). Issue #394 then changed the claim side of the launch: the IR-4 preflight refusal, the IR-7 warning and the release and layer lines of the launch result (see the Update below).
+**Update (issue #394):** the launch-level guard now exists and default D3 is replaced. When the guard is missing or not effective (`enforcement_preflight()`, hook IR-4; checked from the claim process only, its HOME, PATH, environment and the user and worktree settings files, so enterprise-managed settings and what Claude Code really runs are not seen) the claim refuses the launch with `W-ENFORCEMENT-ABSENT`: no agent starts and no launch record is written. When the worktree has no L2 pre-push layer the claim warns with `W-L2-ABSENT` and the launch continues, because the L2 layer is not built yet (hook IR-7, taken as a warning). IR-3 stays documentation only because no code writes `pipeline.json`. No governed claim (`worktree` or `full`) is used on a real issue until OB-H1 item 1 (parent `session_id` in subagent payloads), OB-H2 and OB-H3 have passed. In `docs/designs/sc-issue-launch-level-hook.md`, section 7 (U1) requires item 1 before a `full` or `--submit` claim and OB-H1 item 5 (self-started turns wrapped) before a claim at any level; OB-H2 and OB-H3 come from its sections 11 and 14. Sections below that describe `W-ENFORCEMENT-ABSENT` carry this update.
 **Issue:** none. This feature had no tracking issue. Related follow-on: IronbellyOrg/IronClaude #394 (launch-level enforcement hook, `docs/designs/sc-issue-launch-level-hook.md`). Launch rule from #412 (merged).
 **Branch:** `ironbelly/sc-issue-claim-pipeline-flag`
 **Source requirements:** `.dev/brainstorms/20261105-024132-issue-claim-orca-worktree-flag/merged-requirements.md` ("MR") as amended by `launch-levels-addendum.md` in the same folder ("AD", revision 2, after the owner's four corrections of 2026-11-05). Where MR and AD differ, AD wins. Where AD and the hook design differ on hook state, the hook design wins (section 3).
@@ -26,7 +27,7 @@ No level merges anything. Humans only review and merge; nobody opens a PR by han
 
 **Out of scope:**
 
-- The enforcement hook (`launch-level-guard.sh`, its L2 `pre-push` layer, `jq` and registration checks): issue #394. This design only produces the state that hook consumes (section 6) and reports whether the hook script is present.
+- The enforcement hook (`launch-level-guard.sh`, its L2 `pre-push` layer, `jq` and registration checks): issue #394. This design only produces the state that hook consumes (section 6) and reports the result of the hook's IR-4 preflight in `enforcement_hook`.
 - A flag value for model or effort, a lock for racing claims, `linkedIssue` matching, automatic worktree removal, any Orca link flag, any behaviour for a machine without Orca.
 - Running any live claim, worktree create or agent launch against a real issue. Verification in this change is unit tests with a fake `orca`; the observed runs of section 17 are owner steps after merge.
 
@@ -54,7 +55,7 @@ No level merges anything. Humans only review and merge; nobody opens a PR by han
 |---|---|---|---|
 | Level state file | AD FR-31: the skill writes `<wt>/.dev/issues/<N>/pipeline.json` as the hook's input | **Not built.** The hook's input is a launch record outside the worktree (section 6). | The hook design (IR-1 to IR-3) is later (2026-11-06) and says `pipeline.json` is documentation only: the agent can edit anything inside the worktree. A file nothing reads is not written. |
 | Git `pre-push` layer | AD FR-32: the claim installs a `pre-push` check in the new worktree | **Not built by the claim.** The hook feature's own installer owns it (hook design 19.2). The claim reports `enforcement_hook`. | Hook design 19 answers AD's open questions (place, chaining, removal) and makes installation part of #394. |
-| Hook refusal rules | Hook IR-4 and IR-7: refuse a governed launch when `jq`, the script, effective registration or L2 is missing | **Not built.** A missing hook script gives warning `W-ENFORCEMENT-ABSENT`; the launch proceeds (default D3). | The hook does not exist yet, and AD section 9 says phase 2 does not wait for it; OB-6 to OB-9 must run before it exists. #394 turns the warning into a refusal by extending one function (section 8). |
+| Hook refusal rules | Hook IR-4 and IR-7: refuse a governed launch when `jq`, the script, effective registration or L2 is missing | **Built in #394.** A guard that is missing or not effective gives the refusal `W-ENFORCEMENT-ABSENT`: no agent starts and no launch record is written. A missing L2 layer gives the warning `W-L2-ABSENT` and the launch continues (the L2 layer is not built yet). | This design first made it a warning (old default D3) because the hook did not exist; #394 turned it into a refusal (IR-4). IR-7 stays a warning until an L2 layer exists. |
 | `launch_status` values | AD FR-30: `launched \| failed \| not_requested` | Adds `already_launched` | AD FR-27 needs a state for a re-claim that finds a `launch` entry. |
 | Launch prompt | AD FR-22: one plain sentence, no leading `/` | The sentence is prefixed with the hook's marker `[sc-launch:v1:<nonce>] ` (hook IR-2). The prefix starts with `[`, so the no-leading-`/` rule holds. | The hook binds the session by that marker. |
 | Create JSON shape | MR R2 UNVERIFIED | AD observed `result.worktree.{id, path, branch, ...}`. FR-20 (path from a row-id difference) stays; the field is not relied on. | The set difference works with an opaque create result. |
@@ -111,7 +112,7 @@ orca terminal read --screen        ->  ccsession shim check
 
 Responsibilities: the **skill** decides what to run and prints; it makes every GitHub and ClickUp write as today and calls the script for every Orca call (the script is the seam the tests fake). No ref file is added (`test_all_five_refs_exist` stays true); the new template and script are added to the `SKILL.md` files table. No worker agent is involved in Waves 7 and 8.
 
-## 6. Launch-level state and the hook interface (design for #394, nothing hook-side built)
+## 6. Launch-level state and the hook interface (the hook side is built by #394)
 
 The hook must read the level from state the launched agent cannot edit. Anything inside the worktree is editable by the agent, so the level never lives there. The claim script publishes a launch record in the hook's store, which the hook design defines (`docs/designs/sc-issue-launch-level-hook.md` sections 3 and 13, IR-1 to IR-3, IR-5):
 
@@ -127,9 +128,9 @@ The hook must read the level from state the launched agent cannot edit. Anything
 | Re-claim | a new nonce and a new session for every launch, never `--resume` (a re-claim that finds a `launch` entry launches nothing; the user removes the entry to launch again) | IR-5 |
 | `pipeline.json` | not written (section 3) | IR-3 |
 
-The word-to-level map the hook applies: `worktree` = W (planning only, `WA` after a person approves), `full` = F, `full-submit` = FS. The approval step of level `worktree` is the hook's (a person types `approved` or `/sc:implement` in the session). This design adds nothing for it; until the hook exists the stop at the plan is an instruction in the launch prompt only, and the claim says so (`W-ENFORCEMENT-ABSENT`).
+The word-to-level map the hook applies: `worktree` = W (planning only, `WA` after a person approves), `full` = F, `full-submit` = FS. The approval step of level `worktree` is the hook's (a person types `approved` or `/sc:implement` in the session). This design adds nothing for it. The hook enforces the stop; when the guard is missing or not effective the claim refuses the launch with `W-ENFORCEMENT-ABSENT` (no agent, no launch record), so no level runs as a prompt-only instruction.
 
-`enforcement_hook` (contract field) is `installed` when `$HOME/.claude/hooks/launch-level-guard.sh` exists and is executable, else `missing`. It does not claim the hook is registered or effective. The check is one function, `enforcement_status()` in `orca_worktree.py`; #394 extends it with the IR-4 and IR-7 refusals (`jq`, registration, `CLAUDE_CONFIG_DIR`, L2) without touching the flag design.
+`enforcement_hook` (contract field) reports the IR-4 preflight `enforcement_preflight()` in `orca_worktree.py` (`jq`, `uv`, the commands the guard calls, the installed guard, effective registration, `CLAUDE_CONFIG_DIR`): `installed` means the whole preflight passed (also when the launch then failed), `missing` means it failed and the launch was refused with `W-ENFORCEMENT-ABSENT`, and `null` means no preflight ran (no agent requested, `already_launched`, or a launch that failed before the preflight). The IR-7 check `l2_status()` only warns with `W-L2-ABSENT`.
 
 ## 7. Claim flow changes (`refs/claim.md`)
 
@@ -200,13 +201,13 @@ The record guard: the path exists and its git-common-dir equals `<main>`'s, comp
 
 ### 8.4 `launch`
 
-Arguments `--number <N> --source <D> --level worktree|full [--submit]`. Output `{status, warning, detail, terminal, launched_at, enforcement_hook, hand_command}` with `status` `launched | failed | already_launched`.
+Arguments `--number <N> --source <D> --level worktree|full [--submit]`. Output `{status, warning, detail, terminal, launched_at, enforcement_hook, hand_command, release, layers}` with `status` `launched | failed | already_launched`. `release` (the release instruction) and `layers` (the L1/L2 status lines) are set only for `launched`, else null; they are keys of the script's launch JSON, not fields of the ten-key claim contract in `SKILL.md`.
 
 | Step | Rule |
 |---|---|
 | 1 | Read `<D>/worktree.json` through the record guard. Missing or failing: `failed`, `W-LAUNCH-FAILED` "no usable worktree record". |
 | 2 | A `launch` entry exists: `already_launched` with its `at` time; no `orca` call, no record written. |
-| 3 | `enforcement_hook = enforcement_status()` (section 6). `missing` sets `W-ENFORCEMENT-ABSENT` ("levels are instructions in the prompt only until the hook of #394 ships"); it does not stop the launch (default D3). |
+| 3 | The IR-4 preflight `enforcement_preflight()` (section 6). Any failure: `failed`, `W-ENFORCEMENT-ABSENT`, `enforcement_hook` `missing`, no agent, no launch record (#394; old default D3 is replaced). All pass: `enforcement_hook` `installed`. |
 | 4 | Write `pending/<nonce>` (section 6). A write error: `failed`, `W-LAUNCH-FAILED`, no launch. |
 | 5 | `orca agent launch --agent claude --worktree path:<wt> --surface terminal --prompt "[sc-launch:v1:<nonce>] Read .dev/issues/<N>/launch-prompt.md and follow it." --json`. No `--model` or `--effort` (AD FR-22). A nonzero exit, a timeout, or `ok != true`: remove the pending record, `failed`, `W-LAUNCH-FAILED` with the first stderr line, and `hand_command` (the same call without the marker, with the note "an agent started by hand is not governed by the hook; re-running the claim is preferred"). A timeout may have started an agent; `detail` says to check Orca before re-running. |
 | 6 | Shim check (FR-28): take the terminal handle (the first string value under a key `handle` in the launch JSON, found by a recursive walk, because the `agent launch` result shape is UNVERIFIED), then `orca terminal read --terminal <handle> --screen --json` up to 5 times, 2 s apart. Pass when `result.terminal.tail` text holds `[ccsession]` or `Session name (Enter or Ctrl+C` (the question text of `.dev/evals/ccsession-orca-e2e-20261026/EVIDENCE.md`, check 11). No handle, no readable screen or no match: keep the launch and set `W-LAUNCH-NOT-CCSESSION` ("this agent is NOT behind the ccsession shim, or could not be verified; close it"). The pending record stays. |
@@ -250,7 +251,7 @@ worktree_match_key: marker | record | basename | branch | null
 worktree_warning: <W- code or null>
 launch_status: launched | already_launched | failed | not_requested
 launch_warning: <W- code or null>
-enforcement_hook: installed | missing | null    # null when no agent was requested
+enforcement_hook: installed | missing | null    # null: no agent requested, already_launched, or failed before the IR-4 preflight
 ```
 
 `launch_status` is `not_requested` for `none` and when Wave 7 `failed`. On a STOP the fields that do not apply are `null`.
@@ -278,7 +279,8 @@ Warnings (the claim `status` stays `success` for all of them). `W-ORCA-MISSING` 
 | `W-WORKTREE-COPY-FAILED` | worktree (created, reused or failed) | files skipped as tracked, kept as `.prev`, or not copied | copy the named files by hand |
 | `W-LAUNCH-FAILED` | launch | no usable record, pending record not written, or `orca agent launch` failed | re-run the claim; the hand command is printed for reference |
 | `W-LAUNCH-NOT-CCSESSION` | launch (status `launched`) | the screen shows no `[ccsession]` and no session-name question, or could not be read | "this agent is NOT behind the ccsession shim; close it"; Orca's Claude command must be `/home/coder/.local/bin/ccsession-orca` (OB-5) |
-| `W-ENFORCEMENT-ABSENT` | launch (status `launched`) | hook script not installed | "the level is an instruction in the prompt only until the launch-level hook (#394) ships; do not use `full` or `--submit` on a real issue yet" |
+| `W-ENFORCEMENT-ABSENT` | launch (status `failed`; updated by #394) | the guard is missing or not effective (IR-4 preflight) | the launch was refused and no agent was started; fix each condition the `detail` names (usually `superclaude install`), then claim again |
+| `W-L2-ABSENT` | launch (status `launched`; added by #394) | the worktree has no L2 pre-push layer | the L2 layer is not built yet and the limits are enforced by the L1 guard only; the agent was started |
 
 A launch is never attempted when the worktree `status` is `failed` (FR-21).
 
@@ -290,7 +292,7 @@ All under `src/superclaude/` unless stated. Nothing under `.claude/` is edited o
 
 | Path | Content |
 |---|---|
-| `skills/sc-issue-protocol/scripts/orca_worktree.py` | Section 8: four subcommands, stdlib only, `enforcement_status()` |
+| `skills/sc-issue-protocol/scripts/orca_worktree.py` | Section 8: four subcommands, stdlib only, `enforcement_preflight()` |
 | `skills/sc-issue-protocol/templates/launch-prompt.md` | Section 9: four marked blocks |
 | `tests/skills/test_issue_orca_worktree.py` | Section 13, fake `orca` on `PATH` |
 | `.dev/brainstorms/20261105-024132-issue-claim-orca-worktree-flag/` | Copied in whole from the main checkout (untracked there) so it is committed with the PR; this design cites it |
@@ -336,7 +338,7 @@ All run with `uv run pytest`. The Orca and git seams are faked; no test calls a 
 | LA-3 | launch failure (nonzero exit, timeout, `ok: false`) removes the pending record and gives `W-LAUNCH-FAILED` with a hand command; pending write failure (read-only store) makes no launch call |
 | LA-4 | a `launch` entry in the record: `already_launched`, no `orca` call, no new pending record; a record without one launches; the entry is written after a launch even when the shim check fails |
 | LA-5 | shim check: a screen with `[ccsession]` and a screen with the session-name question pass; a screen without either, an unreadable terminal and a launch JSON with no `handle` give `W-LAUNCH-NOT-CCSESSION` and status `launched` |
-| LA-6 | `enforcement_hook`: `missing` and `W-ENFORCEMENT-ABSENT` without `$HOME/.claude/hooks/launch-level-guard.sh`; `installed` with an executable file; the launch happens in both cases |
+| LA-6 | `enforcement_hook`: `missing` and `W-ENFORCEMENT-ABSENT` without `$HOME/.claude/hooks/launch-level-guard.sh`; `installed` with an executable file. Updated by #394: `installed` only when the whole IR-4 preflight passes (executable guard with the version line, both registrations that can fire, `jq`, `uv`, the commands the guard calls, the Linux process interfaces); `missing` refuses the launch (no agent, no launch record), and `W-L2-ABSENT` is a warning on a `launched` result |
 | LA-7 | no launch call for a `failed` worktree record and no pending record for `none` (the skill never calls `launch` for `none`; the test pins the skill text, ST-9) |
 | ARG-1 | bad arguments of every subcommand exit 2 |
 
@@ -368,7 +370,7 @@ Each is a **design default**: a choice made where MR, AD and the hook design are
 |---|---|---|
 | D1 | This design lives at `docs/designs/sc-issue-claim-pipeline-flag.md` | The existing design-doc folder |
 | D2 | Worktree name `issue-<N>`, `--no-parent`, base `origin/<B>`, `--repo path:<main>`, `--comment "sc:issue <R>#<N>"`, no `--agent` on create | MR 2.3, AD 4.6: the create command stays as accepted; the agent is started by `agent launch` so a re-claimed worktree can be launched too |
-| D3 | A missing hook script is a warning (`W-ENFORCEMENT-ABSENT`), not a refusal, for every level | The hook is #394 and does not exist; AD section 9 says phase 2 does not wait for it and OB-6 to OB-9 must run first. The warning states that `full` and `--submit` should not be used on a real issue yet. Turning it into a refusal is a one-function change in #394 |
+| D3 | Replaced by #394: a guard that is missing or not effective refuses the launch (`W-ENFORCEMENT-ABSENT`; no agent, no launch record) for every level; a missing L2 layer is the warning `W-L2-ABSENT` and the launch continues | Originally a warning because the hook did not exist; #394 built the guard and its IR-4 preflight. No governed claim is used on a real issue until OB-H1 item 1, OB-H2 and OB-H3 pass (hook design section 7, U1: item 1 before `full` or `--submit`, item 5 before any level; OB-H2 and OB-H3: its sections 11 and 14) |
 | D4 | `version: "1.1.0"` in `commands/issue.md` only | MR 2.7 |
 | D5 | Pending-record words `worktree`, `full`, `full-submit` | The hook design's `pending/<nonce>` content (section 3) |
 | D6 | Shim check: 5 screen reads, 2 s apart (about 10 s). Pass on `[ccsession]` or the session-name question | The ccsession question falls back to untagged after 30 s (EVIDENCE check 11), so the window is inside it; the whole call stays inside the 120 s timeout |
@@ -376,7 +378,7 @@ Each is a **design default**: a choice made where MR, AD and the hook design are
 | D8 | No `pipeline.json` | Section 3 |
 | D9 | No automatic retry of a launch and no `--retry-launch` in version 1 | A lost reply may have started an agent; the warning says to check Orca. A duplicate agent is recoverable, a silent second launch is not predictable |
 | D10 | `--surface terminal` always | The agent must be a Claude CLI session behind the shim (P5, P7) |
-| D11 | The launch prompt file is assembled by script code, not by the model | The prohibition lines are the only enforcement until #394 ships |
+| D11 | The launch prompt file is assembled by script code, not by the model | The prohibition lines are the only enforcement for a text-level route the #394 guard does not check; the guard (built, live observations pending) checks the routes its design lists |
 | D12 | No `--model` or `--effort` on the launch | AD FR-22. The tier of the launched session is UNVERIFIED (section 15); the prompt asks the agent to report a mismatch with the tier named in `next-steps.md` |
 | D13 | The launch happens only after both Wave 6 comments are posted and the worktree `status` is `created` or `reused` | FR-4, FR-21: nothing external happens for a claim that stopped early |
 | D14 | `docs/user-guide/commands.md` and the `/sc:issue` row of `HOW-WE-WORK.md` are updated in the same change | Both say the claim "stops without running" the next steps, which becomes false |
@@ -418,7 +420,7 @@ One `/sc:workflow` plan, two phases (AD section 9). Both phases ship in one PR; 
 7. The `worktree` prompt block contains the prohibition line, the `full` block does not mention commit, push or `/sc:pr-submit`, and only the `submit` block instructs them.
 8. `make verify-sync` passes, the tests of section 13 pass, `make lint` and the pinned ruff format check pass, the `src/superclaude` path grep shows no new hit.
 
-**Observed runs** (owner steps after merge, on test issues only; **not run in this change**): OB-1 default claim: one new row at Orca's default location, `git merge-base HEAD origin/<B>` equals `git rev-parse origin/<B>`, record `comment`, branch prefix, `projectId`, launch JSON shape. OB-2 repeat claim: no new row, `reused`, no second agent. OB-4 claim from a linked worktree: same `<main>`, no parent. OB-5 default claim: the agent starts behind the shim, writes a plan, waits and does not run `/sc:implement`; the process arguments show `ccsession-orca`. OB-6 `--pipeline full` on a trivial issue ends with finished implementation and no push. OB-7 `--pipeline none` launches nothing. OB-8 re-claim launches nothing. OB-9 `--pipeline full --submit` on a trivial issue pushes a branch and opens a PR on `IronbellyOrg/IronClaude` (check the URL). Until the hook of #394 exists, `full` and `--submit` are used on test issues only.
+**Observed runs** (owner steps after merge, on test issues only; **not run in this change**): OB-1 default claim: one new row at Orca's default location, `git merge-base HEAD origin/<B>` equals `git rev-parse origin/<B>`, record `comment`, branch prefix, `projectId`, launch JSON shape. OB-2 repeat claim: no new row, `reused`, no second agent. OB-4 claim from a linked worktree: same `<main>`, no parent. OB-5 default claim: the agent starts behind the shim, writes a plan, waits and does not run `/sc:implement`; the process arguments show `ccsession-orca`. OB-6 `--pipeline full` on a trivial issue ends with finished implementation and no push. OB-7 `--pipeline none` launches nothing. OB-8 re-claim launches nothing. OB-9 `--pipeline full --submit` on a trivial issue pushes a branch and opens a PR on `IronbellyOrg/IronClaude` (check the URL). The launch-level guard of #394 now exists, but no governed claim is used on a real issue until OB-H1 item 1, OB-H2 and OB-H3 have passed (see the Update at the top); until then `full` and `--submit` are used on test issues only.
 
 ## 18. Amendments from the plan review (reflect, 2026-11-07)
 
@@ -432,7 +434,7 @@ One `/sc:workflow` plan, two phases (AD section 9). Both phases ship in one PR; 
 - **A4, ST-4 rule (B-5) [Task 7].** The test parses `scripts/orca_worktree.py` with `ast`, collects string constants that are whole `--` tokens, and compares them for equality with the forbidden list, ignoring constants inside the launch argv list. For markdown files it scans only lines that hold an `orca ` command and matches whole tokens (so `--prompt` never matches `--pr`, and `--issue-url` on a `clickup_claim.py` line is out of scope).
 - **A5, warning precedence (M-2) [Tasks 2, 6].** `warning` holds the code that set the status; every other applicable code is appended to `detail` with its remedy line. `enforcement_hook` on `already_launched` is `null` (step 3 is skipped).
 - **A6, re-claim keeps the running agent's files (M-5) [Tasks 4, 7].** When `<D>/worktree.json` already has a `launch` entry, Wave 5 does not rewrite `<D>/launch-prompt.md` and Wave 7 does not refresh it in the worktree.
-- **A7, pending records (m-5).** Pending launch records keep accumulating until the hook of #394 consumes them; the claim never prunes them.
+- **A7, pending records (m-5).** Pending launch records are consumed by the #394 guard when a session binds to one; an unconsumed record is never pruned (owner decision O-15), so unused records keep accumulating.
 - **A8, change table (B-1).** Section 12 gains `tests/skills/test_worker_contract.py`: one exact-text classification entry per new line that names `git add|commit|push|merge|stash|update-ref|worktree add|remove` or `gh pr|api` under `src/superclaude/{skills,commands,agents}`.
 
 ### 18.3 Amendments from the PR review (PR 425, 2026-11-07; they win over sections 8 and 9)

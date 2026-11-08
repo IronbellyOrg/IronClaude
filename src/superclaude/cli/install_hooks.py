@@ -85,6 +85,9 @@ _FRESHNESS_SCRIPTS = [
     "block-bare-python.sh",
     # PreToolUse Bash identity adapter; ordinary sessions stay unmodified.
     "launch-job-identity.sh",
+    # UserPromptSubmit + PreToolUse launch-level guard (L1); ordinary sessions
+    # are allowed, only a bound governed session is restricted.
+    "launch-level-guard.sh",
 ]
 _LEGACY_SCRIPTS = ["session-init.sh"]
 
@@ -121,6 +124,27 @@ def _owns_command(command: object, managed: set, event: str) -> bool:
         return True
     script = _ccsession_script(command)
     return script is not None and any(_ccsession_script(m) == script for m in managed)
+
+
+def _owns_registration(reg: object, managed: set, event: str) -> bool:
+    """True when any hook inside the registration runs a managed command."""
+    if not isinstance(reg, dict) or not isinstance(reg.get("hooks"), list):
+        return False
+    return any(
+        isinstance(hook, dict) and _owns_command(hook.get("command"), managed, event)
+        for hook in reg["hooks"]
+    )
+
+
+def _registration_commands(reg: object) -> set:
+    inner = reg.get("hooks", []) if isinstance(reg, dict) else []
+    if not isinstance(inner, list):
+        return set()
+    return {
+        hook.get("command")
+        for hook in inner
+        if isinstance(hook, dict) and hook.get("command")
+    }
 
 
 def install_hooks(
@@ -365,36 +389,20 @@ def _merge_settings(
                 backup_path,
             )
 
-        for new_reg in registrations:
+        source_commands = [_registration_commands(reg) for reg in registrations]
+        for index, new_reg in enumerate(registrations):
             if not isinstance(new_reg, dict):
                 continue
 
-            new_inner = new_reg.get("hooks", [])
-            if not isinstance(new_inner, list):
-                new_inner = []
-            managed_commands = {
-                hook.get("command")
-                for hook in new_inner
-                if isinstance(hook, dict) and hook.get("command")
-            }
+            managed_commands = source_commands[index]
 
             # Framework ownership is identified by the command path, never by a
             # matcher alone. Different hooks commonly share matcher="*" or Bash.
-            owns_existing = False
             if managed_commands:
-                for existing_reg in event_list:
-                    if not isinstance(existing_reg, dict):
-                        continue
-                    existing_inner = existing_reg.get("hooks", [])
-                    if not isinstance(existing_inner, list):
-                        continue
-                    if any(
-                        isinstance(hook, dict)
-                        and _owns_command(hook.get("command"), managed_commands, event)
-                        for hook in existing_inner
-                    ):
-                        owns_existing = True
-                        break
+                owns_existing = any(
+                    _owns_registration(existing_reg, managed_commands, event)
+                    for existing_reg in event_list
+                )
             else:
                 new_signature = _registration_signature(new_reg)
                 owns_existing = any(
@@ -444,8 +452,19 @@ def _merge_settings(
                 continue
 
             # A matcher-only collision is unrelated user configuration. Preserve
-            # it and append the missing framework registration.
-            event_list.append(new_reg)
+            # it and add the missing framework registration before the first
+            # registration owned by a LATER source entry, so an upgrade keeps
+            # the source order (e.g. launch-job-identity.sh stays last).
+            later = set().union(*source_commands[index + 1 :])
+            position = next(
+                (
+                    i
+                    for i, existing_reg in enumerate(event_list)
+                    if _owns_registration(existing_reg, later, event)
+                ),
+                len(event_list),
+            )
+            event_list.insert(position, new_reg)
             added += 1
 
     existing["hooks"] = existing_hooks

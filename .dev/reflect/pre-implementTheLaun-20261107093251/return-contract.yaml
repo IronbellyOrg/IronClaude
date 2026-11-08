@@ -1,0 +1,71 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-394-launch-level-hook/.dev/reflect/pre-implementTheLaun-20261107093251/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-394-launch-level-hook/.dev/reflect/pre-implementTheLaun-20261107093251/audit.log
+confidence_calibrated: 0.66
+escalation_rule_matched: 6
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256: {tasklist: 564033da6e03e9b4e47b211ff9a70be1ddb15669c7806ed5e90a3e8699240a30, spec: 24ff2f77afa61caab8201a097245ba2531f07f88c128dfb5c591d41a2b1f9927}
+input_tree_sha256: 8cffc813a5b552876320840d30689797a1655530644017126eebeb13804bc45f
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-394-launch-level-hook/.dev/reflect/pre-implementTheLaun-20261107093251/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 170
+citations_revalidated: 160
+citations_dropped: 3
+citations_dropped_extrapolated: 3
+citations_inferred: 5
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - .dev/reflect/pre-implementTheLaun-20261107093251/reviewer-cards/reviewer-1-card.md
+  - .dev/reflect/pre-implementTheLaun-20261107093251/reviewer-cards/reviewer-2-card.md
+  - .dev/reflect/pre-implementTheLaun-20261107093251/reviewer-cards/reviewer-3-card.md
+adversarial_artifacts_dir: .dev/reflect/pre-implementTheLaun-20261107093251/adversarial/adversarial
+adversarial_convergence_score: 1.00
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+unaddressed_invariants: [INV-001]
+degraded_components: [auggie, calibrator-diversity, executor-class-unresolved]

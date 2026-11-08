@@ -1,0 +1,13 @@
+2972aa6ec7b94a4518c3976bb881929401428f0b 914003e2f7adf936de30a8854ae62337acd1670d
+T18.AC1 met tests/skills/test_issue_orca_worktree.py:1486
+T18.AC2 met tests/skills/test_issue_orca_worktree.py:1329
+T18.AC3 met tests/skills/test_issue_orca_worktree.py:1360
+T18.AC4 met tests/skills/test_issue_orca_worktree.py:1486
+T18.AC5 met tests/skills/test_issue_orca_worktree.py:1
+T18.AC6 met tests/skills/test_issue_orca_worktree.py:1486
+T18.AC7 met tests/skills/test_issue_orca_worktree.py:1507
+F1.1 sev=blocking trigger=B1 ac=T18.AC6 at=src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:724 anchor="the matcher of design section 13 (so it fires for the governed tools)" chk=y,y,n,n family=matcher-coverage fix=add mcp__ merge/push names and CronDelete to the governed-tool probe list so a registration without the design's mcp__ branch is refused covers="the matcher of design section 13 (so it fires for the governed tools)" first=A1 origin=new: a PreToolUse matcher equal to the design matcher minus its mcp__ branch was accepted although the guard governs mcp__ merge and push tools.
+F1.2 sev=note trigger=none ac=T18.AC6 at=src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:783 anchor=src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:783 chk=n,n,n,n family=matcher-semantics fix=none first=A1 origin=new: re.search accepts a plain-word matcher that omits NotebookEdit but names Edit; Claude Code may treat plain-word matchers as exact lists; unverifiable in the repo.
+F2 sev=blocking trigger=B1 ac=scope at=src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:740 anchor="a Linux host with the process interfaces the adapter uses" chk=y,n,n,n family=runtime-prereq fix=add read-only probes for pidfd_open and the child-subreaper query covers="a Linux host with the process interfaces the adapter uses" first=A1 origin=new: the preflight tested only two /proc files, but design 19.7 names the pidfd and subreaper interfaces the adapter needs.
+F3 sev=note trigger=none ac=scope at=src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:842 anchor=src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:842 chk=n,n,n,n family=settings-forms fix=none first=A1 origin=new: disableAllHooks is read only as boolean true; string forms and managed policy settings are not checked.
+F4 sev=note trigger=none ac=scope at=tests/skills/test_issue_orca_worktree.py:1539 anchor=tests/skills/test_issue_orca_worktree.py:1539 chk=n,n,n,n family=pipeline-none fix=none first=A1 origin=new: the pipeline-none test calls launch --level none (an argument error), so the no-call assertion is vacuous; the real coverage is the claim.md pin.

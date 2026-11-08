@@ -1,0 +1,44 @@
+# Tier-1 reflection card (UC-1, pre-execution). Produced by the orchestrator inline (hypothesis_source: inline).
+mode: pre
+spec: .dev/tasks/to-do/TASK-WF-implementTheLaun-20261107-092804/source.md
+tasklist: .dev/tasks/to-do/TASK-WF-implementTheLaun-20261107-092804/TASK-WF-implementTheLaun-20261107-092804.md
+driving_design: docs/designs/sc-issue-launch-level-hook.md
+structural_signals:
+  S_scope: 22            # tasklist items
+  S_domains: 4           # code (hooks, cli, skill script), tests, docs, config (hooks.json)
+  coverage_pct: null     # parsed-only: spec carries no labeled ids
+  coverage_pct_union: 1.0
+  coverage_degraded: parsed-sparse
+  S_dev_density: 0.0
+requirements:   # Step 1B.0 Pass 2, quote-pinned
+  - {id: INF-001, quote: "Implement the launch-level enforcement hook for issue #394 from the design docs/designs/sc-issue-launch-level-hook.md", citation: ".dev/tasks/to-do/TASK-WF-implementTheLaun-20261107-092804/source.md:1", matched_task: 22, ratio: 0.9167}
+  - {id: INF-002, quote: "The B-CTX feasibility gate must be the first plan step.", citation: ".dev/tasks/to-do/TASK-WF-implementTheLaun-20261107-092804/source.md:1", matched_task: 1, ratio: 0.8571}
+  - {id: INF-003, quote: "Code: src/superclaude/hooks/, src/superclaude/cli/install_hooks.py, src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py, tests/hooks/.", citation: ".dev/tasks/to-do/TASK-WF-implementTheLaun-20261107-092804/source.md:1", matched_task: 18, ratio: 0.9333}
+findings:
+  - id: F-1
+    claim: "B-CTX gate (INF-002) is Task 1, the first task, but it is an evidence-review verdict from existing artifacts, not the log-only live probe that design section 14 step 0 specifies."
+    citation: ".dev/tasks/to-do/TASK-WF-implementTheLaun-20261107-092804/TASK-WF-implementTheLaun-20261107-092804.md:32 and docs/designs/sc-issue-launch-level-hook.md:359"
+    note: "The plan Constraints (live observations are not run) make this a stated, deliberate narrowing."
+  - id: F-2
+    claim: "Task 20 makes the claim refuse every governed launch until an L2 layer ships, which disables the default --pipeline worktree launch; the task records the consequence but does not obtain an owner decision."
+    citation: ".dev/tasks/to-do/TASK-WF-implementTheLaun-20261107-092804/TASK-WF-implementTheLaun-20261107-092804.md:314 and docs/designs/sc-issue-launch-level-hook.md:355,514"
+  - id: F-3
+    claim: "Task 20 detects 'the owned shared hook file and its recorded B-CTX contract marker', but neither the marker nor the ownership proof is defined, and Task 21 says no L2 artifact is built, so the pass case cannot occur in production."
+    citation: ".dev/tasks/to-do/TASK-WF-implementTheLaun-20261107-092804/TASK-WF-implementTheLaun-20261107-092804.md:318 and docs/designs/sc-issue-launch-level-hook.md:512"
+  - id: F-4
+    claim: "Task 12 depends on Task 10 and not on Task 11, so a plan executor may register the guard before approval handling exists; ordering is by number so the risk is low."
+    citation: ".dev/tasks/to-do/TASK-WF-implementTheLaun-20261107-092804/TASK-WF-implementTheLaun-20261107-092804.md:209-211"
+  - id: F-5
+    claim: "IR-3 (pipeline.json is documentation only; amend FR-31) has no task, and the design's own note says the claim code writes no pipeline.json."
+    citation: "docs/designs/sc-issue-launch-level-hook.md:351"
+  - id: F-6
+    claim: "Task 18 turns the PR 425 warning W-ENFORCEMENT-ABSENT into a refusal and reorders the check before publish_pending; existing tests at tests/skills/test_issue_orca_worktree.py around lines 1303 and 1324 must change."
+    citation: "src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py:937-941,986-989"
+risks:
+  - "Task 15 asserts a 1.5x timing ratio against block-bare-python.sh; timing assertions can flake on a loaded host."
+  - "Task 4, 5 and 7 are large single tasks (state machine, grid, git classifier) that rely on the executor reading design sections 3 to 5."
+  - "Regression candidates: Task 18 and Task 20 change launch behaviour that PR 425 shipped (refusal instead of launch)."
+recommendations:
+  - {id: R-1, file: ".dev/tasks/to-do/TASK-WF-implementTheLaun-20261107-092804/TASK-WF-implementTheLaun-20261107-092804.md", change: "Define the owned-hook proof and the contract marker in Task 20 or drop the pass case; add 'Depends on: Task 11' to Task 12.", verifier: "re-read Tasks 12 and 20; plan gate still passes"}
+  - {id: R-2, file: "docs/designs/sc-issue-launch-level-hook.md", change: "Ask the owner whether governed claims should refuse to launch while L2 is absent (IR-7 as written) before Task 20 is implemented.", verifier: "owner reply recorded in the PR body"}
+self_reported_confidence: 0.72

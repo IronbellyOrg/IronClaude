@@ -40,6 +40,15 @@
             "timeout": 3
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/launch-level-guard.sh",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PreToolUse": [
@@ -60,6 +69,16 @@
             "type": "command",
             "command": "~/.claude/hooks/block-bare-python.sh",
             "timeout": 3
+          }
+        ]
+      },
+      {
+        "matcher": "^(Bash|Skill|Agent|Task|Edit|Write|NotebookEdit|Monitor|Workflow|RemoteTrigger|SendMessage|Cron[A-Za-z]*|Schedule[A-Za-z]*)$|^mcp__.*(merge|push|commit|pull_request|create_or_update_file|delete_file|update_ref|create_ref|create_branch)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/launch-level-guard.sh",
+            "timeout": 5
           }
         ]
       },

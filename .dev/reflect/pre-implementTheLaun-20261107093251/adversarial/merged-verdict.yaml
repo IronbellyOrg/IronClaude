@@ -1,0 +1,10 @@
+merge_method: adversarial
+base_variant: "reviewer-3 (refactorer, opus-class)"
+merged_output_path: .dev/reflect/pre-implementTheLaun-20261107093251/adversarial/merged-review.md
+convergence_score: 1.00
+convergence_status: BLOCKED_BY_INVARIANTS
+verdict: "plan not ready to execute as written: handle the HIGH shared-fixture item and the gate items first; no Regression because nothing ran"
+findings_total: 27
+findings_by_severity: {HIGH: 1, MEDIUM: 14, LOW: 12}
+unaddressed_invariants:
+  - {id: INV-001, category: sufficiency_challenge, assumption: "Task 20 owned-L2 test is buildable while install place U28 and the contract marker are open", severity: HIGH}
