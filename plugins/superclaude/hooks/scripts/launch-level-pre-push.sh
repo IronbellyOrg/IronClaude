@@ -29,8 +29,9 @@ L2_REASON=
 l2_data() {
     local meta content line1 line2
     [[ -f $L2_DATA && ! -L $L2_DATA && -O $L2_DATA ]] || return 1
-    # shortcut: bash has no builtin for mode bits, so /usr/bin/stat reads them.
-    meta=$(/usr/bin/stat -c '%a %s' -- "$L2_DATA" </dev/null 2>/dev/null) || return 1
+    # shortcut: bash has no builtin for mode bits, so /usr/bin/stat reads them
+    # (owner-approved FR-001 exception). Missing, failing or hung stat: untrusted.
+    meta=$(/usr/bin/timeout 5 /usr/bin/stat -c '%a %s' -- "$L2_DATA" </dev/null 2>/dev/null) || return 1
     [[ $meta =~ ^([0-7]{3,4})\ ([0-9]{1,5})$ ]] || return 1
     (( (8#${BASH_REMATCH[1]} & 8#022) == 0 && BASH_REMATCH[2] <= 8194 )) || return 1
     # read -d '' returns 0 only when it meets a NUL byte, which is invalid here.

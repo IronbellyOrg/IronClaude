@@ -735,6 +735,8 @@ def _break(repo, case):
         repo.data.unlink()
     elif case == "data-group-writable":
         repo.data.chmod(0o664)
+    elif case == "data-other-writable":
+        repo.data.chmod(0o646)
     elif case == "data-one-line":
         repo.write_data(f"{repo.home}\n")
     elif case == "data-relative":
@@ -757,6 +759,7 @@ def _break(repo, case):
 T18 = {
     "data-missing": "no valid data file",
     "data-group-writable": "no valid data file",
+    "data-other-writable": "no valid data file",
     "data-one-line": "no valid data file",
     "data-relative": "no valid data file",
     "data-symlink": "no valid data file",
@@ -772,6 +775,31 @@ def test_t18_invalid_data_file_or_selector(repo, case):
     _break(repo, case)
     main, feature = repo.run("human", [push("HEAD:main"), push("HEAD:refs/heads/feature")])
     unknown(main, "refs/heads/main", T18[case])
+    allowed(feature)
+
+
+# Owner-approved FR-001 exception (spec-deviations.md): the data-file mode check
+# runs /usr/bin/stat, and a missing, failing or hung stat makes the data file
+# untrusted, so only main/master are refused.
+STAT_FAKES = {
+    "stat-missing": None,
+    "stat-fails": "exit 1\n",
+    "stat-hangs": "exec /usr/bin/sleep 30\n",
+}
+
+
+@pytest.mark.parametrize("case", list(STAT_FAKES))
+def test_t18_stat_missing_failing_or_hanging_fails_closed(repo, case):
+    fake = repo.tmp / f"fake-{case}"
+    if STAT_FAKES[case] is not None:
+        fake.write_text("#!/bin/bash\n" + STAT_FAKES[case])
+        fake.chmod(0o755)
+    text = HOOK.read_text()
+    assert text.count("/usr/bin/stat -c") == 1
+    repo.hook.write_text(text.replace("/usr/bin/stat -c", f"{fake} -c"))
+    repo.hook.chmod(0o755)
+    main, feature = repo.run("human", [push("HEAD:main"), push("HEAD:refs/heads/feature")])
+    unknown(main, "refs/heads/main", "no valid data file")
     allowed(feature)
 
 
