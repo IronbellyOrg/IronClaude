@@ -1,0 +1,15 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-fixIronbellyOrgI-20261108-110741
+plan_path: ./TASK-WF-fixIronbellyOrgI-20261108-110741.md
+source_path: ./source.md
+source_origin: "inline"
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: null
+unresolved:
+  - "Written at 12:50Z on 2026-11-08 by the #443 worker after a context reset: the original /sc:workflow run stopped after its reflect gate and never wrote this Wave 5 contract."
+  - "Reflect pre run .dev/reflect/pre-TASK-WF-fixIronbellyOrgI-20261108-110741-20261108111052/ ended after wave 5 evidence validation (audit.log 12:23:40Z) without REPORT.md; its merged verdict is PASS, 0 blocking, 7 minor (adversarial/merged-verdict.yaml)."

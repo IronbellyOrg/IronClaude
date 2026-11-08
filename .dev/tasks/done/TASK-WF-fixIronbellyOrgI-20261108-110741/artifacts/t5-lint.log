@@ -1,0 +1,457 @@
+$ uv run ruff check tests/unit/test_ccsession_tiers.py
+All checks passed!
+rc=0
+$ uv run ruff format --check tests/unit/test_ccsession_tiers.py
+1 file already formatted
+rc=0
+$ make verify-sync
+🔍 Verifying src/superclaude/ ↔ .claude/ sync...
+
+=== Skills ===
+  ❌ MISSING in .claude/skills/: ccsession-tag
+  ❌ MISSING in .claude/skills/: confidence-check
+  ❌ MISSING in .claude/skills/: operational-guide
+  ❌ MISSING in .claude/skills/: prd
+  ❌ MISSING in .claude/skills/: readme
+  ❌ MISSING in .claude/skills/: roadmap
+  ❌ MISSING in .claude/skills/: sc-adversarial-protocol
+  ❌ MISSING in .claude/skills/: sc-auggie-review-protocol
+  ❌ MISSING in .claude/skills/: sc-bare-review
+  ❌ MISSING in .claude/skills/: sc-brainstorm-protocol
+  ❌ MISSING in .claude/skills/: sc-cleanup-audit-protocol
+  ❌ MISSING in .claude/skills/: sc-cli-eval-protocol
+  ❌ MISSING in .claude/skills/: sc-cli-portify-protocol
+  ❌ MISSING in .claude/skills/: sc-crash-recovery
+  ❌ MISSING in .claude/skills/: sc-graph-protocol
+  ❌ MISSING in .claude/skills/: sc-impact-protocol
+  ❌ MISSING in .claude/skills/: sc-implement-protocol
+  ❌ MISSING in .claude/skills/: sc-init-lite-protocol
+  ❌ MISSING in .claude/skills/: sc-issue-protocol
+  ❌ MISSING in .claude/skills/: sc-pm-protocol
+  ❌ MISSING in .claude/skills/: sc-post-release-protocol
+  ❌ MISSING in .claude/skills/: sc-pr-submit-protocol
+  ❌ MISSING in .claude/skills/: sc-recommend
+  ❌ MISSING in .claude/skills/: sc-reflect-protocol
+  ❌ MISSING in .claude/skills/: sc-release-split-protocol
+  ❌ MISSING in .claude/skills/: sc-review-translation-protocol
+  ❌ MISSING in .claude/skills/: sc-roadmap-protocol
+  ❌ MISSING in .claude/skills/: sc-swarm-wizard-protocol
+  ❌ MISSING in .claude/skills/: sc-task-protocol
+  ❌ MISSING in .claude/skills/: sc-tasklist-protocol
+  ❌ MISSING in .claude/skills/: sc-troubleshoot-protocol
+  ❌ MISSING in .claude/skills/: sc-validate-roadmap-protocol
+  ❌ MISSING in .claude/skills/: sc-validate-tests-protocol
+  ❌ MISSING in .claude/skills/: sc-workflow-protocol
+  ❌ MISSING in .claude/skills/: task-builder
+  ❌ MISSING in .claude/skills/: task
+  ❌ MISSING in .claude/skills/: tdd
+  ❌ MISSING in .claude/skills/: tech-reference
+  ❌ MISSING in .claude/skills/: tech-research
+
+=== Agents ===
+  ❌ MISSING in .claude/agents/: audit-analyzer.md
+  ❌ MISSING in .claude/agents/: audit-comparator.md
+  ❌ MISSING in .claude/agents/: audit-consolidator.md
+  ❌ MISSING in .claude/agents/: audit-scanner.md
+  ❌ MISSING in .claude/agents/: audit-validator.md
+  ❌ MISSING in .claude/agents/: auggie-reviewer.md
+  ❌ MISSING in .claude/agents/: backend-architect.md
+  ❌ MISSING in .claude/agents/: business-panel-experts.md
+  ❌ MISSING in .claude/agents/: confidence-calibrator.md
+  ❌ MISSING in .claude/agents/: debate-orchestrator.md
+  ❌ MISSING in .claude/agents/: deep-research-agent.md
+  ❌ MISSING in .claude/agents/: deep-research.md
+  ❌ MISSING in .claude/agents/: devops-architect.md
+  ❌ MISSING in .claude/agents/: eval-docs-loader.md
+  ❌ MISSING in .claude/agents/: eval-run-reporter.md
+  ❌ MISSING in .claude/agents/: eval-suite-author.md
+  ❌ MISSING in .claude/agents/: evidence-validator.md
+  ❌ MISSING in .claude/agents/: frontend-architect.md
+  ❌ MISSING in .claude/agents/: implement-retry-adviser.md
+  ❌ MISSING in .claude/agents/: issue-worker-t1.md
+  ❌ MISSING in .claude/agents/: issue-worker-t2.md
+  ❌ MISSING in .claude/agents/: issue-worker-t3.md
+  ❌ MISSING in .claude/agents/: learning-guide.md
+  ❌ MISSING in .claude/agents/: merge-executor.md
+  ❌ MISSING in .claude/agents/: performance-engineer.md
+  ❌ MISSING in .claude/agents/: pm-agent.md
+  ❌ MISSING in .claude/agents/: python-expert.md
+  ❌ MISSING in .claude/agents/: quality-engineer.md
+  ❌ MISSING in .claude/agents/: refactoring-expert.md
+  ❌ MISSING in .claude/agents/: reflect-reviewer.md
+  ❌ MISSING in .claude/agents/: repo-index.md
+  ❌ MISSING in .claude/agents/: requirements-analyst.md
+  ❌ MISSING in .claude/agents/: reuse-auditor.md
+  ❌ MISSING in .claude/agents/: rf-analyst.md
+  ❌ MISSING in .claude/agents/: rf-assembler.md
+  ❌ MISSING in .claude/agents/: rf-qa-qualitative.md
+  ❌ MISSING in .claude/agents/: rf-qa.md
+  ❌ MISSING in .claude/agents/: rf-task-builder.md
+  ❌ MISSING in .claude/agents/: rf-task-executor.md
+  ❌ MISSING in .claude/agents/: rf-task-researcher.md
+  ❌ MISSING in .claude/agents/: rf-team-lead.md
+  ❌ MISSING in .claude/agents/: root-cause-analyst.md
+  ❌ MISSING in .claude/agents/: security-engineer.md
+  ❌ MISSING in .claude/agents/: self-review.md
+  ❌ MISSING in .claude/agents/: socratic-mentor.md
+  ❌ MISSING in .claude/agents/: system-architect.md
+  ❌ MISSING in .claude/agents/: technical-writer.md
+  ❌ MISSING in .claude/agents/: troubleshoot-analyst.md
+
+=== Commands ===
+  ❌ MISSING in .claude/commands/sc/: adversarial.md
+  ❌ MISSING in .claude/commands/sc/: agent.md
+  ❌ MISSING in .claude/commands/sc/: analyze.md
+  ❌ MISSING in .claude/commands/sc/: auggie-review.md
+  ❌ MISSING in .claude/commands/sc/: brainstorm.md
+  ❌ MISSING in .claude/commands/sc/: build.md
+  ❌ MISSING in .claude/commands/sc/: business-panel.md
+  ❌ MISSING in .claude/commands/sc/: cleanup-audit.md
+  ❌ MISSING in .claude/commands/sc/: cleanup.md
+  ❌ MISSING in .claude/commands/sc/: cli-eval.md
+  ❌ MISSING in .claude/commands/sc/: cli-portify.md
+  ❌ MISSING in .claude/commands/sc/: design.md
+  ❌ MISSING in .claude/commands/sc/: document.md
+  ❌ MISSING in .claude/commands/sc/: explain.md
+  ❌ MISSING in .claude/commands/sc/: git.md
+  ❌ MISSING in .claude/commands/sc/: graph.md
+  ❌ MISSING in .claude/commands/sc/: help.md
+  ❌ MISSING in .claude/commands/sc/: impact.md
+  ❌ MISSING in .claude/commands/sc/: implement.md
+  ❌ MISSING in .claude/commands/sc/: improve.md
+  ❌ MISSING in .claude/commands/sc/: index-repo.md
+  ❌ MISSING in .claude/commands/sc/: index.md
+  ❌ MISSING in .claude/commands/sc/: init-lite.md
+  ❌ MISSING in .claude/commands/sc/: issue.md
+  ❌ MISSING in .claude/commands/sc/: load.md
+  ❌ MISSING in .claude/commands/sc/: pm.md
+  ❌ MISSING in .claude/commands/sc/: post-release.md
+  ❌ MISSING in .claude/commands/sc/: pr-submit.md
+  ❌ MISSING in .claude/commands/sc/: recommend.md
+  ❌ MISSING in .claude/commands/sc/: reflect.md
+  ❌ MISSING in .claude/commands/sc/: release-split.md
+  ❌ MISSING in .claude/commands/sc/: research.md
+  ❌ MISSING in .claude/commands/sc/: review-translation.md
+  ❌ MISSING in .claude/commands/sc/: roadmap.md
+  ❌ MISSING in .claude/commands/sc/: save.md
+  ❌ MISSING in .claude/commands/sc/: spawn.md
+  ❌ MISSING in .claude/commands/sc/: spec-panel.md
+  ❌ MISSING in .claude/commands/sc/: swarm-wizard.md
+  ❌ MISSING in .claude/commands/sc/: task.md
+  ❌ MISSING in .claude/commands/sc/: tasklist.md
+  ❌ MISSING in .claude/commands/sc/: tdd.md
+  ❌ MISSING in .claude/commands/sc/: test.md
+  ❌ MISSING in .claude/commands/sc/: troubleshoot.md
+  ❌ MISSING in .claude/commands/sc/: validate-roadmap.md
+  ❌ MISSING in .claude/commands/sc/: validate-tests.md
+  ❌ MISSING in .claude/commands/sc/: workflow.md
+
+=== Hooks ===
+  ❌ MISSING in .claude/hooks/: auggie-flag-clear.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: block-bare-python.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: codegraph-session-start.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: freshness-file-changed.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: freshness-post-read.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: freshness-pre-edit.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: freshness-session-start.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: freshness-subagent-start.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: freshness-subagent-stop.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: freshness-user-prompt.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: launch-job-identity.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: launch-level-guard.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: reject-workspace-writes.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: require-orca-worktree-agent.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: sc-recommend-phase0.sh (run 'make sync-dev')
+  ❌ MISSING in .claude/hooks/: pragmatic-subagent.js (run 'make sync-dev')
+
+=== Templates ===
+  ❌ MISSING in .claude/templates/: workflow/05_prd_template.md
+  ❌ MISSING in .claude/templates/: workflow/03_project_plan_template.md
+  ❌ MISSING in .claude/templates/: workflow/03_component_authoring_template.md
+  ❌ MISSING in .claude/templates/: workflow/00_mdtm_template_simple_task.md
+  ❌ MISSING in .claude/templates/: workflow/01_mdtm_template_generic_task__gfdoc.md
+  ❌ MISSING in .claude/templates/: workflow/06_architecture_proposal_template.md
+  ❌ MISSING in .claude/templates/: workflow/02_mdtm_template_complex_task.md
+  ❌ MISSING in .claude/templates/: workflow/04_feature_brief_template.md
+  ❌ MISSING in .claude/templates/: workflow/changelog_template.md
+  ❌ MISSING in .claude/templates/: workflow/01_mdtm_template_generic_task.md
+  ❌ MISSING in .claude/templates/: workflow/99_mdtm_template_generic_task_old.md
+  ❌ MISSING in .claude/templates/: documents/prd_template.md
+  ❌ MISSING in .claude/templates/: documents/operational_guide_template.md
+  ❌ MISSING in .claude/templates/: documents/GFxAI_Master_Documentation_Template.md
+  ❌ MISSING in .claude/templates/: documents/tdd_template.md
+  ❌ MISSING in .claude/templates/: documents/agent_template_analysis.md
+  ❌ MISSING in .claude/templates/: documents/supplemental-doc-creation-checklist.md
+  ❌ MISSING in .claude/templates/: documents/agent_template_qa.md
+  ❌ MISSING in .claude/templates/: documents/skill_template.md
+  ❌ MISSING in .claude/templates/: documents/roadmap_template.md
+  ❌ MISSING in .claude/templates/: documents/agent_template_worker.md
+  ❌ MISSING in .claude/templates/: documents/release-spec-template.md
+  ❌ MISSING in .claude/templates/: documents/supplemental_doc_template.md
+  ❌ MISSING in .claude/templates/: documents/technical_reference_template.md
+  ❌ MISSING in .claude/templates/: documents/readme_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-fix-summary_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-task-research-alignment_report_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/analyst-synthesis-review_report_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/research-notes_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/synthetic-dnsp-finding.contract
+  ❌ MISSING in .claude/templates/: modularization-template-review/INDEX.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-task-validation-structure_report_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-cross-source-contradictions_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/track-scope-map_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/claim-evidence-matrix_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-inventory_report_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/analyst-coverage-matrix_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/codebase-research_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/analyst-completeness_report_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/analyst-gap-analysis_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-lens_report_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-consolidated-findings_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-task-validation-b2_report_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-research-gap_report_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-research-evidence_report_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-qualitative-operational_report_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-qualitative-sufficiency_report_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/analyst-cross-validation_report_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-acceptance-methodology-audit_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/pipeline-complete_report_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-source-fidelity_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/qa-research-depth_report_template.md
+  ❌ MISSING in .claude/templates/: modularization-template-review/web-research_template.md
+
+=== Installer Registration ===
+  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.
+make: *** [Makefile:168: verify-sync] Error 1
+rc=2
+
+# The first verify-sync failed only because this fresh Orca worktree never had its gitignored .claude/ dev copies populated (src/ unchanged: git diff HEAD -- src is empty). Populating them with the documented command and re-running:
+$ make sync-dev
+rc=0
+$ make verify-sync
+🔍 Verifying src/superclaude/ ↔ .claude/ sync...
+
+=== Skills ===
+  ✅ ccsession-tag
+  ✅ confidence-check
+  ✅ operational-guide
+  ✅ prd
+  ✅ readme
+  ✅ roadmap
+  ✅ sc-adversarial-protocol
+  ✅ sc-auggie-review-protocol
+  ✅ sc-bare-review
+  ✅ sc-brainstorm-protocol
+  ✅ sc-cleanup-audit-protocol
+  ✅ sc-cli-eval-protocol
+  ✅ sc-cli-portify-protocol
+  ✅ sc-crash-recovery
+  ✅ sc-graph-protocol
+  ✅ sc-impact-protocol
+  ✅ sc-implement-protocol
+  ✅ sc-init-lite-protocol
+  ✅ sc-issue-protocol
+  ✅ sc-pm-protocol
+  ✅ sc-post-release-protocol
+  ✅ sc-pr-submit-protocol
+  ✅ sc-recommend
+  ✅ sc-reflect-protocol
+  ✅ sc-release-split-protocol
+  ✅ sc-review-translation-protocol
+  ✅ sc-roadmap-protocol
+  ✅ sc-swarm-wizard-protocol
+  ✅ sc-task-protocol
+  ✅ sc-tasklist-protocol
+  ✅ sc-troubleshoot-protocol
+  ✅ sc-validate-roadmap-protocol
+  ✅ sc-validate-tests-protocol
+  ✅ sc-workflow-protocol
+  ✅ task-builder
+  ✅ task
+  ✅ tdd
+  ✅ tech-reference
+  ✅ tech-research
+
+=== Agents ===
+  ✅ audit-analyzer.md
+  ✅ audit-comparator.md
+  ✅ audit-consolidator.md
+  ✅ audit-scanner.md
+  ✅ audit-validator.md
+  ✅ auggie-reviewer.md
+  ✅ backend-architect.md
+  ✅ business-panel-experts.md
+  ✅ confidence-calibrator.md
+  ✅ debate-orchestrator.md
+  ✅ deep-research-agent.md
+  ✅ deep-research.md
+  ✅ devops-architect.md
+  ✅ eval-docs-loader.md
+  ✅ eval-run-reporter.md
+  ✅ eval-suite-author.md
+  ✅ evidence-validator.md
+  ✅ frontend-architect.md
+  ✅ implement-retry-adviser.md
+  ✅ issue-worker-t1.md
+  ✅ issue-worker-t2.md
+  ✅ issue-worker-t3.md
+  ✅ learning-guide.md
+  ✅ merge-executor.md
+  ✅ performance-engineer.md
+  ✅ pm-agent.md
+  ✅ python-expert.md
+  ✅ quality-engineer.md
+  ✅ refactoring-expert.md
+  ✅ reflect-reviewer.md
+  ✅ repo-index.md
+  ✅ requirements-analyst.md
+  ✅ reuse-auditor.md
+  ✅ rf-analyst.md
+  ✅ rf-assembler.md
+  ✅ rf-qa-qualitative.md
+  ✅ rf-qa.md
+  ✅ rf-task-builder.md
+  ✅ rf-task-executor.md
+  ✅ rf-task-researcher.md
+  ✅ rf-team-lead.md
+  ✅ root-cause-analyst.md
+  ✅ security-engineer.md
+  ✅ self-review.md
+  ✅ socratic-mentor.md
+  ✅ system-architect.md
+  ✅ technical-writer.md
+  ✅ troubleshoot-analyst.md
+
+=== Commands ===
+  ✅ adversarial.md
+  ✅ agent.md
+  ✅ analyze.md
+  ✅ auggie-review.md
+  ✅ brainstorm.md
+  ✅ build.md
+  ✅ business-panel.md
+  ✅ cleanup-audit.md
+  ✅ cleanup.md
+  ✅ cli-eval.md
+  ✅ cli-portify.md
+  ✅ design.md
+  ✅ document.md
+  ✅ explain.md
+  ✅ git.md
+  ✅ graph.md
+  ✅ help.md
+  ✅ impact.md
+  ✅ implement.md
+  ✅ improve.md
+  ✅ index-repo.md
+  ✅ index.md
+  ✅ init-lite.md
+  ✅ issue.md
+  ✅ load.md
+  ✅ pm.md
+  ✅ post-release.md
+  ✅ pr-submit.md
+  ✅ recommend.md
+  ✅ reflect.md
+  ✅ release-split.md
+  ✅ research.md
+  ✅ review-translation.md
+  ✅ roadmap.md
+  ✅ save.md
+  ✅ spawn.md
+  ✅ spec-panel.md
+  ✅ swarm-wizard.md
+  ✅ task.md
+  ✅ tasklist.md
+  ✅ tdd.md
+  ✅ test.md
+  ✅ troubleshoot.md
+  ✅ validate-roadmap.md
+  ✅ validate-tests.md
+  ✅ workflow.md
+
+=== Hooks ===
+  ✅ auggie-flag-clear.sh
+  ✅ block-bare-python.sh
+  ✅ codegraph-session-start.sh
+  ✅ freshness-file-changed.sh
+  ✅ freshness-post-read.sh
+  ✅ freshness-pre-edit.sh
+  ✅ freshness-session-start.sh
+  ✅ freshness-subagent-start.sh
+  ✅ freshness-subagent-stop.sh
+  ✅ freshness-user-prompt.sh
+  ✅ launch-job-identity.sh
+  ✅ launch-level-guard.sh
+  ✅ reject-workspace-writes.sh
+  ✅ require-orca-worktree-agent.sh
+  ✅ sc-recommend-phase0.sh
+  ✅ pragmatic-subagent.js
+
+=== Templates ===
+  ✅ workflow/05_prd_template.md
+  ✅ workflow/03_project_plan_template.md
+  ✅ workflow/03_component_authoring_template.md
+  ✅ workflow/00_mdtm_template_simple_task.md
+  ✅ workflow/01_mdtm_template_generic_task__gfdoc.md
+  ✅ workflow/06_architecture_proposal_template.md
+  ✅ workflow/02_mdtm_template_complex_task.md
+  ✅ workflow/04_feature_brief_template.md
+  ✅ workflow/changelog_template.md
+  ✅ workflow/01_mdtm_template_generic_task.md
+  ✅ workflow/99_mdtm_template_generic_task_old.md
+  ✅ documents/prd_template.md
+  ✅ documents/operational_guide_template.md
+  ✅ documents/GFxAI_Master_Documentation_Template.md
+  ✅ documents/tdd_template.md
+  ✅ documents/agent_template_analysis.md
+  ✅ documents/supplemental-doc-creation-checklist.md
+  ✅ documents/agent_template_qa.md
+  ✅ documents/skill_template.md
+  ✅ documents/roadmap_template.md
+  ✅ documents/agent_template_worker.md
+  ✅ documents/release-spec-template.md
+  ✅ documents/supplemental_doc_template.md
+  ✅ documents/technical_reference_template.md
+  ✅ documents/readme_template.md
+  ✅ modularization-template-review/qa-fix-summary_template.md
+  ✅ modularization-template-review/qa-task-research-alignment_report_template.md
+  ✅ modularization-template-review/analyst-synthesis-review_report_template.md
+  ✅ modularization-template-review/research-notes_template.md
+  ✅ modularization-template-review/synthetic-dnsp-finding.contract
+  ✅ modularization-template-review/INDEX.md
+  ✅ modularization-template-review/qa-task-validation-structure_report_template.md
+  ✅ modularization-template-review/qa-cross-source-contradictions_template.md
+  ✅ modularization-template-review/track-scope-map_template.md
+  ✅ modularization-template-review/claim-evidence-matrix_template.md
+  ✅ modularization-template-review/qa-inventory_report_template.md
+  ✅ modularization-template-review/analyst-coverage-matrix_template.md
+  ✅ modularization-template-review/codebase-research_template.md
+  ✅ modularization-template-review/analyst-completeness_report_template.md
+  ✅ modularization-template-review/analyst-gap-analysis_template.md
+  ✅ modularization-template-review/qa-lens_report_template.md
+  ✅ modularization-template-review/qa-consolidated-findings_template.md
+  ✅ modularization-template-review/qa-task-validation-b2_report_template.md
+  ✅ modularization-template-review/qa-research-gap_report_template.md
+  ✅ modularization-template-review/qa-research-evidence_report_template.md
+  ✅ modularization-template-review/qa-qualitative-operational_report_template.md
+  ✅ modularization-template-review/qa-qualitative-sufficiency_report_template.md
+  ✅ modularization-template-review/analyst-cross-validation_report_template.md
+  ✅ modularization-template-review/qa-acceptance-methodology-audit_template.md
+  ✅ modularization-template-review/pipeline-complete_report_template.md
+  ✅ modularization-template-review/qa-source-fidelity_template.md
+  ✅ modularization-template-review/qa-research-depth_report_template.md
+  ✅ modularization-template-review/web-research_template.md
+
+=== Installer Registration ===
+  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+rc=0
