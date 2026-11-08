@@ -1760,7 +1760,7 @@ def test_ir6_launched_result_states_the_release_and_both_layers(
     wave8, final = (
         (SCRIPT.parents[1] / "refs/claim.md").read_text().split("## Final output")
     )
-    assert "sessions/<session id>.ok" in wave8 and "present-unverified" in wave8
+    assert "sessions/<session id>.ok" in wave8 and "L2 pre-push: owned" in wave8
     for text in ("`release`", "`layers`", "L1 guard", "L2 pre-push"):
         assert text in final, text
 
@@ -1779,9 +1779,11 @@ def test_ir6_refused_launch_has_no_release_or_layers(
     [
         ("no-file", "absent"),
         ("not-executable", "absent"),
-        ("foreign-executable", "present-unverified"),
-        ("hooks-path", "present-unverified"),
-        ("hooks-path-elsewhere", "absent"),
+        # The test home has no packaged hook, so a foreign hook is never owned.
+        ("foreign-executable", "absent"),
+        # FR-033: with core.hooksPath set nothing is installed or checked.
+        ("hooks-path", "unsupported"),
+        ("hooks-path-elsewhere", "unsupported"),
     ],
 )
 def test_ir6_l2_status_follows_the_git_hook_path(
@@ -1814,9 +1816,9 @@ def test_ir6_l2_status_follows_the_git_hook_path(
     data = run_launch(fake_orca, git_repo, issue_dir)
     assert data["status"] == "launched"
     assert data["layers"][1].startswith(f"L2 pre-push: {expected} ")
-    # IR-7: W-L2-ABSENT exactly when the L2 line says absent.
-    assert (data["warning"] == "W-L2-ABSENT") is (expected == "absent")
-    assert ("L2 layer is not built yet" in data["detail"]) is (expected == "absent")
+    # IR-7 / FR-043: W-L2-ABSENT whenever the L2 line is not owned.
+    assert data["warning"] == "W-L2-ABSENT"
+    assert "the L2 pre-push hook is not in effect for this worktree" in data["detail"]
     if hook:  # never modified, never adopted
         assert (hook.read_bytes(), hook.stat().st_mode) == before
 
@@ -1833,8 +1835,8 @@ def test_ir7_l2_absent_warns_and_the_launch_proceeds(
     data = run_launch(fake_orca, git_repo, issue_dir)
     assert data["status"] == "launched" and data["warning"] == "W-L2-ABSENT"
     assert data["enforcement_hook"] == "installed"
-    assert "no executable pre-push hook" in data["detail"]
-    assert "the L2 layer is not built yet" in data["detail"]
+    assert "is not in effect for this worktree: no pre-push hook (" in data["detail"]
+    assert "the L2 pre-push hook is not in effect for this worktree" in data["detail"]
     assert "enforced by the L1 guard only" in data["detail"]
     assert data["layers"][1].startswith("L2 pre-push: absent ")
     (argv,) = launch_calls(fake_orca)

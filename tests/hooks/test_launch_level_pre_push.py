@@ -3,8 +3,9 @@
 Real git under a temporary HOME with GIT_CONFIG_GLOBAL and GIT_CONFIG_SYSTEM at
 /dev/null. The governed actor is a real launch job from the selector's
 prepare/run; the unknown actor is that job with its record damaged, or a setsid
-pusher with a planted record. Until Task 8 the hook is placed by a test-local
-copy (source section 8.2), not by the installer.
+pusher with a planted record. The hook and its data file are placed by the
+installer, ``install_l2`` (source section 8.2), from a packaged copy in the
+temporary HOME.
 """
 
 import hashlib
@@ -20,6 +21,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
@@ -28,6 +30,20 @@ HOOK = REPO / "src/superclaude/hooks/scripts/launch-level-pre-push.sh"
 SELECTOR = REPO / "src/superclaude/hooks/scripts/launch-job-identity.sh"
 ORCA = REPO / "src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py"
 UV = shutil.which("uv")
+_ORCA_MODULE = []
+
+
+def orca_module():
+    """orca_worktree.py, loaded once from the source tree."""
+    if not _ORCA_MODULE:
+        spec = importlib.util.spec_from_file_location("orca_worktree_l2", ORCA)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module  # dataclasses need it
+        spec.loader.exec_module(module)
+        _ORCA_MODULE.append(module)
+    return _ORCA_MODULE[0]
+
+
 P = "launch-level pre-push:"
 GATE = "<gate>"
 BRANCHES = ["main", "master"]
@@ -120,10 +136,16 @@ class Repo:
         self.git("branch", "feature", self.b)
         self.initial = self.refs()
         self.hook = self.work / ".git/hooks/pre-push"
-        shutil.copyfile(HOOK, self.hook)
-        self.hook.chmod(0o755)
         self.data = self.hook.parent / "pre-push.launch-level"
-        self.write_data(f"{self.home}\n{os.path.dirname(UV)}\n")
+        packaged = self.selector.parent / "launch-level-pre-push.sh"
+        shutil.copyfile(HOOK, packaged)
+        packaged.chmod(0o755)
+        assert self.install_l2() == ("installed", "")
+
+    def install_l2(self):
+        """Run the installer for the clone under this fixture's environment."""
+        with mock.patch.dict(os.environ, self.env, clear=True):
+            return orca_module().install_l2(str(self.work))
 
     # --- git -----------------------------------------------------------------
     def g(self, *args, cwd=None, check=True):
@@ -991,19 +1013,20 @@ def test_t24_no_bypass_hint_in_any_refusal(repo):
         assert not BYPASS.search(text), code
 
 
-@pytest.mark.skip(reason="Task 7: FR-045 W-L2-ABSENT remedy text is not written yet")
 def test_t24_fr045_remedy_text():
-    spec = importlib.util.spec_from_file_location("orca_worktree_t24b", ORCA)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    text = module.REMEDY["W-L2-ABSENT"]
+    text = orca_module().REMEDY["W-L2-ABSENT"]
     assert "not built yet" not in text and not BYPASS.search(text)
 
 
-@pytest.mark.skip(reason="Task 8: the fixture places the hook by install_l2 instead of a test-local copy")
-def test_hook_placed_by_install_l2():
-    raise AssertionError("Task 8")
+def test_hook_placed_by_install_l2(repo):
+    assert repo.hook.read_bytes() == HOOK.read_bytes()
+    assert repo.hook.stat().st_mode & 0o777 == 0o755
+    assert repo.data.read_text() == f"{repo.home}\n{os.path.dirname(UV)}\n"
+    assert repo.data.stat().st_mode & 0o777 == 0o644
+    # A second claim keeps the same files and reads owned.
+    inode = repo.hook.stat().st_ino
+    assert repo.install_l2() == ("owned", "")
+    assert repo.hook.stat().st_ino == inode
 
 
 # --- FR-101: expected L2 leaks, named by LIM ID ----------------------------------
