@@ -1094,7 +1094,11 @@ _QA gate verdicts, fix cycle counts, and unresolved issues are recorded here (on
 
 **[2026-11-08 04:15]** - M4 source-fidelity gate: PASS, 1 fix cycle used (1 blocking finding M-1 fixed: the cycle line now carries `clock_skew_s` every cycle where GitHub's date is known, as spec line 100 and design 715 say; both verifiers PASS; post-fix rerun 2635 passed, make lint exit 0, pinned ruff clean). Owner-visible note: design 166 and spec 197 allow a `failed` entry followed by a rate-limit or timeout in the same cycle, which the stop-after-launch-step rule (design 386) makes unreachable. The spec-fidelity agent verified 13 of 43 FR/NFR ids by reading code and test assertions; the other 30 rest on test names and the AC trace. Phase 10 released.
 
+**[2026-11-08 07:00]** - PR outcome: PR #447 was merged by the repository owner before its review findings were fixed. The owner asked for a follow-up PR, #448 (`ironbelly/issue-331-review-fixes`, Refs #331), fixing the two high and medium findings only: F1 (Augment, high, approvers file race in `validate_approvers`) and F3 (Codex, medium, second Orca probe reused the first probe's timeout). One more finding (G1, Augment, medium: a FIFO swapped in after the check could hang the open) was fixed in round 1 with `O_NONBLOCK` (commit 193c3d98). Reviewers re-run on that head: Augment clean, Codex clean; CI all green; PR open and ready, not merged. Troubleshoot dispatch was skipped for F1, F3 and G1 by coordinator decision. F2 (stale status line at the top of `docs/designs/issue-watcher.md`) was left unfixed on purpose.
+
 ### Follow-Up Items Identified
+
+- **[Priority: Low]** Fix the stale status line (line 3) in `docs/designs/issue-watcher.md`, and the reason-table count (59 names in code, 57 in design and spec). Identified in the PR #448 review (F2) and POST reflect (R-2, R-3).
 
 <!-- TEMPLATE FOR FOLLOW-UP ITEMS:
 - **[Priority: High/Medium/Low]** [Description of follow-up needed] - Identified in Step [X.Y]
