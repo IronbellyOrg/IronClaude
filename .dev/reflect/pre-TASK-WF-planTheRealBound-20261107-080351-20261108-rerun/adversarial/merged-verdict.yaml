@@ -1,0 +1,239 @@
+# Merged verdict of the /sc:adversarial run, Step 5 (merge-executor).
+# Plan executed: adversarial/refactor-plan.md (8 planned changes, auto-approved 2026-11-08T02:17Z).
+# Inputs: adversarial/refactor-plan.md, adversarial/base-selection.md, adversarial/debate-transcript.md,
+#   adversarial/variant-2-original.md (base), adversarial/variant-1-original.md,
+#   adversarial/.work/merged-findings-spec.md (source of truth for findings, dispositions, coverage, limits).
+# Mode pre; slug TASK-WF-planTheRealBound-20261107-080351.
+# Citation key:
+#   plan       = .dev/tasks/to-do/TASK-WF-planTheRealBound-20261107-080351/TASK-WF-planTheRealBound-20261107-080351.md
+#   helper     = src/superclaude/hooks/scripts/launch-job-identity.sh
+#   design     = docs/designs/sc-issue-launch-level-hook.md
+#   help       = .dev/tasks/done/TASK-WF-p1LivePlanBrief-20261105-164506/artifacts/claude-help.txt
+#   live_probe = tests/hooks/fixtures/launch_level/live_probe.py
+# Every citation was read by at least one reviewer and spot-checked by a calibrator, except where tagged [INFERRED].
+# Provenance ids: A-0N = variant 1 (reviewer 1) findings; Q-N = variant 2 (reviewer 2) findings;
+#   N-N = Tier 1 defects as dispositioned in variant 2; M-NN = earlier run's merged findings.
+# Earlier run: .dev/reflect/pre-TASK-WF-planTheRealBound-20261107-080351-20261107080543/adversarial/merged-verdict.yaml
+# M2- ids mark this re-run's findings so they cannot be confused with the earlier run's M-01..M-17.
+
+merge_method: adversarial
+base_variant: "variant-2 (reviewer 2, qa persona, opus class)"
+convergence_status: NOT_CONVERGED
+convergence_score: 0.40
+convergence_note: "Strict convergence was 6 of 15 diff points (0.40) and 7 of 15 by substance (0.467), at depth quick with no rebuttal round."
+calibrated_confidence:
+  - card: tier1
+    reviewer: tier1
+    value: 0.86
+  - card: variant-1
+    reviewer: reviewer-1
+    value: 0.83
+  - card: variant-2
+    reviewer: reviewer-2
+    value: 0.84
+plan_verdict:
+  value: PASS-WITH-FIXES-ADVISORY
+  meaning: "An executor can now produce an honest, informative B-CTX result."
+  reason: "No HIGH finding remains; nine MEDIUM execution-readiness defects (M2-01..M2-09) should be fixed before the plan is run, and the plan may still be edited because no ledger exists."
+
+findings:
+  - id: M2-01
+    severity: MEDIUM
+    claim: >-
+      The plan says per-case cleanup "never signals a surviving job or its supervisor" yet also that timeout and teardown sweep /proc by working directory and stop each match, and the self-check requires "a timeout kills the whole process group"; a timeout in the resume or fork run would kill the old child and mislabel later cases "job did not survive the first Claude process ending". A setsid daemon that changes directory also escapes the cwd sweep.
+    citations: ["plan:31", "plan:35", "plan:55-60", "plan:66", "plan:71", "helper:292"]
+    recommendation: >-
+      Exempt registered survivors from timeout sweeps (only the explicit teardown stops them); label a runner-caused stop differently from a harness-caused loss; add a self-check that times out a dependent run while the survivor stays alive; teardown also stops every pid recorded in ready files and case artifacts after a start-ticks check.
+    provenance:
+      source_findings: [N-3, A-01, Q-6]
+      tag: "Source: Variant 2 (base) Q-6, N-3 + Variant 1 A-01; merged per Change #3 (C-001 tie, 85)"
+
+  - id: M2-02
+    severity: MEDIUM
+    claim: >-
+      Every real run is capped with --max-budget-usd 0.25, but Task 3 requires a pty-driven interactive session and the archived CLI help says the option "only works with --print"; live_probe's argv carries --disable-slash-commands, which would likely disable /clear [INFERRED].
+    citations: ["plan:22", "plan:55", "help:131-132", "live_probe:228-255 (the :253 flag)"]
+    recommendation: >-
+      Owner decision before execution: either record the pty /clear case unavailable under the existing cap, or authorize a separately bounded interactive run (bounded timeout, single scripted turn, stated cost bound, no --disable-slash-commands).
+    provenance:
+      source_findings: [N-4, A-02]
+      tag: "Source: Variant 1 A-02 replacing Variant 2 (base) N-4 row; merged per Change #2 (C-002 agreed, 92)"
+
+  - id: M2-03
+    severity: MEDIUM
+    claim: >-
+      Task 3 does not establish how the /clear reused-process case is set up: it SIGKILLs the first Claude process and starts a different pty process, so the controller that originated the governed job is not reused; the starting identity and the expected status of each call before and after /clear are unstated, and the fork's expected status is unstated (a fork gets a new session id with no record, so it is ordinary). The session id carried by the hook event is recorded but no capture interface is named.
+    citations: ["plan:55", "plan:58", "plan:59", "design:504", "helper:429-437", "help:104-106"]
+    recommendation: >-
+      State the controller identity before and after /clear; order the calls start-as-governed, Bash (expected governed), /clear, Bash (expected ordinary) while the old child lives; state the expected fork status; name how the event's session id is captured; if the topology cannot be driven record the reused-process form unavailable with the interface named.
+    provenance:
+      source_findings: [M-15, A-03, Q-1, Q-7]
+      tag: "Source: Variant 2 (base) Q-1, Q-7 + Variant 1 A-03 (narrowed); merged per Change #4 (C-003, variant 2, 70)"
+
+  - id: M2-04
+    severity: MEDIUM
+    claim: >-
+      No task acquires the launch-wrapper, the Git and hook process-tree edges or the auto-mode variants, yet Task 8 requires those rows to be "observed or unavailable", and Task 2 collects only a parent-hop count while Task 6 (controlled actors, no real Claude run) logs selector status and refs; a report row alone does not collect the evidence.
+    citations: ["plan:44", "plan:90", "plan:93", "plan:114", "plan:117", "design:504", "design:506"]
+    recommendation: >-
+      Add redacted process-tree snapshots (pid, ppid, start identity, role) at named collection points; add one bounded observation each for the wrapper and auto mode, or allow a "not run (budget)" label counted as an evidence gap; add one Git push started by a real governed Claude Bash call inside an existing governed run (no extra run).
+    provenance:
+      source_findings: [M-12, A-04, Q-3, Q-5, N-8]
+      tag: "Source: Variant 2 (base) Q-3, Q-5, N-8 + Variant 1 A-04; merged per Change #5 (C-004 tie, 60)"
+
+  - id: M2-05
+    severity: MEDIUM
+    claim: >-
+      The report rows may only be observed, controlled or unavailable, and "no unavailable row lacks a named interface", but the plan itself produces outcomes that are not a missing interface: the ledger result "blocked", Task 3's "unobserved ... child identity changed" and "job did not survive the first Claude process ending", timeouts, and budget cuts.
+    citations: ["plan:23", "plan:31", "plan:55", "plan:114", "plan:117"]
+    recommendation: >-
+      Add a row category "not observed (reason)" counted as an evidence gap.
+    provenance:
+      source_findings: [Q-2, A-04]
+      tag: "Source: Variant 2 (base) Q-2 kept, Variant 1 A-04 second half credited; severity per Change #1 (C-005, variant 2, 90)"
+
+  - id: M2-06
+    severity: MEDIUM
+    claim: >-
+      The plan does not force a thirteenth real Claude start (plan:22 allocates 1+4+4+3 = 12 and shares four Task 4 shapes across three sessions), but the ledger is "one JSON line per run ... with the case id" with no Claude run id, and plan:119 counts lines with real_claude true, so the cap cannot be audited and a one-line-per-shape ledger would read as 13. This corrects the Tier 1 claim that thirteen starts follow.
+    citations: ["plan:22", "plan:31", "plan:66", "plan:119"]
+    recommendation: >-
+      Add claude_run_id and a claude_started boolean (true only on the line that starts a Claude process); count distinct started runs; each case line carries the claude_run_id it used.
+    provenance:
+      source_findings: [M-07, N-1, "reviewer-1 independent assessment of Tier 1 (N-1 refutation, variant-1-original.md:26)"]
+      tag: "Source: Variant 1 refutation of N-1 restating Variant 2 (base) N-1 row; merged per Change #7 (X-001, resolved by substance, 75)"
+
+  - id: M2-07
+    severity: MEDIUM
+    claim: >-
+      (Value risk.) The executor runs inside Claude Code, so a nested launch may be refused and the whole real-Claude half becomes unavailable, leaving an empty FAIL; the plan correctly forbids working around the refusal but does not say where to start the executor [INFERRED].
+    citations: ["plan:22", "plan:31", "live_probe:280"]
+    recommendation: >-
+      Add a Task 1 precondition: run the plan from a terminal that is not a Claude session; unset nothing.
+    provenance:
+      source_findings: [N-12]
+      tag: "Source: Variant 2 (base) N-12 confirmation; severity per Change #1 (A-003, QUALIFY, 70)"
+
+  - id: M2-08
+    severity: MEDIUM
+    claim: >-
+      Tasks 3 and 4 both say "the run group of Task 1" and both depend only on Task 2, so a Task 4 timeout sweep (cwd under the fixture) can kill Task 3's survivor, and Task 2's criterion expects no leftover fixture process after the task.
+    citations: ["plan:31", "plan:49", "plan:53", "plan:55", "plan:64", "plan:66"]
+    recommendation: >-
+      One run group per task, torn down at its own task end; groups never overlap.
+    provenance:
+      source_findings: [N-2]
+      tag: "Source: Variant 2 (base) N-2 confirmation; severity per Change #1"
+
+  - id: M2-09
+    severity: MEDIUM
+    claim: >-
+      (Opportunity.) Release can be observed for real: it is deleting the governed session record (identify then returns ordinary with reason released); doing so after Task 3's decisive measurements and before teardown uses a real surviving child and no extra Claude run, and removes one of the independent causes of the fixed FAIL. The "observed" label depends on running identify inside a real Claude Bash call (plan:23).
+    citations: ["design:526", "design:557", "helper:238-241", "plan:79", "plan:120"]
+    recommendation: >-
+      Add the release step to Task 3 (conditional on the child surviving), with identify run in a later real Claude Bash call so the case counts as observed.
+    provenance:
+      source_findings: [Q-4]
+      tag: "Source: Variant 2 (base) Q-4 (unique); severity per Change #1"
+
+  - id: M2-10
+    severity: LOW
+    claim: >-
+      The old child is "a bounded sleep" with no duration but must outlive the kill, the resume run, the fork run and the pty run.
+    citations: ["plan:55"]
+    recommendation: >-
+      State a minimum lifetime (for example 900 s); teardown stops it early.
+    provenance:
+      source_findings: [N-5]
+      tag: "Source: Variant 2 (base) N-5 confirmation; severity per Change #1"
+
+  - id: M2-11
+    severity: LOW
+    claim: >-
+      The reparent shape samples the descendant "inside the same governed command before it exits" with no proof that reparenting happened.
+    citations: ["plan:66", "plan:69", "helper:292-295 (subreaper)"]
+    recommendation: >-
+      Require the intermediate parent to exit, the same live descendant's PPID to change, and the selector to be sampled afterwards while the supervisor lives.
+    provenance:
+      source_findings: [A-05]
+      tag: "Source: Variant 1 A-05 (unique), appended as a new row; merged per Change #6"
+
+  - id: M2-12
+    severity: LOW
+    claim: >-
+      The grouping of four shapes into three sessions appears only in Constraints, and Task 4 does not say how the supervisor-killed shape finds and kills its own supervisor (it is its own session leader).
+    citations: ["plan:22", "plan:66", "helper:292"]
+    recommendation: >-
+      Put a shape-to-run table and the kill method in Task 4.
+    provenance:
+      source_findings: [N-7]
+      tag: "Source: Variant 2 (base) N-7 confirmation; severity per Change #1"
+
+  - id: M2-13
+    severity: LOW
+    claim: >-
+      (List of small items.) Six small execution-readiness gaps, (a) to (f); each item states its gap and its fix in the recommendation.
+    citations: ["live_probe:237-240", "plan:101", "plan:105", "plan:25", "plan:121", "plan:95", "plan:44"]
+    recommendation: >-
+      (a) confirm via /proc that no Claude process of the first run remains after the kill (launcher-shim pid risk, N-6, [INFERRED]); (b) the preflight uses the default tool set, not --tools Bash, or the tool list falsely shows the subagent and Monitor tools as not offered (N-9; live_probe:237-240); (c) the deep nested-shell control states a depth above 64 and a pid-limit bound (N-10; plan:101, :105); (d) compare content hashes (git diff HEAD -- <pkg> or a tree hash) instead of unstaged git status for the blocked package (N-11; plan:25, :121); (e) the fixture hook rule ignores *.sample files (N-13; plan:95); (f) the runner writes its Claude child's pid to a file and the hop-count command walks the parent chain to that pid with a cap, recording "not reached" otherwise (Q-8; plan:44).
+    provenance:
+      source_findings: [N-6, N-9, N-10, N-11, N-13, Q-8]
+      tag: "Source: Variant 2 (base) N-6, N-9, N-10, N-11, N-13 confirmations and Q-8; severity per Change #1"
+
+  - id: M2-14
+    severity: INFO
+    claim: >-
+      PASS is unreachable by construction (Task 5 controlled only, the human terminal case unavailable, escapes never count, wrapper and auto-mode rows have no producing task); the binary line carries no information by itself and the two gap lists do the work.
+    citations: ["plan:90", "plan:118-120"]
+    recommendation: >-
+      Optionally report the contract result (shown, broken, not yet shown) and the evidence result (complete, incomplete) as two separate lines.
+    provenance:
+      source_findings: [N-14]
+      tag: "Source: Variant 2 (base) N-14 confirmation and PASS-reachability section; severity per Change #1"
+
+earlier_findings_disposition:
+  M-01: {status: resolved}
+  M-02: {status: resolved, pointer: "conflicts with M-16; the conflict is recorded as M2-01"}
+  M-03: {status: resolved}
+  M-04: {status: resolved}
+  M-05: {status: resolved}
+  M-06: {status: resolved}
+  M-07: {status: partly, pointer: "remainder is M2-06"}
+  M-08: {status: resolved}
+  M-09: {status: resolved}
+  M-10: {status: resolved}
+  M-11: {status: resolved}
+  M-12: {status: partly, pointer: "cases named in Task 8, evidence acquisition missing; remainder is M2-04"}
+  M-13: {status: resolved}
+  M-14: {status: resolved}
+  M-15: {status: partly, pointer: "remainder is M2-03"}
+  M-16: {status: resolved, pointer: "conflicts with M-02; the conflict is recorded as M2-01"}
+  M-17: {status: resolved}
+
+coverage:
+  coverage_pct: null
+  coverage_pct_note: "parsed; source.md has no ID tokens"
+  coverage_pct_union: 1.0
+  requirements: "INF-001..INF-010"
+  containment_rule_matched: "9 of 10"
+  lexical_miss:
+    requirement: INF-006
+    note: "no exit-status file; lexical miss, confirmed covered by the Tier 1 card and both reviewers"
+    citations: ["plan:29", "plan:31", "plan:34", "plan:49", "plan:71", "plan:119"]
+  coverage_degraded: parsed-sparse
+  per_requirement:
+    INF-003: "Partial (the /clear topology and reparenting proof are unspecified: M2-03, M2-11)"
+    INF-001: "covered, defects tracked as M2-01, M2-02, M2-04, M2-05"
+    INF-002: "covered, defects tracked as M2-01, M2-02, M2-04, M2-05"
+    INF-008: "covered, defects tracked as M2-01, M2-02, M2-04, M2-05"
+    INF-005: "covered as controlled evidence only (M2-09)"
+    INF-006: "covered (lexical miss)"
+    others: "covered"
+
+limits:
+  - "Advocates ran as haiku and opus class, the scorer as sonnet class (executor class); the executor class collides with the calibrator class (sonnet); vendor diversity single."
+  - "The reverse-order position-bias pass was not run (position_bias_pass: not-run)."
+  - "The invariant probe (Round 2.5) and the rebuttal round were skipped by depth quick."
+  - "Strict convergence 0.40."
+  - "All Claude Code runtime claims (survival after SIGKILL, /clear session id, nested-launch refusal, pty driving, tool timeouts) are [INFERRED] and unobserved."
+  - "The archived help file may differ from the installed CLI."
