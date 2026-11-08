@@ -1,0 +1,44 @@
+2026-11-08T04:17:56Z group=selfcheck-pre case=preflight teardown leftover_processes=0 directory_removed=True
+2026-11-08T04:17:57Z group=selfcheck case=selfcheck-timeout pid=1322369 start=98459444 why=case-timeout-sweep result=stopped-by-sigterm gone=True
+2026-11-08T04:18:00Z group=selfcheck case=selfcheck pid=1322467 start=98459599 why=survivor-teardown result=stopped-by-sigterm gone=True
+2026-11-08T04:18:00Z group=selfcheck case=selfcheck teardown leftover_processes=0 directory_removed=True
+2026-11-08T04:18:09Z group=pre case=preflight teardown leftover_processes=0 directory_removed=True
+2026-11-08T04:19:17Z group=selfcheck-pre case=preflight teardown leftover_processes=0 directory_removed=True
+2026-11-08T04:19:18Z group=selfcheck case=selfcheck-timeout pid=1334716 start=98467564 why=case-timeout-sweep result=stopped-by-sigterm gone=True
+2026-11-08T04:19:22Z group=selfcheck case=selfcheck pid=1334769 start=98467718 why=survivor-teardown result=stopped-by-sigterm gone=True
+2026-11-08T04:19:22Z group=selfcheck case=selfcheck teardown leftover_processes=0 directory_removed=True
+2026-11-08T04:26:46Z group=t2 case=task2 teardown leftover_processes=0 directory_removed=True
+2026-11-08T04:39:45Z group=t3 case=task3 pid=1416828 start=98576077 why=survivor-teardown result=stopped-by-sigterm gone=True
+2026-11-08T04:39:45Z group=t3 case=task3 pid=1416814 start=98576076 why=supervisor-teardown result=stopped-by-sigterm gone=True
+2026-11-08T04:39:45Z group=t3 case=task3 teardown leftover_processes=0 directory_removed=True
+2026-11-08T04:51:53Z group=t4 case=task4 child label=setsid-daemon pid=1528136 start=98654445 alive-at-teardown-start
+2026-11-08T04:51:53Z group=t4 case=task4 child label=killed-supervisor pid=1529148 start=98655415 alive-at-teardown-start
+2026-11-08T04:51:53Z group=t4 case=task4 supervisor label=killed-supervisor pid=1529133 start=98655413 already-ended
+2026-11-08T04:51:53Z group=t4 case=task4 child label=run-in-background pid=1530711 start=98656613 already-ended
+2026-11-08T04:51:53Z group=t4 case=task4 child label=foreground-reparent pid=1531638 start=98657648 already-ended
+2026-11-08T04:51:53Z group=t4 case=task4 pid=1528136 start=98654445 why=teardown-sweep result=stopped-by-sigterm gone=True
+2026-11-08T04:51:53Z group=t4 case=task4 pid=1529148 start=98655415 why=teardown-sweep result=stopped-by-sigterm gone=True
+2026-11-08T04:51:53Z group=t4 case=task4 teardown leftover_processes=0 directory_removed=True
+2026-11-08T04:55:19Z group=t5 case=task5 job=release-1 supervisor=1553518 child=1553519 (stopped by the group teardown sweep below)
+2026-11-08T04:55:19Z group=t5 case=task5 job=release-2 supervisor=1553556 child=1553557 (stopped by the group teardown sweep below)
+2026-11-08T04:55:19Z group=t5 case=task5 job=start-ticks supervisor=1553669 child=1553670 (stopped by the group teardown sweep below)
+2026-11-08T04:55:19Z group=t5 case=task5 job=boot-identity supervisor=1553713 child=1553714 (stopped by the group teardown sweep below)
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553504 start=98683618 why=teardown-sweep result=stopped-by-sigterm gone=True
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553517 start=98683624 why=teardown-sweep result=already-gone-or-identity-changed
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553518 start=98683626 why=teardown-sweep result=already-gone-or-identity-changed
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553519 start=98683626 why=teardown-sweep result=already-gone-or-identity-changed
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553539 start=98683638 why=teardown-sweep result=stopped-by-sigterm gone=True
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553555 start=98683643 why=teardown-sweep result=already-gone-or-identity-changed
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553556 start=98683645 why=teardown-sweep result=already-gone-or-identity-changed
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553557 start=98683646 why=teardown-sweep result=already-gone-or-identity-changed
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553637 start=98683692 why=teardown-sweep result=stopped-by-sigterm gone=True
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553647 start=98683697 why=teardown-sweep result=already-gone-or-identity-changed
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553669 start=98683700 why=teardown-sweep result=already-gone-or-identity-changed
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553670 start=98683700 why=teardown-sweep result=already-gone-or-identity-changed
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553703 start=98683727 why=teardown-sweep result=stopped-by-sigterm gone=True
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553712 start=98683732 why=teardown-sweep result=already-gone-or-identity-changed
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553713 start=98683735 why=teardown-sweep result=already-gone-or-identity-changed
+2026-11-08T04:55:19Z group=t5 case=task5 pid=1553714 start=98683735 why=teardown-sweep result=already-gone-or-identity-changed
+2026-11-08T04:55:19Z group=t5 case=task5 teardown leftover_processes=0 directory_removed=True
+2026-11-08T04:58:39Z group=t6 case=task6 teardown leftover_processes=0 directory_removed=True
+2026-11-08T05:01:27Z group=t7 case=task7 teardown leftover_processes=0 directory_removed=True

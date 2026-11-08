@@ -1,0 +1,42 @@
+{
+  "authentication_available": "unavailable",
+  "bash_present": true,
+  "claude_version": "2.1.319",
+  "git_present": true,
+  "host_boot_identity": "0f93183c-c3b0-46fa-b016-088783da8d52",
+  "nested_launch_refused": "unavailable",
+  "persisted_session_transcript_found": "unavailable",
+  "preflight_exit": 1,
+  "preflight_result": "blocked",
+  "print_mode_tools": [
+    "Task",
+    "Bash",
+    "CronCreate",
+    "CronDelete",
+    "CronList",
+    "DesignSync",
+    "Edit",
+    "EnterWorktree",
+    "ExitWorktree",
+    "ListAgents",
+    "Monitor",
+    "NotebookEdit",
+    "Read",
+    "ReportFindings",
+    "ScheduleWakeup",
+    "SendMessage",
+    "Skill",
+    "TaskStop",
+    "WebFetch",
+    "WebSearch",
+    "Workflow",
+    "Write"
+  ],
+  "proc_present": true,
+  "stream_event_types": [
+    "system",
+    "assistant",
+    "result"
+  ],
+  "uv_present": true
+}

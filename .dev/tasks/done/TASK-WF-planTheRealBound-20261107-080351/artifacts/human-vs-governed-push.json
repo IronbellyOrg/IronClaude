@@ -1,0 +1,146 @@
+{
+  "concurrent_run": {
+    "bare_refs_final": {
+      "refs/heads/main": "96d1de37d17f64e656356535ea8ca5fb9966a361",
+      "refs/heads/master": "17fe27f44b9ac4090f3ada9c0c432e8299911fbe"
+    },
+    "different_statuses_logged": true,
+    "governed_push_reached_the_bare_repository": true,
+    "hook_invocations_overlapped_in_time": true,
+    "human_push_reached_the_bare_repository": true,
+    "same_worktree": true,
+    "statuses_logged": {
+      "p3-human-main-concurrent": "ordinary",
+      "p4-governed-master-concurrent": "governed"
+    }
+  },
+  "controlled_baseline": "tests/hooks/test_launch_job_identity.py:1291-1354 (human push at :1306-1331, refused governed push at :1347-1348)",
+  "fixture": {
+    "git_config_isolation": "GIT_CONFIG_NOSYSTEM=1 and GIT_CONFIG_GLOBAL=/dev/null for both actors; HOME is the throwaway HOME",
+    "git_remote_listing": [
+      "origin\t<tmp>/bare.git (fetch)",
+      "origin\t<tmp>/bare.git (push)"
+    ],
+    "hook_only_in_temporary_directory": true,
+    "hooks_installed_in_fixture_clone": [
+      "pre-push"
+    ],
+    "remote_names": [
+      "origin"
+    ],
+    "template_used_for_init_and_clone": "an empty template directory, so no sample hooks exist"
+  },
+  "label": "controlled",
+  "orca_terminal_human_case": {
+    "missing_interface": "a person's interactive terminal inside an Orca-managed worktree: the runner has no authorized interface to start an Orca terminal as a person would, and starting one would create terminals in the user's real Orca",
+    "result": "unavailable"
+  },
+  "pushes": [
+    {
+      "actor_started_from": "plain shell started by the runner",
+      "bare_refs_after": {
+        "refs/heads/main": "3ea198062caba231330ebd6c0665cf5c806206a5",
+        "refs/heads/master": "1c5dc47dc77caa9b5d8022bf841a9936951ee7c0"
+      },
+      "bare_refs_before": {
+        "refs/heads/main": "1c5dc47dc77caa9b5d8022bf841a9936951ee7c0",
+        "refs/heads/master": "1c5dc47dc77caa9b5d8022bf841a9936951ee7c0"
+      },
+      "destination_ref_logged_by_hook": "refs/heads/main",
+      "destination_ref_pushed": "refs/heads/main",
+      "hook_interval_seconds": [
+        1794113912.7110167,
+        1794113913.8342502
+      ],
+      "label": "controlled",
+      "name": "p1-human-main",
+      "phase": "sequential",
+      "push_exit_status": 0,
+      "pushed_commit": "3ea198062caba231330ebd6c0665cf5c806206a5",
+      "reason": "a plain shell started by the runner, not a person at a terminal, so a controlled human-style shell",
+      "selector_session_id_logged_by_hook": null,
+      "selector_status_logged_by_hook": "ordinary"
+    },
+    {
+      "actor_started_from": "governed job started through the helper's run action",
+      "bare_refs_after": {
+        "refs/heads/main": "3ea198062caba231330ebd6c0665cf5c806206a5",
+        "refs/heads/master": "a1e9e2e73775621ecc7d391614dcddeb81d6b2a5"
+      },
+      "bare_refs_before": {
+        "refs/heads/main": "3ea198062caba231330ebd6c0665cf5c806206a5",
+        "refs/heads/master": "1c5dc47dc77caa9b5d8022bf841a9936951ee7c0"
+      },
+      "destination_ref_logged_by_hook": "refs/heads/master",
+      "destination_ref_pushed": "refs/heads/master",
+      "hook_interval_seconds": [
+        1794113914.0534956,
+        1794113915.1468217
+      ],
+      "label": "controlled",
+      "name": "p2-governed-master",
+      "phase": "sequential",
+      "push_exit_status": 0,
+      "pushed_commit": "a1e9e2e73775621ecc7d391614dcddeb81d6b2a5",
+      "reason": "a job started through the helper's own prepare and run actions under a governed session record in the throwaway HOME",
+      "selector_session_id_logged_by_hook": "9dbb6a17-b08d-45dc-9d95-c3ec480949c1",
+      "selector_status_logged_by_hook": "governed"
+    },
+    {
+      "actor_started_from": "plain shell started by the runner",
+      "bare_refs_after": {
+        "refs/heads/main": "96d1de37d17f64e656356535ea8ca5fb9966a361",
+        "refs/heads/master": "17fe27f44b9ac4090f3ada9c0c432e8299911fbe"
+      },
+      "bare_refs_before": {
+        "refs/heads/main": "3ea198062caba231330ebd6c0665cf5c806206a5",
+        "refs/heads/master": "a1e9e2e73775621ecc7d391614dcddeb81d6b2a5"
+      },
+      "destination_ref_logged_by_hook": "refs/heads/main",
+      "destination_ref_pushed": "refs/heads/main",
+      "hook_interval_seconds": [
+        1794113917.9271498,
+        1794113919.0225866
+      ],
+      "label": "controlled",
+      "name": "p3-human-main-concurrent",
+      "phase": "concurrent",
+      "push_exit_status": 0,
+      "pushed_commit": "96d1de37d17f64e656356535ea8ca5fb9966a361",
+      "reason": "a plain shell started by the runner, not a person at a terminal, so a controlled human-style shell",
+      "selector_session_id_logged_by_hook": null,
+      "selector_status_logged_by_hook": "ordinary"
+    },
+    {
+      "actor_started_from": "governed job started through the helper's run action",
+      "bare_refs_after": {
+        "refs/heads/main": "96d1de37d17f64e656356535ea8ca5fb9966a361",
+        "refs/heads/master": "17fe27f44b9ac4090f3ada9c0c432e8299911fbe"
+      },
+      "bare_refs_before": {
+        "refs/heads/main": "3ea198062caba231330ebd6c0665cf5c806206a5",
+        "refs/heads/master": "a1e9e2e73775621ecc7d391614dcddeb81d6b2a5"
+      },
+      "destination_ref_logged_by_hook": "refs/heads/master",
+      "destination_ref_pushed": "refs/heads/master",
+      "hook_interval_seconds": [
+        1794113917.9276838,
+        1794113919.0236712
+      ],
+      "label": "controlled",
+      "name": "p4-governed-master-concurrent",
+      "phase": "concurrent",
+      "push_exit_status": 0,
+      "pushed_commit": "17fe27f44b9ac4090f3ada9c0c432e8299911fbe",
+      "reason": "a job started through the helper's own prepare and run actions under a governed session record in the throwaway HOME",
+      "selector_session_id_logged_by_hook": "9dbb6a17-b08d-45dc-9d95-c3ec480949c1",
+      "selector_status_logged_by_hook": "governed"
+    }
+  ],
+  "task": 6,
+  "teardown": {
+    "directory_removed": true,
+    "leftover_processes": 0
+  },
+  "why_controlled": "the plain shell and the governed job were both started by this runner; no real Claude, Orca or person pushed. The log-only hook vetoes nothing, so every push reaches the bare repository."
+}

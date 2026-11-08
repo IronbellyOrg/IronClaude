@@ -1,0 +1,113 @@
+{
+  "boot_identity_mismatch": {
+    "cites": [
+      "src/superclaude/hooks/scripts/launch-job-identity.sh:234",
+      "src/superclaude/hooks/scripts/launch-job-identity.sh:83",
+      "src/superclaude/hooks/scripts/launch-job-identity.sh:149"
+    ],
+    "control_before_edit": {
+      "line_sha256": "4812d357cdbc93c427b030af6525d8823e1b766e0d7d54d2158953967426f0a1",
+      "session_id": "5b6d5772-233e-4905-bbe9-1cb224c49d8c",
+      "status": "governed"
+    },
+    "label": "controlled",
+    "never_governed_after_edit": true,
+    "reason": "the recorded boot identity of a live registered job was edited to a different value, as after a reboot",
+    "record_edit": {
+      "field_edited": "boot",
+      "link_count": 1,
+      "mode_octal": "0o400",
+      "owner_is_current_user": true,
+      "value_changed": true
+    },
+    "status_after_edit": {
+      "line_sha256": "44a446afb90ed07c84e184b86544c9da43a720f392b688445a7e443ae6d2d5e9",
+      "status": "unknown"
+    }
+  },
+  "cites": {
+    "job_record_built_at_registration": "src/superclaude/hooks/scripts/launch-job-identity.sh:299",
+    "job_record_published": "src/superclaude/hooks/scripts/launch-job-identity.sh:305",
+    "owner_only_state_check": "src/superclaude/hooks/scripts/launch-job-identity.sh:83",
+    "release_returns_ordinary_released": "src/superclaude/hooks/scripts/launch-job-identity.sh:241",
+    "single_link_check": "src/superclaude/hooks/scripts/launch-job-identity.sh:149",
+    "tick_and_boot_comparison": "src/superclaude/hooks/scripts/launch-job-identity.sh:234"
+  },
+  "label": "controlled",
+  "release": {
+    "cites": [
+      "src/superclaude/hooks/scripts/launch-job-identity.sh:241"
+    ],
+    "label": "controlled",
+    "only_the_released_sessions_child_changed": true,
+    "reason": "two governed sessions each with one live job child started by the runner; the first session's level record deleted",
+    "session_1": {
+      "after_release": {
+        "line_sha256": "7ff10a3f14023b19a43ce69ae9b33f20ab3e64cd1b4873f1de76d88dbd41a186",
+        "reason": "released",
+        "status": "ordinary"
+      },
+      "before": {
+        "line_sha256": "33f4b82558cccd23437976c86917d055ef3943e7b7eed972504adc3fed13dff2",
+        "session_id": "a2dd461a-8588-4e2e-b8d3-bd47ed33bcae",
+        "status": "governed"
+      },
+      "live_child_pid": 1553519,
+      "session_id": "a2dd461a-8588-4e2e-b8d3-bd47ed33bcae"
+    },
+    "session_2": {
+      "after_release": {
+        "line_sha256": "60e63f2b94eeb27c971ac82b236d2d2407a12243988dbe5559a175b16e38d8e2",
+        "session_id": "a883956f-27d2-4351-8126-7dbdc79da1f3",
+        "status": "governed"
+      },
+      "before": {
+        "line_sha256": "60e63f2b94eeb27c971ac82b236d2d2407a12243988dbe5559a175b16e38d8e2",
+        "session_id": "a883956f-27d2-4351-8126-7dbdc79da1f3",
+        "status": "governed"
+      },
+      "live_child_pid": 1553557,
+      "session_id": "a883956f-27d2-4351-8126-7dbdc79da1f3"
+    }
+  },
+  "standing_control_unedited_record": {
+    "session_id": "a883956f-27d2-4351-8126-7dbdc79da1f3",
+    "status_at_end": {
+      "line_sha256": "60e63f2b94eeb27c971ac82b236d2d2407a12243988dbe5559a175b16e38d8e2",
+      "session_id": "a883956f-27d2-4351-8126-7dbdc79da1f3",
+      "status": "governed"
+    }
+  },
+  "start_tick_mismatch": {
+    "cites": [
+      "src/superclaude/hooks/scripts/launch-job-identity.sh:234",
+      "src/superclaude/hooks/scripts/launch-job-identity.sh:83",
+      "src/superclaude/hooks/scripts/launch-job-identity.sh:149"
+    ],
+    "control_before_edit": {
+      "line_sha256": "fee7cb0dd215ea11043aff69726eeb2f65e7e59c4d6efd13120d5a7162f94012",
+      "session_id": "1e3e9185-56d5-4f63-9786-9691ba6219e9",
+      "status": "governed"
+    },
+    "label": "controlled",
+    "never_governed_after_edit": true,
+    "reason": "the recorded start ticks of a live registered job were edited so they no longer match the live supervisor, as after PID reuse",
+    "record_edit": {
+      "field_edited": "start",
+      "link_count": 1,
+      "mode_octal": "0o400",
+      "owner_is_current_user": true,
+      "value_changed": true
+    },
+    "status_after_edit": {
+      "line_sha256": "44a446afb90ed07c84e184b86544c9da43a720f392b688445a7e443ae6d2d5e9",
+      "status": "unknown"
+    }
+  },
+  "task": 5,
+  "teardown": {
+    "directory_removed": true,
+    "leftover_processes": 0
+  },
+  "why_controlled": "the processes were started by this runner through the helper's own prepare and run actions, not by a real Claude, Orca or Git actor, and the job record was edited in the throwaway HOME; none of this is real harness behavior"
+}

@@ -1,0 +1,28 @@
+{
+  "blocked_package_tree_sha256": "d9eb2f534ab1acfca7b2faf566ae53651699d79cfca63011d0b312f7b5308f0e",
+  "done_package_tree_sha256": "7f008a1a68e3747e1834f16fd02a45214068c1465739a2c29c57e15919e0e914",
+  "git_state": {
+    ".dev/tasks/to-do/TASK-WF-implementDocsDes-20261106-210206": {
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status_lines": 0,
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "plugins": {
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status_lines": 0,
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "src": {
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status_lines": 0,
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "tests": {
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status_lines": 0,
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "real_claude_settings_sha256": "2f27fd34a4efcf3575b442fed7f1a9e12de0d1b9cf274b2480b8c5db4a6262ae",
+  "recorded": "2026-11-08T04:17:56Z"
+}

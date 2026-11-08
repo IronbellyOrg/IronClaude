@@ -1,0 +1,254 @@
+{
+  "fixture_shared": true,
+  "governed": {
+    "case_id": "t2-governed",
+    "depth": {
+      "claude_process_reached": true,
+      "hops": 5,
+      "measured": true
+    },
+    "failure": {},
+    "held_s": 14.14,
+    "hook_events": [
+      {
+        "adapter_exit": 0,
+        "command_sha256": "8439559b72b9fbeb364d58d6d5141c032926eac43e067fc24aaf9b30006b4c50",
+        "cwd_is_fixture": true,
+        "hook_event_name": "PreToolUse",
+        "kind": "actual_hook_input",
+        "permission_decision_present": false,
+        "rewritten": true,
+        "run_in_background": false,
+        "session_id": "af861632-9753-4020-b06c-99b4a00c9a3f",
+        "tool_input_keys": [
+          "command",
+          "description"
+        ],
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_013ETmkDPgka4o5NMu7ytsLM",
+        "top_level_keys": [
+          "cwd",
+          "effort",
+          "hook_event_name",
+          "permission_mode",
+          "prompt_id",
+          "session_id",
+          "tool_input",
+          "tool_name",
+          "tool_use_id",
+          "transcript_path"
+        ],
+        "variant": "governed"
+      },
+      {
+        "command_sha256": "d1d75a6998410e03d2c0eca232fd411ac71e78456650fcb6403b369e9d37b956",
+        "cwd_is_fixture": true,
+        "hook_event_name": "PostToolUse",
+        "kind": "actual_hook_input",
+        "run_in_background": false,
+        "selector_results": [
+          {
+            "session_id": "af861632-9753-4020-b06c-99b4a00c9a3f",
+            "status": "governed"
+          }
+        ],
+        "session_id": "af861632-9753-4020-b06c-99b4a00c9a3f",
+        "tool_input_keys": [
+          "command",
+          "description"
+        ],
+        "tool_name": "Bash",
+        "tool_response_keys": [
+          "interrupted",
+          "isImage",
+          "noOutputExpected",
+          "stderr",
+          "stdout"
+        ],
+        "tool_use_id": "toolu_013ETmkDPgka4o5NMu7ytsLM",
+        "top_level_keys": [
+          "cwd",
+          "duration_ms",
+          "effort",
+          "hook_event_name",
+          "permission_mode",
+          "prompt_id",
+          "session_id",
+          "tool_input",
+          "tool_name",
+          "tool_response",
+          "tool_use_id",
+          "transcript_path"
+        ],
+        "variant": "governed"
+      }
+    ],
+    "ledger_exit": 0,
+    "ran_a_tool": true,
+    "requested_session_id": "af861632-9753-4020-b06c-99b4a00c9a3f",
+    "result": "observed",
+    "run_id": "d26d5ce5dffe",
+    "selector_captured_by_runner": [
+      {
+        "line_sha256": "6c2f1d6931df4c40afafa5fec6c30d15ff84a2986d927464e41ec2067d5b232f",
+        "run_id": "d26d5ce5dffe",
+        "session_id": "af861632-9753-4020-b06c-99b4a00c9a3f",
+        "status": "governed"
+      }
+    ],
+    "selector_session_id": "af861632-9753-4020-b06c-99b4a00c9a3f",
+    "selector_status": "governed",
+    "store_check": {
+      "governed_record_exists": true,
+      "store_exists": true
+    },
+    "stream_event_types": [
+      "system",
+      "assistant",
+      "system",
+      "system",
+      "system",
+      "system",
+      "system",
+      "system",
+      "assistant",
+      "assistant",
+      "system",
+      "system",
+      "system",
+      "system",
+      "user",
+      "assistant",
+      "result"
+    ],
+    "stream_reported_session_ids": [
+      "af861632-9753-4020-b06c-99b4a00c9a3f"
+    ],
+    "timed_out": false,
+    "variant": "governed"
+  },
+  "interpretation": "Both selector lines were captured by the runner from a file written by the command itself, not from the model report. The governed session's Bash command (rewritten by the adapter, 5 parent hops from the script shell to the Claude process) reported governed with the governed session's own id. The ordinary session's Bash command (not rewritten, 2 hops) reported ordinary, and ordinary_produced_while_governed_record_existed shows the governed record was present in the shared launch-level store when it ran. The two sessions shared one disposable fixture repository and one throwaway HOME.",
+  "ordinary": {
+    "case_id": "t2-ordinary",
+    "depth": {
+      "claude_process_reached": true,
+      "hops": 2,
+      "measured": true
+    },
+    "failure": {},
+    "held_s": 8.47,
+    "hook_events": [
+      {
+        "adapter_exit": 0,
+        "command_sha256": "024dbae64a5251950c8187df4f47fac4ccd29ddd0f1aaa5d784c7a5dcefe3057",
+        "cwd_is_fixture": true,
+        "hook_event_name": "PreToolUse",
+        "kind": "actual_hook_input",
+        "rewritten": false,
+        "run_in_background": false,
+        "session_id": "ef3b98fa-615d-45c3-a343-1e8b14aea74d",
+        "tool_input_keys": [
+          "command",
+          "description"
+        ],
+        "tool_name": "Bash",
+        "tool_use_id": "toolu_017qcpzGnDJhhvX4eR55P2XD",
+        "top_level_keys": [
+          "cwd",
+          "effort",
+          "hook_event_name",
+          "permission_mode",
+          "prompt_id",
+          "session_id",
+          "tool_input",
+          "tool_name",
+          "tool_use_id",
+          "transcript_path"
+        ],
+        "variant": "ordinary"
+      },
+      {
+        "command_sha256": "024dbae64a5251950c8187df4f47fac4ccd29ddd0f1aaa5d784c7a5dcefe3057",
+        "cwd_is_fixture": true,
+        "hook_event_name": "PostToolUse",
+        "kind": "actual_hook_input",
+        "run_in_background": false,
+        "selector_results": [
+          {
+            "status": "ordinary"
+          }
+        ],
+        "session_id": "ef3b98fa-615d-45c3-a343-1e8b14aea74d",
+        "tool_input_keys": [
+          "command",
+          "description"
+        ],
+        "tool_name": "Bash",
+        "tool_response_keys": [
+          "interrupted",
+          "isImage",
+          "noOutputExpected",
+          "stderr",
+          "stdout"
+        ],
+        "tool_use_id": "toolu_017qcpzGnDJhhvX4eR55P2XD",
+        "top_level_keys": [
+          "cwd",
+          "duration_ms",
+          "effort",
+          "hook_event_name",
+          "permission_mode",
+          "prompt_id",
+          "session_id",
+          "tool_input",
+          "tool_name",
+          "tool_response",
+          "tool_use_id",
+          "transcript_path"
+        ],
+        "variant": "ordinary"
+      }
+    ],
+    "ledger_exit": 0,
+    "ran_a_tool": true,
+    "requested_session_id": "ef3b98fa-615d-45c3-a343-1e8b14aea74d",
+    "result": "observed",
+    "run_id": "cbc9c8711f03",
+    "selector_captured_by_runner": [
+      {
+        "line_sha256": "0d525830bea56e97e6412721a3125f102c7dee7a45f1003a309beddab9a2ad5f",
+        "run_id": "cbc9c8711f03",
+        "status": "ordinary"
+      }
+    ],
+    "selector_session_id": null,
+    "selector_status": "ordinary",
+    "store_check": {
+      "governed_record_exists": true,
+      "store_exists": true
+    },
+    "stream_event_types": [
+      "system",
+      "assistant",
+      "system",
+      "system",
+      "assistant",
+      "assistant",
+      "system",
+      "system",
+      "system",
+      "system",
+      "user",
+      "assistant",
+      "result"
+    ],
+    "stream_reported_session_ids": [
+      "ef3b98fa-615d-45c3-a343-1e8b14aea74d"
+    ],
+    "timed_out": false,
+    "variant": "ordinary"
+  },
+  "ordinary_produced_while_governed_record_existed": true,
+  "result": "observed",
+  "task": 2
+}

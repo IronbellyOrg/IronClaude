@@ -1,0 +1,16 @@
+observe.py self-check, started 2026-11-08T04:19:17Z
+CHECK redaction: PASS secret env value and command argument absent from run-status.jsonl, the preflight output and the temporary ledger
+CHECK preflight-fields: PASS fake-CLI preflight output holds observed values or the word unavailable
+CHECK timeout-group-and-sweep: PASS timed_out=True result=blocked group_gone=True leftover_under_group=0 swept=1
+CHECK group-persistence: PASS second run in the same group found the launch-level store and governed session record: {'store_exists': True, 'governed_record_exists': True}
+CHECK survivor-after-case: PASS job marked surviving is alive after its case ended
+CHECK survivor-after-later-timeout: PASS surviving job still alive after a later case in the same group timed out and was swept
+CHECK home-kept-until-teardown: PASS disposable HOME, fixture and temp directory exist before teardown
+CHECK signal-after-ready: PASS named process ended by signal:SIGKILL; unrelated process in the same group alive=True
+CHECK signal-refused-on-mismatch: PASS signal refused (process id, start ticks or boot identity no longer match); process ended on its own with exit 0
+CHECK run-cap-refusal: PASS third real run refused with the cap at 2; real runs counted=2
+CHECK settings-checksum-per-run: PASS each real_claude entry records equal before-run and after-run settings checksums
+CHECK teardown: PASS teardown removed the directories: {'leftover_processes': 0, 'directory_removed': True}
+CHECK teardown-logs-survivor-stop: PASS phase2-cleanup.log records the survivor stop
+CHECK nothing-outside: PASS src/, plugins/, tests/ and blocked-package state equal baseline.json: {'equal': True, 'differs': []}; real settings checksum unchanged
+SELFCHECK PASS failures=0
