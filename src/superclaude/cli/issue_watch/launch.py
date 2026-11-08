@@ -164,13 +164,17 @@ def find_orca(
     runner: Runner,
     *,
     which: Callable[[str], str | None] = shutil.which,
-    timeout: float | None = 10.0,
+    timeout: float | Callable[[], float | None] | None = 10.0,
 ) -> str | None:
     """Return the first ``_ORCA_CLIS`` binary that answers as Orca, else None.
 
     Mirrors ``install_user_setup._find_orca`` through the injected ``runner``
     and ``which`` (DF-54). ``timeout`` None (fewer than 5 s left in the cycle)
-    starts no process and returns None. The result is not cached here. A
+    starts no process and returns None. ``timeout`` may also be a zero-argument
+    callable, called immediately before each probe: its number is that probe's
+    timeout (checked like a plain one) and its None ends the search without
+    starting that probe, so a cycle deadline is re-read per probe (design 8.5).
+    The result is not cached here. A
     candidate whose path is not absolute (``which`` can return ``./orca-ide``
     for a relative ``PATH`` entry) is skipped without a probe, because the
     launch runs with ``cwd`` set to the worktree and would execute a file of
@@ -178,12 +182,23 @@ def find_orca(
     """
     if timeout is None:
         return None
-    seconds = _check_timeout(timeout)
+    if callable(timeout):
+        allowance = timeout
+    else:
+        seconds = _check_timeout(timeout)
+
+        def allowance() -> float:
+            return seconds
+
     for name in _ORCA_CLIS:
         path = which(name)
         if not path or not os.path.isabs(path):
             continue
-        if _lists_orca_cli(runner.run([path, "skills", "list", "--json"], seconds)):
+        left = allowance()
+        if left is None:
+            return None
+        argv = [path, "skills", "list", "--json"]
+        if _lists_orca_cli(runner.run(argv, _check_timeout(left))):
             return path
     return None
 

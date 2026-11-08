@@ -13,6 +13,7 @@ import itertools
 import json
 import os
 import sys
+import threading
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -745,6 +746,166 @@ def test_validate_approvers_error_detail_never_echoes_the_content__fr027(tmp_pat
     )
     assert "SECRET-LOGIN" not in error.detail
     assert "SECRET-LOGIN" not in str(error)
+
+
+def _before_first_open(monkeypatch, action):
+    """Run ``action`` just before the first ``os.open`` of the code under test.
+
+    Models a writer to a writable parent directory who acts between the code's
+    ``lstat`` and its ``open``. Returns the descriptors ``os.open`` handed out.
+    """
+    real_open = os.open
+    opened: list[int] = []
+
+    def racing_open(path, flags, *args, **kwargs):
+        if not opened:
+            action()
+        fd = real_open(path, flags, *args, **kwargs)
+        opened.append(fd)
+        return fd
+
+    monkeypatch.setattr(cycle.os, "open", racing_open)
+    return opened
+
+
+_REAL_FSTAT = os.fstat  # a test may patch ``os.fstat``; this probe must not
+
+
+def _is_closed(fd: int) -> bool:
+    try:
+        _REAL_FSTAT(fd)
+    except OSError:
+        return True
+    return False
+
+
+@pytest.mark.parametrize("hostile_mode", [0o600, 0o664])
+def test_validate_approvers_refuses_a_file_swapped_between_lstat_and_open__fr027_nfr010(
+    tmp_path, monkeypatch, hostile_mode
+):
+    path = _approvers(tmp_path, "1001\n")
+    hostile = _approvers(tmp_path, "9999\n", mode=hostile_mode, name="hostile")
+    assert os.lstat(hostile).st_ino != os.lstat(path).st_ino
+    _before_first_open(monkeypatch, lambda: os.replace(hostile, path))
+    error = _expect("approvers_invalid", "changed", cycle.validate_approvers, path)
+    assert "9999" not in error.detail
+    assert str(path) not in error.detail
+
+
+def test_validate_approvers_refuses_a_mode_widened_between_lstat_and_open__fr027_nfr010(
+    tmp_path, monkeypatch
+):
+    path = _approvers(tmp_path, "1001\n")
+    _before_first_open(monkeypatch, lambda: path.chmod(0o666))
+    _expect("approvers_invalid", "writable", cycle.validate_approvers, path)
+
+
+def test_validate_approvers_untouched_file_is_still_accepted_with_open_patched__fr027_nfr010(
+    tmp_path, monkeypatch
+):
+    path = _approvers(tmp_path, "1001\n2002\n")
+    opened = _before_first_open(monkeypatch, lambda: None)
+    assert cycle.validate_approvers(path) == frozenset({1001, 2002})
+    assert len(opened) == 1 and _is_closed(opened[0])
+
+
+@pytest.mark.parametrize("how", ["swapped", "widened"])
+def test_validate_approvers_closes_the_descriptor_when_it_refuses__fr027_nfr010(
+    tmp_path, monkeypatch, how
+):
+    path = _approvers(tmp_path, "1001\n")
+    hostile = _approvers(tmp_path, "9999\n", name="hostile")
+    action = (
+        (lambda: os.replace(hostile, path))
+        if how == "swapped"
+        else (lambda: path.chmod(0o666))
+    )
+    opened = _before_first_open(monkeypatch, action)
+    _expect("approvers_invalid", "", cycle.validate_approvers, path)
+    assert len(opened) == 1 and _is_closed(opened[0])
+
+
+_REAL_OPEN = os.open  # a test may patch ``os.open``; the FIFO release must not race
+
+
+def _run_validate_approvers_with_a_deadline(path, deadline: float = 2.0):
+    """Run ``validate_approvers`` in a daemon thread; return ``(thread, outcome)``.
+
+    ``outcome`` gets ``"result"`` or ``"error"`` once the call ends. A call that
+    blocks (a FIFO opened without ``O_NONBLOCK``) leaves the thread alive.
+    """
+    outcome: dict[str, object] = {}
+
+    def target():
+        try:
+            outcome["result"] = cycle.validate_approvers(path)
+        except BaseException as exc:  # noqa: BLE001 - recorded for the assertion
+            outcome["error"] = exc
+
+    thread = threading.Thread(target=target, daemon=True)
+    thread.start()
+    thread.join(timeout=deadline)
+    return thread, outcome
+
+
+def _release_blocked_fifo_open(path, thread) -> None:
+    """Unblock a thread stuck opening FIFO ``path`` so no thread or fd leaks."""
+    if thread.is_alive():
+        fd = _REAL_OPEN(path, os.O_RDWR | os.O_NONBLOCK)
+        os.close(fd)
+        thread.join(timeout=5)
+
+
+def test_validate_approvers_refuses_a_file_swapped_for_a_fifo_without_hanging__fr027_nfr010(
+    tmp_path, monkeypatch
+):
+    path = _approvers(tmp_path, "1001\n")
+
+    def swap_for_fifo():
+        os.unlink(path)
+        os.mkfifo(path, 0o600)
+
+    _before_first_open(monkeypatch, swap_for_fifo)
+    thread, outcome = _run_validate_approvers_with_a_deadline(path)
+    try:
+        assert not thread.is_alive(), "validate_approvers hung opening a FIFO"
+    finally:
+        _release_blocked_fifo_open(path, thread)
+    error = outcome.get("error")
+    assert isinstance(error, cycle.ConfigError)
+    assert error.reason == "approvers_invalid"
+
+
+def test_validate_approvers_fifo_from_the_start_is_refused_without_hanging__fr027_nfr010(
+    tmp_path,
+):
+    path = tmp_path / "ap-fifo"
+    os.mkfifo(path, 0o600)
+    thread, outcome = _run_validate_approvers_with_a_deadline(path)
+    try:
+        assert not thread.is_alive(), "validate_approvers hung on a FIFO"
+    finally:
+        _release_blocked_fifo_open(path, thread)
+    error = outcome.get("error")
+    assert isinstance(error, cycle.ConfigError)
+    assert error.reason == "approvers_invalid"
+    assert "not a regular file" in error.detail
+
+
+def test_validate_approvers_closes_the_descriptor_when_fstat_fails__fr027_nfr010(
+    tmp_path, monkeypatch
+):
+    path = _approvers(tmp_path, "1001\n")
+    opened = _before_first_open(monkeypatch, lambda: None)
+
+    def broken_fstat(fd):
+        if fd in opened:  # only the descriptor under test, not pytest's own fstat
+            raise OSError("fstat failed")
+        return _REAL_FSTAT(fd)
+
+    monkeypatch.setattr(cycle.os, "fstat", broken_fstat)
+    _expect("approvers_invalid", "", cycle.validate_approvers, path)
+    assert len(opened) == 1 and _is_closed(opened[0])
 
 
 def test_approvers_summary_gives_mtime_and_count__fr027(tmp_path):
@@ -4412,6 +4573,34 @@ def test_fewer_than_5_s_left_before_the_probe_skips_the_step_without_a_probe__fr
     assert None not in world.runner.timeouts
     assert deps.launcher.calls == []
     assert 9 not in tmp_state.load().considered
+
+
+def test_a_deadline_crossed_by_the_first_probe_starts_no_second_probe__fr029_c11(
+    tmp_path, tmp_state, gh_world
+):
+    # Both Orca CLIs resolve. The cycle enters the probe at 235 s, so the first
+    # probe gets 5 s and uses all of them (240 s); it fails, and the second
+    # candidate must not be probed with a stale 5 s (design 8.5: every runner call
+    # gets min(configured, remaining) and is not started below 5 s).
+    both = {
+        "orca-ide": "/opt/orca/bin/orca-ide",
+        "orca": "/opt/orca/bin/orca",
+    }
+    world = gh_world(which=both.get)
+    world.issue(9)
+    world.fail("probe", "failed")  # the first probe answers with a non-zero exit
+    _on_nth(world, "items", 9, 1, lambda: world.clock.advance(235))
+    world.on("probe", lambda: world.clock.advance(5))
+    res, deps = _run(tmp_path, tmp_state, world)
+    assert (res.exit_code, res.reason) == (0, "cycle_complete")
+    assert _decisions(_lines_of(tmp_state, res)) == [(9, "budget_exhausted")]
+    assert _trace(world).count("probe") == 1  # the second candidate is not probed
+    assert world.runner.timeouts[-1] == 5.0
+    assert None not in world.runner.timeouts
+    assert deps.launcher.calls == []
+    stored = tmp_state.load()
+    assert stored.entries == {}
+    assert 9 not in stored.considered  # budget_exhausted is never stamped
 
 
 def test_a_clock_that_crosses_the_cut_off_inside_the_origin_call_starts_no_launch__fr029_n1(
