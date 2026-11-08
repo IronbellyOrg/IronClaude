@@ -44,7 +44,11 @@
 #     (cat <<'EOF' | bash) instead of being that shell's own heredoc;
 #   - a quoted value equal to --agent (orca worktree create --prompt "--agent")
 #     counts as the flag, because quotes are removed before the comparison;
-#   - ${...} parameter expansions are not parsed (${CMD:-orca} worktree create);
+#   - a command word assembled from pieces (o$(printf rc)a worktree create);
+#     a command word that starts with `$` (a variable, ${...} or $( ) such as
+#     `$ORCA worktree create` or `$(printf orca) worktree create`) is treated as
+#     a possible orca, so it is blocked when its first two non-option arguments
+#     are `worktree` and `create` and it carries no --agent;
 #   - nested backticks written with \` escapes;
 #   - global orca options that take a separate value before `worktree`
 #     (the value is read as the first non-option argument);
@@ -138,7 +142,7 @@ function endword(o,   w, b, k, q) {
     if (iswrap(b)) { wrap[o] = b; return }
     need[o] = 0; cmd[o] = b
     for (k = qh; k < qt; k++) if (hqown[k] == o && hqwait[k]) { hqwait[k] = 0; hqsh[k] = isshell(b) }
-    if (b == "orca") { isorca[o] = 1; nargs[o] = 0; a1[o] = ""; a2[o] = ""; hasagent[o] = 0; hashelp[o] = 0 }
+    if (b == "orca" || b ~ /^\$/) { isorca[o] = 1; nargs[o] = 0; a1[o] = ""; a2[o] = ""; hasagent[o] = 0; hashelp[o] = 0 }
 }
 function nexthdoc(   k) {
     while (qh < qt) {

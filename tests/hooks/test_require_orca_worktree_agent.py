@@ -91,9 +91,19 @@ BLOCKED = {
     "continuation": "orca worktree \\\n  create --name x",
     "global-option-first": "orca --json worktree create --name x",
     "shell-heredoc": "bash <<'EOF'\norca worktree create --name x\nEOF",
+    # PR #449 review: a command word built by a substitution or a variable.
+    "subst-command-word": "$(printf orca) worktree create --name x",
+    "variable-command-word": "$ORCA worktree create --name x",
+    "braced-variable-command-word": "${ORCA:-orca} worktree create --name x",
+    "subst-command-word-after-chain": "cd /x && $(printf orca) worktree create --name x",
 }
 
 ALLOWED = {
+    "subst-command-word-with-agent": (
+        "$(printf orca) worktree create --name x --agent claude --prompt t"
+    ),
+    "variable-command-word-other-command": "$EDITOR notes.md",
+    "subst-command-word-other-args": "$(which jq) --version",
     "create-with-agent": "orca worktree create --name x --agent claude --prompt t",
     "create-with-agent-equals": "orca worktree create --name x --agent=claude",
     "create-help": "orca worktree create --help",
