@@ -1,0 +1,14 @@
+selected_tier: 2
+fired_rule_number: null          # table-wide pre-filter fired before any STOP row (section 5.3 pre-filter precedence)
+coverage_degraded: parsed-sparse # Step 1B.2b: inferred 10 > parsed 0 -> Tier-1 stop forbidden
+surface_unreached: null
+composite_score: 6               # recording only
+per_signal_breakdown:
+  scope_size: 1                  # 8 tasks, 7 input files
+  task_count: 1
+  blast_radius: 1                # plan only; but design/helper/test cited
+  spec_density: 1                # one inline prose prompt
+  ambiguity_signals: 2           # 5 Medium new defects, 2 PARTLY findings
+escalation_reason: coverage_degraded_parsed_sparse (calibrated C = 0.86 would have allowed a Tier-1 stop on confidence alone; S_domains may count 3)
+calibrated_confidence_t1: 0.86
+explicit_pins: none

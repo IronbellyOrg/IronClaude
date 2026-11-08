@@ -1,0 +1,136 @@
+{
+ "pass1_parsed_count": 0,
+ "pass2_inferred_count": 10,
+ "dropped": [],
+ "coverage_degraded": "parsed-sparse",
+ "coverage_pct": null,
+ "coverage_pct_union": 0.9,
+ "unmapped_requirements_union": [
+  "INF-006"
+ ],
+ "rows": [
+  {
+   "id": "INF-001",
+   "source": "inferred",
+   "quote": "Plan the real bounded observation run that the blocked package .dev/tasks/to-do/TASK-WF-implementDocsDes-20261106-210206 (its Task 1, the B-CTX feasibility gate) never completed.",
+   "citation": "source.md:1",
+   "best": "Constraints",
+   "ratio": 0.722,
+   "match_method": "containment",
+   "tasks_over_threshold": {
+    "Constraints": 0.722
+   }
+  },
+  {
+   "id": "INF-002",
+   "source": "inferred",
+   "quote": "Use docs/designs/sc-issue-launch-level-hook.md section 19 (especially 19.1 and 19.7, the identity integration in PR #414 and the done package .dev/tasks/done/TASK-WF-authorizedNarrow-20261106-214325) as the authoritative design",
+   "citation": "source.md:1",
+   "best": "Constraints",
+   "ratio": 0.75,
+   "match_method": "containment",
+   "tasks_over_threshold": {
+    "Constraints": 0.75
+   }
+  },
+  {
+   "id": "INF-003",
+   "source": "inferred",
+   "quote": "unobserved real cases (ordinary Claude session in the same worktree, /clear, resume into a new process, detached or reparented job, same-worktree human terminal, Monitor and nested subagent)",
+   "citation": "source.md:1",
+   "best": "T8",
+   "ratio": 0.9,
+   "match_method": "containment",
+   "tasks_over_threshold": {
+    "T8": 0.9
+   }
+  },
+  {
+   "id": "INF-004",
+   "source": "inferred",
+   "quote": "boot identity not compared in the selector",
+   "citation": "source.md:1",
+   "best": "T8",
+   "ratio": 1.0,
+   "match_method": "containment",
+   "tasks_over_threshold": {
+    "T1": 0.75,
+    "T3": 0.75,
+    "T5": 0.75,
+    "T8": 1.0
+   }
+  },
+  {
+   "id": "INF-005",
+   "source": "inferred",
+   "quote": "no release with a live child",
+   "citation": "source.md:1",
+   "best": "T5",
+   "ratio": 1.0,
+   "match_method": "containment",
+   "tasks_over_threshold": {
+    "T3": 0.667,
+    "T5": 1.0,
+    "T8": 1.0
+   }
+  },
+  {
+   "id": "INF-006",
+   "source": "inferred",
+   "quote": "no exit-status file",
+   "citation": "source.md:1",
+   "best": "Constraints",
+   "ratio": 0.5,
+   "match_method": "none",
+   "tasks_over_threshold": {}
+  },
+  {
+   "id": "INF-007",
+   "source": "inferred",
+   "quote": "the unmeasured ancestry bound",
+   "citation": "source.md:1",
+   "best": "T7",
+   "ratio": 0.667,
+   "match_method": "containment",
+   "tasks_over_threshold": {
+    "T7": 0.667
+   }
+  },
+  {
+   "id": "INF-008",
+   "source": "inferred",
+   "quote": "Plan only observation evidence and the report with a binary result",
+   "citation": "source.md:1",
+   "best": "T8",
+   "ratio": 0.833,
+   "match_method": "containment",
+   "tasks_over_threshold": {
+    "T8": 0.833
+   }
+  },
+  {
+   "id": "INF-009",
+   "source": "inferred",
+   "quote": "no production hook, no real protected-branch push, no change to global Claude settings, no commit or push",
+   "citation": "source.md:1",
+   "best": "Constraints",
+   "ratio": 0.8,
+   "match_method": "containment",
+   "tasks_over_threshold": {
+    "Constraints": 0.8
+   }
+  },
+  {
+   "id": "INF-010",
+   "source": "inferred",
+   "quote": "Do not modify the blocked package -210206.",
+   "citation": "source.md:1",
+   "best": "Constraints",
+   "ratio": 0.75,
+   "match_method": "containment",
+   "tasks_over_threshold": {
+    "Constraints": 0.75
+   }
+  }
+ ]
+}

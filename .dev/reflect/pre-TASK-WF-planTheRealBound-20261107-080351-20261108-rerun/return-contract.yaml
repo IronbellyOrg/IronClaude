@@ -1,0 +1,70 @@
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/finish-leftover-implement-plans/.dev/reflect/pre-TASK-WF-planTheRealBound-20261107-080351-20261108-rerun/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/finish-leftover-implement-plans/.dev/reflect/pre-TASK-WF-planTheRealBound-20261107-080351-20261108-rerun/audit.log
+confidence_calibrated: 0.84
+escalation_rule_matched: null   # table-wide pre-filter coverage_degraded (parsed-sparse) forced Tier 2 before any STOP row
+onboarding_ran: false
+
+coverage_pct: null
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: []      # INF-006 was a lexical miss, confirmed covered
+best_practice_grade: 3
+
+input_sha256:
+  tasklist: null   # see input_tree_snapshot_path for per-file hashes
+  spec: null
+input_tree_sha256: 4956affcb0635f377d31168174e63561a34a37c387ace78b5553ae1fe283f959
+input_tree_file_count: 7
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/finish-leftover-implement-plans/.dev/reflect/pre-TASK-WF-planTheRealBound-20261107-080351-20261108-rerun/artifacts/input-snapshot.yaml
+input_drift_detected: false          # recomputed at Wave 5 (2026-11-08T02:18Z): identical hash
+input_drift_diff: null
+
+citations_total: 48
+citations_revalidated: 48
+citations_dropped: 0
+citations_inferred: 3
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+reviewer_cards:
+  - reviewer-cards/reviewer-1-card.md
+  - reviewer-cards/reviewer-2-card.md
+adversarial_artifacts_dir: adversarial/adversarial
+adversarial_convergence_score: 0.40
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: full           # sonnet class is disjoint from the reviewer classes (haiku, opus); it equals the executor class
+
+remediation_offered: false
+remediation_accepted: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+regression_present: false
+needs_human_decision: true           # M2-02 needs an owner choice (record the pty /clear case unavailable, or authorize a bounded interactive run)
+user_decision_required: true
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+
+# telemetry
+degraded_components:
+  - position-bias-pass            # reverse-order second qualitative pass not run
+  - invariant-probe               # Round 2.5 skipped by depth quick
+  - rebuttal-round                # Round 2 skipped by depth quick
+  - t2-vendor-diversity           # single vendor (gateway tier names)
+  - executor-calibrator-partition # calibrator class equals the executor class
+reviewer_models: [claude-gw-tier2 (haiku class), claude-gw-tier1a (opus class)]
+reviewer_personas: [analyzer, qa]
+executor_class_source: log-heuristic
+executor_class_resolved: true
+executor_exclusion_degraded: false
