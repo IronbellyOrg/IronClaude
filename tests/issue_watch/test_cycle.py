@@ -13,6 +13,7 @@ import itertools
 import json
 import os
 import sys
+import threading
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -822,6 +823,73 @@ def test_validate_approvers_closes_the_descriptor_when_it_refuses__fr027_nfr010(
     opened = _before_first_open(monkeypatch, action)
     _expect("approvers_invalid", "", cycle.validate_approvers, path)
     assert len(opened) == 1 and _is_closed(opened[0])
+
+
+_REAL_OPEN = os.open  # a test may patch ``os.open``; the FIFO release must not race
+
+
+def _run_validate_approvers_with_a_deadline(path, deadline: float = 2.0):
+    """Run ``validate_approvers`` in a daemon thread; return ``(thread, outcome)``.
+
+    ``outcome`` gets ``"result"`` or ``"error"`` once the call ends. A call that
+    blocks (a FIFO opened without ``O_NONBLOCK``) leaves the thread alive.
+    """
+    outcome: dict[str, object] = {}
+
+    def target():
+        try:
+            outcome["result"] = cycle.validate_approvers(path)
+        except BaseException as exc:  # noqa: BLE001 - recorded for the assertion
+            outcome["error"] = exc
+
+    thread = threading.Thread(target=target, daemon=True)
+    thread.start()
+    thread.join(timeout=deadline)
+    return thread, outcome
+
+
+def _release_blocked_fifo_open(path, thread) -> None:
+    """Unblock a thread stuck opening FIFO ``path`` so no thread or fd leaks."""
+    if thread.is_alive():
+        fd = _REAL_OPEN(path, os.O_RDWR | os.O_NONBLOCK)
+        os.close(fd)
+        thread.join(timeout=5)
+
+
+def test_validate_approvers_refuses_a_file_swapped_for_a_fifo_without_hanging__fr027_nfr010(
+    tmp_path, monkeypatch
+):
+    path = _approvers(tmp_path, "1001\n")
+
+    def swap_for_fifo():
+        os.unlink(path)
+        os.mkfifo(path, 0o600)
+
+    _before_first_open(monkeypatch, swap_for_fifo)
+    thread, outcome = _run_validate_approvers_with_a_deadline(path)
+    try:
+        assert not thread.is_alive(), "validate_approvers hung opening a FIFO"
+    finally:
+        _release_blocked_fifo_open(path, thread)
+    error = outcome.get("error")
+    assert isinstance(error, cycle.ConfigError)
+    assert error.reason == "approvers_invalid"
+
+
+def test_validate_approvers_fifo_from_the_start_is_refused_without_hanging__fr027_nfr010(
+    tmp_path,
+):
+    path = tmp_path / "ap-fifo"
+    os.mkfifo(path, 0o600)
+    thread, outcome = _run_validate_approvers_with_a_deadline(path)
+    try:
+        assert not thread.is_alive(), "validate_approvers hung on a FIFO"
+    finally:
+        _release_blocked_fifo_open(path, thread)
+    error = outcome.get("error")
+    assert isinstance(error, cycle.ConfigError)
+    assert error.reason == "approvers_invalid"
+    assert "not a regular file" in error.detail
 
 
 def test_validate_approvers_closes_the_descriptor_when_fstat_fails__fr027_nfr010(

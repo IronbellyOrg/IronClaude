@@ -78,3 +78,42 @@ F3: `9 passed, 719 deselected`; all 9 new F3 tests PASSED.
 - The swap race is simulated by renaming inside a wrapped `os.open`; no real concurrent attacker was run.
 - No foreign-owner fstat test was added (needs root); the existing monkeypatched-`geteuid` test now exercises the fstat owner check.
 - `make lint` architecture warnings (5) were not compared against master.
+
+## FIFO finding (PR 448 round 1)
+
+Finding (Augment, Medium): `validate_approvers` opened the approvers file `O_RDONLY | O_NOFOLLOW | O_CLOEXEC`. A parent-directory writer who swaps the file for a FIFO after the lstat makes the blocking open wait for a writer, so the fstat checks never run and the poller hangs.
+
+Fix: `src/superclaude/cli/issue_watch/cycle.py` adds `os.O_NONBLOCK` to the open flags (one-line comment gives the reason). The existing inode compare then rejects the swapped FIFO with `ConfigError("approvers_invalid")`; the existing `finally` still closes the descriptor.
+
+Tests added in `tests/issue_watch/test_cycle.py` (written first):
+- `test_validate_approvers_refuses_a_file_swapped_for_a_fifo_without_hanging__fr027_nfr010` (unlink + mkfifo between lstat and open; call runs in a daemon thread, `join(timeout=2)`; stuck thread released in `finally` by an `O_RDWR | O_NONBLOCK` open of the FIFO).
+- `test_validate_approvers_fifo_from_the_start_is_refused_without_hanging__fr027_nfr010` (FIFO from the start; lstat rejects with "not a regular file"; guard test, passes before and after).
+
+Pre-fix (unmodified source):
+
+```
+FAILED tests/issue_watch/test_cycle.py::test_validate_approvers_refuses_a_file_swapped_for_a_fifo_without_hanging__fr027_nfr010
+E   AssertionError: validate_approvers hung opening a FIFO
+E   assert not True
+E    +  where True = is_alive()
+================= 1 failed, 1 passed, 550 deselected in 4.98s ==================
+```
+
+Post-fix:
+
+```
+tests/issue_watch/test_cycle.py ..                                       [100%]
+====================== 2 passed, 550 deselected in 0.16s =======================
+```
+
+| Command | Result |
+|---|---|
+| `uv run pytest tests/issue_watch/ -q` | `2655 passed in 17.06s` (was 2653) |
+| `uv run --offline --with "pytest-xdist>=3.5,<4" pytest -n auto tests/issue_watch/ -q` | `2655 passed in 6.78s` |
+| `make lint` | architecture policy PASS; `ruff check .` All checks passed |
+| `uvx --offline ruff@0.15.20 check src/ tests/` | All checks passed |
+| `uvx --offline ruff@0.15.20 format --check src/ tests/` | `1246 files already formatted` (after one `ruff format` of `cycle.py` to join the wrapped `os.open` call) |
+| `make sync-dev` then `make verify-sync` | `All components in sync.` |
+| detect-secrets-hook on `cycle.py` and `test_cycle.py` | rc 0 |
+
+Unverified: the swap is simulated through the `_before_first_open` wrapper, not a real concurrent attacker; the FIFO-from-the-start test did not fail before the fix (lstat already rejects it), so it is a guard, not a failing-first proof.

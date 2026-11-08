@@ -313,7 +313,9 @@ def validate_approvers(path: str | os.PathLike[str]) -> frozenset[int]:
         raise _approvers_invalid("the approvers file is not a regular file")
     unreadable = "the approvers file cannot be read as UTF-8 text"
     try:
-        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+        # O_NONBLOCK: a FIFO swapped in after lstat must not block the open; the
+        # fstat checks below then refuse it (no effect on regular-file reads).
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK)
     except OSError:
         raise _approvers_invalid(unreadable) from None
     # Owner and mode are judged on the open descriptor, and the descriptor must be
