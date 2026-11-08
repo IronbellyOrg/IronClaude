@@ -1,0 +1,9 @@
+# T6 acceptance check 1 (executor log): uv run pytest tests/hooks/test_launch_level_guard.py -k "speed_large" -n auto -rP -q
+# All 10 selected tests passed in 80.34s; no NOT ASSERTED row; the four wrapper checks passed; live row max 1150.0 ms (git-status-lines-64KB) with the over-1s-design-target note and a 3.04x margin under the 3.5 s limit.
+T-SPD-5 guard, governed FS, 1MB-big | 100 | 457.6 ms | 476.6 ms | every run under 3.5 s (asserted; design target 1 s, reported) | PASS: max 584.9 ms; exit [2]
+T-SPD-5 guard, governed FS, backslash-lines-64KB | 100 | 512.5 ms | 532.0 ms | every run under 3.5 s (asserted; design target 1 s, reported) | PASS: max 720.5 ms; exit [0]
+T-SPD-5 guard, governed FS, heredoc-git-words-64KB | 100 | 530.8 ms | 562.9 ms | every run under 3.5 s (asserted; design target 1 s, reported) | PASS: max 748.2 ms; exit [2]
+T-SPD-5 guard, governed FS, git-status-lines-64KB | 100 | 754.9 ms | 786.5 ms | every run under 3.5 s (asserted; design target 1 s, reported) | PASS (over 1 s design target): max 1150.0 ms; exit [0]
+======================== 10 passed in 80.34s (0:01:20) =========================
+
+[exited with code 0]

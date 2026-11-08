@@ -1,0 +1,12 @@
+# SUMMARY (executor-added, one line): worst 64KB max 998.6 ms (heredoc-git-words-64KB); worst overall max 998.6 ms; D3 vs D1: full-suite -n auto contention raises the tail modestly (worst 64KB 893.9 -> 998.6 ms, +11.7 percent; medians essentially unchanged 526.5/510.4/761.1/451.0 -> 557.6/517.6/762.7/450.1 ms); all four cases PASS the current 1 s assert in this run, at the edge for heredoc (998.6 ms). This arm is CI-shaped (28 workers on 28 CPUs vs CI's 4 on 4; both are 1x oversubscription).
+# COMMAND USED (executor-added): uv run pytest -n auto --maxfail=1000 --ignore=tests/cli/test_verify_sync_hooks.py -rP -q   # T-SPD-5 rows read from the reported captured output (LL_SPEED_RESULTS is last-writer-wins under xdist); full log: ./artifacts/d3-suite-raw.log
+# RESULT (executor-added): 28 workers, 21945 items, wall 1168.01 s (0:19:28); summary line: "24 failed, 21754 passed, 150 skipped, 2 xpassed, 32 warnings, 16 errors". The 24 failures + 16 errors are pre-existing environment failures with zero overlap with this task's files: most are tests asserting on .claude/agents/ dev mirrors this worktree does not have (e.g. tests/audit/test_five_axes_overlay.py:33 fails on PosixPath('.claude/agents/rf-qa-qualitative.md').is_file(); CI provisions those mirrors via its install step) plus roadmap/sprint pipeline tests hitting /tmp state; no failing test touches tests/hooks/test_launch_level_guard.py or any launch-level guard file (verified by id overlap check). The T-SPD-5 target rows:
+
+| Case | Runs | Median | p95 | Target | Result |
+|---|---|---|---|---|---|
+| T-SPD-5 guard, governed FS, heredoc-git-words-64KB | 100 | 557.6 ms | 860.5 ms | every run under 1 s (asserted outside xdist) | PASS: max 998.6 ms; exit [2] |
+| T-SPD-5 guard, governed FS, backslash-lines-64KB | 100 | 517.6 ms | 533.8 ms | every run under 1 s (asserted outside xdist) | PASS: max 659.1 ms; exit [0] |
+| T-SPD-5 guard, governed FS, git-status-lines-64KB | 100 | 762.7 ms | 800.0 ms | every run under 1 s (asserted outside xdist) | PASS: max 923.9 ms; exit [0] |
+| T-SPD-5 guard, governed FS, 1MB-big | 100 | 450.1 ms | 477.4 ms | every run under 1 s (asserted outside xdist) | PASS: max 506.8 ms; exit [2] |
+
+(Verdicts above say PASS because this worktree's HEAD still carries the xdist skip: under -n auto the assert is suppressed, so the row is informational; the timing values are the measurement. The pre-fix CI log job-128512582247.log rows are the same arm with the assert active: maxima 1082.7/1166.0 ms on the two heaviest 64 KB cases.)

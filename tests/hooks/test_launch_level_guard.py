@@ -20,6 +20,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shlex
 import shutil
 import statistics
 import subprocess
@@ -992,9 +993,11 @@ def test_skill_name_newline_does_not_shift_fields(tmp_path):
 #
 # Real subprocess runs timed with time.monotonic() around subprocess.run, after
 # one untimed warm-up run; 100 runs per case unless the row says otherwise.
-# Only T-SPD-3 (ratio) and T-SPD-5 (1 s each) assert; the millisecond targets
-# are printed and reported, not asserted, because they are flaky on a loaded
-# host. Run with -s to see the numbers. With LL_SPEED_RESULTS=<path> set, the
+# Only T-SPD-3 (ratio) and T-SPD-5 (LARGE_LIMIT_S each) assert; the millisecond
+# targets are printed and reported, not asserted, because they are flaky on a
+# loaded host. T-SPD-5's limit (3.5 s) is asserted everywhere, xdist workers
+# included; the 1 s design target stays a reported figure (#440). Run with -s
+# to see the numbers. With LL_SPEED_RESULTS=<path> set, the
 # module writes the table of this run to that path after its last test.
 # ===========================================================================
 
@@ -1002,6 +1005,20 @@ SPD_RUNS = 100
 # Design section 8 / Task 15: 100 runs per case. A 64 KB run takes 0.5 to 0.9 s,
 # so the four T-SPD-5 cases add about 4 minutes to a run of this section.
 LARGE_RUNS = SPD_RUNS
+# T-SPD-5 per-run limit, asserted on every run including xdist workers (#440).
+# Chosen 2026-11-08 from measurements in the #440 plan package
+# (.dev/tasks, artifacts/limit-selection.md; slowest 64 KB max per condition):
+# idle serial 893.9 ms, full suite under -n auto 998.6 ms, CI's own pre-skip
+# failing worst 1166.0 ms; 56 busy loops (2x CPU oversubscription, not a CI
+# condition) reached 5536.1 ms, which is why no limit can also cover that arm.
+# Coordinator decision on the owner's "diminishing returns" rule: 3.5 s gives
+# 3.0x margin over CI's worst observed failing max and stays 1.5 s under the
+# 5 s hook timeout where the governed call fails open; a 10x-slower guard
+# (10 runs in a row) takes 5.2-7.6 s and still fails this limit, and one more
+# doubling would reach the fail-open timeout without clearing the
+# oversubscription arm, so loosening stops here. Design target remains 1 s,
+# reported (not asserted) per row. Revisit if any CI run exceeds 2 s.
+LARGE_LIMIT_S = 3.5
 BLOCK_BARE_PYTHON = HOOK.parent / "block-bare-python.sh"
 IDENTITY = HOOK.parent / "launch-job-identity.sh"
 SPD_COMMAND = "git status && ls -la src"
@@ -1105,8 +1122,9 @@ def _spd_markdown() -> str:
         f"envelope stress case uses {ENVELOPE_RUNS} runs, with p95 taken from "
         "those runs.",
         "- Asserted (design section 8): T-SPD-3 (guard median at most 1.5 times "
-        "block-bare-python.sh) and T-SPD-5 (every run under 1 s). Every other "
-        "row is reported only.",
+        "block-bare-python.sh) and T-SPD-5 (every run under LARGE_LIMIT_S, "
+        "asserted on every run including xdist workers; the 1 s design target "
+        "is reported). Every other row is reported only.",
         "",
         "| Case | Runs | Median | p95 | Target | Result |",
         "|---|---|---|---|---|---|",
@@ -1255,7 +1273,8 @@ LARGE_COMMANDS = {
 
 @pytest.mark.parametrize("name", list(LARGE_COMMANDS))
 def test_speed_large_commands(tmp_path, speed_report, name):
-    # T-SPD-5: governed full-submit session, each run under 1 s (asserted).
+    # T-SPD-5: governed full-submit session, each run under LARGE_LIMIT_S
+    # (3.5 s, asserted; 1 s design target reported).
     env = _spd_env(tmp_path, tmp_path / "home")
     _bind(tmp_path, "full-submit")
     stdin = json.dumps(_bash(LARGE_COMMANDS[name])).encode()
@@ -1263,21 +1282,43 @@ def test_speed_large_commands(tmp_path, speed_report, name):
     if name == "1MB-big":
         assert codes == {2}  # LL-BIG at once
     worst = max(times)
-    # shortcut: the 1 s limit is not asserted on an xdist worker, where several
-    # workers share the CPUs and a 64 KB run took 1.07 to 1.34 s in CI; run this
-    # file without -n to check it.
-    shared_cpus = bool(os.environ.get("PYTEST_XDIST_WORKER"))
-    verdict = "PASS" if worst < 1.0 else ("NOT ASSERTED" if shared_cpus else "FAIL")
+    verdict = "PASS" if worst < LARGE_LIMIT_S else "FAIL"
+    if worst >= 1.0:
+        verdict += " (over 1 s design target)"
     _spd_row(
         f"T-SPD-5 guard, governed FS, {name}",
         LARGE_RUNS,
         times,
-        "every run under 1 s (asserted outside xdist)",
+        f"every run under {LARGE_LIMIT_S:g} s (asserted; design target 1 s, reported)",
         f"{verdict}: max {worst * 1000:.1f} ms",
         note=f"exit {sorted(codes)}",
     )
-    if not shared_cpus:
-        assert worst < 1.0, f"T-SPD-5 {name}: slowest run {worst:.3f} s"
+    assert worst < LARGE_LIMIT_S, (
+        f"T-SPD-5 {name}: slowest run {worst:.3f} s, limit {LARGE_LIMIT_S:g} s"
+    )
+
+
+@pytest.mark.parametrize("name", list(LARGE_COMMANDS))
+def test_speed_large_limit_catches_10x_slower_guard(tmp_path, name):
+    # Negative control for LARGE_LIMIT_S (#440): a guard about 10x slower must
+    # fail the limit, so the assert above is live on every runner (xdist
+    # included). Ten runs of the slowest 64 KB case (~0.9 s each) take well
+    # over LARGE_LIMIT_S; 10x is not a sensitivity bound (measured margins:
+    # 1.3x to 2.2x over the limit at 3.5 s).
+    env = _spd_env(tmp_path, tmp_path / "home")
+    _bind(tmp_path, "full-submit")
+    payload = tmp_path / "in.json"
+    payload.write_bytes(json.dumps(_bash(LARGE_COMMANDS[name])).encode())
+    run = " ".join(shlex.quote(str(p)) for p in (BASH, HOOK))
+    slow = tmp_path / "slow-guard.sh"
+    slow.write_text(
+        f"for _ in 1 2 3 4 5 6 7 8 9 10; do {run} "
+        f"< {shlex.quote(str(payload))} >/dev/null 2>&1; done\n"
+    )
+    seconds, _ = _spd_once(slow, b"", env, timeout=120)
+    assert seconds > LARGE_LIMIT_S, (
+        f"{name}: 10 guard runs took {seconds:.3f} s, limit {LARGE_LIMIT_S:g} s"
+    )
 
 
 def _spd_wait4(script: Path, stdin_path: Path, env: dict, timeout: float):

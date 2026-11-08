@@ -1,0 +1,5 @@
+442543b745467e98bd00c2fca0d4c2b8ee157e0c r6-1=436e5e0e5272bb404be2c017bb3e69163f36d7ca
+
+F1.1 ac=scope at=tests/hooks/test_launch_level_guard.py:1276 anchor=tests/hooks/test_launch_level_guard.py:1276 chk=amiss:n,false:y,harm:n,constraint:y family=stale-1s-wording fix=Rewrite the comment to "# T-SPD-5: governed full-submit session, each run under LARGE_LIMIT_S (3.5 s, asserted; 1 s design target reported)." covers="update the 1 s wording at the module header, _spd_markdown and the test comment": the comment inside test_speed_large_commands still reads "# T-SPD-5: governed full-submit session, each run under 1 s (asserted)." — the module header (996-999) and _spd_markdown (1124-1127) were reworded but this third named location was not, and the comment is now false against the live assert at 1295, which checks worst < LARGE_LIMIT_S (3.5 s), not 1 s.
+
+AC marks (reviewer, verbatim): T6.AC1 met (t6-acceptance-auto.log:3), T6.AC2 met (:1295), T6.AC3 met (:1284), T6.AC4 met (t6-diff.patch:2), T6.AC5 met (:1008).
