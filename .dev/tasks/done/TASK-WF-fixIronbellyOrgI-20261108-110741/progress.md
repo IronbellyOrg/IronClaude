@@ -1,0 +1,16 @@
+# implement ledger — source: ./TASK-WF-fixIronbellyOrgI-20261108-110741.md — created: 2026-11-08T12:43:24Z
+PLAN: sha256=474ce1f8baef05e596cf3443c988f55eadb58bdc7b48320ff61f8649bfaba164 source_sha256=7d1e123cb55472812d1997cd82a6765ce09a4daf25748efbe6792fe38c2ddad9
+T1: start sha=c611441c93a032ba0e8c69a8a340cf0bc1acffd7
+T1: complete verdict=compliant ac=T1.AC1,T1.AC2,T1.AC3 evidence=T1.AC1@tests/unit/test_ccsession_tiers.py:1708,T1.AC2@tests/unit/test_ccsession_tiers.py:1686,T1.AC3@./artifacts/t1-pytest.log:11 extras=lint:pass,typecheck:skip,test:pass files=tests/unit/test_ccsession_tiers.py
+T2: start sha=f83b818edc70b036a32d2f432680dcaccf63afff
+T2: complete verdict=compliant ac=T2.AC1,T2.AC2 evidence=T2.AC1@tests/unit/test_ccsession_tiers.py:767,T2.AC2@./artifacts/t2-pytest.log:11 extras=lint:pass,typecheck:skip,test:pass files=tests/unit/test_ccsession_tiers.py
+T3: start sha=2daa5d7ffd166689087c8f7c287cf3477cebfa09
+T3: complete verdict=compliant ac=T3.AC1,T3.AC2,T3.AC3 evidence=T3.AC1@tests/unit/test_ccsession_tiers.py:1771,T3.AC2@tests/unit/test_ccsession_tiers.py:785,T3.AC3@./artifacts/t3-pytest.log:11 extras=lint:pass,typecheck:skip,test:pass files=tests/unit/test_ccsession_tiers.py
+T4: start sha=54531825ad2e2eff9733a42561bbaa8c3b4eefe0
+T4: complete verdict=compliant ac=T4.AC1,T4.AC2,T4.AC3 evidence=T4.AC1@tests/unit/test_ccsession_tiers.py:1857,T4.AC2@tests/unit/test_ccsession_tiers.py:1932,T4.AC3@./artifacts/t4-pytest.log:11 extras=lint:pass,typecheck:skip,test:pass files=tests/unit/test_ccsession_tiers.py
+T5: start sha=fe9cd8a481c6c7543b8bba4d8b7e5784c0aa65a6
+T5: blocked verdict=missing ac=T5.AC1,T5.AC2,T5.AC3,T5.AC4 evidence=T5.AC1@tests/unit/test_ccsession_tiers.py:1764,T5.AC1@./artifacts/t5-before.md:28,T5.AC1@./artifacts/t5-after.log:11,T5.AC2@./artifacts/t5-runs.md:11,T5.AC3@./artifacts/t5-lint.log:2,T5.AC3@./artifacts/t5-lint.log:456,T5.AC4@./artifacts/t5-diff.txt:2 extras=lint:pass,typecheck:skip,test:pass files=tests/unit/test_ccsession_tiers.py
+T5: Ruling: accept T5.AC2 unmet (review r1-1 finding F1.1: set 1 run 3 under -n auto was 175/176, 'all pass' not shown) as a carried gap, per coordinator ruling msg_7ce89f6e15c5 sent to this worker in the current run (recorded verbatim in ./artifacts/t5-runs.md 'Coordinator ruling') — the failure is the #352 parallel-worker class (shim on base+101 did not listen within 3s, no 'ccsession shim address' refusal; port-taken vs slow start UNVERIFIED), the brief says report it and do not fix it, and set 2 was 6 of 6 green — cost-if-wrong: a real #443 pairing regression under parallel load could be hidden behind a flake label
+T5: complete verdict=missing ac=T5.AC1,T5.AC2,T5.AC3,T5.AC4 evidence=T5.AC1@tests/unit/test_ccsession_tiers.py:1764,T5.AC1@./artifacts/t5-before.md:28,T5.AC1@./artifacts/t5-after.log:11,T5.AC2@./artifacts/t5-runs.md:11,T5.AC3@./artifacts/t5-lint.log:2,T5.AC3@./artifacts/t5-lint.log:456,T5.AC4@./artifacts/t5-diff.txt:2 extras=lint:pass,typecheck:skip,test:pass files=tests/unit/test_ccsession_tiers.py
+FINAL: pass evidence=./artifacts/final-1.md:1,./artifacts/t5-runs.md:11 state=eb3441ade981ad4421f8777048cdfaeadb41a609ee071bc8758db3de61a021db
+ARCHIVE: start id=TASK-WF-fixIronbellyOrgI-20261108-110741 token=bc624491afe02571

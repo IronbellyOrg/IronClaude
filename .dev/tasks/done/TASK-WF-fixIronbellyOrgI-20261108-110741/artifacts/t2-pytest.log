@@ -1,0 +1,11 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-443
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 175 items / 173 deselected / 2 selected
+
+tests/unit/test_ccsession_tiers.py ..                                    [100%]
+
+====================== 2 passed, 173 deselected in 0.33s =======================

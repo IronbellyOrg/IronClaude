@@ -22,6 +22,7 @@ import sys
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -758,6 +759,23 @@ def _free_port() -> int:
     with socket.socket() as s:
         s.bind(("127.0.0.1", 0))
         return s.getsockname()[1]
+
+
+_FREE_PORT_CLEAR_OF_TRIES = 50
+
+
+def _free_port_clear_of(gateway_url: str) -> int:
+    # #443: the gateway and shim ports come from separate random binds, so they can collide.
+    rejected = []
+    for _ in range(_FREE_PORT_CLEAR_OF_TRIES):
+        port = _free_port()
+        if models.shim_upstream_problem(gateway_url, port) == "":
+            return port
+        rejected.append(port)
+    pytest.fail(
+        f"no shim base port clear of {gateway_url} after "
+        f"{_FREE_PORT_CLEAR_OF_TRIES} tries; rejected {rejected}"
+    )
 
 
 @pytest.fixture
@@ -1677,11 +1695,12 @@ def _real_launch(tmp_path: Path, port: int | None, *args: str, **extra: str):
     fake.parent.mkdir(exist_ok=True)
     fake.write_text('#!/bin/sh\necho "$ANTHROPIC_BASE_URL" > "$SEEN_FILE"\n')
     fake.chmod(0o755)
+    upstream = extra.pop("upstream")
     env = os.environ.copy()
     env.update(
         HOME=str(tmp_path / "home"),
         CLAUDE_BIN=str(fake),
-        ANTHROPIC_BASE_URL=extra.pop("upstream"),
+        ANTHROPIC_BASE_URL=upstream,
         CC_SHIM_SCRIPT=str(tmp_path / "shim-under-test.py"),
         SEEN_FILE=str(tmp_path / "seen"),
         AIDEV_AI_DEFAULTS_PATH=str(_defaults(tmp_path)),
@@ -1699,9 +1718,74 @@ def _real_launch(tmp_path: Path, port: int | None, *args: str, **extra: str):
         text=True,
         timeout=60,
     )
-    assert proc.returncode == 0, proc.stderr
+    try:
+        gateway_port = urllib.parse.urlsplit(upstream).port
+    except ValueError:
+        gateway_port = None
+    assert proc.returncode == 0, (
+        f"gateway_port={'unobserved' if gateway_port is None else gateway_port} "
+        f"shim_base_port={'unobserved' if port is None else port} "
+        f"upstream={upstream}\n{proc.stderr}"
+    )
     assert proc.stdout == ""  # the fake claude prints nothing; status is on stderr
     return proc.stderr, (tmp_path / "seen").read_text().strip()
+
+
+def test_free_port_clear_of_skips_a_port_in_the_shim_window(monkeypatch) -> None:
+    url = "http://127.0.0.1:33361"
+    ports = iter([33356, 45000])
+    calls = []
+
+    def fake_free_port() -> int:
+        calls.append(1)
+        return next(ports)
+
+    monkeypatch.setattr(sys.modules[__name__], "_free_port", fake_free_port)
+    assert _free_port_clear_of(url) == 45000
+    assert len(calls) == 2
+    assert models.shim_upstream_problem(url, 33356) != ""
+
+
+def test_free_port_clear_of_fails_loudly_at_the_bound(monkeypatch) -> None:
+    url = "http://127.0.0.1:33361"
+    calls = []
+
+    def fake_free_port() -> int:
+        calls.append(1)
+        return 33356
+
+    monkeypatch.setattr(sys.modules[__name__], "_free_port", fake_free_port)
+    with pytest.raises(pytest.fail.Exception) as excinfo:
+        _free_port_clear_of(url)
+    assert url in str(excinfo.value)
+    assert len(calls) == _FREE_PORT_CLEAR_OF_TRIES
+
+
+def test_forced_in_window_shim_port_is_skipped(tmp_path: Path, monkeypatch) -> None:
+    """#443: a first shim port inside the gateway's shim window is skipped, not launched."""
+    module = sys.modules[__name__]
+    real_free_port = _free_port
+    seen = {}
+    calls = []
+
+    class RecordingGateway(StandInGateway):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            seen["gateway_port"] = self.server.server_port
+            seen["url"] = self.url
+
+    def forced_free_port() -> int:
+        calls.append(1)
+        if len(calls) == 1 and "gateway_port" in seen:
+            seen["forced"] = seen["gateway_port"] - 5  # inside window k=0
+            return seen["forced"]
+        return real_free_port()
+
+    monkeypatch.setattr(module, "StandInGateway", RecordingGateway)
+    monkeypatch.setattr(module, "_free_port", forced_free_port)
+    test_a_busy_shim_is_never_stopped_by_a_new_launch(tmp_path)
+    assert "forced" in seen
+    assert models.shim_upstream_problem(seen["url"], seen["forced"]) != ""
 
 
 def test_a_busy_shim_is_never_stopped_by_a_new_launch(tmp_path: Path) -> None:
@@ -1711,7 +1795,7 @@ def test_a_busy_shim_is_never_stopped_by_a_new_launch(tmp_path: Path) -> None:
     )
     gateway = StandInGateway()
     gateway.script["muse-spark-1.3"] = [("pause-stream", 6)]
-    port = _free_port()
+    port = _free_port_clear_of(gateway.url)
     try:
         out, url = _real_launch(tmp_path, port, upstream=gateway.url)
         assert url == f"http://127.0.0.1:{port}"
@@ -1793,21 +1877,21 @@ def test_shim_outlives_the_terminal_that_started_it(tmp_path: Path) -> None:
     fake.chmod(0o755)
     (tmp_path / "home").mkdir()
     seen = tmp_path / "seen"
-    port = _free_port()
-    env = os.environ.copy()
-    env.update(
-        HOME=str(tmp_path / "home"),
-        CLAUDE_BIN=str(fake),
-        CC_SHIM_SCRIPT=str(shim_copy),
-        CC_SHIM_PORT=str(port),
-        SEEN_FILE=str(seen),
-        AIDEV_AI_DEFAULTS_PATH=str(_defaults(tmp_path)),
-    )
-    gateway = StandInGateway()
-    env["ANTHROPIC_BASE_URL"] = gateway.url
     shim_pid = None
     terminal = None
+    gateway = StandInGateway()
     try:
+        port = _free_port_clear_of(gateway.url)
+        env = os.environ.copy()
+        env.update(
+            HOME=str(tmp_path / "home"),
+            CLAUDE_BIN=str(fake),
+            CC_SHIM_SCRIPT=str(shim_copy),
+            CC_SHIM_PORT=str(port),
+            SEEN_FILE=str(seen),
+            AIDEV_AI_DEFAULTS_PATH=str(_defaults(tmp_path)),
+        )
+        env["ANTHROPIC_BASE_URL"] = gateway.url
         # The terminal: its own session, like a shell in a new pty.
         with open(tmp_path / "terminal.log", "w") as log:
             terminal = subprocess.Popen(
@@ -2073,7 +2157,7 @@ def test_tiers_off_launch_never_takes_over_a_tier_shim(tmp_path: Path) -> None:
     """Round 3 R3-2: tier sessions keep their shim when a tiers-off session starts."""
     _shim_copy(tmp_path)
     gateway = StandInGateway()
-    port = _free_port()
+    port = _free_port_clear_of(gateway.url)
     try:
         _, url = _real_launch(tmp_path, port, upstream=gateway.url)
         assert url == f"http://127.0.0.1:{port}"
@@ -2116,7 +2200,7 @@ def test_upgraded_code_starts_a_new_shim_and_keeps_the_old(tmp_path: Path) -> No
     """Round 3 R3-3: new code is never served by an old shim, and the old one stays."""
     copy = _shim_copy(tmp_path)
     gateway = StandInGateway()
-    port = _free_port()
+    port = _free_port_clear_of(gateway.url)
     try:
         _, url = _real_launch(tmp_path, port, upstream=gateway.url)
         assert url == f"http://127.0.0.1:{port}"
@@ -2143,7 +2227,7 @@ def test_relative_defaults_path_keeps_each_directory_on_its_own_shim(
     """A relative AIDEV_AI_DEFAULTS_PATH means the file in the launch directory."""
     _shim_copy(tmp_path)
     gateway = StandInGateway()
-    port = _free_port()
+    port = _free_port_clear_of(gateway.url)
     runs = {}
     try:
         for name, first in (("a", "muse-spark-1.3"), ("b", "grok-4.7")):
@@ -2279,7 +2363,7 @@ def test_launch_never_attaches_to_a_shim_that_won_the_port_race(
     )
     winner.chmod(0o755)
     gateway = StandInGateway()
-    port = _free_port()
+    port = _free_port_clear_of(gateway.url)
     fake = tmp_path / "bin" / "claude"
     fake.parent.mkdir(exist_ok=True)
     fake.write_text('#!/bin/sh\necho "$ANTHROPIC_BASE_URL" > "$SEEN_FILE"\n')

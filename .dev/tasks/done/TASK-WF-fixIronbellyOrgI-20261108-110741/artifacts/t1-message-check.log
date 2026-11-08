@@ -1,0 +1,4 @@
+gateway_port=33361 shim_base_port=40000 upstream=http://127.0.0.1:33361
+.gateway_port=33361 shim_base_port=unobserved upstream=http://127.0.0.1:33361
+..
+3 passed in 0.30s
