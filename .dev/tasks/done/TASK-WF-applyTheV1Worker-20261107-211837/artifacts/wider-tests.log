@@ -1,0 +1,2818 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/liveness-v1-contract
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 18040 items / 1 skipped
+
+tests/agents/test_codegraph_rosters.py ..........                        [  0%]
+tests/agents/test_tavily_tool_parity.py ....                             [  0%]
+tests/audit/test_ac_validation.py ...................................... [  0%]
+..                                                                       [  0%]
+tests/audit/test_agent_regression.py ................................... [  0%]
+.......                                                                  [  0%]
+tests/audit/test_already_tracked.py .......                              [  0%]
+tests/audit/test_anti_lazy.py ........                                   [  0%]
+tests/audit/test_artifact_emitter.py ...........                         [  0%]
+tests/audit/test_auto_config.py ...........                              [  0%]
+tests/audit/test_axis_column_populated.py ..........                     [  0%]
+tests/audit/test_batch_decomposer.py ...............                     [  0%]
+tests/audit/test_batch_retry.py ...........                              [  0%]
+tests/audit/test_benchmark.py .........                                  [  0%]
+tests/audit/test_budget.py .............................                 [  1%]
+tests/audit/test_budget_caveat.py ......                                 [  1%]
+tests/audit/test_checkpoint.py ......                                    [  1%]
+tests/audit/test_classification.py ..............                        [  1%]
+tests/audit/test_concurrent_isolation.py ........                        [  1%]
+tests/audit/test_consolidation.py ............                           [  1%]
+tests/audit/test_coverage.py .......                                     [  1%]
+tests/audit/test_credential_scanner.py ..............                    [  1%]
+tests/audit/test_dead_code.py ........                                   [  1%]
+tests/audit/test_dependency_graph.py ..........                          [  1%]
+tests/audit/test_dir_assessment.py ............                          [  1%]
+tests/audit/test_dnsp_all_agents_fail_bypass.py ........................ [  1%]
+..........................                                               [  1%]
+tests/audit/test_dnsp_dedup_collapse.py .......................          [  2%]
+tests/audit/test_dnsp_does_not_serialize_cohort.py ..................... [  2%]
+...........                                                              [  2%]
+tests/audit/test_dnsp_twice_exhaust.py ................................. [  2%]
+.                                                                        [  2%]
+tests/audit/test_docs_audit.py .............                             [  2%]
+tests/audit/test_drift_axis_inactive_when_no_goal_baseline.py .....      [  2%]
+tests/audit/test_dry_run.py ............                                 [  2%]
+tests/audit/test_duplication.py .........                                [  2%]
+tests/audit/test_dynamic_enumeration_inv_010.py .......s...............  [  2%]
+tests/audit/test_dynamic_imports.py ............                         [  2%]
+tests/audit/test_env_matrix.py ................                          [  2%]
+tests/audit/test_escalation.py ............                              [  3%]
+tests/audit/test_eval_wiring_multifile.py .........                      [  3%]
+tests/audit/test_evidence_bound_tb_add_8.py ..........                   [  3%]
+tests/audit/test_execution_context_full.py .....                         [  3%]
+tests/audit/test_execution_context_minimal_buildrequest.py ......        [  3%]
+tests/audit/test_execution_context_no_file_paths.py .....                [  3%]
+tests/audit/test_filetype_rules.py ......................                [  3%]
+tests/audit/test_five_axes_overlay.py ..........                         [  3%]
+tests/audit/test_full_docs_audit.py ...................                  [  3%]
+tests/audit/test_gitignore_checker.py ........                           [  3%]
+tests/audit/test_hidden_input_guard.py ....................              [  3%]
+tests/audit/test_inherited_verdict_freshness_inv_002.py ................ [  3%]
+........                                                                 [  3%]
+tests/audit/test_inherited_verdict_present.py ...........                [  3%]
+tests/audit/test_invariant_preservation_NFR_6_through_10.py ............ [  3%]
+......                                                                   [  3%]
+tests/audit/test_known_issues.py ............                            [  4%]
+tests/audit/test_known_issues_lifecycle.py ............                  [  4%]
+tests/audit/test_monotonicity_halt_F_5_5_5.py ...............            [  4%]
+tests/audit/test_nfr_conv_6_self_contained.py ..........                 [  4%]
+tests/audit/test_nfr_conv_9_zero_trust.py .............................. [  4%]
+..........                                                               [  4%]
+tests/audit/test_profile_generator.py .................                  [  4%]
+tests/audit/test_profiler.py .............................               [  4%]
+tests/audit/test_regression_halt_pass1_fail2.py ....................     [  4%]
+tests/audit/test_report_completeness.py ...........                      [  4%]
+tests/audit/test_report_depth.py ..................                      [  4%]
+tests/audit/test_report_limitations.py .......                           [  5%]
+tests/audit/test_resume.py .......                                       [  5%]
+tests/audit/test_scanner_schema.py .............                         [  5%]
+tests/audit/test_self_audit_inv_019.py ........................          [  5%]
+tests/audit/test_sequencing_PR06_before_PR04.py ........................ [  5%]
+.....                                                                    [  5%]
+tests/audit/test_severity_floor_unweakened.py ........                   [  5%]
+tests/audit/test_slow_shrink_continues.py ..............                 [  5%]
+tests/audit/test_spot_check.py ..........                                [  5%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py ................ [  5%]
+..                                                                       [  5%]
+tests/audit/test_tiered_keep.py .............                            [  5%]
+tests/audit/test_tool_orchestrator.py ................                   [  5%]
+tests/audit/test_validation.py .........                                 [  5%]
+tests/audit/test_validation_output.py ........                           [  5%]
+tests/audit/test_wiring_analyzer.py ...................                  [  6%]
+tests/audit/test_wiring_gate.py ........................................ [  6%]
+.......................................                                  [  6%]
+tests/audit/test_wiring_integration.py ....                              [  6%]
+tests/audit-trail/test_audit_writer.py ......................            [  6%]
+tests/cli/eval/test_artifact_layout.py ...................               [  6%]
+tests/cli/eval/test_artifact_reproducibility.py ........                 [  6%]
+tests/cli/eval/test_atomic_setup.py ...................                  [  6%]
+tests/cli/eval/test_ban_import_rule.py ...                               [  6%]
+tests/cli/eval/test_capability_classifications.py ....................   [  7%]
+tests/cli/eval/test_capability_dataclass.py ................             [  7%]
+tests/cli/eval/test_capability_gates.py ..................               [  7%]
+tests/cli/eval/test_capability_report.py ..........                      [  7%]
+tests/cli/eval/test_claude_process_adapter.py ..........F
+
+=================================== FAILURES ===================================
+__________ test_ruff_flags_synthetic_anthropic_import_under_cli_eval ___________
+tests/cli/eval/test_claude_process_adapter.py:457: in test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+    assert "TID251" in result.stdout, (
+E   AssertionError: Expected TID251 ban-api violation in ruff output; got: ''
+E   assert 'TID251' in ''
+E    +  where '' = CompletedProcess(args=['/home/coder/workspaces/worktrees/IronClaude/liveness-v1-contract/.venv/bin/python', '-m', 'ruf...'', stderr='/home/coder/workspaces/worktrees/IronClaude/liveness-v1-contract/.venv/bin/python: No module named ruff\n').stdout
+=============================== warnings summary ===============================
+tests/audit/test_inherited_verdict_freshness_inv_002.py::TestFreshnessProcedureWiredInSkill::test_fix_cycle_header_present_in_source
+  /home/coder/workspaces/worktrees/IronClaude/liveness-v1-contract/.venv/lib/python3.11/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Class-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'src_text' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+tests/audit/test_inherited_verdict_freshness_inv_002.py::TestFreshnessProcedureWiredInSkill::test_fix_cycle_header_present_in_mirror
+  /home/coder/workspaces/worktrees/IronClaude/liveness-v1-contract/.venv/lib/python3.11/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Class-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'mirror_text' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+tests/audit/test_invariant_preservation_NFR_6_through_10.py::TestInvariant3_PersistentArtifact::test_canonical_subdirs_all_present
+  /home/coder/workspaces/worktrees/IronClaude/liveness-v1-contract/.venv/lib/python3.11/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Class-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'observed_subdirs' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+tests/audit/test_invariant_preservation_NFR_6_through_10.py::TestInvariant4_ZeroTrustQA::test_pass_bullet_byte_identical
+  /home/coder/workspaces/worktrees/IronClaude/liveness-v1-contract/.venv/lib/python3.11/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Class-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'rf_qa_text' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+tests/audit/test_nfr_conv_9_zero_trust.py::TestNfrConv2DocumentationPage::test_doc_names_nfr_conv_2
+  /home/coder/workspaces/worktrees/IronClaude/liveness-v1-contract/.venv/lib/python3.11/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Class-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'doc_text' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+============ 1 failed, 1318 passed, 2 skipped, 5 warnings in 24.79s ============
+exit=1
+
+## Full run without -x (every failure listed)
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_passes_on_real_adapter_module
+= 2 failed, 17900 passed, 137 skipped, 2 xpassed, 32 warnings in 581.57s (0:09:41) =
+exit=1
+
+## Pre-existing on master: evidence
+master=80f361804b155e3fec842cc552b8f4f0c71b2cdd origin/master=2b3ae7e7516917c981cf1134528cf92b3de65e01 HEAD=2b3ae7e7516917c981cf1134528cf92b3de65e01
+-- files changed vs master (tracked):
+ .../adversarial/adversarial/base-selection.md      |  120 +
+ .../adversarial/adversarial/diff-analysis.md       |   94 +
+ .../adversarial/adversarial/invariant-probe.md     |   62 +
+ .../adversarial/adversarial/merge-log.md           |  170 ++
+ .../adversarial/adversarial/merged-output.md       |  293 +++
+ .../adversarial/adversarial/refactor-plan.md       |  150 ++
+ .../adversarial/adversarial/round1-advocate-A.md   |   92 +
+ .../adversarial/adversarial/round1-advocate-B.md   |   94 +
+ .../adversarial/adversarial/round1-advocate-C.md   |   86 +
+ .../adversarial/adversarial/round2-rebuttal-A.md   |   23 +
+ .../adversarial/adversarial/round2-rebuttal-B.md   |   33 +
+ .../adversarial/adversarial/round2-rebuttal-C.md   |   54 +
+ .../adversarial/adversarial/scoring-pass1.md       |  178 ++
+ .../adversarial/adversarial/scoring-pass2.md       |  115 +
+ .../adversarial/variant-1-opus-architect.md        |  149 ++
+ .../adversarial/variant-2-sonnet-refactorer.md     |  171 ++
+ .../adversarial/adversarial/variant-3-haiku-qa.md  |  155 ++
+ .../enrichment/codebase-context.md                 |   52 +
+ .../hook-session-prompt.md                         |   45 +
+ .../hook-session-result.md                         |  139 ++
+ .../launch-levels-addendum.md                      |  110 +
+ .../merged-requirements.md                         |  293 +++
+ .../return-contract.yaml                           |   41 +
+ .../seed-brief.md                                  |   64 +
+ .../adversarial/adversarial/base-selection.md      |  156 ++
+ .../adversarial/adversarial/convergence-tally.md   |   47 +
+ .../adversarial/adversarial/diff-analysis.md       |  122 +
+ .../adversarial/adversarial/invariant-probe.md     |  100 +
+ .../adversarial/adversarial/merge-log.md           |  482 ++++
+ .../adversarial/adversarial/plan-review-2.md       |  262 +++
+ .../adversarial/adversarial/plan-review-3.md       |  300 +++
+ .../adversarial/adversarial/plan-review.md         |  194 ++
+ .../adversarial/adversarial/refactor-plan.md       | 1313 +++++++++++
+ .../adversarial/adversarial/return-contract.yaml   |   35 +
+ .../adversarial/adversarial/round-1-advocate-1.md  |  112 +
+ .../adversarial/adversarial/round-1-advocate-2.md  |  114 +
+ .../adversarial/adversarial/round-1-advocate-3.md  |  119 +
+ .../adversarial/adversarial/round-2-advocate-1.md  |   95 +
+ .../adversarial/adversarial/round-2-advocate-2.md  |  103 +
+ .../adversarial/adversarial/round-2-advocate-3.md  |  102 +
+ .../adversarial/adversarial/scoring-pass-1.md      |  122 +
+ .../adversarial/adversarial/scoring-pass-2.md      |  120 +
+ .../adversarial/variant-1-opus-architect.md        |  260 +++
+ .../adversarial/variant-2-sonnet-refactorer.md     |  240 ++
+ .../adversarial/adversarial/variant-3-haiku-qa.md  |  216 ++
+ .../adversarial/merged-output.md                   | 1484 +++++++++++++
+ .../enrichment/codebase-context.md                 |   46 +
+ .../enrichment/research-light.md                   |   46 +
+ .../merged-requirements.md                         | 1486 +++++++++++++
+ .../return-contract.yaml                           |   18 +
+ .../seed-brief.md                                  |   95 +
+ .dev/followups/20261104-pr359-pr360.md             |   65 +-
+ .dev/orca-command-refactor/decisions/APPROVED.md   |   43 +
+ .../specs/orca-worker-contract-spec.md             |   10 +-
+ .../REPORT.md                                      |  127 ++
+ .../adversarial/base-selection.md                  |  213 ++
+ .../adversarial/debate-transcript.md               |  720 ++++++
+ .../adversarial/diff-analysis.md                   |   84 +
+ .../adversarial/invariant-probe.md                 |   41 +
+ .../adversarial/merge-log.md                       |   66 +
+ .../adversarial/merged-verdict.yaml                |  558 +++++
+ .../adversarial/refactor-plan.md                   |  264 +++
+ .../adversarial/return-contract.yaml               |   16 +
+ .../adversarial/rounds/round1-advocate-1.md        |   84 +
+ .../adversarial/rounds/round1-advocate-2.md        |   73 +
+ .../adversarial/rounds/round1-advocate-3.md        |   73 +
+ .../adversarial/rounds/round2-advocate-1.md        |   87 +
+ .../adversarial/rounds/round2-advocate-2.md        |   90 +
+ .../adversarial/rounds/round2-advocate-3.md        |  115 +
+ .../adversarial/variant-1-original.md              |   60 +
+ .../adversarial/variant-2-original.md              |   51 +
+ .../adversarial/variant-3-original.md              |   56 +
+ .../artifacts/calibration.yaml                     |   20 +
+ .../artifacts/diagnostics.txt                      |   15 +
+ .../artifacts/input-snapshot.yaml                  |    7 +
+ .../artifacts/tier_decision.yaml                   |   11 +
+ .../reflection-card.yaml                           |   48 +
+ .../return-contract.yaml                           |  101 +
+ .../reviewer-briefs/reviewer-1.md                  |  241 ++
+ .../reviewer-briefs/reviewer-2.md                  |  248 +++
+ .../reviewer-briefs/reviewer-3.md                  |  220 ++
+ .../reviewer-cards/reviewer-1-card.yaml            |   60 +
+ .../reviewer-cards/reviewer-2-card.yaml            |   51 +
+ .../reviewer-cards/reviewer-3-card.yaml            |   56 +
+ .../REPORT.md                                      |  160 ++
+ .../adversarial/base-selection.md                  |  224 ++
+ .../adversarial/debate-transcript.md               |  802 +++++++
+ .../adversarial/diff-analysis.md                   |   87 +
+ .../adversarial/invariant-probe.md                 |   39 +
+ .../adversarial/merge-log.md                       |   87 +
+ .../adversarial/merged-verdict.yaml                |  696 ++++++
+ .../adversarial/refactor-plan.md                   |  330 +++
+ .../adversarial/return-contract.yaml               |   12 +
+ .../adversarial/rounds/round1-advocate-1.md        |   82 +
+ .../adversarial/rounds/round1-advocate-2.md        |   81 +
+ .../adversarial/rounds/round1-advocate-3.md        |   79 +
+ .../adversarial/rounds/round2-advocate-1.md        |  131 ++
+ .../adversarial/rounds/round2-advocate-2.md        |  101 +
+ .../adversarial/rounds/round2-advocate-3.md        |  120 +
+ .../adversarial/variant-1-original.md              |   46 +
+ .../adversarial/variant-2-original.md              |   35 +
+ .../adversarial/variant-3-original.md              |   50 +
+ .../artifacts/calibration.yaml                     |   20 +
+ .../artifacts/coverage-matrix.yaml                 |   36 +
+ .../artifacts/evidence-validation.md               |   17 +
+ .../artifacts/grounding.txt                        |   46 +
+ .../artifacts/input-snapshot.yaml                  |    7 +
+ .../artifacts/tier_decision.yaml                   |   11 +
+ .../reflection-card.yaml                           |   65 +
+ .../return-contract.yaml                           |  102 +
+ .../reviewer-briefs/reviewer-1.md                  |  397 ++++
+ .../reviewer-briefs/reviewer-2.md                  |  577 +++++
+ .../reviewer-briefs/reviewer-3.md                  |  290 +++
+ .../reviewer-cards/reviewer-1-card.yaml            |   46 +
+ .../reviewer-cards/reviewer-2-card.yaml            |   35 +
+ .../reviewer-cards/reviewer-3-card.yaml            |   50 +
+ .../REPORT.md                                      |  190 ++
+ .../adversarial/base-selection.md                  |  227 ++
+ .../adversarial/debate-transcript.md               |   92 +
+ .../adversarial/diff-analysis.md                   |   84 +
+ .../adversarial/invariant-probe.md                 |   56 +
+ .../adversarial/merge-log.md                       |  175 ++
+ .../adversarial/merged-verdict.yaml                |  487 ++++
+ .../adversarial/refactor-plan.md                   |  125 ++
+ .../adversarial/return-contract.yaml               |   15 +
+ .../adversarial/rounds/round1-advocate-1.md        |  130 ++
+ .../adversarial/rounds/round1-advocate-2.md        |  122 +
+ .../adversarial/rounds/round1-advocate-3.md        |  120 +
+ .../adversarial/rounds/round2-advocate-1.md        |  106 +
+ .../adversarial/rounds/round2-advocate-2.md        |  131 ++
+ .../adversarial/rounds/round2-advocate-3.md        |  113 +
+ .../adversarial/variant-1-original.md              |  153 ++
+ .../adversarial/variant-2-original.md              |  192 ++
+ .../adversarial/variant-3-original.md              |  140 ++
+ .../artifacts/calibration.yaml                     |   29 +
+ .../artifacts/coverage-matrix.yaml                 |   54 +
+ .../artifacts/evidence-validation.md               |   36 +
+ .../artifacts/grounding.txt                        |  273 +++
+ .../artifacts/input-snapshot.yaml                  |   39 +
+ .../artifacts/tier_decision.yaml                   |   16 +
+ .../metrics.json                                   |   45 +
+ .../reflection-card.yaml                           |   68 +
+ .../return-contract.yaml                           |  105 +
+ .../reviewer-briefs/reviewer-1.md                  |  605 +++++
+ .../reviewer-briefs/reviewer-2.md                  |  860 ++++++++
+ .../reviewer-briefs/reviewer-3.md                  |  605 +++++
+ .../reviewer-cards/reviewer-1-card.yaml            |  153 ++
+ .../reviewer-cards/reviewer-2-card.yaml            |  192 ++
+ .../reviewer-cards/reviewer-3-card.yaml            |  140 ++
+ .../REPORT.md                                      |   24 +
+ .../artifacts/coverage-matrix.yaml                 |  393 ++++
+ .../artifacts/grounding-hunks.md                   |  293 +++
+ .../artifacts/input-snapshot.yaml                  |    7 +
+ .../artifacts/t1-calibration.md                    |   13 +
+ .../artifacts/tier_decision.yaml                   |   12 +
+ .../post-fix-rechecks.md                           |   20 +
+ .../return-contract.yaml                           |   34 +
+ .../reviewer-briefs/reviewer-1.md                  |  337 +++
+ .../reviewer-briefs/reviewer-2.md                  |  455 ++++
+ .../reviewer-briefs/reviewer-3.md                  |  330 +++
+ .../reviewer-cards/summary.md                      |    7 +
+ .../t1-card.md                                     |   25 +
+ .../REPORT.md                                      |   26 +
+ .../adversarial/base-selection.md                  |  301 +++
+ .../adversarial/diff-analysis.md                   |   72 +
+ .../adversarial/invariant-probe.md                 |   38 +
+ .../adversarial/merge-log.md                       |  142 ++
+ .../adversarial/merged-review-card.md              |   73 +
+ .../adversarial/refactor-plan.md                   |   32 +
+ .../adversarial/round1-advocate-1.md               |   82 +
+ .../adversarial/round1-advocate-2.md               |   79 +
+ .../adversarial/round1-advocate-3.md               |   68 +
+ .../adversarial/round2-advocate-1.md               |   59 +
+ .../adversarial/round2-advocate-2.md               |   59 +
+ .../adversarial/round2-advocate-3.md               |   60 +
+ .../adversarial/scoring-pass-1.md                  |  188 ++
+ .../adversarial/scoring-pass-2.md                  |  283 +++
+ .../adversarial/variant-1-original.md              |   20 +
+ .../adversarial/variant-2-original.md              |   15 +
+ .../adversarial/variant-3-original.md              |   16 +
+ .../artifacts/coverage-matrix.yaml                 |  393 ++++
+ .../artifacts/evidence-validation.md               |   47 +
+ .../artifacts/grounding-hunks.md                   |  318 +++
+ .../artifacts/input-snapshot.yaml                  |    7 +
+ .../artifacts/tier_decision.yaml                   |   12 +
+ .../post-fix-rechecks.md                           |   38 +
+ .../recheck-1.md                                   |   63 +
+ .../recheck-2.md                                   |   42 +
+ .../return-contract.yaml                           |   36 +
+ .../reviewer-briefs/reviewer-1.md                  |  364 +++
+ .../reviewer-briefs/reviewer-2.md                  |  481 ++++
+ .../reviewer-briefs/reviewer-3.md                  |  355 +++
+ .../reviewer-cards/reviewer-1-card.md              |   20 +
+ .../reviewer-cards/reviewer-2-card.md              |   15 +
+ .../reviewer-cards/reviewer-3-card.md              |   16 +
+ .../t1-card.md                                     |   34 +
+ .../REPORT.md                                      |   82 +
+ .../adversarial/base-selection.md                  |   48 +
+ .../adversarial/debate-transcript.md               |   71 +
+ .../adversarial/diff-analysis.md                   |   71 +
+ .../adversarial/invariant-probe.md                 |   30 +
+ .../adversarial/merge-log.md                       |   65 +
+ .../adversarial/merged-verdict.yaml                |  294 +++
+ .../adversarial/refactor-plan.md                   |   40 +
+ .../adversarial/round1-statements.md               |   30 +
+ .../adversarial/variant-1-original.md              |   83 +
+ .../adversarial/variant-2-original.md              |   41 +
+ .../adversarial/variant-3-original.md              |   83 +
+ .../artifacts/coverage-matrix.yaml                 |   60 +
+ .../artifacts/t1-reflection-card.md                |   22 +
+ .../artifacts/tier_decision.yaml                   |   16 +
+ .../return-contract.yaml                           |   61 +
+ .../reviewer-briefs/reviewer-1.md                  |   23 +
+ .../reviewer-briefs/reviewer-2.md                  |   20 +
+ .../reviewer-briefs/reviewer-3.md                  |   20 +
+ .../reviewer-cards/reviewer-1-card.yaml            |   89 +
+ .../reviewer-cards/reviewer-2-card.yaml            |   47 +
+ .../reviewer-cards/reviewer-3-card.yaml            |   89 +
+ .../REPORT.md                                      |  472 ++++
+ .../adversarial/adversarial/base-selection.md      |   82 +
+ .../adversarial/adversarial/consensus.md           |    6 +
+ .../adversarial/adversarial/debate-round1.md       |   57 +
+ .../adversarial/adversarial/debate-round2.md       |   41 +
+ .../adversarial/adversarial/debate-transcript.md   |  155 ++
+ .../adversarial/adversarial/diff-analysis.md       |   84 +
+ .../adversarial/adversarial/invariant-probe.md     |   43 +
+ .../adversarial/adversarial/merge-log.md           |   81 +
+ .../adversarial/adversarial/merged-output.md       |  327 +++
+ .../adversarial/adversarial/quant-scores.json      |   32 +
+ .../adversarial/adversarial/refactor-plan.md       |   85 +
+ .../adversarial/adversarial/rubric.md              |   48 +
+ .../adversarial/adversarial/variant-1-original.md  |   76 +
+ .../adversarial/adversarial/variant-2-original.md  |   47 +
+ .../adversarial/adversarial/variant-3-original.md  |   85 +
+ .../adversarial/merged-verdict.yaml                |   27 +
+ .../artifacts/coverage-matrix.json                 |  683 ++++++
+ .../artifacts/evidence-validation.md               |   25 +
+ .../artifacts/input-snapshot.yaml                  |   35 +
+ .../tier1-reflection-card.v0-calibrated.yaml       |   90 +
+ .../artifacts/tier1-reflection-card.yaml           |   93 +
+ .../artifacts/tier_decision.yaml                   |   17 +
+ .../metrics.json                                   |   20 +
+ .../return-contract.yaml                           |  118 +
+ .../reviewer-briefs/reviewer-1.md                  |  225 ++
+ .../reviewer-briefs/reviewer-2.md                  |  627 ++++++
+ .../reviewer-briefs/reviewer-3.md                  |  231 ++
+ .../reviewer-cards/reviewer-1-card.yaml            |   76 +
+ .../reviewer-cards/reviewer-2-card.yaml            |   47 +
+ .../reviewer-cards/reviewer-3-card.yaml            |   85 +
+ .../REPORT.md                                      |   68 +
+ .../adversarial/base-selection.md                  |   85 +
+ .../adversarial/debate-transcript.md               |   87 +
+ .../adversarial/diff-analysis.md                   |   76 +
+ .../adversarial/invariant-probe.md                 |   36 +
+ .../adversarial/merge-log.md                       |   55 +
+ .../adversarial/merged-verdict.yaml                |  337 +++
+ .../adversarial/refactor-plan.md                   |   47 +
+ .../adversarial/return-contract.yaml               |   11 +
+ .../adversarial/rounds/round-1-variant-1.md        |   68 +
+ .../adversarial/rounds/round-1-variant-2.md        |   61 +
+ .../adversarial/rounds/round-1-variant-3.md        |   66 +
+ .../adversarial/rounds/round-2-variant-1.md        |   61 +
+ .../adversarial/rounds/round-2-variant-2.md        |   61 +
+ .../adversarial/rounds/round-2-variant-3.md        |   62 +
+ .../adversarial/variant-1-original.md              |  119 +
+ .../adversarial/variant-2-original.md              |   66 +
+ .../adversarial/variant-3-original.md              |  110 +
+ .../artifacts/calibration.yaml                     |   17 +
+ .../artifacts/coverage-matrix.yaml                 |   91 +
+ .../artifacts/evidence-validation.md               |   24 +
+ .../artifacts/grounding.txt                        |   67 +
+ .../artifacts/input-snapshot.yaml                  |   39 +
+ .../artifacts/tier_decision.yaml                   |   13 +
+ .../metrics.json                                   |    1 +
+ .../reflection-card.yaml                           |   51 +
+ .../return-contract.yaml                           |  126 ++
+ .../reviewer-briefs/reviewer-1.md                  |   29 +
+ .../reviewer-briefs/reviewer-2.md                  |   29 +
+ .../reviewer-briefs/reviewer-3.md                  |   27 +
+ .../reviewer-cards/reviewer-1-card.yaml            |  119 +
+ .../reviewer-cards/reviewer-2-card.yaml            |   66 +
+ .../reviewer-cards/reviewer-3-card.yaml            |  110 +
+ .../REPORT.md                                      |  154 ++
+ .../adversarial/base-selection.md                  |   52 +
+ .../adversarial/debate-transcript.md               |  119 +
+ .../adversarial/diff-analysis.md                   |   73 +
+ .../adversarial/merge-log.md                       |   40 +
+ .../adversarial/merged-review-card.md              |  208 ++
+ .../adversarial/merged-verdict.yaml                |   36 +
+ .../adversarial/refactor-plan.md                   |   36 +
+ .../adversarial/variant-1-original.md              |  243 ++
+ .../adversarial/variant-2-original.md              |  128 ++
+ .../adversarial/variant-3-original.md              |  167 ++
+ .../artifacts/coverage-matrix.yaml                 |  107 +
+ .../artifacts/grounding-hunks.md                   |  227 ++
+ .../artifacts/input-snapshot.yaml                  |    7 +
+ .../artifacts/t1-calibration.md                    |   41 +
+ .../artifacts/tier_decision.yaml                   |   23 +
+ .../post-fix-rechecks.md                           |   29 +
+ .../return-contract.yaml                           |   89 +
+ .../reviewer-briefs/reviewer-1.md                  |  418 ++++
+ .../reviewer-briefs/reviewer-2.md                  |  400 ++++
+ .../reviewer-briefs/reviewer-3.md                  |  370 ++++
+ .../reviewer-cards/calibrations.md                 |   33 +
+ .../reviewer-cards/reviewer-1-card.yaml            |  243 ++
+ .../reviewer-cards/reviewer-2-card.yaml            |  128 ++
+ .../reviewer-cards/reviewer-3-card.yaml            |  167 ++
+ .../t1-card.md                                     |   94 +
+ .../REPORT.md                                      |  596 +++++
+ .../adversarial/base-selection.md                  |  163 ++
+ .../adversarial/debate-transcript.md               |  143 ++
+ .../adversarial/diff-analysis.md                   |   78 +
+ .../adversarial/invariant-probe.md                 |   38 +
+ .../adversarial/merge-log.md                       |   93 +
+ .../adversarial/merged-verdict.yaml                |  732 ++++++
+ .../adversarial/refactor-plan.md                   |  225 ++
+ .../adversarial/return-contract.yaml               |   13 +
+ .../adversarial/rounds/round1-advocate-1.md        |   97 +
+ .../adversarial/rounds/round1-advocate-2.md        |  112 +
+ .../adversarial/rounds/round1-advocate-3.md        |   85 +
+ .../adversarial/rounds/round2-advocate-1.md        |  125 ++
+ .../adversarial/rounds/round2-advocate-2.md        |  118 +
+ .../adversarial/rounds/round2-advocate-3.md        |   83 +
+ .../adversarial/variant-1-original.md              |  114 +
+ .../adversarial/variant-2-original.md              |  104 +
+ .../adversarial/variant-3-original.md              |  195 ++
+ .../artifacts/calibration.yaml                     |   35 +
+ .../artifacts/coverage-matrix.yaml                 |   38 +
+ .../artifacts/evidence-validation.md               |   40 +
+ .../artifacts/grounding.txt                        |   13 +
+ .../artifacts/input-snapshot.yaml                  |  170 ++
+ .../artifacts/tier_decision.yaml                   |   13 +
+ .../metrics.json                                   |   21 +
+ .../reflection-card.yaml                           |   27 +
+ .../return-contract.yaml                           |   93 +
+ .../reviewer-briefs/reviewer-1.md                  |   69 +
+ .../reviewer-briefs/reviewer-2.md                  |   88 +
+ .../reviewer-briefs/reviewer-3.md                  |   60 +
+ .../reviewer-cards/reviewer-1-card.yaml            |  114 +
+ .../reviewer-cards/reviewer-2-card.yaml            |  104 +
+ .../reviewer-cards/reviewer-3-card.yaml            |  195 ++
+ .../TASK-WF-authorizedNarrow-20261106-214325.md    |   81 +
+ .../artifacts/distribution-fix-tests.log           |  667 ++++++
+ .../artifacts/distribution-tests.log               | 1293 +++++++++++
+ .../artifacts/identity-integration-evidence.md     |   24 +
+ .../artifacts/integration-tests.log                |  696 ++++++
+ .../artifacts/job-runner-tests.log                 |   62 +
+ .../artifacts/live-harness-events.jsonl            |    6 +
+ .../artifacts/retries/T1/prompt-1-1.md             |   31 +
+ .../artifacts/retries/T1/q0-head                   |    1 +
+ .../artifacts/retries/T2/family-probe.md           |   13 +
+ .../artifacts/retries/T2/prompt-1-1.md             |   31 +
+ .../artifacts/retries/T2/prompt-2-1.md             |   31 +
+ .../artifacts/retries/T2/q0-head                   |    1 +
+ .../artifacts/retries/T2/review-1.md               |    8 +
+ .../artifacts/retries/T3/family-probe.md           |    5 +
+ .../artifacts/retries/T3/prompt-1-1.md             |   31 +
+ .../artifacts/retries/T3/prompt-2-1.md             |   31 +
+ .../artifacts/retries/T3/q0-head                   |    1 +
+ .../artifacts/retries/T3/review-1.md               |    6 +
+ .../artifacts/retries/T4/prompt-1-1.md             |   31 +
+ .../artifacts/retries/T4/q0-head                   |    1 +
+ .../artifacts/task2-fix-delta.diff                 |  352 +++
+ .../artifacts/task2-source.diff                    |  687 ++++++
+ .../artifacts/task3-fix-delta.diff                 |  178 ++
+ .../artifacts/task3-source.diff                    |  981 +++++++++
+ .../artifacts/task4-source.diff                    |  778 +++++++
+ .../artifacts/tool-adapter-fix-tests.log           |  126 ++
+ .../artifacts/tool-adapter-tests.log               |  125 ++
+ .../progress.md                                    |   12 +
+ .../return-contract.yaml                           |   15 +
+ .../source.md                                      |    5 +
+ .../TASK-WF-brainstormFixBri-20261106-113538.md    |  163 ++
+ .../artifacts/final-review-1.md                    |  121 +
+ .../artifacts/retries/T1/prompt-1-1.md             |  114 +
+ .../artifacts/retries/T1/q0-head                   |    1 +
+ .../artifacts/retries/T2/prompt-1-1.md             |  124 ++
+ .../artifacts/retries/T2/q0-head                   |    1 +
+ .../artifacts/retries/T3/prompt-1-1.md             |  115 +
+ .../artifacts/retries/T3/q0-head                   |    1 +
+ .../artifacts/retries/T4/prompt-1-1.md             |  139 ++
+ .../artifacts/retries/T4/q0-head                   |    1 +
+ .../artifacts/retries/T5/prompt-1-1.md             |  193 ++
+ .../artifacts/retries/T5/q0-head                   |    1 +
+ .../artifacts/retries/T6/prompt-1-1.md             |  125 ++
+ .../artifacts/retries/T6/q0-head                   |    1 +
+ .../retries/T7/draft-prompt-1-1-unsent-2.md        |  531 +++++
+ .../retries/T7/draft-prompt-1-1-unsent.md          | 1485 +++++++++++++
+ .../artifacts/retries/T7/notes.md                  |    2 +
+ .../artifacts/retries/T7/prompt-1-1.md             |  531 +++++
+ .../artifacts/retries/T7/q0-head                   |    1 +
+ .../artifacts/status-after.txt                     |  978 ++++++++
+ .../artifacts/status-before.txt                    |  971 ++++++++
+ .../artifacts/t1-checks.txt                        |   19 +
+ .../artifacts/t1-pytest.log                        |   13 +
+ .../artifacts/t2-checks.txt                        |   24 +
+ .../artifacts/t2-pytest.log                        |   14 +
+ .../artifacts/t3-checks.txt                        |   17 +
+ .../artifacts/t3-pytest.log                        |   18 +
+ .../artifacts/t4-checks.txt                        |   12 +
+ .../artifacts/t4-pytest.log                        |   13 +
+ .../artifacts/t5-checks.txt                        |   15 +
+ .../artifacts/t5-collect-after.txt                 |   35 +
+ .../artifacts/t5-collect-before.txt                |   33 +
+ .../artifacts/t5-pytest.log                        |   19 +
+ .../artifacts/t6-checks.txt                        |   26 +
+ .../artifacts/t7-lint.log                          |  161 ++
+ .../artifacts/t7-pytest.log                        |   24 +
+ .../artifacts/t7-status-compare.txt                |   16 +
+ .../artifacts/t7-sync.log                          |  227 ++
+ .../progress.md                                    |   18 +
+ .../return-contract.yaml                           |   14 +
+ .../source.md                                      |  252 +++
+ .../TASK-WF-designSpec-20261107-075614.md          |  200 ++
+ .../artifacts/base-format.log                      |  505 +++++
+ .../artifacts/base-full-suite.log                  | 1062 +++++++++
+ .../artifacts/base-lint.log                        |  161 ++
+ .../artifacts/executor-guidance.md                 |   24 +
+ .../artifacts/final-checks.md                      |   34 +
+ .../artifacts/o3-pin-scan.py                       |  368 ++++
+ .../artifacts/pre-build-gate.md                    | 1590 +++++++++++++
+ .../artifacts/retries/T1/advice-3-a.md             |   41 +
+ .../artifacts/retries/T1/advice-3-b.md             |   18 +
+ .../artifacts/retries/T1/advice-4-a.md             |   29 +
+ .../artifacts/retries/T1/advice-4-b.md             |   38 +
+ .../artifacts/retries/T1/approach-2.md             |    6 +
+ .../artifacts/retries/T1/approach-3.md             |    5 +
+ .../artifacts/retries/T1/approach-4.md             |    7 +
+ .../artifacts/retries/T1/approach-5.md             |    5 +
+ .../retries/T1/artifacts-2/base-format.log         |  505 +++++
+ .../retries/T1/artifacts-2/base-full-suite.log     | 1062 +++++++++
+ .../artifacts/retries/T1/artifacts-2/base-lint.log |  161 ++
+ .../retries/T1/artifacts-2/pre-build-gate.md       |   72 +
+ .../retries/T1/artifacts-3/base-format.log         |  505 +++++
+ .../retries/T1/artifacts-3/base-full-suite.log     | 1062 +++++++++
+ .../artifacts/retries/T1/artifacts-3/base-lint.log |  161 ++
+ .../retries/T1/artifacts-3/o3-pin-scan.py          |  285 +++
+ .../retries/T1/artifacts-3/pre-build-gate.md       |  872 ++++++++
+ .../retries/T1/artifacts-4/base-format.log         |  505 +++++
+ .../retries/T1/artifacts-4/base-full-suite.log     | 1062 +++++++++
+ .../artifacts/retries/T1/artifacts-4/base-lint.log |  161 ++
+ .../retries/T1/artifacts-4/o3-pin-scan.py          |  315 +++
+ .../retries/T1/artifacts-4/pre-build-gate.md       | 1214 ++++++++++
+ .../artifacts/retries/T1/attempt-2.diff            |    1 +
+ .../artifacts/retries/T1/attempt-3.diff            |    1 +
+ .../artifacts/retries/T1/attempt-4.diff            |    1 +
+ .../artifacts/retries/T1/extras-2.log              |    1 +
+ .../artifacts/retries/T1/extras-3.log              |    1 +
+ .../artifacts/retries/T1/extras-4.log              |    1 +
+ .../artifacts/retries/T1/extras-5.log              |    1 +
+ .../artifacts/retries/T1/notes.md                  |    5 +
+ .../artifacts/retries/T1/probe-1-1.md              |   11 +
+ .../artifacts/retries/T1/prompt-1-1.md             |  785 +++++++
+ .../artifacts/retries/T1/prompt-2-1.md             |  811 +++++++
+ .../artifacts/retries/T1/prompt-3-1.md             | 2126 ++++++++++++++++++
+ .../artifacts/retries/T1/prompt-4-1.md             | 2325 ++++++++++++++++++++
+ .../artifacts/retries/T1/prompt-5-1.md             | 1284 +++++++++++
+ .../artifacts/retries/T1/prompt-5-2.md             | 1333 +++++++++++
+ .../artifacts/retries/T1/prompt-5-3.md             | 1205 ++++++++++
+ .../artifacts/retries/T1/prompt-5-4.md             | 1171 ++++++++++
+ .../artifacts/retries/T1/q0-head                   |    1 +
+ .../artifacts/retries/T1/revert-2.done             |    1 +
+ .../artifacts/retries/T1/revert-2.log              |    8 +
+ .../artifacts/retries/T1/revert-3.done             |    1 +
+ .../artifacts/retries/T1/revert-3.log              |    9 +
+ .../artifacts/retries/T1/revert-4.done             |    1 +
+ .../artifacts/retries/T1/revert-4.log              |    9 +
+ .../artifacts/retries/T1/review-1.md               |    6 +
+ .../artifacts/retries/T1/review-2.md               |    7 +
+ .../artifacts/retries/T1/review-3.md               |    7 +
+ .../artifacts/retries/T1/review-4.md               |    9 +
+ .../artifacts/retries/T1/review-5.md               |   35 +
+ .../artifacts/retries/T10/notes.md                 |    3 +
+ .../artifacts/retries/T10/prompt-1-1.md            |  243 ++
+ .../artifacts/retries/T10/q0-head                  |    1 +
+ .../artifacts/retries/T11/notes.md                 |    3 +
+ .../artifacts/retries/T11/prompt-1-1.md            | 1003 +++++++++
+ .../artifacts/retries/T11/q0-head                  |    1 +
+ .../artifacts/retries/T12/notes.md                 |    2 +
+ .../artifacts/retries/T12/prompt-1-1.md            |  206 ++
+ .../artifacts/retries/T12/q0-head                  |    1 +
+ .../artifacts/retries/T13/notes.md                 |    2 +
+ .../artifacts/retries/T13/prompt-1-1.md            |  122 +
+ .../artifacts/retries/T13/q0-head                  |    1 +
+ .../artifacts/retries/T1_brief-3.md                |   19 +
+ .../artifacts/retries/T1_brief-4.md                |   19 +
+ .../artifacts/retries/T1_brief-5.md                |   23 +
+ .../artifacts/retries/T2/notes.md                  |    2 +
+ .../artifacts/retries/T2/prompt-1-1.md             |  205 ++
+ .../artifacts/retries/T2/q0-head                   |    1 +
+ .../artifacts/retries/T3/notes.md                  |    6 +
+ .../artifacts/retries/T3/probe-1-1.md              |   34 +
+ .../artifacts/retries/T3/prompt-1-1.md             |  825 +++++++
+ .../artifacts/retries/T3/prompt-2-1.md             |  950 ++++++++
+ .../artifacts/retries/T3/q0-head                   |    1 +
+ .../artifacts/retries/T3/review-1.md               |   11 +
+ .../artifacts/retries/T4/notes.md                  |   12 +
+ .../artifacts/retries/T4/probe-1-1.md              |   33 +
+ .../artifacts/retries/T4/prompt-1-1.md             |  909 ++++++++
+ .../artifacts/retries/T4/prompt-2-1.md             |  919 ++++++++
+ .../artifacts/retries/T4/q0-head                   |    1 +
+ .../artifacts/retries/T4/review-1.md               |    9 +
+ .../artifacts/retries/T5/prompt-1-1.md             |  288 +++
+ .../artifacts/retries/T5/q0-head                   |    1 +
+ .../artifacts/retries/T6/prompt-1-1.md             |  124 ++
+ .../artifacts/retries/T6/q0-head                   |    1 +
+ .../artifacts/retries/T7/notes.md                  |    2 +
+ .../artifacts/retries/T7/prompt-1-1.md             |  658 ++++++
+ .../artifacts/retries/T7/q0-head                   |    1 +
+ .../artifacts/retries/T8/notes.md                  |    3 +
+ .../artifacts/retries/T8/probe-1-1.md              |   27 +
+ .../artifacts/retries/T8/probe-2-1.md              |   24 +
+ .../artifacts/retries/T8/prompt-1-1.md             |  503 +++++
+ .../artifacts/retries/T8/prompt-2-1.md             |  720 ++++++
+ .../artifacts/retries/T8/prompt-2-2.md             |  682 ++++++
+ .../artifacts/retries/T8/q0-head                   |    1 +
+ .../artifacts/retries/T8/repair-2-1.md             |    4 +
+ .../artifacts/retries/T8/review-1.md               |   13 +
+ .../artifacts/retries/T8/review-2.md               |   10 +
+ .../artifacts/retries/T9/advice-3-a.md             |   50 +
+ .../artifacts/retries/T9/advice-3-b.md             |   36 +
+ .../artifacts/retries/T9/approach-2.md             |    5 +
+ .../artifacts/retries/T9/artifacts-2/t9-checks.log |    9 +
+ .../artifacts/retries/T9/attempt-2.diff            |  180 ++
+ .../artifacts/retries/T9/extras-2.log              |    6 +
+ .../artifacts/retries/T9/notes.md                  |    3 +
+ .../artifacts/retries/T9/probe-1-1.md              |   21 +
+ .../artifacts/retries/T9/prompt-1-1.md             |  218 ++
+ .../artifacts/retries/T9/prompt-2-1.md             |  279 +++
+ .../artifacts/retries/T9/prompt-3-1.md             |  286 +++
+ .../artifacts/retries/T9/q0-head                   |    1 +
+ .../artifacts/retries/T9/revert-2.done             |    1 +
+ .../artifacts/retries/T9/revert-2.log              |    7 +
+ .../artifacts/retries/T9/review-1.md               |    7 +
+ .../artifacts/retries/T9/review-2.md               |    9 +
+ .../artifacts/retries/T9_brief-3.md                |   38 +
+ .../artifacts/t10-checks.log                       |   10 +
+ .../artifacts/t11-checks.log                       |    6 +
+ .../artifacts/t12-checks.log                       |   13 +
+ .../artifacts/t13-full-suite.log                   | 1057 +++++++++
+ .../artifacts/t2-verify-sync.log                   |    6 +
+ .../artifacts/t3-checks.log                        |    7 +
+ .../artifacts/t4-checks.log                        |    6 +
+ .../artifacts/t5-checks.log                        |    4 +
+ .../artifacts/t6-checks.log                        |    2 +
+ .../artifacts/t7-checks.log                        |    5 +
+ .../artifacts/t8-checks.log                        |    7 +
+ .../artifacts/t9-checks.log                        |    8 +
+ .../TASK-WF-designSpec-20261107-075614/progress.md |   52 +
+ .../return-contract.yaml                           |   15 +
+ .../TASK-WF-designSpec-20261107-075614/source.md   |  378 ++++
+ .../TASK-WF-fixIssue412SVeri-20261106-215543.md    |   52 +
+ .../artifacts/final-review.md                      |   40 +
+ .../artifacts/impact/T2/impact.md                  |   54 +
+ .../artifacts/impact/T2/return-contract.yaml       |   35 +
+ .../artifacts/launch-smoke.json                    |   19 +
+ .../artifacts/pre-review-receipt.md                |   13 +
+ .../reflect-pre-20261106-215816/REPORT.md          |  127 ++
+ .../adversarial/base-selection.md                  |  217 ++
+ .../adversarial/debate-transcript.md               |  112 +
+ .../adversarial/diff-analysis.md                   |   74 +
+ .../adversarial/invariant-probe.md                 |   57 +
+ .../adversarial/merge-log.md                       |  122 +
+ .../adversarial/merged-review.md                   |  145 ++
+ .../adversarial/merged-verdict.yaml                |  112 +
+ .../adversarial/pipeline.log                       |   12 +
+ .../adversarial/refactor-plan.md                   |  140 ++
+ .../adversarial/return-contract.yaml               |   19 +
+ .../adversarial/rounds/round-1-variant-1.md        |   65 +
+ .../adversarial/rounds/round-1-variant-2.md        |   82 +
+ .../adversarial/rounds/round-1-variant-3.md        |   67 +
+ .../adversarial/rounds/round-2-5-fault-finder.md   |   55 +
+ .../adversarial/rounds/round-2-variant-1.md        |   40 +
+ .../adversarial/rounds/round-2-variant-2.md        |   56 +
+ .../adversarial/rounds/round-2-variant-3.md        |   54 +
+ .../adversarial/variant-1-original.md              |   33 +
+ .../adversarial/variant-2-original.md              |   26 +
+ .../adversarial/variant-3-original.md              |   34 +
+ .../artifacts/check-input-integrity.py             |   33 +
+ .../artifacts/core-install-grounding.yaml          |    9 +
+ .../artifacts/coverage-analysis.md                 |  113 +
+ .../artifacts/coverage-matrix.json                 |  307 +++
+ .../artifacts/environment.yaml                     |   22 +
+ .../artifacts/evidence-validation.md               |   62 +
+ .../artifacts/final-output-check.txt               |    4 +
+ .../artifacts/inferred-requirements.json           |   23 +
+ .../artifacts/input-integrity-result.json          |    7 +
+ .../artifacts/input-snapshot.yaml                  |   26 +
+ .../artifacts/match-coverage.py                    |   42 +
+ .../artifacts/negative-evidence.yaml               |   33 +
+ .../artifacts/orca-discovery.md                    |   30 +
+ .../artifacts/prepare-briefs.py                    |   48 +
+ .../artifacts/t1-calibration.md                    |   16 +
+ .../artifacts/tier_decision.yaml                   |   29 +
+ .../reflect-pre-20261106-215816/audit.log          |   45 +
+ .../reflect-pre-20261106-215816/metrics.json       |   27 +
+ .../return-contract.yaml                           |  141 ++
+ .../reviewer-briefs/reviewer-1.md                  |  150 ++
+ .../reviewer-briefs/reviewer-2.md                  |  157 ++
+ .../reviewer-briefs/reviewer-3.md                  |  150 ++
+ .../reviewer-cards/reviewer-1-calibration.yaml     |   22 +
+ .../reviewer-cards/reviewer-1-card.yaml            |   33 +
+ .../reviewer-cards/reviewer-2-calibration.yaml     |   21 +
+ .../reviewer-cards/reviewer-2-card.yaml            |   26 +
+ .../reviewer-cards/reviewer-3-calibration.yaml     |   25 +
+ .../reviewer-cards/reviewer-3-card.yaml            |   34 +
+ .../reflect-pre-20261106-215816/t1-card.md         |   18 +
+ .../verify-logs/invocations.yaml                   |   11 +
+ .../verify-logs/stderr.txt                         |    0
+ .../verify-logs/stdout.txt                         |    1 +
+ .../artifacts/retries/T1/notes.md                  |    1 +
+ .../artifacts/retries/T1/q0-head                   |    1 +
+ .../artifacts/retries/T2/notes.md                  |    1 +
+ .../artifacts/retries/T2/q0-head                   |    1 +
+ .../artifacts/sync.log                             |  225 ++
+ .../artifacts/t1-review.md                         |   11 +
+ .../artifacts/t1-tests.log                         |   13 +
+ .../artifacts/t2-review.md                         |   11 +
+ .../artifacts/t2-tests.log                         |   88 +
+ .../progress.md                                    |    8 +
+ .../return-contract.yaml                           |   15 +
+ .../source.md                                      |    1 +
+ .../TASK-WF-makeTheAliasOnly-20261105-051649.md    |    0
+ .../artifacts/final-policy.log                     |    0
+ .../artifacts/retries/T1/notes.md                  |    5 +
+ .../artifacts/retries/T1/prompt-1-2.md             |  314 +++
+ .../artifacts/retries/T1/q0-head                   |    0
+ .../artifacts/retries/T2/notes.md                  |    3 +
+ .../artifacts/retries/T2/prompt-1-2.md             |  213 ++
+ .../artifacts/retries/T2/q0-head                   |    0
+ .../artifacts/retries/T3/notes.md                  |    2 +
+ .../artifacts/retries/T3/prompt-1-2.md             |  120 +
+ .../artifacts/retries/T3/q0-head                   |    0
+ .../artifacts/retries/T4/prompt-1-2.md             |  178 ++
+ .../artifacts/retries/T4/q0-head                   |    0
+ .../artifacts/retries/T5/advice-3-a.md             |    0
+ .../artifacts/retries/T5/advice-3-b.md             |    0
+ .../artifacts/retries/T5/approach-2.md             |    0
+ .../artifacts/retries/T5/artifacts-2/t5-notes.md   |    0
+ .../artifacts/retries/T5/artifacts-2/t5-test.log   |    0
+ .../artifacts/retries/T5/attempt-2.diff            |    0
+ .../artifacts/retries/T5/extras-2.log              |    0
+ .../artifacts/retries/T5/notes.md                  |    2 +
+ .../artifacts/retries/T5/probe-1-1.md              |    0
+ .../artifacts/retries/T5/probe-3-1.md              |    0
+ .../artifacts/retries/T5/prompt-1-2.md             |  376 ++++
+ .../artifacts/retries/T5/prompt-3-2.md             |  376 ++++
+ .../artifacts/retries/T5/q0-head                   |    0
+ .../artifacts/retries/T5/repair-3-1.md             |    0
+ .../artifacts/retries/T5/revert-2.done             |    0
+ .../artifacts/retries/T5/revert-2.log              |    0
+ .../artifacts/retries/T5/review-1.md               |    0
+ .../artifacts/retries/T5/review-2.md               |    0
+ .../artifacts/retries/T5/review-3.md               |    0
+ .../artifacts/retries/T5_brief-3.md                |    0
+ .../artifacts/retries/T6/advice-3-a.md             |    0
+ .../artifacts/retries/T6/advice-3-b.md             |    0
+ .../artifacts/retries/T6/advice-4-a.md             |    0
+ .../artifacts/retries/T6/advice-4-b.md             |    0
+ .../artifacts/retries/T6/approach-2.md             |    0
+ .../artifacts/retries/T6/approach-3.md             |    0
+ .../artifacts/retries/T6/approach-4.md             |    0
+ .../artifacts/retries/T6/artifacts-2/t6-test.log   |    0
+ .../artifacts/retries/T6/artifacts-3/t6-claims.md  |    0
+ .../retries/T6/artifacts-3/t6-scope-search.log     |    0
+ .../artifacts/retries/T6/artifacts-3/t6-test.log   |    0
+ .../artifacts/retries/T6/artifacts-4/t6-claims.md  |    0
+ .../artifacts/retries/T6/artifacts-4/t6-test.log   |    0
+ .../artifacts/retries/T6/attempt-2.diff            |    0
+ .../artifacts/retries/T6/attempt-3.diff            |    0
+ .../artifacts/retries/T6/attempt-4.diff            |    0
+ .../artifacts/retries/T6/extras-2.log              |    0
+ .../artifacts/retries/T6/extras-3.log              |    0
+ .../artifacts/retries/T6/extras-4.log              |    0
+ .../artifacts/retries/T6/notes.md                  |    8 +
+ .../artifacts/retries/T6/probe-1-1.md              |    0
+ .../artifacts/retries/T6/probe-2-1.md              |    0
+ .../artifacts/retries/T6/probe-3-1.md              |    0
+ .../artifacts/retries/T6/probe-4-1.md              |    0
+ .../artifacts/retries/T6/prompt-1-2.md             |  216 ++
+ .../artifacts/retries/T6/q0-head                   |    0
+ .../artifacts/retries/T6/repair-2-1.md             |    0
+ .../artifacts/retries/T6/repair-3-1.md             |    0
+ .../artifacts/retries/T6/repair-4-1.md             |    0
+ .../artifacts/retries/T6/revert-2.done             |    0
+ .../artifacts/retries/T6/revert-2.log              |    0
+ .../artifacts/retries/T6/revert-3.done             |    0
+ .../artifacts/retries/T6/revert-3.log              |    0
+ .../artifacts/retries/T6/revert-4.done             |    0
+ .../artifacts/retries/T6/revert-4.log              |    0
+ .../artifacts/retries/T6/review-1.md               |    0
+ .../artifacts/retries/T6/review-2.md               |    0
+ .../artifacts/retries/T6/review-3.md               |    0
+ .../artifacts/retries/T6/review-4.md               |    0
+ .../artifacts/retries/T6_brief-3.md                |    0
+ .../artifacts/retries/T6_brief-4.md                |    0
+ .../artifacts/retries/T6_brief-5.md                |    0
+ .../artifacts/retries/T7/notes.md                  |    0
+ .../artifacts/retries/T7/probe-1-1.md              |    0
+ .../artifacts/retries/T7/q0-head                   |    0
+ .../artifacts/retries/T7/review-1.md               |    0
+ .../artifacts/retries/T8/q0-head                   |    0
+ .../artifacts/retries/T9/notes.md                  |    0
+ .../artifacts/retries/T9/q0-head                   |    0
+ .../artifacts/superseded-prompts/README.md         |   13 +
+ .../artifacts/superseded-prompts/T1-prompt-1-1.md} |    0
+ .../artifacts/superseded-prompts/T2-prompt-1-1.md} |    0
+ .../artifacts/superseded-prompts/T3-prompt-1-1.md} |    0
+ .../artifacts/superseded-prompts/T4-prompt-1-1.md} |    0
+ .../artifacts/superseded-prompts/T5-prompt-1-1.md} |    0
+ .../artifacts/superseded-prompts/T5-prompt-3-1.md} |    0
+ .../artifacts/superseded-prompts/T6-prompt-1-1.md} |    0
+ .../artifacts/t1-red.log                           |    0
+ .../artifacts/t1-ruff.log                          |    0
+ .../artifacts/t2-test.log                          |    0
+ .../artifacts/t3-test.log                          |    0
+ .../artifacts/t4-test.log                          |    0
+ .../artifacts/t5-notes.md                          |    0
+ .../artifacts/t5-test.log                          |    0
+ .../artifacts/t6-claims.md                         |    0
+ .../artifacts/t6-test.log                          |    0
+ .../artifacts/t7-test.log                          |    0
+ .../artifacts/t8-test.log                          |    0
+ .../artifacts/t9-red.log                           |    0
+ .../t9-scratch/test_alias_exports_scratch.py       |    0
+ .../progress.md                                    |    9 +
+ .../return-contract.yaml                           |    0
+ .../source.md                                      |    0
+ .../TASK-WF-p1LivePlanBrief-20261105-164506.md     |  589 +++++
+ .../artifacts/ac-1.3.md                            |   40 +
+ .../artifacts/ac13-branch.txt                      |    1 +
+ .../artifacts/ac13-find-before.txt                 |  325 +++
+ .../artifacts/ac13-find-diff.txt                   |    0
+ .../artifacts/ac13-find.txt                        |  325 +++
+ .../artifacts/ac13-head-after.txt                  |    1 +
+ .../artifacts/ac13-remove.json                     |   10 +
+ .../artifacts/ac13-run-1.txt                       |   14 +
+ .../artifacts/ac13-run-2.txt                       |   17 +
+ .../artifacts/ac13-status-after-1.txt              |    0
+ .../artifacts/ac13-status-after-2.txt              |    0
+ .../artifacts/ac13-status-before.txt               |    0
+ .../artifacts/ac13-sync-dev.txt                    |    9 +
+ .../artifacts/ac13-worktree-list-after.json        | 1330 +++++++++++
+ .../artifacts/ac13-worktree.json                   |   76 +
+ .../artifacts/ac13.env                             |    1 +
+ .../artifacts/branch-tip.txt                       |    1 +
+ .../artifacts/claude-help.txt                      |  313 +++
+ .../artifacts/head-final.txt                       |    1 +
+ .../artifacts/install-line.txt                     |   62 +
+ .../artifacts/lc01-branch-after.txt                |    0
+ .../artifacts/lc01-branch.txt                      |    1 +
+ .../artifacts/lc01-brief.txt                       |    7 +
+ .../artifacts/lc01-head-after.txt                  |    1 +
+ .../artifacts/lc01-index-after.txt                 |    0
+ .../artifacts/lc01-remove.json                     |   10 +
+ .../artifacts/lc01-report/analyze-report.md        |   36 +
+ .../artifacts/lc01-report/return-contract.yaml     |    5 +
+ .../artifacts/lc01-result.md                       |   16 +
+ .../artifacts/lc01-session-analysis.txt            |   37 +
+ .../artifacts/lc01-show-1.json                     |  219 ++
+ .../artifacts/lc01-status-after.txt                |    1 +
+ .../artifacts/lc01-status-before.txt               |    0
+ .../artifacts/lc01-step1.txt                       |    5 +
+ .../artifacts/lc01-step2-samples.txt               |    1 +
+ .../artifacts/lc01-step3-ack.json                  |   21 +
+ .../artifacts/lc01-step3.json                      |   38 +
+ .../artifacts/lc01-step4.txt                       |    4 +
+ .../artifacts/lc01-step5.md                        |   17 +
+ .../artifacts/lc01-step6.md                        |    3 +
+ .../artifacts/lc01-step7.txt                       |   47 +
+ .../artifacts/lc01-sync-dev.txt                    |    9 +
+ .../artifacts/lc01-task-create.json                |   30 +
+ .../artifacts/lc01-transcript-1.json               |  510 +++++
+ .../artifacts/lc01-transcript-2.json               |   88 +
+ .../artifacts/lc01-turn-1.json                     |   38 +
+ .../artifacts/lc01-turn-1.raw                      |   41 +
+ .../artifacts/lc01-unattended-check.txt            |    2 +
+ .../artifacts/lc01-worker-start.json               |   88 +
+ .../artifacts/lc01-worktree-list-after.json        | 1621 ++++++++++++++
+ .../artifacts/lc01-worktree.json                   |   77 +
+ .../artifacts/lc01.env                             |    6 +
+ .../artifacts/lc02-branch-after.txt                |    0
+ .../artifacts/lc02-branch.txt                      |    1 +
+ .../artifacts/lc02-brief.txt                       |    7 +
+ .../artifacts/lc02-head-after.txt                  |    1 +
+ .../artifacts/lc02-index-after.txt                 |    0
+ .../artifacts/lc02-remove.json                     |   10 +
+ .../artifacts/lc02-report/build-report.md          |   28 +
+ .../artifacts/lc02-report/build.log                |    2 +
+ .../artifacts/lc02-report/return-contract.yaml     |    7 +
+ .../artifacts/lc02-result.md                       |   16 +
+ .../artifacts/lc02-session-analysis.txt            |   36 +
+ .../artifacts/lc02-show-1.json                     |  219 ++
+ .../artifacts/lc02-status-after.txt                |    0
+ .../artifacts/lc02-status-before.txt               |    0
+ .../artifacts/lc02-step1.txt                       |    5 +
+ .../artifacts/lc02-step2-samples.txt               |    1 +
+ .../artifacts/lc02-step3-ack.json                  |   21 +
+ .../artifacts/lc02-step3.json                      |   38 +
+ .../artifacts/lc02-step4.txt                       |    4 +
+ .../artifacts/lc02-step5-crosscheck.txt            |    7 +
+ .../artifacts/lc02-step5.md                        |   17 +
+ .../artifacts/lc02-step6.md                        |    5 +
+ .../artifacts/lc02-step7.txt                       |   47 +
+ .../artifacts/lc02-sync-dev.txt                    |    9 +
+ .../artifacts/lc02-task-create.json                |   30 +
+ .../artifacts/lc02-transcript-1.json               |  544 +++++
+ .../artifacts/lc02-transcript-2.json               |   88 +
+ .../artifacts/lc02-turn-1.json                     |   38 +
+ .../artifacts/lc02-turn-1.raw                      |   41 +
+ .../artifacts/lc02-unattended-check.txt            |    2 +
+ .../artifacts/lc02-worker-start.json               |   88 +
+ .../artifacts/lc02-worktree-list-after.json        | 1621 ++++++++++++++
+ .../artifacts/lc02-worktree.json                   |   77 +
+ .../artifacts/lc02.env                             |    8 +
+ .../artifacts/lc03-branch-after.txt                |    0
+ .../artifacts/lc03-branch.txt                      |    1 +
+ .../artifacts/lc03-brief.txt                       |    7 +
+ .../artifacts/lc03-head-after.txt                  |    1 +
+ .../artifacts/lc03-index-after.txt                 |    0
+ .../artifacts/lc03-remove.json                     |   10 +
+ .../artifacts/lc03-report/business-panel-report.md |   86 +
+ .../artifacts/lc03-report/return-contract.yaml     |    5 +
+ .../artifacts/lc03-result.md                       |   16 +
+ .../artifacts/lc03-session-analysis.txt            |   42 +
+ .../artifacts/lc03-show-1.json                     |  219 ++
+ .../artifacts/lc03-status-after.txt                |    1 +
+ .../artifacts/lc03-status-before.txt               |    0
+ .../artifacts/lc03-step1.txt                       |    5 +
+ .../artifacts/lc03-step2-samples.txt               |    1 +
+ .../artifacts/lc03-step3-ack.json                  |   21 +
+ .../artifacts/lc03-step3.json                      |   38 +
+ .../artifacts/lc03-step4.txt                       |    4 +
+ .../artifacts/lc03-step5-crosscheck.txt            |    7 +
+ .../artifacts/lc03-step5.md                        |   17 +
+ .../artifacts/lc03-step6.md                        |    5 +
+ .../artifacts/lc03-step7.txt                       |   47 +
+ .../artifacts/lc03-sync-dev.txt                    |    9 +
+ .../artifacts/lc03-task-create.json                |   30 +
+ .../artifacts/lc03-transcript-1.json               |  901 ++++++++
+ .../artifacts/lc03-transcript-2.json               |   88 +
+ .../artifacts/lc03-turn-1.json                     |   38 +
+ .../artifacts/lc03-turn-1.raw                      |   47 +
+ .../artifacts/lc03-unattended-check.txt            |    2 +
+ .../artifacts/lc03-worker-start.json               |   88 +
+ .../artifacts/lc03-worktree-list-after.json        | 1621 ++++++++++++++
+ .../artifacts/lc03-worktree.json                   |   77 +
+ .../artifacts/lc03.env                             |    8 +
+ .../artifacts/lc04-branch-after.txt                |    0
+ .../artifacts/lc04-branch.txt                      |    1 +
+ .../artifacts/lc04-brief.txt                       |    7 +
+ .../artifacts/lc04-head-after.txt                  |    1 +
+ .../artifacts/lc04-index-after.txt                 |    0
+ .../artifacts/lc04-remove.json                     |   10 +
+ .../artifacts/lc04-report/design-report.md         |  167 ++
+ .../artifacts/lc04-report/return-contract.yaml     |    6 +
+ .../artifacts/lc04-result.md                       |   17 +
+ .../artifacts/lc04-session-analysis.txt            |   40 +
+ .../artifacts/lc04-show-1.json                     |  219 ++
+ .../artifacts/lc04-status-after.txt                |    1 +
+ .../artifacts/lc04-status-before.txt               |    0
+ .../artifacts/lc04-step1.txt                       |    5 +
+ .../artifacts/lc04-step2-samples.txt               |    1 +
+ .../artifacts/lc04-step3-ack.json                  |   21 +
+ .../artifacts/lc04-step3.json                      |   38 +
+ .../artifacts/lc04-step4.txt                       |    4 +
+ .../artifacts/lc04-step5-crosscheck.txt            |    7 +
+ .../artifacts/lc04-step5.md                        |   17 +
+ .../artifacts/lc04-step6.md                        |    5 +
+ .../artifacts/lc04-step7.txt                       |   47 +
+ .../artifacts/lc04-sync-dev.txt                    |    9 +
+ .../artifacts/lc04-task-create.json                |   30 +
+ .../artifacts/lc04-transcript-1.json               |  939 ++++++++
+ .../artifacts/lc04-transcript-2.json               |   88 +
+ .../artifacts/lc04-turn-1.json                     |   38 +
+ .../artifacts/lc04-turn-1.raw                      |   46 +
+ .../artifacts/lc04-unattended-check.txt            |    2 +
+ .../artifacts/lc04-worker-start.json               |   88 +
+ .../artifacts/lc04-worktree-list-after.json        | 1621 ++++++++++++++
+ .../artifacts/lc04-worktree.json                   |   77 +
+ .../artifacts/lc04.env                             |    8 +
+ .../artifacts/lc05-branch-after.txt                |    0
+ .../artifacts/lc05-branch.txt                      |    1 +
+ .../artifacts/lc05-brief.txt                       |    7 +
+ .../artifacts/lc05-head-after.txt                  |    1 +
+ .../artifacts/lc05-index-after.txt                 |    0
+ .../artifacts/lc05-remove.json                     |   10 +
+ .../artifacts/lc05-report/install_core_api.md      |   49 +
+ .../artifacts/lc05-report/return-contract.yaml     |    5 +
+ .../artifacts/lc05-result.md                       |   16 +
+ .../artifacts/lc05-session-analysis-supplement.txt |   14 +
+ .../artifacts/lc05-session-analysis.txt            |   29 +
+ .../artifacts/lc05-show-1.json                     |  219 ++
+ .../artifacts/lc05-status-after.txt                |    1 +
+ .../artifacts/lc05-status-before.txt               |    0
+ .../artifacts/lc05-step1.txt                       |    5 +
+ .../artifacts/lc05-step2-samples.txt               |    1 +
+ .../artifacts/lc05-step3-ack.json                  |   21 +
+ .../artifacts/lc05-step3.json                      |   38 +
+ .../artifacts/lc05-step4.txt                       |    4 +
+ .../artifacts/lc05-step5-crosscheck.txt            |    7 +
+ .../artifacts/lc05-step5.md                        |   17 +
+ .../artifacts/lc05-step6.md                        |    5 +
+ .../artifacts/lc05-step7.txt                       |   47 +
+ .../artifacts/lc05-sync-dev.txt                    |    9 +
+ .../artifacts/lc05-task-create.json                |   30 +
+ .../artifacts/lc05-transcript-1.json               |  486 ++++
+ .../artifacts/lc05-transcript-2.json               |   88 +
+ .../artifacts/lc05-turn-1.json                     |   38 +
+ .../artifacts/lc05-turn-1.raw                      |   41 +
+ .../artifacts/lc05-unattended-check.txt            |    2 +
+ .../artifacts/lc05-worker-start.json               |   88 +
+ .../artifacts/lc05-worktree-list-after.json        | 1621 ++++++++++++++
+ .../artifacts/lc05-worktree.json                   |   77 +
+ .../artifacts/lc05.env                             |    8 +
+ .../artifacts/lc06-branch-after.txt                |    0
+ .../artifacts/lc06-branch.txt                      |    1 +
+ .../artifacts/lc06-brief.txt                       |    7 +
+ .../artifacts/lc06-head-after.txt                  |    1 +
+ .../artifacts/lc06-index-after.txt                 |    0
+ .../artifacts/lc06-remove.json                     |   10 +
+ .../artifacts/lc06-report/explain-report.md        |   44 +
+ .../artifacts/lc06-report/return-contract.yaml     |    5 +
+ .../artifacts/lc06-result.md                       |   16 +
+ .../artifacts/lc06-session-analysis.txt            |   41 +
+ .../artifacts/lc06-show-1.json                     |  219 ++
+ .../artifacts/lc06-status-after.txt                |    1 +
+ .../artifacts/lc06-status-before.txt               |    0
+ .../artifacts/lc06-step1.txt                       |    5 +
+ .../artifacts/lc06-step2-samples.txt               |    1 +
+ .../artifacts/lc06-step3-ack.json                  |   21 +
+ .../artifacts/lc06-step3.json                      |   38 +
+ .../artifacts/lc06-step4.txt                       |    4 +
+ .../artifacts/lc06-step5-crosscheck.txt            |    7 +
+ .../artifacts/lc06-step5.md                        |   17 +
+ .../artifacts/lc06-step6.md                        |    5 +
+ .../artifacts/lc06-step7.txt                       |   47 +
+ .../artifacts/lc06-sync-dev.txt                    |    9 +
+ .../artifacts/lc06-task-create.json                |   30 +
+ .../artifacts/lc06-transcript-1.json               |  724 ++++++
+ .../artifacts/lc06-transcript-2.json               |   88 +
+ .../artifacts/lc06-turn-1.json                     |   38 +
+ .../artifacts/lc06-turn-1.raw                      |   42 +
+ .../artifacts/lc06-unattended-check.txt            |    2 +
+ .../artifacts/lc06-worker-start.json               |   88 +
+ .../artifacts/lc06-worktree-list-after.json        | 1565 +++++++++++++
+ .../artifacts/lc06-worktree.json                   |   77 +
+ .../artifacts/lc06.env                             |    8 +
+ .../artifacts/lc07-branch-after.txt                |    0
+ .../artifacts/lc07-branch.txt                      |    1 +
+ .../artifacts/lc07-brief.txt                       |    7 +
+ .../artifacts/lc07-head-after.txt                  |    1 +
+ .../artifacts/lc07-index-after.txt                 |    0
+ .../artifacts/lc07-remove.json                     |   10 +
+ .../artifacts/lc07-report/return-contract.yaml     |    5 +
+ .../artifacts/lc07-report/structure.md             |   61 +
+ .../artifacts/lc07-result.md                       |   17 +
+ .../artifacts/lc07-session-analysis-supplement.txt |    8 +
+ .../artifacts/lc07-session-analysis.txt            |   30 +
+ .../artifacts/lc07-show-1.json                     |  219 ++
+ .../artifacts/lc07-status-after.txt                |    1 +
+ .../artifacts/lc07-status-before.txt               |    0
+ .../artifacts/lc07-step1.txt                       |    5 +
+ .../artifacts/lc07-step2-samples.txt               |    1 +
+ .../artifacts/lc07-step3-ack.json                  |   21 +
+ .../artifacts/lc07-step3.json                      |   38 +
+ .../artifacts/lc07-step4.txt                       |    4 +
+ .../artifacts/lc07-step5-crosscheck.txt            |    7 +
+ .../artifacts/lc07-step5.md                        |   17 +
+ .../artifacts/lc07-step6.md                        |    5 +
+ .../artifacts/lc07-step7.txt                       |   46 +
+ .../artifacts/lc07-sync-dev.txt                    |    9 +
+ .../artifacts/lc07-task-create.json                |   30 +
+ .../artifacts/lc07-transcript-1.json               |  641 ++++++
+ .../artifacts/lc07-transcript-2.json               |   83 +
+ .../artifacts/lc07-turn-1.json                     |   38 +
+ .../artifacts/lc07-turn-1.raw                      |   40 +
+ .../artifacts/lc07-unattended-check.txt            |    2 +
+ .../artifacts/lc07-worker-start.json               |   88 +
+ .../artifacts/lc07-worktree-list-after.json        | 1565 +++++++++++++
+ .../artifacts/lc07-worktree.json                   |   77 +
+ .../artifacts/lc07.env                             |    8 +
+ .../artifacts/lc08-branch-after.txt                |    0
+ .../artifacts/lc08-branch.txt                      |    1 +
+ .../artifacts/lc08-brief.txt                       |    7 +
+ .../artifacts/lc08-head-after.txt                  |    1 +
+ .../artifacts/lc08-index-after.txt                 |    0
+ .../artifacts/lc08-pgrep-after.txt                 |    0
+ .../artifacts/lc08-pgrep-before.txt                |    0
+ .../artifacts/lc08-remove.json                     |   10 +
+ .../artifacts/lc08-report/pytest-output.txt        |  409 ++++
+ .../artifacts/lc08-report/return-contract.yaml     |    7 +
+ .../artifacts/lc08-report/test-report.md           |   15 +
+ .../artifacts/lc08-result.md                       |   16 +
+ .../artifacts/lc08-session-analysis-supplement.txt |    8 +
+ .../artifacts/lc08-session-analysis.txt            |   28 +
+ .../artifacts/lc08-show-1.json                     |  219 ++
+ .../artifacts/lc08-status-after.txt                |    1 +
+ .../artifacts/lc08-status-before.txt               |    0
+ .../artifacts/lc08-step1.txt                       |    5 +
+ .../artifacts/lc08-step2-samples.txt               |    1 +
+ .../artifacts/lc08-step3-ack.json                  |   21 +
+ .../artifacts/lc08-step3.json                      |   38 +
+ .../artifacts/lc08-step4.txt                       |    4 +
+ .../artifacts/lc08-step5-crosscheck.txt            |    7 +
+ .../artifacts/lc08-step5.md                        |   17 +
+ .../artifacts/lc08-step6.md                        |    5 +
+ .../artifacts/lc08-step7.txt                       |   48 +
+ .../artifacts/lc08-sync-dev.txt                    |    9 +
+ .../artifacts/lc08-task-create.json                |   30 +
+ .../artifacts/lc08-transcript-1.json               |  453 ++++
+ .../artifacts/lc08-transcript-2.json               |   88 +
+ .../artifacts/lc08-turn-1.json                     |   38 +
+ .../artifacts/lc08-turn-1.raw                      |   40 +
+ .../artifacts/lc08-unattended-check.txt            |    2 +
+ .../artifacts/lc08-worker-start.json               |   88 +
+ .../artifacts/lc08-worktree-list-after.json        | 1509 +++++++++++++
+ .../artifacts/lc08-worktree.json                   |   77 +
+ .../artifacts/lc08.env                             |    8 +
+ .../artifacts/lc09-branch-after.txt                |    0
+ .../artifacts/lc09-branch.txt                      |    1 +
+ .../artifacts/lc09-brief.txt                       |    7 +
+ .../artifacts/lc09-head-after.txt                  |    1 +
+ .../artifacts/lc09-index-after.txt                 |    0
+ .../artifacts/lc09-remove.json                     |   10 +
+ .../lc09-report/adversarial/base-selection.md      |  115 +
+ .../lc09-report/adversarial/debate-transcript.md   |  278 +++
+ .../lc09-report/adversarial/diff-analysis.md       |   71 +
+ .../lc09-report/adversarial/judge-pass-1.md        |   47 +
+ .../lc09-report/adversarial/judge-pass-2.md        |   45 +
+ .../artifacts/lc09-report/adversarial/merge-log.md |   91 +
+ .../lc09-report/adversarial/refactor-plan.md       |   85 +
+ .../lc09-report/adversarial/return-contract.yaml   |   12 +
+ .../lc09-report/adversarial/round1-advocate-A.md   |  120 +
+ .../lc09-report/adversarial/round1-advocate-B.md   |   98 +
+ .../lc09-report/adversarial/variant-1-original.md  |   23 +
+ .../lc09-report/adversarial/variant-2-original.md  |   25 +
+ .../artifacts/lc09-report/merged-output.md         |   42 +
+ .../artifacts/lc09-report/return-contract.yaml     |   20 +
+ .../artifacts/lc09-result.md                       |   17 +
+ .../artifacts/lc09-session-analysis.txt            |   85 +
+ .../artifacts/lc09-show-1.json                     |  212 ++
+ .../artifacts/lc09-show-2.json                     |  212 ++
+ .../artifacts/lc09-show-3.json                     |  212 ++
+ .../artifacts/lc09-show-4.json                     |  212 ++
+ .../artifacts/lc09-show-5.json                     |  212 ++
+ .../artifacts/lc09-show-6.json                     |  214 ++
+ .../artifacts/lc09-status-after.txt                |    1 +
+ .../artifacts/lc09-status-before.txt               |    0
+ .../artifacts/lc09-step1.txt                       |    5 +
+ .../artifacts/lc09-step2-samples.txt               |    6 +
+ .../artifacts/lc09-step3-ack.json                  |   21 +
+ .../artifacts/lc09-step3.json                      |   38 +
+ .../artifacts/lc09-step4.txt                       |    4 +
+ .../artifacts/lc09-step5-crosscheck.txt            |    9 +
+ .../artifacts/lc09-step5.md                        |   25 +
+ .../artifacts/lc09-step6.md                        |    5 +
+ .../artifacts/lc09-step7.txt                       |   46 +
+ .../artifacts/lc09-sync-dev.txt                    |    9 +
+ .../artifacts/lc09-task-create.json                |   30 +
+ .../artifacts/lc09-transcript-1.json               |  797 +++++++
+ .../artifacts/lc09-transcript-2.json               |   83 +
+ .../artifacts/lc09-turn-1.json                     |   21 +
+ .../artifacts/lc09-turn-1.raw                      |   36 +
+ .../artifacts/lc09-turn-2.json                     |   21 +
+ .../artifacts/lc09-turn-2.raw                      |   36 +
+ .../artifacts/lc09-turn-3.json                     |   21 +
+ .../artifacts/lc09-turn-3.raw                      |   36 +
+ .../artifacts/lc09-turn-4.json                     |   21 +
+ .../artifacts/lc09-turn-4.raw                      |   36 +
+ .../artifacts/lc09-turn-5.json                     |   21 +
+ .../artifacts/lc09-turn-5.raw                      |   36 +
+ .../artifacts/lc09-turn-6.json                     |   38 +
+ .../artifacts/lc09-turn-6.raw                      |   49 +
+ .../artifacts/lc09-unattended-check.txt            |    2 +
+ .../artifacts/lc09-worker-start.json               |   88 +
+ .../artifacts/lc09-worktree-list-after.json        | 1396 ++++++++++++
+ .../artifacts/lc09-worktree.json                   |   77 +
+ .../artifacts/lc09.env                             |    8 +
+ .../artifacts/lc10-branch-after.txt                |    0
+ .../artifacts/lc10-branch.txt                      |    1 +
+ .../artifacts/lc10-brief.txt                       |    7 +
+ .../artifacts/lc10-head-after.txt                  |    1 +
+ .../artifacts/lc10-index-after.txt                 |    0
+ .../artifacts/lc10-remove.json                     |   10 +
+ .../lc10-report/enrichment/codebase-context.md     |   30 +
+ .../artifacts/lc10-report/merged-requirements.md   |  170 ++
+ .../adversarial-1/adversarial/base-selection.md    |  145 ++
+ .../adversarial-1/adversarial/debate-transcript.md |  177 ++
+ .../adversarial-1/adversarial/diff-analysis.md     |   69 +
+ .../nested/adversarial-1/adversarial/merge-log.md  |  108 +
+ .../adversarial-1/adversarial/refactor-plan.md     |   77 +
+ .../adversarial-1/adversarial/return-contract.yaml |   11 +
+ .../adversarial-1/adversarial/round1-advocate-1.md |   60 +
+ .../adversarial-1/adversarial/round1-advocate-2.md |   58 +
+ .../adversarial/variant-1-opus-scribe.md           |   84 +
+ .../adversarial/variant-2-sonnet-analyzer.md       |   81 +
+ .../nested/adversarial-1/merged-output.md          |  155 ++
+ .../nested/adversarial-1/return-contract.yaml      |   15 +
+ .../artifacts/lc10-report/return-contract.yaml     |   66 +
+ .../artifacts/lc10-report/seed-brief.md            |   55 +
+ .../artifacts/lc10-result.md                       |   17 +
+ .../artifacts/lc10-session-analysis.txt            |   62 +
+ .../artifacts/lc10-show-1.json                     |  212 ++
+ .../artifacts/lc10-show-2.json                     |  212 ++
+ .../artifacts/lc10-show-3.json                     |  212 ++
+ .../artifacts/lc10-show-4.json                     |  219 ++
+ .../artifacts/lc10-status-after.txt                |    1 +
+ .../artifacts/lc10-status-before.txt               |    0
+ .../artifacts/lc10-step1.txt                       |    5 +
+ .../artifacts/lc10-step2-samples.txt               |    4 +
+ .../artifacts/lc10-step3-ack.json                  |   21 +
+ .../artifacts/lc10-step3.json                      |   38 +
+ .../artifacts/lc10-step4.txt                       |    4 +
+ .../artifacts/lc10-step5-crosscheck.txt            |    9 +
+ .../artifacts/lc10-step5.md                        |   21 +
+ .../artifacts/lc10-step6.md                        |    5 +
+ .../artifacts/lc10-step7.txt                       |   48 +
+ .../artifacts/lc10-sync-dev.txt                    |    9 +
+ .../artifacts/lc10-task-create.json                |   30 +
+ .../artifacts/lc10-transcript-1.json               |  749 +++++++
+ .../artifacts/lc10-transcript-2.json               |   88 +
+ .../artifacts/lc10-turn-1.json                     |   21 +
+ .../artifacts/lc10-turn-1.raw                      |   36 +
+ .../artifacts/lc10-turn-2.json                     |   21 +
+ .../artifacts/lc10-turn-2.raw                      |   36 +
+ .../artifacts/lc10-turn-3.json                     |   21 +
+ .../artifacts/lc10-turn-3.raw                      |   36 +
+ .../artifacts/lc10-turn-4.json                     |   38 +
+ .../artifacts/lc10-turn-4.raw                      |   45 +
+ .../artifacts/lc10-unattended-check.txt            |    2 +
+ .../artifacts/lc10-worker-start.json               |   88 +
+ .../artifacts/lc10-worktree-list-after.json        | 1274 +++++++++++
+ .../artifacts/lc10-worktree.json                   |   77 +
+ .../artifacts/lc10.env                             |    8 +
+ .../artifacts/lc11-branch-after.txt                |    0
+ .../artifacts/lc11-branch.txt                      |    1 +
+ .../artifacts/lc11-brief.txt                       |    7 +
+ .../artifacts/lc11-head-after.txt                  |    1 +
+ .../artifacts/lc11-index-after.txt                 |    0
+ .../artifacts/lc11-remove.json                     |   10 +
+ .../lc11-report/claude-audit/pass1-summary.md      |  112 +
+ .../lc11-report/claude-audit/pass1/all-files.txt   |   81 +
+ .../claude-audit/pass1/batch-01-files.txt          |   50 +
+ .../lc11-report/claude-audit/pass1/batch-01.md     |  121 +
+ .../claude-audit/pass1/batch-02-files.txt          |   31 +
+ .../lc11-report/claude-audit/pass1/batch-02.md     |   73 +
+ .../lc11-report/claude-audit/pass1/inventory.txt   |  105 +
+ .../lc11-report/claude-audit/progress.json         |   16 +
+ .../artifacts/lc11-report/return-contract.yaml     |   12 +
+ .../artifacts/lc11-result.md                       |   19 +
+ .../artifacts/lc11-session-analysis.txt            |   44 +
+ .../artifacts/lc11-show-1.json                     |  212 ++
+ .../artifacts/lc11-show-2.json                     |  219 ++
+ .../artifacts/lc11-status-after.txt                |    2 +
+ .../artifacts/lc11-status-before.txt               |    0
+ .../artifacts/lc11-step1.txt                       |    5 +
+ .../artifacts/lc11-step2-samples.txt               |    2 +
+ .../artifacts/lc11-step3-ack.json                  |   21 +
+ .../artifacts/lc11-step3.json                      |   38 +
+ .../artifacts/lc11-step4.txt                       |    4 +
+ .../artifacts/lc11-step5-crosscheck.txt            |    9 +
+ .../artifacts/lc11-step5.md                        |   17 +
+ .../artifacts/lc11-step6.md                        |    5 +
+ .../artifacts/lc11-step7.txt                       |   46 +
+ .../artifacts/lc11-sync-dev.txt                    |    9 +
+ .../artifacts/lc11-task-create.json                |   30 +
+ .../artifacts/lc11-transcript-1.json               | 1020 +++++++++
+ .../artifacts/lc11-transcript-2.json               |   83 +
+ .../artifacts/lc11-turn-1.json                     |   21 +
+ .../artifacts/lc11-turn-1.raw                      |   36 +
+ .../artifacts/lc11-turn-2.json                     |   38 +
+ .../artifacts/lc11-turn-2.raw                      |   43 +
+ .../artifacts/lc11-unattended-check.txt            |    2 +
+ .../artifacts/lc11-worker-start.json               |   88 +
+ .../artifacts/lc11-worktree-list-after.json        | 1274 +++++++++++
+ .../artifacts/lc11-worktree.json                   |   77 +
+ .../artifacts/lc11.env                             |    8 +
+ .../artifacts/lc12-branch-after.txt                |    0
+ .../artifacts/lc12-branch.txt                      |    1 +
+ .../artifacts/lc12-brief.txt                       |    7 +
+ .../artifacts/lc12-head-after.txt                  |    1 +
+ .../artifacts/lc12-index-after.txt                 |    0
+ .../artifacts/lc12-remove.json                     |   10 +
+ .../artifacts/lc12-report/return-contract.yaml     |   27 +
+ .../artifacts/lc12-result.md                       |   16 +
+ .../artifacts/lc12-session-analysis-supplement.txt |    8 +
+ .../artifacts/lc12-session-analysis.txt            |   32 +
+ .../artifacts/lc12-show-1.json                     |  219 ++
+ .../artifacts/lc12-status-after.txt                |    1 +
+ .../artifacts/lc12-status-before.txt               |    0
+ .../artifacts/lc12-step1.txt                       |    5 +
+ .../artifacts/lc12-step2-samples.txt               |    1 +
+ .../artifacts/lc12-step3-ack.json                  |   21 +
+ .../artifacts/lc12-step3.json                      |   38 +
+ .../artifacts/lc12-step4.txt                       |    4 +
+ .../artifacts/lc12-step5-crosscheck.txt            |    9 +
+ .../artifacts/lc12-step5.md                        |   17 +
+ .../artifacts/lc12-step6.md                        |    5 +
+ .../artifacts/lc12-step7.txt                       |   48 +
+ .../artifacts/lc12-sync-dev.txt                    |    9 +
+ .../artifacts/lc12-task-create.json                |   30 +
+ .../artifacts/lc12-transcript-1.json               |  522 +++++
+ .../artifacts/lc12-transcript-2.json               |   88 +
+ .../artifacts/lc12-turn-1.json                     |   38 +
+ .../artifacts/lc12-turn-1.raw                      |   41 +
+ .../artifacts/lc12-unattended-check.txt            |    2 +
+ .../artifacts/lc12-worker-start.json               |   88 +
+ .../artifacts/lc12-worktree-list-after.json        | 1218 ++++++++++
+ .../artifacts/lc12-worktree.json                   |   77 +
+ .../artifacts/lc12.env                             |    8 +
+ .../artifacts/lc13-branch-after.txt                |    0
+ .../artifacts/lc13-branch.txt                      |    1 +
+ .../artifacts/lc13-brief.txt                       |    7 +
+ .../artifacts/lc13-head-after.txt                  |    1 +
+ .../artifacts/lc13-index-after.txt                 |    0
+ .../artifacts/lc13-remove.json                     |   10 +
+ .../install-core-files-20261105T202400Z/impact.md  |   84 +
+ .../return-contract.yaml                           |   38 +
+ .../artifacts/lc13-report/return-contract.yaml     |   43 +
+ .../artifacts/lc13-result.md                       |   18 +
+ .../artifacts/lc13-session-analysis.txt            |   44 +
+ .../artifacts/lc13-show-1.json                     |  219 ++
+ .../artifacts/lc13-status-after.txt                |    2 +
+ .../artifacts/lc13-status-before.txt               |    0
+ .../artifacts/lc13-step1.txt                       |    5 +
+ .../artifacts/lc13-step2-samples.txt               |    1 +
+ .../artifacts/lc13-step3-ack.json                  |   21 +
+ .../artifacts/lc13-step3.json                      |   38 +
+ .../artifacts/lc13-step4.txt                       |    4 +
+ .../artifacts/lc13-step5-crosscheck.txt            |    9 +
+ .../artifacts/lc13-step5.md                        |   17 +
+ .../artifacts/lc13-step6.md                        |    5 +
+ .../artifacts/lc13-step7.txt                       |   48 +
+ .../artifacts/lc13-sync-dev.txt                    |    9 +
+ .../artifacts/lc13-task-create.json                |   30 +
+ .../artifacts/lc13-transcript-1.json               |  740 +++++++
+ .../artifacts/lc13-transcript-2.json               |   88 +
+ .../artifacts/lc13-turn-1.json                     |   38 +
+ .../artifacts/lc13-turn-1.raw                      |   45 +
+ .../artifacts/lc13-unattended-check.txt            |    2 +
+ .../artifacts/lc13-worker-start.json               |   88 +
+ .../artifacts/lc13-worktree-list-after.json        | 1218 ++++++++++
+ .../artifacts/lc13-worktree.json                   |   77 +
+ .../artifacts/lc13.env                             |    8 +
+ .../artifacts/lc14-branch-after.txt                |    0
+ .../artifacts/lc14-branch.txt                      |    1 +
+ .../artifacts/lc14-brief.txt                       |    7 +
+ .../artifacts/lc14-head-after.txt                  |    1 +
+ .../artifacts/lc14-index-after.txt                 |    0
+ .../artifacts/lc14-remove.json                     |   10 +
+ .../artifacts/lc14-report/return-contract.yaml     |    6 +
+ .../lc14-report/worktree-root/PROJECT_INDEX.json   |   71 +
+ .../lc14-report/worktree-root/PROJECT_INDEX.md     |   73 +
+ .../artifacts/lc14-result.md                       |   17 +
+ .../artifacts/lc14-session-analysis.txt            |   38 +
+ .../artifacts/lc14-show-1.json                     |  219 ++
+ .../artifacts/lc14-status-after.txt                |    3 +
+ .../artifacts/lc14-status-before.txt               |    0
+ .../artifacts/lc14-step1.txt                       |    5 +
+ .../artifacts/lc14-step2-samples.txt               |    1 +
+ .../artifacts/lc14-step3-ack.json                  |   21 +
+ .../artifacts/lc14-step3.json                      |   38 +
+ .../artifacts/lc14-step4.txt                       |    4 +
+ .../artifacts/lc14-step5-crosscheck.txt            |    9 +
+ .../artifacts/lc14-step5.md                        |   17 +
+ .../artifacts/lc14-step6.md                        |    5 +
+ .../artifacts/lc14-step7.txt                       |   48 +
+ .../artifacts/lc14-sync-dev.txt                    |    9 +
+ .../artifacts/lc14-task-create.json                |   30 +
+ .../artifacts/lc14-transcript-1.json               | 1106 ++++++++++
+ .../artifacts/lc14-transcript-2.json               |   88 +
+ .../artifacts/lc14-turn-1.json                     |   38 +
+ .../artifacts/lc14-turn-1.raw                      |   45 +
+ .../artifacts/lc14-unattended-check.txt            |    2 +
+ .../artifacts/lc14-worker-start.json               |   88 +
+ .../artifacts/lc14-worktree-list-after.json        | 1218 ++++++++++
+ .../artifacts/lc14-worktree.json                   |   77 +
+ .../artifacts/lc14.env                             |    8 +
+ .../artifacts/lc15-branch-after.txt                |    0
+ .../artifacts/lc15-branch.txt                      |    1 +
+ .../artifacts/lc15-brief.txt                       |    7 +
+ .../artifacts/lc15-head-after.txt                  |    1 +
+ .../artifacts/lc15-index-after.txt                 |    0
+ .../artifacts/lc15-remove.json                     |   10 +
+ .../artifacts/lc15-report/return-contract.yaml     |    5 +
+ .../artifacts/lc15-result.md                       |   16 +
+ .../artifacts/lc15-session-analysis-supplement.txt |    8 +
+ .../artifacts/lc15-session-analysis.txt            |   29 +
+ .../artifacts/lc15-show-1.json                     |  219 ++
+ .../artifacts/lc15-status-after.txt                |    1 +
+ .../artifacts/lc15-status-before.txt               |    0
+ .../artifacts/lc15-step1.txt                       |    5 +
+ .../artifacts/lc15-step2-samples.txt               |    1 +
+ .../artifacts/lc15-step3-ack.json                  |   21 +
+ .../artifacts/lc15-step3.json                      |   38 +
+ .../artifacts/lc15-step4.txt                       |    4 +
+ .../artifacts/lc15-step5-crosscheck.txt            |    9 +
+ .../artifacts/lc15-step5.md                        |   17 +
+ .../artifacts/lc15-step6.md                        |    5 +
+ .../artifacts/lc15-step7.txt                       |   48 +
+ .../artifacts/lc15-sync-dev.txt                    |    9 +
+ .../artifacts/lc15-task-create.json                |   30 +
+ .../artifacts/lc15-transcript-1.json               |  439 ++++
+ .../artifacts/lc15-transcript-2.json               |   88 +
+ .../artifacts/lc15-turn-1.json                     |   38 +
+ .../artifacts/lc15-turn-1.raw                      |   40 +
+ .../artifacts/lc15-unattended-check.txt            |    2 +
+ .../artifacts/lc15-worker-start.json               |   88 +
+ .../artifacts/lc15-worktree-list-after.json        | 1218 ++++++++++
+ .../artifacts/lc15-worktree.json                   |   77 +
+ .../artifacts/lc15.env                             |    8 +
+ .../artifacts/lc16-branch-after.txt                |    0
+ .../artifacts/lc16-branch.txt                      |    1 +
+ .../artifacts/lc16-brief.txt                       |    7 +
+ .../artifacts/lc16-head-after.txt                  |    1 +
+ .../artifacts/lc16-index-after.txt                 |    0
+ .../artifacts/lc16-remove.json                     |   10 +
+ .../TASK-WF-addOneSentenceTo-20261105-204034.md    |   30 +
+ .../return-contract.yaml                           |   15 +
+ .../source.md                                      |    1 +
+ .../pre-addOneSentenceTo-20261105204136/REPORT.md  |  108 +
+ .../adversarial/adversarial/.parts/00-head.md      |   17 +
+ .../adversarial/adversarial/.parts/50-tail.md      |   33 +
+ .../adversarial/adversarial/.parts/r1-v1.md        |   15 +
+ .../adversarial/adversarial/.parts/r1-v2.md        |   15 +
+ .../adversarial/adversarial/.parts/r1-v3.md        |   15 +
+ .../adversarial/adversarial/.parts/r2-v1.md        |    9 +
+ .../adversarial/adversarial/.parts/r2-v2.md        |    9 +
+ .../adversarial/adversarial/.parts/r2-v3.md        |   13 +
+ .../adversarial/adversarial/base-selection.md      |   67 +
+ .../adversarial/adversarial/debate-transcript.md   |  133 ++
+ .../adversarial/adversarial/diff-analysis.md       |   59 +
+ .../adversarial/adversarial/invariant-probe.md     |   32 +
+ .../adversarial/adversarial/merge-log.md           |   58 +
+ .../adversarial/adversarial/refactor-plan.md       |   73 +
+ .../adversarial/adversarial/return-contract.yaml   |   13 +
+ .../adversarial/adversarial/variant-1-original.md  |   35 +
+ .../adversarial/adversarial/variant-2-original.md  |   20 +
+ .../adversarial/adversarial/variant-3-original.md  |   42 +
+ .../adversarial/merged-verdict.yaml                |  162 ++
+ .../artifacts/calibration-reviewer-1.yaml          |   11 +
+ .../artifacts/calibration-reviewer-2.yaml          |    9 +
+ .../artifacts/calibration-reviewer-3.yaml          |   10 +
+ .../artifacts/input-snapshot.yaml                  |    7 +
+ .../artifacts/tier1-calibration.yaml               |   11 +
+ .../artifacts/tier1-card.md                        |   32 +
+ .../artifacts/tier_decision.yaml                   |   12 +
+ .../pre-addOneSentenceTo-20261105204136/audit.log  |   23 +
+ .../return-contract.yaml                           |  131 ++
+ .../reviewer-briefs/reviewer-1.md                  |   68 +
+ .../reviewer-briefs/reviewer-2.md                  |   69 +
+ .../reviewer-briefs/reviewer-3.md                  |   66 +
+ .../reviewer-cards/reviewer-1-card.yaml            |   35 +
+ .../reviewer-cards/reviewer-2-card.yaml            |   20 +
+ .../reviewer-cards/reviewer-3-card.yaml            |   42 +
+ .../artifacts/lc16-report/return-contract.yaml     |    9 +
+ .../artifacts/lc16-result.md                       |   18 +
+ .../artifacts/lc16-session-analysis.txt            |   68 +
+ .../artifacts/lc16-show-1.json                     |  212 ++
+ .../artifacts/lc16-show-2.json                     |  212 ++
+ .../artifacts/lc16-show-3.json                     |  212 ++
+ .../artifacts/lc16-show-4.json                     |  212 ++
+ .../artifacts/lc16-show-5.json                     |  212 ++
+ .../artifacts/lc16-show-6.json                     |  214 ++
+ .../artifacts/lc16-status-after.txt                |    3 +
+ .../artifacts/lc16-status-before.txt               |    0
+ .../artifacts/lc16-step1.txt                       |    5 +
+ .../artifacts/lc16-step2-samples.txt               |    6 +
+ .../artifacts/lc16-step3-ack.json                  |   21 +
+ .../artifacts/lc16-step3-waits.txt                 |    5 +
+ .../artifacts/lc16-step3.json                      |   38 +
+ .../artifacts/lc16-step4.txt                       |    4 +
+ .../artifacts/lc16-step5-crosscheck.txt            |    9 +
+ .../artifacts/lc16-step5.md                        |   17 +
+ .../artifacts/lc16-step6.md                        |    5 +
+ .../artifacts/lc16-step7.txt                       |   46 +
+ .../artifacts/lc16-sync-dev.txt                    |    9 +
+ .../artifacts/lc16-task-create.json                |   30 +
+ .../artifacts/lc16-transcript-1.json               |  797 +++++++
+ .../artifacts/lc16-transcript-2.json               |   83 +
+ .../artifacts/lc16-turn-1.json                     |   21 +
+ .../artifacts/lc16-turn-1.raw                      |   36 +
+ .../artifacts/lc16-turn-2.json                     |   21 +
+ .../artifacts/lc16-turn-2.raw                      |   36 +
+ .../artifacts/lc16-turn-3.json                     |   21 +
+ .../artifacts/lc16-turn-3.raw                      |   36 +
+ .../artifacts/lc16-turn-4.json                     |   21 +
+ .../artifacts/lc16-turn-4.raw                      |   36 +
+ .../artifacts/lc16-turn-5.json                     |   21 +
+ .../artifacts/lc16-turn-5.raw                      |   36 +
+ .../artifacts/lc16-turn-6.json                     |   38 +
+ .../artifacts/lc16-turn-6.raw                      |   43 +
+ .../artifacts/lc16-unattended-check.txt            |    2 +
+ .../artifacts/lc16-wait-1-transcript.json          |  748 +++++++
+ .../artifacts/lc16-wait-2-transcript.json          |  717 ++++++
+ .../artifacts/lc16-wait-3-transcript.json          |  697 ++++++
+ .../artifacts/lc16-wait-4-transcript.json          |  709 ++++++
+ .../artifacts/lc16-wait-5-transcript.json          |  707 ++++++
+ .../artifacts/lc16-worker-start.json               |   88 +
+ .../artifacts/lc16-worktree-list-after.json        | 1330 +++++++++++
+ .../artifacts/lc16-worktree.json                   |   77 +
+ .../artifacts/lc16.env                             |    8 +
+ .../artifacts/lc17-branch-after.txt                |    0
+ .../artifacts/lc17-branch.txt                      |    1 +
+ .../artifacts/lc17-brief.txt                       |    7 +
+ .../artifacts/lc17-head-after.txt                  |    1 +
+ .../artifacts/lc17-index-after.txt                 |    0
+ .../artifacts/lc17-remove.json                     |   10 +
+ .../artifacts/lc17-result.md                       |   20 +
+ .../artifacts/lc17-session-analysis-supplement.txt |    8 +
+ .../artifacts/lc17-session-analysis.txt            |   27 +
+ .../artifacts/lc17-show-1.json                     |  219 ++
+ .../artifacts/lc17-status-after.txt                |    0
+ .../artifacts/lc17-status-before.txt               |    0
+ .../artifacts/lc17-step1.txt                       |    5 +
+ .../artifacts/lc17-step2-samples.txt               |    1 +
+ .../artifacts/lc17-step3-ack.json                  |   21 +
+ .../artifacts/lc17-step3.json                      |   38 +
+ .../artifacts/lc17-step5-crosscheck.txt            |    9 +
+ .../artifacts/lc17-step5.md                        |   17 +
+ .../artifacts/lc17-step6.md                        |    3 +
+ .../artifacts/lc17-step7.txt                       |   48 +
+ .../artifacts/lc17-sync-dev.txt                    |    9 +
+ .../artifacts/lc17-task-create.json                |   30 +
+ .../artifacts/lc17-transcript-1.json               |  317 +++
+ .../artifacts/lc17-transcript-2.json               |   88 +
+ .../artifacts/lc17-turn-1.json                     |   38 +
+ .../artifacts/lc17-turn-1.raw                      |   39 +
+ .../artifacts/lc17-unattended-check.txt            |    2 +
+ .../artifacts/lc17-worker-start.json               |   88 +
+ .../artifacts/lc17-worktree-list-after.json        | 1330 +++++++++++
+ .../artifacts/lc17-worktree.json                   |   76 +
+ .../artifacts/lc17.env                             |    8 +
+ .../artifacts/lc18-branch-after.txt                |    0
+ .../artifacts/lc18-branch.txt                      |    1 +
+ .../artifacts/lc18-brief.txt                       |    7 +
+ .../artifacts/lc18-head-after.txt                  |    1 +
+ .../artifacts/lc18-index-after.txt                 |    0
+ .../artifacts/lc18-pgrep-after.txt                 |    0
+ .../artifacts/lc18-pgrep-before.txt                |    0
+ .../artifacts/lc18-remove.json                     |   10 +
+ .../artifacts/lc18-report/return-contract.yaml     |    5 +
+ .../artifacts/lc18-result.md                       |   17 +
+ .../artifacts/lc18-session-analysis-supplement.txt |    8 +
+ .../artifacts/lc18-session-analysis.txt            |   27 +
+ .../artifacts/lc18-show-1.json                     |  219 ++
+ .../artifacts/lc18-status-after.txt                |    1 +
+ .../artifacts/lc18-status-before.txt               |    0
+ .../artifacts/lc18-step1.txt                       |    5 +
+ .../artifacts/lc18-step2-samples.txt               |    1 +
+ .../artifacts/lc18-step3-ack.json                  |   21 +
+ .../artifacts/lc18-step3.json                      |   38 +
+ .../artifacts/lc18-step4.txt                       |   10 +
+ .../artifacts/lc18-step5-crosscheck.txt            |    9 +
+ .../artifacts/lc18-step5.md                        |   17 +
+ .../artifacts/lc18-step6.md                        |    5 +
+ .../artifacts/lc18-step7.txt                       |   48 +
+ .../artifacts/lc18-sync-dev.txt                    |    9 +
+ .../artifacts/lc18-task-create.json                |   30 +
+ .../artifacts/lc18-transcript-1.json               |  324 +++
+ .../artifacts/lc18-transcript-2.json               |   88 +
+ .../artifacts/lc18-turn-1.json                     |   38 +
+ .../artifacts/lc18-turn-1.raw                      |   39 +
+ .../artifacts/lc18-unattended-check.txt            |    2 +
+ .../artifacts/lc18-worker-start.json               |   88 +
+ .../artifacts/lc18-worktree-list-after.json        | 1330 +++++++++++
+ .../artifacts/lc18-worktree.json                   |   76 +
+ .../artifacts/lc18.env                             |    8 +
+ .../artifacts/lc19-branch-after.txt                |    0
+ .../artifacts/lc19-branch.txt                      |    1 +
+ .../artifacts/lc19-brief.txt                       |    7 +
+ .../artifacts/lc19-head-after.txt                  |    1 +
+ .../artifacts/lc19-index-after.txt                 |    0
+ .../artifacts/lc19-remove.json                     |   10 +
+ .../artifacts/lc19-result.md                       |   21 +
+ .../artifacts/lc19-session-analysis-supplement.txt |    8 +
+ .../artifacts/lc19-session-analysis.txt            |   27 +
+ .../artifacts/lc19-show-1.json                     |  219 ++
+ .../artifacts/lc19-status-after.txt                |    0
+ .../artifacts/lc19-status-before.txt               |    0
+ .../artifacts/lc19-step1.txt                       |    5 +
+ .../artifacts/lc19-step2-samples.txt               |    1 +
+ .../artifacts/lc19-step3-ack.json                  |   21 +
+ .../artifacts/lc19-step3.json                      |   38 +
+ .../artifacts/lc19-step5-crosscheck.txt            |    9 +
+ .../artifacts/lc19-step5.md                        |   19 +
+ .../artifacts/lc19-step6.md                        |    3 +
+ .../artifacts/lc19-step7.txt                       |   48 +
+ .../artifacts/lc19-sync-dev.txt                    |    9 +
+ .../artifacts/lc19-task-create.json                |   30 +
+ .../artifacts/lc19-transcript-1.json               |  304 +++
+ .../artifacts/lc19-transcript-2.json               |   88 +
+ .../artifacts/lc19-turn-1.json                     |   38 +
+ .../artifacts/lc19-turn-1.raw                      |   39 +
+ .../artifacts/lc19-unattended-check.txt            |    2 +
+ .../artifacts/lc19-worker-start.json               |   88 +
+ .../artifacts/lc19-worktree-list-after.json        | 1330 +++++++++++
+ .../artifacts/lc19-worktree.json                   |   76 +
+ .../artifacts/lc19.env                             |    8 +
+ .../artifacts/lc20-branch-after.txt                |    0
+ .../artifacts/lc20-branch.txt                      |    1 +
+ .../artifacts/lc20-brief.txt                       |    7 +
+ .../artifacts/lc20-head-after.txt                  |    1 +
+ .../artifacts/lc20-index-after.txt                 |    0
+ .../artifacts/lc20-remove.json                     |   10 +
+ .../artifacts/lc20-result.md                       |   21 +
+ .../artifacts/lc20-session-analysis-supplement.txt |    8 +
+ .../artifacts/lc20-session-analysis.txt            |   27 +
+ .../artifacts/lc20-show-1.json                     |  219 ++
+ .../artifacts/lc20-status-after.txt                |    0
+ .../artifacts/lc20-status-before.txt               |    0
+ .../artifacts/lc20-step1.txt                       |    5 +
+ .../artifacts/lc20-step2-samples.txt               |    1 +
+ .../artifacts/lc20-step3-ack.json                  |   21 +
+ .../artifacts/lc20-step3.json                      |   38 +
+ .../artifacts/lc20-step5-crosscheck.txt            |    9 +
+ .../artifacts/lc20-step5.md                        |   19 +
+ .../artifacts/lc20-step6.md                        |    3 +
+ .../artifacts/lc20-step7.txt                       |   48 +
+ .../artifacts/lc20-sync-dev.txt                    |    9 +
+ .../artifacts/lc20-task-create.json                |   30 +
+ .../artifacts/lc20-transcript-1.json               |  286 +++
+ .../artifacts/lc20-transcript-2.json               |   88 +
+ .../artifacts/lc20-turn-1.json                     |   38 +
+ .../artifacts/lc20-turn-1.raw                      |   40 +
+ .../artifacts/lc20-unattended-check.txt            |    2 +
+ .../artifacts/lc20-worker-start.json               |   88 +
+ .../artifacts/lc20-worktree-list-after.json        | 1330 +++++++++++
+ .../artifacts/lc20-worktree.json                   |   76 +
+ .../artifacts/lc20.env                             |    8 +
+ .../artifacts/lc21-branch-after.txt                |    0
+ .../artifacts/lc21-branch.txt                      |    1 +
+ .../artifacts/lc21-brief.txt                       |    7 +
+ .../artifacts/lc21-head-after.txt                  |    1 +
+ .../artifacts/lc21-index-after.txt                 |    0
+ .../artifacts/lc21-remove.json                     |   10 +
+ .../artifacts/lc21-result.md                       |   21 +
+ .../artifacts/lc21-session-analysis-supplement.txt |    8 +
+ .../artifacts/lc21-session-analysis.txt            |   27 +
+ .../artifacts/lc21-show-1.json                     |  219 ++
+ .../artifacts/lc21-status-after.txt                |    0
+ .../artifacts/lc21-status-before.txt               |    0
+ .../artifacts/lc21-step1.txt                       |    5 +
+ .../artifacts/lc21-step2-samples.txt               |    1 +
+ .../artifacts/lc21-step3-ack.json                  |   21 +
+ .../artifacts/lc21-step3.json                      |   38 +
+ .../artifacts/lc21-step5-crosscheck.txt            |    9 +
+ .../artifacts/lc21-step5.md                        |   19 +
+ .../artifacts/lc21-step6.md                        |    3 +
+ .../artifacts/lc21-step7.txt                       |   48 +
+ .../artifacts/lc21-sync-dev.txt                    |    9 +
+ .../artifacts/lc21-task-create.json                |   30 +
+ .../artifacts/lc21-transcript-1.json               |  259 +++
+ .../artifacts/lc21-transcript-2.json               |   88 +
+ .../artifacts/lc21-turn-1.json                     |   38 +
+ .../artifacts/lc21-turn-1.raw                      |   38 +
+ .../artifacts/lc21-worker-start.json               |   88 +
+ .../artifacts/lc21-worktree-list-after.json        | 1330 +++++++++++
+ .../artifacts/lc21-worktree.json                   |   76 +
+ .../artifacts/lc21.env                             |    8 +
+ .../artifacts/lc22-after-head.txt                  |    1 +
+ .../artifacts/lc22-after-lsremote.txt              |  416 ++++
+ .../artifacts/lc22-after-prs.txt                   |    0
+ .../artifacts/lc22-after-refs.txt                  |   21 +
+ .../artifacts/lc22-before-head.txt                 |    1 +
+ .../artifacts/lc22-before-lsremote.txt             |  416 ++++
+ .../artifacts/lc22-before-prs.txt                  |    0
+ .../artifacts/lc22-before-refs.txt                 |   20 +
+ .../artifacts/lc22-branch-after.txt                |    1 +
+ .../artifacts/lc22-branch.txt                      |    1 +
+ .../artifacts/lc22-brief.txt                       |    7 +
+ .../artifacts/lc22-commit.patch                    |   71 +
+ .../artifacts/lc22-commits.txt                     |    7 +
+ .../artifacts/lc22-head-after.txt                  |    1 +
+ .../artifacts/lc22-index-after.txt                 |    0
+ .../artifacts/lc22-parent-check.txt                |    4 +
+ .../artifacts/lc22-remove.json                     |   14 +
+ .../artifacts/lc22-report/explain-report.md        |   46 +
+ .../artifacts/lc22-report/return-contract.yaml     |    5 +
+ .../artifacts/lc22-result.md                       |   19 +
+ .../artifacts/lc22-session-analysis.txt            |   39 +
+ .../artifacts/lc22-show-1.json                     |  219 ++
+ .../artifacts/lc22-status-after.txt                |    0
+ .../artifacts/lc22-status-before.txt               |    0
+ .../artifacts/lc22-step1.txt                       |    5 +
+ .../artifacts/lc22-step2-samples.txt               |    1 +
+ .../artifacts/lc22-step3-ack.json                  |   21 +
+ .../artifacts/lc22-step3.json                      |   38 +
+ .../artifacts/lc22-step4.txt                       |    4 +
+ .../artifacts/lc22-step5-crosscheck.txt            |    9 +
+ .../artifacts/lc22-step5.md                        |   19 +
+ .../artifacts/lc22-step6.md                        |    5 +
+ .../artifacts/lc22-step7.txt                       |   48 +
+ .../artifacts/lc22-sync-dev.txt                    |    9 +
+ .../artifacts/lc22-task-create.json                |   30 +
+ .../artifacts/lc22-transcript-1.json               |  716 ++++++
+ .../artifacts/lc22-transcript-2.json               |   88 +
+ .../artifacts/lc22-turn-1.json                     |   38 +
+ .../artifacts/lc22-turn-1.raw                      |   42 +
+ .../artifacts/lc22-unattended-check.txt            |    2 +
+ .../artifacts/lc22-worker-start.json               |   88 +
+ .../artifacts/lc22-worktree-list-after.json        | 1330 +++++++++++
+ .../artifacts/lc22-worktree.json                   |  120 +
+ .../artifacts/lc22.env                             |    8 +
+ .../artifacts/live-run.json                        |   22 +
+ .../artifacts/orca-help.txt                        |  466 ++++
+ .../artifacts/orca-version.txt                     |    1 +
+ .../artifacts/p1-owner-decisions-20261105.md       |   13 +
+ .../artifacts/p1-phase-report.md                   |  128 ++
+ .../artifacts/preflight.md                         |  611 +++++
+ .../artifacts/retries/T1/prompt-1-1.md             |  194 ++
+ .../artifacts/retries/T1/q0-head                   |    1 +
+ .../artifacts/retries/T10/prompt-1-1.md            | 1946 ++++++++++++++++
+ .../artifacts/retries/T10/q0-head                  |    1 +
+ .../artifacts/retries/T11/prompt-1-1.md            | 1717 +++++++++++++++
+ .../artifacts/retries/T11/q0-head                  |    1 +
+ .../artifacts/retries/T12/notes.md                 |    3 +
+ .../artifacts/retries/T12/prompt-1-1.md            | 1318 +++++++++++
+ .../artifacts/retries/T12/q0-head                  |    1 +
+ .../artifacts/retries/T13/notes.md                 |    3 +
+ .../artifacts/retries/T13/prompt-1-1.md            |  786 +++++++
+ .../artifacts/retries/T13/q0-head                  |    1 +
+ .../artifacts/retries/T14/prompt-1-1.md            |  937 ++++++++
+ .../artifacts/retries/T14/q0-head                  |    1 +
+ .../artifacts/retries/T15/prompt-1-1.md            |  916 ++++++++
+ .../artifacts/retries/T15/q0-head                  |    1 +
+ .../artifacts/retries/T16/notes.md                 |    2 +
+ .../artifacts/retries/T16/prompt-1-1.md            |  760 +++++++
+ .../artifacts/retries/T16/q0-head                  |    1 +
+ .../artifacts/retries/T17/prompt-1-1.md            | 2286 +++++++++++++++++++
+ .../artifacts/retries/T17/q0-head                  |    1 +
+ .../artifacts/retries/T18/notes.md                 |    3 +
+ .../artifacts/retries/T18/prompt-1-1.md            |  744 +++++++
+ .../artifacts/retries/T18/q0-head                  |    1 +
+ .../artifacts/retries/T19/notes.md                 |    2 +
+ .../artifacts/retries/T19/probe-1-1.md             |   16 +
+ .../artifacts/retries/T19/prompt-1-1.md            |  761 +++++++
+ .../artifacts/retries/T19/prompt-2-1.md            |  778 +++++++
+ .../artifacts/retries/T19/q0-head                  |    1 +
+ .../artifacts/retries/T19/review-1.md              |    9 +
+ .../artifacts/retries/T2/prompt-1-1.md             |  781 +++++++
+ .../artifacts/retries/T2/q0-head                   |    1 +
+ .../artifacts/retries/T20/prompt-1-1.md            |  747 +++++++
+ .../artifacts/retries/T20/q0-head                  |    1 +
+ .../artifacts/retries/T21/notes.md                 |    3 +
+ .../artifacts/retries/T21/prompt-1-1.md            |  748 +++++++
+ .../artifacts/retries/T21/q0-head                  |    1 +
+ .../artifacts/retries/T22/notes.md                 |    3 +
+ .../artifacts/retries/T22/prompt-1-1.md            |  742 +++++++
+ .../artifacts/retries/T22/q0-head                  |    1 +
+ .../artifacts/retries/T23/prompt-1-1.md            |  275 +++
+ .../artifacts/retries/T23/q0-head                  |    1 +
+ .../artifacts/retries/T24/prompt-1-1.md            | 1012 +++++++++
+ .../artifacts/retries/T24/q0-head                  |    1 +
+ .../artifacts/retries/T25/notes.md                 |    2 +
+ .../artifacts/retries/T25/prompt-1-1.md            |   87 +
+ .../artifacts/retries/T25/q0-head                  |    1 +
+ .../artifacts/retries/T3/prompt-1-1.md             |  793 +++++++
+ .../artifacts/retries/T3/q0-head                   |    1 +
+ .../artifacts/retries/T4/prompt-1-1.md             |  855 +++++++
+ .../artifacts/retries/T4/q0-head                   |    1 +
+ .../artifacts/retries/T5/prompt-1-1.md             |  767 +++++++
+ .../artifacts/retries/T5/q0-head                   |    1 +
+ .../artifacts/retries/T6/prompt-1-1.md             |  815 +++++++
+ .../artifacts/retries/T6/q0-head                   |    1 +
+ .../artifacts/retries/T7/prompt-1-1.md             |  807 +++++++
+ .../artifacts/retries/T7/q0-head                   |    1 +
+ .../artifacts/retries/T8/prompt-1-1.md             |  816 +++++++
+ .../artifacts/retries/T8/q0-head                   |    1 +
+ .../artifacts/retries/T9/notes.md                  |    2 +
+ .../artifacts/retries/T9/prompt-1-1.md             |  781 +++++++
+ .../artifacts/retries/T9/q0-head                   |    1 +
+ .../artifacts/staged.txt                           |  948 ++++++++
+ .../artifacts/status-baseline.txt                  |    6 +
+ .../artifacts/status-end-t1.txt                    |    6 +
+ .../artifacts/status-final.txt                     |  950 ++++++++
+ .../artifacts/worktree-list-before.json            | 1621 ++++++++++++++
+ .../progress.md                                    |   54 +
+ .../return-contract.yaml                           |   14 +
+ .../source.md                                      |   87 +
+ .../TASK-WF-p3Requirements-20261107-070713.md      |  199 ++
+ .../artifacts/final-review-prompt-1.md             |   48 +
+ .../artifacts/retries/T1/prompt-1-1.md             |  124 ++
+ .../artifacts/retries/T1/q0-head                   |    1 +
+ .../artifacts/retries/T10/notes.md                 |    2 +
+ .../artifacts/retries/T10/prompt-1-1.md            |   95 +
+ .../artifacts/retries/T10/q0-head                  |    1 +
+ .../artifacts/retries/T2/probe-1-1.md              |    9 +
+ .../artifacts/retries/T2/prompt-1-1.md             |  197 ++
+ .../artifacts/retries/T2/prompt-2-1.md             |  213 ++
+ .../artifacts/retries/T2/q0-head                   |    1 +
+ .../artifacts/retries/T2/review-1.md               |    3 +
+ .../artifacts/retries/T3/prompt-1-1.md             |  205 ++
+ .../artifacts/retries/T3/q0-head                   |    1 +
+ .../artifacts/retries/T4/probe-1-1.md              |    9 +
+ .../artifacts/retries/T4/prompt-1-1.md             |  127 ++
+ .../artifacts/retries/T4/prompt-2-1.md             |  163 ++
+ .../artifacts/retries/T4/q0-head                   |    1 +
+ .../artifacts/retries/T4/review-1.md               |    3 +
+ .../artifacts/retries/T5/prompt-1-1.md             |  178 ++
+ .../artifacts/retries/T5/q0-head                   |    1 +
+ .../artifacts/retries/T6/notes.md                  |    2 +
+ .../artifacts/retries/T6/prompt-1-1.md             |  169 ++
+ .../artifacts/retries/T6/q0-head                   |    1 +
+ .../artifacts/retries/T7/notes.md                  |    2 +
+ .../artifacts/retries/T7/prompt-1-1.md             |  134 ++
+ .../artifacts/retries/T7/prompt-2-1.md             |  156 ++
+ .../artifacts/retries/T7/q0-head                   |    1 +
+ .../artifacts/retries/T8/prompt-1-1.md             |   99 +
+ .../artifacts/retries/T8/q0-head                   |    1 +
+ .../artifacts/retries/T9/prompt-1-1.md             |  131 ++
+ .../artifacts/retries/T9/q0-head                   |    1 +
+ .../progress.md                                    |   24 +
+ .../return-contract.yaml                           |   14 +
+ .../source.md                                      |   36 +
+ .../TASK-WF-remediationSourc-20261106-121243.md    |   72 +
+ .../artifacts/capture_shim.py                      |   26 +
+ .../artifacts/final-review-1-clarification.txt     |    7 +
+ .../artifacts/final-review-1.txt                   |   31 +
+ .../artifacts/final-review-2.txt                   |   34 +
+ .../artifacts/final-review-prompt.txt              |    9 +
+ .../artifacts/followup-20261107/REPORT.md          |   24 +
+ .../followup-20261107/identified-test-isolated.log |   13 +
+ .../followup-20261107/independent-validation.md    |   45 +
+ .../followup-20261107/input-snapshot.json          | 1340 +++++++++++
+ .../followup-20261107/suite-first-attempt.log      |   30 +
+ .../artifacts/followup-20261107/suite-retry.log    |   21 +
+ .../artifacts/protocol_io.py                       |   84 +
+ .../artifacts/reflect-post-quick/REPORT.md         |  122 +
+ .../artifacts/evidence-validation.md               |   32 +
+ .../artifacts/hunk-to-declaration-map.yaml         |   12 +
+ .../reflect-post-quick/artifacts/impact/impact.md  |   92 +
+ .../artifacts/impact/return-contract.yaml          |  123 ++
+ .../artifacts/input-recheck.yaml                   |    1 +
+ .../artifacts/input-snapshot.yaml                  | 1235 +++++++++++
+ .../artifacts/reachability-ledger.yaml             |   21 +
+ .../artifacts/reflection-card.yaml                 |   61 +
+ .../reflect-post-quick/artifacts/reuse-audit.yaml  |   65 +
+ .../artifacts/runtime-surface-ledger.yaml          |   13 +
+ .../artifacts/t1-calibration-initial.md            |   13 +
+ .../reflect-post-quick/artifacts/t1-calibration.md |   15 +
+ .../artifacts/reflect-post-quick/audit.log         |   15 +
+ .../reflect-post-quick/deviation-ledger.yaml       |    1 +
+ .../reflect-post-quick/grounding-gaps.yaml         |   42 +
+ .../reflect-post-quick/return-contract.yaml        |  136 ++
+ .../verify-logs/invocations.yaml                   |   36 +
+ .../verify-logs/pytest-attempt-1.log               |    6 +
+ .../verify-logs/pytest-attempt-1.raw.log           |   12 +
+ .../verify-logs/pytest-attempt-2.log               |    8 +
+ .../verify-logs/pytest-attempt-2.raw.log           |   21 +
+ .../reflect-post-quick/verify-logs/ruff-check.log  |    5 +
+ .../reflect-post-quick/verify-logs/ruff-format.log |    5 +
+ .../reflect-post-quick/verify-logs/verify-sync.log |    5 +
+ .../artifacts/retries/T1/prompt-1-1.md             |  136 ++
+ .../artifacts/retries/T1/q0-head                   |    1 +
+ .../artifacts/retries/T1/review-1.md               |    9 +
+ .../artifacts/retries/T1/reviewed-tree             |    1 +
+ .../artifacts/retries/T2/prompt-1-1.md             |  118 +
+ .../artifacts/retries/T2/q0-head                   |    1 +
+ .../artifacts/retries/T2/review-1.md               |    8 +
+ .../artifacts/retries/T2/reviewed-tree             |    1 +
+ .../artifacts/retries/T3/prompt-1-1.md             |  246 +++
+ .../artifacts/retries/T3/q0-head                   |    1 +
+ .../artifacts/retries/T3/review-1.md               |    8 +
+ .../artifacts/retries/T3/reviewed-tree             |    1 +
+ .../artifacts/retries/T4/prompt-1-1.md             | 1905 ++++++++++++++++
+ .../artifacts/retries/T4/q0-head                   |    1 +
+ .../artifacts/retries/T4/review-1.md               |   12 +
+ .../artifacts/retries/T4/reviewed-tree             |    1 +
+ .../artifacts/runtime-work-2/aienv.d/defaults.sh   |   51 +
+ .../runtime-work-2/alias-haiku/aienv.d/defaults.sh |   51 +
+ .../artifacts/runtime-work-2/alias-haiku/claude    |    3 +
+ .../runtime-work-2/alias-haiku/command.json        |   26 +
+ .../artifacts/runtime-work-2/alias-haiku/curl      |    2 +
+ .../runtime-work-2/alias-haiku/launch-stderr.log   |    4 +
+ .../artifacts/runtime-work-2/alias-haiku/lsof      |    2 +
+ .../runtime-work-2/alias-haiku/native-stderr.log   |    1 +
+ .../runtime-work-2/alias-haiku/responses.json      | 1446 ++++++++++++
+ .../artifacts/runtime-work-2/alias-haiku/seen.json |    1 +
+ .../runtime-work-2/alias-haiku/warmup-cache.json   |    1 +
+ .../runtime-work-2/alias-opus/aienv.d/defaults.sh  |   51 +
+ .../artifacts/runtime-work-2/alias-opus/claude     |    3 +
+ .../runtime-work-2/alias-opus/command.json         |   26 +
+ .../artifacts/runtime-work-2/alias-opus/curl       |    2 +
+ .../runtime-work-2/alias-opus/launch-stderr.log    |    4 +
+ .../artifacts/runtime-work-2/alias-opus/lsof       |    2 +
+ .../runtime-work-2/alias-opus/native-stderr.log    |    1 +
+ .../runtime-work-2/alias-opus/responses.json       | 1446 ++++++++++++
+ .../artifacts/runtime-work-2/alias-opus/seen.json  |    1 +
+ .../runtime-work-2/alias-opus/warmup-cache.json    |    1 +
+ .../alias-sonnet/aienv.d/defaults.sh               |   51 +
+ .../artifacts/runtime-work-2/alias-sonnet/claude   |    3 +
+ .../runtime-work-2/alias-sonnet/command.json       |   26 +
+ .../artifacts/runtime-work-2/alias-sonnet/curl     |    2 +
+ .../runtime-work-2/alias-sonnet/launch-stderr.log  |    4 +
+ .../artifacts/runtime-work-2/alias-sonnet/lsof     |    2 +
+ .../runtime-work-2/alias-sonnet/native-stderr.log  |    1 +
+ .../runtime-work-2/alias-sonnet/responses.json     | 1446 ++++++++++++
+ .../runtime-work-2/alias-sonnet/seen.json          |    1 +
+ .../runtime-work-2/alias-sonnet/warmup-cache.json  |    1 +
+ .../runtime-work-2/bare-route/aienv.d/defaults.sh  |   51 +
+ .../artifacts/runtime-work-2/bare-route/claude     |    3 +
+ .../runtime-work-2/bare-route/command.json         |   26 +
+ .../artifacts/runtime-work-2/bare-route/curl       |    2 +
+ .../runtime-work-2/bare-route/launch-stderr.log    |    4 +
+ .../artifacts/runtime-work-2/bare-route/lsof       |    2 +
+ .../runtime-work-2/bare-route/native-stderr.log    |    1 +
+ .../runtime-work-2/bare-route/responses.json       | 1446 ++++++++++++
+ .../artifacts/runtime-work-2/bare-route/seen.json  |    1 +
+ .../runtime-work-2/bare-route/warmup-cache.json    |    1 +
+ .../compact-override/aienv.d/defaults.sh           |   51 +
+ .../runtime-work-2/compact-override/claude         |    3 +
+ .../runtime-work-2/compact-override/command.json   |   26 +
+ .../artifacts/runtime-work-2/compact-override/curl |    2 +
+ .../compact-override/launch-stderr.log             |    4 +
+ .../artifacts/runtime-work-2/compact-override/lsof |    2 +
+ .../compact-override/native-stderr.log             |    0
+ .../runtime-work-2/compact-override/responses.json | 1208 ++++++++++
+ .../runtime-work-2/compact-override/seen.json      |    1 +
+ .../compact-override/warmup-cache.json             |    1 +
+ .../artifacts/runtime-work-2/shim-requests.jsonl   |   31 +
+ .../artifacts/runtime-work-2/shim-stderr.log       |  123 ++
+ .../runtime-work-2/tier0/aienv.d/defaults.sh       |   51 +
+ .../artifacts/runtime-work-2/tier0/claude          |    3 +
+ .../artifacts/runtime-work-2/tier0/command.json    |   26 +
+ .../artifacts/runtime-work-2/tier0/curl            |    2 +
+ .../runtime-work-2/tier0/launch-stderr.log         |    4 +
+ .../artifacts/runtime-work-2/tier0/lsof            |    2 +
+ .../runtime-work-2/tier0/native-stderr.log         |    0
+ .../artifacts/runtime-work-2/tier0/responses.json  | 1208 ++++++++++
+ .../artifacts/runtime-work-2/tier0/seen.json       |    1 +
+ .../runtime-work-2/tier0/warmup-cache.json         |    1 +
+ .../runtime-work-2/tier1a/aienv.d/defaults.sh      |   51 +
+ .../artifacts/runtime-work-2/tier1a/claude         |    3 +
+ .../artifacts/runtime-work-2/tier1a/command.json   |   26 +
+ .../artifacts/runtime-work-2/tier1a/curl           |    2 +
+ .../runtime-work-2/tier1a/launch-stderr.log        |    4 +
+ .../artifacts/runtime-work-2/tier1a/lsof           |    2 +
+ .../runtime-work-2/tier1a/native-stderr.log        |    0
+ .../artifacts/runtime-work-2/tier1a/responses.json | 1208 ++++++++++
+ .../artifacts/runtime-work-2/tier1a/seen.json      |    1 +
+ .../runtime-work-2/tier1a/warmup-cache.json        |    1 +
+ .../runtime-work-2/tier1b/aienv.d/defaults.sh      |   51 +
+ .../artifacts/runtime-work-2/tier1b/claude         |    3 +
+ .../artifacts/runtime-work-2/tier1b/command.json   |   26 +
+ .../artifacts/runtime-work-2/tier1b/curl           |    2 +
+ .../runtime-work-2/tier1b/launch-stderr.log        |    4 +
+ .../artifacts/runtime-work-2/tier1b/lsof           |    2 +
+ .../runtime-work-2/tier1b/native-stderr.log        |    0
+ .../artifacts/runtime-work-2/tier1b/responses.json | 1208 ++++++++++
+ .../artifacts/runtime-work-2/tier1b/seen.json      |    1 +
+ .../runtime-work-2/tier1b/warmup-cache.json        |    1 +
+ .../runtime-work-2/tier2/aienv.d/defaults.sh       |   51 +
+ .../artifacts/runtime-work-2/tier2/claude          |    3 +
+ .../artifacts/runtime-work-2/tier2/command.json    |   26 +
+ .../artifacts/runtime-work-2/tier2/curl            |    2 +
+ .../runtime-work-2/tier2/launch-stderr.log         |    4 +
+ .../artifacts/runtime-work-2/tier2/lsof            |    2 +
+ .../runtime-work-2/tier2/native-stderr.log         |    0
+ .../artifacts/runtime-work-2/tier2/responses.json  | 1208 ++++++++++
+ .../artifacts/runtime-work-2/tier2/seen.json       |    1 +
+ .../runtime-work-2/tier2/warmup-cache.json         |    1 +
+ .../artifacts/runtime-work-3/aienv.d/defaults.sh   |   51 +
+ .../runtime-work-3/alias-haiku/aienv.d/defaults.sh |   51 +
+ .../artifacts/runtime-work-3/alias-haiku/claude    |    3 +
+ .../runtime-work-3/alias-haiku/command.json        |   26 +
+ .../artifacts/runtime-work-3/alias-haiku/curl      |    2 +
+ .../runtime-work-3/alias-haiku/launch-stderr.log   |    4 +
+ .../artifacts/runtime-work-3/alias-haiku/lsof      |    2 +
+ .../runtime-work-3/alias-haiku/native-stderr.log   |    1 +
+ .../runtime-work-3/alias-haiku/responses.json      | 1446 ++++++++++++
+ .../artifacts/runtime-work-3/alias-haiku/seen.json |    1 +
+ .../runtime-work-3/alias-haiku/warmup-cache.json   |    1 +
+ .../runtime-work-3/alias-opus/aienv.d/defaults.sh  |   51 +
+ .../artifacts/runtime-work-3/alias-opus/claude     |    3 +
+ .../runtime-work-3/alias-opus/command.json         |   26 +
+ .../artifacts/runtime-work-3/alias-opus/curl       |    2 +
+ .../runtime-work-3/alias-opus/launch-stderr.log    |    4 +
+ .../artifacts/runtime-work-3/alias-opus/lsof       |    2 +
+ .../runtime-work-3/alias-opus/native-stderr.log    |    1 +
+ .../runtime-work-3/alias-opus/responses.json       | 1446 ++++++++++++
+ .../artifacts/runtime-work-3/alias-opus/seen.json  |    1 +
+ .../runtime-work-3/alias-opus/warmup-cache.json    |    1 +
+ .../alias-sonnet/aienv.d/defaults.sh               |   51 +
+ .../artifacts/runtime-work-3/alias-sonnet/claude   |    3 +
+ .../runtime-work-3/alias-sonnet/command.json       |   26 +
+ .../artifacts/runtime-work-3/alias-sonnet/curl     |    2 +
+ .../runtime-work-3/alias-sonnet/launch-stderr.log  |    4 +
+ .../artifacts/runtime-work-3/alias-sonnet/lsof     |    2 +
+ .../runtime-work-3/alias-sonnet/native-stderr.log  |    1 +
+ .../runtime-work-3/alias-sonnet/responses.json     | 1446 ++++++++++++
+ .../runtime-work-3/alias-sonnet/seen.json          |    1 +
+ .../runtime-work-3/alias-sonnet/warmup-cache.json  |    1 +
+ .../runtime-work-3/bare-route/aienv.d/defaults.sh  |   51 +
+ .../artifacts/runtime-work-3/bare-route/claude     |    3 +
+ .../runtime-work-3/bare-route/command.json         |   26 +
+ .../artifacts/runtime-work-3/bare-route/curl       |    2 +
+ .../runtime-work-3/bare-route/launch-stderr.log    |    4 +
+ .../artifacts/runtime-work-3/bare-route/lsof       |    2 +
+ .../runtime-work-3/bare-route/native-stderr.log    |    1 +
+ .../runtime-work-3/bare-route/responses.json       | 1446 ++++++++++++
+ .../artifacts/runtime-work-3/bare-route/seen.json  |    1 +
+ .../runtime-work-3/bare-route/warmup-cache.json    |    1 +
+ .../compact-override/aienv.d/defaults.sh           |   51 +
+ .../runtime-work-3/compact-override/claude         |    3 +
+ .../runtime-work-3/compact-override/command.json   |   26 +
+ .../artifacts/runtime-work-3/compact-override/curl |    2 +
+ .../compact-override/launch-stderr.log             |    4 +
+ .../artifacts/runtime-work-3/compact-override/lsof |    2 +
+ .../compact-override/native-stderr.log             |    0
+ .../runtime-work-3/compact-override/responses.json | 1208 ++++++++++
+ .../runtime-work-3/compact-override/seen.json      |    1 +
+ .../compact-override/warmup-cache.json             |    1 +
+ .../artifacts/runtime-work-3/shim-requests.jsonl   |   31 +
+ .../artifacts/runtime-work-3/shim-stderr.log       |  123 ++
+ .../runtime-work-3/tier0/aienv.d/defaults.sh       |   51 +
+ .../artifacts/runtime-work-3/tier0/claude          |    3 +
+ .../artifacts/runtime-work-3/tier0/command.json    |   26 +
+ .../artifacts/runtime-work-3/tier0/curl            |    2 +
+ .../runtime-work-3/tier0/launch-stderr.log         |    4 +
+ .../artifacts/runtime-work-3/tier0/lsof            |    2 +
+ .../runtime-work-3/tier0/native-stderr.log         |    0
+ .../artifacts/runtime-work-3/tier0/responses.json  | 1208 ++++++++++
+ .../artifacts/runtime-work-3/tier0/seen.json       |    1 +
+ .../runtime-work-3/tier0/warmup-cache.json         |    1 +
+ .../runtime-work-3/tier1a/aienv.d/defaults.sh      |   51 +
+ .../artifacts/runtime-work-3/tier1a/claude         |    3 +
+ .../artifacts/runtime-work-3/tier1a/command.json   |   26 +
+ .../artifacts/runtime-work-3/tier1a/curl           |    2 +
+ .../runtime-work-3/tier1a/launch-stderr.log        |    4 +
+ .../artifacts/runtime-work-3/tier1a/lsof           |    2 +
+ .../runtime-work-3/tier1a/native-stderr.log        |    0
+ .../artifacts/runtime-work-3/tier1a/responses.json | 1208 ++++++++++
+ .../artifacts/runtime-work-3/tier1a/seen.json      |    1 +
+ .../runtime-work-3/tier1a/warmup-cache.json        |    1 +
+ .../runtime-work-3/tier1b/aienv.d/defaults.sh      |   51 +
+ .../artifacts/runtime-work-3/tier1b/claude         |    3 +
+ .../artifacts/runtime-work-3/tier1b/command.json   |   26 +
+ .../artifacts/runtime-work-3/tier1b/curl           |    2 +
+ .../runtime-work-3/tier1b/launch-stderr.log        |    4 +
+ .../artifacts/runtime-work-3/tier1b/lsof           |    2 +
+ .../runtime-work-3/tier1b/native-stderr.log        |    0
+ .../artifacts/runtime-work-3/tier1b/responses.json | 1208 ++++++++++
+ .../artifacts/runtime-work-3/tier1b/seen.json      |    1 +
+ .../runtime-work-3/tier1b/warmup-cache.json        |    1 +
+ .../runtime-work-3/tier2/aienv.d/defaults.sh       |   51 +
+ .../artifacts/runtime-work-3/tier2/claude          |    3 +
+ .../artifacts/runtime-work-3/tier2/command.json    |   26 +
+ .../artifacts/runtime-work-3/tier2/curl            |    2 +
+ .../runtime-work-3/tier2/launch-stderr.log         |    4 +
+ .../artifacts/runtime-work-3/tier2/lsof            |    2 +
+ .../runtime-work-3/tier2/native-stderr.log         |    0
+ .../artifacts/runtime-work-3/tier2/responses.json  | 1208 ++++++++++
+ .../artifacts/runtime-work-3/tier2/seen.json       |    1 +
+ .../runtime-work-3/tier2/warmup-cache.json         |    1 +
+ .../artifacts/runtime-work/aienv.d/defaults.sh     |   51 +
+ .../runtime-work/alias-opus/aienv.d/defaults.sh    |   51 +
+ .../artifacts/runtime-work/alias-opus/claude       |    3 +
+ .../artifacts/runtime-work/alias-opus/command.json |   26 +
+ .../artifacts/runtime-work/alias-opus/curl         |    2 +
+ .../runtime-work/alias-opus/launch-stderr.log      |    4 +
+ .../artifacts/runtime-work/alias-opus/lsof         |    2 +
+ .../runtime-work/alias-opus/native-stderr.log      |    1 +
+ .../runtime-work/alias-opus/responses.json         | 1446 ++++++++++++
+ .../artifacts/runtime-work/alias-opus/seen.json    |    1 +
+ .../runtime-work/alias-opus/warmup-cache.json      |    1 +
+ .../compact-override/aienv.d/defaults.sh           |   51 +
+ .../artifacts/runtime-work/compact-override/claude |    3 +
+ .../runtime-work/compact-override/command.json     |   26 +
+ .../artifacts/runtime-work/compact-override/curl   |    2 +
+ .../compact-override/launch-stderr.log             |    4 +
+ .../artifacts/runtime-work/compact-override/lsof   |    2 +
+ .../compact-override/native-stderr.log             |    0
+ .../runtime-work/compact-override/responses.json   | 1208 ++++++++++
+ .../runtime-work/compact-override/seen.json        |    1 +
+ .../compact-override/warmup-cache.json             |    1 +
+ .../artifacts/runtime-work/shim-requests.jsonl     |   19 +
+ .../artifacts/runtime-work/shim-stderr.log         |   78 +
+ .../runtime-work/tier0/aienv.d/defaults.sh         |   51 +
+ .../artifacts/runtime-work/tier0/claude            |    3 +
+ .../artifacts/runtime-work/tier0/command.json      |   26 +
+ .../artifacts/runtime-work/tier0/curl              |    2 +
+ .../artifacts/runtime-work/tier0/launch-stderr.log |    4 +
+ .../artifacts/runtime-work/tier0/lsof              |    2 +
+ .../artifacts/runtime-work/tier0/native-stderr.log |    0
+ .../artifacts/runtime-work/tier0/responses.json    | 1208 ++++++++++
+ .../artifacts/runtime-work/tier0/seen.json         |    1 +
+ .../artifacts/runtime-work/tier0/warmup-cache.json |    1 +
+ .../runtime-work/tier1a/aienv.d/defaults.sh        |   51 +
+ .../artifacts/runtime-work/tier1a/claude           |    3 +
+ .../artifacts/runtime-work/tier1a/command.json     |   26 +
+ .../artifacts/runtime-work/tier1a/curl             |    2 +
+ .../runtime-work/tier1a/launch-stderr.log          |    4 +
+ .../artifacts/runtime-work/tier1a/lsof             |    2 +
+ .../runtime-work/tier1a/native-stderr.log          |    0
+ .../artifacts/runtime-work/tier1a/responses.json   | 1208 ++++++++++
+ .../artifacts/runtime-work/tier1a/seen.json        |    1 +
+ .../runtime-work/tier1a/warmup-cache.json          |    1 +
+ .../runtime-work/tier1b/aienv.d/defaults.sh        |   51 +
+ .../artifacts/runtime-work/tier1b/claude           |    3 +
+ .../artifacts/runtime-work/tier1b/command.json     |   26 +
+ .../artifacts/runtime-work/tier1b/curl             |    2 +
+ .../runtime-work/tier1b/launch-stderr.log          |    4 +
+ .../artifacts/runtime-work/tier1b/lsof             |    2 +
+ .../runtime-work/tier1b/native-stderr.log          |    0
+ .../artifacts/runtime-work/tier1b/responses.json   | 1208 ++++++++++
+ .../artifacts/runtime-work/tier1b/seen.json        |    1 +
+ .../runtime-work/tier1b/warmup-cache.json          |    1 +
+ .../runtime-work/tier2/aienv.d/defaults.sh         |   51 +
+ .../artifacts/runtime-work/tier2/claude            |    3 +
+ .../artifacts/runtime-work/tier2/command.json      |   26 +
+ .../artifacts/runtime-work/tier2/curl              |    2 +
+ .../artifacts/runtime-work/tier2/launch-stderr.log |    4 +
+ .../artifacts/runtime-work/tier2/lsof              |    2 +
+ .../artifacts/runtime-work/tier2/native-stderr.log |    0
+ .../artifacts/runtime-work/tier2/responses.json    | 1208 ++++++++++
+ .../artifacts/runtime-work/tier2/seen.json         |    1 +
+ .../artifacts/runtime-work/tier2/warmup-cache.json |    1 +
+ .../artifacts/runtime_probe.py                     |  225 ++
+ .../artifacts/t1-before.log                        |  149 ++
+ .../artifacts/t1-checks.log                        |    6 +
+ .../artifacts/t1-qa-input.txt                      |  135 ++
+ .../artifacts/t1-regressions.log                   |   12 +
+ .../artifacts/t1-tests-rerun.log                   |   29 +
+ .../artifacts/t1-tests.log                         |   27 +
+ .../artifacts/t2-qa-input.txt                      |  117 +
+ .../artifacts/t2-tests.log                         |   15 +
+ .../artifacts/t3-checks.log                        |    5 +
+ .../artifacts/t3-qa-input.txt                      |  245 +++
+ .../artifacts/t3-tests.log                         |   12 +
+ .../artifacts/t4-checks-final.log                  |  233 ++
+ .../artifacts/t4-checks.log                        |  233 ++
+ .../artifacts/t4-delivery.txt                      |   19 +
+ .../artifacts/t4-extras.log                        |   15 +
+ .../artifacts/t4-focused.log                       |   12 +
+ .../artifacts/t4-qa-input.txt                      | 1904 ++++++++++++++++
+ .../artifacts/t4-runtime-final.log                 |    9 +
+ .../artifacts/t4-runtime-rerun.log                 |    9 +
+ .../artifacts/t4-runtime.json                      |  764 +++++++
+ .../artifacts/t4-runtime.log                       |   12 +
+ .../artifacts/t4-tests-rerun.log                   |  503 +++++
+ .../artifacts/t4-tests.log                         |  512 +++++
+ .../artifacts/typecheck-detection.log              |    4 +
+ .../progress.md                                    |   13 +
+ .../return-contract.yaml                           |   17 +
+ .../source.md                                      |   39 +
+ .../TASK-WF-scIssueClaimPipe-20261107-063237.md    |  163 ++
+ .../artifacts/diffs/T1-r1-1.patch                  |  410 ++++
+ .../artifacts/diffs/T2-r1-1.patch                  | 1129 ++++++++++
+ .../artifacts/diffs/T3-r1-1.patch                  |  205 ++
+ .../artifacts/diffs/T4-r1-1.patch                  |  174 ++
+ .../artifacts/diffs/T5-r1-1.patch                  |  347 +++
+ .../artifacts/diffs/T5-r1-2-delta.patch            |   49 +
+ .../artifacts/diffs/T5-r1-2.patch                  |  349 +++
+ .../artifacts/diffs/T6-r1-1.patch                  |  702 ++++++
+ .../artifacts/diffs/T6-r1-2-delta.patch            |   65 +
+ .../artifacts/diffs/T6-r1-2.patch                  |  720 ++++++
+ .../artifacts/diffs/T7-r1-1.patch                  |  403 ++++
+ .../artifacts/diffs/T7-r1-2-delta.patch            |   34 +
+ .../artifacts/diffs/T7-r1-2.patch                  |  415 ++++
+ .../artifacts/diffs/T8-r1-1.patch                  |   89 +
+ .../artifacts/diffs/T9-r1-1.patch                  |   91 +
+ .../artifacts/final-1/README.md                    |    6 +
+ .../artifacts/final-2/lint.log                     |    3 +
+ .../artifacts/final-2/test.log                     |   91 +
+ .../artifacts/final-2/verify.log                   |    1 +
+ .../artifacts/retries/T1/prompt-1-1.md             |   53 +
+ .../artifacts/retries/T1/q0-head                   |    1 +
+ .../artifacts/retries/T2/notes.md                  |    4 +
+ .../artifacts/retries/T2/prompt-1-1.md             |   59 +
+ .../artifacts/retries/T2/q0-head                   |    1 +
+ .../artifacts/retries/T3/notes.md                  |    2 +
+ .../artifacts/retries/T3/prompt-1-1.md             |   50 +
+ .../artifacts/retries/T3/q0-head                   |    1 +
+ .../artifacts/retries/T4/notes.md                  |    2 +
+ .../artifacts/retries/T4/prompt-1-1.md             |   53 +
+ .../artifacts/retries/T4/q0-head                   |    1 +
+ .../artifacts/retries/T5/probe-1-1.md              |   18 +
+ .../artifacts/retries/T5/prompt-1-1.md             |   53 +
+ .../artifacts/retries/T5/prompt-1-2.md             |   54 +
+ .../artifacts/retries/T5/q0-head                   |    1 +
+ .../artifacts/retries/T5/review-1.md               |    4 +
+ .../artifacts/retries/T6/probe-1-1.md              |   10 +
+ .../artifacts/retries/T6/prompt-1-1.md             |   50 +
+ .../artifacts/retries/T6/prompt-1-2.md             |   51 +
+ .../artifacts/retries/T6/q0-head                   |    1 +
+ .../artifacts/retries/T6/review-1.md               |    5 +
+ .../artifacts/retries/T7/probe-1-1.md              |    6 +
+ .../artifacts/retries/T7/prompt-1-1.md             |   53 +
+ .../artifacts/retries/T7/prompt-1-2.md             |   54 +
+ .../artifacts/retries/T7/q0-head                   |    1 +
+ .../artifacts/retries/T7/review-1.md               |    6 +
+ .../artifacts/retries/T8/prompt-1-1.md             |   50 +
+ .../artifacts/retries/T8/q0-head                   |    1 +
+ .../artifacts/retries/T9/prompt-1-1.md             |   52 +
+ .../artifacts/retries/T9/q0-head                   |    1 +
+ .../artifacts/t1-contract.log                      |   19 +
+ .../artifacts/t1-ruff.log                          |    2 +
+ .../artifacts/t1-test.log                          |   11 +
+ .../artifacts/t2-contract.log                      |   19 +
+ .../artifacts/t2-ruff.log                          |    3 +
+ .../artifacts/t2-test.log                          |   12 +
+ .../artifacts/t3-ruff.log                          |    2 +
+ .../artifacts/t3-test.log                          |   11 +
+ .../artifacts/t3-wide.log                          |   86 +
+ .../artifacts/t4-ruff.log                          |    2 +
+ .../artifacts/t4-test.log                          |   21 +
+ .../artifacts/t4-wide.log                          |   86 +
+ .../artifacts/t5-prompt-k.log                      |   11 +
+ .../artifacts/t5-ruff.log                          |    2 +
+ .../artifacts/t5-test.log                          |   21 +
+ .../artifacts/t5-wide.log                          |   86 +
+ .../artifacts/t6-launch-k.log                      |   11 +
+ .../artifacts/t6-ruff.log                          |    2 +
+ .../artifacts/t6-test.log                          |   21 +
+ .../artifacts/t6-wide.log                          |   86 +
+ .../artifacts/t7-ruff.log                          |    2 +
+ .../artifacts/t7-test.log                          |   68 +
+ .../artifacts/t7-wide.log                          |   86 +
+ .../artifacts/t8-grep.log                          |   12 +
+ .../artifacts/t8-test.log                          |   21 +
+ .../artifacts/t9-format.log                        |    2 +
+ .../artifacts/t9-lint.log                          |    4 +
+ .../artifacts/t9-paths.log                         |    4 +
+ .../artifacts/t9-sync.log                          |    5 +
+ .../artifacts/t9-test.log                          |   91 +
+ .../artifacts/t9-verify.log                        |    8 +
+ .../progress.md                                    |   23 +
+ .../return-contract.yaml                           |   15 +
+ .../source.md                                      |  421 ++++
+ .../TASK-WF-specPanelReviewL-20261107-090418.md    |  102 +
+ .../artifacts/retries/T1/prompt-1-1.md             |   77 +
+ .../artifacts/retries/T1/q0-head                   |    1 +
+ .../artifacts/retries/T2/prompt-1-1.md             |   78 +
+ .../artifacts/retries/T2/q0-head                   |    1 +
+ .../artifacts/retries/T3/prompt-1-1.md             |   58 +
+ .../artifacts/retries/T3/q0-head                   |    1 +
+ .../artifacts/retries/T4/prompt-1-1.md             |   60 +
+ .../artifacts/retries/T4/q0-head                   |    1 +
+ .../artifacts/retries/T5/prompt-1-1.md             |   79 +
+ .../artifacts/retries/T5/q0-head                   |    1 +
+ .../artifacts/retries/T6/prompt-1-1.md             |  270 +++
+ .../artifacts/retries/T6/q0-head                   |    1 +
+ .../artifacts/retries/T7/prompt-1-1.md             |  130 ++
+ .../artifacts/retries/T7/q0-head                   |    1 +
+ .../artifacts/t1-section-diff.txt                  |    0
+ .../artifacts/t1-severity-test.log                 |   12 +
+ .../artifacts/t2-severity-test.log                 |    4 +
+ .../artifacts/t2-spec-panel-diff.txt               |    4 +
+ .../artifacts/t3-routing-tests.log                 |    6 +
+ .../artifacts/t4-cmp.txt                           |    1 +
+ .../artifacts/t4-parity-test.log                   |    5 +
+ .../artifacts/t5-old-sentence-search.txt           |    5 +
+ .../artifacts/t6-lint.log                          |    9 +
+ .../artifacts/t6-mutation.log                      |    7 +
+ .../artifacts/t6-new-test.log                      |   13 +
+ .../artifacts/t7-changed-files.txt                 |   14 +
+ .../artifacts/t7-sync-lint.log                     |   25 +
+ .../artifacts/t7-tests.log                         |   34 +
+ .../progress.md                                    |   18 +
+ .../return-contract.yaml                           |   14 +
+ .../source.md                                      |  193 ++
+ .../TASK-WF-workerContractFo-20261106-214402.md    |   89 +
+ .../artifacts/retries/T1/prompt-1-1.md             |  105 +
+ .../artifacts/retries/T1/q0-head                   |    1 +
+ .../artifacts/retries/T2/prompt-1-1.md             |  116 +
+ .../artifacts/retries/T2/q0-head                   |    1 +
+ .../artifacts/retries/T3/prompt-1-1.md             |   79 +
+ .../artifacts/retries/T3/q0-head                   |    1 +
+ .../artifacts/retries/T4/prompt-1-1.md             |   87 +
+ .../artifacts/retries/T4/q0-head                   |    1 +
+ .../artifacts/retries/T5/prompt-1-1.md             |  102 +
+ .../artifacts/retries/T5/q0-head                   |    1 +
+ .../artifacts/t1-checks.txt                        |    4 +
+ .../artifacts/t2-checks.txt                        |    3 +
+ .../artifacts/t3-checks.txt                        |    3 +
+ .../artifacts/t4-checks.txt                        |    3 +
+ .../artifacts/t5-checks.txt                        |   11 +
+ .../progress.md                                    |   14 +
+ .../return-contract.yaml                           |   14 +
+ .../source.md                                      |   36 +
+ .../TASK-WF-writeTheP1Static-20261105-033458.md    |  290 +++
+ .../artifacts/ac-1.1.txt                           |    5 +
+ .../artifacts/ac-1.4.txt                           |    8 +
+ .../artifacts/ac-c1.txt                            |    0
+ .../artifacts/ac-c2.txt                            |  227 ++
+ .../artifacts/ac-c3-baseline.txt                   |   49 +
+ .../artifacts/ac-c3-compare.md                     |   36 +
+ .../artifacts/ac-c3-current.txt                    |   52 +
+ .../artifacts/ac-c4-index.txt                      |    0
+ .../artifacts/ac-c5.txt                            |   17 +
+ .../artifacts/ac-c6-depth-setting.txt              |    2 +
+ .../artifacts/format-baseline.txt                  |    2 +
+ .../artifacts/format-current.txt                   |    2 +
+ .../artifacts/lint-baseline.txt                    |  161 ++
+ .../artifacts/lint-current.txt                     |  161 ++
+ .../artifacts/lint-format-compare.md               |   13 +
+ .../artifacts/mirror-check.txt                     |    0
+ .../artifacts/p1-static-report.md                  |  141 ++
+ .../artifacts/retries/T1/prompt-1-1.md             |  318 +++
+ .../artifacts/retries/T1/q0-head                   |    1 +
+ .../artifacts/retries/T10/prompt-1-1.md            |  203 ++
+ .../artifacts/retries/T10/q0-head                  |    1 +
+ .../artifacts/retries/T11/prompt-1-1.md            |  274 +++
+ .../artifacts/retries/T11/q0-head                  |    1 +
+ .../artifacts/retries/T12/prompt-1-1.md            |  166 ++
+ .../artifacts/retries/T12/q0-head                  |    1 +
+ .../artifacts/retries/T13/prompt-1-1.md            |  103 +
+ .../artifacts/retries/T13/q0-head                  |    1 +
+ .../artifacts/retries/T14/prompt-1-1.md            |  284 +++
+ .../artifacts/retries/T14/q0-head                  |    1 +
+ .../artifacts/retries/T15/probe-1-1.md             |   15 +
+ .../artifacts/retries/T15/prompt-1-1.md            |  629 ++++++
+ .../artifacts/retries/T15/prompt-2-1.md            |  671 ++++++
+ .../artifacts/retries/T15/q0-head                  |    1 +
+ .../artifacts/retries/T15/r1-1-tree                |    1 +
+ .../artifacts/retries/T15/review-1.md              |   12 +
+ .../artifacts/retries/T2/prompt-1-1.md             |  160 ++
+ .../artifacts/retries/T2/q0-head                   |    1 +
+ .../artifacts/retries/T3/notes.md                  |    3 +
+ .../artifacts/retries/T3/prompt-1-1.md             |  269 +++
+ .../artifacts/retries/T3/q0-head                   |    1 +
+ .../artifacts/retries/T4/prompt-1-1.md             |  215 ++
+ .../artifacts/retries/T4/q0-head                   |    1 +
+ .../artifacts/retries/T5/probe-1-1.md              |   18 +
+ .../artifacts/retries/T5/prompt-1-1.md             |  213 ++
+ .../artifacts/retries/T5/prompt-2-1.md             |  234 ++
+ .../artifacts/retries/T5/q0-head                   |    1 +
+ .../artifacts/retries/T5/review-1.md               |    7 +
+ .../artifacts/retries/T6/probe-1-1.md              |    9 +
+ .../artifacts/retries/T6/prompt-1-1.md             |  192 ++
+ .../artifacts/retries/T6/prompt-2-1.md             |  207 ++
+ .../artifacts/retries/T6/q0-head                   |    1 +
+ .../artifacts/retries/T6/review-1.md               |    4 +
+ .../artifacts/retries/T7/prompt-1-1.md             |  139 ++
+ .../artifacts/retries/T7/q0-head                   |    1 +
+ .../artifacts/retries/T8/prompt-1-1.md             |  222 ++
+ .../artifacts/retries/T8/q0-head                   |    1 +
+ .../artifacts/retries/T9/notes.md                  |    2 +
+ .../artifacts/retries/T9/prompt-1-1.md             |  309 +++
+ .../artifacts/retries/T9/q0-head                   |    1 +
+ .../artifacts/t1-ac-checks.txt                     |   26 +
+ .../artifacts/t1-accepted-failures.md              |   23 +
+ .../artifacts/t1-baseline-wider-no-ruff.txt        |  440 ++++
+ .../artifacts/t1-baseline-wider.txt                |  394 ++++
+ .../artifacts/t10-ac-checks.txt                    |   24 +
+ .../artifacts/t11-ac-checks.txt                    |   35 +
+ .../artifacts/t12-ac-checks.txt                    |   24 +
+ .../artifacts/t13-ac-checks.txt                    |   17 +
+ .../artifacts/t14-ac-checks.txt                    |   27 +
+ .../artifacts/t2-ac-checks.txt                     |   24 +
+ .../artifacts/t3-ac-checks.txt                     |   21 +
+ .../artifacts/t4-ac-checks.txt                     |   31 +
+ .../artifacts/t5-ac-checks-a1.txt                  |   30 +
+ .../artifacts/t5-ac-checks.txt                     |   31 +
+ .../artifacts/t6-ac-checks-a1.txt                  |   19 +
+ .../artifacts/t6-ac-checks.txt                     |   19 +
+ .../artifacts/t7-ac-checks.txt                     |   33 +
+ .../artifacts/t8-ac-checks.txt                     |   30 +
+ .../artifacts/t9-ac-checks.txt                     |   26 +
+ .../artifacts/verify-sync-baseline.txt             |   31 +
+ .../artifacts/wider-compare.md                     |   25 +
+ .../artifacts/wider-current.txt                    |  394 ++++
+ .../progress.md                                    |   35 +
+ .../return-contract.yaml                           |   16 +
+ .../source.md                                      |   11 +
+ .../TASK-WF-designSpec-20261107-072120.md          |  166 ++
+ .../return-contract.yaml                           |   15 +
+ .../TASK-WF-designSpec-20261107-072120/source.md   |  335 +++
+ .../TASK-WF-designSpec-20261107-074040.md          |  194 ++
+ .../return-contract.yaml                           |   15 +
+ .../TASK-WF-designSpec-20261107-074040/source.md   |  358 +++
+ .../TASK-WF-implementDocsDes-20261106-210206.md    |  108 +
+ .../artifacts/actor-context-observed-2.json        |  218 ++
+ .../artifacts/actor-context-observed.json          |  218 ++
+ .../artifacts/actor-context-probe.sh               |   92 +
+ .../artifacts/actor-context-report.md              |   34 +
+ .../artifacts/retries/T1/family-probe.md           |   10 +
+ .../artifacts/retries/T1/prompt-1-1.md             |   31 +
+ .../artifacts/retries/T1/prompt-2-1.md             |  640 ++++++
+ .../artifacts/retries/T1/q0-head                   |    1 +
+ .../artifacts/retries/T1/review-1.md               |    9 +
+ .../artifacts/retries/T1/review-2.md               |   12 +
+ .../progress.md                                    |    6 +
+ .../return-contract.yaml                           |   15 +
+ .../source.md                                      |    1 +
+ .../TASK-WF-issueSummary-20261107-064423.md        |  177 ++
+ .../return-contract.yaml                           |   14 +
+ .../TASK-WF-issueSummary-20261107-064423/source.md |   34 +
+ .../TASK-WF-makeTheAliasOnly-20261105-034531.md    |  129 --
+ .../return-contract.yaml                           |   14 -
+ .../source.md                                      |    9 -
+ .../artifacts/retries/T2/notes.md                  |    2 -
+ .../artifacts/retries/T6/notes.md                  |    4 -
+ .../TASK-WF-p3Requirements-20261107-065757.md      |  191 ++
+ .../return-contract.yaml                           |   14 +
+ .../source.md                                      |   30 +
+ .../TASK-WF-planTheRealBound-20261107-080351.md    |  120 +
+ .../return-contract.yaml                           |   17 +
+ .../source.md                                      |    1 +
+ .../TASK-WF-writeTheP2Static-20261107-011441.md    |  403 ++++
+ .../artifacts/.baselines-done                      |    1 +
+ .../artifacts/ac-2.1-deletions.txt                 |    0
+ .../artifacts/ac-2.1-tests.txt                     |   23 +
+ .../artifacts/ac-c1.txt                            |    0
+ .../artifacts/ac-c2.txt                            |  230 ++
+ .../artifacts/ac-c3-after.txt                      |   61 +
+ .../artifacts/ac-c3-baseline.txt                   |   57 +
+ .../artifacts/ac-c3-compare.md                     |  314 +++
+ .../artifacts/ac-c4-index.txt                      |    0
+ .../artifacts/ac-c5.txt                            |   19 +
+ .../artifacts/ac-c6-depth-setting.txt              |    6 +
+ .../debates/D-P2-22/option-a-recommended.md        |   12 +
+ .../debates/D-P2-22/option-b-alternative.md        |   12 +
+ .../D-P2-22/result/adversarial/base-selection.md   |   47 +
+ .../result/adversarial/debate-transcript.md        |   53 +
+ .../D-P2-22/result/adversarial/diff-analysis.md    |   74 +
+ .../D-P2-22/result/adversarial/merge-log.md        |   24 +
+ .../D-P2-22/result/adversarial/refactor-plan.md    |   40 +
+ .../result/adversarial/return-contract.yaml        |   11 +
+ .../result/adversarial/variant-1-original.md       |   12 +
+ .../result/adversarial/variant-2-original.md       |   12 +
+ .../debates/D-P2-22/result/merged-output.md        |   37 +
+ .../debates/D-P2-23/option-a-recommended.md        |   12 +
+ .../debates/D-P2-23/option-b-alternative.md        |   10 +
+ .../D-P2-23/result/adversarial/base-selection.md   |  123 ++
+ .../result/adversarial/debate-transcript.md        |  128 ++
+ .../D-P2-23/result/adversarial/diff-analysis.md    |   83 +
+ .../D-P2-23/result/adversarial/merge-log.md        |   64 +
+ .../D-P2-23/result/adversarial/refactor-plan.md    |   57 +
+ .../result/adversarial/return-contract.yaml        |   11 +
+ .../result/adversarial/variant-1-original.md       |   12 +
+ .../result/adversarial/variant-2-original.md       |   10 +
+ .../D-P2-23/result/merged-decision-D-P2-23.md      |   37 +
+ .../debates/D-P2-24/option-a-recommended.md        |   11 +
+ .../debates/D-P2-24/option-b-alternative.md        |   11 +
+ .../D-P2-24/result/adversarial/base-selection.md   |   60 +
+ .../result/adversarial/debate-transcript.md        |   84 +
+ .../D-P2-24/result/adversarial/diff-analysis.md    |   58 +
+ .../D-P2-24/result/adversarial/merge-log.md        |   70 +
+ .../D-P2-24/result/adversarial/refactor-plan.md    |   61 +
+ .../result/adversarial/variant-1-original.md       |   11 +
+ .../result/adversarial/variant-2-original.md       |   11 +
+ .../debates/D-P2-24/result/merged-decision.md      |   49 +
+ .../debates/D-P2-24/result/return-contract.yaml    |   15 +
+ .../debates/D-P2-25/option-a-recommended.md        |   10 +
+ .../debates/D-P2-25/option-b-alternative.md        |   10 +
+ .../D-P2-25/result/D-P2-25-merged-decision.md      |   65 +
+ .../D-P2-25/result/adversarial/base-selection.md   |  157 ++
+ .../result/adversarial/debate-transcript.md        |  140 ++
+ .../D-P2-25/result/adversarial/diff-analysis.md    |   75 +
+ .../D-P2-25/result/adversarial/merge-log.md        |  119 +
+ .../D-P2-25/result/adversarial/refactor-plan.md    |   88 +
+ .../result/adversarial/return-contract.yaml        |   14 +
+ .../result/adversarial/variant-1-original.md       |   10 +
+ .../result/adversarial/variant-2-original.md       |   10 +
+ .../artifacts/follow-ups.md                        |    9 +
+ .../artifacts/format-after.txt                     |    2 +
+ .../artifacts/format-baseline.txt                  |    2 +
+ .../artifacts/lint-after.txt                       |  161 ++
+ .../artifacts/lint-baseline.txt                    |  161 ++
+ .../artifacts/lint-format-compare.md               |   23 +
+ .../artifacts/mirror-check.txt                     |    0
+ .../artifacts/named-files-results.txt              |   75 +
+ .../artifacts/owner-decision-p1-c5.md              |   21 +
+ .../artifacts/p2-static-report.md                  |  235 ++
+ .../artifacts/retries/T1/prompt-1-1.md             |  228 ++
+ .../artifacts/retries/T1/q0-head                   |    1 +
+ .../artifacts/retries/T10/notes.md                 |    2 +
+ .../artifacts/retries/T10/prompt-1-1.md            |  293 +++
+ .../artifacts/retries/T10/q0-head                  |    1 +
+ .../artifacts/retries/T11/notes.md                 |    4 +
+ .../artifacts/retries/T11/prompt-1-1.md            |  257 +++
+ .../artifacts/retries/T11/q0-head                  |    1 +
+ .../artifacts/retries/T12/probe-1-1.md             |    9 +
+ .../artifacts/retries/T12/prompt-1-1.md            |  266 +++
+ .../artifacts/retries/T12/prompt-2-1.md            |  278 +++
+ .../artifacts/retries/T12/q0-head                  |    1 +
+ .../artifacts/retries/T12/review-1.md              |    4 +
+ .../artifacts/retries/T13/notes.md                 |    2 +
+ .../artifacts/retries/T13/prompt-1-1.md            |  342 +++
+ .../artifacts/retries/T13/q0-head                  |    1 +
+ .../artifacts/retries/T14/probe-1-1.md             |   14 +
+ .../artifacts/retries/T14/prompt-1-1.md            |  301 +++
+ .../artifacts/retries/T14/prompt-2-1.md            |  325 +++
+ .../artifacts/retries/T14/q0-head                  |    1 +
+ .../artifacts/retries/T14/review-1.md              |    4 +
+ .../artifacts/retries/T15/notes.md                 |    4 +
+ .../artifacts/retries/T15/probe-1-1.md             |   26 +
+ .../artifacts/retries/T15/prompt-1-1.md            |  300 +++
+ .../artifacts/retries/T15/prompt-2-1.md            |  328 +++
+ .../artifacts/retries/T15/q0-head                  |    1 +
+ .../artifacts/retries/T15/review-1.md              |    5 +
+ .../artifacts/retries/T16/prompt-1-1.md            |  251 +++
+ .../artifacts/retries/T16/q0-head                  |    1 +
+ .../artifacts/retries/T17/prompt-1-1.md            |  274 +++
+ .../artifacts/retries/T17/q0-head                  |    1 +
+ .../artifacts/retries/T18/prompt-1-1.md            |  257 +++
+ .../artifacts/retries/T18/q0-head                  |    1 +
+ .../artifacts/retries/T19/notes.md                 |    2 +
+ .../artifacts/retries/T19/prompt-1-1.md            |  285 +++
+ .../artifacts/retries/T19/q0-head                  |    1 +
+ .../artifacts/retries/T2/prompt-1-1.md             |  174 ++
+ .../artifacts/retries/T2/q0-head                   |    1 +
+ .../artifacts/retries/T20/prompt-1-1.md            |  431 ++++
+ .../artifacts/retries/T20/q0-head                  |    1 +
+ .../artifacts/retries/T21/probe-1-1.md             |   32 +
+ .../artifacts/retries/T21/prompt-1-1.md            |  807 +++++++
+ .../artifacts/retries/T21/prompt-2-1.md            |  833 +++++++
+ .../artifacts/retries/T21/q0-head                  |    1 +
+ .../artifacts/retries/T21/review-1.md              |    4 +
+ .../artifacts/retries/T3/probe-1-1.md              |   17 +
+ .../artifacts/retries/T3/prompt-1-1.md             |  174 ++
+ .../artifacts/retries/T3/prompt-2-1.md             |  193 ++
+ .../artifacts/retries/T3/q0-head                   |    1 +
+ .../artifacts/retries/T3/review-1.md               |    4 +
+ .../artifacts/retries/T4/prompt-1-1.md             |  170 ++
+ .../artifacts/retries/T4/q0-head                   |    1 +
+ .../artifacts/retries/T5/prompt-1-1.md             |  179 ++
+ .../artifacts/retries/T5/q0-head                   |    1 +
+ .../artifacts/retries/T6/probe-1-1.md              |   35 +
+ .../artifacts/retries/T6/prompt-1-1.md             |  266 +++
+ .../artifacts/retries/T6/prompt-2-1.md             |  330 +++
+ .../artifacts/retries/T6/q0-head                   |    1 +
+ .../artifacts/retries/T6/review-1.md               |    4 +
+ .../artifacts/retries/T7/prompt-1-1.md             |  195 ++
+ .../artifacts/retries/T7/q0-head                   |    1 +
+ .../artifacts/retries/T8/notes.md                  |    2 +
+ .../artifacts/retries/T8/probe-1-1.md              |   11 +
+ .../artifacts/retries/T8/prompt-1-1.md             |  281 +++
+ .../artifacts/retries/T8/prompt-2-1.md             |  316 +++
+ .../artifacts/retries/T8/q0-head                   |    1 +
+ .../artifacts/retries/T8/review-1.md               |    4 +
+ .../artifacts/retries/T9/notes.md                  |    3 +
+ .../artifacts/retries/T9/prompt-1-1.md             |  254 +++
+ .../artifacts/retries/T9/q0-head                   |    1 +
+ .../artifacts/static-checks-log.txt                |    9 +
+ .../artifacts/status-baseline.txt                  |    0
+ .../artifacts/superseded-ledger/README.md          |    3 +
+ .../progress-before-owner-decisions.md             |    3 +
+ .../retries-before-owner-decisions/T1/q0-head      |    1 +
+ .../superseded-ledger/t17-checks-original.txt      |   76 +
+ .../superseded-ledger/t6-checks-a2-cmp-only.txt    |    2 +
+ .../artifacts/t1-accepted-failures.md              |   20 +
+ .../artifacts/t1-baseline-wider.txt                |  522 +++++
+ .../artifacts/t1-checks.txt                        |   18 +
+ .../artifacts/t10-checks.txt                       |   40 +
+ .../artifacts/t11-checks.txt                       |   44 +
+ .../artifacts/t12-checks-a2.txt                    |   46 +
+ .../artifacts/t12-checks.txt                       |   46 +
+ .../artifacts/t13-checks.txt                       |   50 +
+ .../artifacts/t14-checks-a2.txt                    |   56 +
+ .../artifacts/t14-checks.txt                       |   56 +
+ .../artifacts/t15-checks-a2.txt                    |   59 +
+ .../artifacts/t15-checks.txt                       |   62 +
+ .../artifacts/t16-checks.txt                       |   61 +
+ .../artifacts/t17-checks.txt                       |   79 +
+ .../artifacts/t18-checks.txt                       |   75 +
+ .../artifacts/t19-checks.txt                       |   75 +
+ .../artifacts/t2-checks.txt                        |   22 +
+ .../artifacts/t20-checks.txt                       |   79 +
+ .../artifacts/t3-a2-checks.txt                     |   23 +
+ .../artifacts/t3-checks-a2.txt                     |   23 +
+ .../artifacts/t3-checks.txt                        |   23 +
+ .../artifacts/t4-checks.txt                        |   24 +
+ .../artifacts/t5-checks.txt                        |   25 +
+ .../artifacts/t6-a2-checks.txt                     |   30 +
+ .../artifacts/t6-checks-a2.txt                     |   32 +
+ .../artifacts/t6-checks.txt                        |   32 +
+ .../artifacts/t7-checks.txt                        |   32 +
+ .../artifacts/t8-checks-a2.txt                     |   35 +
+ .../artifacts/t8-checks.txt                        |   35 +
+ .../artifacts/t9-checks.txt                        |   37 +
+ .../artifacts/unmirrored-plugin-copies.txt         |   19 +
+ .../artifacts/uv-sync.txt                          |   15 +
+ .../artifacts/verify-sync-baseline.txt             |  228 ++
+ .../artifacts/wider-compare.md                     |   92 +
+ .../artifacts/wider-run.txt                        |  522 +++++
+ .../progress.md                                    |   44 +
+ .../return-contract.yaml                           |   15 +
+ .../source.md                                      |   18 +
+ CHANGELOG.md                                       |   19 +-
+ docs/designs/sc-issue-claim-pipeline-flag.md       |  460 ++++
+ docs/designs/sc-issue-command.md                   |   22 +-
+ docs/designs/sc-issue-launch-level-hook.md         |  565 +++++
+ docs/designs/spec-panel-review-loop.md             |  193 ++
+ ...laude-Developer-Guide-Commands-Skills-Agents.md |    2 +-
+ docs/guides/prd-skill-release-guide.md             |    2 +-
+ docs/guides/tdd-skill-release-guide.md             |    2 +-
+ ...deviation-patterns-OrcaCLICommandRefactor-P1.md |    6 +
+ ...deviation-patterns-OrcaCLICommandRefactor-P2.md |   13 +
+ .../deviation-patterns-WorkerContractFollowups.md  |    7 +
+ ...iation-patterns-sc-issue-claim-pipeline-flag.md |    9 +
+ docs/user-guide/commands.md                        |   52 +-
+ docs/user-guide/flags.md                           |    6 +
+ plugins/superclaude/commands/recommend.md          |   16 +
+ plugins/superclaude/commands/spec-panel.md         |   12 +-
+ plugins/superclaude/commands/workflow.md           |   15 +
+ plugins/superclaude/hooks/hooks.json               |   10 +
+ .../hooks/scripts/launch-job-identity.sh           |  566 +++++
+ plugins/superclaude/skills/sc-recommend/SKILL.md   |    2 +
+ .../skills/sc-recommend/refs/HOW-WE-WORK.md        |    4 +-
+ .../skills/sc-workflow-protocol/SKILL.md           |    4 +
+ .../sc-workflow-protocol/refs/input-parse.md       |    4 +
+ .../sc-workflow-protocol/refs/return-contract.md   |   16 +
+ src/superclaude/cli/init_lite.py                   |    5 +-
+ src/superclaude/cli/install_ccsession.py           |   11 +-
+ src/superclaude/cli/install_core.py                |   21 +
+ src/superclaude/cli/install_hooks.py               |    2 +
+ src/superclaude/cli/install_user_setup.py          |   35 +-
+ src/superclaude/commands/adversarial.md            |   14 +
+ src/superclaude/commands/analyze.md                |   14 +
+ src/superclaude/commands/auggie-review.md          |   14 +
+ src/superclaude/commands/brainstorm.md             |   16 +
+ src/superclaude/commands/build.md                  |   14 +
+ src/superclaude/commands/business-panel.md         |   18 +-
+ src/superclaude/commands/cleanup-audit.md          |   17 +
+ src/superclaude/commands/cleanup.md                |   15 +
+ src/superclaude/commands/cli-eval.md               |   14 +
+ src/superclaude/commands/cli-portify.md            |   16 +
+ src/superclaude/commands/design.md                 |   14 +
+ src/superclaude/commands/document.md               |   14 +
+ src/superclaude/commands/explain.md                |   15 +
+ src/superclaude/commands/graph.md                  |   15 +
+ src/superclaude/commands/impact.md                 |   13 +
+ src/superclaude/commands/improve.md                |   15 +
+ src/superclaude/commands/index-repo.md             |   19 +
+ src/superclaude/commands/index.md                  |   15 +
+ src/superclaude/commands/init-lite.md              |   17 +
+ src/superclaude/commands/issue.md                  |   29 +-
+ src/superclaude/commands/load.md                   |    2 +-
+ src/superclaude/commands/pr-submit.md              |   39 +-
+ src/superclaude/commands/recommend.md              |   16 +
+ src/superclaude/commands/reflect.md                |   14 +
+ src/superclaude/commands/release-split.md          |   14 +
+ src/superclaude/commands/research.md               |   13 +
+ src/superclaude/commands/review-translation.md     |   15 +
+ src/superclaude/commands/spec-panel.md             |   26 +-
+ src/superclaude/commands/task.md                   |   14 +
+ src/superclaude/commands/tasklist.md               |   14 +
+ src/superclaude/commands/tdd.md                    |   14 +
+ src/superclaude/commands/test.md                   |   15 +
+ src/superclaude/commands/troubleshoot.md           |   14 +
+ src/superclaude/commands/workflow.md               |   15 +
+ src/superclaude/core/CLAUDE.md                     |   10 +
+ src/superclaude/core/HOW-WE-WORK.md                |    4 +-
+ src/superclaude/core/WORKER-CONTRACT.md            |  155 +-
+ src/superclaude/hooks/hooks.json                   |   10 +
+ .../hooks/scripts/launch-job-identity.sh           |  566 +++++
+ src/superclaude/pr_submit/__init__.py              |   46 +-
+ src/superclaude/pr_submit/conflicts.py             |   24 +
+ src/superclaude/pr_submit/fsm.py                   |   11 +
+ src/superclaude/pr_submit/merge_guard.py           |  605 +++++
+ src/superclaude/pr_submit/models.py                |   16 +-
+ src/superclaude/pr_submit/run_log.py               |   24 +-
+ src/superclaude/skills/ccsession-tag/README.md     |   14 +
+ src/superclaude/skills/ccsession-tag/ccsession     |   93 +-
+ src/superclaude/skills/ccsession-tag/install.sh    |    5 +-
+ .../ccsession-tag/local-gateway-alias-proxy.py     |   29 +-
+ src/superclaude/skills/ccsession-tag/models.py     |   56 +-
+ src/superclaude/skills/ccsession-tag/seed-env.py   |   63 -
+ src/superclaude/skills/ccsession-tag/unseed-env.py |   55 +
+ .../skills/sc-adversarial-protocol/SKILL.md        |    8 +-
+ .../skills/sc-auggie-review-protocol/SKILL.md      |    4 +
+ .../refs/remediation-handoff.md                    |    2 +
+ .../skills/sc-brainstorm-protocol/SKILL.md         |   38 +
+ .../sc-brainstorm-protocol/refs/handoff-routing.md |    4 +
+ .../skills/sc-cleanup-audit-protocol/SKILL.md      |    6 +-
+ .../skills/sc-cli-eval-protocol/SKILL.md           |   11 +
+ .../sc-cli-eval-protocol/refs/integration-map.md   |    8 +
+ .../sc-cli-eval-protocol/refs/run-pipeline.md      |    2 +
+ .../skills/sc-cli-portify-protocol/SKILL.md        |   10 +
+ src/superclaude/skills/sc-graph-protocol/SKILL.md  |   15 +-
+ src/superclaude/skills/sc-impact-protocol/SKILL.md |   14 +-
+ .../skills/sc-init-lite-protocol/SKILL.md          |   11 +-
+ src/superclaude/skills/sc-issue-protocol/SKILL.md  |   44 +-
+ .../skills/sc-issue-protocol/refs/claim.md         |   58 +-
+ .../sc-issue-protocol/scripts/orca_worktree.py     | 1073 +++++++++
+ .../sc-issue-protocol/templates/launch-prompt.md   |   34 +
+ .../sc-issue-protocol/templates/next-steps.md      |    4 +-
+ .../skills/sc-pr-submit-protocol/SKILL.md          |   11 +-
+ .../skills/sc-pr-submit-protocol/refs/ci-poll.md   |   15 +-
+ .../refs/conflict-mechanical.md                    |    5 +-
+ .../sc-pr-submit-protocol/refs/loop-guard.md       |   10 +-
+ .../sc-pr-submit-protocol/refs/merge-guard.md      |  196 ++
+ .../sc-pr-submit-protocol/refs/state-machine.md    |   10 +-
+ .../scripts/poll-ci-checks.sh                      |   22 +-
+ .../scripts/set-draft-state.sh                     |  124 ++
+ src/superclaude/skills/sc-recommend/SKILL.md       |    2 +
+ .../skills/sc-reflect-protocol/SKILL.md            |   11 +
+ .../refs/remediation-handoff.md                    |    3 +
+ .../skills/sc-release-split-protocol/SKILL.md      |    9 +
+ .../refs/adversarial-integration.md                |    2 +
+ .../skills/sc-review-translation-protocol/SKILL.md |    4 +
+ src/superclaude/skills/sc-task-protocol/SKILL.md   |   12 +
+ .../skills/sc-tasklist-protocol/SKILL.md           |   11 +
+ .../skills/sc-troubleshoot-protocol/SKILL.md       |    4 +
+ .../refs/diagnosability-audit.md                   |    2 +
+ .../refs/remediation-handoff.md                    |    2 +
+ .../skills/sc-workflow-protocol/SKILL.md           |    4 +
+ .../sc-workflow-protocol/refs/input-parse.md       |    4 +
+ .../sc-workflow-protocol/refs/return-contract.md   |   16 +
+ src/superclaude/skills/task-builder/SKILL.md       |    2 +
+ src/superclaude/skills/task/SKILL.md               |    4 +
+ src/superclaude/skills/tdd/SKILL.md                |    6 +
+ .../skills/tdd/refs/build-request-template.md      |    1 +
+ .../skills/tdd/refs/validation-checklists.md       |    1 +
+ tests/cli/eval/test_perf_home_setup.py             |   69 +-
+ tests/cli/test_how_we_work_install.py              |   16 +
+ tests/cli/test_init_lite.py                        |   26 +
+ tests/cli/test_install_hooks.py                    |  180 ++
+ tests/cli/test_install_user_setup.py               |  157 ++
+ tests/commands/test_graph_command.py               |   13 +
+ tests/commands/test_impact_command.py              |   18 +
+ tests/commands/test_issue_command.py               |   69 +-
+ tests/commands/test_workflow_command.py            |   16 +
+ tests/core/test_orca_session_launch_guidance.py    |   31 +
+ tests/hooks/fixtures/launch_level/live_probe.py    |  352 +++
+ .../hooks/test_freshness_subagent_start_policy.py  |   11 +-
+ tests/hooks/test_launch_job_identity.py            | 1521 +++++++++++++
+ tests/pr_submit/test_ci_classify.py                |   63 +
+ tests/pr_submit/test_codex_reviews.py              |    2 +-
+ tests/pr_submit/test_conflict_scripts.py           |  158 ++
+ tests/pr_submit/test_conflict_sync_protocol.py     |  169 +-
+ tests/pr_submit/test_conflicts_core.py             |   80 +
+ tests/pr_submit/test_merge_guard.py                | 1298 +++++++++++
+ tests/pr_submit/test_merge_guard_protocol.py       |  854 +++++++
+ tests/pr_submit/test_merge_guard_scenarios.py      | 1003 +++++++++
+ tests/pr_submit/test_run_log.py                    |   93 +-
+ tests/pr_submit/test_set_draft_state.py            |  425 ++++
+ tests/pr_submit/test_skill_parse.py                |   18 +
+ tests/pr_submit/test_static_grep.py                |   63 +
+ tests/recommend/test_routing_refresh.py            |    7 +-
+ tests/skills/test_brainstorm_protocol.py           |   66 +
+ tests/skills/test_issue_orca_worktree.py           | 1677 ++++++++++++++
+ tests/skills/test_issue_protocol.py                |  321 +++
+ tests/skills/test_sc_recommend_routing_contract.py |   14 +
+ tests/skills/test_spec_panel_review_loop.py        |  174 ++
+ tests/skills/test_worker_contract.py               | 1574 ++++++++++++-
+ tests/unit/test_ccsession_tag.py                   |  257 ++-
+ tests/unit/test_ccsession_tiers.py                 |  197 +-
+ tests/unit/test_cli_install.py                     |    2 +-
+ 2643 files changed, 308397 insertions(+), 500 deletions(-)
+-- venv has no ruff module (the two tests run sys.executable -m ruff):
+ModuleNotFoundError: No module named 'ruff'
+-- the two tests run on a clean master snapshot (git archive master, PYTHONPATH=src, same venv):
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_passes_on_real_adapter_module
+======================= 2 failed, 11 deselected in 0.72s =======================

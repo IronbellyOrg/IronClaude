@@ -153,6 +153,23 @@ RULE_PHRASES = {
         ["Coordinator follow-ups are pulled, not pushed", "at natural checkpoints"],
     ),
     "WC-13": ("WC-13", ["No Orca fan-out from the worker session"]),
+    "WC-14": (
+        "WC-14",
+        [
+            "No turn ends between chain steps",
+            "ends its turn only after `worker_done`, while blocked in the preamble's `ask`, or on `consumer_fenced`",
+            "the next action in the same turn is the next `Command:` line",
+            "The one exception is a coordinator interrupt that asks for a handoff (the S6 nudge, section 4)",
+        ],
+    ),
+    "WC-15": (
+        "WC-15",
+        [
+            "Context-safe reading and handoff files",
+            "in pieces of at most 80 lines and never rereads a whole prior report",
+            "writes `<report-dir>/handoff/<n>-<command>.md` (at most 40 lines",
+        ],
+    ),
     "heartbeats": (
         None,
         [
@@ -168,6 +185,71 @@ RULE_PHRASES = {
             "the coordinator never uses `worker-start --retry-of`",
             "is never re-created after three failed starts",
             "A crashed or stalled attempt is settled by the coordinator",
+        ],
+    ),
+    "wc6-live-attempt-settlement": (
+        None,
+        [
+            "settles only when the person directs its cancellation and the coordinator has confirmed quiescence",
+            "two reads 5 minutes apart that agree",
+            "Context exhaustion, heartbeats and the coordinator's own nudges are not stall proofs",
+            "is logged and shown to the person, never applied",
+        ],
+    ),
+    "liveness-wait": (
+        None,
+        [
+            "### Liveness supervision",
+            "orca orchestration check --wait --types status,dispatch,worker_done,merge_ready,escalation,handoff,decision_gate,question,heartbeat --timeout-ms 300000",
+            "A returned Delivery is the whole FIFO batch, replayed until `--ack`",
+            "writes one run-notes line per message ID before it sends `--ack`",
+            "After three empty waits in a row, the coordinator enumerates its workers with `worker-list`",
+        ],
+    ),
+    "liveness-sweep-and-states": (
+        None,
+        [
+            "at most once every 5 minutes, the coordinator runs one sweep",
+            "A message arrival or a repeated identical read is not one",
+            "| S9 finished but unreported | Contract present, the brief has no `Command:` line after the step that wrote it,",
+            "Token unchanged for W while heartbeats arrive, or the S3 trigger fires;",
+            "| S10 settled |",
+            "| S11 unknown |",
+        ],
+    ),
+    "liveness-acks": (
+        None,
+        [
+            "The coordinator never resends a mailbox copy of an answer",
+            "type ONE copy into the terminal",
+            "A4, at 15 minutes: L5 report to the person",
+        ],
+    ),
+    "liveness-ladder-and-restart": (
+        None,
+        [
+            "Every sweep; at most 2 costly probes per triggered worker per sweep",
+            "1 per rolling 60 minutes, 2 per lineage",
+            "Nudges, asks, heartbeats, repeated identical reads and context exhaustion are never stall proofs",
+            "the same class twice means no plain restart",
+            "An L4 restart puts this note in the new Task's brief, after the guard line and before the `Command:` lines",
+        ],
+    ),
+    "liveness-never-on-silence": (
+        None,
+        [
+            "On silence, a passed deadline, `unverifiable` liveness or screen text alone, the coordinator never:",
+            "Silence authorizes only L1, L2 and L3.",
+        ],
+    ),
+    "liveness-unverified": (
+        None,
+        [
+            "UNVERIFIED: what `check --wait` wakes on when `--types` is not given",
+            "UNVERIFIED: the cause of case 5, answers a worker did not see",
+            "UNVERIFIED: whether Orca has an attention category for a permission prompt or for compact thrashing",
+            "UNVERIFIED: what Claude Code does with text typed while a tool call runs",
+            "UNVERIFIED: whether two consumers on one mailbox both get a batch",
         ],
     ),
     "brief-contents": (
@@ -226,12 +308,67 @@ RULE_PHRASES = {
     ),
     "fan-in-max": (None, ["maximum of 10 inputs"]),
     "fan-in-min": (None, ["at least 2 inputs are admitted"]),
+    "wc10-absence-not-death": (
+        None,
+        [
+            "never as death",
+            "never stops, retries or releases a worker because a heartbeat is late",
+            "authorizes only read-only probes, a typed nudge and a direct question",
+        ],
+    ),
+    "wc11-liveness-stat": (
+        None,
+        [
+            "The coordinator's liveness `stat` reads only the worker's own contract path and report directory",
+        ],
+    ),
+    "heartbeat-progress-token": (
+        None,
+        [
+            "Each heartbeat carries a progress token, in the heartbeat's subject or phase text, or a `status` body line",
+            "evidence that the process exists, not that the work is progressing",
+        ],
+    ),
+    "wc12-ack-batch": (
+        None,
+        [
+            "the worker handles every message in it before acknowledging the batch",
+            "ack <message_id> applied|queued|refused",
+            "applied (duplicate)",
+        ],
+    ),
+    "wc3-ask-return-heartbeat": (
+        None,
+        [
+            "When `ask` returns, the worker sends one heartbeat at once",
+            "sends the WC-12 ack for that message ID at the first legal opportunity, before re-invoking the command",
+        ],
+    ),
+    "wc5-closing-report-type": (
+        None,
+        [
+            "The closing report is never sent as `status`, `handoff` or a reply",
+        ],
+    ),
+    "wc7-skill-invocation": (
+        None,
+        [
+            "A worker runs each chained `Command:` by invoking its Skill",
+            "Reading the command file and following it from memory does not satisfy WC-7",
+        ],
+    ),
     "brief-template": (
         None,
         [
             "## 5. Coordinator brief template",
             '`--report-dir` is marked "from P1": no command accepts it at P0',
             "P0 only: Report file: <the command's report file under AC-0.4>.",
+        ],
+    ),
+    "brief-chain-line": (
+        None,
+        [
+            "Chain: run every Command: line in one turn without stopping between them (WC-14); write a handoff file after each (WC-15); send ack lines for coordinator answers (WC-12).",
         ],
     ),
 }

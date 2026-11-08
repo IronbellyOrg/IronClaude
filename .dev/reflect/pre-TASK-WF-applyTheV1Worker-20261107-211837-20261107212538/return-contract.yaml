@@ -1,0 +1,24 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: .dev/reflect/pre-TASK-WF-applyTheV1Worker-20261107-211837-20261107212538/REPORT.md
+audit_log_path: .dev/reflect/pre-TASK-WF-applyTheV1Worker-20261107-211837-20261107212538/audit.log
+tier_decision_path: .dev/reflect/pre-TASK-WF-applyTheV1Worker-20261107-211837-20261107212538/tier_decision.yaml
+confidence_calibrated: 0.91
+coverage_pct: 1.00
+coverage_pct_union: 0.913
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: [INF-003, INF-004]
+input_sha256: 2da8dc1d6e06cf9a184d60842a7a79012d17e24d428a6f885f95a80a56569c06
+input_tree_sha256: 310693b3c7ad699243773b14df8ab81a70cc5b08bbb53c5fee5dfb05f002c0b4
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+degraded_components: []
+vendor_heterogeneity: single
+t2_model_class_diversity: full

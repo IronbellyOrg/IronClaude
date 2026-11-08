@@ -1,0 +1,6 @@
+## pinned ruff (pyproject ruff==0.15.20) over src/ tests/ (CI form)
+ruff 0.15.20
+1212 files already formatted
+exit=0
+All checks passed!
+exit=0
