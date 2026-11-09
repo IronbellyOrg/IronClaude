@@ -1,0 +1,7 @@
+[
+  {"label": "F1", "grade": "CRITICAL", "rule": null, "wrong_outcome": "", "anchor": "When the store is down, the service returns 503 to the caller.", "finding": "No retry budget is stated for the caller."},
+  {"label": "F2", "grade": "MINOR", "rule": "FR-8", "wrong_outcome": "", "anchor": "The service rejects a widget without an owner.", "finding": "The guard has no boundary for an empty owner string."},
+  {"label": "F3", "grade": "MAJOR", "rule": null, "wrong_outcome": "An implementer deletes widgets at once.", "anchor": "The service keeps deleted widgets for 30 days.", "finding": "Deletion timing is unclear."},
+  {"label": "F4", "grade": "MAJOR", "rule": null, "wrong_outcome": "", "anchor": "It keeps one record per widget.", "finding": "Record identity is not defined."},
+  {"label": "F5", "grade": "MINOR", "rule": null, "wrong_outcome": "", "anchor": "Logs are kept for seven days.", "finding": "Log retention wording is vague."}
+]

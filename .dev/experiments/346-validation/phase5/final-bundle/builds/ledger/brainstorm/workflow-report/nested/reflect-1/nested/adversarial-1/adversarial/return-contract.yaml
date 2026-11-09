@@ -1,0 +1,14 @@
+return_contract:
+  merged_output_path: "/home/coder/workspaces/worktrees/IronClaude/bs346-ledger/.dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/merged-verdict.yaml"
+  convergence_score: 1.0
+  artifacts_dir: "/home/coder/workspaces/worktrees/IronClaude/bs346-ledger/.dev/brainstorms/346-ledger/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial"
+  status: "partial"
+  base_variant: "variant-1 (opus:analyzer advocate; card reviewer-1 analyzer/sonnet)"
+  unresolved_conflicts: 2
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - {id: INV-001, category: interaction_effects, assumption: "verbatim review briefs plus revert consent let a reviewer run the ledger", severity: HIGH}
+    - {id: INV-002, category: interaction_effects, assumption: "one skip predicate (review-1 PASS + document unchanged) fixes C-002", severity: HIGH}
+  status_reason: "diff-point convergence 1.0 but BLOCKED_BY_INVARIANTS (2 HIGH UNADDRESSED); both carried into the merged verdict as blocking findings M-F5 and M-F21"

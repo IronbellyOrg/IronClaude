@@ -1,0 +1,20 @@
+pick: advice-3-a.md; runner-up: advice-3-b.md; reason: tie, -a
+## Task 9: Write the design note
+Acceptance criteria:
+- The file exists and contains the literals `/sc:spec-panel-ponytail`, `--fix-audit`, `sc-fix-audit`, `fix_audit.py verdict`, `owner count`, the T08a command line exactly as in ./source.md section 4, a sentence stating the variant omits `## Unattended mode` and why, and the string `spec-panel-post427-95f2c6e4.md` naming the 472-line base.
+- `uv run pytest tests/docs -q` passes.
+Steps:
+1. Recreate `docs/designs/spec-panel-ponytail.md` from scratch with the same headings and order as attempt-2.diff:7-87: title, Status, What it is, loop table, trigger paragraph, Safe apply, verdict, Owner count, Placement, four owner decisions, variant base and Unattended-mode deviation, Files table, Install and the T08a block. Reuse A2's text word for word except where steps 2-4 say otherwise. F1.1 is resolved, so keep A2's DOWNGRADE sentence (attempt-2.diff:36) unchanged.
+2. In "What it is" (attempt-2.diff:13), replace "makes every edit, all or nothing" with "makes every edit to the specification in one atomic write (a temp file, then `os.replace`)". This matches src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py:757-766 and :871-877.
+3. Replace the bullet at attempt-2.diff:37 with these points, and nothing broader:
+   - `check` never writes the specification. On a failure it writes `check.log`, sets `audit: skipped(check failed)` and exits 1 (src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py:727-737).
+   - `apply` runs `check` again first and places every row in memory before it writes (src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py:785-787, :859-873).
+   - An exact-once or overlap failure prints `APPLY_STOP: nothing written` and leaves the spec unwritten (src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py:789-794, :860, :870).
+   - If the spec write or its read-back fails, the script tries to copy `current-before-audit.md` back over the spec. Say "tries"; do not claim the copy succeeds (src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py:876-882).
+   - Not covered: if writing `apply-log.md` or `closed-minor.txt` fails after the spec was replaced, the spec stays edited and `state.json` still says `checked`. Restore it by copying `fix-audit/current-before-audit.md` onto the spec (src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py:898-903).
+   - Keep "undoing the audit is one copy" from attempt-2.diff:33.
+4. Check every remaining sentence with "every", "never", "always", "only" or "byte" against the script before keeping it. Keep the trigger sentence (src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py:323-343), the verdict and owner-count lines (src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py:1019, :1066-1092) and REVERT_SHARED (src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py:843), since those match. Do not bring back any sentence from .dev/tasks/to-do/TASK-WF-spec-20261108-181547/source.md:47 or :199.
+5. Copy the T08a command line byte for byte from .dev/tasks/to-do/TASK-WF-spec-20261108-181547/source.md section 4, and check it with `grep -cxF` against both files (the result must be 1 in each).
+6. Grep the note for each AC1 literal: `/sc:spec-panel-ponytail`, `--fix-audit`, `sc-fix-audit`, `fix_audit.py verdict`, `owner count`, `spec-panel-post427-95f2c6e4.md`, and the sentence saying the variant omits `## Unattended mode` and why.
+7. Run `uv run pytest tests/docs -q` and save the output as the T9 test log. Change no file other than `docs/designs/spec-panel-ponytail.md`. `fix_audit.py` is not touched.
+differs-by: The note makes no "every failure leaves the spec unchanged" claim in any form, neither the original nor the reviewer's narrowed one. It describes the failure behaviour of `check` and `apply` one step at a time and names the remaining gap: a failed write of `apply-log.md` or `closed-minor.txt` after the spec is replaced leaves the spec edited, and the fix is to copy `current-before-audit.md` back by hand.

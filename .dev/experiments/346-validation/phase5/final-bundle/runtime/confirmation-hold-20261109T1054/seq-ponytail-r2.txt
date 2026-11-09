@@ -1,0 +1,12 @@
+W	T05	/tmp/impl/s1v/briefs/ponytail-r2/T05-R1-reviewer.txt
+W	T06	/tmp/impl/s1v/briefs/ponytail-r2/T06-R1-reviser.txt
+S	hist-v2	cp -p .dev/orca-command-refactor/specs/orca-worker-contract-spec.md .dev/orca-command-refactor/specs/history/spec-v2-after-round1.md
+P	fill-T07
+W	T07	/tmp/impl/s1v/briefs/ponytail-r2/T07-R2-reviewer.txt
+P	fill-T08
+W	T08	/tmp/impl/s1v/briefs/ponytail-r2/T08-R2-reviser.txt
+S	hist-v3	cp -p .dev/orca-command-refactor/specs/orca-worker-contract-spec.md .dev/orca-command-refactor/specs/history/spec-v3-after-round2.md
+W	T08a	/tmp/impl/s1v/briefs/ponytail-r2/T08a-fix-audit.TEMPLATE.txt
+P	fill-T09
+W	T09	/tmp/impl/s1v/briefs/ponytail-r2/T09-R3-reviewer.txt
+S	verdict	uv run --no-project python ~/.claude/skills/sc-fix-audit/scripts/fix_audit.py verdict --dir .dev/orca-command-refactor/review/fix-audit --report .dev/orca-command-refactor/review/spec-panel-round3.md --report-rule any-severity

@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/346-ponytail/nested/adversarial-1/merged-output.md"
+  convergence_score: 0.96
+  artifacts_dir: ".dev/brainstorms/346-ponytail/nested/adversarial-1/adversarial/"
+  status: "partial"
+  base_variant: "sonnet:refactorer"
+  unresolved_conflicts: 1          # S-001 (where the variant rule lives); merged as a separate heading
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  # The Round 2.5 gate was BLOCKED_BY_INVARIANTS (8 HIGH). Every HIGH item's required fix was
+  # adopted in refactor-plan.md (changes 9-16, plus change 22) and applied by the merge
+  # (merge-log.md), so none remains unaddressed in the merged output; status stays partial
+  # because the gate was cleared by plan, not by debate agreement.
+  unaddressed_invariants: []

@@ -1,0 +1,318 @@
+{
+ "acceptance": "clean",
+ "blocking": 3,
+ "blocking_ids": [
+  "R2.1",
+  "R2.2",
+  "R1.3"
+ ],
+ "chains": {
+  "R1.3": [
+   "R1.3"
+  ],
+  "R2.1": [
+   "R1.1",
+   "R2.1"
+  ],
+  "R2.2": [
+   "R1.2",
+   "R2.2"
+  ]
+ },
+ "deferred": [],
+ "degraded": false,
+ "findings": [
+  {
+   "anchor": "each P1 command with `--unattended --output <dir>`",
+   "at": [
+    196,
+    196
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.1",
+    "R2.1"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R2.1",
+   "origin": "unchanged",
+   "outcome": "the AC-1.2 run of the P1 workflow fix stops with E-LEGACY and sends --outcome failed, and the /sc:load run writes no contract so 7.2 steps 3-4 fail, so P1 cannot pass or the implementer adds a load contract against its row",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "AC-1.2 passes --output to workflow and runs the contract check on load",
+   "via": "H2.6"
+  },
+  {
+   "anchor": "matches the contract's `worker_status` under WC-5 (R1.2)",
+   "at": [
+    182,
+    182
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.2",
+    "R2.2"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": "H2.11",
+   "id": "R2.2",
+   "origin": "changed",
+   "outcome": "AC-0.4 requires step 3 in P0, when no command writes worker_status, so all three P0 smoke runs fail step 3 and section 1 is reopened on a false signal",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "step 3 needs worker_status that no P0 command writes",
+   "via": null
+  },
+  {
+   "anchor": "AC-C1 excludes that one file (R1.5)",
+   "at": [
+    147,
+    147
+   ],
+   "blocking": false,
+   "chain": [
+    "R1.5",
+    "R2.3"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": "H2.8",
+   "id": "R2.3",
+   "origin": "changed",
+   "outcome": null,
+   "sev": "minor",
+   "side": null,
+   "status": "minor",
+   "text": "SA-2 now forbids the ccsession-tag Orca use that AC-C1 also excludes",
+   "via": null
+  },
+  {
+   "anchor": "so a person's run cannot switch by accident (R1.7)",
+   "at": [
+    51,
+    51
+   ],
+   "blocking": false,
+   "chain": [
+    "R1.7",
+    "R2.4"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": "H2.1",
+   "id": "R2.4",
+   "origin": "changed",
+   "outcome": null,
+   "sev": "minor",
+   "side": null,
+   "status": "minor",
+   "text": "an unquoted free-text topic containing the token still switches the mode",
+   "via": null
+  },
+  {
+   "anchor": "the question itself stays recorded in the Run (`CAPS:58`)",
+   "at": [
+    64,
+    64
+   ],
+   "blocking": false,
+   "chain": [
+    "R1.2",
+    "R2.5"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": "H2.2",
+   "id": "R2.5",
+   "origin": "changed",
+   "outcome": null,
+   "sev": "minor",
+   "side": null,
+   "status": "minor",
+   "text": "CAPS:58 does not state the recorded-question fact",
+   "via": null
+  }
+ ],
+ "held": {},
+ "open_blocking": [
+  {
+   "anchor": "each P1 command with `--unattended --output <dir>`",
+   "at": [
+    196,
+    196
+   ],
+   "chain": [
+    "R1.1",
+    "R2.1"
+   ],
+   "hunk": null,
+   "id": "R2.1",
+   "sev": "major",
+   "text": "AC-1.2 passes --output to workflow and runs the contract check on load"
+  },
+  {
+   "anchor": "matches the contract's `worker_status` under WC-5 (R1.2)",
+   "at": [
+    182,
+    182
+   ],
+   "chain": [
+    "R1.2",
+    "R2.2"
+   ],
+   "hunk": "H2.11",
+   "id": "R2.2",
+   "sev": "major",
+   "text": "step 3 needs worker_status that no P0 command writes"
+  },
+  {
+   "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+   "at": [
+    64,
+    64
+   ],
+   "chain": [
+    "R1.3"
+   ],
+   "hunk": null,
+   "id": "R1.3",
+   "sev": "major",
+   "status": "open",
+   "text": "WC-6 fresh directory conflicts with the brief-fixed directory of WC-4"
+  }
+ ],
+ "priors": [
+  {
+   "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "at": [
+    62,
+    62
+   ],
+   "by": "H2.2",
+   "chain": [
+    "R1.1"
+   ],
+   "hunk": null,
+   "id": "R1.1",
+   "sev": "major",
+   "status": "resolved",
+   "text": "WC-4 report location is unknowable or undefined for workflow, tdd, init-lite and a missing flag"
+  },
+  {
+   "anchor": "Commands that already write a contract keep their fields and add the missing ones",
+   "at": [
+    62,
+    62
+   ],
+   "by": "H2.2",
+   "chain": [
+    "R1.2"
+   ],
+   "hunk": null,
+   "id": "R1.2",
+   "sev": "major",
+   "status": "resolved",
+   "text": "the new status field collides with existing contract status fields"
+  },
+  {
+   "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+   "at": [
+    64,
+    64
+   ],
+   "by": null,
+   "chain": [
+    "R1.3"
+   ],
+   "hunk": null,
+   "id": "R1.3",
+   "sev": "major",
+   "status": "open",
+   "text": "WC-6 fresh directory conflicts with the brief-fixed directory of WC-4"
+  },
+  {
+   "anchor": "The worker runs the command directly in its own session; it never wraps the command in an Agent-tool subagent.",
+   "at": [
+    65,
+    65
+   ],
+   "by": "H2.2",
+   "chain": [
+    "R1.4"
+   ],
+   "hunk": null,
+   "id": "R1.4",
+   "sev": "major",
+   "status": "resolved",
+   "text": "WC-7 does not require the Skill invocation and no check detects its absence"
+  },
+  {
+   "anchor": "src/superclaude/agents src/superclaude/core",
+   "at": [
+    172,
+    172
+   ],
+   "by": "H2.10",
+   "chain": [
+    "R1.5"
+   ],
+   "hunk": null,
+   "id": "R1.5",
+   "sev": "major",
+   "status": "resolved",
+   "text": "AC-C1 scans the folder that holds the contract file SA-2 lets mention Orca"
+  },
+  {
+   "anchor": "has a `## Unattended mode` section naming `return-contract.yaml`",
+   "at": [
+    195,
+    195
+   ],
+   "by": "H2.12",
+   "chain": [
+    "R1.6"
+   ],
+   "hunk": null,
+   "id": "R1.6",
+   "sev": "major",
+   "status": "resolved",
+   "text": "load has no report but AC-1.1 requires one"
+  },
+  {
+   "anchor": "a person never types it",
+   "at": [
+    228,
+    228
+   ],
+   "by": "H2.1",
+   "chain": [
+    "R1.7"
+   ],
+   "hunk": null,
+   "id": "R1.7",
+   "sev": "major",
+   "status": "resolved",
+   "text": "no parse rule for the --unattended token"
+  }
+ ],
+ "proxy_all": 3,
+ "proxy_ids": [
+  "R1.3",
+  "R2.1",
+  "R2.2"
+ ],
+ "review": 2,
+ "scoped": {},
+ "verdict": "FAIL",
+ "verdict_line": "verdict: FAIL"
+}

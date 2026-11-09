@@ -1,0 +1,547 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "check": "spec-panel.md total",
+      "passed": true
+    },
+    {
+      "check": "spec-panel.md labels",
+      "passed": true
+    },
+    {
+      "check": "spec-panel.md grades",
+      "passed": true
+    },
+    {
+      "report": "spec-panel.md",
+      "rows": [
+        {
+          "id": "F1",
+          "severity": "CRITICAL",
+          "blocking": true,
+          "source": "spec-panel.md:133"
+        },
+        {
+          "id": "F2",
+          "severity": "MAJOR",
+          "blocking": true,
+          "source": "spec-panel.md:134"
+        },
+        {
+          "id": "F3",
+          "severity": "MAJOR",
+          "blocking": true,
+          "source": "spec-panel.md:135"
+        },
+        {
+          "id": "F4",
+          "severity": "MAJOR",
+          "blocking": true,
+          "source": "spec-panel.md:136"
+        },
+        {
+          "id": "F5",
+          "severity": "MAJOR",
+          "blocking": true,
+          "source": "spec-panel.md:137"
+        },
+        {
+          "id": "F6",
+          "severity": "MAJOR",
+          "blocking": true,
+          "source": "spec-panel.md:138"
+        },
+        {
+          "id": "F7",
+          "severity": "MAJOR",
+          "blocking": true,
+          "source": "spec-panel.md:139"
+        },
+        {
+          "id": "F8",
+          "severity": "MAJOR",
+          "blocking": true,
+          "source": "spec-panel.md:140"
+        },
+        {
+          "id": "N1",
+          "severity": "MAJOR",
+          "blocking": false,
+          "source": "spec-panel.md:141"
+        },
+        {
+          "id": "N2",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel.md:142"
+        },
+        {
+          "id": "N3",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel.md:143"
+        },
+        {
+          "id": "N4",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel.md:144"
+        },
+        {
+          "id": "N5",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel.md:145"
+        },
+        {
+          "id": "N6",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel.md:146"
+        },
+        {
+          "id": "N7",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel.md:147"
+        },
+        {
+          "id": "N8",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel.md:148"
+        }
+      ],
+      "counts": {
+        "CRITICAL": 1,
+        "MAJOR": 8,
+        "MINOR": 7
+      }
+    },
+    {
+      "check": "spec-panel-round2.md total",
+      "passed": true
+    },
+    {
+      "check": "spec-panel-round2.md labels",
+      "passed": true
+    },
+    {
+      "check": "spec-panel-round2.md grades",
+      "passed": true
+    },
+    {
+      "report": "spec-panel-round2.md",
+      "rows": [
+        {
+          "id": "NF1",
+          "severity": "CRITICAL",
+          "blocking": true,
+          "source": "spec-panel-round2.md:167"
+        },
+        {
+          "id": "NF2",
+          "severity": "MAJOR",
+          "blocking": true,
+          "source": "spec-panel-round2.md:168"
+        },
+        {
+          "id": "NF3",
+          "severity": "MAJOR",
+          "blocking": true,
+          "source": "spec-panel-round2.md:169"
+        },
+        {
+          "id": "NF4",
+          "severity": "MAJOR",
+          "blocking": true,
+          "source": "spec-panel-round2.md:170"
+        },
+        {
+          "id": "NF5",
+          "severity": "MAJOR",
+          "blocking": true,
+          "source": "spec-panel-round2.md:171"
+        },
+        {
+          "id": "NF6",
+          "severity": "MAJOR",
+          "blocking": true,
+          "source": "spec-panel-round2.md:172"
+        },
+        {
+          "id": "NF7",
+          "severity": "MAJOR",
+          "blocking": true,
+          "source": "spec-panel-round2.md:173"
+        },
+        {
+          "id": "M1",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel-round2.md:174"
+        },
+        {
+          "id": "M2",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel-round2.md:175"
+        },
+        {
+          "id": "M3",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel-round2.md:176"
+        },
+        {
+          "id": "M4",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel-round2.md:177"
+        },
+        {
+          "id": "M5",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel-round2.md:178"
+        },
+        {
+          "id": "M6",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel-round2.md:179"
+        },
+        {
+          "id": "M7",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel-round2.md:180"
+        },
+        {
+          "id": "M8",
+          "severity": "MINOR",
+          "blocking": false,
+          "source": "spec-panel-round2.md:181"
+        }
+      ],
+      "counts": {
+        "CRITICAL": 1,
+        "MAJOR": 6,
+        "MINOR": 8
+      }
+    },
+    {
+      "check": "R3 seven resolution rows",
+      "passed": true
+    },
+    {
+      "check": "R3 explicit no-new statement",
+      "passed": true
+    },
+    {
+      "check": "R3 prior minor open",
+      "passed": true
+    },
+    {
+      "check": "R3 final FAIL",
+      "passed": true
+    },
+    {
+      "R3_resolution_rows": [
+        {
+          "line": 27,
+          "text": "| Nested adversarial status (NF1; round-1 F1) | CRITICAL | resolved | SPEC:62-63 preserve the nested `return_contract:` shape and name the nested read; SPEC:183 uses `c = d.get('return_contract', d)` before checking fields. Both `sk/sc-adversarial-protocol/SKILL.md:432-436` and the historical `.dev/codegraph-migration/decisions/P3-command-set/adversarial/return-contract.yaml:1-5` have that shape. The earlier top-level KeyError attack no longer applies. |"
+        },
+        {
+          "line": 28,
+          "text": "| Missing dry-run spelling (NF2) | MAJOR | resolved | SPEC:62-63,183,262 include both `dry-run` and `dry_run`. Live definitions match: `sk/sc-brainstorm-protocol/SKILL.md:341`, `sk/sc-reflect-protocol/SKILL.md:665`, `sk/sc-cli-portify-protocol/SKILL.md:513`; troubleshoot's `blocked` is acknowledged at `sk/sc-troubleshoot-protocol/SKILL.md:65`. |"
+        },
+        {
+          "line": 29,
+          "text": "| Universal contract location without delivery route (NF3) | MAJOR | resolved (location attack) | SPEC:62,76 supply report-folder, report-file and new `--run-dir` routes, with workflow the sole package-location exception. SPEC:83,105,109,114 and SPEC:196,210 now agree on the contract location. Fixed artifacts need not move with the contract. This resolves the wrong-path attack in R2:169; the added fixed-state retry sentence creates R3-N1 below. |"
+        },
+        {
+          "line": 30,
+          "text": "| Implement overwrites workflow contract (NF4) | MAJOR | resolved | SPEC:62,109 explicitly forbid that overwrite and put implement's contract in its separate run folder. Workflow keeps its package contract (`sk/sc-workflow-protocol/refs/return-contract.md:3`); implement's ledger is the package sibling (`cmd/implement.md:58,65`), and the sibling workflow contract must remain version 1.1 with success/partial (`sk/sc-implement-protocol/refs/managed-workspace.md:10`; `sk/sc-implement-protocol/scripts/archive_workspace.py:322-330`). A blocked implement report no longer replaces the executable plan's contract. |"
+        },
+        {
+          "line": 31,
+          "text": "| No-answer-input gates also told to ask (NF5) | MAJOR | resolved | SPEC:114 makes PR-submit operator halts final, with no ask. SPEC:235 ends the halted worker, then makes any relayed Ruling a new Task with an explicit resume, conditional on the person's decision. This matches SPEC:61's no-answer-input branch. The current Ruling restriction is still accurately stated (`sk/sc-implement-protocol/refs/qa.md:231-240`); the proposed relaxation is not claimed to exist. |"
+        },
+        {
+          "line": 32,
+          "text": "| P1 test gives every command a folder-valued output flag (NF6) | MAJOR | resolved | SPEC:196 now distinguishes folder outputs, init-lite's file output, fixed-location `--run-dir`, and workflow with neither flag; load is excluded. Workflow's rejection remains real (`sk/sc-workflow-protocol/refs/input-parse.md:12`); init-lite is a file path (`cmd/init-lite.md:32`). Those named failing cases are corrected. P1's general requirement supplies output flags for commands lacking them (`SPEC:159`). |"
+        },
+        {
+          "line": 33,
+          "text": "| No deterministic adversarial Phase-0 report (NF7; round-1 F3) | MAJOR | resolved | SPEC:83 now names `<output>/adversarial/merge-log.md`, independently of the still-unfixed contract filename. That file is Step 5's documented output (`sk/sc-adversarial-protocol/SKILL.md:324-327,371-384`) and exists in the observed quick run (`.dev/codegraph-migration/decisions/P3-command-set/adversarial/adversarial/merge-log.md:1-10`). SPEC:182-183,194 can compare a known path. Whether every successful quick run writes it remains explicitly UNVERIFIED pending the Phase-0 smoke test (`SPEC:289`), not fabricated runtime proof. |"
+        }
+      ],
+      "zero_new_source_line": 101,
+      "minor_source_line": 105,
+      "orphan_source_line": 29,
+      "orphan_rejection_lines": [
+        110,
+        111,
+        174
+      ]
+    },
+    {
+      "check": "copy hash spec-panel.md",
+      "passed": true
+    },
+    {
+      "check": "source unchanged spec-panel.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash disposition.md",
+      "passed": true
+    },
+    {
+      "check": "source unchanged disposition.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash spec-panel-round2.md",
+      "passed": true
+    },
+    {
+      "check": "source unchanged spec-panel-round2.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash disposition-round2.md",
+      "passed": true
+    },
+    {
+      "check": "source unchanged disposition-round2.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash spec-panel-round3.md",
+      "passed": true
+    },
+    {
+      "check": "source unchanged spec-panel-round3.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash spec-v1-draft.md",
+      "passed": true
+    },
+    {
+      "check": "source unchanged spec-v1-draft.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash spec-v2-after-round1.md",
+      "passed": true
+    },
+    {
+      "check": "source unchanged spec-v2-after-round1.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash spec-v3-after-round2.md",
+      "passed": true
+    },
+    {
+      "check": "source unchanged spec-v3-after-round2.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash fix-audit/apply-log.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash fix-audit/audit.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash fix-audit/brief.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash fix-audit/check.log",
+      "passed": true
+    },
+    {
+      "check": "copy hash fix-audit/closed-minor.txt",
+      "passed": true
+    },
+    {
+      "check": "copy hash fix-audit/current-before-audit.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash fix-audit/final-verdict.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash fix-audit/fix-list.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash fix-audit/state.json",
+      "passed": true
+    },
+    {
+      "check": "copy hash live-spec-at-recording.md",
+      "passed": true
+    },
+    {
+      "check": "source unchanged live-spec-at-recording.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash governing/DECISIONS.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash governing/phase2__S1__REPLAY.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash governing/phase2__S1__baseline-metrics.json",
+      "passed": true
+    },
+    {
+      "check": "copy hash governing/phase5__s1v-log.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash governing/phase5__install-log.md",
+      "passed": true
+    },
+    {
+      "check": "copy hash governing/phase4__install-watch.log",
+      "passed": true
+    },
+    {
+      "check": "copy hash governing/spec-recorder3.txt",
+      "passed": true
+    },
+    {
+      "check": "copy hash driver/driver-ponytail.log",
+      "passed": true
+    },
+    {
+      "check": "copy hash driver/seq-ponytail.txt",
+      "passed": true
+    },
+    {
+      "check": "copy hash driver/last-ponytail-T09.json",
+      "passed": true
+    },
+    {
+      "check": "copy hash driver/status-ponytail",
+      "passed": true
+    },
+    {
+      "check": "copy hash driver/state-ponytail",
+      "passed": true
+    },
+    {
+      "check": "copy hash briefs/T08-R2-reviser.txt",
+      "passed": true
+    },
+    {
+      "check": "copy hash briefs/T08a-fix-audit.TEMPLATE.txt",
+      "passed": true
+    },
+    {
+      "check": "copy hash briefs/T07-R2-reviewer.filled.txt",
+      "passed": true
+    },
+    {
+      "check": "copy hash briefs/T06-R1-reviser.txt",
+      "passed": true
+    },
+    {
+      "check": "copy hash briefs/T10-R3-reviser.txt",
+      "passed": true
+    },
+    {
+      "check": "copy hash briefs/T09-R3-reviewer.txt",
+      "passed": true
+    },
+    {
+      "check": "copy hash briefs/T07-R2-reviewer.txt",
+      "passed": true
+    },
+    {
+      "check": "copy hash briefs/T09-R3-reviewer.filled.txt",
+      "passed": true
+    },
+    {
+      "check": "copy hash briefs/T08-R2-reviser.filled.txt",
+      "passed": true
+    },
+    {
+      "check": "copy hash briefs/T05-R1-reviewer.txt",
+      "passed": true
+    },
+    {
+      "check": "copy hash comparators/ctl-r1.json",
+      "passed": true
+    },
+    {
+      "check": "copy hash comparators/ctl-r2.json",
+      "passed": true
+    },
+    {
+      "check": "copy hash comparators/flg-r1.json",
+      "passed": true
+    },
+    {
+      "check": "copy hash comparators/flg-r2.json",
+      "passed": true
+    },
+    {
+      "check": "before-audit snapshot match",
+      "passed": true
+    },
+    {
+      "check": "exact endpoint",
+      "passed": true
+    },
+    {
+      "check": "audit byte delta",
+      "passed": true
+    },
+    {
+      "check": "audit two hunks",
+      "passed": true
+    },
+    {
+      "check": "audit lines 68 and 158",
+      "passed": true
+    },
+    {
+      "check": "final growth arithmetic",
+      "passed": true
+    },
+    {
+      "check": "session call total",
+      "passed": true
+    },
+    {
+      "check": "session output total",
+      "passed": true
+    },
+    {
+      "check": "fixed control proxy mean",
+      "passed": true
+    },
+    {
+      "check": "fixed growth bar",
+      "passed": true
+    },
+    {
+      "check": "strict partial origin ids",
+      "passed": true
+    }
+  ]
+}

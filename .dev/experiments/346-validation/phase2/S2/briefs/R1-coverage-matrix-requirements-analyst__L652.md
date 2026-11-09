@@ -1,0 +1,13 @@
+You are building the spec-to-tasklist coverage matrix for a pre-execution review (sc:reflect UC-1, Wave 1B, Step 1B.0). Read-only except the one output file below.
+
+Inputs (read both in full):
+- Spec: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261101-225635/source.md
+- Tasklist: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261101-225635/TASK-WF-removeTheAnyIssu-20261101-225635.md
+- Supporting site list the tasks rely on: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/review-severity-rule/inventory.md
+
+Algorithm (follow exactly; spec is ~/.claude/skills/sc-reflect-protocol/refs/coverage-mapping.md if you need it):
+- Pass 1: parsed ids match the regex \b(R-\d+|REQ-\d+|SPEC-\d+|T-\d+)\b in the spec. Each parsed id owns its list item. Match a parsed id to every task whose text contains that literal token (word boundary). match_method exact or none.
+- Pass 2: read the full spec and list requirement-shaped content Pass 1 missed (imperatives, constraints, deliverables) that does NOT overlap any line of a parsed id's list item. Each becomes INF-001, INF-002 ... with a verbatim quote (max 2 sentences) and spec file:line. Match each INF row by content-word containment (case-folded, stopwords removed, >= 0.6 of the quote's content words inside ONE task item's text, best ratio wins). Also record, as a separate note, whether the plan's Constraints section carries it.
+- Beyond the mechanical match, check substance: for each R-id, does the matched task actually deliver what the requirement says (name any requirement detail the tasks omit, e.g. a file, line, test or check named in the requirement but absent from every task)? Cite tasklist line numbers.
+
+Write the result to /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/reflect/pre-removeTheAnyIssu-20261101225845/artifacts/coverage-matrix.yaml with: parsed_count, inferred_count, rows (requirement_id, source parsed|inferred, quote for INF rows, citation, matched_task_ids, match_method, substance_gaps list), coverage_pct (matched parsed / parsed), coverage_pct_union, unmapped_requirements, unmapped_requirements_union. Create the file first with a header, then fill it in. Then return a 5-line summary: counts, coverage numbers, and every substance gap with its citation. Do not edit any other file.

@@ -1,0 +1,28 @@
+BLOCKING_COUNT: 5
+
+# Gate 3 consolidated findings, fix cycle 2 (the last allowed cycle)
+
+Sources: `qa/qa-fix-verification-phase6-cycle1.md` (structural agent, FAIL, Important 1) and `qa/qa-fix-verification-qualitative-phase6-cycle1.md` (qualitative agent, FAIL, Important 4). Both agents confirm the 18 cycle-1 blocking rows were fixed (17 of 18 by the structural agent, which found D2 left at S; 18 of 18 in substance by the qualitative agent), so none carries over except F-1, the unfixed part of row 4. Report: `RESEARCH-REPORT-bmad-first-use.md` (1795 lines). Not SYSTEMIC: 5 blocking findings now versus 18 in cycle 1.
+
+| # | Reporter severity | Final severity | Reason for any change | Blocking | Finding | Originating report | Affected report section | Proposed fix |
+|---|---|---|---|---|---|---|---|---|
+| 1 | IMPORTANT (F-1) | IMPORTANT | | yes | The row-4 fix re-rated Effort to M for B3, D3 and C but left D2 at "S (4 files)" at L1137 (Option D), L1227 (Table 1) and L1299 (Section 7 Stage 1 "Why"). Section 8 builds D2 for the (no, session) case (L1355, L1476, step 4D.6 L1520) and steps 5.3 and 5.4 add a new test file, a driver-table row and a second-file check in `test-73`; by the rubric at L1004-1005 that is M. | structural verification | 6 (Option D, Table 1), 7 (Stage 1) | Re-rate D2 to M "as planned" in L1137 and L1227 and add D2 to the L1299 sentence. |
+| 2 | IMPORTANT (B-1) | IMPORTANT | | yes | The Phase 4 gate cannot be run in the order the report states: L1477 "Gate before any branch" and L1463 say no branch starts first, but the procedure (L1482-1484) needs a candidate build of the chosen branch (Fact 1 needs the stub or the hook plus the Phase 3 block), Section 7 Stage 2 (L1300) puts the observation after building, L1669 says "observed before B or D is relied on", and step 4D.3 (L1517) is inside branch 4D. Four places, two orders. | qualitative verification | 8 (Phase 4, checklist), 7 (Stage 2) | Reword L1477 to "Gate before relying on any branch: observed on the candidate build of the chosen branch (steps 4B.1-4B.2 or 4D.1-4D.3 drafted, not shipped)"; say in the Rule row that a failed fact 1 discards that draft; make Section 7 Stage 2, L1669 and L1463 use the same words. |
+| 3 | IMPORTANT (B-2) | IMPORTANT | | yes | L1452 (Phase 3 header) and step 1.1 (L1383) record the open owner defaults (git rule, guard, subfolder) as canonical `(constraint)` memlog bullets, but the memlog is the append-only decision of record (`SKILL.md:54`; `memlog.py:164-177` has no edit or delete; step 7.1 L1609 reverses only by superseding), and those items are open (step 3.4 L1459; Section 9 rows 5, 6, 10; Stage 0 (c) L1298). An implementer would write the author's defaults into the owner's record as constraints. | qualitative verification | 8 (Phase 3 header, step 1.1) | Record the open items as `--type assumption` ("plan default pending owner, Section 9 rows 5, 6, 10") and `--type question` for owner inputs; keep `--type constraint` only for the fixed prohibitions of step 3.6; state in the CAP-8 success text that the command and predicate are defaults until rows 5, 6 and 10 are answered (`SKILL.md:61` lists assumption and question as valid types). |
+| 4 | IMPORTANT (B-3) | IMPORTANT | | yes | Rationale 4 (L1311) says "B3 is cheapest and least exposed" and rests on the Effort row, and Option B Pros (L1091) says "Cheapest", while the row-4 fix rates B3 M and B1 S (L1087, L1227) and Stage 1 "Why" (L1299) says Effort does not separate B3 from B1. The report cites and disclaims the Effort row for the same ranking. | qualitative verification | 6 (Option B Pros), 7 (Rationale 4) | Replace "cheapest" with "lowest risk (no certain break, 0 layers)" in L1091 and L1311 and drop "Effort" from the rows Rationale 4 rests on (or state "S on the researched minimum, equal to B1"). |
+| 5 | IMPORTANT (B-4) | IMPORTANT | | yes | "Template push only" for B3 and D3 (L1083, L1091, L1234, L1311, L1615) contradicts the plan: steps 4B.6 (L1499) and 4D.7 (L1521) edit `image/catalogue/bmad/manifest.yaml`, and steps 2.5 (L1403) and 7.2 (L1610) say any edit under `image/catalogue/` changes `catalogue_sha256` (`main.tf:74`), retags the image and needs `coder update`; by the rubric (L1004) two delivery layers is L. This is the main stated advantage of the recommended option. | qualitative verification | 6 (Option B/D, Table 1), 7 (Rationale 4), 8 (step 7.7) | Say B3 and D3 as planned need a template push plus a catalogue-hash retag (the welcome-text sentence is mandatory in 4B.6 and 4D.7), or make the manifest edit optional in those steps; align L1083, L1234, L1311, L1615 and the Effort rating with whichever is chosen; re-read `main.tf:74` and `Dockerfile.coder` before editing. |
+
+## Severity changes
+
+none. No finding was downgraded; each keeps the reporting agent's IMPORTANT grade (each is a false or contradictory statement in a rating, a plan step or the recommendation's stated advantage).
+
+## Notes (MINOR, not acted on, never rechecked)
+
+- N-1 (L1208): the `Dockerfile.coder:473-475` RUN also creates `/var/lib/aidev02` and `/etc/skel/.claude`, so "creates only" is inexact.
+- N-2 (L1478): the gate heading does not fit (covered by row 2).
+- N-3 (L684, L689): leftover "This synthesis" wording.
+- N-4: the fix log wrongly says the `/add-dir` v2.1.257 gate is absent; it appears at W01-4 (L791).
+- N-5 (L1383): "`updated:` changed … no existing line changed" reads as a contradiction.
+- The other Minor rows of `qa/qa-consolidated-findings-phase6.md` and the unread-range caveat of the qualitative agent (report lines 120-290, 423-548, 667-768, 778-995 were only Grep-checked; a hidden contradiction there is UNVERIFIED).
+
+review 2 of 3 complete; if the next verification fails the gate HALTS

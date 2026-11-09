@@ -1,0 +1,55 @@
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":15005,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":30010,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":45011,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":60012,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":75016,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":90017,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":105018,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":120019,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":135024,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":150024,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":165028,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":180029,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":195031,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":210032,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":225033,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":240033,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":255038,"deadlineMs":580000}
+{
+  "id": "39b4d4ac-f8c8-4c99-bdbc-5c5fe3c6550c",
+  "ok": true,
+  "result": {
+    "runId": "run_58af03dbfa92",
+    "deliveryId": "delivery_124520618fb1",
+    "messages": [
+      {
+        "id": "msg_8be52924fc69",
+        "run_id": "run_58af03dbfa92",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_06efc346-d415-4795-8b45-f04d3d3a46a5",
+        "to_handle": "run:run_58af03dbfa92",
+        "subject": "S1 replay package done, grade B",
+        "body": "Ran /sc:analyze (Skill sc:analyze) on incident I1 and built the S1 replay package: byte-exact starting document and shared inputs (checksummed), all 17 briefs verbatim from the logs, baseline metrics for rounds 1-3 (3 FAIL reviews, 24/13/14 findings, spec +59.6% to 92,194 bytes), and a runbook. Key findings: PR 427 can only act on 3 of 7 reviews (R1 used the Skill; R2/R3 only read the command file; the briefs never pass --re-review), the R2-R4 briefs embed original outcomes so T07-T09 need labelled templates, and a D4-literal base at 95f2c6e4 carries evidence drift (19 of 37 cited command files changed) and an answer key (178+192 tracked files) so the recommended arm pins the evidence tree to 2cb683f5 plus the 427 diff, which needs your OK as a deviation from D4. Recreation grade is B (the D4-literal arm without the isolation step would grade C), no candidate swap needed; nothing was run, and nothing outside S1 or ~/.claude was changed.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_812ec12b874e\",\"dispatchId\":\"ctx_3290a8f2f6d1\",\"outcome\":\"succeeded\",\"filesModified\":[\".dev/experiments/346-validation/phase2/S1/ANALYSIS.md\",\".dev/experiments/346-validation/phase2/S1/REPLAY.md\",\".dev/experiments/346-validation/phase2/S1/baseline-metrics.json\",\".dev/experiments/346-validation/phase2/S1/briefs/ (INDEX.md\",\"17 verbatim briefs\",\"task-text/\",\"templates/)\",\".dev/experiments/346-validation/phase2/S1/inputs/ (MANIFEST.sha256\",\"SOURCES.md\",\"repo-overlay/\",\"reference-snapshots/\",\"tool-text/)\",\".dev/experiments/346-validation/phase2/S1/baseline-outputs/\"],\"reportPath\":\".dev/experiments/346-validation/phase2/S1/REPLAY.md\"}",
+        "created_at": "2026-11-08T02:29:23Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "5fb4e399-7e4e-4f1b-a459-022c3b84fa9c",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "93e79a07-81c4-4ec7-a938-8038a2f29ed3"
+  }
+}

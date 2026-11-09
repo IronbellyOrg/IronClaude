@@ -1,0 +1,55 @@
+reviewer: 1
+persona: analyzer
+model: sonnet
+findings:
+  - id: R1-01
+    severity: blocking
+    claim: "tests/audit/test_severity_floor_unweakened.py pins BASELINE_BLOCK_SHA of rf-qa-qualitative.md's Critical Rules block (971-983); Tasks 3 and 11 edit rule 10 (982); not in plan or inventory section 6."
+    evidence: [tests/audit/test_severity_floor_unweakened.py:48, tests/audit/test_severity_floor_unweakened.py:85-106, src/superclaude/agents/rf-qa-qualitative.md:982]
+    fix: "Add the test to R-007; re-pin in Task 3 and Task 11."
+  - id: R1-02
+    severity: blocking
+    claim: "readme/SKILL.md:2034 and operational-guide/SKILL.md:1349 carry 'Max fix cycles: 3 ...' and 'ALL findings must be resolved'; Task 8's grep matches them but they are not in Task 8's edit list, so Task 8 cannot pass; Task 11 regex misses the form."
+    evidence: [src/superclaude/skills/readme/SKILL.md:2034, src/superclaude/skills/operational-guide/SKILL.md:1349]
+    fix: "Add both lines to Task 8 (severity) and Task 11 (cap); widen the Task 11 scan."
+  - id: R1-03
+    severity: blocking
+    claim: "cli_portify code keeps max_iterations 3 (convergence.py:165, :149, panel_review.py:352; test_convergence.py:78) while Task 11 lowers only text."
+    evidence: [src/superclaude/cli/cli_portify/convergence.py:165, src/superclaude/cli/cli_portify/steps/panel_review.py:352, tests/cli_portify/test_convergence.py:78]
+    fix: "Lower the code to 2 and update tests/cli_portify pins, or state the exclusion."
+  - id: R1-04
+    severity: blocking
+    claim: "prd CLI max_research_fix_cycles = 3 (models.py:203), passed as max_cycles at executor.py:957; no task changes it."
+    evidence: [src/superclaude/cli/prd/models.py:203, src/superclaude/cli/prd/executor.py:957]
+    fix: "Add to Task 11 or record the exclusion."
+  - id: R1-05
+    severity: blocking
+    claim: "prd/prompts.py:1173 keeps 'FAIL: ALL findings must be resolved'; Task 6 replaces the same line in prd/refs/agent-prompts.md:283 only; Task 13 scan misses the wording."
+    evidence: [src/superclaude/cli/prd/prompts.py:1173, src/superclaude/skills/prd/refs/agent-prompts.md:283]
+    fix: "Add prompts.py:1173 to Task 6; add the wording to the Task 13 scan."
+  - id: R1-06
+    severity: minor
+    claim: "tests/audit reads .claude/agents mirrors; .claude/agents does not exist in this worktree; make sync-dev only in Task 13."
+    evidence: [tests/audit/test_nfr_conv_9_zero_trust.py:59-60, tests/audit/test_severity_floor_unweakened.py:39]
+    fix: "Run make sync-dev before pytest in Tasks 2, 3, 4, 5, 9, 11."
+  - id: R1-07
+    severity: minor
+    claim: "Inventory FAIL-line replacement drops 'Only PASS or FAIL — no conditional pass' and per-file 'List each ...' tails; byte-equality check against skill_template is too strict."
+    evidence: [src/superclaude/skills/readme/SKILL.md:1007, src/superclaude/skills/operational-guide/SKILL.md:990]
+    fix: "Keep the binary-verdict tail and each file's suffix; compare only the leading clause."
+  - id: R1-08
+    severity: minor
+    claim: "Task 12: row V covers all attempts (repair-<n>-<j>.md must become repair-<n>-1.md, not 'single A2 repair'); worst-case 9 and the lifecycle pin may stay unchanged; acceptance grep misses 'second-repair conditions' (retry.md:148) and 'repair-2-<j>' (ledger.md:161)."
+    evidence: [src/superclaude/skills/sc-implement-protocol/refs/ledger.md:157, src/superclaude/skills/sc-implement-protocol/refs/ledger.md:161, src/superclaude/skills/sc-implement-protocol/refs/retry.md:148, src/superclaude/skills/sc-implement-protocol/refs/retry.md:189]
+    fix: "Row V -> repair-<n>-1.md; say the worst-case count may be unchanged; widen the grep."
+  - id: R1-09
+    severity: minor
+    claim: "Task 1 does not say to drop the S3 parenthetical annotation from the inventory text."
+    evidence: [.dev/review-severity-rule/inventory.md:22]
+    fix: "Drop the annotation."
+  - id: R1-10
+    severity: minor
+    claim: "one_low_finding.md must keep the 'NFR-CONV.9 part (a)' marker; class/test names and docstring still say fail."
+    evidence: [tests/audit/test_nfr_conv_9_zero_trust.py:249-253]
+    fix: "Keep the marker; rename the class and test."
+self_audit: "sha propagation sites match; wording-scan hits all assigned; pragmatic.md has one severity line; option A sites complete; replay test branch identified; dependency order sound."

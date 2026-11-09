@@ -1,0 +1,37 @@
+diff --git a/docs/designs/spec-panel-ponytail.md b/docs/designs/spec-panel-ponytail.md
+index 99b1a2d54..c3c735e04 100644
+--- a/docs/designs/spec-panel-ponytail.md
++++ b/docs/designs/spec-panel-ponytail.md
+@@ -28,12 +28,8 @@ Step 6 acts only when a line of the review-2 report starts with `review: 2 of 3`
+ - A revert is a hunk id: the script restores the hunk's baseline lines itself. A hunk is reverted only if every id on it has verdict revert; otherwise `REVERT_SHARED <id>` is logged and its text stays.
+ - Edit rows follow the exact-once old/new pattern: `delete` rows may remove only words the fix added and must keep every finding id of the hunk; `restore` rows only in a minor-only hunk, and only the aligned baseline span.
+ - A finding review 2 graded blocking, or protected (CRITICAL, FR-8, FR-9), is never closed by the audit. A validated-minor grade on an id review 2 graded blocking is logged `DOWNGRADE <id>` only; a protected id that review 2 did not grade blocking gets no `DOWNGRADE` line.
+-- What each step does on failure:
+-  - `check` does not write the specification. On a failure it writes `check.log`, records `audit: skipped(check failed)` and exits 1. (K1 fails when the spec's or the baseline's sha256 changed since `prepare`; a K1 failure on the spec means the spec had already changed before the check ran.)
+-  - `apply` runs the check again first and builds every row's edit in memory before it writes.
+-  - An exact-once or overlap failure prints `APPLY_STOP: nothing written` and the specification is not written.
+-  - If the specification write or its read-back fails, the script tries to copy `current-before-audit.md` back over the specification, then prints `APPLY_STOP: nothing written (write failed: ...)`.
+-  - Not covered: if writing `apply-log.md` or `closed-minor.txt` fails after the specification was replaced, the specification stays edited and `state.json` still says `checked`. Restore it by copying `fix-audit/current-before-audit.md` onto the specification.
++
++What each step prints, on success and on failure, is listed in the `sc-fix-audit` skill (`~/.claude/skills/sc-fix-audit/SKILL.md`); this note does not repeat it.
+ 
+ ## How the verdict is computed
+ 
+@@ -41,7 +37,7 @@ Step 6 acts only when a line of the review-2 report starts with `review: 2 of 3`
+ 
+ ## Owner count
+ 
+-Owner decision: findings that the script defers (reverted, listed in `closed-minor.txt`) or demotes (logged `DOWNGRADE`) stay open in the success measure. `final-verdict.md` prints `held open (deferred or demoted): ...`, `review-3 new critical+major: <n>` and `review-3 critical+major (owner count, held findings included): <n>`, which adds every held id that review 2 labelled CRITICAL or MAJOR. Nothing in the script lowers the owner count.
++Owner decision: findings that the script defers (reverted, listed in `closed-minor.txt`) or demotes (logged `DOWNGRADE`) stay open in the success measure. `final-verdict.md` prints `held open (deferred or demoted): ...`, `review-3 new critical+major: <n>` and `review-3 critical+major (owner count, held findings included): <n>`, which adds each held id that review 2 labelled CRITICAL or MAJOR, unless review 3 already counts that id as a new critical or major finding. Nothing in the script lowers the owner count.
+ 
+ ## Placement
+ 
+@@ -77,8 +73,6 @@ No plugin mirror and no routing-guide row are added.
+ 
+ Install next to the original, never over it: see `.dev/brainstorms/346-ponytail/INSTALL.md` for the copy commands, the sha256 lines to record and the rollback. `~/.claude/commands/sc/spec-panel.md` is never touched.
+ 
+-In S1 a pure one-line name substitution does not work, so the briefs T05-T09 stay byte-identical and one Task T08a is inserted between T08 (cycle-2 reviser) and T09 (review 3). Its single command line is:
+-
+ ```text
+ /sc:spec-panel-ponytail @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --fix-audit --re-review .dev/orca-command-refactor/review/spec-panel-round2.md --baseline .dev/orca-command-refactor/specs/history/spec-v2-after-round1.md --dispositions .dev/orca-command-refactor/review/disposition-round2.md
+ ```

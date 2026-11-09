@@ -1,0 +1,250 @@
+[
+  {
+    "round": "R2",
+    "changes": [
+      {
+        "tag": "replace",
+        "old_start": 23,
+        "old_end": 23,
+        "new_start": 23,
+        "new_end": 23
+      },
+      {
+        "tag": "replace",
+        "old_start": 61,
+        "old_end": 65,
+        "new_start": 61,
+        "new_end": 65
+      },
+      {
+        "tag": "replace",
+        "old_start": 68,
+        "old_end": 68,
+        "new_start": 68,
+        "new_end": 68
+      },
+      {
+        "tag": "replace",
+        "old_start": 73,
+        "old_end": 73,
+        "new_start": 73,
+        "new_end": 73
+      },
+      {
+        "tag": "replace",
+        "old_start": 76,
+        "old_end": 76,
+        "new_start": 76,
+        "new_end": 76
+      },
+      {
+        "tag": "replace",
+        "old_start": 84,
+        "old_end": 84,
+        "new_start": 84,
+        "new_end": 84
+      },
+      {
+        "tag": "replace",
+        "old_start": 87,
+        "old_end": 87,
+        "new_start": 87,
+        "new_end": 87
+      },
+      {
+        "tag": "replace",
+        "old_start": 90,
+        "old_end": 90,
+        "new_start": 90,
+        "new_end": 90
+      },
+      {
+        "tag": "replace",
+        "old_start": 92,
+        "old_end": 92,
+        "new_start": 92,
+        "new_end": 92
+      },
+      {
+        "tag": "replace",
+        "old_start": 105,
+        "old_end": 105,
+        "new_start": 105,
+        "new_end": 105
+      },
+      {
+        "tag": "replace",
+        "old_start": 117,
+        "old_end": 117,
+        "new_start": 117,
+        "new_end": 117
+      },
+      {
+        "tag": "replace",
+        "old_start": 122,
+        "old_end": 122,
+        "new_start": 122,
+        "new_end": 122
+      },
+      {
+        "tag": "replace",
+        "old_start": 147,
+        "old_end": 147,
+        "new_start": 147,
+        "new_end": 147
+      },
+      {
+        "tag": "replace",
+        "old_start": 159,
+        "old_end": 159,
+        "new_start": 159,
+        "new_end": 159
+      },
+      {
+        "tag": "replace",
+        "old_start": 180,
+        "old_end": 185,
+        "new_start": 180,
+        "new_end": 185
+      },
+      {
+        "tag": "replace",
+        "old_start": 194,
+        "old_end": 195,
+        "new_start": 194,
+        "new_end": 195
+      },
+      {
+        "tag": "replace",
+        "old_start": 198,
+        "old_end": 198,
+        "new_start": 198,
+        "new_end": 198
+      },
+      {
+        "tag": "replace",
+        "old_start": 200,
+        "old_end": 201,
+        "new_start": 200,
+        "new_end": 201
+      },
+      {
+        "tag": "replace",
+        "old_start": 210,
+        "old_end": 210,
+        "new_start": 210,
+        "new_end": 210
+      },
+      {
+        "tag": "replace",
+        "old_start": 262,
+        "old_end": 262,
+        "new_start": 262,
+        "new_end": 262
+      },
+      {
+        "tag": "insert",
+        "old_start": 286,
+        "old_end": 285,
+        "new_start": 286,
+        "new_end": 288
+      }
+    ]
+  },
+  {
+    "round": "R3",
+    "changes": [
+      {
+        "tag": "replace",
+        "old_start": 62,
+        "old_end": 64,
+        "new_start": 62,
+        "new_end": 64
+      },
+      {
+        "tag": "replace",
+        "old_start": 68,
+        "old_end": 68,
+        "new_start": 68,
+        "new_end": 68
+      },
+      {
+        "tag": "replace",
+        "old_start": 76,
+        "old_end": 76,
+        "new_start": 76,
+        "new_end": 76
+      },
+      {
+        "tag": "replace",
+        "old_start": 83,
+        "old_end": 83,
+        "new_start": 83,
+        "new_end": 83
+      },
+      {
+        "tag": "replace",
+        "old_start": 105,
+        "old_end": 105,
+        "new_start": 105,
+        "new_end": 105
+      },
+      {
+        "tag": "replace",
+        "old_start": 109,
+        "old_end": 109,
+        "new_start": 109,
+        "new_end": 109
+      },
+      {
+        "tag": "replace",
+        "old_start": 114,
+        "old_end": 114,
+        "new_start": 114,
+        "new_end": 114
+      },
+      {
+        "tag": "replace",
+        "old_start": 183,
+        "old_end": 184,
+        "new_start": 183,
+        "new_end": 184
+      },
+      {
+        "tag": "replace",
+        "old_start": 195,
+        "old_end": 196,
+        "new_start": 195,
+        "new_end": 196
+      },
+      {
+        "tag": "replace",
+        "old_start": 210,
+        "old_end": 210,
+        "new_start": 210,
+        "new_end": 210
+      },
+      {
+        "tag": "replace",
+        "old_start": 235,
+        "old_end": 235,
+        "new_start": 235,
+        "new_end": 235
+      },
+      {
+        "tag": "replace",
+        "old_start": 262,
+        "old_end": 262,
+        "new_start": 262,
+        "new_end": 262
+      },
+      {
+        "tag": "replace",
+        "old_start": 288,
+        "old_end": 288,
+        "new_start": 288,
+        "new_end": 290
+      }
+    ]
+  }
+]

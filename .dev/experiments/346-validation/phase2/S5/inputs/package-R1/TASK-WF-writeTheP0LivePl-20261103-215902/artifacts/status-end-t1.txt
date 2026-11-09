@@ -1,0 +1,14 @@
+A  .dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/TASK-WF-writeTheP0LivePl-20261103-215902.md
+A  .dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/return-contract.yaml
+A  .dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/source.md
+ M docs/memory/reflect/deviation-patterns-OrcaCLICommandRefactor-Specs.md
+?? .dev/brainstorms/20261102-1446-review-loop-remediation/
+?? .dev/brainstorms/20261102-1621-jev-decision-layer/
+?? .dev/orca-command-refactor/review/p0-live-orca-flag-check.md
+?? .dev/orca-command-refactor/review/p0-live-orca-help.txt
+?? .dev/orca-command-refactor/review/p0-live-plan-recheck.md
+?? .dev/reflect/pre-TASK-WF-writeTheP0LivePl-20261103-215902-20261103220351/
+?? .dev/review-loop-convergence/
+?? .dev/tasks/to-do/TASK-WF-orcaWorkerContra-20261102-231950/
+?? .dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/
+?? .dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/progress.md

@@ -1,0 +1,16 @@
+docs/designs/spec-panel-review-loop.md
+docs/designs/spec-panel-stoprule.md
+src/superclaude/agents/finding-grader.md
+src/superclaude/commands/spec-panel-stoprule.md
+src/superclaude/skills/sc-spec-panel-stoprule-protocol/SKILL.md
+src/superclaude/skills/sc-spec-panel-stoprule-protocol/refs/canaries.json
+src/superclaude/skills/sc-spec-panel-stoprule-protocol/refs/rubric.md
+src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
+tests/recommend/test_routing_refresh.py
+tests/skills/fixtures/stoprule/ctl-r1/review3-claims.jsonl
+tests/skills/fixtures/stoprule/ctl-r1/review3-expected.json
+tests/skills/fixtures/stoprule/ctl-r1/spec-v2.md
+tests/skills/fixtures/stoprule/ctl-r1/spec-v3.md
+tests/skills/fixtures/stoprule/spec-panel-armb-base.md
+tests/skills/test_spec_panel_stoprule.py
+tests/skills/test_stoprule_script.py

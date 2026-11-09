@@ -1,0 +1,32 @@
+diff --git a/docs/designs/spec-panel-ponytail.md b/docs/designs/spec-panel-ponytail.md
+index baf72b403..d92aaffb0 100644
+--- a/docs/designs/spec-panel-ponytail.md
++++ b/docs/designs/spec-panel-ponytail.md
+@@ -4,7 +4,7 @@ Status: built as an additive variant; not routed and not adopted elsewhere. The
+ 
+ ## What it is
+ 
+-One fix audit per review loop, at the end of fix cycle 2: after the reviser applies the cycle-2 fixes and before review 3. It runs as its own step, `/sc:spec-panel-ponytail @<spec> --fix-audit --re-review <review-2 report> --baseline <copy review 2 saw>`, in a fresh session that is neither the reviser nor the review-3 reviewer. That session invokes `ponytail:ponytail-review` with a fixed brief and writes a per-fix table; it never edits the document. The standard-library script `fix_audit.py` (in the `sc-fix-audit` skill) checks the table and makes every edit, all or nothing. Review 3 then runs as today on the audited document, and after review 3 the same script computes the open blocking list and the verdict from files. The audit runs once and nobody re-grades its table; the only text it can add back is text review 2 already read.
++One fix audit per review loop, at the end of fix cycle 2: after the reviser applies the cycle-2 fixes and before review 3. It runs as its own step, `/sc:spec-panel-ponytail @<spec> --fix-audit --re-review <review-2 report> --baseline <copy review 2 saw>`, in a fresh session that is neither the reviser nor the review-3 reviewer. That session invokes `ponytail:ponytail-review` with a fixed brief and writes a per-fix table; its brief forbids it to edit the document, and check K1 fails the audit if the document changed. The standard-library script `fix_audit.py` (in the `sc-fix-audit` skill) checks the table and makes every edit to the specification in one atomic write (a temp file, then `os.replace`). Review 3 then runs as today on the audited document, and after review 3 the same script computes the open blocking list and the verdict from files. The audit runs once and nobody re-grades its table; the only text it can add back is text review 2 already read.
+ 
+ ## The loop, step by step
+ 
+@@ -24,11 +24,16 @@ Step 6 acts only when a line of the review-2 report starts with `review: 2 of 3`
+ 
+ ## Safe apply
+ 
+-- Only `fix_audit.py apply` edits the specification; the auditor writes only `fix-audit/audit.md` (check K1 compares the spec's sha256 before and after). Invoking `--fix-audit` is the consent for that one scripted edit; the pre-audit copy is kept as `fix-audit/current-before-audit.md`, so undoing the audit is one copy.
++- `fix_audit.py apply` is the step that edits the specification. The auditor brief allows the auditor to write only `fix-audit/audit.md`, and check K1 fails the audit if the spec's sha256 changed since `prepare`. Invoking `--fix-audit` is the consent for that one scripted edit; the pre-audit copy is kept as `fix-audit/current-before-audit.md`, so undoing the audit is one copy.
+ - A revert is a hunk id: the script restores the hunk's baseline lines itself. A hunk is reverted only if every id on it has verdict revert; otherwise `REVERT_SHARED <id>` is logged and its text stays.
+ - Edit rows follow the exact-once old/new pattern: `delete` rows may remove only words the fix added and must keep every finding id of the hunk; `restore` rows only in a minor-only hunk, and only the aligned baseline span.
+ - A finding review 2 graded blocking, or protected (CRITICAL, FR-8, FR-9), is never closed by the audit. A validated-minor grade on an id review 2 graded blocking is logged `DOWNGRADE <id>` only; a protected id that review 2 did not grade blocking gets no `DOWNGRADE` line.
+-- Every failure path leaves the specification byte-identical to `current-before-audit.md`.
++- What each step does on failure:
++  - `check` does not write the specification. On a failure it writes `check.log`, records `audit: skipped(check failed)` and exits 1. (A K1 failure means the spec had already changed before the check ran.)
++  - `apply` runs the check again first and builds every row's edit in memory before it writes.
++  - An exact-once or overlap failure prints `APPLY_STOP: nothing written` and the specification is not written.
++  - If the specification write or its read-back fails, the script tries to copy `current-before-audit.md` back over the specification, then prints `APPLY_STOP: nothing written (write failed: ...)`.
++  - Not covered: if writing `apply-log.md` or `closed-minor.txt` fails after the specification was replaced, the specification stays edited and `state.json` still says `checked`. Restore it by copying `fix-audit/current-before-audit.md` onto the specification.
+ 
+ ## How the verdict is computed
+ 

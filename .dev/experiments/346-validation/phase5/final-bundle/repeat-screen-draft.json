@@ -1,0 +1,61 @@
+{
+  "status": "first_run_measurements_verified_exploratory_repeats_paused_for_owner_authorization",
+  "purpose": "Apply pre-existing numerical and validity criteria without silently changing the metric or declaring success.",
+  "control": {
+    "endpoint_label_proxy": [8, 4],
+    "mean": 6,
+    "range": 4,
+    "maximum_screen_proxy": 3,
+    "growth_percent": [57.72, 69.30],
+    "mean_growth_percent": 63.51,
+    "maximum_screen_growth_percent": 44.457
+  },
+  "diffgate": {
+    "replicates": 1,
+    "endpoint_label_proxy": 2,
+    "reduction_from_control_mean": 4,
+    "reduction_strictly_exceeds_control_range": false,
+    "growth_percent": 10.307636,
+    "independent_audit_union": 6,
+    "same_metric_warning": "The audit union is not comparable with unaudited control endpoint proxies.",
+    "validity_limits": ["master-answer exposure", "externally replaced live target; frozen endpoint retained", "independent audit model change", "continuous installation monitoring missing"],
+    "full_success_bar_met": false,
+    "repeat_eligibility": "selected for two exploratory confirmations in repeat-plan.md; magnitude screen only, not significance (effect equals control range)"
+  },
+  "ponytail": {
+    "replicates": 1,
+    "endpoint_label_proxy": 0,
+    "conservative_all_round_owner_count": 1,
+    "reduction_from_control_mean": 6,
+    "reduction_strictly_exceeds_control_range": true,
+    "growth_percent": 22.0297,
+    "audit_removed_bytes": 91,
+    "validity_limits": ["final reviewer model changed", "verdict parser failed", "audit-induced effect not isolated", "continuous installation monitoring missing", "orphan report reference remains uncertain"],
+    "full_success_bar_met": false,
+    "repeat_eligibility": "selected for two exploratory confirmations in repeat-plan.md; potential numerical signal, not a valid same-model first replicate"
+  },
+  "ledger": {
+    "measurement_status": "delivered_package_PASS_model_validity_FAIL_loop_ESCALATE",
+    "script_loop_blockers": 3,
+    "script_headline_raw": 15,
+    "endpoint_new_label_proxy": 3,
+    "unresolved_prior_label_count": 3,
+    "cumulative_owner_deferred_label_count_including_sweep": 12,
+    "audit_augmented_union_point": 13,
+    "audit_augmented_union_bounds": [11, 14],
+    "growth_percent": 22.16,
+    "repeat_eligibility": "not selected; owner carry-forward count exceeds screen, model changed, restricted instrument misses sweep findings"
+  },
+  "stoprule": {
+    "measurement_status": "invalidated_at_review_1",
+    "reason": "grader transcript verifier incompatible with asynchronous Agent completion transport",
+    "repeat_eligibility": "ineligible for convergence inference from this replicate"
+  },
+  "minfix": {
+    "implementation_status": "halted_at_task_3",
+    "completed_tasks": 2,
+    "total_tasks": 8,
+    "repeat_eligibility": "no runnable variant exists"
+  },
+  "decision": "Independent first-run-fidelity-review.md verified first-run measurements but returned FAIL for the coordinator's unsupported authorization claim. Original owner trigger was significant deltas, not exploratory magnitude screens. These exploratory repeats were a coordinator deviation and are now paused: four R1 reviews delivered, one automatic first-revision dispatch halted with no edits, no drivers remain. Further exploratory work requires explicit owner authorization. Preserve outputs; no success claim. Final comparison and design remain pending."
+}

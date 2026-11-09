@@ -1,0 +1,20 @@
+diff --git a/src/superclaude/skills/sc-fix-audit/SKILL.md b/src/superclaude/skills/sc-fix-audit/SKILL.md
+index 3d845c514..c3b26ebf8 100644
+--- a/src/superclaude/skills/sc-fix-audit/SKILL.md
++++ b/src/superclaude/skills/sc-fix-audit/SKILL.md
+@@ -28,13 +28,13 @@ Read the installed copy `~/.claude/skills/sc-fix-audit/` first; if it does not e
+    ```
+ 
+    Any failure prints `CHECK_FAIL <rule> <row>` lines and records `audit: skipped(check failed)`; stop here.
+-4. Apply. Re-runs the check, then makes the one scripted edit (reverts and deletion rows) all or nothing:
++4. Apply. Re-runs the check, then makes the one scripted edit (revert rows plus the `delete` and `restore` edit rows) all or nothing:
+ 
+    ```bash
+    uv run --no-project python "<skill base>/scripts/fix_audit.py" apply --dir <D>
+    ```
+ 
+-   A row that fails an exact-once or overlap test prints `APPLY_STOP: nothing written`; a second run prints `already applied`.
++   A row that fails an exact-once or overlap test is caught by that re-run check (`CHECK_FAIL K7`, `K8` or `K9` lines, then `audit: skipped(check failed)`); `APPLY_STOP: nothing written` appears only when the apply step itself finds such a failure. Either way the specification is not written. A second run prints `already applied`.
+ 
+ The run then prints one line, `audit: applied(reverted=<n>, shrunk=<n>, kept=<n>)` or `audit: skipped(<reason>)`, and stops. It writes no review report.
+ 

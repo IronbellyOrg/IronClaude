@@ -1,0 +1,90 @@
+# sc:reflect return contract (stable fields) + worker fields (--unattended, --output used as report directory)
+contract_version: "1.8.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/audit.log
+confidence_calibrated: 0.72
+escalation_rule_matched: 4      # S_domains >= 3; coverage_degraded pre-filter also forced Tier 2
+onboarding_ran: false
+coverage_pct: null              # parsed-only; 0 labelled IDs
+coverage_pct_union: 0.9118      # mechanical containment; reviewers confirmed the 3 misses covered
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-003, INF-009, INF-034]
+best_practice_grade: 3
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: 1a25c07859f1db8e3dfa6b8235bb49b410f7d78e56a08f6604b40ab5cafbdb59
+  spec: 21db19dc3fbb51fbc189361e42ef43e605605c816184ed3930a8cca3522ea854
+input_tree_sha256: f7ad1a9633350b0e66916e8d3030f96c9a9929dfc977e4401d09f6a70f5241a8
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 153
+citations_revalidated: 89
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 0
+citation_budget_policy: sampled
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: [/home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/reviewer-cards/reviewer-1-card.yaml, /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/reviewer-cards/reviewer-2-card.yaml, /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/reviewer-cards/reviewer-3-card.yaml]
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial
+adversarial_convergence_score: 0.97
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: true    # D-003 / C-018 minor drift (section-5 templates)
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_gate_passed: null
+blocking_findings: [C-003]
+# worker fields
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:reflect --mode pre --spec .dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md --tasklist .dev/tasks/to-do/TASK-WF-spec-20261108-181616/TASK-WF-spec-20261108-181616.md --unattended --output .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/"
+# worker report_path: same value as report_path above
+artifacts:
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/metrics.json
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/t1-card.md
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/reflection-card.yaml
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/artifacts/input-snapshot.yaml
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/artifacts/coverage-matrix.json
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/artifacts/tier_decision.yaml
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/reviewer-briefs/reviewer-1.md
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/reviewer-briefs/reviewer-2.md
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/reviewer-briefs/reviewer-3.md
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/reviewer-cards/reviewer-1-card.yaml
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/reviewer-cards/reviewer-2-card.yaml
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/reviewer-cards/reviewer-3-card.yaml
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/nested/adversarial-1/return-contract.yaml
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/nested/adversarial-1/merged-verdict-card.md
+  - .dev/brainstorms/346-stoprule/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/merged-verdict.yaml

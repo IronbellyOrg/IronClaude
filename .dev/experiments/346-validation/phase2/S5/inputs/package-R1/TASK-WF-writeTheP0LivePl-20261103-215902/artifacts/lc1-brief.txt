@@ -1,0 +1,8 @@
+Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed with a body starting "guard refused:".
+On a blocked gate: report blocked
+Local commit: not authorized
+Report directory: .dev/p0-live/troubleshoot/
+Worktree: disposable worktree created by Orca from ironbelly/OrcaCLICommandRefactor-Specs for this check only; you are its only writer.
+Outward actions: none; the coordinator performs every push, PR, comment, install and paid run.
+P0 only: Report file: .dev/p0-live/troubleshoot/REPORT.md, with the status in its **Status**: line. Outcome rule: --outcome failed when the file is missing or empty, or its status is failed or blocked; otherwise --outcome succeeded. This rule replaces the WC-5 mapping for this Task.
+Command: /sc:troubleshoot "uv run pytest tests/cli/eval/test_ban_import_rule.py fails 3 tests (test_clean_tree_passes_ruff_check, test_synthetic_import_anthropic_is_flagged_by_ruff, test_ban_message_references_fr_g1); find the root cause" --type test --output-dir .dev/p0-live/troubleshoot/

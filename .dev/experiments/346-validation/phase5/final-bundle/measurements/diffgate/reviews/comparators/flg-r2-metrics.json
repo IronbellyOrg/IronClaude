@@ -1,0 +1,1176 @@
+{
+  "scenario": "S1",
+  "incident": "I1 Orca worker-contract spec review loop (issue 346 origin)",
+  "worktree": "exp346-ab-flg-r2",
+  "branch": "ironbelly/exp346-ab-flg-r2",
+  "arm": "Arm B: 427 plus re-review flags added by the experiment (DECISIONS D11). R1 had no flags; R2 and R3 review briefs carry --re-review <prior report> --baseline <saved spec copy>",
+  "label": "Arm B: 427 flags added by the experiment",
+  "recorder": {
+    "task": "task_83ad1d38fc3b",
+    "dispatch": "ctx_e04582751734",
+    "session": "d73ec1cf-d79a-4e2b-b4e1-6b64a6a94c32",
+    "role": "Phase 4 recorder: measures, does not judge"
+  },
+  "metric_definitions": "DECISIONS.md D5: M1 rounds until a clean pass; M2 blocking-grade findings per round; M3 share of findings whose cause is the previous round's fix; M4 spec bytes/lines and growth; M5 tool calls/tokens. Shape follows phase2/S1/baseline-metrics.json.",
+  "key_to_provenance": {
+    "read": "taken as written from a report, disposition or log line",
+    "re-derived": "counted, parsed, diffed or computed by the recorder from the files/logs (script in /tmp/rec-flg-r2, not kept in the repo)",
+    "pointers": "RV=.dev/orca-command-refactor/review/ (copies in reviews/), SESS=~/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-exp346-ab-flg-r2/<session>.jsonl, line numbers are jsonl line numbers"
+  },
+  "counting_rule": {
+    "findings_total": "rows of the report's numbered list of NEW findings (R1: section 8 table of 22; R2/R3: section 3.6 table, ids N1.. ). Citation-check notes (C-ids), prior-finding statuses and the carried non-blocking F16 are NOT in findings_total; they are given separately. This is the baseline's rule (baseline-metrics.json counts the numbered findings and lists overstated citations as 'extra').",
+    "severity": "the label the report states per finding (CRITICAL / MAJOR / MINOR).",
+    "blocking_minor": "the report's own 'Blocking' column / text (427 grading: CRITICAL and FR-8/FR-9 blocking, MAJOR blocking only with a concrete wrong outcome, MINOR a note). 'minor' = non-blocking.",
+    "critical_plus_major": "CRITICAL + MAJOR by severity label (baseline proxy_definition), independent of the blocking grade. Note: in these reports 'blocking' and the proxy differ in R1 only (17 vs 13)."
+  },
+  "proxy_definition": "CRITICAL + MAJOR (as phase2/S1/baseline-metrics.json proxy_definition); blocking/minor counts recorded separately because these reports grade them",
+  "session_map": {
+    "setup": {
+      "session": "daff17e1-cd48-406f-9c81-8818bbaf38c6",
+      "task": "task_efa71a91b9c4",
+      "dispatch": "ctx_97651ceadd9d",
+      "note": "supervised setup worker, not a loop step; model claude-sonnet-5-5",
+      "assistant_turns": 5,
+      "tool_calls": 4,
+      "output_tokens": 1392,
+      "input_tokens_uncached": 10,
+      "cache_creation_tokens": 121081,
+      "cache_read_tokens": 479694,
+      "wall_minutes": 0.34,
+      "models": [
+        "claude-sonnet-5-5"
+      ],
+      "first": "2026-11-08T12:49:16.398Z",
+      "last": "2026-11-08T12:49:36.596Z",
+      "tools_by_name": {
+        "Bash": 4
+      }
+    },
+    "R1-review": {
+      "session": "55e96684-26d2-4fba-b1c3-51eed4f1cfa1",
+      "task": "task_486f5a8648cd",
+      "dispatch": "ctx_e536f8386c7b",
+      "brief": "T05-R1-reviewer-L11-699ae853.txt",
+      "assistant_turns": 29,
+      "tool_calls": 53,
+      "output_tokens": 67174,
+      "input_tokens_uncached": 58,
+      "cache_creation_tokens": 239090,
+      "cache_read_tokens": 7059905,
+      "wall_minutes": 14.24,
+      "models": [
+        "claude-opus-5-5"
+      ],
+      "first": "2026-11-08T12:51:46.706Z",
+      "last": "2026-11-08T13:06:01.394Z",
+      "tools_by_name": {
+        "Bash": 15,
+        "Read": 3,
+        "Skill": 1,
+        "Write": 1,
+        "Edit": 32,
+        "Agent": 1
+      }
+    },
+    "R1-revise": {
+      "session": "d5d13084-6f7c-45e2-b2b2-dab4f87936f4",
+      "task": "task_7f89eebf5eed",
+      "dispatch": "ctx_87aea87aebbc",
+      "brief": "T06-R1-reviser-L10-3bb70411.txt",
+      "assistant_turns": 34,
+      "tool_calls": 64,
+      "output_tokens": 57311,
+      "input_tokens_uncached": 68,
+      "cache_creation_tokens": 189708,
+      "cache_read_tokens": 7198992,
+      "wall_minutes": 8.48,
+      "models": [
+        "claude-opus-5-5"
+      ],
+      "first": "2026-11-08T13:06:44.602Z",
+      "last": "2026-11-08T13:15:13.679Z",
+      "tools_by_name": {
+        "Bash": 12,
+        "Read": 4,
+        "Write": 1,
+        "Edit": 46,
+        "Grep": 1
+      }
+    },
+    "R2-review": {
+      "session": "1e1f4ed1-7eb9-4065-a201-44b24cef6013",
+      "task": "task_c86781af3955",
+      "dispatch": "ctx_6cee317e6bc4",
+      "brief": "filled-flg-r2-T07.txt (T07 template + Arm B flags)",
+      "assistant_turns": 23,
+      "tool_calls": 48,
+      "output_tokens": 70096,
+      "input_tokens_uncached": 46,
+      "cache_creation_tokens": 254751,
+      "cache_read_tokens": 5618862,
+      "wall_minutes": 10.42,
+      "models": [
+        "claude-opus-5-5"
+      ],
+      "first": "2026-11-08T13:16:06.513Z",
+      "last": "2026-11-08T13:26:31.414Z",
+      "tools_by_name": {
+        "Bash": 17,
+        "Read": 13,
+        "Write": 1,
+        "Skill": 1,
+        "Edit": 16
+      }
+    },
+    "R2-revise": {
+      "session": "9307d133-327f-4ee6-b836-38b40701cae2",
+      "task": "task_546ca642294b",
+      "dispatch": "ctx_e0e9fc06b7a4",
+      "brief": "filled-flg-r2-T08.txt",
+      "assistant_turns": 28,
+      "tool_calls": 47,
+      "output_tokens": 34797,
+      "input_tokens_uncached": 56,
+      "cache_creation_tokens": 169581,
+      "cache_read_tokens": 5650251,
+      "wall_minutes": 5.7,
+      "models": [
+        "claude-opus-5-5"
+      ],
+      "first": "2026-11-08T13:27:25.040Z",
+      "last": "2026-11-08T13:33:07.176Z",
+      "tools_by_name": {
+        "Bash": 8,
+        "Read": 6,
+        "Write": 1,
+        "Edit": 32
+      }
+    },
+    "R3-review": {
+      "session": "79dab824-de4d-40d8-957d-405b7fe2b2ee",
+      "task": "task_942626aed7ba",
+      "dispatch": "ctx_fc233a55642e",
+      "brief": "filled-flg-r2-T09.txt (T09 template + Arm B flags)",
+      "assistant_turns": 25,
+      "tool_calls": 29,
+      "output_tokens": 50322,
+      "input_tokens_uncached": 50,
+      "cache_creation_tokens": 212064,
+      "cache_read_tokens": 5320435,
+      "wall_minutes": 8.33,
+      "models": [
+        "claude-opus-5-5"
+      ],
+      "first": "2026-11-08T13:33:52.794Z",
+      "last": "2026-11-08T13:42:12.363Z",
+      "tools_by_name": {
+        "Bash": 16,
+        "Read": 5,
+        "Write": 1,
+        "Skill": 1,
+        "Edit": 6
+      }
+    }
+  },
+  "rounds": [
+    {
+      "round": "R1",
+      "review": {
+        "task": "task_486f5a8648cd",
+        "session": "55e96684-26d2-4fba-b1c3-51eed4f1cfa1",
+        "tool_mode": "Skill sc:spec-panel at session line 103 (12:52:12Z); BEFORE it the worker read the user-level command file with Bash cat/sed at session lines 43 and 71",
+        "called_skill_sc_spec_panel": true,
+        "read_command_file_by_hand": true,
+        "read_command_file_before_skill": true,
+        "flags": "@.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture (no --re-review, no --baseline: first review)",
+        "report_markers": {
+          "review_N_of_3_header": "present, line 3 ('review: 1 of 3')",
+          "baseline_line": "line 4 'baseline: missing (first review...)'",
+          "reviser_brief": "present, line 267 (blocking ids F1-F13)",
+          "last_line_verdict": "present, line 272 'verdict: FAIL'"
+        },
+        "verdict_line_text": "verdict: FAIL",
+        "spawned_subagent": "yes: 1 Agent call (evidence-validator 'Verify review citations', session line 420, 13:00:53Z, model claude-sonnet-5-5, 27 tool calls, 3.5 min); the report says it found 11 citation defects, all fixed in place"
+      },
+      "revise": {
+        "task": "task_7f89eebf5eed",
+        "session": "d5d13084-6f7c-45e2-b2b2-dab4f87936f4",
+        "brief_scope": "T06 verbatim: 'verify each numbered finding ... apply confirmed findings' (all findings, not only blocking)",
+        "disposition": "22 findings: 21 applied, 1 rejected (F16, non-blocking)",
+        "pointer": "RV/disposition.md:39 (totals), :31 (F16)",
+        "findings_in_report": 22,
+        "applied": 21,
+        "rejected": 1,
+        "blocking_applied": 13,
+        "blocking_total": 13,
+        "minor_or_nonblocking_acted_on": 8,
+        "nonblocking_total": 9,
+        "minor_acted_on_by_severity_label": {
+          "MAJOR_nonblocking_applied": 3,
+          "MINOR_applied": 5,
+          "ids": "F14, F15, F22 (MAJOR non-blocking); F17-F21 (MINOR)"
+        },
+        "rejected_ids": [
+          "F16"
+        ],
+        "spawned_own_subreview": false,
+        "agent_calls": 0,
+        "provenance": "read (disposition.md totals line and table) and re-derived (split by severity from the review table)"
+      },
+      "M2": {
+        "findings_total": 22,
+        "critical": 1,
+        "major": 16,
+        "minor": 5,
+        "critical_plus_major": 17,
+        "blocking": 13,
+        "minor_nonblocking": 9,
+        "blocking_by_severity": {
+          "CRITICAL": 1,
+          "MAJOR": 12
+        },
+        "nonblocking_by_severity": {
+          "MAJOR": 4,
+          "MINOR": 5
+        },
+        "citation_notes": "none listed as C-ids; the reviewer's evidence-validator found 11 citation defects, fixed in place before delivery (RV/spec-panel.md:265)",
+        "provenance": "read (report line 236: '22 findings; 13 blocking (1 CRITICAL, 12 MAJOR); 9 non-blocking (4 MAJOR, 5 MINOR)') and re-derived by parsing the section 8 table (rows 213-234)"
+      },
+      "M3": {
+        "value": null,
+        "reason_null": "first review; there is no previous fix",
+        "provenance": "n/a"
+      },
+      "M4": {
+        "bytes_at_review_start": 57763,
+        "lines_at_review_start": 285,
+        "words_at_review_start": 8148,
+        "bytes_after_revise": 70255,
+        "lines_after_revise": 316,
+        "words_after_revise": 9980,
+        "growth_percent_this_round": 21.63,
+        "growth_percent_cumulative_vs_v1": 21.63,
+        "lines_growth_percent_cumulative_vs_v1": 10.88,
+        "words_growth_percent_cumulative_vs_v1": 22.48,
+        "provenance": "re-derived: wc -c -l -w of reviews/spec-v1-start.md and reviews/spec-v2-after-round1.md; sizes equal the numbers the disposition states (RV/disposition.md:68: 57,763/285 before, 70,255/316 after)"
+      },
+      "M5": {
+        "review_session": {
+          "tool_calls": 53,
+          "assistant_turns": 29,
+          "output_tokens": 67174,
+          "input_tokens_uncached": 58,
+          "cache_creation_tokens": 239090,
+          "cache_read_tokens": 7059905,
+          "wall_minutes": 14.24
+        },
+        "review_subagent_evidence_validator": {
+          "tool_calls": 27,
+          "assistant_turns": 6,
+          "output_tokens": 32207,
+          "input_tokens_uncached": 12,
+          "cache_creation_tokens": 149067,
+          "cache_read_tokens": 554782,
+          "wall_minutes": 3.51
+        },
+        "revise_session": {
+          "tool_calls": 64,
+          "assistant_turns": 34,
+          "output_tokens": 57311,
+          "input_tokens_uncached": 68,
+          "cache_creation_tokens": 189708,
+          "cache_read_tokens": 7198992,
+          "wall_minutes": 8.48
+        },
+        "round_total": {
+          "tool_calls": 117,
+          "output_tokens": 124485,
+          "tool_calls_incl_subagent": 144,
+          "output_tokens_incl_subagent": 156692
+        },
+        "provenance": "re-derived by the REPLAY.md section 6 jq line (assistant messages grouped by message.id, last usage per message). Coordinator tokens not included."
+      }
+    },
+    {
+      "round": "R2",
+      "review": {
+        "task": "task_c86781af3955",
+        "session": "1e1f4ed1-7eb9-4065-a201-44b24cef6013",
+        "tool_mode": "Skill sc:spec-panel at session line 104 (13:16:27Z) with the Arm B flags; the command file was not read by Bash/Read before it (only the Skill expansion, about 36 thousand characters)",
+        "called_skill_sc_spec_panel": true,
+        "read_command_file_by_hand": false,
+        "read_command_file_before_skill": false,
+        "flags": "@...spec.md --mode critique --focus requirements,architecture --re-review .dev/orca-command-refactor/review/spec-panel.md --baseline .dev/orca-command-refactor/specs/history/spec-v1-draft.md",
+        "report_markers": {
+          "review_N_of_3_header": "present, line 19 ('review: 2 of 3 (prior report ... is review: 1 of 3 ...)'); not in the title block",
+          "reviser_brief": "present, line 246 (blocking ids N1-N6)",
+          "last_line_verdict": "present, line 251 'verdict: FAIL'"
+        },
+        "verdict_line_text": "verdict: FAIL (report line 13: '**FAIL.** All 13 round-1 blocking findings are resolved in the spec text, but the revision introduced 6 new blocking findings ...')",
+        "spawned_subagent": "no Agent call, no subagent log"
+      },
+      "revise": {
+        "task": "task_546ca642294b",
+        "session": "9307d133-327f-4ee6-b836-38b40701cae2",
+        "brief_scope": "T08 with the finding range replaced by 'N1 to N11' and R2_CITATION_COUNT=4 (the report's own Reviser brief names only N1-N6)",
+        "disposition": "15 rows (11 findings + 4 citation notes): 15 applied, 0 rejected",
+        "pointer": "RV/disposition-round2.md:35",
+        "findings_in_report": 11,
+        "citation_notes_in_report": 4,
+        "rows": 15,
+        "applied": 15,
+        "rejected": 0,
+        "blocking_applied": 6,
+        "blocking_total": 6,
+        "minor_or_nonblocking_acted_on": 9,
+        "minor_detail": "N7-N11 (5 MINOR findings) + C9, C12, C13, C14 (4 citation notes)",
+        "related_defects_fixed_in_same_pass": "2 (E5 line 26 and AC-1.2 line 223), reported in disposition-round2.md:13",
+        "spawned_own_subreview": false,
+        "agent_calls": 0,
+        "provenance": "read (disposition-round2.md totals) and re-derived (split)"
+      },
+      "M2": {
+        "findings_total": 11,
+        "critical": 1,
+        "major": 5,
+        "minor": 5,
+        "critical_plus_major": 6,
+        "blocking": 6,
+        "minor_nonblocking": 5,
+        "blocking_ids": [
+          "N1",
+          "N2",
+          "N3",
+          "N4",
+          "N5",
+          "N6"
+        ],
+        "ids_by_severity": {
+          "CRITICAL": [
+            "N1"
+          ],
+          "MAJOR": [
+            "N2",
+            "N3",
+            "N4",
+            "N5",
+            "N6"
+          ],
+          "MINOR": [
+            "N7",
+            "N8",
+            "N9",
+            "N10",
+            "N11"
+          ]
+        },
+        "citation_notes": {
+          "overstated_or_wrong_line": [
+            "C9",
+            "C12",
+            "C13",
+            "C14"
+          ],
+          "moved_line_note": [
+            "C28"
+          ],
+          "citation_groups_checked": 28,
+          "correct": 23,
+          "inconsistency_in_report": "the Verdict paragraph (line 13) and the 3.6 table row name 3 citation notes (C9, C12, C13); Part 2 line 56 names 4 (C9, C12, C13, C14); the brief and R3 use 4"
+        },
+        "carried_open_nonblocking_from_R1": [
+          "F16"
+        ],
+        "provenance": "read (report line 217: '11 new findings: 6 blocking (1 CRITICAL, 5 MAJOR), 5 minor; plus 3 minor citation notes and the still-open non-blocking F16') and re-derived by parsing the 3.6 table (rows 204-215) and the Part 2 table (rows 60-87)"
+      },
+      "M3": {
+        "read_from_tag": {
+          "origin_changed": 11,
+          "origin_unchanged": 0,
+          "of": 11,
+          "share_changed": 1.0,
+          "note": "every N-row has origin=changed (3.6 table, lines 204-214); the only 'origin=unchanged' text in the report (line 91) is the rule description"
+        },
+        "re_derived_strict_partial_preexisting": {
+          "strict": 11,
+          "partial": 0,
+          "pre_existing": 0,
+          "of": 11,
+          "share_strict": 1.0,
+          "mapping": "origin=changed -> strict (the Part 1 'Note' column names the earlier fix behind each of N1-N5, N7-N11; N6 is the new step-3 clauses of the F1/F2 fixes). The 427 tag has no 'partial' level, so partial = 0 is not comparable with the baseline's partial group."
+        },
+        "provenance": "read from tag (origin=changed|unchanged) and re-derived (mapping)"
+      },
+      "M4": {
+        "bytes_at_review_start": 70255,
+        "lines_at_review_start": 316,
+        "words_at_review_start": 9980,
+        "bytes_after_revise": 76328,
+        "lines_after_revise": 317,
+        "words_after_revise": 10841,
+        "growth_percent_this_round": 8.64,
+        "growth_percent_cumulative_vs_v1": 32.14,
+        "lines_growth_percent_cumulative_vs_v1": 11.23,
+        "words_growth_percent_cumulative_vs_v1": 33.05,
+        "provenance": "re-derived: wc -c -l -w of reviews/spec-v2-after-round1.md and spec-v3-after-round2.md; disposition-round2.md:57 states 70,255/316 before and 76,328/317 after"
+      },
+      "M5": {
+        "review_session": {
+          "tool_calls": 48,
+          "assistant_turns": 23,
+          "output_tokens": 70096,
+          "input_tokens_uncached": 46,
+          "cache_creation_tokens": 254751,
+          "cache_read_tokens": 5618862,
+          "wall_minutes": 10.42
+        },
+        "revise_session": {
+          "tool_calls": 47,
+          "assistant_turns": 28,
+          "output_tokens": 34797,
+          "input_tokens_uncached": 56,
+          "cache_creation_tokens": 169581,
+          "cache_read_tokens": 5650251,
+          "wall_minutes": 5.7
+        },
+        "round_total": {
+          "tool_calls": 95,
+          "output_tokens": 104893
+        },
+        "provenance": "re-derived (same method as R1)"
+      },
+      "status_of_prior_findings": {
+        "report_table": "RV/spec-panel-round2.md lines 25-48 (Part 1)",
+        "rows": 22,
+        "resolved": 21,
+        "open": 1,
+        "regressed": 0,
+        "totals_line": "line 50: '13 prior blocking findings: 13 resolved, 0 open, 0 regressed ... 9 prior non-blocking findings: 8 resolved, 1 open (F16, non-blocking)'",
+        "provenance": "read (totals line) and re-derived (status column parse: statuses beginning 'resolved' / 'open')"
+      }
+    },
+    {
+      "round": "R3",
+      "review": {
+        "task": "task_942626aed7ba",
+        "session": "79dab824-de4d-40d8-957d-405b7fe2b2ee",
+        "tool_mode": "Skill sc:spec-panel at session line 166 (13:34:45Z) with the Arm B flags; BEFORE it the worker read the user-level command file with Bash cat/sed at session lines 41, 62 and 72",
+        "called_skill_sc_spec_panel": true,
+        "read_command_file_by_hand": true,
+        "read_command_file_before_skill": true,
+        "flags": "@...spec.md --mode critique --focus requirements,architecture --re-review .dev/orca-command-refactor/review/spec-panel-round2.md --baseline .dev/orca-command-refactor/specs/history/spec-v2-after-round1.md",
+        "report_markers": {
+          "review_N_of_3_header": "present, line 5 ('review: 3 of 3') and line 23",
+          "reviser_brief": "ABSENT (no '## Reviser brief' heading; the report states the cap and escalates, lines 19, 171, 198)",
+          "last_line_verdict": "present, line 200 'verdict: FAIL'"
+        },
+        "verdict_line_text": "verdict: FAIL (report line 15: '**FAIL.** All 6 round-2 blocking findings (N1-N6), the 5 minor findings (N7-N11) and the 4 citation notes ... are resolved ... But the N5 fix introduced one new blocking finding, N12, plus 3 minor notes (N13-N15) and 1 minor citation note (C-R3-15).')",
+        "spawned_subagent": "no Agent call, no subagent log"
+      },
+      "revise": null,
+      "revise_note": "no third revision: the 3-review cap was reached and the report escalated to the user",
+      "M2": {
+        "findings_total": 4,
+        "critical": 0,
+        "major": 1,
+        "minor": 3,
+        "critical_plus_major": 1,
+        "blocking": 1,
+        "minor_nonblocking": 3,
+        "blocking_ids": [
+          "N12"
+        ],
+        "ids_by_severity": {
+          "MAJOR": [
+            "N12"
+          ],
+          "MINOR": [
+            "N13",
+            "N14",
+            "N15"
+          ]
+        },
+        "citation_notes": {
+          "minor_moved_line": [
+            "C-R3-15"
+          ],
+          "citation_groups_checked": 20,
+          "correct": 19
+        },
+        "carried_open_nonblocking_from_R1": [
+          "F16"
+        ],
+        "any_severity_incl_citation_note_and_F16": 6,
+        "provenance": "read (report line 165: '4 new findings (1 blocking MAJOR, 3 minor) plus 1 minor citation note; the non-blocking F16 stays open') and re-derived by parsing the 3.6 table (rows 159-163)"
+      },
+      "M3": {
+        "read_from_tag": {
+          "origin_changed": 3,
+          "origin_unchanged": 1,
+          "of": 4,
+          "share_changed": 0.75,
+          "ids_unchanged": [
+            "N15"
+          ],
+          "note": "the C-R3-15 citation note is tagged changed and is not in the 4"
+        },
+        "re_derived_strict_partial_preexisting": {
+          "strict": 3,
+          "partial": 0,
+          "pre_existing": 1,
+          "of": 4,
+          "share_strict": 0.75,
+          "ids": {
+            "strict": [
+              "N12 (the N5 fix)",
+              "N13 (the rewritten AC-1.2)",
+              "N14 (the N9 clause)"
+            ],
+            "pre_existing": [
+              "N15 (SPEC:206 unchanged since V2:206, report line 100)"
+            ]
+          },
+          "mapping": "origin=changed -> strict, origin=unchanged -> pre-existing; the 427 tag has no 'partial' level"
+        },
+        "provenance": "read from tag and re-derived (mapping)"
+      },
+      "M4": {
+        "bytes_at_review_start": 76328,
+        "lines_at_review_start": 317,
+        "words_at_review_start": 10841,
+        "bytes_after_revise": null,
+        "growth_percent_this_round": 0.0,
+        "growth_percent_cumulative_vs_v1": 32.14,
+        "final_spec_bytes": 76328,
+        "final_spec_lines": 317,
+        "final_equals_v3": true,
+        "provenance": "re-derived; R3 report line 25 states 317 lines, 76,328 bytes and cmp-equal to spec-v3-after-round2.md"
+      },
+      "M5": {
+        "review_session": {
+          "tool_calls": 29,
+          "assistant_turns": 25,
+          "output_tokens": 50322,
+          "input_tokens_uncached": 50,
+          "cache_creation_tokens": 212064,
+          "cache_read_tokens": 5320435,
+          "wall_minutes": 8.33
+        },
+        "round_total": {
+          "tool_calls": 29,
+          "output_tokens": 50322
+        },
+        "provenance": "re-derived (same method as R1)"
+      },
+      "status_of_prior_findings": {
+        "report_table": "RV/spec-panel-round3.md lines 29-45 (Part 1: N1-N11 + C9, C12, C13, C14)",
+        "rows": 15,
+        "resolved": 15,
+        "open": 0,
+        "regressed": 0,
+        "totals_line": "line 47: '6 prior blocking findings (N1-N6): 6 resolved, 0 open, 0 regressed. 5 prior minor findings and 4 citation notes: 9 resolved. ... F16 ... stays a non-blocking note'",
+        "provenance": "read (totals line) and re-derived (status column parse)"
+      }
+    }
+  ],
+  "m1_rounds_until_clean_pass": null,
+  "m1_detail": {
+    "value": null,
+    "reason_null": "no PASS in 3 reviews; the 3-review cap was reached",
+    "verdict_lines": {
+      "R1": "verdict: FAIL (RV/spec-panel.md:272)",
+      "R2": "verdict: FAIL (RV/spec-panel-round2.md:251)",
+      "R3": "verdict: FAIL (RV/spec-panel-round3.md:200)"
+    },
+    "how_it_stopped": "R3 report escalates at the cap (bullet 4 of the Review Loop) with 1 blocking finding open (N12); the coordinator ran no 4th review",
+    "provenance": "read (last lines) and re-derived (tail -n 1 of each report)"
+  },
+  "arm_b_additions": {
+    "a_v1_re_review_structure": {
+      "R2": {
+        "flags_honoured": true,
+        "status_table_of_prior_findings": "yes, lines 25-48 (22 rows: 21 resolved, 1 open [F16], 0 regressed)",
+        "origin_tags": {
+          "changed": 11,
+          "unchanged": 0
+        },
+        "review_N_of_3_header": "yes, line 19",
+        "reviser_brief": "yes, line 246 (N1-N6 only)",
+        "last_line_verdict": "yes, line 251",
+        "boundary_table_scoped_to_changed_lines": "yes, line 155 heading '(guards on changed lines only)'",
+        "report_says_flags_applied": "line 91 ('Re-review rules applied ... findings only on changed lines, each with origin')"
+      },
+      "R3": {
+        "flags_honoured": true,
+        "status_table_of_prior_findings": "yes, lines 29-45 (15 rows: N1-N11, C9, C12, C13, C14, all resolved; 0 open, 0 regressed). Round-1 findings are not re-listed (only F16 in the totals line 47)",
+        "origin_tags": {
+          "changed": 3,
+          "unchanged": 1,
+          "plus_citation_note_changed": 1
+        },
+        "review_N_of_3_header": "yes, lines 5 and 23",
+        "reviser_brief": "NO (absent by design at review 3 of 3: lines 19, 171, 198)",
+        "last_line_verdict": "yes, line 200",
+        "boundary_table_scoped_to_changed_lines": "yes, line 110 heading",
+        "report_says_flags_applied": "line 80"
+      },
+      "provenance": "read (line numbers) and re-derived (parse of status columns and origin column)"
+    },
+    "b_scope_containment": {
+      "R2": {
+        "baseline_copy": "spec-v1-draft.md",
+        "spec_seen": "spec-v2-after-round1.md",
+        "spec_seen_lines": 316,
+        "changed_new_file_lines": 68,
+        "diff_hunks": 26,
+        "pure_deletion_hunks": 0,
+        "changed_lines": [
+          4,
+          5,
+          11,
+          52,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          69,
+          70,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          96,
+          99,
+          108,
+          112,
+          115,
+          127,
+          142,
+          167,
+          171,
+          179,
+          180,
+          192,
+          198,
+          199,
+          200,
+          201,
+          202,
+          203,
+          208,
+          209,
+          210,
+          211,
+          220,
+          221,
+          222,
+          224,
+          225,
+          227,
+          235,
+          289,
+          293,
+          313,
+          314,
+          315,
+          316
+        ],
+        "new_findings": 11,
+        "all_cited_lines_inside_changed": 7,
+        "some_cited_lines_inside_some_outside": 4,
+        "no_cited_line_inside_changed": 0,
+        "cannot_be_told_no_SPEC_line_cited": 0,
+        "by_first_cited_line": {
+          "inside": 9,
+          "outside": 2,
+          "cannot_tell": 0
+        },
+        "per_finding": [
+          {
+            "id": "N1",
+            "origin_tag": "changed",
+            "spec_lines_cited": [
+              53,
+              66,
+              74,
+              169,
+              196,
+              210,
+              220,
+              222
+            ],
+            "n_cited_in_changed": 5,
+            "class_all": "mixed",
+            "first_cited": 53,
+            "first_cited_in_changed": false
+          },
+          {
+            "id": "N2",
+            "origin_tag": "changed",
+            "spec_lines_cited": [
+              63,
+              179,
+              209,
+              223
+            ],
+            "n_cited_in_changed": 3,
+            "class_all": "mixed",
+            "first_cited": 63,
+            "first_cited_in_changed": true
+          },
+          {
+            "id": "N3",
+            "origin_tag": "changed",
+            "spec_lines_cited": [
+              4,
+              63,
+              74,
+              77,
+              85,
+              86,
+              87,
+              88,
+              89,
+              90,
+              91,
+              208
+            ],
+            "n_cited_in_changed": 12,
+            "class_all": "inside",
+            "first_cited": 4,
+            "first_cited_in_changed": true
+          },
+          {
+            "id": "N4",
+            "origin_tag": "changed",
+            "spec_lines_cited": [
+              26,
+              162,
+              167,
+              201
+            ],
+            "n_cited_in_changed": 2,
+            "class_all": "mixed",
+            "first_cited": 26,
+            "first_cited_in_changed": false
+          },
+          {
+            "id": "N5",
+            "origin_tag": "changed",
+            "spec_lines_cited": [
+              60,
+              220
+            ],
+            "n_cited_in_changed": 2,
+            "class_all": "inside",
+            "first_cited": 60,
+            "first_cited_in_changed": true
+          },
+          {
+            "id": "N6",
+            "origin_tag": "changed",
+            "spec_lines_cited": [
+              99,
+              103,
+              111,
+              208,
+              220
+            ],
+            "n_cited_in_changed": 3,
+            "class_all": "mixed",
+            "first_cited": 99,
+            "first_cited_in_changed": true
+          },
+          {
+            "id": "N7",
+            "origin_tag": "changed",
+            "spec_lines_cited": [
+              86,
+              93,
+              112
+            ],
+            "n_cited_in_changed": 3,
+            "class_all": "inside",
+            "first_cited": 86,
+            "first_cited_in_changed": true
+          },
+          {
+            "id": "N8",
+            "origin_tag": "changed",
+            "spec_lines_cited": [
+              63,
+              78,
+              209,
+              316
+            ],
+            "n_cited_in_changed": 4,
+            "class_all": "inside",
+            "first_cited": 63,
+            "first_cited_in_changed": true
+          },
+          {
+            "id": "N9",
+            "origin_tag": "changed",
+            "spec_lines_cited": [
+              62,
+              74,
+              86,
+              90,
+              91
+            ],
+            "n_cited_in_changed": 5,
+            "class_all": "inside",
+            "first_cited": 62,
+            "first_cited_in_changed": true
+          },
+          {
+            "id": "N10",
+            "origin_tag": "changed",
+            "spec_lines_cited": [
+              179,
+              222
+            ],
+            "n_cited_in_changed": 2,
+            "class_all": "inside",
+            "first_cited": 179,
+            "first_cited_in_changed": true
+          },
+          {
+            "id": "N11",
+            "origin_tag": "changed",
+            "spec_lines_cited": [
+              11,
+              314
+            ],
+            "n_cited_in_changed": 2,
+            "class_all": "inside",
+            "first_cited": 11,
+            "first_cited_in_changed": true
+          }
+        ],
+        "provenance": "re-derived: `git diff --no-index -w -U0` baseline vs spec-seen (same command the reviewers state; the changed-line list equals the list printed in the R2 report line 21 and R3 report line 25), then SPEC:N tokens parsed from each finding's evidence cell in the report's numbered table (section 3.6)"
+      },
+      "R3": {
+        "baseline_copy": "spec-v2-after-round1.md",
+        "spec_seen": "spec-v3-after-round2.md",
+        "spec_seen_lines": 317,
+        "changed_new_file_lines": 25,
+        "diff_hunks": 21,
+        "pure_deletion_hunks": 0,
+        "changed_lines": [
+          5,
+          11,
+          26,
+          60,
+          62,
+          63,
+          66,
+          69,
+          74,
+          78,
+          81,
+          85,
+          86,
+          112,
+          167,
+          179,
+          208,
+          210,
+          220,
+          223,
+          228,
+          313,
+          314,
+          316,
+          317
+        ],
+        "new_findings": 4,
+        "all_cited_lines_inside_changed": 1,
+        "some_cited_lines_inside_some_outside": 3,
+        "no_cited_line_inside_changed": 0,
+        "cannot_be_told_no_SPEC_line_cited": 0,
+        "by_first_cited_line": {
+          "inside": 2,
+          "outside": 2,
+          "cannot_tell": 0
+        },
+        "per_finding": [
+          {
+            "id": "N12",
+            "origin_tag": "changed",
+            "spec_lines_cited": [
+              60,
+              210,
+              220,
+              317
+            ],
+            "n_cited_in_changed": 4,
+            "class_all": "inside",
+            "first_cited": 60,
+            "first_cited_in_changed": true
+          },
+          {
+            "id": "N13",
+            "origin_tag": "changed",
+            "spec_lines_cited": [
+              106,
+              179,
+              222,
+              223
+            ],
+            "n_cited_in_changed": 2,
+            "class_all": "mixed",
+            "first_cited": 106,
+            "first_cited_in_changed": false
+          },
+          {
+            "id": "N14",
+            "origin_tag": "changed",
+            "spec_lines_cited": [
+              62,
+              63,
+              87,
+              112
+            ],
+            "n_cited_in_changed": 3,
+            "class_all": "mixed",
+            "first_cited": 62,
+            "first_cited_in_changed": true
+          },
+          {
+            "id": "N15",
+            "origin_tag": "unchanged",
+            "spec_lines_cited": [
+              77,
+              81,
+              206,
+              208,
+              211
+            ],
+            "n_cited_in_changed": 2,
+            "class_all": "mixed",
+            "first_cited": 77,
+            "first_cited_in_changed": false
+          }
+        ],
+        "provenance": "re-derived: `git diff --no-index -w -U0` baseline vs spec-seen (same command the reviewers state; the changed-line list equals the list printed in the R2 report line 21 and R3 report line 25), then SPEC:N tokens parsed from each finding's evidence cell in the report's numbered table (section 3.6)"
+      },
+      "method": "re-derived; see each block's provenance. 'inside' = every SPEC line the finding's evidence cell cites is a changed line; 'mixed' = some cited lines changed, some not; 'outside' = none; 'cannot be told' = the evidence cell cites no SPEC line (none of the 15 new findings)."
+    },
+    "c_cap_escalation": {
+      "R3_escalated_at_cap": true,
+      "wrote_reviser_brief": false,
+      "evidence": "RV/spec-panel-round3.md:19 ('the cap is reached, so the run escalates to the user instead of starting another fix cycle'), :171 (Decisions: 'the report carries no Reviser brief (bullet 6) and a FAIL escalates to the user (bullet 4)'), :198 (Escalation paragraph)",
+      "blocking_findings_left_open": 1,
+      "open_blocking_ids": [
+        "N12"
+      ],
+      "open_nonblocking_notes": [
+        "N13",
+        "N14",
+        "N15",
+        "C-R3-15",
+        "F16"
+      ],
+      "panel_disagreement_on_N12": "Nygard graded it minor (error runs in the safe direction); Adzic and Wiegers held MAJOR blocking (report line 144)"
+    },
+    "d_findings_on_text_no_revision_touched": {
+      "R1": {
+        "value": null,
+        "reason": "first review: no revision existed, so every one of the 22 findings is on unrevised text; the count is not meaningful"
+      },
+      "R2": {
+        "by_origin_tag_unchanged": 0,
+        "by_lines_no_cited_line_inside_changed": 0,
+        "value": 0
+      },
+      "R3": {
+        "by_origin_tag_unchanged": 1,
+        "ids_tagged_unchanged": [
+          "N15"
+        ],
+        "by_lines_no_cited_line_inside_changed": 0,
+        "unchanged_tag_and_not_depending_on_a_changed_line": 0,
+        "note": "N15 is tagged unchanged but its evidence cites SPEC:81 and SPEC:208, which are changed lines (the N3 fix) and the finding is about the clash between them and unchanged SPEC:206; so under the strict reading (unchanged AND not depending on a changed line) the count is 0, under the tag alone it is 1",
+        "value_tag_reading": 1,
+        "value_strict_reading": 0
+      },
+      "provenance": "read (origin tags) and re-derived (line containment)"
+    }
+  },
+  "origin_master_exposure": {
+    "tool_calls_scanned": 135,
+    "calls_total": 272,
+    "reads_of_origin_master_or_remote_refs": 0,
+    "git_show_log_diff_with_origin_master": 0,
+    "reads_of_WORKER-CONTRACT.md_file": 0,
+    "reads_of_new_commands_graph_impact_issue": 0,
+    "reads_of_other_worktrees_or_main_checkout": "0 by the 5 loop steps; the setup worker copied the overlay from exp346-p1-logs (inputs of the experiment, by design); 3 step calls and 1 subagent Glob only tested whether the spec's stated repo root exists (OrcaCLICommandRefactor-Specs: does not exist)",
+    "findings_that_cite_or_reuse_origin_master_content": {
+      "R1": 0,
+      "R2": 0,
+      "R3": 0
+    },
+    "findings_that_only_name_the_file_WORKER-CONTRACT.md": {
+      "R1": 2,
+      "R1_ids": [
+        "F9",
+        "F12"
+      ],
+      "R2": 2,
+      "R2_ids": [
+        "N1",
+        "N4"
+      ],
+      "R3": 0,
+      "note": "mentions of the file name come from the spec itself (its P0 deliverable, v1 lines 52, 158, 191); no content of the master file was read or reused"
+    },
+    "provenance": "re-derived: every tool call of the 6 sessions + 1 subagent (272 calls) scanned by script; no hit. 'origin/master' appears in each session log only as CLAUDE.md context text (attachment / api-request-blob lines), not in a tool call."
+  },
+  "review_loop_totals": {
+    "reviews": 3,
+    "revisions": 2,
+    "sessions_loop_steps": 5,
+    "sessions_incl_setup": 6,
+    "tool_calls_loop_steps": 241,
+    "tool_calls_incl_subagent": 268,
+    "output_tokens_loop_steps": 279700,
+    "output_tokens_incl_subagent": 311907,
+    "wall_minutes_sum_of_sessions": 47.17,
+    "wall_minutes_first_dispatch_to_last_worker_done": 50.2,
+    "wall_note": "first R1 dispatch 12:51:49Z; last worker_done (R3) 13:42:00Z",
+    "provenance": "re-derived"
+  },
+  "spec_sizes": {
+    "v1": {
+      "bytes": 57763,
+      "lines": 285,
+      "words": 8148
+    },
+    "after_round1_v2": {
+      "bytes": 70255,
+      "lines": 316,
+      "words": 9980
+    },
+    "after_round2_v3": {
+      "bytes": 76328,
+      "lines": 317,
+      "words": 10841
+    },
+    "final": {
+      "bytes": 76328,
+      "lines": 317,
+      "words": 10841
+    },
+    "sha256": {
+      "v1": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+      "v2": "4e7c573384d2ee6b07c52ab8d97c43f555ed52b9e53b3025768b1147ad058094",
+      "v3_and_final": "51085e749aa6fea270f007c6972312f0e8d3941de34a964adb9c6c95fe4d0481"
+    },
+    "growth_percent_bytes": {
+      "v1_to_v2": 21.63,
+      "v2_to_v3": 8.64,
+      "v1_to_final_cumulative": 32.14
+    },
+    "growth_percent_lines": {
+      "v1_to_v2": 10.88,
+      "v2_to_v3": 0.32,
+      "v1_to_final_cumulative": 11.23
+    },
+    "growth_percent_words": {
+      "v1_to_v2": 22.48,
+      "v2_to_v3": 8.63,
+      "v1_to_final_cumulative": 33.05
+    },
+    "provenance": "re-derived: wc -c -l -w and sha256sum of the cp -p copies (reviews/); v1 sha256 equals phase2/S1/inputs/MANIFEST.sha256"
+  },
+  "growth_summary_for_D6b": {
+    "this_worktree_growth_after_two_fix_cycles_percent": 32.14,
+    "baseline_growth_after_two_fix_cycles_percent": 59.6,
+    "baseline_growth_after_three_revisions_percent": 54.2,
+    "threshold_70_percent_of_59.6": 41.72,
+    "provenance": "re-derived"
+  },
+  "d6_arithmetic_vs_baseline_no_verdict": {
+    "baseline_R3_critical_plus_major": 8,
+    "baseline_R3_any_severity": 14,
+    "threshold_a_50_percent_of_baseline_R3_proxy": 4.0,
+    "this_R3_critical_plus_major": 1,
+    "this_R3_any_severity": 4,
+    "a_value_le_threshold": true,
+    "growth_threshold_b": 41.72,
+    "this_growth": 32.14,
+    "b_value_le_threshold": true,
+    "clean_pass_in_fewer_rounds_than_baseline": false,
+    "reading_note": "The dispatch text says 'a: R3 proxy at most 50% of baseline R3 = 8'. The baseline R3 proxy IS 8 (baseline-metrics.json), so 50 percent is 4.0. If '8' was meant as the threshold, 1 <= 8 also holds. (c) needs the other replicate and the spread; not computed here."
+  },
+  "d11_arithmetic_vs_control_mean_no_verdict": {
+    "control_R3_critical_plus_major": {
+      "ctl-r1": 8,
+      "ctl-r2": 4,
+      "mean": 6.0
+    },
+    "threshold_a_50_percent_of_control_mean": 3.0,
+    "this_R3_critical_plus_major": 1,
+    "a_le_threshold": true,
+    "control_growth_after_two_fix_cycles_percent": {
+      "ctl-r1": 57.72,
+      "ctl-r2": 69.3,
+      "mean": 63.51
+    },
+    "threshold_b_70_percent_of_control_mean": 44.46,
+    "this_growth": 32.14,
+    "b_le_threshold": true,
+    "on_better_side_of_every_control_replicate": {
+      "a_R3_proxy": true,
+      "b_growth": true
+    },
+    "not_computed": "(c) effect larger than the larger within-arm spread, and 'every Arm B replicate' (needs flg-r1)",
+    "provenance": "control numbers read from the comparator metrics.json files; arithmetic re-derived"
+  },
+  "environment": {
+    "claude_code_version": "2.1.319 (all 6 session logs, every record)",
+    "entrypoint": "cli",
+    "permission_mode": "bypassPermissions",
+    "orca_build": "1.4.245-aidev02.780594c521aa (printed by `orca --version` at record time; R1 report finding 21, R2 Part 2 and R3 Part 2 state the same build during their runs)",
+    "models": {
+      "R1-review": "claude-opus-5-5",
+      "R1-revise": "claude-opus-5-5",
+      "R2-review": "claude-opus-5-5",
+      "R2-revise": "claude-opus-5-5",
+      "R3-review": "claude-opus-5-5",
+      "setup": "claude-sonnet-5-5 (not a loop step)",
+      "R1-review evidence-validator subagent": "claude-sonnet-5-5"
+    },
+    "spec_panel_user_file_sha256_12": "c8d80346a96c for the whole span of this worktree's steps (install-watch.log: set 12:47:42Z, no later change)",
+    "worker_contract_md_in_home_claude": "absent for the whole span (since 12:47:42Z)"
+  },
+  "not_measured": [
+    "Coordinator-session tokens and tool calls per round (one long shared coordinator session; not in this worktree's logs).",
+    "A per-finding re-grade of the baseline under 427 blocking/minor grading (baseline-metrics.json not_recoverable); the proxy CRITICAL+MAJOR is used for the cross-arm comparison.",
+    "Whether the reviser actually follows the report's own Reviser brief: the T08 task text names N1-N11 (coordinator-set range), the report brief names N1-N6; the disposition shows all 15 rows applied, so the brief-versus-task effect cannot be separated.",
+    "The within-arm spread (needs flg-r1) and criterion (c).",
+    "Which text of /sc:spec-panel the other arm used (not read, by instruction).",
+    "Orca build at the start of each step (only `orca --version` at record time and the reports' own statements).",
+    "Fix-induced share on the baseline's strict/partial/pre-existing scale for R2 and R3: the 427 origin tag has two levels (changed/unchanged), so 'partial' cannot be reproduced."
+  ]
+}

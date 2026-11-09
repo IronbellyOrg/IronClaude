@@ -1,0 +1,23 @@
+**WHAT:** The package is not archived. The corrected counts passed, but the fresh final review returned `issues` again, with two new blocking findings. The package stays in `.dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/`, and the second `FINAL: issues` line is in `progress.md`. All 23 task criteria are met, and nothing was committed or pushed. This is the second review in the fix cycle; the rule caps it at two fix cycles, so I'm stopping here rather than editing further on my own.
+
+**WHY:** The two findings are different from the counts you approved.
+
+1. **A false statement in check 3's notes.** `artifacts/lc3-step5.md:18` and `artifacts/lc3-session-analysis.txt:96` say the only Orca commands in the worker's sessions were `check` and `send`. The worker's subagents also ran `orca-ide` read-only commands: `worker-list`, `skills get orchestration` and `--version`. My search pattern could not match `orca-ide`. The reviewer re-searched both names and found no banned calls (no `worker-start`, `task-create`, `dispatch`, `worktree create` or `agent launch`). So the conclusion holds and only the sentence is wrong.
+2. **A breach of the plan's "UV for every Python command" rule, by me.** At 08:27 UTC I ran a bare `python3 - <<'EOF' ... || true` with an empty body. It executed nothing and wrote nothing; every other Python call used `uv run`. The rule counts it as blocking, and text edits cannot undo it.
+
+**RECOMMENDED ACTION:** Reply "approve" to let me do the following. If you decline, the package stays unarchived with all evidence intact.
+- Fix the sentence in the two check 3 files to name the `orca-ide` read-only commands.
+- Add a short disclosure of the empty `python3` call to the phase report.
+- Record your acceptance of that call in the ledger as a scoped exception. I'd write it as an `ARCHIVE: Ruling:` line (the ledger's accepted-exception record) naming the empty `python3` call. The ledger has no clearer form for a plan-rule breach that is not a task verdict, so I'm not certain the next reviewer will treat it as an accepted gap.
+- Run a third and final review, and archive if it passes.
+
+If the third review still returns `issues`, I'll escalate with the open findings and not run a fourth.
+
+| Status | Result |
+|---|---|
+| DONE | Count corrections made (six to seven in three places; 68 to 52 Bash tool calls) and checked against the raw data. |
+| DONE | Second fresh review run: all 23 task criteria met, P0 verdict still PASS, 2 blocking findings. Both are written to the ledger as `FINAL: issues`. |
+| DONE | `.dev/tasks` is staged, the superseded `…20261102-231950` package is unstaged, and HEAD is unchanged at `8db29f11`. |
+| NEXT | Your approval to fix, disclose and accept as above, then a third review and the archive. |
+
+RUNS: all live checks, the phase report and the corrected evidence. NOT BUILT: the archive (blocked by the final review).

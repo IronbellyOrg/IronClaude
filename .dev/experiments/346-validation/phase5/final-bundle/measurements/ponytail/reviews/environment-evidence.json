@@ -1,0 +1,88 @@
+[
+  {
+    "step": "setup",
+    "versions": [
+      "2.1.319"
+    ],
+    "prompt_rule_hits": []
+  },
+  {
+    "step": "T05",
+    "versions": [
+      "2.1.319"
+    ],
+    "prompt_rule_hits": [
+      {
+        "line": 52,
+        "type": "user",
+        "matches": [
+          "s blocking only if it names a concrete wrong outcome an implementer would produce, otherwise minor; minor findings are notes and never trigger a revision.",
+          "4. **Cap**: at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; the report header is `review: N of 3`, where N is the prior report's"
+        ]
+      }
+    ]
+  },
+  {
+    "step": "T06",
+    "versions": [
+      "2.1.319"
+    ],
+    "prompt_rule_hits": []
+  },
+  {
+    "step": "T07",
+    "versions": [
+      "2.1.319"
+    ],
+    "prompt_rule_hits": [
+      {
+        "line": 157,
+        "type": "user",
+        "matches": [
+          "s blocking only if it names a concrete wrong outcome an implementer would produce, otherwise minor; minor findings are notes and never trigger a revision.",
+          "4. **Cap**: at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; the report header is `review: N of 3`, where N is the prior report's"
+        ]
+      }
+    ]
+  },
+  {
+    "step": "T08",
+    "versions": [
+      "2.1.319"
+    ],
+    "prompt_rule_hits": []
+  },
+  {
+    "step": "T08a",
+    "versions": [
+      "2.1.319"
+    ],
+    "prompt_rule_hits": [
+      {
+        "line": 69,
+        "type": "user",
+        "matches": [
+          "s blocking only if it names a concrete wrong outcome an implementer would produce, otherwise minor; minor findings are notes and never trigger a revision.",
+          "4. **Cap**: at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; the report header is `review: N of 3`, where N is the prior report's",
+          "avioral Flow and Review Loop bullets 1, 4, 5 and 6 do not apply to it, it does not count toward the 3-review cap, and its one scripted edit is the single exception to bullet 4's \"writes no revised specification\"."
+        ]
+      }
+    ]
+  },
+  {
+    "step": "T09",
+    "versions": [
+      "2.1.319"
+    ],
+    "prompt_rule_hits": [
+      {
+        "line": 65,
+        "type": "user",
+        "matches": [
+          "s blocking only if it names a concrete wrong outcome an implementer would produce, otherwise minor; minor findings are notes and never trigger a revision.",
+          "4. **Cap**: at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; the report header is `review: N of 3`, where N is the prior report's"
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,15 @@
+grep -cF 'name: spec-panel-stoprule' = 1
+grep -cF '> Skill sc:spec-panel-stoprule-protocol' = 1
+grep -cF 'E-SKILL-MISSING' = 1
+grep -cF 'stoprule.py' = 1
+grep -cF 'sc-spec-panel-stoprule-protocol' = 2
+grep -cF 'verdict: PASS' = 1
+grep -cF 'verdict: FAIL' = 2
+grep -cF 'at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings' = 1
+grep -c '^## Unattended mode' = 0
+lines with --unattended:
+16:This variant deliberately has no `## Unattended mode` section and does not accept `--unattended`; its base is the 472
+base: tests/skills/fixtures/stoprule/spec-panel-armb-base.md lines=472 sha256=c8d80346a96cb528fce6cff3bcadfed5bc95d1eee48dea0ac275404314b8df2f
+git diff --exit-code src/superclaude/commands/spec-panel.md: exit 0
+src/superclaude occurrences: variant=1 base=1
+224:- **Read**: Specification content analysis and parsing; `src/superclaude/examples/release-spec-template.md` — read

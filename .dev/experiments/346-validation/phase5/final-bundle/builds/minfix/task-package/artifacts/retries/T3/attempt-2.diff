@@ -1,0 +1,596 @@
+diff --git a/src/superclaude/skills/sc-fixcheck/scripts/fixcheck.py b/src/superclaude/skills/sc-fixcheck/scripts/fixcheck.py
+index 22136ced..5c8bc132 100644
+--- a/src/superclaude/skills/sc-fixcheck/scripts/fixcheck.py
++++ b/src/superclaude/skills/sc-fixcheck/scripts/fixcheck.py
+@@ -439,33 +439,59 @@ def pair_units(bu, ru, i1, i2, j1, j2):
+ def split_region(i1, i2, j1, j2, located, bu, ru):
+     """Split one diff region per ledger entry whose old/anchor unit range it touches (section 2.2).
+ 
+-    Similar units are paired; each pair, deleted run or inserted run is an atom. An atom with base
+-    units belongs to the entry whose old quote overlaps them; an inserted run belongs to the add
+-    entry anchored at its position, else to the claimed atom before it, else after it. Consecutive
+-    atoms with the same owner form one part; atoms nobody claims form unattributed parts."""
+-    atoms, i, j = [], i1, j1
+-    for pi, pj in pair_units(bu, ru, i1, i2, j1, j2) + [(i2, j2)]:
+-        if i < pi:
+-            atoms.append([i, pi, j, j, None])
+-        if j < pj:
+-            atoms.append([pi, pi, j, pj, None])
+-        if (pi, pj) != (i2, j2):
+-            atoms.append([pi, pi + 1, pj, pj + 1, None])
++    Similar units are paired. A paired or deleted unit belongs to the entry whose old quote covers
++    it. An inserted unit belongs to the add entry anchored at its position, else to an entry of this
++    region whose new words it holds, else to its neighbouring inserted unit, else to the deleted units
++    it replaces (unattributed when they are), else to the pair before it, else the pair after it. Between two pairs, each owner's deleted and inserted
++    units form one part, in order, so a revert restores text in place. Unowned units are unattributed,
++    and a gap holding an unowned deleted unit is unattributed as a whole."""
++    local = [e for e in located
++             if (e.op == "add" and i1 <= e.loc[1] <= i2) or (e.op != "add" and e.loc[0] < i2 and e.loc[1] > i1)]
++
++    def pick(hits):
++        return min(hits, key=lambda e: (e.loc[0], e.num)) if hits else None
++
++    def base_owner(k):
++        return pick([e for e in local if e.op != "add" and e.loc[0] <= k < e.loc[1]])
++
++    def ins_owner(pos, k):
++        toks = [n for n, _ in ru[k].toks]
++        return pick([e for e in local if e.op == "add" and e.loc[1] == pos]
++                    or [e for e in local if new_key(e) and contains(toks, new_key(e)[:3])])
++
++    pairs = pair_units(bu, ru, i1, i2, j1, j2)
++    segs, i, j, prev_pair = [], i1, j1, None
++    for n, (pi, pj) in enumerate(pairs + [(i2, j2)]):
++        dels = [base_owner(k) for k in range(i, pi)]
++        ins = [ins_owner(pi, k) for k in range(j, pj)]
++        for x in list(range(1, len(ins))) + list(range(len(ins) - 2, -1, -1)):
++            if ins[x] is None:
++                ins[x] = ins[x - 1] if x and ins[x - 1] is not None else (ins[x + 1] if x + 1 < len(ins) else None)
++        next_pair = base_owner(pi) if n < len(pairs) else None
++        # an unclaimed insertion that replaces deleted units goes with them (unattributed when they
++        # are), so a revert never restores the old text while keeping its replacement
++        fallback = dels[-1] if dels else (prev_pair if prev_pair is not None else next_pair)
++        ins = [fallback if o is None else o for o in ins]
++        if None in dels:
++            # undeclared deletions: their gap is reverted as a whole, or a kept insertion could land
++            # after restored text it was meant to replace
++            dels, ins = [None] * len(dels), [None] * len(ins)
++        d = x = 0
++        while d < len(dels) or x < len(ins):
++            owner = dels[d] if d < len(dels) else ins[x]
++            dd, xx = d, x
++            while dd < len(dels) and dels[dd] is owner:
++                dd += 1
++            while xx < len(ins) and ins[xx] is owner:
++                xx += 1
++            segs.append((i + d, i + dd, j + x, j + xx, owner))
++            d, x = dd, xx
++        if n < len(pairs):
++            segs.append((pi, pi + 1, pj, pj + 1, next_pair))
++            prev_pair = next_pair
+         i, j = pi + 1, pj + 1
+-    for atom in atoms:
+-        a, b = atom[0], atom[1]
+-        if a < b:
+-            hits = [e for e in located if e.op != "add" and e.loc[0] < b and e.loc[1] > a]
+-        else:
+-            hits = [e for e in located if e.op == "add" and e.loc[1] == a]
+-        if hits:
+-            atom[4] = min(hits, key=lambda e: (e.loc[0], e.num))
+-    for k, atom in enumerate(atoms):
+-        if atom[4] is None and atom[0] == atom[1]:
+-            near = [atoms[k - 1][4] if k else None, atoms[k + 1][4] if k + 1 < len(atoms) else None]
+-            atom[4] = next((e for e in near if e is not None), None)
+     parts = []
+-    for a, b, c, d, owner in atoms:
++    for a, b, c, d, owner in segs:
+         if parts and parts[-1].claimant is owner:
+             parts[-1].i2, parts[-1].j2 = b, d
+         else:
+@@ -475,7 +501,7 @@ def split_region(i1, i2, j1, j2, located, bu, ru):
+ 
+ def analyze(base_data, base_text, rev_data, rev_text, fb, ledger):
+     """Diff, attribute and score one fix cycle; returns a dict the report and --enforce use."""
+-    bu, bseps, _ = units(base_text)
++    bu, bseps, btail = units(base_text)
+     ru, rseps, rtail = units(rev_text)
+     base_ids = set(NEW_ID_RE.findall(base_text))
+     entries = ledger["entries"]
+@@ -505,12 +531,12 @@ def analyze(base_data, base_text, rev_data, rev_text, fb, ledger):
+         else:
+             at = ru[h.j1].line if h.j1 < len(ru) else rev_text.count("\n") + 1
+             h.lines = (at, at)
+-        attribute(h, fb, unlocated)
++    attribute(hunks, fb, unlocated)
+     res = score(fb, ledger, hunks)
+     res.update(cycle_checks(hunks, base_data, rev_data))
+     res["result"] += res.pop("size")
+     res["code"] = EXIT["POLICY"] if res["result"] else EXIT["OK"]
+-    res.update(regions=regions, moved_b=moved_b, moved_r=moved_r, bu=bu, bseps=bseps, ru=ru, rseps=rseps, rtail=rtail)
++    res.update(regions=regions, moved_b=moved_b, moved_r=moved_r, bu=bu, bseps=bseps, btail=btail, ru=ru, rseps=rseps, rtail=rtail)
+     return res
+ 
+ 
+@@ -576,30 +602,49 @@ def element_counts(h, base_ids):
+     h.counts = c
+ 
+ 
+-def attribute(h, fb, unlocated):
+-    """Charge the hunk to its claiming entry, or leave it unattributed with a reason."""
+-    rnorm = [n for u in h.r for n, _ in u.toks]
+-    e = h.claimant
+-    if e is None:
+-        for u in unlocated:
+-            key = [n for n in (norm_token(t) for t in u.new.split()) if n][:10]
+-            if key and contains(rnorm, key):
+-                h.reason = f"quote not in baseline (L{u.num})"
+-                return
+-        h.reason = "no ledger entry"
+-        return
+-    key = [n for n in (norm_token(t) for t in e.new.split()) if n][:10]
+-    if e.finding not in fb["rows"]:
+-        h.reason = f"unknown finding {e.finding} (L{e.num})"
+-    elif key and not contains(rnorm, key):
+-        h.reason = f"new words not found (L{e.num})"
+-    elif not key and h.added:
+-        h.reason = f"delete entry adds words (L{e.num})"
+-    else:
+-        h.entry = e
+-        ok = h.op == e.op or (e.op in OP_RANK and h.op in OP_RANK and OP_RANK[h.op] <= OP_RANK[e.op])
+-        if not ok:
+-            h.mislabel = f"op L{e.num} {e.op}!={h.op}"
++def new_key(entry):
++    """The entry's `new` words (at most 10), normalised."""
++    return [n for n in (norm_token(t) for t in entry.new.split()) if n][:10]
++
++
++def attribute(hunks, fb, unlocated):
++    """Charge each hunk to its claiming entry, or leave it unattributed with a reason.
++
++    An entry's hunks are judged together: its new words must appear in their revised text, and
++    its real op is derived from all of them (no baseline text: add; no added words: delete;
++    added <= deleted: narrow; else replace). A cheaper real op than the declared one is accepted."""
++    by_entry = {}
++    for h in hunks:
++        if h.claimant is not None:
++            by_entry.setdefault(h.claimant.num, []).append(h)
++    for h in hunks:
++        e = h.claimant
++        if e is None:
++            rnorm = [n for u in h.r for n, _ in u.toks]
++            hit = next((u for u in unlocated if new_key(u) and contains(rnorm, new_key(u))), None)
++            h.reason = f"quote not in baseline (L{hit.num})" if hit else "no ledger entry"
++            continue
++        group = by_entry[e.num]
++        rnorm = [n for p in group for u in p.r for n, _ in u.toks]
++        added, deleted = sum(p.added for p in group), sum(p.deleted for p in group)
++        key = new_key(e)
++        if e.finding not in fb["rows"]:
++            h.reason = f"unknown finding {e.finding} (L{e.num})"
++        elif key and not contains(rnorm, key):
++            h.reason = f"new words not found (L{e.num})"
++        elif not key and added:
++            h.reason = f"delete entry adds words (L{e.num})"
++        else:
++            h.entry = e
++            if not any(p.b for p in group):
++                h.op = "add"
++            elif not added:
++                h.op = "delete"
++            else:
++                h.op = "narrow" if added <= deleted else "replace"
++            ok = h.op == e.op or (e.op in OP_RANK and h.op in OP_RANK and OP_RANK[h.op] <= OP_RANK[e.op])
++            if not ok and h is group[0]:
++                h.mislabel = f"op L{e.num} {e.op}!={h.op}"
+ 
+ 
+ def natural(fid):
+@@ -738,6 +783,116 @@ def atomic_write(path, data):
+         fail("WRITE", f"cannot write {path}: {exc.strerror or exc}")
+ 
+ 
++def rebuild(res, revert):
++    """The revised text with every part in `revert` restored to its baseline units."""
++    bu, ru = res["bu"], res["ru"]
++    seps = (res["bseps"], res["rseps"])
++    out, prev = [], (None, None)  # (base index, revised index) of the last emitted unit, when known
++
++    def emit(side, x, other):
++        nonlocal prev
++        p, own = prev[side], seps[side][x]
++        # a unit that continued a line whose earlier units were dropped takes the break that preceded
++        # the dropped run; a unit that starts its own line keeps its separator (break plus line prefix)
++        sep = seps[side][p + 1] if p is not None and p < x - 1 and "\n" not in own else own
++        out.append(sep + (bu, ru)[side][x].raw)
++        prev = (x, other) if side == 0 else (other, x)
++
++    for region in res["regions"]:
++        if region[0] == "equal":
++            _, i1, _, j1, j2 = region
++            for k in range(j2 - j1):
++                emit(1, j1 + k, i1 + k)
++            continue
++        for part in region[1]:
++            if part in revert:
++                for i in range(part.i1, part.i2):
++                    emit(0, i, None)
++            else:
++                for j in range(part.j1, part.j2):
++                    emit(1, j, None)
++    ends_on_base = prev[0] == len(bu) - 1 and prev[1] != len(ru) - 1
++    out.append(res["btail"] if ends_on_base else res["rtail"])
++    return "".join(out)
++
++
++def depends_closure(bad, ledger, per, stale):
++    """Add every finding with an entry that depends: on a reverted entry: one of a reverted
++    finding, or one in `stale` (its hunks are unattributed, so --enforce reverts them)."""
++    by_num = {e.num: e for e in ledger["entries"]}
++    grew = True
++    while grew:
++        grew = False
++        for e in ledger["entries"]:
++            dep = by_num.get(int(e.depends[1:])) if e.depends else None
++            if dep and (dep.finding in bad or dep.num in stale) and e.finding in per and e.finding not in bad:
++                bad.add(e.finding)
++                grew = True
++
++
++def moved_closure(revert, res):
++    """A reverted part restores its moved units, so their moved copies are reverted too."""
++    owner_b, owner_r = {}, {}
++    for region in res["regions"]:
++        if region[0] == "parts":
++            for part in region[1]:
++                owner_b.update((i, part) for i in range(part.i1, part.i2))
++                owner_r.update((j, part) for j in range(part.j1, part.j2))
++    todo = list(revert)
++    while todo:
++        part = todo.pop()
++        partners = [owner_r[res["moved_b"][i]] for i in range(part.i1, part.i2) if i in res["moved_b"]]
++        partners += [owner_b[res["moved_r"][j]] for j in range(part.j1, part.j2) if j in res["moved_r"]]
++        for q in partners:
++            if q not in revert:
++                revert.add(q)
++                todo.append(q)
++
++
++def enforce(args, base_data, base_text, rev_data, rev_text, fb, ledger, ledger_data):
++    """One revert pass (section 2.3), one atomic write of the spec, then the re-check."""
++    if not ledger["entries"]:
++        fail("INPUT", "--enforce needs a ledger with at least one entry")
++    res = analyze(base_data, base_text, rev_data, rev_text, fb, ledger)
++    per = res["per"]
++    bad = {fid for fid, p in per.items() if p["status"] in ("OVER", "MINOR-EDIT")}
++    stale = {h.claimant.num for h in res["hunks"] if h.entry is None and h.claimant is not None}
++    depends_closure(bad, ledger, per, stale)
++
++    def reverted_parts():
++        return {h for h in res["hunks"] if h.entry is None or h.entry.finding in bad}
++
++    # cycle cap: blocking MAJOR before CRITICAL, largest first, then by id
++    for fid in sorted((f for f in per if f not in bad and per[f]["hunks"]),
++                      key=lambda f: (fb["rows"][f].cls != "M", -per[f]["totals"]["gross"], natural(f))):
++        kept = [h for h in res["hunks"] if h not in reverted_parts()]
++        if sum(h.added for h in kept) <= CYCLE_GROSS_WORDS and sum(h.bytes for h in kept) <= CYCLE_GROSS_BYTES:
++            break
++        bad.add(fid)
++        depends_closure(bad, ledger, per, stale)
++    revert = reverted_parts()
++    moved_closure(revert, res)
++    text = rebuild(res, revert)
++    data = text.encode("utf-8")
++    restored = "raw-size" if len(data) - len(base_data) > RAW_SIZE_LIMIT else ""
++    if not restored and analyze(base_data, base_text, data, text, fb, ledger)["code"] != EXIT["OK"]:
++        # safety net beyond section 2.3 so the re-check is 0 by construction; labelled so tests catch it
++        restored = "recheck"
++    if restored:
++        data, text = base_data, base_text
++        bad = {fid for fid in fb["order"] if fb["rows"][fid].grade == "blocking"} | bad
++    if data != rev_data:
++        atomic_write(args.revised, data)
++    print(f"ENFORCE reverted={','.join(sorted(bad, key=natural)) or '-'} "
++          f"hunks={','.join(f'h{h.k}' for h in sorted(revert, key=lambda h: h.k) if h.k) or '-'} "
++          f"restored-baseline={'yes reason=' + restored if restored else 'no'}")
++    print("escalated-by-enforce: " + (" ".join(sorted(bad, key=natural)) or "none"))
++    rev_data, rev_text = read_text(args.revised)
++    final = analyze(base_data, base_text, rev_data, rev_text, fb, ledger)
++    print("\n".join(render_report(final, fb, ledger, base_data, rev_data, ledger_data)))
++    return final["code"]
++
++
+ def cmd_hash(args):
+     data, _ = read_text(args.file)
+     print(sha256(data))
+@@ -759,7 +914,7 @@ def cmd_snapshot(args):
+ def cmd_check(args):
+     base_data, base_text, rev_data, rev_text, fb, ledger, ledger_data = load_check_inputs(args)
+     if args.enforce:
+-        fail("INTERNAL", "check --enforce is not implemented yet")
++        return enforce(args, base_data, base_text, rev_data, rev_text, fb, ledger, ledger_data)
+     res = analyze(base_data, base_text, rev_data, rev_text, fb, ledger)
+     print("\n".join(render_report(res, fb, ledger, base_data, rev_data, ledger_data)))
+     return res["code"]
+diff --git a/tests/skills/test_sc_fixcheck.py b/tests/skills/test_sc_fixcheck.py
+index 57c9b6f0..4d87f6e7 100644
+--- a/tests/skills/test_sc_fixcheck.py
++++ b/tests/skills/test_sc_fixcheck.py
+@@ -509,3 +509,278 @@ def test_check_on_mismatched_baseline_exits_4(tmp_path, capsys):
+     d = case(tmp_path, BASE, [MAJOR], [(1, {"finding": "F1", "op": "delete", "old": OLD})])
+     (d / "base.md").write_text(BASE + "drift\n")
+     assert check(d, capsys)[0] == 4
++
++
++# --- Task 3: check --enforce ---
++
++
++def enforce(d, capsys, *extra):
++    return check(d, capsys, "--enforce", *extra)
++
++
++def test_enforce_restores_over_budget_and_unattributed_and_keeps_in_budget(tmp_path, capsys):
++    new = "Old entries leave the cache after thirty minutes."
++    big = filler(81) + "."
++    revised = (BASE.replace(OLD, new).replace(LOGOUT, LOGOUT + "\n\n" + big)
++               .replace(BACKUP, "Backups run at noon on a separate host machine."))
++    d = case(tmp_path, revised, [MAJOR, "F2 | MAJOR | blocking | std"],
++             [(1, {"finding": "F1", "op": "replace", "old": OLD, "new": new}),
++              (2, {"finding": "F2", "op": "add", "anchor": LOGOUT, "new": big, "considered": "no cut fits"})])
++    code, out = enforce(d, capsys)
++    assert code == 0, out
++    assert (d / "spec.md").read_text() == BASE.replace(OLD, new)
++    assert "ENFORCE reverted=F2 " in out and "restored-baseline=no" in out
++    assert "status=reverted" in finding_line(out, "F2") and "status=fixed" in finding_line(out, "F1")
++
++
++def test_enforce_reverts_depends_partners_whole(tmp_path, capsys):
++    new = "Old entries leave the cache after thirty minutes."
++    big = filler(81) + "."
++    d = case(tmp_path, BASE.replace(OLD, new).replace(LOGOUT, LOGOUT + "\n\n" + big),
++             [MAJOR, "F2 | MAJOR | blocking | std"],
++             [(1, {"finding": "F1", "op": "replace", "old": OLD, "new": new, "depends": "L2"}),
++              (2, {"finding": "F2", "op": "add", "anchor": LOGOUT, "new": big, "considered": "no cut fits"})])
++    code, out = enforce(d, capsys)
++    assert code == 0, out
++    assert (d / "spec.md").read_text() == BASE
++    assert "ENFORCE reverted=F1,F2 " in out
++
++
++def test_second_enforce_changes_nothing(tmp_path, capsys):
++    big = filler(81) + "."
++    d = case(tmp_path, BASE.replace(LOGOUT, LOGOUT + "\n\n" + big), [MAJOR],
++             [(1, {"finding": "F1", "op": "add", "anchor": LOGOUT, "new": big, "considered": "no cut fits"})])
++    assert enforce(d, capsys)[0] == 0
++    first = (d / "spec.md").read_bytes()
++    code, out = enforce(d, capsys)
++    assert code == 0
++    assert (d / "spec.md").read_bytes() == first
++    assert "ENFORCE reverted=- hunks=- restored-baseline=no" in out
++
++
++def test_enforce_without_ledger_or_with_empty_ledger_exits_3(tmp_path, capsys):
++    revised = BASE.replace(OLD, "Old entries leave the cache after thirty minutes.")
++    d = case(tmp_path, revised, [MAJOR], [])
++    assert enforce(d, capsys)[0] == 3  # ledger block with no entries
++    (d / "disposition.md").unlink()
++    assert enforce(d, capsys)[0] == 3  # no ledger file at all
++    assert (d / "spec.md").read_text() == revised
++
++
++def test_enforce_on_mismatched_baseline_exits_4_and_leaves_spec(tmp_path, capsys):
++    revised = BASE.replace(OLD, "Old entries leave the cache after thirty minutes.")
++    d = case(tmp_path, revised, [MAJOR], [(1, {"finding": "F1", "op": "delete", "old": OLD})])
++    (d / "base.md").write_text(BASE + "drift\n")
++    assert enforce(d, capsys)[0] == 4
++    assert (d / "spec.md").read_text() == revised
++
++
++def paragraphs(prefix, n_paras, n_words):
++    return [" ".join(f"{prefix}{p}w{w}" for w in range(n_words)) + "." for p in range(n_paras)]
++
++
++def test_cycle_cap_reverts_blocking_major_before_critical_largest_first(tmp_path, capsys):
++    olds = paragraphs("p", 7, 40)
++    sizes = [110, 110, 110, 110, 78, 60, 50]  # F1-F4 CRITICAL (net 70), F5-F7 MAJOR; total 628 > 600
++    news = [" ".join(f"n{p}w{w}" for w in range(size)) + "." for p, size in enumerate(sizes)]
++    base = "# Doc\n\n" + "\n\n".join(olds) + "\n"
++    revised = "# Doc\n\n" + "\n\n".join(news) + "\n"
++    rows = [f"F{k} | CRITICAL | blocking | std" for k in range(1, 5)] + \
++           [f"F{k} | MAJOR | blocking | std" for k in range(5, 8)]
++    entries = [(k + 1, {"finding": f"F{k + 1}", "op": "replace", "old": olds[k], "new": news[k]}) for k in range(7)]
++    d = case(tmp_path, revised, rows, entries, base=base)
++    code, out = check(d, capsys)
++    assert code == 1 and "CYCLE words 628>600" in out, out
++    code, out = enforce(d, capsys)
++    assert code == 0, out
++    assert "ENFORCE reverted=F5 " in out
++    assert (d / "spec.md").read_text() == revised.replace(news[4], olds[4])
++
++
++def test_entries_limit_revert_scores_zero_entries_afterwards(tmp_path, capsys):
++    sentences = [CACHE, OLD, BACKUP, LOGOUT, "The service writes one log line per request."]
++    revised, entries = BASE, []
++    for k, s in enumerate(sentences, 1):
++        new = s[:-1] + " today."
++        revised = revised.replace(s, new)
++        entries.append((k, {"finding": "F1", "op": "replace", "old": s, "new": new}))
++    d = case(tmp_path, revised, [MAJOR], entries)
++    code, out = check(d, capsys)
++    assert code == 1 and "entries 5>4" in finding_line(out, "F1")
++    code, out = enforce(d, capsys)
++    assert code == 0, out
++    assert "entries=0" in finding_line(out, "F1") and "status=reverted" in finding_line(out, "F1")
++    code, out = check(d, capsys)
++    assert code == 0 and "status=reverted" in finding_line(out, "F1")
++    assert (d / "spec.md").read_text() == BASE
++
++
++def test_enforce_writes_no_file_other_than_the_spec(tmp_path, capsys):
++    big = filler(81) + "."
++    d = case(tmp_path, BASE.replace(LOGOUT, LOGOUT + "\n\n" + big), [MAJOR],
++             [(1, {"finding": "F1", "op": "add", "anchor": LOGOUT, "new": big, "considered": "no cut fits"})])
++    before = {p.name: p.read_bytes() for p in d.iterdir()}
++    listing_before = listing(d)
++    assert enforce(d, capsys)[0] == 0
++    assert listing(d) == listing_before
++    after = {p.name: p.read_bytes() for p in d.iterdir()}
++    assert {k for k in after if after[k] != before[k]} == {"spec.md"}
++
++
++def test_enforce_write_failure_exits_5_and_leaves_spec(tmp_path, capsys, monkeypatch):
++    big = filler(81) + "."
++    revised = BASE.replace(LOGOUT, LOGOUT + "\n\n" + big)
++    d = case(tmp_path, revised, [MAJOR],
++             [(1, {"finding": "F1", "op": "add", "anchor": LOGOUT, "new": big, "considered": "no cut fits"})])
++    listing_before = listing(d)
++
++    def refuse(*_):
++        raise PermissionError(13, "Permission denied")
++
++    monkeypatch.setattr(fc.os, "replace", refuse)
++    assert enforce(d, capsys)[0] == 5
++    assert (d / "spec.md").read_text() == revised
++    assert listing(d) == listing_before
++
++
++def test_hash_and_plain_check_are_read_only(tmp_path, capsys):
++    """Owner ruling msg_9e319d331e9b: review sessions run only calls that write nothing."""
++    new = "Old entries leave the cache after one hour of idle time."
++    d = case(tmp_path, BASE.replace(OLD, new), [MAJOR], [(1, {"finding": "F1", "op": "narrow", "old": OLD, "new": new})])
++    before = {p: p.read_bytes() for p in d.iterdir()}
++    run(capsys, "hash", "--file", d / "spec.md")
++    check(d, capsys)
++    assert {p: p.read_bytes() for p in d.iterdir()} == before
++
++
++SENTS = [
++    "Alpha nodes hold the primary copy of each shard.",
++    "Beta nodes keep a warm replica for reads.",
++    "Gamma jobs compact old segments at night.",
++    "Delta checks run before each deploy step.",
++    "Epsilon tokens expire after a fixed period.",
++    "Zeta logs are kept for thirty days.",
++    "Eta alerts page the on-call engineer.",
++    "Theta dashboards show latency by region.",
++]
++PROP_BASE = ("# Prop\n\n" + " ".join(SENTS[:4]) + "\n\n" + " ".join(SENTS[4:]) + "\n\n"
++             "| key | value |\n|---|---|\n| a | one |\n| b | two |\n")
++VOCAB = ["must", "only", "if", "when", "AC-9", "(F7)", "`grep x | wc`", "## Note", "plain", "words", "here"]
++
++
++def random_edit(rng, text, sents):
++    s = rng.choice(sents)
++    kind = rng.choice(["replace", "narrow", "delete", "add", "move", "space"])
++    if kind == "replace":
++        new = s[:-1] + " " + " ".join(rng.choice(VOCAB) for _ in range(rng.randint(1, 60))) + "."
++    elif kind == "narrow":
++        new = " ".join(s.split()[: max(2, len(s.split()) - 3)]) + "."
++    elif kind == "delete":
++        new = ""
++    elif kind == "add":
++        new = s + "\n\n" + " ".join(rng.choice(VOCAB) for _ in range(rng.randint(1, 90))) + "."
++    elif kind == "move":
++        return text.replace(s + " ", "").replace(s, "") + "\n" + s + "\n", None
++    else:
++        return text.replace(s, s + " " * rng.randint(1, 4000)), None
++    return text.replace(s, new), (kind, s, new)
++
++
++def test_property_enforce_then_check_exits_0(tmp_path, capsys):
++    rng = __import__("random").Random(346)
++    for n in range(200):
++        d = tmp_path / f"c{n}"
++        d.mkdir()
++        rows = ["F1 | CRITICAL | blocking | std", "F2 | MAJOR | blocking | std", "F3 | MAJOR | minor | -",
++                "F4 | MAJOR/FR-8 | blocking | gap:2"]
++        text, entries = PROP_BASE, []
++        for sent in rng.sample(SENTS, rng.randint(1, 4)):
++            text, edit = random_edit(rng, text, [sent])
++            if edit is None or rng.random() < 0.15:
++                continue  # an edit the ledger does not declare
++            kind, old, new = edit
++            fields = {"finding": rng.choice(["F1", "F2", "F3", "F4", "F9"]),
++                      "op": rng.choice(["delete", "narrow", "replace", "add"]) if rng.random() < 0.2 else kind}
++            if fields["op"] == "add":
++                fields.update(anchor=old, considered="nothing else fits")
++            else:
++                fields["old"] = old if rng.random() > 0.1 else "Text that is not in the baseline at all."
++            if fields["op"] != "delete":
++                fields["new"] = " ".join((new or "gone").split()[:10])
++            if entries and rng.random() < 0.2:
++                fields["depends"] = f"L{entries[-1][0]}"
++            entries.append((len(entries) + 1, fields))
++        if not entries:
++            entries = [(1, {"finding": "F1", "op": "delete", "old": SENTS[0]})]
++        if text == PROP_BASE:
++            text += "Extra words appear here.\n"
++        case(d, text, rows, entries, base=PROP_BASE)
++        code, out = enforce(d, capsys)
++        assert code == 0, (n, out)
++        assert "reason=recheck" not in out, (n, out)  # the safety net must never be what makes it pass
++        code, out = check(d, capsys)
++        assert code == 0, (n, out)
++
++
++def test_enforce_keeps_breaks_next_to_a_kept_deletion(tmp_path, capsys):
++    """Review r1-1 F1.1: a reverted sentence after a kept deletion keeps its paragraph break."""
++    a, b = "Alpha nodes hold the primary copy.", "Beta nodes keep a warm replica."
++    g, g2 = "Gamma jobs compact old segments at night.", "Gamma jobs compact old segments."
++    base = f"# Doc\n\n{a} {b}\n\n{g}\n"
++    big = filler(90) + "."
++    d = case(tmp_path, f"# Doc\n\n{big}\n\n{g2}\n",
++             [MAJOR, "F2 | MAJOR | blocking | std", "F3 | MAJOR | blocking | std"],
++             [(1, {"finding": "F1", "op": "delete", "old": a}),
++              (2, {"finding": "F2", "op": "replace", "old": b, "new": big}),
++              (3, {"finding": "F3", "op": "narrow", "old": g, "new": g2})], base=base)
++    code, out = enforce(d, capsys)
++    assert code == 0, out
++    assert "ENFORCE reverted=F2 " in out and "restored-baseline=no" in out
++    assert (d / "spec.md").read_text() == f"# Doc\n\n{b}\n\n{g2}\n"
++
++
++def test_enforce_reverts_dependant_of_an_unattributed_entry(tmp_path, capsys):
++    """Review r1-1 F1.2: an entry reverted because its hunk is unattributed takes its dependants with it."""
++    new1 = "Old entries leave the cache after thirty minutes."
++    new2 = "Backups run at noon on a separate host machine."
++    d = case(tmp_path, BASE.replace(OLD, new1).replace(BACKUP, new2), [MAJOR, "F2 | MAJOR | blocking | std"],
++             [(1, {"finding": "F1", "op": "replace", "old": OLD, "new": new1, "depends": "L2"}),
++              (2, {"finding": "F2", "op": "replace", "old": BACKUP, "new": "Words that never appear anywhere."})])
++    code, out = enforce(d, capsys)
++    assert code == 0, out
++    assert "ENFORCE reverted=F1 " in out
++    assert (d / "spec.md").read_text() == BASE
++
++
++def test_enforce_restores_the_baseline_tail(tmp_path, capsys):
++    """Review r1-1 F1.3: reverting an appended paragraph restores the baseline's final newline."""
++    base = "# Doc\n\nOne para.\n\nTwo para.\n"
++    d = case(tmp_path, "# Doc\n\nOne para.\n\nTwo para.\n\nNew para here.", [MAJOR],
++             [(1, {"finding": "F1", "op": "delete", "old": "One para."})], base=base)
++    assert enforce(d, capsys)[0] == 0
++    assert (d / "spec.md").read_text() == base
++
++
++def test_enforce_reverts_an_unpaired_neighbour_edit_without_duplicating_it(tmp_path, capsys):
++    """Property seed 1 case 159: an undeclared rewrite next to a declared fix is reverted in place."""
++    zeta, eta = "Zeta logs are kept for thirty days.", "Eta alerts page the on-call engineer."
++    revised = PROP_BASE.replace(zeta, "Zeta logs are kept.").replace(eta, "Eta alerts page.")
++    d = case(tmp_path, revised, [MAJOR, "F2 | MAJOR | blocking | std"],
++             [(1, {"finding": "F2", "op": "narrow", "old": zeta, "new": "Zeta logs are kept."})], base=PROP_BASE)
++    code, out = check(d, capsys)
++    assert code == 1 and "UNATTRIBUTED" in out
++    code, out = enforce(d, capsys)
++    assert code == 0 and "restored-baseline=no" in out, out
++    assert (d / "spec.md").read_text() == PROP_BASE.replace(zeta, "Zeta logs are kept.")
++
++
++def test_enforce_reverts_an_insertion_that_replaces_undeclared_deletions(tmp_path, capsys):
++    """Property seed 9 case 198: a declared insertion inside a gap of undeclared deletions goes with them."""
++    eta, theta = "Eta alerts page the on-call engineer.", "Theta dashboards show latency by region."
++    revised = PROP_BASE.replace(f" {eta} {theta}", " Eta alerts page.")
++    d = case(tmp_path, revised, [MAJOR, "F4 | MAJOR/FR-8 | blocking | gap:2"],
++             [(1, {"finding": "F4", "op": "add", "anchor": eta, "new": "Eta alerts page.",
++                   "considered": "nothing else fits"})], base=PROP_BASE)
++    code, out = enforce(d, capsys)
++    assert code == 0 and "restored-baseline=no" in out, out
++    assert (d / "spec.md").read_text() == PROP_BASE

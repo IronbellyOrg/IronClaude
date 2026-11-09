@@ -1,0 +1,115 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "check": "metrics.json no unfilled recorder placeholder",
+      "passed": true
+    },
+    {
+      "check": "metrics.json nonempty",
+      "passed": true
+    },
+    {
+      "check": "validity.md no unfilled recorder placeholder",
+      "passed": true
+    },
+    {
+      "check": "validity.md nonempty",
+      "passed": true
+    },
+    {
+      "check": "comparison.md no unfilled recorder placeholder",
+      "passed": true
+    },
+    {
+      "check": "comparison.md nonempty",
+      "passed": true
+    },
+    {
+      "check": "JSON exact three rounds",
+      "passed": true
+    },
+    {
+      "check": "review proxies 9 7 0",
+      "passed": true
+    },
+    {
+      "check": "report FAIL not erased",
+      "passed": true
+    },
+    {
+      "check": "owner count carries N1",
+      "passed": true
+    },
+    {
+      "check": "script zero marked invalid",
+      "passed": true
+    },
+    {
+      "check": "source record states model failure",
+      "passed": true
+    },
+    {
+      "check": "no success verdict",
+      "passed": true
+    },
+    {
+      "check": "round 1 growth arithmetic",
+      "passed": true
+    },
+    {
+      "check": "round 2 growth arithmetic",
+      "passed": true
+    },
+    {
+      "check": "V1 through V6",
+      "passed": true
+    },
+    {
+      "check": "at most eight limits",
+      "passed": true
+    },
+    {
+      "check": "quality binary present",
+      "passed": true
+    },
+    {
+      "check": "live source still matches spec-panel.md",
+      "passed": true
+    },
+    {
+      "check": "live source still matches disposition.md",
+      "passed": true
+    },
+    {
+      "check": "live source still matches spec-panel-round2.md",
+      "passed": true
+    },
+    {
+      "check": "live source still matches disposition-round2.md",
+      "passed": true
+    },
+    {
+      "check": "live source still matches spec-panel-round3.md",
+      "passed": true
+    },
+    {
+      "check": "live source still matches live-spec-at-recording.md",
+      "passed": true
+    },
+    {
+      "check": "frozen v1 manifest",
+      "passed": true
+    },
+    {
+      "check": "audit script unchanged",
+      "passed": true
+    },
+    {
+      "check": "all literal evidence pointers exist",
+      "passed": true
+    }
+  ],
+  "missing_evidence": [],
+  "note": "Mechanical evidence checks, not product tests or a further model review"
+}

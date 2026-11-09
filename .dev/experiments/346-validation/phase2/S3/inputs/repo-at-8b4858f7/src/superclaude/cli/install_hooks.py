@@ -1,0 +1,587 @@
+"""
+Hook Installation
+
+Installs SuperClaude hook scripts to ~/.claude/hooks/ and merges hook
+registrations into ~/.claude/settings.json via additive atomic merge.
+
+Critical design points (per .dev/releases/current/freshness-system/phase-4-tasklist.md
+T04.01):
+- Atomic write: temp file in same dir + os.replace (POSIX atomic).
+- Backup before any write: ~/.claude/settings.json.bak.<ISO-8601> (install_hooks's
+  own backup, separate from Claude Code's internal 5-rotate scheme).
+- Refuses to overwrite a malformed target settings.json (explicit error;
+  backup at <path> referenced in message).
+- Additive merge for the hooks key: existing user hooks preserved; framework
+  registrations are refreshed by exact command identity, never by matcher alone.
+- Pure stdlib (json + shutil + os + pathlib); no jq shell-out.
+- chmod 0o755 happens AFTER copy so a failed copy never leaves a 0-byte
+  executable.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+import shutil
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Tuple
+
+# Paths matched here are the script names that get deposited at ~/.claude/hooks/.
+# session-init.sh lives in src/superclaude/scripts/ (pre-existing single-script);
+# all freshness-*.sh live in src/superclaude/hooks/scripts/.
+#
+# NOTE on freshness-file-changed.sh: this script is intentionally still copied
+# even though the `FileChanged` event is NOT registered in v1's hooks.json. The
+# T02.05 probe (2026-05-13) revealed Claude Code's FileChanged matcher accepts
+# only |-separated literal filenames, not regex — design's matcher ".*" never
+# matched anything. The script stays as a v1.5 starting point; CHANGELOG has
+# the redesign options. A future `--no-orphans` flag (CHANGELOG v1.5 work
+# items) will let strict deployments skip orphan scripts.
+_FRESHNESS_SCRIPTS = [
+    "freshness-session-start.sh",
+    "freshness-user-prompt.sh",
+    "freshness-pre-edit.sh",
+    "freshness-post-read.sh",
+    "freshness-file-changed.sh",  # v1: NOT registered. Kept on disk for v1.5.
+    "freshness-subagent-start.sh",
+    "freshness-subagent-stop.sh",
+    # auggie-first PostToolUse hook (auggie-first-hook-proposal-v2.1.md).
+    # Not strictly a "freshness" hook by lineage, but lives in the same hooks/scripts/
+    # directory and shares the install pipeline; kept here to avoid a second list.
+    "auggie-flag-clear.sh",
+    # Project-local workspace-write guard. Registered in the IronClaude
+    # project's `<project>/.claude/settings.json` PreToolUse with command
+    # `$CLAUDE_PROJECT_DIR/.claude/hooks/reject-workspace-writes.sh` — i.e.,
+    # Claude Code resolves it relative to the project directory, NOT
+    # `~/.claude/hooks/`. End-user installs that touch unrelated projects
+    # therefore have no registration pointing at this script and it sits
+    # dormant in their `~/.claude/hooks/` (harmless). It is listed here
+    # because (a) the project ships a `.claude/hooks/reject-workspace-writes.sh`
+    # mirror via `make sync-dev` and (b) the `=== Installer Registration ===`
+    # check in `make verify-sync` requires every entry of
+    # `src/superclaude/hooks/scripts/*.sh` to be a member of this list.
+    "reject-workspace-writes.sh",
+    # Pragmatic output style for subagents: injects
+    # ~/.claude/output-styles/pragmatic.md at SubagentStart (needs node).
+    "pragmatic-subagent.js",
+    # Project-local PreToolUse hook for /sc:recommend Phase 0. When the Skill
+    # tool invokes `sc-recommend`, injects a context block reminding the model
+    # that live surface enumeration + mandatory auggie semantic ranking +
+    # per-candidate Read-based verification are required before any
+    # recommendation is emitted. Fail-open (exit 0); never blocks. Registered
+    # in this project's `.claude/settings.json` PreToolUse with the
+    # project-relative `$CLAUDE_PROJECT_DIR/.claude/hooks/sc-recommend-phase0.sh`
+    # command — same pattern as `reject-workspace-writes.sh`, harmless when
+    # unregistered in unrelated projects.
+    "sc-recommend-phase0.sh",
+    # SessionStart (startup) hook: starts one detached `codegraph init --yes` in a
+    # git checkout that has no .codegraph/codegraph.db. Fail-open, silent, exit 0.
+    "codegraph-session-start.sh",
+    # PreToolUse(Bash) UV-only gate (issue #357): blocks a command that runs bare
+    # python/python3/pip/pip3 with exit 2 and a message naming `uv run python`
+    # and `jq`; fails open (exit 0) on anything it cannot judge, including no jq.
+    "block-bare-python.sh",
+]
+_LEGACY_SCRIPTS = ["session-init.sh"]
+
+# Seed data files: shipped as <src_name> in src/superclaude/hooks/, deployed to
+# ~/.claude/<dest_name> on install ONLY when no such file exists at the destination.
+# This preserves user customizations across re-installs even with --force; user data
+# is never overwritten (asymmetric vs scripts, which DO honor --force).
+_SEED_FILES = [
+    ("auggie-projects.txt.example", "auggie-projects.txt"),
+]
+
+# A ccsession hook script, registered natively (hooks.json) or by the
+# standalone install.sh as bash "<absolute path>". Either form is the same hook.
+_CCSESSION_SCRIPT = re.compile(
+    r"""~/\.claude/skills/ccsession-tag/hooks/(session-(?:start|name)\.sh)"""
+    r"""|bash (["'])/[^"']*/ccsession-tag/hooks/(session-(?:start|name)\.sh)\2"""
+)
+
+
+def _ccsession_script(command: object) -> str | None:
+    """The ccsession hook script a command runs, in either form; else None."""
+    match = _CCSESSION_SCRIPT.fullmatch(command) if isinstance(command, str) else None
+    return (match.group(1) or match.group(3)) if match else None
+
+
+def _is_ccsession_hook(command: object) -> bool:
+    return _ccsession_script(command) == "session-start.sh"
+
+
+def _owns_command(command: object, managed: set, event: str) -> bool:
+    if not isinstance(command, str):
+        return False
+    if command in managed:
+        return True
+    script = _ccsession_script(command)
+    return script is not None and any(_ccsession_script(m) == script for m in managed)
+
+
+def install_hooks(
+    target_path: Path | None = None, force: bool = False
+) -> Tuple[bool, str]:
+    """
+    Install hook scripts to ~/.claude/hooks/ and merge hook registrations into
+    ~/.claude/settings.json.
+
+    Args:
+        target_path: Path to settings.json (default: ~/.claude/settings.json).
+        force: If True, overwrite existing hook scripts and refresh
+            registrations owned by matching framework command paths.
+
+    Returns:
+        (success, message) tuple matching the install_core_files convention.
+    """
+    if target_path is None:
+        target_path = Path.home() / ".claude" / "settings.json"
+
+    target_path = Path(target_path).expanduser()
+
+    hooks_dir = target_path.parent / "hooks"
+    source_hooks_json = _get_hooks_source()
+    source_scripts_dir = _get_hooks_scripts_source()
+    legacy_scripts_dir = _get_legacy_scripts_source()
+
+    if not source_hooks_json.exists():
+        return False, f"Source hooks.json not found: {source_hooks_json}"
+    if not source_scripts_dir.exists():
+        return False, f"Source scripts dir not found: {source_scripts_dir}"
+
+    messages: list[str] = []
+
+    # ===== STEP 1: copy hook scripts =====
+    try:
+        hooks_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        return False, f"Could not create hooks dir {hooks_dir}: {exc}"
+
+    copied, skipped, failed = _copy_scripts(
+        source_scripts_dir,
+        legacy_scripts_dir,
+        hooks_dir,
+        force=force,
+    )
+
+    if copied:
+        messages.append(f"✅ Copied {len(copied)} hook script(s) to {hooks_dir}:")
+        for name in copied:
+            messages.append(f"   - {name}")
+    if skipped:
+        messages.append(
+            f"\n⚠️  Skipped {len(skipped)} existing script(s) (use --force to overwrite):"
+        )
+        for name in skipped:
+            messages.append(f"   - {name}")
+    if failed:
+        messages.append(f"\n❌ Failed to copy {len(failed)} script(s):")
+        for line in failed:
+            messages.append(f"   - {line}")
+
+    # ===== STEP 2: merge into settings.json =====
+    settings_merge_result = _merge_settings(
+        target_path=target_path,
+        source_hooks_json=source_hooks_json,
+        force=force,
+    )
+    success_settings, settings_message, backup_path = settings_merge_result
+    messages.append("")
+    messages.append(settings_message)
+    if backup_path is not None:
+        messages.append(f"💾 Backup: {backup_path}")
+
+    # ===== STEP 3: deploy seed data files (skip-if-exists, never overwrite) =====
+    seed_copied, seed_skipped = _deploy_seed_files(
+        hooks_source_root=_get_hooks_source_root(),
+        dest_root=target_path.parent,
+    )
+    if seed_copied:
+        messages.append("")
+        messages.append(f"📦 Seeded {len(seed_copied)} data file(s):")
+        for name in seed_copied:
+            messages.append(f"   - {name}")
+    if seed_skipped:
+        messages.append("")
+        messages.append(f"⏭️  Preserved {len(seed_skipped)} existing data file(s):")
+        for name in seed_skipped:
+            messages.append(f"   - {name} (user-edited; not overwritten)")
+
+    # Overall success only if scripts AND settings merge both succeeded.
+    overall = success_settings and not failed
+    return overall, "\n".join(messages)
+
+
+# ---------------------------------------------------------------------------
+# Scripts
+# ---------------------------------------------------------------------------
+
+
+def _copy_scripts(
+    freshness_dir: Path,
+    legacy_dir: Path | None,
+    dest: Path,
+    *,
+    force: bool,
+) -> Tuple[list[str], list[str], list[str]]:
+    copied: list[str] = []
+    skipped: list[str] = []
+    failed: list[str] = []
+
+    # Build (source_path, dest_name) list
+    sources: list[Tuple[Path, str]] = []
+    for name in _FRESHNESS_SCRIPTS:
+        sources.append((freshness_dir / name, name))
+    if legacy_dir is not None:
+        for name in _LEGACY_SCRIPTS:
+            src = legacy_dir / name
+            if src.exists():
+                sources.append((src, name))
+
+    for src, dest_name in sources:
+        dest_file = dest / dest_name
+
+        if not src.exists():
+            failed.append(f"{dest_name}: source missing at {src}")
+            continue
+
+        if dest_file.exists() and not force:
+            skipped.append(dest_name)
+            continue
+
+        try:
+            shutil.copy2(src, dest_file)
+            os.chmod(dest_file, 0o755)
+            copied.append(dest_name)
+        except OSError as exc:
+            failed.append(f"{dest_name}: {exc}")
+
+    return copied, skipped, failed
+
+
+# ---------------------------------------------------------------------------
+# settings.json merge
+# ---------------------------------------------------------------------------
+
+
+def _merge_settings(
+    *,
+    target_path: Path,
+    source_hooks_json: Path,
+    force: bool,
+) -> Tuple[bool, str, Path | None]:
+    # Read source registrations.
+    try:
+        source = json.loads(source_hooks_json.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return (
+            False,
+            f"❌ Source hooks.json malformed at {source_hooks_json}: {exc}",
+            None,
+        )
+    source_hooks = source.get("hooks", {})
+    if not isinstance(source_hooks, dict):
+        return (
+            False,
+            f"❌ Source hooks.json has non-object 'hooks' key: {type(source_hooks).__name__}",
+            None,
+        )
+
+    # Ensure target dir exists.
+    try:
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        return (
+            False,
+            f"❌ Could not create target dir {target_path.parent}: {exc}",
+            None,
+        )
+
+    backup_path: Path | None = None
+
+    if target_path.exists():
+        # Backup BEFORE any write — preserves user's pre-install state.
+        backup_path = _backup_path(target_path)
+        try:
+            shutil.copy2(target_path, backup_path)
+        except OSError as exc:
+            return (
+                False,
+                f"❌ Could not back up existing settings.json to {backup_path}: {exc}",
+                None,
+            )
+
+        try:
+            existing = json.loads(target_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            return (
+                False,
+                (
+                    f"❌ Target settings.json is malformed; refusing to write. "
+                    f"Backup at {backup_path}. Parse error: {exc}"
+                ),
+                backup_path,
+            )
+        if not isinstance(existing, dict):
+            return (
+                False,
+                (
+                    f"❌ Target settings.json is not a JSON object; refusing to write. "
+                    f"Backup at {backup_path}."
+                ),
+                backup_path,
+            )
+    else:
+        existing = {}
+
+    existing_hooks = existing.get("hooks") or {}
+    if not isinstance(existing_hooks, dict):
+        return (
+            False,
+            f"❌ Target settings.json 'hooks' key has non-object type "
+            f"({type(existing_hooks).__name__}); refusing to write.",
+            backup_path,
+        )
+
+    added = 0
+    skipped_collision = 0
+    replaced = 0
+
+    for event, registrations in source_hooks.items():
+        if not isinstance(registrations, list):
+            continue
+        event_list = existing_hooks.setdefault(event, [])
+        if not isinstance(event_list, list):
+            return (
+                False,
+                (
+                    f"❌ Target settings.json hooks.{event} is not a list "
+                    f"({type(event_list).__name__}); refusing to write."
+                ),
+                backup_path,
+            )
+
+        for new_reg in registrations:
+            if not isinstance(new_reg, dict):
+                continue
+
+            new_inner = new_reg.get("hooks", [])
+            if not isinstance(new_inner, list):
+                new_inner = []
+            managed_commands = {
+                hook.get("command")
+                for hook in new_inner
+                if isinstance(hook, dict) and hook.get("command")
+            }
+
+            # Framework ownership is identified by the command path, never by a
+            # matcher alone. Different hooks commonly share matcher="*" or Bash.
+            owns_existing = False
+            if managed_commands:
+                for existing_reg in event_list:
+                    if not isinstance(existing_reg, dict):
+                        continue
+                    existing_inner = existing_reg.get("hooks", [])
+                    if not isinstance(existing_inner, list):
+                        continue
+                    if any(
+                        isinstance(hook, dict)
+                        and _owns_command(hook.get("command"), managed_commands, event)
+                        for hook in existing_inner
+                    ):
+                        owns_existing = True
+                        break
+            else:
+                new_signature = _registration_signature(new_reg)
+                owns_existing = any(
+                    isinstance(existing_reg, dict)
+                    and _registration_signature(existing_reg) == new_signature
+                    for existing_reg in event_list
+                )
+
+            if owns_existing and not force:
+                skipped_collision += 1
+                continue
+
+            if owns_existing:
+                # Refresh the framework registration at its original position.
+                # If a user hook shared that registration, keep the user-only
+                # remainder adjacent instead of replacing it.
+                refreshed: list = []
+                source_inserted = False
+                for existing_reg in event_list:
+                    if not isinstance(existing_reg, dict):
+                        refreshed.append(existing_reg)
+                        continue
+                    existing_inner = existing_reg.get("hooks", [])
+                    if not isinstance(existing_inner, list):
+                        refreshed.append(existing_reg)
+                        continue
+                    remaining = [
+                        hook
+                        for hook in existing_inner
+                        if not (
+                            isinstance(hook, dict)
+                            and _owns_command(
+                                hook.get("command"), managed_commands, event
+                            )
+                        )
+                    ]
+                    if len(remaining) == len(existing_inner):
+                        refreshed.append(existing_reg)
+                        continue
+                    if not source_inserted:
+                        refreshed.append(new_reg)
+                        source_inserted = True
+                    if remaining:
+                        refreshed.append({**existing_reg, "hooks": remaining})
+                event_list[:] = refreshed
+                replaced += 1
+                continue
+
+            # A matcher-only collision is unrelated user configuration. Preserve
+            # it and append the missing framework registration.
+            event_list.append(new_reg)
+            added += 1
+
+    existing["hooks"] = existing_hooks
+
+    # Atomic write: tempfile in same dir + os.replace.
+    try:
+        _atomic_write_json(target_path, existing)
+    except OSError as exc:
+        return (
+            False,
+            f"❌ Atomic write to {target_path} failed: {exc}",
+            backup_path,
+        )
+
+    summary_parts = [f"📋 settings.json merge: events={len(source_hooks)}"]
+    summary_parts.append(f"added={added}")
+    if replaced:
+        summary_parts.append(f"replaced={replaced}")
+    if skipped_collision:
+        summary_parts.append(f"skipped-existing={skipped_collision}")
+    return True, " ".join(summary_parts), backup_path
+
+
+def _registration_signature(reg: dict) -> tuple:
+    """
+    Build a hashable signature for a hook registration: (matcher, tuple-of-commands).
+    Used to detect exact duplicates regardless of object identity.
+    """
+    matcher = reg.get("matcher", "*")
+    inner = reg.get("hooks", [])
+    if not isinstance(inner, list):
+        return (matcher, ())
+    commands = tuple(h.get("command", "") for h in inner if isinstance(h, dict))
+    return (matcher, commands)
+
+
+def _atomic_write_json(target: Path, payload: dict) -> None:
+    """Write `payload` to `target` atomically via tempfile + os.replace."""
+    parent = target.parent
+    # Use a deterministic-prefix temp name in the same directory so os.replace
+    # is a same-filesystem operation (atomic on POSIX).
+    tmp = parent / f".{target.name}.tmp.{os.getpid()}"
+    try:
+        tmp.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+        os.replace(tmp, target)
+    finally:
+        # If os.replace succeeded, tmp no longer exists (rename). If it
+        # failed, clean up.
+        if tmp.exists():
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
+
+
+def _backup_path(target: Path) -> Path:
+    # ISO-8601 with no colons (colons are problematic on some filesystems).
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return target.with_suffix(target.suffix + f".bak.{stamp}")
+
+
+# ---------------------------------------------------------------------------
+# Source-path resolution
+# ---------------------------------------------------------------------------
+
+
+def _get_hooks_source() -> Path:
+    """Locate the canonical hooks.json. Same convention as install_core."""
+    package_root = Path(__file__).resolve().parent.parent
+    package_hooks = package_root / "hooks" / "hooks.json"
+    return package_hooks
+
+
+def _get_hooks_scripts_source() -> Path:
+    """Locate src/superclaude/hooks/scripts/ in the package or checkout."""
+    package_root = Path(__file__).resolve().parent.parent
+    return package_root / "hooks" / "scripts"
+
+
+def _get_hooks_source_root() -> Path:
+    """Locate src/superclaude/hooks/ (parent of scripts/ and home of seed data files)."""
+    package_root = Path(__file__).resolve().parent.parent
+    return package_root / "hooks"
+
+
+def _deploy_seed_files(
+    *, hooks_source_root: Path, dest_root: Path
+) -> Tuple[list[str], list[str]]:
+    """
+    Deploy seed data files from src/superclaude/hooks/<src_name> to dest_root/<dest_name>.
+
+    Skip-if-exists semantics: never overwrites an existing destination, even when
+    install_hooks(force=True). This preserves user customizations to data files
+    like auggie-projects.txt across re-installs.
+
+    Best-effort on OSError: a missed seed deploy must not fail the broader install.
+    Hooks degrade gracefully when seed data is absent.
+
+    Returns (copied, skipped) lists of destination names.
+    """
+    copied: list[str] = []
+    skipped: list[str] = []
+    for src_name, dest_name in _SEED_FILES:
+        src = hooks_source_root / src_name
+        dest = dest_root / dest_name
+        if not src.exists():
+            continue
+        if dest.exists():
+            skipped.append(dest_name)
+            continue
+        try:
+            shutil.copy2(src, dest)
+            copied.append(dest_name)
+        except OSError:
+            # Intentionally silent — telemetry path is per-hook, not per-install.
+            pass
+    return copied, skipped
+
+
+def _get_legacy_scripts_source() -> Path | None:
+    """Locate src/superclaude/scripts/ for the pre-existing session-init.sh."""
+    package_root = Path(__file__).resolve().parent.parent
+    candidate = package_root / "scripts"
+    if candidate.exists():
+        return candidate
+    return None
+
+
+_SESSION_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
+
+
+def validate_session_id(session_id: str) -> bool:
+    """
+    Validate a session_id is filesystem-safe (used by hook scripts to interpolate
+    into ~/.claude/state/<bucket>/<session_id>.txt paths).
+
+    This is a defense-in-depth helper exposed for hook-author convenience; the
+    hooks themselves do not currently sanitize. Phase 4 follow-up F7 in
+    CP-P02-END.md tracks adding this to the hook bodies if needed.
+    """
+    return bool(_SESSION_ID_PATTERN.match(session_id or ""))

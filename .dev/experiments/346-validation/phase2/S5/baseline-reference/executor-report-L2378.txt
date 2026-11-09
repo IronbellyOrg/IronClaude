@@ -1,0 +1,17 @@
+**WHAT:** The package is not archived. The third and last final review returned `issues`, so I've stopped as you instructed, with no fourth review. The package stays in `.dev/tasks/to-do/TASK-WF-writeTheP0LivePl-20261103-215902/`, and the third `FINAL: issues` line is in `progress.md`. All 22 task criteria are met, and the P0 verdict is still PASS.
+
+**WHY:** One blocking finding remains, and it is in my own wording. The reviewer found that the first final-review helper, which I started at 09:09 UTC, ran 22 read-only analysis commands using bare `python3` (09:10 to 09:16). Those are real code, not the single empty call you accepted. Your acceptance, and the sentence in the phase report (`p0-phase-report.md:71`) and the ledger ("every other Python call used uv run"), therefore overstate things. These calls only read files and wrote scratch scripts under `/tmp`, so nothing in the repo or the evidence was harmed. The reviewer also listed small non-blocking wording slips (for example, `lc3-result.md:25` calls a 5.9-minute interval a "heartbeat gap" when it is the last heartbeat to the final report). It also confessed one empty `python3 -c 1` of its own in this last review.
+
+**RECOMMENDED ACTION:** Choose one of these two.
+- **Widen and re-run (my recommendation).** Reply "approve widening". I would narrow the sentence in `p0-phase-report.md:71` to "the executor's own calls". I would also record a new, wider acceptance covering those 22 read-only reviewer calls plus the one empty call. After that I would run one more final review. This goes past the two-fix-cycle limit, so it needs your explicit say-so. The plan's `uv run` rule is aimed at the executor, and these were helper subagents' read-only checks.
+- **Leave as is.** The package stays unarchived with all evidence intact. You can archive it by hand later or accept it unarchived.
+
+Nothing was committed or pushed. `.dev/tasks` is staged, the superseded `…20261102-231950` package is unstaged, and HEAD is unchanged at `8db29f11`.
+
+| Status | Result |
+|---|---|
+| DONE | Fixed the check 3 sentence, added the disclosure note 7 to the phase report, and recorded your scoped acceptance of the empty `python3` call in the ledger. |
+| DONE | Ran the third final review: all 22 task criteria met, one blocking finding (the wider bare-`python3` use by a helper subagent), recorded as `FINAL: issues`. |
+| NEXT | Your choice: widen the acceptance and run one more review (recommended), or leave the package unarchived. |
+
+RUNS: all live checks, the phase report with the P0 PASS verdict, the corrected evidence and the ledger. NOT BUILT: the archive (blocked by the third final review).

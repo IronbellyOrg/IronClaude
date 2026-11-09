@@ -1,0 +1,17 @@
+[
+  {
+    "source": "/home/coder/.claude/commands/sc/spec-panel-armb.md",
+    "sha256": "00cab10e9ffd1a3e908895508cfb0620486c07f25e0222ac5890bee63068dff4",
+    "bytes": 35858
+  },
+  {
+    "source": "/home/coder/.claude/commands/sc/spec-panel-ponytail.md",
+    "sha256": "6f5612782eb8b50f86929ade75a096f3b3c9cee53abb4430558eaf3dba6d2137",
+    "bytes": 38027
+  },
+  {
+    "source": "/home/coder/.claude/skills/sc-fix-audit/scripts/fix_audit.py",
+    "sha256": "f7d0cfd9238c06d063444c50c13a8576612e7fc648581930fb882590885d4524",
+    "bytes": 44097
+  }
+]

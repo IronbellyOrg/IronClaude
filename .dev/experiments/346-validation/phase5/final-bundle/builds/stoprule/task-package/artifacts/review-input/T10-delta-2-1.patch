@@ -1,0 +1,146 @@
+diff --git a/dev/fd/63 b/tests/skills/test_spec_panel_stoprule.py
+index 00000000..6869b61f 100644
+--- a/dev/fd/63
++++ b/tests/skills/test_spec_panel_stoprule.py
+@@ -5,7 +5,6 @@ only tests/skills/test_stoprule_script.py proves behaviour). The variant is buil
+ 472-line Arm B base (owner ruling), pinned here as a byte-identical fixture.
+ """
+ 
+-import difflib
+ import hashlib
+ import re
+ from pathlib import Path
+@@ -37,44 +36,60 @@ def review_loop_bullets(body):
+     return [ln for ln in section.splitlines() if re.match(r"^\d+\. \*\*", ln)]
+ 
+ 
+-def is_replaced(line):
+-    """The blocks the variant may change against the base (plan Task 10)."""
+-    return (
+-        line.startswith(("name: ", "description: ", "# /sc:spec-panel"))
+-        or line.startswith("/sc:spec-panel")  # Usage and Examples command lines
+-        or line in ("> Skill sc:spec-panel-stoprule-protocol",)
+-        or "E-SKILL-MISSING" in line
+-        or "does not accept `--unattended`" in line
+-        or line.startswith(
+-            ("1. **FR-8: GAP Status Rule**", "2. **FR-9: Blank Behavior Rule**")
+-        )
+-        or bool(
+-            re.match(
+-                r"^[2-8]\. \*\*(Grading|Verdict|Cap|Re-review output|Reviser contract|Precedence|Procedure)\*\*",
+-                line,
+-            )
+-        )
+-    )
++# Lines the variant inserts after the title (each preceded by one blank line) and the new
++# Review Loop bullet 8; drift() removes exactly these before comparing.
++INSERTED_PREFIXES = (
++    "> Skill sc:spec-panel-stoprule-protocol",
++    "If the skill is missing at both ",
++    "This variant deliberately has no `## Unattended mode` section",
++)
++BULLET8 = "8. **Procedure** (critique mode only): "
++# Base lines the variant replaces in place; every other base line must survive byte for
++# byte once /sc:spec-panel-stoprule is mapped back to /sc:spec-panel.
++REPLACED_IN_PLACE = re.compile(
++    r"^(description: |1\. \*\*FR-8: GAP Status Rule\*\*|2\. \*\*FR-9: Blank Behavior Rule\*\*"
++    r"|[2-7]\. \*\*(Grading|Verdict|Cap|Re-review output|Reviser contract|Precedence)\*\*)"
++)
+ 
+ 
+ def drift(variant_text, base_text):
+-    """Lines that differ from the base outside the replaced blocks (blank lines ignored)."""
+-    out = []
+-    for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(
+-        None, base_text.splitlines(), variant_text.splitlines(), autojunk=False
+-    ).get_opcodes():
+-        if tag == "equal":
++    """Every difference from the base outside the planned edits, as (line no, base, variant).
++
++    The planned edits are undone mechanically: the inserted lines (and the blank line before
++    each) and bullet 8 are removed, `/sc:spec-panel-stoprule` maps back to `/sc:spec-panel`
++    and `name: spec-panel-stoprule` to `name: spec-panel`; then the files must match line for
++    line, blank lines included, except the lines replaced in place (frontmatter description,
++    FR-8, FR-9, Review Loop bullets 2-7), whose prefix must still match.
++    """
++    lines = variant_text.splitlines()
++    kept = []
++    for n, line in enumerate(lines):
++        if line.startswith(INSERTED_PREFIXES):
++            if kept and kept[-1] == "":
++                kept.pop()
++            continue
++        if line.startswith(BULLET8):
++            continue
++        kept.append(line.replace("/sc:spec-panel-stoprule", "/sc:spec-panel"))
++    if kept[:3] and kept[1] == "name: spec-panel-stoprule":
++        kept[1] = "name: spec-panel"
++    base = base_text.splitlines()
++    out = (
++        [(None, f"{len(base)} lines", f"{len(kept)} lines")]
++        if len(base) != len(kept)
++        else []
++    )
++    for n, (old, new) in enumerate(zip(base, kept), start=1):
++        if old == new:
++            continue
++        m = REPLACED_IN_PLACE.match(old)
++        if (
++            m
++            and new.startswith(m.group(0))
++            and (not old.startswith("description: ") or n <= 8)
++        ):
+             continue
+-        old = [
+-            x for x in base_text.splitlines()[i1:i2] if x.strip() and not is_replaced(x)
+-        ]
+-        new = [
+-            x
+-            for x in variant_text.splitlines()[j1:j2]
+-            if x.strip() and not is_replaced(x)
+-        ]
+-        if old or new:
+-            out.append((tag, old, new))
++        out.append((n, old, new))
+     return out
+ 
+ 
+@@ -157,12 +172,34 @@ def test_variant_equals_the_base_outside_the_replaced_blocks():
+     assert drift(text(VARIANT), text(BASE)) == []
+ 
+ 
+-def test_drift_check_catches_a_changed_inherited_line(tmp_path):
++@pytest.mark.parametrize(
++    "old,new",
++    [
++        ("## Behavioral Flow", "## Behavioural Flow"),  # an inherited heading
++        (
++            "--focus requirements,architecture\n",
++            "--focus requirements\n",
++        ),  # an Examples argument
++        ("[--iterations N]", "[--iteration N]"),  # a Usage flag
++        (
++            "/sc:spec-panel @final_spec.yml --mode critique",
++            "/sc:spec-panel @final_spec.yml --mode discussion",
++        ),  # Integration Patterns
++        (
++            "## Integration Patterns\n",
++            "## Integration Patterns\n\ndescription: smuggled line\n",
++        ),  # an added body line
++        (
++            "## Integration Patterns\n",
++            "## Integration Patterns\n\n",
++        ),  # an added blank line
++    ],
++)
++def test_drift_check_catches_a_changed_inherited_line(tmp_path, old, new):
+     body = text(VARIANT)
+-    target = "## Behavioral Flow"
+-    assert target in body
++    assert body.count(old) >= 1, old
+     copy = tmp_path / "variant.md"
+-    copy.write_text(body.replace(target, "## Behavioural Flow", 1), encoding="utf-8")
++    copy.write_text(body.replace(old, new, 1), encoding="utf-8")
+     assert drift(text(copy), text(BASE)) != []
+ 
+ 

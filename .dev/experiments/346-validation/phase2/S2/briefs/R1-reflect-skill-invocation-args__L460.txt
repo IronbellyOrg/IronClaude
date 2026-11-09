@@ -1,0 +1,1 @@
+--mode pre --spec /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261101-225338/source.md --tasklist /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261101-225338/TASK-WF-removeTheAnyIssu-20261101-225338.md
