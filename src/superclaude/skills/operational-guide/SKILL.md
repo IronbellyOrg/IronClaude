@@ -552,7 +552,7 @@ Step 6.2 — Lens-Based Structural + Domain QA (PARALLEL, all fix_authorization:
   4. `rf-qa` (lens: "completeness") — every config file and procedure phase from scope discovery appears in output, no gaps, no silently dropped items. Writes to `${TASK_DIR}qa/qa-lens-completeness.md`
   5. `rf-qa` (lens: "command-accuracy") — OPS-GUIDE DOMAIN LENS: commands, flags, and expected outputs match actual system behavior; verify against actual scripts/configs. Writes to `${TASK_DIR}qa/qa-lens-command-accuracy.md`
   6. `rf-qa` (lens: "environment-variable-verification") — OPS-GUIDE DOMAIN LENS: every env var referenced in the guide exists in actual config files (.env, docker-compose, k8s manifests); verify values match. Writes to `${TASK_DIR}qa/qa-lens-env-var-verification.md`
-  **ADVERSARIAL STANCE (all agents):** Assume this document has at least 10 errors. Find them. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+  **ADVERSARIAL STANCE (all agents):** Look for errors in this document. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
   Embed full lens-specific prompts in each checklist item per B2. Each agent gets its own focused checklist — agents do NOT share a generic "check everything" prompt.
 
 Step 6.3 — Lens-Based Content + Domain QA (PARALLEL, all fix_authorization: false):
@@ -562,7 +562,7 @@ Step 6.3 — Lens-Based Content + Domain QA (PARALLEL, all fix_authorization: fa
   3. `rf-qa-qualitative` (lens: "crossref-chain-integrity") — trace end-to-end chains (prerequisite → phase step → verification checkpoint → troubleshooting entry) and verify every link exists. Writes to `${TASK_DIR}qa/qa-lens-crossref-chain.md`
   4. `rf-qa-qualitative` (lens: "domain-accuracy") — claims about system configuration match actual configs; claims about infrastructure match actual manifests; no aspirational features described as current. Writes to `${TASK_DIR}qa/qa-lens-domain-accuracy.md`
   5. `rf-qa-qualitative` (lens: "procedural-step-executability") — OPS-GUIDE DOMAIN LENS: every step can be executed as written; no missing prerequisites, no assumed tribal knowledge, rollback procedures exist for destructive operations, environment-specific values are parameterized. Writes to `${TASK_DIR}qa/qa-lens-procedural-executability.md`
-  **ADVERSARIAL STANCE (all agents):** Assume this document has at least 10 errors. Find them.
+  **ADVERSARIAL STANCE (all agents):** Look for errors in this document. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 Step 6.4 — Consolidated Fix Round (SERIALIZED):
 - Read ALL lens reports from Steps 6.2 and 6.3. Consolidate into `${TASK_DIR}qa/qa-lens-consolidated-findings.md`.
@@ -579,7 +579,7 @@ Step 6.5 — Source-Document Fidelity Gate (PARALLEL, runs AFTER lens-based QA p
   - **Semantic coverage** — for each config file and script investigated in research, does the guide contain corresponding procedure steps?
   - **Detail preservation** — source-specific details (port numbers, environment variable names, command flags, file paths) survive into the guide, not just high-level summaries
   - **Phantom coverage detection** — guide claims about system configuration are verified by reading actual config files, not just trusting research file summaries
-  **ADVERSARIAL STANCE:** Assume this document misrepresents or omits at least 5 config details. Find them.
+  **ADVERSARIAL STANCE:** Look for config details this document misrepresents or omits. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 - **Serialized fix protocol on fidelity findings:** Consolidate fidelity reports, spawn 1 fix agent on the blocking findings only (minor findings stay as notes), verification round (2 agents). Max 2 cycles.
 - After fidelity gate passes → proceed to Phase 7.
 
@@ -1250,7 +1250,7 @@ LENS-SPECIFIC CHECKLIST:
 11. Content deduplication — no reproduction of material that belongs in a companion Technical Reference
 12. Line count within tier budget (Lightweight: 200–400, Standard: 400–700, Heavyweight: 700–1000) — hard ceiling 1,000 lines
 
-**ADVERSARIAL STANCE:** Assume this guide has at least 10 procedural errors. Find them. A real operator following these steps should not hit any undocumented failure. A verdict of 0 issues requires evidence you checked every step.
+**ADVERSARIAL STANCE:** Look for procedural errors in this guide. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked. A real operator following these steps should not hit any undocumented failure. A verdict of 0 issues requires evidence you checked every step.
 
 Report every issue with: section, step number, severity (CRITICAL/IMPORTANT/MINOR), description, recommended fix.
 Do NOT fix issues — report only. Fixes are applied by the dedicated fix agent.

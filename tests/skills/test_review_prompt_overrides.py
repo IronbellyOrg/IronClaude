@@ -158,9 +158,61 @@ def test_removed_quota_and_suspicion_wording_does_not_return():
     assert not hits, "removed review wording survives:\n" + "\n".join(hits)
 
 
+# A finding quota is "assume/find ... at least K <things>" or "N <things> expected"
+# inside one sentence. Content requirements such as "at least 2 options" or
+# "must include at least 1 risk" are not quotas and do not match.
+QUOTA_PATTERN = re.compile(
+    r"\b(?:assume|find)\b[^.\n\"]{0,120}?\bat least (?:N|\[N\]|\d+|one)\b"
+    r"|\bAdversarial target:\*\* at least"
+    r"|\bat least \d+ [a-z-]+ (?:are|were|is) (?:expected|assumed)\b",
+    re.IGNORECASE,
+)
+
+
+@pytest.mark.parametrize(
+    "old",
+    [
+        "Assume at least 5 REQ-level details were lost. Find them.",
+        "Assume this README has at least 3 internal consistency errors. Find them.",
+        "Assume you have fabricated AT LEAST 3 claims.",
+        "Find at least 5 issues - a verdict of 0 issues requires extraordinary evidence.",
+        "**Adversarial target:** at least 5 fabrications expected",
+        "Assume at least one fix was applied incorrectly or incompletely.",
+    ],
+)
+def test_quota_matcher_fires_on_the_old_wording(old):
+    assert QUOTA_PATTERN.search(old)
+
+
+@pytest.mark.parametrize(
+    "fine",
+    [
+        "Options analysis includes at least 2 options with pros/cons tables",
+        "Risk Register has at least 1 risk with severity populated",
+        "Look for REQ-level details that were lost. Report each one you find with evidence; "
+        "there is no minimum count, and zero is valid if you state what you checked.",
+        "Verify at least 5 specific claims by reading the cited source files.",
+    ],
+)
+def test_quota_matcher_ignores_content_requirements_and_the_new_wording(fine):
+    assert not QUOTA_PATTERN.search(fine)
+
+
+def test_no_finding_quota_remains_in_skills_agents_templates_or_commands():
+    hits = []
+    for tree in ("src", "plugins"):
+        for path in sorted((_REPO / tree).rglob("*.md")):
+            if "__pycache__" in path.parts:
+                continue
+            for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+                if QUOTA_PATTERN.search(line):
+                    hits.append(f"{path.relative_to(_REPO)}:{n}: {line.strip()[:120]}")
+    assert not hits, "finding quota survives:\n" + "\n".join(hits)
+
+
 def test_scan_matcher_would_catch_the_old_text(tmp_path):
     # guards against a scan that silently matches nothing
-    old = 'Assume this document has at least N errors. Find them.'
+    old = "Assume this document has at least N errors. Find them."
     assert any(p.lower() in old.lower() for p in REMOVED_PHRASES)
 
 

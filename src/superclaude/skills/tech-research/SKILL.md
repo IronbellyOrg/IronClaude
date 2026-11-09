@@ -1009,7 +1009,7 @@ Fix authorization: false (report findings only)
 
 You are performing a deep content-quality review — does this report make sense as a technical investigation?
 
-**ADVERSARIAL STANCE:** Assume this document has at least 10 errors. Find them. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+**ADVERSARIAL STANCE:** Look for errors in this document. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 PROCESS:
 1. Read the ENTIRE research report
@@ -1166,7 +1166,7 @@ Fix authorization: false (report findings only)
 You are verifying that the assembled report faithfully represents the actual codebase.
 Read your assigned source files first, then read the full report, then check fidelity.
 
-**ADVERSARIAL STANCE:** Assume the report has distorted at least 5 findings during synthesis. Find them.
+**ADVERSARIAL STANCE:** Look for findings the report distorted during synthesis. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 FIDELITY CHECKLIST:
 1. Semantic coverage — for each major component/function/pattern in the source files, does the report contain a corresponding finding that accurately describes it?
@@ -1208,7 +1208,7 @@ You verify that NO distinct finding was silently dropped when the research + syn
 inputs were compressed into the final report. This is the INVERSE of the fidelity gate:
 fidelity checks output→source (no fabrication); you check source→output (no omission).
 
-**ADVERSARIAL STANCE:** Assume the compression silently dropped at least 5 distinct findings. Find them.
+**ADVERSARIAL STANCE:** Look for distinct findings the compression silently dropped. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 **CRITICAL METHOD: do NOT use ID/reference-citation as your coverage test.** The report
 absorbs findings without citing their source IDs, so an ID-membership test is invalid (it
