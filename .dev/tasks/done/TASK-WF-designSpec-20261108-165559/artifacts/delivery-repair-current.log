@@ -1,0 +1,11 @@
+Ledger correction: exactly eight note relocations; prior verdicts, citations, Ruling and FINAL preserved
+Manifest: 32 actual delivery files, no absent annotated names
+Byte-change detected: .dev/tasks/to-do/TASK-WF-designSpec-20261108-165559/artifacts/t2-env-check.md
+Byte-change detected: .dev/tasks/to-do/TASK-WF-designSpec-20261108-165559/artifacts/t4-matrix-map.md
+Byte-change detected: tests/hooks/test_launch_level_pre_push_records.py
+Byte-change detected: .dev/tasks/to-do/TASK-WF-designSpec-20261108-165559/artifacts/t6-smoke.py
+Byte-change detected: .dev/tasks/to-do/TASK-WF-designSpec-20261108-165559/artifacts/t7-smoke.py
+Byte-change detected: tests/skills/test_issue_orca_worktree.py
+Byte-change detected: tests/hooks/test_launch_level_guard_l2_tokens.py
+Byte-change detected: docs/user-guide/commands.md
+PASS: all eight formerly omitted files affect the digest; no live delivery bytes changed
