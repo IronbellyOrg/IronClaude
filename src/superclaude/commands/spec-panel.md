@@ -263,6 +263,18 @@ When `--focus correctness` is active, the panel MUST produce a State Variable Re
 6. **Reviser contract**: the report carries a `Reviser brief` just above the final `verdict:` line, listing only blocking finding ids and restating this bullet (the reviser reads the report, not the command), and omits it at `review: 3`, where the run escalates instead; revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; the reviser prefers deleting or narrowing to adding and reports the byte size before and after, with the bytes added and deleted per finding id.
 7. **Precedence**: a brief may narrow this scope; it may not widen it past the changed lines and the prior blocking findings, and may not grade a minor finding as blocking. A brief also cannot make a minor or Medium finding fail the review or authorize editing one, including through "apply all findings", and the report names any brief clause it overrode.
 
+## Coordinator briefs
+
+Use these three briefs when you write the brief for a reviewer or a reviser of this command. They add no rule to the Review Loop: a brief may narrow its scope but never widen it.
+
+**Inputs and roles.** In a re-review the `@file` is the revised candidate, `--baseline` is the saved copy of the spec as it was before the revision, and `--re-review` is the prior report. A brief that names these differently, or does not name them, does not change the roles.
+
+- First-review brief: "Review the candidate [candidate path] (sha256 of the file) against the requirements it states, review 1 of 3. Inspect behavior and the dependencies it touches. Report concrete wrong outcomes, not a minimum number of findings. Minor findings are notes and never fail the review; list Medium and minor findings under follow-up candidates. If an input is missing or unreadable, return incomplete. Do not edit the candidate and do not start another review. State what you covered."
+- Re-review brief: "Review the revised candidate [candidate path] (sha256 of the file) against [baseline path], the spec as it was before the revision (sha256 of the file), using prior report [prior report path] (sha256 of the file), review [N] of 3, where N is the prior report's review number plus 1. Re-check each prior blocking finding as resolved, open or regressed against the revised candidate. Inspect changed behavior and the dependencies it touches; for inherited text, cite the changed line it depends on. Report concrete wrong outcomes, not a minimum number of findings. Minor findings are notes and never fail the review; list Medium and minor findings under follow-up candidates. Record a severe defect you newly discover even if it is older, and say where it came from. If an input is missing or unreadable, return incomplete. Do not edit the candidate and do not start another review. State what you covered."
+- Revise brief: "Repair only the blocking findings [finding ids] in the revised candidate [candidate path]. Prefer deleting or narrowing text when the requirements are still met. Add no rule, mechanism or section that a listed finding does not call for, and cite the finding id on every addition. Report the byte size before and after, and the bytes added and deleted per finding id. Leave minor and Medium findings alone. Return the candidate once and do not award yourself a PASS."
+
+Never put "any finding of any severity is FAIL", "assume defects remain", a required number of findings, or "apply all findings" in a brief: a brief may narrow the command's scope but may not widen it or regrade a minor finding as blocking.
+
 ## Output Formats
 
 ### Standard Format (`--format standard`)
