@@ -581,6 +581,65 @@ def test_l2_status_never_writes(l2, setup, state):
     assert (snap(l2.hooks), snap(git_dir)) == before
 
 
+# Reuse the launch scene and its isolated HOME, git and Orca fixtures.
+from tests.skills import test_issue_orca_worktree as launch_tests  # noqa: E402
+
+home = launch_tests.home
+fake_orca = launch_tests.fake_orca
+git_repo = launch_tests.git_repo
+issue_dir = launch_tests.issue_dir
+
+
+@pytest.mark.parametrize("refuse,owned", [(False, False), (True, False), (True, True)])
+def test_ir7_l2_switch(
+    refuse, owned, fake_orca, git_repo, issue_dir, monkeypatch, capsys
+):
+    import argparse
+    import json
+
+    wt = launch_tests.launch_scene(fake_orca, git_repo, issue_dir)
+    module = _load()
+    for key, value in fake_orca.env(SC_ORCA_SHIM_INTERVAL="0").items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.chdir(git_repo)
+    monkeypatch.setattr(module, "IR7_REFUSE", refuse)
+    if owned:
+        # The launch fixture's uv is a no-op; the installer needs the real selector.
+        (fake_orca.tools / "uv").unlink()
+        monkeypatch.setenv("UV_PYTHON", sys.executable)
+        monkeypatch.setenv("UV_PYTHON_DOWNLOADS", "never")
+        for origin in (HOOK, SELECTOR):
+            target = fake_orca.home / ".claude/hooks" / origin.name
+            shutil.copyfile(origin, target)
+            target.chmod(0o755)
+        assert module.install_l2(str(wt))[0] == "installed"
+    assert module.l2_status(wt)[0] == ("owned" if owned else "absent")
+    args = argparse.Namespace(
+        source=str(issue_dir), number=launch_tests.NUMBER, level="full", submit=False
+    )
+    assert module.cmd_launch(args) == 0
+    data = json.loads(capsys.readouterr().out)
+    assert data["warning"] == (None if owned else "W-L2-ABSENT")
+    if refuse and not owned:
+        assert data["status"] == "failed"
+        assert data["enforcement_hook"] == "installed"
+        assert module.IR7_REFUSAL in data["detail"]
+        assert not launch_tests.launch_calls(fake_orca)
+        assert not launch_tests.pending_dir(fake_orca).exists()
+        assert "launch" not in json.loads((issue_dir / "worktree.json").read_text())
+    else:
+        assert data["status"] == "launched"
+        assert len(launch_tests.launch_calls(fake_orca)) == 1
+        if not owned:
+            assert module.REMEDY["W-L2-ABSENT"] in data["detail"]
+        else:
+            assert "W-L2-ABSENT" not in data["detail"]
+
+
+def test_ir7_shipped_switch_is_off():
+    assert _load().IR7_REFUSE is False
+
+
 @pytest.mark.parametrize("operation", ["install_l2", "l2_status"])
 def test_fifo_data_conflict_returns_without_waiting(l2, operation):
     import json

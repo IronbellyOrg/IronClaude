@@ -50,7 +50,7 @@ when the guard would not be effective. It then installs the owned L2
 pre-push hook (``install_l2``, advisory) and re-checks it read-only
 (``l2_status``); any state other than ``owned`` adds the warning
 ``W-L2-ABSENT`` with the reason, and the launch goes ahead (IR-7 stays a
-warning; an off ``IR7_REFUSE`` switch arrives in a later commit). It then publishes the launch record the enforcement hook reads
+warning while ``IR7_REFUSE`` is False). It then publishes the launch record the enforcement hook reads
 (``$HOME/.claude/state/launch-level/pending/<nonce>``, one word), then runs
 ``orca agent launch --surface terminal`` with a prompt that starts with
 ``[sc-launch:v1:<nonce>]``, checks for the ccsession shim (its screen text, which
@@ -812,9 +812,22 @@ REMEDY = {
         "are enforced by the L1 guard only; the agent was started"
     ),
 }
-# IR-7 (design section 13) says refuse when L2 is not owned; the refusal stays
-# off (owner decision OD-3), so the claim warns with l2_status's reason
-# appended to this prefix and the launch goes ahead.
+# IR-7 (design section 13) says refuse when L2 is not owned. The refusal path
+# exists but is off (owner decision OD-3): while IR7_REFUSE is False the claim
+# warns with l2_status's reason appended to L2_ABSENT_WHY and the launch goes
+# ahead. Turning it on needs its own reviewed, owner-approved commit (FR-065).
+IR7_REFUSE = False  # IR-7: turn on only after the #442 observations pass (owner decision 2026-11-08)
+IR7_REFUSAL = (
+    "the launch was refused and no agent was started; clear the reason above "
+    "(the claim reference gives the exact rm command), then claim the issue again"
+)
+
+
+def remedy(code: str) -> str:
+    """REMEDY[code], or the IR-7 refusal text for W-L2-ABSENT when IR7_REFUSE is on (FR-062)."""
+    return IR7_REFUSAL if code == "W-L2-ABSENT" and IR7_REFUSE else REMEDY[code]
+
+
 L2_ABSENT_WHY = "the owned L2 pre-push hook is not in effect for this worktree: "
 # IR-4: what the claim checks before a governed launch. It reads files and the
 # environment only and never edits any configuration.
@@ -1598,8 +1611,8 @@ def record_launch(
 def launch_result(status: str, notes: list[tuple[str, str]], **fields: object) -> dict:
     """One launch JSON object; ``warning`` is the first code, the rest go in detail."""
     warning = notes[0][0] if notes else None
-    parts = [f"{notes[0][1]} ({REMEDY[warning]})"] if notes else []
-    parts += [f"also {c}: {t} ({REMEDY[c]})" for c, t in notes[1:]]
+    parts = [f"{notes[0][1]} ({remedy(warning)})"] if notes else []
+    parts += [f"also {c}: {t} ({remedy(c)})" for c, t in notes[1:]]
     base: dict = {
         "status": status,
         "warning": warning,
@@ -1701,11 +1714,13 @@ def cmd_launch(args: argparse.Namespace) -> int:
     notes: list[tuple[str, str]] = []
     # Source §3.2 steps 4-6, before publish_pending: claim the L2 hook (its
     # answer is advisory), re-check it read-only (that answer is the one the
-    # launch reports), and warn when it is not owned. IR-7 stays a warning
-    # (owner decision OD-3; the off IR7_REFUSE switch comes in a later commit).
+    # launch reports), and warn when it is not owned. With IR7_REFUSE on, the
+    # same note refuses here instead, before any launch record or agent exists.
     install_l2(wt)
     l2, l2_reason = l2_status(wt)
     l2_notes = [("W-L2-ABSENT", L2_ABSENT_WHY + l2_reason)] if l2 != "owned" else []
+    if IR7_REFUSE and l2_notes:
+        return emit(launch_result("failed", l2_notes, enforcement_hook=hook))
     word = "full-submit" if args.submit else args.level
     try:
         nonce, pending = publish_pending(word)
