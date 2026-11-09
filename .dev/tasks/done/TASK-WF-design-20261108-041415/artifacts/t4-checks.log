@@ -1,0 +1,22 @@
+== scout-report create-section headings
+21:### Merged pull requests since creation
+29:### Commits on the default branch since creation
+35:### First guesses
+42:### Repo labels
+46:### Repo issue types
+50:### Complexity field
+57:### Possible duplicates
+== scout-report: removed lines in diff (expect none)
+none removed
+== scout-report: first changed line number (must be after the '## Create' heading)
+40:## Create
+@@ -45,0 +46,11 @@
+== flags-decision rows
+6:| Field | Value | Reason |
+8:| Mode | <feature | bug> | <one line> |
+9:| Type | <cicd | command | skill | agent | hook | cli | core | docs | tests | install | other> | <one line> |
+10:| Issue type | <Feature | Bug | Test> | derived from the mode and the area by the rule in `refs/labels.md` |
+11:| Complexity | <Simple | Medium | Complex> | follows depth (quick = simple, standard = medium, deep = complex) |
+== create-review-comment wording and last non-empty line
+3:This issue was filed with the flags the user gave. A check at `<standard | deep>` depth chose differently; the reasons are below. The issue was not reclassified.
+<!-- sc:issue:create-review -->

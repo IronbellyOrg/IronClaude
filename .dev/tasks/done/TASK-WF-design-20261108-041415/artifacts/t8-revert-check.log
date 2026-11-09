@@ -1,0 +1,30 @@
+== revert check (new tests that fail when one task is reverted in a scratch copy)
+-- revert Task 1:
+FAILED tests/skills/test_issue_protocol.py::test_labels_md_has_no_area_or_complexity_label_and_creates_only_the_mode_labels
+FAILED tests/skills/test_issue_protocol.py::test_field_value_write_is_a_post_and_no_file_uses_a_put
+FAILED tests/skills/test_issue_protocol.py::test_labels_md_carries_the_three_output_lines_exactly
+FAILED tests/skills/test_issue_protocol.py::test_labels_md_states_the_issue_type_and_complexity_rules[| bug | any | Bug |]
+FAILED tests/skills/test_issue_protocol.py::test_labels_md_states_the_issue_type_and_complexity_rules[| feature | tests | Test |]
+FAILED tests/skills/test_issue_protocol.py::test_labels_md_states_the_issue_type_and_complexity_rules[| feature | any other area | Feature |]
+FAILED tests/skills/test_issue_protocol.py::test_labels_md_states_the_issue_type_and_complexity_rules[| quick | Simple |]
+FAILED tests/skills/test_issue_protocol.py::test_labels_md_states_the_issue_type_and_complexity_rules[| standard | Medium |]
+FAILED tests/skills/test_issue_protocol.py::test_labels_md_states_the_issue_type_and_complexity_rules[| deep | Complex |]
+================== 9 failed, 6 passed, 99 deselected in 0.05s ==================
+-- revert Task 2:
+FAILED tests/skills/test_issue_protocol.py::test_orgs_path_is_the_single_allowed_read_and_sits_in_three_files
+FAILED tests/skills/test_issue_protocol.py::test_field_value_write_is_a_post_and_no_file_uses_a_put
+FAILED tests/skills/test_issue_protocol.py::test_create_md_uses_the_output_line_prefixes_and_the_type_and_field_reasons
+================= 3 failed, 12 passed, 99 deselected in 0.06s ==================
+-- revert Task 3:
+FAILED tests/skills/test_issue_protocol.py::test_orgs_path_is_the_single_allowed_read_and_sits_in_three_files
+FAILED tests/skills/test_issue_protocol.py::test_field_value_write_is_a_post_and_no_file_uses_a_put
+FAILED tests/skills/test_issue_protocol.py::test_skill_md_states_the_create_rules_of_the_issue_type_and_field
+FAILED tests/skills/test_issue_protocol.py::test_command_and_skill_agree_on_the_new_create_boundaries
+================= 4 failed, 11 passed, 99 deselected in 0.06s ==================
+-- revert Task 4:
+FAILED tests/skills/test_issue_protocol.py::test_t3_lookup_scout_template_and_flags_cover_issue_types_and_the_complexity_field
+================= 1 failed, 14 passed, 99 deselected in 0.05s ==================
+-- revert Task 5:
+FAILED tests/skills/test_issue_protocol.py::test_orgs_path_is_the_single_allowed_read_and_sits_in_three_files
+FAILED tests/skills/test_issue_protocol.py::test_t3_lookup_scout_template_and_flags_cover_issue_types_and_the_complexity_field
+================= 2 failed, 13 passed, 99 deselected in 0.05s ==================

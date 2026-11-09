@@ -1,0 +1,13 @@
+selected_tier: 2
+fired_rule_number: 4   # S_domains >= 3 (code, tests, docs, config); the table-wide pre-filter below independently forbids a T1 stop
+coverage_degraded: parsed-sparse   # Step 1B.2b: inferred_count (55) > parsed_count (0)
+surface_unreached: null            # UC-1; runtime-surface sweep not applicable
+composite_score: 6.0
+per_signal_breakdown:
+  scope_size: 2          # 12 tasks / 15 files
+  task_count: 2
+  blast_radius: 1        # skill, command, agent, tests, docs; no runtime code
+  spec_density: 0        # 134-line spec, enumerated
+  ambiguity_signals: 1   # three unmapped rows; sparse labeling
+escalation_reason: "coverage_degraded parsed-sparse (table-wide T1-stop pre-filter) and S_domains=4 (rule 4)"
+alias_resolution: {resolved_aliases: 3, t2_model_class_diversity: full, t2_vendor_diversity: single}

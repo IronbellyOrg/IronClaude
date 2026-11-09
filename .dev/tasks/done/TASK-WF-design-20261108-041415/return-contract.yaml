@@ -1,0 +1,13 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-design-20261108-041415
+plan_path: ./TASK-WF-design-20261108-041415.md
+source_path: ./source.md
+source_origin: .dev/issues/438/design.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: partial
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-438/.dev/reflect/pre-design-20261108041729/REPORT.md
+unresolved: []

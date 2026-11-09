@@ -1,0 +1,95 @@
+contract_version: "1.8.0"
+status: partial                       # citations_dropped = 1 (one wrong line range, corrected in the report)
+mode: pre
+tier_reached: 2
+report_path: /home/coder/workspaces/worktrees/IronClaude/issue-438/.dev/reflect/pre-design-20261108041729/REPORT.md
+audit_log_path: /home/coder/workspaces/worktrees/IronClaude/issue-438/.dev/reflect/pre-design-20261108041729/audit.log
+confidence_calibrated: 0.81           # mean of the three calibrated reviewer cards (0.81, 0.78, 0.85)
+escalation_rule_matched: 4            # S_domains >= 3; coverage_degraded parsed-sparse also forced Tier 2
+onboarding_ran: false
+
+# UC-1
+coverage_pct: null                    # parsed_count is 0 (no R-/REQ-/SPEC- ids in the spec)
+coverage_pct_union: 0.9455
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements: []
+unmapped_requirements_union: [INF-031, INF-032, INF-045]
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 only fields are not applicable in pre mode
+tasklist_completion_pct: null
+deviation_register_path: null
+grounding_gaps_path: null
+third_party_api_verified: false
+verification_ran: false
+verification_skip_reason: tool-unavailable   # UC-1: no verification run
+
+input_sha256:
+  tasklist: 71d4a7455d11818d9ad4718605a9254142cf1e3e250889cfdfa89285eb5f7d24
+  spec: 1e0d8cdca37abe7513c85eadb66042311d016187836e7df26f4d22f6af5181e8
+input_tree_sha256: 610c54d0685761c83993d5c70d3b5ec86c300bfa7688628c2909dc296d18b439
+input_tree_file_count: 2
+input_tree_snapshot_path: /home/coder/workspaces/worktrees/IronClaude/issue-438/.dev/reflect/pre-design-20261108041729/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+citations_total: 74                   # 19 repo citations (evidence-validator) + 55 inferred-row quotes (mechanical re-read)
+citations_revalidated: 74
+citations_dropped: 1
+citations_dropped_extrapolated: 1
+citations_inferred: 1
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+reviewer_cards:
+  - .dev/reflect/pre-design-20261108041729/reviewer-cards/reviewer-1-card.yaml
+  - .dev/reflect/pre-design-20261108041729/reviewer-cards/reviewer-2-card.yaml
+  - .dev/reflect/pre-design-20261108041729/reviewer-cards/reviewer-3-card.yaml
+adversarial_artifacts_dir: .dev/reflect/pre-design-20261108041729/adversarial/adversarial
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+remediation_plan_path: null
+handoff_memory_key: null
+
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false           # no hunk gaps; the one dropped citation is listed in the report
+
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_gate_passed: null
+
+# telemetry (non-stable)
+degraded_components: [executor-class-unresolved, codegraph-not-checked, position-bias-single-pass]
+executor_class_source: unknown
+executor_class_resolved: false
+reviewer_models: [sonnet, haiku, opus]
+reviewer_personas: [analyzer, qa, refactorer]

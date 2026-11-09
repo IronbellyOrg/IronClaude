@@ -1,0 +1,25 @@
+# Reflect Wave-4 merged verdict (UC-1, pre). Written by the orchestrator from the sc-adversarial-protocol result.
+merge_method: adversarial
+adversarial_artifacts_dir: .dev/reflect/pre-design-20261108041729/adversarial/adversarial   # remap of artifacts_dir (SKILL.md section 8)
+adversarial_convergence_score: 1.0
+adversarial_unavailable: false
+base_variant: "opus:refactorer"
+merged_card: .dev/reflect/pre-design-20261108041729/adversarial/merged-reviewer-verdict.md
+reviewer_cards:
+  - path: .dev/reflect/pre-design-20261108041729/reviewer-cards/reviewer-1-card.yaml
+    model_class: sonnet
+    calibrated_confidence: 0.81
+  - path: .dev/reflect/pre-design-20261108041729/reviewer-cards/reviewer-2-card.yaml
+    model_class: haiku
+    calibrated_confidence: 0.78
+  - path: .dev/reflect/pre-design-20261108041729/reviewer-cards/reviewer-3-card.yaml
+    model_class: opus
+    calibrated_confidence: 0.85
+calibrator:
+  model_class: opus
+  calibrator_diversity: degraded   # all three Anthropic classes were reviewers, so the disjoint set was empty
+verdict:
+  plan_defects_blocking: 1   # M-F1: tests/skills/test_worker_contract.py classification table not updated by the plan
+  plan_defects_minor: 10
+  regression_present: false  # UC-1: no executed work
+  recommended_action: "amend the plan (add a test_worker_contract.py task, widen Task 12's test runs) before /sc:implement"

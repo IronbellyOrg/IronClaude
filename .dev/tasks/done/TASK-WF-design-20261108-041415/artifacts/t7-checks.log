@@ -1,0 +1,16 @@
+== updated assertions
+496:    assert len(blocks) == 3
+497:    assert _yaml_keys(blocks[0]) == [
+508:    assert _yaml_keys(blocks[1]) == [
+520:    assert _yaml_keys(blocks[2]) == [
+525:    assert "create mode prints none of them" in section
+526:    assert "Create mode adds these three fields after the claim block" in section
+== five-ref inventory asserts still present (lines)
+214:        "labels.md",
+233:    assert len(list(REFS.glob("*.md"))) == 5
+277:    assert len(list(REFS.glob("*.md"))) == 5
+== old wording assertions (expect none)
+none found
+== ruff
+All checks passed!
+1 file already formatted

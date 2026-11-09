@@ -1,0 +1,37 @@
+# Tier 1 reflection card (UC-1, pre) -- written by the orchestrator (Wave 1C inline), then blind-calibrated (Wave 1D)
+mode: pre
+spec: .dev/tasks/to-do/TASK-WF-design-20261108-041415/source.md
+tasklist: .dev/tasks/to-do/TASK-WF-design-20261108-041415/TASK-WF-design-20261108-041415.md
+hypothesis_source: inline-orchestrator
+coverage:
+  parsed_count: 0
+  inferred_count: 55
+  coverage_pct: null
+  coverage_pct_union: 0.9455
+  unmapped_requirements_union: [INF-031, INF-032, INF-045]
+  matrix_path: artifacts/coverage-matrix.json
+claims:
+  - id: C1
+    claim: "All 15 repo paths the plan edits exist in the working tree."
+    evidence: "test -f over the 15 paths returned OK for each (Bash, this run); paths listed in the plan Tasks 1-12."
+  - id: C2
+    claim: "Plan line references match the live files for create.md, SKILL.md, commands/issue.md, issue-worker-t3.md, scout-report.md, create-review-comment.md."
+    evidence: "create.md:9,18-22,34-36,61-69; SKILL.md:3,18,31,73-74,98-103,161,172-177; commands/issue.md:4,17,41,42,89,93; issue-worker-t3.md:22,27; scout-report.md:40-50; create-review-comment.md:3 -- all read earlier in this session (Wave 0/design), content matches the plan's description."
+  - id: C3
+    claim: "The three unmapped rows are matcher artifacts, not dropped requirements: INF-031 (POST error codes) is covered by Task 2 and Task 3 'write failed' wording; INF-032 (gh issue create failure stays STOP E-CREATE-FAILED) is in Task 2 and Task 3 acceptance criteria; INF-045 (Not changed list) is in the plan Constraints, which are not task items."
+    evidence: "TASK-WF-design-20261108-041415.md Constraints section; Task 2 body 'E-CREATE-FAILED and E-POST-FAILED keep their current meaning'; Task 3 acceptance criteria."
+  - id: C4
+    claim: "'labels from a fixed set' occurs once in HOW-WE-WORK.md and once in the plugin mirror, zero times in core/CLAUDE.md; Task 11's conditional wording for CLAUDE.md is correct."
+    evidence: "grep -c output: HOW-WE-WORK.md:1, plugin mirror:1, core/CLAUDE.md:0 (Bash, this run)."
+  - id: C5
+    claim: "Make targets sync-dev, verify-sync and lint exist."
+    evidence: "Makefile lines 109, 166, 48 (grep -nE, this run)."
+  - id: C6
+    claim: "[INFERRED] The POST to repos/<R>/issues/<N>/issue-field-values may need the X-GitHub-Api-Version: 2026-03-10 header that GitHub's docs sample uses; the plan does not name it. Failure would degrade to a 'not set' line, which is the designed safe failure."
+    evidence: null
+deviation_candidates: []
+structural_signals:
+  S_scope: 12
+  S_domains: 4   # code(src), tests, docs, config(plugin mirror/Makefile)
+  S_dev_density: 0.0545
+self_reported_confidence: 0.92

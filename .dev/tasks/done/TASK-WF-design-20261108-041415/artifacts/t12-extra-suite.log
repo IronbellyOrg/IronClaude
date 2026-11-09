@@ -1,0 +1,125 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-438
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 2509 items
+
+tests/commands/test_auggie_review_remediation_chain.py ............      [  0%]
+tests/commands/test_auggie_review_revagent.py ............               [  0%]
+tests/commands/test_graph_command.py ................................... [  2%]
+.................                                                        [  3%]
+tests/commands/test_help_command.py ......                               [  3%]
+tests/commands/test_impact_command.py .................................. [  4%]
+...............................................                          [  6%]
+tests/commands/test_issue_command.py .................                   [  7%]
+tests/commands/test_research_command.py ..                               [  7%]
+tests/commands/test_routing_plugin_parity.py .....                       [  7%]
+tests/commands/test_workflow_command.py ...................              [  8%]
+tests/core/test_claude_md_routing_block.py ......                        [  8%]
+tests/core/test_codegraph_guide.py ...............                       [  9%]
+tests/core/test_how_we_work_routing_table.py ........................... [ 10%]
+....................................................                     [ 12%]
+tests/core/test_orca_session_launch_guidance.py ..                       [ 12%]
+tests/core/test_research_config.py ....                                  [ 12%]
+tests/skills/test_brainstorm_protocol.py ....                            [ 12%]
+tests/skills/test_clickup_claim.py ..................................... [ 14%]
+....                                                                     [ 14%]
+tests/skills/test_codegraph_adoption.py ................................ [ 15%]
+..................                                                       [ 16%]
+tests/skills/test_implement_adviser_family.py ...                        [ 16%]
+tests/skills/test_implement_retry_citation.py .....................      [ 17%]
+tests/skills/test_implement_retry_revert.py ............................ [ 18%]
+..........................                                               [ 19%]
+tests/skills/test_implement_saved_prompt_rule.py ....................... [ 20%]
+.................                                                        [ 20%]
+tests/skills/test_implement_severity_replay.py ............              [ 21%]
+tests/skills/test_implement_severity_static.py ......................... [ 22%]
+...                                                                      [ 22%]
+tests/skills/test_issue_orca_worktree.py ............................... [ 23%]
+........................................................................ [ 26%]
+..................................                                       [ 27%]
+tests/skills/test_issue_protocol.py .................................... [ 29%]
+........................................................................ [ 32%]
+......                                                                   [ 32%]
+tests/skills/test_issue_repo_resolution.py ............................. [ 33%]
+...................................                                      [ 35%]
+tests/skills/test_issue_worker_agents.py ............................... [ 36%]
+......................................                                   [ 37%]
+tests/skills/test_model_alias_policy.py .............                    [ 38%]
+tests/skills/test_primitive_dual_surface_lookup.py ...                   [ 38%]
+tests/skills/test_reflect_input_snapshot.py ...............              [ 39%]
+tests/skills/test_repo_inventory_nongit.py .....                         [ 39%]
+tests/skills/test_review_severity_rule.py .............................. [ 40%]
+................................                                         [ 41%]
+tests/skills/test_sc_recommend_routing_contract.py ..................... [ 42%]
+.......                                                                  [ 42%]
+tests/skills/test_spec_panel_review_loop.py ............................ [ 43%]
+..................                                                       [ 44%]
+tests/skills/test_task_builder_merge.py ................................ [ 45%]
+....................................                                     [ 47%]
+tests/skills/test_task_workspace_lifecycle.py .......................... [ 48%]
+...............................................                          [ 50%]
+tests/skills/test_task_workspace_smoke.py ....                           [ 50%]
+tests/skills/test_tier2_tavily_consistency.py .....                      [ 50%]
+tests/skills/test_worker_contract.py ................................... [ 52%]
+........................................................................ [ 54%]
+........................................................................ [ 57%]
+........................................................................ [ 60%]
+........................................................................ [ 63%]
+........................................................................ [ 66%]
+........................................................................ [ 69%]
+........................................................................ [ 72%]
+....................................................FF.................. [ 75%]
+........................................................................ [ 77%]
+........................................................                 [ 80%]
+tests/skills/test_workflow_archive.py .................................. [ 81%]
+........................................................................ [ 84%]
+........................................................................ [ 87%]
+..                                                                       [ 87%]
+tests/recommend/test_best_model.py ........                              [ 87%]
+tests/recommend/test_cache.py ...............                            [ 88%]
+tests/recommend/test_cli_registration.py ...                             [ 88%]
+tests/recommend/test_dispatch.py ................                        [ 88%]
+tests/recommend/test_eval_pipeline.py .....                              [ 89%]
+tests/recommend/test_plugin_eval.py ........                             [ 89%]
+tests/recommend/test_routing_refresh.py ................................ [ 90%]
+........................................................................ [ 93%]
+........................................................................ [ 96%]
+........................................................................ [ 99%]
+                                                                         [ 99%]
+tests/recommend/test_telemetry.py .........                              [ 99%]
+tests/cli/test_issue_body_templates.py .......                           [100%]
+
+=================================== FAILURES ===================================
+___________________ test_every_write_verb_hit_is_classified ____________________
+tests/skills/test_worker_contract.py:3130: in test_every_write_verb_hit_is_classified
+    _check_all_classified()
+tests/skills/test_worker_contract.py:2010: in _check_all_classified
+    assert not missing, "unclassified git/gh write-verb hits:\n" + "\n".join(
+E   AssertionError: unclassified git/gh write-verb hits:
+E     src/superclaude/agents/issue-worker-t3.md [gh api] - **Read-only GitHub access.** You make read-only `gh` calls only, always with the `--repo <R>` the orchestrator gave yo
+E     src/superclaude/agents/issue-worker-t3.md [gh api] 2. **Create lookup (create Wave 1).** Run `gh label list --repo <R> --limit 200 --json name`, `gh api repos/<R>/issue-ty
+E     src/superclaude/skills/sc-issue-protocol/SKILL.md [gh api] - Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or spells 
+E     src/superclaude/skills/sc-issue-protocol/SKILL.md [gh api] - The orchestrator (this skill) is the only place that writes to GitHub or ClickUp: `gh issue edit <N> --repo <R> --add-
+E     src/superclaude/skills/sc-issue-protocol/SKILL.md [gh api] 6. **Wave 5, post.** Load `refs/labels.md`. Apply only the mode label, and only when it exists in `<R>`; `gh issue creat
+E     src/superclaude/skills/sc-issue-protocol/refs/create.md [gh api] 6. Complexity field: when `### Complexity field` in `scout.md` lists the field and an option equal to the wanted value (
+E     src/superclaude/skills/sc-issue-protocol/refs/create.md [gh api] Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or starts wi
+E     src/superclaude/skills/sc-issue-protocol/refs/create.md [gh api] Spawn `issue-worker-t3` with the job "create lookup", `<R>`, the description's keywords and `<D>`. The worker lists the 
+E     src/superclaude/skills/sc-issue-protocol/refs/labels.md [gh api] 4. Complexity field: when `### Complexity field` in `scout.md` lists the field and an option equal to the wanted value, 
+E   assert not [('src/superclaude/agents/issue-worker-t3.md', 'gh api', '- **Read-only GitHub access.** You make read-only `gh` calls...nt. A missing field remembers `not set: field Complexity <value>: field not found in org` (or `lookup failed`).'), ...]
+________________ test_classification_table_has_no_stale_entries ________________
+tests/skills/test_worker_contract.py:3136: in test_classification_table_has_no_stale_entries
+    assert not stale, "classified lines no longer present:\n" + "\n".join(
+E   AssertionError: classified lines no longer present:
+E     src/superclaude/agents/issue-worker-t3.md [gh api] - **Read-only GitHub access.** You make read-only `gh` calls only, always with the `--repo <R>` the orchestrator gave yo
+E     src/superclaude/skills/sc-issue-protocol/SKILL.md [gh api] - Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or spells 
+E     src/superclaude/skills/sc-issue-protocol/SKILL.md [gh api] - The orchestrator (this skill) is the only place that writes to GitHub or ClickUp: `gh issue edit <N> --repo <R> --add-
+E     src/superclaude/skills/sc-issue-protocol/refs/create.md [gh api] Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or starts wi
+E   assert not [('src/superclaude/agents/issue-worker-t3.md', 'gh api', '- **Read-only GitHub access.** You make read-only `gh` calls... placeholder. Only the orchestrator writes to GitHub. Create mode makes no ClickUp call and no self-assignment (B6).')]
+=========================== short test summary info ============================
+FAILED tests/skills/test_worker_contract.py::test_every_write_verb_hit_is_classified
+FAILED tests/skills/test_worker_contract.py::test_classification_table_has_no_stale_entries
+======================= 2 failed, 2507 passed in 53.38s ========================
+rc=1

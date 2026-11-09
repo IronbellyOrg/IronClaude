@@ -1,0 +1,17 @@
+== old wording in the two files (expect none)
+none found
+== new wording
+docs/user-guide/commands.md:349:**When to use:** Take an existing GitHub issue on the repository `origin` points at, or file a new one. `--claim` assi
+docs/user-guide/commands.md:365:| `--mode feature\|bug` | create | chosen by a worker | Picks the feature or bug template, the Feature or Bug issue ty
+docs/user-guide/commands.md:366:| `--type <type>` | create | chosen by a worker | Area of the change: `cicd`, `command`, `skill`, `agent`, `hook`, `cl
+docs/user-guide/commands.md:394:It posts directly to GitHub, without showing the comment or the issue body for approval first. It never creates labels
+docs/user-guide/flags.md:80:| `--level` | Complexity level | `basic`, `intermediate`, `advanced` |
+docs/user-guide/flags.md:228:| `--mode` | Feature or bug template, issue type (Feature or Bug) and mode label (create only) | `feature`, `bug`; chosen
+docs/user-guide/flags.md:229:| `--type` | Area of the change; a feature in `tests` gets the issue type Test, otherwise it is recorded in `flags.md` an
+docs/user-guide/flags.md:233:On `--create` the command sets the GitHub issue type and the Complexity issue field of your organization (Simple, Medium 
+== the --type value lists are unchanged (the values text appears in the new file)
+docs/user-guide/commands.md:1
+docs/user-guide/flags.md:1
+== lines changed vs start (counts)
+4	4	docs/user-guide/commands.md
+4	2	docs/user-guide/flags.md
