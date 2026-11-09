@@ -1,0 +1,27 @@
+name: Controlled live 361 slow check (NEVER MERGE)
+on:
+  pull_request:
+    branches: [scratch/361-live-20261109-0239-base]
+permissions:
+  contents: read
+jobs:
+  slow:
+    name: scratch-361-live-20261109-0239-wait-for-go
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Wait for this run's unique release branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -u -o pipefail
+          for ((i=0; i<170; i++)); do
+            if timeout 8 gh api 'repos/IronbellyOrg/IronClaude/git/ref/heads/scratch/361-live-20261109-0239-go' >/dev/null 2>&1; then
+              printf 'Unique release branch observed\n'
+              exit 0
+            fi
+            sleep 10
+          done
+          printf 'Unique release branch not observed before deadline\n' >&2
+          exit 1
