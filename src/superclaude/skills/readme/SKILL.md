@@ -537,7 +537,7 @@ Phase 3 — Research Completeness Verification (LENS-BASED GATE, 5 AGENTS MINIMU
   - rf-qa-1 (evidence-quality lens): verifies EVERY claim cites actual file paths/line numbers, spot-checks 5+ paths via Glob, flags any unverified assertions
   - rf-qa-2 (gap-detection lens): identifies coverage gaps against research-notes.md scope, severity-rates gaps (Critical/Important/Minor), verifies no silently dropped topics
   - rf-qa-qualitative-1 (research-depth lens): evaluates whether research findings are genuinely deep or surface-level; a research file that lists files without analyzing them is shallow and FAILS
-  **ADVERSARIAL STANCE for ALL 5 agents:** "Assume the research contains at least 5 errors. Find them. A verdict of 0 issues requires evidence you thoroughly checked every file."
+  **ADVERSARIAL STANCE for ALL 5 agents:** "Look for errors in the research. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked. A verdict of 0 issues requires evidence you thoroughly checked every file."
   Each agent writes to a separate report: `${TASK_DIR}qa/analyst-completeness-report-[N].md`, `${TASK_DIR}qa/qa-research-gate-report-[N].md`, `${TASK_DIR}qa/qa-research-depth-report.md`
 - Step 3.2: Consolidate all 5 reports into `${TASK_DIR}qa/qa-consolidated-research-findings.md`. Union all findings, take more severe rating for duplicates.
 - **Sub-flow A: Fix existing research content (Steps 3.3-3.4, serialized fix protocol):**
@@ -573,7 +573,7 @@ Phase 5 — Synthesis (PARALLEL SPAWNING MANDATORY) + Synthesis QA Gate:
   - rf-qa-1 (structure lens): verifies section headers match README template, tables use correct columns, depth budgets respected, no placeholder text
   - rf-qa-2 (content-quality lens): verifies no fabrication, runnable examples reference real commands/packages, no aspirational features as current, audience-appropriate language
   - rf-qa-qualitative-1 (synthesis-coherence lens): evaluates whether synthesis files tell a coherent story from the research -- does the README flow logically? Are cross-section references consistent? Would a newcomer understand the module from these sections?
-  **ADVERSARIAL STANCE for ALL 5 agents:** "Assume the synthesis contains at least 5 errors. Find them."
+  **ADVERSARIAL STANCE for ALL 5 agents:** "Look for errors in the synthesis. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
   Each agent writes to a separate report. After all complete, consolidate findings into `${TASK_DIR}qa/qa-consolidated-synthesis-findings.md`, then 1 rf-qa fix agent applies all blocking fixes (minor findings stay as notes), then 2 verification agents confirm. **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked. The analyst applies the Synthesis Quality Review Checklist. The QA agent applies its synthesis-gate checklist. The analyst writes to `${TASK_DIR}qa/analyst-synthesis-review-[N].md`. The QA agent writes to `${TASK_DIR}qa/qa-synthesis-gate-report-[N].md`. Embed full prompts from respective agent definitions in each checklist item per B2.
 - **Parallel partitioning for large workloads:** When >4 synthesis files exist, spawn multiple analyst instances and multiple QA instances in parallel, each with an `assigned_files` subset of synthesis files. The threshold is lower than Phase 3 (>4 vs >6) because synthesis QA requires deeper per-file analysis (tracing claims back to research files, verifying template alignment, checking cross-section consistency). Same partitioning pattern as Phase 3. Each partition instance writes to a numbered report. Orchestrator merges all partition reports after completion.
 - Read ALL reports (or the merged report). Merge findings from all reports. The fix agent applies all consolidated blocking fixes (minor findings stay as notes). Determine verdict from QA report(s), cross-referenced with analyst findings. If PASS → proceed to Phase 6. If FAIL → check which issues QA already fixed vs which remain. For remaining issues, re-run affected synthesis agents, then re-spawn `rf-qa` (fix-cycle). Maximum 2 fix cycles for synthesis — after 2 failed cycles, HALT execution: log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance on how to proceed. Do NOT continue to Phase 6 without user approval.
@@ -922,7 +922,7 @@ CHECKLIST:
 5. Depth-tier alignment — investigation depth matches the stated tier (Lightweight = key features and quick start; Standard = full coverage with examples; Heavyweight = exhaustive with architecture and advanced usage)
 6. Gap identification — all gaps unified, deduplicated, and severity-rated (Critical/Important/Minor)
 
-Adversarial framing: "Assume the research contains at least 3 coverage gaps. Find them."
+Adversarial framing: "Look for coverage gaps in the research. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 
 VERDICTS:
 - PASS: All checks pass, no critical gaps
@@ -959,7 +959,7 @@ CHECKLIST:
 3. Cross-file contradiction detection — do research files agree on features, dependencies, and setup steps? Flag any contradictions between files with specific references.
 4. [CODE-VERIFIED] tag consistency — are verification tags ([CODE-VERIFIED], [CODE-CONTRADICTED], [UNVERIFIED]) applied uniformly across all research files? Flag files missing tags.
 
-Adversarial framing: "Assume the research files contain at least 3 contradictions or inconsistencies. Find them."
+Adversarial framing: "Look for contradictions or inconsistencies in the research files. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 
 VERDICTS:
 - PASS: No cross-validation issues found
@@ -1000,7 +1000,7 @@ CHECKLIST:
 4. Contradiction resolution — no unresolved conflicting findings about the same feature, dependency, or setup step
 5. Incremental writing compliance — files show iterative structure, not one-shot
 
-Adversarial framing: "Assume at least 3 claims in the research files are unverified or fabricated. Find them."
+Adversarial framing: "Look for claims in the research files that are unverified or fabricated. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 
 VERDICTS:
 - PASS: Evidence quality meets standards
@@ -1031,7 +1031,7 @@ CHECKLIST:
 4. Tech reference utilization (README-specific) — if companion tech reference files exist, verify research agents actually read them and extracted relevant content rather than re-investigating from scratch
 5. Feature completeness — user-facing features identified from code, not just from documentation. Features described from user perspective, not implementer perspective
 
-Adversarial framing: "Assume the research has at least 3 coverage gaps that will cause problems during synthesis. Find them."
+Adversarial framing: "Look for coverage gaps in the research that will cause problems during synthesis. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 
 VERDICTS:
 - PASS: No significant gaps found
@@ -1060,7 +1060,7 @@ CHECKLIST:
 4. Gap quality — are identified gaps specific and actionable ("No usage examples found for the CLI interface in test files or docs") or vague ("some areas need more research")?
 5. Evidence trail quality — do citations point to specific lines/functions/exports, or just to files? "See backend/app/main.py" is weak; "See backend/app/main.py:45, create_app() function initializes FastAPI with these routers" is strong.
 
-Adversarial framing: "Assume at least 2 research files are qualitatively shallow despite being structurally complete. Find them and explain what depth is missing."
+Adversarial framing: "Look for research files that are qualitatively shallow despite being structurally complete. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked. Explain what depth is missing."
 
 VERDICTS:
 - PASS: All research files demonstrate genuine analytical depth appropriate for the tier
@@ -1099,7 +1099,7 @@ CHECKLIST:
 4. Findings cite actual file paths and evidence — every command, dependency, config value traces to an actual source file read
 5. No aspirational features presented as current — every feature listed is verified to exist in actual code
 
-Adversarial framing: "Assume the synthesis contains at least 3 accuracy errors or fabricated claims. Find them."
+Adversarial framing: "Look for accuracy errors or fabricated claims in the synthesis. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 
 VERDICTS:
 - PASS: All synthesis files are accurate and traceable (MINOR issues, if any, listed as notes)
@@ -1132,7 +1132,7 @@ CHECKLIST:
 3. Cross-section consistency — dependencies in Quick Start match those in Configuration; paths in Project Structure match Architecture and Usage
 4. Stale documentation discrepancies surfaced — any [CODE-CONTRADICTED] or [STALE DOC] findings from research files appear as notes or are corrected, not silently omitted
 
-Adversarial framing: "Assume at least 3 synthesis claims are over-summarized, distorted, or missing context from the research. Find them."
+Adversarial framing: "Look for synthesis claims that are over-summarized, distorted, or missing context from the research. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 
 VERDICTS:
 - PASS: Synthesis faithfully represents research findings (MINOR issues, if any, listed as notes)
@@ -1165,7 +1165,7 @@ CHECKLIST:
 4. TOC accuracy — if a Table of Contents exists, every entry corresponds to an actual section header
 5. README vs Other Documents boundary respected — README covers WHAT/WHY/HOW TO GET STARTED; depth links to companion docs
 
-Adversarial framing: "Assume at least 3 structural issues exist in the synthesis files. Find them."
+Adversarial framing: "Look for structural issues in the synthesis files. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 
 VERDICTS:
 - PASS: All synth files meet structural standards (MINOR issues, if any, listed as notes)
@@ -1194,7 +1194,7 @@ CHECKLIST:
 6. Badge validity — if badges are included, they reference real endpoints, not placeholder URLs
 7. No hallucinated file paths — verify parent directories exist via Glob or Read
 
-Adversarial framing: "Assume at least 3 content quality issues exist. Find them."
+Adversarial framing: "Look for content quality issues. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 
 VERDICTS:
 - PASS: All synth files meet content quality standards (MINOR issues, if any, listed as notes)
@@ -1221,7 +1221,7 @@ CHECKLIST:
 4. Completeness of the README story — would a newcomer who reads these synth files in order understand: what this module is, how to set it up, how to use it, and where to find more? Any missing narrative beats?
 5. Deduplication discipline — is content that belongs in companion docs properly summarized-and-linked rather than reproduced? Are synth files respecting the README vs Other Documents boundary?
 
-Adversarial framing: "Assume the synthesis files contain at least 2 coherence issues that would confuse a newcomer. Find them."
+Adversarial framing: "Look for coherence issues in the synthesis files that would confuse a newcomer. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 
 VERDICTS:
 - PASS: Synthesis files tell a coherent, audience-appropriate story
@@ -1366,7 +1366,7 @@ CHECKLIST:
 3. Table of Contents present if README >100 lines, and matches actual section headers
 4. Total line count within tier budget — Lightweight: 50-150, Standard: 150-400, Heavyweight: 200-500. Hard ceiling: 500 lines.
 
-Adversarial framing: "Assume this README has at least 3 template conformance errors. Find them."
+Adversarial framing: "Look for template conformance errors in this README. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 ```
 
 ##### Internal-Consistency Lens
@@ -1386,7 +1386,7 @@ CHECKLIST:
 2. TOC accuracy — every entry links to an actual section header, no orphaned or missing entries
 3. Runnable examples actually reference real packages, scripts, and commands — spot-check 3+ commands via Glob/Read
 
-Adversarial framing: "Assume this README has at least 3 internal consistency errors. Find them."
+Adversarial framing: "Look for internal consistency errors in this README. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 ```
 
 ##### Evidence-Quality Lens
@@ -1406,7 +1406,7 @@ CHECKLIST:
 2. No doc-only claims presented as verified — if a claim comes from documentation alone, it must carry [UNVERIFIED] or be excluded
 3. Web research findings include source URLs and are marked as external — never presented as codebase findings
 
-Adversarial framing: "Assume this README has at least 3 unverified or fabricated claims. Find them."
+Adversarial framing: "Look for unverified or fabricated claims in this README. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 ```
 
 ##### Completeness Lens
@@ -1428,7 +1428,7 @@ CHECKLIST:
 3. Quick Start is ≤5 steps and every step is copy-pasteable — no "configure as needed" hand-waving
 4. Project Structure shows top 2-3 directory levels only — no exhaustive file listings
 
-Adversarial framing: "Assume this README is missing at least 3 required content areas. Find them."
+Adversarial framing: "Look for required content areas this README is missing. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 ```
 
 #### Content Lens Prompts (rf-qa-qualitative)
@@ -1450,7 +1450,7 @@ CHECKLIST:
 2. Architecture Overview is ≤1 diagram + 2 short paragraphs, then links to companion Technical Reference
 3. Newcomer-friendliness — a developer who has never seen this codebase could understand and set up the module within 15 minutes
 
-Adversarial framing: "Assume a newcomer would get stuck at least 3 times following this README. Find those sticking points."
+Adversarial framing: "Look for places where a newcomer would get stuck following this README. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 ```
 
 ##### Numbers-Metrics Lens
@@ -1470,7 +1470,7 @@ CHECKLIST:
 2. Total line count within tier budget — verify against actual count
 3. Badge URLs are valid — if badges are included, they reference real endpoints (shields.io with real repo paths)
 
-Adversarial framing: "Assume this README has at least 3 numerical inaccuracies or invalid metrics. Find them."
+Adversarial framing: "Look for numerical inaccuracies or invalid metrics in this README. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 ```
 
 ##### Cross-Reference Chain Lens
@@ -1490,7 +1490,7 @@ CHECKLIST:
 2. File paths referenced actually exist — trace the full chain from Prerequisites through Usage
 3. Internal consistency of chains — what Prerequisites lists matches what Quick Start installs matches what Configuration configures matches what Usage demonstrates
 
-Adversarial framing: "Assume at least 3 chains are broken (a prerequisite is missing, a command references a nonexistent script, a config key doesn’t exist). Find them."
+Adversarial framing: "Look for broken chains (a prerequisite is missing, a command references a nonexistent script, a config key doesn’t exist). Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 ```
 
 ##### Domain-Accuracy Lens
@@ -1510,7 +1510,7 @@ CHECKLIST:
 2. No doc-only claims presented as verified — documentation-sourced claims carry appropriate tags
 3. Readability — scannable structure with tables, headers, bullets; no walls of prose; newcomer-friendly language
 
-Adversarial framing: "Assume at least 3 claims about the codebase are inaccurate or aspirational. Find them."
+Adversarial framing: "Look for claims about the codebase that are inaccurate or aspirational. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 ```
 
 #### README Domain-Specific Lens Prompts
@@ -1533,7 +1533,7 @@ CHECKLIST:
 2. No aspirational features — every feature listed traces to actual implemented code, not docs or plans
 3. Source code tracing — for each feature in Section 2, verify it exists in actual source code by reading relevant files
 
-Adversarial framing: "Assume at least 3 features listed are either aspirational, inaccurate, or missing from the source code. Find them."
+Adversarial framing: "Look for features listed that are aspirational, inaccurate, or missing from the source code. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 ```
 
 ##### Usage-Example-Correctness Lens (rf-qa)
@@ -1553,7 +1553,7 @@ CHECKLIST:
 2. Every CLI example uses real commands, real flags, and real file paths
 3. Spot-check 3+ commands by verifying scripts exist (via Glob), flags are valid, and file paths resolve
 
-Adversarial framing: "Assume at least 3 commands or examples in this README would fail if copy-pasted. Find them."
+Adversarial framing: "Look for commands or examples in this README that would fail if copy-pasted. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 ```
 
 ##### Dependency-List-Completeness Lens (rf-qa)
@@ -1574,7 +1574,7 @@ CHECKLIST:
 2. No fabricated dependencies — every dependency listed in the README exists in actual manifests
 3. Version accuracy — versions in README match lock files or manifest constraints
 
-Adversarial framing: "Assume at least 3 dependencies are missing, fabricated, or version-mismatched. Find them."
+Adversarial framing: "Look for dependencies that are missing, fabricated, or version-mismatched. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 ```
 
 #### Consolidated Fix Agent Prompt (rf-qa; blocking findings only)
@@ -1612,7 +1612,7 @@ Fix report: ${TASK_DIR}qa/qa-fix-report.md
 Previous findings: ${TASK_DIR}qa/qa-consolidated-final-findings.md
 Fix authorization: false
 
-**ADVERSARIAL STANCE:** Assume at least one fix was applied incorrectly or incompletely.
+**ADVERSARIAL STANCE:** Check whether each fix was applied correctly and completely; there is no minimum count, and zero is valid if you state what you checked.
 
 YOUR FOCUS: Verify STRUCTURAL correctness of applied fixes only. Content quality is handled by the rf-qa-qualitative verification agent.
 
@@ -1641,7 +1641,7 @@ Fix report: ${TASK_DIR}qa/qa-fix-report.md
 Previous findings: ${TASK_DIR}qa/qa-consolidated-final-findings.md
 Fix authorization: false
 
-**ADVERSARIAL STANCE:** Assume at least one fix introduced a new content issue.
+**ADVERSARIAL STANCE:** Check whether any fix introduced a new content issue; there is no minimum count, and zero is valid if you state what you checked.
 
 YOUR FOCUS: Verify CONTENT quality after fixes. Structural correctness is handled by the rf-qa verification agent.
 
@@ -1685,7 +1685,7 @@ CHECKLIST:
 4. Configuration coverage — read actual config files, .env examples, environment variable references. Verify the README’s Configuration section (Section 6) covers the key settings. Flag important config options present in code but absent from README.
 5. Entry point accuracy — verify the README correctly identifies the module’s entry points (main files, CLI commands, API routers) by reading actual source.
 
-Adversarial framing: "Assume the README is missing at least 3 features or dependencies that exist in the source code. Find them."
+Adversarial framing: "Look for features or dependencies in the source code that this README is missing. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 
 Fix cycle budget: Maximum 2 fix cycles for the fidelity gate. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings.
 ```
@@ -1710,7 +1710,7 @@ CHECKLIST:
 4. Environment variable verification — for each env var mentioned in Configuration, verify it is actually read by the code. Flag phantom env vars.
 5. Detail preservation — for specific names (function names, class names, config keys) mentioned in the README, verify they match actual source code (correct spelling, correct casing, correct location). Flag mismatches.
 
-Adversarial framing: "Assume at least 3 claims in this README are fabricated or outdated. Find them by reading actual source code."
+Adversarial framing: "Look for claims in this README that are fabricated or outdated, by reading actual source code. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked."
 
 Fix cycle budget: Maximum 2 fix cycles for the fidelity gate. After 2 fix cycles (3 reviews), HALT and escalate to the user with the open blocking findings.
 ```
