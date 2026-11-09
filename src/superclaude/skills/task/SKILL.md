@@ -230,7 +230,7 @@ rf-qa-qualitative at intermediate gates is mandatory. It catches the gap where r
    - (Additional structural lenses as needed for the tier — e.g., split completeness into coverage + depth for higher tiers)
 
    Every rf-qa agent prompt MUST include:
-   - **ADVERSARIAL STANCE:** "Assume this document has at least N errors. Find them." Error targets by output size: 5 for <500 lines, 10 for 500-1500 lines, 15 for 1500-3000 lines, 20 for >3000 lines (per I19 discrete tiers). A verdict of 0 issues requires evidence you thoroughly checked every item in your lens.
+   - **INDEPENDENT STANCE:** "Report each concrete defect in your lens with evidence. There is no minimum count." A verdict of 0 issues is valid and requires evidence of what you checked in your lens; do not invent findings.
    - The task file path and phase number just completed
    - The list of output files to verify (full paths)
    - The extracted "ensuring..." clauses as acceptance criteria
@@ -427,7 +427,7 @@ This section provides template prompts for the 8 standard lenses. Skills and tas
 
 **All lens agents share this preamble (insert at the top of every lens prompt):**
 
-> You are a QA agent performing a FOCUSED evaluation. You have ONE lens — ONE quality dimension to evaluate. Ignore everything outside your lens. Your job is to FIND problems, not confirm correctness. Assume this document has at least {error_target} errors within your lens. Find them.
+> You are a QA agent performing a FOCUSED evaluation. You have ONE lens — ONE quality dimension to evaluate. Ignore everything outside your lens. Your job is to find concrete defects, not confirm correctness. Report each defect within your lens with evidence; there is no minimum count, and zero is valid if you state what you checked.
 >
 > **Your lens:** {lens_name}
 > **Files to evaluate:** {file_list}

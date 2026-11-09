@@ -646,7 +646,7 @@ I15. PHASE-GATE QA ENFORCEMENT
    6. A conditional-action item that proceeds to the next phase on PASS or triggers another fix cycle on FAIL (max cycles per I16)
    7. (If applicable) Source-document fidelity gate items per M4
 
-   Each QA agent spawn item MUST be a self-contained checklist item following B2's 6-element pattern. Each MUST include: the specific agent type (rf-qa or rf-qa-qualitative), the assigned lens (e.g., "template-conformance", "actionability"), the input files, the output report path, `fix_authorization: false` (report-only), and adversarial framing ("Assume this document has at least N errors focused on your lens. Find them.").
+   Each QA agent spawn item MUST be a self-contained checklist item following B2's 6-element pattern. Each MUST include: the specific agent type (rf-qa or rf-qa-qualitative), the assigned lens (e.g., "template-conformance", "actionability"), the input files, the output report path, `fix_authorization: false` (report-only), and independent framing ("Report each concrete defect focused on your lens, with evidence. There is no minimum count; zero is valid if you state what you checked.").
 
    Every QA gate step — each lens agent spawn, the consolidation, the fix agent, each verification agent — MUST be encoded as individual `- [ ]` checklist items in the task file. No QA is implicit. No QA lives only in prose.
 
@@ -730,7 +730,7 @@ I19. LENS-BASED QA MINIMUM AGENTS
 
    Skills MAY define additional domain-specific lenses beyond these 8.
 
-   Each lens agent gets its own prompt, its own report file, and its own focused checklist. Agents do NOT share a generic "check everything" prompt. The lens is the agent's ONLY job. Every lens agent prompt MUST include adversarial framing: "Assume this document has at least N errors focused on your lens. Find them." (where N scales with document size: 5 for <500 lines, 10 for 500-1500, 15 for 1500-3000, 20 for >3000).
+   Each lens agent gets its own prompt, its own report file, and its own focused checklist. Agents do NOT share a generic "check everything" prompt. The lens is the agent's ONLY job. Every lens agent prompt MUST include independent framing: "Report each concrete defect focused on your lens, with evidence. There is no minimum count; zero is valid if you state what you checked."
 
    **Intermediate Gate Minimums (Research + Synthesis + Task-Integrity):**
 
@@ -1069,7 +1069,7 @@ M3. LENS-BASED QA SEQUENCE
    - Its assigned lens (e.g., "template-conformance", "internal-consistency", "evidence-quality", "completeness")
    - The full document under review (or assigned section range if >3000 lines, per I19 partitioning rules)
    - A lens-specific checklist defining exactly what to look for
-   - Adversarial framing: "Assume this document has at least N errors focused on [lens]. Find them."
+   - Independent framing: "Report each concrete defect focused on [lens], with evidence. There is no minimum count; zero is valid if you state what you checked."
    - Output report path: `${TASK_DIR}qa/qa-structural-[lens-name]-report.md`
    - `fix_authorization: false` (report only)
 
@@ -1077,7 +1077,7 @@ M3. LENS-BASED QA SEQUENCE
    - Its assigned lens (e.g., "actionability", "numbers-metrics", "crossref-chain", "domain-accuracy")
    - The full document under review (or assigned section range if >3000 lines)
    - A lens-specific checklist defining exactly what to look for
-   - Adversarial framing: "Assume this document has at least N errors focused on [lens]. Find them."
+   - Independent framing: "Report each concrete defect focused on [lens], with evidence. There is no minimum count; zero is valid if you state what you checked."
    - Output report path: `${TASK_DIR}qa/qa-content-[lens-name]-report.md`
    - `fix_authorization: false` (report only)
 
@@ -1374,7 +1374,7 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 - [ ] [AGGREGATION ITEM — L6 pattern. Collect all Phase 2 outputs into a summary file at `${TASK_DIR}phase-outputs/reports/phase-2-output-summary.md`. Use Glob to discover output files dynamically.]
 
 **Step PG.2:** Spawn structural lens agents (PARALLEL)
-- [ ] [Spawn rf-qa (template-conformance lens) — reads Phase 2 outputs, checks all required sections present, correct ordering, no remaining placeholders. Output: `${TASK_DIR}qa/qa-structural-template-conformance-report.md`. fix_authorization: false. Adversarial framing: "Assume this document has at least N errors in template conformance. Find them."]
+- [ ] [Spawn rf-qa (template-conformance lens) — reads Phase 2 outputs, checks all required sections present, correct ordering, no remaining placeholders. Output: `${TASK_DIR}qa/qa-structural-template-conformance-report.md`. fix_authorization: false. Independent framing: "Report each concrete template-conformance defect with evidence. There is no minimum count; zero is valid if you state what you checked."]
 - [ ] [Spawn rf-qa (internal-consistency lens) — checks IDs match across tables, counts agree, cross-references resolve. Output: `${TASK_DIR}qa/qa-structural-internal-consistency-report.md`. fix_authorization: false.]
 - [ ] [Spawn rf-qa (evidence-quality lens) — checks all claims cite file paths/line numbers, no hallucinated paths. Output: `${TASK_DIR}qa/qa-structural-evidence-quality-report.md`. fix_authorization: false.]
 - [ ] [Spawn rf-qa (completeness lens) — checks every topic from scope appears in output, no gaps. Output: `${TASK_DIR}qa/qa-structural-completeness-report.md`. fix_authorization: false.]
