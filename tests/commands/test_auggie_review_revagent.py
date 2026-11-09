@@ -169,7 +169,10 @@ def test_audit_literals():
     header = _between(SKILL, "<!-- SC:AUGGIE-REVIEW:TARGET", "-->")
     assert "revagent: <opus|sonnet|haiku|fable|default>" in header
     audit_block = _between(SKILL, "## Audit\n", "8. Write")
-    assert "- Reviewer agent model: <value|configured default (model omitted)>" in audit_block
+    assert (
+        "- Reviewer agent model: <value|configured default (model omitted)>"
+        in audit_block
+    )
     step8 = _line(SKILL, "8. Write `<output-dir>/audit.log`")
     assert "model argument passed on each reviewer spawn" in step8
     assert "`default (model omitted)`" in step8
