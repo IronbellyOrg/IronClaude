@@ -254,8 +254,8 @@ When `--focus correctness` is active, the panel MUST produce a State Variable Re
 ## Review Loop
 
 1. **Mode**: `--re-review` applies to `--mode critique` only; without both `--re-review` and `--baseline` the run is a first review of the full document, with `baseline: missing` noted if only one was given; if a named file is unreadable or empty, or the prior report has no `review: N of 3` header, stop and say which, and never fall back to a first review.
-2. **Grading**: CRITICAL and FR-8/FR-9 findings are blocking; MINOR is minor; a MAJOR is blocking only if it names a concrete wrong outcome an implementer would produce, otherwise minor; minor findings are notes and never trigger a revision.
-3. **Verdict**: a critique-mode report's last line is `verdict: PASS` (minor notes allowed) or `verdict: FAIL` (a blocking finding is open).
+2. **Grading**: grade by consequence, not by label; CRITICAL is blocking; a MAJOR or an FR-8/FR-9 finding is blocking only if it names a concrete wrong outcome an implementer would produce or a security, data-loss or safety-boundary risk, otherwise it is Medium (a warning listed under `follow-up candidates`); MINOR is a note; Medium and minor findings never trigger a revision, never fail a review and never appear in the Reviser brief.
+3. **Verdict**: a critique-mode report's last line is `verdict: PASS` (minor notes and Medium warnings allowed) or `verdict: FAIL` (a blocking finding is open); the report lists Medium and minor findings under `follow-up candidates`, the session that ran the review asks the user once per loop whether to open an issue for them and creates none without the user's answer, and an `--unattended` run only records the list.
 4. **Cap**: at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; the report header is `review: N of 3`, where N is the prior report's N plus 1 (1 for a first review); a prior-findings file at `review: 3` (a higher value counts as 3) with `verdict: FAIL` means do not review (this check runs before the first-review default of bullet 1), HALT and escalate to the user with the open blocking findings; every run is one review whatever `--iterations` says, and with `--re-review` the command ignores `--iterations`, skips the Improve step and writes no revised specification; Iteration 2 and 3 themes set order of attention, not a mandate to add text. The coordinator keeps the review count, the prior-findings file and the saved copy; without them the run is a first review.
 5. **Re-review output**: first a table of prior blocking findings `resolved|open|regressed` (`regressed` = a finding the prior report marked resolved that fails again); then findings on lines changed against the baseline, ignoring whitespace-only changes, each with `origin=changed|unchanged`; an `origin=unchanged` finding is a minor note unless it quotes the changed line that depends on it; in a re-review FR-8 to FR-10 and the Guard Condition Boundary Table cover guards on changed lines only; an empty diff leaves every prior blocking finding open and still counts as a review. The re-check of prior blocking findings follows steps 1-5 of the Process of the Fix Cycle phase in the project `.claude/agents/rf-qa.md` first, else `~/.claude/agents/rf-qa.md`; the rules in this section apply on top of it and stand alone when that file is unread.
 6. **Reviser contract**: the report carries a `Reviser brief` just above the final `verdict:` line, listing only blocking finding ids and restating this bullet (the reviser reads the report, not the command), and omits it at `review: 3`, where the run escalates instead; revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; the reviser reports the byte size before and after.
@@ -308,7 +308,7 @@ Mandatory output artifacts are structured tables and registries that the panel M
 
 **Responsibility**: Nygard (lead construction), Crispin (completeness validation), Whittaker (adversarial attack on entries). All three experts participate when the boundary table is triggered.
 
-**Template** (7 columns, minimum 6 input condition rows per guard):
+**Template** (7 columns, one row per input class that applies to the guard; the six classes below are the menu, not a quota, so leave out a class that cannot occur for the guard and say why in one line):
 
 | Guard | Location | Input Condition | Variable Value | Guard Result | Specified Behavior | Status |
 |-------|----------|-----------------|----------------|--------------|-------------------|--------|
@@ -323,9 +323,9 @@ Mandatory output artifacts are structured tables and registries that the panel M
 
 These rules are **hard gates**, not advisory recommendations. They block synthesis output unconditionally.
 
-1. **FR-8: GAP Status Rule**: Any cell in the Status column containing "GAP" automatically generates a finding with **MAJOR** severity minimum.
-2. **FR-9: Blank Behavior Rule**: Any blank or "unspecified" entry in the Specified Behavior column is classified as **MAJOR** severity minimum.
-3. **FR-10: Synthesis-Blocking Gate**: The Guard Condition Boundary Table MUST be complete (all cells populated, all guards enumerated) before synthesis output is generated. An incomplete table blocks synthesis output. This is a hard gate, not advisory.
+1. **FR-8: GAP Status Rule**: Any cell in the Status column containing "GAP" generates a finding. It is blocking when it names a concrete wrong outcome an implementer would produce or a security, data-loss or safety-boundary risk; otherwise it is Medium (a warning listed under `follow-up candidates`).
+2. **FR-9: Blank Behavior Rule**: Any blank or "unspecified" entry in the Specified Behavior column generates a finding, graded like FR-8.
+3. **FR-10: Synthesis-Blocking Gate**: The Guard Condition Boundary Table MUST be complete (all cells populated, all guards enumerated, and every input class either given a row or left out with its one-line reason) before synthesis output is generated. An incomplete table blocks synthesis output. This is a hard gate, not advisory.
 
 #### Downstream Propagation
 
