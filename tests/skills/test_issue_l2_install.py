@@ -579,3 +579,42 @@ def test_l2_status_never_writes(l2, setup, state):
     for _ in range(2):
         assert l2.status()[0] == state
     assert (snap(l2.hooks), snap(git_dir)) == before
+
+
+@pytest.mark.parametrize("operation", ["install_l2", "l2_status"])
+def test_fifo_data_conflict_returns_without_waiting(l2, operation):
+    import json
+
+    if operation == "l2_status":
+        assert l2.install() == ("installed", "")
+        l2.data.unlink()
+    os.mkfifo(l2.data, 0o600)
+    before = snap(l2.hooks)
+    # Bound the process, not a thread: a blocking open must fail instead of
+    # leaving a hung test runner or requiring a writer to unblock the FIFO.
+    code = """
+import importlib.util, json, sys
+spec = importlib.util.spec_from_file_location("fifo_orca", sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = module
+spec.loader.exec_module(module)
+print(json.dumps(getattr(module, sys.argv[2])(sys.argv[3])))
+"""
+    proc = subprocess.run(
+        [sys.executable, "-c", code, str(ORCA), operation, str(l2.work)],
+        env=l2.env,
+        capture_output=True,
+        text=True,
+        timeout=5,
+        check=True,
+    )
+    state, reason = json.loads(proc.stdout)
+    assert state == "conflict"
+    assert "data-file-differs" in reason
+    after = snap(l2.hooks)
+    if operation == "install_l2":
+        # Publishing a temporary file changes the directory mtime, not its entries.
+        before.pop(".")
+        after.pop(".")
+    assert after == before
+    assert stat.S_ISFIFO(l2.data.lstat().st_mode)

@@ -1180,7 +1180,7 @@ def _l2_data_ok(path: Path, expected: bytes) -> bool:
     """The data file is a regular file of ours, not group/other writable,
     holds exactly ``expected``, and its uv directory holds an executable uv."""
     try:
-        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
     except OSError:
         return False
     try:
