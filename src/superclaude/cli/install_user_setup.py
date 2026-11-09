@@ -28,6 +28,7 @@ import time
 from pathlib import Path
 from typing import List, Tuple
 
+from .install_core import _same_content
 from .install_hooks import _atomic_write_json, _backup_path
 
 _RULE_GROUPS = ("core", "contextual", "prompts")
@@ -64,7 +65,12 @@ def _package_dir(name: str) -> Path:
     return wheel if wheel.is_dir() else editable
 
 
-def _copy_tree(source: Path, dest: Path, force: bool) -> Tuple[int, int, List[str]]:
+def _copy_tree(
+    source: Path,
+    dest: Path,
+    force: bool,
+    differing_kept: List[Tuple[Path, Path]] | None = None,
+) -> Tuple[int, int, List[str]]:
     copied = skipped = 0
     failed: List[str] = []
     for src in sorted(source.rglob("*")):
@@ -73,6 +79,8 @@ def _copy_tree(source: Path, dest: Path, force: bool) -> Tuple[int, int, List[st
         target = dest / src.relative_to(source)
         if target.exists() and not force:
             skipped += 1
+            if differing_kept is not None and not _same_content(src, target):
+                differing_kept.append((src, target))
             continue
         try:
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -145,8 +153,18 @@ def install_output_styles(
     if not source.is_dir():
         return False, f"❌ Output styles source not found: {source}"
     dest = home / ".claude" / "output-styles"
-    copied, skipped, failed = _copy_tree(source, dest, force)
+    differing_kept: List[Tuple[Path, Path]] = []
+    copied, skipped, failed = _copy_tree(source, dest, force, differing_kept)
     message = f"✅ Output styles: {copied} installed, {skipped} kept, in {dest}"
+    if differing_kept:
+        message += (
+            f"\n⚠️  {len(differing_kept)} kept output style(s) differ from this "
+            "version or could not be compared and were NOT updated. "
+            "Compare the packaged and kept files "
+            "and merge desired changes manually, preserving your customizations:"
+        )
+        for src, target in differing_kept:
+            message += f"\n   - Packaged: {src}\n     Kept: {target}"
     if failed:
         message += "\n❌ " + "\n❌ ".join(failed)
     return not failed, message

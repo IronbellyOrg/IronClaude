@@ -213,6 +213,18 @@ Every report of every kind, produced by any agent, skill, gate, or human anywher
 
 ### Completion, testing, and quality gates
 
+#### Document-review contract exception
+
+For `/sc:spec-panel` document review in every mode only, the command's **Review Loop** contract overrides the generic review assumptions and severity/verdict defaults below. Use the effective command source and the document-review coordinator template; identify their actual locations and revisions. Other protocols, including implementation and PR-submit, retain their own policies until explicitly migrated.
+
+- Review to establish evidence, not to satisfy a defect quota. An adequately evidenced zero-finding result is valid; describe checked scope and limitations without inventing defects or additional repair cycles.
+- Confirmed High/Critical consequences block. Genuine Medium/Low/Nit findings are warnings/notes, not mandatory repairs, failures or restarts. Preserve source labels separately; grade consequences rather than automatically promoting MAJOR/IMPORTANT or every concrete defect to High. Credible severe concerns need evidence and explicit disposition, not silent clearance or automatic demotion.
+- PASS requires sufficient evidence for all applicable required assurance predicates and no confirmed High/Critical blocker. Missing required evidence is INCOMPLETE, not a fabricated defect or a zero. A binary-only interface may report evidence-incomplete FAIL, but must not turn it into automatic candidate repair.
+- Keep the same loop identity and consumed three-review/two-fix budget across resumes. Missing records cannot reset a known loop; no hidden fourth review or third fix. An exhausted loop returns unresolved findings once, without claiming clean PASS.
+- Collect nonblocking follow-up candidates. The attended top-level session asks one batched optional issue question; unattended runs record them without waiting or creating issues. No external issue is created without authorization.
+
+The generic rules below remain the defaults outside that document-review scope. They must not override this exception within it.
+
 - Non-trivial behavior, including a branch, loop, parser, money path, or security path, must leave behind the smallest appropriate runnable regression check using the project's existing testing conventions. The check must fail if the behavior breaks.
 - Establish a work item's completion by reading actual on-disk state (files exist, completion markers set) and machine-collected evidence, and re-derive completion mechanically from disk rather than trusting the producer's claim.
 - Treat a self-reported narrative handoff, or a self-reported "done", as never sufficient on its own to accept completion.

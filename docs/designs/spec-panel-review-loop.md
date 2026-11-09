@@ -1,3 +1,5 @@
+> Historical design: the November 2026 [document-review contract amendment](document-review-contract.md) supersedes the grading, resume defaults, quota, repair accounting and force-install advice below. Consult current source instructions; this document does not authorize installation.
+
 # Design: Review Loop contract for `/sc:spec-panel` (issue 346)
 
 **Status:** Design only (nothing implemented). Next: `/sc:workflow` on this file, then `/sc:implement` on the plan it prints.
