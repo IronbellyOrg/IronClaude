@@ -37,7 +37,10 @@ def _bullet(rel: str, number: int) -> str:
 @spec_panel
 def test_provenance_in_the_report_header(rel):
     mode = _bullet(rel, 1)
-    assert "records the SHA-256 of the baseline and of the candidate" in mode
+    assert (
+        "records the SHA-256 of the candidate and, when a baseline was given, of the baseline"
+        in mode
+    )
     assert "the reviewer model actually used" in mode
     assert "cannot be taken stops the run like an unreadable file" in mode
     assert "never fall back to a first review" in mode  # existing pin kept
@@ -46,10 +49,21 @@ def test_provenance_in_the_report_header(rel):
 @spec_panel
 def test_fail_closed_on_a_missing_or_ambiguous_report(rel):
     verdict = _bullet(rel, 3)
-    assert (
-        "is missing, ambiguous or cites a finding id absent from the table" in verdict
-    )
+    assert "a re-review report with no prior-findings table" in verdict
+    assert "any report whose final `verdict:` line is missing or ambiguous" in verdict
+    assert "any report that cites a finding id absent from its table" in verdict
     assert "as `verdict: FAIL`, never as PASS and never as zero findings" in verdict
+
+
+@spec_panel
+def test_first_review_path_is_not_made_to_fail_by_the_new_clauses(rel):
+    """A first review has no prior-findings table and may have no baseline."""
+    mode, verdict = _bullet(rel, 1), _bullet(rel, 3)
+    # the missing-table condition is scoped to re-review reports only
+    assert "a report whose prior-findings table" not in verdict
+    # the baseline hash is only required when a baseline was given
+    assert "when a baseline was given" in mode
+    assert "SHA-256 of the baseline and of the candidate" not in mode
 
 
 @spec_panel
