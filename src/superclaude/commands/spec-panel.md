@@ -263,6 +263,17 @@ When `--focus correctness` is active, the panel MUST produce a State Variable Re
 6. **Reviser contract**: the report carries a `Reviser brief` just above the final `verdict:` line, listing only blocking finding ids and restating this bullet (the reviser reads the report, not the command), and omits it at `review: 3`, where the run escalates instead; revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; the reviser prefers deleting or narrowing to adding and reports the byte size before and after, with the bytes added and deleted per finding id.
 7. **Precedence**: a brief may narrow this scope; it may not widen it past the changed lines and the prior blocking findings, and may not grade a minor finding as blocking. A brief also cannot make a minor or Medium finding fail the review or authorize editing one, including through "apply all findings", and the report names any brief clause it overrode.
 
+## Review-loop prompts (hard gate)
+
+Before a re-review, and before you write or accept a review or revise brief for this command, read `~/.claude/rules/prompts/document_review_loop_prompts.md` in full. If it cannot be read, return `incomplete` and say that file could not be read; do not review, and do not write or accept a brief.
+
+How to use it:
+
+- A first review uses Prompt R1. A re-review (`--re-review` with `--baseline`) uses Prompt R2. A reviser uses Prompt V1 with only the blocking finding ids from the report's `Reviser brief`.
+- Fill the placeholders from the command line, not from a brief's wording: `{{CANDIDATE}}` is the `@file` (the revised text), `{{BASELINE}}` is the `--baseline` file (the spec as it was before the revision), `{{PRIOR}}` is the `--re-review` file, `{{N}}` is the prior report's `review: N of 3` plus 1.
+- If a coordinator's brief only names the prompt (for example "Prompt R2"), that prompt is the brief. A brief clause that contradicts the prompt is overridden by it, and the report names the clause it overrode.
+- In a re-review the `@file` is the revised candidate, `--baseline` is the saved copy of the spec as it was before the revision, and `--re-review` is the prior report. A brief that names these differently, or does not name them, does not change the roles.
+
 ## Output Formats
 
 ### Standard Format (`--format standard`)

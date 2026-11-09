@@ -58,12 +58,17 @@ def lint_brief(text: str) -> list[str]:
     return [name for name, rx in BRIEF_VIOLATIONS.items() if rx.search(flat)]
 
 
-def _guide_briefs() -> dict[str, str]:
-    text = GUIDE.read_text(encoding="utf-8")
+BRIEF_SOURCES = (
+    _REPO / "src/superclaude/rules/prompts/document_review_loop_prompts.md",
+)
+
+
+def _briefs(path: Path) -> dict[str, str]:
+    text = path.read_text(encoding="utf-8")
     found = {}
-    for label in ("Review brief", "Revise brief"):
+    for label in ("First-review brief", "Re-review brief", "Revise brief"):
         m = re.search(rf'- {label}: "([^"]+)"', text)
-        assert m, f"HOW-WE-WORK.md has no quoted {label.lower()}"
+        assert m, f"{path.name} has no quoted {label}"
         found[label] = m.group(1)
     return found
 
@@ -99,12 +104,23 @@ def test_lint_ignores_the_new_wording():
     )
 
 
-def test_guide_ships_both_briefs_and_they_pass_the_lint():
-    briefs = _guide_briefs()
+@pytest.mark.parametrize(
+    "path", BRIEF_SOURCES, ids=lambda p: p.parent.name + "/" + p.name
+)
+def test_shipped_briefs_pass_the_lint_and_carry_the_roles(path):
+    briefs = _briefs(path)
     for label, text in briefs.items():
         assert lint_brief(text) == [], label
-    review, revise = briefs["Review brief"], briefs["Revise brief"]
-    assert "resolved, open or regressed" in review
+    first, review, revise = (
+        briefs["First-review brief"],
+        briefs["Re-review brief"],
+        briefs["Revise brief"],
+    )
+    assert "review 1 of 3" in first and "return incomplete" in first
+    assert "Review the revised candidate" in review
+    assert "the spec as it was before the revision" in review
+    assert "using prior report" in review
+    assert "resolved, open or regressed against the revised candidate" in review
     assert "never fail the review" in review
     assert "not a minimum number of findings" in review
     assert "return incomplete" in review
