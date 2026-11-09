@@ -50,7 +50,7 @@ def test_rules_file_holds_all_prompt_text():
         "| CANDIDATE | the `@file` of the command | the revised text under review |",
         "| BASELINE | the `--baseline` file | the text as it was before the revision |",
         "| PRIOR | the `--re-review` file | the previous review report |",
-        "Never infer a role from reading order or from memory",
+        "never infer a role from reading order or from memory",
         "Step 1, the evidence block",
         "`diff -w BASELINE CANDIDATE`",
         "`BEFORE (baseline)`",
