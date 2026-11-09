@@ -1,0 +1,9 @@
+{
+  "model_requested": "claude-opus-5-5",
+  "result": "OK",
+  "returncode": 0,
+  "retries": [],
+  "answering_models": [
+    "claude-sonnet-5-5"
+  ]
+}

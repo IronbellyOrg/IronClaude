@@ -1,0 +1,2 @@
+2026-11-09T19:42:00 TIER tier2: T2Model01 -> gpt-6.1-sol
+2026-11-09T19:42:00 RESPONSE /v1/messages?beta=true  backend served model=gpt-6.1-sol
