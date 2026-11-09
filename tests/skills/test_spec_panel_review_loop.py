@@ -1,4 +1,4 @@
-"""Static pins for the /sc:spec-panel ``## Review Loop`` section (issue 346).
+"""Static pins for the /sc:spec-panel ``## Review Loop`` section (document-review remediation).
 
 Enforcement type: STATIC - assertions over the text of the two spec-panel
 copies, the two routing-guide copies and the two release guides. They prove the
@@ -109,10 +109,7 @@ SPEC_REVIEW_FIXES = (
     "`regressed` = a finding the prior report marked resolved that fails again",
     "never fall back to a first review",
 )
-PRECEDENCE = (
-    "a brief may narrow this scope; it may not widen it past the changed lines and the prior blocking findings, "
-    "and may not grade a minor finding as blocking"
-)
+PRECEDENCE = "A brief may narrow the checked scope but must retain applicable required assurance, prior findings and necessary dependencies"
 
 
 @spec_panel
