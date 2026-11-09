@@ -263,14 +263,17 @@ When `--focus correctness` is active, the panel MUST produce a State Variable Re
 
 ## Review-loop prompts (hard gate)
 
-Before a re-review, and before you write or accept a review or revise brief for this command, read `~/.claude/rules/prompts/document_review_loop_prompts.md` in full. If it cannot be read, return `incomplete` and say that file could not be read; do not review, and do not write or accept a brief.
-
-How to use it:
-
-- A first review uses Prompt R1. A re-review (`--re-review` with `--baseline`) uses Prompt R2. A reviser uses Prompt V1 with only the blocking finding ids from the report's `Reviser brief`.
-- Fill the placeholders from the command line, not from a brief's wording: `{{CANDIDATE}}` is the `@file` (the revised text), `{{BASELINE}}` is the `--baseline` file (the spec as it was before the revision), `{{PRIOR}}` is the `--re-review` file, `{{N}}` is the prior report's `review: N of 3` plus 1.
-- If a coordinator's brief only names the prompt (for example "Prompt R2"), that prompt is the brief. A brief clause that contradicts the prompt is overridden by it, and the report names the clause it overrode.
-- In a re-review the `@file` is the revised candidate, `--baseline` is the saved copy of the spec as it was before the revision, and `--re-review` is the prior report. A brief that names these differently, or does not name them, does not change the roles.
+Before any re-review, and before you write or accept a review or revise brief for this command, read `~/.claude/rules/prompts/document_review_loop_prompts.md` in full; if it cannot be read, return `incomplete` and review nothing. Use its FIRST-REVIEW prompt for a first review, its RE-REVIEW prompt for a re-review (`--re-review` with `--baseline`) and its REVISE prompt for a reviser. The file may add detail to the core below but may never change the roles or the core steps; if they disagree, this core wins.
+<!-- core:start -->
+| ROLE | FILE VALUE | MEANING |
+|---|---|---|
+| CANDIDATE | the `@file` of the command | the revised text under review |
+| BASELINE | the `--baseline` file | the text as it was before the revision |
+| PRIOR | the `--re-review` file | the previous review report |
+- **Step 1, the evidence block**, before any finding. Roles are fixed: never infer a role from reading order or from memory. Run `diff -w BASELINE CANDIDATE` and copy the changed lines verbatim under `BEFORE (baseline)` (lines starting `<`) and `AFTER (candidate)` (lines starting `>`). Decide each prior blocking finding marked resolved as resolved or regressed by comparing its defect with the AFTER text only. If the diff is empty, every prior blocking finding stays open.
+- **Review number**: N is the number in PRIOR's `review: N of 3` header plus 1. Write `review: N of 3` once, as the first line of the report. Example: a prior `review: 2 of 3` gives `review: 3 of 3`. Use no other header variant.
+- **Self-check before the verdict**, when commands can be run: `grep -nF` each quoted AFTER line (without its `>`) in CANDIDATE and each quoted BEFORE line (without its `<`) in BASELINE. If any quote is not found, you swapped roles: redo Step 1. A PASS requires the AFTER text to be consistent with every requirement that depends on it.
+<!-- core:end -->
 
 ## Output Formats
 
