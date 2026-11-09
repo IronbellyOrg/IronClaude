@@ -1,0 +1,20 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-462
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 319 items
+
+tests/unit/test_ccsession_tiers.py ..................................... [ 11%]
+........................................................................ [ 34%]
+........................................................................ [ 56%]
+..........................                                               [ 64%]
+tests/unit/test_install_ccsession.py ......................              [ 71%]
+tests/commands/test_auggie_review_revagent.py ............               [ 75%]
+tests/skills/test_model_alias_policy.py ..................               [ 81%]
+tests/skills/test_brainstorm_protocol.py .....                           [ 82%]
+tests/skills/test_native_model_defaults.py ............................. [ 91%]
+..........................                                               [100%]
+
+======================= 319 passed in 193.13s (0:03:13) ========================

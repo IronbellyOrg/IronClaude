@@ -1,0 +1,1732 @@
+diff --git a/plugins/superclaude/commands/brainstorm.md b/plugins/superclaude/commands/brainstorm.md
+index 02274499c..b20ba0769 100644
+--- a/plugins/superclaude/commands/brainstorm.md
++++ b/plugins/superclaude/commands/brainstorm.md
+@@ -34,7 +34,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
+ /sc:brainstorm "<topic>" [--proposals N] [--depth quick|standard|deep] \
+   [--strategy systematic|agile|enterprise|auto] \
+   [--codebase|--no-codebase] [--research light|deep|none|--no-research] \
+-  [--personas p1,p2,...] [--models opus,sonnet,haiku] \
++  [--personas p1,p2,...] [--models default|opus|sonnet|haiku|fable,...] \
+   [--blind] [--convergence FLOAT] [--interactive] \
+   [--handoff none|design|tasklist|task] [--output DIR] \
+   [--dry-run] [--resume-from PATH] [--force-stale]
+@@ -53,7 +53,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
+ | `--research` | | auto | `light`, `deep`, `none` |
+ | `--no-research` | | `false` | Skip research enrichment |
+ | `--personas` | | auto | Comma-separated persona list overriding auto-detection |
+-| `--models` | | `opus,sonnet,haiku` | Model alias list rotated across proposals |
++| `--models` | | `default` for every proposal | Explicit ordered list of `default`, `opus`, `sonnet`, `haiku`, `fable`, rotated without depth promotion. `default` omits the native model parameter. |
+ | `--blind` | | `false` | Pass-through to `/sc:adversarial --blind` |
+ | `--convergence` | | `0.75` | Pass-through to `/sc:adversarial --convergence` |
+ | `--interactive` | `-i` | `false` | Pause for user input at Socratic + adversarial decision points |
+@@ -78,7 +78,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
+ /sc:brainstorm "add rate limiting to public API endpoints" --depth standard
+ ```
+ 
+-Auto: codebase enrichment via Auggie; 3 proposals across opus/sonnet/haiku with architect/refactorer/backend personas; adversarial debate + merge.
++Auto: codebase enrichment via Auggie; 3 proposals using the role-permitted configured default with architect/refactorer/backend personas; adversarial debate + merge. Explicit `--models opus,sonnet,haiku` requests that ordered rotation without depth promotion.
+ 
+ ### Deep incident post-mortem
+ 
+@@ -103,13 +103,13 @@ Tavily research enrichment; architect/frontend/scribe personas; product-style re
+   --depth deep --proposals 5 --handoff tasklist
+ ```
+ 
+-Codebase + research enrichment; 5 proposals × 3 models; deep debate; merged requirements feed sc:tasklist invocation.
++Codebase + research enrichment; 5 proposals using the role-permitted configured default; deep debate; merged requirements feed sc:tasklist invocation.
+ 
+ ### Blind multi-model comparison
+ 
+ ```bash
+ /sc:brainstorm "consolidate three duplicate auth modules" \
+-  --depth deep --blind --proposals 4
++  --depth deep --blind --proposals 4 --models sonnet,haiku
+ ```
+ 
+ Strips model identity before adversarial scoring to prevent model-bias.
+@@ -149,7 +149,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
+ - Transform ambiguous topics into structured seed briefs via Socratic dialogue
+ - Orchestrate parallel proposal generation via `/sc:adversarial` (Mode B)
+ - Auto-detect and invoke codebase + research enrichment when valuable
+-- Compose model × persona agent-specs across 3 active aliases (opus/sonnet/haiku)
++- Compose persona agent-specs using the role-permitted configured default; rotate only an explicit --models list in its supplied order
+ - Hand off merged requirements to `/sc:design`, `/sc:tasklist`, or `/task-builder` (flag-gated)
+ - Produce a versioned return contract for composability with downstream commands
+ 
+@@ -158,7 +158,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
+ - Re-implement adversarial debate, scoring, or merge logic (delegated to `sc-adversarial-protocol`)
+ - Auto-invoke `/sc:design` (text recommendation only — design is dialogue-heavy)
+ - Modify source code or implement features (produces requirements only)
+-- Activate ANTHROPIC_DEFAULT_* env var swapping (uses 3 active aliases as-is)
++- Activate ANTHROPIC_DEFAULT_* env var swapping or invent a family rotation when --models is omitted
+ - Silently downgrade on missing handoff skills (STOPs and asks user to choose)
+ - Route empty/malformed adversarial responses to PARTIAL success (FAILs instead)
+ 
+diff --git a/src/superclaude/agents/auggie-reviewer.md b/src/superclaude/agents/auggie-reviewer.md
+index 16e91376c..6fa76d4ee 100644
+--- a/src/superclaude/agents/auggie-reviewer.md
++++ b/src/superclaude/agents/auggie-reviewer.md
+@@ -3,7 +3,6 @@ name: auggie-reviewer
+ description: Independent code-review specialist that performs a Claude-side review pass alongside Auggie's deep retrieval pass, used in /sc:auggie-review --depth deep for cross-validation
+ category: analysis
+ tools: [Read, Grep, Glob, Bash, mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers]
+-model: opus
+ ---
+ 
+ # Auggie Cross-Validator Agent
+diff --git a/src/superclaude/agents/debate-orchestrator.md b/src/superclaude/agents/debate-orchestrator.md
+index f92f3d019..5b0a716dc 100644
+--- a/src/superclaude/agents/debate-orchestrator.md
++++ b/src/superclaude/agents/debate-orchestrator.md
+@@ -16,9 +16,9 @@ category: analysis
+ 
+ Coordinate the adversarial pipeline with strict neutrality. Never participate in debates or advocate for any variant. Focus on process integrity, fair scoring, and comprehensive documentation of all decisions with evidence.
+ 
+-## Model Preference
++## Model Selection
+ 
+-Highest-capability model available (opus preferred). The orchestrator requires strong reasoning for scoring algorithm execution and multi-agent coordination.
++Omitted native model selection uses the user's configured default permitted by their Coder role. Preserve explicit permitted selections; do not substitute a capability-based preference.
+ 
+ ## Tools
+ 
+diff --git a/src/superclaude/agents/eval-suite-author.md b/src/superclaude/agents/eval-suite-author.md
+index 8e4744684..e5336111d 100644
+--- a/src/superclaude/agents/eval-suite-author.md
++++ b/src/superclaude/agents/eval-suite-author.md
+@@ -3,7 +3,6 @@ name: eval-suite-author
+ description: Authors a cliEval suite manifest (suites/<stem>.yaml) plus any fixtures and sibling <stem>_callbacks.py, strictly schema-first, and self-validates it with `superclaude eval describe --suite <stem>` before declaring done. Used by /sc:cli-eval create as the authoring worker after the design has been debated and merged. Never invents schema fields or CLI flags it has not been handed by the fresh-context digest.
+ category: utility
+ tools: Read, Grep, Glob, Write, Edit, Bash
+-model: opus
+ ---
+ 
+ # Eval Suite Author
+@@ -23,10 +22,9 @@ schema-valid top-level keys, eval bodies shaped as Claude prompts with `expects`
+ If validation fails, read the loader error, fix the manifest, and re-validate; never hand back an
+ unvalidated file.
+ 
+-## Model Preference
++## Model Selection
+ 
+-Opus: authoring correct YAML against a precise schema with meaningful, non-trivial assertions
+-benefits from the stronger model, and this is the artifact the whole create pipeline produces.
++Omitted native model selection uses the user's configured default permitted by their Coder role. Preserve explicit permitted selections; do not substitute a capability-based preference.
+ 
+ ## Tools
+ 
+diff --git a/src/superclaude/agents/merge-executor.md b/src/superclaude/agents/merge-executor.md
+index f984321e4..d3994ecdf 100644
+--- a/src/superclaude/agents/merge-executor.md
++++ b/src/superclaude/agents/merge-executor.md
+@@ -16,9 +16,9 @@ category: quality
+ 
+ Follow the refactoring plan precisely and methodically. Focus on structural integrity, accurate provenance tracking, and producing a unified document that faithfully incorporates planned changes without introducing new content or making strategic decisions.
+ 
+-## Model Preference
++## Model Selection
+ 
+-High-capability model (opus or sonnet). Requires strong writing and structural reasoning for document integration tasks.
++Omitted native model selection uses the user's configured default permitted by their Coder role. Preserve explicit permitted selections; do not substitute a capability-based preference.
+ 
+ ## Tools
+ 
+diff --git a/src/superclaude/commands/adversarial.md b/src/superclaude/commands/adversarial.md
+index 38e9b1633..f01525dd1 100644
+--- a/src/superclaude/commands/adversarial.md
++++ b/src/superclaude/commands/adversarial.md
+@@ -36,13 +36,13 @@ personas: [architect, analyzer, scribe]
+ 
+ **Mode A (Compare)**:
+ 
+-- `--compare`: Comma-separated file paths (2-10 existing files)
++- `--compare`: Comma-separated file paths (2-10 existing files). Without `--agents`, use one `default` advocate per file (omit native model, not parent-model inheritance). An explicit validated agent list keeps its selections, personas, instructions and order.
+ 
+ **Mode B (Generate + Compare)**:
+ 
+ - `--source`: Source file for variant generation
+ - `--generate`: Type of artifact to generate (roadmap, spec, design, etc.)
+-- `--agents`: Agent specifications in `model[:persona[:"instruction"]]` format
++- `--agents`: Agent specifications in `selection[:persona[:quoted-instruction]]` format. Selection is `default` (omit native model) or an explicit `opus`, `sonnet`, `haiku`, `fable` alias. Instructions accept matching single or double quotes; commas and colons split only outside quotes. Never pass the `default` marker as a native model.
+ 
+ **Pipeline Mode (Multi-Phase DAG)**:
+ 
+@@ -58,7 +58,7 @@ personas: [architect, analyzer, scribe]
+ | `--compare` | `-c` | Mode A | - | Comma-separated file paths (2-10) |
+ | `--source` | `-s` | Mode B | - | Source file for variant generation |
+ | `--generate` | `-g` | Mode B | - | Type of artifact to generate |
+-| `--agents` | `-a` | Mode B | - | Agent specs: `model[:persona[:"instruction"]]` |
++| `--agents` | `-a` | Mode B (optional in Mode A) | `default` per input file in Mode A | Agent specs: `selection[:persona[:quoted-instruction]]`; `default` omits native model, explicit aliases stay explicit; matching single/double quotes protect instruction commas and colons. |
+ | `--pipeline` | | Pipeline | - | Inline shorthand or `@path.yaml` -- mutually exclusive with --compare/--source |
+ | `--pipeline-parallel` | | No | `3` | Max concurrent phases per DAG level (1-10) |
+ | `--pipeline-resume` | | No | `false` | Resume from manifest checkpoint, skip completed phases |
+diff --git a/src/superclaude/commands/auggie-review.md b/src/superclaude/commands/auggie-review.md
+index 49a76c29e..dc6e6553c 100644
+--- a/src/superclaude/commands/auggie-review.md
++++ b/src/superclaude/commands/auggie-review.md
+@@ -54,7 +54,7 @@ The trigger discipline exists because deep reviews are expensive (Auggie indexin
+ | `--no-remediation-offer` | — | Suppress the remediation chain offer |
+ | `--output-dir` | `.dev/reviews/<target-slug>-<timestamp>/` | Where to write the markdown report, raw auggie JSON, and audit log |
+ | `--auggie-model` | `prism-b` | Override the model auggie uses; when omitted and `AUGGIE_MODEL` is unset, uses `prism-b` (e.g., `--auggie-model <model-id>`) |
+-| `--revagent` | unset: reviewer agents use their frontmatter model | Model for the INTERNAL review-agent spawns only (the `--depth deep` `auggie-reviewer` pass and any re-spawn of it); it does not change the lead session model or `--auggie-model`. Accepted: `opus`, `sonnet`, `haiku`, `fable`. These are the native Agent tool `model` aliases; a missing value or any other value (e.g. `connect`, a full model ID, a gateway alias) STOPs with an error before any work, and never falls back to the default. `--revagent` picks the request alias; which concrete model an alias resolves to is Claude Code / gateway configuration (e.g. `ANTHROPIC_DEFAULT_SONNET_MODEL`, a LiteLLM alias), and `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` overrides per-invocation models. At `--depth quick` or `standard` no internal reviewer runs, so the flag only prints a WARN |
++| `--revagent` | unset: omit the native model parameter and use the role-permitted configured default | Model for the INTERNAL review-agent spawns only (the `--depth deep` `auggie-reviewer` pass and any re-spawn of it); it does not change the lead session model or `--auggie-model`. Accepted: `opus`, `sonnet`, `haiku`, `fable`. These are the native Agent tool `model` aliases; a missing value or any other value (e.g. `connect`, a full model ID, a gateway alias) STOPs with an error before any work, and never falls back to the default. `--revagent` picks the request alias; which concrete model an alias resolves to is Claude Code / gateway configuration (e.g. `ANTHROPIC_DEFAULT_SONNET_MODEL`, a LiteLLM alias), and `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` overrides per-invocation models. At `--depth quick` or `standard` no internal reviewer runs, so the flag only prints a WARN |
+ | `--unattended` | off | Worker mode for a coordinator; applies only as a standalone argument token. It implies `--no-post-pr` and `--no-remediation-offer`. Behaviour is in `## Unattended mode`; without it nothing changes |
+ | `--report-dir` | — | With `--unattended`: the directory that holds the worker contract and the report, instead of `--output-dir`, never both |
+ 
+diff --git a/src/superclaude/commands/brainstorm.md b/src/superclaude/commands/brainstorm.md
+index 0bdbb2d6e..4bd70ee39 100644
+--- a/src/superclaude/commands/brainstorm.md
++++ b/src/superclaude/commands/brainstorm.md
+@@ -34,7 +34,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
+ /sc:brainstorm "<topic>" [--proposals N] [--depth quick|standard|deep] \
+   [--strategy systematic|agile|enterprise|auto] \
+   [--codebase|--no-codebase] [--research light|deep|none|--no-research] \
+-  [--personas p1,p2,...] [--models opus,sonnet,haiku] \
++  [--personas p1,p2,...] [--models default|opus|sonnet|haiku|fable,...] \
+   [--blind] [--convergence FLOAT] [--interactive] \
+   [--handoff none|design|tasklist|task] [--output DIR] \
+   [--dry-run] [--resume-from PATH] [--force-stale]
+@@ -54,7 +54,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
+ | `--research` | | auto | `light`, `deep`, `none` |
+ | `--no-research` | | `false` | Skip research enrichment |
+ | `--personas` | | auto | Comma-separated persona list overriding auto-detection |
+-| `--models` | | `opus,sonnet,haiku` | Model alias list rotated across proposals |
++| `--models` | | `default` for every proposal | Explicit ordered list of `default`, `opus`, `sonnet`, `haiku`, `fable`, rotated without depth promotion. `default` omits the native model parameter. |
+ | `--blind` | | `false` | Pass-through to `/sc:adversarial --blind` |
+ | `--convergence` | | `0.75` | Pass-through to `/sc:adversarial --convergence` |
+ | `--interactive` | `-i` | `false` | Pause for user input at Socratic + adversarial decision points |
+@@ -81,7 +81,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
+ /sc:brainstorm "add rate limiting to public API endpoints" --depth standard
+ ```
+ 
+-Auto: codebase enrichment via Auggie; 3 proposals across opus/sonnet/haiku with architect/refactorer/backend personas; adversarial debate + merge.
++Auto: codebase enrichment via Auggie; 3 proposals using the role-permitted configured default with architect/refactorer/backend personas; adversarial debate + merge. Explicit `--models opus,sonnet,haiku` requests that ordered rotation without depth promotion.
+ 
+ ### Deep incident post-mortem
+ 
+@@ -106,13 +106,13 @@ Tavily research enrichment; architect/frontend/scribe personas; product-style re
+   --depth deep --proposals 5 --handoff tasklist
+ ```
+ 
+-Codebase + research enrichment; 5 proposals × 3 models; deep debate; merged requirements feed sc:tasklist invocation.
++Codebase + research enrichment; 5 proposals using the role-permitted configured default; deep debate; merged requirements feed sc:tasklist invocation.
+ 
+ ### Blind multi-model comparison
+ 
+ ```bash
+ /sc:brainstorm "consolidate three duplicate auth modules" \
+-  --depth deep --blind --proposals 4
++  --depth deep --blind --proposals 4 --models sonnet,haiku
+ ```
+ 
+ Strips model identity before adversarial scoring to prevent model-bias.
+@@ -165,7 +165,7 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
+ - Transform ambiguous topics into structured seed briefs via Socratic dialogue
+ - Orchestrate parallel proposal generation via `/sc:adversarial` (Mode B)
+ - Auto-detect and invoke codebase + research enrichment when valuable
+-- Compose model × persona agent-specs across 3 active aliases (opus/sonnet/haiku)
++- Compose persona agent-specs using the role-permitted configured default; rotate only an explicit --models list in its supplied order
+ - Hand off merged requirements to `/sc:design`, `/sc:tasklist`, or `/task-builder` (flag-gated)
+ - Produce a versioned return contract for composability with downstream commands
+ 
+@@ -174,7 +174,7 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
+ - Re-implement adversarial debate, scoring, or merge logic (delegated to `sc-adversarial-protocol`)
+ - Auto-invoke `/sc:design` (text recommendation only — design is dialogue-heavy)
+ - Modify source code or implement features (produces requirements only)
+-- Activate ANTHROPIC_DEFAULT_* env var swapping (uses 3 active aliases as-is)
++- Activate ANTHROPIC_DEFAULT_* env var swapping or invent a family rotation when --models is omitted
+ - Silently downgrade on missing handoff skills (STOPs and asks user to choose)
+ - Route empty/malformed adversarial responses to PARTIAL success (FAILs instead)
+ 
+diff --git a/src/superclaude/commands/cli-eval.md b/src/superclaude/commands/cli-eval.md
+index cabb844b6..ad7b66602 100644
+--- a/src/superclaude/commands/cli-eval.md
++++ b/src/superclaude/commands/cli-eval.md
+@@ -19,7 +19,7 @@ The first argument selects the pipeline (STOP if neither is given):
+ ## Usage
+ 
+ ```bash
+-/sc:cli-eval create [--name <stem>] [--from @<design-or-spec>.md] [--agents opus,sonnet,haiku]
++/sc:cli-eval create [--name <stem>] [--from @<design-or-spec>.md] [--agents <spec>[,...]]
+ /sc:cli-eval run    [--suite <name>] [--eval <id>]
+ ```
+ 
+@@ -34,7 +34,7 @@ underlying `superclaude eval` CLI — selection and monitoring are orchestration
+ | `create` / `run` | — | — | Pipeline selector (positional `$1`, required) |
+ | `--name` | create | derived | Snake_case stem for the new suite (`<stem>.yaml`, must equal `name:`) |
+ | `--from` | create | — | Seed design/spec file (`@path`) for the critique + variant generation |
+-| `--agents` | create | `opus,sonnet,haiku` | Advocate specs for adversarial variant generation |
++| `--agents` | create | `default,default,default` | Three designs using the role-permitted configured child default (native model omitted). An explicit selection/persona/instruction list is forwarded unchanged, in order. |
+ | `--suite` | run | (menu) | Pre-select a suite by name; otherwise an interactive menu is shown |
+ | `--eval` | run | (all) | Pre-select a single eval id to drill into / filter |
+ | `--unattended` | both | off | Worker mode for a coordinator; applies only as a standalone argument token. Behaviour is in `## Unattended mode`; without it nothing changes |
+diff --git a/src/superclaude/skills/ccsession-tag/README.md b/src/superclaude/skills/ccsession-tag/README.md
+index 9f3a85256..f5d9ec3d7 100644
+--- a/src/superclaude/skills/ccsession-tag/README.md
++++ b/src/superclaude/skills/ccsession-tag/README.md
+@@ -503,7 +503,40 @@ older ccsession, with the same one-line rule. Older copies ignore
+ `CCSESSION_ACCESS`: a `role:` or `*` entry there stops them for every named
+ owner, so put those in `CCSESSION_TIER_RULES` only.
+ 
+-The limit is advisory. It sets what ccsession offers by default, and the
++In tier mode the shim checks raw model IDs, picker aliases and tier aliases
++against the same role policy as the launcher, including an alias's resolved
++model. A denied request or malformed applicable policy is rejected before its
++model request reaches the gateway. Non-model endpoints are unchanged.
++
++### Native child model selection
++
++In tier mode, the child default is the workspace's `ANTHROPIC_MODEL`, or, when
++that is empty, the saved user `model` in `$CLAUDE_CONFIG_DIR/settings.json`
++(normally `~/.claude/settings.json`), validated against the allowed tiers.
++An unavailable configured value uses the role start tier, then the existing
++default-tier fallback. Parent-only `--model` and `--tier` choices do not replace
++this child default. A valid deliberate `CLAUDE_CODE_SUBAGENT_MODEL` is preserved.
++This reads the saved user preference, not Claude's complete effective session
++settings: project/local/managed settings, launch `--settings`, and in-session
++`/model` changes are not re-resolved. A new launch reads the saved preference
++again. An unreadable or malformed user settings file stops the tier launch.
++Native per-call and agent-frontmatter choices still override the child default,
++unless the administrator explicitly supplied the native force setting. Native
++environment `inherit` means unset; agent-frontmatter `inherit` still selects
++the parent. This requires ordinary native subagent precedence (Claude Code
++2.1.251 or later; force support starts at 2.1.257). Outside tier mode, native
++behavior is unchanged. These settings do not identify the backend that served
++a request, and do not refresh a running child's configured default.
++
++The affected framework workflows omit native model selection unless the user
++supplies a supported explicit choice. Their `default` specification token is a
++protocol marker consumed before dispatch, never a native model alias. Explicit
++aliases remain subject to the shim's role check on the resolved destination;
++they cannot grant access. `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` is an administrative
++exception preserved when supplied, never created by the launcher. Requested
++selection is not proof of the served backend or the cause of a historical launch.
++
++The limit is local to ccsession, not gateway-wide authorization. The
+ workspace owner can undo it from their own environment
+ (`CODER_WORKSPACE_OWNER_NAME`, `CODER_WORKSPACE_OWNER_ROLES`, `AIDEV_AI_DEFAULTS_PATH`, `CCSESSION_TIERS=0`)
+ or call a model directly with their gateway key. Only a gateway key limited to
+@@ -522,8 +555,9 @@ failure.
+ |---|---|
+ | `T<N>_WINDOW` (workspace env) | Tier context window; its presence turns tier mode on (`<N>` is a number with an optional letter, such as `1a`) |
+ | `T<N>Model0M`, `T<N>Model0M_WINDOW` (workspace env) | Tier models in order, and each model's own window (a backup smaller than the tier window is never used) |
+-| `ANTHROPIC_MODEL` (workspace env) | Default model when no `--tier` or `--model` is given, if it is a model of a tier you may use (same launch as `--model <that model>`); otherwise ignored and `CCSESSION_DEFAULT_TIER` applies |
+-| `CCSESSION_DEFAULT_TIER` (workspace env) | Tier used when no `--tier` or `--model` is given and `ANTHROPIC_MODEL` does not apply (`tier2` if unset) |
++| `ANTHROPIC_MODEL` (workspace env) | Configured default, before the saved user preference. If empty or absent, read `model` from `$CLAUDE_CONFIG_DIR/settings.json` (normally `~/.claude/settings.json`). A permitted tier alias or model in an allowed tier is used; an unavailable value falls back to the role start tier, then `CCSESSION_DEFAULT_TIER` |
++| `CLAUDE_CODE_SUBAGENT_MODEL` | In tier mode, ccsession binds omitted native child selections to the configured default before parent-only `--model`/`--tier` overrides. A valid deliberate child value is preserved; environment `inherit` acts as unset and gets the configured default. Family aliases are checked through their workspace mappings. `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` is preserved, never added |
++| `CCSESSION_DEFAULT_TIER` (workspace env) | Fallback when no configured model applies and no role start tier is set (`tier2` if unset) |
+ | `CCSESSION_TIER_RULES` (workspace env) | Per Coder username, Coder role, or everyone else: start tier, tiers offered, and `+models` (see Per-user tiers above) |
+ | `CCSESSION_MODEL_ORDER` (workspace env) | Order of the individual models in `/model` for a `+models` rule |
+ | `CCSESSION_ACCESS` (workspace env) | Older per-username form, read only when there is no `CCSESSION_TIER_RULES` line |
+diff --git a/src/superclaude/skills/ccsession-tag/ccsession b/src/superclaude/skills/ccsession-tag/ccsession
+index d53e399ca..35c26bc21 100755
+--- a/src/superclaude/skills/ccsession-tag/ccsession
++++ b/src/superclaude/skills/ccsession-tag/ccsession
+@@ -1197,13 +1197,30 @@ apply_tier_selection() {
+   unset ANTHROPIC_CUSTOM_MODEL_OPTION
+   unset ANTHROPIC_CUSTOM_MODEL_OPTION_NAME
+   unset ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION
+-  local what
+-  # No --model and no --tier: the workspace's own default model (ANTHROPIC_MODEL)
+-  # wins over the tier default, but only when it is in a tier this owner may
+-  # use; anything else leaves the tier default, silently.
+-  if [ -z "$MODEL_ARG" ] && [ -z "$TIER_ARG" ] && [ -n "${ANTHROPIC_MODEL:-}" ] \
+-    && python3 "$CCSESSION_MODELS" in-my-tiers "$ANTHROPIC_MODEL" 2>/dev/null; then
+-    MODEL_ARG="$ANTHROPIC_MODEL"
++  local what _configured _default_tier _child_settings _child_key _child_value
++  # Bind children before applying parent-only --model/--tier overrides.
++  _configured=$(python3 "$CCSESSION_MODELS" configured-model) || exit 2
++  if [ -z "$_configured" ]; then
++    _default_tier=$(python3 "$CCSESSION_MODELS" default-tier) || exit 2
++    _configured="claude-gw-${_default_tier}[1m]"
++  fi
++  if [ -n "${CLAUDE_CODE_SUBAGENT_MODEL:-}" ] && [ "$CLAUDE_CODE_SUBAGENT_MODEL" != inherit ]; then
++    python3 "$CCSESSION_MODELS" check-child-model "$CLAUDE_CODE_SUBAGENT_MODEL" || exit 2
++  else
++    # Environment inherit is native's unset spelling, not a saved preference.
++    _child_settings=$(python3 "$CCSESSION_MODELS" child-resolve "$_configured") || exit 2
++    while IFS='=' read -r _child_key _child_value; do
++      if [ "$_child_key" = PROFILE_MODEL ]; then
++        export CLAUDE_CODE_SUBAGENT_MODEL="$_child_value"
++      fi
++    done <<< "$_child_settings"
++  fi
++  if [ -z "$MODEL_ARG" ] && [ -z "$TIER_ARG" ]; then
++    if [ -n "${_default_tier:-}" ]; then
++      TIER_ARG="$_default_tier"
++    else
++      MODEL_ARG="$_configured"
++    fi
+   fi
+   if [ -n "$MODEL_ARG" ]; then
+     what="model $MODEL_ARG"
+diff --git a/src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py b/src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py
+index 38f961fc4..31086ec19 100755
+--- a/src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py
++++ b/src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py
+@@ -572,38 +572,45 @@ class Handler(http.server.BaseHTTPRequestHandler):
+     def _post(self):
+         length = int(self.headers.get("Content-Length", 0) or 0)
+         body = self.rfile.read(length) if length else b""
+-        # un-alias the model field on the way out
+-        tier_name = ""
+-        if body:
+-            try:
+-                obj = json.loads(body)
+-                m = obj.get("model")
+-                tier = (
+-                    m[len(TIER_PREFIX) :]
+-                    if isinstance(m, str) and m.startswith(TIER_PREFIX)
+-                    else ""
+-                )
+-                if re.fullmatch(r"[0-9]{1,2}[a-z]?", tier):  # tier2, tier1a
+-                    tier_name = f"tier{tier}"
+-                elif isinstance(m, str) and m.startswith("claude-gw-"):
+-                    with _lock:
+-                        known = m in alias_to_real
+-                    if not known:  # cold map: self-heal from upstream
+-                        self._refresh_models()
+-                    with _lock:
+-                        real = alias_to_real.get(m)
+-                    if real:
+-                        obj["model"] = real
+-                        body = json.dumps(obj).encode()
+-                        audit(f"REQUEST  {self.path}  alias={m}  -> real={real}")
+-                    else:
+-                        audit(f"WARN  unknown alias {m} (not in upstream /v1/models)")
+-            except (ValueError, TypeError):
+-                tier_name = ""
+-        if tier_name:
+-            # Outside the parse guard: an error while routing must never send
+-            # the request on again under its alias name.
+-            return self._forward_tier(tier_name, obj)
++        try:
++            obj = json.loads(body) if body else None
++        except (ValueError, TypeError):
++            obj = None
++        if not isinstance(obj, dict) or "model" not in obj:
++            return self._proxy(body=body)
++        m = obj["model"]
++        guarded = model_data.tier_mode()
++        # Keep policy errors outside the JSON guard: never forward after denial.
++        try:
++            if guarded:
++                model_data.check_model_access(m)
++            bare = m.removesuffix("[1m]") if isinstance(m, str) else ""
++            tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", bare)
++            if tier:
++                return self._forward_tier(tier.group(1), obj)
++            if bare.startswith("claude-gw-"):
++                with _lock:
++                    known = bare in alias_to_real
++                if not known:
++                    self._refresh_models()
++                with _lock:
++                    real = alias_to_real.get(bare)
++                if real:
++                    if guarded:
++                        model_data.check_model_access(m, real)
++                    obj["model"] = real
++                    body = json.dumps(obj).encode()
++                    audit(f"REQUEST  {self.path}  alias={m}  -> real={real}")
++                else:
++                    if guarded:
++                        # An unresolved picker must qualify as a literal destination.
++                        model_data.check_model_access(m, bare)
++                    audit(f"WARN  unknown alias {m} (not in upstream /v1/models)")
++        except ValueError as exc:
++            audit(f"DENIED  {self.path}  model={m!r}: {exc}")
++            return self._send_error_json(
++                400, "invalid_request_error", f"ccsession: {exc}"
++            )
+         return self._proxy(body=body)
+ 
+     def _refresh_models(self):
+@@ -740,6 +747,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
+                 continue  # cannot hold this tier's context (spec section 6)
+             if cooling_until(model):
+                 continue
++            model_data.check_model_access(f"claude-gw-{name}", model)
+             obj["model"] = model
+             # Only a streamed request gets the start-of-reply limit.
+             wait = FIRST_BYTE_TIMEOUT if obj.get("stream") else None
+diff --git a/src/superclaude/skills/ccsession-tag/models.py b/src/superclaude/skills/ccsession-tag/models.py
+index c7fb714e4..eaabea04a 100644
+--- a/src/superclaude/skills/ccsession-tag/models.py
++++ b/src/superclaude/skills/ccsession-tag/models.py
+@@ -901,8 +901,86 @@ def in_my_tiers(model: str) -> bool:
+     return bare in set(mine) | set(picker)
+ 
+ 
++def check_model_access(model: str, destination: str | None = None) -> None:
++    """Apply the launch policy to both a selector and its forwarding target."""
++    every, access = tier_access()  # Policy errors must reach the caller.
++    mine, picker = _my_models(every, access)
++    for index, value in enumerate((model, destination)):
++        if index and value is None:
++            continue
++        if not isinstance(value, str) or not _ID.fullmatch(value):
++            raise ValueError(f"invalid model name {value!r}")
++        bare = value.removesuffix("[1m]")
++        tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", bare)
++        if tier:
++            if tier.group(1) not in access["allowed"]:
++                raise ValueError(unavailable(tier.group(1), access))
++        elif access["allowed"] != access["defined"]:
++            permitted = set(mine) if index else set(mine) | set(picker)
++            if bare not in permitted:
++                raise ValueError(
++                    f"{bare} is not in a tier available to {access['user']} "
++                    f"(available: {', '.join(access['allowed'])})"
++                )
++
++
++def child_model_target(model: str) -> str:
++    """Resolve native family aliases only through the launcher's actual mapping."""
++    bare = model.removesuffix("[1m]")
++    if bare in ("opus", "sonnet", "haiku"):
++        target = os.environ.get(f"ANTHROPIC_DEFAULT_{bare.upper()}_MODEL", "")
++        if not target:
++            raise ValueError(f"no workspace mapping for child model {model!r}")
++        return target
++    return model
++
++
++def configured_model() -> str:
++    """The workspace env default, else the user's saved picker preference.
++
++    Project, managed and session settings are not the saved user preference.
++    """
++    value = os.environ.get("ANTHROPIC_MODEL", "")
++    if not value:
++        config = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude")
++        path = config / "settings.json"
++        try:
++            settings = json.loads(path.read_text())
++        except FileNotFoundError:
++            settings = {}
++        except (OSError, ValueError) as exc:
++            raise ValueError(f"cannot read saved model from {path}: {exc}") from exc
++        if not isinstance(settings, dict):
++            raise ValueError(f"{path} must contain a settings object")
++        value = settings.get("model", "")
++    if not isinstance(value, str) or not value:
++        return ""
++    every, access = tier_access()
++    try:
++        target = child_model_target(value)
++    except ValueError:
++        return ""  # An unmapped configured alias takes the role-start fallback.
++    mine, picker = _my_models(every, access)
++    bare = target.removesuffix("[1m]")
++    tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", bare)
++    if tier:
++        return target if tier.group(1) in access["allowed"] else ""
++    return target if bare in set(mine) | set(picker) else ""
++
++
+ def main(argv) -> int:
+     command = argv[1] if len(argv) > 1 else ""
++    if command in ("configured-model", "check-child-model"):
++        try:
++            if command == "configured-model":
++                print(configured_model())
++            else:
++                value = child_model_target(argv[2])
++                check_model_access(value)
++        except (ValueError, IndexError) as exc:
++            print(f"ccsession: {exc}", file=sys.stderr)
++            return 3
++        return 0
+     if command == "refresh":
+         wait = float(argv[3]) if len(argv) > 3 and argv[2] == "--wait" else 2.0
+         status = refresh(wait)
+@@ -942,33 +1020,23 @@ def main(argv) -> int:
+             print(f"ccsession: {exc}", file=sys.stderr)
+             return 3
+         return 0
+-    if command == "model-resolve" and len(argv) > 2:
++    if command in ("model-resolve", "child-resolve") and len(argv) > 2:
+         model = argv[2]
+         if not _ID.match(model):
+             print(f"ccsession: invalid model name {model!r}", file=sys.stderr)
+             return 3
+         bare = model[: -len("[1m]")] if model.endswith("[1m]") else model
+         try:
++            check_model_access(model)
+             every, access = tier_access()
+-            mine, picker = _my_models(every, access)
+-            tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", bare)
+-            if tier and tier.group(1) not in access["allowed"]:
+-                raise ValueError(unavailable(tier.group(1), access))
++            _, picker = _my_models(every, access)
+             # A -2 picker id takes its own model's window, not the default.
+             window, where = model_window(picker.get(bare, model))
+         except ValueError as exc:
+             print(f"ccsession: {exc}", file=sys.stderr)
+             return 3
+-        # An owner limited to some tiers may name only those tiers' models.
+-        if not tier and access["allowed"] != access["defined"]:
+-            if bare not in set(mine) | set(picker):
+-                print(
+-                    f"ccsession: {bare} is not in a tier available to {access['user']} "
+-                    f"(available: {', '.join(access['allowed'])})",
+-                    file=sys.stderr,
+-                )
+-                return 3
+-        _note_owner_unknown(access)
++        if command == "model-resolve":
++            _note_owner_unknown(access)
+         if where.startswith("not in any tier"):
+             print(
+                 f"[ccsession] WARNING: {model} is {where}; using a {window} token window",
+diff --git a/src/superclaude/skills/sc-adversarial-protocol/SKILL.md b/src/superclaude/skills/sc-adversarial-protocol/SKILL.md
+index 2b2872b89..d697c5a53 100644
+--- a/src/superclaude/skills/sc-adversarial-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-adversarial-protocol/SKILL.md
+@@ -69,11 +69,12 @@ Generic, reusable command implementing a structured adversarial debate, comparis
+ ```
+ 
+ - Generates variant artifacts from source using specified agents in parallel
+-- Agent specification format: `<model>[:persona[:"instruction"]]`
+-  - `opus` — model only
+-  - `opus:architect` — model + persona
+-  - `opus:architect:"focus on scalability"` — model + persona + instruction
+-- Supported models: Any available (opus, sonnet, haiku, configured aliases)
++- Agent specification format: `selection[:persona[:quoted-instruction]]`
++  - `default` means omit the native model parameter, not a native alias.
++  - `default:architect` preserves the persona with the role-permitted configured default.
++  - `default:architect:'focus on scalability'` preserves the custom instruction.
++- Supported selections: `default`, `opus`, `sonnet`, `haiku`, `fable` only. Mixed default/explicit lists and repeated defaults are legal. Explicit aliases stay explicit; arbitrary backend IDs, gateway aliases and `inherit` are rejected.
++- Parsing: commas and colons split only outside matching single or double quotes; backslash escapes a matching quote or backslash inside the quoted field. Reject empty segments, unmatched quotes, dangling escapes, extra segments and trailing text after a closing quote. Decode once, never shell-execute. See `refs/agent-specs.md` for the shared grammar.
+ - Agent count: 2-10 (minimum 2 required for adversarial comparison)
+ - Variants written to `<output>/adversarial/variant-N-<model>-<persona>.md`
+ 
+@@ -439,7 +440,7 @@ return_contract:
+   convergence_score: 0.75                            # float 0.0-1.0, null if debate not reached
+   artifacts_dir: "<path to adversarial/ directory>"  # always set (created at pipeline start)
+   status: "success"                                  # success | partial | failed
+-  base_variant: "opus:architect"                     # model:persona that won debate, null if not reached
++  base_variant: "default:architect"                  # requested selection:persona of winner, not served backend; null if not reached
+   unresolved_conflicts: 2                            # integer count of unresolved diff points, 0 on success
+   fallback_mode: false                               # true if pipeline used fallback path
+   failure_stage: null                                # null on success; "variant_generation" | "debate" | "merge" | "validation" | "transport"
+@@ -457,19 +458,21 @@ return_contract:
+ | `convergence_score` | `float\|null` | Final convergence score 0.0-1.0; null if debate not reached |
+ | `artifacts_dir` | `string` | Path to adversarial/ directory (always set) |
+ | `status` | `enum` | `success` (all steps pass), `partial` (completed with warnings), `failed` (aborted) |
+-| `base_variant` | `string\|null` | Model:persona that won adversarial debate; null if debate not reached |
++| `base_variant` | `string\|null` | Requested selection:persona of the winner (including `default`), not a served backend; null if debate not reached |
+ | `unresolved_conflicts` | `integer` | Count of unresolved diff points; 0 on full success |
+ | `fallback_mode` | `boolean` | True if pipeline used any fallback path |
+ | `failure_stage` | `string\|null` | Null on success; identifies the stage that caused failure |
+ | `invocation_method` | `enum` | How this invocation was triggered: `skill-direct`, `task-agent`, or `manual` |
+ | `unaddressed_invariants` | `list` | HIGH-severity UNADDRESSED items from invariant probe; empty list `[]` when no HIGH items remain or when Round 2.5 was skipped; populated with `[{id, category, assumption, severity}]` when HIGH items exist |
+ 
++Requested-selection identity: existing `{model}` and `{agent-spec}` labels in filenames, advocate prompts, transcripts and provenance represent the requested selection, including `default`, never a verified backend. Keep `variant-{N}-{model}-{persona or 'default'}.md`: the variant number distinguishes repeated defaults. In transcript/merge metadata, report the served backend only if genuinely observed; otherwise report `unknown`. Do not infer it from a native alias, the default marker or the winning variant. Preserve all existing contract keys and output layouts.
++
+ ## Agent Delegation
+ 
+ ### debate-orchestrator Agent
+ 
+ - **Role**: Coordinates the entire pipeline without participating in debates
+-- **Model**: Highest-capability (opus preferred)
++- **Model**: Omit the native model parameter; use the role-permitted configured child default, not an advocate's selection.
+ - **Tools**: Task, Read, Write, Glob, Grep, Bash
+ - **Responsibilities**: Parse inputs, dispatch variants, coordinate 5-step protocol, track convergence, make base selection, compile return contract
+ - **Does NOT**: Generate variants, participate in debates, execute merges
+@@ -477,7 +480,7 @@ return_contract:
+ ### merge-executor Agent
+ 
+ - **Role**: Executes refactoring plans to produce unified merged artifacts
+-- **Model**: High-capability (opus or sonnet)
++- **Model**: Omit the native model parameter; use the role-permitted configured child default, never the winning advocate's model.
+ - **Tools**: Read, Write, Edit, Grep
+ - **Responsibilities**: Read base + plan, apply changes, maintain integrity, add provenance, validate output, produce merge-log
+ - **Does NOT**: Make strategic decisions, override plan, participate in debates
+@@ -556,7 +559,7 @@ input_mode_parsing:
+     condition: "pipeline_mode == false"
+     mode_a_signal: "--compare flag present"
+     mode_b_signal: "--source AND --generate AND --agents flags present"
+-    conflict: "If both Mode A and Mode B flags present → STOP with error: 'Cannot use --compare with --source/--generate/--agents'"
++    conflict: "If --compare is combined with --source or --generate, STOP: 'Cannot use --compare with --source/--generate'. An optional --agents list is legal in Mode A."
+     neither: "If neither mode detected → STOP with error: 'Must provide --compare (Mode A), --source + --generate + --agents (Mode B), or --pipeline (Pipeline Mode)'"
+ 
+   step_2_mode_a_parsing:
+@@ -569,7 +572,8 @@ input_mode_parsing:
+       too_few: "STOP: 'Adversarial comparison requires at least 2 files, got <N>'"
+       too_many: "STOP: 'Maximum 10 files supported, got <N>'"
+       missing_file: "STOP: 'File not found: <path>'"
+-    output: "List of validated file paths (2-10)"
++    agents: "Without --agents assign default per file. If supplied, parse with step_3_mode_b_parsing.agent_spec_parsing and require exactly one spec per input file; preserve validated order, personas and instructions. Use task_dispatch_config for every advocate."
++    output: "List of validated file paths (2-10) and corresponding selections"
+ 
+   step_3_mode_b_parsing:
+     required_flags:
+@@ -579,13 +583,13 @@ input_mode_parsing:
+     missing_flag_error: "STOP: 'Mode B requires all three flags: --source, --generate, --agents. Missing: <list>'"
+ 
+     agent_spec_parsing:
+-      format: "<model>[:persona[:\"instruction\"]]"
+-      separator: ":"
+-      instruction_delimiter: '"'
++      format: "selection[:persona[:quoted-instruction]]"
++      splitting: "Commas and colons split only outside matching single or double quotes; accept 1-3 nonempty segments; reject empty agents/fields and extra segments"
++      escaping: "Inside quotes, backslash escapes matching quote or backslash only; preserve other backslashes; decode once; never shell-execute"
+       validation:
+-        model: "Must be a recognized model name (opus, sonnet, haiku) or configured alias"
++        model: "Only default, opus, sonnet, haiku, fable; preserve default marker until native dispatch omits model; reject inherit, backend IDs and arbitrary gateway aliases"
+         persona: "If provided, should match a SuperClaude persona; WARN if unknown"
+-        instruction: "If provided, must be enclosed in double quotes"
++        instruction: "If provided, an entire field in matching single or double quotes; reject unmatched quotes, dangling escapes and trailing text"
+       count_check: "2 ≤ agent_count ≤ 10"
+       error_messages:
+         invalid_model: "STOP: 'Unknown model: <model>'"
+@@ -961,19 +965,19 @@ Dynamically create advocate agents from the `--agents` specification:
+ advocate_instantiation:
+   per_agent_spec:
+     parse:
+-      - "Extract model (required): first segment before ':'"
+-      - "Extract persona (optional): second segment before ':' or '\"'"
+-      - "Extract instruction (optional): quoted string after second ':'"
++      - "Use the shared agent_spec_parsing grammar: split commas and colons only outside matching single or double quotes, with 1-3 nonempty segments"
++      - "Extract selection and optional persona; preserve default marker until dispatch"
++      - "Extract optional entire quoted instruction; decode matching quote/backslash escapes once; never shell-execute"
+     validate:
+-      model: "Must be recognized: opus, sonnet, haiku, or configured alias"
+-      persona: "If provided, map to SuperClaude persona (architect, security, analyzer, etc.)"
+-      instruction: "If provided, must be enclosed in double quotes"
++      model: "Only default, opus, sonnet, haiku, fable; reject inherit, backend IDs and arbitrary gateway aliases"
++      persona: "If provided, map to SuperClaude persona; WARN if unknown"
++      instruction: "Matching single or double quotes; reject empty/extra segments, unmatched quotes, dangling escapes and trailing text"
+ 
+   prompt_generation:
+     template: |
+       You are an advocate agent in a structured adversarial debate.
+       Your variant: {variant_name}
+-      Model: {model}
++      Requested selection: {model} (not an observed backend)
+       Persona: {persona or 'default'}
+       Custom instruction: {instruction or 'none'}
+ 
+@@ -1024,7 +1028,7 @@ advocate_instantiation:
+       - qa → focus on edge cases, test coverage, failure scenarios
+ 
+   task_dispatch_config:
+-    model: "{parsed_model}"
++    model_selection: "If parsed selection is default, omit the native model parameter. Otherwise pass only the validated explicit opus, sonnet, haiku or fable alias. Preserve the same selection/persona/instruction on every debate round, retry and redispatch; never replace it with a preferred family. The shared shim checks role permission for every destination."
+     max_turns: 5
+     prompt: "{generated_prompt}"
+     input_data:
+@@ -1033,7 +1037,7 @@ advocate_instantiation:
+       diff_analysis: "Full text of diff-analysis.md"
+ 
+   mode_a_assignment:
+-    rule: "One advocate per input file; agent spec defaults to current model if --agents not specified"
++    rule: "One advocate per input file; without --agents assign default per file and omit the native model parameter, using the role-permitted configured child default, not the current parent model. Preserve a supplied validated list unchanged."
+     naming: "Advocate for Variant 1, Advocate for Variant 2, etc."
+ 
+   mode_b_assignment:
+@@ -1970,7 +1974,7 @@ merge_execution:
+   dispatch:
+     agent: "merge-executor (defined in agents/merge-executor.md)"
+     via: "Task tool"
+-    model: "opus or sonnet (highest available)"
++    model_selection: "Omit the native model parameter; use the role-permitted configured child default, never inherit the winning advocate's model. Preserve omission on retries and redispatch. No coordinator or merge model override flag is added."
+     input:
+       base_variant: "Full text of selected base variant"
+       refactoring_plan: "Full text of refactor-plan.md"
+@@ -2208,6 +2212,7 @@ mode_b_generation:
+ 
+   parallel_dispatch:
+     action: "For each agent spec, spawn Task agent to generate variant"
++    model_selection: "For default, omit the native model parameter; otherwise pass only the validated explicit opus, sonnet, haiku or fable alias. Never pass model: default, model: inherit or a backend ID. Preserve this choice on retries and redispatch. Selection labels do not prove served backend; shared shim rejects disallowed destinations."
+     parallelism: "ALL agents dispatched simultaneously (true parallel)"
+     per_agent:
+       input:
+@@ -2856,7 +2861,8 @@ blind_evaluation:
+ 
+   stripping_rules:
+     model_names:
+-      patterns: ["opus", "haiku", "sonnet", "claude", "gpt", "gemini"]
++      patterns: ["default", "opus", "haiku", "sonnet", "fable", "claude", "gpt", "gemini"]
++      selection_scope: "For default, strip only selection metadata and filename labels, not ordinary prose uses of the word default. Keep variant number/persona identity distinct even when selections repeat."
+       replacement: "variant-{N}"
+       case_insensitive: true
+ 
+diff --git a/src/superclaude/skills/sc-adversarial-protocol/refs/agent-specs.md b/src/superclaude/skills/sc-adversarial-protocol/refs/agent-specs.md
+index b2eda143c..de3301129 100644
+--- a/src/superclaude/skills/sc-adversarial-protocol/refs/agent-specs.md
++++ b/src/superclaude/skills/sc-adversarial-protocol/refs/agent-specs.md
+@@ -9,24 +9,19 @@ Agent specification format, advocate behavior rules, and dynamic agent instantia
+ Agents are specified using a hybrid format combining model selection with optional persona and instruction:
+ 
+ ```
+-<model>                              # Model only
+-<model>:<persona>                    # Model + persona
+-<model>:<persona>:"<instruction>"    # Model + persona + custom instruction
++<selection>                              # default or explicit supported alias
++<selection>:<persona>                    # Selection + persona
++<selection>:<persona>:'<instruction>'    # Canonical single-quoted instruction
++<selection>:<persona>:"<instruction>"    # Compatible double-quoted instruction
+ ```
+ 
+ ### Components
+ 
+ #### Model (Required)
+ 
+-The LLM model to use for this agent.
++The requested selection for this agent: `default`, `opus`, `sonnet`, `haiku` or `fable`. `default` is a reserved protocol marker, not a native model alias: preserve it through parsing, then omit the native model parameter. This uses the user's role-permitted configured default bound by ccsession. Explicit supported aliases stay explicit, subject to administrative force semantics and the shared shim's destination check. Never pass `default`, `inherit`, full backend IDs or arbitrary gateway aliases as a native model.
+ 
+-| Model | Capability | Typical Use |
+-|-------|-----------|-------------|
+-| `opus` | Highest capability | Complex analysis, architectural reasoning |
+-| `sonnet` | Balanced capability | General purpose, good cost/quality ratio |
+-| `haiku` | Fast, efficient | Quick assessments, simple comparisons |
+-
+-Model aliases configured in the environment are also supported.
++Lists may mix default and explicit selections and may repeat `default`. Preserve list order. Selection labels are not evidence of a served backend or role permission; resolution depends on the active environment.
+ 
+ #### Persona (Optional)
+ 
+@@ -59,19 +54,11 @@ Instructions are injected into the agent's system prompt alongside persona direc
+ 
+ ### Parsing Rules
+ 
+-```yaml
+-agent_spec_parsing:
+-  separator: ":"
+-  instruction_delimiter: '"' (double quotes)
+-  validation:
+-    - "Model must be a recognized model name or alias"
+-    - "Persona must match a valid SuperClaude persona (if provided)"
+-    - "Instruction must be enclosed in double quotes (if provided)"
+-  error_handling:
+-    invalid_model: "STOP with error: 'Unknown model: <model>'"
+-    invalid_persona: "WARN: Unknown persona '<persona>', using model defaults"
+-    missing_quotes: "STOP with error: 'Instruction must be quoted: <spec>'"
+-```
++1. Split agents on commas only outside quotes, then split fields on colons only outside quotes. Accept 1-3 nonempty segments: selection alone, selection:persona, or selection:persona:quoted-instruction. Reject empty agents/fields and extra segments.
++2. Accept only `default`, `opus`, `sonnet`, `haiku`, `fable` as selection. Unknown selection: STOP `Unknown model: <model>`. Keep the default marker in the parsed model field until dispatch.
++3. Map a provided persona to SuperClaude behavior. Unknown persona: WARN `Unknown persona '<persona>', using model defaults`; retain its requested label. The builder's recognized personas remain valid.
++4. Instructions must occupy an entire field inside matching single or double quotes. Single quotes are the builder's canonical form; existing double-quoted explicit specs remain accepted. Inside quotes, backslash escapes only the matching quote or another backslash; preserve other backslashes. Decode once. Commas, colons and the other quote character inside quotes are data. Reject unmatched quotes, dangling escapes and trailing text after a closing quote. Missing quotes: STOP `Instruction must be quoted: <spec>`.
++5. Never evaluate or shell-execute a serialized specification. Keep parsed instructions as prompt data. Structural tokens must not become instructions. Native generation dispatch omits model for `default` and passes only a validated explicit supported alias otherwise. Agent count remains 2-10.
+ 
+ ### Examples
+ 
+@@ -134,7 +121,7 @@ advocate_prompt_template:
+   system_context: |
+     You are an advocate agent in a structured adversarial debate.
+     Your variant: [variant name]
+-    Model: [model]
++    Requested selection: [model] (not an observed backend)
+     Persona: [persona or 'default']
+     Custom instruction: [instruction or 'none']
+ 
+@@ -188,7 +175,8 @@ advocate_prompt_template:
+ ### Mode A (Compare)
+ 
+ - One advocate per input file
+-- Agent spec defaults to the current model if `--agents` not specified
++- Without `--agents`, assign `default` to each file's advocate and omit the native model parameter, using the role-permitted configured child default rather than the current parent model.
++- When `--agents` is explicitly supplied, preserve its validated selections, personas, instructions and order through every debate round and retry.
+ - Advocates named: `Advocate for Variant 1`, `Advocate for Variant 2`, etc.
+ 
+ ### Mode B (Generate + Compare)
+@@ -228,7 +216,7 @@ Each advocate receives all previous round transcripts before responding. Order f
+ 
+ ### Failure Handling
+ 
+-- Single agent failure: Retry once, then proceed with N-1 advocates
++- Single agent failure: Retry once with the same selection/persona/instruction and model omission or explicit alias, then proceed with N-1 advocates
+ - Multiple failures: If fewer than 2 advocates remain, abort debate
+ - Timeout: Agent-level timeout inherits from Task tool defaults
+ 
+diff --git a/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md b/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+index e7eff8f95..67416ff8d 100644
+--- a/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+@@ -83,7 +83,7 @@ Wave 4: Post & Handoff       ← loads refs/remediation-handoff.md
+ 1. Validate `--revagent` before any environment check, Auggie call, diff fetch, or agent spawn. Validation applies at every `--depth`, and a bad value never falls back to the default:
+    - Accepted: `opus`, `sonnet`, `haiku`, `fable`.
+    - These are the native Agent tool model aliases; full model IDs and backend/gateway aliases are not accepted.
+-   - Omitted → `revagent = default` (reviewer agents keep their frontmatter model).
++   - Omitted → `revagent = default` (omit the native model parameter and use the user's role-permitted configured default through `CLAUDE_CODE_SUBAGENT_MODEL`).
+    - Value in the accepted set → `revagent = <value>`.
+    - Missing value (no following token, or the next token starts with `--`) → STOP: `--revagent requires a value: one of opus, sonnet, haiku, fable.`
+    - Any other value, e.g. `connect`, `Opus`, `claude-sonnet-4-6`, `inherit` → STOP: `--revagent: unsupported value '<v>'. Supported: opus, sonnet, haiku, fable (native Agent tool model aliases). Full model IDs and backend/gateway aliases are not accepted; map them to a backend model via your Claude Code / gateway alias configuration instead.`
+@@ -196,7 +196,7 @@ auggie --print \
+ > - **Indexer cold-start**: if `auggie-stderr.log` still mentions "indexing" or "not ready" despite `--wait-for-indexing`, retry once before treating as a failure.
+ 
+ 4. For `--depth deep`, after the initial pass spawn one **per-persona Auggie call** for each focus area not adequately covered (security, architecture, performance), reusing the same diff but a persona-specialized prompt. Aggregate the per-persona JSON outputs alongside the main pass.
+-5. For `--depth deep` **only**, additionally spawn the `auggie-reviewer` agent via the `Task` tool to run an independent Claude-side review pass that does not see Auggie's findings yet — this provides a cross-check used in Wave 3. The brief passes the Wave 1 codegraph run state: `index_state`, `checked_at`, `worktree_root` and the `projectPath` the agent passes on every codegraph call (the agent uses its codegraph tools only when `index_state: fresh`). Model selection: when `revagent` is set, pass `model: <revagent>` on this `Task` spawn (it overrides the agent's frontmatter `model`); when `revagent = default`, pass no `model` argument, so the frontmatter default applies. Any re-spawn of a reviewer agent in the same run (retry, or re-run after a failed or invalid output) reuses the same `model` argument. `--revagent` is never passed to the `auggie` CLI and never to the step 4 per-persona Auggie calls.
++5. For `--depth deep` **only**, additionally spawn the `auggie-reviewer` agent via the `Task` tool to run an independent Claude-side review pass that does not see Auggie's findings yet — this provides a cross-check used in Wave 3. The brief passes the Wave 1 codegraph run state: `index_state`, `checked_at`, `worktree_root` and the `projectPath` the agent passes on every codegraph call (the agent uses its codegraph tools only when `index_state: fresh`). Model selection: when `revagent` is set, pass `model: <revagent>` on this `Task` spawn (subject to native administrative force semantics); when `revagent = default`, pass no `model` argument, so the user's role-permitted configured default bound through `CLAUDE_CODE_SUBAGENT_MODEL` applies. The shared ccsession shim rejects disallowed destinations rather than substituting a more capable model. Any re-spawn of a reviewer agent in the same run (retry, or re-run after a failed or invalid output) reuses the same `model` argument. `--revagent` is never passed to the `auggie` CLI and never to the step 4 per-persona Auggie calls.
+ 
+ **Exit criteria**: One or more `auggie-raw-*.json` files under `<output-dir>/`, all containing structured findings. Audit log notes any non-zero exit codes, retries, or chunk failures.
+ 
+@@ -291,12 +291,12 @@ auggie --print \
+ - Auggie chunks: <N> (succeeded: <N>, retried: <N>, skipped: <N>)
+ - Findings dropped during grounding: <N> (see `audit.log`)
+ - Persona cross-check: <enabled|disabled>
+-- Reviewer agent model: <value|frontmatter default>
++- Reviewer agent model: <value|configured default (model omitted)>
+ - Token cost: Claude ≈ <N> (orchestration), Auggie ≈ <N> (deep pass)
+ 
+ ````
+ 
+-8. Write `<output-dir>/audit.log` with: every Auggie invocation (cmd + duration + exit), every finding with grounding result, every dedupe decision, every severity remap, dropped findings with reasons, and the model argument passed on each reviewer spawn (or `frontmatter` when none was passed).
++8. Write `<output-dir>/audit.log` with: every Auggie invocation (cmd + duration + exit), every finding with grounding result, every dedupe decision, every severity remap, dropped findings with reasons, and the model argument passed on each reviewer spawn (or `default (model omitted)` when none was passed). This records requested selection only, not the served backend.
+ 
+ **Exit criteria**: `REVIEW.md` and `audit.log` written. Audit log includes the machine-readable summary header:
+ 
+diff --git a/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md b/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+index 23696252d..655292496 100644
+--- a/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+@@ -35,7 +35,7 @@ Orchestrate parallel brainstorming via:
+ 
+ 1. Socratic dialogue → structured seed brief
+ 2. Optional codebase + research enrichment (parallel, partial-OK)
+-3. Composed agent-spec (3 active models × N personas)
++3. Composed agent-spec (configured default or explicit ordered selections × N personas)
+ 4. Delegation to `sc-adversarial-protocol` for parallel proposal generation + debate + merge
+ 5. Optional handoff to `/sc:design`, `/sc:tasklist`, or `/task-builder`
+ 
+@@ -46,7 +46,7 @@ Orchestrate parallel brainstorming via:
+ - Depth-tiered Socratic dialogue (quick/standard/deep)
+ - Auto-detected domain classification driving persona selection
+ - Parallel enrichment via `/sc:analyze`, `/sc:research`, `tech-research`
+-- Model rotation across 3 active aliases (opus, sonnet, haiku)
++- Configured default selection, or explicit ordered alias rotation without depth promotion
+ - Versioned return contract (stable + telemetry)
+ - Token-budget pre-flight with auto-downgrade
+ 
+@@ -101,7 +101,7 @@ Orchestrate parallel brainstorming via:
+    - `deep` → max 7
+    - Silent clamp on excess + INFO log: `"--proposals clamped to <N> by --depth <depth>"`
+ 3. Validate `--personas` (if provided): non-empty after trim. STOP on empty: `"--personas requires at least one persona or omit the flag for auto-detection."`
+-4. Validate `--models` (if provided): non-empty after trim. STOP on empty similarly. Default model set: `opus, sonnet, haiku`.
++4. Validate `--models` (if provided): non-empty after trim, with no empty list entries. Accept only `default`, `opus`, `sonnet`, `haiku`, `fable`; STOP on any other value. When omitted, use `default` for every persona at every depth. This reserved protocol marker means omit the native model parameter, not a native alias.
+ 5. Verify `sc-adversarial-protocol` skill exists (Read tool) at `~/.claude/skills/sc-adversarial-protocol/SKILL.md` (installed) or `.claude/skills/sc-adversarial-protocol/SKILL.md` (project copy from `make sync-dev`); either satisfies the check. Record the path found, preferring the installed copy (Claude Code loads a personal skill over a project skill of the same name). STOP if neither exists: `"sc:adversarial skill not installed. Required by /sc:brainstorm v2. Install via: superclaude install"`
+ 6. **Skill version compatibility check**: Read first 30 lines of the `SKILL.md` found in step 5. Look for `version:` field. If present, require `>= 1.0.0`. If absent → assume compatible (legacy mode) + INFO log. If too low → STOP.
+ 7. **Handoff prereq validation** (no silent downgrade):
+@@ -110,7 +110,7 @@ Orchestrate parallel brainstorming via:
+    - Under `--unattended` this step is skipped: the `tasklist` and `task` handoffs are skipped in Wave 4, so their skills are not needed.
+ 8. Create output directory (default `.dev/brainstorms/<ts>-<slug>/`). If exists and non-empty, append `-N` suffix. Cap N at 99 (STOP on N=100); WARN at N≥10.
+    - Under `--unattended`, a directory the caller passes (`--output` or `--report-dir`) is used exactly as passed: no `-N` suffix, and one that already holds a `return-contract.yaml` was refused before step 1.
+-9. Validate model aliases: read env vars `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`. An unset variable is not an error: the alias resolves to Claude Code's built-in model for `opus`/`sonnet`/`haiku` (Coder workspaces no longer set these, Coder issue #270). If `--models` provided, validate each alias resolves to one of the known aliases.
++9. Keep requested selection separate from backend resolution. The supported explicit aliases are `opus`, `sonnet`, `haiku`, `fable`; `default` is a protocol marker consumed before native dispatch. Resolution depends on the active environment and native configuration. An alias or an unset environment variable is not proof of a served backend or role permission. The shared ccsession shim checks destinations; do not invent mappings or capability fallbacks.
+ 10. If `--strategy enterprise` and `--depth` not explicitly set → set `--depth deep` + INFO log.
+ 
+ **Exit Criteria**: All prerequisites validated. Output dir ready. Emit: `"Wave 0 complete: prereqs validated. Models: <list>. Proposals: <N>. Depth: <D>. Output: <path>."`
+@@ -222,10 +222,10 @@ Orchestrate parallel brainstorming via:
+    - **Apply `§Auto-Exclusion`** (`refs/agent-spec-builder.md`): strip any `auto_excluded_personas` member (currently `security`) that is NOT present in an explicit `--personas` list, backfilling from the same priority list; emit one INFO per drop. This forbids a security lens unless the user explicitly names it.
+    - Pad/truncate to `--proposals` count
+ 
+-2. **Model rotation**:
+-   - Read `--models` (default `opus,sonnet,haiku`)
+-   - Round-robin assign: `(persona_i, model_(i mod len(models)))`
+-   - For `--depth deep`: prefer `opus` for first 2 personas (typically analyzer + architect), then rotate
++2. **Model selection**:
++   - Omitted `--models`: assign `default` to every selected persona at quick, standard and deep depths.
++   - Explicit `--models`: preserve the validated list order; round-robin assign `(persona_i, models[i mod len(models)])`, including mixed default/explicit lists.
++   - Depth changes work depth only; never promote or replace a requested selection. `default` remains a protocol marker until native dispatch omits the model parameter.
+ 
+ 3. **Custom instructions** (optional, per-persona):
+    - Pull templates from `refs/agent-spec-builder.md` §Instruction-Templates
+@@ -234,8 +234,8 @@ Orchestrate parallel brainstorming via:
+ 4. **Serialization with sanitization** (mandatory):
+    - Wrap each instruction in single-quoted strings
+    - Sanitize all interpolated parameters (`{domain}`, `{strategy}`): strip `,`, `:`, `'`, `"`, and control characters before substitution
+-   - Escape any embedded single-quotes in templates as `\'`
+-   - Validate the final agent-spec string round-trips through the adversarial parser (per `refs/agent-spec-builder.md` §Validation): split on `,`, then on `:` (max 3 segments per agent, with the 3rd segment respecting single-quote boundaries)
++   - Escape backslashes first, then embedded single-quotes as `\'`; decode once in the consumer, never through a shell
++   - Validate the final agent-spec string round-trips through the adversarial parser (per `refs/agent-spec-builder.md` §Validation): commas and colons split only outside matching single or double quotes. Builder emits single quotes; the consumer also accepts legacy double quotes. Reject empty/extra segments, unmatched quotes, dangling escapes and trailing text after a closing quote.
+    - If validation fails → STOP with `"Agent-spec serialization produced invalid output. This is a bug — please report. Spec: <serialized>"`
+ 
+ 5. **Token-budget pre-flight**:
+@@ -249,7 +249,7 @@ Orchestrate parallel brainstorming via:
+ 6. **Final output**: validated agent-spec string. Example:
+ 
+    ```
+-   opus:architect:'prioritize maintainability and scaffolding',sonnet:refactorer:'focus on technical debt + minimal-risk transformation paths',haiku:devops:'deployment + observability'
++   default:architect:'prioritize maintainability and scaffolding',default:refactorer:'focus on technical debt + minimal-risk transformation paths',default:devops:'deployment + observability'
+    ```
+ 
+ **Dry-run gate**: If `--dry-run`:
+@@ -259,7 +259,7 @@ Orchestrate parallel brainstorming via:
+ - If `--handoff != none`: print `"Intended handoff: <value> (skipped in dry-run mode)."`
+ - Skip Wave 3 + 4. Exit cleanly with partial return contract (`status: dry-run`).
+ 
+-**Exit Criteria**: Validated agent-spec in state. Token budget pre-flight passed. Emit: `"Wave 2B complete: agent-spec composed (<Y> agents across <Z> models, ~<XK> tokens estimated)."`
++**Exit Criteria**: Validated agent-spec in state. Token budget pre-flight passed. Emit: `"Wave 2B complete: agent-spec composed (<Y> agents across <Z> requested selection labels, not observed backends, ~<XK> tokens estimated)."`
+ 
+ ### Wave 3 — Adversarial Delegation
+ 
+@@ -443,7 +443,7 @@ enrichment_artifact_sizes:
+ 
+ - Orchestrate Socratic dialogue + enrichment + adversarial delegation + handoff
+ - Compose validated, sanitized agent-spec strings for `/sc:adversarial`
+-- Rotate across 3 active model aliases (opus, sonnet, haiku)
++- Use the configured default when --models is omitted; rotate only explicitly supplied selections without depth promotion
+ - Auto-detect domain + strategy from topic when not specified
+ - Produce versioned, two-block return contract for composability
+ - FAIL fast on empty/malformed adversarial responses (no silent success)
+diff --git a/src/superclaude/skills/sc-brainstorm-protocol/refs/agent-spec-builder.md b/src/superclaude/skills/sc-brainstorm-protocol/refs/agent-spec-builder.md
+index 0076fcb6b..041118685 100644
+--- a/src/superclaude/skills/sc-brainstorm-protocol/refs/agent-spec-builder.md
++++ b/src/superclaude/skills/sc-brainstorm-protocol/refs/agent-spec-builder.md
+@@ -52,25 +52,19 @@ Notes:
+ 
+ ## §Model-Rotation
+ 
+-Active model aliases (resolved from `~/.bashrc`):
++**Omitted `--models`**: assign `default` to every selected persona at quick, standard and deep depths. `default` is a reserved protocol marker, not a native model alias. Preserve it until native dispatch, where it means omit the model parameter and use the user's role-permitted configured default.
+ 
+-- `opus` — heavy reasoning, primary debate model
+-- `sonnet` — balanced cost/quality
+-- `haiku` — fast, lighter reasoning
++**Explicit `--models`**: accept `default`, `opus`, `sonnet`, `haiku`, `fable`; reject empty entries, `inherit`, full backend IDs and arbitrary gateway aliases. Preserve list order and round-robin assign `(persona_i, models[i mod len(models)])`. Mixed default/explicit lists are legal. Depth never promotes or replaces a selection. Alias resolution is environment-dependent, not proof of a served backend or role permission; the shared ccsession shim checks destinations.
+ 
+-**Default rotation**: Round-robin assign `(persona_i, model_(i mod len(models)))` over the user's `--models` list (default `opus,sonnet,haiku`).
++**Example assignments** (selection:persona, requested labels only):
+ 
+-**Deep-depth override**: When `--depth deep`, prefer `opus` for the first 2 personas (typically `analyzer` + `architect` for `incident`/`architecture` domains; otherwise the first two from the persona priority list). Remaining personas continue round-robin starting from position 0.
+-
+-**Example assignments** (default `--models opus,sonnet,haiku`):
+-
+-| proposals | depth | code domain assignment |
+-|-----------|-------|------------------------|
+-| 2 | quick | architect:opus, refactorer:sonnet |
+-| 3 | standard | architect:opus, refactorer:sonnet, qa:haiku |
+-| 5 | standard | architect:opus, refactorer:sonnet, qa:haiku, backend:opus, frontend:sonnet |
+-| 5 | deep | architect:opus, refactorer:opus, qa:haiku, backend:opus, frontend:sonnet |
+-| 7 | deep | architect:opus, refactorer:opus, qa:haiku, backend:opus, frontend:haiku, analyzer:opus, architect:sonnet |
++| proposals | depth | selection input | assignment |
++|-----------|-------|-----------------|------------|
++| 2 | quick | omitted | default:architect, default:refactorer |
++| 3 | standard | omitted | default:architect, default:refactorer, default:qa |
++| 5 | deep | omitted | default:architect, default:refactorer, default:qa, default:backend, default:frontend |
++| 5 | deep | explicit --models sonnet,haiku | sonnet:architect, haiku:refactorer, sonnet:qa, haiku:backend, sonnet:frontend |
++| 3 | deep | explicit --models default,opus | default:architect, opus:refactorer, default:qa |
+ 
+ ## §Instruction-Templates
+ 
+@@ -106,29 +100,30 @@ Build the agent-spec string from the list of `(persona, model, instruction)` tup
+ 
+ **Format per agent**:
+ 
+-- No instruction: `<model>:<persona>` (e.g., `opus:architect`)
+-- With instruction: `<model>:<persona>:'<instruction>'` (e.g., `opus:architect:'prioritize maintainability'`)
++- No instruction: `<model>:<persona>` (e.g., `default:architect`)
++- With instruction: `<model>:<persona>:'<instruction>'` (e.g., `default:architect:'prioritize maintainability'`)
+ 
+-**Embedded single-quote escaping**: Replace `'` in instructions with `\'`. (Example: `don't break the API` → `don\'t break the API`.)
++**Escaping**: Escape backslashes first (`\` becomes `\\`), then replace `'` in instructions with `\'`. (Example: `don't break the API` → `don\'t break the API`.) Decode escapes once in the consumer, never through a shell.
+ 
+ **Agent separator**: `,` between agents.
+ 
+ **Final string example**:
+ 
+ ```
+-opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'
++default:architect:'prioritize maintainability and extension scaffolding for code domain',default:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',default:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'
+ ```
+ 
+ ## §Validation
+ 
+ Round-trip the serialized agent-spec through the adversarial parser to verify:
+ 
+-1. **Split on `,`**: count of agents == expected proposal count
+-2. **Per agent split on `:`** (respecting single-quote boundaries):
+-   - Segment count ∈ {2, 3} (model:persona OR model:persona:instruction)
+-   - Segment 1 ∈ recognized model aliases
+-   - Segment 2 ∈ recognized persona names
+-   - Segment 3 (if present): single-quoted, valid string, no unescaped single-quotes
++1. **Split on `,` only outside quotes**: count of agents == expected proposal count; no empty entries.
++2. **Per agent split on `:` only outside matching single or double quotes**:
++   - Builder emits 2 or 3 segments (selection:persona OR selection:persona:instruction); the consumer also accepts a selection alone.
++   - Segment 1 is `default`, `opus`, `sonnet`, `haiku` or `fable`.
++   - Segment 2 is a nonempty recognized persona name.
++   - Segment 3 (if present) occupies the entire quoted field. Builder emits single quotes; consumer also accepts matching double quotes for existing explicit specifications. Inside a quoted field, backslash escapes only a matching quote or another backslash; preserve other backslashes. Escape backslashes before matching quotes when serializing, then decode once when parsing. Reject unmatched quotes, dangling escapes, extra segments and trailing text outside a closing quote. Commas, colons and the other quote character inside the field are instruction data, never structure.
++   - Never evaluate or shell-execute the serialized string; pass the parsed instruction as prompt data. A structural `default` token is accepted only in segment 1, never interpolated into instructions.
+ 3. **No duplicate (persona, model) pairs** — emit INFO if duplicate detected (not a STOP, since duplicate combos are sometimes intentional in deep mode)
+ 
+ **Validation failure**: STOP with `"Agent-spec serialization produced invalid output. This is a bug — please report. Spec: <serialized>"`
+@@ -162,9 +157,9 @@ For unit/integration testing of the builder, the following inputs MUST produce t
+ 
+ | Input | Output |
+ |-------|--------|
+-| domain=code, proposals=2, depth=quick, strategy=systematic, default models | `opus:architect,sonnet:refactorer` |
+-| domain=code, proposals=3, depth=standard, default | `opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
+-| domain=incident, proposals=5, depth=deep, default | `opus:analyzer:'focus on root-cause analysis and evidence-based reasoning for incident',opus:devops:'focus on deployment, observability, runbooks, and SLO impact for systematic delivery',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria',opus:architect:'prioritize maintainability and extension scaffolding for incident domain',sonnet:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'` |
+-| --strategy=enterprise, proposals=5, default models | `opus:architect:'prioritize maintainability and extension scaffolding for {domain} domain',sonnet:analyzer:'focus on root-cause analysis and evidence-based reasoning for {domain}',haiku:devops:'focus on deployment, observability, runbooks, and SLO impact for enterprise delivery',opus:scribe:'focus on documentation clarity, decision rationale, and audit trail',sonnet:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
++| domain=code, proposals=2, depth=quick, strategy=systematic, default models | `default:architect,default:refactorer` |
++| domain=code, proposals=3, depth=standard, default | `default:architect:'prioritize maintainability and extension scaffolding for code domain',default:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',default:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
++| domain=incident, proposals=5, depth=deep, default | `default:analyzer:'focus on root-cause analysis and evidence-based reasoning for incident',default:devops:'focus on deployment, observability, runbooks, and SLO impact for systematic delivery',default:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria',default:architect:'prioritize maintainability and extension scaffolding for incident domain',default:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'` |
++| --strategy=enterprise, proposals=5, default models | `default:architect:'prioritize maintainability and extension scaffolding for {domain} domain',default:analyzer:'focus on root-cause analysis and evidence-based reasoning for {domain}',default:devops:'focus on deployment, observability, runbooks, and SLO impact for enterprise delivery',default:scribe:'focus on documentation clarity, decision rationale, and audit trail',default:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
+ 
+ (Note: `{domain}` literal in row 4 is the post-sanitization fallback when domain happens to be empty/unsanitizable; in practice this shouldn't happen because Wave 1 classification always produces a value.)
+diff --git a/src/superclaude/skills/sc-cli-eval-protocol/SKILL.md b/src/superclaude/skills/sc-cli-eval-protocol/SKILL.md
+index 75d1799a2..b76f8193b 100644
+--- a/src/superclaude/skills/sc-cli-eval-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-cli-eval-protocol/SKILL.md
+@@ -2,7 +2,7 @@
+ name: sc:cli-eval-protocol
+ description: "Full behavioral protocol for sc:cli-eval — author a new cliEval suite (create) or interactively select and supervise a run of an existing suite (run), with a mandatory fresh-context load on both paths."
+ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, AskUserQuestion
+-argument-hint: "create|run [--name <stem>] [--from @<spec>] [--suite <name>] [--eval <id>] [--agents opus,sonnet,haiku]"
++argument-hint: "create|run [--name <stem>] [--from @<spec>] [--suite <name>] [--eval <id>] [--agents <spec>[,...]]"
+ ---
+ 
+ <!-- Extended metadata (for documentation, not parsed):
+@@ -41,7 +41,7 @@ adds NO flags to the `superclaude eval` CLI.
+ 
+ ### Optional
+ 
+-- create: `--name <stem>` (snake_case), `--from @<spec>`, `--agents <spec>[,...]` (default `opus,sonnet,haiku`).
++- create: `--name <stem>` (snake_case), `--from @<spec>`, `--agents <spec>[,...]` (default `default,default,default`: three competing designs using the role-permitted configured child default). Preserve an explicit list unchanged, including personas, instructions and order.
+ - run: `--suite <name>`, `--eval <id>` (pre-selections; otherwise interactive).
+ 
+ ## Wave 0 — Shared: Mandatory Fresh-Context Load (BOTH pipelines)
+@@ -92,12 +92,13 @@ isolation). Then merge them with `Skill sc:adversarial-protocol`:
+ 
+ - Mode-B (generate then merge): `--source <stem>-spec.md --generate eval-suite --agents <agents>`.
+ - Mode-A (you already wrote the variants): `--compare designA.md,designB.md,designC.md`.
++Resolve omitted create `--agents` to `default,default,default`, preserving three competing designs. If supplied, forward the validated explicit list unchanged, including personas, instructions and order. Pass that resolved list to either Mode A or Mode B, not only generation. Each `default` omits native model; explicit supported aliases remain subject to the shared shim's role guard. Coordinator and merge calls omit model independently of the advocate selections.
+ Capture the merged design + transcript under `.dev/eval-workspaces/cli-eval/design/`.
+ Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) add `--unattended --output <report-dir>/nested/adversarial-<n>/` to either mode (a retry takes the next `<n>`) and list the nested contract in `artifacts`, also when the call failed.
+ 
+ ### W4 — Author the manifest schema-first (DELEGATE)
+ 
+-Delegate to the `eval-suite-author` agent (Task). It authors `src/superclaude/cli/eval/suites/<stem>.yaml`
++Delegate to the `eval-suite-author` agent (Task) without a native `model` parameter, using the user's role-permitted configured default rather than inventing an override. It authors `src/superclaude/cli/eval/suites/<stem>.yaml`
+ (+ fixtures + `<stem>_callbacks.py` only if the design needs them) in the house style of
+ `eval_smoke.yaml` / `installer_sync_drift.yaml`, then self-validates.
+ 
+diff --git a/src/superclaude/skills/sc-cli-eval-protocol/refs/integration-map.md b/src/superclaude/skills/sc-cli-eval-protocol/refs/integration-map.md
+index 8e6597fec..8ddbf2e50 100644
+--- a/src/superclaude/skills/sc-cli-eval-protocol/refs/integration-map.md
++++ b/src/superclaude/skills/sc-cli-eval-protocol/refs/integration-map.md
+@@ -37,11 +37,10 @@ merged-output.
+ 
+ ```text
+ Skill sc:adversarial-protocol
+-  --source <stem>-spec.md --generate eval-suite --agents opus,sonnet,haiku
++  --source <stem>-spec.md --generate eval-suite --agents default,default,default
+ ```
+ 
+-`--agents` are `model[:persona[:"instruction"]]` specs. Use Mode B when you want the harness to
+-generate the competing designs; Mode A when you already have them.
++`--agents` uses `selection[:persona[:quoted-instruction]]` specs from the shared adversarial grammar. Omitted create selections become `default,default,default`; each `default` omits the native model parameter. An explicit list is forwarded unchanged, including personas, instructions and order. For example, an explicit `--agents sonnet:architect,haiku:qa` requests those two aliases subject to the shim permission check, not verified backend identities. Mode A without a list assigns `default` per input file. The coordinator and merge executor omit model independently of advocate choices. Use Mode B to generate competing designs; Mode A when they already exist.
+ 
+ ## /sc:document — docs update (create W6)
+ 
+diff --git a/tests/commands/test_auggie_review_revagent.py b/tests/commands/test_auggie_review_revagent.py
+index 583648269..abbb3be39 100644
+--- a/tests/commands/test_auggie_review_revagent.py
++++ b/tests/commands/test_auggie_review_revagent.py
+@@ -73,7 +73,8 @@ def test_command_surface():
+     assert "`--revagent` picks the request alias" in OPTION_ROW
+     assert "`--auggie-model`" in OPTION_ROW
+     assert "CLAUDE_CODE_SUBAGENT_MODEL_FORCE" in OPTION_ROW
+-    assert "frontmatter model" in OPTION_ROW
++    assert "omit the native model parameter" in OPTION_ROW
++    assert "role-permitted configured default" in OPTION_ROW
+ 
+ 
+ # --- invalid and missing values -------------------------------------------
+@@ -155,15 +156,21 @@ def test_tool_coordination_names_only_the_reviewer_spawn():
+ # --- omitted flag / default + audit -----------------------------------------
+ 
+ 
+-def test_frontmatter_default_unchanged():
+-    assert "model: opus" in AGENT.split("---")[1]
++def test_omitted_selection_reaches_configured_default():
++    assert not re.search(r"^model\s*:", AGENT.split("---")[1], re.MULTILINE)
++    assert "omit the native model parameter" in _bullet("Omitted →")
++    assert "CLAUDE_CODE_SUBAGENT_MODEL" in _bullet("Omitted →")
++    assert "role-permitted configured default" in STEP5
++    assert "rejects disallowed destinations" in STEP5
++    assert "frontmatter default applies" not in STEP5
+ 
+ 
+ def test_audit_literals():
+     header = _between(SKILL, "<!-- SC:AUGGIE-REVIEW:TARGET", "-->")
+     assert "revagent: <opus|sonnet|haiku|fable|default>" in header
+     audit_block = _between(SKILL, "## Audit\n", "8. Write")
+-    assert "- Reviewer agent model: <value|frontmatter default>" in audit_block
++    assert "- Reviewer agent model: <value|configured default (model omitted)>" in audit_block
+     step8 = _line(SKILL, "8. Write `<output-dir>/audit.log`")
+     assert "model argument passed on each reviewer spawn" in step8
+-    assert "`frontmatter`" in step8
++    assert "`default (model omitted)`" in step8
++    assert "not the served backend" in step8
+diff --git a/tests/skills/test_brainstorm_protocol.py b/tests/skills/test_brainstorm_protocol.py
+index 6277d949f..bf60efd81 100644
+--- a/tests/skills/test_brainstorm_protocol.py
++++ b/tests/skills/test_brainstorm_protocol.py
+@@ -95,6 +95,16 @@ def test_brainstorm_unattended_research_light_runs_nested_and_deep_is_skipped():
+     assert "the two research rows are skipped" not in paragraph
+ 
+ 
++def test_brainstorm_omitted_model_and_explicit_rotation_are_separate():
++    wave0 = _wave_section("0")
++    assert "When omitted, use `default` for every persona at every depth" in wave0
++    wave2 = _wave_section("2B")
++    assert "Omitted `--models`: assign `default`" in wave2
++    assert "preserve the validated list order" in wave2
++    assert "never promote or replace" in wave2
++    assert "prefer `opus`" not in wave2
++
++
+ def test_brainstorm_no_tavily_param_duplication():
+     """Wave-2A enrichment matrix routes only — no Tavily params / map/crawl tool names."""
+     section = _wave2a_section()
+diff --git a/tests/skills/test_model_alias_policy.py b/tests/skills/test_model_alias_policy.py
+index 5d8c31b24..0148dba47 100644
+--- a/tests/skills/test_model_alias_policy.py
++++ b/tests/skills/test_model_alias_policy.py
+@@ -99,6 +99,35 @@ def test_frontmatter_model_is_an_alias_when_present() -> None:
+     assert bad == []
+ 
+ 
++@pytest.mark.parametrize(
++    "name",
++    ("auggie-reviewer", "eval-suite-author", "debate-orchestrator", "merge-executor"),
++)
++def test_role_default_agents_have_no_implicit_model_preference(name: str) -> None:
++    path = SRC / "agents" / f"{name}.md"
++    text = path.read_text(encoding="utf-8")
++    assert _frontmatter_model(path) is None
++    assert not re.search(
++        r"highest-capability|high-capability|opus preferred|benefits from the stronger model",
++        text,
++        re.IGNORECASE,
++    )
++    if name != "auggie-reviewer":
++        assert "user's configured default permitted by their Coder role" in text
++        assert "Preserve explicit permitted selections" in text
++
++
++def test_eval_author_dispatch_omits_native_model_and_keeps_validation() -> None:
++    text = (SRC / "skills/sc-cli-eval-protocol/SKILL.md").read_text(encoding="utf-8")
++    author = text.split("### W4", 1)[1].split("### W5", 1)[0]
++    assert "without a native `model` parameter" in author
++    assert "role-permitted configured default" in author
++    assert "then self-validates" in author
++    assert "`eval describe --suite <stem>` returning loader exit 0" in (
++        SRC / "agents/eval-suite-author.md"
++    ).read_text(encoding="utf-8")
++
++
+ def test_tier_ids_appear_only_in_allowed_paths() -> None:
+     """The text ``claude-gw-tier`` stays inside the documented allow-list."""
+     bad = []
+diff --git a/tests/skills/test_native_model_defaults.py b/tests/skills/test_native_model_defaults.py
+new file mode 100644
+index 000000000..064a056c2
+--- /dev/null
++++ b/tests/skills/test_native_model_defaults.py
+@@ -0,0 +1,275 @@
++"""Static selection contracts, not an executable parser or live dispatch test."""
++
++from pathlib import Path
++
++import pytest
++
++SRC = Path(__file__).resolve().parents[2] / "src/superclaude"
++
++
++def _read(relative: str) -> str:
++    return (SRC / relative).read_text(encoding="utf-8")
++
++
++def _section(text: str, start: str, end: str) -> str:
++    return text.split(start, 1)[1].split(end, 1)[0]
++
++
++def test_builder_default_and_explicit_rotation_contract():
++    text = _read("skills/sc-brainstorm-protocol/refs/agent-spec-builder.md")
++    rotation = _section(text, "## §Model-Rotation", "## §Instruction-Templates")
++    for literal in (
++        "assign `default` to every selected persona",
++        "quick, standard and deep",
++        "Preserve list order and round-robin",
++        "Depth never promotes or replaces",
++        "explicit --models sonnet,haiku",
++        "explicit --models default,opus",
++    ):
++        assert literal in rotation
++    assert "Deep-depth override" not in rotation
++    vectors = text.split("## §Round-Trip Test Vectors", 1)[1]
++    assert "default:architect,default:refactorer" in vectors
++    assert "opus:" not in vectors and "sonnet:" not in vectors
++    assert "haiku:" not in vectors
++    assert "Strip these characters" in text
++    assert "auto_excluded_personas" in text
++
++
++@pytest.mark.parametrize(
++    "path,start,end",
++    [
++        ("skills/sc-brainstorm-protocol/refs/agent-spec-builder.md", "## §Validation", "## §Token-Budget"),
++        ("skills/sc-adversarial-protocol/refs/agent-specs.md", "### Parsing Rules", "### Examples"),
++        ("skills/sc-adversarial-protocol/SKILL.md", "    agent_spec_parsing:", "  step_4_common_flags:"),
++    ],
++)
++def test_shared_quote_aware_grammar(path, start, end):
++    grammar = _section(_read(path), start, end).lower()
++    for literal in ("only outside", "single or double quotes", "default", "fable", "extra segments", "dangling escapes", "trailing text"):
++        assert literal in grammar
++    assert "decode once" in grammar
++    assert "shell-execute" in grammar
++
++
++def test_builder_serialization_preserves_default_and_escapes_once():
++    serialization = _section(
++        _read("skills/sc-brainstorm-protocol/refs/agent-spec-builder.md"),
++        "## §Serialization", "## §Validation",
++    )
++    assert r"Escape backslashes first (`\` becomes `\\`), then replace `'` in instructions with `\'`" in serialization
++    assert "Decode escapes once in the consumer, never through a shell" in serialization
++    assert "`default:architect`" in serialization
++    assert "default:architect:'prioritize maintainability'" in serialization
++
++
++def test_producer_serialization_and_final_output_contract():
++    text = _read("skills/sc-brainstorm-protocol/SKILL.md")
++    serialization = _section(text, "4. **Serialization with sanitization**", "5. **Token-budget pre-flight**")
++    assert "Wrap each instruction in single-quoted strings" in serialization
++    assert r"Escape backslashes first, then embedded single-quotes as `\'`" in serialization
++    assert "decode once in the consumer, never through a shell" in serialization
++    assert "Sanitize all interpolated parameters" in serialization
++    output = _section(text, "6. **Final output**", "**Dry-run gate**")
++    for selection in ("default:architect:", "default:refactorer:", "default:devops:"):
++        assert selection in output
++
++
++def test_command_examples_and_boundaries_do_not_imply_rotation():
++    text = _read("commands/brainstorm.md")
++    example = _section(text, "### Cross-domain redesign", "### Blind multi-model comparison")
++    assert "5 proposals using the role-permitted configured default" in example
++    boundaries = _section(text, "## Boundaries", "## Related Commands")
++    assert "rotate only an explicit --models list in its supplied order" in boundaries
++    assert "or invent a family rotation when --models is omitted" in boundaries
++    for stale in ("3 active aliases", "5 proposals × 3 models", "uses 3 active aliases"):
++        assert stale not in text
++
++
++def test_advocate_consumer_parse_and_validate_contract():
++    consumer = _section(
++        _read("skills/sc-adversarial-protocol/SKILL.md"),
++        "### Advocate Agent Instantiation", "  prompt_generation:",
++    )
++    for literal in (
++        "shared agent_spec_parsing grammar",
++        "only outside matching single or double quotes",
++        "preserve default marker until dispatch",
++        "decode matching quote/backslash escapes once; never shell-execute",
++        "Only default, opus, sonnet, haiku, fable",
++        "reject inherit, backend IDs and arbitrary gateway aliases",
++        "reject empty/extra segments, unmatched quotes, dangling escapes and trailing text",
++    ):
++        assert literal in consumer
++
++
++def test_generation_consumes_marker_before_native_dispatch():
++    text = _read("skills/sc-adversarial-protocol/SKILL.md")
++    generation = text.split("### Mode B Variant Generation", 1)[1]
++    assert "For default, omit the native model parameter" in generation
++    assert "validated explicit opus, sonnet, haiku or fable alias" in generation
++    assert "Preserve this choice on retries and redispatch" in generation
++    assert "shared shim rejects disallowed destinations" in generation
++    assert 'count_check: "2 ≤ agent_count ≤ 10"' in text
++
++
++def test_advocacy_assignment_dispatch_and_retry_contract():
++    text = _read("skills/sc-adversarial-protocol/SKILL.md")
++    dispatch = _section(text, "  task_dispatch_config:", "  mode_a_assignment:")
++    assert "If parsed selection is default, omit the native model parameter" in dispatch
++    assert "validated explicit opus, sonnet, haiku or fable alias" in dispatch
++    assert "every debate round, retry and redispatch" in dispatch
++    assert '    model: "{parsed_model}"' not in dispatch
++    assignment = _section(text, "  mode_a_assignment:", "  count_validation:")
++    assert "without --agents assign default per file" in assignment
++    assert "not the current parent model" in assignment
++    assert "Preserve a supplied validated list unchanged" in assignment
++    mode_a = _section(text, "  step_1_detect_mode:", "  step_3_mode_b_parsing:")
++    assert "An optional --agents list is legal in Mode A" in mode_a
++    assert "step_3_mode_b_parsing.agent_spec_parsing" in mode_a
++    assert "exactly one spec per input file" in mode_a
++    reference = _read("skills/sc-adversarial-protocol/refs/agent-specs.md")
++    assert "rather than the current parent model" in _section(reference, "### Mode A (Compare)", "### Mode B")
++    assert "same selection/persona/instruction and model omission or explicit alias" in reference.split("### Failure Handling", 1)[1]
++    command = _section(_read("commands/adversarial.md"), "### Arguments", "## Behavioral Summary")
++    assert "one `default` advocate per file" in command
++    assert "optional in Mode A" in command
++
++
++def test_coordinator_and_merge_do_not_choose_families():
++    text = _read("skills/sc-adversarial-protocol/SKILL.md")
++    for start, end in (
++        ("### debate-orchestrator Agent", "### merge-executor Agent"),
++        ("### merge-executor Agent", "### Advocate Agents"),
++        ("### Merge Executor Dispatch", "### Provenance Annotation System"),
++    ):
++        section = _section(text, start, end)
++        assert "Omit the native model parameter" in section
++        assert "configured child default" in section
++        assert "opus" not in section and "sonnet" not in section
++    merge = _section(text, "### Merge Executor Dispatch", "### Provenance Annotation System")
++    assert "Preserve omission on retries and redispatch" in merge
++    assert "never inherit the winning advocate's model" in merge
++
++
++def test_selection_labels_provenance_and_blind_copies():
++    text = _read("skills/sc-adversarial-protocol/SKILL.md")
++    contract = _section(text, "When invoked by another command", "## Agent Delegation")
++    assert 'base_variant: "default:architect"' in contract
++    assert "not a served backend" in contract
++    assert "otherwise report `unknown`" in contract
++    assert "variant-{N}-{model}-{persona or 'default'}.md" in contract
++    blind = _section(text, "#### Blind Evaluation", "#### Convergence Plateau Detection")
++    assert 'patterns: ["default", "opus", "haiku", "sonnet", "fable"' in blind
++    assert "not ordinary prose uses of the word default" in blind
++    assert "Original artifacts preserved" in blind
++
++
++def test_cli_eval_create_keeps_three_defaults_and_explicit_specs():
++    text = _read("skills/sc-cli-eval-protocol/SKILL.md")
++    inputs = _section(text, "## Input Contract", "## Wave 0")
++    assert "default,default,default" in inputs
++    assert "Preserve an explicit list unchanged" in inputs
++    w3 = _section(text, "### W3", "### W4")
++    assert "default,default,default" in w3
++    assert "including personas, instructions and order" in w3
++    assert "Pass that resolved list to either Mode A or Mode B" in w3
++    assert "Coordinator and merge calls omit model independently" in w3
++    integration = _section(_read("skills/sc-cli-eval-protocol/refs/integration-map.md"), "## /sc:adversarial", "## /sc:document")
++    assert "--agents default,default,default" in integration
++    assert "explicit list is forwarded unchanged" in integration
++    assert "explicit `--agents sonnet:architect,haiku:qa`" in integration
++    command = _section(_read("commands/cli-eval.md"), "## Usage", "## Behavioral Summary")
++    assert "`default,default,default`" in command
++    assert "forwarded unchanged, in order" in command
++    assert "[--agents opus,sonnet,haiku]" not in text
++
++
++@pytest.mark.parametrize("agent", ("auggie-reviewer", "eval-suite-author", "debate-orchestrator", "merge-executor"))
++def test_affected_agents_have_no_frontmatter_model_pin(agent):
++    text = _read(f"agents/{agent}.md")
++    frontmatter = text.split("---", 2)[1]
++    assert not any(line.startswith("model:") for line in frontmatter.splitlines())
++    if agent != "auggie-reviewer":
++        selection = _section(text, "## Model Selection", "## Tools")
++        assert "configured default permitted by their Coder role" in selection
++        assert "do not substitute a capability-based preference" in selection
++
++
++@pytest.mark.parametrize(
++    "path,start,end,required",
++    [
++        ("skills/sc-auggie-review-protocol/SKILL.md", "5. For `--depth deep`", "**Exit criteria**", "when `revagent = default`, pass no `model` argument"),
++        ("commands/auggie-review.md", "## Options", "## Behavioral Summary", "configured default"),
++        ("skills/sc-brainstorm-protocol/SKILL.md", "2. **Model selection**", "3. **Custom instructions**", "Omitted `--models`: assign `default` to every selected persona"),
++        ("skills/sc-brainstorm-protocol/refs/agent-spec-builder.md", "## §Model-Rotation", "## §Instruction-Templates", "Depth never promotes or replaces"),
++        ("commands/brainstorm.md", "## Options", "## Examples", "`default` for every proposal"),
++        ("skills/sc-adversarial-protocol/refs/agent-specs.md", "#### Model (Required)", "#### Persona", "omit the native model parameter"),
++        ("skills/sc-adversarial-protocol/SKILL.md", "### Mode B Variant Generation", "### MCP Integration Layer", "For default, omit the native model parameter"),
++        ("skills/sc-adversarial-protocol/SKILL.md", "  task_dispatch_config:", "  mode_a_assignment:", "If parsed selection is default, omit the native model parameter"),
++        ("skills/sc-adversarial-protocol/SKILL.md", "### debate-orchestrator Agent", "### merge-executor Agent", "Omit the native model parameter"),
++        ("skills/sc-adversarial-protocol/SKILL.md", "### Merge Executor Dispatch", "### Provenance Annotation System", "Omit the native model parameter"),
++        ("commands/adversarial.md", "### Arguments", "## Options", "one `default` advocate per file"),
++        ("skills/sc-cli-eval-protocol/SKILL.md", "### W3", "### W4", "default,default,default"),
++        ("skills/sc-cli-eval-protocol/SKILL.md", "### W4", "### W5", "without a native `model` parameter"),
++        ("skills/sc-cli-eval-protocol/refs/integration-map.md", "## /sc:adversarial", "## /sc:document", "--agents default,default,default"),
++        ("commands/cli-eval.md", "## Options", "## Behavioral Summary", "`default,default,default`"),
++    ],
++)
++def test_complete_affected_selection_inventory(path, start, end, required):
++    section = _section(_read(path), start, end)
++    assert required in section
++    for implicit_pin in ('model: "opus"', 'model: "sonnet"', 'model: "default"', 'model: "inherit"', "opus preferred", "highest available"):
++        assert implicit_pin not in section
++
++
++def test_plugin_brainstorm_affected_sections_match_source():
++    root = SRC.parents[1]
++    plugin = (root / "plugins/superclaude/commands/brainstorm.md").read_text(encoding="utf-8")
++    source = _read("commands/brainstorm.md")
++    for text in (plugin, source):
++        assert "[--models default|opus|sonnet|haiku|fable,...]" in _section(text, "## Usage", "## Options")
++    def model_row(text):
++        return next(line for line in text.splitlines() if line.startswith("| `--models`"))
++
++    assert model_row(plugin) == model_row(source)
++    for start, end in (
++        ("### Codebase feature discovery", "### Deep incident"),
++        ("### Cross-domain redesign", "### Blind multi-model"),
++        ("### Blind multi-model", "### Dry-run"),
++    ):
++        assert _section(plugin, start, end) == _section(source, start, end)
++    boundaries = _section(plugin, "## Boundaries", "## Related Commands")
++    assert "rotate only an explicit --models list in its supplied order" in boundaries
++    assert "or invent a family rotation when --models is omitted" in boundaries
++    assert "3 active aliases" not in plugin
++    assert "5 proposals × 3 models" not in plugin
++
++
++def test_readme_separates_saved_child_default_parent_and_backend():
++    selection = _section(_read("skills/ccsession-tag/README.md"), "### Native child model selection", "The limit is local to ccsession")
++    for literal in (
++        "ANTHROPIC_MODEL", "$CLAUDE_CONFIG_DIR/settings.json", "~/.claude/settings.json",
++        "role start tier", "Parent-only `--model` and `--tier` choices do not replace",
++        "project/local/managed settings", "agent-frontmatter choices still override",
++        "`default` specification token", "never a native model alias",
++        "shim's role check on the resolved destination", "CLAUDE_CODE_SUBAGENT_MODEL_FORCE",
++        "never created by the launcher", "not proof of the served backend",
++        "Outside tier mode, native",
++    ):
++        assert literal in selection
++
++
++def test_command_surfaces_describe_protocol_marker_not_native_alias():
++    brainstorm = _read("commands/brainstorm.md")
++    row = next(line for line in brainstorm.splitlines() if line.startswith("| `--models`"))
++    assert "`default` for every proposal" in row
++    assert "without depth promotion" in row
++    assert "omits the native model parameter" in row
++    adversarial = _read("commands/adversarial.md")
++    for section in (adversarial.split("### Arguments", 1)[1].split("## Options", 1)[0], adversarial.split("## Options", 1)[1]):
++        assert "selection[:persona[:quoted-instruction]]" in section
++        assert "single/double quotes" in section or "single or double quotes" in section
++    protocol = _read("skills/sc-brainstorm-protocol/SKILL.md")
++    assert "Coder workspaces no longer set these" not in protocol
++    assert "not proof of a served backend or role permission" in protocol
+diff --git a/tests/unit/test_ccsession_tiers.py b/tests/unit/test_ccsession_tiers.py
+index 6c35a4b3f..92c7b1a6e 100644
+--- a/tests/unit/test_ccsession_tiers.py
++++ b/tests/unit/test_ccsession_tiers.py
+@@ -112,6 +112,9 @@ def _isolated(monkeypatch, tmp_path_factory):
+             monkeypatch.delenv(name)
+     for name in (
+         "ANTHROPIC_MODEL",
++        "CLAUDE_CONFIG_DIR",
++        "CLAUDE_CODE_SUBAGENT_MODEL",
++        "CLAUDE_CODE_SUBAGENT_MODEL_FORCE",
+         "CCSESSION_DEFAULT_TIER",
+         "CCSESSION_SHOW_ALL_MODELS",
+         "CCSESSION_TIERS",
+@@ -348,6 +351,8 @@ json.dump({
+     "opus_model": os.environ.get("ANTHROPIC_DEFAULT_OPUS_MODEL", ""),
+     "sonnet_model": os.environ.get("ANTHROPIC_DEFAULT_SONNET_MODEL", ""),
+     "haiku_model": os.environ.get("ANTHROPIC_DEFAULT_HAIKU_MODEL", ""),
++    "child_model": os.environ.get("CLAUDE_CODE_SUBAGENT_MODEL", ""),
++    "child_force": os.environ.get("CLAUDE_CODE_SUBAGENT_MODEL_FORCE", ""),
+ }, open(os.environ["SEEN_FILE"], "w"))
+ """
+     )
+@@ -3397,3 +3402,201 @@ def test_in_my_tiers_command_is_silent_and_exit_coded(tmp_path: Path) -> None:
+         proc = run(model)
+         assert proc.returncode == code, (model, proc.stderr)
+         assert proc.stdout == "" and proc.stderr == ""
++
++
++@pytest.mark.parametrize("parent", [("--model", "gpt-6-astra"), ("--tier", "tier0")])
++@pytest.mark.parametrize("configured", ["gpt-6.1-sol", "claude-gw-tier1b[1m]"])
++def test_configured_child_is_independent_of_parent(tmp_path, parent, configured):
++    rc, _, err, seen = _launch(tmp_path, "work", *parent, ANTHROPIC_MODEL=configured)
++    assert rc == 0, err
++    assert _model_arg(seen) == (
++        "gpt-6-astra" if parent[0] == "--model" else "claude-gw-tier0[1m]"
++    )
++    assert seen["child_model"] == configured
++    assert seen["child_force"] == ""
++
++
++@pytest.mark.parametrize("relocated", [False, True])
++def test_saved_picker_default_binds_child_before_parent_override(tmp_path, relocated):
++    config = tmp_path / ("custom-config" if relocated else "home/.claude")
++    config.mkdir(parents=True)
++    (config / "settings.json").write_text(json.dumps({"model": "claude-gw-tier1b[1m]"}))
++    extra = {"CLAUDE_CONFIG_DIR": str(config)} if relocated else {}
++    rc, _, err, seen = _launch(tmp_path, "work", "--tier", "tier0", **extra)
++    assert rc == 0, err
++    assert _model_arg(seen) == "claude-gw-tier0[1m]"
++    assert seen["child_model"] == "claude-gw-tier1b[1m]"
++    rc, _, err, seen = _launch(tmp_path, "work", **extra)
++    assert rc == 0, err
++    assert seen["child_model"] == _model_arg(seen) == "claude-gw-tier1b[1m]"
++    # Workspace env still takes its documented precedence over the saved value.
++    rc, _, err, seen = _launch(tmp_path, "work", ANTHROPIC_MODEL="gpt-6.1-sol", **extra)
++    assert rc == 0, err
++    assert seen["child_model"] == "gpt-6.1-sol"
++
++
++@pytest.mark.parametrize("child", ["gpt-6.1-sol[1m]", "sonnet", "inherit"])
++def test_explicit_child_and_force_are_not_replaced(tmp_path, child):
++    rc, _, err, seen = _launch(
++        tmp_path,
++        "work",
++        "--tier",
++        "tier0",
++        ANTHROPIC_MODEL="gpt-6.1-sol",
++        CLAUDE_CODE_SUBAGENT_MODEL=child,
++        CLAUDE_CODE_SUBAGENT_MODEL_FORCE="1",
++    )
++    assert rc == 0, err
++    assert seen["child_model"] == ("gpt-6.1-sol" if child == "inherit" else child)
++    assert seen["child_force"] == "1"
++
++
++@pytest.mark.parametrize(
++    "child", ["gpt-6-astra", "claude-gw-tier0[1m]", "opus", "bad name!"]
++)
++def test_unavailable_explicit_child_stops_launch(tmp_path, child):
++    rc, _, err, seen = _launch(
++        tmp_path,
++        "work",
++        defaults=ACCESS_BLOCK,
++        CODER_WORKSPACE_OWNER_NAME="bob",
++        CLAUDE_CODE_SUBAGENT_MODEL=child,
++        ANTHROPIC_DEFAULT_OPUS_MODEL="gpt-6-astra",
++    )
++    assert rc == 2 and seen is None
++    assert "ccsession:" in err
++
++
++def test_saved_unavailable_default_uses_role_start_and_legacy_is_untouched(tmp_path):
++    config = tmp_path / "home/.claude"
++    config.mkdir(parents=True)
++    (config / "settings.json").write_text('{"model":"claude-gw-tier0[1m]"}')
++    rc, _, err, seen = _launch(
++        tmp_path,
++        "work",
++        defaults=ACCESS_BLOCK,
++        CODER_WORKSPACE_OWNER_NAME="bob",
++    )
++    assert rc == 0, err
++    assert seen["child_model"] == _model_arg(seen) == "claude-gw-tier2[1m]"
++    rc, _, err, seen = _launch(
++        tmp_path, "work", defaults=None, CLAUDE_CODE_SUBAGENT_MODEL="inherit"
++    )
++    assert rc == 0, err
++    assert seen["child_model"] == "inherit" and "--model" not in seen["argv"]
++
++
++@pytest.mark.parametrize(
++    "model", ["gpt-6-astra", "claude-gw-gpt-6-astra", "claude-gw-tier0[1m]"]
++)
++def test_shim_denied_raw_picker_and_tier_never_forward(shim, model):
++    gateway, start, _ = shim
++    base = start(ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="bob")
++    status, body = _ask(base, model)
++    assert status == 400 and b"available" in body
++    assert gateway.calls == []
++
++
++@pytest.mark.parametrize(
++    "model,expected",
++    [
++        ("gpt-6.1-sol", "gpt-6.1-sol"),
++        ("claude-gw-gpt-6.1-sol", "gpt-6.1-sol"),
++        ("claude-gw-tier2[1m]", "muse-spark-1.3"),
++    ],
++)
++def test_shim_shared_allowed_models_reach_gateway(shim, model, expected):
++    gateway, start, _ = shim
++    base = start(ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="bob")
++    status, _ = _ask(base, model)
++    assert status == 200
++    assert gateway.models_called() == [expected]
++
++
++def test_shim_invalid_policy_never_forwards_raw_model(shim):
++    gateway, start, _ = shim
++    base = start(
++        TIER_BLOCK + 'export CCSESSION_TIER_RULES="bob=tier0:tier2"\n',
++        CODER_WORKSPACE_OWNER_NAME="bob",
++    )
++    status, _ = _ask(base, "gpt-6.1-sol")
++    assert status == 400 and gateway.calls == []
++
++
++def test_shared_guard_checks_resolved_destination(tmp_path, monkeypatch):
++    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, ACCESS_BLOCK)))
++    monkeypatch.setenv("CODER_WORKSPACE_OWNER_NAME", "bob")
++    models.check_model_access("claude-gw-gpt-6.1-sol", "gpt-6.1-sol")
++    with pytest.raises(ValueError, match="not in a tier available"):
++        models.check_model_access("claude-gw-gpt-6.1-sol", "gpt-6-astra")
++
++
++@pytest.mark.parametrize("contents", ["{", "[]"])
++def test_malformed_saved_settings_stops_tier_launch(tmp_path, contents):
++    config = tmp_path / "home/.claude"
++    config.mkdir(parents=True)
++    (config / "settings.json").write_text(contents)
++    rc, _, err, seen = _launch(tmp_path, "work")
++    assert rc == 2 and seen is None
++    assert "settings" in err
++
++
++def test_post_checks_alias_destination_and_preserves_non_model_body(
++    tmp_path, monkeypatch
++):
++    from io import BytesIO
++
++    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, ACCESS_BLOCK)))
++    monkeypatch.setenv("CODER_WORKSPACE_OWNER_NAME", "bob")
++    module = runpy.run_path(str(SKILL_DIR / "local-gateway-alias-proxy.py"))
++    handler = object.__new__(module["Handler"])
++    handler.path = "/v1/messages"
++    forwarded = []
++    handler._proxy = lambda body: forwarded.append(body)
++    handler._send_error_json = lambda status, kind, text: (status, kind, text)
++    # A valid original picker ID must not authorize a different denied target.
++    module["alias_to_real"]["claude-gw-gpt-6.1-sol"] = "gpt-6-astra"
++    body = json.dumps({"model": "claude-gw-gpt-6.1-sol"}).encode()
++    handler.headers = {"Content-Length": str(len(body))}
++    handler.rfile = BytesIO(body)
++    result = handler._post()
++    assert result[0] == 400 and forwarded == []
++    handler.path = "/telemetry"
++    body = b'{"event":"local-only"}'
++    handler.headers = {"Content-Length": str(len(body))}
++    handler.rfile = BytesIO(body)
++    handler._post()
++    assert forwarded == [body]
++
++
++@pytest.mark.parametrize(
++    "owner,tier_mode,status",
++    [("bob", True, 400), ("alice", True, None), ("bob", False, None)],
++)
++@pytest.mark.parametrize("suffix", ["", "[1m]"])
++def test_unresolved_picker_after_failed_refresh_never_bypasses_policy(
++    tmp_path, monkeypatch, owner, tier_mode, status, suffix
++):
++    from io import BytesIO
++
++    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, ACCESS_BLOCK)))
++    monkeypatch.setenv("CODER_WORKSPACE_OWNER_NAME", owner)
++    module = runpy.run_path(str(SKILL_DIR / "local-gateway-alias-proxy.py"))
++    monkeypatch.setattr(module["model_data"], "tier_mode", lambda: tier_mode)
++    handler = object.__new__(module["Handler"])
++    handler.path = "/v1/messages"
++    forwarded, refreshes = [], []
++    handler._proxy = lambda body: forwarded.append(body)
++    handler._send_error_json = lambda code, kind, text: (code, kind, text)
++    # A failed catalog refresh leaves this valid picker without a destination.
++    handler._refresh_models = lambda: refreshes.append("failed")
++    module["alias_to_real"].clear()
++    body = json.dumps({"model": "claude-gw-gpt-6.1-sol" + suffix}).encode()
++    handler.headers = {"Content-Length": str(len(body))}
++    handler.rfile = BytesIO(body)
++    result = handler._post()
++    assert refreshes == ["failed"]
++    if status is not None:
++        assert result[0] == status and forwarded == []
++    else:
++        assert result is None and forwarded == [body]

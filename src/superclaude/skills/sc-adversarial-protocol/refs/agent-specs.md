@@ -9,24 +9,19 @@ Agent specification format, advocate behavior rules, and dynamic agent instantia
 Agents are specified using a hybrid format combining model selection with optional persona and instruction:
 
 ```
-<model>                              # Model only
-<model>:<persona>                    # Model + persona
-<model>:<persona>:"<instruction>"    # Model + persona + custom instruction
+<selection>                              # default or explicit supported alias
+<selection>:<persona>                    # Selection + persona
+<selection>:<persona>:'<instruction>'    # Canonical single-quoted instruction
+<selection>:<persona>:"<instruction>"    # Compatible double-quoted instruction
 ```
 
 ### Components
 
 #### Model (Required)
 
-The LLM model to use for this agent.
+The requested selection for this agent: `default`, `opus`, `sonnet`, `haiku` or `fable`. `default` is a reserved protocol marker, not a native model alias: preserve it through parsing, then omit the native model parameter. This uses the user's role-permitted configured default bound by ccsession. Explicit supported aliases stay explicit, subject to administrative force semantics and the shared shim's destination check. Never pass `default`, `inherit`, full backend IDs or arbitrary gateway aliases as a native model.
 
-| Model | Capability | Typical Use |
-|-------|-----------|-------------|
-| `opus` | Highest capability | Complex analysis, architectural reasoning |
-| `sonnet` | Balanced capability | General purpose, good cost/quality ratio |
-| `haiku` | Fast, efficient | Quick assessments, simple comparisons |
-
-Model aliases configured in the environment are also supported.
+Lists may mix default and explicit selections and may repeat `default`. Preserve list order. Selection labels are not evidence of a served backend or role permission; resolution depends on the active environment.
 
 #### Persona (Optional)
 
@@ -59,19 +54,11 @@ Instructions are injected into the agent's system prompt alongside persona direc
 
 ### Parsing Rules
 
-```yaml
-agent_spec_parsing:
-  separator: ":"
-  instruction_delimiter: '"' (double quotes)
-  validation:
-    - "Model must be a recognized model name or alias"
-    - "Persona must match a valid SuperClaude persona (if provided)"
-    - "Instruction must be enclosed in double quotes (if provided)"
-  error_handling:
-    invalid_model: "STOP with error: 'Unknown model: <model>'"
-    invalid_persona: "WARN: Unknown persona '<persona>', using model defaults"
-    missing_quotes: "STOP with error: 'Instruction must be quoted: <spec>'"
-```
+1. Split agents on commas only outside quotes, then split fields on colons only outside quotes. Accept 1-3 nonempty segments: selection alone, selection:persona, or selection:persona:quoted-instruction. Reject empty agents/fields and extra segments.
+2. Accept only `default`, `opus`, `sonnet`, `haiku`, `fable` as selection. Unknown selection: STOP `Unknown model: <model>`. Keep the default marker in the parsed model field until dispatch.
+3. Map a provided persona to SuperClaude behavior. Unknown persona: WARN `Unknown persona '<persona>', using model defaults`; retain its requested label. The builder's recognized personas remain valid.
+4. Instructions must occupy an entire field inside matching single or double quotes. Single quotes are the builder's canonical form; existing double-quoted explicit specs remain accepted. Inside quotes, backslash escapes only the matching quote or another backslash; preserve other backslashes. Decode once. Commas, colons and the other quote character inside quotes are data. Reject unmatched quotes, dangling escapes and trailing text after a closing quote. Missing quotes: STOP `Instruction must be quoted: <spec>`.
+5. Never evaluate or shell-execute a serialized specification. Keep parsed instructions as prompt data. Structural tokens must not become instructions. Native generation dispatch omits model for `default` and passes only a validated explicit supported alias otherwise. Agent count remains 2-10.
 
 ### Examples
 
@@ -134,7 +121,7 @@ advocate_prompt_template:
   system_context: |
     You are an advocate agent in a structured adversarial debate.
     Your variant: [variant name]
-    Model: [model]
+    Requested selection: [model] (not an observed backend)
     Persona: [persona or 'default']
     Custom instruction: [instruction or 'none']
 
@@ -188,7 +175,8 @@ advocate_prompt_template:
 ### Mode A (Compare)
 
 - One advocate per input file
-- Agent spec defaults to the current model if `--agents` not specified
+- Without `--agents`, assign `default` to each file's advocate and omit the native model parameter, using the role-permitted configured child default rather than the current parent model.
+- When `--agents` is explicitly supplied, preserve its validated selections, personas, instructions and order through every debate round and retry.
 - Advocates named: `Advocate for Variant 1`, `Advocate for Variant 2`, etc.
 
 ### Mode B (Generate + Compare)
@@ -228,7 +216,7 @@ Each advocate receives all previous round transcripts before responding. Order f
 
 ### Failure Handling
 
-- Single agent failure: Retry once, then proceed with N-1 advocates
+- Single agent failure: Retry once with the same selection/persona/instruction and model omission or explicit alias, then proceed with N-1 advocates
 - Multiple failures: If fewer than 2 advocates remain, abort debate
 - Timeout: Agent-level timeout inherits from Task tool defaults
 

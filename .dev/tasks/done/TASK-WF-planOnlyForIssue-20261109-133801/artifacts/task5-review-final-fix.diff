@@ -1,0 +1,214 @@
+diff --git a/plugins/superclaude/commands/brainstorm.md b/plugins/superclaude/commands/brainstorm.md
+index 02274499c..b20ba0769 100644
+--- a/plugins/superclaude/commands/brainstorm.md
++++ b/plugins/superclaude/commands/brainstorm.md
+@@ -34,7 +34,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
+ /sc:brainstorm "<topic>" [--proposals N] [--depth quick|standard|deep] \
+   [--strategy systematic|agile|enterprise|auto] \
+   [--codebase|--no-codebase] [--research light|deep|none|--no-research] \
+-  [--personas p1,p2,...] [--models opus,sonnet,haiku] \
++  [--personas p1,p2,...] [--models default|opus|sonnet|haiku|fable,...] \
+   [--blind] [--convergence FLOAT] [--interactive] \
+   [--handoff none|design|tasklist|task] [--output DIR] \
+   [--dry-run] [--resume-from PATH] [--force-stale]
+@@ -53,7 +53,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
+ | `--research` | | auto | `light`, `deep`, `none` |
+ | `--no-research` | | `false` | Skip research enrichment |
+ | `--personas` | | auto | Comma-separated persona list overriding auto-detection |
+-| `--models` | | `opus,sonnet,haiku` | Model alias list rotated across proposals |
++| `--models` | | `default` for every proposal | Explicit ordered list of `default`, `opus`, `sonnet`, `haiku`, `fable`, rotated without depth promotion. `default` omits the native model parameter. |
+ | `--blind` | | `false` | Pass-through to `/sc:adversarial --blind` |
+ | `--convergence` | | `0.75` | Pass-through to `/sc:adversarial --convergence` |
+ | `--interactive` | `-i` | `false` | Pause for user input at Socratic + adversarial decision points |
+@@ -78,7 +78,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
+ /sc:brainstorm "add rate limiting to public API endpoints" --depth standard
+ ```
+ 
+-Auto: codebase enrichment via Auggie; 3 proposals across opus/sonnet/haiku with architect/refactorer/backend personas; adversarial debate + merge.
++Auto: codebase enrichment via Auggie; 3 proposals using the role-permitted configured default with architect/refactorer/backend personas; adversarial debate + merge. Explicit `--models opus,sonnet,haiku` requests that ordered rotation without depth promotion.
+ 
+ ### Deep incident post-mortem
+ 
+@@ -103,13 +103,13 @@ Tavily research enrichment; architect/frontend/scribe personas; product-style re
+   --depth deep --proposals 5 --handoff tasklist
+ ```
+ 
+-Codebase + research enrichment; 5 proposals × 3 models; deep debate; merged requirements feed sc:tasklist invocation.
++Codebase + research enrichment; 5 proposals using the role-permitted configured default; deep debate; merged requirements feed sc:tasklist invocation.
+ 
+ ### Blind multi-model comparison
+ 
+ ```bash
+ /sc:brainstorm "consolidate three duplicate auth modules" \
+-  --depth deep --blind --proposals 4
++  --depth deep --blind --proposals 4 --models sonnet,haiku
+ ```
+ 
+ Strips model identity before adversarial scoring to prevent model-bias.
+@@ -149,7 +149,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
+ - Transform ambiguous topics into structured seed briefs via Socratic dialogue
+ - Orchestrate parallel proposal generation via `/sc:adversarial` (Mode B)
+ - Auto-detect and invoke codebase + research enrichment when valuable
+-- Compose model × persona agent-specs across 3 active aliases (opus/sonnet/haiku)
++- Compose persona agent-specs using the role-permitted configured default; rotate only an explicit --models list in its supplied order
+ - Hand off merged requirements to `/sc:design`, `/sc:tasklist`, or `/task-builder` (flag-gated)
+ - Produce a versioned return contract for composability with downstream commands
+ 
+@@ -158,7 +158,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
+ - Re-implement adversarial debate, scoring, or merge logic (delegated to `sc-adversarial-protocol`)
+ - Auto-invoke `/sc:design` (text recommendation only — design is dialogue-heavy)
+ - Modify source code or implement features (produces requirements only)
+-- Activate ANTHROPIC_DEFAULT_* env var swapping (uses 3 active aliases as-is)
++- Activate ANTHROPIC_DEFAULT_* env var swapping or invent a family rotation when --models is omitted
+ - Silently downgrade on missing handoff skills (STOPs and asks user to choose)
+ - Route empty/malformed adversarial responses to PARTIAL success (FAILs instead)
+ 
+diff --git a/src/superclaude/skills/ccsession-tag/README.md b/src/superclaude/skills/ccsession-tag/README.md
+index a779ec389..f5d9ec3d7 100644
+--- a/src/superclaude/skills/ccsession-tag/README.md
++++ b/src/superclaude/skills/ccsession-tag/README.md
+@@ -508,8 +508,14 @@ against the same role policy as the launcher, including an alias's resolved
+ model. A denied request or malformed applicable policy is rejected before its
+ model request reaches the gateway. Non-model endpoints are unchanged.
+ 
+-The child default is the workspace's `ANTHROPIC_MODEL`, or, when that is empty,
+-the saved user `model` in `settings.json`, validated against the allowed tiers.
++### Native child model selection
++
++In tier mode, the child default is the workspace's `ANTHROPIC_MODEL`, or, when
++that is empty, the saved user `model` in `$CLAUDE_CONFIG_DIR/settings.json`
++(normally `~/.claude/settings.json`), validated against the allowed tiers.
++An unavailable configured value uses the role start tier, then the existing
++default-tier fallback. Parent-only `--model` and `--tier` choices do not replace
++this child default. A valid deliberate `CLAUDE_CODE_SUBAGENT_MODEL` is preserved.
+ This reads the saved user preference, not Claude's complete effective session
+ settings: project/local/managed settings, launch `--settings`, and in-session
+ `/model` changes are not re-resolved. A new launch reads the saved preference
+@@ -522,6 +528,14 @@ the parent. This requires ordinary native subagent precedence (Claude Code
+ behavior is unchanged. These settings do not identify the backend that served
+ a request, and do not refresh a running child's configured default.
+ 
++The affected framework workflows omit native model selection unless the user
++supplies a supported explicit choice. Their `default` specification token is a
++protocol marker consumed before dispatch, never a native model alias. Explicit
++aliases remain subject to the shim's role check on the resolved destination;
++they cannot grant access. `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` is an administrative
++exception preserved when supplied, never created by the launcher. Requested
++selection is not proof of the served backend or the cause of a historical launch.
++
+ The limit is local to ccsession, not gateway-wide authorization. The
+ workspace owner can undo it from their own environment
+ (`CODER_WORKSPACE_OWNER_NAME`, `CODER_WORKSPACE_OWNER_ROLES`, `AIDEV_AI_DEFAULTS_PATH`, `CCSESSION_TIERS=0`)
+diff --git a/tests/skills/test_native_model_defaults.py b/tests/skills/test_native_model_defaults.py
+index 5e7d5a80a..7c4f0fbc6 100644
+--- a/tests/skills/test_native_model_defaults.py
++++ b/tests/skills/test_native_model_defaults.py
+@@ -15,6 +15,24 @@ def _section(text: str, start: str, end: str) -> str:
+     return text.split(start, 1)[1].split(end, 1)[0]
+ 
+ 
++def _assert_no_native_model_field(section):
++    for line in section.splitlines():
++        key, separator, _ = line.strip().partition(":")
++        assert not (separator and key.strip().strip("\"'") == "model"), line
++
++
++@pytest.mark.parametrize("selection", ("opus", "sonnet", "haiku", "fable", "default", "inherit"))
++@pytest.mark.parametrize("quote", ("", "'", '"'))
++def test_native_dispatch_guard_rejects_every_unconditional_model(selection, quote):
++    field = f"    model: {quote}{selection}{quote}\n"
++    with pytest.raises(AssertionError):
++        _assert_no_native_model_field('model_selection: "conditional selection rule"\n' + field)
++
++
++def test_native_dispatch_guard_allows_explicit_selection_instructions():
++    _assert_no_native_model_field('model_selection: "For explicit haiku pass model: haiku; for default omit model"')
++
++
+ def test_builder_default_and_explicit_rotation_contract():
+     text = _read("skills/sc-brainstorm-protocol/refs/agent-spec-builder.md")
+     rotation = _section(text, "## §Model-Rotation", "## §Instruction-Templates")
+@@ -185,6 +203,83 @@ def test_cli_eval_create_keeps_three_defaults_and_explicit_specs():
+     assert "[--agents opus,sonnet,haiku]" not in text
+ 
+ 
++@pytest.mark.parametrize("agent", ("auggie-reviewer", "eval-suite-author", "debate-orchestrator", "merge-executor"))
++def test_affected_agents_have_no_frontmatter_model_pin(agent):
++    text = _read(f"agents/{agent}.md")
++    frontmatter = text.split("---", 2)[1]
++    assert not any(line.startswith("model:") for line in frontmatter.splitlines())
++    if agent != "auggie-reviewer":
++        selection = _section(text, "## Model Selection", "## Tools")
++        assert "configured default permitted by their Coder role" in selection
++        assert "do not substitute a capability-based preference" in selection
++
++
++@pytest.mark.parametrize(
++    "path,start,end,required",
++    [
++        ("skills/sc-auggie-review-protocol/SKILL.md", "5. For `--depth deep`", "**Exit criteria**", "when `revagent = default`, pass no `model` argument"),
++        ("commands/auggie-review.md", "## Options", "## Behavioral Summary", "configured default"),
++        ("skills/sc-brainstorm-protocol/SKILL.md", "2. **Model selection**", "3. **Custom instructions**", "Omitted `--models`: assign `default` to every selected persona"),
++        ("skills/sc-brainstorm-protocol/refs/agent-spec-builder.md", "## §Model-Rotation", "## §Instruction-Templates", "Depth never promotes or replaces"),
++        ("commands/brainstorm.md", "## Options", "## Examples", "`default` for every proposal"),
++        ("skills/sc-adversarial-protocol/refs/agent-specs.md", "#### Model (Required)", "#### Persona", "omit the native model parameter"),
++        ("skills/sc-adversarial-protocol/SKILL.md", "### Mode B Variant Generation", "### MCP Integration Layer", "For default, omit the native model parameter"),
++        ("skills/sc-adversarial-protocol/SKILL.md", "  task_dispatch_config:", "  mode_a_assignment:", "If parsed selection is default, omit the native model parameter"),
++        ("skills/sc-adversarial-protocol/SKILL.md", "### debate-orchestrator Agent", "### merge-executor Agent", "Omit the native model parameter"),
++        ("skills/sc-adversarial-protocol/SKILL.md", "### merge-executor Agent", "### Advocate Agents", "Omit the native model parameter"),
++        ("skills/sc-adversarial-protocol/SKILL.md", "### Merge Executor Dispatch", "### Provenance Annotation System", "Omit the native model parameter"),
++        ("commands/adversarial.md", "### Arguments", "## Options", "one `default` advocate per file"),
++        ("skills/sc-cli-eval-protocol/SKILL.md", "### W3", "### W4", "default,default,default"),
++        ("skills/sc-cli-eval-protocol/SKILL.md", "### W4", "### W5", "without a native `model` parameter"),
++        ("skills/sc-cli-eval-protocol/refs/integration-map.md", "## /sc:adversarial", "## /sc:document", "--agents default,default,default"),
++        ("commands/cli-eval.md", "## Options", "## Behavioral Summary", "`default,default,default`"),
++    ],
++)
++def test_complete_affected_selection_inventory(path, start, end, required):
++    section = _section(_read(path), start, end)
++    assert required in section
++    for implicit_pin in ("opus preferred", "highest available"):
++        assert implicit_pin not in section
++    _assert_no_native_model_field(section)
++
++
++def test_plugin_brainstorm_affected_sections_match_source():
++    root = SRC.parents[1]
++    plugin = (root / "plugins/superclaude/commands/brainstorm.md").read_text(encoding="utf-8")
++    source = _read("commands/brainstorm.md")
++    for text in (plugin, source):
++        assert "[--models default|opus|sonnet|haiku|fable,...]" in _section(text, "## Usage", "## Options")
++    def model_row(text):
++        return next(line for line in text.splitlines() if line.startswith("| `--models`"))
++
++    assert model_row(plugin) == model_row(source)
++    for start, end in (
++        ("### Codebase feature discovery", "### Deep incident"),
++        ("### Cross-domain redesign", "### Blind multi-model"),
++        ("### Blind multi-model", "### Dry-run"),
++    ):
++        assert _section(plugin, start, end) == _section(source, start, end)
++    boundaries = _section(plugin, "## Boundaries", "## Related Commands")
++    assert "rotate only an explicit --models list in its supplied order" in boundaries
++    assert "or invent a family rotation when --models is omitted" in boundaries
++    assert "3 active aliases" not in plugin
++    assert "5 proposals × 3 models" not in plugin
++
++
++def test_readme_separates_saved_child_default_parent_and_backend():
++    selection = _section(_read("skills/ccsession-tag/README.md"), "### Native child model selection", "The limit is local to ccsession")
++    for literal in (
++        "ANTHROPIC_MODEL", "$CLAUDE_CONFIG_DIR/settings.json", "~/.claude/settings.json",
++        "role start tier", "Parent-only `--model` and `--tier` choices do not replace",
++        "project/local/managed settings", "agent-frontmatter choices still override",
++        "`default` specification token", "never a native model alias",
++        "shim's role check on the resolved destination", "CLAUDE_CODE_SUBAGENT_MODEL_FORCE",
++        "never created by the launcher", "not proof of the served backend",
++        "Outside tier mode, native",
++    ):
++        assert literal in selection
++
++
+ def test_command_surfaces_describe_protocol_marker_not_native_alias():
+     brainstorm = _read("commands/brainstorm.md")
+     row = next(line for line in brainstorm.splitlines() if line.startswith("| `--models`"))

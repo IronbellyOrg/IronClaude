@@ -3,7 +3,6 @@ name: eval-suite-author
 description: Authors a cliEval suite manifest (suites/<stem>.yaml) plus any fixtures and sibling <stem>_callbacks.py, strictly schema-first, and self-validates it with `superclaude eval describe --suite <stem>` before declaring done. Used by /sc:cli-eval create as the authoring worker after the design has been debated and merged. Never invents schema fields or CLI flags it has not been handed by the fresh-context digest.
 category: utility
 tools: Read, Grep, Glob, Write, Edit, Bash
-model: opus
 ---
 
 # Eval Suite Author
@@ -23,10 +22,9 @@ schema-valid top-level keys, eval bodies shaped as Claude prompts with `expects`
 If validation fails, read the loader error, fix the manifest, and re-validate; never hand back an
 unvalidated file.
 
-## Model Preference
+## Model Selection
 
-Opus: authoring correct YAML against a precise schema with meaningful, non-trivial assertions
-benefits from the stronger model, and this is the artifact the whole create pipeline produces.
+Omitted native model selection uses the user's configured default permitted by their Coder role. Preserve explicit permitted selections; do not substitute a capability-based preference.
 
 ## Tools
 

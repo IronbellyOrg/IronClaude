@@ -112,6 +112,9 @@ def _isolated(monkeypatch, tmp_path_factory):
             monkeypatch.delenv(name)
     for name in (
         "ANTHROPIC_MODEL",
+        "CLAUDE_CONFIG_DIR",
+        "CLAUDE_CODE_SUBAGENT_MODEL",
+        "CLAUDE_CODE_SUBAGENT_MODEL_FORCE",
         "CCSESSION_DEFAULT_TIER",
         "CCSESSION_SHOW_ALL_MODELS",
         "CCSESSION_TIERS",
@@ -348,6 +351,8 @@ json.dump({
     "opus_model": os.environ.get("ANTHROPIC_DEFAULT_OPUS_MODEL", ""),
     "sonnet_model": os.environ.get("ANTHROPIC_DEFAULT_SONNET_MODEL", ""),
     "haiku_model": os.environ.get("ANTHROPIC_DEFAULT_HAIKU_MODEL", ""),
+    "child_model": os.environ.get("CLAUDE_CODE_SUBAGENT_MODEL", ""),
+    "child_force": os.environ.get("CLAUDE_CODE_SUBAGENT_MODEL_FORCE", ""),
 }, open(os.environ["SEEN_FILE"], "w"))
 """
     )
@@ -3397,3 +3402,201 @@ def test_in_my_tiers_command_is_silent_and_exit_coded(tmp_path: Path) -> None:
         proc = run(model)
         assert proc.returncode == code, (model, proc.stderr)
         assert proc.stdout == "" and proc.stderr == ""
+
+
+@pytest.mark.parametrize("parent", [("--model", "gpt-6-astra"), ("--tier", "tier0")])
+@pytest.mark.parametrize("configured", ["gpt-6.1-sol", "claude-gw-tier1b[1m]"])
+def test_configured_child_is_independent_of_parent(tmp_path, parent, configured):
+    rc, _, err, seen = _launch(tmp_path, "work", *parent, ANTHROPIC_MODEL=configured)
+    assert rc == 0, err
+    assert _model_arg(seen) == (
+        "gpt-6-astra" if parent[0] == "--model" else "claude-gw-tier0[1m]"
+    )
+    assert seen["child_model"] == configured
+    assert seen["child_force"] == ""
+
+
+@pytest.mark.parametrize("relocated", [False, True])
+def test_saved_picker_default_binds_child_before_parent_override(tmp_path, relocated):
+    config = tmp_path / ("custom-config" if relocated else "home/.claude")
+    config.mkdir(parents=True)
+    (config / "settings.json").write_text(json.dumps({"model": "claude-gw-tier1b[1m]"}))
+    extra = {"CLAUDE_CONFIG_DIR": str(config)} if relocated else {}
+    rc, _, err, seen = _launch(tmp_path, "work", "--tier", "tier0", **extra)
+    assert rc == 0, err
+    assert _model_arg(seen) == "claude-gw-tier0[1m]"
+    assert seen["child_model"] == "claude-gw-tier1b[1m]"
+    rc, _, err, seen = _launch(tmp_path, "work", **extra)
+    assert rc == 0, err
+    assert seen["child_model"] == _model_arg(seen) == "claude-gw-tier1b[1m]"
+    # Workspace env still takes its documented precedence over the saved value.
+    rc, _, err, seen = _launch(tmp_path, "work", ANTHROPIC_MODEL="gpt-6.1-sol", **extra)
+    assert rc == 0, err
+    assert seen["child_model"] == "gpt-6.1-sol"
+
+
+@pytest.mark.parametrize("child", ["gpt-6.1-sol[1m]", "sonnet", "inherit"])
+def test_explicit_child_and_force_are_not_replaced(tmp_path, child):
+    rc, _, err, seen = _launch(
+        tmp_path,
+        "work",
+        "--tier",
+        "tier0",
+        ANTHROPIC_MODEL="gpt-6.1-sol",
+        CLAUDE_CODE_SUBAGENT_MODEL=child,
+        CLAUDE_CODE_SUBAGENT_MODEL_FORCE="1",
+    )
+    assert rc == 0, err
+    assert seen["child_model"] == ("gpt-6.1-sol" if child == "inherit" else child)
+    assert seen["child_force"] == "1"
+
+
+@pytest.mark.parametrize(
+    "child", ["gpt-6-astra", "claude-gw-tier0[1m]", "opus", "bad name!"]
+)
+def test_unavailable_explicit_child_stops_launch(tmp_path, child):
+    rc, _, err, seen = _launch(
+        tmp_path,
+        "work",
+        defaults=ACCESS_BLOCK,
+        CODER_WORKSPACE_OWNER_NAME="bob",
+        CLAUDE_CODE_SUBAGENT_MODEL=child,
+        ANTHROPIC_DEFAULT_OPUS_MODEL="gpt-6-astra",
+    )
+    assert rc == 2 and seen is None
+    assert "ccsession:" in err
+
+
+def test_saved_unavailable_default_uses_role_start_and_legacy_is_untouched(tmp_path):
+    config = tmp_path / "home/.claude"
+    config.mkdir(parents=True)
+    (config / "settings.json").write_text('{"model":"claude-gw-tier0[1m]"}')
+    rc, _, err, seen = _launch(
+        tmp_path,
+        "work",
+        defaults=ACCESS_BLOCK,
+        CODER_WORKSPACE_OWNER_NAME="bob",
+    )
+    assert rc == 0, err
+    assert seen["child_model"] == _model_arg(seen) == "claude-gw-tier2[1m]"
+    rc, _, err, seen = _launch(
+        tmp_path, "work", defaults=None, CLAUDE_CODE_SUBAGENT_MODEL="inherit"
+    )
+    assert rc == 0, err
+    assert seen["child_model"] == "inherit" and "--model" not in seen["argv"]
+
+
+@pytest.mark.parametrize(
+    "model", ["gpt-6-astra", "claude-gw-gpt-6-astra", "claude-gw-tier0[1m]"]
+)
+def test_shim_denied_raw_picker_and_tier_never_forward(shim, model):
+    gateway, start, _ = shim
+    base = start(ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="bob")
+    status, body = _ask(base, model)
+    assert status == 400 and b"available" in body
+    assert gateway.calls == []
+
+
+@pytest.mark.parametrize(
+    "model,expected",
+    [
+        ("gpt-6.1-sol", "gpt-6.1-sol"),
+        ("claude-gw-gpt-6.1-sol", "gpt-6.1-sol"),
+        ("claude-gw-tier2[1m]", "muse-spark-1.3"),
+    ],
+)
+def test_shim_shared_allowed_models_reach_gateway(shim, model, expected):
+    gateway, start, _ = shim
+    base = start(ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="bob")
+    status, _ = _ask(base, model)
+    assert status == 200
+    assert gateway.models_called() == [expected]
+
+
+def test_shim_invalid_policy_never_forwards_raw_model(shim):
+    gateway, start, _ = shim
+    base = start(
+        TIER_BLOCK + 'export CCSESSION_TIER_RULES="bob=tier0:tier2"\n',
+        CODER_WORKSPACE_OWNER_NAME="bob",
+    )
+    status, _ = _ask(base, "gpt-6.1-sol")
+    assert status == 400 and gateway.calls == []
+
+
+def test_shared_guard_checks_resolved_destination(tmp_path, monkeypatch):
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, ACCESS_BLOCK)))
+    monkeypatch.setenv("CODER_WORKSPACE_OWNER_NAME", "bob")
+    models.check_model_access("claude-gw-gpt-6.1-sol", "gpt-6.1-sol")
+    with pytest.raises(ValueError, match="not in a tier available"):
+        models.check_model_access("claude-gw-gpt-6.1-sol", "gpt-6-astra")
+
+
+@pytest.mark.parametrize("contents", ["{", "[]"])
+def test_malformed_saved_settings_stops_tier_launch(tmp_path, contents):
+    config = tmp_path / "home/.claude"
+    config.mkdir(parents=True)
+    (config / "settings.json").write_text(contents)
+    rc, _, err, seen = _launch(tmp_path, "work")
+    assert rc == 2 and seen is None
+    assert "settings" in err
+
+
+def test_post_checks_alias_destination_and_preserves_non_model_body(
+    tmp_path, monkeypatch
+):
+    from io import BytesIO
+
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, ACCESS_BLOCK)))
+    monkeypatch.setenv("CODER_WORKSPACE_OWNER_NAME", "bob")
+    module = runpy.run_path(str(SKILL_DIR / "local-gateway-alias-proxy.py"))
+    handler = object.__new__(module["Handler"])
+    handler.path = "/v1/messages"
+    forwarded = []
+    handler._proxy = lambda body: forwarded.append(body)
+    handler._send_error_json = lambda status, kind, text: (status, kind, text)
+    # A valid original picker ID must not authorize a different denied target.
+    module["alias_to_real"]["claude-gw-gpt-6.1-sol"] = "gpt-6-astra"
+    body = json.dumps({"model": "claude-gw-gpt-6.1-sol"}).encode()
+    handler.headers = {"Content-Length": str(len(body))}
+    handler.rfile = BytesIO(body)
+    result = handler._post()
+    assert result[0] == 400 and forwarded == []
+    handler.path = "/telemetry"
+    body = b'{"event":"local-only"}'
+    handler.headers = {"Content-Length": str(len(body))}
+    handler.rfile = BytesIO(body)
+    handler._post()
+    assert forwarded == [body]
+
+
+@pytest.mark.parametrize(
+    "owner,tier_mode,status",
+    [("bob", True, 400), ("alice", True, None), ("bob", False, None)],
+)
+@pytest.mark.parametrize("suffix", ["", "[1m]"])
+def test_unresolved_picker_after_failed_refresh_never_bypasses_policy(
+    tmp_path, monkeypatch, owner, tier_mode, status, suffix
+):
+    from io import BytesIO
+
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, ACCESS_BLOCK)))
+    monkeypatch.setenv("CODER_WORKSPACE_OWNER_NAME", owner)
+    module = runpy.run_path(str(SKILL_DIR / "local-gateway-alias-proxy.py"))
+    monkeypatch.setattr(module["model_data"], "tier_mode", lambda: tier_mode)
+    handler = object.__new__(module["Handler"])
+    handler.path = "/v1/messages"
+    forwarded, refreshes = [], []
+    handler._proxy = lambda body: forwarded.append(body)
+    handler._send_error_json = lambda code, kind, text: (code, kind, text)
+    # A failed catalog refresh leaves this valid picker without a destination.
+    handler._refresh_models = lambda: refreshes.append("failed")
+    module["alias_to_real"].clear()
+    body = json.dumps({"model": "claude-gw-gpt-6.1-sol" + suffix}).encode()
+    handler.headers = {"Content-Length": str(len(body))}
+    handler.rfile = BytesIO(body)
+    result = handler._post()
+    assert refreshes == ["failed"]
+    if status is not None:
+        assert result[0] == status and forwarded == []
+    else:
+        assert result is None and forwarded == [body]

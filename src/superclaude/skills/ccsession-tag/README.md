@@ -503,7 +503,40 @@ older ccsession, with the same one-line rule. Older copies ignore
 `CCSESSION_ACCESS`: a `role:` or `*` entry there stops them for every named
 owner, so put those in `CCSESSION_TIER_RULES` only.
 
-The limit is advisory. It sets what ccsession offers by default, and the
+In tier mode the shim checks raw model IDs, picker aliases and tier aliases
+against the same role policy as the launcher, including an alias's resolved
+model. A denied request or malformed applicable policy is rejected before its
+model request reaches the gateway. Non-model endpoints are unchanged.
+
+### Native child model selection
+
+In tier mode, the child default is the workspace's `ANTHROPIC_MODEL`, or, when
+that is empty, the saved user `model` in `$CLAUDE_CONFIG_DIR/settings.json`
+(normally `~/.claude/settings.json`), validated against the allowed tiers.
+An unavailable configured value uses the role start tier, then the existing
+default-tier fallback. Parent-only `--model` and `--tier` choices do not replace
+this child default. A valid deliberate `CLAUDE_CODE_SUBAGENT_MODEL` is preserved.
+This reads the saved user preference, not Claude's complete effective session
+settings: project/local/managed settings, launch `--settings`, and in-session
+`/model` changes are not re-resolved. A new launch reads the saved preference
+again. An unreadable or malformed user settings file stops the tier launch.
+Native per-call and agent-frontmatter choices still override the child default,
+unless the administrator explicitly supplied the native force setting. Native
+environment `inherit` means unset; agent-frontmatter `inherit` still selects
+the parent. This requires ordinary native subagent precedence (Claude Code
+2.1.251 or later; force support starts at 2.1.257). Outside tier mode, native
+behavior is unchanged. These settings do not identify the backend that served
+a request, and do not refresh a running child's configured default.
+
+The affected framework workflows omit native model selection unless the user
+supplies a supported explicit choice. Their `default` specification token is a
+protocol marker consumed before dispatch, never a native model alias. Explicit
+aliases remain subject to the shim's role check on the resolved destination;
+they cannot grant access. `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` is an administrative
+exception preserved when supplied, never created by the launcher. Requested
+selection is not proof of the served backend or the cause of a historical launch.
+
+The limit is local to ccsession, not gateway-wide authorization. The
 workspace owner can undo it from their own environment
 (`CODER_WORKSPACE_OWNER_NAME`, `CODER_WORKSPACE_OWNER_ROLES`, `AIDEV_AI_DEFAULTS_PATH`, `CCSESSION_TIERS=0`)
 or call a model directly with their gateway key. Only a gateway key limited to
@@ -522,8 +555,9 @@ failure.
 |---|---|
 | `T<N>_WINDOW` (workspace env) | Tier context window; its presence turns tier mode on (`<N>` is a number with an optional letter, such as `1a`) |
 | `T<N>Model0M`, `T<N>Model0M_WINDOW` (workspace env) | Tier models in order, and each model's own window (a backup smaller than the tier window is never used) |
-| `ANTHROPIC_MODEL` (workspace env) | Default model when no `--tier` or `--model` is given, if it is a model of a tier you may use (same launch as `--model <that model>`); otherwise ignored and `CCSESSION_DEFAULT_TIER` applies |
-| `CCSESSION_DEFAULT_TIER` (workspace env) | Tier used when no `--tier` or `--model` is given and `ANTHROPIC_MODEL` does not apply (`tier2` if unset) |
+| `ANTHROPIC_MODEL` (workspace env) | Configured default, before the saved user preference. If empty or absent, read `model` from `$CLAUDE_CONFIG_DIR/settings.json` (normally `~/.claude/settings.json`). A permitted tier alias or model in an allowed tier is used; an unavailable value falls back to the role start tier, then `CCSESSION_DEFAULT_TIER` |
+| `CLAUDE_CODE_SUBAGENT_MODEL` | In tier mode, ccsession binds omitted native child selections to the configured default before parent-only `--model`/`--tier` overrides. A valid deliberate child value is preserved; environment `inherit` acts as unset and gets the configured default. Family aliases are checked through their workspace mappings. `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` is preserved, never added |
+| `CCSESSION_DEFAULT_TIER` (workspace env) | Fallback when no configured model applies and no role start tier is set (`tier2` if unset) |
 | `CCSESSION_TIER_RULES` (workspace env) | Per Coder username, Coder role, or everyone else: start tier, tiers offered, and `+models` (see Per-user tiers above) |
 | `CCSESSION_MODEL_ORDER` (workspace env) | Order of the individual models in `/model` for a `+models` rule |
 | `CCSESSION_ACCESS` (workspace env) | Older per-username form, read only when there is no `CCSESSION_TIER_RULES` line |

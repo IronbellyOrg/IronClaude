@@ -83,7 +83,7 @@ Wave 4: Post & Handoff       ← loads refs/remediation-handoff.md
 1. Validate `--revagent` before any environment check, Auggie call, diff fetch, or agent spawn. Validation applies at every `--depth`, and a bad value never falls back to the default:
    - Accepted: `opus`, `sonnet`, `haiku`, `fable`.
    - These are the native Agent tool model aliases; full model IDs and backend/gateway aliases are not accepted.
-   - Omitted → `revagent = default` (reviewer agents keep their frontmatter model).
+   - Omitted → `revagent = default` (omit the native model parameter and use the user's role-permitted configured default through `CLAUDE_CODE_SUBAGENT_MODEL`).
    - Value in the accepted set → `revagent = <value>`.
    - Missing value (no following token, or the next token starts with `--`) → STOP: `--revagent requires a value: one of opus, sonnet, haiku, fable.`
    - Any other value, e.g. `connect`, `Opus`, `claude-sonnet-4-6`, `inherit` → STOP: `--revagent: unsupported value '<v>'. Supported: opus, sonnet, haiku, fable (native Agent tool model aliases). Full model IDs and backend/gateway aliases are not accepted; map them to a backend model via your Claude Code / gateway alias configuration instead.`
@@ -196,7 +196,7 @@ auggie --print \
 > - **Indexer cold-start**: if `auggie-stderr.log` still mentions "indexing" or "not ready" despite `--wait-for-indexing`, retry once before treating as a failure.
 
 4. For `--depth deep`, after the initial pass spawn one **per-persona Auggie call** for each focus area not adequately covered (security, architecture, performance), reusing the same diff but a persona-specialized prompt. Aggregate the per-persona JSON outputs alongside the main pass.
-5. For `--depth deep` **only**, additionally spawn the `auggie-reviewer` agent via the `Task` tool to run an independent Claude-side review pass that does not see Auggie's findings yet — this provides a cross-check used in Wave 3. The brief passes the Wave 1 codegraph run state: `index_state`, `checked_at`, `worktree_root` and the `projectPath` the agent passes on every codegraph call (the agent uses its codegraph tools only when `index_state: fresh`). Model selection: when `revagent` is set, pass `model: <revagent>` on this `Task` spawn (it overrides the agent's frontmatter `model`); when `revagent = default`, pass no `model` argument, so the frontmatter default applies. Any re-spawn of a reviewer agent in the same run (retry, or re-run after a failed or invalid output) reuses the same `model` argument. `--revagent` is never passed to the `auggie` CLI and never to the step 4 per-persona Auggie calls.
+5. For `--depth deep` **only**, additionally spawn the `auggie-reviewer` agent via the `Task` tool to run an independent Claude-side review pass that does not see Auggie's findings yet — this provides a cross-check used in Wave 3. The brief passes the Wave 1 codegraph run state: `index_state`, `checked_at`, `worktree_root` and the `projectPath` the agent passes on every codegraph call (the agent uses its codegraph tools only when `index_state: fresh`). Model selection: when `revagent` is set, pass `model: <revagent>` on this `Task` spawn (subject to native administrative force semantics); when `revagent = default`, pass no `model` argument, so the user's role-permitted configured default bound through `CLAUDE_CODE_SUBAGENT_MODEL` applies. The shared ccsession shim rejects disallowed destinations rather than substituting a more capable model. Any re-spawn of a reviewer agent in the same run (retry, or re-run after a failed or invalid output) reuses the same `model` argument. `--revagent` is never passed to the `auggie` CLI and never to the step 4 per-persona Auggie calls.
 
 **Exit criteria**: One or more `auggie-raw-*.json` files under `<output-dir>/`, all containing structured findings. Audit log notes any non-zero exit codes, retries, or chunk failures.
 
@@ -291,12 +291,12 @@ auggie --print \
 - Auggie chunks: <N> (succeeded: <N>, retried: <N>, skipped: <N>)
 - Findings dropped during grounding: <N> (see `audit.log`)
 - Persona cross-check: <enabled|disabled>
-- Reviewer agent model: <value|frontmatter default>
+- Reviewer agent model: <value|configured default (model omitted)>
 - Token cost: Claude ≈ <N> (orchestration), Auggie ≈ <N> (deep pass)
 
 ````
 
-8. Write `<output-dir>/audit.log` with: every Auggie invocation (cmd + duration + exit), every finding with grounding result, every dedupe decision, every severity remap, dropped findings with reasons, and the model argument passed on each reviewer spawn (or `frontmatter` when none was passed).
+8. Write `<output-dir>/audit.log` with: every Auggie invocation (cmd + duration + exit), every finding with grounding result, every dedupe decision, every severity remap, dropped findings with reasons, and the model argument passed on each reviewer spawn (or `default (model omitted)` when none was passed). This records requested selection only, not the served backend.
 
 **Exit criteria**: `REVIEW.md` and `audit.log` written. Audit log includes the machine-readable summary header:
 

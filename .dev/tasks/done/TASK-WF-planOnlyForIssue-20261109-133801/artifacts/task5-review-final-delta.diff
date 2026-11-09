@@ -1,0 +1,48 @@
+diff --git a/tests/skills/test_native_model_defaults.py b/tests/skills/test_native_model_defaults.py
+index 064a056c2..7c4f0fbc6 100644
+--- a/tests/skills/test_native_model_defaults.py
++++ b/tests/skills/test_native_model_defaults.py
+@@ -15,6 +15,24 @@ def _section(text: str, start: str, end: str) -> str:
+     return text.split(start, 1)[1].split(end, 1)[0]
+ 
+ 
++def _assert_no_native_model_field(section):
++    for line in section.splitlines():
++        key, separator, _ = line.strip().partition(":")
++        assert not (separator and key.strip().strip("\"'") == "model"), line
++
++
++@pytest.mark.parametrize("selection", ("opus", "sonnet", "haiku", "fable", "default", "inherit"))
++@pytest.mark.parametrize("quote", ("", "'", '"'))
++def test_native_dispatch_guard_rejects_every_unconditional_model(selection, quote):
++    field = f"    model: {quote}{selection}{quote}\n"
++    with pytest.raises(AssertionError):
++        _assert_no_native_model_field('model_selection: "conditional selection rule"\n' + field)
++
++
++def test_native_dispatch_guard_allows_explicit_selection_instructions():
++    _assert_no_native_model_field('model_selection: "For explicit haiku pass model: haiku; for default omit model"')
++
++
+ def test_builder_default_and_explicit_rotation_contract():
+     text = _read("skills/sc-brainstorm-protocol/refs/agent-spec-builder.md")
+     rotation = _section(text, "## §Model-Rotation", "## §Instruction-Templates")
+@@ -208,6 +226,7 @@ def test_affected_agents_have_no_frontmatter_model_pin(agent):
+         ("skills/sc-adversarial-protocol/SKILL.md", "### Mode B Variant Generation", "### MCP Integration Layer", "For default, omit the native model parameter"),
+         ("skills/sc-adversarial-protocol/SKILL.md", "  task_dispatch_config:", "  mode_a_assignment:", "If parsed selection is default, omit the native model parameter"),
+         ("skills/sc-adversarial-protocol/SKILL.md", "### debate-orchestrator Agent", "### merge-executor Agent", "Omit the native model parameter"),
++        ("skills/sc-adversarial-protocol/SKILL.md", "### merge-executor Agent", "### Advocate Agents", "Omit the native model parameter"),
+         ("skills/sc-adversarial-protocol/SKILL.md", "### Merge Executor Dispatch", "### Provenance Annotation System", "Omit the native model parameter"),
+         ("commands/adversarial.md", "### Arguments", "## Options", "one `default` advocate per file"),
+         ("skills/sc-cli-eval-protocol/SKILL.md", "### W3", "### W4", "default,default,default"),
+@@ -219,8 +238,9 @@ def test_affected_agents_have_no_frontmatter_model_pin(agent):
+ def test_complete_affected_selection_inventory(path, start, end, required):
+     section = _section(_read(path), start, end)
+     assert required in section
+-    for implicit_pin in ('model: "opus"', 'model: "sonnet"', 'model: "default"', 'model: "inherit"', "opus preferred", "highest available"):
++    for implicit_pin in ("opus preferred", "highest available"):
+         assert implicit_pin not in section
++    _assert_no_native_model_field(section)
+ 
+ 
+ def test_plugin_brainstorm_affected_sections_match_source():

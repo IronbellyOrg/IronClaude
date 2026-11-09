@@ -1,0 +1,212 @@
+diff --git a/src/superclaude/agents/auggie-reviewer.md b/src/superclaude/agents/auggie-reviewer.md
+index 16e91376c..6fa76d4ee 100644
+--- a/src/superclaude/agents/auggie-reviewer.md
++++ b/src/superclaude/agents/auggie-reviewer.md
+@@ -3,7 +3,6 @@ name: auggie-reviewer
+ description: Independent code-review specialist that performs a Claude-side review pass alongside Auggie's deep retrieval pass, used in /sc:auggie-review --depth deep for cross-validation
+ category: analysis
+ tools: [Read, Grep, Glob, Bash, mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers]
+-model: opus
+ ---
+ 
+ # Auggie Cross-Validator Agent
+diff --git a/src/superclaude/agents/debate-orchestrator.md b/src/superclaude/agents/debate-orchestrator.md
+index f92f3d019..5b0a716dc 100644
+--- a/src/superclaude/agents/debate-orchestrator.md
++++ b/src/superclaude/agents/debate-orchestrator.md
+@@ -16,9 +16,9 @@ category: analysis
+ 
+ Coordinate the adversarial pipeline with strict neutrality. Never participate in debates or advocate for any variant. Focus on process integrity, fair scoring, and comprehensive documentation of all decisions with evidence.
+ 
+-## Model Preference
++## Model Selection
+ 
+-Highest-capability model available (opus preferred). The orchestrator requires strong reasoning for scoring algorithm execution and multi-agent coordination.
++Omitted native model selection uses the user's configured default permitted by their Coder role. Preserve explicit permitted selections; do not substitute a capability-based preference.
+ 
+ ## Tools
+ 
+diff --git a/src/superclaude/agents/eval-suite-author.md b/src/superclaude/agents/eval-suite-author.md
+index 8e4744684..e5336111d 100644
+--- a/src/superclaude/agents/eval-suite-author.md
++++ b/src/superclaude/agents/eval-suite-author.md
+@@ -3,7 +3,6 @@ name: eval-suite-author
+ description: Authors a cliEval suite manifest (suites/<stem>.yaml) plus any fixtures and sibling <stem>_callbacks.py, strictly schema-first, and self-validates it with `superclaude eval describe --suite <stem>` before declaring done. Used by /sc:cli-eval create as the authoring worker after the design has been debated and merged. Never invents schema fields or CLI flags it has not been handed by the fresh-context digest.
+ category: utility
+ tools: Read, Grep, Glob, Write, Edit, Bash
+-model: opus
+ ---
+ 
+ # Eval Suite Author
+@@ -23,10 +22,9 @@ schema-valid top-level keys, eval bodies shaped as Claude prompts with `expects`
+ If validation fails, read the loader error, fix the manifest, and re-validate; never hand back an
+ unvalidated file.
+ 
+-## Model Preference
++## Model Selection
+ 
+-Opus: authoring correct YAML against a precise schema with meaningful, non-trivial assertions
+-benefits from the stronger model, and this is the artifact the whole create pipeline produces.
++Omitted native model selection uses the user's configured default permitted by their Coder role. Preserve explicit permitted selections; do not substitute a capability-based preference.
+ 
+ ## Tools
+ 
+diff --git a/src/superclaude/agents/merge-executor.md b/src/superclaude/agents/merge-executor.md
+index f984321e4..d3994ecdf 100644
+--- a/src/superclaude/agents/merge-executor.md
++++ b/src/superclaude/agents/merge-executor.md
+@@ -16,9 +16,9 @@ category: quality
+ 
+ Follow the refactoring plan precisely and methodically. Focus on structural integrity, accurate provenance tracking, and producing a unified document that faithfully incorporates planned changes without introducing new content or making strategic decisions.
+ 
+-## Model Preference
++## Model Selection
+ 
+-High-capability model (opus or sonnet). Requires strong writing and structural reasoning for document integration tasks.
++Omitted native model selection uses the user's configured default permitted by their Coder role. Preserve explicit permitted selections; do not substitute a capability-based preference.
+ 
+ ## Tools
+ 
+diff --git a/src/superclaude/commands/auggie-review.md b/src/superclaude/commands/auggie-review.md
+index 49a76c29e..dc6e6553c 100644
+--- a/src/superclaude/commands/auggie-review.md
++++ b/src/superclaude/commands/auggie-review.md
+@@ -54,7 +54,7 @@ The trigger discipline exists because deep reviews are expensive (Auggie indexin
+ | `--no-remediation-offer` | — | Suppress the remediation chain offer |
+ | `--output-dir` | `.dev/reviews/<target-slug>-<timestamp>/` | Where to write the markdown report, raw auggie JSON, and audit log |
+ | `--auggie-model` | `prism-b` | Override the model auggie uses; when omitted and `AUGGIE_MODEL` is unset, uses `prism-b` (e.g., `--auggie-model <model-id>`) |
+-| `--revagent` | unset: reviewer agents use their frontmatter model | Model for the INTERNAL review-agent spawns only (the `--depth deep` `auggie-reviewer` pass and any re-spawn of it); it does not change the lead session model or `--auggie-model`. Accepted: `opus`, `sonnet`, `haiku`, `fable`. These are the native Agent tool `model` aliases; a missing value or any other value (e.g. `connect`, a full model ID, a gateway alias) STOPs with an error before any work, and never falls back to the default. `--revagent` picks the request alias; which concrete model an alias resolves to is Claude Code / gateway configuration (e.g. `ANTHROPIC_DEFAULT_SONNET_MODEL`, a LiteLLM alias), and `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` overrides per-invocation models. At `--depth quick` or `standard` no internal reviewer runs, so the flag only prints a WARN |
++| `--revagent` | unset: omit the native model parameter and use the role-permitted configured default | Model for the INTERNAL review-agent spawns only (the `--depth deep` `auggie-reviewer` pass and any re-spawn of it); it does not change the lead session model or `--auggie-model`. Accepted: `opus`, `sonnet`, `haiku`, `fable`. These are the native Agent tool `model` aliases; a missing value or any other value (e.g. `connect`, a full model ID, a gateway alias) STOPs with an error before any work, and never falls back to the default. `--revagent` picks the request alias; which concrete model an alias resolves to is Claude Code / gateway configuration (e.g. `ANTHROPIC_DEFAULT_SONNET_MODEL`, a LiteLLM alias), and `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` overrides per-invocation models. At `--depth quick` or `standard` no internal reviewer runs, so the flag only prints a WARN |
+ | `--unattended` | off | Worker mode for a coordinator; applies only as a standalone argument token. It implies `--no-post-pr` and `--no-remediation-offer`. Behaviour is in `## Unattended mode`; without it nothing changes |
+ | `--report-dir` | — | With `--unattended`: the directory that holds the worker contract and the report, instead of `--output-dir`, never both |
+ 
+diff --git a/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md b/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+index e7eff8f95..67416ff8d 100644
+--- a/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+@@ -83,7 +83,7 @@ Wave 4: Post & Handoff       ← loads refs/remediation-handoff.md
+ 1. Validate `--revagent` before any environment check, Auggie call, diff fetch, or agent spawn. Validation applies at every `--depth`, and a bad value never falls back to the default:
+    - Accepted: `opus`, `sonnet`, `haiku`, `fable`.
+    - These are the native Agent tool model aliases; full model IDs and backend/gateway aliases are not accepted.
+-   - Omitted → `revagent = default` (reviewer agents keep their frontmatter model).
++   - Omitted → `revagent = default` (omit the native model parameter and use the user's role-permitted configured default through `CLAUDE_CODE_SUBAGENT_MODEL`).
+    - Value in the accepted set → `revagent = <value>`.
+    - Missing value (no following token, or the next token starts with `--`) → STOP: `--revagent requires a value: one of opus, sonnet, haiku, fable.`
+    - Any other value, e.g. `connect`, `Opus`, `claude-sonnet-4-6`, `inherit` → STOP: `--revagent: unsupported value '<v>'. Supported: opus, sonnet, haiku, fable (native Agent tool model aliases). Full model IDs and backend/gateway aliases are not accepted; map them to a backend model via your Claude Code / gateway alias configuration instead.`
+@@ -196,7 +196,7 @@ auggie --print \
+ > - **Indexer cold-start**: if `auggie-stderr.log` still mentions "indexing" or "not ready" despite `--wait-for-indexing`, retry once before treating as a failure.
+ 
+ 4. For `--depth deep`, after the initial pass spawn one **per-persona Auggie call** for each focus area not adequately covered (security, architecture, performance), reusing the same diff but a persona-specialized prompt. Aggregate the per-persona JSON outputs alongside the main pass.
+-5. For `--depth deep` **only**, additionally spawn the `auggie-reviewer` agent via the `Task` tool to run an independent Claude-side review pass that does not see Auggie's findings yet — this provides a cross-check used in Wave 3. The brief passes the Wave 1 codegraph run state: `index_state`, `checked_at`, `worktree_root` and the `projectPath` the agent passes on every codegraph call (the agent uses its codegraph tools only when `index_state: fresh`). Model selection: when `revagent` is set, pass `model: <revagent>` on this `Task` spawn (it overrides the agent's frontmatter `model`); when `revagent = default`, pass no `model` argument, so the frontmatter default applies. Any re-spawn of a reviewer agent in the same run (retry, or re-run after a failed or invalid output) reuses the same `model` argument. `--revagent` is never passed to the `auggie` CLI and never to the step 4 per-persona Auggie calls.
++5. For `--depth deep` **only**, additionally spawn the `auggie-reviewer` agent via the `Task` tool to run an independent Claude-side review pass that does not see Auggie's findings yet — this provides a cross-check used in Wave 3. The brief passes the Wave 1 codegraph run state: `index_state`, `checked_at`, `worktree_root` and the `projectPath` the agent passes on every codegraph call (the agent uses its codegraph tools only when `index_state: fresh`). Model selection: when `revagent` is set, pass `model: <revagent>` on this `Task` spawn (subject to native administrative force semantics); when `revagent = default`, pass no `model` argument, so the user's role-permitted configured default bound through `CLAUDE_CODE_SUBAGENT_MODEL` applies. The shared ccsession shim rejects disallowed destinations rather than substituting a more capable model. Any re-spawn of a reviewer agent in the same run (retry, or re-run after a failed or invalid output) reuses the same `model` argument. `--revagent` is never passed to the `auggie` CLI and never to the step 4 per-persona Auggie calls.
+ 
+ **Exit criteria**: One or more `auggie-raw-*.json` files under `<output-dir>/`, all containing structured findings. Audit log notes any non-zero exit codes, retries, or chunk failures.
+ 
+@@ -291,12 +291,12 @@ auggie --print \
+ - Auggie chunks: <N> (succeeded: <N>, retried: <N>, skipped: <N>)
+ - Findings dropped during grounding: <N> (see `audit.log`)
+ - Persona cross-check: <enabled|disabled>
+-- Reviewer agent model: <value|frontmatter default>
++- Reviewer agent model: <value|configured default (model omitted)>
+ - Token cost: Claude ≈ <N> (orchestration), Auggie ≈ <N> (deep pass)
+ 
+ ````
+ 
+-8. Write `<output-dir>/audit.log` with: every Auggie invocation (cmd + duration + exit), every finding with grounding result, every dedupe decision, every severity remap, dropped findings with reasons, and the model argument passed on each reviewer spawn (or `frontmatter` when none was passed).
++8. Write `<output-dir>/audit.log` with: every Auggie invocation (cmd + duration + exit), every finding with grounding result, every dedupe decision, every severity remap, dropped findings with reasons, and the model argument passed on each reviewer spawn (or `default (model omitted)` when none was passed). This records requested selection only, not the served backend.
+ 
+ **Exit criteria**: `REVIEW.md` and `audit.log` written. Audit log includes the machine-readable summary header:
+ 
+diff --git a/src/superclaude/skills/sc-cli-eval-protocol/SKILL.md b/src/superclaude/skills/sc-cli-eval-protocol/SKILL.md
+index 75d1799a2..f3f640b53 100644
+--- a/src/superclaude/skills/sc-cli-eval-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-cli-eval-protocol/SKILL.md
+@@ -97,7 +97,7 @@ Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) add `--unatt
+ 
+ ### W4 — Author the manifest schema-first (DELEGATE)
+ 
+-Delegate to the `eval-suite-author` agent (Task). It authors `src/superclaude/cli/eval/suites/<stem>.yaml`
++Delegate to the `eval-suite-author` agent (Task) without a native `model` parameter, using the user's role-permitted configured default rather than inventing an override. It authors `src/superclaude/cli/eval/suites/<stem>.yaml`
+ (+ fixtures + `<stem>_callbacks.py` only if the design needs them) in the house style of
+ `eval_smoke.yaml` / `installer_sync_drift.yaml`, then self-validates.
+ 
+diff --git a/tests/commands/test_auggie_review_revagent.py b/tests/commands/test_auggie_review_revagent.py
+index 583648269..abbb3be39 100644
+--- a/tests/commands/test_auggie_review_revagent.py
++++ b/tests/commands/test_auggie_review_revagent.py
+@@ -73,7 +73,8 @@ def test_command_surface():
+     assert "`--revagent` picks the request alias" in OPTION_ROW
+     assert "`--auggie-model`" in OPTION_ROW
+     assert "CLAUDE_CODE_SUBAGENT_MODEL_FORCE" in OPTION_ROW
+-    assert "frontmatter model" in OPTION_ROW
++    assert "omit the native model parameter" in OPTION_ROW
++    assert "role-permitted configured default" in OPTION_ROW
+ 
+ 
+ # --- invalid and missing values -------------------------------------------
+@@ -155,15 +156,21 @@ def test_tool_coordination_names_only_the_reviewer_spawn():
+ # --- omitted flag / default + audit -----------------------------------------
+ 
+ 
+-def test_frontmatter_default_unchanged():
+-    assert "model: opus" in AGENT.split("---")[1]
++def test_omitted_selection_reaches_configured_default():
++    assert not re.search(r"^model\s*:", AGENT.split("---")[1], re.MULTILINE)
++    assert "omit the native model parameter" in _bullet("Omitted →")
++    assert "CLAUDE_CODE_SUBAGENT_MODEL" in _bullet("Omitted →")
++    assert "role-permitted configured default" in STEP5
++    assert "rejects disallowed destinations" in STEP5
++    assert "frontmatter default applies" not in STEP5
+ 
+ 
+ def test_audit_literals():
+     header = _between(SKILL, "<!-- SC:AUGGIE-REVIEW:TARGET", "-->")
+     assert "revagent: <opus|sonnet|haiku|fable|default>" in header
+     audit_block = _between(SKILL, "## Audit\n", "8. Write")
+-    assert "- Reviewer agent model: <value|frontmatter default>" in audit_block
++    assert "- Reviewer agent model: <value|configured default (model omitted)>" in audit_block
+     step8 = _line(SKILL, "8. Write `<output-dir>/audit.log`")
+     assert "model argument passed on each reviewer spawn" in step8
+-    assert "`frontmatter`" in step8
++    assert "`default (model omitted)`" in step8
++    assert "not the served backend" in step8
+diff --git a/tests/skills/test_model_alias_policy.py b/tests/skills/test_model_alias_policy.py
+index 5d8c31b24..0148dba47 100644
+--- a/tests/skills/test_model_alias_policy.py
++++ b/tests/skills/test_model_alias_policy.py
+@@ -99,6 +99,35 @@ def test_frontmatter_model_is_an_alias_when_present() -> None:
+     assert bad == []
+ 
+ 
++@pytest.mark.parametrize(
++    "name",
++    ("auggie-reviewer", "eval-suite-author", "debate-orchestrator", "merge-executor"),
++)
++def test_role_default_agents_have_no_implicit_model_preference(name: str) -> None:
++    path = SRC / "agents" / f"{name}.md"
++    text = path.read_text(encoding="utf-8")
++    assert _frontmatter_model(path) is None
++    assert not re.search(
++        r"highest-capability|high-capability|opus preferred|benefits from the stronger model",
++        text,
++        re.IGNORECASE,
++    )
++    if name != "auggie-reviewer":
++        assert "user's configured default permitted by their Coder role" in text
++        assert "Preserve explicit permitted selections" in text
++
++
++def test_eval_author_dispatch_omits_native_model_and_keeps_validation() -> None:
++    text = (SRC / "skills/sc-cli-eval-protocol/SKILL.md").read_text(encoding="utf-8")
++    author = text.split("### W4", 1)[1].split("### W5", 1)[0]
++    assert "without a native `model` parameter" in author
++    assert "role-permitted configured default" in author
++    assert "then self-validates" in author
++    assert "`eval describe --suite <stem>` returning loader exit 0" in (
++        SRC / "agents/eval-suite-author.md"
++    ).read_text(encoding="utf-8")
++
++
+ def test_tier_ids_appear_only_in_allowed_paths() -> None:
+     """The text ``claude-gw-tier`` stays inside the documented allow-list."""
+     bad = []

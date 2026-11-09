@@ -1,0 +1,49 @@
+   Building superclaude @ file:///home/coder/workspaces/worktrees/IronClaude/issue-462
+      Built superclaude @ file:///home/coder/workspaces/worktrees/IronClaude/issue-462
+Installed 27 packages in 33ms
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-462
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 198 items
+
+tests/unit/test_ccsession_tiers.py ..................................... [ 18%]
+........................................................................ [ 55%]
+..............................F......................................... [ 91%]
+.............FF.F                                                        [100%]
+
+=================================== FAILURES ===================================
+__________________ test_owner_unknown_with_access_set_says_so __________________
+tests/unit/test_ccsession_tiers.py:2822: in test_owner_unknown_with_access_set_says_so
+    assert err.count("workspace owner unknown") == 1, args
+E   AssertionError: ('work',)
+E   assert 2 == 1
+E    +  where 2 = <built-in method count of str object at 0x6303866fdb90>('workspace owner unknown')
+E    +    where <built-in method count of str object at 0x6303866fdb90> = "[ccsession] NOTE: workspace owner unknown (no CODER_WORKSPACE_OWNER_NAME); CCSESSION_ACCESS not applied\n[ccsession] ...-load gateway models; Claude Code will retry discovery after launch\n[ccsession] Starting new session labeled 'work'\n".count
+_____ test_shim_shared_allowed_models_reach_gateway[claude-gw-gpt-6-1-sol] _____
+tests/unit/test_ccsession_tiers.py:3485: in test_shim_shared_allowed_models_reach_gateway
+    assert rc == 0, err
+E   assert 400 == 200
+______ test_shim_shared_allowed_models_reach_gateway[claude-gw-tier2[1m]] ______
+tests/unit/test_ccsession_tiers.py:3486: in test_shim_shared_allowed_models_reach_gateway
+    assert seen["child_model"] == "inherit" and "--model" not in seen["argv"]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert ['muse-spark-1.3'] == ['gpt-6.1-sol']
+E     
+E     At index 0 diff: 'muse-spark-1.3' != 'gpt-6.1-sol'
+E     Use -v to get more diff
+________________ test_shared_guard_checks_resolved_destination _________________
+tests/unit/test_ccsession_tiers.py:3500: in test_shared_guard_checks_resolved_destination
+    @pytest.mark.parametrize(
+        ^^^^^^^^^^^^^^^^^^^^^^
+src/superclaude/skills/ccsession-tag/models.py:921: in check_model_access
+    raise ValueError(
+E   ValueError: claude-gw-gpt-6-1-sol is not in a tier available to bob (available: tier2, tier3)
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tiers.py::test_owner_unknown_with_access_set_says_so
+FAILED tests/unit/test_ccsession_tiers.py::test_shim_shared_allowed_models_reach_gateway[claude-gw-gpt-6-1-sol]
+FAILED tests/unit/test_ccsession_tiers.py::test_shim_shared_allowed_models_reach_gateway[claude-gw-tier2[1m]]
+FAILED tests/unit/test_ccsession_tiers.py::test_shared_guard_checks_resolved_destination
+================== 4 failed, 194 passed in 195.25s (0:03:15) ===================

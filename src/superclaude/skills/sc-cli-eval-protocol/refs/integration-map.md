@@ -37,11 +37,10 @@ merged-output.
 
 ```text
 Skill sc:adversarial-protocol
-  --source <stem>-spec.md --generate eval-suite --agents opus,sonnet,haiku
+  --source <stem>-spec.md --generate eval-suite --agents default,default,default
 ```
 
-`--agents` are `model[:persona[:"instruction"]]` specs. Use Mode B when you want the harness to
-generate the competing designs; Mode A when you already have them.
+`--agents` uses `selection[:persona[:quoted-instruction]]` specs from the shared adversarial grammar. Omitted create selections become `default,default,default`; each `default` omits the native model parameter. An explicit list is forwarded unchanged, including personas, instructions and order. For example, an explicit `--agents sonnet:architect,haiku:qa` requests those two aliases subject to the shim permission check, not verified backend identities. Mode A without a list assigns `default` per input file. The coordinator and merge executor omit model independently of advocate choices. Use Mode B to generate competing designs; Mode A when they already exist.
 
 ## /sc:document — docs update (create W6)
 

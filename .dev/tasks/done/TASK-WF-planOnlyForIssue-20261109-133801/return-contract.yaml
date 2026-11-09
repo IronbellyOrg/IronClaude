@@ -1,0 +1,20 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-planOnlyForIssue-20261109-133801
+plan_path: ./TASK-WF-planOnlyForIssue-20261109-133801.md
+source_path: ./source.md
+source_origin: inline
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+reflect_status: skipped
+reflect_report_path: null
+unresolved:
+  - >-
+    Independent advisory review is blocked by the explicit prohibition on new
+    model requests. sc:reflect-protocol was invoked, but no reviewer, calibrator
+    or evidence-validator execution occurred. No independent PASS, coverage
+    measurement, calibrated confidence or review report is claimed. No native
+    alias was substituted for verified Tier1b execution, no unrestricted fallback
+    was used, and the prior nested-worker-depth refusal was not bypassed.

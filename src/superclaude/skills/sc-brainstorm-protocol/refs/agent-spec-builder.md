@@ -52,25 +52,19 @@ Notes:
 
 ## §Model-Rotation
 
-Active model aliases (resolved from `~/.bashrc`):
+**Omitted `--models`**: assign `default` to every selected persona at quick, standard and deep depths. `default` is a reserved protocol marker, not a native model alias. Preserve it until native dispatch, where it means omit the model parameter and use the user's role-permitted configured default.
 
-- `opus` — heavy reasoning, primary debate model
-- `sonnet` — balanced cost/quality
-- `haiku` — fast, lighter reasoning
+**Explicit `--models`**: accept `default`, `opus`, `sonnet`, `haiku`, `fable`; reject empty entries, `inherit`, full backend IDs and arbitrary gateway aliases. Preserve list order and round-robin assign `(persona_i, models[i mod len(models)])`. Mixed default/explicit lists are legal. Depth never promotes or replaces a selection. Alias resolution is environment-dependent, not proof of a served backend or role permission; the shared ccsession shim checks destinations.
 
-**Default rotation**: Round-robin assign `(persona_i, model_(i mod len(models)))` over the user's `--models` list (default `opus,sonnet,haiku`).
+**Example assignments** (selection:persona, requested labels only):
 
-**Deep-depth override**: When `--depth deep`, prefer `opus` for the first 2 personas (typically `analyzer` + `architect` for `incident`/`architecture` domains; otherwise the first two from the persona priority list). Remaining personas continue round-robin starting from position 0.
-
-**Example assignments** (default `--models opus,sonnet,haiku`):
-
-| proposals | depth | code domain assignment |
-|-----------|-------|------------------------|
-| 2 | quick | architect:opus, refactorer:sonnet |
-| 3 | standard | architect:opus, refactorer:sonnet, qa:haiku |
-| 5 | standard | architect:opus, refactorer:sonnet, qa:haiku, backend:opus, frontend:sonnet |
-| 5 | deep | architect:opus, refactorer:opus, qa:haiku, backend:opus, frontend:sonnet |
-| 7 | deep | architect:opus, refactorer:opus, qa:haiku, backend:opus, frontend:haiku, analyzer:opus, architect:sonnet |
+| proposals | depth | selection input | assignment |
+|-----------|-------|-----------------|------------|
+| 2 | quick | omitted | default:architect, default:refactorer |
+| 3 | standard | omitted | default:architect, default:refactorer, default:qa |
+| 5 | deep | omitted | default:architect, default:refactorer, default:qa, default:backend, default:frontend |
+| 5 | deep | explicit --models sonnet,haiku | sonnet:architect, haiku:refactorer, sonnet:qa, haiku:backend, sonnet:frontend |
+| 3 | deep | explicit --models default,opus | default:architect, opus:refactorer, default:qa |
 
 ## §Instruction-Templates
 
@@ -106,29 +100,30 @@ Build the agent-spec string from the list of `(persona, model, instruction)` tup
 
 **Format per agent**:
 
-- No instruction: `<model>:<persona>` (e.g., `opus:architect`)
-- With instruction: `<model>:<persona>:'<instruction>'` (e.g., `opus:architect:'prioritize maintainability'`)
+- No instruction: `<model>:<persona>` (e.g., `default:architect`)
+- With instruction: `<model>:<persona>:'<instruction>'` (e.g., `default:architect:'prioritize maintainability'`)
 
-**Embedded single-quote escaping**: Replace `'` in instructions with `\'`. (Example: `don't break the API` → `don\'t break the API`.)
+**Escaping**: Escape backslashes first (`\` becomes `\\`), then replace `'` in instructions with `\'`. (Example: `don't break the API` → `don\'t break the API`.) Decode escapes once in the consumer, never through a shell.
 
 **Agent separator**: `,` between agents.
 
 **Final string example**:
 
 ```
-opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'
+default:architect:'prioritize maintainability and extension scaffolding for code domain',default:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',default:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'
 ```
 
 ## §Validation
 
 Round-trip the serialized agent-spec through the adversarial parser to verify:
 
-1. **Split on `,`**: count of agents == expected proposal count
-2. **Per agent split on `:`** (respecting single-quote boundaries):
-   - Segment count ∈ {2, 3} (model:persona OR model:persona:instruction)
-   - Segment 1 ∈ recognized model aliases
-   - Segment 2 ∈ recognized persona names
-   - Segment 3 (if present): single-quoted, valid string, no unescaped single-quotes
+1. **Split on `,` only outside quotes**: count of agents == expected proposal count; no empty entries.
+2. **Per agent split on `:` only outside matching single or double quotes**:
+   - Builder emits 2 or 3 segments (selection:persona OR selection:persona:instruction); the consumer also accepts a selection alone.
+   - Segment 1 is `default`, `opus`, `sonnet`, `haiku` or `fable`.
+   - Segment 2 is a nonempty recognized persona name.
+   - Segment 3 (if present) occupies the entire quoted field. Builder emits single quotes; consumer also accepts matching double quotes for existing explicit specifications. Inside a quoted field, backslash escapes only a matching quote or another backslash; preserve other backslashes. Escape backslashes before matching quotes when serializing, then decode once when parsing. Reject unmatched quotes, dangling escapes, extra segments and trailing text outside a closing quote. Commas, colons and the other quote character inside the field are instruction data, never structure.
+   - Never evaluate or shell-execute the serialized string; pass the parsed instruction as prompt data. A structural `default` token is accepted only in segment 1, never interpolated into instructions.
 3. **No duplicate (persona, model) pairs** — emit INFO if duplicate detected (not a STOP, since duplicate combos are sometimes intentional in deep mode)
 
 **Validation failure**: STOP with `"Agent-spec serialization produced invalid output. This is a bug — please report. Spec: <serialized>"`
@@ -162,9 +157,9 @@ For unit/integration testing of the builder, the following inputs MUST produce t
 
 | Input | Output |
 |-------|--------|
-| domain=code, proposals=2, depth=quick, strategy=systematic, default models | `opus:architect,sonnet:refactorer` |
-| domain=code, proposals=3, depth=standard, default | `opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
-| domain=incident, proposals=5, depth=deep, default | `opus:analyzer:'focus on root-cause analysis and evidence-based reasoning for incident',opus:devops:'focus on deployment, observability, runbooks, and SLO impact for systematic delivery',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria',opus:architect:'prioritize maintainability and extension scaffolding for incident domain',sonnet:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'` |
-| --strategy=enterprise, proposals=5, default models | `opus:architect:'prioritize maintainability and extension scaffolding for {domain} domain',sonnet:analyzer:'focus on root-cause analysis and evidence-based reasoning for {domain}',haiku:devops:'focus on deployment, observability, runbooks, and SLO impact for enterprise delivery',opus:scribe:'focus on documentation clarity, decision rationale, and audit trail',sonnet:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
+| domain=code, proposals=2, depth=quick, strategy=systematic, default models | `default:architect,default:refactorer` |
+| domain=code, proposals=3, depth=standard, default | `default:architect:'prioritize maintainability and extension scaffolding for code domain',default:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',default:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
+| domain=incident, proposals=5, depth=deep, default | `default:analyzer:'focus on root-cause analysis and evidence-based reasoning for incident',default:devops:'focus on deployment, observability, runbooks, and SLO impact for systematic delivery',default:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria',default:architect:'prioritize maintainability and extension scaffolding for incident domain',default:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'` |
+| --strategy=enterprise, proposals=5, default models | `default:architect:'prioritize maintainability and extension scaffolding for {domain} domain',default:analyzer:'focus on root-cause analysis and evidence-based reasoning for {domain}',default:devops:'focus on deployment, observability, runbooks, and SLO impact for enterprise delivery',default:scribe:'focus on documentation clarity, decision rationale, and audit trail',default:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
 
 (Note: `{domain}` literal in row 4 is the post-sanitization fallback when domain happens to be empty/unsanitizable; in practice this shouldn't happen because Wave 1 classification always produces a value.)

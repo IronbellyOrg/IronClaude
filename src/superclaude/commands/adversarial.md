@@ -36,13 +36,13 @@ personas: [architect, analyzer, scribe]
 
 **Mode A (Compare)**:
 
-- `--compare`: Comma-separated file paths (2-10 existing files)
+- `--compare`: Comma-separated file paths (2-10 existing files). Without `--agents`, use one `default` advocate per file (omit native model, not parent-model inheritance). An explicit validated agent list keeps its selections, personas, instructions and order.
 
 **Mode B (Generate + Compare)**:
 
 - `--source`: Source file for variant generation
 - `--generate`: Type of artifact to generate (roadmap, spec, design, etc.)
-- `--agents`: Agent specifications in `model[:persona[:"instruction"]]` format
+- `--agents`: Agent specifications in `selection[:persona[:quoted-instruction]]` format. Selection is `default` (omit native model) or an explicit `opus`, `sonnet`, `haiku`, `fable` alias. Instructions accept matching single or double quotes; commas and colons split only outside quotes. Never pass the `default` marker as a native model.
 
 **Pipeline Mode (Multi-Phase DAG)**:
 
@@ -58,7 +58,7 @@ personas: [architect, analyzer, scribe]
 | `--compare` | `-c` | Mode A | - | Comma-separated file paths (2-10) |
 | `--source` | `-s` | Mode B | - | Source file for variant generation |
 | `--generate` | `-g` | Mode B | - | Type of artifact to generate |
-| `--agents` | `-a` | Mode B | - | Agent specs: `model[:persona[:"instruction"]]` |
+| `--agents` | `-a` | Mode B (optional in Mode A) | `default` per input file in Mode A | Agent specs: `selection[:persona[:quoted-instruction]]`; `default` omits native model, explicit aliases stay explicit; matching single/double quotes protect instruction commas and colons. |
 | `--pipeline` | | Pipeline | - | Inline shorthand or `@path.yaml` -- mutually exclusive with --compare/--source |
 | `--pipeline-parallel` | | No | `3` | Max concurrent phases per DAG level (1-10) |
 | `--pipeline-resume` | | No | `false` | Resume from manifest checkpoint, skip completed phases |

@@ -3,7 +3,6 @@ name: auggie-reviewer
 description: Independent code-review specialist that performs a Claude-side review pass alongside Auggie's deep retrieval pass, used in /sc:auggie-review --depth deep for cross-validation
 category: analysis
 tools: [Read, Grep, Glob, Bash, mcp__litellm__augment_code-augment_code_search, mcp__auggie__codebase-retrieval, mcp__codegraph__codegraph_search, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers]
-model: opus
 ---
 
 # Auggie Cross-Validator Agent

@@ -99,6 +99,35 @@ def test_frontmatter_model_is_an_alias_when_present() -> None:
     assert bad == []
 
 
+@pytest.mark.parametrize(
+    "name",
+    ("auggie-reviewer", "eval-suite-author", "debate-orchestrator", "merge-executor"),
+)
+def test_role_default_agents_have_no_implicit_model_preference(name: str) -> None:
+    path = SRC / "agents" / f"{name}.md"
+    text = path.read_text(encoding="utf-8")
+    assert _frontmatter_model(path) is None
+    assert not re.search(
+        r"highest-capability|high-capability|opus preferred|benefits from the stronger model",
+        text,
+        re.IGNORECASE,
+    )
+    if name != "auggie-reviewer":
+        assert "user's configured default permitted by their Coder role" in text
+        assert "Preserve explicit permitted selections" in text
+
+
+def test_eval_author_dispatch_omits_native_model_and_keeps_validation() -> None:
+    text = (SRC / "skills/sc-cli-eval-protocol/SKILL.md").read_text(encoding="utf-8")
+    author = text.split("### W4", 1)[1].split("### W5", 1)[0]
+    assert "without a native `model` parameter" in author
+    assert "role-permitted configured default" in author
+    assert "then self-validates" in author
+    assert "`eval describe --suite <stem>` returning loader exit 0" in (
+        SRC / "agents/eval-suite-author.md"
+    ).read_text(encoding="utf-8")
+
+
 def test_tier_ids_appear_only_in_allowed_paths() -> None:
     """The text ``claude-gw-tier`` stays inside the documented allow-list."""
     bad = []

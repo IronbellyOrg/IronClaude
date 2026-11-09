@@ -1197,13 +1197,30 @@ apply_tier_selection() {
   unset ANTHROPIC_CUSTOM_MODEL_OPTION
   unset ANTHROPIC_CUSTOM_MODEL_OPTION_NAME
   unset ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION
-  local what
-  # No --model and no --tier: the workspace's own default model (ANTHROPIC_MODEL)
-  # wins over the tier default, but only when it is in a tier this owner may
-  # use; anything else leaves the tier default, silently.
-  if [ -z "$MODEL_ARG" ] && [ -z "$TIER_ARG" ] && [ -n "${ANTHROPIC_MODEL:-}" ] \
-    && python3 "$CCSESSION_MODELS" in-my-tiers "$ANTHROPIC_MODEL" 2>/dev/null; then
-    MODEL_ARG="$ANTHROPIC_MODEL"
+  local what _configured _default_tier _child_settings _child_key _child_value
+  # Bind children before applying parent-only --model/--tier overrides.
+  _configured=$(python3 "$CCSESSION_MODELS" configured-model) || exit 2
+  if [ -z "$_configured" ]; then
+    _default_tier=$(python3 "$CCSESSION_MODELS" default-tier) || exit 2
+    _configured="claude-gw-${_default_tier}[1m]"
+  fi
+  if [ -n "${CLAUDE_CODE_SUBAGENT_MODEL:-}" ] && [ "$CLAUDE_CODE_SUBAGENT_MODEL" != inherit ]; then
+    python3 "$CCSESSION_MODELS" check-child-model "$CLAUDE_CODE_SUBAGENT_MODEL" || exit 2
+  else
+    # Environment inherit is native's unset spelling, not a saved preference.
+    _child_settings=$(python3 "$CCSESSION_MODELS" child-resolve "$_configured") || exit 2
+    while IFS='=' read -r _child_key _child_value; do
+      if [ "$_child_key" = PROFILE_MODEL ]; then
+        export CLAUDE_CODE_SUBAGENT_MODEL="$_child_value"
+      fi
+    done <<< "$_child_settings"
+  fi
+  if [ -z "$MODEL_ARG" ] && [ -z "$TIER_ARG" ]; then
+    if [ -n "${_default_tier:-}" ]; then
+      TIER_ARG="$_default_tier"
+    else
+      MODEL_ARG="$_configured"
+    fi
   fi
   if [ -n "$MODEL_ARG" ]; then
     what="model $MODEL_ARG"

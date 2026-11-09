@@ -95,6 +95,16 @@ def test_brainstorm_unattended_research_light_runs_nested_and_deep_is_skipped():
     assert "the two research rows are skipped" not in paragraph
 
 
+def test_brainstorm_omitted_model_and_explicit_rotation_are_separate():
+    wave0 = _wave_section("0")
+    assert "When omitted, use `default` for every persona at every depth" in wave0
+    wave2 = _wave_section("2B")
+    assert "Omitted `--models`: assign `default`" in wave2
+    assert "preserve the validated list order" in wave2
+    assert "never promote or replace" in wave2
+    assert "prefer `opus`" not in wave2
+
+
 def test_brainstorm_no_tavily_param_duplication():
     """Wave-2A enrichment matrix routes only — no Tavily params / map/crawl tool names."""
     section = _wave2a_section()

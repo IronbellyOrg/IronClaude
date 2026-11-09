@@ -1,0 +1,391 @@
+diff --git a/src/superclaude/commands/adversarial.md b/src/superclaude/commands/adversarial.md
+index 38e9b1633..f0d2a84bd 100644
+--- a/src/superclaude/commands/adversarial.md
++++ b/src/superclaude/commands/adversarial.md
+@@ -42,7 +42,7 @@ personas: [architect, analyzer, scribe]
+ 
+ - `--source`: Source file for variant generation
+ - `--generate`: Type of artifact to generate (roadmap, spec, design, etc.)
+-- `--agents`: Agent specifications in `model[:persona[:"instruction"]]` format
++- `--agents`: Agent specifications in `selection[:persona[:quoted-instruction]]` format. Selection is `default` (omit native model) or an explicit `opus`, `sonnet`, `haiku`, `fable` alias. Instructions accept matching single or double quotes; commas and colons split only outside quotes. Never pass the `default` marker as a native model.
+ 
+ **Pipeline Mode (Multi-Phase DAG)**:
+ 
+@@ -58,7 +58,7 @@ personas: [architect, analyzer, scribe]
+ | `--compare` | `-c` | Mode A | - | Comma-separated file paths (2-10) |
+ | `--source` | `-s` | Mode B | - | Source file for variant generation |
+ | `--generate` | `-g` | Mode B | - | Type of artifact to generate |
+-| `--agents` | `-a` | Mode B | - | Agent specs: `model[:persona[:"instruction"]]` |
++| `--agents` | `-a` | Mode B | - | Agent specs: `selection[:persona[:quoted-instruction]]`; `default` omits native model, explicit aliases stay explicit; matching single/double quotes protect instruction commas and colons. |
+ | `--pipeline` | | Pipeline | - | Inline shorthand or `@path.yaml` -- mutually exclusive with --compare/--source |
+ | `--pipeline-parallel` | | No | `3` | Max concurrent phases per DAG level (1-10) |
+ | `--pipeline-resume` | | No | `false` | Resume from manifest checkpoint, skip completed phases |
+diff --git a/src/superclaude/commands/brainstorm.md b/src/superclaude/commands/brainstorm.md
+index 0bdbb2d6e..39b142e05 100644
+--- a/src/superclaude/commands/brainstorm.md
++++ b/src/superclaude/commands/brainstorm.md
+@@ -34,7 +34,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
+ /sc:brainstorm "<topic>" [--proposals N] [--depth quick|standard|deep] \
+   [--strategy systematic|agile|enterprise|auto] \
+   [--codebase|--no-codebase] [--research light|deep|none|--no-research] \
+-  [--personas p1,p2,...] [--models opus,sonnet,haiku] \
++  [--personas p1,p2,...] [--models default|opus|sonnet|haiku|fable,...] \
+   [--blind] [--convergence FLOAT] [--interactive] \
+   [--handoff none|design|tasklist|task] [--output DIR] \
+   [--dry-run] [--resume-from PATH] [--force-stale]
+@@ -54,7 +54,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
+ | `--research` | | auto | `light`, `deep`, `none` |
+ | `--no-research` | | `false` | Skip research enrichment |
+ | `--personas` | | auto | Comma-separated persona list overriding auto-detection |
+-| `--models` | | `opus,sonnet,haiku` | Model alias list rotated across proposals |
++| `--models` | | `default` for every proposal | Explicit ordered list of `default`, `opus`, `sonnet`, `haiku`, `fable`, rotated without depth promotion. `default` omits the native model parameter. |
+ | `--blind` | | `false` | Pass-through to `/sc:adversarial --blind` |
+ | `--convergence` | | `0.75` | Pass-through to `/sc:adversarial --convergence` |
+ | `--interactive` | `-i` | `false` | Pause for user input at Socratic + adversarial decision points |
+@@ -81,7 +81,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
+ /sc:brainstorm "add rate limiting to public API endpoints" --depth standard
+ ```
+ 
+-Auto: codebase enrichment via Auggie; 3 proposals across opus/sonnet/haiku with architect/refactorer/backend personas; adversarial debate + merge.
++Auto: codebase enrichment via Auggie; 3 proposals using the role-permitted configured default with architect/refactorer/backend personas; adversarial debate + merge. Explicit `--models opus,sonnet,haiku` requests that ordered rotation without depth promotion.
+ 
+ ### Deep incident post-mortem
+ 
+diff --git a/src/superclaude/skills/sc-adversarial-protocol/SKILL.md b/src/superclaude/skills/sc-adversarial-protocol/SKILL.md
+index 2b2872b89..94b5c7fe1 100644
+--- a/src/superclaude/skills/sc-adversarial-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-adversarial-protocol/SKILL.md
+@@ -69,11 +69,12 @@ Generic, reusable command implementing a structured adversarial debate, comparis
+ ```
+ 
+ - Generates variant artifacts from source using specified agents in parallel
+-- Agent specification format: `<model>[:persona[:"instruction"]]`
+-  - `opus` — model only
+-  - `opus:architect` — model + persona
+-  - `opus:architect:"focus on scalability"` — model + persona + instruction
+-- Supported models: Any available (opus, sonnet, haiku, configured aliases)
++- Agent specification format: `selection[:persona[:quoted-instruction]]`
++  - `default` means omit the native model parameter, not a native alias.
++  - `default:architect` preserves the persona with the role-permitted configured default.
++  - `default:architect:'focus on scalability'` preserves the custom instruction.
++- Supported selections: `default`, `opus`, `sonnet`, `haiku`, `fable` only. Mixed default/explicit lists and repeated defaults are legal. Explicit aliases stay explicit; arbitrary backend IDs, gateway aliases and `inherit` are rejected.
++- Parsing: commas and colons split only outside matching single or double quotes; backslash escapes a matching quote or backslash inside the quoted field. Reject empty segments, unmatched quotes, dangling escapes, extra segments and trailing text after a closing quote. Decode once, never shell-execute. See `refs/agent-specs.md` for the shared grammar.
+ - Agent count: 2-10 (minimum 2 required for adversarial comparison)
+ - Variants written to `<output>/adversarial/variant-N-<model>-<persona>.md`
+ 
+@@ -579,13 +580,13 @@ input_mode_parsing:
+     missing_flag_error: "STOP: 'Mode B requires all three flags: --source, --generate, --agents. Missing: <list>'"
+ 
+     agent_spec_parsing:
+-      format: "<model>[:persona[:\"instruction\"]]"
+-      separator: ":"
+-      instruction_delimiter: '"'
++      format: "selection[:persona[:quoted-instruction]]"
++      splitting: "Commas and colons split only outside matching single or double quotes; accept 1-3 nonempty segments; reject empty agents/fields and extra segments"
++      escaping: "Inside quotes, backslash escapes matching quote or backslash only; preserve other backslashes; decode once; never shell-execute"
+       validation:
+-        model: "Must be a recognized model name (opus, sonnet, haiku) or configured alias"
++        model: "Only default, opus, sonnet, haiku, fable; preserve default marker until native dispatch omits model; reject inherit, backend IDs and arbitrary gateway aliases"
+         persona: "If provided, should match a SuperClaude persona; WARN if unknown"
+-        instruction: "If provided, must be enclosed in double quotes"
++        instruction: "If provided, an entire field in matching single or double quotes; reject unmatched quotes, dangling escapes and trailing text"
+       count_check: "2 ≤ agent_count ≤ 10"
+       error_messages:
+         invalid_model: "STOP: 'Unknown model: <model>'"
+@@ -961,13 +962,13 @@ Dynamically create advocate agents from the `--agents` specification:
+ advocate_instantiation:
+   per_agent_spec:
+     parse:
+-      - "Extract model (required): first segment before ':'"
+-      - "Extract persona (optional): second segment before ':' or '\"'"
+-      - "Extract instruction (optional): quoted string after second ':'"
++      - "Use the shared agent_spec_parsing grammar: split commas and colons only outside matching single or double quotes, with 1-3 nonempty segments"
++      - "Extract selection and optional persona; preserve default marker until dispatch"
++      - "Extract optional entire quoted instruction; decode matching quote/backslash escapes once; never shell-execute"
+     validate:
+-      model: "Must be recognized: opus, sonnet, haiku, or configured alias"
+-      persona: "If provided, map to SuperClaude persona (architect, security, analyzer, etc.)"
+-      instruction: "If provided, must be enclosed in double quotes"
++      model: "Only default, opus, sonnet, haiku, fable; reject inherit, backend IDs and arbitrary gateway aliases"
++      persona: "If provided, map to SuperClaude persona; WARN if unknown"
++      instruction: "Matching single or double quotes; reject empty/extra segments, unmatched quotes, dangling escapes and trailing text"
+ 
+   prompt_generation:
+     template: |
+@@ -2208,6 +2209,7 @@ mode_b_generation:
+ 
+   parallel_dispatch:
+     action: "For each agent spec, spawn Task agent to generate variant"
++    model_selection: "For default, omit the native model parameter; otherwise pass only the validated explicit opus, sonnet, haiku or fable alias. Never pass model: default, model: inherit or a backend ID. Preserve this choice on retries and redispatch. Selection labels do not prove served backend; shared shim rejects disallowed destinations."
+     parallelism: "ALL agents dispatched simultaneously (true parallel)"
+     per_agent:
+       input:
+diff --git a/src/superclaude/skills/sc-adversarial-protocol/refs/agent-specs.md b/src/superclaude/skills/sc-adversarial-protocol/refs/agent-specs.md
+index b2eda143c..296814a35 100644
+--- a/src/superclaude/skills/sc-adversarial-protocol/refs/agent-specs.md
++++ b/src/superclaude/skills/sc-adversarial-protocol/refs/agent-specs.md
+@@ -9,24 +9,19 @@ Agent specification format, advocate behavior rules, and dynamic agent instantia
+ Agents are specified using a hybrid format combining model selection with optional persona and instruction:
+ 
+ ```
+-<model>                              # Model only
+-<model>:<persona>                    # Model + persona
+-<model>:<persona>:"<instruction>"    # Model + persona + custom instruction
++<selection>                              # default or explicit supported alias
++<selection>:<persona>                    # Selection + persona
++<selection>:<persona>:'<instruction>'    # Canonical single-quoted instruction
++<selection>:<persona>:"<instruction>"    # Compatible double-quoted instruction
+ ```
+ 
+ ### Components
+ 
+ #### Model (Required)
+ 
+-The LLM model to use for this agent.
++The requested selection for this agent: `default`, `opus`, `sonnet`, `haiku` or `fable`. `default` is a reserved protocol marker, not a native model alias: preserve it through parsing, then omit the native model parameter. This uses the user's role-permitted configured default bound by ccsession. Explicit supported aliases stay explicit, subject to administrative force semantics and the shared shim's destination check. Never pass `default`, `inherit`, full backend IDs or arbitrary gateway aliases as a native model.
+ 
+-| Model | Capability | Typical Use |
+-|-------|-----------|-------------|
+-| `opus` | Highest capability | Complex analysis, architectural reasoning |
+-| `sonnet` | Balanced capability | General purpose, good cost/quality ratio |
+-| `haiku` | Fast, efficient | Quick assessments, simple comparisons |
+-
+-Model aliases configured in the environment are also supported.
++Lists may mix default and explicit selections and may repeat `default`. Preserve list order. Selection labels are not evidence of a served backend or role permission; resolution depends on the active environment.
+ 
+ #### Persona (Optional)
+ 
+@@ -59,19 +54,11 @@ Instructions are injected into the agent's system prompt alongside persona direc
+ 
+ ### Parsing Rules
+ 
+-```yaml
+-agent_spec_parsing:
+-  separator: ":"
+-  instruction_delimiter: '"' (double quotes)
+-  validation:
+-    - "Model must be a recognized model name or alias"
+-    - "Persona must match a valid SuperClaude persona (if provided)"
+-    - "Instruction must be enclosed in double quotes (if provided)"
+-  error_handling:
+-    invalid_model: "STOP with error: 'Unknown model: <model>'"
+-    invalid_persona: "WARN: Unknown persona '<persona>', using model defaults"
+-    missing_quotes: "STOP with error: 'Instruction must be quoted: <spec>'"
+-```
++1. Split agents on commas only outside quotes, then split fields on colons only outside quotes. Accept 1-3 nonempty segments: selection alone, selection:persona, or selection:persona:quoted-instruction. Reject empty agents/fields and extra segments.
++2. Accept only `default`, `opus`, `sonnet`, `haiku`, `fable` as selection. Unknown selection: STOP `Unknown model: <model>`. Keep the default marker in the parsed model field until dispatch.
++3. Map a provided persona to SuperClaude behavior. Unknown persona: WARN `Unknown persona '<persona>', using model defaults`; retain its requested label. The builder's recognized personas remain valid.
++4. Instructions must occupy an entire field inside matching single or double quotes. Single quotes are the builder's canonical form; existing double-quoted explicit specs remain accepted. Inside quotes, backslash escapes only the matching quote or another backslash; preserve other backslashes. Decode once. Commas, colons and the other quote character inside quotes are data. Reject unmatched quotes, dangling escapes and trailing text after a closing quote. Missing quotes: STOP `Instruction must be quoted: <spec>`.
++5. Never evaluate or shell-execute a serialized specification. Keep parsed instructions as prompt data. Structural tokens must not become instructions. Native generation dispatch omits model for `default` and passes only a validated explicit supported alias otherwise. Agent count remains 2-10.
+ 
+ ### Examples
+ 
+diff --git a/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md b/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+index 23696252d..655292496 100644
+--- a/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+@@ -35,7 +35,7 @@ Orchestrate parallel brainstorming via:
+ 
+ 1. Socratic dialogue → structured seed brief
+ 2. Optional codebase + research enrichment (parallel, partial-OK)
+-3. Composed agent-spec (3 active models × N personas)
++3. Composed agent-spec (configured default or explicit ordered selections × N personas)
+ 4. Delegation to `sc-adversarial-protocol` for parallel proposal generation + debate + merge
+ 5. Optional handoff to `/sc:design`, `/sc:tasklist`, or `/task-builder`
+ 
+@@ -46,7 +46,7 @@ Orchestrate parallel brainstorming via:
+ - Depth-tiered Socratic dialogue (quick/standard/deep)
+ - Auto-detected domain classification driving persona selection
+ - Parallel enrichment via `/sc:analyze`, `/sc:research`, `tech-research`
+-- Model rotation across 3 active aliases (opus, sonnet, haiku)
++- Configured default selection, or explicit ordered alias rotation without depth promotion
+ - Versioned return contract (stable + telemetry)
+ - Token-budget pre-flight with auto-downgrade
+ 
+@@ -101,7 +101,7 @@ Orchestrate parallel brainstorming via:
+    - `deep` → max 7
+    - Silent clamp on excess + INFO log: `"--proposals clamped to <N> by --depth <depth>"`
+ 3. Validate `--personas` (if provided): non-empty after trim. STOP on empty: `"--personas requires at least one persona or omit the flag for auto-detection."`
+-4. Validate `--models` (if provided): non-empty after trim. STOP on empty similarly. Default model set: `opus, sonnet, haiku`.
++4. Validate `--models` (if provided): non-empty after trim, with no empty list entries. Accept only `default`, `opus`, `sonnet`, `haiku`, `fable`; STOP on any other value. When omitted, use `default` for every persona at every depth. This reserved protocol marker means omit the native model parameter, not a native alias.
+ 5. Verify `sc-adversarial-protocol` skill exists (Read tool) at `~/.claude/skills/sc-adversarial-protocol/SKILL.md` (installed) or `.claude/skills/sc-adversarial-protocol/SKILL.md` (project copy from `make sync-dev`); either satisfies the check. Record the path found, preferring the installed copy (Claude Code loads a personal skill over a project skill of the same name). STOP if neither exists: `"sc:adversarial skill not installed. Required by /sc:brainstorm v2. Install via: superclaude install"`
+ 6. **Skill version compatibility check**: Read first 30 lines of the `SKILL.md` found in step 5. Look for `version:` field. If present, require `>= 1.0.0`. If absent → assume compatible (legacy mode) + INFO log. If too low → STOP.
+ 7. **Handoff prereq validation** (no silent downgrade):
+@@ -110,7 +110,7 @@ Orchestrate parallel brainstorming via:
+    - Under `--unattended` this step is skipped: the `tasklist` and `task` handoffs are skipped in Wave 4, so their skills are not needed.
+ 8. Create output directory (default `.dev/brainstorms/<ts>-<slug>/`). If exists and non-empty, append `-N` suffix. Cap N at 99 (STOP on N=100); WARN at N≥10.
+    - Under `--unattended`, a directory the caller passes (`--output` or `--report-dir`) is used exactly as passed: no `-N` suffix, and one that already holds a `return-contract.yaml` was refused before step 1.
+-9. Validate model aliases: read env vars `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`. An unset variable is not an error: the alias resolves to Claude Code's built-in model for `opus`/`sonnet`/`haiku` (Coder workspaces no longer set these, Coder issue #270). If `--models` provided, validate each alias resolves to one of the known aliases.
++9. Keep requested selection separate from backend resolution. The supported explicit aliases are `opus`, `sonnet`, `haiku`, `fable`; `default` is a protocol marker consumed before native dispatch. Resolution depends on the active environment and native configuration. An alias or an unset environment variable is not proof of a served backend or role permission. The shared ccsession shim checks destinations; do not invent mappings or capability fallbacks.
+ 10. If `--strategy enterprise` and `--depth` not explicitly set → set `--depth deep` + INFO log.
+ 
+ **Exit Criteria**: All prerequisites validated. Output dir ready. Emit: `"Wave 0 complete: prereqs validated. Models: <list>. Proposals: <N>. Depth: <D>. Output: <path>."`
+@@ -222,10 +222,10 @@ Orchestrate parallel brainstorming via:
+    - **Apply `§Auto-Exclusion`** (`refs/agent-spec-builder.md`): strip any `auto_excluded_personas` member (currently `security`) that is NOT present in an explicit `--personas` list, backfilling from the same priority list; emit one INFO per drop. This forbids a security lens unless the user explicitly names it.
+    - Pad/truncate to `--proposals` count
+ 
+-2. **Model rotation**:
+-   - Read `--models` (default `opus,sonnet,haiku`)
+-   - Round-robin assign: `(persona_i, model_(i mod len(models)))`
+-   - For `--depth deep`: prefer `opus` for first 2 personas (typically analyzer + architect), then rotate
++2. **Model selection**:
++   - Omitted `--models`: assign `default` to every selected persona at quick, standard and deep depths.
++   - Explicit `--models`: preserve the validated list order; round-robin assign `(persona_i, models[i mod len(models)])`, including mixed default/explicit lists.
++   - Depth changes work depth only; never promote or replace a requested selection. `default` remains a protocol marker until native dispatch omits the model parameter.
+ 
+ 3. **Custom instructions** (optional, per-persona):
+    - Pull templates from `refs/agent-spec-builder.md` §Instruction-Templates
+@@ -234,8 +234,8 @@ Orchestrate parallel brainstorming via:
+ 4. **Serialization with sanitization** (mandatory):
+    - Wrap each instruction in single-quoted strings
+    - Sanitize all interpolated parameters (`{domain}`, `{strategy}`): strip `,`, `:`, `'`, `"`, and control characters before substitution
+-   - Escape any embedded single-quotes in templates as `\'`
+-   - Validate the final agent-spec string round-trips through the adversarial parser (per `refs/agent-spec-builder.md` §Validation): split on `,`, then on `:` (max 3 segments per agent, with the 3rd segment respecting single-quote boundaries)
++   - Escape backslashes first, then embedded single-quotes as `\'`; decode once in the consumer, never through a shell
++   - Validate the final agent-spec string round-trips through the adversarial parser (per `refs/agent-spec-builder.md` §Validation): commas and colons split only outside matching single or double quotes. Builder emits single quotes; the consumer also accepts legacy double quotes. Reject empty/extra segments, unmatched quotes, dangling escapes and trailing text after a closing quote.
+    - If validation fails → STOP with `"Agent-spec serialization produced invalid output. This is a bug — please report. Spec: <serialized>"`
+ 
+ 5. **Token-budget pre-flight**:
+@@ -249,7 +249,7 @@ Orchestrate parallel brainstorming via:
+ 6. **Final output**: validated agent-spec string. Example:
+ 
+    ```
+-   opus:architect:'prioritize maintainability and scaffolding',sonnet:refactorer:'focus on technical debt + minimal-risk transformation paths',haiku:devops:'deployment + observability'
++   default:architect:'prioritize maintainability and scaffolding',default:refactorer:'focus on technical debt + minimal-risk transformation paths',default:devops:'deployment + observability'
+    ```
+ 
+ **Dry-run gate**: If `--dry-run`:
+@@ -259,7 +259,7 @@ Orchestrate parallel brainstorming via:
+ - If `--handoff != none`: print `"Intended handoff: <value> (skipped in dry-run mode)."`
+ - Skip Wave 3 + 4. Exit cleanly with partial return contract (`status: dry-run`).
+ 
+-**Exit Criteria**: Validated agent-spec in state. Token budget pre-flight passed. Emit: `"Wave 2B complete: agent-spec composed (<Y> agents across <Z> models, ~<XK> tokens estimated)."`
++**Exit Criteria**: Validated agent-spec in state. Token budget pre-flight passed. Emit: `"Wave 2B complete: agent-spec composed (<Y> agents across <Z> requested selection labels, not observed backends, ~<XK> tokens estimated)."`
+ 
+ ### Wave 3 — Adversarial Delegation
+ 
+@@ -443,7 +443,7 @@ enrichment_artifact_sizes:
+ 
+ - Orchestrate Socratic dialogue + enrichment + adversarial delegation + handoff
+ - Compose validated, sanitized agent-spec strings for `/sc:adversarial`
+-- Rotate across 3 active model aliases (opus, sonnet, haiku)
++- Use the configured default when --models is omitted; rotate only explicitly supplied selections without depth promotion
+ - Auto-detect domain + strategy from topic when not specified
+ - Produce versioned, two-block return contract for composability
+ - FAIL fast on empty/malformed adversarial responses (no silent success)
+diff --git a/src/superclaude/skills/sc-brainstorm-protocol/refs/agent-spec-builder.md b/src/superclaude/skills/sc-brainstorm-protocol/refs/agent-spec-builder.md
+index 0076fcb6b..041118685 100644
+--- a/src/superclaude/skills/sc-brainstorm-protocol/refs/agent-spec-builder.md
++++ b/src/superclaude/skills/sc-brainstorm-protocol/refs/agent-spec-builder.md
+@@ -52,25 +52,19 @@ Notes:
+ 
+ ## §Model-Rotation
+ 
+-Active model aliases (resolved from `~/.bashrc`):
++**Omitted `--models`**: assign `default` to every selected persona at quick, standard and deep depths. `default` is a reserved protocol marker, not a native model alias. Preserve it until native dispatch, where it means omit the model parameter and use the user's role-permitted configured default.
+ 
+-- `opus` — heavy reasoning, primary debate model
+-- `sonnet` — balanced cost/quality
+-- `haiku` — fast, lighter reasoning
++**Explicit `--models`**: accept `default`, `opus`, `sonnet`, `haiku`, `fable`; reject empty entries, `inherit`, full backend IDs and arbitrary gateway aliases. Preserve list order and round-robin assign `(persona_i, models[i mod len(models)])`. Mixed default/explicit lists are legal. Depth never promotes or replaces a selection. Alias resolution is environment-dependent, not proof of a served backend or role permission; the shared ccsession shim checks destinations.
+ 
+-**Default rotation**: Round-robin assign `(persona_i, model_(i mod len(models)))` over the user's `--models` list (default `opus,sonnet,haiku`).
++**Example assignments** (selection:persona, requested labels only):
+ 
+-**Deep-depth override**: When `--depth deep`, prefer `opus` for the first 2 personas (typically `analyzer` + `architect` for `incident`/`architecture` domains; otherwise the first two from the persona priority list). Remaining personas continue round-robin starting from position 0.
+-
+-**Example assignments** (default `--models opus,sonnet,haiku`):
+-
+-| proposals | depth | code domain assignment |
+-|-----------|-------|------------------------|
+-| 2 | quick | architect:opus, refactorer:sonnet |
+-| 3 | standard | architect:opus, refactorer:sonnet, qa:haiku |
+-| 5 | standard | architect:opus, refactorer:sonnet, qa:haiku, backend:opus, frontend:sonnet |
+-| 5 | deep | architect:opus, refactorer:opus, qa:haiku, backend:opus, frontend:sonnet |
+-| 7 | deep | architect:opus, refactorer:opus, qa:haiku, backend:opus, frontend:haiku, analyzer:opus, architect:sonnet |
++| proposals | depth | selection input | assignment |
++|-----------|-------|-----------------|------------|
++| 2 | quick | omitted | default:architect, default:refactorer |
++| 3 | standard | omitted | default:architect, default:refactorer, default:qa |
++| 5 | deep | omitted | default:architect, default:refactorer, default:qa, default:backend, default:frontend |
++| 5 | deep | explicit --models sonnet,haiku | sonnet:architect, haiku:refactorer, sonnet:qa, haiku:backend, sonnet:frontend |
++| 3 | deep | explicit --models default,opus | default:architect, opus:refactorer, default:qa |
+ 
+ ## §Instruction-Templates
+ 
+@@ -106,29 +100,30 @@ Build the agent-spec string from the list of `(persona, model, instruction)` tup
+ 
+ **Format per agent**:
+ 
+-- No instruction: `<model>:<persona>` (e.g., `opus:architect`)
+-- With instruction: `<model>:<persona>:'<instruction>'` (e.g., `opus:architect:'prioritize maintainability'`)
++- No instruction: `<model>:<persona>` (e.g., `default:architect`)
++- With instruction: `<model>:<persona>:'<instruction>'` (e.g., `default:architect:'prioritize maintainability'`)
+ 
+-**Embedded single-quote escaping**: Replace `'` in instructions with `\'`. (Example: `don't break the API` → `don\'t break the API`.)
++**Escaping**: Escape backslashes first (`\` becomes `\\`), then replace `'` in instructions with `\'`. (Example: `don't break the API` → `don\'t break the API`.) Decode escapes once in the consumer, never through a shell.
+ 
+ **Agent separator**: `,` between agents.
+ 
+ **Final string example**:
+ 
+ ```
+-opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'
++default:architect:'prioritize maintainability and extension scaffolding for code domain',default:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',default:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'
+ ```
+ 
+ ## §Validation
+ 
+ Round-trip the serialized agent-spec through the adversarial parser to verify:
+ 
+-1. **Split on `,`**: count of agents == expected proposal count
+-2. **Per agent split on `:`** (respecting single-quote boundaries):
+-   - Segment count ∈ {2, 3} (model:persona OR model:persona:instruction)
+-   - Segment 1 ∈ recognized model aliases
+-   - Segment 2 ∈ recognized persona names
+-   - Segment 3 (if present): single-quoted, valid string, no unescaped single-quotes
++1. **Split on `,` only outside quotes**: count of agents == expected proposal count; no empty entries.
++2. **Per agent split on `:` only outside matching single or double quotes**:
++   - Builder emits 2 or 3 segments (selection:persona OR selection:persona:instruction); the consumer also accepts a selection alone.
++   - Segment 1 is `default`, `opus`, `sonnet`, `haiku` or `fable`.
++   - Segment 2 is a nonempty recognized persona name.
++   - Segment 3 (if present) occupies the entire quoted field. Builder emits single quotes; consumer also accepts matching double quotes for existing explicit specifications. Inside a quoted field, backslash escapes only a matching quote or another backslash; preserve other backslashes. Escape backslashes before matching quotes when serializing, then decode once when parsing. Reject unmatched quotes, dangling escapes, extra segments and trailing text outside a closing quote. Commas, colons and the other quote character inside the field are instruction data, never structure.
++   - Never evaluate or shell-execute the serialized string; pass the parsed instruction as prompt data. A structural `default` token is accepted only in segment 1, never interpolated into instructions.
+ 3. **No duplicate (persona, model) pairs** — emit INFO if duplicate detected (not a STOP, since duplicate combos are sometimes intentional in deep mode)
+ 
+ **Validation failure**: STOP with `"Agent-spec serialization produced invalid output. This is a bug — please report. Spec: <serialized>"`
+@@ -162,9 +157,9 @@ For unit/integration testing of the builder, the following inputs MUST produce t
+ 
+ | Input | Output |
+ |-------|--------|
+-| domain=code, proposals=2, depth=quick, strategy=systematic, default models | `opus:architect,sonnet:refactorer` |
+-| domain=code, proposals=3, depth=standard, default | `opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
+-| domain=incident, proposals=5, depth=deep, default | `opus:analyzer:'focus on root-cause analysis and evidence-based reasoning for incident',opus:devops:'focus on deployment, observability, runbooks, and SLO impact for systematic delivery',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria',opus:architect:'prioritize maintainability and extension scaffolding for incident domain',sonnet:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'` |
+-| --strategy=enterprise, proposals=5, default models | `opus:architect:'prioritize maintainability and extension scaffolding for {domain} domain',sonnet:analyzer:'focus on root-cause analysis and evidence-based reasoning for {domain}',haiku:devops:'focus on deployment, observability, runbooks, and SLO impact for enterprise delivery',opus:scribe:'focus on documentation clarity, decision rationale, and audit trail',sonnet:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
++| domain=code, proposals=2, depth=quick, strategy=systematic, default models | `default:architect,default:refactorer` |
++| domain=code, proposals=3, depth=standard, default | `default:architect:'prioritize maintainability and extension scaffolding for code domain',default:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',default:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
++| domain=incident, proposals=5, depth=deep, default | `default:analyzer:'focus on root-cause analysis and evidence-based reasoning for incident',default:devops:'focus on deployment, observability, runbooks, and SLO impact for systematic delivery',default:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria',default:architect:'prioritize maintainability and extension scaffolding for incident domain',default:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'` |
++| --strategy=enterprise, proposals=5, default models | `default:architect:'prioritize maintainability and extension scaffolding for {domain} domain',default:analyzer:'focus on root-cause analysis and evidence-based reasoning for {domain}',default:devops:'focus on deployment, observability, runbooks, and SLO impact for enterprise delivery',default:scribe:'focus on documentation clarity, decision rationale, and audit trail',default:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
+ 
+ (Note: `{domain}` literal in row 4 is the post-sanitization fallback when domain happens to be empty/unsanitizable; in practice this shouldn't happen because Wave 1 classification always produces a value.)
+diff --git a/tests/skills/test_brainstorm_protocol.py b/tests/skills/test_brainstorm_protocol.py
+index 6277d949f..bf60efd81 100644
+--- a/tests/skills/test_brainstorm_protocol.py
++++ b/tests/skills/test_brainstorm_protocol.py
+@@ -95,6 +95,16 @@ def test_brainstorm_unattended_research_light_runs_nested_and_deep_is_skipped():
+     assert "the two research rows are skipped" not in paragraph
+ 
+ 
++def test_brainstorm_omitted_model_and_explicit_rotation_are_separate():
++    wave0 = _wave_section("0")
++    assert "When omitted, use `default` for every persona at every depth" in wave0
++    wave2 = _wave_section("2B")
++    assert "Omitted `--models`: assign `default`" in wave2
++    assert "preserve the validated list order" in wave2
++    assert "never promote or replace" in wave2
++    assert "prefer `opus`" not in wave2
++
++
+ def test_brainstorm_no_tavily_param_duplication():
+     """Wave-2A enrichment matrix routes only — no Tavily params / map/crawl tool names."""
+     section = _wave2a_section()

@@ -16,9 +16,9 @@ category: quality
 
 Follow the refactoring plan precisely and methodically. Focus on structural integrity, accurate provenance tracking, and producing a unified document that faithfully incorporates planned changes without introducing new content or making strategic decisions.
 
-## Model Preference
+## Model Selection
 
-High-capability model (opus or sonnet). Requires strong writing and structural reasoning for document integration tasks.
+Omitted native model selection uses the user's configured default permitted by their Coder role. Preserve explicit permitted selections; do not substitute a capability-based preference.
 
 ## Tools
 

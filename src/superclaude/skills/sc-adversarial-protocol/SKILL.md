@@ -69,11 +69,12 @@ Generic, reusable command implementing a structured adversarial debate, comparis
 ```
 
 - Generates variant artifacts from source using specified agents in parallel
-- Agent specification format: `<model>[:persona[:"instruction"]]`
-  - `opus` — model only
-  - `opus:architect` — model + persona
-  - `opus:architect:"focus on scalability"` — model + persona + instruction
-- Supported models: Any available (opus, sonnet, haiku, configured aliases)
+- Agent specification format: `selection[:persona[:quoted-instruction]]`
+  - `default` means omit the native model parameter, not a native alias.
+  - `default:architect` preserves the persona with the role-permitted configured default.
+  - `default:architect:'focus on scalability'` preserves the custom instruction.
+- Supported selections: `default`, `opus`, `sonnet`, `haiku`, `fable` only. Mixed default/explicit lists and repeated defaults are legal. Explicit aliases stay explicit; arbitrary backend IDs, gateway aliases and `inherit` are rejected.
+- Parsing: commas and colons split only outside matching single or double quotes; backslash escapes a matching quote or backslash inside the quoted field. Reject empty segments, unmatched quotes, dangling escapes, extra segments and trailing text after a closing quote. Decode once, never shell-execute. See `refs/agent-specs.md` for the shared grammar.
 - Agent count: 2-10 (minimum 2 required for adversarial comparison)
 - Variants written to `<output>/adversarial/variant-N-<model>-<persona>.md`
 
@@ -439,7 +440,7 @@ return_contract:
   convergence_score: 0.75                            # float 0.0-1.0, null if debate not reached
   artifacts_dir: "<path to adversarial/ directory>"  # always set (created at pipeline start)
   status: "success"                                  # success | partial | failed
-  base_variant: "opus:architect"                     # model:persona that won debate, null if not reached
+  base_variant: "default:architect"                  # requested selection:persona of winner, not served backend; null if not reached
   unresolved_conflicts: 2                            # integer count of unresolved diff points, 0 on success
   fallback_mode: false                               # true if pipeline used fallback path
   failure_stage: null                                # null on success; "variant_generation" | "debate" | "merge" | "validation" | "transport"
@@ -457,19 +458,21 @@ return_contract:
 | `convergence_score` | `float\|null` | Final convergence score 0.0-1.0; null if debate not reached |
 | `artifacts_dir` | `string` | Path to adversarial/ directory (always set) |
 | `status` | `enum` | `success` (all steps pass), `partial` (completed with warnings), `failed` (aborted) |
-| `base_variant` | `string\|null` | Model:persona that won adversarial debate; null if debate not reached |
+| `base_variant` | `string\|null` | Requested selection:persona of the winner (including `default`), not a served backend; null if debate not reached |
 | `unresolved_conflicts` | `integer` | Count of unresolved diff points; 0 on full success |
 | `fallback_mode` | `boolean` | True if pipeline used any fallback path |
 | `failure_stage` | `string\|null` | Null on success; identifies the stage that caused failure |
 | `invocation_method` | `enum` | How this invocation was triggered: `skill-direct`, `task-agent`, or `manual` |
 | `unaddressed_invariants` | `list` | HIGH-severity UNADDRESSED items from invariant probe; empty list `[]` when no HIGH items remain or when Round 2.5 was skipped; populated with `[{id, category, assumption, severity}]` when HIGH items exist |
 
+Requested-selection identity: existing `{model}` and `{agent-spec}` labels in filenames, advocate prompts, transcripts and provenance represent the requested selection, including `default`, never a verified backend. Keep `variant-{N}-{model}-{persona or 'default'}.md`: the variant number distinguishes repeated defaults. In transcript/merge metadata, report the served backend only if genuinely observed; otherwise report `unknown`. Do not infer it from a native alias, the default marker or the winning variant. Preserve all existing contract keys and output layouts.
+
 ## Agent Delegation
 
 ### debate-orchestrator Agent
 
 - **Role**: Coordinates the entire pipeline without participating in debates
-- **Model**: Highest-capability (opus preferred)
+- **Model**: Omit the native model parameter; use the role-permitted configured child default, not an advocate's selection.
 - **Tools**: Task, Read, Write, Glob, Grep, Bash
 - **Responsibilities**: Parse inputs, dispatch variants, coordinate 5-step protocol, track convergence, make base selection, compile return contract
 - **Does NOT**: Generate variants, participate in debates, execute merges
@@ -477,7 +480,7 @@ return_contract:
 ### merge-executor Agent
 
 - **Role**: Executes refactoring plans to produce unified merged artifacts
-- **Model**: High-capability (opus or sonnet)
+- **Model**: Omit the native model parameter; use the role-permitted configured child default, never the winning advocate's model.
 - **Tools**: Read, Write, Edit, Grep
 - **Responsibilities**: Read base + plan, apply changes, maintain integrity, add provenance, validate output, produce merge-log
 - **Does NOT**: Make strategic decisions, override plan, participate in debates
@@ -556,7 +559,7 @@ input_mode_parsing:
     condition: "pipeline_mode == false"
     mode_a_signal: "--compare flag present"
     mode_b_signal: "--source AND --generate AND --agents flags present"
-    conflict: "If both Mode A and Mode B flags present → STOP with error: 'Cannot use --compare with --source/--generate/--agents'"
+    conflict: "If --compare is combined with --source or --generate, STOP: 'Cannot use --compare with --source/--generate'. An optional --agents list is legal in Mode A."
     neither: "If neither mode detected → STOP with error: 'Must provide --compare (Mode A), --source + --generate + --agents (Mode B), or --pipeline (Pipeline Mode)'"
 
   step_2_mode_a_parsing:
@@ -569,7 +572,8 @@ input_mode_parsing:
       too_few: "STOP: 'Adversarial comparison requires at least 2 files, got <N>'"
       too_many: "STOP: 'Maximum 10 files supported, got <N>'"
       missing_file: "STOP: 'File not found: <path>'"
-    output: "List of validated file paths (2-10)"
+    agents: "Without --agents assign default per file. If supplied, parse with step_3_mode_b_parsing.agent_spec_parsing and require exactly one spec per input file; preserve validated order, personas and instructions. Use task_dispatch_config for every advocate."
+    output: "List of validated file paths (2-10) and corresponding selections"
 
   step_3_mode_b_parsing:
     required_flags:
@@ -579,13 +583,13 @@ input_mode_parsing:
     missing_flag_error: "STOP: 'Mode B requires all three flags: --source, --generate, --agents. Missing: <list>'"
 
     agent_spec_parsing:
-      format: "<model>[:persona[:\"instruction\"]]"
-      separator: ":"
-      instruction_delimiter: '"'
+      format: "selection[:persona[:quoted-instruction]]"
+      splitting: "Commas and colons split only outside matching single or double quotes; accept 1-3 nonempty segments; reject empty agents/fields and extra segments"
+      escaping: "Inside quotes, backslash escapes matching quote or backslash only; preserve other backslashes; decode once; never shell-execute"
       validation:
-        model: "Must be a recognized model name (opus, sonnet, haiku) or configured alias"
+        model: "Only default, opus, sonnet, haiku, fable; preserve default marker until native dispatch omits model; reject inherit, backend IDs and arbitrary gateway aliases"
         persona: "If provided, should match a SuperClaude persona; WARN if unknown"
-        instruction: "If provided, must be enclosed in double quotes"
+        instruction: "If provided, an entire field in matching single or double quotes; reject unmatched quotes, dangling escapes and trailing text"
       count_check: "2 ≤ agent_count ≤ 10"
       error_messages:
         invalid_model: "STOP: 'Unknown model: <model>'"
@@ -961,19 +965,19 @@ Dynamically create advocate agents from the `--agents` specification:
 advocate_instantiation:
   per_agent_spec:
     parse:
-      - "Extract model (required): first segment before ':'"
-      - "Extract persona (optional): second segment before ':' or '\"'"
-      - "Extract instruction (optional): quoted string after second ':'"
+      - "Use the shared agent_spec_parsing grammar: split commas and colons only outside matching single or double quotes, with 1-3 nonempty segments"
+      - "Extract selection and optional persona; preserve default marker until dispatch"
+      - "Extract optional entire quoted instruction; decode matching quote/backslash escapes once; never shell-execute"
     validate:
-      model: "Must be recognized: opus, sonnet, haiku, or configured alias"
-      persona: "If provided, map to SuperClaude persona (architect, security, analyzer, etc.)"
-      instruction: "If provided, must be enclosed in double quotes"
+      model: "Only default, opus, sonnet, haiku, fable; reject inherit, backend IDs and arbitrary gateway aliases"
+      persona: "If provided, map to SuperClaude persona; WARN if unknown"
+      instruction: "Matching single or double quotes; reject empty/extra segments, unmatched quotes, dangling escapes and trailing text"
 
   prompt_generation:
     template: |
       You are an advocate agent in a structured adversarial debate.
       Your variant: {variant_name}
-      Model: {model}
+      Requested selection: {model} (not an observed backend)
       Persona: {persona or 'default'}
       Custom instruction: {instruction or 'none'}
 
@@ -1024,7 +1028,7 @@ advocate_instantiation:
       - qa → focus on edge cases, test coverage, failure scenarios
 
   task_dispatch_config:
-    model: "{parsed_model}"
+    model_selection: "If parsed selection is default, omit the native model parameter. Otherwise pass only the validated explicit opus, sonnet, haiku or fable alias. Preserve the same selection/persona/instruction on every debate round, retry and redispatch; never replace it with a preferred family. The shared shim checks role permission for every destination."
     max_turns: 5
     prompt: "{generated_prompt}"
     input_data:
@@ -1033,7 +1037,7 @@ advocate_instantiation:
       diff_analysis: "Full text of diff-analysis.md"
 
   mode_a_assignment:
-    rule: "One advocate per input file; agent spec defaults to current model if --agents not specified"
+    rule: "One advocate per input file; without --agents assign default per file and omit the native model parameter, using the role-permitted configured child default, not the current parent model. Preserve a supplied validated list unchanged."
     naming: "Advocate for Variant 1, Advocate for Variant 2, etc."
 
   mode_b_assignment:
@@ -1970,7 +1974,7 @@ merge_execution:
   dispatch:
     agent: "merge-executor (defined in agents/merge-executor.md)"
     via: "Task tool"
-    model: "opus or sonnet (highest available)"
+    model_selection: "Omit the native model parameter; use the role-permitted configured child default, never inherit the winning advocate's model. Preserve omission on retries and redispatch. No coordinator or merge model override flag is added."
     input:
       base_variant: "Full text of selected base variant"
       refactoring_plan: "Full text of refactor-plan.md"
@@ -2208,6 +2212,7 @@ mode_b_generation:
 
   parallel_dispatch:
     action: "For each agent spec, spawn Task agent to generate variant"
+    model_selection: "For default, omit the native model parameter; otherwise pass only the validated explicit opus, sonnet, haiku or fable alias. Never pass model: default, model: inherit or a backend ID. Preserve this choice on retries and redispatch. Selection labels do not prove served backend; shared shim rejects disallowed destinations."
     parallelism: "ALL agents dispatched simultaneously (true parallel)"
     per_agent:
       input:
@@ -2856,7 +2861,8 @@ blind_evaluation:
 
   stripping_rules:
     model_names:
-      patterns: ["opus", "haiku", "sonnet", "claude", "gpt", "gemini"]
+      patterns: ["default", "opus", "haiku", "sonnet", "fable", "claude", "gpt", "gemini"]
+      selection_scope: "For default, strip only selection metadata and filename labels, not ordinary prose uses of the word default. Keep variant number/persona identity distinct even when selections repeat."
       replacement: "variant-{N}"
       case_insensitive: true
 

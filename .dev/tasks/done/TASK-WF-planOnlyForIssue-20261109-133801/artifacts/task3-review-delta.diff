@@ -1,0 +1,164 @@
+diff --git a/src/superclaude/commands/brainstorm.md b/src/superclaude/commands/brainstorm.md
+index 39b142e05..4bd70ee39 100644
+--- a/src/superclaude/commands/brainstorm.md
++++ b/src/superclaude/commands/brainstorm.md
+@@ -106,13 +106,13 @@ Tavily research enrichment; architect/frontend/scribe personas; product-style re
+   --depth deep --proposals 5 --handoff tasklist
+ ```
+ 
+-Codebase + research enrichment; 5 proposals × 3 models; deep debate; merged requirements feed sc:tasklist invocation.
++Codebase + research enrichment; 5 proposals using the role-permitted configured default; deep debate; merged requirements feed sc:tasklist invocation.
+ 
+ ### Blind multi-model comparison
+ 
+ ```bash
+ /sc:brainstorm "consolidate three duplicate auth modules" \
+-  --depth deep --blind --proposals 4
++  --depth deep --blind --proposals 4 --models sonnet,haiku
+ ```
+ 
+ Strips model identity before adversarial scoring to prevent model-bias.
+@@ -165,7 +165,7 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
+ - Transform ambiguous topics into structured seed briefs via Socratic dialogue
+ - Orchestrate parallel proposal generation via `/sc:adversarial` (Mode B)
+ - Auto-detect and invoke codebase + research enrichment when valuable
+-- Compose model × persona agent-specs across 3 active aliases (opus/sonnet/haiku)
++- Compose persona agent-specs using the role-permitted configured default; rotate only an explicit --models list in its supplied order
+ - Hand off merged requirements to `/sc:design`, `/sc:tasklist`, or `/task-builder` (flag-gated)
+ - Produce a versioned return contract for composability with downstream commands
+ 
+@@ -174,7 +174,7 @@ The shared rules are in `~/.claude/WORKER-CONTRACT.md`; read it first. This sect
+ - Re-implement adversarial debate, scoring, or merge logic (delegated to `sc-adversarial-protocol`)
+ - Auto-invoke `/sc:design` (text recommendation only — design is dialogue-heavy)
+ - Modify source code or implement features (produces requirements only)
+-- Activate ANTHROPIC_DEFAULT_* env var swapping (uses 3 active aliases as-is)
++- Activate ANTHROPIC_DEFAULT_* env var swapping or invent a family rotation when --models is omitted
+ - Silently downgrade on missing handoff skills (STOPs and asks user to choose)
+ - Route empty/malformed adversarial responses to PARTIAL success (FAILs instead)
+ 
+diff --git a/tests/skills/test_native_model_defaults.py b/tests/skills/test_native_model_defaults.py
+deleted file mode 100644
+index 7fdbbed88..000000000
+--- a/tests/skills/test_native_model_defaults.py
++++ /dev/null
+@@ -1,77 +0,0 @@
+-"""Static selection contracts, not an executable parser or live dispatch test."""
+-
+-from pathlib import Path
+-
+-import pytest
+-
+-SRC = Path(__file__).resolve().parents[2] / "src/superclaude"
+-
+-
+-def _read(relative: str) -> str:
+-    return (SRC / relative).read_text(encoding="utf-8")
+-
+-
+-def _section(text: str, start: str, end: str) -> str:
+-    return text.split(start, 1)[1].split(end, 1)[0]
+-
+-
+-def test_builder_default_and_explicit_rotation_contract():
+-    text = _read("skills/sc-brainstorm-protocol/refs/agent-spec-builder.md")
+-    rotation = _section(text, "## §Model-Rotation", "## §Instruction-Templates")
+-    for literal in (
+-        "assign `default` to every selected persona",
+-        "quick, standard and deep",
+-        "Preserve list order and round-robin",
+-        "Depth never promotes or replaces",
+-        "explicit --models sonnet,haiku",
+-        "explicit --models default,opus",
+-    ):
+-        assert literal in rotation
+-    assert "Deep-depth override" not in rotation
+-    vectors = text.split("## §Round-Trip Test Vectors", 1)[1]
+-    assert "default:architect,default:refactorer" in vectors
+-    assert "opus:" not in vectors and "sonnet:" not in vectors
+-    assert "haiku:" not in vectors
+-    assert "Strip these characters" in text
+-    assert "auto_excluded_personas" in text
+-
+-
+-@pytest.mark.parametrize(
+-    "path,start,end",
+-    [
+-        ("skills/sc-brainstorm-protocol/refs/agent-spec-builder.md", "## §Validation", "## §Token-Budget"),
+-        ("skills/sc-adversarial-protocol/refs/agent-specs.md", "### Parsing Rules", "### Examples"),
+-        ("skills/sc-adversarial-protocol/SKILL.md", "    agent_spec_parsing:", "  step_4_common_flags:"),
+-    ],
+-)
+-def test_shared_quote_aware_grammar(path, start, end):
+-    grammar = _section(_read(path), start, end).lower()
+-    for literal in ("only outside", "single or double quotes", "default", "fable", "extra segments", "dangling escapes", "trailing text"):
+-        assert literal in grammar
+-    assert "decode once" in grammar
+-    assert "shell-execute" in grammar
+-
+-
+-def test_generation_consumes_marker_before_native_dispatch():
+-    text = _read("skills/sc-adversarial-protocol/SKILL.md")
+-    generation = text.split("### Mode B Variant Generation", 1)[1]
+-    assert "For default, omit the native model parameter" in generation
+-    assert "validated explicit opus, sonnet, haiku or fable alias" in generation
+-    assert "Preserve this choice on retries and redispatch" in generation
+-    assert "shared shim rejects disallowed destinations" in generation
+-    assert 'count_check: "2 ≤ agent_count ≤ 10"' in text
+-
+-
+-def test_command_surfaces_describe_protocol_marker_not_native_alias():
+-    brainstorm = _read("commands/brainstorm.md")
+-    row = next(line for line in brainstorm.splitlines() if line.startswith("| `--models`"))
+-    assert "`default` for every proposal" in row
+-    assert "without depth promotion" in row
+-    assert "omits the native model parameter" in row
+-    adversarial = _read("commands/adversarial.md")
+-    for section in (adversarial.split("### Arguments", 1)[1].split("## Options", 1)[0], adversarial.split("## Options", 1)[1]):
+-        assert "selection[:persona[:quoted-instruction]]" in section
+-        assert "single/double quotes" in section or "single or double quotes" in section
+-    protocol = _read("skills/sc-brainstorm-protocol/SKILL.md")
+-    assert "Coder workspaces no longer set these" not in protocol
+-    assert "not proof of a served backend or role permission" in protocol
+--- a/tests/skills/test_native_model_defaults.py
++++ b/tests/skills/test_native_model_defaults.py
+@@ -52,6 +52,40 @@
+     assert "shell-execute" in grammar
+ 
+ 
++def test_builder_serialization_preserves_default_and_escapes_once():
++    serialization = _section(
++        _read("skills/sc-brainstorm-protocol/refs/agent-spec-builder.md"),
++        "## §Serialization", "## §Validation",
++    )
++    assert r"Escape backslashes first (`\` becomes `\\`), then replace `'` in instructions with `\'`" in serialization
++    assert "Decode escapes once in the consumer, never through a shell" in serialization
++    assert "`default:architect`" in serialization
++    assert "default:architect:'prioritize maintainability'" in serialization
++
++
++def test_producer_serialization_and_final_output_contract():
++    text = _read("skills/sc-brainstorm-protocol/SKILL.md")
++    serialization = _section(text, "4. **Serialization with sanitization**", "5. **Token-budget pre-flight**")
++    assert "Wrap each instruction in single-quoted strings" in serialization
++    assert r"Escape backslashes first, then embedded single-quotes as `\'`" in serialization
++    assert "decode once in the consumer, never through a shell" in serialization
++    assert "Sanitize all interpolated parameters" in serialization
++    output = _section(text, "6. **Final output**", "**Dry-run gate**")
++    for selection in ("default:architect:", "default:refactorer:", "default:devops:"):
++        assert selection in output
++
++
++def test_command_examples_and_boundaries_do_not_imply_rotation():
++    text = _read("commands/brainstorm.md")
++    example = _section(text, "### Cross-domain redesign", "### Blind multi-model comparison")
++    assert "5 proposals using the role-permitted configured default" in example
++    boundaries = _section(text, "## Boundaries", "## Related Commands")
++    assert "rotate only an explicit --models list in its supplied order" in boundaries
++    assert "or invent a family rotation when --models is omitted" in boundaries
++    for stale in ("3 active aliases", "5 proposals × 3 models", "uses 3 active aliases"):
++        assert stale not in text
++
++
+ def test_generation_consumes_marker_before_native_dispatch():
+     text = _read("skills/sc-adversarial-protocol/SKILL.md")
+     generation = text.split("### Mode B Variant Generation", 1)[1]

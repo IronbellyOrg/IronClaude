@@ -572,38 +572,45 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def _post(self):
         length = int(self.headers.get("Content-Length", 0) or 0)
         body = self.rfile.read(length) if length else b""
-        # un-alias the model field on the way out
-        tier_name = ""
-        if body:
-            try:
-                obj = json.loads(body)
-                m = obj.get("model")
-                tier = (
-                    m[len(TIER_PREFIX) :]
-                    if isinstance(m, str) and m.startswith(TIER_PREFIX)
-                    else ""
-                )
-                if re.fullmatch(r"[0-9]{1,2}[a-z]?", tier):  # tier2, tier1a
-                    tier_name = f"tier{tier}"
-                elif isinstance(m, str) and m.startswith("claude-gw-"):
-                    with _lock:
-                        known = m in alias_to_real
-                    if not known:  # cold map: self-heal from upstream
-                        self._refresh_models()
-                    with _lock:
-                        real = alias_to_real.get(m)
-                    if real:
-                        obj["model"] = real
-                        body = json.dumps(obj).encode()
-                        audit(f"REQUEST  {self.path}  alias={m}  -> real={real}")
-                    else:
-                        audit(f"WARN  unknown alias {m} (not in upstream /v1/models)")
-            except (ValueError, TypeError):
-                tier_name = ""
-        if tier_name:
-            # Outside the parse guard: an error while routing must never send
-            # the request on again under its alias name.
-            return self._forward_tier(tier_name, obj)
+        try:
+            obj = json.loads(body) if body else None
+        except (ValueError, TypeError):
+            obj = None
+        if not isinstance(obj, dict) or "model" not in obj:
+            return self._proxy(body=body)
+        m = obj["model"]
+        guarded = model_data.tier_mode()
+        # Keep policy errors outside the JSON guard: never forward after denial.
+        try:
+            if guarded:
+                model_data.check_model_access(m)
+            bare = m.removesuffix("[1m]") if isinstance(m, str) else ""
+            tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", bare)
+            if tier:
+                return self._forward_tier(tier.group(1), obj)
+            if bare.startswith("claude-gw-"):
+                with _lock:
+                    known = bare in alias_to_real
+                if not known:
+                    self._refresh_models()
+                with _lock:
+                    real = alias_to_real.get(bare)
+                if real:
+                    if guarded:
+                        model_data.check_model_access(m, real)
+                    obj["model"] = real
+                    body = json.dumps(obj).encode()
+                    audit(f"REQUEST  {self.path}  alias={m}  -> real={real}")
+                else:
+                    if guarded:
+                        # An unresolved picker must qualify as a literal destination.
+                        model_data.check_model_access(m, bare)
+                    audit(f"WARN  unknown alias {m} (not in upstream /v1/models)")
+        except ValueError as exc:
+            audit(f"DENIED  {self.path}  model={m!r}: {exc}")
+            return self._send_error_json(
+                400, "invalid_request_error", f"ccsession: {exc}"
+            )
         return self._proxy(body=body)
 
     def _refresh_models(self):
@@ -740,6 +747,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 continue  # cannot hold this tier's context (spec section 6)
             if cooling_until(model):
                 continue
+            model_data.check_model_access(f"claude-gw-{name}", model)
             obj["model"] = model
             # Only a streamed request gets the start-of-reply limit.
             wait = FIRST_BYTE_TIMEOUT if obj.get("stream") else None

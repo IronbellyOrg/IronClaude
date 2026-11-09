@@ -1,0 +1,5 @@
+product_files= 25 unexpected= []
+new_checkout_reference_tokens= []
+changed_tool_or_permission_rosters= []
+forbidden_staged_paths= []
+SCOPE_OK; only enumerated delivery paths and task evidence staged

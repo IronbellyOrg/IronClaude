@@ -1,0 +1,13 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-462
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 31 items
+
+tests/skills/test_native_model_defaults.py ..............                [ 45%]
+tests/skills/test_brainstorm_protocol.py .....                           [ 61%]
+tests/commands/test_auggie_review_revagent.py ............               [100%]
+
+============================== 31 passed in 0.12s ==============================

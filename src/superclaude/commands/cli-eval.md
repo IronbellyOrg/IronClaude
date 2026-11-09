@@ -19,7 +19,7 @@ The first argument selects the pipeline (STOP if neither is given):
 ## Usage
 
 ```bash
-/sc:cli-eval create [--name <stem>] [--from @<design-or-spec>.md] [--agents opus,sonnet,haiku]
+/sc:cli-eval create [--name <stem>] [--from @<design-or-spec>.md] [--agents <spec>[,...]]
 /sc:cli-eval run    [--suite <name>] [--eval <id>]
 ```
 
@@ -34,7 +34,7 @@ underlying `superclaude eval` CLI — selection and monitoring are orchestration
 | `create` / `run` | — | — | Pipeline selector (positional `$1`, required) |
 | `--name` | create | derived | Snake_case stem for the new suite (`<stem>.yaml`, must equal `name:`) |
 | `--from` | create | — | Seed design/spec file (`@path`) for the critique + variant generation |
-| `--agents` | create | `opus,sonnet,haiku` | Advocate specs for adversarial variant generation |
+| `--agents` | create | `default,default,default` | Three designs using the role-permitted configured child default (native model omitted). An explicit selection/persona/instruction list is forwarded unchanged, in order. |
 | `--suite` | run | (menu) | Pre-select a suite by name; otherwise an interactive menu is shown |
 | `--eval` | run | (all) | Pre-select a single eval id to drill into / filter |
 | `--unattended` | both | off | Worker mode for a coordinator; applies only as a standalone argument token. Behaviour is in `## Unattended mode`; without it nothing changes |

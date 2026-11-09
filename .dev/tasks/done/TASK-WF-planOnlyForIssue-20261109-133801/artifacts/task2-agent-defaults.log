@@ -1,0 +1,35 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-462
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 30 items
+
+tests/commands/test_auggie_review_revagent.py ............               [ 40%]
+tests/skills/test_model_alias_policy.py .....F............               [100%]
+
+=================================== FAILURES ===================================
+______ test_eval_author_dispatch_omits_native_model_and_keeps_validation _______
+tests/skills/test_model_alias_policy.py:126: in test_eval_author_dispatch_omits_native_model_and_keeps_validation
+    assert "`superclaude eval describe --suite <stem>` returning loader exit 0" in (
+E   AssertionError: assert '`superclaude eval describe --suite <stem>` returning loader exit 0' in '---\nname: eval-suite-author\ndescription: Authors a cliEval suite manifest (suites/<stem>.yaml) plus any fixtures an...n- Declare done without a green `eval describe`.\n- Invent unsupported schema/flag surface or speculative callbacks.\n'
+E    +  where '---\nname: eval-suite-author\ndescription: Authors a cliEval suite manifest (suites/<stem>.yaml) plus any fixtures an...n- Declare done without a green `eval describe`.\n- Invent unsupported schema/flag surface or speculative callbacks.\n' = read_text(encoding='utf-8')
+E    +    where read_text = (PosixPath('/home/coder/workspaces/worktrees/IronClaude/issue-462/src/superclaude') / 'agents/eval-suite-author.md').read_text
+=========================== short test summary info ============================
+FAILED tests/skills/test_model_alias_policy.py::test_eval_author_dispatch_omits_native_model_and_keeps_validation
+========================= 1 failed, 29 passed in 2.42s =========================
+
+Rerun after correcting the assertion to the existing eval describe wording.
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-462
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 30 items
+
+tests/commands/test_auggie_review_revagent.py ............               [ 40%]
+tests/skills/test_model_alias_policy.py ..................               [100%]
+
+============================== 30 passed in 1.94s ==============================

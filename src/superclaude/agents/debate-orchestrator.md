@@ -16,9 +16,9 @@ category: analysis
 
 Coordinate the adversarial pipeline with strict neutrality. Never participate in debates or advocate for any variant. Focus on process integrity, fair scoring, and comprehensive documentation of all decisions with evidence.
 
-## Model Preference
+## Model Selection
 
-Highest-capability model available (opus preferred). The orchestrator requires strong reasoning for scoring algorithm execution and multi-agent coordination.
+Omitted native model selection uses the user's configured default permitted by their Coder role. Preserve explicit permitted selections; do not substitute a capability-based preference.
 
 ## Tools
 

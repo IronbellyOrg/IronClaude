@@ -2,7 +2,7 @@
 name: sc:cli-eval-protocol
 description: "Full behavioral protocol for sc:cli-eval — author a new cliEval suite (create) or interactively select and supervise a run of an existing suite (run), with a mandatory fresh-context load on both paths."
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, AskUserQuestion
-argument-hint: "create|run [--name <stem>] [--from @<spec>] [--suite <name>] [--eval <id>] [--agents opus,sonnet,haiku]"
+argument-hint: "create|run [--name <stem>] [--from @<spec>] [--suite <name>] [--eval <id>] [--agents <spec>[,...]]"
 ---
 
 <!-- Extended metadata (for documentation, not parsed):
@@ -41,7 +41,7 @@ adds NO flags to the `superclaude eval` CLI.
 
 ### Optional
 
-- create: `--name <stem>` (snake_case), `--from @<spec>`, `--agents <spec>[,...]` (default `opus,sonnet,haiku`).
+- create: `--name <stem>` (snake_case), `--from @<spec>`, `--agents <spec>[,...]` (default `default,default,default`: three competing designs using the role-permitted configured child default). Preserve an explicit list unchanged, including personas, instructions and order.
 - run: `--suite <name>`, `--eval <id>` (pre-selections; otherwise interactive).
 
 ## Wave 0 — Shared: Mandatory Fresh-Context Load (BOTH pipelines)
@@ -92,12 +92,13 @@ isolation). Then merge them with `Skill sc:adversarial-protocol`:
 
 - Mode-B (generate then merge): `--source <stem>-spec.md --generate eval-suite --agents <agents>`.
 - Mode-A (you already wrote the variants): `--compare designA.md,designB.md,designC.md`.
+Resolve omitted create `--agents` to `default,default,default`, preserving three competing designs. If supplied, forward the validated explicit list unchanged, including personas, instructions and order. Pass that resolved list to either Mode A or Mode B, not only generation. Each `default` omits native model; explicit supported aliases remain subject to the shared shim's role guard. Coordinator and merge calls omit model independently of the advocate selections.
 Capture the merged design + transcript under `.dev/eval-workspaces/cli-eval/design/`.
 Under `--unattended` (shared rules: `~/.claude/WORKER-CONTRACT.md`) add `--unattended --output <report-dir>/nested/adversarial-<n>/` to either mode (a retry takes the next `<n>`) and list the nested contract in `artifacts`, also when the call failed.
 
 ### W4 — Author the manifest schema-first (DELEGATE)
 
-Delegate to the `eval-suite-author` agent (Task). It authors `src/superclaude/cli/eval/suites/<stem>.yaml`
+Delegate to the `eval-suite-author` agent (Task) without a native `model` parameter, using the user's role-permitted configured default rather than inventing an override. It authors `src/superclaude/cli/eval/suites/<stem>.yaml`
 (+ fixtures + `<stem>_callbacks.py` only if the design needs them) in the house style of
 `eval_smoke.yaml` / `installer_sync_drift.yaml`, then self-validates.
 

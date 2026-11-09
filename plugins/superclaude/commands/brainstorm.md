@@ -34,7 +34,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
 /sc:brainstorm "<topic>" [--proposals N] [--depth quick|standard|deep] \
   [--strategy systematic|agile|enterprise|auto] \
   [--codebase|--no-codebase] [--research light|deep|none|--no-research] \
-  [--personas p1,p2,...] [--models opus,sonnet,haiku] \
+  [--personas p1,p2,...] [--models default|opus|sonnet|haiku|fable,...] \
   [--blind] [--convergence FLOAT] [--interactive] \
   [--handoff none|design|tasklist|task] [--output DIR] \
   [--dry-run] [--resume-from PATH] [--force-stale]
@@ -53,7 +53,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
 | `--research` | | auto | `light`, `deep`, `none` |
 | `--no-research` | | `false` | Skip research enrichment |
 | `--personas` | | auto | Comma-separated persona list overriding auto-detection |
-| `--models` | | `opus,sonnet,haiku` | Model alias list rotated across proposals |
+| `--models` | | `default` for every proposal | Explicit ordered list of `default`, `opus`, `sonnet`, `haiku`, `fable`, rotated without depth promotion. `default` omits the native model parameter. |
 | `--blind` | | `false` | Pass-through to `/sc:adversarial --blind` |
 | `--convergence` | | `0.75` | Pass-through to `/sc:adversarial --convergence` |
 | `--interactive` | `-i` | `false` | Pause for user input at Socratic + adversarial decision points |
@@ -78,7 +78,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
 /sc:brainstorm "add rate limiting to public API endpoints" --depth standard
 ```
 
-Auto: codebase enrichment via Auggie; 3 proposals across opus/sonnet/haiku with architect/refactorer/backend personas; adversarial debate + merge.
+Auto: codebase enrichment via Auggie; 3 proposals using the role-permitted configured default with architect/refactorer/backend personas; adversarial debate + merge. Explicit `--models opus,sonnet,haiku` requests that ordered rotation without depth promotion.
 
 ### Deep incident post-mortem
 
@@ -103,13 +103,13 @@ Tavily research enrichment; architect/frontend/scribe personas; product-style re
   --depth deep --proposals 5 --handoff tasklist
 ```
 
-Codebase + research enrichment; 5 proposals × 3 models; deep debate; merged requirements feed sc:tasklist invocation.
+Codebase + research enrichment; 5 proposals using the role-permitted configured default; deep debate; merged requirements feed sc:tasklist invocation.
 
 ### Blind multi-model comparison
 
 ```bash
 /sc:brainstorm "consolidate three duplicate auth modules" \
-  --depth deep --blind --proposals 4
+  --depth deep --blind --proposals 4 --models sonnet,haiku
 ```
 
 Strips model identity before adversarial scoring to prevent model-bias.
@@ -149,7 +149,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - Transform ambiguous topics into structured seed briefs via Socratic dialogue
 - Orchestrate parallel proposal generation via `/sc:adversarial` (Mode B)
 - Auto-detect and invoke codebase + research enrichment when valuable
-- Compose model × persona agent-specs across 3 active aliases (opus/sonnet/haiku)
+- Compose persona agent-specs using the role-permitted configured default; rotate only an explicit --models list in its supplied order
 - Hand off merged requirements to `/sc:design`, `/sc:tasklist`, or `/task-builder` (flag-gated)
 - Produce a versioned return contract for composability with downstream commands
 
@@ -158,7 +158,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - Re-implement adversarial debate, scoring, or merge logic (delegated to `sc-adversarial-protocol`)
 - Auto-invoke `/sc:design` (text recommendation only — design is dialogue-heavy)
 - Modify source code or implement features (produces requirements only)
-- Activate ANTHROPIC_DEFAULT_* env var swapping (uses 3 active aliases as-is)
+- Activate ANTHROPIC_DEFAULT_* env var swapping or invent a family rotation when --models is omitted
 - Silently downgrade on missing handoff skills (STOPs and asks user to choose)
 - Route empty/malformed adversarial responses to PARTIAL success (FAILs instead)
 

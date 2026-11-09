@@ -35,7 +35,7 @@ Orchestrate parallel brainstorming via:
 
 1. Socratic dialogue → structured seed brief
 2. Optional codebase + research enrichment (parallel, partial-OK)
-3. Composed agent-spec (3 active models × N personas)
+3. Composed agent-spec (configured default or explicit ordered selections × N personas)
 4. Delegation to `sc-adversarial-protocol` for parallel proposal generation + debate + merge
 5. Optional handoff to `/sc:design`, `/sc:tasklist`, or `/task-builder`
 
@@ -46,7 +46,7 @@ Orchestrate parallel brainstorming via:
 - Depth-tiered Socratic dialogue (quick/standard/deep)
 - Auto-detected domain classification driving persona selection
 - Parallel enrichment via `/sc:analyze`, `/sc:research`, `tech-research`
-- Model rotation across 3 active aliases (opus, sonnet, haiku)
+- Configured default selection, or explicit ordered alias rotation without depth promotion
 - Versioned return contract (stable + telemetry)
 - Token-budget pre-flight with auto-downgrade
 
@@ -101,7 +101,7 @@ Orchestrate parallel brainstorming via:
    - `deep` → max 7
    - Silent clamp on excess + INFO log: `"--proposals clamped to <N> by --depth <depth>"`
 3. Validate `--personas` (if provided): non-empty after trim. STOP on empty: `"--personas requires at least one persona or omit the flag for auto-detection."`
-4. Validate `--models` (if provided): non-empty after trim. STOP on empty similarly. Default model set: `opus, sonnet, haiku`.
+4. Validate `--models` (if provided): non-empty after trim, with no empty list entries. Accept only `default`, `opus`, `sonnet`, `haiku`, `fable`; STOP on any other value. When omitted, use `default` for every persona at every depth. This reserved protocol marker means omit the native model parameter, not a native alias.
 5. Verify `sc-adversarial-protocol` skill exists (Read tool) at `~/.claude/skills/sc-adversarial-protocol/SKILL.md` (installed) or `.claude/skills/sc-adversarial-protocol/SKILL.md` (project copy from `make sync-dev`); either satisfies the check. Record the path found, preferring the installed copy (Claude Code loads a personal skill over a project skill of the same name). STOP if neither exists: `"sc:adversarial skill not installed. Required by /sc:brainstorm v2. Install via: superclaude install"`
 6. **Skill version compatibility check**: Read first 30 lines of the `SKILL.md` found in step 5. Look for `version:` field. If present, require `>= 1.0.0`. If absent → assume compatible (legacy mode) + INFO log. If too low → STOP.
 7. **Handoff prereq validation** (no silent downgrade):
@@ -110,7 +110,7 @@ Orchestrate parallel brainstorming via:
    - Under `--unattended` this step is skipped: the `tasklist` and `task` handoffs are skipped in Wave 4, so their skills are not needed.
 8. Create output directory (default `.dev/brainstorms/<ts>-<slug>/`). If exists and non-empty, append `-N` suffix. Cap N at 99 (STOP on N=100); WARN at N≥10.
    - Under `--unattended`, a directory the caller passes (`--output` or `--report-dir`) is used exactly as passed: no `-N` suffix, and one that already holds a `return-contract.yaml` was refused before step 1.
-9. Validate model aliases: read env vars `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`. An unset variable is not an error: the alias resolves to Claude Code's built-in model for `opus`/`sonnet`/`haiku` (Coder workspaces no longer set these, Coder issue #270). If `--models` provided, validate each alias resolves to one of the known aliases.
+9. Keep requested selection separate from backend resolution. The supported explicit aliases are `opus`, `sonnet`, `haiku`, `fable`; `default` is a protocol marker consumed before native dispatch. Resolution depends on the active environment and native configuration. An alias or an unset environment variable is not proof of a served backend or role permission. The shared ccsession shim checks destinations; do not invent mappings or capability fallbacks.
 10. If `--strategy enterprise` and `--depth` not explicitly set → set `--depth deep` + INFO log.
 
 **Exit Criteria**: All prerequisites validated. Output dir ready. Emit: `"Wave 0 complete: prereqs validated. Models: <list>. Proposals: <N>. Depth: <D>. Output: <path>."`
@@ -222,10 +222,10 @@ Orchestrate parallel brainstorming via:
    - **Apply `§Auto-Exclusion`** (`refs/agent-spec-builder.md`): strip any `auto_excluded_personas` member (currently `security`) that is NOT present in an explicit `--personas` list, backfilling from the same priority list; emit one INFO per drop. This forbids a security lens unless the user explicitly names it.
    - Pad/truncate to `--proposals` count
 
-2. **Model rotation**:
-   - Read `--models` (default `opus,sonnet,haiku`)
-   - Round-robin assign: `(persona_i, model_(i mod len(models)))`
-   - For `--depth deep`: prefer `opus` for first 2 personas (typically analyzer + architect), then rotate
+2. **Model selection**:
+   - Omitted `--models`: assign `default` to every selected persona at quick, standard and deep depths.
+   - Explicit `--models`: preserve the validated list order; round-robin assign `(persona_i, models[i mod len(models)])`, including mixed default/explicit lists.
+   - Depth changes work depth only; never promote or replace a requested selection. `default` remains a protocol marker until native dispatch omits the model parameter.
 
 3. **Custom instructions** (optional, per-persona):
    - Pull templates from `refs/agent-spec-builder.md` §Instruction-Templates
@@ -234,8 +234,8 @@ Orchestrate parallel brainstorming via:
 4. **Serialization with sanitization** (mandatory):
    - Wrap each instruction in single-quoted strings
    - Sanitize all interpolated parameters (`{domain}`, `{strategy}`): strip `,`, `:`, `'`, `"`, and control characters before substitution
-   - Escape any embedded single-quotes in templates as `\'`
-   - Validate the final agent-spec string round-trips through the adversarial parser (per `refs/agent-spec-builder.md` §Validation): split on `,`, then on `:` (max 3 segments per agent, with the 3rd segment respecting single-quote boundaries)
+   - Escape backslashes first, then embedded single-quotes as `\'`; decode once in the consumer, never through a shell
+   - Validate the final agent-spec string round-trips through the adversarial parser (per `refs/agent-spec-builder.md` §Validation): commas and colons split only outside matching single or double quotes. Builder emits single quotes; the consumer also accepts legacy double quotes. Reject empty/extra segments, unmatched quotes, dangling escapes and trailing text after a closing quote.
    - If validation fails → STOP with `"Agent-spec serialization produced invalid output. This is a bug — please report. Spec: <serialized>"`
 
 5. **Token-budget pre-flight**:
@@ -249,7 +249,7 @@ Orchestrate parallel brainstorming via:
 6. **Final output**: validated agent-spec string. Example:
 
    ```
-   opus:architect:'prioritize maintainability and scaffolding',sonnet:refactorer:'focus on technical debt + minimal-risk transformation paths',haiku:devops:'deployment + observability'
+   default:architect:'prioritize maintainability and scaffolding',default:refactorer:'focus on technical debt + minimal-risk transformation paths',default:devops:'deployment + observability'
    ```
 
 **Dry-run gate**: If `--dry-run`:
@@ -259,7 +259,7 @@ Orchestrate parallel brainstorming via:
 - If `--handoff != none`: print `"Intended handoff: <value> (skipped in dry-run mode)."`
 - Skip Wave 3 + 4. Exit cleanly with partial return contract (`status: dry-run`).
 
-**Exit Criteria**: Validated agent-spec in state. Token budget pre-flight passed. Emit: `"Wave 2B complete: agent-spec composed (<Y> agents across <Z> models, ~<XK> tokens estimated)."`
+**Exit Criteria**: Validated agent-spec in state. Token budget pre-flight passed. Emit: `"Wave 2B complete: agent-spec composed (<Y> agents across <Z> requested selection labels, not observed backends, ~<XK> tokens estimated)."`
 
 ### Wave 3 — Adversarial Delegation
 
@@ -443,7 +443,7 @@ enrichment_artifact_sizes:
 
 - Orchestrate Socratic dialogue + enrichment + adversarial delegation + handoff
 - Compose validated, sanitized agent-spec strings for `/sc:adversarial`
-- Rotate across 3 active model aliases (opus, sonnet, haiku)
+- Use the configured default when --models is omitted; rotate only explicitly supplied selections without depth promotion
 - Auto-detect domain + strategy from topic when not specified
 - Produce versioned, two-block return contract for composability
 - FAIL fast on empty/malformed adversarial responses (no silent success)

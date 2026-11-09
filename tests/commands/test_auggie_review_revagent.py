@@ -73,7 +73,8 @@ def test_command_surface():
     assert "`--revagent` picks the request alias" in OPTION_ROW
     assert "`--auggie-model`" in OPTION_ROW
     assert "CLAUDE_CODE_SUBAGENT_MODEL_FORCE" in OPTION_ROW
-    assert "frontmatter model" in OPTION_ROW
+    assert "omit the native model parameter" in OPTION_ROW
+    assert "role-permitted configured default" in OPTION_ROW
 
 
 # --- invalid and missing values -------------------------------------------
@@ -155,15 +156,21 @@ def test_tool_coordination_names_only_the_reviewer_spawn():
 # --- omitted flag / default + audit -----------------------------------------
 
 
-def test_frontmatter_default_unchanged():
-    assert "model: opus" in AGENT.split("---")[1]
+def test_omitted_selection_reaches_configured_default():
+    assert not re.search(r"^model\s*:", AGENT.split("---")[1], re.MULTILINE)
+    assert "omit the native model parameter" in _bullet("Omitted →")
+    assert "CLAUDE_CODE_SUBAGENT_MODEL" in _bullet("Omitted →")
+    assert "role-permitted configured default" in STEP5
+    assert "rejects disallowed destinations" in STEP5
+    assert "frontmatter default applies" not in STEP5
 
 
 def test_audit_literals():
     header = _between(SKILL, "<!-- SC:AUGGIE-REVIEW:TARGET", "-->")
     assert "revagent: <opus|sonnet|haiku|fable|default>" in header
     audit_block = _between(SKILL, "## Audit\n", "8. Write")
-    assert "- Reviewer agent model: <value|frontmatter default>" in audit_block
+    assert "- Reviewer agent model: <value|configured default (model omitted)>" in audit_block
     step8 = _line(SKILL, "8. Write `<output-dir>/audit.log`")
     assert "model argument passed on each reviewer spawn" in step8
-    assert "`frontmatter`" in step8
+    assert "`default (model omitted)`" in step8
+    assert "not the served backend" in step8

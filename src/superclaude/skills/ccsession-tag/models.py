@@ -901,8 +901,86 @@ def in_my_tiers(model: str) -> bool:
     return bare in set(mine) | set(picker)
 
 
+def check_model_access(model: str, destination: str | None = None) -> None:
+    """Apply the launch policy to both a selector and its forwarding target."""
+    every, access = tier_access()  # Policy errors must reach the caller.
+    mine, picker = _my_models(every, access)
+    for index, value in enumerate((model, destination)):
+        if index and value is None:
+            continue
+        if not isinstance(value, str) or not _ID.fullmatch(value):
+            raise ValueError(f"invalid model name {value!r}")
+        bare = value.removesuffix("[1m]")
+        tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", bare)
+        if tier:
+            if tier.group(1) not in access["allowed"]:
+                raise ValueError(unavailable(tier.group(1), access))
+        elif access["allowed"] != access["defined"]:
+            permitted = set(mine) if index else set(mine) | set(picker)
+            if bare not in permitted:
+                raise ValueError(
+                    f"{bare} is not in a tier available to {access['user']} "
+                    f"(available: {', '.join(access['allowed'])})"
+                )
+
+
+def child_model_target(model: str) -> str:
+    """Resolve native family aliases only through the launcher's actual mapping."""
+    bare = model.removesuffix("[1m]")
+    if bare in ("opus", "sonnet", "haiku"):
+        target = os.environ.get(f"ANTHROPIC_DEFAULT_{bare.upper()}_MODEL", "")
+        if not target:
+            raise ValueError(f"no workspace mapping for child model {model!r}")
+        return target
+    return model
+
+
+def configured_model() -> str:
+    """The workspace env default, else the user's saved picker preference.
+
+    Project, managed and session settings are not the saved user preference.
+    """
+    value = os.environ.get("ANTHROPIC_MODEL", "")
+    if not value:
+        config = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude")
+        path = config / "settings.json"
+        try:
+            settings = json.loads(path.read_text())
+        except FileNotFoundError:
+            settings = {}
+        except (OSError, ValueError) as exc:
+            raise ValueError(f"cannot read saved model from {path}: {exc}") from exc
+        if not isinstance(settings, dict):
+            raise ValueError(f"{path} must contain a settings object")
+        value = settings.get("model", "")
+    if not isinstance(value, str) or not value:
+        return ""
+    every, access = tier_access()
+    try:
+        target = child_model_target(value)
+    except ValueError:
+        return ""  # An unmapped configured alias takes the role-start fallback.
+    mine, picker = _my_models(every, access)
+    bare = target.removesuffix("[1m]")
+    tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", bare)
+    if tier:
+        return target if tier.group(1) in access["allowed"] else ""
+    return target if bare in set(mine) | set(picker) else ""
+
+
 def main(argv) -> int:
     command = argv[1] if len(argv) > 1 else ""
+    if command in ("configured-model", "check-child-model"):
+        try:
+            if command == "configured-model":
+                print(configured_model())
+            else:
+                value = child_model_target(argv[2])
+                check_model_access(value)
+        except (ValueError, IndexError) as exc:
+            print(f"ccsession: {exc}", file=sys.stderr)
+            return 3
+        return 0
     if command == "refresh":
         wait = float(argv[3]) if len(argv) > 3 and argv[2] == "--wait" else 2.0
         status = refresh(wait)
@@ -942,33 +1020,23 @@ def main(argv) -> int:
             print(f"ccsession: {exc}", file=sys.stderr)
             return 3
         return 0
-    if command == "model-resolve" and len(argv) > 2:
+    if command in ("model-resolve", "child-resolve") and len(argv) > 2:
         model = argv[2]
         if not _ID.match(model):
             print(f"ccsession: invalid model name {model!r}", file=sys.stderr)
             return 3
         bare = model[: -len("[1m]")] if model.endswith("[1m]") else model
         try:
+            check_model_access(model)
             every, access = tier_access()
-            mine, picker = _my_models(every, access)
-            tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", bare)
-            if tier and tier.group(1) not in access["allowed"]:
-                raise ValueError(unavailable(tier.group(1), access))
+            _, picker = _my_models(every, access)
             # A -2 picker id takes its own model's window, not the default.
             window, where = model_window(picker.get(bare, model))
         except ValueError as exc:
             print(f"ccsession: {exc}", file=sys.stderr)
             return 3
-        # An owner limited to some tiers may name only those tiers' models.
-        if not tier and access["allowed"] != access["defined"]:
-            if bare not in set(mine) | set(picker):
-                print(
-                    f"ccsession: {bare} is not in a tier available to {access['user']} "
-                    f"(available: {', '.join(access['allowed'])})",
-                    file=sys.stderr,
-                )
-                return 3
-        _note_owner_unknown(access)
+        if command == "model-resolve":
+            _note_owner_unknown(access)
         if where.startswith("not in any tier"):
             print(
                 f"[ccsession] WARNING: {model} is {where}; using a {window} token window",

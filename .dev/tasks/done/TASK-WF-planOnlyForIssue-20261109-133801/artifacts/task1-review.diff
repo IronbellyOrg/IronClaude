@@ -1,0 +1,551 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-planOnlyForIssue-20261109-133801/artifacts/task1-default-boundary.md b/.dev/tasks/to-do/TASK-WF-planOnlyForIssue-20261109-133801/artifacts/task1-default-boundary.md
+new file mode 100644
+index 000000000..fea901ede
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-planOnlyForIssue-20261109-133801/artifacts/task1-default-boundary.md
+@@ -0,0 +1,50 @@
++# Task 1 default-boundary evidence
++
++Governing structure: Task 1 Acceptance criteria and Outputs in ../TASK-WF-planOnlyForIssue-20261109-133801.md. This is execution evidence, not an independent review.
++
++## Configured default and parent override (T1.AC1)
++Current local configuration inspection on 2026-11-09 read only the model field from /home/coder/.claude/settings.json and the named model environment fields. Observed output:
++
++```text
++user_settings=/home/coder/.claude/settings.json
++saved_model='claude-gw-tier1b[1m]'
++ANTHROPIC_MODEL=''
++CLAUDE_CONFIG_DIR=None
++CLAUDE_CODE_SUBAGENT_MODEL=None
++CLAUDE_CODE_SUBAGENT_MODEL_FORCE=None
++```
++
++This is a present-day configuration snapshot, not a historical launch snapshot or backend verification. It establishes that the saved user preference is separate from the workspace variable in this environment. The native user-settings file is a documented read source, not an unknown location.
++
++Initial intake, before product edits: the launcher read only the workspace variable before its role-start fallback and passed the parent profile as --model. Implementation now reads the workspace ANTHROPIC_MODEL, or, when empty, the documented saved user settings model. It validates that configured choice against the existing role resolver before parent-only arguments, binds the resolved choice through CLAUDE_CODE_SUBAGENT_MODEL, and then applies parent --model/--tier. No saved preference is written. The launch double captures the two selections separately.
++
++## Role fallback and policy precedence (T1.AC2)
++Implementation retains the existing username, matching-role and wildcard resolver and its role-start/default-tier fallback. Unavailable configured values take that fallback. Family aliases are validated through their actual workspace mappings, not their capability names. Deliberate valid child values and the administrative force variable are preserved; environment inherit is treated as unset. Applicable policy parse errors propagate rather than opening access.
++
++## Forwarding permissions (T1.AC3)
++Implementation extracts the model-resolve policy check into a shared guard. Generic shim POSTs check the original model before alias discovery, then the resolved destination before forwarding. Tier routing checks the concrete fallback destinations too. Parse errors from policy are handled outside the JSON parser guard. Local stand-in tests record model requests; no real model endpoint is exercised. Unrestricted-owner and no-tier routing remain bounded by the existing contract.
++
++## Regression coverage (T1.AC4)
++Added launch captures and runnable regressions for full-ID/tier configured defaults distinct from parent --model/--tier, saved picker settings at default and relocated paths, workspace-vs-saved precedence, valid and denied explicit children, force/inherit, suffixes, unavailable saved defaults, malformed settings and legacy operation. Added stand-in allowed/denied raw/picker/tier requests, malformed policy, shared allowed models and a resolved-destination guard check. Existing role precedence, fallover and stream cases remain in the same suite. Dependent Tasks 2-5 have not started.
++
++## Observed test output (T1.AC5)
++Initial command: `PYTHONDONTWRITEBYTECODE=1 uv run pytest tests/unit/test_ccsession_tiers.py -q`. Observed exit 1: 4 failed, 194 passed in 195.25s. Exact output is preserved in `task1-tests-initial.log`. One introduced regression printed the owner-unknown diagnostic twice because child and parent resolution each emitted it. Three failures came from new test expectations: picker alias normalization preserves decimal dots, and the fixture's tier2 primary is muse-spark-1.3. Corrections retain error reporting while emitting the owner diagnostic only on parent resolution, use the real picker spelling, and assert the actual tier primary. The initial run collected before the latest tests were added and source was edited during that run, so it is not final-tree verification.
++
++The initial UV run built the editable package and reported installing 27 packages in the local environment. No explicit installation command or global configuration change was performed. The stable-tree rerun uses `uv run --no-sync pytest tests/unit/test_ccsession_tiers.py -q`; its result is pending. Lint, formatting, launcher syntax and whitespace checks passed before that rerun. No real model endpoint or historical replay was exercised by these tests.
++
++## Supported source, compatibility and execution disposition (T1.AC6)
++Observed installed CLI: /usr/local/bin/claude, version output `2.1.319 (Claude Code)`. This exceeds the documented ordinary-precedence cutoff 2.1.251 and force-setting minimum 2.1.257. It establishes documented feature compatibility only, not an observed native child dispatch.
++
++Official sources read on 2026-11-09:
++
++- https://code.claude.com/docs/en/model-config: `/model` normally saves the `model` field in user settings. The shell ANTHROPIC_MODEL value and launch --model are session selections, not writes to that saved preference. Configuration precedence must not be invented from their names.
++- https://code.claude.com/docs/en/settings: user settings normally reside at ~/.claude/settings.json; CLAUDE_CONFIG_DIR can relocate them. Project/local/managed settings and --settings participate in native resolution. Worktree local settings can come from the main checkout. The page also names an Agent SDK resolveSettings helper; that is not an existing shell-launcher integration or an installed dependency established by this intake.
++- https://code.claude.com/docs/en/sub-agents: ordinary precedence is per-invocation model, frontmatter model, child environment default, then parent. Frontmatter inherit selects the parent; environment inherit behaves as unset. Administrative force changes precedence and must not be manufactured by this fix.
++
++The CLI --help inspection initially captured only 8192 characters through a pipe, ending mid-option. Its apparent absence of a Commands section was incomplete negative evidence, not proof that commands were absent. Repeating the same help-only invocation with a temporary-file stdout capture returned 22336 characters and a Commands section. Its listed commands contain no effective-model/settings resolution command. --settings and --setting-sources are inputs. This bounded help check does not prove that no other integration exists.
++
++The supported saved-default source is the user settings model field, read from CLAUDE_CONFIG_DIR/settings.json or HOME/.claude/settings.json. This integration deliberately reads the saved user preference, not the complete effective native session settings. Workspace ANTHROPIC_MODEL has its documented precedence; an unavailable value retains role fallback. Project/local/managed settings, caller --settings, account-native defaults and changes inside an already-running session are not re-resolved by this wrapper. The README states this ceiling, the minimum native versions, and the shim-local boundary. No SDK dependency, settings write, parent substitution or universal default was introduced. Actual installed CLI compatibility is documentation-based; no paid native child probe was run.
++
++Initial execution disposition: incomplete, 0/5 tasks complete. Correction after the user's challenge: the supposed retained prohibition on required review calls was an assistant interpretation error. The no-model wording came from assistant-authored planning inputs and applied to that planning run; the user's implementation authorization already permits required implementation reviews. No reviewer had been attempted or refused for this implementation. Existing verified-Tier1b/restricted-profile requirements and the prior actual nested-worker-depth refusal remain separate constraints. No independent verdict, retry, Ruling, FINAL or archive is claimed. Execution reuses the existing start snapshot.
++
++Resume prerequisite: establish the permitted independent reviewer route before claiming any task complete, and finish the documented native-default integration before dependent selector edits. Canonical source referenced above is src/superclaude/skills/ccsession-tag/ccsession. The planning contract and original historical diagnosis remain unchanged. Evidence and managed ledger are staged under .dev/tasks; .dev/issues and .claude are not staged by this run.
+diff --git a/src/superclaude/skills/ccsession-tag/README.md b/src/superclaude/skills/ccsession-tag/README.md
+index 9f3a85256..a779ec389 100644
+--- a/src/superclaude/skills/ccsession-tag/README.md
++++ b/src/superclaude/skills/ccsession-tag/README.md
+@@ -503,7 +503,26 @@ older ccsession, with the same one-line rule. Older copies ignore
+ `CCSESSION_ACCESS`: a `role:` or `*` entry there stops them for every named
+ owner, so put those in `CCSESSION_TIER_RULES` only.
+ 
+-The limit is advisory. It sets what ccsession offers by default, and the
++In tier mode the shim checks raw model IDs, picker aliases and tier aliases
++against the same role policy as the launcher, including an alias's resolved
++model. A denied request or malformed applicable policy is rejected before its
++model request reaches the gateway. Non-model endpoints are unchanged.
++
++The child default is the workspace's `ANTHROPIC_MODEL`, or, when that is empty,
++the saved user `model` in `settings.json`, validated against the allowed tiers.
++This reads the saved user preference, not Claude's complete effective session
++settings: project/local/managed settings, launch `--settings`, and in-session
++`/model` changes are not re-resolved. A new launch reads the saved preference
++again. An unreadable or malformed user settings file stops the tier launch.
++Native per-call and agent-frontmatter choices still override the child default,
++unless the administrator explicitly supplied the native force setting. Native
++environment `inherit` means unset; agent-frontmatter `inherit` still selects
++the parent. This requires ordinary native subagent precedence (Claude Code
++2.1.251 or later; force support starts at 2.1.257). Outside tier mode, native
++behavior is unchanged. These settings do not identify the backend that served
++a request, and do not refresh a running child's configured default.
++
++The limit is local to ccsession, not gateway-wide authorization. The
+ workspace owner can undo it from their own environment
+ (`CODER_WORKSPACE_OWNER_NAME`, `CODER_WORKSPACE_OWNER_ROLES`, `AIDEV_AI_DEFAULTS_PATH`, `CCSESSION_TIERS=0`)
+ or call a model directly with their gateway key. Only a gateway key limited to
+@@ -522,8 +541,9 @@ failure.
+ |---|---|
+ | `T<N>_WINDOW` (workspace env) | Tier context window; its presence turns tier mode on (`<N>` is a number with an optional letter, such as `1a`) |
+ | `T<N>Model0M`, `T<N>Model0M_WINDOW` (workspace env) | Tier models in order, and each model's own window (a backup smaller than the tier window is never used) |
+-| `ANTHROPIC_MODEL` (workspace env) | Default model when no `--tier` or `--model` is given, if it is a model of a tier you may use (same launch as `--model <that model>`); otherwise ignored and `CCSESSION_DEFAULT_TIER` applies |
+-| `CCSESSION_DEFAULT_TIER` (workspace env) | Tier used when no `--tier` or `--model` is given and `ANTHROPIC_MODEL` does not apply (`tier2` if unset) |
++| `ANTHROPIC_MODEL` (workspace env) | Configured default, before the saved user preference. If empty or absent, read `model` from `$CLAUDE_CONFIG_DIR/settings.json` (normally `~/.claude/settings.json`). A permitted tier alias or model in an allowed tier is used; an unavailable value falls back to the role start tier, then `CCSESSION_DEFAULT_TIER` |
++| `CLAUDE_CODE_SUBAGENT_MODEL` | In tier mode, ccsession binds omitted native child selections to the configured default before parent-only `--model`/`--tier` overrides. A valid deliberate child value is preserved; environment `inherit` acts as unset and gets the configured default. Family aliases are checked through their workspace mappings. `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` is preserved, never added |
++| `CCSESSION_DEFAULT_TIER` (workspace env) | Fallback when no configured model applies and no role start tier is set (`tier2` if unset) |
+ | `CCSESSION_TIER_RULES` (workspace env) | Per Coder username, Coder role, or everyone else: start tier, tiers offered, and `+models` (see Per-user tiers above) |
+ | `CCSESSION_MODEL_ORDER` (workspace env) | Order of the individual models in `/model` for a `+models` rule |
+ | `CCSESSION_ACCESS` (workspace env) | Older per-username form, read only when there is no `CCSESSION_TIER_RULES` line |
+diff --git a/src/superclaude/skills/ccsession-tag/ccsession b/src/superclaude/skills/ccsession-tag/ccsession
+index d53e399ca..35c26bc21 100755
+--- a/src/superclaude/skills/ccsession-tag/ccsession
++++ b/src/superclaude/skills/ccsession-tag/ccsession
+@@ -1197,13 +1197,30 @@ apply_tier_selection() {
+   unset ANTHROPIC_CUSTOM_MODEL_OPTION
+   unset ANTHROPIC_CUSTOM_MODEL_OPTION_NAME
+   unset ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION
+-  local what
+-  # No --model and no --tier: the workspace's own default model (ANTHROPIC_MODEL)
+-  # wins over the tier default, but only when it is in a tier this owner may
+-  # use; anything else leaves the tier default, silently.
+-  if [ -z "$MODEL_ARG" ] && [ -z "$TIER_ARG" ] && [ -n "${ANTHROPIC_MODEL:-}" ] \
+-    && python3 "$CCSESSION_MODELS" in-my-tiers "$ANTHROPIC_MODEL" 2>/dev/null; then
+-    MODEL_ARG="$ANTHROPIC_MODEL"
++  local what _configured _default_tier _child_settings _child_key _child_value
++  # Bind children before applying parent-only --model/--tier overrides.
++  _configured=$(python3 "$CCSESSION_MODELS" configured-model) || exit 2
++  if [ -z "$_configured" ]; then
++    _default_tier=$(python3 "$CCSESSION_MODELS" default-tier) || exit 2
++    _configured="claude-gw-${_default_tier}[1m]"
++  fi
++  if [ -n "${CLAUDE_CODE_SUBAGENT_MODEL:-}" ] && [ "$CLAUDE_CODE_SUBAGENT_MODEL" != inherit ]; then
++    python3 "$CCSESSION_MODELS" check-child-model "$CLAUDE_CODE_SUBAGENT_MODEL" || exit 2
++  else
++    # Environment inherit is native's unset spelling, not a saved preference.
++    _child_settings=$(python3 "$CCSESSION_MODELS" child-resolve "$_configured") || exit 2
++    while IFS='=' read -r _child_key _child_value; do
++      if [ "$_child_key" = PROFILE_MODEL ]; then
++        export CLAUDE_CODE_SUBAGENT_MODEL="$_child_value"
++      fi
++    done <<< "$_child_settings"
++  fi
++  if [ -z "$MODEL_ARG" ] && [ -z "$TIER_ARG" ]; then
++    if [ -n "${_default_tier:-}" ]; then
++      TIER_ARG="$_default_tier"
++    else
++      MODEL_ARG="$_configured"
++    fi
+   fi
+   if [ -n "$MODEL_ARG" ]; then
+     what="model $MODEL_ARG"
+diff --git a/src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py b/src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py
+index 38f961fc4..d9fd2f9d3 100755
+--- a/src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py
++++ b/src/superclaude/skills/ccsession-tag/local-gateway-alias-proxy.py
+@@ -572,38 +572,42 @@ class Handler(http.server.BaseHTTPRequestHandler):
+     def _post(self):
+         length = int(self.headers.get("Content-Length", 0) or 0)
+         body = self.rfile.read(length) if length else b""
+-        # un-alias the model field on the way out
+-        tier_name = ""
+-        if body:
+-            try:
+-                obj = json.loads(body)
+-                m = obj.get("model")
+-                tier = (
+-                    m[len(TIER_PREFIX) :]
+-                    if isinstance(m, str) and m.startswith(TIER_PREFIX)
+-                    else ""
+-                )
+-                if re.fullmatch(r"[0-9]{1,2}[a-z]?", tier):  # tier2, tier1a
+-                    tier_name = f"tier{tier}"
+-                elif isinstance(m, str) and m.startswith("claude-gw-"):
+-                    with _lock:
+-                        known = m in alias_to_real
+-                    if not known:  # cold map: self-heal from upstream
+-                        self._refresh_models()
+-                    with _lock:
+-                        real = alias_to_real.get(m)
+-                    if real:
+-                        obj["model"] = real
+-                        body = json.dumps(obj).encode()
+-                        audit(f"REQUEST  {self.path}  alias={m}  -> real={real}")
+-                    else:
+-                        audit(f"WARN  unknown alias {m} (not in upstream /v1/models)")
+-            except (ValueError, TypeError):
+-                tier_name = ""
+-        if tier_name:
+-            # Outside the parse guard: an error while routing must never send
+-            # the request on again under its alias name.
+-            return self._forward_tier(tier_name, obj)
++        try:
++            obj = json.loads(body) if body else None
++        except (ValueError, TypeError):
++            obj = None
++        if not isinstance(obj, dict) or "model" not in obj:
++            return self._proxy(body=body)
++        m = obj["model"]
++        guarded = model_data.tier_mode()
++        # Keep policy errors outside the JSON guard: never forward after denial.
++        try:
++            if guarded:
++                model_data.check_model_access(m)
++            bare = m.removesuffix("[1m]") if isinstance(m, str) else ""
++            tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", bare)
++            if tier:
++                return self._forward_tier(tier.group(1), obj)
++            if bare.startswith("claude-gw-"):
++                with _lock:
++                    known = bare in alias_to_real
++                if not known:
++                    self._refresh_models()
++                with _lock:
++                    real = alias_to_real.get(bare)
++                if real:
++                    if guarded:
++                        model_data.check_model_access(m, real)
++                    obj["model"] = real
++                    body = json.dumps(obj).encode()
++                    audit(f"REQUEST  {self.path}  alias={m}  -> real={real}")
++                else:
++                    audit(f"WARN  unknown alias {m} (not in upstream /v1/models)")
++        except ValueError as exc:
++            audit(f"DENIED  {self.path}  model={m!r}: {exc}")
++            return self._send_error_json(
++                400, "invalid_request_error", f"ccsession: {exc}"
++            )
+         return self._proxy(body=body)
+ 
+     def _refresh_models(self):
+@@ -740,6 +744,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
+                 continue  # cannot hold this tier's context (spec section 6)
+             if cooling_until(model):
+                 continue
++            model_data.check_model_access(f"claude-gw-{name}", model)
+             obj["model"] = model
+             # Only a streamed request gets the start-of-reply limit.
+             wait = FIRST_BYTE_TIMEOUT if obj.get("stream") else None
+diff --git a/src/superclaude/skills/ccsession-tag/models.py b/src/superclaude/skills/ccsession-tag/models.py
+index c7fb714e4..eaabea04a 100644
+--- a/src/superclaude/skills/ccsession-tag/models.py
++++ b/src/superclaude/skills/ccsession-tag/models.py
+@@ -901,8 +901,86 @@ def in_my_tiers(model: str) -> bool:
+     return bare in set(mine) | set(picker)
+ 
+ 
++def check_model_access(model: str, destination: str | None = None) -> None:
++    """Apply the launch policy to both a selector and its forwarding target."""
++    every, access = tier_access()  # Policy errors must reach the caller.
++    mine, picker = _my_models(every, access)
++    for index, value in enumerate((model, destination)):
++        if index and value is None:
++            continue
++        if not isinstance(value, str) or not _ID.fullmatch(value):
++            raise ValueError(f"invalid model name {value!r}")
++        bare = value.removesuffix("[1m]")
++        tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", bare)
++        if tier:
++            if tier.group(1) not in access["allowed"]:
++                raise ValueError(unavailable(tier.group(1), access))
++        elif access["allowed"] != access["defined"]:
++            permitted = set(mine) if index else set(mine) | set(picker)
++            if bare not in permitted:
++                raise ValueError(
++                    f"{bare} is not in a tier available to {access['user']} "
++                    f"(available: {', '.join(access['allowed'])})"
++                )
++
++
++def child_model_target(model: str) -> str:
++    """Resolve native family aliases only through the launcher's actual mapping."""
++    bare = model.removesuffix("[1m]")
++    if bare in ("opus", "sonnet", "haiku"):
++        target = os.environ.get(f"ANTHROPIC_DEFAULT_{bare.upper()}_MODEL", "")
++        if not target:
++            raise ValueError(f"no workspace mapping for child model {model!r}")
++        return target
++    return model
++
++
++def configured_model() -> str:
++    """The workspace env default, else the user's saved picker preference.
++
++    Project, managed and session settings are not the saved user preference.
++    """
++    value = os.environ.get("ANTHROPIC_MODEL", "")
++    if not value:
++        config = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude")
++        path = config / "settings.json"
++        try:
++            settings = json.loads(path.read_text())
++        except FileNotFoundError:
++            settings = {}
++        except (OSError, ValueError) as exc:
++            raise ValueError(f"cannot read saved model from {path}: {exc}") from exc
++        if not isinstance(settings, dict):
++            raise ValueError(f"{path} must contain a settings object")
++        value = settings.get("model", "")
++    if not isinstance(value, str) or not value:
++        return ""
++    every, access = tier_access()
++    try:
++        target = child_model_target(value)
++    except ValueError:
++        return ""  # An unmapped configured alias takes the role-start fallback.
++    mine, picker = _my_models(every, access)
++    bare = target.removesuffix("[1m]")
++    tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", bare)
++    if tier:
++        return target if tier.group(1) in access["allowed"] else ""
++    return target if bare in set(mine) | set(picker) else ""
++
++
+ def main(argv) -> int:
+     command = argv[1] if len(argv) > 1 else ""
++    if command in ("configured-model", "check-child-model"):
++        try:
++            if command == "configured-model":
++                print(configured_model())
++            else:
++                value = child_model_target(argv[2])
++                check_model_access(value)
++        except (ValueError, IndexError) as exc:
++            print(f"ccsession: {exc}", file=sys.stderr)
++            return 3
++        return 0
+     if command == "refresh":
+         wait = float(argv[3]) if len(argv) > 3 and argv[2] == "--wait" else 2.0
+         status = refresh(wait)
+@@ -942,33 +1020,23 @@ def main(argv) -> int:
+             print(f"ccsession: {exc}", file=sys.stderr)
+             return 3
+         return 0
+-    if command == "model-resolve" and len(argv) > 2:
++    if command in ("model-resolve", "child-resolve") and len(argv) > 2:
+         model = argv[2]
+         if not _ID.match(model):
+             print(f"ccsession: invalid model name {model!r}", file=sys.stderr)
+             return 3
+         bare = model[: -len("[1m]")] if model.endswith("[1m]") else model
+         try:
++            check_model_access(model)
+             every, access = tier_access()
+-            mine, picker = _my_models(every, access)
+-            tier = re.fullmatch(r"claude-gw-(tier[0-9]{1,2}[a-z]?)", bare)
+-            if tier and tier.group(1) not in access["allowed"]:
+-                raise ValueError(unavailable(tier.group(1), access))
++            _, picker = _my_models(every, access)
+             # A -2 picker id takes its own model's window, not the default.
+             window, where = model_window(picker.get(bare, model))
+         except ValueError as exc:
+             print(f"ccsession: {exc}", file=sys.stderr)
+             return 3
+-        # An owner limited to some tiers may name only those tiers' models.
+-        if not tier and access["allowed"] != access["defined"]:
+-            if bare not in set(mine) | set(picker):
+-                print(
+-                    f"ccsession: {bare} is not in a tier available to {access['user']} "
+-                    f"(available: {', '.join(access['allowed'])})",
+-                    file=sys.stderr,
+-                )
+-                return 3
+-        _note_owner_unknown(access)
++        if command == "model-resolve":
++            _note_owner_unknown(access)
+         if where.startswith("not in any tier"):
+             print(
+                 f"[ccsession] WARNING: {model} is {where}; using a {window} token window",
+diff --git a/tests/unit/test_ccsession_tiers.py b/tests/unit/test_ccsession_tiers.py
+index 6c35a4b3f..02cdde4ba 100644
+--- a/tests/unit/test_ccsession_tiers.py
++++ b/tests/unit/test_ccsession_tiers.py
+@@ -112,6 +112,9 @@ def _isolated(monkeypatch, tmp_path_factory):
+             monkeypatch.delenv(name)
+     for name in (
+         "ANTHROPIC_MODEL",
++        "CLAUDE_CONFIG_DIR",
++        "CLAUDE_CODE_SUBAGENT_MODEL",
++        "CLAUDE_CODE_SUBAGENT_MODEL_FORCE",
+         "CCSESSION_DEFAULT_TIER",
+         "CCSESSION_SHOW_ALL_MODELS",
+         "CCSESSION_TIERS",
+@@ -348,6 +351,8 @@ json.dump({
+     "opus_model": os.environ.get("ANTHROPIC_DEFAULT_OPUS_MODEL", ""),
+     "sonnet_model": os.environ.get("ANTHROPIC_DEFAULT_SONNET_MODEL", ""),
+     "haiku_model": os.environ.get("ANTHROPIC_DEFAULT_HAIKU_MODEL", ""),
++    "child_model": os.environ.get("CLAUDE_CODE_SUBAGENT_MODEL", ""),
++    "child_force": os.environ.get("CLAUDE_CODE_SUBAGENT_MODEL_FORCE", ""),
+ }, open(os.environ["SEEN_FILE"], "w"))
+ """
+     )
+@@ -3397,3 +3402,168 @@ def test_in_my_tiers_command_is_silent_and_exit_coded(tmp_path: Path) -> None:
+         proc = run(model)
+         assert proc.returncode == code, (model, proc.stderr)
+         assert proc.stdout == "" and proc.stderr == ""
++
++
++@pytest.mark.parametrize("parent", [("--model", "gpt-6-astra"), ("--tier", "tier0")])
++@pytest.mark.parametrize("configured", ["gpt-6.1-sol", "claude-gw-tier1b[1m]"])
++def test_configured_child_is_independent_of_parent(tmp_path, parent, configured):
++    rc, _, err, seen = _launch(tmp_path, "work", *parent, ANTHROPIC_MODEL=configured)
++    assert rc == 0, err
++    assert _model_arg(seen) == (
++        "gpt-6-astra" if parent[0] == "--model" else "claude-gw-tier0[1m]"
++    )
++    assert seen["child_model"] == configured
++    assert seen["child_force"] == ""
++
++
++@pytest.mark.parametrize("relocated", [False, True])
++def test_saved_picker_default_binds_child_before_parent_override(tmp_path, relocated):
++    config = tmp_path / ("custom-config" if relocated else "home/.claude")
++    config.mkdir(parents=True)
++    (config / "settings.json").write_text(json.dumps({"model": "claude-gw-tier1b[1m]"}))
++    extra = {"CLAUDE_CONFIG_DIR": str(config)} if relocated else {}
++    rc, _, err, seen = _launch(tmp_path, "work", "--tier", "tier0", **extra)
++    assert rc == 0, err
++    assert _model_arg(seen) == "claude-gw-tier0[1m]"
++    assert seen["child_model"] == "claude-gw-tier1b[1m]"
++    rc, _, err, seen = _launch(tmp_path, "work", **extra)
++    assert rc == 0, err
++    assert seen["child_model"] == _model_arg(seen) == "claude-gw-tier1b[1m]"
++    # Workspace env still takes its documented precedence over the saved value.
++    rc, _, err, seen = _launch(tmp_path, "work", ANTHROPIC_MODEL="gpt-6.1-sol", **extra)
++    assert rc == 0, err
++    assert seen["child_model"] == "gpt-6.1-sol"
++
++
++@pytest.mark.parametrize("child", ["gpt-6.1-sol[1m]", "sonnet", "inherit"])
++def test_explicit_child_and_force_are_not_replaced(tmp_path, child):
++    rc, _, err, seen = _launch(
++        tmp_path,
++        "work",
++        "--tier",
++        "tier0",
++        ANTHROPIC_MODEL="gpt-6.1-sol",
++        CLAUDE_CODE_SUBAGENT_MODEL=child,
++        CLAUDE_CODE_SUBAGENT_MODEL_FORCE="1",
++    )
++    assert rc == 0, err
++    assert seen["child_model"] == ("gpt-6.1-sol" if child == "inherit" else child)
++    assert seen["child_force"] == "1"
++
++
++@pytest.mark.parametrize(
++    "child", ["gpt-6-astra", "claude-gw-tier0[1m]", "opus", "bad name!"]
++)
++def test_unavailable_explicit_child_stops_launch(tmp_path, child):
++    rc, _, err, seen = _launch(
++        tmp_path,
++        "work",
++        defaults=ACCESS_BLOCK,
++        CODER_WORKSPACE_OWNER_NAME="bob",
++        CLAUDE_CODE_SUBAGENT_MODEL=child,
++        ANTHROPIC_DEFAULT_OPUS_MODEL="gpt-6-astra",
++    )
++    assert rc == 2 and seen is None
++    assert "ccsession:" in err
++
++
++def test_saved_unavailable_default_uses_role_start_and_legacy_is_untouched(tmp_path):
++    config = tmp_path / "home/.claude"
++    config.mkdir(parents=True)
++    (config / "settings.json").write_text('{"model":"claude-gw-tier0[1m]"}')
++    rc, _, err, seen = _launch(
++        tmp_path,
++        "work",
++        defaults=ACCESS_BLOCK,
++        CODER_WORKSPACE_OWNER_NAME="bob",
++    )
++    assert rc == 0, err
++    assert seen["child_model"] == _model_arg(seen) == "claude-gw-tier2[1m]"
++    rc, _, err, seen = _launch(
++        tmp_path, "work", defaults=None, CLAUDE_CODE_SUBAGENT_MODEL="inherit"
++    )
++    assert rc == 0, err
++    assert seen["child_model"] == "inherit" and "--model" not in seen["argv"]
++
++
++@pytest.mark.parametrize(
++    "model", ["gpt-6-astra", "claude-gw-gpt-6-astra", "claude-gw-tier0[1m]"]
++)
++def test_shim_denied_raw_picker_and_tier_never_forward(shim, model):
++    gateway, start, _ = shim
++    base = start(ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="bob")
++    status, body = _ask(base, model)
++    assert status == 400 and b"available" in body
++    assert gateway.calls == []
++
++
++@pytest.mark.parametrize(
++    "model,expected",
++    [
++        ("gpt-6.1-sol", "gpt-6.1-sol"),
++        ("claude-gw-gpt-6.1-sol", "gpt-6.1-sol"),
++        ("claude-gw-tier2[1m]", "muse-spark-1.3"),
++    ],
++)
++def test_shim_shared_allowed_models_reach_gateway(shim, model, expected):
++    gateway, start, _ = shim
++    base = start(ACCESS_BLOCK, CODER_WORKSPACE_OWNER_NAME="bob")
++    status, _ = _ask(base, model)
++    assert status == 200
++    assert gateway.models_called() == [expected]
++
++
++def test_shim_invalid_policy_never_forwards_raw_model(shim):
++    gateway, start, _ = shim
++    base = start(
++        TIER_BLOCK + 'export CCSESSION_TIER_RULES="bob=tier0:tier2"\n',
++        CODER_WORKSPACE_OWNER_NAME="bob",
++    )
++    status, _ = _ask(base, "gpt-6.1-sol")
++    assert status == 400 and gateway.calls == []
++
++
++def test_shared_guard_checks_resolved_destination(tmp_path, monkeypatch):
++    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, ACCESS_BLOCK)))
++    monkeypatch.setenv("CODER_WORKSPACE_OWNER_NAME", "bob")
++    models.check_model_access("claude-gw-gpt-6.1-sol", "gpt-6.1-sol")
++    with pytest.raises(ValueError, match="not in a tier available"):
++        models.check_model_access("claude-gw-gpt-6.1-sol", "gpt-6-astra")
++
++
++@pytest.mark.parametrize("contents", ["{", "[]"])
++def test_malformed_saved_settings_stops_tier_launch(tmp_path, contents):
++    config = tmp_path / "home/.claude"
++    config.mkdir(parents=True)
++    (config / "settings.json").write_text(contents)
++    rc, _, err, seen = _launch(tmp_path, "work")
++    assert rc == 2 and seen is None
++    assert "settings" in err
++
++
++def test_post_checks_alias_destination_and_preserves_non_model_body(
++    tmp_path, monkeypatch
++):
++    from io import BytesIO
++
++    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path, ACCESS_BLOCK)))
++    monkeypatch.setenv("CODER_WORKSPACE_OWNER_NAME", "bob")
++    module = runpy.run_path(str(SKILL_DIR / "local-gateway-alias-proxy.py"))
++    handler = object.__new__(module["Handler"])
++    handler.path = "/v1/messages"
++    forwarded = []
++    handler._proxy = lambda body: forwarded.append(body)
++    handler._send_error_json = lambda status, kind, text: (status, kind, text)
++    # A valid original picker ID must not authorize a different denied target.
++    module["alias_to_real"]["claude-gw-gpt-6.1-sol"] = "gpt-6-astra"
++    body = json.dumps({"model": "claude-gw-gpt-6.1-sol"}).encode()
++    handler.headers = {"Content-Length": str(len(body))}
++    handler.rfile = BytesIO(body)
++    result = handler._post()
++    assert result[0] == 400 and forwarded == []
++    handler.path = "/telemetry"
++    body = b'{"event":"local-only"}'
++    handler.headers = {"Content-Length": str(len(body))}
++    handler.rfile = BytesIO(body)
++    handler._post()
++    assert forwarded == [body]
