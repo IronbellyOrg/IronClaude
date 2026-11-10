@@ -233,7 +233,7 @@ budget: {tokens_max: 6.0e6, usd_max: 40}
 
 **R-ENG-4 Admission control and capacity.** Global limit `max_agents` (default 20, from config), reserve `R` (default 4) for coordinator/judge agents and exit lag; per-provider concurrency and rate limits; per-run limit. The launcher computes free capacity and starts *only* that many steps; unlaunched ready steps stay queued (never marked launched). Priority: finish in-flight runs before starting new ones; panel siblings start together when capacity allows. Policy: *maximise parallelism whenever there is no risk*, i.e. fill to `max_agents - R`.
 
-**R-ENG-5 Retries and losses.** A step that returns without output is relaunched once; a second failure marks the step lost; loss rules per step kind (a lost panel reviewer degrades the panel, two lost reviewers lose the run; a lost adjudicator is recorded and the run continues; anything else loses the run) are data in the arm. HTTP 429/5xx follow the swarm retry matrix. Lost runs stay in the denominator (reported, never silently dropped).
+**R-ENG-5 Retries and losses.** A step that returns without output is relaunched once; a second failure marks the step lost; loss rules per step kind (a lost panel reviewer degrades the panel, two lost reviewers lose the run; a lost adjudicator is recorded and the run continues; anything else loses the run) are data in the arm. HTTP 5xx follow the swarm retry matrix (one retry); the swarm matrix never retries 4xx or timeouts, so **429 backoff with jitter is new code** in the gateway backend (Part E). Lost runs stay in the denominator (reported, never silently dropped).
 
 **R-ENG-6 Sandboxing.** Every step gets `ws/` (copy of fixtures at the run's current spec), `home/` (private HOME with the exact rules file for that arm), and a prompt file; paths relative to the sandbox. Workers may only write their assigned output file; the engine checks for stray writes after each step and logs them.
 
@@ -311,7 +311,7 @@ Pre-registered unlock rule: allow Opus for a role only if it beats Sonnet by >= 
 
 ## B10. Automation and background operation
 
-- **R-AUT-1 Queue.** `superclaude eval lab enqueue <experiment.yaml>`; a persistent queue (file-backed, atomic) with priorities (drift checks > confirmations > screens), per-campaign budget, and dedupe by experiment hash.
+- **R-AUT-1 Queue.** `superclaude lab enqueue <experiment.yaml>`; a persistent queue (file-backed, atomic) with priorities (drift checks > confirmations > screens), per-campaign budget, and dedupe by experiment hash.
 - **R-AUT-2 Daemon/trigger modes.** `lab daemon` (long-running, systemd/tmux-friendly) and `lab tick` (one scheduling pass, suitable for the Claude Code scheduled-task triggers/cron). Both are safe to run concurrently with a lock; both resume interrupted runs.
 - **R-AUT-3 Model-release watcher.** A job compares the model catalog (`MODEL-TIERS.md`, gateway model list) with the last seen snapshot; for each new model that passes policy it generates candidate slot maps (swap one slot at a time, then best-pair combinations), enqueues screen experiments against the current best arm, and opens a report (no policy edits, no production changes).
 - **R-AUT-4 Component watcher / ablation generator.** When a component registry entry is added or its version changes, enqueue (a) one-at-a-time ablations, (b) pairwise combinations of components that passed screening; cap the combinatorial blow-up with a per-campaign arm limit and the promotion ladder.
@@ -332,24 +332,24 @@ Components are versioned, hash-pinned modules with a declared interface so arms 
 - **Reproduction bundle**: manifest + hashes + commands to rerun any cell.
 - Export JUnit/JSON for CI.
 
-## B13. CLI (proposed, as an `eval` sub-group so it inherits cliEval conventions and exit codes)
+## B13. CLI (proposed as a top-level `superclaude lab` group; see Part E for why it is not an `eval` sub-group)
 
 ```
-superclaude eval lab init <campaign>                 scaffold tasks/, arms/, slots/, experiments/
-superclaude eval lab validate                         schemas, hashes, policy (Fable ban, ceiling), DAG, lane map
-superclaude eval lab plan <experiment>                arms x tasks x n, forecast tokens/$ (lanes), min detectable effect
-superclaude eval lab run <experiment> [--env mock|live] [--max-agents N] [--dry-run]
-superclaude eval lab status [<experiment>]            runs, steps, capacity, quarantine (MANUAL) items
-superclaude eval lab fix-ids <run> <step> "<ids>"     explicit manual correction, logged
-superclaude eval lab score <experiment> [--ledger vN] blind ledger scoring, calibration subset
-superclaude eval lab report <experiment> | matrix     tables, Pareto, decisions
-superclaude eval lab ledger candidates|reconcile|add  ledger lifecycle
-superclaude eval lab judge-eval <role>                judge comparison on frozen inputs (B7.5)
-superclaude eval lab baseline check                   drift monitor
-superclaude eval lab enqueue|daemon|tick|watch        automation (B10)
-superclaude eval lab promote <experiment>             writes a promotion proposal; never edits production
+superclaude lab init <campaign>                 scaffold tasks/, arms/, slots/, experiments/
+superclaude lab validate                         schemas, hashes, policy (Fable ban, ceiling), DAG, lane map
+superclaude lab plan <experiment>                arms x tasks x n, forecast tokens/$ (lanes), min detectable effect
+superclaude lab run <experiment> [--env mock|live] [--max-agents N] [--dry-run]
+superclaude lab status [<experiment>]            runs, steps, capacity, quarantine (MANUAL) items
+superclaude lab fix-ids <run> <step> "<ids>"     explicit manual correction, logged
+superclaude lab score <experiment> [--ledger vN] blind ledger scoring, calibration subset
+superclaude lab report <experiment> | matrix     tables, Pareto, decisions
+superclaude lab ledger candidates|reconcile|add  ledger lifecycle
+superclaude lab judge-eval <role>                judge comparison on frozen inputs (B7.5)
+superclaude lab baseline check                   drift monitor
+superclaude lab enqueue|daemon|tick|watch        automation (B10)
+superclaude lab promote <experiment>             writes a promotion proposal; never edits production
 ```
-Exit codes follow the cliEval contract (0 ok, 1 hard failure, 2 blocked/needs capability).
+Exit codes: the cliEval table is a fixed four-value contract (0 ok, 1 failures, 2 usage/blocked, 3 interrupted) pinned by tests, so `lab` keeps those four meanings and adds none; BLOCKED maps onto 2 as the companion script already does, and quarantine/lost counts are reported in the summary, not in new exit codes (Part E, decision E4).
 
 ## B14. Storage layout
 
@@ -392,7 +392,7 @@ Golden replays (acceptance of the whole framework):
 | Phase | Scope | Mapping from existing code | Exit criteria |
 |---|---|---|---|
 | P0 | Schemas for task/arm/slots/experiment; policy validator; port frozen assets (audit command/rules, S1 task with ledger v1) | `p16/ab4/frozen`, `p17/ledger.json`, `MODEL-TIERS.md` | validate passes; Fable-ban test |
-| P1 | Engine: events/state, DAG, claude-process backend, capacity-aware launcher, retries, parser + quarantine | `p16/ab4/{harness,advance}.py`, `p18/ab5/advance.py` (AB_AGENT_CAP), cliEval runner/isolation | G3 on stub and real; property tests |
+| P1 | Engine: events/state, DAG, claude-process backend, capacity-aware launcher, retries, parser + quarantine | `p16/ab4/{harness,advance}.py`, `p18/ab5/advance.py` (AB_AGENT_CAP); library reuse of `pipeline/process.py:ClaudeProcess` and cliEval `HomeIsolation`/scratch/cancellation (Part E) | G3 on stub and real; property tests |
 | P2 | Instrumentation: tokens (output+input), lanes, dollars, reconciliation | `tokens_by_prompt*.py`, `p18/ab5` lane map | G2, reconciliation within 1% |
 | P3 | Scoring: ledger scorer, blinding, calibration, aggregate, stats, matrix | `p17/score/*`, `final_score.py`, `central/build_matrix.py` | G1 exact reproduction |
 | P4 | Automation: queue, `tick`/`daemon`, drift monitor, budgets, notifications | Claude Code scheduled tasks, `p18` monitor loops | G4 |
@@ -418,9 +418,9 @@ Rough effort: P0-P3 about 4-6 working sessions of focused implementation (mostly
 
 ## B19. Open questions
 
-1. Command surface: a sub-group `superclaude eval lab`, a new top-level `superclaude lab`, or a new suite kind inside cliEval? (Proposal here: sub-group; reuses loader, reporters, exit codes.)
+1. Command surface: resolved by Part E: a new top-level `superclaude lab` package that imports cliEval utilities as libraries (a sub-group would inherit the 15-worker clamp, the closed schemas, the id regex and the four-value exit table).
 2. Where does the ledger live and who may add to it: repo-committed, human-approved merges only, or automatic with a review queue?
-3. Which backend carries live non-Anthropic slots first: the proxy `openai_compat` transport, or Claude Code headless with a gateway model alias (does the gateway support tool use for those models)?
+3. Which backend carries live non-Anthropic slots first: the swarm `openai_compat` transport against the OpenAI-compatible proxy (no tools, inline-context mode), or `claude --model claude-gw-tier2` through `ClaudeProcess(env_vars=...)` against the Anthropic-protocol gateway (keeps tools and transcript accounting)? The assessment found these may be different endpoints; decide by probing the gateway before P5.
 4. Do task-execution loops (`/sc:implement`, `/sc:workflow`) join in P7 or get their own phase with a code-quality scorer (tests pass, spec adherence)?
 5. Dollar accounting for subscription models (Muse): report as unpriced, or assign an internal shadow price?
 6. Background operation host: the Claude Code scheduled tasks, a dedicated machine, or CI; and how much of the 20-agent session cap may be used by background work?
@@ -572,3 +572,59 @@ Objective: use the library to experiment with **spec templates**, iterating on t
 - Template changes that reduce defects by removing detail (shorter specs): report size-normalised density and check completeness against the source brief's requirement list (a requirement-coverage check, as in R-008/R-019 of the Jev ROI study).
 - Generator drift across model versions: pin the generator model per campaign and re-baseline on model release (B9).
 - Ledger circularity: template edits are derived from ledger classes; evaluate on specs and briefs the edits were not derived from.
+
+---
+
+# PART E: PORT ASSESSMENT AND DECISION (added 2026-11-10)
+
+Question: how much of what we built can be ported onto the existing `superclaude eval` harness, is there another harness in the project, and which is the better port target? Two independent code reviews were made (reports kept with the experiment record: `assess-cliEval.md`, `assess-other-harnesses.md`); every claim below was checked against the code by the reviewers with file:line citations.
+
+## E1. Harnesses found
+
+| Harness | What it is | Fit as host |
+|---|---|---|
+| `superclaude eval` / cliEval (`src/superclaude/cli/eval/`) | Flat, one-shot, pass/fail CLI-behaviour harness: YAML suites, per-eval isolated HOME, thread-pool orchestrator, markdown/JSON/YAML/JUnit reporters | Provides plumbing, not the framework's core. **Its production executor is a null stub** (`commands.py:1357-1404`; `suites/README.md` says "null lifecycle executor and unwired assertions"); `ClaudeProcessAdapter` is never constructed outside tests |
+| `scripts/eval_workflow_vs_task_builder.py` (companion, 2.5k lines, 64 tests) | The one real live model x effort matrix: `RestrictedProcess(ClaudeProcess)`, loopback `IngressRecorder`, soft `Budget`, hash-pinned `config_gate`, frozen rubric, blind judge packet, quote-verified scoring | Best template for hardened live runs and blind judging; serial, no resume, no token breakdown |
+| `src/superclaude/cli/swarm/` (16k lines, ~1,800 tests) | One prompt fanned to N models over an OpenAI-compatible proxy; `StubTransport` for CI; retry policy; resume | Good **transport library**, poor orchestrator: single-wave, no DAG, usage dropped, 5xx-only retry, guard tests ban scoring/judging code inside swarm |
+| `pipeline/process.py:ClaudeProcess`, `pipeline/executor.py`, `cli/sprint/` | The production `claude --print` child manager; static step lists; sprint has a topological wave scheduler (`scheduler.py`) and a fake-claude test shim | `ClaudeProcess` is the right process layer; sprint scheduler and fake claude are patterns only |
+| `scripts/eval_runner.py`, `eval_1/2/3.py`, `ab_test_workflows.py`, `.dev/eval-workspaces/*`, `recommend/eval_*` | Roadmap regression checks, a t-test script with no tests, copy-pasted per-skill graders | Not reusable; `ab_test_workflows.py` should be replaced (Student t-test, no multiple-comparison correction) |
+
+No other model-trial harness exists. The repo has no permutation test, Holm correction or minimum-detectable-effect code (`scipy>=1.10` is already a dependency).
+
+## E2. How much exists already (rough, by module and effort)
+
+| Source | Share of the framework | Notes |
+|---|---|---|
+| cliEval library parts (isolation, scratch root, cancellation, disk budget, reporters, loader pattern) | about 15-20% by module, 10-12% by effort | cheap plumbing; the expensive parts (DAG engine with resume, parser/quarantine, token+lane reconciliation, ledger and blind scoring, statistics, queue, watcher) are all new |
+| `ClaudeProcess`, swarm transports and retry, companion hardening (RestrictedProcess, Budget, config_gate, judge packet) | about 15% | consumed as libraries or extracted into shared modules |
+| The experiment tree (`ab4`/`ab5` harness and state machine, token matcher, lane map, ledger pipeline, scorer prompts, aggregate/stat code, matrix builder, keyscan, Jev adapter) | about 35-40% | working, exercised code, but written as scripts; porting means restructuring and adding tests, not new design |
+| New code | about 25-30% | DAG scheduler with admission control and reserve, event-sourced state, quarantine queue, policy validator, queue/daemon/watcher, permutation/Holm/MDE library, gateway usage capture and 429 backoff |
+So the plan's earlier "P0-P3 are mostly porting" holds only for porting **from the experiment tree**, not from cliEval. These percentages are judgments from the module-by-module tables, not measurements.
+
+## E3. Constraints that make cliEval a poor host (verified)
+
+- FR-G1 and ruff ban `anthropic` imports (`pyproject.toml:203-206`): all Claude steps are child `claude` processes; the gateway backend must use raw HTTP or a swarm transport.
+- Thread pool clamped to 1-15 (`orchestrator.py:143-145`), and `summary.schema.json` caps `parallel` at 15; the 20-agent target with a reserve does not fit.
+- Exit codes are a fixed four-value table pinned by tests (`exit_codes.py:21-24`).
+- `suite.schema.json` and `evalOutcome` are closed (`additionalProperties:false`): no `steps`, `slots`, lanes; eval ids must match `^[A-Z][A-Za-z0-9]*([0-9]+(\.[0-9]+)?)?$`, so ids like `ab5-full.R1.t1b` fail.
+- `ClaudeProcessAdapter.spawn` does a process-wide `os.chdir` (`claude_process.py:338-342`), unsafe under threads.
+- Each eval gets a fresh HOME with no OAuth login; only env credentials work.
+- Run output allowlist is `/tmp/eval-runs` and `.dev/eval-runs`; summary is written once at the end (a crash loses it); no resume.
+- Linux only.
+
+## E4. Decision
+
+1. **Do not make cliEval the host.** Build a new package `src/superclaude/cli/lab/` with its own click group `superclaude lab` (not `eval lab`), its own schemas (`lab/*.schema.json`), run store and exit-code mapping onto the existing four values. This avoids the clamp, the closed schemas, the id regex and the pinned exit-code tests.
+2. **Reuse cliEval as a library, not a framework:** import `HomeIsolation`, `containment_guard`, `resolve_scratch_root`, `CancellationToken`, `DiskBudgetPoller` and the `Reporter` renderers; do not fork them. Use `ClaudeProcess(cwd=...)` directly instead of `ClaudeProcessAdapter` (thread safety).
+3. **Process layer:** `pipeline/process.py:ClaudeProcess`, with `RestrictedProcess` hardening (stdin-timeout fix, reviewer profile without `--dangerously-skip-permissions`, loopback ingress recording, hash-pinned config gate) extracted from the companion into a shared module so the companion and lab both use it.
+4. **Gateway backend for non-Claude slots:** a `lab.backends.gateway` module that imports `OpenAICompatTransport`, `StubTransport` and `retry_policy` from swarm as a library (precedent: `reflect/ensemble.py`), adds usage capture (an additive `usage` field on `WorkerResult`) and 429 backoff, and keeps all stand-in, judge and scoring logic **outside** swarm (its guard tests forbid it). Probe whether `claude --model claude-gw-tier2` against the gateway is a better route (keeps tools and transcript accounting) before committing (B19.3).
+5. **Register lab with cliEval minimally:** one thin cliEval suite (`lab_selftest.yaml`) so `superclaude eval list` shows lab and a CI smoke run exists; real lab runs never go through the null executor. Fail closed if the executor is the null stub.
+6. **Statistics and matrix are new** modules in `lab/` (SciPy-based permutation tests, Holm, MDE); retire `scripts/ab_test_workflows.py` by replacement.
+7. **Port the experiment tree in this order** (maximises reuse of tested logic): token matcher and lane map; parsers with contamination guard; ledger scorer/aggregate/stat code with the G1 golden replay; state machine with the cap-aware launcher; component library.
+
+## E5. What this changes in the plan above
+
+- P1 builds on `ClaudeProcess` and extracted companion hardening, not on `RunOrchestrator`; the DAG scheduler references `sprint/scheduler.py` for topological waves but is new code.
+- P5 (gateway) starts with the swarm transport library plus the new usage field and 429 backoff, after the endpoint probe.
+- Acceptance G3 (16 agents) is only achievable in the new engine; cliEval's clamp never applies.
+- The effort estimate stays "P0-P3 about 4-6 focused sessions" only if the experiment tree is the porting source; building on cliEval would be slower, not faster.
