@@ -1,85 +1,77 @@
-# Revise 1: spec revision for the confirmed blocking findings
+# Revise 1 (REVISE prompt, document_review_loop_prompts.md)
 
-Prompt: REVISE prompt, `~/.claude/rules/prompts/document_review_loop_prompts.md:60-62` (sandbox home copy, read in full).
-Shared context: `.dev/orca-command-refactor/README.md:1-39` (read first).
-Candidate (revised in place): `.dev/orca-command-refactor/specs/orca-worker-contract-spec.md`
-Baseline for accounting: the candidate before this revision, sha256 `d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d` (identical copy at `vf1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md`, read for `diff`).
-Revised candidate: sha256 `bddecb0d53d012639197cb333a623b97ec5dd535120f7fee296fb97a980e41db`.
-IDS revised (from `review/round1.md:140` and `review/verify-1.md`, the verifier's `confirmed:` line): M2, M4, M7, M8, M9, M10.
-Not run: spec-panel (not requested). Verdict is not awarded here; the next review decides.
+candidate: .dev/orca-command-refactor/specs/orca-worker-contract-spec.md
+baseline sha256 (before revision): d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d (57763 bytes, 285 lines)
+revised sha256 (after revision): e28114855e5685eb7f3f2e2652a756ffaac57ed4c9ffb0b7423b91d78a8e8d19 (59705 bytes, 293 lines)
+prior report: .dev/orca-command-refactor/review/round1.md (review: 1 of 3, verdict FAIL)
+verifier reply: .dev/orca-command-refactor/review/verify-1.md
+blocking ids repaired (IDS): M3, M4, M6, M7, M8, M10
+
+Scope: only the confirmed blocking ids were repaired. Minor and Medium findings were left alone. The spec-panel was not run, and the candidate was not given a PASS.
 
 ## Byte accounting
 
-| | Bytes | Lines |
-|---|---|---|
-| Before | 57763 | 285 |
-| After | 60031 | 288 |
-| Net | +2268 | +3 |
+Byte counts are for each replaced span (old text deleted, new text added), measured in UTF-8 bytes. Edits that serve two ids are marked shared, and their full bytes are listed under both ids. The file total counts each shared edit once.
 
-Per finding id (added / deleted / net). A shared edit is counted once, under the shared label.
+Total: 1747 bytes deleted, 3689 bytes added, net +1942 (57763 to 59705). Check: 59705 - 57763 = 1942.
 
-| Id | Added | Deleted | Net | Where (spec line in revised file) |
+| Edit (spec location) | Deleted | Added | Net | Finding id(s) |
 |---|---|---|---|---|
-| M2 | 1003 | 557 | +446 | line 61 (WC-3) |
-| M4 (own edits) | 625 | 560 | +65 | line 83 (adversarial row), line 199 (AC-1.4) |
-| M4 + M9 (shared edit, counted once) | 886 | 492 | +394 | line 63 (WC-5 outcome rule), line 195 (AC-0.5 new row) |
-| M7 | 560 | 270 | +290 | line 172 (AC-C1) |
-| M8 | 684 | 512 | +172 | line 112 (load row, Report column), line 268 (load row in Decisions) |
-| M10 | 1984 | 1083 | +901 | line 92 (workflow row), line 105 (cli-portify row), line 116 (research row), line 200 (AC-1.5 new row), line 206 (AC-2.6 new row) |
-| Total | 5742 | 3474 | +2268 | |
+| §2.2 WC-4 field list and exception (spec:62) | 191 | 349 | +158 | M3 (verdict field), M8 (load exception); shared |
+| §2.2 WC-5 outcome mapping (spec:63) | 282 | 423 | +141 | M3 (gate on verdict), M4 (missing or unknown status); shared |
+| §2.2 WC-5 evidence cell (spec:63) | 14 | 32 | +18 | M3, M4; shared |
+| §3 intro, load exception (spec:76) | 80 | 154 | +74 | M8 |
+| §3.1 workflow row (spec:92) | 179 | 346 | +167 | M10 |
+| §3.1 adversarial row, filename fix (spec:83) | 77 | 112 | +35 | M4 |
+| §3.2 research row (spec:116) | 85 | 178 | +93 | M10 |
+| §3.2 cli-portify row (spec:105) | 60 | 112 | +52 | M10 |
+| §3.2 load row, Report cell (spec:112) | 36 | 46 | +10 | M8 |
+| §7.3 AC-0.4 (spec:194) | 180 | 535 | +355 | M6 |
+| §7.1 AC-C1 table row (spec:172) | 269 | 121 | -148 | M7 |
+| §7.1 AC-C1 block, self-test and grep outside the table (new, after spec:172) | 41 | 657 | +616 | M7 (the 41 deleted bytes are the §7.2 heading, which is re-emitted) |
+| §7.3 AC-1.1 (spec:195) | 97 | 120 | +23 | M8 |
+| §7.3 AC-1.4 (spec:198) | 100 | 137 | +37 | M4 |
+| §7.3 AC-1.5 (new row, spec:198a) | 15 | 233 | +218 | M10 (the 15 deleted bytes are the AC-2.1 row, re-emitted) |
+| §7.3 AC-2.3 (spec:201) | 41 | 134 | +93 | M10 |
 
-Check: 57763 + 2268 = 60031. Per-id added sum (1003 + 625 + 886 + 560 + 684 + 1984) = 5742; deleted sum (557 + 560 + 492 + 270 + 512 + 1083) = 3474.
+Per finding id, edits attributed to it (shared edits included in full):
 
-M9 has no bytes of its own; its only edits are the shared lines 63 and 195.
-
-## Edits
-
-- **M2, line 61 (WC-3).** The relay of a coordinator answer now applies only to a gate whose section 3 row names the flag that carries the answer, and the answer is passed verbatim as that flag. Safety and authorization gates never take a relayed answer: the implement Ruling (D2), post-release and pr-submit outward authorizations (D3, D4), cli-eval safety flags, and auggie-review posting (WC-9). They resolve as blocked, except that D2 option (b) still allows a relayed Ruling if the user chooses it. This also names the flag a free answer maps to (the section 3 row's flag), which the finding asked for. Ties to `spec:233-235` (D2) and `spec:245` (D4) in the revised file.
-- **M4 and M9, line 63 (WC-5).** `--outcome succeeded` now only when `status` is `succeeded` or `partial`. A FAIL audit still maps to succeeded, as before. Every other case maps to failed: `failed` or `blocked`, a missing, unparseable or out-of-set `status`, or no report. The "otherwise" rule is gone. Basis: WC-4's four-value set (`spec:62`) and the Orca rule "Never encode failure only in prose" (`inventory/orca-capabilities.md:73`).
-- **M4 and M9, line 195 (AC-0.5, new).** P0 check: a planted contract with `status: done`, with no `status`, and with `status: partial` (`uv run pytest tests/skills/test_worker_contract.py -q -k outcome`). `done` and missing must map to failed, and `partial` to succeeded. This is the planted invalid-status case M9 asked for.
-- **M4, line 83 (adversarial row).** The contract is written at `<output>/return-contract.yaml`, the WC-4 path. The subdirectory `<output>/adversarial/...` is removed, so section 3 and WC-4 name one path (`spec:62` against the old `spec:83`).
-- **M4, line 199 (AC-1.4).** The check now requires adversarial to name `<output-dir>/return-contract.yaml` with no subdirectory.
-- **M7, line 172 (AC-C1).** The alternation `\|` is gone: the pattern is now `\borca\b` with `grep -i`, which matches `orca`, `orca-ide` and `orca-cli`, and `orca status` as well as the four subcommands. Two excluded files are named by path: `src/superclaude/core/WORKER-CONTRACT.md` (SA-2 contract example) and `src/superclaude/core/HOW-WE-WORK.md` (SA-5 Orca section). A self-test line is added. Probe run in this sandbox (no file written): `printf 'orca orchestration worker-start\n' | grep -iE '\borca\b'` exits 0, and `orca-ide status --json` matches. The exclusion of the two core files is needed only so the corrected check does not flag text the spec permits; the rest of HOW-WE-WORK.md is not checked by AC-C1. The verifier's rejected point M5 is not actioned; that residual gap stays noted.
-- **M8, line 112 (load row, Report column).** Under `--unattended`, load writes a status-only contract (`status`, `command`, no `report_path`). WC-4 already allows `report_path` "if any". This is the first of the two options the finding offers (minimal contract); the exception option was not chosen, so WC-4 and AC-1.1 stay as written.
-- **M8, line 268 (Decisions, `/sc:load handling`).** The row now says why no report file is added: the contract is status-only, so WC-4 and AC-1.1 hold and the standalone path writes nothing new (SA-3). It no longer says a contract would be "unrequested".
-- **M10, line 92 (workflow row).** The brief adds `--output-dir <dir>` from P1. With that flag the contract goes to `<output-dir>/return-contract.yaml`. Until P1 the per-run `.dev/tasks/to-do/<id>/` path still applies, and the row says so, so P0's smoke run (`spec:158`, AC-0.4 at `spec:194`) is unchanged. Basis for the per-run path: `inventory/commands-b.md:52` and `:272` (`spec` cites them; read as cited).
-- **M10, line 105 (cli-portify row).** The contract goes to `<output-dir>/return-contract.yaml`; the file location is named, and a new `--output-dir` flag (SA-3) is added for unattended runs.
-- **M10, line 116 (research row).** The contract goes to `<output-dir>/return-contract.yaml`, and `--output-dir` is added as a new flag. The research file keeps its generated `claudedocs/research_*.md` path unless the flag is passed. Basis: `inventory/commands-b.md:38` and `:132`.
-- **M10, line 200 (AC-1.5, new).** A 7.2 live run of `/sc:workflow --handoff none --unattended --output-dir <dir>`, including a pre-creation STOP case. The check is that `worker_done --report-path` equals `<dir>/return-contract.yaml` and the file exists.
-- **M10, line 206 (AC-2.6, new).** The same check for `/sc:research` and `/sc:cli-portify`, both with `--unattended --output-dir <dir>`.
-
-Scope notes:
-- Section 3 counts (10 ready, 27 needing a change, 6 coordinator-only) are unchanged, because no row moved between sections. The counts do not add to the 43 commands in §3's intro (`spec:75`); that mismatch existed before this revision and is outside IDS, so it is left alone.
-- No new rule, section or mechanism was added beyond what the six confirmed findings call for. Every addition cites its finding id in the revised text.
-- Minor and Medium findings were not touched.
+| Finding id | Edits | Deleted | Added |
+|---|---|---|---|
+| M3 | WC-4 (shared with M8), WC-5 (shared with M4), WC-5 evidence (shared with M4) | 487 | 804 |
+| M4 | WC-5 (shared with M3), WC-5 evidence (shared with M3), adversarial row, AC-1.4 | 473 + 14 + 77 + 100 = 664 | 423 + 32 + 112 + 137 = 704 |
+| M6 | AC-0.4 | 180 | 535 |
+| M7 | AC-C1 row, AC-C1 block | 269 + 41 = 310 | 121 + 657 = 778 |
+| M8 | WC-4 (shared with M3), §3 intro, load row, AC-1.1 | 191 + 80 + 36 + 97 = 404 | 349 + 154 + 46 + 120 = 669 |
+| M10 | workflow row, research row, cli-portify row, AC-1.5 row, AC-2.3 | 179 + 85 + 60 + 15 + 41 = 380 | 346 + 178 + 112 + 233 + 134 = 1003 |
 
 ## Finding rows
 
-Applied (confirmed by `review/verify-1.md`, `confirmed: M2, M4, M7, M8, M9, M10`):
+Verdict column: applied = repaired in the candidate; noted = not revised, as the verifier rejected it (round1.md, "Noted, unactioned").
 
-| Id | Status | Applied where | Reason or evidence |
+| Id | Disposition | Where applied (spec line in the revised file) | Reason or cited basis |
 |---|---|---|---|
-| M2 | applied | spec line 61 (WC-3) | Relay limited to flag-carrying gates; safety and authorization gates excluded; D2(b) noted. `review/round1.md:16-23`; `review/verify-1.md` row M2. |
-| M4 | applied | spec line 83 (adversarial), line 63 (WC-5, shared), line 195 (AC-0.5, shared), line 199 (AC-1.4) | Missing or unknown `status` now maps to failed; adversarial uses the WC-4 path. `review/round1.md:25-38`; `review/verify-1.md` row M4. |
-| M7 | applied | spec line 172 (AC-C1) | Alternation removed (pattern is now `\borca\b`), self-test added, two core files excluded by name. `review/round1.md:40-53`; `review/verify-1.md` row M7 (probe). |
-| M8 | applied | spec line 112 (load row), line 268 (Decisions row) | Status-only contract under `--unattended`; WC-4, AC-1.1 unchanged. `review/round1.md:55-59`; `review/verify-1.md` row M8. |
-| M9 | applied | spec line 63 (WC-5, shared with M4), line 195 (AC-0.5, shared with M4) | Only `succeeded` and `partial` map to succeeded; planted invalid-status case added. `review/round1.md:61-65`; `review/verify-1.md` row M9. |
-| M10 | applied | spec line 92 (workflow), line 105 (cli-portify), line 116 (research), line 200 (AC-1.5), line 206 (AC-2.6) | Output flags and WC-4 paths for the three commands; path-match checks added. `review/round1.md:67-74`; `review/verify-1.md` row M10. |
+| M3 (M3.a) | applied | WC-4 (spec:62) adds the optional `verdict` field; WC-5 (spec:63) says an audit with verdict FAIL succeeds as a run and the coordinator gates dependent Tasks on `verdict`; §2.2 evidence cell (spec:63) notes the revision | round1.md M3.a. Basis for the field: the spec's own rule "Never encode failure only in prose" (`.dev/orca-command-refactor/inventory/orca-capabilities.md:73`, CAPS:73), and the WC-4 field list had no verdict (spec:62). CAPS:73 checked against the inventory file. |
+| M4 (M4.a) | applied | WC-5 (spec:63): `--outcome failed` when `status` is missing or not one of the four values; `--outcome succeeded` only for `succeeded` or `partial` | round1.md M4.a. The four-value rule is in WC-4 (spec:62). The fix also covers the M9 case (`done` or empty status) because "unknown" includes it. M9 itself stays noted. |
+| M4 (M4.b) | applied | §3.1 adversarial row (spec:83): filename becomes `<output>/return-contract.yaml`, the WC-4 path, when `--output` is passed; AC-1.4 (spec:198) names the WC-4 path | round1.md M4.b. The inventory names no contract filename for adversarial (`.dev/orca-command-refactor/inventory/commands-a.md:35`, INV-A:35), and the spec's WC-4 path is the one the coordinator reads. Choosing one rule, as the M4 recommendation asks. |
+| M6 (M6.a) | applied | AC-0.4 (spec:194): step 4 is replaced for P0 per command. workflow: `status` only, since no `command` key exists (`.dev/orca-command-refactor/inventory/commands-b.md:272`, INV-B:272 lists `status`, `plan_path`, `reflect_report_path`); troubleshoot: `test -s <dir>/REPORT.md` (the report is markdown, INV-B:49, per round1.md; not re-read here, UNVERIFIED in this run); adversarial: `test -s` on its existing contract. Step 3's path is the one the command writes today | round1.md M6.a and its recommendation. P0 cannot use the WC-4 path before P1. |
+| M7 (M7.a and M7.b) | applied | AC-C1 row (spec:172) now refers to the block below; the new block (spec:172a) holds the grep with `-E -i` and an unescaped `|` alternation, adds `status` to the subcommand list, keeps the ccsession-tag allowlist, and adds a self-test that must count 2 on a planted two-line sample | round1.md M7.a and M7.b. Verified in this run: the self-test prints 2 on the planted sample and 0 on `x`. The table cell turned `\|` into a literal pipe, so the pattern sits outside the table. The broad `\borca` form in M7.a was not adopted, because it would also match the Orca text SA-2 allows in the contract file (M5, noted). |
+| M8 (M8.a) | applied | WC-4 (spec:62) adds the `/sc:load` exception; §3 intro (spec:76) names the exception; §3.2 load row (spec:112) Report cell says "WC-4 exception"; AC-1.1 (spec:195) excludes `/sc:load` | round1.md M8.a, option 2 (name load as the exception). The load row already says no report file (`.dev/orca-command-refactor/inventory/commands-b.md:65`, INV-B:65: it "writes no file"); §9 decision row (spec:265) is unchanged and consistent with it. |
+| M10 (M10.a) | applied | §3.1 workflow row (spec:92): under `--unattended`, the contract goes to `<output-dir>/return-contract.yaml` from a new `--output <dir>` flag; standalone keeps the package path (SA-3). §3.2 research row (spec:116) and cli-portify row (spec:105): contract at `<output-dir>/return-contract.yaml` with an `--output <dir>` flag. AC-1.5 (new, spec:198a) and AC-2.3 (spec:201) check the path | round1.md M10.a. The inventory gives no output flag for workflow (`.dev/orca-command-refactor/inventory/commands-b.md:52`, INV-B:52: the contract is in the per-run package) or research (`.dev/orca-command-refactor/inventory/commands-b.md:38`, INV-B:38: the file name is generated). The chosen fix adds flags, which the M10 recommendation allows. The added flag is named in each changed row, so it stays traceable. |
+| M1 | noted, unactioned | not revised | Verifier rejected (verify-1.md; round1.md "Noted, unactioned"): the column header scopes both rows to unattended mode, which matches WC-11 (spec:69) and SA-1 (spec:146). Not a prior blocking finding for the next re-review. |
+| M2 | noted, unactioned | not revised | Verifier rejected (verify-1.md): the stated outcome (halt cleared) is blocked by the unchanged Ruling rule at spec:109 and spec:233; the candidate names no Ruling flag for implement. Not a prior blocking finding. |
+| M5 | noted, unactioned | not revised | Verifier rejected (verify-1.md): SA-2 (spec:147) permits Orca text in the contract file and SA-5 (spec:150) requires an Orca section, but neither requires an `orca <subcommand>` string, so AC-C1 failing needs an assumed example. Not a prior blocking finding. The revised AC-C1 (M7) still matches only the `orca <subcommand>` form. |
+| M9 | noted, unactioned | not revised (its case is covered by the M4 wording in WC-5, spec:63) | Verifier rejected (verify-1.md): the candidate does not state that a `done` or empty status is a failure. The M4 rule ("not one of the four values") covers that case as a side effect. The rule is not a separate addition and is not claimed as a verified M9 fix. |
+| M11 | noted, unactioned | not revised | Verifier rejected (verify-1.md): WC-6 (spec:64) already requires a fresh output directory for commands with no resume flag, so the stale-contract retry needs an implementer who violates WC-6, and the §2.3 premise is not in §2.3. Not a prior blocking finding. |
+| M12 | noted, unactioned | not revised | Verifier rejected (verify-1.md): the `--output` file-valued claim rests on `command.md:23,459-460` and `INV-B:43`, which are not in this workspace. Those citations are UNVERIFIED here. The spec-panel row (spec:120) is unchanged. |
 
-Noted, not confirmed (verifier rejected; not revised, not prior blocking findings, per the REVISE prompt and `review/verify-1.md`):
+## Checks run in this revision
 
-| Id | Status | Reason (verifier) |
-|---|---|---|
-| M1 | noted, unactioned | Both rows sit in the §3.2 column headed "Unattended-mode gate resolution (WC-2)", so they scope to `--unattended` (`review/verify-1.md` row M1). Not revised. |
-| M3 | noted, unactioned | The FAIL-audit-as-succeeded mapping is deliberate; its "wrong" reading depends on the UNVERIFIED Orca rule (`review/verify-1.md` row M3). Not revised. Note: my WC-5 edit keeps this mapping. |
-| M5 | noted, unactioned | The `\|` argument is void as written; the fix for AC-C1 touches the same row but this noted point is not actioned (`review/verify-1.md` row M5). The excluded core files in AC-C1 are a side effect of M7, not of M5. |
-| M6 | noted, unactioned | Depends on INV-B:272 field set, which is not in this sandbox (`review/verify-1.md` row M6). Not revised. |
-| M11 | noted, unactioned | The stale-contract attack needs the retry to reuse an output directory, which §2.3 does not say (`review/verify-1.md` row M11). Not revised. |
-| M12 | noted, unactioned | Depends on `command.md:23` and `:459-460`, not in this sandbox (`review/verify-1.md` row M12). Not revised. |
+- AC-C1 self-test pattern: planted sample `orca orchestration worker-start` and `orca-ide status --json` printed count 2; a non-matching line printed count 0.
+- Table rows edited for AC-C1, AC-1.5 and AC-2.3 keep their cell counts (3 cells for AC-C1 and 4 for the phase rows).
+- Citations used in this revision were checked against files in this workspace: spec lines, `commands-a.md:35`, `commands-b.md:38,52,65,272`, `orca-capabilities.md:73`. Not checked here and marked UNVERIFIED: `command.md:23,459-460`, `commands-b.md:43`, and the troubleshoot `REPORT.md` location in INV-B:49.
 
-Citations I could not check here (`inventory/*` and `review/*` are the only evidence I can read; command and skill files under `src/` are not in this sandbox): `skills/...` and `cmd/...` lines are carried from the inventories and are UNVERIFIED in this revision. The new spec text relies on `inventory/orca-capabilities.md:73` (checked: line 73 holds the "Never encode failure only in prose" quote) and `inventory/commands-b.md:38, 52, 132, 272` (checked: lines exist and match the cited rows).
+## Not done
 
-## Self-check
-- Each applied row above names only text the confirmed finding quotes or cites.
-- No minor or Medium finding was regraded or edited.
-- The candidate was not run through spec-panel, and no PASS is awarded.
+- No spec-panel or review was run. The verdict stays with the next re-review.
+- Nothing was committed or pushed.

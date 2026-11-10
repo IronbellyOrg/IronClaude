@@ -2,7 +2,7 @@
 
 Outcome: **INCONCLUSIVE**; rule: REJ = 0: the gate never acted (no effect observed)
 
-Cost: R_LOOP = 0.619 (decides; limit 1.42), R_B = 0.367 (reported only). Cost is judged post-hoc, after the runs completed.
+Cost: R_LOOP = 1.049 (decides; limit 1.42), R_B = 0.812 (reported only). Cost is judged post-hoc, after the runs completed.
 
 Baseline used: B_BLK 1.50, B_AUDFAIL 0.92, B_THEME 0.83 over 12 audits (audit-2 present: True).
 
@@ -14,8 +14,8 @@ Baseline used: B_BLK 1.50, B_AUDFAIL 0.92, B_THEME 0.83 over 12 audits (audit-2 
 | Mean reviews | 2.17 | 2.17 | report |
 | Mean fix cycles | 1.17 | 1.17 | report |
 | Mean growth % | +1.41 | +1.01 | report |
-| Mean LOOP (A) / R_LOOP | 100,424 / 1.00 | 62,202 / 0.619 | <= 1.42 |
-| Mean TOK (B) / R_B | 169,468 / 1.00 | 62,202 / 0.367 | report only |
+| Mean LOOP (A) / R_LOOP | 100,424 / 1.00 | 105,354 / 1.049 | <= 1.42 |
+| Mean TOK (B) / R_B | 169,468 / 1.00 | 137,576 / 0.812 | report only |
 | Audits PASS | 1/12 | 3/12 | report |
 | BLK_T pooled / audit 1 / audit 2 | 1.50 | 1.33 / 0.83 / 1.83 | ADOPT <= 1.0x; DROP-2 > 0.8x with cost; DROP-3 > 1.33x |
 | Audit FAIL rate / theme rate | 0.92 / 0.83 | 0.75 / 0.67 | report |
@@ -27,12 +27,12 @@ Replica agreement: audit-1-only INCONCLUSIVE, audit-2-only INCONCLUSIVE -> agree
 
 | run | loop end | reviews | fix cycles | growth % | LOOP | AUD tok | AUD verdict / blockers | AUD2 verdict / blockers |
 |---|---|---|---|---|---|---|---|---|
-| b2-r1 | PASS | 2 | 1 | +1.43 | 59,945 | 0 | FAIL B1 T2, B2 T2, B3 other | FAIL F-1 T2, F-2 T1 |
-| b2-r2 | PASS | 2 | 1 | +1.33 | 63,138 | 0 | FAIL B-1 T2 | FAIL F-01 T1 |
-| b2-r3 | PASS | 3 | 2 | +0.46 | 59,448 | 0 | PASS  | FAIL B1 T3, B2 T1 |
-| b2-r4 | PASS | 2 | 1 | +1.06 | 64,236 | 0 | PASS  | FAIL B1 T3, B2 T1 |
-| b2-r5 | PASS | 2 | 1 | +1.35 | 65,997 | 0 | PASS  | FAIL BL-1 T2 |
-| b2-r6 | PASS | 2 | 1 | +0.43 | 60,450 | 0 | FAIL R-1 other | FAIL F-1 T1, F-2 T3, F-3 T2 |
+| b2-r1 | PASS | 2 | 1 | +1.43 | 106,563 | 34,627 | FAIL B1 T2, B2 T2, B3 other | FAIL F-1 T2, F-2 T1 |
+| b2-r2 | PASS | 2 | 1 | +1.33 | 112,126 | 36,595 | FAIL B-1 T2 | FAIL F-01 T1 |
+| b2-r3 | PASS | 3 | 2 | +0.46 | 111,561 | 42,679 | PASS  | FAIL B1 T3, B2 T1 |
+| b2-r4 | PASS | 2 | 1 | +1.06 | 95,645 | 22,759 | PASS  | FAIL B1 T3, B2 T1 |
+| b2-r5 | PASS | 2 | 1 | +1.35 | 117,475 | 31,687 | PASS  | FAIL BL-1 T2 |
+| b2-r6 | PASS | 2 | 1 | +0.43 | 88,757 | 24,979 | FAIL R-1 other | FAIL F-1 T1, F-2 T3, F-3 T2 |
 
 ## Verifier table
 
@@ -103,4 +103,8 @@ Replica agreement: audit-1-only INCONCLUSIVE, audit-2-only INCONCLUSIVE -> agree
 | missing | n=4 complete of 4 | n/a | 1.88 | n/a | n/a | 3 | 2.62 | 10/28 | 0.75 / n/a | n/a |
 
 Haiku state: pending.
+
+## b1 (k=3 + verify), for information
+
+See /tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab1/metrics.json; the k ablation is analyzed in ab1.
 

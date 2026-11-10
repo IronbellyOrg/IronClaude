@@ -9,9 +9,34 @@ sources:
 - .dev/orca-command-refactor/review/round1-b.md verdict FAIL sha256 d770a778057aa434434aab1dbb9d9f774f1f3e52d51260ac27a521c9c5e3073a
 - .dev/orca-command-refactor/review/round1-c.md verdict FAIL sha256 5561a04cd50cd9a658af3789852cc46be36e6c534d725e72e73658d248072c52
 
-> verification (coordinator, VERIFY step VF1; verifier reply .dev/orca-command-refactor/review/verify-1.md): confirmed blocking ids: M2, M3, M5. Rejected, kept as noted, unactioned and not prior blocking findings for the next re-review: M1 (verifier: A section that names the contract can say load writes none, so AC-1.1 does not force a report file and 265 is not violated; the two texts do not contradict without the assumption that the section means a report. (M1.a, M1.b checked)); M4 (verifier: The claimed outcome (auggie-review or post-release still posts or installs after P1) is a phase-interim state of a phased plan, not a stated result; the text never says P1 ships the flag as live behavior, and the pr-submit/D3 part is the same issue as M5. (M4.a checked)). The Reviser brief below is narrowed to the confirmed ids.
+> verification (coordinator, VERIFY step VF1; verifier reply .dev/orca-command-refactor/review/verify-1.md): confirmed blocking ids: M1, M2, M3, M4, M5. Rejected, kept as noted, unactioned and not prior blocking findings for the next re-review: none. The Reviser brief below is narrowed to the confirmed ids.
 
 ## Blocking findings (merged, confirmed)
+
+### M1
+
+#### M1.a, from round1-a.md F1: F1 (blocking, Wiegers / Adzic): AC-1.1 requires a contract-naming `## Unattended mode` section on `/sc:load`, which the spec says gets no report
+- Texts that conflict:
+  - AC-1.1 (SPEC:195): the test "asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`".
+  - `/sc:load` is in section 3.2 and its Report cell is "none (see note)", Resume "n/a", and "use it as a step inside another worker's brief, not as its own Task" (SPEC:112).
+  - Decisions (SPEC:265): "a report file would be an unrequested addition".
+  - WC-4 (SPEC:62) makes the contract the thing an unattended command writes; P1 scope for load is "usage line only" (SPEC:159).
+- Grading sentence: An implementer who follows SPEC:112 and SPEC:265 gives `/sc:load` only a usage-line fix and no contract section, and that implementation fails AC-1.1 at SPEC:195. Following AC-1.1 instead makes the implementer add a contract-naming section to a command the spec says writes no report, which contradicts SPEC:265. Both builds are wrong because the spec says both are right.
+- Why blocking: two stated texts contradict, and an acceptance criterion cannot pass under the other text.
+
+#### M1.b, from round1-b.md B1: B1 (CRITICAL, blocking): `/sc:load` is both given no report and required to have one
+Experts: Wiegers (traceability), Adzic (testability). Priority High. Quality impact: Testability 3 to 8 once fixed.
+
+Grading sentence: an implementer who follows the stated text as written builds a `/sc:load` that satisfies the section 3.2 row (no report, "usage line only") and then fails AC-1.1; or builds the `## Unattended mode` section naming `return-contract.yaml` that AC-1.1 demands and breaks the row and the Decision. Either way the P1 acceptance check cannot pass without breaking another stated text.
+
+Conflicting texts:
+- SPEC:112: load row, Report (WC-4) = "none (see note)", resume "n/a", "use it as a step inside another worker's brief, not as its own Task", phase "P1 (usage line only)".
+- SPEC:265: Decision "`/sc:load` handling": "a report file would be an unrequested addition. Only its usage-line defect is fixed."
+- SPEC:76 and SPEC:159: every command in 3.2 gets the `## Unattended mode` section and accepts `--unattended` in P1.
+- SPEC:195 (AC-1.1): "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`".
+- Supporting inventory: INV-B:65 (load writes no file; if dispatched it would need a context-summary file).
+
+Recommendation (narrow, no new mechanism): in AC-1.1 and SPEC:76/159, exclude `/sc:load` explicitly (the same way section-4 commands are excluded), or move `/sc:load` into a list of "brief-step only" commands. Delete rather than add.
 
 ### M2
 
@@ -50,52 +75,7 @@ Conflicting texts:
 
 Recommendation: state one rule for where the contract goes when `--output` is a file (for example a separate directory flag, or the file's parent), and make SPEC:83 agree with WC-4 or state adversarial as the exception. Narrowing, not a new mechanism.
 
-### M5
-
-#### M5.a, from round1-c.md F1: F1 (blocking) - Wiegers, Cockburn - AC-1.1 contradicts D3(a), the P4 deferral and "Phases 1-3 need no user decision"
-Grading sentence: an implementer who follows the stated text as written builds a P1 that adds an `## Unattended mode` section, a `--unattended` flag and a passing test for `pr-submit`, `implement` and `post-release`, and that is wrong because the same document says those three commands' unattended behaviour waits for user decisions D2-D4 in P4, and under the recommended D3(a) pr-submit gets no change at all.
-
-Quoted texts:
-1. Spec:159 (P1 scope): "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)".
-2. Spec:195 (AC-1.1, a P1 check): "the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`, and that no section-4 command has one".
-3. Spec:154 and spec:225: "Phases 1-3 need no user decision; Phase 4 waits for answers to D2-D4."
-4. Spec:240 (D3(a), the recommendation): "no pr-submit changes in Phase 4"; spec:139: "`/sc:pr-submit` stays a worker candidate only if the user accepts open decision D3".
-5. Spec:109, spec:113, spec:114, spec:162: implement, post-release and pr-submit are rows of section 3.2 with phase P4 and gates that D2 to D4 decide.
-
-Attack (Whittaker, sequence attack): run the phases in the spec's order. After P1, AC-1.1 passes only if pr-submit, implement and post-release each carry the section. pr-submit has real gates (`--monitor 1` y/n, operator HALTs, `INV-B:34`, `INV-B:89`), so a "no-op" flag is not available for it (the text at 159 allows a no-op only "where a command has no gate"). Under D3(a) the section must not exist, so AC-1.1 fails by construction for the recommended path. Under D3(b) it is P4 work done in P1 before the user decided. Two stated texts contradict (AC-1.1 against D3(a) and against 154/225), and an acceptance criterion cannot pass on the recommended path.
-
-Evidence check: inventory confirms pr-submit has default-off gates only at `--monitor 1` and halts handed to "the operator" (`INV-B:89`), and implement's halt cannot be unblocked by another agent (`INV-A:66`; the Ruling rule at `refs/qa.md:238` is quoted in `commands-a.md` notes and is UNVERIFIED against the source here).
-
-Recommendation (narrow, no new rule): scope AC-1.1 and the P1 flag scope to the commands whose phase is P1-P3, and list pr-submit, implement and post-release as P4 only. Priority High.
-
-## Noted, unactioned (verifier rejected; not prior blocking findings)
-
-### M1 (verifier: A section that names the contract can say load writes none, so AC-1.1 does not force a report file and 265 is not violated; the two texts do not contradict without the assumption that the section means a report. (M1.a, M1.b checked))
-
-#### M1.a, from round1-a.md F1: F1 (blocking, Wiegers / Adzic): AC-1.1 requires a contract-naming `## Unattended mode` section on `/sc:load`, which the spec says gets no report
-- Texts that conflict:
-  - AC-1.1 (SPEC:195): the test "asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`".
-  - `/sc:load` is in section 3.2 and its Report cell is "none (see note)", Resume "n/a", and "use it as a step inside another worker's brief, not as its own Task" (SPEC:112).
-  - Decisions (SPEC:265): "a report file would be an unrequested addition".
-  - WC-4 (SPEC:62) makes the contract the thing an unattended command writes; P1 scope for load is "usage line only" (SPEC:159).
-- Grading sentence: An implementer who follows SPEC:112 and SPEC:265 gives `/sc:load` only a usage-line fix and no contract section, and that implementation fails AC-1.1 at SPEC:195. Following AC-1.1 instead makes the implementer add a contract-naming section to a command the spec says writes no report, which contradicts SPEC:265. Both builds are wrong because the spec says both are right.
-- Why blocking: two stated texts contradict, and an acceptance criterion cannot pass under the other text.
-
-#### M1.b, from round1-b.md B1: B1 (CRITICAL, blocking): `/sc:load` is both given no report and required to have one
-Experts: Wiegers (traceability), Adzic (testability). Priority High. Quality impact: Testability 3 to 8 once fixed.
-
-Grading sentence: an implementer who follows the stated text as written builds a `/sc:load` that satisfies the section 3.2 row (no report, "usage line only") and then fails AC-1.1; or builds the `## Unattended mode` section naming `return-contract.yaml` that AC-1.1 demands and breaks the row and the Decision. Either way the P1 acceptance check cannot pass without breaking another stated text.
-
-Conflicting texts:
-- SPEC:112: load row, Report (WC-4) = "none (see note)", resume "n/a", "use it as a step inside another worker's brief, not as its own Task", phase "P1 (usage line only)".
-- SPEC:265: Decision "`/sc:load` handling": "a report file would be an unrequested addition. Only its usage-line defect is fixed."
-- SPEC:76 and SPEC:159: every command in 3.2 gets the `## Unattended mode` section and accepts `--unattended` in P1.
-- SPEC:195 (AC-1.1): "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`".
-- Supporting inventory: INV-B:65 (load writes no file; if dispatched it would need a context-summary file).
-
-Recommendation (narrow, no new mechanism): in AC-1.1 and SPEC:76/159, exclude `/sc:load` explicitly (the same way section-4 commands are excluded), or move `/sc:load` into a list of "brief-step only" commands. Delete rather than add.
-
-### M4 (verifier: The claimed outcome (auggie-review or post-release still posts or installs after P1) is a phase-interim state of a phased plan, not a stated result; the text never says P1 ships the flag as live behavior, and the pr-submit/D3 part is the same issue as M5. (M4.a checked))
+### M4
 
 #### M4.a, from round1-b.md B3: B3 (CRITICAL, blocking): P1 makes `--unattended` accepted by every command, including those whose unattended gate behaviour arrives only in P2 or P4
 Experts: Wiegers (consistency), Nygard (what happens before the safety changes land). Priority High. Quality impact: Consistency.
@@ -147,13 +127,35 @@ Table complete: every guard is enumerated, every cell populated, omitted classes
 === FOLLOW-UP CANDIDATES (Medium and minor; never trigger a revision) ===
 Medium (warnings):
 
+### M5
+
+#### M5.a, from round1-c.md F1: F1 (blocking) - Wiegers, Cockburn - AC-1.1 contradicts D3(a), the P4 deferral and "Phases 1-3 need no user decision"
+Grading sentence: an implementer who follows the stated text as written builds a P1 that adds an `## Unattended mode` section, a `--unattended` flag and a passing test for `pr-submit`, `implement` and `post-release`, and that is wrong because the same document says those three commands' unattended behaviour waits for user decisions D2-D4 in P4, and under the recommended D3(a) pr-submit gets no change at all.
+
+Quoted texts:
+1. Spec:159 (P1 scope): "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)".
+2. Spec:195 (AC-1.1, a P1 check): "the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`, and that no section-4 command has one".
+3. Spec:154 and spec:225: "Phases 1-3 need no user decision; Phase 4 waits for answers to D2-D4."
+4. Spec:240 (D3(a), the recommendation): "no pr-submit changes in Phase 4"; spec:139: "`/sc:pr-submit` stays a worker candidate only if the user accepts open decision D3".
+5. Spec:109, spec:113, spec:114, spec:162: implement, post-release and pr-submit are rows of section 3.2 with phase P4 and gates that D2 to D4 decide.
+
+Attack (Whittaker, sequence attack): run the phases in the spec's order. After P1, AC-1.1 passes only if pr-submit, implement and post-release each carry the section. pr-submit has real gates (`--monitor 1` y/n, operator HALTs, `INV-B:34`, `INV-B:89`), so a "no-op" flag is not available for it (the text at 159 allows a no-op only "where a command has no gate"). Under D3(a) the section must not exist, so AC-1.1 fails by construction for the recommended path. Under D3(b) it is P4 work done in P1 before the user decided. Two stated texts contradict (AC-1.1 against D3(a) and against 154/225), and an acceptance criterion cannot pass on the recommended path.
+
+Evidence check: inventory confirms pr-submit has default-off gates only at `--monitor 1` and halts handed to "the operator" (`INV-B:89`), and implement's halt cannot be unblocked by another agent (`INV-A:66`; the Ruling rule at `refs/qa.md:238` is quoted in `commands-a.md` notes and is UNVERIFIED against the source here).
+
+Recommendation (narrow, no new rule): scope AC-1.1 and the P1 flag scope to the commands whose phase is P1-P3, and list pr-submit, implement and post-release as P4 only. Priority High.
+
+## Noted, unactioned (verifier rejected; not prior blocking findings)
+
+None.
+
 ## Follow-up candidates
 
 Listed in the three source reports above; not merged.
 
 ## Reviser brief
 
-Blocking finding ids: M2, M3, M5.
+Blocking finding ids: M1, M2, M3, M4, M5.
 Rules for the reviser (restating the Review Loop's Reviser contract): revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, with the bytes added and deleted per finding id.
 
 verdict: FAIL

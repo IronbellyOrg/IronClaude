@@ -76,7 +76,8 @@
     "bytes": 58573,
     "lines": 285,
     "sha256": "fd9020aeb88b0fd3aa673b34de70465e3d6d2d18a0ec0245de39c5d2383e536b"
-   }
+   },
+   "output_tokens": 38719
   },
   "G": {
    "output_exists": true,
@@ -98,7 +99,8 @@
      "theme": "T2",
      "heading": "### BLK-2 (CRITICAL, expert: Wiegers; Whittaker, divergence attack) - WC-4 and the adversarial row n"
     }
-   ]
+   ],
+   "output_tokens": 27996
   },
   "GV": {
    "output_exists": true,
@@ -108,7 +110,8 @@
     "bytes": 58669,
     "lines": 285,
     "sha256": "79f7d923a8aec892c0aa73658332d8e091d8ce46bc45e64a342ab24dea176c15"
-   }
+   },
+   "output_tokens": 7414
   },
   "GR": {
    "output_exists": true,
@@ -125,7 +128,8 @@
     "bytes": 58669,
     "lines": 285,
     "sha256": "79f7d923a8aec892c0aa73658332d8e091d8ce46bc45e64a342ab24dea176c15"
-   }
+   },
+   "output_tokens": 8512
   },
   "AUD": {
    "output_exists": true,
@@ -145,7 +149,8 @@
    ],
    "spec_audited": {
     "bytes": 58669
-   }
+   },
+   "output_tokens": 19975
   },
   "AUD2": {
    "output_exists": true,
@@ -165,7 +170,8 @@
    ],
    "spec_audited": {
     "bytes": 58669
-   }
+   },
+   "output_tokens": 31807
   }
  },
  "launched": {

@@ -1,64 +1,53 @@
-# Revise 2: REVISE prompt, IDS = B1
+# Revise 2: orca-worker-contract-spec.md
 
-Brief: `~/.claude/rules/prompts/document_review_loop_prompts.md` REVISE prompt (lines 60-62), read in full (lines 1-67). Candidate edited in place: `.dev/orca-command-refactor/specs/orca-worker-contract-spec.md`.
-Input report: `.dev/orca-command-refactor/review/round2.md` (`review: 2 of 3`, Reviser brief lists B1 only). Confirmed by `.dev/orca-command-refactor/review/verify-2.md` (`confirmed: B1`), which the brief names as the VERIFY reply.
-Inputs read: the candidate, `.dev/orca-command-refactor/README.md`, `.dev/orca-command-refactor/inventory/commands-b.md` (`:57-65` for `/sc:load`), and the candidate's sections 2.2, 3.2, 6, 7.3 and Decisions. `specs/history/spec-v1.md` was not edited and not needed.
-Not checkable here: `src/superclaude/commands/load.md` (cited as `cmd/load.md`). Its citations are carried from `commands-b.md` and are marked UNVERIFIED where they are only quoted there.
+Prompt: REVISE prompt, `~/.claude/rules/prompts/document_review_loop_prompts.md` (sandbox home copy).
+Input review: `.dev/orca-command-refactor/review/round2.md` (header `review: 2 of 3`, `verdict: FAIL`; Reviser brief at `round2.md:151-155`).
+Confirmed ids (VERIFY step VF2, `round2.md:2`): R2-1, R2-2. Out of scope and not touched: F-1 to F-9, the noted M-ids, and round-1 notes.
+Candidate edited in place: `.dev/orca-command-refactor/specs/orca-worker-contract-spec.md`.
+Verdict: not awarded here (the REVISE prompt does not award a PASS). The next step is a re-review (review 3 of 3).
 
-## Hashes and size
+## Byte accounting
 
-| Item | Value |
-|---|---|
-| Candidate sha256 before (`bddecb0d...`, as in `round2.md:6` and `verify-2.md`) | `bddecb0d53d012639197cb333a623b97ec5dd535120f7fee296fb97a980e41db` |
-| Candidate sha256 after | `d7bacfaaecc8fff9a059e1e70fe785b1e6c52aecb2a57c161ca8d51cdcb3aa3c` |
-| Size before | 60031 bytes, 288 lines |
-| Size after | 60339 bytes, 288 lines |
-| Net change | +308 bytes (added 643, deleted 335, from the four edits below; 643 - 335 = 308, matching the size change) |
+Measured on the candidate before and after this revision, with a byte count of the whole file.
 
-Line numbers did not move: the three edited rows stay at `spec:112`, `spec:159` and `spec:268`.
+| | Bytes | sha256 |
+|---|---|---|
+| Before (round-2 candidate) | 59705 | `e28114855e5685eb7f3f2e2652a756ffaac57ed4c9ffb0b7423b91d78a8e8d19` (matches `round2.md:8`) |
+| After (this revision) | 60552 | `530bb94dc36fffb71a0dd0f59ecf0aa60e32ab1c485bde6cfedea040d97adda7` |
+| Net | +847 | 294 lines before and after; six lines changed, no line added or removed |
 
-## Byte accounting per finding id
+Per finding id (bytes deleted and added, per changed spec line):
 
-| Id | Edit (location after revise) | Bytes deleted | Bytes added |
+| Finding | Spec line | Deleted | Added | Net |
+|---|---|---|---|---|
+| R2-1 | `:189` (step 3) | 0 | 103 | +103 |
+| R2-1 | `:201` (AC-0.4) | 87 | 485 | +398 |
+| R2-1 total | | 87 | 588 | +501 |
+| R2-2 | `:62` (WC-4) | 0 | 110 | +110 |
+| R2-2 | `:87` (init-lite row) | 0 | 77 | +77 |
+| R2-2 | `:90` (tdd row) | 0 | 77 | +77 |
+| R2-2 | `:208` (AC-2.2) | 0 | 82 | +82 |
+| R2-2 total | | 0 | 346 | +346 |
+| Sum | | 87 | 934 | +847 (equals 60552 - 59705) |
+
+The `:201` figures are the old sentence (87 bytes, `steps 1-3 and 5-7 pass, where step 3's report path is the one the command writes today.`) replaced by a 485-byte sentence.
+
+## Findings
+
+| Id | Status | Where applied | Reason and evidence |
 |---|---|---|---|
-| B1 | `specs/orca-worker-contract-spec.md:112`, load row, Unattended text | 102 | 162 |
-| B1 | `specs/orca-worker-contract-spec.md:112`, load row, Phase column | 41 | 71 |
-| B1 | `specs/orca-worker-contract-spec.md:159`, P1 row, load entry | 23 | 82 |
-| B1 | `specs/orca-worker-contract-spec.md:268`, Decisions row, `/sc:load` handling | 169 | 328 |
-| total | | 335 | 643 |
+| R2-1 | applied | `specs/orca-worker-contract-spec.md:201` (AC-0.4) and `:189` (step 3 of 7.2) | Round-2 defect: step 3 requires the `--outcome` to match the contract's `status` and the report path to be the WC-4 contract path, and no contract exists in P0 for `troubleshoot` (report `REPORT.md`, `:91`; `INV-B:242`) or `adversarial` (no filename or field list, `INV-A:35`). AC-0.4 now states the P0 rule. `workflow` keeps the WC-5 check on `status`, because it already writes `.dev/tasks/to-do/<id>/return-contract.yaml` with `status` (`INV-B:272`). For `troubleshoot` and `adversarial`, `--outcome succeeded` is sent exactly when the file step 4 checks is non-empty, and `failed` otherwise. That follows WC-5's "no report exists" branch (`:63`). Step 3 gets a one-sentence pointer to AC-0.4. |
+| R2-2 | applied | `specs/orca-worker-contract-spec.md:62` (WC-4), `:87` (init-lite row), `:90` (tdd row), `:208` (AC-2.2) | Round-2 defect: WC-4 defines `<output-dir>` as a directory (`:62`), but the tdd and init-lite rows name `--output <file>` (`:87`, `:90`). The fix follows the reviewer's second option, which names the contract location in the rows as M10 did for three other rows. For tdd and init-lite, the contract is `return-contract.yaml` in the directory containing the `--output` file. WC-4 now says so. AC-2.2 defines `<contract>` for the tdd gate run. The tdd file-valued claim is supported by `inventory/commands-b.md:47` ("TDD file at `--output`") and `:222`. |
 
-No other line changed. WC-4 (`spec:62`), AC-1.1 (`spec:196`) and the rest of section 3 are unchanged.
+## Decisions
 
-## Finding rows
+- **R2-2, init-lite file-valued claim is UNVERIFIED.** The spec row says `--output <file>` (`:87`), citing `cmd/init-lite.md:32`, which is not in this sandbox. `inventory/commands-a.md:55` says only "`--output`" with no type, citing C:32 and S:70. I applied the file reading because the reviewer and the spec both state it. If `src/superclaude/commands/init-lite.md:32` names a directory, the init-lite text added here is wrong and must be reversed by the next reviser. Marked UNVERIFIED.
+- **R2-2, option chosen.** I named the contract location in the rows (reviewer's second option) rather than adding a new directory flag to tdd and init-lite. A new flag would add a mechanism that no blocking finding calls for, which the REVISE brief forbids.
+- **R2-1, workflow and the other two commands treated separately.** The rule is kept deterministic and needs no field the inventory does not name.
 
-| Id | Disposition | Where | Reason (with cite) |
-|---|---|---|---|
-| B1 (= M8) | Applied | `spec:112` (load row), `spec:159` (P1 row), `spec:268` (Decisions row) | Chose option 1 of the round-2 Reviser brief, not option 2. Option 1 gives load a contract with `status`, `command` and `artifacts: []`, so the load row now meets WC-4 (`spec:62`, which lists `artifacts` without an "if any" qualifier). The P1 row now adds load's `## Unattended mode` section, so AC-1.1 (`spec:196`, which covers every command in 3.2 and load is in 3.2 at `spec:112`) can pass. The Decisions row (`spec:268`) now agrees with both. Option 2 (an exception in WC-4 and AC-1.1) would have edited two more texts that the finding does not name, so it was not used. The empty `artifacts` list needs no WC-4 change: the list covers "every other file written", and load writes none (`.dev/orca-command-refactor/inventory/commands-b.md:65`, "writes no file"). |
-| R2-1 | Not revised | none | Medium, outside IDS (`round2.md:88`). The brief says leave Medium and minor findings alone. |
-| R2-2 | Not revised | none | Medium, outside IDS (`round2.md:89`). |
-| R2-3 | Not revised | none | Medium, outside IDS (`round2.md:90`). |
-| R2-4 | Not revised | none | Medium, outside IDS (`round2.md:91`). |
-| R2-5 | Not revised | none | Medium, outside IDS (`round2.md:92`). |
-| R2-6 | Not revised | none | Minor note, outside IDS (`round2.md:93`). |
-| M2, M4, M7, M9, M10 | Not touched | none | Resolved in `round2.md:63-68`; not in IDS. |
-| M1, M3, M5, M6, M11, M12 | Not touched | none | Noted, unactioned (`round2.md:127-136`); not in IDS. |
+## Coverage and self-check
 
-## Self-check (fixed-string grep on the candidate)
-
-Each new text is found in the candidate, once per edited row:
-
-- `contract under \`--unattended\` with \`status\`, \`command\` and \`artifacts: []\``: `spec:112`
-- `P1 (usage line; \`## Unattended mode\` section) [B1]`: `spec:112`
-- `load (usage line, and the \`## Unattended mode\` section that AC-1.1 requires) [B1]`: `spec:159`
-- `writes a contract with \`status\`, \`command\` and \`artifacts: []\` and no report file [B1]`: `spec:268`
-- `because load writes no file (\`INV-B:65\`)`: `spec:268`
-
-The string `M8` no longer appears in the candidate (`grep -c` returns 0), so the old wording is gone from every edited row.
-
-## Observation for the coordinator (not a finding, not actioned)
-
-The load row now writes a contract under `--unattended`, but the same row says load is "not its own Task" and the inventory says it is "better used as a step inside a worker brief" (`commands-b.md:65`). A contract written by a step inside a brief has no coordinator reader. This is a small consistency point, not a conflict with the blocking text: WC-4 and AC-1.1 both hold. If the coordinator wants it closed, it is a Medium-grade item for the next panel, not this revise.
-
-## Verdict for this revise
-
-Revise completed for B1 only. No other blocking id was in the brief, so no other text was edited. This output is not a PASS: the next step is the re-review the loop prescribes, which the coordinator runs.
+- Changed lines were compared with `diff` against the pre-revision copy: exactly six lines differ (`:62`, `:87`, `:90`, `:189`, `:201`, `:208`). No other line changed.
+- Citations added: `inventory/commands-a.md:35` (adversarial row, "the skill names no filename", and the contract rule), `inventory/commands-b.md:272` (workflow contract with `status`), `inventory/commands-b.md:47` and `:222` (tdd `--output` is the TDD file), `inventory/commands-a.md:55` (init-lite `--output`, no type), `inventory/commands-b.md:242` (troubleshoot `report_path` = `REPORT.md`), and the spec's troubleshoot row at `specs/orca-worker-contract-spec.md:91`. The repo files `src/superclaude/commands/init-lite.md:32` and `src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md` are not in this sandbox and are cited only as the spec already cited them: UNVERIFIED.
+- Not checked: anything under `src/`, `plugins/`, `.claude/` or the Orca guides (UNVERIFIED).
+- No PASS is awarded. The next review is 3 of 3, and the REVISE brief's rules were followed: only the blocking text, no new rule or section, a finding id cited on every addition.

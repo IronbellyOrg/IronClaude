@@ -82,7 +82,8 @@
     "B-2"
    ],
    "rejected": {},
-   "parse_ok": true
+   "parse_ok": true,
+   "output_tokens": 3807
   },
   "V1": {
    "output_exists": true,
@@ -92,7 +93,8 @@
     "bytes": 58012,
     "lines": 285,
     "sha256": "89aa60a626c2210c7e3cd02a711923cbaf3990a333b6398f744d27073b0d61ba"
-   }
+   },
+   "output_tokens": 11839
   },
   "R2": {
    "output_exists": true,
@@ -113,7 +115,8 @@
     "bytes": 58012,
     "lines": 285,
     "sha256": "89aa60a626c2210c7e3cd02a711923cbaf3990a333b6398f744d27073b0d61ba"
-   }
+   },
+   "output_tokens": 12661
   },
   "AUD": {
    "output_exists": true,
@@ -134,7 +137,8 @@
      "theme": "other",
      "cited": []
     }
-   ]
+   ],
+   "output_tokens": 24979
   },
   "AUD2": {
    "output_exists": true,
@@ -207,7 +211,8 @@
       198
      ]
     }
-   ]
+   ],
+   "output_tokens": 29712
   }
  },
  "launched": {

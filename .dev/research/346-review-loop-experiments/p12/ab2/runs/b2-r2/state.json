@@ -112,7 +112,8 @@
     "bytes": 58534,
     "lines": 285,
     "sha256": "68ce70455b6b30e6a44dbd6460d0688443a0dcdfe80ef873cfa87d79d9501aee"
-   }
+   },
+   "output_tokens": 15014
   },
   "R2": {
    "output_exists": true,
@@ -135,7 +136,8 @@
     "bytes": 58534,
     "lines": 285,
     "sha256": "68ce70455b6b30e6a44dbd6460d0688443a0dcdfe80ef873cfa87d79d9501aee"
-   }
+   },
+   "output_tokens": 33974
   },
   "AUD": {
    "output_exists": true,
@@ -174,7 +176,8 @@
       234
      ]
     }
-   ]
+   ],
+   "output_tokens": 36595
   },
   "AUD2": {
    "output_exists": true,
@@ -207,7 +210,8 @@
       240
      ]
     }
-   ]
+   ],
+   "output_tokens": 28319
   }
  },
  "launched": {

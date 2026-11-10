@@ -1,0 +1,93 @@
+{
+ "stored baseline (Stage 2 a3)": {
+  "n_runs": 6,
+  "n_audits": 12,
+  "BLK": 1.5,
+  "sd": 0.67,
+  "p_vs_ref": 0.477
+ },
+ "FRESH baseline (a3, now)": {
+  "n_runs": 6,
+  "n_audits": 12,
+  "BLK": 1.167,
+  "sd": 0.72,
+  "p_vs_ref": null
+ },
+ "ab1 k=3 union+verify (replayed)": {
+  "n_runs": 6,
+  "n_audits": 12,
+  "BLK": 0.833,
+  "sd": 0.58,
+  "p_vs_ref": 0.38075
+ },
+ "ab2 verify gate k=1": {
+  "n_runs": 6,
+  "n_audits": 12,
+  "BLK": 1.333,
+  "sd": 1.07,
+  "p_vs_ref": 0.83625
+ },
+ "ab3 final gate": {
+  "n_runs": 6,
+  "n_audits": 12,
+  "BLK": 1.25,
+  "sd": 0.75,
+  "p_vs_ref": 1.0
+ },
+ "PN1 panel+merge+ledger": {
+  "n_runs": 6,
+  "n_audits": 12,
+  "BLK": 1.25,
+  "sd": 1.06,
+  "p_vs_ref": 1.0
+ },
+ "PN2 mechanical lint": {
+  "n_runs": 6,
+  "n_audits": 12,
+  "BLK": 1.333,
+  "sd": 0.98,
+  "p_vs_ref": 0.8292
+ },
+ "ab4 lint+k2(AC sweep)+verify": {
+  "n_runs": 6,
+  "n_audits": 12,
+  "BLK": 0.917,
+  "sd": 0.79,
+  "p_vs_ref": 0.6714
+ },
+ "HAIKU baseline": {
+  "n_runs": 6,
+  "n_audits": 12,
+  "BLK": 1.75,
+  "sd": 0.97,
+  "p_vs_ref": null
+ },
+ "HAIKU ab1": {
+  "n_runs": 4,
+  "n_audits": 8,
+  "BLK": 1.625,
+  "sd": 0.74,
+  "p_vs_ref": 0.82365
+ },
+ "HAIKU ab2": {
+  "n_runs": 4,
+  "n_audits": 8,
+  "BLK": 1.875,
+  "sd": 0.64,
+  "p_vs_ref": 0.82885
+ },
+ "HAIKU ab3": {
+  "n_runs": 4,
+  "n_audits": 8,
+  "BLK": 1.25,
+  "sd": 1.04,
+  "p_vs_ref": 0.46695
+ },
+ "HAIKU ab4": {
+  "n_runs": 4,
+  "n_audits": 8,
+  "BLK": 1.375,
+  "sd": 1.06,
+  "p_vs_ref": 0.5568
+ }
+}

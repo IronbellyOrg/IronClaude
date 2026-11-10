@@ -70,7 +70,8 @@
     "bytes": 57763,
     "lines": 285,
     "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
-   }
+   },
+   "output_tokens": 96122
   },
   "V1": {
    "output_exists": true,
@@ -80,7 +81,8 @@
     "bytes": 60216,
     "lines": 290,
     "sha256": "7f3af35e63f12d24d6eebc453c30497ba2705a10886e04c84b5f7497272961d3"
-   }
+   },
+   "output_tokens": 53727
   },
   "R2": {
    "output_exists": true,
@@ -107,7 +109,8 @@
     "bytes": 60216,
     "lines": 290,
     "sha256": "7f3af35e63f12d24d6eebc453c30497ba2705a10886e04c84b5f7497272961d3"
-   }
+   },
+   "output_tokens": 40699
   },
   "V2": {
    "output_exists": true,
@@ -117,7 +120,8 @@
     "bytes": 60408,
     "lines": 290,
     "sha256": "06cb4bcd39e29ea26abacd7521abf23c5e125f1cefda82fb1736f725a01d24b0"
-   }
+   },
+   "output_tokens": 14467
   },
   "R3": {
    "output_exists": true,
@@ -133,7 +137,8 @@
     "bytes": 60408,
     "lines": 290,
     "sha256": "06cb4bcd39e29ea26abacd7521abf23c5e125f1cefda82fb1736f725a01d24b0"
-   }
+   },
+   "output_tokens": 41773
   },
   "G": {
    "output_exists": true,
@@ -165,7 +170,8 @@
      "theme": "T2",
      "heading": "**RA-04 (blocking; requirements): section 5 says standalone behaviour does not change, and SA-3 name"
     }
-   ]
+   ],
+   "output_tokens": 72333
   },
   "GV": {
    "output_exists": true,
@@ -175,7 +181,8 @@
     "bytes": 60936,
     "lines": 290,
     "sha256": "d33b89a08efc2ef08e5a0449828d8b35251424cc7d54958dac98f929b1383529"
-   }
+   },
+   "output_tokens": 16616
   },
   "GR": {
    "output_exists": true,
@@ -198,7 +205,8 @@
     "bytes": 60936,
     "lines": 290,
     "sha256": "d33b89a08efc2ef08e5a0449828d8b35251424cc7d54958dac98f929b1383529"
-   }
+   },
+   "output_tokens": 46413
   },
   "AUD": {
    "output_exists": true,
@@ -228,7 +236,8 @@
    ],
    "spec_audited": {
     "bytes": 60936
-   }
+   },
+   "output_tokens": 46293
   },
   "AUD2": {
    "output_exists": true,
@@ -253,7 +262,8 @@
    ],
    "spec_audited": {
     "bytes": 60936
-   }
+   },
+   "output_tokens": 45303
   }
  },
  "launched": {

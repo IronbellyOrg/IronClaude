@@ -1,6 +1,6 @@
 # ab1 tables (n=6)
 
-Outcome: **INCONCLUSIVE** (no DROP and not a clear ADOPT); R_LOOP 1.221598754613771 (decides, limit 2.69), R_B 0.8989386393498083 (reported only)
+Outcome: **INCONCLUSIVE** (no DROP and not a clear ADOPT); R_LOOP 1.2163061950662524 (decides, limit 2.69), R_B 0.919978009614401 (reported only)
 
 Baseline: B_BLK 1.50, B_AUDFAIL 0.917, B_THEME 0.833 over 12 audits; 
 
@@ -10,10 +10,10 @@ Baseline: B_BLK 1.50, B_AUDFAIL 0.917, B_THEME 0.833 over 12 audits;
 |---|---|---|---|---|---|---|---|
 | b1-r1 | PASS | 3 / 5 | +2.91% | 107044 | [18986, 19002] | FAIL R-1:T3 | FAIL F-1:T3 |
 | b1-r2 | PASS | 3 / 5 | +1.59% | 130434 | [24650, 34332] | FAIL F-1:T2 | PASS  |
-| b1-r3 | PASS | 2 / 4 | +1.68% | 128029 | [22078, 33494] | FAIL F-1:T3 | PASS  |
-| b1-r4 | PASS | 2 / 4 | +0.82% | 105325 | [38062, 24743] | FAIL F-01:T1 | PASS  |
+| b1-r3 | PASS | 2 / 4 | +1.68% | 128971 | [22078, 33494] | FAIL F-1:T3 | PASS  |
+| b1-r4 | PASS | 2 / 4 | +1.02% | 113091 | [40520, 38959] | FAIL B-1:T2 | FAIL F-1:T2 |
 | b1-r5 | PASS | 2 / 4 | +1.43% | 118530 | [46127, 45374] | FAIL B-1:T3 | FAIL F-01:T1 |
-| b1-r6 | PASS | 3 / 5 | +1.12% | 146705 | [28078, 22494] | FAIL R-1:T2 | FAIL B-1:T2,B-2:T2 |
+| b1-r6 | PASS | 2 / 4 | +1.59% | 134808 | [50202, 25742] | PASS  | FAIL B-1:T3,B-2:other |
 
 ## Metrics (pooled over completed audits; replicas below)
 
@@ -22,23 +22,33 @@ Baseline: B_BLK 1.50, B_AUDFAIL 0.917, B_THEME 0.833 over 12 audits;
 - BLK_T: 0.8333333333333334
 - audit_fail: 9
 - theme_rate: 9
-- theme_counts: {'T1': 2, 'T2': 3, 'T3': 4, 'other': 0}
+- theme_counts: {'T1': 1, 'T2': 3, 'T3': 5, 'other': 1}
 - loop_pass: 6
-- growth: 0.01590118241781071
-- LOOP_T: 122677.83333333333
-- TOK_T: 152341.3333333333
-- R_LOOP: 1.221598754613771
-- R_B: 0.8989386393498083
-- REJ1: 6
+- growth: 0.01703512629191697
+- LOOP_T: 122146.33333333333
+- TOK_T: 155906.8333333333
+- R_LOOP: 1.2163061950662524
+- R_B: 0.919978009614401
+- REJ1: 3
 - N1: 33
-- REJ1_rate: 0.18181818181818182
-- replica audit 1 only: INCONCLUSIVE (BLK_T 1.0, no DROP and not a clear ADOPT)
-- replica audit 2 only: INCONCLUSIVE (BLK_T 0.6666666666666666, no DROP and not a clear ADOPT)
+- REJ1_rate: 0.09090909090909091
+- replica audit 1 only: INCONCLUSIVE (BLK_T 0.8333333333333334, no DROP and not a clear ADOPT)
+- replica audit 2 only: INCONCLUSIVE (BLK_T 0.8333333333333334, no DROP and not a clear ADOPT)
 
 ## Haiku stratum (never pooled)
 
 {
- "state": "pending"
+ "state": "ok",
+ "BLK_TH": 1.625,
+ "H_BLK": 1.75,
+ "HR": 0.9285714285714286,
+ "one_minus_HR": 0.0714285714285714,
+ "fail_rate": 0.0,
+ "H_fail_rate": 0.17,
+ "loop_pass": 3,
+ "n_done": 4,
+ "growth": 0.04744386545020168,
+ "R_LOOP_H": 2.5333539117187267
 }
 
 ## Design-specific tables (Sonnet)
@@ -82,26 +92,19 @@ k=1 capture 0.78; k=2 capture 0.98; k=3 capture 1.00; pairs whose third reviewer
 | b1-r2 | VF1 | 5 | 5 | 0 | True |
 | b1-r2 | VF2 | 1 | 1 | 0 | True |
 | b1-r3 | VF1 | 5 | 4 | 1 | True |
-| b1-r4 | VF1 | 5 | 3 | 2 | True |
+| b1-r4 | VF1 | 5 | 5 | 0 | True |
 | b1-r5 | VF1 | 7 | 5 | 2 | True |
-| b1-r6 | VF1 | 6 | 5 | 1 | True |
-| b1-r6 | VF2 | 2 | 2 | 0 | True |
+| b1-r6 | VF1 | 6 | 6 | 0 | True |
 
-pooled rejection rate over all VF steps: 6/37
+pooled rejection rate over all VF steps: 3/35
 
 ### Noted, unactioned vs audits
 
 | run | step | id | theme | verifier reason | matched audit blocker | eyeball |
 |---|---|---|---|---|---|---|
 | b1-r3 | VF1 | M4 | T1 | AC-1.1 only requires the section to name `return-contract.yaml`; a load section  | none | (eyeball) |
-| b1-r4 | VF1 | M1 | T1 | A section that names the contract can say load writes none, so AC-1.1 does not f | AUD/F-01 | (eyeball) |
-| b1-r4 | VF1 | M4 | T1 | The claimed outcome (auggie-review or post-release still posts or installs after | AUD/F-01 | (eyeball) |
-| b1-r4 | VF1 | M5 | T1 | The claimed outcome (auggie-review or post-release still posts or installs after | AUD/F-01 | (eyeball) |
-| b1-r4 | VF1 | M1 | T1 | A section that names the contract can say load writes none, so AC-1.1 does not f | AUD/F-01 | (eyeball) |
-| b1-r4 | VF1 | M4 | T1 | The claimed outcome (auggie-review or post-release still posts or installs after | AUD/F-01 | (eyeball) |
 | b1-r5 | VF1 | M3 | other | The finding states no text and no wrong outcome, so there is nothing to check. | none | (eyeball) |
 | b1-r5 | VF1 | M7 | T1 | P1's Commands column lists only non-P4 commands and the spec says the flag is "a | AUD2/F-01 | (eyeball) |
-| b1-r6 | VF1 | M3 | other | The text does not say a resumed run re-stops at the same gate or that no approva | none | (eyeball) |
 
 ## Theme tags to eyeball
 
@@ -128,7 +131,8 @@ pooled rejection rate over all VF steps: 6/37
 - b1-r3 R1b F2 T2 :: ### F2 - BLOCKING - Two different contract paths for the same command (adversarial, workflow) agains
 - b1-r3 R1c B1 T2 :: ### B1. CRITICAL (blocking): WC-4's contract path is contradicted by the rows that apply it
 - b1-r3 R1c B2 T1 :: ### B2. CRITICAL (blocking): AC-1.1 requires Phase 1 to finish text that Phase 4 is stated to wait f
-- b1-r4 AUD F-01 T1 :: ### F-01 (blocking): AC-1.1 requires a contract section on three P1 commands whose own rows say they
+- b1-r4 AUD B-1 T2 :: ### B-1 (CRITICAL as labelled by Wiegers; blocking) WC-4's file-parent rule makes parallel workers s
+- b1-r4 AUD2 F-1 T2 :: ### F-1  Blocking, MAJOR (Wiegers, Whittaker): the contract location rule for a file-valued `--outpu
 - b1-r4 R1a F1 T1 :: ### F1 (blocking, Wiegers / Adzic): AC-1.1 requires a contract-naming `## Unattended mode` section o
 - b1-r4 R1a F2 T3 :: ### F2 (blocking, Adzic / Wiegers): AC-0.4 step 3 cannot pass in P0 for the commands it names
 - b1-r4 R1b B1 T1 :: ### B1 (CRITICAL, blocking): `/sc:load` is both given no report and required to have one
@@ -145,9 +149,8 @@ pooled rejection rate over all VF steps: 6/37
 - b1-r5 R1c B1 T2 :: **B1. WC-4 puts the contract file in a directory the brief cannot name for several commands (CRITICA
 - b1-r5 R1c B2 T1 :: **B2. AC-1.1 cannot pass for `/sc:load` as the spec itself specifies it (CRITICAL, High)**
 - b1-r5 R1c B3 T1 :: **B3. P1 and AC-1.1 require unattended sections for the P4 commands, which depend on decisions P1 is
-- b1-r6 AUD R-1 T2 :: ### R-1 [MAJOR, blocking] Phase scope and acceptance checks disagree on which ready commands get the
-- b1-r6 AUD2 B-1 T2 :: ### B-1 [MAJOR, blocking] WC-4 contract is required for every unattended outcome, but no phase adds 
-- b1-r6 AUD2 B-2 T2 :: ### B-2 [MAJOR, blocking] Workflow's success contract location contradicts the WC-4 path that AC-1.2
+- b1-r6 AUD2 B-1 T3 :: **B-1. MAJOR and blocking. Acceptance check AC-0.4 cannot pass for its first listed command. (Wieger
+- b1-r6 AUD2 B-2 other :: **B-2. MAJOR and blocking. The additive-edit check AC-C5 (and AC-0.3) passes when existing bullet li
 - b1-r6 R1a F1 T2 :: ### F1 - CRITICAL (blocking) - Wiegers - load: acceptance check and phase scope contradict the load 
 - b1-r6 R1a F2 T3 :: ### F2 - CRITICAL (blocking) - Crispin/Wiegers - AC-0.4 requires a step-3 condition that Phase 0 can
 - b1-r6 R1a F3 other :: ### F3 - CRITICAL (blocking) - Adzic - cli-portify: the happy-path check cannot pass, because every 
@@ -188,9 +191,8 @@ pooled rejection rate over all VF steps: 6/37
 - b1h-r2 R1c RQ-1 other :: ### RQ-1 (BLOCKING). WC-3 lets a coordinator's reply become a gate answer, which contradicts the imp
 - b1h-r2 R1c RQ-2 T3 :: ### RQ-2 (BLOCKING). The P0 phase cannot run the live check it is gated on
 - b1h-r2 R1c AR-1 other :: ### AR-1 (BLOCKING). Two ready verdicts keep fixed output paths, which breaks WC-11 in the default s
-- b1h-r3 AUD F-01 T3 :: ### F-01 BLOCKING (CRITICAL by consequence): AC-0.4 cannot pass as written, and its failure rule reo
-- b1h-r3 AUD2 F1 T3 :: ### F1. CRITICAL-equivalent (blocking): the Phase 0 live-baseline check cannot pass as written
-- b1h-r3 AUD2 F2 T1 :: ### F2. MAJOR (blocking): Phase 1 scope and AC-1.1 contradict the Phase 4 hold and the recommended D
+- b1h-r3 AUD B-1 T2 :: ### B-1 (MAJOR, blocking) Contract path for file-valued `--output` collides across workers
+- b1h-r3 AUD2 F1 T1 :: **F1. BLOCKING. CRITICAL. Expert: Wiegers (lead), Adzic. Priority: High. Quality impact: Phase 1 can
 - b1h-r3 R1a B1 other :: ### B1 (CRITICAL, blocking). The standalone-behaviour rule is contradicted by two rows
 - b1h-r3 R1a B2 other :: ### B2 (CRITICAL, blocking). WC-3 lets a coordinator answer any gate, which contradicts the spec's o
 - b1h-r3 R1a B3 T2 :: ### B3 (MAJOR, blocking). WC-5 reports a FAIL audit as `succeeded`, and no contract field carries th

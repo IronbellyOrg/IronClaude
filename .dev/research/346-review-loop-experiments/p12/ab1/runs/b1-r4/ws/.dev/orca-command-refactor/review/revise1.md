@@ -1,25 +1,29 @@
-# Revise 1
+# Revise 1 (blocking ids M1, M2, M3, M4, M5)
 
-candidate: .dev/orca-command-refactor/specs/orca-worker-contract-spec.md (edited in place; blocking ids M2, M3, M5 from review/round1.md Reviser brief)
+Candidate: .dev/orca-command-refactor/specs/orca-worker-contract-spec.md, edited in place. Inputs read: review/round1.md (Reviser brief, lines 156-161), review/verify-1.md, the spec, README.md. No inventory line was re-checked beyond the ones already cited in the spec; citations I did not re-read are UNVERIFIED here.
 
 ## Byte accounting
-- Before: 57763 bytes. After: 58235 bytes. Net +472.
-- Per finding id (net bytes; edits are in-place extensions, wording replaced is counted inside the net figure):
+- Before: 57763 bytes. After: 58352 bytes. Net +589.
+- Five span replacements (replaced span bytes -> new span bytes). Edits E1-E3 serve several ids at once, so the bytes are listed per edit and the ids it serves; no byte is counted for two edits.
 
-| id | bytes added (net) | bytes deleted (net) |
-|---|---|---|
-| M2 | 84 | 0 |
-| M3 | 240 | 0 |
-| M5 | 148 | 0 |
-| total | 472 | 0 |
+| Edit | Location (after) | Deleted (bytes) | Added (bytes) | Ids |
+|---|---|---|---|---|
+| E1 | spec:76 | 94 | 154 | M1, M4, M5 |
+| E2 | spec:159 (P1 row, Scope) | 112 | 188 | M1, M4, M5 |
+| E3 | spec:195 (AC-1.1) | 194 | 263 | M1, M4, M5 |
+| E4 | spec:194 (AC-0.4) | 105 | 283 | M2 |
+| E5 | spec:62 (WC-4) | 91 | 297 | M3 |
 
-(The M2 edit also rewrites "step 4 uses" to "steps 3 and 4 use"; the few replaced bytes are netted in the 84.)
+Per finding id (shared edits split by the ids they carry; M1/M4/M5 share E1-E3 because one scoping change repairs all three): M1+M4+M5 together: deleted 400, added 605. M2: deleted 105, added 283. M3: deleted 91, added 297. Deleted/added are the replaced span and its replacement, not a minimal diff, so both are overstated by the unchanged words inside the spans. No section or table was added.
 
 ## Findings
-| id | disposition | where | note |
+| id | Result | Where applied | Reason |
 |---|---|---|---|
-| M2 | applied | spec AC-0.4 (line 194 in the original; "7.2 step 3" at line 182 left unchanged) | AC-0.4 now says steps 3 and 4 use the command's existing report file in P0, the same relaxation round1.md M2.b recommends. Basis: contract added in P1 (spec:159), troubleshoot report is REPORT.md (spec:91), troubleshoot writes a contract only with `--caller task-unified` (`INV-B:242`, as quoted in round1.md; not re-read, UNVERIFIED here). |
-| M3 | applied | spec WC-4 (line 62) | One rule added: when `--output` is a file (tdd, init-lite, spec-panel), the contract goes in the file's parent directory, which the brief must dedicate to the run; adversarial is named as the exception at `<output>/adversarial/return-contract.yaml`, matching spec:83. No new section or mechanism. Spec rows spec:83, 87, 90, 120 and AC-2.2 are unchanged and now consistent with WC-4. The sandbox spec-panel `--report-dir` evidence (`CMD:460`) is UNVERIFIED here. |
-| M5 | applied | spec P1 scope (line 159) and AC-1.1 (line 195) | P1 flag and AC-1.1 scoped to commands whose phase is P1; P2-P4 commands gain the flag in their own phase; AC-1.1 states pr-submit, implement and post-release (P4) have no section yet. This removes the conflict with D3(a) (spec:240), spec:154 and spec:225. Lines 154, 162, 225, 240 untouched. |
+| M1 | Applied | spec:76 ("except `/sc:load`"), spec:159 ("`/sc:load` gets neither"), spec:195 (test asserts `/sc:load` has no section) | Removes the contradiction with the load row (spec:112, "none (see note)", "usage line only") and the Decision (spec:265, "a report file would be an unrequested addition"). Narrowing, per round1.md:36-39 recommendation. |
+| M2 | Applied | spec:194 (AC-0.4) | Steps 3 and 4 both use the command's existing report file in P0; step 3 compares `--outcome` with that report under WC-5; step 4 is `test -s` only (the YAML parse of 7.2 step 4 cannot apply to `REPORT.md`, spec:91). Step 7.2 text itself is unchanged, so P1-P4 still use the contract. |
+| M3 | Applied | spec:62 (WC-4) | One rule: file-valued `--output` puts the contract in the file's parent directory (covers tdd, init-lite, spec:87, 90, 200); fixed-location commands (cleanup-audit, index-repo, spec:85-86) write it there; adversarial's `<output>/adversarial/` (spec:83) named as the stated exception. No new flag. Not decided: whether spec-panel's added `--output` is file or directory (spec:120); the parent-directory rule gives a defined path either way. The `CMD:460` citation in the finding is UNVERIFIED (not in the sandbox). |
+| M4 | Applied | spec:76, spec:159, spec:195 | `--unattended` and the section arrive in the phase of each command's own row (P1 row commands plus brainstorm and init-lite; P2-P4 rows otherwise), so auggie-review, task, post-release, pr-submit, implement no longer accept the flag before their gates are converted. Scope removed from P1, no rule added. |
+| M5 | Applied | spec:159, spec:195 | AC-1.1 now tests only the P1 scope and requires P2-P4 commands to have no section, which removes the conflict with spec:154/225 ("Phases 1-3 need no user decision") and with D3(a) (no pr-submit change, spec:240). |
 
-Rejected findings M1 and M4 were left alone (noted, unactioned per round1.md). No other file was changed. No self-awarded PASS.
+## Left alone
+Medium and minor follow-ups from round1.md (follow-up candidates) were not touched. No verdict is awarded.

@@ -315,7 +315,7 @@
    "reason": "Overwrite outcome: 160 includes \"the small fixes to ready commands\" and 86 tags the fix P1, so the premise that P1 skips init-lite fails. Dispatch outcome: the \"not accepted today\" baseline rests only on spec-v1.md:87, which is absent. Also 79 gives init-lite's stated flag as \"after P1\", so 79 does not license passing `--output <dir>` today. The readiness wording is inconsistent, but the stated wrong outcomes do not follow from the candidate text."
   }
  ],
- "loop_end": "ESCALATED",
+ "loop_end": "VERIFIED-PASS",
  "manual": [
   {
    "step": "R3",
@@ -498,5 +498,11 @@
   "bytes": 60539,
   "lines": 309,
   "sha256": "005c14750dde7985fd4ffcf42529a7b23cc2ca06ed4169b3ad679316a9e00f9a"
+ },
+ "loop_end_original": "ESCALATED",
+ "vf3_clean": {
+  "confirmed": [],
+  "source": "runs/b1h-r4/vf3-clean",
+  "note": "clean VF3 rejected N3; final spec and audits unchanged"
  }
 }

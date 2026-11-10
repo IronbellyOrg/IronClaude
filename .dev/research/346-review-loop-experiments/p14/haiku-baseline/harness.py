@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Stage 2 harness: S1 spec review loop, 3 arms.  Usage:
   harness.py build                     create 9 sandboxes
-  harness.py prep RUN STEP [K=V ...]   write RUN/PROMPT-STEP.md (STEP in R1 V1 R2 V2 R3 AUD)
+  harness.py prep RUN STEP [K=V ...]   write RUN/PROMPT-STEP.md (STEP in R1 V1 R2 V2 R3 AUD AUD2)
   harness.py ingest RUN STEP           record outputs of a finished step
   harness.py status                    table of all runs
   harness.py peek RUN STEP             hints for arm-1 substitutions
@@ -14,7 +14,7 @@ S1 = SP/"exp346/.dev/experiments/346-validation/phase2/S1"
 REPO = "/home/user/IronClaude"
 D = ".dev/orca-command-refactor"
 SPEC = f"{D}/specs/orca-worker-contract-spec.md"
-STEPS = ["R1", "V1", "R2", "V2", "R3", "AUD"]
+STEPS = ["R1", "V1", "R2", "V2", "R3", "AUD", "AUD2"]
 OUT = {  # step -> output file relative to ws
  1: {"R1": f"{D}/review/spec-panel.md", "V1": f"{D}/review/disposition.md", "R2": f"{D}/review/spec-panel-round2.md",
      "V2": f"{D}/review/disposition-round2.md", "R3": f"{D}/review/spec-panel-round3.md"},
@@ -141,8 +141,8 @@ COMMAND: you cannot run slash commands. The file {sb}/command.md is the definiti
 
 def prep(run, step, subs):
     a = arm_of(run); d = run_dir(run); st = load(run)
-    if step == "AUD":
-        ad = d/"aud"
+    if step in ("AUD", "AUD2"):
+        ad = d/("aud" if step == "AUD" else "aud2")
         if ad.exists(): shutil.rmtree(ad)
         (ad/"home/.claude/rules/prompts").mkdir(parents=True)
         shutil.copytree(S1/"inputs/repo-overlay", ad/"ws")
@@ -171,18 +171,18 @@ def prep(run, step, subs):
 
 def ingest(run, step):
     a = arm_of(run); st = load(run)
-    base = (run_dir(run)/"aud"/"ws") if step == "AUD" else ws(run)
-    outp = base/(AUD_OUT if step == "AUD" else OUT[a][step])
+    base = (run_dir(run)/("aud" if step == "AUD" else "aud2")/"ws") if step in ("AUD", "AUD2") else ws(run)
+    outp = base/(AUD_OUT if step in ("AUD", "AUD2") else OUT[a][step])
     rec = {"output_exists": outp.exists()}
     if outp.exists():
         t = outp.read_text(errors="ignore"); rec["report_bytes"] = len(t.encode())
-        if step in ("R1", "R2", "R3", "AUD"):
+        if step in ("R1", "R2", "R3", "AUD", "AUD2"):
             vs = re.findall(r"verdict:\s*\**\s*(PASS|FAIL|INCOMPLETE)", t, re.I); rec["verdict"] = vs[-1].upper() if vs else "NONE"
             hdr = re.findall(r"^\W*review:\s*(\d)\s*of\s*3", t, re.I | re.M); rec["review_header"] = hdr
             sev = collections.Counter(re.findall(r"\b(CRITICAL|MAJOR|MINOR)\b", t)); rec["labels"] = dict(sev)
             rec["blocking_ids"] = ids_from(outp)
             rec["blocking_word_count"] = len(re.findall(r"blocking", t, re.I))
-    if step != "AUD": rec["spec_after"] = spec_stats(run)
+    if step not in ("AUD", "AUD2"): rec["spec_after"] = spec_stats(run)
     else: rec["spec_audited"] = spec_stats(run_dir(run)/"aud"/"ws", None) if False else {"bytes": (base/SPEC).stat().st_size}
     st["log"][step] = rec
     if step not in st["done"]: st["done"].append(step)

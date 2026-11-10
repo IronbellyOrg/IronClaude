@@ -1,133 +1,148 @@
 review: 1 of 3
 
-# Whole-document audit: orca-worker-contract-spec.md (spec-panel, critique mode)
+# Spec-panel audit: orca-worker-contract-spec.md
 
-- Command: `/sc:spec-panel @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture`
-- Label: whole-document audit of the final spec, a first review (no `--re-review`, no `--baseline`; baseline: none, not "missing", because neither flag was given).
-- Candidate: `.dev/orca-command-refactor/specs/orca-worker-contract-spec.md`, 289 lines.
-- sha256(candidate): `d7bacfaaecc8fff9a059e1e70fe785b1e6c52aecb2a57c161ca8d51cdcb3aa3c`
-- sha256(baseline): not applicable.
-- Reviewer model actually used: `claude-sonnet-5-5`
-- Prompt followed: FIRST-REVIEW prompt in `~/.claude/rules/prompts/document_review_loop_prompts.md:27-32` (read in full).
-- Date: 2026-11-10.
-- Citation convention: `S:N` = line N of the candidate spec. `CAPS:N`, `INV-A:N`, `INV-B:N` = lines of `inventory/orca-capabilities.md`, `commands-a.md`, `commands-b.md`. Only the README and these three inventories exist in the sandbox, so every citation to `src/`, `CLAUDE.md`, `EVIDENCE.md`, `pyproject.toml` or `Makefile` is UNVERIFIED (the file is not in the workspace). I checked the spec's `INV-*` and `CAPS:*` citations that I spot-read (about 60) and found them as cited.
-
-## Summary
-
-The spec's central decision (Orca coordinates, commands stay workers, `--unattended` plus a report file plus resume) is coherent and well evidenced where evidence can be checked. Inventory counts conserve (21 + 22 = 43 = 10 ready + 27 needing change + 6 coordinator-only; the 27 rows of S:99-125 and the 10 rows of S:83-92 match the phase lists at S:159-162). I found 2 blocking findings, both in the acceptance and rollout text (the gates a phase must pass), and 7 Medium findings.
-
-Blocking: 2. Medium: 7. Minor: 4.
-
-## === REQUIREMENTS ANALYSIS ===
-
-### F1. CRITICAL-equivalent (blocking): the Phase 0 live-baseline check cannot pass as written
-- Experts: Wiegers (testability), Adzic (concrete example), Whittaker (Sequence Attack).
-- Grading sentence: An implementer who follows AC-0.4 as written (S:194) runs the 7.2 live check on `/sc:troubleshoot`, `/sc:workflow` and `/sc:adversarial` and requires "steps 1-3 ... pass". Step 3 (S:182) passes only if the worker's `--report-path` is "the WC-4 contract path" and its outcome "matches the contract's `status`". No such contract exists in P0: the same row says "the contract arrives in P1", and S:83 and S:92 say adversarial writes it in a subdirectory and workflow at a per-run package path until the P1 fix. So step 3 is unsatisfiable in P0, the P0 acceptance check fails by construction, and S:194 says a failure here "reopens section 1" (the decision itself) while S:154 blocks every later phase on P0 passing. The result is wrong because a correct implementation of the decision is reported as having refuted it.
-- Quoted conflict: S:182 "its report path is the WC-4 contract path" vs S:194 "step 4 uses the command's existing report file, since the contract arrives in P1" (the row relaxes step 4 only, not step 3).
-- Concrete trace: troubleshoot worker ends with `worker_done --report-path .../REPORT.md` (S:91). Step 3 pass condition (report path = `<output-dir>/return-contract.yaml`) is false. AC-0.4 = FAIL. P1 never starts (S:154).
-- Evidence: S:154, S:158, S:182, S:194, S:83, S:91, S:92.
-- Recommendation: in AC-0.4 say "step 3 passes when `worker_done --report-path` equals the report file named in the S:83-92 'Report today' column, and `--outcome` matches the worker's own reading of that report". Priority: High.
-
-### F2. MAJOR (blocking): Phase 1 scope and AC-1.1 contradict the Phase 4 hold and the recommended D3(a)
-- Experts: Wiegers (consistency, traceability), Cockburn (who is the actor for the decision), Fowler (phase boundaries).
-- Grading sentence: An implementer who follows S:159 ("the `--unattended` flag accepted by every command in sections 3.1 and 3.2") and AC-1.1 (S:196: "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`") adds that section to implement, post-release and pr-submit in P1. But S:154 and S:162 hold those three commands for P4 until the user answers D2-D4, S:112/S:109/S:113/S:114 give them rows whose gate text depends on those answers, and S:243 says that under the recommended D3(a) there are "no pr-submit changes". The phase list at S:159 also names only 9 new commands plus 4 fixes, so brainstorm and init-lite (3.1, no phase) are in AC-1.1 but in no P1 scope list. Either AC-1.1 fails at P1 for the P2-P4 and unlisted commands, or the P1 implementer writes gate resolutions for D2-D4 before the user decides (for implement, a safety rule per S:221), or pr-submit becomes dispatchable although D3(a) says it is coordinator-only.
-- Quoted conflict: S:196 "every command in sections 3.1-3.2" vs S:154 "Phase 4 waits for answers to D2-D4" and S:243 "no pr-submit changes".
-- Evidence: S:154, S:159, S:162, S:196, S:243; the 3.1/3.2 phase column S:83-125.
-- Recommendation: restrict AC-1.1 to "every command whose section 3 phase is P1 or earlier (plus the 3.1 commands with a stated phase)", add brainstorm and init-lite to a named phase, and say that pr-submit gets no section unless D3(b). Priority: High.
-
-### F3. Medium: `<output-dir>` is undefined for commands whose `--output` is a file
-- Experts: Wiegers, Adzic.
-- WC-4 (S:62) fixes the report at `<output-dir>/return-contract.yaml` with the directory "the coordinator passed (`--output` / `--output-dir`)". Rows S:87, S:90, S:120 give `--output <file>` for init-lite, tdd and spec-panel, and S:105/S:116 add a new `--output-dir` only for cli-portify and research. An implementer can read "the file's parent directory" or "add `--output-dir`"; nothing says which. This is a missing requirement, not a text that does harm, so Medium. Also note that the actual `/sc:spec-panel` command definition supplied to this audit already defines `--report-dir <dir>` and keeps `--output` file-valued (command.md "Unattended mode"), while S:120 plans to "add `--output`"; the S:120 row cites `cmd/spec-panel.md` lines UNVERIFIED here.
-- Recommendation: one sentence in WC-4 stating the directory rule for file-valued `--output`. Priority: Medium.
-
-### F4. Medium: "keep their fields" vs a fixed four-value `status`
-- Experts: Wiegers, Fowler.
-- WC-4 (S:62) says commands that already write a contract "keep their fields", while `status` must be one of four values; WC-5 (S:63) maps any other value to `--outcome failed`. The inventories record the existing contracts' field names but not their status vocabulary (workflow: `status` incl. `failed`, INV-B:272; others not recorded). If an existing contract uses another success word, a successful run maps to `failed`. The text needs a guess about the existing vocabularies, so Medium. Priority: Medium.
-
-### F5. Medium: WC-6 "fresh output directory" vs WC-4 "known before dispatch"
-- Experts: Wiegers, Nygard (retry behaviour).
-- S:64 says a command without a resume flag "writes each run into a fresh output directory", while S:62 requires the report path to be known before dispatch from a coordinator-supplied directory, and S:73 never tells the coordinator to give each retry (`worker-start --retry-of`, CAPS:116) a new directory. Reading A (the command makes a subdirectory) breaks the WC-4 path; reading B (the coordinator supplies a new directory) is not stated in section 2.3. With the same brief, a retry overwrites attempt 1's `return-contract.yaml`. Priority: Medium.
-
-### F6. Medium: acceptance for blocked gates is nondeterministic because WC-3's relay is optional and unmentioned in 2.3/7.2
-- Experts: Crispin-style test view (applied by Wiegers/Adzic).
-- WC-3 (S:61) lets a worker with a preamble "instead ask the coordinator once" for gates whose row names a flag. AC-2.2 (S:202) requires `--outcome failed` and `status: blocked` for gate-trigger inputs, and 7.2 step 3 (S:182) waits only on `worker_done`, `escalation` and `question` without saying how to answer a question. Section 2.3 (S:73) does not say whether the brief permits `ask`. A worker that uses the relay legitimately produces a different outcome, so the test is not deterministic. Priority: Medium.
-
-### F7. Medium: AC-0.5 tests a mapping that no stated code performs
-- AC-0.5 (S:195) runs a pytest on "planted contracts" to check the WC-5 mapping, but WC-5 is performed by the worker session (S:63, owner "Worker session"), and the spec names no helper, function or file for the test to call. An implementer cannot write the test without inventing the unit under test. Medium (a requirement the document never states).
-
-### F8. Medium: WC-9 / D4 refer to explicit flags that do not exist for some commands
-- WC-9 (S:67) turns outward actions on "only through the command's own explicit flag", and D4 (S:247) names task `commit`/`push`. S:121 gives task no such flag (only "refused unless authorized"). Priority: Medium.
-
-### F9. Medium: P1 makes `--unattended` a no-op on commands that still have gates
-- S:159 says the flag is accepted by every 3.1/3.2 command "a no-op where a command has no gate", so between P1 and P2/P3/P4 a command such as cleanup, roadmap or implement accepts `--unattended` yet still prompts (S:103, S:118, S:109). The spec does not tell the coordinator not to dispatch a command before its phase lands, and S:73 does not require a phase check in the brief. A stall results (the "healthy" wait of CAPS:52/CAPS:129). Only the 3.1 table (S:79) carries a "run now if the brief uses the stated flags" statement. Priority: Medium.
-
-### Minor notes (never fail the review)
-- N1. S:109-110 and S:103: cleanup/improve under `--unattended` apply edits in a worktree shared with other workers (CAPS:115) while their "rollback" mechanism is UNVERIFIED (INV-A:118); the contract lists changed files, but no clean-tree precondition is stated. Safety hardening candidate.
-- N2. S:80 (CAPS:80): a `blocked` outcome maps to `failed`, and a worker's own failed report does not trip the circuit breaker, but the coordinator-side handling of repeated `blocked` results is not specified.
-- N3. S:11 says 11 locations were re-read by the spec's author on 2026-11-02; none is checkable here (UNVERIFIED).
-- N4. S:288 (item 14) records a prior validator check; no evidence of it is in the workspace (UNVERIFIED).
-
-## === ARCHITECTURE ANALYSIS ===
-
-Experts: Fowler (lead), Newman, Hohpe, Nygard.
-
-- Boundaries: the coordinator / worker / command split is clean (S:16, S:50-51, S:216). The rejected alternative (S:29-37) is supported by CAPS:97-103 (depth 1, call sites not traced, flagged UNVERIFIED at S:33). Verified: CAPS:97-101 as quoted.
-- Interface (Newman, Hohpe): one report file `return-contract.yaml` with a four-value status and a two-value Orca outcome (S:62-63, S:265) is a sound message contract; the gaps are F3 (directory for file-valued `--output`), F4 (vocabulary reuse) and F5 (path stability across retries).
-- Failure modes (Nygard): the worker-stall failure is explicitly addressed (S:44, WC-2/WC-10, AC-2.2). Liveness during long waits depends on a worker heartbeat whose 5-minute cadence is from the preamble, not a guide (CAPS:130, UNVERIFIED whether Orca uses it); WC-10's 4-minute split is consistent with that.
-- Evidence gap: the central verdicts rest on file reads, not runs (S:43, INV-B:323). The spec states this and makes P0 test it; F1 is what breaks that test.
-- Coupling: SA-2 (S:147) and AC-C1 (S:172) keep Orca out of commands; AC-C1 excludes `WORKER-CONTRACT.md` and `HOW-WE-WORK.md` (consistent with S:147/S:150). No defect found.
-
-## === GUARD CONDITION BOUNDARY TABLE ===
-
-Trigger: the spec contains threshold and boolean guards (readiness limit, heartbeat/wait sizes, status enum, depth limit, confidence 0.70 resolution). Rows follow the 7-column template; a class left out is stated in one line.
-
-| Guard | Location | Input Condition | Variable Value | Guard Result | Specified Behavior | Status |
-|-------|----------|-----------------|----------------|--------------|-------------------|--------|
-| WC-5 outcome mapping (`status` in the four values) | S:63 | Zero/Empty | `status` missing, empty or no report file | not in set | `--outcome failed` | OK |
-| WC-5 | S:63 | One/Minimal | `status: partial` | in set | `--outcome succeeded`, body states `partial` | OK |
-| WC-5 | S:63 | Typical | `succeeded` / `failed` / `blocked` | in set | succeeded / failed / failed | OK |
-| WC-5 | S:63, S:62 | Sentinel Value Match | existing contract using another success word (for example `complete`) | not in set | maps to `failed`; whether existing contracts use such words is not stated | GAP (F4, Medium) |
-| WC-5 | S:63 | Legitimate Edge Case | audit with verdict FAIL | `succeeded`/`partial` | `--outcome succeeded` | OK |
-| WC-5 | | Maximum/Overflow | left out: a status value has no capacity bound | | | n/a |
-| WC-10 wait split (single tool call <= 4 min) | S:68 | Zero/Empty | step with no wait | n/a | no split needed | OK |
-| WC-10 | S:68 | Typical | pr-submit iteration | UNVERIFIED runtime | confirm each iteration < 4 min (S:114, S:286) | GAP (open verification, Medium by S:286 itself) |
-| WC-10 | S:68 | Maximum/Overflow | cli-eval timeout up to 3600 s | exceeds 5 min | split into waits <= 4 min (S:104) | OK |
-| WC-10 | S:68 | Legitimate Edge Case | tool call exactly 240-300 s | between 4 and 5 min | rule says split above 5 min, split target 4 min; AC-4.3 uses 240 s | OK (minor ambiguity: "longer than 5 minutes" S:68 vs "no call exceeds 240 s" S:213) |
-| WC-1 readiness fallback | S:59 | Typical | fallback 30 s vs limit 60 s | passes | well inside limit | OK |
-| WC-1 | S:59 | Legitimate Edge Case | fallback about 45 s | fails again | "well inside" is not numeric; evidence only at EVIDENCE.md:56 (UNVERIFIED) | GAP (follow-up, no concrete wrong outcome: launch setup is out of command scope) |
-| Nesting depth = 1 (WC-8) | S:66, S:33 | Zero/Empty | depth 0 coordinator | allowed | coordinator fans out | OK |
-| Nesting depth | S:66 | Maximum/Overflow | depth 1 worker calls `worker-start` | refused `nested_worker_depth_exceeded` | WC-8 forbids; `task-create` at depth 1 UNVERIFIED (CAPS:103) | OK (UNVERIFIED item listed at S:279) |
-| Confidence threshold (task) | S:121 | Zero/Empty | confidence undefined | n/a | not specified | GAP (Medium, not stated; below 0.70 row only) |
-| Confidence threshold (task) | S:121 | Sentinel / edge | exactly 0.70 | boundary | "below 0.70 resolves as blocked" implies 0.70 proceeds | OK |
-| AC-C3 "no baseline-passing test fails" | S:174 | Zero/Empty | baseline with zero passing tests | vacuously true | not stated | GAP (minor) |
-
-Incomplete-table gate (FR-10): complete; no FR-9 blank behaviors except the ones recorded as GAP. FR-8/FR-9 grading: no GAP names a concrete wrong outcome an implementer would produce or a security/data-loss risk, so each is Medium or minor and listed below.
-
-## Quantity check (Pipeline Dimensional Analysis)
-Trigger limited: the only multi-stage count flow is the inventory split. 21 + 22 = 43; 10 + 27 + 6 = 43; P1 9 + P2 11 (3.2) + P3 4 + P4 3 = 27, with 4 of the 10 ready commands assigned to P1 fixes and 4 to P2 (S:159-161, S:83-92). Count conserved; no mismatch.
+- command: `/sc:spec-panel @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture`
+- kind: labelled whole-document audit of the final spec (a first review of the whole document), per the FIRST-REVIEW prompt of `~/.claude/rules/prompts/document_review_loop_prompts.md` (read in full).
+- candidate: `.dev/orca-command-refactor/specs/orca-worker-contract-spec.md`
+- candidate sha256: `530bb94dc36fffb71a0dd0f59ecf0aa60e32ab1c485bde6cfedea040d97adda7`
+- baseline: none given (no `--re-review`, no `--baseline`); this is a first review, so no baseline hash applies.
+- reviewer model actually used: claude-sonnet-5-5
+- brief clauses overridden: none. The brief narrowed nothing and widened nothing.
+- Citation convention: `S:N` = line N of the candidate spec; `CAPS:N`, `INV-A:N`, `INV-B:N` = line N of `inventory/orca-capabilities.md`, `commands-a.md`, `commands-b.md`. Those four files and `README.md` are the only evidence checkable in this sandbox. Every citation to `src/`, `CLAUDE.md`, `.dev/evals/`, `.dev/codegraph-migration/`, `pyproject.toml`, `Makefile` or Orca's installed files is UNVERIFIED here, except where an inventory quotes it. I checked each `INV-*` and `CAPS:*` reference the spec makes for the load-bearing claims: the per-command rows in sections 3 and 4, the WC-1 to WC-12 evidence cells and the UNVERIFIED list. All I checked match their lines.
 
 ## Coverage
+Read in full: the spec (294 lines), README, the three inventories, command.md and the review-loop prompts. Panel: Wiegers, Adzic, Cockburn (requirements); Fowler, Nygard, Whittaker, Newman, Hohpe (architecture and attack). Crispin, Gregory and Hightower were not seated, because testing, compliance and cloud-native are outside `--focus requirements,architecture`; Whittaker is seated in every review. Not covered: the real command and skill files (not in the sandbox), Orca behaviour (no live Orca), and the `ws/` copy of `WORKER-CONTRACT.md` (not present).
 
-Covered: the whole spec S:1-289 read; README read; every section-2 requirement, every section-3 table row for count and phase consistency, sections 4-9, the UNVERIFIED list. Spot-checked against inventories: INV-A:3, 14, 62, 76-83, 90, 95-97, 106, 113, 118, 120; INV-B:3, 36, 52, 267-272, 285-286, 292-301, 311, 320, 323; CAPS:44-47, 52, 58, 64-68, 72-80, 86, 92, 97-103, 107-116, 128-130, 135-139, 145-161, 178-188.
-Not covered / UNVERIFIED: every citation into `src/superclaude/**`, `CLAUDE.md`, `HOW-WE-WORK.md`, `.dev/evals/...EVIDENCE.md`, `.dev/codegraph-migration/...`, `pyproject.toml`, `Makefile`, `install_core.py` (files absent from the workspace); no command was run; the Orca guides themselves were not available, only their quotations in the capabilities inventory.
+## Quality assessment (0-10)
+clarity 8, completeness 7, testability 7, consistency 6. Overall 7.
 
-## follow-up candidates (Medium and minor; none triggers a revision)
+Pipeline Dimensional Analysis (FR-17): not triggered. The spec describes no data pipeline whose output count differs from its input count; the Task, worker, report chain is one-to-one, and a retry is a new Dispatch of the same Task (`S:64`, `CAPS:116`). No Quantity Flow Diagram is produced.
 
-- F3 file-valued `--output` vs `<output-dir>` (S:62, S:87, S:90, S:120).
-- F4 existing-contract status vocabulary (S:62-63).
-- F5 fresh directory vs known-before-dispatch path on retry (S:62, S:64, S:73).
-- F6 optional `ask` relay vs deterministic AC-2.2 (S:61, S:182, S:202).
-- F7 AC-0.5 has no unit under test (S:195).
-- F8 no explicit outward-action flag for task `commit`/`push` (S:67, S:121, S:247).
-- F9 `--unattended` accepted as no-op before its phase lands (S:159).
-- N1-N4 above; WC-1 numeric bound; AC-C3 empty baseline; WC-10 "5 minutes" vs "240 s" wording; confidence-undefined case for task.
+State Variable Registry: not produced, because `--focus correctness` is not active. The Guard Condition Boundary Table is produced below, because the spec contains guards.
 
-Per `/sc:spec-panel` Review Loop bullet 3, the session that ran this review asks the user once per loop whether to open an issue for these candidates and creates none without an answer. This run's reply is restricted to `DONE <path>`, so the question was not asked here; the coordinator session must ask.
+## Findings
 
-Brief overrides: none. The brief did not widen scope or regrade any minor finding.
+Grading used the FIRST-REVIEW grading check. A finding is blocking only if "an implementer who follows the stated text as written builds X, and X is wrong because Y" holds with no further assumption.
+
+### === REQUIREMENTS ANALYSIS ===
+
+**F1. BLOCKING. CRITICAL. Expert: Wiegers (lead), Adzic. Priority: High. Quality impact: Phase 1 cannot pass its own acceptance check.**
+Issue: Three texts disagree about what Phase 1 changes.
+- Phase 1 scope says the `--unattended` flag is "accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)" (`S:159`).
+- The Phase 1 Commands column lists only analyze, build, business-panel, design, document, explain, index, test, load (usage line only), plus fixes to adversarial, cleanup-audit, index-repo and workflow (`S:159`). That is 12 commands.
+- AC-1.1 asserts that every command in sections 3.1-3.2 except `/sc:load` has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md` (`S:202`). That is 36 commands (10 + 27 - 1).
+
+The same sections are assigned elsewhere to later phases:
+- The gate resolutions for 15 commands belong to Phase 2 (`S:160`).
+- Four commands belong to Phase 3 (`S:161`).
+- implement, post-release and pr-submit belong to Phase 4, which "waits for D2-D4" (`S:154`, `S:162`, `S:109`, `S:113`, `S:114`).
+
+Section 2.1 says each section "lists only its own gate resolutions" (`S:52`). So AC-1.1 requires Phase 1 to write sections whose gate resolutions the spec defers to Phase 2-4, and for Phase 4 to the undecided D2-D4.
+
+Concrete wrong outcome: An implementer who follows the Phase 1 Commands column builds 12 command edits. AC-1.1 then fails for the other 24 commands, so Phase 1 cannot pass (`S:167`, "A phase passes only when every check in its block ... passes"). An implementer who follows AC-1.1 writes `## Unattended mode` sections for implement, post-release and pr-submit before D2-D4 are answered. Those commands would then accept `--unattended` while their gates still wait, which is exactly the stall WC-2 forbids (`S:60`). Phase 1 live checks (AC-1.2) cover only "each P1 command" (`S:203`), so no check catches that stall.
+
+Recommendation (for the reviser, narrow): restrict AC-1.1 and the Phase 1 scope sentence to the Phase 1 command list, and give each later phase its own "section exists" assertion alongside its gate assertions (AC-2.1 already has the pattern, `S:207`). Do not add a new mechanism.
+
+### Medium and minor findings (follow-up candidates, not blocking)
+
+**M1. Medium (MAJOR label). Wiegers.** WC-4 puts the contract in "the directory the coordinator passed (`--output` / `--output-dir`)" (`S:62`). Four commands in sections 3.1-3.2 have no such flag and no row adds one:
+- cleanup-audit (brief passes only `--pass <N>`, fixed dir, `S:85`)
+- index-repo (brief passes nothing, `S:86`)
+- recommend (`S:115`: "write the handoff envelope to a file; contract", no path flag)
+- validate-tests (`S:125`: only the `--report` file)
+
+AC-1.1 and 7.2 step 4 still require a contract for them (`S:202`, `S:190`). The spec never states where it goes. This is a requirement left unstated, so it is Medium by the grading check. Candidate fix: name the contract location for these four.
+
+**M2. Medium. Whittaker (sentinel/sequence).** For a file-valued `--output` (tdd, init-lite) WC-4 puts the contract in the directory containing the file (`S:62`, `S:87`, `S:90`). The tdd default is `docs/[domain]/TDD_[COMPONENT].md` (`INV-B:222`), so two workers on one domain share a directory and write the same `return-contract.yaml`. WC-11 says two workers "must never write the same file" (`S:69`). Whether it happens depends on the coordinator choosing the same directory, which section 2.3 does not forbid (`S:73`), so Medium.
+
+**M3. Medium. Adzic.** SA-3 says contract and report files are written "only in unattended mode or when the caller passes the new output flag" (`S:148`). WC-4 says the contract is written "In unattended mode" (`S:62`). Does `/sc:analyze --output x` without `--unattended` write a contract? One reading says yes (SA-3), the other no (WC-4, AC-1.3 at `S:204`). The implementer must guess.
+
+**M4. Medium. Nygard.** WC-6 says a command without a resume flag "writes each run into a fresh output directory" (`S:64`). WC-4 and section 2.3 say the report path is the directory the coordinator passed, "known before dispatch" (`S:62`, `S:73`). Nothing says the coordinator passes a new directory per retry attempt. Reusing the first attempt's directory would overwrite its contract and artifacts, which WC-6 forbids. Candidate fix: state who creates the fresh directory.
+
+**M5. Medium. Fowler, Nygard (safety boundary).** WC-3 lets the worker, when a gate "would resolve as blocked", ask the coordinator and "re-invoke or resume the command with the answer as a flag" (`S:61`). It has no carve-out for answers that grant what other rules reserve:
+- D2(a) keeps the Ruling rule, under which another agent's message is not acceptance (`S:241-244`).
+- WC-9 and D4(a) allow an outward action only through the command's explicit flag "written in the brief" and the user's own instruction (`S:67`, `S:253`).
+
+A coordinator's `ask` answer could therefore supply a flag that the specific rules say only the brief or the user may supply. The more specific rules probably win, so this is Medium. Candidate fix: one sentence in WC-3 excluding Ruling and outward-action flags.
+
+**M6. Medium. Wiegers.** Several rows resolve a gate as "refused" (explain `--format interactive`, cleanup/improve/roadmap `--interactive`, business-panel socratic, test `--watch`, pr-submit `--monitor 1`; `S:102-103`, `S:108`, `S:110`, `S:114`, `S:118`, `S:123`). "Refused" is not one of WC-2's three resolutions (default, flag, blocked) (`S:60`). No status is specified for it. WC-4 requires a contract "including stops before any other output exists" (`S:62`). A `failed` or `blocked` reading changes the AC-2.2 style checks. Candidate fix: map "refused" to `blocked` or `failed`.
+
+**M7. Medium. Adzic.** AC-0.4 requires the existing workflow contract's `status` to be one of `succeeded|partial|failed|blocked` (`S:201`). The inventories say only that workflow writes a `status` field (`INV-B:272`), not its values. WC-4 says contracts that already exist "keep their fields" (`S:62`), and WC-5 sends `--outcome failed` for any other value (`S:63`). If the workflow, brainstorm or reflect vocabularies differ, Phase 0 fails and, per AC-0.4, "reopens section 1" (`S:201`) for a reason that has nothing to do with the decision. The vocabulary is UNVERIFIED here.
+
+**M8. Medium. Hohpe.** AC-C1 must print nothing for `\borca(-ide|-cli)?\s+(orchestration|worktree|terminal|agent|status)` over `src/superclaude/core` (`S:178-183`). Phase 0 adds `WORKER-CONTRACT.md` and a HOW-WE-WORK section to that folder (`S:158`), and SA-2 allows an Orca mention "as an example of a caller's question channel inside the contract file" (`S:147`). A mention such as `orca orchestration ask` would fail AC-C1. Whether the new text contains one is not stated. Candidate fix: say the contract text names the preamble's `ask` command without the `orca <verb>` form, or exempt the file.
+
+**M9. Medium. Fowler.** Tasklist under `--unattended` passes `--unattended` to each reflect "so the headless rule applies" (`S:122`). Stage 10.5 runs reflect with `--remediate` (`INV-B:209`), so the rule auto-accepts remediation for auto-fixable registers (`S:88`, `INV-B:109`). `INV-B:215` recommended calling reflect without `--remediate` instead. The spec chose auto-accept; the lines it relies on (`remediation-handoff.md:239-247`) are UNVERIFIED here. No recorded reason for the choice appears in the Decisions table.
+
+**M10. Medium. Cockburn.** The auggie-review row says posting "returns only with an explicit `--post-pr` in the brief" (`S:100`). Today only `--no-post-pr` exists and posting is the default (`INV-A:38`). The new flag is not listed under "Other required change", and its absence from the Usage line is not mentioned.
+
+**M11. Medium. Nygard.** Thresholds are loose or inconsistent:
+- WC-1 says fallbacks must be "well inside" the 60 s limit and gives no number (`S:59`). The evidence shows 30 s passed and about 45 s failed with a 45 s test limit (`CAPS:49`).
+- WC-10 requires splitting only calls longer than 5 minutes, into waits of at most 4 minutes (`S:68`), but AC-4.3 and the pr-submit row require every call under 240 s (`S:114`, `S:218`). A 4.5-minute call passes WC-10 and fails AC-4.3.
+
+**M12. Medium. Adzic.** AC-2.2 passes only if the worker ends `failed` with `blocked` (`S:208`). WC-3 says the worker "may instead ask the coordinator" (`S:61`). A conforming worker that asks and then succeeds fails AC-2.2. The test brief must forbid `ask`, and nothing says so.
+
+**M13. Medium. Whittaker (accumulation).** WC-11 says two workers in one worktree must never write the same file (`S:69`). cleanup-audit writes a fixed `.claude-audit/` and index-repo a fixed `PROJECT_INDEX.md` (`S:85-86`). The spec handles the first with "one audit per worktree at a time" in a table cell, but the rule is not in the section 2.3 list of what the brief states (`S:73`). reflect also writes a tracked file `docs/memory/reflect/deviation-patterns-<slug>.md` (`INV-B:114`), which no row covers.
+
+**M14. Medium. Newman.** `plugins/superclaude/commands/` copies are not kept in step by any stated rule; UNVERIFIED item 8 leaves it to "each phase's plan" (`S:287`). SA-5 and AC-C2 check only the `.claude/` mirror (`S:150`, `S:173`).
+
+**M15. Medium. Cockburn.** The count "27 needing a change" includes pr-submit, post-release and implement (`S:76`). The recommendation for D3 is that pr-submit is coordinator-only with "no pr-submit changes in Phase 4" (`S:248`). The totals and the Phase 4 scope change if D3 (a) is chosen.
+
+**N1. Minor.** Revision tags such as `M3`, `M4`, `M6`, `M7`, `M8`, `M10`, `R2-1`, `R2-2` appear in the text (`S:62-63`, `S:172`, `S:201`) with no definition in the document; their source, `review/disposition.md`, is not in the sandbox.
+**N2. Minor.** AC-0.4 cites `INV-A:35` for "no `status` field" on both troubleshoot and adversarial (`S:201`). `INV-A:35` is the adversarial row and names no field list; troubleshoot is `INV-B:242`.
+**N3. Minor.** D5(b) calls R1 a "protection against runaway fan-out" (`S:260`); R1 is a refusal reason, not a protection (`S:33`).
+**N4. Minor.** The spec states the tasklist reflect fan-out is "inside Claude Code's nesting limit" (`S:122`). `INV-B:210` and `INV-B:314` mark nested spawning UNVERIFIED.
+**N5. Minor.** UNVERIFIED here: the claims that the author "re-read 11" locations and that a validator re-read "about 340 citations" (`S:11`, `S:293`); the E5 grep results (`S:25`); and every citation outside the inventories.
+
+### === ARCHITECTURE ANALYSIS ===
+The decision (Orca coordinates, commands stay units of work, `S:16`) is supported: R1-R5 (`S:33-37`) trace to `CAPS:97-103,145-150`, and the three evidence gaps (`S:43-45`) are stated plainly. No blocking architectural defect was found beyond F1. Expert notes:
+- Fowler: the shared-contract-file design (`S:52`) keeps rules in one place; M1 and M4 are where the interface to the coordinator is still open.
+- Newman: the unattended section plus a fixed four-value status set is a stable versioned surface; M7 is the compatibility gap with existing contracts, and M14 the mirror gap.
+- Hohpe: the message exchange is pull-based (`S:70`, `CAPS:66-67`) and `worker_done` is sent once (`S:63`); M5 is the one place an ask answer could cross a boundary.
+- Nygard: failure modes are covered by `blocked`/`failed` and WC-10; M11 and M4 are the loose ends.
+
+### Whittaker adversarial analysis (FR-3 format)
+- I can break this specification by **Sequence Attack**. The invariant at **WC-3/WC-4** ("written on every outcome", `S:61-62`) fails when **a worker writes `status: blocked`, asks the coordinator, and the re-invoked command dies before overwriting**. Concrete attack: before, `<dir>/return-contract.yaml` has `blocked`; the command is re-invoked and the session is killed; after, the stale `blocked` contract remains and the coordinator reads it as this attempt's result. Severity: MINOR (no stated rule says the file is deleted first, and a missing `worker_done` is visible to Orca).
+- I can break this specification by **Sentinel Collision Attack**. The invariant at **WC-5** (`S:63`) fails when **a legitimate contract uses `status: partial` with `verdict: FAIL`**. Concrete attack: an audit finishes with FAIL; `partial` maps to `succeeded`; a coordinator that gates on outcome alone starts dependents. The spec covers this by gating on `verdict` (`S:63`), so the invariant holds; noted as handled.
+- I can break this specification by **Zero/Empty Attack**. The invariant at **AC-2.2** (`S:208`) fails when **`blocked_question` is empty**. Concrete attack: contract `status: blocked`, `blocked_question: ""`; the check demands non-empty, so the test fails; WC-4 requires the question "when blocked" but states no empty-string rule. Severity: MINOR.
+- Divergence and Accumulation attacks produced M2, M4 and M13 above.
+
+## Guard Condition Boundary Table
+Classes that cannot occur are omitted with a one-line reason. Status GAP entries are graded in the findings above.
+
+| Guard | Location | Input Condition | Variable Value | Guard Result | Specified Behavior | Status |
+|---|---|---|---|---|---|---|
+| `--unattended` present | `S:51`, `S:146` | Zero/Empty (absent) | no flag | false | Standalone behaviour unchanged (SA-1) | OK |
+| `--unattended` present | `S:51`, `S:159` | Typical | flag in brief | true | Mode applies; P1 scope vs AC-1.1 disagree on which commands accept it | GAP (F1) |
+| report `status` | `S:63` | Zero/Empty (missing) | no `status` | not one of four | `--outcome failed` | OK |
+| report `status` | `S:63`, `S:201` | Sentinel Value Match | legacy value (e.g. `success`) | not one of four | `failed` (WC-5); P0 check unclear | GAP (M7) |
+| report `status` | `S:63`, `S:208` | Legitimate Edge Case | `partial` | true | `succeeded`, text states `partial` | OK |
+| contract location | `S:62` | Zero/Empty | no output flag (4 commands) | unresolvable | not stated | GAP (M1) |
+| contract location | `S:62`, `S:69` | Maximum/Overflow | two file-valued `--output` in one dir | collides | not stated | GAP (M2) |
+| refused flag | `S:102-123` | Legitimate Edge Case | `--watch`, `--interactive` etc. | refused | no status or contract status given | GAP (M6) |
+| wait length | `S:68`, `S:218` | One/Minimal | 4.5 min single call | WC-10 true, AC-4.3 false | rules disagree | GAP (M11) |
+| wait length | `S:68` | Maximum/Overflow | > 5 min call | true | split into waits of at most 4 min | OK |
+| readiness limit | `S:59` | Typical | prompt fallback 30 s | true | passes (`CAPS:49`) | OK |
+| readiness limit | `S:59` | Maximum/Overflow | fallback near 60 s | unclear | "well inside" is undefined | GAP (M11) |
+| nesting depth | `S:33`, `S:66` | Typical | depth 1 | worker may not dispatch | `nested_worker_depth_exceeded`; WC-8 forbids | OK |
+| nesting depth | `S:66` | Legitimate Edge Case | depth-1 `task-create` | unknown | WC-8 forbids either way | OK |
+| confidence gate (task) | `S:121` | Legitimate Edge Case | exactly 0.70 | false (not below) | proceeds | OK |
+| confidence gate (task) | `S:121` | Typical | < 0.70 | true | blocked | OK |
+| `--monitor` ordinal (pr-submit) | `S:114` | One/Minimal | `--monitor 1` | true | refused (status unspecified) | GAP (M6) |
+| `--monitor` ordinal (pr-submit) | `S:114` | Typical | `--monitor 0`, `2` | unstated | not stated; default is `3` | GAP (minor: values 0 and 2 are the command's own) |
+| `--depth deep` short input | `S:91` | Legitimate Edge Case | exactly 10 words | false | proceeds (skill's own rule, `INV-B:239`) | OK |
+| retry circuit breaker | `S:64` | Maximum/Overflow | 3 failed starts | true | Orca fails the Task (`CAPS:80`); a worker's own `failed` does not count | OK |
+| `ask` timeout | `S:61` | Zero/Empty (omitted) | no `--timeout-ms` | unknown | resume by message ID; default UNVERIFIED (`S:289`) | OK |
+
+## Follow-up candidates
+Medium: M1-M15. Minor: N1-N5 and the two minor Whittaker notes. None of these triggers a revision, fails the review or appears in the Reviser brief. The session that ran this review is a worker whose reply is restricted to one line, so it did not ask the user whether to open an issue for them; the coordinator should ask once for this loop. No issue was created.
 
 ## Reviser brief
-
-Blocking finding ids: F1, F2. Rules (restated from Review Loop bullet 6, since the reviser reads this report, not the command): revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, with the bytes added and deleted per finding id; leave Medium and minor findings alone; do not award yourself a PASS.
+Blocking finding ids: F1.
+- Revise only text a blocking finding names (here the Phase 1 scope sentence and AC-1.1, and the lines that assign `## Unattended mode` sections to phases).
+- Add no rule, mechanism or section that no blocking finding calls for; each added paragraph or table cites its finding id.
+- Prefer deleting or narrowing to adding; report the byte size before and after, and the bytes added and deleted per finding id.
+- Leave Medium and minor findings (M1-M15, N1-N5) alone, including through "apply all findings".
+- Do not award yourself a PASS.
 
 verdict: FAIL

@@ -1,0 +1,128 @@
+{
+ "run": "a3d-r1",
+ "arm": 3,
+ "rep": 1,
+ "loop_model": "sonnet",
+ "done": [
+  "R1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "prepared": [
+  "R1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "report_bytes": 21091,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1,
+    "MAJOR": 2,
+    "MINOR": 1
+   },
+   "blocking_ids": "B-1, B-2. Repair only the text these ids name in the candidate `.dev/orca-command-refactor/specs/orca-worker-contract-spec.md`",
+   "blocking_word_count": 9,
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   }
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 3397,
+   "spec_after": {
+    "bytes": 58693,
+    "lines": 285,
+    "sha256": "0d7786a334196b491d4a4779d2dbbc71fedd95552ea14ed522742fd98a72bf68"
+   }
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 25390,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {
+    "MINOR": 1
+   },
+   "blocking_ids": null,
+   "blocking_word_count": 11,
+   "spec_after": {
+    "bytes": 58693,
+    "lines": 285,
+    "sha256": "0d7786a334196b491d4a4779d2dbbc71fedd95552ea14ed522742fd98a72bf68"
+   }
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 24899,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 15,
+    "MINOR": 2
+   },
+   "blocking_ids": "F-01",
+   "blocking_word_count": 10,
+   "spec_audited": {
+    "bytes": 58693
+   }
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 29683,
+   "verdict": "PASS",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 18,
+    "MINOR": 10,
+    "CRITICAL": 1
+   },
+   "blocking_ids": null,
+   "blocking_word_count": 7,
+   "spec_audited": {
+    "bytes": 58693
+   }
+  }
+ },
+ "launched": {
+  "R1": "2026-11-10T12:14:46+00:00",
+  "V1": "2026-11-10T12:21:33+00:00",
+  "R2": "2026-11-10T12:26:33+00:00",
+  "AUD": "2026-11-10T12:32:43+00:00",
+  "AUD2": "2026-11-10T12:32:43+00:00"
+ },
+ "relaunch": {},
+ "loop_end": "PASS",
+ "lost": false,
+ "complete": true,
+ "final_spec": {
+  "bytes": 58693,
+  "lines": 285,
+  "sha256": "0d7786a334196b491d4a4779d2dbbc71fedd95552ea14ed522742fd98a72bf68"
+ }
+}

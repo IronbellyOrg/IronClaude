@@ -1,0 +1,90 @@
+{
+ "baseline": {
+  "B_BLK": 1.5,
+  "B_AUDFAIL": "11/12",
+  "B_THEME": "5/6",
+  "provisional": false,
+  "n_audits": 12
+ },
+ "sonnet": {
+  "stratum": "sonnet",
+  "n_planned": 6,
+  "numbers": {
+   "n_runs": 6,
+   "n_audits": 12,
+   "audit_fails": 11,
+   "theme_audits": 6,
+   "BLK": 1.25,
+   "final_pass": 6,
+   "scoped_pass": 6,
+   "LOOP": 167382.0,
+   "AUD": 29907.833333333332,
+   "TOK": 197289.83333333334,
+   "R_LOOP": 1.6667529674181472,
+   "R_B": 1.1641716036852583,
+   "growth": 0.022448049212587067,
+   "scoped_reviews": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "gate_reviews": [
+    1,
+    2,
+    2,
+    2,
+    2,
+    1
+   ],
+   "max_reviews": 4,
+   "tokens_missing": []
+  },
+  "pooled_outcome": "INCONCLUSIVE",
+  "pooled_rule": "no DROP and no ADOPT",
+  "replica_outcomes": {
+   "audit1": "INCONCLUSIVE",
+   "audit2": "INCONCLUSIVE"
+  },
+  "sonnet_outcome": "INCONCLUSIVE",
+  "final_outcome": "INCONCLUSIVE",
+  "note": "no DROP and no ADOPT",
+  "provisional": false
+ },
+ "haiku": {
+  "stratum": "haiku",
+  "numbers": {
+   "n_runs": 4,
+   "n_audits": 8,
+   "audit_fails": 6,
+   "theme_audits": 4,
+   "BLK": 1.25,
+   "final_pass": 1,
+   "scoped_pass": 3,
+   "LOOP": 319005.0,
+   "AUD": 35057.75,
+   "TOK": 354062.75,
+   "R_LOOP": 3.1765812953078947,
+   "R_B": 2.0892602143177474,
+   "growth": 0.0459247269013036,
+   "scoped_reviews": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "gate_reviews": [
+    2,
+    2,
+    2,
+    0
+   ],
+   "max_reviews": 5,
+   "tokens_missing": []
+  },
+  "result": null,
+  "baseline_found": false
+ }
+}

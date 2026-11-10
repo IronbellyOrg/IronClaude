@@ -45,7 +45,8 @@
     "bytes": 57763,
     "lines": 285,
     "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
-   }
+   },
+   "output_tokens": 78431
   },
   "V1": {
    "output_exists": true,
@@ -55,7 +56,8 @@
     "bytes": 58893,
     "lines": 285,
     "sha256": "b4832d456dbf9b742b18a39e1442803bd1c9b0e19aafedbf70079e7911d839c2"
-   }
+   },
+   "output_tokens": 32700
   },
   "R2": {
    "output_exists": true,
@@ -102,7 +104,8 @@
     "bytes": 58893,
     "lines": 285,
     "sha256": "b4832d456dbf9b742b18a39e1442803bd1c9b0e19aafedbf70079e7911d839c2"
-   }
+   },
+   "output_tokens": 63668
   },
   "V2": {
    "output_exists": true,
@@ -112,7 +115,8 @@
     "bytes": 58948,
     "lines": 285,
     "sha256": "d7b701458ccab1292a94ee6f2c84881cfc91dbf20d522f329d407123b072388d"
-   }
+   },
+   "output_tokens": 7705
   },
   "R3": {
    "output_exists": true,
@@ -128,7 +132,8 @@
     "bytes": 58948,
     "lines": 285,
     "sha256": "d7b701458ccab1292a94ee6f2c84881cfc91dbf20d522f329d407123b072388d"
-   }
+   },
+   "output_tokens": 21334
   },
   "G": {
    "output_exists": true,
@@ -150,7 +155,8 @@
      "theme": "other",
      "heading": ""
     }
-   ]
+   ],
+   "output_tokens": 54988
   },
   "GV": {
    "output_exists": true,
@@ -160,7 +166,8 @@
     "bytes": 59510,
     "lines": 285,
     "sha256": "92a25ab664b0803fb12bd23716793e4aba1f0dc0171d60f876c747679cfcf973"
-   }
+   },
+   "output_tokens": 14055
   },
   "GR": {
    "output_exists": true,
@@ -188,7 +195,8 @@
     "bytes": 59510,
     "lines": 285,
     "sha256": "92a25ab664b0803fb12bd23716793e4aba1f0dc0171d60f876c747679cfcf973"
-   }
+   },
+   "output_tokens": 43386
   },
   "AUD": {
    "output_exists": true,
@@ -208,7 +216,8 @@
    ],
    "spec_audited": {
     "bytes": 59510
-   }
+   },
+   "output_tokens": 21766
   },
   "AUD2": {
    "output_exists": true,
@@ -233,7 +242,8 @@
    ],
    "spec_audited": {
     "bytes": 59510
-   }
+   },
+   "output_tokens": 32313
   }
  },
  "launched": {

@@ -1,0 +1,150 @@
+{
+ "a3-r1": {
+  "steps": {
+   "AUD": 58345,
+   "AUD2": 45243,
+   "R1": 66508,
+   "R2": 46922,
+   "R3": 37794,
+   "V1": 25293,
+   "V2": 17002
+  },
+  "models": {
+   "AUD": "claude-sonnet-5-5",
+   "AUD2": "claude-sonnet-5-5",
+   "R1": "claude-haiku-5-5",
+   "R2": "claude-haiku-5-5",
+   "R3": "claude-haiku-5-5",
+   "V1": "claude-haiku-5-5",
+   "V2": "claude-haiku-5-5"
+  },
+  "dups": [],
+  "loop": 193519,
+  "aud": [
+   58345,
+   45243
+  ]
+ },
+ "a3-r2": {
+  "steps": {
+   "AUD": 53355,
+   "AUD2": 50076,
+   "R1": 50813,
+   "R2": 50520,
+   "R3": 27984,
+   "V1": 50764,
+   "V2": 7276
+  },
+  "models": {
+   "AUD": "claude-sonnet-5-5",
+   "AUD2": "claude-sonnet-5-5",
+   "R1": "claude-haiku-5-5",
+   "R2": "claude-haiku-5-5",
+   "R3": "claude-haiku-5-5",
+   "V1": "claude-haiku-5-5",
+   "V2": "claude-haiku-5-5"
+  },
+  "dups": [],
+  "loop": 187357,
+  "aud": [
+   53355,
+   50076
+  ]
+ },
+ "a3-r3": {
+  "steps": {
+   "AUD": 56321,
+   "AUD2": 57456,
+   "R1": 51282,
+   "R2": 69362,
+   "V1": 32567
+  },
+  "models": {
+   "AUD": "claude-sonnet-5-5",
+   "AUD2": "claude-sonnet-5-5",
+   "R1": "claude-haiku-5-5",
+   "R2": "claude-haiku-5-5",
+   "V1": "claude-haiku-5-5"
+  },
+  "dups": [],
+  "loop": 153211,
+  "aud": [
+   56321,
+   57456
+  ]
+ },
+ "a3-r4": {
+  "steps": {
+   "AUD": 77947,
+   "AUD2": 50441,
+   "R1": 51208,
+   "R2": 26017,
+   "V1": 6527
+  },
+  "models": {
+   "AUD": "claude-sonnet-5-5",
+   "AUD2": "claude-sonnet-5-5",
+   "R1": "claude-haiku-5-5",
+   "R2": "claude-haiku-5-5",
+   "V1": "claude-haiku-5-5"
+  },
+  "dups": [],
+  "loop": 83752,
+  "aud": [
+   77947,
+   50441
+  ]
+ },
+ "a3-r5": {
+  "steps": {
+   "AUD": 67982,
+   "AUD2": 25338,
+   "R1": 78823,
+   "R2": 35391,
+   "R3": 24374,
+   "V1": 31812,
+   "V2": 12803
+  },
+  "models": {
+   "AUD": "claude-sonnet-5-5",
+   "AUD2": "claude-sonnet-5-5",
+   "R1": "claude-haiku-5-5",
+   "R2": "claude-haiku-5-5",
+   "R3": "claude-haiku-5-5",
+   "V1": "claude-haiku-5-5",
+   "V2": "claude-haiku-5-5"
+  },
+  "dups": [],
+  "loop": 183203,
+  "aud": [
+   67982,
+   25338
+  ]
+ },
+ "a3-r6": {
+  "steps": {
+   "AUD": 47903,
+   "AUD2": 36405,
+   "R1": 59092,
+   "R2": 41294,
+   "R3": 50604,
+   "V1": 23132,
+   "V2": 29126
+  },
+  "models": {
+   "AUD": "claude-sonnet-5-5",
+   "AUD2": "claude-sonnet-5-5",
+   "R1": "claude-haiku-5-5",
+   "R2": "claude-haiku-5-5",
+   "R3": "claude-haiku-5-5",
+   "V1": "claude-haiku-5-5",
+   "V2": "claude-haiku-5-5"
+  },
+  "dups": [],
+  "loop": 203248,
+  "aud": [
+   47903,
+   36405
+  ]
+ }
+}

@@ -62,7 +62,8 @@
     "bytes": 58895,
     "lines": 285,
     "sha256": "f3f06d442b7ecafec248d6a15af6b7f95431da195ed53de987f98ee1119f1751"
-   }
+   },
+   "output_tokens": 36566
   },
   "R2": {
    "output_exists": true,
@@ -78,7 +79,8 @@
     "bytes": 58895,
     "lines": 285,
     "sha256": "f3f06d442b7ecafec248d6a15af6b7f95431da195ed53de987f98ee1119f1751"
-   }
+   },
+   "output_tokens": 33702
   },
   "G": {
    "output_exists": true,
@@ -89,7 +91,8 @@
     "1"
    ],
    "blocking_ids": null,
-   "blocking": []
+   "blocking": [],
+   "output_tokens": 45021
   },
   "AUD": {
    "output_exists": true,
@@ -114,7 +117,8 @@
    ],
    "spec_audited": {
     "bytes": 58895
-   }
+   },
+   "output_tokens": 19084
   },
   "AUD2": {
    "output_exists": true,
@@ -139,7 +143,8 @@
    ],
    "spec_audited": {
     "bytes": 58895
-   }
+   },
+   "output_tokens": 40723
   }
  },
  "launched": {

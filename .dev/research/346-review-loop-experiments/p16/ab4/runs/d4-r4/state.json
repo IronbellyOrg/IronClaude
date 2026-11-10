@@ -1,0 +1,457 @@
+{
+ "run": "d4-r4",
+ "design": "d4",
+ "rep": 4,
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "frozen": {
+  "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+  "aud_cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "aud_rules_sha": "3eb772f944491720af24133267681e170510ba49949af1b08db913e9eeaddfb8",
+  "_comment": "cmd_sha: the /sc:spec-panel command (identical to the frozen audit command, aud_cmd_sha); rules_sha: ab1 rules + PN2 lint bullets + k=2 wording (make_rules.py); aud_rules_sha: the frozen audit rules (p11/rules.md)."
+ },
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+ "done": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "LINT1": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+   "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "stratum": "sonnet"
+  },
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 13347,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1,
+    "MAJOR": 1
+   },
+   "blocking_ids": "B1, B2",
+   "blocking_word_count": 9,
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 21366
+  },
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 16714,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {},
+   "blocking_ids": "F1, F2, F3, F4, F5, F6",
+   "blocking_word_count": 4,
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 35365
+  },
+  "VF1": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7",
+    "M8"
+   ],
+   "report_bytes": 5663,
+   "confirmed": [
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7"
+   ],
+   "rejected": {
+    "M1": "D3(a) rules out only Phase 4 pr-submit changes, so AC-1.1 requiring a section on pr-submit in P1 does not fail on the recommended choice; the spec has no text saying a gated command is dispatched with `--unattended` before its gate phase lands, so the stall needs an added assumption.",
+    "M8": "The spec is silent on whether `--resume` passes a gate, and 3.2 lists no per-command required brief flags, so that no happy path can reach `succeeded` is an inference not stated in the candidate."
+   },
+   "parse_ok": true,
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 9187
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 6754,
+   "spec_after": {
+    "bytes": 59200,
+    "lines": 285,
+    "sha256": "e08236b563e957f919d430bee09f668cc4d154a475a77554660dd7026ed73de4"
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 13984
+  },
+  "LINT2": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "d4e15d893aa0c394c548c92aeb7421d3dbfaf155b8e5fe0d353970a061981148",
+   "spec_sha256": "e08236b563e957f919d430bee09f668cc4d154a475a77554660dd7026ed73de4",
+   "stratum": "sonnet"
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 28263,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 9,
+   "spec_after": {
+    "bytes": 59200,
+    "lines": 285,
+    "sha256": "e08236b563e957f919d430bee09f668cc4d154a475a77554660dd7026ed73de4"
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 22549
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 31569,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 4,
+    "MAJOR": 14
+   },
+   "blocking_ids": "F-1",
+   "blocking_word_count": 9,
+   "spec_audited": {
+    "bytes": 59200
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 38942
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 33883,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 3
+   },
+   "blocking_ids": "F-1 only",
+   "blocking_word_count": 9,
+   "spec_audited": {
+    "bytes": 59200
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 63696
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T12:26:05+00:00",
+  "R1b": "2026-11-10T12:27:02+00:00",
+  "VF1": "2026-11-10T12:32:05+00:00",
+  "V1": "2026-11-10T12:33:57+00:00",
+  "R2": "2026-11-10T12:36:26+00:00",
+  "AUD": "2026-11-10T12:40:33+00:00",
+  "AUD2": "2026-11-10T12:42:08+00:00"
+ },
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "M1",
+   "theme": "T1",
+   "cited": [
+    60,
+    73,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    94,
+    109,
+    113,
+    114,
+    139,
+    154,
+    159,
+    160,
+    162,
+    195,
+    240
+   ],
+   "heading": "### B1. Phase 1 acceptance test demands changes to commands whose Phase 4 depends on user decisions D2-D4",
+   "reason": "D3(a) rules out only Phase 4 pr-submit changes, so AC-1.1 requiring a section on pr-submit in P1 does not fail on the recommended choice; the spec has no text saying a gated command is dispatched with `--unattended` before its gate phase lands, so the stall needs an added assumption."
+  },
+  {
+   "step": "VF1",
+   "id": "M8",
+   "theme": "other",
+   "cited": [
+    105,
+    201
+   ],
+   "heading": "### F6. AC-2.3's happy path cannot pass for `/sc:cli-portify`",
+   "reason": "The spec is silent on whether `--resume` passes a gate, and 3.2 lists no per-command required brief flags, so that no happy path can reach `succeeded` is an inference not stated in the candidate."
+  }
+ ],
+ "loop_end": "PASS",
+ "manual": [],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 8,
+  "merged_count": 8,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "T1",
+    "members": [
+     "round1-a.md/B1"
+    ],
+    "cited": [
+     60,
+     73,
+     78,
+     79,
+     80,
+     81,
+     82,
+     83,
+     84,
+     85,
+     86,
+     87,
+     88,
+     89,
+     90,
+     91,
+     92,
+     94,
+     109,
+     113,
+     114,
+     139,
+     154,
+     159,
+     160,
+     162,
+     195,
+     240
+    ],
+    "heading": "### B1. Phase 1 acceptance test demands changes to commands whose Phase 4 depends on user decisions D2-D4"
+   },
+   {
+    "mid": "M2",
+    "theme": "T2",
+    "members": [
+     "round1-a.md/B2"
+    ],
+    "cited": [
+     62,
+     87,
+     90,
+     120,
+     182,
+     200
+    ],
+    "heading": "### B2. WC-4 puts the contract at `<output-dir>/return-contract.yaml` but several commands take a file as `--output`"
+   },
+   {
+    "mid": "M3",
+    "theme": "T3",
+    "members": [
+     "round1-b.md/F1"
+    ],
+    "cited": [
+     62,
+     91,
+     92,
+     182,
+     194
+    ],
+    "heading": "### F1. P0 live-check AC-0.4 cannot pass for `/sc:troubleshoot` or `/sc:workflow`"
+   },
+   {
+    "mid": "M4",
+    "theme": "T1",
+    "members": [
+     "round1-b.md/F2"
+    ],
+    "cited": [
+     112,
+     159,
+     182,
+     183,
+     195,
+     196,
+     265
+    ],
+    "heading": "### F2. AC-1.1 and AC-1.2 cannot pass for `/sc:load`"
+   },
+   {
+    "mid": "M5",
+    "theme": "T2",
+    "members": [
+     "round1-b.md/F3"
+    ],
+    "cited": [
+     62,
+     73,
+     85,
+     86,
+     87,
+     90,
+     92,
+     120,
+     196
+    ],
+    "heading": "### F3. WC-4's \"known before dispatch\" output location cannot be met for cleanup-audit, index-repo, workflow, or file-valued `--output` commands, so AC-1.2/AC-2.x steps 3-4 cannot pass for them"
+   },
+   {
+    "mid": "M6",
+    "theme": "T2",
+    "members": [
+     "round1-b.md/F4"
+    ],
+    "cited": [
+     62,
+     83,
+     182,
+     198
+    ],
+    "heading": "### F4. WC-4's contract path contradicts the adversarial row, so 7.2 step 3 fails for adversarial"
+   },
+   {
+    "mid": "M7",
+    "theme": "other",
+    "members": [
+     "round1-b.md/F5"
+    ],
+    "cited": [
+     88,
+     100,
+     103,
+     110,
+     116,
+     122,
+     160,
+     200
+    ],
+    "heading": "### F5. AC-2.2 cannot pass for P2 commands whose gate resolves by default instead of \"blocked\""
+   },
+   {
+    "mid": "M8",
+    "theme": "other",
+    "members": [
+     "round1-b.md/F6"
+    ],
+    "cited": [
+     105,
+     201
+    ],
+    "heading": "### F6. AC-2.3's happy path cannot pass for `/sc:cli-portify`"
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "206caa3347f1e0f5347117e6aa9e9158ecbc755a5e414d1b740602b3d0671209",
+    "ids": [
+     "B1",
+     "B2"
+    ],
+    "themes": [
+     "T1",
+     "T2"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "775dcff18a22012d5f1f714594c7625817a5028dd7f12fd4ec68db9035cfad7f",
+    "ids": [
+     "F1",
+     "F2",
+     "F3",
+     "F4",
+     "F5",
+     "F6"
+    ],
+    "themes": [
+     "T3",
+     "T1",
+     "T2",
+     "T2",
+     "other",
+     "other"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 59200,
+  "lines": 285,
+  "sha256": "e08236b563e957f919d430bee09f668cc4d154a475a77554660dd7026ed73de4"
+ }
+}

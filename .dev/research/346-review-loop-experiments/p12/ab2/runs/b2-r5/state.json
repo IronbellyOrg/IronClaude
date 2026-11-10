@@ -133,7 +133,8 @@
     "bytes": 58543,
     "lines": 285,
     "sha256": "363aad34a552033a79d2d651495b742507e757c6d9545270ee860f0bf999e142"
-   }
+   },
+   "output_tokens": 51478
   },
   "AUD": {
    "output_exists": true,
@@ -145,7 +146,8 @@
    ],
    "labels": {},
    "blocking_ids": null,
-   "blocking": []
+   "blocking": [],
+   "output_tokens": 31687
   },
   "AUD2": {
    "output_exists": true,
@@ -179,7 +181,8 @@
       200
      ]
     }
-   ]
+   ],
+   "output_tokens": 33345
   }
  },
  "launched": {

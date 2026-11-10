@@ -1,0 +1,414 @@
+{
+ "run": "d4-r2",
+ "design": "d4",
+ "rep": 2,
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "frozen": {
+  "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+  "aud_cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "aud_rules_sha": "3eb772f944491720af24133267681e170510ba49949af1b08db913e9eeaddfb8",
+  "_comment": "cmd_sha: the /sc:spec-panel command (identical to the frozen audit command, aud_cmd_sha); rules_sha: ab1 rules + PN2 lint bullets + k=2 wording (make_rules.py); aud_rules_sha: the frozen audit rules (p11/rules.md)."
+ },
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+ "done": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD2",
+  "AUD"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD2",
+  "AUD"
+ ],
+ "log": {
+  "LINT1": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+   "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "stratum": "sonnet"
+  },
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 22125,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2
+   },
+   "blocking_ids": "F1, F2, M1, M12, WC-4, WC-5",
+   "blocking_word_count": 8,
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 32225
+  },
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 26856,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 4
+   },
+   "blocking_ids": "F1, F2, F3, F4, F5**. Rules for the reviser (restated from the command, bullet 6):",
+   "blocking_word_count": 8,
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 44831
+  },
+  "VF1": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7",
+    "M8",
+    "M9"
+   ],
+   "report_bytes": 5712,
+   "confirmed": [
+    "M1",
+    "M2",
+    "M5",
+    "M6",
+    "M7",
+    "M8",
+    "M9"
+   ],
+   "rejected": {
+    "M3": "The finding contains no quoted text or claim to check.",
+    "M4": "The finding contains no quoted text or claim to check."
+   },
+   "parse_ok": true,
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 6737
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 5837,
+   "spec_after": {
+    "bytes": 59678,
+    "lines": 285,
+    "sha256": "520642eef4a21c603b07d310309b173eed3bbf84e2a66e5c9d61cdc65c86fe24"
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 17509
+  },
+  "LINT2": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "9af4519073b297f1a4149392cabd92fc78c10682a71b4c364ba92b7c209a214a",
+   "spec_sha256": "520642eef4a21c603b07d310309b173eed3bbf84e2a66e5c9d61cdc65c86fe24",
+   "stratum": "sonnet"
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 31648,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {
+    "MINOR": 5
+   },
+   "blocking_ids": null,
+   "blocking_word_count": 11,
+   "spec_after": {
+    "bytes": 59678,
+    "lines": 285,
+    "sha256": "520642eef4a21c603b07d310309b173eed3bbf84e2a66e5c9d61cdc65c86fe24"
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 25123
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 30952,
+   "verdict": "PASS",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 17,
+    "MINOR": 15,
+    "CRITICAL": 1
+   },
+   "blocking_ids": null,
+   "blocking_word_count": 9,
+   "spec_audited": {
+    "bytes": 59678
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 46377
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 25171,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 4,
+    "MINOR": 2
+   },
+   "blocking_ids": "B-1",
+   "blocking_word_count": 7,
+   "spec_audited": {
+    "bytes": 59678
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 46877
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T12:22:11+00:00",
+  "R1b": "2026-11-10T12:22:11+00:00",
+  "VF1": "2026-11-10T12:29:41+00:00",
+  "V1": "2026-11-10T12:31:15+00:00",
+  "R2": "2026-11-10T12:33:57+00:00",
+  "AUD": "2026-11-10T12:38:21+00:00",
+  "AUD2": "2026-11-10T12:38:21+00:00"
+ },
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "M3",
+   "theme": "other",
+   "cited": [],
+   "heading": null,
+   "reason": "The finding contains no quoted text or claim to check."
+  },
+  {
+   "step": "VF1",
+   "id": "M4",
+   "theme": "other",
+   "cited": [],
+   "heading": null,
+   "reason": "The finding contains no quoted text or claim to check."
+  }
+ ],
+ "loop_end": "PASS",
+ "manual": [],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 9,
+  "merged_count": 9,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "T2",
+    "members": [
+     "round1-a.md/F1"
+    ],
+    "cited": [
+     62
+    ],
+    "heading": "### F1 (CRITICAL, blocking): the contract path is defined three incompatible ways"
+   },
+   {
+    "mid": "M2",
+    "theme": "T1",
+    "members": [
+     "round1-a.md/F2"
+    ],
+    "cited": [],
+    "heading": "### F2 (CRITICAL, blocking): AC-1.1 and the P1 scope contradict the rows they test"
+   },
+   {
+    "mid": "M3",
+    "theme": "other",
+    "members": [
+     "round1-a.md/M1"
+    ],
+    "cited": [],
+    "heading": null
+   },
+   {
+    "mid": "M4",
+    "theme": "other",
+    "members": [
+     "round1-a.md/M12"
+    ],
+    "cited": [],
+    "heading": null
+   },
+   {
+    "mid": "M5",
+    "theme": "T3",
+    "members": [
+     "round1-b.md/F1"
+    ],
+    "cited": [
+     73,
+     154,
+     158,
+     167,
+     182,
+     184,
+     194
+    ],
+    "heading": "### F1. CRITICAL (Adzic, Whittaker sequence attack). The P0 acceptance check cannot pass, which stops the whole rollout"
+   },
+   {
+    "mid": "M6",
+    "theme": "T2",
+    "members": [
+     "round1-b.md/F2"
+    ],
+    "cited": [
+     62,
+     83,
+     182,
+     183,
+     194,
+     198
+    ],
+    "heading": "### F2. MAJOR (Wiegers, Fowler). WC-4 and the adversarial row name different contract locations, and the checks depend on the location"
+   },
+   {
+    "mid": "M7",
+    "theme": "T2",
+    "members": [
+     "round1-b.md/F3"
+    ],
+    "cited": [
+     62,
+     73,
+     85,
+     86,
+     87,
+     90,
+     92,
+     109,
+     159,
+     196,
+     200
+    ],
+    "heading": "### F3. MAJOR (Hohpe, Nygard, Whittaker divergence attack). WC-4 gives no usable contract location for commands without a directory-valued output flag, yet P1 and P2 checks require one"
+   },
+   {
+    "mid": "M8",
+    "theme": "T1",
+    "members": [
+     "round1-b.md/F4"
+    ],
+    "cited": [
+     112,
+     159,
+     183,
+     195,
+     196,
+     265
+    ],
+    "heading": "### F4. MAJOR (Wiegers, Cockburn). AC-1.1 and AC-1.2 require `load` to write and report a contract; its own rows say it has no report and is not a Task"
+   },
+   {
+    "mid": "M9",
+    "theme": "other",
+    "members": [
+     "round1-b.md/F5"
+    ],
+    "cited": [
+     88,
+     100,
+     103,
+     110,
+     116,
+     120,
+     122,
+     160,
+     199,
+     200
+    ],
+    "heading": "### F5. MAJOR (Adzic, Crispin). AC-2.2 demands a blocked outcome from every P2 command, but six P2 commands have no blocking gate"
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "19fc3f09f4f2a0bbd926e1cbf10ba14e292b28b4fe4d804670dd8a33211c8370",
+    "ids": [
+     "F1",
+     "F2",
+     "M1",
+     "M12"
+    ],
+    "themes": [
+     "T2",
+     "T1",
+     "other",
+     "other"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "f7b83fbbf6c98d39c4c66b96ae339b0805c45ba6467076da10c7800afc0835c7",
+    "ids": [
+     "F1",
+     "F2",
+     "F3",
+     "F4",
+     "F5"
+    ],
+    "themes": [
+     "T3",
+     "T2",
+     "T2",
+     "T1",
+     "other"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 59678,
+  "lines": 285,
+  "sha256": "520642eef4a21c603b07d310309b173eed3bbf84e2a66e5c9d61cdc65c86fe24"
+ }
+}

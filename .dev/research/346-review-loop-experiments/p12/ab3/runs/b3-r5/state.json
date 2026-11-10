@@ -84,7 +84,8 @@
      "theme": "other",
      "heading": "### B-01 (BLOCKING) The report-file path is defined three incompatible ways"
     }
-   ]
+   ],
+   "output_tokens": 67935
   },
   "GV": {
    "output_exists": true,
@@ -94,7 +95,8 @@
     "bytes": 58817,
     "lines": 285,
     "sha256": "7dee641ad4c0ea491b648c4d2ff91374c68f0b6c2b89647e79c56e099f02c9e8"
-   }
+   },
+   "output_tokens": 7681
   },
   "GR": {
    "output_exists": true,
@@ -111,7 +113,8 @@
     "bytes": 58817,
     "lines": 285,
     "sha256": "7dee641ad4c0ea491b648c4d2ff91374c68f0b6c2b89647e79c56e099f02c9e8"
-   }
+   },
+   "output_tokens": 18020
   },
   "AUD": {
    "output_exists": true,
@@ -125,7 +128,8 @@
    "blocking": [],
    "spec_audited": {
     "bytes": 58817
-   }
+   },
+   "output_tokens": 23645
   },
   "AUD2": {
    "output_exists": true,
@@ -150,7 +154,8 @@
    ],
    "spec_audited": {
     "bytes": 58817
-   }
+   },
+   "output_tokens": 30283
   }
  },
  "launched": {

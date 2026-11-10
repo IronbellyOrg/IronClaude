@@ -1,6 +1,8 @@
 # PN2 RESULTS
 
-DECISION: NOT RUN  (Sonnet stratum verdict: NOT RUN; no completed Sonnet runs)
+DECISION: INCONCLUSIVE  (Sonnet stratum verdict: INCONCLUSIVE; no DROP condition and not all ADOPT conditions (noise band))
+
+NEXT: EXTEND: run `harness.py extend` once (D4), then re-run analyze at n=9
 
 Token method (C9.1, D2): output tokens, each message id counted once. Pass/fail cost uses LOOP-ONLY tokens A (R1, V1, R2, V2, R3); loop + one audit (B) is reported and never decides. No cost rule stops a run (D6); the cost clauses below are post-hoc. Limits: DROP R_LOOP > 1.42 (L=1.25 on R_B), ADOPT R_LOOP <= 1.25 (L=1.15 on R_B).
 
@@ -8,26 +10,26 @@ Token method (C9.1, D2): output tokens, each message id counted once. Pass/fail 
 
 | Quantity | Baseline | Test | Rule |
 |---|---|---|---|
-| runs completed / planned | 6 | 0 / 6 | >= 5 |
-| BLK (mean blocking ids per audit, AUD+AUD2) | 1.50 (recomputed over 12 audits; stated 1.50) | n/a | DROP >= 1.5; ADOPT <= 1.00 |
-| PASS (loop ended PASS) | 1.00 | n/a | DROP < 0.83 |
-| GROWTH % | 1.41 | n/a | DROP > 2.82 |
-| R_LOOP (A / 100424) | 1.00 | n/a | DROP > 1.42; ADOPT <= 1.25 |
-| R_B (loop + one audit / 169468), reported only | 1.00 | n/a | none |
-| THEME (T1+T2 share of audits) | 0.83 | n/a | ADOPT <= 0.5 x baseline |
-| AUD mean / AUD2 mean | | n/a / n/a | gap <= 0.75 |
-| R1 output tokens | 50576 | n/a | reported |
+| runs completed / planned | 6 | 6 / 6 | >= 5 |
+| BLK (mean blocking ids per audit, AUD+AUD2) | 1.50 (recomputed over 12 audits; stated 1.50) | 1.33 | DROP >= 1.5; ADOPT <= 1.00 |
+| PASS (loop ended PASS) | 1.00 | 1.00 | DROP < 0.83 |
+| GROWTH % | 1.41 | 0.84 | DROP > 2.82 |
+| R_LOOP (A / 100424) | 1.00 | 0.47 | DROP > 1.42; ADOPT <= 1.25 |
+| R_B (loop + one audit / 169468), reported only | 1.00 | 0.45 | none |
+| THEME (T1+T2 share of audits) | 0.83 | 0.58 | ADOPT <= 0.5 x baseline |
+| AUD mean / AUD2 mean | | 1.00 / 1.67 | gap <= 0.75 |
+| R1 output tokens | 50576 | 29208 | reported |
 
 ## Per run
 
 | run | stratum | reviews | final | growth % | loop tokens (A) | one audit | AUD blocking ids | lint findings R1/R2/R3 |
 |---|---|---|---|---|---|---|---|---|
-| l2-r1 | sonnet | 0 | None | n/a | 0 | n/a |  | 0/-/- |
-| l2-r2 | sonnet | 0 | None | n/a | 0 | n/a |  | 0/-/- |
-| l2-r3 | sonnet | 0 | None | n/a | 0 | n/a |  | 0/-/- |
-| l2-r4 | sonnet | 0 | None | n/a | 0 | n/a |  | 0/-/- |
-| l2-r5 | sonnet | 0 | None | n/a | 0 | n/a |  | 0/-/- |
-| l2-r6 | sonnet | 0 | None | n/a | 0 | n/a |  | 0/-/- |
+| l2-r1 | sonnet | 2 | PASS | 1.33 | 54208 | 37090 | AUD:0[]; AUD2:F-1[T3] | 0/2/- |
+| l2-r2 | sonnet | 2 | PASS | 0.57 | 43213 | 24604 | AUD:0[]; AUD2:B-1,B-2[T3,T2] | 0/2/- |
+| l2-r3 | sonnet | 2 | PASS | 1.14 | 50786 | 23253 | AUD:0[]; AUD2:B1,B2[T1,T2] | 0/2/- |
+| l2-r4 | sonnet | 2 | PASS | 0.73 | 30082 | 23998 | AUD:F-1,F-2[T2,T2]; AUD2:B-1[T2] | 0/2/- |
+| l2-r5 | sonnet | 2 | PASS | 0.18 | 47821 | 36928 | AUD:F-1,F-2[T2,T3]; AUD2:F1[T3] | 0/1/- |
+| l2-r6 | sonnet | 2 | PASS | 1.06 | 56090 | 27936 | AUD:B-1,B-2[T1,T2]; AUD2:B-1,B-2,B-3[T2,T1,T1] | 0/0/- |
 
 ## Haiku stratum (D3, never pooled)
 

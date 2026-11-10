@@ -11,16 +11,19 @@ TOOLS: you may use Read, Grep, Glob, Edit, Write and Bash inside the sandbox. Ed
 BRIEF (verbatim, from the coordinator):
 Verify the blocking findings listed below against the candidate .dev/orca-command-refactor/specs/orca-worker-contract-spec.md (sha256 of the file). You see only the candidate and this finding list, not the review report or the reviewer's reasoning. For each finding, find every text it quotes or cites in the candidate yourself, with `grep -nF` or by reading the cited line, and copy what you found; when a finding names two texts that contradict, check both. State whether the quoted text exists as quoted and whether the stated wrong outcome follows from the candidate's text with no further assumption. Confirm a finding only if both hold; otherwise reject it with one sentence that names what is missing. Add no finding, regrade nothing and edit nothing. Write one table row per finding: id, found text, exists yes/no, outcome follows yes/no, confirm or reject, reason. End with one line `confirmed: <ids>`, or `confirmed: none`. Findings: 
 
-### B2
-### B2 (new in round 3, blocking, origin=changed). The load row forbids the Task that AC-1.2 requires for load
-- Origin: changed. The row quotes the changed line spec:112; the conflicting AC-1.2 is unchanged (spec:197). The same two texts are also in the baseline (`spec-v2.md:112` and `spec-v2.md:197`), so this is older than the round-3 edit and was not raised in round 2. Recorded now under the rule to record a severe defect found in re-review even if older.
-- Stated texts:
-  1. spec:112, load row: "use it as a step inside another worker's brief, not as its own Task".
-  2. spec:159 (P1 scope) puts `load` in P1; spec:196 (AC-1.1) and spec:197 (AC-1.2) apply to "each P1 command", and AC-1.2 is "7.2 live check on each P1 command with `--unattended --output <dir>` | all steps pass".
-  3. spec:179-180 (7.2): "For each command under test, the coordinator runs: 1. `ORCA orchestration task-create --spec "<brief per section 2.3>"`, then `worker-start`". Step 3 (spec:182) requires one `worker_done` whose report path is the WC-4 contract path.
-  4. spec:167: "A phase passes only when every check in its block and every common check passes."
-- Sentence that holds with no further assumption: an implementer who follows the load row never creates a Task for `/sc:load` (spec:112); AC-1.2 requires a 7.2 run on `load`, and 7.2 step 1 (spec:180) creates a Task for each command under test; so AC-1.2 cannot pass for `load` as written, and P1 cannot pass (spec:167).
-- Grading: a stated text that an acceptance criterion cannot pass, and two stated texts that contradict each other, are both blocking under `command.md` Review Loop item 2 and the FIRST-REVIEW grading check (prompts file line 33).
+### R2-1
+| R2-1 | blocking | **open** (partial repair) | Workflow and troubleshoot are repaired. The step-3 rule for adversarial (`spec:189`, `spec:201`) takes its file from "its existing contract file", which the spec never names. The adversarial row says "filename not fixed" (`spec:83`), and the inventory records two layouts (`INV-A:35`). The same root cause as M6 below. |
+(text of this finding in the prior report)
+### R2-1 (BLOCKING, origin=changed)
+- Quoted: AC-0.4 (`orca-worker-contract-spec.md:201`): "steps 1-3 and 5-7 pass; step 3's report path is the one the command writes today". Step 3 (`:189`), which AC-0.4 depends on: "Pass: exactly one `worker_done`; its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path."
+- Sentence: An implementer who runs AC-0.4 on `/sc:troubleshoot "<real symptom>"` as written must make step 3's outcome match hold. Troubleshoot's P0 report is `REPORT.md` (`:91`; `commands-b.md:49`), and the contract does not exist before P1 (`:201`), so there is no `status` to match. Step 3 cannot pass, and P0 cannot pass.
+- Origin: the step 3 text is unchanged from `spec-v1.md`, so the defect is older. It is counted as changed because it quotes the changed AC-0.4 line (`:201`) that depends on it.
+
+### M6
+### M6 (regressed, BLOCKING; origin=unchanged step 4, depends on changed `spec:201` step 3)
+- Quoted: `spec:201`, adversarial step 4: "`adversarial`: `test -s` on its existing contract file (the inventory names no field list, `INV-A:35`)". Step 3 at `spec:189` and `spec:201` uses the same file: "its report path is that file".
+- Sentence: An implementer who runs AC-0.4 on `/sc:adversarial --compare <two files> --depth quick --output <dir>` as written must run `test -s` on "its existing contract file". The spec names no path (`spec:83`: "filename not fixed"). The inventory records two layouts (`INV-A:35`). The check tests either the wrong file or no file, so step 4 and the step-3 rule built on it cannot pass as written.
+- Note: `spec:83` gives the adversarial row's P1 fix as `<output>/return-contract.yaml`. That is P1, and P0 runs before it (`spec:158`).
 
 Write your full reply to .dev/orca-command-refactor/review/verify-3.md. Do not edit anything else. Write only your output file.
 

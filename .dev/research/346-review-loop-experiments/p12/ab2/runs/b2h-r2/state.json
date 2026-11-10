@@ -91,7 +91,8 @@
     "bytes": 57763,
     "lines": 285,
     "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
-   }
+   },
+   "output_tokens": 76222
   },
   "VF1": {
    "finding_ids": [
@@ -111,7 +112,8 @@
    "rejected": {
     "B-4": "The row at line 85 states the one-audit-at-a-time limit itself. An implementer who follows line 85 does not dispatch two same-pass workers in parallel, so the overwrite requires breaking that stated limit. The spec's default-path wording does conflict with a fixed `.claude-audit/pass<N>-summary.md` path, but the finding's stated outcome does not follow without assuming a parallel dispatch."
    },
-   "parse_ok": true
+   "parse_ok": true,
+   "output_tokens": 13046
   },
   "V1": {
    "output_exists": true,
@@ -121,7 +123,8 @@
     "bytes": 59236,
     "lines": 285,
     "sha256": "c0bcf427b1adbc33a7a7d8ed59cafb19f0ae4373145c6ccaac5362de30dbc042"
-   }
+   },
+   "output_tokens": 33535
   },
   "R2": {
    "output_exists": true,
@@ -193,7 +196,8 @@
     "bytes": 59236,
     "lines": 285,
     "sha256": "c0bcf427b1adbc33a7a7d8ed59cafb19f0ae4373145c6ccaac5362de30dbc042"
-   }
+   },
+   "output_tokens": 36894
   },
   "VF2": {
    "finding_ids": [
@@ -213,7 +217,8 @@
     "B-3": "The stated outcome is not produced by the current candidate, because AC-1.1 now exempts load by name. The remaining WC-4 versus spec:265 conflict is not the outcome the finding states.",
     "N-2": "The scope mismatch between spec:61 (\"unless\" covers those gates) and spec:235 (only the Ruling gate) is real, but the finding's stated outcome needs the \"never\" sentence to be ignored."
    },
-   "parse_ok": true
+   "parse_ok": true,
+   "output_tokens": 16410
   },
   "V2": {
    "output_exists": true,
@@ -223,7 +228,8 @@
     "bytes": 59786,
     "lines": 286,
     "sha256": "b72ae0165828ae31e6e86c4c17ddcc94a378f90648e36bc5398fab3017942e03"
-   }
+   },
+   "output_tokens": 31132
   },
   "R3": {
    "output_exists": true,
@@ -241,7 +247,8 @@
     "bytes": 59786,
     "lines": 286,
     "sha256": "b72ae0165828ae31e6e86c4c17ddcc94a378f90648e36bc5398fab3017942e03"
-   }
+   },
+   "output_tokens": 50839
   },
   "VF3": {
    "finding_ids": [
@@ -254,7 +261,8 @@
    "rejected": {
     "B-2": "The stated wrong outcome (command refused before any work without `--report-dir`, so no contract is written) rests on `command.md:460` and `command.md:461`, which are outside the candidate and not in the workspace, and on `INV-B:182`. The candidate does not state that the spec-panel command lacks a directory flag or refuses `--output-dir`. Spec:120 is itself conditioned on item 15 (\"UNVERIFIED item 15 applies if ...\"), so it is not a flat instruction to add a flag that contradicts spec:286; the two texts agree that the check decides the row. Without the external command text, the chain to a failed WC-4 or AC-2.3 is an unstated assumption."
    },
-   "parse_ok": true
+   "parse_ok": true,
+   "output_tokens": 4842
   },
   "AUD": {
    "output_exists": true,
@@ -300,7 +308,8 @@
       201
      ]
     }
-   ]
+   ],
+   "output_tokens": 24112
   },
   "AUD2": {
    "output_exists": true,
@@ -348,7 +357,8 @@
       240
      ]
     }
-   ]
+   ],
+   "output_tokens": 24544
   }
  },
  "launched": {

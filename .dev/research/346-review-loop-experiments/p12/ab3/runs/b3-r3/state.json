@@ -71,7 +71,8 @@
     "bytes": 59305,
     "lines": 285,
     "sha256": "e40e99ee4052bc08befc7a5c553a10250f30eed258a771b80b4e6936f8bf5bff"
-   }
+   },
+   "output_tokens": 53663
   },
   "G": {
    "output_exists": true,
@@ -88,7 +89,8 @@
      "theme": "T3",
      "heading": "### GF-01 (blocking, MAJOR) - the P0 gate cannot pass as written"
     }
-   ]
+   ],
+   "output_tokens": 36857
   },
   "GV": {
    "output_exists": true,
@@ -98,7 +100,8 @@
     "bytes": 59481,
     "lines": 285,
     "sha256": "0962971bc5e9e3d54fa29ae20237450890eefb0d54ec5b262606d398c0bb57e2"
-   }
+   },
+   "output_tokens": 3289
   },
   "GR": {
    "output_exists": true,
@@ -115,7 +118,8 @@
     "bytes": 59481,
     "lines": 285,
     "sha256": "0962971bc5e9e3d54fa29ae20237450890eefb0d54ec5b262606d398c0bb57e2"
-   }
+   },
+   "output_tokens": 5917
   },
   "AUD": {
    "output_exists": true,
@@ -135,7 +139,8 @@
    ],
    "spec_audited": {
     "bytes": 59481
-   }
+   },
+   "output_tokens": 30173
   },
   "AUD2": {
    "output_exists": true,
@@ -155,7 +160,8 @@
    ],
    "spec_audited": {
     "bytes": 59481
-   }
+   },
+   "output_tokens": 27372
   }
  },
  "launched": {

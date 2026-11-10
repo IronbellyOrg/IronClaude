@@ -76,7 +76,8 @@
     "bytes": 59339,
     "lines": 285,
     "sha256": "523f1629dc21eaacc3987537a70cf3e5944edf741f8b5368cdaad6f32cf68d9c"
-   }
+   },
+   "output_tokens": 55420
   },
   "G": {
    "output_exists": true,
@@ -93,7 +94,8 @@
      "theme": "other",
      "heading": "### F-1 [BLOCKING] [MAJOR] cli-portify's three always-on approval gates have no pass-through, so its"
     }
-   ]
+   ],
+   "output_tokens": 25723
   },
   "GV": {
    "output_exists": true,
@@ -103,7 +105,8 @@
     "bytes": 59523,
     "lines": 285,
     "sha256": "3df6411553609a3781774f54ed644139d6073eeb6265fab7bf239562e2658b99"
-   }
+   },
+   "output_tokens": 2915
   },
   "GR": {
    "output_exists": true,
@@ -120,7 +123,8 @@
     "bytes": 59523,
     "lines": 285,
     "sha256": "3df6411553609a3781774f54ed644139d6073eeb6265fab7bf239562e2658b99"
-   }
+   },
+   "output_tokens": 7952
   },
   "AUD2": {
    "output_exists": true,
@@ -145,7 +149,8 @@
    ],
    "spec_audited": {
     "bytes": 59523
-   }
+   },
+   "output_tokens": 29937
   },
   "AUD": {
    "output_exists": true,
@@ -165,7 +170,8 @@
    ],
    "spec_audited": {
     "bytes": 59523
-   }
+   },
+   "output_tokens": 38084
   }
  },
  "launched": {

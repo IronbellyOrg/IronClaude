@@ -89,7 +89,8 @@
     "bytes": 57763,
     "lines": 285,
     "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
-   }
+   },
+   "output_tokens": 96865
   },
   "VF1": {
    "finding_ids": [
@@ -109,7 +110,8 @@
     "F-01": "The conflict between WC-3's optional `ask` and the implement row's \"stop\" is real, but the claimed wrong outcome (the relayed answer \"acts as the Ruling\") is not stated in the candidate. The candidate says the Ruling rule is unchanged, and it describes a relayed answer recorded as a Ruling only under D2(b), an unadopted option. The wrong outcome therefore needs an assumption about how the re-invoked command treats the flag, which the candidate does not give. The AC-2.2 link (line 200) also needs an unstated assumption that an `ask` wait sets `agentWait`.",
     "F-04": "The Decisions row chooses to use load inside a brief and rejects a standalone report file. AC-1.1 requires load's Unattended section to name `return-contract.yaml`. A load section that follows the decision row cannot pass the AC-1.1 test as written. The finding's word \"forbids\" is slightly strong, since the row rejects the option instead of prohibiting it, but the contradiction and the failed acceptance check both follow from the candidate text."
    },
-   "parse_ok": true
+   "parse_ok": true,
+   "output_tokens": 14951
   },
   "V1": {
    "output_exists": true,
@@ -119,7 +121,8 @@
     "bytes": 58776,
     "lines": 285,
     "sha256": "00cb7b63ea6019f358ead17f8b721ad6058432fb1bebc97218c1af92404e5038"
-   }
+   },
+   "output_tokens": 22311
   },
   "R2": {
    "output_exists": true,
@@ -148,7 +151,8 @@
     "bytes": 58776,
     "lines": 285,
     "sha256": "00cb7b63ea6019f358ead17f8b721ad6058432fb1bebc97218c1af92404e5038"
-   }
+   },
+   "output_tokens": 34413
   },
   "VF2": {
    "finding_ids": [
@@ -161,7 +165,8 @@
     "N2-01"
    ],
    "rejected": {},
-   "parse_ok": true
+   "parse_ok": true,
+   "output_tokens": 7953
   },
   "V2": {
    "output_exists": true,
@@ -171,7 +176,8 @@
     "bytes": 58906,
     "lines": 285,
     "sha256": "2d14bcd06b4ba445afa8a700e4b20d34af0ab4a0f9ac87d402e2488534d77270"
-   }
+   },
+   "output_tokens": 11598
   },
   "R3": {
    "output_exists": true,
@@ -189,7 +195,8 @@
     "bytes": 58906,
     "lines": 285,
     "sha256": "2d14bcd06b4ba445afa8a700e4b20d34af0ab4a0f9ac87d402e2488534d77270"
-   }
+   },
+   "output_tokens": 26406
   },
   "AUD": {
    "output_exists": true,
@@ -234,7 +241,8 @@
       265
      ]
     }
-   ]
+   ],
+   "output_tokens": 22954
   },
   "AUD2": {
    "output_exists": true,
@@ -324,7 +332,8 @@
       285
      ]
     }
-   ]
+   ],
+   "output_tokens": 28374
   }
  },
  "launched": {

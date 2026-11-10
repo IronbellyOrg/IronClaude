@@ -9,8 +9,8 @@
  "rules_sha": "ed219181156e47e6d70120730063e0b00081482d8a78b3d2633da188574ca829",
  "done": [
   "R1a",
-  "R1c",
   "R1b",
+  "R1c",
   "VF1",
   "V1",
   "R2",
@@ -18,8 +18,8 @@
   "V2",
   "R3",
   "VF3",
-  "AUD2",
-  "AUD"
+  "AUD",
+  "AUD2"
  ],
  "prepared": [
   "R1a",
@@ -46,8 +46,8 @@
   "V2",
   "R3",
   "VF3",
-  "AUD2",
-  "AUD"
+  "AUD",
+  "AUD2"
  ],
  "log": {
   "R1a": {
@@ -110,79 +110,81 @@
     "M11",
     "M12"
    ],
-   "report_bytes": 8281,
+   "report_bytes": 7376,
    "confirmed": [
-    "M2",
+    "M3",
     "M4",
+    "M6",
     "M7",
     "M8",
-    "M9",
     "M10"
    ],
    "rejected": {
-    "M1": "Both rows sit in the \u00a73.2 table column headed \"Unattended-mode gate resolution (WC-2)\", and the roadmap row also says `--interactive` refused, so the rows scope to `--unattended`. The wrong outcome needs a reader who drops that column header; with it, WC-11 and the rows agree and SA-1 is not broken.",
-    "M3": "The candidate states the FAIL-audit-as-succeeded mapping on purpose, and the verdict sits in the worker_done body by design. The \"wrong\" verdict depends on the Orca rule at CAPS:73 (\"Never encode failure only in prose\"), which is UNVERIFIED in this sandbox.",
-    "M5": "agent` (probe above), so a permitted `orca orchestration ...` example would not be matched. The candidate also does not require any Orca command text in the contract or the section.",
-    "M6": "The wrong outcome for `/sc:workflow --handoff none` depends on INV-B:272 saying the existing workflow contract has no `command` key. INV-B is not in this sandbox, and the candidate does not state the field set of the existing workflow contract. The troubleshoot `REPORT.md` point (spec:91) is supported by the candidate, but it is not the outcome the sub-entry names.",
-    "M11": "The stale-contract attack needs the retry to reuse the same output directory. \u00a72.3 does not say to reuse it, and WC-6 requires a fresh output directory for a re-run without a resume flag. The gap that no rule clears an earlier contract is real but needs that unstated reuse.",
-    "M12": "The conflict depends on `command.md:23` and `:459-460` (the command definition's `--output <file>`), which are not in this sandbox, and on INV-B:43. The candidate itself uses `--output` as a file in init-lite and tdd (spec:87, spec:90) and as a directory in adversarial (spec:83), so the flag's meaning is inconsistent in the candidate, but spec-panel's current definition cannot be checked here."
+    "M1": "The column header scopes both rows to unattended mode, which matches WC-11 (spec:69) and SA-1 (spec:146), so the claimed contradiction and the plain-session outcome need the header ignored.",
+    "M2": "The WC-2 three-way versus WC-3 four-way conflict is real, but the stated outcome (halt cleared) is blocked by the unchanged Ruling rule stated at spec:233, and the candidate names no Ruling flag for implement; D4 concerns outward actions, not gates.",
+    "M5": "SA-2 permits Orca text in the contract file and SA-5 requires an Orca section, but neither requires an `orca <subcommand>` string, so AC-C1 failing needs an assumed example of that form; the check can pass if the permitted text avoids that form.",
+    "M9": "Same gap as M4.a: the candidate does not say a status of `done` or an empty status is a failure, so \"the contract does not state success\" is an added assumption, not the candidate's rule.",
+    "M11": "WC-6 (spec:64) already requires a fresh output directory for commands with no resume flag, so the stale-contract retry needs an implementer who violates WC-6; the \u00a72.3 premise \"passes the same `--output` on a retry\" is not in \u00a72.3. The missing binding of a contract to an attempt is a real gap, but not the stated outcome.",
+    "M12": "The claim that `--output` is file-valued in the spec-panel command rests on `command.md:23,459-460` and `INV-B:43`, which are not in this workspace and are UNVERIFIED here; the candidate text alone does not establish a file-versus-directory conflict."
    },
    "parse_ok": true,
-   "output_tokens": 27140
+   "output_tokens": 30415
   },
   "V1": {
    "output_exists": true,
-   "report_bytes": 10515,
+   "report_bytes": 9831,
    "spec_after": {
-    "bytes": 60031,
-    "lines": 288,
-    "sha256": "bddecb0d53d012639197cb333a623b97ec5dd535120f7fee296fb97a980e41db"
+    "bytes": 59705,
+    "lines": 293,
+    "sha256": "e28114855e5685eb7f3f2e2652a756ffaac57ed4c9ffb0b7423b91d78a8e8d19"
    },
-   "output_tokens": 45731
+   "output_tokens": 43748
   },
   "R2": {
    "output_exists": true,
-   "report_bytes": 24927,
+   "report_bytes": 23982,
    "verdict": "FAIL",
    "review_header": [
     "2"
    ],
    "labels": {},
-   "blocking_ids": "B1 (M8)",
-   "blocking_word_count": 13,
+   "blocking_ids": "R2-1, R2-2",
+   "blocking_word_count": 9,
    "spec_after": {
-    "bytes": 60031,
-    "lines": 288,
-    "sha256": "bddecb0d53d012639197cb333a623b97ec5dd535120f7fee296fb97a980e41db"
+    "bytes": 59705,
+    "lines": 293,
+    "sha256": "e28114855e5685eb7f3f2e2652a756ffaac57ed4c9ffb0b7423b91d78a8e8d19"
    },
-   "output_tokens": 61487
+   "output_tokens": 64212
   },
   "VF2": {
    "output_exists": true,
    "finding_ids": [
-    "B1"
+    "R2-1",
+    "R2-2"
    ],
-   "report_bytes": 3764,
+   "report_bytes": 2296,
    "confirmed": [
-    "B1"
+    "R2-1",
+    "R2-2"
    ],
    "rejected": {},
    "parse_ok": true,
-   "output_tokens": 6736
+   "output_tokens": 7052
   },
   "V2": {
    "output_exists": true,
-   "report_bytes": 5209,
+   "report_bytes": 5424,
    "spec_after": {
-    "bytes": 60339,
-    "lines": 288,
-    "sha256": "d7bacfaaecc8fff9a059e1e70fe785b1e6c52aecb2a57c161ca8d51cdcb3aa3c"
+    "bytes": 60552,
+    "lines": 293,
+    "sha256": "530bb94dc36fffb71a0dd0f59ecf0aa60e32ab1c485bde6cfedea040d97adda7"
    },
-   "output_tokens": 16612
+   "output_tokens": 21389
   },
   "R3": {
    "output_exists": true,
-   "report_bytes": 16322,
+   "report_bytes": 19378,
    "verdict": "FAIL",
    "review_header": [
     "3"
@@ -191,60 +193,62 @@
    "blocking_ids": null,
    "blocking_word_count": 12,
    "spec_after": {
-    "bytes": 60339,
-    "lines": 288,
-    "sha256": "d7bacfaaecc8fff9a059e1e70fe785b1e6c52aecb2a57c161ca8d51cdcb3aa3c"
+    "bytes": 60552,
+    "lines": 293,
+    "sha256": "530bb94dc36fffb71a0dd0f59ecf0aa60e32ab1c485bde6cfedea040d97adda7"
    },
-   "output_tokens": 33789
+   "output_tokens": 45408
   },
   "VF3": {
    "output_exists": true,
    "finding_ids": [
-    "B2"
+    "R2-1",
+    "M6"
    ],
-   "report_bytes": 2546,
-   "confirmed": [
-    "B2"
-   ],
-   "rejected": {},
+   "report_bytes": 3371,
+   "confirmed": [],
+   "rejected": {
+    "R2-1": "The phrase \"the one the command writes today\" does not occur. `:201` reads \"steps 1-3 and 5-7 pass, with step 3 replaced for P0 (R2-1)\". Step 3 at `:189` does exist verbatim (\"Pass: exactly one `worker_done`; its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path.\"), but `:189` and `:201` both route P0 to a replacement rule, so the unreplaced step 3 is not what P0 runs.",
+    "M6": "The quote exists verbatim. The stated outcome (\"tests either the wrong file or no file, so step 4 ... cannot pass as written\") needs an assumption that the implementer picks a wrong or absent file. The candidate does not force that. `:201` names no path, which leaves the check underdetermined, not contradictory."
+   },
    "parse_ok": true,
-   "output_tokens": 6021
-  },
-  "AUD2": {
-   "output_exists": true,
-   "report_bytes": 17620,
-   "verdict": "FAIL",
-   "review_header": [
-    "1"
-   ],
-   "labels": {
-    "CRITICAL": 1,
-    "MAJOR": 1
-   },
-   "blocking_ids": "F1, F2. Rules (restated from Review Loop bullet 6, since the reviser reads this report, not the command): revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, with the bytes added and deleted per finding id; leave Medium and minor findings alone; do not award yourself a PASS",
-   "blocking_word_count": 7,
-   "spec_audited": {
-    "bytes": 60339
-   },
-   "output_tokens": 23890
+   "output_tokens": 8170
   },
   "AUD": {
    "output_exists": true,
-   "report_bytes": 24123,
+   "report_bytes": 15441,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 1
+   },
+   "blocking_ids": "B-1",
+   "blocking_word_count": 5,
+   "spec_audited": {
+    "bytes": 60552
+   },
+   "output_tokens": 33671
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 19744,
    "verdict": "FAIL",
    "review_header": [
     "1"
    ],
    "labels": {
     "CRITICAL": 1,
-    "MAJOR": 2
+    "MAJOR": 1,
+    "MINOR": 2
    },
-   "blocking_ids": "F-01. Rules (restating Review Loop bullet 6): revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, with the bytes added and deleted per finding id. Medium and minor findings (F-02 to F-16 and the notes) are not to be edited. No brief clause was overridden",
+   "blocking_ids": "F1",
    "blocking_word_count": 7,
    "spec_audited": {
-    "bytes": 60339
+    "bytes": 60552
    },
-   "output_tokens": 41331
+   "output_tokens": 38779
   }
  },
  "launched": {
@@ -252,14 +256,14 @@
   "R1b": "2026-11-10T08:37:02+00:00",
   "R1c": "2026-11-10T08:37:02+00:00",
   "VF1": "2026-11-10T08:45:50+00:00",
-  "V1": "2026-11-10T08:52:15+00:00",
-  "R2": "2026-11-10T08:59:36+00:00",
-  "VF2": "2026-11-10T09:07:55+00:00",
-  "V2": "2026-11-10T09:12:26+00:00",
-  "R3": "2026-11-10T09:17:46+00:00",
-  "VF3": "2026-11-10T09:24:15+00:00",
-  "AUD": "2026-11-10T09:28:18+00:00",
-  "AUD2": "2026-11-10T09:28:18+00:00"
+  "V1": "2026-11-10T11:56:45+00:00",
+  "R2": "2026-11-10T12:03:50+00:00",
+  "VF2": "2026-11-10T12:12:05+00:00",
+  "V2": "2026-11-10T12:17:09+00:00",
+  "R3": "2026-11-10T12:22:53+00:00",
+  "VF3": "2026-11-10T12:30:39+00:00",
+  "AUD": "2026-11-10T12:34:56+00:00",
+  "AUD2": "2026-11-10T12:34:56+00:00"
  },
  "noted_unactioned": [
   {
@@ -274,21 +278,21 @@
     149
    ],
    "heading": "### B1 (CRITICAL, blocking). The standalone-behaviour rule is contradicted by two rows",
-   "reason": "Both rows sit in the \u00a73.2 table column headed \"Unattended-mode gate resolution (WC-2)\", and the roadmap row also says `--interactive` refused, so the rows scope to `--unattended`. The wrong outcome needs a reader who drops that column header; with it, WC-11 and the rows agree and SA-1 is not broken."
+   "reason": "The column header scopes both rows to unattended mode, which matches WC-11 (spec:69) and SA-1 (spec:146), so the claimed contradiction and the plain-session outcome need the header ignored."
   },
   {
    "step": "VF1",
-   "id": "M3",
-   "theme": "T2",
+   "id": "M2",
+   "theme": "other",
    "cited": [
-    62,
-    63,
-    88,
-    89,
-    90
+    60,
+    61,
+    109,
+    234,
+    245
    ],
-   "heading": "### B3 (MAJOR, blocking). WC-5 reports a FAIL audit as `succeeded`, and no contract field carries the verdict",
-   "reason": "The candidate states the FAIL-audit-as-succeeded mapping on purpose, and the verdict sits in the worker_done body by design. The \"wrong\" verdict depends on the Orca rule at CAPS:73 (\"Never encode failure only in prose\"), which is UNVERIFIED in this sandbox."
+   "heading": "### B2 (CRITICAL, blocking). WC-3 lets a coordinator answer any gate, which contradicts the spec's own three-way rule and the implement Ruling rule",
+   "reason": "The WC-2 three-way versus WC-3 four-way conflict is real, but the stated outcome (halt cleared) is blocked by the unchanged Ruling rule stated at spec:233, and the candidate names no Ruling flag for implement; D4 concerns outward actions, not gates."
   },
   {
    "step": "VF1",
@@ -301,18 +305,18 @@
     172
    ],
    "heading": "### B6 (MAJOR, blocking). Acceptance check AC-C1 cannot pass once P0 lands",
-   "reason": "agent` (probe above), so a permitted `orca orchestration ...` example would not be matched. The candidate also does not require any Orca command text in the contract or the section."
+   "reason": "SA-2 permits Orca text in the contract file and SA-5 requires an Orca section, but neither requires an `orca <subcommand>` string, so AC-C1 failing needs an assumed example of that form; the check can pass if the permitted text avoids that form."
   },
   {
    "step": "VF1",
-   "id": "M6",
-   "theme": "T3",
+   "id": "M9",
+   "theme": "other",
    "cited": [
-    183,
-    194
+    62,
+    63
    ],
-   "heading": "### B7 (MAJOR, blocking). AC-0.4 step 4 cannot pass for the P0 ready commands",
-   "reason": "The wrong outcome for `/sc:workflow --handoff none` depends on INV-B:272 saying the existing workflow contract has no `command` key. INV-B is not in this sandbox, and the candidate does not state the field set of the existing workflow contract. The troubleshoot `REPORT.md` point (spec:91) is supported by the candidate, but it is not the outcome the sub-entry names."
+   "heading": "**F3. MAJOR, FR-8 GAP, blocking. The outcome rule turns invalid status into success.** Expert: Nygard (guard boundaries), Whittaker (FR-2.1 zero/invalid input). `SPEC:63` maps to `--outcome succeeded` \"otherwise\", after `failed` and `blocked`. `SPEC:62` allows exactly four status values. `CAPS:73` says \"Never encode failure only in prose\".",
+   "reason": "Same gap as M4.a: the candidate does not say a status of `done` or an empty status is a failure, so \"the contract does not state success\" is an added assumption, not the candidate's rule."
   },
   {
    "step": "VF1",
@@ -326,7 +330,7 @@
     73
    ],
    "heading": "**F3. A retry can overwrite or misread the first attempt's contract. [BLOCKING]**",
-   "reason": "The stale-contract attack needs the retry to reuse the same output directory. \u00a72.3 does not say to reuse it, and WC-6 requires a fresh output directory for a re-run without a resume flag. The gap that no rule clears an earlier contract is real but needs that unstated reuse."
+   "reason": "WC-6 (spec:64) already requires a fresh output directory for commands with no resume flag, so the stale-contract retry needs an implementer who violates WC-6; the \u00a72.3 premise \"passes the same `--output` on a retry\" is not in \u00a72.3. The missing binding of a contract to an attempt is a real gap, but not the stated outcome."
   },
   {
    "step": "VF1",
@@ -337,10 +341,35 @@
     120
    ],
    "heading": "**F4. The spec-panel row conflicts with the command definition on `--output`. [BLOCKING]**",
-   "reason": "The conflict depends on `command.md:23` and `:459-460` (the command definition's `--output <file>`), which are not in this sandbox, and on INV-B:43. The candidate itself uses `--output` as a file in init-lite and tdd (spec:87, spec:90) and as a directory in adversarial (spec:83), so the flag's meaning is inconsistent in the candidate, but spec-panel's current definition cannot be checked here."
+   "reason": "The claim that `--output` is file-valued in the spec-panel command rests on `command.md:23,459-460` and `INV-B:43`, which are not in this workspace and are UNVERIFIED here; the candidate text alone does not establish a file-versus-directory conflict."
+  },
+  {
+   "step": "VF3",
+   "id": "R2-1",
+   "theme": "other",
+   "cited": [
+    83,
+    189,
+    201
+   ],
+   "heading": "| R2-1 | blocking | **open** (partial repair) | Workflow and troubleshoot are repaired. The step-3 rule for adversarial (`spec:189`, `spec:201`) takes its file from \"its existing contract file\", which the spec never names. The adversarial row says \"filename not fixed\" (`spec:83`), and the inventory records two layouts (`INV-A:35`). The same root cause as M6 below. |",
+   "reason": "The phrase \"the one the command writes today\" does not occur. `:201` reads \"steps 1-3 and 5-7 pass, with step 3 replaced for P0 (R2-1)\". Step 3 at `:189` does exist verbatim (\"Pass: exactly one `worker_done`; its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path.\"), but `:189` and `:201` both route P0 to a replacement rule, so the unreplaced step 3 is not what P0 runs."
+  },
+  {
+   "step": "VF3",
+   "id": "M6",
+   "theme": "other",
+   "cited": [
+    83,
+    158,
+    189,
+    201
+   ],
+   "heading": "### M6 (regressed, BLOCKING; origin=unchanged step 4, depends on changed `spec:201` step 3)",
+   "reason": "The quote exists verbatim. The stated outcome (\"tests either the wrong file or no file, so step 4 ... cannot pass as written\") needs an assumption that the implementer picks a wrong or absent file. The candidate does not force that. `:201` names no path, which leaves the check underdetermined, not contradictory."
   }
  ],
- "loop_end": "ESCALATED",
+ "loop_end": "VERIFIED-PASS",
  "manual": [
   {
    "step": "R1a",
@@ -368,9 +397,10 @@
   {
    "step": "R3",
    "ids": [
-    "B2"
+    "R2-1",
+    "M6"
    ],
-   "raw": "B2"
+   "raw": "R2-1, M6"
   }
  ],
  "relaunch": {},
@@ -608,8 +638,13 @@
   "done": true
  },
  "final_spec": {
-  "bytes": 60339,
-  "lines": 288,
-  "sha256": "d7bacfaaecc8fff9a059e1e70fe785b1e6c52aecb2a57c161ca8d51cdcb3aa3c"
+  "bytes": 60552,
+  "lines": 293,
+  "sha256": "530bb94dc36fffb71a0dd0f59ecf0aa60e32ab1c485bde6cfedea040d97adda7"
+ },
+ "replay": {
+  "from": "VF1",
+  "reason": "clean VF1 re-run changed the confirmed set (verifier list contamination)",
+  "backup": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab1/runs_superseded/b1h-r3-contaminated"
  }
 }

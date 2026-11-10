@@ -1,0 +1,6 @@
+| step | id | theme | verifier reason |
+|---|---|---|---|
+| VF1 | M1 | other | The candidate defines no answer flag for any command, and nothing says a coordinator's reply re-invoked as a flag becomes the Ruling. That outcome needs the implementer to invent the flag and treat it as a Ruling. |
+| VF1 | M3 | T3 | The conflict is real: P0 requires the brief to carry `--unattended` (73, 180), AC-0.4 runs the commands without it (194), and the flag arrives only in P1 (159). But "AC-0.4 then fails at argument parsing" needs an assumption about how a command treats an unrecognised flag, which the candidate does not state. |
+| VF1 | M5 | other | The conflict is real: AC-C1 scans core and the candidate exempts nothing there. But AC-C1 matches only lowercase `orca` followed by orchestration, worktree, terminal or agent. The candidate does not say the example or the Orca section contains such a command form, so the failure needs that assumption. |
+| VF1 | M7 | other | The pass condition is written as "no AskUserQuestion call", so a raw string match is not what step 5 says. The candidate also does not say the worker reads the contract; the Unattended sections only point to it. The failure needs both assumptions. |

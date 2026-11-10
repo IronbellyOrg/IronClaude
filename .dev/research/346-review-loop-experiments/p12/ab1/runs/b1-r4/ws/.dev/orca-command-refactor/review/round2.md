@@ -1,118 +1,120 @@
 review: 2 of 3
 
-# Re-review (critique mode, focus requirements,architecture)
+# Re-review 2 (critique mode, focus requirements,architecture)
 
-- candidate: .dev/orca-command-refactor/specs/orca-worker-contract-spec.md, sha256 a86859da35221feef00405e0c095e0a2d20bb75210af188b81511d9626e0e50d (58235 bytes)
-- baseline: .dev/orca-command-refactor/specs/history/spec-v1.md, sha256 d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d (57763 bytes)
-- prior: .dev/orca-command-refactor/review/round1.md, sha256 c211c18e984ac772faafc27939bf17564c140520e1fe7ea03756d18f5f24e8a2 (prior header `review: 1 of 3`, verdict FAIL)
-- reviewer model used: claude-sonnet-5-5
-- read first: the review-loop prompts file (~/.claude/rules/prompts/document_review_loop_prompts.md, RE-REVIEW prompt) and .dev/orca-command-refactor/README.md. Inventory citations below are checked only where I opened the file in the workspace; any citation I could not open is marked UNVERIFIED.
-- Roles fixed by the table in the prompt: CANDIDATE = revised spec, BASELINE = spec-v1.md, PRIOR = round1.md. Not inferred from reading order.
-- Brief clauses overridden: none. The brief names no scope wider than the changed lines and the prior blocking findings.
+- candidate: .dev/orca-command-refactor/specs/orca-worker-contract-spec.md sha256 ecccef2cd605be2429bee0a2ca58d7ed10decc68e84a2d03445f68dc64843d1c (58352 bytes)
+- baseline: .dev/orca-command-refactor/specs/history/spec-v1.md sha256 d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d (57763 bytes). This hash equals the candidate hash recorded in the prior report (round1.md:5), so the baseline is the text round 1 reviewed.
+- prior: .dev/orca-command-refactor/review/round1.md sha256 7e64c67802ad3c06e7ab423b74a818febc81b7badfa1769befe83efdce83d499 (header `review: 1 of 3`, round1.md:1; N = 1 + 1 = 2)
+- reviewer model: claude-sonnet-5-5 (Sonnet 5.5)
+- binding context read: .dev/orca-command-refactor/README.md. Review-loop prompt read in full: ~/.claude/rules/prompts/document_review_loop_prompts.md (RE-REVIEW prompt followed). The re-check follows the Fix Cycle steps of `rf-qa.md`, which is not in the sandbox (UNVERIFIED); the rules of the command's Review Loop section were applied on their own.
+- Inventories (`inventory/commands-a.md`, `commands-b.md`, `orca-capabilities.md`) were not re-read. Every inventory or `cmd/`/`sk/` citation below is carried from the spec and is UNVERIFIED here; only spec-internal consistency was checked.
+- Brief clauses overridden: none.
 
 ## Step 1: evidence block
 
-`diff -w BASELINE CANDIDATE` gives 8 changed lines (4 before, 4 after, 3 hunks: 62c62, 159c159, 194,195c194,195). Changed lines copied verbatim (long table rows are shortened with `[...]` where the text is unchanged; the changed words are complete).
+Roles: CANDIDATE = specs/orca-worker-contract-spec.md; BASELINE = specs/history/spec-v1.md; PRIOR = review/round1.md. Command run: `diff -w BASELINE CANDIDATE`. It prints five changed spans, at lines 62, 76, 159, 194 and 195 (the same line numbers on both sides). Every other line is identical ignoring whitespace.
 
-BEFORE (baseline), lines starting `<`:
+BEFORE (baseline), verbatim from the diff:
 
-- spec-v1.md:62: `... In unattended mode the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`). It follows the return-contract pattern [...]`
-- spec-v1.md:159: `... the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate); output flags for commands that lack one; [...]`
-- spec-v1.md:194: `... steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1. Record the results in the phase report; a failure here reopens section 1`
-- spec-v1.md:195: `... asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`, and that no section-4 command has one | passes`
+```
+< WC-4 row, line 62: "...where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`). It follows the return-contract pattern ..."
+< line 76: "...Every changed command also gains the `## Unattended mode` section (section 2.1). Phase numbers refer to section 6."
+< line 159 (P1 Scope cell): "The WC-4 contract in unattended mode; the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate); output flags for commands that lack one; the small fixes to ready commands."
+< line 194 (AC-0.4 pass cell): "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1. Record the results in the phase report; a failure here reopens section 1"
+< line 195 (AC-1.1): "...the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`, and that no section-4 command has one"
+```
 
-AFTER (candidate), lines starting `>`:
+AFTER (candidate), verbatim from the diff, shortened to the changed words:
 
-- spec:62: `... where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`); when `--output` is a file (tdd, init-lite, spec-panel), `<output-dir>` is that file's parent directory, which the brief must dedicate to the run (M3); adversarial is the stated exception at `<output>/adversarial/return-contract.yaml` (M3). It follows the return-contract pattern [...]`
-- spec:159: `... the `--unattended` flag accepted by every command in sections 3.1 and 3.2 whose phase is P1 (a no-op where a command has no gate); commands of P2-P4 gain it in their own phase (M5); output flags for commands that lack one; [...]`
-- spec:194: `... steps 1-3 and 5-7 pass; steps 3 and 4 use the command's existing report file (its path for the report-path match, its stated outcome for `--outcome`), since the contract arrives in P1 (M2). Record the results in the phase report; a failure here reopens section 1`
-- spec:195: `... asserts that every command in sections 3.1-3.2 whose phase is P1 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`, and that no section-4 command and none of pr-submit, implement, post-release (P4) has one yet (M5) | passes`
+```
+> line 62 (WC-4): "...(`--output` / `--output-dir`); when `--output` is a file, `<output-dir>` is that file's parent directory; a command with a fixed output location writes the contract there, and adversarial uses `<output>/adversarial/` (section 3.1) (M3). ..."
+> line 76: "Every changed command except `/sc:load` also gains the `## Unattended mode` section (section 2.1), in the phase of its own row (M1, M4, M5)."
+> line 159 (P1 Scope): "The WC-4 contract in unattended mode; the `--unattended` flag and section on the commands listed in this row plus brainstorm and init-lite (no gate, a no-op), and on no other command yet (M4, M5); `/sc:load` gets neither (M1); output flags for commands that lack one; the small fixes to ready commands."
+> line 194 (AC-0.4): "steps 1-2 and 5-7 pass; in steps 3 and 4 the command's existing report file stands in for the contract, since the contract arrives in P1: step 3 compares `--outcome` with that report's result under WC-5 and takes that file as the report path, and step 4 is only `test -s` on it (M2). Record the results ..."
+> line 195 (AC-1.1): "...the test asserts that every command in the P1 scope (section 6, P1 row) has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`, and that `/sc:load`, every P2-P4 command and every section-4 command has none (M1, M4, M5)"
+```
 
-Self-check (run): each AFTER fragment was found with `grep -nF` in the candidate at lines 62, 159, 194, 195 (the three "stated exception", "steps 3 and 4 use the command's existing report file" and "whose phase is P1 has" probes each matched once); the BEFORE fragments exist in the baseline at the same line numbers (the diff is line-for-line, so no role swap). Roles are correct.
+Self-check (run before the verdict): each AFTER line, with its `>` removed, was found by `grep -nF` in the candidate at its own line (62, 76, 159, 194, 195), and each BEFORE line, with its `<` removed, was found by `grep -nF` in the baseline at the same five line numbers. No role swap. The candidate hash matches the hash of the file read.
 
-## Prior blocking findings table
+Net change: +589 bytes (57763 to 58352), which agrees with the figure in review/revise1.md. This is the revise report's own claim, not independently verified beyond the two `wc -c` values taken here.
 
-| id | prior status | now | evidence (AFTER text only) |
-|---|---|---|---|
-| M2 | blocking, confirmed | resolved | spec:194 now says "steps 3 and 4 use the command's existing report file (its path for the report-path match, its stated outcome for `--outcome`)". The failing condition of M2 was step 3 (spec:182, unchanged) requiring "the contract's `status`" and "the WC-4 contract path", which do not exist in P0; spec:194 now relaxes step 3 the same way it relaxes step 4. For troubleshoot the existing report is `REPORT.md` (spec:91), and the contract arrives in P1 (spec:159). The check can now pass in P0. |
-| M3 | blocking, confirmed | resolved | spec:62 now states one rule for `--output` as a file: the contract goes in the file's parent directory, dedicated to the run, for tdd, init-lite and spec-panel; adversarial is the stated exception at `<output>/adversarial/return-contract.yaml`, matching spec:83. `/sc:tdd "auth" --unattended --output <file>` (AC-2.2, spec:200) now has a defined contract path (`<parent of file>/return-contract.yaml`), so `test -s <contract>` (spec:183) has a path to test. Residual cases that M3 listed but the fix does not cover (cleanup-audit, index-repo, post-release, spec-panel flag) are Medium, see follow-up candidates F1 and F2. |
-| M5 | blocking, confirmed | resolved | spec:159 and spec:195 now limit the P1 flag and AC-1.1 to commands whose phase is P1, and AC-1.1 asserts that pr-submit, implement and post-release (P4) have no section yet. The conflict with spec:154 and spec:225 ("Phases 1-3 need no user decision; Phase 4 waits for answers to D2-D4") and with D3(a) ("no pr-submit changes in Phase 4", spec:240) is gone: the three commands are P4 rows at spec:109, 113, 114 and spec:162. AC-1.1 can pass on the recommended path. |
+## Prior blocking findings: table
 
-Not prior blocking findings (the VERIFY step rejected them, round1.md:12, 73, 98): M1 and M4. They are notes, unactioned. Their rows are not re-graded here. (M1's texts, AC-1.1 and the load row at spec:112, are not on a changed line: AC-1.1 changed only by the phase scope, and `load` is still "P1 (usage line only)".)
+| id | prior defect (round1.md) | status | AFTER text compared | reason |
+|---|---|---|---|---|
+| M1 | AC-1.1 required a contract-naming section on `/sc:load` (spec:112, 265 say no report) | resolved | candidate:76, 159, 195 | AC-1.1 now says `/sc:load` has none (195). The P1 Scope cell says "`/sc:load` gets neither" (159). Line 76 says "except `/sc:load`". These agree with the load row ("none (see note)", "P1 (usage line only)", candidate:112) and with the Decision at candidate:265. The contradiction is gone. A residual wording issue is under follow-up candidate F1. |
+| M2 | AC-0.4 step 3 could not pass in P0 (no contract, no `status`) | resolved | candidate:194 | Step 3 now compares `--outcome` with the existing report's result and takes that file as the report path. The relaxation now covers steps 3 and 4. The 7.2 text (candidate:182-183) is unchanged, so P1-P4 still use the contract. The step 3 stand-in is still loose for troubleshoot and adversarial (follow-up candidate F2). |
+| M3 | WC-4 gave no contract path when `--output` is a file; adversarial's sub-directory was an unstated exception | resolved | candidate:62 | Rule: a file-valued `--output` means the file's parent directory; a fixed output location holds the contract; adversarial's exception is named (`<output>/adversarial/`) and matches the adversarial row (candidate:83). `test -s <contract>` in 7.2 step 4 now has a path to test for tdd and init-lite (candidate:87, 90, 200). New side effects are follow-up candidate F3. |
+| M4 | P1 made `--unattended` accepted by commands whose gates convert in P2 or P4 | resolved | candidate:76, 159, 195 | Flag and section now arrive in each command's own phase. P1 covers only the P1 row plus brainstorm and init-lite. AC-1.1 asserts that P2-P4 commands have none. `/sc:auggie-review <PR> --unattended`, `/sc:post-release --unattended`, and the pr-submit and implement variants no longer exist before their gates are converted (candidate:100, 160, 162). |
+| M5 | AC-1.1 contradicted D3(a), the P4 deferral and "Phases 1-3 need no user decision" | resolved | candidate:159, 195 | pr-submit, implement and post-release are P4 rows (candidate:109, 113, 114, 162), and AC-1.1 requires them to have no section after P1. D3(a) ("no pr-submit changes in Phase 4", candidate:240) and "Phases 1-3 need no user decision" (candidate:154) no longer conflict with a P1 check. |
 
-## New findings on lines changed against the baseline
+No finding regressed. The round1.md header lists M5 under a "follow-up candidates" heading (round1.md:130), but round1.md:158 and :12 list it as confirmed and blocking. I treated it as blocking.
 
-None blocking. Checked each changed line for a wrong outcome an implementer would produce.
+## Findings on changed lines (new)
 
-| id | origin | grade | finding |
-|---|---|---|---|
-| N1 | changed | Medium | spec:194 (AC-0.4) says steps 3 and 4 use "the command's existing report file", but step 4 as written (spec:183) runs `yaml.safe_load` on `<contract>` and asserts `d['status']` and `d['command']`. For troubleshoot the existing report is `REPORT.md` (spec:91), which is markdown. An implementer reads "uses the existing report file" as the `test -s` part only or as the whole of step 4; this needs a guess about which. It is not a stated text that contradicts, so Medium (follow-up candidate F3). |
-| N2 | changed | minor | The new WC-4 text lists spec-panel as a command whose `--output` is a file, while spec:120 still says "add `--output`". The two agree (the flag is to be added). The sandbox definition of the command already has a file-valued `--output` and a separate `--report-dir` (command.md:23, 460-461, outside the workspace, UNVERIFIED as evidence for this spec); see F2. |
+All five changed spans were checked against the spans that depend on them. No finding names a concrete wrong outcome an implementer would build from the stated text with no further assumption. The items below are Medium or minor and go under follow-up candidates.
 
-## Findings on unchanged lines (all minor notes unless they quote a changed line)
+## === REQUIREMENTS ANALYSIS ===
 
-- I1 (origin=unchanged, minor): spec:182 (step 3 of 7.2) still says "the contract's `status`" and "the WC-4 contract path". It is overridden for P0 by spec:194 and correct for P1 onward. Minor because spec:194, the changed line, resolves it.
-- I2 (origin=unchanged, minor): load row (spec:112) "usage line only" against AC-1.1 requiring a contract-naming section on every P1 command. Same text as the rejected M1; not regraded.
+Experts: Wiegers (traceability), Adzic (testability), Cockburn (actor).
 
-## Requirements analysis (Wiegers, Adzic, Cockburn), scoped to changed lines
+- F1 (Medium, origin=changed; Wiegers / Adzic): AC-1.1 at candidate:195 tests "every command in the P1 scope (section 6, P1 row)", and the P1 row's Commands cell (candidate:159) lists `load (usage line only)`. Read literally, `/sc:load` is both in the scope of the first assertion and the subject of the second ("`/sc:load` ... has none"). The same row's Scope cell (candidate:159) says "`/sc:load` gets neither", so the intent is clear. Graded Medium, not blocking, because the same row settles the reading with no guess about which text wins. Likewise, `AC-1.2` ("each P1 command", candidate:196, unchanged line, depends on the changed row at 159) could be read to include `/sc:load`, which has no contract (candidate:112), so its 7.2 step 4 would fail. Suggested narrowing: write "every P1 command except `/sc:load`" in AC-1.1 and AC-1.2. Priority Low.
+- F2 (Medium, origin=changed; Adzic): AC-0.4 step 3 (candidate:194) says "compares `--outcome` with that report's result under WC-5". WC-5 maps a contract `status` to an outcome (candidate:63). `REPORT.md` (troubleshoot, candidate:91) has no defined status field, and adversarial's contract filename is "not fixed" until P1 (candidate:83). The P0 pass condition therefore relies on the worker's judgment of what "result" means. The P0 gate (candidate:194) is still passable by reading the report, so this is not a wrong build. Suggested narrowing: say "the worker states in the phase report which result it compared". Priority Low.
+- F6 (minor, origin=unchanged; note): AC-0.4 says "the contract arrives in P1" for all three smoke commands. Under the M4 scoping, troubleshoot's section and flag arrive in P2 (candidate:91, 160). The stand-in rule still holds, so this is only a wrong phase number in a rationale. Also candidate:79 ("until Phase 1 adds the contract") has the same imprecision for reflect, release-split and tdd (P2). Cites the changed lines 76 and 159.
 
-- Wiegers: the three changed requirements (WC-4 location, P1 flag scope, AC-0.4/AC-1.1 pass conditions) are now testable. The WC-4 rule has a definite directory for file-valued `--output`; the one remaining ambiguity is for commands with no output flag (F1).
-- Adzic example, `/sc:tdd "auth" --unattended --output .dev/x/auth-tdd.md`: before the revision `<output-dir>` = `.dev/x/auth-tdd.md` (a file, untestable); after, the contract is `.dev/x/return-contract.yaml`. State trace: contract absent -> command runs -> `.dev/x/return-contract.yaml` written with `status: blocked`. Passes AC-2.2.
-- Cockburn: the primary actor of AC-0.4 is the P0 smoke-run implementer; after the fix the relaxed pass conditions name what to compare (report path and stated outcome).
+## === ARCHITECTURE ANALYSIS ===
 
-## Architecture analysis (Fowler, Newman, Hohpe, Nygard), scoped to changed lines
+Experts: Fowler (boundary), Newman (interface evolution), Hohpe (hand-off), Nygard (failure modes).
 
-- Fowler: the only boundary change is the addition of one rule to WC-4 (file-valued output; adversarial exception). It adds no section or mechanism. The `<output>/adversarial/` sub-directory exception is a named inconsistency inside one table cell; it is stated, not hidden, and tied to the row at spec:83.
-- Newman: `--unattended` stays an additive interface; moving its introduction into each command's own phase (spec:159) removes the interim state in which a command accepted the flag without converting its gates (the concern of rejected M4 does not need a fix, but the change reduces the interim window).
-- Hohpe: report hand-off stays a pull model (worker passes the contract path, coordinator opens it); no change.
-- Nygard: a parent directory "dedicated to the run" (spec:62) is a precondition on the brief; if the coordinator passes a shared directory, two workers could overwrite one `return-contract.yaml`. WC-11 (spec:69) already says two workers in one worktree must never write the same file, so the dedication rule is consistent with it and the failure is covered by a stated rule (no finding).
+No blocking architecture finding. The M3 rule keeps the single hand-off (one contract file the worker names in `--report-path`, WC-4 at candidate:62) and adds no flag, mechanism or section. The M4 scoping makes `--unattended` additive per phase, which fits SA-4 (candidate:149). The core decision (commands stay units of work, Orca coordinates) is unchanged and is not touched by the diff.
 
-## Whittaker adversarial analysis (changed lines only)
+- F3 (Medium, origin=changed; Fowler / Nygard): the "file's parent directory" rule at candidate:62 puts `return-contract.yaml` beside the deliverable. Two workers whose `--output` files share a parent directory (for example two `/sc:tdd ... --output .dev/x/a.md` and `.dev/x/b.md`) write the same `.dev/x/return-contract.yaml`, and a bare `--output a.md` puts it in the repository root. Concrete attack (Whittaker, Divergence Attack on candidate:62): before, no contract; worker A writes it, worker B overwrites it, and A's coordinator reads B's status. The spec has a one-run-per-directory idea for cleanup-audit (WC-11, candidate:85) but does not state one for file-valued `--output`. Graded Medium: it needs a coordinator that reuses a directory, which the spec does not require or forbid. Suggested narrowing: add one sentence that parallel workers use distinct `--output` parents (no new mechanism). Priority Medium.
+- F4 (minor, origin=changed; Newman): AC-1.1's negative assertion "every P2-P4 command has none" (candidate:195) is true at the end of P1 only. `test_worker_contract.py` is one persistent file (candidate:158, 199) and AC-2.1 adds assertions to it, so the P1 negative assertion must be dropped or phase-gated when P2 lands. The spec does not say so. A note, not a wrong outcome from the stated text.
+- F5 (minor, origin=unchanged; Hohpe): the spec-panel row says "add `--output`" (candidate:120) with no statement of whether it is a file or a directory. The M3 rule now yields a defined contract path in either case, so the round 1 concern is covered. The sandbox `command.md:22-23,460` already defines `--output <file>`, `--report-dir` and an `--unattended` section for spec-panel. The spec cites `cmd/spec-panel.md:22,34-35,222,451,455` (UNVERIFIED, file not in the sandbox), so the row may describe an older command text.
 
-- I can break this specification by **Divergence Attack**. The invariant at **spec:62** ("`<output-dir>` is that file's parent directory") fails when **`--output` is a bare filename with no directory part**. Concrete attack: `/sc:init-lite --unattended --output context-audit.md`; before: no contract; after: parent is `.` (the worktree root), and the contract is `./return-contract.yaml`, in the shared worktree root where a second concurrent worker writes the same name. WC-11 (spec:69) forbids the collision, and "which the brief must dedicate to the run" (spec:62) forbids the brief. The text covers the case, so no finding. Minor.
-- I can break this specification by **Sequence Attack**. The invariant at **spec:159 vs spec:162** fails when **a coordinator runs a P2 command with `--unattended` after P1 only**. Concrete attack: `/sc:auggie-review <PR> --unattended` after P1; before the revision the flag was accepted with the outward default still on; after, the command does not yet accept the flag (the flag arrives in P2), so the coordinator sees an unrecognised argument, not a silent post. The wrong outcome of the prior M4 no longer exists on the changed text. No finding.
-- Zero/Empty, Sentinel Collision and Accumulation attacks: nothing on the changed lines names a concrete wrong outcome. Pipeline Dimensional Analysis is not triggered (the phase table is sequencing, not a data pipeline).
+## === ADVERSARIAL ANALYSIS (Whittaker) ===
 
-## Guard Condition Boundary Table (changed-line guards only)
+Only changed lines were attacked (re-review scope).
 
-Guards: G-A WC-4 `--output` is a file (spec:62); G-B P1 flag scope "phase is P1" (spec:159, 195); G-C AC-0.4 P0 relaxation (spec:194). Classes left out: Maximum/Overflow for G-A, G-B, G-C (presence or enum tests, no capacity); Sentinel Value Match for G-B and G-C (no sentinel).
+- Divergence Attack on candidate:62 (file versus directory): `--output .dev/x/auth-tdd.md` now gives `<output-dir>` = `.dev/x/`, so `test -s .dev/x/return-contract.yaml` has a defined target. Holds. Collision case = F3 (Medium).
+- Sequence Attack on candidate:159 versus 160-162 (phase order): run P1 then check the P2-P4 commands. The flag and section are absent on auggie-review, task, post-release, pr-submit and implement, so the P1 outward-action path described in M4 cannot occur. Holds.
+- Sentinel Collision Attack on candidate:62 (`status` vocabulary versus a command's own `status` values): carried from round 1 as minor and not worsened by the diff. UNVERIFIED (the workflow contract reference is not in the sandbox).
+- Zero/Empty Attack on candidate:62 (no `--output` for post-release): still a Medium follow-up from round 1 (M3 in the round 1 numbering of follow-ups), not changed by the diff.
+- Accumulation and other attacks: none found that name a concrete wrong outcome.
+
+## === GUARD CONDITION BOUNDARY TABLE === (guards on changed lines only)
+
+Guards on changed lines: G-A (WC-4 `--output` is a file versus a directory, candidate:62), G-B (P1 flag scope, candidate:159), G-C (AC-0.4 stand-in for steps 3 and 4, candidate:194). Classes left out: Sentinel and Maximum/Overflow for G-A, G-B, G-C cannot occur (presence or enum tests, no numeric threshold or reserved value).
 
 | Guard | Location | Input Condition | Variable Value | Guard Result | Specified Behavior | Status |
-|-------|----------|-----------------|----------------|--------------|-------------------|--------|
-| G-A `--output` is a file | spec:62 | Zero/Empty | no `--output` | false | post-release: "require an explicit `--output` ... else blocked" (spec:113); where the blocked contract goes is not stated; cleanup-audit and index-repo have no output flag (spec:85, 86) | GAP (Medium, F1) |
-| G-A | spec:62, 90, 200 | Typical | `--output .dev/x/auth-tdd.md` | true | contract at `.dev/x/return-contract.yaml`, parent dedicated to the run | OK |
-| G-A | spec:62 | One/Minimal | `--output auth.md` (no directory part) | true | parent is `.`; collision covered by WC-11 (spec:69) and the "dedicate" clause | OK |
-| G-A | spec:62, 83 | Legitimate Edge Case | `--output <dir>` for adversarial | exception | `<output>/adversarial/return-contract.yaml` | OK |
-| G-B phase is P1 | spec:159, 195 | Typical | analyze, build, test | true | section and flag in P1; AC-1.1 asserts | OK |
-| G-B | spec:159, 195 | Legitimate Edge Case | `load` (P1, usage line only, no report) | true | AC-1.1 requires the section; the load row (spec:112) writes no report | GAP (note; same text as rejected M1, not regraded) |
-| G-B | spec:159, 195 | Sentinel-like | pr-submit under D3(a) (never a worker) | false | AC-1.1 asserts it has no section "yet"; consistent with D3(a) (spec:240) | OK |
-| G-C P0 relaxation | spec:194 | Typical | troubleshoot, `REPORT.md` | true | path match and stated outcome from `REPORT.md` | OK |
-| G-C | spec:194 vs 183 | Legitimate Edge Case | step 4 YAML parse of a markdown report | ambiguous | step 4 "uses the existing report file" but the parse assertion is for YAML | GAP (Medium, F3) |
+|---|---|---|---|---|---|---|
+| G-A `--output` file or dir | candidate:62 | Zero/Empty | no `--output` | false | fixed-location commands write there; post-release "else blocked" (candidate:113), where its blocked contract goes is unstated | OK for fixed-location commands; GAP (Medium, carried from round 1) for post-release |
+| G-A | candidate:62 | One/Minimal | `--output a.md` (bare file) | file | contract in the file's parent directory (current directory) | OK |
+| G-A | candidate:62 | Typical | `--output <dir>` | directory | `<dir>/return-contract.yaml` | OK |
+| G-A | candidate:62 | Legitimate Edge Case | two file outputs share a parent | file | same contract path for both | GAP (Medium, F3) |
+| G-B P1 flag scope | candidate:159 | Typical | analyze, build, brainstorm, init-lite | in scope | flag and section added | OK |
+| G-B | candidate:159, 195 | Legitimate Edge Case | `/sc:load`, a P1 command by the Commands cell | excluded by name | "gets neither" | OK (wording note F1, Medium) |
+| G-B | candidate:159, 160-162 | Legitimate Edge Case | any P2-P4 command | out of scope | flag and section absent until its phase | OK |
+| G-C AC-0.4 stand-in | candidate:194 | Typical | troubleshoot `REPORT.md` | stand-in | `--outcome` compared with "that report's result" | GAP (Medium, F2) |
+| G-C | candidate:194 | Legitimate Edge Case | adversarial contract name not fixed (candidate:83) | stand-in | "that file" is whichever contract the run wrote | GAP (Medium, F2) |
 
-Table complete: every guard is enumerated, every cell populated, omitted classes carry their reason (FR-10 satisfied). GAP rows are Medium (no concrete wrong outcome without an extra guess), not blocking under FR-8. `--focus correctness` is not active: no State Variable Registry.
-
-## Coverage
-
-Covered: the 8 changed lines against the baseline (3 hunks), the 3 prior blocking findings (M2, M3, M5), and the lines these changes depend on (spec:62, 69, 83, 85-87, 90, 109, 112-114, 120, 154, 159, 162, 182-183, 194-195, 200, 225, 240). Not covered: unchanged text elsewhere in the spec (not reviewed; whole-document assurance needs a separately labelled first review). Inventory files were not re-read except where cited above; citations to `INV-*`, `CAPS:*` and `cmd/*` inside the spec are carried from the spec and UNVERIFIED by this review.
+Table complete (FR-10): every guard on a changed line is enumerated, every cell is filled, omitted classes carry their reason. The GAP rows are all Medium under FR-8 and FR-9 because none names a concrete wrong outcome an implementer would produce from the stated text with no further assumption, and none is a security, data-loss or safety-boundary risk. Pipeline Dimensional Analysis: not triggered. `--focus correctness` is not active.
 
 ## Follow-up candidates (Medium and minor; never trigger a revision)
 
-Medium (warnings):
+Medium: F1 (AC-1.1/AC-1.2 wording for `/sc:load`), F2 (AC-0.4 stand-in for troubleshoot and adversarial), F3 (contract collision when file outputs share a parent directory). Carried from round 1 and untouched: the sources listed at round1.md:154 (round1-a.md, round1-b.md, round1-c.md).
+Minor: F4 (the P1 negative assertions are phase-bound), F5 (spec-panel row versus the sandbox command text, UNVERIFIED), F6 (phase number in the "arrives in P1" rationale).
 
-- F1: WC-4 (spec:62) names `<output-dir>` as "the directory the coordinator passed", but cleanup-audit (output dir fixed, spec:85) and index-repo (location implied, spec:86) have no flag, and post-release (spec:113) requires `--output` without saying file or directory or where a blocked contract goes with no `--output`. Source: the prior round1 follow-up on M3 (round1.md:123 and :136, "G2 Zero/Empty"); not new, still open.
-- F2: the spec-panel row (spec:120) says "add `--output`", but the sandbox definition of the command already has a file-valued `--output` and a separate `--report-dir` that carries the contract (command.md:23, 460-461). WC-4 as revised would put spec-panel's contract at the parent of `--output`; the command defines `<report-dir>/return-contract.yaml`. UNVERIFIED in the workspace (the inventory at INV-B:177-185 describes an older command with no `--output`).
-- F3: AC-0.4 step 4 for a markdown `REPORT.md` (see N1).
+The session that ran this review would ask the user once whether to open an issue for these. No answer is available in this sandbox, so none is asked and none is created.
 
-Minor: I1, I2 (above), N2.
+## Coverage
 
-Noted, unactioned (carried from round1.md): M1 and M4.
+scoped PASS: changed lines + prior blockers
 
-The session that ran this review asks the user once for this loop whether to open an issue for the follow-up candidates and creates none without the answer.
+Covered: the five diff spans (candidate:62, 76, 159, 194, 195); the five prior blocking findings M1-M5; the spans that depend on them (candidate:79, 83, 87, 90, 91, 100, 109, 112-114, 149, 154, 158, 160-162, 196, 199, 240, 265); a grep of the candidate for "every command", "no-op" and "accepted by", which found no remaining unscoped "every command" claim about the flag. Not covered: unchanged text of the candidate and all inventory and source citations (UNVERIFIED here); whole-document assurance needs a separate, labelled first review.
 
 ## Reviser brief
 
-none: no open blocking finding. (Reviser contract unchanged: revise only text a blocking finding names; add no rule, mechanism or section; cite the finding id; prefer deleting or narrowing; report byte sizes.)
-
-coverage: scoped PASS: changed lines + prior blockers
+None. No blocking finding is open, so no revision is requested and none may be made for F1-F6.
 
 verdict: PASS

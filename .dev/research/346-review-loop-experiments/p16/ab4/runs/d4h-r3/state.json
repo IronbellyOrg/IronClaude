@@ -1,0 +1,539 @@
+{
+ "run": "d4h-r3",
+ "design": "d4",
+ "rep": 3,
+ "stratum": "haiku",
+ "loop_model": "haiku",
+ "frozen": {
+  "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+  "aud_cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "aud_rules_sha": "3eb772f944491720af24133267681e170510ba49949af1b08db913e9eeaddfb8",
+  "_comment": "cmd_sha: the /sc:spec-panel command (identical to the frozen audit command, aud_cmd_sha); rules_sha: ab1 rules + PN2 lint bullets + k=2 wording (make_rules.py); aud_rules_sha: the frozen audit rules (p11/rules.md)."
+ },
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+ "done": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "AUD2",
+  "AUD"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "AUD2",
+  "AUD"
+ ],
+ "log": {
+  "LINT1": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+   "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "stratum": "haiku"
+  },
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 23412,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 7,
+    "MINOR": 2
+   },
+   "blocking_ids": "B1, B2, B3, B4",
+   "blocking_word_count": 9,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 87334
+  },
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 43518,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 11
+   },
+   "blocking_ids": "B-1, B-2, B-3, B-4, B-5, B-6, B-7, B-8",
+   "blocking_word_count": 29,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 130698
+  },
+  "VF1": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7",
+    "M8",
+    "M9",
+    "M10",
+    "M11",
+    "M12"
+   ],
+   "report_bytes": 8164,
+   "confirmed": [
+    "M2",
+    "M4",
+    "M6",
+    "M8",
+    "M9",
+    "M10",
+    "M11",
+    "M12"
+   ],
+   "rejected": {
+    "M1": "The candidate defines no answer flag for any command, and nothing says a coordinator's reply re-invoked as a flag becomes the Ruling. That outcome needs the implementer to invent the flag and treat it as a Ruling.",
+    "M3": "The conflict is real: P0 requires the brief to carry `--unattended` (73, 180), AC-0.4 runs the commands without it (194), and the flag arrives only in P1 (159). But \"AC-0.4 then fails at argument parsing\" needs an assumption about how a command treats an unrecognised flag, which the candidate does not state.",
+    "M5": "The conflict is real: AC-C1 scans core and the candidate exempts nothing there. But AC-C1 matches only lowercase `orca` followed by orchestration, worktree, terminal or agent. The candidate does not say the example or the Orca section contains such a command form, so the failure needs that assumption.",
+    "M7": "The pass condition is written as \"no AskUserQuestion call\", so a raw string match is not what step 5 says. The candidate also does not say the worker reads the contract; the Unattended sections only point to it. The failure needs both assumptions."
+   },
+   "parse_ok": true,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 28187
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 4647,
+   "spec_after": {
+    "bytes": 61053,
+    "lines": 285,
+    "sha256": "0e53b436d774ed5d6bf97ec9ffac93472d2f0ec0eb53b20ecebda159b8c5d3e2"
+   },
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 33214
+  },
+  "LINT2": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "b99ee368cc0454b1cd294bc9ee051789dcf0ffe8097ecef8a6acb831a3cf81cd",
+   "spec_sha256": "0e53b436d774ed5d6bf97ec9ffac93472d2f0ec0eb53b20ecebda159b8c5d3e2",
+   "stratum": "haiku"
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 19302,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": "M6, N1",
+   "blocking_word_count": 10,
+   "spec_after": {
+    "bytes": 61053,
+    "lines": 285,
+    "sha256": "0e53b436d774ed5d6bf97ec9ffac93472d2f0ec0eb53b20ecebda159b8c5d3e2"
+   },
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 41694
+  },
+  "VF2": {
+   "output_exists": true,
+   "finding_ids": [
+    "M6",
+    "N1"
+   ],
+   "report_bytes": 2899,
+   "confirmed": [
+    "M6",
+    "N1"
+   ],
+   "rejected": {},
+   "parse_ok": true,
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 11999
+  },
+  "V2": {
+   "output_exists": true,
+   "report_bytes": 3261,
+   "spec_after": {
+    "bytes": 61229,
+    "lines": 285,
+    "sha256": "150cd2160e83032be24b36d6510052c36e52b128ef009a46dab2f911fab14ca3"
+   },
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 9798
+  },
+  "LINT3": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "c3e0d92d5416188d1db064a9a9b936708f25e973eb38381e9b412e9d79b13a81",
+   "spec_sha256": "150cd2160e83032be24b36d6510052c36e52b128ef009a46dab2f911fab14ca3",
+   "stratum": "haiku"
+  },
+  "R3": {
+   "output_exists": true,
+   "report_bytes": 11082,
+   "verdict": "PASS",
+   "review_header": [
+    "3"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 9,
+   "spec_after": {
+    "bytes": 61229,
+    "lines": 285,
+    "sha256": "150cd2160e83032be24b36d6510052c36e52b128ef009a46dab2f911fab14ca3"
+   },
+   "stratum": "haiku",
+   "model": "haiku",
+   "output_tokens": 34118
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 28210,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1,
+    "MAJOR": 16,
+    "MINOR": 9
+   },
+   "blocking_ids": "F-01, F-02",
+   "blocking_word_count": 13,
+   "spec_audited": {
+    "bytes": 61229
+   },
+   "stratum": "haiku",
+   "model": "sonnet",
+   "output_tokens": 30848
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 19283,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1,
+    "MAJOR": 1
+   },
+   "blocking_ids": "F1",
+   "blocking_word_count": 5,
+   "spec_audited": {
+    "bytes": 61229
+   },
+   "stratum": "haiku",
+   "model": "sonnet",
+   "output_tokens": 35327
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T12:52:41+00:00",
+  "R1b": "2026-11-10T12:55:38+00:00",
+  "VF1": "2026-11-10T13:06:14+00:00",
+  "V1": "2026-11-10T13:09:11+00:00",
+  "R2": "2026-11-10T13:12:07+00:00",
+  "VF2": "2026-11-10T13:15:45+00:00",
+  "V2": "2026-11-10T13:17:29+00:00",
+  "R3": "2026-11-10T13:19:10+00:00",
+  "AUD": "2026-11-10T13:22:24+00:00",
+  "AUD2": "2026-11-10T13:22:24+00:00"
+ },
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "M1",
+   "theme": "other",
+   "cited": [
+    61,
+    109,
+    218,
+    233,
+    234,
+    235,
+    236
+   ],
+   "heading": "### B1. WC-3 lets a coordinator's reply stand in for a gate answer, which reopens the /sc:implement Ruling rule",
+   "reason": "The candidate defines no answer flag for any command, and nothing says a coordinator's reply re-invoked as a flag becomes the Ruling. That outcome needs the implementer to invent the flag and treat it as a Ruling."
+  },
+  {
+   "step": "VF1",
+   "id": "M3",
+   "theme": "T3",
+   "cited": [
+    73,
+    158,
+    159,
+    180,
+    194
+   ],
+   "heading": "### B3. Section 2.3 requires `--unattended` in every brief, but P0 and AC-0.4 run three commands before the flag exists",
+   "reason": "The conflict is real: P0 requires the brief to carry `--unattended` (73, 180), AC-0.4 runs the commands without it (194), and the flag arrives only in P1 (159). But \"AC-0.4 then fails at argument parsing\" needs an assumption about how a command treats an unrecognised flag, which the candidate does not state."
+  },
+  {
+   "step": "VF1",
+   "id": "M5",
+   "theme": "other",
+   "cited": [],
+   "heading": "### B-1 (BLOCKING). AC-C1 forbids the Orca wording that the spec requires in core files",
+   "reason": "The conflict is real: AC-C1 scans core and the candidate exempts nothing there. But AC-C1 matches only lowercase `orca` followed by orchestration, worktree, terminal or agent. The candidate does not say the example or the Orca section contains such a command form, so the failure needs that assumption."
+  },
+  {
+   "step": "VF1",
+   "id": "M7",
+   "theme": "other",
+   "cited": [],
+   "heading": "### B-3 (BLOCKING). 7.2 step 5 fails on a worker that made no AskUserQuestion call",
+   "reason": "The pass condition is written as \"no AskUserQuestion call\", so a raw string match is not what step 5 says. The candidate also does not say the worker reads the contract; the Unattended sections only point to it. The failure needs both assumptions."
+  }
+ ],
+ "loop_end": "PASS",
+ "manual": [],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 12,
+  "merged_count": 12,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "other",
+    "members": [
+     "round1-a.md/B1"
+    ],
+    "cited": [
+     61,
+     109,
+     218,
+     233,
+     234,
+     235,
+     236
+    ],
+    "heading": "### B1. WC-3 lets a coordinator's reply stand in for a gate answer, which reopens the /sc:implement Ruling rule"
+   },
+   {
+    "mid": "M2",
+    "theme": "T2",
+    "members": [
+     "round1-a.md/B2"
+    ],
+    "cited": [
+     62,
+     73,
+     85,
+     86,
+     87,
+     90,
+     92,
+     116,
+     200
+    ],
+    "heading": "### B2. The contract path rule in WC-4 assumes a directory and a known path. Section 3 rows contradict it"
+   },
+   {
+    "mid": "M3",
+    "theme": "T3",
+    "members": [
+     "round1-a.md/B3"
+    ],
+    "cited": [
+     73,
+     158,
+     159,
+     180,
+     194
+    ],
+    "heading": "### B3. Section 2.3 requires `--unattended` in every brief, but P0 and AC-0.4 run three commands before the flag exists"
+   },
+   {
+    "mid": "M4",
+    "theme": "other",
+    "members": [
+     "round1-a.md/B4"
+    ],
+    "cited": [
+     103,
+     105,
+     107,
+     109,
+     110,
+     121,
+     185,
+     201
+    ],
+    "heading": "### B4. The 7.2 step 6 check requires `git status` to show only output-dir files, but gate-converted commands edit product files on their happy path"
+   },
+   {
+    "mid": "M5",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B-1"
+    ],
+    "cited": [],
+    "heading": "### B-1 (BLOCKING). AC-C1 forbids the Orca wording that the spec requires in core files"
+   },
+   {
+    "mid": "M6",
+    "theme": "T3",
+    "members": [
+     "round1-b.md/B-2"
+    ],
+    "cited": [],
+    "heading": "### B-2 (BLOCKING). AC-0.4 cannot pass as written in P0"
+   },
+   {
+    "mid": "M7",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B-3"
+    ],
+    "cited": [],
+    "heading": "### B-3 (BLOCKING). 7.2 step 5 fails on a worker that made no AskUserQuestion call"
+   },
+   {
+    "mid": "M8",
+    "theme": "T1",
+    "members": [
+     "round1-b.md/B-4"
+    ],
+    "cited": [],
+    "heading": "### B-4 (BLOCKING). Section 3.1 says ready commands change only by small fixes; P1 and AC-1.1 require more"
+   },
+   {
+    "mid": "M9",
+    "theme": "T2",
+    "members": [
+     "round1-b.md/B-5"
+    ],
+    "cited": [],
+    "heading": "### B-5 (BLOCKING). The WC-4 contract path is contradicted by the per-command rows, and several commands have no directory to write into"
+   },
+   {
+    "mid": "M10",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B-6"
+    ],
+    "cited": [],
+    "heading": "### B-6 (BLOCKING). AC-2.2 expects a blocked outcome for gates that the spec resolves by default"
+   },
+   {
+    "mid": "M11",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B-7"
+    ],
+    "cited": [],
+    "heading": "### B-7 (BLOCKING). AC-2.3 expects cli-portify to succeed, but its gates always block"
+   },
+   {
+    "mid": "M12",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B-8"
+    ],
+    "cited": [],
+    "heading": "### B-8 (BLOCKING). Section 1.4 and E3 contradict each other on the direct-route evidence"
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "3def070a0ecb0b5c1edf766c1595cb674a368e804b4d0048431c38f07b64d231",
+    "ids": [
+     "B1",
+     "B2",
+     "B3",
+     "B4"
+    ],
+    "themes": [
+     "other",
+     "T2",
+     "T3",
+     "other"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "8335f81494c4ca5d4cc7ff555ff1d259ed2c011b12d5ff5243ce04664d17d264",
+    "ids": [
+     "B-1",
+     "B-2",
+     "B-3",
+     "B-4",
+     "B-5",
+     "B-6",
+     "B-7",
+     "B-8"
+    ],
+    "themes": [
+     "other",
+     "T3",
+     "other",
+     "T1",
+     "T2",
+     "other",
+     "other",
+     "other"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 61229,
+  "lines": 285,
+  "sha256": "150cd2160e83032be24b36d6510052c36e52b128ef009a46dab2f911fab14ca3"
+ }
+}

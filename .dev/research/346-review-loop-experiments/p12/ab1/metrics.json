@@ -7,20 +7,20 @@
   "audit_fail": 9,
   "theme_rate": 9,
   "theme_counts": {
-   "T1": 2,
+   "T1": 1,
    "T2": 3,
-   "T3": 4,
-   "other": 0
+   "T3": 5,
+   "other": 1
   },
   "loop_pass": 6,
-  "growth": 0.01590118241781071,
-  "LOOP_T": 122677.83333333333,
-  "TOK_T": 152341.3333333333,
-  "R_LOOP": 1.221598754613771,
-  "R_B": 0.8989386393498083,
-  "REJ1": 6,
+  "growth": 0.01703512629191697,
+  "LOOP_T": 122146.33333333333,
+  "TOK_T": 155906.8333333333,
+  "R_LOOP": 1.2163061950662524,
+  "R_B": 0.919978009614401,
+  "REJ1": 3,
   "N1": 33,
-  "REJ1_rate": 0.18181818181818182,
+  "REJ1_rate": 0.09090909090909091,
   "outcome": "INCONCLUSIVE",
   "rule": "no DROP and not a clear ADOPT",
   "outcome_final": "INCONCLUSIVE",
@@ -30,18 +30,28 @@
   "replicas": [
    {
     "outcome": "INCONCLUSIVE",
-    "BLK_T": 1.0,
+    "BLK_T": 0.8333333333333334,
     "rule": "no DROP and not a clear ADOPT"
    },
    {
     "outcome": "INCONCLUSIVE",
-    "BLK_T": 0.6666666666666666,
+    "BLK_T": 0.8333333333333334,
     "rule": "no DROP and not a clear ADOPT"
    }
   ]
  },
  "haiku": {
-  "state": "pending"
+  "state": "ok",
+  "BLK_TH": 1.625,
+  "H_BLK": 1.75,
+  "HR": 0.9285714285714286,
+  "one_minus_HR": 0.0714285714285714,
+  "fail_rate": 0.0,
+  "H_fail_rate": 0.17,
+  "loop_pass": 3,
+  "n_done": 4,
+  "growth": 0.04744386545020168,
+  "R_LOOP_H": 2.5333539117187267
  },
  "baseline": {
   "B_BLK": 1.5,

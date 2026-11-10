@@ -119,7 +119,8 @@
     "bytes": 57763,
     "lines": 285,
     "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
-   }
+   },
+   "output_tokens": 90501
   },
   "VF1": {
    "finding_ids": [
@@ -141,7 +142,8 @@
    "rejected": {
     "F-01": "The conflict between SPEC:73 and SPEC:79 is real, but the stated stall needs an assumption the candidate does not make: how a command behaves when it receives an undefined `--unattended` flag (the text never says it is ignored and gates stay interactive)."
    },
-   "parse_ok": true
+   "parse_ok": true,
+   "output_tokens": 13248
   },
   "V1": {
    "output_exists": true,
@@ -151,7 +153,8 @@
     "bytes": 59081,
     "lines": 285,
     "sha256": "bfe20373dae030b64d0ab846cde01958172f4f46786bcfbad746ac335c6b4df6"
-   }
+   },
+   "output_tokens": 33975
   },
   "R2": {
    "output_exists": true,
@@ -184,7 +187,8 @@
     "bytes": 59081,
     "lines": 285,
     "sha256": "bfe20373dae030b64d0ab846cde01958172f4f46786bcfbad746ac335c6b4df6"
-   }
+   },
+   "output_tokens": 52627
   },
   "VF2": {
    "finding_ids": [
@@ -197,7 +201,8 @@
     "N-1"
    ],
    "rejected": {},
-   "parse_ok": true
+   "parse_ok": true,
+   "output_tokens": 7387
   },
   "V2": {
    "output_exists": true,
@@ -207,7 +212,8 @@
     "bytes": 59343,
     "lines": 285,
     "sha256": "39bbe6871713a48397dee32c0a486174eebbc1b08a14833316eed1593df495bb"
-   }
+   },
+   "output_tokens": 10034
   },
   "R3": {
    "output_exists": true,
@@ -225,7 +231,8 @@
     "bytes": 59343,
     "lines": 285,
     "sha256": "39bbe6871713a48397dee32c0a486174eebbc1b08a14833316eed1593df495bb"
-   }
+   },
+   "output_tokens": 35810
   },
   "VF3": {
    "finding_ids": [
@@ -238,7 +245,8 @@
    "rejected": {
     "N-2": "Grading sentence A holds: `docs/a.md` and `docs/a.txt` in one worktree both map to `docs/a.return-contract.yaml` under the F-02 clause, which contradicts WC-11 and the N-1 promise on the same line, so the second write replaces the first. Grading sentence B fails: the first sentence names `<output-dir>` as \"the directory the coordinator passed\", which for `--output <file>` is a file, so it does not supply a parent directory. F-02 is the specific clause for file-valued outputs and names the stem-based path, so `docs/return-contract.yaml` for every file-valued run follows only if the general first sentence is assumed to override F-02, which the text does not say. The finding requires both outcomes, so it is rejected. The A case alone is text-supported and could be restated as a separate finding, but this verification does not add one."
    },
-   "parse_ok": true
+   "parse_ok": true,
+   "output_tokens": 9075
   },
   "AUD": {
    "output_exists": true,
@@ -269,7 +277,8 @@
       194
      ]
     }
-   ]
+   ],
+   "output_tokens": 20586
   },
   "AUD2": {
    "output_exists": true,
@@ -329,7 +338,8 @@
       198
      ]
     }
-   ]
+   ],
+   "output_tokens": 32272
   }
  },
  "launched": {

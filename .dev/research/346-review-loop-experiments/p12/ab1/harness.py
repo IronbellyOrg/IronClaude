@@ -482,6 +482,16 @@ def ingest_vf(run, st, n, outp):
     print(f"  verify table {run} VF{n} parse_ok={ok}")
     for fid in ids:
         print(f"   {fid}: {table[fid][0]} ({table[fid][1][:100]})")
+    # fix 2026-11-10 (b1h-r3 clean VF1): one id can have several rows (sub-entries Mn.a, Mn.b); the verifier's own
+    # final `confirmed:` line is authoritative when present (it names Mn when any sub-entry holds).
+    cl = re.findall(r"(?im)^\W*confirmed:\s*(.+)$", text)
+    if cl:
+        named = set(re.findall(r"\b(?:R\d-)?[A-Z]{1,4}-?\d+(?:-\d+)?\b", cl[-1])) if not re.match(r"(?i)\W*none\b", cl[-1]) else set()
+        for i in ids:
+            if i in named and table[i][0] != "confirm":
+                table[i] = ("confirm", "confirmed via the verifier's confirmed line (another row for this id holds)")
+            elif i not in named and table[i][0] == "confirm":
+                table[i] = ("reject", table[i][1] + " [not on the verifier's confirmed line]")
     confirmed = [i for i in ids if table[i][0] == "confirm"]
     rejected = {i: table[i][1] for i in ids if table[i][0] == "reject"}
     shutil.copy(outp, R / f"verify-{n}.md")
@@ -899,7 +909,7 @@ def haiku_baseline(dec):
     if h_blk is None:
         vals = []
         for r in rows:
-            v = r.get("blocking_per_audit") or r.get("blocking_counts") or r.get("n_blocking")
+            v = r.get("blocking_per_audit") or r.get("blocking_counts") or r.get("n_blocking") or [r[k] for k in ("audit1_blocking", "audit2_blocking") if isinstance(r.get(k), (int, float))]
             if isinstance(v, list):
                 vals += v
             elif isinstance(v, (int, float)):

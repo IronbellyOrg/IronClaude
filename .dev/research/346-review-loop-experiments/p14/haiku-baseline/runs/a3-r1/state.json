@@ -8,7 +8,8 @@
   "R2",
   "V2",
   "R3",
-  "AUD"
+  "AUD",
+  "AUD2"
  ],
  "log": {
   "R1": {
@@ -102,6 +103,23 @@
     "bytes": 60147
    },
    "output_tokens": 123712
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 21834,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 2
+   },
+   "blocking_ids": "R-1, R-2. (The reviser reads this report, not the command.)",
+   "blocking_word_count": 9,
+   "spec_audited": {
+    "bytes": 60147
+   },
+   "output_tokens": 45243
   }
  }
 }

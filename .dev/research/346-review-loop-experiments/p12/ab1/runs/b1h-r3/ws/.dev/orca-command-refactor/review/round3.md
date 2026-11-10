@@ -1,126 +1,125 @@
 review: 3 of 3
-> verification (coordinator, VERIFY step VF3; verifier reply .dev/orca-command-refactor/review/verify-3.md): confirmed blocking ids: B2. Rejected, kept as noted, unactioned and not prior blocking findings for the next re-review: none. The Reviser brief below is narrowed to the confirmed ids.
-> verification (coordinator): not yet run for this report. The VERIFY prompt still runs on the open blocking finding B2 (prompts file lines 53-59), then the loop escalates to the user. No REVISE prompt and no fourth review.
+> verification (coordinator, VERIFY step VF3; verifier reply .dev/orca-command-refactor/review/verify-3.md): confirmed blocking ids: none. Rejected, kept as noted, unactioned and not prior blocking findings for the next re-review: R2-1 (verifier: The phrase "the one the command writes today" does not occur. `:201` reads "steps 1-3 and 5-7 pass, with step 3 replaced for P0 (R2-1)". Step 3 at `:189` does exist verbatim ("Pass: exactly one `worker_done`; its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path."), but `:189` and `:201` both route P0 to a replacement rule, so the unreplaced step 3 is not what P0 runs.); M6 (verifier: The quote exists verbatim. The stated outcome ("tests either the wrong file or no file, so step 4 ... cannot pass as written") needs an assumption that the implementer picks a wrong or absent file. The candidate does not force that. `:201` names no path, which leaves the check underdetermined, not contradictory.). The Reviser brief below is narrowed to the confirmed ids.
 
-# /sc:spec-panel critique, re-review 3 of 3 (focus: requirements, architecture)
+# Re-review round 3: orca-worker-contract-spec.md
 
-candidate: .dev/orca-command-refactor/specs/orca-worker-contract-spec.md sha256 d7bacfaaecc8fff9a059e1e70fe785b1e6c52aecb2a57c161ca8d51cdcb3aa3c
-baseline: .dev/orca-command-refactor/specs/history/spec-v2.md sha256 bddecb0d53d012639197cb333a623b97ec5dd535120f7fee296fb97a980e41db
-prior: .dev/orca-command-refactor/review/round2.md sha256 11901954d0619034bec3e3248473f6011c98777269433aaeff831ac3655de386 (`review: 2 of 3`, `verdict: FAIL`)
-reviewer model: claude-haiku-5-5
-review number: N = 3 (prior header `review: 2 of 3`, `round2.md:1`)
-baseline check: the baseline's hash equals the `candidate:` hash in the prior report (`round2.md:6`), so the text reviewed in review 2 is the baseline text.
-inputs: candidate, baseline and prior were all readable and hashable; none is missing.
-rf-qa.md: neither `.claude/agents/rf-qa.md` in the workspace nor `~/.claude/agents/rf-qa.md` exists in this sandbox, so the Process of the Fix Cycle steps were not applied; the Review Loop rules in this report stand alone (`command.md` Review Loop item 5).
-re-review brief: `~/.claude/rules/prompts/document_review_loop_prompts.md` RE-REVIEW prompt, read in full (lines 38-51), with the VERIFY prompt (lines 53-59) and the rules for review 3 (`command.md:261`).
-WORKER-CONTRACT.md: not read. `command.md:457` makes it a read only under `--unattended`, which this run does not use.
-not read: the round1 and round1-a/b/c files, findings-1/2, revise1/2, verify-1/2 and the sibling run folders. They are not inputs named by the brief. The verification outcome of review 2 is taken from `round2.md:2`. `cmd/load.md` and `src/superclaude/` are not in the sandbox (UNVERIFIED).
-not checkable here: `src/superclaude/` and the Orca guide (`[G]` sources). Inventory lines are checked only as quoted in `.dev/orca-command-refactor/inventory/`. Anything else is marked UNVERIFIED.
+Command: `/sc:spec-panel`, `--mode critique`, `--focus requirements,architecture`, `--re-review`, `--baseline`.
+
+- candidate: `.dev/orca-command-refactor/specs/orca-worker-contract-spec.md` sha256 `530bb94dc36fffb71a0dd0f59ecf0aa60e32ab1c485bde6cfedea040d97adda7`
+- baseline: `.dev/orca-command-refactor/specs/history/spec-v2.md` sha256 `e28114855e5685eb7f3f2e2652a756ffaac57ed4c9ffb0b7423b91d78a8e8d19` (equals the round-2 candidate hash in `round2.md:8`)
+- prior: `.dev/orca-command-refactor/review/round2.md` sha256 `1947503e187795da64d5ae0d360f0c75641f00f2d28f9e1ff688d40ec1a4a08b` (header `review: 2 of 3`, last line `verdict: FAIL`, `round2.md:159`)
+- review number: N = 2 + 1 = 3. This is the last review. A blocking finding that stays open escalates to the user; there is no fourth review and no revision (`command.md:261`).
+- reviewer model: claude-haiku-5-5 (Haiku 5.5). One reviewer in a fresh context for this run. The VERIFY step was not run in this worker (see Escalation).
+- Rules read: `~/.claude/rules/prompts/document_review_loop_prompts.md` was read in full (sandbox `home/.claude/rules/prompts/document_review_loop_prompts.md`), as the hard gate requires.
+- Process of the Fix Cycle: `.claude/agents/rf-qa.md` (project) and `~/.claude/agents/rf-qa.md` are not in this sandbox. Steps 1-5 were not applied; the rules in `command.md:258-265` stand alone.
+- No `--unattended` in the brief, so no worker contract was read or written.
+- Evidence: `inventory/` files, `round1.md`, `round2.md`, `spec-v2.md`, the candidate, and `command.md` (the sandbox copy of `/sc:spec-panel`). The README allows only the inventories as checkable evidence. Citations to `command.md` are checkable in the sandbox but are not in the README list, and they are UNVERIFIED against the repo file `src/superclaude/commands/spec-panel.md`, which is not here. Any other citation to `src/`, `plugins/`, `.claude/` or the Orca guides is UNVERIFIED.
+
+Citation convention: `spec:N` = candidate line N. `base:N` = `spec-v2.md` line N. `R1:N` = `round1.md` line N. `R2:N` = `round2.md` line N. `INV-A:N` and `INV-B:N` = inventory lines. `command.md:N` = sandbox `command.md` line N.
 
 ## Step 1: evidence block
 
-Command: `diff -w` of the baseline against the candidate. Roles are fixed as above: BASELINE is `specs/history/spec-v2.md`, CANDIDATE is `specs/orca-worker-contract-spec.md`. The diff has three hunks, at candidate lines 112, 159 and 268 (`diff -w` exit 1). Changed lines copied verbatim:
+Roles: BASELINE = `spec-v2.md`, CANDIDATE = `orca-worker-contract-spec.md`, PRIOR = `round2.md`. Output of `diff -w BASELINE CANDIDATE`, copied verbatim. Lines starting `<` are BEFORE (baseline). Lines starting `>` are AFTER (candidate).
 
-BEFORE (baseline), lines starting with `<`:
-
-```text
-| load | no gate | status-only contract under `--unattended` (`status`, `command`; no `report_path`, as WC-4 allows) [M8] | n/a | none: use it as a step inside another worker's brief, not as its own Task; separately, `--checkpoint` is missing from its Usage line | `cmd/load.md:22,42-43,52,82`; `INV-B:31,57-65` | P1 (usage line only) |
-| **P1. Report files and commands with no gate** | The WC-4 contract in unattended mode; the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate); output flags for commands that lack one; the small fixes to ready commands. | analyze, build, business-panel, design, document, explain, index, test, load (usage line only); fixes to adversarial, cleanup-audit, index-repo, workflow | No person gate is involved, so each change is mechanical and gives every later phase a report file to check. |
-| `/sc:load` handling | Add a report file; use it only inside another worker's brief | Use it inside a brief: its only output is context for the current session (`INV-B:65`). Under `--unattended` it writes a status-only contract with no report file [M8], which meets WC-4 and AC-1.1 without adding a report. Only its usage-line defect is fixed. |
+```diff
+62c62
+< | WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`). It follows the return-contract pattern several commands already use and carries at least: `status` (one of `succeeded`, `partial`, `failed`, `blocked`), `command` (the exact command line), `report_path` (the main human-readable deliverable, if any), `artifacts` (every other file written), and, when blocked, `blocked_question`; `verdict` is added when the report states one, for example an audit's PASS or FAIL (M3). It is written on success, failure, blocked and partial outcomes, including stops before any other output exists. Exception: `/sc:load` writes no contract (section 3.2 load row; M8). Commands that already write a contract keep their fields and add the missing ones. The worker passes the contract path as `worker_done --report-path`. Orca does not check the file, so the coordinator opens it. | Command writes; worker reports; coordinator reads | `CAPS:72-74` (`--report-path` only with real values); `CAPS:79` (Orca's handling of the file is UNVERIFIED); existing models: `sk/sc-workflow-protocol/refs/return-contract.md:3-19,41` via `INV-B:272`, `sk/sc-brainstorm-protocol/SKILL.md:335` via `INV-A:97` |
+---
+> | WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`); for a command whose `--output` names a file (tdd, init-lite; R2-2), it is the directory containing that file. It follows the return-contract pattern several commands already use and carries at least: `status` (one of `succeeded`, `partial`, `failed`, `blocked`), `command` (the exact command line), `report_path` (the main human-readable deliverable, if any), `artifacts` (every other file written), and, when blocked, `blocked_question`; `verdict` is added when the report states one, for example an audit's PASS or FAIL (M3). It is written on success, failure, blocked and partial outcomes, including stops before any other output exists. Exception: `/sc:load` writes no contract (section 3.2 load row; M8). Commands that already write a contract keep their fields and add the missing ones. The worker passes the contract path as `worker_done --report-path`. Orca does not check the file, so the coordinator opens it. | Command writes; worker reports; coordinator reads | `CAPS:72-74` (`--report-path` only with real values); `CAPS:79` (Orca's handling of the file is UNVERIFIED); existing models: `sk/sc-workflow-protocol/refs/return-contract.md:3-19,41` via `INV-B:272`, `sk/sc-brainstorm-protocol/SKILL.md:335` via `INV-A:97` |
+87c87
+< | init-lite | `--output <file>` | `.dev/superclaude/context-audit.md` or `--output` | Re-run overwrites its marked report | None | `cmd/init-lite.md:32`; `sk/sc-init-lite-protocol/SKILL.md:66,70`; `INV-A:55` |
+---
+> | init-lite | `--output <file>` | `.dev/superclaude/context-audit.md` or `--output`; contract `return-contract.yaml` in the directory of `--output` (WC-4; R2-2) | Re-run overwrites its marked report | None | `cmd/init-lite.md:32`; `sk/sc-init-lite-protocol/SKILL.md:66,70`; `INV-A:55` |
+90c90
+< | tdd | a precise component prompt, not a bare topic; `--output <file>` | the TDD at `--output` | `--resume <task-file>` | Under `--unattended`, the topic-only clarification and nested `/task` "ask the user" lines resolve as blocked (P2) | `sk/tdd/SKILL.md:48,52-61,190`; `sk/task/SKILL.md:49,114`; `cmd/tdd.md:29`; `INV-B:47,217-225` |
+---
+> | tdd | a precise component prompt, not a bare topic; `--output <file>` | the TDD at `--output`; contract `return-contract.yaml` in the directory of `--output` (WC-4; R2-2) | `--resume <task-file>` | Under `--unattended`, the topic-only clarification and nested `/task` "ask the user" lines resolve as blocked (P2) | `sk/tdd/SKILL.md:48,52-61,190`; `sk/task/SKILL.md:49,114`; `cmd/tdd.md:29`; `INV-B:47,217-225` |
+189c189
+< 3. `ORCA orchestration check --wait --types "worker_done,escalation,question" --timeout-ms 900000 --json` until `worker_done` arrives. **Pass:** exactly one `worker_done`; its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path.
+---
+> 3. `ORCA orchestration check --wait --types "worker_done,escalation,question" --timeout-ms 900000 --json` until `worker_done` arrives. **Pass:** exactly one `worker_done`; its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path. In P0, where `troubleshoot` and `adversarial` have no `status` to match, AC-0.4 gives the rule (R2-1).
+201c201
+< | P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot "<real symptom>"`, `/sc:workflow "<small change>" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript) | steps 1-3 and 5-7 pass, where step 3's report path is the one the command writes today. Step 4 is replaced for P0, because the contract arrives in P1: `troubleshoot`: `test -s <dir>/REPORT.md`; `workflow`: read `.dev/tasks/to-do/<id>/return-contract.yaml` and assert only that `status` is one of the four values (no `command` key exists, `INV-B:272`); `adversarial`: `test -s` on its existing contract file (the inventory names no field list, `INV-A:35`). Record the results in the phase report; a failure here reopens section 1 (M6) |
+---
+> | P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot "<real symptom>"`, `/sc:workflow "<small change>" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript) | steps 1-3 and 5-7 pass, with step 3 replaced for P0 (R2-1): `workflow`, which writes a `status` contract today, passes when `--outcome` matches WC-5 applied to that `status` and its report path is `.dev/tasks/to-do/<id>/return-contract.yaml`; `troubleshoot` and `adversarial` have no `status` field to match (`INV-A:35`), so each passes when `--outcome succeeded` is sent exactly when the file step 4 checks is non-empty, `--outcome failed` otherwise, and its report path is that file. Step 4 is replaced for P0, because the contract arrives in P1: `troubleshoot`: `test -s <dir>/REPORT.md`; `workflow`: read `.dev/tasks/to-do/<id>/return-contract.yaml` and assert only that `status` is one of the four values (no `command` key exists, `INV-B:272`); `adversarial`: `test -s` on its existing contract file (the inventory names no field list, `INV-A:35`). Record the results in the phase report; a failure here reopens section 1 (M6) |
+208c208
+< | P2 | AC-2.2 | Gate-trigger run per P2 command: a 7.2 live check with input that hits the gate (for example `/sc:tdd "auth" --unattended --output <file>` with a bare topic; `/sc:cli-eval run --unattended` with no `--suite`) | `worker_done --outcome failed`; contract `status: blocked` with a non-empty `blocked_question`; step 2 never shows `agentWait` |
+---
+> | P2 | AC-2.2 | Gate-trigger run per P2 command: a 7.2 live check with input that hits the gate (for example `/sc:tdd "auth" --unattended --output <file>` with a bare topic, where `<contract>` is `return-contract.yaml` in the directory of `<file>` (R2-2); `/sc:cli-eval run --unattended` with no `--suite`) | `worker_done --outcome failed`; contract `status: blocked` with a non-empty `blocked_question`; step 2 never shows `agentWait` |
 ```
 
-AFTER (candidate), lines starting with `>`:
+Self-check (run before the verdict, `grep -cF`): each of the six AFTER lines occurs once in CANDIDATE, and each of the six BEFORE lines occurs once in BASELINE. The roles hold.
 
-```text
-| load | no gate | contract under `--unattended` with `status`, `command` and `artifacts: []` (no other file is written, so the list is empty; no `report_path`, as WC-4 allows) [B1] | n/a | none: use it as a step inside another worker's brief, not as its own Task; separately, `--checkpoint` is missing from its Usage line | `cmd/load.md:22,42-43,52,82`; `INV-B:31,57-65` | P1 (usage line; `## Unattended mode` section) [B1] |
-| **P1. Report files and commands with no gate** | The WC-4 contract in unattended mode; the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate); output flags for commands that lack one; the small fixes to ready commands. | analyze, build, business-panel, design, document, explain, index, test, load (usage line, and the `## Unattended mode` section that AC-1.1 requires) [B1]; fixes to adversarial, cleanup-audit, index-repo, workflow | No person gate is involved, so each change is mechanical and gives every later phase a report file to check. |
-| `/sc:load` handling | Add a report file; use it only inside another worker's brief | Use it inside a brief: its only output is context for the current session (`INV-B:65`). Under `--unattended` it writes a contract with `status`, `command` and `artifacts: []` and no report file [B1]. WC-4 requires `artifacts`, and an empty list meets it because load writes no file (`INV-B:65`). The P1 row adds the `## Unattended mode` section that AC-1.1 requires for load [B1]. Its usage-line defect is fixed too. |
-```
+Changed lines: `spec:62`, `spec:87`, `spec:90`, `spec:189`, `spec:201`, `spec:208`. Whitespace-only changes: none.
 
-Self-check (`grep -nF`, run before the verdict): each of the 3 AFTER lines is found in the candidate (1 match each); each of the 3 BEFORE lines is found in the baseline (1 match each) and in no line of the candidate (0 matches). No role was swapped, so Step 1 stands.
+## Prior blocking findings
 
-Other checks run: the AC-C1 self-test `printf 'orca orchestration worker-start\n' | grep -iE '\borca\b'` exits 0 and prints the line (spec:172). The M4/M9 WC-5 text, the M10 path rows and the M2 relay text are unchanged from the baseline, so their status below rests on unchanged lines.
+Source: the `Reviser brief` in `R2:153` lists R2-1 and R2-2 as blocking. `R2:94-103` lists M3, M4, M6, M7, M8 and M10 as resolved. Under the regressed rule (`command.md:261`), each of those six is checked again below.
 
-## Prior blocking findings (from `round2.md:57-68`, with its Reviser brief at `round2.md:148-151`)
-
-Prior blocking ids: M2, M4, M7, M8 (= B1 in round 2), M9, M10. Status: `resolved|open|regressed`.
-
-| id | prior defect (round1.md) | status | basis in the candidate |
+| Prior id | Prior status (R2) | Status now | Evidence |
 |---|---|---|---|
-| M2 | WC-3 let a coordinator answer any gate, including the implement Ruling | resolved | The WC-3 relay text is unchanged (spec:61, not in the diff). It relays only for gates whose section 3 row names a flag and excludes the safety and authorization gates (spec:61). No changed line touches it. |
-| M4 | A missing or unknown `status` became `succeeded`; the adversarial contract had two paths | resolved | WC-5 (spec:63) and the adversarial row (spec:83) are unchanged from the baseline, and both already carry the fix; AC-0.5 (spec:195) and AC-1.4 (spec:199) are unchanged. |
-| M7 | AC-C1 could not fail | resolved | AC-C1 (spec:172) is unchanged; its self-test passes (run above). The whole-file exemptions are now on an unchanged line, so they are minor notes (R2-3 below). |
-| M8 (= B1 in round 2) | The load row contradicted WC-4 and AC-1.1: `status`/`command` only, no `artifacts`, and the P1 text omitted the load section | resolved | The row now writes `status`, `command` and `artifacts: []` (spec:112), which matches WC-4 (spec:62). The Decisions row (spec:268) and the P1 row (spec:159) now agree with it and add the `## Unattended mode` section that AC-1.1 requires (spec:196). The three conflicting texts now agree. A new defect on the same row is recorded as B2 and R3-1 below; it is not a regression of M8. |
-| M9 | WC-5 mapped a `done` or empty status to `succeeded` | resolved | Same text as M4: WC-5 (spec:63), AC-0.5 (spec:195); unchanged. |
-| M10 | Workflow, research and cli-portify had no fixed contract path | resolved | Each row still names `<output-dir>/return-contract.yaml` with the new flag (spec:92, spec:105, spec:116; unchanged). AC-1.5 and AC-2.6 check the path (spec:200, spec:206; unchanged). |
+| R2-1 | blocking | **open** (partial repair) | Workflow and troubleshoot are repaired. The step-3 rule for adversarial (`spec:189`, `spec:201`) takes its file from "its existing contract file", which the spec never names. The adversarial row says "filename not fixed" (`spec:83`), and the inventory records two layouts (`INV-A:35`). The same root cause as M6 below. |
+| R2-2 | blocking | **resolved** | `spec:62` adds the file-to-directory rule for tdd and init-lite. `spec:87` and `spec:90` name the contract in the directory of `--output`. `spec:208` (AC-2.2) names the same path. |
+| M3 | resolved | resolved (not regressed) | `spec:62` keeps the verdict clause "(M3)". `spec:63` (WC-5) keeps the audit rule unchanged. Residual: F-1. |
+| M4 | resolved | resolved (not regressed) | `spec:63` (WC-5) unchanged: missing, empty or unknown `status` maps to failed. `spec:83` unchanged. Residual: F-8. |
+| M6 | resolved | **regressed** (blocking) | M6 asked that step 4 be defined "for each P0 command separately" (`R1:39-50`). Step 4 for adversarial at `spec:201` is "`test -s` on its existing contract file", which names no path. `spec:83` says "filename not fixed", and `INV-A:35` records two observed paths: `<output>/adversarial/return-contract.yaml` and `.../adversarial/adversarial/return-contract.yaml`. The check therefore cannot pass as written. |
+| M7 | resolved | resolved (not regressed) | AC-C1 at `spec:180-183` is unchanged. Self-test run in this sandbox: the planted sample `orca orchestration worker-start` plus `orca-ide status --json` gives count 2, as `spec:178` says. |
+| M8 | resolved | resolved (not regressed) | `/sc:load` exception unchanged at `spec:62`, `spec:76`, `spec:112` and `spec:202`. Residual: F-2. |
+| M10 | resolved | resolved (not regressed) | `spec:92` (workflow), `spec:105` (cli-portify), `spec:116` (research), `spec:206` (AC-1.5) and `spec:209` (AC-2.3) unchanged. |
 
-Regressed: none. No changed line reopens the defect of a finding marked resolved.
+Open blocking findings at this review: R2-1 (open) and M6 (regressed). They share one root cause, the undefined adversarial contract path in P0. One fix closes both.
 
-## Blocking findings
+## New findings on changed lines
 
-### B2 (new in round 3, blocking, origin=changed). The load row forbids the Task that AC-1.2 requires for load
+### M6 (regressed, BLOCKING; origin=unchanged step 4, depends on changed `spec:201` step 3)
 
-- Origin: changed. The row quotes the changed line spec:112; the conflicting AC-1.2 is unchanged (spec:197). The same two texts are also in the baseline (`spec-v2.md:112` and `spec-v2.md:197`), so this is older than the round-3 edit and was not raised in round 2. Recorded now under the rule to record a severe defect found in re-review even if older.
-- Stated texts:
-  1. spec:112, load row: "use it as a step inside another worker's brief, not as its own Task".
-  2. spec:159 (P1 scope) puts `load` in P1; spec:196 (AC-1.1) and spec:197 (AC-1.2) apply to "each P1 command", and AC-1.2 is "7.2 live check on each P1 command with `--unattended --output <dir>` | all steps pass".
-  3. spec:179-180 (7.2): "For each command under test, the coordinator runs: 1. `ORCA orchestration task-create --spec "<brief per section 2.3>"`, then `worker-start`". Step 3 (spec:182) requires one `worker_done` whose report path is the WC-4 contract path.
-  4. spec:167: "A phase passes only when every check in its block and every common check passes."
-- Sentence that holds with no further assumption: an implementer who follows the load row never creates a Task for `/sc:load` (spec:112); AC-1.2 requires a 7.2 run on `load`, and 7.2 step 1 (spec:180) creates a Task for each command under test; so AC-1.2 cannot pass for `load` as written, and P1 cannot pass (spec:167).
-- Grading: a stated text that an acceptance criterion cannot pass, and two stated texts that contradict each other, are both blocking under `command.md` Review Loop item 2 and the FIRST-REVIEW grading check (prompts file line 33).
-- Experts: Wiegers (traceability from AC-1.2 to the row), Crispin (an acceptance check that cannot run as written), Whittaker (the gate is a contradiction the coordinator must resolve by guessing).
-- Priority: High. Impact: the P1 phase cannot close, and the implementer must choose between running load as a Task (which the row forbids) and skipping the check (which AC-1.2 forbids).
-- Recommendation (for the user at escalation; no Reviser brief at review 3): either allow load as its own Task and keep AC-1.2, or exempt load from 7.2 by name in AC-1.2 with the reason, and make the load row (spec:112), the P1 row (spec:159) and AC-1.1 (spec:196) say the same.
+- Quoted: `spec:201`, adversarial step 4: "`adversarial`: `test -s` on its existing contract file (the inventory names no field list, `INV-A:35`)". Step 3 at `spec:189` and `spec:201` uses the same file: "its report path is that file".
+- Sentence: An implementer who runs AC-0.4 on `/sc:adversarial --compare <two files> --depth quick --output <dir>` as written must run `test -s` on "its existing contract file". The spec names no path (`spec:83`: "filename not fixed"). The inventory records two layouts (`INV-A:35`). The check tests either the wrong file or no file, so step 4 and the step-3 rule built on it cannot pass as written.
+- Note: `spec:83` gives the adversarial row's P1 fix as `<output>/return-contract.yaml`. That is P1, and P0 runs before it (`spec:158`).
+- Experts: Crispin (testability), Fowler (interface contract).
+- Priority: High. Impact: blocks the P0 gate, which "reopens section 1" on failure (`spec:201`).
+- Suggested repair for the user to choose (not a brief, since the review is at 3): (a) name the P0 adversarial path explicitly, for example `<dir>/adversarial/return-contract.yaml` after checking that the output is deterministic; or (b) remove adversarial from P0, which needs only two commands, and test it first in P1, when `spec:83` fixes the path.
 
-## Findings on changed lines (Medium; follow-up candidates, not blocking)
+### R3-1 (MEDIUM, follow-up; origin=unchanged row, depends on changed `spec:62`)
 
-Medium findings never trigger a revision or fail the review (`command.md` Review Loop item 2).
+- Quoted: `spec:120` (spec-panel): "`target_release` required as a flag for TDD inputs, else blocked; the improved-spec step stays off unless the brief asks | add `--output`; contract".
+- Against: `command.md:23` already defines `--output <file>` and `--unattended`. `command.md:460` says "`--output` is file-valued", and `command.md:461` puts the contract at `<report-dir>/return-contract.yaml`.
+- The WC-4 carve-out at `spec:62` now covers any file-valued `--output` (directory containing the file), but the row says "add `--output`", a new directory-valued flag. The contract location for spec-panel is therefore undefined, and `--unattended` may be duplicated.
+- Why Medium and not blocking: the premise is checked against `command.md`, which is outside the README evidence list. The repo file `src/superclaude/commands/spec-panel.md` is cited at `spec:120` and is not here. This is the same item as round-2 F-6 and round-1 M12, which both graded it Medium.
+- Upgrade rule: if the repo `spec-panel.md` matches `command.md:23,455-461`, this becomes blocking under the same reasoning as R2-2.
 
-- R3-1 (Medium, origin=changed, spec:112 and spec:268). WC-4 keys the contract path on `<output-dir>`, "the directory the coordinator passed (`--output` / `--output-dir`)" (spec:62). The load row names no directory. P1's generic "output flags for commands that lack one" (spec:159) covers adding a flag, but not which directory `load` writes to when it runs "as a step inside another worker's brief" (spec:112). If the implementer uses the outer worker's output directory, `load` writes `<outer>/return-contract.yaml`, the same WC-4 path as the outer command's contract, and overwrites it. The coordinator then reads `status: succeeded` from `load` in place of the outer command's status. The text does not say which directory is used, so this needs a guess, which makes it Medium under the FIRST-REVIEW grading check (prompts file line 33). Experts: Fowler (one contract path per worker), Whittaker (state collision), Nygard (wrong status read by the coordinator).
-- R2-1 to R2-6 (round 2, now origin=unchanged; not re-graded). Their defect lines are unchanged in this round: R2-1 (spec:116), R2-2 (spec:195), R2-3 (spec:172), R2-4 (spec:61, spec:104), R2-5 (spec:61), R2-6 (spec:172). Under the rule that an unchanged-line finding is a minor note unless it quotes a changed line, they are minor notes here. None quotes spec:112, spec:159 or spec:268, so none is re-graded.
+### R3-2 (MEDIUM, follow-up; origin=changed `spec:87`, `spec:90`, `spec:208`)
 
-## Guard Condition Boundary Table (changed guards only; re-review scope)
+- Quoted: `spec:87` and `spec:90` put a contract in the "Report today" column. `spec:79` says "the worker reports the named file until Phase 1 adds the contract". `INV-A:55` says init-lite's report today is `.dev/superclaude/context-audit.md` or `--output`, with no contract.
+- Coverage gap: AC-1.5 (`spec:206`) names only workflow and adversarial. AC-2.3 (`spec:209`) names research and cli-portify. AC-2.2 (`spec:208`) checks the tdd contract on the blocked path only. Nothing checks the init-lite contract, and nothing checks the tdd contract on a successful run.
+- Priority: Medium. Impact: a new WC-4 path with no acceptance check.
 
-Guards on changed lines: the load contract guard (spec:112 against WC-4 at spec:62) and the P1 load step (spec:159). Input classes that cannot occur are left out with a reason.
+### Minor (origin=changed `spec:201`)
 
-| Guard | Location | Input Condition | Variable Value | Guard Result | Specified Behavior | Status |
-|---|---|---|---|---|---|---|
-| load contract | spec:112 against spec:62 | Typical: load run as its own Task with the WC-4 path known before dispatch | Task created | row says no Task; AC-1.2 needs one | row (spec:112) and AC-1.2 (spec:197) conflict | GAP (B2, blocking) |
-| load contract | spec:112 against spec:62 | Zero/Empty: no output directory passed | no `--output` or `--output-dir` | not decidable from the text | row names no directory; P1 (spec:159) adds a flag but not its value | GAP (R3-1, Medium) |
-| load contract | spec:112 against spec:62 | Legitimate edge: load run as a step inside an outer worker's brief with the outer output directory | `<outer>/return-contract.yaml` | the outer contract is overwritten | spec:112 does not say which path load uses | GAP (R3-1, Medium) |
-| load contract | spec:112 against spec:62 | Sentinel: `artifacts` is an empty list | `artifacts: []` | meets WC-4 | spec:62 requires the field; INV-B:65 says load writes no file | OK |
-| load contract | spec:112 | Maximum/Overflow | not applicable | n/a | left out: load writes at most one contract file (INV-B:65) | n/a |
+- The outcome rule for troubleshoot and adversarial at `spec:201` takes its outcome from the same `test -s` the coordinator runs. The step-3 match is then true by construction and does not test WC-5 for those two commands. WC-5 says "no report exists" (`spec:63`), while AC-0.4 says "non-empty". This is a naming difference, not a wrong outcome.
 
-Synthesis gate (FR-10): every changed guard has a row or a stated reason for being left out.
+## Follow-up candidates (Medium and minor; not blocking)
 
-## Expert findings (focus: requirements, architecture; Whittaker always active)
+- **F-1 (Medium, carried).** The `verdict` gate for audits is in WC-5 only (`spec:63`). It is not in §2.3 (`spec:73`), and no AC tests it (`R2:124-129`).
+- **F-2 (Medium, carried).** `/sc:load` writes no contract (`spec:62`, `spec:112`), but WC-5 maps "no report exists" to failed (`spec:63`). A load run dispatched as its own Task would always send failed.
+- **F-3 (Medium, UNVERIFIED, carried).** AC-0.4 step 4 for workflow asserts four `status` values. `INV-B:272` lists the field names, not their values, so the values are UNVERIFIED.
+- **F-4 (minor, carried).** AC-1.5 (`spec:206`) and AC-2.3 (`spec:209`) use parenthetical lists that read as exhaustive.
+- **F-5 (minor, carried).** WC-4 (`spec:62`) names both `--output` and `--output-dir`. Every row uses `--output`.
+- **F-7 (minor, carried).** `spec:79` says the §3.1 commands are ready today, but `spec:92` requires `--output <dir>` from P1.
+- **F-8 (minor, carried).** `spec:83` writes `<output>/return-contract.yaml` and `spec:205` writes `<output-dir>/return-contract.yaml`. Naming drift only.
+- **F-9 (minor, carried).** `spec:158` smoke list and `spec:201` name adversarial's flags differently.
 
-- Wiegers: B2 (AC-1.2 cannot pass for the row's `load` as written); R3-1 (no stated output directory for `load`).
-- Adzic: B2 (no example of how `load` is tested as a worker step); no new finding on the other changed lines.
-- Cockburn: no new finding; `load` has no actor goal on the changed lines.
-- Fowler: R3-1 (two commands would share one contract path); the contract field set now matches WC-4 (spec:62).
-- Newman, Hohpe: no new finding on changed lines.
-- Nygard: R3-1 (the coordinator reads the wrong status).
-- Crispin: B2 (the 7.2 check cannot be applied to a row that forbids a Task).
-- Whittaker: R3-1, the collision of two contracts at one path; the M8 fix itself holds for every class in the table above except the two GAP rows.
+Notes carried unchanged from round 1 (verifier rejected): M1, M2, M5, M9, M11, M12. M12 is now partly checkable against `command.md:23,460`; the repo-file check is still needed (R3-1).
 
-## Noted, unactioned (not blocking; not re-graded)
+## Coverage
 
-These stay notes under the Review Loop (`round2.md:127-136`; rule in the re-review prompt, lines 56-57). None of them is on a changed line, so none is re-graded here.
+Scoped review of the changed lines `spec:62`, `spec:87`, `spec:90`, `spec:189`, `spec:201`, `spec:208`, and of the rows and checks that depend on them: `spec:79`, `spec:83`, `spec:92`, `spec:105`, `spec:112`, `spec:116`, `spec:120`, `spec:158`, `spec:202`, `spec:205`, `spec:206`, `spec:209`. The FR-8 guard check on WC-5 (`spec:63`) is unchanged and has no GAP. Not checked: anything under `src/`, `plugins/`, `.claude/`, or the Orca guides (UNVERIFIED). Live Orca runs were not possible in this sandbox. The `scoped PASS` coverage line does not apply, because the verdict is FAIL (`command.md:259`).
 
-- M1, M6, M11 (origin=unchanged). Not re-graded.
-- M3 (WC-5 audit clause; unchanged line spec:63). The premise (`inventory/orca-capabilities.md:73`) is checkable only as quoted; the Orca guide `[G]` text is UNVERIFIED in this sandbox.
-- M5 (AC-C1, now unchanged spec:172). Its substance is R2-3 above.
-- M12 (spec-panel row, unchanged spec:120). `command.md:23` and `command.md:460` are not in this sandbox, so the premise is UNVERIFIED here.
+## Escalation (review 3 of 3)
 
-## Verdict
-
-Blocking findings open: 1 (B2, new in round 3). Prior blocking findings: M2, M4, M7, M9, M10 resolved; M8 (= B1) resolved; regressed: none.
-
-Coverage: all 3 changed hunks (6 lines) of the diff; all six prior blocking ids; the Guard Condition Boundary Table for the two changed guards; the expert panel for focus requirements and architecture; the AC-C1 self-test; the sandbox citations for `INV-B:31,57-65` and `INV-B:65`, which were checked against `inventory/commands-b.md`. Not covered: `src/superclaude/`, the Orca guide, `cmd/load.md` and the other command files (not in the sandbox; UNVERIFIED).
-
-Follow-up candidates (Medium and minor; the coordinator asks the user once whether to open issues for them; none were created by this review): R3-1, R2-1, R2-2, R2-3, R2-4, R2-5, R2-6, M3, M5, M12.
-
-Escalation (review: 3 of 3, FAIL): no Reviser brief is written at review 3 (`command.md` Review Loop item 6). The coordinator runs the VERIFY prompt on B2 (prompts file lines 53-59) in a fresh context, with the candidate and the finding text only. If it is confirmed, the loop ends by escalating B2 to the user with the confirmed finding. If it is rejected, the verdict stays FAIL and the rejected id is noted, unactioned. No REVISE prompt and no fourth review are run.
+- Open blocking findings: **R2-1 (open)** and **M6 (regressed)**. The Reviser brief is omitted at `review: 3` (`command.md:263`).
+- The VERIFY prompt still runs before escalation (`document_review_loop_prompts.md`, "At `review: 3`"). It was not run in this worker, because this worker cannot start a fresh-context verifier. The coordinator must run it on R2-1 and M6, citing `spec:83`, `spec:189`, `spec:201` and `INV-A:35`.
+- Question for the user, asked once per loop: open issues for the follow-up candidates F-1 to F-9, R3-1 and R3-2? No issue has been created.
+- Decision needed from the user: how to fix the adversarial step in P0 (option (a), name the path, or option (b), move adversarial out of P0). Both options are listed under M6.
 
 verdict: FAIL

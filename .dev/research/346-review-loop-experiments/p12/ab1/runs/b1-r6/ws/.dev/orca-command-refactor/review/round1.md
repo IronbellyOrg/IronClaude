@@ -9,7 +9,7 @@ sources:
 - .dev/orca-command-refactor/review/round1-b.md verdict FAIL sha256 bd265771882b70fcb25b70f89b0e770bfc2d570da91beccbbc8f12d03d7e539d
 - .dev/orca-command-refactor/review/round1-c.md verdict FAIL sha256 0a323c2ca62bb9898a146b5c2445761ffdb977e63426b3e7d14f0ff459a54ba8
 
-> verification (coordinator, VERIFY step VF1; verifier reply .dev/orca-command-refactor/review/verify-1.md): confirmed blocking ids: M1, M2, M4, M5, M6. Rejected, kept as noted, unactioned and not prior blocking findings for the next re-review: M3 (verifier: The text does not say a resumed run re-stops at the same gate or that no approval can be supplied; that needs an assumption about what resume_phase/resume_substep do and what the "required flags" are (A:45 is outside the checkable text).). The Reviser brief below is narrowed to the confirmed ids.
+> verification (coordinator, VERIFY step VF1; verifier reply .dev/orca-command-refactor/review/verify-1.md): confirmed blocking ids: M1, M2, M3, M4, M5, M6. Rejected, kept as noted, unactioned and not prior blocking findings for the next re-review: none. The Reviser brief below is narrowed to the confirmed ids.
 
 ## Blocking findings (merged, confirmed)
 
@@ -38,6 +38,14 @@ Stated texts that contradict:
 - Spec line 91 (3.1 troubleshoot): its report today is `REPORT.md`, with no contract. Spec line 83: adversarial's contract filename "not fixed". The WC-4 contract is added only in P1 (spec line 159).
 
 Wrong outcome: an implementer who follows the stated text builds a P0 gate that requires step 3 to pass, so the worker's report path must be the WC-4 contract path and the outcome must match the contract's `status`. For `/sc:troubleshoot` no such contract exists in P0, and the spec says it arrives in P1. AC-0.4 carves out only step 4, not step 3. The P0 smoke runs can therefore never pass. Line 154 says later phases do not start until the earlier phase's checks pass, and line 194 says "a failure here reopens section 1", so a correct run triggers the reopen rule. Fix by relaxing step 3 for P0 to "the report path is the command's existing report file", the same carve-out given for step 4.
+
+### M3
+
+#### M3.a, from round1-a.md F3: F3 - CRITICAL (blocking) - Adzic - cli-portify: the happy-path check cannot pass, because every gate resolves only as blocked
+- Texts: cli-portify row: "each of the three approval gates resolves as blocked", resume via `--resume <contract>` (`SPEC:105`); the gates are always on (A:45); WC-2 allows three resolutions (default, caller flag, blocked) (`SPEC:60`), but the row picks only the third and lists no flag that carries an approval; AC-2.3: "Happy-path run per P2 command with every required flag in the brief ... 7.2 passes with `--outcome succeeded`" (`SPEC:201`) and P2 contains cli-portify (`SPEC:160`).
+- Grading sentence: An implementer who follows the stated text as written builds a cli-portify that stops as blocked at the first approval gate on every unattended run and, on resume, reaches the same gate again, because no listed flag or contract field records an approval; AC-2.3 requires a `succeeded` run, which that build can never produce.
+- Recommendation: either name the approval input (one flag, resolution (b) of WC-2) in the cli-portify row, or narrow AC-2.3 to say cli-portify's expected unattended result is `blocked` / `failed` at the first gate. Prefer the AC-2.3 narrowing.
+- Priority: High. Quality impact: Completeness +1, Testability +2.
 
 ### M4
 
@@ -133,13 +141,7 @@ FR-8 GAP rows: F3 is blocking (it names a wrong outcome); the others are Medium 
 
 ## Noted, unactioned (verifier rejected; not prior blocking findings)
 
-### M3 (verifier: The text does not say a resumed run re-stops at the same gate or that no approval can be supplied; that needs an assumption about what resume_phase/resume_substep do and what the "required flags" are (A:45 is outside the checkable text).)
-
-#### M3.a, from round1-a.md F3: F3 - CRITICAL (blocking) - Adzic - cli-portify: the happy-path check cannot pass, because every gate resolves only as blocked
-- Texts: cli-portify row: "each of the three approval gates resolves as blocked", resume via `--resume <contract>` (`SPEC:105`); the gates are always on (A:45); WC-2 allows three resolutions (default, caller flag, blocked) (`SPEC:60`), but the row picks only the third and lists no flag that carries an approval; AC-2.3: "Happy-path run per P2 command with every required flag in the brief ... 7.2 passes with `--outcome succeeded`" (`SPEC:201`) and P2 contains cli-portify (`SPEC:160`).
-- Grading sentence: An implementer who follows the stated text as written builds a cli-portify that stops as blocked at the first approval gate on every unattended run and, on resume, reaches the same gate again, because no listed flag or contract field records an approval; AC-2.3 requires a `succeeded` run, which that build can never produce.
-- Recommendation: either name the approval input (one flag, resolution (b) of WC-2) in the cli-portify row, or narrow AC-2.3 to say cli-portify's expected unattended result is `blocked` / `failed` at the first gate. Prefer the AC-2.3 narrowing.
-- Priority: High. Quality impact: Completeness +1, Testability +2.
+None.
 
 ## Follow-up candidates
 
@@ -147,7 +149,7 @@ Listed in the three source reports above; not merged.
 
 ## Reviser brief
 
-Blocking finding ids: M1, M2, M4, M5, M6.
+Blocking finding ids: M1, M2, M3, M4, M5, M6.
 Rules for the reviser (restating the Review Loop's Reviser contract): revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, with the bytes added and deleted per finding id.
 
 verdict: FAIL

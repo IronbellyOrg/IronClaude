@@ -8,7 +8,8 @@
   "R2",
   "V2",
   "R3",
-  "AUD"
+  "AUD",
+  "AUD2"
  ],
  "log": {
   "R1": {
@@ -107,6 +108,24 @@
     "bytes": 59413
    },
    "output_tokens": 123416
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 17676,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 5,
+    "MINOR": 6
+   },
+   "blocking_ids": "B-1, B-2",
+   "blocking_word_count": 10,
+   "spec_audited": {
+    "bytes": 59413
+   },
+   "output_tokens": 25338
   }
  }
 }

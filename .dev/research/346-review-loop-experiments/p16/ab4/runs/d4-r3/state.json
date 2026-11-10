@@ -1,0 +1,366 @@
+{
+ "run": "d4-r3",
+ "design": "d4",
+ "rep": 3,
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "frozen": {
+  "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+  "aud_cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+  "aud_rules_sha": "3eb772f944491720af24133267681e170510ba49949af1b08db913e9eeaddfb8",
+  "_comment": "cmd_sha: the /sc:spec-panel command (identical to the frozen audit command, aud_cmd_sha); rules_sha: ab1 rules + PN2 lint bullets + k=2 wording (make_rules.py); aud_rules_sha: the frozen audit rules (p11/rules.md)."
+ },
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "1a2e8ab6b9156760e72e47e31b2c126e5f8e82727e9ed90e9e60f48333bada8b",
+ "done": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1a",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "LINT1": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+   "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "stratum": "sonnet"
+  },
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 20236,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1,
+    "MAJOR": 8,
+    "MINOR": 4
+   },
+   "blocking_ids": "B-1, WC-4",
+   "blocking_word_count": 6,
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 21635
+  },
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 28844,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 8
+   },
+   "blocking_ids": "F-1, F-2, F-3, F-4, F-5. The reviser reads this report, not the command. Rules: revise only text a blocking finding names; add no rule, mechanism or section that no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, with the bytes added and deleted per finding id. Leave F-6 to F-19 and the notes alone; they never trigger a revision and do not appear here",
+   "blocking_word_count": 15,
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 58726
+  },
+  "VF1": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6"
+   ],
+   "report_bytes": 5316,
+   "confirmed": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6"
+   ],
+   "rejected": {},
+   "parse_ok": true,
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 4590
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 5254,
+   "spec_after": {
+    "bytes": 59637,
+    "lines": 286,
+    "sha256": "cbaee912425ccadcbc06bd6c2dd562fc87afea9b7b20dc55342bb7c482b347f0"
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 11936
+  },
+  "LINT2": {
+   "checks": [
+    "REF"
+   ],
+   "findings": 0,
+   "by_check": {},
+   "ids": [],
+   "sha256": "ced20f84587c2d130babc36ea1b7c2886164cc5facec0f774e690d8e6072b038",
+   "spec_sha256": "cbaee912425ccadcbc06bd6c2dd562fc87afea9b7b20dc55342bb7c482b347f0",
+   "stratum": "sonnet"
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 19793,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 6,
+   "spec_after": {
+    "bytes": 59637,
+    "lines": 286,
+    "sha256": "cbaee912425ccadcbc06bd6c2dd562fc87afea9b7b20dc55342bb7c482b347f0"
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 11084
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 26866,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 3
+   },
+   "blocking_ids": "F-01** only",
+   "blocking_word_count": 8,
+   "spec_audited": {
+    "bytes": 59637
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 54075
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 26533,
+   "verdict": "PASS",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 12,
+    "MINOR": 2,
+    "CRITICAL": 1
+   },
+   "blocking_ids": null,
+   "blocking_word_count": 9,
+   "spec_audited": {
+    "bytes": 59637
+   },
+   "stratum": "sonnet",
+   "model": "sonnet",
+   "output_tokens": 58274
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T12:22:11+00:00",
+  "R1b": "2026-11-10T12:22:11+00:00",
+  "VF1": "2026-11-10T12:30:56+00:00",
+  "V1": "2026-11-10T12:32:05+00:00",
+  "R2": "2026-11-10T12:34:58+00:00",
+  "AUD": "2026-11-10T12:37:25+00:00",
+  "AUD2": "2026-11-10T12:40:33+00:00"
+ },
+ "noted_unactioned": [],
+ "loop_end": "PASS",
+ "manual": [],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 6,
+  "merged_count": 6,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "other",
+    "members": [
+     "round1-a.md/B-1"
+    ],
+    "cited": [
+     62,
+     83,
+     87,
+     90,
+     92,
+     182,
+     183,
+     200
+    ],
+    "heading": "### B-1 (CRITICAL as raised, graded BLOCKING): the contract file's location is defined three incompatible ways"
+   },
+   {
+    "mid": "M2",
+    "theme": "T2",
+    "members": [
+     "round1-b.md/F-1"
+    ],
+    "cited": [
+     62,
+     87,
+     90,
+     183,
+     200
+    ],
+    "heading": "**F-1 [MAJOR, blocking] WC-4 puts the contract in a directory, while two commands and an acceptance check pass a file.**"
+   },
+   {
+    "mid": "M3",
+    "theme": "T2",
+    "members": [
+     "round1-b.md/F-2"
+    ],
+    "cited": [
+     62,
+     73,
+     83,
+     85,
+     86,
+     92,
+     109,
+     115,
+     116,
+     117,
+     119,
+     121,
+     159,
+     182,
+     198,
+     201
+    ],
+    "heading": "**F-2 [MAJOR, blocking] WC-4's \"directory the coordinator passed, known before dispatch\" is false for several commands, and the live check depends on it.**"
+   },
+   {
+    "mid": "M4",
+    "theme": "T3",
+    "members": [
+     "round1-b.md/F-3"
+    ],
+    "cited": [
+     73,
+     79,
+     83,
+     91,
+     92,
+     159,
+     182,
+     194
+    ],
+    "heading": "**F-3 [MAJOR, blocking] AC-0.4 requires, in P0, a contract and a flag that P0 does not have.**"
+   },
+   {
+    "mid": "M5",
+    "theme": "T1",
+    "members": [
+     "round1-b.md/F-4"
+    ],
+    "cited": [
+     76,
+     112,
+     159,
+     195,
+     196,
+     265
+    ],
+    "heading": "**F-4 [MAJOR, blocking] AC-1.1 and AC-1.2 demand a contract and a worker run for `/sc:load`, which the spec says has none and is not a Task.**"
+   },
+   {
+    "mid": "M6",
+    "theme": "other",
+    "members": [
+     "round1-b.md/F-5"
+    ],
+    "cited": [
+     60,
+     88,
+     100,
+     103,
+     110,
+     116,
+     122,
+     160,
+     200
+    ],
+    "heading": "**F-5 [MAJOR, blocking] AC-2.2 expects a `blocked` outcome from every P2 command, but several resolve their gate without blocking.**"
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "47c13be577e9c028b4b1306c7399ebb444413195bdedbac8ac9ec935fc49dd98",
+    "ids": [
+     "B-1"
+    ],
+    "themes": [
+     "other"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "50f121fb00e08856db74afe351985cf03f76ea7f58feab35dde0057c512f012b",
+    "ids": [
+     "F-1",
+     "F-2",
+     "F-3",
+     "F-4",
+     "F-5"
+    ],
+    "themes": [
+     "T2",
+     "T2",
+     "T3",
+     "T1",
+     "other"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 59637,
+  "lines": 286,
+  "sha256": "cbaee912425ccadcbc06bd6c2dd562fc87afea9b7b20dc55342bb7c482b347f0"
+ }
+}

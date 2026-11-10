@@ -9,18 +9,17 @@ sources:
 - .dev/orca-command-refactor/review/round1-b.md verdict FAIL sha256 c8474c1c48ee6c71a0c5195253f329217123312dd044735de4e206eb8d2c5dcc
 - .dev/orca-command-refactor/review/round1-c.md verdict FAIL sha256 d21c026d5018c95bf40f6392f4cc0aeeb435d25521c414ca830f28c7f1a140ba
 
-> verification (coordinator, VERIFY step VF1; verifier reply .dev/orca-command-refactor/review/verify-1.md): confirmed blocking ids: M2, M4, M7, M8, M9, M10. Rejected, kept as noted, unactioned and not prior blocking findings for the next re-review: M1 (verifier: Both rows sit in the §3.2 table column headed "Unattended-mode gate resolution (WC-2)", and the roadmap row also says `--interactive` refused, so the rows scope to `--unattended`. The wrong outcome needs a reader who drops that column header; with it, WC-11 and the rows agree and SA-1 is not broken.); M3 (verifier: The candidate states the FAIL-audit-as-succeeded mapping on purpose, and the verdict sits in the worker_done body by design. The "wrong" verdict depends on the Orca rule at CAPS:73 ("Never encode failure only in prose"), which is UNVERIFIED in this sandbox.); M5 (verifier: agent` (probe above), so a permitted `orca orchestration ...` example would not be matched. The candidate also does not require any Orca command text in the contract or the section.); M6 (verifier: The wrong outcome for `/sc:workflow --handoff none` depends on INV-B:272 saying the existing workflow contract has no `command` key. INV-B is not in this sandbox, and the candidate does not state the field set of the existing workflow contract. The troubleshoot `REPORT.md` point (spec:91) is supported by the candidate, but it is not the outcome the sub-entry names.); M11 (verifier: The stale-contract attack needs the retry to reuse the same output directory. §2.3 does not say to reuse it, and WC-6 requires a fresh output directory for a re-run without a resume flag. The gap that no rule clears an earlier contract is real but needs that unstated reuse.); M12 (verifier: The conflict depends on `command.md:23` and `:459-460` (the command definition's `--output <file>`), which are not in this sandbox, and on INV-B:43. The candidate itself uses `--output` as a file in init-lite and tdd (spec:87, spec:90) and as a directory in adversarial (spec:83), so the flag's meaning is inconsistent in the candidate, but spec-panel's current definition cannot be checked here.). The Reviser brief below is narrowed to the confirmed ids.
+> verification (coordinator, VERIFY step VF1; verifier reply .dev/orca-command-refactor/review/verify-1.md): confirmed blocking ids: M3, M4, M6, M7, M8, M10. Rejected, kept as noted, unactioned and not prior blocking findings for the next re-review: M1 (verifier: The column header scopes both rows to unattended mode, which matches WC-11 (spec:69) and SA-1 (spec:146), so the claimed contradiction and the plain-session outcome need the header ignored.); M2 (verifier: The WC-2 three-way versus WC-3 four-way conflict is real, but the stated outcome (halt cleared) is blocked by the unchanged Ruling rule stated at spec:233, and the candidate names no Ruling flag for implement; D4 concerns outward actions, not gates.); M5 (verifier: SA-2 permits Orca text in the contract file and SA-5 requires an Orca section, but neither requires an `orca <subcommand>` string, so AC-C1 failing needs an assumed example of that form; the check can pass if the permitted text avoids that form.); M9 (verifier: Same gap as M4.a: the candidate does not say a status of `done` or an empty status is a failure, so "the contract does not state success" is an added assumption, not the candidate's rule.); M11 (verifier: WC-6 (spec:64) already requires a fresh output directory for commands with no resume flag, so the stale-contract retry needs an implementer who violates WC-6; the §2.3 premise "passes the same `--output` on a retry" is not in §2.3. The missing binding of a contract to an attempt is a real gap, but not the stated outcome.); M12 (verifier: The claim that `--output` is file-valued in the spec-panel command rests on `command.md:23,459-460` and `INV-B:43`, which are not in this workspace and are UNVERIFIED here; the candidate text alone does not establish a file-versus-directory conflict.). The Reviser brief below is narrowed to the confirmed ids.
 
 ## Blocking findings (merged, confirmed)
 
-### M2
+### M3
 
-#### M2.a, from round1-a.md B2: B2 (CRITICAL, blocking). WC-3 lets a coordinator answer any gate, which contradicts the spec's own three-way rule and the implement Ruling rule
-- Issue: WC-2 says each gate resolves one of three ways (a default, a flag, or blocked) (spec:60). WC-3 adds a fourth path: the worker may ask the coordinator and then "re-invoke or resume the command with the answer as a flag" (spec:61). The implement row blocks on a halt and keeps the Ruling rule (spec:109). D2(a) recommends keeping that rule because another agent's message is not acceptance (spec:234), and the spec cites that rule as `refs/qa.md:238` (spec:109, CAPS and INV-A:66). D4(a) says outward authorization needs the user's own words, but WC-3 needs no quoting (spec:245 against spec:61).
-- Attack (Whittaker, sentinel collision, see section below): a free-text coordinator answer is turned into a flag. WC-3 does not say which flag a free answer maps to.
-- Grading sentence: An implementer who follows WC-3 as written asks the coordinator at the implement Ruling gate, resumes with the coordinator's reply as the Ruling flag, and the halt is cleared; that is wrong because `refs/qa.md:238` (cited at spec:109) says another agent's message is not acceptance, and WC-3 has no exception for it.
-- Expert: Nygard (failure and control path), Wiegers (contradicting rules). Priority: High. Impact: High (safety rule).
-- Recommendation: exclude safety and authorization gates from WC-3 (implement Ruling, post-release and pr-submit authorizations, cli-eval safety flags), and say which flag a coordinator answer maps to, or drop the relay for these gates until D2 and D4 are decided.
+#### M3.a, from round1-a.md B3: B3 (MAJOR, blocking). WC-5 reports a FAIL audit as `succeeded`, and no contract field carries the verdict
+- Issue: WC-5 says `--outcome succeeded` for "an audit whose verdict is FAIL" (spec:63). WC-4 lists the contract fields `status`, `command`, `report_path`, `artifacts` and `blocked_question` and has no verdict field (spec:62). The verdict is therefore only in the body of `worker_done`, which WC-5 requires as prose ("The first sentence of the body states the report's status and verdict", spec:63). The spec cites the Orca rule "Never encode failure only in prose" (CAPS:73, from `[G]` lines 88-90). The spec breaks that rule for audits.
+- Grading sentence: An implementer who follows WC-5 builds a coordinator that unblocks dependent Tasks when `worker_done --outcome succeeded` arrives, and that is wrong because the audit's FAIL verdict is only in prose and the coordinator's gate cannot read it (spec:63 with spec:62; CAPS:73).
+- Expert: Fowler (interface), Whittaker (divergence attack, see section below). Priority: High. Impact: High (dependents run after a failed audit).
+- Recommendation: add `verdict` to the WC-4 contract (required for audit-type commands), and make the coordinator gate on it, not on prose. Keep `succeeded` only for the run, not for the audit result.
 
 ### M4
 
@@ -36,6 +35,18 @@ sources:
 - Grading sentence: An implementer who follows WC-4 writes the adversarial contract at `<output>/return-contract.yaml`, and the coordinator following the row opens `<output>/adversarial/return-contract.yaml`, finds nothing, and per WC-5 records the worker as `failed` ("no report exists", spec:63) when the run succeeded; the two texts contradict each other (spec:62 against spec:83).
 - Expert: Fowler (interface contract). Priority: High. Impact: Medium (false failures, and the wrong file may be read later).
 - Recommendation: choose one rule (either the WC-4 path or an explicit per-command subdirectory listed in WC-4), and make section 3 use only that rule.
+
+### M6
+
+#### M6.a, from round1-a.md B7: B7 (MAJOR, blocking). AC-0.4 step 4 cannot pass for the P0 ready commands
+- Issue: step 4 requires a YAML file with `status` in four values and a `command` key (spec:183). AC-0.4 says step 4 "uses the command's existing report file" (spec:194). The existing workflow contract, as listed at INV-B:272, has `status`, `plan_path` and `reflect_report_path`, and no `command` key. The existing troubleshoot report is `REPORT.md`, which is markdown (INV-B:49). The check as written fails for both.
+- Grading sentence: An implementer who runs step 4 on `/sc:workflow --handoff none` as written hits `assert d['command']` against a contract that has no `command` key (INV-B:272), so P0 cannot pass its own acceptance check; the spec says the same check applies (spec:183 against spec:194).
+- Expert: Crispin. Priority: High (blocks the phase that tests the decision). Impact: Medium.
+- Recommendation: define step 4 for each P0 command separately: for workflow, check `status` only and state that `command` arrives in P1; for troubleshoot, check that `REPORT.md` exists and is non-empty.
+
+---
+
+=== ARCHITECTURE ANALYSIS ===
 
 ### M7
 
@@ -58,12 +69,6 @@ Priority: High.
 Grading sentence: "An implementer who follows the load row writes no `return-contract.yaml` and no Unattended mode section for `/sc:load`, so AC-1.1 fails for load and P1 cannot pass; an implementer who follows AC-1.1 or WC-4 must add a contract the load row and `SPEC:265` say not to add."
 Recommendation: choose one. Either give load a minimal contract with `status` and no `report_path` (WC-4 already allows "if any"), or name load as an exception in WC-4 and AC-1.1 with the reason. Priority: High.
 
-### M9
-
-#### M9.a, from round1-b.md F3: *F3. MAJOR, FR-8 GAP, blocking. The outcome rule turns invalid status into success.** Expert: Nygard (guard boundaries), Whittaker (FR-2.1 zero/invalid input). `SPEC:63` maps to `--outcome succeeded` "otherwise", after `failed` and `blocked`. `SPEC:62` allows exactly four status values. `CAPS:73` says "Never encode failure only in prose".
-Grading sentence: "An implementer who follows WC-5 as written sends `--outcome succeeded` for a contract whose status is `done` or empty, and that is wrong because the contract does not state success."
-Recommendation: map only `succeeded` and `partial` to succeeded; map every other value, including unparseable or missing status, to failed. Add a planted-invalid-status case to P0 or P1 checks. Priority: High.
-
 ### M10
 
 #### M10.a, from round1-c.md F1: *F1. WC-4 says the report path is known before dispatch, but two §3 rows make it unknown or unnamed. [BLOCKING]**
@@ -75,7 +80,7 @@ Recommendation: map only `succeeded` and `partial` to succeeded; map every other
 
 ## Noted, unactioned (verifier rejected; not prior blocking findings)
 
-### M1 (verifier: Both rows sit in the §3.2 table column headed "Unattended-mode gate resolution (WC-2)", and the roadmap row also says `--interactive` refused, so the rows scope to `--unattended`. The wrong outcome needs a reader who drops that column header; with it, WC-11 and the rows agree and SA-1 is not broken.)
+### M1 (verifier: The column header scopes both rows to unattended mode, which matches WC-11 (spec:69) and SA-1 (spec:146), so the claimed contradiction and the plain-session outcome need the header ignored.)
 
 #### M1.a, from round1-a.md B1: B1 (CRITICAL, blocking). The standalone-behaviour rule is contradicted by two rows
 - Issue: SA-1 says that without `--unattended` every prompt and default stays as it is today (spec:146). The roadmap row replaces the default-on "Resume? [Y/n]" prompt with an explicit flag and says "resume only when passed" with no `--unattended` qualifier (spec:118). The save row says to write only per-session keys and never the single-owner keys, again with no qualifier (spec:119). WC-11 limits the single-owner exclusion to unattended mode (spec:69), so the two texts disagree. SA-4 allows only defect fixes outside additive edits (spec:149). The roadmap and save changes are not named as defect fixes there (only "roadmap and validate-roadmap drift" is named).
@@ -84,15 +89,16 @@ Recommendation: map only `succeeded` and `partial` to succeeded; map every other
 - Expert: Wiegers (traceability and contradictions). Priority: High. Impact: High (every standalone user of two commands).
 - Recommendation: gate both changes on `--unattended`, or name them as SA-4 defect fixes and state that the standalone behaviour is preserved (for example, keep the prompt and make only the worker path resume-by-flag).
 
-### M3 (verifier: The candidate states the FAIL-audit-as-succeeded mapping on purpose, and the verdict sits in the worker_done body by design. The "wrong" verdict depends on the Orca rule at CAPS:73 ("Never encode failure only in prose"), which is UNVERIFIED in this sandbox.)
+### M2 (verifier: The WC-2 three-way versus WC-3 four-way conflict is real, but the stated outcome (halt cleared) is blocked by the unchanged Ruling rule stated at spec:233, and the candidate names no Ruling flag for implement; D4 concerns outward actions, not gates.)
 
-#### M3.a, from round1-a.md B3: B3 (MAJOR, blocking). WC-5 reports a FAIL audit as `succeeded`, and no contract field carries the verdict
-- Issue: WC-5 says `--outcome succeeded` for "an audit whose verdict is FAIL" (spec:63). WC-4 lists the contract fields `status`, `command`, `report_path`, `artifacts` and `blocked_question` and has no verdict field (spec:62). The verdict is therefore only in the body of `worker_done`, which WC-5 requires as prose ("The first sentence of the body states the report's status and verdict", spec:63). The spec cites the Orca rule "Never encode failure only in prose" (CAPS:73, from `[G]` lines 88-90). The spec breaks that rule for audits.
-- Grading sentence: An implementer who follows WC-5 builds a coordinator that unblocks dependent Tasks when `worker_done --outcome succeeded` arrives, and that is wrong because the audit's FAIL verdict is only in prose and the coordinator's gate cannot read it (spec:63 with spec:62; CAPS:73).
-- Expert: Fowler (interface), Whittaker (divergence attack, see section below). Priority: High. Impact: High (dependents run after a failed audit).
-- Recommendation: add `verdict` to the WC-4 contract (required for audit-type commands), and make the coordinator gate on it, not on prose. Keep `succeeded` only for the run, not for the audit result.
+#### M2.a, from round1-a.md B2: B2 (CRITICAL, blocking). WC-3 lets a coordinator answer any gate, which contradicts the spec's own three-way rule and the implement Ruling rule
+- Issue: WC-2 says each gate resolves one of three ways (a default, a flag, or blocked) (spec:60). WC-3 adds a fourth path: the worker may ask the coordinator and then "re-invoke or resume the command with the answer as a flag" (spec:61). The implement row blocks on a halt and keeps the Ruling rule (spec:109). D2(a) recommends keeping that rule because another agent's message is not acceptance (spec:234), and the spec cites that rule as `refs/qa.md:238` (spec:109, CAPS and INV-A:66). D4(a) says outward authorization needs the user's own words, but WC-3 needs no quoting (spec:245 against spec:61).
+- Attack (Whittaker, sentinel collision, see section below): a free-text coordinator answer is turned into a flag. WC-3 does not say which flag a free answer maps to.
+- Grading sentence: An implementer who follows WC-3 as written asks the coordinator at the implement Ruling gate, resumes with the coordinator's reply as the Ruling flag, and the halt is cleared; that is wrong because `refs/qa.md:238` (cited at spec:109) says another agent's message is not acceptance, and WC-3 has no exception for it.
+- Expert: Nygard (failure and control path), Wiegers (contradicting rules). Priority: High. Impact: High (safety rule).
+- Recommendation: exclude safety and authorization gates from WC-3 (implement Ruling, post-release and pr-submit authorizations, cli-eval safety flags), and say which flag a coordinator answer maps to, or drop the relay for these gates until D2 and D4 are decided.
 
-### M5 (verifier: agent` (probe above), so a permitted `orca orchestration ...` example would not be matched. The candidate also does not require any Orca command text in the contract or the section.)
+### M5 (verifier: SA-2 permits Orca text in the contract file and SA-5 requires an Orca section, but neither requires an `orca <subcommand>` string, so AC-C1 failing needs an assumed example of that form; the check can pass if the permitted text avoids that form.)
 
 #### M5.a, from round1-a.md B6: B6 (MAJOR, blocking). Acceptance check AC-C1 cannot pass once P0 lands
 - Issue: AC-C1 greps `src/superclaude/core` as well as commands, skills and agents (spec:172). It excludes only `ccsession-tag` (spec:172). SA-2 allows Orca text in the contract file as "an example of a caller's question channel" (spec:147). SA-5 requires an Orca section in `HOW-WE-WORK.md`, which is also under core (spec:150), and P0 adds the contract to core (spec:158). An Orca section or a contract example of the form `orca orchestration ask` would therefore match AC-C1 in P0 while the spec says it is allowed.
@@ -100,19 +106,13 @@ Recommendation: map only `succeeded` and `partial` to succeeded; map every other
 - Expert: Crispin (testability). Priority: High. Impact: Medium (blocks P0 gate; forces ad hoc exceptions).
 - Recommendation: exclude `src/superclaude/core/WORKER-CONTRACT.md` and the routing-guide Orca section from AC-C1 by name, and keep the command and skill scope.
 
-### M6 (verifier: The wrong outcome for `/sc:workflow --handoff none` depends on INV-B:272 saying the existing workflow contract has no `command` key. INV-B is not in this sandbox, and the candidate does not state the field set of the existing workflow contract. The troubleshoot `REPORT.md` point (spec:91) is supported by the candidate, but it is not the outcome the sub-entry names.)
+### M9 (verifier: Same gap as M4.a: the candidate does not say a status of `done` or an empty status is a failure, so "the contract does not state success" is an added assumption, not the candidate's rule.)
 
-#### M6.a, from round1-a.md B7: B7 (MAJOR, blocking). AC-0.4 step 4 cannot pass for the P0 ready commands
-- Issue: step 4 requires a YAML file with `status` in four values and a `command` key (spec:183). AC-0.4 says step 4 "uses the command's existing report file" (spec:194). The existing workflow contract, as listed at INV-B:272, has `status`, `plan_path` and `reflect_report_path`, and no `command` key. The existing troubleshoot report is `REPORT.md`, which is markdown (INV-B:49). The check as written fails for both.
-- Grading sentence: An implementer who runs step 4 on `/sc:workflow --handoff none` as written hits `assert d['command']` against a contract that has no `command` key (INV-B:272), so P0 cannot pass its own acceptance check; the spec says the same check applies (spec:183 against spec:194).
-- Expert: Crispin. Priority: High (blocks the phase that tests the decision). Impact: Medium.
-- Recommendation: define step 4 for each P0 command separately: for workflow, check `status` only and state that `command` arrives in P1; for troubleshoot, check that `REPORT.md` exists and is non-empty.
+#### M9.a, from round1-b.md F3: *F3. MAJOR, FR-8 GAP, blocking. The outcome rule turns invalid status into success.** Expert: Nygard (guard boundaries), Whittaker (FR-2.1 zero/invalid input). `SPEC:63` maps to `--outcome succeeded` "otherwise", after `failed` and `blocked`. `SPEC:62` allows exactly four status values. `CAPS:73` says "Never encode failure only in prose".
+Grading sentence: "An implementer who follows WC-5 as written sends `--outcome succeeded` for a contract whose status is `done` or empty, and that is wrong because the contract does not state success."
+Recommendation: map only `succeeded` and `partial` to succeeded; map every other value, including unparseable or missing status, to failed. Add a planted-invalid-status case to P0 or P1 checks. Priority: High.
 
----
-
-=== ARCHITECTURE ANALYSIS ===
-
-### M11 (verifier: The stale-contract attack needs the retry to reuse the same output directory. §2.3 does not say to reuse it, and WC-6 requires a fresh output directory for a re-run without a resume flag. The gap that no rule clears an earlier contract is real but needs that unstated reuse.)
+### M11 (verifier: WC-6 (spec:64) already requires a fresh output directory for commands with no resume flag, so the stale-contract retry needs an implementer who violates WC-6; the §2.3 premise "passes the same `--output` on a retry" is not in §2.3. The missing binding of a contract to an attempt is a real gap, but not the stated outcome.)
 
 #### M11.a, from round1-c.md F3: *F3. A retry can overwrite or misread the first attempt's contract. [BLOCKING]**
 - Issue: WC-3 lets a worker re-invoke or resume the command after an answer (`spec:61`). WC-6 says a re-run "writes each run into a fresh output directory" when the command has no resume flag (`spec:64`). §2.3 lists what the coordinator owes each brief and does not include a fresh output directory on retry (`spec:73`). The contract has no field that binds it to a dispatch or Task (`spec:62` lists `status`, `command`, `report_path`, `artifacts`, `blocked_question`). WC-5 maps "no report exists" to `failed` (`spec:63`).
@@ -122,7 +122,7 @@ Recommendation: map only `succeeded` and `partial` to succeeded; map every other
 - Recommendation: state in §2.3 that a retry brief gets a new output directory (or a timestamped subdirectory the command creates), and that the contract is removed or renamed before a run starts. Add `dispatch_id` (or `task_id`) to the WC-4 field list and make WC-5 ignore a contract whose id does not match the preamble.
 - Priority: High. Quality impact: high (data loss and a false success).
 
-### M12 (verifier: The conflict depends on `command.md:23` and `:459-460` (the command definition's `--output <file>`), which are not in this sandbox, and on INV-B:43. The candidate itself uses `--output` as a file in init-lite and tdd (spec:87, spec:90) and as a directory in adversarial (spec:83), so the flag's meaning is inconsistent in the candidate, but spec-panel's current definition cannot be checked here.)
+### M12 (verifier: The claim that `--output` is file-valued in the spec-panel command rests on `command.md:23,459-460` and `INV-B:43`, which are not in this workspace and are UNVERIFIED here; the candidate text alone does not establish a file-versus-directory conflict.)
 
 #### M12.a, from round1-c.md F4: *F4. The spec-panel row conflicts with the command definition on `--output`. [BLOCKING]**
 - Issue: WC-4 treats `--output` as a directory flag (`spec:62`). The §3.2 spec-panel row says "add `--output`; contract" and "`target_release` required as a flag" (`spec:120`). The command definition already has `--output <file>`, `--unattended`, `--report-dir <dir>` and `--target-release` in its usage line (`command.md:23`), accepts `--target-release` in any run (`command.md:37`), and says `--report-dir <dir>` is the report directory and "`--output` is file-valued" (`command.md:459-460`). The inventory row this spec relies on says spec-panel has no `--output` (`INV-B:43`, citing `cmd/spec-panel.md:22`, UNVERIFIED here, because that file is not in this sandbox).
@@ -137,7 +137,7 @@ Listed in the three source reports above; not merged.
 
 ## Reviser brief
 
-Blocking finding ids: M2, M4, M7, M8, M9, M10.
+Blocking finding ids: M3, M4, M6, M7, M8, M10.
 Rules for the reviser (restating the Review Loop's Reviser contract): revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, with the bytes added and deleted per finding id.
 
 verdict: FAIL

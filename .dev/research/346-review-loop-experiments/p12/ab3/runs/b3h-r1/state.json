@@ -65,7 +65,8 @@
     "bytes": 57763,
     "lines": 285,
     "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
-   }
+   },
+   "output_tokens": 59616
   },
   "V1": {
    "output_exists": true,
@@ -75,7 +76,8 @@
     "bytes": 59746,
     "lines": 285,
     "sha256": "e1f78b891d8bb255eebfc49ad5aa8456501e35c3ff87d61c58e99699e8350b62"
-   }
+   },
+   "output_tokens": 49439
   },
   "R2": {
    "output_exists": true,
@@ -102,7 +104,8 @@
     "bytes": 59746,
     "lines": 285,
     "sha256": "e1f78b891d8bb255eebfc49ad5aa8456501e35c3ff87d61c58e99699e8350b62"
-   }
+   },
+   "output_tokens": 49818
   },
   "V2": {
    "output_exists": true,
@@ -112,7 +115,8 @@
     "bytes": 59962,
     "lines": 285,
     "sha256": "2a0ba05dc4158ae8fc6c4b9c265ce2ded840533c29031835d61d7c548122ac84"
-   }
+   },
+   "output_tokens": 11303
   },
   "R3": {
    "output_exists": true,
@@ -128,7 +132,8 @@
     "bytes": 59962,
     "lines": 285,
     "sha256": "2a0ba05dc4158ae8fc6c4b9c265ce2ded840533c29031835d61d7c548122ac84"
-   }
+   },
+   "output_tokens": 44659
   },
   "G": {
    "output_exists": true,
@@ -165,7 +170,8 @@
      "theme": "T1",
      "heading": "**B-5. AC-1.1 requires `load` to name `return-contract.yaml`, but the spec gives `load` no report an"
     }
-   ]
+   ],
+   "output_tokens": 66675
   },
   "GV": {
    "output_exists": true,
@@ -175,7 +181,8 @@
     "bytes": 61081,
     "lines": 285,
     "sha256": "060d1fb59804955f83e92638dceec3c2655f94b7c59c399f7112f8a8c9bfd1d2"
-   }
+   },
+   "output_tokens": 28601
   },
   "GR": {
    "output_exists": true,
@@ -192,7 +199,8 @@
     "bytes": 61081,
     "lines": 285,
     "sha256": "060d1fb59804955f83e92638dceec3c2655f94b7c59c399f7112f8a8c9bfd1d2"
-   }
+   },
+   "output_tokens": 33951
   },
   "AUD": {
    "output_exists": true,
@@ -212,7 +220,8 @@
    ],
    "spec_audited": {
     "bytes": 61081
-   }
+   },
+   "output_tokens": 22967
   },
   "AUD2": {
    "output_exists": true,
@@ -226,7 +235,8 @@
    "blocking": [],
    "spec_audited": {
     "bytes": 61081
-   }
+   },
+   "output_tokens": 53171
   }
  },
  "launched": {

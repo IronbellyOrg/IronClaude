@@ -14,11 +14,8 @@
   "VF1",
   "V1",
   "R2",
-  "VF2",
-  "V2",
-  "R3",
-  "AUD",
-  "AUD2"
+  "AUD2",
+  "AUD"
  ],
  "prepared": [
   "R1a",
@@ -27,9 +24,6 @@
   "VF1",
   "V1",
   "R2",
-  "VF2",
-  "V2",
-  "R3",
   "AUD",
   "AUD2"
  ],
@@ -40,11 +34,8 @@
   "VF1",
   "V1",
   "R2",
-  "VF2",
-  "V2",
-  "R3",
-  "AUD",
-  "AUD2"
+  "AUD2",
+  "AUD"
  ],
  "log": {
   "R1a": {
@@ -100,125 +91,82 @@
     "M5",
     "M6"
    ],
-   "report_bytes": 3759,
+   "report_bytes": 5318,
    "confirmed": [
     "M1",
     "M2",
+    "M3",
     "M4",
     "M5",
     "M6"
    ],
-   "rejected": {
-    "M3": "The text does not say a resumed run re-stops at the same gate or that no approval can be supplied; that needs an assumption about what resume_phase/resume_substep do and what the \"required flags\" are (A:45 is outside the checkable text)."
-   },
+   "rejected": {},
    "parse_ok": true,
-   "output_tokens": 4113
+   "output_tokens": 7130
   },
   "V1": {
    "output_exists": true,
-   "report_bytes": 2021,
+   "report_bytes": 3141,
    "spec_after": {
-    "bytes": 58254,
+    "bytes": 58684,
     "lines": 285,
-    "sha256": "51c1db2c9d50566a98e630c6d8b4017397f136684b86e1f54329e02f1d7fd5b1"
+    "sha256": "06730fb96147b55377f384ee4605e4ba1f6a74c60f4f348ab9d5de3b86c1559f"
    },
-   "output_tokens": 5210
+   "output_tokens": 6344
   },
   "R2": {
    "output_exists": true,
-   "report_bytes": 26688,
-   "verdict": "FAIL",
+   "report_bytes": 27456,
+   "verdict": "PASS",
    "review_header": [
     "2"
    ],
-   "labels": {
-    "CRITICAL": 2
-   },
-   "blocking_ids": "N1, N2. (M1, M2, M4, M5, M6 are resolved; M3 stays a note.)",
-   "blocking_word_count": 14,
-   "spec_after": {
-    "bytes": 58254,
-    "lines": 285,
-    "sha256": "51c1db2c9d50566a98e630c6d8b4017397f136684b86e1f54329e02f1d7fd5b1"
-   },
-   "output_tokens": 23641
-  },
-  "VF2": {
-   "output_exists": true,
-   "finding_ids": [
-    "N1",
-    "N2"
-   ],
-   "report_bytes": 2200,
-   "confirmed": [
-    "N1",
-    "N2"
-   ],
-   "rejected": {},
-   "parse_ok": true,
-   "output_tokens": 2689
-  },
-  "V2": {
-   "output_exists": true,
-   "report_bytes": 1630,
-   "spec_after": {
-    "bytes": 58408,
-    "lines": 285,
-    "sha256": "5c2917118a22814ab0c7a7bbdc9726f06dce161ded89ac5b03740fd58e13abc3"
-   },
-   "output_tokens": 2715
-  },
-  "R3": {
-   "output_exists": true,
-   "report_bytes": 14337,
-   "verdict": "PASS",
-   "review_header": [
-    "3"
-   ],
    "labels": {},
-   "blocking_ids": null,
-   "blocking_word_count": 5,
+   "blocking_ids": "none. No revision is requested, and none of N1-N7, W1-W3 may be edited under this loop (Medium and minor findings never appear in the Reviser brief). Rules restated for any later reviser: revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report byte size before and after with bytes added and deleted per finding id",
+   "blocking_word_count": 8,
    "spec_after": {
-    "bytes": 58408,
+    "bytes": 58684,
     "lines": 285,
-    "sha256": "5c2917118a22814ab0c7a7bbdc9726f06dce161ded89ac5b03740fd58e13abc3"
+    "sha256": "06730fb96147b55377f384ee4605e4ba1f6a74c60f4f348ab9d5de3b86c1559f"
    },
-   "output_tokens": 10546
-  },
-  "AUD": {
-   "output_exists": true,
-   "report_bytes": 12401,
-   "verdict": "FAIL",
-   "review_header": [
-    "1"
-   ],
-   "labels": {
-    "MAJOR": 1,
-    "MINOR": 3
-   },
-   "blocking_ids": "R-1",
-   "blocking_word_count": 6,
-   "spec_audited": {
-    "bytes": 58408
-   },
-   "output_tokens": 28078
+   "output_tokens": 23543
   },
   "AUD2": {
    "output_exists": true,
-   "report_bytes": 18011,
+   "report_bytes": 16369,
    "verdict": "FAIL",
    "review_header": [
     "1"
    ],
    "labels": {
-    "MAJOR": 2
+    "MAJOR": 2,
+    "CRITICAL": 1
    },
-   "blocking_ids": "B-1, B-2. Only these. Rules for the reviser: revise only text a blocking finding names; add no rule, mechanism or section that no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, and the bytes added and deleted per finding id; leave minor and Medium findings alone; return the candidate once and do not award yourself a PASS",
-   "blocking_word_count": 8,
+   "blocking_ids": "B-1, B-2",
+   "blocking_word_count": 10,
    "spec_audited": {
-    "bytes": 58408
+    "bytes": 58684
    },
-   "output_tokens": 22494
+   "output_tokens": 25742
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 29012,
+   "verdict": "PASS",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 16,
+    "MINOR": 4
+   },
+   "blocking_ids": null,
+   "blocking_word_count": 6,
+   "spec_audited": {
+    "bytes": 58684
+   },
+   "output_tokens": 50202
   }
  },
  "launched": {
@@ -226,29 +174,12 @@
   "R1b": "2026-11-10T08:13:00+00:00",
   "R1c": "2026-11-10T08:14:01+00:00",
   "VF1": "2026-11-10T08:22:32+00:00",
-  "V1": "2026-11-10T08:27:12+00:00",
-  "R2": "2026-11-10T08:32:05+00:00",
-  "VF2": "2026-11-10T08:39:55+00:00",
-  "V2": "2026-11-10T08:44:11+00:00",
-  "R3": "2026-11-10T08:48:18+00:00",
-  "AUD": "2026-11-10T08:53:49+00:00",
-  "AUD2": "2026-11-10T08:55:13+00:00"
+  "V1": "2026-11-10T11:56:45+00:00",
+  "R2": "2026-11-10T12:01:48+00:00",
+  "AUD": "2026-11-10T12:09:23+00:00",
+  "AUD2": "2026-11-10T12:09:23+00:00"
  },
- "noted_unactioned": [
-  {
-   "step": "VF1",
-   "id": "M3",
-   "theme": "other",
-   "cited": [
-    60,
-    105,
-    160,
-    201
-   ],
-   "heading": "### F3 - CRITICAL (blocking) - Adzic - cli-portify: the happy-path check cannot pass, because every gate resolves only as blocked",
-   "reason": "The text does not say a resumed run re-stops at the same gate or that no approval can be supplied; that needs an assumption about what resume_phase/resume_substep do and what the \"required flags\" are (A:45 is outside the checkable text)."
-  }
- ],
+ "noted_unactioned": [],
  "loop_end": "PASS",
  "manual": [],
  "relaunch": {},
@@ -449,8 +380,13 @@
   "done": true
  },
  "final_spec": {
-  "bytes": 58408,
+  "bytes": 58684,
   "lines": 285,
-  "sha256": "5c2917118a22814ab0c7a7bbdc9726f06dce161ded89ac5b03740fd58e13abc3"
+  "sha256": "06730fb96147b55377f384ee4605e4ba1f6a74c60f4f348ab9d5de3b86c1559f"
+ },
+ "replay": {
+  "from": "VF1",
+  "reason": "clean VF1 re-run changed the confirmed set (verifier list contamination)",
+  "backup": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab1/runs_superseded/b1-r6-contaminated"
  }
 }

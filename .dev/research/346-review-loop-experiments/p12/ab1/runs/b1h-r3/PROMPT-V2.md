@@ -9,7 +9,7 @@ HOME: for this task the shell home `~` resolves to /tmp/claude-0/-home-user-Iron
 TOOLS: you may use Read, Grep, Glob, Edit, Write and Bash inside the sandbox. Edit or write only the files the brief assigns to you.
 
 BRIEF (verbatim, from the coordinator):
-Revise per the REVISE prompt in ~/.claude/rules/prompts/document_review_loop_prompts.md. Values: candidate=.dev/orca-command-refactor/specs/orca-worker-contract-spec.md, IDS=B1.
+Revise per the REVISE prompt in ~/.claude/rules/prompts/document_review_loop_prompts.md. Values: candidate=.dev/orca-command-refactor/specs/orca-worker-contract-spec.md, IDS=R2-1, R2-2.
 Inputs: the review report .dev/orca-command-refactor/review/round2.md (its Reviser brief lists the blocking ids), the spec, and the files under .dev/orca-command-refactor/inventory/. Edit the spec .dev/orca-command-refactor/specs/orca-worker-contract-spec.md in place; it is the only file you may change besides your output. Do not run the spec-panel. Write .dev/orca-command-refactor/review/revise2.md with the byte accounting the prompt asks for and one row per finding id (applied where, or rejected with a cited reason). First read .dev/orca-command-refactor/README.md (binding shared context; the files under .dev/orca-command-refactor/inventory/ are the only evidence you can check, mark any citation you cannot check UNVERIFIED). Cite path:line for every claim. Write only your output file(s).
 
 FINAL REPLY: after your output file is written, reply with only `DONE <path of your output file>`. Do not paste the report or any other text.
