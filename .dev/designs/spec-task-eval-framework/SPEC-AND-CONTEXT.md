@@ -628,3 +628,9 @@ So the plan's earlier "P0-P3 are mostly porting" holds only for porting **from t
 - P5 (gateway) starts with the swarm transport library plus the new usage field and 429 backoff, after the endpoint probe.
 - Acceptance G3 (16 agents) is only achievable in the new engine; cliEval's clamp never applies.
 - The effort estimate stays "P0-P3 about 4-6 focused sessions" only if the experiment tree is the porting source; building on cliEval would be slower, not faster.
+
+## Appendix D. Tier layout changes tracked outside this spec (added 2026-11-10)
+
+- **Owner confirmation:** the owner has confirmed that `claude-gw-tier1b`, `claude-gw-tier3` and `claude-gw-tier4` resolve live, in addition to the `tier2` -> `gpt-6.1-sol` evidence recorded in B19.3. (Owner statement; not independently re-run from the sandbox used for these experiments.)
+- **#488 reorganises the tiers:** today's Tier 3 becomes Tier 2b (Terra first), the new Tier 3 is GLM 5.3, Grok 4.7, Qwen 3.8, and Tier 4 adds Claude Haiku 5.5 to GPT-6 Luna. The framework's slot maps, the ab5 panel template, the lane map and the examples in B3.3 and B5 name tiers directly, so they must move from tiers `1b, 2, 3` (the experiments also used a `t4` slot) to **`1b, 2, 2b, 3`** once the experiment work is merged and #488 is deployed.
+- **Tracking issue:** #489 (sub-issue of #488) lists the files to change, the live probes to run for each tier, and the open questions (whether a `t4` reviewer stays; what fills the Tier 2b slot in the mock; whether Haiku 5.5 becoming a real Tier 4 model changes what the mock "stand-in" means).
