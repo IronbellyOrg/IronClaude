@@ -1,0 +1,51 @@
+{
+  "reason": "Files outside the plan changed after the baseline; not made by this run.",
+  "approval": {
+    "ask_message": "msg_396f577fa3cd",
+    "answer_message": "msg_da4599a5fd9c",
+    "answer_text": "ok",
+    "interpretation": "Literal answer 'ok' to a question that recommended rebaseline-and-continue; read as approval of that option."
+  },
+  "settings_global": {
+    "path": "/home/coder/.claude/settings.json",
+    "old_sha256": "e0c2e76c60cfdd98dacdf6d751782c619875fb4c858f5037858af2e1a883f761",
+    "new_sha256": "b39dd56864118734fa84bf885f45efcf9d0a8ddd9357be9f6b8793de39c47d06",
+    "pre_change_copy": "/home/coder/.claude/settings.json.bak",
+    "top_level_keys_changed": [
+      "hooks",
+      "model"
+    ],
+    "permissions_equal": true,
+    "model_old": "claude-gw-tier1b[1m]",
+    "model_new": "claude-gw-gpt-6-luna[1m]",
+    "hooks_same_set": true
+  },
+  "other_installed": {
+    "old_entries": 45,
+    "new_entries": 46,
+    "old_digest": "55c0781e55cedb83fa5cb02e3cdfc8a8421288bb9d3b37b56f12cca971947b77",
+    "new_digest": "aee68bf0b5fc006765e8299de6a7283e73fd29830836c140a939934813fdc64c",
+    "known_new_entry": "setup-bmad (created 2026-11-09T16:03Z, after the baseline at 15:43Z)"
+  },
+  "unchanged_and_rechecked": [
+    "source",
+    "installed",
+    "profiles",
+    "project_mirrors",
+    "binding",
+    "roster",
+    "backup"
+  ],
+  "owner_decision_B": {
+    "source": "owner reply '1' at 2026-11-10T00:02Z, relayed by the coordinator (earlier coordinator message msg_bf66b7bcfc84 approved the same rebaseline-and-continue)",
+    "provenance": "the owner ran /model in the coordinator session on 2026-11-09 ~19:38Z; the default model changed and was saved (observed diff: the model key changed and hook entries were reordered, same set of hooks); setup-bmad is an unrelated tooling skill",
+    "conditions": [
+      "record old/new hashes with this provenance",
+      "fresh reviewer checks the diff",
+      "re-take the before-state",
+      "install ONLY sc-troubleshoot-protocol",
+      "afterwards verify ~/.claude/settings.json, ~/.claude/skills/setup-bmad and every unrelated file byte-identical to the before-state"
+    ],
+    "before_state_retaken": "compatibility-before.json (phase before re-run 2026-11-10, settings sha256 b39dd568...)"
+  }
+}

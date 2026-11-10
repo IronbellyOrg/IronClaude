@@ -1,0 +1,3 @@
+1846880a8e48911994a61b896dd13be862501a2a
+A1 r1-1 F1.5 note docs/designs/sc-issue-launch-level-hook.md:366 ac=scope chk=n,n,n,n family=stale-plan-step first=start origin=inherited: plan step 7 still says "Build L2 only after B-CTX passes", superseded by OD-1 (L2 built for the tested local Bash surface); outside the Task 10 edit list, left as is.
+A1 r1-1 F1.6 note docs/user-guide/commands.md:381 ac=scope chk=n,n,n,n family=human-push-wording first=A1 origin=new: "your own pushes as a person are not restricted" is broader than LIM-14 and LIM-15 (a person read as `unknown` is refused on main/master); optional rewording, not applied.

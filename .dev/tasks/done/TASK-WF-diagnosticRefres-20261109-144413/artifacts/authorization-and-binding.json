@@ -1,0 +1,71 @@
+{
+  "owner_message": "msg_fbc81030bd4f",
+  "owner_provenance": "2026-11-09T14:12UTC direct genuine owner message relayed by coordinator:441 pr469 authorized; checked compatibility only",
+  "scope": "No permissions/profile/tool/gate broadening; normal one-skill installer; old failures/caps preserved; no merge/closure",
+  "owner_decision_A": {
+    "decision": "A: mode-only exception for the 19 install-skill entries AUTHORIZED",
+    "source": "owner reply '1' at 2026-11-10T00:02Z, relayed by the coordinator",
+    "verbatim": "(A) AUTHORIZED: the mode-only exception for the 19 install-skill entries (2 directories, 17 refs files; source 700/600 vs installed 755/644; the install makes installed copies stricter). It covers ONLY those 19 entries and ONLY mode differences. Any other drift, any content-hash difference, or any mode difference that loosens permissions = STOP and report.",
+    "count_note": "The recorded entry set is 3 directories (., refs, refs/probe-packs) and 16 files; the total of 19 and the mode pairs match the wording.",
+    "entries": [
+      ".",
+      "refs",
+      "refs/agent-assertions.md",
+      "refs/calibrator-eval-cases.md",
+      "refs/contract-enumeration.md",
+      "refs/effective-input-proof.md",
+      "refs/environment-deltas.md",
+      "refs/escalation-rubric.md",
+      "refs/hardening-output-contract.md",
+      "refs/hypothesis-card-template.md",
+      "refs/pipeline-hardening-closure.md",
+      "refs/primitive-differential.md",
+      "refs/probe-packs",
+      "refs/probe-packs/read-parse.md",
+      "refs/remediation-handoff.md",
+      "refs/report-template.md",
+      "refs/runtime-entrypoint-verification.md",
+      "refs/triage-checklist.md",
+      "refs/unmask-and-sweep.md"
+    ]
+  },
+  "owner_decision_B": {
+    "decision": "B: settings.json rebaseline stays approved with conditions",
+    "source": "owner reply '1' at 2026-11-10T00:02Z, relayed by the coordinator",
+    "provenance": "owner ran /model in the coordinator session on 2026-11-09 ~19:38Z; the default model changed and was saved; setup-bmad is an unrelated tooling skill"
+  },
+  "binding": {
+    "module": "/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/cli/install_skill.py",
+    "module_state": {
+      "kind": "file",
+      "mode": 384,
+      "size": 4197,
+      "sha256": "dba905ac3d3e7407f380146ada15cffa957d174e3371a5140a1fc2d06e3537c8"
+    },
+    "source": "/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/skills/sc-troubleshoot-protocol",
+    "target": "/home/coder/.claude/skills/sc-troubleshoot-protocol",
+    "source_realpath": "/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/skills/sc-troubleshoot-protocol",
+    "target_realpath": "/home/coder/.claude/skills/sc-troubleshoot-protocol",
+    "model_alias": "sonnet",
+    "model_mapping": "claude-gw-tier1b[1m]"
+  },
+  "source_target_verified": true,
+  "profile_roster": [
+    "Glob",
+    "Grep",
+    "Read",
+    "mcp__auggie__codebase-retrieval",
+    "mcp__codegraph__codegraph_callers",
+    "mcp__codegraph__codegraph_impact",
+    "mcp__codegraph__codegraph_node",
+    "mcp__codegraph__codegraph_search",
+    "mcp__litellm__augment_code-augment_code_search"
+  ],
+  "backup": {
+    "path": "./artifacts/installed-skill-before.tar.gz",
+    "kind": "file",
+    "mode": 384,
+    "size": 106556,
+    "sha256": "77e304762480a13a83589c62f3ca1dc8ddf8cd4ab3b0b0afc7920ec2341a3707"
+  }
+}

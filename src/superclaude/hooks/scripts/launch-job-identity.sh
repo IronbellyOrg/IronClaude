@@ -215,11 +215,15 @@ def boot():
 def identify(pid):
     root = None
     jobs = None
+    # FR-025: once the record path is known, unknown names a reason and that path.
+    record = None
+    reason = 'unreadable'
     try:
         _, sid, _ = proc(pid)
         try:
             root = store()
             jobs = subdir(root, 'jobs')
+            record = os.path.join(os.environ['HOME'], '.claude', 'state', 'launch-level', 'jobs', str(sid) + '.json')
             raw = read_file(jobs, str(sid) + '.json')
         except FileNotFoundError:
             return {'status': 'ordinary'}
@@ -230,10 +234,20 @@ def identify(pid):
             raise ValueError('invalid supervisor')
         if type(value['start']) is not int or not valid_id(value['session_id']):
             raise ValueError('invalid identity')
-        state, actual_sid, start = proc(value['pid'])
-        if state == 'Z' or actual_sid != sid or start != value['start'] or boot() != value['boot']:
+        try:
+            state, actual_sid, start = proc(value['pid'])
+        except (FileNotFoundError, ProcessLookupError):
+            reason = 'orphaned'
+            raise
+        if state == 'Z':
+            reason = 'orphaned'
+            raise ValueError('orphaned supervisor')
+        # OC-3: a sid mismatch has no FR-025 class of its own; it is classed stale.
+        if actual_sid != sid or start != value['start'] or boot() != value['boot']:
+            reason = 'stale'
             raise ValueError('stale supervisor')
         if os.stat('/proc/%d' % sid).st_uid != os.geteuid():
+            reason = 'foreign'
             raise ValueError('foreign supervisor')
         try:
             governed(root, value['session_id'])
@@ -241,7 +255,9 @@ def identify(pid):
             return {'status': 'ordinary', 'reason': 'released'}
         return {'status': 'governed', 'session_id': value['session_id']}
     except (OSError, ValueError, IndexError, TypeError, RecursionError, AttributeError):
-        return {'status': 'unknown'}
+        if record is None:
+            return {'status': 'unknown'}
+        return {'status': 'unknown', 'reason': reason, 'record': record}
     finally:
         for fd in (jobs, root):
             if fd is not None:

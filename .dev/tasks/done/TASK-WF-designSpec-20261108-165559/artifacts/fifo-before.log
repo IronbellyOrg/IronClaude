@@ -1,0 +1,43 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-441
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 54 items / 51 deselected / 3 selected
+
+tests/skills/test_issue_l2_install.py .FF                                [100%]
+
+=================================== FAILURES ===================================
+_________ test_fifo_data_conflict_returns_without_waiting[install_l2] __________
+tests/skills/test_issue_l2_install.py:662: in test_fifo_data_conflict_returns_without_waiting
+    proc = subprocess.run(
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/subprocess.py:550: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/subprocess.py:1209: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/subprocess.py:2116: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/subprocess.py:1253: in _check_timeout
+    raise TimeoutExpired(
+E   subprocess.TimeoutExpired: Command '['/home/coder/workspaces/worktrees/IronClaude/issue-441/.venv/bin/python', '-c', '\nimport importlib.util, json, sys\nspec = importlib.util.spec_from_file_location("fifo_orca", sys.argv[1])\nmodule = importlib.util.module_from_spec(spec)\nsys.modules[spec.name] = module\nspec.loader.exec_module(module)\nprint(json.dumps(getattr(module, sys.argv[2])(sys.argv[3])))\n', '/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py', 'install_l2', '/tmp/pytest-of-coder/pytest-2529/test_fifo_data_conflict_return0/clone']' timed out after 5 seconds
+__________ test_fifo_data_conflict_returns_without_waiting[l2_status] __________
+tests/skills/test_issue_l2_install.py:662: in test_fifo_data_conflict_returns_without_waiting
+    proc = subprocess.run(
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/subprocess.py:550: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/subprocess.py:1209: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/subprocess.py:2116: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+/home/coder/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/subprocess.py:1253: in _check_timeout
+    raise TimeoutExpired(
+E   subprocess.TimeoutExpired: Command '['/home/coder/workspaces/worktrees/IronClaude/issue-441/.venv/bin/python', '-c', '\nimport importlib.util, json, sys\nspec = importlib.util.spec_from_file_location("fifo_orca", sys.argv[1])\nmodule = importlib.util.module_from_spec(spec)\nsys.modules[spec.name] = module\nspec.loader.exec_module(module)\nprint(json.dumps(getattr(module, sys.argv[2])(sys.argv[3])))\n', '/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py', 'l2_status', '/tmp/pytest-of-coder/pytest-2529/test_fifo_data_conflict_return1/clone']' timed out after 5 seconds
+=========================== short test summary info ============================
+FAILED tests/skills/test_issue_l2_install.py::test_fifo_data_conflict_returns_without_waiting[install_l2]
+FAILED tests/skills/test_issue_l2_install.py::test_fifo_data_conflict_returns_without_waiting[l2_status]
+================= 2 failed, 1 passed, 51 deselected in 12.23s ==================

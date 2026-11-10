@@ -1,0 +1,11 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-441
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 54 items / 51 deselected / 3 selected
+
+tests/skills/test_issue_l2_install.py ...                                [100%]
+
+======================= 3 passed, 51 deselected in 1.20s =======================

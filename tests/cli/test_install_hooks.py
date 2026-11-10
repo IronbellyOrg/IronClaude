@@ -103,6 +103,7 @@ def fake_source_hooks(tmp_path, monkeypatch):
         "require-orca-worktree-agent.sh",
         "launch-job-identity.sh",
         "launch-level-guard.sh",
+        "launch-level-pre-push.sh",
     ]:
         (scripts_pkg / name).write_text("#!/usr/bin/env bash\nexit 0\n")
     (legacy_scripts_pkg / "session-init.sh").write_text("#!/usr/bin/env bash\nexit 0\n")
@@ -1092,6 +1093,35 @@ def test_launch_level_guard_script_is_packaged_listed_executable_and_mirrored():
     assert os.access(source, os.X_OK) and os.access(mirror, os.X_OK)
     assert source.read_bytes() == mirror.read_bytes()
     assert source.read_text().startswith("#!/bin/bash\n")
+
+
+# T-23 / NFR-008: a byte change to the packaged L2 hook without a version bump
+# fails here. Bump L2_VERSION_LINE in the hook and here, then re-pin the sha256.
+L2_VERSION_LINE = "# launch-level-pre-push-version: 1"
+L2_HOOK_SHA256 = "d8a12f0302ceb78f2ced14e3c3dec72984e9fe1c7c911374ebff0de3ec88645b"
+
+
+def test_launch_level_pre_push_script_is_packaged_listed_executable_and_mirrored():
+    from superclaude.cli import install_hooks
+
+    root = Path(__file__).resolve().parents[2]
+    source = root / "src/superclaude/hooks/scripts/launch-level-pre-push.sh"
+    mirror = root / "plugins/superclaude/hooks/scripts/launch-level-pre-push.sh"
+    assert "launch-level-pre-push.sh" in install_hooks._FRESHNESS_SCRIPTS
+    assert os.access(source, os.X_OK) and os.access(mirror, os.X_OK)
+    assert source.read_bytes() == mirror.read_bytes()
+    # OC-5: the hook's own shebang; the guard keeps its `#!/bin/bash\n` pin.
+    assert source.read_text().startswith("#!/bin/bash -p\n")
+    assert source.read_text().splitlines()[1] == L2_VERSION_LINE
+
+
+def test_launch_level_pre_push_script_sha256_pin():
+    import hashlib
+
+    root = Path(__file__).resolve().parents[2]
+    for rel in ("src", "plugins"):
+        path = root / rel / "superclaude/hooks/scripts/launch-level-pre-push.sh"
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == L2_HOOK_SHA256, rel
 
 
 @pytest.mark.parametrize("force", [False, True])

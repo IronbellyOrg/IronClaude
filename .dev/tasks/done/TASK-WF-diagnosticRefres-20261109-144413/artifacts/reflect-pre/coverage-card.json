@@ -1,0 +1,23 @@
+{
+ "verdict":"PASS","scope":"New selective-refresh plan coverage only. Installation readiness and earlier failed check are not passed.",
+ "paths":{"source":"source.md","plan":"TASK-WF-diagnosticRefres-20261109-144413.md","installer":"src/superclaude/cli/install_skill.py"},
+ "citation_key":"S=package source.md;P=package plan;I=repo installer; live-read lines",
+ "coverage":{"parsed":12,"content_covered":12,"ratio":1.0,"independent_second_pass":"Full source/plan read in<=35line chunks. Introductory S3 requirement-shaped text covered by R001/R003/R004; no omitted requirement-shaped text.","INF":[],"rows":[
+ {"id":"R-001","source":"S:7","tasks":["T1","T2"],"evidence":"P:19,21-22,28,35,50","content":"Authorization, failed history/score, review budget, no merge/closure"},
+ {"id":"R-002","source":"S:11","tasks":["T1","T2"],"evidence":"P:19,28,33,45,49","content":"Every helper explicit verified sonnet/Tier1b; no alternate/fork"},
+ {"id":"R-003","source":"S:15","tasks":["T1","T2"],"evidence":"P:20,28,30,33,45,48","content":"Canonical/active-profile agreement; no canonical/capability/profile/settings/gate change"},
+ {"id":"R-004","source":"S:19","tasks":["T2"],"evidence":"P:20,43,45,48","content":"One-skill installer; no broad install, hand edit, project mirror write or sync-dev"},
+ {"id":"R-005","source":"S:23","tasks":["T1"],"evidence":"P:28,33,43","content":"Actual uv module/source/target realpaths and symlink safety before deletion; rechecked"},
+ {"id":"R-006","source":"S:27","tasks":["T1","T2"],"evidence":"P:30,34,43,45,48","content":"Inventories/protected digests complete; extras/drift block"},
+ {"id":"R-007","source":"S:31","tasks":["T1","T2"],"evidence":"P:22,30,34,43","content":"Entire private0600 umask077 backup; byte/type/mode verification; no extraction/overwrite/automatic restore"},
+ {"id":"R-008","source":"S:35","tasks":["T2"],"evidence":"P:43,48","content":"Immediate guard, command/output/exit, actual state on failure"},
+ {"id":"R-009","source":"S:39","tasks":["T2"],"evidence":"P:45,48","content":"Canonical parity, three-file byte boundary, all protected surfaces unchanged"},
+ {"id":"R-010","source":"S:43","tasks":["T1","T2"],"evidence":"P:30,35,45,49","content":"Observed focused tests before/after and read-only verify-sync; failure blocks"},
+ {"id":"R-011","source":"S:47","tasks":["T2"],"evidence":"P:45,49-50","content":"Exactly one restricted Read-only smoke with actual provenance; no commands/delegation/old-score waiver"},
+ {"id":"R-012","source":"S:51","tasks":["T2"],"evidence":"P:21-22,45,50","content":"Fresh independent readiness check and actual artifact handoff; downstream gates/staging boundaries"}]},
+ "findings":[{"class":"Aligned","severity":"none","evidence":"I:46-55;P:28,30,34,43","finding":"Delete-before-copy order guarded by actual binding, verified backup, immediate rechecks and blocked failure reporting"},{"class":"Aligned","severity":"none","evidence":"P:20-22,45,48-50","finding":"No canonical/profile change, broad sync, permission expansion or PR remediation proposed"},{"class":"Refinement","severity":"minor","evidence":"P:45","finding":"Reviewer returns JSON path without naming persister","recommendation":"Dispatch reviewer to return data only; parent persists compatibility-review.json before consuming. No new worker permissions."}],
+ "risk_coverage":{"covered":"Wrong source/target/symlink; incomplete backup; drift; delete/copy failure; collateral change; unavailable worker; false tests/readiness; scope expansion","execution_status":"Planned controls only, no execution results/regressions observed","diversity":"Degraded singleton permitted model class, not heterogeneous"},
+ "reflection_card":{"citation_grounding":"Source/task cites and direct installer-order inspection","coverage_completeness":"12/12 content checked, secondpass no newINF","deviation_classification_clarity":"Aligned and minor Refinement, no Drift/actual Regression","risk_surface_coverage":"Destructive ordering, binding, backup, invariants","recommendation_actionability":"Concrete parent-persistence clarification P45"},
+ "self_audit":"Actively checked content beyond IDs, intro text, installer source/deletion flow, profile selection, restricted contracts and focused-test coverage. No blocking plan omission found.",
+ "limits":"No commands/tests/writes/install/delegation. Runtime baselines and outcomes unobserved; parent owns persistence and further gates."
+}

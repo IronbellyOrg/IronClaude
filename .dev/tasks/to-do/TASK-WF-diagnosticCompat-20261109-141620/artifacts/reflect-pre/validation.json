@@ -1,0 +1,10 @@
+{
+  "validation_verdict":"PASS",
+  "suggested_status":"partial",
+  "verified":{"file_line_citation_occurrences":6,"distinct_file_line_citations":5,"quotation_occurrences":22,"checks":["Unconditional sync-dev and actual broad Makefile copy scope verified","Narrow source authorization/backup requirements verified","Installer delete-before-copy ordering verified","All11 exact source quotes verified in both coverage artifacts","4matched/7unmatched union coverage verified","Initial five scores mean0.74 verified against calibration-initial.json; later independent revision0.71 retained separately","Canonical baseline51passed and sync-clean logs inspected","Runtime binding parent-recorded paths inspected","Canonical/project roster agreement and installed missing alias verified","Risk not actual mutation; no claimed completed installation or heterogeneous review"]},
+  "dropped":{"citations":[],"requirements":[],"count":0},
+  "issues":[{"severity":"evidence_limit","detail":"Runtime binding parent-recorded, not independently executed; source/target paths and verified=true but not raw command trace in that artifact"},{"severity":"evidence_limit","detail":"Model-selection/absence-of-mutation/snapshot stability are parent provenance; validator did not dispatch/rehash/observe runtime"}],
+  "zero_drop_selfaudit":"Actively checked exact quotes, constraints versus copy instructions, deletion ordering, actual Makefile scope, coverage artifacts, calibration arithmetic, complete sync/test result, canonical/installed rosters and language distinguishing risk from repair. Zero drops do not convert partial into execution pass.",
+  "skipped":"No commands/tests/install/edits/writes/dispatch; no structural assertion inputs supplied.",
+  "parent_post_validation":"Added the same11 already-verified quotes as a report table; independent calibrator later lowered0.74 to0.71 after reading the existing matrix; initial artifact retained. Arithmetic checked mechanically; no old score increased, no earlier FAIL turned into pass."
+}

@@ -1,0 +1,13 @@
+{
+  "scores":{"citation_grounding":0.90,"coverage_completeness":0.45,"deviation_classification_clarity":0.35,"risk_surface_coverage":0.95,"recommendation_actionability":0.90},
+  "confidence":0.71,
+  "formula":"(0.90+0.45+0.35+0.95+0.90)/5",
+  "verdict":"FAIL",
+  "required_tier":2,
+  "escalation_reason":"confidence below0.85; no Tier1 completeness/gate pass certified",
+  "calibrator_diversity":"degraded",
+  "model_limit":"Only explicit sonnet/Tier1b permitted; no heterogeneous/Opus fallback",
+  "evidence":{"citation_grounding":"Plan43 and Makefile112-141 show broad copy; installer47-52 deletes first; supporting roster/test claims not independently checked","coverage":"Independent revised calibration read actual matrix:0parsed,11inferred,4matches,7unmapped,union0.363636; coverage score lowered to0.45","classification":"Pre-execution scope conflict, not actual regression; no required classification labels in card","risk":"Broad mirror overwrite, deletion-before-copy, missing baselines","actionability":"Target Task2; backup/source/target/baseline checks remain partly implicit"},
+  "findings":["Copy-scope risk grounded; unconditional sync-dev can overwrite unrelated mirrors","Force replacement removes target before attempting copy"],
+  "limits":"No commands/tests/install/runtime model resolution/smoke executed. Independent recalibration using matrix lowered score0.74 to0.71, preserving FAIL/escalation/single-model degradation. Original0.74 artifact retained separately as calibration-initial.json; do not increase either score or claim pass."
+}

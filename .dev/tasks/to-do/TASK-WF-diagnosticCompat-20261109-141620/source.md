@@ -1,0 +1,17 @@
+# Checked diagnostic compatibility reconciliation for PR469
+
+## Authorization
+
+Coordinator msg_fbc81030bd4f reports direct genuine owner message 2026-11-09T14:12UTC: "441 pr 469 authorized". Exact scope: checked narrow canonical diagnostic-profile/protocol compatibility reconciliation so required independent escalation can run. No permission/tool broadening, installed/mirror workaround, gate waiver, unrelated refactor, merge or issue closure. Preserve failed diagnostics and0.80 cap. Every subsequent helper must use explicit verified Tier1b; no Opus fallback. Existing model mapping verified: ANTHROPIC_DEFAULT_SONNET_MODEL=claude-gw-tier1b[1m]; use Agent model=sonnet explicitly for each helper.
+
+## Verified problem and smallest supported solution
+
+Checkout /home/coder/workspaces/worktrees/IronClaude/issue-441, branch ironbelly/issue-441; PR469 OPEN/DRAFT at94e609ccef2a5ee67fa8918426157046be1f32c8. Canonical source skill Native diagnostic delegation already permits the exact existing read-only litellm Augment alias at src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:31, matching canonical and active project agent tools at src/superclaude/agents/troubleshoot-analyst.md:5 and .claude/agents/troubleshoot-analyst.md:5. Installed /home/coder/.claude/skills/sc-troubleshoot-protocol/SKILL.md:31 lacks that alias. Canonical tests/troubleshoot/test_diagnostic_worker_contract.py:20-30 already pins the nine-tool closed roster. Thus this is installed contract drift, not a missing canonical feature. Diff finds only3 stale installed skill-package files (SKILL.md plus refs/doc-discovery.md and refs/diagnosability-audit.md); no new canonical source edit is justified unless focused tests prove an actual canonical gap.
+
+Existing normal selective installer: uv run superclaude install-skill sc-troubleshoot-protocol --force (help verified). Inspect installer implementation and target before running; preserve entire previous skill package in a private backup outside installed primitive directories. Do not use full superclaude install/update (would overwrite unrelated customization), do not hand-edit installed definitions, agent profiles, settings or permission lists. The normal scoped refresh must copy existing canonical content unchanged, not add tools or weaken rejection rules.
+
+## Requested plan and execution boundaries
+
+Create a bounded checked plan for: (1) preserve authorization/active-source hashes/backup and run focused canonical contract/install tests; (2) normal selective skill refresh, verify exact canonical parity and the unchanged closed agent roster; (3) explicit Tier1b restricted diagnostic-worker smoke check and independent evidence check before resuming existing diagnosis. No destructive tests, huge files, benchmarks, gates waived or invented passes. Read actual source files before choosing flags/functions. Existing failed native and inline reports/calibration remain immutable history under .dev/pr-monitor/pr-469-20261109-1300/troubleshoot/.
+
+Plan ends at verified compatibility readiness, not source bounded-reader fix, PR repair push or merge. Source defect/CI remediation resumes separately through already authorized sc-pr-submit semantics with Codex optional. No extra review allowance is created; no automatic merge/issue close. Stage .dev/tasks always. Do not stage .claude mirrors. Output actual plan/check/verification artifact paths, exact installation changes and any blocked outcome.

@@ -1,0 +1,9 @@
+verify-sync exit 2 analysis, 2026-11-10T00:18:55Z
+only DIFFERS line in verify-sync.log: sc-issue-protocol orca_worktree.py (log line 22-23)
+HEAD copy of src/superclaude/skills/sc-issue-protocol/scripts/orca_worktree.py is byte-identical to .claude/skills/sc-issue-protocol/scripts/orca_worktree.py => mirror matches committed source
+ 1 file changed, 24 insertions(+), 3 deletions(-)
+cause: uncommitted capped-hook-read edit from the earlier worker (not the install, not the troubleshoot skill)
+1
+35:  ✅ sc-troubleshoot-protocol
+93:  ✅ troubleshoot-analyst.md
+138:  ✅ troubleshoot.md

@@ -384,7 +384,7 @@ def test_corrupt_or_stale_job_record_is_unknown_not_human(job, tmp_path, damage)
         ]
         try:
             assert live
-            assert job.identify(live[0]) == {"status": "unknown"}
+            assert job.identify(live[0]) == _unknown("orphaned", path)
         finally:
             for member in live:
                 try:
@@ -404,11 +404,17 @@ def test_corrupt_or_stale_job_record_is_unknown_not_human(job, tmp_path, damage)
         else:
             value["session_id"] = "../bad"
         path.write_text(json.dumps(value))
+    reason = "stale" if damage in ("start", "boot") else "unreadable"
     try:
-        assert job.identify(pid) == {"status": "unknown"}
+        assert job.identify(pid) == _unknown(reason, path)
     finally:
         path.chmod(0o600)
         path.write_text(original)
+
+
+def _unknown(reason, record):
+    # FR-025 shape: unknown with a reason and the absolute record path.
+    return {"status": "unknown", "reason": reason, "record": str(record)}
 
 
 def _session_of(pid):
@@ -424,9 +430,10 @@ def test_release_live_job_and_invalid_bound_state(job, tmp_path):
         f"touch {ready}; while [ ! -e {go} ]; do sleep .03; done; {job.selector(output)}"
     )
     wait_for(ready.exists)
-    pid = json.loads(job.live_record().read_text())["pid"]
+    record = job.live_record()
+    pid = json.loads(record.read_text())["pid"]
     job.bind("old", "broken")
-    assert job.identify(pid) == {"status": "unknown"}
+    assert job.identify(pid) == _unknown("unreadable", record)
     (job.root / "sessions/old").unlink()
     assert job.identify(pid) == {"status": "ordinary", "reason": "released"}
     go.touch()
@@ -541,7 +548,7 @@ def test_invalid_and_symlinked_job_registry_unknown(job, tmp_path):
     path.rename(moved)
     path.symlink_to(moved)
     try:
-        assert job.identify(pid) == {"status": "unknown"}
+        assert job.identify(pid) == _unknown("unreadable", path)
     finally:
         path.unlink()
         moved.rename(path)
@@ -1471,14 +1478,16 @@ def test_real_git_killed_supervisor_is_unknown_not_proven_human(
         identity = json.loads(record.read_text())
         assert job.identify(child)["status"] == "governed"
         os.kill(identity["pid"], signal.SIGKILL)
-        wait_for(lambda: job.identify(child) == {"status": "unknown"})
+        wait_for(lambda: job.identify(child) == _unknown("orphaned", record))
         go.touch()
         assert wait_for(lambda: done.read_text() if done.exists() else "") == "0"
         process.communicate(timeout=10)
         assert process.returncode == 137
         assert fixture.remote_ref("main") == fixture.c
         (row,) = fixture.events()
-        assert row["identity"] == {"status": "unknown"} and row["refused"] is False
+        assert (
+            row["identity"] == _unknown("orphaned", record) and row["refused"] is False
+        )
         print(
             json.dumps(
                 {

@@ -1,0 +1,9 @@
+{
+  "command": "uv run superclaude install-skill sc-troubleshoot-protocol --target ~/.claude/skills --force",
+  "cwd": "/home/coder/workspaces/worktrees/IronClaude/issue-441",
+  "started": "2026-11-10T00:18:27Z",
+  "finished": "2026-11-10T00:18:27Z",
+  "exit_code": 0,
+  "stdout": "\ud83d\udce6 Installing skill 'sc-troubleshoot-protocol' to /home/coder/.claude/skills...\n\u2705 Skill 'sc-troubleshoot-protocol' installed successfully to /home/coder/.claude/skills/sc-troubleshoot-protocol\n",
+  "stderr": ""
+}

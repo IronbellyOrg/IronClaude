@@ -1,0 +1,46 @@
+{
+  "input_tree_sha256": "c65d9759fbd81d39f7c27521b05ad3d394a161dbf57af870c3f121e6084ce16e",
+  "file_list": [
+    {
+      "path": "/home/coder/.claude/skills/sc-troubleshoot-protocol/SKILL.md",
+      "sha256": "6d1b226cba4c2fbe9dae7bcbbfe954ee9463a20473e4e33bdc679cda39b2f3e5"
+    },
+    {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/issue-441/.claude/agents/troubleshoot-analyst.md",
+      "sha256": "fe25f8713a400250cd2ed7387ae0c30d32e787318cb41f6034bb2f70a9767f44"
+    },
+    {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/issue-441/.dev/tasks/to-do/TASK-WF-diagnosticRefres-20261109-144413/TASK-WF-diagnosticRefres-20261109-144413.md",
+      "sha256": "f497896cc273c8a3976876b6f9fb08865a210cd6817a4c5b688f7ecfc7f72a4c"
+    },
+    {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/issue-441/.dev/tasks/to-do/TASK-WF-diagnosticRefres-20261109-144413/source.md",
+      "sha256": "f4be1c7f599cc933868fcf4181d0e9895045870787749eb3e208260391542da4"
+    },
+    {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/agents/troubleshoot-analyst.md",
+      "sha256": "fe25f8713a400250cd2ed7387ae0c30d32e787318cb41f6034bb2f70a9767f44"
+    },
+    {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/cli/install_skill.py",
+      "sha256": "dba905ac3d3e7407f380146ada15cffa957d174e3371a5140a1fc2d06e3537c8"
+    },
+    {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md",
+      "sha256": "0dd9d33fbdf6fc398cb717bd491587e3a5e4119eaa609336c6823128479acb9a"
+    },
+    {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/skills/sc-troubleshoot-protocol/refs/diagnosability-audit.md",
+      "sha256": "e86a3a4124c359c51827bbfbe5195bbe7c9670257a5121854c0cd94be32302d1"
+    },
+    {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/issue-441/src/superclaude/skills/sc-troubleshoot-protocol/refs/doc-discovery.md",
+      "sha256": "0b9d5a38b1ac4fb0fc7c9e62846a486e3ba799990c1cb44e2ddee3daaa88d8cd"
+    },
+    {
+      "path": "/home/coder/workspaces/worktrees/IronClaude/issue-441/tests/troubleshoot/test_diagnostic_worker_contract.py",
+      "sha256": "ecaa3656e8ec71cd49ee73e6dc1fa90d47f9373d5acbb96e9a77335a7b82a8cc"
+    }
+  ],
+  "file_count": 10
+}

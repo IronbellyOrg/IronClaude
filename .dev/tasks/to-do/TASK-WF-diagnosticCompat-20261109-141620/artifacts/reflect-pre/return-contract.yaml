@@ -1,0 +1,69 @@
+{
+  "contract_version": "1.8.0",
+  "status": "partial",
+  "mode": "pre",
+  "tier_reached": 1,
+  "report_path": "/home/coder/workspaces/worktrees/IronClaude/issue-441/.dev/tasks/to-do/TASK-WF-diagnosticCompat-20261109-141620/artifacts/reflect-pre/REPORT.md",
+  "audit_log_path": "/home/coder/workspaces/worktrees/IronClaude/issue-441/.dev/tasks/to-do/TASK-WF-diagnosticCompat-20261109-141620/artifacts/reflect-pre/audit.log",
+  "confidence_calibrated": 0.71,
+  "escalation_rule_matched": 6,
+  "onboarding_ran": false,
+  "coverage_pct": null,
+  "coverage_pct_union": 0.36363636363636365,
+  "coverage_undefined": false,
+  "coverage_degraded": "parsed-sparse",
+  "unmapped_requirements": [],
+  "unmapped_requirements_union": [
+    "INF-001",
+    "INF-002",
+    "INF-004",
+    "INF-005",
+    "INF-006",
+    "INF-009",
+    "INF-011"
+  ],
+  "best_practice_grade": 3,
+  "input_tree_sha256": "58e1325f41c6f62edc17556e834b7cb8dd3f7c4990bf3642c7df8c71dfcf8aa6",
+  "input_tree_file_count": 10,
+  "input_tree_snapshot_path": "/home/coder/workspaces/worktrees/IronClaude/issue-441/.dev/tasks/to-do/TASK-WF-diagnosticCompat-20261109-141620/artifacts/reflect-pre/input-snapshot.json",
+  "input_drift_detected": false,
+  "input_drift_diff": null,
+  "citations_total": 17,
+  "citations_revalidated": 17,
+  "citations_dropped": 0,
+  "citations_inferred": 11,
+  "citation_budget_policy": "full_reread",
+  "evidence_validator_ran": true,
+  "reviewer_cards": [
+    "/home/coder/workspaces/worktrees/IronClaude/issue-441/.dev/tasks/to-do/TASK-WF-diagnosticCompat-20261109-141620/artifacts/reflect-pre/coverage-card.json"
+  ],
+  "adversarial_artifacts_dir": null,
+  "adversarial_convergence_score": null,
+  "adversarial_unavailable": false,
+  "t2_model_class_diversity": "degraded",
+  "t2_vendor_diversity": "single",
+  "calibrator_diversity": "degraded",
+  "remediation_offered": false,
+  "remediation_accepted": false,
+  "remediation_task_path": null,
+  "remediation_plan_path": null,
+  "needs_human_decision": false,
+  "regression_present": false,
+  "per_task_verdicts": [],
+  "interaction_effects_scanned": false,
+  "promotion_action": "not-applicable",
+  "degraded_components": [
+    "owner-policy:Tier1b-only",
+    "auggie",
+    "parsed-sparse"
+  ],
+  "model_policy": {
+    "allowed": [
+      "sonnet=claude-gw-tier1b[1m]"
+    ],
+    "required_tier": 2,
+    "effective_tier": 1,
+    "heterogeneous_claim": false
+  },
+  "zero_drop_flag": true
+}
