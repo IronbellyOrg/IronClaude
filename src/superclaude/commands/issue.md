@@ -1,7 +1,7 @@
 ---
 name: issue
 version: "1.1.0"
-description: "Claim a GitHub issue on the origin repo (assign it, check its accuracy, write a summary and a next-step prompt, then create an Orca worktree and launch an agent in it) or create a templated issue with labels from a fixed set"
+description: "Claim a GitHub issue on the origin repo (assign it, check its accuracy, write a summary and a next-step prompt, then create an Orca worktree and launch an agent in it) or create a templated issue with a GitHub issue type, the Complexity issue field and a mode label"
 category: workflow
 complexity: advanced
 mcp-servers: [litellm, auggie, codegraph]
@@ -14,7 +14,7 @@ argument-hint: "--claim <number|url> [--pipeline worktree|full|none] [--submit] 
 Two modes on the repository that `origin` points at:
 
 - `--claim` takes an existing issue: assigns it to you on GitHub and, when one exists, on its ClickUp task; checks whether the issue text is still accurate against today's code and the pull requests merged since it was opened; writes a summary and a next-step prompt under `.dev/issues/<N>/`; posts two marked comments; then, unless `--pipeline none`, creates (or reuses) the Orca worktree `issue-<N>` and launches one Claude Code agent in it at the `--pipeline` level. Orca must be running (STOP `E-ORCA-REQUIRED` otherwise, before anything is assigned or posted). The levels: `worktree` (the default) stops at a plan a human approves, `full` also implements without a commit or a push, `full` with `--submit` also commits, pushes a feature branch and opens a PR through `/sc:pr-submit --monitor 3`, and `none` stops after the comments: it creates no worktree and launches no agent. Nothing ever merges. When the launch-level guard is missing or not effective the claim refuses the launch with `W-ENFORCEMENT-ABSENT` (no agent starts and no launch record is written); when the worktree has no L2 pre-push layer it warns with `W-L2-ABSENT` and the launch continues (the L2 layer is not built yet). No governed claim (`worktree` or `full`) is used on a real issue until OB-H1 item 1 (parent `session_id` in subagent payloads), OB-H2 and OB-H3 have passed. In `sc-issue-launch-level-hook.md`, section 7 (U1) requires item 1 before a `full` or `--submit` claim and OB-H1 item 5 (self-started turns wrapped) before a claim at any level; OB-H2 and OB-H3 come from its sections 11 and 14.
-- `--create` turns a description into a GitHub issue built from one of four templates, with labels from a fixed set. GitHub only: no ClickUp task.
+- `--create` turns a description into a GitHub issue built from one of four templates, with a GitHub issue type, the Complexity issue field and a mode label. GitHub only: no ClickUp task.
 
 Both modes post directly to GitHub; nothing is shown for approval first.
 
@@ -38,8 +38,8 @@ Explicit only: the user types `/sc:issue --claim ...` or `/sc:issue --create ...
 | `--claim` | claim | - | issue number (`302`, `#302`) or issue URL on the origin repo | Claim this issue |
 | `--create` | create | - | free text, or `@path` to a file holding the description | Description of the feature or bug |
 | `--depth` | create | `quick` | `quick`, `standard`, `deep` | How hard the command checks the flags and fills the body |
-| `--mode` | create | chosen by a worker when omitted | `feature`, `bug` | Picks the feature or bug template and the `enhancement` / `bug` label |
-| `--type` | create | chosen by a worker when omitted | `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install`, `other` | Area of the change; maps to a `type: <value>` label |
+| `--mode` | create | chosen by a worker when omitted | `feature`, `bug` | Picks the feature or bug template, the Feature or Bug issue type and the `enhancement` / `bug` label |
+| `--type` | create | chosen by a worker when omitted | `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install`, `other` | Area of the change; a feature in `tests` gets the issue type Test, otherwise the area is recorded in `flags.md`; no label is applied for it |
 | `--pipeline` | claim | `worktree` | `worktree`, `full`, `none` | How far the launched agent goes. `worktree` and `full` create the worktree and launch an agent; `none` creates no worktree and launches no agent |
 | `--submit` | claim | off | no value | Only with `--pipeline full`: the agent also commits, pushes a feature branch to `origin` and runs `/sc:pr-submit --monitor 3`. Never merges |
 
@@ -86,11 +86,12 @@ After a claim, the launched agent works from `.dev/issues/<N>/launch-prompt.md` 
 - Spawn tier-pinned worker agents for every lookup, accuracy check and draft.
 - Write every artifact under `.dev/issues/` from a template.
 - On claim: assign the issue, assign the ClickUp task when `CLICKUP_API_TOKEN` and `CLICKUP_WORKSPACE_ID` are set, post or update the accuracy-check and claim comments and, unless `--pipeline none`, create or reuse the Orca worktree `issue-<N>` and launch one agent in it at the chosen level (`--pipeline none` stops after the comments, with no worktree). Nothing is ever merged.
-- On create: apply only the labels of the fixed set that already exist in the repo, and list the rest as not applied.
+- On create: set the issue type and the Complexity field, apply only the mode label that already exists in the repo, and list everything it could not set.
 
 **Will Not:**
 - Run `/sc:implement`, `/task`, a commit, a push or `/sc:pr-submit` itself (the launched agent may, at the level the user chose).
-- Create labels, ClickUp tasks, or interact with any repository other than `origin`.
+- Create labels, issue types, issue fields, ClickUp tasks, or interact with any repository other than `origin`.
+- Write any issue field other than Complexity.
 - Stage or commit `.dev/issues/`.
 - Pass an Orca link flag.
 - Merge anything.

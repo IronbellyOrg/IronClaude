@@ -1,0 +1,35 @@
+== old label wording (expect none)
+none found
+== Will Not tokens
+`/sc:implement` -> 1
+`/task` -> 1
+a commit -> 2
+a push -> 2
+`/sc:pr-submit` -> 1
+Merge anything. -> 1
+Pass an Orca link flag -> 1
+== forbidden strings (expect none)
+none found
+== return contract yaml blocks
+blocks: 3
+['status', 'mode', 'issue_number', 'issue_url', 'dir', 'clickup_status', 'labels_applied', 'labels_missing', 'next_steps_path']
+['pipeline_level', 'submit', 'worktree_status', 'worktree_path', 'worktree_branch', 'worktree_match_key', 'worktree_warning', 'launch_status', 'launch_warning', 'enforcement_hook']
+['issue_type', 'complexity_field', 'classification_missing']
+sentence present: True
+create mode prints none of them still present: True
+== error rows
+168:| `gh issue create --repo <R>` fails | STOP `E-CREATE-FAILED`; the draft directory is kept |
+169:| The mode label is missing in the repo | Skip it; list it as `not applied: label missing in repo: <name>`
+170:| The wanted issue type is missing in the repo, the lookup failed, or the type is not applied after create
+171:| The Complexity field or its option is missing, the lookup failed, the POST fails or the value is not app
+== orgs exception and POST
+73:- Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `use
+74:- The orchestrator (this skill) is the only place that writes to GitHub or ClickUp: `gh issue edit <N> --re
+103:6. **Wave 5, post.** Load `refs/labels.md`. Apply only the mode label, and only when it exists in `<R>`; `
+== Will Not additions
+187:- Create a label, an issue type, an issue field, a ClickUp task or a GitHub repository setting.
+188:- Write any issue field other than Complexity.
+== issue lines without --repo (expect 0)
+0
+== size
+192 src/superclaude/skills/sc-issue-protocol/SKILL.md

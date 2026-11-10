@@ -43,6 +43,17 @@
 
 <label names, one per line>
 
+### Repo issue types
+
+<issue type names, one per line, or "lookup failed: <reason>">
+
+### Complexity field
+
+- Field id: <id, or "not found">
+- Data type: <single_select | text | number | date>
+- Options: <option names separated by commas, or "none">
+- Lookup: <ok | lookup failed: <reason>>
+
 ### Possible duplicates
 
 | Issue | Title | State | URL |

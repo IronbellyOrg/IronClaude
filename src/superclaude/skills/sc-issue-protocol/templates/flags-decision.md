@@ -7,4 +7,5 @@
 |---|---|---|
 | Mode | <feature | bug> | <one line> |
 | Type | <cicd | command | skill | agent | hook | cli | core | docs | tests | install | other> | <one line> |
-| Complexity | <simple | medium | complex> | follows depth (quick = simple, standard = medium, deep = complex) |
+| Issue type | <Feature | Bug | Test> | derived from the mode and the area by the rule in `refs/labels.md` |
+| Complexity | <Simple | Medium | Complex> | follows depth (quick = simple, standard = medium, deep = complex) |

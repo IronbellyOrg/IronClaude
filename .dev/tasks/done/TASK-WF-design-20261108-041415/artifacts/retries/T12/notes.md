@@ -1,0 +1,2 @@
+559d390ad5b61e5ceb7eab419efc5695a215a785
+A1 r1-1 F1.1 minor ./artifacts/t12-extra-suite.log:121-125 ac=scope n,n,n,n the wider suite fails 2 tests in tests/skills/test_worker_contract.py (the exact-line classification table) because Tasks 2, 3 and 5 changed gh api lines it pins; no Task 12 acceptance criterion requires that file to pass and owner-manual-check.md discloses it; the table needs updating before merge

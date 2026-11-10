@@ -1,0 +1,28 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-438/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-438
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 99 items / 82 deselected / 17 selected
+
+tests/skills/test_issue_protocol.py::test_st5_launch_prompt_template_is_in_the_files_table_and_exists PASSED [  5%]
+tests/skills/test_issue_protocol.py::test_posted_template_ends_with_marker[accuracy-check-comment-<!-- sc:issue:accuracy-check -->] PASSED [ 11%]
+tests/skills/test_issue_protocol.py::test_posted_template_ends_with_marker[claim-comment-<!-- sc:issue:claim -->] PASSED [ 17%]
+tests/skills/test_issue_protocol.py::test_posted_template_ends_with_marker[create-review-comment-<!-- sc:issue:create-review -->] PASSED [ 23%]
+tests/skills/test_issue_protocol.py::test_posted_template_ends_with_marker[issue-bug-complex-<!-- sc:issue:create template=issue-bug-complex -->] PASSED [ 29%]
+tests/skills/test_issue_protocol.py::test_posted_template_ends_with_marker[issue-bug-simple-<!-- sc:issue:create template=issue-bug-simple -->] PASSED [ 35%]
+tests/skills/test_issue_protocol.py::test_posted_template_ends_with_marker[issue-feature-complex-<!-- sc:issue:create template=issue-feature-complex -->] PASSED [ 41%]
+tests/skills/test_issue_protocol.py::test_posted_template_ends_with_marker[issue-feature-simple-<!-- sc:issue:create template=issue-feature-simple -->] PASSED [ 47%]
+tests/skills/test_issue_protocol.py::test_marker_check_fails_when_marker_is_removed PASSED [ 52%]
+tests/skills/test_issue_protocol.py::test_issue_template_headings_in_order[issue-bug-complex-expected0] PASSED [ 58%]
+tests/skills/test_issue_protocol.py::test_issue_template_headings_in_order[issue-bug-simple-expected1] PASSED [ 64%]
+tests/skills/test_issue_protocol.py::test_issue_template_headings_in_order[issue-feature-complex-expected2] PASSED [ 70%]
+tests/skills/test_issue_protocol.py::test_issue_template_headings_in_order[issue-feature-simple-expected3] PASSED [ 76%]
+tests/skills/test_issue_protocol.py::test_issue_template_has_no_clickup_text[issue-bug-complex] PASSED [ 82%]
+tests/skills/test_issue_protocol.py::test_issue_template_has_no_clickup_text[issue-bug-simple] PASSED [ 88%]
+tests/skills/test_issue_protocol.py::test_issue_template_has_no_clickup_text[issue-feature-complex] PASSED [ 94%]
+tests/skills/test_issue_protocol.py::test_issue_template_has_no_clickup_text[issue-feature-simple] PASSED [100%]
+
+====================== 17 passed, 82 deselected in 0.13s =======================
+rc=0
