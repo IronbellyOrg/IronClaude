@@ -185,6 +185,9 @@ steps:
   - {id: R2,     kind: review,  slot: primary, scoped: true, after: [V1]}
   - {id: V2,     kind: revise,  slot: primary, when: "R2.verdict != PASS", after: [R2]}
   - {id: R3,     kind: review,  slot: primary, scoped: true, when: "V2.ran", after: [V2]}
+panel:                                  # tier list is data; t4 is a switch, off by default
+  tiers: [t1b, t2, t2b, t3]
+  optional_tiers: {t4: false}           # set true (or --with-t4) to add a tier-4 reviewer
 caps: {reviews: 3, fixes: 2}            # structural, enforced by the engine
 ```
 
@@ -195,11 +198,12 @@ policy: {forbidden: [fable, tier0], ceiling: opus-5.5, opus_roles_allowed: []}
 slots:
   primary: {model: claude-sonnet-5-5}
   tier1b:  {alias: "claude-gw-tier1b[1m]", model: claude-sonnet-5-5}
-  tier2:   {alias: "claude-gw-tier2[1m]",  model: claude-haiku-5-5, stand_in: true, live_model: gpt-6.1-sol}
-  tier3:   {alias: "claude-gw-tier3[1m]",  model: claude-haiku-5-5, stand_in: true, live_model: "gpt-6.1-terra|glm-5.3"}
-  tier4:   {alias: "claude-gw-tier4[1m]",  model: claude-haiku-5-5, stand_in: true, live_model: gpt-6-luna}
+  tier2:   {alias: "claude-gw-tier2[1m]",  model: claude-haiku-5-5,  stand_in: true, live_model: gpt-6.1-sol}
+  tier2b:  {alias: "claude-gw-tier2b[1m]", model: claude-sonnet-5-5, stand_in: true, live_model: gpt-6.1-terra}
+  tier3:   {alias: "claude-gw-tier3[1m]",  model: claude-haiku-5-5,  stand_in: true, live_model: glm-5.3}
+  tier4:   {alias: "claude-gw-tier4[1m]",  model: claude-haiku-5-5,  stand_in: true, live_model: "gpt-6-luna|claude-haiku-5-5"}   # used only when the arm's panel enables t4
 ```
-A `live.yaml` differs only in `model`/`stand_in`. Every run record stores alias, resolved model and `stand_in`.
+A `live.yaml` differs only in `model`/`stand_in`. Every run record stores alias, resolved model and `stand_in`. This is the post-#488 layout (Tier 2b exists; Tier 3 leads with GLM 5.3); owner decisions recorded in #489: the panel is `t1b, t2, t2b, t3` and the `t4` reviewer is off by default but must be switchable through the panel block of the arm file or `--with-t4`, with a test that toggling it changes only panel membership and lane labels. Until #488 is deployed the experiments use the earlier layout (`t1b, t2, t3, t4`, one Sonnet and three Haiku stand-ins).
 
 ### B3.4 Experiment (`experiments/<id>.yaml`): pre-registration
 ```yaml
@@ -633,4 +637,5 @@ So the plan's earlier "P0-P3 are mostly porting" holds only for porting **from t
 
 - **Owner confirmation:** the owner has confirmed that `claude-gw-tier1b`, `claude-gw-tier3` and `claude-gw-tier4` resolve live, in addition to the `tier2` -> `gpt-6.1-sol` evidence recorded in B19.3. (Owner statement; not independently re-run from the sandbox used for these experiments.)
 - **#488 reorganises the tiers:** today's Tier 3 becomes Tier 2b (Terra first), the new Tier 3 is GLM 5.3, Grok 4.7, Qwen 3.8, and Tier 4 adds Claude Haiku 5.5 to GPT-6 Luna. The framework's slot maps, the ab5 panel template, the lane map and the examples in B3.3 and B5 name tiers directly, so they must move from tiers `1b, 2, 3` (the experiments also used a `t4` slot) to **`1b, 2, 2b, 3`** once the experiment work is merged and #488 is deployed.
+- **Owner decisions (in #489, 2026-11-10):** no `t4` reviewer for now, but the framework exposes the tier list and a `t4` switch as configuration; Tier 2b is filled by Sonnet in the mock and by GPT-6.1 Terra live; Tier 3 becomes GLM 5.3 live. B3.2 and B3.3 above use this layout.
 - **Tracking issue:** #489 (sub-issue of #488) lists the files to change, the live probes to run for each tier, and the open questions (whether a `t4` reviewer stays; what fills the Tier 2b slot in the mock; whether Haiku 5.5 becoming a real Tier 4 model changes what the mock "stand-in" means).
