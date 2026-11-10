@@ -1,0 +1,211 @@
+{
+ "b1-r1": {
+  "loop": 111333,
+  "aud": [
+   30317,
+   31501
+  ],
+  "models": [
+   "claude-fable-5-2",
+   "claude-sonnet-5-5"
+  ],
+  "steps": {
+   "AUD": 30317,
+   "V2": 8800,
+   "R3.t1b-1": 28967,
+   "V1": 36419,
+   "AUD2": 31501,
+   "R2.t1b-1": 25463,
+   "ADJ": 11684
+  },
+  "step_models": {
+   "AUD": "claude-sonnet-5-5",
+   "V2": "claude-sonnet-5-5",
+   "R3.t1b-1": "claude-sonnet-5-5",
+   "V1": "claude-sonnet-5-5",
+   "AUD2": "claude-sonnet-5-5",
+   "R2.t1b-1": "claude-sonnet-5-5",
+   "ADJ": "claude-fable-5-2"
+  }
+ },
+ "b1-r2": {
+  "loop": 191945,
+  "aud": [
+   35927,
+   47986
+  ],
+  "models": [
+   "claude-fable-5-2",
+   "claude-haiku-5-5",
+   "claude-sonnet-5-5"
+  ],
+  "steps": {
+   "R2.t1b-1": 30984,
+   "AUD": 35927,
+   "V2": 6668,
+   "R1.t3-2": 92094,
+   "R3.t1b-1": 27157,
+   "AUD2": 47986,
+   "ADJ": 13401,
+   "V1": 21641
+  },
+  "step_models": {
+   "R2.t1b-1": "claude-sonnet-5-5",
+   "AUD": "claude-sonnet-5-5",
+   "V2": "claude-sonnet-5-5",
+   "R1.t3-2": "claude-haiku-5-5",
+   "R3.t1b-1": "claude-sonnet-5-5",
+   "AUD2": "claude-sonnet-5-5",
+   "ADJ": "claude-fable-5-2",
+   "V1": "claude-sonnet-5-5"
+  }
+ },
+ "b1-r3": {
+  "loop": 418775,
+  "aud": [
+   23444,
+   38594
+  ],
+  "models": [
+   "claude-fable-5-2",
+   "claude-haiku-5-5",
+   "claude-sonnet-5-5"
+  ],
+  "steps": {
+   "AUD2": 38594,
+   "R1.t1b-1": 80200,
+   "R1.t3-2": 88306,
+   "R2.t1b-1": 27540,
+   "R1.t2-1": 90941,
+   "V1": 19287,
+   "R1.t3-1": 98115,
+   "AUD": 23444,
+   "ADJ": 14386
+  },
+  "step_models": {
+   "AUD2": "claude-sonnet-5-5",
+   "R1.t1b-1": "claude-sonnet-5-5",
+   "R1.t3-2": "claude-haiku-5-5",
+   "R2.t1b-1": "claude-sonnet-5-5",
+   "R1.t2-1": "claude-haiku-5-5",
+   "V1": "claude-sonnet-5-5",
+   "R1.t3-1": "claude-haiku-5-5",
+   "AUD": "claude-sonnet-5-5",
+   "ADJ": "claude-fable-5-2"
+  }
+ },
+ "b1-r4": {
+  "loop": 387188,
+  "aud": [
+   27637,
+   30691
+  ],
+  "models": [
+   "claude-fable-5-2",
+   "claude-haiku-5-5",
+   "claude-sonnet-5-5"
+  ],
+  "steps": {
+   "R1.t3-2": 107833,
+   "AUD": 27637,
+   "ADJ": 9563,
+   "AUD2": 30691,
+   "V2": 8808,
+   "V1": 13079,
+   "R1.t1b-1": 23447,
+   "R1.t2-1": 68104,
+   "R3.t1b-1": 22525,
+   "R1.t3-1": 100136,
+   "R2.t1b-1": 33693
+  },
+  "step_models": {
+   "R1.t3-2": "claude-haiku-5-5",
+   "AUD": "claude-sonnet-5-5",
+   "ADJ": "claude-fable-5-2",
+   "AUD2": "claude-sonnet-5-5",
+   "V2": "claude-sonnet-5-5",
+   "V1": "claude-sonnet-5-5",
+   "R1.t1b-1": "claude-sonnet-5-5",
+   "R1.t2-1": "claude-haiku-5-5",
+   "R3.t1b-1": "claude-sonnet-5-5",
+   "R1.t3-1": "claude-haiku-5-5",
+   "R2.t1b-1": "claude-sonnet-5-5"
+  }
+ },
+ "b1-r5": {
+  "loop": 389738,
+  "aud": [
+   32410,
+   31742
+  ],
+  "models": [
+   "claude-fable-5-2",
+   "claude-haiku-5-5",
+   "claude-sonnet-5-5"
+  ],
+  "steps": {
+   "V2": 7278,
+   "ADJ": 12839,
+   "AUD2": 31742,
+   "R1.t1b-1": 23094,
+   "R1.t2-1": 89577,
+   "R1.t3-2": 68332,
+   "R1.t3-1": 99790,
+   "R3.t1b-1": 26608,
+   "AUD": 32410,
+   "V1": 20387,
+   "R2.t1b-1": 41833
+  },
+  "step_models": {
+   "V2": "claude-sonnet-5-5",
+   "ADJ": "claude-fable-5-2",
+   "AUD2": "claude-sonnet-5-5",
+   "R1.t1b-1": "claude-sonnet-5-5",
+   "R1.t2-1": "claude-haiku-5-5",
+   "R1.t3-2": "claude-haiku-5-5",
+   "R1.t3-1": "claude-haiku-5-5",
+   "R3.t1b-1": "claude-sonnet-5-5",
+   "AUD": "claude-sonnet-5-5",
+   "V1": "claude-sonnet-5-5",
+   "R2.t1b-1": "claude-sonnet-5-5"
+  }
+ },
+ "b1-r6": {
+  "loop": 448021,
+  "aud": [
+   26309,
+   29495
+  ],
+  "models": [
+   "claude-fable-5-2",
+   "claude-haiku-5-5",
+   "claude-sonnet-5-5"
+  ],
+  "steps": {
+   "V2": 8740,
+   "AUD": 26309,
+   "R1.t2-1": 127175,
+   "ADJ": 11674,
+   "R1.t1b-1": 28372,
+   "R1.t3-2": 117525,
+   "R3.t1b-1": 16012,
+   "V1": 13497,
+   "AUD2": 29495,
+   "R2.t1b-1": 31699,
+   "R1.t3-1": 93327
+  },
+  "step_models": {
+   "V2": "claude-sonnet-5-5",
+   "AUD": "claude-sonnet-5-5",
+   "R1.t2-1": "claude-haiku-5-5",
+   "ADJ": "claude-fable-5-2",
+   "R1.t1b-1": "claude-sonnet-5-5",
+   "R1.t3-2": "claude-haiku-5-5",
+   "R3.t1b-1": "claude-sonnet-5-5",
+   "V1": "claude-sonnet-5-5",
+   "AUD2": "claude-sonnet-5-5",
+   "R2.t1b-1": "claude-sonnet-5-5",
+   "R1.t3-1": "claude-haiku-5-5"
+  }
+ }
+}

@@ -51,3 +51,16 @@ Calibration (6 specs, Sonnet vs Opus): exact status agreement 96.2%, fixed-vs-re
 - **New defects.** Introduced-pattern hits are 0.3-1.3 per spec in every arm with no trend; unvalidated "other new defects" are 0.2-0.8 per spec (PN1 0.8, baseline 0.2).
 - **Ledger completeness is unknown.** 5 candidate defects found only while reconciling were present in nearly every spec; 14 defects have a single source arm family. A defect nobody found is invisible to this method.
 - n=6 per Sonnet arm (4 per Haiku arm). The ledger scorer is Sonnet; Opus agrees with it on 96% of 264 judgements.
+
+## Token lanes: where PN1's 408k loop tokens come from (added 2026-11-10)
+
+Complete PN1 runs b1-r4..r6, mean output tokens per run, by lane (per-step models from the transcripts; `tokens_models.py`):
+
+| lane | models in this experiment | live-environment meaning | tokens | share | x fresh baseline (53,623) |
+|---|---|---|---|---|---|
+| primary | Sonnet 5.5 (R1.t1b reviewer, V1, V2, R2, R3) | primary model | 106,357 | 26% | 1.98x |
+| parallel Tier 2/3 reviewers | Haiku 5.5 stand-ins (R1.t2-1, R1.t3-1, R1.t3-2) | Tier 2 and Tier 3 gateway models, possibly other providers | 290,600 | 71% | 5.42x |
+| adjudicator | Fable 5.2 (ADJ) | Tier 0 premium | 11,359 | 3% | 0.21x |
+| total loop | | | 408,316 | 100% | 7.61x |
+
+Reading: PN1's cost is dominated by the three parallel reviewers on cheaper stand-in models; its primary-lane cost (about 2x baseline) is equal to ab4's (106.5k). Per 100k extra primary-lane tokens PN1 buys about 24 extra fixed defects (12.9 for 52.7k), ab4 about 6.6. Caveats: the Haiku stand-ins wrote 68k-108k tokens each against 23k for the Sonnet reviewer, so live Tier 2/3 volume may differ; Tier 2/3 models are priced (only subscription models are free of marginal cost); Fable output is $50/M against Sonnet's $10/M, so the adjudicator's 11k tokens cost about half as much as the 106k primary tokens; input tokens are not counted.
