@@ -1,0 +1,153 @@
+{
+ "chunk": 10,
+ "defects": [
+  {
+   "local_id": "c10-d1",
+   "title": "AC-0.4 step 3 requires WC-4 contract that Phase 0 cannot produce",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path",
+   "original_lines": [
+    182,
+    194,
+    158,
+    159,
+    79,
+    91,
+    92,
+    83,
+    154
+   ],
+   "what_goes_wrong": "AC-0.4 requires steps 1-3 to pass and relaxes only step 4 (\"since the contract arrives in P1\"), yet step 3 demands a contract status and the WC-4 contract path that no P0 command (troubleshoot REPORT.md, workflow .dev/tasks/to-do/<id>/, adversarial unfixed name) can produce under \"no command edits\", so the gate that decides whether section 1 stands cannot pass and blocks P1.",
+   "gids": [
+    396,
+    485,
+    486,
+    12,
+    49,
+    54,
+    67,
+    69,
+    136,
+    210,
+    218,
+    223,
+    346,
+    372,
+    384,
+    451,
+    492,
+    141
+   ],
+   "is_fixed_when": "AC-0.4 or step 7.2/3 states a P0 pass condition for step 3 that every P0 command can meet (outcome judged against the command's existing report; report path equals that existing file), and the WC-4 path/status clauses are stated to start in P1.",
+   "deletion_note": "No: deleting step 3 or AC-0.4 would drop the only live proof of the outcome and report-path hand-off that closes evidence gap 1.4 (1); the P0 check must be kept with an attainable condition.",
+   "present_in_others_hint": "Step 3 (line 182) and AC-0.4 (line 194); WC-5 (line 63, outcome keyed to the report's status) and section 3.1 intro (line 79) must agree on what 'report' means before P1; AC-1.2 should say the WC-4 conditions apply from P1."
+  },
+  {
+   "local_id": "c10-d2",
+   "title": "AC-0.4 step 4 runs YAML status/command assertion on markdown REPORT.md",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "assert d['status'] in {'succeeded','partial','failed','blocked'}; assert d['command']",
+   "original_lines": [
+    183,
+    194,
+    91,
+    92
+   ],
+   "what_goes_wrong": "AC-0.4 points step 4 at the command's existing report file, but step 4 is a yaml.safe_load plus d['status']/d['command'] assertion, and /sc:troubleshoot's existing report is markdown REPORT.md (verified: yaml.safe_load raises ParserError on a markdown report), with no status or command keys (workflow's existing contract is also inventoried with status, plan_path, reflect_report_path only), so step 4 fails on a correct P0 run.",
+   "gids": [
+    78,
+    97,
+    102,
+    161,
+    184,
+    405,
+    441,
+    453,
+    481,
+    421
+   ],
+   "is_fixed_when": "AC-0.4 (or step 4) gives a P0 step-4 check that is satisfiable by each named command's existing report: for markdown reports a non-empty check (test -s) only, and the YAML status/command assertion only for files that really are YAML contracts with those keys.",
+   "deletion_note": "No: removing step 4 for P0 would leave no check that a report file was written; it must be replaced by a per-command check on the existing file.",
+   "present_in_others_hint": "Step 4 (line 183) and AC-0.4 (line 194); section 3.1 report-today column (lines 83, 91, 92) should name the file type; AC-1.2 is where the YAML assertion legitimately starts."
+  },
+  {
+   "local_id": "c10-d3",
+   "title": "Section 2.3 brief requires --unattended but P0 commands do not accept it yet",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "the exact command line including `--unattended`",
+   "original_lines": [
+    73,
+    180,
+    158,
+    159,
+    79,
+    194
+   ],
+   "what_goes_wrong": "Step 1 builds the brief 'per section 2.3', which must include --unattended, while P0 makes no command edits (the flag arrives in P1), AC-0.4's own command lines carry no --unattended, and 3.1 says ready commands run with the stated flags, so the P0 smoke run either passes an undefined flag or silently departs from 2.3.",
+   "gids": [
+    402,
+    422,
+    438
+   ],
+   "is_fixed_when": "The spec states that P0 briefs omit --unattended (or that section 2.3 and step 1 require it only from P1), consistently with AC-0.4's command lines.",
+   "deletion_note": "No: dropping --unattended from section 2.3 would remove the core contract for P1+ briefs; the fix is a P0 carve-out, not a deletion.",
+   "present_in_others_hint": "Section 2.3 (line 73), step 1 (line 180), AC-0.4 (line 194), section 3.1 intro (line 79); AC-1.2 and later phases keep the requirement."
+  },
+  {
+   "local_id": "c10-d4",
+   "title": "Step 6 'only output directory' check claimed to fail for workflow, cleanup-audit, index-repo",
+   "kind": "unverifiable",
+   "severity": "minor",
+   "quote": "only files under the brief's output directory (and the command's documented artifacts) appear",
+   "original_lines": [
+    185
+   ],
+   "what_goes_wrong": "The finding quotes a narrower step-6 pass condition ('only files under the brief's output directory appear') and a workflow row ('stays at .dev/tasks/to-do/<id>/') from a revised spec I cannot read; the original step 6 already allows 'the command's documented artifacts', so it is not a defect in the original.",
+   "gids": [
+    75
+   ],
+   "is_fixed_when": "Not applicable to the original; for a revised spec, step 6's pass condition lists the command's fixed write locations (.dev/tasks/to-do/<id>/, .claude-audit/, PROJECT_INDEX.md) alongside the output directory.",
+   "deletion_note": "No: step 6 is the only check that a worker made no stray writes.",
+   "present_in_others_hint": "Needs the revised final spec at p12/ab1/runs/b1h-r1/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md to confirm whether the narrowed wording exists there."
+  }
+ ],
+ "unassigned_gids": [],
+ "extra_noticed": [
+  {
+   "local_id": "c10-x1",
+   "title": "Workflow/adversarial contract path differs from WC-4 and is not known before dispatch",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "In unattended mode the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed",
+   "original_lines": [
+    62,
+    73,
+    83,
+    92
+   ],
+   "what_goes_wrong": "WC-4 and section 2.3 say the report path is known before dispatch as <output-dir>/return-contract.yaml, but the workflow row keeps its contract at .dev/tasks/to-do/<id>/ (id generated by the command, no output flag in 'Brief must pass'; pre-creation STOPs have no package dir at all) and adversarial's is fixed at <output>/adversarial/return-contract.yaml, so the path rule does not hold for these commands.",
+   "is_fixed_when": "The spec states for workflow and adversarial where the contract is written under WC-4 (a path the brief can name, or an explicit statement that the coordinator reads it from worker_done --report-path) and uses one consistent <output-dir> definition.",
+   "deletion_note": "No: removing the 'known before dispatch' rule would drop the coordinator's ability to locate reports.",
+   "present_in_others_hint": "WC-4 (line 62), section 2.3 (line 73), 3.1 rows for adversarial and workflow (lines 83, 92), AC-1.4 (line 198)."
+  },
+  {
+   "local_id": "c10-x2",
+   "title": "AC-0.4 'no Agent-tool wrapper' clause has no check; step 5 only searches AskUserQuestion",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "(no Agent-tool wrapper, verified in the step-5 transcript)",
+   "original_lines": [
+    184,
+    194,
+    65
+   ],
+   "what_goes_wrong": "AC-0.4 says the absence of an Agent-tool wrapper is verified in the step-5 transcript, but step 5's only check is that no AskUserQuestion call appears, so the WC-7 top-level requirement is silently unverified.",
+   "is_fixed_when": "Step 5 (or AC-0.4) adds an explicit pass condition that the transcript shows no Agent-tool call wrapping the command.",
+   "deletion_note": "No: deleting the clause would drop the WC-7 direct-route check that gap 1.4 (1) exists to prove.",
+   "present_in_others_hint": "Step 5 (line 184), AC-0.4 (line 194), WC-7 (line 65), section 1.4 gap 1 (line 43)."
+  }
+ ]
+}

@@ -1,0 +1,109 @@
+{
+ "chunk": 17,
+ "defects": [
+  {
+   "local_id": "c17-d1",
+   "title": "WC-5 default branch reports succeeded for empty, unparseable or unknown-status contract",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "`--outcome failed` when the report says `failed` or `blocked`, or no report exists; `--outcome succeeded` otherwise, including `partial`",
+   "original_lines": [
+    63,
+    183
+   ],
+   "what_goes_wrong": "A 0-byte, truncated or status-less return-contract.yaml (or status outside the four values) matches neither failed trigger, so the worker sends worker_done --outcome succeeded and the coordinator settles a crashed run as success; the validity check lives only in 7.2 step 4, after worker_done.",
+   "gids": [
+    100,
+    110,
+    403,
+    431,
+    179,
+    118,
+    187,
+    248
+   ],
+   "is_fixed_when": "WC-5 itself states that a missing, empty, unparseable, status-less or out-of-vocabulary (not succeeded/partial/failed/blocked) report maps to --outcome failed, and succeeded only for a parsed succeeded or partial status.",
+   "deletion_note": "No: deleting WC-5 or the outcome mapping removes the only rule that ties worker_done --outcome to the report, so the wrong outcome would just be undefined.",
+   "present_in_others_hint": "Section 7.2 step 3/4 (validity check should precede or match the mapping); AC-2.2 could add a planted-invalid-status case; the WORKER-CONTRACT.md brief template copy of WC-5; WC-4 status vocabulary."
+  },
+  {
+   "local_id": "c17-d2",
+   "title": "P0 acceptance check requires a WC-4 contract that AC-0.4 says does not exist until P1",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "its `--outcome` matches the contract's `status` under WC-5; its report path is the WC-4 contract path",
+   "original_lines": [
+    182,
+    194,
+    154,
+    167,
+    79
+   ],
+   "what_goes_wrong": "7.2 step 3 (which AC-0.4 requires to pass) demands that --outcome match the contract's status and the report path be the WC-4 contract path, yet P0 makes no command edits and AC-0.4 itself says the contract arrives in P1 (and only step 4 is relaxed), so P0 can never pass and the gate at line 154 blocks P1-P4.",
+   "gids": [
+    356,
+    305,
+    345,
+    313
+   ],
+   "is_fixed_when": "AC-0.4 (or step 3) states what step 3 compares and which report path it expects for P0 runs, using the command's existing report file rather than the WC-4 contract, so that all steps AC-0.4 requires are satisfiable with no command edits.",
+   "deletion_note": "No: dropping step 3 or the P0 smoke runs would remove the check that tests the central decision (line 158) rather than make it passable; the fix is to narrow step 3 for P0.",
+   "present_in_others_hint": "Line 79 ('until Phase 1 adds the contract') is wrong for tdd/troubleshoot/release-split/reflect, whose contract phase is P2; AC-0.4 'arrives in P1' needs the per-command phase; the 2.3 brief 'including --unattended' also does not apply to the P0 command lines."
+  },
+  {
+   "local_id": "c17-d3",
+   "title": "Revised WC-5 'from P1 on, absent contract means failed' fails successful runs of commands with no contract yet",
+   "kind": "unverifiable",
+   "severity": "blocking",
+   "quote": "From P1 on (P0 runs have no contract ... ) `--outcome failed` when the contract is absent (revised text as quoted by findings 274/275 from runs b1-r5 aud/aud2; revised file not on disk)",
+   "original_lines": [
+    63,
+    79,
+    159,
+    160
+   ],
+   "what_goes_wrong": "If WC-5 was revised to send failed whenever the contract is absent from P1 on, successful tdd, troubleshoot, release-split, reflect (contract only in P2) and init-lite (fix 'None', never gets a contract) runs are reported failed.",
+   "gids": [
+    263,
+    274,
+    275
+   ],
+   "is_fixed_when": "WC-5 states how the outcome is decided for a command that has no contract yet (or never gets one), e.g. per command from the phase that adds its contract, with the named report file as interim report.",
+   "deletion_note": "No: removing the absent-contract rule would reopen defect c17-d1's missing-report case; the rule must be scoped per command phase, not dropped.",
+   "present_in_others_hint": "Not present in the original text: original WC-5 treats the named file of 3.1 as 'the report'. Revised-spec files (p13/.../b1-r3/aud2, b1-r5/aud, b1-r5/aud2) are not available, so the quoted revised wording cannot be checked; line 79 and rows 88-91 in the original are consistent with the finding's premises."
+  }
+ ],
+ "unassigned_gids": [],
+ "extra_noticed": [
+  {
+   "local_id": "c17-x1",
+   "title": "AC-0.4 says wrapper absence is 'verified in the step-5 transcript' but step 5 only checks AskUserQuestion",
+   "kind": "original",
+   "severity": "minor",
+   "quote": "each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript)",
+   "original_lines": [
+    194,
+    184
+   ],
+   "what_goes_wrong": "Step 5's pass condition is only 'no AskUserQuestion call', so the no-Agent-wrapper claim has no stated pass criterion, though the transcript read in step 5 can be reused.",
+   "is_fixed_when": "A step or AC-0.4 states the pass condition for the no-Agent-tool-wrapper check against the transcript.",
+   "deletion_note": "No: dropping it loses the WC-7 evidence for P0.",
+   "present_in_others_hint": "WC-7 evidence; step 5 text."
+  },
+  {
+   "local_id": "c17-x2",
+   "title": "WC-5 'the report says failed or blocked' undefined for 3.1 commands whose report is markdown without status",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "`--outcome failed` when the report says `failed` or `blocked`, or no report exists",
+   "original_lines": [
+    63,
+    79
+   ],
+   "what_goes_wrong": "For ready commands reporting REPORT.md, the TDD, PROJECT_INDEX.md etc. (no status field) until their contract phase, the rule gives no way to read 'says failed or blocked', and WC-4 defines the report as the contract.",
+   "is_fixed_when": "WC-5 names how outcome is derived when the report is a named non-contract file.",
+   "deletion_note": "No: removing 3.1's interim reporting leaves the P0 smoke runs without a report.",
+   "present_in_others_hint": "Section 3.1 intro (line 79); AC-0.4 step 4."
+  }
+ ]
+}

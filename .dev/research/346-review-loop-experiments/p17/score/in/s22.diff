@@ -1,0 +1,11 @@
+--- in/spec-original.md	2026-11-10 14:35:17.958599469 +0000
++++ score/in/s22.md	2026-11-10 14:46:43.360462243 +0000
+@@ -70,7 +70,7 @@
+ | WC-12 | **Coordinator follow-ups are pulled, not pushed.** The worker runs `check` at natural checkpoints and once before `worker_done`; if `check` returns `consumer_fenced` it stops without sending `worker_done`. Commands need no change for this. | Worker session | `CAPS:66-67` (`[G:worker-contract]` lines 36-38, 49-52) |
+ 
+ ### 2.3 What the coordinator owes each worker
+-The contract only works if the brief carries what the command would otherwise ask a person. For each Task the coordinator's brief states: the exact command line including `--unattended` and every flag section 3 lists as required; the output directory, so the report path is known before dispatch (WC-4); which outward actions, if any, are authorized (WC-9); and the worktree placement (`CAPS:115`). After `worker_done`, the coordinator opens the report file, then releases or reuses the worker (`CAPS:107-113`).
++The contract only works if the brief carries what the command would otherwise ask a person. For each Task the coordinator's brief states: the exact command line, including `--unattended` from Phase 1 on (Phase 0 briefs omit it, because no command accepts the flag before P1; B1, SPEC:158-159) and every flag section 3 lists as required; the output directory, so the report path is known before dispatch (WC-4); which outward actions, if any, are authorized (WC-9); and the worktree placement (`CAPS:115`). After `worker_done`, the coordinator opens the report file, then releases or reuses the worker (`CAPS:107-113`).
+ 
+ ## 3. Per-command changes
+ The 43 commands in `cmd/` (21 in `INV-A:3`, 22 in `INV-B:3`) split into 10 ready today, 27 needing a change and 6 coordinator-only (section 4). The inventories hold the full evidence; each row below gives only what changes, with the deciding lines. "Contract" means the WC-4 file `<output-dir>/return-contract.yaml`. Every changed command also gains the `## Unattended mode` section (section 2.1). Phase numbers refer to section 6.

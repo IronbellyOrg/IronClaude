@@ -1,0 +1,184 @@
+{
+ "chunk": 12,
+ "defects": [
+  {
+   "local_id": "c12-d1",
+   "title": "AC-2.2 demands a blocked contract from P2 commands whose gate resolves by default",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "Gate-trigger run per P2 command: a 7.2 live check with input that hits the gate",
+   "original_lines": [
+    60,
+    88,
+    100,
+    103,
+    110,
+    116,
+    122,
+    160,
+    200
+   ],
+   "what_goes_wrong": "AC-2.2 requires worker_done --outcome failed and contract status: blocked for every P2 command, but the rows for auggie-review, cleanup, improve, research, reflect and tasklist resolve their gate by a default or flag (WC-2 a/b), so no input makes them write blocked and the check cannot pass for them.",
+   "gids": [
+    13,
+    367,
+    376,
+    394,
+    408,
+    445,
+    456,
+    425,
+    350,
+    360,
+    386
+   ],
+   "is_fixed_when": "AC-2.2 (or its replacement) states per P2 command, or per resolution type (default, flag, blocked), what the gate-trigger run must produce, and demands failed/status: blocked/blocked_question only for commands whose section 3 row resolves a gate as blocked, with a checkable pass condition for the default-resolving commands.",
+   "deletion_note": "No: deleting AC-2.2 or the default-resolving rows would drop the gate-conversion test for P2 and the listed behaviour; the fix must keep a gate check for every P2 command.",
+   "present_in_others_hint": "Section 3.2 rows 88, 100, 103, 110, 116, 122; AC-2.1 and AC-2.4 (the only existing checks for default-resolving rows); WC-2 text; P2 command list at line 160; roadmap (P3, line 118) was mis-listed by one reviewer, ignore it."
+  },
+  {
+   "local_id": "c12-d2",
+   "title": "cli-portify gates always block, so AC-2.3 happy path cannot reach succeeded",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "each of the three approval gates resolves as blocked with the artifact to review named in the contract",
+   "original_lines": [
+    60,
+    61,
+    63,
+    105,
+    160,
+    201
+   ],
+   "what_goes_wrong": "The cli-portify row resolves all three approval gates as blocked, names no flag or default that approves a gate and does not say that --resume counts as approval, so every unattended run ends failed under WC-5 and AC-2.3's single happy-path run with --outcome succeeded cannot pass.",
+   "gids": [
+    113,
+    164,
+    262,
+    326,
+    399,
+    449,
+    336,
+    377,
+    387,
+    446
+   ],
+   "is_fixed_when": "The cli-portify row (or AC-2.3) defines how a run reaches succeeded: either a caller-supplied approval input per gate (flag or documented resume semantics saying the resumed run passes the gate named in the contract), or an explicit statement that cli-portify is exempt from the single-run AC-2.3 with its own multi-run check.",
+   "deletion_note": "No: removing cli-portify from P2 or deleting AC-2.3 for it leaves the command with no way for an unattended run to finish, which is the defect; the fix must state the path to success or an explicit replacement check.",
+   "present_in_others_hint": "WC-2 (b) and WC-3 (answer-as-flag has no flag for cli-portify); cli-portify resume cell (--resume <contract>); AC-2.2/AC-2.3 at lines 200-201; INV-A:45,79 proposed 'ask or explicit auto-approve flag'."
+  },
+  {
+   "local_id": "c12-d3",
+   "title": "Contract path undefined when the output flag names a file (tdd, init-lite, AC-2.2 example)",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "original_lines": [
+    62,
+    87,
+    90,
+    120,
+    182,
+    183,
+    200
+   ],
+   "what_goes_wrong": "WC-4 puts return-contract.yaml in the directory the coordinator passed, but the tdd and init-lite rows and the AC-2.2 example pass --output <file>, so no contract directory is defined and 7.2 steps 3-4 (test -s <contract>) have no path to check; spec-panel's added --output has no stated file/dir type either.",
+   "gids": [
+    145,
+    308,
+    116,
+    393
+   ],
+   "is_fixed_when": "WC-4 states where the contract goes when the output flag names a file (for example beside it or in a separately named directory flag), and the tdd, init-lite, spec-panel rows and the AC-2.2 example are consistent with that rule.",
+   "deletion_note": "No: dropping --output <file> or the contract for those commands would remove the report path the coordinator needs (WC-4 'known before dispatch'); the path rule must exist.",
+   "present_in_others_hint": "Lines 76, 87, 90, 120, 182-183, 200; 'known before dispatch' in WC-4; WC-11 collision when two tdd workers write files into one directory; the spec-panel command definition (command.md) uses a separate --report-dir and is only corroboration, not part of the original spec."
+  },
+  {
+   "local_id": "c12-d4",
+   "title": "Contract location undefined for commands with no output flag (cli-eval, AC-2.2 example)",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "contract for both pipelines (today a chat table)",
+   "original_lines": [
+    62,
+    73,
+    104,
+    105,
+    115,
+    117,
+    121,
+    182,
+    200
+   ],
+   "what_goes_wrong": "The cli-eval row adds a contract but no output flag or directory, so WC-4's '<output-dir> the coordinator passed' has no flag to receive it and AC-2.2's example (cli-eval run --unattended with no --suite) has no contract path to open; the same gap exists for cli-portify (file location unnamed) and other rows that only say 'contract'.",
+   "gids": [
+    189
+   ],
+   "is_fixed_when": "Each section 3.2 row that adds a contract either adds an output flag/directory or names its default contract location, and WC-4 says where the contract goes when blocking happens before any directory is parsed (as in the cli-eval missing --suite case).",
+   "deletion_note": "No: removing the cli-eval contract or its AC-2.2 example would drop the report the coordinator must open; a location must be defined.",
+   "present_in_others_hint": "Rows 105, 115, 116, 117, 121 in section 3.2; P1 scope text ('output flags for commands that lack one') covers only P1 commands; the audited revised spec added a WC-4 fallback pointing at 'its section 3.1 row', which does not contain cli-eval."
+  },
+  {
+   "local_id": "c12-d5",
+   "title": "7.2 step 6 git-status check fails for edit-in-place commands on the happy path",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "**Pass:** only files under the brief's output directory (and the command's documented artifacts) appear.",
+   "original_lines": [
+    103,
+    105,
+    107,
+    109,
+    110,
+    121,
+    185,
+    201
+   ],
+   "what_goes_wrong": "AC-2.3 applies 7.2 to every P2 happy path, but cleanup, improve, task and cli-portify edit or write product files outside the output directory, and 'documented artifacts' is not defined to include applied edits, so step 6 fails for a correct run unless the implementer assumes it does.",
+   "gids": [
+    439,
+    84
+   ],
+   "is_fixed_when": "Step 6 states what may appear for commands that edit in place (for example exactly the files the contract lists under artifacts, or files the brief authorizes), and 'documented artifacts' is defined.",
+   "deletion_note": "No: deleting step 6 would remove the check that a worker made no unauthorized change (SA-1/WC-9 support); the pass condition should be narrowed, not removed.",
+   "present_in_others_hint": "AC-0.4 and AC-1.2 also use 7.2; WC-4 'artifacts' field; rows 103, 105, 107, 109, 110, 121."
+  },
+  {
+   "local_id": "c12-d6",
+   "title": "Claim that no phase makes tdd, troubleshoot and release-split write the contract",
+   "kind": "not-a-defect",
+   "severity": "minor",
+   "quote": "the worker reports the named file until Phase 1 adds the contract",
+   "original_lines": [
+    79,
+    159,
+    195
+   ],
+   "what_goes_wrong": "Part (b) fails: P1 Scope says the WC-4 contract and the --unattended flag apply to every command in sections 3.1 and 3.2, line 79 says Phase 1 adds the contract to the 3.1 commands, and AC-1.1 asserts each such command has a section naming return-contract.yaml, so the contract is assigned before P2's AC-2.3 (only the P1 Commands cell omits these commands, a cosmetic inconsistency).",
+   "gids": [
+    273
+   ],
+   "is_fixed_when": "Not applicable (false positive); a later spec is fine if the P1 scope/AC-1.1 still cover every 3.1 and 3.2 command.",
+   "deletion_note": "Not applicable.",
+   "present_in_others_hint": "The file-valued --output half of gid 393 is covered by c12-d3."
+  }
+ ],
+ "unassigned_gids": [],
+ "extra_noticed": [
+  {
+   "local_id": "c12-x1",
+   "title": "P1 Commands cell omits 3.1 commands that P1 scope and AC-1.1 cover",
+   "kind": "original",
+   "severity": "minor",
+   "quote": "The WC-4 contract in unattended mode; the `--unattended` flag accepted by every command in sections 3.1 and 3.2",
+   "original_lines": [
+    159,
+    195
+   ],
+   "what_goes_wrong": "The P1 Commands cell lists only some commands (not init-lite, tdd, troubleshoot, release-split), while the Scope cell and AC-1.1 cover all of sections 3.1 and 3.2, so a reader following the Commands cell alone could skip them.",
+   "is_fixed_when": "The P1 Commands cell lists every command in 3.1 and 3.2 that gets the contract, or says 'all of 3.1 and 3.2'.",
+   "deletion_note": "No: it is wording; fix by aligning the cell with scope.",
+   "present_in_others_hint": "Line 79, AC-1.1 at line 195."
+  }
+ ]
+}

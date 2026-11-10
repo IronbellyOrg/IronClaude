@@ -1,0 +1,162 @@
+{
+ "chunk": 0,
+ "defects": [
+  {
+   "local_id": "c00-d1",
+   "title": "AC-1.1 asserts unattended section on all 37 commands, but phases defer most to P2-P4",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`, and that no section-4 command has one",
+   "original_lines": [
+    52,
+    154,
+    159,
+    160,
+    161,
+    162,
+    195,
+    225,
+    240
+   ],
+   "what_goes_wrong": "AC-1.1 (a P1 gate) requires the section on all 37 commands while the P1 Commands cell names 13 and the section's gate resolutions (S:52) belong to P2-P4 rows (P4 waiting on D2-D4, pr-submit unchanged under recommended D3(a)), and S:154 forbids later phases until P1 checks pass, so P1 either fails its gate or must edit P2-P4 commands, including undecided P4 ones, early.",
+   "gids": [
+    76,
+    434,
+    477,
+    15,
+    213,
+    353,
+    56,
+    107,
+    321,
+    199,
+    391,
+    0
+   ],
+   "is_fixed_when": "The set of commands AC-1.1 asserts in P1 equals the set the P1 row edits in P1, and each later phase's check asserts the section only for that phase's commands, with no P4 command (or pr-submit under D3(a)) asserted before its decision.",
+   "deletion_note": "No: deleting AC-1.1 leaves P1 without a static check of the section; the fix is to align its command set with the phase table.",
+   "present_in_others_hint": "S:159 P1 Scope sentence, S:76 and S:52 (section content), section 3.2 Phase column, AC-1.2 (S:196), AC-2.1/AC-3.x per-phase checks, D3(a) S:240 and section 4 S:128,139."
+  },
+  {
+   "local_id": "c00-d2",
+   "title": "P1 makes --unattended accepted on gated/outward commands before their gate conversion",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "original_lines": [
+    60,
+    67,
+    73,
+    100,
+    103,
+    113,
+    121,
+    159,
+    160,
+    162
+   ],
+   "what_goes_wrong": "After P1, gated commands such as auggie-review (posting off only in P2, S:100), cleanup, task and post-release accept --unattended yet still post to GitHub, prompt or act outward, violating WC-2/WC-9 which define the flag, and the 'no-op where no gate' parenthesis does not say what the flag does on a gated command.",
+   "gids": [
+    74,
+    16,
+    38,
+    217,
+    289,
+    484,
+    332,
+    400,
+    8
+   ],
+   "is_fixed_when": "No phase makes a command accept --unattended (or carry its Unattended mode section) before the same or an earlier phase implements that command's WC-2 gate resolutions and WC-9 outward-default switch-off, or the text states that a gated command refuses --unattended (e.g. writes status: blocked) until converted.",
+   "deletion_note": "No: deleting WC-9/WC-2 or the auggie-review row would remove the safety requirement rather than satisfy it.",
+   "present_in_others_hint": "S:159 P1 scope, AC-1.1 S:195, section 2.3 S:73 (brief always passes --unattended), S:154 'independently useful', section 3.2 Phase column."
+  },
+  {
+   "local_id": "c00-d3",
+   "title": "AC-1.1/AC-1.2 require /sc:load to name a contract it never writes",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "none: use it as a step inside another worker's brief, not as its own Task",
+   "original_lines": [
+    112,
+    159,
+    195,
+    196,
+    265
+   ],
+   "what_goes_wrong": "load's row gives it no report and the Decisions table calls a report file 'an unrequested addition', yet AC-1.1 requires its section to name return-contract.yaml and AC-1.2 runs a 7.2 contract check on each P1 command, which lists load, so either the check fails or a forbidden contract is added.",
+   "gids": [
+    5,
+    284
+   ],
+   "is_fixed_when": "Every acceptance check that requires a section naming return-contract.yaml or a 7.2 contract run explicitly excludes /sc:load (or load is given a contract and the Decisions row is changed), so load's row and the checks agree.",
+   "deletion_note": "Deleting load's row is not a fix unless load is also removed from the 37-command count and the P1 list consistently; excluding it from the checks is the narrow fix.",
+   "present_in_others_hint": "S:159 P1 Commands cell (load usage line only), AC-1.2 S:196, Decisions S:265, section 4 note S:139."
+  },
+  {
+   "local_id": "c00-d4",
+   "title": "Section 3.1 says ready commands change only by small fixes; P1/AC-1.1 add flag+section",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "The only command changes are the small fixes in the last column.",
+   "original_lines": [
+    76,
+    79,
+    84,
+    87,
+    158,
+    159,
+    195
+   ],
+   "what_goes_wrong": "An implementer following S:79 leaves brainstorm and init-lite (fix 'None', in no phase's Commands cell) without --unattended or the section, and AC-1.1 then fails for them, while S:159 says every 3.1 command accepts the flag.",
+   "gids": [
+    79,
+    87,
+    11,
+    183,
+    443,
+    455,
+    414
+   ],
+   "is_fixed_when": "Section 3.1's intro states that ready commands also gain --unattended and the Unattended mode section, and brainstorm and init-lite are named in a specific phase that adds them (or are explicitly excluded from AC-1.1 and every --unattended brief).",
+   "deletion_note": "No: deleting the S:79 sentence alone leaves brainstorm and init-lite in no phase; they must be assigned or excluded.",
+   "present_in_others_hint": "S:159-162 phase Commands cells, AC-1.1 S:195, section 2.3 S:73, P0 'no command edits' S:158."
+  },
+  {
+   "local_id": "c00-d5",
+   "title": "Revised spec: brainstorm and init-lite never get --unattended in any phase",
+   "kind": "introduced",
+   "severity": "blocking",
+   "quote": "[p12/ab3/runs/b3-r5/aud2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:159] the `--unattended` flag accepted by every command named in this row's Commands column (a no-op where a command has no gate); ... Each later phase adds the flag and the section for its own commands.",
+   "original_lines": [],
+   "what_goes_wrong": "In run b3-r5's revised spec the flag is scoped to each phase's Commands cell and AC-1.1 asserts only P1 commands, but brainstorm and init-lite are in no phase's Commands cell, so they never gain --unattended or a contract (init-lite's row now names a contract) while section 2.3 briefs them with --unattended and no check catches it.",
+   "gids": [
+    212
+   ],
+   "is_fixed_when": "Every section 3.1/3.2 command that a brief may run with --unattended is named in some phase's Commands cell that adds the flag and section, and some acceptance check asserts it.",
+   "deletion_note": "No: removing brainstorm and init-lite from section 3.1 would contradict the inventories' ready verdicts unless they are reclassified with reasons.",
+   "present_in_others_hint": "Revised S:79, S:84, S:87 (init-lite contract), S:195 AC-1.1, section 2.3 brief rule."
+  }
+ ],
+ "unassigned_gids": [],
+ "extra_noticed": [
+  {
+   "local_id": "c00-x1",
+   "title": "AC-0.4 requires 7.2 step 3 contract-path match in P0, before contracts exist",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1",
+   "original_lines": [
+    73,
+    158,
+    180,
+    182,
+    194
+   ],
+   "what_goes_wrong": "7.2 step 3 passes only if worker_done's report path is the WC-4 contract path and the outcome matches the contract status, but in P0 no command writes the WC-4 contract (troubleshoot reports REPORT.md, workflow writes under .dev/tasks/to-do/<id>/), and P0 makes no command edits so --unattended from the 2.3 brief is not implemented, so AC-0.4 cannot pass as written.",
+   "is_fixed_when": "AC-0.4 states which step-3 sub-conditions apply in P0 (e.g. report path is the command's existing report file) and whether the P0 brief omits --unattended.",
+   "deletion_note": "No: AC-0.4 is the only live test of the decision; it must be reworded, not removed.",
+   "present_in_others_hint": "Section 2.3 brief contents, 7.2 steps 1 and 3, P0 row S:158."
+  }
+ ]
+}

@@ -1,0 +1,237 @@
+{
+ "chunk": 15,
+ "name": "WC-3",
+ "findings": [
+  {
+   "gid": 469,
+   "kind": "audit",
+   "arm": "haiku-base",
+   "run": "a3-r2",
+   "step": "aud2",
+   "fid": "B-1",
+   "final_spec_of_this_audit": "p14/haiku-baseline/runs/a3-r2/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### B-1: The WC-3 relay re-invocation is refused by the F-05 non-empty-directory rule",
+   "body": "\n- Severity: MAJOR. Grading sentence: an implementer who follows the stated text as written builds a worker that, after a command wrote `status: blocked`, asks the coordinator (WC-3), then re-invokes the same command line plus the answer flag, and the command refuses the run because its `--output` directory already holds the blocked `return-contract.yaml`; the relay therefore never completes for any command with no resume flag, and the worker ends `failed` after a correct answer, which is wrong because WC-3 exists to let that answer be used.\n- Experts: Nygard (sequence), Whittaker (Sequence Attack), Fowler.\n- Evidence:\n  - WC-2(c): blocked means \"the command writes its report with `status: blocked` ... and stops\" (`SPEC:60`).\n  - WC-4: the contract is written \"including stops before any other output exists\" into `<output-dir>` (`SPEC:62`); so the blocked run leaves a non-empty directory.\n  - WC-3: the worker session \"may instead ask ... then re-invoke or resume the command with the answer as a flag\" (`SPEC:61`); the only text about where the re-invocation writes is the brief's output directory (`SPEC:73`).\n  - 2.3: \"a command with no resume flag refuses a non-empty `--output` directory\" in unattended mode and writes no contract (`SPEC:73`); AC-1.5 pins the refusal (`SPEC:199`).\n  - Section 3 lists \"fresh dir\" as the resume for most gate commands (cli-eval `SPEC:101`, cleanup `SPEC:100`, improve `SPEC:108`, recommend `SPEC:114`, research `SPEC:115`, spec-panel `SPEC:119`, task `SPEC:120`, post-release `SPEC:112`, and others), so they have no resume flag and fall under the refusal.\n- Concrete attack (Whittaker, state trace): `/sc:cli-eval run --unattended --output D` with no `--suite`. Before: D empty. Run 1: gate resolves blocked, `D/return-contract.yaml` written with `blocked_question`. Worker `ask`s, coordinator answers `suite=X`. Run 2: `/sc:cli-eval run --suite X --unattended --output D`. D is non-empty and cli-eval has no resume flag, so Run 2 refuses without writing a contract; `worker_done --outcome failed`. No section 7 check exercises WC-3, so nothing catches this (`SPEC:200-213`; see M-6).\n- Priority: High. Quality impact: the question-relay path (WC-3, the spec's answer to the \"questions go to the coordinator\" rule at `README:35`) is unusable for every gate command except those with a real resume flag.\n"
+  },
+  {
+   "gid": 28,
+   "kind": "first",
+   "arm": "ab1",
+   "run": "b1-r1",
+   "step": "r1c",
+   "fid": "B1",
+   "final_spec_of_this_audit": "",
+   "heading": "### B1 (CRITICAL by label, blocking by consequence). WC-3 lets a blocked gate be answered by `ask`; AC-2.2 and AC-4.1 require the opposite outcome for the same input",
+   "body": "- Expert: Wiegers (testability), Adzic (example), Whittaker (Divergence Attack: both branches apply at once).\n- Texts: S:60 (WC-2 (c): on a gate the command writes `status: blocked` \"and stops\"); S:61 (WC-3: \"When a gate would resolve as blocked and the worker session holds a preamble, the session **may instead** ask the coordinator once ... wait, then re-invoke\"); S:200 (AC-2.2: gate-trigger run, pass = \"`worker_done --outcome failed`; contract `status: blocked` ...; step 2 never shows `agentWait`\"); S:208 (AC-4.1 same shape). `CAPS:58,129` (an `ask`-blocked worker is healthy; `agentWait` is how a parked worker shows).\n- Wrong outcome: an implementer who follows WC-3 as written builds a worker session that, on the gate input of AC-2.2, calls `ask` and waits. That session sends no `worker_done --outcome failed` and the run is parked, so AC-2.2 fails for a worker that followed the spec. The acceptance criterion cannot be passed by a stated, permitted behaviour. Neither WC-3 nor S:73 (section 2.3, the brief) says which of the two the coordinator selects per Task, so the coordinator cannot make AC-2.2 deterministic.\n- Recommendation: state per Task which resolution the brief selects (for example a brief line \"on a blocked gate: stop and report\" versus \"on a blocked gate: ask\"), and make AC-2.2 and AC-4.1 name the \"stop and report\" form.\n- Priority: High. Quality-impact: removes the one acceptance check for the whole gate-conversion phase.\n"
+  },
+  {
+   "gid": 420,
+   "kind": "first",
+   "arm": "ab4h",
+   "run": "d4h-r2",
+   "step": "r1b",
+   "fid": "B2",
+   "final_spec_of_this_audit": "",
+   "heading": "**B2. [BLOCKING, High] Step 3 has no branch for a worker `question` or `escalation`.**",
+   "body": "- Experts: Whittaker (sequence), Hohpe (messaging).\n- Cites: `S:61` (WC-3: a worker may ask the coordinator); `S:182` (types include `question`, loop \"until worker_done arrives\"); `CAPS:62` (`reply --id`); `CAPS:63`.\n- Wrong outcome: \"An implementer who follows step 3 as written, receives a `question`, and loops again never sends `reply`, so the worker stays parked in `ask` and no `worker_done` arrives.\"\n- Recommendation: add branches: on `question`, read it and `reply --id <msg> --body`; on `escalation`, stop the check and report. Then restate the pass condition.\n- Quality impact: any run that uses the WC-3 path cannot pass the live check.\n"
+  },
+  {
+   "gid": 219,
+   "kind": "audit",
+   "arm": "ab3h",
+   "run": "b3h-r1",
+   "step": "aud",
+   "fid": "B-1",
+   "final_spec_of_this_audit": "p12/ab3/runs/b3h-r1/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### B-1 (CRITICAL, blocking): cli-portify cannot reach `succeeded` in unattended mode",
+   "body": "- Location: `S:105` (cli-portify row), `S:61` (WC-3), `S:60` (WC-2), `S:201` (AC-2.3), `S:200` (AC-2.2).\n- Grading sentence: an implementer who follows the stated text as written builds a cli-portify unattended mode in which each of its three approval gates \"resolves as blocked\" (`S:105`), and the only unblock route is \"re-invoke or resume the command with the answer as a flag\" (`S:61`). The row defines no flag that carries an approval; the only new flag is `--resume <contract>`, which restarts at `resume_phase`/`resume_substep` (`S:105`), and that resumed run reaches the same gate and blocks again. The built command can never pass its first approval gate, and AC-2.3 (\"Happy-path run per P2 command with every required flag in the brief\" ends `--outcome succeeded`, `S:201`) cannot pass for it. The gate list itself is evidenced at `INV-A:45`, `INV-A:79`.\n- Expert: Wiegers (testability: no acceptance path), Adzic (no concrete example of an approved run), Cockburn (the primary actor's goal, a completed port, is unreachable).\n- Recommendation: either name an approval flag (WC-2 route (b)) per gate, or move cli-portify to section 4 or to a documented \"approvals given by a person only\" row, and remove it from the AC-2.3 set.\n- Priority: High. Quality impact: removes one unreachable acceptance path.\n- Origin: first review, whole document.\n"
+  },
+  {
+   "gid": 112,
+   "kind": "audit",
+   "arm": "ab1h",
+   "run": "b1h-r4",
+   "step": "aud",
+   "fid": "B-2",
+   "final_spec_of_this_audit": "p12/ab1/runs/b1h-r4/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "**B-2. WC-3 lets a worker obtain a blocked Ruling or authorization from the coordinator, which D2(a) and D4(a) say must not happen.** (CRITICAL by label; blocking.) Experts: Nygard, Fowler, Whittaker. Priority High.",
+   "body": "- Stated text A (WC-3, `SPEC:61`): when a gate \"would resolve as blocked\" and the worker holds a preamble, \"the session may instead ask the coordinator once ... then re-invoke or resume the command with the answer as a flag\". It has no exception.\n- Stated text B: the `/sc:implement` halt row resolves `E-HALT-QA` and `E-NO-RULING` as blocked (`SPEC:108`). The Ruling rule says \"another agent's message\" is not acceptance (`sk/sc-implement-protocol/refs/qa.md:232,238`, quoted at `SPEC:257`, UNVERIFIED in this workspace; the same rule is quoted at `INV-A:66`). D2(a), the recommended option, says the worker \"stops ... and ends `failed`\" and a person rules (`SPEC:258`). AC-4.1 requires \"the ledger records no Ruling unless D2 allows a relayed one\" (`SPEC:232`). D4(a) allows an outward action only when the user's own instruction names it (`SPEC:269`), and WC-9 resolves those gates as off (`SPEC:67`).\n- Grading sentence: an implementer who follows WC-3 as written builds a worker that, at a halt, asks the coordinator and resumes with the coordinator's answer as the Ruling. X is wrong because an Orca coordinator is \"another agent\" (`SPEC:257`), so the worker approves its own work, which is the safety boundary D2 and the Ruling rule exist to hold. WC-3 sits in Phase 0 (`SPEC:159`), before D2 and D4 are decided (`SPEC:155`).\n- Recommendation: add to WC-3 that it does not apply to a gate whose open decision (D2, D3, D4) is unresolved, or to any gate the rule file says only a person may clear.\n"
+  },
+  {
+   "gid": 172,
+   "kind": "audit",
+   "arm": "ab2h",
+   "run": "b2h-r3",
+   "step": "aud2",
+   "fid": "B-1",
+   "final_spec_of_this_audit": "p12/ab2/runs/b2h-r3/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### B-1. WC-3 lets a worker obtain a Ruling from the coordinator, contradicting D2(a) and Non-goal 6",
+   "body": "- Severity: CRITICAL (blocking). Experts: Wiegers (requirements consistency), Nygard (safety boundary), Whittaker (Sequence Attack on the halt path). Priority: High. Quality-impact: Consistency and Safety, large.\n- Grading sentence: An implementer who follows WC-3 as written writes into `WORKER-CONTRACT.md` that a worker whose gate \"would resolve as blocked\" may \"ask the coordinator once ... then re-invoke or resume the command with the answer as a flag\" (SPEC:61); `/sc:implement`'s halt is exactly such a gate (SPEC:109); so the implementer builds a path where the coordinator, which is another agent, supplies the Ruling, and that is wrong because the same document says the Ruling rule is kept unchanged (Non-goal 6, SPEC:218) and recommends option (a) \"Keep the rule\", citing the rule's text that \"another agent's message\" does not count (SPEC:233-236).\n- Evidence: WC-3 is generic and names no exception (SPEC:61). The implement row says only \"stop with the halt recorded ... blocked\" (SPEC:109) and refers to D2 for the rule. D2(b) is the option that \"allows a relayed Ruling\" (SPEC:235) and is described as weakening \"a deliberate safety rule\"; D2 is open and Phase 4 waits for it (SPEC:154), yet WC-3 belongs to Phase 0 (SPEC:158) and applies to every command from the start. So the weakening is decided by default before the user answers D2. The same text also lets a coordinator answer cli-portify's three approval gates (SPEC:105) and `task`'s TFEP \"present to user\" stop (SPEC:121), which the table resolves as \"blocked\" and never says may be answered by an agent.\n- Concrete attack (Whittaker, Sequence): worker runs `/sc:implement --unattended`; QA halts with `E-NO-RULING`; the worker follows WC-3, asks, the coordinator replies \"approved\", the worker re-invokes with the answer as a flag; the implementer's own work was approved by an agent. State before: ledger shows halt, no Ruling. State after: ledger shows a Ruling that no person gave.\n- Recommendation (narrow, no new mechanism): in WC-3 exclude gates whose acceptance must come from a person (the implement Ruling, any row whose gate is an approval), or state that D2(a)/Non-goal 6 override WC-3 until the user chooses (b).\n"
+  },
+  {
+   "gid": 190,
+   "kind": "audit",
+   "arm": "ab3",
+   "run": "b3-r1",
+   "step": "aud2",
+   "fid": "F-1",
+   "final_spec_of_this_audit": "p12/ab3/runs/b3-r1/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### F-1 [BLOCKING] [MAJOR] WC-3 lets any blocked gate be answered by the coordinator, which contradicts the Ruling rule D2 keeps and the outward-action rule WC-9/D4 sets",
+   "body": "\n- Expert: Wiegers (traceability and consistency), Whittaker (Sentinel Collision / Sequence attack).\n- Stated texts: WC-3 `spec:61`: \"When a gate would resolve as blocked and the worker session holds a preamble, the session may instead ask the coordinator once ... then re-invoke or resume the command with the answer as a flag.\" It has no exception list. The implement row `spec:109` makes the Ruling gate resolve as blocked. D2 `spec:232-236` (recommended option a) and non-goal 6 `spec:218`: the Ruling rule is unchanged, and \"another agent's message\" is not a Ruling (`INV-A:66` quotes `refs/qa.md:238`: \"Silence, a generic request to continue, another agent's message ... not acceptance\"). WC-9 `spec:67` and D4 `spec:244-247`: an outward default turns on only through the command's explicit flag written in the brief, and only when the user's own instruction names that action. WC-3 is written into `WORKER-CONTRACT.md` in P0 (`spec:158`), before D2 and D4 are decided (`spec:154,225`: P0-P3 proceed on recommendations).\n- An implementer who follows the stated text as written builds a worker contract in which a worker that hit `E-HALT-QA` asks the coordinator, receives the coordinator's answer, and re-invokes `/sc:implement` with that answer as the Ruling; the same path turns on `--post-pr`, a task `commit`/`push`, or a post-release install from a coordinator reply that no brief carried. That is wrong because it is exactly D2 option (b), which the spec itself recommends against (\"it weakens a deliberate safety rule\", `spec:235`), and because WC-9/D4 require the authorization in the brief and traceable to the user. The AC that should catch it, AC-4.1 `spec:208`, tests `/sc:implement` only after P4, and nothing tests WC-3 against WC-9 in P0-P3.\n- Concrete attack (Whittaker): state before: implement ledger halted at `E-HALT-QA`, contract `blocked`, `blocked_question` = \"Ruling?\". Step 1: worker `ask`s. Step 2: coordinator answers \"accept\". Step 3: worker re-runs `/sc:implement <plan> --resume` with the answer. State after: the ledger records a Ruling that came from an agent, with D2 still \"undecided\" and no user words in the brief.\n- Recommendation: add to WC-3 one exclusion: the `ask` route is for open parameters only; a gate that is a safety Ruling or an outward authorization (WC-9) stays `blocked` and ends `failed`, unless D2(b)/D4(a) is in force and the brief quotes the user's instruction. Priority: High. Quality impact: Consistency and safety-boundary correctness of the contract's central rule.\n"
+  },
+  {
+   "gid": 202,
+   "kind": "audit",
+   "arm": "ab3",
+   "run": "b3-r3",
+   "step": "aud",
+   "fid": "F-01",
+   "final_spec_of_this_audit": "p12/ab3/runs/b3-r3/aud/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### F-01 (CRITICAL by label, blocking by consequence): WC-3 lets a worker turn a blocked gate into an answered one, which contradicts WC-9 and D2/D4 and breaks a safety rule",
+   "body": "- Experts: Whittaker (sequence attack), Nygard, Wiegers.\n- Grading sentence: an implementer who follows the stated text as written builds a worker contract in which any gate that \"would resolve as blocked\" (spec:61) may be answered by the coordinator through `ask`, after which the command is re-run \"with the answer as a flag\" (spec:61), and that is wrong because two other stated texts forbid it: WC-9 says a default that pushes, opens a PR, posts or installs \"turns on only through the command's own explicit flag written in the brief\" (spec:67), and the implement Ruling rule says another agent's message is not acceptance (spec:233; `INV-A:66`, `INV-A:51`), which D2(a) wants kept (spec:234-236).\n- Concrete attack (state trace):\n  1. `/sc:implement <plan> --unattended` hits `E-NO-RULING`. The row resolves it as blocked (spec:109). State: contract `status: blocked`, Ruling absent.\n  2. WC-3 (spec:61, a P0 deliverable, spec:158, \"need no user decision\", spec:154) says the session may `ask` the coordinator once and re-invoke with the answer as a flag. The coordinator is an agent; it answers \"approve\".\n  3. The re-run records a Ruling from an agent message. State: Ruling present, no person involved. That is the case `refs/qa.md:238` excludes and D2(a) says to keep excluded.\n  4. Same shape for outward actions: post-release, auggie-review `--post-pr`, task `commit`/`push` all resolve as blocked or off. WC-3 lets a flag such as `--post-pr` appear after dispatch, which is not \"written in the brief\" (WC-9) and is the question D4 leaves open (spec:244-247).\n- Why blocking: a safety-boundary rule (a deliberate Ruling rule per spec:218, 235-236) and a stated outward-action restriction are both weakened by a text that is written into the P0 contract before the user answers D2 or D4.\n- Recommendation: narrow WC-3 so `ask` covers only missing inputs (a suite, a target release, a path) and never a Ruling, an approval, or an outward-action authorization; say that authorization answers are accepted only under D2(b) or D4(a) with the user's instruction quoted. Prefer deleting words to adding a section.\n- Priority: High. Quality impact: requirements consistency 4/10 to 8/10 on this point.\n"
+  },
+  {
+   "gid": 398,
+   "kind": "audit",
+   "arm": "ab4h",
+   "run": "d4h-r1",
+   "step": "aud2",
+   "fid": "B1",
+   "final_spec_of_this_audit": "p16/ab4/runs/d4h-r1/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### B1 - WC-3 lets a coordinator's reply stand in for confirmation that three source rules reserve for the person",
+   "body": "- Severity: CRITICAL. Experts: Wiegers (lead), Nygard, Whittaker (Sequence attack). Priority: High. Quality impact: Consistency -2, safety.\n- Location: `spec:61` (WC-3) against `spec:109` (implement row), `spec:208` (AC-4.1), `spec:218` (non-goal 6), `spec:232-236` (D2), `spec:121` (task row).\n- Grading check: an implementer who follows WC-3 as written builds a worker that, when a gate \"would resolve as blocked\", asks the coordinator once and then \"re-invoke[s] or resume[s] the command with the answer as a flag\". That is wrong because `/sc:implement` accepts a Ruling only from \"clear user confirmation in the current conversation\" and says \"another agent's message\" is not acceptance (`INV-A:51`, `INV-A:66`), and the spec itself says \"An Orca coordinator is another agent\" (`spec:233`), keeps that rule as the recommendation (D2(a), `spec:234`, `spec:236`), states changing it is a non-goal unless the user picks D2(b) (`spec:218`), and tests that no Ruling is recorded (AC-4.1, `spec:208`). WC-3 has no carve-out, so the contract file written in P0 (`spec:158`) already permits the relay that D2 reserves for the user.\n- The same text lets a coordinator override `/sc:task`'s \"Will Not: Proceed with <70% confidence without user confirmation\" (`INV-B:199`, `INV-B:205`) by answering the blocked question and passing a compliance flag; the task row only says \"resolves as blocked\" (`spec:121`).\n- Whittaker: I can break this specification by **Sequence attack**. The invariant at **WC-3 / D2** fails when **`/sc:implement` halts with `E-HALT-QA` in a worker holding a preamble**. Concrete attack: before: ledger records halt, contract `status: blocked`, no Ruling. Step 1: worker asks the coordinator (WC-3 permits). Step 2: coordinator replies \"approved\". Step 3: worker re-invokes with the answer. After: Ruling recorded from an agent message; D2(a) and AC-4.1 are false although no user decision was taken.\n- Recommendation: narrow WC-3 to gates whose source rule does not require the person's own words, and name the exceptions (implement Ruling, task below 0.70, any outward action, per D2 and D4); otherwise require the relayed answer to quote the person verbatim and be recorded as such. Deleting the sentence \"re-invoke or resume the command with the answer as a flag\" for those gates is enough.\n"
+  },
+  {
+   "gid": 82,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r1",
+   "step": "r1b",
+   "fid": "B2",
+   "final_spec_of_this_audit": "",
+   "heading": "**B2. WC-3 lets a coordinator's answer resume a command past a safety gate.** (Wiegers lead; Whittaker)",
+   "body": "- Locations: SPEC:61 (WC-3: on a gate that would be blocked, the session may `ask` the coordinator, \"then re-invoke or resume the command with the answer as a flag\"), SPEC:109 (implement: \"the Ruling rule itself is unchanged (see open decision D2)\"), SPEC:233 (the spec quotes the rule: \"another agent's message ... [is] not acceptance\"), SPEC:234-236 (D2 recommends option (a), keep the rule), SPEC:208 (AC-4.1 relies on D2).\n- Grading sentence: an implementer who follows WC-3 at SPEC:61 has no exclusion for the implement Ruling, so the coordinator's `ask` reply can be passed back to `/sc:implement` as a flag, which resolves a halt that SPEC:109 says keeps the Ruling rule unchanged, and the rule the spec itself quotes at SPEC:233 excludes a message from another agent.\n- Recommendation: scope WC-3 so that a relayed answer is never accepted as a Ruling until D2 is decided, and name the implement halt as the exception. Keep D2(a) as the default in the text.\n- Priority: High. Quality impact: high (safety-boundary risk named by the grading rule).\n"
+  },
+  {
+   "gid": 103,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r2",
+   "step": "r1c",
+   "fid": "RQ-1",
+   "final_spec_of_this_audit": "",
+   "heading": "### RQ-1 (BLOCKING). WC-3 lets a coordinator's reply become a gate answer, which contradicts the implement Ruling rule (D2) and the outward-action rule (D4)",
+   "body": "- Severity: MAJOR, graded blocking because two stated texts contradict.\n- Expert: Karl Wiegers (lead), Gojko Adzic, Alistair Cockburn.\n- Text: WC-3 says that when \"a gate would resolve as blocked ... the session may instead ask the coordinator once ... then re-invoke or resume the command with the answer as a flag\" (`spec:61`). It has no exception for the implement Ruling or for outward flags.\n- Conflicts: the implement row says the Ruling rule \"is unchanged\" and that the halt ends in a blocked contract (`spec:109`). D2 option (a) recommends that a person gives the Ruling and the worker ends `failed` (`spec:234-236`). AC-4.1 expects that \"the ledger records no Ruling unless D2 allows a relayed one\" (`spec:208`). The rule behind D2 is that \"another agent's message ... [is] not acceptance\" (`INV-A:66`, quoting `refs/qa.md:238`). D4 option (a) requires that the user's own instruction, quoted, authorizes each outward flag (`spec:245-246`).\n- Grading sentence: an implementer who follows WC-3 (`spec:61`) as written may send the implement Ruling question to the coordinator; nothing in the candidate stops the coordinator's reply from being recorded as the Ruling, and `qa.md:238` forbids exactly that. A second case: the coordinator answers \"yes\" to the auggie-review posting offer, the worker re-runs with `--post-pr` (WC-9 is met, since the flag is on the command line, `spec:67`), and D4(a) is broken because no user instruction was quoted.\n- Recommendation: add an exclusion to WC-3: a gate that guards a Ruling, an outward action, or a safety boundary may never be answered by a coordinator reply. Such a gate resolves as blocked. Make the implement row and D2 cite WC-3 by name.\n- Priority: High. Quality impact: high on the safety boundary of `/sc:implement` and on outward actions.\n"
+  },
+  {
+   "gid": 159,
+   "kind": "first",
+   "arm": "ab2h",
+   "run": "b2h-r1",
+   "step": "r1",
+   "fid": "F-01",
+   "final_spec_of_this_audit": "",
+   "heading": "### F-01 (CRITICAL, blocking): WC-3 lets a coordinator answer reopen a gate that the implement row and D2 keep closed",
+   "body": "\n- Texts. WC-3 (spec:61): \"When a gate would resolve as blocked and the worker session holds a preamble, the session may instead ask the coordinator once with the preamble's `ask` command, wait, then re-invoke or resume the command with the answer as a flag.\" The implement row (spec:109): \"on `E-HALT-QA` or `E-NO-RULING`, stop ... and the contract as blocked, carrying the Ruling question; the Ruling rule itself is unchanged (see open decision D2).\" D2 option (a) (spec:234): \"The worker stops, writes the halt to its ledger and contract, and ends `failed`.\" INV-A:66 records that `qa.md:238` says \"another agent's message ... [is] not acceptance\" and that an Orca coordinator is \"another agent\" (UNVERIFIED for the qa.md text itself, which is outside the workspace).\n- Contradiction. For the implement halt, WC-3 permits a relayed answer that is then used as the flag on re-invocation. The implement row and D2 say no such relay can count as a Ruling. The spec gives no exemption for safety-rule gates.\n- Sentence. An implementer who follows the stated text as written builds an implement worker that, on `E-HALT-QA`, sends `ask`, takes the coordinator's answer, and re-invokes `/sc:implement` with it as a flag. That answer then acts as the Ruling. This is wrong because spec:109 says the Ruling rule is unchanged and spec:234 says the worker ends `failed`.\n- Related. AC-2.2 (spec:200) requires `agentWait` to stay null for a blocked gate, so the spec's own acceptance check rejects the WC-3 path that WC-3 allows.\n- Recommendation. Exempt safety-rule gates (implement Ruling, pr-submit HALT, D4 authorization) from the WC-3 ask-and-relay path, or define which relayed answers may count. Rewrite AC-2.2 to match.\n- Priority: High. Quality-impact estimate: high (safety-boundary contradiction).\n"
+  },
+  {
+   "gid": 167,
+   "kind": "first",
+   "arm": "ab2h",
+   "run": "b2h-r2",
+   "step": "r1",
+   "fid": "B-1",
+   "final_spec_of_this_audit": "",
+   "heading": "### B-1. WC-3 lets the coordinator answer gates that the spec reserves for a person (CRITICAL-class safety boundary, blocking)",
+   "body": "- Quotes: WC-3 (`spec:61`): \"When a gate would resolve as blocked and the worker session holds a preamble, the session may instead ask the coordinator once ... then re-invoke or resume the command with the answer as a flag.\"\n- Conflicting texts: the implement row (`spec:109`): on `E-HALT-QA` or `E-NO-RULING` the command stops \"with the halt recorded ... the Ruling rule itself is unchanged\". D2(a) (`spec:234-236`): the worker \"ends `failed`\" and \"the person ... gives the Ruling\". Non-goal 6 (`spec:218`) keeps the Ruling rule. The cli-portify row (`spec:105`) says \"each of the three approval gates resolves as blocked\". The source rule (`.dev/orca-command-refactor/inventory/commands-a.md:66`, citing `qa.md:238`) says \"another agent's message ... [is] not acceptance\".\n- Grading sentence: An implementer who follows WC-3 as written, for implement's Ruling gate (blocked per `spec:109`), asks the coordinator and then re-invokes `/sc:implement` with the coordinator's reply as a flag. That builds a Ruling given by another agent, which the rule in `qa.md:238` and D2(a) forbid, and it is wrong because the coordinator then decides the worker's own halt. The same follows for the cli-portify approval gates (`spec:105`), where the coordinator would approve a step the spec says a person approves (`.dev/orca-command-refactor/inventory/commands-a.md:45`).\n- Fix to consider: WC-3 names the gate classes it may not answer (Ruling, human approval, outward authorization), and limits `ask` to informational questions. The same change should make D2 and WC-3 agree.\n"
+  },
+  {
+   "gid": 233,
+   "kind": "first",
+   "arm": "ab3h",
+   "run": "b3h-r2",
+   "step": "r1",
+   "fid": "F-03",
+   "final_spec_of_this_audit": "",
+   "heading": "### F-03 [BLOCKING, MAJOR, safety boundary] WC-3 lets a coordinator's answer become an implement Ruling",
+   "body": "- Expert: Nygard (failure and safety rules), Whittaker (sequence), Cockburn (who may rule).\n- Evidence: WC-3 says that when a gate would resolve as blocked, the worker may ask the coordinator and then \"re-invoke or resume the command with the answer as a flag\" (SPEC:61). The implement row resolves its halt as blocked and says the Ruling rule is unchanged (SPEC:109). That rule says \"another agent's message ... [is] not acceptance\" (INV-A:66, quoting `sk/sc-implement-protocol/refs/qa.md:238`; source UNVERIFIED). D2 says an Orca coordinator is \"another agent\" (SPEC:233), recommends keeping the rule (SPEC:236), and is still open; Phase 4 waits for it (SPEC:154). WC-3 has no exception for implement.\n- Grading sentence: An implementer who follows WC-3 and the implement row re-invokes `/sc:implement` with the coordinator's answer as the Ruling, so the Ruling rests on another agent's message, which the rule forbids (INV-A:66).\n- Recommendation: add to WC-3: \"A gate that needs a human Ruling (implement E-HALT-QA and E-NO-RULING) never takes a coordinator answer as a flag; it resolves as blocked.\" Only D2 option (b) may change that.\n- Priority: High (safety boundary). Quality impact: a deliberate safety rule can be bypassed by the coordinator.\n"
+  },
+  {
+   "gid": 244,
+   "kind": "first",
+   "arm": "ab3h",
+   "run": "b3h-r4",
+   "step": "r1",
+   "fid": "R-1",
+   "final_spec_of_this_audit": "",
+   "heading": "### R-1. WC-3 lets a coordinator's answer become an outward action or a Ruling",
+   "body": "\n- Severity: MAJOR. Grade: BLOCKING. Experts: Wiegers (lead), Whittaker (FR-2.3 sentinel: data becomes control).\n- Locations: spec:61 (WC-3), spec:67 (WC-9), spec:245 (D4(a)), spec:109 (implement row, \"the Ruling rule itself is unchanged\"), spec:234-236 (D2). Source: INV-A:66, quoting `sk/sc-implement-protocol/refs/qa.md:238`: \"another agent's message ... [is] not acceptance\".\n- Issue: WC-3 says a worker \"may ask the coordinator ... then re-invoke or resume the command with the answer as a flag\". Nothing limits who supplies the answer. D4(a) and WC-9 say an outward action is authorized only by the user's own instruction, and the implement row keeps the Ruling rule even though D2 is still open.\n- Attack (Whittaker, FR-2.3): the worker asks \"may I open the PR?\"; the coordinator answers \"yes\" on its own; WC-3 turns that into the PR flag.\n- Grading sentence: \"An implementer who follows WC-3 as written passes a coordinator reply such as 'yes, push' as the command's push flag, and that is wrong because WC-9 and D4(a) allow outward action only on the user's own instruction, which the reply does not establish.\"\n- Recommendation: add to WC-3 that an ask answer may supply only values the user already gave (quoted in the brief, D4(a)); an ask answer never supplies a WC-9 flag or an implement Ruling. Then D2(a) and D4(a) need one statement each.\n"
+  },
+  {
+   "gid": 329,
+   "kind": "first",
+   "arm": "base-fresh",
+   "run": "a3d-r4",
+   "step": "r1",
+   "fid": "B-2",
+   "final_spec_of_this_audit": "",
+   "heading": "### B-2 (CRITICAL, blocking): WC-3 against D2(a), D4(a) and WC-9",
+   "body": "\nGrading check. An implementer who follows the stated text as written builds a worker that, when `/sc:implement` halts with `E-HALT-QA` (a gate that \"resolves as blocked\", `SPEC:109`), asks the coordinator and re-invokes the command \"with the answer as a flag\". This is wrong because the Ruling rule rejects \"another agent's message\" (INV-A:51 and INV-A:66, citing `refs/qa.md:238`; UNVERIFIED at source). The spec's own D2(a) and AC-4.1 require the worker to end `failed`. That is a safety-boundary risk, because the rule exists to stop an agent approving its own work (`SPEC:236`).\n\nEvidence:\n- `SPEC:61` (WC-3): \"When a gate would resolve as blocked and the worker session holds a preamble, the session may instead ask the coordinator once ... then re-invoke or resume the command with the answer as a flag\".\n- `SPEC:234` (D2(a), recommended): \"The worker stops, writes the halt to its ledger and contract, and ends `failed`.\" `SPEC:208` (AC-4.1) tests exactly that.\n- `SPEC:67` (WC-9): outward defaults turn on \"only through the command's own explicit flag written in the brief\". `SPEC:245` (D4(a)): only when \"the user's own instruction to the coordinator names that action\".\n- WC-3 is generic and has no carve-out for the Ruling, for outward-action flags, or for any gate whose answer must come from a person.\n\nConcrete state trace. Before: `implement` halted, ledger records `E-HALT-QA`, contract `status: blocked`. Worker `ask`s, the coordinator replies \"approved\", the worker re-invokes with the reply. After: a Ruling recorded from an agent's message, against `qa.md:238`. The same path would let a coordinator reply switch on a post-release install flag that no user instruction named (`SPEC:113`).\n\nRecommendation: restrict WC-3 so that the answer may supply only values no safety rule or outward-action rule reserves, and name `implement`'s Ruling and every WC-9 flag as excluded.\n"
+  },
+  {
+   "gid": 418,
+   "kind": "first",
+   "arm": "ab4h",
+   "run": "d4h-r2",
+   "step": "r1a",
+   "fid": "F6",
+   "final_spec_of_this_audit": "",
+   "heading": "### F6. WC-3 lets a coordinator's answer become the implement Ruling. BLOCKING. CRITICAL (safety boundary).",
+   "body": "- Expert: Fowler (lead), Nygard, Whittaker (sequence attack, see the adversarial section).\n- Issue: WC-3 says that when a gate \"would resolve as blocked\", the session \"may instead ask the coordinator once ... wait, then re-invoke or resume the command with the answer as a flag\" (`spec:61`). The `implement` halt at `E-HALT-QA` or `E-NO-RULING` is a blocked gate (`spec:109`). D2 option (a) keeps the rule that the person rules, and says the worker ends `failed` (`spec:234-236`). Option (b), a relayed Ruling, is described as one that \"weakens a deliberate safety rule\" (`spec:235`). The rule that \"another agent's message ... [is] not acceptance\" is quoted at `INV-A:66`, and `INV-A:66` says an Orca coordinator is \"another agent\".\n- Grading check: An implementer who follows WC-3 as written lets the coordinator's answer to the worker's `ask` be passed back to `/sc:implement` as its Ruling, and that is wrong because `INV-A:66` quotes the rule that another agent's message is not acceptance. WC-3 thereby adopts D2(b) before the user decides it.\n- Recommendation: In WC-3 (`spec:61`) and in the implement row (`spec:109`), exclude gates that are safety rules, and in particular the implement Ruling, until D2 is answered. State that a re-invocation's answer can never serve as a Ruling.\n- Priority: High.\n"
+  },
+  {
+   "gid": 436,
+   "kind": "first",
+   "arm": "ab4h",
+   "run": "d4h-r3",
+   "step": "r1a",
+   "fid": "B1",
+   "final_spec_of_this_audit": "",
+   "heading": "### B1. WC-3 lets a coordinator's reply stand in for a gate answer, which reopens the /sc:implement Ruling rule",
+   "body": "\n- Severity (panel): MAJOR, graded blocking under Review Loop bullet 2, because it names a safety-boundary risk.\n- Location: `spec:61` (WC-3), `spec:109` (implement row), `spec:218` (non-goal 6), `spec:233-236` (D2).\n- Grading sentence: an implementer who follows WC-3 as written, at an implement halt, asks the coordinator with `ask`, then re-invokes or resumes `/sc:implement` \"with the answer as a flag\". The coordinator's reply then serves as the Ruling. That is another agent's message, which `refs/qa.md:238` says is not acceptance (quoted in `INV-A:66`). The spec itself keeps this rule (`spec:109`, `spec:218`) and recommends D2(a) (`spec:236`).\n- Also: WC-3 names an answer flag but no command defines one. The implement row (`spec:109`) gives none. So the path has no interface, and an implementer would invent one.\n- Fix direction: exclude the implement Ruling from WC-3, and state that a coordinator reply is never a Ruling.\n"
+  },
+  {
+   "gid": 470,
+   "kind": "first",
+   "arm": "haiku-base",
+   "run": "a3-r2",
+   "step": "r1",
+   "fid": "F-01",
+   "final_spec_of_this_audit": "",
+   "heading": "**F-01. WC-3 lets a coordinator's answer become an implement Ruling (safety boundary).**",
+   "body": "An implementer who follows WC-3 as written can have a worker ask the coordinator about a gate that would otherwise be blocked, then re-invoke `/sc:implement` with the answer as a flag. The implement row (line 109) then treats that answer as the Ruling. This is wrong because `sk/sc-implement-protocol/refs/qa.md:238` says \"another agent's message ... [is] not acceptance\" (quoted at INV-A:66), and the spec says the Ruling rule is unchanged unless the user chooses D2(b) (lines 218 and 234-236). D2(a) is the recommendation, so WC-3 silently reopens a decision the spec leaves to the user.\nFix: exempt the implement Ruling gate from WC-3, or state that the relay is allowed only under D2(b).\n"
+  },
+  {
+   "gid": 98,
+   "kind": "first",
+   "arm": "ab1h",
+   "run": "b1h-r2",
+   "step": "r1b",
+   "fid": "B1",
+   "final_spec_of_this_audit": "",
+   "heading": "### B1. CRITICAL. WC-3 lets a coordinator answer add a flag; WC-9 says only the brief can turn on an outward action",
+   "body": "\n- **Issue.** WC-3 says that after an ask the command is re-invoked \"with the answer as a flag\" (`spec:61`). WC-9 says an outward action \"turns on only through the command's own explicit flag written in the brief\" (`spec:67`). D4 says the coordinator may authorize outward actions only with the user's own instruction quoted in the brief (`spec:245-247`). The first two texts allow a flag that is not in the brief. The third forbids it.\n- **Grading sentence.** An implementer who follows WC-3 on the post-release gate (`spec:113`, blocked on outward confirmations) re-invokes the command with an ask reply supplied as the push flag, and the outward push runs although no such flag is in the brief, which WC-9 (`spec:67`) forbids.\n- **Expert.** Wiegers (contradictory requirements). Whittaker, FR-2.3 Sentinel Collision: a reply carries a value that an outward gate reads as authorization.\n- **Recommendation.** Limit WC-3 answers to gate values that are not outward. Any outward flag comes only from the brief, as D4 says. Put that rule in WC-3 and WC-9 with the same wording.\n- **Priority.** High. **Quality impact.** High: a safety-boundary risk.\n"
+  },
+  {
+   "gid": 251,
+   "kind": "audit",
+   "arm": "pn1",
+   "run": "b1-r1",
+   "step": "aud2",
+   "fid": "F2",
+   "final_spec_of_this_audit": "p13/ab1/runs/b1-r1/aud2/ws/.dev/orca-command-refactor/review/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "heading": "### F2 (blocking, MAJOR, Nygard + Newman): WC-3's answer path leaves the Task DAG stuck",
+   "body": "- Stated texts. WC-3 (spec:61): a blocked worker ends `failed`, and \"the coordinator answers by starting a new Task whose brief carries the answer\". Section 4 and spec:136 tell the coordinator to build the work as a Task DAG with `task-create --deps`. The spec's own cited Orca facts say a failed Task keeps its dependents blocked until a `--retry-of` replacement completes it (`CAPS:90`; `[G:recovery]` 142-144), and a Task that cannot start returns `task_not_startable` (`CAPS:88`). WC-6 (spec:64) uses `--retry-of` for retries, but WC-3 does not.\n- Sentence. An implementer who follows WC-3 as written builds a coordinator that answers every blocked worker with a new, unrelated Task, and that is wrong because the original Task stays `failed`, so every Task that depends on it never becomes ready (`CAPS:88, 90`).\n- Evidence: spec:61, 64, 136; `CAPS:80, 88, 90, 116`.\n- Recommendation: change WC-3 to \"starts a replacement worker with `worker-start --task <the blocked task> --retry-of <dispatch_id>` whose brief carries the answer\", keeping WC-6's new-output-path rule, and say that a replacement for a Task with dependents must use `--retry-of`. Priority High. Quality impact: Consistency, Completeness.\n\nFindings F1 and F2 are the only blocking findings. Everything below is Medium or minor and never fails the review (command.md:259).\n\n=== ARCHITECTURE ANALYSIS ===\n\nNo blocking architectural defect. The decision (Orca on top, commands as units) is supported by `CAPS:97-103, 155-161`, and the rejected alternative (section 1.3 R1-R5) is cited line by line. Fowler's single-responsibility check passes: the shared rules sit in one core file (spec:52, 264), and each command lists only its own gate resolutions. Hohpe: the message pattern is clean (one `worker_done`, a report path as a pointer, `CAPS:79`; the coordinator opens the file, spec:73). The Medium points follow.\n"
+  }
+ ]
+}

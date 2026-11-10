@@ -1,0 +1,1189 @@
+{
+ "defects": [
+  {
+   "title": "P1 gate AC-1.1 (and P1 scope) covers all 37 section 3.1-3.2 commands, including P2-P4 commands and pr-submit under D3(a)",
+   "severity": "blocking",
+   "spec_lines": [
+    154,
+    159,
+    160,
+    161,
+    162,
+    195,
+    225,
+    240
+   ],
+   "quote": "the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`, and that no section-4 command has one",
+   "what_goes_wrong": "AC-1.1 is a P1 check over every 3.1-3.2 command and the P1 scope says the flag is accepted by every such command, while the P1 Commands cell edits about 13 commands, the rows assign gate work to P2-P4, P4 waits on D2-D4, and recommended D3(a) gives pr-submit no change. Since a later phase cannot start until the earlier phase's checks pass (line 154), P1 either fails its own gate or must write sections for P2-P4 commands (including undecided P4 ones) early.",
+   "is_fixed_when": "The set of commands AC-1.1 (and the P1 scope sentence) asserts in P1 equals the set P1 actually edits; each later phase's checks assert the section for that phase's own commands; no P4 command (and no pr-submit section unless D3(b)) is asserted before its decision.",
+   "deletion_ok": true,
+   "deletion_note": "Narrowing the P1 scope and AC-1.1 to the P1 command list (with later phases asserting their own commands) is a proper fix; deleting AC-1.1 altogether is not, since P1 then has no static check of the section.",
+   "sources": [
+    "c00-d1",
+    "c01-d2",
+    "c02-d2",
+    "c03-d2",
+    "c16-d1",
+    "c19-d1",
+    "c18-d3"
+   ],
+   "id": "D01",
+   "support": 61
+  },
+  {
+   "title": "P1 makes --unattended accepted on gated/outward commands before their gates and WC-9 switch-offs land (unsafe interim)",
+   "severity": "blocking",
+   "spec_lines": [
+    60,
+    67,
+    73,
+    100,
+    121,
+    154,
+    159,
+    160,
+    162
+   ],
+   "quote": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "what_goes_wrong": "After P1 (declared independently useful) gated commands such as auggie-review, cleanup, task, cli-eval, implement, post-release and pr-submit accept --unattended while their prompts and outward defaults stay live until P2-P4. A coordinator following section 2.3 passes the flag and gets a silent stall or an unauthorised GitHub post (auggie-review posting is turned off only in P2), violating WC-2/WC-9; the 'no-op where no gate' parenthesis says nothing about gated commands, and no P1 check catches it.",
+   "is_fixed_when": "No phase leaves a command accepting --unattended while any of its WC-2 gates or WC-9 outward defaults is unconverted: either a command gains the flag only in the phase that converts all its gates, or an unconverted command given --unattended fails closed (e.g. writes status: blocked and stops); section 2.3 tells the coordinator to pass the flag only to converted commands.",
+   "deletion_ok": false,
+   "deletion_note": "Deleting WC-2/WC-9 or the gated commands removes the safety requirement rather than meeting it; only removing the universal-acceptance clause together with a per-phase or fail-closed rule counts.",
+   "sources": [
+    "c00-d2",
+    "c01-d2",
+    "c03-d4",
+    "c11-d1",
+    "c18-d3",
+    "c19-d2",
+    "c16-d1"
+   ],
+   "severity_note": "Sources rate blocking (most) and medium (c03-d4); blocking kept because the outcome is an unauthorised outward action.",
+   "id": "D02",
+   "support": 52
+  },
+  {
+   "title": "/sc:load: AC-1.1 and AC-1.2 require a return-contract section and a live contract run that its row and the Decisions table reject",
+   "severity": "blocking",
+   "spec_lines": [
+    112,
+    159,
+    183,
+    195,
+    196,
+    265
+   ],
+   "quote": "none: use it as a step inside another worker's brief, not as its own Task",
+   "what_goes_wrong": "load is a 3.2 row in the P1 Commands cell whose row gives it no report and only a usage-line fix, and the Decisions table calls a report file 'an unrequested addition'; yet AC-1.1 requires its section to name return-contract.yaml and AC-1.2 runs a 7.2 check (worker_done, test -s <contract>) on each P1 command. A correct load fails P1, or the implementer adds the contract the spec rejects.",
+   "is_fixed_when": "One consistent treatment of /sc:load across its row, the Decisions row, WC-4, the P1 scope, AC-1.1 and AC-1.2: either load is explicitly excluded from the section/contract/live-check populations (keeping only its usage-line fix), or it is given a contract and the Decisions row is reversed.",
+   "deletion_ok": true,
+   "deletion_note": "Explicitly excluding load from AC-1.1/AC-1.2 (or removing it from the P1 worker population while keeping the usage-line fix and consistent counts) is a proper fix; deleting AC-1.1/AC-1.2 is not.",
+   "sources": [
+    "c00-d3",
+    "c01-d1",
+    "c02-d1",
+    "c03-d1",
+    "c06-d1",
+    "c16-d4",
+    "c19-d1"
+   ],
+   "id": "D03",
+   "support": 62
+  },
+  {
+   "title": "brainstorm and init-lite: 'only changes are the small fixes' and 'every changed command' leave them unedited and in no phase, yet AC-1.1 requires their section",
+   "severity": "blocking",
+   "spec_lines": [
+    76,
+    79,
+    84,
+    87,
+    158,
+    159,
+    195
+   ],
+   "quote": "The only command changes are the small fixes in the last column.",
+   "what_goes_wrong": "Section 3.1 says ready commands change only by their small fix and line 76 gives the Unattended section only to 'every changed command'; brainstorm and init-lite have fix 'None' and appear in no phase's Commands cell. An implementer following the rows never edits them, so AC-1.1 (every 3.1-3.2 command has the section) fails, while line 159 says every 3.1 command accepts the flag.",
+   "is_fixed_when": "Line 76, line 79, the phase table and AC-1.1 name the same set of commands that gain --unattended and the section; brainstorm and init-lite are either assigned to a named phase that adds them (init-lite with a defined contract location) or explicitly excluded from AC-1.1 and from --unattended briefs, with their worker report stated.",
+   "deletion_ok": true,
+   "deletion_note": "Narrowing AC-1.1 to exclude the two by name is a fix only if the spec also states how they run as workers (no --unattended, existing report file); silently dropping them is not.",
+   "sources": [
+    "c00-d4",
+    "c02-d3",
+    "c03-d3",
+    "c04-x1",
+    "c07-x1"
+   ],
+   "severity_note": "Sources split blocking (c02-d3) and medium (c00-d4, c03-d3, c04-x1, c07-x1); blocking because AC-1.1 cannot pass as written.",
+   "id": "D04",
+   "support": 11
+  },
+  {
+   "title": "P1 Commands cell omits 3.1 commands (tdd, troubleshoot, release-split, reflect, init-lite, brainstorm) whose contract P1 scope and line 79 assign to P1",
+   "severity": "minor",
+   "spec_lines": [
+    79,
+    89,
+    90,
+    91,
+    159,
+    160
+   ],
+   "quote": "the worker reports the named file until Phase 1 adds the contract",
+   "what_goes_wrong": "Line 79 and the P1 scope say Phase 1 adds the WC-4 contract to the 3.1 commands, but the P1 Commands cell names only analyze..load plus fixes to adversarial, cleanup-audit, index-repo and workflow, and the P2 rows for tdd, troubleshoot, release-split and reflect list only gate changes. A reader following the Commands cell ships them without a contract and AC-2.3's step 4 fails.",
+   "is_fixed_when": "Every 3.1 command's contract work is assigned to a named phase in its row or in the phase Commands cell, consistent with line 79 and the P1 scope (e.g. the P1 cell says 'contract for all of 3.1 and 3.2'), or an explicit WC-4 exemption states its alternative report.",
+   "deletion_ok": true,
+   "deletion_note": "Rewording the P1 cell to cover the scope consistently is a fix; deleting line 79 or the P1 scope sentence leaves WC-4 with no owner.",
+   "sources": [
+    "c08-d5",
+    "c12-x1"
+   ],
+   "severity_note": "c08-d5 rated medium; c12-x1 minor; c12-d6 judged the claim a false positive because the P1 scope sentence and AC-1.1 do cover these commands. Rated minor: the cell is the only inconsistent text.",
+   "id": "D05",
+   "support": 4
+  },
+  {
+   "title": "WC-4 contract path is undefined when --output names a file (tdd, init-lite, spec-panel; AC-2.2 tdd example)",
+   "severity": "blocking",
+   "spec_lines": [
+    62,
+    73,
+    87,
+    90,
+    120,
+    183,
+    200
+   ],
+   "quote": "In unattended mode the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`).",
+   "what_goes_wrong": "tdd and init-lite briefs pass --output <file> (and the AC-2.2 example runs /sc:tdd ... --output <file>), so WC-4 yields <file>/return-contract.yaml, a path under a regular file that cannot be created ('Not a directory'); spec-panel's added --output has no stated type. 7.2 steps 3-4 and AC-2.2 have no contract to read.",
+   "is_fixed_when": "WC-4 (or each row) states the contract location for a file-valued output flag (e.g. a separate --report-dir, or a per-file sibling name), consistent with the tdd, init-lite and spec-panel rows, section 2.3 and the AC-2.2 example, and the rule does not make two parallel workers share one contract file (WC-11).",
+   "deletion_ok": false,
+   "deletion_note": "Dropping the file-valued commands, the AC-2.2 example or the 'known before dispatch' rule hides the gap.",
+   "sources": [
+    "c04-d1",
+    "c05-d1",
+    "c06-d2",
+    "c07-d1",
+    "c08-d1",
+    "c12-d3"
+   ],
+   "id": "D06",
+   "support": 91
+  },
+  {
+   "title": "Adversarial contract path <output>/adversarial/return-contract.yaml contradicts WC-4's <output-dir>/return-contract.yaml",
+   "severity": "blocking",
+   "spec_lines": [
+    62,
+    76,
+    83,
+    182,
+    198
+   ],
+   "quote": "Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1)",
+   "what_goes_wrong": "The brief passes --output <dir>, WC-4 and the section 3 intro put the contract at <dir>/return-contract.yaml, but the adversarial row fixes it one level deeper, so the path the coordinator derives and the file the worker reports differ, and 7.2 step 3 ('its report path is the WC-4 contract path') fails for adversarial in AC-1.2.",
+   "is_fixed_when": "WC-4, the section 3 intro, the adversarial row and AC-1.4/7.2 step 3 name the same contract path for adversarial (either the row uses <output>/return-contract.yaml, or WC-4 lists the subpath as a named exception the coordinator uses).",
+   "deletion_ok": false,
+   "deletion_note": "Deleting the P1 filename fix leaves the filename unfixed, which the row itself calls a gap.",
+   "sources": [
+    "c01-x1",
+    "c03-x2",
+    "c04-d1",
+    "c05-d1",
+    "c07-d1",
+    "c08-d3",
+    "c10-x1"
+   ],
+   "severity_note": "Single-defect sources rate medium; bundled sources rate blocking. Blocking kept because AC-1.2's step 3 cannot pass for adversarial.",
+   "id": "D07",
+   "support": 72
+  },
+  {
+   "title": "Workflow contract path embeds a command-generated id (not known before dispatch) and has no location for pre-creation STOPs",
+   "severity": "blocking",
+   "spec_lines": [
+    62,
+    73,
+    92,
+    198
+   ],
+   "quote": "`.dev/tasks/to-do/<id>/return-contract.yaml`",
+   "what_goes_wrong": "WC-4 and section 2.3 require the contract at a coordinator-known <output-dir> before dispatch, but workflow takes no output-directory flag and writes under an <id> it generates; the P1 fix requires a contract on pre-creation STOPs, when no package directory exists, without naming where. 7.2 step 3 and AC-1.4 have no defined path for a P0/P1 smoke command.",
+   "is_fixed_when": "The workflow row (or WC-4) states a contract location the coordinator knows before dispatch (an output/id flag the brief passes, or an explicit rule that the coordinator reads the path from worker_done --report-path for workflow) and names where a pre-creation STOP writes its contract, with 7.2 step 3 and AC-1.4 accepting it.",
+   "deletion_ok": false,
+   "deletion_note": "Dropping the pre-creation-STOP requirement contradicts WC-4 'every outcome'; removing workflow from WC-4 without an alternative report path leaves AC-0.4/AC-1.4 undefined.",
+   "sources": [
+    "c03-d6",
+    "c04-d1",
+    "c05-d1",
+    "c06-x1",
+    "c07-d1",
+    "c08-d2",
+    "c10-x1",
+    "c19-d8",
+    "c01-d3"
+   ],
+   "id": "D08",
+   "support": 83
+  },
+  {
+   "title": "Ready commands with fixed or no output location (cleanup-audit, index-repo, troubleshoot) cannot take AC-1.2's --output <dir> or a known WC-4 path",
+   "severity": "blocking",
+   "spec_lines": [
+    62,
+    73,
+    85,
+    86,
+    91,
+    159,
+    196
+   ],
+   "quote": "| P1 | AC-1.2 | 7.2 live check on each P1 command with `--unattended --output <dir>` | all steps pass |",
+   "what_goes_wrong": "cleanup-audit (fixed .claude-audit/ dir, brief passes --pass <N>), index-repo (brief passes 'none', fix is only 'state the output location') and troubleshoot (no output flag) get no coordinator-passed directory, so AC-1.2's '--unattended --output <dir>' run and the WC-4 'known before dispatch' contract path cannot be met for the P1-fix commands.",
+   "is_fixed_when": "Each of cleanup-audit, index-repo and troubleshoot either gains a directory flag the brief passes and WC-4 uses, or has an explicitly stated contract path known before dispatch, and AC-1.2/AC-2.3 invoke each command only with flags it accepts.",
+   "deletion_ok": true,
+   "deletion_note": "Narrowing AC-1.2 to the commands that gain --output is a fix only if the excluded commands' report location is also stated; deleting AC-1.2 is not.",
+   "sources": [
+    "c01-d3",
+    "c03-d5",
+    "c04-d1",
+    "c06-d2",
+    "c07-d1",
+    "c08-d4"
+   ],
+   "id": "D09",
+   "support": 71
+  },
+  {
+   "title": "Section 3.2 rows that add a 'contract' without an output flag or location (cli-eval, cli-portify, research, recommend, review-translation, save, task, implement)",
+   "severity": "blocking",
+   "spec_lines": [
+    62,
+    73,
+    104,
+    105,
+    109,
+    115,
+    116,
+    117,
+    119,
+    121,
+    200
+   ],
+   "quote": "contract for both pipelines (today a chat table)",
+   "what_goes_wrong": "Many 3.2 rows say only 'contract' (cli-eval, recommend, task), name a generated path (research's claudedocs/research_*.md, implement beside a slug ledger, cli-eval run-id dir) or leave the file location unnamed (cli-portify), and add no flag that sets the contract directory. The brief cannot state the WC-4 path, AC-2.2's '/sc:cli-eval run --unattended' with no --suite has no contract to open, and 7.2 step 3 cannot be met as written.",
+   "is_fixed_when": "Every section 3 row that writes a contract either adds an output flag/directory or names a fixed default contract location known before dispatch (including when blocking happens before arguments are parsed), or WC-4/2.3/7.2 explicitly let the worker report a generated path for that named command; AC-2.2/AC-2.3 invoke each command with flags it accepts.",
+   "deletion_ok": false,
+   "deletion_note": "Removing commands from worker scope or deleting their contract drops the coordinator's only report channel.",
+   "sources": [
+    "c04-d1",
+    "c05-d2",
+    "c07-d1",
+    "c12-d4",
+    "c08-d2"
+   ],
+   "severity_note": "c12-d4 rated medium; c05-d2 and bundled sources blocking.",
+   "id": "D10",
+   "support": 58
+  },
+  {
+   "title": "AC-0.4 requires 7.2 step 3 (contract path and contract status) in P0, before any WC-4 contract exists",
+   "severity": "blocking",
+   "spec_lines": [
+    79,
+    154,
+    158,
+    182,
+    194
+   ],
+   "quote": "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1",
+   "what_goes_wrong": "AC-0.4 relaxes only step 4, but step 3 requires that '--outcome matches the contract's status under WC-5; its report path is the WC-4 contract path'. P0 makes no command edits, so troubleshoot reports REPORT.md, workflow writes under .dev/tasks/to-do/<id>/ and adversarial's filename is not fixed; P0 cannot pass, and by line 154 no later phase can start.",
+   "is_fixed_when": "AC-0.4 (or step 3) states a P0 form of step 3 the unedited commands can meet (report path = the command's existing report file; outcome judged against that report's own status), with the WC-4 path/status clauses applying only from the phase that adds the contract.",
+   "deletion_ok": false,
+   "deletion_note": "Deleting AC-0.4 or step 3 removes the only live test of the section 1 decision (gap 1.4(1)); only rewording for P0 counts.",
+   "sources": [
+    "c00-x1",
+    "c02-x1",
+    "c03-x1",
+    "c04-d2",
+    "c05-d3",
+    "c08-d6",
+    "c09-d1",
+    "c10-d1",
+    "c16-d2",
+    "c17-d2"
+   ],
+   "id": "D11",
+   "support": 54
+  },
+  {
+   "title": "AC-0.4 step 4 runs a YAML status/command assertion on the existing (markdown) report file",
+   "severity": "blocking",
+   "spec_lines": [
+    183,
+    194
+   ],
+   "quote": "assert d['status'] in {'succeeded','partial','failed','blocked'}; assert d['command']",
+   "what_goes_wrong": "AC-0.4 points step 4 at the command's existing report file, but step 4 is yaml.safe_load plus status/command key assertions; troubleshoot's REPORT.md is markdown (parse error or KeyError) and workflow's existing contract has status, plan_path, reflect_report_path but no command key, so step 4 fails on a correct P0 run.",
+   "is_fixed_when": "For P0 runs step 4 is a check the existing report files can pass (e.g. test -s for markdown reports) or is explicitly dropped for P0, with the YAML status/command assertion kept for runs that write the WC-4 contract.",
+   "deletion_ok": true,
+   "deletion_note": "Dropping step 4 for P0 only, stated explicitly, is a proper fix; deleting step 4 for all phases is not.",
+   "sources": [
+    "c05-d3",
+    "c09-d2",
+    "c10-d2"
+   ],
+   "id": "D12",
+   "support": 12
+  },
+  {
+   "title": "Section 2.3 briefs require --unattended, but P0 commands do not have the flag yet and AC-0.4's command lines omit it",
+   "severity": "medium",
+   "spec_lines": [
+    73,
+    158,
+    159,
+    180,
+    194
+   ],
+   "quote": "the exact command line including `--unattended` and every flag section 3 lists as required",
+   "what_goes_wrong": "7.2 step 1 builds the brief 'per section 2.3', which requires --unattended, while the flag arrives only in P1 and AC-0.4's command lines and the 3.1 brief columns omit it; the P0 smoke run either passes an unimplemented flag or silently departs from 2.3.",
+   "is_fixed_when": "The spec states one rule for briefs before the flag exists (e.g. 2.3 requires --unattended only from the phase that adds it; P0 briefs omit it), and 7.2 step 1 and AC-0.4 agree.",
+   "deletion_ok": false,
+   "deletion_note": "Deleting the --unattended requirement from 2.3 removes the selector for P1+; only a P0 carve-out counts.",
+   "sources": [
+    "c09-d3",
+    "c10-d3",
+    "c00-x1"
+   ],
+   "id": "D13",
+   "support": 7
+  },
+  {
+   "title": "AC-0.4's 'no Agent-tool wrapper' condition has no check: step 5 only searches for AskUserQuestion",
+   "severity": "medium",
+   "spec_lines": [
+    65,
+    184,
+    194
+   ],
+   "quote": "each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript)",
+   "what_goes_wrong": "Step 5's only pass condition is 'no AskUserQuestion call', so the direct-route requirement (WC-7, the point of gap 1.4(1)) has no defined test or pass condition.",
+   "is_fixed_when": "Step 5 or AC-0.4 states a concrete transcript test for the direct route (e.g. no Agent/Task tool call whose prompt runs the /sc: command) and its pass condition.",
+   "deletion_ok": false,
+   "deletion_note": "Removing the direct-run requirement drops what gap 1.4(1) says P0 must prove.",
+   "sources": [
+    "c09-d6",
+    "c10-x2",
+    "c17-x1"
+   ],
+   "severity_note": "c17-x1 rated minor; others medium.",
+   "id": "D14",
+   "support": 2
+  },
+  {
+   "title": "7.2 step 3's single 15-minute check --wait defeats step 2's worker-show at least every 5 minutes",
+   "severity": "medium",
+   "spec_lines": [
+    181,
+    182
+   ],
+   "quote": "`ORCA orchestration check --wait --types \"worker_done,escalation,question\" --timeout-ms 900000 --json` until `worker_done` arrives",
+   "what_goes_wrong": "Run in order, step 3 blocks one call for up to 900 s, so the coordinator cannot run worker-show 'at least once per 5 minutes' and can miss a non-null agentWait; concurrency is not stated.",
+   "is_fixed_when": "Step 3 uses waits no longer than the step 2 cadence interleaved with worker-show (or the text says steps 2 and 3 run concurrently).",
+   "deletion_ok": false,
+   "deletion_note": "Deleting the cadence removes the only stall detection.",
+   "sources": [
+    "c09-d4",
+    "c16-d5",
+    "c19-d12"
+   ],
+   "id": "D15",
+   "support": 3
+  },
+  {
+   "title": "7.2 step 2 passes when agentWait is absent (Orca never looked)",
+   "severity": "medium",
+   "spec_lines": [
+    181
+   ],
+   "quote": "**Pass:** `observation.agentWait` is never non-null",
+   "what_goes_wrong": "CAPS:129 says an absent agentWait means Orca never looked, but 'never non-null' is satisfied by absence, so a stalled worker can pass step 2 without any observation.",
+   "is_fixed_when": "Step 2 requires at least one observation per interval with agentWait present and null.",
+   "deletion_ok": false,
+   "deletion_note": "Deleting step 2 removes the stall check.",
+   "sources": [
+    "c19-d12"
+   ],
+   "id": "D16",
+   "support": 1
+  },
+  {
+   "title": "7.2 step 6 git-status check has no pre-dispatch baseline, so the phase's own uncommitted edits fail it",
+   "severity": "medium",
+   "spec_lines": [
+    158,
+    180,
+    185
+   ],
+   "quote": "`git status --short`. **Pass:** only files under the brief's output directory (and the command's documented artifacts) appear.",
+   "what_goes_wrong": "Workers start with --worktree current, so uncommitted phase edits (P0's WORKER-CONTRACT.md, HOW-WE-WORK copies, test file) show in git status and fail step 6; no step requires a clean tree or a before-dispatch snapshot.",
+   "is_fixed_when": "Step 6 compares against a snapshot taken before dispatch, or the spec requires a clean committed tree before step 1.",
+   "deletion_ok": false,
+   "deletion_note": "Deleting step 6 removes the stray-write check (WC-11).",
+   "sources": [
+    "c09-d5"
+   ],
+   "id": "D17",
+   "support": 1
+  },
+  {
+   "title": "7.2 step 6 fails for edit-in-place commands; 'documented artifacts' is undefined",
+   "severity": "medium",
+   "spec_lines": [
+    103,
+    105,
+    107,
+    110,
+    121,
+    185,
+    201
+   ],
+   "quote": "only files under the brief's output directory (and the command's documented artifacts) appear",
+   "what_goes_wrong": "AC-2.3 applies 7.2 to every P2 happy path, but cleanup, improve, task, document and cli-portify edit or write product files outside the output directory, and 'documented artifacts' is not defined to include applied edits, so step 6 fails a correct run.",
+   "is_fixed_when": "Step 6 defines what may appear for edit-in-place commands (e.g. exactly the files the contract lists under artifacts or that the brief authorises).",
+   "deletion_ok": false,
+   "deletion_note": "Deleting step 6 removes the unauthorised-change check.",
+   "sources": [
+    "c12-d5"
+   ],
+   "id": "D18",
+   "support": 2
+  },
+  {
+   "title": "7.2 step 5 plain-text search for AskUserQuestion matches mentions, not calls",
+   "severity": "medium",
+   "spec_lines": [
+    60,
+    184
+   ],
+   "quote": "search the transcript for `AskUserQuestion`. **Pass:** no `AskUserQuestion` call.",
+   "what_goes_wrong": "A string search also hits the worker reading WORKER-CONTRACT.md (WC-2 quotes AskUserQuestion) or skill files that mention it, so a literal grep fails conforming workers and the method does not define how a call is distinguished.",
+   "is_fixed_when": "Step 5 restricts the search to tool-call entries whose tool name is AskUserQuestion (or an equivalent structured filter).",
+   "deletion_ok": false,
+   "deletion_note": "Deleting step 5 removes the only direct WC-2 evidence.",
+   "sources": [
+    "c11-d3"
+   ],
+   "id": "D19",
+   "support": 1
+  },
+  {
+   "title": "AC-C5 and AC-0.3 additive-edit grep '^-[^-]' misses deleted '- bullet' and '---' lines",
+   "severity": "blocking",
+   "spec_lines": [
+    149,
+    150,
+    176,
+    193
+   ],
+   "quote": "git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md \\| grep -E '^-[^-]'",
+   "what_goes_wrong": "A removed markdown bullet '- x' appears in the diff as '-- x' and a removed '---' as '----', which '^-[^-]' skips, so the gate prints nothing and passes while existing lines are deleted; SA-1/SA-4/SA-5 are left unenforced (reproduced in a scratch repo by sources).",
+   "is_fixed_when": "AC-C5 and AC-0.3 flag every deleted content line except the '--- a/<file>' header (e.g. grep -E '^-' | grep -vE '^--- ', or git diff --numstat deletions = 0), so a removed bullet or '---' makes the check print output.",
+   "deletion_ok": false,
+   "deletion_note": "Deleting the checks leaves SA-4/SA-5 without a mechanical gate.",
+   "sources": [
+    "c13-d1",
+    "c14-d2",
+    "c16-d3"
+   ],
+   "severity_note": "Sources all say blocking; it is a false-pass gate (unsafe acceptance) rather than an unpassable one.",
+   "id": "D20",
+   "support": 17
+  },
+  {
+   "title": "AC-C1 (and other piped checks) written with table-escaped \\| : copied raw, the alternation and pipe are literal and the gate passes vacuously",
+   "severity": "medium",
+   "spec_lines": [
+    172,
+    175,
+    176,
+    193
+   ],
+   "quote": "grep -rnE '\\borca(-ide)?[[:space:]]+(orchestration\\|worktree\\|terminal\\|agent)\\b'",
+   "what_goes_wrong": "Inside the markdown table the commands use '\\|' for both regex alternation and shell pipes. An agent or person copying from the raw .md gets an ERE with literal bars that never matches a real 'orca orchestration ...' line and a non-pipe '\\| grep -v', so AC-C1 (SA-2/WC-8 gate) passes vacuously; the same form recurs in AC-C4, AC-C5, AC-0.3.",
+   "is_fixed_when": "The executable checks are given in a form that works when copied from the raw file (e.g. a fenced block with real | ), shown to match a planted 'orca orchestration ...' line.",
+   "deletion_ok": false,
+   "deletion_note": "Deleting AC-C1 removes the only SA-2/WC-8 gate.",
+   "sources": [
+    "c14-d1",
+    "c19-d7"
+   ],
+   "severity_note": "c14-d1 rated blocking; c13-d2 (rejected) judged it not a defect because '\\|' is the standard GFM cell escape and the rendered table is correct. Rated medium: real for raw-text readers (agents), harmless when rendered.",
+   "id": "D21",
+   "support": 11
+  },
+  {
+   "title": "AC-C1 scans src/superclaude/core, where SA-2 allows an Orca example in WORKER-CONTRACT.md and P0 adds an Orca section to HOW-WE-WORK.md",
+   "severity": "blocking",
+   "spec_lines": [
+    52,
+    147,
+    150,
+    158,
+    172
+   ],
+   "quote": "The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file.",
+   "what_goes_wrong": "AC-C1 must print nothing over src/superclaude/core (exempting only ccsession-tag) in every phase, but SA-2 permits an Orca question-channel example (naturally 'orca orchestration ask') in core/WORKER-CONTRACT.md and P0 adds an Orca section to core/HOW-WE-WORK.md, so permitted content fails the common check; SA-2 also calls the contract file a 'changed command'.",
+   "is_fixed_when": "AC-C1's scope matches SA-2 (commands/skills/agents only) or it exempts WORKER-CONTRACT.md and the HOW-WE-WORK Orca section by path, or SA-2 and P0 forbid literal 'orca <subcommand>' text in core files; SA-2 states whether core files are covered.",
+   "deletion_ok": true,
+   "deletion_note": "Dropping core from the scan is a fix only if SA-2's scope is restated to match; removing AC-C1 is not.",
+   "sources": [
+    "c13-d3",
+    "c14-d3",
+    "c16-x1",
+    "c19-d7"
+   ],
+   "severity_note": "c13-d3 and c16-x1 rated medium; c14-d3 and c19-d7 blocking.",
+   "id": "D22",
+   "support": 12
+  },
+  {
+   "title": "AC-C1 checks only four orca subcommands while SA-2 bans any orca/orca-ide command",
+   "severity": "medium",
+   "spec_lines": [
+    147,
+    172
+   ],
+   "quote": "No command, skill or agent file runs an `orca` or `orca-ide` command",
+   "what_goes_wrong": "The AC-C1 pattern covers only orchestration, worktree, terminal and agent, so a file running 'orca status', 'orca open' or 'orca-ide skills get ...' violates SA-2 yet passes.",
+   "is_fixed_when": "AC-C1 matches any orca/orca-ide invocation, or SA-2 is narrowed to the four verbs and says so.",
+   "deletion_ok": true,
+   "deletion_note": "Narrowing SA-2 to the checked verbs consistently is acceptable only if the standalone-use rationale still holds; deleting SA-2 or the check is not.",
+   "sources": [
+    "c14-d4"
+   ],
+   "id": "D23",
+   "support": 1
+  },
+  {
+   "title": "WC-3 relay lets a coordinator's ask reply supply the /sc:implement Ruling or other person-only approvals, pre-empting D2",
+   "severity": "blocking",
+   "spec_lines": [
+    61,
+    105,
+    109,
+    121,
+    208,
+    218,
+    232,
+    233,
+    234,
+    235,
+    236
+   ],
+   "quote": "the session may instead ask the coordinator once with the preamble's `ask` command, wait, then re-invoke or resume the command with the answer as a flag",
+   "what_goes_wrong": "WC-3 has no exception, so a worker blocked at an implement E-HALT-QA/E-NO-RULING, a cli-portify approval gate or task's low-confidence confirmation may ask the coordinator and re-run with its reply, recording a Ruling/approval from another agent, which the implement row, Non-goal 6, D2(a) and AC-4.1 forbid. WC-3 is a P0 contract rule, so it adopts D2(b) before the user decides.",
+   "is_fixed_when": "The spec states that an ask reply is never used as the implement Ruling or any approval the source rule reserves for the person (unless the user chose D2(b), with the person's words quoted verbatim), so such gates end blocked/failed by default, and WC-3, the implement row, D2 and AC-4.1 agree.",
+   "deletion_ok": true,
+   "deletion_note": "Removing WC-3's re-invoke-with-answer path (answers only via a new or retry dispatch whose brief the user controls) also fixes it.",
+   "sources": [
+    "c15-d1"
+   ],
+   "id": "D24",
+   "support": 14
+  },
+  {
+   "title": "WC-3 answer-as-flag can turn on an outward action that the brief never authorised (WC-9, D4)",
+   "severity": "blocking",
+   "spec_lines": [
+    61,
+    67,
+    113,
+    244,
+    245,
+    246
+   ],
+   "quote": "It turns on only through the command's own explicit flag written in the brief",
+   "what_goes_wrong": "WC-3 lets the worker re-invoke a command with a coordinator reply as a flag after dispatch, so 'yes, post/push' becomes --post-pr, a push or a post-release install flag that was never in the brief nor traced to the user's instruction, contradicting WC-9 and D4(a).",
+   "is_fixed_when": "WC-3 (or WC-9) states that an ask answer never supplies a WC-9 outward-action flag; outward flags come only from the brief, with the user's instruction quoted per D4(a).",
+   "deletion_ok": true,
+   "deletion_note": "Deleting the WC-3 answer-as-flag re-invocation fixes it; deleting WC-9 or D4 does not.",
+   "sources": [
+    "c15-d2"
+   ],
+   "id": "D25",
+   "support": 2
+  },
+  {
+   "title": "WC-3 optional ask path makes the 7.2 live check and AC-2.2/AC-4.1 non-deterministic; 7.2 has no handling for question or escalation",
+   "severity": "blocking",
+   "spec_lines": [
+    61,
+    182,
+    200,
+    208
+   ],
+   "quote": "When a gate would resolve as blocked and the worker session holds a preamble, the session may instead ask the coordinator once",
+   "what_goes_wrong": "WC-3 says a worker 'may' ask instead of stopping blocked, but 7.2 step 3 loops until worker_done with no branch for replying to a question or escalation, and AC-2.2/AC-4.1 require outcome failed with status blocked. A worker following WC-3 sits in ask (or, once answered, may end succeeded), so the gate-trigger run never ends or does not end blocked; nothing in the brief selects stop vs ask.",
+   "is_fixed_when": "Either 7.2 states how the coordinator handles a question or escalation and AC-2.2/AC-4.1 state which resolution the brief selects (or forbid ask in gate-trigger runs) so the expected outcome is deterministic, or WC-3 no longer lets a worker ask instead of stopping blocked.",
+   "deletion_ok": true,
+   "deletion_note": "Removing the ask-instead-of-block option makes every gate-trigger run end blocked as AC-2.2 expects.",
+   "sources": [
+    "c15-d3",
+    "c18-x1",
+    "c09-d4"
+   ],
+   "severity_note": "c18-x1 and c09-d4 rated medium; c15-d3 blocking.",
+   "id": "D26",
+   "support": 3
+  },
+  {
+   "title": "cli-portify's three approval gates only resolve as blocked, so AC-2.3's happy path can never end succeeded",
+   "severity": "blocking",
+   "spec_lines": [
+    60,
+    61,
+    63,
+    105,
+    160,
+    201
+   ],
+   "quote": "each of the three approval gates resolves as blocked with the artifact to review named in the contract",
+   "what_goes_wrong": "The cli-portify row names no flag or default that approves a gate and does not say a --resume passes the gate named in the contract, so every unattended run ends failed under WC-5, while AC-2.3 requires one succeeded happy-path run per P2 command.",
+   "is_fixed_when": "The cli-portify row names a caller-supplied approval input per gate (WC-2 route b, or resume semantics that pass the named gate), or AC-2.3 explicitly exempts cli-portify and states its expected unattended outcome / multi-run check, or cli-portify moves to coordinator-only with that stated.",
+   "deletion_ok": true,
+   "deletion_note": "An explicit AC-2.3 exemption or moving cli-portify to section 4 with reasons counts; silently removing it does not.",
+   "sources": [
+    "c11-d4",
+    "c12-d2",
+    "c15-d4"
+   ],
+   "id": "D27",
+   "support": 13
+  },
+  {
+   "title": "AC-2.2 demands a blocked contract from every P2 command, but several resolve their gate by a default or flag",
+   "severity": "blocking",
+   "spec_lines": [
+    60,
+    88,
+    100,
+    103,
+    110,
+    116,
+    122,
+    160,
+    200
+   ],
+   "quote": "Gate-trigger run per P2 command: a 7.2 live check with input that hits the gate",
+   "what_goes_wrong": "AC-2.2 requires worker_done --outcome failed and status: blocked for every P2 command, but auggie-review, cleanup, improve, research, reflect and tasklist resolve their gates by default or flag (WC-2 a/b), so no input makes them write blocked and AC-2.2 cannot pass for them.",
+   "is_fixed_when": "AC-2.2 states the expected outcome per P2 command or per resolution type, demanding failed/blocked only where the row resolves a gate as blocked, with a checkable pass condition for default-resolving commands.",
+   "deletion_ok": false,
+   "deletion_note": "Deleting AC-2.2 or the default-resolving rows drops the gate-conversion test.",
+   "sources": [
+    "c12-d1"
+   ],
+   "id": "D28",
+   "support": 11
+  },
+  {
+   "title": "WC-5 maps an empty, unparseable, status-less or out-of-vocabulary contract to --outcome succeeded",
+   "severity": "blocking",
+   "spec_lines": [
+    63,
+    183
+   ],
+   "quote": "`--outcome failed` when the report says `failed` or `blocked`, or no report exists; `--outcome succeeded` otherwise, including `partial`",
+   "what_goes_wrong": "A 0-byte, truncated or status-less return-contract.yaml (or a status outside the four values) matches neither failed trigger, so the worker sends succeeded and the coordinator settles a crashed run as success; the validity check is only in 7.2 step 4, after worker_done.",
+   "is_fixed_when": "WC-5 states that a missing, empty, unparseable, status-less or out-of-vocabulary report maps to failed, and succeeded only for a parsed succeeded or partial status.",
+   "deletion_ok": false,
+   "deletion_note": "Deleting the outcome mapping leaves the outcome undefined.",
+   "sources": [
+    "c17-d1"
+   ],
+   "severity_note": "Unsafe outcome (silent false success).",
+   "id": "D29",
+   "support": 8
+  },
+  {
+   "title": "WC-5 'the report says failed or blocked' is undefined for interim non-contract reports (REPORT.md, the TDD, PROJECT_INDEX.md)",
+   "severity": "medium",
+   "spec_lines": [
+    63,
+    79
+   ],
+   "quote": "`--outcome failed` when the report says `failed` or `blocked`, or no report exists",
+   "what_goes_wrong": "Until their contract phase, 3.1 commands report a named markdown file with no status field, so WC-5 gives no way to read 'says failed or blocked' and WC-4 defines the report as the contract.",
+   "is_fixed_when": "WC-5 names how outcome is derived when the reported file is a named non-contract file (per command, until the phase that adds its contract).",
+   "deletion_ok": false,
+   "deletion_note": "Removing 3.1's interim reporting leaves P0 smoke runs without a report.",
+   "sources": [
+    "c17-x2"
+   ],
+   "id": "D30",
+   "support": 0
+  },
+  {
+   "title": "cleanup-audit and index-repo keep fixed output paths, so two workers in one worktree collide (WC-11) with no coordinator serialization rule",
+   "severity": "blocking",
+   "spec_lines": [
+    69,
+    73,
+    85,
+    86,
+    159
+   ],
+   "quote": "Two workers in one worktree must never write the same file. Default output paths carry a timestamp or the slug the coordinator passes",
+   "what_goes_wrong": "Section 3.1 keeps cleanup-audit (fixed .claude-audit/ and progress.json, 'one audit per worktree at a time') and index-repo (fixed PROJECT_INDEX.md, brief passes none) as ready, so two such workers in the default shared worktree overwrite each other; neither section 2.3 nor any AC carries the serialization rule the cleanup-audit row cites.",
+   "is_fixed_when": "Either cleanup-audit and index-repo take a coordinator-passed per-run output path or slug required in their brief and a P1 change, or section 2.3/the brief template states a coordinator obligation not to run two such Tasks in one worktree (or to give each its own worktree), covered by a check.",
+   "deletion_ok": false,
+   "deletion_note": "Deleting WC-11 or relabelling the rows without a per-run path or serialization rule hides the clash.",
+   "sources": [
+    "c18-d1",
+    "c19-d14"
+   ],
+   "id": "D31",
+   "support": 16
+  },
+  {
+   "title": "init-lite's resume behaviour 'Re-run overwrites its marked report' is neither WC-6 option, so a retry destroys attempt 1",
+   "severity": "medium",
+   "spec_lines": [
+    64,
+    87
+   ],
+   "quote": "Re-run overwrites its marked report",
+   "what_goes_wrong": "WC-6 allows only resume-from-state or a fresh output directory per run; init-lite's row says re-run overwrites, so a --retry-of worker with the same brief replaces the first attempt's report.",
+   "is_fixed_when": "The init-lite row gives a per-attempt output path (e.g. the brief passes a unique --output) or a resume path, or WC-6 explicitly allows overwrite for idempotent reports with the coordinator rule stated.",
+   "deletion_ok": true,
+   "deletion_note": "Explicitly admitting overwrite as a WC-6 option with a stated reason is a consistent fix; deleting init-lite from scope is not.",
+   "sources": [
+    "c19-d14"
+   ],
+   "id": "D32",
+   "support": 4
+  },
+  {
+   "title": "WC-6 'fresh output directory' vs WC-4 coordinator-passed directory: no rule says a retry gets a new --output",
+   "severity": "medium",
+   "spec_lines": [
+    62,
+    64,
+    73,
+    205
+   ],
+   "quote": "or, if it has none, writes each run into a fresh output directory so a re-run starts clean",
+   "what_goes_wrong": "WC-6 makes the command pick a fresh directory per run while WC-4 puts the contract in the directory the coordinator passed, known before dispatch; section 2.3 never requires a distinct directory per dispatch, so a --retry-of brief reusing --output either overwrites attempt 1 (violating WC-6) or writes where the coordinator does not look (violating WC-4); AC-3.2 even requires a fresh start inside an existing dir.",
+   "is_fixed_when": "Section 2.3 or WC-6 states who makes the directory fresh per attempt (e.g. the coordinator passes a new --output on every dispatch including retries, or the command refuses a non-empty directory), WC-6's 'fresh directory' is defined as that passed directory, and AC-3.2 is consistent.",
+   "deletion_ok": false,
+   "deletion_note": "Deleting WC-6 lets retries corrupt the first attempt.",
+   "sources": [
+    "c04-d3",
+    "c08-d7",
+    "c19-d13"
+   ],
+   "id": "D33",
+   "support": 4
+  },
+  {
+   "title": "WC-11 (and WC-10) default-changing rules are not scoped to unattended mode, contradicting SA-1",
+   "severity": "medium",
+   "spec_lines": [
+    68,
+    69,
+    146,
+    148
+   ],
+   "quote": "Default output paths carry a timestamp or the slug the coordinator passes",
+   "what_goes_wrong": "WC-11's default-path clause (and WC-10's wait splitting) has no unattended scope, while SA-1 says that without --unattended every output path stays as today, so an implementer must guess whether standalone runs get timestamped default names.",
+   "is_fixed_when": "WC-11 and every WC rule that changes defaults states that it applies only under --unattended or to a coordinator-passed path (or section 2.2 carries one scope sentence cross-referencing SA-1).",
+   "deletion_ok": false,
+   "deletion_note": "Deleting WC-11 drops the parallel-safety requirement.",
+   "sources": [
+    "c18-d2"
+   ],
+   "id": "D34",
+   "support": 1
+  },
+  {
+   "title": "index row only asserts knowledge-base mode does not wait, while UNVERIFIED item 6 says section 3 refuses or pins it",
+   "severity": "medium",
+   "spec_lines": [
+    111,
+    277
+   ],
+   "quote": "state that knowledge-base mode does not wait (whether it does is UNVERIFIED)",
+   "what_goes_wrong": "Item 6 says section 3 refuses or pins index's knowledge-base mode under --unattended regardless, but the index row only adds a prose claim, so an implementer writes a sentence instead of a guard and, if the mode waits, the P1 worker stalls.",
+   "is_fixed_when": "The index row refuses or pins knowledge-base mode under --unattended (like business-panel and explain), or item 6 drops index and the spec states how the no-wait claim is verified before P1.",
+   "deletion_ok": true,
+   "deletion_note": "Dropping index from item 6 is a fix only if the row then says how the claim is verified.",
+   "sources": [
+    "c11-d2"
+   ],
+   "id": "D35",
+   "support": 1
+  },
+  {
+   "title": "'Ready today' tdd and troubleshoot can still prompt a person with the stated brief flags (troubleshoot is a P0 smoke target)",
+   "severity": "medium",
+   "spec_lines": [
+    79,
+    90,
+    91,
+    194
+   ],
+   "quote": "These run as workers now if the brief uses the stated flags",
+   "what_goes_wrong": "troubleshoot's brief forbids only --fix, so --depth deep with a short input hits the STOP that asks the user; tdd's brief does not prevent the nested /task 'ask the user' when several task files match. Both gates stay unconverted until P2 (and --unattended does not exist before P1), so a 'ready' worker can stall silently.",
+   "is_fixed_when": "Section 3.1 lists brief constraints that avoid these triggers (troubleshoot: no --depth deep or input of at least 10 words; tdd: input that cannot hit the nested /task multi-match prompt), or moves tdd and troubleshoot out of 'ready today' until P2.",
+   "deletion_ok": false,
+   "deletion_note": "Deleting the rows removes ready commands and a P0 smoke target.",
+   "sources": [
+    "c11-d5",
+    "c18-d5"
+   ],
+   "id": "D36",
+   "support": 2
+  },
+  {
+   "title": "Live-check ORCA commands carry no --from/--terminal, required when run outside an Orca terminal (which line 167 allows)",
+   "severity": "medium",
+   "spec_lines": [
+    167,
+    180,
+    181,
+    182,
+    186
+   ],
+   "quote": "`ORCA` means `orca-ide` outside an Orca terminal and `orca` inside one (`CAPS:145`)",
+   "what_goes_wrong": "Run outside an Orca terminal as section 7 allows, the 7.2 lifecycle commands (at least check) carry no caller identity, which CAPS:149 says is required, so they are refused.",
+   "is_fixed_when": "Each 7.2 ORCA command carries --from/--terminal <coordinator handle> when run outside an Orca terminal, or section 7 requires the live check to run inside one.",
+   "deletion_ok": true,
+   "deletion_note": "Dropping the outside-terminal alternative is acceptable only if the spec states the check runs inside an Orca terminal.",
+   "sources": [
+    "c19-d3"
+   ],
+   "id": "D37",
+   "support": 1
+  },
+  {
+   "title": "AC-4.2 invocation omits the explicit pre-tag choice the post-release row requires, so the run blocks before any outward step",
+   "severity": "medium",
+   "spec_lines": [
+    113,
+    209
+   ],
+   "quote": "`/sc:post-release <version> --unattended --output <dir>` with no authorization flags",
+   "what_goes_wrong": "The post-release row requires an explicit pre-tag choice or the run is blocked, so AC-4.2 stops at that gate and never exercises the outward-step defaults it means to test.",
+   "is_fixed_when": "AC-4.2's command includes an explicit pre-tag choice, or the AC states that a pre-tag blocked contract is the expected pass.",
+   "deletion_ok": false,
+   "deletion_note": "Deleting AC-4.2 leaves post-release's WC-9/D4 behaviour untested.",
+   "sources": [
+    "c19-d4"
+   ],
+   "id": "D38",
+   "support": 1
+  },
+  {
+   "title": "AC-4.2 requires the contract to list skipped outward steps, but no WC-4 or row field is defined for it",
+   "severity": "minor",
+   "spec_lines": [
+    62,
+    113,
+    209
+   ],
+   "quote": "the contract lists each skipped outward step",
+   "what_goes_wrong": "WC-4's required fields have no list of skipped outward steps and the post-release row defines none, so the check's pass condition has no defined field to read.",
+   "is_fixed_when": "WC-4 or the post-release row defines the field that lists skipped outward steps, and AC-4.2 names it.",
+   "deletion_ok": true,
+   "deletion_note": "Dropping the 'lists each skipped outward step' clause is acceptable only if another observable check (the install/VM observable-check defect) covers each outward step.",
+   "sources": [
+    "c19-d4"
+   ],
+   "id": "D39",
+   "support": 1
+  },
+  {
+   "title": "AC-4.2 claims no install or VM step ran but only checks git log and the PR list",
+   "severity": "medium",
+   "spec_lines": [
+    67,
+    113,
+    209
+   ],
+   "quote": "no install, VM, commit or PR: `git log -1` unchanged and no new PR from `gh pr list --repo IronbellyOrg/IronClaude --author @me`",
+   "what_goes_wrong": "A post-release that runs a real-target install or provisions a VM without authorisation still passes, because the stated checks observe only commits and PRs.",
+   "is_fixed_when": "AC-4.2 has an observable check that install and VM steps did not run (e.g. contract skip list plus transcript inspection), or narrows its claim to commit and PR.",
+   "deletion_ok": false,
+   "deletion_note": "Deleting the install/VM wording hides an unchecked outward action.",
+   "sources": [
+    "c19-d5"
+   ],
+   "id": "D40",
+   "support": 1
+  },
+  {
+   "title": "SA-3 forbids standalone file changes that the adversarial and workflow P1 fixes make",
+   "severity": "medium",
+   "spec_lines": [
+    83,
+    92,
+    148,
+    149,
+    198
+   ],
+   "quote": "The new contract file and report files are written only in unattended mode or when the caller passes the new output flag. A standalone default run writes the same files it writes today.",
+   "what_goes_wrong": "The adversarial filename fix changes where a standalone run writes its contract and the workflow fix writes a new contract on a standalone pre-creation STOP, which SA-3 forbids, while SA-4 lists both as permitted defect fixes.",
+   "is_fixed_when": "SA-3 names these fixes as exceptions with a reason, or the adversarial and workflow rows gate the new path/contract on --unattended or the output flag.",
+   "deletion_ok": true,
+   "deletion_note": "Gating the fixes on unattended mode is equivalent to narrowing them and counts; dropping the fixes reopens D07/D08.",
+   "sources": [
+    "c19-d8"
+   ],
+   "id": "D41",
+   "support": 3
+  },
+  {
+   "title": "Section 1.1 says command changes are limited to the worker contract, contradicting the section 3 defect fixes",
+   "severity": "minor",
+   "spec_lines": [
+    16,
+    51,
+    149
+   ],
+   "quote": "What changes in the commands is limited to the worker contract in section 2: a way to run without a person, a fixed report file, and a resume or safe re-run.",
+   "what_goes_wrong": "Section 3 and SA-4 require non-contract edits (explain tools, roadmap/validate-roadmap reconciliation, validate-tests target, business-panel frontmatter, load usage line), so 1.1 misstates the change scope.",
+   "is_fixed_when": "Section 1.1 says changes are the contract plus the section 3 defect fixes.",
+   "deletion_ok": true,
+   "deletion_note": "Rewording 1.1 is the fix; deleting the defect fixes to match 1.1 would leave AC-3.1/AC-3.3 with nothing to verify.",
+   "sources": [
+    "c19-d9"
+   ],
+   "id": "D42",
+   "support": 2
+  },
+  {
+   "title": "cli-portify's 'dispatch only inside an IronClaude checkout' change is in neither the contract nor SA-4's closed defect-fix list",
+   "severity": "minor",
+   "spec_lines": [
+    105,
+    149
+   ],
+   "quote": "dispatch only inside an IronClaude checkout (hardcoded template path)",
+   "what_goes_wrong": "SA-4 permits existing-line edits only for a closed list of named defect fixes; the cli-portify checkout restriction is not in it and is not a contract rule, so it is unclear whether it is a command edit (failing AC-C5) or a coordinator rule.",
+   "is_fixed_when": "The cli-portify checkout restriction is listed in SA-4, or stated as a coordinator dispatch rule requiring no command edit.",
+   "deletion_ok": true,
+   "deletion_note": "Stating it as a coordinator-only rule (no command edit) is a proper fix.",
+   "sources": [
+    "c19-d9"
+   ],
+   "id": "D43",
+   "support": 2
+  },
+  {
+   "title": "WC-10 splits waits longer than 5 minutes, while AC-4.3 fails any tool call over 240 s",
+   "severity": "minor",
+   "spec_lines": [
+    68,
+    114,
+    210
+   ],
+   "quote": "A command step that blocks a single tool call for longer than 5 minutes (a poll wait, a long eval) must be split into waits of at most 4 minutes",
+   "what_goes_wrong": "A single 240-300 s call needs no split under WC-10 but fails AC-4.3's 'no single tool call exceeds 240 s'.",
+   "is_fixed_when": "WC-10's trigger and AC-4.3's limit use the same threshold.",
+   "deletion_ok": true,
+   "deletion_note": "Aligning either number counts.",
+   "sources": [
+    "c19-d11"
+   ],
+   "id": "D44",
+   "support": 1
+  }
+ ],
+ "introduced_patterns": [
+  {
+   "title": "File-valued --output: contract placed in the output file's parent directory, so parallel workers share one contract",
+   "how_to_recognise": "WC-4 says that when --output is a file the contract goes in that file's parent directory (or a shared fallback such as .dev/tasks/to-do/return-contract.yaml); two workers whose output files share a folder write the same return-contract.yaml, violating WC-11 and letting the coordinator read another worker's status.",
+   "severity": "blocking",
+   "sources": [
+    "c04-d4",
+    "c06-d3",
+    "c08-d8"
+   ],
+   "id": "I01"
+  },
+  {
+   "title": "Blanket 'no output path means refuse and write no file' clause for commands whose rows give no output flag",
+   "how_to_recognise": "A WC-4/2.3 rule that refuses (chat-only, no contract) when the brief has no output path, while save, cli-eval, research, recommend, task etc. get no output flag and their acceptance checks (AC-3.4, AC-2.2) expect a written contract or per-session file.",
+   "severity": "blocking",
+   "sources": [
+    "c04-d5"
+   ],
+   "id": "I02"
+  },
+  {
+   "title": "WC-4/2.3 name contract paths for ready commands that no phase ever makes write a contract",
+   "how_to_recognise": "WC-4 exception list or 2.3 retry text names a contract path for cleanup-audit, init-lite, index-repo etc., while the revised scope (REQ-2, section-3 intro, P1) gives them no Unattended section or contract work; WC-5 'no report exists' then reports successful runs as failed.",
+   "severity": "blocking",
+   "sources": [
+    "c04-d6",
+    "c05-d4",
+    "c07-d2"
+   ],
+   "id": "I03"
+  },
+  {
+   "title": "Ready commands with no small fix (brainstorm, init-lite) scoped out of --unattended/contract while still briefed unattended or reported failed",
+   "how_to_recognise": "Flag/section scope narrowed to each phase's Commands cell, or AC-1.1 asserts brainstorm/init-lite have no section, but they are in no phase, section 2.3 still briefs every worker with --unattended, and WC-5 maps 'no contract' or unparseable report to failed.",
+   "severity": "blocking",
+   "sources": [
+    "c00-d5",
+    "c05-d5",
+    "c06-d4"
+   ],
+   "id": "I04"
+  },
+  {
+   "title": "Separate worker_status field for commands with their own status vocabulary, not read by 7.2 step 3/4 or WC-5",
+   "how_to_recognise": "WC-4 says a command such as workflow writes the four-value status as worker_status 'which WC-5 and 7.2 read in place of status', but 7.2 step 4 still asserts d['status'] in the four values (or WC-5 reads status).",
+   "severity": "medium",
+   "sources": [
+    "c08-d9",
+    "c16-d7"
+   ],
+   "id": "I05"
+  },
+  {
+   "title": "Non-empty --output refusal rule breaks WC-3's re-invocation in the same output directory",
+   "how_to_recognise": "A new rule that a no-resume command refuses a non-empty --output directory, while WC-3 still re-invokes the same command line plus the answer flag after a blocked run already wrote return-contract.yaml there.",
+   "severity": "blocking",
+   "sources": [
+    "c15-d5",
+    "c16-d6"
+   ],
+   "id": "I06"
+  },
+  {
+   "title": "Blocked-question answer delivered via a new unrelated Task instead of --retry-of, leaving dependents of the failed Task stuck",
+   "how_to_recognise": "WC-3/2.3 tells the coordinator to answer by starting a new Task whose brief carries the answer, rather than worker-start --task <blocked task> --retry-of <dispatch>; Orca keeps dependents of the failed Task blocked (CAPS:90, CAPS:116).",
+   "severity": "blocking",
+   "sources": [
+    "c15-d6"
+   ],
+   "id": "I07"
+  }
+ ],
+ "rejected": [
+  {
+   "local_id": "c12-d6",
+   "reason": "Claims no phase adds the contract to tdd/troubleshoot/release-split; the P1 scope sentence, line 79 and AC-1.1 do assign it to P1. Only the P1 Commands cell is inconsistent, which is kept as minor D05."
+  },
+  {
+   "local_id": "c13-d2",
+   "reason": "Validator judged the '\\|' in AC-C1 the standard GFM table-cell escape that renders as '|'; the raw-text concern is kept separately as D21 (medium) from c14-d1."
+  },
+  {
+   "local_id": "c16-d8",
+   "reason": "Section 1.4 explicitly says PR #329 proves the nested route, not the direct route; E3 makes no direct-route claim, so no wrong outcome."
+  },
+  {
+   "local_id": "c16-d9",
+   "reason": "Restates that P0 step 4 differs from later phases, which the spec already says; the real P0 defects are D11/D12."
+  },
+  {
+   "local_id": "c18-d4",
+   "reason": "Same false contradiction as c16-d8: E3 vs section 1.4 wording, no wrong outcome."
+  },
+  {
+   "local_id": "c19-d6",
+   "reason": "Reflect auto-accept under --unattended reuses the existing headless rule (SA-6) and the brief says no --remediate; D2's self-approval rule is scoped to implement. Policy preference, not a contradiction."
+  },
+  {
+   "local_id": "c19-d10",
+   "reason": "The roadmap Y/n replacement sits in the column headed 'Unattended-mode gate resolution', so it applies only under --unattended; SA-1 is not contradicted."
+  },
+  {
+   "local_id": "c19-d15",
+   "reason": "INV-A:14 allows three subagent layers; Stage 10.5 plus reflect fan-out stays inside it. 'one layer' is imprecise wording only."
+  },
+  {
+   "local_id": "c10-d4",
+   "reason": "Targets a narrower step-6 wording from a revised spec; the original step 6 already allows 'the command's documented artifacts', so not a defect in the original (related real issue kept as D18)."
+  }
+ ],
+ "unverifiable": [
+  {
+   "local_id": "c06-d5",
+   "title": "spec-panel row says to add --output and a contract that the command may already have",
+   "why": "The supplied in/spec-panel-command.md already has --output <file>, --unattended, --report-dir and an Unattended mode section, but it may be a later (post-spec) version; the spec cites cmd/spec-panel.md:22 as of 2026-11-02.",
+   "what_would_confirm": "Reading src/superclaude/commands/spec-panel.md at the spec's commit (2026-11-02) and checking whether --output/--unattended/--report-dir were present."
+  },
+  {
+   "local_id": "c17-d3",
+   "title": "Revised WC-5 'from P1 on, absent contract means failed' fails successful runs of commands with no contract yet",
+   "why": "Quoted revised text (runs b1-r5) is not on disk; if real it is an introduced flaw (commands whose contract lands in P2, or never, reported failed).",
+   "what_would_confirm": "The b1-r5 revised spec file showing the absent-contract rule and the phase assignment of tdd/troubleshoot/release-split/reflect/init-lite contracts."
+  }
+ ],
+ "new_candidates": [
+  {
+   "title": "P0 adds tests/skills/test_worker_contract.py whose AC-1.1 assertions cannot pass until P1",
+   "spec_lines": [
+    158,
+    174,
+    195
+   ],
+   "quote": "add the static test file `tests/skills/test_worker_contract.py` (proposed name)",
+   "why": "AC-1.1 says this test asserts every 3.1-3.2 command has an Unattended section; if P0 creates it with those assertions, AC-C3 ('new tests pass') fails in P0 because no command is edited in P0. The spec does not say the P0 version is empty or skipped.",
+   "status": "unvalidated by any run"
+  },
+  {
+   "title": "7.2 step 7 reclaimable check is run-wide, so parallel workers in the same run make it fail",
+   "spec_lines": [
+    186
+   ],
+   "quote": "`ORCA orchestration worker-list --run <run_id> --terminal-state reclaimable --json` returns no rows",
+   "why": "The query is scoped to the whole run, not the released dispatch; any other settled-but-unreleased worker in the run (P1 runs several commands) makes this worker's check fail.",
+   "status": "unvalidated by any run"
+  },
+  {
+   "title": "WC-12 consumer_fenced stop sends no worker_done, but 7.2 step 3 waits for exactly one worker_done",
+   "spec_lines": [
+    70,
+    182
+   ],
+   "quote": "if `check` returns `consumer_fenced` it stops without sending `worker_done`",
+   "why": "The live check loops 'until worker_done arrives' and requires exactly one; a fenced worker never sends it, and no step defines the expected outcome or timeout handling.",
+   "status": "unvalidated by any run"
+  },
+  {
+   "title": "Section 2.1 says --unattended plus report files and resume are the only command-side changes, omitting WC-10 wait splitting and WC-11 path changes",
+   "spec_lines": [
+    51,
+    68,
+    69
+   ],
+   "quote": "It is the only command-side change the contract asks for besides report files and resume.",
+   "why": "WC-10 (owner: Command, wait size) and WC-11 (default output paths) are also command-side changes, so the scope statement understates the edits and SA-4's additive rule.",
+   "status": "unvalidated by any run"
+  },
+  {
+   "title": "AC-C5/AC-0.3 diff against master while the repo workflow branches features from integration",
+   "spec_lines": [
+    176,
+    193
+   ],
+   "quote": "git diff -U0 master...HEAD",
+   "why": "If phase branches come from integration (CLAUDE.md git workflow), master...HEAD includes integration changes not made by the phase, so the additive check can flag or hide edits from other work.",
+   "status": "unvalidated by any run; low confidence"
+  }
+ ],
+ "coverage_notes": [
+  "Sections 1.2-1.3 (evidence and rejected alternative), section 4 (coordinator-only table), section 8 (non-goals), D1/D5 and the Decisions table produced no confirmed defects; only two false-positive E3/1.4 claims (rejected). They were reviewed lightly relative to sections 2, 3.1 and 7.",
+  "Section 3.2 rows for analyze, build, business-panel, design, document, explain, test, roadmap, validate-roadmap, validate-tests, save (beyond output paths), recommend and review-translation have almost no row-specific findings; their gate claims rest on the inventories and were not re-verified by any run.",
+  "Section 7.3 P3 checks (AC-3.1..AC-3.4) and AC-1.3/AC-2.4/AC-2.5 drew only incidental mentions (AC-3.2 in D33); AC-3.4's hash check and AC-3.3's 'test -d' on a target that the P3 fix changes were not examined.",
+  "WC-1, WC-7, WC-8 and WC-12 have no direct findings apart from the AC-0.4 wrapper check (D14) and the AC-C1 scope issues; WC-12's consumer_fenced interaction with 7.2 is listed as a new candidate.",
+  "The UNVERIFIED items list (lines 271-285) was used only for cross-checks (D35); item 14's claim that 9 citation defects were fixed in place was not re-verified.",
+  "Findings are heavily concentrated: the P1 scope / load / brainstorm cluster, the WC-4 contract-path cluster and the AC-0.4 cluster account for most support counts."
+ ]
+}

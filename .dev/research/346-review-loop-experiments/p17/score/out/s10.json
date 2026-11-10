@@ -1,0 +1,339 @@
+{
+ "sid": "s10",
+ "defects": [
+  {
+   "id": "D01",
+   "status": "PRESENT",
+   "evidence": "AC-1.1 still asserts the Unattended section for every 3.1-3.2 command in P1, while the P1 Commands cell edits only a subset and P4/pr-submit commands are still covered. (line 195: \"the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section\"; line 159: \"the `--unattended` flag accepted by every command in sections 3.1 and 3.2\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D02",
+   "status": "FIXED",
+   "evidence": "P1 scope now fails closed: a command whose gate row is still open writes status blocked and takes no default, and AC-1.6 checks auggie-review posts nothing in P1. (line 159: \"on a command whose gate row is still open, it writes `status: blocked` at that gate and takes no default there\"; line 200: \"`status: blocked` written; both counts unchanged (F-02)\")",
+   "ambiguous": true,
+   "ambiguous_note": "Fail-closed option of is_fixed_when is met; outward defaults that are not a 'gate row' (e.g. task commit/push) are covered only by reading 'gate row' broadly; section 2.3 still has no pass-only-to-converted-commands sentence."
+  },
+  {
+   "id": "D03",
+   "status": "PRESENT",
+   "evidence": "load is still given no report/contract in its row and the Decisions table, yet AC-1.1 and AC-1.2 still apply the section/contract/live-check to every 3.2 and P1 command. (line 111: \"none: use it as a step inside another worker's brief, not as its own Task\"; line 196: \"7.2 live check on each P1 command with `--unattended --output <dir>`\"; line 195: \"the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D04",
+   "status": "PRESENT",
+   "evidence": "Section 3.1 still says ready commands change only by their small fix; brainstorm and init-lite (fix None) appear in no phase Commands cell, yet AC-1.1 requires their section. (line 79: \"The only command changes are the small fixes in the last column.\"; line 84: \"| brainstorm | `--output <dir>`; never `--interactive`\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D05",
+   "status": "PRESENT",
+   "evidence": "Line 79 still says Phase 1 adds the contract to the ready commands, but the P1 Commands cell still omits tdd, troubleshoot, release-split, reflect, init-lite and brainstorm. (line 79: \"the worker reports the named file until Phase 1 adds the contract\"; line 159: \"fixes to adversarial, cleanup-audit and index-repo (the `--slug` flag, F-06), workflow contract (F-04)\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D06",
+   "status": "PRESENT",
+   "evidence": "WC-4 still puts the contract at <output-dir>/return-contract.yaml with no rule for file-valued --output; tdd and init-lite still pass --output <file> and the AC-2.2 tdd example is unchanged. (line 62: \"In unattended mode the command writes `<output-dir>/return-contract.yaml`\"; line 88: \"`--output <file>` (F-07)\"; line 203: \"`/sc:tdd \"auth\" --unattended --output <file>`\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D07",
+   "status": "FIXED",
+   "evidence": "The adversarial row now writes the contract at the WC-4 path instead of under <output>/adversarial/, consistent with WC-4, AC-1.4 and 7.2 step 3. (line 83: \"Write the contract at the WC-4 path `<output-dir>/return-contract.yaml`, not under `<output>/adversarial/`\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D08",
+   "status": "FIXED",
+   "evidence": "Workflow moved to 3.2 with a new --output flag; the contract is at the coordinator-known <output-dir> for every outcome including pre-creation STOPs, and AC-1.4 checks it. (line 125: \"the contract is `<output-dir>/return-contract.yaml` for every outcome, including pre-creation STOPs\"; line 198: \"workflow states the contract is written for pre-creation STOPs\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D09",
+   "status": "PARTIAL",
+   "evidence": "cleanup-audit and index-repo gain a --slug flag, but their contract still sits at an <output-dir> no flag provides and AC-1.2 still passes --output to every P1 command; troubleshoot is unchanged with no directory flag. (line 107: \"add a `--slug` flag that names the `.claude-audit/` subdirectory\"; line 196: \"7.2 live check on each P1 command with `--unattended --output <dir>`\"; line 89: \"| `REPORT.md` (`report_path`) | Fresh dir\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D10",
+   "status": "PARTIAL",
+   "evidence": "Only research gained an --output flag so its contract path is known; cli-eval, cli-portify, recommend, review-translation, save, task and implement still say only 'contract' with no flag or location. (line 115: \"add `--output` so the contract path is known before dispatch (F-04)\"; line 101: \"contract for both pipelines (today a chat table)\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D11",
+   "status": "PRESENT",
+   "evidence": "AC-0.4 still requires 7.2 step 3 (WC-4 contract path and status) in P0 and relaxes only step 4; troubleshoot and adversarial have no WC-4 contract until P1. (line 194: \"steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1\"; line 182: \"its report path is the WC-4 contract path\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D12",
+   "status": "PRESENT",
+   "evidence": "Step 4 still runs the YAML status/command assertion while AC-0.4 points it at the existing report file (troubleshoot REPORT.md is markdown). (line 183: \"assert d['status'] in {'succeeded','partial','failed','blocked'}; assert d['command']\"; line 194: \"step 4 uses the command's existing report file\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D13",
+   "status": "PRESENT",
+   "evidence": "Section 2.3 still requires --unattended in every brief while P0 command lines omit it and the flag arrives only in P1. (line 73: \"the exact command line including `--unattended` and every flag section 3 lists as required\"; line 194: \"`/sc:brainstorm \"<topic>\" --output <dir>`\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D14",
+   "status": "PRESENT",
+   "evidence": "AC-0.4 still says the direct route is verified in the step-5 transcript, but step 5 only searches for AskUserQuestion. (line 194: \"each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript)\"; line 184: \"**Pass:** no `AskUserQuestion` call.\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D15",
+   "status": "PRESENT",
+   "evidence": "Step 3 is unchanged: one blocking check --wait of 900000 ms. (line 182: \"--timeout-ms 900000 --json` until `worker_done` arrives\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D16",
+   "status": "PRESENT",
+   "evidence": "Step 2 pass condition unchanged: absence of agentWait passes. (line 181: \"**Pass:** `observation.agentWait` is never non-null\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D17",
+   "status": "PRESENT",
+   "evidence": "Step 6 unchanged: no pre-dispatch baseline for git status. (line 185: \"`git status --short`. **Pass:** only files under the brief's output directory\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D18",
+   "status": "PRESENT",
+   "evidence": "Step 6 still allows only the output directory plus undefined 'documented artifacts'. (line 185: \"(and the command's documented artifacts) appear\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D19",
+   "status": "PRESENT",
+   "evidence": "Step 5 still uses a plain transcript search for the string AskUserQuestion. (line 184: \"search the transcript for `AskUserQuestion`. **Pass:** no `AskUserQuestion` call.\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D20",
+   "status": "PRESENT",
+   "evidence": "AC-C5 and AC-0.3 greps are unchanged and still skip '-- x' and '----' deletions. (line 176: \"| grep -E '^-[^-]'` | prints nothing: edits are additive\"; line 193: \"-- src/superclaude/core/HOW-WE-WORK.md\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D21",
+   "status": "PRESENT",
+   "evidence": "AC-C1 and the other piped checks still use table-escaped \\| unchanged. (line 172: \"grep -rnE '\\borca(-ide)?[[:space:]]+(orchestration\\|worktree\\|terminal\\|agent)\\b'\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D22",
+   "status": "FIXED",
+   "evidence": "SA-2 now states that core files (the contract file included) must not name an orca command, so AC-C1's scan of src/superclaude/core matches SA-2. (line 147: \"No command, skill, agent or core file (the contract file included) runs or names an `orca` or `orca-ide` command\")",
+   "ambiguous": true,
+   "ambiguous_note": "P0 still adds an 'Orca section' to HOW-WE-WORK.md; it is not stated to avoid literal 'orca <subcommand>' text, but SA-2 forbids it."
+  },
+  {
+   "id": "D23",
+   "status": "PRESENT",
+   "evidence": "SA-2 now bans any orca/orca-ide command (even wider), but AC-C1 still matches only orchestration/worktree/terminal/agent. (line 172: \"(orchestration\\|worktree\\|terminal\\|agent)\"; line 147: \"runs or names an `orca` or `orca-ide` command\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D24",
+   "status": "FIXED",
+   "evidence": "WC-3 now exempts the implement Ruling gate from the ask relay unless D2(b), matching the implement row, D2(a) and AC-4.1. (line 61: \"The implement Ruling gate is exempt from this relay unless the user chooses D2(b) (F-01).\")",
+   "ambiguous": true,
+   "ambiguous_note": "Other approval gates (cli-portify, task confidence) remain relayable, which is arguably intended since the source rule reserves only the Ruling."
+  },
+  {
+   "id": "D25",
+   "status": "PRESENT",
+   "evidence": "WC-3 still lets the worker re-invoke the command with the coordinator's answer as a flag, with no statement that an answer never supplies a WC-9 outward flag. (line 61: \"then re-invoke or resume the command with the answer as a flag\"; line 67: \"It turns on only through the command's own explicit flag written in the brief.\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D26",
+   "status": "PRESENT",
+   "evidence": "WC-3 still lets a worker ask instead of stopping blocked; 7.2 has no question/escalation handling and AC-2.2 still demands failed/blocked. (line 61: \"the session may instead ask the coordinator once with the preamble's `ask` command\"; line 203: \"`worker_done --outcome failed`; contract `status: blocked`\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D27",
+   "status": "PRESENT",
+   "evidence": "cli-portify's three approval gates still resolve only as blocked, and AC-2.3 still requires a succeeded happy path per P2 command. (line 102: \"each of the three approval gates resolves as blocked with the artifact to review named in the contract\"; line 204: \"Happy-path run per P2 command with every required flag in the brief\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D28",
+   "status": "PRESENT",
+   "evidence": "AC-2.2 still demands a blocked contract from every P2 command, including those that resolve gates by default or flag. (line 203: \"Gate-trigger run per P2 command: a 7.2 live check with input that hits the gate\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D29",
+   "status": "PRESENT",
+   "evidence": "WC-5 still maps anything not failed/blocked/missing, including an empty or unparseable report, to succeeded. (line 63: \"`--outcome succeeded` otherwise, including `partial`\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D30",
+   "status": "PRESENT",
+   "evidence": "WC-5 still gives no way to read 'the report says failed or blocked' for non-contract interim reports. (line 63: \"`--outcome failed` when the report says `failed` or `blocked`, or no report exists\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D31",
+   "status": "FIXED",
+   "evidence": "cleanup-audit and index-repo gain a --slug flag in P1, 2.3 adds a one-worker-per-worktree rule until then, and AC-1.7 checks that two slugs do not overwrite. (line 73: \"Until a command has a per-run output path (the `--slug` flag added in P1), the coordinator runs at most one worker of that command per worktree\"; line 201: \"two files exist and neither is overwritten (F-06)\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D32",
+   "status": "FIXED",
+   "evidence": "Section 2.3 now has the coordinator pass a new --output for each retry attempt, so a retry no longer replaces init-lite's first report (the init-lite row text itself is unchanged). (line 73: \"the coordinator passes a new `--output` for each attempt\"; line 85: \"Re-run overwrites its marked report\")",
+   "ambiguous": true,
+   "ambiguous_note": "init-lite row still says re-run overwrites; the fix is the general 2.3 retry rule, and init-lite's --output is a file while 2.3 speaks of directories."
+  },
+  {
+   "id": "D33",
+   "status": "FIXED",
+   "evidence": "Section 2.3 now says who makes the directory fresh (new --output per attempt, and no-resume commands refuse a non-empty --output in unattended mode); but the refusal conflicts with WC-3 re-invocation (see I06). (line 73: \"the coordinator passes a new `--output` for each attempt\"; line 73: \"a command with no resume flag refuses a non-empty `--output` directory\")",
+   "ambiguous": true,
+   "ambiguous_note": "WC-6 wording 'fresh output directory' not edited; new rule creates I06."
+  },
+  {
+   "id": "D34",
+   "status": "PRESENT",
+   "evidence": "WC-11 default-path clause and WC-10 wait splitting are still not scoped to unattended mode; only the new refusal rule got an SA-1 scope sentence. (line 69: \"Default output paths carry a timestamp or the slug the coordinator passes\"; line 73: \"Without `--unattended` this refusal does not apply\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D35",
+   "status": "PRESENT",
+   "evidence": "The index row still only asserts knowledge-base mode does not wait, no guard. (line 109: \"state that knowledge-base mode does not wait (whether it does is UNVERIFIED)\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D36",
+   "status": "FIXED",
+   "evidence": "The 3.1 brief columns now forbid --depth deep for troubleshoot and require tdd input that names one task file, avoiding the nested /task multi-match prompt. (line 89: \"no `--depth deep`, whose short-input STOP is unflagged until P2\"; line 88: \"that names one task file (the nested `/task` asks when several match, `INV-B:219`)\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D37",
+   "status": "PRESENT",
+   "evidence": "7.2 ORCA commands still carry no --from/--terminal and section 7 still allows running outside an Orca terminal. (line 167: \"`ORCA` means `orca-ide` outside an Orca terminal and `orca` inside one\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D38",
+   "status": "PRESENT",
+   "evidence": "AC-4.2 command still omits the explicit pre-tag choice that the post-release row requires. (line 212: \"`/sc:post-release <version> --unattended --output <dir>` with no authorization flags\"; line 112: \"require an explicit `--output` and an explicit pre-tag choice, else blocked\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D39",
+   "status": "PRESENT",
+   "evidence": "AC-4.2 still requires a contract skip list but WC-4 and the post-release row define no such field. (line 212: \"the contract lists each skipped outward step\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D40",
+   "status": "PRESENT",
+   "evidence": "AC-4.2 still checks only git log and the PR list, not install or VM steps. (line 212: \"no install, VM, commit or PR: `git log -1` unchanged\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D41",
+   "status": "PARTIAL",
+   "evidence": "The workflow contract is now tied to the new --output flag, but SA-3 is unchanged and the adversarial row still moves the standalone contract path with no --unattended/output-flag gate. (line 148: \"A standalone default run writes the same files it writes today.\"; line 83: \"Write the contract at the WC-4 path `<output-dir>/return-contract.yaml`, not under `<output>/adversarial/`\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D42",
+   "status": "PRESENT",
+   "evidence": "Section 1.1 still limits command changes to the worker contract. (line 16: \"What changes in the commands is limited to the worker contract in section 2\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D43",
+   "status": "PRESENT",
+   "evidence": "cli-portify checkout restriction still in the row and not in SA-4's defect-fix list. (line 102: \"dispatch only inside an IronClaude checkout (hardcoded template path)\"; line 149: \"(roadmap and validate-roadmap drift, validate-tests target\")",
+   "ambiguous": false
+  },
+  {
+   "id": "D44",
+   "status": "PRESENT",
+   "evidence": "WC-10 trigger (5 min) and AC-4.3 limit (240 s) unchanged and mismatched. (line 68: \"must be split into waits of at most 4 minutes\"; line 213: \"no single tool call exceeds 240 s\")",
+   "ambiguous": false
+  }
+ ],
+ "introduced": [
+  {
+   "id": "I01",
+   "status": "ABSENT",
+   "evidence": "No rule places the contract in a file-valued --output's parent directory."
+  },
+  {
+   "id": "I02",
+   "status": "ABSENT",
+   "evidence": "No blanket refuse-without-output-path clause; the only refusal is for a non-empty --output directory."
+  },
+  {
+   "id": "I03",
+   "status": "ABSENT",
+   "evidence": "WC-4 and 2.3 name contract paths only generically or for commands that have P1 contract work (cleanup-audit, index-repo, workflow); no path is named for a ready command that no phase touches."
+  },
+  {
+   "id": "I04",
+   "status": "ABSENT",
+   "evidence": "The --unattended/section scope was not narrowed to phase cells; the P1 scope still says every 3.1 and 3.2 command (the original D04 gap remains but nothing new was introduced)."
+  },
+  {
+   "id": "I05",
+   "status": "ABSENT",
+   "evidence": "No separate worker_status field was introduced."
+  },
+  {
+   "id": "I06",
+   "status": "PRESENT",
+   "evidence": "The new unattended-mode refusal of a non-empty --output directory by commands with no resume flag collides with WC-3, which re-invokes the command with the answer flag after a blocked run has already written return-contract.yaml there. (line 61: \"then re-invoke or resume the command with the answer as a flag\"; line 73: \"a command with no resume flag refuses a non-empty `--output` directory\")"
+  },
+  {
+   "id": "I07",
+   "status": "ABSENT",
+   "evidence": "WC-3 and 2.3 do not route the answer through a new unrelated Task."
+  }
+ ],
+ "candidates": [
+  {
+   "id": "N01",
+   "status": "PRESENT",
+   "evidence": "P0 still adds the test file whose AC-1.1 assertions need command edits. (line 158: \"add the static test file `tests/skills/test_worker_contract.py` (proposed name)\")"
+  },
+  {
+   "id": "N02",
+   "status": "PRESENT",
+   "evidence": "Step 7 reclaimable check is still run-wide. (line 186: \"--terminal-state reclaimable --json` returns no rows\")"
+  },
+  {
+   "id": "N03",
+   "status": "PRESENT",
+   "evidence": "WC-12 fenced stop still sends no worker_done while step 3 waits for exactly one. (line 70: \"if `check` returns `consumer_fenced` it stops without sending `worker_done`\")"
+  },
+  {
+   "id": "N04",
+   "status": "PRESENT",
+   "evidence": "Section 2.1 still calls report files and resume the only other command-side change, though WC-10, WC-11 and the new --slug/refusal rules add more. (line 51: \"It is the only command-side change the contract asks for besides report files and resume.\")"
+  },
+  {
+   "id": "N05",
+   "status": "PRESENT",
+   "evidence": "AC-0.3 and AC-C5 still diff against master. (line 193: \"git diff -U0 master...HEAD -- src/superclaude/core/HOW-WE-WORK.md\")"
+  }
+ ],
+ "other_new_defects": []
+}

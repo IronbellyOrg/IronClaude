@@ -1,0 +1,151 @@
+{
+ "chunk": 6,
+ "defects": [
+  {
+   "local_id": "c06-d1",
+   "title": "AC-1.1/AC-1.2 require a contract for /sc:load, whose row says none",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+   "original_lines": [
+    62,
+    76,
+    112,
+    159,
+    195,
+    196,
+    265
+   ],
+   "what_goes_wrong": "An implementer who follows the load row and the Decisions row (no report file, usage-line fix only) fails AC-1.1 and the AC-1.2 live check (test -s <contract>) for load; one who satisfies AC-1.1 adds the contract that line 265 calls an unrequested addition.",
+   "gids": [
+    156,
+    70,
+    109,
+    122,
+    410,
+    415
+   ],
+   "is_fixed_when": "The spec states one consistent treatment of /sc:load across WC-4, the load row, the Decisions row, P1 scope, AC-1.1 and AC-1.2: either load is named as an explicit exception in AC-1.1/AC-1.2 (and WC-4), or load is given a minimal contract and the Decisions row is changed.",
+   "deletion_note": "Removing load from section 3.2 or from the P1 scope is an acceptable fix only if the load usage-line defect and the 10/27/6 counts remain consistent; dropping AC-1.1 or the contract requirement for all commands would not count.",
+   "present_in_others_hint": "Line 76 ('Every changed command also gains the section'), line 159 (P1 command list incl. load and 'every command in sections 3.1 and 3.2'), line 265 (Decisions /sc:load row), AC-1.2 (line 196), counts '27 needing a change'."
+  },
+  {
+   "local_id": "c06-d2",
+   "title": "WC-4 contract location undefined for file-valued, fixed or absent output flags",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "original_lines": [
+    62,
+    73,
+    76,
+    85,
+    86,
+    87,
+    90,
+    120,
+    183,
+    196,
+    200
+   ],
+   "what_goes_wrong": "For tdd and init-lite (brief passes `--output <file>`) the stated rule gives `<file>/return-contract.yaml`, a path under a regular file, so AC-2.2 (`/sc:tdd ... --output <file>`, requires a blocked contract) and the 7.2 step-4 `test -s <contract>` cannot pass; for cleanup-audit and index-repo (no output directory in the brief) and AC-1.2's `--output <dir>` no contract location is stated at all, so it is not known before dispatch.",
+   "gids": [
+    412,
+    270,
+    1,
+    114,
+    125,
+    128,
+    155,
+    206,
+    207,
+    243,
+    291,
+    300,
+    309
+   ],
+   "is_fixed_when": "WC-4 (or each section 3 row) states a concrete contract path for every output shape (directory-valued flag, file-valued `--output`, fixed output directory, no output flag), the shapes are consistent with AC-2.2, AC-1.2 and 7.2 step 4, and the fix does not make two parallel workers share one contract file (WC-11).",
+   "deletion_note": "No: deleting AC-2.2 or the tdd/init-lite briefs, or dropping the 'known before dispatch' requirement, hides the gap; deleting WC-4's contract requirement for those commands would also remove the coordinator's only outcome channel.",
+   "present_in_others_hint": "Section 2.3 (line 73, 'the output directory'), section 3 intro (line 76), cleanup-audit/index-repo rows (85,86), init-lite/tdd rows (87,90), spec-panel row (120, file vs directory not stated), AC-1.2 (196), AC-2.2 (200), 7.2 step 4 (183); workflow (`<id>` generated) and adversarial (`<output>/adversarial/`) paths also differ from the `<output-dir>` rule."
+  },
+  {
+   "local_id": "c06-d3",
+   "title": "Revised rule puts contract in the output file's directory, so sibling workers collide",
+   "kind": "introduced",
+   "severity": "blocking",
+   "quote": "when `--output` is a file, `<output-dir>` is that file's parent directory",
+   "original_lines": [],
+   "what_goes_wrong": "Two parallel tdd/init-lite/spec-panel workers whose output files share a folder (default docs/<domain>/) both write <dir>/return-contract.yaml, violating WC-11 (`Two workers in one worktree must never write the same file`), so one worker's report-path points at another worker's status.",
+   "gids": [
+    46,
+    47,
+    106,
+    188,
+    191
+   ],
+   "is_fixed_when": "For a file-valued `--output` the contract name or directory is unique per worker output (for example derived from the output file name, or the brief is required to give each worker its own report directory), stated in WC-4 and section 2.3.",
+   "deletion_note": "No: removing the file-valued rule just reopens defect c06-d2; removing WC-11 would break parallel-safety.",
+   "present_in_others_hint": "Quote is from WC-4 of p12/ab1/runs/b1-r4 (aud, aud2) audited spec; same rule worded 'the directory containing that file' in p12/ab1/runs/b1h-r3/aud and 'the directory that holds the file when `--output` is a file (tdd, init-lite)' in p12/ab3/runs/b3-r1 (aud, aud2). WC-11 (line 69), section 2.3, AC-2.2 wording in the revised specs ('for tdd, the directory of <file>'), init-lite/tdd/spec-panel rows."
+  },
+  {
+   "local_id": "c06-d4",
+   "title": "Revised AC-1.1 and WC-4 leave init-lite and brainstorm without the contract",
+   "kind": "introduced",
+   "severity": "blocking",
+   "quote": "that brainstorm and init-lite (no small fix, section 3.1) and `/sc:load` (WC-4 exception [F-3]) have none",
+   "original_lines": [
+    62,
+    79,
+    84,
+    87,
+    159,
+    195
+   ],
+   "what_goes_wrong": "The revised AC-1.1 asserts brainstorm and init-lite have no Unattended-mode section while WC-4 (only exception: load) and the P1 scope ('every command in sections 3.1 and 3.2') require it, so init-lite writes no return-contract.yaml and WC-5 maps 'no report exists' to --outcome failed for a successful run.",
+   "gids": [
+    461
+   ],
+   "is_fixed_when": "WC-4, the P1 scope sentence, the brainstorm and init-lite rows and AC-1.1 agree: either both commands get the section and contract (and AC-1.1 asserts it), or both are named exceptions in WC-4 with a stated worker report file.",
+   "deletion_note": "No: dropping the unattended contract for these two commands without naming them as exceptions leaves WC-5 mapping their successful runs to failed.",
+   "present_in_others_hint": "Quote is AC-1.1 of the p14/haiku-baseline/runs/a3-r1/aud2 audited spec. Line 79 ('only command changes are the small fixes'), line 159 P1 scope, WC-5 (line 63), section 2.3. The original spec does not have this contradiction (its AC-1.1 covers all of 3.1-3.2)."
+  },
+  {
+   "local_id": "c06-d5",
+   "title": "spec-panel row says to add --output and a contract the supplied command already has",
+   "kind": "unverifiable",
+   "severity": "medium",
+   "quote": "add `--output`; contract",
+   "original_lines": [
+    120
+   ],
+   "what_goes_wrong": "If the current spec-panel command already has `--output <file>`, `--unattended`, `--report-dir` and an Unattended mode section (as command.md does), an implementer following the row adds duplicates and the coordinator brief built from WC-4 (`--output`) is refused.",
+   "gids": [
+    327,
+    221,
+    482
+   ],
+   "is_fixed_when": "The spec-panel row, WC-4 and the contract-location rule describe the command's actual flags (file-valued `--output`, `--report-dir` for the contract directory) or the row says the edit is conditional on the state of the file.",
+   "deletion_note": "No: deleting the spec-panel row leaves the command ungoverned and the stale premise unresolved.",
+   "present_in_others_hint": "Spec-panel inventory entries INV-B:43,177-185 (say no output flag exists), AC-2.2, WC-4. Needs the repo's cmd/spec-panel.md as of the spec date (2026-11-02): command.md has line numbers shifted by 2 to 28 lines versus the spec's citations (22,222,451 vs 23,224,479) and already points at ~/.claude/WORKER-CONTRACT.md, which the spec proposes to create in P0, so it appears to be a later revision and the spec's premise cannot be checked from the files provided."
+  }
+ ],
+ "unassigned_gids": [],
+ "extra_noticed": [
+  {
+   "local_id": "c06-x1",
+   "title": "workflow contract path contains a generated id, so it is not known before dispatch",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "`.dev/tasks/to-do/<id>/return-contract.yaml`",
+   "original_lines": [
+    62,
+    73,
+    92
+   ],
+   "what_goes_wrong": "WC-4 and section 2.3 require the report path to be known before dispatch, but the workflow row's path embeds an id the command generates, and the row also asks for a contract on pre-creation STOPs when that directory does not exist.",
+   "is_fixed_when": "The workflow row (or WC-4) states how the coordinator learns or fixes the contract path before dispatch, including for stops before the package directory exists.",
+   "deletion_note": "No: removing the pre-creation-STOP contract requirement would contradict WC-4 'written on every outcome'.",
+   "present_in_others_hint": "Line 92 workflow row, AC-1.4, WC-4, 7.2 step 3."
+  }
+ ]
+}

@@ -1,0 +1,135 @@
+{
+ "chunk": 1,
+ "defects": [
+  {
+   "local_id": "c01-d1",
+   "title": "AC-1.1/AC-1.2 require /sc:load to name and write a contract it never has",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`",
+   "original_lines": [
+    76,
+    112,
+    159,
+    195,
+    196,
+    183,
+    265,
+    62
+   ],
+   "what_goes_wrong": "load is a 3.2 row and a P1 command whose row (112) and Decision (265) give it no report file and only a usage-line fix, so AC-1.1 (every 3.1-3.2 command has a section naming return-contract.yaml) and AC-1.2 (7.2 step 4 test -s <contract> on each P1 command) fail on a correct load, or force the contract the spec rejects; P1 never passes and blocks P2-P4 (line 154).",
+   "gids": [
+    3,
+    10,
+    27,
+    32,
+    34,
+    35,
+    41,
+    42,
+    90,
+    181,
+    182,
+    310,
+    435,
+    491
+   ],
+   "is_fixed_when": "AC-1.1 and AC-1.2 (and any per-phase live check) explicitly exclude /sc:load, or load's row and the Decisions entry are changed to give it a section and contract, so the load row, the Decisions table, WC-4 and both acceptance checks agree on one treatment of load.",
+   "deletion_note": "Partly: removing load from the P1 list and from AC-1.1/AC-1.2 scope (keeping its usage-line fix elsewhere or as a non-goal) is a valid fix; deleting AC-1.1 or AC-1.2 entirely is not, since P1 would lose its contract test.",
+   "present_in_others_hint": "Section 3 intro line 76 ('Every changed command also gains the section'), WC-4 line 62 (no exemption), P1 row line 159 (load listed; flag 'accepted by every command'), the 27-count in lines 76/268, Decisions line 265."
+  },
+  {
+   "local_id": "c01-d2",
+   "title": "P1 scope and AC-1.1 cover all 37 commands, including P2-P4 and D2-D4-gated ones",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "original_lines": [
+    159,
+    195,
+    154,
+    160,
+    161,
+    162,
+    225,
+    240,
+    139,
+    79,
+    84,
+    87,
+    100,
+    109,
+    113,
+    114,
+    73
+   ],
+   "what_goes_wrong": "P1's scope sentence and AC-1.1 quantify over every 3.1-3.2 command, while the per-row Phase column and the P1 Commands column give P1 only ~13 commands, assign the gated commands to P2-P4, make P4 wait for D2-D4 (with D3(a) recommending no pr-submit change at all), and give brainstorm/init-lite no change; so P1 either fails AC-1.1 (blocking every later phase via line 154) or ships sections/flags for implement, post-release, pr-submit and P2/P3 commands before their gates or user decisions exist, e.g. auggie-review accepting --unattended in P1 while still posting to GitHub (contradicting WC-2/WC-9).",
+   "gids": [
+    21,
+    26,
+    133,
+    150,
+    163,
+    280,
+    307,
+    320,
+    380,
+    433,
+    458,
+    478,
+    487,
+    503
+   ],
+   "is_fixed_when": "Each phase's flag/section scope and its section-presence assertion name exactly the commands that phase converts (P1 = its Commands column), later phases (AC-2.x/3.x/4.x) assert their own commands, pr-submit (and other P4 commands) get a section only per the D2-D4 answers, brainstorm/init-lite are either explicitly given a P-phase section or explicitly excluded, and no command accepts --unattended before its gate conversion lands (or it refuses the flag until then).",
+   "deletion_note": "Yes for the over-broad clause: deleting 'accepted by every command in sections 3.1 and 3.2' and narrowing AC-1.1's quantifier to the P1 command list is a fix; deleting AC-1.1 itself is not, since the per-phase section check must remain.",
+   "present_in_others_hint": "Section 2.3 / line 73 (coordinator puts --unattended in every brief), 3.1 intro line 79 ('only command changes are the small fixes'), section 4 line 128/139 (pr-submit worker status under D3), D3 line 240, section 9 intro line 225, AC-2.1 and P3/P4 checks that should carry the per-phase assertion."
+  },
+  {
+   "local_id": "c01-d3",
+   "title": "AC-1.2 runs every P1 command with --unattended --output <dir> despite rows lacking it",
+   "kind": "original",
+   "severity": "blocking",
+   "quote": "| P1 | AC-1.2 | 7.2 live check on each P1 command with `--unattended --output <dir>` | all steps pass |",
+   "original_lines": [
+    196,
+    159,
+    85,
+    86,
+    92,
+    62,
+    182,
+    183
+   ],
+   "what_goes_wrong": "The P1 Commands column includes the ready commands cleanup-audit (brief `--pass <N>`, fixed `.claude-audit/` output dir), index-repo (brief 'none', `PROJECT_INDEX.md`) and workflow (contract at `.dev/tasks/to-do/<id>/return-contract.yaml`), whose rows give them no `--output <dir>` and no `<output-dir>/return-contract.yaml`, so 7.2 steps 3-4 (report path = WC-4 contract path; test -s <contract>) cannot pass for them under the rows as written and P1 cannot pass.",
+   "gids": [
+    129,
+    269,
+    504
+   ],
+   "is_fixed_when": "AC-1.2 names the commands it runs and, for each, uses the brief flags its section 3 row lists, and every command it runs has a defined contract path matching 7.2 step 3 (either the rows for cleanup-audit, index-repo and workflow gain an output-directory flag and WC-4 contract, or those commands are excluded from AC-1.2 and checked only by their named fix).",
+   "deletion_note": "Partly: narrowing AC-1.2 to the commands that gain --unattended/--output (excluding the fix-only ready commands) is a fix; deleting AC-1.2 is not, since P1 would then have no live check.",
+   "present_in_others_hint": "P1 Commands column line 159 ('fixes to adversarial, cleanup-audit, index-repo, workflow'), 3.1 rows lines 83-92, WC-4 line 62 (no exception for commands without an output flag), 7.2 steps 3-4 lines 182-183."
+  }
+ ],
+ "unassigned_gids": [],
+ "extra_noticed": [
+  {
+   "local_id": "c01-x1",
+   "title": "Adversarial P1 contract path differs from the WC-4 path the live check demands",
+   "kind": "original",
+   "severity": "medium",
+   "quote": "Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1)",
+   "original_lines": [
+    83,
+    62,
+    182,
+    194,
+    198
+   ],
+   "what_goes_wrong": "WC-4 fixes the contract at `<output-dir>/return-contract.yaml` and 7.2 step 3 requires worker_done's report path to be that WC-4 path, but the adversarial row sets it to `<output>/adversarial/return-contract.yaml`, so a 7.2 run of `/sc:adversarial --output <dir>` reports a path that is not the WC-4 path.",
+   "is_fixed_when": "The adversarial row, WC-4 and 7.2 step 3 name the same contract path for adversarial (either WC-4 allows a per-command subpath listed in section 3, or adversarial writes `<output>/return-contract.yaml`).",
+   "deletion_note": "No: deleting the adversarial filename fix leaves the contract filename unfixed, which the spec itself calls a gap.",
+   "present_in_others_hint": "AC-1.4 line 198 (adversarial names one fixed path), AC-0.4 line 194 (adversarial smoke run)."
+  }
+ ]
+}

@@ -1,0 +1,372 @@
+{
+ "D01": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4",
+   "base-fresh",
+   "pn1",
+   "pn2"
+  ],
+  "extra_only": false
+ },
+ "D02": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4",
+   "base-fresh",
+   "pn1",
+   "pn2"
+  ],
+  "extra_only": false
+ },
+ "D03": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4",
+   "base-fresh",
+   "pn1",
+   "pn2"
+  ],
+  "extra_only": false
+ },
+ "D04": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4",
+   "base-fresh"
+  ],
+  "extra_only": false
+ },
+ "D05": {
+  "arms": [
+   "ab2",
+   "ab4",
+   "base-fresh",
+   "pn2"
+  ],
+  "extra_only": false
+ },
+ "D06": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4",
+   "base-fresh",
+   "pn1",
+   "pn2"
+  ],
+  "extra_only": false
+ },
+ "D07": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4",
+   "base-fresh",
+   "pn1",
+   "pn2"
+  ],
+  "extra_only": false
+ },
+ "D08": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4",
+   "base-fresh",
+   "pn1",
+   "pn2"
+  ],
+  "extra_only": false
+ },
+ "D09": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4",
+   "base-fresh",
+   "pn1",
+   "pn2"
+  ],
+  "extra_only": false
+ },
+ "D10": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4",
+   "base-fresh",
+   "pn2"
+  ],
+  "extra_only": false
+ },
+ "D11": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4",
+   "base-fresh",
+   "pn2"
+  ],
+  "extra_only": false
+ },
+ "D12": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab4",
+   "base-fresh"
+  ],
+  "extra_only": false
+ },
+ "D13": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab4",
+   "base-fresh"
+  ],
+  "extra_only": false
+ },
+ "D14": {
+  "arms": [
+   "ab4"
+  ],
+  "extra_only": false
+ },
+ "D15": {
+  "arms": [
+   "ab2",
+   "ab4",
+   "pn1"
+  ],
+  "extra_only": false
+ },
+ "D16": {
+  "arms": [
+   "ab4"
+  ],
+  "extra_only": false
+ },
+ "D17": {
+  "arms": [
+   "ab4"
+  ],
+  "extra_only": false
+ },
+ "D18": {
+  "arms": [
+   "ab1",
+   "ab4"
+  ],
+  "extra_only": false
+ },
+ "D19": {
+  "arms": [
+   "ab4"
+  ],
+  "extra_only": false
+ },
+ "D20": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "base-fresh",
+   "pn1"
+  ],
+  "extra_only": false
+ },
+ "D21": {
+  "arms": [
+   "ab1",
+   "ab3",
+   "ab4",
+   "base-fresh",
+   "pn1"
+  ],
+  "extra_only": false
+ },
+ "D22": {
+  "arms": [
+   "ab1",
+   "ab3",
+   "ab4",
+   "base-fresh",
+   "pn1",
+   "pn2"
+  ],
+  "extra_only": false
+ },
+ "D23": {
+  "arms": [
+   "pn1"
+  ],
+  "extra_only": false
+ },
+ "D24": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4",
+   "base-fresh"
+  ],
+  "extra_only": false
+ },
+ "D25": {
+  "arms": [
+   "ab1",
+   "ab3"
+  ],
+  "extra_only": false
+ },
+ "D26": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab4"
+  ],
+  "extra_only": false
+ },
+ "D27": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4",
+   "base-fresh",
+   "pn1"
+  ],
+  "extra_only": false
+ },
+ "D28": {
+  "arms": [
+   "ab4",
+   "base-fresh"
+  ],
+  "extra_only": false
+ },
+ "D29": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4"
+  ],
+  "extra_only": false
+ },
+ "D30": {
+  "arms": [],
+  "extra_only": true
+ },
+ "D31": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4",
+   "base-fresh",
+   "pn1"
+  ],
+  "extra_only": false
+ },
+ "D32": {
+  "arms": [
+   "ab1",
+   "ab2",
+   "ab3",
+   "ab4"
+  ],
+  "extra_only": false
+ },
+ "D33": {
+  "arms": [
+   "ab3",
+   "base-fresh"
+  ],
+  "extra_only": false
+ },
+ "D34": {
+  "arms": [
+   "ab4"
+  ],
+  "extra_only": false
+ },
+ "D35": {
+  "arms": [
+   "ab3"
+  ],
+  "extra_only": false
+ },
+ "D36": {
+  "arms": [
+   "base-fresh",
+   "pn1"
+  ],
+  "extra_only": false
+ },
+ "D37": {
+  "arms": [
+   "ab4"
+  ],
+  "extra_only": false
+ },
+ "D38": {
+  "arms": [
+   "ab4"
+  ],
+  "extra_only": false
+ },
+ "D39": {
+  "arms": [
+   "ab4"
+  ],
+  "extra_only": false
+ },
+ "D40": {
+  "arms": [
+   "ab4"
+  ],
+  "extra_only": false
+ },
+ "D41": {
+  "arms": [
+   "ab1",
+   "ab3"
+  ],
+  "extra_only": false
+ },
+ "D42": {
+  "arms": [
+   "pn1"
+  ],
+  "extra_only": false
+ },
+ "D43": {
+  "arms": [
+   "pn1"
+  ],
+  "extra_only": false
+ },
+ "D44": {
+  "arms": [
+   "ab3"
+  ],
+  "extra_only": false
+ }
+}
