@@ -8,6 +8,8 @@ import shutil
 from pathlib import Path
 from typing import List, Tuple
 
+from .install_keep import backup_if_differs, same_content
+
 _EXCLUDE_FILES = {"README.md"}
 
 
@@ -46,6 +48,8 @@ def install_commands(target_path: Path = None, force: bool = False) -> Tuple[boo
     installed_commands = []
     skipped_commands = []
     failed_commands = []
+    stale_commands = []
+    backed_up = []
 
     for command_file in command_files:
         target_file = target_path / command_file.name
@@ -54,6 +58,20 @@ def install_commands(target_path: Path = None, force: bool = False) -> Tuple[boo
         # Check if already exists
         if target_file.exists() and not force:
             skipped_commands.append(command_name)
+            if not same_content(command_file, target_file):
+                stale_commands.append(command_name)
+            continue
+
+        # A forced overwrite first saves a differing file next to itself
+        try:
+            if target_file.exists():
+                backup = backup_if_differs(command_file, target_file)
+                if backup is not None:
+                    backed_up.append(str(backup))
+        except OSError as e:
+            failed_commands.append(
+                f"{command_name}: could not save a copy first, left untouched ({e})"
+            )
             continue
 
         # Copy command file
@@ -77,6 +95,22 @@ def install_commands(target_path: Path = None, force: bool = False) -> Tuple[boo
         )
         for cmd in skipped_commands:
             messages.append(f"   - /{cmd}")
+
+        if stale_commands:
+            messages.append(
+                f"\n⚠️  {len(stale_commands)} kept command(s) differ from this version "
+                "and were NOT updated (run with --force or `superclaude update` to "
+                "refresh; a differing file is saved as <name>.bak.<time> first):"
+            )
+            for cmd in stale_commands:
+                messages.append(f"   - /{cmd}")
+
+    if backed_up:
+        messages.append(
+            f"\n💾 Saved {len(backed_up)} changed command(s) before overwriting:"
+        )
+        for path in backed_up:
+            messages.append(f"   - {path}")
 
     if failed_commands:
         messages.append(f"\n❌ Failed to install {len(failed_commands)} commands:")
