@@ -1,0 +1,338 @@
+{
+ "sid": "s101",
+ "defects": [
+  {
+   "id": "D01",
+   "status": "FIXED",
+   "evidence": "L195 AC-1.1 now asserts only 'every command whose section 3 row names P1 (except `load`)' and says 'each later phase adds its own commands to the test'; L159 P1 Commands cell lists the same set (incl. adversarial, brainstorm, cleanup-audit, index-repo, init-lite, workflow); L114/L162 make pr-submit P4 only under D3 (b).",
+   "ambiguous": false
+  },
+  {
+   "id": "D02",
+   "status": "FIXED",
+   "evidence": "L154: 'A command's `--unattended` flag, `## Unattended mode` section and contract land in the phase its section 3 row names, together with its gate resolutions, so the flag never exists on a command that still prompts'; L73 passes the flag 'only once the command's phase (section 3) has landed'.",
+   "ambiguous": false
+  },
+  {
+   "id": "D03",
+   "status": "FIXED",
+   "evidence": "L76 'Every changed command except `/sc:load`', L62 '`/sc:load` writes no contract and is never a Task of its own', L112 'no `## Unattended mode` section (WC-4 exception)', L195-196 AC-1.1/AC-1.2 exclude load; consistent with Decisions L265.",
+   "ambiguous": false
+  },
+  {
+   "id": "D04",
+   "status": "FIXED",
+   "evidence": "L84/L87 give brainstorm and init-lite 'Section and `--unattended` flag only (P1)' / 'Section, `--unattended` flag and contract only (P1)'; L159 lists both in the P1 Commands cell; L79 'Besides those, the only command changes are the small fixes'; AC-1.1 covers them.",
+   "ambiguous": false
+  },
+  {
+   "id": "D05",
+   "status": "FIXED",
+   "evidence": "L79: 'The worker reports the named file until the phase in the last column adds the contract and the `--unattended` flag'; L154 ties contract to the phase the row names (P2 for reflect, release-split, tdd, troubleshoot, listed in the L160 P2 cell).",
+   "ambiguous": false
+  },
+  {
+   "id": "D06",
+   "status": "FIXED",
+   "evidence": "L62 'Where that flag takes a file (tdd, init-lite) the contract sits beside that file, so the brief gives the file a directory of its own'; L87/L90 'in a directory used by this Task only'; AC-2.2 example (L200) consistent. spec-panel's '--output' type (L120) is still unstated.",
+   "ambiguous": true,
+   "note": "spec-panel add --output has no stated type but default directory rule applies"
+  },
+  {
+   "id": "D07",
+   "status": "FIXED",
+   "evidence": "L62 'Adversarial and workflow differ as their rows state'; L83 row path `<output>/adversarial/return-contract.yaml`; L182 step 3 and L198 AC-1.4 use the same path for adversarial (found with `find <dir> -name return-contract.yaml`).",
+   "ambiguous": false
+  },
+  {
+   "id": "D08",
+   "status": "PARTIAL",
+   "evidence": "L62 'workflow's directory id is generated at run time, so the worker's `--report-path` is what names it to the coordinator' resolves the path, but the pre-creation-STOP contract was dropped: L92 'no contract for a stop before the package exists, which the worker reports `failed`'; the original obligation (contract on pre-creation STOPs) was removed rather than given a location.",
+   "ambiguous": true,
+   "note": "path part fixed; pre-creation STOP contract removed (ledger deletion_ok=false)"
+  },
+  {
+   "id": "D09",
+   "status": "PARTIAL",
+   "evidence": "L85 cleanup-audit 'the contract sits in that directory' and L86 index-repo 'P1 states it and puts the contract beside it' give locations, but L196 AC-1.2 still runs each P1 command 'with `--unattended --output <dir>`' (cleanup-audit/index-repo take no such flag) and troubleshoot (L91) still has no output flag or stated contract path.",
+   "ambiguous": false
+  },
+  {
+   "id": "D10",
+   "status": "PRESENT",
+   "evidence": "L104 cli-eval 'contract for both pipelines (today a chat table)', L105 cli-portify 'contract (fields already defined; file location unnamed)', L115/L116/L117/L121 recommend/research/review-translation/task still add a contract with no output flag or location; L182 step 3 unchanged for them.",
+   "ambiguous": false
+  },
+  {
+   "id": "D11",
+   "status": "FIXED",
+   "evidence": "L182 step 3 now says 'in P0 the command's existing report file from section 3.1' and L63 WC-5 gives a P0 exception for reports without `status`; L194 AC-0.4 'steps 3 and 4 use the command's existing report file, since the contract arrives in P1'.",
+   "ambiguous": false
+  },
+  {
+   "id": "D12",
+   "status": "FIXED",
+   "evidence": "L183 step 4: 'From P1 on: `test -s <contract>` and ... In P0 no contract exists, so only `test -s <existing report file>` runs; the YAML assertions do not apply to a Markdown report'.",
+   "ambiguous": false
+  },
+  {
+   "id": "D13",
+   "status": "FIXED",
+   "evidence": "L73 'with `--unattended` only once the command's phase (section 3) has landed (before then the section 3.1 flags alone...)'; L194 AC-0.4 'with the section 3.1 flags and without `--unattended`, which does not exist yet'.",
+   "ambiguous": false
+  },
+  {
+   "id": "D14",
+   "status": "PRESENT",
+   "evidence": "L194 AC-0.4 still says 'no Agent-tool wrapper, verified in the step-5 transcript' while L184 step 5 only searches for `AskUserQuestion` and `check` calls; no Agent/Task-tool test or pass condition exists.",
+   "ambiguous": false
+  },
+  {
+   "id": "D15",
+   "status": "PRESENT",
+   "evidence": "L182 step 3 still one `check --wait ... --timeout-ms 900000` 'until `worker_done` arrives' while L181 step 2 requires worker-show 'at least once per 5 minutes'; no statement that they run concurrently.",
+   "ambiguous": false
+  },
+  {
+   "id": "D16",
+   "status": "PRESENT",
+   "evidence": "L181 step 2 still 'Pass: `observation.agentWait` is never non-null' (satisfied by absence); only an `ask` exception was added.",
+   "ambiguous": false
+  },
+  {
+   "id": "D17",
+   "status": "PRESENT",
+   "evidence": "L185 step 6 unchanged: '`git status --short`. **Pass:** only files under the brief's output directory (and the command's documented artifacts) appear' with no pre-dispatch baseline.",
+   "ambiguous": false
+  },
+  {
+   "id": "D18",
+   "status": "PRESENT",
+   "evidence": "L185 step 6 unchanged; 'documented artifacts' still undefined for edit-in-place commands (WC-6 L64 only says such commands list changed files in `artifacts`, not that step 6 allows them).",
+   "ambiguous": false
+  },
+  {
+   "id": "D19",
+   "status": "PRESENT",
+   "evidence": "L184 step 5: 'search the transcript for `AskUserQuestion` and for `check` calls. **Pass:** no `AskUserQuestion` call' - still a plain-text search with no restriction to tool-call entries.",
+   "ambiguous": false
+  },
+  {
+   "id": "D20",
+   "status": "PRESENT",
+   "evidence": "L176 AC-C5 and L193 AC-0.3 still use `grep -E '^-[^-]'`, which misses deleted '- bullet' and '---' lines.",
+   "ambiguous": false
+  },
+  {
+   "id": "D21",
+   "status": "PRESENT",
+   "evidence": "L172 AC-C1 still written with table-escaped `\\|` alternation and pipes (`(orchestration\\|worktree\\|terminal\\|agent)\\b' ... \\| grep -v`), same in L175-176, L193.",
+   "ambiguous": false
+  },
+  {
+   "id": "D22",
+   "status": "PRESENT",
+   "evidence": "L172 AC-C1 still scans `src/superclaude/core` while L147 SA-2 still allows an Orca mention 'as an example of a caller's question channel inside the contract file' and P0 (L158) adds an Orca section to HOW-WE-WORK.md.",
+   "ambiguous": false
+  },
+  {
+   "id": "D23",
+   "status": "PRESENT",
+   "evidence": "L172 AC-C1 still matches only orchestration|worktree|terminal|agent while L147 SA-2 bans any 'orca' or 'orca-ide' command.",
+   "ambiguous": false
+  },
+  {
+   "id": "D24",
+   "status": "PRESENT",
+   "evidence": "L61 WC-3 still lets the worker ask the coordinator and 're-run[s] the command with the answer as a flag' with no exception for the /sc:implement Ruling (L109) or other person-only approvals; L73 'supplies the answer in a new Task as a flag'.",
+   "ambiguous": false
+  },
+  {
+   "id": "D25",
+   "status": "PRESENT",
+   "evidence": "L61 WC-3 answer-as-flag is unrestricted, and L67 WC-9 only says 'turns on only through the command's own explicit flag written in the brief'; no statement that an `ask` answer never supplies an outward-action flag.",
+   "ambiguous": false
+  },
+  {
+   "id": "D26",
+   "status": "FIXED",
+   "evidence": "L61 WC-3 now: block first, ask at most once, 'waits at most 15 minutes in total... With no answer in 15 minutes, or when `ask` is forbidden, it sends `worker_done --outcome failed`'; L181-182 step 2/3 say every check but AC-2.2 forbids `ask` and questions are replied to except in AC-2.2 where left unanswered; L200 AC-2.2 states at most one `ask`.",
+   "ambiguous": false
+  },
+  {
+   "id": "D27",
+   "status": "PRESENT",
+   "evidence": "L105 cli-portify still 'each of the three approval gates resolves as blocked' with no approval input or resume semantics that pass a gate, while L201 AC-2.3 still requires a succeeded happy-path run per P2 command.",
+   "ambiguous": false
+  },
+  {
+   "id": "D28",
+   "status": "PRESENT",
+   "evidence": "L200 AC-2.2 still 'Gate-trigger run per P2 command' demanding `worker_done --outcome failed` and `status: blocked` for every P2 command, though auggie-review, cleanup, improve, research, reflect, tasklist resolve gates by default/flag.",
+   "ambiguous": false
+  },
+  {
+   "id": "D29",
+   "status": "FIXED",
+   "evidence": "L63 WC-5: '`--outcome succeeded` only when the report says `succeeded` or `partial`... `--outcome failed` in every other case: ... no report exists, or it is empty, unreadable or has a missing or other `status`'.",
+   "ambiguous": false
+  },
+  {
+   "id": "D30",
+   "status": "PARTIAL",
+   "evidence": "L63 WC-5 adds 'One exception, P0 only... a section 3.1 report that has no `status` key (for example troubleshoot's Markdown `REPORT.md`) gets `succeeded` when the command ran to its end and that report file is non-empty', but covers only P0; 3.1 commands whose contract lands in P1/P2 (tdd, release-split, index-repo) have no rule in the interim phases.",
+   "ambiguous": true
+  },
+  {
+   "id": "D31",
+   "status": "PARTIAL",
+   "evidence": "L69 WC-11 'a command whose path is fixed (cleanup-audit, index-repo) is run by one Task at a time in a worktree, enforced by the coordinator with `--deps`' and L73 2.3 'a `--deps` on any other Task running the same fixed-path command' state the obligation, but no acceptance check covers it.",
+   "ambiguous": true,
+   "note": "is_fixed_when says 'covered by a check'; none exists"
+  },
+  {
+   "id": "D32",
+   "status": "FIXED",
+   "evidence": "L64 WC-6 'if it has none, gets a new, empty output directory from the coordinator for every attempt' and L73 requires a new empty directory per attempt, so init-lite (L87 'Re-run overwrites its marked report', brief output in its own directory) no longer overwrites attempt 1.",
+   "ambiguous": true,
+   "note": "init-lite row text unchanged but WC-6/2.3 supply per-attempt directory"
+  },
+  {
+   "id": "D33",
+   "status": "FIXED",
+   "evidence": "L64 WC-6 and L73 2.3 state the coordinator supplies 'a new, empty output directory per attempt'; L205 AC-3.2 is now consistent (existing state without resume flag gives `status: blocked`, nothing overwritten).",
+   "ambiguous": false
+  },
+  {
+   "id": "D34",
+   "status": "PRESENT",
+   "evidence": "L69 WC-11 still says unscoped 'Default output paths carry a timestamp or the slug the coordinator passes' and L68 WC-10 is unscoped, against SA-1 (L146) that without `--unattended` every output path stays as today.",
+   "ambiguous": false
+  },
+  {
+   "id": "D35",
+   "status": "PRESENT",
+   "evidence": "L111 index row still only 'state that knowledge-base mode does not wait (whether it does is UNVERIFIED)' while L278 item 6 says section 3 'refuses or pins them under `--unattended` regardless'.",
+   "ambiguous": false
+  },
+  {
+   "id": "D36",
+   "status": "PRESENT",
+   "evidence": "L79 only hedges ('none has been run yet, so this is unproven until AC-0.4'); L91 troubleshoot still 'no `--fix`' only and L90 tdd brief unchanged, so --depth deep short input and nested /task multi-match prompts are not avoided and both stay 'ready'.",
+   "ambiguous": false
+  },
+  {
+   "id": "D37",
+   "status": "PRESENT",
+   "evidence": "L180-186 7.2 ORCA commands still carry no `--from`/`--terminal` while L167 allows running outside an Orca terminal ('`ORCA` means `orca-ide` outside an Orca terminal').",
+   "ambiguous": false
+  },
+  {
+   "id": "D38",
+   "status": "PRESENT",
+   "evidence": "L209 AC-4.2 still '`/sc:post-release <version> --unattended --output <dir>` with no authorization flags' while L113 requires an explicit pre-tag choice or blocked.",
+   "ambiguous": false
+  },
+  {
+   "id": "D39",
+   "status": "PRESENT",
+   "evidence": "L209 AC-4.2 still 'the contract lists each skipped outward step' with no field defined in WC-4 (L62) or the L113 post-release row.",
+   "ambiguous": false
+  },
+  {
+   "id": "D40",
+   "status": "PRESENT",
+   "evidence": "L209 AC-4.2 still checks only 'no install, VM, commit or PR: `git log -1` unchanged and no new PR'; no observable check for install/VM steps.",
+   "ambiguous": false
+  },
+  {
+   "id": "D41",
+   "status": "FIXED",
+   "evidence": "L148 SA-3 now 'The new contract file and report files, and adversarial's fixed contract path, are written only in unattended mode'; L83 adversarial fix is 'In unattended mode...; a standalone run is unchanged (SA-3)'; workflow pre-creation contract fix dropped (L92); L149 SA-4 says 'adversarial contract path in unattended mode'.",
+   "ambiguous": false
+  },
+  {
+   "id": "D42",
+   "status": "PRESENT",
+   "evidence": "L16 still 'What changes in the commands is limited to the worker contract in section 2: a way to run without a person, a fixed report file, and a resume or safe re-run.'",
+   "ambiguous": false
+  },
+  {
+   "id": "D43",
+   "status": "PRESENT",
+   "evidence": "L105 still 'dispatch only inside an IronClaude checkout (hardcoded template path)' and the L149 SA-4 closed fix list does not include it.",
+   "ambiguous": false
+  },
+  {
+   "id": "D44",
+   "status": "PRESENT",
+   "evidence": "L68 WC-10 still 'longer than 5 minutes ... split into waits of at most 4 minutes' while L210 AC-4.3 still 'no single tool call exceeds 240 s'.",
+   "ambiguous": false
+  }
+ ],
+ "introduced": [
+  {
+   "id": "I01",
+   "status": "ABSENT",
+   "evidence": "L62 puts the contract beside a file-valued --output (tdd, init-lite) but requires 'the brief gives the file a directory of its own' (L87, L90 'in a directory used by this Task only'), so parallel workers do not share one contract; no shared fallback path."
+  },
+  {
+   "id": "I02",
+   "status": "ABSENT",
+   "evidence": "No clause refuses or writes no file when the brief has no output path."
+  },
+  {
+   "id": "I03",
+   "status": "ABSENT",
+   "evidence": "cleanup-audit, index-repo, init-lite, brainstorm are all given contract work in P1 (L85-87, L159), so WC-4/2.3 paths for them are backed by a phase."
+  },
+  {
+   "id": "I04",
+   "status": "ABSENT",
+   "evidence": "brainstorm and init-lite are assigned to P1 with section and flag (L84, L87, L159)."
+  },
+  {
+   "id": "I05",
+   "status": "ABSENT",
+   "evidence": "L62 keeps the four-value set under `status` and moves the command's own value to another key; no separate worker_status field."
+  },
+  {
+   "id": "I06",
+   "status": "ABSENT",
+   "evidence": "No rule refusing a non-empty --output directory; WC-3 re-runs into a new empty `rerun-1` subdirectory (L61)."
+  },
+  {
+   "id": "I07",
+   "status": "PRESENT",
+   "evidence": "L73: 'If the status is `blocked`, it supplies the answer in a new Task as a flag, or hands the question to the person' instead of worker-start --retry-of on the blocked Task."
+  }
+ ],
+ "candidates": [
+  {
+   "id": "N01",
+   "status": "FIXED",
+   "evidence": "L195 AC-1.1 is now scoped to commands whose row names P1 and 'each later phase adds its own commands to the test', so the P0 test file (L158) need not assert Unattended sections before P1."
+  },
+  {
+   "id": "N02",
+   "status": "PRESENT",
+   "evidence": "L186 step 7 unchanged: '`ORCA orchestration worker-list --run <run_id> --terminal-state reclaimable --json` returns no rows' is run-wide."
+  },
+  {
+   "id": "N03",
+   "status": "PRESENT",
+   "evidence": "L70 WC-12 still 'if `check` returns `consumer_fenced` it stops without sending `worker_done`' while L182 step 3 requires exactly one `worker_done`."
+  },
+  {
+   "id": "N04",
+   "status": "PRESENT",
+   "evidence": "L51 still 'It is the only command-side change the contract asks for besides report files and resume.' despite WC-10/WC-11 default changes."
+  },
+  {
+   "id": "N05",
+   "status": "PRESENT",
+   "evidence": "L176 AC-C5 and L193 AC-0.3 still diff against `master...HEAD`."
+  }
+ ],
+ "other_new_defects": []
+}
