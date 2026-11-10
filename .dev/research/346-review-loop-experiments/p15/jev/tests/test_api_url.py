@@ -36,8 +36,19 @@ def test_bad_override_raises_and_never_falls_back(bad):
         C.api_url({"JEV_API_URL": bad})
 
 
-def test_loopback_http_is_allowed_for_local_mocks():
-    assert C.api_url({"JEV_API_URL": "http://127.0.0.1:8099/v1/systemone"}).startswith("http://127.0.0.1")
+@pytest.mark.parametrize("ok", [
+    "http://127.0.0.1:8099/v1/systemone",           # loopback mock
+    "http://192.168.133.101:4000/cli/v1/systemone",  # the internal gateway: plain http on a private address
+    "http://10.1.2.3/jev",
+])
+def test_http_is_allowed_for_loopback_and_private_ip_literals(ok):
+    assert C.api_url({"JEV_API_URL": ok}) == ok
+
+
+@pytest.mark.parametrize("bad", ["http://8.8.8.8/v1", "http://gateway.corp/v1", "http://[2606:4700:4700::1111]/v1"])
+def test_http_is_refused_for_public_addresses_and_names(bad):
+    with pytest.raises(ValueError, match="JEV_API_URL"):
+        C.api_url({"JEV_API_URL": bad})
 
 
 def _client(tmp_path, steps):

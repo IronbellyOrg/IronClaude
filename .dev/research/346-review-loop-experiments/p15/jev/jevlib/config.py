@@ -1,4 +1,5 @@
 """Constants of the Jev adapter (contract J1.1). The only place these numbers live."""
+import ipaddress
 import os
 from urllib.parse import urlsplit
 
@@ -21,21 +22,30 @@ ALLOWED_DATA_CLASSES = {"synthetic", "public", "s1_spec", "stage2_artifact"}
 QNAME_RE = r"^[a-z][a-z0-9_]{0,63}$"
 
 
+def _private_or_loopback(host) -> bool:
+    """True only for an IP literal that is loopback or in a private range (never for a hostname)."""
+    try:
+        ip = ipaddress.ip_address(host.strip("[]"))
+    except ValueError:
+        return False
+    return ip.is_loopback or ip.is_private
+
+
 def api_url(environ=None) -> str:
     """The endpoint to call: $JEV_API_URL when set, else the vendor URL.
 
-    An override must be https (plain http only for a loopback address, for local mocks), carry no user info,
-    query or fragment (a key or token in a URL ends up in logs), and have a host.  Anything else raises ValueError,
-    never falls back: a typo must not silently send packets to the vendor or to an unintended host.
+    An override must be https, or http only when the host is a loopback or private-range IP literal (the internal
+    gateway is plain http on a private address; a public host or a name must use https), carry no user info, query
+    or fragment (a key or token in a URL ends up in logs), and have a host.  Anything else raises ValueError, never
+    falls back: a typo must not silently send packets to the vendor or to an unintended host.
     The model id is NOT affected: the client still sends MODEL and still rejects a response with another model."""
     env = os.environ if environ is None else environ
     raw = env.get(URL_ENV)
     if raw is None or raw == "":
         return API_URL
     u = urlsplit(raw)
-    loopback = u.hostname in ("127.0.0.1", "localhost", "::1")
-    if u.scheme != "https" and not (u.scheme == "http" and loopback):
-        raise ValueError(f"{URL_ENV} must be an https URL (http only for a loopback address)")
+    if u.scheme != "https" and not (u.scheme == "http" and u.hostname and _private_or_loopback(u.hostname)):
+        raise ValueError(f"{URL_ENV} must be an https URL (http only for a loopback or private-range IP address)")
     if not u.hostname:
         raise ValueError(f"{URL_ENV} has no host")
     if u.username is not None or u.password is not None or u.query or u.fragment:

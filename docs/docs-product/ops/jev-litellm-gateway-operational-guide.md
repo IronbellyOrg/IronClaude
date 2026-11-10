@@ -190,7 +190,7 @@ In the template repo, next to the other gateway variables, expose a template par
 
 ### Step 3.2: Client override (done)
 
-The experiment-tree client now honours `JEV_API_URL`: unset or empty keeps the vendor URL; a set value must be https (http only for a loopback address), with no user info, query or fragment, otherwise the client raises `ValueError` and sends nothing (it never falls back to the vendor). The model-id check and the privacy scrub are unchanged, so a gateway that rewrites the model is still rejected. Code: `p15/jev/jevlib/config.py` (`api_url`), tests: `p15/jev/tests/test_api_url.py`. When the client moves into the superclaude package, carry the override and its tests with it.
+The experiment-tree client now honours `JEV_API_URL`: unset or empty keeps the vendor URL; a set value must be https (http only for a loopback or private-range IP literal, since the internal gateway is plain http on a private address), with no user info, query or fragment, otherwise the client raises `ValueError` and sends nothing (it never falls back to the vendor). The model-id check and the privacy scrub are unchanged, so a gateway that rewrites the model is still rejected. Code: `p15/jev/jevlib/config.py` (`api_url`), tests: `p15/jev/tests/test_api_url.py`. When the client moves into the superclaude package, carry the override and its tests with it.
 
 ### Step 3.3: Egress
 
