@@ -1,0 +1,329 @@
+{
+ "qset_version": "e1-q1",
+ "id_seed": 7,
+ "n": 40,
+ "distractor_words": 528,
+ "cases": [
+  {
+   "case_id": "sm-01",
+   "family": "data_retention",
+   "category": "C2",
+   "variant": "v2",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-02",
+   "family": "password_reset",
+   "category": "C9",
+   "variant": "v4",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-03",
+   "family": "notification_optout",
+   "category": "C4",
+   "variant": "v1",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-04",
+   "family": "retry_policy",
+   "category": "C5",
+   "variant": "v4",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-05",
+   "family": "notification_optout",
+   "category": "C4",
+   "variant": "v4",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-06",
+   "family": "backup_schedule",
+   "category": "C3",
+   "variant": "v3",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-07",
+   "family": "rate_limiting",
+   "category": "C8",
+   "variant": "v3",
+   "precheck": "ok",
+   "n_deps": 1
+  },
+  {
+   "case_id": "sm-08",
+   "family": "export_paths",
+   "category": "C6",
+   "variant": "v2",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-09",
+   "family": "backup_schedule",
+   "category": "C3",
+   "variant": "v1",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-10",
+   "family": "backup_schedule",
+   "category": "C3",
+   "variant": "v4",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-11",
+   "family": "session_timeout",
+   "category": "C10",
+   "variant": "v4",
+   "precheck": "deps",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-12",
+   "family": "refunds",
+   "category": "C1",
+   "variant": "v1",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-13",
+   "family": "rate_limiting",
+   "category": "C8",
+   "variant": "v1",
+   "precheck": "ok",
+   "n_deps": 1
+  },
+  {
+   "case_id": "sm-14",
+   "family": "notification_optout",
+   "category": "C4",
+   "variant": "v3",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-15",
+   "family": "session_timeout",
+   "category": "C10",
+   "variant": "v3",
+   "precheck": "deps",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-16",
+   "family": "retry_policy",
+   "category": "C5",
+   "variant": "v3",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-17",
+   "family": "export_paths",
+   "category": "C6",
+   "variant": "v3",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-18",
+   "family": "rate_limiting",
+   "category": "C8",
+   "variant": "v4",
+   "precheck": "ok",
+   "n_deps": 1
+  },
+  {
+   "case_id": "sm-19",
+   "family": "invoice_numbering",
+   "category": "C7",
+   "variant": "v4",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-20",
+   "family": "invoice_numbering",
+   "category": "C7",
+   "variant": "v1",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-21",
+   "family": "retry_policy",
+   "category": "C5",
+   "variant": "v2",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-22",
+   "family": "password_reset",
+   "category": "C9",
+   "variant": "v1",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-23",
+   "family": "data_retention",
+   "category": "C2",
+   "variant": "v4",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-24",
+   "family": "invoice_numbering",
+   "category": "C7",
+   "variant": "v3",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-25",
+   "family": "session_timeout",
+   "category": "C10",
+   "variant": "v2",
+   "precheck": "deps",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-26",
+   "family": "notification_optout",
+   "category": "C4",
+   "variant": "v2",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-27",
+   "family": "refunds",
+   "category": "C1",
+   "variant": "v3",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-28",
+   "family": "refunds",
+   "category": "C1",
+   "variant": "v2",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-29",
+   "family": "password_reset",
+   "category": "C9",
+   "variant": "v2",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-30",
+   "family": "retry_policy",
+   "category": "C5",
+   "variant": "v1",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-31",
+   "family": "rate_limiting",
+   "category": "C8",
+   "variant": "v2",
+   "precheck": "ok",
+   "n_deps": 1
+  },
+  {
+   "case_id": "sm-32",
+   "family": "session_timeout",
+   "category": "C10",
+   "variant": "v1",
+   "precheck": "deps",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-33",
+   "family": "export_paths",
+   "category": "C6",
+   "variant": "v4",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-34",
+   "family": "data_retention",
+   "category": "C2",
+   "variant": "v3",
+   "precheck": "noop",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-35",
+   "family": "password_reset",
+   "category": "C9",
+   "variant": "v3",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-36",
+   "family": "data_retention",
+   "category": "C2",
+   "variant": "v1",
+   "precheck": "noop",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-37",
+   "family": "refunds",
+   "category": "C1",
+   "variant": "v4",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-38",
+   "family": "invoice_numbering",
+   "category": "C7",
+   "variant": "v2",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-39",
+   "family": "backup_schedule",
+   "category": "C3",
+   "variant": "v2",
+   "precheck": "ok",
+   "n_deps": 0
+  },
+  {
+   "case_id": "sm-40",
+   "family": "export_paths",
+   "category": "C6",
+   "variant": "v1",
+   "precheck": "ok",
+   "n_deps": 0
+  }
+ ],
+ "sha256": "6f27b7fd85d41e7cf1988a38a66e55cc67efefd05a2462187c6d114e56975164"
+}

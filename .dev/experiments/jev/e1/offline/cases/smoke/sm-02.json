@@ -1,0 +1,62 @@
+{
+ "author_intent": {
+  "category_name": "later regression",
+  "closure_correct": "no",
+  "expect_auto_close": false,
+  "expected_precheck": "ok"
+ },
+ "case_id": "sm-02",
+ "category": "C9",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "password_reset",
+ "group": "G-password_reset",
+ "packet": {
+  "inputs": {
+   "after_text": "# Password Reset Flow\n\nStatus: Draft for review. Owner: Identity team.\n\n## 1. Purpose\n\nThis document specifies how a customer who has forgotten a password can set a new one, and how the reset link is protected against misuse.\n\n## 2. Request\n\n- **PR-1 Request.** A customer asks for a reset on the sign-in page by giving the address of the account. The page answers in the same way whether the account exists or not.\n- **PR-2 Delivery.** If the account exists, the service sends one message with a reset link to the address of the account.\n- **PR-6 Throttle.** At most three reset requests per account are accepted per hour.\n\n## 3. The link\n\n- **PR-3 One-time use.** A password reset link can be used once. After a successful reset the link stops working.\n- **PR-4 Link lifetime.** A password reset link stays valid until it is used or until the customer asks for a newer link. This wording keeps the earlier lifetime fix in place.\n- **PR-5 Token.** The link carries a random token of at least 32 bytes. Only a hash of the token is stored by the service.\n\n## 4. After the reset\n\n- **PR-7 Sessions.** A successful reset ends all sessions of the account.\n- **PR-8 Notice.** The customer receives a message that says the password was changed, without the new password.\n- **PR-9 Password rules.** The new password must follow the password rules of the account policy and must differ from the last five passwords.\n- **PR-10 Support.** Support staff can see that a reset was requested and when, but never see the link, the token or the new password of the customer.\n- **PR-11 Locked accounts.** A reset link for an account that is locked by the fraud team is not sent. The page gives the same answer as for an account that does not exist.\n\n## 5. Acceptance criteria\n\n1. A used link cannot be used a second time.\n2. A link older than its lifetime is refused.\n3. A successful reset ends the other sessions of the account.\n",
+   "before_text": "# Password Reset Flow\n\nStatus: Draft for review. Owner: Identity team.\n\n## 1. Purpose\n\nThis document specifies how a customer who has forgotten a password can set a new one, and how the reset link is protected against misuse.\n\n## 2. Request\n\n- **PR-1 Request.** A customer asks for a reset on the sign-in page by giving the address of the account. The page answers in the same way whether the account exists or not.\n- **PR-2 Delivery.** If the account exists, the service sends one message with a reset link to the address of the account.\n- **PR-6 Throttle.** At most three reset requests per account are accepted per hour.\n\n## 3. The link\n\n- **PR-3 One-time use.** A password reset link can be used once. After a successful reset the link stops working.\n- **PR-4 Link lifetime.** A password reset link expires 30 minutes after it is sent.\n- **PR-5 Token.** The link carries a random token of at least 32 bytes. Only a hash of the token is stored by the service.\n\n## 4. After the reset\n\n- **PR-7 Sessions.** A successful reset ends all sessions of the account.\n- **PR-8 Notice.** The customer receives a message that says the password was changed, without the new password.\n- **PR-9 Password rules.** The new password must follow the password rules of the account policy and must differ from the last five passwords.\n- **PR-10 Support.** Support staff can see that a reset was requested and when, but never see the link, the token or the new password of the customer.\n- **PR-11 Locked accounts.** A reset link for an account that is locked by the fraud team is not sent. The page gives the same answer as for an account that does not exist.\n\n## 5. Acceptance criteria\n\n1. A used link cannot be used a second time.\n2. A link older than its lifetime is refused.\n3. A successful reset ends the other sessions of the account.\n",
+   "finding": {
+    "body": "An earlier version let the reset link live for days. The lifetime rule is meant to keep the link short-lived. Cited: spec lines 17-18 (before version).\nAn implementer who follows PR-4 builds reset links that stay valid for days.\nProtected requirement: line 17 (one-time use must hold).",
+    "heading": "### R1-1 Reset links live too long",
+    "id": "R1-1",
+    "review": "R1",
+    "run": "smoke"
+   },
+   "history": {
+    "previously_closed": true,
+    "recorded_before_sha": "affd55cc75737b4a05d96a3851a32f9dacccb064eb3ef1f372c4a22f1bfaa02c"
+   }
+  },
+  "n_deps": 0,
+  "precheck": "ok",
+  "reason": "eligible",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "## 3. The link\n\n- **PR-3 One-time use.** A password reset link can be used once. After a successful reset the link stops working.\n- **PR-4 Link lifetime.** A password reset link stays valid until it is used or until the customer asks for a newer link. This wording keeps the earlier lifetime fix in place.\n- **PR-5 Token.** The link carries a random token of at least 32 bytes. Only a hash of the token is stored by the service.\n\n## 4. After the reset"
+   },
+   "before": {
+    "passage": "## 3. The link\n\n- **PR-3 One-time use.** A password reset link can be used once. After a successful reset the link stops working.\n- **PR-4 Link lifetime.** A password reset link expires 30 minutes after it is sent.\n- **PR-5 Token.** The link carries a random token of at least 32 bytes. Only a hash of the token is stored by the service.\n\n## 4. After the reset"
+   },
+   "defect": {
+    "summary": "R1-1 Reset links live too long",
+    "wrong_outcome": "An implementer who follows PR-4 builds reset links that stay valid for days."
+   },
+   "dependencies": {},
+   "diff": "@@ -15,7 +15,7 @@\n ## 3. The link\n \n - **PR-3 One-time use.** A password reset link can be used once. After a successful reset the link stops working.\n-- **PR-4 Link lifetime.** A password reset link expires 30 minutes after it is sent.\n+- **PR-4 Link lifetime.** A password reset link stays valid until it is used or until the customer asks for a newer link. This wording keeps the earlier lifetime fix in place.\n - **PR-5 Token.** The link carries a random token of at least 32 bytes. Only a hash of the token is stored by the service.\n \n ## 4. After the reset",
+   "obligation": {
+    "text": "- **PR-3 One-time use.** A password reset link can be used once. After a successful reset the link stops working.",
+    "where": "before, line 17"
+   }
+  }
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [],
+  "url": null
+ },
+ "split": "smoke",
+ "variant": "v4"
+}

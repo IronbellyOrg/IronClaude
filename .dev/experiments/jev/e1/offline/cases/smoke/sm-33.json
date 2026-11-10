@@ -1,0 +1,62 @@
+{
+ "author_intent": {
+  "category_name": "partial branch fix",
+  "closure_correct": "no",
+  "expect_auto_close": false,
+  "expected_precheck": "ok"
+ },
+ "case_id": "sm-33",
+ "category": "C6",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "export_paths",
+ "group": "G-export_paths",
+ "packet": {
+  "inputs": {
+   "after_text": "# Report Export Service\n\nStatus: Draft for review. Owner: Reporting team.\n\n## 1. Purpose\n\nThe export service lets tenants download their reports as files. This document states how the files are produced, stored and removed.\n\n## 2. Formats\n\n- **EX-1 Formats.** An export is produced as a CSV file or as a JSON file, as chosen by the requester. CSV files use UTF-8 and a comma as the separator.\n- **EX-6 Size.** An export contains at most one million rows. A request for more rows is split into several files of at most one million rows each.\n- **EX-7 Naming.** An export file is named after the report, the date and a running number, for example `orders-2026-03-01-001.csv`.\n\n## 3. Storage\n\n- **EX-2 Tenant isolation.** An export file can be read only by the tenant that requested it.\n- **EX-3 API exports.** Exports requested through the API are written to the tenant directory `/exports/<tenant>/<date>/`, which only that tenant can read. Both export paths now satisfy the tenant isolation rule.\n- **EX-4 Batch exports.** Exports produced by the nightly batch are written to the shared directory `/shared/exports/<date>/`.\n- **EX-5 Download link.** The requester receives a download link that is valid for 24 hours and that names the file.\n\n## 4. Housekeeping\n\n- **EX-8 Clean-up.** Export files are deleted 7 days after they were written.\n- **EX-9 Notification.** The requester is told by message when an export is ready or when it failed.\n- **EX-10 Failure.** A failed export leaves no partial file behind.\n- **EX-11 Usage report.** Every week the product team receives a report that lists the number of exports per report type, the average size of an export and the number of failed exports.\n- **EX-12 Concurrency.** A tenant can have at most three exports running at the same time. Further requests wait in a queue and start in the order in which they arrived.\n\n## 5. Acceptance criteria\n\n1. An export requested through the API can be downloaded by the requesting tenant.\n2. A second tenant cannot read the files of the first tenant.\n3. Files older than 7 days are gone.\n",
+   "before_text": "# Report Export Service\n\nStatus: Draft for review. Owner: Reporting team.\n\n## 1. Purpose\n\nThe export service lets tenants download their reports as files. This document states how the files are produced, stored and removed.\n\n## 2. Formats\n\n- **EX-1 Formats.** An export is produced as a CSV file or as a JSON file, as chosen by the requester. CSV files use UTF-8 and a comma as the separator.\n- **EX-6 Size.** An export contains at most one million rows. A request for more rows is split into several files of at most one million rows each.\n- **EX-7 Naming.** An export file is named after the report, the date and a running number, for example `orders-2026-03-01-001.csv`.\n\n## 3. Storage\n\n- **EX-2 Tenant isolation.** An export file can be read only by the tenant that requested it.\n- **EX-3 API exports.** Exports requested through the API are written to the shared directory `/shared/exports/<date>/`.\n- **EX-4 Batch exports.** Exports produced by the nightly batch are written to the shared directory `/shared/exports/<date>/`.\n- **EX-5 Download link.** The requester receives a download link that is valid for 24 hours and that names the file.\n\n## 4. Housekeeping\n\n- **EX-8 Clean-up.** Export files are deleted 7 days after they were written.\n- **EX-9 Notification.** The requester is told by message when an export is ready or when it failed.\n- **EX-10 Failure.** A failed export leaves no partial file behind.\n- **EX-11 Usage report.** Every week the product team receives a report that lists the number of exports per report type, the average size of an export and the number of failed exports.\n- **EX-12 Concurrency.** A tenant can have at most three exports running at the same time. Further requests wait in a queue and start in the order in which they arrived.\n\n## 5. Acceptance criteria\n\n1. An export requested through the API can be downloaded by the requesting tenant.\n2. A second tenant cannot read the files of the first tenant.\n3. Files older than 7 days are gone.\n",
+   "finding": {
+    "body": "Both export rules write files to one shared directory, so the files of different tenants sit side by side and can be read by anyone who can read the directory. Cited: spec lines 17-19 (before version).\nAn implementer who follows EX-3 and EX-4 builds exports that every tenant can read because all files share one directory.\nProtected requirement: line 17 (tenant isolation must hold).",
+    "heading": "### R1-1 Exports are written to a shared directory",
+    "id": "R1-1",
+    "review": "R1",
+    "run": "smoke"
+   },
+   "history": {
+    "previously_closed": false,
+    "recorded_before_sha": "ed603296356969ef7cf22af0dbb76799529744b1d2d07cb4ff0bd93de647dadb"
+   }
+  },
+  "n_deps": 0,
+  "precheck": "ok",
+  "reason": "eligible",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": true,
+    "obligation_text_still_verbatim": true,
+    "passage": "## 3. Storage\n\n- **EX-2 Tenant isolation.** An export file can be read only by the tenant that requested it.\n- **EX-3 API exports.** Exports requested through the API are written to the tenant directory `/exports/<tenant>/<date>/`, which only that tenant can read. Both export paths now satisfy the tenant isolation rule.\n- **EX-4 Batch exports.** Exports produced by the nightly batch are written to the shared directory `/shared/exports/<date>/`.\n- **EX-5 Download link.** The requester receives a download link that is valid for 24 hours and that names the file."
+   },
+   "before": {
+    "passage": "## 3. Storage\n\n- **EX-2 Tenant isolation.** An export file can be read only by the tenant that requested it.\n- **EX-3 API exports.** Exports requested through the API are written to the shared directory `/shared/exports/<date>/`.\n- **EX-4 Batch exports.** Exports produced by the nightly batch are written to the shared directory `/shared/exports/<date>/`.\n- **EX-5 Download link.** The requester receives a download link that is valid for 24 hours and that names the file.\n\n## 4. Housekeeping"
+   },
+   "defect": {
+    "summary": "R1-1 Exports are written to a shared directory",
+    "wrong_outcome": "An implementer who follows EX-3 and EX-4 builds exports that every tenant can read because all files share one directory."
+   },
+   "dependencies": {},
+   "diff": "@@ -15,7 +15,7 @@\n ## 3. Storage\n \n - **EX-2 Tenant isolation.** An export file can be read only by the tenant that requested it.\n-- **EX-3 API exports.** Exports requested through the API are written to the shared directory `/shared/exports/<date>/`.\n+- **EX-3 API exports.** Exports requested through the API are written to the tenant directory `/exports/<tenant>/<date>/`, which only that tenant can read. Both export paths now satisfy the tenant isolation rule.\n - **EX-4 Batch exports.** Exports produced by the nightly batch are written to the shared directory `/shared/exports/<date>/`.\n - **EX-5 Download link.** The requester receives a download link that is valid for 24 hours and that names the file.\n ",
+   "obligation": {
+    "text": "- **EX-2 Tenant isolation.** An export file can be read only by the tenant that requested it.",
+    "where": "before, line 17"
+   }
+  }
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [],
+  "url": null
+ },
+ "split": "smoke",
+ "variant": "v4"
+}

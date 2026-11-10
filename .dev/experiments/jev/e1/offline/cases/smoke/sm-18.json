@@ -1,0 +1,67 @@
+{
+ "author_intent": {
+  "category_name": "contradictory addition",
+  "closure_correct": "no",
+  "expect_auto_close": false,
+  "expected_precheck": "ok"
+ },
+ "case_id": "sm-18",
+ "category": "C8",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "rate_limiting",
+ "group": "G-rate_limiting",
+ "packet": {
+  "inputs": {
+   "after_text": "# API Rate Limiting\n\nStatus: Draft for review. Owner: Platform team.\n\n## 1. Purpose\n\nThis document states how the public API limits the number of requests a customer can send and what a client sees when it reaches the limit.\n\n## 2. Principles\n\n- **RL-1 Scope.** Limits apply per API key and not per address, so that customers behind one gateway do not share a limit.\n- **RL-2 Client-owned retries.** The server never retries or replays a request on behalf of a client. A rejected request is the client's to repeat.\n- **RL-3 Visibility.** A client can read its current limit and its remaining quota from the response headers of every request.\n- **RL-7 Burst.** A key may exceed its per-minute rate for up to two seconds, as long as the minute total stays within the limit.\n- **RL-8 Documentation.** The limits of every plan are listed in the public interface documentation.\n\n## 3. Enforcement\n\n- **RL-4 Limit.** Each API key may send at most 100 requests per minute.\n- **RL-5 Excess requests.** Requests above the limit are rejected with HTTP 429 and a `Retry-After` header. The server then repeats the rejected request on the client's behalf, as described in RL-2. This revision introduces no conflict with other requirements.\n- **RL-6 Counting.** A request is counted when the server has received it completely, whatever the result of the request.\n\n## 4. Operations\n\n- **RL-9 Alerting.** The platform team is alerted when more than 5 percent of all requests are rejected for longer than ten minutes.\n- **RL-10 Overrides.** Support can raise the limit of one key for a limited time. Each override is recorded with its reason and its end date.\n- **RL-11 Metrics.** The server counts requests, rejected requests and the largest queue length per key.\n\n## 5. Acceptance criteria\n\n1. The 101st request in a minute is not answered normally.\n2. The rejected request tells the client when to try again.\n3. The response headers show the remaining quota.\n",
+   "before_text": "# API Rate Limiting\n\nStatus: Draft for review. Owner: Platform team.\n\n## 1. Purpose\n\nThis document states how the public API limits the number of requests a customer can send and what a client sees when it reaches the limit.\n\n## 2. Principles\n\n- **RL-1 Scope.** Limits apply per API key and not per address, so that customers behind one gateway do not share a limit.\n- **RL-2 Client-owned retries.** The server never retries or replays a request on behalf of a client. A rejected request is the client's to repeat.\n- **RL-3 Visibility.** A client can read its current limit and its remaining quota from the response headers of every request.\n- **RL-7 Burst.** A key may exceed its per-minute rate for up to two seconds, as long as the minute total stays within the limit.\n- **RL-8 Documentation.** The limits of every plan are listed in the public interface documentation.\n\n## 3. Enforcement\n\n- **RL-4 Limit.** Each API key may send at most 100 requests per minute.\n- **RL-5 Excess requests.** Requests above the limit are queued silently and answered when capacity is free.\n- **RL-6 Counting.** A request is counted when the server has received it completely, whatever the result of the request.\n\n## 4. Operations\n\n- **RL-9 Alerting.** The platform team is alerted when more than 5 percent of all requests are rejected for longer than ten minutes.\n- **RL-10 Overrides.** Support can raise the limit of one key for a limited time. Each override is recorded with its reason and its end date.\n- **RL-11 Metrics.** The server counts requests, rejected requests and the largest queue length per key.\n\n## 5. Acceptance criteria\n\n1. The 101st request in a minute is not answered normally.\n2. The rejected request tells the client when to try again.\n3. The response headers show the remaining quota.\n",
+   "finding": {
+    "body": "The excess request rule holds requests above the limit and answers them later, so the client gets no signal that it exceeded its limit. Cited: spec lines 19-20 (before version).\nAn implementer who follows RL-5 builds a server that holds excess requests without a rejection, so clients cannot back off.\nProtected requirement: line 19 (the per-minute limit must hold).",
+    "heading": "### R1-1 Excess requests are held without telling the client",
+    "id": "R1-1",
+    "review": "R1",
+    "run": "smoke"
+   },
+   "history": {
+    "previously_closed": false,
+    "recorded_before_sha": "058fd92f7a39bba0cf8a799955d043db25dc44e8018af8c32bf948fa0253a860"
+   }
+  },
+  "n_deps": 1,
+  "precheck": "ok",
+  "reason": "eligible",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "## 3. Enforcement\n\n- **RL-4 Limit.** Each API key may send at most 100 requests per minute.\n- **RL-5 Excess requests.** Requests above the limit are rejected with HTTP 429 and a `Retry-After` header. The server then repeats the rejected request on the client's behalf, as described in RL-2. This revision introduces no conflict with other requirements.\n- **RL-6 Counting.** A request is counted when the server has received it completely, whatever the result of the request.\n\n## 4. Operations"
+   },
+   "before": {
+    "passage": "## 3. Enforcement\n\n- **RL-4 Limit.** Each API key may send at most 100 requests per minute.\n- **RL-5 Excess requests.** Requests above the limit are queued silently and answered when capacity is free.\n- **RL-6 Counting.** A request is counted when the server has received it completely, whatever the result of the request.\n\n## 4. Operations"
+   },
+   "defect": {
+    "summary": "R1-1 Excess requests are held without telling the client",
+    "wrong_outcome": "An implementer who follows RL-5 builds a server that holds excess requests without a rejection, so clients cannot back off."
+   },
+   "dependencies": {
+    "d1": {
+     "text": "- **RL-2 Client-owned retries.** The server never retries or replays a request on behalf of a client. A rejected request is the client's to repeat.",
+     "where": "RL-2"
+    }
+   },
+   "diff": "@@ -17,7 +17,7 @@\n ## 3. Enforcement\n \n - **RL-4 Limit.** Each API key may send at most 100 requests per minute.\n-- **RL-5 Excess requests.** Requests above the limit are queued silently and answered when capacity is free.\n+- **RL-5 Excess requests.** Requests above the limit are rejected with HTTP 429 and a `Retry-After` header. The server then repeats the rejected request on the client's behalf, as described in RL-2. This revision introduces no conflict with other requirements.\n - **RL-6 Counting.** A request is counted when the server has received it completely, whatever the result of the request.\n \n ## 4. Operations",
+   "obligation": {
+    "text": "- **RL-4 Limit.** Each API key may send at most 100 requests per minute.",
+    "where": "before, line 19"
+   }
+  }
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [],
+  "url": null
+ },
+ "split": "smoke",
+ "variant": "v4"
+}

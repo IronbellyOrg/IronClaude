@@ -1,0 +1,62 @@
+{
+ "author_intent": {
+  "category_name": "legitimate deletion of an erroneous extra rule",
+  "closure_correct": "yes",
+  "expect_auto_close": true,
+  "expected_precheck": "ok"
+ },
+ "case_id": "sm-05",
+ "category": "C4",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "notification_optout",
+ "group": "G-notification_optout",
+ "packet": {
+  "inputs": {
+   "after_text": "# Notification Preferences\n\nStatus: Draft for review. Owner: Messaging team.\n\n## 1. Purpose\n\nThis document specifies how customers control the notifications they receive from the shop and how the notification service applies those choices.\n\n## 2. Channels and preferences\n\n- **NO-1 Channels.** The service sends notifications by e-mail, by push message and by text message. Each channel has its own sender and its own delivery log.\n- **NO-6 Preference page.** A customer sets the notification preferences on the account page. The page offers one switch for marketing notifications and one for each channel.\n- **NO-7 Saving.** A saved preference applies to all devices of the customer and is visible on the account page within one minute.\n\n## 3. Opt-out\n\n- **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.\n- **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent. This revision keeps every opt-out obligation intact.\n- **NO-5 Unsubscribe link.** Every marketing e-mail contains a link that opts the customer out with one click and without a sign-in.\n\n## 4. Operations\n\n- **NO-8 Sender check.** Before a marketing notification is sent, the sender looks up the preference of the customer and drops the notification when the customer has opted out.\n- **NO-9 Audit.** Each change of a preference is recorded with the time, the channel and the origin of the change.\n- **NO-10 Rate.** A customer receives at most three marketing notifications per week across all channels.\n\n## 5. Acceptance criteria\n\n1. A customer who has opted out receives no marketing notification on any channel.\n2. An order confirmation is sent to a customer who has opted out.\n3. The unsubscribe link opts the customer out without a sign-in.\n",
+   "before_text": "# Notification Preferences\n\nStatus: Draft for review. Owner: Messaging team.\n\n## 1. Purpose\n\nThis document specifies how customers control the notifications they receive from the shop and how the notification service applies those choices.\n\n## 2. Channels and preferences\n\n- **NO-1 Channels.** The service sends notifications by e-mail, by push message and by text message. Each channel has its own sender and its own delivery log.\n- **NO-6 Preference page.** A customer sets the notification preferences on the account page. The page offers one switch for marketing notifications and one for each channel.\n- **NO-7 Saving.** A saved preference applies to all devices of the customer and is visible on the account page within one minute.\n\n## 3. Opt-out\n\n- **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.\n- **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent.\n- **NO-4 Purchase follow-ups.** Opted-out customers still receive marketing notifications about products they bought in the last 90 days.\n- **NO-5 Unsubscribe link.** Every marketing e-mail contains a link that opts the customer out with one click and without a sign-in.\n\n## 4. Operations\n\n- **NO-8 Sender check.** Before a marketing notification is sent, the sender looks up the preference of the customer and drops the notification when the customer has opted out.\n- **NO-9 Audit.** Each change of a preference is recorded with the time, the channel and the origin of the change.\n- **NO-10 Rate.** A customer receives at most three marketing notifications per week across all channels.\n\n## 5. Acceptance criteria\n\n1. A customer who has opted out receives no marketing notification on any channel.\n2. An order confirmation is sent to a customer who has opted out.\n3. The unsubscribe link opts the customer out without a sign-in.\n",
+   "finding": {
+    "body": "The purchase follow-up rule keeps sending marketing notifications to opted-out customers. It contradicts the opt-out rule, which says an opted-out customer receives none. Cited: spec lines 17, 19 (before version).\nAn implementer who follows NO-4 builds a sender that emails opted-out customers about their recent purchases.\nProtected requirement: line 17 (the opt-out must hold).",
+    "heading": "### R1-1 Purchase follow-ups ignore the opt-out",
+    "id": "R1-1",
+    "review": "R1",
+    "run": "smoke"
+   },
+   "history": {
+    "previously_closed": false,
+    "recorded_before_sha": "3dadc7aa38873fcb07ebd002dc11893fd5ab4b4ec500eecebebb5039b7798125"
+   }
+  },
+  "n_deps": 0,
+  "precheck": "ok",
+  "reason": "eligible",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "## 3. Opt-out\n\n- **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.\n- **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent. This revision keeps every opt-out obligation intact.\n- **NO-5 Unsubscribe link.** Every marketing e-mail contains a link that opts the customer out with one click and without a sign-in.\n\n## 4. Operations"
+   },
+   "before": {
+    "passage": "## 3. Opt-out\n\n- **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.\n- **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent.\n- **NO-4 Purchase follow-ups.** Opted-out customers still receive marketing notifications about products they bought in the last 90 days.\n- **NO-5 Unsubscribe link.** Every marketing e-mail contains a link that opts the customer out with one click and without a sign-in.\n\n## 4. Operations"
+   },
+   "defect": {
+    "summary": "R1-1 Purchase follow-ups ignore the opt-out",
+    "wrong_outcome": "An implementer who follows NO-4 builds a sender that emails opted-out customers about their recent purchases."
+   },
+   "dependencies": {},
+   "diff": "@@ -15,8 +15,7 @@\n ## 3. Opt-out\n \n - **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.\n-- **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent.\n-- **NO-4 Purchase follow-ups.** Opted-out customers still receive marketing notifications about products they bought in the last 90 days.\n+- **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent. This revision keeps every opt-out obligation intact.\n - **NO-5 Unsubscribe link.** Every marketing e-mail contains a link that opts the customer out with one click and without a sign-in.\n \n ## 4. Operations",
+   "obligation": {
+    "text": "- **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.",
+    "where": "before, line 17"
+   }
+  }
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [],
+  "url": null
+ },
+ "split": "smoke",
+ "variant": "v4"
+}

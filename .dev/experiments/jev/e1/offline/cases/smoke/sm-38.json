@@ -1,0 +1,62 @@
+{
+ "author_intent": {
+  "category_name": "coupled blockers",
+  "closure_correct": "no",
+  "expect_auto_close": false,
+  "expected_precheck": "ok"
+ },
+ "case_id": "sm-38",
+ "category": "C7",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "invoice_numbering",
+ "group": "G-invoice_numbering",
+ "packet": {
+  "inputs": {
+   "after_text": "# Invoice Numbering\n\nStatus: Draft for review. Owner: Finance systems team.\n\n## 1. Purpose\n\nThis document defines how invoice numbers are formed and assigned and how the finance team checks the numbers every night.\n\n## 2. Format\n\n- **IN-1 Prefix.** An invoice number starts with the letters `INV` followed by a hyphen and a running number of eight digits.\n- **IN-2 Immutability.** Once an invoice has been issued, its number never changes and the invoice is never edited. A mistake is corrected with a credit note.\n- **IN-8 Credit notes.** A credit note has its own number and names the invoice it corrects.\n\n## 3. Numbering and checks\n\n- **IN-3 Sequence.** Every region numbers its invoices from a sequence of its own, and the region code is part of each number.\n- **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.\n- **IN-5 Duplicate check.** The reconciliation job lists each number that occurs twice in the sequence that all regions share.\n- **IN-6 Time of assignment.** A number is assigned at the moment the invoice is issued, not when the draft is created.\n\n## 4. Archive\n\n- **IN-7 Archive.** Issued invoices are archived as PDF files for ten years and can be found by invoice number.\n- **IN-9 Export.** Finance can export all invoices of a month as one file for the accounting system.\n- **IN-10 Currency.** An invoice shows amounts in the currency of the customer and states the exchange rate when it differs from the base currency.\n- **IN-11 Delivery.** An issued invoice is sent to the billing contact of the customer within one hour and is also available for download from the customer portal.\n- **IN-12 Late payment.** An invoice that is unpaid 30 days after its issue date is marked overdue, and the customer receives one reminder with a copy of the invoice.\n\n## 5. Acceptance criteria\n\n1. Two invoices issued in the same second receive different numbers.\n2. The nightly job reports a missing number to finance.\n3. A credit note names the invoice it corrects.\n",
+   "before_text": "# Invoice Numbering\n\nStatus: Draft for review. Owner: Finance systems team.\n\n## 1. Purpose\n\nThis document defines how invoice numbers are formed and assigned and how the finance team checks the numbers every night.\n\n## 2. Format\n\n- **IN-1 Prefix.** An invoice number starts with the letters `INV` followed by a hyphen and a running number of eight digits.\n- **IN-2 Immutability.** Once an invoice has been issued, its number never changes and the invoice is never edited. A mistake is corrected with a credit note.\n- **IN-8 Credit notes.** A credit note has its own number and names the invoice it corrects.\n\n## 3. Numbering and checks\n\n- **IN-3 Sequence.** Invoice numbers are taken from one sequence that is shared by all regions, in the order in which invoices are issued.\n- **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.\n- **IN-5 Duplicate check.** The reconciliation job does not look for duplicate invoice numbers.\n- **IN-6 Time of assignment.** A number is assigned at the moment the invoice is issued, not when the draft is created.\n\n## 4. Archive\n\n- **IN-7 Archive.** Issued invoices are archived as PDF files for ten years and can be found by invoice number.\n- **IN-9 Export.** Finance can export all invoices of a month as one file for the accounting system.\n- **IN-10 Currency.** An invoice shows amounts in the currency of the customer and states the exchange rate when it differs from the base currency.\n- **IN-11 Delivery.** An issued invoice is sent to the billing contact of the customer within one hour and is also available for download from the customer portal.\n- **IN-12 Late payment.** An invoice that is unpaid 30 days after its issue date is marked overdue, and the customer receives one reminder with a copy of the invoice.\n\n## 5. Acceptance criteria\n\n1. Two invoices issued in the same second receive different numbers.\n2. The nightly job reports a missing number to finance.\n3. A credit note names the invoice it corrects.\n",
+   "finding": {
+    "body": "The duplicate check rule says the job does not look for duplicate invoice numbers, although the gap check next to it relies on the numbers being trustworthy. Cited: spec lines 18-19 (before version).\nAn implementer who follows IN-5 builds a reconciliation job that never reports two invoices with the same number.\nProtected requirement: line 18 (the gap check must hold).",
+    "heading": "### R1-1 The nightly job never looks for duplicate numbers",
+    "id": "R1-1",
+    "review": "R1",
+    "run": "smoke"
+   },
+   "history": {
+    "previously_closed": false,
+    "recorded_before_sha": "f21ce03126c4de1ba5784de3a4b193a99423762d1bdec45b0cab83d493e1845f"
+   }
+  },
+  "n_deps": 0,
+  "precheck": "ok",
+  "reason": "eligible",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "## 3. Numbering and checks\n\n- **IN-3 Sequence.** Every region numbers its invoices from a sequence of its own, and the region code is part of each number.\n- **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.\n- **IN-5 Duplicate check.** The reconciliation job lists each number that occurs twice in the sequence that all regions share.\n- **IN-6 Time of assignment.** A number is assigned at the moment the invoice is issued, not when the draft is created.\n\n## 4. Archive"
+   },
+   "before": {
+    "passage": "## 3. Numbering and checks\n\n- **IN-3 Sequence.** Invoice numbers are taken from one sequence that is shared by all regions, in the order in which invoices are issued.\n- **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.\n- **IN-5 Duplicate check.** The reconciliation job does not look for duplicate invoice numbers.\n- **IN-6 Time of assignment.** A number is assigned at the moment the invoice is issued, not when the draft is created.\n\n## 4. Archive"
+   },
+   "defect": {
+    "summary": "R1-1 The nightly job never looks for duplicate numbers",
+    "wrong_outcome": "An implementer who follows IN-5 builds a reconciliation job that never reports two invoices with the same number."
+   },
+   "dependencies": {},
+   "diff": "@@ -14,9 +14,9 @@\n \n ## 3. Numbering and checks\n \n-- **IN-3 Sequence.** Invoice numbers are taken from one sequence that is shared by all regions, in the order in which invoices are issued.\n+- **IN-3 Sequence.** Every region numbers its invoices from a sequence of its own, and the region code is part of each number.\n - **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.\n-- **IN-5 Duplicate check.** The reconciliation job does not look for duplicate invoice numbers.\n+- **IN-5 Duplicate check.** The reconciliation job lists each number that occurs twice in the sequence that all regions share.\n - **IN-6 Time of assignment.** A number is assigned at the moment the invoice is issued, not when the draft is created.\n \n ## 4. Archive",
+   "obligation": {
+    "text": "- **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.",
+    "where": "before, line 18"
+   }
+  }
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [],
+  "url": null
+ },
+ "split": "smoke",
+ "variant": "v2"
+}
