@@ -1,0 +1,6 @@
+2026-11-09T19:39:26 TIER tier1a: T1aModel01 claude-opus-5-5 -> next model (429 all accounts out of usage); kind=usage count=0; cooling down until 2026-11-09T20:39:26; error=All accounts are cooling down
+2026-11-09T19:39:26 TIER tier1a: T1aModel02 -> claude-sonnet-5-5; answered status=200 count=0
+2026-11-09T19:39:26 RESPONSE backend served model=claude-sonnet-5-5
+2026-11-09T19:46:50 TIER tier1a: T1aModel01 claude-opus-5-5 -> next model (429 all accounts out of usage); kind=usage count=0; cooling down until 2026-11-09T20:46:50; error=All accounts are cooling down
+2026-11-09T19:46:50 RESPONSE backend served model=claude-sonnet-5-5
+2026-11-09T19:46:50 TIER tier1a: T1aModel02 -> claude-sonnet-5-5; answered status=200 count=0

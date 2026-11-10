@@ -1,0 +1,9 @@
+{
+  "model_requested": "gpt-6.1-sol",
+  "result": "OK",
+  "returncode": 0,
+  "retries": [],
+  "answering_models": [
+    "gpt-6.1-sol"
+  ]
+}

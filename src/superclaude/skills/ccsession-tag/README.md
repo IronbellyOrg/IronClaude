@@ -438,24 +438,40 @@ applies to the next launch in any terminal or in Orca, with no new shell.
 ```bash
 ccsession notes                       # default tier (CCSESSION_DEFAULT_TIER)
 ccsession notes --tier tier1a         # a specific tier (tier1a and 1a both work)
-ccsession notes --model gpt-6-astra   # one model, no failover
+ccsession notes --model gpt-6-astra   # start on this model; fallback within its tier
 ```
 
 | | What happens |
 |---|---|
 | Picker (`/model`) | Shows the tiers (Tier 0, Tier 1a, ...), each with its models; with `+models` in the owner's rule, also each model on its own, in `CCSESSION_MODEL_ORDER` order |
-| Failover | When a tier's model answers with an out-of-usage error (for example `are cooling down`, `auth_unavailable`, `usage_limit_reached`, a billing error, an overloaded or retired model, an outdated provider login, or, for a streamed request, no start of a reply within 5 minutes), the same request goes to the next model; Claude Code never sees the error. A plain `Rate limited` and a `500` are passed back unchanged |
-| Cooldown | A model that failed is skipped for an hour (or the gateway's `Retry-After`), then tried once again |
+| Failover | Out-of-usage errors on the existing switch list (`are cooling down`, `auth_unavailable`, `usage_limit_reached`, billing, overloaded, retired or unrouted model, outdated provider login) switch immediately. Other 408, 429, 500, 502, 503 and 504 replies and cut-off error replies count per model across the shim's sessions: the first two go back for Claude Code to retry; the third switches the same request to the next model. Malformed requests and main-model context errors never count or switch. An unreachable gateway never switches |
+| Cooldown | Out of usage: `Retry-After`, else 1 hour. Repeated server errors: 5, 10, 20, 40, then 60 minutes (cap). Each expiry permits another try; a success resets the count and growing duration. A streamed request with no start of a reply in 5 minutes switches immediately and uses the same growing park |
 | Context | The tier window (`T<N>_WINDOW`) for the whole session; a backup smaller than that is never used |
 | `--model <name>` | Window from the tier slot that holds that model (a `[1m]` suffix is accepted); for a model in no tier, 1M if it is on the `one_million_context` list, else 200K, with a warning |
 | `--profile` | Not used in tier mode (refused with a pointer to `--tier` and `--model`) |
 | Shim | Always on |
 
+A named model starts with the requested model, then falls back within the allowed
+tier where it holds the best list position (ties go to the higher tier). It
+skips backups with a smaller context window than the requested model and shares
+failure counts and cooldowns with tier requests. A model outside all allowed
+tiers, or outside tier mode, keeps plain forwarding with no fallback. Successful
+HTTP replies stream immediately, pings and error events included: there is no
+look-ahead, event buffering, mid-stream switch or new reply-body timeout.
+
 Admin options: `/model <name>` inside a session switches to any model by
 name. `CCSESSION_SHOW_ALL_MODELS=1 ccsession notes` also lists every tier
 model one by one in `/model`; that session gets its own shim so other
 sessions' pickers do not change. `CCSESSION_TIERS=0` turns tier mode off,
-`CCSESSION_COOLDOWN_SECONDS` changes the cooldown, and
+`CCSESSION_COOLDOWN_SECONDS` changes the out-of-usage cooldown.
+`CCSESSION_FAILS_BEFORE_SWITCH` (default 3) controls the server-error threshold;
+`CCSESSION_PARK_SECONDS` (300) and `CCSESSION_PARK_MAX_SECONDS` (3600) control the
+starting and maximum growing park. These are process environment settings read
+when the shim starts, not tier settings in the workspace defaults file.
+`GW_PROXY_LOGFILE` overrides the default `${XDG_CACHE_HOME:-$HOME/.cache}/ccsession/proxy.log`.
+The log rotates at 5 MB with one older copy and records routing, error kind,
+counts and parks, never credentials or request/reply bodies (except gateway
+error messages, with credential redaction). An unwritable log does not stop requests.
 `CCSESSION_COMPACT_WINDOW` / `CCSESSION_COMPACT_PCT` still override the
 auto-compact settings. `ccsession --models-status` shows whether tier mode is
 on and where its settings came from.
@@ -513,7 +529,7 @@ two lines) is not seen; the central file is changed only through review.
 
 No time limit ever applies once a model has started answering: a reply may
 think or stream for hours. The only ccsession timer is, for streamed tier
-requests, a 5-minute wait for the gateway to accept the request (it normally
+requests and named-model fallback requests, a 5-minute wait for the gateway to accept the request (it normally
 sends its "starting" header within 2 seconds, before the model thinks). A
 gateway that cannot be reached at all is reported and never treated as a model
 failure.
@@ -532,8 +548,11 @@ failure.
 | `AIDEV_AI_DEFAULTS_PATH` | Workspace env file read on every launch (default `/etc/aidev02/aienv.d/defaults.sh`); the shell environment is used only when the file is absent |
 | `CCSESSION_TIERS=0` | Turn tier mode off |
 | `CCSESSION_SHOW_ALL_MODELS=1` | Also list every tier model in `/model` (own shim) |
-| `CCSESSION_COOLDOWN_SECONDS` | How long a failed model is skipped (default 3600) |
-| `CCSESSION_FIRST_BYTE_TIMEOUT` | Wait for a streamed tier reply to start before trying the next model (default 300) |
+| `CCSESSION_COOLDOWN_SECONDS` | Out-of-usage cooldown when no `Retry-After` is given (default 3600) |
+| `CCSESSION_FAILS_BEFORE_SWITCH` | Consecutive server errors before switching (default 3) |
+| `CCSESSION_PARK_SECONDS`, `CCSESSION_PARK_MAX_SECONDS` | First and maximum temporary park in seconds (defaults 300 and 3600) |
+| `CCSESSION_FIRST_BYTE_TIMEOUT` | Wait for a streamed tier or named-model fallback reply to start before switching (default 300) |
+| `GW_PROXY_LOGFILE` | Override the kept log path (default cache `ccsession/proxy.log`, 5 MB plus one rotated copy) |
 | `CC_SHIM_PORT` | Base shim port (default 4010). Show-all, a non-standard env file, tier settings from the shell, or a workspace owner name or roles (every Coder session) get base + an offset; an explicitly set port is used as-is |
 | `CCSESSION_COMPACT_WINDOW`, `CCSESSION_COMPACT_PCT` | Override the auto-compact window or percentage, in tier mode too |
 | `CCSESSION_GATEWAY_URL`, `CCSESSION_SHIM_URL` | Set by ccsession, not by you: a shim session exports the gateway its shim forwards to and the shim's own address. A `ccsession` started inside that session finds `ANTHROPIC_BASE_URL` equal to `CCSESSION_SHIM_URL` and forwards to `CCSESSION_GATEWAY_URL` instead, so one shim never forwards to another |
