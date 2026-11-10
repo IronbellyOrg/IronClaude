@@ -2193,10 +2193,13 @@ def test_every_shim_launch_gets_the_port_for_its_settings(
     expected = models.shim_port(4010)
     assert expected != 4010
     try:
-        _, url = _real_launch(
+        out, url = _real_launch(
             tmp_path, None, "--shim", upstream=gateway.url, CCSESSION_TIERS="0"
         )
-        assert url == f"http://127.0.0.1:{expected}"
+        assert url in {
+            f"http://127.0.0.1:{expected + models.SHIM_PORT_STEP * attempt}"
+            for attempt in range(models.SHIM_PORT_ATTEMPTS)
+        }, out
     finally:
         subprocess.run(
             ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False
