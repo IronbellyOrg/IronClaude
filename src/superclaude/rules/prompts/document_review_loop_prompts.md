@@ -9,8 +9,12 @@ Prompts for a coordinator that briefs a reviewer or a reviser in a document revi
 | First review of a document | FIRST-REVIEW prompt |
 | Any re-review (review 2 or 3) | RE-REVIEW prompt |
 | After a review report with open blocking findings, to revise | REVISE prompt |
+| After the loop's PASS (a scoped PASS, or a first review that passed) | GATE prompt, once |
+| After a gate review with open blocking findings | REVISE prompt, then one RE-REVIEW prompt: the gate loop |
 
 At `review: 3` with an open blocking finding the loop escalates to the user; no REVISE prompt and no fourth review.
+
+The gate loop under the GATE prompt numbers its own reviews (`review: 1 of 3` for the gate review, `review: 2 of 3` for its re-review), so no report is ever a fourth review.
 
 ## Values to fill
 
@@ -49,6 +53,15 @@ Follow the re-review core below in order (roles, Step 1, review number, self-che
 ### REVISE prompt
 
 - Revise brief: "Repair only the blocking findings {{IDS}} in the revised candidate {{CANDIDATE}}. Prefer deleting or narrowing text when the requirements are still met. Add no rule, mechanism or section that a listed finding does not call for, and cite the finding id on every addition. Report the byte size before and after, and the bytes added and deleted per finding id. Leave minor and Medium findings alone. Return the candidate once and do not award yourself a PASS."
+
+### GATE prompt
+
+Run it once, after the loop's PASS, on the document as it then stands. Brief the gate reviewer in a fresh context that has seen no report of this loop, and grade with the FIRST-REVIEW prompt's grading check.
+
+- **Gate loop**: a blocking finding of the gate review starts one gate loop: one REVISE prompt with the gate's blocking ids, then one RE-REVIEW prompt with the gate report as PRIOR. A PASS of that re-review ends the loop; a FAIL escalates to the user with the open blocking findings, with no second gate loop and no further review.
+- **Stall rule**: if every blocking finding of the gate review repeats a blocking finding of an earlier review in this loop (the same stated text and the same wrong outcome), the loop is stalled: escalate to the user with them and start no gate loop.
+- **Ceiling**: the loop's 3 reviews and 2 fix cycles, plus the gate review, one fix cycle and one re-review: at most 5 reviews and 3 fix cycles in all.
+- Gate brief: "This is a first review of a complete document; no prior rounds exist. Review the candidate {{CANDIDATE}} (sha256 of the file) against the requirements it states, review 1 of 3. Inspect behavior and the dependencies it touches. Report concrete wrong outcomes, not a minimum number of findings. Minor findings are notes and never fail the review; list Medium and minor findings under follow-up candidates. If an input is missing or unreadable, return incomplete. Do not edit the candidate and do not start another review. State what you covered."
 
 ## Never
 
