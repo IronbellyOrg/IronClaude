@@ -2,7 +2,7 @@
 id: "GFXAI-JEV-LITELLM-GATEWAY"
 title: "Jev through the LiteLLM gateway: provisioning, key handling and rollback"
 description: "How to expose TypeSafe Jev to Coder workspaces through the LiteLLM gateway, where each piece is provisioned, and how to verify, rotate and roll back."
-version: "0.1"
+version: "0.2"
 status: "🟡 Draft"
 type: "📘 Operational Guide"
 priority: "▶️ Medium"
@@ -31,7 +31,8 @@ template_schema_doc: ".claude/templates/documents/operational_guide_template.md"
 |---|---|
 | Guide Type | Setup / operations |
 | Target Environment | LiteLLM gateway host; Coder template; developer workspaces |
-| Maintained By | platform (owner to confirm) |
+| Maintained By | platform |
+| Budget owner | Ryan Wiancko (company-wide Jev budget) |
 | Last Verified Against System | not verified against the live gateway |
 | Prerequisites Guide | none |
 | Next Guide | none |
@@ -83,7 +84,7 @@ Not in the installer: `superclaude install` copies commands, agents, skills, hoo
 |---|---|---|
 | 1 | You own the vendor account and have a TypeSafe API key for `jev-1.14.0` | the vendor console lists the model; do not paste the key into chat, tickets or this repo |
 | 2 | Admin access to the LiteLLM gateway (config file or admin UI, master key) | `curl -s -H "Authorization: Bearer $LITELLM_MASTER_KEY" "$GATEWAY/health/liveliness"` returns OK `[UNVERIFIED]` |
-| 3 | The gateway's LiteLLM version is known | `GET $GATEWAY/health/readiness` or the admin UI footer shows the version `[UNVERIFIED]`; the native Jev provider is reported to need `v1.103.0-rc` or later `[UNVERIFIED]` |
+| 3 | Record the gateway's LiteLLM version | The gateway was updated the week before 2026-11-11 (owner statement), so the native Jev provider, reported to need `v1.103.0-rc` or later `[UNVERIFIED]`, is likely present. Confirm: `GET $GATEWAY/health/readiness` or the admin UI shows the version; write it here: ______ |
 | 4 | Edit access to the Coder template repo (`IronbellyOrg/Coder`, `templates/VSCode-AIDev02`) | you can open a PR there |
 | 5 | The gateway host can reach `api.typesafe.ai:443` | `curl -sS -o /dev/null -w '%{http_code}\n' https://api.typesafe.ai/` from the gateway host returns an HTTP code (any) |
 
@@ -91,7 +92,7 @@ Not in the installer: `superclaude install` copies commands, agents, skills, hoo
 
 ## 3. Phase 1: Add the Jev route to the gateway
 
-Choose A if your LiteLLM supports Jev natively, else B. Both keep the key on the gateway.
+Try A first: the gateway was updated recently, so native support is likely (confirm the version in Prerequisite 3). Use B if A is missing or cannot pin the model id. Both keep the key on the gateway.
 
 ### Step 1.1: Store the vendor key as a gateway secret
 
@@ -144,6 +145,10 @@ Expected: HTTP 200; JSON with `"model": "jev-1.14.0"` and an answer for `arrived
 ---
 
 ## 4. Phase 2: Virtual keys with budgets
+
+### Step 2.0: Set the company budget
+
+The Jev budget is company-wide and owned by Ryan Wiancko. Put the cap where LiteLLM enforces it above the keys (a team or organisation budget whose members are the team keys below `[UNVERIFIED]` for your version), so no single key can exceed it and the total stays under the company figure. At about $0.00005 a call the dollar cap is rarely the binding limit; set an alert threshold at 50% and 80% of the cap, sent to the budget owner.
 
 ### Step 2.1: Create a key per team (or per user)
 
@@ -261,8 +266,9 @@ Run the repo's key scan (`p15/jev/keyscan.py` in the experiment tree) over any d
 
 ## 10. Next Steps and open items
 
-- [ ] Confirm LiteLLM version and the native Jev route against `docs.litellm.ai` (blocked for the authoring session).
-- [ ] Decide the owner and the monthly budget for Jev.
+- [ ] Confirm the LiteLLM version and the native Jev route against `docs.litellm.ai` (blocked for the authoring session; the gateway was updated recently).
+- [x] Budget owner: Ryan Wiancko, company-wide.
+- [ ] Budget owner to set the monthly cap and alert thresholds (Step 2.0).
 - [ ] Add the `JEV_API_URL` override to the client when a consumer is approved.
 - [ ] Re-evaluate enabling Jev only after a seam passes a precision gate against independent labels.
 
@@ -271,3 +277,4 @@ Run the repo's key scan (`p15/jev/keyscan.py` in the experiment tree) over any d
 | Date | Version | Author | Changes |
 |---|---|---|---|
 | 2026-11-11 | 0.1 | Claude Code | Initial draft; gateway facts unverified |
+| 2026-11-11 | 0.2 | Claude Code | Record recent LiteLLM update, company-wide budget owner, budget step |
