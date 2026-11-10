@@ -1,0 +1,15 @@
+{
+  "schema": "review-panel/1",
+  "template_id": "live7",
+  "version": "1.0.0",
+  "description": "Live 7-reviewer panel: 1x Tier 1b (fixed anchor, Sonnet first) + 1x Tier 2 + 1x Tier 2b + 2x Tier 3 + 2x Tier 4. In the anthropic-only environment it resolves to 1 Sonnet + 6 Haiku, the 1S+6H shape measured in the #346 replicate. In the gateway environment it fails closed until tier2b has a model list in the tier file.",
+  "distinct_across_slots": true,
+  "apply_to": ["first"],
+  "slots": [
+    {"slot_id": "t1b", "tier": "tier1b", "count": 1, "strategy": "fixed"},
+    {"slot_id": "t2", "tier": "tier2", "count": 1, "strategy": "random"},
+    {"slot_id": "t2b", "tier": "tier2b", "count": 1, "strategy": "random"},
+    {"slot_id": "t3", "tier": "tier3", "count": 2, "strategy": "random"},
+    {"slot_id": "t4", "tier": "tier4", "count": 2, "strategy": "random"}
+  ]
+}

@@ -21,7 +21,7 @@ def command() -> None:
     "template",
     default=None,
     type=click.Path(dir_okay=False),
-    help="Panel template file (whole-file replacement).",
+    help="Panel template file (whole-file replacement), or @NAME for a packaged template such as @live7.",
 )
 @click.option(
     "--tiers",
