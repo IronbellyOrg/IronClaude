@@ -74,7 +74,7 @@ Not in the installer: `superclaude install` copies commands, agents, skills, hoo
 
 - Nothing in `src/` calls Jev today; the client exists only in the experiment tree.
 - Evidence from #346: three Jev seams were tried; two were dropped and the third (A2, acceptance-check observability) was labelled blind by three Opus 5.5 agents: Jev's `cannot_pass` was right on 6 of 24 sampled packets (25%) and did not separate flawed from sound checks (Fisher p = 0.72). See `.dev/research/346-review-loop-experiments/p20/label/RESULTS-A2-LABELS.md`.
-- So: provision the gateway route and the opt-in template parameter now, leave it unset in the default template, and enable it per team when a consumer with a measured benefit exists.
+- So: provision the gateway route and the template URL now; Jev stays off for every user who has not created the `jev` secret, and you issue keys per team when a consumer with a measured benefit exists.
 
 ---
 
@@ -208,7 +208,7 @@ Workspaces should reach the gateway only. If workspace egress is allow-listed, d
 ## 6. Verification
 
 ### 6.1 End-to-end
-1. In a workspace with the parameter set, run the Phase 1 smoke test against `$JEV_API_URL`. Expect 200 and `model` equal to `jev-1.14.0`.
+1. In a workspace of a user with the `jev` secret, run the Phase 1 smoke test against `$JEV_API_URL`. Expect 200 and `model` equal to `jev-1.14.0`.
 2. Run it with a deliberately wrong key. Expect 401 or 403.
 3. Run it from a workspace of a user without the `jev` secret. Expect `JEV_API_URL` only and no way to call.
 
@@ -217,7 +217,7 @@ Run the repo's key scan (`p15/jev/keyscan.py` in the experiment tree) over any d
 
 ### All-Green Checklist
 - [ ] Phase 1 to 3 checkpoints pass
-- [ ] Wrong key rejected; no-parameter workspace has no Jev variables
+- [ ] Wrong key rejected; a user without the `jev` secret has no `JEV_API_KEY`
 - [ ] Budget alert or limit configured on the team key
 
 ---
