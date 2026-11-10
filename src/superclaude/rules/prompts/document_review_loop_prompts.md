@@ -27,6 +27,7 @@ A brief that names the roles differently, or does not name them, does not change
 ### FIRST-REVIEW prompt
 
 Write `review: 1 of 3` once, as the first line of the report.
+- **Lint evidence**: before each review the coordinator runs `superclaude review lint <candidate> --format md --out <review dir>/lint-<N>.md` and passes the file as the value lint. When the brief gives lint, read that file first and address each lint id in the report: confirm it as a finding graded with the grading check, or dismiss it with the quote that shows it is not a defect. A lint id never fails the review by itself.
 
 - **Grading check**, for each finding before you mark it blocking. Write the sentence "An implementer who follows the stated text as written builds X, and X is wrong because Y." Blocking needs a sentence that holds with no further assumption: two stated texts that contradict each other, a stated text that causes data loss or breaks a security or safety boundary, or a stated text that an acceptance criterion cannot pass. Grade it Medium when the sentence needs a guess that the implementer picks the worse of two readings the text allows, or when the finding is a requirement the document never states (a missing restriction, an undefined state, an unspecified edge case) rather than a stated text that does harm. A Medium finding goes under follow-up candidates even when its label is MAJOR.
 - First-review brief: "Review the candidate {{CANDIDATE}} (sha256 of the file) against the requirements it states, review 1 of 3. Inspect behavior and the dependencies it touches. Report concrete wrong outcomes, not a minimum number of findings. Minor findings are notes and never fail the review; list Medium and minor findings under follow-up candidates. If an input is missing or unreadable, return incomplete. Do not edit the candidate and do not start another review. State what you covered."
@@ -34,6 +35,7 @@ Write `review: 1 of 3` once, as the first line of the report.
 ### RE-REVIEW prompt
 
 Follow the re-review core below in order (roles, Step 1, review number, self-check), then use this brief.
+- **Lint evidence**: when the brief gives lint, the file was produced on the revised candidate; address each lint id whose lines the diff touches and each lint id that is new since the prior review, as in the first review.
 
 | ROLE | FILE VALUE | MEANING |
 |---|---|---|
