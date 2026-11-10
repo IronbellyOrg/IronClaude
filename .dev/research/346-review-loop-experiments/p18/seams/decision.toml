@@ -1,0 +1,22 @@
+# ab6 offline-replay decision file (SHARED-CONTRACT J v1 sections J4, J7, J10.6 limits; the judges' kill rules from the p18 debate).
+# Nothing here is tuned on replay results.  Ceilings are raised only by the owner.
+[jev]
+model = "jev-1.14.0"
+offline_ceiling_usd = 5.0
+offline_ceiling_input_tokens = 30000000
+live_ceiling_usd = 1.0
+[caps]
+a1_pairs = 60              # prefilter cap (judges)
+a1_hints = 12              # non-supported pairs shown (Sonnet J1 / design file)
+a2_lines = 8               # UNVERIFIED lines in lint-N.md
+merged_hints_v2 = 15       # A1 + A3 hints for the V2 brief, merged by obligation id
+packet_bytes_max = 12000   # canonical request bytes per packet (about 4k tokens); a larger packet is refused locally
+[gates]                    # judges' kill rules (p18 debate, DESIGN-AB6.md)
+a1_recall_min = 0.70       # prefilter recall of the relevant pairs
+a1_false_flags_max = 8     # per spec: flags on defects the ledger marks FIXED/absent
+a1_beyond_control_min = 1  # per spec (advocate) / at least once overall (design file): flags on residual blockers the controls do not flag
+a2_tail_catch_min = 3      # tail defects Jev catches that the controls miss (A2 advocate kill rule)
+a3_separation = "resolved and failed survivors differ in Jev label beyond named_not_touched"
+[replay]
+expected_calls = 1300      # judges' expectation for the 13-spec replay
+expected_usd = 0.03

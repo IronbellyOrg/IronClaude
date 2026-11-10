@@ -1,0 +1,36 @@
+{
+  "schema": "review-panel/1",
+  "template_id": "ab5-t4",
+  "version": "1.0.0",
+  "description": "ab5 panel (owner 2026-11-10): one reviewer per tier t1b, t2, t3, t4; Tier 1b is the fixed anchor. Same slot strategies as PN1's default template; t3 count 2 -> t3 count 1 + t4 count 1. No tier1a slot.",
+  "distinct_across_slots": true,
+  "apply_to": [
+    "first"
+  ],
+  "slots": [
+    {
+      "slot_id": "t1b",
+      "tier": "tier1b",
+      "count": 1,
+      "strategy": "fixed"
+    },
+    {
+      "slot_id": "t2",
+      "tier": "tier2",
+      "count": 1,
+      "strategy": "random"
+    },
+    {
+      "slot_id": "t3",
+      "tier": "tier3",
+      "count": 1,
+      "strategy": "random"
+    },
+    {
+      "slot_id": "t4",
+      "tier": "tier4",
+      "count": 1,
+      "strategy": "random"
+    }
+  ]
+}
