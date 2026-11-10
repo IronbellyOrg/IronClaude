@@ -64,3 +64,5 @@ Complete PN1 runs b1-r4..r6, mean output tokens per run, by lane (per-step model
 | total loop | | | 408,316 | 100% | 7.61x |
 
 Reading: PN1's cost is dominated by the three parallel reviewers on cheaper stand-in models; its primary-lane cost (about 2x baseline) is equal to ab4's (106.5k). Per 100k extra primary-lane tokens PN1 buys about 24 extra fixed defects (12.9 for 52.7k), ab4 about 6.6. Caveats: the Haiku stand-ins wrote 68k-108k tokens each against 23k for the Sonnet reviewer, so live Tier 2/3 volume may differ; Tier 2/3 models are priced (only subscription models are free of marginal cost); Fable output is $50/M against Sonnet's $10/M, so the adjudicator's 11k tokens cost about half as much as the 106k primary tokens; input tokens are not counted.
+
+**Policy note (owner rule, 2026-11-10):** Fable / Tier 0 is forbidden in all pipelines and Opus 5.5 is the ceiling (sparingly). PN1's historical runs used a Fable adjudicator, so the PN1 numbers above were produced under a condition that is no longer allowed. Later arms (ab5) run the adjudicator on Sonnet; if their ledger scores fall below PN1's, part of PN1's gain came from the Fable adjudicator.
