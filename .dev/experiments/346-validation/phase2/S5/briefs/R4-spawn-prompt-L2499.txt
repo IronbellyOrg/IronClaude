@@ -1,0 +1,1 @@
+Your complete instructions are in the file /tmp/ironclaude-p0live/final-prompt-4.md. Read it in full and follow it exactly. Rule that applies to you personally: never run bare python or python3 (not even a no-op); use only `uv run --no-project python -I ...`, or jq/grep/awk. Return the result in the format the file specifies.

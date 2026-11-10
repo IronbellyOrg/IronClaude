@@ -1,0 +1,76 @@
+{
+  "id": "c2128ecc-496b-4e8d-824f-1dba75e8aeba",
+  "ok": true,
+  "result": {
+    "worktree": {
+      "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/exp346-ab-trt-r2",
+      "identity": {
+        "key": "wt2:local:06549244-dc94-4541-b429-3b76cf24033c",
+        "executionHostId": "local",
+        "instanceId": "06549244-dc94-4541-b429-3b76cf24033c"
+      },
+      "instanceId": "06549244-dc94-4541-b429-3b76cf24033c",
+      "repoId": "de550e99-fa3c-42e2-abfe-1d092771c759",
+      "projectId": "github:superclaude-org/superclaude_framework",
+      "hostId": "local",
+      "projectHostSetupId": "de550e99-fa3c-42e2-abfe-1d092771c759",
+      "creatorProvenance": {
+        "kind": "host"
+      },
+      "path": "/home/coder/workspaces/worktrees/IronClaude/exp346-ab-trt-r2",
+      "head": "2cb683f5c1f0dfbd3c5f169a8b64a432931f718e",
+      "branch": "refs/heads/ironbelly/exp346-ab-trt-r2",
+      "isBare": false,
+      "isMainWorktree": false,
+      "displayName": "exp346-ab-trt-r2",
+      "displayNameMode": "fixed",
+      "comment": "",
+      "linkedIssue": null,
+      "linkedPR": null,
+      "linkedLinearIssue": null,
+      "linkedLinearIssueWorkspaceId": null,
+      "linkedLinearIssueOrganizationUrlKey": null,
+      "linkedGitLabMR": null,
+      "linkedGitLabIssue": null,
+      "linkedBitbucketPR": null,
+      "linkedAzureDevOpsPR": null,
+      "linkedGiteaPR": null,
+      "linkedWorkItem": null,
+      "linkedTaskSourceContext": null,
+      "isArchived": false,
+      "isUnread": false,
+      "isPinned": false,
+      "sortOrder": 1794114308724,
+      "lastActivityAt": 1794114308723,
+      "createdAt": 1794114308723,
+      "cliProvenance": {
+        "kind": "created-by-cli",
+        "createdAt": 1794114306421,
+        "callerTerminalHandle": "term_2fbcd553-3087-47aa-a17c-afb98769d1dc"
+      },
+      "baseRef": "2cb683f5c1f0dfbd3c5f169a8b64a432931f718e",
+      "workspaceStatus": "in-progress",
+      "parentWorktreeId": null,
+      "childWorktreeIds": [],
+      "lineage": null,
+      "workspaceLineage": null,
+      "git": {
+        "path": "/home/coder/workspaces/worktrees/IronClaude/exp346-ab-trt-r2",
+        "head": "2cb683f5c1f0dfbd3c5f169a8b64a432931f718e",
+        "branch": "refs/heads/ironbelly/exp346-ab-trt-r2",
+        "isBare": false,
+        "isMainWorktree": false
+      }
+    },
+    "lineage": null,
+    "workspaceLineage": null,
+    "warnings": [],
+    "catalogVersion": {
+      "epoch": "d1ce59e7-a8a5-444a-a422-5a40b5090d47",
+      "sequence": 649
+    }
+  },
+  "_meta": {
+    "runtimeId": "93e79a07-81c4-4ec7-a938-8038a2f29ed3"
+  }
+}

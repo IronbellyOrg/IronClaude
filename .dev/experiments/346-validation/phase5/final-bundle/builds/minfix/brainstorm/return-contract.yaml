@@ -1,0 +1,51 @@
+contract_version: "1.0"
+status: partial
+seed_brief_path: .dev/brainstorms/346-minfix/seed-brief.md
+merged_output_path: .dev/brainstorms/346-minfix/merged-requirements.md
+convergence_score: 0.96
+adversarial_artifacts_dir: .dev/brainstorms/346-minfix/nested/adversarial-1/adversarial
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: fallback_1   # mcp__auggie__codebase-retrieval not available in this session; Grep/Glob/Read used
+  - source: research-light
+    quality_tier: skipped      # --no-research
+  - source: research-deep
+    quality_tier: skipped      # --no-research
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "adversarial status partial: debate convergence BLOCKED_BY_INVARIANTS (10 HIGH unaddressed at Round 2.5) at depth standard; base sonnet:analyzer force-selected by score; the 10 items were carried into the merge as required changes and not re-probed"
+  - "refactor-plan-review.md verdict FAIL (7 blocking); corrections applied at merge per merge-log.md, not re-reviewed as a plan"
+  - "snapshot fallback (reviser runs a script that writes .fixcheck/) unproven until a pilot replicate"
+
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:brainstorm \"<THEME minfix topic, see seed-brief.md>\" --unattended --output .dev/brainstorms/346-minfix --depth standard --proposals 3 --codebase --no-research --handoff none"
+report_path: .dev/brainstorms/346-minfix/merged-requirements.md
+artifacts:
+  - .dev/brainstorms/346-minfix/SPEC.md
+  - .dev/brainstorms/346-minfix/spec-review.md
+  - .dev/brainstorms/346-minfix/spec-review-round2.md
+  - .dev/brainstorms/346-minfix/spec-review-round3.md
+  - .dev/brainstorms/346-minfix/seed-brief.md
+  - .dev/brainstorms/346-minfix/enrichment/codebase-context.md
+  - .dev/brainstorms/346-minfix/handoff/1-brainstorm.md
+  - .dev/brainstorms/346-minfix/nested/adversarial-1/return-contract.yaml
+  - .dev/brainstorms/346-minfix/nested/adversarial-1/merged-output.md
+  - .dev/brainstorms/346-minfix/nested/adversarial-1/adversarial
+
+# telemetry (non-stable, approximate)
+wave_durations_ms:
+  wave_0: 120000
+  wave_1: 600000
+  wave_2a: 300000
+  wave_2b: 60000
+  wave_3: 8400000
+  wave_4: 10000
+token_usage:
+  wave_3: "about 4.4M subagent tokens across 20 subagent runs (sum of task notifications)"
+agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for architecture domain',sonnet:analyzer:'focus on root-cause analysis and evidence-based reasoning for architecture',haiku:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'"
+enrichment_artifact_sizes:
+  codebase-context.md: 4300

@@ -1,0 +1,286 @@
+"""Static checks for /sc:spec-panel-stoprule, its protocol skill and the finding-grader agent.
+
+Enforcement type: STATIC (these tests prove the text exists, not that a reviewer obeys it;
+only tests/skills/test_stoprule_script.py proves behaviour). The variant is built from the
+472-line Arm B base (owner ruling), pinned here as a byte-identical fixture.
+"""
+
+import hashlib
+import re
+from pathlib import Path
+
+import pytest
+
+from superclaude.cli import install_skills
+from tests.skills.test_review_severity_rule import AT_CAP_CLAUSES, CANONICAL_CAP_TEXT
+
+_REPO = Path(__file__).resolve().parents[2]
+_SRC = _REPO / "src/superclaude"
+VARIANT = _SRC / "commands/spec-panel-stoprule.md"
+SKILL_DIR = _SRC / "skills/sc-spec-panel-stoprule-protocol"
+SKILL = SKILL_DIR / "SKILL.md"
+RUBRIC = SKILL_DIR / "refs/rubric.md"
+AGENT = _SRC / "agents/finding-grader.md"
+BASE = Path(__file__).resolve().parent / "fixtures/stoprule/spec-panel-armb-base.md"
+BASE_SHA256 = "c8d80346a96cb528fce6cff3bcadfed5bc95d1eee48dea0ac275404314b8df2f"
+RUBRIC_SHA12 = "dbc4926c7421"  # .dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t1-rubric-sha256.txt
+RULE = "generates a finding; it is blocking only under rubric B1-B3 of the Review Loop, otherwise minor."
+
+
+def text(path):
+    return path.read_text(encoding="utf-8")
+
+
+def review_loop_bullets(body):
+    section = body[body.index("## Review Loop\n") :].split("\n## ", 1)[0]
+    return [ln for ln in section.splitlines() if re.match(r"^\d+\. \*\*", ln)]
+
+
+# Planned edits are allowed only at these base line numbers (1-based, in the pinned base
+# fixture); the same text anywhere else is drift. Every other base line must appear at its
+# shifted position in the variant, byte for byte.
+RENAMED = {10, 22, 408, 411, 414, 417, 420}  # title, Usage, Examples
+AFTER_TITLE = 10
+INSERTED_AFTER_TITLE = (
+    "",
+    "## Activation",  # owner ruling 2026-11-08: lint-architecture Check 6 needs the heading
+    "",
+    "> Skill sc:spec-panel-stoprule-protocol",
+    "",
+    ("startswith", "If the skill is missing at both "),
+    "",
+    ("startswith", "This variant deliberately has no `## Unattended mode` section"),
+)
+BULLETS_2_TO_6 = dict(
+    zip(
+        range(257, 262),
+        ["Grading", "Verdict", "Cap", "Re-review output", "Reviser contract"],
+    )
+)
+PRECEDENCE = 262
+FR8, FR9 = 326, 327
+
+
+def expected_lines(base_text):
+    """The variant as the planned edits make it: exact strings or (shape, prefix) checks."""
+    base = base_text.split("\n")
+    out = []
+    for n, line in enumerate(base, start=1):
+        if n == 2:
+            out.append("name: spec-panel-stoprule")
+        elif n == 3:
+            out.append(
+                line[:-1] + ' (experimental variant: computed review-loop verdict)"'
+            )
+        elif n in RENAMED:
+            renamed = line.replace("/sc:spec-panel ", "/sc:spec-panel-stoprule ", 1)
+            assert renamed != line, f"base line {n} holds no /sc:spec-panel to rename"
+            out.append(renamed)
+        elif n in BULLETS_2_TO_6:
+            out.append(("startswith", f"{n - 255}. **{BULLETS_2_TO_6[n]}**"))
+        elif n == PRECEDENCE:
+            out.append(
+                line.removesuffix(".") + ", and may not change the rubric or its hash."
+            )
+        elif n == FR8:
+            out.append(
+                line.replace(
+                    "automatically generates a finding with **MAJOR** severity minimum.",
+                    RULE,
+                )
+            )
+        elif n == FR9:
+            out.append(
+                line.replace("is classified as **MAJOR** severity minimum.", RULE)
+            )
+        else:
+            out.append(line)
+        if n == AFTER_TITLE:
+            out.extend(INSERTED_AFTER_TITLE)
+        if n == PRECEDENCE:
+            out.append(("startswith", "8. **Procedure** (critique mode only): "))
+    return out
+
+
+def drift(variant_text, base_text):
+    """(variant line no, expected, actual) for every position that breaks its rule.
+
+    Planned edits are allowed only at the base line numbers above; the same text anywhere
+    else is drift, and so is any added, removed or changed line (blank lines and the final
+    newline included).
+    """
+    want, got = expected_lines(base_text), variant_text.split("\n")
+    out = (
+        []
+        if len(want) == len(got)
+        else [(None, f"{len(want)} lines", f"{len(got)} lines")]
+    )
+    for n, (rule, line) in enumerate(zip(want, got), start=1):
+        ok = line.startswith(rule[1]) if isinstance(rule, tuple) else line == rule
+        if not ok:
+            out.append((n, rule, line))
+    return out
+
+
+def test_base_fixture_is_the_472_line_arm_b_file():
+    data = BASE.read_bytes()
+    assert hashlib.sha256(data).hexdigest() == BASE_SHA256
+    assert len(data.decode("utf-8").splitlines()) == 472
+    assert not re.search(r"^## Unattended mode", data.decode("utf-8"), re.M)
+
+
+def test_variant_frontmatter_title_and_activation():
+    body = text(VARIANT)
+    assert "\nname: spec-panel-stoprule\n" in body
+    assert re.search(
+        r'^description: ".*\(experimental variant: computed review-loop verdict\)"$',
+        body,
+        re.M,
+    )
+    assert "\n# /sc:spec-panel-stoprule - " in body
+    assert "\n> Skill sc:spec-panel-stoprule-protocol\n" in body
+    assert "E-SKILL-MISSING" in body
+    assert (
+        "`~/.claude/skills/sc-spec-panel-stoprule-protocol/` and `.claude/skills/sc-spec-panel-stoprule-protocol/`"
+        in body
+    )
+
+
+def test_review_loop_has_bullets_1_to_8_in_order():
+    bullets = review_loop_bullets(text(VARIANT))
+    assert [int(b.split(".", 1)[0]) for b in bullets] == list(range(1, 9))
+    names = [re.match(r"^\d+\. \*\*([^*]+)\*\*", b).group(1) for b in bullets]
+    assert names == [
+        "Mode",
+        "Grading",
+        "Verdict",
+        "Cap",
+        "Re-review output",
+        "Reviser contract",
+        "Precedence",
+        "Procedure",
+    ]
+
+
+def test_variant_holds_the_cap_text_and_the_computed_verdict_names():
+    body = text(VARIANT)
+    assert CANONICAL_CAP_TEXT in body and AT_CAP_CLAUSES[1] in body
+    for token in (
+        "stoprule.py",
+        "sc-spec-panel-stoprule-protocol",
+        "verdict: PASS",
+        "verdict: FAIL",
+    ):
+        assert token in body, token
+
+
+def test_new_wording_is_present():
+    body = text(VARIANT)
+    bullets = review_loop_bullets(body)
+    assert "frozen rubric" in bullets[1] and "not an automatic MAJOR" in bullets[1]
+    assert bullets[6].endswith(", and may not change the rubric or its hash.")
+    assert "begin` exits 4" in bullets[3] and "## Escalation to the user" in bullets[3]
+    assert "late-found" in bullets[4]
+    assert (
+        "D1..Dk" in bullets[5]
+        and "No confirmed blocking findings: make no spec edit" in bullets[5]
+    )
+    for rule in ("1. **FR-8: GAP Status Rule**", "2. **FR-9: Blank Behavior Rule**"):
+        line = next(ln for ln in body.splitlines() if ln.startswith(rule))
+        assert line.endswith(RULE) and "**MAJOR** severity minimum" not in line
+
+
+def test_variant_has_no_unattended_mode():
+    body = text(VARIANT)
+    assert not re.search(r"^## Unattended mode", body, re.M)
+    lines = [ln for ln in body.splitlines() if "--unattended" in ln]
+    assert len(lines) == 1 and "does not accept `--unattended`" in lines[0]
+
+
+def test_variant_equals_the_base_outside_the_replaced_blocks():
+    assert drift(text(VARIANT), text(BASE)) == []
+
+
+ANCHOR = "## Integration Patterns\n"
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        (
+            "## Behavioral Flow",
+            "## Behavioural Flow",
+        ),  # (a) one character of an inherited line
+        (
+            "--focus requirements,architecture\n",
+            "--focus requirements\n",
+        ),  # (b) an Examples argument
+        ("[--iterations N]", "[--iteration N]"),  # (c) a Usage flag
+        (
+            "/sc:spec-panel @final_spec.yml",
+            "/sc:spec-panel-stoprule @final_spec.yml",
+        ),  # (d) rename outside Examples
+        (
+            ANCHOR,
+            ANCHOR + "\n> Skill sc:spec-panel-stoprule-protocol\n",
+        ),  # (e) activation line elsewhere
+        ("bullet8", None),  # (f) the bullet-8 line copied elsewhere
+        ("skill-missing", None),  # (g) the skill-missing line copied elsewhere
+        (
+            "> Skill sc:spec-panel-stoprule-protocol\n",
+            "> Skill sc:spec-panel-stoprule-protocol\n> Skill sc:spec-panel-stoprule-protocol\n",
+        ),  # (h) duplicated in place
+        (ANCHOR, ANCHOR + "\n"),  # (i) an added blank line
+        (
+            "(experimental variant: computed review-loop verdict)",
+            "(experimental variant)",
+        ),  # (j) frontmatter wording
+    ],
+)
+def test_drift_check_catches_a_changed_inherited_line(tmp_path, case):
+    body = text(VARIANT)
+    old, new = case
+    if old == "bullet8":
+        old, new = ANCHOR, ANCHOR + "\n" + review_loop_bullets(body)[7] + "\n"
+    elif old == "skill-missing":
+        line = next(
+            ln
+            for ln in body.splitlines()
+            if ln.startswith("If the skill is missing at both ")
+        )
+        old, new = ANCHOR, ANCHOR + "\n" + line + "\n"
+    assert body.count(old) >= 1, old
+    copy = tmp_path / "variant.md"
+    copy.write_text(body.replace(old, new, 1), encoding="utf-8")
+    assert drift(text(copy), text(BASE)) != []
+
+
+def test_drift_check_catches_a_lost_final_newline(tmp_path):
+    copy = tmp_path / "variant.md"
+    copy.write_text(text(VARIANT).rstrip("\n"), encoding="utf-8")
+    assert drift(text(copy), text(BASE)) != []
+
+
+def test_no_new_src_superclaude_paths():
+    for path in (SKILL, RUBRIC, AGENT):
+        assert "src/superclaude" not in text(path), path
+    assert text(VARIANT).count("src/superclaude") == text(BASE).count("src/superclaude")
+
+
+def test_skill_uses_the_uv_no_project_form_and_installs_standalone():
+    body = text(SKILL)
+    assert 'uv run --no-project python "<skill base>/scripts/stoprule.py"' in body
+    assert "python -m" not in body
+    assert (
+        install_skills._has_corresponding_command("sc-spec-panel-stoprule-protocol")
+        is False
+    )
+
+
+def test_rubric_hash_is_pinned():
+    assert hashlib.sha256(RUBRIC.read_bytes()).hexdigest()[:12] == RUBRIC_SHA12
+
+
+@pytest.mark.parametrize("path", [VARIANT, SKILL, AGENT])
+def test_files_exist(path):
+    assert path.is_file()

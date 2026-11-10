@@ -1,0 +1,29 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/worktrees/IronClaude/ccsession-failover-392
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collected 203 items
+
+tests/unit/test_ccsession_tiers.py ..................................... [ 18%]
+.............................F.................................F........ [ 53%]
+........................................................................ [ 89%]
+......................                                                   [100%]
+
+=================================== FAILURES ===================================
+_______________________ test_named_model_has_no_failover _______________________
+tests/unit/test_ccsession_tiers.py:1106: in test_named_model_has_no_failover
+    assert status == 429 and gateway.models_called() == ["gpt-6.1-sol"]
+E   assert (200 == 429)
+_______________ test_shim_outlives_the_terminal_that_started_it ________________
+tests/unit/test_ccsession_tiers.py:1948: in test_shim_outlives_the_terminal_that_started_it
+    assert _is_running(shim_pid, str(shim_copy))
+E   AssertionError: assert False
+E    +  where False = _is_running(367565, '/tmp/pytest-of-coder/pytest-3/test_shim_outlives_the_termina0/shim-under-test.py')
+E    +    where '/tmp/pytest-of-coder/pytest-3/test_shim_outlives_the_termina0/shim-under-test.py' = str(PosixPath('/tmp/pytest-of-coder/pytest-3/test_shim_outlives_the_termina0/shim-under-test.py'))
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tiers.py::test_named_model_has_no_failover
+FAILED tests/unit/test_ccsession_tiers.py::test_shim_outlives_the_terminal_that_started_it
+================== 2 failed, 201 passed in 181.48s (0:03:01) ===================

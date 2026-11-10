@@ -1,0 +1,127 @@
+diff --git a/dev/fd/63 b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
+index 00000000..05a55394 100644
+--- a/dev/fd/63
++++ b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
+@@ -1747,32 +1747,41 @@ def cmd_verdict(args):
+ # --- recorder side: transcript, disposition, audit sample, owner count ------------------
+ 
+ 
+-def tool_result_texts(node, out):
+-    """Collect the text of every tool_result block anywhere in a transcript record."""
++AGENT_TOOLS = ("Agent", "Task")
++
++
++def transcript_blocks(node, uses, results):
++    """Collect Agent tool_use ids and every tool_result (tool_use_id, text) of a record."""
+     if isinstance(node, dict):
++        if node.get("type") == "tool_use" and node.get("name") in AGENT_TOOLS:
++            uses.add(node.get("id"))
+         if node.get("type") == "tool_result":
+             content = node.get("content")
+             if isinstance(content, str):
+-                out.append(content)
++                text = content
+             elif isinstance(content, list):
+-                out.extend(c.get("text", "") for c in content if isinstance(c, dict))
++                text = "\n".join(
++                    c.get("text", "") for c in content if isinstance(c, dict)
++                )
++            else:
++                text = ""
++            results.append((node.get("tool_use_id"), text))
+         for value in node.values():
+-            tool_result_texts(value, out)
++            transcript_blocks(value, uses, results)
+     elif isinstance(node, list):
+         for value in node:
+-            tool_result_texts(value, out)
+-    return out
++            transcript_blocks(value, uses, results)
+ 
+ 
+ def cmd_verify_transcript(args):
+     records = load_ledger(read_text(args.report))
+     raws = of_kind(records, "grade-raw")
+-    path = pathlib.Path(args.transcript)
+-    texts = []
++    uses, results = set(), []
+     try:
+-        for line in path.read_text(encoding="utf-8").splitlines():
++        lines = pathlib.Path(args.transcript).read_text(encoding="utf-8").splitlines()
++        for line in lines:
+             if line.strip():
+-                tool_result_texts(json.loads(line), texts)
++                transcript_blocks(json.loads(line), uses, results)
+     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+         print(
+             f"grader-integrity: unverified (transcript missing or unparseable: {exc.__class__.__name__})"
+@@ -1781,10 +1790,17 @@ def cmd_verify_transcript(args):
+     if not raws:
+         print("grader-integrity: unverified (the ledger holds no grade-raw record)")
+         return EXIT_OK
++    agent_results = [text for tid, text in results if tid in uses]
++    if not agent_results:
++        print(
++            "grader-integrity: unverified (the transcript holds no Agent tool result)"
++        )
++        return EXIT_OK
++    # each reply must sit whole inside one Agent tool result, never across results
+     missing = [
+         f"{r['batch']}#{r['attempt']}"
+         for r in raws
+-        if r["text"].strip() not in "\n".join(texts)
++        if not any(r["text"].strip() in text for text in agent_results)
+     ]
+     if missing:
+         print(
+diff --git a/dev/fd/63 b/tests/skills/test_stoprule_script.py
+index 00000000..29ed6fe0 100644
+--- a/dev/fd/63
++++ b/tests/skills/test_stoprule_script.py
+@@ -1590,12 +1590,19 @@ def graded_report(review1, tmp_path, decide=lambda cid: True):
+     return spec, report
+ 
+ 
+-def transcript_with(tmp_path, texts):
++def transcript_with(tmp_path, texts, tool="Agent"):
++    """A session transcript: one tool_use per text (named tool) and its tool_result."""
+     path = tmp_path / "session.jsonl"
+     rows = [
+         {
+             "type": "assistant",
+-            "message": {"content": [{"type": "text", "text": "dispatching graders"}]},
++            "message": {
++                "content": [{"type": "text", "text": "dispatching graders"}]
++                + [
++                    {"type": "tool_use", "id": f"t{n}", "name": tool, "input": {}}
++                    for n in range(len(texts))
++                ]
++            },
+         }
+     ]
+     rows += [
+@@ -1639,6 +1646,24 @@ def test_verify_transcript_verified_mismatch_and_unverified(review1, tmp_path):
+     assert code == 0 and out.startswith("grader-integrity: unverified")
+ 
+ 
++def test_verify_transcript_counts_only_whole_agent_results(review1, tmp_path):
++    spec, report = graded_report(review1, tmp_path)
++    reply = records_of(report, "grade-raw")[0]["text"]
++    read_back = transcript_with(tmp_path, [reply], tool="Read")
++    out = run("verify-transcript", "--report", report, "--transcript", read_back)[1]
++    assert (
++        out.startswith("grader-integrity: unverified") and "no Agent tool result" in out
++    )
++    half = len(reply) // 2
++    split = transcript_with(tmp_path, [reply[:half], reply[half:]])
++    out = run("verify-transcript", "--report", report, "--transcript", split)[1]
++    assert out.startswith("grader-integrity: mismatch")
++    empty = tmp_path / "empty.jsonl"
++    empty.write_text("", encoding="utf-8")
++    out = run("verify-transcript", "--report", report, "--transcript", empty)[1]
++    assert out.startswith("grader-integrity: unverified")
++
++
+ def test_check_disposition_lists_an_applied_id_outside_the_brief(review1, tmp_path):
+     spec, report = graded_report(review1, tmp_path)
+     finalize(report)

@@ -1,0 +1,12 @@
+card: t1-card.md
+calibrator_model_class: opus
+self_reported_confidence: 0.80
+dimensions:
+  citation_grounding: {score: 0.92, reason: "18 spot-checked citations match; matcher figures cite no output file; Task 6 also diffs the plugin copy"}
+  coverage_completeness: {score: 0.72, reason: "plan additions without source basis (INSTALL.md, briefs kit, blindness-audit brief, stdlib-import test, Task 8 comment clause) left unclassified"}
+  deviation_classification_clarity: {score: 0.75, reason: "INF-006 hedged; no severity or blocking grade"}
+  risk_surface_coverage: {score: 0.62, reason: "missed ./artifacts/ path ambiguity vs never-staged project-root artifacts/, unverified guard-refusal claim, foreign-worktree read dependency"}
+  recommendation_actionability: {score: 0.35, reason: "almost no concrete fixes proposed"}
+calibrated_confidence: 0.67
+delta_vs_self_report: -0.13
+escalation_recommendation: escalate-t2

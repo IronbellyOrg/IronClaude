@@ -1,0 +1,88 @@
+{
+  "id": "4c769392-edda-41dd-b9fd-4915a6cb0f35",
+  "ok": true,
+  "result": {
+    "dispatchId": "ctx_40a6876cca04",
+    "source": "transcript",
+    "sourceIdentity": "jhnm9WJbt53Kjs7fgSOoBMb4moglcDOx",
+    "provider": "claude",
+    "transcript": {
+      "messages": [],
+      "nextCursor": "owr1_eyJ2IjoxLCJkIjoiY3R4XzQwYTY4NzZjY2EwNCIsInMiOiJ0cmFuc2NyaXB0IiwiaSI6Impobm05V0pidDUzS2pzN2ZnU09vQk1iNG1vZ2xjRE94IiwicCI6NDM0MzM1NiwiYyI6Iko0anBvdFl5SEdtVkc3TzcxVnFWOFltQ0h4a2JkYUJDIn0",
+      "limited": false,
+      "returnedMessageCount": 0
+    },
+    "cursor": "owr1_eyJ2IjoxLCJkIjoiY3R4XzQwYTY4NzZjY2EwNCIsInMiOiJ0cmFuc2NyaXB0IiwiaSI6Impobm05V0pidDUzS2pzN2ZnU09vQk1iNG1vZ2xjRE94IiwicCI6NDM0MzM1NiwiYyI6Iko0anBvdFl5SEdtVkc3TzcxVnFWOFltQ0h4a2JkYUJDIn0",
+    "status": {
+      "worker": "succeeded",
+      "terminal": "running",
+      "liveness": "live"
+    },
+    "fallbackReason": null,
+    "warnings": [],
+    "sourceExact": true,
+    "contentComplete": true,
+    "projection": {
+      "id": "ctx_40a6876cca04",
+      "dispatchId": "ctx_40a6876cca04",
+      "taskId": "task_e064e720af0d",
+      "runId": "run_0f9350decd8c",
+      "role": "worker",
+      "parent": null,
+      "provider": {
+        "id": "claude",
+        "model": null
+      },
+      "host": {
+        "kind": "local",
+        "id": "local"
+      },
+      "workspace": {
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial",
+        "kind": "folder_or_worktree"
+      },
+      "stage": {
+        "worker": "succeeded",
+        "dispatch": "completed",
+        "detail": "settled",
+        "activity": "done"
+      },
+      "outcome": "succeeded",
+      "liveness": {
+        "verdict": "live",
+        "observedAt": 1793783023953,
+        "source": "agent_status"
+      },
+      "evidence": {
+        "durable": true,
+        "liveStatus": "fresh",
+        "lastObservedAt": 1793783023953
+      },
+      "resource": {
+        "state": "owned",
+        "id": "wtr_e4f4da5ecae8",
+        "ownerDispatchId": "ctx_40a6876cca04",
+        "releaseState": "not_requested",
+        "terminalState": "reclaimable"
+      },
+      "nextAction": {
+        "kind": "release",
+        "argv": [
+          "orchestration",
+          "worker-release",
+          "--dispatch",
+          "ctx_40a6876cca04"
+        ]
+      },
+      "attention": {
+        "categories": [
+          "root_completion"
+        ],
+        "requiresAction": false
+      }
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}

@@ -1,0 +1,340 @@
+{
+  "from": "r1",
+  "to": "r2",
+  "hunks": [
+    {
+      "n": 1,
+      "old": [
+        60,
+        61
+      ],
+      "new": [
+        60,
+        61
+      ],
+      "old_text": "| WC-3 | **Questions go to the coordinator, not to a local prompt.** When a gate would resolve as blocked and the worker session holds a preamble, the session may instead ask the coordinator once with the preamble's `ask` command, wait, then re-invoke or resume the command with the answer as a flag. On an `ask` timeout it resumes the same message ID and never creates a duplicate. No heartbeat is sent while blocked in `ask`. | Worker session | `CAPS:58-61` (`[H:ask]` lines 3-5, 23-24; `[G]` lines 80-82); `CAPS:64` (`[G:worker-contract]` lines 10-11) |",
+      "new_text": "| WC-3 | **Questions go to the coordinator, not to a local prompt.** When a gate would resolve as blocked and the worker session holds a preamble, the session may instead ask the coordinator once with the preamble's `ask` command, wait, then re-run the command with the answer. The answer goes in through the gate's own flag when one exists (for example `/sc:task`'s confidence-below-0.70 gate, which names `--compliance [tier]`); when the gate has no flag, the answer is folded into the command's main input (its request, topic or component text) and the command runs again, which is the route for `/sc:recommend`'s one clarifying question and `/sc:tdd`'s topic clarification. A gate that only a person may answer (an approval, or an `/sc:implement` Ruling under D2 (a)) is not asked; the command ends blocked (WC-2 (c)). The re-run keeps every other flag of the brief, including the output flag, so the report path the coordinator recorded before dispatch does not change (WC-4a, WC-6). On an `ask` timeout it resumes the same message ID and never creates a duplicate. No heartbeat is sent while blocked in `ask`. (R8) | Worker session | `CAPS:58-61` (`[H:ask]` lines 3-5, 23-24; `[G]` lines 80-82); `CAPS:64` (`[G:worker-contract]` lines 10-11); gate routes: `cmd/task.md:93` (\"If confidence <0.70, prompt user: Override with `--compliance [tier]`\"), `cmd/recommend.md:44` (\"it asks one question and stops\"), `sk/tdd/SKILL.md:52-61` (\"Proceed once you have at least #1 answered clearly\") |",
+      "old_bytes": 556,
+      "new_bytes": 1492,
+      "bytes": 1492,
+      "key": "60:61:eba9793961af7b28",
+      "rewrap": false,
+      "claimed_by": [
+        {
+          "row": "R8",
+          "via": "answer"
+        }
+      ],
+      "touches": [
+        "R8"
+      ]
+    },
+    {
+      "n": 2,
+      "old": [
+        62,
+        62
+      ],
+      "new": [
+        62,
+        63
+      ],
+      "old_text": "",
+      "new_text": "| WC-4a | **Report path and existing contracts (R2, R4).** The WC-4 path is fixed from the brief before dispatch. A directory output flag (`--output <dir>`, `--output-dir <dir>`) gives `<dir>/return-contract.yaml`. A file output flag (`--output <file>`, as `/sc:tdd` and `/sc:init-lite` take) gives `<file>.return-contract.yaml` beside that file, so two runs writing different files in one directory never share a report. A command with no output flag uses the report flag its section 3 row names (workflow: `--report-dir <dir>`, R1). A command that already writes a file named `return-contract.yaml` in any mode (today adversarial, brainstorm, reflect, workflow, and troubleshoot when `--caller task-unified`) keeps that file exactly as today, because other commands read its own `status` values; its WC-4 report is a separate file, `worker-contract.yaml`, in the directory the rules above give. The WC-4 `status` values therefore never replace an existing `success`, and two schemas never share one path. This replaces WC-4's sentence \"Commands that already write a contract keep their fields and add the missing ones.\" Wherever this spec says \"the contract\", \"the WC-4 contract path\" or \"the WC-4 file\", it means the path these rules give. | Command writes; coordinator records the path before dispatch | File output flags: `cmd/tdd.md:49`, `cmd/init-lite.md:32`. Existing vocabularies: `sk/sc-workflow-protocol/refs/return-contract.md:7`, `sk/sc-brainstorm-protocol/SKILL.md:341`, `sk/sc-adversarial-protocol/SKILL.md:436`, `sk/sc-reflect-protocol/SKILL.md:665`, `sk/sc-troubleshoot-protocol/SKILL.md:560`. Readers of `status: success`: `sk/sc-implement-protocol/refs/managed-workspace.md:10`, `sk/sc-reflect-protocol/refs/remediation-handoff.md:75`, `sk/sc-auggie-review-protocol/refs/remediation-handoff.md:77`; TFEP reader: `sk/sc-task-protocol/SKILL.md:220` |",
+      "old_bytes": 0,
+      "new_bytes": 1867,
+      "bytes": 1867,
+      "key": "62:62:5fcf0e7f1983e079",
+      "rewrap": false,
+      "claimed_by": [
+        {
+          "row": "R2",
+          "via": "answer"
+        },
+        {
+          "row": "R4",
+          "via": "answer"
+        }
+      ],
+      "touches": [
+        "R2",
+        "R4",
+        "R14"
+      ]
+    },
+    {
+      "n": 3,
+      "old": [
+        63,
+        64
+      ],
+      "new": [
+        64,
+        65
+      ],
+      "old_text": "| WC-6 | **Resume or safe re-run.** A retry worker (`worker-start --retry-of`) must not corrupt the first attempt's output. A command either resumes from its on-disk state when given its resume flag, or, if it has none, writes each run into a fresh output directory so a re-run starts clean. Section 3 names which applies per command. | Command | `CAPS:116` (retry and circuit breaker); resume mechanisms in column (e) of `INV-A:35-55`, `INV-B:31-52` |",
+      "new_text": "| WC-6 | **Resume or safe re-run at the same path.** A retry worker (`worker-start --retry-of`) runs the same Task, so it gets the same brief and the same output flag; the report path the coordinator recorded before dispatch (WC-4a) never changes, and a command never picks a new directory on its own. A command either resumes from its on-disk state when given its resume flag, or, if it has none, runs again in the same place: at start it overwrites any earlier WC-4 report at that path with `status: failed` and the reason \"attempt started, not finished\", so a crash never leaves the earlier attempt's report looking current; it writes the final report last, and that report's `report_path` and `artifacts` name only files this attempt wrote, so a file left by an earlier attempt is never read as a result. Where section 3 says \"fresh dir\" or \"fresh file\", it means this same-path re-run. A coordinator that wants the earlier attempt's files kept moves them aside before it starts the retry. Section 3 names which applies per command. (R7) | Command; coordinator (keeping an earlier attempt) | `CAPS:116` (retry is `worker-start --task <task_id> --retry-of <dispatch_id>` on the same Task; circuit breaker); resume mechanisms in column (e) of `INV-A:35-55`, `INV-B:31-52` |",
+      "old_bytes": 452,
+      "new_bytes": 1275,
+      "bytes": 1275,
+      "key": "63:64:f646a6f8576d35bd",
+      "rewrap": false,
+      "claimed_by": [
+        {
+          "row": "R7",
+          "via": "answer"
+        }
+      ],
+      "touches": [
+        "R7"
+      ]
+    },
+    {
+      "n": 4,
+      "old": [
+        65,
+        65
+      ],
+      "new": [
+        66,
+        67
+      ],
+      "old_text": "",
+      "new_text": "| WC-7a | **Invoke the command's skill (R10).** The worker starts the command with its `/sc:<name>` line, and when the command file names a skill, the first step of the command is the Skill tool call for that skill, before any protocol output, as the repo requires for every `/sc:` command (lifecycle calls such as `heartbeat` and `check` may come before it). A worker that reads the command or skill file and carries out the protocol itself, without that Skill call, does not meet WC-7. Check: the 7.2 step-5 transcript shows that Skill call (AC-0.4). | Worker session | `CLAUDE.md:11` (\"you MUST invoke the corresponding skill via the Skill tool BEFORE generating any other output\") |",
+      "old_bytes": 0,
+      "new_bytes": 686,
+      "bytes": 686,
+      "key": "65:65:233da5909b847cfe",
+      "rewrap": false,
+      "claimed_by": [
+        {
+          "row": "R10",
+          "via": "answer"
+        }
+      ],
+      "touches": [
+        "R10"
+      ]
+    },
+    {
+      "n": 5,
+      "old": [
+        67,
+        68
+      ],
+      "new": [
+        69,
+        70
+      ],
+      "old_text": "| WC-10 | **Liveness during long waits.** The worker sends a heartbeat every 5 minutes while working. A command step that blocks a single tool call for longer than 5 minutes (a poll wait, a long eval) must be split into waits of at most 4 minutes so the session can heartbeat between them. | Command (wait size); worker (heartbeat) | Cadence is from the dispatch preamble, not a guide (`CAPS:130`); pr-submit's 600 s is a cumulative per-wait budget made of repeated iterations (one foreground poll, then a sleep of at least `--poll-interval`), not one blocking call (`cmd/pr-submit.md:49`; `sk/sc-pr-submit-protocol/SKILL.md:46-64`); `sk/sc-cli-eval-protocol/SKILL.md:151-152` (eval timeouts up to 3600 s) via `INV-A:65` |",
+      "new_text": "| WC-10 | **Liveness during long waits.** The worker sends a heartbeat every 5 minutes while working. No single tool call a command makes may block the session for 4 minutes or more: a poll wait or a long eval is split into waits under 4 minutes so the session can heartbeat between them (one 300 s call is therefore not allowed). An Agent-tool subagent call, which WC-7 keeps, can also block the session, and whether a dispatched worker keeps heartbeating through a subagent call longer than 5 minutes is UNVERIFIED: the repo itself treats it as unproven until a recorded smoke check shows it (`~/.claude/commands/sc/spec-panel-ledger.md:261`). AC-0.4 records it. Until a recorded run shows heartbeats continue through such a call, the coordinator does not treat a heartbeat gap during a worker's subagent fan-out as a hang by itself; it judges liveness by `worker-list`'s `projection.liveness` and by `worker-show` (`CAPS:123`, 7.2 step 2). (R11) | Command (wait size); worker (heartbeat); coordinator (liveness) | Cadence is from the dispatch preamble, not a guide (`CAPS:130`); pr-submit's 600 s is a cumulative per-wait budget made of repeated iterations (one foreground poll, then a sleep of at least `--poll-interval`), not one blocking call (`cmd/pr-submit.md:49`; `sk/sc-pr-submit-protocol/SKILL.md:46-64`); `sk/sc-cli-eval-protocol/SKILL.md:151-152` (eval timeouts up to 3600 s) via `INV-A:65` |",
+      "old_bytes": 722,
+      "new_bytes": 1405,
+      "bytes": 1405,
+      "key": "67:68:cfc66445b52c5f0b",
+      "rewrap": false,
+      "claimed_by": [
+        {
+          "row": "R11",
+          "via": "answer"
+        }
+      ],
+      "touches": [
+        "R11"
+      ]
+    },
+    {
+      "n": 6,
+      "old": [
+        82,
+        83
+      ],
+      "new": [
+        84,
+        85
+      ],
+      "old_text": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1) | `sk/sc-adversarial-protocol/SKILL.md:427-429,605,1908,2806-2833`; `INV-A:35,60-61` |",
+      "new_text": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix the existing contract's filename to `<output>/adversarial/return-contract.yaml`, which stays the file other commands read; under `--unattended` the WC-4 report is the separate `<output>/worker-contract.yaml` (WC-4a), and that is the path 7.2 step 3 checks (P1) (R5) | `sk/sc-adversarial-protocol/SKILL.md:427-429,605,1908,2806-2833`; `INV-A:35,60-61` |",
+      "old_bytes": 316,
+      "new_bytes": 508,
+      "bytes": 508,
+      "key": "82:83:42b9c87fbc249e87",
+      "rewrap": false,
+      "claimed_by": [
+        {
+          "row": "R5",
+          "via": "answer"
+        }
+      ],
+      "touches": [
+        "R5"
+      ]
+    },
+    {
+      "n": 7,
+      "old": [
+        90,
+        90
+      ],
+      "new": [
+        92,
+        93
+      ],
+      "old_text": "",
+      "new_text": "| troubleshoot as run by `/sc:task` (TFEP) (R3) | set by `/sc:task`: `--caller task-unified --output-dir <dir>`, no `--fix` | `<output-dir>/return-contract.yaml` with the 7-field TFEP schema, which `/sc:task` reads | as troubleshoot below | None to the TFEP file: it stays exactly as today for `/sc:task`. Troubleshoot's own WC-4 report is `<output-dir>/worker-contract.yaml` (WC-4a), so the two schemas never share a path, and `/sc:task` gives TFEP an `<output-dir>` other than the task worker's own WC-4 directory. Under `/sc:task --unattended` only the task worker reports to Orca, with the task's own WC-4 report (WC-5, WC-7) (P1) | `sk/sc-troubleshoot-protocol/SKILL.md:560`; `sk/sc-task-protocol/SKILL.md:216,220` |",
+      "old_bytes": 0,
+      "new_bytes": 721,
+      "bytes": 721,
+      "key": "90:90:aadc53ed27559a0f",
+      "rewrap": false,
+      "claimed_by": [
+        {
+          "row": "R3",
+          "via": "answer"
+        }
+      ],
+      "touches": [
+        "R3"
+      ]
+    },
+    {
+      "n": 8,
+      "old": [
+        91,
+        92
+      ],
+      "new": [
+        94,
+        95
+      ],
+      "old_text": "| workflow | `--handoff none` | `.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | Write the contract for pre-creation STOPs too (WC-4 \"every outcome\") (P1) | `sk/sc-workflow-protocol/SKILL.md:58,66,72`; `sk/sc-workflow-protocol/refs/return-contract.md:3-19,39,41`; `INV-B:52,267-275` |",
+      "new_text": "| workflow | `--handoff none`; under `--unattended` also `--report-dir <dir>`; never `--output` (retired, it stops with `E-LEGACY`) | `.dev/tasks/to-do/<id>/return-contract.yaml`, whose `<id>` is generated at run time, so that path is not known before dispatch | Fresh package each run | Add `--report-dir <dir>` (P1). Under `--unattended` the WC-4 report is `<report-dir>/worker-contract.yaml` (WC-4a), known before dispatch and written on every outcome, including a pre-creation STOP, which today writes no package and no yaml; on such a STOP it carries `status: failed` and the STOP code, and after a package exists its `report_path` is the package's `<id>.md` and its `artifacts` list the package's own contract. The package and its contract stay as today (R1) | `sk/sc-workflow-protocol/SKILL.md:24,26,44,58,66,72`; `sk/sc-workflow-protocol/refs/return-contract.md:3-19,39,41`; `INV-B:52,267-275` |",
+      "old_bytes": 307,
+      "new_bytes": 903,
+      "bytes": 903,
+      "key": "91:92:79f6ba3a34eb2634",
+      "rewrap": false,
+      "claimed_by": [
+        {
+          "row": "R1",
+          "via": "answer"
+        }
+      ],
+      "touches": [
+        "R1"
+      ]
+    },
+    {
+      "n": 9,
+      "old": [
+        158,
+        159
+      ],
+      "new": [
+        161,
+        162
+      ],
+      "old_text": "| **P1. Report files and commands with no gate** | The WC-4 contract in unattended mode; the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate); output flags for commands that lack one; the small fixes to ready commands. | analyze, build, business-panel, design, document, explain, index, test, load (usage line only); fixes to adversarial, cleanup-audit, index-repo, workflow | No person gate is involved, so each change is mechanical and gives every later phase a report file to check. |",
+      "new_text": "| **P1. Report files and commands with no gate** | The WC-4 contract in unattended mode; the `--unattended` flag accepted by every command in sections 3.1 and 3.2. A command whose gates or outward defaults are converted in P2-P4 does nothing under `--unattended` until its own phase except write its WC-4 report with `status: blocked` and a `blocked_question` naming the phase that converts it, so no prompt and no outward default can run early; for example `/sc:auggie-review` posts to the PR by default with no prompt (`cmd/auggie-review.md:51`) and would otherwise post between P1 and P2 (WC-9, R9). Every other command runs normally under the flag. Output flags for commands that lack one; the small fixes to ready commands. | analyze, build, business-panel, design, document, explain, index, test, load (usage line only); fixes to adversarial, cleanup-audit, index-repo, workflow | No person gate is involved, so each change is mechanical and gives every later phase a report file to check. |",
+      "old_bytes": 546,
+      "new_bytes": 997,
+      "bytes": 997,
+      "key": "158:159:b9961e7c01fcfe38",
+      "rewrap": false,
+      "claimed_by": [
+        {
+          "row": "R9",
+          "via": "answer"
+        }
+      ],
+      "touches": [
+        "R9"
+      ]
+    },
+    {
+      "n": 10,
+      "old": [
+        175,
+        176
+      ],
+      "new": [
+        178,
+        179
+      ],
+      "old_text": "| AC-C5 | For every command file the phase edits without a named defect fix (SA-4): `git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md \\| grep -E '^-[^-]'` | prints nothing: edits are additive |",
+      "new_text": "| AC-C5 | For every command file the phase edits without a named defect fix (SA-4): `git diff --numstat master...HEAD -- src/superclaude/commands/<name>.md` | the second number (deleted lines) is `0`: edits are additive. Counting deletions replaces the earlier `grep -E '^-[^-]'` test, which misses a deleted Markdown bullet (it shows as `-- item`; tested 2026-11-09: the grep printed nothing while `--numstat` printed `1 1`). AC-0.3 applies this same `--numstat` test to `src/superclaude/core/HOW-WE-WORK.md` in place of its grep (R13) |",
+      "old_bytes": 209,
+      "new_bytes": 538,
+      "bytes": 538,
+      "key": "175:176:1960735be1db37c3",
+      "rewrap": false,
+      "claimed_by": [
+        {
+          "row": "R13",
+          "via": "answer"
+        }
+      ],
+      "touches": [
+        "R13"
+      ]
+    },
+    {
+      "n": 11,
+      "old": [
+        184,
+        185
+      ],
+      "new": [
+        187,
+        188
+      ],
+      "old_text": "6. `git status --short`. **Pass:** only files under the brief's output directory (and the command's documented artifacts) appear.",
+      "new_text": "6. `git status --short --untracked-files=all`, saved before step 1 and run again after step 3. **Pass:** every line that is new between the two runs names a path under the brief's output directory, a path in this worker's WC-4 report (`report_path`, `artifacts`), or a path in the WC-4 report of another worker that ran in the same worktree at the same time; lines already present before step 1 are ignored, so other people's and other workers' earlier files do not fail the check (a tracked file that was already modified before step 1 is not re-checked by this step). Two workers whose commands stage files (workflow runs `git add .dev/tasks`, `sk/sc-workflow-protocol/SKILL.md:28`) never run in the same worktree at the same time; the coordinator gives one of them its own worktree, which Orca's placement guide allows when sharing is unsafe (`CAPS:115`). (R12)",
+      "old_bytes": 129,
+      "new_bytes": 864,
+      "bytes": 864,
+      "key": "184:185:7682544963747296",
+      "rewrap": false,
+      "claimed_by": [
+        {
+          "row": "R12",
+          "via": "answer"
+        }
+      ],
+      "touches": [
+        "R12"
+      ]
+    },
+    {
+      "n": 12,
+      "old": [
+        193,
+        194
+      ],
+      "new": [
+        196,
+        197
+      ],
+      "old_text": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript) | steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1. Record the results in the phase report; a failure here reopens section 1 |",
+      "new_text": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript) | The WC-4 report arrives in P1, so wherever 7.2 names it, P0 uses the command's existing report file instead (section 3.1 \"Report today\": troubleshoot's `REPORT.md`, workflow's package `return-contract.yaml`, the contract file adversarial wrote) (R6). Steps 1, 2, 5, 6 and 7 pass as written; step 3 passes with exactly one `worker_done` whose report path is that existing file and whose `--outcome` is `failed` only when that file is missing or reports a failure; step 4 is not run in P0. The step-5 transcript also shows the Skill tool call for the command's skill before any protocol output (WC-7a, R10), and the phase report records the longest gap between heartbeats and whether it fell inside an Agent-tool call (WC-10, R11); if no subagent call lasted over 5 minutes, that question stays UNVERIFIED. Record the results in the phase report; a failure here reopens section 1 |",
+      "old_bytes": 462,
+      "new_bytes": 1161,
+      "bytes": 1161,
+      "key": "193:194:de392b184cc7fbf6",
+      "rewrap": false,
+      "claimed_by": [
+        {
+          "row": "R6",
+          "via": "answer"
+        }
+      ],
+      "touches": [
+        "R6"
+      ]
+    }
+  ],
+  "unclaimed": [],
+  "reverted": [],
+  "failed_reverts": [],
+  "hunks_large": false
+}

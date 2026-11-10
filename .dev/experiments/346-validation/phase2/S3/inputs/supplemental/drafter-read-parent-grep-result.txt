@@ -1,0 +1,189 @@
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:222:git remote
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:227:gh pr checks
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:259:gh pr create
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:274:git remote
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:274:gh repo view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:274:gh repo view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:274:git remote
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:274:gh pr create
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:274:gh pr create
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:274:gh pr create
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:274:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:275:gh pr create
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:275:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:275:git branch
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:275:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:275:git pull
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:276:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:280:git status
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:282:git add
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:282:git add
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:282:git add
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:282:git commit
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:282:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:282:git add
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:282:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:282:git rev-list
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:282:git log
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:282:git push
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:282:gh api
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:285:gh run view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:286:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:315:git rejecting
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:319:git add
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh:21:git remote
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh:22:gh repo view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh:37:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh:53:gh api
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh:54:gh api
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh:55:gh api
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh:91:gh api graphql
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh:152:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:114:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:115:git work
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:118:git directory
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:119:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:120:git directory
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:137:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:147:git diff
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:148:git diff
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:149:git diff
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:150:git diff
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:164:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:187:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:190:git diff
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:191:git diff
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:198:git diff
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:203:git diff
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:206:git may
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:207:git reads
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:209:git rejects
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:213:git check-attr
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:249:git may
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:256:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:260:git cat-file
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:265:git cat-file
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:275:git diff
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:277:git diff
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:286:git write-tree
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:290:git commit
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:297:git rev-list
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:308:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:311:git status
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:312:git status
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/finish-merge.sh:314:git diff
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:16:gh pr checks
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:43:git remote
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:44:gh repo view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:52:gh api
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:53:gh api
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:65:gh pr checks
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:68:gh pr checks
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:68:gh pr checks
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:71:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:78:gh pr checks
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:80:gh pr checks
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:81:gh pr checks
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh:108:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:47:git command
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:82:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:83:git work
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:86:git remote
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:93:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:99:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:114:git check-ref-format
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:116:git directory
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:117:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:118:git directory
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:124:git status
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:131:git fetch
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:133:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:137:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:138:git merge-base
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:140:git rev-list
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:210:git merge-tree
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:211:git merge-tree
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:216:git merge-tree
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/probe-merge.sh:223:git merge-tree
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/retrigger-review.sh:16:gh api path
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/retrigger-review.sh:47:gh repo view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/retrigger-review.sh:49:git remote
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/retrigger-review.sh:50:gh repo view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/retrigger-review.sh:56:gh api --method
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/reply-resolve-thread.sh:15:gh api paths
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/reply-resolve-thread.sh:54:gh repo view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/reply-resolve-thread.sh:56:git remote
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/reply-resolve-thread.sh:57:gh repo view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/reply-resolve-thread.sh:73:gh api graphql
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/reply-resolve-thread.sh:131:gh api --method
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/reply-resolve-thread.sh:141:gh api graphql
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/collect-conflict-evidence.sh:13:git directory
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/collect-conflict-evidence.sh:154:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/collect-conflict-evidence.sh:155:git work
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/collect-conflict-evidence.sh:157:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/collect-conflict-evidence.sh:161:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/collect-conflict-evidence.sh:173:git directory
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/collect-conflict-evidence.sh:174:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/scripts/collect-conflict-evidence.sh:175:git directory
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:5:git remote
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:19:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:20:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:63:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:64:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:76:git -c merge.conflictStyle=zdiff3 -c rerere.enabled=false merge
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:77:git diff
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:80:git refused
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:91:git checkout
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:94:git add
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:100:git add
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:100:git rm
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:106:git commit
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:106:git merge
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:146:gh api
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:158:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:166:git rev-list
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:172:git fetch
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:173:git merge-base
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:179:gh repo view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:194:git push
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:200:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:217:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:225:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:226:git merge
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:237:git rev-parse
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:238:git rev-list
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:277:git configuration
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:296:git refused
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:306:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-mechanical.md:317:git revert
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md:27:git grep
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md:63:git add
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md:64:git rm
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md:67:git rm
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/conflict-intent.md:124:git diff
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md:9:git remote
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md:15:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md:16:gh pr checks
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md:18:gh pr checks
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md:21:gh pr checks
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md:46:gh run view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md:61:gh api repos
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/ci-poll.md:62:gh api repos
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md:4:gh api
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md:10:gh api
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md:11:git remote
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md:18:gh pr view
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md:19:gh api repos
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md:20:gh api repos
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md:21:gh api repos
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/thread-reply.md:5:gh pr
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/thread-reply.md:5:gh api
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/thread-reply.md:12:gh api --method
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/thread-reply.md:47:gh api graphql
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/thread-reply.md:67:gh api graphql
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/thread-reply.md:88:gh api --method
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/review-retrigger.md:9:gh api
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/review-retrigger.md:14:gh api
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/review-retrigger.md:27:gh api --method
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/review-retrigger.md:31:gh api
+/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/src/superclaude/skills/sc-pr-submit-protocol/refs/review-retrigger.md:31:gh api

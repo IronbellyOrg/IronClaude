@@ -1,0 +1,12 @@
+merge_method: adversarial
+source_contract: ../return-contract.yaml
+merged_findings: ../merged-findings.yaml
+adversarial_status: partial
+convergence_score: 1.0
+convergence_note: "all 22 debate points agreed; status BLOCKED_BY_INVARIANTS because fault-finder candidates INV-001 and INV-003 were not debated at --depth standard"
+blocking: [F-01, F-02]
+minor: [F-03, F-04, F-05, F-06, F-07, F-08, F-09]
+recorded_not_finding: [N-01]
+dropped: [D-01]
+undebated_candidates: [P-01, P-02, P-03, P-04]
+reviewer_cards: 3

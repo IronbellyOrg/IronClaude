@@ -1,0 +1,18 @@
+## Decisions
+| Decision | Options considered | Rationale |
+|---|---|---|
+| How to find "citations added or changed by the revision" | Trust `DISP`'s "Where applied" list; diff against the pre-revision spec | Diff: the original survives in Claude Code file history (section 1), so the changed-line set is mechanical rather than taken from the reviser's own account. |
+| Scope of the citation check | Every citation in the spec; citations on changed lines | Changed lines, as the brief asks. Unchanged lines were covered by round 1 and the inventories' own checks; one carried citation on a changed line (`INV-A:35` at `SPEC:366`) was still read. |
+| Orca executable | `orca-ide`; `orca` | `orca`: this session runs inside an Orca terminal, where the README allows the shim (`.dev/orca-command-refactor/README.md:17`); `which` showed it execs the same build. |
+| Prove check defects by running them | Argue from git semantics; run read-only commands | Ran `git status --porcelain=v1` and `-uall`, `git check-ignore -v`, AC-C1 and the `awk` filter. Nothing was written to the repo. The three-dot behaviour was taken from `git help diff`, because showing it live would need an edit to a tracked file. |
+| Severity of N5 | MAJOR; CRITICAL | CRITICAL under the command's FR-19 rule, matching round 1's finding 3. |
+| Severity of N3 | MINOR; MAJOR | MAJOR: a literal check command that is refused is the same class as round-1 finding 6. |
+| Step 6 "Improve" | Write an improved spec; review only | Review only: the brief forbids editing the spec. |
+| Verdict rule | Allow minor issues; binary | Binary, per the brief: any finding of any severity is FAIL. |
+
+## UNVERIFIED items
+1. Whether `/sc:implement`, which will execute each phase plan (`SPEC:197`), commits before the phase's acceptance checks run. If it does, N8 is mitigated in practice but still unstated in the spec. Not read.
+2. Whether `worker-start --retry-of` without `--agent` is refused at argument parsing or later. The usage line (`worker-start --help` line 3) marks the group as required; the call was not run, because creating a retry would affect live orchestration state.
+3. Whether a nested command invoked by another command under `--unattended` (for example tasklist's Stage 10.5 reflect fan-out) writes worker fields into its own contract. Checked and not raised as a finding: tasklist gives each reflect its own `--output TASKLIST_ROOT/validation/reflect-pre/phase-<P>/` (`src/superclaude/skills/sc-tasklist-protocol/SKILL.md`, Stage 10.5 command block), so no report-directory collision follows.
+4. Whether Orca's `--deps` can be edited after creation to point at a replacement Task (N1). `task-update --help` shows only `--status` and `--result` (line 3); no other verb was read.
+5. Carried from the spec and still open: its UNVERIFIED items 1-21 (`SPEC:381-401`). Item 22 (`SPEC:402`, no fresh-context citation check of the revisions) is answered by section 3 of this review.

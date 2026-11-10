@@ -1,0 +1,5 @@
+[proxy] listening on http://127.0.0.1:34551  ->  http://192.168.133.101:4000/cli
+[proxy] 2026-11-09T19:42:21 TIER tier2: T2Model01 -> gpt-6.1-sol; answered status=200 count=0
+[proxy] 2026-11-09T19:42:21 RESPONSE backend served model=gpt-6.1-sol
+[proxy] 2026-11-09T19:42:25 TIER tier2: T2Model01 -> gpt-6.1-sol; answered status=200 count=0
+[proxy] 2026-11-09T19:42:25 RESPONSE backend served model=gpt-6.1-sol

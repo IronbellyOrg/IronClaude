@@ -1,0 +1,72 @@
+[
+  {
+    "log_line": 2099,
+    "path": "artifacts/lc2-result.md",
+    "old_string": "(six raw heartbeat gaps over 5 min,",
+    "new_string": "(seven raw heartbeat gaps over 5 min,",
+    "replace_all": false
+  },
+  {
+    "log_line": 2103,
+    "path": "artifacts/lc2-step5.md",
+    "old_string": "Six raw gaps are over 5 minutes.",
+    "new_string": "Seven raw gaps are over 5 minutes.",
+    "replace_all": false
+  },
+  {
+    "log_line": 2107,
+    "path": "artifacts/lc2-step5.md",
+    "old_string": "the six long raw gaps would not be covered",
+    "new_string": "the seven long raw gaps would not be covered",
+    "replace_all": false
+  },
+  {
+    "log_line": 2111,
+    "path": "artifacts/lc1-step5.md",
+    "old_string": "(68 commands, `/tmp/ironclaude-p0live/lc1-all-bash.txt`, not kept)",
+    "new_string": "(52 Bash tool calls; the 68 in an earlier draft was a line count of `/tmp/ironclaude-p0live/lc1-all-bash.txt`, not kept, where multi-line commands count once per line)",
+    "replace_all": false
+  },
+  {
+    "log_line": 2242,
+    "path": "artifacts/lc3-session-analysis.txt",
+    "old_string": "orca verbs in all sessions: ['orca orchestration check', 'orca orchestration send']",
+    "new_string": "orca verbs in all sessions (pattern `orca \\w+ [\\w-]+`; it does not match the binary name `orca-ide`): ['orca orchestration check', 'orca orchestration send']\norca-ide calls found by a separate search of all 8 session files (correction added after the final review; all read-only, none is a heartbeat, ask, check or worker_done message and none is a call WC-13 bans): subagent sessions agent-a19c787c363ddf7e6, agent-a4ce685fb4235bdf8 and agent-a7f44d56084dba348 each ran `orca-ide --version` and `orca-ide skills get orchestration` (08:40:02, 08:40:12 and 08:49:38 UTC), and agent-a19c787c363ddf7e6 also ran `orca-ide orchestration worker-list --json` twice (08:55:16 and 08:55:27 UTC)",
+    "replace_all": false
+  },
+  {
+    "log_line": 2246,
+    "path": "artifacts/lc3-step5.md",
+    "old_string": "the only Orca verbs in all 8 session files are `check` and `send`.",
+    "new_string": "the only `orca orchestration` verbs in all 8 session files are `check` and `send`. Three subagent sessions also ran read-only `orca-ide` commands (`orca-ide --version` and `orca-ide skills get orchestration`; one of them also ran `orca-ide orchestration worker-list --json` twice, at 08:55:16 and 08:55:27 UTC); none is a heartbeat, ask, check or `worker_done` message and none is a call WC-13 bans (details in `lc3-session-analysis.txt:96-97`).",
+    "replace_all": false
+  },
+  {
+    "log_line": 2261,
+    "path": "artifacts/lc3-session-analysis.txt",
+    "old_string": "subagent sessions agent-a19c787c363ddf7e6, agent-a4ce685fb4235bdf8 and agent-a7f44d56084dba348 each ran `orca-ide --version` and `orca-ide skills get orchestration` (08:40:02, 08:40:12 and 08:49:38 UTC), and agent-a19c787c363ddf7e6 also ran",
+    "new_string": "subagent sessions agent-a7f44d56084dba348 (08:40:02 UTC), agent-a4ce685fb4235bdf8 (08:40:12 UTC) and agent-a19c787c363ddf7e6 (08:49:38 UTC) each ran `orca-ide --version` and `orca-ide skills get orchestration`, and agent-a19c787c363ddf7e6 also ran",
+    "replace_all": false
+  },
+  {
+    "log_line": 2302,
+    "path": "artifacts/p0-phase-report.md",
+    "old_string": "No commit, push, install or `gh` write was made.\n\n## Post-archive check",
+    "new_string": "No commit, push, install or `gh` write was made.\n7. **One bare `python3` call (rule breach, no effect).** At 08:27:10 UTC on 2026-11-04, during Task 3, the executor ran a bare `python3 - <<'EOF' ... || true` command with an empty body, against the plan constraint \"UV for every Python command\" (plan line 23). It ran no code and wrote nothing; every other Python call of the run used `uv run --no-project python -I`. The owner accepted this one call as a scoped exception, recorded as the `ARCHIVE: Ruling:` line in `progress.md`. It changes no verdict above.\n8. **Check 3 notes corrected.** The final review found that `lc3-step5.md` and `lc3-session-analysis.txt` said the only Orca commands in the worker's sessions were `check` and `send`; three subagent sessions also ran read-only `orca-ide` commands (`--version`, `skills get orchestration`, `orchestration worker-list --json`). Both files now say so. No banned call (WC-13) was among them, and no verdict changed. The earlier miscounts (seven, not six, raw heartbeat gaps over 5 minutes in check 2; 52, not 68, Bash tool calls in check 1) were also corrected in the step files.\n\n## Post-archive check",
+    "replace_all": false
+  },
+  {
+    "log_line": 2316,
+    "path": "artifacts/p0-phase-report.md",
+    "old_string": "\n8. **Check 3 notes corrected.** The final review found that `lc3-step5.md` and `lc3-session-analysis.txt` said the only Orca commands in the worker's sessions were `check` and `send`; three subagent sessions also ran read-only `orca-ide` commands (`--version`, `skills get orchestration`, `orchestration worker-list --json`). Both files now say so. No banned call (WC-13) was among them, and no verdict changed. The earlier miscounts (seven, not six, raw heartbeat gaps over 5 minutes in check 2; 52, not 68, Bash tool calls in check 1) were also corrected in the step files.\n",
+    "new_string": "\n",
+    "replace_all": false
+  },
+  {
+    "log_line": 2464,
+    "path": "artifacts/p0-phase-report.md",
+    "old_string": "7. **One bare `python3` call (rule breach, no effect).** At 08:27:10 UTC on 2026-11-04, during Task 3, the executor ran a bare `python3 - <<'EOF' ... || true` command with an empty body, against the plan constraint \"UV for every Python command\" (plan line 23). It ran no code and wrote nothing; every other Python call of the run used `uv run --no-project python -I`. The owner accepted this one call as a scoped exception, recorded as the `ARCHIVE: Ruling:` line in `progress.md`. It changes no verdict above.",
+    "new_string": "7. **Bare `python3` calls (rule breach, no effect).** The plan constraint is \"UV for every Python command\" (plan line 23). Three groups of calls broke it, on 2026-11-04. (a) At 08:27:10 UTC, during Task 3, the executor itself ran one bare `python3 - <<'EOF' ... || true` command with an empty body; it ran no code and wrote nothing. Apart from this call, every other Python call the executor itself made used `uv run`. (b) Between 09:10:02 and 09:16:29 UTC the first final-review helper subagent ran 22 read-only analysis commands that used bare `python3`; they only read files and wrote scratch scripts under `/tmp`. (c) At 12:35:19 UTC the third final-review helper subagent ran one `python3 -c 1`, which does nothing. The owner accepted all three groups (24 calls) as one scoped exception, recorded in the last `ARCHIVE: Ruling:` line of `progress.md`, which replaces the narrower earlier ruling line. It changes no verdict above.",
+    "replace_all": false
+  }
+]

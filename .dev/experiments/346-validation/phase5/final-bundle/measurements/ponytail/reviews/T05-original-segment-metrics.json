@@ -1,0 +1,12 @@
+{
+  "input_tokens": 38,
+  "output_tokens": 42466,
+  "cache_creation_input_tokens": 194614,
+  "cache_read_input_tokens": 4178638,
+  "tool_calls": 24,
+  "assistant_turns": 19,
+  "first_timestamp": "2026-11-08T23:47:27.024Z",
+  "last_timestamp": "2026-11-08T23:54:17.973Z",
+  "wall_minutes": 6.84915,
+  "source_end_line": 357
+}

@@ -1,0 +1,3 @@
+src/superclaude/commands/spec-panel-ponytail.md
+tests/skills/fixtures/spec-panel-post427-base.md
+tests/recommend/test_routing_refresh.py

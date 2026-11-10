@@ -1,0 +1,396 @@
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t12-verify-sync.log b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t12-verify-sync.log
+new file mode 100644
+index 00000000..4735a022
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t12-verify-sync.log
+@@ -0,0 +1,225 @@
++🔍 Verifying src/superclaude/ ↔ .claude/ sync...
++
++=== Skills ===
++  ✅ ccsession-tag
++  ✅ confidence-check
++  ✅ operational-guide
++  ✅ prd
++  ✅ readme
++  ✅ roadmap
++  ✅ sc-adversarial-protocol
++  ✅ sc-auggie-review-protocol
++  ✅ sc-bare-review
++  ✅ sc-brainstorm-protocol
++  ✅ sc-cleanup-audit-protocol
++  ✅ sc-cli-eval-protocol
++  ✅ sc-cli-portify-protocol
++  ✅ sc-crash-recovery
++  ✅ sc-graph-protocol
++  ✅ sc-impact-protocol
++  ✅ sc-implement-protocol
++  ✅ sc-init-lite-protocol
++  ✅ sc-issue-protocol
++  ✅ sc-pm-protocol
++  ✅ sc-post-release-protocol
++  ✅ sc-pr-submit-protocol
++  ✅ sc-recommend
++  ✅ sc-reflect-protocol
++  ✅ sc-release-split-protocol
++  ✅ sc-review-translation-protocol
++  ✅ sc-roadmap-protocol
++  ✅ sc-spec-panel-stoprule-protocol
++  ✅ sc-swarm-wizard-protocol
++  ✅ sc-task-protocol
++  ✅ sc-tasklist-protocol
++  ✅ sc-troubleshoot-protocol
++  ✅ sc-validate-roadmap-protocol
++  ✅ sc-validate-tests-protocol
++  ✅ sc-workflow-protocol
++  ✅ task-builder
++  ✅ task
++  ✅ tdd
++  ✅ tech-reference
++  ✅ tech-research
++
++=== Agents ===
++  ✅ audit-analyzer.md
++  ✅ audit-comparator.md
++  ✅ audit-consolidator.md
++  ✅ audit-scanner.md
++  ✅ audit-validator.md
++  ✅ auggie-reviewer.md
++  ✅ backend-architect.md
++  ✅ business-panel-experts.md
++  ✅ confidence-calibrator.md
++  ✅ debate-orchestrator.md
++  ✅ deep-research-agent.md
++  ✅ deep-research.md
++  ✅ devops-architect.md
++  ✅ eval-docs-loader.md
++  ✅ eval-run-reporter.md
++  ✅ eval-suite-author.md
++  ✅ evidence-validator.md
++  ✅ finding-grader.md
++  ✅ frontend-architect.md
++  ✅ implement-retry-adviser.md
++  ✅ issue-worker-t1.md
++  ✅ issue-worker-t2.md
++  ✅ issue-worker-t3.md
++  ✅ learning-guide.md
++  ✅ merge-executor.md
++  ✅ performance-engineer.md
++  ✅ pm-agent.md
++  ✅ python-expert.md
++  ✅ quality-engineer.md
++  ✅ refactoring-expert.md
++  ✅ reflect-reviewer.md
++  ✅ repo-index.md
++  ✅ requirements-analyst.md
++  ✅ reuse-auditor.md
++  ✅ rf-analyst.md
++  ✅ rf-assembler.md
++  ✅ rf-qa-qualitative.md
++  ✅ rf-qa.md
++  ✅ rf-task-builder.md
++  ✅ rf-task-executor.md
++  ✅ rf-task-researcher.md
++  ✅ rf-team-lead.md
++  ✅ root-cause-analyst.md
++  ✅ security-engineer.md
++  ✅ self-review.md
++  ✅ socratic-mentor.md
++  ✅ system-architect.md
++  ✅ technical-writer.md
++  ✅ troubleshoot-analyst.md
++
++=== Commands ===
++  ✅ adversarial.md
++  ✅ agent.md
++  ✅ analyze.md
++  ✅ auggie-review.md
++  ✅ brainstorm.md
++  ✅ build.md
++  ✅ business-panel.md
++  ✅ cleanup-audit.md
++  ✅ cleanup.md
++  ✅ cli-eval.md
++  ✅ cli-portify.md
++  ✅ design.md
++  ✅ document.md
++  ✅ explain.md
++  ✅ git.md
++  ✅ graph.md
++  ✅ help.md
++  ✅ impact.md
++  ✅ implement.md
++  ✅ improve.md
++  ✅ index-repo.md
++  ✅ index.md
++  ✅ init-lite.md
++  ✅ issue.md
++  ✅ load.md
++  ✅ pm.md
++  ✅ post-release.md
++  ✅ pr-submit.md
++  ✅ recommend.md
++  ✅ reflect.md
++  ✅ release-split.md
++  ✅ research.md
++  ✅ review-translation.md
++  ✅ roadmap.md
++  ✅ save.md
++  ✅ spawn.md
++  ✅ spec-panel-stoprule.md
++  ✅ spec-panel.md
++  ✅ swarm-wizard.md
++  ✅ task.md
++  ✅ tasklist.md
++  ✅ tdd.md
++  ✅ test.md
++  ✅ troubleshoot.md
++  ✅ validate-roadmap.md
++  ✅ validate-tests.md
++  ✅ workflow.md
++
++=== Hooks ===
++  ✅ auggie-flag-clear.sh
++  ✅ block-bare-python.sh
++  ✅ codegraph-session-start.sh
++  ✅ freshness-file-changed.sh
++  ✅ freshness-post-read.sh
++  ✅ freshness-pre-edit.sh
++  ✅ freshness-session-start.sh
++  ✅ freshness-subagent-start.sh
++  ✅ freshness-subagent-stop.sh
++  ✅ freshness-user-prompt.sh
++  ✅ launch-job-identity.sh
++  ✅ launch-level-guard.sh
++  ✅ reject-workspace-writes.sh
++  ✅ require-orca-worktree-agent.sh
++  ✅ sc-recommend-phase0.sh
++  ✅ pragmatic-subagent.js
++
++=== Templates ===
++  ✅ workflow/05_prd_template.md
++  ✅ workflow/03_project_plan_template.md
++  ✅ workflow/03_component_authoring_template.md
++  ✅ workflow/00_mdtm_template_simple_task.md
++  ✅ workflow/01_mdtm_template_generic_task__gfdoc.md
++  ✅ workflow/06_architecture_proposal_template.md
++  ✅ workflow/02_mdtm_template_complex_task.md
++  ✅ workflow/04_feature_brief_template.md
++  ✅ workflow/changelog_template.md
++  ✅ workflow/01_mdtm_template_generic_task.md
++  ✅ workflow/99_mdtm_template_generic_task_old.md
++  ✅ documents/prd_template.md
++  ✅ documents/operational_guide_template.md
++  ✅ documents/GFxAI_Master_Documentation_Template.md
++  ✅ documents/tdd_template.md
++  ✅ documents/agent_template_analysis.md
++  ✅ documents/supplemental-doc-creation-checklist.md
++  ✅ documents/agent_template_qa.md
++  ✅ documents/skill_template.md
++  ✅ documents/roadmap_template.md
++  ✅ documents/agent_template_worker.md
++  ✅ documents/release-spec-template.md
++  ✅ documents/supplemental_doc_template.md
++  ✅ documents/technical_reference_template.md
++  ✅ documents/readme_template.md
++  ✅ modularization-template-review/qa-fix-summary_template.md
++  ✅ modularization-template-review/qa-task-research-alignment_report_template.md
++  ✅ modularization-template-review/analyst-synthesis-review_report_template.md
++  ✅ modularization-template-review/research-notes_template.md
++  ✅ modularization-template-review/synthetic-dnsp-finding.contract
++  ✅ modularization-template-review/INDEX.md
++  ✅ modularization-template-review/qa-task-validation-structure_report_template.md
++  ✅ modularization-template-review/qa-cross-source-contradictions_template.md
++  ✅ modularization-template-review/track-scope-map_template.md
++  ✅ modularization-template-review/claim-evidence-matrix_template.md
++  ✅ modularization-template-review/qa-inventory_report_template.md
++  ✅ modularization-template-review/analyst-coverage-matrix_template.md
++  ✅ modularization-template-review/codebase-research_template.md
++  ✅ modularization-template-review/analyst-completeness_report_template.md
++  ✅ modularization-template-review/analyst-gap-analysis_template.md
++  ✅ modularization-template-review/qa-lens_report_template.md
++  ✅ modularization-template-review/qa-consolidated-findings_template.md
++  ✅ modularization-template-review/qa-task-validation-b2_report_template.md
++  ✅ modularization-template-review/qa-research-gap_report_template.md
++  ✅ modularization-template-review/qa-research-evidence_report_template.md
++  ✅ modularization-template-review/qa-qualitative-operational_report_template.md
++  ✅ modularization-template-review/qa-qualitative-sufficiency_report_template.md
++  ✅ modularization-template-review/analyst-cross-validation_report_template.md
++  ✅ modularization-template-review/qa-acceptance-methodology-audit_template.md
++  ✅ modularization-template-review/pipeline-complete_report_template.md
++  ✅ modularization-template-review/qa-source-fidelity_template.md
++  ✅ modularization-template-review/qa-research-depth_report_template.md
++  ✅ modularization-template-review/web-research_template.md
++
++=== Installer Registration ===
++  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js
++
++=== Hooks Cross-Consistency ===
++  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
++
++✅ All components in sync.
++rc=0
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t12-pytest.log b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t12-pytest.log
+new file mode 100644
+index 00000000..100774db
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t12-pytest.log
+@@ -0,0 +1,119 @@
++============================= test session starts ==============================
++platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
++SuperClaude: 5.0.0
++rootdir: /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule
++configfile: pyproject.toml
++plugins: superclaude-5.0.0, anyio-4.16.0
++collected 3342 items
++
++tests/skills/test_brainstorm_protocol.py ....                            [  0%]
++tests/skills/test_clickup_claim.py ..................................... [  1%]
++....                                                                     [  1%]
++tests/skills/test_codegraph_adoption.py ................................ [  2%]
++..................                                                       [  2%]
++tests/skills/test_implement_adviser_family.py ...                        [  2%]
++tests/skills/test_implement_retry_citation.py .....................      [  3%]
++tests/skills/test_implement_retry_revert.py ............................ [  4%]
++..........................                                               [  5%]
++tests/skills/test_implement_saved_prompt_rule.py ....................... [  5%]
++.................                                                        [  6%]
++tests/skills/test_implement_severity_replay.py ............              [  6%]
++tests/skills/test_implement_severity_static.py ......................... [  7%]
++...                                                                      [  7%]
++tests/skills/test_issue_orca_worktree.py ............................... [  8%]
++........................................................................ [ 10%]
++............................................................             [ 12%]
++tests/skills/test_issue_protocol.py .................................... [ 13%]
++...................................................................      [ 15%]
++tests/skills/test_issue_repo_resolution.py ............................. [ 16%]
++...................................                                      [ 17%]
++tests/skills/test_issue_worker_agents.py ............................... [ 18%]
++......................................                                   [ 19%]
++tests/skills/test_model_alias_policy.py .............                    [ 19%]
++tests/skills/test_primitive_dual_surface_lookup.py ...                   [ 19%]
++tests/skills/test_reflect_input_snapshot.py ...............              [ 20%]
++tests/skills/test_repo_inventory_nongit.py .....                         [ 20%]
++tests/skills/test_review_severity_rule.py .............................. [ 21%]
++................................                                         [ 22%]
++tests/skills/test_sc_recommend_routing_contract.py ..................... [ 23%]
++.......                                                                  [ 23%]
++tests/skills/test_spec_panel_review_loop.py ............................ [ 24%]
++..................                                                       [ 24%]
++tests/skills/test_spec_panel_stoprule.py ........................        [ 25%]
++tests/skills/test_stoprule_script.py ................................... [ 26%]
++.................................                                        [ 27%]
++tests/skills/test_task_builder_merge.py ................................ [ 28%]
++....................................                                     [ 29%]
++tests/skills/test_task_workspace_lifecycle.py .......................... [ 30%]
++...............................................                          [ 31%]
++tests/skills/test_task_workspace_smoke.py ....                           [ 31%]
++tests/skills/test_tier2_tavily_consistency.py .....                      [ 31%]
++tests/skills/test_worker_contract.py ................................... [ 32%]
++........................................................................ [ 35%]
++........................................................................ [ 37%]
++........................................................................ [ 39%]
++........................................................................ [ 41%]
++........................................................................ [ 43%]
++........................................................................ [ 45%]
++........................................................................ [ 48%]
++........................................................................ [ 50%]
++........................................................................ [ 52%]
++........................................................                 [ 54%]
++tests/skills/test_workflow_archive.py .................................. [ 55%]
++........................................................................ [ 57%]
++........................................................................ [ 59%]
++..                                                                       [ 59%]
++tests/recommend/test_best_model.py ........                              [ 59%]
++tests/recommend/test_cache.py ...............                            [ 60%]
++tests/recommend/test_cli_registration.py ...                             [ 60%]
++tests/recommend/test_dispatch.py ................                        [ 60%]
++tests/recommend/test_eval_pipeline.py .....                              [ 60%]
++tests/recommend/test_plugin_eval.py ........                             [ 61%]
++tests/recommend/test_routing_refresh.py ................................ [ 61%]
++........................................................................ [ 64%]
++........................................................................ [ 66%]
++........................................................................ [ 68%]
++                                                                         [ 68%]
++tests/recommend/test_telemetry.py .........                              [ 68%]
++tests/unit/test_ccsession_tag.py ....................................... [ 69%]
++........................................................................ [ 72%]
++........................................................................ [ 74%]
++........................................................................ [ 76%]
++..................................................                       [ 77%]
++tests/unit/test_ccsession_tiers.py ..................................... [ 78%]
++........................................................................ [ 81%]
++...................................................................      [ 83%]
++tests/unit/test_cli_doctor.py ..............................             [ 84%]
++tests/unit/test_cli_install.py ......................................... [ 85%]
++.......................................................                  [ 86%]
++tests/unit/test_confidence.py ............s                              [ 87%]
++tests/unit/test_crash_recovery_bootstrap.py .                            [ 87%]
++tests/unit/test_eval_runner_master_checkout.py ....                      [ 87%]
++tests/unit/test_install_ccsession.py ......................              [ 88%]
++tests/unit/test_reflexion.py .........                                   [ 88%]
++tests/unit/test_reflexion_pollution_guard.py s                           [ 88%]
++tests/unit/test_review_translation.py .................................. [ 89%]
++..........                                                               [ 89%]
++tests/unit/test_self_check.py ..............                             [ 90%]
++tests/unit/test_token_budget.py ............                             [ 90%]
++tests/core/test_claude_md_routing_block.py ......                        [ 90%]
++tests/core/test_claude_md_worktree_rule.py ...                           [ 90%]
++tests/core/test_codegraph_guide.py ...............                       [ 91%]
++tests/core/test_how_we_work_routing_table.py ........................... [ 92%]
++....................................................                     [ 93%]
++tests/core/test_orca_session_launch_guidance.py .....                    [ 93%]
++tests/core/test_research_config.py ....                                  [ 93%]
++tests/commands/test_auggie_review_remediation_chain.py ............      [ 94%]
++tests/commands/test_auggie_review_revagent.py ............               [ 94%]
++tests/commands/test_graph_command.py ................................... [ 95%]
++.................                                                        [ 96%]
++tests/commands/test_help_command.py ......                               [ 96%]
++tests/commands/test_impact_command.py .................................. [ 97%]
++...............................................                          [ 98%]
++tests/commands/test_issue_command.py .................                   [ 99%]
++tests/commands/test_research_command.py ..                               [ 99%]
++tests/commands/test_routing_plugin_parity.py .....                       [ 99%]
++tests/commands/test_workflow_command.py ...................              [100%]
++
++================= 3340 passed, 2 skipped in 386.22s (0:06:26) ==================
++rc=0
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t12-staging.txt b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t12-staging.txt
+new file mode 100644
+index 00000000..c25fc5b3
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t12-staging.txt
+@@ -0,0 +1,21 @@
++$ git diff --cached --name-only | grep '^\.claude/'
++(exit 1 : 1 = no .claude path staged)
++$ git status --short src/superclaude/commands/spec-panel.md
++(empty output = unchanged)
++$ git diff --cached --name-only (outside .dev/tasks)
++docs/designs/spec-panel-review-loop.md
++docs/designs/spec-panel-stoprule.md
++src/superclaude/agents/finding-grader.md
++src/superclaude/commands/spec-panel-stoprule.md
++src/superclaude/skills/sc-spec-panel-stoprule-protocol/SKILL.md
++src/superclaude/skills/sc-spec-panel-stoprule-protocol/refs/canaries.json
++src/superclaude/skills/sc-spec-panel-stoprule-protocol/refs/rubric.md
++src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
++tests/recommend/test_routing_refresh.py
++tests/skills/fixtures/stoprule/ctl-r1/review3-claims.jsonl
++tests/skills/fixtures/stoprule/ctl-r1/review3-expected.json
++tests/skills/fixtures/stoprule/ctl-r1/spec-v2.md
++tests/skills/fixtures/stoprule/ctl-r1/spec-v3.md
++tests/skills/fixtures/stoprule/spec-panel-armb-base.md
++tests/skills/test_spec_panel_stoprule.py
++tests/skills/test_stoprule_script.py
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t12-sync-dev.log b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t12-sync-dev.log
+new file mode 100644
+index 00000000..f0a4ebcc
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t12-sync-dev.log
+@@ -0,0 +1,7 @@
++🔄 Syncing src/superclaude/ → .claude/ for local development...
++✅ Sync complete.
++   Skills:    40 directories
++   Agents:    49 files
++   Commands:  47 files
++   Hooks:     16 files
++   Templates: 52 files

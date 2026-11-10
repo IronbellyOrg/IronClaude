@@ -1,0 +1,13 @@
+$ git diff --cached --name-only --diff-filter=A | grep '^src/superclaude/' (each must appear in INSTALL.md)
+src/superclaude/agents/finding-grader.md: 1 row(s)
+src/superclaude/commands/spec-panel-stoprule.md: 2 row(s)
+src/superclaude/skills/sc-spec-panel-stoprule-protocol/SKILL.md: 1 row(s)
+src/superclaude/skills/sc-spec-panel-stoprule-protocol/refs/canaries.json: 1 row(s)
+src/superclaude/skills/sc-spec-panel-stoprule-protocol/refs/rubric.md: 1 row(s)
+src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py: 1 row(s)
+grep -cF 'perl -pe 's#(/?sc:spec-panel)(?![-\w])#$1-stoprule#g' brief.md > brief.stoprule.md' = 1
+grep -cF '--force' = 1
+grep -cF 'c8d80346a96c' = 1
+grep -cF 'any finding of any severity is FAIL' = 2
+grep -cF 'deliberately has no `## Unattended mode` section' = 1
+source.md perl line: 1

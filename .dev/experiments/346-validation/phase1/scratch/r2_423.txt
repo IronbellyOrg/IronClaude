@@ -1,0 +1,7 @@
+## Verdict
+**FAIL.** 13 new findings: 1 CRITICAL, 9 MAJOR, 3 MINOR (section 5), plus 2 overstated citations (C1, C2, which are findings N13 and N6).
+- **Part 1 (round-1 findings):** all 24 defects round 1 named are gone from the spec text; none was rejected or silently dropped. For 10 of them the fix introduced or exposed a new defect (section 2).
+- **Part 2 (citations):** every citation on the 172 revised lines was re-read against the live file or live `orca ... --help` output. None points at a wrong line; 2 are overstated (section 3).
+- **Part 3 (panel):** the new defects cluster in the new machinery: retry routing (N1, N2, N3), the report directory (N4, N6, N12), the gate policy (N7, N9), the fan-in upper bound (N5), and the new check scripts (N8, N10, N11). The core decision (Orca coordinates; commands stay Orca-free) still holds.
+
+No Self-Audit is included because the verdict is FAIL.

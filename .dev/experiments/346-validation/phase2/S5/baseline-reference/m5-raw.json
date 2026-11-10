@@ -1,0 +1,78 @@
+{
+ "R1_reviewer": {
+  "agent": "a0d4eb0d0b16b7e1f",
+  "tool_calls": 67,
+  "tools": {
+   "Read": 20,
+   "Bash": 47
+  },
+  "api_messages": 48,
+  "first_ts": "2026-11-04T09:09:08.473Z",
+  "last_ts": "2026-11-04T09:19:52.514Z",
+  "input_tokens": 96,
+  "output_tokens": 87649,
+  "cache_creation_input_tokens": 268251,
+  "cache_read_input_tokens": 10738350
+ },
+ "R2_reviewer": {
+  "agent": "ad1d95b612f2d9bd6",
+  "tool_calls": 62,
+  "tools": {
+   "Read": 8,
+   "Bash": 51,
+   "Grep": 3
+  },
+  "api_messages": 55,
+  "first_ts": "2026-11-04T12:11:17.614Z",
+  "last_ts": "2026-11-04T12:21:19.195Z",
+  "input_tokens": 110,
+  "output_tokens": 78978,
+  "cache_creation_input_tokens": 323587,
+  "cache_read_input_tokens": 12755181
+ },
+ "R3_reviewer": {
+  "agent": "a88ad232bf783d3a3",
+  "tool_calls": 86,
+  "tools": {
+   "Read": 3,
+   "Bash": 82,
+   "Write": 1
+  },
+  "api_messages": 80,
+  "first_ts": "2026-11-04T12:29:53.928Z",
+  "last_ts": "2026-11-04T12:44:04.514Z",
+  "input_tokens": 160,
+  "output_tokens": 94021,
+  "cache_creation_input_tokens": 340172,
+  "cache_read_input_tokens": 19431495
+ },
+ "R4_reviewer": {
+  "agent": "a40f02e69785bb0f5",
+  "tool_calls": 96,
+  "tools": {
+   "Read": 5,
+   "Bash": 78,
+   "TaskStop": 1,
+   "Write": 12
+  },
+  "api_messages": 95,
+  "first_ts": "2026-11-04T12:56:21.592Z",
+  "last_ts": "2026-11-04T13:21:21.649Z",
+  "input_tokens": 190,
+  "output_tokens": 118523,
+  "cache_creation_input_tokens": 394385,
+  "cache_read_input_tokens": 25463110
+ },
+ "R1_executor_window_L2001_L2156": {
+  "tool_calls": 13
+ },
+ "R2_executor_window_L2157_L2341": {
+  "tool_calls": 15
+ },
+ "R3_executor_window_L2342_L2498": {
+  "tool_calls": 10
+ },
+ "R4_executor_window_L2499_L2559": {
+  "tool_calls": 4
+ }
+}

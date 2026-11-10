@@ -1,0 +1,22 @@
+BASELINE: origin/master 933cf3a4f5fd3e4d8cce8f69c9168a2631574179
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+benchmark: 5.3.1 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/coder/workspaces/worktrees/IronClaude/ccsession-failover-392
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, benchmark-5.3.1, anyio-4.16.0, cov-7.1.0
+collected 203 items / 202 deselected / 1 selected
+
+tests/unit/test_ccsession_tiers.py F                                     [100%]
+
+=================================== FAILURES ===================================
+_______________ test_shim_outlives_the_terminal_that_started_it ________________
+tests/unit/test_ccsession_tiers.py:1956: in test_shim_outlives_the_terminal_that_started_it
+    assert _is_running(shim_pid, str(shim_copy))
+E   AssertionError: assert False
+E    +  where False = _is_running(386752, '/tmp/pytest-of-coder/pytest-4/test_shim_outlives_the_termina0/shim-under-test.py')
+E    +    where '/tmp/pytest-of-coder/pytest-4/test_shim_outlives_the_termina0/shim-under-test.py' = str(PosixPath('/tmp/pytest-of-coder/pytest-4/test_shim_outlives_the_termina0/shim-under-test.py'))
+=========================== short test summary info ============================
+FAILED tests/unit/test_ccsession_tiers.py::test_shim_outlives_the_terminal_that_started_it
+====================== 1 failed, 202 deselected in 6.10s =======================

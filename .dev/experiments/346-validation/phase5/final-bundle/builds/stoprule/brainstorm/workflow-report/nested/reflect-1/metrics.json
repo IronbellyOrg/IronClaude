@@ -1,0 +1,7 @@
+{"metrics_schema_version": "1.0", "run_id": "2026-11-08T19:07:27Z-ws346", "skill": "sc-reflect", "skill_version": "1.8.0", "mode": "pre", "tier_reached": 2, "status": "partial",
+ "calibration": {"calibrator_diversity": "degraded", "calibrated_confidence_initial": 0.63, "calibrated_confidence_final": 0.72},
+ "ensemble": {"t2_model_class_diversity": "full", "t2_vendor_diversity": "single", "t2_effective_diversity": "model-only", "reviewer_count": 3, "executor_class_resolved": false, "executor_exclusion_degraded": false},
+ "evidence_validator": {"ran": true, "citations_total": 153, "citations_revalidated": 89, "citations_dropped": 1, "citations_dropped_extrapolated": 1, "budget_policy": "sampled"},
+ "deviation_counts": {"authorized": 1, "necessary": 1, "drift": 1, "regression": 0, "total": 3},
+ "adversarial": {"convergence_score": 0.97, "merge_method": "adversarial", "adversarial_unavailable": false, "fallback_path": null},
+ "promotion": {"action": "not-applicable"}, "degraded_components": ["env-aliases-vendor-single"], "input_drift_detected": false, "needs_human_decision": false}

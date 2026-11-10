@@ -1,0 +1,7 @@
+grep -cF 'spec-panel-stoprule' docs/designs/spec-panel-stoprule.md = 8
+grep -cF 'sc-spec-panel-stoprule-protocol' docs/designs/spec-panel-stoprule.md = 3
+grep -cF 'finding-grader' docs/designs/spec-panel-stoprule.md = 5
+grep -cF 'stoprule.py' docs/designs/spec-panel-stoprule.md = 6
+grep -cF 'm0_label_cm' docs/designs/spec-panel-stoprule.md = 1
+grep -cF '## Unattended mode' docs/designs/spec-panel-stoprule.md = 1
+git diff --numstat docs/designs/spec-panel-review-loop.md: 1	0	docs/designs/spec-panel-review-loop.md

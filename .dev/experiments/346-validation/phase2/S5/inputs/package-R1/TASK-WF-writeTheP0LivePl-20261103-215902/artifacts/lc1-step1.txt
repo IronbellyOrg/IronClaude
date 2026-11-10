@@ -1,0 +1,7 @@
+task-create receipt: ./artifacts/lc1-task-create.json (exit 0)
+worker-start receipt: ./artifacts/lc1-worker-start.json
+worker-start exit=0
+t0=1793772142.380195195 t1=1793772184.374752090
+elapsed_seconds=41.995 (computed with awk because bc is not installed)
+state=    "state": "ready",
+dispatchId=ctx_e70499c8ef2d taskId=task_9c0f198acb01

@@ -1,0 +1,133 @@
+diff --git a/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py b/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
+index c712c544..13a38fef 100644
+--- a/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
++++ b/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
+@@ -16,8 +16,6 @@ sequence conflict. ``verdict`` alone exits 0 PASS, 10 CONTINUE, 11 ESCALATE,
+ 12 PENDING (the loop is terminal and the sweep has not run).
+ """
+ 
+-from __future__ import annotations
+-
+ import argparse
+ import fcntl
+ import hashlib
+@@ -396,11 +394,11 @@ def render_rows(state: dict) -> list[str]:
+ # ---------------------------------------------------------------- mutation frame
+ 
+ 
+-def mutate(args, cmd: str, payload_bytes: bytes, apply):
+-    """Lock, load, check integrity, replay identical requests, check seq, apply, save."""
++def mutate(args, cmd: str, read_payload, apply):
++    """Check integrity, read the input, lock, reload, replay identical requests, check seq, apply, save."""
+     ledger = Ledger(ledger_root(args))
+-    if not ledger.exists():
+-        ledger.load()  # raises E-NO-LEDGER
++    ledger.load()  # E-NO-LEDGER or E-TAMPERED before anything else is read or locked
++    payload_bytes = read_payload()
+     fh = ledger.lock()
+     try:
+         state = ledger.load()
+@@ -645,10 +643,22 @@ def make_row(
+     }
+ 
+ 
++def input_reader(path_str: str):
++    """Return (read, got): read() parses --input after the ledger hash check."""
++    got: dict = {}
++
++    def read() -> bytes:
++        got["data"], got["payload"] = read_input(path_str)
++        return got["payload"]
++
++    return read, got
++
++
+ def cmd_find(args) -> dict:
+-    data, payload = read_input(args.input)
++    read, got = input_reader(args.input)
+ 
+     def apply(ledger: Ledger, state: dict):
++        data, payload = got["data"], got["payload"]
+         require_phase(state, "find")
+         if committed_ops(state, "find", 1):
+             refuse(
+@@ -669,7 +679,7 @@ def cmd_find(args) -> dict:
+         atomic_write(ledger.root / "inputs" / "r1-find.json", payload)
+         return {}
+ 
+-    return mutate(args, "find", payload, apply)
++    return mutate(args, "find", read, apply)
+ 
+ 
+ def round_x_items(state: dict, k: int) -> list:
+@@ -738,16 +748,18 @@ def tail_text(state: dict, dec: dict) -> str:
+ 
+ def cmd_close(args) -> dict:
+     report = Path(args.report)
+-    if not report.is_file():
+-        refuse(
+-            "E-SCHEMA",
+-            f"report not found: {report}",
+-            EXIT_INPUT,
+-            "write the report first",
+-        )
+-    payload = canonical({"report": str(report)})
+     pending = {}
+ 
++    def read() -> bytes:
++        if not report.is_file():
++            refuse(
++                "E-SCHEMA",
++                f"report not found: {report}",
++                EXIT_INPUT,
++                "write the report first",
++            )
++        return canonical({"report": str(report)})
++
+     def apply(ledger: Ledger, state: dict):
+         require_phase(state, "find", "verify")
+         k = state["round"]
+@@ -782,7 +794,7 @@ def cmd_close(args) -> dict:
+         atomic_write(report, (text + pending["tail"]).encode("utf-8"))
+ 
+     apply.after_save = after_save
+-    return mutate(args, "close", payload, apply)
++    return mutate(args, "close", read, apply)
+ 
+ 
+ def cmd_status(args) -> dict:
+diff --git a/tests/skills/test_review_ledger_script.py b/tests/skills/test_review_ledger_script.py
+index b6165730..f880b31c 100644
+--- a/tests/skills/test_review_ledger_script.py
++++ b/tests/skills/test_review_ledger_script.py
+@@ -257,6 +257,22 @@ def test_hand_edit_is_refused_and_file_unchanged(tmp_path):
+     assert code == 3 and out["error"] == "E-TAMPERED"
+ 
+ 
++def test_tamper_check_runs_before_input_and_lock(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    path = lp.ledger / "ledger.json"
++    path.write_text(path.read_text().replace('"round": 1', '"round": 2', 1))
++    bad = lp.report("bad.md", "# no ledger-input block here\n")
++    code, out = lp.mut("find", "--input", str(bad), seq=1)
++    assert code == 3 and out["error"] == "E-TAMPERED"
++    code, out = lp.close(tmp_path / "missing-report.md", seq=1)
++    assert code == 3 and out["error"] == "E-TAMPERED"
++    with open(lp.ledger / ".lock", "a+") as fh:
++        fcntl.flock(fh.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
++        code, out = lp.find("find-basic.json", seq=1)
++    assert code == 3 and out["error"] == "E-TAMPERED"
++
++
+ def test_identical_retry_under_new_op_id_returns_committed_result(tmp_path):
+     lp = Loop(tmp_path)
+     lp.init()
+@@ -372,7 +388,6 @@ def test_no_role_flag_and_stdlib_only():
+         "difflib",
+         "shutil",
+         "pathlib",
+-        "__future__",
+     }
+     imported = set()
+     for line in src.splitlines():

@@ -1,0 +1,755 @@
+diff --git a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+new file mode 100644
+index 00000000..bd6ebc3e
+--- /dev/null
++++ b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+@@ -0,0 +1,368 @@
++#!/usr/bin/env python3
++"""Fix audit for one /sc:spec-panel-ponytail review loop (issue 346).
++
++Subcommands: prepare (this file grows check, apply and verdict later).
++Standard library only. Exit codes: 0 ok, not-triggered or skipped; 1 an
++unreadable input after the trigger check.
++"""
++
++from __future__ import annotations
++
++import argparse
++import difflib
++import hashlib
++import json
++import re
++import sys
++from collections import Counter
++from pathlib import Path
++
++# [A-Z][A-Z0-9]*(-[A-Z0-9]+)*[0-9] as whole words: single hyphens allowed inside, so R2-1 and C-R3-15 match.
++ID_RE = re.compile(
++    r"(?<![\w-])([A-Z](?:[A-Z0-9]|-(?=[A-Z0-9]))*[0-9])(?!\w)(?!-[A-Z0-9])"
++)
++RANGE_RE = re.compile(r"^([A-Z]+)([0-9]+)-\1([0-9]+)$")
++FR_RE = re.compile(r"^FR-[0-9]+$")
++PROTECTED_RE = re.compile(r"(?<![\w-])FR-[89](?![\w])")
++LABEL_RE = re.compile(r"\b(CRITICAL|MAJOR|MINOR)\b")
++KEYED_RE = re.compile(r"\b(?:CRITICAL|MAJOR|MINOR)\s*,\s*([A-Z]{1,2})\b")
++KEY_DEF_RE = re.compile(r"\b([A-Z]{1,2})\s*=\s*(non-blocking|blocking|minor)\b", re.I)
++BLOCKING_RE = re.compile(r"(?<!non-)\bblocking\b")
++STATUS_WORDS = {"open", "resolved", "regressed", "closed", "fixed"}
++PRIOR_HEADING_RE = re.compile(r"\b(prior|resolution|previous|earlier)\b", re.I)
++LABEL_RANK = {"unknown": 0, "MINOR": 1, "MAJOR": 2, "CRITICAL": 3}
++BRIEF = Path(__file__).resolve().parent.parent / "refs" / "auditor-brief.md"
++
++
++# ---------- shared helpers ----------
++
++
++def sha256(path: Path) -> str:
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def read_text(path: Path) -> str:
++    return path.read_bytes().decode("utf-8")
++
++
++def split_lines(text: str) -> list[str]:
++    """Lines with their own endings kept, so CRLF and a missing final newline survive."""
++    return re.findall(r"[^\n]*\n|[^\n]+$", text)
++
++
++def write_state(d: Path, state: dict) -> None:
++    (d / "state.json").write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
++
++
++def load_state(d: Path) -> dict:
++    return json.loads((d / "state.json").read_text(encoding="utf-8"))
++
++
++def id_tokens(text: str) -> list[str]:
++    """Id-shaped whole words; a range such as N1-N11 becomes its members."""
++    out: list[str] = []
++    for tok in ID_RE.findall(text):
++        m = RANGE_RE.match(tok)
++        if m and int(m.group(2)) <= int(m.group(3)) <= int(m.group(2)) + 500:
++            out.extend(
++                f"{m.group(1)}{n}" for n in range(int(m.group(2)), int(m.group(3)) + 1)
++            )
++        else:
++            out.append(tok)
++    return out
++
++
++def table_cells(line: str) -> list[str] | None:
++    s = line.strip()
++    if not s.startswith("|"):
++        return None
++    return [c.strip() for c in s.strip("|").split("|")]
++
++
++def is_separator(cs: list[str]) -> bool:
++    return any(cs) and all(re.fullmatch(r":?-{2,}:?", c) for c in cs if c)
++
++
++def report_key(text: str) -> dict[str, str]:
++    """Letter key for the `MAJOR, B` format (a report may define its own key)."""
++    key = {"B": "blocking", "M": "minor", "NB": "minor"}
++    for k, v in KEY_DEF_RE.findall(text):
++        key[k] = "blocking" if v.lower() == "blocking" else "minor"
++    return key
++
++
++def parse_grade(line: str, key: dict[str, str]) -> tuple[str, bool | None, bool]:
++    """(severity label, blocking flag or None when unknown, FR-8/FR-9 marker) of one line."""
++    labels = set(LABEL_RE.findall(line))
++    label = max(labels, key=LABEL_RANK.get) if labels else "unknown"
++    low = line.lower()
++    minor_word = "non-blocking" in low
++    blocking_word = bool(BLOCKING_RE.search(low))
++    for k in KEYED_RE.findall(line):
++        if key.get(k) == "blocking":
++            blocking_word = True
++        elif key.get(k) == "minor":
++            minor_word = True
++    if len(labels) > 1 or blocking_word:
++        blocking: bool | None = True  # a conflicting grade counts as blocking
++    elif minor_word:
++        blocking = False
++    else:
++        blocking = None
++    return label, blocking, bool(PROTECTED_RE.search(line))
++
++
++def parse_report(text: str) -> dict:
++    """Graded records and prior-status rows of a review report.
++
++    graded: {id: {label, blocking, protected}} for ids the report grades itself.
++    prior: [[id, status]] rows of a prior-findings (resolution) table.
++    """
++    key = report_key(text)
++    seen: dict[str, dict] = {}
++    prior: list[list[str]] = []
++    in_prior = False
++    for line in text.splitlines():
++        if line.lstrip().startswith("#"):
++            in_prior = bool(PRIOR_HEADING_RE.search(line))
++            continue
++        cs = table_cells(line)
++        if cs is not None and is_separator(cs):
++            continue
++        toks = id_tokens(cs[0] if cs else line)
++        toks = [t for t in toks if not FR_RE.match(t)]
++        if not toks:
++            continue
++        rid = toks[0]
++        status = next(
++            (c.lower() for c in (cs or [])[1:] if c.lower() in STATUS_WORDS), ""
++        )
++        label, blocking, fr = parse_grade(line, key)
++        if in_prior or (status and label == "unknown" and blocking is None):
++            prior.append([rid, status])
++            continue
++        if label == "unknown" and blocking is None and not fr:
++            continue  # an incidental mention, not a graded record
++        g = seen.setdefault(rid, {"label": "unknown", "flags": [], "fr": False})
++        if LABEL_RANK[label] > LABEL_RANK[g["label"]]:
++            g["label"] = label
++        g["flags"].append(blocking)
++        g["fr"] = g["fr"] or fr
++    graded = {
++        rid: {
++            "label": g["label"],
++            # unknown (None) or conflicting grades count as blocking
++            "blocking": set(g["flags"]) != {False},
++            "protected": g["label"] == "CRITICAL" or g["fr"],
++        }
++        for rid, g in seen.items()
++    }
++    return {"graded": graded, "prior": prior}
++
++
++def last_line(text: str) -> str:
++    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
++    return lines[-1] if lines else ""
++
++
++def hunks_of(b_lines: list[str], s_lines: list[str]) -> list[dict]:
++    """Line-level hunks of B to S with whitespace-only lines ignored.
++
++    Spans are 0-based half-open indices into the original line lists; an empty
++    span is the insertion point after the previous non-blank line.
++    """
++    bi = [i for i, ln in enumerate(b_lines) if ln.strip()]
++    si = [i for i, ln in enumerate(s_lines) if ln.strip()]
++    bt = [b_lines[i].rstrip("\r\n") for i in bi]
++    st = [s_lines[i].rstrip("\r\n") for i in si]
++
++    def span(idx: list[int], a: int, z: int) -> list[int]:
++        if a < z:
++            return [idx[a], idx[z - 1] + 1]
++        pos = idx[a - 1] + 1 if a > 0 else 0
++        return [pos, pos]
++
++    out = []
++    sm = difflib.SequenceMatcher(None, bt, st, autojunk=False)
++    for tag, i1, i2, j1, j2 in sm.get_opcodes():
++        if tag != "equal":
++            out.append(
++                {
++                    "id": f"H{len(out) + 1}",
++                    "tag": tag,
++                    "s": span(si, j1, j2),
++                    "b": span(bi, i1, i2),
++                }
++            )
++    return out
++
++
++def changed_lines(b_lines: list[str], s_lines: list[str]) -> int:
++    """Lines of S that differ from B (whitespace-only lines ignored)."""
++    return sum(h["s"][1] - h["s"][0] for h in hunks_of(b_lines, s_lines))
++
++
++def disposition_lines(text: str, blocking_ids: set[str]) -> set[int]:
++    """1-based S lines the disposition table's `Where` column lists under a blocking id."""
++    out: set[int] = set()
++    where = None
++    for line in text.splitlines():
++        cs = table_cells(line)
++        if cs is None:
++            where = None
++            continue
++        if where is None:
++            low = [c.lower() for c in cs]
++            where = low.index("where") if "where" in low else None
++            continue
++        if is_separator(cs) or where >= len(cs):
++            continue
++        ids = {t for c in cs[:where] for t in id_tokens(c)}
++        if ids & blocking_ids:
++            for a, z in re.findall(r":([0-9]+)(?:-([0-9]+))?", cs[where]):
++                out.update(range(int(a), int(z or a) + 1))
++    return out
++
++
++# ---------- prepare ----------
++
++
++def classify(h: dict, graded: dict, prior_only: set[str], disp: set[int] | None) -> str:
++    known = [t for t in h["cited"] if t in graded or t in prior_only]
++    if not known:
++        return "unattributed"
++    if any(t in prior_only for t in known):
++        return "foreign-id"
++    overlaps = disp is not None and any(h["s"][0] < n <= h["s"][1] for n in disp)
++    if (
++        disp is None
++        or overlaps
++        or any(graded[t]["blocking"] or graded[t]["protected"] for t in known)
++    ):
++        return "blocking-involved"
++    return "minor-only"
++
++
++def cmd_prepare(a: argparse.Namespace) -> int:
++    d = Path(a.out)
++    d.mkdir(parents=True, exist_ok=True)
++    b, s, r = Path(a.baseline), Path(a.current), Path(a.report)
++    state: dict = {
++        "baseline": str(b.resolve()),
++        "current": str(s.resolve()),
++        "report": str(r.resolve()),
++        "dispositions": str(Path(a.dispositions).resolve()) if a.dispositions else None,
++        "out": str(d.resolve()),
++        "ids": {},
++        "prior_only": [],
++    }
++
++    def stop(audit: str) -> int:
++        state["audit"] = audit
++        write_state(d, state)
++        print(f"audit: {audit}")
++        return 0
++
++    try:
++        rtext = read_text(r)
++    except (OSError, UnicodeDecodeError):
++        state["trigger"] = "report unreadable"
++        return stop("not-triggered(report unreadable)")
++    parsed = parse_report(rtext)
++    graded = parsed["graded"]
++    prior_only = sorted({p[0] for p in parsed["prior"]} - set(graded))
++    state["ids"], state["prior_only"] = graded, prior_only
++    if not any(ln.startswith("review: 2 of 3") for ln in rtext.splitlines()):
++        state["trigger"] = "no review: 2 of 3 line"
++        return stop("not-triggered(not review 2 of 3)")
++    if last_line(rtext) != "verdict: FAIL":
++        state["trigger"] = "last line is not verdict: FAIL"
++        return stop("not-triggered(review 2 did not fail)")
++    try:
++        btext, stext = read_text(b), read_text(s)
++    except (OSError, UnicodeDecodeError):
++        state["trigger"] = "spec or baseline unreadable"
++        return stop("not-triggered(spec or baseline unreadable)")
++    b_lines, s_lines = split_lines(btext), split_lines(stext)
++    hunks = hunks_of(b_lines, s_lines)
++    if not hunks:
++        state["trigger"] = "empty diff"
++        return stop("not-triggered(empty diff)")
++    state["trigger"] = "triggered"
++
++    disp = None
++    if a.dispositions:
++        try:
++            dtext = read_text(Path(a.dispositions))
++        except (OSError, UnicodeDecodeError) as e:
++            print(f"error: dispositions unreadable: {e}", file=sys.stderr)
++            return 1
++        blocking_ids = {i for i, g in graded.items() if g["blocking"] or g["protected"]}
++        disp = disposition_lines(dtext, blocking_ids)
++
++    state["sha256_current"], state["sha256_baseline"] = sha256(s), sha256(b)
++    (d / "current-before-audit.md").write_bytes(s.read_bytes())
++    for h in hunks:
++        s_txt = "".join(s_lines[h["s"][0] : h["s"][1]])
++        b_txt = "".join(b_lines[h["b"][0] : h["b"][1]])
++        h["cited"] = sorted(
++            (Counter(id_tokens(s_txt)) - Counter(id_tokens(b_txt))).keys()
++        )
++        h["added"] = len(s_txt.encode("utf-8"))
++        h["removed"] = len(b_txt.encode("utf-8"))
++        h["class"] = classify(h, graded, set(prior_only), disp)
++        known = [t for t in h["cited"] if t in graded]
++        h["grade"] = (
++            ",".join(
++                f"{t}:{'blocking' if graded[t]['blocking'] else 'minor'}" for t in known
++            )
++            or "-"
++        )
++    state["hunks"] = hunks
++    if sum(h["class"] == "unattributed" for h in hunks) * 2 > len(hunks):
++        return stop("skipped(ids not citable)")
++
++    rows = [
++        "| hunk | lines in S | lines in B | bytes added | bytes removed | ids cited | grade | class |",
++        "|---|---|---|---|---|---|---|---|",
++    ]
++    for h in hunks:
++        known = [t for t in h["cited"] if t in graded or t in prior_only]
++        rows.append(
++            f"| {h['id']} | {h['s'][0] + 1}-{h['s'][1]} | {h['b'][0] + 1}-{h['b'][1]} | "
++            f"{h['added']} | {h['removed']} | {', '.join(known) or '-'} | {h['grade']} | {h['class']} |"
++        )
++    (d / "fix-list.md").write_text("\n".join(rows) + "\n", encoding="utf-8")
++    brief = BRIEF.read_text(encoding="utf-8")
++    for ph, val in (
++        ("<DISP>", state["dispositions"] or "none"),
++        ("<D>", state["out"]),
++        ("<R>", state["report"]),
++        ("<B>", state["baseline"]),
++        ("<S>", state["current"]),
++    ):
++        brief = brief.replace(ph, val)
++    (d / "brief.md").write_text(brief, encoding="utf-8")
++    return stop("prepared")
++
++
++def main(argv: list[str] | None = None) -> int:
++    ap = argparse.ArgumentParser(
++        prog="fix_audit.py", description=__doc__.splitlines()[0]
++    )
++    sub = ap.add_subparsers(dest="cmd", required=True)
++    p = sub.add_parser(
++        "prepare", help="split the cycle-2 fix diff into classified hunks"
++    )
++    p.add_argument("--baseline", required=True)
++    p.add_argument("--current", required=True)
++    p.add_argument("--report", required=True)
++    p.add_argument("--dispositions")
++    p.add_argument("--out", required=True)
++    p.set_defaults(fn=cmd_prepare)
++    a = ap.parse_args(argv)
++    return a.fn(a)
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/skills/test_fix_audit_script.py b/tests/skills/test_fix_audit_script.py
+new file mode 100644
+index 00000000..03ee2fb8
+--- /dev/null
++++ b/tests/skills/test_fix_audit_script.py
+@@ -0,0 +1,375 @@
++"""Behavior tests for sc-fix-audit's fix_audit.py (issue 346, team ponytail).
++
++Enforcement type: EXECUTABLE (script behavior on tmp_path fixtures).
++"""
++
++from __future__ import annotations
++
++import ast
++import filecmp
++import importlib.util
++import json
++import subprocess
++import sys
++from pathlib import Path
++
++import pytest
++
++_REPO = Path(__file__).resolve().parents[2]
++_SKILL = _REPO / "src/superclaude/skills/sc-fix-audit"
++_SCRIPT = _SKILL / "scripts/fix_audit.py"
++_spec = importlib.util.spec_from_file_location("fix_audit", _SCRIPT)
++fa = importlib.util.module_from_spec(_spec)
++_spec.loader.exec_module(fa)
++
++# The plan package moves from to-do/ to done/ when archived; find it in either.
++_PKG_SOURCES = sorted(_REPO.glob(".dev/tasks/*/TASK-WF-spec-20261108-181547/source.md"))
++
++R2_HEAD = "# Review\n\nreview: 2 of 3 (re-review of round 1)\n\n"
++R2_TAIL = "\nverdict: FAIL\n"
++
++
++def run(*args: str) -> subprocess.CompletedProcess:
++    return subprocess.run(
++        [sys.executable, str(_SCRIPT), *args], capture_output=True, text=True
++    )
++
++
++def write(p: Path, text: str) -> Path:
++    p.write_bytes(text.encode("utf-8"))
++    return p
++
++
++def prepare(tmp_path: Path, base: str, cur: str, report: str, disp: str | None = None):
++    b = write(tmp_path / "v2.md", base)
++    s = write(tmp_path / "spec.md", cur)
++    r = write(tmp_path / "round2.md", report)
++    d = tmp_path / "fix-audit"
++    args = [
++        "prepare",
++        "--baseline",
++        str(b),
++        "--current",
++        str(s),
++        "--report",
++        str(r),
++        "--out",
++        str(d),
++    ]
++    if disp is not None:
++        args += ["--dispositions", str(write(tmp_path / "disp.md", disp))]
++    res = run(*args)
++    state = (
++        json.loads((d / "state.json").read_text())
++        if (d / "state.json").exists()
++        else None
++    )
++    return res, d, state
++
++
++def report(rows: str) -> str:
++    return (
++        R2_HEAD
++        + "## New findings\n\n| id | severity | grade |\n|---|---|---|\n"
++        + rows
++        + R2_TAIL
++    )
++
++
++# ---------- brief and imports ----------
++
++
++@pytest.mark.skipif(
++    not _PKG_SOURCES, reason="plan package source.md not in this checkout"
++)
++def test_brief_equals_source_section_2_4():
++    src = _PKG_SOURCES[0].read_text(encoding="utf-8").splitlines()
++    start = src.index(
++        "### 2.4 The brief handed to the ponytail auditor (exact text; stored once in `sc-fix-audit/refs/auditor-brief.md`)"
++    )
++    open_ = src.index("```text", start)
++    close = src.index("```", open_ + 1)
++    brief = (_SKILL / "refs/auditor-brief.md").read_text(encoding="utf-8").splitlines()
++    assert brief == src[open_ + 1 : close]
++
++
++def test_brief_has_placeholders_and_no_src_path():
++    text = (_SKILL / "refs/auditor-brief.md").read_text(encoding="utf-8")
++    for ph in ("<D>", "<R>", "<DISP>", "<B>", "<S>"):
++        assert ph in text
++    assert "src/superclaude" not in text
++
++
++def test_script_imports_only_stdlib():
++    allowed = {
++        "__future__",
++        "argparse",
++        "collections",
++        "difflib",
++        "hashlib",
++        "json",
++        "os",
++        "re",
++        "sys",
++        "tempfile",
++        "pathlib",
++    }
++    tree = ast.parse(_SCRIPT.read_text(encoding="utf-8"))
++    names = set()
++    for node in ast.walk(tree):
++        if isinstance(node, ast.Import):
++            names |= {a.name.split(".")[0] for a in node.names}
++        elif isinstance(node, ast.ImportFrom):
++            names.add(node.module.split(".")[0])
++    assert names <= allowed, names - allowed
++
++
++# ---------- trigger and hunks ----------
++
++
++def test_empty_diff_not_triggered_writes_only_state(tmp_path):
++    res, d, state = prepare(
++        tmp_path, "a\nb\n", "a\nb\n", report("| N1 | MINOR | non-blocking |\n")
++    )
++    assert res.returncode == 0
++    assert state["audit"] == "not-triggered(empty diff)"
++    assert sorted(p.name for p in d.iterdir()) == ["state.json"]
++
++
++def test_whitespace_only_diff_not_triggered(tmp_path):
++    res, d, state = prepare(
++        tmp_path,
++        "a\n\nb\n",
++        "a\n   \n\n\nb\n",
++        report("| N1 | MINOR | non-blocking |\n"),
++    )
++    assert res.returncode == 0
++    assert state["audit"] == "not-triggered(empty diff)"
++    assert sorted(p.name for p in d.iterdir()) == ["state.json"]
++
++
++@pytest.mark.parametrize(
++    "rep,reason",
++    [
++        (
++            "review: 1 of 3\n| N1 | MINOR | non-blocking |\nverdict: FAIL\n",
++            "not review 2 of 3",
++        ),
++        (
++            R2_HEAD + "| N1 | MINOR | non-blocking |\nverdict: PASS\n",
++            "review 2 did not fail",
++        ),
++    ],
++)
++def test_report_trigger_rules(tmp_path, rep, reason):
++    res, d, state = prepare(tmp_path, "a\n", "a\nN1 fix\n", rep)
++    assert res.returncode == 0 and state["audit"] == f"not-triggered({reason})"
++    assert sorted(p.name for p in d.iterdir()) == ["state.json"]
++
++
++def test_insert_delete_replace_hunks():
++    b = fa.split_lines("one\ntwo\nthree\nfour\n")
++    s = fa.split_lines("zero\none\nTWO\nthree\n")
++    tags = [(h["tag"], h["s"], h["b"]) for h in fa.hunks_of(b, s)]
++    assert tags == [
++        ("insert", [0, 1], [0, 0]),
++        ("replace", [2, 3], [1, 2]),
++        ("delete", [4, 4], [3, 4]),
++    ]
++
++
++def test_current_before_audit_is_byte_copy(tmp_path):
++    cur = "line\r\nN1 fix é\r\nend"
++    res, d, state = prepare(
++        tmp_path,
++        "line\r\nend",
++        cur,
++        report("| N1 | MINOR | non-blocking |\n"),
++        disp="| id | Where |\n|---|---|\n",
++    )
++    assert res.returncode == 0 and state["audit"] == "prepared"
++    assert filecmp.cmp(
++        d / "current-before-audit.md", tmp_path / "spec.md", shallow=False
++    )
++    assert state["sha256_current"] == fa.sha256(tmp_path / "spec.md")
++
++
++# ---------- id rule ----------
++
++
++@pytest.mark.parametrize("tok", ["N12", "C9", "R2-1", "C-R3-15"])
++def test_id_tokens_match(tok):
++    assert fa.id_tokens(f"see {tok}, and ({tok}).") == [tok, tok]
++
++
++@pytest.mark.parametrize(
++    "text", ["12 and 345", "N12x", "xN12", "abc N", "Section", "n12"]
++)
++def test_id_tokens_reject_numbers_and_partial_words(text):
++    assert fa.id_tokens(text) == []
++
++
++def test_range_expanded():
++    assert fa.id_tokens("fixes N1-N11") == [f"N{i}" for i in range(1, 12)]
++
++
++def test_baseline_id_is_context_not_citation(tmp_path):
++    rep = report("| N1 | MAJOR | blocking |\n| N2 | MINOR | non-blocking |\n")
++    res, d, state = prepare(
++        tmp_path, "rule per N1.\n", "rule per N1, now clearer (N2).\n", rep, disp=""
++    )
++    assert state["hunks"][0]["cited"] == ["N2"]
++    assert state["hunks"][0]["class"] == "minor-only"
++
++
++def test_prior_table_only_id_is_not_defined_and_makes_foreign_id(tmp_path):
++    rep = (
++        R2_HEAD
++        + "## Prior findings\n\n| id | fixed | status |\n|---|---|---|\n| F16 | no | open |\n"
++        + "## New findings\n\n| N1 | MINOR | non-blocking |\n"
++        + R2_TAIL
++    )
++    res, d, state = prepare(tmp_path, "a\n", "a\nfix for F16\n", rep, disp="")
++    assert "F16" not in state["ids"] and state["prior_only"] == ["F16"]
++    assert state["hunks"][0]["class"] == "foreign-id"
++
++
++def test_prior_status_row_without_heading_is_prior_only():
++    parsed = fa.parse_report("| F16 | no | open |\n| N1 | MAJOR | blocking |\n")
++    assert parsed["prior"] == [["F16", "open"]] and list(parsed["graded"]) == ["N1"]
++
++
++# ---------- grade parse ----------
++
++
++@pytest.mark.parametrize(
++    "line,label,blocking",
++    [
++        ("| N1 | MAJOR | blocking |", "MAJOR", True),
++        ("N2 (CRITICAL, blocking): the rule is missing.", "CRITICAL", True),
++        ("C9: Severity MAJOR, blocking. The table is wrong.", "MAJOR", True),
++        ("N4 MAJOR, B the cap is wrong", "MAJOR", True),
++        ("N5 MINOR, M wording", "MINOR", False),
++        ("| N6 | MINOR | non-blocking |", "MINOR", False),
++    ],
++)
++def test_four_grade_formats(line, label, blocking):
++    g = fa.parse_report("Key: B = blocking, M = minor\n" + line + "\n")["graded"]
++    rid = fa.id_tokens(line)[0]
++    assert g[rid]["label"] == label and g[rid]["blocking"] is blocking
++
++
++@pytest.mark.parametrize(
++    "line",
++    [
++        "| N7 | MAJOR | |",
++        "| N7 | MAJOR | blocking | non-blocking |",
++        "| N7 | MAJOR, MINOR | non-blocking |",
++    ],
++)
++def test_unknown_or_conflicting_grade_is_blocking(line):
++    assert fa.parse_report(line + "\n")["graded"]["N7"]["blocking"] is True
++
++
++def test_fr8_graded_minor_is_protected_and_blocking_involved(tmp_path):
++    rep = report("| N3 | MAJOR (FR-8 GAP) | non-blocking |\n")
++    res, d, state = prepare(tmp_path, "a\n", "a\nN3 fix\n", rep, disp="")
++    g = state["ids"]["N3"]
++    assert g["blocking"] is False and g["protected"] is True and g["label"] == "MAJOR"
++    assert state["hunks"][0]["class"] == "blocking-involved"
++
++
++def test_critical_is_protected():
++    g = fa.parse_report("| N8 | CRITICAL | non-blocking |\n")["graded"]["N8"]
++    assert g["protected"] is True
++
++
++# ---------- classes and guard ----------
++
++MIXED_REPORT = report(
++    "| N1 | MINOR | non-blocking |\n| N2 | MAJOR | blocking |\n| N3 | MINOR | non-blocking |\n"
++).replace(
++    "## New findings", "## Prior findings\n\n| F16 | no | open |\n\n## New findings"
++)
++MIXED_BASE = "p1\nk1\np2\nk2\np3\nk3\np4\nk4\np5\n"
++MIXED_CUR = (
++    "p1 N1 tweak\nk1\np2 N2 fix\nk2\np3 F16 fix\nk3\np4 plain change\nk4\np5 N3 tweak\n"
++)
++
++
++def test_four_classes_on_mixed_fixture(tmp_path):
++    disp = "| id | Where |\n|---|---|\n| N2 | SPEC':3 |\n"
++    res, d, state = prepare(tmp_path, MIXED_BASE, MIXED_CUR, MIXED_REPORT, disp=disp)
++    assert res.returncode == 0, res.stderr
++    assert [h["class"] for h in state["hunks"]] == [
++        "minor-only",
++        "blocking-involved",
++        "foreign-id",
++        "unattributed",
++        "minor-only",
++    ]
++    fix_list = (d / "fix-list.md").read_text()
++    assert "| H1 | 1-1 | 1-1 |" in fix_list and "minor-only" in fix_list
++
++
++def test_minor_hunk_on_disposition_line_of_blocking_id_is_blocking_involved(tmp_path):
++    disp = "| id | Where |\n|---|---|\n| N2 | SPEC':9 |\n"
++    res, d, state = prepare(tmp_path, MIXED_BASE, MIXED_CUR, MIXED_REPORT, disp=disp)
++    assert state["hunks"][4]["class"] == "blocking-involved"
++
++
++def test_no_dispositions_file_means_no_minor_only(tmp_path):
++    res, d, state = prepare(tmp_path, MIXED_BASE, MIXED_CUR, MIXED_REPORT)
++    assert "minor-only" not in [h["class"] for h in state["hunks"]]
++
++
++@pytest.mark.parametrize(
++    "cur,skipped",
++    [
++        (
++            "p1 N1 a\nk1\np2 x\nk2\np3 N3 b\nk3\np4\nk4\np5\n",
++            False,
++        ),  # 1 of 3 unattributed
++        (
++            "p1 N1 a\nk1\np2 x\nk2\np3\nk3\np4\nk4\np5\n",
++            False,
++        ),  # 1 of 2: exactly half, no skip
++        ("p1 N1 a\nk1\np2 x\nk2\np3 y\nk3\np4\nk4\np5\n", True),  # 2 of 3
++    ],
++)
++def test_skip_guard(tmp_path, cur, skipped):
++    res, d, state = prepare(tmp_path, MIXED_BASE, cur, MIXED_REPORT, disp="")
++    assert res.returncode == 0
++    assert (state["audit"] == "skipped(ids not citable)") is skipped
++    assert (d / "brief.md").exists() is not skipped
++
++
++def test_brief_has_paths_filled(tmp_path):
++    res, d, state = prepare(tmp_path, MIXED_BASE, MIXED_CUR, MIXED_REPORT, disp="")
++    brief = (d / "brief.md").read_text()
++    for ph in ("<D>", "<R>", "<DISP>", "<B>", "<S>"):
++        assert ph not in brief
++    assert (
++        str(d.resolve()) + "/audit.md" in brief
++        and str((tmp_path / "disp.md").resolve()) in brief
++    )
++
++
++def test_unreadable_dispositions_exit_1(tmp_path):
++    b = write(tmp_path / "v2.md", MIXED_BASE)
++    s = write(tmp_path / "spec.md", MIXED_CUR)
++    r = write(tmp_path / "round2.md", MIXED_REPORT)
++    res = run(
++        "prepare",
++        "--baseline",
++        str(b),
++        "--current",
++        str(s),
++        "--report",
++        str(r),
++        "--dispositions",
++        str(tmp_path / "missing.md"),
++        "--out",
++        str(tmp_path / "d"),
++    )
++    assert res.returncode == 1

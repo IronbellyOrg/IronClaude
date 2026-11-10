@@ -1,0 +1,14 @@
+You are the analytical reviewer for Step 4 of an adversarial pipeline. Review a refactoring plan adversarially: assume it has mistakes and find them. Do not edit the plan; write only your review file.
+
+FOLDER: /home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394/.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial/ . READ refactor-plan.md fully, then check it against diff-analysis.md, convergence-tally.md, invariant-probe.md, base-selection.md, round-2-advocate-1..3.md (section 5 tables) and /home/coder/workspaces/IronClaude/.dev/issues/394/issue-body.md (AC-1..AC-8).
+
+CHECKS (each with PASS or FAIL and evidence):
+1. Coverage of diff points: each of the 36 ids S-001..S-006, C-001..C-020, X-001..X-010 is settled by at least one planned change that states an exact rule. List any missing id.
+2. Probe coverage: each of INV-001..INV-040 has a disposition row; each 'Planned change #N' cited exists and really settles the finding; each 'Accepted residual' carries the sentence the spec must state. List missing or wrong rows.
+3. Shared assumptions A-001..A-008 each have a resolved condition.
+4. Internal consistency of the stated rules: find contradictions between changes (for example the decision table versus the Bash algorithm, approval rules versus the escape list, fail-closed rules versus the fast path, message ids used but not defined, a test case referring to a rule that no change states, two different timeouts or sizes, a regex that does not match its own examples). Test at least five regexes or token rules from the plan with bash/jq one-liners in /tmp (nothing inside the repository) and report results.
+5. Acceptance criteria: AC-1..AC-8 each map to at least two named test cases and to the rules that satisfy them; report any AC that a rule-by-rule reading shows is NOT satisfied (sufficiency, not just presence).
+6. Facts: every Claude Code behaviour claim is tagged VERIFIED (V#) or UNVERIFIED (U#); none contradicts research-light.md; the orchestrator-verified facts T1-T5 are used correctly; paths named exist in the repository (/home/coder/workspaces/worktrees/IronClaude/hook-launch-level-394) or are labelled proposed.
+7. Size discipline: flag any mechanism whose edge-case cost clearly exceeds its benefit (the stated goal is maximum effect with the fewest edge cases and unwanted behaviour).
+
+GRADE each finding BLOCKING (wrong behaviour, missing required item, false claim, security or acceptance-criterion hole) or MINOR (wording, format). Give a binary verdict PASS (no blocking findings) or FAIL, a short list of required fixes with exact text where you can, and a Self-Audit paragraph naming what you actively checked. OUTPUT: plan-review.md in the folder above. Plain English, no em dashes. Final reply: the file path, the verdict, and counts of blocking and minor findings.

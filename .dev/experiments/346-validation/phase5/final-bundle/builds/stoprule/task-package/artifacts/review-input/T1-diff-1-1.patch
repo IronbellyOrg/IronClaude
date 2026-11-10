@@ -1,0 +1,102 @@
+diff --git a/src/superclaude/skills/sc-spec-panel-stoprule-protocol/refs/rubric.md b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/refs/rubric.md
+new file mode 100644
+index 00000000..9710456e
+--- /dev/null
++++ b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/refs/rubric.md
+@@ -0,0 +1,15 @@
++RUBRIC v1 (frozen; a change is a new version and starts a new loop)
++BLOCKING needs B1, B2 and B3.
++B1 Quote: the finding quotes the offending text verbatim (a substring of the spec under review) and marks the defective words (span).
++   For an omission, quote the requirement or guard whose promised behavior is incomplete.
++B2 Outcome: it states a concrete wrong outcome: a named reader, implementer or test that follows the quoted text exactly and produces a
++   specific wrong result; or two quoted texts that cannot both hold; or a check that cannot pass or always passes, with the input that shows it.
++B3 Kind, one of: (a) contradiction between two quoted texts; (b) a claim about a source that the source's quoted text contradicts; (c) an
++   acceptance check that cannot pass or passes vacuously; (d) one text with two readings that lead to different observable results, both named;
++   (e) a step that loses data or takes an unsafe action.
++CRITICAL is BLOCKING under (e) or in a requirement the spec calls core; the verdict does not tell them apart.
++MINOR is everything else: wording, missing example, moved line number or citation drift, style, a gap whose intended behaviour is inferable
++   from nearby text, a suggestion to add a rule, mechanism or section.
++Never a reason to be blocking: experts agree; experts disagree; the section is important; the finding was found late; a Boundary Table row says
++   GAP or blank (such a row is a candidate and must meet B1-B3).
++Q2 (re-reviews, recorded as data, never demotes): given the baseline text shown, could a reader of the baseline already produce the same wrong outcome? same | different | na.
+diff --git a/src/superclaude/skills/sc-spec-panel-stoprule-protocol/refs/canaries.json b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/refs/canaries.json
+new file mode 100644
+index 00000000..16ad0c70
+--- /dev/null
++++ b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/refs/canaries.json
+@@ -0,0 +1,58 @@
++[
++  {
++    "quote": "Section 2: a locker is released after 30 minutes of inactivity. Section 5: a locker stays reserved until the rider scans out, with no timeout.",
++    "span": "released after 30 minutes of inactivity",
++    "outcome": "An implementer of the Pedalbay kiosk firmware cannot satisfy both sections: a rider idle for 31 minutes either keeps or loses the locker.",
++    "evidence": [{"kind": "verified", "text": "both sentences appear in the Pedalbay locker spec, sections 2 and 5"}],
++    "answer": true
++  },
++  {
++    "quote": "The nightly purge job deletes every rental record older than 7 days, including records still flagged as unpaid.",
++    "span": "including records still flagged as unpaid",
++    "outcome": "An operator running the purge as written loses the only record of an unpaid rental, so the rider can never be billed for it.",
++    "evidence": [{"kind": "verified", "text": "the purge step is the only place unpaid rentals are stored"}],
++    "answer": true
++  },
++  {
++    "quote": "Acceptance check: the unlock latency test passes when the measured latency is less than 0 milliseconds.",
++    "span": "less than 0 milliseconds",
++    "outcome": "A test engineer following the check exactly sees it fail on every run, because no measured latency can be negative, so the check can never pass.",
++    "evidence": [{"kind": "verified", "text": "latency is measured as a non-negative duration"}],
++    "answer": true
++  },
++  {
++    "quote": "Riders with a lapsed plan are charged the guest rate for the ride.",
++    "span": "charged the guest rate for the ride",
++    "outcome": "One billing implementer charges the guest rate for the whole ride and another only for the minutes after the lapse, giving two different invoices for one ride.",
++    "evidence": [{"kind": "unverified", "text": "the reviewer states no other text defines when the lapse starts"}],
++    "answer": true
++  },
++  {
++    "quote": "The kiosk shows a friendly message when the locker door does not close properly after a ride.",
++    "span": "a friendly message",
++    "outcome": "A copy writer reading the sentence might prefer the word clear instead of friendly for the message tone.",
++    "evidence": [],
++    "answer": false
++  },
++  {
++    "quote": "Riders can extend a reservation once from the kiosk screen before it expires.",
++    "span": "extend a reservation once",
++    "outcome": "A new reader would understand the rule faster if the spec gave a worked example of one extension.",
++    "evidence": [],
++    "answer": false
++  },
++  {
++    "quote": "The retry limit for failed unlocks is defined in the hardware appendix, line 42.",
++    "span": "line 42",
++    "outcome": "A reader opening the hardware appendix finds the retry limit on line 44 instead of line 42, two lines lower.",
++    "evidence": [{"kind": "verified", "text": "the retry limit sentence sits at line 44 of the hardware appendix"}],
++    "answer": false
++  },
++  {
++    "quote": "Maintenance staff open lockers with the service key described in the operations guide.",
++    "span": "service key described in the operations guide",
++    "outcome": "The spec would be more complete if it added a separate section on rotating service keys every quarter.",
++    "evidence": [],
++    "answer": false
++  }
++]
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t1-rubric-diff.txt b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t1-rubric-diff.txt
+new file mode 100644
+index 00000000..7851bf73
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t1-rubric-diff.txt
+@@ -0,0 +1,3 @@
++# diff of source.md section 2.3 fenced block (extracted by awk) against refs/rubric.md
++$ diff <section 2.3 block> src/superclaude/skills/sc-spec-panel-stoprule-protocol/refs/rubric.md
++diff exit=0 (0 = no difference)
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t1-rubric-sha256.txt b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t1-rubric-sha256.txt
+new file mode 100644
+index 00000000..6da6d370
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t1-rubric-sha256.txt
+@@ -0,0 +1,2 @@
++refs/rubric.md sha256=dbc4926c7421d51337e6963f28116d74dcbebde2deac018857882922bc6d4d61
++prefix12=dbc4926c7421

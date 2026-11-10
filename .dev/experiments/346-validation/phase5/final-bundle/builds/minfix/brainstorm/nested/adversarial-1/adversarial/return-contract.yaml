@@ -1,0 +1,21 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/346-minfix/nested/adversarial-1/merged-output.md"
+  convergence_score: 0.96   # 53 of 55 diff points by 2-of-3 majority after Round 2 (debate/convergence-r2.md); S-001 and S-002 resolved in the forced L1 round
+  artifacts_dir: ".dev/brainstorms/346-minfix/nested/adversarial-1/adversarial"
+  status: "partial"          # convergence BLOCKED_BY_INVARIANTS at depth standard (no Round 3); base force-selected by score (no_convergence rule)
+  base_variant: "sonnet:analyzer"
+  unresolved_conflicts: 0
+  fallback_mode: true        # no_convergence force-select path; plan review FAIL corrections applied at merge
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:    # HIGH UNADDRESSED at Round 2.5; carried into refactor-plan.md as Changes 18-27 and applied per merge-log.md; not re-probed after the merge
+    - {id: INV-001, category: state_variables, assumption: "baseline and receipt exist when the next review runs", severity: HIGH}
+    - {id: INV-002, category: state_variables, assumption: "prior open blocking findings get a budget again in cycle 2", severity: HIGH}
+    - {id: INV-005, category: guard_conditions, assumption: "every CRITICAL or FR-8/FR-9 finding is graded blocking", severity: HIGH}
+    - {id: INV-006, category: guard_conditions, assumption: "exit codes mean the same thing to every actor", severity: HIGH}
+    - {id: INV-007, category: guard_conditions, assumption: "every terminal state is PASS or a justified escalation within 3 reviews", severity: HIGH}
+    - {id: INV-012, category: count_divergence, assumption: "per-finding caps and the cycle cap give one deterministic survivor set", severity: HIGH}
+    - {id: INV-023, category: interaction_effects, assumption: "FR-8/FR-9 gap fills fit the standard budget", severity: HIGH}
+    - {id: INV-026, category: sufficiency_challenge, assumption: "within-budget fixes produce no blocking children", severity: HIGH}
+    - {id: INV-027, category: sufficiency_challenge, assumption: "short fixes create no guards that FR-8 turns blocking", severity: HIGH}
+    - {id: INV-028, category: sufficiency_challenge, assumption: "one cut-down attempt brings most over-cap fixes within budget", severity: HIGH}

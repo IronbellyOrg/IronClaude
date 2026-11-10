@@ -1,0 +1,65 @@
+# Debate round 1: Variant B (variant-2-sonnet-refactorer), advocate statement
+
+## Position summary
+Build the owner's audit once, before review 3, as a script-first, fail-open mechanism, with the model used only for the two judgments a script cannot make (is the severity real, is there a smaller fix). The two evidence files cut against my review-3 prediction: reverting minor fixes is worth about 0.2 findings per run, so my 2.4 should be about 3.3 and the mean bar is now more likely missed than met. My case rests on placement, safety, small footprint and a diagnostic ablation, not on a large predicted effect.
+
+## Steelman
+
+**Variant A (architect).** Its strongest argument is the decomposition of the effect into a revert channel and a shrink channel (A section 11), plus a verdict computed from review 3's own two tables rather than from a line a session writes (A section 9). Its shrink-channel estimate (20 to 35% of blocking-fix-induced findings) lines up with the evidence: B-class findings are 1.17 of 4.67 per run, about 25% (`evidence-attribution.md` totals). Its architecture is also right: a generic script that knows nothing about spec-panel, so moving to "audit after every cycle" is a one-condition change (A section 1). It has a fallback I lack: `auditor-isolation: in-session` when no subagent can be spawned (A section 6). It also logs `UPGRADE` rows and ignores them in the verdict (K9), which honours 427 bullet 7.
+
+**Variant C (QA).** Its strongest argument is metric hygiene: a placement after review 3 cannot change a count already written, so raw review 3 and the terminal result must be reported separately and never relabelled (C sections 1, 10, 11). It also saw early that finding-id comments cannot attribute fixes sharing a paragraph (C section 4: "several fixes can share one paragraph"), and `minor-byte-share.md` confirms it: 73% of cycle-2 added bytes sit in blocking-involved hunks. Its post-review-3 position has the most information: the auditor sees review 3's own remedies (for example ctl-r1 R3-2, "delete the attribution", `evidence-attribution.md`), which a pre-review-3 auditor must guess. Fail-closed on a missing plugin keeps an `inline-rubric` run from being counted as a ponytail result. Its edge-case table (C section 8) is the best test list of the three.
+
+## Strengths claimed
+1. **The worst case is plain 427.** Every step before review 3 fails open; nothing is written unless `check` passes and `apply` is all-or-nothing with a sha256 guard (B sections 3.3, 7, K1, K11). The evidence makes this matter more, not less: "every B/C revert reopens a blocking finding" (`evidence-attribution.md`, caveats), so the cost of a bad edit is real and a bounded downside is worth having.
+2. **The script never creates a PASS and never lowers a FAIL** (B section 8, steps 5 to 7). Only B and C close the false-PASS path. A's own risk 1 says "the defect ships, and the verdict says PASS" when a lenient auditor closes a real MAJOR; B's K6 forbids whole-reverting any hunk that cites a report-blocking id.
+3. **Placement before review 3 is the only one that can move the registered metric.** C concedes its primary "fails" the raw bar (C sections 10, 11). B and A also ship text a panel has read, not text no one saw (B section 3.1).
+4. **Cycle-2-only scope is where review 3 actually bites.** In my reading of the attribution tables, all 7 B-class findings are anchored on cycle-2 fixes (ctl-r1 R3-2 on N2 and R3-6 on N7; ctl-r2 R3-1 on N4; trt-r1 R3-2 on N2 and R3-4 on F5/N2; flg-r1 R3-1 on R2-2 and R3-4 on R2-1). Cycle-1 text is "unchanged" to review 3 against `--baseline` (B E7). C's both-cycle ledger buys little for the cost.
+5. **One brief line, byte-comparable to Arm B** (B section 12, substitution). C needs reviser ledgers in both cycles (C sections 3, 4), which confounds the treatment with ledger overhead; C itself lists this as open question 5.
+6. **Most mechanical checks and the only consistency check.** K1 to K13 cover the sha of the spec, shrink rules and fail-closed verdict (B section 10.1); K13 compares the report's `audit:` line against `apply-log.md`, so a faked or skipped step shows as `consistency: DISAGREE`.
+7. **The `--auto-minor` ablation and the F4 blind re-grade are the only diagnostic design** (B sections 9.4, 14.3; diff U-003, U-004). With A-001 contradicted, the ablation now has a sharp prediction: it should match Arm B on review 3 (about 3.5) while still cutting about 3 growth points. Any review-3 gain of the full arm then belongs to the shrink channel. That is readable even at n = 2, where the primary metric is not.
+8. **Honest forecasting about what is untouched.** I wrote that N12 comes from a blocking fix and is not removed, that per-replicate r1 cannot get under 3, and that no clean PASS should be expected (B sections 1, 9.3, 11). The attribution file agrees: N12 is class C, and class C is 12 of 28.
+
+## Weaknesses identified in others
+1. **A: its revert channel is contradicted by its own evidence.** A section 11 assumes reverts remove 15 to 30% of review-3 critical+major, while the same section notes "0 of its 1 R3 critical+major finding came from a minor fix". The measured rate is 1 of 28 (`evidence-attribution.md` totals). A's headline 2.5 and per-replicate "0 to 1" for r2 inherit this. (My model has the same flaw, see Concessions.)
+2. **A: the N5 to N12 deletion alternative (U-001) is judged class C.** `evidence-attribution.md`, flg-r2 row: "no: both halves of N5 are defective; dropping both reopens N5". C reaches the same view (C section 2). It is one judgement against two, so A's showpiece example should be treated as unproven.
+3. **A: K4 locks only CRITICAL, FR-8 and FR-9.** A MAJOR-blocking fix can be downgraded and whole-reverted (A section 7, K5). Given the evidence that blocking reverts reopen findings (trt-r1 R3-5 trade, caveats), this is risk with no measured upside.
+4. **A: fixed table columns in the review-3 report** (A section 9, bullet 8). A reviewer that writes the tables differently produces a fail-closed FAIL with no real defect (A's own risk 5). My single `open-blocking:` line has a different risk (a session can fake it), so this is a trade, not a clear win for either.
+5. **C: the primary is predicted to fail the registered bar by its own text.** "Under that strict target, its placement fails" (C section 10); the recommendation is to settle questions "before planning implementation" (C section 16). It proposes building 9 file rows, a fixtures folder, a plugin mirror, manifest, findings and fixes JSON, an intent log and resume logic (C sections 4, 6, 12) for a channel worth about 1.2 findings per run.
+6. **C: overriding FR-8 and FR-9 in the terminal model** (C section 7, open question 3) contradicts 427 bullet 2, and edits made after the last review are read by no one (C section 5: "No other reviewer will inspect your proposed changes"; C section 13 risk). Its own last line says a terminal judgment "can delete a necessary correction without a later review".
+7. **C: reviser-written ledgers add work in both cycles and change the reviser briefs** (C section 13: "not free instrumentation"). That breaks Arm B comparability (X-006).
+
+## Concessions
+1. **A-001 hits my number hardest.** In my model, 0.266 of the f = 0.328 (81%) comes from the minor channel (`s x m x r`, B section 9.2). The evidence says that channel is worth about 0.2 per run. Recomputed: B-class mean on the flg arm is 1.0 of 2.5 blocking. A pre-review-3 auditor must guess what review 3 will attack, so assume it captures half (0.5), and add 0.3 for new findings on shrunk text (A's own figure is 0.3 to 0.5). That gives proxy 3.5 - 0.5 + 0.3, about **3.3 (2.8 to 3.6)**, with r1 about 5 and r2 about 1. My earlier 2.4 is withdrawn. The mean bar is more likely missed than met, though inside two-replicate noise.
+2. **A-004 hits my growth and mechanism numbers.** I assumed m = 0.35; measured cycle-2 minor-only share is 27% (1,726 of 6,301 added chars, `minor-byte-share.md`). A hunk revert saves 1,726 / 57,763, about 3.0 points, so flg-r2 goes from 32.1% to about 29%, not my 26%, and my mechanism metric (0.28 of cycle-2 bytes) should read about 0.22. It still passes the 44.4% bar, so this does not change the decision.
+3. **My K9 blocks the sentence-level work the evidence calls for.** `minor-byte-share.md` says larger cuts need "sentence-level revert or shrink rows inside mixed lines" written as exact old/new text. My shrink check requires every finding id in `old` to remain in `new` (B section 7), so a row that drops a minor fix's sentence is rejected. Minimal repair: allow a shrink row to drop an id only when the table marks that id `validated=minor`, `verdict=revert`.
+4. **My unattributed-hunk default is a hazard.** `unattributed` hunks default to revert (B section 6) and K6 protects only `blocking-involved` hunks. If ids are not citable (flg-r1 uses bare numbers, A-002), nearly everything becomes unattributed. Repair: if unattributed hunks exceed half of all hunks, `prepare` writes `audit: skipped(ids not citable)` and review 3 proceeds as plain 427. A has the same hazard (`untagged-<n>`, default revert).
+5. **I have no in-session fallback** when a subagent cannot be spawned; A's `auditor-isolation` field is better. I would adopt it.
+6. **My brief puts Q1 (severity) before Q2 (necessity).** The evidence says value lives in Q2. One-sentence repair, no new code: tell the auditor to answer Q2 first on every `blocking-involved` hunk.
+7. **C is right to report raw review 3 and post-audit growth separately.** I will report pre-audit growth, post-audit growth and the review-3 count as three numbers.
+
+## Shared-assumption responses
+- **A-001: REJECT.** 1 of 28 R3 blocking findings sits on a minor fix; the revert channel is about 0.2 per run, so no variant may build its R3 forecast on it.
+- **A-002: QUALIFY.** Holds for flg-r2 only; flg-r1 uses bare numbers, so add a fail-open guard when most hunks are unattributed.
+- **A-003: QUALIFY.** Unverified for all three; it needs a one-call probe before S1, and the `inline-rubric` fallback keeps the mechanism alive but such a run does not test the ponytail idea.
+- **A-004: REJECT.** Minor-only line hunks hold 6% (cycle 1) and 27% (cycle 2) of added bytes, so line hunks cannot separate minor from blocking text for most of the growth.
+- **A-005: ACCEPT.** The wrong-outcome test is 427 bullet 2's own MAJOR test; the owner should still confirm that "false claim" means this narrower reading (my Q4).
+
+## Per-point positions
+
+Contradictions:
+- **X-001: B** (A is equivalent). The audit shapes what review 3 reads and a script computes the verdict, so nothing unread decides it; C's terminal route ships unread edits.
+- **X-002: B.** Whole revert only for hunks citing report-minor ids; blocking text may be shrunk but never reverted whole; evidence shows blocking reverts reopen findings and add no measured gain.
+- **X-003: merge: B.** Fall back to `inline-rubric` so the product keeps working, record the header, and void the run for the ponytail claim (C's fail-closed is right for the experiment but wrong as product behaviour).
+- **X-004: B and A** (all agree an after-review-3 audit cannot move the metric). So only a before-review-3 placement can touch it; C's own text predicts a miss.
+- **X-005: none is right; merge: drop the revert channel from every R3 forecast.** Keep only the shrink channel (about 25%, as in A's 20 to 35%) and the growth effect; the evidence rejects the rest.
+- **X-006: B.** One brief line (plus `--apply-audit`) keeps Arm B comparable; hold C's ledger in reserve and use it only if the unattributed guard fires in more than 1 of 5 runs.
+
+High-severity content points:
+- **C-001: B** (A same). Before review 3 is the only placement that can affect the registered metric and ships text a panel read.
+- **C-002: B** (A same). Cycle 2 only, because all 7 B-class findings sit on cycle-2 fixes; pass the original copy as `--baseline` if the owner wants both cycles.
+- **C-003: merge: B's diff-derived hunks plus its fail-open guard.** C is right that ids cannot attribute shared paragraphs, so mixed hunks stay untouchable by script and go to model-written shrink rows; a ledger is not worth the reviser burden.
+- **C-004: B** for whole reverts (minimal risk). Add the K9 repair above so a model-written row can drop minor sentences inside mixed lines.
+- **C-009: merge: B's fail-closed rule (never lowers a FAIL, cannot create a PASS) plus A's parse of review 3's two existing tables** as a cross-check against my single `open-blocking:` line, which a session could fake.
+- **C-011: merge.** Take B and A placement; take C's practice of reporting raw and post-audit numbers separately; use corrected figures: proxy about 3.3, growth about 28 to 29%. A's 2.5 and my old 2.4 both rest on the contradicted revert channel; only C's raw 3.5 is uncontradicted, but it cannot improve by design.
+
+Not changed by this debate: the design files, the evidence files, the other variants. Written only this file.

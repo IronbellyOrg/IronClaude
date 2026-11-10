@@ -1,0 +1,50 @@
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":15006,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":30008,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":45010,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":60010,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":75014,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":90015,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":105017,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":120017,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":135022,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":150022,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":165027,"deadlineMs":580000}
+{"_keepalive":true,"_heartbeat":true,"elapsedMs":180026,"deadlineMs":580000}
+{
+  "id": "9a55fe0b-2cb6-46a5-b847-210c0851094d",
+  "ok": true,
+  "result": {
+    "runId": "run_58af03dbfa92",
+    "deliveryId": "delivery_94fd544e00ab",
+    "messages": [
+      {
+        "id": "msg_0341da39a06f",
+        "run_id": "run_58af03dbfa92",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_b67fe8ac-ba70-4d70-ac9b-9db0d79d9469",
+        "to_handle": "run:run_58af03dbfa92",
+        "subject": "S5 recreation analysis done: grade B",
+        "body": "I ran /sc:analyze on incident I5 (four final reviews of the P0 live-check plan package) and built the replay package: ANALYSIS.md, baseline-metrics.json (M1 4 reviews, M2 1/2/1/0 blocking, M3 0 of 2 then 1 of 1, M4 growth 0.59 percent, M5 311 reviewer tool calls), inputs/ (starting package rebuilt and matched byte for byte to Claude Code file-history backups, manifest passes 154 of 154), briefs/ (all briefs and owner replies verbatim with log lines) and REPLAY.md ending in RECREATION GRADE B. Key finding: PR 427 cannot affect this scenario because the reviewer is the /sc:implement final review, not /sc:spec-panel, so S5 is only a negative control; replay also needs the finished package removed from master and five old reference files overlaid, and the Arm B recipe (original commit plus 427) is checked only by a clean merge-tree, not executed. Nothing was run against the incident; no candidate-swap.md since the grade is B.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_33918d95b32b\",\"dispatchId\":\"ctx_7fb05567f7a9\",\"outcome\":\"succeeded\",\"filesModified\":[\".dev/experiments/346-validation/phase2/S5/ANALYSIS.md\",\".dev/experiments/346-validation/phase2/S5/REPLAY.md\",\".dev/experiments/346-validation/phase2/S5/baseline-metrics.json\",\".dev/experiments/346-validation/phase2/S5/inputs/ (155 files incl. MANIFEST.sha256\",\"SOURCES.md\",\"package-R1/\",\"round-deltas/\",\"expected-states/\",\"evidence/\",\"tools/)\",\".dev/experiments/346-validation/phase2/S5/briefs/ (16 files incl. INDEX.md)\",\".dev/experiments/346-validation/phase2/S5/baseline-reference/ (11 files)\",\".dev/experiments/346-validation/phase2/S5/derivation-scripts/ (8 files)\"],\"reportPath\":\"/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S5/REPLAY.md\"}",
+        "created_at": "2026-11-08T02:50:38Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "404d6988-2bd1-4d17-b471-fa88d425e3b6",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "93e79a07-81c4-4ec7-a938-8038a2f29ed3"
+  }
+}

@@ -1,0 +1,13 @@
+diff --git a/docs/designs/spec-panel-ponytail.md b/docs/designs/spec-panel-ponytail.md
+index c3c735e04..8e1113d70 100644
+--- a/docs/designs/spec-panel-ponytail.md
++++ b/docs/designs/spec-panel-ponytail.md
+@@ -29,8 +29,6 @@ Step 6 acts only when a line of the review-2 report starts with `review: 2 of 3`
+ - Edit rows follow the exact-once old/new pattern: `delete` rows may remove only words the fix added and must keep every finding id of the hunk; `restore` rows only in a minor-only hunk, and only the aligned baseline span.
+ - A finding review 2 graded blocking, or protected (CRITICAL, FR-8, FR-9), is never closed by the audit. A validated-minor grade on an id review 2 graded blocking is logged `DOWNGRADE <id>` only; a protected id that review 2 did not grade blocking gets no `DOWNGRADE` line.
+ 
+-What each step prints, on success and on failure, is listed in the `sc-fix-audit` skill (`~/.claude/skills/sc-fix-audit/SKILL.md`); this note does not repeat it.
+-
+ ## How the verdict is computed
+ 
+ `fix_audit.py verdict --dir <D> --report <R3> [--report-rule 427|any-severity]` reads review 3's resolution table and new findings with the same tolerant parse as `prepare`. Open = prior findings review 2 graded blocking that review 3 lists `open` or `regressed`, plus new findings graded blocking (an unknown grade counts as blocking). A closed id that review 3 grades blocking prints `consistency: DISAGREE` and forces FAIL; an unparseable table exits 2 with `verdict: FAIL`. The script never turns a FAIL into a PASS. In `any-severity` mode (the S1 setting) the report's own line is printed as `t09-verdict:`.

@@ -1,0 +1,34 @@
+{
+  "id": "feaae2a8-e1a9-4829-89bf-6fd4af0b56aa",
+  "ok": true,
+  "result": {
+    "send": {
+      "handle": "term_960614f2-04cf-4bda-8355-6af2c386affe",
+      "accepted": true,
+      "bytesWritten": 196,
+      "prompt": {
+        "requestId": "6d00200b-cff0-49e1-97d7-51cfc589a769",
+        "stages": [
+          "input_accepted"
+        ],
+        "provider": "claude",
+        "observation": "supported",
+        "processIncarnation": "2415ecae-8411-426c-84ba-3b3b53f7b29f",
+        "generation": 606,
+        "baselineWorkingSequence": 0,
+        "baselineExplicitWorkingStartedAt": null,
+        "baselinePermissionSequence": 0
+      }
+    },
+    "mutation": {
+      "requestId": "6d00200b-cff0-49e1-97d7-51cfc589a769",
+      "replayed": false
+    },
+    "warnings": [
+      "input was accepted but no turn start was observed, so the Enter may have been swallowed. Confirm delivery by reissuing the exact command with --retry-request 6d00200b-cff0-49e1-97d7-51cfc589a769 --wait-submit <seconds>; the same request ID replays the receipt instead of sending the prompt again."
+    ]
+  },
+  "_meta": {
+    "runtimeId": "93e79a07-81c4-4ec7-a938-8038a2f29ed3"
+  }
+}

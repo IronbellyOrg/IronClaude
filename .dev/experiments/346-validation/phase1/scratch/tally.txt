@@ -1,0 +1,4 @@
+calls so far ~19 at 01:55
+calls ~38 at 01:57:49
+calls ~47 at 02:01:08; I2 candidate = review-severity-rule d6112a25
+calls ~78 at 02:04:42; I4/I5 cand: bmad-ponytail-global 189f8649 (Gate1/2/3), issue-339 6ee233a2

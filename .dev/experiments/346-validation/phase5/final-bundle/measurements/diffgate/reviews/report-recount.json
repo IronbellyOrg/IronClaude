@@ -1,0 +1,310 @@
+[
+  {
+    "round": "R1",
+    "records": [
+      {
+        "id": "R1.1",
+        "severity": "major",
+        "line": 137,
+        "text": "FINDING R1.1 sev=major at=62 anchor=\"where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)\" outcome=\"a brief that passes --output to /sc:workflow stops with E-LEGACY and writes no contract, and for tdd or init-lite the coordinator opens <file>/return-contract.yaml, which cannot exist\" fr=8 :: WC-4 report location is unknowable or undefined for workflow, tdd, init-lite and a missing flag"
+      },
+      {
+        "id": "R1.2",
+        "severity": "major",
+        "line": 138,
+        "text": "FINDING R1.2 sev=major at=62 anchor=\"Commands that already write a contract keep their fields and add the missing ones\" outcome=\"a correct adversarial or workflow run keeps status success (adversarial nested under return_contract), so 7.2 step 4 raises KeyError or fails the status assert\" fr=8 :: the new status field collides with existing contract status fields"
+      },
+      {
+        "id": "R1.3",
+        "severity": "major",
+        "line": 139,
+        "text": "FINDING R1.3 sev=major at=64 anchor=\"writes each run into a fresh output directory so a re-run starts clean\" outcome=\"a --retry-of worker given the same brief overwrites the first attempt's output, or writes elsewhere so worker_done --report-path differs from the path recorded at dispatch\" fr=8 :: WC-6 fresh directory conflicts with the brief-fixed directory of WC-4"
+      },
+      {
+        "id": "R1.4",
+        "severity": "major",
+        "line": 140,
+        "text": "FINDING R1.4 sev=major at=65 anchor=\"The worker runs the command directly in its own session; it never wraps the command in an Agent-tool subagent.\" outcome=\"a worker that reads the command file and performs the protocol from memory without the Skill call passes AC-0.4 and AC-1.2\" :: WC-7 does not require the Skill invocation and no check detects its absence"
+      },
+      {
+        "id": "R1.5",
+        "severity": "major",
+        "line": 141,
+        "text": "FINDING R1.5 sev=major at=172 anchor=\"src/superclaude/agents src/superclaude/core\" outcome=\"the P0 WORKER-CONTRACT.md quoting the preamble's orca orchestration ask line, as SA-2 allows, makes AC-C1 print a hit, so P0 cannot pass\" :: AC-C1 scans the folder that holds the contract file SA-2 lets mention Orca"
+      },
+      {
+        "id": "R1.6",
+        "severity": "major",
+        "line": 142,
+        "text": "FINDING R1.6 sev=major at=195 anchor=\"has a `## Unattended mode` section naming `return-contract.yaml`\" outcome=\"AC-1.1 fails for /sc:load, or the implementer adds a contract to load against its row and the Decisions table\" :: load has no report but AC-1.1 requires one"
+      },
+      {
+        "id": "R1.7",
+        "severity": "major",
+        "line": 143,
+        "text": "FINDING R1.7 sev=major at=228 anchor=\"a person never types it\" outcome=\"a person's /sc:troubleshoot run whose quoted topic contains --unattended loses its prompts and gets a contract file, breaking SA-1 and SA-3\" fr=8 :: no parse rule for the --unattended token"
+      },
+      {
+        "id": "R1.8",
+        "severity": "minor",
+        "line": 144,
+        "text": "FINDING R1.8 sev=minor at=79 anchor=\"The only command changes are the small fixes in the last column.\" :: 3.1 understates the P1 edits to ready commands"
+      },
+      {
+        "id": "R1.9",
+        "severity": "minor",
+        "line": 145,
+        "text": "FINDING R1.9 sev=minor at=4 anchor=\"OrcaCLICommandRefactor-Specs\" :: stated repo root is missing and origin/master has moved past the baseline"
+      },
+      {
+        "id": "R1.10",
+        "severity": "minor",
+        "line": 146,
+        "text": "FINDING R1.10 sev=minor at=68 anchor=\"A command step that blocks a single tool call for longer than 5 minutes\" :: WC-10 literally covers unsplittable Agent-tool calls"
+      },
+      {
+        "id": "R1.11",
+        "severity": "minor",
+        "line": 147,
+        "text": "FINDING R1.11 sev=minor at=181 anchor=\"at least once per 5 minutes\" :: step 2 cadence cannot run during the 900 s step-3 wait"
+      },
+      {
+        "id": "R1.12",
+        "severity": "minor",
+        "line": 148,
+        "text": "FINDING R1.12 sev=minor at=184 anchor=\"search the transcript for `AskUserQuestion`\" :: transcript content for tool calls is UNVERIFIED"
+      },
+      {
+        "id": "R1.13",
+        "severity": "minor",
+        "line": 149,
+        "text": "FINDING R1.13 sev=minor at=70 anchor=\"it stops without sending `worker_done`\" :: WC-5 exactly-once lacks the fenced exception"
+      }
+    ],
+    "counts": {
+      "major": 7,
+      "minor": 6
+    },
+    "priors": [],
+    "unresolved_priors": [],
+    "script": {
+      "blocking": 7,
+      "blocking_ids": [
+        "R1.1",
+        "R1.2",
+        "R1.3",
+        "R1.4",
+        "R1.5",
+        "R1.6",
+        "R1.7"
+      ],
+      "proxy_all": 7,
+      "proxy_ids": [
+        "R1.1",
+        "R1.2",
+        "R1.3",
+        "R1.4",
+        "R1.5",
+        "R1.6",
+        "R1.7"
+      ],
+      "deferred": [],
+      "held": {},
+      "scoped": {},
+      "verdict": "FAIL",
+      "halt": null
+    },
+    "markers": {
+      "header": [
+        3
+      ],
+      "reviser_heading": [],
+      "reviser_inline": [
+        152
+      ],
+      "last_nonblank": "verdict: FAIL"
+    }
+  },
+  {
+    "round": "R2",
+    "records": [
+      {
+        "id": "R2.1",
+        "severity": "major",
+        "line": 158,
+        "text": "FINDING R2.1 sev=major at=196 via=H2.6 via_quote=\"never `--output` (retired, `E-LEGACY`, R1.1)\" anchor=\"each P1 command with `--unattended --output <dir>`\" outcome=\"the AC-1.2 run of the P1 workflow fix stops with E-LEGACY and sends --outcome failed, and the /sc:load run writes no contract so 7.2 steps 3-4 fail, so P1 cannot pass or the implementer adds a load contract against its row\" :: AC-1.2 passes --output to workflow and runs the contract check on load"
+      },
+      {
+        "id": "R2.2",
+        "severity": "major",
+        "line": 159,
+        "text": "FINDING R2.2 sev=major at=182 hunk=H2.11 anchor=\"matches the contract's `worker_status` under WC-5 (R1.2)\" outcome=\"AC-0.4 requires step 3 in P0, when no command writes worker_status, so all three P0 smoke runs fail step 3 and section 1 is reopened on a false signal\" :: step 3 needs worker_status that no P0 command writes"
+      },
+      {
+        "id": "R2.3",
+        "severity": "minor",
+        "line": 160,
+        "text": "FINDING R2.3 sev=minor at=147 hunk=H2.8 anchor=\"AC-C1 excludes that one file (R1.5)\" :: SA-2 now forbids the ccsession-tag Orca use that AC-C1 also excludes"
+      },
+      {
+        "id": "R2.4",
+        "severity": "minor",
+        "line": 161,
+        "text": "FINDING R2.4 sev=minor at=51 hunk=H2.1 anchor=\"so a person's run cannot switch by accident (R1.7)\" :: an unquoted free-text topic containing the token still switches the mode"
+      },
+      {
+        "id": "R2.5",
+        "severity": "minor",
+        "line": 162,
+        "text": "FINDING R2.5 sev=minor at=64 hunk=H2.2 anchor=\"the question itself stays recorded in the Run (`CAPS:58`)\" :: CAPS:58 does not state the recorded-question fact"
+      }
+    ],
+    "counts": {
+      "major": 2,
+      "minor": 3
+    },
+    "priors": [
+      {
+        "id": "R1.1",
+        "status": "resolved",
+        "line": 151
+      },
+      {
+        "id": "R1.2",
+        "status": "resolved",
+        "line": 152
+      },
+      {
+        "id": "R1.3",
+        "status": "open",
+        "line": 153
+      },
+      {
+        "id": "R1.4",
+        "status": "resolved",
+        "line": 154
+      },
+      {
+        "id": "R1.5",
+        "status": "resolved",
+        "line": 155
+      },
+      {
+        "id": "R1.6",
+        "status": "resolved",
+        "line": 156
+      },
+      {
+        "id": "R1.7",
+        "status": "resolved",
+        "line": 157
+      }
+    ],
+    "unresolved_priors": [
+      {
+        "id": "R1.3",
+        "status": "open",
+        "line": 153
+      }
+    ],
+    "script": {
+      "blocking": 3,
+      "blocking_ids": [
+        "R2.1",
+        "R2.2",
+        "R1.3"
+      ],
+      "proxy_all": 3,
+      "proxy_ids": [
+        "R1.3",
+        "R2.1",
+        "R2.2"
+      ],
+      "deferred": [],
+      "held": {},
+      "scoped": {},
+      "verdict": "FAIL",
+      "halt": null
+    },
+    "markers": {
+      "header": [
+        3
+      ],
+      "reviser_heading": [],
+      "reviser_inline": [
+        165
+      ],
+      "last_nonblank": "verdict: FAIL"
+    }
+  },
+  {
+    "round": "R3",
+    "records": [
+      {
+        "id": "R3.1",
+        "severity": "major",
+        "line": 144,
+        "text": "FINDING R3.1 sev=major at=64 hunk=H3.1 anchor=\"so it receives the first attempt's brief\" outcome=\"a retry of a command whose resume needs an explicit flag runs the same command line without that flag, and because the command has resume the coordinator leaves its output location in place, so the retry neither resumes nor writes to a fresh location; a roadmap retry starts fresh in attempt 1's --output directory and overwrites roadmap.md\" fr=8 :: a fixed retry brief cannot carry the resume flag WC-6 relies on"
+      },
+      {
+        "id": "R3.2",
+        "severity": "major",
+        "line": 145,
+        "text": "FINDING R3.2 sev=major at=194 hunk=H3.4 anchor=\"step 4 uses that existing report file\" outcome=\"step 4 asserts d['worker_status'] on the existing report, which none of the three P0 commands writes, so all three AC-0.4 smoke runs fail step 4 and section 1 is reopened on a false signal\" fr=8 :: P0 step 4 runs the worker_status assertion on a file without that field"
+      },
+      {
+        "id": "R3.3",
+        "severity": "minor",
+        "line": 146,
+        "text": "FINDING R3.3 sev=minor at=196 hunk=H3.4 anchor=\"plus the flags that command's section 3 row requires\" :: section 3.2 rows have no Brief must pass column, so AC-1.2's flags are inferred"
+      }
+    ],
+    "counts": {
+      "major": 2,
+      "minor": 1
+    },
+    "priors": [
+      {
+        "id": "R2.1",
+        "status": "resolved",
+        "line": 141
+      },
+      {
+        "id": "R2.2",
+        "status": "resolved",
+        "line": 142
+      },
+      {
+        "id": "R1.3",
+        "status": "resolved",
+        "line": 143
+      }
+    ],
+    "unresolved_priors": [],
+    "script": {
+      "blocking": 2,
+      "blocking_ids": [
+        "R3.1",
+        "R3.2"
+      ],
+      "proxy_all": 2,
+      "proxy_ids": [
+        "R3.1",
+        "R3.2"
+      ],
+      "deferred": [],
+      "held": {},
+      "scoped": {},
+      "verdict": "FAIL",
+      "halt": null
+    },
+    "markers": {
+      "header": [
+        3
+      ],
+      "reviser_heading": [],
+      "reviser_inline": [],
+      "last_nonblank": "verdict: FAIL"
+    }
+  }
+]

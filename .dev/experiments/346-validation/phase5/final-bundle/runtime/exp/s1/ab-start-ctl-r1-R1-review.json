@@ -1,0 +1,32 @@
+{
+  "id": "12bf8c81-3725-41c8-8563-3fe7f3fc1cea",
+  "ok": false,
+  "error": {
+    "code": "dispatch_inactive",
+    "message": "Dispatch ctx_83211730f029 is not starting. Orchestration mutation request ID: eb138cd7-d8b8-4ef5-b7a9-d32cd2d13ac6.",
+    "data": {
+      "orchestrationRequestId": "eb138cd7-d8b8-4ef5-b7a9-d32cd2d13ac6",
+      "originalCommand": [
+        "orca-ide",
+        "orchestration",
+        "worker-start",
+        "--spec",
+        "Task 5, independent review. You did not write the spec; review it adversarially. Run: /sc:spec-panel @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture . Save the full panel result to .dev/orca-command-refactor/review/spec-panel.md, then add a numbered findings list (finding, severity, spec section, evidence path:line). Do NOT edit the spec. Acceptance: review/spec-panel.md exists with a numbered findings list and a PASS or FAIL verdict. Repo root: /home/coder/workspaces/worktrees/IronClaude/exp346-ab-ctl-r1. First read .dev/orca-command-refactor/README.md (shared goal, evidence and rules; they are binding). Ownership: write ONLY your output file(s); planning only, no edits to src/, tests/, docs/, .claude/, ~/.claude or Orca settings, no git commits/pushes/PRs. Cite path:line for every claim, mark unverified items UNVERIFIED, stub the output file first and fill it section by section. Finish with worker_done --report-path <your output file>.",
+        "--task-title",
+        "AB ctl-r1 R1-review",
+        "--worktree",
+        "path:/home/coder/workspaces/worktrees/IronClaude/exp346-ab-ctl-r1",
+        "--agent",
+        "claude",
+        "--model",
+        "claude-opus-5-5",
+        "--run",
+        "run_58af03dbfa92",
+        "--json"
+      ]
+    }
+  },
+  "_meta": {
+    "runtimeId": "93e79a07-81c4-4ec7-a938-8038a2f29ed3"
+  }
+}

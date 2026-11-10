@@ -1,0 +1,27 @@
+BLOCKING_COUNT: 6
+
+# Gate 1 consolidated findings, fix cycle 2 (the last allowed cycle)
+
+Sources: `qa/qa-verification-phase3-cycle1-content.md` (agent report, FAIL, Important 4) and `qa/qa-verification-phase3-cycle1-structural.md` (transcribed by orchestrator from the agent's `.json`, FAIL, Important 2). All 9 cycle-1 blocking findings were verified fixed by both agents, so none carries over. Research files are under `research/`. Not SYSTEMIC: 6 blocking findings now versus 9 in cycle 1.
+
+| # | Reporter severity | Final severity | Reason for any change | Blocking | Finding | Originating report | Target research file | Proposed fix |
+|---|---|---|---|---|---|---|---|---|
+| 1 | IMPORTANT (F1-a) | IMPORTANT | | yes | `05` line 57 still says "C, E, F at boot"; the file's own addendum (C-F1-2) says B1, D1, E, F. | content verification | research/05-startup-boot-test-docs-and-decision-trail.md line 57 | Replace "(C, E, F at boot)" with "(B1, D1, and E, F when run from install.sh at boot)". |
+| 2 | IMPORTANT (F1-b) | IMPORTANT | | yes | The reconciled matrix in the 05 addendum (F1.2) was built from the 04 addendum while it was still In Progress. It omits: the test-73 `copy_ok` pin for D2; the test-52:1374-1377 and test-51:384-396 `modules.tf` pins for B3 and D3; the test-1-catalogue-shape:25, 43-67 pin for B1 and D1 (a fourth file). | content verification | research/05 addendum F1.2, F1.4 row 4, F1.5 open question 2, caveat U-F1-2 | Add rows: test-73 copy_ok (D2: breaks if a combined or second COPY of the 10-retention path, or a later cleanupPeriodDays other than 90); test-52:1374-1377 and test-51:384-396 (B3, D3: breaks if `orca_retirement` is edited or reused, or a new locals block is placed above line 16); test-1-catalogue-shape:25, 43-67 (B1, D1: breaks if a fourth file is added to the slug), each with file:line from the 04 addendum A.5 to A.7. Update F1.4 row 4 and F1.5 open question 2; drop the "In Progress" caveat U-F1-2. |
+| 3 | IMPORTANT (F4-a) | IMPORTANT | | yes | The 03 addendum (A1 "U8 verdict" and Summary) says the 41 `python3` skill steps "are blocked there" and tags it [CODE-VERIFIED], while the same addendum lists as UNVERIFIED (Gaps 13-14) that Claude emits the bare `python3` form and that a fresh workspace has the hook registered. | content verification | research/03-startup-flow-home-and-user-level-claude.md addendum A1 and Summary | Change "are blocked there" to "would be blocked if Claude emits the bare python3 form and the registration is present (UNVERIFIED, Gaps 13-14)"; retag that sentence [CODE-VERIFIED for the hook, UNVERIFIED for the effect]. |
+| 4 | IMPORTANT (X-1) | IMPORTANT | | yes | Conflicting guidance on a B2 skill in the `Dockerfile.coder:547-548` COPY: 02 A5 treats it as a zero-layer fold; 04 A.3(a), A.10 and 05 row S13 say it breaks test-60; 04 A.9 says keep it on its own COPY (costs one of the two free layers). test-60:84-88 (line 87) only requires one COPY line with the three sources and last token `/usr/local/lib/aidev/`. | content verification | research/02 addendum A5; research/04 A.3(a), A.9, A.10; research/05 row S13 | Reconcile to one rule across 02, 04, 05: either re-tag 04 A.3(a), A.10 and 05 S13 as "does not break (test-60:87 requires only one COPY line with the three sources and last token /usr/local/lib/aidev/)" and withdraw the "own COPY line" advice in 04 A.9, or state in 02 A5 why the :547-548 fold is not allowed. Quote the test-60 assertion text. |
+| 5 | IMPORTANT (N1) | IMPORTANT | | yes | `05` addendum line 318 says the image wrapper (option C) is invisible to test-57. False: `install.sh:42` runs `bmad install`, and test-57 runs it with the image PATH (test-57:27, 75-79), so the baked wrapper is exercised. The same addendum's X2 row says so; matrix row S7 (line 341) gives C "none" for the same assertions X2 marks "breaks if". | structural verification | research/05 addendum line 318 and row S7 (line 341) | Correct line 318 to say the wrapper is exercised by test-57 through `install.sh:42` (cite test-57:27, 75-79) and change row S7 for C to match the X2 "breaks if" entries. |
+| 6 | IMPORTANT (N2) | IMPORTANT | | yes | The 03 addendum (line 286) calls `official-modules.js:770-797` the installer's existing-install check. That function only loads existing config. The real check is `installer.js:1549-1552` (always `P/_bmad`), which the 01 addendum cites correctly at `01:463`. The two addenda contradict each other. | structural verification | research/03-startup-flow-home-and-user-level-claude.md line 286 | Replace the `official-modules.js:770-797` citation with `installer.js:1549-1552` and state that `official-modules.js:770-797` only loads existing config; re-read both lines before editing. |
+
+## Severity changes
+
+none. No finding was downgraded (all six keep the reporting agent's IMPORTANT grade; each is a false or contradictory claim that changes a plan row or an evidence tag).
+
+## Notes (MINOR, not acted on, never rechecked)
+
+- 05 Summary still counts 17 UNVERIFIED and 6 CODE-CONTRADICTED while the merged fix-cycle table adds 6 UNVERIFIED (U-F1-1..6) and 3 CODE-CONTRADICTED (C-F1-1..3) (structural M1).
+- 04 line 238 says addendum sections A.1-A.8; the addendum runs A.1-A.11 (structural M2).
+- 01 line 491 says the 03 addendum was In Progress when read; it is Complete (structural M3).
+- The remaining Minor findings of both verification reports and consolidated findings 10 to 18 of cycle 1.
+
+review 2 of 3 complete; if the next verification fails the gate HALTS

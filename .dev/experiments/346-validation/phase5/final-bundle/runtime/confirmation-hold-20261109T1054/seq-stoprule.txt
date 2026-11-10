@@ -1,0 +1,3 @@
+S	begin1	uv run --no-project python ~/.claude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py begin --report .dev/orca-command-refactor/review/spec-panel.md --spec .dev/orca-command-refactor/specs/orca-worker-contract-spec.md
+W	T05	/tmp/impl/s1v/briefs/stoprule/T05-R1-reviewer-L11-699ae853.txt
+P	grade-r1

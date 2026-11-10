@@ -1,0 +1,1252 @@
+# coverage-matrix.yaml - Wave 1B coverage mapper (UC-1), reflect-1
+# spec: .dev/tasks/to-do/TASK-WF-spec-20261108-181547/source.md (333 lines)
+# tasklist: .dev/tasks/to-do/TASK-WF-spec-20261108-181547/TASK-WF-spec-20261108-181547.md (12 tasks)
+# algorithm: ~/.claude/skills/sc-reflect-protocol/refs/coverage-mapping.md
+# containment: casefold; tokens = re [a-z0-9]+; fixed stopword set (articles, conjunctions,
+#   prepositions, auxiliaries); ratio = |set(quote words) & set(task words)| / |set(quote words)|;
+#   task text = '## Task N:' heading through the line before the next '## ' heading;
+#   best ratio wins, first task on ties, < 0.6 = none. Every quote verified as a substring of its cited line.
+# semantic_cover / in_declared_scope / note: ADVISORY judgement, NOT used for coverage_pct.
+#   in_declared_scope: yes = SPEC section 3 or 4; by-reference = section 2 mechanism that 3.1/3.3
+#   point to as the script/brief behaviour; no = sections 2.5 precondition, 2.8, 5, 6, 7.
+status: complete
+parsed_ids: []  # Pass 1: ID_REGEX matched 0 tokens outside fenced code blocks; no ranges to expand
+rows:
+  - id: INF-001
+    source: inferred
+    section: "2.1"
+    quote: "That session invokes `ponytail:ponytail-review` with a fixed brief, writes a per-fix table, and never edits the document."
+    citation: "source.md:16"
+    matched_task: none
+    ratio: 0.5833
+    best_task: 3
+    match_method: none
+    semantic_cover: 1
+    in_declared_scope: by-reference
+  - id: INF-002
+    source: inferred
+    section: "2.1"
+    quote: "A stdlib script (`fix_audit.py`) checks the table and makes every edit, all or nothing."
+    citation: "source.md:16"
+    matched_task: 2
+    ratio: 0.6667
+    best_task: 2
+    match_method: containment
+    semantic_cover: 4
+    in_declared_scope: by-reference
+  - id: INF-003
+    source: inferred
+    section: "2.2"
+    quote: "Step 6 runs only when all hold, else it prints `audit: not-triggered(<reason>)` to `D/state.json` and exits 0 having changed nothing"
+    citation: "source.md:32"
+    matched_task: none
+    ratio: 0.5714
+    best_task: 4
+    match_method: none
+    semantic_cover: 2
+    in_declared_scope: by-reference
+  - id: INF-004
+    source: inferred
+    section: "2.2"
+    quote: "a line of the R2 report starts with `review: 2 of 3` (in flg-r2 that line carries trailing text) and its last non-empty line is `verdict: FAIL`"
+    citation: "source.md:32"
+    matched_task: 2
+    ratio: 0.8824
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: by-reference
+  - id: INF-005
+    source: inferred
+    section: "2.3"
+    quote: "Records the sha256 of spec and baseline, saves `D/current-before-audit.md`, splits the diff into hunks (line-level `difflib`, whitespace-only lines ignored, as 427 bullet 5 does), and works out per hunk:"
+    citation: "source.md:35"
+    matched_task: 2
+    ratio: 0.75
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: by-reference
+  - id: INF-006
+    source: inferred
+    section: "2.3"
+    quote: "Ids R2 only restates in its prior-findings status table (for example cycle-1 F1-F22 with `| F16 | no | open |`) are not defined by R2 and carry no grade for a cycle-2 fix."
+    citation: "source.md:36"
+    matched_task: 2
+    ratio: 0.8261
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: by-reference
+  - id: INF-007
+    source: inferred
+    section: "2.3"
+    quote: "whose count in the hunk's current lines exceeds their count in its baseline lines (a multiset difference)"
+    citation: "source.md:37"
+    matched_task: 2
+    ratio: 0.6667
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: by-reference
+  - id: INF-008
+    source: inferred
+    section: "2.3"
+    quote: "a range such as `N1-N11` is expanded to its members before counting, so a hunk citing a blocking range is never read as minor-only."
+    citation: "source.md:37"
+    matched_task: 2
+    ratio: 0.9333
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: by-reference
+  - id: INF-009
+    source: inferred
+    section: "2.3"
+    quote: "`non-blocking` is not `blocking`; any conflict or unknown grade counts as blocking"
+    citation: "source.md:38"
+    matched_task: 2
+    ratio: 0.75
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: by-reference
+  - id: INF-010
+    source: inferred
+    section: "2.3"
+    quote: "`minor-only` if the cited ids are all R2-defined minor ids and the hunk overlaps no line that the disposition file passed with `--dispositions` lists under an R2 blocking id"
+    citation: "source.md:39"
+    matched_task: 2
+    ratio: 0.8333
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: by-reference
+  - id: INF-011
+    source: inferred
+    section: "2.3"
+    quote: "`foreign-id` if it cites an id that R2 lists only in its prior-findings table, such as a cycle-1 id (treated exactly like `blocking-involved`: delete rows only, never reverted whole)"
+    citation: "source.md:39"
+    matched_task: 2
+    ratio: 0.7917
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: by-reference
+  - id: INF-012
+    source: inferred
+    section: "2.3"
+    quote: "Id-shaped tokens that R2 neither defines nor lists (the document's own labels, such as `WC-7` or `SA-2`) are ignored."
+    citation: "source.md:39"
+    matched_task: 2
+    ratio: 0.7059
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: by-reference
+  - id: INF-013
+    source: inferred
+    section: "2.3"
+    quote: "If more than half the hunks are `unattributed`, it writes `audit: skipped(ids not citable)` and stops"
+    citation: "source.md:41"
+    matched_task: 2
+    ratio: 1.0
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: by-reference
+  - id: INF-014
+    source: inferred
+    section: "2.3"
+    quote: "Writes `D/fix-list.md`, `D/state.json` and `D/brief.md` (the brief of 2.4 with paths filled; no model writes the brief)."
+    citation: "source.md:41"
+    matched_task: 2
+    ratio: 0.7857
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: by-reference
+  - id: INF-015
+    source: inferred
+    section: "2.3"
+    quote: "The session invokes `Skill ponytail:ponytail-review`, then follows `D/brief.md` and writes `D/audit.md`. One pass, no retry."
+    citation: "source.md:42"
+    matched_task: 11
+    ratio: 0.6667
+    best_task: 11
+    match_method: containment
+    semantic_cover: 6
+    in_declared_scope: by-reference
+  - id: INF-016
+    source: inferred
+    section: "2.3"
+    quote: "Any failure: `CHECK_FAIL`, nothing applied, `audit: skipped(check failed)`."
+    citation: "source.md:43"
+    matched_task: 3
+    ratio: 0.7778
+    best_task: 3
+    match_method: containment
+    semantic_cover: 3
+    in_declared_scope: by-reference
+  - id: INF-017
+    source: inferred
+    section: "2.3"
+    quote: "first, if the spec's sha256 already equals the \"after\" sha256 in an existing `D/apply-log.md`, prints `already applied` and exits 0"
+    citation: "source.md:44"
+    matched_task: 4
+    ratio: 0.8
+    best_task: 4
+    match_method: containment
+    semantic_cover: 4
+    in_declared_scope: by-reference
+  - id: INF-018
+    source: inferred
+    section: "2.3"
+    quote: "Any row failing an exact-once or overlap check: `APPLY_STOP: nothing written`."
+    citation: "source.md:44"
+    matched_task: 4
+    ratio: 0.9091
+    best_task: 4
+    match_method: containment
+    semantic_cover: 4
+    in_declared_scope: by-reference
+  - id: INF-019
+    source: inferred
+    section: "2.3"
+    quote: "builds revert rows from the diff (never from model text), applies revert and edit rows bottom-up in memory, writes to a temp file and `os.replace`s it onto the spec, reads it back, writes `D/apply-log.md` and `D/closed-minor.txt`."
+    citation: "source.md:44"
+    matched_task: 4
+    ratio: 0.8214
+    best_task: 4
+    match_method: containment
+    semantic_cover: 4
+    in_declared_scope: by-reference
+  - id: INF-020
+    source: inferred
+    section: "2.3"
+    quote: "The session prints one line, `audit: applied(reverted=<n>, shrunk=<n>, kept=<n>)` or `audit: skipped(<reason>)`, and stops."
+    citation: "source.md:45"
+    matched_task: 4
+    ratio: 0.6923
+    best_task: 4
+    match_method: containment
+    semantic_cover: 4
+    in_declared_scope: by-reference
+  - id: INF-021
+    source: inferred
+    section: "2.3"
+    quote: "Every failure path leaves the spec byte-identical to `D/current-before-audit.md`, so the worst case is the 427+flags loop."
+    citation: "source.md:47"
+    matched_task: none
+    ratio: 0.5625
+    best_task: 4
+    match_method: none
+    semantic_cover: 4
+    in_declared_scope: by-reference
+  - id: INF-022
+    source: inferred
+    section: "2.4"
+    quote: "The brief handed to the ponytail auditor (exact text; stored once in `sc-fix-audit/refs/auditor-brief.md`)"
+    citation: "source.md:49"
+    matched_task: 8
+    ratio: 0.7692
+    best_task: 8
+    match_method: containment
+    semantic_cover: 1
+    in_declared_scope: by-reference
+  - id: INF-023
+    source: inferred
+    section: "2.5"
+    quote: "That a dispatched worker can load a plugin skill is UNVERIFIED: one smoke dispatch settles it before S1."
+    citation: "source.md:115"
+    matched_task: none
+    ratio: 0.5833
+    best_task: 11
+    match_method: none
+    semantic_cover: 11
+    in_declared_scope: no
+    note: "Task 11 records it as an open precondition only; no smoke dispatch is planned (experiment work)."
+  - id: INF-024
+    source: inferred
+    section: "2.5"
+    quote: "Plugin absent or not loadable: the session follows the brief alone and writes `auditor: inline-rubric`."
+    citation: "source.md:118"
+    matched_task: none
+    ratio: 0.4167
+    best_task: 3
+    match_method: none
+    semantic_cover: 1
+    in_declared_scope: by-reference
+    note: "Delivered through the brief text (Task 1) and the K2 header enum (Task 3)."
+  - id: INF-025
+    source: inferred
+    section: "2.6"
+    quote: "Only `fix_audit.py apply` edits."
+    citation: "source.md:121"
+    matched_task: 4
+    ratio: 0.8333
+    best_task: 4
+    match_method: containment
+    semantic_cover: 4
+    in_declared_scope: by-reference
+  - id: INF-026
+    source: inferred
+    section: "2.6"
+    quote: "The auditor writes only `D/audit.md` (K1 compares the spec's sha256 before and after the audit; a changed spec fails the audit)."
+    citation: "source.md:121"
+    matched_task: 3
+    ratio: 0.7692
+    best_task: 3
+    match_method: containment
+    semantic_cover: 3
+    in_declared_scope: by-reference
+  - id: INF-027
+    source: inferred
+    section: "2.6"
+    quote: "A hunk is reverted only if every id on it has verdict revert; a revert id whose hunk is shared with a kept or shrunk id is logged `REVERT_SHARED <id>`, its text stays, and it is not closed."
+    citation: "source.md:122"
+    matched_task: 4
+    ratio: 0.8333
+    best_task: 4
+    match_method: containment
+    semantic_cover: 4
+    in_declared_scope: by-reference
+  - id: INF-028
+    source: inferred
+    section: "2.6"
+    quote: "`D/apply-log.md`: one line per row (`applied|already|SKIP|STOP`, id, bytes before and after), totals, sha256 before and after, and changed lines against the baseline before and after (the attack-surface number)."
+    citation: "source.md:124"
+    matched_task: 4
+    ratio: 0.8636
+    best_task: 4
+    match_method: containment
+    semantic_cover: 4
+    in_declared_scope: by-reference
+  - id: INF-029
+    source: inferred
+    section: "2.6"
+    quote: "The id goes to `closed-minor.txt`: recorded as minor and closed, not open, with its original label kept."
+    citation: "source.md:125"
+    matched_task: 5
+    ratio: 0.6667
+    best_task: 5
+    match_method: containment
+    semantic_cover: 4
+    in_declared_scope: by-reference
+  - id: INF-030
+    source: inferred
+    section: "2.6"
+    quote: "A finding the report graded blocking is never closed by the audit, even if the auditor validates it minor: that is logged `DOWNGRADE <id>` for the drift readout only."
+    citation: "source.md:126"
+    matched_task: 5
+    ratio: 0.6667
+    best_task: 5
+    match_method: containment
+    semantic_cover: 3
+    in_declared_scope: by-reference
+  - id: INF-031
+    source: inferred
+    section: "2.7"
+    quote: "`fix_audit.py verdict --dir D --report <R3> [--report-rule 427|any-severity]` (default `427`; S1 passes `any-severity`, because T09 makes any finding a FAIL, and the report's own line is then printed as `t09-verdict:` beside the computed 427 verdict instead of being cross-checked):"
+    citation: "source.md:129"
+    matched_task: 5
+    ratio: 0.7857
+    best_task: 5
+    match_method: containment
+    semantic_cover: 5
+    in_declared_scope: by-reference
+  - id: INF-032
+    source: inferred
+    section: "2.7"
+    quote: "`closed` = ids in `D/closed-minor.txt` (empty if the audit was skipped or stopped)."
+    citation: "source.md:130"
+    matched_task: 5
+    ratio: 1.0
+    best_task: 5
+    match_method: containment
+    semantic_cover: 5
+    in_declared_scope: by-reference
+  - id: INF-033
+    source: inferred
+    section: "2.7"
+    quote: "`prior_open` = rows of review 3's resolution table with status `open` or `regressed` whose id R2 graded blocking"
+    citation: "source.md:131"
+    matched_task: 5
+    ratio: 1.0
+    best_task: 5
+    match_method: containment
+    semantic_cover: 5
+    in_declared_scope: by-reference
+  - id: INF-034
+    source: inferred
+    section: "2.7"
+    quote: "`new_blocking` = review-3 new findings graded blocking under 427 bullet 2 (same tolerant grade parse; unknown counts as blocking)."
+    citation: "source.md:131"
+    matched_task: 5
+    ratio: 0.9333
+    best_task: 5
+    match_method: containment
+    semantic_cover: 5
+    in_declared_scope: by-reference
+  - id: INF-035
+    source: inferred
+    section: "2.7"
+    quote: "Only if review 3 grades a `closed` id as blocking does the script print `consistency: DISAGREE` and make the final line FAIL, in both report-rule modes, so a relabelling dispute can never produce a PASS."
+    citation: "source.md:132"
+    matched_task: 5
+    ratio: 0.7917
+    best_task: 5
+    match_method: containment
+    semantic_cover: 5
+    in_declared_scope: by-reference
+  - id: INF-036
+    source: inferred
+    section: "2.7"
+    quote: "If either table cannot be parsed, exit 2 and `verdict: FAIL` (fail closed)."
+    citation: "source.md:133"
+    matched_task: none
+    ratio: 0.5556
+    best_task: 2
+    match_method: none
+    semantic_cover: 5
+    in_declared_scope: by-reference
+  - id: INF-037
+    source: inferred
+    section: "2.7"
+    quote: "Output `D/final-verdict.md`: `open blocking: <ids or none>`, `closed-minor: <ids>`, `downgrades logged: <ids>`, `audit: <state>`, the review-3 report's own last line, and last line `verdict: PASS` (open is empty) or `verdict: FAIL`."
+    citation: "source.md:134"
+    matched_task: 5
+    ratio: 0.96
+    best_task: 5
+    match_method: containment
+    semantic_cover: 5
+    in_declared_scope: by-reference
+  - id: INF-038
+    source: inferred
+    section: "2.7"
+    quote: "If the report's own line disagrees with the computed one, `consistency: DISAGREE` is printed and the stricter of the two is the final line. The script never turns a FAIL into a PASS."
+    citation: "source.md:134"
+    matched_task: 5
+    ratio: 1.0
+    best_task: 5
+    match_method: containment
+    semantic_cover: 5
+    in_declared_scope: by-reference
+  - id: INF-039
+    source: inferred
+    section: "2.7"
+    quote: "FAIL at review 3 of 3 escalates to the user with `open` (427 bullet 4); there is no fourth review and no second audit."
+    citation: "source.md:135"
+    matched_task: 5
+    ratio: 0.6429
+    best_task: 5
+    match_method: containment
+    semantic_cover: 7
+    in_declared_scope: by-reference
+    note: "Coordinator prose rule; delivered as the literal Fix Audit item 5 text (Task 7)."
+  - id: INF-040
+    source: inferred
+    section: "2.8"
+    quote: "Recommendation: run P first."
+    citation: "source.md:155"
+    matched_task: none
+    ratio: 0.5
+    best_task: 2
+    match_method: none
+    semantic_cover: none
+    in_declared_scope: no
+    note: "Satisfied by plan Constraints owner decision (placement P), not by a task."
+  - id: INF-041
+    source: inferred
+    section: "2.8"
+    quote: "Pre-register (a) as the follow-up, triggered only if at least a third of P's leftover review-3 critical+major findings, pooled over valid replicates, are attributed (by the same A/B/C/D method) to cycle-1 text that a smaller cycle-1 fix could have avoided."
+    citation: "source.md:155"
+    matched_task: none
+    ratio: 0.5
+    best_task: 2
+    match_method: none
+    semantic_cover: none
+    in_declared_scope: no
+    note: "Experiment follow-up; excluded by plan scope."
+  - id: INF-042
+    source: inferred
+    section: "3"
+    quote: "after editing run `make sync-dev` and `make verify-sync`; stage `src/`, `tests/`, `docs/` and `.dev/tasks`, never `.claude/`."
+    citation: "source.md:174"
+    matched_task: none
+    ratio: 0.5385
+    best_task: 10
+    match_method: none
+    semantic_cover: 10
+    in_declared_scope: yes
+    note: "Staging part is in Task 8 and Constraints."
+  - id: INF-043
+    source: inferred
+    section: "3.1"
+    quote: "Byte copy of the current `src/superclaude/commands/spec-panel.md` (486 lines on master, carrying the 427 `## Review Loop` at line 256) with only these differences: frontmatter `name: spec-panel-ponytail` and description suffix ` (variant: adds the --fix-audit step, issue 346)`"
+    citation: "source.md:180"
+    matched_task: 7
+    ratio: 0.8788
+    best_task: 7
+    match_method: containment
+    semantic_cover: 7
+    in_declared_scope: yes
+    note: "Plan deviates by owner ruling: the `## Unattended mode` section is also removed."
+  - id: INF-044
+    source: inferred
+    section: "3.1"
+    quote: "plus a third Usage line `/sc:spec-panel-ponytail [@file] --fix-audit --re-review <prior-findings-file> --baseline <saved-copy> [--dispositions <file>]`"
+    citation: "source.md:180"
+    matched_task: 7
+    ratio: 0.9474
+    best_task: 7
+    match_method: containment
+    semantic_cover: 7
+    in_declared_scope: yes
+  - id: INF-045
+    source: inferred
+    section: "3.1"
+    quote: "one new section `## Fix Audit` placed directly after `## Review Loop` (text in 3.2)."
+    citation: "source.md:180"
+    matched_task: 7
+    ratio: 0.9167
+    best_task: 7
+    match_method: containment
+    semantic_cover: 7
+    in_declared_scope: yes
+  - id: INF-046
+    source: inferred
+    section: "3.1"
+    quote: "Review Loop bullets 1-7 stay byte-identical (seven bullets, as `tests/skills/test_spec_panel_review_loop.py` T3 expects of the originals)."
+    citation: "source.md:180"
+    matched_task: 7
+    ratio: 0.8333
+    best_task: 7
+    match_method: containment
+    semantic_cover: 7
+    in_declared_scope: yes
+  - id: INF-047
+    source: inferred
+    section: "3.1"
+    quote: "Frontmatter `name: sc-fix-audit`, description \"Script and auditor brief for /sc:spec-panel-ponytail --fix-audit\"."
+    citation: "source.md:181"
+    matched_task: 6
+    ratio: 1.0
+    best_task: 6
+    match_method: containment
+    semantic_cover: 6
+    in_declared_scope: yes
+  - id: INF-048
+    source: inferred
+    section: "3.1"
+    quote: "Body: the four steps with their exact lines `uv run --no-project python \"<skill base>/scripts/fix_audit.py\" prepare|check|apply|verdict ...` (the `sc-implement-protocol/refs/managed-workspace.md:54` pattern), the lookup order (installed `~/.claude/skills/sc-fix-audit/` first, else project `.claude/skills/sc-fix-audit/`), the file list of 3.4, and \"What callers must not do\" (edit the spec by hand, run the audit twice in a loop, read `audit.md` in the review-3 session)."
+    citation: "source.md:181"
+    matched_task: 6
+    ratio: 0.9804
+    best_task: 6
+    match_method: containment
+    semantic_cover: 6
+    in_declared_scope: yes
+  - id: INF-049
+    source: inferred
+    section: "3.1"
+    quote: "No `src/superclaude` path (project CLAUDE.md rule)."
+    citation: "source.md:181"
+    matched_task: 11
+    ratio: 0.875
+    best_task: 11
+    match_method: containment
+    semantic_cover: 6
+    in_declared_scope: yes
+  - id: INF-050
+    source: inferred
+    section: "3.1"
+    quote: "The brief of section 2.4, verbatim, with placeholders `<D>`, `<R>`, `<DISP>`, `<B>`, `<S>` that `prepare` fills."
+    citation: "source.md:182"
+    matched_task: 1
+    ratio: 0.9231
+    best_task: 1
+    match_method: containment
+    semantic_cover: 1
+    in_declared_scope: yes
+  - id: INF-051
+    source: inferred
+    section: "3.1"
+    quote: "Standard library only (`argparse`, `difflib`, `hashlib`, `json`, `os`, `re`, `pathlib`), about 300 lines."
+    citation: "source.md:183"
+    matched_task: none
+    ratio: 0.5833
+    best_task: 2
+    match_method: none
+    semantic_cover: 2
+    in_declared_scope: yes
+  - id: INF-052
+    source: inferred
+    section: "3.1"
+    quote: "Exit codes: 0 ok or not-triggered, 1 check or apply failure (nothing written), 2 verdict unparseable or inconsistent (fail closed)."
+    citation: "source.md:183"
+    matched_task: 2
+    ratio: 0.7222
+    best_task: 2
+    match_method: containment
+    semantic_cover: 5
+    in_declared_scope: yes
+    note: "Partial: exit 0/1 in Tasks 2-4 and exit 2 for an unparseable table in Task 5; exit 2 for an inconsistent (DISAGREE) verdict is not stated by any task."
+  - id: INF-053
+    source: inferred
+    section: "3.1"
+    quote: "`tests/skills/test_fix_audit_script.py` | **New.** Unit tests on `tmp_path` fixtures (list in 3.5)."
+    citation: "source.md:184"
+    matched_task: 2
+    ratio: 0.9333
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: yes
+  - id: INF-054
+    source: inferred
+    section: "3.1"
+    quote: "`tests/skills/test_spec_panel_ponytail.py` | **New.** Static pins (list in 3.5)."
+    citation: "source.md:185"
+    matched_task: 8
+    ratio: 1.0
+    best_task: 8
+    match_method: containment
+    semantic_cover: 8
+    in_declared_scope: yes
+  - id: INF-055
+    source: inferred
+    section: "3.1"
+    quote: "`docs/designs/spec-panel-ponytail.md` | **New.** This spec cut to its decisions, with the install steps and the experiment Task line."
+    citation: "source.md:186"
+    matched_task: 9
+    ratio: 0.8125
+    best_task: 9
+    match_method: containment
+    semantic_cover: 9
+    in_declared_scope: yes
+  - id: INF-056
+    source: inferred
+    section: "3.1"
+    quote: "Not changed | `src/superclaude/commands/spec-panel.md`, `plugins/superclaude/commands/spec-panel.md`, `~/.claude/commands/sc/spec-panel.md`, `HOW-WE-WORK.md` (no routing row until the variant earns promotion), `tests/skills/test_spec_panel_review_loop.py`, `src/superclaude/output-styles/pragmatic.md`, `sc-implement-protocol/refs/qa.md`."
+    citation: "source.md:187"
+    matched_task: 11
+    ratio: 0.6471
+    best_task: 11
+    match_method: containment
+    semantic_cover: 7
+    in_declared_scope: yes
+    note: "Constraints list the same set; Task 7 checks two of the paths with git diff --exit-code."
+  - id: INF-057
+    source: inferred
+    section: "3.1"
+    quote: "whether a new skill needs a plugin copy is UNVERIFIED (check the build rules before planning)."
+    citation: "source.md:187"
+    matched_task: none
+    ratio: 0.5
+    best_task: 11
+    match_method: none
+    semantic_cover: none
+    in_declared_scope: yes
+    note: "Resolved in plan Constraints (no plugin mirror), not by a task."
+  - id: INF-058
+    source: inferred
+    section: "3.2"
+    quote: "New section text for file 1 (literal)"
+    citation: "source.md:189"
+    matched_task: 2
+    ratio: 0.8333
+    best_task: 2
+    match_method: containment
+    semantic_cover: 7
+    in_declared_scope: yes
+  - id: INF-059
+    source: inferred
+    section: "3.3"
+    quote: "trigger check (2.2); sha256 of S and B; hunks; id set from R; tolerant grade parse; hunk classes (2.3); skip guard (over half unattributed); fills the brief"
+    citation: "source.md:207"
+    matched_task: 2
+    ratio: 0.9091
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: yes
+  - id: INF-060
+    source: inferred
+    section: "3.3"
+    quote: "K1-K10 below; `CHECK_OK` or one `CHECK_FAIL <rule> <row>` per failure"
+    citation: "source.md:208"
+    matched_task: 3
+    ratio: 0.9
+    best_task: 3
+    match_method: containment
+    semantic_cover: 3
+    in_declared_scope: yes
+  - id: INF-061
+    source: inferred
+    section: "3.3"
+    quote: "re-runs `check`; builds revert rows from the diff; applies all rows bottom-up in memory; temp file plus `os.replace`; readback; idempotent (`already applied`)"
+    citation: "source.md:209"
+    matched_task: 4
+    ratio: 0.65
+    best_task: 4
+    match_method: containment
+    semantic_cover: 4
+    in_declared_scope: yes
+  - id: INF-062
+    source: inferred
+    section: "3.3"
+    quote: "`verdict --dir D --report R3` | `D/*`, R3 | `D/final-verdict.md` | section 2.7"
+    citation: "source.md:210"
+    matched_task: 5
+    ratio: 1.0
+    best_task: 5
+    match_method: containment
+    semantic_cover: 5
+    in_declared_scope: yes
+  - id: INF-063
+    source: inferred
+    section: "3.3"
+    quote: "K1-K5, K7, K8 and K10 fail the whole audit with nothing applied"
+    citation: "source.md:212"
+    matched_task: 3
+    ratio: 0.7
+    best_task: 3
+    match_method: containment
+    semantic_cover: 3
+    in_declared_scope: yes
+  - id: INF-064
+    source: inferred
+    section: "3.3"
+    quote: "K1 sha256 of S and B equal `state.json` (the auditor or anyone edited nothing; the baseline is the one prepared)."
+    citation: "source.md:213"
+    matched_task: 2
+    ratio: 0.6429
+    best_task: 2
+    match_method: containment
+    semantic_cover: 3
+    in_declared_scope: yes
+  - id: INF-065
+    source: inferred
+    section: "3.3"
+    quote: "K2 `audit.md` has both header lines with allowed values and exactly one table with the 8 columns in order; the json block, if any, parses."
+    citation: "source.md:214"
+    matched_task: 3
+    ratio: 0.7222
+    best_task: 3
+    match_method: containment
+    semantic_cover: 3
+    in_declared_scope: yes
+  - id: INF-066
+    source: inferred
+    section: "3.3"
+    quote: "K3 every hunk of `fix-list.md` is in at least one row; every id in a row is one R defines (2.3); each hunk citing no R-defined id (unattributed or foreign-id) has a `-` row; no duplicate ids."
+    citation: "source.md:215"
+    matched_task: 2
+    ratio: 0.8636
+    best_task: 2
+    match_method: containment
+    semantic_cover: 3
+    in_declared_scope: yes
+  - id: INF-067
+    source: inferred
+    section: "3.3"
+    quote: "K4 `claimed` equals the grade the script read from R for that id (or `-` for a hunk with no id)."
+    citation: "source.md:216"
+    matched_task: 3
+    ratio: 0.9
+    best_task: 3
+    match_method: containment
+    semantic_cover: 3
+    in_declared_scope: yes
+  - id: INF-068
+    source: inferred
+    section: "3.3"
+    quote: "K5 enums: validated `blocking|minor`, necessary `yes|no`, verdict `keep|shrink|revert`."
+    citation: "source.md:217"
+    matched_task: 3
+    ratio: 0.6667
+    best_task: 3
+    match_method: containment
+    semantic_cover: 3
+    in_declared_scope: yes
+  - id: INF-069
+    source: inferred
+    section: "3.3"
+    quote: "K6 `revert` only for a `minor-only` hunk whose every id is minor in R and validated minor; CRITICAL, FR-8, FR-9 and report-blocking ids are never closed; a validated `minor` on a report-blocking id is logged `DOWNGRADE <id>`, a validated `blocking` on a report-minor id is logged `UPGRADE <id>`; neither changes anything."
+    citation: "source.md:218"
+    matched_task: none
+    ratio: 0.56
+    best_task: 3
+    match_method: none
+    semantic_cover: 3
+    in_declared_scope: yes
+  - id: INF-070
+    source: inferred
+    section: "3.3"
+    quote: "K7 `delete` rows: `old` occurs exactly once in S; `new` is `old` with tokens removed, same order, exact tokens (no case or punctuation folding); every removed token is one the fix added (absent from the aligned baseline span, by a word diff); every finding id on the hunk still occurs in the hunk after the edit."
+    citation: "source.md:219"
+    matched_task: none
+    ratio: 0.4412
+    best_task: 2
+    match_method: none
+    semantic_cover: 3
+    in_declared_scope: yes
+  - id: INF-071
+    source: inferred
+    section: "3.3"
+    quote: "K8 `restore` rows: only in a `minor-only` hunk; `new` equals the aligned baseline span exactly (a baseline substring from elsewhere fails)."
+    citation: "source.md:220"
+    matched_task: 3
+    ratio: 0.6667
+    best_task: 3
+    match_method: containment
+    semantic_cover: 3
+    in_declared_scope: yes
+  - id: INF-072
+    source: inferred
+    section: "3.3"
+    quote: "K9 rows do not overlap; no `new` contains another row's `old`; where rows share a hunk the strongest verdict wins (keep over shrink over revert); `shrink` needs at least one row."
+    citation: "source.md:221"
+    matched_task: none
+    ratio: 0.5652
+    best_task: 2
+    match_method: none
+    semantic_cover: 3
+    in_declared_scope: yes
+  - id: INF-073
+    source: inferred
+    section: "3.3"
+    quote: "K10 every `keep` with validated `blocking` and every `revert` has an `evidence` cell of 20 or more characters."
+    citation: "source.md:222"
+    matched_task: 3
+    ratio: 0.8182
+    best_task: 3
+    match_method: containment
+    semantic_cover: 3
+    in_declared_scope: yes
+  - id: INF-074
+    source: inferred
+    section: "3.4"
+    quote: "`state.json` (paths, sha256s, ids and grades, trigger result), `fix-list.md` (hunk table: id, lines in S, lines in B, bytes added and removed, ids cited, grade, class), `brief.md`, `current-before-audit.md`, `audit.md` (the auditor's only output), `check.log`, `apply-log.md`, `closed-minor.txt`, `final-verdict.md`."
+    citation: "source.md:225"
+    matched_task: 2
+    ratio: 0.8378
+    best_task: 2
+    match_method: containment
+    semantic_cover: 6
+    in_declared_scope: yes
+    note: "The writers are spread over Tasks 2-5; Task 6 carries the file list in SKILL.md."
+  - id: INF-075
+    source: inferred
+    section: "3.5"
+    quote: "hunks: empty and whitespace-only diffs (not triggered), insert, delete, replace; ids `N12`, `C9`, `R2-1`, `C-R3-15`, bare numbers; whole-word boundaries; incidental id mentions."
+    citation: "source.md:229"
+    matched_task: 2
+    ratio: 0.8846
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: yes
+  - id: INF-076
+    source: inferred
+    section: "3.5"
+    quote: "id rule: ids only restated in R's prior-findings status table (for example `| F16 | no | open |`) are not R-defined; ids already present in a hunk's baseline text are context, not citations; a cycle-1 id in added words makes the hunk foreign-id (protected);"
+    citation: "source.md:230"
+    matched_task: 2
+    ratio: 0.8387
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: yes
+  - id: INF-077
+    source: inferred
+    section: "3.5"
+    quote: "grade parse: the four real formats; `non-blocking` is not blocking; `MAJOR (FR-8 GAP)` graded minor counts as protected; unknown or conflicting grade counts as blocking."
+    citation: "source.md:231"
+    matched_task: 2
+    ratio: 0.7222
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: yes
+    note: "Task 2 tests do not name the `MAJOR (FR-8 GAP)` graded-minor protected case."
+  - id: INF-078
+    source: inferred
+    section: "3.5"
+    quote: "classes and guard: the four classes on a mixed fixture; a minor-only hunk overlapping a disposition range of a blocking id becomes blocking-involved; skip guard below, at and above 50% unattributed; no dispositions file means no whole revert."
+    citation: "source.md:232"
+    matched_task: 2
+    ratio: 0.9231
+    best_task: 2
+    match_method: containment
+    semantic_cover: 2
+    in_declared_scope: yes
+  - id: INF-079
+    source: inferred
+    section: "3.5"
+    quote: "check: missing row, invented id, wrong `claimed`, revert of a blocking-involved or unattributed hunk, delete row removing a baseline token, delete row dropping the hunk's blocking id, restore row in a blocking-involved hunk, restore of a non-aligned baseline substring, overlapping rows, changed spec sha."
+    citation: "source.md:233"
+    matched_task: 3
+    ratio: 0.963
+    best_task: 3
+    match_method: containment
+    semantic_cover: 3
+    in_declared_scope: yes
+  - id: INF-080
+    source: inferred
+    section: "3.5"
+    quote: "apply: all or nothing (a bad last row leaves S byte-identical), exact baseline bytes restored, idempotent second run, atomic (no temp file left), CRLF and UTF-8 and trailing newline preserved, `closed-minor.txt` lists an id only when every hunk citing it was reverted."
+    citation: "source.md:234"
+    matched_task: 4
+    ratio: 0.875
+    best_task: 4
+    match_method: containment
+    semantic_cover: 4
+    in_declared_scope: yes
+  - id: INF-081
+    source: inferred
+    section: "3.5"
+    quote: "verdict: FAIL never becomes PASS; open and regressed prior findings that R2 graded blocking survive; a listed-open row for an R2-minor id (closed or not) does not count, and a closed one is printed as `closed-minor, listed open`; a closed id graded blocking by review 3 gives DISAGREE and FAIL; unparseable tables exit 2 with FAIL; in `427` mode a report line that disagrees with the computed one gives DISAGREE and the stricter line wins."
+    citation: "source.md:235"
+    matched_task: 5
+    ratio: 0.8947
+    best_task: 5
+    match_method: containment
+    semantic_cover: 5
+    in_declared_scope: yes
+  - id: INF-082
+    source: inferred
+    section: "3.5"
+    quote: "the variant minus its enumerated differences equals `src/superclaude/commands/spec-panel.md` line for line (drift guard);"
+    citation: "source.md:237"
+    matched_task: 8
+    ratio: 0.9333
+    best_task: 8
+    match_method: containment
+    semantic_cover: 8
+    in_declared_scope: yes
+  - id: INF-083
+    source: inferred
+    section: "3.5"
+    quote: "`## Review Loop` bullets 1-7 equal the original's; `## Fix Audit` exists once, directly after it, with the literals `--fix-audit`, `review: 2 of 3`, `audit: not-triggered`, `audit: skipped`, `Skill ponytail:ponytail-review`, `~/.claude/skills/sc-fix-audit/SKILL.md`, and the phrase `the run is not a review` (its override of bullets 1, 4, 5 and 6);"
+    citation: "source.md:238"
+    matched_task: 8
+    ratio: 0.8485
+    best_task: 8
+    match_method: containment
+    semantic_cover: 8
+    in_declared_scope: yes
+  - id: INF-084
+    source: inferred
+    section: "3.5"
+    quote: "the canonical cap text and at-cap clause from `tests/skills/test_review_severity_rule.py` are present; no `src/superclaude` string in the variant, `SKILL.md` or the brief;"
+    citation: "source.md:239"
+    matched_task: 8
+    ratio: 1.0
+    best_task: 8
+    match_method: containment
+    semantic_cover: 8
+    in_declared_scope: yes
+  - id: INF-085
+    source: inferred
+    section: "3.5"
+    quote: "the original `spec-panel.md` contains no `--fix-audit`."
+    citation: "source.md:240"
+    matched_task: 8
+    ratio: 1.0
+    best_task: 8
+    match_method: containment
+    semantic_cover: 8
+    in_declared_scope: yes
+  - id: INF-086
+    source: inferred
+    section: "3.5"
+    quote: "Keep green, run unchanged: `tests/skills/test_review_severity_rule.py` (it scans tracked files only, so run it after the new files are tracked), `tests/skills/test_spec_panel_review_loop.py`, `tests/skills/test_primitive_dual_surface_lookup.py`, `tests/commands/test_routing_plugin_parity.py`."
+    citation: "source.md:241"
+    matched_task: 8
+    ratio: 0.9643
+    best_task: 8
+    match_method: containment
+    semantic_cover: 8
+    in_declared_scope: yes
+  - id: INF-087
+    source: inferred
+    section: "3.7"
+    quote: "Adopt nowhere until S1 shows an effect."
+    citation: "source.md:248"
+    matched_task: none
+    ratio: 0.3333
+    best_task: 11
+    match_method: none
+    semantic_cover: none
+    in_declared_scope: yes
+    note: "Negative constraint, satisfied by omission: no task adopts the script elsewhere."
+  - id: INF-088
+    source: inferred
+    section: "4"
+    quote: "`spec-panel-ponytail`, invoked as `/sc:spec-panel-ponytail`."
+    citation: "source.md:252"
+    matched_task: 6
+    ratio: 0.8
+    best_task: 6
+    match_method: containment
+    semantic_cover: 7
+    in_declared_scope: yes
+  - id: INF-089
+    source: inferred
+    section: "4"
+    quote: "Without `--fix-audit` it behaves exactly as `/sc:spec-panel`."
+    citation: "source.md:252"
+    matched_task: 11
+    ratio: 0.875
+    best_task: 11
+    match_method: containment
+    semantic_cover: 7
+    in_declared_scope: yes
+  - id: INF-090
+    source: inferred
+    section: "4"
+    quote: "every review still runs through `/sc:spec-panel`, so the review instrument stays the exact 472-line 427 file that Arm B installed at `~/.claude/commands/sc/spec-panel.md` (`ARMB-REPORT.md` \"What Arm B changed\"), and the experiment must install that same file as D11 did."
+    citation: "source.md:252"
+    matched_task: 11
+    ratio: 0.75
+    best_task: 11
+    match_method: containment
+    semantic_cover: 11
+    in_declared_scope: yes
+  - id: INF-091
+    source: inferred
+    section: "4"
+    quote: "copy `src/superclaude/commands/spec-panel-ponytail.md` to `~/.claude/commands/sc/spec-panel-ponytail.md`, and the folder `src/superclaude/skills/sc-fix-audit/` to `~/.claude/skills/sc-fix-audit/`."
+    citation: "source.md:253"
+    matched_task: 8
+    ratio: 0.9286
+    best_task: 8
+    match_method: containment
+    semantic_cover: 11
+    in_declared_scope: yes
+  - id: INF-092
+    source: inferred
+    section: "4"
+    quote: "Rollback: delete those two paths. Requires the `ponytail@ironclaude` plugin (present on this host)."
+    citation: "source.md:253"
+    matched_task: 11
+    ratio: 0.6667
+    best_task: 11
+    match_method: containment
+    semantic_cover: 11
+    in_declared_scope: yes
+  - id: INF-093
+    source: inferred
+    section: "4"
+    quote: "The install watcher records the sha256 of both new paths and of `spec-panel.md`, which must not change."
+    citation: "source.md:253"
+    matched_task: 11
+    ratio: 0.6923
+    best_task: 11
+    match_method: containment
+    semantic_cover: 11
+    in_declared_scope: yes
+  - id: INF-094
+    source: inferred
+    section: "4"
+    quote: "So the briefs T05-T09 stay byte-identical to Arm B (with Arm B's `--re-review`/`--baseline` clauses in T07 and T09), and **one Task is inserted between T08 (cycle-2 reviser) and T09 (review 3)**, whose single command line is:"
+    citation: "source.md:254"
+    matched_task: 12
+    ratio: 0.6923
+    best_task: 12
+    match_method: containment
+    semantic_cover: 12
+    in_declared_scope: yes
+  - id: INF-095
+    source: inferred
+    section: "4"
+    quote: "/sc:spec-panel-ponytail @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --fix-audit --re-review .dev/orca-command-refactor/review/spec-panel-round2.md --baseline .dev/orca-command-refactor/specs/history/spec-v2-after-round1.md --dispositions .dev/orca-command-refactor/review/disposition-round2.md"
+    citation: "source.md:257"
+    matched_task: 7
+    ratio: 0.6087
+    best_task: 7
+    match_method: containment
+    semantic_cover: 12
+    in_declared_scope: yes
+    note: "Literal also required in Tasks 9 and 11."
+  - id: INF-096
+    source: inferred
+    section: "4"
+    quote: "Ownership: write only `.dev/orca-command-refactor/review/fix-audit/` and, through the command's script only, the spec; never edit the spec by hand."
+    citation: "source.md:260"
+    matched_task: 12
+    ratio: 0.9375
+    best_task: 12
+    match_method: containment
+    semantic_cover: 12
+    in_declared_scope: yes
+  - id: INF-097
+    source: inferred
+    section: "4"
+    quote: "Finish with worker_done --report-path .dev/orca-command-refactor/review/fix-audit/state.json."
+    citation: "source.md:260"
+    matched_task: 12
+    ratio: 0.9286
+    best_task: 12
+    match_method: containment
+    semantic_cover: 12
+    in_declared_scope: yes
+  - id: INF-098
+    source: inferred
+    section: "4"
+    quote: "After T09, the recorder runs `fix_audit.py verdict --dir .dev/orca-command-refactor/review/fix-audit --report .dev/orca-command-refactor/review/spec-panel-round3.md --report-rule any-severity`."
+    citation: "source.md:260"
+    matched_task: 12
+    ratio: 1.0
+    best_task: 12
+    match_method: containment
+    semantic_cover: 12
+    in_declared_scope: yes
+    note: "Task 12 recorder template uses the installed script path with `uv run --no-project python`."
+  - id: INF-099
+    source: inferred
+    section: "4"
+    quote: "a coordinator or person runs the same `--fix-audit` line once after the cycle-2 fixes and before review 3, then the verdict step after review 3. No routing-guide row is added until S1 shows an effect."
+    citation: "source.md:261"
+    matched_task: none
+    ratio: 0.5
+    best_task: 11
+    match_method: none
+    semantic_cover: 9
+    in_declared_scope: yes
+    note: "Routing-row half is a plan Constraint."
+  - id: INF-100
+    source: inferred
+    section: "5"
+    quote: "The only change: Task T08a (section 4) between T08 and T09, and the variant plus skill installed beside the original. Two replicates, `exp346-ab-ptl-r1` and `exp346-ab-ptl-r2`."
+    citation: "source.md:265"
+    matched_task: none
+    ratio: 0.5238
+    best_task: 11
+    match_method: none
+    semantic_cover: none
+    in_declared_scope: no
+    note: "Experiment running; excluded by plan scope."
+  - id: INF-101
+    source: inferred
+    section: "5"
+    quote: "In the main worktree run T08a then T09; in the pair run T09 only."
+    citation: "source.md:267"
+    matched_task: none
+    ratio: 0.5714
+    best_task: 12
+    match_method: none
+    semantic_cover: none
+    in_declared_scope: no
+    note: "Experiment running; excluded by plan scope."
+  - id: INF-102
+    source: inferred
+    section: "5"
+    quote: "Gate readouts G1-G6 (a miss is traced to the first gate that failed)"
+    citation: "source.md:273"
+    matched_task: none
+    ratio: 0.25
+    best_task: 6
+    match_method: none
+    semantic_cover: none
+    in_declared_scope: no
+    note: "Experiment readout; excluded by plan scope."
+  - id: INF-103
+    source: inferred
+    section: "5"
+    quote: "one blind re-grade of each final audited spec by a fresh `reflect-reviewer` agent with 427 grading and no knowledge of the audit, looking only for blocking defects in or depending on reverted or deleted text."
+    citation: "source.md:275"
+    matched_task: none
+    ratio: 0.36
+    best_task: 2
+    match_method: none
+    semantic_cover: none
+    in_declared_scope: no
+    note: "Experiment readout; excluded by plan scope."
+  - id: INF-104
+    source: inferred
+    section: "5"
+    quote: "A replicate counts as a ponytail-treatment run only if: the `ponytail:ponytail-review` Skill call is in the T08a session log (`auditor: ponytail-review`);"
+    citation: "source.md:277"
+    matched_task: none
+    ratio: 0.5385
+    best_task: 8
+    match_method: none
+    semantic_cover: none
+    in_declared_scope: no
+    note: "Experiment validity rule; excluded by plan scope."
+  - id: INF-105
+    source: inferred
+    section: "5"
+    quote: "An `inline-rubric` run is reported, kept in all-attempt accounting and replaced once by a fixed rule (one re-run), not by searching for good runs."
+    citation: "source.md:277"
+    matched_task: none
+    ratio: 0.3333
+    best_task: 12
+    match_method: none
+    semantic_cover: none
+    in_declared_scope: no
+    note: "Experiment validity rule; excluded by plan scope."
+  - id: INF-106
+    source: inferred
+    section: "5"
+    quote: "The bar is not retuned after the run."
+    citation: "source.md:301"
+    matched_task: none
+    ratio: 0.5
+    best_task: 2
+    match_method: none
+    semantic_cover: none
+    in_declared_scope: no
+    note: "Experiment rule; excluded by plan scope."
+  - id: INF-107
+    source: inferred
+    section: "6"
+    quote: "the experiment records the plugin version and the skill file's sha256."
+    citation: "source.md:315"
+    matched_task: 11
+    ratio: 0.625
+    best_task: 11
+    match_method: containment
+    semantic_cover: none
+    in_declared_scope: no
+    note: "Experiment record; Task 11 records path sha256s, not the plugin version."
+  - id: INF-108
+    source: inferred
+    section: "7"
+    quote: "Can a dispatched Orca worker load `ponytail:ponytail-review`? UNVERIFIED; one smoke dispatch before S1."
+    citation: "source.md:326"
+    matched_task: 12
+    ratio: 0.6364
+    best_task: 12
+    match_method: containment
+    semantic_cover: 11
+    in_declared_scope: no
+    note: "Recorded in INSTALL.md as an open precondition only."
+  - id: INF-109
+    source: inferred
+    section: "7"
+    quote: "run it first at implementation and change the text, not the test."
+    citation: "source.md:328"
+    matched_task: 2
+    ratio: 0.875
+    best_task: 2
+    match_method: containment
+    semantic_cover: 8
+    in_declared_scope: no
+summary:
+  parsed_count: 0
+  inferred_count: 109
+  total_count: 109
+  matched_count: 86
+  coverage_pct: null  # parsed-only; zero parsed ids
+  coverage_pct_union: 0.789
+  unmapped_requirements: []  # parsed-only
+  unmapped_requirements_union: [INF-001, INF-003, INF-021, INF-023, INF-024, INF-036, INF-040, INF-041, INF-042, INF-051, INF-057, INF-069, INF-070, INF-072, INF-087, INF-099, INF-100, INF-101, INF-102, INF-103, INF-104, INF-105, INF-106]
+  S_dev_density: 0.211  # missing_implementations_count = 0 (not computed by this mapper)
+  coverage_undefined: false
+  coverage_degraded: parsed-sparse  # inferred_count > parsed_count
+  in_scope_semantically_uncovered: [INF-057, INF-087]
+  semantically_uncovered_all: [INF-040, INF-041, INF-057, INF-087, INF-100, INF-101, INF-102, INF-103, INF-104, INF-105, INF-106, INF-107]

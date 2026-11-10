@@ -341,8 +341,8 @@ def update(target: str):
     """
     Update SuperClaude to latest version
 
-    Re-installs core framework files, slash commands, agents, skills, and hooks
-    to match the current package version.
+    Re-installs core framework files, slash commands, agents, skills, session
+    setup, hooks, templates, and user setup to match the current package version.
 
     Example:
         superclaude update
@@ -445,11 +445,11 @@ def install_skill(skill_name: str, target: str, force: bool):
     """
     Install a SuperClaude skill to Claude Code
 
-    SKILL_NAME: Name of the skill to install (e.g., pm-agent)
+    SKILL_NAME: Name of the skill to install (e.g., confidence-check)
 
     Example:
-        superclaude install-skill pm-agent
-        superclaude install-skill pm-agent --target ~/.claude/skills --force
+        superclaude install-skill confidence-check
+        superclaude install-skill confidence-check --target ~/.claude/skills --force
     """
     from .install_skill import install_skill_command
 

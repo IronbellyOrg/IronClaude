@@ -1,0 +1,54 @@
+# Stable contract (contract_version 1.0)
+contract_version: "1.0"
+status: partial
+seed_brief_path: .dev/brainstorms/346-ledger/seed-brief.md
+merged_output_path: .dev/brainstorms/346-ledger/merged-requirements.md
+convergence_score: 1.0
+adversarial_artifacts_dir: .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: fallback_1   # native Grep/Read; the auggie tool was not in this session's tool list
+  - source: research-light
+    quality_tier: skipped      # --no-research
+  - source: research-deep
+    quality_tier: skipped      # --no-research
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "Adversarial status partial: diff-point convergence 1.00, but the Round 2.5 invariant gate stayed BLOCKED_BY_INVARIANTS (9 HIGH items: INV-004, INV-006, INV-007, INV-008, INV-013, INV-021, INV-022, INV-027, INV-028); depth standard has no Round 3, so they were carried into refactor-plan.md as mandatory changes and applied; the merged text was not re-probed."
+  - "Wave 3 token budget: subagents reported about 3.59M tokens against a pre-flight estimate of about 540K (3 x 150K x 1.2; hard-kill threshold 675K). The hard-kill abort was not applied; this is a deviation from Wave 2B step 5 of the protocol."
+  - "Merge-executor open item 1 (which decision the verdict exit code reports before the sweep) is settled in SPEC.md (exit 12 PENDING), not in merged-requirements.md."
+
+# Worker fields (--unattended)
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:brainstorm \"Issue #346 (document review loops do not converge), theme LEDGER: ...\" --unattended --output .dev/brainstorms/346-ledger --depth standard --proposals 3 --codebase --no-research --handoff none"
+report_path: .dev/brainstorms/346-ledger/merged-requirements.md
+artifacts:
+  - .dev/brainstorms/346-ledger/seed-brief.md
+  - .dev/brainstorms/346-ledger/enrichment/codebase-context.md
+  - .dev/brainstorms/346-ledger/nested/adversarial-1/
+  - .dev/brainstorms/346-ledger/nested/adversarial-1/return-contract.yaml
+  - .dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/return-contract.yaml
+  - .dev/brainstorms/346-ledger/nested/adversarial-1/merged-output.md
+
+# Telemetry (non-stable; times from file timestamps, tokens from subagent completion reports)
+wave_durations_ms:
+  wave_0: 60000
+  wave_1: 840000
+  wave_2a: 180000
+  wave_2b: 60000
+  wave_3: 5700000
+  wave_4: 60000
+token_usage:
+  wave_0: 15000
+  wave_1: 30000
+  wave_2a: 40000
+  wave_2b: 10000
+  wave_3: 3591328   # sum of 16 subagent reports: 3 variants, diff analysis, 3 advocates, 3 rebuttals, probe, 2 scoring passes, re-evaluation, refactor plan, merge
+  wave_4: 5000
+agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for architecture domain',sonnet:analyzer:'focus on root-cause analysis and evidence-based reasoning for architecture',haiku:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'"
+enrichment_artifact_sizes:
+  codebase-context.md: 5641

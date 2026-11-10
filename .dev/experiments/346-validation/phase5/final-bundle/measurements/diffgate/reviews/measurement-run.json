@@ -1,0 +1,254 @@
+{
+  "snapshots": [
+    {
+      "file": "spec-v1-draft.md",
+      "bytes": 57763
+    },
+    {
+      "file": "spec-v2-after-round1.md",
+      "bytes": 62054
+    },
+    {
+      "file": "spec-v3-after-round2.md",
+      "bytes": 63717
+    }
+  ],
+  "step_metrics": {
+    "R1-review": {
+      "tool_calls": 34,
+      "assistant_turns": 25,
+      "output_tokens": 45642,
+      "wall_minutes": 7.4959999999999996,
+      "models": [
+        "claude-opus-5-5"
+      ],
+      "brief": {
+        "source": "/tmp/impl/s1v/briefs/diffgate/T05-R1-reviewer.txt",
+        "source_sha256": "b7489f94743fedf6946232e34aa1e7216475ceee169d3f7fc778ccb67742802d",
+        "delivered_sha256": "ccb52f2e93085944631d7482a2dc8c0d2542899cf39852ba1015fe5de6446b67",
+        "first_user_line": 14,
+        "equals_source_after_root_substitution": true,
+        "root_substitutions": 1
+      },
+      "instruction_evidence": {
+        "minor findings never fail": [
+          18
+        ],
+        "at most 2 fix cycles": [
+          18
+        ],
+        "3 reviews": [
+          18
+        ],
+        "blocking/minor": []
+      }
+    },
+    "R1-revise": {
+      "tool_calls": 49,
+      "assistant_turns": 18,
+      "output_tokens": 33674,
+      "wall_minutes": 5.1834999999999996,
+      "models": [
+        "claude-opus-5-5"
+      ],
+      "brief": {
+        "source": "/tmp/impl/s1v/briefs/diffgate/T06-R1-reviser.txt",
+        "source_sha256": "7c25f73c621ef2ebdccc4358fcfa4cb6a0ad2245d54155bc1c79170aad8ca5d2",
+        "delivered_sha256": "9b2b1e5c1b599dee0eb2fdfa54851fc9eedabaf17ac3a63a03149dd0657bfc1c",
+        "first_user_line": 13,
+        "equals_source_after_root_substitution": true,
+        "root_substitutions": 1
+      },
+      "instruction_evidence": {
+        "minor findings never fail": [
+          16
+        ],
+        "at most 2 fix cycles": [
+          16
+        ],
+        "3 reviews": [
+          16
+        ],
+        "blocking/minor": []
+      }
+    },
+    "R2-review": {
+      "tool_calls": 39,
+      "assistant_turns": 32,
+      "output_tokens": 52422,
+      "wall_minutes": 7.951966666666666,
+      "models": [
+        "claude-opus-5-5"
+      ],
+      "brief": {
+        "source": "/tmp/impl/s1v/briefs/diffgate/T07-R2-reviewer.filled.txt",
+        "source_sha256": "dbbb20fd61c9fbe485f2ac0c17bd987251ed305b95ffc7d7bd679e54ffb04219",
+        "delivered_sha256": "3a620939fd6e5b616170e9df3795c20a616c1f74fde70e784c87463bc5824559",
+        "first_user_line": 14,
+        "equals_source_after_root_substitution": true,
+        "root_substitutions": 1
+      },
+      "instruction_evidence": {
+        "minor findings never fail": [
+          17
+        ],
+        "at most 2 fix cycles": [
+          17
+        ],
+        "3 reviews": [
+          17
+        ],
+        "blocking/minor": []
+      }
+    },
+    "R2-revise": {
+      "tool_calls": 37,
+      "assistant_turns": 22,
+      "output_tokens": 32934,
+      "wall_minutes": 5.397983333333333,
+      "models": [
+        "claude-opus-5-5"
+      ],
+      "brief": {
+        "source": "/tmp/impl/s1v/briefs/diffgate/T08-R2-reviser.filled.txt",
+        "source_sha256": "e8b95d06e84488b1b0fe64d5b49b3baa23ea3910f06fdbb185dc1247d8db6387",
+        "delivered_sha256": "d8a3f92af055d495cc162e1ccc2e557599aa905d8973d263446f4d053c089379",
+        "first_user_line": 13,
+        "equals_source_after_root_substitution": true,
+        "root_substitutions": 1
+      },
+      "instruction_evidence": {
+        "minor findings never fail": [
+          16
+        ],
+        "at most 2 fix cycles": [
+          16
+        ],
+        "3 reviews": [
+          16
+        ],
+        "blocking/minor": []
+      }
+    },
+    "R3-review": {
+      "tool_calls": 27,
+      "assistant_turns": 21,
+      "output_tokens": 42509,
+      "wall_minutes": 6.8650166666666665,
+      "models": [
+        "claude-opus-5-5"
+      ],
+      "brief": {
+        "source": "/tmp/impl/s1v/briefs/diffgate/T09-R3-reviewer.filled.txt",
+        "source_sha256": "dea0f0af68c58578e996801f5ec9f1331343d52496b7ba8cce9d7fca37c51a42",
+        "delivered_sha256": "f3f7a37df685d9fae5fcd2c9366e97a61d2ab7be2e846e0e2b9bd282c2f23c42",
+        "first_user_line": 14,
+        "equals_source_after_root_substitution": true,
+        "root_substitutions": 1
+      },
+      "instruction_evidence": {
+        "minor findings never fail": [
+          17
+        ],
+        "at most 2 fix cycles": [
+          17
+        ],
+        "3 reviews": [
+          17
+        ],
+        "blocking/minor": []
+      }
+    },
+    "retired-audit": {
+      "tool_calls": 31,
+      "assistant_turns": 21,
+      "output_tokens": 7315,
+      "wall_minutes": 64.71195,
+      "models": [
+        "claude-opus-5-5",
+        "gpt-6.1-sol"
+      ],
+      "brief": {
+        "source": "/tmp/impl/s1v/briefs/diffgate/T11-blindness-audit.txt",
+        "source_sha256": "d85a967eb766d96189c2a3039f709fcc0e1200a78c86202d46e09b20412a9bdc",
+        "delivered_sha256": "f6e0558e81ed0ef95438d3723f8ab018da5afb83a0f168ab1e2ce432ddff81a3",
+        "first_user_line": 14,
+        "equals_source_after_root_substitution": true,
+        "root_substitutions": 1
+      },
+      "instruction_evidence": {
+        "minor findings never fail": [
+          17
+        ],
+        "at most 2 fix cycles": [
+          17
+        ],
+        "3 reviews": [
+          17
+        ],
+        "blocking/minor": []
+      }
+    },
+    "frozen-audit": {
+      "tool_calls": 71,
+      "assistant_turns": 43,
+      "output_tokens": 37373,
+      "wall_minutes": 22.567133333333334,
+      "models": [
+        "gpt-6.1-sol"
+      ],
+      "brief": {
+        "source": "/tmp/impl/s1v/briefs/diffgate/T11-frozen-audit.txt",
+        "source_sha256": "403e566df869c2f92f382dc95ffd9e66d7cabda7de26e4b9f1fe745e4a119845",
+        "delivered_sha256": "403e566df869c2f92f382dc95ffd9e66d7cabda7de26e4b9f1fe745e4a119845",
+        "first_user_line": 14,
+        "equals_source_after_root_substitution": true,
+        "root_substitutions": 0
+      },
+      "instruction_evidence": {
+        "minor findings never fail": [
+          18
+        ],
+        "at most 2 fix cycles": [
+          18
+        ],
+        "3 reviews": [
+          18
+        ],
+        "blocking/minor": []
+      }
+    }
+  },
+  "report_counts": [
+    {
+      "round": "R1",
+      "counts": {
+        "major": 7,
+        "minor": 6
+      },
+      "openprior": []
+    },
+    {
+      "round": "R2",
+      "counts": {
+        "major": 2,
+        "minor": 3
+      },
+      "openprior": [
+        {
+          "id": "R1.3",
+          "status": "open",
+          "line": 153
+        }
+      ]
+    },
+    {
+      "round": "R3",
+      "counts": {
+        "major": 2,
+        "minor": 1
+      },
+      "openprior": []
+    }
+  ]
+}

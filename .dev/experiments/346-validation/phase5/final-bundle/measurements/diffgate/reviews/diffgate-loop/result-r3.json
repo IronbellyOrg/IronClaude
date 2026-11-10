@@ -1,0 +1,192 @@
+{
+ "acceptance": "clean",
+ "blocking": 2,
+ "blocking_ids": [
+  "R3.1",
+  "R3.2"
+ ],
+ "chains": {
+  "R3.1": [
+   "R1.3",
+   "R3.1"
+  ],
+  "R3.2": [
+   "R1.2",
+   "R2.2",
+   "R3.2"
+  ]
+ },
+ "deferred": [],
+ "degraded": false,
+ "findings": [
+  {
+   "anchor": "so it receives the first attempt's brief",
+   "at": [
+    64,
+    64
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.3",
+    "R3.1"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": 8,
+   "hunk": "H3.1",
+   "id": "R3.1",
+   "origin": "changed",
+   "outcome": "a retry of a command whose resume needs an explicit flag runs the same command line without that flag, and because the command has resume the coordinator leaves its output location in place, so the retry neither resumes nor writes to a fresh location; a roadmap retry starts fresh in attempt 1's --output directory and overwrites roadmap.md",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "a fixed retry brief cannot carry the resume flag WC-6 relies on",
+   "via": null
+  },
+  {
+   "anchor": "step 4 uses that existing report file",
+   "at": [
+    194,
+    194
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.2",
+    "R2.2",
+    "R3.2"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": 8,
+   "hunk": "H3.4",
+   "id": "R3.2",
+   "origin": "changed",
+   "outcome": "step 4 asserts d['worker_status'] on the existing report, which none of the three P0 commands writes, so all three AC-0.4 smoke runs fail step 4 and section 1 is reopened on a false signal",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "P0 step 4 runs the worker_status assertion on a file without that field",
+   "via": null
+  },
+  {
+   "anchor": "plus the flags that command's section 3 row requires",
+   "at": [
+    196,
+    196
+   ],
+   "blocking": false,
+   "chain": [
+    "R1.2",
+    "R2.2",
+    "R3.3"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": "H3.4",
+   "id": "R3.3",
+   "origin": "changed",
+   "outcome": null,
+   "sev": "minor",
+   "side": null,
+   "status": "minor",
+   "text": "section 3.2 rows have no Brief must pass column, so AC-1.2's flags are inferred",
+   "via": null
+  }
+ ],
+ "held": {},
+ "open_blocking": [
+  {
+   "anchor": "so it receives the first attempt's brief",
+   "at": [
+    64,
+    64
+   ],
+   "chain": [
+    "R1.3",
+    "R3.1"
+   ],
+   "hunk": "H3.1",
+   "id": "R3.1",
+   "sev": "major",
+   "text": "a fixed retry brief cannot carry the resume flag WC-6 relies on"
+  },
+  {
+   "anchor": "step 4 uses that existing report file",
+   "at": [
+    194,
+    194
+   ],
+   "chain": [
+    "R1.2",
+    "R2.2",
+    "R3.2"
+   ],
+   "hunk": "H3.4",
+   "id": "R3.2",
+   "sev": "major",
+   "text": "P0 step 4 runs the worker_status assertion on a file without that field"
+  }
+ ],
+ "priors": [
+  {
+   "anchor": "each P1 command with `--unattended --output <dir>`",
+   "at": [
+    196,
+    196
+   ],
+   "by": "H3.4",
+   "chain": [
+    "R1.1",
+    "R2.1"
+   ],
+   "hunk": null,
+   "id": "R2.1",
+   "sev": "major",
+   "status": "resolved",
+   "text": "AC-1.2 passes --output to workflow and runs the contract check on load"
+  },
+  {
+   "anchor": "matches the contract's `worker_status` under WC-5 (R1.2)",
+   "at": [
+    182,
+    182
+   ],
+   "by": "H3.4",
+   "chain": [
+    "R1.2",
+    "R2.2"
+   ],
+   "hunk": "H2.11",
+   "id": "R2.2",
+   "sev": "major",
+   "status": "resolved",
+   "text": "step 3 needs worker_status that no P0 command writes"
+  },
+  {
+   "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+   "at": [
+    64,
+    64
+   ],
+   "by": "H3.1",
+   "chain": [
+    "R1.3"
+   ],
+   "hunk": null,
+   "id": "R1.3",
+   "sev": "major",
+   "status": "resolved",
+   "text": "WC-6 fresh directory conflicts with the brief-fixed directory of WC-4"
+  }
+ ],
+ "proxy_all": 2,
+ "proxy_ids": [
+  "R3.1",
+  "R3.2"
+ ],
+ "review": 3,
+ "scoped": {},
+ "verdict": "FAIL",
+ "verdict_line": "verdict: FAIL"
+}

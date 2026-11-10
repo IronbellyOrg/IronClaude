@@ -1,0 +1,81 @@
+[
+  {
+    "id": "I1",
+    "title": "Orca worker-contract spec: 3 spec-panel rounds FAIL (24 -> 13 -> 14 findings), spec 57,763 -> 82,643 -> 92,194 bytes; later 4 constrained reviews end in PASS",
+    "clearness": 5,
+    "recreatable": "yes",
+    "rounds": 3,
+    "evidence": [
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-OrcaCLICommandRefactor-Specs/1b14f80b-2513-4df5-9449-924b3815a1ac.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-OrcaCLICommandRefactor-Specs/699ae853-770c-4823-954c-43a845cd6b31.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-OrcaCLICommandRefactor-Specs/3bb70411-6b34-4a6c-b0de-81ffdbae7944.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-OrcaCLICommandRefactor-Specs/aff19d65-a1f0-4494-8e6a-9ece95738d29.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-OrcaCLICommandRefactor-Specs/66468bab-54d0-4268-a016-46cd22c264ab.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-OrcaCLICommandRefactor-Specs/1c9a7ec8-a900-4884-aef3-7f3fac245073.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-OrcaCLICommandRefactor-Specs/458bdc00-e815-4098-a449-4dfaef7826fd.jsonl",
+      "/home/coder/.claude/file-history/3bb70411-6b34-4a6c-b0de-81ffdbae7944/2d815cfd5e9a74d2@v1",
+      "/home/coder/.claude/file-history/66468bab-54d0-4268-a016-46cd22c264ab/2d815cfd5e9a74d2@v1",
+      "/home/coder/.claude/file-history/458bdc00-e815-4098-a449-4dfaef7826fd/2d815cfd5e9a74d2@v1"
+    ],
+    "minutes_to_find": 3
+  },
+  {
+    "id": "I2",
+    "title": "Review-severity-rule plan: 3 /sc:reflect pre-reviews FAIL (11 -> 7 -> 10 blocking), review cap reached, escalated to coordinator",
+    "clearness": 4,
+    "recreatable": "partial",
+    "rounds": 3,
+    "evidence": [
+      "/home/coder/.claude/projects/-home-coder-workspaces-IronClaude--dev-worktrees-review-severity-rule/d6112a25-4a8a-4e17-927c-5d7b39e2f6af.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-IronClaude--dev-worktrees-review-severity-rule/d6112a25-4a8a-4e17-927c-5d7b39e2f6af/subagents"
+    ],
+    "minutes_to_find": 6
+  },
+  {
+    "id": "I3",
+    "title": "Launch-level hook plan (issue 394): 3 adversarial plan reviews FAIL (8 -> 8 -> 10 blocking), plan 1,054 -> 1,139 -> 1,314 lines, owner stopped the loop",
+    "clearness": 5,
+    "recreatable": "yes",
+    "rounds": 3,
+    "evidence": [
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-hook-launch-level-394/42ae46e0-b8b8-4840-aafe-9b182be079c9.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-hook-launch-level-394/42ae46e0-b8b8-4840-aafe-9b182be079c9/subagents/agent-a13bab688a9d224f8.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-hook-launch-level-394/42ae46e0-b8b8-4840-aafe-9b182be079c9/subagents/agent-a07f24eaf42c5449e.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-hook-launch-level-394/42ae46e0-b8b8-4840-aafe-9b182be079c9/subagents/agent-a793527cfdd94457c.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-hook-launch-level-394/42ae46e0-b8b8-4840-aafe-9b182be079c9/subagents/agent-a6b78088fe4e8a5aa.jsonl",
+      "/home/coder/workspaces/worktrees/IronClaude/issue-394-launch-level-hook/.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial/plan-review.md",
+      "/home/coder/workspaces/worktrees/IronClaude/issue-394-launch-level-hook/.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial/plan-review-2.md",
+      "/home/coder/workspaces/worktrees/IronClaude/issue-394-launch-level-hook/.dev/brainstorms/20261105-170229-launch-level-hook/adversarial/adversarial/plan-review-3.md"
+    ],
+    "minutes_to_find": 6
+  },
+  {
+    "id": "I4",
+    "title": "BMAD first-use research report (Coder repo): Gates 1, 2 and 3 each FAIL-HALT after 3 reviews (9->6->1, 8->3->2, 18->5->2 blocking)",
+    "clearness": 4,
+    "recreatable": "partial",
+    "rounds": 3,
+    "evidence": [
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-Coder-bmad-ponytail-global/189f8649-3921-4435-bc6b-a15182a20399.jsonl",
+      "/home/coder/.claude/file-history/189f8649-3921-4435-bc6b-a15182a20399/ca7857aee503d1e6@v1",
+      "/home/coder/workspaces/worktrees/Coder/bmad-ponytail-global/.dev/tasks/to-do/TASK-RESEARCH-bmad-first-use-20261107-075901/RESEARCH-REPORT-bmad-first-use.md"
+    ],
+    "minutes_to_find": 4
+  },
+  {
+    "id": "I5",
+    "title": "P0 live-check plan package: 4 independent final reviews (issues, issues, issues, pass); each fix or ruling exposed the next defect",
+    "clearness": 3,
+    "recreatable": "partial",
+    "rounds": 4,
+    "evidence": [
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-OrcaCLICommandRefactor-Specs/aaee1ebf-4ec9-494f-85e0-52f3697170b5.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-OrcaCLICommandRefactor-Specs/aaee1ebf-4ec9-494f-85e0-52f3697170b5/subagents/agent-a0d4eb0d0b16b7e1f.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-OrcaCLICommandRefactor-Specs/aaee1ebf-4ec9-494f-85e0-52f3697170b5/subagents/agent-ad1d95b612f2d9bd6.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-OrcaCLICommandRefactor-Specs/aaee1ebf-4ec9-494f-85e0-52f3697170b5/subagents/agent-a88ad232bf783d3a3.jsonl",
+      "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-OrcaCLICommandRefactor-Specs/aaee1ebf-4ec9-494f-85e0-52f3697170b5/subagents/agent-a40f02e69785bb0f5.jsonl",
+      "/home/coder/.claude/file-history/aaee1ebf-4ec9-494f-85e0-52f3697170b5/2217edb430755e4e@v2"
+    ],
+    "minutes_to_find": 4
+  }
+]

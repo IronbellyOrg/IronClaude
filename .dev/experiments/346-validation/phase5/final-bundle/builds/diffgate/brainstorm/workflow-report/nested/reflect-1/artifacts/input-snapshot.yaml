@@ -1,0 +1,30 @@
+input_tree_sha256: pending-wave5-recompute  # tree hash recomputed at Wave 5 from file_list below
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-spec-20261108-181640/TASK-WF-spec-20261108-181640.md
+    sha256: 02c21a770ab0a44edfbeb1d9888cc7fc683acc9b3c6d05378ba705d05548f85c
+  - path: .dev/tasks/to-do/TASK-WF-spec-20261108-181640/source.md
+    sha256: a745244a01bff994b2b2a5ebc4fcadb20e836ff5fffd274ca3f9bf1e9c1bd512
+  - path: src/superclaude/commands/spec-panel.md
+    sha256: 4115f2a979800af8b3ed8dee9d006cf3a97e25c5d9e02420cfee761e82cbe3c9
+  - path: src/superclaude/cli/install_skills.py
+    sha256: b07a9b8e85e06d0fae1f9e924527283557a0fe104ea0c9b2b684a11ec8e406e3
+  - path: tests/skills/test_workflow_archive.py
+    sha256: b01951e970b1ea086491c337940c723b637da04514a43077ca028d6fb8617edf
+  - path: tests/skills/test_review_severity_rule.py
+    sha256: dc21823da962d14b40339e2081717177b3497b27b2a1e41f5637ed97ef10d961
+  - path: tests/skills/test_worker_contract.py
+    sha256: 1fb7e9c7f96b31741a2082601ec3561737f57040075aae3be42e56f3991528cd
+  - path: tests/recommend/test_routing_refresh.py
+    sha256: 6c8c123fbfc01a01bb67a9ff7a15cfa09049eb38866634cab6ab8edc7550f8db
+  - path: tests/skills/test_spec_panel_review_loop.py
+    sha256: e3bc8cb4924d184748dca8a8ebcabb74af41f0bc614eb80dae0a4b1ad31f1ae3
+  - path: tests/unit/test_cli_install.py
+    sha256: 780d0ec66ca0ba8577be3bd55edeb870339fc7f844ed420ca9fb4c464ded2d0b
+  - path: Makefile
+    sha256: 2ecf8285bb2fda4c389de9d07e454d34a2952fc97d206ec645c03a7a8ee71877
+file_count: 11
+legacy_input_sha256:
+  tasklist: 02c21a770ab0a44edfbeb1d9888cc7fc683acc9b3c6d05378ba705d05548f85c
+  spec: a745244a01bff994b2b2a5ebc4fcadb20e836ff5fffd274ca3f9bf1e9c1bd512
+output_root: /home/coder/workspaces/worktrees/IronClaude/bs346-diffgate/.dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1
+output_input_overlap: false

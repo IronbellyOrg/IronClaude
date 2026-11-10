@@ -1,0 +1,3 @@
+?? .dev/reflect/pre-addOneSentenceTo-20261104070045/
+?? .dev/tasks/to-do/TASK-WF-addOneSentenceTo-20261104-070008/
+?? docs/memory/reflect/deviation-patterns-p0-live-workflow.md

@@ -1,0 +1,53 @@
+contract_version: "1.0"
+status: partial
+seed_brief_path: .dev/brainstorms/346-ponytail/seed-brief.md
+merged_output_path: .dev/brainstorms/346-ponytail/merged-requirements.md
+convergence_score: 0.96
+adversarial_artifacts_dir: .dev/brainstorms/346-ponytail/nested/adversarial-1/adversarial/
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "S-001: where the variant rule lives in the command (bullet 8 vs separate heading); merged as a separate ## Fix Audit heading, only one advocate argued it"
+  - "Round 2.5 invariant gate was BLOCKED_BY_INVARIANTS (8 HIGH); cleared by refactor-plan changes 9-16 and 22, not by debate agreement; adversarial status partial"
+  - "Post-debate correction (refactor-plan change 22): no variant read the S1 review-3 brief T09, which forbids any write but its report; the audit was moved to its own Task T08a"
+
+# Worker fields (--unattended, ~/.claude/WORKER-CONTRACT.md WC-4)
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:brainstorm \"Theme ponytail for IronClaude issue 346 (document review loops do not converge) ... Design only, no implementation.\" --unattended --output .dev/brainstorms/346-ponytail --depth standard --proposals 3 --codebase --no-research --handoff none"
+report_path: .dev/brainstorms/346-ponytail/merged-requirements.md
+artifacts:
+  - .dev/brainstorms/346-ponytail/SPEC.md
+  - .dev/brainstorms/346-ponytail/seed-brief.md
+  - .dev/brainstorms/346-ponytail/enrichment/codebase-context.md
+  - .dev/brainstorms/346-ponytail/enrichment/evidence-attribution.md
+  - .dev/brainstorms/346-ponytail/enrichment/minor-byte-share.md
+  - .dev/brainstorms/346-ponytail/enrichment/minor_share.py
+  - .dev/brainstorms/346-ponytail/nested/adversarial-1/
+  - .dev/brainstorms/346-ponytail/nested/adversarial-1/return-contract.yaml
+  - .dev/brainstorms/346-ponytail/nested/adversarial-1/merged-output.md
+  - .dev/brainstorms/346-ponytail/handoff/1-brainstorm.md
+  - .dev/brainstorms/346-ponytail/verification/spec-check.md
+
+# Telemetry (non-stable)
+wave_durations_ms:
+  wave_0: 60000
+  wave_1: 240000
+  wave_2a: 420000
+  wave_2b: 30000
+  wave_3: 3600000
+  wave_4: 5000
+token_usage:
+  wave_3: "about 2.3M subagent tokens over 3 variant writers, 1 evidence analyst, 6 advocate turns, 1 fault-finder, 1 merge executor (from task notifications)"
+agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'"
+enrichment_artifact_sizes:
+  codebase-context.md: 3900

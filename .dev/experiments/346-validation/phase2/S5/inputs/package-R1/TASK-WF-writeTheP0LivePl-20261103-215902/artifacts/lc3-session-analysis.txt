@@ -1,0 +1,110 @@
+# lc3 session analysis (supplementary to worker-read; see lc3-step5.md)
+session file: /home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-p0-live-adversarial/1f377cc6-5882-4867-ab45-be13ad1408a6.jsonl
+sha256 at analysis time: 1822988c7312e4b0876d607f990e1fd7cf35d56e63c3b9780a76a367df1df246  size: 4343356 bytes
+
+## tool calls by name (top-level session; assistant messages with isSidechain=true: 0)
+     44 Edit
+     26 Bash
+     22 Read
+      7 Agent
+      4 Grep
+      4 Write
+      2 Glob
+      2 SendMessage
+      1 Skill
+
+## Skill calls
+2026-11-04T08:32:06.701Z sidechain=False skill=sc-adversarial-protocol
+
+## orca orchestration commands in the top-level session
+08:32:04 send heartbeat
+08:33:51 send heartbeat
+08:38:12 send heartbeat
+08:41:49 send heartbeat
+08:47:03 send heartbeat
+08:54:43 send heartbeat
+08:57:35 send heartbeat
+09:03:21 check 
+09:03:31 send worker_done
+
+## run length: first user message 08:31:51, worker_done ['09:03:31']
+run length minutes: 31.7
+heartbeats (7): ['08:32:04', '08:33:51', '08:38:12', '08:41:49', '08:47:03', '08:54:43', '08:57:35']
+gaps (min): [1.8, 4.4, 3.6, 5.2, 7.7, 2.9]
+last heartbeat to worker_done (min): 5.9
+first heartbeat after first user message (min): 0.2
+
+## gaps over 5 minutes: top-level activity inside each
+gap 08:41:49 -> 08:47:03 (5.2 min)
+   08:41:54 Bash Insert demoted advocate statements into the transcript
+   08:41:57 Read /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/o
+   08:42:02 Read /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:42:24 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:42:47 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:42:55 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:42:58 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:43:48 Bash Extract per-criterion verdicts from both scoring passes
+   08:43:54 Bash Show both passes' evidence for the three disputed option b criteria
+   08:44:20 Read /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:44:37 Write /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:44:48 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:45:15 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:45:22 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:45:25 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:45:35 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:45:37 Read /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:45:47 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:46:10 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:46:15 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:46:18 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:46:25 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   task-notifications (background agent finished): ['08:43:39', '08:43:42']
+gap 08:47:03 -> 08:54:43 (7.7 min)
+   08:47:06 Grep 
+   08:47:08 Bash Show the argv and preamble parts of capability line 47
+   08:47:18 Write /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:47:19 Read /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:47:57 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:48:36 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:48:42 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:48:52 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:48:56 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:48:58 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:49:13 Agent Review the refactor plan
+   08:53:33 Read /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:53:40 Read /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/o
+   08:53:43 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:53:46 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:53:54 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:54:02 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:54:03 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:54:07 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:54:10 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:54:16 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:54:19 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:54:22 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:54:25 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:54:28 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:54:30 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/p
+   08:54:39 SendMessage 
+   task-notifications (background agent finished): ['08:53:30']
+
+## Agent launches (top-level): ['08:34:17', '08:37:57', '08:38:08', '08:39:09', '08:39:22', '08:49:13', '08:58:31']
+
+## all session files: 8; Bash commands: 50
+WC-13 pattern hits: 0
+orca verbs in all sessions: ['orca orchestration check', 'orca orchestration send']
+tool names containing ask/question (case-insensitive), all sessions: {}
+
+## heartbeat gaps with subagent run time removed (cadence 5 min)
+Subagent run interval = first to last timestamp of its own session file (7 subagent files); merged into 4 intervals
+from -> to           gap min agent min non-agent min
+08:31:51 -> 08:32:04      0.2       0.0           0.2
+08:32:04 -> 08:33:51      1.8       0.0           1.8
+08:33:51 -> 08:38:12      4.4       3.4           0.9
+08:38:12 -> 08:41:49      3.6       3.6           0.0
+08:41:49 -> 08:47:03      5.2       1.9           3.3
+08:47:03 -> 08:54:43      7.7       5.5           2.2
+08:54:43 -> 08:57:35      2.9       2.9           0.0
+08:57:35 -> 09:03:31      5.9       4.5           1.4
+max non-agent stretch since the last heartbeat (or since the brief): 3.3 min
