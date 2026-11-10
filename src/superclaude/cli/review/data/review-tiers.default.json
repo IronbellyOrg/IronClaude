@@ -5,6 +5,7 @@
     "tier1a": {"alias": "claude-gw-tier1a[1m]", "models": ["claude-opus-5-5", "claude-sonnet-5-5"]},
     "tier1b": {"alias": "claude-gw-tier1b[1m]", "models": ["claude-sonnet-5-5", "gpt-6.1-sol", "muse-wonder-full-1.0"]},
     "tier2": {"alias": "claude-gw-tier2[1m]", "models": ["gpt-6.1-sol", "glm-5.3", "grok-4.7", "Qwen3.8-max", "muse-wonder-1.0", "muse-spark-1.3"]},
+    "tier2b": {"alias": "claude-gw-tier2b[1m]", "placeholder": true, "models": []},
     "tier3": {"alias": "claude-gw-tier3[1m]", "models": ["gpt-6.1-terra", "glm-5.3", "grok-4.7", "Qwen3.8-max", "muse-wonder-1.0", "muse-spark-1.3"]},
     "tier4": {"alias": "claude-gw-tier4[1m]", "models": ["gpt-6-luna"]}
   },
@@ -24,7 +25,7 @@
     "anthropic-only": {
       "note": "This experiment environment. Tier 2 and Tier 3 contain no Anthropic model; owner decision 2026-11-10: Claude Haiku 5.5 stands in for both. Tier 1b resolves to Sonnet 5.5, the Stage 2 reviewer model.",
       "available": ["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5", "claude-fable-5-1"],
-      "stand_ins": {"tier2": ["claude-haiku-5-5"], "tier3": ["claude-haiku-5-5"], "tier4": ["claude-haiku-5-5"]},
+      "stand_ins": {"tier2": ["claude-haiku-5-5"], "tier2b": ["claude-haiku-5-5"], "tier3": ["claude-haiku-5-5"], "tier4": ["claude-haiku-5-5"]},
       "launch": {"claude-opus-5-5": "opus", "claude-sonnet-5-5": "sonnet", "claude-haiku-5-5": "haiku", "claude-fable-5-1": "fable"}
     }
   }

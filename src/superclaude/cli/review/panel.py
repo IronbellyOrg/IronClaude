@@ -49,8 +49,8 @@ _SLOT_KEYS = {"slot_id", "tier", "count", "strategy", "seed"}
 class NoModelAvailable(Exception):
     """No model of a tier (nor a stand-in for it) is available in the environment."""
 
-    def __init__(self, tier: str) -> None:
-        super().__init__(f"no model available for {tier}")
+    def __init__(self, tier: str, detail: str = "") -> None:
+        super().__init__(f"no model available for {tier}{detail}")
         self.tier = tier
 
 
@@ -170,6 +170,17 @@ def validate_tiers(obj: Any) -> list[str]:
                 f"{where}: alias must match ^[A-Za-z0-9._/:\\-\\[\\]]{{1,128}}$"
             )
         models = entry.get("models")
+        if "placeholder" in entry and not isinstance(entry["placeholder"], bool):
+            errors.append(f"{where}: placeholder must be a boolean")
+        if entry.get("placeholder") is True:
+            # A placeholder tier is declared before its model list is known: it must have
+            # no models, resolves to nothing (so an environment without a stand-in fails
+            # closed) and takes the environment's stand-in where one exists.
+            if models != []:
+                errors.append(
+                    f"{where}: a placeholder tier must have an empty models list"
+                )
+            continue
         if not isinstance(models, list) or not models:
             errors.append(f"{where}: models must be a non-empty list")
             continue
@@ -293,7 +304,34 @@ def _default(name: str) -> dict:
     return json.loads(ref.read_text(encoding="utf-8"))
 
 
+_PACKAGED_NAME = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}$")
+
+
+def packaged_panel(name: str) -> dict:
+    """A panel template shipped in the package: review-panel.<name>.json (use '@<name>' on the CLI)."""
+    if not _PACKAGED_NAME.match(name):
+        raise ValueError(f"invalid packaged panel name {name!r}")
+    try:
+        return _default(f"review-panel.{name}.json")
+    except (FileNotFoundError, OSError) as exc:
+        known = sorted(
+            p.name[len("review-panel.") : -len(".json")]
+            for p in (resources.files("superclaude.cli.review") / "data").iterdir()
+            if p.name.startswith("review-panel.") and p.name.endswith(".json")
+        )
+        raise ValueError(
+            f"no packaged panel template '{name}' (known: {', '.join(known)})"
+        ) from exc
+
+
 def load_panel(path: str | None = None) -> dict:
+    ref = path or os.environ.get("SUPERCLAUDE_REVIEW_PANEL") or ""
+    if ref.startswith("@"):
+        obj = packaged_panel(ref[1:])
+        errors = validate_panel(obj)
+        if errors:
+            raise ValueError(f"invalid packaged panel {ref}: " + "; ".join(errors))
+        return obj
     found = find_path("panel", path)
     obj = (
         json.loads(found.read_text(encoding="utf-8"))
@@ -438,14 +476,23 @@ def resolve(
             else:
                 slot_seed = None
             exclude = tuple(chosen) if panel["distinct_across_slots"] else ()
-            picked = resolve_slot(
-                entry["models"],
-                strategy,
-                slot_seed,
-                available,
-                environment.get("stand_ins", {}).get(slot["tier"], []),
-                exclude,
-            )
+            try:
+                picked = resolve_slot(
+                    entry["models"],
+                    strategy,
+                    slot_seed,
+                    available,
+                    environment.get("stand_ins", {}).get(slot["tier"], []),
+                    exclude,
+                )
+            except NoModelAvailable as exc:
+                hint = (
+                    " (placeholder tier: list its models in the tier file, or use an "
+                    "environment that has a stand-in for it)"
+                    if entry.get("placeholder")
+                    else ""
+                )
+                raise NoModelAvailable(slot["tier"], hint) from exc
             chosen.append(picked["model"])
             reviewers.append(
                 {
