@@ -1,0 +1,12 @@
+diff --git a/docs/designs/issue-watcher.md b/docs/designs/issue-watcher.md
+index c22d42b52..acf478e99 100644
+--- a/docs/designs/issue-watcher.md
++++ b/docs/designs/issue-watcher.md
+@@ -1,6 +1,6 @@
+ # Design: `superclaude issue-watch` GitHub issue watcher
+ 
+-**Status:** Design only, nothing implemented. Next: `/task-builder` with `--spec` on this file, then `/task`.
++**Status:** Implemented and merged in PRs #447 and #448; never run live; `enabled` ships as `false`; no schedule is installed. Next: the owner-run live test (FU-1), section 14.1 of [issue-watcher-setup.md](issue-watcher-setup.md) (`docs/designs/issue-watcher-setup.md`).
+ **Issue:** IronbellyOrg/IronClaude #331
+ **Branch:** `ironbelly/issue-331-github-issue-watcher`
+ **Source of truth:** `src/superclaude/` -> `make sync-dev` -> `.claude/` (never stage `.claude/`).

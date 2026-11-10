@@ -1,0 +1,16 @@
+calibrator: confidence-calibrator
+calibrator_class: opus
+calibrator_diversity: degraded
+card: reviewer-cards/reviewer-1-card.yaml
+self_reported_confidence: 0.88
+calibrated_confidence: 0.74
+dimensions: {citation_grounding: 0.9, coverage_completeness: 0.6, deviation_classification_clarity: 0.8, risk_surface_coverage: 0.55, recommendation_actionability: 0.85}
+citations_checked:
+  - "all card citations -> ok"
+  - "F3 claim vs plan:96 -> overstated: the AC implies 2; the only gap is that the number is not written as a literal"
+missed_risks:
+  - "Uncaptured fixtures keep stale design line citations after Task 2 shifts the design by one line."
+  - "The precedence paragraph at issue-watcher.md:166 ('first of 2, 6, 7, 5, 3, 4') does not place exit 1, nor note that cycle_crashed bypasses resolve_exit."
+  - "F3's 'prints 2' relies on unseen setup.md sections."
+  - "Task 3 is unreviewed: the argv AC does not fit the gh_stderr_* rows, and the 'byte-identical' check for the 14.1 bullets has no defined range."
+escalation_recommendation: tier1-sufficient
