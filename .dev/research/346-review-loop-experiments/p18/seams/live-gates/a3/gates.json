@@ -1,0 +1,204 @@
+{
+ "report": {
+  "reconstructed": 10,
+  "runs_with_cases": [
+   "b1-r1",
+   "b1-r2",
+   "b1-r4",
+   "b1-r5",
+   "b1-r6"
+  ],
+  "skipped_runs": [
+   [
+    "b1-r3",
+    "did not reach V2 (round 2 PASS)"
+   ]
+  ],
+  "outcomes": {
+   "resolved": 2,
+   "failed": 8
+  },
+  "located": 10,
+  "touched_v1": 10
+ },
+ "cases": [
+  {
+   "case": "b1-r1-L1",
+   "outcome": "failed",
+   "jev": "new_aspect",
+   "blind_label": null,
+   "v1_named_not_touched": false,
+   "v2_named_not_touched": true,
+   "v2_changed_on_v1_lines": 0.5,
+   "v2_overlap_ge_50": true,
+   "span_overlap": 0.692
+  },
+  {
+   "case": "b1-r1-L2",
+   "outcome": "failed",
+   "jev": "new_aspect",
+   "blind_label": null,
+   "v1_named_not_touched": false,
+   "v2_named_not_touched": false,
+   "v2_changed_on_v1_lines": 1.0,
+   "v2_overlap_ge_50": true,
+   "span_overlap": 0.615
+  },
+  {
+   "case": "b1-r1-L9",
+   "outcome": "failed",
+   "jev": "new_aspect",
+   "blind_label": null,
+   "v1_named_not_touched": false,
+   "v2_named_not_touched": true,
+   "v2_changed_on_v1_lines": 0.0,
+   "v2_overlap_ge_50": false,
+   "span_overlap": 1.0
+  },
+  {
+   "case": "b1-r2-L1",
+   "outcome": "failed",
+   "jev": "same_restated",
+   "blind_label": null,
+   "v1_named_not_touched": false,
+   "v2_named_not_touched": false,
+   "v2_changed_on_v1_lines": 0.8,
+   "v2_overlap_ge_50": true,
+   "span_overlap": 0.542
+  },
+  {
+   "case": "b1-r4-L1",
+   "outcome": "failed",
+   "jev": "new_aspect",
+   "blind_label": null,
+   "v1_named_not_touched": false,
+   "v2_named_not_touched": true,
+   "v2_changed_on_v1_lines": 0.5,
+   "v2_overlap_ge_50": true,
+   "span_overlap": 0.517
+  },
+  {
+   "case": "b1-r4-L2",
+   "outcome": "resolved",
+   "jev": "same_restated",
+   "blind_label": null,
+   "v1_named_not_touched": false,
+   "v2_named_not_touched": false,
+   "v2_changed_on_v1_lines": 1.0,
+   "v2_overlap_ge_50": true,
+   "span_overlap": 1.0
+  },
+  {
+   "case": "b1-r4-L5",
+   "outcome": "failed",
+   "jev": "new_aspect",
+   "blind_label": null,
+   "v1_named_not_touched": false,
+   "v2_named_not_touched": true,
+   "v2_changed_on_v1_lines": 0.0,
+   "v2_overlap_ge_50": false,
+   "span_overlap": 0.5
+  },
+  {
+   "case": "b1-r5-L1",
+   "outcome": "failed",
+   "jev": "new_aspect",
+   "blind_label": null,
+   "v1_named_not_touched": false,
+   "v2_named_not_touched": true,
+   "v2_changed_on_v1_lines": 0.667,
+   "v2_overlap_ge_50": true,
+   "span_overlap": 0.739
+  },
+  {
+   "case": "b1-r6-L1",
+   "outcome": "failed",
+   "jev": "same_restated",
+   "blind_label": null,
+   "v1_named_not_touched": false,
+   "v2_named_not_touched": false,
+   "v2_changed_on_v1_lines": 0.833,
+   "v2_overlap_ge_50": true,
+   "span_overlap": 0.6
+  },
+  {
+   "case": "b1-r6-L2",
+   "outcome": "resolved",
+   "jev": "same_restated",
+   "blind_label": null,
+   "v1_named_not_touched": false,
+   "v2_named_not_touched": false,
+   "v2_changed_on_v1_lines": 1.0,
+   "v2_overlap_ge_50": true,
+   "span_overlap": 0.579
+  }
+ ],
+ "control_undecided_cases": [
+  "b1-r1-L2",
+  "b1-r2-L1",
+  "b1-r4-L2",
+  "b1-r6-L1",
+  "b1-r6-L2"
+ ],
+ "resolved_labels": [
+  "same_restated",
+  "same_restated"
+ ],
+ "failed_labels": [
+  "new_aspect",
+  "same_restated",
+  "same_restated"
+ ],
+ "separation": {
+  "jev_separates_resolved_from_failed_among_control_undecided": false,
+  "answered_all": true
+ },
+ "predictor_tables": {
+  "jev_new_aspect_vs_resolved": {
+   "table": [
+    [
+     0,
+     6
+    ],
+    [
+     2,
+     2
+    ]
+   ],
+   "fisher_p": 0.1333
+  },
+  "v2_named_not_touched_vs_failed": {
+   "table": [
+    [
+     2,
+     3
+    ],
+    [
+     0,
+     5
+    ]
+   ],
+   "fisher_p": 0.4444
+  },
+  "v2_overlap_ge_50_vs_failed": {
+   "table": [
+    [
+     0,
+     2
+    ],
+    [
+     2,
+     6
+    ]
+   ],
+   "fisher_p": 1.0
+  }
+ },
+ "modes": [
+  "live"
+ ],
+ "verdict": {
+  "keep_a3": false
+ },
+ "mock_warning": null
+}

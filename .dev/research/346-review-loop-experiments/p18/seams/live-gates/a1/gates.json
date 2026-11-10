@@ -1,0 +1,1038 @@
+{
+ "recall": {
+  "cap": 60,
+  "classes": {
+   "T1": {
+    "residual_cells": {
+     "rel": 412,
+     "hit": 116,
+     "cells": 106,
+     "cells_hit": 72,
+     "pair_recall": 0.282,
+     "defect_recall": 0.679
+    },
+    "all_cells": {
+     "rel": 676,
+     "hit": 204,
+     "cells": 156,
+     "cells_hit": 109,
+     "pair_recall": 0.302,
+     "defect_recall": 0.699
+    }
+   },
+   "T1+T2": {
+    "residual_cells": {
+     "rel": 633,
+     "hit": 174,
+     "cells": 153,
+     "cells_hit": 109,
+     "pair_recall": 0.275,
+     "defect_recall": 0.712
+    },
+    "all_cells": {
+     "rel": 1040,
+     "hit": 320,
+     "cells": 234,
+     "cells_hit": 177,
+     "pair_recall": 0.308,
+     "defect_recall": 0.756
+    }
+   },
+   "all44": {
+    "residual_cells": {
+     "rel": 841,
+     "hit": 211,
+     "cells": 228,
+     "cells_hit": 144,
+     "pair_recall": 0.251,
+     "defect_recall": 0.632
+    },
+    "all_cells": {
+     "rel": 1274,
+     "hit": 366,
+     "cells": 325,
+     "cells_hit": 220,
+     "pair_recall": 0.287,
+     "defect_recall": 0.677
+    }
+   }
+  },
+  "by_defect": {
+   "D01": {
+    "residual_cells_pairable": 6,
+    "rel": 36,
+    "hit": 0
+   },
+   "D02": {
+    "residual_cells_pairable": 7,
+    "rel": 21,
+    "hit": 12
+   },
+   "D03": {
+    "residual_cells_pairable": 6,
+    "rel": 36,
+    "hit": 8
+   },
+   "D04": {
+    "residual_cells_pairable": 8,
+    "rel": 16,
+    "hit": 0
+   },
+   "D05": {
+    "residual_cells_pairable": 9,
+    "rel": 144,
+    "hit": 35
+   },
+   "D06": {
+    "residual_cells_pairable": 4,
+    "rel": 20,
+    "hit": 4
+   },
+   "D07": {
+    "residual_cells_pairable": 1,
+    "rel": 6,
+    "hit": 2
+   },
+   "D08": {
+    "residual_cells_pairable": 9,
+    "rel": 18,
+    "hit": 11
+   },
+   "D09": {
+    "residual_cells_pairable": 13,
+    "rel": 104,
+    "hit": 3
+   },
+   "D10": {
+    "residual_cells_pairable": 13,
+    "rel": 52,
+    "hit": 26
+   },
+   "D11": {
+    "residual_cells_pairable": 4,
+    "rel": 24,
+    "hit": 15
+   },
+   "D12": {
+    "residual_cells_pairable": 5,
+    "rel": 15,
+    "hit": 9
+   },
+   "D13": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D14": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D15": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D16": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D17": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D18": {
+    "residual_cells_pairable": 13,
+    "rel": 26,
+    "hit": 0
+   },
+   "D19": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D20": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D21": {
+    "residual_cells_pairable": 13,
+    "rel": 104,
+    "hit": 15
+   },
+   "D22": {
+    "residual_cells_pairable": 7,
+    "rel": 7,
+    "hit": 0
+   },
+   "D23": {
+    "residual_cells_pairable": 13,
+    "rel": 13,
+    "hit": 2
+   },
+   "D24": {
+    "residual_cells_pairable": 9,
+    "rel": 27,
+    "hit": 9
+   },
+   "D25": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D26": {
+    "residual_cells_pairable": 10,
+    "rel": 30,
+    "hit": 4
+   },
+   "D27": {
+    "residual_cells_pairable": 13,
+    "rel": 39,
+    "hit": 0
+   },
+   "D28": {
+    "residual_cells_pairable": 7,
+    "rel": 21,
+    "hit": 7
+   },
+   "D29": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D30": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D31": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D32": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D33": {
+    "residual_cells_pairable": 9,
+    "rel": 9,
+    "hit": 0
+   },
+   "D34": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D35": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D36": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D37": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D38": {
+    "residual_cells_pairable": 13,
+    "rel": 13,
+    "hit": 13
+   },
+   "D39": {
+    "residual_cells_pairable": 13,
+    "rel": 26,
+    "hit": 13
+   },
+   "D40": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D41": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D42": {
+    "residual_cells_pairable": 0,
+    "rel": 0,
+    "hit": 0
+   },
+   "D43": {
+    "residual_cells_pairable": 11,
+    "rel": 22,
+    "hit": 11
+   },
+   "D44": {
+    "residual_cells_pairable": 12,
+    "rel": 12,
+    "hit": 12
+   }
+  },
+  "per_spec": {
+   "orig": {
+    "raw": 2590,
+    "eligible": 562,
+    "emitted": 60
+   },
+   "s15": {
+    "raw": 2590,
+    "eligible": 590,
+    "emitted": 60
+   },
+   "s25": {
+    "raw": 2590,
+    "eligible": 583,
+    "emitted": 60
+   },
+   "s29": {
+    "raw": 2590,
+    "eligible": 600,
+    "emitted": 60
+   },
+   "s33": {
+    "raw": 2590,
+    "eligible": 600,
+    "emitted": 60
+   },
+   "s35": {
+    "raw": 2590,
+    "eligible": 583,
+    "emitted": 60
+   },
+   "s38": {
+    "raw": 2660,
+    "eligible": 615,
+    "emitted": 60
+   },
+   "s45": {
+    "raw": 2590,
+    "eligible": 577,
+    "emitted": 60
+   },
+   "s47": {
+    "raw": 2590,
+    "eligible": 588,
+    "emitted": 60
+   },
+   "s52": {
+    "raw": 2590,
+    "eligible": 509,
+    "emitted": 60
+   },
+   "s62": {
+    "raw": 2590,
+    "eligible": 581,
+    "emitted": 60
+   },
+   "s65": {
+    "raw": 2590,
+    "eligible": 587,
+    "emitted": 60
+   },
+   "s66": {
+    "raw": 2590,
+    "eligible": 593,
+    "emitted": 60
+   }
+  },
+  "unpairable": [
+   "D13",
+   "D14",
+   "D31",
+   "D40"
+  ],
+  "mode": "sentence"
+ },
+ "recall_loose_product": {
+  "cap": 60,
+  "classes": {
+   "T1": {
+    "residual_cells": {
+     "rel": 648,
+     "hit": 148,
+     "cells": 126,
+     "cells_hit": 85,
+     "pair_recall": 0.228,
+     "defect_recall": 0.675
+    },
+    "all_cells": {
+     "rel": 1066,
+     "hit": 259,
+     "cells": 182,
+     "cells_hit": 124,
+     "pair_recall": 0.243,
+     "defect_recall": 0.681
+    }
+   },
+   "T1+T2": {
+    "residual_cells": {
+     "rel": 994,
+     "hit": 216,
+     "cells": 173,
+     "cells_hit": 122,
+     "pair_recall": 0.217,
+     "defect_recall": 0.705
+    },
+    "all_cells": {
+     "rel": 1573,
+     "hit": 388,
+     "cells": 260,
+     "cells_hit": 192,
+     "pair_recall": 0.247,
+     "defect_recall": 0.738
+    }
+   },
+   "all44": {
+    "residual_cells": {
+     "rel": 1313,
+     "hit": 287,
+     "cells": 281,
+     "cells_hit": 170,
+     "pair_recall": 0.219,
+     "defect_recall": 0.605
+    },
+    "all_cells": {
+     "rel": 1937,
+     "hit": 474,
+     "cells": 390,
+     "cells_hit": 249,
+     "pair_recall": 0.245,
+     "defect_recall": 0.638
+    }
+   }
+  },
+  "per_spec": {
+   "orig": {
+    "raw": 2590,
+    "eligible": 562,
+    "emitted": 60
+   },
+   "s15": {
+    "raw": 2590,
+    "eligible": 590,
+    "emitted": 60
+   },
+   "s25": {
+    "raw": 2590,
+    "eligible": 583,
+    "emitted": 60
+   },
+   "s29": {
+    "raw": 2590,
+    "eligible": 600,
+    "emitted": 60
+   },
+   "s33": {
+    "raw": 2590,
+    "eligible": 600,
+    "emitted": 60
+   },
+   "s35": {
+    "raw": 2590,
+    "eligible": 583,
+    "emitted": 60
+   },
+   "s38": {
+    "raw": 2660,
+    "eligible": 615,
+    "emitted": 60
+   },
+   "s45": {
+    "raw": 2590,
+    "eligible": 577,
+    "emitted": 60
+   },
+   "s47": {
+    "raw": 2590,
+    "eligible": 588,
+    "emitted": 60
+   },
+   "s52": {
+    "raw": 2590,
+    "eligible": 509,
+    "emitted": 60
+   },
+   "s62": {
+    "raw": 2590,
+    "eligible": 581,
+    "emitted": 60
+   },
+   "s65": {
+    "raw": 2590,
+    "eligible": 587,
+    "emitted": 60
+   },
+   "s66": {
+    "raw": 2590,
+    "eligible": 593,
+    "emitted": 60
+   }
+  },
+  "unpairable": [
+   "D13",
+   "D31"
+  ],
+  "mode": "product"
+ },
+ "recall_curve_T1_residual": {
+  "60": {
+   "pair_recall": 0.282,
+   "defect_cell_recall": 0.679
+  },
+  "90": {
+   "pair_recall": 0.369,
+   "defect_cell_recall": 0.736
+  },
+  "120": {
+   "pair_recall": 0.405,
+   "defect_cell_recall": 0.736
+  },
+  "180": {
+   "pair_recall": 0.481,
+   "defect_cell_recall": 0.745
+  },
+  "250": {
+   "pair_recall": 0.512,
+   "defect_cell_recall": 0.755
+  },
+  "400": {
+   "pair_recall": 0.578,
+   "defect_cell_recall": 0.821
+  }
+ },
+ "specs": {
+  "orig": {
+   "mode": "live",
+   "calls": 60,
+   "usable": 60,
+   "fallbacks": 0,
+   "shown_hints": 12,
+   "shown_true": 1,
+   "shown_false": 0,
+   "shown_unmapped": 11,
+   "all_nonsup_false": 0,
+   "all_nonsup_unmapped": 38,
+   "beyond_control": [],
+   "keyword_flag_defects": [
+    "D02",
+    "D03",
+    "D07",
+    "D08",
+    "D10",
+    "D11",
+    "D12"
+   ],
+   "lint_defects_blocking": [
+    "D06",
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12"
+   ],
+   "judge": {
+    "shown_true": 3,
+    "shown_false": 0,
+    "beyond_control": [],
+    "jev_only": [],
+    "judge_only": []
+   }
+  },
+  "s15": {
+   "mode": "live",
+   "calls": 60,
+   "usable": 60,
+   "fallbacks": 0,
+   "shown_hints": 12,
+   "shown_true": 1,
+   "shown_false": 0,
+   "shown_unmapped": 11,
+   "all_nonsup_false": 4,
+   "all_nonsup_unmapped": 37,
+   "beyond_control": [],
+   "keyword_flag_defects": [
+    "D02",
+    "D03",
+    "D07",
+    "D08",
+    "D10",
+    "D11",
+    "D12",
+    "D28"
+   ],
+   "lint_defects_blocking": [
+    "D03",
+    "D06",
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12"
+   ],
+   "judge": {
+    "shown_true": 2,
+    "shown_false": 0,
+    "beyond_control": [],
+    "jev_only": [],
+    "judge_only": []
+   }
+  },
+  "s25": {
+   "mode": "live",
+   "calls": 60,
+   "usable": 60,
+   "fallbacks": 0,
+   "shown_hints": 12,
+   "shown_true": 1,
+   "shown_false": 2,
+   "shown_unmapped": 9,
+   "all_nonsup_false": 5,
+   "all_nonsup_unmapped": 40,
+   "beyond_control": [
+    "D26"
+   ],
+   "keyword_flag_defects": [
+    "D02",
+    "D03",
+    "D07",
+    "D08",
+    "D10",
+    "D11",
+    "D12"
+   ],
+   "lint_defects_blocking": [
+    "D06",
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12"
+   ],
+   "judge": {
+    "shown_true": 0,
+    "shown_false": 2,
+    "beyond_control": [],
+    "jev_only": [
+     "D26"
+    ],
+    "judge_only": []
+   }
+  },
+  "s29": {
+   "mode": "live",
+   "calls": 60,
+   "usable": 60,
+   "fallbacks": 0,
+   "shown_hints": 12,
+   "shown_true": 0,
+   "shown_false": 4,
+   "shown_unmapped": 8,
+   "all_nonsup_false": 11,
+   "all_nonsup_unmapped": 35,
+   "beyond_control": [],
+   "keyword_flag_defects": [
+    "D02",
+    "D03",
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12",
+    "D28"
+   ],
+   "lint_defects_blocking": [
+    "D11",
+    "D12"
+   ],
+   "judge": {
+    "shown_true": 0,
+    "shown_false": 3,
+    "beyond_control": [],
+    "jev_only": [],
+    "judge_only": []
+   }
+  },
+  "s33": {
+   "mode": "live",
+   "calls": 60,
+   "usable": 60,
+   "fallbacks": 0,
+   "shown_hints": 12,
+   "shown_true": 2,
+   "shown_false": 0,
+   "shown_unmapped": 10,
+   "all_nonsup_false": 2,
+   "all_nonsup_unmapped": 41,
+   "beyond_control": [],
+   "keyword_flag_defects": [
+    "D02",
+    "D03",
+    "D07",
+    "D08",
+    "D10",
+    "D11",
+    "D12"
+   ],
+   "lint_defects_blocking": [
+    "D06",
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12"
+   ],
+   "judge": {
+    "shown_true": 3,
+    "shown_false": 0,
+    "beyond_control": [],
+    "jev_only": [],
+    "judge_only": []
+   }
+  },
+  "s35": {
+   "mode": "live",
+   "calls": 60,
+   "usable": 60,
+   "fallbacks": 0,
+   "shown_hints": 12,
+   "shown_true": 0,
+   "shown_false": 3,
+   "shown_unmapped": 9,
+   "all_nonsup_false": 11,
+   "all_nonsup_unmapped": 38,
+   "beyond_control": [],
+   "keyword_flag_defects": [
+    "D07",
+    "D08",
+    "D10",
+    "D11",
+    "D12",
+    "D26"
+   ],
+   "lint_defects_blocking": [
+    "D01",
+    "D03",
+    "D04",
+    "D06",
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12"
+   ],
+   "judge": {
+    "shown_true": 1,
+    "shown_false": 0,
+    "beyond_control": [],
+    "jev_only": [],
+    "judge_only": []
+   }
+  },
+  "s38": {
+   "mode": "live",
+   "calls": 60,
+   "usable": 60,
+   "fallbacks": 0,
+   "shown_hints": 12,
+   "shown_true": 1,
+   "shown_false": 0,
+   "shown_unmapped": 11,
+   "all_nonsup_false": 6,
+   "all_nonsup_unmapped": 39,
+   "beyond_control": [],
+   "keyword_flag_defects": [
+    "D02",
+    "D07",
+    "D08",
+    "D10",
+    "D11",
+    "D12"
+   ],
+   "lint_defects_blocking": [
+    "D11",
+    "D12"
+   ],
+   "judge": {
+    "shown_true": 2,
+    "shown_false": 0,
+    "beyond_control": [],
+    "jev_only": [],
+    "judge_only": []
+   }
+  },
+  "s45": {
+   "mode": "live",
+   "calls": 60,
+   "usable": 60,
+   "fallbacks": 0,
+   "shown_hints": 12,
+   "shown_true": 1,
+   "shown_false": 2,
+   "shown_unmapped": 9,
+   "all_nonsup_false": 5,
+   "all_nonsup_unmapped": 37,
+   "beyond_control": [],
+   "keyword_flag_defects": [
+    "D02",
+    "D03",
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12",
+    "D28"
+   ],
+   "lint_defects_blocking": [
+    "D11",
+    "D12"
+   ],
+   "judge": {
+    "shown_true": 2,
+    "shown_false": 1,
+    "beyond_control": [],
+    "jev_only": [],
+    "judge_only": []
+   }
+  },
+  "s47": {
+   "mode": "live",
+   "calls": 60,
+   "usable": 60,
+   "fallbacks": 0,
+   "shown_hints": 12,
+   "shown_true": 0,
+   "shown_false": 1,
+   "shown_unmapped": 11,
+   "all_nonsup_false": 11,
+   "all_nonsup_unmapped": 39,
+   "beyond_control": [],
+   "keyword_flag_defects": [
+    "D03",
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12",
+    "D22"
+   ],
+   "lint_defects_blocking": [
+    "D01",
+    "D03",
+    "D04",
+    "D09",
+    "D11",
+    "D12"
+   ],
+   "judge": {
+    "shown_true": 0,
+    "shown_false": 1,
+    "beyond_control": [],
+    "jev_only": [],
+    "judge_only": []
+   }
+  },
+  "s52": {
+   "mode": "live",
+   "calls": 60,
+   "usable": 60,
+   "fallbacks": 0,
+   "shown_hints": 12,
+   "shown_true": 0,
+   "shown_false": 2,
+   "shown_unmapped": 10,
+   "all_nonsup_false": 11,
+   "all_nonsup_unmapped": 37,
+   "beyond_control": [],
+   "keyword_flag_defects": [
+    "D07",
+    "D08",
+    "D10",
+    "D11",
+    "D12",
+    "D28"
+   ],
+   "lint_defects_blocking": [
+    "D11",
+    "D12"
+   ],
+   "judge": {
+    "shown_true": 0,
+    "shown_false": 1,
+    "beyond_control": [],
+    "jev_only": [],
+    "judge_only": []
+   }
+  },
+  "s62": {
+   "mode": "live",
+   "calls": 60,
+   "usable": 60,
+   "fallbacks": 0,
+   "shown_hints": 12,
+   "shown_true": 0,
+   "shown_false": 4,
+   "shown_unmapped": 8,
+   "all_nonsup_false": 15,
+   "all_nonsup_unmapped": 37,
+   "beyond_control": [],
+   "keyword_flag_defects": [
+    "D07",
+    "D08",
+    "D10",
+    "D11",
+    "D12",
+    "D22",
+    "D26"
+   ],
+   "lint_defects_blocking": [
+    "D01",
+    "D03",
+    "D04",
+    "D06",
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12"
+   ],
+   "judge": {
+    "shown_true": 1,
+    "shown_false": 0,
+    "beyond_control": [],
+    "jev_only": [],
+    "judge_only": []
+   }
+  },
+  "s65": {
+   "mode": "live",
+   "calls": 60,
+   "usable": 60,
+   "fallbacks": 0,
+   "shown_hints": 12,
+   "shown_true": 1,
+   "shown_false": 0,
+   "shown_unmapped": 11,
+   "all_nonsup_false": 8,
+   "all_nonsup_unmapped": 33,
+   "beyond_control": [],
+   "keyword_flag_defects": [
+    "D02",
+    "D03",
+    "D07",
+    "D08",
+    "D10",
+    "D11",
+    "D12",
+    "D28"
+   ],
+   "lint_defects_blocking": [
+    "D06",
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12"
+   ],
+   "judge": {
+    "shown_true": 2,
+    "shown_false": 1,
+    "beyond_control": [],
+    "jev_only": [],
+    "judge_only": []
+   }
+  },
+  "s66": {
+   "mode": "live",
+   "calls": 60,
+   "usable": 60,
+   "fallbacks": 0,
+   "shown_hints": 12,
+   "shown_true": 1,
+   "shown_false": 1,
+   "shown_unmapped": 10,
+   "all_nonsup_false": 6,
+   "all_nonsup_unmapped": 41,
+   "beyond_control": [],
+   "keyword_flag_defects": [
+    "D07",
+    "D08",
+    "D10",
+    "D11",
+    "D12"
+   ],
+   "lint_defects_blocking": [
+    "D01",
+    "D03",
+    "D04",
+    "D06",
+    "D07",
+    "D08",
+    "D09",
+    "D10",
+    "D11",
+    "D12"
+   ],
+   "judge": {
+    "shown_true": 0,
+    "shown_false": 1,
+    "beyond_control": [],
+    "jev_only": [],
+    "judge_only": []
+   }
+  }
+ },
+ "missing_replay": [],
+ "summary": {
+  "modes": [
+   "live"
+  ],
+  "specs_replayed": 13,
+  "false_flags_per_spec": {
+   "max": 4,
+   "mean": 1.58,
+   "max_incl_unmapped_bound": 12
+  },
+  "beyond_control": {
+   "cells": 1,
+   "specs_with_one_or_more": 1,
+   "defects": [
+    "D26"
+   ]
+  },
+  "judge_compare": {
+   "jev_only": 1,
+   "judge_only": 0,
+   "jev_false": 19,
+   "judge_false": 10
+  }
+ },
+ "verdict": {
+  "recall_pair_level_ge_70": false,
+  "recall_defect_cell_level_ge_70": false,
+  "false_flags_le_8": true,
+  "beyond_control_ge_1": true,
+  "not_tied_by_judge": true
+ },
+ "mock_warning": null
+}
