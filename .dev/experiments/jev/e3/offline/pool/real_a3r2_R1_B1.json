@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a3-r2"
+ },
+ "case_id": "real_a3r2_R1_B1",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D3",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "R1-B1",
+  "finding_section": "#### R1-B1. CRITICAL, blocking. Phase P1 contradicts WC-2 and the phase and decision structure\n- **Expert**: Wiegers, confirmed by Fowler. **Priority**: High. **Quality impact**: consistency -2, testability -1.\n- **Grading sentence**: An implementer who follows the stated text as written builds, in Phase 1, an `--unattended` flag and a `## Unattended mode` section on all 37 commands of sections 3.1 and 3.2, including gated ones (task, cleanup, cli-eval, roadmap, implement, post-release, pr-submit); each accepts the flag while still prompting, and X is wrong because WC-2 says that under `--unattended` the command never prompts, and AC-1.1 passes on the mere presence of the section, so nothing in P1 detects the stall.\n- **Contradicting texts**:\n  - P1 scope: \"the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)\" (spec line 159); AC-1.1 asserts the section exists \"for every command in sections 3.1-3.2\" (line 195).\n  - Section 6 assigns gate conversion to P2 (line 160), interface drift to P3 (line 161) and implement, post-release and pr-submit to P4 (line 162), with P4 waiting on D2 to D4 (lines 154, 162, 225).\n  - WC-2: \"Under `--unattended` the command never calls `AskUserQuestion`, never ends its turn on a chat question ... Each gate resolves one of three ways\" (line 60).\n  - Section 2.1: each section \"lists only its own gate resolutions\" (line 52). For implement, post-release and pr-submit those resolutions are defined only by the unresolved D2 to D4 (lines 109, 113, 114).\n  - D3(a), the recommendation, says \"no pr-submit changes in Phase 4\" (line 240) yet pr-submit is one of the 27 commands \"needing a change\" (line 76) and AC-1.1 requires its section at P1.\n- **Wrong outcome (state trace)**: after P1, installed `/sc:task` and `/sc:cleanup` accept `--unattended` and name a contract (AC-1.1 passes); a coordinator reads `~/.claude/WORKER-CONTRACT.md`, dispatches `/sc:task \"<x>\" --unattended` with confidence 0.65; the command still prompts (the P2 conversion is not built), the worker parks silently with no `worker_done`, which the spec itself says is invisible (line 44; `CAPS:52,129`).\n- **Recommendation**: state which behaviour each phase adds per command (flag plus contract only, or gate handling too), and either narrow AC-1.1 and the P1 scope to the P1 command set or make a command refuse `--unattended` (resolve as blocked) until its gate conversion phase."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a3-r2/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

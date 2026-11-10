@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a1-r3"
+ },
+ "case_id": "real_a1r3_F9",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D4",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F9",
+  "finding_section": "**F9. AC-C1 contradicts the spec's own P0 deliverables and exception.** Severity MAJOR, blocking (concrete wrong outcome below). Expert: Fowler. Spec: section 7.1 AC-C1, SA-2, section 6 P0.\nIssue: AC-C1 scans `src/superclaude/core` (and commands, skills, agents) for `orca orchestration|worktree|terminal|agent` and requires no output (SPEC:172). SA-2 allows Orca to be mentioned \"inside the contract file\" as an example of a caller's question channel (SPEC:147), and P0 puts the contract file in `src/superclaude/core/WORKER-CONTRACT.md` and adds an Orca section to `HOW-WE-WORK.md`, also in `core` (SPEC:158). The routing guide section and the contract's `ask` example will naturally write `orca orchestration ask`, so the check fails on the first phase's own output. Separately, as written in the raw markdown the alternation uses `\\|`, which is a literal pipe in `grep -E`: I ran it and `orca orchestration ask` is not matched, so the check passes vacuously if copied from source (the table escape is only correct if the cell is rendered first).\nConcrete wrong outcome: either P0 fails its own common check, or the implementer strips every Orca verb from the contract and routing guide and the coordinator brief template loses the commands it needs.\nRecommendation: exclude `core/WORKER-CONTRACT.md` and the Orca section from the scan (or scan only commands, skills and agents), and state the pattern in a code block with plain pipes. Priority High. Quality impact: Testability +1."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a1-r3/ws/.dev/orca-command-refactor/review/spec-panel.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

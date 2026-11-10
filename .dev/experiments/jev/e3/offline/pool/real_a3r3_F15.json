@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": false,
+  "run": "a3-r3"
+ },
+ "case_id": "real_a3r3_F15",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:4",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F15",
+  "finding_section": "### F15. Medium. Section 1.4 item 2 states an unsupported fact\n- Expert: Nygard.\n- Evidence: SPEC:44 says a command's own `AskUserQuestion` \"comes after readiness, so it does not fail `worker-start`\". For Claude the task is passed on the command line (CAPS:47) and CAPS:53 says no interactive question may appear before the agent input is ready. Whether the first question of a command (for example the cli-eval suite menu, INV-A:44) lands before or after readiness is not in the evidence. WC-2 removes the gates anyway.\n- Recommendation: mark the sentence UNVERIFIED and add it to the UNVERIFIED list (SPEC:271-285).\n- Priority: Medium."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a3-r3/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

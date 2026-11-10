@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a1-r1"
+ },
+ "case_id": "real_a1r1_F_03",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D3",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-03",
+  "finding_section": "**F-03 (CRITICAL, blocking; FR-19 dimensional mismatch). Martin Fowler: P1 asks for the flag and the section on 37 commands, but only 15 are converted in P1.**\n- Issue: the P1 row says \"the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)\" (SPEC:159). AC-1.1 asserts a `## Unattended mode` section in every command of sections 3.1-3.2 (SPEC:195). That is 37 commands. The phase table names gate conversion for 22 of them in P2 (15), P3 (4) and P4 (3) (SPEC:160-162), and P4 explicitly \"waits for D2-D4\" (SPEC:154). See the Quantity Flow Diagram above: 37 enter, 15 are converted.\n- Concrete scenario: P1 passes. `/sc:tdd \"auth\" --unattended` is accepted, and the topic-only clarification (SPEC:90) is still live because the gate resolution is a P2 change. The worker waits for a person, which is the silent stall WC-2 forbids and 7.2 step 2 is meant to catch. The same holds for `/sc:implement`, `/sc:post-release` and `/sc:pr-submit`, whose design waits on user decisions D2-D4 (SPEC:225), so AC-1.1 cannot pass in P1 without implementing undecided P4 designs.\n- Recommendation: a command accepts `--unattended` only in the phase that converts its gates; AC-1.1 checks the P1 list only, and each later phase checks its own list; the P0 brief template states which commands may take `--unattended` before which phase. Rationale: keeps \"each phase independently useful\" (SPEC:154) true.\n- Priority: High. Quality impact: Consistency +2, Testability +1."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a1-r1/ws/.dev/orca-command-refactor/review/spec-panel.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

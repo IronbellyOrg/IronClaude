@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "haiku",
+  "reviewer_blocking": false,
+  "run": "a3-r4"
+ },
+ "case_id": "real_ha3r4_M4",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "T2:9",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "M4",
+  "finding_section": "**M4. The D1 example uses an `--output` flag that no inventory evidences for troubleshoot.** Expert: Cockburn (worked examples).\n- D1 example: `/sc:troubleshoot \"login fails\" --unattended --output .dev/troubleshoot/login/` (SPEC:228).\n- The troubleshoot row in section 3.1 lists \"no `--fix`\" as its only brief flag (SPEC:91). INV-B:242 names only the default output directory (`.dev/troubleshoot/<slug>-<timestamp>/`) and no output flag.\n- Recommendation: drop `--output` from the example, or cite the flag.\n- Priority: Medium."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p14/haiku-baseline/runs/a3-r4/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a1-r1"
+ },
+ "case_id": "real_a1r1_F_06",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D6",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-06",
+  "finding_section": "**F-06 (MAJOR, blocking; FR-8 from guard G3). Nygard: the WC-3 ask protocol is not complete.**\n- Issue: WC-3 lets the worker \"ask the coordinator once ... then re-invoke or resume the command with the answer as a flag\" (SPEC:61). Three holes: (1) \"once\" is undefined for commands with several gates (cli-portify has three, cli-eval several, SPEC:104-105); (2) the answer-as-flag exists for few gates: `target_release` (SPEC:120) and `--suite` (SPEC:104), but the tdd topic clarification (SPEC:90), the recommend question (SPEC:115) and review-translation Phase 1 (SPEC:117) name no flag or input, so the re-invocation has nothing to carry the answer; (3) no maximum wait, no decline path and no exit rule if the coordinator never answers or says no (the `ask` timeout leaves the question pending and is resumed by ID, CAPS:60; the default timeout is UNVERIFIED, CAPS:68).\n- Recommendation: define the rule per gate, add an `--answer`-style input for gates without a flag, and set a limit after which the worker resolves as blocked. Priority: High."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a1-r1/ws/.dev/orca-command-refactor/review/spec-panel.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

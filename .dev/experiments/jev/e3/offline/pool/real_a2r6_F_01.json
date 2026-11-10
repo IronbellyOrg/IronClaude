@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a2-r6"
+ },
+ "case_id": "real_a2r6_F_01",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D12",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-01",
+  "finding_section": "**F-01** CRITICAL, **blocking**. Expert: Wiegers (traceability), attack: Whittaker (Divergence).\n- Issue: AC-1.1 and AC-1.2 cannot pass for `/sc:load`, which the same document says gets no report file and no `## Unattended mode` section.\n- Grading sentence: An implementer who follows the stated `/sc:load` row (spec:112: report \"none\", \"use it as a step inside another worker's brief, not as its own Task\", phase \"P1 (usage line only)\") and the Decisions row (spec:265: \"a report file would be an unrequested addition. Only its usage-line defect is fixed\") builds a P1 that changes load's Usage line and nothing else, and that build is wrong because AC-1.1 (spec:195) asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md` (load is a row of section 3.2), and AC-1.2 (spec:196) runs the live check, whose step 4 requires a contract file (spec:183), on \"each P1 command\" with load named in the P1 row (spec:159). Two stated texts contradict each other; an implementer who adds the section to satisfy the check builds the contract the Decisions row rejects.\n- Supporting, not needed for the grade: P1's Commands column lists 13 commands (spec:159) while AC-1.1 tests 37; the P1 scope sentence covers the gap for most commands. For `/sc:pr-submit`, AC-1.1 forces a P1 section although spec:139 and spec:240 keep it a worker candidate only if decision D3 accepts that.\n- Recommendation: make AC-1.1 and AC-1.2 name the same command set as the section 3 phase column for P1, and state load's exemption in both.\n- Priority: High. Quality impact: Consistency +2, Testability +1."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a2-r6/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

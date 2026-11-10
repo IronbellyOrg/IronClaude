@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "haiku",
+  "reviewer_blocking": false,
+  "run": "a3-r5"
+ },
+ "case_id": "real_ha3r5_F_19",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:16",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-19",
+  "finding_section": "### F-19 (MINOR, MEDIUM): the plugin mirror of the commands is not covered by any phase check\n\n- Location: spec line 279 (UNVERIFIED #8: how `plugins/superclaude/commands/` is kept in step); line 168 (P0 and AC-0.2 cover only HOW-WE-WORK mirrors); line 173 (AC-C2 covers only `.claude/` sync).\n- Issue: each phase edits `src/superclaude/commands/`, and the plugin copies may drift. No AC checks them, and UNVERIFIED #8 says each phase's plan must resolve it first.\n- Recommendation: make resolving UNVERIFIED #8 an explicit P0 deliverable, with an AC.\n- Expert: Newman (copies that must stay in step)."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p14/haiku-baseline/runs/a3-r5/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

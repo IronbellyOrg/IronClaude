@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": false,
+  "run": "a3-r1"
+ },
+ "case_id": "real_a3r1_F5",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "T3:7",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F5",
+  "finding_section": "**F5. Medium. Cockburn, Wiegers. Section 2.3 requires `--unattended` in every worker command line, but the 10 \"ready today\" commands and the three P0 smoke runs do not have the flag until P1 (`spec:73`, `spec:79`, `spec:158-159`, `spec:194`).** AC-0.4 lists the smoke commands without it. A P0 brief template written from 2.3 would pass an unknown flag to commands that have no section for it."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a3-r1/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

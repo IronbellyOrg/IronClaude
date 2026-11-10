@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a2-r2"
+ },
+ "case_id": "real_a2r2_B2",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D1",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "B2",
+  "finding_section": "### B2 CRITICAL, blocking. WC-4's contract location rule contradicts the rows and acceptance criteria that use it\n- Issue: WC-4 (S:62) puts the contract at `<output-dir>/return-contract.yaml`, \"the directory the coordinator passed (`--output` / `--output-dir`)\", known before dispatch. Four stated cases contradict that: (1) tdd and init-lite take `--output <file>` (S:87,90) and AC-2.2 (S:200) runs `/sc:tdd ... --output <file>` and requires a contract with `status: blocked`; a file cannot hold `return-contract.yaml`. (2) adversarial's fix is `<output>/adversarial/return-contract.yaml` (S:83,198), not the passed directory. (3) workflow's contract is `.dev/tasks/to-do/<id>/return-contract.yaml` (S:92), a generated id with no directory flag, so the path is not known before dispatch, and the P1 fix writes a contract for stops \"before creation\" (S:92) when no `<id>` exists. (4) spec-panel gets a new `--output` of unstated type (S:120). 7.2 step 3 (S:182) and AC-1.2 (S:196) then test \"the WC-4 contract path\".\n- Corroboration (not spec evidence): the panel command itself avoids the clash by using `--report-dir` \"only (`--output` is file-valued)\" (`CMD:456`).\n- Severity: CRITICAL. Expert: Fowler (interface consistency), Newman (versioned contract). Priority: High. Quality impact: Consistency, Testability.\n- Grading sentence: An implementer who follows the stated text as written builds a contract at `<--output value>/return-contract.yaml` for every command, and that is wrong because for tdd and init-lite the same document passes a file (so the path cannot exist), and for adversarial and workflow its own rows put the contract elsewhere, so AC-1.2 and AC-2.2 cannot locate or pass it. Stated texts contradict; blocking.\n- Recommendation: define one rule (for example \"contract path = `--report-dir` if given, else the parent directory of a file-valued `--output`\") and list the path per command in section 3; make the pre-creation workflow stop write to the passed report dir. Rationale: the coordinator and the tests must derive the path from the brief alone (S:62,73)."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a2-r2/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

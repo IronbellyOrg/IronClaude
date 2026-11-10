@@ -1,0 +1,28 @@
+{
+ "author_intent": {
+  "category": "contr",
+  "expected_blocking": "yes",
+  "expected_code_outcome": "OK"
+ },
+ "case_id": "syn-bkp-1",
+ "category": "contr",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "syn-bkp",
+ "group": "syn-bkp",
+ "packet": {
+  "candidate_text": "# Backup requirements\n\n## 1. Schedule\nR1. A full backup runs every Sunday at 01:00 UTC.\nR2. An incremental backup runs every other day at 01:00 UTC.\nR3. A backup job that is still running when the next one is due makes the next one wait until it finishes.\n\n## 2. Storage\nR4. Backups are written to the primary storage bucket.\nR5. A copy of every backup is replicated to the secondary region within 24 hours.\nR6. Backups older than 35 days are deleted from the primary bucket.\nR7. Backups in the secondary region are kept for 90 days.\n\n## 3. Verification\nR8. After each full backup a restore test restores it into an isolated environment.\nR9. A failed restore test raises an alert to the on-call engineer.\n\n## 4. Retention exceptions\nR10. The most recent full backup is never deleted.\nR11. Backups are deleted by the cleanup job that runs at 03:00 UTC.\n\n## 5. Restore\nR12. A restore overwrites the production database with the selected backup after one confirmation click.\nR13. The confirmation click is the only check before a restore starts.\nR14. Incremental backups run every day at 01:00 UTC.\n\n## 6. Notes\nThe production database is a single primary with one standby. Backups are taken from the standby so that the primary is not slowed down.\nThe on-call engineer is the person listed in the current rota.\nBackup files are named after the job type and the UTC time they started. The names are not parsed by any component.\nThe restore procedure is run by a member of the database team. The database team keeps a written runbook that is reviewed twice a year.\nStorage costs are reviewed every quarter by the platform team. Any change to the schedule above is announced to the engineering mailing list one week before it takes effect.",
+  "finding_id": "F1",
+  "finding_section": "**F1. MAJOR, blocking. Expert: Wiegers (testability). Incremental backups run every other day and every day**\n\n- Grading sentence: an implementer who follows the stated text as written builds a scheduler that runs an incremental backup on Monday, skips Tuesday (`An incremental backup runs every other day at 01:00 UTC.`, S:5) and runs on Tuesday as well (`Incremental backups run every day at 01:00 UTC.`, S:25). Tuesday's job must run and not run, so the schedule test cannot pass.\n- Recommendation: keep one schedule\n- Priority: High. Quality impact: incremental backups run every other day and every day"
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "cases_synth.py"
+  ],
+  "url": null
+ },
+ "split": "synth",
+ "variant": "base"
+}

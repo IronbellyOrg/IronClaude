@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "haiku",
+  "reviewer_blocking": false,
+  "run": "a3-r3"
+ },
+ "case_id": "real_ha3r3_M7",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:18",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "M7",
+  "finding_section": "- **M7. Step 3 of the live check has no coordinator reply rule.** Step 3 (line 182) waits for `worker_done`, but `check --wait` also returns `question` and `escalation` (`CAPS:63`). The spec does not say what the coordinator does with them, so the step's pass condition may never be reached. Medium."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p14/haiku-baseline/runs/a3-r3/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

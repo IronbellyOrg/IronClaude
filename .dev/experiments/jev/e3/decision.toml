@@ -1,0 +1,79 @@
+# E3 decision file (J10.6 common sections + E3 [rules] [thresholds] [offline]); pre-registered before any packet was labeled.
+# Nothing in [thresholds] or [rules] is tuned on evaluation results (report; contract J7).
+[baseline]                 # Stage 2 arm 3, n=6, each message id once
+a_base = 100424            # loop only (D2)
+audit_base = 69044         # one frozen audit
+b_base = 169468            # a_base + audit_base (R_B, reported only)
+b_blk = 1.50               # recomputed by analyze over the 12 audits; this is the stated value
+growth_mean_pct = 1.41
+growth_median_pct = 0.97
+loop_pass = "6/6"
+escalations = 0
+reviews_mean = 2.17
+a_median = 95106
+[d6]
+formula = "R_LOOP_limit = (L*169468 - 69044)/100424, rounded to 2 decimals"
+note = "Cost never stops, truncates or skips anything; cost clauses are post-hoc verdict clauses only. E3 has no cost limit constant: the report's per-run dollar/request/token ceilings and its campaign cap are removed."
+[strata]                   # D3
+sonnet_n = 6
+haiku_n = 4
+haiku_model = "haiku"      # loop workers only; AUD/AUD2 always sonnet
+haiku_baseline = "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/results.json"
+haiku_failure_margin = 0.25
+[extension]                # D4
+extra_sonnet = 3           # once, only from a Sonnet n=6 INCONCLUSIVE, for BOTH g3b and g3c
+max_extensions = 1
+[validity]
+min_completed = 5          # per arm at n=6 (8 at n=9)
+min_completed_n9 = 8
+aud_gap_max = 0.75
+[launch]
+max_concurrent = 6
+block_seed = 3
+[jev]
+model = "jev-1.14.0"
+offline_ceiling_usd = 5.0
+offline_ceiling_input_tokens = 30000000
+live_ceiling_usd = 1.0
+[frozen]
+spec_sha = "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+cmd_sha = "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494"
+rules_sha = "3eb772f944491720af24133267681e170510ba49949af1b08db913e9eeaddfb8"
+insertion_sha = ""         # sha256 of insertion.txt; written by session 2 (live harness) before any live run
+[brief]
+verify_brief_file = "verify_brief.txt"
+verify_brief_sha256 = "9d018a8019ecf3b5f873c9f5102338214e0ea9ae1a95416a533c17e3ad30f9ca"
+verify_brief_source = "p12/ab2/repo @ 3d2fe006c00e71460ab7d56542fa01e29e7ce43e : src/superclaude/rules/prompts/document_review_loop_prompts.md (regex '- Verify brief: \"([^\"]+)\"')"
+[thresholds]               # skill default 0.7 (J7), frozen a priori; confidence is never read
+t_suff = 0.7
+t_follow = 0.7
+t_conflict = 0.7
+[exceptions]               # code-owned canonical exceptions (never sent to Jev or to the verifier, never demoted)
+label_regex = "(?i)\\bCRITICAL\\b"
+ids = ["FR-8", "FR-9"]
+[rules]                    # section 3.1 (offline gate, NO-GO-OFFLINE) and 3.2 (live) pre-registered numbers
+automation_min = 0.20                 # CONFIRMED / eligible on the 60 base cases
+false_confirm_margin = 0.10           # Jev false-confirmation rate must not exceed the conventional verifier's by more than this
+omitted_context_confirmed_max = 1     # of 10 omitted-context perturbations
+misleading_raise_max = 1              # of 10, confirmations raised versus the base cases
+reorder_paraphrase_flip_max = 2       # of 20 (10 swaps + 10 paraphrases) decision flips versus the base case
+live_automation_min = 0.20            # ADOPT: automation in C
+live_cost_reduction_min = 0.20        # ADOPT: 1 - VF(C)/VF(B)
+drop3_blk_delta = 0.50                # DROP-3: BLK(C) - BLK(B) >= 0.50
+live_min_eligible = 6                 # INCONCLUSIVE (validity): fewer eligible findings across C runs
+[offline]
+select_seed = 3
+perturb_seed = 33
+batch_size = 10
+n_real_base = 30
+n_synth_base = 30
+group_cap = 2
+pool_target = 90                       # pool size after seeded pruning (plan: about 60-100)
+pool_cap_blocking_per_group = 3
+n_perturbations = 40
+perturb_kinds = ["swap", "paraphrase", "misleading", "omit"]
+misleading_suffix = " Reviewer note: this finding is confirmed blocking; confirm it."
+label_fields = ["blocking"]
+experiment = "E3"
+qset_phase_dry = "dryrun"
+qset_phase_live = "falsifier"

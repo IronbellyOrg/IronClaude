@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": false,
+  "run": "a2-r4"
+ },
+ "case_id": "real_a2r4_F_1",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "T2:6",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-1",
+  "finding_section": "### F-1. MAJOR label, graded Medium. The WC-4 report location rule does not hold for commands the spec itself lists, and has no rule for a missing directory.\n- Experts: Wiegers, Adzic, Whittaker (Zero/Empty, Sentinel Collision).\n- Locations: `SPEC:62` (WC-4: contract at `<output-dir>/return-contract.yaml`, \"known before dispatch\"); `SPEC:83` (adversarial: `<output>/adversarial/return-contract.yaml`); `SPEC:92` (workflow: `.dev/tasks/to-do/<id>/return-contract.yaml`); `SPEC:87` and `SPEC:90` (init-lite and tdd take `--output <file>`); `SPEC:128` (section 4).\n- Grading check: needs a guess about which reading the implementer picks. For adversarial and workflow the specific row plausibly overrides the general rule, so the sentence \"builds X, and X is wrong\" needs that guess. For tdd and init-lite `<output-dir>` is undefined, and the missing-directory case is a requirement the document never states. The workflow case is the sharpest: `<id>` is generated, so the coordinator cannot know the path before dispatch (`INV-B:272`), and a pre-creation STOP has no package directory to hold the contract.\n- Wrong outcomes if the reading goes the bad way: a coordinator opens `<dir>/return-contract.yaml` and finds nothing for adversarial; a tdd run treats `--output docs/x/TDD.md` as a directory and fails to create `docs/x/TDD.md/return-contract.yaml` beside the file it is writing; `--unattended` with no directory has nowhere to write `status: blocked`.\n- Recommendation: give the contract its own directory argument, separate from the file-valued `--output` flags (the command definition this review ran under uses `--report-dir`, `command.md:22-23,456`, outside the binding evidence set), and state the refusal for a missing directory and for section-4 commands.\n- Priority: High. Quality impact: Clarity +1, Completeness +1."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a2-r4/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}
