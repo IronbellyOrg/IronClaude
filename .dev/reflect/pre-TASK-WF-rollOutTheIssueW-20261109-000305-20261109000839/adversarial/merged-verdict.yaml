@@ -1,0 +1,14 @@
+merge_method: adversarial
+convergence_score: 1.0
+adversarial_artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/issue-450/.dev/reflect/pre-TASK-WF-rollOutTheIssueW-20261109-000305-20261109000839/adversarial/adversarial
+merged_output_path: /home/coder/workspaces/worktrees/IronClaude/issue-450/.dev/reflect/pre-TASK-WF-rollOutTheIssueW-20261109-000305-20261109000839/adversarial/merged-review.md
+base_variant: haiku:qa
+status: partial
+confidence_calibrated: 0.72
+confidence_aggregation: conservative minimum of independently calibrated reviewer scores, not a new measurement
+retained_findings: [F1, F2, F4, QA-02, QA-03, QA-04]
+withdrawn_required_fixes: [F3, F5]
+unresolved_conflicts: 0
+unaddressed_high_invariants: []
+unaddressed_medium_invariants: [INV-009, INV-011]
+adversarial_unavailable: false

@@ -1,0 +1,13 @@
+input_snapshot:
+  computed_at: 2026-11-09T00:10:03Z
+  files:
+    - {path: .dev/tasks/to-do/TASK-WF-rollOutTheIssueW-20261109-000305/TASK-WF-rollOutTheIssueW-20261109-000305.md, sha256: 28d7a3f5e4079b0feeeb6748a05e1b9cea0d6b5d3c3bc22b77fdd1a772215d3c}
+    - {path: .dev/tasks/to-do/TASK-WF-rollOutTheIssueW-20261109-000305/source.md, sha256: 38d8938493795fe977b3d7b1c771bf8b09c117df43de05694fc0bd25bbd8fbb8}
+    - {path: docs/designs/issue-watcher-setup.md, sha256: 7ca69313c5868bfdfd1c5c0fa9578c00f4661365db8219a53df506743a799176}
+    - {path: docs/designs/issue-watcher.md, sha256: 6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32}
+    - {path: src/superclaude/cli/issue_watch/audit.py, sha256: 0698d8fe53112efe084287cf12062665d574d35e201465c6eaf9259b6a6efa45}
+    - {path: src/superclaude/cli/issue_watch/cycle.py, sha256: b2cd68cdca9935b539cba26864eb5b51d866f1a89a1ed30f06eb7eb39a94c123}
+    - {path: src/superclaude/cli/issue_watch/github.py, sha256: 681220f7e42199c1cc9c2c221d176040e93537fe5717824d6fc35c6ac91c181e}
+    - {path: src/superclaude/cli/issue_watch/launch.py, sha256: 32e82c9bad6791ae54303f2113220935b04fd99ec2731b6df64bc725c8d7237e}
+    - {path: tests/issue_watch/conftest.py, sha256: 260be51c6b25f3c9d78040e9927e621a4ac710f31a62d60f501ec776ac5a079c}
+    - {path: tests/issue_watch/test_github.py, sha256: 28e8789cea18ffc430ede084489e81d5dc122bbff5c42fbb8186120a61f8ac56}

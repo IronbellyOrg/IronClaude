@@ -1,0 +1,41 @@
+diff --git a/docs/designs/issue-watcher-setup.md b/docs/designs/issue-watcher-setup.md
+index 5f43bed80..7ddeffccf 100644
+--- a/docs/designs/issue-watcher-setup.md
++++ b/docs/designs/issue-watcher-setup.md
+@@ -584,6 +584,36 @@ No cron entry is enabled and `enabled` stays `false` until you have run one live
+ - capture Orca's real replies for a successful launch and for an `unknown` outcome, and the real shapes of the issue events, the `lastEditedAt` field and the `projectItems` field;
+ - replace every `_assumed_shape` fixture in `tests/issue_watch/` with those captured replies, with `uv run pytest tests/issue_watch/` still passing.
+ 
++#### 14.1.1 Capture sheet
++
++These are owner-run commands, not commands run by the implementation. Replace angle-bracket placeholders before running them; `<orca>` is the binary accepted in section 1.2. The query and projection placeholders `<EDITS_QUERY>`, `<PROJECT_ITEMS_QUERY>`, `<EVENTS_JQ>`, `<MARKER_JQ>` and `<REREAD_JQ>` mean the exact string constants of those names in `src/superclaude/cli/issue_watch/github.py`, not the placeholder text itself. For another page, use `<page>` or append `-f 'after=<cursor>'` to the GraphQL commands, as their builders do. The Project query returns all items; compare `<project id>` locally, not as an extra command argument. Capturing gaps does not waive the deployment gate above.
++
++| Fixture file | What it stands for | Command or situation producing the reply | On demand? |
++|---|---|---|---|
++| `gh_issue_list.json` | Discovery JSON: issue number, label names, assignee logins and open state | `gh issue list --repo IronbellyOrg/IronClaude --state open --label '<trigger label>' --assignee '<owner login>' --json number,labels,assignees,state -L 100` | Yes, with prepared test issues |
++| `gh_issue_reread.json` | Projected REST issue re-read, including lower-case state and label/assignee arrays | `gh api --method GET 'repos/IronbellyOrg/IronClaude/issues/<test issue>' --jq '<REREAD_JQ>'` | Yes |
++| `gh_api_user_include.json` | Own login and account id with the HTTP status line, headers and blank line | `gh api user --include` | Yes |
++| `gh_api_user_include_429.json` | Rate-limited login reply with headers, Retry-After and accompanying stderr | `gh api user --include` when it returns HTTP 429; preserve stdout and accompanying stderr separately | No: capture if seen; otherwise the record says it stayed assumed |
++| `rest_events_page.json` | Projected label/unlabel/rename events, actor fields and nulls | `gh api --method GET 'repos/IronbellyOrg/IronClaude/issues/<test issue>/events' -F per_page=100 -F 'page=<page>' --jq '<EVENTS_JQ>'` | Yes for prepared events; record null/deleted-actor cases only if seen |
++| `rest_comments_marker.json` | Projected comment ids, logins, times and claim-marker booleans, including null login | `gh api --method GET 'repos/IronbellyOrg/IronClaude/issues/<test issue>/comments' -F per_page=100 -F 'page=<page>' --jq '<MARKER_JQ>'` | Yes for prepared comments; record null-login cases only if seen |
++| `graphql_edits.json` | Issue/comment edit timestamps, null lastEditedAt or author, and comment paging | `gh api graphql -f 'query=<EDITS_QUERY>' -F 'number=<test issue>'` | Yes for test issue edits; deleted-author cases only if seen |
++| `graphql_project_items.json` | Project items, archived flag, Project node id, Status value and paging | `gh api graphql -f 'query=<PROJECT_ITEMS_QUERY>' -F 'number=<test issue>'` | Yes with a test issue on `<project id>` |
++| `gh_graphql_rate_limited.json` | GraphQL RATE_LIMITED error type and message | `gh api graphql -f 'query=<PROJECT_ITEMS_QUERY>' -F 'number=<test issue>'` when rate limited | No: capture if seen; otherwise the record says it stayed assumed |
++| `gh_graphql_insufficient_scopes.json` | GraphQL INSUFFICIENT_SCOPES error type and message | `gh api graphql -f 'query=<PROJECT_ITEMS_QUERY>' -F 'number=<test issue>'` with a separate test credential lacking Project read access | With a controlled test credential, if GitHub returns this form |
++| `gh_stderr_auth_401.json` | HTTP 401 authentication-failure stderr and login advice | `gh api user --include` with a separate invalid test credential; capture stderr | With a controlled test credential |
++| `gh_stderr_rate_403.json` | HTTP 403 rate-limit stderr | `gh api user --include` when a secondary rate limit returns HTTP 403; capture stderr | No: capture if seen; otherwise the record says it stayed assumed |
++| `gh_stderr_rate_429.json` | HTTP 429 rate-limit stderr | `gh api user --include` when rate limited with HTTP 429; capture stderr | No: capture if seen; otherwise the record says it stayed assumed |
++| `gh_stderr_http_502.json` | HTTP 502 transient-failure stderr | `gh api --method GET 'repos/IronbellyOrg/IronClaude/issues/<test issue>/events' -F per_page=100 -F 'page=<page>' --jq '<EVENTS_JQ>'` during a gateway failure; capture stderr | No: capture if seen; otherwise the record says it stayed assumed |
++| `gh_stderr_scope_read_project.json` | Missing read:project scope stderr | `gh api graphql -f 'query=<PROJECT_ITEMS_QUERY>' -F 'number=<test issue>'` with a separate test credential lacking Project read access; capture stderr | With a controlled test credential, if GitHub returns this form |
++| `orca_launch_success.json` | Successful launch JSON, outcome, receipt detail and non-empty operation id | `<orca> agent launch --agent claude --worktree 'path:<worktree>' --surface terminal --prompt '/sc:issue --claim <test issue>' --json` | Yes: the single owner-run test launch |
++| `orca_launch_unknown.json` | Lost-reply error JSON on stderr, unknown-outcome code and error operation id | `<orca> agent launch --agent claude --worktree 'path:<worktree>' --surface terminal --prompt '/sc:issue --claim <test issue>' --json` if the launch reply is lost; preserve the actual error channel | No: capture if seen; otherwise the record says it stayed assumed |
++| `orca_launch_no_operation_id.json` | Exit-0 launch JSON with no operation id, treated as unknown | `<orca> agent launch --agent claude --worktree 'path:<worktree>' --surface terminal --prompt '/sc:issue --claim <test issue>' --json` if its exit-0 reply omits the id | No: capture if seen; otherwise the record says it stayed assumed |
++| `orca_launch_empty_operation_id.json` | Exit-0 launch JSON with an empty operation id, treated as unknown | `<orca> agent launch --agent claude --worktree 'path:<worktree>' --surface terminal --prompt '/sc:issue --claim <test issue>' --json` if its exit-0 reply has an empty id | No: capture if seen; otherwise the record says it stayed assumed |
++
++- Save each reply exactly as the command printed it, one file per fixture named after that fixture: stdout normally, stderr for the `gh_stderr_*` rows and the Orca error row; retain accompanying stderr separately where the fixture uses both channels, without rewriting the reply shape.
++- Before handing a file over, replace real logins, numeric ids, node ids, issue titles, bodies and any token with placeholder values of the same type, keeping JSON numbers numeric and nulls unchanged.
++- List every fixture that was not captured in the live-test record, explicitly saying it stayed assumed; never manufacture an error reply or repeat a launch to fill the sheet.
++
+ You commit the record as `docs/designs/issue-watcher-live-test.md`. The design and the implementation do not write it. The design says only "one owner-run launch on a test issue" and does not say how to run it while `enabled` is `false`. Launch it by hand with the Orca CLI while `enabled` is still `false`, and say in the record exactly how you did it. Do not run a real `once` with `enabled` set to `true` for the test: such a cycle examines up to 10 candidates and launches the first eligible one, which need not be the test issue, and the safeguards of section 8.6 (list the issues that carry both labels first, keep the kill switch of section 9 at hand) apply only once the test has passed. `enabled` changes to `true` only in section 8.6.
+ 
+ ### 14.2 Permissions of the launched session

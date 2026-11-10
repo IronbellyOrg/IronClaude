@@ -1,0 +1,14 @@
+return_contract:
+  merged_output_path: /home/coder/workspaces/worktrees/IronClaude/issue-450/.dev/reflect/pre-TASK-WF-rollOutTheIssueW-20261109-000305-20261109000839/adversarial/merged-review.md
+  convergence_score: 1.0
+  artifacts_dir: /home/coder/workspaces/worktrees/IronClaude/issue-450/.dev/reflect/pre-TASK-WF-rollOutTheIssueW-20261109-000305-20261109000839/adversarial/adversarial
+  status: partial
+  base_variant: haiku:qa
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []
+  warnings:
+    - "Two MEDIUM residuals remain: Task 3 review coverage and conditional CRLF test-adapter interaction."
+    - "Review agreement is not plan approval, implementation, or passing test evidence."

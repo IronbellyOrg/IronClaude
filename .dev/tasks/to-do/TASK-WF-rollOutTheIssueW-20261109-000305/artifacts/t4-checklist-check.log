@@ -1,0 +1,63 @@
+Task 4 rollout-checklist checks
+Section 8.7 required schedule, command, configuration, persistent state and health checks: PASS
+Section 8.6 has no cron sentence: PASS
+Original scheduler-choice sentence preserved: PASS
+$ grep -c 0 \*/5 \* \* \* \* docs/designs/issue-watcher-setup.md
+2
+$ grep -n "enabled": false docs/designs/issue-watcher-setup.md
+74:  "enabled": false,
+274:Only now change `"enabled": false` to `"enabled": true` in the configuration file:
+bullet 1: pre-flight; links=1-pre-flight PASS
+bullet 2: configuration; links=2-the-configuration-file PASS
+bullet 3: approvers file; links=3-the-approvers-file,4-label-setup,5-create-the-state-and-re-approve-earlier-issues PASS
+bullet 4: live test; links=141-the-live-test-follow-up-fu-1,1411-capture-sheet,85-the-live-test-record PASS
+bullet 5: Replace the fixtures; links=1411-capture-sheet,141-the-live-test-follow-up-fu-1 PASS
+bullet 6: 24-hour shadow run; links=7-shadow-rollout,81-review-the-shadow-run PASS
+bullet 7: two-process lock test; links=82-two-process-lock-test PASS
+bullet 8: state-directory restart test; links=83-the-state-directory-survives-a-restart PASS
+bullet 9: staleness alert; links=84-the-staleness-alert PASS
+bullet 10: set `enabled` to `true`; links=86-set-enabled PASS
+bullet 11: cron entry; links=87-install-the-cron-entry-fu-2 PASS
+FU-1 row byte-identical: PASS
+FU-2 row byte-identical: PASS
+Configuration example unchanged with enabled false: PASS
+Eleven plain bullets in required order, all section links resolve: PASS
+$ git diff c531b24edaa45cfd3cba6f8204d20a3434eb5cb5 -- docs/designs/issue-watcher-setup.md
+diff --git a/docs/designs/issue-watcher-setup.md b/docs/designs/issue-watcher-setup.md
+index 7ddeffccf..d49f9f04b 100644
+--- a/docs/designs/issue-watcher-setup.md
++++ b/docs/designs/issue-watcher-setup.md
+@@ -279,7 +279,11 @@ Only now change `"enabled": false` to `"enabled": true` in the configuration fil
+ 
+ Run `superclaude issue-watch check-config` again. The first real cycle starts a session for any issue that passes every check, so before you change the file, list which issues carry both labels, and keep the kill switch of section 9 at hand. Once a real cycle has ended with exit 0 and the reason `cycle_complete`, `superclaude issue-watch status` exits 0.
+ 
+-The cron entry is follow-up FU-2 and this work does not enable it. Its schedule is `"0 */5 * * * *"`: six fields, seconds first, which is every 5 minutes. FU-2 also covers a persisted `state_dir` if `$HOME` is not persistent.
++### 8.7 Install the cron entry (FU-2)
++
++Only after section 8.6, install the cron entry for `superclaude issue-watch once`, adding `--config <path>` when the configuration file is not at the default path. Its schedule is `0 */5 * * * *`: six fields, seconds first, every 5 minutes at second 0; use the scheduler chosen in section 7 with that six-field interpretation. This work does not install or enable the entry.
++
++Before installing it, run `superclaude issue-watch check-config` and confirm that the `state_dir` it prints is on storage that survives a workspace restart, as tested in section 8.3. If `$HOME` is not persistent, set `state_dir` in the configuration file to an absolute path on persistent storage and repeat that check before scheduling anything. After the first scheduled cycles, run `superclaude issue-watch status` and confirm it exits 0.
+ 
+ ## 9. The kill switch
+ 
+@@ -679,3 +683,19 @@ None of these is built by this work.
+ ### 15.4 Coder#477
+ 
+ > Option A makes IronbellyOrg/Coder#477 unnecessary unless B or C is revisited. Options B and C, and Coder#477, return only on a revisit condition: the workspace cannot run a reliable cron, or one poller per login becomes unworkable.
++
++## 16. Rollout checklist
++
++Every item below is run by the owner; nothing in the implementation runs any of it.
++
++- Complete the [pre-flight checks (section 1)](#1-pre-flight).
++- Create the [configuration (section 2)](#2-the-configuration-file) with `enabled: false`.
++- Prepare the [approvers file (section 3)](#3-the-approvers-file), [labels (section 4)](#4-label-setup) and [`init-state` (section 5)](#5-create-the-state-and-re-approve-earlier-issues).
++- Perform the [live test (section 14.1)](#141-the-live-test-follow-up-fu-1) using the [capture sheet (section 14.1.1)](#1411-capture-sheet), then commit the [live-test record (section 8.5)](#85-the-live-test-record).
++- Replace the fixtures with the [captured replies (section 14.1.1)](#1411-capture-sheet) and confirm `uv run pytest tests/issue_watch/` passes, as required by the [live-test gate (section 14.1)](#141-the-live-test-follow-up-fu-1).
++- Complete the [24-hour shadow run (section 7)](#7-shadow-rollout) and [review it (section 8.1)](#81-review-the-shadow-run).
++- Pass the [two-process lock test (section 8.2)](#82-two-process-lock-test).
++- Pass the [state-directory restart test (section 8.3)](#83-the-state-directory-survives-a-restart).
++- Verify the [staleness alert (section 8.4)](#84-the-staleness-alert).
++- Only then [set `enabled` to `true` (section 8.6)](#86-set-enabled).
++- Install the [cron entry (section 8.7)](#87-install-the-cron-entry-fu-2).
+
