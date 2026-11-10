@@ -21,6 +21,7 @@ each when then than""".split())
 
 DEFAULT_CFG = {
     "pool_cap": 150, "min_words": 3, "rare_frac": 0.04, "rare_min_df": 2, "min_shared_rare_words": 2,
+    "small_doc_max_passages": 40, "small_doc_min_shared_rare_words": 1,
     "w_explicit": 6.0, "w_id": 1.0, "w_term": 1.0, "w_path": 1.0, "w_numunit": 1.0, "w_word": 0.5,
 }
 
@@ -82,6 +83,9 @@ def prefilter_uncapped(passages, cfg=None) -> list:
             df_p[x] = df_p.get(x, 0) + 1
         for x in set(p.numbers_with_units):
             df_n[x] = df_n.get(x, 0) + 1
+    min_rare = c["min_shared_rare_words"]
+    if n <= c["small_doc_max_passages"]:
+        min_rare = min(min_rare, c["small_doc_min_shared_rare_words"])
     rare_max = max(c["rare_min_df"], math.ceil(c["rare_frac"] * n))
     rare = {w for w, d in df_w.items() if c["rare_min_df"] <= d <= rare_max}
     defined_by = {}
@@ -116,7 +120,7 @@ def prefilter_uncapped(passages, cfg=None) -> list:
             sh_n = sorted(set(a.numbers_with_units) & set(b.numbers_with_units))
             sh_w = sorted((words[a.pid] & words[b.pid]) & rare)
             explicit = bool(r_ab or r_ba)
-            if not (explicit or sh_id or sh_t or sh_p or sh_n or len(sh_w) >= c["min_shared_rare_words"]):
+            if not (explicit or sh_id or sh_t or sh_p or sh_n or len(sh_w) >= min_rare):
                 continue
             score = (c["w_explicit"] if explicit else 0.0)
             score += c["w_id"] * sum(_idf(df_id[x], n) for x in sh_id)

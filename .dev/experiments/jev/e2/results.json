@@ -1,0 +1,181 @@
+{
+ "schema": "p15-results/1",
+ "experiment": "E2",
+ "design_id": "p15-E2",
+ "decision_file": {
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/decision.toml",
+  "sha256": "4f7f9645dae1019b924258e1da32e0d72f7fd0ba746559bf741f7a701cb6a28a"
+ },
+ "stage": "offline",
+ "status": "partial",
+ "rows": [
+  {
+   "arm": "E2-stage0",
+   "arm_label": "Stage 0 headroom falsifier (static top-12 vs pooled must-read relations)",
+   "stratum": "offline",
+   "role": "offline-gate",
+   "n_planned": 24,
+   "n_completed": 24,
+   "runs_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/offline",
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {
+    "H": 3,
+    "n_defect_cases": 16,
+    "n_clean_cases": 8,
+    "extraction_coverage": "16/16",
+    "candidate_coverage": "5/16",
+    "static_coverage": "2/16",
+    "candidate_pool_misses": 11,
+    "dropped": [
+     "s0-05",
+     "s0-06",
+     "s0-12",
+     "s0-20"
+    ],
+    "outcome": "GO-REPLAY"
+   },
+   "haiku": null,
+   "jev": {
+    "logical_calls": 0,
+    "status_counts": {},
+    "input_tokens": 0,
+    "usd": 0.0,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "PENDING",
+   "rule": "GO-REPLAY: H=3 >= 1 of 16 defect cases. Candidate-pool misses 11 > 2: raise pool_cap or extend the prefilter BEFORE Stage 1 and rerun Stage 0.",
+   "extension_used": false
+  },
+  {
+   "arm": "h2j",
+   "arm_label": "Jev hints (first review)",
+   "stratum": "sonnet",
+   "role": "test",
+   "n_planned": 6,
+   "n_completed": 0,
+   "runs_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/runs",
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {},
+   "haiku": null,
+   "jev": {
+    "logical_calls": 0,
+    "status_counts": {},
+    "input_tokens": 0,
+    "usd": 0.0,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "PENDING",
+   "rule": "Stage 0 passed; Stage 1 replay (Session 2) and GO-LIVE gate not yet run",
+   "extension_used": false
+  },
+  {
+   "arm": "h2s",
+   "arm_label": "static hints (first review)",
+   "stratum": "sonnet",
+   "role": "control",
+   "n_planned": 6,
+   "n_completed": 0,
+   "runs_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/runs",
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {},
+   "haiku": null,
+   "jev": {
+    "logical_calls": 0,
+    "status_counts": {},
+    "input_tokens": 0,
+    "usd": 0.0,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "PENDING",
+   "rule": "Stage 0 passed; Stage 1 replay (Session 2) and GO-LIVE gate not yet run",
+   "extension_used": false
+  },
+  {
+   "arm": "h2r",
+   "arm_label": "conventional router hints (first review)",
+   "stratum": "sonnet",
+   "role": "control",
+   "n_planned": 6,
+   "n_completed": 0,
+   "runs_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p15/e2/runs",
+   "metrics": {
+    "BLK": null,
+    "AUD1": null,
+    "AUD2": null,
+    "A_mean": null,
+    "A_median": null,
+    "R_LOOP": null,
+    "B_mean": null,
+    "R_B": null,
+    "growth_mean_pct": null,
+    "growth_median_pct": null,
+    "loop_pass": null,
+    "escalations": null,
+    "reviews_mean": null,
+    "fix_cycles_mean": null
+   },
+   "design_metrics": {},
+   "haiku": null,
+   "jev": {
+    "logical_calls": 0,
+    "status_counts": {},
+    "input_tokens": 0,
+    "usd": 0.0,
+    "model": "jev-1.14.0"
+   },
+   "verdict": "PENDING",
+   "rule": "Stage 0 passed; Stage 1 replay (Session 2) and GO-LIVE gate not yet run",
+   "extension_used": false
+  }
+ ],
+ "blocked_downstream": [],
+ "notes": [
+  "Stage 0 uses no paid calls, no Jev, no workers beyond the labelers of the 24 cases."
+ ],
+ "generated_utc": "2026-11-10T07:27:21+00:00"
+}

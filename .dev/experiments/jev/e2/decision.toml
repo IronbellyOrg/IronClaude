@@ -66,6 +66,8 @@ min_words = 3              # passages with fewer words (and headings, table head
 rare_frac = 0.04           # a content word is rare when it occurs in 2..max(2, ceil(rare_frac * n)) candidate passages
 rare_min_df = 2
 min_shared_rare_words = 2
+small_doc_max_passages = 40          # revision 2026-11-10 (PREFILTER-REVISION.md): documents with <= this many eligible passages
+small_doc_min_shared_rare_words = 1  # admit on ONE shared rare word
 w_explicit = 6.0           # prefilter score = sum of IDF-weighted shared features (explicit reference counts as 6.0)
 w_id = 1.0
 w_term = 1.0
