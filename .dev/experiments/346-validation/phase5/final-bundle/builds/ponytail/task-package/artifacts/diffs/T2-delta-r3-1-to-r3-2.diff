@@ -1,0 +1,84 @@
+diff --git a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+index ce6c7314..a827d0fc 100644
+--- a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
++++ b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+@@ -20,6 +20,7 @@ from pathlib import Path
+ ID_PAT = r"[A-Z](?:[A-Z0-9]|-(?=[A-Z0-9]))*[0-9]"
+ ID_RE = re.compile(rf"(?<![\w-])({ID_PAT})(?!\w)(?!-[A-Z0-9])")
+ LEAD = rf"(?:{ID_PAT})(?:\s*(?:,|/|&|\band\b)\s*(?:{ID_PAT}))*"
++ID_CELL_RE = re.compile(rf"{LEAD}(?![\w-])")
+ BULLET_RE = re.compile(r"^\s*[-*+]\s")
+ RECORD_RE = re.compile(
+     rf"^\s*(?:#+\s*)?(?:[0-9]+[.)]\s+)?(?:\*\*({LEAD})\.|({LEAD})\s*\(|({LEAD})\.(?:\s|$))"
+@@ -169,7 +170,9 @@ def parse_report(text: str) -> dict:
+             if nxt is not None and is_separator(nxt):
+                 header = [c.lower() for c in cs]
+                 continue
+-            toks = id_tokens(cs[0])  # every id of the id cell, ranges expanded
++            # an id cell holds only ids, ranges and separators; a free-text first cell defines nothing
++            cell = cs[0].strip("*` ")
++            toks = id_tokens(cell) if ID_CELL_RE.fullmatch(cell) else []
+             status = next((c.lower() for c in cs[1:] if c.lower() in STATUS_WORDS), "")
+             col = next((i for i, h in enumerate(header or []) if "blocking" in h), None)
+             if col is not None and col < len(cs):
+@@ -182,11 +185,11 @@ def parse_report(text: str) -> dict:
+             blocking = True
+         elif bcell in NO_CELLS and blocking is None:
+             blocking = False
+-        if in_prior or (status and label == "unknown" and blocking is None):
++        if in_prior or (status and label == "unknown"):
+             prior.extend([t, status] for t in toks)
+             continue
+-        if label == "unknown" and blocking is None and not fr:
+-            continue  # an incidental mention, not a graded record
++        if label == "unknown" and not fr:
++            continue  # no severity label: an incidental mention, not a graded record
+         for rid in toks:
+             g = seen.setdefault(rid, {"label": "unknown", "flags": [], "fr": False})
+             if LABEL_RANK[label] > LABEL_RANK[g["label"]]:
+diff --git a/tests/skills/test_fix_audit_script.py b/tests/skills/test_fix_audit_script.py
+index abe0a69f..887b9756 100644
+--- a/tests/skills/test_fix_audit_script.py
++++ b/tests/skills/test_fix_audit_script.py
+@@ -452,3 +452,41 @@ def test_prepare_ignores_bullet_label_and_its_disposition_line(tmp_path):
+     assert "WC-3" not in state["ids"]
+     assert [h["class"] for h in state["hunks"]] == ["minor-only", "unattributed"]
+     assert state["audit"] == "prepared"
++
++
++# ---------- rows that grade nothing (repair of review r3-1) ----------
++
++NOISE_REPORT = (
++    R2_HEAD
++    + "## 0. Evidence checks\n\n| id | where | result |\n|---|---|---|\n"
++    + "| Y13 | sk/task/SKILL.md:47 | downstream offers are non-blocking |\n\n"
++    + "## Decisions\n\n| decision | grade | why |\n|---|---|---|\n"
++    + "| Grade N8 (AC-C5 vs Usage lines) as MAJOR | MAJOR; minor | split |\n\n"
++    + "## New findings\n\n| id | severity | blocking |\n|---|---|---|\n"
++    + "| N8 | MAJOR | yes |\n| N9 | MINOR | no |\n"
++    + R2_TAIL
++)
++
++
++def test_row_without_severity_label_is_not_graded():
++    graded = fa.parse_report(NOISE_REPORT)["graded"]
++    assert "Y13" not in graded
++
++
++def test_free_text_first_cell_defines_no_id():
++    graded = fa.parse_report(NOISE_REPORT)["graded"]
++    assert "AC-C5" not in graded
++    assert graded["N8"]["blocking"] is True and graded["N9"]["blocking"] is False
++
++
++def test_prepare_hunk_citing_unlabelled_row_id_is_unattributed(tmp_path):
++    disp = "| id | Where |\n|---|---|\n| N8 | SPEC':9 |\n"
++    res, d, state = prepare(
++        tmp_path,
++        "p1\nk1\np2\n",
++        "p1 Y13 fix\nk1\np2 N9 tweak\n",
++        NOISE_REPORT,
++        disp=disp,
++    )
++    assert res.returncode == 0, res.stderr
++    assert [h["class"] for h in state["hunks"]] == ["unattributed", "minor-only"]

@@ -1,0 +1,38 @@
+{
+  "id": "39297ae2-ee5a-499f-bfbb-5bac601a1a88",
+  "ok": true,
+  "result": {
+    "runId": "run_58af03dbfa92",
+    "deliveryId": "delivery_2c61a1070af4",
+    "messages": [
+      {
+        "id": "msg_271029dbe46f",
+        "run_id": "run_58af03dbfa92",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_a5fdaeba-8929-4215-b10f-5855695c9b0b",
+        "to_handle": "run:run_58af03dbfa92",
+        "subject": "spec-panel probe: Review Loop present",
+        "body": "I invoked /sc:spec-panel once through the Skill tool with --help-probe-only and stopped once the command text loaded; I ran no panel and wrote no file. The loaded text has a '## Review Loop' section whose first line is '1. **Mode**: `--re-review` applies to `--mode critique` only; without both `--re-review` and `--baseline` the run is a first review of the full document, ...', and the Usage line does end with '[--re-review <prior-findings-file> --baseline <saved-copy>]'. I cannot give an exact line count because the tool output has no line numbers (roughly 300+ lines, unverified), and nothing else is left to do.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_5b765f6ffff6\",\"dispatchId\":\"ctx_360ee2b79291\",\"outcome\":\"succeeded\"}",
+        "created_at": "2026-11-08T03:37:57Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": false,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "a320404b-3e58-4b90-be67-e5d5ad557379",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "93e79a07-81c4-4ec7-a938-8038a2f29ed3"
+  }
+}

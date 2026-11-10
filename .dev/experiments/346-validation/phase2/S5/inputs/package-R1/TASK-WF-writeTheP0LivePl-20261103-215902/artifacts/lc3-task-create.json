@@ -1,0 +1,30 @@
+{
+  "id": "df1412d4-c8fc-40de-a3e2-863788edd6fe",
+  "ok": true,
+  "result": {
+    "task": {
+      "id": "task_e064e720af0d",
+      "run_id": "run_0f9350decd8c",
+      "parent_id": null,
+      "created_by_terminal_handle": "term_cddf23a9-82f5-45ee-a9b8-1fdd61d80197",
+      "created_by_pane_key": "c1e9407e-bfa1-4701-8c09-5286eb1435e4:1f2bf574-5645-49fb-8527-eaeea2e5853e",
+      "created_by_process_incarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs@@9943ddb7:ed4d0ccc-4758-4b15-9c71-628a6820d14f",
+      "created_by_run_generation": 1,
+      "task_title": "P0 live check 3: adversarial",
+      "display_name": "P0 live check 3: adversarial",
+      "spec": "Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed with a body starting \"guard refused:\".\nOn a blocked gate: report blocked\nLocal commit: not authorized\nReport directory: .dev/p0-live/adversarial/\nWorktree: disposable worktree created by Orca from ironbelly/OrcaCLICommandRefactor-Specs for this check only; you are its only writer.\nOutward actions: none; the coordinator performs every push, PR, comment, install and paid run.\nP0 only: Report file: .dev/p0-live/adversarial/adversarial/merge-log.md, with the status in the Status: line of its ## Metadata section (the per-change **Status** lines do not count). Outcome rule: --outcome failed when the file is missing or empty, or its status is failed or blocked; otherwise --outcome succeeded. This rule replaces the WC-5 mapping for this Task.\nCommand: /sc:adversarial --compare .dev/orca-command-refactor/decisions/D1/option-a.md,.dev/orca-command-refactor/decisions/D1/option-b.md --depth quick --output .dev/p0-live/adversarial/",
+      "status": "ready",
+      "deps": "[]",
+      "result": null,
+      "created_at": "2026-11-04 08:31:11",
+      "completed_at": null
+    },
+    "mutation": {
+      "requestId": "13099619-f959-40d4-8b5b-acdb8f36c405",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}

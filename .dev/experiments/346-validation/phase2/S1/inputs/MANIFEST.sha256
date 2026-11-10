@@ -1,0 +1,12 @@
+67a09989fd315e7e06f7f2f4db46c058cd4ed16dda468e5b7457c1b495701a37  SOURCES.md
+b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec  reference-snapshots/spec-v2-after-round1.md
+8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9  reference-snapshots/spec-v3-after-round2.md
+5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128  reference-snapshots/spec-v4-after-round3.md
+086e5b822e3ba426fa38743895713faff8aefa579650507c332b1e776852069e  repo-overlay/.dev/orca-command-refactor/README.md
+b6e39f745ded4b34212ca8f69440c715be302630adc3d2c461b386806be8a60a  repo-overlay/.dev/orca-command-refactor/inventory/commands-a.md
+65e8be128a91f3ebf35d82531d4a785de779ea523e024cc652b3b3229528cdb2  repo-overlay/.dev/orca-command-refactor/inventory/commands-b.md
+b0d2d5078516e6b2da69aef43a6316dba9d360da01e79dbe0209cb3cd4361f8b  repo-overlay/.dev/orca-command-refactor/inventory/orca-capabilities.md
+d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d  repo-overlay/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md
+fff6bf5b8340a25c3c0f86949be21bc9ef2f01967351c4f9c5c92ccb8ff0e54e  tool-text/spec-panel-427.diff
+c8d80346a96cb528fce6cff3bcadfed5bc95d1eee48dea0ac275404314b8df2f  tool-text/spec-panel-post427-95f2c6e4.md
+e7b1a2c66f96be1f4b836c3baf6007a2f6f8b50639341b81970262510e9433bd  tool-text/spec-panel-pre427-ec1babd9.md

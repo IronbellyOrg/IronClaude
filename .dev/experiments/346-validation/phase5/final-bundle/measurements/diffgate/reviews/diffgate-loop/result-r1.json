@@ -1,0 +1,455 @@
+{
+ "acceptance": "clean",
+ "blocking": 7,
+ "blocking_ids": [
+  "R1.1",
+  "R1.2",
+  "R1.3",
+  "R1.4",
+  "R1.5",
+  "R1.6",
+  "R1.7"
+ ],
+ "chains": {
+  "R1.1": [
+   "R1.1"
+  ],
+  "R1.2": [
+   "R1.2"
+  ],
+  "R1.3": [
+   "R1.3"
+  ],
+  "R1.4": [
+   "R1.4"
+  ],
+  "R1.5": [
+   "R1.5"
+  ],
+  "R1.6": [
+   "R1.6"
+  ],
+  "R1.7": [
+   "R1.7"
+  ]
+ },
+ "deferred": [],
+ "degraded": false,
+ "findings": [
+  {
+   "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "at": [
+    62,
+    62
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.1"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": 8,
+   "hunk": null,
+   "id": "R1.1",
+   "origin": "full",
+   "outcome": "a brief that passes --output to /sc:workflow stops with E-LEGACY and writes no contract, and for tdd or init-lite the coordinator opens <file>/return-contract.yaml, which cannot exist",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "WC-4 report location is unknowable or undefined for workflow, tdd, init-lite and a missing flag",
+   "via": null
+  },
+  {
+   "anchor": "Commands that already write a contract keep their fields and add the missing ones",
+   "at": [
+    62,
+    62
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.2"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": 8,
+   "hunk": null,
+   "id": "R1.2",
+   "origin": "full",
+   "outcome": "a correct adversarial or workflow run keeps status success (adversarial nested under return_contract), so 7.2 step 4 raises KeyError or fails the status assert",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "the new status field collides with existing contract status fields",
+   "via": null
+  },
+  {
+   "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+   "at": [
+    64,
+    64
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.3"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": 8,
+   "hunk": null,
+   "id": "R1.3",
+   "origin": "full",
+   "outcome": "a --retry-of worker given the same brief overwrites the first attempt's output, or writes elsewhere so worker_done --report-path differs from the path recorded at dispatch",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "WC-6 fresh directory conflicts with the brief-fixed directory of WC-4",
+   "via": null
+  },
+  {
+   "anchor": "The worker runs the command directly in its own session; it never wraps the command in an Agent-tool subagent.",
+   "at": [
+    65,
+    65
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.4"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.4",
+   "origin": "full",
+   "outcome": "a worker that reads the command file and performs the protocol from memory without the Skill call passes AC-0.4 and AC-1.2",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "WC-7 does not require the Skill invocation and no check detects its absence",
+   "via": null
+  },
+  {
+   "anchor": "src/superclaude/agents src/superclaude/core",
+   "at": [
+    172,
+    172
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.5"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.5",
+   "origin": "full",
+   "outcome": "the P0 WORKER-CONTRACT.md quoting the preamble's orca orchestration ask line, as SA-2 allows, makes AC-C1 print a hit, so P0 cannot pass",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "AC-C1 scans the folder that holds the contract file SA-2 lets mention Orca",
+   "via": null
+  },
+  {
+   "anchor": "has a `## Unattended mode` section naming `return-contract.yaml`",
+   "at": [
+    195,
+    195
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.6"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.6",
+   "origin": "full",
+   "outcome": "AC-1.1 fails for /sc:load, or the implementer adds a contract to load against its row and the Decisions table",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "load has no report but AC-1.1 requires one",
+   "via": null
+  },
+  {
+   "anchor": "a person never types it",
+   "at": [
+    228,
+    228
+   ],
+   "blocking": true,
+   "chain": [
+    "R1.7"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": 8,
+   "hunk": null,
+   "id": "R1.7",
+   "origin": "full",
+   "outcome": "a person's /sc:troubleshoot run whose quoted topic contains --unattended loses its prompts and gets a contract file, breaking SA-1 and SA-3",
+   "sev": "major",
+   "side": null,
+   "status": "open",
+   "text": "no parse rule for the --unattended token",
+   "via": null
+  },
+  {
+   "anchor": "The only command changes are the small fixes in the last column.",
+   "at": [
+    79,
+    79
+   ],
+   "blocking": false,
+   "chain": [
+    "R1.8"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.8",
+   "origin": "full",
+   "outcome": null,
+   "sev": "minor",
+   "side": null,
+   "status": "minor",
+   "text": "3.1 understates the P1 edits to ready commands",
+   "via": null
+  },
+  {
+   "anchor": "OrcaCLICommandRefactor-Specs",
+   "at": [
+    4,
+    4
+   ],
+   "blocking": false,
+   "chain": [
+    "R1.9"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.9",
+   "origin": "full",
+   "outcome": null,
+   "sev": "minor",
+   "side": null,
+   "status": "minor",
+   "text": "stated repo root is missing and origin/master has moved past the baseline",
+   "via": null
+  },
+  {
+   "anchor": "A command step that blocks a single tool call for longer than 5 minutes",
+   "at": [
+    68,
+    68
+   ],
+   "blocking": false,
+   "chain": [
+    "R1.10"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.10",
+   "origin": "full",
+   "outcome": null,
+   "sev": "minor",
+   "side": null,
+   "status": "minor",
+   "text": "WC-10 literally covers unsplittable Agent-tool calls",
+   "via": null
+  },
+  {
+   "anchor": "at least once per 5 minutes",
+   "at": [
+    181,
+    181
+   ],
+   "blocking": false,
+   "chain": [
+    "R1.11"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.11",
+   "origin": "full",
+   "outcome": null,
+   "sev": "minor",
+   "side": null,
+   "status": "minor",
+   "text": "step 2 cadence cannot run during the 900 s step-3 wait",
+   "via": null
+  },
+  {
+   "anchor": "search the transcript for `AskUserQuestion`",
+   "at": [
+    184,
+    184
+   ],
+   "blocking": false,
+   "chain": [
+    "R1.12"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.12",
+   "origin": "full",
+   "outcome": null,
+   "sev": "minor",
+   "side": null,
+   "status": "minor",
+   "text": "transcript content for tool calls is UNVERIFIED",
+   "via": null
+  },
+  {
+   "anchor": "it stops without sending `worker_done`",
+   "at": [
+    70,
+    70
+   ],
+   "blocking": false,
+   "chain": [
+    "R1.13"
+   ],
+   "cites": null,
+   "demoted": false,
+   "fr": null,
+   "hunk": null,
+   "id": "R1.13",
+   "origin": "full",
+   "outcome": null,
+   "sev": "minor",
+   "side": null,
+   "status": "minor",
+   "text": "WC-5 exactly-once lacks the fenced exception",
+   "via": null
+  }
+ ],
+ "held": {},
+ "open_blocking": [
+  {
+   "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "at": [
+    62,
+    62
+   ],
+   "chain": [
+    "R1.1"
+   ],
+   "hunk": null,
+   "id": "R1.1",
+   "sev": "major",
+   "text": "WC-4 report location is unknowable or undefined for workflow, tdd, init-lite and a missing flag"
+  },
+  {
+   "anchor": "Commands that already write a contract keep their fields and add the missing ones",
+   "at": [
+    62,
+    62
+   ],
+   "chain": [
+    "R1.2"
+   ],
+   "hunk": null,
+   "id": "R1.2",
+   "sev": "major",
+   "text": "the new status field collides with existing contract status fields"
+  },
+  {
+   "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+   "at": [
+    64,
+    64
+   ],
+   "chain": [
+    "R1.3"
+   ],
+   "hunk": null,
+   "id": "R1.3",
+   "sev": "major",
+   "text": "WC-6 fresh directory conflicts with the brief-fixed directory of WC-4"
+  },
+  {
+   "anchor": "The worker runs the command directly in its own session; it never wraps the command in an Agent-tool subagent.",
+   "at": [
+    65,
+    65
+   ],
+   "chain": [
+    "R1.4"
+   ],
+   "hunk": null,
+   "id": "R1.4",
+   "sev": "major",
+   "text": "WC-7 does not require the Skill invocation and no check detects its absence"
+  },
+  {
+   "anchor": "src/superclaude/agents src/superclaude/core",
+   "at": [
+    172,
+    172
+   ],
+   "chain": [
+    "R1.5"
+   ],
+   "hunk": null,
+   "id": "R1.5",
+   "sev": "major",
+   "text": "AC-C1 scans the folder that holds the contract file SA-2 lets mention Orca"
+  },
+  {
+   "anchor": "has a `## Unattended mode` section naming `return-contract.yaml`",
+   "at": [
+    195,
+    195
+   ],
+   "chain": [
+    "R1.6"
+   ],
+   "hunk": null,
+   "id": "R1.6",
+   "sev": "major",
+   "text": "load has no report but AC-1.1 requires one"
+  },
+  {
+   "anchor": "a person never types it",
+   "at": [
+    228,
+    228
+   ],
+   "chain": [
+    "R1.7"
+   ],
+   "hunk": null,
+   "id": "R1.7",
+   "sev": "major",
+   "text": "no parse rule for the --unattended token"
+  }
+ ],
+ "priors": [],
+ "proxy_all": 7,
+ "proxy_ids": [
+  "R1.1",
+  "R1.2",
+  "R1.3",
+  "R1.4",
+  "R1.5",
+  "R1.6",
+  "R1.7"
+ ],
+ "review": 1,
+ "scoped": {},
+ "verdict": "FAIL",
+ "verdict_line": "verdict: FAIL"
+}

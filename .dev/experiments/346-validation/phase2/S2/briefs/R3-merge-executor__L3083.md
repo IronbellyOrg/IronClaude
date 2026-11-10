@@ -1,0 +1,7 @@
+Execute a refactoring plan to produce one merged artifact. Work only inside /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/reflect/pre-removeTheAnyIssu-20261102054021/ and write only adversarial/merged-verdict.md and adversarial/merge-log.md.
+
+Read: adversarial/refactor-plan.md (follow it exactly), adversarial/variant-1-original.md (base), adversarial/variant-2-original.md, adversarial/variant-3-original.md, adversarial/invariant-probe.md, adversarial/debate-transcript.md, reflection-card.yaml (T1-F1) and artifacts/coverage-matrix.yaml (finding G about Task 6's acceptance, and its minor gaps).
+
+Write adversarial/merged-verdict.md: provenance header (base Variant 1 sonnet:analyzer; merge date 2026-11-02; convergence 100% on diff points, BLOCKED_BY_INVARIANTS on INV-001), "## Blocking findings" (ids B3-01..), "## Minor findings" (ids M3-01..), "## Dropped / rejected". Each finding: one-line claim, file:line evidence copied verbatim from its source (never invent a citation), suggested fix naming the plan task, and a `<!-- Source: ... -->` tag. Keep it under 110 lines.
+Then write adversarial/merge-log.md: one row per planned change (applied / skipped with reason) and a post-merge validation (no finding both blocking and minor; every finding has evidence or [INFERRED]).
+Return a 5-line summary with the blocking and minor counts.

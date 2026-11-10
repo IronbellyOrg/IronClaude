@@ -1,0 +1,124 @@
+{
+ "R0_draft": {
+  "agent_id": "a6b78088fe4e8a5aa",
+  "model": "claude-opus-5-5",
+  "api_messages": 33,
+  "tool_calls": 49,
+  "tool_calls_by_name": {
+   "Bash": 4,
+   "Read": 20,
+   "Grep": 8,
+   "Write": 1,
+   "Edit": 16
+  },
+  "first_ts": "2026-11-05T19:06:46.150Z",
+  "last_ts": "2026-11-05T19:40:15.938Z",
+  "input_tokens": 68,
+  "output_tokens": 186979,
+  "cache_read_tokens": 9156076,
+  "cache_creation_tokens": 604051,
+  "brief_equals_first_user_message": true,
+  "brief_sha256": "e5aa9f168f344f36848418de45175b7fafc5958eb42383317262bde0902660c9"
+ },
+ "R1_review": {
+  "agent_id": "a13bab688a9d224f8",
+  "model": "claude-sonnet-5-5",
+  "api_messages": 21,
+  "tool_calls": 27,
+  "tool_calls_by_name": {
+   "Bash": 12,
+   "Read": 11,
+   "Grep": 3,
+   "Write": 1
+  },
+  "first_ts": "2026-11-05T19:40:27.695Z",
+  "last_ts": "2026-11-05T19:55:29.492Z",
+  "input_tokens": 42,
+  "output_tokens": 116316,
+  "cache_read_tokens": 4498649,
+  "cache_creation_tokens": 330575,
+  "brief_equals_first_user_message": true,
+  "brief_sha256": "dae5fd3d608b3011ae770e3ede4ba2be257b661d1eb5368abfcdb6137a3eea5f"
+ },
+ "R1_fix": {
+  "agent_id": "a3c8e5c718996e77c",
+  "model": "claude-opus-5-5",
+  "api_messages": 36,
+  "tool_calls": 114,
+  "tool_calls_by_name": {
+   "Bash": 8,
+   "Read": 6,
+   "Edit": 100
+  },
+  "first_ts": "2026-11-05T19:56:30.383Z",
+  "last_ts": "2026-11-05T20:15:48.569Z",
+  "input_tokens": 72,
+  "output_tokens": 130891,
+  "cache_read_tokens": 8958943,
+  "cache_creation_tokens": 338796,
+  "brief_equals_first_user_message": true,
+  "brief_sha256": "53ff58732dce2331ee86c814f48eb8888c52bb29e4cf0c9e651d96b026737083"
+ },
+ "R2_review": {
+  "agent_id": "a07f24eaf42c5449e",
+  "model": "claude-sonnet-5-5",
+  "api_messages": 38,
+  "tool_calls": 39,
+  "tool_calls_by_name": {
+   "Bash": 26,
+   "Read": 9,
+   "Grep": 3,
+   "Write": 1
+  },
+  "first_ts": "2026-11-05T20:16:01.244Z",
+  "last_ts": "2026-11-05T20:31:11.228Z",
+  "input_tokens": 76,
+  "output_tokens": 113287,
+  "cache_read_tokens": 8243267,
+  "cache_creation_tokens": 328957,
+  "brief_equals_first_user_message": true,
+  "brief_sha256": "3c75e3435a57216dbb8011617faa2a4ab35fe4f33b0f7bd10890c23a1611051b"
+ },
+ "R2_fix": {
+  "agent_id": "a20512cfaf86249a3",
+  "model": "claude-opus-5-5",
+  "api_messages": 94,
+  "tool_calls": 177,
+  "tool_calls_by_name": {
+   "Bash": 34,
+   "Read": 28,
+   "Grep": 5,
+   "Write": 3,
+   "Edit": 106,
+   "fever_Edit": 1
+  },
+  "first_ts": "2026-11-05T20:31:59.996Z",
+  "last_ts": "2026-11-05T21:18:13.136Z",
+  "input_tokens": 188,
+  "output_tokens": 194173,
+  "cache_read_tokens": 31553164,
+  "cache_creation_tokens": 465789,
+  "brief_equals_first_user_message": true,
+  "brief_sha256": "86715ab782c5509a1c8a941c2481200971ff4fe5f9a460a584b21bef7e46c171"
+ },
+ "R3_review": {
+  "agent_id": "a793527cfdd94457c",
+  "model": "claude-opus-5-5",
+  "api_messages": 44,
+  "tool_calls": 47,
+  "tool_calls_by_name": {
+   "Bash": 32,
+   "Read": 13,
+   "Edit": 1,
+   "Write": 1
+  },
+  "first_ts": "2026-11-05T21:18:33.641Z",
+  "last_ts": "2026-11-05T21:47:24.921Z",
+  "input_tokens": 88,
+  "output_tokens": 142080,
+  "cache_read_tokens": 12199800,
+  "cache_creation_tokens": 918437,
+  "brief_equals_first_user_message": true,
+  "brief_sha256": "48cd3ad25de970aeb2e16dfcb4046bd701e5caf319a6fe5f6559612741e09a8d"
+ }
+}

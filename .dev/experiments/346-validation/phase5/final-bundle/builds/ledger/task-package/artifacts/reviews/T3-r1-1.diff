@@ -1,0 +1,818 @@
+diff --git a/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py b/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
+index 5849540a..20753a74 100644
+--- a/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
++++ b/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
+@@ -657,6 +657,9 @@ def mutate(args, cmd: str, read_payload, apply):
+                 live_binding(args)["doc_sha256"],
+             )
+             if op["digest"] == digest and same_state and doc_unchanged:
++                on_replay = getattr(apply, "on_replay", None)
++                if on_replay:
++                    on_replay(ledger, state, op)
+                 return dict(op["result"], replayed=True)
+             if op["op"] == args.op and op["digest"] != digest:
+                 refuse(
+@@ -1307,6 +1310,17 @@ def cmd_begin(args) -> dict:
+                 "escalate to the user with the open blocking findings",
+             )
+         require_phase(state, "revise")
++        last = last_decision(state)
++        last_report = ledger.root / last["report"]
++        if not last_report.is_file() or not last_report.read_text(
++            encoding="utf-8"
++        ).endswith(last["tail"]):
++            refuse(
++                "E-REPORT-EDITED",
++                f"{last_report} no longer ends with the tail close appended",
++                EXIT_STATE,
++                f"run close --report {last_report} to re-append the stored tail, then begin again",
++            )
+         doc = ledger.doc_path(state)
+         if Path(args.doc).resolve() != doc:
+             usage(f"--doc {args.doc} is not the ledger's document {doc}")
+@@ -1574,6 +1588,310 @@ def cmd_begin(args) -> dict:
+     return mutate(args, "begin", read, apply)
+ 
+ 
++VERIFY_RESULTS = ("resolved", "open", "regressed", "cannot-verify")
++FROZEN_FIELDS = {
++    "id",
++    "label",
++    "round_found",
++    "grade",
++    "rule",
++    "wrong_outcome",
++    "blocking",
++    "anchor",
++    "at",
++    "origin",
++    "scope",
++    "caused_by",
++    "finding",
++}
++ANSWER_KEYS = {"row", "result", "evidence", "touched_ok", "reason", "dispute_ruling"}
++NEW_ROW_KEYS = ROW_INPUT_KEYS | {"side", "parent"}
++VERIFY_ORDER = (
++    "E-SCHEMA",
++    "E-FROZEN",
++    "E-ILLEGAL",
++    "E-NOT-CHANGED",
++    "E-ANCHOR",
++    "E-ANCHOR-AMBIGUOUS",
++    "E-INCOMPLETE",
++)
++
++
++def touched_value(v):
++    return {"yes": True, "no": False, True: True, False: False}.get(v)
++
++
++def unruled_dispute(row: dict, cycle: int) -> bool:
++    """A reviser dispute raised in this fix cycle with no verifier ruling yet."""
++    disputed = any(h.get("dispute") and h.get("round") == cycle for h in row["history"])
++    ruled = any(
++        h.get("dispute_ruling") and h.get("round") == cycle for h in row["history"]
++    )
++    return disputed and not ruled
++
++
++def check_verify(ledger: Ledger, state: dict, data):
++    """Validate a verify input. Returns (answers, new_rows, hunks, new_text, old_text)."""
++    k = state["round"]
++    if (
++        not isinstance(data, dict)
++        or set(data) - {"answers", "new_rows"}
++        or not isinstance(data.get("answers", []), list)
++        or not isinstance(data.get("new_rows", []), list)
++    ):
++        refuse(
++            "E-SCHEMA",
++            "verify input must be an object with an 'answers' list and an optional 'new_rows' list",
++            EXIT_INPUT,
++            "fix the input shape",
++        )
++    answers, new_rows = data.get("answers", []), data.get("new_rows", [])
++    new_text = ledger.snapshot_path(f"r{k}").read_text(encoding="utf-8")
++    old_text = ledger.snapshot_path(f"r{k - 1}").read_text(encoding="utf-8")
++    hunks = json.loads(
++        (ledger.root / "diffs" / f"c{k - 1}.json").read_text(encoding="utf-8")
++    )["hunks"]
++    plan_ids = [
++        r["id"]
++        for r in state["rows"]
++        if r["blocking"] and r["scope"] == "in" and r["status"] in LIVE_STATUSES
++    ]
++    parents = {n.get("parent") for n in new_rows if isinstance(n, dict)}
++    problems, seen = [], set()
++
++    def bad(i, code, detail, where="answers"):
++        problems.append({where: i, "code": code, "detail": detail})
++
++    for i, a in enumerate(answers):
++        if not isinstance(a, dict):
++            bad(i, "E-SCHEMA", "answer is not an object")
++            continue
++        if set(a) & FROZEN_FIELDS:
++            bad(
++                i,
++                "E-FROZEN",
++                f"frozen fields cannot change: {sorted(set(a) & FROZEN_FIELDS)}",
++            )
++            continue
++        if (
++            set(a) - ANSWER_KEYS
++            or a.get("result") not in VERIFY_RESULTS
++            or touched_value(a.get("touched_ok")) is None
++        ):
++            bad(
++                i,
++                "E-SCHEMA",
++                f"keys {sorted(ANSWER_KEYS)}; result in {list(VERIFY_RESULTS)}; touched_ok yes or no",
++            )
++            continue
++        rid = a.get("row")
++        row = row_by_id(state, rid) if isinstance(rid, str) else None
++        if row is None:
++            bad(i, "E-ILLEGAL", f"no row {rid!r}")
++            continue
++        if rid in seen:
++            bad(i, "E-SCHEMA", f"{rid} is answered twice")
++            continue
++        seen.add(rid)
++        if row["status"] == "deferred":
++            bad(i, "E-ILLEGAL", f"{rid} is deferred and cannot change")
++            continue
++        if row["status"] == "verified":
++            bad(
++                i,
++                "E-NOT-CHANGED",
++                f"{rid} is verified and no hunk touched it: accepted text cannot be re-attacked",
++            )
++            continue
++        if rid not in plan_ids:
++            bad(i, "E-ILLEGAL", f"{rid} is not a row of plan-r{k}.md")
++            continue
++        result = a["result"]
++        evidence = a.get("evidence")
++        if result != "cannot-verify":
++            if (
++                not isinstance(evidence, str)
++                or not evidence.strip()
++                or not locate(new_text, evidence)
++            ):
++                bad(
++                    i,
++                    "E-ANCHOR",
++                    f"{rid}: the evidence quote must occur in snapshots/r{k}.md",
++                )
++                continue
++        if result == "resolved":
++            if row["status"] != "fixed":
++                bad(
++                    i,
++                    "E-NOT-CHANGED",
++                    f"{rid} is {row['status']}: no hunk of this round changed it",
++                )
++                continue
++            if current_span(row, f"r{k}") is None:
++                bad(
++                    i,
++                    "E-ANCHOR",
++                    f"{rid}'s anchor is unmappable in r{k}; answer cannot-verify",
++                )
++                continue
++        if result == "regressed" and not any(
++            h.get("to") == "verified" for h in row["history"]
++        ):
++            bad(i, "E-ILLEGAL", f"{rid} was never verified, so it cannot regress")
++            continue
++        if result == "open" and not (str(a.get("reason") or "").strip() or evidence):
++            bad(i, "E-SCHEMA", f"{rid}: 'open' needs a reason or a quote")
++            continue
++        if touched_value(a["touched_ok"]) is False and rid not in parents:
++            bad(
++                i,
++                "E-INCOMPLETE",
++                f"{rid}: touched_ok no needs a child row in new_rows with parent {rid}",
++            )
++    for rid in plan_ids:
++        if rid not in seen:
++            bad(rid, "E-INCOMPLETE", f"plan row {rid} has no answer")
++    spans = []
++    for i, n in enumerate(new_rows):
++        if not isinstance(n, dict):
++            bad(i, "E-SCHEMA", "new row is not an object", "new_rows")
++            continue
++        if "id" in n:
++            bad(i, "E-FROZEN", "a new row cannot carry an id", "new_rows")
++            continue
++        if (
++            set(n) - NEW_ROW_KEYS
++            or n.get("grade") not in PROFILES[state["profile"]]["grades"]
++            or n.get("side", "new") not in ("new", "old")
++            or not isinstance(n.get("anchor"), str)
++            or not str(n.get("finding") or "").strip()
++            or (n.get("parent") is not None and n.get("parent") not in plan_ids)
++        ):
++            bad(
++                i,
++                "E-SCHEMA",
++                f"keys {sorted(NEW_ROW_KEYS)}; side new or old; parent a plan row",
++                "new_rows",
++            )
++            continue
++        hits = locate(
++            new_text if n.get("side", "new") == "new" else old_text, n["anchor"]
++        )
++        if len(hits) != 1:
++            bad(
++                i,
++                "E-ANCHOR" if not hits else "E-ANCHOR-AMBIGUOUS",
++                f"anchor occurs {len(hits)} times on the {n.get('side', 'new')} side",
++                "new_rows",
++            )
++            continue
++        spans.append((n, hits[0]))
++    if problems:
++        code = next(o for o in VERIFY_ORDER if any(p["code"] == o for p in problems))
++        refuse(
++            code, problems, EXIT_INPUT, "fix the listed entries; nothing was written"
++        )
++    return answers, spans, hunks
++
++
++def cmd_verify(args) -> dict:
++    read, got = input_reader(args.input)
++
++    def apply(ledger: Ledger, state: dict):
++        require_phase(state, "verify")
++        k = state["round"]
++        if committed_ops(state, "verify", k):
++            refuse(
++                "E-PHASE",
++                f"verify already ran for review {k}",
++                EXIT_STATE,
++                next_action(state),
++            )
++        answers, spans, hunks = check_verify(ledger, state, got["data"])
++        at_cap = k >= state["cap_reviews"]
++        x_items = []
++        for a in answers:
++            row = row_by_id(state, a["row"])
++            result, before = a["result"], row["status"]
++            entry = {
++                "seq": state["seq"],
++                "via": "verify",
++                "round": k,
++                "result": result,
++                "touched_ok": touched_value(a["touched_ok"]),
++                "evidence": a.get("evidence"),
++            }
++            if a.get("dispute_ruling"):
++                entry["dispute_ruling"] = a["dispute_ruling"]
++                entry["round"] = k - 1
++            ever_verified = any(h.get("to") == "verified" for h in row["history"])
++            if result == "resolved":
++                if (
++                    at_cap
++                    and unruled_dispute(row, k - 1)
++                    and not a.get("dispute_ruling")
++                ):
++                    after = "reopened" if ever_verified else "open"
++                    entry["reason"] = "unruled dispute at the cap counts as open"
++                else:
++                    after = "verified"
++            elif result == "open":
++                after = (
++                    ("reopened" if ever_verified else "open")
++                    if before == "fixed"
++                    else before
++                )
++                entry["reason"] = a.get("reason")
++            elif result == "regressed":
++                after = "reopened"
++            else:  # cannot-verify
++                after = before
++                x_items.append({"round": k, "kind": "cannot-verify", "row": row["id"]})
++            entry.update({"from": before, "to": after})
++            row["history"].append(entry)
++            row["status"] = after
++        live_hunks = [h for h in hunks if not h["rewrap"]]
++        new_ids = []
++        for n, span in spans:
++            side = n.get("side", "new")
++            inside = [
++                h
++                for h in live_hunks
++                if overlaps(h["new" if side == "new" else "old"], span)
++            ]
++            if inside:
++                caused = sorted({c["row"] for h in inside for c in h["claimed_by"]})
++                at = (
++                    span
++                    if side == "new"
++                    else (inside[0]["new"][0], inside[0]["new"][0])
++                )
++                row = make_row(state, n, at, k, "changed", "in", caused, "")
++            else:
++                row = make_row(
++                    state,
++                    n,
++                    span if side == "new" else None,
++                    k,
++                    "outside",
++                    "outside",
++                    [],
++                    "deferred",
++                )
++            row["side"] = side
++            row["parent"] = n.get("parent")
++            row["history"].append(
++                {"seq": state["seq"], "via": "verify", "to": row["status"], "round": k}
++            )
++            state["rows"].append(row)
++            new_ids.append(row["id"])
++        atomic_write(ledger.root / "inputs" / f"r{k}-verify.json", got["payload"])
++        return {"new_rows": new_ids, "_op": {"x_items": x_items}}
++
++    return mutate(args, "verify", read, apply)
++
++
+ def reread_doc(doc: Path) -> str:
+     """Read the live document again right before a revert (preimage check)."""
+     return doc.read_text(encoding="utf-8")
+@@ -1643,9 +1961,20 @@ def cmd_close(args) -> dict:
+                 EXIT_INPUT,
+                 "write the report first",
+             )
+-        return canonical({"report": str(report)})
++        # the request is the report as the reviewer left it: a tail this report already
++        # carries is not part of it, so a retry after a committed close is a replay
++        ledger = Ledger(ledger_root(args))
++        text = report.read_text(encoding="utf-8")
++        for d in reversed(ledger.load()["decisions"]):
++            same = (ledger.root / d.get("report", "")).resolve() == report.resolve()
++            if same and text.endswith(d["tail"]):
++                text = text[: -len(d["tail"])]
++                break
++        return canonical({"report": str(report), "content": sha256_text(text)})
+ 
+     def apply(ledger: Ledger, state: dict):
++        if state["phase"] == "revise":
++            return reappend_tail(ledger, state)
+         require_phase(state, "find", "verify")
+         k = state["round"]
+         if not committed_ops(
+@@ -1682,6 +2011,43 @@ def cmd_close(args) -> dict:
+             "_after": after,
+         }
+ 
++    def reappend_tail(ledger: Ledger, state: dict):
++        """Recovery for E-REPORT-EDITED: re-append the stored tail, no new decision."""
++        last = last_decision(state)
++        if report.resolve() != (
++            ledger.root / last["report"]
++        ).resolve() or report.read_text(encoding="utf-8").endswith(last["tail"]):
++            refuse(
++                "E-PHASE",
++                "phase is revise and the last review report still ends with its tail",
++                EXIT_STATE,
++                next_action(state),
++            )
++        last.setdefault("reappended", []).append(state["seq"])
++
++        def after():
++            text = report.read_text(encoding="utf-8")
++            atomic_write(report, (text + last["tail"]).encode("utf-8"))
++
++        return {
++            "reappended": True,
++            "last_line": last["tail"].rstrip("\n").splitlines()[-1],
++            "_after": after,
++        }
++
++    def on_replay(ledger: Ledger, state: dict, op: dict):
++        """A replayed close re-appends a tail the report lost (a crash after the commit)."""
++        mine = [
++            d
++            for d in state["decisions"]
++            if d["kind"] == "review" and d["seq"] == op["seq"]
++        ]
++        if mine and report.is_file():
++            text = report.read_text(encoding="utf-8")
++            if not text.endswith(mine[0]["tail"]):
++                atomic_write(report, (text + mine[0]["tail"]).encode("utf-8"))
++
++    apply.on_replay = on_replay
+     return mutate(args, "close", read, apply)
+ 
+ 
+@@ -1847,7 +2213,21 @@ def build_parser() -> argparse.ArgumentParser:
+     )
+ 
+     sp = sub.add_parser(
+-        "close", help="compute the loop decision and append the report tail"
++        "verify",
++        help="reviews 2 and 3: answer every plan row; new rows in or outside this round's hunks",
++    )
++    where(sp)
++    mutation(sp, dry=True)
++    sp.add_argument(
++        "--input",
++        required=True,
++        help=".json answers, or a .md report with one ledger-input block",
++    )
++
++    sp = sub.add_parser(
++        "close",
++        help="compute the loop decision and append the report tail "
++        "(in phase revise: re-append a lost tail)",
+     )
+     where(sp)
+     mutation(sp)
+@@ -1872,6 +2252,7 @@ COMMANDS = {
+     "answer": cmd_answer,
+     "begin": cmd_begin,
+     "revert-unclaimed": cmd_revert_unclaimed,
++    "verify": cmd_verify,
+     "close": cmd_close,
+     "status": cmd_status,
+ }
+diff --git a/tests/skills/test_review_ledger_script.py b/tests/skills/test_review_ledger_script.py
+index b6bb52a9..5519c3e6 100644
+--- a/tests/skills/test_review_ledger_script.py
++++ b/tests/skills/test_review_ledger_script.py
+@@ -843,3 +843,373 @@ def test_identical_answer_retry_is_replayed_while_document_unchanged(tmp_path):
+     c1, o1 = lp.answer(claim, op="a", seq=seq)
+     c2, o2 = lp.answer(claim, op="b", seq=seq)
+     assert c1 == c2 == 0 and o2.get("replayed") is True and o2["seq"] == o1["seq"]
++
++
++# ---------------------------------------------------------------- Task 3
++
++R1_QUOTE = "When the store is down, the service returns 503 to the caller."
++ONE_BLOCKER = [
++    {
++        "label": "F1",
++        "grade": "CRITICAL",
++        "anchor": R1_QUOTE,
++        "finding": "no retry budget",
++    }
++]
++
++
++def verify(lp: Loop, data, **kw):
++    return lp.mut(
++        "verify", "--input", str(lp.json_input(f"verify-{lp.n}.json", data)), **kw
++    )
++
++
++def ans(row, result, evidence=None, touched_ok="yes", **extra):
++    a = {"row": row, "result": result, "touched_ok": touched_ok, **extra}
++    if evidence is not None:
++        a["evidence"] = evidence
++    return a
++
++
++R2_EV = "The service rejects a widget without an owner."
++R3_EV = "The service keeps deleted widgets for 30 days."
++FIX_EV = "the caller retries at most twice"
++
++
++def round2(lp: Loop, rows="find-basic.json", fixture="doc-r2-fix.md", *flags):
++    lp.round1(rows=rows)
++    lp.edit(fixture)
++    code, out = lp.begin(*flags)
++    assert code == 0, out
++    return out
++
++
++def basic_answers(r1="resolved"):
++    return {
++        "answers": [
++            ans("R1", r1, FIX_EV, reason="x"),
++            ans("R2", "open", R2_EV, reason="not fixed"),
++            ans("R3", "open", R3_EV, reason="not fixed"),
++        ]
++    }
++
++
++def test_verify_resolved_and_open_transitions(tmp_path):
++    lp = Loop(tmp_path)
++    round2(lp)
++    code, out = verify(lp, basic_answers())
++    assert code == 0, out
++    rows = by_id(lp.state())
++    assert rows["R1"]["status"] == "verified" and rows["R2"]["status"] == "open"
++    sub = tmp_path / "open"
++    sub.mkdir()
++    lp = Loop(sub)
++    round2(lp)
++    assert verify(lp, basic_answers(r1="open"))[0] == 0
++    assert by_id(lp.state())["R1"]["status"] == "open"
++
++
++@pytest.mark.parametrize(
++    "answers, code_name",
++    [
++        (
++            [ans("R1", "resolved", FIX_EV), ans("R2", "open", R2_EV, reason="x")],
++            "E-INCOMPLETE",
++        ),
++        (
++            basic_answers()["answers"][:1]
++            + [ans("R2", "resolved", R2_EV), ans("R3", "open", R3_EV, reason="x")],
++            "E-NOT-CHANGED",
++        ),
++        (
++            basic_answers()["answers"]
++            + [{"row": "R4", "result": "open", "touched_ok": "yes", "grade": "MINOR"}],
++            "E-FROZEN",
++        ),
++        (
++            basic_answers()["answers"]
++            + [ans("R4", "open", "It keeps one record per widget.", reason="x")],
++            "E-ILLEGAL",
++        ),
++        (
++            [ans("R1", "resolved", "a quote that is not in the snapshot")]
++            + basic_answers()["answers"][1:],
++            "E-ANCHOR",
++        ),
++    ],
++    ids=[
++        "incomplete",
++        "resolved-on-untouched-open-row",
++        "frozen",
++        "deferred-row",
++        "evidence-not-in-snapshot",
++    ],
++)
++def test_verify_refusals(tmp_path, answers, code_name):
++    lp = Loop(tmp_path)
++    round2(lp)
++    before = (lp.ledger / "ledger.json").read_bytes()
++    code, out = verify(lp, {"answers": answers})
++    assert code == 2 and out["error"] == code_name
++    assert (lp.ledger / "ledger.json").read_bytes() == before
++
++
++def test_verify_reads_a_report_block(tmp_path):
++    lp = Loop(tmp_path)
++    round2(lp)
++    rep = lp.report(
++        "r2.md",
++        "# Round 2\n\n```ledger-input\n" + json.dumps(basic_answers()) + "\n```\n",
++    )
++    assert lp.mut("verify", "--input", str(rep))[0] == 0
++    assert lp.close(rep)[1]["loop_decision"] == "CONTINUE"
++
++
++def test_cannot_verify_keeps_status_and_escalates(tmp_path):
++    lp = Loop(tmp_path)
++    round2(lp, rows=ONE_BLOCKER)
++    assert verify(lp, {"answers": [ans("R1", "cannot-verify")]})[0] == 0
++    assert by_id(lp.state())["R1"]["status"] == "fixed"
++    code, out = lp.close(lp.report("r2.md"))
++    assert out["loop_decision"] == "ESCALATE" and out["decision"]["X"] == 1
++
++
++def test_outside_row_never_counts_in_u(tmp_path):
++    lp = Loop(tmp_path)
++    round2(lp, rows=ONE_BLOCKER)
++    new = {
++        "grade": "CRITICAL",
++        "anchor": "Logs are kept for seven days.",
++        "finding": "x",
++        "wrong_outcome": "y",
++    }
++    code, out = verify(
++        lp, {"answers": [ans("R1", "resolved", FIX_EV)], "new_rows": [new]}
++    )
++    assert code == 0
++    row = by_id(lp.state())[out["new_rows"][0]]
++    assert (
++        row["scope"] == "outside"
++        and row["status"] == "deferred"
++        and row["blocking"] is False
++    )
++    assert lp.close(lp.report("r2.md"))[1]["loop_decision"] == "PASS"
++
++
++def test_child_row_blocks_and_keeps_continue(tmp_path):
++    lp = Loop(tmp_path)
++    round2(lp, rows=ONE_BLOCKER)
++    child = {
++        "grade": "CRITICAL",
++        "anchor": FIX_EV,
++        "finding": "twice is not justified",
++        "parent": "R1",
++    }
++    code, out = verify(
++        lp,
++        {
++            "answers": [ans("R1", "resolved", FIX_EV, touched_ok="no")],
++            "new_rows": [child],
++        },
++    )
++    assert code == 0, out
++    row = by_id(lp.state())[out["new_rows"][0]]
++    assert (
++        row["scope"] == "in"
++        and row["origin"] == "changed"
++        and row["caused_by"] == ["R1"]
++    )
++    assert row["blocking"] is True and row["status"] == "open"
++    assert lp.close(lp.report("r2.md"))[1]["loop_decision"] == "CONTINUE"
++
++
++def test_touched_ok_no_without_child_refused(tmp_path):
++    lp = Loop(tmp_path)
++    round2(lp, rows=ONE_BLOCKER)
++    code, out = verify(
++        lp, {"answers": [ans("R1", "resolved", FIX_EV, touched_ok="no")]}
++    )
++    assert code == 2 and out["error"] == "E-INCOMPLETE"
++
++
++def _dispute_loop(lp: Loop, ruling: str | None):
++    round2(lp, rows=ONE_BLOCKER)
++    assert (
++        verify(lp, {"answers": [ans("R1", "open", FIX_EV, reason="still unbounded")]})[
++            0
++        ]
++        == 0
++    )
++    assert lp.close(lp.report("r2.md"))[1]["loop_decision"] == "CONTINUE"
++    assert (
++        lp.answer(
++            {
++                "claims": [
++                    {"row": "R1", "action": "disputed", "reason": "twice is the bound"}
++                ]
++            }
++        )[0]
++        == 0
++    )
++    lp.edit(
++        text=lp.doc.read_text().replace("at most twice", "at most twice per request")
++    )
++    assert lp.begin()[0] == 0
++    extra = {"dispute_ruling": ruling} if ruling else {}
++    assert (
++        verify(
++            lp,
++            {"answers": [ans("R1", "resolved", "at most twice per request", **extra)]},
++        )[0]
++        == 0
++    )
++    return lp.close(lp.report("r3.md"))[1]
++
++
++def test_unruled_dispute_at_review_3_counts_as_open(tmp_path):
++    out = _dispute_loop(Loop(tmp_path), None)
++    assert out["loop_decision"] == "ESCALATE" and out["decision"]["U"] == 1
++    sub = tmp_path / "ruled"
++    sub.mkdir()
++    assert _dispute_loop(Loop(sub), "rejected")["loop_decision"] == "PASS"
++
++
++def test_report_edited_then_close_reappends_then_begin_commits(tmp_path):
++    lp = Loop(tmp_path)
++    rep = lp.round1()
++    rep.write_text(rep.read_text().replace("verdict: FAIL", "verdict: PASS"))
++    lp.edit("doc-r2-fix.md")
++    code, out = lp.begin()
++    assert code == 3 and out["error"] == "E-REPORT-EDITED"
++    code, out = lp.close(rep)
++    assert code == 0 and out["reappended"] is True
++    assert rep.read_text().rstrip("\n").splitlines()[-1] == "verdict: FAIL"
++    assert lp.begin()[0] == 0
++    code, out = lp.close(rep, seq=lp.seq())
++    assert code == 3 and out["error"] == "E-PHASE"  # phase verify, nothing verified yet
++
++
++def test_close_in_revise_with_intact_tail_is_e_phase(tmp_path):
++    lp = Loop(tmp_path)
++    rep = lp.round1()
++    code, out = lp.close(rep)
++    assert out.get("replayed") is True  # identical retry
++    rep.write_text(rep.read_text())  # unchanged content, same request
++    other = lp.report("other.md")
++    code, out = lp.close(other)
++    assert code == 3 and out["error"] == "E-PHASE"
++
++
++def test_flag_in_round_2_does_not_carry_to_round_3(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit(
++        text=(_FIX / "doc-r2-fix.md")
++        .read_text()
++        .replace("every ten", "x")
++        .replace("every hour.\n\n## 3", "every ten minutes.\n\n## 3")
++    )
++    code, out = lp.begin("--revert-unclaimed")
++    assert code == 0 and out["unclaimed"][0]["reverted"] is True
++    assert verify(lp, basic_answers())[0] == 0
++    assert lp.close(lp.report("r2.md"))[1]["loop_decision"] == "CONTINUE"
++    lp.edit(
++        text=lp.doc.read_text().replace(
++            "every hour.\n\n## 3", "every ten minutes.\n\n## 3"
++        )
++    )
++    code, out = lp.begin()
++    assert code == 0 and out["unclaimed"] and out["unclaimed"][0]["reverted"] is False
++    assert "every ten minutes." in lp.doc.read_text()
++
++
++def test_three_review_loop_escalates_cap_and_rows_never_shrink(tmp_path):
++    lp = Loop(tmp_path)
++    round2(lp)
++    grades = {r["id"]: r["grade"] for r in lp.state()["rows"]}
++    counts_seen = [len(lp.state()["rows"])]
++    assert verify(lp, basic_answers())[0] == 0
++    assert lp.close(lp.report("r2.md"))[1]["loop_decision"] == "CONTINUE"
++    counts_seen.append(len(lp.state()["rows"]))
++    lp.edit(
++        text=lp.doc.read_text().replace("at most twice", "at most once")
++    )  # touches verified R1
++    assert lp.begin()[0] == 0
++    assert by_id(lp.state())["R1"]["status"] == "fixed"
++    code, out = verify(
++        lp,
++        {
++            "answers": [
++                ans("R1", "regressed", "at most once"),
++                ans("R2", "open", R2_EV, reason="x"),
++                ans("R3", "open", R3_EV, reason="x"),
++            ]
++        },
++    )
++    assert code == 0, out
++    assert by_id(lp.state())["R1"]["status"] == "reopened"
++    rep = lp.report("r3.md")
++    code, out = lp.close(rep)
++    assert out["loop_decision"] == "ESCALATE"
++    assert (
++        rep.read_text().rstrip("\n").splitlines()[-1]
++        == "loop: ESCALATE (sweep pending)"
++    )
++    counts_seen.append(len(lp.state()["rows"]))
++    assert counts_seen == sorted(counts_seen)
++    assert all(
++        grades[r["id"]] == r["grade"] for r in lp.state()["rows"] if r["id"] in grades
++    )
++    code, out = lp.begin()
++    assert code == 3 and out["error"] == "E-CAP"
++
++
++def test_regressed_needs_a_once_verified_row(tmp_path):
++    lp = Loop(tmp_path)
++    round2(lp)
++    code, out = verify(
++        lp,
++        {"answers": [ans("R1", "regressed", FIX_EV)] + basic_answers()["answers"][1:]},
++    )
++    assert code == 2 and out["error"] == "E-ILLEGAL"
++
++
++def test_e_terminal_after_loop_ended_at_review_2(tmp_path):
++    lp = Loop(tmp_path)
++    round2(lp, rows=ONE_BLOCKER)
++    assert verify(lp, {"answers": [ans("R1", "resolved", FIX_EV)]})[0] == 0
++    assert lp.close(lp.report("r2.md"))[1]["loop_decision"] == "PASS"
++    code, out = lp.begin()
++    assert code == 3 and out["error"] == "E-TERMINAL"
++    code, out = lp.answer({"claims": []})
++    assert code == 3 and out["error"] == "E-TERMINAL"
++
++
++def test_verify_dry_run_writes_nothing(tmp_path):
++    lp = Loop(tmp_path)
++    round2(lp)
++    rep = lp.report(
++        "r2.md", "```ledger-input\n" + json.dumps(basic_answers()) + "\n```\n"
++    )
++    before = tree_digest(lp.ledger, lp.doc, rep)
++    code, out = run(
++        tmp_path, "verify", "--doc", "spec.md", "--input", str(rep), "--dry-run"
++    )
++    assert code == 0 and out["dry_run"] is True and out["counts"]["verified"] == 1
++    assert tree_digest(lp.ledger, lp.doc, rep) == before
++
++
++def test_replayed_close_reappends_a_tail_lost_after_the_commit(tmp_path):
++    lp = Loop(tmp_path)
++    lp.init()
++    lp.find("find-basic.json")
++    rep = lp.report("r1.md")
++    original = rep.read_text()
++    seq = lp.seq()
++    assert lp.close(rep, op="c", seq=seq)[0] == 0
++    rep.write_text(
++        original
++    )  # as if the process died after the ledger commit, before the append
++    code, out = lp.close(rep, op="c2", seq=seq)
++    assert code == 0 and out.get("replayed") is True
++    assert rep.read_text().rstrip("\n").splitlines()[-1] == "verdict: FAIL"

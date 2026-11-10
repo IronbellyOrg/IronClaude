@@ -1,0 +1,30 @@
+{
+  "id": "9362f50d-9401-4536-836c-34d778b0a105",
+  "ok": true,
+  "result": {
+    "task": {
+      "id": "task_9c0f198acb01",
+      "run_id": "run_0f9350decd8c",
+      "parent_id": null,
+      "created_by_terminal_handle": "term_cddf23a9-82f5-45ee-a9b8-1fdd61d80197",
+      "created_by_pane_key": "c1e9407e-bfa1-4701-8c09-5286eb1435e4:1f2bf574-5645-49fb-8527-eaeea2e5853e",
+      "created_by_process_incarnation": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/OrcaCLICommandRefactor-Specs@@9943ddb7:ed4d0ccc-4758-4b15-9c71-628a6820d14f",
+      "created_by_run_generation": 1,
+      "task_title": "P0 live check 1: troubleshoot",
+      "display_name": "P0 live check 1: troubleshoot",
+      "spec": "Guard: before running anything, check every Command: line below under the brief guard in ~/.claude/WORKER-CONTRACT.md; on a refusal run nothing and send worker_done --outcome failed with a body starting \"guard refused:\".\nOn a blocked gate: report blocked\nLocal commit: not authorized\nReport directory: .dev/p0-live/troubleshoot/\nWorktree: disposable worktree created by Orca from ironbelly/OrcaCLICommandRefactor-Specs for this check only; you are its only writer.\nOutward actions: none; the coordinator performs every push, PR, comment, install and paid run.\nP0 only: Report file: .dev/p0-live/troubleshoot/REPORT.md, with the status in its **Status**: line. Outcome rule: --outcome failed when the file is missing or empty, or its status is failed or blocked; otherwise --outcome succeeded. This rule replaces the WC-5 mapping for this Task.\nCommand: /sc:troubleshoot \"uv run pytest tests/cli/eval/test_ban_import_rule.py fails 3 tests (test_clean_tree_passes_ruff_check, test_synthetic_import_anthropic_is_flagged_by_ruff, test_ban_message_references_fr_g1); find the root cause\" --type test --output-dir .dev/p0-live/troubleshoot/",
+      "status": "ready",
+      "deps": "[]",
+      "result": null,
+      "created_at": "2026-11-04 06:02:17",
+      "completed_at": null
+    },
+    "mutation": {
+      "requestId": "d99bc692-2906-4757-a788-7f477284edb9",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}

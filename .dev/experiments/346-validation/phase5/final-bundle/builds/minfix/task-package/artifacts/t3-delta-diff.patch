@@ -1,0 +1,321 @@
+diff --git a/src/superclaude/skills/sc-fixcheck/scripts/fixcheck.py b/src/superclaude/skills/sc-fixcheck/scripts/fixcheck.py
+index 5ec83f8be..04ab0f01a 100644
+--- a/src/superclaude/skills/sc-fixcheck/scripts/fixcheck.py
++++ b/src/superclaude/skills/sc-fixcheck/scripts/fixcheck.py
+@@ -445,7 +445,7 @@ def split_region(i1, i2, j1, j2, located, bu, ru):
+     inserted unit, else to the deleted units it replaces (unattributed when they are), else to the
+     pair before it, else the pair after it. Between two pairs, each owner's deleted and inserted
+     units form one part, in order, so a revert restores text in place. Unowned units are unattributed,
+-    and a gap holding an unowned deleted unit is unattributed as a whole."""
++    and a gap holding an unowned deleted unit and inserted text is unattributed as a whole."""
+     local = [e for e in located
+              if (e.op == "add" and i1 <= e.loc[1] <= i2) or (e.op != "add" and e.loc[0] < i2 and e.loc[1] > i1)]
+ 
+@@ -476,9 +476,9 @@ def split_region(i1, i2, j1, j2, located, bu, ru):
+         # are), so a revert never restores the old text while keeping its replacement
+         fallback = dels[-1] if dels else (prev_pair if prev_pair is not None else next_pair)
+         ins = [None if solo[x] else fallback if o is None else o for x, o in enumerate(ins)]
+-        if None in dels:
+-            # undeclared deletions: their gap is reverted as a whole, or a kept insertion could land
+-            # after restored text it was meant to replace
++        if None in dels and ins:
++            # undeclared deletions next to inserted text: the gap is reverted as a whole, or a kept
++            # insertion could land after restored text it was meant to replace (pure deletions stay apart)
+             dels, ins = [None] * len(dels), [None] * len(ins)
+         d = x = 0
+         while d < len(dels) or x < len(ins):
+@@ -547,8 +547,11 @@ def analyze(base_data, base_text, rev_data, rev_text, fb, ledger):
+ def diff_hunks(bu, ru):
+     """Unit-level opcodes plus moved units: an inserted unit identical to a deleted one counts zero.
+ 
+-    A unit's identity is its kind and its normalised text, so a whitespace change that alters
+-    structure (a fence line joined onto a sentence, a table row cut to one word) is a hunk too."""
++    A unit's identity is its kind and its normalised text, so a whitespace change that changes a
++    unit's kind (a fence line joined onto a sentence, a table row cut to one word) is a hunk too.
++    Known limit: a join that keeps every unit's kind and text (two table rows or two paragraphs put
++    on one line) is no hunk, so plain check does not report it; --enforce still undoes it, because
++    it restores the baseline's line breaks between unchanged words (restore_line_breaks)."""
+     bk, rk = [(u.kind, u.norm) for u in bu], [(u.kind, u.norm) for u in ru]
+     opcodes = difflib.SequenceMatcher(None, bk, rk, autojunk=False).get_opcodes()
+     deleted = {}
+@@ -892,11 +895,111 @@ def moved_closure(revert, res):
+                 todo.append(q)
+ 
+ 
++def part_fences(h):
++    """Fence lines a hunk adds (positive) or removes (negative)."""
++    return sum(u.kind == "fence" for u in h.r) - sum(u.kind == "fence" for u in h.b)
++
++
++FENCE_MARK_RE = re.compile(r"(`{3,}|~{3,})\S*")
++WORD_RE = re.compile(r"\S+")
++
++
++def line_start(text, pos):
++    return text.rfind("\n", 0, pos) + 1
++
++
++def line_end(text, pos):
++    end = text.find("\n", pos)
++    return len(text) if end == -1 else end
++
++
++def opens_line(text, start, word):
++    """The word is a fence marker standing at the start of its line."""
++    return bool(FENCE_MARK_RE.fullmatch(word)) and not text[line_start(text, start):start].strip()
++
++
++def word_opcodes(base_text, rev_text):
++    """Words of both files with offsets, aligned (the same alignment for every word-level step)."""
++    bt = [(m.group(), m.start(), m.end()) for m in WORD_RE.finditer(base_text)]
++    rt = [(m.group(), m.start(), m.end()) for m in WORD_RE.finditer(rev_text)]
++    sm = difflib.SequenceMatcher(None, [w for w, _, _ in bt], [w for w, _, _ in rt], autojunk=False)
++    return bt, rt, sm.get_opcodes()
++
++
++def restore_line_breaks(base_text, rev_text):
++    """Put back the baseline's line breaks between words that are unchanged on both sides.
++
++    Wherever two neighbouring words are the same in both files and the whitespace between them has a
++    different number of line breaks (a joined or split line, row or paragraph), the baseline's
++    whitespace is restored. A ledger entry is word-based, so such a change is never part of a
++    declared fix. Returns (text, number of breaks restored)."""
++    bt, rt, opcodes = word_opcodes(base_text, rev_text)
++    edits = []
++    for tag, i1, i2, j1, _ in opcodes:
++        if tag != "equal":
++            continue
++        for k in range(1, i2 - i1):
++            bgap = base_text[bt[i1 + k - 1][2]:bt[i1 + k][1]]
++            rstart, rend = rt[j1 + k - 1][2], rt[j1 + k][1]
++            if bgap.count("\n") != rev_text[rstart:rend].count("\n"):
++                edits.append((rstart, rend, bgap))
++    return apply_edits(rev_text, edits), len(edits)
++
++
++def restore_fences(base_text, rev_text, ledger):
++    """Undo undeclared fence lines: a fence opens or closes a code block, so one added or dropped
++    fence changes the kind of every unit after it and every later hunk would be judged out of
++    context. On the word alignment, a fence marker at a line start that the revision adds is removed
++    (the whole line and one blank line when it stands alone, else the marker and its spaces), unless
++    the inserted words hold the new words of an entry that itself adds a fence; a fence line the
++    revision drops is put back before the line that now follows it. Returns (text, changes)."""
++    bt, rt, opcodes = word_opcodes(base_text, rev_text)
++    declared = [new_key(e) for e in ledger["entries"] if FENCE_MARK_RE.search(e.new)]
++    edits = []
++    for tag, i1, i2, j1, j2 in opcodes:
++        if tag == "equal":
++            continue
++        added = [(s, e) for w, s, e in rt[j1:j2] if opens_line(rev_text, s, w)]
++        dropped = [(s, e) for w, s, e in bt[i1:i2] if opens_line(base_text, s, w)]
++        run = [norm_token(w) for w, _, _ in rt[j1:j2]]
++        if len(added) > len(dropped) and not any(k and contains(run, k) for k in declared):
++            for s, _ in added[len(dropped):]:
++                start, rest = line_start(rev_text, s), rev_text[s:line_end(rev_text, s)]
++                if FENCE_MARK_RE.fullmatch(rest.strip()):
++                    end = min(line_end(rev_text, s) + 1, len(rev_text))
++                    if rev_text[end:end + 1] == "\n" and rev_text[max(0, start - 2):start] == "\n\n":
++                        end += 1
++                    edits.append((start, end, ""))
++                else:
++                    m = re.match(r"\S+\s*", rest)
++                    edits.append((s, s + m.end(), ""))
++        elif len(dropped) > len(added) and j2 < len(rt) and not rev_text[line_start(rev_text, rt[j2][1]):rt[j2][1]].strip():
++            pos = line_start(rev_text, rt[j2][1])
++            for s, _ in dropped[len(added):]:
++                edits.append((pos, pos, base_text[line_start(base_text, s):line_end(base_text, s)] + "\n"))
++    return apply_edits(rev_text, edits), len(edits)
++
++
++def remove_stray_fences(base_data, base_text, rev_text, fb, ledger):
++    """Undo the revision's undeclared layout changes before judging fixes, in memory: first the
++    baseline's line breaks between unchanged words (restore_line_breaks), then undeclared fence lines
++    (restore_fences), then line breaks again. Returns (text, its analysis, fence changes undone,
++    line breaks restored)."""
++    work_text, breaks = restore_line_breaks(base_text, rev_text)
++    work_text, stray = restore_fences(base_text, work_text, ledger)
++    if stray:  # a removed marker can leave two unchanged words with the wrong break between them
++        work_text, more = restore_line_breaks(base_text, work_text)
++        breaks += more
++    res = analyze(base_data, base_text, work_text.encode("utf-8"), work_text, fb, ledger)
++    return work_text, res, stray, breaks
++
++
+ def enforce(args, base_data, base_text, rev_data, rev_text, fb, ledger, ledger_data):
+     """One revert pass (section 2.3), one atomic write of the spec, then the re-check."""
+     if not ledger["entries"]:
+         fail("INPUT", "--enforce needs a ledger with at least one entry")
+-    res = analyze(base_data, base_text, rev_data, rev_text, fb, ledger)
++
++    work_text, res, stray, breaks = remove_stray_fences(base_data, base_text, rev_text, fb, ledger)
+     per, hunks = res["per"], res["hunks"]
+     bad = {fid for fid, p in per.items() if p["status"] in ("OVER", "MINOR-EDIT")}
+     depends_closure(bad, ledger, hunks, per)
+@@ -919,13 +1022,13 @@ def enforce(args, base_data, base_text, rev_data, rev_text, fb, ledger, ledger_d
+             # a kept finding whose part must go back with a moved unit is reverted whole
+             extra = {p.entry.finding for p in revert if p.entry is not None and p.entry.finding not in bad}
+             if not extra:
+-                text = apply_edits(rev_text, region_edits(res, revert, base_text, rev_text))
++                text = apply_edits(work_text, region_edits(res, revert, base_text, work_text))
+                 return revert, text, text.encode("utf-8")
+             bad.update(extra)
+             depends_closure(bad, ledger, hunks, per)
+ 
+     def fence_delta(f):
+-        return sum(sum(u.kind == "fence" for u in h.r) - sum(u.kind == "fence" for u in h.b) for h in per[f]["hunks"])
++        return sum(part_fences(h) for h in per[f]["hunks"])
+ 
+     revert, text, data = compose()
+     structure, recheck = [], []
+@@ -961,7 +1064,7 @@ def enforce(args, base_data, base_text, rev_data, rev_text, fb, ledger, ledger_d
+     print(f"ENFORCE reverted={','.join(sorted(bad, key=natural)) or '-'} "
+           f"hunks={','.join(f'h{h.k}' for h in sorted(revert, key=lambda h: h.k) if h.k) or '-'} "
+           f"restored-baseline={'yes reason=raw-size' if restored else 'no'} "
+-          f"structure={','.join(structure) or '-'} recheck={','.join(recheck) or '-'}")
++          f"structure={','.join(structure) or '-'} recheck={','.join(recheck) or '-'} stray-fence-hunks={stray} line-breaks={breaks}")
+     print("escalated-by-enforce: " + (" ".join(sorted(bad, key=natural)) or "none"))
+     rev_data, rev_text = read_text(args.revised)
+     final = analyze(base_data, base_text, rev_data, rev_text, fb, ledger)
+diff --git a/tests/skills/test_sc_fixcheck.py b/tests/skills/test_sc_fixcheck.py
+index 7c665d396..f74b2cfdd 100644
+--- a/tests/skills/test_sc_fixcheck.py
++++ b/tests/skills/test_sc_fixcheck.py
+@@ -700,7 +700,7 @@ def random_edit(rng, text, target):
+             return text.replace(target, target.split("|")[1].strip()), None
+         return text.replace(target + "\n", ""), ("delete", target, "")
+     s = target
+-    kind = rng.choice(["replace", "narrow", "delete", "add", "prefix", "move", "space", "join", "fence"])
++    kind = rng.choice(["replace", "narrow", "delete", "add", "prefix", "move", "space", "join", "fence", "stray"])
+     if kind == "replace":
+         new = s[:-1] + " " + words + "."
+     elif kind == "narrow":
+@@ -714,6 +714,8 @@ def random_edit(rng, text, target):
+         return text.replace(s, new), None
+     elif kind == "move":
+         return text.replace(s + " ", "").replace(s, "") + "\n" + s + "\n", None
++    elif kind == "stray":
++        return text.replace(s, s + "\n\n```"), None  # an undeclared fence line mid-text
+     elif kind == "fence":
+         return text.replace(s, s + "\n\n```"), ("add", s, "```")  # a declared fix that opens an unmatched fence
+     elif kind == "join":
+@@ -724,13 +726,14 @@ def random_edit(rng, text, target):
+ 
+ 
+ def kept_slices(d):
+-    """Plain-check view before --enforce: the revised text of every attributed hunk, and the findings
+-    --enforce may revert for a stated reason (over budget or minor edit, a depends: entry, a moved unit)."""
++    """Check view before --enforce, in the context --enforce judges in (undeclared fence lines removed):
++    the revised text of every attributed hunk, and the findings --enforce may revert for a stated reason
++    (over budget or minor edit, a depends: entry, a moved unit)."""
+     base_data, base_text = fc.read_text(d / "base.md")
+-    rev_data, rev_text = fc.read_text(d / "spec.md")
++    _, rev_text = fc.read_text(d / "spec.md")
+     fb = fc.parse_fixbudget((d / "review-1.md").read_text())
+     ledger = fc.load_ledger(d / "review-1.md", None)[2]
+-    res = fc.analyze(base_data, base_text, rev_data, rev_text, fb, ledger)
++    rev_text, res, _, _ = fc.remove_stray_fences(base_data, base_text, rev_text, fb, ledger)
+     slices = [(h.entry.finding, rev_text[h.r[0].start:h.r[-1].end]) for h in res["hunks"] if h.entry and h.r]
+     allowed = {f for f, p in res["per"].items() if p["status"] in ("OVER", "MINOR-EDIT")}
+     allowed |= {e.finding for e in ledger["entries"] if e.depends}
+@@ -775,7 +778,7 @@ def test_property_enforce_then_check_exits_0(tmp_path, capsys):
+         assert code == 0, (n, out)
+         reverted = set(out.split("ENFORCE reverted=", 1)[1].split(" ", 1)[0].split(",")) - {"-"}
+         structure = set(out.split(" structure=", 1)[1].split(" ", 1)[0].split(",")) - {"-"}
+-        recheck = set(out.split(" recheck=", 1)[1].split("\n", 1)[0].split(",")) - {"-"}
++        recheck = set(out.split(" recheck=", 1)[1].split(" ", 1)[0].split(",")) - {"-"}
+         if "restored-baseline=no" in out:
+             assert structure <= fences, (n, out)  # a structure revert only hits a finding whose hunks change the fence count
+             assert reverted <= allowed | structure | recheck, (n, reverted, allowed, out)  # every revert has a stated reason
+@@ -904,14 +907,39 @@ def test_enforce_reverts_table_edits_and_keeps_a_fix_elsewhere(tmp_path, capsys,
+ 
+ 
+ def test_enforce_restores_the_whole_baseline_only_for_raw_size(tmp_path, capsys):
++    """Trailing spaces keep every line break, so nothing but the raw size check sees them."""
+     new = "Old entries leave the cache after thirty minutes."
+-    revised = BASE.replace(OLD, new).replace("\n\n", "\n" + " " * 1200 + "\n\n")
++    revised = BASE.replace(OLD, new).replace("\n\n", " " * 1200 + "\n\n")
+     d = case(tmp_path, revised, [MAJOR], [(1, {"finding": "F1", "op": "replace", "old": OLD, "new": new})])
+     code, out = enforce(d, capsys)
+     assert code == 0 and "restored-baseline=yes reason=raw-size" in out, out
+     assert (d / "spec.md").read_text() == BASE
+ 
+ 
++def test_enforce_restores_added_blank_lines_and_keeps_the_fix(tmp_path, capsys):
++    """Whitespace that adds line breaks between unchanged words is put back to the baseline's, so the raw
++    size stays in bounds and the in-budget fix is kept. The one gap next to the fix's own changed words
++    is not between two unchanged words, so it keeps the revision's extra line (spaces only)."""
++    new = "Old entries leave the cache after thirty minutes."
++    revised = BASE.replace(OLD, new).replace("\n\n", "\n" + " " * 1200 + "\n\n")
++    d = case(tmp_path, revised, [MAJOR], [(1, {"finding": "F1", "op": "replace", "old": OLD, "new": new})])
++    code, out = enforce(d, capsys)
++    assert code == 0 and "restored-baseline=no" in out and "line-breaks=" in out, out
++    final = (d / "spec.md").read_text()
++    assert final.replace(new + "\n" + " " * 1200 + "\n\n", new + "\n\n") == BASE.replace(OLD, new)
++
++
++def test_enforce_undoes_joined_table_rows_and_paragraphs(tmp_path, capsys):
++    """F5.2's undetected joins: plain check reports no hunk, but --enforce restores the line breaks."""
++    new = "Old entries leave the cache after thirty minutes."
++    revised = (BASE.replace(OLD, new).replace("| id | integer |\n| name | text |", "| id | integer | | name | text |")
++               .replace("host machine.\n\n| field", "host machine. | field"))
++    d = case(tmp_path, revised, [MAJOR], [(1, {"finding": "F1", "op": "replace", "old": OLD, "new": new})])
++    code, out = enforce(d, capsys)
++    assert code == 0 and "line-breaks=2" in out, out
++    assert (d / "spec.md").read_text() == BASE.replace(OLD, new)
++
++
+ ROW_BASE = BASE.replace("| name | text |", "| name | text |\n| c | three |")
+ FENCE_BASE = ("# Doc\n\nAlpha text here.\n\n```\nuv run thing\n```\n\nBeta text here. Gamma more text.\n\n"
+               "Old entries leave the cache after one hour.\n")
+@@ -993,8 +1021,9 @@ RECHECK_SPEC = ('# Prop\n\nAlpha nodes hold the primary copy of each shard. Beta
+     'show latency by region.\n\n| key | value |\n|---|---|\n| a | changed |\n| b | changed |\n')
+ 
+ 
+-def test_enforce_reverts_kept_fixes_the_recheck_names(tmp_path, capsys):
+-    """A kept fix whose text fails once the reverted context is restored is reverted whole (recheck=)."""
++def test_enforce_judges_kept_table_fixes_after_removing_a_stray_fence(tmp_path, capsys):
++    """Property case (seed 236): an undeclared fence turned the table into code; once it is removed first,
++    F1's in-budget table fixes are judged in context and kept, and only the over-budget minor F3 goes."""
+     rows = ["F1 | CRITICAL | blocking | std", "F2 | MAJOR | blocking | std", "F3 | MAJOR | minor | -",
+             "F4 | MAJOR/FR-8 | blocking | gap:2"]
+     entries = [(1, {"finding": "F1", "op": "replace", "old": "| a | one |", "new": "changed"}),
+@@ -1004,5 +1033,37 @@ def test_enforce_reverts_kept_fixes_the_recheck_names(tmp_path, capsys):
+     d = case(tmp_path, RECHECK_SPEC, rows, entries, base=RECHECK_BASE)
+     code, out = enforce(d, capsys)
+     assert code == 0, out
+-    assert "ENFORCE reverted=F1,F3 " in out and "recheck=F1" in out and "structure=-" in out
+-    assert check(d, capsys)[0] == 0
++    assert "ENFORCE reverted=F3 " in out and "recheck=-" in out and "stray-fence-hunks=1" in out
++    final = (d / "spec.md").read_text()
++    assert "| a | changed |" in final and final.count("```") == RECHECK_BASE.count("```")
++    code, out = check(d, capsys)
++    assert code == 0 and "status=fixed" in finding_line(out, "F1"), out
++
++
++S1 = "The service stores each record in the primary database table."
++
++
++@pytest.mark.parametrize(
++    "old, new",
++    [("The service writes one log line per request.", "The service writes one log line per request today."),
++     (CACHE, "The cache layer keeps recent records in memory for faster reads today.")],
++    ids=["R3-exit-1", "R4-duplicate"],
++)
++def test_enforce_removes_an_undeclared_fence_before_judging_fixes(tmp_path, capsys, old, new):
++    """Review r5-1 F5.1: an undeclared fence mid-text is removed first, so the kept fix is judged in
++    context and no sentence is restored twice."""
++    d = case(tmp_path, BASE.replace(S1, S1 + "\n\n```").replace(old, new), [MAJOR],
++             [(1, {"finding": "F1", "op": "replace", "old": old, "new": new})])
++    code, out = enforce(d, capsys)
++    assert code == 0, out
++    assert "ENFORCE reverted=- " in out and "stray-fence-hunks=1" in out
++    assert (d / "spec.md").read_text() == BASE.replace(old, new)
++
++
++def test_joined_table_rows_are_a_known_undetected_limit(tmp_path, capsys):
++    """Review r5-1 F5.2: a join that keeps every unit's kind and text is no hunk (documented limit)."""
++    revised = BASE.replace("| id | integer |\n| name | text |", "| id | integer | | name | text |")
++    d = case(tmp_path, revised, [MAJOR], [(1, {"finding": "F1", "op": "delete", "old": OLD})])
++    code, out = check(d, capsys)
++    assert code == 0 and "hunks=0" in out, out
++    assert "plain check does not report it" in fc.diff_hunks.__doc__

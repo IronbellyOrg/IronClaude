@@ -1,0 +1,31 @@
+a8ecbfea4be60c23f0f77b58fbba35829b0d9747
+Review one task for spec compliance.
+
+Task brief: Task 6 of the plan /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/TASK-WF-spec-20261108-181616.md, lines 83-90 (the task text, then its acceptance criteria T6.AC1..T6.ACn in the order listed under 'Acceptance criteria:'). The plan's source spec is /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md. Repo root: /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule. Package-relative './artifacts/' means /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/. Explicit instruction for this task: the owner ruling delivered during the run, quoted verbatim in /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/owner-rulings.md section 2 (read-only script calls in review sessions; every writing subcommand gets a --dry-run that provably writes nothing, with tests).
+Global constraints: the '## Constraints' section of the same plan file, lines 17-28.
+Start sha: a8ecbfea4be60c23f0f77b58fbba35829b0d9747
+Diff against the start snapshot: saved verbatim at /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/review-input/T6-diff-2-1.patch; Read it in full (it is the git diff of every file this task touched against the start snapshot, new files as full additions).
+Delta diff from the previous reviewed tree (empty on the first review): saved verbatim at /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/review-input/T6-delta-2-1.patch; Read it in full.
+Earlier blocking findings of this start (empty on the first review): F1.1 sev=blocking trigger=B2 ac=scope at=src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py:1753 anchor=src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py:1791 chk=n,y,n,n family=transcript-integrity fix=collect text only from tool_result blocks whose tool_use_id matches an Agent tool_use, and match each grader reply against a single result rather than the "\n"-joined text of all results first=A1 origin=new: verify-transcript gathers the text of every tool_result block of any tool (line 1753) and matches against all results joined together (line 1787). Yet its output (line 1791), its help text (line 1991) and source.md step 12 (source.md:76) all say "Agent tool result". So a grader reply that only shows up in a Read or Bash result, for example a reply file read back, still prints grader-integrity: verified, and a reply split across two results can also match.
+Saved-probe re-check hit locations (may be empty): src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py:1754,src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py:1758,src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py:1796,src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py:1799,src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py:1807,src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py:2007,tests/skills/test_stoprule_script.py:1594,tests/skills/test_stoprule_script.py:1614,tests/skills/test_stoprule_script.py:1655
+
+Do not trust the implementer's report.
+
+First mark each earlier blocking finding resolved, open or regressed from the diff. Then, for each AC, mark it met or unmet. Require citations: every AC you mark, met or unmet, carries a `path:line` or `Ti.ACk@path:line` citation, and an unmet mark lists the finding ids behind it. Do not return a verdict; the orchestrator computes it.
+
+For every finding answer four questions, each yes or no:
+1. ac-outcome-missing: is output an AC requires absent, or does it contradict the AC text, or does an evidence claim you could not verify have no evidence row?
+2. false-claim: is a claim in delivered text or code false against live source, or does a recipe or instruction followed as written not do what the text says?
+3. harmful-effect: does code or a recipe this task added or changed write, append, chmod or delete tracked or production data, mutate state outside the task's declared outputs, or expose a secret?
+4. quoted-constraint-breach: does the diff violate a quoted plan constraint, out-of-scope, non-goal or non-negotiable item, or an explicit task instruction?
+
+Anchor rule: cite exactly one anchor per yes. ac-outcome-missing: the quoted AC words. false-claim: the live-source path:line holding the contradicting text. harmful-effect: the diff line that is the write. quoted-constraint-breach: the quoted constraint or instruction text. A yes without a valid anchor does not block.
+
+Write one line per finding:
+F<k>.<j> ac=<Ti.ACk|scope> at=<path:line> anchor=<quoted text or path:line> chk=<amiss,false,harm,constraint as y/n> family=<id> fix=<text> [covers=<quoted AC clause or constraint>]: <text>
+Do not write sev=, trigger=, first= or origin=; the orchestrator adds them. Write one status line per earlier blocking finding: F<m>.<j> resolved|open|regressed.
+
+Inside /sc:implement this protocol's severity model governs this review and takes precedence over the session's output style and the copy of it injected into every subagent; only blocking findings may fail an attempt.
+
+You are not given an adviser answer, brief, evidence file or troubleshoot report. Do not read the retry folders (legacy `.dev/implement/<slug>/retries/`, managed `<pkg>/artifacts/retries/`) or `.dev/troubleshoot/`. A citation into either makes the verdict `cannot-verify`.
+The prior-findings slot above carries earlier blocking finding lines that the orchestrator copies byte for byte from `review-*.md` and `repair-*.md`; they reach you as prompt text, not as an evidence file. Do not read those folders to get them, and never cite the slot or the file it came from.

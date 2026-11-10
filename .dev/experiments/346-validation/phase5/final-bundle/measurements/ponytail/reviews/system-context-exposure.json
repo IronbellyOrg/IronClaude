@@ -1,0 +1,30 @@
+[
+  {
+    "step": "setup",
+    "system_context_references": []
+  },
+  {
+    "step": "T05",
+    "system_context_references": []
+  },
+  {
+    "step": "T06",
+    "system_context_references": []
+  },
+  {
+    "step": "T07",
+    "system_context_references": []
+  },
+  {
+    "step": "T08",
+    "system_context_references": []
+  },
+  {
+    "step": "T08a",
+    "system_context_references": []
+  },
+  {
+    "step": "T09",
+    "system_context_references": []
+  }
+]

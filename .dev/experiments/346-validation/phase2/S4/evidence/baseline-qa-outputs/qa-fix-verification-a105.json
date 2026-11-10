@@ -1,0 +1,26 @@
+{
+  "title": "QA Report - task-integrity, fix verification A.10.5 cycle 1 (F12-F20)",
+  "date": "2026-11-07",
+  "verdict": "FAIL",
+  "target": "TASK-RESEARCH-bmad-first-use-20261107-075901.md (601 lines, 553542 bytes)",
+  "checks": {
+    "1_count": "PASS: grep '^- \\[ \\]' = 91; 55 step headings, no duplicates, no gaps, no dangling Step refs; items per step sum to 91 (2+5+14+2+17+45+6)",
+    "2_F12": "PASS: 61 agent-spawning items (BEGIN/END AGENT PROMPT balanced); agent-side fallback 63 occurrences (234 and 254 hold 2 prompts each: fix agent + gap researcher); executor-side tail 61; 0 items missing either; 12 research/web/synth/assembler prompts carry 'too large for the inline route'; 10 fix items carry BLOCKED clause; never-zero/never-PASS rule at line 136 and in all 21 consolidation/decision items plus 475; old 'not by you' wording 0 hits",
+    "3_F13": "PASS: line 169 Grep '^- \\[ \\]' output_mode content -n, Read offset/limit, never whole file; no contradicting instruction",
+    "4_F14": "PASS: bmad install / NPM_CONFIG_OFFLINE occurrences at 105,128,165,193-209,234,254,300,381,600 are the one rule, descriptive option text, or code-reading questions; none allows an install; 197(a) is code-reading",
+    "5_F15": "PARTIAL: branch present at 304, 371, 379, 475 (and 387); absent from Gate 2 prompts 308, 312 (item 6) and Gate 3 lenses 373, 383",
+    "6_F16": "PASS: 10 of 10 consolidation items (230,250,320,340,391,403,423,433,453,463) carry Reporter/Final severity, Reason, Severity changes; 433 and 463 inherit 'or none' via 'same format'",
+    "7_F17_F18_F19_F20": "PASS: web-source check at 415, 421 (item 6 + table), 423; lens 387 reproduces every Section 8 row (and re-scope proposal), wrong line = IMPORTANT; Self-Audit in 39 QA/analyst/lens prompts + 4 synthesis analysts = 43, assembler rule 8 (line 365) omits the block, consistent; expected.txt and renovate-global.json5 in 209(f), 304, and 381 item e re-derives Feasibility; both files exist and mention bmad",
+    "8_sweep": "PASS: no Ponytail research (only path names, note at 133/587); no POST reflect gate (135, 588; frontmatter reflect_* empty defaults); TBD/TODO only inside 'no placeholder' instructions; all 91 items end with the standard closing sentence; backticks balanced; no duplicated blocks; largest lines 193 (13083), 304 (13045), 209 (12867), 201 (11038), 254 (10702) chars"
+  },
+  "issues": [
+    {"id": 1, "severity": "IMPORTANT", "location": "lines 308, 312, 373, 383 (Gate 2 analyst/structure; Gate 3 internal-consistency and crossref lenses)", "issue": "F15 re-scope branch not propagated. If Section 7 says STOP-AND-RE-SCOPE (anticipated at line 134), Gate 2 item 6 ('implementation plan has specific file paths') and Gate 3 'Section 7 recommends an option Section 8 does not implement' / 'pinned test in Section 2 appears in Section 8 change list' will report missing plan as a missing deliverable; consolidation 320/391 has no branch, so fix agent cannot comply and gate HALTs.", "fix": "Add one sentence to 308, 312, 316, 373, 383 and consolidation 320/391: when Section 8 starts with 'RE-SCOPE PROPOSAL', apply those checks to the proposal; missing plan steps are not a defect."},
+    {"id": 2, "severity": "MINOR", "location": "Self-Audit heading", "issue": "75 uses of '## Self-Audit' vs 13 of '### Self-Audit' (lens/fidelity/anti-omission formats); executor substring check still matches."},
+    {"id": 3, "severity": "MINOR", "location": "fallback rule 3 vs 6", "issue": "1500-char inline route leaves no room for Self-Audit; after the single re-run, a still-missing Self-Audit has no defined outcome (items end 'otherwise incomplete: log, mark complete'). Same for fidelity agent 3 web-source table absent after one re-run (423)."},
+    {"id": 4, "severity": "MINOR", "location": "230, 320, 391, 423, 453, 433, 463", "issue": "Consolidation items say 'never zero findings' but not 'never a PASS' (decision items do); 433/463 omit 'or none' wording."},
+    {"id": 5, "severity": "MINOR", "location": "308-316, 447-451", "issue": "Gate 2 and Gate 5 prompts do not mention the synthesis files' trailing '## Self-Audit (not a report section)' block; heading is self-labelled, so low risk."},
+    {"id": 6, "severity": "MINOR", "location": "QA/analyst/lens prompts", "issue": "BMAD CLI RULE sentence only in research, gap and fix prompts; QA prompts rely on 'only file you may create is your report file'."}
+  ],
+  "self_audit": "Checked by awk/grep per item line (91 items, 61 prompts), Read of lines 1-64, 120-171, 216-226, 387, 403, 433, 583-601; verified from the task file not the fix log. Did not execute any agent prompt, did not verify cited code paths beyond existence of the two upstream-monitor files, did not edit the task file.",
+  "confidence": "Verified 8/8 checklist groups by tool evidence (F15 partial) | Unchecked 0 | Tools: Read 8, Grep 4, Bash ~14"
+}

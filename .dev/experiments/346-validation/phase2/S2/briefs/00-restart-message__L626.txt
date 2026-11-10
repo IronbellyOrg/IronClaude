@@ -1,0 +1,1 @@
+Your last turn died on an API connection error at 22:59 during the pre-review of package TASK-WF-removeTheAnyIssu-20261101-225635. Continue the task from there per /tmp/t11b-severity-rule-restart-spec.md.

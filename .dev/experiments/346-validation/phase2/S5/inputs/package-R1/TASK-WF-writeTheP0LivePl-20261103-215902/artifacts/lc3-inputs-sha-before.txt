@@ -1,0 +1,2 @@
+3b68e95e9c84378df2f9d061742e70a1df8b999abb193ebcad45bf1c49ad1109  /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/orca-command-refactor/decisions/D1/option-a.md
+97ba6e868329ff07e83ba139e5722334e6ada3cea52b5e66c5580b1050e88d08  /home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial/.dev/orca-command-refactor/decisions/D1/option-b.md

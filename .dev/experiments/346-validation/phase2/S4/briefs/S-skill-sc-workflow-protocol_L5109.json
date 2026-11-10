@@ -1,0 +1,4 @@
+{
+ "skill": "sc-workflow-protocol",
+ "args": ".dev/issues/478/spec.md --depth standard --handoff none"
+}

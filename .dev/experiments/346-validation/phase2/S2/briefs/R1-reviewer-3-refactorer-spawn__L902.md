@@ -1,0 +1,1 @@
+Your brief is the file /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/reflect/pre-removeTheAnyIssu-20261101225845/reviewer-briefs/reviewer-3.md. Read it and follow it exactly. Return your findings in your final message (you have no write tools; the orchestrator saves them). Keep the return under 60 lines.

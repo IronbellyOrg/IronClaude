@@ -1,0 +1,22 @@
+{
+  "id": "33cae62f-dc69-4e52-9b9f-e168fd04d99c",
+  "ok": true,
+  "result": {
+    "run": {
+      "id": "run_0f9350decd8c",
+      "objective": "P0 live checks AC-0.4, AC-0.5, AC-0.6 for the Orca worker contract",
+      "coordinator_handle": "term_cddf23a9-82f5-45ee-a9b8-1fdd61d80197",
+      "consumer_generation": 1,
+      "legacy": 0,
+      "created_at": "2026-11-04T06:00:26Z",
+      "updated_at": "2026-11-04T06:00:26Z"
+    },
+    "mutation": {
+      "requestId": "d36a9a9e-12c1-4192-a36d-1ef12b657718",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}

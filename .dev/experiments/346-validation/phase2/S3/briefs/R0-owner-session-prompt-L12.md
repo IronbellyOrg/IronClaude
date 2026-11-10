@@ -1,0 +1,1 @@
+Read /home/coder/workspaces/IronClaude/.dev/brainstorms/20261105-024132-issue-claim-orca-worktree-flag/hook-session-prompt.md and follow it.

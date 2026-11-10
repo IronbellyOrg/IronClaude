@@ -1,0 +1,25 @@
+input_tree_sha256: add8b86c384d9a4bebe6c5ed94093406757878f973ec6982ca03c728717e0525
+file_count: 11
+file_list:
+  - path: .dev/tasks/to-do/TASK-WF-spec-20261108-181543/TASK-WF-spec-20261108-181543.md
+    sha256: 15e8d011e5bc122bb055ee8c19eead18e304ca752438e55ca784c2b7fa69c09c
+  - path: .dev/tasks/to-do/TASK-WF-spec-20261108-181543/source.md
+    sha256: cc668ff2df4826d03d30c186a13c0261f125a90f1a1efece86140b1fc0ff208a
+  - path: plugins/superclaude/commands/spec-panel.md
+    sha256: f1df5f7564495068e27519352699459206b9a02f3678ccf7c49ce6a2f9f90391
+  - path: src/superclaude/commands/spec-panel.md
+    sha256: 4115f2a979800af8b3ed8dee9d006cf3a97e25c5d9e02420cfee761e82cbe3c9
+  - path: src/superclaude/core/HOW-WE-WORK.md
+    sha256: 39902f7daeb824fce820d190ac28dc11bc1f6161309afbd4f0616050c003a58d
+  - path: src/superclaude/core/WORKER-CONTRACT.md
+    sha256: 5fbf2f2e201bd40c98d21348814f5b94d3dadc48697722fed1fa8e031b6f7698
+  - path: src/superclaude/examples/release-spec-template.md
+    sha256: bbfcb28fd7b98b5d3013884010c1efa405880652fcc65bb13e9f009e25a65082
+  - path: src/superclaude/output-styles/pragmatic.md
+    sha256: ba551b7d3d7fe1d2881cb567271e6588b199a130ecee542ecd86c892a47b7489
+  - path: tests/skills/test_review_severity_rule.py
+    sha256: dc21823da962d14b40339e2081717177b3497b27b2a1e41f5637ed97ef10d961
+  - path: tests/skills/test_spec_panel_review_loop.py
+    sha256: e3bc8cb4924d184748dca8a8ebcabb74af41f0bc614eb80dae0a4b1ad31f1ae3
+  - path: tests/skills/test_worker_contract.py
+    sha256: 1fb7e9c7f96b31741a2082601ec3561737f57040075aae3be42e56f3991528cd

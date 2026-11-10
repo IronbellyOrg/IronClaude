@@ -1,0 +1,105 @@
+# Thread Reply + Resolve (C4) — the reply/resolve contract
+
+This ref pins the exact reply + resolve surfaces for a remediated review finding (Augment or Codex). The order is
+**reply-FIRST-then-resolve** (T-601 → T-602). Every call pins the RESOLVED origin repo
+(`--repo <owner/repo>` for `gh pr`; `repos/<owner/repo>/...` path for `gh api`; the GraphQL
+`owner`/`repo` vars are split from the same resolved `owner/repo`). The wrapper script
+`scripts/reply-resolve-thread.sh` implements this; this ref is its contract.
+
+## 1. Reply — REST `in_reply_to` (FR-6.1)
+
+```bash
+gh api --method POST repos/<owner/repo>/pulls/<N>/comments/<COMMENT_ID>/replies -f body="<reply-text>"
+```
+
+- `<COMMENT_ID>` MUST be a **top-level review comment** (replies-to-replies are unsupported) — it is
+  the original Augment or Codex inline finding comment id (the thread root's `databaseId`) captured
+  during polling. The wrapper identifies the thread by that root id (and optional `--thread-id`),
+  never by author, so a Codex root works exactly like an Augment root.
+- The reply summarizes **fix + commit SHA + passing validation commands**.
+- **`applied_edits` citation rule (T-603, INV-009):** the reply MUST cite the `applied_edits` status.
+  An `applied_edits == 0` / ungroundable cycle MUST say **"no code change applied"** and MUST NEVER
+  say "resolved". Only a cycle that actually applied a grounded edit may describe the thread as fixed.
+
+## 2. Suggestion block — trivial fixes only (FR-6.5, gated by `applied_edits > 0`)
+
+When a fix is **trivial** — a single contiguous hunk, single file, ≤10 changed lines, no cross-file
+edits — the reply embeds a fenced ```` ```suggestion ```` block reproducing the applied hunk on the
+cited line (a one-click re-applyable diff as evidence, T-640). **Non-trivial** fixes (>10 lines or
+multi-file) carry the prose summary + commit SHA only, **no suggestion block** (T-641). A suggestion
+block is NEVER emitted on an `applied_edits == 0` cycle.
+
+## 3. Resolve — GraphQL `resolveReviewThread` (FR-6.2, GraphQL-only)
+
+The wrapper uses GraphQL `resolveReviewThread`, not a REST comment mutation, to resolve.
+REST root `comment_id` / `review_id` and GraphQL `thread_id` are distinct identities.
+
+**(a) Confirm identity and resolution BEFORE any reply.** Invoke
+`scripts/reply-resolve-thread.sh --pr <N> --repo <owner/repo> --comment-id <ROOT_DATABASE_ID> --body-file <path>`
+with optional `--thread-id <THREAD_NODE_ID>`. A supplied thread ID is preferred but must match **both**
+this PR's thread and its root database ID before skip or write; a conflicting/missing ID is not a
+license to fall back to another thread. Without it, look up the exact root database ID. Compatibility
+`--path` / `--line` arguments are accepted but never identify a thread: no path/line lookalike match.
+
+The actual wrapper completely paginates this PR-scoped connection, including when an ID is supplied:
+
+```bash
+gh api graphql -f query='
+  query($owner:String!,$repo:String!,$pr:Int!,$endCursor:String){
+    repository(owner:$owner,name:$repo){pullRequest(number:$pr){
+      reviewThreads(first:100,after:$endCursor){pageInfo{hasNextPage endCursor}
+        nodes{id isResolved comments(first:1){nodes{databaseId replyTo{databaseId}}}}
+      }
+    }}
+  }' -f owner=<owner> -f repo=<repo> -F pr=<N>
+```
+
+Supply `-f endCursor=<previous-endCursor>` on subsequent pages until `hasNextPage:false`; validate all
+pages/termination, root-only shape, unique thread/root IDs and no GraphQL errors. Missing connections,
+missing/repeated cursors, partial lookup or the 1000-page cap fail closed before writes, even if a
+candidate appeared earlier. Targets beyond thread 100 are supported. A uniquely matched
+`isResolved:true` root causes **idempotency_skip BEFORE reply** (also with `--no-resolve`).
+
+**(b) For the confirmed open thread, reply FIRST, validate the REST response's positive `id` and
+matching `in_reply_to_id`, then resolve** (mutation input = the matched thread node `id`):
+
+```bash
+gh api graphql -f query='
+  mutation($threadId:ID!){ resolveReviewThread(input:{threadId:$threadId}){ thread{ id isResolved } } }' \
+  -f threadId=<THREAD_NODE_ID>
+```
+
+- **Response validation:** successful process exit alone is insufficient. Require no GraphQL errors,
+  returned `thread.id` equal to the confirmed target and `thread.isResolved:true`. Malformed/mismatched
+  mutation data fails, never records success. `--no-resolve` skips only the mutation, not lookup,
+  already-resolved skip or reply-response validation.
+- **Permissions HALT:** `resolveReviewThread` needs Pull Requests read+write on the authenticating
+  identity. A "Resource not accessible by integration" / 403 maps to a **HALT** with a clear
+  "needs PR read+write" message — NOT a silent retry.
+
+## 4. Ordering, idempotency, and the single summary thread
+
+- **Reply FIRST, then resolve** (T-601 → T-602): the reply summarizes the fix + SHA + passing
+  validation, then the thread is resolved.
+- **Idempotency:** skip a thread already showing `isResolved: true` (the `resolved_thread_ids` set,
+  §11.4) — append an `idempotency_skip` run-log event rather than re-mutating. Reply idempotency is
+  the thread-scoped `reply_key` (no duplicate annotations, NFR-1).
+- **Single summary thread:** a clean re-review posts **exactly one** summary thread (the conversation
+  comment via `gh api --method POST repos/<owner/repo>/issues/<N>/comments -f body=...`),
+  NOT one comment per finding (T-642). The §17 residual summary (FR-6.4) uses the same single-thread
+  surface.
+
+## 5. Fallback-only PR conversation follow-up (FR-9)
+
+When S5b fallback findings come only from the PR-posted `/sc:auggie-review` output and do not carry valid
+Augment inline `comment_id` values or review-thread node ids, `sc:pr-submit` MUST NOT attempt inline reply
+or GraphQL resolution. Instead, it posts **exactly one** PR conversation follow-up comment on the issue-comments
+surface summarizing:
+
+- applied edits count and the pushed commit SHA or branch;
+- validation gates run and their pass/fail state;
+- residual findings or terminal state;
+- the posted fallback `/sc:auggie-review` output URL/comment id when available.
+
+This is still `sc:pr-submit`'s reply responsibility. `/sc:auggie-review` only produces/posts the fallback
+review report; it does not reply to Augment threads and does not push fixes.

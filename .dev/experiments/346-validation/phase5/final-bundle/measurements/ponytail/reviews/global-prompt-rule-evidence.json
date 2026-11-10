@@ -1,0 +1,142 @@
+[
+  {
+    "step": "setup",
+    "blob_roles": {
+      "user": 5,
+      "system": 2,
+      "assistant": 4
+    },
+    "global_rule_prompt_hits": [
+      {
+        "source_line": 30,
+        "role": "system",
+        "excerpt": [
+          "- Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosme",
+          "- Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in",
+          "view loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings."
+        ]
+      }
+    ],
+    "global_rule_present": true
+  },
+  {
+    "step": "T05",
+    "blob_roles": {
+      "user": 15,
+      "system": 6,
+      "assistant": 33
+    },
+    "global_rule_prompt_hits": [
+      {
+        "source_line": 33,
+        "role": "system",
+        "excerpt": [
+          "- Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosme",
+          "- Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in",
+          "view loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings."
+        ]
+      }
+    ],
+    "global_rule_present": true
+  },
+  {
+    "step": "T06",
+    "blob_roles": {
+      "user": 13,
+      "system": 9,
+      "assistant": 21
+    },
+    "global_rule_prompt_hits": [
+      {
+        "source_line": 30,
+        "role": "system",
+        "excerpt": [
+          "- Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosme",
+          "- Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in",
+          "view loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings."
+        ]
+      }
+    ],
+    "global_rule_present": true
+  },
+  {
+    "step": "T07",
+    "blob_roles": {
+      "user": 10,
+      "system": 8,
+      "assistant": 25
+    },
+    "global_rule_prompt_hits": [
+      {
+        "source_line": 31,
+        "role": "system",
+        "excerpt": [
+          "- Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosme",
+          "- Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in",
+          "view loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings."
+        ]
+      }
+    ],
+    "global_rule_present": true
+  },
+  {
+    "step": "T08",
+    "blob_roles": {
+      "user": 16,
+      "system": 4,
+      "assistant": 27
+    },
+    "global_rule_prompt_hits": [
+      {
+        "source_line": 30,
+        "role": "system",
+        "excerpt": [
+          "- Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosme",
+          "- Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in",
+          "view loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings."
+        ]
+      }
+    ],
+    "global_rule_present": true
+  },
+  {
+    "step": "T08a",
+    "blob_roles": {
+      "user": 6,
+      "system": 9,
+      "assistant": 18
+    },
+    "global_rule_prompt_hits": [
+      {
+        "source_line": 31,
+        "role": "system",
+        "excerpt": [
+          "- Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosme",
+          "- Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in",
+          "view loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings."
+        ]
+      }
+    ],
+    "global_rule_present": true
+  },
+  {
+    "step": "T09",
+    "blob_roles": {
+      "user": 10,
+      "system": 8,
+      "assistant": 26
+    },
+    "global_rule_prompt_hits": [
+      {
+        "source_line": 31,
+        "role": "system",
+        "excerpt": [
+          "- Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosme",
+          "- Minor findings never fail a review: the reviewer records them in its report as notes, the verdict is PASS (with notes), and work proceeds. Minor findings are not rechecked in",
+          "view loop (review, fix, re-review) runs at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings; never run a fourth review and never pass open blocking findings."
+        ]
+      }
+    ],
+    "global_rule_present": true
+  }
+]

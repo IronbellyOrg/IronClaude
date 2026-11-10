@@ -1,0 +1,30 @@
+reviewer: 3
+persona: refactorer
+model: opus
+findings:
+  - id: R3-F1
+    severity: blocking
+    claim: "tests/audit/test_severity_floor_unweakened.py pins the sha256 of rf-qa-qualitative.md's Critical Rules block (header to Rule 11); Task 3 rewrites Rule 10 and Task 11 its cap, no task updates the hash, so pytest tests/audit fails at Task 3, 11 and 13. Not in inventory section 6."
+    evidence: [tests/audit/test_severity_floor_unweakened.py:48, tests/audit/test_severity_floor_unweakened.py:85-106, tests/audit/test_severity_floor_unweakened.py:162-177, src/superclaude/agents/rf-qa-qualitative.md:971, src/superclaude/agents/rf-qa-qualitative.md:982]
+    fix: "Recompute BASELINE_BLOCK_SHA in Task 3 and again in Task 11; keep the Rule 6 verbatim and softening-token checks."
+  - id: R3-F2
+    severity: blocking
+    claim: "Several tests/audit tests require src and .claude mirror byte-equality; only Task 13 runs make sync-dev, so Tasks 2, 3, 9, 11 fail their own pytest tests/audit acceptance on a stale mirror."
+    evidence: [tests/audit/test_nfr_conv_9_zero_trust.py:60, tests/audit/test_nfr_conv_9_zero_trust.py:178-201, tests/audit/test_five_axes_overlay.py:141-146, tests/audit/test_severity_floor_unweakened.py:179-185, tests/audit/test_inherited_verdict_freshness_inv_002.py:41, tests/audit/test_inherited_verdict_present.py:34]
+    fix: "Run make sync-dev before pytest in the acceptance of every task 2-12 that edits src/."
+  - id: R3-F3
+    severity: blocking
+    claim: "Task 11's search pattern misses 'Max fix cycles: 3' summary lines and '| 3 |' table cells; the two summary lines are not in inventory 3.2, so Task 11 can pass with caps of 3 left."
+    evidence: [src/superclaude/skills/operational-guide/SKILL.md:1349, src/superclaude/skills/readme/SKILL.md:2034]
+    fix: "Add both lines to Task 11; widen the pattern (fix cycles?:\\s*3, Max Fix Cycles cells); Task 13 reuses one shared pattern."
+  - id: R3-F4
+    severity: minor
+    claim: "Task 13's single-source extraction of S1-S5 is under-specified (no markers in pragmatic.md)."
+    evidence: [src/superclaude/output-styles/pragmatic.md:224]
+    fix: "Anchor on the binary-verdict bullet and take the next five bullets; share one helper with pin P1."
+  - id: R3-F5
+    severity: minor
+    claim: "Task 13's twin check keyed on 'files edited by this plan' cannot be computed at test time."
+    evidence: []
+    fix: "Name the three sc-implement refs or compare the whole plugins sc-implement-protocol tree."
+self_audit: "Twin claim verified (only confidence-check, sc-implement-protocol, sc-workflow-protocol, sc-recommend skills under plugins); no scan phrase in plugins/commands/agents; every src hit assigned to a task; Task 12 sites complete in src and plugins; dnsp, task_builder_merge, prd test_prompts and install_user_setup tests not broken by ordering."

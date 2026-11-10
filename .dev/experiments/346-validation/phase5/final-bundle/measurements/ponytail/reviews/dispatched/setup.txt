@@ -1,0 +1,12 @@
+SETUP TASK for experiment worktree exp346-v-ponytail (your current directory is this fresh worktree at commit 2cb683f5c1f0dfbd3c5f169a8b64a432931f718e). You only prepare the starting files. You do not run any review, any /sc: command or any agent.
+
+DO, in this order
+1. Verify `git rev-parse HEAD` prints 2cb683f5c1f0dfbd3c5f169a8b64a432931f718e and `git status --short` prints nothing. If not, stop and report it.
+2. Copy the starting overlay: `cp -r /home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase2/S1/inputs/repo-overlay/. ./`
+3. Create the empty folders `.dev/orca-command-refactor/review/` and `.dev/orca-command-refactor/specs/history/`.
+4. Save a copy of the starting spec: `cp -p .dev/orca-command-refactor/specs/orca-worker-contract-spec.md .dev/orca-command-refactor/specs/history/spec-v1-draft.md`.
+5. Verify: `sha256sum .dev/orca-command-refactor/specs/orca-worker-contract-spec.md .dev/orca-command-refactor/specs/history/spec-v1-draft.md` both print d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d; `wc -c -l` of the spec prints 285 lines and 57763 bytes; `git status --short` lists only `?? .dev/orca-command-refactor/`.
+6. Send worker_done with a 3-sentence body: HEAD, the two sha256 values, size, and `git status --short` output.
+
+RULES
+Change nothing else. No commits, pushes, PRs, GitHub or Slack posts. Do not touch ~/.claude, other worktrees, or any file outside this worktree. Do not read the original review reports or any file under .dev/orca-command-refactor/ other than the ones named above. Acceptance: the six facts in the worker_done body match the expected values.

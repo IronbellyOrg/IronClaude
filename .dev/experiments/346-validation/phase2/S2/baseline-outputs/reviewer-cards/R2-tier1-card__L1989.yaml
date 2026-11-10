@@ -1,0 +1,19 @@
+# Tier 1 reflection card (Wave 1C, orchestrator inline; UC-1 pre), review 2 of the plan review loop
+mode: pre
+plan: .dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261102-042031/TASK-WF-removeTheAnyIssu-20261102-042031.md
+spec: .dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261102-042031/source.md
+hypothesis_source: orchestrator-inline
+self_reported_confidence: 0.85
+method: "Ran every task's acceptance grep (Tasks 2-11, 17, 6) against the current tree and compared each hit with that task's edit list; read the token assertions of the two pinned-line tests."
+findings:
+  - id: T1-F1
+    severity: blocking
+    claim: "R-003 is not met and Task 5's acceptance grep cannot pass: the lite-intensity at-cap rule 'At lite intensity per I22: max 1 fix cycle; unresolved issues become Open Questions.' also sits at 01_mdtm_template_generic_task.md:938 and 02_mdtm_template_complex_task.md:1090, which Task 5 does not list (it lists 650, 652, 803 and 654, 656, 663, 665, 671, 820); inventory 3.1 omits them too."
+    evidence: [src/superclaude/templates/workflow/01_mdtm_template_generic_task.md:938, src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:1090]
+    fix: "Add 01:938 and 02:1090 (the lite sentence) to Task 5's edit list with the inventory 3.1 replacement."
+  - id: T1-F2
+    severity: minor
+    claim: "Task 6 keeps the tokens the dnsp test asserts ('HALT and ask user' at test :406, 'HALT' at :646); Task 3's rule-10 rewrite adds none of the softening tokens of test_severity_floor_unweakened.py:191-199; checked, no defect."
+    evidence: [tests/audit/test_dnsp_all_agents_fail_bypass.py:406, tests/audit/test_severity_floor_unweakened.py:191]
+    fix: "none"
+deviation_class: null

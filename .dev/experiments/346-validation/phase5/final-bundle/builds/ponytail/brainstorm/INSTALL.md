@@ -1,0 +1,96 @@
+# Install note: `/sc:spec-panel-ponytail` and the `sc-fix-audit` skill (issue 346, team ponytail)
+
+The coordinator installs the variant from this note. The variant goes in next to the original and never replaces it: `~/.claude/commands/sc/spec-panel.md` is never touched by these steps. The design is in `docs/designs/spec-panel-ponytail.md`; the full spec is `.dev/brainstorms/346-ponytail/SPEC.md`.
+
+## What the variant is
+
+The variant `src/superclaude/commands/spec-panel-ponytail.md` (483 lines) is a copy of the 472-line Arm B base `spec-panel-post427-95f2c6e4.md` (sha256 `c8d80346a96cb528fce6cff3bcadfed5bc95d1eee48dea0ac275404314b8df2f`, kept in the repo as `tests/skills/fixtures/spec-panel-post427-base.md`) plus the `## Fix Audit` section, the `--fix-audit` Usage line and the renamed frontmatter, H1 and Usage line. That base is the current `spec-panel.md` without its `## Unattended mode` section, its `--unattended` Usage line and its `--target-release` sentence (owner ruling: the earlier arms ran the 472-line file and the S1 briefs never pass `--unattended`), so `--unattended` is not supported by the variant.
+
+The experiment keeps the Arm B review instrument, as spec section 4 says: every review still runs through `/sc:spec-panel`, and the file at `~/.claude/commands/sc/spec-panel.md` is expected to already hold the same 472-line Arm B file that Arm B installed (decision D11); this note does not change it. Only the inserted T08a Task runs the variant.
+
+## Files
+
+| Repo path | Installed to | Note |
+|---|---|---|
+| `src/superclaude/commands/spec-panel-ponytail.md` | `~/.claude/commands/sc/spec-panel-ponytail.md` | the variant command |
+| `src/superclaude/skills/sc-fix-audit/SKILL.md` | `~/.claude/skills/sc-fix-audit/SKILL.md` | carrier skill |
+| `src/superclaude/skills/sc-fix-audit/refs/auditor-brief.md` | `~/.claude/skills/sc-fix-audit/refs/auditor-brief.md` | auditor brief |
+| `src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py` | `~/.claude/skills/sc-fix-audit/scripts/fix_audit.py` | the script |
+| `tests/skills/test_fix_audit_script.py` | not installed | unit tests |
+| `tests/skills/test_spec_panel_ponytail.py` | not installed | static pins |
+| `tests/skills/fixtures/spec-panel-post427-base.md` | not installed | the 472-line base |
+| `tests/recommend/test_routing_refresh.py` | not installed | changed: `spec-panel-ponytail` added to `_POST_REFRESH_ADDITIONS` |
+| `docs/designs/spec-panel-ponytail.md` | not installed | design note |
+| `.dev/brainstorms/346-ponytail/INSTALL.md` | not installed | this note |
+| `.dev/brainstorms/346-ponytail/briefs/T05-R1-reviewer.txt` | not installed | S1 brief copy |
+| `.dev/brainstorms/346-ponytail/briefs/T06-R1-reviser.txt` | not installed | S1 brief copy |
+| `.dev/brainstorms/346-ponytail/briefs/T07-R2-reviewer.txt` | not installed | S1 brief copy (Arm B filled) |
+| `.dev/brainstorms/346-ponytail/briefs/T08-R2-reviser.txt` | not installed | S1 brief copy (Arm B filled) |
+| `.dev/brainstorms/346-ponytail/briefs/T09-R3-reviewer.txt` | not installed | S1 brief copy (Arm B filled) |
+| `.dev/brainstorms/346-ponytail/briefs/T10-R3-reviser.txt` | not installed | S1 brief copy |
+| `.dev/brainstorms/346-ponytail/briefs/T08a-fix-audit.TEMPLATE.txt` | not installed | the inserted T08a brief |
+| `.dev/brainstorms/346-ponytail/briefs/recorder-verdict.TEMPLATE.txt` | not installed | the recorder's verdict command |
+| `docs/memory/reflect/deviation-patterns-bs346-ponytail.md` | not installed | not created by this plan: written by the reflect review of the plan before implementation; listed only because it is new under `docs/` |
+
+The project's `.claude/` dev copies made by `make sync-dev` are gitignored and are not an install source.
+
+## Install
+
+Run from the worktree root `/home/coder/workspaces/worktrees/IronClaude/bs346-ponytail`. The four commands install the two paths: the command file and the `sc-fix-audit` skill folder (file by file, so no `__pycache__` or other untracked file is copied):
+
+```bash
+install -D -m 644 src/superclaude/commands/spec-panel-ponytail.md ~/.claude/commands/sc/spec-panel-ponytail.md
+install -D -m 644 src/superclaude/skills/sc-fix-audit/SKILL.md ~/.claude/skills/sc-fix-audit/SKILL.md
+install -D -m 644 src/superclaude/skills/sc-fix-audit/refs/auditor-brief.md ~/.claude/skills/sc-fix-audit/refs/auditor-brief.md
+install -D -m 644 src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py ~/.claude/skills/sc-fix-audit/scripts/fix_audit.py
+```
+
+Record the sha256 of the installed files and of `spec-panel.md`, before and after the install:
+
+```bash
+sha256sum ~/.claude/commands/sc/spec-panel-ponytail.md ~/.claude/skills/sc-fix-audit/SKILL.md ~/.claude/skills/sc-fix-audit/refs/auditor-brief.md ~/.claude/skills/sc-fix-audit/scripts/fix_audit.py ~/.claude/commands/sc/spec-panel.md
+```
+
+## sha256 to record
+
+Expected values for the installed copies (the sha256 of the repo files on this branch when this note was written):
+
+```text
+6f5612782eb8b50f86929ade75a096f3b3c9cee53abb4430558eaf3dba6d2137  ~/.claude/commands/sc/spec-panel-ponytail.md
+e15a03f78d8f57802ba64096e64748bb3ed8570ab2b6b4776d93962432aab3c2  ~/.claude/skills/sc-fix-audit/SKILL.md
+5a95a89680085796c0315db93ef858b7d7d2a920b0fe8b2f12915adf8cf963a3  ~/.claude/skills/sc-fix-audit/refs/auditor-brief.md
+f7d0cfd9238c06d063444c50c13a8576612e7fc648581930fb882590885d4524  ~/.claude/skills/sc-fix-audit/scripts/fix_audit.py
+```
+
+`~/.claude/commands/sc/spec-panel.md` must have the same sha256 before and after the install. If it holds the Arm B instrument the experiment requires, that value is `c8d80346a96cb528fce6cff3bcadfed5bc95d1eee48dea0ac275404314b8df2f` (the 472-line base). For comparison, the repo's current `src/superclaude/commands/spec-panel.md` (486 lines) is `4115f2a979800af8b3ed8dee9d006cf3a97e25c5d9e02420cfee761e82cbe3c9`; that is not the file the experiment's reviews should use. This worker did not read `~/.claude`, so the installed value is not checked here.
+
+## Rollback
+
+Delete the two installed paths:
+
+```bash
+rm ~/.claude/commands/sc/spec-panel-ponytail.md
+rm -r ~/.claude/skills/sc-fix-audit
+```
+
+## Open precondition: the ponytail plugin in a worker
+
+The audit step invokes `ponytail:ponytail-review`, so the `ponytail@ironclaude` plugin must be installed for the user who runs the workers (spec section 4 says it is present on this host). Whether a dispatched Orca worker can load that plugin skill is UNVERIFIED (spec section 7, question 5). Before S1, run one smoke dispatch: a worker that invokes `ponytail:ponytail-review` with the Skill tool on any small change and reports whether it loaded. If it does not load, the variant's Fix Audit section says a failed step records `audit: skipped(<reason>)`, and that arm is not a test of the audit.
+
+## Brief changes for S1
+
+A pure one-line name substitution does not work (spec section 4): the S1 review-3 brief says "Ownership: write ONLY that file; do not edit the spec", and the audit must edit the spec through its script. So the briefs T05-T09 stay byte-identical (copies in `.dev/brainstorms/346-ponytail/briefs/`, T07-T09 from the Arm B filled copies), and one Task T08a is inserted between T08 (cycle-2 reviser) and T09 (review 3). Its single command line is:
+
+```text
+/sc:spec-panel-ponytail @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --fix-audit --re-review .dev/orca-command-refactor/review/spec-panel-round2.md --baseline .dev/orca-command-refactor/specs/history/spec-v2-after-round1.md --dispositions .dev/orca-command-refactor/review/disposition-round2.md
+```
+
+The full T08a brief is `.dev/brainstorms/346-ponytail/briefs/T08a-fix-audit.TEMPLATE.txt`. Its `Repo root:` value is the same literal path the copied T09 brief carries, so the coordinator's one repo-root substitution at dispatch covers it.
+
+After T09 the recorder runs, with the installed script path:
+
+```bash
+uv run --no-project python ~/.claude/skills/sc-fix-audit/scripts/fix_audit.py verdict --dir .dev/orca-command-refactor/review/fix-audit --report .dev/orca-command-refactor/review/spec-panel-round3.md --report-rule any-severity
+```
+
+It then reads the line `review-3 critical+major (owner count, held findings included): <n>` in `fix-audit/final-verdict.md` as the registered review-3 critical+major readout (owner decision: findings the script defers or demotes stay open). The same command is in `.dev/brainstorms/346-ponytail/briefs/recorder-verdict.TEMPLATE.txt`.

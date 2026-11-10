@@ -1,0 +1,16 @@
+validator: evidence-validator agent (Wave 5)
+target: REPORT.md "## Findings (merged Tier 2 verdict)"
+citation_budget_policy: sampled
+citations_total_findings: 121
+citations_revalidated_findings: 57
+full_reread_rows: [QA-001, INV-010, INV-001]
+every_third_rows: [INV-007, INV-018, INV-002, F1, INV-024, F8, F10, F6]
+dropped: []
+partial_support:
+  - {id: INV-010, citation: "source.md:12", reason: "background on intent; no specific claim"}
+  - {id: INV-010, citation: "source.md:220", reason: "background on intent; does not state the review-2 counting gap"}
+  - {id: INV-002, citation: "source.md:262", reason: "F4 falsifier; the cited degrade mechanics sit at source.md:39"}
+limits:
+  - "About 13 Finding/Fix cells are truncated with '...' in REPORT.md; citations in cut text were not counted (full text in nested/adversarial-1/adversarial/merged-verdict.yaml)."
+  - "16 rows not re-read under the sampled policy."
+inf_rows: "35 INF quotes re-checked as verbatim substrings of their cited source.md lines by artifacts/coverage.py at Wave 5 (artifacts/coverage-matrix-wave5.json identical to Wave 1B matrix)."

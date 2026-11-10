@@ -1,0 +1,160 @@
+{
+  "scenario": "S1",
+  "incident": "I1 Orca worker-contract spec review loop (issue 346 origin)",
+  "baseline_kind": "original recorded run, 2026-11-02, framework before PR 427 (repo 2cb683f5 for rounds 1-3; installed spec-panel text = 462 lines, identical to ec1babd9)",
+  "metric_definitions": "DECISIONS.md D5: M1 rounds until a clean pass; M2 blocking-grade findings per round; M3 share of findings caused by the previous round's fix; M4 document bytes/lines at start and after each round and growth percent; M5 tokens or tool calls per round",
+  "key_to_provenance": {
+    "read": "taken from a file or log line as written by the original run",
+    "re-derived": "counted, grouped or computed by the S1 analyst from original files/logs",
+    "pointer_keys": "PJ=/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-OrcaCLICommandRefactor-Specs; BO=phase2/S1/baseline-outputs/ (copies of .dev/orca-command-refactor/review/); CO=coordinator session f4dc0c4a-5b2d-498b-b835-2f310c79d211.jsonl under -home-coder-workspaces-IronClaude"
+  },
+  "proxy_definition": {
+    "blocking_grade_proxy": "CRITICAL + MAJOR. Reason: rounds 1-3 used a binary any-severity rule (every finding failed the review), PR 427 uses its own grading (CRITICAL and FR-8/FR-9 blocking, MAJOR blocking only with a concrete wrong outcome). A per-finding 427 re-grade of the baseline was not done. Use the same proxy for the re-run so the comparison is like for like, and also record 'all_findings'.",
+    "provenance": "re-derived (definition)"
+  },
+  "m1_rounds_until_clean_pass": {
+    "core_loop_rounds_1_to_3": null,
+    "reason_null": "no clean (PASS) review in rounds 1-3: verdicts FAIL, FAIL, FAIL",
+    "reviews_run_in_core_loop": 3,
+    "how_it_stopped": "coordinator/owner decision after round 3 FAIL, not a mechanical cap (CO L3303 2026-11-02T14:13:47Z; CO L3356; owner approval CO L3372)",
+    "supplemental_constrained_stage": {
+      "first_pass_review": "Task 17, 7th review overall (4 reviews after round 3), reviewing a single changed line under blocking/minor grading (PR #343), not a full-document panel",
+      "evidence": "BO/round4-review.md:247; reviews overall: T05 FAIL, T07 FAIL, T09 FAIL, T11 FAIL, T13 FAIL, T15 FAIL, T17 PASS"
+    },
+    "provenance": "read (verdicts) and re-derived (counting)"
+  },
+  "rounds": [
+    {
+      "round": "R1",
+      "review": {
+        "task": 5, "session": "699ae853-770c-4823-954c-43a845cd6b31", "brief": "briefs/T05-R1-reviewer-L11-699ae853.md",
+        "tool": "Skill sc:spec-panel (PJ/699ae853 L56)", "flags": "@.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture",
+        "severity_rule": "none stated in the brief; reviewer applied binary any-severity FAIL citing 'the run's quality rules' (BO/spec-panel.md:189); origin UNVERIFIED",
+        "verdict": "FAIL", "verdict_pointer": "BO/spec-panel.md:7-12"
+      },
+      "revise": {
+        "task": 6, "session": "3bb70411-6b34-4a6c-b0de-81ffdbae7944", "brief": "briefs/T06-R1-reviser-L10-3bb70411.md",
+        "disposition": "24 of 24 applied, 0 rejected", "pointer": "PJ/3bb70411 L738; BO/disposition.md"
+      },
+      "M2": {
+        "all_findings": 24, "critical": 3, "major": 15, "minor": 6, "critical_plus_major": 18,
+        "provenance": "read (reviewer-stated split, BO/spec-panel.md:7) and re-counted from the findings table BO/spec-panel.md:113-141 (3 CRITICAL, 14 MAJOR, 6 MINOR by column parse plus 1 row whose cell contains a pipe character = MAJOR; total matches)"
+      },
+      "M3": {
+        "value": null, "reason_null": "first review; there is no previous fix",
+        "provenance": "n/a"
+      },
+      "M4": {
+        "bytes_at_review_start": 57763, "lines_at_review_start": 285, "words_at_review_start": 8148,
+        "bytes_after_revise": 82643, "lines_after_revise": 402, "words_after_revise": 11877,
+        "growth_percent_this_round": 43.1, "growth_percent_cumulative_vs_v1": 43.1,
+        "provenance": "read: sizes from wc of the file-history backups (PJ/aff19d65 L37 ls names 82,643); lines/words/percent re-derived. Files: inputs/repo-overlay/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md (v1), inputs/reference-snapshots/spec-v2-after-round1.md"
+      },
+      "M5": {
+        "review_session": {"tool_calls": 27, "assistant_turns": 15, "output_tokens": 45291, "input_tokens_uncached": 30, "cache_creation_tokens": 162188, "cache_read_tokens": 2815487, "duration_min": 7.0},
+        "revise_session": {"tool_calls": 77, "assistant_turns": 39, "output_tokens": 75808, "input_tokens_uncached": 78, "cache_creation_tokens": 305451, "cache_read_tokens": 8599534, "duration_min": 12.3},
+        "round_total": {"tool_calls": 104, "output_tokens": 121099},
+        "provenance": "re-derived by jq from the session jsonl: tool_use blocks counted (ids unique), usage taken as the last usage record per assistant message id; output_tokens may undercount streamed partials slightly. Coordinator tokens not included (one shared session)."
+      }
+    },
+    {
+      "round": "R2",
+      "review": {
+        "task": 7, "session": "aff19d65-a1f0-4494-8e6a-9ece95738d29", "brief": "briefs/T07-R2-reviewer-L11-aff19d65.md",
+        "tool": "command file read and followed by hand, NO Skill call (PJ/aff19d65 L39 Read of ~/.claude/commands/sc/spec-panel.md; BO/spec-panel-round2.md:16)", "flags": "brief text: @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture (same as R1)",
+        "severity_rule": "binary: any finding of any severity is FAIL (brief; BO/spec-panel-round2.md:276)",
+        "verdict": "FAIL", "verdict_pointer": "BO/spec-panel-round2.md:7-9"
+      },
+      "revise": {
+        "task": 8, "session": "66468bab-54d0-4268-a016-46cd22c264ab", "brief": "briefs/T08-R2-reviser-L10-66468bab.md",
+        "disposition": "15 of 15 applied (13 findings + 2 overstated citations), 0 rejected", "pointer": "PJ/66468bab L552; BO/disposition-round2.md"
+      },
+      "M2": {
+        "all_findings": 13, "critical": 1, "major": 9, "minor": 3, "critical_plus_major": 10, "extra_overstated_citations": 2,
+        "provenance": "read (reviewer-stated, BO/spec-panel-round2.md:7) and re-counted from the section 5 list BO/spec-panel-round2.md:252-264 (N5 CRITICAL; N10, N12, N13 MINOR; the other nine MAJOR). The 2 overstated citations are N6 and N13, already counted."
+      },
+      "M3": {
+        "caused_by_previous_revision_count": 13, "of": 13, "share": 1.0,
+        "also_stated": "reviewer: for 10 of the 24 round-1 fixes the fix introduced or exposed a new defect (BO/spec-panel-round2.md:9)",
+        "provenance": "read: the reviewer states 'All 13 were introduced or exposed by the revision; none repeats a round-1 finding' (BO/spec-panel-round2.md:250). Not re-derived per finding."
+      },
+      "M4": {
+        "bytes_at_review_start": 82643, "lines_at_review_start": 402, "words_at_review_start": 11877,
+        "bytes_after_revise": 92194, "lines_after_revise": 414, "words_after_revise": 13350,
+        "growth_percent_this_round": 11.6, "growth_percent_cumulative_vs_v1": 59.6,
+        "provenance": "read: 92,194 is named in the Task 10 brief (briefs/T10-R3-reviser-L10-458bdc00.md) and equals the size of the file-history backup FH/458bdc00.../2d815cfd5e9a74d2@v1; lines/words/percent re-derived. File: inputs/reference-snapshots/spec-v3-after-round2.md"
+      },
+      "M5": {
+        "review_session": {"tool_calls": 38, "assistant_turns": 31, "output_tokens": 77189, "input_tokens_uncached": 62, "cache_creation_tokens": 319976, "cache_read_tokens": 7381505, "duration_min": 18.6},
+        "revise_session": {"tool_calls": 63, "assistant_turns": 25, "output_tokens": 53365, "input_tokens_uncached": 50, "cache_creation_tokens": 270981, "cache_read_tokens": 5544884, "duration_min": 7.9},
+        "round_total": {"tool_calls": 101, "output_tokens": 130554},
+        "provenance": "re-derived (same method as R1)"
+      }
+    },
+    {
+      "round": "R3",
+      "review": {
+        "task": 9, "session": "1c9a7ec8-a900-4884-aef3-7f3fac245073", "brief": "briefs/T09-R3-reviewer-L11-1c9a7ec8.md",
+        "tool": "command file read and followed by hand, NO Skill call (PJ/1c9a7ec8 L142; BO/spec-panel-round3.md:17)", "flags": "brief text: same as R1",
+        "severity_rule": "binary: any finding of any severity is FAIL (brief; BO/spec-panel-round3.md:273)",
+        "verdict": "FAIL", "verdict_pointer": "BO/spec-panel-round3.md:6-8"
+      },
+      "revise": {
+        "task": 10, "session": "458bdc00-e815-4098-a449-4dfaef7826fd", "brief": "briefs/T10-R3-reviser-L10-458bdc00.md",
+        "disposition": "S1-S3 applied; 9 of M1-M14 applied (M1 in part); M5, M6, M7, M8, M11 superseded by S1-S3; reviser's own diff check found 8 defects, fixed, not re-verified", "pointer": "PJ/458bdc00 L634; BO/disposition-round3.md"
+      },
+      "M2": {
+        "all_findings": 14, "critical": 0, "major": 8, "minor": 6, "critical_plus_major": 8,
+        "provenance": "read (reviewer-stated, BO/spec-panel-round3.md:6) and re-counted from BO/spec-panel-round3.md:247-260 (M1-M8 MAJOR, M9-M14 MINOR). This is the baseline LAST ROUND for the D6(a) test: 8 on the proxy, 14 on any-severity."
+      },
+      "M3": {
+        "strict_caused_by_named_previous_fix": 10, "partial_revision_caused": 3, "pre_existing": 1, "of": 14,
+        "share_strict": 0.714, "share_strict_plus_partial": 0.929,
+        "ids": {
+          "strict": ["M2 (N7)", "M3 (N6)", "M5 (N5)", "M6 (N2)", "M7 (N11)", "M8 (N2)", "M9 (N9)", "M10 (N6/N10 edits)", "M13 (N1)", "M14 (N4)"],
+          "partial": ["M1 (gap predates; revision added two rules without checks)", "M4 (conflict predates; revision made init-lite the subject of AC-1.7)", "M11 (token predates; revision rewrote step 0 and added a file)"],
+          "pre_existing": ["M12 (unchanged line, not raised before)"]
+        },
+        "also_stated": "reviewer: for 8 of the 13 round-2 fixes the fix introduced or exposed a new defect (BO/spec-panel-round3.md:8)",
+        "provenance": "read: the reviewer's per-finding 'Origin:' tags (BO/spec-panel-round3.md:247-260); the grouping into strict/partial/pre-existing is re-derived by the analyst"
+      },
+      "M4": {
+        "bytes_at_review_start": 92194, "lines_at_review_start": 414, "words_at_review_start": 13350,
+        "bytes_after_revise": 89089, "lines_after_revise": 405,
+        "growth_percent_this_round": -3.4, "growth_percent_cumulative_vs_v1": 54.2,
+        "growth_percent_at_start_of_round_3_vs_v1": 59.6,
+        "provenance": "read: 89,089 in BO/disposition-round3.md:53 and BO/final-diff-review.md:109; percent re-derived. File: inputs/reference-snapshots/spec-v4-after-round3.md"
+      },
+      "M5": {
+        "review_session": {"tool_calls": 57, "assistant_turns": 36, "output_tokens": 82751, "input_tokens_uncached": 72, "cache_creation_tokens": 270451, "cache_read_tokens": 9345410, "duration_min": 12.8},
+        "revise_session": {"tool_calls": 69, "assistant_turns": 34, "output_tokens": 46633, "input_tokens_uncached": 68, "cache_creation_tokens": 188946, "cache_read_tokens": 7419746, "duration_min": 8.5},
+        "round_total": {"tool_calls": 126, "output_tokens": 129384},
+        "provenance": "re-derived (same method as R1)"
+      }
+    }
+  ],
+  "growth_summary_for_D6b": {
+    "baseline_growth_after_two_fix_cycles_percent": 59.6,
+    "baseline_growth_after_three_revisions_percent": 54.2,
+    "note": "D6(b) needs one number. The 427 cap is 3 reviews / 2 fix cycles, so use +59.6% (size entering the 3rd review) as the like-for-like comparison, and report +54.2% as a second figure. Threshold for a 'significant' re-run on the first: growth <= 41.7% (70% of 59.6).",
+    "provenance": "re-derived"
+  },
+  "supplemental_constrained_stage_not_in_core_loop": {
+    "note": "Tasks 11-17 do not use /sc:spec-panel; PR 427 cannot affect them. Recorded for context only.",
+    "tasks": [
+      {"task": 11, "session": "d534b6de", "verdict": "FAIL", "findings": 7, "split": "3 MAJOR, 4 MINOR", "rule": "binary any severity", "bytes_after": 89089, "pointer": "BO/final-diff-review.md:108-109", "tool_calls": 37, "output_tokens": 41591},
+      {"task": 12, "session": "eadb62ac", "role": "combined revision", "bytes_after": 115819, "tool_calls": 113, "output_tokens": 103189},
+      {"task": 13, "session": "02c0d4b8", "verdict": "FAIL", "blocking": 2, "minor": 11, "rule": "blocking/minor (PR #343)", "pointer": "BO/round4-review.md:94-133", "tool_calls": 47, "output_tokens": 62116},
+      {"task": 14, "session": "99f9f18e", "role": "fix 1", "bytes_after": 116538, "tool_calls": 31, "output_tokens": 16604},
+      {"task": 15, "session": "4799e7cc", "verdict": "FAIL", "blocking": 1, "rule": "blocking/minor (PR #343)", "pointer": "BO/round4-review.md:198", "tool_calls": 31, "output_tokens": 19362},
+      {"task": 16, "session": "0d628073", "role": "fix 2", "bytes_after": 116815, "tool_calls": 15, "output_tokens": 5502},
+      {"task": 17, "session": "b510a293", "verdict": "PASS", "blocking": 0, "rule": "blocking/minor (PR #343)", "pointer": "BO/round4-review.md:247", "tool_calls": 18, "output_tokens": 10415}
+    ],
+    "provenance": "verdicts/counts read from the review files; tool calls and tokens re-derived from the session jsonl"
+  },
+  "not_recoverable": [
+    {"item": "coordinator tokens/tool calls attributable to one round", "reason": "the coordinator is one long shared session (CO, 35 MB) covering the whole run"},
+    {"item": "source of R1's any-severity pass bar", "reason": "not in the brief or the logged R1 context; UNVERIFIED"},
+    {"item": "per-finding 427-style (blocking/minor) grade of rounds 1-3", "reason": "rounds used a binary rule; a 427 re-grade needs per-finding judgement and was not done"}
+  ]
+}

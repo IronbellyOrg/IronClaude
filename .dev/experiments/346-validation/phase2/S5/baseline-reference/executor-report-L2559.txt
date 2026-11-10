@@ -1,0 +1,16 @@
+| Status | Result |
+|---|---|
+| DONE | The fourth final review returned `pass`. All 22 task criteria are met, and the P0 verdict stays PASS. |
+| DONE | Archived. The package is now at `.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/`. The helper wrote the `ARCHIVE: start` line to the ledger, and nothing is left in `to-do/`. |
+| DONE | Narrowed `p0-phase-report.md` note 7 to the executor's own calls and listed the three groups of bare-Python calls separately. |
+| DONE | Appended one ruling covering all three groups: the executor's empty call, the 22 helper calls, and the third reviewer's `python3 -c 1`. The reviewer checked it against the session logs and found exactly those 24 calls, with no other bare-Python call. |
+| DONE | Post-archive check run: `.dev/tasks` is staged at its new `done/` path. Nothing is staged under the superseded `…20261102-231950` package (0 paths) or under `.claude/` (0 paths). HEAD is unchanged at `8db29f11`. |
+| NEXT | None. |
+
+**WHAT:** All five tasks are done and the P0 live checks pass. The phase report is at `.dev/tasks/done/TASK-WF-writeTheP0LivePl-20261103-215902/artifacts/p0-phase-report.md`. Nothing was committed or pushed.
+
+**WHY:** The P0 PASS depends on one reading of the heartbeat rule, set out in the report's notes 1 and 2. Orca's `worker-read` could not return a whole transcript, so I checked each worker's own session file instead. The long heartbeat gaps count as passing only because subagent time is excluded. A strict reading would fail the heartbeat condition in all three checks.
+
+**RECOMMENDED ACTION:** Read notes 1 and 2 of `p0-phase-report.md` before you commit. Then decide whether to accept both readings or change the live-check step in the spec before the next phase. The commit and push are yours to make.
+
+RUNS: all three live checks, the phase report, the ledger and the archive. NOT BUILT: nothing from this plan.

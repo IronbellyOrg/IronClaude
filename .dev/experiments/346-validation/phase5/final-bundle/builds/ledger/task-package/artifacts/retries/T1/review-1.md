@@ -1,0 +1,11 @@
+1fd69f04fe7dc34cd2fc82e8c5f168276f3cda7a tree=2381dfafdc008ecdb6e0329260d75d74452f0318
+T1.AC1: met (tests/skills/test_review_ledger_script.py:113-339; 26 passed)
+T1.AC2: met (tests/skills/test_review_ledger_script.py:108)
+T1.AC3: unmet F1.1 (src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py:19)
+F1.1 sev=blocking trigger=B1 ac=T1.AC3 at=src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py:19 anchor="lists only modules from the Constraints list" chk=y,n,n,n family=import-allowlist fix=delete the from __future__ import and drop __future__ from the test allow set first=A1 origin=new: The required grep prints from __future__, which is not in the Constraints module list; the test allow set hides it.
+F1.2 sev=blocking trigger=B4 ac=scope at=src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py:649 anchor="`body_sha256` is recomputed on every call before anything else" chk=n,n,n,y family=integrity-order fix=check the ledger hash before reading --input/--report and before the lock first=A1 origin=new: find parses --input before mutate loads the ledger and the lock is taken before the load, so a tampered ledger can return E-SCHEMA exit 2 or exit 4 instead of E-TAMPERED exit 3.
+F1.3 sev=minor trigger=none ac=scope at=src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py:497 anchor="refuses `E-EXISTS` when a ledger exists" chk=n,n,n,n family=init-race fix=re-check ledger.json existence after taking the lock first=A1 origin=new: init checks existence before taking the lock.
+F1.4 sev=minor trigger=none ac=scope at=src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py:780 anchor=src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py:449 chk=n,n,n,n family=tail-atomicity fix=on a replayed close re-append the stored tail when missing first=A1 origin=new: a crash between ledger commit and report append leaves no tail; a replay never appends it.
+F1.5 sev=minor trigger=none ac=scope at=.dev/tasks/to-do/TASK-WF-spec-20261108-181649/artifacts/untracked-before.txt:59 anchor="Before creating any file, write `./artifacts/untracked-before.txt`" chk=n,n,n,n family=baseline-self-entry fix=Task 12 ignores this file's own entry first=A1 origin=new: the baseline lists itself.
+F1.1 resolved
+F1.2 resolved

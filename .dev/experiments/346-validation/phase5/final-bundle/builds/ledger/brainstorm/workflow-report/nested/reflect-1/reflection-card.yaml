@@ -1,0 +1,12 @@
+card: t1-card.md
+calibrator_model_class: opus
+reviewer_model_classes: [sonnet, haiku]
+calibrator_diversity: full
+calibration: agent
+scores: {citation_grounding: 0.88, coverage_completeness: 0.55, deviation_classification_clarity: 0.85, risk_surface_coverage: 0.78, recommendation_actionability: 0.75}
+C: 0.76
+calibrator_notes:
+  - "R2 premise partly wrong: tasklist:48 already gives doc-r1.md a one-line table row; the gap is that no test checks paragraph admission on that row."
+  - "Missed: Task 1 (tasklist:44) defines the close tail only for review-1 PASS and terminal reviews 2/3; a review-1 ESCALATE (X>0 or not I) tail is undefined (source.md:28, :52)."
+  - "Missed: Task 10 writes docs/designs/spec-panel-ledger.md, which source.md:89 marks 'new, after approval'."
+  - "D3 (invented output path, tasklist:172) has no recommendation."

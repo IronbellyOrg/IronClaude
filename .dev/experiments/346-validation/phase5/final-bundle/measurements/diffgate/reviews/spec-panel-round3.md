@@ -1,0 +1,163 @@
+# Spec panel review: orca-worker-contract-spec.md
+
+review: 3 of 3
+
+Task: task_3f014eb4ecc8 (Task 9, independent re-review round 3). Reviewer did not write or revise the spec. Date: 2026-11-09.
+
+Command: `/sc:spec-panel-diffgate @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --mode critique --focus requirements,architecture --diffgate-dir .dev/orca-command-refactor/review/diffgate-loop --expect-round 3` (skill loaded with the Skill tool).
+Repo root: /home/coder/workspaces/worktrees/IronClaude/exp346-v-diffgate (HEAD `2cb683f5c`). `SPEC:N` = line N of `review/diffgate-loop/doc-r3.md`, byte-identical to the revised spec (`cmp` exit 0; sha256 `75a628e3...094ac9a`, the `doc_sha` in `review/disposition-round2.md:57` and `review/diffgate-loop/fixmap-r2.txt:1`). `CAPS:N` = `.dev/orca-command-refactor/inventory/orca-capabilities.md`. `SURF:N` = `review/diffgate-loop/surface-r3.md`. `R2:N` = `review/spec-panel-round2.md`. `DISP:N` = `review/disposition-round2.md`. `GUIDE-REC:N` = line N of `orca skills get orchestration --reference recovery-and-cleanup | cat -n`. Orca is 1.4.245 (`orca --version` printed `1.4.245-aidev02.780594c521aa`, 2026-11-09).
+
+## Loop status
+- `diffgate.py status --dir .dev/orca-command-refactor/review/diffgate-loop` (read-only, 2026-11-09) returned `"review": 3, "state": "open", "halt": null, "surface": ".../surface-r3.md"`. `--expect-round 3` matches, so this is a re-review of the computed surface: 4 hunks H3.1-H3.4, 2% of lines (`SURF:4`), spec read as context only.
+- Review 3 is the last review the loop allows (`~/.claude/commands/sc/spec-panel-diffgate.md`, Review Loop bullet 4). At review 3 the report carries no Reviser brief; any open blocking finding escalates to the user. The `verdict:` line is appended by the coordinator's `check` step, not written here.
+
+## 1. Round-2 finding resolution table
+Each row is judged from the revised spec text and the live sources, not from the disposition's claim.
+
+| Round-2 item | Disposition claim | Spec text now | Verdict | Evidence |
+|---|---|---|---|---|
+| R1.3 (open prior, blocking): a `--retry-of` attempt cannot get a new brief, so it overwrites attempt 1's report | Applied (`DISP:31`) | WC-6 now says a retry "receives the first attempt's brief, `--report-dir` included", and the coordinator renames `<report-dir>/return-contract.yaml` to `return-contract.<dispatch_id>.yaml` (and, for a command without resume, the output location) before `worker-start --retry-of` (`SPEC:64`); 2.3 and section 3 match (`SPEC:73,76`) | **Resolved** for the report file and for commands without resume. The fixed-brief premise is now correct, and it opens a new gap for commands with an explicit resume flag: new finding R3.1. | `worker-start --help` Notes: "--retry-of needs --task naming the failed Task (--spec creates a new one) and does not inherit placement"; `task-update --help` Usage: `--id`, `--status`, `--result` only; `orca orchestration --help` lists no verb that edits a Task (`task-create`, `task-list`, `task-update` only); `GUIDE-REC:112-113,120-125` |
+| R2.1 (blocking): AC-1.2 passes `--output` to workflow and runs the contract check on `/sc:load` | Applied (`DISP:32`) | AC-1.2 exempts `/sc:load` "(no report, as in AC-1.1)" and builds the brief per 2.3 plus "the flags that command's section 3 row requires, which for workflow are `--handoff none` and never `--output`" (`SPEC:196`) | **Resolved.** Both named defects are gone. The new phrase "flags that command's section 3 row requires" has no column to read from for 3.2 rows: minor R3.3. | `SPEC:92` (workflow "Brief must pass": `--handoff none`; never `--output`); `SPEC:112,195`; `SPEC:97` (3.2 header has no "Brief must pass" column) |
+| R2.2 (blocking): 7.2 step 3 needs `worker_status`, which no P0 command writes, yet AC-0.4 requires step 3 in P0 | Applied (`DISP:33`) | AC-0.4 now says the P0 step-1 brief carries neither `--unattended` nor `--report-dir`, and step 3 "checks only that exactly one `worker_done` arrives and that its report path names the command's existing report file, not `worker_status` or the WC-4 path" (`SPEC:194`) | **Resolved** for step 3 and step 1. The same root cause remains in step 4, which AC-0.4 still requires against the existing report file while step 4 asserts `d['worker_status']`: new finding R3.2. | `SPEC:182-183,194` |
+| R2.3 (minor): SA-2 "AC-C1 excludes that one file" is wrong (ccsession-tag) | Rejected this cycle (`DISP:34`) | `SPEC:147` unchanged | **Not resolved**; stays a minor note. | `SPEC:147,172`; `src/superclaude/skills/ccsession-tag/ccsession:485` per `R2:53` (not re-read; line unchanged) |
+| R2.4 (minor): "a person's run cannot switch by accident" overclaims for an unquoted topic | Rejected this cycle (`DISP:35`) | `SPEC:51` unchanged | **Not resolved**; stays a minor note. | `SPEC:51` |
+| R2.5 (minor): WC-6 cites `CAPS:58` for the recorded-question fact | Applied (`DISP:36`) | `SPEC:64` cites `CAPS:59-60` | **Resolved.** | `CAPS:59` ("a new question defaults to its owning Run mailbox"); `CAPS:60` ("Timeout leaves the question pending") |
+| C7: reflect `stopped-precondition` is narrow | No change needed (`DISP:37`) | `SPEC:62` still "for example reflect's `stopped-precondition`" | **No defect**; "for example" does not exceed the line. | `R2:45` |
+| C8: `CAPS:58` wrong line | Applied (`DISP:38`) | as R2.5 | **Resolved.** | as R2.5 |
+| C9: `CAPS:116` used for a per-retry new `--report-dir` (contradicted) | Applied (`DISP:39`) | The contradicted claim is gone from `SPEC:64,73,76`; `CAPS:116` is cited only for "retry and circuit breaker" | **Resolved.** | `CAPS:116` quotes `GUIDE-REC:117,120-125` |
+| C13: step 5's Skill-call search is uncited | Rejected this cycle (`DISP:40`) | `SPEC:184` unchanged, still uncited | **Not resolved**; stays a minor note (claim itself true per `R2:21`). | `SPEC:184` |
+| C15: SA-2 wording | Rejected this cycle (`DISP:41`) | as R2.3 | **Not resolved** (same item as R2.3). | as R2.3 |
+
+Summary: all three round-2 blocking items (R1.3, R2.1, R2.2) are resolved as stated in their findings. Two of the fixes leave a sibling defect, filed as new findings R3.1 (blocking) and R3.2 (blocking). Of the minor items, R2.5/C8 and C9 are fixed; R2.3/C15, R2.4 and C13 stay open as notes, as do round-1 minor notes R1.8-R1.11 and R1.13 (`R2:25-30`; their lines `SPEC:79,4,68,181-182,63` are outside this surface and were not re-graded).
+
+## 2. Citation-check table
+Every citation or Orca fact that hunks H3.1-H3.4 added or changed (`SURF:19-73`), re-read on 2026-11-09 against the live file at HEAD `2cb683f5c` or Orca 1.4.245 output.
+
+| # | Spec location | Citation | Claim it supports | Live text read | Result |
+|---|---|---|---|---|---|
+| T1 | `SPEC:64` (WC-6) | `CAPS:59-60` | "the question itself stays recorded in the Run" | `CAPS:59` "a new question defaults to its owning Run mailbox"; `CAPS:60` "Timeout leaves the question pending; resume with the original message ID" | Correct |
+| T2 | `SPEC:64` | `CAPS:116` "(retry and circuit breaker)" | retry form and circuit breaker | `CAPS:116` quotes `GUIDE-REC:117` (retry command) and `120-125` (three failures circuit-break; "Do not route around that boundary with a new Run, Task, or unrelated Dispatch"); live `GUIDE-REC:117,120-125` match | Correct |
+| T3 | `SPEC:64` | `orca orchestration worker-start --help` Notes, quoted "--retry-of needs --task naming the failed Task (--spec creates a new one)" | a retry reuses the failed Task | live Notes line: "--retry-of needs --task naming the failed Task (--spec creates a new one) and does not inherit placement; repeat the intended --on/worktree and --agent/terminal choices." | Correct (exact prefix of the live line) |
+| T4 | `SPEC:64` | `orca orchestration task-update --help` Usage "(only `--status` and `--result`)" | no verb changes a Task's spec | live Usage: `--id <task_id> --status <status> [--result <text>] [--run] [--from] [--retry-request] [--json]` | Correct: the only Task fields it writes are status and result |
+| T5 | `SPEC:64` | none (claim) "no Orca verb changes a Task's spec" | same | `orca orchestration --help` lists `task-create`, `task-list`, `task-update` and no Task-edit verb; `worker-start` options include no prompt or note flag (`--comment` is worktree metadata, "rejected for current/existing worktrees") | Correct, uncited beyond T4 (no finding: T4 plus the verb list carry it) |
+| T6 | `SPEC:64` | `orca orchestration` guide `recovery-and-cleanup` line 112 | "a retry only of a positively proven failed or stopped attempt" | `GUIDE-REC:112` "Retry only a positively proven failed or stopped attempt. Name the failed Task" | Correct |
+| T7 | `SPEC:64` | T6, used for "so the first attempt no longer writes when its files are renamed" | the renamed files are not written again by attempt 1 | `GUIDE-REC:112` says "failed or stopped", not "exited"; a settled failed worker keeps a live terminal until `worker-release` (`CAPS:109`). The main guide is closer support: `orca skills get orchestration \| cat -n` line 30, "Only positive proof of exit authorizes stop, abandon, or retry". | Supported, by inference: a worker that sent `worker_done --outcome failed` takes no further actions under its preamble. No finding. |
+| T8 | `SPEC:64` | "a new Task would route around the circuit breaker" | why the coordinator may not create a new Task | `GUIDE-REC:124-125` "Do not route around that boundary with a new Run, Task, or unrelated Dispatch"; also `GUIDE-REC:121-122` "Failed `worker-start` attempts count across `--retry-of`; a worker's own `failed` report does not" | Correct |
+| T9 | `SPEC:73` (2.3) | `CAPS:107-113` (moved, unchanged) | release or reuse after `worker_done` | `CAPS:107` "Reuse the same proven agent terminal ... `worker-retain` ... `worker-release`" | Correct |
+| T10 | `SPEC:73` | `CAPS:115` (unchanged token on a changed line) | worktree placement | `CAPS:115` `[G:placement]` lines 8-11 (workers share the current worktree by default) | Correct |
+| T11 | `SPEC:196` (AC-1.2) | "(no report, as in AC-1.1)" | load has no report | `SPEC:112` "none (see note)"; `SPEC:195` exempts `/sc:load` | Correct |
+| T12 | `SPEC:196` | "the flags that command's section 3 row requires, which for workflow are `--handoff none` and never `--output`" | workflow brief flags | `SPEC:92` "Brief must pass": "`--handoff none`; never `--output` (retired, `E-LEGACY`, R1.1)" | Correct for workflow; for 3.2 rows there is no "Brief must pass" column (`SPEC:97`): minor R3.3 |
+| T13 | `SPEC:194` (AC-0.4) | internal: "step 4 uses that existing report file" | P0 step 4 | `SPEC:183` step 4 asserts `d['worker_status']` and `d['command']` | **Contradicts** step 4's own assertion for every P0 command: R3.2 |
+| T14 | `SPEC:76` (section 3 intro) | "(WC-6, R1.3)" | "Fresh dir" meaning | `SPEC:64` renames a no-resume command's output location | Correct, consistent |
+
+Result: 12 correct (T5 and T7 by inference from cited lines), 1 correct but incomplete for 3.2 rows (T12, minor R3.3), 1 internal contradiction (T13, R3.2). No path:line citation added by this revision points at a wrong line.
+
+## 3. New findings
+Scope: the 4 surface hunks, and unchanged lines a hunk breaks (Review Loop bullet 5). Panel: Wiegers (lead, requirements), Adzic, Cockburn; Fowler (lead, architecture), Nygard, Whittaker, Newman, Hohpe.
+
+=== REQUIREMENTS ANALYSIS ===
+
+**Karl Wiegers.** AC-1.2 is now traceable for the 3.1 rows: their "Brief must pass" column (`SPEC:81`) gives the flags, and workflow's is `--handoff none` (`SPEC:92`). Most P1 commands are 3.2 rows (analyze, build, business-panel, design, document, explain, index, test; `SPEC:159`), and the 3.2 table has no "Brief must pass" column (`SPEC:97`). For those, "the flags that command's section 3 row requires" (`SPEC:196`) must be read out of the Report column ("add `--output`", "add a report path", "require an explicit output"). An implementer can infer it, so this is **R3.3, MINOR**.
+
+**Gojko Adzic.** Given P0, before any command writes `worker_status` (`SPEC:159`), When the coordinator runs AC-0.4 on `/sc:workflow "<small change>" --handoff none`, Then AC-0.4 requires steps 1-3 and 5-7 to pass and says "step 4 uses that existing report file" (`SPEC:194`). Step 4 is `test -s <contract>` and `uv run python -c "...; assert d['worker_status'] in {...}; assert d['command']" <contract>`, pass "both exit 0" (`SPEC:183`). Run on workflow's existing `.dev/tasks/to-do/<id>/return-contract.yaml`, whose field is `status` (`sk/sc-workflow-protocol/refs/return-contract.md:7`, via `R2:43`), the assertion raises `KeyError`; on troubleshoot's `REPORT.md` (`SPEC:91`) and on adversarial's contract, whose fields sit under a nested `return_contract:` key (`sk/sc-adversarial-protocol/SKILL.md:432,436`, via `R2:44`), it fails the same way. AC-0.4 also says "a failure here reopens section 1". H3.4 rewrote this clause for R2.2 and fixed steps 1 and 3 for P0, but it left step 4 pointing at a file that step 4's own assertion rejects. **R3.2, MAJOR, blocking.**
+
+**Alistair Cockburn.** Actor and goal for a retry are now right: the coordinator is the actor, and the goal is "attempt 2 runs without destroying attempt 1" (`SPEC:64`). The resume half of that goal has no actor, though. WC-6 still says "A command ... resumes from its on-disk state when given its resume flag", and H3.1 now makes the retry's command line identical to attempt 1's ("it receives the first attempt's brief"). The only place a resume flag could have come from was a new brief, so nobody gives it. Filed under Whittaker as R3.1.
+
+=== ARCHITECTURE ANALYSIS ===
+
+**Martin Fowler.** The rename rule is a good fit for Orca's model: paths stay fixed in the Task spec, and the coordinator moves the old files aside, which is why WC-4's "known before dispatch" and 7.2 step 3 still hold (`SPEC:62,182`). The rule splits on whether a command has a resume, which is right, but it assumes that "has a resume" means "the retry will resume". With a fixed brief that is true only for implicit resumes (implement's "`--resume` (implicit when a ledger matches)", `SPEC:109`; tdd, which resumes when a task file already exists, `sk/tdd/SKILL.md:149`). For explicit-flag resumes it is false.
+
+**Michael Nygard.** Failure mode, step by step, for a command whose resume needs a flag: attempt 1 fails partway; the coordinator renames only `return-contract.yaml`, because the command "has resume"; the retry starts with the same command line and no resume flag; it neither resumes nor runs in a fresh location. The circuit-breaker side is sound: renames use each failed Dispatch's own ID, so a second and third retry produce distinct names, and the third failed start circuit-breaks the Task (`GUIDE-REC:120-123`).
+
+**James Whittaker.**
+- I can break this specification by **Sequence Attack**. The invariant at **WC-6 (`SPEC:64`)**, "A retry worker ... must not corrupt the first attempt's output", fails when **the command's resume requires an explicit flag**. Concrete attack on roadmap, whose row says the resume prompt "is replaced by the explicit resume flag (resume only when passed)" (`SPEC:118`). Before: Task T's spec is `/sc:roadmap <spec> --unattended --output .dev/rm/ --report-dir .dev/rm/`; attempt 1 writes `.dev/rm/roadmap.md` and `.dev/rm/.session-memory.md`, then fails. The coordinator renames `.dev/rm/return-contract.yaml` to `return-contract.<d1>.yaml` and leaves `.dev/rm/` in place, because roadmap has a resume (`SPEC:64`). It runs `worker-start --task T --retry-of <d1>` (`worker-start --help`: no flag can add text to the retry). After: attempt 2 runs the same line with no resume flag, which per AC-3.2 means it "starts fresh" in a directory that already holds `.session-memory.md` (`SPEC:205`), and it rewrites `.dev/rm/roadmap.md`. Attempt 1's output is overwritten, and the resume the Resume column promises never runs. The same holds for every explicit-flag resume in section 3: brainstorm `--resume-from <seed-brief>` (`SPEC:84`; `sk/sc-brainstorm-protocol/SKILL.md:124-126`; here the retry re-runs from scratch into `<output>-1` instead, because brainstorm suffixes a non-empty directory, `sk/sc-brainstorm-protocol/SKILL.md:108`), release-split `--resume-from` (`SPEC:89`; the file must already exist, `sk/sc-release-split-protocol/SKILL.md:138`), adversarial `--pipeline-resume` (`SPEC:83`), pr-submit `--resume <run-log.jsonl>` (`SPEC:114`), and cli-portify's proposed `--resume <contract>` (`SPEC:105`), whose input would itself be renamed away if its contract sits at `<report-dir>/return-contract.yaml` (WC-4 same-path rule, `SPEC:62`). **R3.1, MAJOR, blocking.**
+- I can break this specification by **Zero/Empty Attack** on **WC-6 (`SPEC:64`)** with an attempt 1 that died before writing any file: there is no `return-contract.yaml` to rename, and the retry writes into an empty location. Behaviour is inferable. No finding.
+- I can break this specification by **Accumulation Attack** on the rename names: attempts 1 and 2 both fail, and the renames produce `return-contract.<d1>.yaml` and `return-contract.<d2>.yaml`, which are distinct because every Dispatch ID differs; the third failed start circuit-breaks (`GUIDE-REC:120-123`). No collision. No finding.
+
+**Sam Newman.** The P0/P1 boundary is now stated once, in AC-0.4 (`SPEC:194`), which keeps step 3 exact for P1-P4. That is the right place, but the boundary has to cover every step that reads the contract, and step 4 is one of them (R3.2).
+
+**Gregor Hohpe.** The retry message exchange is now modelled correctly: the Task spec is the only payload a retry carries (T3-T5). Orca does have a second channel the spec could use for retry-only facts such as a resume flag: coordinator follow-ups that the worker pulls with `check` at checkpoints (WC-12, `SPEC:70`). The spec does not use it, and nothing else in it carries per-attempt data. That is the gap R3.1 names; it is one possible fix, not a new finding.
+
+### Guard Condition Boundary Table
+Guards inside the surface hunks only (Review Loop bullet 5): G1 retry rename rule (H3.1-H3.3, `SPEC:64,73,76`), G2 P0 step selection (H3.4, `SPEC:194`), G3 AC-1.2 command and flag selection (H3.4, `SPEC:196`).
+
+| Guard | Location | Input Condition | Variable Value | Guard Result | Specified Behavior | Status |
+|-------|----------|-----------------|----------------|--------------|-------------------|--------|
+| G1 retry rename | WC-6, `SPEC:64` | Zero/Empty | attempt 1 wrote no file | nothing to rename | retry writes the brief's paths into an empty location | OK |
+| G1 retry rename | WC-6, `SPEC:64` | One/Minimal | first retry of a command without resume | rename report and output location | `return-contract.<d1>.yaml`, `<location>.<d1>`; retry writes fresh | OK |
+| G1 retry rename | WC-6, `SPEC:64` | Typical | retry of a command with implicit resume (implement ledger, tdd task file) | rename report only | retry finds its state and resumes | OK |
+| G1 retry rename | WC-6, `SPEC:64` | Maximum/Overflow | third consecutive failed start | circuit-break | `--retry-of` refused with `task_not_startable` (`GUIDE-REC:120-124`) | OK |
+| G1 retry rename | WC-6, `SPEC:64` | Sentinel Value Match | retry of a command whose resume needs an explicit flag (roadmap, brainstorm, release-split, adversarial, pr-submit, cli-portify) | rename report only | same brief, so no resume flag: retry neither resumes nor gets a fresh location; roadmap overwrites attempt 1 (`SPEC:118,205`) | GAP (R3.1, `fr=8`) |
+| G1 retry rename | WC-6, `SPEC:64` | Legitimate Edge Case | WC-3 re-invocation inside one worker | no rename | "same attempt ... its report replaces the `blocked` report" | OK |
+| G2 P0 step selection | AC-0.4, `SPEC:194` | Zero/Empty | P0 brief without `--unattended`/`--report-dir` | step 1 uses the shown command line | stated | OK |
+| G2 P0 step selection | AC-0.4, `SPEC:194` | One/Minimal | step 3 in P0 | reduced check | exactly one `worker_done`; report path names the existing report | OK |
+| G2 P0 step selection | AC-0.4, `SPEC:194` | Typical | step 4 in P0 on workflow's existing contract | step 4 run on that file | step 4 asserts `d['worker_status']`; the file has `status`: `KeyError`, step fails (`SPEC:183`) | GAP (R3.2, `fr=8`) |
+| G2 P0 step selection | AC-0.4, `SPEC:194` | Maximum/Overflow | step 4 on troubleshoot's markdown `REPORT.md` | step 4 run on that file | YAML load of markdown, then `d['worker_status']`: fails | GAP (R3.2) |
+| G2 P0 step selection | AC-0.4, `SPEC:194` | Sentinel Value Match | step 4 on adversarial's nested `return_contract:` file | step 4 run on that file | no top-level `worker_status`: fails | GAP (R3.2) |
+| G2 P0 step selection | AC-0.4, `SPEC:194` | Legitimate Edge Case | steps 5-7 in P0 | full check | unchanged by P0 | OK |
+| G3 AC-1.2 selection | AC-1.2, `SPEC:196` | Zero/Empty | `/sc:load` | excluded | "except `/sc:load` (no report, as in AC-1.1)" | OK |
+| G3 AC-1.2 selection | AC-1.2, `SPEC:196` | One/Minimal | index-repo (3.1, "Brief must pass: none") | only `--unattended --report-dir` | stated by its row (`SPEC:86`) | OK |
+| G3 AC-1.2 selection | AC-1.2, `SPEC:196` | Typical | workflow | `--handoff none`, never `--output` | stated | OK |
+| G3 AC-1.2 selection | AC-1.2, `SPEC:196` | Maximum/Overflow | cleanup-audit (3.1) | `--pass <N>` | stated by its row (`SPEC:85`) | OK |
+| G3 AC-1.2 selection | AC-1.2, `SPEC:196` | Sentinel Value Match | 3.2 row with no "Brief must pass" column (analyze: "add `--output`") | flags inferred from the Report column | inferable | OK (minor R3.3) |
+| G3 AC-1.2 selection | AC-1.2, `SPEC:196` | Legitimate Edge Case | adversarial (3.1, `--output <dir>`) | `--output <dir>` plus the WC-4 flags | stated (`SPEC:83`) | OK |
+
+FR-10: all three surface guards enumerated and every cell populated. GAP rows map to R3.1 and R3.2 (FR-8: MAJOR minimum, already MAJOR). No multi-stage pipeline with changing counts is in the surface, so no Quantity Flow Diagram (FR-17 not triggered).
+
+### Numbered new findings
+Blocking follows the loop's grading (`sev=critical`, `fr=8/9`, or `major` with a concrete wrong outcome). The brief's rule is stricter: any finding of any severity makes the verdict FAIL.
+
+| # | Finding | Severity | Blocking | Section | Evidence (path:line) | Recommendation |
+|---|---|---|---|---|---|---|
+| 1 (R3.1) | H3.1 makes a retry's command line identical to attempt 1's, but WC-6 still relies on the command being "given its resume flag", and the rename rule leaves the output location in place for any command that "has resume". For explicit-flag resumes nobody can give that flag, so the retry neither resumes nor runs in a fresh location; roadmap's retry "starts fresh" in attempt 1's directory and overwrites it. | MAJOR | yes (`fr=8`) | 2.2 WC-6 (H3.1); 2.3 (H3.2); 3 intro (H3.3) | `SPEC:64,73,76,83,84,89,105,114,118,205`; `worker-start --help` Notes; `sk/sc-brainstorm-protocol/SKILL.md:108,124-126`; `sk/sc-release-split-protocol/SKILL.md:138` | State how a retry gets its resume flag (for example, the brief says "if `<state file>` exists, add `<resume flag>`", or the coordinator sends it as a follow-up the worker reads with `check` before starting, WC-12), or rename the output location for every command whose resume is not implicit (High). |
+| 2 (R3.2) | AC-0.4 says P0 "step 4 uses that existing report file", but step 4 asserts `d['worker_status']`, which none of the three P0 commands' existing reports has, so all three smoke runs fail step 4 and "reopen section 1" on a false signal. | MAJOR | yes (`fr=8`) | 7.3 AC-0.4 (H3.4) | `SPEC:183,194,91,159`; `sk/sc-workflow-protocol/refs/return-contract.md:7` and `sk/sc-adversarial-protocol/SKILL.md:432,436` via `R2:43-44` | Say which part of step 4 applies in P0 (for example only `test -s <existing report>`), as AC-0.4 already does for step 3 (High). |
+| 3 (R3.3) | AC-1.2 builds briefs from "the flags that command's section 3 row requires", but 3.2 rows have no "Brief must pass" column, so for most P1 commands the flags must be inferred from the Report column. | MINOR | no | 7.3 AC-1.2 (H3.4) | `SPEC:97,99-111,159,196` | Name the output flag each 3.2 P1 command gets in its brief, or point AC-1.2 at the Report column (Low). |
+
+## 4. Diffgate run record
+- Read-only calls only, as the command requires: `status` (section "Loop status") and `check --dir .dev/orca-command-refactor/review/diffgate-loop --report .dev/orca-command-refactor/review/spec-panel-round3.md --dry-run` (2026-11-09), which printed `"exit": 0`, `"message": "dry run: report would be accepted; nothing written"`, `"errors": []`, `"verdict": "FAIL"`, `"verdict_line": "verdict: FAIL"`, `"blocking": 2`, `"blocking_ids": ["R3.1", "R3.2"]`, `"acceptance": "clean"`, `"deferred": []`, `"proxy_all": 2`, `"halt": "escalate"`.
+- Not run by this worker: `check` without `--dry-run`, which records the report and appends `close-r3.md` (its `verdict_line` becomes this report's last line). That is the coordinator's step.
+- `"halt": "escalate"`: this is review 3 of 3, so the loop allows no further fix cycle. The open blocking findings go to the user (Review Loop bullet 4), and no Reviser brief is written (bullet 6).
+
+## 5. Verdict
+**FAIL.** This review has 2 blocking findings (R3.1, R3.2) and 1 minor note (R3.3); under the brief's rule any finding of any severity fails. Carried minor notes also remain open: R2.3, R2.4, C13, and round-1 notes R1.8-R1.11 and R1.13. The diffgate dry run derives the same verdict (`"verdict": "FAIL"`, `"halt": "escalate"`, section 4). No Self-Audit is required because the verdict is not PASS; what was checked is listed in sections 1-3.
+
+Open blocking findings for escalation to the user:
+1. **R3.1:** a `--retry-of` retry reuses attempt 1's brief, so a command whose resume needs an explicit flag (roadmap, brainstorm, release-split, adversarial, pr-submit, cli-portify) never gets it. Because those commands "have resume", the coordinator does not move their output aside, and a roadmap retry starts fresh in attempt 1's directory and overwrites it (`SPEC:64,118,205`).
+2. **R3.2:** AC-0.4 runs step 4's `worker_status` assertion on P0 reports that have no such field, so all three P0 smoke runs fail (`SPEC:183,194`).
+
+## Decisions
+
+| Decision | Options considered | Rationale |
+|---|---|---|
+| R1.3: resolved, open or regressed | open (retries still lose work for some commands); resolved plus a new finding | R1.3's stated defect is that a fixed `--report-dir` makes attempt 2 overwrite attempt 1's report (`R2:20,74`). H3.1 renames that report before every retry, so that outcome no longer happens. The resume-flag gap is a different mechanism, created by H3.1's own premise, so it is new finding R3.1 anchored on H3.1. |
+| R2.2: resolved or open | open (step 4 still fails in P0); resolved plus a new finding | R2.2 names step 3 (`R2:117`), which H3.4 fixed. Step 4's failure predates this revision in substance (round 2 did not flag it, `R2:117`) but its clause was rewritten in H3.4, so it is anchorable as new finding R3.2. |
+| R3.1 and R3.2 severity | minor (an implementer may infer intent); major | Both name a concrete wrong outcome that a literal implementer produces: a roadmap retry overwrites attempt 1 (`SPEC:118,205`); all three P0 smoke runs fail step 4 and reopen section 1 (`SPEC:183,194`). This matches round 2's grading of the same kind of defect (`R2:145`). |
+| Brainstorm as the lead example for R3.1 | brainstorm; roadmap | Brainstorm suffixes a non-empty output directory (`sk/sc-brainstorm-protocol/SKILL.md:108`), so its retry loses the resume but does not overwrite. Roadmap's "starts fresh" in an existing directory is stated by the spec itself (`SPEC:205`), so it is the firmer example. |
+| Whether release-split or pr-submit overwrite on a non-resumed retry | assert; mark UNVERIFIED | Not read: they are listed in R3.1 only for "the resume never runs", which holds from their rows alone. Overwrite for them is UNVERIFIED. |
+| Verdict line and Reviser brief | write them; leave them to `check` | The command reserves the `verdict:` line for the coordinator's `check` step and omits the Reviser brief at review 3 (Review Loop bullets 3 and 6). The brief's PASS/FAIL is given in section 5. |
+| Re-reading the ccsession-tag line for R2.3 | re-read; carry from round 2 | R2.3 is a minor note whose spec line (`SPEC:147`) did not change in this revision, so it was carried, not re-checked. |
+
+## Diffgate findings
+PRIOR R2.1 resolved by=H3.4
+PRIOR R2.2 resolved by=H3.4
+PRIOR R1.3 resolved by=H3.1
+FINDING R3.1 sev=major at=64 hunk=H3.1 anchor="so it receives the first attempt's brief" outcome="a retry of a command whose resume needs an explicit flag runs the same command line without that flag, and because the command has resume the coordinator leaves its output location in place, so the retry neither resumes nor writes to a fresh location; a roadmap retry starts fresh in attempt 1's --output directory and overwrites roadmap.md" fr=8 :: a fixed retry brief cannot carry the resume flag WC-6 relies on
+FINDING R3.2 sev=major at=194 hunk=H3.4 anchor="step 4 uses that existing report file" outcome="step 4 asserts d['worker_status'] on the existing report, which none of the three P0 commands writes, so all three AC-0.4 smoke runs fail step 4 and section 1 is reopened on a false signal" fr=8 :: P0 step 4 runs the worker_status assertion on a file without that field
+FINDING R3.3 sev=minor at=196 hunk=H3.4 anchor="plus the flags that command's section 3 row requires" :: section 3.2 rows have no Brief must pass column, so AC-1.2's flags are inferred
+
+
+## Diffgate close (review 3 of 3)
+
+Open blocking findings with their fix chains:
+- R3.1 (major): R1.3 -> R3.1 :: a fixed retry brief cannot carry the resume flag WC-6 relies on
+- R3.2 (major): R1.2 -> R2.2 -> R3.2 :: P0 step 4 runs the worker_status assertion on a file without that field
+
+## Deferred (pre-existing, not looped on)
+
+PASS in this loop is scoped to the reviewed surfaces; deferred severity labels are the reviewer's, unvalidated.
+
+(none)
+
+halt: escalate
+
+verdict: FAIL

@@ -1,0 +1,8 @@
+.dev/brainstorms/346-ponytail/briefs/T05-R1-reviewer.txt
+.dev/brainstorms/346-ponytail/briefs/T06-R1-reviser.txt
+.dev/brainstorms/346-ponytail/briefs/T07-R2-reviewer.txt
+.dev/brainstorms/346-ponytail/briefs/T08-R2-reviser.txt
+.dev/brainstorms/346-ponytail/briefs/T08a-fix-audit.TEMPLATE.txt
+.dev/brainstorms/346-ponytail/briefs/T09-R3-reviewer.txt
+.dev/brainstorms/346-ponytail/briefs/T10-R3-reviser.txt
+.dev/brainstorms/346-ponytail/briefs/recorder-verdict.TEMPLATE.txt

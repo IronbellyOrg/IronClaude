@@ -1,0 +1,124 @@
+# lc2 session analysis (supplementary to worker-read; see lc2-step5.md)
+session file: /home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-p0-live-workflow/eb1ade47-a572-4888-b9a4-9e16721ca41c.jsonl
+sha256 at analysis time: 36f78229f737e8ae864841fa242f4175c682cc2cc94e6f5b4f5b14618d593692  size: 5860827 bytes (worker-read cursor p=5860827)
+
+## tool calls by name (top-level session; assistant messages with isSidechain=true: 0)
+     47 Bash
+     28 Read
+     25 Write
+     23 Agent
+      8 Edit
+      3 Skill
+      3 Grep
+      1 mcp__codegraph__codegraph_status
+
+## Skill calls
+2026-11-04T06:58:57.925Z sidechain=False skill=sc-workflow-protocol
+2026-11-04T07:00:34.562Z sidechain=False skill=sc-reflect-protocol
+2026-11-04T07:15:47.851Z sidechain=False skill=sc-adversarial-protocol
+
+## orca orchestration commands in the top-level session
+06:58:55 check heartbeat
+07:00:33 send heartbeat
+07:02:05 send heartbeat
+07:05:05 send heartbeat
+07:14:31 send heartbeat
+07:15:45 send heartbeat
+07:16:33 send heartbeat
+07:22:26 send heartbeat
+07:30:06 send heartbeat
+07:38:16 send heartbeat
+07:42:01 send heartbeat
+07:46:17 send heartbeat
+07:55:50 send heartbeat
+08:10:21 send heartbeat
+08:14:00 send heartbeat
+08:17:27 send heartbeat
+08:23:32 send heartbeat
+08:25:27 check 
+08:25:37 send worker_done
+
+## run length: first user message 06:58:42, worker_done ['08:25:37']
+run length minutes: 86.9
+heartbeats (17): ['06:58:55', '07:00:33', '07:02:05', '07:05:05', '07:14:31', '07:15:45', '07:16:33', '07:22:26', '07:30:06', '07:38:16', '07:42:01', '07:46:17', '07:55:50', '08:10:21', '08:14:00', '08:17:27', '08:23:32']
+gaps (min): [1.6, 1.5, 3.0, 9.4, 1.2, 0.8, 5.9, 7.7, 8.2, 3.7, 4.3, 9.5, 14.5, 3.7, 3.4, 6.1]
+last heartbeat to worker_done (min): 2.1
+first heartbeat after first user message (min): 0.2
+
+## gaps over 5 minutes: top-level activity inside each
+gap 07:05:05 -> 07:14:31 (9.4 min)
+   07:05:46 Write /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/refl
+   07:06:10 Write /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/refl
+   07:06:45 Write /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/refl
+   07:14:16 Write /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/refl
+   07:14:22 Agent Calibrate reviewer 1 card
+   07:14:25 Agent Calibrate reviewer 2 card
+   07:14:28 Agent Calibrate reviewer 3 card
+   task-notifications (background agent finished): ['07:05:40', '07:05:55', '07:06:31', '07:14:04']
+gap 07:16:33 -> 07:22:26 (5.9 min)
+   07:20:29 Agent Round 1 advocate for Variant A
+   07:20:35 Agent Round 1 advocate for Variant B
+   07:20:41 Agent Round 1 advocate for Variant C
+   task-notifications (background agent finished): ['07:20:18', '07:21:48', '07:22:22']
+gap 07:22:26 -> 07:30:06 (7.7 min)
+   07:27:31 Bash Check each advocate answered every shared assumption
+   07:27:34 Grep 
+   07:27:42 Agent Round 2 rebuttal for Variant A
+   07:30:03 Agent Round 2 rebuttal for Variant B
+   task-notifications (background agent finished): ['07:27:27', '07:29:55']
+gap 07:30:06 -> 07:38:16 (8.2 min)
+   07:38:13 Agent Round 2 rebuttal for Variant C
+   task-notifications (background agent finished): ['07:38:07']
+gap 07:46:17 -> 07:55:50 (9.5 min)
+   07:55:46 Agent Step 3 reconcile and base selection
+   task-notifications (background agent finished): ['07:54:18', '07:55:35']
+gap 07:55:50 -> 08:10:21 (14.5 min)
+   08:09:54 Write /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/refl
+   08:09:57 Grep 
+   08:09:59 Read /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/src/super
+   08:10:04 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/refl
+   08:10:06 Read /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/refl
+   08:10:09 Edit /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/refl
+   08:10:18 Agent Step 4 refactor plan review
+   task-notifications (background agent finished): ['08:09:10']
+gap 08:17:27 -> 08:23:32 (6.1 min)
+   08:21:39 Write /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/refl
+   08:21:50 Bash Check the merge exit gate and recompute the input tree hash for drift
+   08:21:52 Read /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/refl
+   08:22:07 Bash Confirm line numbers for the report citations and current git status
+   08:22:12 Write /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/refl
+   08:22:48 Write /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/refl
+   08:22:50 Read /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/refl
+   08:23:21 Write /home/coder/workspaces/worktrees/IronClaude/p0-live-workflow/.dev/refl
+   08:23:29 Agent Wave 5 evidence validation
+   task-notifications (background agent finished): ['08:21:29']
+
+## Agent launches (top-level): ['07:02:02', '07:04:48', '07:04:50', '07:04:52', '07:04:53', '07:14:22', '07:14:25', '07:14:28', '07:16:30', '07:20:29', '07:20:35', '07:20:41', '07:27:42', '07:30:03', '07:38:13', '07:41:27', '07:46:08', '07:46:14', '07:55:46', '08:10:18', '08:13:57', '08:17:23', '08:23:29']
+
+## all session files: 24; Bash commands: 64
+WC-13 pattern hits: 0
+orca verbs in all sessions: ['orca orchestration check', 'orca orchestration send']
+tool names containing ask/question (case-insensitive), all sessions: {}
+
+## heartbeat gaps with subagent run time removed (cadence 5 min)
+Subagent run interval = first to last timestamp of its own session file (23 subagent files); merged into 15 intervals
+from -> to           gap min agent min non-agent min
+06:58:42 -> 06:58:55      0.2       0.0           0.2
+06:58:55 -> 07:00:33      1.6       0.0           1.6
+07:00:33 -> 07:02:05      1.5       0.1           1.5
+07:02:05 -> 07:05:05      3.0       1.2           1.8
+07:05:05 -> 07:14:31      9.4       9.1           0.3
+07:14:31 -> 07:15:45      1.2       1.0           0.3
+07:15:45 -> 07:16:33      0.8       0.1           0.7
+07:16:33 -> 07:22:26      5.9       5.7           0.2
+07:22:26 -> 07:30:06      7.7       7.3           0.4
+07:30:06 -> 07:38:16      8.2       8.1           0.1
+07:38:16 -> 07:42:01      3.7       3.3           0.4
+07:42:01 -> 07:46:17      4.3       3.6           0.7
+07:46:17 -> 07:55:50      9.5       9.4           0.2
+07:55:50 -> 08:10:21     14.5      13.4           1.1
+08:10:21 -> 08:14:00      3.7       2.6           1.0
+08:14:00 -> 08:17:27      3.4       3.1           0.4
+08:17:27 -> 08:23:32      6.1       4.1           2.0
+08:23:32 -> 08:25:37      2.1       0.7           1.4
+max non-agent stretch since the last heartbeat (or since the brief): 2.0 min

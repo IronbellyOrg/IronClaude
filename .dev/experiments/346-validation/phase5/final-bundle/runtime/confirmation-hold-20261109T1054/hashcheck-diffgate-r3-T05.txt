@@ -1,0 +1,10 @@
+/home/coder/.claude/commands/sc/spec-panel.md: OK
+/home/coder/.claude/commands/sc/spec-panel-armb.md: OK
+/home/coder/.claude/commands/sc/spec-panel-diffgate.md: OK
+/home/coder/.claude/commands/sc/spec-panel-ponytail.md: OK
+/home/coder/.claude/WORKER-CONTRACT.md: OK
+/home/coder/.claude/skills/sc-diffgate/SKILL.md: OK
+/home/coder/.claude/skills/sc-diffgate/scripts/diffgate.py: OK
+/home/coder/.claude/skills/sc-fix-audit/SKILL.md: OK
+/home/coder/.claude/skills/sc-fix-audit/refs/auditor-brief.md: OK
+/home/coder/.claude/skills/sc-fix-audit/scripts/fix_audit.py: OK

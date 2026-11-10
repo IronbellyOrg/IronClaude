@@ -1,0 +1,3 @@
+['hunks=0 attributed=0 unattributed=0 moved=0 net=0 cycle_words=0/600 cycle_bytes=0/6144 raw_size=+6544/6144', 'result: RAW-SIZE +6544>6144']
+['hunks=2 attributed=1 unattributed=1 moved=0 net=50 cycle_words=58/600 cycle_bytes=295/6144 raw_size=+8102/6144', 'result: UNATTRIBUTED h2; RAW-SIZE +8102>6144']
+{'yes': 2, 'no': 149, 'noop': 49}
