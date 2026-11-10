@@ -2,7 +2,7 @@
 id: "GFXAI-JEV-LITELLM-GATEWAY"
 title: "Jev through the LiteLLM gateway: provisioning, key handling and rollback"
 description: "How to expose TypeSafe Jev to Coder workspaces through the LiteLLM gateway, where each piece is provisioned, and how to verify, rotate and roll back."
-version: "0.3"
+version: "0.4"
 status: "🟡 Draft"
 type: "📘 Operational Guide"
 priority: "▶️ Medium"
@@ -65,7 +65,7 @@ Jev is a hosted API, so there is nothing to "install". Three separate things exi
 |---|---|---|
 | Vendor key and upstream URL | **LiteLLM gateway** (secret env var on the gateway host) | One copy, rotated in one place, never in a workspace |
 | Per-user access, budget, revocation | **LiteLLM virtual keys** | Same mechanism the model tiers already use |
-| Two workspace variables (`JEV_API_URL`, `JEV_API_KEY` holding the virtual key) and the egress rule | **Coder template**, as an **opt-in** parameter or user secret | Infrastructure and secrets belong with the template, next to the other gateway variables |
+| `JEV_API_URL` (template) and `JEV_API_KEY` (per-user Coder secret holding the virtual key), plus the egress rule | **Coder template** and **Coder user secrets** | Matches how `LITELLM_API_KEY` and the gateway URL already work; Jev is on only for users who create the secret |
 | Client code that reads those variables | **superclaude package** (shipped by `superclaude install`, once a consumer exists) | Versioned with the repo; it holds no key |
 
 Not in the installer: `superclaude install` copies commands, agents, skills, hooks and templates; it must never write a key.
@@ -177,16 +177,18 @@ Open the gateway's spend or request log for the key. Expected: the smoke-test re
 
 ## 5. Phase 3: Coder template wiring (opt-in)
 
-### Step 3.1: Add two optional variables, unset by default
+Implemented in `IronbellyOrg/Coder` PR #496 (branch `jev-gateway-url-346`), following that repository's rule that the gateway URL is template configuration and secrets are Coder user secrets (no new workspace parameter).
 
-In the template repo, next to the other gateway variables, expose a template parameter (or user secret) that, when set, exports into the workspace:
+### Step 3.1: What the template does and what each user does
 
-| Variable | Value | Notes |
+| Variable | Set by | Value |
 |---|---|---|
-| `JEV_API_URL` | `https://<gateway>/jev/v1/systemone` (or the native route) | the gateway, never `api.typesafe.ai` |
-| `JEV_API_KEY` | the team's LiteLLM virtual key | a secret, not an template literal; `JEV_API_KEY` is the name our client already reads (`config.py:4`) |
+| `JEV_API_URL` | Template (`llm-env.tf`, `coder_env.jev_api_url`) for every workspace | `${local.litellm_base_url}${local.jev_api_route}` = `http://192.168.133.101:4000/cli/v1/systemone` today; never the vendor host |
+| `JEV_API_KEY` | The user, as a Coder secret: `printf %s "$JEV_API_KEY" \| coder secret create jev --env JEV_API_KEY` | the user's Jev virtual key from Phase 2 (a secret, never in the template) |
 
-> **Note:** the value of `JEV_API_KEY` in a workspace is a gateway virtual key, not the vendor key. If it leaks, revoke it in the gateway (Phase 5); the vendor key is untouched.
+> **Note:** `JEV_API_KEY` in a workspace is a gateway virtual key, not the vendor key. If it leaks, revoke it in the gateway (Phase 4 rollback); the vendor key is untouched. A user with no `jev` secret has the URL but no key, so the client refuses to call (`KeyMissing`): Jev is off per user by default.
+
+> **Important:** `jev_api_route` (`/v1/systemone`) must equal the route you configured in Phase 1. The path is unverified against the live gateway. If the gateway uses another path (for example `/jev/v1/systemone` from option B), change `jev_api_route` in `llm-env.tf` and the pin in contract test 60 together.
 
 ### Step 3.2: Client override (done)
 
@@ -197,8 +199,8 @@ The experiment-tree client now honours `JEV_API_URL`: unset or empty keeps the v
 Workspaces should reach the gateway only. If workspace egress is allow-listed, do not add `api.typesafe.ai`.
 
 ### Phase 3 Verification Checkpoint
-- [ ] A new workspace created without the parameter has neither variable (`env | grep -c '^JEV_'` prints 0)
-- [ ] A workspace created with it has both, and the Phase 1 smoke test works from inside the workspace using `$JEV_API_URL` and `$JEV_API_KEY`
+- [ ] A new workspace of a user without the `jev` secret has `JEV_API_URL` but no `JEV_API_KEY` (`env | grep '^JEV_'` prints one name)
+- [ ] A workspace of a user with the secret has both, and the Phase 1 smoke test works from inside the workspace using `$JEV_API_URL` and `$JEV_API_KEY`
 - [ ] From the workspace, a direct call to `https://api.typesafe.ai/v1/systemone` is blocked or has no key to use
 
 ---
@@ -208,7 +210,7 @@ Workspaces should reach the gateway only. If workspace egress is allow-listed, d
 ### 6.1 End-to-end
 1. In a workspace with the parameter set, run the Phase 1 smoke test against `$JEV_API_URL`. Expect 200 and `model` equal to `jev-1.14.0`.
 2. Run it with a deliberately wrong key. Expect 401 or 403.
-3. Run it from a workspace without the parameter. Expect no variables and no way to call.
+3. Run it from a workspace of a user without the `jev` secret. Expect `JEV_API_URL` only and no way to call.
 
 ### 6.2 Key hygiene check
 Run the repo's key scan (`p15/jev/keyscan.py` in the experiment tree) over any directory you put experiment output in; it must report nothing.
@@ -243,7 +245,7 @@ Run the repo's key scan (`p15/jev/keyscan.py` in the experiment tree) over any d
 4. Virtual keys rotate independently: create a new one, update the team secret, delete the old one.
 
 ### 8.2 Rollback (switch Jev off)
-- Per team: clear the Coder parameter and rebuild workspaces; delete the team's virtual key.
+- Per user or team: `coder secret delete jev` (or `update` it) and restart workspaces; delete the virtual key in the gateway.
 - Everywhere: remove the route from the gateway config and reload. The vendor key can stay on the gateway or be removed.
 - No package rollback is needed while no consumer ships.
 
@@ -260,7 +262,7 @@ Run the repo's key scan (`p15/jev/keyscan.py` in the experiment tree) over any d
 | Upstream | `https://api.typesafe.ai/v1/systemone`, bearer key |
 | Model id | `jev-1.14.0` |
 | Gateway secret | `TYPESAFE_API_KEY` |
-| Workspace variables | `JEV_API_URL`, `JEV_API_KEY` (virtual key) |
+| Workspace variables | `JEV_API_URL` (template, Coder PR #496), `JEV_API_KEY` (user's `jev` Coder secret, virtual key) |
 | Default | off |
 | Evidence | `.dev/research/346-review-loop-experiments/p20/label/RESULTS-A2-LABELS.md` |
 
@@ -270,6 +272,8 @@ Run the repo's key scan (`p15/jev/keyscan.py` in the experiment tree) over any d
 - [x] Budget owner: Ryan Wiancko, company-wide.
 - [ ] Budget owner to set the monthly cap and alert thresholds (Step 2.0).
 - [x] `JEV_API_URL` override added to the client (Step 3.2).
+- [x] Coder template change: IronbellyOrg/Coder PR #496 (review and merge).
+- [ ] Verify the gateway route path against `jev_api_route` (Step 3.1).
 - [ ] Re-evaluate enabling Jev only after a seam passes a precision gate against independent labels.
 
 ## Document History
@@ -279,3 +283,4 @@ Run the repo's key scan (`p15/jev/keyscan.py` in the experiment tree) over any d
 | 2026-11-11 | 0.1 | Claude Code | Initial draft; gateway facts unverified |
 | 2026-11-11 | 0.2 | Claude Code | Record recent LiteLLM update, company-wide budget owner, budget step |
 | 2026-11-11 | 0.3 | Claude Code | Client `JEV_API_URL` override implemented |
+| 2026-11-11 | 0.4 | Claude Code | Coder wiring implemented as template URL plus per-user secret (Coder PR #496) |
