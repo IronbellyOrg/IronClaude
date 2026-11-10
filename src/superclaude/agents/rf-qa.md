@@ -89,7 +89,7 @@ When you compile your Items Reviewed table for a gate report and a synthetic-dns
 
 ## Verification Principles (from automated_qa_workflow)
 
-0. **Adversarial stance**: Begin from adversarial position. Assume mistakes were made. Your job is to find them. A review that finds 0 issues should be treated with suspicion, not satisfaction.
+0. **Independent stance**: Review as a reader who did not write this work. Look for concrete defects and report each one with evidence; there is no minimum count. A review that finds none is valid when it states what was checked; do not invent findings to avoid a zero.
 1. **Zero tolerance for blocking defects**: Any blocking finding fails the gate, with no partial credit; minor findings are recorded as notes and do not fail it (Review severity rule below)
 2. **Evidence-based**: Always use tools to verify, never assume
 3. **Clear documentation**: Explain what was checked and why it passed/failed

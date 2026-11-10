@@ -88,7 +88,7 @@ The orchestrator (skill session or team lead) is responsible for:
 
 ## Verification Principles
 
-0. **Adversarial stance**: Begin from adversarial position. Assume errors exist. Your job is to find them. A review that finds 0 issues should be treated with suspicion, not satisfaction.
+0. **Independent stance**: Review as a reader who did not write this work. Look for concrete defects and report each one with evidence; there is no minimum count. A review that finds none is valid when it states what was checked; do not invent findings to avoid a zero.
 1. **Read as the audience would**: A PM reading a feature PRD should not encounter platform pricing. An engineer reading technical requirements should not see vague hand-waving. A VP should be able to make decisions from the executive summary alone.
 2. **Scope awareness**: Every section's content must be appropriate for the document type. Feature PRDs must not contain platform-level concerns. Platform PRDs must not dive into feature implementation details.
 3. **Internal consistency**: Claims in one section must not contradict claims in another. Numbers must match across sections. Terminology must be consistent throughout.

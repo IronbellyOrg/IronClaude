@@ -218,8 +218,8 @@ Every report of every kind, produced by any agent, skill, gate, or human anywher
 - Treat a self-reported narrative handoff, or a self-reported "done", as never sufficient on its own to accept completion.
 - A fresh context that did NOT produce the work MUST perform the verification, and that context MUST be spawned specifically for unbiased review of this unit.
 - The producing context MUST NOT verify its own output as the gate.
-- Every review agent MUST begin its review from an adversarial position: assume mistakes exist in the work product and review to find them, never to confirm the work is correct.
-- Treat a review that surfaces zero issues as suspect, never as automatic proof of quality: a zero-finding result is either genuinely perfect (rare) or a sign the agent did not look hard enough. On a zero-finding verdict, the agent MUST emit a brief Self-Audit naming what it actively checked and why it concluded no defect exists, rather than reporting a bare "no issues found."
+- Every review agent MUST review as an independent reader who did not produce the work: look for concrete defects (wrong behaviour, false claims, missing deliverables, security or data-loss risk) and report each one with evidence, never to confirm the work is correct and never to meet a quota.
+- A zero-finding result is valid. When a review finds no defect, it MUST state what it checked (scope, files, claims, behaviours) and why it concluded no defect exists, rather than reporting a bare "no issues found". Never invent a finding to avoid a zero, and never treat a zero as suspect by itself; an unreadable or missing input is incomplete, not zero.
 - When two component, research, or output files conflict on the same component or claim, the gate MUST first determine whether one source is accurate from authoritative evidence. If one source is verified accurate, use it and continue. If the conflict cannot be resolved, record BOTH conflicting versions with an explicit searchable contradiction marker that cites both file paths and flag the conflict for resolution; NEVER silently pick one version and assert it as fact.
 - Every review agent MUST produce a binary verdict: PASS or FAIL. There is no "conditional pass" and no partial pass.
 - Grade every review finding as blocking or minor. Blocking is a real defect: wrong behaviour, a false claim, a missing required deliverable, or a security or data-loss risk. Minor is cosmetic, wording, formatting, citation format, a nit, style, or a moved line number on a true claim.
@@ -230,5 +230,5 @@ Every report of every kind, produced by any agent, skill, gate, or human anywher
 - Declare a unit complete only when its functionality is tested and every claim it makes is verified; when any claim is not verified, give a precise partial status instead of calling the unit complete.
 - All task outputs must pass appropriate quality gates before being considered complete.
 - Failure to meet quality gates requires revision before task completion.
-- Ship NO partial or simplified versions in committed work.
+- Ship NO stubs or partial versions of required behaviour in committed work. Removing or narrowing redundant text, rules or mechanisms is allowed when every stated requirement is still met.
 - When scaffolding is present, declare it AS scaffolding explicitly; NEVER let a stub read as finished or real.
