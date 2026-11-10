@@ -1,0 +1,15 @@
+{
+  "selected_tier": 1,
+  "required_tier": 2,
+  "fired_rule_number": 6,
+  "composite_score": 4.9,
+  "per_signal_breakdown": {
+    "scope_size": 1.8,
+    "task_count": 1.8,
+    "blast_radius": 0.5,
+    "spec_density": 0.3,
+    "ambiguity_signals": 0.5
+  },
+  "coverage_degraded": "parsed-sparse",
+  "escalation_reason": "lowconfidence/parsedsparse require escalation but only one model class is owner-permitted; advisory partial, no heterogeneous substitute"
+}

@@ -56,7 +56,9 @@ KEPT = (
     " The job record is kept as evidence and must not be deleted while that "
     "launch job's processes run."
 )
-BYPASS = re.compile(r"--no-verify|core\.hooksPath|--config-env|GIT_CONFIG_|(?:^|\s)-c(?:\s|$)")
+BYPASS = re.compile(
+    r"--no-verify|core\.hooksPath|--config-env|GIT_CONFIG_|(?:^|\s)-c(?:\s|$)"
+)
 pytestmark = pytest.mark.skipif(
     sys.platform != "linux" or UV is None, reason="Linux proc contract and uv"
 )
@@ -129,9 +131,13 @@ class Repo:
         self.git("config", "user.email", "fixture@example.invalid")
         self.git("config", "commit.gpgsign", "false")
         self.a = self.commit("a")
-        self.git("push", "-q", "origin", "HEAD:refs/heads/main", "HEAD:refs/heads/master")
+        self.git(
+            "push", "-q", "origin", "HEAD:refs/heads/main", "HEAD:refs/heads/master"
+        )
         self.b = self.commit("b")
-        self.alt = self.git("commit-tree", self.b + "^{tree}", "-p", self.a, "-m", "alt")
+        self.alt = self.git(
+            "commit-tree", self.b + "^{tree}", "-p", self.a, "-m", "alt"
+        )
         self.git("branch", "alt", self.alt)
         self.git("branch", "feature", self.b)
         self.initial = self.refs()
@@ -207,7 +213,9 @@ class Repo:
         out = self.tmp / "stub.out"
         if output is not None:
             out.write_bytes(output.encode())
-        self.selector.write_text("#!/bin/bash\n" + (body or f"exec /usr/bin/cat {q(out)}\n"))
+        self.selector.write_text(
+            "#!/bin/bash\n" + (body or f"exec /usr/bin/cat {q(out)}\n")
+        )
         self.selector.chmod(0o755)
 
     # --- launch jobs -----------------------------------------------------------
@@ -258,7 +266,13 @@ class Repo:
         boot = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
         start = int(Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()[19])
         record = jobs / f"{pid}.json"
-        value = {"pid": pid, "start": start + 1, "boot": boot, "kernel_sid": pid, "session_id": "old"}
+        value = {
+            "pid": pid,
+            "start": start + 1,
+            "boot": boot,
+            "kernel_sid": pid,
+            "session_id": "old",
+        }
         record.write_text(json.dumps(value))
         record.chmod(0o600)
         return record
@@ -275,7 +289,11 @@ class Repo:
         def wait(p):
             return f"while [ ! -e {q(p)} ]; do sleep .02; done"
 
-        lines = [f"cd {q(cwd or self.work)} || exit 9", f"touch {q(d / 'ready')}", wait(d / "go")]
+        lines = [
+            f"cd {q(cwd or self.work)} || exit 9",
+            f"touch {q(d / 'ready')}",
+            wait(d / "go"),
+        ]
         gates, n = [], 0
         for step in steps:
             if step == GATE:
@@ -472,7 +490,9 @@ def test_t03_delete(repo, actor, branch):
 @pytest.mark.parametrize("branch", BRANCHES)
 @pytest.mark.parametrize("actor", ACTORS)
 def test_t04_force(repo, actor, branch):
-    results = sequence(repo, actor, [push("+alt:" + branch), push("--force", "feature:" + branch)])
+    results = sequence(
+        repo, actor, [push("+alt:" + branch), push("--force", "feature:" + branch)]
+    )
     for r in results:
         check(repo, actor, r, "refs/heads/" + branch)
     assert repo.remote_ref(branch) == (repo.b if actor == "human" else repo.a)
@@ -487,7 +507,9 @@ def test_t05_configured_mapping(repo, actor, branch):
     (r,) = repo.run(actor, ["git push origin"])
     check(repo, actor, r, "refs/heads/" + branch)
     repo.reset()
-    repo.git("config", "--unset", "remote.origin.push")  # it would override push.default
+    repo.git(
+        "config", "--unset", "remote.origin.push"
+    )  # it would override push.default
     (u,) = repo.run(actor, ["git -c push.default=upstream push origin"], cwd=wt)
     check(repo, actor, u, "refs/heads/" + branch)
     assert repo.remote_ref(branch) == (repo.b if actor == "human" else repo.a)
@@ -504,7 +526,13 @@ def test_t06_mixed_and_atomic(repo, actor, branch):
             assert "refs/heads/feature" not in r.after
 
 
-EDGES = ["refs/tags/main", "refs/heads/mainline", "refs/heads/feature/main", "refs/heads/Main", "refs/heads/main2"]
+EDGES = [
+    "refs/tags/main",
+    "refs/heads/mainline",
+    "refs/heads/feature/main",
+    "refs/heads/Main",
+    "refs/heads/main2",
+]
 
 
 @pytest.mark.parametrize("actor", ACTORS)
@@ -560,7 +588,9 @@ def test_t10_six_field_source(repo, actor, branch):
 def test_t11_sha256_repository(make, actor, branch):
     repo = make("sha256", object_format="sha256")
     assert len(repo.b) == 64
-    main, feature = repo.run(actor, [push("HEAD:" + branch), push("HEAD:refs/heads/feature")])
+    main, feature = repo.run(
+        actor, [push("HEAD:" + branch), push("HEAD:refs/heads/feature")]
+    )
     check(repo, actor, main, "refs/heads/" + branch)
     allowed(feature)
 
@@ -597,7 +627,9 @@ def test_t14_agent_and_human_same_linked_worktree(repo, branch):
             timeout=20,
         )
 
-    (agent,) = repo.run("governed", [GATE, push("+alt:" + branch)], cwd=wt, actions=[human_push])
+    (agent,) = repo.run(
+        "governed", [GATE, push("+alt:" + branch)], cwd=wt, actions=[human_push]
+    )
     assert human["r"].returncode == 0 and P not in human["r"].stderr
     protected(agent, "refs/heads/" + branch)
     assert repo.remote_ref(branch) == repo.b
@@ -609,7 +641,9 @@ def test_t15_release_while_job_live(repo, branch):
         (repo.root / "sessions/old").unlink()
 
     before, after = repo.run(
-        "governed", [push("HEAD:" + branch), GATE, push("HEAD:" + branch)], actions=[release]
+        "governed",
+        [push("HEAD:" + branch), GATE, push("HEAD:" + branch)],
+        actions=[release],
     )
     protected(before, "refs/heads/" + branch)
     allowed(after)
@@ -620,7 +654,9 @@ def test_t15_release_while_job_live(repo, branch):
 @pytest.mark.parametrize("branch", BRANCHES)
 def test_t16_stale_record(repo, branch, damage):
     main, feature = repo.run(
-        "unknown", [push("HEAD:" + branch), push("HEAD:refs/heads/feature")], damage=damage
+        "unknown",
+        [push("HEAD:" + branch), push("HEAD:refs/heads/feature")],
+        damage=damage,
     )
     unknown(main, "refs/heads/" + branch, *stale(repo.last_record))
     allowed(feature)
@@ -629,9 +665,13 @@ def test_t16_stale_record(repo, branch, damage):
 @pytest.mark.parametrize("branch", BRANCHES)
 def test_t16a_killed_supervisor_orphaned(repo, branch):
     main, feature = repo.run(
-        "unknown", [push("HEAD:" + branch), push("HEAD:refs/heads/feature")], damage="kill"
+        "unknown",
+        [push("HEAD:" + branch), push("HEAD:refs/heads/feature")],
+        damage="kill",
     )
-    unknown(main, "refs/heads/" + branch, f"job record orphaned at {repo.last_record}", KEPT)
+    unknown(
+        main, "refs/heads/" + branch, f"job record orphaned at {repo.last_record}", KEPT
+    )
     assert "rm '" not in main.err
     allowed(feature)
 
@@ -652,7 +692,9 @@ def test_t16b_sibling_session_beside_governed_job(repo, branch):
             start_new_session=True,
         )
 
-    (agent,) = repo.run("governed", [GATE, push("+alt:" + branch)], cwd=wt, actions=[sibling_push])
+    (agent,) = repo.run(
+        "governed", [GATE, push("+alt:" + branch)], cwd=wt, actions=[sibling_push]
+    )
     assert sibling["r"].returncode == 0 and P not in sibling["r"].stderr
     protected(agent, "refs/heads/" + branch)
 
@@ -660,9 +702,16 @@ def test_t16b_sibling_session_beside_governed_job(repo, branch):
 @pytest.mark.parametrize("branch", BRANCHES)
 def test_t16c_group_writable_record_unreadable(repo, branch):
     main, feature = repo.run(
-        "unknown", [push("HEAD:" + branch), push("HEAD:refs/heads/feature")], damage="mode"
+        "unknown",
+        [push("HEAD:" + branch), push("HEAD:refs/heads/feature")],
+        damage="mode",
     )
-    unknown(main, "refs/heads/" + branch, f"job record unreadable at {repo.last_record}", KEPT)
+    unknown(
+        main,
+        "refs/heads/" + branch,
+        f"job record unreadable at {repo.last_record}",
+        KEPT,
+    )
     assert "rm '" not in main.err
     allowed(feature)
 
@@ -688,10 +737,22 @@ def test_t16c_real_second_uid():
         config.write_text("[safe]\n\tdirectory = *\n")
         config.chmod(0o644)
         result = subprocess.run(
-            ["setpriv", "--reuid=65534", "--regid=65534", "--clear-groups",
-             "git", "-C", str(repo.work), "push", "origin", "HEAD:main"],
+            [
+                "setpriv",
+                "--reuid=65534",
+                "--regid=65534",
+                "--clear-groups",
+                "git",
+                "-C",
+                str(repo.work),
+                "push",
+                "origin",
+                "HEAD:main",
+            ],
             env={**repo.env, "GIT_CONFIG_GLOBAL": str(config)},
-            capture_output=True, text=True, timeout=30,
+            capture_output=True,
+            text=True,
+            timeout=30,
         )
         # The second uid does not own pre-push.launch-level (FR-020 owner check),
         # so the hook is unknown before any record is read: main refused, no rm.
@@ -712,7 +773,12 @@ def test_t_stale_1_planted_record_then_rm(repo, branch):
 
     main, feature, again = repo.run(
         "planted",
-        [push("HEAD:" + branch), push("HEAD:refs/heads/feature"), GATE, push("HEAD:" + branch)],
+        [
+            push("HEAD:" + branch),
+            push("HEAD:refs/heads/feature"),
+            GATE,
+            push("HEAD:" + branch),
+        ],
         actions=[person_runs_rm],
     )
     assert main.rc == 1
@@ -773,7 +839,9 @@ T18 = {
 @pytest.mark.parametrize("case", list(T18))
 def test_t18_invalid_data_file_or_selector(repo, case):
     _break(repo, case)
-    main, feature = repo.run("human", [push("HEAD:main"), push("HEAD:refs/heads/feature")])
+    main, feature = repo.run(
+        "human", [push("HEAD:main"), push("HEAD:refs/heads/feature")]
+    )
     unknown(main, "refs/heads/main", T18[case])
     allowed(feature)
 
@@ -798,7 +866,9 @@ def test_t18_stat_missing_failing_or_hanging_fails_closed(repo, case):
     assert text.count("/usr/bin/stat -c") == 1
     repo.hook.write_text(text.replace("/usr/bin/stat -c", f"{fake} -c"))
     repo.hook.chmod(0o755)
-    main, feature = repo.run("human", [push("HEAD:main"), push("HEAD:refs/heads/feature")])
+    main, feature = repo.run(
+        "human", [push("HEAD:main"), push("HEAD:refs/heads/feature")]
+    )
     unknown(main, "refs/heads/main", "no valid data file")
     allowed(feature)
 
@@ -811,8 +881,14 @@ def rec(dst, src="refs/heads/x", old="a" * 40, new="0" * 40):
 MALFORMED = [
     ("fewer than three spaces", "zq9 " + "a" * 40 + " refs/heads/main\n"),
     ("empty field", "zq9 " + "a" * 40 + " refs/heads/main \n"),
-    ("object id is not 40 or 64 lowercase hex", rec("refs/heads/main", "zq9", "A" * 40)),
-    ("object id is not 40 or 64 lowercase hex", rec("refs/heads/main", "zq9", new="g" * 40)),
+    (
+        "object id is not 40 or 64 lowercase hex",
+        rec("refs/heads/main", "zq9", "A" * 40),
+    ),
+    (
+        "object id is not 40 or 64 lowercase hex",
+        rec("refs/heads/main", "zq9", new="g" * 40),
+    ),
     ("object ids differ in length", rec("refs/heads/main", "zq9", "a" * 64)),
     ("tab, CR or NUL", rec("refs/heads/main", "zq9\tx")),
     ("tab, CR or NUL", rec("refs/heads/main", "zq9")[:-1] + "\r\n"),
@@ -829,8 +905,12 @@ def _malformed_line(n, why):
 def _direct_steps(repo):
     inputs = [rec("refs/heads/feature") + bad for _, bad in MALFORMED]
     inputs.append(rec("refs/heads/main") + MALFORMED[0][1])  # T-19a
-    inputs.append(rec("refs/heads/feature") + rec("refs/heads/main")[:-1])  # no final LF
-    inputs.append(rec("refs/heads/feature") * 300 + rec("refs/heads/main"))  # > 4096 bytes
+    inputs.append(
+        rec("refs/heads/feature") + rec("refs/heads/main")[:-1]
+    )  # no final LF
+    inputs.append(
+        rec("refs/heads/feature") * 300 + rec("refs/heads/main")
+    )  # > 4096 bytes
     steps = []
     for i, data in enumerate(inputs):
         path = repo.tmp / f"stdin-{i}"
@@ -845,8 +925,11 @@ def test_t19_t19a_malformed_stdin(repo, actor):
     for (why, _), r in zip(MALFORMED, results):
         assert (r.rc, r.err) == (2, _malformed_line(2, why))
         assert "zq9" not in r.err
-    first_protected, no_lf, chunked = results[len(MALFORMED):]
-    assert (first_protected.rc, first_protected.err) == (2, _malformed_line(2, MALFORMED[0][0]))
+    first_protected, no_lf, chunked = results[len(MALFORMED) :]
+    assert (first_protected.rc, first_protected.err) == (
+        2,
+        _malformed_line(2, MALFORMED[0][0]),
+    )
     for r in (no_lf, chunked):
         r.before = r.after  # direct hook runs push nothing
         refused(repo, actor, r, "refs/heads/main")
@@ -885,7 +968,9 @@ def test_t20_selector_lines_pinned_and_mapped(repo):
         (repo.root / "sessions/old").unlink()
 
     identify = f"bash {q(repo.selector)} identify"
-    governed, released = repo.run("governed", [identify, GATE, identify], actions=[release])
+    governed, released = repo.run(
+        "governed", [identify, GATE, identify], actions=[release]
+    )
     assert governed.out == '{"status": "governed", "session_id": "old"}\n'
     assert released.out == '{"status": "ordinary", "reason": "released"}\n'
     session = repo.root / "sessions/old"
@@ -893,7 +978,10 @@ def test_t20_selector_lines_pinned_and_mapped(repo):
     session.chmod(0o600)
     (stale_line,) = repo.run("unknown", [identify])
     record = repo.last_record
-    assert stale_line.out == f'{{"status": "unknown", "reason": "stale", "record": "{record}"}}\n'
+    assert (
+        stale_line.out
+        == f'{{"status": "unknown", "reason": "stale", "record": "{record}"}}\n'
+    )
 
     mapping = [
         ('{"status": "ordinary"}\n', None),
@@ -901,15 +989,30 @@ def test_t20_selector_lines_pinned_and_mapped(repo):
         (governed.out, "governed"),
         ('{"status": "unknown"}\n', "identity unknown"),
         (stale_line.out, f"job record stale at {record}"),
-        ('{"status": "unknown", "reason": "orphaned", "record": "/r/1.json"}\n', "job record orphaned at /r/1.json"),
-        ('{"status": "unknown", "reason": "foreign", "record": "/r/1.json"}\n', "job record foreign at /r/1.json"),
+        (
+            '{"status": "unknown", "reason": "orphaned", "record": "/r/1.json"}\n',
+            "job record orphaned at /r/1.json",
+        ),
+        (
+            '{"status": "unknown", "reason": "foreign", "record": "/r/1.json"}\n',
+            "job record foreign at /r/1.json",
+        ),
         ('{"status":"ordinary"}\n', "identity unknown"),
         ('{"status": "ordinary"}', "identity unknown"),
         ('{"status": "ordinary"}\n{"status": "ordinary"}\n', "identity unknown"),
         ('{"status": "governed", "session_id": "../x"}\n', "identity unknown"),
-        ('{"status": "unknown", "reason": "bogus", "record": "/r/1.json"}\n', "identity unknown"),
-        ('{"status": "unknown", "reason": "stale", "record": "/r/a\'b.json"}\n', "identity unknown"),
-        ('{"status": "unknown", "reason": "stale", "record": "r/1.json"}\n', "identity unknown"),
+        (
+            '{"status": "unknown", "reason": "bogus", "record": "/r/1.json"}\n',
+            "identity unknown",
+        ),
+        (
+            '{"status": "unknown", "reason": "stale", "record": "/r/a\'b.json"}\n',
+            "identity unknown",
+        ),
+        (
+            '{"status": "unknown", "reason": "stale", "record": "r/1.json"}\n',
+            "identity unknown",
+        ),
         ("", "identity unknown"),
     ]
     steps, actions = [], []
@@ -950,7 +1053,9 @@ def _hostile(repo, variant, ref):
         env_file.write_text(f"timeout() {{ {body}; }}\n")
         return mark, f"env BASH_ENV={q(env_file)} {command}"
     if variant == "b-bash-func":
-        funcs = [f"BASH_FUNC_{name}%%=() {{ {body}; }}" for name in ("timeout", "exec", "uv")]
+        funcs = [
+            f"BASH_FUNC_{name}%%=() {{ {body}; }}" for name in ("timeout", "exec", "uv")
+        ]
         return mark, shlex.join(["env", *funcs]) + " " + command
     if variant == "c-uv-env":
         (stubs / "uv.toml").write_text("# stub\n")
@@ -967,7 +1072,9 @@ def _hostile(repo, variant, ref):
     return mark, command
 
 
-@pytest.mark.parametrize("variant", ["a-bash-env", "b-bash-func", "c-uv-env", "d-worktree-uv"])
+@pytest.mark.parametrize(
+    "variant", ["a-bash-env", "b-bash-func", "c-uv-env", "d-worktree-uv"]
+)
 @pytest.mark.parametrize("branch", BRANCHES)
 @pytest.mark.parametrize("actor", ["governed", "human"])
 def test_t21_hardened_selector_call(repo, actor, branch, variant):

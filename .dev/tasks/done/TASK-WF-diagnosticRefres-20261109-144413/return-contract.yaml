@@ -1,0 +1,16 @@
+contract_version: "1.1"
+status: success
+slug: TASK-WF-diagnosticRefres-20261109-144413
+plan_path: ./TASK-WF-diagnosticRefres-20261109-144413.md
+source_path: ./source.md
+source_origin: .dev/issues/441/diagnostic-refresh-checked-request.md
+strategy: systematic
+depth: quick
+handoff_action: none
+handoff_output_path: null
+reflect_status: success
+reflect_report_path: /home/coder/workspaces/worktrees/IronClaude/issue-441/.dev/tasks/to-do/TASK-WF-diagnosticRefres-20261109-144413/artifacts/reflect-pre/REPORT.md
+unresolved:
+  - 'Model/calibrator diversity degraded under explicit owner Tier1b-only policy; no heterogeneous guarantee'
+  - 'Archive checksum must be recorded and verified before deletion; sourceR007 incorporated in Task1'
+  - 'No compatibility installation has run; plan check is not runtime readiness'

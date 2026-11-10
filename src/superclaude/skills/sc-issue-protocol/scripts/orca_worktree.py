@@ -1172,12 +1172,31 @@ def l2_data_expected() -> bytes | None:
     return f"{home}\n{uv_dir}\n".encode()
 
 
+L2_PACKAGED_MAX = (
+    64 * 1024
+)  # the shipped hook is a few KiB; anything larger is not ours
+
+
+def _l2_read_capped(path: Path, limit: int) -> bytes:
+    """At most ``limit`` bytes of a regular file; never follows a symlink or blocks on a FIFO."""
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            raise OSError("not a regular file")
+        with os.fdopen(os.dup(fd), "rb") as f:
+            return f.read(limit)
+    finally:
+        os.close(fd)
+
+
 def _l2_packaged() -> tuple[str, bytes, bytes]:
     """(why, packaged hook bytes, expected data bytes); ``why`` empty when usable."""
     src = home_dir() / ".claude" / "hooks" / "launch-level-pre-push.sh"
     try:
-        packaged = src.read_bytes() if not src.is_symlink() and src.is_file() else b""
+        packaged = _l2_read_capped(src, L2_PACKAGED_MAX + 1)
     except OSError:
+        packaged = b""
+    if len(packaged) > L2_PACKAGED_MAX:
         packaged = b""
     if L2_VERSION_LINE.encode() not in packaged:
         return L2_WHY_NOT_INSTALLED, b"", b""
@@ -1219,7 +1238,7 @@ def _l2_data_ok(path: Path, expected: bytes) -> bool:
 def _l2_conflict(why: str, hooks: Path) -> str:
     return (
         f"{why}: remove both files with "
-        f"`rm {hooks}/pre-push {hooks}/{L2_DATA_NAME}` and claim again; "
+        f"`rm {shlex.quote(f'{hooks}/pre-push')} {shlex.quote(f'{hooks}/{L2_DATA_NAME}')}` and claim again; "
         "the claim never deletes them"
     )
 
@@ -1238,7 +1257,9 @@ def _l2_entry_verdict(hooks: Path, expected: bytes, packaged: bytes) -> tuple[st
     if st.st_mode & 0o022:  # FR-102 forgery "wrong mode"
         return "conflict", _l2_conflict("group or other writable", hooks)
     try:
-        body = entry.read_bytes()
+        body = _l2_read_capped(
+            entry, len(packaged) + 1
+        )  # one byte over detects a longer file
     except OSError:
         return "conflict", _l2_conflict("foreign", hooks)
     if body != packaged:

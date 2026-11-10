@@ -1,0 +1,5 @@
+{"phase": "blocked_before", "content_drift": ["SKILL.md", "refs/diagnosability-audit.md", "refs/doc-discovery.md"], "mode_drift_count": 19, "examples": {".": {"source": "0o700", "installed": "0o755"}, "refs": {"source": "0o700", "installed": "0o755"}, "refs/agent-assertions.md": {"source": "0o600", "installed": "0o644"}, "refs/calibrator-eval-cases.md": {"source": "0o600", "installed": "0o644"}, "refs/contract-enumeration.md": {"source": "0o600", "installed": "0o644"}}, "installer_run": false, "backup_exists": false}
+Traceback (most recent call last):
+  File "/home/coder/workspaces/worktrees/IronClaude/issue-441/.dev/tasks/to-do/TASK-WF-diagnosticRefres-20261109-144413/artifacts/compatibility_state.py", line 98, in <module>
+    raise AssertionError('Unexpected metadata drift; preserved state, no installation')
+AssertionError: Unexpected metadata drift; preserved state, no installation

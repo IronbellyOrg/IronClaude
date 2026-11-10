@@ -1,0 +1,109 @@
+{
+  "parsed_count": 12,
+  "parsed_coverage": 1.0,
+  "rows": [
+    {
+      "requirement_id": "R-001",
+      "source": "parsed",
+      "matched_task_ids": [
+        "T1",
+        "T2"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-002",
+      "source": "parsed",
+      "matched_task_ids": [
+        "T1",
+        "T2"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-003",
+      "source": "parsed",
+      "matched_task_ids": [
+        "T1",
+        "T2"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-004",
+      "source": "parsed",
+      "matched_task_ids": [
+        "T2"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-005",
+      "source": "parsed",
+      "matched_task_ids": [
+        "T1"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-006",
+      "source": "parsed",
+      "matched_task_ids": [
+        "T1",
+        "T2"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-007",
+      "source": "parsed",
+      "matched_task_ids": [
+        "T1",
+        "T2"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-008",
+      "source": "parsed",
+      "matched_task_ids": [
+        "T2"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-009",
+      "source": "parsed",
+      "matched_task_ids": [
+        "T2"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-010",
+      "source": "parsed",
+      "matched_task_ids": [
+        "T1",
+        "T2"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-011",
+      "source": "parsed",
+      "matched_task_ids": [
+        "T2"
+      ],
+      "match_method": "exact"
+    },
+    {
+      "requirement_id": "R-012",
+      "source": "parsed",
+      "matched_task_ids": [
+        "T2"
+      ],
+      "match_method": "exact"
+    }
+  ],
+  "inference_pass": "completed by independent explicit Tier1b requirements review and independently rechecked by Tier1b calibrator; full source/plan read, no additional inferred requirements; pre-execution coverage only"
+}

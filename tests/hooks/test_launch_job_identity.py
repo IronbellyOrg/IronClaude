@@ -1485,7 +1485,9 @@ def test_real_git_killed_supervisor_is_unknown_not_proven_human(
         assert process.returncode == 137
         assert fixture.remote_ref("main") == fixture.c
         (row,) = fixture.events()
-        assert row["identity"] == _unknown("orphaned", record) and row["refused"] is False
+        assert (
+            row["identity"] == _unknown("orphaned", record) and row["refused"] is False
+        )
         print(
             json.dumps(
                 {

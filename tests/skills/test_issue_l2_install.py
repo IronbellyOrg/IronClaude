@@ -677,3 +677,40 @@ print(json.dumps(getattr(module, sys.argv[2])(sys.argv[3])))
         after.pop(".")
     assert after == before
     assert stat.S_ISFIFO(l2.data.lstat().st_mode)
+
+
+def test_conflict_command_quotes_paths_with_spaces(tmp_path):
+    hooks = tmp_path / "my repo; touch x" / ".git" / "hooks"
+    reason = orca._l2_conflict("foreign", hooks)
+    cmd = reason.split("`")[1]
+    import shlex
+
+    assert shlex.split(cmd) == ["rm", f"{hooks}/pre-push", f"{hooks}/{DATA}"]
+
+
+def test_capped_read_is_bounded_and_refuses_non_regular_files(tmp_path):
+    big = tmp_path / "big"
+    big.write_bytes(b"x" * 1000)
+    assert orca._l2_read_capped(big, 10) == b"x" * 10
+    link = tmp_path / "link"
+    link.symlink_to(big)
+    fifo = tmp_path / "fifo"
+    os.mkfifo(fifo, 0o600)
+    for bad in (link, fifo, tmp_path):
+        with pytest.raises(OSError):
+            orca._l2_read_capped(bad, 10)
+
+
+def test_oversized_packaged_hook_is_not_installed(l2):
+    l2.packaged.write_bytes(HOOK.read_bytes() + b"#" * (orca.L2_PACKAGED_MAX + 1))
+    state, reason = l2.install()
+    assert state != "installed" and reason
+    assert not l2.entry.exists()
+
+
+def test_existing_entry_longer_than_packaged_is_a_conflict(l2):
+    assert l2.install() == ("installed", "")
+    with l2.entry.open("ab") as f:
+        f.write(b"# appended\n")
+    state, reason = l2.install()
+    assert state == "conflict" and reason.startswith(("stale:", "foreign:"))

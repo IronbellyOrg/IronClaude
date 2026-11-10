@@ -1,0 +1,172 @@
+{
+  "parsed_count": 0,
+  "inferred_count": 11,
+  "coverage_pct": null,
+  "coverage_pct_union": 0.36363636363636365,
+  "coverage_degraded": "parsed-sparse",
+  "stopwords": [
+    "a",
+    "an",
+    "and",
+    "are",
+    "as",
+    "at",
+    "be",
+    "been",
+    "being",
+    "but",
+    "by",
+    "can",
+    "did",
+    "do",
+    "does",
+    "else",
+    "for",
+    "from",
+    "if",
+    "in",
+    "is",
+    "it",
+    "its",
+    "may",
+    "must",
+    "no",
+    "not",
+    "of",
+    "on",
+    "only",
+    "or",
+    "shall",
+    "should",
+    "that",
+    "the",
+    "then",
+    "these",
+    "this",
+    "those",
+    "to",
+    "was",
+    "were",
+    "will",
+    "with",
+    "would"
+  ],
+  "rows": [
+    {
+      "requirement_id": "INF-001",
+      "source": "inferred",
+      "quote": "No permission/tool broadening, installed/mirror workaround, gate waiver, unrelated refactor, merge or issue closure.",
+      "source_line": 5,
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.4615
+    },
+    {
+      "requirement_id": "INF-002",
+      "source": "inferred",
+      "quote": "Every subsequent helper must use explicit verified Tier1b; no Opus fallback.",
+      "source_line": 5,
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.5556
+    },
+    {
+      "requirement_id": "INF-003",
+      "source": "inferred",
+      "quote": "no new canonical source edit is justified unless focused tests prove an actual canonical gap.",
+      "source_line": 9,
+      "matched_task_ids": [
+        "T2"
+      ],
+      "match_method": "containment",
+      "ratio": 0.6364
+    },
+    {
+      "requirement_id": "INF-004",
+      "source": "inferred",
+      "quote": "Inspect installer implementation and target before running; preserve entire previous skill package in a private backup outside installed primitive directories.",
+      "source_line": 11,
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.5294
+    },
+    {
+      "requirement_id": "INF-005",
+      "source": "inferred",
+      "quote": "Do not use full superclaude install/update (would overwrite unrelated customization), do not hand-edit installed definitions, agent profiles, settings or permission lists.",
+      "source_line": 11,
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.4706
+    },
+    {
+      "requirement_id": "INF-006",
+      "source": "inferred",
+      "quote": "The normal scoped refresh must copy existing canonical content unchanged, not add tools or weaken rejection rules.",
+      "source_line": 11,
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.3846
+    },
+    {
+      "requirement_id": "INF-007",
+      "source": "inferred",
+      "quote": "preserve authorization/active-source hashes/backup and run focused canonical contract/install tests",
+      "source_line": 15,
+      "matched_task_ids": [
+        "T1"
+      ],
+      "match_method": "containment",
+      "ratio": 0.9167
+    },
+    {
+      "requirement_id": "INF-008",
+      "source": "inferred",
+      "quote": "explicit Tier1b restricted diagnostic-worker smoke check and independent evidence check before resuming existing diagnosis.",
+      "source_line": 15,
+      "matched_task_ids": [
+        "T2"
+      ],
+      "match_method": "containment",
+      "ratio": 0.7692
+    },
+    {
+      "requirement_id": "INF-009",
+      "source": "inferred",
+      "quote": "No destructive tests, huge files, benchmarks, gates waived or invented passes.",
+      "source_line": 15,
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.4444
+    },
+    {
+      "requirement_id": "INF-010",
+      "source": "inferred",
+      "quote": "Plan ends at verified compatibility readiness, not source bounded-reader fix, PR repair push or merge.",
+      "source_line": 17,
+      "matched_task_ids": [
+        "T2"
+      ],
+      "match_method": "containment",
+      "ratio": 0.6923
+    },
+    {
+      "requirement_id": "INF-011",
+      "source": "inferred",
+      "quote": "Stage .dev/tasks always. Do not stage .claude mirrors.",
+      "source_line": 17,
+      "matched_task_ids": [],
+      "match_method": "none",
+      "ratio": 0.1667
+    }
+  ],
+  "unmapped_requirements_union": [
+    "INF-001",
+    "INF-002",
+    "INF-004",
+    "INF-005",
+    "INF-006",
+    "INF-009",
+    "INF-011"
+  ]
+}

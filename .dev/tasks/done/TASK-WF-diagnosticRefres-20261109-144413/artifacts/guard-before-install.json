@@ -1,0 +1,19 @@
+{
+  "record_kind": "after-the-fact record of the immediate pre-install recheck (T2.AC1)",
+  "honesty_note": "The guard output was printed to the terminal and was not saved to a file when it ran. This file is a transcript-derived record written afterwards (2026-11-10, after the A1 review finding F1.2). It is not a new run: a guard run after the install would fail by design, because the installed folder no longer equals the before-state.",
+  "command": "cd $P/artifacts && uv run python compatibility_state.py guard 2>&1 | tail -5",
+  "ran_in_same_shell_command_as": "Task 2 start snapshot, Q0 pin and the T2 start ledger line",
+  "guard_output_verbatim": "{\"phase\": \"guard\", \"all_prerequisites_unchanged\": true, \"backup_reverified\": true}",
+  "result": "pass",
+  "what_the_guard_phase_asserts": "compatibility_state.py:374-384 (phase guard): backup reverification, profiles, settings, digests, project mirrors, source/target binding, roster, and installed == before",
+  "session_transcript": {
+    "file": "/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-issue-441/4efd86cd-a838-4c77-b294-3ad3d0b17b01.jsonl",
+    "command_line": 1033,
+    "result_line": 1035,
+    "command_timestamp": "2026-11-10T00:18:20.021Z",
+    "result_timestamp": "2026-11-10T00:18:21.568Z"
+  },
+  "installer_started": "2026-11-10T00:18:27Z",
+  "gap_between_guard_result_and_install_seconds": 6,
+  "install_record": "selective-install.json"
+}

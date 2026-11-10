@@ -1,0 +1,13 @@
+{
+  "scores":{"citation_grounding":0.90,"coverage_completeness":0.60,"deviation_classification_clarity":0.35,"risk_surface_coverage":0.95,"recommendation_actionability":0.90},
+  "confidence":0.74,
+  "formula":"(0.90+0.60+0.35+0.95+0.90)/5",
+  "verdict":"FAIL",
+  "required_tier":2,
+  "escalation_reason":"confidence below0.85; no Tier1 completeness/gate pass certified",
+  "calibrator_diversity":"degraded",
+  "model_limit":"Only explicit sonnet/Tier1b permitted; no heterogeneous/Opus fallback",
+  "evidence":{"citation_grounding":"Plan43 and Makefile112-141 show broad copy; installer47-52 deletes first; supporting roster/test claims not independently checked","coverage":"Card at calibration receipt reported11INF,0parsed,null matching; mappings support partial, not completeness","classification":"Pre-execution scope conflict, not actual regression; no required classification labels in card","risk":"Broad mirror overwrite, deletion-before-copy, missing baselines","actionability":"Target Task2; backup/source/target/baseline checks remain partly implicit"},
+  "findings":["Copy-scope risk grounded; unconditional sync-dev can overwrite unrelated mirrors","Force replacement removes target before attempting copy"],
+  "limits":"No commands/tests/install/runtime model resolution/smoke executed. Calibrator did not claim later containment computation completed. Preserve0.74 even though parent subsequently computed4/11 matching."
+}

@@ -1,0 +1,6 @@
+c5d741ea37613a64f6604fc4a30c3edb4fd13521
+A1 r1-1 F1.4 minor artifacts/restricted-worker-smoke.json:6 ac=T2.AC2 n,n,n,n The smoke record gives an approximate launch time and does not say whether the project (fe25f871...) or global (a952b406...) troubleshoot-analyst definition was resolved; tool use is self-reported (disclosed at :33).
+A1 r1-1 F2.2 note artifacts/authorization-and-binding.json:9 ac=scope n,n,n,n The owner's wording says "2 directories, 17 refs files"; the recorded set is 3 directories (., refs, refs/probe-packs) and 16 files. The total of 19 and the mode pairs match; reported to the coordinator.
+A1 r1-1 F2.3 note artifacts/rebaseline-record.json:1 ac=scope n,n,n,n The global ~/.claude/agents/troubleshoot-analyst.md (a952b406...) lacks the augment search tool the canonical and project profiles have. Not changed by this plan.
+A1 r1-1 F2.6 note artifacts/compatibility-after.json:1 ac=scope n,n,n,n The installed skill folder is now owner-only (700/600) where it was 755/644. Authorized by owner decision A; stricter, not looser.
+A1 r1-1 F1.5 note artifacts/retries/T2/prompt-1-1.md:1 ac=scope n,n,n,n The saved review prompt is 43 KB; the reviewer received a transport copy (/tmp/implement-T2-r1-1-prompt.md) with identical content.

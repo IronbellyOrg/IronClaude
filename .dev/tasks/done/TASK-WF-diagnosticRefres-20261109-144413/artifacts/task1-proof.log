@@ -1,0 +1,1 @@
+{"backup_sha256": "77e304762480a13a83589c62f3ca1dc8ddf8cd4ab3b0b0afc7920ec2341a3707", "backup_mode": "0o600", "content_drift": ["SKILL.md", "refs/diagnosability-audit.md", "refs/doc-discovery.md"], "mode_only_tightening": 19, "installed_profiles_settings_mirrors_unchanged_since_first_attempt": true}
