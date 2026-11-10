@@ -1,0 +1,57 @@
+# E5 decision file (J10.6 common sections + [zero_call]); pre-registered before any packet was labeled.
+[baseline]                 # Stage 2 arm 3, n=6, each message id once
+a_base = 100424            # loop only
+audit_base = 69044         # one frozen audit
+b_base = 169468            # a_base + audit_base (R_B, reported only)
+b_blk = 1.50
+growth_mean_pct = 1.41
+growth_median_pct = 0.97
+loop_pass = "6/6"
+escalations = 0
+reviews_mean = 2.17
+a_median = 95106
+[d6]
+formula = "R_LOOP_limit = (L*169468 - 69044)/100424, rounded to 2 decimals"
+note = "Cost never stops, truncates or skips anything; cost clauses are post-hoc verdict clauses only."
+[strata]
+sonnet_n = 6
+haiku_n = 4
+haiku_model = "haiku"
+haiku_baseline = "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/results.json"
+haiku_failure_margin = 0.25
+[extension]
+extra_sonnet = 3
+max_extensions = 1
+[validity]
+min_completed = 5
+aud_gap_max = 0.75
+[launch]
+max_concurrent = 6
+block_seed = 5
+[jev]
+model = "jev-1.14.0"
+offline_ceiling_usd = 5.0
+offline_ceiling_input_tokens = 30000000
+live_ceiling_usd = 1.0
+[frozen]
+spec_sha = "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+cmd_sha = "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494"
+rules_sha = "3eb772f944491720af24133267681e170510ba49949af1b08db913e9eeaddfb8"
+insertion_sha = ""
+[rules]
+static_route = "assurance review whenever a review slot remains; else deliver or escalate"
+live_arms = "k5j (Jev router), k5r (conventional router), k5s (static routing): BLOCKED until zero-call headroom exists and the owner signs a cap-neutral scope amendment"
+[thresholds]
+# Jev thresholds are not used in the zero-call stage; session-2 probe values (0.7/0.3 skill starting values) are frozen later.
+evidence_relevant_min = 0.7
+answered_min = 0.7
+[offline]
+decisive_strata = ["p11", "p14"]
+reported_strata = ["other"]
+[zero_call]
+min_headroom_packets = 2
+min_headroom_fraction = 0.10
+label_rule = "strict-any-audit-blocker"
+sensitivity_rule = "adequate-when-at-least-one-audit-passes"
+review_cap = 3
+code_determined_order = ["cap", "open_blocker", "unchanged_hash", "mandatory_policy"]
