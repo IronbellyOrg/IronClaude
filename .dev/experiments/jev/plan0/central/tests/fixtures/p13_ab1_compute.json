@@ -1,0 +1,49 @@
+{
+ "sonnet": {
+  "runs": [],
+  "done": [],
+  "n_total": 6,
+  "stats": {
+   "BLK_T": 1.17,
+   "PASS_T": 0.5,
+   "GROWTH_T": 0.05,
+   "R_LOOP": 1.32,
+   "R_B": 0.78,
+   "BLOCK_OK": 1.0,
+   "completed": 6,
+   "audit_gap": 1.0,
+   "AUD1": 0.67,
+   "AUD2": 1.67,
+   "tokens": {
+    "A": 132480.0,
+    "AUD": 70000.0,
+    "B": 202480.0,
+    "R_LOOP": 1.32,
+    "R_B": 1.19
+   }
+  },
+  "lost_rate": 0.0,
+  "class": {
+   "decision": "DROP-2",
+   "cost_hold": true,
+   "reasons": [
+    "R_LOOP 1.32 > limit with BLK_T above bar"
+   ]
+  }
+ },
+ "haiku": {
+  "runs": [],
+  "done": [],
+  "n_total": 0,
+  "stats": null,
+  "gate": {
+   "status": "pending",
+   "ratio": null,
+   "reasons": [
+    "not run"
+   ]
+  },
+  "baseline": null
+ },
+ "final": "DROP-2"
+}

@@ -1,0 +1,63 @@
+{
+ "stratum_sonnet": {
+  "n_planned": 6,
+  "full": {
+   "n_planned": 6,
+   "completed": 6,
+   "which": [
+    1,
+    2
+   ],
+   "BLK_T": 1.0,
+   "audits": 12,
+   "audits_pass": 4,
+   "audits_fail_rate": 0.67,
+   "theme_rate": 0.5,
+   "LOOP": 110000.0,
+   "TOK": 175000.0,
+   "R_LOOP": 1.095,
+   "R_B": 1.033,
+   "A": 110000.0,
+   "B": 175000.0,
+   "loop_pass": 6,
+   "loop_pass_split": {
+    "PASS": 4,
+    "VERIFIED-PASS": 2,
+    "ESCALATED": 0
+   },
+   "N_VER": 10,
+   "REJ": 2,
+   "REJ_TRUE": 0,
+   "REJ_TRUE_RATE": 0.0,
+   "B_BLK": 1.5,
+   "cost_limit": 1.42,
+   "outcome": "ADOPT",
+   "fired": "ADOPT conditions met",
+   "drops": []
+  },
+  "audit1_only": {},
+  "audit2_only": {}
+ },
+ "haiku": {
+  "runs": 4,
+  "complete": 4,
+  "BLK_TH": 1.4,
+  "loop_pass": 4,
+  "growth_pct": 3.1,
+  "LOOP_TH": 160000.0,
+  "verifier_rejections": 1,
+  "verifier_sent": 6,
+  "harness_failure_rate": 0.0,
+  "H_BLK": 1.83,
+  "HR": 0.76,
+  "one_minus_HR": 0.24,
+  "R_LOOP_H": 0.96,
+  "baseline_fail_rate": 0.17
+ },
+ "baseline": {},
+ "provisional": false,
+ "sonnet_n6_outcome": "ADOPT",
+ "sonnet_n6_final": "ADOPT",
+ "extension_allowed": false,
+ "final_outcome": "ADOPT"
+}

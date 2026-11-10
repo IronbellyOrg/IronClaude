@@ -1,0 +1,45 @@
+{
+ "decision": "ADOPT (Haiku robustness pending)",
+ "sonnet_verdict": "ADOPT",
+ "reasons": [
+  "BLK_T 0.90 <= 1.00",
+  "R_LOOP 1.10 <= 1.25"
+ ],
+ "summary": {
+  "n_planned": 6,
+  "n_completed": 6,
+  "BLK_T": 0.9,
+  "AUD_mean": 0.8,
+  "AUD2_mean": 1.0,
+  "PASS_T": 1.0,
+  "GROWTH_T": 1.2,
+  "loop_tokens": 110000.0,
+  "one_audit_tokens": 68000.0,
+  "R_LOOP": 1.095,
+  "R_B": 1.05,
+  "THEME_T": 0.2,
+  "THEME_B": 0.83,
+  "R1_tokens": 50000
+ },
+ "baseline": {
+  "B_BLK_recomputed": 1.5,
+  "THEME_B": 0.83,
+  "audits": 12
+ },
+ "haiku": {
+  "n_planned": 4,
+  "n_completed": 4,
+  "status": "ok",
+  "mean_blocking": 1.2,
+  "baseline_blocking": 1.83,
+  "relative_reduction": 0.34,
+  "failure_rate": 0.0,
+  "baseline_failure_rate": 0.17
+ },
+ "next_action": null,
+ "extension_used": false,
+ "runs": {
+  "sonnet": [],
+  "haiku": []
+ }
+}

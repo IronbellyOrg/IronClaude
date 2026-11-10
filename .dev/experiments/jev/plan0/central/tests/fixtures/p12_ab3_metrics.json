@@ -1,0 +1,41 @@
+{
+ "baseline": {
+  "B_BLK": 1.5
+ },
+ "sonnet": {
+  "stratum": "sonnet",
+  "n_planned": 6,
+  "numbers": {
+   "n_runs": 6,
+   "n_audits": 12,
+   "audit_fails": 7,
+   "theme_audits": 4,
+   "BLK": 1.75,
+   "final_pass": 5,
+   "scoped_pass": 6,
+   "LOOP": 130000.0,
+   "AUD": 70000.0,
+   "TOK": 200000.0,
+   "R_LOOP": 1.294,
+   "R_B": 1.18,
+   "growth": 0.025,
+   "max_reviews": 3
+  },
+  "pooled_outcome": "DROP",
+  "pooled_rule": "DROP-2",
+  "replica_outcomes": {
+   "audit1": "DROP",
+   "audit2": "DROP"
+  },
+  "sonnet_outcome": "DROP",
+  "final_outcome": "DROP",
+  "note": "DROP-2 (cost clause)",
+  "provisional": false
+ },
+ "haiku": {
+  "stratum": "haiku",
+  "numbers": null,
+  "result": null,
+  "baseline_found": true
+ }
+}
