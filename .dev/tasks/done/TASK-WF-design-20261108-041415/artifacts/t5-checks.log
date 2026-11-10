@@ -1,0 +1,15 @@
+== job 2 names
+22:2. **Create lookup (create Wave 1).** Run `gh label list --repo <R> --limit 200 --json name`, `gh api repos/<R>/issue
+27:- **Read-only GitHub access.** You make read-only `gh` calls only, always with the `--repo <R>` the orchestrator gave
+== orgs/ paths in the file (expect only orgs/<owner of R>/issue-fields)
+22:orgs/<owner of R>/issue-fields
+27:orgs/<owner of R>/issue-fields
+27:orgs/
+== write ban and GET-only wording kept
+27:read-only `gh` calls only
+27:You never write to GitHub or ClickUp
+27:a `gh api` call with `-X`/`--method` other than `GET`
+== forbidden strings (expect none)
+none found
+== T1 and T2 worker files changed since start (expect no output)
+(end)

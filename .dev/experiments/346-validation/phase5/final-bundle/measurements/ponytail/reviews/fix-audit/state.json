@@ -1,0 +1,397 @@
+{
+  "baseline": "/home/coder/workspaces/worktrees/IronClaude/exp346-v-ponytail/.dev/orca-command-refactor/specs/history/spec-v2-after-round1.md",
+  "current": "/home/coder/workspaces/worktrees/IronClaude/exp346-v-ponytail/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "report": "/home/coder/workspaces/worktrees/IronClaude/exp346-v-ponytail/.dev/orca-command-refactor/review/spec-panel-round2.md",
+  "dispositions": "/home/coder/workspaces/worktrees/IronClaude/exp346-v-ponytail/.dev/orca-command-refactor/review/disposition-round2.md",
+  "out": "/home/coder/workspaces/worktrees/IronClaude/exp346-v-ponytail/.dev/orca-command-refactor/review/fix-audit",
+  "ids": {
+    "NF1": {
+      "label": "CRITICAL",
+      "blocking": true,
+      "protected": true
+    },
+    "NF2": {
+      "label": "MAJOR",
+      "blocking": true,
+      "protected": false
+    },
+    "NF3": {
+      "label": "MAJOR",
+      "blocking": true,
+      "protected": false
+    },
+    "NF4": {
+      "label": "MAJOR",
+      "blocking": true,
+      "protected": false
+    },
+    "NF5": {
+      "label": "MAJOR",
+      "blocking": true,
+      "protected": false
+    },
+    "NF6": {
+      "label": "MAJOR",
+      "blocking": true,
+      "protected": false
+    },
+    "NF7": {
+      "label": "MAJOR",
+      "blocking": true,
+      "protected": false
+    },
+    "M1": {
+      "label": "MINOR",
+      "blocking": false,
+      "protected": false
+    },
+    "M2": {
+      "label": "MINOR",
+      "blocking": false,
+      "protected": false
+    },
+    "M3": {
+      "label": "MINOR",
+      "blocking": false,
+      "protected": false
+    },
+    "M4": {
+      "label": "MINOR",
+      "blocking": false,
+      "protected": false
+    },
+    "M5": {
+      "label": "MINOR",
+      "blocking": false,
+      "protected": false
+    },
+    "M6": {
+      "label": "MINOR",
+      "blocking": false,
+      "protected": false
+    },
+    "M7": {
+      "label": "MINOR",
+      "blocking": false,
+      "protected": false
+    },
+    "M8": {
+      "label": "MINOR",
+      "blocking": false,
+      "protected": false
+    }
+  },
+  "prior_only": [
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F7",
+    "F8",
+    "N1",
+    "N2",
+    "N3",
+    "N4",
+    "N5",
+    "N6",
+    "N7",
+    "N8"
+  ],
+  "trigger": "triggered",
+  "sha256_current": "d87d64ce356122fac14b26e5b25a7eb3109e12706d9d8f55df198b36d14c358f",
+  "sha256_baseline": "290d8b515337d4e45a786caa6482b59426384a3d2ccbf15adf64a35262de6da3",
+  "hunks": [
+    {
+      "id": "H1",
+      "tag": "replace",
+      "s": [
+        61,
+        64
+      ],
+      "b": [
+        61,
+        64
+      ],
+      "cited": [
+        "NF1",
+        "NF2",
+        "NF3",
+        "NF4",
+        "WC-4",
+        "WC-5"
+      ],
+      "added": 6361,
+      "removed": 4624,
+      "class": "blocking-involved",
+      "grade": "NF1:blocking,NF2:blocking,NF3:blocking,NF4:blocking"
+    },
+    {
+      "id": "H2",
+      "tag": "replace",
+      "s": [
+        67,
+        68
+      ],
+      "b": [
+        67,
+        68
+      ],
+      "cited": [],
+      "added": 1143,
+      "removed": 1103,
+      "class": "unattributed",
+      "grade": "-"
+    },
+    {
+      "id": "H3",
+      "tag": "replace",
+      "s": [
+        75,
+        76
+      ],
+      "b": [
+        75,
+        76
+      ],
+      "cited": [
+        "NF3",
+        "WC-4"
+      ],
+      "added": 622,
+      "removed": 531,
+      "class": "blocking-involved",
+      "grade": "NF3:blocking"
+    },
+    {
+      "id": "H4",
+      "tag": "replace",
+      "s": [
+        82,
+        83
+      ],
+      "b": [
+        82,
+        83
+      ],
+      "cited": [
+        "NF3",
+        "NF7",
+        "WC-4"
+      ],
+      "added": 555,
+      "removed": 317,
+      "class": "blocking-involved",
+      "grade": "NF3:blocking,NF7:blocking"
+    },
+    {
+      "id": "H5",
+      "tag": "replace",
+      "s": [
+        104,
+        105
+      ],
+      "b": [
+        104,
+        105
+      ],
+      "cited": [
+        "M7",
+        "NF3",
+        "WC-4"
+      ],
+      "added": 1062,
+      "removed": 771,
+      "class": "blocking-involved",
+      "grade": "M7:minor,NF3:blocking"
+    },
+    {
+      "id": "H6",
+      "tag": "replace",
+      "s": [
+        108,
+        109
+      ],
+      "b": [
+        108,
+        109
+      ],
+      "cited": [
+        "NF4",
+        "WC-4"
+      ],
+      "added": 882,
+      "removed": 460,
+      "class": "blocking-involved",
+      "grade": "NF4:blocking"
+    },
+    {
+      "id": "H7",
+      "tag": "replace",
+      "s": [
+        113,
+        114
+      ],
+      "b": [
+        113,
+        114
+      ],
+      "cited": [
+        "NF3",
+        "NF5",
+        "WC-3",
+        "WC-4"
+      ],
+      "added": 826,
+      "removed": 704,
+      "class": "blocking-involved",
+      "grade": "NF3:blocking,NF5:blocking"
+    },
+    {
+      "id": "H8",
+      "tag": "replace",
+      "s": [
+        157,
+        158
+      ],
+      "b": [
+        157,
+        158
+      ],
+      "cited": [
+        "M3"
+      ],
+      "added": 788,
+      "removed": 749,
+      "class": "minor-only",
+      "grade": "M3:minor"
+    },
+    {
+      "id": "H9",
+      "tag": "replace",
+      "s": [
+        182,
+        184
+      ],
+      "b": [
+        182,
+        184
+      ],
+      "cited": [
+        "M4",
+        "NF1",
+        "NF2"
+      ],
+      "added": 984,
+      "removed": 704,
+      "class": "blocking-involved",
+      "grade": "M4:minor,NF1:blocking,NF2:blocking"
+    },
+    {
+      "id": "H10",
+      "tag": "replace",
+      "s": [
+        194,
+        196
+      ],
+      "b": [
+        194,
+        196
+      ],
+      "cited": [
+        "M8",
+        "NF6",
+        "WC-4"
+      ],
+      "added": 1097,
+      "removed": 529,
+      "class": "blocking-involved",
+      "grade": "M8:minor,NF6:blocking"
+    },
+    {
+      "id": "H11",
+      "tag": "replace",
+      "s": [
+        209,
+        210
+      ],
+      "b": [
+        209,
+        210
+      ],
+      "cited": [
+        "NF3"
+      ],
+      "added": 546,
+      "removed": 493,
+      "class": "blocking-involved",
+      "grade": "NF3:blocking"
+    },
+    {
+      "id": "H12",
+      "tag": "replace",
+      "s": [
+        234,
+        235
+      ],
+      "b": [
+        234,
+        235
+      ],
+      "cited": [
+        "NF5",
+        "WC-3",
+        "WC-6"
+      ],
+      "added": 466,
+      "removed": 275,
+      "class": "blocking-involved",
+      "grade": "NF5:blocking"
+    },
+    {
+      "id": "H13",
+      "tag": "replace",
+      "s": [
+        261,
+        262
+      ],
+      "b": [
+        261,
+        262
+      ],
+      "cited": [
+        "NF1",
+        "NF2"
+      ],
+      "added": 534,
+      "removed": 481,
+      "class": "blocking-involved",
+      "grade": "NF1:blocking,NF2:blocking"
+    },
+    {
+      "id": "H14",
+      "tag": "replace",
+      "s": [
+        287,
+        290
+      ],
+      "b": [
+        287,
+        288
+      ],
+      "cited": [
+        "AC-0",
+        "M5",
+        "NF7",
+        "P3",
+        "WC-4"
+      ],
+      "added": 1141,
+      "removed": 255,
+      "class": "blocking-involved",
+      "grade": "M5:minor,NF7:blocking"
+    }
+  ],
+  "audit": "applied(reverted=1, shrunk=1, kept=12)"
+}

@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 from .install_hooks import _atomic_write_json, _backup_path
+from .install_keep import backup_if_differs, same_content
 
 _RULE_GROUPS = ("core", "contextual", "prompts")
 _ORCA_SKILLS = ("computer-use", "orca-cli", "orchestration")
@@ -64,7 +65,20 @@ def _package_dir(name: str) -> Path:
     return wheel if wheel.is_dir() else editable
 
 
-def _copy_tree(source: Path, dest: Path, force: bool) -> Tuple[int, int, List[str]]:
+def _copy_tree(
+    source: Path,
+    dest: Path,
+    force: bool,
+    stale: List[str] | None = None,
+    backups: List[str] | None = None,
+) -> Tuple[int, int, List[str]]:
+    """Copy ``source`` into ``dest``.
+
+    Without ``force`` an existing file is kept; a kept file that differs from
+    the shipped copy is appended to ``stale``. With ``force`` a differing file
+    is saved aside first (path appended to ``backups``); if that save fails the
+    file is left untouched and reported in the failures.
+    """
     copied = skipped = 0
     failed: List[str] = []
     for src in sorted(source.rglob("*")):
@@ -73,6 +87,18 @@ def _copy_tree(source: Path, dest: Path, force: bool) -> Tuple[int, int, List[st
         target = dest / src.relative_to(source)
         if target.exists() and not force:
             skipped += 1
+            if stale is not None and not same_content(src, target):
+                stale.append(str(src.relative_to(source)))
+            continue
+        try:
+            if target.exists():
+                backup = backup_if_differs(src, target)
+                if backup is not None and backups is not None:
+                    backups.append(str(backup))
+        except OSError as exc:
+            failed.append(
+                f"{target}: could not save a copy first, left untouched ({exc})"
+            )
             continue
         try:
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -81,6 +107,23 @@ def _copy_tree(source: Path, dest: Path, force: bool) -> Tuple[int, int, List[st
         except OSError as exc:
             failed.append(f"{target}: {exc}")
     return copied, skipped, failed
+
+
+def _keep_notes(label: str, stale: List[str], backups: List[str]) -> str:
+    """Report kept files that differ from this version and forced backups."""
+    notes = ""
+    if stale:
+        notes += (
+            f"\n⚠️  {len(stale)} kept {label}(s) differ from this version and "
+            "were NOT updated (run with --force or `superclaude update` to refresh; "
+            "a differing file is saved as <name>.bak.<time> first): " + ", ".join(stale)
+        )
+    if backups:
+        notes += (
+            f"\n💾 Saved {len(backups)} changed {label}(s) before overwriting: "
+            + ", ".join(backups)
+        )
+    return notes
 
 
 def _load_settings(path: Path) -> Tuple[dict | None, str]:
@@ -113,7 +156,9 @@ def install_rules(home: Path | None = None, force: bool = False) -> Tuple[bool, 
     if not source.is_dir():
         return False, f"❌ Rules source not found: {source}"
     rules_dir = home / ".claude" / "rules"
-    copied, skipped, failed = _copy_tree(source, rules_dir, force)
+    stale: List[str] = []
+    backups: List[str] = []
+    copied, skipped, failed = _copy_tree(source, rules_dir, force, stale, backups)
 
     settings_path = home / ".claude" / "settings.json"
     settings, error = _load_settings(settings_path)
@@ -132,6 +177,7 @@ def install_rules(home: Path | None = None, force: bool = False) -> Tuple[bool, 
         _write_settings(settings_path, settings)
 
     message = f"✅ Rules: {copied} installed, {skipped} kept, in {rules_dir} (never auto-loaded)"
+    message += _keep_notes("rule file", stale, backups)
     if failed:
         message += "\n❌ " + "\n❌ ".join(failed)
     return not failed, message
@@ -145,8 +191,11 @@ def install_output_styles(
     if not source.is_dir():
         return False, f"❌ Output styles source not found: {source}"
     dest = home / ".claude" / "output-styles"
-    copied, skipped, failed = _copy_tree(source, dest, force)
+    stale: List[str] = []
+    backups: List[str] = []
+    copied, skipped, failed = _copy_tree(source, dest, force, stale, backups)
     message = f"✅ Output styles: {copied} installed, {skipped} kept, in {dest}"
+    message += _keep_notes("output style", stale, backups)
     if failed:
         message += "\n❌ " + "\n❌ ".join(failed)
     return not failed, message

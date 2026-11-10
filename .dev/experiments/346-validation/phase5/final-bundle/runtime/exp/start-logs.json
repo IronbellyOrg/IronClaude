@@ -1,0 +1,93 @@
+{
+  "id": "0cd83719-c98b-415d-8bf0-dc44269e062c",
+  "ok": true,
+  "result": {
+    "runId": "run_58af03dbfa92",
+    "taskId": "task_ed1f94882ae7",
+    "dispatchId": "ctx_c054c2ac4a51",
+    "state": "ready",
+    "stage": "input_accepted",
+    "turnStart": "observed",
+    "setup": {
+      "requested": "run",
+      "effective": "run",
+      "source": "orchestration_default",
+      "hookFound": false,
+      "startupPolicy": "start-immediately",
+      "state": "not_configured"
+    },
+    "launch": {
+      "requested": {
+        "agent": "claude",
+        "model": null,
+        "effort": null
+      },
+      "effective": {
+        "agent": "claude",
+        "model": null,
+        "effort": null
+      }
+    },
+    "mode": {
+      "mode": "terminal",
+      "preferred": "terminal",
+      "reason": "user_default",
+      "detail": "Started a terminal agent worker, the default for new agent tabs in your settings."
+    },
+    "timeoutMs": 60000,
+    "effects": [
+      {
+        "kind": "worktree",
+        "action": "created_top_level",
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs",
+        "name": "exp346-p1-logs"
+      },
+      {
+        "kind": "terminal",
+        "role": "agent",
+        "action": "created",
+        "id": "term_0de94127-5359-4e8c-abae-1a417e5e1919",
+        "tabId": "4ed040ce-6eb7-4e7b-8659-23ae03ca9114",
+        "leafId": "5b78fe22-3e10-426f-87ab-323bd9eca27c"
+      },
+      {
+        "kind": "setup",
+        "action": "run",
+        "requested": "run",
+        "effective": "run",
+        "source": "orchestration_default",
+        "hookFound": false,
+        "startupPolicy": "start-immediately",
+        "state": "not_configured"
+      },
+      {
+        "kind": "dispatch_input",
+        "role": "agent",
+        "id": "term_0de94127-5359-4e8c-abae-1a417e5e1919",
+        "state": "accepted"
+      }
+    ],
+    "prompt": {
+      "requestId": "889c3da4-e7ca-47ca-8175-32818fda2498",
+      "stages": [
+        "input_accepted",
+        "turn_started"
+      ],
+      "provider": "claude",
+      "observation": "supported",
+      "processIncarnation": "fe3f56fb-6b28-4a55-80c8-77b75af2da37",
+      "generation": 145,
+      "baselineWorkingSequence": 0,
+      "baselineExplicitWorkingStartedAt": null,
+      "baselinePermissionSequence": 0
+    },
+    "residualResources": [],
+    "mutation": {
+      "requestId": "889c3da4-e7ca-47ca-8175-32818fda2498",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "93e79a07-81c4-4ec7-a938-8038a2f29ed3"
+  }
+}

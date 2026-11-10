@@ -1,0 +1,58 @@
+[
+  {
+    "quote": "Section 2: a locker is released after 30 minutes of inactivity. Section 5: a locker stays reserved until the rider scans out, with no timeout.",
+    "span": "released after 30 minutes of inactivity",
+    "outcome": "An implementer of the Pedalbay kiosk firmware cannot satisfy both sections: a rider idle for 31 minutes either keeps or loses the locker.",
+    "evidence": [{"kind": "verified", "text": "both sentences appear in the Pedalbay locker spec, sections 2 and 5"}],
+    "answer": true
+  },
+  {
+    "quote": "The nightly purge job deletes every rental record older than 7 days, including records still flagged as unpaid.",
+    "span": "including records still flagged as unpaid",
+    "outcome": "An operator running the purge as written loses the only record of an unpaid rental, so the rider can never be billed for it.",
+    "evidence": [{"kind": "verified", "text": "the purge step is the only place unpaid rentals are stored"}],
+    "answer": true
+  },
+  {
+    "quote": "Acceptance check: the unlock latency test passes when the measured latency is less than 0 milliseconds.",
+    "span": "less than 0 milliseconds",
+    "outcome": "A test engineer following the check exactly sees it fail on every run, because no measured latency can be negative, so the check can never pass.",
+    "evidence": [{"kind": "verified", "text": "latency is measured as a non-negative duration"}],
+    "answer": true
+  },
+  {
+    "quote": "Riders with a lapsed plan are charged the guest rate for the ride.",
+    "span": "charged the guest rate for the ride",
+    "outcome": "One billing implementer charges the guest rate for the whole ride and another only for the minutes after the lapse, giving two different invoices for one ride.",
+    "evidence": [{"kind": "unverified", "text": "the reviewer states no other text defines when the lapse starts"}],
+    "answer": true
+  },
+  {
+    "quote": "The kiosk shows a friendly message when the locker door does not close properly after a ride.",
+    "span": "a friendly message",
+    "outcome": "A copy writer reading the sentence might prefer the word clear instead of friendly for the message tone.",
+    "evidence": [],
+    "answer": false
+  },
+  {
+    "quote": "Riders can extend a reservation once from the kiosk screen before it expires.",
+    "span": "extend a reservation once",
+    "outcome": "A new reader would understand the rule faster if the spec gave a worked example of one extension.",
+    "evidence": [],
+    "answer": false
+  },
+  {
+    "quote": "The retry limit for failed unlocks is defined in the hardware appendix, line 42.",
+    "span": "line 42",
+    "outcome": "A reader opening the hardware appendix finds the retry limit on line 44 instead of line 42, two lines lower.",
+    "evidence": [{"kind": "verified", "text": "the retry limit sentence sits at line 44 of the hardware appendix"}],
+    "answer": false
+  },
+  {
+    "quote": "Maintenance staff open lockers with the service key described in the operations guide.",
+    "span": "service key described in the operations guide",
+    "outcome": "The spec would be more complete if it added a separate section on rotating service keys every quarter.",
+    "evidence": [],
+    "answer": false
+  }
+]

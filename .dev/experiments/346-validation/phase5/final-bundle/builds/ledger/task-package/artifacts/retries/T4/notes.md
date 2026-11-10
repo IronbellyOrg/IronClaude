@@ -1,0 +1,4 @@
+0848ac3f33130b252ac303bb285255cd41c5baa9
+A1 r1-1 F1.1 minor src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py:2306 ac=scope n,n,n,n sweep --input has no on_replay hook: a crash after the ledger save and before the tail append leaves the sweep report without its verdict tail, and a replayed retry does not re-append it (close has this recovery).
+A1 r1-1 F1.2 minor src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py:2341 ac=scope n,n,n,n the tests leave about 8 review-ledger-sweep-* copy folders in the system temporary folder per run (sweep --prepare keeps its copy by design).
+A1 r1-1 F1.3 minor src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py:2428 ac=scope n,n,n,n no test covers minor_touched, per-cycle unclaimed/reverted bytes or the in_unclaimed_hunk location; minor_touched reads the deferred set from current status, not the status when the cycle ran.

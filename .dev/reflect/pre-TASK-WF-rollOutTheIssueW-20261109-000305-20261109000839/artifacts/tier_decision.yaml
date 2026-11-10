@@ -1,0 +1,8 @@
+selected_tier: 2
+fired_rule_number: 6
+coverage_degraded: parsed-sparse
+surface_unreached: false
+composite_score: 6
+per_signal_breakdown: {scope_size: 1, task_count: 1, blast_radius: 1, spec_density: 2, ambiguity_signals: 1}
+calibrated_confidence: 0.76
+escalation_reason: "Calibrated confidence 0.76 < 0.85 (rubric row 6); the parsed-sparse pre-filter (0 parsed IDs, 10 inferred) also forbids a Tier 1 stop. The calibrator's tier1-sufficient advice is overridden by both rules."

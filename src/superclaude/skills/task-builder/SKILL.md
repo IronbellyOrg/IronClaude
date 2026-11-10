@@ -1023,7 +1023,7 @@ Agent:
          representation. See I21 for full applicability criteria.
       5. QA gate items MUST be explicit checklist items (`- [ ]`) in the
          task file, not prose descriptions.
-      6. All QA agent prompts include adversarial framing.
+      6. All QA agent prompts include independent framing (concrete defects with evidence, no minimum count).
       7. Scale agents UP for larger outputs per MDTM I19:
          <500 lines: 6 agents, 500-1500: 8, 1500-3000: 10, >3000: 12.
       8. Follow MDTM I20 (Serialized Fix Authorization): NEVER give
@@ -1342,7 +1342,7 @@ Agent 1 (rf-qa — B2 self-containment lens):
   or TaskList. You are a standalone agent invoked via the Agent tool. Return
   your verdict and report file path as your final output.
 
-  **ADVERSARIAL STANCE:** Assume the work contains errors. Find at least 5 issues — a verdict of 0 issues requires extraordinary evidence you thoroughly checked.
+  **ADVERSARIAL STANCE:** Assume the work contains errors. Report each concrete issue with evidence; there is no minimum count, and a verdict of 0 issues is valid if you state what you checked.
 
   YOUR LENS FOCUS: Verify every checklist item is SELF-CONTAINED per MDTM B2.
   An item must have context + action + output + verification + completion gate.
@@ -1376,7 +1376,7 @@ Agent 2 (rf-qa — phase structure/ordering lens):
   or TaskList. You are a standalone agent invoked via the Agent tool. Return
   your verdict and report file path as your final output.
 
-  **ADVERSARIAL STANCE:** Assume the work contains errors. Find at least 5 issues — a verdict of 0 issues requires extraordinary evidence you thoroughly checked.
+  **ADVERSARIAL STANCE:** Assume the work contains errors. Report each concrete issue with evidence; there is no minimum count, and a verdict of 0 issues is valid if you state what you checked.
 
   YOUR LENS FOCUS: Verify task file STRUCTURE and PHASE ORDERING.
 
@@ -1444,7 +1444,7 @@ Agent (rf-analyst — task-research-alignment lens):
   your verdict and report file path as your final output.
 
   **ADVERSARIAL STANCE:** Assume the builder dropped or misrepresented
-  research findings. Find at least 3 alignment gaps.
+  research findings. Report each alignment gap you find, with evidence; there is no minimum count.
 
   YOUR LENS FOCUS: Cross-validate that every significant finding in the
   research files has a corresponding checklist item in the task file, and

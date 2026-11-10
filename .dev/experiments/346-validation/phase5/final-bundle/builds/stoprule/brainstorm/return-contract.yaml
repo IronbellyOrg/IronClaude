@@ -1,0 +1,51 @@
+# /sc:brainstorm return contract (stable contract_version 1.0 + worker fields + telemetry), written 2026-11-08T15:56Z
+contract_version: "1.0"
+status: partial
+seed_brief_path: .dev/brainstorms/346-stoprule/seed-brief.md
+merged_output_path: .dev/brainstorms/346-stoprule/merged-requirements.md
+convergence_score: 0.923
+adversarial_artifacts_dir: .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: fallback_1   # auggie MCP not available in this session; codegraph (fresh index) + Grep/Read
+  - source: research-light
+    quality_tier: skipped      # --no-research
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "adversarial status partial: debate BLOCKED_BY_INVARIANTS at 0.923 (8 HIGH UNADDRESSED invariants; merged text resolves 6, INV-009 partly open, INV-029 open)"
+  - "adversarial post-merge validation FAIL: Escalation (c) cap-time audit pool can never be filled (plan Changes 2(e), 13(b), 13(f)); resolved in SPEC.md, not in merged-requirements.md"
+  - "unresolved diff points: C-009, C-015, C-020, C-025, C-032"
+
+# Worker fields (--unattended, --output)
+worker_contract_version: "1"
+worker_status: partial
+command: "/sc:brainstorm \"Issue #346 theme 'stoprule': severity discipline and a mechanical stop rule for the /sc:spec-panel review, fix, re-review loop ...\" --unattended --output .dev/brainstorms/346-stoprule --depth standard --proposals 3 --codebase --no-research --handoff none"
+report_path: .dev/brainstorms/346-stoprule/merged-requirements.md
+artifacts:
+  - .dev/brainstorms/346-stoprule/seed-brief.md
+  - .dev/brainstorms/346-stoprule/enrichment/codebase-context.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/return-contract.yaml
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/merged-output.md
+  - .dev/brainstorms/346-stoprule/nested/adversarial-1/adversarial/
+
+# Telemetry (non-stable; durations approximate, from session timestamps)
+wave_durations_ms:
+  wave_0: 30000
+  wave_1: 60000
+  wave_2a: 60000
+  wave_2b: 30000
+  wave_3: 5900000
+  wave_4: 1000
+token_usage:
+  wave_0: 3000
+  wave_1: 6000
+  wave_2a: 15000
+  wave_2b: 4000
+  wave_3: 2816831   # sum of subagent_tokens reported by the 13 Wave 3 agents
+  wave_4: 500
+agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:analyzer:'focus on root-cause analysis and evidence-based reasoning for code',haiku:devops:'focus on deployment, observability, runbooks, and SLO impact for enterprise delivery'"
+enrichment_artifact_sizes:
+  codebase-context.md: 4060

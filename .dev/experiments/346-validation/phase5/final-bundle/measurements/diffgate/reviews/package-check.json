@@ -1,0 +1,247 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "check": "four required outputs exist",
+      "passed": true
+    },
+    {
+      "check": "all preserved source-copy hashes match captured manifest",
+      "passed": true
+    },
+    {
+      "check": "all loop/frozen sources remain byte-identical to preserved copies",
+      "passed": true
+    },
+    {
+      "check": "manifest source pointers exist",
+      "passed": true
+    },
+    {
+      "check": "all session pointers exist",
+      "passed": true
+    },
+    {
+      "check": "frozen version 1 matches loop document",
+      "passed": true
+    },
+    {
+      "check": "frozen version 1 newline count",
+      "passed": true
+    },
+    {
+      "check": "frozen version 2 matches loop document",
+      "passed": true
+    },
+    {
+      "check": "frozen version 2 newline count",
+      "passed": true
+    },
+    {
+      "check": "frozen version 3 matches loop document",
+      "passed": true
+    },
+    {
+      "check": "frozen version 3 newline count",
+      "passed": true
+    },
+    {
+      "check": "round 1 numbered-new severity count",
+      "passed": true
+    },
+    {
+      "check": "round 1 unresolved-prior separation",
+      "passed": true
+    },
+    {
+      "check": "round 1 open blocker count",
+      "passed": true
+    },
+    {
+      "check": "round 1 script proxy_all separate from all findings",
+      "passed": true
+    },
+    {
+      "check": "round 1 final equals checked snapshot plus coordinator closing block",
+      "passed": true
+    },
+    {
+      "check": "round 1 retains final FAIL",
+      "passed": true
+    },
+    {
+      "check": "round 1 actual Skill invocation and loaded body",
+      "passed": true
+    },
+    {
+      "check": "R1-review tools and all token classes",
+      "passed": true
+    },
+    {
+      "check": "R1-review fresh distinct Opus window",
+      "passed": true
+    },
+    {
+      "check": "R1-revise tools and all token classes",
+      "passed": true
+    },
+    {
+      "check": "R1-revise fresh distinct Opus window",
+      "passed": true
+    },
+    {
+      "check": "round 2 numbered-new severity count",
+      "passed": true
+    },
+    {
+      "check": "round 2 unresolved-prior separation",
+      "passed": true
+    },
+    {
+      "check": "round 2 open blocker count",
+      "passed": true
+    },
+    {
+      "check": "round 2 script proxy_all separate from all findings",
+      "passed": true
+    },
+    {
+      "check": "round 2 final equals checked snapshot plus coordinator closing block",
+      "passed": true
+    },
+    {
+      "check": "round 2 retains final FAIL",
+      "passed": true
+    },
+    {
+      "check": "round 2 actual Skill invocation and loaded body",
+      "passed": true
+    },
+    {
+      "check": "R2-review tools and all token classes",
+      "passed": true
+    },
+    {
+      "check": "R2-review fresh distinct Opus window",
+      "passed": true
+    },
+    {
+      "check": "R2-revise tools and all token classes",
+      "passed": true
+    },
+    {
+      "check": "R2-revise fresh distinct Opus window",
+      "passed": true
+    },
+    {
+      "check": "round 2 changed-line containment independently re-derived",
+      "passed": true
+    },
+    {
+      "check": "round 3 numbered-new severity count",
+      "passed": true
+    },
+    {
+      "check": "round 3 unresolved-prior separation",
+      "passed": true
+    },
+    {
+      "check": "round 3 open blocker count",
+      "passed": true
+    },
+    {
+      "check": "round 3 script proxy_all separate from all findings",
+      "passed": true
+    },
+    {
+      "check": "round 3 final equals checked snapshot plus coordinator closing block",
+      "passed": true
+    },
+    {
+      "check": "round 3 retains final FAIL",
+      "passed": true
+    },
+    {
+      "check": "round 3 actual Skill invocation and loaded body",
+      "passed": true
+    },
+    {
+      "check": "R3-review tools and all token classes",
+      "passed": true
+    },
+    {
+      "check": "R3-review fresh distinct Opus window",
+      "passed": true
+    },
+    {
+      "check": "round 3 changed-line containment independently re-derived",
+      "passed": true
+    },
+    {
+      "check": "fix cycle 1 exact growth arithmetic",
+      "passed": true
+    },
+    {
+      "check": "fix cycle 2 exact growth arithmetic",
+      "passed": true
+    },
+    {
+      "check": "exact cumulative byte growth",
+      "passed": true
+    },
+    {
+      "check": "independent audit is four unique blocking MAJOR findings",
+      "passed": true
+    },
+    {
+      "check": "audit union arithmetic and explicit bounds",
+      "passed": true
+    },
+    {
+      "check": "owner cumulative addition zero is kept separate",
+      "passed": true
+    },
+    {
+      "check": "ctl-r1 comparator values unchanged",
+      "passed": true
+    },
+    {
+      "check": "ctl-r2 comparator values unchanged",
+      "passed": true
+    },
+    {
+      "check": "flg-r1 comparator values unchanged",
+      "passed": true
+    },
+    {
+      "check": "flg-r2 comparator values unchanged",
+      "passed": true
+    },
+    {
+      "check": "fixed control arithmetic",
+      "passed": true
+    },
+    {
+      "check": "comparison arithmetic in metrics",
+      "passed": true
+    },
+    {
+      "check": "loop total accounting",
+      "passed": true
+    },
+    {
+      "check": "all delivered briefs match saved source and logged root substitution",
+      "passed": true
+    },
+    {
+      "check": "no report placeholders",
+      "passed": true
+    },
+    {
+      "check": "binary package verdict at end",
+      "passed": true
+    }
+  ],
+  "failed": [],
+  "scope": "Deterministic package consistency checks, not a new live-model review or implementation test."
+}

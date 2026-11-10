@@ -1,0 +1,20 @@
+== forbidden strings (expect none)
+none found
+== issue-types / issue-fields / scout sections in Wave 1
+9:Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or starts 
+20:Spawn `issue-worker-t3` with the job "create lookup", `<R>`, the description's keywords and `<D>`. The worker lists t
+66:2. Issue type: the wanted type follows the rule of `refs/labels.md`. When it is listed under `### Repo issue types` i
+70:6. Complexity field: when `### Complexity field` in `scout.md` lists the field and an option equal to the wanted valu
+== the single orgs exception
+9:Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; 
+== Wave 5 label request for area or complexity labels (expect none)
+none found
+== POST and read-back lines
+9:Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or starts 
+20:Spawn `issue-worker-t3` with the job "create lookup", `<R>`, the description's keywords and `<D>`. The worker lists t
+67:3. `gh issue create --repo <R> --title "<prefix><title>" --body-file <D>/issue-body.md --label "<label>"` (plus `--ty
+69:5. Type read-back: `gh issue view <N> --repo <R> --json issueType --jq .issueType.name`. When `--type` was passed and
+70:6. Complexity field: when `### Complexity field` in `scout.md` lists the field and an option equal to the wanted valu
+74:A failed type or field never stops the run once the issue exists. Only `gh issue create --repo <R>` (`E-CREATE-FAILED
+== issue lines without --repo (expect 0)
+0

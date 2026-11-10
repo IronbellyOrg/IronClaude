@@ -546,7 +546,7 @@ def test_st10_claim_return_contract_has_the_ten_fields_and_keeps_the_old_ones():
     skill = _text(SKILL)
     section = skill.split("## Return contract", 1)[1].split("## Error handling", 1)[0]
     blocks = re.findall(r"```yaml\n(.*?)```", section, re.S)
-    assert len(blocks) == 2
+    assert len(blocks) == 3
     assert _yaml_keys(blocks[0]) == [
         "status",
         "mode",
@@ -570,7 +570,13 @@ def test_st10_claim_return_contract_has_the_ten_fields_and_keeps_the_old_ones():
         "launch_warning",
         "enforcement_hook",
     ]
+    assert _yaml_keys(blocks[2]) == [
+        "issue_type",
+        "complexity_field",
+        "classification_missing",
+    ]
     assert "create mode prints none of them" in section
+    assert "Create mode adds these three fields after the claim block" in section
 
 
 def test_st11_no_source_tree_path_in_the_command_file():
@@ -715,3 +721,138 @@ def test_no_source_tree_path_in_skill_files():
         if "src/superclaude/" in text:
             hits.append(str(path.relative_to(ROOT)))
     assert hits == []
+
+
+# --- issue type and Complexity field (issue 438) -------------------------------------
+
+AGENT_T3 = AGENTS[0]
+_ALLOWED_ORGS = re.compile(r"orgs/<owner(?: of R)?>/issue-fields")
+_ANY_ORGS_PATH = re.compile(r"orgs/[A-Za-z0-9_<{.-][^\s`]*")
+
+
+def _skill_and_agent_texts() -> dict[str, str]:
+    """Every markdown file of the skill package and the three worker files."""
+    paths = [*sorted(SKILL_DIR.rglob("*.md")), *AGENTS]
+    return {p.name: _text(p) for p in paths if "__pycache__" not in p.parts}
+
+
+def orgs_paths_other_than_allowed(text: str) -> list[str]:
+    """Return every ``orgs/...`` path that is not the one allowed lookup.
+
+    A bare ``orgs/`` token (prose such as "no other `orgs/` path") is not a path.
+    """
+    return _ANY_ORGS_PATH.findall(_ALLOWED_ORGS.sub("", text))
+
+
+def test_orgs_path_is_the_single_allowed_read_and_sits_in_three_files():
+    holders = set()
+    for name, text in _skill_and_agent_texts().items():
+        assert orgs_paths_other_than_allowed(text) == [], name
+        if _ALLOWED_ORGS.search(text):
+            holders.add(name)
+    assert holders == {"SKILL.md", "create.md", "issue-worker-t3.md"}
+
+
+def test_orgs_scanner_reports_a_second_path_and_ignores_prose():
+    text = (
+        "read `orgs/<owner of R>/issue-fields` only; no other `orgs/` path is allowed.\n"
+        "Never read orgs/other/issue-fields."
+    )
+    assert orgs_paths_other_than_allowed(text) == ["orgs/other/issue-fields."]
+
+
+def test_labels_md_has_no_area_or_complexity_label_and_creates_only_the_mode_labels():
+    text = _text(REFS / "labels.md")
+    assert not re.search(r"`(?:type|complexity): [a-z]+`", text)
+    assert re.findall(r'gh label create "([^"]+)"', text) == ["bug", "enhancement"]
+
+
+def test_field_value_write_is_a_post_and_no_file_uses_a_put():
+    post = "gh api -X POST repos/<R>/issues/<N>/issue-field-values --input"
+    for path in (SKILL, REFS / "create.md", REFS / "labels.md"):
+        assert post in _text(path), path.name
+    for name, text in _skill_and_agent_texts().items():
+        assert "-X PUT" not in text, name
+
+
+def test_field_readback_uses_the_field_id_and_option_name_not_numeric_value():
+    text = _text(REFS / "labels.md")
+    assert "`issue_field_id` equals the field id" in text
+    assert "compare `single_select_option.name`" in text
+    assert "Do not compare the numeric `value` directly" in text
+    assert "failed or unparseable read-back does not prove success" in text
+
+
+OUTPUT_LINES = [
+    "not applied: label missing in repo: <name>",
+    "not set: issue type <name>: <type missing in repo | lookup failed | not applied after create>",
+    "not set: field Complexity <value>: <field not found in org | option not found | lookup failed | write failed (<error>) | not applied after create>",
+]
+
+
+def test_labels_md_carries_the_three_output_lines_exactly():
+    lines = _text(REFS / "labels.md").splitlines()
+    for line in OUTPUT_LINES:
+        assert line in lines
+
+
+def test_create_md_uses_the_output_line_prefixes_and_the_type_and_field_reasons():
+    text = _text(REFS / "create.md")
+    for needle in (
+        "not applied: label missing in repo",
+        "not set: issue type <name>: type missing in repo",
+        "not set: issue type <name>: not applied after create",
+        "not set: field Complexity <value>: write failed (",
+        "not set: field Complexity <value>: not applied after create",
+        "not set: field Complexity <value>: field not found in org",
+    ):
+        assert needle in text, needle
+
+
+def test_t3_lookup_scout_template_and_flags_cover_issue_types_and_the_complexity_field():
+    t3 = _text(AGENT_T3)
+    assert "issue-types" in t3 and "issue-fields" in t3
+    scout = _text(TEMPLATES / "scout-report.md")
+    assert "### Repo issue types" in scout and "### Complexity field" in scout
+    flags = _text(TEMPLATES / "flags-decision.md")
+    assert "| Issue type | <Feature | Bug | Test> |" in flags
+    assert "<Simple | Medium | Complex>" in flags
+    assert "not reclassified" in _text(TEMPLATES / "create-review-comment.md")
+
+
+@pytest.mark.parametrize(
+    "row",
+    [
+        "| bug | any | Bug |",
+        "| feature | tests | Test |",
+        "| feature | any other area | Feature |",
+        "| quick | Simple |",
+        "| standard | Medium |",
+        "| deep | Complex |",
+    ],
+)
+def test_labels_md_states_the_issue_type_and_complexity_rules(row):
+    assert row in _text(REFS / "labels.md").splitlines()
+
+
+def test_skill_md_states_the_create_rules_of_the_issue_type_and_field():
+    skill = _text(SKILL)
+    for needle in (
+        "create mode adds `--type <name>`",
+        "gh api -X POST repos/<R>/issues/<N>/issue-field-values --input <file>",
+        "Write any issue field other than Complexity.",
+        "The wanted issue type is missing in the repo",
+        "The Complexity field or its option is missing",
+    ):
+        assert needle in skill, needle
+    assert "fixed set" not in skill
+
+
+def test_command_and_skill_agree_on_the_new_create_boundaries():
+    command = _text(COMMANDS / "issue.md")
+    skill = _text(SKILL)
+    assert "Write any issue field other than Complexity." in command
+    assert "Write any issue field other than Complexity." in skill
+    assert "issue types, issue fields" in command
+    assert "an issue type, an issue field" in skill
+    assert "fixed set" not in command

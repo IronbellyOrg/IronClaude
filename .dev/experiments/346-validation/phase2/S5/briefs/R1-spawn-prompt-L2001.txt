@@ -1,0 +1,1 @@
+Your complete instructions are in the file /tmp/ironclaude-p0live/final-prompt.md. Read it in full and follow it exactly. Return the result in the format it specifies.

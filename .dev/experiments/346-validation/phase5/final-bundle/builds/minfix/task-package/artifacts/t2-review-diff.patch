@@ -1,0 +1,764 @@
+diff --git a/src/superclaude/skills/sc-fixcheck/scripts/fixcheck.py b/src/superclaude/skills/sc-fixcheck/scripts/fixcheck.py
+index 72b3e151..22136ced 100644
+--- a/src/superclaude/skills/sc-fixcheck/scripts/fixcheck.py
++++ b/src/superclaude/skills/sc-fixcheck/scripts/fixcheck.py
+@@ -6,6 +6,7 @@ Subcommands: hash, snapshot, check [--enforce]. Output is deterministic.
+ """
+ 
+ import argparse
++import difflib
+ import hashlib
+ import os
+ import re
+@@ -276,6 +277,451 @@ def load_ledger(report_path, ledger_path):
+     return path, data, ledger
+ 
+ 
++WORD_SETS = {
++    "normative": frozenset(("must", "shall", "never", "always")),
++    "universal": frozenset(("only", "every", "exactly", "none", "total", "closed")),
++    "condition": frozenset(("if", "unless", "when", "whenever", "where", "except", "otherwise")),
++}
++CITATION_RE = re.compile(r"(?=[^:]*[A-Za-z./])[\w./~@+-]+:\d+(?:-\d+)?")
++NEW_ID_RE = re.compile(r"(?<![A-Za-z0-9_-])([A-Z]+-?\d+(?:\.\d+)*)(?![A-Za-z0-9_-])")
++RECIPE_RE = re.compile(r"\bgrep\b|\bgit |\bdiff\b|\bfind |\buv |\||\$\(")
++SPAN_RE = re.compile(r"`([^`\n]+)`")
++SENTENCE_GAP_RE = re.compile(r"(?<=[.!?])\s+(?=\S)")
++CURLY = str.maketrans({"‘": "'", "’": "'", "“": '"', "”": '"'})
++PUNCT = "()[]{}`'\",.;:!?*_"
++OP_RANK = {"delete": 0, "narrow": 1, "replace": 2}
++
++
++def norm_token(tok):
++    """Normalise one whitespace-separated token: straight quotes, no emphasis marks."""
++    return tok.translate(CURLY).replace("**", "").replace("__", "").strip("*")
++
++
++def is_word(tok):
++    """A counted word: has a letter or digit and is not a path:line citation."""
++    if not re.search(r"[A-Za-z0-9]", tok):
++        return False  # pipes, heading marks, bullets, dashes
++    return not CITATION_RE.fullmatch(tok.strip(PUNCT))
++
++
++class Unit:
++    """One comparable piece of text: a sentence, a table cell, a heading or a code line."""
++
++    def __init__(self, text, start, end, line, kind):
++        self.start, self.end, self.line, self.kind = start, end, line, kind
++        self.raw = text[start:end]
++        self.toks = [(n, t) for n, t in ((norm_token(t), t) for t in self.raw.split()) if n]
++        self.norm = " ".join(n for n, _ in self.toks)
++
++
++def cell_spans(body):
++    pipes = [i for i, ch in enumerate(body) if ch == "|" and (i == 0 or body[i - 1] != "\\")]
++    spans = []
++    for a, b in zip(pipes, pipes[1:] + [len(body)]):
++        cell = body[a + 1:b]
++        if cell.strip():
++            s = a + 1 + len(cell) - len(cell.lstrip())
++            spans.append((s, a + 1 + len(cell.rstrip())))
++    return spans
++
++
++def units(text):
++    """Split text into units; returns (units, separators, tail) so text == seps+units+tail."""
++    out, pos, line_no, fence = [], 0, 0, False
++    for line in text.splitlines(keepends=True):
++        line_no += 1
++        body = line.rstrip("\r\n")
++        stripped = body.strip()
++        lead, end = len(body) - len(body.lstrip()), len(body.rstrip())
++        spans = []
++        if stripped.startswith(("```", "~~~")):
++            spans, fence = [(lead, end, "fence")], not fence
++        elif fence:
++            spans = [(lead, end, "code")] if stripped else []
++        elif not stripped:
++            spans = []
++        elif stripped.startswith("|"):
++            cells = cell_spans(body)
++            if all(re.fullmatch(r":?-+:?", body[s:e]) for s, e in cells):
++                spans = [(lead, end, "sep")]
++            else:
++                spans = [(s, e, "cell") for s, e in cells]
++        elif stripped.startswith("#"):
++            spans = [(lead, end, "heading")]
++        else:
++            start = lead
++            for m in SENTENCE_GAP_RE.finditer(body, lead):
++                spans.append((start, m.start(), "text"))
++                start = m.end()
++            spans.append((start, end, "text"))
++        for s, e, kind in spans:
++            unit = Unit(text, pos + s, pos + e, line_no, kind)
++            if unit.toks:
++                out.append(unit)
++        pos += len(line)
++    seps, prev = [], 0
++    for u in out:
++        seps.append(text[prev:u.start])
++        prev = u.end
++    return out, seps, text[prev:]
++
++
++def contains(seq, sub):
++    n = len(sub)
++    return n == 0 or any(seq[i:i + n] == sub for i in range(len(seq) - n + 1))
++
++
++def locate(entry, bu):
++    """Base unit span [a, b) of the entry's old/anchor quote, or None when it is not
++    exactly once in the baseline (or shorter than 40 characters and not a whole unit)."""
++    quote = " ".join(t for t in (norm_token(x) for x in (entry.old or entry.anchor).split())
++                     if t and set(t) != {"|"})
++    if not quote:
++        return None
++    offsets, joined, p = [], [], 0
++    for u in bu:
++        offsets.append(p)
++        joined.append(u.norm)
++        p += len(u.norm) + 1
++    joined = " ".join(joined)
++    hits, p = [], joined.find(quote)
++    while p != -1:
++        end = p + len(quote)
++        if (p == 0 or joined[p - 1] == " ") and (end == len(joined) or joined[end] == " "):
++            hits.append(p)
++        p = joined.find(quote, p + 1)
++    if len(hits) != 1:
++        return None
++    p, end = hits[0], hits[0] + len(quote)
++    a = max(k for k, o in enumerate(offsets) if o <= p)
++    b = max(k for k, o in enumerate(offsets) if o < end) + 1
++    whole = p == offsets[a] and end == offsets[b - 1] + len(bu[b - 1].norm)
++    if not whole and len(quote) < 40:
++        return None
++    return a, b
++
++
++class Part:
++    """A (sub-)hunk: base units [i1, i2) replaced by revised units [j1, j2)."""
++
++    def __init__(self, i1, i2, j1, j2, claimant):
++        self.i1, self.i2, self.j1, self.j2, self.claimant = i1, i2, j1, j2, claimant
++        self.entry, self.reason, self.mislabel, self.k = None, "", "", 0
++
++
++def pair_units(bu, ru, i1, i2, j1, j2):
++    """Monotone pairing of similar units (token ratio >= 0.5) inside one diff region."""
++    n, m = i2 - i1, j2 - j1
++    if not n or not m or n * m > 40000:  # shortcut: very large rewrites stay unpaired; raise the cap if real specs hit it
++        return []
++    ratio, score = {}, [[0.0] * (m + 1) for _ in range(n + 1)]
++    for a in range(1, n + 1):
++        for b in range(1, m + 1):
++            best = max(score[a - 1][b], score[a][b - 1])
++            r = difflib.SequenceMatcher(None, [t for t, _ in bu[i1 + a - 1].toks],
++                                        [t for t, _ in ru[j1 + b - 1].toks], autojunk=False).ratio()
++            if r >= 0.5:
++                ratio[(a, b)] = r
++                best = max(best, score[a - 1][b - 1] + r)
++            score[a][b] = best
++    pairs, a, b = [], n, m
++    while a and b:
++        if (a, b) in ratio and score[a][b] == score[a - 1][b - 1] + ratio[(a, b)]:
++            pairs.append((i1 + a - 1, j1 + b - 1))
++            a, b = a - 1, b - 1
++        elif score[a][b] == score[a - 1][b]:
++            a -= 1
++        else:
++            b -= 1
++    return pairs[::-1]
++
++
++def split_region(i1, i2, j1, j2, located, bu, ru):
++    """Split one diff region per ledger entry whose old/anchor unit range it touches (section 2.2).
++
++    Similar units are paired; each pair, deleted run or inserted run is an atom. An atom with base
++    units belongs to the entry whose old quote overlaps them; an inserted run belongs to the add
++    entry anchored at its position, else to the claimed atom before it, else after it. Consecutive
++    atoms with the same owner form one part; atoms nobody claims form unattributed parts."""
++    atoms, i, j = [], i1, j1
++    for pi, pj in pair_units(bu, ru, i1, i2, j1, j2) + [(i2, j2)]:
++        if i < pi:
++            atoms.append([i, pi, j, j, None])
++        if j < pj:
++            atoms.append([pi, pi, j, pj, None])
++        if (pi, pj) != (i2, j2):
++            atoms.append([pi, pi + 1, pj, pj + 1, None])
++        i, j = pi + 1, pj + 1
++    for atom in atoms:
++        a, b = atom[0], atom[1]
++        if a < b:
++            hits = [e for e in located if e.op != "add" and e.loc[0] < b and e.loc[1] > a]
++        else:
++            hits = [e for e in located if e.op == "add" and e.loc[1] == a]
++        if hits:
++            atom[4] = min(hits, key=lambda e: (e.loc[0], e.num))
++    for k, atom in enumerate(atoms):
++        if atom[4] is None and atom[0] == atom[1]:
++            near = [atoms[k - 1][4] if k else None, atoms[k + 1][4] if k + 1 < len(atoms) else None]
++            atom[4] = next((e for e in near if e is not None), None)
++    parts = []
++    for a, b, c, d, owner in atoms:
++        if parts and parts[-1].claimant is owner:
++            parts[-1].i2, parts[-1].j2 = b, d
++        else:
++            parts.append(Part(a, b, c, d, owner))
++    return parts
++
++
++def analyze(base_data, base_text, rev_data, rev_text, fb, ledger):
++    """Diff, attribute and score one fix cycle; returns a dict the report and --enforce use."""
++    bu, bseps, _ = units(base_text)
++    ru, rseps, rtail = units(rev_text)
++    base_ids = set(NEW_ID_RE.findall(base_text))
++    entries = ledger["entries"]
++    located, unlocated = [], []
++    for e in entries:
++        e.loc = locate(e, bu)
++        (located if e.loc else unlocated).append(e)
++    opcodes, moved_b, moved_r = diff_hunks(bu, ru)
++    regions, hunks = [], []
++    for tag, i1, i2, j1, j2 in opcodes:
++        if tag == "equal":
++            regions.append(("equal", i1, i2, j1, j2))
++            continue
++        parts = split_region(i1, i2, j1, j2, located, bu, ru)
++        regions.append(("parts", parts))
++        for part in parts:
++            part.b = [bu[i] for i in range(part.i1, part.i2) if i not in moved_b]
++            part.r = [ru[j] for j in range(part.j1, part.j2) if j not in moved_r]
++            if part.b or part.r:
++                hunks.append(part)
++    for k, h in enumerate(hunks, 1):
++        h.k = k
++        element_counts(h, base_ids)
++        rev_lines = [u.line for u in (ru[j] for j in range(h.j1, h.j2))]
++        if rev_lines:
++            h.lines = (rev_lines[0], rev_lines[-1])
++        else:
++            at = ru[h.j1].line if h.j1 < len(ru) else rev_text.count("\n") + 1
++            h.lines = (at, at)
++        attribute(h, fb, unlocated)
++    res = score(fb, ledger, hunks)
++    res.update(cycle_checks(hunks, base_data, rev_data))
++    res["result"] += res.pop("size")
++    res["code"] = EXIT["POLICY"] if res["result"] else EXIT["OK"]
++    res.update(regions=regions, moved_b=moved_b, moved_r=moved_r, bu=bu, bseps=bseps, ru=ru, rseps=rseps, rtail=rtail)
++    return res
++
++
++def diff_hunks(bu, ru):
++    """Unit-level opcodes plus moved units: an inserted unit identical to a deleted one counts zero."""
++    opcodes = difflib.SequenceMatcher(None, [u.norm for u in bu], [u.norm for u in ru], autojunk=False).get_opcodes()
++    deleted = {}
++    for tag, i1, i2, _, _ in opcodes:
++        if tag != "equal":
++            for i in range(i1, i2):
++                deleted.setdefault(bu[i].norm, []).append(i)
++    moved_b, moved_r = {}, {}
++    for tag, _, _, j1, j2 in opcodes:
++        if tag != "equal":
++            for j in range(j1, j2):
++                pool = deleted.get(ru[j].norm)
++                if pool:
++                    i = pool.pop(0)
++                    moved_b[i], moved_r[j] = j, i
++    return opcodes, moved_b, moved_r
++
++
++def words(toks):
++    """The counted words among (normalised, raw) tokens."""
++    return [n for n, _ in toks if is_word(n)]
++
++
++def element_counts(h, base_ids):
++    """Word-level diff inside one hunk: added/deleted words, bytes, derived op and element counts."""
++    bt = [t for u in h.b for t in u.toks]
++    rt = [t for u in h.r for t in u.toks]
++    sm = difflib.SequenceMatcher(None, [n for n, _ in bt], [n for n, _ in rt], autojunk=False)
++    added, removed = [], []
++    for tag, a1, a2, b1, b2 in sm.get_opcodes():
++        if tag in ("replace", "delete"):
++            removed += bt[a1:a2]
++        if tag in ("replace", "insert"):
++            added += rt[b1:b2]
++    add_words = words(added)
++    h.added, h.deleted = len(add_words), len(words(removed))
++    h.bytes = sum(len(raw.encode("utf-8")) + 1 for _, raw in added)
++    h.words_text = " ".join(raw for _, raw in added)
++    if not h.b:
++        h.op = "add"
++    elif not add_words:
++        h.op = "delete"
++    else:
++        h.op = "narrow" if h.added <= h.deleted else "replace"
++    lower = [w.strip(PUNCT).lower() for w in add_words]
++    c = {key: sum(w in vocab for w in lower) for key, vocab in WORD_SETS.items()}
++    c["heading"] = max(0, sum(u.kind == "heading" for u in h.r) - sum(u.kind == "heading" for u in h.b))
++    c["table-row"] = max(0, len({u.line for u in h.r if u.kind == "cell"})
++                         - len({u.line for u in h.b if u.kind == "cell"}))
++    c["id"] = sorted({i for w in add_words for i in NEW_ID_RE.findall(w.strip(PUNCT))} - base_ids)
++    spans = {}
++    for side, sign in ((h.r, 1), (h.b, -1)):
++        for u in side:
++            for span in SPAN_RE.findall(u.raw):
++                if RECIPE_RE.search(span):
++                    spans[span] = spans.get(span, 0) + sign
++    fences = max(0, sum(u.kind == "fence" for u in h.r) - sum(u.kind == "fence" for u in h.b))
++    c["check-recipe"] = sum(v for v in spans.values() if v > 0) + (fences + 1) // 2
++    h.counts = c
++
++
++def attribute(h, fb, unlocated):
++    """Charge the hunk to its claiming entry, or leave it unattributed with a reason."""
++    rnorm = [n for u in h.r for n, _ in u.toks]
++    e = h.claimant
++    if e is None:
++        for u in unlocated:
++            key = [n for n in (norm_token(t) for t in u.new.split()) if n][:10]
++            if key and contains(rnorm, key):
++                h.reason = f"quote not in baseline (L{u.num})"
++                return
++        h.reason = "no ledger entry"
++        return
++    key = [n for n in (norm_token(t) for t in e.new.split()) if n][:10]
++    if e.finding not in fb["rows"]:
++        h.reason = f"unknown finding {e.finding} (L{e.num})"
++    elif key and not contains(rnorm, key):
++        h.reason = f"new words not found (L{e.num})"
++    elif not key and h.added:
++        h.reason = f"delete entry adds words (L{e.num})"
++    else:
++        h.entry = e
++        ok = h.op == e.op or (e.op in OP_RANK and h.op in OP_RANK and OP_RANK[h.op] <= OP_RANK[e.op])
++        if not ok:
++            h.mislabel = f"op L{e.num} {e.op}!={h.op}"
++
++
++def natural(fid):
++    return [int(x) if x.isdigit() else x for x in re.split(r"([0-9]+)", fid)]
++
++
++def score(fb, ledger, hunks):
++    """Per-finding totals, budget reasons and statuses (sections 2.2, 2.3)."""
++    per = {fid: {"hunks": [], "entries": set(), "ops": set(), "ids": set(), "mislabel": [],
++                 "totals": dict.fromkeys(BUDGET_KEYS, 0)} for fid in fb["order"]}
++    for h in hunks:
++        if h.entry is None:
++            continue
++        p = per[h.entry.finding]
++        t = p["totals"]
++        p["hunks"].append(h)
++        p["entries"].add(h.entry.num)
++        p["ops"].add(h.op)
++        p["ids"].update(h.counts["id"])
++        if h.mislabel:
++            p["mislabel"].append(h.mislabel)
++        t["gross"] += h.added
++        t["net"] += h.added - h.deleted
++        t["add-only"] += h.added if h.op == "add" else 0
++        for key in ("heading", "table-row", "normative", "universal", "condition", "check-recipe"):
++            t[key] += h.counts[key]
++    for fid, p in per.items():
++        f, t = fb["rows"][fid], p["totals"]
++        t["entries"], t["id"] = len(p["entries"]), len(p["ids"])
++        lim = f.limits()
++        p["over"] = [f"{k} {t[k]}>{lim[k]}" for k in BUDGET_KEYS if t[k] > lim[k]]
++        if f.cls == "m":
++            p["status"] = "MINOR-EDIT" if p["hunks"] else "minor"
++        elif p["over"] or p["mislabel"]:
++            p["status"] = "OVER"
++        elif fid in ledger["deferred"]:
++            p["status"] = "escalated"
++        elif p["hunks"]:
++            p["status"] = "fixed"
++        elif any(e.finding == fid for e in ledger["entries"]):
++            p["status"] = "reverted"
++        else:
++            p["status"] = "unanswered"
++    order = fb["order"]
++    # attribution reasons print before size reasons
++    result = [f"UNATTRIBUTED h{h.k}" for h in hunks if h.entry is None]
++    result += [f"MISLABELLED {fid}" for fid in order if per[fid]["mislabel"]]
++    result += [f"MINOR-EDIT {fid}" for fid in order if per[fid]["status"] == "MINOR-EDIT"]
++    result += [f"OVER-BUDGET {fid}" for fid in order if per[fid]["over"] and fb["rows"][fid].cls != "m"]
++    return {"hunks": hunks, "per": per, "result": result}
++
++
++def cycle_checks(hunks, base_data, rev_data):
++    """Cycle cap (600 words, 6,144 bytes added) and raw file growth (6,144 bytes)."""
++    cycle_words = sum(h.added for h in hunks)
++    cycle_bytes = sum(h.bytes for h in hunks)
++    raw = len(rev_data) - len(base_data)
++    size = []
++    if cycle_words > CYCLE_GROSS_WORDS:
++        size.append(f"CYCLE words {cycle_words}>{CYCLE_GROSS_WORDS}")
++    if cycle_bytes > CYCLE_GROSS_BYTES:
++        size.append(f"CYCLE bytes {cycle_bytes}>{CYCLE_GROSS_BYTES}")
++    if raw > RAW_SIZE_LIMIT:
++        size.append(f"RAW-SIZE +{raw}>{RAW_SIZE_LIMIT}")
++    return {"cycle_words": cycle_words, "cycle_bytes": cycle_bytes, "raw": raw, "size": size}
++
++
++def render_report(res, fb, ledger, base_data, rev_data, ledger_data):
++    """The section 3.3 report: header, summary, one line per hunk, one per finding, totals."""
++    hunks, per = res["hunks"], res["per"]
++    attributed = sum(h.entry is not None for h in hunks)
++    lines = [
++        f"FIXCHECK cycle={fb['review']} exit={res['code']} base=sha:{sha256(base_data)[:8]} "
++        f"revised=sha:{sha256(rev_data)[:8]} ledger=sha:{sha256(ledger_data)[:8]}",
++        f"hunks={len(hunks)} attributed={attributed} unattributed={len(hunks) - attributed} "
++        f"moved={len(res['moved_b'])} net={sum(h.added - h.deleted for h in hunks)} "
++        f"cycle_words={res['cycle_words']}/{CYCLE_GROSS_WORDS} cycle_bytes={res['cycle_bytes']}/{CYCLE_GROSS_BYTES} "
++        f"raw_size={res['raw']:+d}/{RAW_SIZE_LIMIT}",
++    ]
++    for h in hunks:
++        who = f"L{h.entry.num} {h.entry.finding}" if h.entry else "unattributed -"
++        line = f"h{h.k} {who} revised:{h.lines[0]}-{h.lines[1]} +{h.added}/-{h.deleted}"
++        if h.entry is None:
++            line += f" reason={h.reason}"
++        lines.append(line + (f" {h.mislabel}" if h.mislabel else ""))
++    for fid in fb["order"]:
++        f, p = fb["rows"][fid], per[fid]
++        counts = " ".join(f"{k}={p['totals'][k]}" for k in BUDGET_KEYS)
++        detail = ", ".join(p["mislabel"] + p["over"])
++        lines.append(f"finding {fid} cls={f.cls} grade={f.grade} budget={f.budget} "
++                     f"op={'+'.join(sorted(p['ops'])) or '-'} {counts} status={p['status']}"
++                     + (f" {detail}" if detail else ""))
++    lines += [f"GRADE-CONFLICT {fid}" for fid in fb["order"] if fb["rows"][fid].conflict]
++    unattr = [f'h{h.k} +{h.added} words "{" ".join(h.words_text.split()[:8])}"' for h in hunks if h.entry is None]
++    lines.append("unattributed: " + ("; ".join(unattr) or "none"))
++    esc = [f"{fid} ({need})" for fid, need in sorted(ledger["deferred"].items(), key=lambda kv: natural(kv[0]))]
++    esc += [f"{fid} (reverted)" for fid in fb["order"] if per[fid]["status"] == "reverted"]
++    lines.append("escalated: " + ("; ".join(esc) or "none"))
++    carried = []
++    for fid in sorted(fb["order"], key=natural):
++        f, status = fb["rows"][fid], per[fid]["status"]
++        if f.severity.startswith(("CRITICAL", "MAJOR")) and (
++                f.grade == "minor" or status in ("escalated", "reverted", "unanswered", "OVER")):
++            label = "GRADE-CONFLICT" if f.conflict and status == "minor" else status
++            carried.append(f"{fid}({label})")
++    lines.append(f"carried-open: n={len(carried)}" + "".join(" " + c for c in carried))
++    lines.append("result: " + ("; ".join(res["result"]) or "ok"))
++    lines.append(f"FIXCHECK exit={res['code']}")
++    return lines
++
++
++def load_check_inputs(args):
++    base_data, base_text = read_text(args.baseline)
++    rev_data, rev_text = read_text(args.revised)
++    _, report_text = read_text(args.report)
++    fb = parse_fixbudget(report_text)
++    if sha256(base_data) != fb["sha"]:
++        fail("HASH", "baseline sha256 differs from the report's reviewed_sha256")
++    _, ledger_data, ledger = load_ledger(args.report, args.ledger)
++    return base_data, base_text, rev_data, rev_text, fb, ledger, ledger_data
++
++
+ def atomic_write(path, data):
+     """Write bytes via a temp file in the same directory, then rename; failure exits 5."""
+     path = Path(path)
+@@ -311,7 +757,12 @@ def cmd_snapshot(args):
+ 
+ 
+ def cmd_check(args):
+-    fail("INTERNAL", "check is not implemented yet")
++    base_data, base_text, rev_data, rev_text, fb, ledger, ledger_data = load_check_inputs(args)
++    if args.enforce:
++        fail("INTERNAL", "check --enforce is not implemented yet")
++    res = analyze(base_data, base_text, rev_data, rev_text, fb, ledger)
++    print("\n".join(render_report(res, fb, ledger, base_data, rev_data, ledger_data)))
++    return res["code"]
+ 
+ 
+ def build_parser():
+diff --git a/tests/skills/test_sc_fixcheck.py b/tests/skills/test_sc_fixcheck.py
+index 6d2e978c..57c9b6f0 100644
+--- a/tests/skills/test_sc_fixcheck.py
++++ b/tests/skills/test_sc_fixcheck.py
+@@ -231,3 +231,281 @@ def test_snapshot_writes_exactly_base_n(review_dir, capsys):
+     assert code == 0
+     assert sorted(set(listing(review_dir)) - set(before)) == [".fixcheck", ".fixcheck/base-1.md"]
+     assert (review_dir / ".fixcheck/base-1.md").read_text() == SPEC
++
++
++# --- Task 2: diffing, attribution, scoring and the check report ---
++
++BASE = """# Service spec
++
++## Storage
++
++The service stores each record in the primary database table. Records are written once and read many times.
++
++The cache layer keeps recent records in memory for faster reads. Old entries leave the cache after one hour.
++
++Backups run at night on a separate host machine.
++
++| field | type |
++|---|---|
++| id | integer |
++| name | text |
++
++## Logging
++
++The service writes one log line per request. Log lines go to standard output.
++"""
++CACHE = "The cache layer keeps recent records in memory for faster reads."
++OLD = "Old entries leave the cache after one hour."
++BACKUP = "Backups run at night on a separate host machine."
++LOGOUT = "Log lines go to standard output."
++MAJOR = "F1 | MAJOR | blocking | std"
++
++
++def filler(n, stem="filler"):
++    return " ".join(f"{stem}{i}" for i in range(n))
++
++
++def case(tmp_path, revised, rows, entries, deferred=(), base=BASE):
++    (tmp_path / "base.md").write_text(base)
++    (tmp_path / "spec.md").write_text(revised)
++    (tmp_path / "review-1.md").write_text(report_text(base, rows))
++    (tmp_path / "disposition.md").write_text(ledger_text("review-1.md", entries, deferred))
++    return tmp_path
++
++
++def check(d, capsys, *extra):
++    return run(capsys, "check", "--baseline", d / "base.md", "--revised", d / "spec.md",
++               "--report", d / "review-1.md", *extra)
++
++
++def finding_line(out, fid):
++    return next(line for line in out.splitlines() if line.startswith(f"finding {fid} "))
++
++
++def test_clean_in_budget_fix_exits_0(tmp_path, capsys):
++    new = "Old entries leave the cache after thirty minutes."
++    d = case(tmp_path, BASE.replace(OLD, new), [MAJOR],
++             [(1, {"finding": "F1", "op": "replace", "old": OLD, "new": new})])
++    code, out = check(d, capsys)
++    assert code == 0, out
++    assert "status=fixed" in finding_line(out, "F1")
++    assert out.strip().endswith("FIXCHECK exit=0")
++    assert "result: ok" in out
++
++
++def test_81_added_words_on_major_exits_1_gross(tmp_path, capsys):
++    text = filler(81) + "."
++    d = case(tmp_path, BASE.replace(LOGOUT, LOGOUT + "\n\n" + text), [MAJOR],
++             [(1, {"finding": "F1", "op": "add", "anchor": LOGOUT, "new": text, "considered": "no delete fits"})])
++    code, out = check(d, capsys)
++    assert code == 1
++    assert "gross 81>80" in finding_line(out, "F1")
++    assert "OVER-BUDGET F1" in out
++
++
++def test_net_51_at_gross_60_exits_1(tmp_path, capsys):
++    text = filler(60) + "."
++    d = case(tmp_path, BASE.replace(BACKUP, text), [MAJOR],
++             [(1, {"finding": "F1", "op": "replace", "old": BACKUP, "new": text})])
++    code, out = check(d, capsys)
++    line = finding_line(out, "F1")
++    assert code == 1
++    assert "gross=60" in line and "net 51>50" in line and "gross 60>" not in line
++
++
++def test_one_word_minor_edit_exits_1(tmp_path, capsys):
++    old = "Records are written once and read many times."
++    new = "Records are written once and read several times."
++    d = case(tmp_path, BASE.replace(old, new), [MAJOR, "F2 | MAJOR | minor | -"],
++             [(1, {"finding": "F2", "op": "narrow", "old": old, "new": new})])
++    code, out = check(d, capsys)
++    assert code == 1
++    assert "status=MINOR-EDIT" in finding_line(out, "F2")
++    assert "MINOR-EDIT F2" in out
++
++
++@pytest.mark.parametrize(
++    "added, reason",
++    [
++        ("## Retention", "heading 1>0"),
++        ("Each request carries a trace header and a request number.", None),
++        ("The service must log errors and must retry writes.", "normative 2>1"),
++        ("Retries stop if the queue is full or if the disk fails.", "condition 2>1"),
++    ],
++    ids=["heading", "control", "second-must", "second-condition"],
++)
++def test_forbidden_elements_each_have_their_own_reason(tmp_path, capsys, added, reason):
++    d = case(tmp_path, BASE.replace(LOGOUT, LOGOUT + "\n\n" + added), [MAJOR],
++             [(1, {"finding": "F1", "op": "add", "anchor": LOGOUT, "new": added, "considered": "nothing to cut"})])
++    code, out = check(d, capsys)
++    if reason is None:
++        assert code == 0, out
++    else:
++        assert code == 1, out
++        assert reason in finding_line(out, "F1")
++
++
++def test_new_id_tag_fails_with_id(tmp_path, capsys):
++    new = "Old entries leave the cache after one hour (F3)."
++    d = case(tmp_path, BASE.replace(OLD, new), [MAJOR],
++             [(1, {"finding": "F1", "op": "replace", "old": OLD, "new": new})])
++    code, out = check(d, capsys)
++    assert code == 1
++    assert "id 1>0" in finding_line(out, "F1")
++
++
++def test_second_table_row_exits_1(tmp_path, capsys):
++    rows = "| owner | string |\n| created | date |"
++    d = case(tmp_path, BASE.replace("| name | text |", "| name | text |\n" + rows), [MAJOR],
++             [(1, {"finding": "F1", "op": "add", "anchor": "| name | text |", "new": "owner string created date",
++                   "considered": "the table needs both"})])
++    code, out = check(d, capsys)
++    assert code == 1
++    assert "table-row 2>1" in finding_line(out, "F1")
++
++
++def test_unattributed_hunk_exits_1(tmp_path, capsys):
++    new = "Old entries leave the cache after thirty minutes."
++    revised = BASE.replace(OLD, new).replace(BACKUP, "Backups run at noon on a separate host machine.")
++    d = case(tmp_path, revised, [MAJOR], [(1, {"finding": "F1", "op": "replace", "old": OLD, "new": new})])
++    code, out = check(d, capsys)
++    assert code == 1
++    assert "unattributed - revised:9-9" in out and "reason=no ledger entry" in out
++    assert "UNATTRIBUTED h2" in out
++
++
++def test_quote_not_in_baseline_exits_1(tmp_path, capsys):
++    new = "Old entries leave the cache after thirty minutes."
++    d = case(tmp_path, BASE.replace(OLD, new), [MAJOR],
++             [(1, {"finding": "F1", "op": "replace", "old": "Old entries expire after one hour.", "new": new})])
++    code, out = check(d, capsys)
++    assert code == 1
++    assert "reason=quote not in baseline (L1)" in out
++
++
++def test_short_partial_quote_counts_as_not_in_baseline(tmp_path, capsys):
++    old = "The service stores each record in the primary database table."
++    new = "The service stores each record in the main database table."
++    d = case(tmp_path, BASE.replace(old, new), [MAJOR],
++             [(1, {"finding": "F1", "op": "narrow", "old": "stores each record", "new": new})])
++    code, out = check(d, capsys)
++    assert code == 1
++    assert "reason=quote not in baseline (L1)" in out
++
++
++def test_mislabelled_op_exits_1(tmp_path, capsys):
++    new = "Old entries leave the cache after one hour of idle time."
++    d = case(tmp_path, BASE.replace(OLD, new), [MAJOR],
++             [(1, {"finding": "F1", "op": "narrow", "old": OLD, "new": new})])
++    code, out = check(d, capsys)
++    assert code == 1
++    assert "op L1 narrow!=replace" in out and "MISLABELLED F1" in out
++
++
++def test_unanswered_blocking_id_does_not_change_exit(tmp_path, capsys):
++    new = "Old entries leave the cache after thirty minutes."
++    d = case(tmp_path, BASE.replace(OLD, new), [MAJOR, "F5 | MAJOR | blocking | std"],
++             [(1, {"finding": "F1", "op": "replace", "old": OLD, "new": new})])
++    code, out = check(d, capsys)
++    assert code == 0, out
++    assert "status=unanswered" in finding_line(out, "F5")
++
++
++def test_whitespace_only_growth_over_6144_bytes_exits_1(tmp_path, capsys):
++    revised = BASE.replace("\n\n", "\n" + " " * 1200 + "\n\n")
++    assert len(revised.encode()) - len(BASE.encode()) > 6144
++    d = case(tmp_path, revised, [MAJOR], [(1, {"finding": "F1", "op": "delete", "old": OLD})])
++    code, out = check(d, capsys)
++    assert code == 1
++    assert "hunks=0" in out and "RAW-SIZE" in out
++
++
++def test_hunk_lines_carry_entry_and_range_and_are_deterministic(tmp_path, capsys):
++    new1 = "Old entries leave the cache after thirty minutes."
++    new2 = "Log lines go to standard error."
++    d = case(tmp_path, BASE.replace(OLD, new1).replace(LOGOUT, new2), [MAJOR, "F2 | CRITICAL | blocking | std"],
++             [(1, {"finding": "F1", "op": "replace", "old": OLD, "new": new1}),
++              (2, {"finding": "F2", "op": "replace", "old": LOGOUT, "new": new2})])
++    code1, out1 = check(d, capsys)
++    code2, out2 = check(d, capsys)
++    assert code1 == code2 == 0
++    assert out1 == out2
++    assert "h1 L1 F1 revised:7-7 +2/-2" in out1
++    assert "h2 L2 F2 revised:18-18 +1/-1" in out1
++
++
++def test_neighbouring_sentences_are_credited_to_both_entries(tmp_path, capsys):
++    new1 = "The cache layer keeps recent records in memory for quicker reads."
++    new2 = "Old entries leave the cache after two hours."
++    d = case(tmp_path, BASE.replace(CACHE, new1).replace(OLD, new2), [MAJOR, "F2 | MAJOR | blocking | std"],
++             [(1, {"finding": "F1", "op": "replace", "old": CACHE, "new": new1}),
++              (2, {"finding": "F2", "op": "replace", "old": OLD, "new": new2})])
++    code, out = check(d, capsys)
++    assert code == 0, out
++    assert "h1 L1 F1 revised:7-7" in out and "h2 L2 F2 revised:7-7" in out
++    assert "status=fixed" in finding_line(out, "F1") and "status=fixed" in finding_line(out, "F2")
++
++
++def test_moved_text_counts_zero(tmp_path, capsys):
++    para = "The service writes one log line per request. Log lines go to standard output.\n"
++    revised = BASE.replace(para, "").replace("## Storage\n", "## Storage\n\n" + para)
++    d = case(tmp_path, revised, [MAJOR], [], deferred=["F1: escalated: needs a rule change"])
++    code, out = check(d, capsys)
++    assert code == 0, out
++    assert "hunks=0" in out and "moved=2" in out and "cycle_words=0/600" in out
++
++
++def test_path_line_token_adds_zero_words(tmp_path, capsys):
++    new = "Log lines go to src/log.py:12 standard output."
++    d = case(tmp_path, BASE.replace(LOGOUT, new), [MAJOR],
++             [(1, {"finding": "F1", "op": "narrow", "old": LOGOUT, "new": new})])
++    code, out = check(d, capsys)
++    assert code == 0, out
++    assert "h1 L1 F1 revised:18-18 +0/-0" in out
++
++
++def test_delete_over_80_words_is_free_of_the_gross_cap(tmp_path, capsys):
++    long = " ".join(f"word{i}" for i in range(90)) + "."
++    base = BASE + "\n" + long + "\n"
++    d = case(tmp_path, BASE, [MAJOR], [(1, {"finding": "F1", "op": "delete", "old": long})], base=base)
++    code, out = check(d, capsys)
++    assert code == 0, out
++    assert "+0/-90" in out and "status=fixed" in finding_line(out, "F1")
++
++
++def test_check_with_explicit_ledger_and_lookup_agree(tmp_path, capsys):
++    new = "Old entries leave the cache after thirty minutes."
++    d = case(tmp_path, BASE.replace(OLD, new), [MAJOR],
++             [(1, {"finding": "F1", "op": "replace", "old": OLD, "new": new})])
++    assert check(d, capsys) == check(d, capsys, "--ledger", d / "disposition.md")
++
++
++def test_carried_open_lists_open_critical_and_major(tmp_path, capsys):
++    new = "Old entries leave the cache after thirty minutes."
++    rows = ["F1 | MAJOR | blocking | std", "F2 | CRITICAL | blocking | std", "F3 | MAJOR | minor | -",
++            "F4 | MINOR | minor | -", "F5 | CRITICAL | blocking | std", "F6 | MAJOR/FR-8 | minor | -"]
++    d = case(tmp_path, BASE.replace(OLD, new), rows,
++             [(1, {"finding": "F5", "op": "replace", "old": OLD, "new": new})],
++             deferred=["F1: escalated: needs about 140 words"])
++    code, out = check(d, capsys)
++    assert code == 0, out
++    assert "carried-open: n=4 F1(escalated) F2(unanswered) F3(minor) F6(GRADE-CONFLICT)" in out
++    assert "GRADE-CONFLICT F6" in out
++    assert "escalated: F1 (needs about 140 words)" in out
++
++
++def test_plain_check_writes_nothing(tmp_path, capsys):
++    new = "Old entries leave the cache after one hour of idle time."
++    d = case(tmp_path, BASE.replace(OLD, new), [MAJOR],
++             [(1, {"finding": "F1", "op": "narrow", "old": OLD, "new": new})])
++    before = {p: p.read_bytes() for p in d.iterdir()}
++    listing_before = listing(d)
++    check(d, capsys)
++    assert listing(d) == listing_before
++    assert {p: p.read_bytes() for p in d.iterdir()} == before
++
++
++def test_check_on_mismatched_baseline_exits_4(tmp_path, capsys):
++    d = case(tmp_path, BASE, [MAJOR], [(1, {"finding": "F1", "op": "delete", "old": OLD})])
++    (d / "base.md").write_text(BASE + "drift\n")
++    assert check(d, capsys)[0] == 4

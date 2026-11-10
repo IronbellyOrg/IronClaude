@@ -1,0 +1,119 @@
+{
+  "scenario": "S1",
+  "variant": "diffgate",
+  "status": "measured; no treatment-success verdict",
+  "metric_definitions": "DECISIONS D5 and REPLAY sections 6-7, adapted by the recorder dispatch; source copies and all hashes under reviews/",
+  "proxy_definition": {
+    "blocking_grade_proxy": "CRITICAL + MAJOR labels from numbered NEW findings, independent of blocking/minor grading; same definition as historical baseline and comparator metrics",
+    "findings_total": "Numbered new findings only; resolution/status rows and citation-table rows are not new findings. Open prior findings are reported separately, never silently folded into the comparator proxy.",
+    "endpoint_open_proxy": "New critical+major plus unresolved critical+major priors, plus distinct cumulative critical+major deferred/demoted/withdrawn findings under owner ruling; audit union is a further separate measure.",
+    "warning": "Script proxy_all is NOT all findings: it is 7,3,2 versus numbered-new totals 13,5,3. Scoped re-review and blocking-only reviser scope differ from full-document/all-confirmed-findings comparators."
+  },
+  "m1_rounds_until_clean_pass": {
+    "value": null,
+    "reason_null": "All three final reports end verdict: FAIL; cap reached with two blockers; no clean PASS occurred.",
+    "reviews_run_in_core_loop": 3,
+    "fix_cycles": 2,
+    "verdict_lines": {"R1":"verdict: FAIL","R2":"verdict: FAIL","R3":"verdict: FAIL"},
+    "provenance": "reviews/spec-panel.md:154; spec-panel-round2.md:167; spec-panel-round3.md:163; pre-append checked snapshots also preserved"
+  },
+  "rounds": [
+    {
+      "round":"R1",
+      "review":{"session":"0e40ed15-dbb8-4e40-a1be-b66c11092ca3","skill":"sc:spec-panel-diffgate","skill_call_line":92,"command_read_line":64,"header_review_N_of_3":true,"section_reviser_brief":false,"inline_reviser_brief":true,"last_line_is_verdict":true,"verdict":"FAIL","spawned_subagent_before_worker_done":false},
+      "M2":{"findings_total":13,"all_findings":13,"critical":0,"major":7,"minor":6,"critical_plus_major":7,"blocking":7,"minor_graded":6,"new_blocking_ids":["R1.1","R1.2","R1.3","R1.4","R1.5","R1.6","R1.7"],"unresolved_priors_total":0,"unresolved_priors_critical_plus_major":0,"endpoint_open_critical_plus_major":7,"provenance":"re-derived from numbered rows 95-107 and FINDING lines 137-149; matched by id/severity, not trusted from summary"},
+      "script":{"confirmed_blockers":7,"proxy_all":7,"deferred":0,"demoted":0,"withdrawn":0,"source":"reviews/diffgate-loop/result-r1.json","recount_agrees":true},
+      "M3":{"value":null,"reason_null":"first review, no prior fix"},
+      "M4":{"bytes_at_review_start":57763,"lines_at_review_start":285,"bytes_after_revise":62054,"lines_after_revise":285,"growth_percent_this_round":7.428630784412167,"growth_percent_cumulative_vs_v1":7.428630784412167,"provenance":"frozen source bytes/newline counts; percent recomputed, full precision in growth_summary"},
+      "M5":{"review_session":{"tool_calls":34,"assistant_turns":25,"output_tokens":45642,"input_tokens_uncached":50,"cache_creation_tokens":200380,"cache_read_tokens":5401204,"duration_min":7.496},"revise_session":{"tool_calls":49,"assistant_turns":18,"output_tokens":33674,"input_tokens_uncached":36,"cache_creation_tokens":151276,"cache_read_tokens":3157152,"duration_min":5.1835},"round_total":{"tool_calls":83,"output_tokens":79316},"provenance":"reviews/session-metrics.json; first session record through matching worker_done tool invocation, excludes later user-owned work"},
+      "revise":{"session":"3b1f3d8e-7043-4f34-bca9-bb84411c4687","findings_applied":7,"findings_rejected":6,"minor_findings_acted_on":0,"spawned_own_subreview":false,"changed_hunks":16,"scope":"blocking only, substituted task list overrides original all-confirmed-findings brief","source":"reviews/disposition.md:31-43"},
+      "master_content":{"finding_count_explicit":3,"finding_ids":["R1.5","R1.9","R1.12"],"definition":"numbered finding rows explicitly citing origin/master or a master-only implementation; includes corroboration and drift note, not every generic mention of proposed WORKER-CONTRACT.md","provenance":"reviews/spec-panel.md:99,103,106; first two include explicit master tokens; R1.12 names later master commit"}
+    },
+    {
+      "round":"R2",
+      "review":{"session":"ba3e4a04-d331-47b7-b73c-02f7d972fca2","skill":"sc:spec-panel-diffgate","skill_call_line":143,"command_read_line":null,"header_review_N_of_3":true,"section_reviser_brief":false,"inline_reviser_brief":true,"last_line_is_verdict":true,"verdict":"FAIL","spawned_subagent_before_worker_done":false},
+      "M2":{"findings_total":5,"all_findings":5,"critical":0,"major":2,"minor":3,"critical_plus_major":2,"blocking_new":2,"blocking":3,"minor_graded_new":3,"unresolved_priors_total":1,"unresolved_priors_critical_plus_major":1,"unresolved_prior_ids":["R1.3"],"resolved_prior_blockers":6,"endpoint_open_critical_plus_major":3,"provenance":"re-derived numbered rows 116-120 and FINDING lines 158-162; PRIOR rows 151-157 add R1.3 open separately; citation C8 duplicates R2.5 and C15 duplicates R2.3"},
+      "script":{"confirmed_blockers":3,"proxy_all":3,"deferred":0,"demoted":0,"withdrawn":0,"source":"reviews/diffgate-loop/result-r2.json","recount_agrees":true},
+      "M3":{"strict_caused_by_named_previous_fix":2,"strict_ids":["R2.3","R2.5"],"partial_revision_caused":3,"partial_ids":["R2.1","R2.2","R2.4"],"pre_existing":0,"of":5,"share_strict":0.4,"share_strict_plus_partial":1.0,"machine_origin_tags":{"changed":4,"unchanged":1},"scope_anchor_counts":{"inside_changed_lines":4,"outside_with_changed_dependency":1,"outside_without_dependency":0,"unknown":0},"provenance":"re-derived from report mechanisms and v1/v2 text: R2.3 widens only-Orca rule; R2.5 adds wrong citation; R2.1 residual test failure, R2.2 adds a clause to already-impossible P0 step 3 (report:66), R2.4 narrows but does not remove old accidental-mode risk. Not a changed=>caused conversion; see comparison limits."},
+      "M4":{"bytes_at_review_start":62054,"lines_at_review_start":285,"bytes_after_revise":63717,"lines_after_revise":285,"growth_percent_this_round":2.6799239372159733,
+      "growth_percent_cumulative_vs_v1":10.307636376226997,"provenance":"re-derived frozen version 2 and version 3; no third revision"},
+      "M5":{"review_session":{"tool_calls":39,"assistant_turns":32,"output_tokens":52422,"input_tokens_uncached":64,"cache_creation_tokens":281617,"cache_read_tokens":7149732,"duration_min":7.9519666667},"revise_session":{"tool_calls":37,"assistant_turns":22,"output_tokens":32934,"input_tokens_uncached":44,"cache_creation_tokens":154913,"cache_read_tokens":4044179,"duration_min":5.3979833333},"round_total":{"tool_calls":76,"output_tokens":85356},"provenance":"reviews/session-metrics.json; last usage per assistant message id, tool_use blocks counted only in assistant records"},
+      "revise":{"session":"efdd7e2a-ba9c-4bf8-81b7-56268fc538d2","findings_applied":4,"findings_rejected":2,"new_findings_applied":3,"prior_findings_applied":1,"minor_findings_acted_on":1,"minor_ids_acted_on":["R2.5"],"disposition_rows":11,"applied_rows":6,"rejected_rows":4,"no_change_needed_rows":1,"duplicate_applied_citation_rows":["C8=R2.5","C9=R1.3"],"duplicate_rejected_citation_rows":["C15=R2.3"],"additional_rejected_note":"C13, carried uncited-tool-evidence concern from R1.12","spawned_own_subreview":false,"changed_hunks":4,"scope":"blocking-only owned hunks, one minor citation corrected inside already-owned retry hunk","source":"reviews/disposition-round2.md:31-41"},
+      "master_content":{"finding_count_explicit":0,"finding_ids":[],"provenance":"new numbered rows 116-120 have no master-source implementation reference; own-loop prior rows not counted"}
+    },
+    {
+      "round":"R3",
+      "review":{"session":"816a3832-d65a-462c-9c98-580c6c2177d2","skill":"sc:spec-panel-diffgate","skill_call_line":88,"command_read_line":null,"header_review_N_of_3":true,"section_reviser_brief":false,"inline_reviser_brief":false,"last_line_is_verdict":true,"verdict":"FAIL","cap_escalated":true,"spawned_subagent_before_worker_done":false},
+      "M2":{"findings_total":3,"all_findings":3,"critical":0,"major":2,"minor":1,"critical_plus_major":2,"blocking":2,"minor_graded_new":1,"unresolved_priors_total":0,"unresolved_priors_critical_plus_major":0,"resolved_prior_blockers":3,"endpoint_open_critical_plus_major":2,"new_blocking_ids":["R3.1","R3.2"],"provenance":"re-derived numbered rows 112-114 and FINDING lines 144-146; all three PRIOR lines resolved; minor carried notes are outside numbered-new total"},
+      "script":{"confirmed_blockers":2,"proxy_all":2,"deferred":0,"demoted":0,"withdrawn":0,"source":"reviews/diffgate-loop/result-r3.json","recount_agrees":true,"halt":"escalate"},
+      "M3":{"strict_caused_by_named_previous_fix":2,"strict_ids":["R3.1","R3.3"],"partial_revision_caused":1,"partial_ids":["R3.2"],"pre_existing":0,"of":3,"share_strict":0.6666666667,"share_strict_plus_partial":1.0,"machine_origin_tags":{"changed":3,"unchanged":0},"scope_anchor_counts":{"inside_changed_lines":3,"outside_with_changed_dependency":0,"outside_without_dependency":0,"unknown":0},"provenance":"re-derived: report:132 calls fixed-brief resume gap new mechanism; report:133 explicitly says step-4 defect predates revision in substance; flags-lookup wording at line 196 is new. Strict/partial labels are static analyst grouping, not empirical proof of causation."},
+      "M4":{"bytes_at_review_start":63717,"lines_at_review_start":285,"bytes_after_revise":null,"lines_after_revise":null,"growth_percent_this_round":null,"growth_percent_cumulative_vs_v1":10.307636376226997,"final_spec_identical_to_frozen_v3":true,"provenance":"no round-3 revision; live spec excluded due to later external replacement"},
+      "M5":{"review_session":{"tool_calls":27,"assistant_turns":21,"output_tokens":42509,"input_tokens_uncached":42,"cache_creation_tokens":188112,"cache_read_tokens":4177836,"duration_min":6.8650166667},"round_total":{"tool_calls":27,"output_tokens":42509},"provenance":"reviews/session-metrics.json"},
+      "revise":null,
+      "master_content":{"finding_count_explicit":0,"finding_ids":[],"provenance":"new numbered rows 112-114 contain no master implementation citation"}
+    }
+  ],
+  "growth_summary": {
+    "start_bytes":57763,"after_cycle_1_bytes":62054,"after_cycle_2_endpoint_bytes":63717,
+    "start_lines":285,"after_cycle_1_lines":285,"after_cycle_2_lines":285,
+    "cycle_1_delta_bytes":4291,"cycle_2_delta_bytes":1663,"total_delta_bytes":5954,
+    "cycle_1_growth_percent":7.428630784412167,"cycle_2_growth_percent":2.6799239372159733,
+    "after_two_fix_cycles_percent":10.307636376226997,"line_growth_percent":0,
+    "formula":"(after-before)/before*100; cumulative uses v1 denominator; wc-compatible newline counts, not visual wrapping",
+    "live_spec_excluded":true
+  },
+  "deferred_demoted_withdrawn": {
+    "cumulative_distinct_critical_plus_major":0,"ids":[],"by_round":{"R1":0,"R2":0,"R3":0},
+    "deferred_critical_plus_major":0,"demoted_critical_plus_major":0,"withdrawn_critical_plus_major":0,
+    "owner_adjusted_endpoint_open_proxy":2,
+    "provenance":"All three report FINDING blocks, numbered tables, machine results, held/scoped maps, deferred.md and both dispositions checked; none of the critical+major labels was demoted, deferred, declined or withdrawn. Resolved priors are not withdrawals. Rejected minor notes are not critical+major."
+  },
+  "independent_audit": {
+    "source":"reviews/blindness-audit-frozen.md",
+    "partial_excluded_source":"reviews/blindness-audit.md",
+    "findings_total":4,"critical":0,"major":4,"minor":0,"blocking":4,"changed_anchor":2,"original_anchor":2,
+    "ids_changed_anchor":[2,4],"ids_original_anchor":[1,3],
+    "endpoint_loop_blockers":2,"endpoint_ids":["R3.1","R3.2"],
+    "deduplicated_overlap":0,"overlap_lower_bound":0,"overlap_upper_bound":0,
+    "deduplicated_union":6,"union_lower_bound":6,"union_upper_bound":6,
+    "union_including_owner_cumulative_deferred_demoted_withdrawn":6,
+    "overlap_method":"Compare concrete mechanism, affected operation and wrong outcome against each endpoint blocker, not section proximity or changed-anchor tags.",
+    "overlap_checks":[
+      {"audit_id":1,"mechanism":"P1 exposes all-command unattended promise before later gate/safety conversion","against_R3_1":"distinct from explicit-resume retry omission","against_R3_2":"distinct from P0 report-field assertion"},
+      {"audit_id":2,"mechanism":"Mandatory child report-dir not forwarded by tasklist reflect invocation","against_R3_1":"distinct caller/callee failure before audit, not retry resume","against_R3_2":"distinct child argument rejection, not P0 schema assertion"},
+      {"audit_id":3,"mechanism":"Universal blocked expectation contradicts safe-default gate branches","against_R3_1":"distinct acceptance result, not retry resume","against_R3_2":"distinct P2 behavioral branch test, not P0 field schema"},
+      {"audit_id":4,"mechanism":"Archived contract pointers still name reused old output paths","against_R3_1":"distinct: non-resumable archive pointer misattribution, while R3.1 concerns explicit-resume commands not receiving flag","against_R3_2":"distinct retry evidence identity, not P0 field assertion"}
+    ],
+    "causal_inference":"Changed anchors establish text differences only. Four audit findings are absent as the same mechanism/outcome in endpoint numbered findings; that does not prove a previously closed defect or causal origin. No audit count added to historical new-finding proxy.",
+    "verdict":"FAIL"
+  },
+  "comparators": {
+    "provenance":"Read-only original metrics copied to reviews/comparators/; historical baseline copied to reviews/provenance/phase2/S1/baseline-metrics.json; no comparator recount or regrade",
+    "historical":{"findings_total":[24,13,14],"critical_plus_major":[18,10,8],"bytes_at_review_start":[57763,82643,92194],"growth_after_two_cycles_percent":59.6,"growth_after_three_revisions_percent":54.2,"minor":[6,3,6],"M3":{"R2":{"introduced_or_exposed":13,"of":13},"R3":{"strict":10,"partial":3,"pre_existing":1,"of":14}},"m1":null},
+    "ctl-r1":{"findings_total":[19,15,11],"critical_plus_major":[11,9,8],"blocking":[11,9,8],"minor":[8,6,3],"bytes_at_review_start":[57763,71528,91102],"growth_after_two_cycles_percent":57.72},
+    "ctl-r2":{"findings_total":[21,17,7],"critical_plus_major":[12,7,4],"blocking":[12,7,4],"minor":[9,10,3],"bytes_at_review_start":[57763,76214,97814],"growth_after_two_cycles_percent":69.3},
+    "flg-r1":{"findings_total":[22,12,10],"critical_plus_major":[16,5,6],"blocking":[11,4,4],"minor_graded":[11,8,6],"bytes_at_review_start":[57763,67886,73807],"growth_after_two_cycles_percent":27.78},
+    "flg-r2":{"findings_total":[22,11,4],"critical_plus_major":[17,6,1],"blocking":[13,6,1],"minor_graded":[9,5,3],"bytes_at_review_start":[57763,70255,76328],"growth_after_two_cycles_percent":32.14},
+    "fixed_thresholds":{"control_mean_R3_proxy":6,"R3_proxy_half_control_mean_limit":3,"control_mean_growth_percent":63.51,"growth_multiplier":0.7,"growth_limit_percent":44.457,"arm_B_mean_R3_proxy":3.5,"arm_B_mean_growth_percent":29.96,"control_R3_proxy_spread":4,"control_growth_spread_pp":11.58,"arm_B_R3_proxy_spread":5},
+    "arithmetic":{"new_proxy_minus_control_mean":-4,"new_proxy_reduction_percent":66.66666666666666,"owner_adjusted_proxy":2,"audit_union_minus_control_mean":0,"audit_union_above_proxy_limit":3,"growth_below_limit_pp":34.149363623773,"growth_below_control_mean_pp":53.202363623773,"growth_reduction_percent":83.7700576661518,"new_proxy_at_most_3":true,"growth_at_most_44_457":true,"audit_union_at_most_3":false},
+    "replicates":1,"replicate_variance_comparison":null,"success_verdict":null,
+    "apples_to_oranges":"Scoped re-review and blocking-owned revisions versus full new-finding counts and all-confirmed revisions; audit union versus comparator new-finding proxy; changed anchor versus baseline strict causal grouping; nonconcurrent runtime and model exposure. Arithmetic is not treatment success."
+  },
+  "session_accounting": {
+    "method":"REPLAY section 6: assistant records only, tool_use blocks counted; last usage per assistant message id; sum output/input/cache creation/cache read; first to last timestamp. Primary figures restricted to each dispatch through matching worker_done tool invocation to exclude later unrelated user work. Whole-session totals retained separately.",
+    "evidence":"reviews/session-metrics.json",
+    "whole_session_baseline_form_available":true,
+    "loop":{"tool_calls":186,"output_tokens":207181,"sum_step_wall_minutes":32.8944666667,"subagent_calls":0,"observed_rate_limit_errors":0},
+    "retired_audit":{"tool_calls":31,"output_tokens":7315,"wall_minutes":64.71195,"observed_error_to_response_minutes":43.24786666666667,"residual_wall_minutes":21.464083333333335,"models":["claude-opus-5-5","gpt-6.1-sol"],"excluded_from_loop_and_final_audit_counts":true},
+    "frozen_audit":{"tool_calls":71,"output_tokens":37373,"wall_minutes":22.567133333333334,"observed_error_to_response_minutes":0.7208,"residual_wall_minutes":21.846333333333334,"models":["gpt-6.1-sol"],"subagent_calls":1,"subagent_usage_not_in_main_totals":true,"subagent_metrics":{"model":"gpt-6.1-sol","tool_calls":21,"assistant_turns":9,"output_tokens":5469,"input_tokens_uncached":126692,"cache_read_tokens":771072,"first_ts":"2026-11-09T01:46:22.449Z","last_ts":"2026-11-09T01:53:22.704Z","source":"/home/coder/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-exp346-v-diffgate/4ea38812-79e0-439d-9b9c-e1b846bddae4/subagents/agent-a978110c57d6a0039.jsonl"}},
+    "interruption_evidence":"reviews/interruptions.json; residual wall time is not actual exclusive work, pre-error retry delay unknown",
+    "coordinator_shell_cost_attributable_to_variant":null
+  },
+  "not_recoverable": [
+    "Continuous install/WORKER-CONTRACT stability during phase5: phase4 watcher ends at 2026-11-08T13:57:47Z, before variant began.",
+    "Actual exclusive model/work time during API failures, including delay before terminal 429 records; bounded error-to-success gaps reported instead.",
+    "Coordinator token costs for shell begin/check/fixcheck and shared-session overhead attributable solely to this run.",
+    "One replicate cannot establish between-replicate robustness, within-variant spread or variance superiority.",
+    "Causal origin from anchor labels alone, or how many earlier findings an unconstrained independent endpoint review would have found under identical conditions."
+  ]
+}

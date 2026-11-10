@@ -1,0 +1,20 @@
+== old wording (expect none)
+34:| B7 | Classification comes from a fixed set defined in this spec (the mode labels, the issue type and the Complexity field); none is created on the fly. (Amended 2026-11-08, issue 438: the area and complexity labels were replaced by the issue type and the Complexity field, because the repository has no such labels.) | Comment 1; amended by issue 438 |
+371:| `src/superclaude/commands/issue.md` | Thin command (~100-150 lines): frontmatter (`name: issue`, `category: workflow`, `complexity: advanced`, `mcp-servers: [auggie, codegraph]`, `personas: [analyzer]`, `argument-hint`), Usage, Options table (section 4), STOP rules, Examples, Boundaries, `## Activation` -> `Skill sc:issue-protocol`, naming `~/.claude/skills/sc-issue-protocol/SKILL.md` |
+== section 11 heading and rows
+285:## 11. Labels, issue type and fields
+291:| Mode label | `bug`, `enhancement` | `--create` (GitHub's default labels; present on IronbellyOrg/IronClaude, checked 2026-11-04) |
+292:| Issue type | Bug (mode bug), Test (feature in the area `tests`), Feature (any other feature); Task is never chosen | `--create` throug
+293:| Complexity field | Simple, Medium, Complex (quick, standard, deep) | `--create` through one POST to `repos/<R>/issues/<N>/issue-field-
+== gh issue create row and return contract keys
+357:| `gh issue create` fails | STOP `E-CREATE-FAILED`; the draft directory is kept |
+485:| `gh issue create` | `--title`, `--body-file`, `--label` (repeatable), `--type`, `--repo` | `gh issue create --help` (gh 2.103.3, checked 2026-11-08) |
+372:| `src/superclaude/skills/sc-issue-protocol/SKILL.md` | `name: sc:issue-protocol`; `allowed-tools: Read, Glob, Grep, Write, Edit, Bash, 
+== every gh api path in the file
+157:gh api user -q .login
+187:gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<D>/accuracy-check.md
+197:gh api repos/<R>/issue-types
+197:gh api orgs/<owner of R>/issue-fields
+228:gh api -X POST repos/<R>/issues/<N>/issue-field-values --input .dev/issues/<N>/complexity-field.json
+335:gh api -X PATCH
+335:gh api -X POST repos/<R>/issues/<N>/issue-field-values

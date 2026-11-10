@@ -1,0 +1,88 @@
+{
+  "id": "b89b0974-8d3b-4ef0-8c8e-73dc4bbf28e4",
+  "ok": true,
+  "result": {
+    "runId": "run_0f9350decd8c",
+    "taskId": "task_e064e720af0d",
+    "dispatchId": "ctx_40a6876cca04",
+    "state": "ready",
+    "stage": "input_accepted",
+    "turnStart": "observed",
+    "setup": {
+      "requested": "not_applicable",
+      "effective": "not_applicable",
+      "source": "existing_worktree",
+      "hookFound": false,
+      "startupPolicy": "start-immediately",
+      "state": "not_applicable"
+    },
+    "launch": {
+      "requested": {
+        "agent": "claude",
+        "model": null,
+        "effort": null
+      },
+      "effective": {
+        "agent": "claude",
+        "model": null,
+        "effort": null
+      }
+    },
+    "mode": {
+      "mode": "terminal",
+      "preferred": "terminal",
+      "reason": "user_default",
+      "detail": "Started a terminal agent worker, the default for new agent tabs in your settings."
+    },
+    "timeoutMs": 60000,
+    "effects": [
+      {
+        "kind": "worktree",
+        "action": "reused",
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/p0-live-adversarial"
+      },
+      {
+        "kind": "setup",
+        "action": "not_applicable",
+        "state": "not_applicable"
+      },
+      {
+        "kind": "terminal",
+        "role": "agent",
+        "action": "created",
+        "id": "term_29734c84-53b5-48e4-833d-f3f93632dfd1",
+        "surface": "background",
+        "warning": "Terminal term_29734c84-53b5-48e4-833d-f3f93632dfd1 is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_29734c84-53b5-48e4-833d-f3f93632dfd1` to reveal and focus it."
+      },
+      {
+        "kind": "dispatch_input",
+        "role": "agent",
+        "id": "term_29734c84-53b5-48e4-833d-f3f93632dfd1",
+        "state": "accepted"
+      }
+    ],
+    "prompt": {
+      "requestId": "a284b644-bc55-4eb0-8781-8c09ce60e74d",
+      "stages": [
+        "input_accepted",
+        "turn_started"
+      ],
+      "provider": "claude",
+      "observation": "supported",
+      "processIncarnation": "dd5df501-b595-481c-b446-f2178be7cf91",
+      "generation": 127,
+      "baselineWorkingSequence": 0,
+      "baselineExplicitWorkingStartedAt": null,
+      "baselinePermissionSequence": 0
+    },
+    "residualResources": [],
+    "warning": "Terminal term_29734c84-53b5-48e4-833d-f3f93632dfd1 is running, but Orca could not make it discoverable. Run `orca terminal focus --terminal term_29734c84-53b5-48e4-833d-f3f93632dfd1` to reveal and focus it.",
+    "mutation": {
+      "requestId": "a284b644-bc55-4eb0-8781-8c09ce60e74d",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "c04240e6-4b7f-4f4b-bbab-e970a9957961"
+  }
+}

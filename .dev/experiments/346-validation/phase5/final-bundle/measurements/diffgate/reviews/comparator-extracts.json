@@ -1,0 +1,897 @@
+{
+  "ctl-r1": {
+    "source": "/home/coder/workspaces/worktrees/IronClaude/exp346-ab-ctl-r1/.dev/experiments/346-validation/phase4/ctl-r1/metrics.json",
+    "sha256": "a19b0d1a6b5044a0b6442d4d0c1989f83c0b8acc2075cf07cfadac88a62c85f4",
+    "rounds": [
+      {
+        "round": "R1",
+        "M2": {
+          "findings_total": 19,
+          "critical": 0,
+          "major": 11,
+          "minor": 8,
+          "critical_plus_major": 11,
+          "blocking": 11,
+          "blocking_minor_graded": true,
+          "ids": {
+            "CRITICAL": [],
+            "MAJOR": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "10",
+              "11"
+            ],
+            "MINOR": [
+              "12",
+              "13",
+              "14",
+              "15",
+              "16",
+              "17",
+              "18",
+              "19"
+            ]
+          },
+          "provenance": "read (reviewer-stated 11 MAJOR + 8 MINOR, spec-panel.md:8) and re-counted from the table rows spec-panel.md:123-141"
+        },
+        "M3": {
+          "value": null,
+          "reason_null": "first review; there is no previous fix",
+          "provenance": "n/a"
+        },
+        "M4": {
+          "bytes_at_review_start": 57763,
+          "lines_at_review_start": 285,
+          "words_at_review_start": 8148,
+          "bytes_after_revise": 71528,
+          "lines_after_revise": 307,
+          "words_after_revise": 10152,
+          "growth_percent_this_round": 23.83,
+          "growth_percent_cumulative_vs_v1": 23.83,
+          "lines_growth_percent_this_round": 7.72,
+          "provenance": "re-derived by wc on reviews/spec-v1-start.md and reviews/spec-v2-after-round1.md (v1 = S1 overlay file; the arm's own v1 copy was not kept, see validity.md V2 note)"
+        }
+      },
+      {
+        "round": "R2",
+        "M2": {
+          "findings_total": 15,
+          "critical": 0,
+          "major": 9,
+          "minor": 6,
+          "critical_plus_major": 9,
+          "blocking": 9,
+          "blocking_minor_graded": true,
+          "ids": {
+            "CRITICAL": [],
+            "MAJOR": [
+              "N1",
+              "N2",
+              "N3",
+              "N4",
+              "N5",
+              "N6",
+              "N7",
+              "N8",
+              "N9"
+            ],
+            "MINOR": [
+              "M1",
+              "M2",
+              "M3",
+              "M4",
+              "M5",
+              "M6"
+            ]
+          },
+          "citation_check": "42 citations checked, 40 OK, 2 not OK (spec-panel-round2.md:211); both folded into M1 and M3",
+          "provenance": "read (reviewer-stated 9 blocking + 6 minor, line 211) and re-counted from the table rows spec-panel-round2.md:192-206"
+        },
+        "M3": {
+          "strict": [
+            "N3"
+          ],
+          "partial": [
+            "N1",
+            "N2",
+            "N4",
+            "N5",
+            "N6",
+            "N7",
+            "N9",
+            "M2"
+          ],
+          "pre_existing_stated": [],
+          "not_stated": [
+            "N8",
+            "M1",
+            "M3",
+            "M4",
+            "M5",
+            "M6"
+          ],
+          "of": 15,
+          "linked": 9,
+          "share_strict": 0.067,
+          "share_linked": 0.6,
+          "blocking_subset": {
+            "of": 9,
+            "linked": 8,
+            "share_linked": 0.889,
+            "not_stated": [
+              "N8"
+            ]
+          },
+          "provenance": "re-derived (text of the findings, Part 1 residue column of spec-panel-round2.md lines 19-39). 'Residue of round-1 finding 5/8' for N4/N2 and 'Introduced by the fix for round-1 finding 10' for N3 are read from the finding text; the other links are read from the Part 1 residue column."
+        },
+        "M4": {
+          "bytes_at_review_start": 71528,
+          "lines_at_review_start": 307,
+          "words_at_review_start": 10152,
+          "bytes_after_revise": 91102,
+          "lines_after_revise": 363,
+          "words_after_revise": 13042,
+          "growth_percent_this_round": 27.37,
+          "growth_percent_cumulative_vs_v1": 57.72,
+          "lines_growth_percent_this_round": 18.24,
+          "provenance": "re-derived by wc on reviews/spec-v2-after-round1.md and spec-v3-after-round2.md"
+        }
+      },
+      {
+        "round": "R3",
+        "M2": {
+          "findings_total": 11,
+          "critical": 0,
+          "major": 8,
+          "minor": 3,
+          "critical_plus_major": 8,
+          "blocking": 8,
+          "blocking_minor_graded": true,
+          "ids": {
+            "CRITICAL": [],
+            "MAJOR": [
+              "R3-1",
+              "R3-2",
+              "R3-3",
+              "R3-4",
+              "R3-5",
+              "R3-6",
+              "R3-8",
+              "R3-9"
+            ],
+            "MINOR": [
+              "R3-7",
+              "R3-10",
+              "R3-11"
+            ]
+          },
+          "citation_check": "32 changed-line citations checked, 29 OK, 3 not OK (2 overstated, 1 false environment claim) (spec-panel-round3.md:196)",
+          "provenance": "read (reviewer-stated 8 blocking + 3 minor, line 196) and re-counted from the table rows spec-panel-round3.md:181-191"
+        },
+        "M3": {
+          "strict": [
+            "R3-3"
+          ],
+          "partial": [
+            "R3-1",
+            "R3-2",
+            "R3-5",
+            "R3-6",
+            "R3-7"
+          ],
+          "pre_existing_stated": [
+            "R3-4",
+            "R3-8",
+            "R3-9"
+          ],
+          "not_stated": [
+            "R3-10",
+            "R3-11"
+          ],
+          "of": 11,
+          "linked": 6,
+          "share_strict": 0.091,
+          "share_linked": 0.545,
+          "blocking_subset": {
+            "of": 8,
+            "linked": 5,
+            "share_linked": 0.625,
+            "pre_existing_stated": 3
+          },
+          "provenance": "re-derived. R3-1/2/5/6 'Residue of N1/N2/N6/N7' and R3-3 'Introduced by the N3 fix' are read from the finding text; R3-7 from the Part 1 N8 row; R3-4/R3-8/R3-9 from the Decisions row 'Count pre-existing defects not flagged in round 2 (R3-4, R3-8, R3-9)' (spec-panel-round3.md line 205)."
+        },
+        "M4": {
+          "bytes_at_review_start": 91102,
+          "lines_at_review_start": 363,
+          "words_at_review_start": 13042,
+          "bytes_after_revise": null,
+          "growth_percent_cumulative_vs_v1": 57.72,
+          "provenance": "re-derived; no round-3 revision"
+        }
+      }
+    ]
+  },
+  "ctl-r2": {
+    "source": "/home/coder/workspaces/worktrees/IronClaude/exp346-ab-ctl-r2/.dev/experiments/346-validation/phase4/ctl-r2/metrics.json",
+    "sha256": "b23ed8a009ad1770155a50fb503e22b98920a4166ba02e2f82665ec07d13a27f",
+    "rounds": [
+      {
+        "round": "R1",
+        "M2": {
+          "findings_total": 21,
+          "critical": 0,
+          "major": 12,
+          "minor_label": 9,
+          "blocking": 12,
+          "minor": 9,
+          "critical_plus_major": 12,
+          "ids_by_severity": {
+            "CRITICAL": [],
+            "MAJOR": [
+              "F1",
+              "F2",
+              "F3",
+              "F4",
+              "F5",
+              "F6",
+              "F7",
+              "F8",
+              "F9",
+              "F10",
+              "F11",
+              "F12"
+            ],
+            "MINOR": [
+              "F13",
+              "F14",
+              "F15",
+              "F16",
+              "F17",
+              "F18",
+              "F19",
+              "F20",
+              "F21"
+            ]
+          },
+          "provenance": "read (report line 16: '12 blocking findings (all MAJOR, none CRITICAL) and 9 minor findings') and counted from the section-9 table (spec-panel.md:208-228)"
+        },
+        "M3": {
+          "value": null,
+          "reason_null": "first review; there is no previous fix",
+          "provenance": "n/a"
+        },
+        "M4": {
+          "bytes_at_review_start": 57763,
+          "lines_at_review_start": 285,
+          "words_at_review_start": 8148,
+          "bytes_after_revise": 76214,
+          "lines_after_revise": 325,
+          "words_after_revise": 10730,
+          "growth_percent_this_round": 31.9,
+          "growth_percent_cumulative_vs_v1": 31.9,
+          "provenance": "counted (wc -c -l and word split of reviews/spec-v1-start.md and reviews/spec-v2-after-round1.md); percent re-derived on bytes (baseline rule)"
+        }
+      },
+      {
+        "round": "R2",
+        "M2": {
+          "findings_total": 17,
+          "critical": 1,
+          "major": 6,
+          "minor_label": 10,
+          "blocking": 7,
+          "minor": 10,
+          "critical_plus_major": 7,
+          "ids_by_severity": {
+            "CRITICAL": [
+              "N1"
+            ],
+            "MAJOR": [
+              "N2",
+              "N3",
+              "N4",
+              "N5",
+              "N6",
+              "N7"
+            ],
+            "MINOR": [
+              "N8",
+              "N9",
+              "N10",
+              "N11",
+              "N12",
+              "N13",
+              "N14",
+              "N15",
+              "N16",
+              "N17"
+            ]
+          },
+          "provenance": "read (report line 236: 'Count: 17 new findings: 1 CRITICAL, 6 MAJOR (7 blocking), 10 MINOR') and counted from section 4 (spec-panel-round2.md:218-234)"
+        },
+        "M3": {
+          "basis": "per-finding tags 'Introduced by' / 'Residual of' plus the report's own count line (spec-panel-round2.md:236)",
+          "caused_by_previous_revision_strict": 6,
+          "strict_ids": [
+            "N1",
+            "N2",
+            "N12",
+            "N15",
+            "N16",
+            "N17"
+          ],
+          "partial_revision_caused": 3,
+          "partial_ids": [
+            "N5 (the 'Same rules as MWC:32-39' claim inside it)",
+            "N3 (residual of F5)",
+            "N8 (residual of F16)"
+          ],
+          "pre_existing_not_raised_before": 8,
+          "pre_existing_ids": [
+            "N4",
+            "N6",
+            "N7",
+            "N9",
+            "N10",
+            "N11",
+            "N13",
+            "N14"
+          ],
+          "of": 17,
+          "share_strict": 0.353,
+          "share_strict_plus_partial": 0.529,
+          "tags_only_variant": {
+            "strict": 3,
+            "partial": 2,
+            "untagged_on_the_finding_line": 12,
+            "note": "N15, N16, N17 are named as 'introduced' only in the count line; N5's claim likewise"
+          },
+          "also_stated": "report line 236: 'Introduced by the revision: N1, N2, N12, N15, N16, N17 and the Same rules as MWC:32-39 claim inside N5. The rest pre-date it but were not raised in round 1.'",
+          "provenance": "read from tags and the count line; grouping into strict/partial/pre-existing re-derived by the recorder"
+        },
+        "M4": {
+          "bytes_at_review_start": 76214,
+          "lines_at_review_start": 325,
+          "words_at_review_start": 10730,
+          "bytes_after_revise": 97814,
+          "lines_after_revise": 362,
+          "words_after_revise": 13895,
+          "growth_percent_this_round": 28.3,
+          "growth_percent_cumulative_vs_v1": 69.3,
+          "provenance": "counted (reviews/spec-v2-after-round1.md, spec-v3-after-round2.md); percent re-derived on bytes"
+        }
+      },
+      {
+        "round": "R3",
+        "M2": {
+          "findings_total": 7,
+          "critical": 1,
+          "major": 3,
+          "minor_label": 3,
+          "blocking": 4,
+          "minor": 3,
+          "critical_plus_major": 4,
+          "ids_by_severity": {
+            "CRITICAL": [
+              "R3-1"
+            ],
+            "MAJOR": [
+              "R3-2",
+              "R3-3",
+              "R3-7"
+            ],
+            "MINOR": [
+              "R3-4",
+              "R3-5",
+              "R3-6"
+            ]
+          },
+          "provenance": "read (report line 198: 'Count: 7 new findings: 1 CRITICAL, 3 MAJOR (4 blocking), 3 MINOR') and counted from section 4 (spec-panel-round3.md:190-196). This is the LAST ROUND for D6(a)."
+        },
+        "M3": {
+          "basis": "per-finding tags and the report's count line (spec-panel-round3.md:198)",
+          "caused_by_previous_revision_strict_from_tags": 2,
+          "strict_ids": [
+            "R3-1",
+            "R3-7"
+          ],
+          "partial_revision_caused": 2,
+          "partial_ids": [
+            "R3-3 (residual of N6)",
+            "R3-5 (residual of N17)"
+          ],
+          "pre_existing": 2,
+          "pre_existing_ids": [
+            "R3-2 (pre-dates both revisions)",
+            "R3-4 (pre-dates round 2)"
+          ],
+          "untagged": 1,
+          "untagged_ids": [
+            "R3-6 (AC-1.5; no origin stated by the reviewer)"
+          ],
+          "of": 7,
+          "share_strict_from_tags": 0.286,
+          "share_strict_plus_partial_from_tags": 0.571,
+          "re_derived_variant_R3_6_as_strict": {
+            "strict": 3,
+            "partial": 2,
+            "pre_existing": 2,
+            "share_strict": 0.429,
+            "share_strict_plus_partial": 0.714,
+            "reason": "AC-1.5 is added by the round-2 N4 fix (disposition-round2.md N4 row 'new live check AC-1.5'; R3 resolution table row N4 lists AC-1.5)"
+          },
+          "provenance": "read from tags and the count line; grouping re-derived by the recorder; R3-6 variant re-derived"
+        },
+        "M4": {
+          "bytes_at_review_start": 97814,
+          "lines_at_review_start": 362,
+          "words_at_review_start": 13895,
+          "bytes_after_revise": null,
+          "growth_percent_this_round": null,
+          "growth_percent_at_start_of_round_3_vs_v1": 69.3,
+          "final_spec_identical_to_v3": true,
+          "provenance": "counted; the final spec equals v3 (sha256 equal) because no third revision was run"
+        }
+      }
+    ]
+  },
+  "flg-r1": {
+    "source": "/home/coder/workspaces/worktrees/IronClaude/exp346-ab-flg-r1/.dev/experiments/346-validation/phase4/flg-r1/metrics.json",
+    "sha256": "9835f683bfead13db1af64f601d0770d01209c371afe50e3eb018ddb7adfb698",
+    "rounds": [
+      {
+        "round": "R1",
+        "M2": {
+          "findings_total": 22,
+          "critical": 2,
+          "major": 14,
+          "minor": 6,
+          "critical_plus_major": 16,
+          "blocking": 11,
+          "minor_graded": 11,
+          "major_graded_minor_ids": [
+            "12",
+            "13",
+            "14",
+            "15",
+            "16"
+          ],
+          "ids_by_severity": {
+            "CRITICAL": [
+              "1",
+              "2"
+            ],
+            "MAJOR": [
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "10",
+              "11",
+              "12",
+              "13",
+              "14",
+              "15",
+              "16"
+            ],
+            "MINOR": [
+              "17",
+              "18",
+              "19",
+              "20",
+              "21",
+              "22"
+            ]
+          },
+          "blocking_ids": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11"
+          ],
+          "grading_that_produced_the_numbers": "the report's own Severity and Grade columns (spec-panel Review Loop grading: blocking/minor); severity label counted as written, so a 'MAJOR (FR-8 GAP)' graded minor counts as MAJOR in critical_plus_major",
+          "provenance": "re-counted by script from the findings table (reviews/spec-panel.md table header line 129); matches the report's own totals line"
+        },
+        "M3": {
+          "value": null,
+          "reason_null": "first review; there is no previous fix"
+        },
+        "M4": {
+          "bytes_at_review_start": 57763,
+          "lines_at_review_start": 285,
+          "words_at_review_start": 8148,
+          "bytes_after_revise": 67886,
+          "lines_after_revise": 293,
+          "words_after_revise": 9625,
+          "growth_percent_this_round_bytes": 17.53,
+          "growth_percent_cumulative_vs_v1_bytes": 17.53,
+          "growth_percent_cumulative_vs_v1_lines": 2.81,
+          "provenance": "re-derived: wc -c -l and word split of the cp -p copies in reviews/ (cmp-identical to the live files)"
+        }
+      },
+      {
+        "round": "R2",
+        "M2": {
+          "findings_total": 12,
+          "critical": 0,
+          "major": 5,
+          "minor": 7,
+          "critical_plus_major": 5,
+          "blocking": 4,
+          "minor_graded": 8,
+          "major_graded_minor_ids": [
+            "R2-7"
+          ],
+          "ids_by_severity": {
+            "CRITICAL": [],
+            "MAJOR": [
+              "R2-1",
+              "R2-2",
+              "R2-3",
+              "R2-4",
+              "R2-7"
+            ],
+            "MINOR": [
+              "R2-5",
+              "R2-6",
+              "R2-8",
+              "R2-9",
+              "R2-10",
+              "R2-11",
+              "R2-12"
+            ]
+          },
+          "blocking_ids": [
+            "R2-1",
+            "R2-2",
+            "R2-3",
+            "R2-4"
+          ],
+          "grading_that_produced_the_numbers": "the report's own Severity and Grade columns (spec-panel Review Loop grading: blocking/minor); severity label counted as written, so a 'MAJOR (FR-8 GAP)' graded minor counts as MAJOR in critical_plus_major",
+          "provenance": "re-counted by script from the findings table (reviews/spec-panel-round2.md table header line 143); matches the report's own totals line"
+        },
+        "M3": {
+          "origin_changed": 12,
+          "origin_unchanged": 0,
+          "of": 12,
+          "share_changed": 1.0,
+          "provenance_counts": "read from tag (Origin column, spec-panel-round2.md:145-156)",
+          "strict_named_fix_ids": [
+            "R2-1",
+            "R2-2",
+            "R2-3",
+            "R2-4",
+            "R2-7",
+            "R2-8",
+            "R2-9",
+            "R2-11",
+            "R2-12"
+          ],
+          "changed_but_no_earlier_fix_named_ids": [
+            "R2-5",
+            "R2-6",
+            "R2-10"
+          ],
+          "pre_existing_ids": [],
+          "strict_named_fix_share": 0.75,
+          "provenance_split": "re-derived: strict = the 'New issue from the fix' column of the report's resolution table (spec-panel-round2.md:21-42) names the finding; otherwise 'changed line, no earlier fix named'. Not the baseline's strict/partial grouping (that needs per-finding judgement)."
+        },
+        "M4": {
+          "bytes_at_review_start": 67886,
+          "lines_at_review_start": 293,
+          "words_at_review_start": 9625,
+          "bytes_after_revise": 73807,
+          "lines_after_revise": 293,
+          "words_after_revise": 10411,
+          "growth_percent_this_round_bytes": 8.72,
+          "growth_percent_cumulative_vs_v1_bytes": 27.78,
+          "growth_percent_cumulative_vs_v1_lines": 2.81,
+          "provenance": "re-derived: wc -c -l and word split of the cp -p copies in reviews/ (cmp-identical to the live files)"
+        }
+      },
+      {
+        "round": "R3",
+        "M2": {
+          "findings_total": 10,
+          "critical": 0,
+          "major": 6,
+          "minor": 4,
+          "critical_plus_major": 6,
+          "blocking": 4,
+          "minor_graded": 6,
+          "major_graded_minor_ids": [
+            "R3-7",
+            "R3-8"
+          ],
+          "ids_by_severity": {
+            "CRITICAL": [],
+            "MAJOR": [
+              "R3-1",
+              "R3-2",
+              "R3-3",
+              "R3-4",
+              "R3-7",
+              "R3-8"
+            ],
+            "MINOR": [
+              "R3-5",
+              "R3-6",
+              "R3-9",
+              "R3-10"
+            ]
+          },
+          "blocking_ids": [
+            "R3-1",
+            "R3-2",
+            "R3-3",
+            "R3-4"
+          ],
+          "grading_that_produced_the_numbers": "the report's own Severity and Grade columns (spec-panel Review Loop grading: blocking/minor); severity label counted as written, so a 'MAJOR (FR-8 GAP)' graded minor counts as MAJOR in critical_plus_major",
+          "provenance": "re-counted by script from the findings table (reviews/spec-panel-round3.md table header line 139); matches the report's own totals line"
+        },
+        "M3": {
+          "origin_changed": 10,
+          "origin_unchanged": 0,
+          "of": 10,
+          "share_changed": 1.0,
+          "provenance_counts": "read from tag (Origin column, spec-panel-round3.md:141-150)",
+          "strict_named_fix_ids": [
+            "R3-1",
+            "R3-2",
+            "R3-3",
+            "R3-7"
+          ],
+          "changed_but_no_earlier_fix_named_ids": [
+            "R3-4",
+            "R3-5",
+            "R3-6",
+            "R3-8",
+            "R3-9",
+            "R3-10"
+          ],
+          "pre_existing_ids": [],
+          "strict_named_fix_share": 0.4,
+          "provenance_split": "re-derived from the resolution table 'New issue from the fix' column (spec-panel-round3.md:21-34). The table labels the R2-7 follow-up 'R3-4 (minor)' but the findings list numbers it R3-7; counted as R3-7 by content. R3-4 is tied to the changed WC-4 sentence in Decisions (spec-panel-round3.md:209) without naming an earlier finding, so it is 'no earlier fix named'."
+        },
+        "M4": {
+          "bytes_at_review_start": 73807,
+          "lines_at_review_start": 293,
+          "bytes_after_revise": null,
+          "note": "no third revision (cap); final spec == v3 by cmp",
+          "growth_percent_cumulative_vs_v1_bytes": 27.78
+        }
+      }
+    ]
+  },
+  "flg-r2": {
+    "source": "/home/coder/workspaces/worktrees/IronClaude/exp346-ab-flg-r2/.dev/experiments/346-validation/phase4/flg-r2/metrics.json",
+    "sha256": "4c437f682e4a371d74d0364231d26750e762d0e02973bf462c834a9efede4e81",
+    "rounds": [
+      {
+        "round": "R1",
+        "M2": {
+          "findings_total": 22,
+          "critical": 1,
+          "major": 16,
+          "minor": 5,
+          "critical_plus_major": 17,
+          "blocking": 13,
+          "minor_nonblocking": 9,
+          "blocking_by_severity": {
+            "CRITICAL": 1,
+            "MAJOR": 12
+          },
+          "nonblocking_by_severity": {
+            "MAJOR": 4,
+            "MINOR": 5
+          },
+          "citation_notes": "none listed as C-ids; the reviewer's evidence-validator found 11 citation defects, fixed in place before delivery (RV/spec-panel.md:265)",
+          "provenance": "read (report line 236: '22 findings; 13 blocking (1 CRITICAL, 12 MAJOR); 9 non-blocking (4 MAJOR, 5 MINOR)') and re-derived by parsing the section 8 table (rows 213-234)"
+        },
+        "M3": {
+          "value": null,
+          "reason_null": "first review; there is no previous fix",
+          "provenance": "n/a"
+        },
+        "M4": {
+          "bytes_at_review_start": 57763,
+          "lines_at_review_start": 285,
+          "words_at_review_start": 8148,
+          "bytes_after_revise": 70255,
+          "lines_after_revise": 316,
+          "words_after_revise": 9980,
+          "growth_percent_this_round": 21.63,
+          "growth_percent_cumulative_vs_v1": 21.63,
+          "lines_growth_percent_cumulative_vs_v1": 10.88,
+          "words_growth_percent_cumulative_vs_v1": 22.48,
+          "provenance": "re-derived: wc -c -l -w of reviews/spec-v1-start.md and reviews/spec-v2-after-round1.md; sizes equal the numbers the disposition states (RV/disposition.md:68: 57,763/285 before, 70,255/316 after)"
+        }
+      },
+      {
+        "round": "R2",
+        "M2": {
+          "findings_total": 11,
+          "critical": 1,
+          "major": 5,
+          "minor": 5,
+          "critical_plus_major": 6,
+          "blocking": 6,
+          "minor_nonblocking": 5,
+          "blocking_ids": [
+            "N1",
+            "N2",
+            "N3",
+            "N4",
+            "N5",
+            "N6"
+          ],
+          "ids_by_severity": {
+            "CRITICAL": [
+              "N1"
+            ],
+            "MAJOR": [
+              "N2",
+              "N3",
+              "N4",
+              "N5",
+              "N6"
+            ],
+            "MINOR": [
+              "N7",
+              "N8",
+              "N9",
+              "N10",
+              "N11"
+            ]
+          },
+          "citation_notes": {
+            "overstated_or_wrong_line": [
+              "C9",
+              "C12",
+              "C13",
+              "C14"
+            ],
+            "moved_line_note": [
+              "C28"
+            ],
+            "citation_groups_checked": 28,
+            "correct": 23,
+            "inconsistency_in_report": "the Verdict paragraph (line 13) and the 3.6 table row name 3 citation notes (C9, C12, C13); Part 2 line 56 names 4 (C9, C12, C13, C14); the brief and R3 use 4"
+          },
+          "carried_open_nonblocking_from_R1": [
+            "F16"
+          ],
+          "provenance": "read (report line 217: '11 new findings: 6 blocking (1 CRITICAL, 5 MAJOR), 5 minor; plus 3 minor citation notes and the still-open non-blocking F16') and re-derived by parsing the 3.6 table (rows 204-215) and the Part 2 table (rows 60-87)"
+        },
+        "M3": {
+          "read_from_tag": {
+            "origin_changed": 11,
+            "origin_unchanged": 0,
+            "of": 11,
+            "share_changed": 1.0,
+            "note": "every N-row has origin=changed (3.6 table, lines 204-214); the only 'origin=unchanged' text in the report (line 91) is the rule description"
+          },
+          "re_derived_strict_partial_preexisting": {
+            "strict": 11,
+            "partial": 0,
+            "pre_existing": 0,
+            "of": 11,
+            "share_strict": 1.0,
+            "mapping": "origin=changed -> strict (the Part 1 'Note' column names the earlier fix behind each of N1-N5, N7-N11; N6 is the new step-3 clauses of the F1/F2 fixes). The 427 tag has no 'partial' level, so partial = 0 is not comparable with the baseline's partial group."
+          },
+          "provenance": "read from tag (origin=changed|unchanged) and re-derived (mapping)"
+        },
+        "M4": {
+          "bytes_at_review_start": 70255,
+          "lines_at_review_start": 316,
+          "words_at_review_start": 9980,
+          "bytes_after_revise": 76328,
+          "lines_after_revise": 317,
+          "words_after_revise": 10841,
+          "growth_percent_this_round": 8.64,
+          "growth_percent_cumulative_vs_v1": 32.14,
+          "lines_growth_percent_cumulative_vs_v1": 11.23,
+          "words_growth_percent_cumulative_vs_v1": 33.05,
+          "provenance": "re-derived: wc -c -l -w of reviews/spec-v2-after-round1.md and spec-v3-after-round2.md; disposition-round2.md:57 states 70,255/316 before and 76,328/317 after"
+        }
+      },
+      {
+        "round": "R3",
+        "M2": {
+          "findings_total": 4,
+          "critical": 0,
+          "major": 1,
+          "minor": 3,
+          "critical_plus_major": 1,
+          "blocking": 1,
+          "minor_nonblocking": 3,
+          "blocking_ids": [
+            "N12"
+          ],
+          "ids_by_severity": {
+            "MAJOR": [
+              "N12"
+            ],
+            "MINOR": [
+              "N13",
+              "N14",
+              "N15"
+            ]
+          },
+          "citation_notes": {
+            "minor_moved_line": [
+              "C-R3-15"
+            ],
+            "citation_groups_checked": 20,
+            "correct": 19
+          },
+          "carried_open_nonblocking_from_R1": [
+            "F16"
+          ],
+          "any_severity_incl_citation_note_and_F16": 6,
+          "provenance": "read (report line 165: '4 new findings (1 blocking MAJOR, 3 minor) plus 1 minor citation note; the non-blocking F16 stays open') and re-derived by parsing the 3.6 table (rows 159-163)"
+        },
+        "M3": {
+          "read_from_tag": {
+            "origin_changed": 3,
+            "origin_unchanged": 1,
+            "of": 4,
+            "share_changed": 0.75,
+            "ids_unchanged": [
+              "N15"
+            ],
+            "note": "the C-R3-15 citation note is tagged changed and is not in the 4"
+          },
+          "re_derived_strict_partial_preexisting": {
+            "strict": 3,
+            "partial": 0,
+            "pre_existing": 1,
+            "of": 4,
+            "share_strict": 0.75,
+            "ids": {
+              "strict": [
+                "N12 (the N5 fix)",
+                "N13 (the rewritten AC-1.2)",
+                "N14 (the N9 clause)"
+              ],
+              "pre_existing": [
+                "N15 (SPEC:206 unchanged since V2:206, report line 100)"
+              ]
+            },
+            "mapping": "origin=changed -> strict, origin=unchanged -> pre-existing; the 427 tag has no 'partial' level"
+          },
+          "provenance": "read from tag and re-derived (mapping)"
+        },
+        "M4": {
+          "bytes_at_review_start": 76328,
+          "lines_at_review_start": 317,
+          "words_at_review_start": 10841,
+          "bytes_after_revise": null,
+          "growth_percent_this_round": 0.0,
+          "growth_percent_cumulative_vs_v1": 32.14,
+          "final_spec_bytes": 76328,
+          "final_spec_lines": 317,
+          "final_equals_v3": true,
+          "provenance": "re-derived; R3 report line 25 states 317 lines, 76,328 bytes and cmp-equal to spec-v3-after-round2.md"
+        }
+      }
+    ]
+  }
+}

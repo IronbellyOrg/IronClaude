@@ -1,0 +1,17 @@
+== old wording (expect none)
+none found
+== --mode and --type rows
+41:| `--mode` | create | chosen by a worker when omitted | `feature`, `bug` | Picks the feature or bug template, the Feature or Bug issue type and the `enhancement` / `bug` label |
+42:| `--type` | create | chosen by a worker when omitted | `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install`, `other` | Area of the change; a feature in `tests` gets the issue type Test, otherwise the area is recorded in `f
+== forbidden strings (expect none)
+none found
+== Will and Will Not lines on create
+89:- On create: set the issue type and the Complexity field, apply only the mode label that already exists in the repo, and list everything it could not set.
+93:- Create labels, issue types, issue fields, ClickUp tasks, or interact with any repository other than `origin`.
+94:- Write any issue field other than Complexity.
+== skill Will Not lines for comparison
+187:- Create a label, an issue type, an issue field, a ClickUp task or a GitHub repository setting.
+188:- Write any issue field other than Complexity.
+== --type Values cell unchanged since start (expect no changed Values text)
+-| `--type` | create | chosen by a worker when omitted | `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install`, `other` | Area of the change; maps to a `type: <value>`
++| `--type` | create | chosen by a worker when omitted | `cicd`, `command`, `skill`, `agent`, `hook`, `cli`, `core`, `docs`, `tests`, `install`, `other` | Area of the change; a feature in `tests` gets

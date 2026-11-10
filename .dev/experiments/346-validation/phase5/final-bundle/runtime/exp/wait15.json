@@ -1,0 +1,38 @@
+{
+  "id": "9ec6c310-d989-4a12-8b9a-65f0e710422a",
+  "ok": true,
+  "result": {
+    "runId": "run_58af03dbfa92",
+    "deliveryId": "delivery_d2d419d922d4",
+    "messages": [
+      {
+        "id": "msg_6b0acae28a22",
+        "run_id": "run_58af03dbfa92",
+        "delivery_contract": "current_delivery",
+        "from_handle": "term_c10b91aa-f47b-4f8a-8624-ba5a08d55cce",
+        "to_handle": "run:run_58af03dbfa92",
+        "subject": "S1 armA repA: setup done, steps left to coordinator",
+        "body": "Setup finished per the coordinator's reply: 427 diff applied, make sync-dev run, one local commit 20fc86cd (never pushed), overlay copied, v1 sha256 matches the manifest, gate G1 passed (1 Review Loop heading, 472 lines, project spec-panel byte-identical to the 95f2c6e4 text; the home copy is still the 462-line pre-427 text, untouched). No probe or step was started because worker-start fails with nested_worker_depth_exceeded at depth 2, so the coordinator starts all six steps itself; no review has run and there are no metrics. The setup facts are in phase3/S1-armA-repA/run-log.md; environment differs from the original (Claude Code 2.1.319 vs 2.1.316, Orca 1.4.245 vs 1.4.237), and the new untracked .dev/experiments/ folder now shows in git status next to .dev/orca-command-refactor/.",
+        "type": "worker_done",
+        "priority": "normal",
+        "thread_id": null,
+        "payload": "{\"taskId\":\"task_d215742f9759\",\"dispatchId\":\"ctx_dbbf3b87cb2c\",\"outcome\":\"succeeded\",\"filesModified\":[\".dev/experiments/346-validation/phase3/S1-armA-repA/run-log.md\"],\"reportPath\":\"/home/coder/workspaces/worktrees/IronClaude/exp346-s1-armA-repA/.dev/experiments/346-validation/phase3/S1-armA-repA/run-log.md\"}",
+        "created_at": "2026-11-08T03:34:40Z",
+        "delivered_at": null
+      }
+    ],
+    "count": 1,
+    "replayed": true,
+    "acknowledged": null,
+    "timedOut": false,
+    "cancelled": false,
+    "connectionLost": false,
+    "mutation": {
+      "requestId": "fd845903-8166-4933-aac2-663c8f766a4c",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "93e79a07-81c4-4ec7-a938-8038a2f29ed3"
+  }
+}

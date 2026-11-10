@@ -1,0 +1,4 @@
+{
+ "skill": "sc-reflect-protocol",
+ "args": "--mode pre --spec .dev/tasks/to-do/TASK-WF-spec-20261107-215718/source.md --tasklist .dev/tasks/to-do/TASK-WF-spec-20261107-215718/TASK-WF-spec-20261107-215718.md"
+}

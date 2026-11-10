@@ -522,7 +522,7 @@ Step 6.1: Assembly
   - [ ] Spawn a single DEDICATED `rf-assembler` agent (subagent_type: "rf-assembler") — NOT a general-purpose Agent — to assemble the final report. Hand it: the list of synth file paths in order (as component_files), the report output path `${TASK_DIR}RESEARCH-REPORT-[descriptor].md`, the Report Structure template from SKILL.md (as output_format), the Assembly Process steps from SKILL.md (as assembly_rules), and the Content Rules from SKILL.md (as content_rules). The assembler reads each synth file and writes the report incrementally section by section — header first, then sections in order, then Table of Contents, then cross-checks internal consistency (gaps in S4 addressed in S8, options in S6 reference S2, Open Questions in S9 not answered elsewhere, Evidence Trail in S10 lists all files). The assembler must be a single agent (NOT parallel) because cross-section consistency requires seeing the whole report. Embed the full assembler prompt (see Assembly Agent Prompt Template below and Assembly Process section in SKILL.md) in the checklist item per B2.
 
 Step 6.2: Spawn lens-based rf-qa agents (PARALLEL, all fix_authorization: false)
-  4 structural lens agents (agent count shown is for default 500-1500 line tier; task builder adjusts per BUILD_REQUEST Gate 3 scaling). Each agent reads the FULL report but evaluates ONLY its assigned lens. Prompt includes: "Assume this document has at least N errors. Find them." (N = report_lines / 100, minimum 5).
+  4 structural lens agents (agent count shown is for default 500-1500 line tier; task builder adjusts per BUILD_REQUEST Gate 3 scaling). Each agent reads the FULL report but evaluates ONLY its assigned lens. Prompt includes: "Report each concrete defect in your lens with evidence. There is no minimum count; zero is valid if you state what you checked."
   - [ ] Spawn rf-qa (template-conformance lens) — all 10 report sections present or N/A, correct ordering, no remaining placeholders/sentinels. Output: `${TASK_DIR}qa/qa-lens-template-conformance.md`
   - [ ] Spawn rf-qa (internal-consistency lens) — IDs match across tables, counts agree, cross-references resolve, no contradictions within document. Output: `${TASK_DIR}qa/qa-lens-internal-consistency.md`
   - [ ] Spawn rf-qa (evidence-quality lens) — all claims cite file paths/line numbers, no unverified assertions, no hallucinated paths (verify parent dirs exist). Output: `${TASK_DIR}qa/qa-lens-evidence-quality.md`
@@ -1009,7 +1009,7 @@ Fix authorization: false (report findings only)
 
 You are performing a deep content-quality review — does this report make sense as a technical investigation?
 
-**ADVERSARIAL STANCE:** Assume this document has at least 10 errors. Find them. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+**ADVERSARIAL STANCE:** Look for errors in this document. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 PROCESS:
 1. Read the ENTIRE research report
@@ -1054,7 +1054,7 @@ Fix authorization: false (report findings only — do NOT modify the document)
 You are evaluating ONE quality dimension of this document. Your ONLY job is [LENS_NAME].
 Do NOT check other quality dimensions — other agents handle those.
 
-**ADVERSARIAL STANCE:** Assume this document has at least [N] errors in your dimension. Find them. (N = document_lines / 100, minimum 5)
+**INDEPENDENT STANCE:** Report each concrete defect in your dimension with evidence. There is no minimum count; zero is valid if you state what you checked.
 
 LENS-SPECIFIC CHECKLIST:
 [LENS_CHECKLIST_BLOCK — use the matching checklist below based on LENS_NAME]
@@ -1166,7 +1166,7 @@ Fix authorization: false (report findings only)
 You are verifying that the assembled report faithfully represents the actual codebase.
 Read your assigned source files first, then read the full report, then check fidelity.
 
-**ADVERSARIAL STANCE:** Assume the report has distorted at least 5 findings during synthesis. Find them.
+**ADVERSARIAL STANCE:** Look for findings the report distorted during synthesis. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 FIDELITY CHECKLIST:
 1. Semantic coverage — for each major component/function/pattern in the source files, does the report contain a corresponding finding that accurately describes it?
@@ -1208,7 +1208,7 @@ You verify that NO distinct finding was silently dropped when the research + syn
 inputs were compressed into the final report. This is the INVERSE of the fidelity gate:
 fidelity checks output→source (no fabrication); you check source→output (no omission).
 
-**ADVERSARIAL STANCE:** Assume the compression silently dropped at least 5 distinct findings. Find them.
+**ADVERSARIAL STANCE:** Look for distinct findings the compression silently dropped. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 **CRITICAL METHOD: do NOT use ID/reference-citation as your coverage test.** The report
 absorbs findings without citing their source IDs, so an ID-membership test is invalid (it

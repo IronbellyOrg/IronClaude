@@ -1,0 +1,13 @@
+diff --git a/docs/designs/spec-panel-ponytail.md b/docs/designs/spec-panel-ponytail.md
+index 811922b55..baf72b403 100644
+--- a/docs/designs/spec-panel-ponytail.md
++++ b/docs/designs/spec-panel-ponytail.md
+@@ -27,7 +27,7 @@ Step 6 acts only when a line of the review-2 report starts with `review: 2 of 3`
+ - Only `fix_audit.py apply` edits the specification; the auditor writes only `fix-audit/audit.md` (check K1 compares the spec's sha256 before and after). Invoking `--fix-audit` is the consent for that one scripted edit; the pre-audit copy is kept as `fix-audit/current-before-audit.md`, so undoing the audit is one copy.
+ - A revert is a hunk id: the script restores the hunk's baseline lines itself. A hunk is reverted only if every id on it has verdict revert; otherwise `REVERT_SHARED <id>` is logged and its text stays.
+ - Edit rows follow the exact-once old/new pattern: `delete` rows may remove only words the fix added and must keep every finding id of the hunk; `restore` rows only in a minor-only hunk, and only the aligned baseline span.
+-- A finding review 2 graded blocking, or protected (CRITICAL, FR-8, FR-9), is never closed by the audit. A validated-minor grade on such an id is logged `DOWNGRADE <id>` only.
++- A finding review 2 graded blocking, or protected (CRITICAL, FR-8, FR-9), is never closed by the audit. A validated-minor grade on an id review 2 graded blocking is logged `DOWNGRADE <id>` only; a protected id that review 2 did not grade blocking gets no `DOWNGRADE` line.
+ - Every failure path leaves the specification byte-identical to `current-before-audit.md`.
+ 
+ ## How the verdict is computed

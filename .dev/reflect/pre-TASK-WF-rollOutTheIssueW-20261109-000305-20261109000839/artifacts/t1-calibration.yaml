@@ -1,0 +1,26 @@
+calibrator: confidence-calibrator
+calibrator_class: sonnet
+card: cards/t1-card.md
+self_reported_confidence: 0.82
+calibrated_confidence: 0.76
+dimensions: {citation_grounding: 0.85, coverage_completeness: 0.8, deviation_classification_clarity: 0.8, risk_surface_coverage: 0.55, recommendation_actionability: 0.8}
+citations_checked:
+  - "docs/designs/issue-watcher.md:3 -> ok"
+  - "docs/designs/issue-watcher.md:709 -> ok"
+  - "docs/designs/issue-watcher.md:718 -> ok"
+  - "docs/designs/issue-watcher.md:153-165 -> ok (rows 0,2,3,4,5,6,7,75; no row 1)"
+  - "docs/designs/issue-watcher.md:162 (F1) -> wrong, off by one; exit 7 row is line 163 (card corrected after calibration)"
+  - "src/superclaude/cli/issue_watch/cycle.py:228 -> ok"
+  - "docs/designs/issue-watcher-setup.md:282 -> ok"
+  - "docs/designs/issue-watcher-setup.md:580-585 -> ok (bullets at 582-585)"
+  - "fixtures/_assumed_shape 19 files (G4) -> not re-verified by calibrator"
+  - "setup.md sections run to 15.4 (G5) -> not re-verified by calibrator"
+missed_risks:
+  - "Task 5 is blocked on an owner-run precondition, but the plan Goal reads as if fixtures are replaced and pytest passes."
+  - "Task 2 AC 4 substring grep may false-pass on dict keys in audit.py outside REASON_TABLE."
+  - "Fixture source fields cite design line numbers that shift once Task 2 adds a 4.3 row, until Task 5 runs."
+  - "Task 3 builders in github.py / launch.py and cheatsheet line ranges were not checked by the card."
+  - "Task 4 moving the 8.6 cron text makes the AC 1 count fragile beyond F3."
+  - "Task 5 test assertion change not checked against payload changes."
+  - "Coverage 1.00 is trivially from containment; the 'about 12+' vs 19 fixture count in source is unchecked."
+escalation_recommendation: tier1-sufficient

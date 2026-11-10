@@ -1,0 +1,87 @@
+diff --git a/docs/designs/spec-panel-ponytail.md b/docs/designs/spec-panel-ponytail.md
+new file mode 100644
+index 000000000..baf72b403
+--- /dev/null
++++ b/docs/designs/spec-panel-ponytail.md
+@@ -0,0 +1,81 @@
++# Design: fix audit for the spec-panel review loop (`/sc:spec-panel-ponytail`, issue 346)
++
++Status: built as an additive variant; not routed and not adopted elsewhere. The full design is `.dev/brainstorms/346-ponytail/SPEC.md`; this note keeps its decisions.
++
++## What it is
++
++One fix audit per review loop, at the end of fix cycle 2: after the reviser applies the cycle-2 fixes and before review 3. It runs as its own step, `/sc:spec-panel-ponytail @<spec> --fix-audit --re-review <review-2 report> --baseline <copy review 2 saw>`, in a fresh session that is neither the reviser nor the review-3 reviewer. That session invokes `ponytail:ponytail-review` with a fixed brief and writes a per-fix table; it never edits the document. The standard-library script `fix_audit.py` (in the `sc-fix-audit` skill) checks the table and makes every edit, all or nothing. Review 3 then runs as today on the audited document, and after review 3 the same script computes the open blocking list and the verdict from files. The audit runs once and nobody re-grades its table; the only text it can add back is text review 2 already read.
++
++## The loop, step by step
++
++| # | Step | Actor | Reads | Writes |
++|---|---|---|---|---|
++| 1 | Review 1 (`/sc:spec-panel`, unchanged) | reviewer | spec | review-1 report |
++| 2 | Fix cycle 1 (unchanged) | reviser | review-1 report | spec, disposition |
++| 3 | Coordinator saves the copy review 2 will see (unchanged) | coordinator | spec | `history/spec-v2` |
++| 4 | Review 2 (`--re-review <R1> --baseline <v1>`, unchanged) | reviewer | spec, R1, v1 | review-2 report `review: 2 of 3` |
++| 5 | Fix cycle 2 (unchanged) | reviser | review-2 report | spec, `disposition-round2.md` |
++| 6 | Fix audit (new): `/sc:spec-panel-ponytail @<spec> --fix-audit --re-review <R2> --baseline <v2>` | audit session | R2, v2, spec, disposition-round2 | `fix-audit/` beside R2; the spec (by script only) |
++| 7 | Review 3 (`--re-review <R2> --baseline <v2>`, unchanged) | reviewer (another session) | audited spec, R2, v2 | review-3 report |
++| 8 | Verdict (new): `fix_audit.py verdict --dir <D> --report <R3>` | coordinator (a script call) | R3, `fix-audit/` | `fix-audit/final-verdict.md` |
++| 9 | Close on PASS; on FAIL escalate with the open blocking list (unchanged) | coordinator | final-verdict | none |
++
++Step 6 acts only when a line of the review-2 report starts with `review: 2 of 3`, its last non-empty line is `verdict: FAIL`, the baseline-to-spec diff (whitespace-only lines ignored) is not empty, and both files are readable; otherwise it records `audit: not-triggered(<reason>)` in `fix-audit/state.json`, exits 0 and changes nothing.
++
++## Safe apply
++
++- Only `fix_audit.py apply` edits the specification; the auditor writes only `fix-audit/audit.md` (check K1 compares the spec's sha256 before and after). Invoking `--fix-audit` is the consent for that one scripted edit; the pre-audit copy is kept as `fix-audit/current-before-audit.md`, so undoing the audit is one copy.
++- A revert is a hunk id: the script restores the hunk's baseline lines itself. A hunk is reverted only if every id on it has verdict revert; otherwise `REVERT_SHARED <id>` is logged and its text stays.
++- Edit rows follow the exact-once old/new pattern: `delete` rows may remove only words the fix added and must keep every finding id of the hunk; `restore` rows only in a minor-only hunk, and only the aligned baseline span.
++- A finding review 2 graded blocking, or protected (CRITICAL, FR-8, FR-9), is never closed by the audit. A validated-minor grade on an id review 2 graded blocking is logged `DOWNGRADE <id>` only; a protected id that review 2 did not grade blocking gets no `DOWNGRADE` line.
++- Every failure path leaves the specification byte-identical to `current-before-audit.md`.
++
++## How the verdict is computed
++
++`fix_audit.py verdict --dir <D> --report <R3> [--report-rule 427|any-severity]` reads review 3's resolution table and new findings with the same tolerant parse as `prepare`. Open = prior findings review 2 graded blocking that review 3 lists `open` or `regressed`, plus new findings graded blocking (an unknown grade counts as blocking). A closed id that review 3 grades blocking prints `consistency: DISAGREE` and forces FAIL; an unparseable table exits 2 with `verdict: FAIL`. The script never turns a FAIL into a PASS. In `any-severity` mode (the S1 setting) the report's own line is printed as `t09-verdict:`.
++
++## Owner count
++
++Owner decision: findings that the script defers (reverted, listed in `closed-minor.txt`) or demotes (logged `DOWNGRADE`) stay open in the success measure. `final-verdict.md` prints `held open (deferred or demoted): ...`, `review-3 new critical+major: <n>` and `review-3 critical+major (owner count, held findings included): <n>`, which adds every held id that review 2 labelled CRITICAL or MAJOR. Nothing in the script lowers the owner count.
++
++## Placement
++
++Recommendation: placement P (end of fix cycle 2, before review 3, own step). It is the owner's design, the only one that runs once and can still move the registered review-3 count, and the cheapest. Running the audit after every fix cycle is predicted to be at most 0.1 better at twice the cost and is pre-registered only as a follow-up. P is predicted to land on the review-3 bar, not clearly under it, so it is not expected to produce a clean PASS.
++
++## Owner decisions applied
++
++1. The success measure counts findings the script defers, demotes or withdraws as still open (the owner count above).
++2. The S1 review-3 brief (T09) is not edited, including its "any finding of any severity is FAIL" line.
++3. The `--fix-audit` flag in the brief is the explicit consent for the one scripted edit or revert.
++4. The audit runs after the cycle-2 fixes and before review 3 (placement P).
++
++## Variant base and the Unattended-mode deviation
++
++The variant is a byte copy of the 472-line Arm B file `spec-panel-post427-95f2c6e4.md` (sha256 `c8d80346a96cb528fce6cff3bcadfed5bc95d1eee48dea0ac275404314b8df2f`; copied as `tests/skills/fixtures/spec-panel-post427-base.md`) plus the `## Fix Audit` section, the `--fix-audit` Usage line and the renamed frontmatter, H1 and Usage line. That base is the current `spec-panel.md` without its `## Unattended mode` section, its `--unattended` Usage line and its `--target-release` sentence. The variant omits `## Unattended mode` because the earlier experiment arms ran the 472-line file without it, the S1 briefs never pass `--unattended`, and a copy that kept the section would fail `tests/skills/test_worker_contract.py` and make the worker-contract brief guard refuse the T08a command line. So `--unattended` is not supported by the variant. The original `src/superclaude/commands/spec-panel.md` is not changed.
++
++## Files
++
++| File | Change |
++|---|---|
++| `src/superclaude/commands/spec-panel-ponytail.md` | New: the variant command |
++| `src/superclaude/skills/sc-fix-audit/SKILL.md` | New: carrier skill with the four steps |
++| `src/superclaude/skills/sc-fix-audit/refs/auditor-brief.md` | New: the auditor brief, filled by `prepare` |
++| `src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py` | New: `prepare`, `check`, `apply`, `verdict` |
++| `tests/skills/test_fix_audit_script.py` | New: unit tests |
++| `tests/skills/test_spec_panel_ponytail.py` | New: static pins, including the drift test against the base fixture |
++| `tests/skills/fixtures/spec-panel-post427-base.md` | New: the 472-line base |
++| `tests/recommend/test_routing_refresh.py` | `spec-panel-ponytail` added to `_POST_REFRESH_ADDITIONS` (no routing row) |
++
++No plugin mirror and no routing-guide row are added.
++
++## Install and the experiment Task
++
++Install next to the original, never over it: see `.dev/brainstorms/346-ponytail/INSTALL.md` for the copy commands, the sha256 lines to record and the rollback. `~/.claude/commands/sc/spec-panel.md` is never touched.
++
++In S1 a pure one-line name substitution does not work, so the briefs T05-T09 stay byte-identical and one Task T08a is inserted between T08 (cycle-2 reviser) and T09 (review 3). Its single command line is:
++
++```text
++/sc:spec-panel-ponytail @.dev/orca-command-refactor/specs/orca-worker-contract-spec.md --fix-audit --re-review .dev/orca-command-refactor/review/spec-panel-round2.md --baseline .dev/orca-command-refactor/specs/history/spec-v2-after-round1.md --dispositions .dev/orca-command-refactor/review/disposition-round2.md
++```
++
++After T09 the recorder runs `fix_audit.py verdict --dir .dev/orca-command-refactor/review/fix-audit --report .dev/orca-command-refactor/review/spec-panel-round3.md --report-rule any-severity` and reads the owner count from `final-verdict.md`.

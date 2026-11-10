@@ -1,0 +1,1024 @@
+{
+ "scenario": "S4",
+ "incident": "I4",
+ "baseline": "ORIGINAL recorded run 2026-11-07 (session 189f8649-3921-4435-bc6b-a15182a20399, BM), not a re-run",
+ "definitions": "DECISIONS.md D5: M1 reviews until clean pass; M2 blocking-grade (CRITICAL/IMPORTANT) findings per round; M3 share caused by previous round's fix; M4 document bytes/lines; M5 tool calls and tokens per round",
+ "conventions": {
+  "round": "a 'round' is one review: R1 = the first independent review, R2 = the verification after fix cycle 1, R3 = the verification after fix cycle 2 (the task file calls R2 and R3 'verification rounds'); F1/F2 = the single fix agent of cycle 1/2; C1 = the consolidation step",
+  "blocking": "task file line 130 and 214: only CRITICAL/IMPORTANT fail a gate; MINOR findings are notes and are never rechecked. Same rule in every round",
+  "lines": "number of newline characters; files without a final newline are one lower than editor-style line counts (the Gate 1 analyst quotes 365/381/237/268/292 for files that have 364/380/236/267/291)",
+  "tokens": "from assistant-message usage in the logs, each message id counted once; fresh_input = input + cache_creation; cache_read reported separately",
+  "provenance": "every number carries a 'src' (file and line of the baseline output it was read from) or is marked derived/re-derived",
+  "provenance_by_metric": {
+   "M1": "READ FROM EVIDENCE: verdicts and review counts from the gate decision files (qa-gate<N>-decision.md); reviews_to_clean_pass is null where no clean pass happened",
+   "M2": "READ FROM EVIDENCE: reporters' counts (C/I/m) and BLOCKING_COUNT first lines. DERIVED by me: raw_important_sum (sum of the reporters' Important counts)",
+   "M3": "per round, see m3.source_type: 'reviewer tag' = the reviewer's own text names the origin; 'analyst re-derivation' = my reading of the finding text and the consolidated tables (11 of the 23 findings of R2 and R3)",
+   "M4": "RE-DERIVED by me: no copy of the document at each round was stored; sizes come from replaying every logged Write/Edit/heredoc (tools/reconstruct.py, evidence/m4-sizes.tsv). The Gate 3 end state equals the stored file-history copy byte for byte; the sizes of the other gate-start states are replay-only (see REPLAY.md section 7)",
+   "M5": "RE-DERIVED by me from the agent logs (tools/agent_costs.py, evidence/agent-costs.tsv); the orchestrator window numbers are approximations by time window"
+  },
+  "agents": "'agents' counts every agent of the round, including the 6 gap researchers (rf-task-researcher) that the Gate 1 fix agent of cycle 1 started itself; they are in evidence/agent-costs.tsv as '-nested-' rows",
+  "orchestrator": "the main session's own tool calls and tokens inside the window [first spawn of the round, first spawn of the next round); the last round ends at the HALT question to the user"
+ },
+ "gates": {
+  "G1": {
+   "name": "Gate 1 research completeness (Phase 3)",
+   "documents": "research/01..05 (+ research-notes.md)",
+   "reviews_run": 3,
+   "m1": {
+    "reviews_to_clean_pass": null,
+    "clean_pass_reached": false,
+    "reason_if_null": "cap of 3 reviews hit with blocking findings open; closed by user exception without a 4th review"
+   },
+   "last_round_blocking": 1,
+   "rounds": {
+    "R1": {
+     "verdict": "FAIL",
+     "reporters": {
+      "rf-analyst completeness": "C0 I2 m8",
+      "rf-qa evidence": "C0 I5 m4",
+      "rf-qa-qualitative depth": "C0 I5 m2"
+     },
+     "blocking_consolidated": 9,
+     "blocking_ids": [
+      "consolidated rows 1-9"
+     ],
+     "raw_important_sum": 12,
+     "total_findings_after_dedupe": 18,
+     "severity_downgrades": 0,
+     "m3": {
+      "caused_by_previous_fix": 0,
+      "of": 9,
+      "basis": "first review, nothing to be caused by"
+     },
+     "src": "qa/qa-gate1-decision.md L11-L16; qa/qa-consolidated-findings-phase3.md L1 (BLOCKING_COUNT: 9)",
+     "m1_review_number": 1,
+     "m4_document": {
+      "state_reviewed_at_utc": "15:52:20",
+      "bytes": 255114,
+      "lines": 1538
+     },
+     "m5": {
+      "agents": 3,
+      "agent_tool_calls": 288,
+      "agent_out_tokens": 156885,
+      "agent_fresh_input_tokens": 917734,
+      "agent_cache_read_tokens": 25743310,
+      "agent_wall_secs_first_spawn_to_last_end": 684,
+      "orchestrator_window_utc": [
+       "15:52:20",
+       "16:05:17"
+      ],
+      "orchestrator": {
+       "tool_calls": 12,
+       "out_tokens": 15802,
+       "fresh_input_tokens": 49894,
+       "cache_read_tokens": 3062784
+      }
+     }
+    },
+    "R2": {
+     "verdict": "FAIL",
+     "reporters": {
+      "rf-qa structural verification": "C0 I2 m3",
+      "rf-qa-qualitative verification": "C0 I4 m8"
+     },
+     "blocking_consolidated": 6,
+     "blocking_ids": [
+      "F1-a",
+      "F1-b",
+      "F4-a",
+      "X-1",
+      "N1",
+      "N2"
+     ],
+     "fixes_confirmed_of_prev_round": "9 of 9",
+     "m3": {
+      "caused_by_previous_fix": 6,
+      "of": 6,
+      "introduced": 5,
+      "exposed": 1,
+      "basis": "reviewer text: X-1 'finding 2 passes but introduced X-1' (qa-gate1-decision.md L19); F1-b, F4-a, N1, N2 sit in the fix-written addenda of files 05/03 (qa-consolidated-findings-phase3-cycle2.md rows 2,3,5,6); F1-a is an old line that the new addendum contradicts (my reading). Coordinator also states '6 new blocking issues, all in text the fix agent wrote' (BM L1093)",
+      "source_type": "reviewer tag for X-1; analyst re-derivation for the other five; coordinator statement for all six"
+     },
+     "src": "qa/qa-gate1-decision.md L18-L19, L23-L30; qa/qa-consolidated-findings-phase3-cycle2.md L1",
+     "m1_review_number": 2,
+     "m4_document": {
+      "state_reviewed_at_utc": "16:19:11",
+      "bytes": 418963,
+      "lines": 2303
+     },
+     "m5": {
+      "agents": 2,
+      "agent_tool_calls": 191,
+      "agent_out_tokens": 88845,
+      "agent_fresh_input_tokens": 595687,
+      "agent_cache_read_tokens": 15173540,
+      "agent_wall_secs_first_spawn_to_last_end": 426,
+      "orchestrator_window_utc": [
+       "16:19:11",
+       "16:32:24"
+      ],
+      "orchestrator": {
+       "tool_calls": 13,
+       "out_tokens": 10809,
+       "fresh_input_tokens": 15510,
+       "cache_read_tokens": 3281123
+      }
+     }
+    },
+    "R3": {
+     "verdict": "FAIL (content) / PASS (structural)",
+     "reporters": {
+      "rf-qa structural verification": "C0 I0 m3",
+      "rf-qa-qualitative verification": "C0 I1 m7"
+     },
+     "blocking_consolidated": 1,
+     "blocking_ids": [
+      "New-1"
+     ],
+     "fixes_confirmed_of_prev_round": "5 of 6 resolved, finding 5 partly",
+     "m3": {
+      "caused_by_previous_fix": 1,
+      "of": 1,
+      "residual": 1,
+      "basis": "reviewer text: 'PARTLY RESOLVED, one residual contradiction (see New-1)' (qa-verification-phase3-cycle2-content.md L34)",
+      "source_type": "reviewer tag"
+     },
+     "src": "qa/qa-gate1-decision.md L36-L40; qa/qa-verification-phase3-cycle2-content.md L34, L55",
+     "m1_review_number": 3,
+     "m4_document": {
+      "state_reviewed_at_utc": "16:37:47",
+      "bytes": 427363,
+      "lines": 2307
+     },
+     "m5": {
+      "agents": 2,
+      "agent_tool_calls": 149,
+      "agent_out_tokens": 89821,
+      "agent_fresh_input_tokens": 461918,
+      "agent_cache_read_tokens": 15857021,
+      "agent_wall_secs_first_spawn_to_last_end": 568,
+      "orchestrator_window_utc": [
+       "16:37:47",
+       "16:47:59"
+      ],
+      "orchestrator": {
+       "tool_calls": 13,
+       "out_tokens": 7207,
+       "fresh_input_tokens": 10798,
+       "cache_read_tokens": 2323658
+      }
+     }
+    }
+   },
+   "m5_fix_and_consolidation": {
+    "F1": {
+     "agents": 7,
+     "agent_tool_calls": 454,
+     "agent_out_tokens": 292707,
+     "agent_fresh_input_tokens": 1328443,
+     "agent_cache_read_tokens": 33836367,
+     "agent_wall_secs_first_spawn_to_last_end": 819,
+     "orchestrator_window_utc": [
+      "16:05:17",
+      "16:19:11"
+     ],
+     "orchestrator": {
+      "tool_calls": 5,
+      "out_tokens": 3944,
+      "fresh_input_tokens": 11034,
+      "cache_read_tokens": 1397153
+     }
+    },
+    "F2": {
+     "agents": 1,
+     "agent_tool_calls": 68,
+     "agent_out_tokens": 34336,
+     "agent_fresh_input_tokens": 190180,
+     "agent_cache_read_tokens": 5190859,
+     "agent_wall_secs_first_spawn_to_last_end": 312,
+     "orchestrator_window_utc": [
+      "16:32:24",
+      "16:37:47"
+     ],
+     "orchestrator": {
+      "tool_calls": 3,
+      "out_tokens": 2478,
+      "fresh_input_tokens": 7695,
+      "cache_read_tokens": 1133310
+     }
+    }
+   },
+   "m4_end_and_growth": {
+    "end_of_gate": {
+     "checkpoint_utc": "18:11:58",
+     "bytes": 427771,
+     "lines": 2307,
+     "note": "state when the next stage started (gate 5: final file); includes the manual exception edits"
+    },
+    "growth_over_gate": {
+     "bytes_pct": 67.68,
+     "lines_pct": 50.0
+    }
+   },
+   "ended": "HALT at review 3; user-accepted exception (ask msg_acc5015c9601, BM L1247); executor edited lines 376 and 408 of research/05 itself, no 4th review (qa-gate1-decision.md L42-L48)"
+  },
+  "G2": {
+   "name": "Gate 2 synthesis quality (Phase 5)",
+   "documents": "synthesis/synth-01..04",
+   "reviews_run": 3,
+   "m1": {
+    "reviews_to_clean_pass": null,
+    "clean_pass_reached": false,
+    "reason_if_null": "cap of 3 reviews hit with blocking findings open; closed by user exception without a 4th review"
+   },
+   "last_round_blocking": 2,
+   "rounds": {
+    "R1": {
+     "verdict": "FAIL",
+     "reporters": {
+      "rf-analyst accuracy": "C0 I0 m8 (PASS)",
+      "rf-qa structure": "C0 I4 m11",
+      "rf-qa-qualitative coherence": "C0 I5 m10"
+     },
+     "blocking_consolidated": 8,
+     "blocking_ids": [
+      "consolidated rows 1-8"
+     ],
+     "raw_important_sum": 9,
+     "total_findings_after_dedupe": 31,
+     "severity_downgrades": 0,
+     "severity_upgrades": 1,
+     "m3": {
+      "caused_by_previous_fix": 0,
+      "of": 8,
+      "basis": "first review"
+     },
+     "src": "qa/qa-gate2-decision.md L13-L16; qa/qa-consolidated-findings-phase5.md L1",
+     "m1_review_number": 1,
+     "m4_document": {
+      "state_reviewed_at_utc": "18:11:58",
+      "bytes": 370900,
+      "lines": 1854
+     },
+     "m5": {
+      "agents": 3,
+      "agent_tool_calls": 261,
+      "agent_out_tokens": 232839,
+      "agent_fresh_input_tokens": 1078611,
+      "agent_cache_read_tokens": 39784243,
+      "agent_wall_secs_first_spawn_to_last_end": 697,
+      "orchestrator_window_utc": [
+       "18:11:58",
+       "18:27:46"
+      ],
+      "orchestrator": {
+       "tool_calls": 7,
+       "out_tokens": 7040,
+       "fresh_input_tokens": 14440,
+       "cache_read_tokens": 3720807
+      }
+     }
+    },
+    "R2": {
+     "verdict": "FAIL (content) / PASS (structural)",
+     "reporters": {
+      "rf-qa structural verification": "C0 I0 m4",
+      "rf-qa-qualitative verification": "C0 I3 m2"
+     },
+     "blocking_consolidated": 3,
+     "blocking_ids": [
+      "N-1",
+      "N-2",
+      "N-3"
+     ],
+     "fixes_confirmed_of_prev_round": "7 of 8 resolved, finding 6 partly",
+     "m3": {
+      "caused_by_previous_fix": 3,
+      "of": 3,
+      "introduced": 1,
+      "residual": 2,
+      "basis": "reviewer text: 'finding 6 ... PARTLY RESOLVED, see N-1, N-2, N-3' (qa-verification-phase5-cycle1-content.md L21); N-3 is a contradiction the fix text created (L33); N-1/N-2 are places the fix did not reach",
+      "source_type": "reviewer tag"
+     },
+     "src": "qa/qa-gate2-decision.md L18-L19, L23-L27; qa/qa-consolidated-findings-phase5-cycle2.md L1",
+     "m1_review_number": 2,
+     "m4_document": {
+      "state_reviewed_at_utc": "18:36:18",
+      "bytes": 381278,
+      "lines": 1856
+     },
+     "m5": {
+      "agents": 2,
+      "agent_tool_calls": 82,
+      "agent_out_tokens": 50172,
+      "agent_fresh_input_tokens": 445740,
+      "agent_cache_read_tokens": 7055196,
+      "agent_wall_secs_first_spawn_to_last_end": 226,
+      "orchestrator_window_utc": [
+       "18:36:18",
+       "18:41:01"
+      ],
+      "orchestrator": {
+       "tool_calls": 12,
+       "out_tokens": 9402,
+       "fresh_input_tokens": 16782,
+       "cache_read_tokens": 3877460
+      }
+     }
+    },
+    "R3": {
+     "verdict": "FAIL (content) / PASS (structural)",
+     "reporters": {
+      "rf-qa structural verification": "C0 I0 m3",
+      "rf-qa-qualitative verification": "C0 I2 m4"
+     },
+     "blocking_consolidated": 2,
+     "blocking_ids": [
+      "V-1",
+      "V-2"
+     ],
+     "fixes_confirmed_of_prev_round": "N-1..N-3 fixed",
+     "m3": {
+      "caused_by_previous_fix": 2,
+      "of": 2,
+      "introduced": 1,
+      "residual": 1,
+      "basis": "V-1: 'the cycle-1 contradiction (N-3) was removed by redefining Stage 0, not by evidence' (qa-verification-phase5-cycle2-content.md L32 and L21); V-2: 'same defect class as finding 2' (heading L36); my reading of both",
+      "source_type": "analyst re-derivation from reviewer text"
+     },
+     "src": "qa/qa-gate2-decision.md L33-L40",
+     "m1_review_number": 3,
+     "m4_document": {
+      "state_reviewed_at_utc": "18:45:35",
+      "bytes": 385713,
+      "lines": 1857
+     },
+     "m5": {
+      "agents": 2,
+      "agent_tool_calls": 68,
+      "agent_out_tokens": 46932,
+      "agent_fresh_input_tokens": 423417,
+      "agent_cache_read_tokens": 6255894,
+      "agent_wall_secs_first_spawn_to_last_end": 199,
+      "orchestrator_window_utc": [
+       "18:45:35",
+       "18:49:40"
+      ],
+      "orchestrator": {
+       "tool_calls": 12,
+       "out_tokens": 7555,
+       "fresh_input_tokens": 16534,
+       "cache_read_tokens": 3542886
+      }
+     }
+    }
+   },
+   "m5_fix_and_consolidation": {
+    "C1": {
+     "agents": 1,
+     "agent_tool_calls": 28,
+     "agent_out_tokens": 30304,
+     "agent_fresh_input_tokens": 135895,
+     "agent_cache_read_tokens": 1384302,
+     "agent_wall_secs_first_spawn_to_last_end": 217
+    },
+    "F1": {
+     "agents": 1,
+     "agent_tool_calls": 136,
+     "agent_out_tokens": 57007,
+     "agent_fresh_input_tokens": 241168,
+     "agent_cache_read_tokens": 10597752,
+     "agent_wall_secs_first_spawn_to_last_end": 499,
+     "orchestrator_window_utc": [
+      "18:27:46",
+      "18:36:18"
+     ],
+     "orchestrator": {
+      "tool_calls": 3,
+      "out_tokens": 2806,
+      "fresh_input_tokens": 4840,
+      "cache_read_tokens": 1424510
+     }
+    },
+    "F2": {
+     "agents": 1,
+     "agent_tool_calls": 63,
+     "agent_out_tokens": 30835,
+     "agent_fresh_input_tokens": 177167,
+     "agent_cache_read_tokens": 4489308,
+     "agent_wall_secs_first_spawn_to_last_end": 263,
+     "orchestrator_window_utc": [
+      "18:41:01",
+      "18:45:35"
+     ],
+     "orchestrator": {
+      "tool_calls": 3,
+      "out_tokens": 2264,
+      "fresh_input_tokens": 5405,
+      "cache_read_tokens": 1491100
+     }
+    }
+   },
+   "m4_end_and_growth": {
+    "end_of_gate": {
+     "checkpoint_utc": "19:00:30",
+     "bytes": 387829,
+     "lines": 1859,
+     "note": "state when the next stage started (gate 5: final file); includes the manual exception edits"
+    },
+    "growth_over_gate": {
+     "bytes_pct": 4.56,
+     "lines_pct": 0.27
+    }
+   },
+   "ended": "HALT at review 3; second user-accepted exception (ask at BM L2377); executor made the V-1/V-2 edits in synth-02/03/04 itself, no 4th review (qa-gate2-decision.md L42-L48)"
+  },
+  "G3": {
+   "name": "Gate 3 report validation, 7 lenses (Phase 6)",
+   "documents": "RESEARCH-REPORT-bmad-first-use.md",
+   "reviews_run": 3,
+   "m1": {
+    "reviews_to_clean_pass": null,
+    "clean_pass_reached": false,
+    "reason_if_null": "cap of 3 reviews hit with blocking findings open; closed by user exception without a 4th review"
+   },
+   "last_round_blocking": 2,
+   "rounds": {
+    "R1": {
+     "verdict": "FAIL",
+     "reporters": {
+      "template-conformance": "C0 I2 m12",
+      "internal-consistency": "C0 I4 m16",
+      "evidence-quality": "C0 I1 m7",
+      "actionability": "C0 I8 m5",
+      "domain-accuracy": "C0 I1 m10",
+      "crossref-chain": "C0 I9 m10",
+      "finding-reproducibility": "C0 I2 m8"
+     },
+     "blocking_consolidated": 18,
+     "blocking_ids": [
+      "consolidated rows (69 rows, 18 blocking)"
+     ],
+     "raw_important_sum": 27,
+     "total_findings_after_dedupe": 69,
+     "severity_downgrades": 5,
+     "note_downgrades": "consolidator downgraded 7, orchestrator reversed 2 (TC#1, TC#2)",
+     "m3": {
+      "caused_by_previous_fix": 0,
+      "of": 18,
+      "basis": "first review"
+     },
+     "src": "qa/qa-gate3-decision.md L5-L15, L21-L28; qa/qa-consolidated-findings-phase6.md L1",
+     "m1_review_number": 1,
+     "m4_document": {
+      "state_reviewed_at_utc": "19:00:30",
+      "bytes": 364593,
+      "lines": 1785
+     },
+     "m5": {
+      "agents": 7,
+      "agent_tool_calls": 603,
+      "agent_out_tokens": 497791,
+      "agent_fresh_input_tokens": 2331792,
+      "agent_cache_read_tokens": 76291929,
+      "agent_wall_secs_first_spawn_to_last_end": 894,
+      "orchestrator_window_utc": [
+       "19:00:32",
+       "19:22:40"
+      ],
+      "orchestrator": {
+       "tool_calls": 19,
+       "out_tokens": 16408,
+       "fresh_input_tokens": 36244,
+       "cache_read_tokens": 9388370
+      }
+     }
+    },
+    "R2": {
+     "verdict": "FAIL",
+     "reporters": {
+      "rf-qa structural verification": "C0 I1 m5",
+      "rf-qa-qualitative verification": "C0 I4 m3"
+     },
+     "blocking_consolidated": 5,
+     "blocking_ids": [
+      "F-1",
+      "B-1",
+      "B-2",
+      "B-3",
+      "B-4"
+     ],
+     "fixes_confirmed_of_prev_round": "17 of 18 (structural), 18 of 18 in substance (qualitative)",
+     "m3": {
+      "caused_by_previous_fix": 5,
+      "of": 5,
+      "introduced": 1,
+      "exposed": 3,
+      "residual": 1,
+      "basis": "reviewer text: 'New defects the fixes caused or exposed are in Part B' (qa-fix-verification-qualitative-phase6-cycle1.md L14); B-1 'exposed by the row 8 fix' (L39), B-2 'the row 16 fix records...' (L47), B-3/B-4 'what the re-rating exposed' (L21); F-1 'unfixed part of consolidated row 4' (qa-fix-verification-phase6-cycle1.md L60)",
+      "source_type": "reviewer tags"
+     },
+     "src": "qa/qa-gate3-decision.md L30-L31, L35-L41; qa/qa-consolidated-findings-phase6-cycle2.md L1",
+     "m1_review_number": 2,
+     "m4_document": {
+      "state_reviewed_at_utc": "19:41:35",
+      "bytes": 382659,
+      "lines": 1795
+     },
+     "m5": {
+      "agents": 2,
+      "agent_tool_calls": 109,
+      "agent_out_tokens": 101276,
+      "agent_fresh_input_tokens": 596889,
+      "agent_cache_read_tokens": 12031273,
+      "agent_wall_secs_first_spawn_to_last_end": 449,
+      "orchestrator_window_utc": [
+       "19:41:35",
+       "19:50:25"
+      ],
+      "orchestrator": {
+       "tool_calls": 16,
+       "out_tokens": 14238,
+       "fresh_input_tokens": 25029,
+       "cache_read_tokens": 5560344
+      }
+     }
+    },
+    "R3": {
+     "verdict": "FAIL (qualitative) / PASS (structural)",
+     "reporters": {
+      "rf-qa structural verification": "C0 I0 m7",
+      "rf-qa-qualitative verification": "C0 I2 m5"
+     },
+     "blocking_consolidated": 2,
+     "blocking_ids": [
+      "N-1",
+      "N-2"
+     ],
+     "fixes_confirmed_of_prev_round": "rows 1, 2, 4 resolved; rows 3 and 5 only at the places the fix log named",
+     "m3": {
+      "caused_by_previous_fix": 2,
+      "of": 2,
+      "residual": 2,
+      "basis": "reviewer text: row 3 'PARTLY RESOLVED (residual N-2)', row 5 'PARTLY RESOLVED (residual N-1a, N-1b)' (qa-fix-verification-qualitative-phase6-cycle2.md L17, L19)",
+      "source_type": "reviewer tags"
+     },
+     "src": "qa/qa-gate3-decision.md L47-L54",
+     "m1_review_number": 3,
+     "m4_document": {
+      "state_reviewed_at_utc": "19:55:43",
+      "bytes": 387624,
+      "lines": 1795
+     },
+     "m5": {
+      "agents": 2,
+      "agent_tool_calls": 89,
+      "agent_out_tokens": 79170,
+      "agent_fresh_input_tokens": 438487,
+      "agent_cache_read_tokens": 8672789,
+      "agent_wall_secs_first_spawn_to_last_end": 315,
+      "orchestrator_window_utc": [
+       "19:55:43",
+       "20:01:40"
+      ],
+      "orchestrator": {
+       "tool_calls": 12,
+       "out_tokens": 7788,
+       "fresh_input_tokens": 13375,
+       "cache_read_tokens": 4512432
+      }
+     }
+    }
+   },
+   "m5_fix_and_consolidation": {
+    "C1": {
+     "agents": 1,
+     "agent_tool_calls": 39,
+     "agent_out_tokens": 59472,
+     "agent_fresh_input_tokens": 201193,
+     "agent_cache_read_tokens": 2351018,
+     "agent_wall_secs_first_spawn_to_last_end": 372
+    },
+    "F1": {
+     "agents": 1,
+     "agent_tool_calls": 179,
+     "agent_out_tokens": 89741,
+     "agent_fresh_input_tokens": 315662,
+     "agent_cache_read_tokens": 20239844,
+     "agent_wall_secs_first_spawn_to_last_end": 1123,
+     "orchestrator_window_utc": [
+      "19:22:40",
+      "19:41:35"
+     ],
+     "orchestrator": {
+      "tool_calls": 3,
+      "out_tokens": 2750,
+      "fresh_input_tokens": 4773,
+      "cache_read_tokens": 1813119
+     }
+    },
+    "F2": {
+     "agents": 1,
+     "agent_tool_calls": 64,
+     "agent_out_tokens": 40536,
+     "agent_fresh_input_tokens": 161004,
+     "agent_cache_read_tokens": 3305032,
+     "agent_wall_secs_first_spawn_to_last_end": 306,
+     "orchestrator_window_utc": [
+      "19:50:25",
+      "19:55:43"
+     ],
+     "orchestrator": {
+      "tool_calls": 3,
+      "out_tokens": 2799,
+      "fresh_input_tokens": 5258,
+      "cache_read_tokens": 1905977
+     }
+    }
+   },
+   "m4_end_and_growth": {
+    "end_of_gate": {
+     "checkpoint_utc": "20:15:23",
+     "bytes": 389044,
+     "lines": 1795,
+     "note": "state when the next stage started (gate 5: final file); includes the manual exception edits"
+    },
+    "growth_over_gate": {
+     "bytes_pct": 6.71,
+     "lines_pct": 0.56
+    }
+   },
+   "ended": "HALT at review 3; third user-accepted exception (ask at BM L3462); executor made the N-1/N-2 edits itself (12 Edit calls in the main session at 20:14 UTC), no 4th review (qa-gate3-decision.md L58-L62)"
+  },
+  "G4": {
+   "name": "Gate 4 source-document fidelity (Phase 6)",
+   "documents": "RESEARCH-REPORT-bmad-first-use.md",
+   "reviews_run": 2,
+   "m1": {
+    "reviews_to_clean_pass": 2,
+    "clean_pass_reached": true,
+    "reason_if_null": null
+   },
+   "last_round_blocking": 0,
+   "rounds": {
+    "R1": {
+     "verdict": "FAIL",
+     "reporters": {
+      "fidelity agent 1": "C0 I0 m5 (PASS)",
+      "fidelity agent 2": "C0 I0 m10 (PASS)",
+      "fidelity agent 3 (+web check)": "C0 I1 m4"
+     },
+     "blocking_consolidated": 1,
+     "blocking_ids": [
+      "row 16"
+     ],
+     "raw_important_sum": 1,
+     "total_findings_after_dedupe": 20,
+     "severity_downgrades": 0,
+     "m3": {
+      "caused_by_previous_fix": 0,
+      "of": 1,
+      "basis": "first review"
+     },
+     "src": "qa/qa-gate4-decision.md L13-L16",
+     "m1_review_number": 1,
+     "m4_document": {
+      "state_reviewed_at_utc": "20:15:23",
+      "bytes": 389044,
+      "lines": 1795
+     },
+     "m5": {
+      "agents": 3,
+      "agent_tool_calls": 374,
+      "agent_out_tokens": 173764,
+      "agent_fresh_input_tokens": 1035765,
+      "agent_cache_read_tokens": 39352728,
+      "agent_wall_secs_first_spawn_to_last_end": 582,
+      "orchestrator_window_utc": [
+       "20:15:23",
+       "20:32:49"
+      ],
+      "orchestrator": {
+       "tool_calls": 7,
+       "out_tokens": 7700,
+       "fresh_input_tokens": 16731,
+       "cache_read_tokens": 5540831
+      }
+     }
+    },
+    "R2": {
+     "verdict": "PASS",
+     "reporters": {
+      "rf-qa structural verification": "C0 I0 m0",
+      "rf-qa-qualitative verification": "C0 I0 m4"
+     },
+     "blocking_consolidated": 0,
+     "blocking_ids": [],
+     "m3": {
+      "caused_by_previous_fix": 0,
+      "of": 0,
+      "basis": "no blocking finding"
+     },
+     "src": "qa/qa-gate4-decision.md L18-L23",
+     "m1_review_number": 2,
+     "m4_document": {
+      "state_reviewed_at_utc": "20:34:47",
+      "bytes": 391163,
+      "lines": 1795
+     },
+     "m5": {
+      "agents": 2,
+      "agent_tool_calls": 77,
+      "agent_out_tokens": 38622,
+      "agent_fresh_input_tokens": 237993,
+      "agent_cache_read_tokens": 3676947,
+      "agent_wall_secs_first_spawn_to_last_end": 157,
+      "orchestrator_window_utc": [
+       "20:34:47",
+       "20:37:58"
+      ],
+      "orchestrator": {
+       "tool_calls": 8,
+       "out_tokens": 6373,
+       "fresh_input_tokens": 11979,
+       "cache_read_tokens": 4257826
+      }
+     }
+    }
+   },
+   "m5_fix_and_consolidation": {
+    "C1": {
+     "agents": 1,
+     "agent_tool_calls": 25,
+     "agent_out_tokens": 19887,
+     "agent_fresh_input_tokens": 96808,
+     "agent_cache_read_tokens": 1548615,
+     "agent_wall_secs_first_spawn_to_last_end": 434
+    },
+    "F1": {
+     "agents": 1,
+     "agent_tool_calls": 27,
+     "agent_out_tokens": 15786,
+     "agent_fresh_input_tokens": 94878,
+     "agent_cache_read_tokens": 1425711,
+     "agent_wall_secs_first_spawn_to_last_end": 107,
+     "orchestrator_window_utc": [
+      "20:32:49",
+      "20:34:47"
+     ],
+     "orchestrator": {
+      "tool_calls": 3,
+      "out_tokens": 2393,
+      "fresh_input_tokens": 3814,
+      "cache_read_tokens": 2106075
+     }
+    }
+   },
+   "m4_end_and_growth": {
+    "end_of_gate": {
+     "checkpoint_utc": "20:37:58",
+     "bytes": 391163,
+     "lines": 1795,
+     "note": "state when the next stage started (gate 5: final file); includes the manual exception edits"
+    },
+    "growth_over_gate": {
+     "bytes_pct": 0.54,
+     "lines_pct": 0.0
+    }
+   },
+   "ended": "clean PASS at review 2 (GATE4_FINAL: PASS, 1 review cycle)"
+  },
+  "G5": {
+   "name": "Gate 5 anti-omission (Phase 6)",
+   "documents": "RESEARCH-REPORT-bmad-first-use.md (checked against research + synthesis files)",
+   "reviews_run": 3,
+   "m1": {
+    "reviews_to_clean_pass": null,
+    "clean_pass_reached": false,
+    "reason_if_null": "cap of 3 reviews hit with blocking findings open; closed by user exception without a 4th review"
+   },
+   "last_round_blocking": 1,
+   "rounds": {
+    "R1": {
+     "verdict": "FAIL",
+     "reporters": {
+      "anti-omission slice 1 (task line 447)": "C0 I2 m21",
+      "anti-omission 2 (line 449)": "C0 I0 m35 (PASS)",
+      "anti-omission 3 (line 451)": "C0 I4 m27"
+     },
+     "blocking_consolidated": 4,
+     "blocking_ids": [
+      "O-5",
+      "O-8a",
+      "OM-1",
+      "OM-2"
+     ],
+     "raw_important_sum": 6,
+     "total_findings_after_dedupe": 95,
+     "severity_downgrades": 2,
+     "note_downgrades": "OM-3 and OM-4 Important to Minor",
+     "m3": {
+      "caused_by_previous_fix": 0,
+      "of": 4,
+      "basis": "first review"
+     },
+     "src": "qa/qa-gate5-decision.md L5-L18",
+     "m1_review_number": 1,
+     "m4_document": {
+      "state_reviewed_at_utc": "20:37:58",
+      "bytes": 391163,
+      "lines": 1795
+     },
+     "m5": {
+      "agents": 4,
+      "agent_tool_calls": 224,
+      "agent_out_tokens": 334882,
+      "agent_fresh_input_tokens": 1598726,
+      "agent_cache_read_tokens": 45890077,
+      "agent_wall_secs_first_spawn_to_last_end": 1336,
+      "orchestrator_window_utc": [
+       "20:37:58",
+       "21:06:57"
+      ],
+      "orchestrator": {
+       "tool_calls": 11,
+       "out_tokens": 12516,
+       "fresh_input_tokens": 25060,
+       "cache_read_tokens": 6560546
+      }
+     }
+    },
+    "R2": {
+     "verdict": "FAIL",
+     "reporters": {
+      "rf-qa structural verification": "C0 I1 m3",
+      "rf-qa-qualitative content verification": "C0 I3 m7"
+     },
+     "blocking_consolidated": 3,
+     "blocking_ids": [
+      "I-1",
+      "I-2",
+      "I-3"
+     ],
+     "fixes_confirmed_of_prev_round": "4 of 4 recoveries present",
+     "m3": {
+      "caused_by_previous_fix": 3,
+      "of": 3,
+      "introduced": 2,
+      "residual": 1,
+      "basis": "I-1: the fixture the fix added makes step 5.3 fail on its own fixture; I-2: fix log says 'qualified everywhere', three places remain (consolidated cycle2 row 2); I-3: the row-66 recovery text written by the fix is an unlabelled inference (row 3); my reading of the consolidated rows",
+      "source_type": "analyst re-derivation"
+     },
+     "src": "qa/qa-gate5-decision.md L20-L21, L25-L29; qa/qa-anti-omission-consolidated-findings-cycle2.md L1",
+     "m1_review_number": 2,
+     "m4_document": {
+      "state_reviewed_at_utc": "21:13:42",
+      "bytes": 403660,
+      "lines": 1804
+     },
+     "m5": {
+      "agents": 2,
+      "agent_tool_calls": 93,
+      "agent_out_tokens": 90612,
+      "agent_fresh_input_tokens": 568440,
+      "agent_cache_read_tokens": 11442183,
+      "agent_wall_secs_first_spawn_to_last_end": 430,
+      "orchestrator_window_utc": [
+       "21:13:42",
+       "21:21:33"
+      ],
+      "orchestrator": {
+       "tool_calls": 9,
+       "out_tokens": 7318,
+       "fresh_input_tokens": 12325,
+       "cache_read_tokens": 3754711
+      }
+     }
+    },
+    "R3": {
+     "verdict": "FAIL (content) / PASS (structural)",
+     "reporters": {
+      "structural verification": "C0 I0 m1",
+      "content verification": "C0 I1 m2"
+     },
+     "blocking_consolidated": 1,
+     "blocking_ids": [
+      "N-1"
+     ],
+     "fixes_confirmed_of_prev_round": "I-1, I-2, I-3 fixed",
+     "m3": {
+      "caused_by_previous_fix": 1,
+      "of": 1,
+      "introduced": 1,
+      "basis": "N-1: the cycle-2 fix text 'assert the same creation as in (a)' makes the skill count N+1 in the new fixture (qa-gate5-decision.md L41); my reading",
+      "source_type": "analyst re-derivation"
+     },
+     "src": "qa/qa-gate5-decision.md L35-L41",
+     "m1_review_number": 3,
+     "m4_document": {
+      "state_reviewed_at_utc": "21:23:22",
+      "bytes": 405371,
+      "lines": 1804
+     },
+     "m5": {
+      "agents": 2,
+      "agent_tool_calls": 71,
+      "agent_out_tokens": 40306,
+      "agent_fresh_input_tokens": 249328,
+      "agent_cache_read_tokens": 4274688,
+      "agent_wall_secs_first_spawn_to_last_end": 168,
+      "orchestrator_window_utc": [
+       "21:23:22",
+       "21:31:53"
+      ],
+      "orchestrator": {
+       "tool_calls": 12,
+       "out_tokens": 7034,
+       "fresh_input_tokens": 14262,
+       "cache_read_tokens": 6179961
+      }
+     }
+    }
+   },
+   "m5_fix_and_consolidation": {
+    "C1": {
+     "agents": 1,
+     "agent_tool_calls": 36,
+     "agent_out_tokens": 55694,
+     "agent_fresh_input_tokens": 228930,
+     "agent_cache_read_tokens": 3485653,
+     "agent_wall_secs_first_spawn_to_last_end": 364
+    },
+    "F1": {
+     "agents": 1,
+     "agent_tool_calls": 94,
+     "agent_out_tokens": 41267,
+     "agent_fresh_input_tokens": 185776,
+     "agent_cache_read_tokens": 7813750,
+     "agent_wall_secs_first_spawn_to_last_end": 392,
+     "orchestrator_window_utc": [
+      "21:06:57",
+      "21:13:42"
+     ],
+     "orchestrator": {
+      "tool_calls": 3,
+      "out_tokens": 2804,
+      "fresh_input_tokens": 5154,
+      "cache_read_tokens": 2230760
+     }
+    },
+    "F2": {
+     "agents": 1,
+     "agent_tool_calls": 32,
+     "agent_out_tokens": 14931,
+     "agent_fresh_input_tokens": 92304,
+     "agent_cache_read_tokens": 1384089,
+     "agent_wall_secs_first_spawn_to_last_end": 98,
+     "orchestrator_window_utc": [
+      "21:21:33",
+      "21:23:22"
+     ],
+     "orchestrator": {
+      "tool_calls": 3,
+      "out_tokens": 3570,
+      "fresh_input_tokens": 5173,
+      "cache_read_tokens": 2284860
+     }
+    }
+   },
+   "m4_end_and_growth": {
+    "end_of_gate": {
+     "checkpoint_utc": "23:59:59",
+     "bytes": 407656,
+     "lines": 1807,
+     "note": "state when the next stage started (gate 5: final file); includes the manual exception edits"
+    },
+    "growth_over_gate": {
+     "bytes_pct": 4.22,
+     "lines_pct": 0.67
+    }
+   },
+   "ended": "HALT at review 3; user-accepted exception (Gate 5 only; ask message msg_8c3d61e635e2, BM L4513); executor made one edit (report L1542) itself, no 4th review (qa-gate5-decision.md L45-L49)"
+  }
+ },
+ "run_level": {
+  "gates_run": 5,
+  "gates_passed_clean": 1,
+  "gates_halted_at_cap": 4,
+  "gates_halted": [
+   "G1",
+   "G2",
+   "G3",
+   "G5"
+  ],
+  "m1_note": "M1 (reviews until a clean pass): G4 = 2; G1, G2, G3, G5 = null, no clean pass in 3 reviews (cap), each closed by a user-accepted exception and an unreviewed manual edit",
+  "correction_to_phase1": "phase1/REPORT.md lists three gates halted and one exception for Gate 3; the gate decision files show four gates halted (1, 2, 3, 5) and one user exception each, and Gate 4 passed. It also gives report growth as about 1 percent (lines); bytes grew 11.8 percent over Gates 3-5 and the Gate 1 research files grew 67.7 percent in bytes",
+  "report_bytes_assembly_to_final": {
+   "start": 364593,
+   "end": 407656,
+   "growth_pct": 11.81
+  },
+  "wall_clock": "original session 2026-11-07 13:24Z to 22:00Z; gate work 15:52Z to 21:52Z"
+ }
+}

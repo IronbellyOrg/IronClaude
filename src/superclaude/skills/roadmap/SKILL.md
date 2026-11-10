@@ -912,7 +912,7 @@ Design Protocol (Rule 28 Extract-Before-Compose):
 4. SPEC handling: SPECs typically become acceptance criteria on the parent REQ task that implements them, NOT standalone tasks. Standalone SPEC tasks only for orphan SPECs with no parent REQ.
 5. TDD detail preservation: When input includes TDD, preserve TDD-level specificity in acceptance criteria — exact field names/types, index definitions with columns, state transition counts with guards, error code enumerations, API signatures with schemas, performance thresholds, observability instrumentation. Every TDD-derived detail MUST be `[verbatim: TDD §x Ly-z]` or `[derived from: TDD §x Ly-z]`.
 6. Verify that EVERY REQ-NNN and SPEC-NNN in your assigned slice is covered by at least one task in your phase. If you find a REQ/SPEC that doesn't fit your phase, flag it in a "Coverage Gaps" section at the end of your output — do NOT silently drop it.
-7. Self-audit before emitting: grep your phase detail output for every number, ID, field name, endpoint, file path, error code. Each match MUST appear in your source-extract OR be marked `[derived from: CITATION]`. ADVERSARIAL STANCE: Assume at least 3 fabrications in your output. Find and correct them. Emit only after audit passes.
+7. Self-audit before emitting: grep your phase detail output for every number, ID, field name, endpoint, file path, error code. Each match MUST appear in your source-extract OR be marked `[derived from: CITATION]`. ADVERSARIAL STANCE: Check your output for fabrications. Correct each one you find; there is no minimum count, and zero is valid if you state what you checked. Emit only after audit passes.
 
 Output Format:
 - Phase Detail block per template structure
@@ -1015,7 +1015,7 @@ Protocol:
 Output: | REQ ID | PRD Detail | Task ID | Task Detail | Rating | Missing Detail |
 Verdict: PASS (≥80% PRESERVED) / FAIL.
 
-**ADVERSARIAL STANCE:** Assume at least 5 REQ-level details were lost. Find them.
+**ADVERSARIAL STANCE:** Look for REQ-level details that were lost. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 Begin your response with the file creation action directly.
 ```
@@ -1053,7 +1053,7 @@ Protocol:
 Output: | SPEC ID | TDD Detail | Task ID | Task Detail | Rating | Missing Detail |
 Verdict: PASS (≥80% PRESERVED) / FAIL.
 
-**ADVERSARIAL STANCE:** Assume at least 5 SPEC-level details were lost. Find them.
+**ADVERSARIAL STANCE:** Look for SPEC-level details that were lost. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 Begin your response with the file creation action directly.
 ```
@@ -1162,7 +1162,7 @@ Partition context: [K of N total content lens-actionability agents, output path 
 Output path: ${TASK_DIR}qa/qa-lens-actionability-[N].md
 Fix authorization: false
 
-**ADVERSARIAL STANCE:** Assume at least 5 items are too vague to execute. Find them.
+**ADVERSARIAL STANCE:** Look for items that are too vague to execute. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-actionability agents cover other slices. Report issues only within your slice.
 
@@ -1189,7 +1189,7 @@ Partition context: [K of N total content lens-numbers-metrics agents, output pat
 Output path: ${TASK_DIR}qa/qa-lens-numbers-metrics-[N].md
 Fix authorization: false
 
-**ADVERSARIAL STANCE:** Assume at least 3 numeric claims are inconsistent. Find them.
+**ADVERSARIAL STANCE:** Look for numeric claims that are inconsistent. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-numbers-metrics agents cover other slices. Report issues only within your slice.
 
@@ -1217,7 +1217,7 @@ Partition context: [K of N total content lens-crossref-chain agents, output path
 Output path: ${TASK_DIR}qa/qa-lens-crossref-chain-[N].md
 Fix authorization: false
 
-**ADVERSARIAL STANCE:** Assume at least 3 cross-reference chains are broken. Find them.
+**ADVERSARIAL STANCE:** Look for cross-reference chains that are broken. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-crossref-chain agents cover other slices. Report issues only within your slice.
 
@@ -1244,7 +1244,7 @@ Partition context: [K of N total content lens-domain-accuracy agents, output pat
 Output path: ${TASK_DIR}qa/qa-lens-domain-accuracy-[N].md
 Fix authorization: false
 
-**ADVERSARIAL STANCE:** Assume at least 3 domain claims are inaccurate. Find them.
+**ADVERSARIAL STANCE:** Look for domain claims that are inaccurate. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-domain-accuracy agents cover other slices. Report issues only within your slice.
 
@@ -1281,7 +1281,7 @@ CRITICAL — Incremental File Writing Protocol:
 2. As you complete each checklist item, IMMEDIATELY append findings to the output file using Edit
 3. Never accumulate and one-shot
 
-**ADVERSARIAL STANCE:** Assume this document has at least 5 template conformance errors. Find them.
+**ADVERSARIAL STANCE:** Look for template conformance errors in this document. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-template-conformance agents cover other slices. Report issues only within your slice.
 
@@ -1316,7 +1316,7 @@ CRITICAL — Incremental File Writing Protocol:
 2. As you complete each checklist item, IMMEDIATELY append findings to the output file using Edit
 3. Never accumulate and one-shot
 
-**ADVERSARIAL STANCE:** Assume this document has at least 5 internal contradictions. Find them.
+**ADVERSARIAL STANCE:** Look for internal contradictions in this document. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-internal-consistency agents cover other slices. Report issues only within your slice.
 
@@ -1351,7 +1351,7 @@ CRITICAL — Incremental File Writing Protocol:
 2. As you complete each checklist item, IMMEDIATELY append findings to the output file using Edit
 3. Never accumulate and one-shot
 
-**ADVERSARIAL STANCE:** Assume this document has at least 5 unsubstantiated claims. Find them.
+**ADVERSARIAL STANCE:** Look for unsubstantiated claims in this document. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-evidence-quality agents cover other slices. Report issues only within your slice.
 
@@ -1384,7 +1384,7 @@ CRITICAL — Incremental File Writing Protocol:
 2. As you complete each checklist item, IMMEDIATELY append findings to the output file using Edit
 3. Never accumulate and one-shot
 
-**ADVERSARIAL STANCE:** Assume this document is missing at least 3 required elements. Find them.
+**ADVERSARIAL STANCE:** Look for required elements this document is missing. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-completeness agents cover other slices. Report issues only within your slice.
 
@@ -1414,7 +1414,7 @@ Partition context: [K of N total domain lens-dependency-acyclicity agents, outpu
 Output path: ${TASK_DIR}qa/qa-lens-dependency-acyclicity-[N].md
 Fix authorization: false
 
-**ADVERSARIAL STANCE:** Assume at least 2 circular dependencies exist. Find them.
+**ADVERSARIAL STANCE:** Look for circular dependencies. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-dependency-acyclicity agents cover other slices. Report issues only within your slice.
 
@@ -1442,7 +1442,7 @@ Partition context: [K of N total domain lens-phase-boundary-correctness agents, 
 Output path: ${TASK_DIR}qa/qa-lens-phase-boundary-[N].md
 Fix authorization: false
 
-**ADVERSARIAL STANCE:** Assume at least 2 phase boundaries are wrong. Find them.
+**ADVERSARIAL STANCE:** Look for phase boundaries that are wrong. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-phase-boundary-correctness agents cover other slices. Report issues only within your slice.
 
@@ -1469,7 +1469,7 @@ Partition context: [K of N total domain lens-obligation-discharge agents, output
 Output path: ${TASK_DIR}qa/qa-lens-obligation-discharge-[N].md
 Fix authorization: false
 
-**ADVERSARIAL STANCE:** Assume at least 3 obligations are undischarged. Find them.
+**ADVERSARIAL STANCE:** Look for obligations that are undischarged. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-obligation-discharge agents cover other slices. Report issues only within your slice.
 
@@ -1496,7 +1496,7 @@ Partition context: [K of N total domain lens-task-req-semantic-match agents, out
 Output path: ${TASK_DIR}qa/qa-lens-task-req-semantic-match-[N].md
 Fix authorization: false
 
-**ADVERSARIAL STANCE:** Assume at least 5 task-requirement mappings are phantom. Find them.
+**ADVERSARIAL STANCE:** Look for task-requirement mappings that are phantom. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-task-req-semantic-match agents cover other slices. Report issues only within your slice.
 
@@ -1524,7 +1524,7 @@ Partition context: [K of N total domain lens-task-granularity agents, output pat
 Output path: ${TASK_DIR}qa/qa-lens-task-granularity-[N].md
 Fix authorization: false
 
-**ADVERSARIAL STANCE:** Assume at least 3 tasks are too coarse-grained. Find them.
+**ADVERSARIAL STANCE:** Look for tasks that are too coarse-grained. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-task-granularity agents cover other slices. Report issues only within your slice.
 
@@ -1551,7 +1551,7 @@ Partition context: [K of N total domain lens-resource-realism agents, output pat
 Output path: ${TASK_DIR}qa/qa-lens-resource-realism-[N].md
 Fix authorization: false
 
-**ADVERSARIAL STANCE:** Assume at least 2 effort estimates are unrealistic. Find them.
+**ADVERSARIAL STANCE:** Look for effort estimates that are unrealistic. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-resource-realism agents cover other slices. Report issues only within your slice.
 
@@ -1578,7 +1578,7 @@ Partition context: [K of N total domain lens-integration-contract-completeness a
 Output path: ${TASK_DIR}qa/qa-lens-integration-contract-completeness-[N].md
 Fix authorization: false
 
-**ADVERSARIAL STANCE:** Assume at least 2 integration contracts are incomplete. Find them.
+**ADVERSARIAL STANCE:** Look for integration contracts that are incomplete. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 SCOPE DISCIPLINE: Process ONLY your assigned section slice. Do NOT evaluate content outside your slice — peer lens-integration-contract-completeness agents cover other slices. Report issues only within your slice.
 
@@ -1615,7 +1615,7 @@ CRITICAL — Incremental File Writing Protocol:
 2. As you validate each source section, IMMEDIATELY append findings to the file
 3. Never accumulate and one-shot
 
-**ADVERSARIAL STANCE:** Assume the roadmap has lost at least 5 specific details from the source document. Find them.
+**ADVERSARIAL STANCE:** Look for specific details the roadmap has lost from the source document. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 You read your assigned source document section range AND the FULL roadmap. You check:
 
@@ -1823,7 +1823,7 @@ Before declaring done, perform this self-audit:
 1. Grep your BUILD_REQUEST for every number, ID pattern (`T<n>.<n>`, `REQ-<n>`, `SPEC-<n>`), endpoint path (`/` followed by alphanumeric), error code (UPPER_SNAKE_CASE tokens), field name (lowercase or snake_case tokens near types), file path (containing `/`), quoted names.
 2. For EACH match, verify: (a) the claim appears in the extract's Claims table OR (b) the claim is marked `[derived from: CITATION]`.
 3. If any match fails both criteria, that claim is a FABRICATION — remove it or replace it with an extract-backed value or `[derived from: CITATION]` marker.
-4. ADVERSARIAL STANCE: Assume you have fabricated AT LEAST 3 claims. Find and correct them before emitting.
+4. ADVERSARIAL STANCE: Check whether you fabricated any claims. Correct each one you find before emitting; there is no minimum count, and zero is valid if you state what you checked.
 5. Emit only after audit passes.
 
 Anti-fabrication discipline:
@@ -1862,7 +1862,7 @@ CRITICAL — Incremental File Writing Protocol:
 2. Append findings per claim incrementally.
 3. Never accumulate.
 
-ADVERSARIAL STANCE: Assume this BUILD_REQUEST contains AT LEAST 5 fabrications. Find them.
+ADVERSARIAL STANCE: Look for fabrications in this BUILD_REQUEST. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 Validation Protocol:
 
@@ -1895,7 +1895,7 @@ Output Format:
 **BUILD_REQUEST:** [path]
 **Source-extract:** [path]
 **Date:** [today]
-**Adversarial target:** at least 5 fabrications expected
+**Fabrications found:** [count, each with evidence; no minimum count, zero is valid if you state what you checked]
 
 ## Overall Verdict: PASS | FAIL
 
@@ -2017,7 +2017,7 @@ Protocol:
 Output: | Source Ref | Requirement/Spec | Task File | Task Item | Rating | Missing Detail |
 Verdict: PASS (all PRESERVED or DEGRADED-minor) / FAIL (any LOST or DEGRADED-critical)
 
-**ADVERSARIAL STANCE:** Assume at least 5 requirements or specifications were lost in the Input -> Roadmap -> BUILD_REQUEST -> Task File pipeline. Find them.
+**ADVERSARIAL STANCE:** Look for requirements or specifications that were lost in the Input -> Roadmap -> BUILD_REQUEST -> Task File pipeline. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 Begin your response with the file creation action directly. Do not include conversational preamble.
 ```
@@ -2056,7 +2056,7 @@ Protocol:
 Output: | SPEC ID | TDD Detail | S2 | S4 | BUILD_REQUEST | Task File Item | Chain Rating | Where Lost |
 Verdict: PASS (>80% PRESERVED) / FAIL (<80% or any critical SPEC LOST)
 
-**ADVERSARIAL STANCE:** Assume at least 5 TDD specifications lost implementation detail during the pipeline. Trace them.
+**ADVERSARIAL STANCE:** Look for TDD specifications that lost implementation detail during the pipeline. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked.
 
 Begin your response with the file creation action directly. Do not include conversational preamble.
 ```
@@ -2277,7 +2277,7 @@ Protocol:
 Output: | REQ/SPEC ID | Source Detail | Task ID | Task Detail | Verdict | Missing Details |
 Verdict: PASS (all FAITHFUL or PARTIAL with minor losses) / FAIL (any MISSING or PARTIAL with critical detail loss)
 
-**ADVERSARIAL STANCE:** Assume the roadmap has lost at least 5 source-specific details. Find them. A verdict of 0 gaps requires evidence of exhaustive verification.
+**ADVERSARIAL STANCE:** Look for source-specific details the roadmap has lost. Report each one you find with evidence; there is no minimum count, and zero is valid if you state what you checked. A verdict of 0 gaps requires evidence of exhaustive verification.
 
 Begin your response with the file creation action directly. Do not include conversational preamble.
 ```

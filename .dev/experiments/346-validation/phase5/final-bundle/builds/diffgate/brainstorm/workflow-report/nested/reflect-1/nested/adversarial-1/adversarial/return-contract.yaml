@@ -1,0 +1,13 @@
+return_contract:
+  merged_output_path: .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/merged-verdict.yaml
+  convergence_score: 1.0          # diff-point agreement 24/24 after Round 2; convergence status BLOCKED_BY_INVARIANTS
+  artifacts_dir: .dev/brainstorms/346-diffgate/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial
+  status: partial                  # invariant gate blocked convergence (2 HIGH UNADDRESSED); Round 3 unavailable at depth standard
+  base_variant: "variant-2 (reviewer-2 card; advocate opus:qa)"
+  unresolved_conflicts: 2          # INV-001, INV-010 (carried into the merged card as HIGH findings)
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants:
+    - {id: INV-001, category: state_variables, assumption: "replay of the accepted check re-reads a report the command has already edited (verdict line, Reviser brief appended)", severity: HIGH}
+    - {id: INV-010, category: count_divergence, assumption: "proxy_all counts only review-3 events, dropping review-2 deferrals, demotions and withdrawals", severity: HIGH}

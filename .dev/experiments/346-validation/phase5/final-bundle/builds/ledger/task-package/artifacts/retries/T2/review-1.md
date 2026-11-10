@@ -1,0 +1,5 @@
+16998e097f99aaab2e978d33f5106defc8eb7713 tree=e33ae3c89bd83113bdfcc81a9045642e7f1e779e
+T2.AC1: met (tests/skills/test_review_ledger_script.py:464)
+T2.AC2: met (tests/skills/test_review_ledger_script.py:693)
+F1.1 sev=blocking trigger=B4 ac=scope at=src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py:1128 anchor="restores provisional hunk k, or every provisional hunk no stored answer claims, in the live document, preimage-checked" chk=n,n,n,y family=revert-preimage fix=re-read the document right before the write and compare it with the text the hunks came from, and tie --hunk to the hunk the caller saw (hunk key from status) first=A1 origin=new: revert-unclaimed checks the preimage against the same text it diffed, so the check can never fail, and --hunk is an index not tied to what status showed.
+F1.2 sev=blocking trigger=B4 ac=scope at=src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py:1107 anchor="any other phase `E-PHASE`" chk=n,n,n,y family=phase-code fix=refuse E-PHASE in every phase other than revise first=A1 origin=new: in phase terminal revert-unclaimed returns E-TERMINAL.

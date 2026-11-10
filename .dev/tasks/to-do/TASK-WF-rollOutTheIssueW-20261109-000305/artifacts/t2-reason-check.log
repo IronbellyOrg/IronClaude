@@ -1,0 +1,43 @@
+Task 2 reason-table checks
+$ grep -c cycle_complete docs/designs/issue-watcher.md
+2
+$ grep -c cycle_crashed docs/designs/issue-watcher.md
+2
+$ grep -n "spec reason table\|equal to the spec's reason table" docs/designs/issue-watcher.md
+(no matches)
+Check: for each backticked reason in the third column of section 4.3, run grep -c "\"<name>\":" src/superclaude/cli/issue_watch/audit.py
+cycle_complete: 1
+disabled: 1
+disabled_mid_cycle: 1
+not_enabled: 1
+cycle_crashed: 1
+config_invalid: 1
+approvers_invalid: 1
+platform_unsupported: 1
+worktree_invalid: 1
+origin_mismatch: 1
+orca_not_found: 1
+account_id_mismatch: 1
+login_invalid: 1
+gh_auth_failed: 1
+gh_timeout: 1
+gh_non_json: 1
+project_read_failed: 1
+truncated: 1
+discovery_duplicate: 1
+rate_limited: 1
+rate_limit_clamped: 1
+store_invalid: 1
+store_missing: 1
+lock_missing: 1
+lock_invalid: 1
+state_dir_unwritable: 1
+prompt_invalid: 1
+revalidation_transient: 1
+launch_unknown: 1
+spawn_error: 1
+lock_held: 1
+reasons_checked=31 misses=0 PASS
+REASON_TABLE keys=59 PASS
+$ git diff 5838ab1093d28376c78ec96eb86ef82f854fcfda --stat -- docs/designs/issue-watcher-setup.md
+(no changes)

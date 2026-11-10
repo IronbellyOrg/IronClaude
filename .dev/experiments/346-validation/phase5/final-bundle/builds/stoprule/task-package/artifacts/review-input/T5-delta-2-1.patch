@@ -1,0 +1,207 @@
+diff --git a/dev/fd/63 b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
+index 00000000..ce56b05a 100644
+--- a/dev/fd/63
++++ b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
+@@ -189,6 +189,7 @@ def append_records(report_path, records):
+     text = read_text(report_path)
+     lines = text.splitlines()
+     a, b = ledger_bounds(lines)
++    records = chained(load_ledger(text), records)
+     lines[b:b] = [dump(r) for r in records]
+     if DRY_RUN:
+         for r in records:
+@@ -206,6 +207,17 @@ def reviewer_hash(records):
+     return sha256_text("\n".join(reviewer_lines(records)))
+ 
+ 
++def script_hash(records):
++    """sha256 of every script-written record (reviewer lines and chain links excluded)."""
++    lines = [dump(r) for r in records if r.get("k") not in REVIEWER_KINDS + ("chain",)]
++    return sha256_text("\n".join(lines))
++
++
++def chained(existing, new):
++    """new plus a chain link over every script-written record so far (tamper evidence)."""
++    return new + [{"k": "chain", "sha256": script_hash(existing + new)}]
++
++
+ def first(records, kind):
+     return next((r for r in records if r.get("k") == kind), None)
+ 
+@@ -470,7 +482,8 @@ def cmd_begin(args):
+         "history": history,
+     }
+     existing = read_text(report) if report.exists() else ""
+-    block = f"{FENCE_OPEN}\n{dump(begin)}\n{FENCE_CLOSE}\n"
++    link = chained([], [begin])[-1]
++    block = f"{FENCE_OPEN}\n{dump(begin)}\n{dump(link)}\n{FENCE_CLOSE}\n"
+     write_report(
+         report,
+         (existing.rstrip("\n") + "\n\n" if existing.strip() else "") + block,
+@@ -1546,7 +1559,7 @@ def cmd_finalize(args):
+     new = final_records(records) + [verdict_record(records, text, model)]
+     lines = text.splitlines()
+     a, b = ledger_bounds(lines)
+-    lines[b:b] = [dump(r) for r in new]
++    lines[b:b] = [dump(r) for r in chained(records, new)]
+     body = "\n".join(lines).rstrip("\n") + "\n\n"
+     tail = render_tail(load_ledger(body), body)
+     write_report(
+@@ -1571,6 +1584,11 @@ def check_prior_verdict(prior_text, prior_records):
+         )
+ 
+ 
++def _last_chain(records):
++    idx = [n for n, r in enumerate(records) if r.get("k") == "chain"]
++    return idx[-1] if idx else -1
++
++
+ def tamper(msg):
+     raise Stop(EXIT_TAMPER, f"check: ledger tampered or non-compliant: {msg}")
+ 
+@@ -1586,6 +1604,12 @@ def cmd_check(args):
+     for raw in of_kind(records, "grade-raw") + of_kind(records, "audit-raw"):
+         if raw.get("sha256") != sha256_text(raw.get("text", "")):
+             tamper(f"a {raw['k']} text differs from its recorded sha256")
++    for n, rec in enumerate(records):
++        if rec.get("k") == "chain" and rec.get("sha256") != script_hash(records[:n]):
++            tamper(f"a script-written record before ledger link {n + 1} was edited")
++    tail_kinds = [r.get("k") for r in records[_last_chain(records) + 1 :]]
++    if any(k not in REVIEWER_KINDS for k in tail_kinds):
++        tamper("a script-written record follows the last ledger link")
+     batches = {b["batch"]: b for b in build_batches(records, args.canaries)}
+     expected = []
+     for raw in of_kind(records, "grade-raw"):
+@@ -1638,6 +1662,42 @@ def cmd_check(args):
+         )
+         if late != bool(m.get("late")):
+             tamper(f"ratchet result of {m['id']} does not follow from the ledger")
++    checked = [c for c in (parse_checked(r) for r in of_kind(records, "checked")) if c]
++    qlines = [m.get("quote_lines", []) for m in of_kind(records, "mark")]
++    want = [
++        h["new"] for h in begin.get("hunks", []) if not hunk_covered(h, qlines, checked)
++    ]
++    if want != [u.get("hunk") for u in of_kind(records, "uncovered")]:
++        tamper(
++            "uncovered-hunk records do not follow from the hunks and the sealed lines"
++        )
++    raws = of_kind(records, "audit-raw")
++    pre = [
++        r
++        for r in records
++        if r.get("k") not in ("audit", "audit-raw", "final", "verdict")
++    ]
++    expect_audit = []
++    if raws:
++        items = audit_items(pre)
++        got_a, err = (
++            parse_audit_reply(raws[-1]["text"], list(items))
++            if raws[-1]["text"].strip()
++            else (None, "auditor reply missing")
++        )
++        if bool(raws[-1].get("valid")) != (err is None) or len(raws) > 1:
++            tamper("the audit-raw record does not follow from its reply text")
++        for aid, item in items.items() if got_a else []:
++            rec = {
++                "k": "audit",
++                "aid": aid,
++                "real": got_a[aid]["real"],
++                "why": got_a[aid]["why"],
++            }
++            rec.update(item)
++            expect_audit.append(dump(rec))
++    if expect_audit != [dump(a) for a in of_kind(records, "audit")]:
++        tamper("audit records do not follow from the recorded auditor reply")
+     core = [r for r in records if r.get("k") not in ("final", "verdict")]
+     vrec = first(records, "verdict")
+     if not vrec:
+diff --git a/dev/fd/63 b/tests/skills/test_stoprule_script.py
+index 00000000..c650ccfc 100644
+--- a/dev/fd/63
++++ b/tests/skills/test_stoprule_script.py
+@@ -1496,3 +1496,85 @@ def test_finalize_and_check_dry_run_write_nothing(review1, tmp_path):
+     for sub in ("check", "status", "verdict"):
+         assert run(sub, "--report", report, "--dry-run")[0] == 0
+     assert snapshot(tmp_path) == before
++
++
++def edit_ledger(report, kind, change):
++    """Rewrite every ledger record of one kind with change(record) (a tamper in the test)."""
++    lines = report.read_text(encoding="utf-8").splitlines()
++    a, b = sr.ledger_bounds(lines)
++    for n in range(a + 1, b):
++        if lines[n].strip() and json.loads(lines[n])["k"] == kind:
++            new = change(json.loads(lines[n]))
++            lines[n] = "" if new is None else sr.dump(new)
++    report.write_text("\n".join(lines) + "\n", encoding="utf-8")
++
++
++def test_deleted_uncovered_record_makes_check_exit_6(review2, tmp_path):
++    spec, report, _ = review2
++    sealed(
++        report,
++        spec,
++        [
++            claim("R2-1", "now releases a locker only after the rider scans out"),
++            {
++                "k": "prior",
++                "id": "R1-1",
++                "status": "resolved",
++                "resolved_by": "now releases",
++            },
++        ],
++    )
++    assert records_of(report, "uncovered")
++    edit_ledger(report, "uncovered", lambda r: None)
++    grade_all(report, tmp_path, lambda cid: False)
++    audit_none_real(report, tmp_path)
++    finalize(report)
++    code, out = run("check", "--report", report, "--spec", spec)
++    assert code == 6
++
++
++def test_flipped_audit_record_makes_check_exit_6(review1, tmp_path):
++    spec, report = review1
++    sealed(report, spec, many_claims(1))
++    grade_all(report, tmp_path, lambda cid: False)
++    items = sr.audit_items(sr.load_ledger(report.read_text()))
++    reply = tmp_path / "audit.txt"
++    reply.write_text(
++        "\n".join(
++            json.dumps({"aid": a, "real": a == "A1", "why": "real"}) for a in items
++        )
++        + "\n"
++    )
++    assert run("apply-audit", "--report", report, "--reply", reply)[0] == 0
++    edit_ledger(report, "audit", lambda r: dict(r, real=False))
++    text = finalize(report)
++    assert text.rstrip().endswith("verdict: PASS")  # the tamper fooled finalize ...
++    code, out = run("check", "--report", report)
++    assert code == 6  # ... but not check
++
++
++def test_edited_mark_or_begin_record_makes_check_exit_6(review2, tmp_path):
++    spec, report, _ = review2
++    sealed(
++        report,
++        spec,
++        [
++            claim("R2-1", "Line 5: the Pedalbay kiosk rule number 5 applies"),
++            {"k": "checked", "lines": "1-12"},
++            {
++                "k": "prior",
++                "id": "R1-1",
++                "status": "resolved",
++                "resolved_by": "now releases",
++            },
++        ],
++    )
++    grade_all(report, tmp_path, lambda cid: True)
++    finalize(report)
++    assert run("check", "--report", report)[0] == 0
++    clean = report.read_text(encoding="utf-8")
++    edit_ledger(report, "mark", lambda r: dict(r, quote_lines=[3]))
++    assert run("check", "--report", report)[0] == 6
++    report.write_text(clean, encoding="utf-8")
++    edit_ledger(report, "begin", lambda r: dict(r, changed=r["changed"] + [5]))
++    assert run("check", "--report", report)[0] == 6

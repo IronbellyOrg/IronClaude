@@ -1,0 +1,21 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-438
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 99 items
+
+tests/skills/test_issue_protocol.py .................................... [ 36%]
+....F..........................................................          [100%]
+
+=================================== FAILURES ===================================
+__ test_st10_claim_return_contract_has_the_ten_fields_and_keeps_the_old_ones ___
+tests/skills/test_issue_protocol.py:496: in test_st10_claim_return_contract_has_the_ten_fields_and_keeps_the_old_ones
+    assert len(blocks) == 2
+E   assert 3 == 2
+E    +  where 3 = len(['status: success | stopped | failed\nmode: claim | create\nissue_number: <N or null>\nissue_url: <url or null>\ndir: ...on name read back from the issue, or null>\nclassification_missing: [<each "not set" line without its prefix>, ...]\n'])
+=========================== short test summary info ============================
+FAILED tests/skills/test_issue_protocol.py::test_st10_claim_return_contract_has_the_ten_fields_and_keeps_the_old_ones
+========================= 1 failed, 98 passed in 0.28s =========================
+rc=1

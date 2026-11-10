@@ -1,0 +1,26 @@
+$ ls .dev/brainstorms/346-stoprule/briefs
+T05-R1-reviewer-L11-699ae853.txt
+T06-R1-reviser-L10-3bb70411.txt
+T07-R2-reviewer-L11-aff19d65.txt
+T08-R2-reviser-L10-66468bab.txt
+T09-R3-reviewer-L11-1c9a7ec8.txt
+T10-R3-reviser-L10-458bdc00.txt
+coordinator-before-review.md
+coordinator-fix-cycle.md
+offline-demotion-audit.md
+recorder-after-review.md
+replay-gate.md
+coordinator-fix-cycle.md: D1-Dk=1 NONE=1 check-disposition=1
+recorder-after-review.md: m0_label_cm=3 m0_deferred_cm=1
+coordinator-before-review.md: --baseline=2; lines naming --unattended:
+14:4. Dispatch the reviewer with its template brief (`T05-R1-reviewer-L11-699ae853.txt`, `T07-R2-reviewer-L11-aff19d65.txt` or `T09-R3-revie
+src/superclaude in Part B files: 0
+skill path in Part B files: 5 of 5
+INSTALL.md lists: 11 of 11
+originals still match:
+37e9006c2d404d66c3faa6d123aadb1c5a3196f6afc94d2684179b20ae3b03b0  T05-R1-reviewer-L11-699ae853.txt
+28fdd09ed70b4bee5a3145efc37fc43b07f839d59756599588dbb6ea6b2ef30e  T06-R1-reviser-L10-3bb70411.txt
+2c8be40e94ab4c2fec29265bc16c633f35f99694a3ed3b97d62972b258960a59  T07-R2-reviewer-L11-aff19d65.txt
+33979d3604b303e593acc64d6a05943e6b873e5a391c9fa7422da3733c675178  T08-R2-reviser-L10-66468bab.txt
+77a254f5533a9ad05c8d9dc43ab4539dd16fb6ebf9a62d90c277d44d91b7efef  T09-R3-reviewer-L11-1c9a7ec8.txt
+11e9acc3a046d1d593c3d4c17165a2de377ae534cfde7eac4a93a11cb80f415e  T10-R3-reviser-L10-458bdc00.txt

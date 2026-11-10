@@ -1,0 +1,5 @@
+{"rows": [
+  {"label": "S1", "grade": "CRITICAL", "anchor": "Logs are kept for seven days.", "finding": "No rotation rule for logs."},
+  {"label": "S2", "grade": "MINOR", "anchor": "It keeps one record per widget.", "finding": "Wording is loose."},
+  {"label": "S3", "grade": "MAJOR", "anchor": "the caller retries at most twice", "finding": "The bound is not justified.", "challenges": "R1"}
+]}

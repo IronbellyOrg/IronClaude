@@ -1,0 +1,4 @@
+The fix pass changed no file content; it staged the task output that was untracked.
+$ git status --short --untracked-files=all .dev/tasks (after the fix)
+?? .dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/review-input/T12-diff-2-1.patch
+(no ?? lines)

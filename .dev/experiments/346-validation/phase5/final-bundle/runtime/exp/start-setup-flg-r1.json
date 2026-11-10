@@ -1,0 +1,93 @@
+{
+  "id": "20bebe80-595a-464c-bfef-9bee897fbfa5",
+  "ok": true,
+  "result": {
+    "runId": "run_58af03dbfa92",
+    "taskId": "task_01adde38f092",
+    "dispatchId": "ctx_957b2aa06ece",
+    "state": "ready",
+    "stage": "input_accepted",
+    "turnStart": "observed",
+    "setup": {
+      "requested": "skip",
+      "effective": "skip",
+      "source": "explicit_request",
+      "hookFound": false,
+      "startupPolicy": "start-immediately",
+      "state": "not_configured"
+    },
+    "launch": {
+      "requested": {
+        "agent": "claude",
+        "model": null,
+        "effort": null
+      },
+      "effective": {
+        "agent": "claude",
+        "model": null,
+        "effort": null
+      }
+    },
+    "mode": {
+      "mode": "terminal",
+      "preferred": "terminal",
+      "reason": "user_default",
+      "detail": "Started a terminal agent worker, the default for new agent tabs in your settings."
+    },
+    "timeoutMs": 60000,
+    "effects": [
+      {
+        "kind": "worktree",
+        "action": "created_top_level",
+        "id": "de550e99-fa3c-42e2-abfe-1d092771c759::/home/coder/workspaces/worktrees/IronClaude/exp346-ab-flg-r1",
+        "name": "exp346-ab-flg-r1"
+      },
+      {
+        "kind": "terminal",
+        "role": "agent",
+        "action": "created",
+        "id": "term_5b5b4a4c-95ac-463b-8589-6e275f57efcc",
+        "tabId": "905f943d-4591-487b-b70e-eaf0a8094796",
+        "leafId": "1d2a198f-0363-4da0-89a7-6b2a07fe842a"
+      },
+      {
+        "kind": "setup",
+        "action": "skip",
+        "requested": "skip",
+        "effective": "skip",
+        "source": "explicit_request",
+        "hookFound": false,
+        "startupPolicy": "start-immediately",
+        "state": "not_configured"
+      },
+      {
+        "kind": "dispatch_input",
+        "role": "agent",
+        "id": "term_5b5b4a4c-95ac-463b-8589-6e275f57efcc",
+        "state": "accepted"
+      }
+    ],
+    "prompt": {
+      "requestId": "63b31889-00fe-46d3-8c24-154ea3f29371",
+      "stages": [
+        "input_accepted",
+        "turn_started"
+      ],
+      "provider": "claude",
+      "observation": "supported",
+      "processIncarnation": "22b4643b-1a86-49ef-87ca-c836df3983a4",
+      "generation": 324,
+      "baselineWorkingSequence": 0,
+      "baselineExplicitWorkingStartedAt": null,
+      "baselinePermissionSequence": 0
+    },
+    "residualResources": [],
+    "mutation": {
+      "requestId": "63b31889-00fe-46d3-8c24-154ea3f29371",
+      "replayed": false
+    }
+  },
+  "_meta": {
+    "runtimeId": "93e79a07-81c4-4ec7-a938-8038a2f29ed3"
+  }
+}

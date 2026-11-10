@@ -1,0 +1,33 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-438
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collected 739 items / 735 deselected / 4 selected
+
+tests/skills/test_worker_contract.py FF..                                [100%]
+
+=================================== FAILURES ===================================
+___________________ test_every_write_verb_hit_is_classified ____________________
+tests/skills/test_worker_contract.py:3130: in test_every_write_verb_hit_is_classified
+    _check_all_classified()
+tests/skills/test_worker_contract.py:2010: in _check_all_classified
+    assert not missing, "unclassified git/gh write-verb hits:\n" + "\n".join(
+E   AssertionError: unclassified git/gh write-verb hits:
+E     src/superclaude/skills/sc-issue-protocol/refs/create.md [gh api] 6. Complexity field: when `### Complexity field` in `scout.md` lists the field and an option equal to the wanted value (
+E     src/superclaude/skills/sc-issue-protocol/refs/create.md [gh api] Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or starts wi
+E     src/superclaude/skills/sc-issue-protocol/refs/create.md [gh api] Spawn `issue-worker-t3` with the job "create lookup", `<R>`, the description's keywords and `<D>`. The worker lists the 
+E     src/superclaude/skills/sc-issue-protocol/refs/labels.md [gh api] 4. Complexity field: when `### Complexity field` in `scout.md` lists the field and an option equal to the wanted value, 
+E   assert not [('src/superclaude/skills/sc-issue-protocol/refs/create.md', 'gh api', '6. Complexity field: when `### Complexity fiel...lookup failed` when the lookup failed; when the field has no option equal to the value, remember `option not found`.')]
+________________ test_classification_table_has_no_stale_entries ________________
+tests/skills/test_worker_contract.py:3136: in test_classification_table_has_no_stale_entries
+    assert not stale, "classified lines no longer present:\n" + "\n".join(
+E   AssertionError: classified lines no longer present:
+E     src/superclaude/skills/sc-issue-protocol/refs/create.md [gh api] Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or starts wi
+E   assert not [('src/superclaude/skills/sc-issue-protocol/refs/create.md', 'gh api', 'Every GitHub CLI call on issues, pull requests... placeholder. Only the orchestrator writes to GitHub. Create mode makes no ClickUp call and no self-assignment (B6).')]
+=========================== short test summary info ============================
+FAILED tests/skills/test_worker_contract.py::test_every_write_verb_hit_is_classified
+FAILED tests/skills/test_worker_contract.py::test_classification_table_has_no_stale_entries
+================= 2 failed, 2 passed, 735 deselected in 0.38s ==================
+rc=1

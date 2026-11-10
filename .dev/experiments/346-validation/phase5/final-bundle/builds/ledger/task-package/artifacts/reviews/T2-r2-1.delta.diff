@@ -1,0 +1,136 @@
+diff --git a/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py b/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
+index 09837d69..93adf662 100644
+--- a/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
++++ b/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
+@@ -1104,30 +1104,40 @@ def cmd_revert_unclaimed(args) -> dict:
+         return canonical({"hunk": args.hunk})
+ 
+     def apply(ledger: Ledger, state: dict):
+-        require_phase(state, "revise")
++        if state["phase"] != "revise":  # every other phase, terminal ones included
++            refuse(
++                "E-PHASE",
++                f"phase is {state['phase']}; revert-unclaimed runs only in phase revise",
++                EXIT_STATE,
++                next_action(state),
++            )
+         old, live, hunks, _ops = provisional(ledger, state)
+         claimed = {k for c in stored_answers(state) for k in c["keys"]}
+         unclaimed = [h for h in hunks if not h["rewrap"] and h["key"] not in claimed]
++        gone = []
+         if args.hunk is not None:
+-            match = [h for h in hunks if h["n"] == args.hunk]
+-            if not match:
+-                refuse(
+-                    "E-SCHEMA",
+-                    f"no provisional hunk {args.hunk}",
+-                    EXIT_INPUT,
+-                    "read status for hunk numbers",
+-                )
+-            if match[0] not in unclaimed:
++            # --hunk is the key status printed, so the caller reverts the hunk it saw
++            match = [h for h in hunks if h["key"] == args.hunk]
++            if match and match[0] not in unclaimed:
+                 refuse(
+                     "E-ILLEGAL",
+                     f"hunk {args.hunk} is claimed or a rewrap",
+                     EXIT_INPUT,
+                     "",
+                 )
++            if not match:
++                gone = [
++                    args.hunk
++                ]  # the hunk the caller saw no longer exists: failed preimage
+             unclaimed = match
+-        lines, reverted, failed = revert_hunks(
+-            doc_lines(live), unclaimed, doc_lines(old)
+-        )
++        current = reread_doc(ledger.doc_path(state))
++        if current != live:  # the document changed after the hunks were computed
++            lines, reverted, failed = doc_lines(live), [], [h["n"] for h in unclaimed]
++        else:
++            lines, reverted, failed = revert_hunks(
++                doc_lines(live), unclaimed, doc_lines(old)
++            )
++        failed = failed + gone
+         restored = sum(h["new_bytes"] for h in unclaimed if h["n"] in reverted)
+         if reverted:
+             atomic_write(
+@@ -1663,6 +1673,7 @@ def cmd_status(args) -> dict:
+                 "new": h["new"],
+                 "bytes": h["bytes"],
+                 "rewrap": h["rewrap"],
++                "key": h["key"],
+                 "claimed": h["key"] in claimed,
+             }
+             for h in hunks
+@@ -1806,8 +1817,7 @@ def build_parser() -> argparse.ArgumentParser:
+     mutation(sp)
+     sp.add_argument(
+         "--hunk",
+-        type=int,
+-        help="the provisional hunk number (default: every unclaimed hunk)",
++        help="the key of one provisional hunk, as status lists it (default: every unclaimed hunk)",
+     )
+ 
+     sp = sub.add_parser(
+diff --git a/tests/skills/test_review_ledger_script.py b/tests/skills/test_review_ledger_script.py
+index 958c798c..c7477be6 100644
+--- a/tests/skills/test_review_ledger_script.py
++++ b/tests/skills/test_review_ledger_script.py
+@@ -663,7 +663,8 @@ def test_revert_unclaimed_in_revise_and_e_phase_in_verify(tmp_path):
+     lp = Loop(tmp_path)
+     lp.round1()
+     lp.edit("doc-r2-outside.md")
+-    code, out = lp.mut("revert-unclaimed", "--hunk", "1")
++    (hunk,) = lp.status()["provisional_hunks"]
++    code, out = lp.mut("revert-unclaimed", "--hunk", hunk["key"])
+     assert code == 0 and out["reverted"] == [1] and out["restored_bytes"] > 0
+     assert lp.doc.read_text() == (_FIX / "doc-r1.md").read_text()
+     assert lp.begin()[0] == 0
+@@ -671,6 +672,45 @@ def test_revert_unclaimed_in_revise_and_e_phase_in_verify(tmp_path):
+     assert code == 3 and out["error"] == "E-PHASE"
+ 
+ 
++def test_revert_unclaimed_hunk_seen_in_status_is_preimage_checked(
++    tmp_path, monkeypatch, capsys
++):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit("doc-r2-outside.md")
++    (seen,) = lp.status()["provisional_hunks"]
++    # the document changes after status: the hunk the caller saw is gone, nothing is reverted
++    lp.edit(text=(_FIX / "doc-r2-fix.md").read_text())
++    code, out = lp.mut("revert-unclaimed", "--hunk", seen["key"])
++    assert code == 0 and out["reverted"] == [] and out["failed"] == [seen["key"]]
++    assert lp.doc.read_text() == (_FIX / "doc-r2-fix.md").read_text()
++    # the document changes between the diff and the write: every revert fails its preimage
++    lp.edit("doc-r2-outside.md")
++    monkeypatch.chdir(tmp_path)
++    monkeypatch.setattr(rl, "reread_doc", lambda doc: "changed meanwhile\n")
++    code = rl.main(
++        [
++            "revert-unclaimed",
++            "--doc",
++            "spec.md",
++            "--op",
++            "r2",
++            "--expect-seq",
++            str(lp.seq()),
++        ]
++    )
++    out = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
++    assert code == 0 and out["reverted"] == [] and out["failed"] == [1]
++    assert lp.doc.read_text() == (_FIX / "doc-r2-outside.md").read_text()
++
++
++def test_revert_unclaimed_refuses_e_phase_when_terminal(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1(rows="find-empty.json")
++    code, out = lp.mut("revert-unclaimed")
++    assert code == 3 and out["error"] == "E-PHASE"
++
++
+ def test_e_terminal_after_review1_terminal_close(tmp_path):
+     lp = Loop(tmp_path)
+     lp.round1(rows="find-empty.json")

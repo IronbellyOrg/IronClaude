@@ -1,0 +1,25 @@
+calibrator: confidence-calibrator
+calibrator_class: opus
+calibrator_diversity: degraded
+card: reviewer-cards/reviewer-2-card.yaml
+self_reported_confidence: 0.95
+calibrated_confidence: 0.72
+dimensions: {citation_grounding: 0.9, coverage_completeness: 0.6, deviation_classification_clarity: 0.65, risk_surface_coverage: 0.6, recommendation_actionability: 0.7}
+citations_checked:
+  - "all card citations -> ok"
+  - "source.md:22 -> ok but it is the issue summary; the authoritative prompt (source.md:7) has no 'every', and source.md:24 says 'about 12+'"
+  - "coverage-matrix 'overstates' claim -> weak"
+severity_notes:
+  - "QA-02 should be medium: the real defect is the plan:108 vs plan:110 contradiction; the plan already marks unproducible errors 'capture if seen' (plan:78) and lists uncaptured fixtures (plan:110, plan:117)."
+  - "QA-02 recommendation cannot always be met: a 502 or a lost Orca reply cannot be produced on demand, and FU-1 is owner-run."
+  - "QA-02 bundles 3 separate claims."
+  - "QA-03 could be raised to high: a fixture marked captured would still feed guessed data through `raw`."
+  - "F2 and QA-04 at medium are reasonable."
+missed_risks:
+  - "Stale line citations in uncaptured fixtures (e.g. gh_api_user_include.json:3 cites 'line 835')."
+  - "test_github.py:550 (test_date_header_parses_the_fixture) also hardcodes 2026-11-07 12:00:00."
+  - "test_launch.py likely has hardcoded Orca values, but plan:19 and plan:120 allow Task 5 to change only test_github.py (not verified)."
+  - "The goal line at plan:15 overstates the result as 'the 19 guessed fixtures are replaced'."
+  - "Whether enabling may proceed with some fixtures still assumed is left implicit."
+  - "The stderr fixtures use a different field layout."
+escalation_recommendation: tier1-sufficient

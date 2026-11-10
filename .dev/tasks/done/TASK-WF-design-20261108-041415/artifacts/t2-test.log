@@ -1,0 +1,50 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/issue-438/.venv/bin/python
+SuperClaude: 5.0.0
+rootdir: /home/coder/workspaces/worktrees/IronClaude/issue-438
+configfile: pyproject.toml
+plugins: superclaude-5.0.0, anyio-4.16.0
+collecting ... collected 99 items / 60 deselected / 39 selected
+
+tests/skills/test_issue_protocol.py::test_st11_no_source_tree_path_in_the_command_file PASSED [  2%]
+tests/skills/test_issue_protocol.py::test_every_gh_issue_pr_label_mention_carries_repo[SKILL.md] PASSED [  5%]
+tests/skills/test_issue_protocol.py::test_every_gh_issue_pr_label_mention_carries_repo[chains.md] PASSED [  7%]
+tests/skills/test_issue_protocol.py::test_every_gh_issue_pr_label_mention_carries_repo[claim.md] PASSED [ 10%]
+tests/skills/test_issue_protocol.py::test_every_gh_issue_pr_label_mention_carries_repo[create.md] PASSED [ 12%]
+tests/skills/test_issue_protocol.py::test_every_gh_issue_pr_label_mention_carries_repo[labels.md] PASSED [ 15%]
+tests/skills/test_issue_protocol.py::test_every_gh_issue_pr_label_mention_carries_repo[tiers.md] PASSED [ 17%]
+tests/skills/test_issue_protocol.py::test_every_gh_issue_pr_label_mention_carries_repo[issue-worker-t3.md] PASSED [ 20%]
+tests/skills/test_issue_protocol.py::test_every_gh_issue_pr_label_mention_carries_repo[issue-worker-t2.md] PASSED [ 23%]
+tests/skills/test_issue_protocol.py::test_every_gh_issue_pr_label_mention_carries_repo[issue-worker-t1.md] PASSED [ 25%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[SKILL.md] PASSED [ 28%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[chains.md] PASSED [ 30%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[claim.md] PASSED [ 33%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[create.md] PASSED [ 35%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[labels.md] PASSED [ 38%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[tiers.md] PASSED [ 41%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[clickup_claim.py] PASSED [ 43%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[orca_worktree.py] PASSED [ 46%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[origin_repo.py] PASSED [ 48%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[accuracy-check-comment.md] PASSED [ 51%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[claim-comment.md] PASSED [ 53%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[create-review-comment.md] PASSED [ 56%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[description.md] PASSED [ 58%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[draft-notes.md] PASSED [ 61%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[flags-decision.md] PASSED [ 64%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[issue-bug-complex.md] PASSED [ 66%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[issue-bug-simple.md] PASSED [ 69%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[issue-feature-complex.md] PASSED [ 71%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[issue-feature-simple.md] PASSED [ 74%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[issue-summary.md] PASSED [ 76%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[launch-prompt.md] PASSED [ 79%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[next-steps.md] PASSED [ 82%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[recommend-record.md] PASSED [ 84%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[scout-report.md] PASSED [ 87%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[issue-worker-t3.md] PASSED [ 89%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[issue-worker-t2.md] PASSED [ 92%]
+tests/skills/test_issue_protocol.py::test_no_brace_placeholder[issue-worker-t1.md] PASSED [ 94%]
+tests/skills/test_issue_protocol.py::test_fork_safety_scan_fails_on_a_ref_without_repo PASSED [ 97%]
+tests/skills/test_issue_protocol.py::test_no_source_tree_path_in_skill_files PASSED [100%]
+
+====================== 39 passed, 60 deselected in 0.41s =======================
+rc=0

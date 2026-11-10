@@ -1,0 +1,247 @@
+{
+  "scenario": "S1",
+  "incident": "I1 Orca worker-contract spec review loop (issue 346 origin)",
+  "variant": "ledger (/sc:spec-panel-ledger + sc-review-ledger review_ledger.py, script-kept finding ledger: find once at review 1, verify rows at reviews 2 and 3, one blinded sweep after the loop)",
+  "worktree": "/home/coder/workspaces/worktrees/IronClaude/exp346-v-ledger",
+  "branch_head": "ironbelly/exp346-v-ledger at 2cb683f5 (original base; spec is an untracked overlay)",
+  "replicates": 1,
+  "recorder": "independent recorder task_2f23e0439839 / ctx_640370bc3173, 2026-11-09, measurement only (no review, no fix, no regrading of controls)",
+  "key_to_provenance": {
+    "read": "taken from a file or log line as written",
+    "read_from_tag": "taken from the report's Parent/Scope columns or the ledger row fields (parent, scope, status) written by the script",
+    "re-derived": "counted, grouped or computed by this recorder from the files listed",
+    "pointers": "REV=reviews/review/ (cp -p copies of .dev/orca-command-refactor/review/); LED=reviews/review-ledger/ (copy of specs/orca-worker-contract-spec.review-ledger/); SESS=~/.claude/projects/-home-coder-workspaces-worktrees-IronClaude-exp346-v-ledger/<id>.jsonl; S1V=/home/coder/workspaces/worktrees/IronClaude/exp346-p1-logs/.dev/experiments/346-validation/phase5/s1v-log.md; SCRIPT=~/.claude/skills/sc-review-ledger/scripts/review_ledger.py (sha256 2d45c85a4edc...)"
+  },
+  "proxy_definition": {
+    "original_proxy": "CRITICAL + MAJOR severity labels among the NEW findings in each review's own numbered findings list (baseline-metrics.json proxy_definition; same rule as ctl-r1/ctl-r2/flg-r1/flg-r2 metrics.json: numbered new findings, label as written, MAJOR counted even when graded minor/deferred). Labels are not blocking: the ledger profile marks a row blocking only if CRITICAL, rule FR-8/FR-9, or MAJOR with a wrong_outcome, and only inside the revised hunks (scope in).",
+    "provenance": "re-derived (definition), applied identically to every round"
+  },
+  "counting_rule": "Findings = rows of the report's numbered findings list: R1 'Numbered findings' table (REV/spec-panel.md:71-92), R2 'Numbered new findings' table (REV/spec-panel-round2.md:105-128), R3 'Numbered new findings' sections 1-3 (REV/spec-panel-round3.md:109-131), sweep 3.2 Findings N1-N12 (REV/spec-panel-sweep.md:90-114). Resolution-table rows and citation-check rows are not findings. Each report's count was cross-checked against the script-ingested ledger rows (LED/ledger.json) and matched exactly (R1 17=R1-R17, R2 16=R18-R33, R3 3=R34-R36, sweep 12=R37-R48).",
+  "rounds": [
+    {
+      "round": "R1",
+      "step": "T05",
+      "report": "REV/spec-panel.md",
+      "findings_total": 17,
+      "labels": {"CRITICAL": 0, "MAJOR": 13, "MINOR": 4},
+      "critical_plus_major_new": 13,
+      "blocking": 13,
+      "minor_deferred": 4,
+      "grading_source": "report Blocking column (ledger spec-panel profile) and script rows R1-R13 blocking, R14-R17 deferred",
+      "unresolved_prior_labels": null,
+      "m3_origin": "not applicable (first review)",
+      "verdict_line_text": "verdict: FAIL (REV/spec-panel.md:166; script close tail, loop_decision: CONTINUE (U=13, X=0, I=true) at :165)",
+      "tool_mode": {"skill_called": "Skill sc:spec-panel-ledger (SESS/82591fac), then Skill sc-review-ledger", "command_file_read_by_hand": false},
+      "markers": {"review_N_of_3": "present: line 3 (copied by the worker from status output) and line 138 (script tail)", "reviser_brief": "present: line 160 '### Reviser brief' (script tail, level-3 heading)", "last_line_verdict": "present: line 166 'verdict: FAIL'"},
+      "model_per_message": "claude-opus-5-5 x40 (SESS/82591fac)",
+      "provenance": "read (labels, verdict) and re-derived (counts)"
+    },
+    {
+      "round": "R2",
+      "step": "T07",
+      "report": "REV/spec-panel-round2.md",
+      "findings_total": 16,
+      "labels": {"CRITICAL": 0, "MAJOR": 9, "MINOR": 7},
+      "critical_plus_major_new": 9,
+      "blocking": 7,
+      "blocking_ids": ["R18", "R19", "R21", "R22", "R23", "R24", "R25"],
+      "major_not_blocking": {"count": 2, "ids": ["R27", "R28"], "why": "anchors outside the round-2 revised hunks, script stored scope=outside, status deferred (counted in script metric O)"},
+      "minor_deferred": 7,
+      "unresolved_prior_labels": {"blocking_round1_rows_unresolved": 0, "note": "report section 1: all 13 round-1 blocking rows resolved by spec text; 7 of the 13 fixes carry a new defect filed as new findings with that parent (touched_ok: no for R3, R4, R8, R9, R11, R12, R13). R14-R17 (4 MINOR) remain deferred and unanswerable.", "pointer": "REV/spec-panel-round2.md:15-33,170-174"},
+      "m3_origin": {
+        "read_from_tag": {"parent_row_tag": 8, "in_revised_hunk_no_parent": 1, "outside_hunks": 7, "ids_parent": ["R18<-R4", "R19<-R3", "R21<-R8", "R22<-R9", "R23<-R11", "R24<-R11", "R25<-R12", "R26<-R13"], "id_in_no_parent": ["R32"], "share_parent_tag_percent": 50.0, "share_in_hunk_percent": 56.25},
+        "critical_plus_major_only_read_from_tag": {"parent_tag": 7, "outside": 2, "share_percent": 77.8},
+        "re_derived": {"defect_in_new_fix_text": 9, "stale_reference_left_by_a_fix": 5, "pre_existing_or_incomplete_fix_residual": 2, "ids_stale": ["R20", "R29", "R30", "R31", "R33"], "ids_pre_existing": ["R27", "R28"], "fix_related_share_percent": 87.5, "caveat": "Judgment by this recorder from the finding text: an outside-hunk anchor is not proof the text pre-existed the problem (R20 'Ready today (10)' became wrong because cycle 1 added the TFEP row), and an in-hunk anchor is not proof the fix caused the defect. Three of the five stale-reference rows (R29, R30, R33) and the residual R27 were predicted by the cycle-1 reviser's 'Gaps (text a fix needed but the ledger would revert)' notes 1-4 and 7 (REV/disposition.md:43-52)."}
+      },
+      "verdict_line_text": "verdict: FAIL (REV/spec-panel-round2.md:243; loop_decision: CONTINUE (U=7, X=0, I=true) at :242)",
+      "tool_mode": {"skill_called": "Skill sc:spec-panel-ledger (SESS/a1163fbb), then sc-review-ledger", "command_file_read_by_hand": false},
+      "markers": {"review_N_of_3": "present only in script tail, line 199 (body header lines 1-7 carry no 'review: 2 of 3')", "reviser_brief": "present: line 237 '### Reviser brief' (script tail)", "last_line_verdict": "present: line 243 'verdict: FAIL'"},
+      "model_per_message": "claude-opus-5-5 x48 (SESS/a1163fbb)",
+      "provenance": "read and re-derived"
+    },
+    {
+      "round": "R3",
+      "step": "T09",
+      "report": "REV/spec-panel-round3.md",
+      "findings_total": 3,
+      "labels": {"CRITICAL": 0, "MAJOR": 3, "MINOR": 0},
+      "critical_plus_major_new": 3,
+      "blocking": 2,
+      "blocking_ids": ["R34", "R36"],
+      "major_not_blocking": {"count": 1, "ids": ["R35"], "why": "AC-1.2 live-check anchor outside the round-3 revised hunks; script scope=outside, deferred (counted in O)"},
+      "instrument_note": "The round-3 new-defect pass is limited to the six revised hunks under the ledger Verify rule (REV/spec-panel-round3.md:7). Control R3 reviews ran a full-document panel. The new-finding count is therefore scope-restricted by design, not only by spec quality.",
+      "unresolved_prior_labels": {
+        "critical_plus_major": 3,
+        "ids": {"R25": "MAJOR blocking, fixed then open again (fix did not resolve; child R34)", "R27": "MAJOR deferred outside", "R28": "MAJOR deferred outside"},
+        "minor": 7,
+        "minor_ids": ["R20", "R26", "R29", "R30", "R31", "R32", "R33"],
+        "round1_minor_not_rechecked": ["R14", "R15", "R16", "R17"],
+        "pointer": "REV/spec-panel-round3.md:12-33,188-191; LED/ledger.json rows"
+      },
+      "critical_plus_major_new_plus_unresolved": 6,
+      "verified_rows_touched_again": {"count": 5, "ids": ["R2", "R8", "R9", "R11", "R12"], "result": "all re-verified, none reopened (REV/spec-panel-round3.md:34-43)"},
+      "m3_origin": {
+        "read_from_tag": {"parent_row_tag": 2, "ids_parent": ["R34<-R25", "R36<-R22"], "outside_hunks": 1, "share_parent_tag_percent": 66.7},
+        "re_derived": {"defect_from_cycle2_fix_text_or_incomplete_cycle2_fix": 2, "stale_reference_left_by_cycle1_fix": 1, "id_stale": "R35 (AC-1.2 still passes --output; cycle 1 moved workflow to --report-dir)", "previous_round_fix_share_percent": 66.7, "any_fix_share_percent": 100.0, "caveat": "same judgment caveat as R2"}
+      },
+      "duplicate_mechanism_in_loop_counts": "R34 is the child of open R25 and describes the residual of the same defect (nested reflect outputs fail 7.2 step 6). The script counts both in U3; distinct open mechanisms at the endpoint are 5 of 6 C+M labels.",
+      "verdict_line_text": "No 'verdict:' line. Last two lines: 'loop_decision: ESCALATE (U=3, X=0, I=true)' and 'loop: ESCALATE (sweep pending)' (REV/spec-panel-round3.md:287-288). Body verdict: '**FAIL.**' at :189.",
+      "tool_mode": {"skill_called": "Skill sc:spec-panel-ledger (SESS/5f820c85) AFTER Read of ~/.claude/commands/sc/spec-panel-ledger.md; then sc-review-ledger", "command_file_read_by_hand": true},
+      "markers": {"review_N_of_3": "present only in script tail, line 246", "reviser_brief": "absent (cap reached; loop escalated)", "last_line_verdict": "absent (see verdict_line_text)"},
+      "escalated_at_cap": true,
+      "open_blocking_at_close": 3,
+      "model_per_message": "gpt-6.1-sol x102, <synthetic> 429 x1; zero claude-opus-5-5 messages (SESS/5f820c85). Launched on claude-opus-5-5, 429 at 01:42:12Z, '/model' set 'Tier 2: GPT 6.1 Sol, ...' at 01:59:31Z, then 'resume'.",
+      "provenance": "read and re-derived"
+    }
+  ],
+  "sweep": {
+    "step": "T09b (one-time, separate session after the terminal close; not a fourth review/fix cycle)",
+    "report": "REV/spec-panel-sweep.md",
+    "input": "/tmp/review-ledger-sweep-3s8rdl6a/orca-worker-contract-spec.md, sha256 030b7a941cd3... (= LED/snapshots/r3.md); copy at reviews/sweep-input/",
+    "findings_total": 12,
+    "labels": {"CRITICAL": 0, "MAJOR": 9, "MINOR": 3},
+    "major_ids": ["N1/R37", "N2/R38", "N3/R39", "N4/R40", "N5/R41", "N6/R42", "N7/R43", "N8/R44", "N12/R48"],
+    "minor_ids": ["N9/R45", "N10/R46", "N11/R47"],
+    "script_location_class": {"in_claimed_span": 3, "outside_hunks": 9, "note": "script location_class: claimed spans at r3 plus unclaimed c2 hunks only; earlier cycles not traced (SCRIPT:2110-2126)"},
+    "would_block": 9,
+    "challenges_field": "null for all 12 (blinded sweep cannot name verified rows)",
+    "verdict_line_text": "verdict: FAIL (REV/spec-panel-sweep.md:172; delivery_outcome: ESCALATE (loop=ESCALATE, S=9, tails_intact=true) at :171)",
+    "tool_mode": {"skill_called": "Skill sc:spec-panel-ledger --sweep, then sc-review-ledger (SESS/7f1440da)", "command_file_read_by_hand": "sed -n '255,265p' of ~/.claude/commands/sc/spec-panel-ledger.md inside a batch script (after the Skill call)"},
+    "blindness_check": "No tool call in SESS/7f1440da reads a prior review report, disposition, ledger.json, plan or snapshot (exposure grep of every tool_use input). It did list file names: 'find .dev/orca-command-refactor -maxdepth 2 -not -path *review-ledger*' and 'ls -la .dev/orca-command-refactor/review/'. Its resolution table reads only the (Rn) tags embedded in the spec text. Claim holds for content; file names were visible.",
+    "model_per_message": "claude-opus-5-5 x47 (all 05:00:36Z-05:09:09Z), <synthetic> 429 x6 (02:39:15Z-04:32:51Z)",
+    "provenance": "read and re-derived"
+  },
+  "separate_counts": {
+    "1_original_new_cm_labels_per_round": {"R1": 13, "R2": 9, "R3": 3, "provenance": "re-derived from report lists"},
+    "2_unresolved_prior_cm_labels_at_R3": {"count": 3, "ids": ["R25", "R27", "R28"], "plus_unresolved_minor": 7},
+    "3_script_confirmed_blockers": {"U_at_R1_close": 13, "U_at_R2_close": 7, "U_at_R3_close": 3, "ids_open_at_end": ["R25", "R34", "R36"], "definition": "u_count: rows with blocking=true, scope=in, status in {open, fixed, reopened} (SCRIPT:474-479). Blocking predicate: CRITICAL, or rule FR-8/FR-9, or MAJOR with wrong_outcome (SCRIPT:41-49)."},
+    "4_owner_cumulative_cm_deferred_demoted_withdrawn": {"count": 12, "ids": ["R27", "R28", "R35", "R37", "R38", "R39", "R40", "R41", "R42", "R43", "R44", "R48"], "breakdown": {"loop_outside_scope_deferred": 3, "sweep_deferred_by_script": 9, "demoted_in_scope_major": 0, "withdrawn_or_disputed": 0}, "rule": "D14(1): findings the new scripts defer, demote or withdraw count as still open. No row reached status 'disputed' or a withdrawn state; no in-scope MAJOR lost blocking status."},
+    "5_script_metrics": {"U3": 3, "W": 9, "O": 3, "headline_raw": 15, "deferred_floor": 0, "X": 0, "scope_outside": 8, "minor_touched": {"answered": 2, "auto-claimed": 0}, "post_terminal_edit_changed": false, "meaning": "U3 = in-scope loop rows labelled CRITICAL/MAJOR not verified (R25, R34, R36); W = sweep rows labelled CRITICAL/MAJOR or with a challenge (R37-R44, R48); O = rows with scope=outside labelled CRITICAL/MAJOR (R27, R28, R35); headline_raw = U3+W+O (SCRIPT:2389-2456). minor_touched counts deferred minor rows whose text sits inside a claimed hunk (c1 hunk 2 touches R14; c2 hunk 2 touches R32), not edits made for them.", "source": "/tmp/impl/s1v/last-ledger-L7-ingest.json (L7 status output); recomputed from LED/ledger.json rows with the same definitions and matched"},
+    "6_sweep_findings": {"total": 12, "cm": 9, "minor": 3},
+    "7_sweep_overlap_with_endpoint_open": {
+      "definite_duplicates": [
+        {"sweep": "N6/R42 MAJOR (AC-1.2 passes --output to workflow)", "endpoint": "R35 MAJOR deferred (R3 new finding 2, same check and same flag)"},
+        {"sweep": "N9/R45 MINOR (AC-0.3 still prints the old grep)", "endpoint": "R29 MINOR deferred"},
+        {"sweep": "N12/R48 MAJOR (AC-1.1 asserts return-contract.yaml)", "endpoint": "R31 MINOR deferred (same assertion; grade conflict MAJOR vs MINOR)"}
+      ],
+      "ambiguous_related_not_counted_as_duplicate_in_point_estimate": [
+        {"sweep": "N7/R43 (/sc:load gets --unattended in P1 but writes no report)", "endpoint": "R36 (P1 'every other command runs normally' lets save run early)", "why": "same P1 'accept the flag on every command' rule, different command and different wrong outcome"},
+        {"sweep": "N8/R44 (tasklist runs parallel reflect remediations in one worktree)", "endpoint": "R34 (workflow nested reflect outputs fail 7.2 step 6)", "why": "both involve reflect outputs and 7.2 step 6, different command and mechanism (parallel staging vs file accounting)"}
+      ],
+      "overlap_with_verified_rows_sweep_says_defect_remains": {"N2": "R11/R23 (240 s limit vs Agent calls)", "N3": "R24/R21 (section 2.3 list omits budget and answer policy; predicted by c2 gap notes 3 and 5, REV/disposition-round2.md:53-63)", "N4": "R7 (WC-6 resume branch)", "N5": "R21 (AC-2.2 blocked vs defaults)", "N9": "R13 (AC-0.3 grep)", "note": "the loop marked these parent rows verified; the sweep (blinded) says the tagged text still has a defect. They are new mechanisms or residuals, not reopenings; challenges were not recordable."},
+      "endpoint_open_not_raised_by_sweep": ["R25/R34 (nested reflect accounting)", "R27 (7.2 step 5 Skill check)", "R28 (agentWait absent)", "R36 (early save)"],
+      "provenance": "re-derived by this recorder from finding text (REV/spec-panel-round3.md:12-33,109-131; REV/spec-panel-sweep.md:9-28,90-114)"
+    },
+    "8_union_cm_audit_augmented": {
+      "point_estimate": 13,
+      "lower_bound": 11,
+      "upper_bound": 14,
+      "arithmetic": "endpoint open C+M distinct mechanisms 5 (U3 3 + O 3 = 6 labels, R25 and R34 one mechanism) + sweep C+M 9 - definite C+M duplicate 1 (N6=R35) = 13. Upper 14: count R25 and R34 separately (script view). Lower 11: also merge N7 with R36 and N8 with R34. N12 adds a MAJOR because its loop twin R31 is labelled MINOR.",
+      "all_severity_union": {"point_estimate": 25, "lower_bound": 23, "upper_bound": 26, "arithmetic": "endpoint open labels 17 (6 C+M + 11 MINOR: R14-R17, R20, R26, R29-R33) - 1 (R25/R34) = 16 distinct + 12 sweep - 3 definite duplicates (N6, N9, N12) = 25; upper 26 keeps R25/R34 apart; lower 23 also merges N7 and N8"},
+      "comparability": "No control or Arm B run had a post-loop sweep, so this union has no directly comparable control number. Keep it apart from the original proxy."
+    }
+  },
+  "spec_sizes": {
+    "v1_start": {"bytes": 57763, "lines": 285, "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d", "equals": "phase2/S1/inputs/MANIFEST.sha256 repo-overlay entry; LED/snapshots/r1.md"},
+    "v2_after_cycle1": {"bytes": 66484, "lines": 288, "sha256": "347e32c26f7dc0249df835d8c2557045b60ed7a19c1f3e2a290fd0321234d9bd", "equals": "LED/snapshots/r2.md"},
+    "v3_after_cycle2": {"bytes": 70565, "lines": 288, "sha256": "030b7a941cd3498bf3c568232ae039ba2e267bd99c86417708f47add4d6a4e0c", "equals": "LED/snapshots/r3.md, live spec, sweep input"},
+    "growth_percent_bytes": {"cycle1_vs_v1": 15.10, "cycle2_vs_v2": 6.14, "cumulative_after_two_cycles_vs_v1": 22.16},
+    "growth_percent_lines": {"cycle1_vs_v1": 1.05, "cycle2_vs_v2": 0.0, "cumulative_vs_v1": 1.05},
+    "growth_bytes": {"cycle1": 8721, "cycle2": 4081, "cumulative": 12802, "cycle2_share_of_growth_percent": 31.88},
+    "hunks": {"cycle1": 12, "cycle2": 6, "unclaimed": [0, 0], "reverted_bytes": [0, 0], "rewraps": 0},
+    "claim_bytes_per_row": "script metric claim_bytes (LED via L7 status): c1 R1 903, R2 1867, R3 721, R4 1867, R5 508, R6 1161, R7 1275, R8 1492, R9 997, R10 686, R11 1405, R12 864, R13 538; c2 R18 2721, R19 1327, R21 1936, R22 1385, R23 2658, R24 2658, R25 1400. Rows sharing a hunk carry the same number (R2/R4, R23/R24); do not sum.",
+    "frozen_endpoint_verified": true,
+    "live_drift": "none: live spec sha256 equals r3 snapshot and history/spec-v3-after-round2.md (cmp and sha256 on 2026-11-09T05:14Z); mtime 2026-11-09T01:20:28Z (T08) precedes snapshot r3 01:36:14Z",
+    "provenance": "re-derived: wc -c -l and sha256sum of the cp -p copies in reviews/"
+  },
+  "revisions": [
+    {"cycle": 1, "step": "T06", "session": "e58d1d80", "applied": 13, "rejected_deferred": 4, "rejected_ids": ["R14", "R15", "R16", "R17"], "minor_acted_on": 0, "minor_text_touched_by_claimed_hunk": 1, "gap_notes": 7, "spawned_subreview": false, "model": "claude-opus-5-5 x78", "pointer": "REV/disposition.md:7-52; LED/diffs/c1.json"},
+    {"cycle": 2, "step": "T08", "session": "e5faadba", "applied": 7, "rejected_deferred": 9, "rejected_ids": ["R20", "R26", "R27", "R28", "R29", "R30", "R31", "R32", "R33"], "citation_rows": 2, "minor_acted_on": 0, "minor_text_touched_by_claimed_hunk": 1, "gap_notes": 7, "spawned_subreview": false, "model": "claude-opus-5-5 x47 (00:24:57Z-00:33Z) then gpt-6.1-sol x43 (01:17:59Z-01:22:32Z) after '/model' Tier 1b at 01:17:53Z; two 429 errors", "deviation": "Brief filled with R18-R33 (all new rows) against the ledger reviser contract (blocking rows only). Worker asked (orchestration ask, recommended option a: apply all); coordinator answered (b): fix only R18, R19, R21-R25, give deferred rows a not-answerable disposition row (S1V row 00:26:06Z; REV/disposition-round2.md:13-18).", "pointer": "REV/disposition-round2.md; LED/diffs/c2.json"}
+  ],
+  "ledger_state_checks": {
+    "reopened_after_c2": 0,
+    "fixed_then_open": ["R25"],
+    "verified_rows_re_claimed_in_c2": ["R2", "R8", "R9", "R11", "R12"],
+    "unclaimed_edits": 0,
+    "reverts": 0,
+    "rejected_or_deferred_rows_total": 26,
+    "final_counts": {"rows": 48, "blocking": 22, "U": 3, "open": 3, "verified": 19, "deferred": 26, "reopened": 0},
+    "decisions": ["R1 CONTINUE U=13 seq3", "R2 CONTINUE U=7 seq7", "R3 ESCALATE U=3 seq11", "sweep delivery ESCALATE S=9 seq13"],
+    "final_phase": "swept",
+    "outcome": "ESCALATE",
+    "provenance": "read from LED/ledger.json ops/decisions/rows"
+  },
+  "m1_rounds_until_clean_pass": null,
+  "m1_detail": "No PASS: R1 FAIL, R2 FAIL, R3 FAIL (no verdict line; ESCALATE), sweep FAIL. Loop stopped at the 3-review cap with script decision ESCALATE.",
+  "sessions": {
+    "method": "REPLAY.md section 6 jq (turns = unique message ids, tool_calls = tool_use blocks, usage = last usage per message id, summed). wall = first to last timestamp in the session file. active = span of non-synthetic assistant messages per model. Interruption = time between the first 429 and the next non-synthetic assistant message.",
+    "rows": [
+      {"step": "setup", "session": "e59eebfd", "task": "task_83eeeb2800d9", "kind": "coordinator worker", "turns": 6, "tool_calls": 5, "out": 2012, "in": 12, "cache_create": 56249, "cache_read": 678488, "wall_min": 0.46, "model": "claude-opus-5-5"},
+      {"step": "L0 init", "session": "c4230240", "task": "task_4c33ca1678ec", "kind": "coordinator scripted step", "turns": 7, "tool_calls": 6, "out": 2411, "in": 14, "cache_create": 64180, "cache_read": 838946, "wall_min": 0.58, "model": "claude-opus-5-5"},
+      {"step": "T05 review 1", "session": "82591fac", "task": "task_5cd98936d719", "kind": "loop", "turns": 19, "tool_calls": 23, "out": 41888, "in": 38, "cache_create": 194509, "cache_read": 4150607, "wall_min": 6.74, "model": "claude-opus-5-5"},
+      {"step": "L1 find/close", "session": "5b2a17b8", "task": "task_2373fb809e27", "kind": "coordinator scripted step", "turns": 9, "tool_calls": 9, "out": 3488, "in": 18, "cache_create": 66273, "cache_read": 1106979, "wall_min": 0.77, "model": "claude-opus-5-5"},
+      {"step": "T06 revise 1", "session": "e58d1d80", "task": "task_4917ae1dbd7e", "kind": "loop", "turns": 35, "tool_calls": 48, "out": 72138, "in": 70, "cache_create": 205710, "cache_read": 7577629, "wall_min": 11.29, "model": "claude-opus-5-5"},
+      {"step": "L2 answer/begin", "session": "8a040321", "task": "task_e124f42434e4", "kind": "coordinator scripted step", "turns": 9, "tool_calls": 9, "out": 3043, "in": 18, "cache_create": 127782, "cache_read": 1076301, "wall_min": 0.78, "model": "claude-opus-5-5"},
+      {"step": "T07 review 2", "session": "a1163fbb", "task": "task_07a4ccee1042", "kind": "loop", "turns": 21, "tool_calls": 27, "out": 61752, "in": 42, "cache_create": 226234, "cache_read": 4573516, "wall_min": 9.39, "model": "claude-opus-5-5"},
+      {"step": "L3 verify/close", "session": "d8f117ca", "task": "task_0bf1accb2c10", "kind": "coordinator scripted step", "turns": 7, "tool_calls": 6, "out": 2565, "in": 14, "cache_create": 66613, "cache_read": 846468, "wall_min": 0.51, "wall_note": "file runs to 01:18:05Z only because '/model' was typed into the finished terminal ('Kept model as Opus 5.5'); work ended 00:23:46Z", "model": "claude-opus-5-5"},
+      {"step": "T08 revise 2", "session": "e5faadba", "task": "task_af0f64867ffd", "kind": "loop", "turns": 45, "tool_calls": 56, "out": 43674, "in": 152361, "cache_create": 172728, "cache_read": 7411996, "wall_min": 60.87, "active_min": {"claude-opus-5-5": 8.8, "gpt-6.1-sol": 4.6}, "interruption_min": 44.2, "model": "mixed: claude-opus-5-5 then gpt-6.1-sol"},
+      {"step": "L4 answer/begin", "session": "e0492a30", "task": "task_9281e0abecb6", "kind": "coordinator scripted step", "turns": 15, "tool_calls": 15, "out": 3649, "in": 105229, "cache_create": 0, "cache_read": 1166080, "wall_min": 17.33, "active_min": {"gpt-6.1-sol": 1.85}, "interruption_min": 9.3, "model": "gpt-6.1-sol only (launch on opus hit 429)"},
+      {"step": "T09 review 3", "session": "5f820c85", "task": "task_ea3ff6bef23f", "kind": "loop", "turns": 26, "tool_calls": 83, "out": 21814, "in": 263520, "cache_create": 0, "cache_read": 5516928, "wall_min": 32.53, "active_min": {"gpt-6.1-sol": 9.1}, "interruption_min": 17.4, "model": "gpt-6.1-sol only"},
+      {"step": "L5 verify/close", "session": "c4d2892d", "task": "task_3637a33a2654", "kind": "coordinator scripted step", "turns": 14, "tool_calls": 12, "out": 2939, "in": 87331, "cache_create": 0, "cache_read": 969856, "wall_min": 8.4, "active_min": {"gpt-6.1-sol": 1.6}, "model": "gpt-6.1-sol only (after '/model' at 02:13:04Z)"},
+      {"step": "L6 sweep prepare", "session": "00e68f70", "task": "task_de8fbf47cf51", "kind": "coordinator scripted step", "turns": 10, "tool_calls": 8, "out": 2803, "in": 83971, "cache_create": 0, "cache_read": 632192, "wall_min": 11.96, "active_min": {"gpt-6.1-sol": 1.3}, "model": "gpt-6.1-sol only (after '/model' at 02:23:55Z)"},
+      {"step": "T09b sweep", "session": "7f1440da", "task": "task_a89bfe5f12dc", "kind": "sweep", "turns": 31, "tool_calls": 25, "out": 54984, "in": 50, "cache_create": 286378, "cache_read": 5684442, "wall_min": 152.96, "active_min": {"claude-opus-5-5": 8.5}, "interruption_min": 141.4, "model": "claude-opus-5-5"},
+      {"step": "L7 sweep ingest", "session": "fa2c93b5", "task": "task_1d859109f3da", "kind": "coordinator scripted step", "turns": 7, "tool_calls": 6, "out": 2692, "in": 14, "cache_create": 68311, "cache_read": 852379, "wall_min": 0.82, "model": "claude-opus-5-5"}
+    ],
+    "totals_loop_steps_T05_T09": {"turns": 146, "tool_calls": 237, "out": 241266, "in": 416031, "cache_create": 799181, "cache_read": 29230676, "wall_min": 120.82},
+    "totals_coordinator_scripted_steps_L0_L7_plus_setup": {"turns": 84, "tool_calls": 76, "out": 25602, "in": 276621, "cache_create": 449408, "cache_read": 8167689},
+    "totals_sweep": {"turns": 31, "tool_calls": 25, "out": 54984, "in": 50, "cache_create": 286378, "cache_read": 5684442},
+    "excluded": "this recorder's own session cb9e31be; coordinator session (not in this project folder); Orca router/driver shell steps (hist-v2, hist-v3, /tmp/impl/s1v/driver.sh)",
+    "subagents": "no subagent folders under the project session directory; no Agent/Task tool calls in any step session",
+    "unknown_not_zero": "Active model time inside the 429 windows and any provider-side queueing are not recoverable; wall_min includes cooldown waits; tokens for the 429 attempts are not in usage. gpt-6.1-sol sessions report cache_create 0 and large input_tokens, so token columns are not comparable across providers.",
+    "provenance": "re-derived from SESS jsonl (bounded jq extracts)"
+  },
+  "origin_master_reuse_in_findings": {"R1": 0, "R2": 0, "R3": 0, "sweep": 0, "method": "exposure grep of every step session's tool_use inputs for origin/master, git show/log, WORKER-CONTRACT and new command names: no hits except the sweep's 'git log -1' of HEAD. 'origin/master' strings in session files come from the injected CLAUDE.md text; WORKER-CONTRACT strings come from the spec text itself (the spec plans that file)."},
+  "comparison_arithmetic": {
+    "comparators": {
+      "ctl-r1": {"R3_proxy": 8, "growth_after_two_cycles_percent": 57.72, "source": "exp346-ab-ctl-r1/.../phase4/ctl-r1/metrics.json (sha256 a19b0d1a6b50...)"},
+      "ctl-r2": {"R3_proxy": 4, "growth_after_two_cycles_percent": 69.3, "growth_recomputed_from_bytes": 69.34, "source": "exp346-ab-ctl-r2/.../metrics.json (b23ed8a009ad...)"},
+      "flg-r1": {"R3_proxy": 6, "growth_after_two_cycles_percent": 27.78, "source": "exp346-ab-flg-r1/.../metrics.json (9835f683bfea...)"},
+      "flg-r2": {"R3_proxy": 1, "growth_after_two_cycles_percent": 32.14, "source": "exp346-ab-flg-r2/.../metrics.json (4c437f682e4a...)"}
+    },
+    "comparators_per_round_copied_not_regraded": {
+      "fields": "[R1 findings, R1 proxy, R2 new findings, R2 proxy, R3 new findings, R3 proxy, growth after cycle 1 %, growth after two cycles %, lines growth after two cycles %]",
+      "ctl-r1": [19, 11, 15, 9, 11, 8, 23.83, 57.72, 27.37],
+      "ctl-r2": [21, 12, 17, 7, 7, 4, 31.94, 69.3, 27.0],
+      "flg-r1": [22, 16, 12, 5, 10, 6, 17.53, 27.78, 2.81],
+      "flg-r2": [22, 17, 11, 6, 4, 1, 21.63, 32.14, 11.23],
+      "ledger": [17, 13, 16, 9, 3, 3, 15.10, 22.16, 1.05],
+      "provenance": "comparator values read from each metrics.json (rounds[].critical_plus_major and findings_total; spec_sizes / growth_summary_for_D6b / spec_growth_summary); ctl-r2 cycle-1 growth re-derived from its recorded bytes 76214 vs 57763"
+    },
+    "control_mean_R3_proxy": 6.0,
+    "screen_a_limit": 3.0,
+    "control_mean_growth_percent": 63.51,
+    "control_mean_growth_recomputed_from_bytes": 63.53,
+    "screen_b_limit_percent": 44.457,
+    "screen_b_limit_recomputed": 44.469,
+    "armB_mean_R3_proxy": 3.5,
+    "armB_mean_growth_percent": 29.96,
+    "ledger_R3_new_proxy": 3,
+    "ledger_R3_new_plus_unresolved_cm": 6,
+    "ledger_growth_percent": 22.16,
+    "ratios": {"R3_new_proxy_vs_control_mean_percent": 50.0, "R3_new_proxy_vs_armB_mean_percent": 85.7, "growth_vs_control_mean_percent": 34.9, "growth_vs_armB_mean_percent": 74.0},
+    "screen_arithmetic_no_verdict": {
+      "a_new_proxy_le_3": "3 <= 3 holds arithmetically (at the boundary). With unresolved prior C+M labels included (6) it does not.",
+      "b_growth_le_44.457": "22.16 <= 44.457 holds arithmetically.",
+      "c_spread": "One replicate: no within-arm spread. Proxy effect vs control mean 3.0, control spread 4 (8 vs 4). Growth effect 41.35 points, control spread 11.62. Arm B spreads: proxy 5, growth 4.36.",
+      "every_replicate_rule": "Ledger 3 is below ctl-r1 8 and ctl-r2 4; growth 22.16 below 57.72 and 69.3. With one replicate this rule cannot be tested for a second ledger run."
+    },
+    "verdict": "none given (measurement only; see comparison.md limitations, especially the round-3 model change)"
+  },
+  "not_measured": [
+    "Within-arm spread and repeatability (one replicate).",
+    "Which human or process typed '/model' and 'resume' into five step terminals (not recorded in s1v-log); actor UNVERIFIED.",
+    "Worker system prompt content (blocking/minor rule, 3-review cap) per session: not in the session files.",
+    "Exact Claude Code and Orca builds per step session (T09 reports orca 1.4.245-aidev02.780594c521aa).",
+    "A per-finding blocking re-grade of the sweep rows or of controls (not done; labels are not blocking)."
+  ]
+}

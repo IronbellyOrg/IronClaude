@@ -4,6 +4,20 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### ccsession: retry temporary failures, then switch; named-model fallback (#392)
+
+#### Fixed (ccsession failover)
+
+- Tier requests now count consecutive 408, 429, 500, 502, 503 and 504 errors outside the existing immediate-switch list, plus cut-off error replies. The first two go back unchanged for Claude Code to retry; the third parks the model and resends the same request to the next eligible model. Counts are shared by model across requests and sessions on that shim. Malformed requests and main-model context errors do not count or switch; unreachable gateways still do not switch.
+- Temporary parks start at 5 minutes and double to 10, 20, 40 and at most 60 minutes. Success resets the count and duration. A streamed request that never starts answering still switches immediately at the existing first-byte timeout, now using the growing temporary park. Existing out-of-usage rules remain immediate, with `Retry-After` or the 1-hour cooldown.
+- In tier mode a model requested by name (including a gateway alias or `[1m]` suffix) uses the allowed tier where it holds the best list position, ties going to the higher tier. The requested model comes first, then that tier's other models; smaller-window backups and parked models are skipped. Models outside the allowed tiers and non-tier requests keep plain forwarding.
+- Successful HTTP replies still stream immediately, including pings and error events, with no look-ahead or new body timeout. Errors inside an already-started stream are not intercepted or retried by the shim.
+
+#### Added (ccsession failure settings and log)
+
+- `CCSESSION_FAILS_BEFORE_SWITCH=3`, `CCSESSION_PARK_SECONDS=300` and `CCSESSION_PARK_MAX_SECONDS=3600`; launches with different values get separate shims.
+- A default routing log at `${XDG_CACHE_HOME:-$HOME/.cache}/ccsession/proxy.log`, overridden by `GW_PROXY_LOGFILE`, capped at 5 MB with one older copy. Failure kinds, counts, parks, switches and answering models are recorded without credentials or request/reply bodies other than redacted gateway error messages. Multiple local shims serialize rotation; an unwritable cache does not stop routing.
+
 ### ccsession: a shim never forwards to another shim
 
 #### Fixed (ccsession shim upstream)

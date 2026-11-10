@@ -3005,35 +3005,11 @@ WRITE_VERB_CLASSIFICATION = {
     ),
     (
         "src/superclaude/agents/issue-worker-t3.md",
-        "gh api",
-        '- **Read-only GitHub access.** You make read-only `gh` calls only, always with the `--repo <R>` the orchestrator gave you; a `gh api` call reads the path `user` or a path that starts with `repos/<R>/`, never a brace placeholder. You never write to GitHub or ClickUp: never `gh issue edit <N> --repo <R>`, `gh issue comment <N> --repo <R>`, `gh issue create --repo <R>`, `gh label create "<name>" --repo <R>`, a `gh api` call with `-X`/`--method` other than `GET`, or any ClickUp request. The orchestrator makes every write.',
-    ): (
-        "read-only",
-        "the /sc:issue worker agents make read-only gh calls (gh issue view, gh pr list, a GET gh api); the line describes or forbids writes, it makes none",
-    ),
-    (
-        "src/superclaude/agents/issue-worker-t3.md",
         "gh api+gh pr",
         '1. **Claim lookup (claim Wave 1).** Run `gh issue view <N> --repo <R> --json number,title,body,state,assignees,labels,comments,createdAt,url,author` and `gh api user -q .login`. List pull requests merged since `createdAt` with `gh pr list --repo <R> --state merged --search "merged:>=<createdAt date>" --limit 200 --json number,title,mergedAt,files,url`, and record whether the result reached the 200 limit. Run `git fetch origin`, then `git log --since=<createdAt> --name-only origin/<default branch>`. Find this user\'s earlier comments whose body contains `<!-- sc:issue:claim -->` or `<!-- sc:issue:accuracy-check -->` and record each comment ID. Write `<D>/scout.md` from the claim section of the `scout-report.md` template: state, `url`, `is_pull_request` (true when `url` contains `/pull/`), assignees, current login, earlier comment IDs, merged pull requests and changed files since creation, whether that list was truncated, and a first complexity guess (`simple|medium|complex`) and type guess (`feature|bug`), each with a one-line reason.',
     ): (
         "read-only",
         "a read: gh issue view, gh pr list or a GET gh api user call",
-    ),
-    (
-        "src/superclaude/skills/sc-issue-protocol/SKILL.md",
-        "gh api",
-        "- Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or spells `repos/<R>/...`, never a brace placeholder.",
-    ): (
-        "read-only",
-        "prose: every gh call passes --repo and every gh api path is user or repos/<R>/; it names no write",
-    ),
-    (
-        "src/superclaude/skills/sc-issue-protocol/SKILL.md",
-        "gh api",
-        "- The orchestrator (this skill) is the only place that writes to GitHub or ClickUp: `gh issue edit <N> --repo <R> --add-assignee @me`, `gh issue comment <N> --repo <R> --body-file <file>`, `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<file>`, `gh issue create --repo <R> ...` and `scripts/clickup_claim.py`. Workers never write to either.",
-    ): (
-        "never-worker",
-        "/sc:issue is on the never-as-worker list; its assign, comment and issue writes run only in the coordinator or person session",
     ),
     (
         "src/superclaude/skills/sc-issue-protocol/SKILL.md",
@@ -3084,14 +3060,6 @@ WRITE_VERB_CLASSIFICATION = {
         "a read: gh issue view, gh pr list or a GET gh api user call",
     ),
     (
-        "src/superclaude/skills/sc-issue-protocol/refs/create.md",
-        "gh api",
-        "Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or starts with `repos/<R>/`, never a brace placeholder. Only the orchestrator writes to GitHub. Create mode makes no ClickUp call and no self-assignment (B6).",
-    ): (
-        "read-only",
-        "prose: every gh call passes --repo and every gh api path is user or repos/<R>/; it names no write",
-    ),
-    (
         "src/superclaude/skills/sc-issue-protocol/templates/launch-prompt.md",
         "gh pr",
         "1. Check that no pull request is already open or merged for this branch: `gh pr list --repo <R> --head <branch> --state all`. If one exists, stop and report it; do not commit or push.",
@@ -3122,6 +3090,78 @@ WRITE_VERB_CLASSIFICATION = {
     ): (
         "never-worker",
         "/sc:issue is on the never-as-worker list; this instruction is rendered into the launched agent's prompt only when the owner passes --submit, and no worker runs it",
+    ),
+    (
+        "src/superclaude/agents/issue-worker-t3.md",
+        "gh api",
+        '- **Read-only GitHub access.** You make read-only `gh` calls only, always with the `--repo <R>` the orchestrator gave you; a `gh api` call reads the path `user` or a path that starts with `repos/<R>/`, never a brace placeholder; the one exception is the create lookup\'s GET of `orgs/<owner of R>/issue-fields` (`<owner>` is the part of `<R>` before the slash), and no other `orgs/` path is allowed. You never write to GitHub or ClickUp: never `gh issue edit <N> --repo <R>`, `gh issue comment <N> --repo <R>`, `gh issue create --repo <R>`, `gh label create "<name>" --repo <R>`, a `gh api` call with `-X`/`--method` other than `GET`, or any ClickUp request. The orchestrator makes every write.',
+    ): (
+        "read-only",
+        "prose or a GET: every gh call passes --repo; the one allowed orgs/ path is the T3 lookup's read-only GET of the org issue fields; it makes no write",
+    ),
+    (
+        "src/superclaude/agents/issue-worker-t3.md",
+        "gh api",
+        '2. **Create lookup (create Wave 1).** Run `gh label list --repo <R> --limit 200 --json name`, `gh api repos/<R>/issue-types` (the issue types of the repo), `gh api orgs/<owner of R>/issue-fields` (GET only; `<owner>` is the part of `<R>` before the slash; look up the field named `Complexity` and record its id, data type and option names) and `gh issue list --repo <R> --state all --search "<keywords>" --json number,title,state,url --limit 10`. Write `<D>/scout.md` from the create section of the `scout-report.md` template: the repo\'s labels, `### Repo issue types`, `### Complexity field` and the possible duplicates. A read that fails is recorded as `lookup failed: <reason>` and you continue. Duplicates never stop the run.',
+    ): (
+        "read-only",
+        "a read: the T3 create lookup runs gh label list, GET gh api repos/<R>/issue-types, GET gh api orgs/<owner>/issue-fields and gh issue list",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/SKILL.md",
+        "gh api",
+        "- Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or spells `repos/<R>/...`, never a brace placeholder. The one exception is the T3 lookup worker's read-only GET of `orgs/<owner of R>/issue-fields` (`<owner>` is the part of `<R>` before the slash; no other `orgs/` path is allowed, and the orchestrator and the T1 and T2 workers keep the old rule).",
+    ): (
+        "read-only",
+        "prose or a GET: every gh call passes --repo; the one allowed orgs/ path is the T3 lookup's read-only GET of the org issue fields; it makes no write",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/SKILL.md",
+        "gh api",
+        "- The orchestrator (this skill) is the only place that writes to GitHub or ClickUp: `gh issue edit <N> --repo <R> --add-assignee @me`, `gh issue comment <N> --repo <R> --body-file <file>`, `gh api -X PATCH repos/<R>/issues/comments/<id> -F body=@<file>`, `gh issue create --repo <R> ...` (create mode adds `--type <name>`), `gh api -X POST repos/<R>/issues/<N>/issue-field-values --input <file>` and `scripts/clickup_claim.py`. Workers never write to either.",
+    ): (
+        "never-worker",
+        "/sc:issue is on the never-as-worker list; its type, field and comment writes run only in the coordinator or person session",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/SKILL.md",
+        "gh api",
+        '6. **Wave 5, post.** Load `refs/labels.md`. Apply only the mode label, and only when it exists in `<R>`; `gh issue create --repo <R> --title "[FEATURE] <title>"` or `"[BUG] <title>"` with `--body-file <D>/issue-body.md` and `--type "<name>"` when the wanted issue type is listed in `scout.md` (failure STOP `E-CREATE-FAILED`); rename `<D>` to `.dev/issues/<N>/`; read the issue type back; set the Complexity field with the POST of `refs/labels.md` (`gh api -X POST repos/<R>/issues/<N>/issue-field-values --input .dev/issues/<N>/complexity-field.json`); post the pushback comment from `templates/create-review-comment.md` when Wave 2 found a disagreement at standard or deep. Print the issue URL, the directory, the labels not applied and every `not set` line. A failed type or field never stops the run once the issue exists. No ClickUp call (B6).',
+    ): (
+        "never-worker",
+        "/sc:issue is on the never-as-worker list; its type, field and comment writes run only in the coordinator or person session",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/refs/create.md",
+        "gh api",
+        "6. Complexity field: when `### Complexity field` in `scout.md` lists the field and an option equal to the wanted value (`quick` = Simple, `standard` = Medium, `deep` = Complex), write `.dev/issues/<N>/complexity-field.json` and run `gh api -X POST repos/<R>/issues/<N>/issue-field-values --input .dev/issues/<N>/complexity-field.json` (body and error handling in `refs/labels.md`). A failed POST remembers `not set: field Complexity <value>: write failed (<first line of the gh error>)`. After a success, read the values back with `gh api repos/<R>/issues/<N>/issue-field-values` and remember `not set: field Complexity <value>: not applied after create` when the value is absent. A missing field remembers `not set: field Complexity <value>: field not found in org` (or `lookup failed`).",
+    ): (
+        "never-worker",
+        "/sc:issue is on the never-as-worker list; its type, field and comment writes run only in the coordinator or person session",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/refs/create.md",
+        "gh api",
+        "Every GitHub CLI call on issues, pull requests or labels passes `--repo <R>`; every `gh api` path is `user` or starts with `repos/<R>/`, never a brace placeholder, with one exception: the T3 lookup worker's read-only GET of `orgs/<owner of R>/issue-fields` (`<owner>` is the part of `<R>` before the slash). No other `orgs/` path is allowed, and the orchestrator and the T1 and T2 workers keep the old rule. Only the orchestrator writes to GitHub: besides `gh issue create --repo <R>` and `gh issue comment <N> --repo <R>`, its only GitHub field write is the POST of `refs/labels.md` (`gh api -X POST repos/<R>/issues/<N>/issue-field-values`). Create mode makes no ClickUp call and no self-assignment (B6).",
+    ): (
+        "never-worker",
+        "/sc:issue is on the never-as-worker list; its type, field and comment writes run only in the coordinator or person session",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/refs/create.md",
+        "gh api",
+        'Spawn `issue-worker-t3` with the job "create lookup", `<R>`, the description\'s keywords and `<D>`. The worker lists the repo\'s labels (`gh label list --repo <R> --limit 200 --json name`), reads the issue types of the repo (`gh api repos/<R>/issue-types`) and the Complexity field of the organization (`gh api orgs/<owner of R>/issue-fields`, the one allowed `orgs/` path; it records the id, the data type and the option names of the field named `Complexity`), searches for possible duplicates (`gh issue list --repo <R> --state all --search "<keywords>" --json number,title,state,url --limit 10`) and writes `<D>/scout.md` from `templates/scout-report.md` (create section: `### Repo labels`, `### Repo issue types`, `### Complexity field`, `### Possible duplicates`). A lookup that fails is recorded as `lookup failed: <reason>` and never stops the run. Possible duplicates do not stop the run; they go into the body\'s related-issues section (default D11).',
+    ): (
+        "read-only",
+        "prose or a GET: every gh call passes --repo; the one allowed orgs/ path is the T3 lookup's read-only GET of the org issue fields; it makes no write",
+    ),
+    (
+        "src/superclaude/skills/sc-issue-protocol/refs/labels.md",
+        "gh api",
+        '4. Complexity field: when `### Complexity field` in `scout.md` lists the field and an option equal to the wanted value, write `.dev/issues/<N>/complexity-field.json` with the body `{"issue_field_values":[{"field_id":<id>,"value":"<option name>"}]}` and run `gh api -X POST repos/<R>/issues/<N>/issue-field-values --input .dev/issues/<N>/complexity-field.json`. A POST adds a value; a PUT would replace every existing value, so it is not used. A non-zero exit remembers `not set: field Complexity <value>: write failed (<first line of the gh error>)`. After a success, read the values back with `gh api repos/<R>/issues/<N>/issue-field-values`; when the value is absent, remember `not set: field Complexity <value>: not applied after create`. When `scout.md` has no such field, remember `not set: field Complexity <value>: field not found in org`, or `lookup failed` when the lookup failed; when the field has no option equal to the value, remember `option not found`.',
+    ): (
+        "never-worker",
+        "/sc:issue is on the never-as-worker list; its type, field and comment writes run only in the coordinator or person session",
     ),
 }
 

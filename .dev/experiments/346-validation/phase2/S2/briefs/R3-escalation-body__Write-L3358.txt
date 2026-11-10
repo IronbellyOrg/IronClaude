@@ -1,0 +1,22 @@
+Review-loop cap reached on the plan: 3 reviews and 2 fix cycles spent, and 10 blocking findings are still open. Per the new rule (S3) I am stopping and escalating; no fourth review, no further fix cycle.
+
+WHERE I STOPPED: the plan is written and reviewed, nothing is implemented. No file under src/, tests/, plugins/ or CHANGELOG.md has been modified; nothing is committed or pushed; no PR exists. Only untracked .dev/ planning files exist.
+
+Plan (v4, 20 tasks): /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/tasks/to-do/TASK-WF-removeTheAnyIssu-20261102-053741/TASK-WF-removeTheAnyIssu-20261102-053741.md
+Review 3 report: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/reflect/pre-removeTheAnyIssu-20261102054021/REPORT.md (64/64 citations re-verified, 0 dropped)
+Inventory: /home/coder/workspaces/IronClaude/.dev/worktrees/review-severity-rule/.dev/review-severity-rule/inventory.md
+
+OPEN BLOCKING FINDINGS (sites the plan misses or checks it cannot pass):
+B3-01 rf-qa.md:391 "strictly fewer issues" halt counts minor findings; plan Task 2 stops editing at line 389.
+B3-02 templates/documents/agent_template_qa.md:172-179 Fix Cycle rechecks every severity; no task.
+B3-03 a fix agent is spawned on a minors-only list and the loop restarts on new minors: task/SKILL.md:359-366, 01_mdtm template:734-736, 02_mdtm template:751-753, operational-guide/SKILL.md:569-571, readme/SKILL.md:546, tech-reference/SKILL.md:534, tech-research/SKILL.md:486, roadmap/SKILL.md:2073; no task.
+B3-04 task-builder/SKILL.md:2225, 2231, 2232: the generated reflect gate still completes a task with Regression/Drift logged to Open Questions.
+B3-05 tests/audit/test_invariant_preservation_NFR_6_through_10.py:94-101, 344-350, 460-466 expects one LOW finding to FAIL; not in the plan, so Task 2's test run would fail.
+B3-06 Task 6's check cannot tell whether the FIX trigger at rf-team-lead.md:462 was changed.
+B3-07 the "FAIL: Issues found" synthesis verdict still fails on any issue: skill_template.md:882-885 and 13 copies, including cli/prd/prompts.py:1279 and 1332, which drive the real fix loop in cli/prd/executor.py:991-996.
+B3-08 prd and tdd refs/build-request-template.md (lines 155 and 150) start a fix on any remaining issue.
+B3-09 five acceptance checks name line numbers that the plan's own insertions move (plan lines 53, 77, 89, 177, 189), so they cannot pass as written.
+B3-10 sc-tasklist-protocol/SKILL.md:1439-1500, 1602, 1608 patches Low findings and at its cap ships with findings "logged for human review"; in no inventory row.
+(12 minor findings are recorded as notes in the report and will not be fixed.)
+
+Each review found new sites outside the lists (11, then 7, then 10), so site discovery for this change is the risk.
