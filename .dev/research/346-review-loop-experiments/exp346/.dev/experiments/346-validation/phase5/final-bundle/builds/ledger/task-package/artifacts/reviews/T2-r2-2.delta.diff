@@ -1,0 +1,139 @@
+diff --git a/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py b/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
+index 93adf662..5849540a 100644
+--- a/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
++++ b/src/superclaude/skills/sc-review-ledger/scripts/review_ledger.py
+@@ -651,7 +651,12 @@ def mutate(args, cmd: str, read_payload, apply):
+                 state["phase"],
+                 state["round"],
+             )
+-            if op["digest"] == digest and same_state:
++            # an op that changed the document replays only while the document is as it left it
++            doc_unchanged = op.get("doc_after") in (
++                None,
++                live_binding(args)["doc_sha256"],
++            )
++            if op["digest"] == digest and same_state and doc_unchanged:
+                 return dict(op["result"], replayed=True)
+             if op["op"] == args.op and op["digest"] != digest:
+                 refuse(
+@@ -1072,8 +1077,23 @@ def check_claims(
+     return claims, gaps, hunks
+ 
+ 
++def live_binding(args) -> dict:
++    """The live document's sha256 and the round: part of every request whose result
++    depends on the document, so a call after a new edit is a new request, not a replay."""
++    ledger = Ledger(ledger_root(args))
++    state = ledger.load()
++    doc = ledger.doc_path(state)
++    return {
++        "doc_sha256": sha256_bytes(doc.read_bytes()) if doc.is_file() else None,
++        "round": state["round"],
++    }
++
++
+ def cmd_answer(args) -> dict:
+-    read, got = input_reader(args.input)
++    read_only_input, got = input_reader(args.input)
++
++    def read() -> bytes:
++        return read_only_input() + b"\0" + canonical(live_binding(args))
+ 
+     def apply(ledger: Ledger, state: dict):
+         require_phase(state, "revise")
+@@ -1092,7 +1112,12 @@ def cmd_answer(args) -> dict:
+             ledger.root / "inputs" / f"c{state['round']}-answers-{state['seq']}.json",
+             got["payload"],
+         )
+-        return {"claims": claims, "gaps": gaps, "_op": {"claims": claims, "gaps": gaps}}
++        doc_after = sha256_bytes(ledger.doc_path(state).read_bytes())
++        return {
++            "claims": claims,
++            "gaps": gaps,
++            "_op": {"claims": claims, "gaps": gaps, "doc_after": doc_after},
++        }
+ 
+     return mutate(args, "answer", read, apply)
+ 
+@@ -1101,7 +1126,7 @@ def cmd_revert_unclaimed(args) -> dict:
+     target = {}
+ 
+     def read() -> bytes:
+-        return canonical({"hunk": args.hunk})
++        return canonical({"hunk": args.hunk, **live_binding(args)})
+ 
+     def apply(ledger: Ledger, state: dict):
+         if state["phase"] != "revise":  # every other phase, terminal ones included
+@@ -1149,11 +1174,12 @@ def cmd_revert_unclaimed(args) -> dict:
+             for n in failed
+         ]
+         target["n"] = len(reverted)
++        after_text = join_lines(lines, live.endswith("\n")) if reverted else live
+         return {
+             "reverted": reverted,
+             "failed": failed,
+             "restored_bytes": restored,
+-            "_op": {"x_items": x_items},
++            "_op": {"x_items": x_items, "doc_after": sha256_text(after_text)},
+         }
+ 
+     return mutate(args, "revert-unclaimed", read, apply)
+diff --git a/tests/skills/test_review_ledger_script.py b/tests/skills/test_review_ledger_script.py
+index c7477be6..b6bb52a9 100644
+--- a/tests/skills/test_review_ledger_script.py
++++ b/tests/skills/test_review_ledger_script.py
+@@ -792,3 +792,54 @@ def test_dry_run_find_and_answer_write_nothing(tmp_path):
+     )
+     assert code == 0 and out["dry_run"] is True and out["claims"][0]["row"] == "R1"
+     assert tree_digest(lp.ledger, lp.doc, disp) == before
++
++
++def test_repeat_revert_after_a_new_edit_is_not_a_replay(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit("doc-r2-outside.md")
++    code, out = lp.mut("revert-unclaimed")
++    assert code == 0 and out["reverted"] == [1]
++    lp.edit("doc-r2-outside.md")  # the reviser makes the same edit again
++    seq = lp.seq()
++    code, out = lp.mut("revert-unclaimed")
++    assert code == 0 and out.get("replayed") is not True and out["seq"] == seq + 1
++    assert lp.doc.read_text() == (_FIX / "doc-r1.md").read_text()
++
++
++def test_repeat_answer_after_a_new_edit_is_not_a_replay(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    claim = {"claims": [{"row": "R1", "action": "fixed", "hunks": [1]}]}
++    lp.edit("doc-r2-fix.md")
++    assert lp.answer(claim)[0] == 0
++    lp.edit(
++        text=(_FIX / "doc-r2-fix.md")
++        .read_text()
++        .replace("at most twice", "at most three times")
++    )
++    seq = lp.seq()
++    code, out = lp.answer(claim)
++    assert code == 0 and out.get("replayed") is not True and out["seq"] == seq + 1
++
++
++def test_revert_retry_after_commit_is_stale_not_a_false_replay(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit("doc-r2-outside.md")
++    seq = lp.seq()
++    assert lp.mut("revert-unclaimed", op="a", seq=seq)[0] == 0
++    # the committed revert changed the document, so the same request is a new one: stale seq
++    code, out = lp.mut("revert-unclaimed", op="b", seq=seq)
++    assert code == 4 and out["error"] == "E-STALE-SEQ"
++
++
++def test_identical_answer_retry_is_replayed_while_document_unchanged(tmp_path):
++    lp = Loop(tmp_path)
++    lp.round1()
++    lp.edit("doc-r2-fix.md")
++    claim = {"claims": [{"row": "R1", "action": "fixed", "hunks": [1]}]}
++    seq = lp.seq()
++    c1, o1 = lp.answer(claim, op="a", seq=seq)
++    c2, o2 = lp.answer(claim, op="b", seq=seq)
++    assert c1 == c2 == 0 and o2.get("replayed") is True and o2["seq"] == o1["seq"]

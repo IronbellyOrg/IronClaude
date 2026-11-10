@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "haiku",
+  "reviewer_blocking": false,
+  "run": "a3-r4"
+ },
+ "case_id": "real_ha3r4_M10",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:7",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "M10",
+  "finding_section": "**M10. The count of \"27 needing a change\" includes `/sc:pr-submit`, which D3 recommends keeping coordinator-only.** Expert: Wiegers (internal consistency).\n- The 27 includes pr-submit (SPEC:114, SPEC:76). D3 recommends coordinator-only (SPEC:239-242). Section 4 says pr-submit is a worker candidate \"only if the user accepts open decision D3\" (SPEC:139).\n- Recommendation: move pr-submit to a conditional row with the count stated as 26 plus one conditional.\n- Priority: Low to medium."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p14/haiku-baseline/runs/a3-r4/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

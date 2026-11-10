@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "Security alerts are dropped when the SMS limit is reached",
+  "wrong_outcome": "an implementer who follows the stated text as written builds a limiter that drops a security alert once the hourly SMS limit is reached (`security alerts are dropped like any other notification under R8`, S:24), so a user under attack loses the alert, which is wrong because it breaks a safety boundary."
+ },
+ "evidence": {
+  "e1": {
+   "text": "security alerts are dropped like any other notification under R8",
+   "line": 24,
+   "context": "## 5. Records\nR11. Every notification attempt is recorded with its channel, priority and delivery result.\nR12. Records are kept for 30 days.\nR13. When the hourly SMS limit is reached for a user, security alerts are dropped like any other notification under R8.\n\n## 6. Notes\nPriorities are urgent, normal and low. A notification has exactly one priority, set by the service that creates it."
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

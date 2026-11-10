@@ -1,0 +1,103 @@
+{
+ "stratum": "haiku",
+ "design": "stage2-arm3 (PR #484) with haiku loop workers; audits sonnet",
+ "n": 6,
+ "tokens": "output tokens, each message id once",
+ "runs": [
+  {
+   "run": "a3-r1",
+   "loop_verdict": "FAIL",
+   "reviews": 3,
+   "final_bytes": 60147,
+   "growth_pct": 4.1,
+   "loop_tokens": 193519,
+   "audit_tokens": 58345,
+   "audit1_verdict": "FAIL",
+   "audit1_blocking": 2,
+   "audit2": "pending",
+   "harness_anomalies": []
+  },
+  {
+   "run": "a3-r2",
+   "loop_verdict": "PASS",
+   "reviews": 3,
+   "final_bytes": 60530,
+   "growth_pct": 4.8,
+   "loop_tokens": 187357,
+   "audit_tokens": 53355,
+   "audit1_verdict": "FAIL",
+   "audit1_blocking": 3,
+   "audit2": "pending",
+   "harness_anomalies": []
+  },
+  {
+   "run": "a3-r3",
+   "loop_verdict": "PASS",
+   "reviews": 2,
+   "final_bytes": 60320,
+   "growth_pct": 4.4,
+   "loop_tokens": 153211,
+   "audit_tokens": 56321,
+   "audit1_verdict": "FAIL",
+   "audit1_blocking": 1,
+   "audit2": "pending",
+   "harness_anomalies": []
+  },
+  {
+   "run": "a3-r4",
+   "loop_verdict": "PASS",
+   "reviews": 2,
+   "final_bytes": 57870,
+   "growth_pct": 0.2,
+   "loop_tokens": 83752,
+   "audit_tokens": 77947,
+   "audit1_verdict": "FAIL",
+   "audit1_blocking": 3,
+   "audit2": "pending",
+   "harness_anomalies": []
+  },
+  {
+   "run": "a3-r5",
+   "loop_verdict": "PASS",
+   "reviews": 3,
+   "final_bytes": 59413,
+   "growth_pct": 2.9,
+   "loop_tokens": 183203,
+   "audit_tokens": 67982,
+   "audit1_verdict": "FAIL",
+   "audit1_blocking": 0,
+   "audit2": "pending",
+   "harness_anomalies": []
+  },
+  {
+   "run": "a3-r6",
+   "loop_verdict": "FAIL",
+   "reviews": 3,
+   "final_bytes": 59613,
+   "growth_pct": 3.2,
+   "loop_tokens": 203248,
+   "audit_tokens": 47903,
+   "audit1_verdict": "FAIL",
+   "audit1_blocking": 2,
+   "audit2": "pending",
+   "harness_anomalies": [
+    "stray send_message (r6 R1)",
+    "wrote files outside sandbox (r6 R2)"
+   ]
+  }
+ ],
+ "blocking_per_audit": [
+  2,
+  3,
+  1,
+  3,
+  0,
+  2
+ ],
+ "mean_blocking": 1.83,
+ "loop_pass": 4,
+ "mean_loop_tokens": 167382,
+ "mean_growth_pct": 3.3,
+ "harness_failure_rate": 0.17,
+ "note": "single audit per final spec so far; second audits pending (coordinator will add them and update mean_blocking)"
+}

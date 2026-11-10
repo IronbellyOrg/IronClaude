@@ -1,0 +1,234 @@
+{
+ "run": "b2-r6",
+ "design": "b2",
+ "rep": 6,
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "product_ref": "3d2fe006c00e71460ab7d56542fa01e29e7ce43e",
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "e161284648a17d97e22715de0077e971857e78cf30dd3a41ca3ca126bec19ee3",
+ "done": [
+  "R1",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 36173,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 4,
+    "MAJOR": 18,
+    "MINOR": 4
+   },
+   "blocking_ids": "B-1, B-2**. Nothing else may be revised",
+   "blocking": [
+    {
+     "id": "B-1",
+     "heading": "### B-1 (CRITICAL as labelled, blocking): WC-4 defines the contract location as a directory, but the briefs for tdd and init-lite pass a file",
+     "theme": "T2",
+     "cited": [
+      62,
+      87,
+      90,
+      183,
+      200
+     ]
+    },
+    {
+     "id": "B-2",
+     "heading": "### B-2 (CRITICAL as labelled, blocking): load is a P1 command that AC-1.2 must run live with a contract, but its row says it has no report and must not be its own Task",
+     "theme": "T1",
+     "cited": [
+      112,
+      159,
+      182,
+      183,
+      195,
+      196,
+      265
+     ]
+    }
+   ],
+   "ids": [
+    "B-1",
+    "B-2"
+   ],
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "output_tokens": 60450
+  },
+  "VF1": {
+   "finding_ids": [
+    "B-1",
+    "B-2"
+   ],
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 2896,
+   "confirmed": [
+    "B-1",
+    "B-2"
+   ],
+   "rejected": {},
+   "parse_ok": true
+  },
+  "V1": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 3765,
+   "spec_after": {
+    "bytes": 58012,
+    "lines": 285,
+    "sha256": "89aa60a626c2210c7e3cd02a711923cbaf3990a333b6398f744d27073b0d61ba"
+   }
+  },
+  "R2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 14055,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": "B-1, B-2",
+   "blocking": [],
+   "ids": [
+    "B-1",
+    "B-2"
+   ],
+   "spec_after": {
+    "bytes": 58012,
+    "lines": 285,
+    "sha256": "89aa60a626c2210c7e3cd02a711923cbaf3990a333b6398f744d27073b0d61ba"
+   }
+  },
+  "AUD": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 15359,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 2
+   },
+   "blocking_ids": "R-1",
+   "blocking": [
+    {
+     "id": "R-1",
+     "heading": null,
+     "theme": "other",
+     "cited": []
+    }
+   ]
+  },
+  "AUD2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 17097,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 3
+   },
+   "blocking_ids": "F-1, F-2, F-3. No others",
+   "blocking": [
+    {
+     "id": "F-1",
+     "heading": "### F-1. BLOCKING, MAJOR. P1 scope, the phase column and AC-1.1 contradict each other (Wiegers, Whittaker). Priority High.",
+     "theme": "T1",
+     "cited": [
+      79,
+      84,
+      87,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      159,
+      195
+     ]
+    },
+    {
+     "id": "F-2",
+     "heading": "### F-2. BLOCKING, MAJOR. The P0 acceptance check cannot pass as written (Crispin, Adzic). Priority High.",
+     "theme": "T3",
+     "cited": [
+      43,
+      154,
+      158,
+      182,
+      194
+     ]
+    },
+    {
+     "id": "F-3",
+     "heading": "### F-3. BLOCKING, MAJOR. WC-4's contract location contradicts the rows for adversarial and workflow (Wiegers, Fowler). Priority High.",
+     "theme": "T2",
+     "cited": [
+      73,
+      83,
+      92,
+      198
+     ]
+    }
+   ]
+  }
+ },
+ "launched": {
+  "R1": "2026-11-10T05:12:36+00:00",
+  "VF1": "2026-11-10T05:22:01+00:00",
+  "V1": "2026-11-10T05:27:54+00:00",
+  "R2": "2026-11-10T05:33:42+00:00",
+  "AUD": "2026-11-10T05:50:56+00:00",
+  "AUD2": "2026-11-10T05:50:56+00:00"
+ },
+ "pending": [],
+ "noted_unactioned": [],
+ "loop_end": "PASS",
+ "manual": [],
+ "manual_ids": {},
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "final_spec": {
+  "bytes": 58012,
+  "lines": 285,
+  "sha256": "89aa60a626c2210c7e3cd02a711923cbaf3990a333b6398f744d27073b0d61ba"
+ }
+}

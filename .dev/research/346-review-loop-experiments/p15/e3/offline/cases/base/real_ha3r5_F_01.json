@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "haiku",
+  "reviewer_blocking": true,
+  "run": "a3-r5"
+ },
+ "case_id": "real_ha3r5_F_01",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "T3:15",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-01",
+  "finding_section": "### F-01 (MAJOR, BLOCKING): AC-0.4 step 3 cannot pass in Phase 0\n\n- Location: spec line 194 (AC-0.4) against line 182 (7.2 step 3) and line 158 (P0, \"no command edits\"). Inventory: `commands-b.md:272` (workflow contract is `.dev/tasks/to-do/<id>/return-contract.yaml`), `commands-a.md:55` (init-lite writes no contract).\n- Issue: AC-0.4 requires steps 1-3 to pass, and step 3 requires \"its report path is the WC-4 contract path\". AC-0.4 also says the WC-4 contract \"arrives in P1\". Phase 0 therefore has no WC-4 path for step 3 to match.\n- Grading check: \"An implementer who runs AC-0.4 as written in P0 finds step 3 cannot pass for any of the three commands, and that is wrong because P0 is the gate that decides whether section 1 stands (line 194, \"a failure here reopens section 1\").\" This holds with no added assumption: the two stated texts contradict each other.\n- Recommendation: in AC-0.4, make step 3 check the report path against the command's existing report file (`REPORT.md` for troubleshoot, the workflow `return-contract.yaml`, `<output>/adversarial/return-contract.yaml` as actually written), and state the WC-4 path check starts in P1.\n- Expert: Adzic (acceptance criteria that cannot pass), Wiegers (traceability of the gate to its phase)."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p14/haiku-baseline/runs/a3-r5/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "base",
+ "variant": "base"
+}

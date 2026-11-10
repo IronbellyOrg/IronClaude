@@ -1,0 +1,32 @@
+{
+ "case_id": "real_a3r3_F2",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.27,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.73,
+    "type": "noul"
+   },
+   "texts_conflict": {
+    "p": 0.31,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 185,
+  "model": "jev-1.14.0",
+  "request_sha256": "22d0d85ffe9608c15df185ddf1504576ffa0d936a9492236b5dd00988601f193",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 1944,
+   "output_tokens": 64
+  }
+ }
+}

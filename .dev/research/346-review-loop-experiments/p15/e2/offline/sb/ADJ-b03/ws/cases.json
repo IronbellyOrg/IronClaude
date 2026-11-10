@@ -1,0 +1,134 @@
+[
+ {
+  "case_id": "s0-20",
+  "document": "docs/doc-d3cdbe573e.md",
+  "proposed_defect": "WC-10 requires splitting only for single waits longer than 5 minutes but sets the split size at 4 minutes, so a 4.5-minute wait is allowed by WC-10 yet fails the 240 s limit in AC-4.3.",
+  "proposed_evidence": [
+   {
+    "quote": "must be split into waits of at most 4 minutes",
+    "lines": "68-68"
+   },
+   {
+    "quote": "no single tool call exceeds 240 s",
+    "lines": "210-210"
+   }
+  ],
+  "labeler_1": {
+   "defect_real": "no",
+   "evidence_sufficient": "n/a",
+   "evidence_minimal": "n/a",
+   "evidence": "WC-10 ... must be split into waits of at most 4 minutes so the session can heartbeat between them; pr-submit row: confirm each single iteration (poll script runtime plus sleep) stays under 4 minutes (WC-10",
+   "other_blocker": "none",
+   "confidence": "low"
+  },
+  "labeler_2": {
+   "defect_real": "no",
+   "evidence_sufficient": "n/a",
+   "evidence_minimal": "n/a",
+   "evidence": "A command step that blocks a single tool call for longer than 5 minutes",
+   "other_blocker": "none",
+   "confidence": "low"
+  }
+ },
+ {
+  "case_id": "s0-21",
+  "document": "docs/doc-9352d22af0.md",
+  "proposed_defect": "AC-3.5 expects the second `/sc:save --unattended` run to overwrite `pm_context.md` (citing WC-11); WC-11 says memory keys overwritten whole are not written in unattended mode, and AC-3.4 lists `pm_context.md` among the single-owner files whose hashes must stay unchanged; only the chain shows the two checks cannot both pass.",
+  "proposed_evidence": [
+   {
+    "quote": "the second run overwrites `pm_context.md` with the new session's content (WC-11)",
+    "lines": "208-208"
+   },
+   {
+    "quote": "single-owner shared files (for example memory keys overwritten whole) are not written in unattended mode",
+    "lines": "69-69"
+   },
+   {
+    "quote": "two new per-session files; the single-owner files' hashes unchanged",
+    "lines": "207-207"
+   }
+  ],
+  "labeler_1": {
+   "defect_real": "yes",
+   "evidence_sufficient": "yes",
+   "evidence_minimal": "yes",
+   "evidence": "AC-3.5: the second run overwrites `pm_context.md` with the new session's content (WC-11) / AC-3.4: two new per-session files; the single-owner files' hashes unchanged",
+   "other_blocker": "none",
+   "confidence": "high"
+  },
+  "labeler_2": {
+   "defect_real": "yes",
+   "evidence_sufficient": "no",
+   "evidence_minimal": "yes",
+   "evidence": "the second run overwrites `pm_context.md` with the new session's content (WC-11)",
+   "other_blocker": "none",
+   "confidence": "low"
+  }
+ },
+ {
+  "case_id": "s0-22",
+  "document": "docs/doc-d3cdbe573e.md",
+  "proposed_defect": "The additive-edits check AC-C5 greps for lines matching `^-[^-]`, which cannot see a deleted markdown bullet (it appears in a zero-context diff as `-- item`), so SA-4's claim that edits are additive is not proved.",
+  "proposed_evidence": [
+   {
+    "quote": "Command-file edits in Phases 1-3 are additive",
+    "lines": "149-149"
+   },
+   {
+    "quote": "prints nothing: edits are additive",
+    "lines": "176-176"
+   }
+  ],
+  "labeler_1": {
+   "defect_real": "no",
+   "evidence_sufficient": "n/a",
+   "evidence_minimal": "n/a",
+   "evidence": "AC-C5: `git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md | grep -E '^-[^-]'` prints nothing: edits are additive",
+   "other_blocker": "none",
+   "confidence": "low"
+  },
+  "labeler_2": {
+   "defect_real": "no",
+   "evidence_sufficient": "n/a",
+   "evidence_minimal": "n/a",
+   "evidence": "prints nothing: edits are additive",
+   "other_blocker": "none",
+   "confidence": "high"
+  }
+ },
+ {
+  "case_id": "s0-23",
+  "document": "docs/doc-3e3402fb5b.md",
+  "proposed_defect": "AC-4.4 allows single waits up to 360 s and cites WC-13, WC-13 defers to the splitting rule of WC-10, and WC-10 requires waits of at most 4 minutes (240 s); only the chain shows that AC-4.4 passes runs that WC-10 forbids.",
+  "proposed_evidence": [
+   {
+    "quote": "no single tool call exceeds 360 s (WC-13)",
+    "lines": "212-212"
+   },
+   {
+    "quote": "obeys the splitting rule of WC-10",
+    "lines": "71-71"
+   },
+   {
+    "quote": "must be split into waits of at most 4 minutes",
+    "lines": "68-68"
+   }
+  ],
+  "labeler_1": {
+   "defect_real": "yes",
+   "evidence_sufficient": "yes",
+   "evidence_minimal": "yes",
+   "evidence": "WC-13: A worker's longest single wait obeys the splitting rule of WC-10. / AC-4.4: no single tool call exceeds 360 s (WC-13)",
+   "other_blocker": "none",
+   "confidence": "high"
+  },
+  "labeler_2": {
+   "defect_real": "no",
+   "evidence_sufficient": "n/a",
+   "evidence_minimal": "n/a",
+   "evidence": "no single tool call exceeds 360 s (WC-13)",
+   "other_blocker": "none",
+   "confidence": "low"
+  }
+ }
+]

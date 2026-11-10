@@ -1,0 +1,134 @@
+[
+ {
+  "case_id": "s0-17",
+  "document": "docs/doc-3d8177fe94.md",
+  "proposed_defect": "DIG-1 sends the digest at 08:00 in each user's local morning, but PRIV-2 says the service holds no information about where a user is, including the time zone, so local morning cannot be known.",
+  "proposed_evidence": [
+   {
+    "quote": "The service holds no information about where a user is, including the user's time zone",
+    "lines": "10-10"
+   },
+   {
+    "quote": "Each user's digest is sent at 08:00 in that user's local morning",
+    "lines": "23-23"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-18",
+  "document": "docs/doc-df93cd3cc3.md",
+  "proposed_defect": "RET-1 requires every deleted record to be purged within 30 days with no exceptions, but RET-5 keeps a deleted record until its support ticket closes, which can be longer than 30 days.",
+  "proposed_evidence": [
+   {
+    "quote": "Every deleted record is purged from all stores within 30 days of deletion, with no exceptions",
+    "lines": "9-9"
+   },
+   {
+    "quote": "A deleted record that is referenced by an open support ticket is kept until the ticket closes",
+    "lines": "16-16"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-19",
+  "document": "docs/doc-a2292c2866.md",
+  "proposed_defect": "REL-4 forbids deployments during the last week of each quarter, but REL-9 allows security patches to be deployed during that week.",
+  "proposed_evidence": [
+   {
+    "quote": "No deployments during the last week of each quarter",
+    "lines": "12-12"
+   },
+   {
+    "quote": "Security patches may be deployed at any time, including during the freeze in REL-4",
+    "lines": "17-17"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-20",
+  "document": "docs/doc-d3cdbe573e.md",
+  "proposed_defect": "WC-10 requires splitting only for single waits longer than 5 minutes but sets the split size at 4 minutes, so a 4.5-minute wait is allowed by WC-10 yet fails the 240 s limit in AC-4.3.",
+  "proposed_evidence": [
+   {
+    "quote": "must be split into waits of at most 4 minutes",
+    "lines": "68-68"
+   },
+   {
+    "quote": "no single tool call exceeds 240 s",
+    "lines": "210-210"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-21",
+  "document": "docs/doc-9352d22af0.md",
+  "proposed_defect": "AC-3.5 expects the second `/sc:save --unattended` run to overwrite `pm_context.md` (citing WC-11); WC-11 says memory keys overwritten whole are not written in unattended mode, and AC-3.4 lists `pm_context.md` among the single-owner files whose hashes must stay unchanged; only the chain shows the two checks cannot both pass.",
+  "proposed_evidence": [
+   {
+    "quote": "the second run overwrites `pm_context.md` with the new session's content (WC-11)",
+    "lines": "208-208"
+   },
+   {
+    "quote": "single-owner shared files (for example memory keys overwritten whole) are not written in unattended mode",
+    "lines": "69-69"
+   },
+   {
+    "quote": "two new per-session files; the single-owner files' hashes unchanged",
+    "lines": "207-207"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-22",
+  "document": "docs/doc-d3cdbe573e.md",
+  "proposed_defect": "The additive-edits check AC-C5 greps for lines matching `^-[^-]`, which cannot see a deleted markdown bullet (it appears in a zero-context diff as `-- item`), so SA-4's claim that edits are additive is not proved.",
+  "proposed_evidence": [
+   {
+    "quote": "Command-file edits in Phases 1-3 are additive",
+    "lines": "149-149"
+   },
+   {
+    "quote": "prints nothing: edits are additive",
+    "lines": "176-176"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-23",
+  "document": "docs/doc-3e3402fb5b.md",
+  "proposed_defect": "AC-4.4 allows single waits up to 360 s and cites WC-13, WC-13 defers to the splitting rule of WC-10, and WC-10 requires waits of at most 4 minutes (240 s); only the chain shows that AC-4.4 passes runs that WC-10 forbids.",
+  "proposed_evidence": [
+   {
+    "quote": "no single tool call exceeds 360 s (WC-13)",
+    "lines": "212-212"
+   },
+   {
+    "quote": "obeys the splitting rule of WC-10",
+    "lines": "71-71"
+   },
+   {
+    "quote": "must be split into waits of at most 4 minutes",
+    "lines": "68-68"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-24",
+  "document": "docs/doc-21b8337026.md",
+  "proposed_defect": "UP-6 loads the whole archive into memory before sending, archives reach 500 MB, and UP-1 forbids holding more than 20 MB in RAM, so the uploader cannot satisfy UP-1 on a large archive.",
+  "proposed_evidence": [
+   {
+    "quote": "The uploader must never hold more than 20 MB of its working data in RAM at any moment",
+    "lines": "9-9"
+   },
+   {
+    "quote": "The uploader loads the complete archive into memory, then signs it and sends it",
+    "lines": "21-21"
+   },
+   {
+    "quote": "archives of monorepo projects range up to 500 MB",
+    "lines": "16-16"
+   }
+  ]
+ }
+]

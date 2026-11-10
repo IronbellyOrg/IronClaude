@@ -1,0 +1,22 @@
+card: t1-card.md
+calibrator_model_class: opus
+reviewer_model_classes: [sonnet, haiku, opus]
+calibrator_diversity: degraded   # no class outside the three Anthropic aliases is available; opus also reviews (reviewer-3)
+calibration: blind (confidence-calibrator agent, card only)
+scores:
+  citation_grounding: 0.85
+  coverage_completeness: 0.82
+  deviation_classification_clarity: 0.78
+  risk_surface_coverage: 0.70
+  recommendation_actionability: 0.80
+confidence_calibrated: 0.79
+calibrator_corrections:
+  - "card line 12: out-of-scope bucket lists 22 ids, not 21 (INF-127, INF-128, INF-132 are matched)"
+  - "card line 13: covered-in-other-words bucket lists 15 ids, not 16"
+  - "INF-055 (source.md:69, minor budget 0 and --enforce revert) is covered by plan Task 2 MINOR-EDIT and Task 3; it belongs in the covered bucket"
+  - "INF-064 (source.md:90 'the first implementation task runs them'): plan runs the check-first tests in Task 5, an undeclared reordering"
+  - "Constraints run to plan line 32, not 31"
+risks_missed_by_card:
+  - "check-first parity tests could fail and block Task 5 (plan line 119) because HOW-WE-WORK.md must not change"
+  - "inherited src/superclaude reference (Tool Coordination line) is a known installed-primitive rule hit, not only a covered row"
+  - "the INF-032 fix adds a second sentence to a block the plan treats as literal; Task 5 pins and Task 7 byte-identity must carry it"

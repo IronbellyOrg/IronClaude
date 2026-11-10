@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": false,
+  "run": "a2-r5"
+ },
+ "case_id": "real_a2r5_M_8",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:22",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "M-8",
+  "finding_section": "### M-8 No parsing rule for the `--unattended` token\n\n- Severity label MINOR to MAJOR, graded Medium. Experts: Whittaker. Priority: Low. Impact: Clarity.\n- Issue. D1 says the flag \"cannot misfire on a person\" (SPEC:228). A quoted topic containing the token (for example `/sc:research \"what does --unattended do\"`) is a sentinel collision (GC-3 row 5), and the spec never says the token counts only as a standalone argument outside quotes.\n- Recommendation. Define the token match in the contract."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a2-r5/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

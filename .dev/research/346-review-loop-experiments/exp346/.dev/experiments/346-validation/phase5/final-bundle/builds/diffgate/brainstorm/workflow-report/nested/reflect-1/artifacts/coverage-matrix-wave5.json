@@ -1,0 +1,426 @@
+{
+  "parsed_ids": [],
+  "parsed_count": 0,
+  "inferred_count": 35,
+  "dropped_at_emission": [],
+  "coverage_pct": null,
+  "coverage_pct_union": 0.8,
+  "unmapped_requirements": [],
+  "unmapped_requirements_union": [
+    "INF-004",
+    "INF-006",
+    "INF-007",
+    "INF-021",
+    "INF-023",
+    "INF-025",
+    "INF-027"
+  ],
+  "matrix": [
+    {
+      "requirement_id": "INF-001",
+      "source": "inferred",
+      "citation": "source.md:16",
+      "quote": "Every subcommand prints one JSON object (`ok`, `exit`, `message`, `review`, plus its own fields); an accepted review whose verdict is FAIL still exits 0",
+      "best_task": 1,
+      "ratio": 0.7,
+      "matched_task_ids": [
+        1
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-002",
+      "source": "inferred",
+      "citation": "source.md:18",
+      "quote": "`ledger.json` (the only state: per review the document hash, hunks, prior findings, accepted check, accepted fix map, attempt counter, deferred list, flags `degraded`, `closed`, `invalid`)",
+      "best_task": 4,
+      "ratio": 0.7273,
+      "matched_task_ids": [
+        4
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-003",
+      "source": "inferred",
+      "citation": "source.md:36",
+      "quote": "The diff runs at line level with `difflib.SequenceMatcher(autojunk=False)` and then at token level inside changed blocks; only changed tokens are eligible",
+      "best_task": 1,
+      "ratio": 0.8667,
+      "matched_task_ids": [
+        1
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-004",
+      "source": "inferred",
+      "citation": "source.md:37",
+      "quote": "Minor findings, citation notes and \"related defects\" cannot own a hunk, so fixing them fails `fixcheck`.",
+      "best_task": 3,
+      "ratio": 0.4615,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "requirement_id": "INF-005",
+      "source": "inferred",
+      "citation": "source.md:39",
+      "quote": "A second structural failure sets the terminal state `invalid`, which is escalated and never replaced.",
+      "best_task": 4,
+      "ratio": 0.6364,
+      "matched_task_ids": [
+        4
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-006",
+      "source": "inferred",
+      "citation": "source.md:40",
+      "quote": "shown once at the end with the reviewer's own severity label and the sentence \"PASS in this loop is scoped to the reviewed surfaces; deferred severity labels are the reviewer's, unvalidated.\"",
+      "best_task": 2,
+      "ratio": 0.3529,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "requirement_id": "INF-007",
+      "source": "inferred",
+      "citation": "source.md:68",
+      "quote": "`src/superclaude/core/HOW-WE-WORK.md`, `WORKER-CONTRACT.md` and the installer are not edited.",
+      "best_task": 10,
+      "ratio": 0.5,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "requirement_id": "INF-008",
+      "source": "inferred",
+      "citation": "source.md:70",
+      "quote": "with `/sc:spec-panel` renamed to `/sc:spec-panel-diffgate` and only these edits:",
+      "best_task": 6,
+      "ratio": 1.0,
+      "matched_task_ids": [
+        6
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-009",
+      "source": "inferred",
+      "citation": "source.md:71",
+      "quote": "Frontmatter `name: spec-panel-diffgate`; `description:` gains \"with a computed re-review surface (diffgate variant)\".",
+      "best_task": 6,
+      "ratio": 0.9,
+      "matched_task_ids": [
+        6
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-010",
+      "source": "inferred",
+      "citation": "source.md:72",
+      "quote": "Usage line 22: replace `[--re-review <prior-findings-file> --baseline <saved-copy>]` with `[--diffgate-dir <dir> [--expect-round N]]`.",
+      "best_task": 6,
+      "ratio": 0.9167,
+      "matched_task_ids": [
+        6
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-011",
+      "source": "inferred",
+      "citation": "source.md:73",
+      "quote": "keep the bullet as `- **Read**: Specification content analysis and parsing` and delete only its clause that names `src/superclaude/examples/release-spec-template.md`",
+      "best_task": 6,
+      "ratio": 0.7333,
+      "matched_task_ids": [
+        6
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-012",
+      "source": "inferred",
+      "citation": "source.md:74",
+      "quote": "bullets 2 and 7 keep 427's text with the small additions shown; bullets 1, 3, 4, 5 and 6 are replaced.",
+      "best_task": 6,
+      "ratio": 0.875,
+      "matched_task_ids": [
+        6
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-013",
+      "source": "inferred",
+      "citation": "source.md:86",
+      "quote": "New section `## Diffgate`, between `## Review Loop` and `## Output Formats`, one physical line per item:",
+      "best_task": 6,
+      "ratio": 1.0,
+      "matched_task_ids": [
+        6
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-014",
+      "source": "inferred",
+      "citation": "source.md:99",
+      "quote": "`## Unattended mode` (line 451): byte-identical apart from the command name.",
+      "best_task": 6,
+      "ratio": 0.625,
+      "matched_task_ids": [
+        6
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-015",
+      "source": "inferred",
+      "citation": "source.md:101",
+      "quote": "Infrastructure skill, delegate-only, no slash command, frontmatter `name: sc-diffgate`, `allowed-tools: Read, Bash`.",
+      "best_task": 5,
+      "ratio": 1.0,
+      "matched_task_ids": [
+        5
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-016",
+      "source": "inferred",
+      "citation": "source.md:112",
+      "quote": "Exit codes: 0 done (includes an accepted review whose verdict is FAIL); 1 input rejected",
+      "best_task": 4,
+      "ratio": 0.6923,
+      "matched_task_ids": [
+        4
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-017",
+      "source": "inferred",
+      "citation": "source.md:125",
+      "quote": "Quoted values are JSON strings (`json.loads` on the token).",
+      "best_task": 2,
+      "ratio": 0.6667,
+      "matched_task_ids": [
+        2
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-018",
+      "source": "inferred",
+      "citation": "source.md:127",
+      "quote": "`src/superclaude/skills/sc-diffgate/scripts/diffgate.py` (new, about 420 lines, stdlib only).",
+      "best_task": 1,
+      "ratio": 0.75,
+      "matched_task_ids": [
+        1
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-019",
+      "source": "inferred",
+      "citation": "source.md:149",
+      "quote": "Fix-map rules: M1 every hunk is owned by one or more open blocking ids of the review (several ids per hunk allowed); M2 every blocking id has a hunk or a `declined` line",
+      "best_task": 3,
+      "ratio": 1.0,
+      "matched_task_ids": [
+        3
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-020",
+      "source": "inferred",
+      "citation": "source.md:154",
+      "quote": "the flg-r1-shaped fixture (four mapped blocking fixes with four new blockers on them, one MAJOR graded minor on a shared line, one minor-only fix)",
+      "best_task": 4,
+      "ratio": 1.0,
+      "matched_task_ids": [
+        4
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-021",
+      "source": "inferred",
+      "citation": "source.md:155",
+      "quote": "Small synthetic v1, v2, v3 documents and good, bad-anchor, unanchored, structural-failure and degraded reports; the flg-r1-shaped fixture.",
+      "best_task": 4,
+      "ratio": 0.2143,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "requirement_id": "INF-022",
+      "source": "inferred",
+      "citation": "source.md:156",
+      "quote": "an isolated temporary-HOME install of the command and `sc-diffgate` runs `diffgate.py --help` outside the repository and leaves a sentinel `spec-panel.md` byte-unchanged.",
+      "best_task": 7,
+      "ratio": 0.8571,
+      "matched_task_ids": [
+        7
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-023",
+      "source": "inferred",
+      "citation": "source.md:157",
+      "quote": "Add `UNATTENDED_VARIANTS = {\"spec-panel-diffgate\": \"spec-panel\"}`, compare against `set(UNATTENDED_COMMANDS) | set(UNATTENDED_VARIANTS)`",
+      "best_task": 12,
+      "ratio": 0.5,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "requirement_id": "INF-024",
+      "source": "inferred",
+      "citation": "source.md:158",
+      "quote": "Line 33 becomes `_POST_REFRESH_ADDITIONS = {\"graph\", \"impact\", \"issue\", \"spec-panel-diffgate\"}`",
+      "best_task": 8,
+      "ratio": 0.875,
+      "matched_task_ids": [
+        8
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-025",
+      "source": "inferred",
+      "citation": "source.md:160",
+      "quote": "must not describe the `fixcheck` retry limit with a digit pattern its `CAP_REGRESSION` matcher catches",
+      "best_task": 1,
+      "ratio": 0.2,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "requirement_id": "INF-026",
+      "source": "inferred",
+      "citation": "source.md:162",
+      "quote": "New `docs/designs/spec-panel-diffgate.md`: this SPEC trimmed to decisions, formats, residual risks and the measurement plan.",
+      "best_task": 9,
+      "ratio": 0.8333,
+      "matched_task_ids": [
+        9
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-027",
+      "source": "inferred",
+      "citation": "source.md:162",
+      "quote": "`make sync-dev` copies the command and the skill folder into `.claude/`, which is never staged; `make verify-sync` must pass.",
+      "best_task": 10,
+      "ratio": 0.5833,
+      "matched_task_ids": [],
+      "match_method": "none"
+    },
+    {
+      "requirement_id": "INF-028",
+      "source": "inferred",
+      "citation": "source.md:170",
+      "quote": "never `superclaude install --force`, which rewrites every command file, `spec-panel.md` included",
+      "best_task": 7,
+      "ratio": 0.7273,
+      "matched_task_ids": [
+        7
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-029",
+      "source": "inferred",
+      "citation": "source.md:181",
+      "quote": "**The one-line substitution in every review brief (reviews 1, 2 and 3):**",
+      "best_task": 11,
+      "ratio": 0.8889,
+      "matched_task_ids": [
+        11
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-030",
+      "source": "inferred",
+      "citation": "source.md:187",
+      "quote": "Any `--re-review ... --baseline ...` in a brief is removed (the variant refuses them).",
+      "best_task": 11,
+      "ratio": 0.625,
+      "matched_task_ids": [
+        11
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-031",
+      "source": "inferred",
+      "citation": "source.md:189",
+      "quote": "**The one line the reviser briefs gain (both fix cycles):**",
+      "best_task": 11,
+      "ratio": 0.875,
+      "matched_task_ids": [
+        11
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-032",
+      "source": "inferred",
+      "citation": "source.md:195",
+      "quote": "publishes the exact before and after text of every changed brief line in its run log",
+      "best_task": 12,
+      "ratio": 0.7273,
+      "matched_task_ids": [
+        12
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-033",
+      "source": "inferred",
+      "citation": "source.md:201",
+      "quote": "A worker in the experiment's permission mode runs `diffgate.py status` through the installed path with no permission prompt.",
+      "best_task": 11,
+      "ratio": 0.6154,
+      "matched_task_ids": [
+        11
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-034",
+      "source": "inferred",
+      "citation": "source.md:204",
+      "quote": "CRITICAL or MAJOR labels on (a) findings first raised in review 3, deferred, demoted and over-`via`-cap findings included",
+      "best_task": 2,
+      "ratio": 0.7857,
+      "matched_task_ids": [
+        2
+      ],
+      "match_method": "containment"
+    },
+    {
+      "requirement_id": "INF-035",
+      "source": "inferred",
+      "citation": "source.md:209",
+      "quote": "Blindness audit, mandatory for every arm: after the loop, one fresh `/sc:spec-panel --mode critique` review 1 of the final document in a new session with no ledger.",
+      "best_task": 12,
+      "ratio": 0.7143,
+      "matched_task_ids": [
+        12
+      ],
+      "match_method": "containment"
+    }
+  ]
+}

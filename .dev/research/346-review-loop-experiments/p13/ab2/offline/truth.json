@@ -1,0 +1,3280 @@
+{
+ "orig_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+ "catalog_present": true,
+ "docs": {
+  "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d": {
+   "labels": [
+    "orig:orig",
+    "final:a2-r3",
+    "hist:a1-r1/spec-v1.md",
+    "hist:a1-r2/spec-v1.md",
+    "hist:a1-r3/spec-v1.md",
+    "hist:a2-r1/spec-v1.md",
+    "hist:a2-r2/spec-v1.md",
+    "hist:a2-r4/spec-v1.md",
+    "hist:a2-r5/spec-v1.md",
+    "hist:a2-r6/spec-v1.md",
+    "hist:a3-r1/spec-v1.md",
+    "hist:a3-r2/spec-v1.md",
+    "hist:a3-r3/spec-v1.md",
+    "hist:a3-r4/spec-v1.md",
+    "hist:a3-r5/spec-v1.md",
+    "hist:a3-r6/spec-v1.md"
+   ],
+   "group": "orig",
+   "reports": [
+    {
+     "source": "a2-r3/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r3/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "REQ-1",
+      "REQ-2",
+      "ARCH-1"
+     ],
+     "findings": [
+      {
+       "id": "REQ-1",
+       "theme": "T1",
+       "cited": [
+        112,
+        154,
+        159,
+        195,
+        265
+       ],
+       "heading": "### REQ-1 [BLOCKING] AC-1.1 requires an `## Unattended mode` section on `/sc:load`, which the spec says gets none",
+       "found": true
+      },
+      {
+       "id": "REQ-2",
+       "theme": "T1",
+       "cited": [
+        60,
+        67,
+        73,
+        154,
+        159,
+        160,
+        162,
+        196
+       ],
+       "heading": "### REQ-2 [BLOCKING] P1 ships `--unattended` on commands whose gates are not converted until P2 or P4",
+       "found": true
+      },
+      {
+       "id": "ARCH-1",
+       "theme": "T2",
+       "cited": [
+        62,
+        83,
+        87,
+        90,
+        92,
+        182,
+        183,
+        198,
+        200
+       ],
+       "heading": "### ARCH-1 [BLOCKING] WC-4's one contract-path formula conflicts with the per-command rows and cannot be read at the path steps 3-4 of 7.2 use",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a2-r3"
+    },
+    {
+     "source": "a1-r1/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/review/spec-panel.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "F-01",
+      "F-02",
+      "F-03",
+      "F-04",
+      "F-05",
+      "F-06",
+      "F-07",
+      "F-08"
+     ],
+     "findings": [
+      {
+       "id": "F-01",
+       "theme": "T3",
+       "cited": [
+        62,
+        83,
+        84,
+        87,
+        90,
+        120,
+        158,
+        194,
+        196
+       ],
+       "heading": "**F-01 (MAJOR, blocking). Karl Wiegers: the report location has three spellings and mixed file/directory meaning.**",
+       "found": true
+      },
+      {
+       "id": "F-02",
+       "theme": "T2",
+       "cited": [
+        62,
+        64,
+        73,
+        99,
+        100,
+        101,
+        103,
+        104,
+        106,
+        107,
+        108,
+        110,
+        111,
+        120,
+        121,
+        122,
+        123
+       ],
+       "heading": "**F-02 (MAJOR, blocking; FR-8 from guard G4). Michael Nygard: no behavior when the report location is missing or unusable, and WC-4 conflicts with WC-6.**",
+       "found": true
+      },
+      {
+       "id": "F-03",
+       "theme": "T1",
+       "cited": [
+        90,
+        154,
+        159,
+        160,
+        161,
+        162,
+        195,
+        225
+       ],
+       "heading": "**F-03 (CRITICAL, blocking; FR-19 dimensional mismatch). Martin Fowler: P1 asks for the flag and the section on 37 commands, but only 15 are converted in P1.**",
+       "found": true
+      },
+      {
+       "id": "F-04",
+       "theme": "T3",
+       "cited": [
+        66,
+        147,
+        150,
+        158,
+        167,
+        172
+       ],
+       "heading": "**F-04 (MAJOR, blocking). Lisa Crispin / Karl Wiegers: AC-C1 cannot pass as designed and is vacuous as written.**",
+       "found": true
+      },
+      {
+       "id": "F-05",
+       "theme": "T2",
+       "cited": [
+        11,
+        62,
+        63,
+        146,
+        149,
+        183,
+        262
+       ],
+       "heading": "**F-05 (MAJOR, blocking; FR-8 from guard G2). Sam Newman: the fixed status vocabulary was never checked against the contracts that already exist.**",
+       "found": true
+      },
+      {
+       "id": "F-06",
+       "theme": "T1",
+       "cited": [
+        61,
+        90,
+        104,
+        105,
+        115,
+        117,
+        120
+       ],
+       "heading": "**F-06 (MAJOR, blocking; FR-8 from guard G3). Nygard: the WC-3 ask protocol is not complete.**",
+       "found": true
+      },
+      {
+       "id": "F-07",
+       "theme": "other",
+       "cited": [
+        68,
+        104
+       ],
+       "heading": "**F-07 (MAJOR, blocking; FR-8 from guard G1). Nygard: WC-10 leaves a hole between 4 and 5 minutes and does not cover Monitor-driven waits.**",
+       "found": true
+      },
+      {
+       "id": "F-08",
+       "theme": "other",
+       "cited": [
+        67,
+        100,
+        121,
+        244,
+        245,
+        246,
+        247
+       ],
+       "heading": "| F-08 | WC-9 names no authorization mechanism for `/sc:task` commit and push, and no precedence between `--post-pr` and `--no-post-pr` (FR-8, guard G5) | MAJOR",
+       "found": true
+      }
+     ],
+     "kind": "r1",
+     "run": "a1-r1"
+    },
+    {
+     "source": "a1-r2/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/review/spec-panel.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [],
+     "findings": [],
+     "kind": "r1",
+     "run": "a1-r2"
+    },
+    {
+     "source": "a1-r3/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/review/spec-panel.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [],
+     "findings": [],
+     "kind": "r1",
+     "run": "a1-r3"
+    },
+    {
+     "source": "a2-r1/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r1/ws/.dev/orca-command-refactor/review/round1.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "B-1",
+      "B-2"
+     ],
+     "findings": [
+      {
+       "id": "B-1",
+       "theme": "T3",
+       "cited": [
+        154,
+        158,
+        182,
+        183,
+        194
+       ],
+       "heading": "### B-1 (CRITICAL, blocking) AC-0.4 requires a step that Phase 0 cannot pass",
+       "found": true
+      },
+      {
+       "id": "B-2",
+       "theme": "T1",
+       "cited": [
+        62,
+        112,
+        125,
+        159,
+        182,
+        183,
+        195,
+        196,
+        265
+       ],
+       "heading": "### B-2 (CRITICAL, blocking) AC-1.1 and P1 require a report contract for `/sc:load`, which the same document says must have none",
+       "found": true
+      }
+     ],
+     "kind": "r1",
+     "run": "a2-r1"
+    },
+    {
+     "source": "a2-r2/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r2/ws/.dev/orca-command-refactor/review/round1.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "B1",
+      "B2"
+     ],
+     "findings": [
+      {
+       "id": "B1",
+       "theme": "T1",
+       "cited": [
+        62,
+        76,
+        112,
+        139,
+        159,
+        162,
+        195,
+        225,
+        240,
+        265
+       ],
+       "heading": "### B1 CRITICAL, blocking. AC-1.1 requires a contract section on every command, the load row and Decisions say load has none",
+       "found": true
+      },
+      {
+       "id": "B2",
+       "theme": "T2",
+       "cited": [
+        62,
+        73,
+        83,
+        87,
+        90,
+        92,
+        120,
+        182,
+        196,
+        198,
+        200
+       ],
+       "heading": "### B2 CRITICAL, blocking. WC-4's contract location rule contradicts the rows and acceptance criteria that use it",
+       "found": true
+      }
+     ],
+     "kind": "r1",
+     "run": "a2-r2"
+    },
+    {
+     "source": "a2-r3/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r3/ws/.dev/orca-command-refactor/review/round1.md",
+     "exists": true,
+     "verdict": "PASS",
+     "ids": [],
+     "findings": [],
+     "kind": "r1",
+     "run": "a2-r3"
+    },
+    {
+     "source": "a2-r4/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r4/ws/.dev/orca-command-refactor/review/round1.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "B-1"
+     ],
+     "findings": [
+      {
+       "id": "B-1",
+       "theme": "T1",
+       "cited": [
+        112,
+        159,
+        183,
+        195,
+        196,
+        265
+       ],
+       "heading": "### B-1. CRITICAL (blocking). P1's acceptance checks require a contract section that the spec's own `load` row removes.",
+       "found": true
+      }
+     ],
+     "kind": "r1",
+     "run": "a2-r4"
+    },
+    {
+     "source": "a2-r5/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r5/ws/.dev/orca-command-refactor/review/round1.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "B-1",
+      "B-2"
+     ],
+     "findings": [
+      {
+       "id": "B-1",
+       "theme": "T2",
+       "cited": [
+        62,
+        73,
+        83,
+        85,
+        86,
+        87,
+        90,
+        92,
+        109,
+        116,
+        117,
+        122,
+        183,
+        200
+       ],
+       "heading": "### B-1 Contract location rule cannot be satisfied for most of the commands it covers (BLOCKING)",
+       "found": true
+      },
+      {
+       "id": "B-2",
+       "theme": "T3",
+       "cited": [
+        43,
+        158,
+        159,
+        182,
+        194
+       ],
+       "heading": "### B-2 P0 acceptance check requires a contract that P0 does not build (BLOCKING)",
+       "found": true
+      }
+     ],
+     "kind": "r1",
+     "run": "a2-r5"
+    },
+    {
+     "source": "a2-r6/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r6/ws/.dev/orca-command-refactor/review/round1.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "F-01"
+     ],
+     "findings": [
+      {
+       "id": "F-01",
+       "theme": "T1",
+       "cited": [
+        112,
+        139,
+        159,
+        183,
+        195,
+        196,
+        240,
+        265
+       ],
+       "heading": "**F-01** CRITICAL, **blocking**. Expert: Wiegers (traceability), attack: Whittaker (Divergence).",
+       "found": true
+      }
+     ],
+     "kind": "r1",
+     "run": "a2-r6"
+    },
+    {
+     "source": "a3-r1/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r1/ws/.dev/orca-command-refactor/review/round1.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "F1",
+      "F2"
+     ],
+     "findings": [
+      {
+       "id": "F1",
+       "theme": "T3",
+       "cited": [
+        43,
+        83,
+        91,
+        92,
+        154,
+        158,
+        159,
+        182,
+        194,
+        272
+       ],
+       "heading": "**F1. CRITICAL (blocking). Expert: Wiegers (testability), Whittaker (Sequence Attack). The P0 live check demands a contract that the same row says does not exis",
+       "found": true
+      },
+      {
+       "id": "F2",
+       "theme": "T1",
+       "cited": [
+        112,
+        159,
+        183,
+        195,
+        196,
+        265
+       ],
+       "heading": "**F2. CRITICAL (blocking). Expert: Adzic (concrete examples), Wiegers, Whittaker (Divergence Attack). Two acceptance checks and the `load` row contradict each o",
+       "found": true
+      }
+     ],
+     "kind": "r1",
+     "run": "a3-r1"
+    },
+    {
+     "source": "a3-r2/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r2/ws/.dev/orca-command-refactor/review/round1.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "R1-B1",
+      "R1-B2"
+     ],
+     "findings": [
+      {
+       "id": "R1-B1",
+       "theme": "T1",
+       "cited": [],
+       "heading": "#### R1-B1. CRITICAL, blocking. Phase P1 contradicts WC-2 and the phase and decision structure",
+       "found": true
+      },
+      {
+       "id": "R1-B2",
+       "theme": "T2",
+       "cited": [],
+       "heading": "#### R1-B2. CRITICAL, blocking. The contract file location is defined by incompatible rules",
+       "found": true
+      }
+     ],
+     "kind": "r1",
+     "run": "a3-r2"
+    },
+    {
+     "source": "a3-r3/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r3/ws/.dev/orca-command-refactor/review/round1.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "F1",
+      "F2",
+      "F3"
+     ],
+     "findings": [
+      {
+       "id": "F1",
+       "theme": "T1",
+       "cited": [
+        76,
+        112,
+        154,
+        159,
+        183,
+        195,
+        196,
+        220,
+        265
+       ],
+       "heading": "### F1. MAJOR, blocking. AC-1.1 and AC-1.2 require a report and an `## Unattended mode` section for `/sc:load`, while the spec says `/sc:load` gets neither",
+       "found": true
+      },
+      {
+       "id": "F2",
+       "theme": "T1",
+       "cited": [
+        76,
+        79,
+        84,
+        87,
+        159,
+        195
+       ],
+       "heading": "### F2. MAJOR, blocking. Section 3.1 says ready commands change only by their small fix; Phase 1 and AC-1.1 add `--unattended` and an `## Unattended mode` secti",
+       "found": true
+      },
+      {
+       "id": "F3",
+       "theme": "T3",
+       "cited": [
+        73,
+        83,
+        91,
+        92,
+        154,
+        158,
+        180,
+        182,
+        194
+       ],
+       "heading": "### F3. MAJOR, blocking. AC-0.4 requires 7.2 step 3 to pass in Phase 0, but step 3 needs a contract that Phase 0 does not have, and step 1 needs an `--unattende",
+       "found": true
+      }
+     ],
+     "kind": "r1",
+     "run": "a3-r3"
+    },
+    {
+     "source": "a3-r4/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r4/ws/.dev/orca-command-refactor/review/round1.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "F-01"
+     ],
+     "findings": [
+      {
+       "id": "F-01",
+       "theme": "T1",
+       "cited": [
+        84,
+        87,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        139,
+        140,
+        154,
+        158,
+        159,
+        160,
+        161,
+        162,
+        195,
+        240,
+        265
+       ],
+       "heading": "### F-01 (CRITICAL, blocking) AC-1.1 cannot pass as written",
+       "found": true
+      }
+     ],
+     "kind": "r1",
+     "run": "a3-r4"
+    },
+    {
+     "source": "a3-r5/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r5/ws/.dev/orca-command-refactor/review/round1.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "F-1",
+      "F-2",
+      "F-3"
+     ],
+     "findings": [
+      {
+       "id": "F-1",
+       "theme": "T1",
+       "cited": [
+        44,
+        60,
+        67,
+        100,
+        112,
+        139,
+        154,
+        159,
+        160,
+        162,
+        195,
+        240
+       ],
+       "heading": "#### F-1. Phase 1 puts `--unattended` and an `## Unattended mode` section on every command, before the phases that make the flag safe",
+       "found": true
+      },
+      {
+       "id": "F-2",
+       "theme": "T3",
+       "cited": [
+        43,
+        62,
+        83,
+        91,
+        92,
+        158,
+        182,
+        194,
+        272
+       ],
+       "heading": "#### F-2. AC-0.4 requires a WC-4 contract for P0 smoke runs, but P0 has no command edits and two of the three smoke commands write none at the WC-4 path",
+       "found": true
+      },
+      {
+       "id": "F-3",
+       "theme": "other",
+       "cited": [
+        146,
+        149,
+        176,
+        193
+       ],
+       "heading": "#### F-3. AC-C5 and AC-0.3 use `grep -E '^-[^-]'`, which does not detect a deleted markdown bullet, so \"edits are additive\" is not proved",
+       "found": true
+      }
+     ],
+     "kind": "r1",
+     "run": "a3-r5"
+    },
+    {
+     "source": "a3-r6/R1",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r6/ws/.dev/orca-command-refactor/review/round1.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "REQ-1",
+      "REQ-2",
+      "ARCH-1"
+     ],
+     "findings": [
+      {
+       "id": "REQ-1",
+       "theme": "T2",
+       "cited": [
+        60,
+        62,
+        63,
+        73,
+        83,
+        85,
+        87,
+        90,
+        92,
+        120,
+        182,
+        183,
+        201
+       ],
+       "heading": "### REQ-1 (blocking, MAJOR, Wiegers lead, with Adzic): the report-location rule in WC-4 cannot be applied to a dozen of the commands the spec itself lists",
+       "found": true
+      },
+      {
+       "id": "REQ-2",
+       "theme": "T1",
+       "cited": [
+        76,
+        79,
+        84,
+        87,
+        95,
+        100,
+        109,
+        112,
+        113,
+        114,
+        118,
+        119,
+        124,
+        125,
+        154,
+        159,
+        160,
+        195,
+        265
+       ],
+       "heading": "### REQ-2 (blocking, MAJOR, Wiegers with Cockburn): the P1 acceptance test contradicts the rows' own phase assignments and the \"ready today\" rows",
+       "found": true
+      },
+      {
+       "id": "ARCH-1",
+       "theme": "T2",
+       "cited": [
+        62,
+        63,
+        64,
+        73,
+        88,
+        89,
+        90,
+        91,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        183
+       ],
+       "heading": "### ARCH-1 (blocking, CRITICAL, Fowler lead, Whittaker attack W2): WC-4 and WC-6 contradict on where a retry writes",
+       "found": true
+      }
+     ],
+     "kind": "r1",
+     "run": "a3-r6"
+    }
+   ],
+   "catalog": {
+    "clusters": [
+     {
+      "cid": "D1",
+      "theme": "T2",
+      "label": "WC-4 contract location cannot be resolved for file-valued, nested, generated or absent output flags",
+      "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+      "orig_span": [
+       61,
+       62
+      ],
+      "members": [
+       {
+        "source": "a1-r1/R1",
+        "fid": "F-01",
+        "blocking": true,
+        "quote": "<output-dir>",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r1/R1",
+        "fid": "F-02",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r2/R1",
+        "fid": "F4",
+        "blocking": true,
+        "quote": "<output-dir>/",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r3/R1",
+        "fid": "4",
+        "blocking": true,
+        "quote": "| 4 | WC-4 contract placement does not fit file-valued `--output`, adversarial's subdirectory, workflow's generated id a",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r3/R1",
+        "fid": "11",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       },
+       {
+        "source": "a2-r2/R1",
+        "fid": "B2",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "original"
+       },
+       {
+        "source": "a2-r5/R1",
+        "fid": "B-1",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r2/R1",
+        "fid": "R1-B2",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r6/R1",
+        "fid": "REQ-1",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "original"
+       },
+       {
+        "source": "a2-r1/AUD",
+        "fid": "F-2",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "final"
+       },
+       {
+        "source": "a2-r2/AUD",
+        "fid": "F-01",
+        "blocking": true,
+        "quote": "--output-dir",
+        "doc": "final"
+       },
+       {
+        "source": "a2-r3/AUD",
+        "fid": "ARCH-1",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "final"
+       },
+       {
+        "source": "a2-r4/AUD",
+        "fid": "F-2",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r1/AUD",
+        "fid": "B2",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r3/AUD",
+        "fid": "F-2",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r4/AUD",
+        "fid": "A-02",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r1/AUD2",
+        "fid": "F1",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r3/AUD2",
+        "fid": "B2",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r5/AUD2",
+        "fid": "B-1",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r6/AUD2",
+        "fid": "B1",
+        "blocking": true,
+        "quote": "<output-dir>",
+        "doc": "final"
+       }
+      ],
+      "n_sources": 18,
+      "confirmed": true,
+      "adjudication_reason": "members name tdd/init-lite file-valued --output, adversarial/workflow paths or missing output flags"
+     },
+     {
+      "cid": "D2",
+      "theme": "T2",
+      "label": "WC-6 fresh directory on retry contradicts a fixed, known-before-dispatch output location",
+      "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+      "orig_span": [
+       63,
+       64
+      ],
+      "members": [
+       {
+        "source": "a1-r1/R1",
+        "fid": "F-02",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r3/R1",
+        "fid": "3",
+        "blocking": true,
+        "quote": "known before dispatch",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r6/R1",
+        "fid": "ARCH-1",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r1/AUD",
+        "fid": "B-01",
+        "blocking": true,
+        "quote": "--output <dir>",
+        "doc": "final"
+       }
+      ],
+      "n_sources": 4,
+      "confirmed": true,
+      "adjudication_reason": "members name the retry writing into or away from the first attempt's WC-4 directory"
+     },
+     {
+      "cid": "D3",
+      "theme": "T1",
+      "label": "P1 ships --unattended on every command before the gates it must disable are converted in P2-P4",
+      "anchor": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+      "orig_span": [
+       158,
+       159
+      ],
+      "members": [
+       {
+        "source": "a1-r1/R1",
+        "fid": "F-03",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r2/R1",
+        "fid": "F2",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r3/R1",
+        "fid": "1",
+        "blocking": true,
+        "quote": "| 1 | AC-1.1 and the P1 scope count 37 commands with a contract section, but load has no contract, pr-submit leaves the ",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r3/R1",
+        "fid": "2",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r2/R1",
+        "fid": "R1-B1",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r4/R1",
+        "fid": "F-01",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r5/R1",
+        "fid": "F-1",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       },
+       {
+        "source": "a2-r1/AUD",
+        "fid": "F-1",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "final"
+       },
+       {
+        "source": "a2-r3/AUD",
+        "fid": "REQ-2",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "final"
+       },
+       {
+        "source": "a2-r4/AUD",
+        "fid": "F-1",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r1/AUD",
+        "fid": "B1",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r3/AUD",
+        "fid": "F-1",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r1/AUD2",
+        "fid": "F2",
+        "blocking": true,
+        "quote": "post-release",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r3/AUD2",
+        "fid": "B1",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "final"
+       }
+      ],
+      "n_sources": 13,
+      "confirmed": true,
+      "adjudication_reason": "members name the P1 scope/AC-1.1 counts against the later-phase gate conversion and the P4 wait on D2-D4"
+     },
+     {
+      "cid": "D4",
+      "theme": "T3",
+      "label": "AC-C1 scans core/, where P0 itself adds Orca text, so the check cannot pass",
+      "anchor": "src/superclaude/agents src/superclaude/core",
+      "orig_span": [
+       171,
+       172
+      ],
+      "members": [
+       {
+        "source": "a1-r1/R1",
+        "fid": "F-04",
+        "blocking": true,
+        "quote": "src/superclaude/core",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r2/R1",
+        "fid": "F3",
+        "blocking": true,
+        "quote": "src/superclaude/core",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r3/R1",
+        "fid": "9",
+        "blocking": true,
+        "quote": "| 9 | AC-C1 scans `core/` where P0 puts the contract and the routing-guide Orca section, contradicting SA-2; the escaped",
+        "doc": "original"
+       }
+      ],
+      "n_sources": 3,
+      "confirmed": true,
+      "adjudication_reason": "members say AC-C1 greps src/superclaude/core while P0 adds WORKER-CONTRACT.md and an Orca section there"
+     },
+     {
+      "cid": "D5",
+      "theme": "T2",
+      "label": "Fixed status vocabulary was not checked against the contracts that already exist",
+      "anchor": "keep their fields and add the missing ones",
+      "orig_span": [
+       61,
+       62
+      ],
+      "members": [
+       {
+        "source": "a1-r1/R1",
+        "fid": "F-05",
+        "blocking": true,
+        "quote": "keep their fields and add the missing ones",
+        "doc": "original"
+       }
+      ],
+      "n_sources": 1,
+      "confirmed": false,
+      "adjudication_reason": "single member"
+     },
+     {
+      "cid": "D6",
+      "theme": "T1",
+      "label": "WC-3 ask protocol is incomplete for commands with several gates",
+      "anchor": "ask the coordinator once with the preamble's `ask` command",
+      "orig_span": [
+       60,
+       61
+      ],
+      "members": [
+       {
+        "source": "a1-r1/R1",
+        "fid": "F-06",
+        "blocking": true,
+        "quote": "target_release",
+        "doc": "original"
+       }
+      ],
+      "n_sources": 1,
+      "confirmed": false,
+      "adjudication_reason": "single member"
+     },
+     {
+      "cid": "D7",
+      "theme": "other",
+      "label": "WC-10 leaves a hole between 4 and 5 minutes and cannot split Monitor-driven or fan-out waits",
+      "anchor": "must be split into waits of at most 4 minutes",
+      "orig_span": [
+       67,
+       68
+      ],
+      "members": [
+       {
+        "source": "a1-r1/R1",
+        "fid": "F-07",
+        "blocking": true,
+        "quote": "longer than 5 minutes",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r3/R1",
+        "fid": "10",
+        "blocking": true,
+        "quote": "| 10 | WC-10 threshold (over 5 min, waits of at most 4) disagrees with AC-4.3 (240 s); a 4.5-minute call passes one and ",
+        "doc": "original"
+       }
+      ],
+      "n_sources": 2,
+      "confirmed": true,
+      "adjudication_reason": "members name the 4-5 minute gap and unsplittable waits"
+     },
+     {
+      "cid": "D8",
+      "theme": "other",
+      "label": "WC-9 names no mechanism by which outward actions are authorized and checked",
+      "anchor": "any default that pushes, opens a PR, posts to GitHub",
+      "orig_span": [
+       66,
+       67
+      ],
+      "members": [
+       {
+        "source": "a1-r1/R1",
+        "fid": "F-08",
+        "blocking": true,
+        "quote": "--no-post-pr",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r3/R1",
+        "fid": "13",
+        "blocking": true,
+        "quote": "| 13 | WC-9 and D4 require the coordinator to quote the user, which no command can check; post-release has four outward ",
+        "doc": "original"
+       }
+      ],
+      "n_sources": 2,
+      "confirmed": true,
+      "adjudication_reason": "members name missing authorization mechanism or precedence for outward flags"
+     },
+     {
+      "cid": "D9",
+      "theme": "other",
+      "label": "Fan-in of workers is specified for the success case only",
+      "anchor": "Orca keeps those records only for workers the coordinator starts",
+      "orig_span": [
+       38,
+       39
+      ],
+      "members": [
+       {
+        "source": "a1-r2/R1",
+        "fid": "F1",
+        "blocking": true,
+        "quote": "| F1 | Fan-in is specified for the success case only. N producer workers feed one aggregator, but a failed or blocked pr",
+        "doc": "original"
+       }
+      ],
+      "n_sources": 1,
+      "confirmed": false,
+      "adjudication_reason": "single member"
+     },
+     {
+      "cid": "D10",
+      "theme": "T2",
+      "label": "A stale contract from an earlier attempt can be read as the current result",
+      "anchor": "Orca does not check the file, so the coordinator opens it.",
+      "orig_span": [
+       61,
+       62
+      ],
+      "members": [
+       {
+        "source": "a1-r2/R1",
+        "fid": "F5",
+        "blocking": true,
+        "quote": "| F5 | A stale contract can be read as the current result. Nothing requires the contract to be removed or set to `runnin",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r3/R1",
+        "fid": "3",
+        "blocking": true,
+        "quote": "known before dispatch",
+        "doc": "original"
+       }
+      ],
+      "n_sources": 2,
+      "confirmed": true,
+      "adjudication_reason": "single member"
+     },
+     {
+      "cid": "D11",
+      "theme": "T2",
+      "label": "The --unattended switch has no token rule, so quoted text can switch gates off",
+      "anchor": "cannot misfire on a person",
+      "orig_span": [
+       227,
+       228
+      ],
+      "members": [
+       {
+        "source": "a1-r2/R1",
+        "fid": "F6",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r3/R1",
+        "fid": "11",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       }
+      ],
+      "n_sources": 2,
+      "confirmed": true,
+      "adjudication_reason": "members name the flag inside quoted or pasted text"
+     },
+     {
+      "cid": "D12",
+      "theme": "T1",
+      "label": "AC-1.1/AC-1.2 demand a contract section for /sc:load, which the spec exempts",
+      "anchor": "every command in sections 3.1-3.2 has a `## Unattended mode` section",
+      "orig_span": [
+       194,
+       195
+      ],
+      "members": [
+       {
+        "source": "a1-r2/R1",
+        "fid": "F7",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "original"
+       },
+       {
+        "source": "a1-r3/R1",
+        "fid": "1",
+        "blocking": true,
+        "quote": "| 1 | AC-1.1 and the P1 scope count 37 commands with a contract section, but load has no contract, pr-submit leaves the ",
+        "doc": "original"
+       },
+       {
+        "source": "a2-r1/R1",
+        "fid": "B-2",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "original"
+       },
+       {
+        "source": "a2-r2/R1",
+        "fid": "B1",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "original"
+       },
+       {
+        "source": "a2-r4/R1",
+        "fid": "B-1",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "original"
+       },
+       {
+        "source": "a2-r6/R1",
+        "fid": "F-01",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r1/R1",
+        "fid": "F2",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r3/R1",
+        "fid": "F1",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r4/R1",
+        "fid": "F-01",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r6/R1",
+        "fid": "REQ-2",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       },
+       {
+        "source": "a2-r3/AUD",
+        "fid": "REQ-1",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "final"
+       },
+       {
+        "source": "a2-r5/AUD",
+        "fid": "F-1",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r2/AUD",
+        "fid": "F-02",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r2/AUD2",
+        "fid": "B-1",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "final"
+       }
+      ],
+      "n_sources": 14,
+      "confirmed": true,
+      "adjudication_reason": "all members name /sc:load as exempt by its row and Decision but required by the universal acceptance check"
+     },
+     {
+      "cid": "D13",
+      "theme": "T3",
+      "label": "The spec never says how the worker starts the command, and AC-0.4 does not check the skill loaded",
+      "anchor": "The worker runs the command directly in its own session",
+      "orig_span": [
+       64,
+       65
+      ],
+      "members": [
+       {
+        "source": "a1-r3/R1",
+        "fid": "5",
+        "blocking": true,
+        "quote": "| 5 | The spec never says how the worker starts the command (Skill tool versus text in the preamble); evidence E3 is int",
+        "doc": "original"
+       }
+      ],
+      "n_sources": 1,
+      "confirmed": false,
+      "adjudication_reason": "single member"
+     },
+     {
+      "cid": "D14",
+      "theme": "T1",
+      "label": "No version or capability check before dispatch for older installs or section-4 commands",
+      "anchor": "split into 10 ready today, 27 needing a change and 6 coordinator-only",
+      "orig_span": [
+       75,
+       76
+      ],
+      "members": [
+       {
+        "source": "a1-r3/R1",
+        "fid": "6",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       }
+      ],
+      "n_sources": 1,
+      "confirmed": false,
+      "adjudication_reason": "single member"
+     },
+     {
+      "cid": "D15",
+      "theme": "other",
+      "label": "No rule that --unattended is passed to nested skills and commands",
+      "anchor": "the command never calls `AskUserQuestion`",
+      "orig_span": [
+       59,
+       60
+      ],
+      "members": [
+       {
+        "source": "a1-r3/R1",
+        "fid": "7",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       }
+      ],
+      "n_sources": 1,
+      "confirmed": false,
+      "adjudication_reason": "single member"
+     },
+     {
+      "cid": "D16",
+      "theme": "other",
+      "label": "AC-C5/AC-0.3 grep cannot detect a deleted markdown bullet, so 'additive' is not proved",
+      "anchor": "prints nothing: edits are additive",
+      "orig_span": [
+       175,
+       176
+      ],
+      "members": [
+       {
+        "source": "a1-r3/R1",
+        "fid": "8",
+        "blocking": true,
+        "quote": "| 8 | AC-C5 and AC-0.3 regex `^-[^-]` misses deleted bullets and frontmatter fences, and wrongly fails a Usage-line edit",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r5/R1",
+        "fid": "F-3",
+        "blocking": true,
+        "quote": "grep -E '^-[^-]'",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r4/AUD2",
+        "fid": "B-01",
+        "blocking": true,
+        "quote": "grep -E '^-[^-]'",
+        "doc": "final"
+       }
+      ],
+      "n_sources": 3,
+      "confirmed": true,
+      "adjudication_reason": "members name the '^-[^-]' pattern failing on '-- ' lines"
+     },
+     {
+      "cid": "D17",
+      "theme": "T2",
+      "label": "WC-5 treats only a missing report as failure; empty, unparseable or out-of-set contracts are unspecified",
+      "anchor": "`--outcome failed` when the report says `failed` or `blocked`, or no report exists",
+      "orig_span": [
+       62,
+       63
+      ],
+      "members": [
+       {
+        "source": "a1-r3/R1",
+        "fid": "12",
+        "blocking": true,
+        "quote": "| 12 | WC-5 treats only a missing report as failure; empty or unparseable files, blocked without a question, and out-of-",
+        "doc": "original"
+       }
+      ],
+      "n_sources": 1,
+      "confirmed": false,
+      "adjudication_reason": "single member"
+     },
+     {
+      "cid": "D18",
+      "theme": "other",
+      "label": "WC-2 lists default, flag and blocked with no precedence, and one blocked_question for several gates",
+      "anchor": "Each gate resolves one of three ways",
+      "orig_span": [
+       59,
+       60
+      ],
+      "members": [
+       {
+        "source": "a1-r3/R1",
+        "fid": "14",
+        "blocking": true,
+        "quote": "blocked_question",
+        "doc": "original"
+       }
+      ],
+      "n_sources": 1,
+      "confirmed": false,
+      "adjudication_reason": "single member"
+     },
+     {
+      "cid": "D19",
+      "theme": "T3",
+      "label": "AC-0.4 requires a contract that Phase 0 cannot yet produce",
+      "anchor": "step 4 uses the command's existing report file, since the contract arrives in P1",
+      "orig_span": [
+       193,
+       194
+      ],
+      "members": [
+       {
+        "source": "a2-r1/R1",
+        "fid": "B-1",
+        "blocking": true,
+        "quote": "/sc:troubleshoot",
+        "doc": "original"
+       },
+       {
+        "source": "a2-r5/R1",
+        "fid": "B-2",
+        "blocking": true,
+        "quote": "return-contract.yaml",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r1/R1",
+        "fid": "F1",
+        "blocking": true,
+        "quote": "return-contract.yaml",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r3/R1",
+        "fid": "F3",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r5/R1",
+        "fid": "F-2",
+        "blocking": true,
+        "quote": "<output-dir>/return-contract.yaml",
+        "doc": "original"
+       },
+       {
+        "source": "a2-r2/AUD",
+        "fid": "F-02",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r2/AUD",
+        "fid": "F-01",
+        "blocking": true,
+        "quote": "/sc:troubleshoot \"<real symptom>\"",
+        "doc": "final"
+       }
+      ],
+      "n_sources": 7,
+      "confirmed": true,
+      "adjudication_reason": "all members say step 3 of the live check needs the WC-4 contract while P0 makes no command edits"
+     },
+     {
+      "cid": "D20",
+      "theme": "T1",
+      "label": "Ready commands with no small fix get no section or contract yet P1/AC-1.1/WC-4 expect one",
+      "anchor": "The only command changes are the small fixes in the last column.",
+      "orig_span": [
+       78,
+       79
+      ],
+      "members": [
+       {
+        "source": "a3-r3/R1",
+        "fid": "F2",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r4/R1",
+        "fid": "F-01",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "original"
+       },
+       {
+        "source": "a3-r6/R1",
+        "fid": "REQ-2",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "original"
+       },
+       {
+        "source": "a2-r5/AUD",
+        "fid": "F-1",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "final"
+       },
+       {
+        "source": "a3-r2/AUD2",
+        "fid": "B-1",
+        "blocking": true,
+        "quote": "## Unattended mode",
+        "doc": "final"
+       }
+      ],
+      "n_sources": 5,
+      "confirmed": true,
+      "adjudication_reason": "members name brainstorm, init-lite, cleanup-audit, index-repo or adversarial: ready rows that gain nothing but are counted by the universal check"
+     },
+     {
+      "cid": "D21",
+      "theme": "other",
+      "label": "cli-portify can only end blocked under --unattended, yet AC-2.3 requires a succeeded happy path",
+      "anchor": "each of the three approval gates resolves as blocked with the artifact to review named in the contract",
+      "orig_span": [
+       104,
+       105
+      ],
+      "members": [
+       {
+        "source": "a2-r4/AUD",
+        "fid": "F-3",
+        "blocking": true,
+        "quote": "--unattended",
+        "doc": "final"
+       }
+      ],
+      "n_sources": 1,
+      "confirmed": false,
+      "adjudication_reason": "single member: no default or approval flag exists for the cli-portify gates"
+     },
+     {
+      "cid": "D22",
+      "theme": "other",
+      "label": "AC-2.2 requires status blocked for P2 commands whose gates resolve by default or flag",
+      "anchor": "contract `status: blocked` with a non-empty `blocked_question`",
+      "orig_span": [
+       199,
+       200
+      ],
+      "members": [
+       {
+        "source": "a3-r4/AUD",
+        "fid": "A-01",
+        "blocking": true,
+        "quote": "status: blocked",
+        "doc": "final"
+       }
+      ],
+      "n_sources": 1,
+      "confirmed": false,
+      "adjudication_reason": "single member: AC-2.2 asserts blocked for each P2 command"
+     }
+    ],
+    "residual": {
+     "a1-r1": {
+      "present": [
+       "D2",
+       "D5",
+       "D8",
+       "D9",
+       "D10",
+       "D11",
+       "D13",
+       "D14",
+       "D15",
+       "D16",
+       "D18",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": [
+        "D2"
+       ]
+      }
+     },
+     "a1-r2": {
+      "present": [
+       "D2",
+       "D5",
+       "D7",
+       "D8",
+       "D9",
+       "D10",
+       "D13",
+       "D14",
+       "D15",
+       "D17",
+       "D18",
+       "D20",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": []
+      }
+     },
+     "a1-r3": {
+      "present": [
+       "D4",
+       "D5",
+       "D6",
+       "D9",
+       "D10",
+       "D11",
+       "D13",
+       "D14",
+       "D15",
+       "D18",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": []
+      }
+     },
+     "a2-r1": {
+      "present": [
+       "D1",
+       "D2",
+       "D3",
+       "D4",
+       "D5",
+       "D6",
+       "D7",
+       "D8",
+       "D9",
+       "D10",
+       "D11",
+       "D13",
+       "D14",
+       "D15",
+       "D16",
+       "D17",
+       "D18",
+       "D20",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": [
+        "D1",
+        "D3"
+       ]
+      }
+     },
+     "a2-r2": {
+      "present": [
+       "D1",
+       "D2",
+       "D3",
+       "D4",
+       "D5",
+       "D6",
+       "D7",
+       "D8",
+       "D9",
+       "D10",
+       "D11",
+       "D13",
+       "D14",
+       "D15",
+       "D16",
+       "D17",
+       "D18",
+       "D19",
+       "D20",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": [
+        "D1",
+        "D19"
+       ]
+      }
+     },
+     "a2-r3": {
+      "present": [
+       "D1",
+       "D2",
+       "D3",
+       "D4",
+       "D5",
+       "D6",
+       "D7",
+       "D8",
+       "D9",
+       "D10",
+       "D11",
+       "D12",
+       "D13",
+       "D14",
+       "D15",
+       "D16",
+       "D17",
+       "D18",
+       "D19",
+       "D20",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": [
+        "D1",
+        "D3",
+        "D12"
+       ]
+      }
+     },
+     "a2-r4": {
+      "present": [
+       "D1",
+       "D2",
+       "D3",
+       "D4",
+       "D5",
+       "D6",
+       "D7",
+       "D8",
+       "D9",
+       "D10",
+       "D11",
+       "D13",
+       "D14",
+       "D15",
+       "D16",
+       "D17",
+       "D18",
+       "D19",
+       "D20",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": [
+        "D1",
+        "D3",
+        "D21"
+       ]
+      }
+     },
+     "a2-r5": {
+      "present": [
+       "D2",
+       "D3",
+       "D4",
+       "D5",
+       "D6",
+       "D7",
+       "D8",
+       "D9",
+       "D10",
+       "D11",
+       "D12",
+       "D13",
+       "D14",
+       "D15",
+       "D16",
+       "D17",
+       "D18",
+       "D20",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": [
+        "D12",
+        "D20"
+       ]
+      }
+     },
+     "a2-r6": {
+      "present": [
+       "D1",
+       "D2",
+       "D3",
+       "D4",
+       "D5",
+       "D6",
+       "D7",
+       "D8",
+       "D9",
+       "D10",
+       "D11",
+       "D13",
+       "D14",
+       "D15",
+       "D16",
+       "D17",
+       "D18",
+       "D19",
+       "D20",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": []
+      }
+     },
+     "a3-r1": {
+      "present": [
+       "D1",
+       "D2",
+       "D3",
+       "D4",
+       "D5",
+       "D6",
+       "D7",
+       "D8",
+       "D9",
+       "D10",
+       "D11",
+       "D13",
+       "D14",
+       "D15",
+       "D16",
+       "D17",
+       "D18",
+       "D19",
+       "D20",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": [
+        "D1",
+        "D3"
+       ],
+       "AUD2": [
+        "D1",
+        "D3"
+       ]
+      }
+     },
+     "a3-r2": {
+      "present": [
+       "D2",
+       "D4",
+       "D5",
+       "D6",
+       "D7",
+       "D8",
+       "D9",
+       "D10",
+       "D11",
+       "D12",
+       "D13",
+       "D14",
+       "D15",
+       "D16",
+       "D17",
+       "D18",
+       "D19",
+       "D20",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": [
+        "D12",
+        "D19"
+       ],
+       "AUD2": [
+        "D12",
+        "D20"
+       ]
+      }
+     },
+     "a3-r3": {
+      "present": [
+       "D1",
+       "D2",
+       "D3",
+       "D4",
+       "D5",
+       "D6",
+       "D7",
+       "D8",
+       "D9",
+       "D10",
+       "D11",
+       "D13",
+       "D14",
+       "D15",
+       "D16",
+       "D17",
+       "D18",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": [
+        "D1",
+        "D3"
+       ],
+       "AUD2": [
+        "D1",
+        "D3"
+       ]
+      }
+     },
+     "a3-r4": {
+      "present": [
+       "D1",
+       "D2",
+       "D3",
+       "D4",
+       "D5",
+       "D6",
+       "D7",
+       "D8",
+       "D9",
+       "D10",
+       "D11",
+       "D13",
+       "D14",
+       "D15",
+       "D16",
+       "D17",
+       "D18",
+       "D19",
+       "D20",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": [
+        "D1",
+        "D22"
+       ],
+       "AUD2": [
+        "D16"
+       ]
+      }
+     },
+     "a3-r5": {
+      "present": [
+       "D1",
+       "D2",
+       "D4",
+       "D5",
+       "D6",
+       "D7",
+       "D8",
+       "D9",
+       "D10",
+       "D11",
+       "D13",
+       "D14",
+       "D15",
+       "D16",
+       "D17",
+       "D18",
+       "D20",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": [],
+       "AUD2": [
+        "D1"
+       ]
+      }
+     },
+     "a3-r6": {
+      "present": [
+       "D1",
+       "D4",
+       "D5",
+       "D6",
+       "D7",
+       "D8",
+       "D9",
+       "D10",
+       "D11",
+       "D13",
+       "D14",
+       "D15",
+       "D16",
+       "D17",
+       "D18",
+       "D19",
+       "D20",
+       "D21",
+       "D22"
+      ],
+      "audit_hits": {
+       "AUD": [],
+       "AUD2": [
+        "D1"
+       ]
+      }
+     }
+    }
+   }
+  },
+  "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad": {
+   "labels": [
+    "final:a1-r1"
+   ],
+   "group": "final",
+   "reports": [
+    {
+     "source": "a1-r1/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "B-01"
+     ],
+     "findings": [
+      {
+       "id": "B-01",
+       "theme": "T2",
+       "cited": [
+        65,
+        67,
+        72,
+        79,
+        102,
+        112,
+        134,
+        135,
+        141,
+        264
+       ],
+       "heading": "### B-01 (MAJOR, blocking, Wiegers/Adzic): a retry writes into the first attempt's explicit output path",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a1-r1"
+    }
+   ]
+  },
+  "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287": {
+   "labels": [
+    "final:a1-r2"
+   ],
+   "group": "final",
+   "reports": [
+    {
+     "source": "a1-r2/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "PASS",
+     "ids": [],
+     "findings": [],
+     "kind": "audit",
+     "run": "a1-r2"
+    }
+   ]
+  },
+  "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096": {
+   "labels": [
+    "final:a1-r3"
+   ],
+   "group": "final",
+   "reports": [
+    {
+     "source": "a1-r3/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "PASS",
+     "ids": [],
+     "findings": [],
+     "kind": "audit",
+     "run": "a1-r3"
+    }
+   ]
+  },
+  "f42ebd1cb0922207da16c10e49e26f992ea80bee8c020e73ba1dacefbcfd5f95": {
+   "labels": [
+    "final:a2-r1"
+   ],
+   "group": "final",
+   "reports": [
+    {
+     "source": "a2-r1/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r1/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "F-1",
+      "F-2"
+     ],
+     "findings": [
+      {
+       "id": "F-1",
+       "theme": "T1",
+       "cited": [
+        60,
+        73,
+        76,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        139,
+        154,
+        159,
+        162,
+        195,
+        240
+       ],
+       "heading": "### F-1  CRITICAL (FR-19 count mismatch), blocking. Phase 1 scope and AC-1.1 require the `--unattended` section on 36 commands; the per-command rows schedule it",
+       "found": true
+      },
+      {
+       "id": "F-2",
+       "theme": "T2",
+       "cited": [
+        62,
+        73,
+        83,
+        87,
+        90,
+        92,
+        183,
+        201
+       ],
+       "heading": "### F-2  MAJOR, blocking. WC-4 places the contract at `<output-dir>/return-contract.yaml` where `<output-dir>` is the value of `--output` / `--output-dir`; the ",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a2-r1"
+    }
+   ]
+  },
+  "bbc5da09c16d99c761039d7df263e9ff3629635be3ec1f834b924b06575af75f": {
+   "labels": [
+    "final:a2-r2"
+   ],
+   "group": "final",
+   "reports": [
+    {
+     "source": "a2-r2/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r2/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "F-01",
+      "F-02"
+     ],
+     "findings": [
+      {
+       "id": "F-01",
+       "theme": "T2",
+       "cited": [],
+       "heading": "### F-01 (CRITICAL, blocking). Contract path collides when `--output` is a file",
+       "found": true
+      },
+      {
+       "id": "F-02",
+       "theme": "T3",
+       "cited": [],
+       "heading": "### F-02 (MAJOR label, blocking). AC-0.4 cannot pass as written",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a2-r2"
+    }
+   ]
+  },
+  "7d31f7c49bc684b022504fe6730429f5c5b09ff3a76841344026b64dde9565a6": {
+   "labels": [
+    "final:a2-r4"
+   ],
+   "group": "final",
+   "reports": [
+    {
+     "source": "a2-r4/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r4/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "F-1",
+      "F-2",
+      "F-3"
+     ],
+     "findings": [
+      {
+       "id": "F-1",
+       "theme": "T1",
+       "cited": [
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        139,
+        154,
+        159,
+        195,
+        225,
+        240
+       ],
+       "heading": "### F-1 [CRITICAL, blocking, priority High] Phase 1 scope, AC-1.1 and the per-command phase tags give three different command counts, and AC-1.1 contradicts ope",
+       "found": true
+      },
+      {
+       "id": "F-2",
+       "theme": "T2",
+       "cited": [
+        62,
+        87,
+        90,
+        92,
+        115,
+        116,
+        119,
+        183,
+        195
+       ],
+       "heading": "### F-2 [MAJOR, blocking, priority High] WC-4 defines the contract location from an output DIRECTORY, but section 3.1 gives two ready commands a FILE-valued `--",
+       "found": true
+      },
+      {
+       "id": "F-3",
+       "theme": "other",
+       "cited": [
+        60,
+        61,
+        105,
+        201
+       ],
+       "heading": "### F-3 [MAJOR, blocking, priority High] `/sc:cli-portify` under `--unattended` can only ever end `blocked`, yet AC-2.3 requires a `succeeded` happy path",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a2-r4"
+    }
+   ]
+  },
+  "7cfc46955e89212267b7b42612208b7b453942bd61bda42b47e3e96f605b89ff": {
+   "labels": [
+    "final:a2-r5"
+   ],
+   "group": "final",
+   "reports": [
+    {
+     "source": "a2-r5/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r5/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "F-1"
+     ],
+     "findings": [
+      {
+       "id": "F-1",
+       "theme": "T1",
+       "cited": [
+        79,
+        84,
+        87,
+        112,
+        159,
+        183,
+        195,
+        196,
+        265
+       ],
+       "heading": "### F-1 [blocking] MAJOR, High priority. Expert: Wiegers, Adzic, Whittaker (divergence attack), Fowler (count flow)",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a2-r5"
+    }
+   ]
+  },
+  "5214f80e3dc9557f5cf50e915b26edd24f7757a9ce7975ec766b78482cde7fd6": {
+   "labels": [
+    "final:a2-r6"
+   ],
+   "group": "final",
+   "reports": [
+    {
+     "source": "a2-r6/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r6/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "PASS",
+     "ids": [],
+     "findings": [],
+     "kind": "audit",
+     "run": "a2-r6"
+    }
+   ]
+  },
+  "d1f34e4bb75f645e00e9b421dc8abdf0366d981ef45c7dfcc8f6689db8833a6a": {
+   "labels": [
+    "final:a3-r1"
+   ],
+   "group": "final",
+   "reports": [
+    {
+     "source": "a3-r1/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r1/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "B1",
+      "B2"
+     ],
+     "findings": [
+      {
+       "id": "B1",
+       "theme": "T1",
+       "cited": [
+        25,
+        109,
+        113,
+        114,
+        128,
+        139,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        195,
+        240
+       ],
+       "heading": "### B1 [CRITICAL, blocking] AC-1.1 and the P1 scope require unattended mode in the three commands whose behavior is deferred to the user's decisions",
+       "found": true
+      },
+      {
+       "id": "B2",
+       "theme": "T2",
+       "cited": [
+        62,
+        85,
+        86,
+        87,
+        90,
+        183,
+        200
+       ],
+       "heading": "### B2 [MAJOR, blocking] WC-4's contract location is undefined for commands whose `--output` is a file or that have no output flag, and an acceptance check depe",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a3-r1"
+    },
+    {
+     "source": "a3-r1/AUD2",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r1/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "F1",
+      "F2"
+     ],
+     "findings": [
+      {
+       "id": "F1",
+       "theme": "T2",
+       "cited": [],
+       "heading": "### F1. MAJOR, blocking. `--output` is a directory in WC-4 and a file in the rows and checks that use it",
+       "found": true
+      },
+      {
+       "id": "F2",
+       "theme": "T1",
+       "cited": [],
+       "heading": "### F2. MAJOR, blocking. P1 scope and AC-1.1 require unattended support in commands whose behavior P2 to P4 and D2 to D4 decide",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a3-r1"
+    }
+   ]
+  },
+  "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3": {
+   "labels": [
+    "final:a3-r2"
+   ],
+   "group": "final",
+   "reports": [
+    {
+     "source": "a3-r2/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r2/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "F-01",
+      "F-02"
+     ],
+     "findings": [
+      {
+       "id": "F-01",
+       "theme": "T3",
+       "cited": [
+        79,
+        83,
+        91,
+        154,
+        160,
+        182,
+        194,
+        198
+       ],
+       "heading": "### F-01 (Blocking, label CRITICAL; Wiegers, Crispin) The Phase 0 acceptance check cannot pass, and Phase 0 gates every later phase",
+       "found": true
+      },
+      {
+       "id": "F-02",
+       "theme": "T1",
+       "cited": [
+        76,
+        83,
+        85,
+        86,
+        112,
+        159,
+        183,
+        195,
+        196,
+        265
+       ],
+       "heading": "### F-02 (Blocking, label MAJOR; Wiegers, Cockburn) `/sc:load` is listed both ways, and the P1 acceptance checks select it",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a3-r2"
+    },
+    {
+     "source": "a3-r2/AUD2",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r2/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "B-1"
+     ],
+     "findings": [
+      {
+       "id": "B-1",
+       "theme": "T1",
+       "cited": [
+        83,
+        85,
+        86,
+        99,
+        101,
+        102,
+        106,
+        107,
+        108,
+        111,
+        112,
+        123,
+        159,
+        195,
+        196,
+        198
+       ],
+       "heading": "### B-1 (blocking) AC-1.1 and AC-1.2 test 12 P1 commands; section 6 and the section 3 rows give the flag, the section and the contract to 8 or 9",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a3-r2"
+    }
+   ]
+  },
+  "0af4c9147b1078d164edae3da1719df0954c532ee06138e07f894bc91e1ab096": {
+   "labels": [
+    "final:a3-r3"
+   ],
+   "group": "final",
+   "reports": [
+    {
+     "source": "a3-r3/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r3/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "F-1",
+      "F-2"
+     ],
+     "findings": [
+      {
+       "id": "F-1",
+       "theme": "T1",
+       "cited": [
+        60,
+        67,
+        73,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        154,
+        159,
+        195,
+        225,
+        240
+       ],
+       "heading": "### F-1 [CRITICAL, blocking] Phase 1 gives 36 commands the `--unattended` flag but only 14 get their gate and outward-action rules there",
+       "found": true
+      },
+      {
+       "id": "F-2",
+       "theme": "T2",
+       "cited": [
+        62,
+        73,
+        76,
+        83,
+        85,
+        86,
+        87,
+        90,
+        92,
+        182,
+        196,
+        198
+       ],
+       "heading": "### F-2 [MAJOR, blocking] WC-4's contract path contradicts the rows and AC-1.2 that depend on it",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a3-r3"
+    },
+    {
+     "source": "a3-r3/AUD2",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r3/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "B1",
+      "B2"
+     ],
+     "findings": [
+      {
+       "id": "B1",
+       "theme": "other",
+       "cited": [],
+       "heading": "### B1 [MAJOR, blocking] `--unattended` is promised to mean \"no person, no outward default\" but the phase plan ships it before the gates exist",
+       "found": true
+      },
+      {
+       "id": "B2",
+       "theme": "T2",
+       "cited": [],
+       "heading": "### B2 [MAJOR, blocking] WC-4's single contract location and the \"known before dispatch\" claim contradict the section 3 rows and the acceptance checks",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a3-r3"
+    }
+   ]
+  },
+  "92073bce9aa934458a66ff79344ce2e439141e3c08d2246944949c626f472a09": {
+   "labels": [
+    "final:a3-r4"
+   ],
+   "group": "final",
+   "reports": [
+    {
+     "source": "a3-r4/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r4/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "A-01",
+      "A-02"
+     ],
+     "findings": [
+      {
+       "id": "A-01",
+       "theme": "other",
+       "cited": [
+        60,
+        63,
+        88,
+        100,
+        103,
+        110,
+        116,
+        122,
+        154,
+        160,
+        200
+       ],
+       "heading": "### A-01 (blocking) Acceptance criterion AC-2.2 cannot pass for the P2 commands that do not resolve to \"blocked\"",
+       "found": true
+      },
+      {
+       "id": "A-02",
+       "theme": "T2",
+       "cited": [
+        62,
+        73,
+        85,
+        86,
+        87,
+        90,
+        92,
+        116,
+        159,
+        183,
+        195,
+        196,
+        200
+       ],
+       "heading": "### A-02 (blocking) The contract location rule and the acceptance checks that use it contradict the commands' own flag lists",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a3-r4"
+    },
+    {
+     "source": "a3-r4/AUD2",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r4/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "B-01"
+     ],
+     "findings": [
+      {
+       "id": "B-01",
+       "theme": "other",
+       "cited": [
+        100,
+        110,
+        146,
+        149,
+        176,
+        193
+       ],
+       "heading": "**B-01. AC-C5 and AC-0.3 cannot detect a deleted bullet line.**",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a3-r4"
+    }
+   ]
+  },
+  "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61": {
+   "labels": [
+    "final:a3-r5"
+   ],
+   "group": "final",
+   "reports": [
+    {
+     "source": "a3-r5/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r5/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "PASS",
+     "ids": [],
+     "findings": [],
+     "kind": "audit",
+     "run": "a3-r5"
+    },
+    {
+     "source": "a3-r5/AUD2",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r5/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "B-1"
+     ],
+     "findings": [
+      {
+       "id": "B-1",
+       "theme": "T2",
+       "cited": [
+        62,
+        73,
+        83,
+        85,
+        87,
+        90,
+        92,
+        104,
+        113,
+        182,
+        194,
+        200
+       ],
+       "heading": "### B-1  MAJOR, blocking (Wiegers, with Adzic)  WC-4 path rule contradicts the commands and the acceptance checks it governs",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a3-r5"
+    }
+   ]
+  },
+  "83f24502ee791d296bebd644adce8eba84b0a7bccbb076f090415ba276880733": {
+   "labels": [
+    "final:a3-r6"
+   ],
+   "group": "final",
+   "reports": [
+    {
+     "source": "a3-r6/AUD",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r6/aud/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "F-01"
+     ],
+     "findings": [
+      {
+       "id": "F-01",
+       "theme": "T2",
+       "cited": [
+        62,
+        63,
+        73,
+        76,
+        79,
+        85,
+        86,
+        87,
+        159,
+        195
+       ],
+       "heading": "### F-01 (blocking) The WC-4 contract for cleanup-audit and init-lite is required by one text and built by none",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a3-r6"
+    },
+    {
+     "source": "a3-r6/AUD2",
+     "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2/a3-r6/ws/.dev/orca-command-refactor/review/audit.md",
+     "exists": true,
+     "verdict": "FAIL",
+     "ids": [
+      "B1",
+      "B2"
+     ],
+     "findings": [
+      {
+       "id": "B1",
+       "theme": "T2",
+       "cited": [
+        62,
+        99,
+        102,
+        104,
+        106,
+        108,
+        111,
+        115,
+        116,
+        117,
+        119,
+        120,
+        121,
+        200,
+        207
+       ],
+       "heading": "### B1. WC-4 has no contract location for commands that have no output flag, and its refusal clause then makes them refuse (CRITICAL by consequence: blocking, M",
+       "found": true
+      },
+      {
+       "id": "B2",
+       "theme": "T2",
+       "cited": [
+        16,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        52,
+        62,
+        63,
+        73,
+        76,
+        79,
+        83,
+        84,
+        85,
+        86,
+        87,
+        159,
+        182
+       ],
+       "heading": "### B2. Six ready commands are told both to write a WC-4 contract and to gain nothing (CRITICAL under FR-19: a dimensional mismatch, blocking)",
+       "found": true
+      }
+     ],
+     "kind": "audit",
+     "run": "a3-r6"
+    }
+   ]
+  },
+  "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21": {
+   "labels": [
+    "hist:a1-r1/spec-v2.md"
+   ],
+   "group": "hist",
+   "reports": []
+  },
+  "17479b82d914ec92bfca3e0b3c09474faf485af426822cee887df371ddc48fc3": {
+   "labels": [
+    "hist:a1-r2/spec-v2.md"
+   ],
+   "group": "hist",
+   "reports": []
+  },
+  "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d": {
+   "labels": [
+    "hist:a1-r3/spec-v2.md"
+   ],
+   "group": "hist",
+   "reports": []
+  },
+  "49b44eed9e9476353afbf46c4ab057a94b41cde7cfd310c3fc03ba949d765180": {
+   "labels": [
+    "hist:a2-r2/spec-v2.md"
+   ],
+   "group": "hist",
+   "reports": []
+  },
+  "cf9b3e748906ea7675896ba4ee5a7993c98b0ab7a8ec22a0e9311df04e7ebb69": {
+   "labels": [
+    "hist:a3-r6/spec-v2.md"
+   ],
+   "group": "hist",
+   "reports": []
+  },
+  "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec": {
+   "labels": [
+    "ref:spec-v2-after-round1.md"
+   ],
+   "group": "ref",
+   "reports": []
+  },
+  "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9": {
+   "labels": [
+    "ref:spec-v3-after-round2.md"
+   ],
+   "group": "ref",
+   "reports": []
+  },
+  "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128": {
+   "labels": [
+    "ref:spec-v4-after-round3.md"
+   ],
+   "group": "ref",
+   "reports": []
+  },
+  "b33781f8a6ec449ba0faa6543201185cb4d27ce7f2cc6f00534763734df6d520": {
+   "labels": [
+    "pos:seeded"
+   ],
+   "group": "pos",
+   "reports": []
+  },
+  "71b3f5729b19a9e0c08e42bd2f4fd26e06f021ec7abfb7b6cd16a598c3ad82a9": {
+   "labels": [
+    "pos:cand_deletion"
+   ],
+   "group": "pos",
+   "reports": []
+  },
+  "42a38753c0df0dd136e1355a56d4ff5e3eee6a71edc9c06213464d10bec82616": {
+   "labels": [
+    "pos:cand_regression"
+   ],
+   "group": "pos",
+   "reports": []
+  },
+  "361ee250973583cc6070f0fc82025c2017dd2659a5533f0dca31b83ba307ed71": {
+   "labels": [
+    "clean:clean"
+   ],
+   "group": "clean",
+   "reports": []
+  },
+  "a0fcaa3030578772df2dd46a2b6965e8362b0fa6ab23b8510f2f234d5e36bf1e": {
+   "labels": [
+    "clean:minor"
+   ],
+   "group": "clean",
+   "reports": []
+  },
+  "091df47422c4f3ffcb133f9c811066f00870f6c23c7aaafbb0432a7206da0410": {
+   "labels": [
+    "other:docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md"
+   ],
+   "group": "other",
+   "reports": []
+  },
+  "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32": {
+   "labels": [
+    "other:docs/designs/issue-watcher.md"
+   ],
+   "group": "other",
+   "reports": []
+  },
+  "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5": {
+   "labels": [
+    "other:docs/designs/sc-issue-launch-level-hook.md"
+   ],
+   "group": "other",
+   "reports": []
+  },
+  "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9": {
+   "labels": [
+    "other:docs/user-guide/commands.md"
+   ],
+   "group": "other",
+   "reports": []
+  },
+  "a5de26814d9232f30a617197e5e8feeb07a44037c50c64d80d6a3e2ebafedfde": {
+   "labels": [
+    "other:docs/sprint-cli-deep-dive.md"
+   ],
+   "group": "other",
+   "reports": []
+  },
+  "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab": {
+   "labels": [
+    "other:docs/designs/sc-issue-claim-pipeline-flag.md"
+   ],
+   "group": "other",
+   "reports": []
+  },
+  "a2b614530d4d2f9c44c81623f924ed82b9cee7814f0dfe24c94eeb8a08916f3b": {
+   "labels": [
+    "other:docs/guides/roadmap-cli-tools-release-guide.md"
+   ],
+   "group": "other",
+   "reports": []
+  },
+  "cc1009c39f64ee96a6f00833d08671bc3fa45654e0ce98d1aa13ec77bf232ddb": {
+   "labels": [
+    "other:docs/designs/sc-issue-command.md"
+   ],
+   "group": "other",
+   "reports": []
+  },
+  "7ca69313c5868bfdfd1c5c0fa9578c00f4661365db8219a53df506743a799176": {
+   "labels": [
+    "other:docs/designs/issue-watcher-setup.md"
+   ],
+   "group": "other",
+   "reports": []
+  },
+  "cd0ac77196b300ab85121193c5a286cb3f584937a54e5d35cce22005f30fa499": {
+   "labels": [
+    "other:docs/guides/tdd-skill-release-guide.md"
+   ],
+   "group": "other",
+   "reports": []
+  }
+ }
+}

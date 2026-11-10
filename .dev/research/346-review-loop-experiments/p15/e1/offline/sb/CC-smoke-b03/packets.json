@@ -1,0 +1,186 @@
+[
+ {
+  "packet_id": "sm-27",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "- **DX-11 Error pages.** Error pages show a short message and a support code and never show stack traces or internal host names.\n- **DX-12 Pagination.** List endpoints return at most 100 items per page together with a cursor that points at the next page.\n- **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n- **RF-4 Refund method.** Refunds return to the original payment method. Store credit is issued only when the customer chooses it.\n- **DX-13 Search order.** Search results are ordered by relevance and then by recency, and an empty query returns no results.\n- **DX-14 Image upload.** Uploaded images are scaled to a maximum width of 1600 pixels and stripped of embedded location data.\n- **DX-15 Translations.** Every user-facing string comes from a translation file, and a missing translation falls back to English."
+   },
+   "before": {
+    "passage": "- **DX-10 Configuration.** Configuration values are read at start-up, and a change needs a restart unless the value is marked as reloadable.\n- **DX-11 Error pages.** Error pages show a short message and a support code and never show stack traces or internal host names.\n- **DX-12 Pagination.** List endpoints return at most 100 items per page together with a cursor that points at the next page.\n- **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n- **RF-4 Refund method.** All refunds are issued as store credit.\n- **DX-13 Search order.** Search results are ordered by relevance and then by recency, and an empty query returns no results.\n- **DX-14 Image upload.** Uploaded images are scaled to a maximum width of 1600 pixels and stripped of embedded location data.\n- **DX-15 Translations.** Every user-facing string comes from a translation file, and a missing translation falls back to English."
+   },
+   "defect": {
+    "summary": "R1-1 Refund method forces store credit",
+    "wrong_outcome": "An implementer who follows RF-4 builds a refund service that never returns money to the payment method of the customer."
+   },
+   "dependencies": {},
+   "diff": "@@ -31,7 +31,7 @@\n - **DX-11 Error pages.** Error pages show a short message and a support code and never show stack traces or internal host names.\n - **DX-12 Pagination.** List endpoints return at most 100 items per page together with a cursor that points at the next page.\n - **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n-- **RF-4 Refund method.** All refunds are issued as store credit.\n+- **RF-4 Refund method.** Refunds return to the original payment method. Store credit is issued only when the customer chooses it.\n - **DX-13 Search order.** Search results are ordered by relevance and then by recency, and an empty query returns no results.\n - **DX-14 Image upload.** Uploaded images are scaled to a maximum width of 1600 pixels and stripped of embedded location data.\n - **DX-15 Translations.** Every user-facing string comes from a translation file, and a missing translation falls back to English.",
+   "obligation": {
+    "text": "- **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.",
+    "where": "before, line 33"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-26",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": false,
+    "passage": "## 3. Opt-out\n\n- **NO-2 Opt-out.** Once a customer has saved an opt-out, no marketing notification reaches that customer on any channel.\n- **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent.\n- **NO-5 Unsubscribe link.** Every marketing e-mail contains a link that opts the customer out with one click and without a sign-in.\n\n## 4. Operations"
+   },
+   "before": {
+    "passage": "## 3. Opt-out\n\n- **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.\n- **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent.\n- **NO-4 Purchase follow-ups.** Opted-out customers still receive marketing notifications about products they bought in the last 90 days.\n- **NO-5 Unsubscribe link.** Every marketing e-mail contains a link that opts the customer out with one click and without a sign-in.\n\n## 4. Operations"
+   },
+   "defect": {
+    "summary": "R1-1 Purchase follow-ups ignore the opt-out",
+    "wrong_outcome": "An implementer who follows NO-4 builds a sender that emails opted-out customers about their recent purchases."
+   },
+   "dependencies": {},
+   "diff": "@@ -14,9 +14,8 @@\n \n ## 3. Opt-out\n \n-- **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.\n+- **NO-2 Opt-out.** Once a customer has saved an opt-out, no marketing notification reaches that customer on any channel.\n - **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent.\n-- **NO-4 Purchase follow-ups.** Opted-out customers still receive marketing notifications about products they bought in the last 90 days.\n - **NO-5 Unsubscribe link.** Every marketing e-mail contains a link that opts the customer out with one click and without a sign-in.\n \n ## 4. Operations",
+   "obligation": {
+    "text": "- **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.",
+    "where": "before, line 17"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-01",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "## 6. Cleanup\n\nThe worker erases every delivery-log row of a delivery as soon as that delivery reaches `DELIVERED`, so that storage is saved."
+   },
+   "before": {
+    "passage": "- **FR-4 Signing.** Every request carries an `X-Signature` header: the HMAC-SHA256 of the raw request body, keyed with the webhook's signing secret. The signing secret is never written to any log.\n- **FR-5 Idempotency key.** Every delivery has an idempotency key `delivery_id`, a UUID created when the event is first queued. The same `delivery_id` is sent on every retry in the `X-Delivery-Id` header, so a receiver can discard duplicates.\n- **FR-6 Success.** A response with a status code from 200 to 299 marks the delivery `DELIVERED`. Any other status code is a failed attempt, except 410, which marks the delivery `GONE` and stops retries.\n- **FR-7 Delivery log.** Every attempt writes one row to the delivery log with `delivery_id`, attempt number, status code or `TIMEOUT`, and the UTC time. Log rows are kept for 30 days and then deleted.\n- **FR-8 Payload size.** The request body is at most 256 KiB. An event whose serialized payload is larger is not sent; the delivery is marked `FAILED` with reason `PAYLOAD_TOO_LARGE` and no attempt is made.\n\n## 3. Ordering\n...\n## 6. Cleanup\n\nWhen a delivery reaches `DELIVERED`, the worker deletes all of its delivery-log rows immediately to save storage."
+   },
+   "defect": {
+    "summary": "R1-1 Cleanup deletes the delivery log at once",
+    "wrong_outcome": "An implementer who follows the cleanup section builds a worker that erases the delivery log of every delivered webhook at once, so customers can no longer see their deliveries."
+   },
+   "dependencies": {},
+   "diff": "@@ -36,4 +36,4 @@\n \n ## 6. Cleanup\n \n-When a delivery reaches `DELIVERED`, the worker deletes all of its delivery-log rows immediately to save storage.\n+The worker erases every delivery-log row of a delivery as soon as that delivery reaches `DELIVERED`, so that storage is saved.",
+   "obligation": {
+    "text": "- **FR-7 Delivery log.** Every attempt writes one row to the delivery log with `delivery_id`, attempt number, status code or `TIMEOUT`, and the UTC time. Log rows are kept for 30 days and then deleted.",
+    "where": "before, line 17"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-09",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": false,
+    "passage": "## 3. Retention\n\n- **BK-5 Location.** Backups are stored in a different region from the production database.\n- **BK-6 Monitoring.** A backup that does not finish raises the alert `BackupLate` for the operations team."
+   },
+   "before": {
+    "passage": "## 3. Retention\n\n- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.\n- **BK-4 Backup overwrite.** Each nightly backup overwrites the backup of the previous night.\n- **BK-5 Location.** Backups are stored in a different region from the production database.\n- **BK-6 Monitoring.** A backup that does not finish raises the alert `BackupLate` for the operations team."
+   },
+   "defect": {
+    "summary": "R1-1 Backups are overwritten every night",
+    "wrong_outcome": "An implementer who follows BK-4 builds a backup job that keeps a single copy, so an error that is found after one day cannot be restored."
+   },
+   "dependencies": {},
+   "diff": "@@ -14,8 +14,6 @@\n \n ## 3. Retention\n \n-- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.\n-- **BK-4 Backup overwrite.** Each nightly backup overwrites the backup of the previous night.\n - **BK-5 Location.** Backups are stored in a different region from the production database.\n - **BK-6 Monitoring.** A backup that does not finish raises the alert `BackupLate` for the operations team.\n ",
+   "obligation": {
+    "text": "- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.",
+    "where": "before, line 17"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-17",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": true,
+    "obligation_text_still_verbatim": true,
+    "passage": "- **DX-12 Pagination.** List endpoints return at most 100 items per page together with a cursor that points at the next page.\n- **DX-13 Search order.** Search results are ordered by relevance and then by recency, and an empty query returns no results.\n- **EX-2 Tenant isolation.** An export file can be read only by the tenant that requested it.\n- **EX-3 API exports.** Exports requested through the API are written to the tenant directory `/exports/<tenant>/<date>/`, which only that tenant can read.\n- **EX-4 Batch exports.** Exports produced by the nightly batch are written to the shared directory `/shared/exports/<date>/`.\n- **DX-14 Image upload.** Uploaded images are scaled to a maximum width of 1600 pixels and stripped of embedded location data.\n- **DX-15 Translations.** Every user-facing string comes from a translation file, and a missing translation falls back to English."
+   },
+   "before": {
+    "passage": "- **DX-11 Error pages.** Error pages show a short message and a support code and never show stack traces or internal host names.\n- **DX-12 Pagination.** List endpoints return at most 100 items per page together with a cursor that points at the next page.\n- **DX-13 Search order.** Search results are ordered by relevance and then by recency, and an empty query returns no results.\n- **EX-2 Tenant isolation.** An export file can be read only by the tenant that requested it.\n- **EX-3 API exports.** Exports requested through the API are written to the shared directory `/shared/exports/<date>/`.\n- **EX-4 Batch exports.** Exports produced by the nightly batch are written to the shared directory `/shared/exports/<date>/`.\n- **DX-14 Image upload.** Uploaded images are scaled to a maximum width of 1600 pixels and stripped of embedded location data.\n- **DX-15 Translations.** Every user-facing string comes from a translation file, and a missing translation falls back to English.\n- **DX-16 Money format.** Monetary amounts are handled as integers in the smallest currency unit and are rounded half up for display."
+   },
+   "defect": {
+    "summary": "R1-1 Exports are written to a shared directory",
+    "wrong_outcome": "An implementer who follows EX-3 and EX-4 builds exports that every tenant can read because all files share one directory."
+   },
+   "dependencies": {},
+   "diff": "@@ -30,7 +30,7 @@\n - **DX-12 Pagination.** List endpoints return at most 100 items per page together with a cursor that points at the next page.\n - **DX-13 Search order.** Search results are ordered by relevance and then by recency, and an empty query returns no results.\n - **EX-2 Tenant isolation.** An export file can be read only by the tenant that requested it.\n-- **EX-3 API exports.** Exports requested through the API are written to the shared directory `/shared/exports/<date>/`.\n+- **EX-3 API exports.** Exports requested through the API are written to the tenant directory `/exports/<tenant>/<date>/`, which only that tenant can read.\n - **EX-4 Batch exports.** Exports produced by the nightly batch are written to the shared directory `/shared/exports/<date>/`.\n - **DX-14 Image upload.** Uploaded images are scaled to a maximum width of 1600 pixels and stripped of embedded location data.\n - **DX-15 Translations.** Every user-facing string comes from a translation file, and a missing translation falls back to English.",
+   "obligation": {
+    "text": "- **EX-2 Tenant isolation.** An export file can be read only by the tenant that requested it.",
+    "where": "before, line 32"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-23",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": false,
+    "passage": "- **FR-4 Signing.** Every request carries an `X-Signature` header: the HMAC-SHA256 of the raw request body, keyed with the webhook's signing secret. The signing secret is never written to any log.\n- **FR-5 Idempotency key.** Every delivery has an idempotency key `delivery_id`, a UUID created when the event is first queued. The same `delivery_id` is sent on every retry in the `X-Delivery-Id` header, so a receiver can discard duplicates.\n- **FR-6 Success.** A response with a status code from 200 to 299 marks the delivery `DELIVERED`. Any other status code is a failed attempt, except 410, which marks the delivery `GONE` and stops retries.\n- **FR-7 Delivery log.** Every attempt writes one row to the\n  delivery log with `delivery_id`, attempt number, status\n  code or `TIMEOUT`, and the UTC time. Log rows are kept for\n  30 days and then deleted.\n- **FR-8 Payload size.** The request body is at most 256 KiB. An event whose serialized payload is larger is not sent; the delivery is marked `FAILED` with reason `PAYLOAD_TOO_LARGE` and no attempt is made.\n\n## 3. Ordering\n...\n## 6. Cleanup\n\nWhen a delivery reaches `DELIVERED`, the worker\n  deletes all of its delivery-log rows\n  immediately to save storage. The retention\n  requirement is met."
+   },
+   "before": {
+    "passage": "- **FR-4 Signing.** Every request carries an `X-Signature` header: the HMAC-SHA256 of the raw request body, keyed with the webhook's signing secret. The signing secret is never written to any log.\n- **FR-5 Idempotency key.** Every delivery has an idempotency key `delivery_id`, a UUID created when the event is first queued. The same `delivery_id` is sent on every retry in the `X-Delivery-Id` header, so a receiver can discard duplicates.\n- **FR-6 Success.** A response with a status code from 200 to 299 marks the delivery `DELIVERED`. Any other status code is a failed attempt, except 410, which marks the delivery `GONE` and stops retries.\n- **FR-7 Delivery log.** Every attempt writes one row to the delivery log with `delivery_id`, attempt number, status code or `TIMEOUT`, and the UTC time. Log rows are kept for 30 days and then deleted.\n- **FR-8 Payload size.** The request body is at most 256 KiB. An event whose serialized payload is larger is not sent; the delivery is marked `FAILED` with reason `PAYLOAD_TOO_LARGE` and no attempt is made.\n\n## 3. Ordering\n...\n## 6. Cleanup\n\nWhen a delivery reaches `DELIVERED`, the worker deletes all of its delivery-log rows immediately to save storage."
+   },
+   "defect": {
+    "summary": "R1-1 Cleanup deletes the delivery log at once",
+    "wrong_outcome": "An implementer who follows the cleanup section builds a worker that erases the delivery log of every delivered webhook at once, so customers can no longer see their deliveries."
+   },
+   "dependencies": {},
+   "diff": "@@ -14,7 +14,10 @@\n - **FR-4 Signing.** Every request carries an `X-Signature` header: the HMAC-SHA256 of the raw request body, keyed with the webhook's signing secret. The signing secret is never written to any log.\n - **FR-5 Idempotency key.** Every delivery has an idempotency key `delivery_id`, a UUID created when the event is first queued. The same `delivery_id` is sent on every retry in the `X-Delivery-Id` header, so a receiver can discard duplicates.\n - **FR-6 Success.** A response with a status code from 200 to 299 marks the delivery `DELIVERED`. Any other status code is a failed attempt, except 410, which marks the delivery `GONE` and stops retries.\n-- **FR-7 Delivery log.** Every attempt writes one row to the delivery log with `delivery_id`, attempt number, status code or `TIMEOUT`, and the UTC time. Log rows are kept for 30 days and then deleted.\n+- **FR-7 Delivery log.** Every attempt writes one row to the\n+  delivery log with `delivery_id`, attempt number, status\n+  code or `TIMEOUT`, and the UTC time. Log rows are kept for\n+  30 days and then deleted.\n - **FR-8 Payload size.** The request body is at most 256 KiB. An event whose serialized payload is larger is not sent; the delivery is marked `FAILED` with reason `PAYLOAD_TOO_LARGE` and no attempt is made.\n \n ## 3. Ordering\n@@ -36,4 +39,7 @@\n \n ## 6. Cleanup\n \n-When a delivery reaches `DELIVERED`, the worker deletes all of its delivery-log rows immediately to save storage.\n+When a delivery reaches `DELIVERED`, the worker\n+  deletes all of its delivery-log rows\n+  immediately to save storage. The retention\n+  requirement is met.",
+   "obligation": {
+    "text": "- **FR-7 Delivery log.** Every attempt writes one row to the delivery log with `delivery_id`, attempt number, status code or `TIMEOUT`, and the UTC time. Log rows are kept for 30 days and then deleted.",
+    "where": "before, line 17"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-06",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": false,
+    "passage": "- **DX-20 Support hours.** The support team answers tickets on business days between 08:00 and 18:00 in the local time of the customer.\n- **DX-21 Test data.** Test environments use generated data only and never contain copies of records that belong to real customers.\n- **DX-22 Feedback form.** A feedback form is available on every page and sends its text to the product team without a reply address.\n- **DX-23 Cookies.** The site sets only the cookies that are needed for sign-in and for the language choice of the visitor.\n- **DX-24 Print layout.** Pages that customers may print have a print stylesheet that hides the navigation and shows the address of the page.\n- **DX-1 Keyboard access.** All interactive elements can be reached and used with the keyboard alone, and the element that has focus is always visible."
+   },
+   "before": {
+    "passage": "- **DX-20 Support hours.** The support team answers tickets on business days between 08:00 and 18:00 in the local time of the customer.\n- **DX-21 Test data.** Test environments use generated data only and never contain copies of records that belong to real customers.\n- **DX-22 Feedback form.** A feedback form is available on every page and sends its text to the product team without a reply address.\n- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.\n- **BK-4 Backup overwrite.** Each nightly backup overwrites the backup of the previous night.\n- **DX-23 Cookies.** The site sets only the cookies that are needed for sign-in and for the language choice of the visitor.\n- **DX-24 Print layout.** Pages that customers may print have a print stylesheet that hides the navigation and shows the address of the page.\n- **DX-1 Keyboard access.** All interactive elements can be reached and used with the keyboard alone, and the element that has focus is always visible."
+   },
+   "defect": {
+    "summary": "R1-1 Backups are overwritten every night",
+    "wrong_outcome": "An implementer who follows BK-4 builds a backup job that keeps a single copy, so an error that is found after one day cannot be restored."
+   },
+   "dependencies": {},
+   "diff": "@@ -29,8 +29,6 @@\n - **DX-20 Support hours.** The support team answers tickets on business days between 08:00 and 18:00 in the local time of the customer.\n - **DX-21 Test data.** Test environments use generated data only and never contain copies of records that belong to real customers.\n - **DX-22 Feedback form.** A feedback form is available on every page and sends its text to the product team without a reply address.\n-- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.\n-- **BK-4 Backup overwrite.** Each nightly backup overwrites the backup of the previous night.\n - **DX-23 Cookies.** The site sets only the cookies that are needed for sign-in and for the language choice of the visitor.\n - **DX-24 Print layout.** Pages that customers may print have a print stylesheet that hides the navigation and shows the address of the page.\n - **DX-1 Keyboard access.** All interactive elements can be reached and used with the keyboard alone, and the element that has focus is always visible.",
+   "obligation": {
+    "text": "- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.",
+    "where": "before, line 32"
+   }
+  }
+ },
+ {
+  "packet_id": "sm-19",
+  "state": {
+   "after": {
+    "defect_text_still_verbatim": false,
+    "obligation_text_still_verbatim": true,
+    "passage": "## 3. Numbering and checks\n\n- **IN-3 Sequence.** Each region has its own invoice sequence, and every invoice number carries the code of its region.\n- **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.\n- **IN-5 Duplicate check.** The reconciliation job reports every number that appears twice in the shared sequence of all regions. This revision introduces no conflict with other requirements.\n- **IN-6 Time of assignment.** A number is assigned at the moment the invoice is issued, not when the draft is created.\n\n## 4. Archive"
+   },
+   "before": {
+    "passage": "## 3. Numbering and checks\n\n- **IN-3 Sequence.** Invoice numbers are taken from one sequence that is shared by all regions, in the order in which invoices are issued.\n- **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.\n- **IN-5 Duplicate check.** The reconciliation job does not look for duplicate invoice numbers.\n- **IN-6 Time of assignment.** A number is assigned at the moment the invoice is issued, not when the draft is created.\n\n## 4. Archive"
+   },
+   "defect": {
+    "summary": "R1-1 The nightly job never looks for duplicate numbers",
+    "wrong_outcome": "An implementer who follows IN-5 builds a reconciliation job that never reports two invoices with the same number."
+   },
+   "dependencies": {},
+   "diff": "@@ -14,9 +14,9 @@\n \n ## 3. Numbering and checks\n \n-- **IN-3 Sequence.** Invoice numbers are taken from one sequence that is shared by all regions, in the order in which invoices are issued.\n+- **IN-3 Sequence.** Each region has its own invoice sequence, and every invoice number carries the code of its region.\n - **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.\n-- **IN-5 Duplicate check.** The reconciliation job does not look for duplicate invoice numbers.\n+- **IN-5 Duplicate check.** The reconciliation job reports every number that appears twice in the shared sequence of all regions. This revision introduces no conflict with other requirements.\n - **IN-6 Time of assignment.** A number is assigned at the moment the invoice is issued, not when the draft is created.\n \n ## 4. Archive",
+   "obligation": {
+    "text": "- **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.",
+    "where": "before, line 18"
+   }
+  }
+ }
+]

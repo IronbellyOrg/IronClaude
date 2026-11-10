@@ -1,0 +1,28 @@
+{
+ "case_id": "syn-ntf-3~omit",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.13,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.87,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 220,
+  "model": "jev-1.14.0",
+  "request_sha256": "c22873979926627ca6e11c77bd87bdd64b8dc41a58fe563925b4978c8d088c62",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 654,
+   "output_tokens": 46
+  }
+ }
+}

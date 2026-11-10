@@ -1,0 +1,36 @@
+{
+ "author_intent": {
+  "category": "seed-contradiction",
+  "expect": "defect",
+  "layer": "seeded"
+ },
+ "case_id": "s0-02",
+ "category": "seed-contradiction",
+ "data_classes": [
+  "s1_spec"
+ ],
+ "family": "s1-edit-orca",
+ "group": "s1-edit-orca",
+ "packet": {
+  "defect": "WC-3 has the command itself run an `orca-ide orchestration ask` command, but SA-2 says no command, skill or agent file runs an `orca` or `orca-ide` command.",
+  "doc": "offline/docs/doc-115b7a7d3b.md",
+  "doc_sha256": "115b7a7d3b23a3bcddab9fd03670899a200c58792d300db20a7fbd7eed2c0c3b",
+  "evidence_quotes": [
+   "the command itself runs `orca-ide orchestration ask` to ask the coordinator once",
+   "No command, skill or agent file runs an `orca` or `orca-ide` command"
+  ],
+  "evidence_set": [
+   "P0043",
+   "P0114"
+  ]
+ },
+ "source": {
+  "kind": "s1",
+  "paths": [
+   "offline/docs/doc-115b7a7d3b.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "seeded"
+}

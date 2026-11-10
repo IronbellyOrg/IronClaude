@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a3-r5"
+ },
+ "case_id": "real_a3r5_F_3",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D16",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-3",
+  "finding_section": "#### F-3. AC-C5 and AC-0.3 use `grep -E '^-[^-]'`, which does not detect a deleted markdown bullet, so \"edits are additive\" is not proved\n- Severity label: MAJOR. Grade: blocking. Experts: Whittaker (zero/empty and sentinel attacks on the guard), Crispin (check completeness), Nygard. Priority: High.\n- Stated texts: AC-C5, every phase: `git diff -U0 master...HEAD -- src/superclaude/commands/<name>.md | grep -E '^-[^-]'` \"prints nothing: edits are additive\" (S:176); AC-0.3 uses the same pattern for HOW-WE-WORK.md (S:193). SA-4 and SA-1 depend on additivity (S:146, S:149).\n- Evidence: I ran the pattern on a sample diff holding a deleted bullet `-- Will Not: modify specs without consent` and a deleted prose line `-Plain removed line`. It printed only the prose line. A deleted bullet appears in a diff as `-` plus `- ...`, i.e. it starts `--`, which `[^-]` excludes. Command files carry their boundaries and gates as bullets (`command.md:471-481`; the inventories cite \"Will Not\" and approval-gate bullets throughout, for example `INV-A:35`, `INV-A:43`).\n- Grading sentence: An implementer who follows AC-C5 builds a gate that prints nothing and passes when a phase deletes an existing \"Will Not\" bullet or an approval-gate bullet from a command file, and that is wrong because AC-C5 is the spec's only mechanical proof that standalone behaviour (SA-1) and safety lines are untouched. (AC-0.3 is safe in practice because routing rows start with `|`; AC-C5 is not.)\n- Recommendation: replace the pattern with one that lists all removed lines (for example `grep -E '^-' | grep -vE '^---'` on the diff body) and say which removals the named defect fixes allow.\n- Quality impact: safety lines can disappear while every acceptance check passes."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a3-r5/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

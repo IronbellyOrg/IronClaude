@@ -1,0 +1,536 @@
+{
+ "run": "b1-r4",
+ "design": "b1",
+ "rep": 4,
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "product_ref": "44f37e16d335a322e618b24c16ba387ffdfb47a1",
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "ed219181156e47e6d70120730063e0b00081482d8a78b3d2633da188574ca829",
+ "done": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD2",
+  "AUD"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD2",
+  "AUD"
+ ],
+ "log": {
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 21526,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 5
+   },
+   "blocking_ids": "F1, F2. The reviser reads this report, not the command",
+   "blocking_word_count": 14,
+   "output_tokens": 35091
+  },
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 17137,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 3
+   },
+   "blocking_ids": "B1, B2, B3",
+   "blocking_word_count": 13,
+   "output_tokens": 21948
+  },
+  "R1c": {
+   "output_exists": true,
+   "report_bytes": 15815,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 2
+   },
+   "blocking_ids": "F1, F2, P1, P3, P4, D3, P0",
+   "blocking_word_count": 8,
+   "output_tokens": 25192
+  },
+  "VF1": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5"
+   ],
+   "report_bytes": 3013,
+   "confirmed": [
+    "M2",
+    "M3",
+    "M5"
+   ],
+   "rejected": {
+    "M1": "A section that names the contract can say load writes none, so AC-1.1 does not force a report file and 265 is not violated; the two texts do not contradict without the assumption that the section means a report. (M1.a, M1.b checked)",
+    "M4": "The claimed outcome (auggie-review or post-release still posts or installs after P1) is a phase-interim state of a phased plan, not a stated result; the text never says P1 ships the flag as live behavior, and the pr-submit/D3 part is the same issue as M5. (M4.a checked)"
+   },
+   "parse_ok": true,
+   "output_tokens": 4712
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 2096,
+   "spec_after": {
+    "bytes": 58235,
+    "lines": 285,
+    "sha256": "a86859da35221feef00405e0c095e0a2d20bb75210af188b81511d9626e0e50d"
+   },
+   "output_tokens": 5588
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 15781,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 11,
+   "spec_after": {
+    "bytes": 58235,
+    "lines": 285,
+    "sha256": "a86859da35221feef00405e0c095e0a2d20bb75210af188b81511d9626e0e50d"
+   },
+   "output_tokens": 12794
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 19951,
+   "verdict": "PASS",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 3
+   },
+   "blocking_ids": null,
+   "blocking_word_count": 5,
+   "spec_audited": {
+    "bytes": 58235
+   },
+   "output_tokens": 24743
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 25557,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 9,
+    "MINOR": 6
+   },
+   "blocking_ids": "F-01",
+   "blocking_word_count": 7,
+   "spec_audited": {
+    "bytes": 58235
+   },
+   "output_tokens": 38062
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T07:33:54+00:00",
+  "R1b": "2026-11-10T07:41:49+00:00",
+  "R1c": "2026-11-10T07:41:49+00:00",
+  "VF1": "2026-11-10T07:49:08+00:00",
+  "V1": "2026-11-10T07:54:38+00:00",
+  "R2": "2026-11-10T08:00:43+00:00",
+  "AUD": "2026-11-10T08:11:28+00:00",
+  "AUD2": "2026-11-10T08:11:28+00:00"
+ },
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "M1",
+   "theme": "T1",
+   "cited": [
+    62,
+    76,
+    112,
+    159,
+    195,
+    265
+   ],
+   "heading": "### F1 (blocking, Wiegers / Adzic): AC-1.1 requires a contract-naming `## Unattended mode` section on `/sc:load`, which the spec says gets no report",
+   "reason": "A section that names the contract can say load writes none, so AC-1.1 does not force a report file and 265 is not violated; the two texts do not contradict without the assumption that the section means a report. (M1.a, M1.b checked)"
+  },
+  {
+   "step": "VF1",
+   "id": "M4",
+   "theme": "T1",
+   "cited": [
+    16,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    59,
+    60,
+    62,
+    63,
+    67,
+    68,
+    87,
+    90,
+    92,
+    100,
+    109,
+    113,
+    114,
+    121,
+    138,
+    139,
+    141,
+    142,
+    143,
+    144,
+    145,
+    146,
+    147,
+    148,
+    149,
+    150,
+    151,
+    154,
+    159,
+    162,
+    195,
+    200,
+    210,
+    213,
+    283
+   ],
+   "heading": "### B3 (CRITICAL, blocking): P1 makes `--unattended` accepted by every command, including those whose unattended gate behaviour arrives only in P2 or P4",
+   "reason": "The claimed outcome (auggie-review or post-release still posts or installs after P1) is a phase-interim state of a phased plan, not a stated result; the text never says P1 ships the flag as live behavior, and the pr-submit/D3 part is the same issue as M5. (M4.a checked)"
+  },
+  {
+   "step": "VF1",
+   "id": "M5",
+   "theme": "T1",
+   "cited": [
+    109,
+    113,
+    114,
+    139,
+    154,
+    159,
+    162,
+    195,
+    225,
+    240
+   ],
+   "heading": "### F1 (blocking) - Wiegers, Cockburn - AC-1.1 contradicts D3(a), the P4 deferral and \"Phases 1-3 need no user decision\"",
+   "reason": "The claimed outcome (auggie-review or post-release still posts or installs after P1) is a phase-interim state of a phased plan, not a stated result; the text never says P1 ships the flag as live behavior, and the pr-submit/D3 part is the same issue as M5. (M4.a checked)"
+  },
+  {
+   "step": "VF1",
+   "id": "M1",
+   "theme": "T1",
+   "cited": [
+    62,
+    76,
+    112,
+    159,
+    195,
+    265
+   ],
+   "heading": "### F1 (blocking, Wiegers / Adzic): AC-1.1 requires a contract-naming `## Unattended mode` section on `/sc:load`, which the spec says gets no report",
+   "reason": "A section that names the contract can say load writes none, so AC-1.1 does not force a report file and 265 is not violated; the two texts do not contradict without the assumption that the section means a report. (M1.a, M1.b checked)"
+  },
+  {
+   "step": "VF1",
+   "id": "M4",
+   "theme": "T1",
+   "cited": [
+    16,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    59,
+    60,
+    62,
+    63,
+    67,
+    68,
+    87,
+    90,
+    92,
+    100,
+    109,
+    113,
+    114,
+    121,
+    138,
+    139,
+    141,
+    142,
+    143,
+    144,
+    145,
+    146,
+    147,
+    148,
+    149,
+    150,
+    151,
+    154,
+    159,
+    162,
+    195,
+    200,
+    210,
+    213,
+    283
+   ],
+   "heading": "### B3 (CRITICAL, blocking): P1 makes `--unattended` accepted by every command, including those whose unattended gate behaviour arrives only in P2 or P4",
+   "reason": "The claimed outcome (auggie-review or post-release still posts or installs after P1) is a phase-interim state of a phased plan, not a stated result; the text never says P1 ships the flag as live behavior, and the pr-submit/D3 part is the same issue as M5. (M4.a checked)"
+  }
+ ],
+ "loop_end": "PASS",
+ "manual": [],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 7,
+  "merged_count": 5,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "T1",
+    "members": [
+     "round1-a.md/F1",
+     "round1-b.md/B1"
+    ],
+    "cited": [
+     62,
+     76,
+     112,
+     159,
+     195,
+     265
+    ],
+    "heading": "### F1 (blocking, Wiegers / Adzic): AC-1.1 requires a contract-naming `## Unattended mode` section on `/sc:load`, which the spec says gets no report"
+   },
+   {
+    "mid": "M2",
+    "theme": "T3",
+    "members": [
+     "round1-a.md/F2",
+     "round1-c.md/F2"
+    ],
+    "cited": [
+     62,
+     79,
+     83,
+     91,
+     159,
+     182,
+     194,
+     198
+    ],
+    "heading": "### F2 (blocking, Adzic / Wiegers): AC-0.4 step 3 cannot pass in P0 for the commands it names"
+   },
+   {
+    "mid": "M3",
+    "theme": "T2",
+    "members": [
+     "round1-b.md/B2"
+    ],
+    "cited": [
+     62,
+     83,
+     84,
+     85,
+     86,
+     87,
+     88,
+     90,
+     120,
+     182,
+     183,
+     200
+    ],
+    "heading": "### B2 (CRITICAL, blocking): the single report path rule cannot be met by commands whose `--output` is a file or that have no output directory"
+   },
+   {
+    "mid": "M4",
+    "theme": "T1",
+    "members": [
+     "round1-b.md/B3"
+    ],
+    "cited": [
+     16,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     59,
+     60,
+     62,
+     63,
+     67,
+     68,
+     87,
+     90,
+     92,
+     100,
+     109,
+     113,
+     114,
+     121,
+     138,
+     139,
+     141,
+     142,
+     143,
+     144,
+     145,
+     146,
+     147,
+     148,
+     149,
+     150,
+     151,
+     154,
+     159,
+     162,
+     195,
+     200,
+     210,
+     213,
+     283
+    ],
+    "heading": "### B3 (CRITICAL, blocking): P1 makes `--unattended` accepted by every command, including those whose unattended gate behaviour arrives only in P2 or P4"
+   },
+   {
+    "mid": "M5",
+    "theme": "T1",
+    "members": [
+     "round1-c.md/F1"
+    ],
+    "cited": [
+     109,
+     113,
+     114,
+     139,
+     154,
+     159,
+     162,
+     195,
+     225,
+     240
+    ],
+    "heading": "### F1 (blocking) - Wiegers, Cockburn - AC-1.1 contradicts D3(a), the P4 deferral and \"Phases 1-3 need no user decision\""
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "3254a1be810c50abdfc50715615147f4ef0a63496dffb9f2773ba03c6eaddd37",
+    "ids": [
+     "F1",
+     "F2"
+    ],
+    "themes": [
+     "T1",
+     "T3"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "d770a778057aa434434aab1dbb9d9f774f1f3e52d51260ac27a521c9c5e3073a",
+    "ids": [
+     "B1",
+     "B2",
+     "B3"
+    ],
+    "themes": [
+     "T1",
+     "T2",
+     "T1"
+    ]
+   },
+   "c": {
+    "verdict": "FAIL",
+    "sha256": "5561a04cd50cd9a658af3789852cc46be36e6c534d725e72e73658d248072c52",
+    "ids": [
+     "F1",
+     "F2"
+    ],
+    "themes": [
+     "T1",
+     "T3"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 58235,
+  "lines": 285,
+  "sha256": "a86859da35221feef00405e0c095e0a2d20bb75210af188b81511d9626e0e50d"
+ }
+}

@@ -1,0 +1,6 @@
+### F2. MAJOR, blocking. Section 3.1 says ready commands change only by their small fix; Phase 1 and AC-1.1 add `--unattended` and an `## Unattended mode` section to every one of them
+- Expert: Wiegers.
+- Grading sentence: An implementer who follows SPEC:79 ("The only command changes are the small fixes in the last column") leaves `brainstorm` and `init-lite` (small fix "None", SPEC:84, SPEC:87) unedited, and is then wrong because SPEC:159 requires "the `--unattended` flag accepted by every command in sections 3.1 and 3.2", SPEC:76 gives every changed command the section, and AC-1.1 (SPEC:195) asserts the section for every command in 3.1-3.2, so the test fails on those two commands (and on other "None" or already-contracted rows).
+- Evidence: SPEC:76, SPEC:79, SPEC:84, SPEC:87, SPEC:159, SPEC:195; SPEC:79 also says the worker reports the named file "until Phase 1 adds the contract", but brainstorm already writes `<output>/return-contract.yaml` (SPEC:84; INV-A:39).
+- Recommendation: replace the second sentence at SPEC:79 with "Phase 1 also adds `--unattended` and the `## Unattended mode` section to each of these commands." (an added sentence replacing a contradicted one), or restrict AC-1.1 to the commands that have a small fix.
+- Priority: High. Quality impact: Consistency 6 to 8.

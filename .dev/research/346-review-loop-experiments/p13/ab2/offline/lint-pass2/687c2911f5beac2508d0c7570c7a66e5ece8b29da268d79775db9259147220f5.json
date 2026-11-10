@@ -1,0 +1,1236 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+  "doc_bytes": 75712,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        63,
+        63
+      ],
+      "quote": "Script layout (DD-1): settings (`LC_ALL=C`, `set -u -o pipefail`, `set -f`, `umask 077`); store path; messages; dispatch; prompt branch; fast paths; one `jq` read; classifiers adding classes; one `...",
+      "other_lines": null,
+      "message": "NFR-L-03 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-2",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        67,
+        67
+      ],
+      "quote": "Store: `$HOME/.claude/state/launch-level/`, built from three literal parts so the script text never holds `.claude/state` (FR-L-01, T-TAM-8).",
+      "other_lines": null,
+      "message": "T-TAM-8 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-3",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        72,
+        72
+      ],
+      "quote": "| `sessions/<sid>` | exactly one allowed word plus optional terminal newline; malformed, empty or unreadable means `worktree` + LL-STATE on a block (FR-L-03) | hook: atomic create-without-replaceme...",
+      "other_lines": null,
+      "message": "FR-L-03 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-4",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        75,
+        75
+      ],
+      "quote": "Valid id: a **top-level JSON string** matching `^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$` (FR-L-05); never coerce numbers/objects or replace control characters to manufacture an id. `mkdir -p` under `umas...",
+      "other_lines": null,
+      "message": "FR-L-05 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-5",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        75,
+        75
+      ],
+      "quote": "Valid id: a **top-level JSON string** matching `^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$` (FR-L-05); never coerce numbers/objects or replace control characters to manufacture an id. `mkdir -p` under `umas...",
+      "other_lines": null,
+      "message": "FR-L-08 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-6",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        81,
+        81
+      ],
+      "quote": "**Identity loss (panel F2/F3).** A nonempty store alone never proves this caller is governed. Missing/invalid id or an unparseable envelope without independent positive binding evidence cannot be a...",
+      "other_lines": null,
+      "message": "P6 is referenced but never defined (3 references)."
+    },
+    {
+      "lint_id": "LINT-REF-7",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        83,
+        83
+      ],
+      "quote": "**Lifecycle.** No pruning (O-15). Release: `rm` both files (FR-L-07). Re-claim: new nonce and session (IR-5). `--resume` and renames stay governed (V14); `/clear` and `--fork-session` are ordinary ...",
+      "other_lines": null,
+      "message": "FR-L-07 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-8",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        111,
+        111
+      ],
+      "quote": "| 13 | `git commit -m x`; `git revert x`; `sh -c \"git commit -m x\"`; ``git$'' commit -m x`` [B-2]; `git status && echo \"I am done\"` | COMMIT | COMMIT | COMMIT | COMMIT | A |",
+      "other_lines": null,
+      "message": "B-2 is referenced but never defined (5 references)."
+    },
+    {
+      "lint_id": "LINT-REF-9",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        116,
+        116
+      ],
+      "quote": "| 17a, 32a | `gh api -X POST repos/o/r/merges`; `gh api graphql ...`; `gh api \"repos/$REPO/pulls\"`; `curl -X PATCH https://api.github.com/...` [B-7]; `gh pr create --repo o/r --title \"fix api docs\"...",
+      "other_lines": null,
+      "message": "B-7 is referenced but never defined (5 references)."
+    },
+    {
+      "lint_id": "LINT-REF-10",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        117,
+        117
+      ],
+      "quote": "| 18, 31 | `git -c alias.ci=commit ci`; `git $(echo push)`; `git worktree add`; `gh alias set co 'pr merge'`; `gi\\` newline `t push ...` [B-1]; `if true; then git send-pack ...; fi` [B-3]; `git con...",
+      "other_lines": null,
+      "message": "B-1 is referenced but never defined (10 references)."
+    },
+    {
+      "lint_id": "LINT-REF-11",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        119,
+        119
+      ],
+      "quote": "| 6, 10, 25 | Skill `sc:issue`; Agent `isolation: \"remote\"`; Workflow; RemoteTrigger; SendMessage; `claude -p x`; `npx -y @anthropic-ai/claude-code@latest -p x` [B-8]; `orca terminal send`; `tmux s...",
+      "other_lines": null,
+      "message": "B-8 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-12",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        120,
+        120
+      ],
+      "quote": "| 3, 27 | Edit `~/.claude/settings.json`; Write `~/.config/git/config` [B-4]; a `..` path; `rm -rf ~/.claude/state`; ``rm -rf ~/.cla$''ude/state`` [B-2]; `uv run python -m superclaude.cli.main inst...",
+      "other_lines": null,
+      "message": "B-4 is referenced but never defined (4 references)."
+    },
+    {
+      "lint_id": "LINT-REF-13",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        120,
+        120
+      ],
+      "quote": "| 3, 27 | Edit `~/.claude/settings.json`; Write `~/.config/git/config` [B-4]; a `..` path; `rm -rf ~/.claude/state`; ``rm -rf ~/.cla$''ude/state`` [B-2]; `uv run python -m superclaude.cli.main inst...",
+      "other_lines": null,
+      "message": "B-9 is referenced but never defined (3 references)."
+    },
+    {
+      "lint_id": "LINT-REF-14",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        122,
+        122
+      ],
+      "quote": "| 33 | pinned gaps: `G=gi; ${G}t push origin main`; `/usr/bin/gi[t] push origin main` [B-5]; `bash ./push.sh` | NONE | A | A | A | A |",
+      "other_lines": null,
+      "message": "B-5 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-15",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        135,
+        135
+      ],
+      "quote": "**Normalisation, in order.** NM1: over 65,536 bytes gives BIG, stop. NM1a [B-1]: `[[ $cmd =~ $'[^[:space:]\\\\\\\\]\\\\\\\\\\n' ]]` gives UNKNOWN. (Note: that printed test never matches, because a quoted `$...",
+      "other_lines": null,
+      "message": "B-6 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-16",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        182,
+        182
+      ],
+      "quote": "- **Cron\\*, Schedule\\* (FR-L-43):** TURN. RemoteTrigger, Workflow, SendMessage: ESCAPE (FR-L-46).",
+      "other_lines": null,
+      "message": "FR-L-43 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-17",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        182,
+        182
+      ],
+      "quote": "- **Cron\\*, Schedule\\* (FR-L-43):** TURN. RemoteTrigger, Workflow, SendMessage: ESCAPE (FR-L-46).",
+      "other_lines": null,
+      "message": "FR-L-46 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-18",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        193,
+        193
+      ],
+      "quote": "- **Why the agent cannot fake it:** it cannot type a prompt; `agent_id` prompts are ignored; TURN is blocked at `W`; terminal and messaging tools are ESCAPE; in-word continuations are UNKNOWN [B-1]...",
+      "other_lines": null,
+      "message": "FR-L-19 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-19",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        206,
+        206
+      ],
+      "quote": "Ordinary sessions are never blocked by a failure (FR-L-53). Governed: default deny last line; EXIT trap maps other exit codes to LL-BROKEN (LL-NOBIND in the prompt branch); `set -u -o pipefail`, no...",
+      "other_lines": null,
+      "message": "FR-L-54 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-20",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        206,
+        206
+      ],
+      "quote": "Ordinary sessions are never blocked by a failure (FR-L-53). Governed: default deny last line; EXIT trap maps other exit codes to LL-BROKEN (LL-NOBIND in the prompt branch); `set -u -o pipefail`, no...",
+      "other_lines": null,
+      "message": "FR-L-57 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-21",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        208,
+        208
+      ],
+      "quote": "| Failure (FR-L-56) | Decision |",
+      "other_lines": null,
+      "message": "FR-L-56 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-22",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        219,
+        219
+      ],
+      "quote": "Empty-store fast path: one directory test. With state present, one typed `jq` parse replaces the unsafe raw-id prefilter; ordinary sessions may therefore cost more than before and must be rebenchma...",
+      "other_lines": null,
+      "message": "FR-L-58 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-23",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        264,
+        264
+      ],
+      "quote": "| ordinary payload with a forged nested bound id | allow | P3, P6, T-ISO-6 |",
+      "other_lines": null,
+      "message": "P3 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-24",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        264,
+        264
+      ],
+      "quote": "| ordinary payload with a forged nested bound id | allow | P3, P6, T-ISO-6 |",
+      "other_lines": null,
+      "message": "T-ISO-6 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-25",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        265,
+        265
+      ],
+      "quote": "| person's own session or subagent in the worktree | allow | FR-L-11, T-ISO-4 |",
+      "other_lines": null,
+      "message": "FR-L-11 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-26",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        265,
+        265
+      ],
+      "quote": "| person's own session or subagent in the worktree | allow | FR-L-11, T-ISO-4 |",
+      "other_lines": null,
+      "message": "T-ISO-4 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-27",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        271,
+        271
+      ],
+      "quote": "| nonce reused by a second session | `degraded` | B11, T-BIND-9 |",
+      "other_lines": null,
+      "message": "T-BIND-9 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-28",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        273,
+        273
+      ],
+      "quote": "| `sessions/` read-only | LL-NOBIND | T-BIND-7 |",
+      "other_lines": null,
+      "message": "T-BIND-7 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-29",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        279,
+        279
+      ],
+      "quote": "| typed `/sc:implement`, then Skill call | allow | T-APR-9 |",
+      "other_lines": null,
+      "message": "T-APR-9 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-30",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        280,
+        280
+      ],
+      "quote": "| PR title \"docs: explain git hooks\" at `FS` | allow | T-GH-12 |",
+      "other_lines": null,
+      "message": "T-GH-12 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-31",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        294,
+        294
+      ],
+      "quote": "| 65,537 bytes of multi-byte text | BIG | T-FC-7 |",
+      "other_lines": null,
+      "message": "T-FC-7 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-32",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        302,
+        302
+      ],
+      "quote": "| AC-1 | T-GRID-3, T-SKL-1, T-APR-5, T-APR-9, T-NRM-8, T-GIT-18 |",
+      "other_lines": null,
+      "message": "T-APR-5 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-33",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        302,
+        302
+      ],
+      "quote": "| AC-1 | T-GRID-3, T-SKL-1, T-APR-5, T-APR-9, T-NRM-8, T-GIT-18 |",
+      "other_lines": null,
+      "message": "T-GIT-18 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-34",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        302,
+        302
+      ],
+      "quote": "| AC-1 | T-GRID-3, T-SKL-1, T-APR-5, T-APR-9, T-NRM-8, T-GIT-18 |",
+      "other_lines": null,
+      "message": "T-GRID-3 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-35",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        302,
+        302
+      ],
+      "quote": "| AC-1 | T-GRID-3, T-SKL-1, T-APR-5, T-APR-9, T-NRM-8, T-GIT-18 |",
+      "other_lines": null,
+      "message": "T-NRM-8 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-36",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        302,
+        302
+      ],
+      "quote": "| AC-1 | T-GRID-3, T-SKL-1, T-APR-5, T-APR-9, T-NRM-8, T-GIT-18 |",
+      "other_lines": null,
+      "message": "T-SKL-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-37",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        303,
+        303
+      ],
+      "quote": "| AC-2 | T-GRID-4, T-GRID-5, T-GIT-17, T-PSH-8, T-PSH-11, T-GH-12 |",
+      "other_lines": null,
+      "message": "T-GIT-17 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-38",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        303,
+        303
+      ],
+      "quote": "| AC-2 | T-GRID-4, T-GRID-5, T-GIT-17, T-PSH-8, T-PSH-11, T-GH-12 |",
+      "other_lines": null,
+      "message": "T-GRID-4 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-39",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        303,
+        303
+      ],
+      "quote": "| AC-2 | T-GRID-4, T-GRID-5, T-GIT-17, T-PSH-8, T-PSH-11, T-GH-12 |",
+      "other_lines": null,
+      "message": "T-GRID-5 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-40",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        303,
+        303
+      ],
+      "quote": "| AC-2 | T-GRID-4, T-GRID-5, T-GIT-17, T-PSH-8, T-PSH-11, T-GH-12 |",
+      "other_lines": null,
+      "message": "T-PSH-11 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-41",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        303,
+        303
+      ],
+      "quote": "| AC-2 | T-GRID-4, T-GRID-5, T-GIT-17, T-PSH-8, T-PSH-11, T-GH-12 |",
+      "other_lines": null,
+      "message": "T-PSH-8 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-42",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        304,
+        304
+      ],
+      "quote": "| AC-3 | T-APR-1 to T-APR-4, T-APR-10, T-TRN-1, T-TRN-4 |",
+      "other_lines": null,
+      "message": "T-APR-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-43",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        304,
+        304
+      ],
+      "quote": "| AC-3 | T-APR-1 to T-APR-4, T-APR-10, T-TRN-1, T-TRN-4 |",
+      "other_lines": null,
+      "message": "T-APR-10 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-44",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        304,
+        304
+      ],
+      "quote": "| AC-3 | T-APR-1 to T-APR-4, T-APR-10, T-TRN-1, T-TRN-4 |",
+      "other_lines": null,
+      "message": "T-APR-4 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-45",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        304,
+        304
+      ],
+      "quote": "| AC-3 | T-APR-1 to T-APR-4, T-APR-10, T-TRN-1, T-TRN-4 |",
+      "other_lines": null,
+      "message": "T-TRN-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-46",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        304,
+        304
+      ],
+      "quote": "| AC-3 | T-APR-1 to T-APR-4, T-APR-10, T-TRN-1, T-TRN-4 |",
+      "other_lines": null,
+      "message": "T-TRN-4 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-47",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        305,
+        305
+      ],
+      "quote": "| AC-4 | T-ISO-1, T-ISO-4, T-ISO-7, T-ISO-8, T-ISO-9, T-REG-3 |",
+      "other_lines": null,
+      "message": "T-ISO-1 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-48",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        305,
+        305
+      ],
+      "quote": "| AC-4 | T-ISO-1, T-ISO-4, T-ISO-7, T-ISO-8, T-ISO-9, T-REG-3 |",
+      "other_lines": null,
+      "message": "T-ISO-7 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-49",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        305,
+        305
+      ],
+      "quote": "| AC-4 | T-ISO-1, T-ISO-4, T-ISO-7, T-ISO-8, T-ISO-9, T-REG-3 |",
+      "other_lines": null,
+      "message": "T-ISO-8 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-50",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        305,
+        305
+      ],
+      "quote": "| AC-4 | T-ISO-1, T-ISO-4, T-ISO-7, T-ISO-8, T-ISO-9, T-REG-3 |",
+      "other_lines": null,
+      "message": "T-ISO-9 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-51",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        305,
+        305
+      ],
+      "quote": "| AC-4 | T-ISO-1, T-ISO-4, T-ISO-7, T-ISO-8, T-ISO-9, T-REG-3 |",
+      "other_lines": null,
+      "message": "T-REG-3 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-52",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        306,
+        306
+      ],
+      "quote": "| AC-5 | T-BIND-2, T-BIND-7, T-BIND-13, T-TAM-1, T-TAM-2, T-TAM-6, T-FC-2 |",
+      "other_lines": null,
+      "message": "T-BIND-13 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-53",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        306,
+        306
+      ],
+      "quote": "| AC-5 | T-BIND-2, T-BIND-7, T-BIND-13, T-TAM-1, T-TAM-2, T-TAM-6, T-FC-2 |",
+      "other_lines": null,
+      "message": "T-BIND-2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-54",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        306,
+        306
+      ],
+      "quote": "| AC-5 | T-BIND-2, T-BIND-7, T-BIND-13, T-TAM-1, T-TAM-2, T-TAM-6, T-FC-2 |",
+      "other_lines": null,
+      "message": "T-FC-2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-55",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        306,
+        306
+      ],
+      "quote": "| AC-5 | T-BIND-2, T-BIND-7, T-BIND-13, T-TAM-1, T-TAM-2, T-TAM-6, T-FC-2 |",
+      "other_lines": null,
+      "message": "T-TAM-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-56",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        306,
+        306
+      ],
+      "quote": "| AC-5 | T-BIND-2, T-BIND-7, T-BIND-13, T-TAM-1, T-TAM-2, T-TAM-6, T-FC-2 |",
+      "other_lines": null,
+      "message": "T-TAM-2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-57",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        306,
+        306
+      ],
+      "quote": "| AC-5 | T-BIND-2, T-BIND-7, T-BIND-13, T-TAM-1, T-TAM-2, T-TAM-6, T-FC-2 |",
+      "other_lines": null,
+      "message": "T-TAM-6 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-58",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        307,
+        307
+      ],
+      "quote": "| AC-6 | T-PSH-4, T-PSH-12, T-GIT-9, T-GIT-14, T-NRM-1, T-GH-2, T-GH-11, T-GH-14, T-MCP-1, T-COR-2 |",
+      "other_lines": null,
+      "message": "T-COR-2 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-59",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        307,
+        307
+      ],
+      "quote": "| AC-6 | T-PSH-4, T-PSH-12, T-GIT-9, T-GIT-14, T-NRM-1, T-GH-2, T-GH-11, T-GH-14, T-MCP-1, T-COR-2 |",
+      "other_lines": null,
+      "message": "T-GH-11 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-60",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        307,
+        307
+      ],
+      "quote": "| AC-6 | T-PSH-4, T-PSH-12, T-GIT-9, T-GIT-14, T-NRM-1, T-GH-2, T-GH-11, T-GH-14, T-MCP-1, T-COR-2 |",
+      "other_lines": null,
+      "message": "T-GH-14 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-61",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        307,
+        307
+      ],
+      "quote": "| AC-6 | T-PSH-4, T-PSH-12, T-GIT-9, T-GIT-14, T-NRM-1, T-GH-2, T-GH-11, T-GH-14, T-MCP-1, T-COR-2 |",
+      "other_lines": null,
+      "message": "T-GH-2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-62",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        307,
+        307
+      ],
+      "quote": "| AC-6 | T-PSH-4, T-PSH-12, T-GIT-9, T-GIT-14, T-NRM-1, T-GH-2, T-GH-11, T-GH-14, T-MCP-1, T-COR-2 |",
+      "other_lines": null,
+      "message": "T-GIT-14 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-63",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        307,
+        307
+      ],
+      "quote": "| AC-6 | T-PSH-4, T-PSH-12, T-GIT-9, T-GIT-14, T-NRM-1, T-GH-2, T-GH-11, T-GH-14, T-MCP-1, T-COR-2 |",
+      "other_lines": null,
+      "message": "T-GIT-9 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-64",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        307,
+        307
+      ],
+      "quote": "| AC-6 | T-PSH-4, T-PSH-12, T-GIT-9, T-GIT-14, T-NRM-1, T-GH-2, T-GH-11, T-GH-14, T-MCP-1, T-COR-2 |",
+      "other_lines": null,
+      "message": "T-MCP-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-65",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        307,
+        307
+      ],
+      "quote": "| AC-6 | T-PSH-4, T-PSH-12, T-GIT-9, T-GIT-14, T-NRM-1, T-GH-2, T-GH-11, T-GH-14, T-MCP-1, T-COR-2 |",
+      "other_lines": null,
+      "message": "T-NRM-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-66",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        307,
+        307
+      ],
+      "quote": "| AC-6 | T-PSH-4, T-PSH-12, T-GIT-9, T-GIT-14, T-NRM-1, T-GH-2, T-GH-11, T-GH-14, T-MCP-1, T-COR-2 |",
+      "other_lines": null,
+      "message": "T-PSH-12 is referenced but never defined (3 references)."
+    },
+    {
+      "lint_id": "LINT-REF-67",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        307,
+        307
+      ],
+      "quote": "| AC-6 | T-PSH-4, T-PSH-12, T-GIT-9, T-GIT-14, T-NRM-1, T-GH-2, T-GH-11, T-GH-14, T-MCP-1, T-COR-2 |",
+      "other_lines": null,
+      "message": "T-PSH-4 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-68",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        308,
+        308
+      ],
+      "quote": "| AC-7 | T-MSG-1, T-MSG-2, T-MSG-3, T-FC-3 |",
+      "other_lines": null,
+      "message": "T-FC-3 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-69",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        308,
+        308
+      ],
+      "quote": "| AC-7 | T-MSG-1, T-MSG-2, T-MSG-3, T-FC-3 |",
+      "other_lines": null,
+      "message": "T-MSG-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-70",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        308,
+        308
+      ],
+      "quote": "| AC-7 | T-MSG-1, T-MSG-2, T-MSG-3, T-FC-3 |",
+      "other_lines": null,
+      "message": "T-MSG-2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-71",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        308,
+        308
+      ],
+      "quote": "| AC-7 | T-MSG-1, T-MSG-2, T-MSG-3, T-FC-3 |",
+      "other_lines": null,
+      "message": "T-MSG-3 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-72",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        309,
+        309
+      ],
+      "quote": "| AC-8 | T-GRID-1, T-GRID-2, T-SPD-1..5, T-COR-1, T-GAP-1 |",
+      "other_lines": null,
+      "message": "T-COR-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-73",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        309,
+        309
+      ],
+      "quote": "| AC-8 | T-GRID-1, T-GRID-2, T-SPD-1..5, T-COR-1, T-GAP-1 |",
+      "other_lines": null,
+      "message": "T-GAP-1 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-74",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        309,
+        309
+      ],
+      "quote": "| AC-8 | T-GRID-1, T-GRID-2, T-SPD-1..5, T-COR-1, T-GAP-1 |",
+      "other_lines": null,
+      "message": "T-GRID-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-75",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        309,
+        309
+      ],
+      "quote": "| AC-8 | T-GRID-1, T-GRID-2, T-SPD-1..5, T-COR-1, T-GAP-1 |",
+      "other_lines": null,
+      "message": "T-GRID-2 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-76",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        311,
+        311
+      ],
+      "quote": "**Corpus.** Preserve MR section 8 (8.3/8.4) case inputs and historical outcomes as baseline provenance, but do not copy obsolete expected results unchanged (revised DD-2). Explicit overrides here: ...",
+      "other_lines": null,
+      "message": "N-ATK-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-77",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        311,
+        311
+      ],
+      "quote": "**Corpus.** Preserve MR section 8 (8.3/8.4) case inputs and historical outcomes as baseline provenance, but do not copy obsolete expected results unchanged (revised DD-2). Explicit overrides here: ...",
+      "other_lines": null,
+      "message": "N-ATK-7 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-78",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        311,
+        311
+      ],
+      "quote": "**Corpus.** Preserve MR section 8 (8.3/8.4) case inputs and historical outcomes as baseline provenance, but do not copy obsolete expected results unchanged (revised DD-2). Explicit overrides here: ...",
+      "other_lines": null,
+      "message": "T-ATK-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-79",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        311,
+        311
+      ],
+      "quote": "**Corpus.** Preserve MR section 8 (8.3/8.4) case inputs and historical outcomes as baseline provenance, but do not copy obsolete expected results unchanged (revised DD-2). Explicit overrides here: ...",
+      "other_lines": null,
+      "message": "T-ATK-10 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-80",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        311,
+        311
+      ],
+      "quote": "**Corpus.** Preserve MR section 8 (8.3/8.4) case inputs and historical outcomes as baseline provenance, but do not copy obsolete expected results unchanged (revised DD-2). Explicit overrides here: ...",
+      "other_lines": null,
+      "message": "T-ATK-21 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-81",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        311,
+        311
+      ],
+      "quote": "**Corpus.** Preserve MR section 8 (8.3/8.4) case inputs and historical outcomes as baseline provenance, but do not copy obsolete expected results unchanged (revised DD-2). Explicit overrides here: ...",
+      "other_lines": null,
+      "message": "T-ATK-26 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-82",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        311,
+        311
+      ],
+      "quote": "**Corpus.** Preserve MR section 8 (8.3/8.4) case inputs and historical outcomes as baseline provenance, but do not copy obsolete expected results unchanged (revised DD-2). Explicit overrides here: ...",
+      "other_lines": null,
+      "message": "T-ATK-48 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-83",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        311,
+        311
+      ],
+      "quote": "**Corpus.** Preserve MR section 8 (8.3/8.4) case inputs and historical outcomes as baseline provenance, but do not copy obsolete expected results unchanged (revised DD-2). Explicit overrides here: ...",
+      "other_lines": null,
+      "message": "T-ATK-6 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-84",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        311,
+        311
+      ],
+      "quote": "**Corpus.** Preserve MR section 8 (8.3/8.4) case inputs and historical outcomes as baseline provenance, but do not copy obsolete expected results unchanged (revised DD-2). Explicit overrides here: ...",
+      "other_lines": null,
+      "message": "T-OK-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-85",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        311,
+        311
+      ],
+      "quote": "**Corpus.** Preserve MR section 8 (8.3/8.4) case inputs and historical outcomes as baseline provenance, but do not copy obsolete expected results unchanged (revised DD-2). Explicit overrides here: ...",
+      "other_lines": null,
+      "message": "T-OVR-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-86",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        330,
+        330
+      ],
+      "quote": "| AC-5 | NOT MET | B-1, B-2 close N-ATK-29, 30, 32, 33; B-9 reinstall | R3, O-16, N-ATK-31 |",
+      "other_lines": null,
+      "message": "N-ATK-29 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-87",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        330,
+        330
+      ],
+      "quote": "| AC-5 | NOT MET | B-1, B-2 close N-ATK-29, 30, 32, 33; B-9 reinstall | R3, O-16, N-ATK-31 |",
+      "other_lines": null,
+      "message": "N-ATK-31 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-88",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        347,
+        347
+      ],
+      "quote": "No UserPromptExpansion, SessionStart or `onFailure` (FR-L-63). Anchors are U15; the script re-checks names (FR-L-66). Add `\"launch-level-guard.sh\"` to `_FRESHNESS_SCRIPTS` (not the Makefile). For l...",
+      "other_lines": null,
+      "message": "FR-L-63 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-89",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        347,
+        347
+      ],
+      "quote": "No UserPromptExpansion, SessionStart or `onFailure` (FR-L-63). Anchors are U15; the script re-checks names (FR-L-66). Add `\"launch-level-guard.sh\"` to `_FRESHNESS_SCRIPTS` (not the Makefile). For l...",
+      "other_lines": null,
+      "message": "FR-L-66 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-90",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        351,
+        351
+      ],
+      "quote": "- **IR-3** `pipeline.json` is documentation only; amend FR-31.",
+      "other_lines": null,
+      "message": "FR-31 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-91",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        407,
+        407
+      ],
+      "quote": "| OD-R1-B2 | backslash-newline split a push | FR-L-33, FR-L-25 | closed | reopen if T-NRM-5 fails |",
+      "other_lines": null,
+      "message": "FR-L-25 is referenced but never defined (3 references)."
+    },
+    {
+      "lint_id": "LINT-REF-92",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        407,
+        407
+      ],
+      "quote": "| OD-R1-B2 | backslash-newline split a push | FR-L-33, FR-L-25 | closed | reopen if T-NRM-5 fails |",
+      "other_lines": null,
+      "message": "T-NRM-5 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-93",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        408,
+        408
+      ],
+      "quote": "| OD-R1-B3 | dashed built-ins unseen | FR-L-28 | closed | reopen if T-GIT-12 fails |",
+      "other_lines": null,
+      "message": "FR-L-28 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-94",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        408,
+        408
+      ],
+      "quote": "| OD-R1-B3 | dashed built-ins unseen | FR-L-28 | closed | reopen if T-GIT-12 fails |",
+      "other_lines": null,
+      "message": "T-GIT-12 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-95",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        409,
+        409
+      ],
+      "quote": "| OD-R1-B4 | `gh api` writes read as reads | FR-L-36 | closed | O-19 |",
+      "other_lines": null,
+      "message": "FR-L-36 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-96",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        413,
+        413
+      ],
+      "quote": "| OD-R1-B8 | false \"messages pass\" claim | FR-L-29, R8 | closed | O-21 alternative |",
+      "other_lines": null,
+      "message": "FR-L-29 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-97",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        419,
+        419
+      ],
+      "quote": "| OD-R2-F6 | quoted `>` deleted git word | FR-L-26, 27 | closed | none |",
+      "other_lines": null,
+      "message": "FR-L-26 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-98",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        421,
+        421
+      ],
+      "quote": "| OD-R2-F8 | PR title blocked as git | FR-L-31, 37 | closed | none |",
+      "other_lines": null,
+      "message": "FR-L-31 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-99",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        422,
+        422
+      ],
+      "quote": "| OD-R3-B1 | in-word continuation hides names | FR-L-24 | OPEN (amended, not re-reviewed) | drop; residual |",
+      "other_lines": null,
+      "message": "FR-L-24 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-100",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        427,
+        427
+      ],
+      "quote": "| OD-R3-B6 | segment split skipped | FR-L-27 | OPEN (amended, not re-reviewed) | none |",
+      "other_lines": null,
+      "message": "FR-L-27 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-101",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        457,
+        457
+      ],
+      "quote": "UNVERIFIED (MR 12): U1 subagent id (ship gate); U2 Skill key; U3 `Task` name; U4 turn wrapping; U5 queued prompt; U6 `--bare`; U7 Orca preamble; U8 bind timing (OB-H2 mandatory); U9 `command_name` ...",
+      "other_lines": null,
+      "message": "T-NRM-6 is referenced but never defined."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

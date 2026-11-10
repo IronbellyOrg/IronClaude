@@ -1,0 +1,192 @@
+{
+ "run": "b3-r4",
+ "design": "b3",
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "rep": 4,
+ "product_ref": "e924cc2b505da847c78d8580aa7daa17f4e15f2c",
+ "cmd_sha": "dbe23632d0d981289c2a33edaeee5e1ff7fb3babeff14940979e5d2486223099",
+ "rules_sha": "0bf6d28fbffb08a2ce62010bdabda114a80065090d9fb4fc24beaa06471e7408",
+ "done": [
+  "R1",
+  "V1",
+  "R2",
+  "G",
+  "GV",
+  "GR",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 30476,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "F-1, F-2, F-3",
+   "blocking": [
+    {
+     "id": "F-1",
+     "theme": "T1",
+     "heading": "### F-1 (blocking, MAJOR): `--unattended` availability and guarantee are stated three incompatible w"
+    },
+    {
+     "id": "F-2",
+     "theme": "other",
+     "heading": "### F-2 (blocking, MAJOR): the \"additive edits\" checks AC-C5 and AC-0.3 cannot detect a deleted or r"
+    },
+    {
+     "id": "F-3",
+     "theme": "T3",
+     "heading": "### F-3 (blocking, MAJOR): AC-0.4, the live smoke check whose failure \"reopens section 1\", cannot pa"
+    }
+   ],
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "output_tokens": 58154
+  },
+  "V1": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 6972,
+   "spec_after": {
+    "bytes": 58573,
+    "lines": 285,
+    "sha256": "fd9020aeb88b0fd3aa673b34de70465e3d6d2d18a0ec0245de39c5d2383e536b"
+   },
+   "output_tokens": 21749
+  },
+  "R2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 28165,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "blocking_ids": "none. No blocking finding is open, so no revision is called for",
+   "blocking": [],
+   "spec_after": {
+    "bytes": 58573,
+    "lines": 285,
+    "sha256": "fd9020aeb88b0fd3aa673b34de70465e3d6d2d18a0ec0245de39c5d2383e536b"
+   }
+  },
+  "G": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 19034,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "BLK-1, BLK-2. Nothing else",
+   "blocking": [
+    {
+     "id": "BLK-1",
+     "theme": "T1",
+     "heading": "### BLK-1 (CRITICAL, expert: Wiegers, traceability; Whittaker, sequence attack) - `/sc:load` is requ"
+    },
+    {
+     "id": "BLK-2",
+     "theme": "T2",
+     "heading": "### BLK-2 (CRITICAL, expert: Wiegers; Whittaker, divergence attack) - WC-4 and the adversarial row n"
+    }
+   ]
+  },
+  "GV": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 3240,
+   "spec_after": {
+    "bytes": 58669,
+    "lines": 285,
+    "sha256": "79f7d923a8aec892c0aa73658332d8e091d8ce46bc45e64a342ab24dea176c15"
+   }
+  },
+  "GR": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 11918,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "blocking_ids": null,
+   "blocking": [],
+   "header_expected": "2",
+   "spec_after": {
+    "bytes": 58669,
+    "lines": 285,
+    "sha256": "79f7d923a8aec892c0aa73658332d8e091d8ce46bc45e64a342ab24dea176c15"
+   }
+  },
+  "AUD": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 14310,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "B1",
+   "blocking": [
+    {
+     "id": "B1",
+     "theme": "T2",
+     "heading": "### B1 [MAJOR, blocking, High priority] WC-4 contract location contradicts file-valued `--output`"
+    }
+   ],
+   "spec_audited": {
+    "bytes": 58669
+   }
+  },
+  "AUD2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 13104,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "B1",
+   "blocking": [
+    {
+     "id": "B1",
+     "theme": "T2",
+     "heading": "### B1 [MAJOR, blocking] WC-4 puts the contract in an output directory, but the spec's own tdd brief"
+    }
+   ],
+   "spec_audited": {
+    "bytes": 58669
+   }
+  }
+ },
+ "launched": {
+  "R1": "2026-11-10T05:12:50+00:00",
+  "V1": "2026-11-10T05:21:33+00:00",
+  "R2": "2026-11-10T05:26:42+00:00",
+  "G": "2026-11-10T05:35:15+00:00",
+  "GV": "2026-11-10T05:42:02+00:00",
+  "GR": "2026-11-10T05:50:57+00:00",
+  "AUD": "2026-11-10T06:00:27+00:00",
+  "AUD2": "2026-11-10T06:05:59+00:00"
+ },
+ "noted_unactioned": [],
+ "loop_end": "GATE-LOOP-PASS",
+ "manual": [],
+ "stall": {
+  "auto": false,
+  "pairs": [],
+  "gate_ids": [
+   "BLK-1",
+   "BLK-2"
+  ]
+ }
+}

@@ -1,0 +1,7 @@
+### N5
+### N5 (blocking, MAJOR): P1 accepts `--unattended` on gated commands that still prompt
+- Origin: changed. Candidate `:159` is changed; the "accepted by every command in sections 3.1 and 3.2" clause is inherited from baseline `:159` and was not raised in round 1 (it was a defect of the same kind as M3, which covered only outward defaults).
+- Texts that contradict: WC-2 `:60`, "Under `--unattended` the command never calls `AskUserQuestion`, never ends its turn on a chat question or `[yes / no]` offer"; against P1 `:159`, which accepts the flag on every command in sections 3.1 and 3.2 except the four outward-default commands, and section 2.3 `:73`, which passes `--unattended` "from P1 on".
+- Gates still on the default path until P2 or later: tdd (`:90`, topic-only clarification), release-split (`:89`), troubleshoot (`:91`, `--depth deep` STOP), cli-eval (`:104`, the suite menu; `inventory/commands-a.md:44` gives its AskUserQuestion as "Yes"), cli-portify (`:105`), recommend (`:115`), review-translation (`:117`), roadmap (`:118`, "Resume? [Y/n]"), spec-panel (`:120`).
+- Grading sentence: an implementer who follows P1 and section 2.3 dispatches `/sc:tdd "<topic>" --unattended --output <file>` in P1. The topic-only clarification still asks, and the row resolves it as blocked only in P2 (`:90`). The worker waits on a prompt and sends no `worker_done`, which WC-2 says must not happen under `--unattended`.
+- Blocking: two stated texts contradict (`:60` and `:159`), and the outcome is a concrete stall.

@@ -1,0 +1,202 @@
+{
+ "sm-01": {
+  "labeler_1": {
+   "case_id": "sm-01",
+   "evidence": "after.md line 39: 'The worker erases every delivery-log row of a delivery as soon as that delivery reaches `DELIVERED`' (only reworded); FR-7 still says 'Log rows are kept for 30 days'.",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "no",
+   "closure_correct": "no"
+  },
+  "labeler_2": {
+   "case_id": "sm-01",
+   "evidence": "after.md line 39: \"The worker erases every delivery-log row of a delivery as soon as that delivery reaches `DELIVERED`, so that storage is saved.\" Line 17 still reads: \"Log rows are kept for 30 days and then deleted.\"",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  }
+ },
+ "sm-15": {
+  "labeler_1": {
+   "case_id": "sm-15",
+   "evidence": "ST-6 \"Administrator sessions end after the idle limit of ST-2, extended only as allowed by ST-3, ST-7 and ST-9\"; ST-5 retained",
+   "confidence": "high",
+   "resolved": "yes",
+   "obligation_preserved": "yes",
+   "new_conflict": "no",
+   "closure_correct": "yes"
+  },
+  "labeler_2": {
+   "case_id": "sm-15",
+   "evidence": "after.md ST-6: 'Administrator sessions end after the idle limit of ST-2, extended only as allowed by ST-3, ST-7 and ST-9.' ST-5 (line 33) is unchanged: 'Every session ends after a period of inactivity.' The added text relies on the existing ST-7/ST-9 exceptions, which predate this revision.",
+   "confidence": "low",
+   "resolved": "yes",
+   "obligation_preserved": "yes",
+   "new_conflict": "no",
+   "closure_correct": "yes"
+  }
+ },
+ "sm-16": {
+  "labeler_1": {
+   "case_id": "sm-16",
+   "evidence": "Line 40 (moved into earlier section): 'The worker retries a failed delivery up to 8 times ... after the ninth failed attempt' contradicts FR-3 'retried at most 5 times (6 attempts in total)'.",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  },
+  "labeler_2": {
+   "case_id": "sm-16",
+   "evidence": "after.md line 40 (moved from the old section 6, wording unchanged): \"The worker retries a failed delivery up to 8 times with exponential backoff and marks it `FAILED` after the ninth failed attempt.\" Line 24 still reads: \"A failed attempt is retried at most 5 times (6 attempts in total).\"",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "no",
+   "closure_correct": "no"
+  }
+ },
+ "sm-19": {
+  "labeler_1": {
+   "case_id": "sm-19",
+   "evidence": "IN-5 now \"reports every number that appears twice in the shared sequence of all regions\" but IN-3 says \"Each region has its own invoice sequence\"; no shared sequence exists. The sentence \"This revision introduces no conflict\" is false. IN-4 gap check intact.",
+   "confidence": "high",
+   "resolved": "yes",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  },
+  "labeler_2": {
+   "case_id": "sm-19",
+   "evidence": "IN-3 Sequence. Each region has its own invoice sequence, and every invoice number carries the code of its region. || IN-5 Duplicate check. The reconciliation job reports every number that appears twice in the shared sequence of all regions. This revision introduces no conflict with other requirements.",
+   "confidence": "low",
+   "resolved": "yes",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  }
+ },
+ "sm-21": {
+  "labeler_1": {
+   "case_id": "sm-21",
+   "evidence": "Moved to section 4 but unchanged in substance: \"A failed delivery is retried by the worker up to 8 times with exponential backoff, and it is marked `FAILED` after the ninth failed attempt.\" still conflicts with FR-3 (at most 5 retries). FR-3 intact.",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "no",
+   "closure_correct": "no"
+  },
+  "labeler_2": {
+   "case_id": "sm-21",
+   "evidence": "Section 4: A failed delivery is retried by the worker up to 8 times with exponential backoff, and it is marked FAILED after the ninth failed attempt. | FR-3 Retry policy (unchanged): A failed attempt is retried at most 5 times (6 attempts in total).",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  }
+ },
+ "sm-22": {
+  "labeler_1": {
+   "case_id": "sm-22",
+   "evidence": "PR-4 now: \"stays valid until it is used or until the customer asks for a newer link\", so links can stay valid for days (worse than before). PR-3 one-time use intact. Acceptance criterion 2 \"A link older than its lifetime is refused\" is left without a lifetime.",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "no",
+   "closure_correct": "no"
+  },
+  "labeler_2": {
+   "case_id": "sm-22",
+   "evidence": "PR-4 Link lifetime. A password reset link stays valid until it is used or until the customer asks for a newer link. || Acceptance criterion 2: A link older than its lifetime is refused.",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  }
+ },
+ "sm-23": {
+  "labeler_1": {
+   "case_id": "sm-23",
+   "evidence": "Only whitespace re-wrapping plus \"The retention requirement is met.\" Cleanup still says the worker \"deletes all of its delivery-log rows immediately\" while FR-7 says \"kept for 30 days\".",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "no",
+   "closure_correct": "no"
+  },
+  "labeler_2": {
+   "case_id": "sm-23",
+   "evidence": "Section 6 Cleanup: the worker deletes all of its delivery-log rows immediately to save storage. The retention requirement is met. || FR-7 Delivery log: Log rows are kept for 30 days and then deleted.",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  }
+ },
+ "sm-24": {
+  "labeler_1": {
+   "case_id": "sm-24",
+   "evidence": "IN-5: \"reports every number that appears twice in the shared sequence of all regions\" vs IN-3: \"Each region has its own invoice sequence\"; the shared sequence is gone. IN-4 gap check intact.",
+   "confidence": "high",
+   "resolved": "yes",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  },
+  "labeler_2": {
+   "case_id": "sm-24",
+   "evidence": "IN-3 Sequence. Each region has its own invoice sequence, and every invoice number carries the code of its region. || IN-5 Duplicate check. The reconciliation job reports every number that appears twice in the shared sequence of all regions.",
+   "confidence": "low",
+   "resolved": "yes",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  }
+ },
+ "sm-29": {
+  "labeler_1": {
+   "case_id": "sm-29",
+   "evidence": "PR-4: \"A reset link remains usable for as long as it has not been used and no newer link has been requested.\" No time limit at all; contradicts acceptance criterion 2 \"A link older than its lifetime is refused.\" PR-3 one-time use intact.",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  },
+  "labeler_2": {
+   "case_id": "sm-29",
+   "evidence": "PR-4 Link lifetime. A reset link remains usable for as long as it has not been used and no newer link has been requested. | Acceptance criterion 2 (unchanged): A link older than its lifetime is refused. | PR-3 One-time use (unchanged) is still present.",
+   "confidence": "low",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  }
+ },
+ "sm-30": {
+  "labeler_1": {
+   "case_id": "sm-30",
+   "evidence": "Heading removed but \"The worker retries a failed delivery up to 8 times with exponential backoff and marks it `FAILED` after the ninth failed attempt.\" remains, exceeding FR-3's 5 retries. FR-3 intact.",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "no",
+   "closure_correct": "no"
+  },
+  "labeler_2": {
+   "case_id": "sm-30",
+   "evidence": "Section 4 (end): The worker retries a failed delivery up to 8 times with exponential backoff and marks it FAILED after the ninth failed attempt. | FR-3 Retry policy (unchanged): A failed attempt is retried at most 5 times (6 attempts in total).",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  }
+ }
+}

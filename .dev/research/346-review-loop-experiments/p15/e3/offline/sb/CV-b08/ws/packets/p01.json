@@ -1,0 +1,22 @@
+{
+ "finding": {
+  "title": "Check AC-C1 is vacuous, and SA-2 contradicts it on the contract file and the HOW-WE-WORK section",
+  "wrong_outcome": "Check AC-C1 is vacuous, and SA-2 contradicts it on the contract file and the HOW-WE-WORK section"
+ },
+ "evidence": {
+  "e1": {
+   "text": "\\borca(-ide)?[[:space:]]+(orchestration\\|worktree\\|terminal\\|agent)\\b",
+   "line": 172,
+   "context": "### 7.1 Common checks (every phase)\n| ID | Check | Pass condition |\n|---|---|---|\n| AC-C1 | `grep -rnE '\\borca(-ide)?[[:space:]]+(orchestration\\|worktree\\|terminal\\|agent)\\b' src/superclaude/commands src/superclaude/skills src/superclaude/agents src/superclaude/core \\| grep -v '^src/superclaude/skills/ccsession-tag/'` | prints nothing (SA-2, WC-8) |\n| AC-C2 | `make verify-sync` | exits 0 (SA-5) |\n| AC-C3 | Before the phase starts, save `uv run pytest tests/skills/ -q -rf` output as the baseline; after the phase, run it again | no test that passed in the baseline fails; new tests pass. A clean suite is not assumed (an earlier run saw pre-existing failures, `.dev/codegraph-migration/orchestration/README.md:42`) |\n| AC-C4 | `git diff --cached --name-only \\| grep '^\\.claude/' \\| grep -v '^\\.claude/settings\\.json$'` | prints nothing (`CLAUDE.md:16`) |"
+  },
+  "e2": {
+   "text": "inside the contract file",
+   "line": 147,
+   "context": "| ID | Requirement | Why | Evidence |\n|---|---|---|---|\n| SA-1 | Without `--unattended`, every prompt, approval gate, default flag value, output path and outward default stays as it is today, including the auggie-review PR posting default and every `AskUserQuestion`. | The routing guide sends people to these commands with these behaviours today (for example `--interactive` controls on cleanup and improve, interactive suite selection on cli-eval). | `src/superclaude/core/HOW-WE-WORK.md:171,249,254` |\n| SA-2 | No command, skill or agent file runs an `orca` or `orca-ide` command, and none requires Orca to be installed or running. The only allowed mention of Orca in a changed command is as an example of a caller's question channel inside the contract file. | Commands run in other projects (`CLAUDE.md:74`); without Orca the calls fail with `runtime_unavailable` (`CAPS:147`). | `CAPS:145-149`; today's baseline: only `sk/ccsession-tag/` mentions Orca (section 1.2, E5) |\n| SA-3 | The new contract file and report files are written only in unattended mode or when the caller passes the new output flag. A standalone default run writes the same files it writes today. | A new file appearing in a person's working tree is a visible change. | Section 3 rows that add a report path |\n| SA-4 | Command-file edits in Phases 1-3 are additive: a new `## Unattended mode` section and new flags. Existing lines change only where section 3 names a defect fix (roadmap and validate-roadmap drift, validate-tests target, adversarial and workflow contract gaps, explain tools, business-panel frontmatter, load usage line), and each such fix must keep the standalone behaviour or correct a documented defect. | Keeps the diff reviewable and SA-1 checkable. | Section 3 \"Other required change\" column |\n| SA-5 | `src/superclaude/` stays the source of truth; `.claude/` copies come from `make sync-dev` and are never staged. The routing guide gains an Orca section without changing any existing routing row, and its two mirrored copies are updated as the repo requires. | Repo rules. | `CLAUDE.md:16,157,334` |"
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 2
+ }
+}

@@ -1,0 +1,36 @@
+{
+ "author_intent": {
+  "category": "synth-exception",
+  "expect": "defect",
+  "layer": "synthetic"
+ },
+ "case_id": "s0-04",
+ "category": "synth-exception",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "ratelimit",
+ "group": "fam-ratelimit",
+ "packet": {
+  "defect": "RL-1 limits every key to 100 requests per minute and says the limit cannot be raised for any key, but RL-6 allows enterprise keys 1,000 requests per minute.",
+  "doc": "offline/docs/doc-789eac0870.md",
+  "doc_sha256": "789eac08705ddabe4479308fa912835dc8ce843a3b3c4cff095e44ef0684c3e8",
+  "evidence_quotes": [
+   "Every API key is limited to 100 requests per minute. This limit is fixed and cannot be raised for any key",
+   "Enterprise keys are allowed 1,000 requests per minute"
+  ],
+  "evidence_set": [
+   "P0005",
+   "P0013"
+  ]
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "offline/docs/doc-789eac0870.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "synthetic"
+}

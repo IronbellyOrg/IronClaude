@@ -1,0 +1,81 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "7ca69313c5868bfdfd1c5c0fa9578c00f4661365db8219a53df506743a799176",
+  "doc_bytes": 55831,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-KV-1",
+      "check": "KV",
+      "class": "possible",
+      "lines": [
+        238,
+        238
+      ],
+      "quote": "The timeouts, the day cap of 6 launches in 24 hours, the 60-minute lease and the limit of 10 candidates per cycle are fixed in the code, not in the configuration file. The design lists them as prop...",
+      "other_lines": [
+        196,
+        196
+      ],
+      "message": "\"60-minute\" here (section 8.1) and \"5 minutes\" at line 196 (section 7) share the stem 'hour'."
+    },
+    {
+      "lint_id": "LINT-KV-2",
+      "check": "KV",
+      "class": "possible",
+      "lines": [
+        484,
+        484
+      ],
+      "quote": "| `launched` | Orca was asked to start the session. The watcher waits up to 60 minutes for the claim marker | None |",
+      "other_lines": [
+        363,
+        363
+      ],
+      "message": "\"60 minutes\" here (section 11.1) and \"10 minutes\" at line 363 (section 10.2) share the stem 'wait'."
+    },
+    {
+      "lint_id": "LINT-KV-3",
+      "check": "KV",
+      "class": "possible",
+      "lines": [
+        546,
+        546
+      ],
+      "quote": "The watcher sends no alerts itself. The rule is: alert when `last_completed_cycle_age_seconds` is above 900 or null. 900 seconds is three missed 5-minute cycles. `superclaude issue-watch status` al...",
+      "other_lines": [
+        414,
+        414
+      ],
+      "message": "\"900 seconds\" here (section 12) and \"60 seconds\" at line 414 (section 10.3) share the stem 'abov'."
+    },
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        564,
+        564
+      ],
+      "quote": "- **Run one enabled workspace per GitHub login** (OD-8 of the design). The local record cannot see another workspace, so two enabled workspaces on one login could launch the same issue twice. Every...",
+      "other_lines": null,
+      "message": "OD-8 is referenced but never defined."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

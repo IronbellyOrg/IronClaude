@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "Calendar days or 30 days",
+  "wrong_outcome": "an implementer who follows the stated text as written builds a purge of records older than 30 times 24 hours (`Records are kept for 30 days.`, S:23), and that is wrong because 30 days may mean one calendar month."
+ },
+ "evidence": {
+  "e1": {
+   "text": "Records are kept for 30 days.",
+   "line": 23,
+   "context": "\n## 5. Records\nR11. Every notification attempt is recorded with its channel, priority and delivery result.\nR12. Records are kept for 30 days.\nR13. When the hourly SMS limit is reached for a user, security alerts are dropped like any other notification under R8.\n\n## 6. Notes"
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

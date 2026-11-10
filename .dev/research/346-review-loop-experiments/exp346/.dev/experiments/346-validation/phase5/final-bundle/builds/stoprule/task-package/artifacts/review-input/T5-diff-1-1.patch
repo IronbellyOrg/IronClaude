@@ -1,0 +1,1192 @@
+diff --git asrc/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
+index ad48c27e..3ae845f7 100644
+--- asrc/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
++++ b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
+@@ -416,6 +416,7 @@ def cmd_begin(args):
+                 f"loop already ended: review {prior_n} of {args.cap} ended '{verdict}'; no further review",
+             )
+         prior_records = load_ledger(prior_text)
++        check_prior_verdict(prior_text, prior_records)
+         if not args.baseline:
+             raise Stop(
+                 EXIT_STOP,
+@@ -802,6 +803,20 @@ def parse_grader_reply(text, cids):
+     return got, None
+ 
+ 
++def evaluate_reply(batch, reply):
++    """Validate one grader reply against its batch, canary answers included."""
++    grades, error = parse_grader_reply(reply, list(batch["map"]))
++    if grades:
++        wrong = [
++            c
++            for c, i in batch["map"].items()
++            if "canary" in i and grades[c]["blocking"] is not i["answer"]
++        ]
++        if wrong:
++            grades, error = None, f"wrong canary answer on {', '.join(wrong)}"
++    return grades, error
++
++
+ def cmd_apply_grades(args):
+     records = load_ledger(read_text(args.report))
+     batches = {b["batch"]: b for b in build_batches(records, args.canaries)}
+@@ -826,15 +841,7 @@ def cmd_apply_grades(args):
+         "text": reply,
+         "ids": ids,
+     }
+-    grades, error = parse_grader_reply(reply, list(batch["map"]))
+-    if grades:
+-        wrong = [
+-            c
+-            for c, i in batch["map"].items()
+-            if "canary" in i and grades[c]["blocking"] is not i["answer"]
+-        ]
+-        if wrong:
+-            grades, error = None, f"wrong canary answer on {', '.join(wrong)}"
++    grades, error = evaluate_reply(batch, reply)
+     if error:
+         append_records(
+             args.report,
+@@ -1125,6 +1132,558 @@ def cmd_apply_audit(args):
+     return EXIT_OK
+ 
+ 
++# --- verdict, counts, finalize, check -------------------------------------------------
++
++
++CONFIRMED = ("confirmed", "confirmed-audit")
++CM = ("critical", "major")
++CAP_SENTENCE = "at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings"
++
++
++def defect_key(claim, begin):
++    """Claims linked to the same frozen prior are one defect (counted once)."""
++    pid = claim.get("prior")
++    return pid if pid and pid in begin.get("priors", {}) else claim.get("id")
++
++
++def compute_verdict(records):
++    """The verdict function, pure over the ledger (source.md section 2.4 step 9)."""
++    begin = first(records, "begin") or {}
++    statuses = claim_statuses(records)
++    frozen = frozen_priors(records)
++    claims = {c["id"]: c for c in of_kind(records, "claim")}
++    confirmed = [cid for cid, s in statuses.items() if s["status"] in CONFIRMED]
++    groups = {defect_key(claims.get(cid, {"id": cid}), begin) for cid in confirmed}
++    groups.update(
++        f"hunk:{a['hunk'][0]}-{a['hunk'][1]}" for a in audit_hunks_real(records)
++    )
++    open_priors = [p for p, s in frozen.items() if s == "unresolved-prior"]
++    uncovered = of_kind(records, "uncovered")
++    waiting = [
++        cid for cid, s in statuses.items() if s["status"] in ("unconfirmed", "pending")
++    ]
++    raws = of_kind(records, "audit-raw")
++    if groups:
++        value, reason = "FAIL", "confirmed"
++    elif open_priors:
++        value, reason = "FAIL", "unresolved-prior"
++    elif waiting or uncovered or not first(records, "seal"):
++        value, reason = "FAIL", "incomplete"
++    elif not raws or not raws[-1].get("valid"):
++        value, reason = (
++            "FAIL",
++            "incomplete",
++        )  # silence never passes: no valid PASS-time audit
++    else:
++        value, reason = "PASS", "none"
++    counts = {
++        "confirmed": len(groups),
++        "late": sum(s["status"] == "late-found" for s in statuses.values()),
++        "minor": sum(s["status"] in ("minor", "minor-form") for s in statuses.values()),
++        "unconfirmed": len(waiting),
++    }
++    return {
++        "value": value,
++        "reason": reason,
++        "counts": counts,
++        "pre_audit": pre_audit(records) if raws else "na",
++        "open_priors": open_priors,
++        "uncovered": [u["hunk"] for u in uncovered],
++    }
++
++
++def pre_audit(records):
++    """The verdict the ledger had before the PASS-time audit records were added."""
++    core = [
++        r
++        for r in records
++        if r.get("k") not in ("audit", "audit-raw", "final", "verdict")
++    ]
++    v = compute_verdict(core)
++    return (
++        v["value"]
++        if v["reason"] != "incomplete" or not first_incomplete_is_audit(core)
++        else "PASS"
++    )
++
++
++def first_incomplete_is_audit(core):
++    """True when the only thing keeping core from PASS is the missing audit itself."""
++    statuses = claim_statuses(core)
++    return not (
++        any(s["status"] in ("unconfirmed", "pending") for s in statuses.values())
++        or of_kind(core, "uncovered")
++        or not first(core, "seal")
++    )
++
++
++def label_counts(records):
++    """Owner measure: m0_label_cm, m0_deferred_cm, m1_open_confirmed.
++
++    m0 counts new claims (prior null) whose reviewer label is critical or major, whatever
++    their final status, plus such claims dropped before the final seal (first-pass form
++    line only); a dropped claim with a prior link is a carried prior and is excluded.
++    """
++    begin = first(records, "begin") or {}
++    statuses = claim_statuses(records)
++    claims = of_kind(records, "claim")
++    final_ids = {c.get("id") for c in claims}
++    dropped = [
++        f
++        for f in of_kind(records, "form")
++        if f.get("pass") == 1 and "id" in f and f["id"] not in final_ids
++    ]
++    m0 = [
++        c
++        for c in claims
++        if str(c.get("claimed", "")).lower() in CM and not c.get("prior")
++    ]
++    m0_dropped = [
++        f
++        for f in dropped
++        if str(f.get("claimed", "")).lower() in CM and not f.get("prior")
++    ]
++    deferred = [
++        c for c in m0 if statuses.get(c["id"], {}).get("status") not in CONFIRMED
++    ] + m0_dropped
++    by_id = {c["id"]: c for c in claims}
++    groups = {
++        defect_key(by_id[cid], begin)
++        for cid, s in statuses.items()
++        if s["status"] in CONFIRMED and cid in by_id
++    }
++    groups.update(
++        p for p, s in frozen_priors(records).items() if s == "unresolved-prior"
++    )
++    return {
++        "m0_label_cm": len(m0) + len(m0_dropped),
++        "m0_deferred_cm": len(deferred),
++        "m1_open_confirmed": len(groups),
++    }
++
++
++def brief_rule(report_text, records):
++    for line in report_text.splitlines():
++        m = re.match(r"^brief-verdict:\s*(PASS|FAIL)\s*$", line.strip())
++        if m:
++            return m.group(1)
++    return "FAIL" if of_kind(records, "claim") else "PASS"
++
++
++def final_records(records):
++    begin = first(records, "begin")
++    review = begin["review"]
++    statuses = claim_statuses(records)
++    priors = begin.get("priors", {})
++    out = []
++    for c in of_kind(records, "claim"):
++        if c.get("id") not in statuses:
++            continue
++        st = statuses[c["id"]]["status"]
++        link = priors.get(c.get("prior")) if c.get("prior") in priors else None
++        out.append(
++            {
++                "k": "final",
++                "id": c["id"],
++                "status": st,
++                "oh": sha256_text(norm(c.get("outcome", "") or "")),
++                "qh": sha256_text(norm(c.get("quote", "") or "")),
++                "quote": c.get("quote"),
++                "outcome": c.get("outcome"),
++                "sites": c.get("sites", []),
++                "first": link.get("first") if link else review,
++                "trail": (link.get("trail", []) if link else [])
++                + [f"r{review} {'open' if st in CONFIRMED else st}"],
++            }
++        )
++    for pid, st in frozen_priors(records).items():
++        info = priors[pid]
++        out.append(
++            {
++                "k": "final",
++                "id": pid,
++                "status": st,
++                "oh": info.get("oh"),
++                "qh": info.get("qh"),
++                "quote": info.get("quote"),
++                "outcome": info.get("outcome"),
++                "sites": info.get("sites", []),
++                "first": info.get("first"),
++                "trail": info.get("trail", [])
++                + [f"r{review} {'open' if st == 'unresolved-prior' else 'resolved'}"],
++            }
++        )
++    return out
++
++
++def verdict_record(records, report_text, grader_model):
++    v = compute_verdict(records)
++    begin = first(records, "begin")
++    return {
++        "k": "verdict",
++        "value": v["value"],
++        "reason": v["reason"],
++        "counts": v["counts"],
++        "pre_audit": v["pre_audit"],
++        "brief": brief_rule(report_text, records),
++        "grader_model": grader_model,
++        "ratchet": begin.get("ratchet"),
++    }
++
++
++def item_lines(final):
++    out = [f"quote: {final.get('quote')}", f"outcome: {final.get('outcome')}"]
++    if final.get("sites"):
++        out.append("sites: " + " | ".join(map(str, final["sites"])))
++    return out
++
++
++def render_reviser_brief(records, finals):
++    """D1..Dk: confirmed claims first, then frozen priors still open (not already linked)."""
++    claims = {c["id"]: c for c in of_kind(records, "claim")}
++    new = [f for f in finals if f["status"] in CONFIRMED and f["id"] in claims]
++    linked = {claims[f["id"]].get("prior") for f in new}
++    priors = [
++        f for f in finals if f["status"] == "unresolved-prior" and f["id"] not in linked
++    ]
++    hunks = audit_hunks_real(records)
++    out = ["## Reviser brief", ""]
++    items = new + priors
++    if not items and not hunks:
++        out += [
++            "No confirmed blocking findings: make no spec edit",
++            "",
++            "Reviser range: NONE",
++        ]
++        return out
++    out += [
++        "Revise only the quoted text and the listed sites. Apply no id that is not in this brief; notes are not instructions.",
++        "Add no rule, mechanism or section no listed finding calls for; each added paragraph or table cites its finding id.",
++        "Report the byte size of the spec before and after the revision.",
++        "",
++        "| display | ledger id |",
++        "|---|---|",
++    ]
++    rows = [(f"D{n}", f["id"]) for n, f in enumerate(items, start=1)]
++    rows += [
++        (f"D{len(items) + n}", f"hunk:{h['hunk'][0]}-{h['hunk'][1]}")
++        for n, h in enumerate(hunks, start=1)
++    ]
++    out += [f"| {d} | {i} |" for d, i in rows]
++    out.append("")
++    for (d, _), f in zip(rows, items):
++        out += [
++            f"### {d} ({f['id']}{', prior from review ' + str(f['first']) if f['id'] not in claims else ''})",
++            *item_lines(f),
++            "",
++        ]
++    for (d, i), h in zip(rows[len(items) :], hunks):
++        out += [
++            f"### {d} ({i})",
++            f"spec lines {h['hunk'][0]}-{h['hunk'][1]}: {h.get('why')}",
++            "",
++        ]
++    out.append(f"Reviser range: D1-D{len(rows)}")
++    return out
++
++
++def render_escalation(records, finals, verdict, cap):
++    begin = first(records, "begin")
++    statuses = claim_statuses(records)
++    claims = {c["id"]: c for c in of_kind(records, "claim")}
++    open_items = [f for f in finals if f["status"] in CONFIRMED + ("unresolved-prior",)]
++    out = [
++        "## Escalation to the user",
++        f"ESCALATION: spec-panel-stoprule review {begin['review']} of {cap}, verdict FAIL",
++        "",
++        "(b) Open confirmed findings:",
++        "",
++        "| id | first review | status trail | quote | outcome | evidence |",
++        "|---|---|---|---|---|---|",
++    ]
++    for f in open_items:
++        ev = claims.get(f["id"], {}).get("evidence", [])
++        evt = (
++            "; ".join(
++                f"{e.get('path')}:{e.get('line')}"
++                if "path" in e
++                else f"live: {e.get('live')}"
++                for e in ev
++            )
++            or "-"
++        )
++        out.append(
++            f"| {f['id']} | {f.get('first')} | {', '.join(f.get('trail', []))} | {f.get('quote')} | {f.get('outcome')} | {evt} |"
++        )
++    for h in audit_hunks_real(records):
++        out.append(
++            f"| hunk:{h['hunk'][0]}-{h['hunk'][1]} | {begin['review']} | r{begin['review']} open | spec lines {h['hunk'][0]}-{h['hunk'][1]} | {h.get('why')} | auditor |"
++        )
++    out += ["", "(c) Unadjudicated items, not audited in the run:"]
++    unadj = [
++        cid
++        for cid, s in sorted(statuses.items())
++        if s["status"] in ("minor", "minor-form")
++    ]
++    out += [
++        f"- {cid} ({statuses[cid]['status']}): {claims[cid].get('quote')}"
++        for cid in unadj
++    ] or ["- none"]
++    out += ["", "(d) Late-found items (real or not, not looped on):"]
++    late = [cid for cid, s in sorted(statuses.items()) if s["status"] == "late-found"]
++    out += [f"- {cid}: {claims[cid].get('quote')}" for cid in late] or ["- none"]
++    out += ["", "(e) Counts and spec growth per round:"]
++    c = verdict["counts"]
++    out.append(
++        f"- this review: confirmed={c['confirmed']} late={c['late']} minor={c['minor']} unconfirmed={c['unconfirmed']} reason={verdict['reason']}"
++    )
++    sizes = [
++        (h.get("review"), h.get("spec_bytes")) for h in begin.get("history", [])
++    ] + [(begin["review"], begin.get("spec_bytes"))]
++    base = sizes[0][1]
++    for n, size in sizes:
++        growth = (
++            f", growth {100.0 * (size - base) / base:.1f}% over review {sizes[0][0]}"
++            if base and size is not None
++            else ""
++        )
++        out.append(f"- review {n}: {size} bytes{growth}")
++    out += [
++        "",
++        "(f) Not looped on: minor notes, late-found items, any fourth review, any fix cycle beyond two. This command will not run review 4.",
++        "",
++        "(g) Only you can choose: accept the spec with the (b) items as known issues, or start a new user-authorized run whose first sentinel records this run's ledger= hash as parent=.",
++        "",
++        f"Cap rule: {CAP_SENTENCE}.",
++    ]
++    return out
++
++
++def render_tail(records, report_text):
++    """Everything finalize writes after the reviewer's prose, from the ledger alone."""
++    begin = first(records, "begin")
++    vrec = first(records, "verdict")
++    finals = of_kind(records, "final")
++    statuses = claim_statuses(records)
++    claims = {c["id"]: c for c in of_kind(records, "claim")}
++    c = vrec["counts"]
++    out = [
++        "## Computed result",
++        "",
++        f"Computed by stoprule.py finalize from the sealed ledger; review {begin['review']} of {begin['cap']}.",
++        f"Counts: confirmed={c['confirmed']} late-found={c['late']} minor={c['minor']} unconfirmed={c['unconfirmed']} reason={vrec['reason']}",
++        "",
++        "Confirmed blocking findings:",
++    ]
++    conf = [f for f in finals if f["status"] in CONFIRMED]
++    for f in conf:
++        out += [f"- {f['id']} ({f['status']})", *[f"  {x}" for x in item_lines(f)]]
++    if not conf:
++        out.append("- none")
++    for pid, st in frozen_priors(records).items():
++        out.append(
++            f"- prior {pid}: {'open (unresolved-prior)' if st == 'unresolved-prior' else 'resolved'}"
++        )
++    for h in audit_hunks_real(records):
++        out.append(f"- hunk:{h['hunk'][0]}-{h['hunk'][1]} (auditor): {h.get('why')}")
++    out += ["", "Not blocking (listed, never looped on):"]
++    rest = [
++        (cid, s) for cid, s in sorted(statuses.items()) if s["status"] not in CONFIRMED
++    ]
++    out += [
++        f"- {cid}: {s['status']}"
++        + (
++            f" (late_grade={'blocking' if s['late_grade'] else 'minor'})"
++            if "late_grade" in s
++            else ""
++        )
++        + f": {claims[cid].get('quote')}"
++        for cid, s in rest
++    ] or ["- none"]
++    for u in of_kind(records, "uncovered"):
++        out.append(f"- uncovered hunk {u['hunk'][0]}-{u['hunk'][1]}")
++    lc = label_counts(records)
++    out += [
++        "",
++        f"label-count critical+major (owner measure, includes deferred, demoted and withdrawn): {lc['m0_label_cm']}",
++        "",
++    ]
++    if vrec["value"] == "FAIL" and begin["review"] >= begin["cap"]:
++        out += render_escalation(records, finals, vrec, begin["cap"])
++    elif vrec["value"] == "FAIL":
++        out += render_reviser_brief(records, finals)
++    else:
++        out += ["## PASS with known debt", ""]
++        out += [f"- {cid}: {s['status']}" for cid, s in rest] or [
++            "- no late-found or demoted items"
++        ]
++    sentinel = (
++        f"<!-- stoprule v1 review={begin['review']}/{begin['cap']} spec={begin['spec_sha'][:12]} rubric={begin['rubric_sha'][:12]} "
++        f"confirmed={c['confirmed']} late={c['late']} minor={c['minor']} unconfirmed={c['unconfirmed']} reason={vrec['reason']} "
++        f"pre_audit={vrec['pre_audit']} brief={vrec['brief']} grader_model={vrec['grader_model']} ratchet={vrec['ratchet']} "
++        f"ledger={sha256_text(ledger_text(report_text))[:12]} -->"
++    )
++    out += ["", sentinel, f"verdict: {vrec['value']}"]
++    return "\n".join(out) + "\n"
++
++
++def cmd_finalize(args):
++    text = read_text(args.report)
++    if any(line.lstrip().startswith("verdict:") for line in text.splitlines()):
++        raise Stop(
++            EXIT_STOP,
++            "finalize refuses: the report already holds a line starting 'verdict:'; only finalize writes it",
++        )
++    records = load_ledger(text)
++    seal_record(records)
++    if of_kind(records, "final") or of_kind(records, "verdict"):
++        raise Stop(EXIT_STOP, "finalize refuses: the ledger is already finalized")
++    model = args.grader_model + (
++        ",same-class"
++        if args.reviewer_model and args.grader_model in args.reviewer_model
++        else ""
++    )
++    new = final_records(records) + [verdict_record(records, text, model)]
++    lines = text.splitlines()
++    a, b = ledger_bounds(lines)
++    lines[b:b] = [dump(r) for r in new]
++    body = "\n".join(lines).rstrip("\n") + "\n\n"
++    tail = render_tail(load_ledger(body), body)
++    write_report(
++        args.report,
++        body + tail,
++        "the final records, the computed result, the sentinel and the verdict line",
++    )
++    if DRY_RUN:
++        print(tail, end="")
++    print(f"finalize: verdict: {new[-1]['value']} (reason {new[-1]['reason']})")
++    return EXIT_OK
++
++
++def check_prior_verdict(prior_text, prior_records):
++    """begin refuses a prior report whose last line disagrees with its recomputed verdict."""
++    core = [r for r in prior_records if r.get("k") not in ("final", "verdict")]
++    value = compute_verdict(core)["value"]
++    if last_line(prior_text) != f"verdict: {value}":
++        raise Stop(
++            EXIT_STOP,
++            f"prior report's last line '{last_line(prior_text)}' differs from its recomputed verdict '{value}'",
++        )
++
++
++def tamper(msg):
++    raise Stop(EXIT_TAMPER, f"check: ledger tampered or non-compliant: {msg}")
++
++
++def cmd_check(args):
++    text = read_text(args.report)
++    if not parse_sentinel(text):
++        tamper("the report has no stoprule sentinel")
++    records = load_ledger(text)
++    seal = first(records, "seal")
++    if not seal or seal.get("sha256") != reviewer_hash(records):
++        tamper("the reviewer lines differ from the sealed hash")
++    for raw in of_kind(records, "grade-raw") + of_kind(records, "audit-raw"):
++        if raw.get("sha256") != sha256_text(raw.get("text", "")):
++            tamper(f"a {raw['k']} text differs from its recorded sha256")
++    batches = {b["batch"]: b for b in build_batches(records, args.canaries)}
++    expected = []
++    for raw in of_kind(records, "grade-raw"):
++        batch = batches.get(raw.get("batch"))
++        if not batch:
++            tamper(f"grade-raw for unknown batch {raw.get('batch')}")
++        grades, error = evaluate_reply(batch, raw["text"])
++        if error:
++            expected.append(("reject", raw["batch"], raw["attempt"]))
++        else:
++            expected += [
++                ("grade", item["claim"], grades[c]["blocking"], grades[c]["q2"])
++                for c, item in batch["map"].items()
++                if "claim" in item
++            ]
++    got = [
++        ("reject", r["batch"], r["attempt"]) for r in of_kind(records, "grade-reject")
++    ]
++    got += [
++        ("grade", g["id"], g["blocking"], g["q2"]) for g in of_kind(records, "grade")
++    ]
++    if sorted(map(str, expected)) != sorted(map(str, got)):
++        tamper("grade records do not follow from the recorded grader replies")
++    begin = first(records, "begin")
++    changed, priors = set(begin.get("changed", [])), begin.get("priors", {})
++    claims = {c["id"]: c for c in of_kind(records, "claim")}
++    spec_check = None
++    if args.spec:
++        spec_text = read_text(args.spec)
++        if sha256_text(spec_text) == begin["spec_sha"]:
++            spec_check = norm_map(spec_text)
++    for m in of_kind(records, "mark"):
++        c = claims.get(m["id"])
++        if c is None:
++            tamper(f"mark for unknown claim {m['id']}")
++        qlines = m.get("quote_lines", [])
++        if spec_check is not None:
++            issues, qlines2, _ = claim_issues(
++                c, spec_check[0], spec_check[1], args.root
++            )
++            if (not issues) != m.get("form_ok") or (
++                m.get("form_ok") and qlines2 != qlines
++            ):
++                tamper(f"form result of {m['id']} does not follow from the spec")
++        late = bool(
++            begin.get("ratchet") == "on"
++            and m.get("form_ok")
++            and not (set(qlines) & changed)
++            and not prior_valid(c, priors, changed, qlines)
++        )
++        if late != bool(m.get("late")):
++            tamper(f"ratchet result of {m['id']} does not follow from the ledger")
++    core = [r for r in records if r.get("k") not in ("final", "verdict")]
++    vrec = first(records, "verdict")
++    if not vrec:
++        tamper("the ledger has no verdict record")
++    fresh = final_records(core) + [
++        dict(
++            verdict_record(core, text, vrec.get("grader_model")),
++            brief=vrec.get("brief"),
++        )
++    ]
++    if [dump(r) for r in fresh] != [
++        dump(r) for r in of_kind(records, "final") + [vrec]
++    ]:
++        tamper("final or verdict records differ from the recomputed statuses")
++    marker = "\n## Computed result\n"
++    cut = text.rfind(marker)
++    if cut < 0:
++        tamper("the report has no computed result section")
++    if text[cut + 1 :] != render_tail(records, text):
++        tamper("the computed block, sentinel or last line differs from the ledger")
++    print(f"check: ok, {last_line(text)}")
++    return EXIT_OK
++
++
++def cmd_status(args):
++    records = load_ledger(read_text(args.report))
++    for cid, s in sorted(claim_statuses(records).items()):
++        extra = (
++            f" late_grade={'blocking' if s['late_grade'] else 'minor'}"
++            if "late_grade" in s
++            else ""
++        )
++        print(f"{cid}: {s['status']}{extra}")
++    for pid, st in frozen_priors(records).items():
++        print(f"prior {pid}: {st}")
++    for u in of_kind(records, "uncovered"):
++        print(f"uncovered hunk {u['hunk'][0]}-{u['hunk'][1]}")
++    return EXIT_OK
++
++
++def cmd_verdict(args):
++    v = compute_verdict(load_ledger(read_text(args.report)))
++    print(f"verdict: {v['value']} reason={v['reason']}")
++    return EXIT_OK
++
++
+ # --- command line ------------------------------------------------------------------------
+ 
+ 
+@@ -1204,6 +1763,23 @@ def build_parser():
+         report,
+         ("--reply", {}),
+     )
++    add("status", cmd_status, "S8: print every id with its final status", report)
++    add("verdict", cmd_verdict, "print the computed verdict of the ledger", report)
++    add(
++        "finalize",
++        cmd_finalize,
++        "S9: write the computed result, brief or escalation, sentinel and verdict",
++        report,
++        ("--grader-model", {"default": "sonnet"}),
++        ("--reviewer-model", {}),
++    )
++    add(
++        "check",
++        cmd_check,
++        "S10: re-verify seal, hashes, statuses and the verdict (exit 0 or 6)",
++        report,
++        ("--spec", {"help": "re-check quotes too when the spec is unchanged"}),
++    )
+     return p
+ 
+ 
+diff --git atests/skills/test_stoprule_script.py b/tests/skills/test_stoprule_script.py
+index 6a21c4ce..74946f7d 100644
+--- atests/skills/test_stoprule_script.py
++++ b/tests/skills/test_stoprule_script.py
+@@ -1016,3 +1016,483 @@ def test_audit_real_true_on_an_unclaimed_hunk_is_a_confirmed_audit_defect(
+     records = sr.load_ledger(report.read_text())
+     assert [a["hunk"] for a in sr.audit_hunks_real(records)] == [items["H1"]["hunk"]]
+     assert sr.claim_statuses(records)["R1-1"]["status"] == "minor"
++
++
++# --- Task 5: status, verdict, finalize, check --------------------------------------------
++
++
++def reply_by(batch, decide, why="graded under B1 to B3"):
++    """A valid reply: canaries answered correctly, claims by decide(claim_id)."""
++    lines = []
++    for cid, item in batch["map"].items():
++        value = item["answer"] if "canary" in item else decide(item["claim"])
++        lines.append(
++            json.dumps({"cid": cid, "blocking": value, "q2": "na", "why": why})
++        )
++    return "\n".join(lines) + "\n"
++
++
++def grade_all(report, tmp_path, decide):
++    records = sr.load_ledger(report.read_text(encoding="utf-8"))
++    for batch in sr.build_batches(records, CANARIES):
++        code, out = apply(report, tmp_path, batch, reply_by(batch, decide))
++        assert code == 0, out
++
++
++def audit_none_real(report, tmp_path):
++    items = sr.audit_items(sr.load_ledger(report.read_text(encoding="utf-8")))
++    path = tmp_path / "audit-reply.txt"
++    path.write_text(
++        "\n".join(
++            json.dumps({"aid": a, "real": False, "why": "not blocking"}) for a in items
++        )
++        + "\n",
++        encoding="utf-8",
++    )
++    code, out = run("apply-audit", "--report", report, "--reply", path)
++    assert code == 0, out
++
++
++def finalize(report, *extra):
++    code, out = run("finalize", "--report", report, *extra)
++    assert code == 0, out
++    return report.read_text(encoding="utf-8")
++
++
++def full_review(tmp_path, n, spec_text, claims, decide, prior=None, baseline=None):
++    """Run begin, seal, grading, the audit when due and finalize; return (report, spec path)."""
++    spec = tmp_path / f"spec-r{n}.md"
++    spec.write_text(spec_text, encoding="utf-8")
++    report = tmp_path / f"report-r{n}.md"
++    args = ["begin", "--report", report, "--spec", spec]
++    if prior:
++        args += ["--re-review", prior, "--baseline", baseline]
++    code, out = run(*args)
++    assert code == 0, out
++    sealed(report, spec, claims)
++    grade_all(report, tmp_path, decide)
++    if not sr.audit_blockers(sr.load_ledger(report.read_text())):
++        audit_none_real(report, tmp_path)
++    finalize(report)
++    return report, spec
++
++
++def test_verdict_table_pass_needs_the_audit_and_ignores_minor_form(review1, tmp_path):
++    spec, report = review1
++    sealed(
++        report,
++        spec,
++        many_claims(2) + [claim("R1-9", "Line 9: the Pedalbay kiosk rule number nine")],
++    )
++    grade_all(report, tmp_path, lambda cid: False)
++    assert (
++        sr.compute_verdict(sr.load_ledger(report.read_text()))["reason"] == "incomplete"
++    )  # no audit yet
++    audit_none_real(report, tmp_path)
++    v = sr.compute_verdict(sr.load_ledger(report.read_text()))
++    assert (v["value"], v["reason"], v["pre_audit"]) == (
++        "PASS",
++        "none",
++        "PASS",
++    )  # minor-form never makes it incomplete
++
++
++def test_verdict_table_fail_reasons(review2, tmp_path):
++    spec2, report2, _ = review2
++    sealed(
++        report2,
++        spec2,
++        [
++            claim("R2-1", "now releases a locker only after the rider scans out"),
++            {"k": "checked", "lines": "9"},
++            {"k": "prior", "id": "R1-1", "status": "open", "resolved_by": None},
++        ],
++    )
++    grade_all(report2, tmp_path, lambda cid: False)
++    assert (
++        sr.compute_verdict(sr.load_ledger(report2.read_text()))["reason"]
++        == "unresolved-prior"
++    )
++    recs = sr.load_ledger(report2.read_text())
++    graded = [r if r["k"] != "grade" else dict(r, blocking=True) for r in recs]
++    assert sr.compute_verdict(graded)["reason"] == "confirmed"
++    unconf = [r for r in recs if r["k"] not in ("grade", "grade-raw")]
++    unconf = [r if r["k"] != "prior" else dict(r, status="resolved") for r in unconf]
++    assert sr.compute_verdict(unconf)["reason"] == "incomplete"  # an ungraded claim
++    uncovered = [r for r in recs if r["k"] != "prior"] + [
++        {"k": "uncovered", "hunk": [9, 9]}
++    ]
++    uncovered = [r for r in uncovered if r["k"] != "checked"]
++    assert (
++        sr.compute_verdict(
++            uncovered + [{"k": "prior", "id": "R1-1", "status": "resolved"}]
++        )["reason"]
++        == "incomplete"
++    )
++
++
++def test_status_and_verdict_subcommands_print_the_computed_state(review1, tmp_path):
++    spec, report = review1
++    sealed(report, spec, many_claims(1))
++    grade_all(report, tmp_path, lambda cid: True)
++    assert run("status", "--report", report)[1].strip() == "R1-1: confirmed"
++    assert (
++        run("verdict", "--report", report)[1].strip()
++        == "verdict: FAIL reason=confirmed"
++    )
++
++
++def test_check_passes_on_a_fresh_report_and_is_repeatable(review1, tmp_path):
++    spec, report = review1
++    sealed(report, spec, many_claims(2))
++    grade_all(report, tmp_path, lambda cid: cid == "R1-2")
++    text = finalize(report)
++    assert text.rstrip().splitlines()[-1] == "verdict: FAIL"
++    sentinel = sr.parse_sentinel(text)
++    assert (
++        sentinel["review"] == "1/3"
++        and sentinel["confirmed"] == "1"
++        and sentinel["reason"] == "confirmed"
++    )
++    first_run = run("check", "--report", report, "--spec", spec)
++    assert first_run[0] == 0, first_run[1]
++    assert run("check", "--report", report) == first_run[:1] + (first_run[1],)
++    assert report.read_text(encoding="utf-8") == text
++
++
++def test_ledger_edited_after_seal_makes_check_exit_6(review1, tmp_path):
++    spec, report = review1
++    sealed(report, spec, many_claims(1))
++    grade_all(report, tmp_path, lambda cid: True)
++    text = finalize(report)
++    report.write_text(
++        text.replace("double charges the rider", "charges the rider once"),
++        encoding="utf-8",
++    )
++    code, out = run("check", "--report", report)
++    assert code == 6 and "sealed hash" in out
++
++
++def test_grade_raw_changed_after_apply_grades_makes_check_exit_6(review1, tmp_path):
++    spec, report = review1
++    sealed(report, spec, many_claims(1))
++    grade_all(report, tmp_path, lambda cid: True)
++    text = finalize(report)
++    report.write_text(
++        text.replace("graded under B1 to B3", "graded under B1 to B4", 1),
++        encoding="utf-8",
++    )
++    code, out = run("check", "--report", report)
++    assert code == 6 and "grade-raw" in out
++
++
++def test_hand_typed_verdict_or_missing_sentinel_fails(review1, tmp_path):
++    spec, report = review1
++    sealed(report, spec, many_claims(1))
++    grade_all(report, tmp_path, lambda cid: True)
++    report.write_text(report.read_text() + "\nverdict: PASS\n", encoding="utf-8")
++    code, out = run("finalize", "--report", report)
++    assert code == 5 and "verdict:" in out
++    assert run("check", "--report", report)[0] == 6  # no sentinel: non-compliant
++
++
++def test_edited_computed_block_makes_check_exit_6(review1, tmp_path):
++    spec, report = review1
++    sealed(report, spec, many_claims(1))
++    grade_all(report, tmp_path, lambda cid: True)
++    text = finalize(report)
++    report.write_text(text.replace("verdict: FAIL", "verdict: PASS"), encoding="utf-8")
++    assert run("check", "--report", report)[0] == 6
++
++
++def test_incomplete_only_fail_gives_the_none_brief(review1, tmp_path):
++    spec, report = review1
++    sealed(report, spec, many_claims(1))
++    batch = sr.build_batches(sr.load_ledger(report.read_text()), CANARIES)[0]
++    assert apply(report, tmp_path, batch, "{}\n")[0] == 3
++    assert apply(report, tmp_path, batch, "{}\n")[0] == 0
++    text = finalize(report)
++    assert (
++        "No confirmed blocking findings: make no spec edit" in text
++        and "Reviser range: NONE" in text
++    )
++    assert sr.parse_sentinel(text)["reason"] == "incomplete" and text.rstrip().endswith(
++        "verdict: FAIL"
++    )
++
++
++def test_reviser_brief_puts_priors_after_new_claims(review2, tmp_path):
++    spec, report, _ = review2
++    sealed(
++        report,
++        spec,
++        [
++            claim("R2-1", "now releases a locker only after the rider scans out"),
++            claim("R2-2", "refunds are paid to the original card within two days"),
++            {"k": "prior", "id": "R1-1", "status": "open", "resolved_by": None},
++        ],
++    )
++    grade_all(report, tmp_path, lambda cid: True)
++    text = finalize(report)
++    table = text[text.index("| display | ledger id |") :]
++    assert (
++        table.index("| D1 | R2-1 |")
++        < table.index("| D2 | R2-2 |")
++        < table.index("| D3 | R1-1 |")
++    )
++    assert "Reviser range: D1-D3" in text and "notes are not instructions" in text
++
++
++def test_two_claims_on_one_prior_are_counted_once(review2, tmp_path):
++    spec, report, prior_quote = review2
++    sealed(
++        report,
++        spec,
++        [
++            claim(
++                "R2-1",
++                "now releases a locker only after the rider scans out",
++                prior="R1-1",
++            ),
++            claim(
++                "R2-2",
++                "refunds are paid to the original card within two days",
++                prior="R1-1",
++            ),
++            {"k": "prior", "id": "R1-1", "status": "open", "resolved_by": None},
++        ],
++    )
++    grade_all(report, tmp_path, lambda cid: True)
++    records = sr.load_ledger(report.read_text())
++    assert sr.compute_verdict(records)["counts"]["confirmed"] == 1
++    text = finalize(report)
++    assert sr.parse_sentinel(text)["confirmed"] == "1"
++
++
++def test_label_count_line_counts_a_critical_late_found_claim(review2, tmp_path):
++    spec, report, _ = review2
++    sealed(
++        report,
++        spec,
++        [
++            claim(
++                "R2-1",
++                "Line 5: the Pedalbay kiosk rule number 5 applies",
++                claimed="critical",
++            ),
++            claim(
++                "R2-2",
++                "now releases a locker only after the rider scans out",
++                claimed="minor",
++            ),
++            {"k": "checked", "lines": "9"},
++            {
++                "k": "prior",
++                "id": "R1-1",
++                "status": "resolved",
++                "resolved_by": "now releases",
++            },
++        ],
++    )
++    grade_all(report, tmp_path, lambda cid: False)
++    audit_none_real(report, tmp_path)
++    text = finalize(report)
++    assert (
++        "label-count critical+major (owner measure, includes deferred, demoted and withdrawn): 1"
++        in text
++    )
++    assert (
++        "R2-1: late-found" in text
++        and "## PASS with known debt" in text
++        and text.rstrip().endswith("verdict: PASS")
++    )
++
++
++def test_review3_escalation_holds_cap_sentence_and_unadjudicated_items(tmp_path):
++    v1 = spec_lines(12, "v1")
++    r1, s1 = full_review(
++        tmp_path,
++        1,
++        v1,
++        [claim("R1-1", "Line 3: the Pedalbay kiosk rule number 3 applies")],
++        lambda cid: True,
++    )
++    v2 = v1.replace(
++        "Line 3: the Pedalbay kiosk rule number 3 applies to every locker bay (v1 text).",
++        "Line 3: lockers release only after the rider scans out at the kiosk (fix one).",
++    )
++    r2, s2 = full_review(
++        tmp_path,
++        2,
++        v2,
++        [
++            claim(
++                "R2-1", "lockers release only after the rider scans out at the kiosk"
++            ),
++            {
++                "k": "prior",
++                "id": "R1-1",
++                "status": "resolved",
++                "resolved_by": "lockers release only after",
++            },
++        ],
++        lambda cid: True,
++        prior=r1,
++        baseline=s1,
++    )
++    v3 = v2.replace(
++        "lockers release only after the rider scans out at the kiosk (fix one).",
++        "lockers release after the rider scans out or after a two hour timeout (fix two).",
++    )
++    r3, s3 = full_review(
++        tmp_path,
++        3,
++        v3,
++        [
++            claim(
++                "R3-1",
++                "lockers release after the rider scans out or after a two hour timeout",
++                claimed="critical",
++            ),
++            claim(
++                "R3-2", "Line 6: the Pedalbay kiosk rule number six", claimed="major"
++            ),
++            claim(
++                "R3-3",
++                "Line 7: the Pedalbay kiosk rule number 7 applies",
++                claimed="major",
++            ),
++            {"k": "prior", "id": "R2-1", "status": "open", "resolved_by": None},
++        ],
++        lambda cid: cid != "R3-3",
++        prior=r2,
++        baseline=s2,
++    )
++    text = r3.read_text(encoding="utf-8")
++    esc = text[text.index("## Escalation to the user") :]
++    assert (
++        esc.splitlines()[1]
++        == "ESCALATION: spec-panel-stoprule review 3 of 3, verdict FAIL"
++    )
++    assert (
++        sr.CAP_SENTENCE
++        == "at most 2 fix cycles (3 reviews), then escalate to the user with the open blocking findings"
++    )
++    assert sr.CAP_SENTENCE in esc and "This command will not run review 4." in esc
++    section_c = esc[
++        esc.index("(c) Unadjudicated items, not audited in the run:") : esc.index(
++            "(d) "
++        )
++    ]
++    assert "R3-2 (minor-form)" in section_c
++    assert "## Reviser brief" not in text and sr.parse_sentinel(text)["review"] == "3/3"
++    assert "| R2-1 | 2 | r2 open, r3 open |" in esc
++    assert run("check", "--report", r3, "--spec", s3)[0] == 0
++    code, out = run(
++        "begin",
++        "--report",
++        tmp_path / "r4.md",
++        "--spec",
++        s3,
++        "--re-review",
++        r3,
++        "--baseline",
++        s3,
++    )
++    assert (
++        code == 4
++        and "ESCALATION: spec-panel-stoprule review 3 of 3, verdict FAIL" in out
++    )
++
++
++def test_review3_escalation_lists_a_grader_demoted_claim(tmp_path):
++    v1 = spec_lines(12, "v1")
++    r1, s1 = full_review(
++        tmp_path,
++        1,
++        v1,
++        [claim("R1-1", "Line 3: the Pedalbay kiosk rule number 3 applies")],
++        lambda cid: True,
++    )
++    v2 = v1.replace(
++        "rule number 3 applies to every locker bay (v1 text).",
++        "rule number 3 now waits for the scan out (fix one).",
++    )
++    r2, s2 = full_review(
++        tmp_path,
++        2,
++        v2,
++        [
++            claim("R2-1", "rule number 3 now waits for the scan out"),
++            {
++                "k": "prior",
++                "id": "R1-1",
++                "status": "resolved",
++                "resolved_by": "now waits",
++            },
++        ],
++        lambda cid: True,
++        prior=r1,
++        baseline=s1,
++    )
++    v3 = v2.replace(
++        "now waits for the scan out (fix one).",
++        "waits for the scan out or a two hour timeout (fix two).",
++    )
++    r3, _ = full_review(
++        tmp_path,
++        3,
++        v3,
++        [
++            claim("R3-1", "rule number 3 waits for the scan out or a two hour timeout"),
++            {"k": "prior", "id": "R2-1", "status": "open", "resolved_by": None},
++        ],
++        lambda cid: False,
++        prior=r2,
++        baseline=s2,
++    )
++    text = r3.read_text(encoding="utf-8")
++    section_c = text[text.index("(c) Unadjudicated items") : text.index("(d) ")]
++    assert "R3-1 (minor)" in section_c
++
++
++def test_begin_exits_5_on_prior_verdict_mismatch(tmp_path):
++    spec_text = spec_lines()
++    spec = tmp_path / "spec.md"
++    spec.write_text(spec_text, encoding="utf-8")
++    prior = prior_report(
++        tmp_path,
++        spec_text,
++        review=1,
++        verdict="PASS",
++        finals=[
++            ("R1-1", "confirmed", "Line 2: the Pedalbay kiosk rule number 2", OUTCOME)
++        ],
++    )
++    code, out = run(
++        "begin",
++        "--report",
++        tmp_path / "r.md",
++        "--spec",
++        spec,
++        "--re-review",
++        prior,
++        "--baseline",
++        spec,
++    )
++    assert code == 5 and "recomputed verdict" in out
++
++
++def test_finalize_and_check_dry_run_write_nothing(review1, tmp_path):
++    spec, report = review1
++    sealed(report, spec, many_claims(1))
++    grade_all(report, tmp_path, lambda cid: True)
++    before = snapshot(tmp_path)
++    code, out = run("finalize", "--report", report, "--dry-run")
++    assert code == 0 and "nothing written" in out and "verdict: FAIL" in out
++    assert snapshot(tmp_path) == before
++    finalize(report)
++    before = snapshot(tmp_path)
++    for sub in ("check", "status", "verdict"):
++        assert run(sub, "--report", report, "--dry-run")[0] == 0
++    assert snapshot(tmp_path) == before
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t5-pytest.log b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t5-pytest.log
+new file mode 100644
+index 00000000..cc7e4df1
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t5-pytest.log
+@@ -0,0 +1,65 @@
++============================= test session starts ==============================
++platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.venv/bin/python
++SuperClaude: 5.0.0
++rootdir: /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule
++configfile: pyproject.toml
++plugins: superclaude-5.0.0, anyio-4.16.0
++collecting ... collected 54 items
++
++tests/skills/test_stoprule_script.py::test_norm_drops_backticks_bold_and_collapses_whitespace PASSED [  1%]
++tests/skills/test_stoprule_script.py::test_changed_lines_ignores_whitespace_only_changes PASSED [  3%]
++tests/skills/test_stoprule_script.py::test_changed_lines_marks_lines_around_a_pure_deletion PASSED [  5%]
++tests/skills/test_stoprule_script.py::test_load_ledger_reads_the_fenced_json_lines PASSED [  7%]
++tests/skills/test_stoprule_script.py::test_begin_review1_opens_ledger_with_nonce_and_prints_rubric PASSED [  9%]
++tests/skills/test_stoprule_script.py::test_begin_exits_4_on_prior_review3_fail PASSED [ 11%]
++tests/skills/test_stoprule_script.py::test_begin_exits_4_with_loop_ended_on_prior_review3_pass PASSED [ 12%]
++tests/skills/test_stoprule_script.py::test_begin_exits_5_on_rubric_drift PASSED [ 14%]
++tests/skills/test_stoprule_script.py::test_begin_exits_5_on_baseline_hash_mismatch PASSED [ 16%]
++tests/skills/test_stoprule_script.py::test_begin_exits_5_on_re_review_report_without_sentinel PASSED [ 18%]
++tests/skills/test_stoprule_script.py::test_begin_derives_review_number_from_prior_sentinel PASSED [ 20%]
++tests/skills/test_stoprule_script.py::test_non_verbatim_quote_exits_3_then_ends_minor_form PASSED [ 22%]
++tests/skills/test_stoprule_script.py::test_non_unique_quote_exits_3 PASSED [ 24%]
++tests/skills/test_stoprule_script.py::test_short_quote_fails PASSED      [ 25%]
++tests/skills/test_stoprule_script.py::test_short_outcome_fails PASSED    [ 27%]
++tests/skills/test_stoprule_script.py::test_valid_claim_seals_first_time_with_ratchet_off PASSED [ 29%]
++tests/skills/test_stoprule_script.py::test_quote_outside_changed_lines_without_prior_is_late_found PASSED [ 31%]
++tests/skills/test_stoprule_script.py::test_valid_and_invalid_prior_links PASSED [ 33%]
++tests/skills/test_stoprule_script.py::test_uncovered_hunk_is_recorded_as_uncovered PASSED [ 35%]
++tests/skills/test_stoprule_script.py::test_claim_dropped_between_seals_keeps_its_form_line PASSED [ 37%]
++tests/skills/test_stoprule_script.py::test_evidence_path_with_dotdot_is_refused PASSED [ 38%]
++tests/skills/test_stoprule_script.py::test_evidence_is_read_back_and_live_entries_are_unverified PASSED [ 40%]
++tests/skills/test_stoprule_script.py::test_seal_refuses_a_second_seal PASSED [ 42%]
++tests/skills/test_stoprule_script.py::test_batches_hold_at_most_6_claims_and_exactly_2_canaries PASSED [ 44%]
++tests/skills/test_stoprule_script.py::test_printed_batch_has_no_label_spec_path_or_claimed_key PASSED [ 46%]
++tests/skills/test_stoprule_script.py::test_same_seed_gives_same_batch_order PASSED [ 48%]
++tests/skills/test_stoprule_script.py::test_frozen_prior_is_never_batched PASSED [ 50%]
++tests/skills/test_stoprule_script.py::test_good_reply_confirms_and_minor_grades PASSED [ 51%]
++tests/skills/test_stoprule_script.py::test_bad_grader_reply_and_wrong_canary_are_rejected PASSED [ 53%]
++tests/skills/test_stoprule_script.py::test_over_25_word_why_is_rejected PASSED [ 55%]
++tests/skills/test_stoprule_script.py::test_two_bad_replies_leave_claims_unconfirmed PASSED [ 57%]
++tests/skills/test_stoprule_script.py::test_late_found_claim_graded_blocking_stays_late_found PASSED [ 59%]
++tests/skills/test_stoprule_script.py::test_audit_real_true_turns_a_claim_into_confirmed_audit PASSED [ 61%]
++tests/skills/test_stoprule_script.py::test_audit_prep_refuses_when_a_claim_is_confirmed PASSED [ 62%]
++tests/skills/test_stoprule_script.py::test_missing_auditor_reply_is_recorded_invalid PASSED [ 64%]
++tests/skills/test_stoprule_script.py::test_dry_run_writes_nothing_for_every_writing_subcommand PASSED [ 66%]
++tests/skills/test_stoprule_script.py::test_usage_error_exits_5 PASSED    [ 68%]
++tests/skills/test_stoprule_script.py::test_audit_real_true_on_an_unclaimed_hunk_is_a_confirmed_audit_defect PASSED [ 70%]
++tests/skills/test_stoprule_script.py::test_verdict_table_pass_needs_the_audit_and_ignores_minor_form PASSED [ 72%]
++tests/skills/test_stoprule_script.py::test_verdict_table_fail_reasons PASSED [ 74%]
++tests/skills/test_stoprule_script.py::test_status_and_verdict_subcommands_print_the_computed_state PASSED [ 75%]
++tests/skills/test_stoprule_script.py::test_check_passes_on_a_fresh_report_and_is_repeatable PASSED [ 77%]
++tests/skills/test_stoprule_script.py::test_ledger_edited_after_seal_makes_check_exit_6 PASSED [ 79%]
++tests/skills/test_stoprule_script.py::test_grade_raw_changed_after_apply_grades_makes_check_exit_6 PASSED [ 81%]
++tests/skills/test_stoprule_script.py::test_hand_typed_verdict_or_missing_sentinel_fails PASSED [ 83%]
++tests/skills/test_stoprule_script.py::test_edited_computed_block_makes_check_exit_6 PASSED [ 85%]
++tests/skills/test_stoprule_script.py::test_incomplete_only_fail_gives_the_none_brief PASSED [ 87%]
++tests/skills/test_stoprule_script.py::test_reviser_brief_puts_priors_after_new_claims PASSED [ 88%]
++tests/skills/test_stoprule_script.py::test_two_claims_on_one_prior_are_counted_once PASSED [ 90%]
++tests/skills/test_stoprule_script.py::test_label_count_line_counts_a_critical_late_found_claim PASSED [ 92%]
++tests/skills/test_stoprule_script.py::test_review3_escalation_holds_cap_sentence_and_unadjudicated_items PASSED [ 94%]
++tests/skills/test_stoprule_script.py::test_review3_escalation_lists_a_grader_demoted_claim PASSED [ 96%]
++tests/skills/test_stoprule_script.py::test_begin_exits_5_on_prior_verdict_mismatch PASSED [ 98%]
++tests/skills/test_stoprule_script.py::test_finalize_and_check_dry_run_write_nothing PASSED [100%]
++
++============================== 54 passed in 9.13s ==============================
++rc=0

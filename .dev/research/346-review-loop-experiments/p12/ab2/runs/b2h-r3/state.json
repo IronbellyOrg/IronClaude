@@ -1,0 +1,407 @@
+{
+ "run": "b2h-r3",
+ "design": "b2",
+ "rep": 3,
+ "stratum": "haiku",
+ "loop_model": "haiku",
+ "product_ref": "3d2fe006c00e71460ab7d56542fa01e29e7ce43e",
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "e161284648a17d97e22715de0077e971857e78cf30dd3a41ca3ca126bec19ee3",
+ "done": [
+  "R1",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "VF3",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 32490,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 19,
+    "MINOR": 1
+   },
+   "blocking_ids": "F-01, F-02, F-03, F-04, F-05",
+   "blocking": [
+    {
+     "id": "F-01",
+     "heading": "### F-01 | MAJOR | BLOCKING | Expert: Newman (interface evolution, phased rollout)",
+     "theme": "other",
+     "cited": [
+      60,
+      73,
+      79,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      158,
+      159,
+      194
+     ]
+    },
+    {
+     "id": "F-02",
+     "heading": "### F-02 | MAJOR | BLOCKING | Expert: Fowler (interface design)",
+     "theme": "T2",
+     "cited": [
+      62,
+      63,
+      73,
+      87,
+      90,
+      92
+     ]
+    },
+    {
+     "id": "F-03",
+     "heading": "### F-03 | MAJOR | BLOCKING | Expert: Nygard (retry safety, failure modes)",
+     "theme": "other",
+     "cited": [
+      64,
+      69,
+      85,
+      86,
+      87
+     ]
+    },
+    {
+     "id": "F-04",
+     "heading": "### F-04 | MAJOR | BLOCKING | Expert: Wiegers (testability)",
+     "theme": "T1",
+     "cited": [
+      87,
+      112,
+      158,
+      159,
+      160,
+      161,
+      162,
+      195,
+      265
+     ]
+    },
+    {
+     "id": "F-05",
+     "heading": "### F-05 | MAJOR | BLOCKING | Expert: Whittaker (zero/empty attack, FR-2.1); see Adversarial Analysis A-1",
+     "theme": "other",
+     "cited": [
+      63,
+      183
+     ]
+    }
+   ],
+   "ids": [
+    "F-01",
+    "F-02",
+    "F-03",
+    "F-04",
+    "F-05"
+   ],
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   }
+  },
+  "VF1": {
+   "finding_ids": [
+    "F-01",
+    "F-02",
+    "F-03",
+    "F-04",
+    "F-05"
+   ],
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 3811,
+   "confirmed": [
+    "F-02",
+    "F-03",
+    "F-04",
+    "F-05"
+   ],
+   "rejected": {
+    "F-01": "The conflict between SPEC:73 and SPEC:79 is real, but the stated stall needs an assumption the candidate does not make: how a command behaves when it receives an undefined `--unattended` flag (the text never says it is ignored and gates stay interactive)."
+   },
+   "parse_ok": true
+  },
+  "V1": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 6925,
+   "spec_after": {
+    "bytes": 59081,
+    "lines": 285,
+    "sha256": "bfe20373dae030b64d0ab846cde01958172f4f46786bcfbad746ac335c6b4df6"
+   }
+  },
+  "R2": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 23195,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": "N-1",
+   "blocking": [
+    {
+     "id": "N-1",
+     "heading": "### N-1 | BLOCKING | origin=changed | new, introduced by the F-02 fix at SPEC:62",
+     "theme": "T2",
+     "cited": [
+      62,
+      64,
+      69,
+      87,
+      90
+     ]
+    }
+   ],
+   "ids": [
+    "N-1"
+   ],
+   "spec_after": {
+    "bytes": 59081,
+    "lines": 285,
+    "sha256": "bfe20373dae030b64d0ab846cde01958172f4f46786bcfbad746ac335c6b4df6"
+   }
+  },
+  "VF2": {
+   "finding_ids": [
+    "N-1"
+   ],
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 1734,
+   "confirmed": [
+    "N-1"
+   ],
+   "rejected": {},
+   "parse_ok": true
+  },
+  "V2": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 4548,
+   "spec_after": {
+    "bytes": 59343,
+    "lines": 285,
+    "sha256": "39bbe6871713a48397dee32c0a486174eebbc1b08a14833316eed1593df495bb"
+   }
+  },
+  "R3": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 17595,
+   "verdict": "FAIL",
+   "review_header": [
+    "3"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking": [],
+   "ids": [],
+   "spec_after": {
+    "bytes": 59343,
+    "lines": 285,
+    "sha256": "39bbe6871713a48397dee32c0a486174eebbc1b08a14833316eed1593df495bb"
+   }
+  },
+  "VF3": {
+   "finding_ids": [
+    "N-2"
+   ],
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 2702,
+   "confirmed": [],
+   "rejected": {
+    "N-2": "Grading sentence A holds: `docs/a.md` and `docs/a.txt` in one worktree both map to `docs/a.return-contract.yaml` under the F-02 clause, which contradicts WC-11 and the N-1 promise on the same line, so the second write replaces the first. Grading sentence B fails: the first sentence names `<output-dir>` as \"the directory the coordinator passed\", which for `--output <file>` is a file, so it does not supply a parent directory. F-02 is the specific clause for file-valued outputs and names the stem-based path, so `docs/return-contract.yaml` for every file-valued run follows only if the general first sentence is assumed to override F-02, which the text does not say. The finding requires both outcomes, so it is rejected. The A case alone is text-supported and could be restated as a separate finding, but this verification does not add one."
+   },
+   "parse_ok": true
+  },
+  "AUD": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 15865,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 2
+   },
+   "blocking_ids": "B-1, P0, WC-4",
+   "blocking": [
+    {
+     "id": "B-1",
+     "heading": "### B-1 (MAJOR, blocking, High) Wiegers, Adzic: AC-0.4 requires a step-3 condition that cannot pass in Phase 0",
+     "theme": "T3",
+     "cited": [
+      43,
+      62,
+      83,
+      91,
+      92,
+      154,
+      159,
+      182,
+      194
+     ]
+    }
+   ]
+  },
+  "AUD2": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 20086,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1,
+    "MAJOR": 3
+   },
+   "blocking_ids": "B-1, B-2, B-3",
+   "blocking": [
+    {
+     "id": "B-1",
+     "heading": "### B-1. WC-3 lets a worker obtain a Ruling from the coordinator, contradicting D2(a) and Non-goal 6",
+     "theme": "other",
+     "cited": [
+      61,
+      105,
+      109,
+      121,
+      154,
+      158,
+      218,
+      233,
+      234,
+      235,
+      236
+     ]
+    },
+    {
+     "id": "B-2",
+     "heading": "### B-2. AC-C5 and AC-0.3 cannot detect the deletions they are written to catch",
+     "theme": "other",
+     "cited": [
+      142,
+      149,
+      150,
+      176,
+      193
+     ]
+    },
+    {
+     "id": "B-3",
+     "heading": "### B-3. WC-4 fixes the contract at `<output-dir>/return-contract.yaml`, but section 3.1 and AC-1.4 fix adversarial's at `<output>/adversarial/return-contract.yaml`",
+     "theme": "T2",
+     "cited": [
+      62,
+      83,
+      85,
+      92,
+      182,
+      183,
+      198
+     ]
+    }
+   ]
+  }
+ },
+ "launched": {
+  "R1": "2026-11-10T06:00:26+00:00",
+  "VF1": "2026-11-10T06:11:52+00:00",
+  "V1": "2026-11-10T06:17:46+00:00",
+  "R2": "2026-11-10T06:24:28+00:00",
+  "VF2": "2026-11-10T06:32:16+00:00",
+  "V2": "2026-11-10T06:37:00+00:00",
+  "R3": "2026-11-10T06:41:41+00:00",
+  "VF3": "2026-11-10T06:48:34+00:00",
+  "AUD": "2026-11-10T06:52:56+00:00",
+  "AUD2": "2026-11-10T06:52:56+00:00"
+ },
+ "pending": [],
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "F-01",
+   "theme": "other",
+   "cited": [
+    60,
+    73,
+    79,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    158,
+    159,
+    194
+   ],
+   "heading": "### F-01 | MAJOR | BLOCKING | Expert: Newman (interface evolution, phased rollout)",
+   "reason": "The conflict between SPEC:73 and SPEC:79 is real, but the stated stall needs an assumption the candidate does not make: how a command behaves when it receives an undefined `--unattended` flag (the text never says it is ignored and gates stay interactive)."
+  },
+  {
+   "step": "VF3",
+   "id": "N-2",
+   "theme": "T2",
+   "cited": [
+    62,
+    69,
+    87,
+    90
+   ],
+   "heading": "### N-2 | BLOCKING | origin=changed | new, introduced by the N-1 fix at SPEC:62 and SPEC:87",
+   "reason": "Grading sentence A holds: `docs/a.md` and `docs/a.txt` in one worktree both map to `docs/a.return-contract.yaml` under the F-02 clause, which contradicts WC-11 and the N-1 promise on the same line, so the second write replaces the first. Grading sentence B fails: the first sentence names `<output-dir>` as \"the directory the coordinator passed\", which for `--output <file>` is a file, so it does not supply a parent directory. F-02 is the specific clause for file-valued outputs and names the stem-based path, so `docs/return-contract.yaml` for every file-valued run follows only if the general first sentence is assumed to override F-02, which the text does not say. The finding requires both outcomes, so it is rejected. The A case alone is text-supported and could be restated as a separate finding, but this verification does not add one."
+  }
+ ],
+ "loop_end": "VERIFIED-PASS",
+ "manual": [
+  {
+   "step": "R3",
+   "ids": "N-2",
+   "time": "2026-11-10T06:48:34+00:00"
+  }
+ ],
+ "manual_ids": {
+  "R3": "N-2"
+ },
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "final_spec": {
+  "bytes": 59343,
+  "lines": 285,
+  "sha256": "39bbe6871713a48397dee32c0a486174eebbc1b08a14833316eed1593df495bb"
+ }
+}

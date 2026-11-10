@@ -1,0 +1,36 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "7ca69313c5868bfdfd1c5c0fa9578c00f4661365db8219a53df506743a799176",
+  "doc_bytes": 55831,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        564,
+        564
+      ],
+      "quote": "- **Run one enabled workspace per GitHub login** (OD-8 of the design). The local record cannot see another workspace, so two enabled workspaces on one login could launch the same issue twice. Every...",
+      "other_lines": null,
+      "message": "OD-8 is referenced but never defined."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

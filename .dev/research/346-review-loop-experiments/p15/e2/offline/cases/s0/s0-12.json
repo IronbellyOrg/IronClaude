@@ -1,0 +1,38 @@
+{
+ "author_intent": {
+  "category": "other-D8",
+  "cluster": "D8",
+  "expect": "defect",
+  "layer": "real",
+  "theme": "other"
+ },
+ "case_id": "s0-12",
+ "category": "other-D8",
+ "data_classes": [
+  "s1_spec"
+ ],
+ "family": "s1-original",
+ "group": "s1-original",
+ "packet": {
+  "defect": "WC-9 and decision D4 make outward actions depend on a coordinator quoting the user's instruction in the brief, which no command can check, so nothing in the spec enforces that authorization.",
+  "doc": "offline/docs/doc-d3cdbe573e.md",
+  "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "evidence_quotes": [
+   "It turns on only through the command's own explicit flag written in the brief.",
+   "The coordinator quotes the instruction in the brief and passes the command's explicit flag"
+  ],
+  "evidence_set": [
+   "P0049",
+   "P0196"
+  ]
+ },
+ "source": {
+  "kind": "s1",
+  "paths": [
+   "offline/docs/doc-d3cdbe573e.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "real"
+}

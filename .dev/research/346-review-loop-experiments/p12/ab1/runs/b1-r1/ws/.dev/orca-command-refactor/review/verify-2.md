@@ -1,0 +1,7 @@
+# Verification of R2-1 against orca-worker-contract-spec.md
+
+| id | found text | exists | outcome follows | verdict | reason |
+|---|---|---|---|---|---|
+| R2-1 | L79: "Every brief also passes `--unattended --report-dir <dir>` (WC-4, section 2.3)." in the same paragraph as "the worker reports the named file until its phase adds the contract (P1: ...; P2: reflect, release-split, tdd, troubleshoot)". L62: "`--report-dir <dir>` is a directory-valued flag the brief always passes". L158 (P0): "(no command edits)", smoke runs `/sc:troubleshoot` (no `--fix`), `/sc:workflow --handoff none`, `/sc:adversarial --output <dir>`. L194 (AC-0.4): runs those three commands with no `--unattended`/`--report-dir`; "step 4 uses the command's existing report file, since the contract arrives in P1". L91: troubleshoot `--unattended` handling is "(P2)". L154: "Each command gains its flags and section only in the phase its row names". L159: P1 adds the flags for adversarial and workflow. L72-73 (2.3): the brief states the command line "including `--unattended`" and the `--report-dir` directory. | yes (the AC-0.4 citation is at line 194; the finding's "192" is the AC-0.2 row, but the quoted text is at 194) | yes: "every brief" passes both flags (79, 62), P0 makes no command edits (158) and flags arrive per phase (154, 159, 91), yet AC-0.4 runs P0 commands without the flags, so the text cannot be followed both ways. | confirm | Both texts exist and directly conflict. The spec does not say that commands not yet edited tolerate the flags. |
+
+confirmed: R2-1

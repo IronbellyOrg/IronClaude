@@ -1,0 +1,32 @@
+{
+ "case_id": "syn-pay-3~swap",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.88,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.17,
+    "type": "noul"
+   },
+   "texts_conflict": {
+    "p": 0.14,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 162,
+  "model": "jev-1.14.0",
+  "request_sha256": "efa25f49c358dcc5bdb328376d31c97f5fea3f591b2574d79fa887af25e791f0",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 1044,
+   "output_tokens": 64
+  }
+ }
+}

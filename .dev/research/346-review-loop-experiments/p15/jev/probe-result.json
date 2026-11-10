@@ -1,0 +1,11 @@
+{
+ "model_ok": true,
+ "validator_ok": true,
+ "order_consistent": true,
+ "latency_ms": [
+  375,
+  164,
+  201
+ ],
+ "usd": 5.2416e-05
+}

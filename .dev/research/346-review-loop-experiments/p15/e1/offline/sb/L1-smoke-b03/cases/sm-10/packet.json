@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-10",
+ "finding": {
+  "heading": "### R1-1 Backups are overwritten every night",
+  "body": "The overwrite rule replaces each backup with the next one, which contradicts the retention rule that keeps nightly backups for 35 days. Cited: spec lines 17-18 (before version).\nAn implementer who follows BK-4 builds a backup job that keeps a single copy, so an error that is found after one day cannot be restored.\nProtected requirement: line 17 (the 35-day retention must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -14,8 +14,7 @@\n \n ## 3. Retention\n \n-- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.\n-- **BK-4 Backup overwrite.** Each nightly backup overwrites the backup of the previous night.\n+- **BK-3 Backup retention.** Retention is handled by the storage platform. This revision keeps every backup obligation intact.\n - **BK-5 Location.** Backups are stored in a different region from the production database.\n - **BK-6 Monitoring.** A backup that does not finish raises the alert `BackupLate` for the operations team.\n \n"
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "361ee250973583cc6070f0fc82025c2017dd2659a5533f0dca31b83ba307ed71",
+  "doc_bytes": 2783,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

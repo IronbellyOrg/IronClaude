@@ -1,0 +1,5 @@
+### M10 MAJOR, graded Medium. WC-11 is unscoped and conflicts with the fixed-path rows (G5 row 6)
+- Issue: WC-11 (S:69) says default output paths carry a timestamp or slug and two workers in one worktree never write the same file. It is not limited to unattended mode, while SA-1 (S:146) freezes every default output path without the flag. Rows keep fixed paths: cleanup-audit (`.claude-audit/`, S:85), index-repo (`PROJECT_INDEX.md`, S:86), init-lite (S:87), and there is no "slug the coordinator passes" flag in any row. Source files edited by cleanup, improve, document, test `--fix`, implement are not covered at all; the coordinator duty to give disjoint scopes or worktrees is not stated (S:73 mentions only placement).
+- Expert: Fowler. Priority: Medium.
+- Grading sentence: An implementer who follows WC-11 as written must change fixed default paths that three rows leave alone; which text wins is a guess, so Medium.
+- Recommendation: scope WC-11 to unattended mode and add a coordinator rule: one writer per worktree for fixed-path and source-editing commands.

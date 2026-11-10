@@ -1,0 +1,7 @@
+### B2. Check AC-C1 is vacuous, and SA-2 contradicts it on the contract file and the HOW-WE-WORK section
+
+- Spec text: AC-C1 (line 172) is the common gate for every phase and must "print nothing". Its pattern is `\borca(-ide)?[[:space:]]+(orchestration\|worktree\|terminal\|agent)\b` under `grep -E`. In ERE (GNU grep), `\|` matches a literal pipe, not alternation. The check therefore never matches an Orca command.
+- Test run: `printf 'run orca orchestration task-create now\n' | grep -nE '<AC-C1 pattern>'` exits 1 and prints nothing. The same pattern with an unescaped `|` matches the line (exit 0). So AC-C1 cannot fail on any violation of SA-2 or WC-8.
+- Contradicting text: SA-2 (line 147) allows an Orca mention "inside the contract file", and P0 (line 158) and SA-5 (line 150) require an Orca section in `src/superclaude/core/HOW-WE-WORK.md`. AC-C1 covers `src/superclaude/core` (line 172) with no exemption for either file. The spec therefore states that the contract file may mention Orca, and its own gate would flag that mention if the gate worked.
+- Grading sentence: an implementer who runs AC-C1 as written on a command that calls `orca orchestration task-create` gets no output and marks the check passed, although SA-2 (line 147) and WC-8 (line 66) forbid that call; the phase gate for SA-2 and WC-8 is therefore void.
+- Severity: blocking, because a gate that certifies a forbidden state is a wrong outcome of the spec as written.

@@ -1,0 +1,410 @@
+{
+ "run": "b2h-r4",
+ "design": "b2",
+ "rep": 4,
+ "stratum": "haiku",
+ "loop_model": "haiku",
+ "product_ref": "3d2fe006c00e71460ab7d56542fa01e29e7ce43e",
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "e161284648a17d97e22715de0077e971857e78cf30dd3a41ca3ca126bec19ee3",
+ "done": [
+  "R1",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "VF3",
+  "AUD2",
+  "AUD"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 25443,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1,
+    "MAJOR": 5
+   },
+   "blocking_ids": "B-1, B-2, B-3, B-4, B-5",
+   "blocking": [
+    {
+     "id": "B-1",
+     "heading": "### B-1 (BLOCKING): section 3 says ready commands change only by their small fixes, but P1 and AC-1.1 require every one of them to change",
+     "theme": "T1",
+     "cited": [
+      79,
+      84,
+      87,
+      159,
+      195
+     ]
+    },
+    {
+     "id": "B-2",
+     "heading": "### B-2 (BLOCKING): the P0 acceptance check cannot pass for a command whose report is not a YAML contract",
+     "theme": "T3",
+     "cited": [
+      91,
+      158,
+      183,
+      194
+     ]
+    },
+    {
+     "id": "B-3",
+     "heading": "### B-3 (BLOCKING): the contract location rule (WC-4) conflicts with the per-command rows, so the coordinator cannot know the path before dispatch",
+     "theme": "T2",
+     "cited": [
+      62,
+      83,
+      87,
+      90,
+      92,
+      182
+     ]
+    },
+    {
+     "id": "B-4",
+     "heading": "### B-4 (BLOCKING): `--unattended` auto-accepts reflect remediation, which lets the worker approve its own corrective work",
+     "theme": "other",
+     "cited": [
+      88,
+      122,
+      151,
+      236,
+      244,
+      245,
+      246,
+      247
+     ]
+    },
+    {
+     "id": "B-5",
+     "heading": "### B-5 (BLOCKING): WC-5 maps an empty, truncated or unrecognised contract to `succeeded`",
+     "theme": "other",
+     "cited": [
+      63,
+      262
+     ]
+    }
+   ],
+   "ids": [
+    "B-1",
+    "B-2",
+    "B-3",
+    "B-4",
+    "B-5"
+   ],
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   }
+  },
+  "VF1": {
+   "finding_ids": [
+    "B-1",
+    "B-2",
+    "B-3",
+    "B-4",
+    "B-5"
+   ],
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 4147,
+   "confirmed": [
+    "B-1",
+    "B-3",
+    "B-5"
+   ],
+   "rejected": {
+    "B-2": "The quoted text exists and the candidate does route step 4 to `REPORT.md`. The failure needs `REPORT.md` to be something other than a YAML mapping with `status` and `command`. The candidate never states the format or contents of `REPORT.md`. The \"no status field\" premise rests only on `INV-B:49`, which is not in the workspace.",
+    "B-4": "The routing from spec:88 and spec:122 is as quoted. The wrong outcome, corrective work run with no person approving, needs the content of the headless auto-accept rule. The candidate does not define that rule. Its definition is in `remediation-handoff.md`, which is not in the workspace. The D2 principle at spec:236 is about implement Rulings, not reflect remediation. The finding also misstates SA-6 (spec:151): SA-6 says \"`--unattended` reuses it and does not replace it\", not that it does not require reuse. Spec:280 further says the candidate itself only assumes reflect treats an Orca worker as non-headless."
+   },
+   "parse_ok": true
+  },
+  "V1": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 5454,
+   "spec_after": {
+    "bytes": 58887,
+    "lines": 285,
+    "sha256": "97f56a6e69838dc9f80dfae9d1e8e0aa95413656b2559e687870566b2996ca6a"
+   }
+  },
+  "R2": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 25945,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "labels": {
+    "MAJOR": 1
+   },
+   "blocking_ids": "N-1, N-2, N-5, M-1, M-15",
+   "blocking": [
+    {
+     "id": "N-1",
+     "heading": "### N-1 (BLOCKING, new, origin=changed): WC-5 keys the default outcome on the contract, but spec:79 has P0 workers report the named file, with no contract yet",
+     "theme": "T3",
+     "cited": [
+      63,
+      79,
+      91,
+      158,
+      182,
+      194
+     ]
+    },
+    {
+     "id": "N-2",
+     "heading": "### N-2 (minor, origin=changed): adversarial contract location differs from the location the inventory observed",
+     "theme": "T2",
+     "cited": [
+      62,
+      83
+     ]
+    },
+    {
+     "id": "N-5",
+     "heading": "### N-5 (minor, origin=unchanged, quotes changed lines): 7.2 step 3 does not carry the workflow exception",
+     "theme": "T2",
+     "cited": [
+      73,
+      92,
+      182
+     ]
+    },
+    {
+     "id": "M-1",
+     "heading": null,
+     "theme": "other",
+     "cited": []
+    },
+    {
+     "id": "M-15",
+     "heading": null,
+     "theme": "other",
+     "cited": []
+    }
+   ],
+   "ids": [
+    "N-1",
+    "N-2",
+    "N-5",
+    "M-1",
+    "M-15"
+   ],
+   "spec_after": {
+    "bytes": 58887,
+    "lines": 285,
+    "sha256": "97f56a6e69838dc9f80dfae9d1e8e0aa95413656b2559e687870566b2996ca6a"
+   }
+  },
+  "VF2": {
+   "finding_ids": [
+    "N-1"
+   ],
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 2744,
+   "confirmed": [
+    "N-1"
+   ],
+   "rejected": {},
+   "parse_ok": true
+  },
+  "V2": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 8490,
+   "spec_after": {
+    "bytes": 59060,
+    "lines": 285,
+    "sha256": "87c84d9ca9169f943376688b64d421baec2513be9fe5034504496a4473d86140"
+   }
+  },
+  "R3": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 18372,
+   "verdict": "FAIL",
+   "review_header": [
+    "3"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking": [],
+   "ids": [],
+   "spec_after": {
+    "bytes": 59060,
+    "lines": 285,
+    "sha256": "87c84d9ca9169f943376688b64d421baec2513be9fe5034504496a4473d86140"
+   }
+  },
+  "VF3": {
+   "finding_ids": [
+    "N-6"
+   ],
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 2256,
+   "confirmed": [
+    "N-6"
+   ],
+   "rejected": {},
+   "parse_ok": true
+  },
+  "AUD2": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 13678,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 1
+   },
+   "blocking_ids": "F-01 only",
+   "blocking": [
+    {
+     "id": "F-01",
+     "heading": "### F-01 (CRITICAL by label, blocking) `/sc:load` is required to have a contract and is required not to (Wiegers, Adzic)",
+     "theme": "T1",
+     "cited": [
+      62,
+      76,
+      79,
+      112,
+      159,
+      183,
+      195,
+      196,
+      265
+     ]
+    }
+   ]
+  },
+  "AUD": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 23187,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 3
+   },
+   "blocking_ids": "F-1, F-2",
+   "blocking": [
+    {
+     "id": "F-1",
+     "heading": "### F-1 (blocking) `--unattended` ships before the gate and outward-action rules that make it safe",
+     "theme": "T1",
+     "cited": [
+      60,
+      67,
+      139,
+      154,
+      159,
+      160,
+      161,
+      162,
+      195,
+      196,
+      240
+     ]
+    },
+    {
+     "id": "F-2",
+     "heading": "### F-2 (blocking) AC-1.1 cannot pass for `/sc:load`",
+     "theme": "T1",
+     "cited": [
+      52,
+      62,
+      76,
+      112,
+      195,
+      265
+     ]
+    }
+   ]
+  }
+ },
+ "launched": {
+  "R1": "2026-11-10T06:02:03+00:00",
+  "VF1": "2026-11-10T06:11:52+00:00",
+  "V1": "2026-11-10T06:17:46+00:00",
+  "R2": "2026-11-10T06:23:06+00:00",
+  "VF2": "2026-11-10T06:30:34+00:00",
+  "V2": "2026-11-10T06:35:59+00:00",
+  "R3": "2026-11-10T06:41:41+00:00",
+  "VF3": "2026-11-10T06:49:37+00:00",
+  "AUD": "2026-11-10T06:53:38+00:00",
+  "AUD2": "2026-11-10T06:53:38+00:00"
+ },
+ "pending": [],
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "B-2",
+   "theme": "T3",
+   "cited": [
+    91,
+    158,
+    183,
+    194
+   ],
+   "heading": "### B-2 (BLOCKING): the P0 acceptance check cannot pass for a command whose report is not a YAML contract",
+   "reason": "The quoted text exists and the candidate does route step 4 to `REPORT.md`. The failure needs `REPORT.md` to be something other than a YAML mapping with `status` and `command`. The candidate never states the format or contents of `REPORT.md`. The \"no status field\" premise rests only on `INV-B:49`, which is not in the workspace."
+  },
+  {
+   "step": "VF1",
+   "id": "B-4",
+   "theme": "other",
+   "cited": [
+    88,
+    122,
+    151,
+    236,
+    244,
+    245,
+    246,
+    247
+   ],
+   "heading": "### B-4 (BLOCKING): `--unattended` auto-accepts reflect remediation, which lets the worker approve its own corrective work",
+   "reason": "The routing from spec:88 and spec:122 is as quoted. The wrong outcome, corrective work run with no person approving, needs the content of the headless auto-accept rule. The candidate does not define that rule. Its definition is in `remediation-handoff.md`, which is not in the workspace. The D2 principle at spec:236 is about implement Rulings, not reflect remediation. The finding also misstates SA-6 (spec:151): SA-6 says \"`--unattended` reuses it and does not replace it\", not that it does not require reuse. Spec:280 further says the candidate itself only assumes reflect treats an Orca worker as non-headless."
+  }
+ ],
+ "loop_end": "ESCALATED",
+ "manual": [
+  {
+   "step": "R3",
+   "ids": "N-6",
+   "time": "2026-11-10T06:49:37+00:00"
+  }
+ ],
+ "manual_ids": {
+  "R3": "N-6"
+ },
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "final_spec": {
+  "bytes": 59060,
+  "lines": 285,
+  "sha256": "87c84d9ca9169f943376688b64d421baec2513be9fe5034504496a4473d86140"
+ }
+}

@@ -1,0 +1,1 @@
+- **M-08** AC-C5 (line 176) uses `grep -E '^-[^-]'`. I ran it on sample diff lines in the sandbox: a removed markdown bullet shows as `-- item` and is not matched (only `-| row` and `-plain` were). Command files are bullet-heavy, so a deleted gate bullet passes the "edits are additive" check.

@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "haiku",
+  "reviewer_blocking": true,
+  "run": "a3-r1"
+ },
+ "case_id": "real_ha3r1_F_3",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "T1:6",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-3",
+  "finding_section": "**F-3 [BLOCKING] `/sc:load` must name a contract, but its row and its Decisions entry say it writes none.**\n- Experts: Wiegers (traceability), Crispin.\n- Text: AC-1.1 (`SPEC:195`) requires every command in sections 3.1-3.2 to have a `## Unattended mode` section that names `return-contract.yaml`. `load` is in section 3.2 (`SPEC:112`), with \"none (see note)\" in the Report column. Its Decisions row (`SPEC:265`) says \"a report file would be an unrequested addition.\" WC-4 (`SPEC:62`) requires the contract \"on every outcome\".\n- Grading sentence: an implementer who follows the `load` row and the Decisions row adds no contract, so AC-1.1 fails for `load`. An implementer who makes AC-1.1 pass adds the report file that `SPEC:265` forbids.\n- Recommendation: exclude `load` explicitly from WC-4 and from AC-1.1, in the way section 4 is excluded, or give `load` a contract and remove the Decisions row.\n- Priority: High."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p14/haiku-baseline/runs/a3-r1/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

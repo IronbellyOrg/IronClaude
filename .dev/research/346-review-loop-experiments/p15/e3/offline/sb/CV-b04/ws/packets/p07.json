@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "Sign-in is not defined",
+  "wrong_outcome": "an implementer who follows the stated text as written builds a password sign-in for the re-authentication step (`the user must sign in again before any further request is accepted`, S:11), and that is wrong because the sign-in method may be single sign-on."
+ },
+ "evidence": {
+  "e1": {
+   "text": "the user must sign in again before any further request is accepted",
+   "line": 11,
+   "context": "\n## 2. Sessions\nR5. A session expires after 30 minutes without activity.\nR6. After expiry the user must sign in again before any further request is accepted.\nR7. Admin sessions expire after 15 minutes without activity.\n\n## 3. Sharing"
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

@@ -1,0 +1,1 @@
+- **M-09** AC-0.4 (line 194) requires steps 1-3 and says the no-Agent-tool-wrapper property is "verified in the step-5 transcript", but step 5 (line 184) only searches for `AskUserQuestion`, and step 3's pass condition (line 182) needs "the WC-4 contract path", which the spec says arrives only in P1. This is the check that can reopen section 1, so it should be runnable.

@@ -1,0 +1,117 @@
+{
+ "run": "a1-r3",
+ "arm": 1,
+ "rep": 3,
+ "done": [
+  "R1",
+  "V1",
+  "R2",
+  "V2",
+  "R3",
+  "AUD"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "report_bytes": 51210,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 5,
+    "MINOR": 20,
+    "MAJOR": 32
+   },
+   "blocking_ids": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14. Findings 15 to 24 are notes and never trigger a revision. The reviser reads this report, not the command, so the rules are restated here. Revise only text a blocking finding names. Add no rule, mechanism or section that no blocking finding calls for. Each added paragraph or table cites its finding id. The reviser reports the byte size of the spec before and after. A brief may narrow this scope but may not widen it past the changed lines and the prior blocking findings, and may not grade a minor finding as blocking. At most 2 fix cycles remain (this is review 1 of 3); at review 3 with a FAIL verdict the run escalates to the user instead of revising",
+   "blocking_word_count": 39,
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "output_tokens": 137402
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 21819,
+   "spec_after": {
+    "bytes": 71195,
+    "lines": 326,
+    "sha256": "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d"
+   },
+   "output_tokens": 194039
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 60128,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MINOR": 24,
+    "MAJOR": 20
+   },
+   "blocking_ids": "N1, N2, N3, N4, N5. The reviser reads this report, not the command, so the rules are restated here. Revise only text a blocking finding names. Add no rule, mechanism or section that no blocking finding calls for. Each added paragraph or table cites its finding id. The reviser reports the byte size of the spec before and after (before this revision: 71195 bytes, 326 lines). Findings N6 to N18 and round-1 notes 15 to 24 are notes and never trigger a revision. A brief may narrow this scope but may not widen it past the changed lines and the prior blocking findings, and may not grade a minor finding as blocking. At most 2 fix cycles remain by the report header (this is `review: 1 of 3` by the command's count; the coordinator keeps the real count); at review 3 with a FAIL verdict the run escalates to the user instead of revising",
+   "blocking_word_count": 37,
+   "spec_after": {
+    "bytes": 71195,
+    "lines": 326,
+    "sha256": "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d"
+   },
+   "output_tokens": 238692
+  },
+  "V2": {
+   "output_exists": true,
+   "report_bytes": 24516,
+   "spec_after": {
+    "bytes": 90054,
+    "lines": 346,
+    "sha256": "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096"
+   },
+   "output_tokens": 342949
+  },
+  "R3": {
+   "output_exists": true,
+   "report_bytes": 64447,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 9,
+    "MINOR": 22,
+    "MAJOR": 12
+   },
+   "blocking_ids": "R3-1, R3-2, R3-3, R3-4. The reviser reads this report, not the command, so the rules are restated here. Revise only text a blocking finding names. Add no rule, mechanism or section that no blocking finding calls for. Each added paragraph or table cites its finding id. The reviser reports the byte size of the spec before and after (before this revision: 90054 bytes, 346 lines). Findings R3-5 to R3-14 and round-1 notes 15 to 24 are notes and never trigger a revision. A brief may narrow this scope but may not widen it past the changed lines and the prior blocking findings, and may not grade a minor finding as blocking. At most 2 fix cycles remain by the report header (this is `review: 1 of 3` by the command's count; the coordinator keeps the real count); at review 3 with a FAIL verdict the run escalates to the user instead of revising",
+   "blocking_word_count": 32,
+   "spec_after": {
+    "bytes": 90054,
+    "lines": 346,
+    "sha256": "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096"
+   },
+   "output_tokens": 286222
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 35793,
+   "verdict": "PASS",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 22,
+    "MINOR": 8,
+    "CRITICAL": 1
+   },
+   "blocking_ids": null,
+   "blocking_word_count": 7,
+   "spec_audited": {
+    "bytes": 90054
+   },
+   "output_tokens": 152102
+  }
+ }
+}

@@ -1,0 +1,214 @@
+{
+ "experiment": "E1",
+ "ceiling_usd": 5.0,
+ "ceiling_input_tokens": 30000000,
+ "spent_tokens": 44886,
+ "spent_usd": 0.0018852120000000003,
+ "reserved": {},
+ "draws": {
+  "d000001": {
+   "phase": "smoke",
+   "est": 1803,
+   "actual": 1213,
+   "usage_missing": false
+  },
+  "d000002": {
+   "phase": "smoke",
+   "est": 1579,
+   "actual": 1112,
+   "usage_missing": false
+  },
+  "d000003": {
+   "phase": "smoke",
+   "est": 1762,
+   "actual": 1149,
+   "usage_missing": false
+  },
+  "d000004": {
+   "phase": "smoke",
+   "est": 2507,
+   "actual": 1597,
+   "usage_missing": false
+  },
+  "d000005": {
+   "phase": "smoke",
+   "est": 1906,
+   "actual": 1211,
+   "usage_missing": false
+  },
+  "d000006": {
+   "phase": "smoke",
+   "est": 2423,
+   "actual": 1474,
+   "usage_missing": false
+  },
+  "d000007": {
+   "phase": "smoke",
+   "est": 2683,
+   "actual": 1628,
+   "usage_missing": false
+  },
+  "d000008": {
+   "phase": "smoke",
+   "est": 1733,
+   "actual": 1166,
+   "usage_missing": false
+  },
+  "d000009": {
+   "phase": "smoke",
+   "est": 1518,
+   "actual": 1074,
+   "usage_missing": false
+  },
+  "d000010": {
+   "phase": "smoke",
+   "est": 1646,
+   "actual": 1128,
+   "usage_missing": false
+  },
+  "d000011": {
+   "phase": "smoke",
+   "est": 1950,
+   "actual": 1225,
+   "usage_missing": false
+  },
+  "d000012": {
+   "phase": "smoke",
+   "est": 1826,
+   "actual": 1249,
+   "usage_missing": false
+  },
+  "d000013": {
+   "phase": "smoke",
+   "est": 2378,
+   "actual": 1429,
+   "usage_missing": false
+  },
+  "d000014": {
+   "phase": "smoke",
+   "est": 3013,
+   "actual": 1826,
+   "usage_missing": false
+  },
+  "d000015": {
+   "phase": "smoke",
+   "est": 2430,
+   "actual": 1487,
+   "usage_missing": false
+  },
+  "d000016": {
+   "phase": "smoke",
+   "est": 1888,
+   "actual": 1267,
+   "usage_missing": false
+  },
+  "d000017": {
+   "phase": "smoke",
+   "est": 1906,
+   "actual": 1199,
+   "usage_missing": false
+  },
+  "d000018": {
+   "phase": "smoke",
+   "est": 1844,
+   "actual": 1181,
+   "usage_missing": false
+  },
+  "d000019": {
+   "phase": "smoke",
+   "est": 2454,
+   "actual": 1582,
+   "usage_missing": false
+  },
+  "d000020": {
+   "phase": "smoke",
+   "est": 1525,
+   "actual": 1092,
+   "usage_missing": false
+  },
+  "d000021": {
+   "phase": "smoke",
+   "est": 3040,
+   "actual": 1892,
+   "usage_missing": false
+  },
+  "d000022": {
+   "phase": "smoke",
+   "est": 2731,
+   "actual": 1562,
+   "usage_missing": false
+  },
+  "d000023": {
+   "phase": "smoke",
+   "est": 1828,
+   "actual": 1185,
+   "usage_missing": false
+  },
+  "d000024": {
+   "phase": "smoke",
+   "est": 2501,
+   "actual": 1503,
+   "usage_missing": false
+  },
+  "d000025": {
+   "phase": "smoke",
+   "est": 1964,
+   "actual": 1235,
+   "usage_missing": false
+  },
+  "d000026": {
+   "phase": "smoke",
+   "est": 1531,
+   "actual": 1096,
+   "usage_missing": false
+  },
+  "d000027": {
+   "phase": "smoke",
+   "est": 2443,
+   "actual": 1573,
+   "usage_missing": false
+  },
+  "d000028": {
+   "phase": "smoke",
+   "est": 1823,
+   "actual": 1251,
+   "usage_missing": false
+  },
+  "d000029": {
+   "phase": "smoke",
+   "est": 1798,
+   "actual": 1188,
+   "usage_missing": false
+  },
+  "d000030": {
+   "phase": "smoke",
+   "est": 2268,
+   "actual": 1402,
+   "usage_missing": false
+  },
+  "d000031": {
+   "phase": "smoke",
+   "est": 2002,
+   "actual": 1241,
+   "usage_missing": false
+  },
+  "d000032": {
+   "phase": "smoke",
+   "est": 1848,
+   "actual": 1187,
+   "usage_missing": false
+  },
+  "d000033": {
+   "phase": "smoke",
+   "est": 1604,
+   "actual": 1114,
+   "usage_missing": false
+  },
+  "d000034": {
+   "phase": "smoke",
+   "est": 1741,
+   "actual": 1168,
+   "usage_missing": false
+  }
+ }
+}

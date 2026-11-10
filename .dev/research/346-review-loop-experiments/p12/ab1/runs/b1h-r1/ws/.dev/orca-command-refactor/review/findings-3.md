@@ -1,0 +1,17 @@
+### N2
+### N2 (blocking, open, origin=changed; spec:62)
+- Location: `spec:62` (WC-4, changed). Depends on `spec:69` (WC-11, unchanged: "Two workers in one worktree must never write the same file.").
+- Quote, spec:62: "where `<parent>` is that file's parent directory and `<stem>` is its file name without its extension, so two runs whose files share a parent directory write two contracts [M1, N2]."
+- Grading sentence: an implementer who follows `spec:62` as written runs `--output .dev/superclaude/a.md` for one command and `--output .dev/superclaude/a.txt` for another (both accept a file, `spec:87` and `spec:90`). Both contracts go to `.dev/superclaude/a.return-contract.yaml`. The second run overwrites the first, so the coordinator opens a contract that describes the wrong worker, and the first worker's report is lost. The sentence that says files sharing a parent directory write two contracts is false for this pair, so the stated text contradicts its own rule. No further assumption is needed for the overwrite; the input pair is the only premise, and the rule gives it no exception.
+- Scope of the premise: no command in section 3 writes two extensions today. The defect is reached only through the choice of inputs, which is why this is graded with the same weight as review 2's N2 (a wrong contract read and a lost report), not as a Medium warning.
+
+### N4
+### N4 (blocking, new, origin=changed; spec:204)
+- Location: `spec:204` (AC-1.2, changed). Depends on `spec:112` (load row, unchanged), `spec:159` (P1 list, unchanged), `spec:186-188` (7.2 live check, unchanged), and the section 3 rows for the P1 commands (`spec:101-125`, unchanged).
+- Quotes:
+  - `spec:204`: "7.2 live check on each P1 command with `--unattended` and the one output flag section 3 names for it (`--output-dir <dir>` for cleanup-audit, index-repo and workflow; `--output <dir>` for the others)".
+  - `spec:112`: "| load | no gate | none (see note) | n/a | none: use it as a step inside another worker's brief, not as its own Task; ... | P1 (usage line only) |".
+  - `spec:159`: P1 "Commands" column lists "analyze, build, business-panel, design, document, explain, index, test, load (usage line only)".
+  - `spec:188`: 7.2 step 1 is "`ORCA orchestration task-create --spec ...`, then `ORCA orchestration worker-start ...`", run "For each command under test".
+- Grading sentence: an implementer who follows `spec:204` as written dispatches `/sc:load --unattended --output <dir>` as its own Task (7.2 step 1), which `spec:112` forbids ("not as its own Task"). Section 3 names no output flag and no report file for load (`spec:112` "none"), so there is no `--output <dir>` to pass and no contract for the step-4 `test -s <contract>` (`spec:191`) to test. Two stated texts contradict each other, and the criterion cannot pass as written. Both points hold with no further assumption. `INV-B:31` and `INV-B:65` say load "writes no file; use as a brief step, not a task", and `INV-B:293` lists `/sc:load` among commands with no single report file, so the inventory agrees with `spec:112`.
+- Origin note: the contradiction is also in spec-v2 (`base:204` names the same P1 set and "each P1 command"). Review 2 checked only the changed lines and did not raise it. It is graded here because `spec:204` is a changed line that carries it, and the new "one output flag section 3 names for it" clause depends on the same row.

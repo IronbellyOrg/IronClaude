@@ -1,0 +1,396 @@
+{
+ "run": "b1-r5",
+ "design": "b1",
+ "rep": 5,
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "product_ref": "44f37e16d335a322e618b24c16ba387ffdfb47a1",
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "ed219181156e47e6d70120730063e0b00081482d8a78b3d2633da188574ca829",
+ "done": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 20283,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2
+   },
+   "blocking_ids": "F1, F2. Reviser rules (restated from the Review Loop, bullet 6; the reviser reads this report, not the command): revise only text a blocking finding names; add no rule, mechanism or section that no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the file byte size before and after, and the bytes added and deleted per finding id. Leave Medium and minor findings alone. The reviser does not award itself a PASS",
+   "blocking_word_count": 7,
+   "output_tokens": 32869
+  },
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 20203,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 3
+   },
+   "blocking_ids": "F1, F2",
+   "blocking_word_count": 11,
+   "output_tokens": 33128
+  },
+  "R1c": {
+   "output_exists": true,
+   "report_bytes": 19012,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 3
+   },
+   "blocking_ids": "B1, B2, B3**. Rules for the reviser (restated from the command's Review Loop, bullet 6; the reviser reads this report, not the command):",
+   "blocking_word_count": 9,
+   "output_tokens": 23611
+  },
+  "VF1": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7"
+   ],
+   "report_bytes": 3655,
+   "confirmed": [
+    "M1",
+    "M2",
+    "M4",
+    "M5",
+    "M6"
+   ],
+   "rejected": {
+    "M3": "The finding states no text and no wrong outcome, so there is nothing to check.",
+    "M7": "P1's Commands column lists only non-P4 commands and the spec says the flag is \"a no-op where a command has no gate\", so the stated outcome (gate resolutions written in P1 that pre-empt D2-D4) needs an assumption the text does not make; the D3 (a) text speaks of Phase 4 changes, not P1."
+   },
+   "parse_ok": true,
+   "output_tokens": 4228
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 4241,
+   "spec_after": {
+    "bytes": 58587,
+    "lines": 285,
+    "sha256": "3cd5458f8a2ac3b837384ffb0c2d1ee1a68493aec2a3e3b821f7c0d4938d6464"
+   },
+   "output_tokens": 9008
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 18132,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 8,
+   "spec_after": {
+    "bytes": 58587,
+    "lines": 285,
+    "sha256": "3cd5458f8a2ac3b837384ffb0c2d1ee1a68493aec2a3e3b821f7c0d4938d6464"
+   },
+   "output_tokens": 15686
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 16724,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 2
+   },
+   "blocking_ids": "B-1",
+   "blocking_word_count": 6,
+   "spec_audited": {
+    "bytes": 58587
+   },
+   "output_tokens": 46127
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 19641,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 1
+   },
+   "blocking_ids": "F-01",
+   "blocking_word_count": 5,
+   "spec_audited": {
+    "bytes": 58587
+   },
+   "output_tokens": 45374
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T07:44:34+00:00",
+  "R1b": "2026-11-10T07:48:19+00:00",
+  "R1c": "2026-11-10T07:53:03+00:00",
+  "VF1": "2026-11-10T07:59:44+00:00",
+  "V1": "2026-11-10T08:04:26+00:00",
+  "R2": "2026-11-10T08:13:00+00:00",
+  "AUD": "2026-11-10T08:19:11+00:00",
+  "AUD2": "2026-11-10T08:19:11+00:00"
+ },
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "M3",
+   "theme": "other",
+   "cited": [],
+   "heading": "### F1 - CRITICAL (blocking) - Wiegers, Adzic, Cockburn",
+   "reason": "The finding states no text and no wrong outcome, so there is nothing to check."
+  },
+  {
+   "step": "VF1",
+   "id": "M7",
+   "theme": "T1",
+   "cited": [
+    109,
+    113,
+    114,
+    139,
+    154,
+    159,
+    162,
+    195,
+    241
+   ],
+   "heading": "**B3. P1 and AC-1.1 require unattended sections for the P4 commands, which depend on decisions P1 is said not to need (CRITICAL, High)**",
+   "reason": "P1's Commands column lists only non-P4 commands and the spec says the flag is \"a no-op where a command has no gate\", so the stated outcome (gate resolutions written in P1 that pre-empt D2-D4) needs an assumption the text does not make; the D3 (a) text speaks of Phase 4 changes, not P1."
+  }
+ ],
+ "loop_end": "PASS",
+ "manual": [],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 7,
+  "merged_count": 7,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "T1",
+    "members": [
+     "round1-a.md/F1"
+    ],
+    "cited": [
+     79,
+     84,
+     87,
+     112,
+     158,
+     159,
+     160,
+     161,
+     162,
+     167,
+     183,
+     195,
+     196,
+     265
+    ],
+    "heading": "### F1. CRITICAL-in-effect, blocking: AC-1.1 cannot pass for `load`, `brainstorm` and `init-lite` as the spec defines them"
+   },
+   {
+    "mid": "M2",
+    "theme": "T2",
+    "members": [
+     "round1-a.md/F2"
+    ],
+    "cited": [
+     62,
+     73,
+     83,
+     158,
+     182,
+     183,
+     194,
+     198
+    ],
+    "heading": "### F2. CRITICAL-in-effect, blocking: the `/sc:adversarial` contract path in section 3.1 contradicts the WC-4 path the coordinator will read"
+   },
+   {
+    "mid": "M3",
+    "theme": "other",
+    "members": [
+     "round1-b.md/F1"
+    ],
+    "cited": [],
+    "heading": "### F1 - CRITICAL (blocking) - Wiegers, Adzic, Cockburn"
+   },
+   {
+    "mid": "M4",
+    "theme": "other",
+    "members": [
+     "round1-b.md/F2"
+    ],
+    "cited": [
+     53,
+     54,
+     55,
+     56,
+     57,
+     58,
+     59,
+     60,
+     61,
+     62,
+     63,
+     64,
+     65,
+     66,
+     149,
+     176,
+     193
+    ],
+    "heading": "### F2 - MAJOR graded blocking - Fowler, Nygard, Whittaker"
+   },
+   {
+    "mid": "M5",
+    "theme": "T2",
+    "members": [
+     "round1-c.md/B1"
+    ],
+    "cited": [
+     62,
+     63,
+     85,
+     87,
+     90,
+     92,
+     183,
+     200
+    ],
+    "heading": "**B1. WC-4 puts the contract file in a directory the brief cannot name for several commands (CRITICAL, High)**"
+   },
+   {
+    "mid": "M6",
+    "theme": "T1",
+    "members": [
+     "round1-c.md/B2"
+    ],
+    "cited": [
+     112,
+     159,
+     195,
+     265
+    ],
+    "heading": "**B2. AC-1.1 cannot pass for `/sc:load` as the spec itself specifies it (CRITICAL, High)**"
+   },
+   {
+    "mid": "M7",
+    "theme": "T1",
+    "members": [
+     "round1-c.md/B3"
+    ],
+    "cited": [
+     109,
+     113,
+     114,
+     139,
+     154,
+     159,
+     162,
+     195,
+     241
+    ],
+    "heading": "**B3. P1 and AC-1.1 require unattended sections for the P4 commands, which depend on decisions P1 is said not to need (CRITICAL, High)**"
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "88b47262b05ea35659e5d4599e18631ca5f7c725c57443e64cdf85ca609df432",
+    "ids": [
+     "F1",
+     "F2"
+    ],
+    "themes": [
+     "T1",
+     "T2"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "f14c275ad8673deb040789d5bafa130fdead0f92be16cb0fde0a7cfab401837d",
+    "ids": [
+     "F1",
+     "F2"
+    ],
+    "themes": [
+     "other",
+     "other"
+    ]
+   },
+   "c": {
+    "verdict": "FAIL",
+    "sha256": "73bfc5d0c4f8e63e5d44e26383ee64c66301690738b5273bb516e2c3be780f54",
+    "ids": [
+     "B1",
+     "B2",
+     "B3"
+    ],
+    "themes": [
+     "T2",
+     "T1",
+     "T1"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 58587,
+  "lines": 285,
+  "sha256": "3cd5458f8a2ac3b837384ffb0c2d1ee1a68493aec2a3e3b821f7c0d4938d6464"
+ }
+}

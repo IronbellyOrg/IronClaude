@@ -1,0 +1,45 @@
+{
+ "author_intent": {
+  "inherits": "syn-bkp-1",
+  "perturbation": "omit"
+ },
+ "base_case_id": "syn-bkp-1",
+ "case_id": "syn-bkp-1~omit",
+ "category": "contr",
+ "confirmable_from_packet": "no",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "syn-bkp",
+ "group": "syn-bkp",
+ "packet": {
+  "base_case_id": "syn-bkp-1",
+  "code_outcome": "OK",
+  "state": {
+   "evidence": {
+    "e1": {
+     "context": "\n## 1. Schedule\nR1. A full backup runs every Sunday at 01:00 UTC.\nR2. An incremental backup runs every other day at 01:00 UTC.\nR3. A backup job that is still running when the next one is due makes the next one wait until it finishes.\n\n## 2. Storage",
+     "line": 5,
+     "text": "An incremental backup runs every other day at 01:00 UTC."
+    }
+   },
+   "facts": {
+    "evidence_count": 1,
+    "quotes_found_verbatim": true
+   },
+   "finding": {
+    "title": "Incremental backups run every other day and every day",
+    "wrong_outcome": "an implementer who follows the stated text as written builds a scheduler that runs an incremental backup on Monday, skips Tuesday (`An incremental backup runs every other day at 01:00 UTC.`, S:5) and runs on Tuesday as well (`Incremental backups run every day at 01:00 UTC.`, S:25). Tuesday's job must run and not run, so the schedule test cannot pass."
+   }
+  }
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "cases_synth.py"
+  ],
+  "url": null
+ },
+ "split": "perturb",
+ "variant": "omit"
+}

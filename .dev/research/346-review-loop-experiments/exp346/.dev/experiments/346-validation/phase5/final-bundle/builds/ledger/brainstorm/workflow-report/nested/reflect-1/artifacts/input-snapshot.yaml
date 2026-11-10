@@ -1,0 +1,37 @@
+input_tree_sha256: 3f694d3578b9ebfe2ab1d9e8f6ee0591950d767353db1945668b11bf907726cf
+file_count: 17
+file_list:
+  - path: .dev/brainstorms/346-ledger/SPEC.md
+    sha256: 2c0aa6d96b67f3438143c8b5d0f13cf6f12da025dad134af1e6d6bde7ff637ff
+  - path: .dev/brainstorms/346-ledger/merged-requirements.md
+    sha256: 981df4e04edc4c5ff1c83a15b82a10ef89f9b91101260d7de11303dab664be95
+  - path: .dev/tasks/to-do/TASK-WF-spec-20261108-181649/TASK-WF-spec-20261108-181649.md
+    sha256: 371fa6c1a2bc377e827c47004c4fd88b8595477a5b28dc38091df35bb68d29c7
+  - path: .dev/tasks/to-do/TASK-WF-spec-20261108-181649/source.md
+    sha256: 2c0aa6d96b67f3438143c8b5d0f13cf6f12da025dad134af1e6d6bde7ff637ff
+  - path: docs/designs/spec-panel-review-loop.md
+    sha256: e8d22c998eaddd64ccc9b9366588ce145d1cf4afcfdccaffc5d167adcd339bd0
+  - path: plugins/superclaude/commands/spec-panel.md
+    sha256: f1df5f7564495068e27519352699459206b9a02f3678ccf7c49ce6a2f9f90391
+  - path: src/superclaude/cli/install_skills.py
+    sha256: b07a9b8e85e06d0fae1f9e924527283557a0fe104ea0c9b2b684a11ec8e406e3
+  - path: src/superclaude/commands/spec-panel.md
+    sha256: 4115f2a979800af8b3ed8dee9d006cf3a97e25c5d9e02420cfee761e82cbe3c9
+  - path: src/superclaude/core/HOW-WE-WORK.md
+    sha256: 39902f7daeb824fce820d190ac28dc11bc1f6161309afbd4f0616050c003a58d
+  - path: src/superclaude/skills/sc-bare-review/SKILL.md
+    sha256: 8b7b4c4f4f6f270e389a042d46f9bf4cd4eb7afeb1e77c66d3571702f74e8467
+  - path: tests/skills/test_model_alias_policy.py
+    sha256: 344fc147008fa05363766f8e7235977dade888c3ba6af9ad6f6719a938937237
+  - path: tests/skills/test_primitive_dual_surface_lookup.py
+    sha256: 01e4b9b419b047412a5a7a2ef9cea801a0686a106db6277163eed04774246094
+  - path: tests/skills/test_review_severity_rule.py
+    sha256: dc21823da962d14b40339e2081717177b3497b27b2a1e41f5637ed97ef10d961
+  - path: tests/skills/test_spec_panel_review_loop.py
+    sha256: e3bc8cb4924d184748dca8a8ebcabb74af41f0bc614eb80dae0a4b1ad31f1ae3
+  - path: tests/skills/test_worker_contract.py
+    sha256: 1fb7e9c7f96b31741a2082601ec3561737f57040075aae3be42e56f3991528cd
+  - path: tests/skills/test_workflow_archive.py
+    sha256: b01951e970b1ea086491c337940c723b637da04514a43077ca028d6fb8617edf
+  - path: tests/unit/test_cli_install.py
+    sha256: 780d0ec66ca0ba8577be3bd55edeb870339fc7f844ed420ca9fb4c464ded2d0b

@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": false,
+  "run": "a1-r1"
+ },
+ "case_id": "real_a1r1_F_19",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:5",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-19",
+  "finding_section": "**F-19 (MINOR). Wiegers: \"well inside the readiness limit\" is not measurable.**\n- Issue: WC-1 (SPEC:59) says a startup prompt must fall back \"well inside\" the 60 s limit, while its own evidence gives numbers: a 30 s fallback passed and about 45 s failed (EVIDENCE.md:45,56 as quoted at CAPS:49).\n- Recommendation: state the number, for example \"at most 30 s\". Priority: Low."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a1-r1/ws/.dev/orca-command-refactor/review/spec-panel.md"
+  ],
+  "url": null
+ },
+ "split": "base",
+ "variant": "base"
+}

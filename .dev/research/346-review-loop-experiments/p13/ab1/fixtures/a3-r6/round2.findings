@@ -1,0 +1,4 @@
+{"prior": "REQ-1", "status": "resolved"}
+{"prior": "REQ-2", "status": "resolved"}
+{"prior": "ARCH-1", "status": "resolved"}
+{"id": "NEW-1", "severity": "CRITICAL", "blocking": true, "category": "contradiction", "anchor": "never reused from an earlier dispatch of the same Task, a `--retry-of` retry included", "anchor2": "the explicit resume flag (resume only when passed)", "refs": ["WC-6", "AC-3.2"], "claim": "Section 2.3 forbids reusing the output directory on a retry, but WC-6 and the roadmap row need the state kept in it."}

@@ -1,0 +1,826 @@
+{
+ "experiment": "dryrun-budget",
+ "ceiling_usd": 5.0,
+ "ceiling_input_tokens": 30000000,
+ "spent_tokens": 0,
+ "spent_usd": 0.0,
+ "reserved": {},
+ "draws": {
+  "d000001": {
+   "phase": "dryrun",
+   "est": 1803,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000002": {
+   "phase": "dryrun",
+   "est": 1579,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000003": {
+   "phase": "dryrun",
+   "est": 1762,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000004": {
+   "phase": "dryrun",
+   "est": 2507,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000005": {
+   "phase": "dryrun",
+   "est": 1906,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000006": {
+   "phase": "dryrun",
+   "est": 2423,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000007": {
+   "phase": "dryrun",
+   "est": 2683,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000008": {
+   "phase": "dryrun",
+   "est": 1733,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000009": {
+   "phase": "dryrun",
+   "est": 1518,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000010": {
+   "phase": "dryrun",
+   "est": 1646,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000011": {
+   "phase": "dryrun",
+   "est": 1950,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000012": {
+   "phase": "dryrun",
+   "est": 1826,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000013": {
+   "phase": "dryrun",
+   "est": 2378,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000014": {
+   "phase": "dryrun",
+   "est": 3013,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000015": {
+   "phase": "dryrun",
+   "est": 2430,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000016": {
+   "phase": "dryrun",
+   "est": 1888,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000017": {
+   "phase": "dryrun",
+   "est": 1906,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000018": {
+   "phase": "dryrun",
+   "est": 1844,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000019": {
+   "phase": "dryrun",
+   "est": 2454,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000020": {
+   "phase": "dryrun",
+   "est": 1525,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000021": {
+   "phase": "dryrun",
+   "est": 3040,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000022": {
+   "phase": "dryrun",
+   "est": 2731,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000023": {
+   "phase": "dryrun",
+   "est": 1828,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000024": {
+   "phase": "dryrun",
+   "est": 2501,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000025": {
+   "phase": "dryrun",
+   "est": 1964,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000026": {
+   "phase": "dryrun",
+   "est": 1531,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000027": {
+   "phase": "dryrun",
+   "est": 2443,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000028": {
+   "phase": "dryrun",
+   "est": 1823,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000029": {
+   "phase": "dryrun",
+   "est": 1798,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000030": {
+   "phase": "dryrun",
+   "est": 2268,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000031": {
+   "phase": "dryrun",
+   "est": 2002,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000032": {
+   "phase": "dryrun",
+   "est": 1848,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000033": {
+   "phase": "dryrun",
+   "est": 1604,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000034": {
+   "phase": "dryrun",
+   "est": 1741,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000035": {
+   "phase": "dryrun",
+   "est": 1803,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000036": {
+   "phase": "dryrun",
+   "est": 1579,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000037": {
+   "phase": "dryrun",
+   "est": 1762,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000038": {
+   "phase": "dryrun",
+   "est": 2507,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000039": {
+   "phase": "dryrun",
+   "est": 1906,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000040": {
+   "phase": "dryrun",
+   "est": 2423,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000041": {
+   "phase": "dryrun",
+   "est": 2683,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000042": {
+   "phase": "dryrun",
+   "est": 1733,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000043": {
+   "phase": "dryrun",
+   "est": 1518,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000044": {
+   "phase": "dryrun",
+   "est": 1646,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000045": {
+   "phase": "dryrun",
+   "est": 1950,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000046": {
+   "phase": "dryrun",
+   "est": 1826,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000047": {
+   "phase": "dryrun",
+   "est": 2378,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000048": {
+   "phase": "dryrun",
+   "est": 3013,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000049": {
+   "phase": "dryrun",
+   "est": 2430,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000050": {
+   "phase": "dryrun",
+   "est": 1888,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000051": {
+   "phase": "dryrun",
+   "est": 1906,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000052": {
+   "phase": "dryrun",
+   "est": 1844,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000053": {
+   "phase": "dryrun",
+   "est": 2454,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000054": {
+   "phase": "dryrun",
+   "est": 1525,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000055": {
+   "phase": "dryrun",
+   "est": 3040,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000056": {
+   "phase": "dryrun",
+   "est": 2731,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000057": {
+   "phase": "dryrun",
+   "est": 1828,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000058": {
+   "phase": "dryrun",
+   "est": 2501,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000059": {
+   "phase": "dryrun",
+   "est": 1964,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000060": {
+   "phase": "dryrun",
+   "est": 1531,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000061": {
+   "phase": "dryrun",
+   "est": 2443,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000062": {
+   "phase": "dryrun",
+   "est": 1823,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000063": {
+   "phase": "dryrun",
+   "est": 1798,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000064": {
+   "phase": "dryrun",
+   "est": 2268,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000065": {
+   "phase": "dryrun",
+   "est": 2002,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000066": {
+   "phase": "dryrun",
+   "est": 1848,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000067": {
+   "phase": "dryrun",
+   "est": 1604,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000068": {
+   "phase": "dryrun",
+   "est": 1741,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000069": {
+   "phase": "dryrun",
+   "est": 1803,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000070": {
+   "phase": "dryrun",
+   "est": 1579,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000071": {
+   "phase": "dryrun",
+   "est": 1762,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000072": {
+   "phase": "dryrun",
+   "est": 2507,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000073": {
+   "phase": "dryrun",
+   "est": 1906,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000074": {
+   "phase": "dryrun",
+   "est": 2423,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000075": {
+   "phase": "dryrun",
+   "est": 2683,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000076": {
+   "phase": "dryrun",
+   "est": 1733,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000077": {
+   "phase": "dryrun",
+   "est": 1518,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000078": {
+   "phase": "dryrun",
+   "est": 1646,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000079": {
+   "phase": "dryrun",
+   "est": 1950,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000080": {
+   "phase": "dryrun",
+   "est": 1826,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000081": {
+   "phase": "dryrun",
+   "est": 2378,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000082": {
+   "phase": "dryrun",
+   "est": 3013,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000083": {
+   "phase": "dryrun",
+   "est": 2430,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000084": {
+   "phase": "dryrun",
+   "est": 1888,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000085": {
+   "phase": "dryrun",
+   "est": 1906,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000086": {
+   "phase": "dryrun",
+   "est": 1844,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000087": {
+   "phase": "dryrun",
+   "est": 2454,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000088": {
+   "phase": "dryrun",
+   "est": 1525,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000089": {
+   "phase": "dryrun",
+   "est": 3040,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000090": {
+   "phase": "dryrun",
+   "est": 2731,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000091": {
+   "phase": "dryrun",
+   "est": 1828,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000092": {
+   "phase": "dryrun",
+   "est": 2501,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000093": {
+   "phase": "dryrun",
+   "est": 1964,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000094": {
+   "phase": "dryrun",
+   "est": 1531,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000095": {
+   "phase": "dryrun",
+   "est": 2443,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000096": {
+   "phase": "dryrun",
+   "est": 1823,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000097": {
+   "phase": "dryrun",
+   "est": 1798,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000098": {
+   "phase": "dryrun",
+   "est": 2268,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000099": {
+   "phase": "dryrun",
+   "est": 2002,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000100": {
+   "phase": "dryrun",
+   "est": 1848,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000101": {
+   "phase": "dryrun",
+   "est": 1604,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000102": {
+   "phase": "dryrun",
+   "est": 1741,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000103": {
+   "phase": "dryrun",
+   "est": 1803,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000104": {
+   "phase": "dryrun",
+   "est": 1579,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000105": {
+   "phase": "dryrun",
+   "est": 1762,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000106": {
+   "phase": "dryrun",
+   "est": 2507,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000107": {
+   "phase": "dryrun",
+   "est": 1906,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000108": {
+   "phase": "dryrun",
+   "est": 2423,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000109": {
+   "phase": "dryrun",
+   "est": 2683,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000110": {
+   "phase": "dryrun",
+   "est": 1733,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000111": {
+   "phase": "dryrun",
+   "est": 1518,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000112": {
+   "phase": "dryrun",
+   "est": 1646,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000113": {
+   "phase": "dryrun",
+   "est": 1950,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000114": {
+   "phase": "dryrun",
+   "est": 1826,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000115": {
+   "phase": "dryrun",
+   "est": 2378,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000116": {
+   "phase": "dryrun",
+   "est": 3013,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000117": {
+   "phase": "dryrun",
+   "est": 2430,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000118": {
+   "phase": "dryrun",
+   "est": 1888,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000119": {
+   "phase": "dryrun",
+   "est": 1906,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000120": {
+   "phase": "dryrun",
+   "est": 1844,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000121": {
+   "phase": "dryrun",
+   "est": 2454,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000122": {
+   "phase": "dryrun",
+   "est": 1525,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000123": {
+   "phase": "dryrun",
+   "est": 3040,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000124": {
+   "phase": "dryrun",
+   "est": 2731,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000125": {
+   "phase": "dryrun",
+   "est": 1828,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000126": {
+   "phase": "dryrun",
+   "est": 2501,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000127": {
+   "phase": "dryrun",
+   "est": 1964,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000128": {
+   "phase": "dryrun",
+   "est": 1531,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000129": {
+   "phase": "dryrun",
+   "est": 2443,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000130": {
+   "phase": "dryrun",
+   "est": 1823,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000131": {
+   "phase": "dryrun",
+   "est": 1798,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000132": {
+   "phase": "dryrun",
+   "est": 2268,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000133": {
+   "phase": "dryrun",
+   "est": 2002,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000134": {
+   "phase": "dryrun",
+   "est": 1848,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000135": {
+   "phase": "dryrun",
+   "est": 1604,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000136": {
+   "phase": "dryrun",
+   "est": 1741,
+   "actual": 0,
+   "usage_missing": false
+  }
+ }
+}

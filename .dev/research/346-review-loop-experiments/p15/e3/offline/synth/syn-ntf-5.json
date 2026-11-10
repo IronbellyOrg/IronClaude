@@ -1,0 +1,28 @@
+{
+ "author_intent": {
+  "category": "clean",
+  "expected_blocking": "no",
+  "expected_code_outcome": "OK"
+ },
+ "case_id": "syn-ntf-5",
+ "category": "clean",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "syn-ntf",
+ "group": "syn-ntf",
+ "packet": {
+  "candidate_text": "# Notification rules\n\n## 1. Channels\nR1. A notification is sent over exactly one channel: email, SMS or push.\nR2. The channel is chosen by the user preference stored in the profile.\nR3. If the preferred channel fails, the notification is not sent over another channel.\n\n## 2. Quiet hours\nR4. Between 22:00 and 07:00 in the user's time zone, only notifications of priority urgent are delivered.\nR5. Notifications of other priorities created during quiet hours are queued and delivered at 07:00.\nR6. Urgent notifications are delivered at any hour.\n\n## 3. Limits\nR7. A user receives at most 5 notifications per hour over SMS.\nR8. Notifications above the limit are dropped without being queued.\nR9. Security alerts are priority urgent.\n\n## 4. Fallback\nR10. If SMS delivery fails for a security alert, the service falls back to email.\n\n## 5. Records\nR11. Every notification attempt is recorded with its channel, priority and delivery result.\nR12. Records are kept for 30 days.\nR13. When the hourly SMS limit is reached for a user, security alerts are dropped like any other notification under R8.\n\n## 6. Notes\nPriorities are urgent, normal and low. A notification has exactly one priority, set by the service that creates it.\nThe profile holds one preferred channel per user and the user's time zone.\nEach notification has a title, a body and a link. The body is plain text with at most 500 characters. Channels may shorten it further to fit their own limits.\nThe service that creates a notification is called the producer. Producers do not know the channel; they hand the notification to the delivery component.\nThe delivery component is a single deployable unit that owns the profile cache. It is restarted during the weekly maintenance window, and notifications that arrive in that window are held by the producers until it is up again.",
+  "finding_id": "F5",
+  "finding_section": "**F5. Medium. Expert: Wiegers (testability). The channel rule may surprise users**\n\n- Passage: `A notification is sent over exactly one channel: email, SMS or push.`\n- Recommendation: none needed\n- Priority: High. Quality impact: the channel rule may surprise users"
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "cases_synth.py"
+  ],
+  "url": null
+ },
+ "split": "synth",
+ "variant": "base"
+}

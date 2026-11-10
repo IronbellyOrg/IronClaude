@@ -1,0 +1,44 @@
+{
+ "stratum": "haiku",
+ "design": "stage2-arm3",
+ "n": 2,
+ "tokens": "output tokens, each message id once",
+ "runs": [
+  {
+   "run": "a3-r1",
+   "loop_verdict": "FAIL",
+   "reviews": 3,
+   "final_bytes": 60147,
+   "growth_pct": 4.1,
+   "loop_tokens": 190000,
+   "audit_tokens": 58000,
+   "audit1_verdict": "FAIL",
+   "audit1_blocking": 2,
+   "audit2": "pending",
+   "harness_anomalies": []
+  },
+  {
+   "run": "a3-r2",
+   "loop_verdict": "PASS",
+   "reviews": 2,
+   "final_bytes": 60530,
+   "growth_pct": 4.8,
+   "loop_tokens": 150000,
+   "audit_tokens": 54000,
+   "audit1_verdict": "FAIL",
+   "audit1_blocking": 3,
+   "audit2": "pending",
+   "harness_anomalies": []
+  }
+ ],
+ "blocking_per_audit": [
+  2,
+  3
+ ],
+ "mean_blocking": 2.5,
+ "loop_pass": 1,
+ "mean_loop_tokens": 170000,
+ "mean_growth_pct": 4.45,
+ "harness_failure_rate": 0.17,
+ "note": "single audit per final spec so far"
+}

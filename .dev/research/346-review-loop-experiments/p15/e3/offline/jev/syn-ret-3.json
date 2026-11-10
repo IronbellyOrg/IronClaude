@@ -1,0 +1,28 @@
+{
+ "case_id": "syn-ret-3",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.49,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.43,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 185,
+  "model": "jev-1.14.0",
+  "request_sha256": "a39e07e362708636417301bda9a3a1f0ce926353e7372e5ebf9550dd6966e74f",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 717,
+   "output_tokens": 46
+  }
+ }
+}

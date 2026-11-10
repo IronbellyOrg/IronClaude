@@ -1,0 +1,1 @@
+- **M7. Step 3 of the live check has no coordinator reply rule.** Step 3 (line 182) waits for `worker_done`, but `check --wait` also returns `question` and `escalation` (`CAPS:63`). The spec does not say what the coordinator does with them, so the step's pass condition may never be reached. Medium.

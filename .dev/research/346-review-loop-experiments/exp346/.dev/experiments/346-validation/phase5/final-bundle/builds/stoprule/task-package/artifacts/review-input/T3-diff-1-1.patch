@@ -1,0 +1,1348 @@
+diff --git a/src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
+new file mode 100644
+index 00000000..72554dc7
+--- /dev/null
++++ b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
+@@ -0,0 +1,642 @@
++#!/usr/bin/env python3
++"""stoprule.py: computed stop rule for the /sc:spec-panel-stoprule review loop.
++
++Standard library only. No network, no child processes. Reads only its argument paths and
++evidence paths under --root (a path containing '..' is refused); writes only the
++report path it is given.
++
++Exit codes: 0 ok, 3 repairable once, 4 HALT at cap, 5 stop on bad input, 6 ledger tampered.
++
++The claim ledger is a fenced block (```stoprule-ledger ... ```) of JSON lines inside the
++review report. Reviewer lines: claim, prior, checked. Every other kind is script-appended.
++"""
++
++import argparse
++import difflib
++import hashlib
++import json
++import pathlib
++import random
++import re
++import sys
++
++EXIT_OK, EXIT_REPAIR, EXIT_HALT, EXIT_STOP, EXIT_TAMPER = 0, 3, 4, 5, 6
++SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
++DEFAULT_RUBRIC = SKILL_DIR / "refs" / "rubric.md"
++DEFAULT_CANARIES = SKILL_DIR / "refs" / "canaries.json"
++FENCE_OPEN = "```stoprule-ledger"
++FENCE_CLOSE = "```"
++REVIEWER_KINDS = ("claim", "prior", "checked")
++LABELS = ("critical", "major", "minor")
++SENTINEL_RE = re.compile(r"^<!-- stoprule v1 (.*) -->$")
++
++
++class Stop(Exception):
++    """A refusal with an exit code and a message for the reviewer."""
++
++    def __init__(self, code, message):
++        super().__init__(message)
++        self.code = code
++        self.message = message
++
++
++# --- hashing and normalisation ---------------------------------------------------
++
++
++def sha256_text(text):
++    return hashlib.sha256(text.encode("utf-8")).hexdigest()
++
++
++def sha256_file(path):
++    return hashlib.sha256(pathlib.Path(path).read_bytes()).hexdigest()
++
++
++def norm_map(text):
++    """Normalise text and keep, for every output character, its 1-based source line.
++
++    Whitespace runs become one space; backticks and '**' are dropped.
++    shortcut: markdown tables and wrapped cells are not normalised; upgrade if quote-not-found dominates the audit
++    """
++    out, lines = [], []
++    line, i, space = 1, 0, True
++    while i < len(text):
++        if text.startswith("**", i):
++            i += 2
++            continue
++        c = text[i]
++        if c == "`":
++            i += 1
++            continue
++        if c.isspace():
++            if not space:
++                out.append(" ")
++                lines.append(line)
++                space = True
++            if c == "\n":
++                line += 1
++            i += 1
++            continue
++        out.append(c)
++        lines.append(line)
++        space = False
++        i += 1
++    while out and out[-1] == " ":
++        out.pop()
++        lines.pop()
++    return "".join(out), lines
++
++
++def norm(text):
++    return norm_map(text)[0]
++
++
++def line_key(line):
++    return " ".join(line.split())
++
++
++def changed_lines(base, spec):
++    """Return (changed new-side line numbers, hunks) of spec against base.
++
++    Whitespace-only changes are ignored. A pure deletion marks the new-side line before
++    and after it. Each hunk is {"new": [a, b], "old": [c, d], "base": <old text>} with
++    1-based inclusive ranges (an empty old range is [c, c-1]).
++    """
++    old, new = base.splitlines(), spec.splitlines()
++    sm = difflib.SequenceMatcher(
++        None, [line_key(x) for x in old], [line_key(x) for x in new], autojunk=False
++    )
++    changed, hunks = set(), []
++    for tag, i1, i2, j1, j2 in sm.get_opcodes():
++        if tag == "equal":
++            continue
++        if tag == "delete":
++            rng = [n for n in (j1, j1 + 1) if 1 <= n <= len(new)]
++            if not rng:
++                continue
++            a, b = min(rng), max(rng)
++        else:
++            a, b = j1 + 1, j2
++        changed.update(range(a, b + 1))
++        hunks.append(
++            {"new": [a, b], "old": [i1 + 1, i2], "base": "\n".join(old[i1:i2])}
++        )
++    return changed, hunks
++
++
++# --- report and ledger I/O ---------------------------------------------------------
++
++
++def read_text(path):
++    try:
++        return pathlib.Path(path).read_text(encoding="utf-8")
++    except (OSError, UnicodeDecodeError) as exc:
++        raise Stop(EXIT_STOP, f"cannot read {path}: {exc}")
++
++
++def ledger_bounds(lines):
++    """Return (open index, close index) of the ledger fence, or None."""
++    for i, line in enumerate(lines):
++        if line.strip() == FENCE_OPEN:
++            for j in range(i + 1, len(lines)):
++                if lines[j].strip() == FENCE_CLOSE:
++                    return i, j
++            raise Stop(EXIT_STOP, "ledger block has no closing fence")
++    return None
++
++
++def load_ledger(report_text):
++    """Parse the ledger block: a list of dict records in file order (blank lines skipped)."""
++    lines = report_text.splitlines()
++    bounds = ledger_bounds(lines)
++    if bounds is None:
++        raise Stop(EXIT_STOP, "report has no stoprule-ledger block (run begin first)")
++    records = []
++    for n, raw in enumerate(lines[bounds[0] + 1 : bounds[1]], start=bounds[0] + 2):
++        if not raw.strip():
++            continue
++        try:
++            rec = json.loads(raw)
++        except json.JSONDecodeError as exc:
++            raise Stop(EXIT_STOP, f"ledger line {n} is not JSON: {exc.msg}")
++        if not isinstance(rec, dict) or "k" not in rec:
++            raise Stop(EXIT_STOP, f"ledger line {n} has no 'k' key")
++        records.append(rec)
++    return records
++
++
++def ledger_text(report_text):
++    lines = report_text.splitlines()
++    a, b = ledger_bounds(lines)
++    return "\n".join(x for x in lines[a + 1 : b] if x.strip())
++
++
++def dump(rec):
++    return json.dumps(rec, ensure_ascii=False, sort_keys=True)
++
++
++def append_records(report_path, records):
++    text = read_text(report_path)
++    lines = text.splitlines()
++    a, b = ledger_bounds(lines)
++    lines[b:b] = [dump(r) for r in records]
++    pathlib.Path(report_path).write_text("\n".join(lines) + "\n", encoding="utf-8")
++
++
++def reviewer_lines(records):
++    return [dump(r) for r in records if r.get("k") in REVIEWER_KINDS]
++
++
++def reviewer_hash(records):
++    return sha256_text("\n".join(reviewer_lines(records)))
++
++
++def first(records, kind):
++    return next((r for r in records if r.get("k") == kind), None)
++
++
++def of_kind(records, kind):
++    return [r for r in records if r.get("k") == kind]
++
++
++def parse_sentinel(report_text):
++    """Return the fields of the last stoprule sentinel line, or None."""
++    found = None
++    for line in report_text.splitlines():
++        m = SENTINEL_RE.match(line.strip())
++        if m:
++            found = dict(f.split("=", 1) for f in m.group(1).split() if "=" in f)
++    return found
++
++
++def last_line(report_text):
++    lines = [x for x in report_text.splitlines() if x.strip()]
++    return lines[-1].strip() if lines else ""
++
++
++# --- claims: form, evidence, ratchet --------------------------------------------------
++
++
++def safe_path(root, rel):
++    """Resolve an evidence path under root; refuse '..', absolute paths and escapes."""
++    p = pathlib.PurePosixPath(str(rel))
++    if p.is_absolute() or ".." in p.parts or not str(rel).strip():
++        return None
++    full = (pathlib.Path(root) / p).resolve()
++    try:
++        full.relative_to(pathlib.Path(root).resolve())
++    except ValueError:
++        return None
++    return full
++
++
++def check_evidence(entry, root):
++    """Return (verified, issue). issue is None when the entry is acceptable."""
++    if not isinstance(entry, dict):
++        return False, "evidence-not-object"
++    if "live" in entry:
++        return False, None
++    path, line, text = entry.get("path"), entry.get("line"), entry.get("text")
++    if (
++        not isinstance(path, str)
++        or not isinstance(line, int)
++        or not isinstance(text, str)
++    ):
++        return False, "evidence-malformed"
++    full = safe_path(root, path)
++    if full is None:
++        return False, "evidence-path-refused"
++    if not full.is_file():
++        return False, "evidence-file-missing"
++    try:
++        file_lines = full.read_text(encoding="utf-8").splitlines()
++    except (OSError, UnicodeDecodeError):
++        return False, "evidence-file-unreadable"
++    window = "\n".join(file_lines[max(0, line - 4) : line + 3])
++    if not norm(text) or norm(text) not in norm(window):
++        return False, "evidence-text-not-found"
++    return True, None
++
++
++def locate_quote(quote, spec_norm, spec_lines):
++    """Return (issue, quote line numbers)."""
++    q = norm(quote)
++    if len(re.sub(r"\s", "", q)) < 20:
++        return "quote-too-short", []
++    if len(q) > 300:
++        return "quote-too-long", []
++    pos = spec_norm.find(q)
++    if pos < 0:
++        return "quote-not-found", []
++    if spec_norm.find(q, pos + 1) >= 0:
++        return "quote-not-unique", []
++    return None, sorted(set(spec_lines[pos : pos + len(q)]))
++
++
++def claim_issues(claim, spec_norm, spec_lines, root):
++    """Return (issues, quote_lines, verified flags) for one claim."""
++    issues = []
++    quote, span, outcome = claim.get("quote"), claim.get("span"), claim.get("outcome")
++    qlines = []
++    if not isinstance(quote, str):
++        issues.append("quote-missing")
++    else:
++        issue, qlines = locate_quote(quote, spec_norm, spec_lines)
++        if issue:
++            issues.append(issue)
++        if (
++            not isinstance(span, str)
++            or not norm(span)
++            or norm(span) not in norm(quote)
++            or len(span) > 120
++        ):
++            issues.append("span-invalid")
++    if not isinstance(outcome, str) or len(outcome.split()) < 8:
++        issues.append("outcome-too-short")
++    if str(claim.get("claimed", "")).lower() not in LABELS:
++        issues.append("claimed-label-invalid")
++    verified = []
++    evidence = claim.get("evidence", [])
++    if not isinstance(evidence, list):
++        issues.append("evidence-not-list")
++        evidence = []
++    for entry in evidence:
++        ok, issue = check_evidence(entry, root)
++        verified.append(ok)
++        if issue:
++            issues.append(issue)
++    return issues, qlines, verified
++
++
++def prior_valid(claim, priors, changed, qlines):
++    """A prior link is valid when the id was confirmed and open in review N-1, the outcome
++    hash matches, and either the quote hash matches or a quote line is a changed line."""
++    pid = claim.get("prior")
++    info = priors.get(pid) if pid else None
++    if not info:
++        return False
++    if info.get("oh") != sha256_text(norm(claim.get("outcome", ""))):
++        return False
++    return info.get("qh") == sha256_text(norm(claim.get("quote", ""))) or bool(
++        set(qlines) & changed
++    )
++
++
++def hunk_covered(hunk, claims_lines, checked):
++    a, b = hunk["new"]
++    rng = set(range(a, b + 1))
++    if any(rng & set(q) for q in claims_lines):
++        return True
++    return any(rng & set(range(lo, hi + 1)) for lo, hi in checked)
++
++
++def parse_checked(rec):
++    m = re.fullmatch(r"\s*(\d+)\s*(?:-\s*(\d+))?\s*", str(rec.get("lines", "")))
++    if not m:
++        return None
++    lo = int(m.group(1))
++    return lo, int(m.group(2) or lo)
++
++
++# --- subcommand: begin -----------------------------------------------------------------
++
++
++def prior_state(prior_text, prior_records):
++    """Ids confirmed and open at the end of the prior review, with their hashes and text."""
++    out = {}
++    for rec in of_kind(prior_records, "final"):
++        if rec.get("status") in ("confirmed", "confirmed-audit", "unresolved-prior"):
++            out[rec["id"]] = {
++                "oh": rec.get("oh"),
++                "qh": rec.get("qh"),
++                "quote": rec.get("quote", ""),
++                "outcome": rec.get("outcome", ""),
++                "sites": rec.get("sites", []),
++                "first": rec.get("first"),
++                "trail": rec.get("trail", []),
++            }
++    return out
++
++
++def prior_escalation(prior_text):
++    lines = prior_text.splitlines()
++    try:
++        start = lines.index("## Escalation to the user")
++    except ValueError:
++        return "HALT and escalate to the user with the open blocking findings (the prior report has no escalation section)."
++    end = next(
++        (i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")),
++        len(lines),
++    )
++    return "\n".join(lines[start:end]).rstrip()
++
++
++def cmd_begin(args):
++    report = pathlib.Path(args.report)
++    spec_text = read_text(args.spec)
++    rubric_text = read_text(args.rubric)
++    rubric_sha = sha256_text(rubric_text)
++    if report.exists() and ledger_bounds(read_text(report).splitlines()) is not None:
++        raise Stop(
++            EXIT_STOP,
++            f"{report} already holds a stoprule-ledger block; begin runs once per report",
++        )
++    review, priors, history, rubric1 = 1, {}, [], rubric_sha
++    changed, hunks, baseline_sha = set(), [], None
++    if args.re_review:
++        prior_text = read_text(args.re_review)
++        sent = parse_sentinel(prior_text)
++        if not sent or not re.fullmatch(r"\d+/\d+", sent.get("review", "")):
++            raise Stop(
++                EXIT_STOP,
++                f"{args.re_review} has no valid stoprule sentinel; refusing to start a silent first review",
++            )
++        prior_n = int(sent["review"].split("/")[0])
++        verdict = last_line(prior_text)
++        if prior_n >= args.cap:
++            if verdict == "verdict: FAIL":
++                raise Stop(EXIT_HALT, prior_escalation(prior_text))
++            raise Stop(
++                EXIT_HALT,
++                f"loop already ended: review {prior_n} of {args.cap} ended '{verdict}'; no further review",
++            )
++        prior_records = load_ledger(prior_text)
++        if not args.baseline:
++            raise Stop(
++                EXIT_STOP,
++                "--re-review needs --baseline <saved copy of the spec the prior review saw>",
++            )
++        base_text = read_text(args.baseline)
++        baseline_sha = sha256_text(base_text)
++        if baseline_sha[:12] != sent.get("spec"):
++            raise Stop(
++                EXIT_STOP,
++                f"baseline sha256 {baseline_sha[:12]} is not the spec= hash {sent.get('spec')} the prior review recorded",
++            )
++        if rubric_sha[:12] != sent.get("rubric"):
++            raise Stop(
++                EXIT_STOP,
++                f"rubric hash {rubric_sha[:12]} differs from the loop's rubric {sent.get('rubric')}; a rubric change starts a new loop",
++            )
++        prior_begin = first(prior_records, "begin") or {}
++        rubric1 = prior_begin.get("rubric1", rubric_sha)
++        if rubric1 != rubric_sha:
++            raise Stop(
++                EXIT_STOP, "rubric hash differs from the loop's review-1 rubric hash"
++            )
++        review = prior_n + 1
++        priors = prior_state(prior_text, prior_records)
++        history = prior_begin.get("history", []) + [
++            {
++                "review": prior_n,
++                "spec_bytes": prior_begin.get("spec_bytes"),
++                "verdict": verdict,
++            }
++        ]
++        changed, hunks = changed_lines(base_text, spec_text)
++    begin = {
++        "k": "begin",
++        "v": 1,
++        "review": review,
++        "cap": args.cap,
++        "nonce": "%016x" % random.SystemRandom().getrandbits(64),
++        "spec_sha": sha256_text(spec_text),
++        "spec_bytes": len(spec_text.encode("utf-8")),
++        "baseline_sha": baseline_sha,
++        "rubric_sha": rubric_sha,
++        "rubric1": rubric1,
++        "ratchet": "on" if args.re_review else "off",
++        "changed": sorted(changed),
++        "hunks": hunks,
++        "priors": priors,
++        "history": history,
++    }
++    existing = read_text(report) if report.exists() else ""
++    block = f"{FENCE_OPEN}\n{dump(begin)}\n{FENCE_CLOSE}\n"
++    report.write_text(
++        (existing.rstrip("\n") + "\n\n" if existing.strip() else "") + block,
++        encoding="utf-8",
++    )
++    print(
++        f"begin: review {review} of {args.cap}, ratchet {begin['ratchet']}, nonce {begin['nonce']}"
++    )
++    print("RUBRIC (frozen, sha256 %s):" % rubric_sha[:12])
++    print(rubric_text.rstrip())
++    if priors:
++        print(
++            f"Prior blocking ids to report with a 'prior' line each: {', '.join(sorted(priors))}"
++        )
++    print(
++        f"Changed hunks: {len(hunks)}"
++        + ("" if args.re_review else " (review 1: no baseline, ratchet off)")
++    )
++    spec_lines = spec_text.splitlines()
++    for h in hunks:
++        a, b = h["new"]
++        print(f"--- hunk lines {a}-{b}")
++        for n in range(a, b + 1):
++            print(f"{n}: {spec_lines[n - 1]}")
++    return EXIT_OK
++
++
++# --- subcommand: seal ------------------------------------------------------------------
++
++
++def cmd_seal(args):
++    text = read_text(args.report)
++    records = load_ledger(text)
++    begin = first(records, "begin")
++    if not begin:
++        raise Stop(EXIT_STOP, "ledger has no begin record")
++    if first(records, "seal"):
++        raise Stop(
++            EXIT_STOP, "ledger is already sealed; a sealed ledger is never edited"
++        )
++    spec_text = read_text(args.spec)
++    if sha256_text(spec_text) != begin["spec_sha"]:
++        raise Stop(
++            EXIT_STOP, "the spec changed since begin; seal refuses a different spec"
++        )
++    final_pass = any(r.get("pass") == 1 for r in of_kind(records, "form"))
++    spec_norm, spec_lines = norm_map(spec_text)
++    changed = set(begin.get("changed", []))
++    priors = begin.get("priors", {})
++    claims = of_kind(records, "claim")
++    checked = [c for c in (parse_checked(r) for r in of_kind(records, "checked")) if c]
++    bad_checked = [r for r in of_kind(records, "checked") if parse_checked(r) is None]
++    results, seen = [], set()
++    for claim in claims:
++        issues, qlines, verified = claim_issues(claim, spec_norm, spec_lines, args.root)
++        cid = claim.get("id")
++        if not isinstance(cid, str) or not cid or cid in seen:
++            issues.append("id-missing-or-duplicate")
++        seen.add(cid)
++        results.append((claim, issues, qlines, verified))
++    uncovered = [
++        h
++        for h in begin.get("hunks", [])
++        if not hunk_covered(h, [r[2] for r in results], checked)
++    ]
++    any_issue = any(r[1] for r in results) or uncovered or bad_checked
++    if any_issue and not final_pass:
++        out = []
++        for claim, issues, _, _ in results:
++            out.append(
++                {
++                    "k": "form",
++                    "pass": 1,
++                    "id": claim.get("id"),
++                    "claimed": claim.get("claimed"),
++                    "prior": claim.get("prior"),
++                    "issues": issues,
++                }
++            )
++        for h in uncovered:
++            out.append(
++                {"k": "form", "pass": 1, "hunk": h["new"], "issues": ["uncovered-hunk"]}
++            )
++        for r in bad_checked:
++            out.append(
++                {
++                    "k": "form",
++                    "pass": 1,
++                    "checked": r.get("lines"),
++                    "issues": ["checked-lines-invalid"],
++                }
++            )
++        append_records(args.report, out)
++        print(
++            "seal: repairable defects (exit 3). Fix the listed claims once, then run seal again; the second seal is final."
++        )
++        for rec in out:
++            if rec["issues"]:
++                where = rec.get("id") or rec.get("hunk") or rec.get("checked")
++                print(f"  {where}: {', '.join(rec['issues'])}")
++        return EXIT_REPAIR
++    out = []
++    for claim, issues, qlines, verified in results:
++        form_ok = not issues
++        late = False
++        anchor = "off"
++        if begin.get("ratchet") == "on" and form_ok:
++            if set(qlines) & changed:
++                anchor = "changed"
++            elif prior_valid(claim, priors, changed, qlines):
++                anchor = "prior"
++            else:
++                anchor, late = "none", True
++        out.append(
++            {
++                "k": "mark",
++                "id": claim.get("id"),
++                "form_ok": form_ok,
++                "issues": issues,
++                "late": late,
++                "anchor": anchor,
++                "quote_lines": qlines,
++                "verified": verified,
++                "oh": sha256_text(norm(claim.get("outcome", "") or "")),
++                "qh": sha256_text(norm(claim.get("quote", "") or "")),
++            }
++        )
++    for h in uncovered:
++        out.append({"k": "uncovered", "hunk": h["new"]})
++    out.append(
++        {
++            "k": "seal",
++            "sha256": reviewer_hash(records),
++            "final_pass": 2 if final_pass else 1,
++        }
++    )
++    append_records(args.report, out)
++    marks = [r for r in out if r["k"] == "mark"]
++    print(
++        f"seal: sealed {len(marks)} claims; minor-form {sum(not m['form_ok'] for m in marks)}, late-found {sum(m['late'] for m in marks)}, uncovered hunks {len(uncovered)}"
++    )
++    return EXIT_OK
++
++
++# --- command line ------------------------------------------------------------------------
++
++
++def build_parser():
++    p = argparse.ArgumentParser(prog="stoprule.py", description=__doc__.splitlines()[0])
++    p.add_argument(
++        "--rubric",
++        default=str(DEFAULT_RUBRIC),
++        help="frozen rubric file (default: the skill's refs/rubric.md)",
++    )
++    p.add_argument("--cap", type=int, default=3, help="review cap (default 3)")
++    p.add_argument(
++        "--root",
++        default=".",
++        help="repository root for evidence paths (default: current directory)",
++    )
++    sub = p.add_subparsers(dest="cmd", required=True)
++    b = sub.add_parser(
++        "begin", help="S0: derive the review number, check the loop, open the ledger"
++    )
++    b.add_argument("--report", required=True)
++    b.add_argument("--spec", required=True)
++    b.add_argument("--re-review", dest="re_review")
++    b.add_argument("--baseline")
++    b.set_defaults(func=cmd_begin)
++    s = sub.add_parser(
++        "seal", help="S2: check the claims, apply the ratchet and seal the ledger"
++    )
++    s.add_argument("--report", required=True)
++    s.add_argument("--spec", required=True)
++    s.set_defaults(func=cmd_seal)
++    return p
++
++
++def main(argv=None):
++    args = build_parser().parse_args(argv)
++    try:
++        return args.func(args)
++    except Stop as exc:
++        print(exc.message, file=sys.stderr if exc.code != EXIT_HALT else sys.stdout)
++        return exc.code
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/skills/test_stoprule_script.py b/tests/skills/test_stoprule_script.py
+new file mode 100644
+index 00000000..2bc7ea98
+--- /dev/null
++++ b/tests/skills/test_stoprule_script.py
+@@ -0,0 +1,637 @@
++"""Behaviour tests for stoprule.py, the computed stop rule of /sc:spec-panel-stoprule.
++
++Enforcement type: EXECUTABLE (script behaviour). Pure functions are loaded by path with
++importlib; exit codes are checked by running the script with sys.executable, the same way
++test_issue_repo_resolution.py loads origin_repo.py. Every fixture lives in tmp_path.
++"""
++
++import hashlib
++import importlib.util
++import json
++import subprocess
++import sys
++from pathlib import Path
++
++import pytest
++
++_SKILL = (
++    Path(__file__).resolve().parents[2]
++    / "src/superclaude/skills/sc-spec-panel-stoprule-protocol"
++)
++_SCRIPT = _SKILL / "scripts/stoprule.py"
++_spec = importlib.util.spec_from_file_location("stoprule", _SCRIPT)
++sr = importlib.util.module_from_spec(_spec)
++_spec.loader.exec_module(sr)
++
++RUBRIC_TEXT = (_SKILL / "refs/rubric.md").read_text(encoding="utf-8")
++OUTCOME = "An implementer following this sentence builds a kiosk that releases the locker twice and double charges the rider."
++
++
++def run(*args, cwd=None):
++    proc = subprocess.run(
++        [sys.executable, str(_SCRIPT), *map(str, args)],
++        capture_output=True,
++        text=True,
++        cwd=cwd,
++    )
++    return proc.returncode, proc.stdout + proc.stderr
++
++
++def spec_lines(n=12, tag="v1"):
++    return (
++        "\n".join(
++            f"Line {i}: the Pedalbay kiosk rule number {i} applies to every locker bay ({tag} text)."
++            for i in range(1, n + 1)
++        )
++        + "\n"
++    )
++
++
++def sha12(text):
++    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
++
++
++def claim(
++    cid, quote, claimed="major", prior=None, outcome=OUTCOME, span=None, evidence=None
++):
++    return {
++        "k": "claim",
++        "id": cid,
++        "claimed": claimed,
++        "quote": quote,
++        "span": span if span is not None else quote[:20],
++        "outcome": outcome,
++        "evidence": evidence or [],
++        "prior": prior,
++        "sites": [],
++    }
++
++
++def add_reviewer_lines(report, records):
++    """Insert reviewer lines before the ledger's closing fence, as a reviewer would."""
++    lines = report.read_text(encoding="utf-8").splitlines()
++    a, b = sr.ledger_bounds(lines)
++    lines[b:b] = [json.dumps(r) for r in records]
++    report.write_text("\n".join(lines) + "\n", encoding="utf-8")
++
++
++def replace_reviewer_lines(report, records):
++    """Drop every claim/prior/checked line and write the given ones (a reviewer repair)."""
++    lines = report.read_text(encoding="utf-8").splitlines()
++    a, b = sr.ledger_bounds(lines)
++    kept = [
++        x
++        for x in lines[a + 1 : b]
++        if not x.strip() or json.loads(x)["k"] not in sr.REVIEWER_KINDS
++    ]
++    lines[a + 1 : b] = kept + [json.dumps(r) for r in records]
++    report.write_text("\n".join(lines) + "\n", encoding="utf-8")
++
++
++def records_of(report, kind):
++    return [
++        r for r in sr.load_ledger(report.read_text(encoding="utf-8")) if r["k"] == kind
++    ]
++
++
++def prior_report(
++    tmp_path,
++    spec_text,
++    review=2,
++    verdict="FAIL",
++    rubric_text=RUBRIC_TEXT,
++    finals=(),
++    name="prior.md",
++):
++    """A prior report with a sentinel and coherent ledger (begin, claim, mark, grade, seal, final, verdict).
++
++    finals: (id, status, quote, outcome) tuples; status 'confirmed' gives a FAIL ledger.
++    """
++    recs = [
++        {
++            "k": "begin",
++            "v": 1,
++            "review": review,
++            "cap": 3,
++            "nonce": "0" * 16,
++            "spec_sha": hashlib.sha256(spec_text.encode()).hexdigest(),
++            "spec_bytes": len(spec_text.encode()),
++            "baseline_sha": None,
++            "rubric_sha": hashlib.sha256(rubric_text.encode()).hexdigest(),
++            "rubric1": hashlib.sha256(rubric_text.encode()).hexdigest(),
++            "ratchet": "off",
++            "changed": [],
++            "hunks": [],
++            "priors": {},
++            "history": [],
++        }
++    ]
++    for cid, status, quote, outcome in finals:
++        recs.append(claim(cid, quote, outcome=outcome))
++    for cid, status, quote, outcome in finals:
++        recs.append(
++            {
++                "k": "mark",
++                "id": cid,
++                "form_ok": True,
++                "issues": [],
++                "late": False,
++                "anchor": "off",
++                "quote_lines": [1],
++                "verified": [],
++                "oh": sr.sha256_text(sr.norm(outcome)),
++                "qh": sr.sha256_text(sr.norm(quote)),
++            }
++        )
++    recs.append({"k": "seal", "sha256": "", "final_pass": 1})
++    for cid, status, quote, outcome in finals:
++        recs.append(
++            {
++                "k": "grade",
++                "id": cid,
++                "blocking": status == "confirmed",
++                "q2": "na",
++                "why": "fixture grade",
++                "batch": "B1",
++            }
++        )
++    for cid, status, quote, outcome in finals:
++        recs.append(
++            {
++                "k": "final",
++                "id": cid,
++                "status": status,
++                "oh": sr.sha256_text(sr.norm(outcome)),
++                "qh": sr.sha256_text(sr.norm(quote)),
++                "quote": quote,
++                "outcome": outcome,
++                "sites": [],
++                "first": review,
++                "trail": [f"r{review} open"],
++            }
++        )
++    body = [
++        "# prior review",
++        "",
++        sr.FENCE_OPEN,
++        *[json.dumps(r) for r in recs],
++        sr.FENCE_CLOSE,
++        "",
++    ]
++    if verdict == "FAIL" and review >= 3:
++        body += [
++            "## Escalation to the user",
++            "ESCALATION: spec-panel-stoprule review 3 of 3, verdict FAIL",
++            "",
++        ]
++    body += [
++        f"<!-- stoprule v1 review={review}/3 spec={sha12(spec_text)} rubric={sha12(rubric_text)} confirmed=1 late=0 minor=0 unconfirmed=0 reason=confirmed pre_audit=na brief=FAIL grader_model=sonnet ratchet=off ledger=000000000000 -->",
++        f"verdict: {verdict}",
++    ]
++    path = tmp_path / name
++    path.write_text("\n".join(body) + "\n", encoding="utf-8")
++    return path
++
++
++@pytest.fixture
++def review1(tmp_path):
++    """A begun review-1 report on a 12-line spec."""
++    spec = tmp_path / "spec.md"
++    spec.write_text(spec_lines(), encoding="utf-8")
++    report = tmp_path / "report.md"
++    code, out = run("begin", "--report", report, "--spec", spec)
++    assert code == 0, out
++    return spec, report
++
++
++@pytest.fixture
++def review2(tmp_path):
++    """A begun review-2 report: lines 3 and 9 of the spec changed against the baseline."""
++    base_text = spec_lines()
++    base = tmp_path / "baseline.md"
++    base.write_text(base_text, encoding="utf-8")
++    new = base_text.splitlines()
++    new[2] = (
++        "Line 3: the Pedalbay kiosk now releases a locker only after the rider scans out (fixed text)."
++    )
++    new[8] = (
++        "Line 9: refunds are paid to the original card within two days of the dispute (fixed text)."
++    )
++    spec = tmp_path / "spec.md"
++    spec.write_text("\n".join(new) + "\n", encoding="utf-8")
++    prior_quote = "Line 3: the Pedalbay kiosk rule number 3 applies to every locker bay"
++    prior = prior_report(
++        tmp_path,
++        base_text,
++        review=1,
++        finals=[("R1-1", "confirmed", prior_quote, OUTCOME)],
++    )
++    report = tmp_path / "report.md"
++    code, out = run(
++        "begin",
++        "--report",
++        report,
++        "--spec",
++        spec,
++        "--re-review",
++        prior,
++        "--baseline",
++        base,
++    )
++    assert code == 0, out
++    return spec, report, prior_quote
++
++
++# --- pure functions --------------------------------------------------------------------
++
++
++def test_norm_drops_backticks_bold_and_collapses_whitespace():
++    assert sr.norm("a  `b`\n\n **c**  ") == "a b c"
++
++
++def test_changed_lines_ignores_whitespace_only_changes():
++    base = "alpha one\nbeta two\ngamma three\n"
++    changed, hunks = sr.changed_lines(base, "alpha   one\nbeta two\ngamma three\n")
++    assert changed == set() and hunks == []
++
++
++def test_changed_lines_marks_lines_around_a_pure_deletion():
++    base = "l1\nl2\nl3\nl4\n"
++    changed, hunks = sr.changed_lines(base, "l1\nl2\nl4\n")
++    assert changed == {2, 3}
++    assert hunks[0]["base"] == "l3"
++
++
++def test_load_ledger_reads_the_fenced_json_lines():
++    text = 'intro\n```stoprule-ledger\n{"k":"begin"}\n\n{"k":"claim","id":"R1-1"}\n```\nprose\n'
++    assert [r["k"] for r in sr.load_ledger(text)] == ["begin", "claim"]
++
++
++# --- begin -----------------------------------------------------------------------------
++
++
++def test_begin_review1_opens_ledger_with_nonce_and_prints_rubric(review1):
++    spec, report = review1
++    begin = records_of(report, "begin")[0]
++    assert (
++        begin["review"] == 1 and begin["ratchet"] == "off" and len(begin["nonce"]) == 16
++    )
++    int(begin["nonce"], 16)
++
++
++def test_begin_exits_4_on_prior_review3_fail(tmp_path):
++    spec_text = spec_lines()
++    spec = tmp_path / "spec.md"
++    spec.write_text(spec_text, encoding="utf-8")
++    prior = prior_report(
++        tmp_path,
++        spec_text,
++        review=3,
++        verdict="FAIL",
++        finals=[
++            ("R3-1", "confirmed", "Line 2: the Pedalbay kiosk rule number 2", OUTCOME)
++        ],
++    )
++    code, out = run(
++        "begin",
++        "--report",
++        tmp_path / "r4.md",
++        "--spec",
++        spec,
++        "--re-review",
++        prior,
++        "--baseline",
++        spec,
++    )
++    assert code == 4
++    assert "ESCALATION: spec-panel-stoprule review 3 of 3, verdict FAIL" in out
++    assert not (tmp_path / "r4.md").exists()
++
++
++def test_begin_exits_4_with_loop_ended_on_prior_review3_pass(tmp_path):
++    spec_text = spec_lines()
++    spec = tmp_path / "spec.md"
++    spec.write_text(spec_text, encoding="utf-8")
++    prior = prior_report(tmp_path, spec_text, review=3, verdict="PASS")
++    code, out = run(
++        "begin",
++        "--report",
++        tmp_path / "r4.md",
++        "--spec",
++        spec,
++        "--re-review",
++        prior,
++        "--baseline",
++        spec,
++    )
++    assert code == 4 and "loop already ended" in out
++
++
++def test_begin_exits_5_on_rubric_drift(tmp_path):
++    spec_text = spec_lines()
++    spec = tmp_path / "spec.md"
++    spec.write_text(spec_text, encoding="utf-8")
++    prior = prior_report(tmp_path, spec_text, review=1)
++    drifted = tmp_path / "rubric.md"
++    drifted.write_text(RUBRIC_TEXT + "B4 extra rule\n", encoding="utf-8")
++    code, out = run(
++        "--rubric",
++        drifted,
++        "begin",
++        "--report",
++        tmp_path / "r.md",
++        "--spec",
++        spec,
++        "--re-review",
++        prior,
++        "--baseline",
++        spec,
++    )
++    assert code == 5 and "rubric" in out
++
++
++def test_begin_exits_5_on_baseline_hash_mismatch(tmp_path):
++    spec_text = spec_lines()
++    spec = tmp_path / "spec.md"
++    spec.write_text(spec_text, encoding="utf-8")
++    prior = prior_report(tmp_path, spec_text, review=1)
++    other = tmp_path / "other.md"
++    other.write_text(spec_lines(tag="other"), encoding="utf-8")
++    code, out = run(
++        "begin",
++        "--report",
++        tmp_path / "r.md",
++        "--spec",
++        spec,
++        "--re-review",
++        prior,
++        "--baseline",
++        other,
++    )
++    assert code == 5 and "baseline" in out
++
++
++def test_begin_exits_5_on_re_review_report_without_sentinel(tmp_path):
++    spec = tmp_path / "spec.md"
++    spec.write_text(spec_lines(), encoding="utf-8")
++    prior = tmp_path / "plain.md"
++    prior.write_text("# a plain spec-panel report\n\nverdict: FAIL\n", encoding="utf-8")
++    code, out = run(
++        "begin",
++        "--report",
++        tmp_path / "r.md",
++        "--spec",
++        spec,
++        "--re-review",
++        prior,
++        "--baseline",
++        spec,
++    )
++    assert code == 5 and "sentinel" in out
++
++
++def test_begin_derives_review_number_from_prior_sentinel(review2):
++    spec, report, _ = review2
++    begin = records_of(report, "begin")[0]
++    assert begin["review"] == 2 and begin["ratchet"] == "on"
++    assert begin["changed"] == [3, 9]
++    assert "R1-1" in begin["priors"]
++
++
++# --- seal ------------------------------------------------------------------------------
++
++
++def test_non_verbatim_quote_exits_3_then_ends_minor_form(review1):
++    spec, report = review1
++    add_reviewer_lines(
++        report, [claim("R1-1", "Line 2: the Pedalbay kiosk rule number two applies")]
++    )
++    code, out = run("seal", "--report", report, "--spec", spec)
++    assert code == 3 and "quote-not-found" in out
++    code, out = run("seal", "--report", report, "--spec", spec)
++    assert code == 0, out
++    mark = records_of(report, "mark")[0]
++    assert mark["form_ok"] is False and "quote-not-found" in mark["issues"]
++    assert records_of(report, "seal")
++
++
++def test_non_unique_quote_exits_3(review1):
++    spec, report = review1
++    add_reviewer_lines(report, [claim("R1-1", "the Pedalbay kiosk rule number")])
++    code, out = run("seal", "--report", report, "--spec", spec)
++    assert code == 3 and "quote-not-unique" in out
++
++
++def test_short_quote_fails(review1):
++    spec, report = review1
++    add_reviewer_lines(report, [claim("R1-1", "Line 4: the", span="Line 4")])
++    code, out = run("seal", "--report", report, "--spec", spec)
++    assert code == 3 and "quote-too-short" in out
++
++
++def test_short_outcome_fails(review1):
++    spec, report = review1
++    add_reviewer_lines(
++        report,
++        [
++            claim(
++                "R1-1",
++                "Line 4: the Pedalbay kiosk rule number 4",
++                outcome="this is wrong",
++            )
++        ],
++    )
++    code, out = run("seal", "--report", report, "--spec", spec)
++    assert code == 3 and "outcome-too-short" in out
++
++
++def test_valid_claim_seals_first_time_with_ratchet_off(review1):
++    spec, report = review1
++    add_reviewer_lines(
++        report, [claim("R1-1", "Line 4: the Pedalbay kiosk rule number 4 applies")]
++    )
++    code, out = run("seal", "--report", report, "--spec", spec)
++    assert code == 0, out
++    mark = records_of(report, "mark")[0]
++    assert (
++        mark["form_ok"]
++        and not mark["late"]
++        and mark["anchor"] == "off"
++        and mark["quote_lines"] == [4]
++    )
++    seal = records_of(report, "seal")[0]
++    assert seal["sha256"] == sr.reviewer_hash(sr.load_ledger(report.read_text()))
++
++
++def test_quote_outside_changed_lines_without_prior_is_late_found(review2):
++    spec, report, _ = review2
++    add_reviewer_lines(
++        report,
++        [
++            claim("R2-1", "Line 5: the Pedalbay kiosk rule number 5 applies"),
++            claim("R2-2", "now releases a locker only after the rider scans out"),
++            {"k": "checked", "lines": "9"},
++            {
++                "k": "prior",
++                "id": "R1-1",
++                "status": "resolved",
++                "resolved_by": "now releases a locker only after the rider scans out",
++            },
++        ],
++    )
++    code, out = run("seal", "--report", report, "--spec", spec)
++    assert code == 0, out
++    marks = {m["id"]: m for m in records_of(report, "mark")}
++    assert marks["R2-1"]["late"] is True and marks["R2-1"]["anchor"] == "none"
++    assert marks["R2-2"]["late"] is False and marks["R2-2"]["anchor"] == "changed"
++
++
++def test_valid_and_invalid_prior_links(tmp_path):
++    base_text = spec_lines()
++    base = tmp_path / "baseline.md"
++    base.write_text(base_text, encoding="utf-8")
++    new = base_text.splitlines()
++    new[8] = (
++        "Line 9: refunds are paid to the original card within two days of the dispute (fixed text)."
++    )
++    spec = tmp_path / "spec.md"
++    spec.write_text("\n".join(new) + "\n", encoding="utf-8")
++    prior_quote = "Line 5: the Pedalbay kiosk rule number 5 applies"
++    prior = prior_report(
++        tmp_path,
++        base_text,
++        review=1,
++        finals=[("R1-1", "confirmed", prior_quote, OUTCOME)],
++    )
++    report = tmp_path / "report.md"
++    assert (
++        run(
++            "begin",
++            "--report",
++            report,
++            "--spec",
++            spec,
++            "--re-review",
++            prior,
++            "--baseline",
++            base,
++        )[0]
++        == 0
++    )
++    add_reviewer_lines(
++        report,
++        [
++            claim(
++                "R2-1", prior_quote, prior="R1-1"
++            ),  # same quote and outcome hash: valid link
++            claim(
++                "R2-2", "Line 6: the Pedalbay kiosk rule number 6 applies", prior="R1-1"
++            ),  # quote changed, unchanged line: invalid
++            claim(
++                "R2-3", "Line 7: the Pedalbay kiosk rule number 7 applies", prior="R9-9"
++            ),  # unknown id: invalid
++            {"k": "checked", "lines": "9"},
++        ],
++    )
++    code, out = run("seal", "--report", report, "--spec", spec)
++    assert code == 0, out
++    marks = {m["id"]: m for m in records_of(report, "mark")}
++    assert marks["R2-1"]["anchor"] == "prior" and marks["R2-1"]["late"] is False
++    assert marks["R2-2"]["late"] is True and marks["R2-3"]["late"] is True
++
++
++def test_uncovered_hunk_is_recorded_as_uncovered(review2):
++    spec, report, _ = review2
++    add_reviewer_lines(
++        report, [claim("R2-1", "now releases a locker only after the rider scans out")]
++    )
++    code, out = run("seal", "--report", report, "--spec", spec)
++    assert code == 3 and "uncovered-hunk" in out
++    code, out = run("seal", "--report", report, "--spec", spec)
++    assert code == 0, out
++    assert [u["hunk"] for u in records_of(report, "uncovered")] == [[9, 9]]
++
++
++def test_claim_dropped_between_seals_keeps_its_form_line(review1):
++    spec, report = review1
++    add_reviewer_lines(
++        report,
++        [
++            claim(
++                "R1-1",
++                "Line 2: the Pedalbay kiosk rule number two applies",
++                claimed="major",
++                prior="N7",
++            ),
++            claim(
++                "R1-2",
++                "Line 4: the Pedalbay kiosk rule number 4 applies",
++                claimed="critical",
++            ),
++        ],
++    )
++    assert run("seal", "--report", report, "--spec", spec)[0] == 3
++    replace_reviewer_lines(
++        report,
++        [
++            claim(
++                "R1-2",
++                "Line 4: the Pedalbay kiosk rule number 4 applies",
++                claimed="critical",
++            )
++        ],
++    )
++    code, out = run("seal", "--report", report, "--spec", spec)
++    assert code == 0, out
++    forms = {f["id"]: f for f in records_of(report, "form") if "id" in f}
++    assert forms["R1-1"]["claimed"] == "major" and forms["R1-1"]["prior"] == "N7"
++    assert [m["id"] for m in records_of(report, "mark")] == ["R1-2"]
++
++
++def test_evidence_path_with_dotdot_is_refused(review1, tmp_path):
++    spec, report = review1
++    (tmp_path / "secret.txt").write_text("Line 1 secret\n", encoding="utf-8")
++    ev = [{"path": "../secret.txt", "line": 1, "text": "Line 1 secret"}]
++    add_reviewer_lines(
++        report,
++        [
++            claim(
++                "R1-1", "Line 4: the Pedalbay kiosk rule number 4 applies", evidence=ev
++            )
++        ],
++    )
++    code, out = run(
++        "--root", tmp_path / "sub", "seal", "--report", report, "--spec", spec
++    )
++    assert code == 3 and "evidence-path-refused" in out
++
++
++def test_evidence_is_read_back_and_live_entries_are_unverified(review1, tmp_path):
++    spec, report = review1
++    (tmp_path / "notes.md").write_text(
++        "a\nb\nthe retry limit is five\nc\n", encoding="utf-8"
++    )
++    ev = [
++        {"path": "notes.md", "line": 2, "text": "the retry limit is five"},
++        {"live": "wc -l notes.md", "saw": "4"},
++    ]
++    add_reviewer_lines(
++        report,
++        [
++            claim(
++                "R1-1", "Line 4: the Pedalbay kiosk rule number 4 applies", evidence=ev
++            )
++        ],
++    )
++    code, out = run("--root", tmp_path, "seal", "--report", report, "--spec", spec)
++    assert code == 0, out
++    assert records_of(report, "mark")[0]["verified"] == [True, False]
++
++
++def test_seal_refuses_a_second_seal(review1):
++    spec, report = review1
++    add_reviewer_lines(
++        report, [claim("R1-1", "Line 4: the Pedalbay kiosk rule number 4 applies")]
++    )
++    assert run("seal", "--report", report, "--spec", spec)[0] == 0
++    assert run("seal", "--report", report, "--spec", spec)[0] == 5
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t3-pytest.log b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t3-pytest.log
+new file mode 100644
+index 00000000..c803ce9b
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t3-pytest.log
+@@ -0,0 +1,34 @@
++============================= test session starts ==============================
++platform linux -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule/.venv/bin/python
++SuperClaude: 5.0.0
++rootdir: /home/coder/workspaces/worktrees/IronClaude/bs346-stoprule
++configfile: pyproject.toml
++plugins: superclaude-5.0.0, anyio-4.16.0
++collecting ... collected 23 items
++
++tests/skills/test_stoprule_script.py::test_norm_drops_backticks_bold_and_collapses_whitespace PASSED [  4%]
++tests/skills/test_stoprule_script.py::test_changed_lines_ignores_whitespace_only_changes PASSED [  8%]
++tests/skills/test_stoprule_script.py::test_changed_lines_marks_lines_around_a_pure_deletion PASSED [ 13%]
++tests/skills/test_stoprule_script.py::test_load_ledger_reads_the_fenced_json_lines PASSED [ 17%]
++tests/skills/test_stoprule_script.py::test_begin_review1_opens_ledger_with_nonce_and_prints_rubric PASSED [ 21%]
++tests/skills/test_stoprule_script.py::test_begin_exits_4_on_prior_review3_fail PASSED [ 26%]
++tests/skills/test_stoprule_script.py::test_begin_exits_4_with_loop_ended_on_prior_review3_pass PASSED [ 30%]
++tests/skills/test_stoprule_script.py::test_begin_exits_5_on_rubric_drift PASSED [ 34%]
++tests/skills/test_stoprule_script.py::test_begin_exits_5_on_baseline_hash_mismatch PASSED [ 39%]
++tests/skills/test_stoprule_script.py::test_begin_exits_5_on_re_review_report_without_sentinel PASSED [ 43%]
++tests/skills/test_stoprule_script.py::test_begin_derives_review_number_from_prior_sentinel PASSED [ 47%]
++tests/skills/test_stoprule_script.py::test_non_verbatim_quote_exits_3_then_ends_minor_form PASSED [ 52%]
++tests/skills/test_stoprule_script.py::test_non_unique_quote_exits_3 PASSED [ 56%]
++tests/skills/test_stoprule_script.py::test_short_quote_fails PASSED      [ 60%]
++tests/skills/test_stoprule_script.py::test_short_outcome_fails PASSED    [ 65%]
++tests/skills/test_stoprule_script.py::test_valid_claim_seals_first_time_with_ratchet_off PASSED [ 69%]
++tests/skills/test_stoprule_script.py::test_quote_outside_changed_lines_without_prior_is_late_found PASSED [ 73%]
++tests/skills/test_stoprule_script.py::test_valid_and_invalid_prior_links PASSED [ 78%]
++tests/skills/test_stoprule_script.py::test_uncovered_hunk_is_recorded_as_uncovered PASSED [ 82%]
++tests/skills/test_stoprule_script.py::test_claim_dropped_between_seals_keeps_its_form_line PASSED [ 86%]
++tests/skills/test_stoprule_script.py::test_evidence_path_with_dotdot_is_refused PASSED [ 91%]
++tests/skills/test_stoprule_script.py::test_evidence_is_read_back_and_live_entries_are_unverified PASSED [ 95%]
++tests/skills/test_stoprule_script.py::test_seal_refuses_a_second_seal PASSED [100%]
++
++============================== 23 passed in 1.59s ==============================
++rc=0
+diff --git a/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t3-imports.txt b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t3-imports.txt
+new file mode 100644
+index 00000000..d9b243d7
+--- /dev/null
++++ b/.dev/tasks/to-do/TASK-WF-spec-20261108-181616/artifacts/t3-imports.txt
+@@ -0,0 +1,11 @@
++$ grep -nE "^(import|from) " stoprule.py
++14:import argparse
++15:import difflib
++16:import hashlib
++17:import json
++18:import pathlib
++19:import random
++20:import re
++21:import sys
++$ grep -cE 'subprocess|urllib' stoprule.py
++0

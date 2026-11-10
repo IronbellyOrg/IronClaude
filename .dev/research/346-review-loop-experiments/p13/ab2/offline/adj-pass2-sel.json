@@ -1,0 +1,1776 @@
+{
+ "info": {
+  "PATH": {
+   "distinct": 18,
+   "sampled": 18
+  },
+  "PHASE": {
+   "distinct": 35,
+   "sampled": 35
+  },
+  "KV": {
+   "distinct": 3,
+   "sampled": 3
+  },
+  "REF": {
+   "distinct": 245,
+   "sampled": 30
+  }
+ },
+ "flags": [
+  {
+   "check": "PATH",
+   "doc_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "group": "orig",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/repo-overlay/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-1",
+   "lines": [
+    83,
+    83
+   ],
+   "other_lines": [
+    62,
+    62
+   ],
+   "quote": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix the contract filename to `<output>/advers...",
+   "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `<output-dir>/return-contract.yaml` (line 62) but fits none of them.",
+   "n_docs": 8,
+   "shas": [
+    "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+    "f42ebd1cb0922207da16c10e49e26f992ea80bee8c020e73ba1dacefbcfd5f95",
+    "7d31f7c49bc684b022504fe6730429f5c5b09ff3a76841344026b64dde9565a6",
+    "5214f80e3dc9557f5cf50e915b26edd24f7757a9ce7975ec766b78482cde7fd6",
+    "d1f34e4bb75f645e00e9b421dc8abdf0366d981ef45c7dfcc8f6689db8833a6a",
+    "0af4c9147b1078d164edae3da1719df0954c532ee06138e07f894bc91e1ab096",
+    "92073bce9aa934458a66ff79344ce2e439141e3c08d2246944949c626f472a09",
+    "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "group": "orig",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/repo-overlay/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-2",
+   "lines": [
+    92,
+    92
+   ],
+   "other_lines": [
+    62,
+    62
+   ],
+   "quote": "| workflow | `--handoff none` | `.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | Write the contract for pre-creation STOPs too (WC-4 \"every outcome\") (P1) | `sk/sc-workflow-p...",
+   "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<output-dir>/return-contract.yaml` (line 62) but fits none of them.",
+   "n_docs": 8,
+   "shas": [
+    "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+    "f42ebd1cb0922207da16c10e49e26f992ea80bee8c020e73ba1dacefbcfd5f95",
+    "7d31f7c49bc684b022504fe6730429f5c5b09ff3a76841344026b64dde9565a6",
+    "5214f80e3dc9557f5cf50e915b26edd24f7757a9ce7975ec766b78482cde7fd6",
+    "d1f34e4bb75f645e00e9b421dc8abdf0366d981ef45c7dfcc8f6689db8833a6a",
+    "0af4c9147b1078d164edae3da1719df0954c532ee06138e07f894bc91e1ab096",
+    "92073bce9aa934458a66ff79344ce2e439141e3c08d2246944949c626f472a09",
+    "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-1",
+   "lines": [
+    74,
+    74
+   ],
+   "other_lines": [
+    65,
+    65
+   ],
+   "quote": "| WC-13 | **Nested commands inherit the mode once they can accept it, and get their own report directory.** A command run with `--unattended` passes `--unattended` and a report directory of its own...",
+   "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` or `<report-dir>/return-contract.yaml` (line 65) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-2",
+   "lines": [
+    134,
+    134
+   ],
+   "other_lines": [
+    65,
+    65
+   ],
+   "quote": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix the contract filename to `<output>/advers...",
+   "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` or `<report-dir>/return-contract.yaml` (line 65) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-3",
+   "lines": [
+    143,
+    143
+   ],
+   "other_lines": [
+    65,
+    65
+   ],
+   "quote": "| workflow | `--handoff none` | `.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | Write the contract for pre-creation STOPs too (WC-4 \"every outcome\") (P1) | `sk/sc-workflow-p...",
+   "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` or `<report-dir>/return-contract.yaml` (line 65) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-1",
+   "lines": [
+    112,
+    112
+   ],
+   "other_lines": [
+    65,
+    65
+   ],
+   "quote": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `<output>/adversarial/return-contract.yaml` exists, parses, and its own status word reads as success (wo...",
+   "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 65) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-2",
+   "lines": [
+    121,
+    121
+   ],
+   "other_lines": [
+    65,
+    65
+   ],
+   "quote": "| workflow | `--handoff none` | `.dev/tasks/to-do/<id>/return-contract.yaml` | `.dev/tasks/to-do/<id>/return-contract.yaml` exists, parses, and its own status word reads as success (words UNVERIFIE...",
+   "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 65) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "bbc5da09c16d99c761039d7df263e9ff3629635be3ec1f834b924b06575af75f",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-1",
+   "lines": [
+    92,
+    92
+   ],
+   "other_lines": [
+    62,
+    62
+   ],
+   "quote": "| workflow | `--handoff none`; an output directory (new `--output-dir` flag, P1) | `.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | Also write the contract to `<output-dir>/r...",
+   "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<contract-dir>/return-contract.yaml` (line 62) but fits none of them.",
+   "n_docs": 2,
+   "shas": [
+    "bbc5da09c16d99c761039d7df263e9ff3629635be3ec1f834b924b06575af75f",
+    "49b44eed9e9476353afbf46c4ab057a94b41cde7cfd310c3fc03ba949d765180"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "7cfc46955e89212267b7b42612208b7b453942bd61bda42b47e3e96f605b89ff",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r5/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-1",
+   "lines": [
+    92,
+    92
+   ],
+   "other_lines": [
+    62,
+    62
+   ],
+   "quote": "| workflow | `--handoff none` | `.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | Also write the contract to `<contract-dir>` on every outcome, pre-creation STOPs included (WC...",
+   "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<contract-dir>/return-contract.yaml` (line 62) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "7cfc46955e89212267b7b42612208b7b453942bd61bda42b47e3e96f605b89ff"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r5/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-3",
+   "lines": [
+    194,
+    194
+   ],
+   "other_lines": [
+    62,
+    62
+   ],
+   "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+   "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<output-dir>/return-contract.yaml` (line 62) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PATH-1",
+   "lines": [
+    133,
+    133
+   ],
+   "other_lines": [
+    64,
+    64
+   ],
+   "quote": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix the contract filename to `<output>/advers...",
+   "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` or `<report-dir>/return-contract.yaml` (line 64) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PATH-2",
+   "lines": [
+    142,
+    142
+   ],
+   "other_lines": [
+    64,
+    64
+   ],
+   "quote": "| workflow | `--handoff none` | `.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | Write the contract for pre-creation STOPs too (WC-4 \"every outcome\") (P1) | `sk/sc-workflow-p...",
+   "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` or `<report-dir>/return-contract.yaml` (line 64) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "17479b82d914ec92bfca3e0b3c09474faf485af426822cee887df371ddc48fc3",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PATH-1",
+   "lines": [
+    108,
+    108
+   ],
+   "other_lines": [
+    65,
+    65
+   ],
+   "quote": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix the contract filename to `<output>/advers...",
+   "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 65) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "17479b82d914ec92bfca3e0b3c09474faf485af426822cee887df371ddc48fc3"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "17479b82d914ec92bfca3e0b3c09474faf485af426822cee887df371ddc48fc3",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PATH-2",
+   "lines": [
+    117,
+    117
+   ],
+   "other_lines": [
+    65,
+    65
+   ],
+   "quote": "| workflow | `--handoff none` | `.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | Under `--unattended` write the WC-4 contract to `--report-dir` (the package directory `<id>` ...",
+   "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 65) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "17479b82d914ec92bfca3e0b3c09474faf485af426822cee887df371ddc48fc3"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v2-after-round1.md",
+   "lint_id": "LINT-PATH-1",
+   "lines": [
+    104,
+    104
+   ],
+   "other_lines": [
+    66,
+    66
+   ],
+   "quote": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix the contract filename to `<output>/advers...",
+   "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 66) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v2-after-round1.md",
+   "lint_id": "LINT-PATH-2",
+   "lines": [
+    113,
+    113
+   ],
+   "other_lines": [
+    66,
+    66
+   ],
+   "quote": "| workflow | `--handoff none`; `--report-dir <dir>` (its `--output` is retired, `cmd/workflow.md:42`) | `.dev/tasks/to-do/<id>/return-contract.yaml` (the `<id>` is generated with a timestamp, `cmd/...",
+   "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 66) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v3-after-round2.md",
+   "lint_id": "LINT-PATH-1",
+   "lines": [
+    114,
+    114
+   ],
+   "other_lines": [
+    67,
+    67
+   ],
+   "quote": "| workflow | `--handoff none`; `--report-dir <dir>` (its `--output` is retired, `cmd/workflow.md:42`) | `.dev/tasks/to-do/<id>/return-contract.yaml` (the `<id>` is generated with a timestamp, `cmd/...",
+   "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` or `<output>/return-contract.yaml` or `<output>/adversarial/return-contract.yaml` or `<report-dir>/return-contract.yaml` (line 67) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v4-after-round3.md",
+   "lint_id": "LINT-PATH-1",
+   "lines": [
+    115,
+    115
+   ],
+   "other_lines": [
+    68,
+    68
+   ],
+   "quote": "| workflow | `--handoff none`; `--report-dir <dir>` (its `--output` is retired, `cmd/workflow.md:42`) | `.dev/tasks/to-do/<id>/return-contract.yaml` (the `<id>` is generated with a timestamp, `cmd/...",
+   "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` or `<output>/return-contract.yaml` or `<output>/adversarial/return-contract.yaml` or `<report-dir>/return-contract.yaml` (line 68) but fits none of them.",
+   "n_docs": 1,
+   "shas": [
+    "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "group": "orig",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/repo-overlay/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-1",
+   "lines": [
+    194,
+    194
+   ],
+   "other_lines": [
+    178,
+    178
+   ],
+   "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+   "message": "The P0 row (AC-0.4) refers to section 7.2, which uses WC-4 (P1); the rollout table first introduces each in a later phase.",
+   "n_docs": 15,
+   "shas": [
+    "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+    "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096",
+    "f42ebd1cb0922207da16c10e49e26f992ea80bee8c020e73ba1dacefbcfd5f95",
+    "bbc5da09c16d99c761039d7df263e9ff3629635be3ec1f834b924b06575af75f",
+    "7d31f7c49bc684b022504fe6730429f5c5b09ff3a76841344026b64dde9565a6",
+    "5214f80e3dc9557f5cf50e915b26edd24f7757a9ce7975ec766b78482cde7fd6",
+    "d1f34e4bb75f645e00e9b421dc8abdf0366d981ef45c7dfcc8f6689db8833a6a",
+    "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3",
+    "0af4c9147b1078d164edae3da1719df0954c532ee06138e07f894bc91e1ab096",
+    "92073bce9aa934458a66ff79344ce2e439141e3c08d2246944949c626f472a09",
+    "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61",
+    "83f24502ee791d296bebd644adce8eba84b0a7bccbb076f090415ba276880733",
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21",
+    "49b44eed9e9476353afbf46c4ab057a94b41cde7cfd310c3fc03ba949d765180",
+    "cf9b3e748906ea7675896ba4ee5a7993c98b0ab7a8ec22a0e9311df04e7ebb69"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-1",
+   "lines": [
+    251,
+    251
+   ],
+   "other_lines": [
+    210,
+    210
+   ],
+   "quote": "| P0 | AC-0.5 | In the contract documents or skill references of workflow, reflect, brainstorm, adversarial and troubleshoot (`--caller task-unified`), list every `status` value each writes (read t...",
+   "message": "The P0 row (AC-0.5) uses WC-4, which the rollout table first introduces in P1.",
+   "n_docs": 2,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-2",
+   "lines": [
+    252,
+    252
+   ],
+   "other_lines": [
+    204,
+    204
+   ],
+   "quote": "| P0 | AC-0.6 | Command baseline (section 6, P0): `grep -lE -e '--unattended' -e '--report-dir' -e '## Unattended mode' src/superclaude/commands/*.md`, its output saved in the phase report | the li...",
+   "message": "The P0 row (AC-0.6) refers to section 6, which uses WC-10 (P2), WC-13 (P2), WC-3 (P2), WC-4 (P1), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-3",
+   "lines": [
+    253,
+    253
+   ],
+   "other_lines": [
+    235,
+    235
+   ],
+   "quote": "| P0 | AC-0.4 | Run after AC-0.5 and AC-0.6: 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth qu...",
+   "message": "The P0 row (AC-0.4) refers to section 7.2, which uses WC-4 (P1); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-4",
+   "lines": [
+    254,
+    254
+   ],
+   "other_lines": [
+    204,
+    204
+   ],
+   "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command in the Phase 1 list of section 6 except `/sc:load` (14 commands) has a `## Unattended mo...",
+   "message": "The P1 row (AC-1.1) refers to section 6, which uses WC-10 (P2), WC-13 (P2), WC-3 (P2), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-5",
+   "lines": [
+    255,
+    255
+   ],
+   "other_lines": [
+    126,
+    126
+   ],
+   "quote": "| P1 | AC-1.2 | 7.2 live check on each of the 14 P1 commands with `--unattended --report-dir <dir>` and the command's own output flag where section 3 lists one; for workflow the transcript also sho...",
+   "message": "The P1 row (AC-1.2) refers to section 3, which uses WC-10 (P2), WC-13 (P2), WC-3 (P2), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-1",
+   "lines": [
+    239,
+    239
+   ],
+   "other_lines": [
+    107,
+    107
+   ],
+   "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+   "message": "The P0 row (AC-0.4) refers to section 3.1, which uses WC-4 (P1); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-2",
+   "lines": [
+    239,
+    239
+   ],
+   "other_lines": [
+    223,
+    223
+   ],
+   "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+   "message": "The P0 row (AC-0.4) refers to section 7.2, which uses WC-10 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-3",
+   "lines": [
+    241,
+    241
+   ],
+   "other_lines": [
+    75,
+    75
+   ],
+   "quote": "| P0 | AC-0.6 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that `WORKER-CONTRACT.md` Part B states the `consumer_fenced` rule of WC-12 (stop, no `worker_done`, contra...",
+   "message": "The P0 row (AC-0.6) refers to section 2.3, which uses WC-4 (P1), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-4",
+   "lines": [
+    243,
+    243
+   ],
+   "other_lines": [
+    223,
+    223
+   ],
+   "quote": "| P1 | AC-1.2 | 7.2 live check on each P1 command with `--unattended --report-dir <dir>` | all steps pass |",
+   "message": "The P1 row (AC-1.2) refers to section 7.2, which uses WC-10 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 2,
+   "shas": [
+    "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287",
+    "17479b82d914ec92bfca3e0b3c09474faf485af426822cee887df371ddc48fc3"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-5",
+   "lines": [
+    249,
+    249
+   ],
+   "other_lines": [
+    49,
+    49
+   ],
+   "quote": "| P1 | AC-1.8 | Fail-closed (section 2.1; N11): run one P1 command with `--unattended --report-dir <dir>` in a session whose home directory has no `WORKER-CONTRACT.md` | no prompt appears; `<dir>/r...",
+   "message": "The P1 row (AC-1.8) refers to section 2.1, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-6",
+   "lines": [
+    250,
+    250
+   ],
+   "other_lines": [
+    223,
+    223
+   ],
+   "quote": "| P1 | AC-1.9 | `partial` and `native_status` (WC-4; N11): `test_worker_contract.py` runs the step 4 assertion of 7.2 on three fixture contracts: `status: partial` with an empty `incomplete_items`,...",
+   "message": "The P1 row (AC-1.9) refers to section 7.2, which uses WC-10 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-1",
+   "lines": [
+    233,
+    233
+   ],
+   "other_lines": [
+    74,
+    74
+   ],
+   "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+   "message": "The P0 row (AC-0.4) refers to section 2.3, which uses WC-4.1 (P1), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-3",
+   "lines": [
+    236,
+    236
+   ],
+   "other_lines": [
+    102,
+    102
+   ],
+   "quote": "| P1 | AC-1.2 | 7.2 live check on each P1 command with `--unattended` and the flags of its own row in 3.1 or 3.2 (for example `--pass <N>` for cleanup-audit, no output flag for workflow, `--output ...",
+   "message": "The P1 row (AC-1.2) refers to section 3.2, which uses WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "bbc5da09c16d99c761039d7df263e9ff3629635be3ec1f834b924b06575af75f",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-2",
+   "lines": [
+    195,
+    195
+   ],
+   "other_lines": [
+    75,
+    75
+   ],
+   "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command whose section is due in P1 under section 3 (the rows naming P1, plus brainstorm and init...",
+   "message": "The P1 row (AC-1.1) refers to section 3, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "bbc5da09c16d99c761039d7df263e9ff3629635be3ec1f834b924b06575af75f"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "7cfc46955e89212267b7b42612208b7b453942bd61bda42b47e3e96f605b89ff",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r5/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-1",
+   "lines": [
+    194,
+    194
+   ],
+   "other_lines": [
+    178,
+    178
+   ],
+   "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+   "message": "The P0 row (AC-0.4) refers to section 7.2, which uses B-1 (P1), WC-4 (P1); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "7cfc46955e89212267b7b42612208b7b453942bd61bda42b47e3e96f605b89ff"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "5214f80e3dc9557f5cf50e915b26edd24f7757a9ce7975ec766b78482cde7fd6",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r6/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-2",
+   "lines": [
+    195,
+    195
+   ],
+   "other_lines": [
+    94,
+    94
+   ],
+   "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command in sections 3.1-3.2 except `load` (F-01: it gets no contract, section 3.2 row) has a `##...",
+   "message": "The P1 row (AC-1.1) refers to section 3.2, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "5214f80e3dc9557f5cf50e915b26edd24f7757a9ce7975ec766b78482cde7fd6"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-2",
+   "lines": [
+    195,
+    195
+   ],
+   "other_lines": [
+    75,
+    75
+   ],
+   "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command whose section 3 phase is P1 has a `## Unattended mode` section naming `return-contract.y...",
+   "message": "The P1 row (AC-1.1) refers to section 3, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "92073bce9aa934458a66ff79344ce2e439141e3c08d2246944949c626f472a09",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r4/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-2",
+   "lines": [
+    195,
+    195
+   ],
+   "other_lines": [
+    153,
+    153
+   ],
+   "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command named in the P1 row of section 6, except `load` (usage-line fix only, no report file, se...",
+   "message": "The P1 row (AC-1.1) refers to section 6, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "92073bce9aa934458a66ff79344ce2e439141e3c08d2246944949c626f472a09"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r5/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-2",
+   "lines": [
+    195,
+    195
+   ],
+   "other_lines": [
+    153,
+    153
+   ],
+   "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command in the P1 row of section 6 except load (F-1) has a `## Unattended mode` section naming `...",
+   "message": "The P1 row (AC-1.1) refers to section 6, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PHASE-3",
+   "lines": [
+    252,
+    252
+   ],
+   "other_lines": [
+    203,
+    203
+   ],
+   "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command in the Phase 1 list of section 6 except `/sc:load` (14 commands) has a `## Unattended mo...",
+   "message": "The P1 row (AC-1.1) refers to section 6, which uses WC-10 (P2), WC-3 (P2), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PHASE-4",
+   "lines": [
+    253,
+    253
+   ],
+   "other_lines": [
+    125,
+    125
+   ],
+   "quote": "| P1 | AC-1.2 | 7.2 live check on each of the 14 P1 commands with `--unattended --report-dir <dir>` and the command's own output flag where section 3 lists one | all steps pass |",
+   "message": "The P1 row (AC-1.2) refers to section 3, which uses WC-10 (P2), WC-3 (P2), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "17479b82d914ec92bfca3e0b3c09474faf485af426822cee887df371ddc48fc3",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PHASE-1",
+   "lines": [
+    235,
+    235
+   ],
+   "other_lines": [
+    219,
+    219
+   ],
+   "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+   "message": "The P0 row (AC-0.4) refers to section 7.2, which uses WC-10 (P2), WC-4 (P1); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "17479b82d914ec92bfca3e0b3c09474faf485af426822cee887df371ddc48fc3"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PHASE-1",
+   "lines": [
+    227,
+    227
+   ],
+   "other_lines": [
+    73,
+    73
+   ],
+   "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+   "message": "The P0 row (AC-0.4) refers to section 2.3, which uses WC-4 (P1), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v2-after-round1.md",
+   "lint_id": "LINT-PHASE-1",
+   "lines": [
+    259,
+    259
+   ],
+   "other_lines": [
+    232,
+    232
+   ],
+   "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"` (no `--fix`, no `--depth deep`), `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth...",
+   "message": "The P0 row (AC-0.4) refers to section 7.2, which uses WC-4 (P1); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v2-after-round1.md",
+   "lint_id": "LINT-PHASE-2",
+   "lines": [
+    262,
+    262
+   ],
+   "other_lines": [
+    174,
+    174
+   ],
+   "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command listed for P1 in the section 6 table of commands accepting `--unattended` has a `## Unat...",
+   "message": "The P1 row (AC-1.1) refers to section 6, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 3,
+   "shas": [
+    "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec",
+    "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+    "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v3-after-round2.md",
+   "lint_id": "LINT-PHASE-1",
+   "lines": [
+    262,
+    262
+   ],
+   "other_lines": [
+    233,
+    233
+   ],
+   "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"` (no `--fix`, no `--depth deep`), `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth...",
+   "message": "The P0 row (AC-0.4) refers to section 7.2, which uses WC-10 (P2), WC-4 (P1); the rollout table first introduces each in a later phase.",
+   "n_docs": 2,
+   "shas": [
+    "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+    "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v3-after-round2.md",
+   "lint_id": "LINT-PHASE-2",
+   "lines": [
+    264,
+    264
+   ],
+   "other_lines": [
+    233,
+    233
+   ],
+   "quote": "| P0 | AC-0.6 | Read one AC-0.4 transcript with `worker-read --source transcript --json` and record whether tool calls appear by name (for example `Bash`, `Agent`, `AskUserQuestion`) | the phase re...",
+   "message": "The P0 row (AC-0.4) refers to section 7.2 step 5, which uses WC-10 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 2,
+   "shas": [
+    "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+    "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v3-after-round2.md",
+   "lint_id": "LINT-PHASE-4",
+   "lines": [
+    266,
+    266
+   ],
+   "other_lines": [
+    233,
+    233
+   ],
+   "quote": "| P1 | AC-1.2 | 7.2 live check on each P1 command with `--unattended` and its report directory (`--output <dir>` or `--report-dir <dir>`) | all steps pass |",
+   "message": "The P1 row (AC-1.2) refers to section 7.2, which uses WC-10 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 2,
+   "shas": [
+    "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+    "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v3-after-round2.md",
+   "lint_id": "LINT-PHASE-5",
+   "lines": [
+    269,
+    269
+   ],
+   "other_lines": [
+    233,
+    233
+   ],
+   "quote": "| P1 | AC-1.5 | WC-4 missing report directory: `/sc:analyze src/ --unattended` with neither `--output` nor `--report-dir`, as a 7.2 live check | no file written (step 6 empty); the chat shows the e...",
+   "message": "The P1 row (AC-1.5) refers to section 7.2, which uses WC-10 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v3-after-round2.md",
+   "lint_id": "LINT-PHASE-6",
+   "lines": [
+    270,
+    270
+   ],
+   "other_lines": [
+    233,
+    233
+   ],
+   "quote": "| P1 | AC-1.6 | Person-mode refusal (section 2.1): `/sc:test --watch --unattended --report-dir <dir>` as a 7.2 live check | contract `worker_status: failed` with `--watch` in `reason`; outcome `fai...",
+   "message": "The P1 row (AC-1.6) refers to section 7.2, which uses WC-10 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 2,
+   "shas": [
+    "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+    "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v3-after-round2.md",
+   "lint_id": "LINT-PHASE-7",
+   "lines": [
+    271,
+    271
+   ],
+   "other_lines": [
+    95,
+    95
+   ],
+   "quote": "| P1 | AC-1.7 | WC-6 (b): dispatch `/sc:init-lite --unattended --output <dir>/context-audit.md --report-dir <dir>` as a 7.2 live check (its Resume cell, \"Re-run overwrites its marked report\", permi...",
+   "message": "The P1 row (AC-1.7) refers to section 3, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v4-after-round3.md",
+   "lint_id": "LINT-PHASE-1",
+   "lines": [
+    251,
+    251
+   ],
+   "other_lines": [
+    52,
+    52
+   ],
+   "quote": "| P0 | AC-0.1 | `uv run python -c \"from superclaude.cli.install_core import KNOWN_CORE_FILES; assert 'WORKER-CONTRACT.md' in KNOWN_CORE_FILES\"`, then the install check in the block below the table,...",
+   "message": "The P0 row (AC-0.1) refers to section 2.1, which uses WC-4 (P1); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v4-after-round3.md",
+   "lint_id": "LINT-PHASE-2",
+   "lines": [
+    251,
+    251
+   ],
+   "other_lines": [
+    78,
+    78
+   ],
+   "quote": "| P0 | AC-0.1 | `uv run python -c \"from superclaude.cli.install_core import KNOWN_CORE_FILES; assert 'WORKER-CONTRACT.md' in KNOWN_CORE_FILES\"`, then the install check in the block below the table,...",
+   "message": "The P0 row (AC-0.1) refers to section 2.3, which uses WC-9 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v4-after-round3.md",
+   "lint_id": "LINT-PHASE-7",
+   "lines": [
+    261,
+    261
+   ],
+   "other_lines": [
+    234,
+    234
+   ],
+   "quote": "| P1 | AC-1.5 | WC-4 missing report directory: `/sc:analyze src/ --unattended` with neither `--output` nor `--report-dir`, as a 7.2 live check whose steps 3-4 are replaced by this row's conditions ...",
+   "message": "The P1 row (AC-1.5) refers to section 7.2, which uses WC-10 (P2); the rollout table first introduces each in a later phase.",
+   "n_docs": 1,
+   "shas": [
+    "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-KV-1",
+   "lines": [
+    348,
+    348
+   ],
+   "other_lines": [
+    71,
+    71
+   ],
+   "quote": "| Wait size for WC-10 | 5 minutes; 4 minutes; a cap on every tool call | 4 minutes for every call the command makes to wait on something outside the session (poll, sleep, eval, Monitor), with a hea...",
+   "message": "\"1 minute\" here (section decisions) and \"4 minutes\" at line 71 (section 2.2) share the head words long, such.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v2-after-round1.md",
+   "lint_id": "LINT-KV-1",
+   "lines": [
+    372,
+    372
+   ],
+   "other_lines": [
+    282,
+    282
+   ],
+   "quote": "| Heartbeat gaps during Agent-tool fan-out | Require fan-out to return within 4 minutes; accept the gap | Accept the gap (WC-10): commands keep their fan-out (WC-7) and may not call Orca (SA-2), an...",
+   "message": "\"4 minutes\" here (section decisions) and \"5 minutes\" at line 282 (section 7.3) share the head words fan, out.",
+   "n_docs": 1,
+   "shas": [
+    "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v3-after-round2.md",
+   "lint_id": "LINT-KV-1",
+   "lines": [
+    376,
+    376
+   ],
+   "other_lines": [
+    285,
+    285
+   ],
+   "quote": "| Heartbeat gaps during Agent-tool fan-out | Require fan-out to return within 4 minutes; accept the gap | Accept the gap (WC-10): commands keep their fan-out (WC-7) and may not call Orca (SA-2), an...",
+   "message": "\"4 minutes\" here (section decisions) and \"5 minutes\" at line 285 (section 7.3) share the head words fan, out.",
+   "n_docs": 1,
+   "shas": [
+    "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-REF-35",
+   "lines": [
+    407,
+    407
+   ],
+   "other_lines": null,
+   "quote": "- Whether the launched session carries an Orca worker preamble. If it does, the worker contract's turn-off of outward actions (WC-9) and its `/sc:pr-submit` refusal would block `--submit`.",
+   "message": "WC-9 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-24",
+   "lines": [
+    264,
+    264
+   ],
+   "other_lines": null,
+   "quote": "| ordinary payload with a forged nested bound id | allow | P3, P6, T-ISO-6 |",
+   "message": "T-ISO-6 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-REF-13",
+   "lines": [
+    66,
+    66
+   ],
+   "other_lines": null,
+   "quote": "| Unflagged claim | MR FR-3: byte-identical to today | Dropped. An unflagged claim is `--pipeline worktree`. | AD 4.3. |",
+   "message": "FR-3 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "a2b614530d4d2f9c44c81623f924ed82b9cee7814f0dfe24c94eeb8a08916f3b",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/guides/roadmap-cli-tools-release-guide.md",
+   "lint_id": "LINT-REF-1",
+   "lines": [
+    88,
+    88
+   ],
+   "other_lines": null,
+   "quote": "- **Context isolation**: Each subprocess receives only its prompt and `--file` inputs. No `--continue`, `--session`, or `--resume` flags are passed (FR-003, FR-023)",
+   "message": "FR-003 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "a2b614530d4d2f9c44c81623f924ed82b9cee7814f0dfe24c94eeb8a08916f3b"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-33",
+   "lines": [
+    302,
+    302
+   ],
+   "other_lines": null,
+   "quote": "| AC-1 | T-GRID-3, T-SKL-1, T-APR-5, T-APR-9, T-NRM-8, T-GIT-18 |",
+   "message": "T-GIT-18 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-REF-11",
+   "lines": [
+    402,
+    402
+   ],
+   "other_lines": null,
+   "quote": "| Coordinator procedure for stalls | 2.3 | F-11 |",
+   "message": "F-11 is referenced but never defined.",
+   "n_docs": 2,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher.md",
+   "lint_id": "LINT-REF-8",
+   "lines": [
+    71,
+    71
+   ],
+   "other_lines": null,
+   "quote": "| Intended owner | Candidate 1: assignee set exactly {own login} (OD-3), stricter than the claim's own rule. |",
+   "message": "OD-3 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-56",
+   "lines": [
+    306,
+    306
+   ],
+   "other_lines": null,
+   "quote": "| AC-5 | T-BIND-2, T-BIND-7, T-BIND-13, T-TAM-1, T-TAM-2, T-TAM-6, T-FC-2 |",
+   "message": "T-TAM-2 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-50",
+   "lines": [
+    305,
+    305
+   ],
+   "other_lines": null,
+   "quote": "| AC-4 | T-ISO-1, T-ISO-4, T-ISO-7, T-ISO-8, T-ISO-9, T-REG-3 |",
+   "message": "T-ISO-9 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-29",
+   "lines": [
+    279,
+    279
+   ],
+   "other_lines": null,
+   "quote": "| typed `/sc:implement`, then Skill call | allow | T-APR-9 |",
+   "message": "T-APR-9 is referenced but never defined (2 references).",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-REF-19",
+   "lines": [
+    156,
+    156
+   ],
+   "other_lines": null,
+   "quote": "**Wave 8: launch (orchestrator).** Runs when `<L>` is not `none` and Wave 7 `status` is `created` or `reused` (FR-21): `orca_worktree.py launch --number <N> --source <D> --level <L> [--submit]`; re...",
+   "message": "FR-21 is referenced but never defined (3 references).",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-REF-31",
+   "lines": [
+    322,
+    322
+   ],
+   "other_lines": null,
+   "quote": "Path rule: every new reference inside the primitives to another primitive uses the installed path and the script is called as `<skill base>/scripts/orca_worktree.py`, never a `src/superclaude/` pat...",
+   "message": "FR-14 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-3",
+   "lines": [
+    72,
+    72
+   ],
+   "other_lines": null,
+   "quote": "| `sessions/<sid>` | exactly one allowed word plus optional terminal newline; malformed, empty or unreadable means `worktree` + LL-STATE on a block (FR-L-03) | hook: atomic create-without-replaceme...",
+   "message": "FR-L-03 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-48",
+   "lines": [
+    305,
+    305
+   ],
+   "other_lines": null,
+   "quote": "| AC-4 | T-ISO-1, T-ISO-4, T-ISO-7, T-ISO-8, T-ISO-9, T-REG-3 |",
+   "message": "T-ISO-7 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-17",
+   "lines": [
+    182,
+    182
+   ],
+   "other_lines": null,
+   "quote": "- **Cron\\*, Schedule\\* (FR-L-43):** TURN. RemoteTrigger, Workflow, SendMessage: ESCAPE (FR-L-46).",
+   "message": "FR-L-46 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-75",
+   "lines": [
+    309,
+    309
+   ],
+   "other_lines": null,
+   "quote": "| AC-8 | T-GRID-1, T-GRID-2, T-SPD-1..5, T-COR-1, T-GAP-1 |",
+   "message": "T-GRID-2 is referenced but never defined (2 references).",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "a2b614530d4d2f9c44c81623f924ed82b9cee7814f0dfe24c94eeb8a08916f3b",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/guides/roadmap-cli-tools-release-guide.md",
+   "lint_id": "LINT-REF-2",
+   "lines": [
+    88,
+    88
+   ],
+   "other_lines": null,
+   "quote": "- **Context isolation**: Each subprocess receives only its prompt and `--file` inputs. No `--continue`, `--session`, or `--resume` flags are passed (FR-003, FR-023)",
+   "message": "FR-023 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "a2b614530d4d2f9c44c81623f924ed82b9cee7814f0dfe24c94eeb8a08916f3b"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "091df47422c4f3ffcb133f9c811066f00870f6c23c7aaafbb0432a7206da0410",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md",
+   "lint_id": "LINT-REF-4",
+   "lines": [
+    484,
+    484
+   ],
+   "other_lines": null,
+   "quote": "- Under `--unattended` nothing asks the person, so an agent resolves a gate the way its command's `## Unattended mode` section says (this guide's convention); only the worker session may put a bloc...",
+   "message": "WC-3 is referenced but never defined (2 references).",
+   "n_docs": 1,
+   "shas": [
+    "091df47422c4f3ffcb133f9c811066f00870f6c23c7aaafbb0432a7206da0410"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-55",
+   "lines": [
+    306,
+    306
+   ],
+   "other_lines": null,
+   "quote": "| AC-5 | T-BIND-2, T-BIND-7, T-BIND-13, T-TAM-1, T-TAM-2, T-TAM-6, T-FC-2 |",
+   "message": "T-TAM-1 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-REF-36",
+   "lines": [
+    423,
+    423
+   ],
+   "other_lines": null,
+   "quote": "| Task 8: validation claims marked as of the Task 4 text; `SPCMD` key defined; citation range `:151-152` narrowed to `:151` | header, citation conventions, UNVERIFIED 14, WC-10 evidence | N-14, N-1...",
+   "message": "N-14 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher.md",
+   "lint_id": "LINT-REF-14",
+   "lines": [
+    74,
+    74
+   ],
+   "other_lines": null,
+   "quote": "| Refactor-log notes | PF-016 kept: a prompt `ValueError` is still recorded as pre-pending `failed` and retried. PF-019 kept: the launcher Protocol stays as the test seam. PF-047 kept: runbook step...",
+   "message": "PF-048 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-REF-44",
+   "lines": [
+    445,
+    445
+   ],
+   "other_lines": null,
+   "quote": "- **A7, pending records (m-5).** Pending launch records are consumed by the #394 guard when a session binds to one; an unconsumed record is never pruned (owner decision O-15), so unused records kee...",
+   "message": "O-15 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-REF-12",
+   "lines": [
+    63,
+    63
+   ],
+   "other_lines": null,
+   "quote": "| Create JSON shape | MR R2 UNVERIFIED | AD observed `result.worktree.{id, path, branch, ...}`. FR-20 (path from a row-id difference) stays; the field is not relied on. | The set difference works w...",
+   "message": "FR-20 is referenced but never defined (2 references).",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-REF-25",
+   "lines": [
+    414,
+    414
+   ],
+   "other_lines": null,
+   "quote": "| Task 8: nested commands inherit the flag only once converted; interim rule; `<child>-<k>` directories; parent reads the child's report directory; Nested lines updated when a child converts | WC-1...",
+   "message": "N-07 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-84",
+   "lines": [
+    311,
+    311
+   ],
+   "other_lines": null,
+   "quote": "**Corpus.** Preserve MR section 8 (8.3/8.4) case inputs and historical outcomes as baseline provenance, but do not copy obsolete expected results unchanged (revised DD-2). Explicit overrides here: ...",
+   "message": "T-OK-1 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-REF-23",
+   "lines": [
+    201,
+    201
+   ],
+   "other_lines": null,
+   "quote": "| 4 | No hit: `origin/<B>` must resolve (else `failed`, `W-ORIGIN-BASE-MISSING`, no create); a failed `git fetch origin` with the ref present continues with `W-ORIGIN-BASE-STALE` (FR-16). Create. O...",
+   "message": "FR-16 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher.md",
+   "lint_id": "LINT-REF-6",
+   "lines": [
+    70,
+    70
+   ],
+   "other_lines": null,
+   "quote": "| Non-goals | NG-1 push designs B/C/D; NG-2 no GitHub write (REST GET only; GraphQL POST only with a constant query without `mutation`); NG-3 no Project writes; NG-4 no session constraint beyond th...",
+   "message": "NG-4 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-62",
+   "lines": [
+    307,
+    307
+   ],
+   "other_lines": null,
+   "quote": "| AC-6 | T-PSH-4, T-PSH-12, T-GIT-9, T-GIT-14, T-NRM-1, T-GH-2, T-GH-11, T-GH-14, T-MCP-1, T-COR-2 |",
+   "message": "T-GIT-14 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/user-guide/commands.md",
+   "lint_id": "LINT-REF-5",
+   "lines": [
+    1471,
+    1471
+   ],
+   "other_lines": null,
+   "quote": "**When to use:** Audit a proposed plan against its spec before execution (UC-1), or audit completed work for adherence and deviations after execution (UC-2). Reviewer-side, structurally-independent...",
+   "message": "UC-1 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-REF-26",
+   "lines": [
+    220,
+    220
+   ],
+   "other_lines": null,
+   "quote": "| 6 | Shim check (FR-28): take the terminal handle (the first string value under a key `handle` in the launch JSON, found by a recursive walk, because the `agent launch` result shape is UNVERIFIED)...",
+   "message": "FR-28 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,156 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287",
+  "doc_bytes": 103222,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        72,
+        72
+      ],
+      "quote": "| WC-11 | **Parallel-safe writes.** Two workers in one worktree must never write the same file. Under `--unattended` the brief passes `--report-dir` (and `--output` where the deliverable path matte...",
+      "other_lines": null,
+      "message": "UC-2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-PATH-1",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        112,
+        112
+      ],
+      "quote": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `<output>/adversarial/return-contract.yaml` exists, parses, and its own status word reads as success (wo...",
+      "other_lines": [
+        65,
+        65
+      ],
+      "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 65) but fits none of them."
+    },
+    {
+      "lint_id": "LINT-PATH-2",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        121,
+        121
+      ],
+      "quote": "| workflow | `--handoff none` | `.dev/tasks/to-do/<id>/return-contract.yaml` | `.dev/tasks/to-do/<id>/return-contract.yaml` exists, parses, and its own status word reads as success (words UNVERIFIE...",
+      "other_lines": [
+        65,
+        65
+      ],
+      "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 65) but fits none of them."
+    },
+    {
+      "lint_id": "LINT-PHASE-1",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        239,
+        239
+      ],
+      "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+      "other_lines": [
+        107,
+        107
+      ],
+      "message": "The P0 row (AC-0.4) refers to section 3.1, which uses WC-4 (P1); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-PHASE-2",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        239,
+        239
+      ],
+      "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+      "other_lines": [
+        223,
+        223
+      ],
+      "message": "The P0 row (AC-0.4) refers to section 7.2, which uses WC-10 (P2); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-PHASE-3",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        241,
+        241
+      ],
+      "quote": "| P0 | AC-0.6 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that `WORKER-CONTRACT.md` Part B states the `consumer_fenced` rule of WC-12 (stop, no `worker_done`, contra...",
+      "other_lines": [
+        75,
+        75
+      ],
+      "message": "The P0 row (AC-0.6) refers to section 2.3, which uses WC-4 (P1), WC-9 (P2); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-PHASE-4",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        243,
+        243
+      ],
+      "quote": "| P1 | AC-1.2 | 7.2 live check on each P1 command with `--unattended --report-dir <dir>` | all steps pass |",
+      "other_lines": [
+        223,
+        223
+      ],
+      "message": "The P1 row (AC-1.2) refers to section 7.2, which uses WC-10 (P2); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-PHASE-5",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        249,
+        249
+      ],
+      "quote": "| P1 | AC-1.8 | Fail-closed (section 2.1; N11): run one P1 command with `--unattended --report-dir <dir>` in a session whose home directory has no `WORKER-CONTRACT.md` | no prompt appears; `<dir>/r...",
+      "other_lines": [
+        49,
+        49
+      ],
+      "message": "The P1 row (AC-1.8) refers to section 2.1, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-PHASE-6",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        250,
+        250
+      ],
+      "quote": "| P1 | AC-1.9 | `partial` and `native_status` (WC-4; N11): `test_worker_contract.py` runs the step 4 assertion of 7.2 on three fixture contracts: `status: partial` with an empty `incomplete_items`,...",
+      "other_lines": [
+        223,
+        223
+      ],
+      "message": "The P1 row (AC-1.9) refers to section 7.2, which uses WC-10 (P2); the rollout table first introduces each in a later phase."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

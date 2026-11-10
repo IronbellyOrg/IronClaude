@@ -1,0 +1,13 @@
+### N3
+### N3 (blocking, origin=changed): the revised init-lite row makes `--output` a file under `--unattended`, but WC-4 defines `--output` as the output directory
+- Location: `candidate:86` (changed line); conflicting text `candidate:62` (WC-4, unchanged); `candidate:73` (2.3, unchanged).
+- Stated texts:
+  - `candidate:62` (WC-4): "In unattended mode the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)." The only exception in WC-4 names a different contract path ("Where section 3 names a different fixed path for a command, that path is the contract path instead"). It does not allow `--output` to name a file.
+  - `candidate:73` (2.3): the brief passes "the output directory, so the report path is known before dispatch (WC-4)".
+  - `candidate:86`: "`--unattended --output <dir>/context-audit.md` ... (`<dir>` is the WC-4 output directory, so the contract is `<dir>/return-contract.yaml`)". Under this row the value passed by `--output` is a file, not a directory.
+- Grading sentence: An implementer who follows `candidate:62` as written takes the value passed by `--output` as `<output-dir>`. For the init-lite brief that value is `<dir>/context-audit.md`, so the contract is written at `<dir>/context-audit.md/return-contract.yaml`. The coordinator opens `<dir>/return-contract.yaml`, as `candidate:86` and `candidate:73` direct it to. It finds no report, and `candidate:63` (WC-5) maps the missing report to `failed` for a run that did its work. Two stated texts contradict each other on what `--output` names for this command, and the only stated exception does not cover it.
+- Origin: introduced by the revision that fixed N2. Round2's N2 recommendation (`round2.md:120`) suggested `--output <dir>/context-audit.md`, and the reviser followed it. That suggestion did not check the `--output` type against WC-4.
+  - (a) Keep the directory form for `--unattended` runs only: `--unattended --output <dir>` under a fresh `<dir>` per run, with the file form unchanged for standalone runs (SA-1). The row then matches WC-4 without change to WC-4.
+  - (b) Keep `--output <file>` in both modes, and add one init-lite entry to the WC-4 exception sentence, in the same form as the adversarial entry: the contract for init-lite is `<dirname of --output>/return-contract.yaml`.
+  - Option (b) is preferred because it keeps one flag type per flag, which round2's N2 recommendation also wanted (`round2.md:120`). Either option must cite N3.
+- Verification status: the finding quotes only `candidate:62`, `candidate:73` and `candidate:86`, all checkable in the workspace. Verified by reading those lines.

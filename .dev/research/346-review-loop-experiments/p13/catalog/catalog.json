@@ -1,0 +1,1726 @@
+{
+ "schema": "defect-catalog/1",
+ "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+ "built_by": "pn3",
+ "sources": [
+  "a1-r1/R1",
+  "a1-r2/R1",
+  "a1-r3/R1",
+  "a2-r1/R1",
+  "a2-r2/R1",
+  "a2-r3/R1",
+  "a2-r4/R1",
+  "a2-r5/R1",
+  "a2-r6/R1",
+  "a3-r1/R1",
+  "a3-r2/R1",
+  "a3-r3/R1",
+  "a3-r4/R1",
+  "a3-r5/R1",
+  "a3-r6/R1",
+  "a1-r1/AUD",
+  "a1-r2/AUD",
+  "a1-r3/AUD",
+  "a2-r1/AUD",
+  "a2-r2/AUD",
+  "a2-r3/AUD",
+  "a2-r4/AUD",
+  "a2-r5/AUD",
+  "a2-r6/AUD",
+  "a3-r1/AUD",
+  "a3-r2/AUD",
+  "a3-r3/AUD",
+  "a3-r4/AUD",
+  "a3-r5/AUD",
+  "a3-r6/AUD",
+  "a3-r1/AUD2",
+  "a3-r2/AUD2",
+  "a3-r3/AUD2",
+  "a3-r4/AUD2",
+  "a3-r5/AUD2",
+  "a3-r6/AUD2"
+ ],
+ "clusters": [
+  {
+   "cid": "D1",
+   "theme": "T2",
+   "label": "WC-4 contract location cannot be resolved for file-valued, nested, generated or absent output flags",
+   "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "orig_span": [
+    61,
+    62
+   ],
+   "members": [
+    {
+     "source": "a1-r1/R1",
+     "fid": "F-01",
+     "blocking": true,
+     "quote": "<output-dir>",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r1/R1",
+     "fid": "F-02",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r2/R1",
+     "fid": "F4",
+     "blocking": true,
+     "quote": "<output-dir>/",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r3/R1",
+     "fid": "4",
+     "blocking": true,
+     "quote": "| 4 | WC-4 contract placement does not fit file-valued `--output`, adversarial's subdirectory, workflow's generated id a",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r3/R1",
+     "fid": "11",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    },
+    {
+     "source": "a2-r2/R1",
+     "fid": "B2",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "original"
+    },
+    {
+     "source": "a2-r5/R1",
+     "fid": "B-1",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r2/R1",
+     "fid": "R1-B2",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r6/R1",
+     "fid": "REQ-1",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "original"
+    },
+    {
+     "source": "a2-r1/AUD",
+     "fid": "F-2",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "final"
+    },
+    {
+     "source": "a2-r2/AUD",
+     "fid": "F-01",
+     "blocking": true,
+     "quote": "--output-dir",
+     "doc": "final"
+    },
+    {
+     "source": "a2-r3/AUD",
+     "fid": "ARCH-1",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "final"
+    },
+    {
+     "source": "a2-r4/AUD",
+     "fid": "F-2",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r1/AUD",
+     "fid": "B2",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r3/AUD",
+     "fid": "F-2",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r4/AUD",
+     "fid": "A-02",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r1/AUD2",
+     "fid": "F1",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r3/AUD2",
+     "fid": "B2",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r5/AUD2",
+     "fid": "B-1",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r6/AUD2",
+     "fid": "B1",
+     "blocking": true,
+     "quote": "<output-dir>",
+     "doc": "final"
+    }
+   ],
+   "n_sources": 18,
+   "confirmed": true,
+   "adjudication_reason": "members name tdd/init-lite file-valued --output, adversarial/workflow paths or missing output flags"
+  },
+  {
+   "cid": "D2",
+   "theme": "T2",
+   "label": "WC-6 fresh directory on retry contradicts a fixed, known-before-dispatch output location",
+   "anchor": "writes each run into a fresh output directory so a re-run starts clean",
+   "orig_span": [
+    63,
+    64
+   ],
+   "members": [
+    {
+     "source": "a1-r1/R1",
+     "fid": "F-02",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r3/R1",
+     "fid": "3",
+     "blocking": true,
+     "quote": "known before dispatch",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r6/R1",
+     "fid": "ARCH-1",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r1/AUD",
+     "fid": "B-01",
+     "blocking": true,
+     "quote": "--output <dir>",
+     "doc": "final"
+    }
+   ],
+   "n_sources": 4,
+   "confirmed": true,
+   "adjudication_reason": "members name the retry writing into or away from the first attempt's WC-4 directory"
+  },
+  {
+   "cid": "D3",
+   "theme": "T1",
+   "label": "P1 ships --unattended on every command before the gates it must disable are converted in P2-P4",
+   "anchor": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "orig_span": [
+    158,
+    159
+   ],
+   "members": [
+    {
+     "source": "a1-r1/R1",
+     "fid": "F-03",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r2/R1",
+     "fid": "F2",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r3/R1",
+     "fid": "1",
+     "blocking": true,
+     "quote": "| 1 | AC-1.1 and the P1 scope count 37 commands with a contract section, but load has no contract, pr-submit leaves the ",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r3/R1",
+     "fid": "2",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r2/R1",
+     "fid": "R1-B1",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r4/R1",
+     "fid": "F-01",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r5/R1",
+     "fid": "F-1",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    },
+    {
+     "source": "a2-r1/AUD",
+     "fid": "F-1",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "final"
+    },
+    {
+     "source": "a2-r3/AUD",
+     "fid": "REQ-2",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "final"
+    },
+    {
+     "source": "a2-r4/AUD",
+     "fid": "F-1",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r1/AUD",
+     "fid": "B1",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r3/AUD",
+     "fid": "F-1",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r1/AUD2",
+     "fid": "F2",
+     "blocking": true,
+     "quote": "post-release",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r3/AUD2",
+     "fid": "B1",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "final"
+    }
+   ],
+   "n_sources": 13,
+   "confirmed": true,
+   "adjudication_reason": "members name the P1 scope/AC-1.1 counts against the later-phase gate conversion and the P4 wait on D2-D4"
+  },
+  {
+   "cid": "D4",
+   "theme": "T3",
+   "label": "AC-C1 scans core/, where P0 itself adds Orca text, so the check cannot pass",
+   "anchor": "src/superclaude/agents src/superclaude/core",
+   "orig_span": [
+    171,
+    172
+   ],
+   "members": [
+    {
+     "source": "a1-r1/R1",
+     "fid": "F-04",
+     "blocking": true,
+     "quote": "src/superclaude/core",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r2/R1",
+     "fid": "F3",
+     "blocking": true,
+     "quote": "src/superclaude/core",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r3/R1",
+     "fid": "9",
+     "blocking": true,
+     "quote": "| 9 | AC-C1 scans `core/` where P0 puts the contract and the routing-guide Orca section, contradicting SA-2; the escaped",
+     "doc": "original"
+    }
+   ],
+   "n_sources": 3,
+   "confirmed": true,
+   "adjudication_reason": "members say AC-C1 greps src/superclaude/core while P0 adds WORKER-CONTRACT.md and an Orca section there"
+  },
+  {
+   "cid": "D5",
+   "theme": "T2",
+   "label": "Fixed status vocabulary was not checked against the contracts that already exist",
+   "anchor": "keep their fields and add the missing ones",
+   "orig_span": [
+    61,
+    62
+   ],
+   "members": [
+    {
+     "source": "a1-r1/R1",
+     "fid": "F-05",
+     "blocking": true,
+     "quote": "keep their fields and add the missing ones",
+     "doc": "original"
+    }
+   ],
+   "n_sources": 1,
+   "confirmed": false,
+   "adjudication_reason": "single member"
+  },
+  {
+   "cid": "D6",
+   "theme": "T1",
+   "label": "WC-3 ask protocol is incomplete for commands with several gates",
+   "anchor": "ask the coordinator once with the preamble's `ask` command",
+   "orig_span": [
+    60,
+    61
+   ],
+   "members": [
+    {
+     "source": "a1-r1/R1",
+     "fid": "F-06",
+     "blocking": true,
+     "quote": "target_release",
+     "doc": "original"
+    }
+   ],
+   "n_sources": 1,
+   "confirmed": false,
+   "adjudication_reason": "single member"
+  },
+  {
+   "cid": "D7",
+   "theme": "other",
+   "label": "WC-10 leaves a hole between 4 and 5 minutes and cannot split Monitor-driven or fan-out waits",
+   "anchor": "must be split into waits of at most 4 minutes",
+   "orig_span": [
+    67,
+    68
+   ],
+   "members": [
+    {
+     "source": "a1-r1/R1",
+     "fid": "F-07",
+     "blocking": true,
+     "quote": "longer than 5 minutes",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r3/R1",
+     "fid": "10",
+     "blocking": true,
+     "quote": "| 10 | WC-10 threshold (over 5 min, waits of at most 4) disagrees with AC-4.3 (240 s); a 4.5-minute call passes one and ",
+     "doc": "original"
+    }
+   ],
+   "n_sources": 2,
+   "confirmed": true,
+   "adjudication_reason": "members name the 4-5 minute gap and unsplittable waits"
+  },
+  {
+   "cid": "D8",
+   "theme": "other",
+   "label": "WC-9 names no mechanism by which outward actions are authorized and checked",
+   "anchor": "any default that pushes, opens a PR, posts to GitHub",
+   "orig_span": [
+    66,
+    67
+   ],
+   "members": [
+    {
+     "source": "a1-r1/R1",
+     "fid": "F-08",
+     "blocking": true,
+     "quote": "--no-post-pr",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r3/R1",
+     "fid": "13",
+     "blocking": true,
+     "quote": "| 13 | WC-9 and D4 require the coordinator to quote the user, which no command can check; post-release has four outward ",
+     "doc": "original"
+    }
+   ],
+   "n_sources": 2,
+   "confirmed": true,
+   "adjudication_reason": "members name missing authorization mechanism or precedence for outward flags"
+  },
+  {
+   "cid": "D9",
+   "theme": "other",
+   "label": "Fan-in of workers is specified for the success case only",
+   "anchor": "Orca keeps those records only for workers the coordinator starts",
+   "orig_span": [
+    38,
+    39
+   ],
+   "members": [
+    {
+     "source": "a1-r2/R1",
+     "fid": "F1",
+     "blocking": true,
+     "quote": "| F1 | Fan-in is specified for the success case only. N producer workers feed one aggregator, but a failed or blocked pr",
+     "doc": "original"
+    }
+   ],
+   "n_sources": 1,
+   "confirmed": false,
+   "adjudication_reason": "single member"
+  },
+  {
+   "cid": "D10",
+   "theme": "T2",
+   "label": "A stale contract from an earlier attempt can be read as the current result",
+   "anchor": "Orca does not check the file, so the coordinator opens it.",
+   "orig_span": [
+    61,
+    62
+   ],
+   "members": [
+    {
+     "source": "a1-r2/R1",
+     "fid": "F5",
+     "blocking": true,
+     "quote": "| F5 | A stale contract can be read as the current result. Nothing requires the contract to be removed or set to `runnin",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r3/R1",
+     "fid": "3",
+     "blocking": true,
+     "quote": "known before dispatch",
+     "doc": "original"
+    }
+   ],
+   "n_sources": 2,
+   "confirmed": true,
+   "adjudication_reason": "single member"
+  },
+  {
+   "cid": "D11",
+   "theme": "T2",
+   "label": "The --unattended switch has no token rule, so quoted text can switch gates off",
+   "anchor": "cannot misfire on a person",
+   "orig_span": [
+    227,
+    228
+   ],
+   "members": [
+    {
+     "source": "a1-r2/R1",
+     "fid": "F6",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r3/R1",
+     "fid": "11",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    }
+   ],
+   "n_sources": 2,
+   "confirmed": true,
+   "adjudication_reason": "members name the flag inside quoted or pasted text"
+  },
+  {
+   "cid": "D12",
+   "theme": "T1",
+   "label": "AC-1.1/AC-1.2 demand a contract section for /sc:load, which the spec exempts",
+   "anchor": "every command in sections 3.1-3.2 has a `## Unattended mode` section",
+   "orig_span": [
+    194,
+    195
+   ],
+   "members": [
+    {
+     "source": "a1-r2/R1",
+     "fid": "F7",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "original"
+    },
+    {
+     "source": "a1-r3/R1",
+     "fid": "1",
+     "blocking": true,
+     "quote": "| 1 | AC-1.1 and the P1 scope count 37 commands with a contract section, but load has no contract, pr-submit leaves the ",
+     "doc": "original"
+    },
+    {
+     "source": "a2-r1/R1",
+     "fid": "B-2",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "original"
+    },
+    {
+     "source": "a2-r2/R1",
+     "fid": "B1",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "original"
+    },
+    {
+     "source": "a2-r4/R1",
+     "fid": "B-1",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "original"
+    },
+    {
+     "source": "a2-r6/R1",
+     "fid": "F-01",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r1/R1",
+     "fid": "F2",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r3/R1",
+     "fid": "F1",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r4/R1",
+     "fid": "F-01",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r6/R1",
+     "fid": "REQ-2",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    },
+    {
+     "source": "a2-r3/AUD",
+     "fid": "REQ-1",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "final"
+    },
+    {
+     "source": "a2-r5/AUD",
+     "fid": "F-1",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r2/AUD",
+     "fid": "F-02",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r2/AUD2",
+     "fid": "B-1",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "final"
+    }
+   ],
+   "n_sources": 14,
+   "confirmed": true,
+   "adjudication_reason": "all members name /sc:load as exempt by its row and Decision but required by the universal acceptance check"
+  },
+  {
+   "cid": "D13",
+   "theme": "T3",
+   "label": "The spec never says how the worker starts the command, and AC-0.4 does not check the skill loaded",
+   "anchor": "The worker runs the command directly in its own session",
+   "orig_span": [
+    64,
+    65
+   ],
+   "members": [
+    {
+     "source": "a1-r3/R1",
+     "fid": "5",
+     "blocking": true,
+     "quote": "| 5 | The spec never says how the worker starts the command (Skill tool versus text in the preamble); evidence E3 is int",
+     "doc": "original"
+    }
+   ],
+   "n_sources": 1,
+   "confirmed": false,
+   "adjudication_reason": "single member"
+  },
+  {
+   "cid": "D14",
+   "theme": "T1",
+   "label": "No version or capability check before dispatch for older installs or section-4 commands",
+   "anchor": "split into 10 ready today, 27 needing a change and 6 coordinator-only",
+   "orig_span": [
+    75,
+    76
+   ],
+   "members": [
+    {
+     "source": "a1-r3/R1",
+     "fid": "6",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    }
+   ],
+   "n_sources": 1,
+   "confirmed": false,
+   "adjudication_reason": "single member"
+  },
+  {
+   "cid": "D15",
+   "theme": "other",
+   "label": "No rule that --unattended is passed to nested skills and commands",
+   "anchor": "the command never calls `AskUserQuestion`",
+   "orig_span": [
+    59,
+    60
+   ],
+   "members": [
+    {
+     "source": "a1-r3/R1",
+     "fid": "7",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    }
+   ],
+   "n_sources": 1,
+   "confirmed": false,
+   "adjudication_reason": "single member"
+  },
+  {
+   "cid": "D16",
+   "theme": "other",
+   "label": "AC-C5/AC-0.3 grep cannot detect a deleted markdown bullet, so 'additive' is not proved",
+   "anchor": "prints nothing: edits are additive",
+   "orig_span": [
+    175,
+    176
+   ],
+   "members": [
+    {
+     "source": "a1-r3/R1",
+     "fid": "8",
+     "blocking": true,
+     "quote": "| 8 | AC-C5 and AC-0.3 regex `^-[^-]` misses deleted bullets and frontmatter fences, and wrongly fails a Usage-line edit",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r5/R1",
+     "fid": "F-3",
+     "blocking": true,
+     "quote": "grep -E '^-[^-]'",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r4/AUD2",
+     "fid": "B-01",
+     "blocking": true,
+     "quote": "grep -E '^-[^-]'",
+     "doc": "final"
+    }
+   ],
+   "n_sources": 3,
+   "confirmed": true,
+   "adjudication_reason": "members name the '^-[^-]' pattern failing on '-- ' lines"
+  },
+  {
+   "cid": "D17",
+   "theme": "T2",
+   "label": "WC-5 treats only a missing report as failure; empty, unparseable or out-of-set contracts are unspecified",
+   "anchor": "`--outcome failed` when the report says `failed` or `blocked`, or no report exists",
+   "orig_span": [
+    62,
+    63
+   ],
+   "members": [
+    {
+     "source": "a1-r3/R1",
+     "fid": "12",
+     "blocking": true,
+     "quote": "| 12 | WC-5 treats only a missing report as failure; empty or unparseable files, blocked without a question, and out-of-",
+     "doc": "original"
+    }
+   ],
+   "n_sources": 1,
+   "confirmed": false,
+   "adjudication_reason": "single member"
+  },
+  {
+   "cid": "D18",
+   "theme": "other",
+   "label": "WC-2 lists default, flag and blocked with no precedence, and one blocked_question for several gates",
+   "anchor": "Each gate resolves one of three ways",
+   "orig_span": [
+    59,
+    60
+   ],
+   "members": [
+    {
+     "source": "a1-r3/R1",
+     "fid": "14",
+     "blocking": true,
+     "quote": "blocked_question",
+     "doc": "original"
+    }
+   ],
+   "n_sources": 1,
+   "confirmed": false,
+   "adjudication_reason": "single member"
+  },
+  {
+   "cid": "D19",
+   "theme": "T3",
+   "label": "AC-0.4 requires a contract that Phase 0 cannot yet produce",
+   "anchor": "step 4 uses the command's existing report file, since the contract arrives in P1",
+   "orig_span": [
+    193,
+    194
+   ],
+   "members": [
+    {
+     "source": "a2-r1/R1",
+     "fid": "B-1",
+     "blocking": true,
+     "quote": "/sc:troubleshoot",
+     "doc": "original"
+    },
+    {
+     "source": "a2-r5/R1",
+     "fid": "B-2",
+     "blocking": true,
+     "quote": "return-contract.yaml",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r1/R1",
+     "fid": "F1",
+     "blocking": true,
+     "quote": "return-contract.yaml",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r3/R1",
+     "fid": "F3",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r5/R1",
+     "fid": "F-2",
+     "blocking": true,
+     "quote": "<output-dir>/return-contract.yaml",
+     "doc": "original"
+    },
+    {
+     "source": "a2-r2/AUD",
+     "fid": "F-02",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r2/AUD",
+     "fid": "F-01",
+     "blocking": true,
+     "quote": "/sc:troubleshoot \"<real symptom>\"",
+     "doc": "final"
+    }
+   ],
+   "n_sources": 7,
+   "confirmed": true,
+   "adjudication_reason": "all members say step 3 of the live check needs the WC-4 contract while P0 makes no command edits"
+  },
+  {
+   "cid": "D20",
+   "theme": "T1",
+   "label": "Ready commands with no small fix get no section or contract yet P1/AC-1.1/WC-4 expect one",
+   "anchor": "The only command changes are the small fixes in the last column.",
+   "orig_span": [
+    78,
+    79
+   ],
+   "members": [
+    {
+     "source": "a3-r3/R1",
+     "fid": "F2",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r4/R1",
+     "fid": "F-01",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "original"
+    },
+    {
+     "source": "a3-r6/R1",
+     "fid": "REQ-2",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "original"
+    },
+    {
+     "source": "a2-r5/AUD",
+     "fid": "F-1",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "final"
+    },
+    {
+     "source": "a3-r2/AUD2",
+     "fid": "B-1",
+     "blocking": true,
+     "quote": "## Unattended mode",
+     "doc": "final"
+    }
+   ],
+   "n_sources": 5,
+   "confirmed": true,
+   "adjudication_reason": "members name brainstorm, init-lite, cleanup-audit, index-repo or adversarial: ready rows that gain nothing but are counted by the universal check"
+  },
+  {
+   "cid": "D21",
+   "theme": "other",
+   "label": "cli-portify can only end blocked under --unattended, yet AC-2.3 requires a succeeded happy path",
+   "anchor": "each of the three approval gates resolves as blocked with the artifact to review named in the contract",
+   "orig_span": [
+    104,
+    105
+   ],
+   "members": [
+    {
+     "source": "a2-r4/AUD",
+     "fid": "F-3",
+     "blocking": true,
+     "quote": "--unattended",
+     "doc": "final"
+    }
+   ],
+   "n_sources": 1,
+   "confirmed": false,
+   "adjudication_reason": "single member: no default or approval flag exists for the cli-portify gates"
+  },
+  {
+   "cid": "D22",
+   "theme": "other",
+   "label": "AC-2.2 requires status blocked for P2 commands whose gates resolve by default or flag",
+   "anchor": "contract `status: blocked` with a non-empty `blocked_question`",
+   "orig_span": [
+    199,
+    200
+   ],
+   "members": [
+    {
+     "source": "a3-r4/AUD",
+     "fid": "A-01",
+     "blocking": true,
+     "quote": "status: blocked",
+     "doc": "final"
+    }
+   ],
+   "n_sources": 1,
+   "confirmed": false,
+   "adjudication_reason": "single member: AC-2.2 asserts blocked for each P2 command"
+  }
+ ],
+ "revision_introduced": [
+  {
+   "source": "a3-r6/AUD",
+   "fid": "F-01",
+   "quote": "the contract is the sibling `<file>.return-contract.yaml`"
+  },
+  {
+   "source": "a3-r6/AUD2",
+   "fid": "B2",
+   "quote": "gain none (REQ-2)"
+  }
+ ],
+ "unanchored": [],
+ "overrides": [
+  {
+   "action": "split",
+   "cids": [
+    "D1",
+    "D2",
+    "D5",
+    "D10",
+    "D17",
+    "D18",
+    "D19"
+   ],
+   "mechanical": "M1",
+   "quote": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "reason": "mechanical cluster M1 pooled findings that name different wrong outcomes"
+  },
+  {
+   "action": "split",
+   "cids": [
+    "D1",
+    "D2",
+    "D3",
+    "D11",
+    "D12",
+    "D14",
+    "D15",
+    "D19",
+    "D20",
+    "D21"
+   ],
+   "mechanical": "M2",
+   "quote": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "reason": "mechanical cluster M2 pooled findings that name different wrong outcomes"
+  },
+  {
+   "action": "split",
+   "cids": [
+    "D9",
+    "D19"
+   ],
+   "mechanical": "M7",
+   "quote": "Orca keeps those records only for workers the coordinator starts",
+   "reason": "mechanical cluster M7 pooled findings that name different wrong outcomes"
+  },
+  {
+   "action": "split",
+   "cids": [
+    "D3",
+    "D12"
+   ],
+   "mechanical": "M8",
+   "quote": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "reason": "mechanical cluster M8 pooled findings that name different wrong outcomes"
+  },
+  {
+   "action": "merge",
+   "cids": [
+    "D1"
+   ],
+   "mechanical": [
+    "M1",
+    "M2"
+   ],
+   "quote": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "reason": "members from 2 mechanical clusters name the same wrong outcome: WC-4 contract location cannot be resolved for file-valued, nested, generated or absent output flags"
+  },
+  {
+   "action": "merge",
+   "cids": [
+    "D2"
+   ],
+   "mechanical": [
+    "M1",
+    "M2",
+    "M15"
+   ],
+   "quote": "writes each run into a fresh output directory so a re-run starts clean",
+   "reason": "members from 3 mechanical clusters name the same wrong outcome: WC-6 fresh directory on retry contradicts a fixed, known-before-dispatch output location"
+  },
+  {
+   "action": "merge",
+   "cids": [
+    "D3"
+   ],
+   "mechanical": [
+    "M2",
+    "M8"
+   ],
+   "quote": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "reason": "members from 2 mechanical clusters name the same wrong outcome: P1 ships --unattended on every command before the gates it must disable are converted in P2-P4"
+  },
+  {
+   "action": "merge",
+   "cids": [
+    "D7"
+   ],
+   "mechanical": [
+    "M5",
+    "M11"
+   ],
+   "quote": "must be split into waits of at most 4 minutes",
+   "reason": "members from 2 mechanical clusters name the same wrong outcome: WC-10 leaves a hole between 4 and 5 minutes and cannot split Monitor-driven or fan-out waits"
+  },
+  {
+   "action": "merge",
+   "cids": [
+    "D8"
+   ],
+   "mechanical": [
+    "M6",
+    "M12"
+   ],
+   "quote": "any default that pushes, opens a PR, posts to GitHub",
+   "reason": "members from 2 mechanical clusters name the same wrong outcome: WC-9 names no mechanism by which outward actions are authorized and checked"
+  },
+  {
+   "action": "merge",
+   "cids": [
+    "D12"
+   ],
+   "mechanical": [
+    "M2",
+    "M8"
+   ],
+   "quote": "every command in sections 3.1-3.2 has a `## Unattended mode` section",
+   "reason": "members from 2 mechanical clusters name the same wrong outcome: AC-1.1/AC-1.2 demand a contract section for /sc:load, which the spec exempts"
+  },
+  {
+   "action": "merge",
+   "cids": [
+    "D16"
+   ],
+   "mechanical": [
+    "M10",
+    "M14"
+   ],
+   "quote": "prints nothing: edits are additive",
+   "reason": "members from 2 mechanical clusters name the same wrong outcome: AC-C5/AC-0.3 grep cannot detect a deleted markdown bullet, so 'additive' is not proved"
+  },
+  {
+   "action": "merge",
+   "cids": [
+    "D19"
+   ],
+   "mechanical": [
+    "M1",
+    "M2",
+    "M7",
+    "M13",
+    "M16"
+   ],
+   "quote": "step 4 uses the command's existing report file, since the contract arrives in P1",
+   "reason": "members from 5 mechanical clusters name the same wrong outcome: AC-0.4 requires a contract that Phase 0 cannot yet produce"
+  },
+  {
+   "action": "move",
+   "cids": [
+    "D1",
+    "D2"
+   ],
+   "finding": [
+    "a1-r1/R1",
+    "F-02"
+   ],
+   "quote": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "reason": "the finding names more than one distinct wrong outcome and is a member of each"
+  },
+  {
+   "action": "move",
+   "cids": [
+    "D3",
+    "D12"
+   ],
+   "finding": [
+    "a1-r3/R1",
+    "1"
+   ],
+   "quote": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "reason": "the finding names more than one distinct wrong outcome and is a member of each"
+  },
+  {
+   "action": "move",
+   "cids": [
+    "D2",
+    "D10"
+   ],
+   "finding": [
+    "a1-r3/R1",
+    "3"
+   ],
+   "quote": "writes each run into a fresh output directory so a re-run starts clean",
+   "reason": "the finding names more than one distinct wrong outcome and is a member of each"
+  },
+  {
+   "action": "move",
+   "cids": [
+    "D1",
+    "D11"
+   ],
+   "finding": [
+    "a1-r3/R1",
+    "11"
+   ],
+   "quote": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "reason": "the finding names more than one distinct wrong outcome and is a member of each"
+  },
+  {
+   "action": "move",
+   "cids": [
+    "D3",
+    "D12",
+    "D20"
+   ],
+   "finding": [
+    "a3-r4/R1",
+    "F-01"
+   ],
+   "quote": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "reason": "the finding names more than one distinct wrong outcome and is a member of each"
+  },
+  {
+   "action": "move",
+   "cids": [
+    "D12",
+    "D20"
+   ],
+   "finding": [
+    "a3-r6/R1",
+    "REQ-2"
+   ],
+   "quote": "every command in sections 3.1-3.2 has a `## Unattended mode` section",
+   "reason": "the finding names more than one distinct wrong outcome and is a member of each"
+  },
+  {
+   "action": "move",
+   "cids": [
+    "D12",
+    "D20"
+   ],
+   "finding": [
+    "a2-r5/AUD",
+    "F-1"
+   ],
+   "quote": "every command in sections 3.1-3.2 has a `## Unattended mode` section",
+   "reason": "the finding names more than one distinct wrong outcome and is a member of each"
+  },
+  {
+   "action": "move",
+   "cids": [
+    "D12",
+    "D20"
+   ],
+   "finding": [
+    "a3-r2/AUD2",
+    "B-1"
+   ],
+   "quote": "every command in sections 3.1-3.2 has a `## Unattended mode` section",
+   "reason": "the finding names more than one distinct wrong outcome and is a member of each"
+  },
+  {
+   "action": "move",
+   "cids": [],
+   "finding": [
+    "a3-r6/AUD",
+    "F-01"
+   ],
+   "quote": "the contract is the sibling `<file>.return-contract.yaml`",
+   "reason": "rests on text added by the revisions (quote is in the final spec, not in the original): revision_introduced"
+  },
+  {
+   "action": "move",
+   "cids": [],
+   "finding": [
+    "a3-r6/AUD2",
+    "B2"
+   ],
+   "quote": "gain none (REQ-2)",
+   "reason": "rests on text added by the revisions (quote is in the final spec, not in the original): revision_introduced"
+  }
+ ],
+ "residual": {
+  "a1-r1": {
+   "present": [
+    "D2",
+    "D5",
+    "D8",
+    "D9",
+    "D10",
+    "D11",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D18",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": [
+     "D2"
+    ]
+   }
+  },
+  "a1-r2": {
+   "present": [
+    "D2",
+    "D5",
+    "D7",
+    "D8",
+    "D9",
+    "D10",
+    "D13",
+    "D14",
+    "D15",
+    "D17",
+    "D18",
+    "D20",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": []
+   }
+  },
+  "a1-r3": {
+   "present": [
+    "D4",
+    "D5",
+    "D6",
+    "D9",
+    "D10",
+    "D11",
+    "D13",
+    "D14",
+    "D15",
+    "D18",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": []
+   }
+  },
+  "a2-r1": {
+   "present": [
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "D10",
+    "D11",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D20",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": [
+     "D1",
+     "D3"
+    ]
+   }
+  },
+  "a2-r2": {
+   "present": [
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "D10",
+    "D11",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D19",
+    "D20",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": [
+     "D1",
+     "D19"
+    ]
+   }
+  },
+  "a2-r3": {
+   "present": [
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "D10",
+    "D11",
+    "D12",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D19",
+    "D20",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": [
+     "D1",
+     "D3",
+     "D12"
+    ]
+   }
+  },
+  "a2-r4": {
+   "present": [
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "D10",
+    "D11",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D19",
+    "D20",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": [
+     "D1",
+     "D3",
+     "D21"
+    ]
+   }
+  },
+  "a2-r5": {
+   "present": [
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "D10",
+    "D11",
+    "D12",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D20",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": [
+     "D12",
+     "D20"
+    ]
+   }
+  },
+  "a2-r6": {
+   "present": [
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "D10",
+    "D11",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D19",
+    "D20",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": []
+   }
+  },
+  "a3-r1": {
+   "present": [
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "D10",
+    "D11",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D19",
+    "D20",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": [
+     "D1",
+     "D3"
+    ],
+    "AUD2": [
+     "D1",
+     "D3"
+    ]
+   }
+  },
+  "a3-r2": {
+   "present": [
+    "D2",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "D10",
+    "D11",
+    "D12",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D19",
+    "D20",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": [
+     "D12",
+     "D19"
+    ],
+    "AUD2": [
+     "D12",
+     "D20"
+    ]
+   }
+  },
+  "a3-r3": {
+   "present": [
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "D10",
+    "D11",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": [
+     "D1",
+     "D3"
+    ],
+    "AUD2": [
+     "D1",
+     "D3"
+    ]
+   }
+  },
+  "a3-r4": {
+   "present": [
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "D10",
+    "D11",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D19",
+    "D20",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": [
+     "D1",
+     "D22"
+    ],
+    "AUD2": [
+     "D16"
+    ]
+   }
+  },
+  "a3-r5": {
+   "present": [
+    "D1",
+    "D2",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "D10",
+    "D11",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D20",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": [],
+    "AUD2": [
+     "D1"
+    ]
+   }
+  },
+  "a3-r6": {
+   "present": [
+    "D1",
+    "D4",
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9",
+    "D10",
+    "D11",
+    "D13",
+    "D14",
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D19",
+    "D20",
+    "D21",
+    "D22"
+   ],
+   "audit_hits": {
+    "AUD": [],
+    "AUD2": [
+     "D1"
+    ]
+   }
+  }
+ }
+}

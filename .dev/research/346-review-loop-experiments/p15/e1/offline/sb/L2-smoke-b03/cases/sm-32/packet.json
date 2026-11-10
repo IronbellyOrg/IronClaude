@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-32",
+ "finding": {
+  "heading": "### R1-1 Administrator sessions never time out",
+  "body": "The administrator rule exempts administrator sessions from the timeout, although administrator sessions carry the most risk. Cited: spec lines 18-19 (before version).\nAn implementer who follows ST-6 builds administrator sessions that stay open forever.\nProtected requirement: line 18 (the timeout must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -16,7 +16,7 @@\n ## 3. Roles\n \n - **ST-5 Timeout obligation.** Every session ends after a period of inactivity.\n-- **ST-6 Administrator sessions.** Administrator sessions never time out.\n+- **ST-6 Administrator sessions.** Administrator sessions end after the idle limit of ST-2, extended only as allowed by ST-3, ST-7 and ST-9.\n - **ST-8 Renewal.** A request from the user renews the idle timer of the session.\n - **ST-10 Display.** The page shows the user how long the session will stay open.\n - **ST-11 Storage.** Session data is kept on the server and the browser holds only an opaque identifier.\n"
+}

@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": false,
+  "run": "a3-r1"
+ },
+ "case_id": "real_a3r1_F9",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "T3:5",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F9",
+  "finding_section": "**F9. Medium. Hohpe, Fowler. AC-C1 cannot pass for the P0 deliverables as the spec describes them.** AC-C1 requires zero matches of `orca(-ide) orchestration|worktree|terminal|agent` under `src/superclaude/core` (`spec:172`), while P0 adds `WORKER-CONTRACT.md` to `core/` (`spec:52`, `spec:158`) and an \"Orca section\" to `HOW-WE-WORK.md` in `core/` (`spec:158`), and SA-2 explicitly allows Orca mentions in the contract file (`spec:147`). Any natural Orca section that names a coordinator command trips the check. Recommend: align the grep paths with SA-2 or exclude the two named files."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a3-r1/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

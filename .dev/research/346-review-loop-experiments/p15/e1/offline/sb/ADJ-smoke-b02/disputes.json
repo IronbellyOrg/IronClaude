@@ -1,0 +1,62 @@
+{
+ "sm-32": {
+  "labeler_1": {
+   "case_id": "sm-32",
+   "evidence": "ST-6 \"Administrator sessions end after the idle limit of ST-2, extended only as allowed by ST-3, ST-7 and ST-9\"; ST-5 retained",
+   "confidence": "high",
+   "resolved": "yes",
+   "obligation_preserved": "yes",
+   "new_conflict": "no",
+   "closure_correct": "yes"
+  },
+  "labeler_2": {
+   "case_id": "sm-32",
+   "evidence": "after.md ST-6: 'Administrator sessions end after the idle limit of ST-2, extended only as allowed by ST-3, ST-7 and ST-9.' ST-5 (line 18) is unchanged: 'Every session ends after a period of inactivity.' The added text relies on the existing ST-7/ST-9 exceptions, which predate this revision.",
+   "confidence": "low",
+   "resolved": "yes",
+   "obligation_preserved": "yes",
+   "new_conflict": "no",
+   "closure_correct": "yes"
+  }
+ },
+ "sm-33": {
+  "labeler_1": {
+   "case_id": "sm-33",
+   "evidence": "EX-4 still: \"written to the shared directory `/shared/exports/<date>/`.\" Only EX-3 changed (tenant directory). EX-2 intact.",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "no",
+   "closure_correct": "no"
+  },
+  "labeler_2": {
+   "case_id": "sm-33",
+   "evidence": "EX-4 Batch exports (unchanged): Exports produced by the nightly batch are written to the shared directory /shared/exports/<date>/. | EX-3 (added): ... Both export paths now satisfy the tenant isolation rule. | EX-2 Tenant isolation (unchanged): An export file can be read only by the tenant that requested it.",
+   "confidence": "high",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  }
+ },
+ "sm-38": {
+  "labeler_1": {
+   "case_id": "sm-38",
+   "evidence": "IN-5 now lists duplicates, but it says 'in the sequence that all regions share' while IN-3 says 'Every region numbers its invoices from a sequence of its own'; IN-4 gap check kept.",
+   "confidence": "high",
+   "resolved": "yes",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  },
+  "labeler_2": {
+   "case_id": "sm-38",
+   "evidence": "after.md line 17: \"- **IN-3 Sequence.** Every region numbers its invoices from a sequence of its own, and the region code is part of each number.\" Line 19: \"- **IN-5 Duplicate check.** The reconciliation job lists each number that occurs twice in the sequence that all regions share.\" Line 18 (IN-4, gap check) is unchanged. Under IN-3 no sequence is shared, so the IN-5 check has no shared sequence to examine.",
+   "confidence": "low",
+   "resolved": "no",
+   "obligation_preserved": "yes",
+   "new_conflict": "yes",
+   "closure_correct": "no"
+  }
+ }
+}

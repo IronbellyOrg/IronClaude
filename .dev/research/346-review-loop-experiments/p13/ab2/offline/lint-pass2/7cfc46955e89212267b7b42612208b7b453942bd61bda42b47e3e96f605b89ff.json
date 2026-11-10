@@ -1,0 +1,78 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "7cfc46955e89212267b7b42612208b7b453942bd61bda42b47e3e96f605b89ff",
+  "doc_bytes": 58629,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        62,
+        62
+      ],
+      "quote": "| WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes `<contract-dir>/return-contract.yaml`, where `<contract-dir>` is the directory t...",
+      "other_lines": null,
+      "message": "B-1 is referenced but never defined (9 references)."
+    },
+    {
+      "lint_id": "LINT-PATH-1",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        92,
+        92
+      ],
+      "quote": "| workflow | `--handoff none` | `.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | Also write the contract to `<contract-dir>` on every outcome, pre-creation STOPs included (WC...",
+      "other_lines": [
+        62,
+        62
+      ],
+      "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<contract-dir>/return-contract.yaml` (line 62) but fits none of them."
+    },
+    {
+      "lint_id": "LINT-REF-2",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        182,
+        182
+      ],
+      "quote": "3. `ORCA orchestration check --wait --types \"worker_done,escalation,question\" --timeout-ms 900000 --json` until `worker_done` arrives. **Pass:** exactly one `worker_done`; its `--outcome` matches t...",
+      "other_lines": null,
+      "message": "B-2 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-PHASE-1",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        194,
+        194
+      ],
+      "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+      "other_lines": [
+        178,
+        178
+      ],
+      "message": "The P0 row (AC-0.4) refers to section 7.2, which uses B-1 (P1), WC-4 (P1); the rollout table first introduces each in a later phase."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

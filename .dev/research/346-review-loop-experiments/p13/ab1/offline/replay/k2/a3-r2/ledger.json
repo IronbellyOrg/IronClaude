@@ -1,0 +1,187 @@
+{
+ "schema": "review-ledger/1",
+ "doc": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/repo-overlay/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+ "cap_reviews": 3,
+ "rounds": [
+  {
+   "n": 1,
+   "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "replay",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/offline/replay/k2/a3-r2/round1-t1b-1.md",
+     "report_sha256": "a112d4513cb2a0d80a945183c1be1c89f96e3b650b10f4390cb9fc8ed2804051",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "replay",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/offline/replay/k2/a3-r2/round1-t2-1.md",
+     "report_sha256": "a112d4513cb2a0d80a945183c1be1c89f96e3b650b10f4390cb9fc8ed2804051",
+     "block_ok": true
+    }
+   ],
+   "verdict": "FAIL",
+   "decision": "REVISE",
+   "brief_ids": [
+    "L1",
+    "L2"
+   ]
+  },
+  {
+   "n": 2,
+   "doc_sha256": "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3",
+   "reviewers": [
+    {
+     "reviewer_id": "t1b-1",
+     "model": "replay",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/offline/replay/k2/a3-r2/round2-t1b-1.md",
+     "report_sha256": "6b30623c72d68effbb8076f625ac83948ecc1040728076b30236ca24fe08f60c",
+     "block_ok": true
+    },
+    {
+     "reviewer_id": "t2-1",
+     "model": "replay",
+     "report": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/ab1/offline/replay/k2/a3-r2/round2-t2-1.md",
+     "report_sha256": "6b30623c72d68effbb8076f625ac83948ecc1040728076b30236ca24fe08f60c",
+     "block_ok": true
+    }
+   ],
+   "verdict": "PASS",
+   "decision": "PASS",
+   "brief_ids": []
+  }
+ ],
+ "rows": [
+  {
+   "lid": "L1",
+   "fp": "c068ff33ba7ff331",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "contradiction",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate)",
+   "anchor2": "Under `--unattended` the command never calls `AskUserQuestion`",
+   "span": [
+    158,
+    159
+   ],
+   "span2": [
+    59,
+    60
+   ],
+   "refs": [
+    "AC-1.1",
+    "P1",
+    "WC-2"
+   ],
+   "claim": "P1 puts the flag and section on gated commands that still prompt, so the stall WC-2 forbids is not detected.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "R1-B1",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "R1-B1",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t2-1",
+     "status": "resolved"
+    }
+   ]
+  },
+  {
+   "lid": "L2",
+   "fp": "512127b71384bf92",
+   "blocking": true,
+   "severity_max": "CRITICAL",
+   "category": "unpassable-check",
+   "confidence": "overlap",
+   "status": "resolved",
+   "anchor": "where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`)",
+   "anchor2": "not a bare topic; `--output <file>` | the TDD at `--output`",
+   "span": [
+    61,
+    62
+   ],
+   "span2": [
+    89,
+    90
+   ],
+   "refs": [
+    "AC-2.2",
+    "WC-4"
+   ],
+   "claim": "The contract path is undefined for file-valued output flags, so the AC-2.2 contract cannot be located.",
+   "members": [
+    {
+     "round": 1,
+     "reviewer_id": "t1b-1",
+     "fid": "R1-B2",
+     "blocking": true
+    },
+    {
+     "round": 1,
+     "reviewer_id": "t2-1",
+     "fid": "R1-B2",
+     "blocking": true
+    }
+   ],
+   "history": [
+    {
+     "round": 1,
+     "event": "opened"
+    },
+    {
+     "round": 1,
+     "event": "resolved_check"
+    },
+    {
+     "round": 2,
+     "event": "cleared"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t1b-1",
+     "status": "resolved"
+    },
+    {
+     "round": 2,
+     "event": "prior_note",
+     "reviewer_id": "t2-1",
+     "status": "resolved"
+    }
+   ]
+  }
+ ]
+}

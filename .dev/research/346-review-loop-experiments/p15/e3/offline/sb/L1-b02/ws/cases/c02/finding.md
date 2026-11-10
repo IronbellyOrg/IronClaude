@@ -1,0 +1,5 @@
+### M1 MAJOR, graded Medium. AC-0.4 step 3 cannot pass in P0 as written
+- Issue: P0 makes no command edits (S:158) and the WC-4 contract arrives in P1 (S:194). AC-0.4 (S:194) says steps 1 to 3 and 5 to 7 of 7.2 pass and only step 4 "uses the command's existing report file". Step 3 (S:182) requires the `--outcome` to match "the contract's status" and "its report path is the WC-4 contract path". `/sc:troubleshoot` writes only REPORT.md in this mode (the contract exists only with `--caller task-unified`, INV-B:242; S:91).
+- Expert: Adzic (testable example). Priority: High. Quality impact: Testability.
+- Grading sentence: An implementer who follows the stated text as written runs the three P0 smoke runs and finds step 3 unsatisfiable for troubleshoot, and that is wrong because a false P0 failure "reopens section 1" (S:194); this needs the guess that the carve-out for step 4 was not meant to cover step 3, so it is Medium.
+- Recommendation: extend the carve-out to step 3 for P0 ("report path is the command's existing report; outcome matches the report's verdict").

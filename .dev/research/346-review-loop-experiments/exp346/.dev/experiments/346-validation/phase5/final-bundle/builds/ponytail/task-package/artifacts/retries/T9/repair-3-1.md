@@ -1,0 +1,4 @@
+7987ab62e0024258b9bd4ad4197ddcc89dbbee48
+reviewed=bdc2fbe11dfccc1459353bd531c5cb65a1288e56 ref=r3-1
+F3.1 sev=blocking trigger=B2 ac=scope at=docs/designs/spec-panel-ponytail.md:32 anchor=src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py:588 chk=n,y,n,n family=doc-claim-vs-code fix=change the parenthetical to "(A K1 failure on the spec means the spec had already changed before the check ran; K1 also fails when the baseline changed.)" or drop it first=A3 origin=new: the note says "A K1 failure means the spec had already changed before the check ran", but K1 also fails when only the baseline's sha256 changed (fix_audit.py:588 appends `("K1", "baseline sha256 changed")`). In that case the spec is unchanged. A reader who follows the note and copies `current-before-audit.md` back over the spec does no harm, because the spec is already identical to that copy, so the effect is small.
+applied tree=790556c9213b3a098eb43d501dd952119c14fdca

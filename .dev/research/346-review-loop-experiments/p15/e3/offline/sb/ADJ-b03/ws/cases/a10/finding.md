@@ -1,0 +1,6 @@
+### B1. The contract path rule in WC-4 cannot hold for `/sc:workflow` (and the adversarial path disagrees)
+
+- Spec text: WC-4 requires "in unattended mode the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed", written "including stops before any other output exists" (`.dev/orca-command-refactor/specs/orca-worker-contract-spec.md:62`). Section 2.3 requires the report path "known before dispatch" (line 73).
+- Contradicting text: the workflow row in section 3.1 gives the brief only `--handoff none` (line 92), and its contract is `.dev/tasks/to-do/<id>/return-contract.yaml`, a per-run package path (line 92; `INV-B:272`, `INV-B:267-275`). The adversarial row names `<output>/adversarial/return-contract.yaml` (line 83), a subdirectory that WC-4 does not allow (`INV-A:60`).
+- Grading sentence: an implementer who follows WC-4 as written makes `/sc:workflow` write `<output-dir>/return-contract.yaml`, but the brief supplies no output directory and the package `<id>` is created at run time, so the coordinator cannot know the path before dispatch (WC-4, line 73), and a pre-creation STOP has no `<id>` directory to write into, which AC-1.4 (line 198) requires workflow to satisfy.
+- Severity: blocking, because the two stated rules cannot both be met.

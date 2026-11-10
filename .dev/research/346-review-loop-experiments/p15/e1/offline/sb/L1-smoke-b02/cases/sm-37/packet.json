@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-37",
+ "finding": {
+  "heading": "### R1-1 Refund method forces store credit",
+  "body": "The refund method rule says that every refund is paid out as store credit. That conflicts with the purpose of the policy, which is to give customers their money back. Cited: spec lines 18-19 (before version).\nAn implementer who follows RF-4 builds a refund service that never returns money to the payment method of the customer.\nProtected requirement: line 18 (the refund obligation must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -16,7 +16,7 @@\n ## 3. Refunds\n \n - **RF-3 Refund obligation.** A customer who cancels an order or returns an item within the allowed window is refunded the full price paid for it, including shipping when the whole order is cancelled.\n-- **RF-4 Refund method.** All refunds are issued as store credit.\n+- **RF-4 Refund method.** Refunds return to the original payment method. Store credit is issued only when the customer chooses it. This revision keeps every refund obligation intact.\n - **RF-5 Processing time.** A refund is issued within 5 business days after the cancellation is confirmed or the returned item is received.\n - **RF-8 Partial returns.** When only some items of an order are returned, only the price of those items is refunded. Shipping is not refunded for partial returns.\n \n"
+}

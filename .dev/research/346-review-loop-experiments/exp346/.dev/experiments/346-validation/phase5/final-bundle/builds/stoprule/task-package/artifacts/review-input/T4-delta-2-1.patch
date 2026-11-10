@@ -1,0 +1,81 @@
+diff --git a/dev/fd/63 b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
+index 00000000..ad48c27e 100644
+--- a/dev/fd/63
++++ b/src/superclaude/skills/sc-spec-panel-stoprule-protocol/scripts/stoprule.py
+@@ -929,6 +929,13 @@ def claim_statuses(records):
+     return out
+ 
+ 
++def audit_hunks_real(records):
++    """Unclaimed hunks the PASS-time auditor judged real: confirmed-audit defects (FAIL)."""
++    return [
++        a for a in of_kind(records, "audit") if "hunk" in a and a.get("real") is True
++    ]
++
++
+ # --- PASS-time audit -------------------------------------------------------------------
+ 
+ 
+@@ -975,7 +982,9 @@ def audit_items(records):
+ def audit_blockers(records):
+     statuses = claim_statuses(records)
+     reasons = []
+-    if any(s["status"] in ("confirmed", "confirmed-audit") for s in statuses.values()):
++    if any(
++        s["status"] in ("confirmed", "confirmed-audit") for s in statuses.values()
++    ) or audit_hunks_real(records):
+         reasons.append("a claim is confirmed")
+     if "unresolved-prior" in frozen_priors(records).values():
+         reasons.append("a frozen prior is still open")
+@@ -1101,9 +1110,17 @@ def cmd_apply_audit(args):
+             f"apply-audit: auditor reply invalid ({error}); the verdict is FAIL incomplete"
+         )
+         return EXIT_OK
+-    real = [r["aid"] for r in out[1:] if r["real"]]
++    claims = [f"{r['aid']} ({r['id']})" for r in out[1:] if r["real"] and "id" in r]
++    hunks = [
++        f"{r['aid']} (lines {r['hunk'][0]}-{r['hunk'][1]})"
++        for r in out[1:]
++        if r["real"] and "hunk" in r
++    ]
++    print(f"apply-audit: {len(items)} items audited")
++    print(f"  claims reinstated as confirmed-audit: {', '.join(claims) or 'none'}")
+     print(
+-        f"apply-audit: {len(items)} items audited; reinstated: {', '.join(real) or 'none'}"
++        "  unclaimed hunks judged real (confirmed-audit defects): "
++        + (", ".join(hunks) or "none")
+     )
+     return EXIT_OK
+ 
+diff --git a/dev/fd/63 b/tests/skills/test_stoprule_script.py
+index 00000000..6a21c4ce 100644
+--- a/dev/fd/63
++++ b/tests/skills/test_stoprule_script.py
+@@ -992,3 +992,27 @@ def test_dry_run_writes_nothing_for_every_writing_subcommand(tmp_path):
+ 
+ def test_usage_error_exits_5():
+     assert run("begin")[0] == 5
++
++
++def test_audit_real_true_on_an_unclaimed_hunk_is_a_confirmed_audit_defect(
++    review1, tmp_path
++):
++    spec, report = review1
++    records = sealed(report, spec, many_claims(1))
++    batch = sr.build_batches(records, CANARIES)[0]
++    assert apply(report, tmp_path, batch, reply_for(batch, blocking=False))[0] == 0
++    items = sr.audit_items(sr.load_ledger(report.read_text()))
++    reply = tmp_path / "audit.txt"
++    reply.write_text(
++        "\n".join(
++            json.dumps({"aid": a, "real": a == "H1", "why": "audit"}) for a in items
++        )
++        + "\n"
++    )
++    code, out = run("apply-audit", "--report", report, "--reply", reply)
++    assert code == 0, out
++    assert "claims reinstated as confirmed-audit: none" in out
++    assert "unclaimed hunks judged real (confirmed-audit defects): H1 (lines" in out
++    records = sr.load_ledger(report.read_text())
++    assert [a["hunk"] for a in sr.audit_hunks_real(records)] == [items["H1"]["hunk"]]
++    assert sr.claim_statuses(records)["R1-1"]["status"] == "minor"

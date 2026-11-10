@@ -1,0 +1,181 @@
+{
+ "run": "b3-r3",
+ "design": "b3",
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "rep": 3,
+ "product_ref": "e924cc2b505da847c78d8580aa7daa17f4e15f2c",
+ "cmd_sha": "dbe23632d0d981289c2a33edaeee5e1ff7fb3babeff14940979e5d2486223099",
+ "rules_sha": "0bf6d28fbffb08a2ce62010bdabda114a80065090d9fb4fc24beaa06471e7408",
+ "done": [
+  "R1",
+  "V1",
+  "R2",
+  "G",
+  "GV",
+  "GR",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 32741,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "F-01, F-02",
+   "blocking": [
+    {
+     "id": "F-01",
+     "theme": "T2",
+     "heading": "### F-01 (MAJOR, blocking, priority High): the WC-4 contract path rule has no answer for five specif"
+    },
+    {
+     "id": "F-02",
+     "theme": "T1",
+     "heading": "### F-02 (MAJOR, blocking, priority High): AC-1.1 and the P1 scope contradict three other stated tex"
+    }
+   ],
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "output_tokens": 54463
+  },
+  "V1": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 8610,
+   "spec_after": {
+    "bytes": 59305,
+    "lines": 285,
+    "sha256": "e40e99ee4052bc08befc7a5c553a10250f30eed258a771b80b4e6936f8bf5bff"
+   },
+   "output_tokens": 24064
+  },
+  "R2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 41572,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "blocking_ids": "none. No revision is requested, and none may be made on the strength of the Medium or minor findings above: a Medium or minor finding never triggers a revision and never appears in a Reviser brief (`CMD:259`). If the coordinator later revises on a gate-review blocker, the restated rules apply (the reviser reads this report, not the command): revise only text a blocking finding names; add no rule, mechanism or section that no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, and the bytes added and deleted per finding id; leave Medium and minor findings alone; do not award yourself a PASS",
+   "blocking": [],
+   "spec_after": {
+    "bytes": 59305,
+    "lines": 285,
+    "sha256": "e40e99ee4052bc08befc7a5c553a10250f30eed258a771b80b4e6936f8bf5bff"
+   }
+  },
+  "G": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 19750,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "GF-01",
+   "blocking": [
+    {
+     "id": "GF-01",
+     "theme": "T3",
+     "heading": "### GF-01 (blocking, MAJOR) - the P0 gate cannot pass as written"
+    }
+   ]
+  },
+  "GV": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 1532,
+   "spec_after": {
+    "bytes": 59481,
+    "lines": 285,
+    "sha256": "0962971bc5e9e3d54fa29ae20237450890eefb0d54ec5b262606d398c0bb57e2"
+   }
+  },
+  "GR": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 9324,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "blocking_ids": null,
+   "blocking": [],
+   "header_expected": "2",
+   "spec_after": {
+    "bytes": 59481,
+    "lines": 285,
+    "sha256": "0962971bc5e9e3d54fa29ae20237450890eefb0d54ec5b262606d398c0bb57e2"
+   }
+  },
+  "AUD": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 19944,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "F-01",
+   "blocking": [
+    {
+     "id": "F-01",
+     "theme": "other",
+     "heading": "### F-01 (CRITICAL by label, blocking by consequence): WC-3 lets a worker turn a blocked gate into a"
+    }
+   ],
+   "spec_audited": {
+    "bytes": 59481
+   }
+  },
+  "AUD2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 17313,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "B-1",
+   "blocking": [
+    {
+     "id": "B-1",
+     "theme": "T2",
+     "heading": "### B-1 (blocking) WC-4 cannot produce a contract path for cleanup-audit and index-repo"
+    }
+   ],
+   "spec_audited": {
+    "bytes": 59481
+   }
+  }
+ },
+ "launched": {
+  "R1": "2026-11-10T05:12:50+00:00",
+  "V1": "2026-11-10T05:20:03+00:00",
+  "R2": "2026-11-10T05:25:08+00:00",
+  "G": "2026-11-10T05:35:55+00:00",
+  "GV": "2026-11-10T05:45:25+00:00",
+  "GR": "2026-11-10T05:50:57+00:00",
+  "AUD": "2026-11-10T05:57:45+00:00",
+  "AUD2": "2026-11-10T06:00:27+00:00"
+ },
+ "noted_unactioned": [],
+ "loop_end": "GATE-LOOP-PASS",
+ "manual": [],
+ "stall": {
+  "auto": false,
+  "pairs": [],
+  "gate_ids": [
+   "GF-01"
+  ]
+ }
+}

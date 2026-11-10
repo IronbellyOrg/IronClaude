@@ -1,0 +1,28 @@
+{
+ "case_id": "syn-bkp-5~paraphrase",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.42,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.64,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 177,
+  "model": "jev-1.14.0",
+  "request_sha256": "a4cee78826d57fa8d957dbfb68b20dc879da48e997ba1456d303a8e0d3bed60b",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 696,
+   "output_tokens": 46
+  }
+ }
+}

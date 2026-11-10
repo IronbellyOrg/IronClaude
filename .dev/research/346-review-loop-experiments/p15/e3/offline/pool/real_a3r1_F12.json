@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": false,
+  "run": "a3-r1"
+ },
+ "case_id": "real_a3r1_F12",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "T1:10",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F12",
+  "finding_section": "**F12. Medium. Fowler. Section 6 calls P1 \"commands with no gate\" but P1 includes four commands that have a gate row.** `explain` (`--format interactive` refused, `spec:108`), `business-panel` (socratic refused, `spec:102`), `test` (`--watch` refused, `spec:123`), `index` (knowledge-base statement, `spec:111`). The gate-trigger acceptance check (AC-2.2, `spec:200`) is defined for P2 commands only, so P1 never tests those refusals."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a3-r1/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

@@ -1,0 +1,68 @@
+[
+ {
+  "case_id": "s0-11",
+  "document": "docs/doc-1ef4812f57.md",
+  "proposed_defect": "PAY-2 retries a timed-out capture three times following RTY-1, RTY-1 takes the retry budget from TIER-1, and TIER-1 gives capture a budget of 0 because a repeat could charge the customer twice.",
+  "proposed_evidence": [
+   {
+    "quote": "A capture that times out is retried three times following RTY-1",
+    "lines": "10-10"
+   },
+   {
+    "quote": "The number of retries for a call is the retry budget listed for its call type in TIER-1",
+    "lines": "16-16"
+   },
+   {
+    "quote": "| TIER-1 | capture | 0 |",
+    "lines": "26-26"
+   }
+  ],
+  "labeler_1": {
+   "defect_real": "yes",
+   "evidence_sufficient": "yes",
+   "evidence_minimal": "yes",
+   "evidence": "PAY-2: A capture that times out is retried three times following RTY-1. / RTY-1: ...the retry budget listed for its call type in TIER-1. / | TIER-1 | capture | 0 | a repeat could charge the customer twice |",
+   "other_blocker": "none",
+   "confidence": "high"
+  },
+  "labeler_2": {
+   "defect_real": "yes",
+   "evidence_sufficient": "yes",
+   "evidence_minimal": "yes",
+   "evidence": "| TIER-1 | capture | 0 | a repeat could charge the customer twice |",
+   "other_blocker": "none",
+   "confidence": "low"
+  }
+ },
+ {
+  "case_id": "s0-13",
+  "document": "docs/doc-56332a4e1c.md",
+  "proposed_defect": "SA-7 says every command writes its report under `.dev/worker-reports/<slug>/` whatever its output flag says, but the cleanup-audit row fixes its report at `.claude-audit/pass<N>-summary.md` with a fixed output directory.",
+  "proposed_evidence": [
+   {
+    "quote": "every command writes its report under `.dev/worker-reports/<slug>/`, whatever its output flag says",
+    "lines": "152-152"
+   },
+   {
+    "quote": "`.claude-audit/pass<N>-summary.md`",
+    "lines": "85-85"
+   }
+  ],
+  "labeler_1": {
+   "defect_real": "yes",
+   "evidence_sufficient": "no",
+   "evidence_minimal": "no",
+   "evidence": "SA-7: In unattended mode every command writes its report under `.dev/worker-reports/<slug>/`, whatever its output flag says. (contradicts WC-4: writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed)",
+   "other_blocker": "none",
+   "confidence": "low"
+  },
+  "labeler_2": {
+   "defect_real": "no",
+   "evidence_sufficient": "n/a",
+   "evidence_minimal": "n/a",
+   "evidence": "| cleanup-audit | `--pass <N>` (single pass) | `.claude-audit/pass<N>-summary.md` |",
+   "other_blocker": "WC-4 says the unattended contract is written to `<output-dir>/return-contract.yaml`, while SA-7 says every command's unattended report goes under `.dev/worker-reports/<slug>/`; an implementer cannot satisfy both for the same file.",
+   "confidence": "low"
+  }
+ }
+]

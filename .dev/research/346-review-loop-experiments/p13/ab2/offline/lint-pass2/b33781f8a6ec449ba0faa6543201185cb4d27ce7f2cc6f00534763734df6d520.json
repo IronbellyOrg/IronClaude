@@ -1,0 +1,39 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "b33781f8a6ec449ba0faa6543201185cb4d27ce7f2cc6f00534763734df6d520",
+  "doc_bytes": 3282,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-KV-1",
+      "check": "KV",
+      "class": "possible",
+      "lines": [
+        39,
+        39
+      ],
+      "quote": "The worker retries a failed delivery up to 8 times with exponential backoff, doubling the delay after each attempt, and marks it `FAILED` after the ninth failed attempt.",
+      "other_lines": [
+        13,
+        13
+      ],
+      "message": "\"8 times\" here (section 6) and \"5 times\" at line 13 (section 2) share the head words fail, retr."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

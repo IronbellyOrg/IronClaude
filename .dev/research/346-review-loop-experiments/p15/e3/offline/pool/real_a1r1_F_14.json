@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": false,
+  "run": "a1-r1"
+ },
+ "case_id": "real_a1r1_F_14",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:2",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-14",
+  "finding_section": "**F-14 (MINOR). Alistair Cockburn: the invocation step is missing from the actor-goal flow.**\n- Issue: the brief carries \"the exact command line\" (SPEC:73) and the worker runs it \"directly\" (SPEC:65), but nothing says how a worker session runs a `/sc:` command. A worker's first message is the Orca preamble plus the brief (CAPS:47: the task is passed as an argument), not a typed slash command. The project instructions require the Skill tool to be invoked for `/sc:` commands (project `CLAUDE.md`, not in the sandbox; UNVERIFIED line) and the earlier run used `skill-direct` (SPEC:23). AC-0.4 would catch a wrong choice, but only for three commands.\n- Recommendation: add one sentence and one example to the brief template: invoke through the Skill tool `sc:<name>` with the arguments. Priority: Medium."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a1-r1/ws/.dev/orca-command-refactor/review/spec-panel.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

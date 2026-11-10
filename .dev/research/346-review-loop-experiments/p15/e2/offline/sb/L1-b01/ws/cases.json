@@ -1,0 +1,126 @@
+[
+ {
+  "case_id": "s0-01",
+  "document": "docs/doc-af30badcbd.md",
+  "proposed_defect": "AC-1.2 passes only if all steps of the 7.2 live check pass and the contract's `status` is `running` at step 4, but step 4 asserts that `status` is one of succeeded, partial, failed or blocked.",
+  "proposed_evidence": [
+   {
+    "quote": "all steps pass, and at step 4 the contract's `status` is `running`",
+    "lines": "196-196"
+   },
+   {
+    "quote": "assert d['status'] in {'succeeded','partial','failed','blocked'}",
+    "lines": "183-183"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-02",
+  "document": "docs/doc-115b7a7d3b.md",
+  "proposed_defect": "WC-3 has the command itself run an `orca-ide orchestration ask` command, but SA-2 says no command, skill or agent file runs an `orca` or `orca-ide` command.",
+  "proposed_evidence": [
+   {
+    "quote": "the command itself runs `orca-ide orchestration ask` to ask the coordinator once",
+    "lines": "61-61"
+   },
+   {
+    "quote": "No command, skill or agent file runs an `orca` or `orca-ide` command",
+    "lines": "147-147"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-03",
+  "document": "docs/doc-1f327c6816.md",
+  "proposed_defect": "AUTH-3 says passwords expire after 90 days, but AUTH-7 says service-account credentials are rotated every 24 hours instead.",
+  "proposed_evidence": [
+   {
+    "quote": "Passwords expire after 90 days",
+    "lines": "11-11"
+   },
+   {
+    "quote": "Service accounts are exempt from AUTH-3",
+    "lines": "22-22"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-04",
+  "document": "docs/doc-789eac0870.md",
+  "proposed_defect": "RL-1 limits every key to 100 requests per minute and says the limit cannot be raised for any key, but RL-6 allows enterprise keys 1,000 requests per minute.",
+  "proposed_evidence": [
+   {
+    "quote": "Every API key is limited to 100 requests per minute. This limit is fixed and cannot be raised for any key",
+    "lines": "9-9"
+   },
+   {
+    "quote": "Enterprise keys are allowed 1,000 requests per minute",
+    "lines": "21-21"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-05",
+  "document": "docs/doc-d3cdbe573e.md",
+  "proposed_defect": "Acceptance check AC-1.1 requires every command in sections 3.1-3.2 to have a `## Unattended mode` section naming `return-contract.yaml`, but the `load` row says load has no report and is not used as its own Task.",
+  "proposed_evidence": [
+   {
+    "quote": "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+    "lines": "195-195"
+   },
+   {
+    "quote": "| load | no gate | none (see note) | n/a |",
+    "lines": "112-112"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-06",
+  "document": "docs/doc-d3cdbe573e.md",
+  "proposed_defect": "WC-4 puts the contract at `<output-dir>/return-contract.yaml` in the directory the coordinator passed, but the adversarial row puts it in a subdirectory `<output>/adversarial/`, so the coordinator cannot know the path from the brief alone.",
+  "proposed_evidence": [
+   {
+    "quote": "the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed",
+    "lines": "62-62"
+   },
+   {
+    "quote": "Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1)",
+    "lines": "83-83"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-07",
+  "document": "docs/doc-ca0cde3a5b.md",
+  "proposed_defect": "STO-1 requires uploads over 5 GB to use multipart upload, but STO-2 rejects uploads over 5 GB.",
+  "proposed_evidence": [
+   {
+    "quote": "Uploads over 5 GB must use multipart upload",
+    "lines": "9-9"
+   },
+   {
+    "quote": "Uploads over 5 GB are rejected on the free plan",
+    "lines": "10-10"
+   }
+  ]
+ },
+ {
+  "case_id": "s0-08",
+  "document": "docs/doc-d3cdbe573e.md",
+  "proposed_defect": "AC-0.4 requires steps 1-3 of the live check to pass in Phase 0, but step 3 needs the WC-4 contract path, which only Phase 1 introduces; Phase 0 makes no command edits.",
+  "proposed_evidence": [
+   {
+    "quote": "steps 1-3 and 5-7 pass; step 4 uses the command's existing report file",
+    "lines": "194-194"
+   },
+   {
+    "quote": "its report path is the WC-4 contract path",
+    "lines": "182-182"
+   },
+   {
+    "quote": "| The WC-4 contract in unattended mode;",
+    "lines": "159-159"
+   }
+  ]
+ }
+]

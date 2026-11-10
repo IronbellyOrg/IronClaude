@@ -1,0 +1,90 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "cc1009c39f64ee96a6f00833d08671bc3fa45654e0ce98d1aa13ec77bf232ddb",
+  "doc_bytes": 58894,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-KV-1",
+      "check": "KV",
+      "class": "possible",
+      "lines": [
+        207,
+        207
+      ],
+      "quote": "Complexity follows depth, as the issue body pairs them: `quick` = simple, `standard` = medium, `deep` = complex. Every choice is written to `<D>/flags.md` from `templates/flags-decision.md` (mode, ...",
+      "other_lines": [
+        75,
+        75
+      ],
+      "message": "`quick` is bound to simple here (section 8) and to `quick`, `standard`, `deep` at line 75 (section 4)."
+    },
+    {
+      "lint_id": "LINT-KV-2",
+      "check": "KV",
+      "class": "possible",
+      "lines": [
+        259,
+        259
+      ],
+      "quote": "| `issue-summary.md` | claim | worker t2/t1 | `issue-summary.md` |",
+      "other_lines": [
+        182,
+        182
+      ],
+      "message": "`issue-summary.md` is bound to claim here (section 10) and to issue at line 182 (section 7)."
+    },
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        390,
+        390
+      ],
+      "quote": "| `docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md` | Section 4.1: the optional `model:` field also takes a full model ID or picker ID, and the Agent call's `model` param...",
+      "other_lines": null,
+      "message": "Section 4.1 is referenced but no heading has that number."
+    },
+    {
+      "lint_id": "LINT-REF-2",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        390,
+        390
+      ],
+      "quote": "| `docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md` | Section 4.1: the optional `model:` field also takes a full model ID or picker ID, and the Agent call's `model` param...",
+      "other_lines": null,
+      "message": "Section 4.3 is referenced but no heading has that number."
+    },
+    {
+      "lint_id": "LINT-REF-3",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        424,
+        424
+      ],
+      "quote": "3. Copy `src/superclaude/core/HOW-WE-WORK.md` byte-for-byte to `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md`; run `uv run pytest tests/core tests/commands` (developer guide section ...",
+      "other_lines": null,
+      "message": "Section 3.6 is referenced but no heading has that number."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

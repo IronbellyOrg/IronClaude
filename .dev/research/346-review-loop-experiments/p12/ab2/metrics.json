@@ -1,0 +1,405 @@
+{
+ "stratum_sonnet": {
+  "n_planned": 6,
+  "full": {
+   "n_planned": 6,
+   "completed": 6,
+   "which": [
+    1,
+    2
+   ],
+   "BLK_T": 1.3333333333333333,
+   "audits": 12,
+   "audits_pass": 3,
+   "audits_fail_rate": 0.75,
+   "theme_rate": 0.6666666666666666,
+   "R_LOOP": 0.6193970896731193,
+   "R_B": 0.3670447124727579,
+   "LOOP": 62202.333333333336,
+   "TOK": 62202.333333333336,
+   "loop_pass": 6,
+   "loop_pass_split": {
+    "PASS": 6,
+    "VERIFIED-PASS": 0,
+    "ESCALATED": 0
+   },
+   "N_VER": 14,
+   "REJ": 0,
+   "REJ_TRUE": 0,
+   "REJ_TRUE_RATE": 0.0,
+   "B_BLK": 1.5,
+   "cost_limit": 1.42,
+   "outcome": "INCONCLUSIVE",
+   "fired": "REJ = 0: the gate never acted (no effect observed)",
+   "drops": []
+  },
+  "audit1_only": {
+   "n_planned": 6,
+   "completed": 6,
+   "which": [
+    1
+   ],
+   "BLK_T": 0.8333333333333334,
+   "audits": 6,
+   "audits_pass": 3,
+   "audits_fail_rate": 0.5,
+   "theme_rate": 0.3333333333333333,
+   "R_LOOP": 0.6193970896731193,
+   "R_B": 0.3670447124727579,
+   "LOOP": 62202.333333333336,
+   "TOK": 62202.333333333336,
+   "loop_pass": 6,
+   "loop_pass_split": {
+    "PASS": 6,
+    "VERIFIED-PASS": 0,
+    "ESCALATED": 0
+   },
+   "N_VER": 14,
+   "REJ": 0,
+   "REJ_TRUE": 0,
+   "REJ_TRUE_RATE": 0.0,
+   "B_BLK": 1.5,
+   "cost_limit": 1.42,
+   "outcome": "INCONCLUSIVE",
+   "fired": "REJ = 0: the gate never acted (no effect observed)",
+   "drops": []
+  },
+  "audit2_only": {
+   "n_planned": 6,
+   "completed": 6,
+   "which": [
+    2
+   ],
+   "BLK_T": 1.8333333333333333,
+   "audits": 6,
+   "audits_pass": 0,
+   "audits_fail_rate": 1.0,
+   "theme_rate": 1.0,
+   "R_LOOP": 0.6193970896731193,
+   "R_B": 0.3670447124727579,
+   "LOOP": 62202.333333333336,
+   "TOK": 62202.333333333336,
+   "loop_pass": 6,
+   "loop_pass_split": {
+    "PASS": 6,
+    "VERIFIED-PASS": 0,
+    "ESCALATED": 0
+   },
+   "N_VER": 14,
+   "REJ": 0,
+   "REJ_TRUE": 0,
+   "REJ_TRUE_RATE": 0.0,
+   "B_BLK": 1.5,
+   "cost_limit": 1.42,
+   "outcome": "INCONCLUSIVE",
+   "fired": "REJ = 0: the gate never acted (no effect observed)",
+   "drops": []
+  }
+ },
+ "haiku": {
+  "runs": 4,
+  "complete": 4,
+  "BLK_TH": 1.875,
+  "loop_pass": 3,
+  "growth_pct": 2.615428561535931,
+  "LOOP_TH": 0,
+  "verifier_rejections": 10,
+  "verifier_sent": 28,
+  "harness_failure_rate": 0.75
+ },
+ "baseline": {
+  "pooled": {
+   "n_audits": 12,
+   "B_BLK": 1.5,
+   "B_AUDFAIL": 0.9166666666666666,
+   "B_THEME": 0.8333333333333334,
+   "audits_with_blocking": [
+    [
+     "FAIL",
+     [
+      [
+       "B1",
+       "T1"
+      ],
+      [
+       "B2",
+       "T2"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "F-01",
+       "T3"
+      ],
+      [
+       "F-02",
+       "T1"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "F-1",
+       "T1"
+      ],
+      [
+       "F-2",
+       "T2"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "A-01",
+       "other"
+      ],
+      [
+       "A-02",
+       "T2"
+      ]
+     ]
+    ],
+    [
+     "PASS",
+     []
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "F-01",
+       "T2"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "F1",
+       "T2"
+      ],
+      [
+       "F2",
+       "T1"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "B-1",
+       "T1"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "B1",
+       "T3"
+      ],
+      [
+       "B2",
+       "T2"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "B-01",
+       "other"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "B-1",
+       "T2"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "B1",
+       "T2"
+      ],
+      [
+       "B2",
+       "T2"
+      ]
+     ]
+    ]
+   ]
+  },
+  "audit1": {
+   "n_audits": 6,
+   "B_BLK": 1.5,
+   "B_AUDFAIL": 0.8333333333333334,
+   "B_THEME": 0.8333333333333334,
+   "audits_with_blocking": [
+    [
+     "FAIL",
+     [
+      [
+       "B1",
+       "T1"
+      ],
+      [
+       "B2",
+       "T2"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "F-01",
+       "T3"
+      ],
+      [
+       "F-02",
+       "T1"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "F-1",
+       "T1"
+      ],
+      [
+       "F-2",
+       "T2"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "A-01",
+       "other"
+      ],
+      [
+       "A-02",
+       "T2"
+      ]
+     ]
+    ],
+    [
+     "PASS",
+     []
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "F-01",
+       "T2"
+      ]
+     ]
+    ]
+   ]
+  },
+  "audit2": {
+   "n_audits": 6,
+   "B_BLK": 1.5,
+   "B_AUDFAIL": 1.0,
+   "B_THEME": 0.8333333333333334,
+   "audits_with_blocking": [
+    [
+     "FAIL",
+     [
+      [
+       "F1",
+       "T2"
+      ],
+      [
+       "F2",
+       "T1"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "B-1",
+       "T1"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "B1",
+       "T3"
+      ],
+      [
+       "B2",
+       "T2"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "B-01",
+       "other"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "B-1",
+       "T2"
+      ]
+     ]
+    ],
+    [
+     "FAIL",
+     [
+      [
+       "B1",
+       "T2"
+      ],
+      [
+       "B2",
+       "T2"
+      ]
+     ]
+    ]
+   ]
+  },
+  "have_audit2": true,
+  "provisional": false
+ },
+ "provisional": false,
+ "sonnet_n6_outcome": "INCONCLUSIVE",
+ "sonnet_n6_final": "INCONCLUSIVE",
+ "extension_allowed": true,
+ "final_outcome": "INCONCLUSIVE"
+}

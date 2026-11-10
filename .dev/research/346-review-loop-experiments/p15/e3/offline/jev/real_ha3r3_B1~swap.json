@@ -1,0 +1,32 @@
+{
+ "case_id": "real_ha3r3_B1~swap",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.05,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.7,
+    "type": "noul"
+   },
+   "texts_conflict": {
+    "p": 0.56,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 180,
+  "model": "jev-1.14.0",
+  "request_sha256": "ce37440da0ca7bfc4193f73ae24532c5c1f57262685981261ea39cd44a7ceea2",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 2679,
+   "output_tokens": 64
+  }
+ }
+}

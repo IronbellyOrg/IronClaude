@@ -1,0 +1,28 @@
+{
+ "case_id": "syn-bkp-3",
+ "code_outcome": "OK",
+ "decision": "CONFIRMED",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.73,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.73,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 149,
+  "model": "jev-1.14.0",
+  "request_sha256": "9d7395a844458f61552dd0039b807092ebce6ad84f7b7060cca2326b4f98cbfc",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 663,
+   "output_tokens": 46
+  }
+ }
+}

@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-17",
+ "finding": {
+  "heading": "### R1-1 Exports are written to a shared directory",
+  "body": "Both export rules write files to one shared directory, so the files of different tenants sit side by side and can be read by anyone who can read the directory. Cited: spec lines 32-34 (before version).\nAn implementer who follows EX-3 and EX-4 builds exports that every tenant can read because all files share one directory.\nProtected requirement: line 32 (tenant isolation must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -30,7 +30,7 @@\n - **DX-12 Pagination.** List endpoints return at most 100 items per page together with a cursor that points at the next page.\n - **DX-13 Search order.** Search results are ordered by relevance and then by recency, and an empty query returns no results.\n - **EX-2 Tenant isolation.** An export file can be read only by the tenant that requested it.\n-- **EX-3 API exports.** Exports requested through the API are written to the shared directory `/shared/exports/<date>/`.\n+- **EX-3 API exports.** Exports requested through the API are written to the tenant directory `/exports/<tenant>/<date>/`, which only that tenant can read.\n - **EX-4 Batch exports.** Exports produced by the nightly batch are written to the shared directory `/shared/exports/<date>/`.\n - **DX-14 Image upload.** Uploaded images are scaled to a maximum width of 1600 pixels and stripped of embedded location data.\n - **DX-15 Translations.** Every user-facing string comes from a translation file, and a missing translation falls back to English.\n"
+}

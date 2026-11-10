@@ -1,0 +1,4 @@
+### B-1
+### B-1 (MAJOR, blocking, priority High, Wiegers)
+Texts: AC-1.1 "the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`" (S:195); section 3 intro "Every changed command also gains the `## Unattended mode` section" (S:76); load row, Report "none (see note)", Phase "P1 (usage line only)" (S:112); Decisions "a report file would be an unrequested addition. Only its usage-line defect is fixed" (S:265). `/sc:load` is in section 3.2, so it is inside AC-1.1's scope.
+Grading sentence: An implementer who follows the stated text as written builds `/sc:load` with only its usage-line fix and no contract (S:112, S:265), and X is wrong because AC-1.1 (S:195) fails on it; if they instead add the section naming `return-contract.yaml`, they contradict the load row and the Decision. Two stated texts contradict, and the acceptance criterion cannot pass as written.

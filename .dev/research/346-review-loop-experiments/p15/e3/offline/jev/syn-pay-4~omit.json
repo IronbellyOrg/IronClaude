@@ -1,0 +1,28 @@
+{
+ "case_id": "syn-pay-4~omit",
+ "code_outcome": "OK",
+ "decision": "VERIFIER",
+ "qset_version": "e3-q1",
+ "result": {
+  "answers": {
+   "evidence_sufficient": {
+    "p": 0.3,
+    "type": "noul"
+   },
+   "outcome_follows": {
+    "p": 0.79,
+    "type": "noul"
+   }
+  },
+  "attempts": 1,
+  "error": null,
+  "latency_ms": 192,
+  "model": "jev-1.14.0",
+  "request_sha256": "5318b027e63fa59ead25d18256615b6723d8feb7185f1d7ae40e4eb00ac3f109",
+  "status": "ok",
+  "usage": {
+   "input_tokens": 659,
+   "output_tokens": 46
+  }
+ }
+}

@@ -1,0 +1,6 @@
+| step | id | theme | verifier reason |
+|---|---|---|---|
+| VF1 | M4 | other | The texts conflict (row 88 against SA-6 and item 9). The stall branch depends on UNVERIFIED item 9 and is a WC-2 issue, not the stated safety outcome. The safety branch needs two things the candidate does not supply: a re-keying of the trigger, which SA-6 says is not done, and a statement that `--remediate` applies code, which row 88 never gives. D2 governs the implement Ruling, not reflect remediation. |
+| VF1 | M5 | other | As written, AC-C1's pattern does not match `orca orchestration check` at all (tested: exit 1), so the premise that AC-C1 flags P0 text does not hold for the spec's own regex. Under the intended plain-bar regex, a match needs P0 text in the form `orca` followed by orchestration, worktree, terminal or agent. SA-2 permits an Orca "mention" but no candidate text requires that form, so the failure is conditional on wording the spec leaves open. |
+| VF1 | M10 | T1 | The texts conflict in intent, but AC-1.1 only checks that the section names `return-contract.yaml`. A load section that names it and states that no contract is written satisfies the check as written. The candidate does not say AC-1.1 fails for load, so "the criterion cannot pass" does not follow. |
+| VF2 | N5 | T1 | The contradiction is real, but the stall is not forced by the candidate. |

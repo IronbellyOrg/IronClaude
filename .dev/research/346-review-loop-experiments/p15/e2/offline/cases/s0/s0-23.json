@@ -1,0 +1,38 @@
+{
+ "author_intent": {
+  "category": "seed-chain",
+  "expect": "defect",
+  "layer": "seeded"
+ },
+ "case_id": "s0-23",
+ "category": "seed-chain",
+ "data_classes": [
+  "s1_spec"
+ ],
+ "family": "s1-edit-wait",
+ "group": "s1-edit-wait",
+ "packet": {
+  "defect": "AC-4.4 allows single waits up to 360 s and cites WC-13, WC-13 defers to the splitting rule of WC-10, and WC-10 requires waits of at most 4 minutes (240 s); only the chain shows that AC-4.4 passes runs that WC-10 forbids.",
+  "doc": "offline/docs/doc-3e3402fb5b.md",
+  "doc_sha256": "3e3402fb5b46bfce18d848184e3cd8b915885c3f80b19317d64e3ed4697578be",
+  "evidence_quotes": [
+   "no single tool call exceeds 360 s (WC-13)",
+   "obeys the splitting rule of WC-10",
+   "must be split into waits of at most 4 minutes"
+  ],
+  "evidence_set": [
+   "P0169",
+   "P0053",
+   "P0050"
+  ]
+ },
+ "source": {
+  "kind": "s1",
+  "paths": [
+   "offline/docs/doc-3e3402fb5b.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "seeded"
+}

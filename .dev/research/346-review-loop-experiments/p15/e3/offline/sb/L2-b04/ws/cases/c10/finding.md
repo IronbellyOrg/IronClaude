@@ -1,0 +1,4 @@
+**F-07 (MAJOR, blocking; FR-8 from guard G1). Nygard: WC-10 leaves a hole between 4 and 5 minutes and does not cover Monitor-driven waits.**
+- Issue: the rule splits a call "longer than 5 minutes" into waits "of at most 4 minutes" (SPEC:68). A single call of 4 min 30 s triggers neither the split nor a heartbeat, and the liveness requirement is cumulative since the last heartbeat, not per call. The cli-eval run waits through a background Bash job and Monitor (INV-A:44, INV-A:65), so there is no single blocking call to split, and the spec only says "split the eval wait into waits of at most 4 minutes" (SPEC:104).
+- Concrete scenario: heartbeat at t=0, two minutes of work, then a 4.5 minute call: 6.5 minutes since the last heartbeat with the rule satisfied.
+- Recommendation: "No single tool call may last longer than 4 minutes" (applies to every call), and one sentence on how a Monitor-driven wait heartbeats. Priority: High.

@@ -1,0 +1,50 @@
+{
+ "sonnet": {
+  "n_completed": 6,
+  "n_expected": 6,
+  "n_audits": 12,
+  "BLK_T": 1.25,
+  "audit_fail": 8,
+  "theme_rate": 5,
+  "theme_counts": {
+   "T1": 1,
+   "T2": 2,
+   "T3": 0,
+   "other": 6
+  },
+  "loop_pass": 6,
+  "growth": 0.02,
+  "LOOP_T": 120000.0,
+  "TOK_T": 190000.0,
+  "R_LOOP": 1.195,
+  "R_B": 1.121,
+  "REJ1": 2,
+  "N1": 9,
+  "REJ1_rate": 0.22,
+  "outcome": "ADOPT",
+  "rule": "ADOPT conditions met",
+  "outcome_final": "ADOPT (Haiku robustness pending)",
+  "n_runs": 6,
+  "extension_eligible": false,
+  "note": "",
+  "replicas": []
+ },
+ "haiku": {
+  "state": "ok",
+  "BLK_TH": 1.5,
+  "H_BLK": 2.0,
+  "HR": 0.75,
+  "one_minus_HR": 0.25,
+  "fail_rate": 0.0,
+  "H_fail_rate": 0.17,
+  "loop_pass": 4,
+  "n_done": 4,
+  "growth": 0.03,
+  "R_LOOP_H": 0.9
+ },
+ "baseline": {
+  "B_BLK": 1.5
+ },
+ "provisional": false,
+ "stratum": "sonnet"
+}

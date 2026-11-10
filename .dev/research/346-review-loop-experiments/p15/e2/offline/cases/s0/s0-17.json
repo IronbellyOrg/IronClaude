@@ -1,0 +1,36 @@
+{
+ "author_intent": {
+  "category": "synth-novel",
+  "expect": "defect",
+  "layer": "synthetic"
+ },
+ "case_id": "s0-17",
+ "category": "synth-novel",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "digest",
+ "group": "fam-digest",
+ "packet": {
+  "defect": "DIG-1 sends the digest at 08:00 in each user's local morning, but PRIV-2 says the service holds no information about where a user is, including the time zone, so local morning cannot be known.",
+  "doc": "offline/docs/doc-3d8177fe94.md",
+  "doc_sha256": "3d8177fe94bfa18f7e4b9b01267957341f415544eeddca4205643b37c2499153",
+  "evidence_quotes": [
+   "The service holds no information about where a user is, including the user's time zone",
+   "Each user's digest is sent at 08:00 in that user's local morning"
+  ],
+  "evidence_set": [
+   "P0006",
+   "P0015"
+  ]
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "offline/docs/doc-3d8177fe94.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "synthetic"
+}

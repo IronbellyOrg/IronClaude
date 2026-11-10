@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-07",
+ "finding": {
+  "heading": "### R1-1 Excess requests are held without telling the client",
+  "body": "The excess request rule holds requests above the limit and answers them later, so the client gets no signal that it exceeded its limit. Cited: spec lines 34-35 (before version).\nAn implementer who follows RL-5 builds a server that holds excess requests without a rejection, so clients cannot back off.\nProtected requirement: line 34 (the per-minute limit must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -32,7 +32,7 @@\n - **DX-22 Feedback form.** A feedback form is available on every page and sends its text to the product team without a reply address.\n - **DX-23 Cookies.** The site sets only the cookies that are needed for sign-in and for the language choice of the visitor.\n - **RL-4 Limit.** Each API key may send at most 100 requests per minute.\n-- **RL-5 Excess requests.** Requests above the limit are queued silently and answered when capacity is free.\n+- **RL-5 Excess requests.** Requests above the limit are rejected with HTTP 429 and a `Retry-After` header. The server then repeats the rejected request on the client's behalf, as described in RL-2.\n - **DX-24 Print layout.** Pages that customers may print have a print stylesheet that hides the navigation and shows the address of the page.\n - **DX-1 Keyboard access.** All interactive elements can be reached and used with the keyboard alone, and the element that has focus is always visible.\n - **DX-2 Colour contrast.** Text and background colours keep a contrast ratio of at least 4.5 to 1 in every theme the product offers.\n"
+}

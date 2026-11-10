@@ -1,0 +1,159 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+  "doc_bytes": 92194,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-PATH-1",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        114,
+        114
+      ],
+      "quote": "| workflow | `--handoff none`; `--report-dir <dir>` (its `--output` is retired, `cmd/workflow.md:42`) | `.dev/tasks/to-do/<id>/return-contract.yaml` (the `<id>` is generated with a timestamp, `cmd/...",
+      "other_lines": [
+        67,
+        67
+      ],
+      "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` or `<output>/return-contract.yaml` or `<output>/adversarial/return-contract.yaml` or `<report-dir>/return-contract.yaml` (line 67) but fits none of them."
+    },
+    {
+      "lint_id": "LINT-PHASE-1",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        262,
+        262
+      ],
+      "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"` (no `--fix`, no `--depth deep`), `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth...",
+      "other_lines": [
+        233,
+        233
+      ],
+      "message": "The P0 row (AC-0.4) refers to section 7.2, which uses WC-10 (P2), WC-4 (P1); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-PHASE-2",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        264,
+        264
+      ],
+      "quote": "| P0 | AC-0.6 | Read one AC-0.4 transcript with `worker-read --source transcript --json` and record whether tool calls appear by name (for example `Bash`, `Agent`, `AskUserQuestion`) | the phase re...",
+      "other_lines": [
+        233,
+        233
+      ],
+      "message": "The P0 row (AC-0.4) refers to section 7.2 step 5, which uses WC-10 (P2); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-PHASE-3",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        265,
+        265
+      ],
+      "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command listed for P1 in the section 6 table of commands accepting `--unattended` has a `## Unat...",
+      "other_lines": [
+        175,
+        175
+      ],
+      "message": "The P1 row (AC-1.1) refers to section 6, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-PHASE-4",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        266,
+        266
+      ],
+      "quote": "| P1 | AC-1.2 | 7.2 live check on each P1 command with `--unattended` and its report directory (`--output <dir>` or `--report-dir <dir>`) | all steps pass |",
+      "other_lines": [
+        233,
+        233
+      ],
+      "message": "The P1 row (AC-1.2) refers to section 7.2, which uses WC-10 (P2); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-PHASE-5",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        269,
+        269
+      ],
+      "quote": "| P1 | AC-1.5 | WC-4 missing report directory: `/sc:analyze src/ --unattended` with neither `--output` nor `--report-dir`, as a 7.2 live check | no file written (step 6 empty); the chat shows the e...",
+      "other_lines": [
+        233,
+        233
+      ],
+      "message": "The P1 row (AC-1.5) refers to section 7.2, which uses WC-10 (P2); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-PHASE-6",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        270,
+        270
+      ],
+      "quote": "| P1 | AC-1.6 | Person-mode refusal (section 2.1): `/sc:test --watch --unattended --report-dir <dir>` as a 7.2 live check | contract `worker_status: failed` with `--watch` in `reason`; outcome `fai...",
+      "other_lines": [
+        233,
+        233
+      ],
+      "message": "The P1 row (AC-1.6) refers to section 7.2, which uses WC-10 (P2); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-PHASE-7",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        271,
+        271
+      ],
+      "quote": "| P1 | AC-1.7 | WC-6 (b): dispatch `/sc:init-lite --unattended --output <dir>/context-audit.md --report-dir <dir>` as a 7.2 live check (its Resume cell, \"Re-run overwrites its marked report\", permi...",
+      "other_lines": [
+        95,
+        95
+      ],
+      "message": "The P1 row (AC-1.7) refers to section 3, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-KV-1",
+      "check": "KV",
+      "class": "possible",
+      "lines": [
+        376,
+        376
+      ],
+      "quote": "| Heartbeat gaps during Agent-tool fan-out | Require fan-out to return within 4 minutes; accept the gap | Accept the gap (WC-10): commands keep their fan-out (WC-7) and may not call Orca (SA-2), an...",
+      "other_lines": [
+        285,
+        285
+      ],
+      "message": "\"4 minutes\" here (section decisions) and \"5 minutes\" at line 285 (section 7.3) share the head words fan, out."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

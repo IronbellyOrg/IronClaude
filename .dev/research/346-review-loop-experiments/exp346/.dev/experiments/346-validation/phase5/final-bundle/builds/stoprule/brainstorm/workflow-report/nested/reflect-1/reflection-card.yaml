@@ -1,0 +1,21 @@
+tier: 1
+card: t1-card.md
+calibrator_model_class: opus
+reviewer_model_classes: [sonnet, haiku, opus]
+calibrator_diversity: degraded   # disjoint set empty among Anthropic classes; opus chosen (highest capability)
+dimensions:
+  citation_grounding: 0.80
+  coverage_completeness: 0.65
+  deviation_classification_clarity: 0.65
+  risk_surface_coverage: 0.65
+  recommendation_actionability: 0.40
+C: 0.63
+self_reported: 0.80
+delta: -0.17
+calibrator_notes:
+  - "Only A1 carries a fix; Q3, Q4 and R1 have no recommendation; Q2 defers its check to the reviewer."
+  - "'Two claims on one prior counted once' (source.md:128) is in no Task 3-6 acceptance criterion; auditor-owner agreement as its own number (source.md:180) is in no task."
+  - "Deviation classes mix systems; Q3 left unclassified."
+  - "Task 14 depends on /tmp/impl/exp/s1/ files with no blocked path; other command-count tests in the Task 12 suites not checked."
+  - "Q5 overstates: Task 1's one-off diff and Task 11's exists-and-names checks are not pinned commands."
+escalation_recommendation: escalate-t2

@@ -1,0 +1,27 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/346-ponytail/workflow-report/nested/reflect-1/nested/adversarial-1/merged-findings.yaml"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/brainstorms/346-ponytail/workflow-report/nested/reflect-1/nested/adversarial-1/adversarial/"
+  status: "partial"
+  base_variant: "variant-3 (reviewer-3-card.yaml, refactorer, opus, calibrated C 0.81)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: INV-001
+      category: state_variables
+      assumption: "verdict can always find review 2's blocking ids and labels in D/state.json (not-triggered and skip-guard paths write none, and verdict takes no review-2 argument)"
+      severity: HIGH
+    - id: INV-003
+      category: interaction_effects
+      assumption: "'the script never turns a FAIL into a PASS' agrees with the any-severity rule (plan:101, 109, 114 give opposite final lines when only minor findings remain)"
+      severity: HIGH
+  notes: >-
+    status is partial because the invariant gate blocked convergence (BLOCKED_BY_INVARIANTS):
+    all 22 diff points reached agreement (16 unanimous, 6 by 2/3 majority), but two HIGH
+    UNADDRESSED invariants raised by the Round 2.5 probe (no card raised them) remain; depth
+    standard allows no Round 3, so they are carried in merged-findings.yaml under probe_raised
+    (P-01, P-02) as undebated blocking candidates. Base selected by tiebreaker level 1 (V1 0.880
+    vs V3 0.832, margin 4.8%; debate points V3 10.0 vs V1 8.0). Input files were .yaml, loaded
+    as variant-N-original.md (warning only). Post-merge validation passed (merge-log.md).

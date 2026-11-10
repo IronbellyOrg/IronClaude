@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "graded. AC-0.4 step 3 cannot pass in P0 as written",
+  "wrong_outcome": "An implementer who follows the stated text as written runs the three P0 smoke runs and finds step 3 unsatisfiable for troubleshoot, and that is wrong because a false P0 failure \"reopens section 1\" (S:194); this needs the guess that the carve-out for step 4 was not meant to cover step 3, so it is."
+ },
+ "evidence": {
+  "e1": {
+   "text": "uses the command's existing report file",
+   "line": 194,
+   "context": "| P0 | AC-0.1 | `uv run python -c \"from superclaude.cli.install_core import KNOWN_CORE_FILES; assert 'WORKER-CONTRACT.md' in KNOWN_CORE_FILES\"` | exits 0 |\n| P0 | AC-0.2 | `cmp src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` and the level-table test the repo already runs (`CLAUDE.md:334`) | identical; tests pass |\n| P0 | AC-0.3 | `git diff -U0 master...HEAD -- src/superclaude/core/HOW-WE-WORK.md \\| grep -E '^-[^-]'` | prints nothing: no existing routing row changed (SA-5) |\n| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run directly by the worker (no Agent-tool wrapper, verified in the step-5 transcript) | steps 1-3 and 5-7 pass; step 4 uses the command's existing report file, since the contract arrives in P1. Record the results in the phase report; a failure here reopens section 1 |\n| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`, and that no section-4 command has one | passes |\n| P1 | AC-1.2 | 7.2 live check on each P1 command with `--unattended --output <dir>` | all steps pass |\n| P1 | AC-1.3 | For two P1 commands, run once in a plain session with no `--unattended` and no new output flag (for example `claude -p \"/sc:analyze src/superclaude/cli/install_core.py\"` in a scratch worktree), then `git status --short` | no `return-contract.yaml` appears (SA-3) |"
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

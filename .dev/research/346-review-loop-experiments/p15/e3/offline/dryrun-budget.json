@@ -1,0 +1,586 @@
+{
+ "experiment": "dryrun-budget",
+ "ceiling_usd": 1000000.0,
+ "ceiling_input_tokens": 1000000000000,
+ "spent_tokens": 0,
+ "spent_usd": 0.0,
+ "reserved": {},
+ "draws": {
+  "d000001": {
+   "phase": "dryrun",
+   "est": 5238,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000002": {
+   "phase": "dryrun",
+   "est": 2907,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000003": {
+   "phase": "dryrun",
+   "est": 3314,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000004": {
+   "phase": "dryrun",
+   "est": 2050,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000005": {
+   "phase": "dryrun",
+   "est": 2144,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000006": {
+   "phase": "dryrun",
+   "est": 1626,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000007": {
+   "phase": "dryrun",
+   "est": 1630,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000008": {
+   "phase": "dryrun",
+   "est": 2987,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000009": {
+   "phase": "dryrun",
+   "est": 2995,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000010": {
+   "phase": "dryrun",
+   "est": 1590,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000011": {
+   "phase": "dryrun",
+   "est": 2782,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000012": {
+   "phase": "dryrun",
+   "est": 2782,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000013": {
+   "phase": "dryrun",
+   "est": 1597,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000014": {
+   "phase": "dryrun",
+   "est": 3109,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000015": {
+   "phase": "dryrun",
+   "est": 3514,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000016": {
+   "phase": "dryrun",
+   "est": 3514,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000017": {
+   "phase": "dryrun",
+   "est": 1857,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000018": {
+   "phase": "dryrun",
+   "est": 1172,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000019": {
+   "phase": "dryrun",
+   "est": 1204,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000020": {
+   "phase": "dryrun",
+   "est": 2676,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000021": {
+   "phase": "dryrun",
+   "est": 3091,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000022": {
+   "phase": "dryrun",
+   "est": 2989,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000023": {
+   "phase": "dryrun",
+   "est": 2003,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000024": {
+   "phase": "dryrun",
+   "est": 1241,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000025": {
+   "phase": "dryrun",
+   "est": 3539,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000026": {
+   "phase": "dryrun",
+   "est": 2274,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000027": {
+   "phase": "dryrun",
+   "est": 1419,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000028": {
+   "phase": "dryrun",
+   "est": 2913,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000029": {
+   "phase": "dryrun",
+   "est": 2945,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000030": {
+   "phase": "dryrun",
+   "est": 1510,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000031": {
+   "phase": "dryrun",
+   "est": 1514,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000032": {
+   "phase": "dryrun",
+   "est": 3682,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000033": {
+   "phase": "dryrun",
+   "est": 3713,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000034": {
+   "phase": "dryrun",
+   "est": 2335,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000035": {
+   "phase": "dryrun",
+   "est": 2367,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000036": {
+   "phase": "dryrun",
+   "est": 4385,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000037": {
+   "phase": "dryrun",
+   "est": 4385,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000038": {
+   "phase": "dryrun",
+   "est": 2424,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000039": {
+   "phase": "dryrun",
+   "est": 2440,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000040": {
+   "phase": "dryrun",
+   "est": 1483,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000041": {
+   "phase": "dryrun",
+   "est": 3917,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000042": {
+   "phase": "dryrun",
+   "est": 3917,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000043": {
+   "phase": "dryrun",
+   "est": 2611,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000044": {
+   "phase": "dryrun",
+   "est": 2642,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000045": {
+   "phase": "dryrun",
+   "est": 2152,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000046": {
+   "phase": "dryrun",
+   "est": 2160,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000047": {
+   "phase": "dryrun",
+   "est": 2713,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000048": {
+   "phase": "dryrun",
+   "est": 3123,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000049": {
+   "phase": "dryrun",
+   "est": 3123,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000050": {
+   "phase": "dryrun",
+   "est": 1625,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000051": {
+   "phase": "dryrun",
+   "est": 1408,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000052": {
+   "phase": "dryrun",
+   "est": 1408,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000053": {
+   "phase": "dryrun",
+   "est": 887,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000054": {
+   "phase": "dryrun",
+   "est": 918,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000055": {
+   "phase": "dryrun",
+   "est": 853,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000056": {
+   "phase": "dryrun",
+   "est": 998,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000057": {
+   "phase": "dryrun",
+   "est": 1030,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000058": {
+   "phase": "dryrun",
+   "est": 1366,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000059": {
+   "phase": "dryrun",
+   "est": 918,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000060": {
+   "phase": "dryrun",
+   "est": 859,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000061": {
+   "phase": "dryrun",
+   "est": 758,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000062": {
+   "phase": "dryrun",
+   "est": 771,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000063": {
+   "phase": "dryrun",
+   "est": 965,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000064": {
+   "phase": "dryrun",
+   "est": 972,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000065": {
+   "phase": "dryrun",
+   "est": 812,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000066": {
+   "phase": "dryrun",
+   "est": 820,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000067": {
+   "phase": "dryrun",
+   "est": 1530,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000068": {
+   "phase": "dryrun",
+   "est": 862,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000069": {
+   "phase": "dryrun",
+   "est": 867,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000070": {
+   "phase": "dryrun",
+   "est": 746,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000071": {
+   "phase": "dryrun",
+   "est": 659,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000072": {
+   "phase": "dryrun",
+   "est": 774,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000073": {
+   "phase": "dryrun",
+   "est": 806,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000074": {
+   "phase": "dryrun",
+   "est": 1440,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000075": {
+   "phase": "dryrun",
+   "est": 1440,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000076": {
+   "phase": "dryrun",
+   "est": 1388,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000077": {
+   "phase": "dryrun",
+   "est": 834,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000078": {
+   "phase": "dryrun",
+   "est": 711,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000079": {
+   "phase": "dryrun",
+   "est": 971,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000080": {
+   "phase": "dryrun",
+   "est": 767,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000081": {
+   "phase": "dryrun",
+   "est": 799,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000082": {
+   "phase": "dryrun",
+   "est": 1634,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000083": {
+   "phase": "dryrun",
+   "est": 1634,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000084": {
+   "phase": "dryrun",
+   "est": 1539,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000085": {
+   "phase": "dryrun",
+   "est": 1539,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000086": {
+   "phase": "dryrun",
+   "est": 886,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000087": {
+   "phase": "dryrun",
+   "est": 764,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000088": {
+   "phase": "dryrun",
+   "est": 902,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000089": {
+   "phase": "dryrun",
+   "est": 933,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000090": {
+   "phase": "dryrun",
+   "est": 1488,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000091": {
+   "phase": "dryrun",
+   "est": 1488,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000092": {
+   "phase": "dryrun",
+   "est": 883,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000093": {
+   "phase": "dryrun",
+   "est": 895,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000094": {
+   "phase": "dryrun",
+   "est": 918,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000095": {
+   "phase": "dryrun",
+   "est": 850,
+   "actual": 0,
+   "usage_missing": false
+  },
+  "d000096": {
+   "phase": "dryrun",
+   "est": 858,
+   "actual": 0,
+   "usage_missing": false
+  }
+ }
+}

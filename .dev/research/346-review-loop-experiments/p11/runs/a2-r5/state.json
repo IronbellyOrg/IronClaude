@@ -1,0 +1,81 @@
+{
+ "run": "a2-r5",
+ "arm": 2,
+ "rep": 5,
+ "done": [
+  "R1",
+  "V1",
+  "R2",
+  "AUD"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "report_bytes": 40510,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 25,
+    "MINOR": 10,
+    "CRITICAL": 1
+   },
+   "blocking_ids": "B-1, B-2",
+   "blocking_word_count": 19,
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "output_tokens": 157439
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 5634,
+   "spec_after": {
+    "bytes": 58629,
+    "lines": 285,
+    "sha256": "7cfc46955e89212267b7b42612208b7b453942bd61bda42b47e3e96f605b89ff"
+   },
+   "output_tokens": 27472
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 31393,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "labels": {
+    "MAJOR": 5
+   },
+   "blocking_ids": "none. No blocking finding is open, so no revision is required",
+   "blocking_word_count": 14,
+   "spec_after": {
+    "bytes": 58629,
+    "lines": 285,
+    "sha256": "7cfc46955e89212267b7b42612208b7b453942bd61bda42b47e3e96f605b89ff"
+   },
+   "output_tokens": 62690
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 32669,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 11,
+    "MINOR": 4
+   },
+   "blocking_ids": "F-1",
+   "blocking_word_count": 11,
+   "spec_audited": {
+    "bytes": 58629
+   },
+   "output_tokens": 134612
+  }
+ }
+}

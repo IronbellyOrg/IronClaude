@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-06",
+ "finding": {
+  "heading": "### R1-1 Backups are overwritten every night",
+  "body": "The overwrite rule replaces each backup with the next one, which contradicts the retention rule that keeps nightly backups for 35 days. Cited: spec lines 32-33 (before version).\nAn implementer who follows BK-4 builds a backup job that keeps a single copy, so an error that is found after one day cannot be restored.\nProtected requirement: line 32 (the 35-day retention must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -29,8 +29,6 @@\n - **DX-20 Support hours.** The support team answers tickets on business days between 08:00 and 18:00 in the local time of the customer.\n - **DX-21 Test data.** Test environments use generated data only and never contain copies of records that belong to real customers.\n - **DX-22 Feedback form.** A feedback form is available on every page and sends its text to the product team without a reply address.\n-- **BK-3 Backup retention.** Nightly backups are kept for 35 days, so that data lost through an error that is found late can still be restored.\n-- **BK-4 Backup overwrite.** Each nightly backup overwrites the backup of the previous night.\n - **DX-23 Cookies.** The site sets only the cookies that are needed for sign-in and for the language choice of the visitor.\n - **DX-24 Print layout.** Pages that customers may print have a print stylesheet that hides the navigation and shows the address of the page.\n - **DX-1 Keyboard access.** All interactive elements can be reached and used with the keyboard alone, and the element that has focus is always visible.\n"
+}

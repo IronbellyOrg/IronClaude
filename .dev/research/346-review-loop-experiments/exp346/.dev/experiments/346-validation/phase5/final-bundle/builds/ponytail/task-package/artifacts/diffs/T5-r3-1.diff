@@ -1,0 +1,436 @@
+diff --git a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+index 1fa34300..e69c3c26 100644
+--- a/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
++++ b/src/superclaude/skills/sc-fix-audit/scripts/fix_audit.py
+@@ -1,10 +1,11 @@
+ #!/usr/bin/env python3
+ """Fix audit for one /sc:spec-panel-ponytail review loop (issue 346).
+ 
+-Subcommands: prepare, check, apply (verdict follows).
++Subcommands: prepare, check, apply, verdict.
+ Standard library only. Exit codes: 0 ok, not-triggered or skipped; 1 an
+ unreadable input after the trigger check, a failed check or a stopped apply
+-(the spec is then byte-identical to D/current-before-audit.md).
++(the spec is then byte-identical to D/current-before-audit.md); 2 a verdict
++that is unparseable or inconsistent (its last line is then `verdict: FAIL`).
+ """
+ 
+ from __future__ import annotations
+@@ -904,6 +905,137 @@ def cmd_apply(a: argparse.Namespace) -> int:
+     return 0
+ 
+ 
++# ---------- verdict ----------
++
++VERDICT_RE = re.compile(r"verdict: (PASS|FAIL)")
++CM = ("CRITICAL", "MAJOR")
++
++
++def unlabelled_blocking(text: str) -> list[str]:
++    """Ids of review-3 table rows outside the resolution table that carry no severity
++    label and are not read as non-blocking: parse_report needs a label, but an unknown
++    grade still counts as blocking here (fail closed)."""
++    key = report_key(text)
++    out: list[str] = []
++    in_prior = False
++    lines = text.splitlines()
++    for n, line in enumerate(lines):
++        if line.lstrip().startswith("#"):
++            in_prior = bool(PRIOR_HEADING_RE.search(line))
++            continue
++        cs = table_cells(line)
++        if in_prior or not cs or is_separator(cs):
++            continue
++        nxt = table_cells(lines[n + 1]) if n + 1 < len(lines) else None
++        if nxt is not None and is_separator(nxt):
++            continue  # a header row
++        cell = cs[0].strip("*` ")
++        if not ID_CELL_RE.fullmatch(cell) or LABEL_RE.search(line):
++            continue
++        if any(c.lower() in STATUS_WORDS for c in cs[1:]):
++            continue
++        if parse_grade(line, key)[1] is not False:
++            out += [t for t in id_tokens(cell) if not FR_RE.match(t)]
++    return out
++
++
++def cmd_verdict(a: argparse.Namespace) -> int:
++    """Compute review 3's verdict from files; never turns a FAIL into a PASS."""
++    d = Path(a.dir)
++    out: list[str] = []
++    unparseable: list[str] = []
++    try:
++        state = load_state(d)
++    except (OSError, ValueError):
++        state, unparseable = {}, ["state.json unreadable"]
++    audit = state.get("audit", "missing")
++    ids = state.get("ids", {})
++    applied = audit.startswith("applied(")
++    closed: list[str] = []
++    if applied and (d / "closed-minor.txt").exists():
++        closed = [
++            ln.split()[0]
++            for ln in read_text(d / "closed-minor.txt").splitlines()
++            if ln.strip()
++        ]
++    downgrades: list[str] = []
++    if (d / "check.log").exists():
++        downgrades = [
++            ln.split()[1]
++            for ln in read_text(d / "check.log").splitlines()
++            if ln.startswith("DOWNGRADE ")
++        ]
++    # owner decision: deferred (closed) and demoted (DOWNGRADE) findings stay open in the
++    # owner count, whatever the audit state; nothing here lowers it
++    held = closed + [t for t in dict.fromkeys(downgrades) if t not in closed]
++    try:
++        r3 = read_text(Path(a.report))
++    except (OSError, UnicodeDecodeError) as e:
++        r3, unparseable = "", unparseable + [f"review-3 report unreadable: {e}"]
++    parsed = parse_report(r3)
++    prior, new = parsed["prior"], parsed["graded"]
++    if r3 and not prior:
++        unparseable.append("no resolution table rows in the review-3 report")
++    blank = [t for t, st in prior if not st]
++    if blank:
++        unparseable.append(
++            f"resolution rows without a status ({', '.join(sorted(STATUS_WORDS))}): {', '.join(blank)}"
++        )
++    report_line = last_line(r3)
++    m = VERDICT_RE.fullmatch(report_line)
++    if r3 and not m:
++        unparseable.append("the review-3 report does not end with a verdict line")
++
++    listed_open = [t for t, st in prior if st in ("open", "regressed")]
++    prior_open = [t for t in listed_open if ids.get(t, {}).get("blocking")]
++    new_blocking = list(
++        dict.fromkeys(
++            [t for t, g in new.items() if g["blocking"]] + unlabelled_blocking(r3)
++        )
++    )
++    open_ids = list(dict.fromkeys(prior_open + new_blocking))
++    disagree = [t for t in closed if t in new_blocking]
++    computed = "FAIL" if open_ids else "PASS"
++    if a.report_rule == "427" and m and m.group(1) != computed:
++        disagree.append(f"report says {m.group(1)}, computed {computed}")
++    new_cm = sum(g["label"] in CM for g in new.values())
++    # a held id is skipped only when new_cm already counts it, so the count never drops below the held total
++    held_cm = sum(
++        ids.get(t, {}).get("label") in CM and not (t in new and new[t]["label"] in CM)
++        for t in held
++    )
++
++    out.append(f"open blocking: {', '.join(open_ids) or 'none'}")
++    out.append(
++        f"closed-minor (deferred, counted open in the owner count): {', '.join(closed) or 'none'}"
++    )
++    out += [f"closed-minor, listed open: {t}" for t in closed if t in listed_open]
++    out.append(f"downgrades logged: {', '.join(downgrades) or 'none'}")
++    held_txt = ", ".join(f"{t} {ids.get(t, {}).get('label', 'unknown')}" for t in held)
++    out.append(f"held open (deferred or demoted): {held_txt or 'none'}")
++    out.append(f"review-3 new critical+major: {new_cm}")
++    out.append(
++        f"review-3 critical+major (owner count, held findings included): {new_cm + held_cm}"
++    )
++    out.append(f"audit: {audit}")
++    if a.report_rule == "any-severity":
++        out.append(f"t09-verdict: {report_line}")
++    else:
++        out.append(f"report verdict: {report_line}")
++    out += [f"unparseable: {u}" for u in unparseable]
++    if disagree:
++        out.append(f"consistency: DISAGREE ({'; '.join(disagree)})")
++    fail = bool(open_ids or disagree or unparseable)
++    if m and m.group(1) == "FAIL":
++        # the stricter line wins; in any-severity mode the T09 line is not cross-checked
++        # (no DISAGREE), but a FAIL is still never turned into a PASS
++        fail = True
++    out.append(f"verdict: {'FAIL' if fail else 'PASS'}")
++    (d / "final-verdict.md").write_text("\n".join(out) + "\n", encoding="utf-8")
++    print("\n".join(out))
++    return 2 if (unparseable or disagree) else 0
++
++
+ def main(argv: list[str] | None = None) -> int:
+     ap = argparse.ArgumentParser(
+         prog="fix_audit.py", description=__doc__.splitlines()[0]
+@@ -928,6 +1060,13 @@ def main(argv: list[str] | None = None) -> int:
+     )
+     ap_.add_argument("--dir", required=True)
+     ap_.set_defaults(fn=cmd_apply)
++    v = sub.add_parser(
++        "verdict", help="compute the review-3 verdict and the owner count"
++    )
++    v.add_argument("--dir", required=True)
++    v.add_argument("--report", required=True)
++    v.add_argument("--report-rule", choices=("427", "any-severity"), default="427")
++    v.set_defaults(fn=cmd_verdict)
+     a = ap.parse_args(argv)
+     return a.fn(a)
+ 
+diff --git a/tests/skills/test_fix_audit_script.py b/tests/skills/test_fix_audit_script.py
+index e57994cf..902988c6 100644
+--- a/tests/skills/test_fix_audit_script.py
++++ b/tests/skills/test_fix_audit_script.py
+@@ -879,3 +879,261 @@ def test_every_apply_log_row_has_id_and_bytes(prepped):
+     for ln in rows:
+         assert re.search(r" bytes [0-9]+ -> [0-9]+$", ln), ln
+         assert ln.split()[1] in ("N1", "N2", "N3", "-"), ln
++
++
++# ---------- verdict ----------
++
++
++def r3(prior_rows: str, new_rows: str = "", last: str = "verdict: PASS") -> str:
++    text = "# Review 3\n\nreview: 3 of 3\n\n"
++    if prior_rows:
++        text += (
++            "## Prior findings\n\n| id | fixed | status |\n|---|---|---|\n"
++            + prior_rows
++            + "\n"
++        )
++    text += (
++        "## New findings\n\n| id | severity | grade |\n|---|---|---|\n"
++        + new_rows
++        + "\n"
++        + last
++        + "\n"
++    )
++    return text
++
++
++def verdict(d: Path, text: str, rule: str = "427"):
++    rep = d.parent / "round3.md"
++    rep.write_text(text, encoding="utf-8")
++    res = run("verdict", "--dir", str(d), "--report", str(rep), "--report-rule", rule)
++    lines = (d / "final-verdict.md").read_text().splitlines()
++    assert lines[-1] in ("verdict: PASS", "verdict: FAIL")
++    return res, lines
++
++
++@pytest.fixture
++def applied(prepped):
++    """CK fixture after apply: N1 (MINOR) reverted and closed, N2 kept, N3 shrunk."""
++    (prepped / "audit.md").write_text(audit_md(), encoding="utf-8")
++    assert apply_(prepped).returncode == 0
++    return prepped
++
++
++RESOLVED = "| N2 | yes | resolved |\n| N3 | yes | resolved |\n"
++
++
++def test_clean_review3_passes(applied):
++    res, lines = verdict(applied, r3(RESOLVED))
++    assert res.returncode == 0 and lines[-1] == "verdict: PASS"
++    assert "open blocking: none" in lines
++
++
++def test_report_fail_never_becomes_pass(applied):
++    res, lines = verdict(applied, r3(RESOLVED, last="verdict: FAIL"))
++    assert lines[-1] == "verdict: FAIL"
++
++
++@pytest.mark.parametrize("status", ["open", "regressed"])
++def test_prior_blocking_open_or_regressed_stays_open(applied, status):
++    res, lines = verdict(
++        applied,
++        r3(f"| N2 | no | {status} |\n| N3 | yes | resolved |\n", last="verdict: FAIL"),
++    )
++    assert "open blocking: N2" in lines and lines[-1] == "verdict: FAIL"
++
++
++def test_listed_open_minor_id_does_not_count_and_closed_one_is_named(applied):
++    res, lines = verdict(applied, r3(RESOLVED + "| N1 | no | open |\n"))
++    assert res.returncode == 0 and lines[-1] == "verdict: PASS"
++    assert "closed-minor, listed open: N1" in lines and "open blocking: none" in lines
++
++
++def test_closed_id_graded_blocking_disagrees(applied):
++    res, lines = verdict(
++        applied, r3(RESOLVED, "| N1 | MAJOR | blocking |\n", last="verdict: FAIL")
++    )
++    assert res.returncode == 2 and lines[-1] == "verdict: FAIL"
++    assert any(ln.startswith("consistency: DISAGREE") for ln in lines)
++
++
++def test_unparseable_table_exits_2_fail(applied):
++    res, lines = verdict(applied, "review: 3 of 3\nno tables here\nverdict: PASS\n")
++    assert res.returncode == 2 and lines[-1] == "verdict: FAIL"
++
++
++def test_427_disagreeing_report_line_gives_stricter_line(applied):
++    res, lines = verdict(
++        applied,
++        r3("| N2 | no | open |\n| N3 | yes | resolved |\n", last="verdict: PASS"),
++    )
++    assert res.returncode == 2 and lines[-1] == "verdict: FAIL"
++    assert any(ln.startswith("consistency: DISAGREE") for ln in lines)
++
++
++def test_any_severity_prints_t09_line(applied):
++    res, lines = verdict(
++        applied,
++        r3(RESOLVED, "| R3-1 | MINOR | non-blocking |\n", last="verdict: FAIL"),
++        "any-severity",
++    )
++    assert "t09-verdict: verdict: FAIL" in lines
++    # no cross-check (no DISAGREE, exit 0), but the report's FAIL is never turned into a PASS
++    assert res.returncode == 0 and lines[-1] == "verdict: FAIL"
++    assert not any(ln.startswith("consistency:") for ln in lines)
++    res, lines = verdict(applied, r3(RESOLVED, last="verdict: PASS"), "any-severity")
++    assert "t09-verdict: verdict: PASS" in lines and lines[-1] == "verdict: PASS"
++
++
++def _owner(lines):
++    new = int(
++        next(ln for ln in lines if ln.startswith("review-3 new critical+major:")).split(
++            ": "
++        )[1]
++    )
++    own = int(
++        next(
++            ln for ln in lines if ln.startswith("review-3 critical+major (owner count")
++        ).split(": ")[1]
++    )
++    return new, own
++
++
++def _run_audit(tmp_path, rep_rows, rows, edits=None):
++    res, d, state = prepare(
++        tmp_path,
++        "a one\nk\nb two\n",
++        "a one N1 extra\nk\nb two N2 rule\n",
++        report(rep_rows),
++        disp="",
++    )
++    (d / "audit.md").write_text(audit_md(rows, edits or []), encoding="utf-8")
++    apply_(d)
++    return d
++
++
++NEW_CM = "| R3-1 | MAJOR | blocking |\n"
++
++
++def test_owner_count_reverted_major_adds_one(tmp_path):
++    d = _run_audit(
++        tmp_path,
++        "| N1 | MAJOR | non-blocking |\n| N2 | MAJOR | blocking |\n",
++        {
++            "N1": "| N1 | H1 | minor | minor | no | none | revert | the added words change nothing at all |",
++            "N2": "| N2 | H2 | blocking | blocking | yes | none | keep | without it the rule is wrong for readers |",
++        },
++    )
++    assert (d / "closed-minor.txt").read_text() == "N1 MAJOR\n"
++    res, lines = verdict(d, r3("| N2 | yes | resolved |\n", NEW_CM, "verdict: FAIL"))
++    assert _owner(lines) == (1, 2)
++    assert "held open (deferred or demoted): N1 MAJOR" in lines
++
++
++def test_owner_count_downgrade_critical_adds_one(tmp_path):
++    d = _run_audit(
++        tmp_path,
++        "| N1 | MINOR | non-blocking |\n| N2 | CRITICAL | blocking |\n",
++        {
++            "N1": "| N1 | H1 | minor | minor | yes | none | keep | wording only |",
++            "N2": "| N2 | H2 | blocking | minor | no | none | keep | wording only |",
++        },
++    )
++    assert "DOWNGRADE N2" in (d / "check.log").read_text()
++    res, lines = verdict(d, r3("| N2 | yes | resolved |\n", NEW_CM, "verdict: FAIL"))
++    assert _owner(lines) == (1, 2)
++
++
++def test_owner_count_reverted_minor_adds_nothing(applied):
++    assert (applied / "closed-minor.txt").read_text() == "N1 MINOR\n"
++    res, lines = verdict(applied, r3(RESOLVED, NEW_CM, "verdict: FAIL"))
++    assert _owner(lines) == (1, 1)
++
++
++def test_owner_count_equal_when_audit_skipped(tmp_path):
++    rep = report("| N1 | MAJOR | non-blocking |\n")
++    res, d, state = prepare(tmp_path, "a\nk\nb\n", "a x\nk\nb y\n", rep, disp="")
++    assert (
++        state["audit"] == "skipped(ids not citable)" and not (d / "check.log").exists()
++    )
++    res, lines = verdict(d, r3("| N1 | no | open |\n", NEW_CM, "verdict: FAIL"))
++    new, own = _owner(lines)
++    assert new == own == 1
++
++
++def test_downgrade_counts_even_when_the_check_failed(tmp_path):
++    d = _run_audit(
++        tmp_path,
++        "| N1 | MINOR | non-blocking |\n| N2 | CRITICAL | blocking |\n",
++        {
++            "N1": "| N1 | H1 | blocking | minor | yes | none | keep | wording only |",  # wrong claimed: K4
++            "N2": "| N2 | H2 | blocking | minor | no | none | keep | wording only |",
++        },
++    )
++    state = json.loads((d / "state.json").read_text())
++    assert (
++        state["audit"] == "skipped(check failed)"
++        and "DOWNGRADE N2" in (d / "check.log").read_text()
++    )
++    res, lines = verdict(d, r3("| N2 | yes | resolved |\n", NEW_CM, "verdict: FAIL"))
++    assert _owner(lines) == (1, 2)
++    assert "held open (deferred or demoted): N2 CRITICAL" in lines
++
++
++def test_unlabelled_blocking_row_in_review3_counts_as_open(applied):
++    res, lines = verdict(
++        applied, r3(RESOLVED, "| R3-1 | blocking | missing anchor |\n", "verdict: PASS")
++    )
++    assert "open blocking: R3-1" in lines and lines[-1] == "verdict: FAIL"
++    res, lines = verdict(
++        applied, r3(RESOLVED, "| R3-2 | non-blocking | wording |\n", "verdict: PASS")
++    )
++    assert "open blocking: none" in lines and lines[-1] == "verdict: PASS"
++
++
++def _major_reverted(tmp_path):
++    return _run_audit(
++        tmp_path,
++        "| N1 | MAJOR | non-blocking |\n| N2 | MAJOR | blocking |\n",
++        {
++            "N1": "| N1 | H1 | minor | minor | no | none | revert | the added words change nothing at all |",
++            "N2": "| N2 | H2 | blocking | blocking | yes | none | keep | without it the rule is wrong for readers |",
++        },
++    )
++
++
++@pytest.mark.parametrize(
++    "row,counts",
++    [
++        (
++            "| N1 | MINOR | non-blocking |\n",
++            (0, 1),
++        ),  # relabelled minor by review 3: still held
++        (
++            "| N1 | MAJOR | non-blocking |\n",
++            (1, 1),
++        ),  # already counted by review 3: counted once
++    ],
++)
++def test_owner_count_held_id_relisted_by_review3(tmp_path, row, counts):
++    d = _major_reverted(tmp_path)
++    res, lines = verdict(d, r3("| N2 | yes | resolved |\n", row, "verdict: PASS"))
++    assert _owner(lines) == counts
++
++
++def test_resolution_row_without_status_is_unparseable(applied):
++    res, lines = verdict(
++        applied,
++        r3(
++            "| N2 | no | partially resolved |\n| N3 | yes | resolved |\n",
++            last="verdict: PASS",
++        ),
++    )
++    assert res.returncode == 2 and lines[-1] == "verdict: FAIL"
++    assert any(ln.startswith("unparseable:") and "N2" in ln for ln in lines)
++
++
++def test_ungraded_review3_row_counts_as_blocking(applied):
++    res, lines = verdict(
++        applied, r3(RESOLVED, "| R3-1 | - | missing anchor |\n", "verdict: PASS")
++    )
++    assert "open blocking: R3-1" in lines and lines[-1] == "verdict: FAIL"

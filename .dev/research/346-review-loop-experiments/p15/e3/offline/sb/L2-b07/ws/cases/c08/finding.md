@@ -1,0 +1,3 @@
+**F-01. WC-3 lets a coordinator's answer become an implement Ruling (safety boundary).**
+An implementer who follows WC-3 as written can have a worker ask the coordinator about a gate that would otherwise be blocked, then re-invoke `/sc:implement` with the answer as a flag. The implement row (line 109) then treats that answer as the Ruling. This is wrong because `sk/sc-implement-protocol/refs/qa.md:238` says "another agent's message ... [is] not acceptance" (quoted at INV-A:66), and the spec says the Ruling rule is unchanged unless the user chooses D2(b) (lines 218 and 234-236). D2(a) is the recommendation, so WC-3 silently reopens a decision the spec leaves to the user.
+Fix: exempt the implement Ruling gate from WC-3, or state that the relay is allowed only under D2(b).

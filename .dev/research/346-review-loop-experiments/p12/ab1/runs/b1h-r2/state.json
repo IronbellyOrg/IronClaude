@@ -1,0 +1,515 @@
+{
+ "run": "b1h-r2",
+ "design": "b1",
+ "rep": 2,
+ "stratum": "haiku",
+ "loop_model": "haiku",
+ "product_ref": "44f37e16d335a322e618b24c16ba387ffdfb47a1",
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "ed219181156e47e6d70120730063e0b00081482d8a78b3d2633da188574ca829",
+ "done": [
+  "R1a",
+  "R1c",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "AUD",
+  "AUD2"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1a",
+  "R1c",
+  "R1b",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 37639,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 19,
+    "MINOR": 9,
+    "CRITICAL": 1
+   },
+   "blocking_ids": "ARCH-1, ARCH-2, ARCH-3, ARCH-4, REQ-1, REQ-2",
+   "blocking_word_count": 18,
+   "output_tokens": 77414
+  },
+  "R1c": {
+   "output_exists": true,
+   "report_bytes": 27012,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 3,
+    "MINOR": 1
+   },
+   "blocking_ids": "RQ-1, RQ-2, AR-1",
+   "blocking_word_count": 13,
+   "output_tokens": 65544
+  },
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 21715,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 4,
+    "MAJOR": 1
+   },
+   "blocking_ids": "B1, B2, B3, B4, B5",
+   "blocking_word_count": 14,
+   "output_tokens": 80595
+  },
+  "VF1": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7",
+    "M8",
+    "M9",
+    "M10",
+    "M11",
+    "M12",
+    "M13"
+   ],
+   "report_bytes": 9406,
+   "confirmed": [
+    "M1",
+    "M2",
+    "M3",
+    "M6",
+    "M7",
+    "M8",
+    "M9",
+    "M11",
+    "M12",
+    "M13"
+   ],
+   "rejected": {
+    "M4": "The texts conflict (row 88 against SA-6 and item 9). The stall branch depends on UNVERIFIED item 9 and is a WC-2 issue, not the stated safety outcome. The safety branch needs two things the candidate does not supply: a re-keying of the trigger, which SA-6 says is not done, and a statement that `--remediate` applies code, which row 88 never gives. D2 governs the implement Ruling, not reflect remediation.",
+    "M5": "As written, AC-C1's pattern does not match `orca orchestration check` at all (tested: exit 1), so the premise that AC-C1 flags P0 text does not hold for the spec's own regex. Under the intended plain-bar regex, a match needs P0 text in the form `orca` followed by orchestration, worktree, terminal or agent. SA-2 permits an Orca \"mention\" but no candidate text requires that form, so the failure is conditional on wording the spec leaves open.",
+    "M10": "The texts conflict in intent, but AC-1.1 only checks that the section names `return-contract.yaml`. A load section that names it and states that no contract is written satisfies the check as written. The candidate does not say AC-1.1 fails for load, so \"the criterion cannot pass\" does not follow."
+   },
+   "parse_ok": true,
+   "output_tokens": 39842
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 8824,
+   "spec_after": {
+    "bytes": 60747,
+    "lines": 294,
+    "sha256": "feaa1a31e42a8514d14628b790b646be58d5aee3914f33cd26e8e8f6a0037350"
+   },
+   "output_tokens": 52834
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 33180,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "labels": {
+    "MAJOR": 1
+   },
+   "blocking_ids": "N5",
+   "blocking_word_count": 11,
+   "spec_after": {
+    "bytes": 60747,
+    "lines": 294,
+    "sha256": "feaa1a31e42a8514d14628b790b646be58d5aee3914f33cd26e8e8f6a0037350"
+   },
+   "output_tokens": 66047
+  },
+  "VF2": {
+   "output_exists": true,
+   "finding_ids": [
+    "N5"
+   ],
+   "report_bytes": 2946,
+   "confirmed": [],
+   "rejected": {
+    "N5": "The contradiction is real, but the stall is not forced by the candidate."
+   },
+   "parse_ok": true,
+   "output_tokens": 12818
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 21813,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 16,
+    "MINOR": 3,
+    "CRITICAL": 1
+   },
+   "blocking_ids": "F-01, F-02",
+   "blocking_word_count": 9,
+   "spec_audited": {
+    "bytes": 60747
+   },
+   "output_tokens": 31207
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 22248,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 16,
+    "MINOR": 10
+   },
+   "blocking_ids": "F-1",
+   "blocking_word_count": 6,
+   "spec_audited": {
+    "bytes": 60747
+   },
+   "output_tokens": 37830
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T08:27:12+00:00",
+  "R1b": "2026-11-10T08:27:44+00:00",
+  "R1c": "2026-11-10T08:28:39+00:00",
+  "VF1": "2026-11-10T08:37:33+00:00",
+  "V1": "2026-11-10T08:44:30+00:00",
+  "R2": "2026-11-10T08:52:15+00:00",
+  "VF2": "2026-11-10T09:00:51+00:00",
+  "AUD": "2026-11-10T09:05:20+00:00",
+  "AUD2": "2026-11-10T09:05:20+00:00"
+ },
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "M4",
+   "theme": "other",
+   "cited": [
+    88
+   ],
+   "heading": "### ARCH-4 (blocking): the P2 reflect change makes a worker self-approve code remediation, which D2 forbids for implement",
+   "reason": "The texts conflict (row 88 against SA-6 and item 9). The stall branch depends on UNVERIFIED item 9 and is a WC-2 issue, not the stated safety outcome. The safety branch needs two things the candidate does not supply: a re-keying of the trigger, which SA-6 says is not done, and a statement that `--remediate` applies code, which row 88 never gives. D2 governs the implement Ruling, not reflect remediation."
+  },
+  {
+   "step": "VF1",
+   "id": "M5",
+   "theme": "other",
+   "cited": [
+    172
+   ],
+   "heading": "### REQ-1 (blocking): the common acceptance check AC-C1 cannot pass in the phase that adds the contract",
+   "reason": "As written, AC-C1's pattern does not match `orca orchestration check` at all (tested: exit 1), so the premise that AC-C1 flags P0 text does not hold for the spec's own regex. Under the intended plain-bar regex, a match needs P0 text in the form `orca` followed by orchestration, worktree, terminal or agent. SA-2 permits an Orca \"mention\" but no candidate text requires that form, so the failure is conditional on wording the spec leaves open."
+  },
+  {
+   "step": "VF1",
+   "id": "M10",
+   "theme": "T1",
+   "cited": [
+    112,
+    159,
+    195,
+    265
+   ],
+   "heading": "### B4. CRITICAL. AC-1.1 cannot pass for `/sc:load`",
+   "reason": "The texts conflict in intent, but AC-1.1 only checks that the section names `return-contract.yaml`. A load section that names it and states that no contract is written satisfies the check as written. The candidate does not say AC-1.1 fails for load, so \"the criterion cannot pass\" does not follow."
+  },
+  {
+   "step": "VF2",
+   "id": "N5",
+   "theme": "T1",
+   "cited": [],
+   "heading": "### N5 (blocking, MAJOR): P1 accepts `--unattended` on gated commands that still prompt",
+   "reason": "The contradiction is real, but the stall is not forced by the candidate."
+  }
+ ],
+ "loop_end": "VERIFIED-PASS",
+ "manual": [],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 14,
+  "merged_count": 13,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "T2",
+    "members": [
+     "round1-a.md/ARCH-1"
+    ],
+    "cited": [
+     62
+    ],
+    "heading": "### ARCH-1 (blocking): WC-4's `<output-dir>/return-contract.yaml` rule cannot be applied to the rows that define their own output"
+   },
+   {
+    "mid": "M2",
+    "theme": "T1",
+    "members": [
+     "round1-a.md/ARCH-2"
+    ],
+    "cited": [
+     148
+    ],
+    "heading": "### ARCH-2 (blocking): the P1 change to workflow writes a contract in standalone mode, which SA-3 forbids"
+   },
+   {
+    "mid": "M3",
+    "theme": "T1",
+    "members": [
+     "round1-a.md/ARCH-3"
+    ],
+    "cited": [
+     159
+    ],
+    "heading": "### ARCH-3 (blocking): P1 accepts `--unattended` on commands whose outward defaults stay on until P2 or P4"
+   },
+   {
+    "mid": "M4",
+    "theme": "other",
+    "members": [
+     "round1-a.md/ARCH-4"
+    ],
+    "cited": [
+     88
+    ],
+    "heading": "### ARCH-4 (blocking): the P2 reflect change makes a worker self-approve code remediation, which D2 forbids for implement"
+   },
+   {
+    "mid": "M5",
+    "theme": "other",
+    "members": [
+     "round1-a.md/REQ-1"
+    ],
+    "cited": [
+     172
+    ],
+    "heading": "### REQ-1 (blocking): the common acceptance check AC-C1 cannot pass in the phase that adds the contract"
+   },
+   {
+    "mid": "M6",
+    "theme": "T3",
+    "members": [
+     "round1-a.md/REQ-2",
+     "round1-b.md/B5"
+    ],
+    "cited": [
+     183,
+     194
+    ],
+    "heading": "### REQ-2 (blocking): AC-0.4 step 4 cannot pass for `/sc:troubleshoot`"
+   },
+   {
+    "mid": "M7",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B1"
+    ],
+    "cited": [
+     61,
+     67,
+     113,
+     245,
+     246,
+     247
+    ],
+    "heading": "### B1. CRITICAL. WC-3 lets a coordinator answer add a flag; WC-9 says only the brief can turn on an outward action"
+   },
+   {
+    "mid": "M8",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B2"
+    ],
+    "cited": [
+     66,
+     147,
+     172
+    ],
+    "heading": "### B2. CRITICAL. The AC-C1 grep cannot fail, so SA-2 and WC-8 have no working gate"
+   },
+   {
+    "mid": "M9",
+    "theme": "other",
+    "members": [
+     "round1-b.md/B3"
+    ],
+    "cited": [
+     63,
+     183
+    ],
+    "heading": "### B3. MAJOR. WC-5 reports `succeeded` for a contract that is empty, unreadable or has an unknown status"
+   },
+   {
+    "mid": "M10",
+    "theme": "T1",
+    "members": [
+     "round1-b.md/B4"
+    ],
+    "cited": [
+     112,
+     159,
+     195,
+     265
+    ],
+    "heading": "### B4. CRITICAL. AC-1.1 cannot pass for `/sc:load`"
+   },
+   {
+    "mid": "M11",
+    "theme": "other",
+    "members": [
+     "round1-c.md/RQ-1"
+    ],
+    "cited": [
+     61,
+     67,
+     109,
+     208,
+     234,
+     235,
+     236,
+     245,
+     246
+    ],
+    "heading": "### RQ-1 (BLOCKING). WC-3 lets a coordinator's reply become a gate answer, which contradicts the implement Ruling rule (D2) and the outward-action rule (D4)"
+   },
+   {
+    "mid": "M12",
+    "theme": "T3",
+    "members": [
+     "round1-c.md/RQ-2"
+    ],
+    "cited": [
+     73,
+     79,
+     83,
+     84,
+     85,
+     86,
+     87,
+     88,
+     89,
+     90,
+     91,
+     92,
+     158,
+     159,
+     180,
+     194
+    ],
+    "heading": "### RQ-2 (BLOCKING). The P0 phase cannot run the live check it is gated on"
+   },
+   {
+    "mid": "M13",
+    "theme": "other",
+    "members": [
+     "round1-c.md/AR-1"
+    ],
+    "cited": [
+     69,
+     73,
+     85,
+     86
+    ],
+    "heading": "### AR-1 (BLOCKING). Two ready verdicts keep fixed output paths, which breaks WC-11 in the default shared worktree"
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "eaf960aa84240881dd95b7d715d88f0a1ec4cf2a455decf0840cbaafe3e395c0",
+    "ids": [
+     "ARCH-1",
+     "ARCH-2",
+     "ARCH-3",
+     "ARCH-4",
+     "REQ-1",
+     "REQ-2"
+    ],
+    "themes": [
+     "T2",
+     "T1",
+     "T1",
+     "other",
+     "other",
+     "T3"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "79a8b342bd1be83a0db0588b3b347216e0b53ee4432b6ca1711cb5732028f137",
+    "ids": [
+     "B1",
+     "B2",
+     "B3",
+     "B4",
+     "B5"
+    ],
+    "themes": [
+     "other",
+     "other",
+     "other",
+     "T1",
+     "T3"
+    ]
+   },
+   "c": {
+    "verdict": "FAIL",
+    "sha256": "4cf024041a352973924fc0a86d9922264fdcd0f14ab0bd47dab5205d01374a68",
+    "ids": [
+     "RQ-1",
+     "RQ-2",
+     "AR-1"
+    ],
+    "themes": [
+     "other",
+     "T3",
+     "other"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 60747,
+  "lines": 294,
+  "sha256": "feaa1a31e42a8514d14628b790b646be58d5aee3914f33cd26e8e8f6a0037350"
+ }
+}

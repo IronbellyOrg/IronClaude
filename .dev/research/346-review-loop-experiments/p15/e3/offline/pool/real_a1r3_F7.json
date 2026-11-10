@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a1-r3"
+ },
+ "case_id": "real_a1r3_F7",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D15",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F7",
+  "finding_section": "**F7. No rule that `--unattended` reaches nested skills and commands.** Severity MAJOR, blocking (FR-8 GAP row G4-5). Expert: Hohpe (message and control flow between components). Spec: WC-2, section 3, tasklist row.\nIssue: only tasklist is told to pass `--unattended` to the reflect runs it starts (SPEC:122). Other chains that carry gates are not covered: tdd runs a nested `/task` that \"asks the user\" (the tdd row names this, SPEC:90); task calls troubleshoot (INV-B:201); cli-eval create runs `/sc:spec-panel` and adversarial (INV-A:44); release-split runs brainstorm and adversarial (INV-B:121); workflow runs reflect (INV-B:271). WC-2 says the command \"never\" asks (SPEC:60), but a command cannot keep that promise for a skill it calls unless the mode is handed on.\nConcrete wrong outcome: `/sc:cli-eval create --unattended` reaches Wave 2, `/sc:spec-panel` asks for a target release, and the worker stalls although the top command was converted.\nRecommendation: add a WC rule that every nested skill or command invocation inside an unattended command passes `--unattended` (or its documented equivalent) and that a callee without the mode is listed in that command's row. Priority High. Quality impact: Consistency +1."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a1-r3/ws/.dev/orca-command-refactor/review/spec-panel.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

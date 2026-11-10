@@ -1,0 +1,55 @@
+{
+ "sonnet": {
+  "n_completed": 6,
+  "n_expected": 6,
+  "n_audits": 12,
+  "BLK_T": 0.8333333333333334,
+  "audit_fail": 9,
+  "theme_rate": 9,
+  "theme_counts": {
+   "T1": 2,
+   "T2": 3,
+   "T3": 4,
+   "other": 0
+  },
+  "loop_pass": 6,
+  "growth": 0.01590118241781071,
+  "LOOP_T": 122677.83333333333,
+  "TOK_T": 152341.3333333333,
+  "R_LOOP": 1.221598754613771,
+  "R_B": 0.8989386393498083,
+  "REJ1": 6,
+  "N1": 33,
+  "REJ1_rate": 0.18181818181818182,
+  "outcome": "INCONCLUSIVE",
+  "rule": "no DROP and not a clear ADOPT",
+  "outcome_final": "INCONCLUSIVE",
+  "n_runs": 6,
+  "extension_eligible": true,
+  "note": "",
+  "replicas": [
+   {
+    "outcome": "INCONCLUSIVE",
+    "BLK_T": 1.0,
+    "rule": "no DROP and not a clear ADOPT"
+   },
+   {
+    "outcome": "INCONCLUSIVE",
+    "BLK_T": 0.6666666666666666,
+    "rule": "no DROP and not a clear ADOPT"
+   }
+  ]
+ },
+ "haiku": {
+  "state": "pending"
+ },
+ "baseline": {
+  "B_BLK": 1.5,
+  "B_AUDFAIL": 0.9166666666666666,
+  "B_THEME": 0.8333333333333334,
+  "B_GROWTH": 0.0141,
+  "n_audits": 12
+ },
+ "provisional": false,
+ "stratum": "sonnet"
+}

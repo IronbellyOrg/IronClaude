@@ -1,0 +1,37 @@
+{
+ "_comment": "Decision constants for experiment ab1 (plan sections 2-3, owner decisions D2-D4, D6). Read by harness.py analyze; no threshold literal lives in code. Cost is judged only after runs complete (D6): no run is ever stopped or skipped on token cost.",
+ "A_BASE": 100424,
+ "_comment_A_BASE": "baseline mean LOOP output tokens (loop only; deduplicated by message id). R_LOOP = LOOP_T / A_BASE decides cost.",
+ "AUD_BASE": 69044,
+ "B_BASE": 169468,
+ "_comment_B_BASE": "baseline loop + one audit; R_B = TOK_T / B_BASE is reported only, never decides.",
+ "SPEC_BYTES": 57763,
+ "B_DEFAULT": {"B_BLK": 1.5, "B_AUDFAIL": [5, 6], "B_THEME": [5, 6], "B_GROWTH": 0.0141, "B_PASS": [6, 6]},
+ "_comment_B_DEFAULT": "single-audit baseline values of section 2; recomputed over 12 audits when baseline-audit2 exists (else every comparison is PROVISIONAL).",
+ "N_SONNET": 6,
+ "N_HAIKU": 4,
+ "N_EXTEND": 3,
+ "MIN_COMPLETED": {"6": 5, "9": 8},
+ "_comment_MIN_COMPLETED": "fewer completed Sonnet runs than this gives INCONCLUSIVE (5 of 6, 8 of 9).",
+ "rules": {
+  "DROP1_BLK_FACTOR": 0.8,
+  "DROP2_RLOOP_LIMIT": 2.69,
+  "_comment_DROP2_RLOOP_LIMIT": "D6 conversion: R_LOOP_limit = (L*169468 - 69044)/100424 with original L = 2.0 on R_B (loop + audit) -> 2.6875, rounded 2.69. Replaces the plan's R_LOOP > 2.0. Post-hoc verdict clause only, never a mid-run stop.",
+  "DROP2_BLK_FACTOR": 0.5,
+  "DROP3_REJ_RATE": 0.5,
+  "DROP4_PASS_MIN": {"6": 5, "9": 8},
+  "_comment_DROP4_PASS_MIN": "DROP-4 fires when loop PASS count < this (5/6 at n=6, 8/9 at n=9).",
+  "DROP4_GROWTH_FACTOR": 3,
+  "ADOPT_BLK_FACTOR": 0.5,
+  "ADOPT_AUDFAIL_FACTOR": 0.5,
+  "_comment_ADOPT_AUDFAIL_FACTOR": "audit FAIL count <= floor(factor * B_AUDFAIL * n_audits): 5/12 at n=6, 7/18 at n=9.",
+  "ADOPT_GROWTH_FACTOR": 2
+ },
+ "haiku": {
+  "baseline_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/results.json",
+  "harness_fail_margin": 0.25,
+  "_comment_harness_fail_margin": "ADOPT needs Haiku harness-failure rate <= Haiku baseline rate + this (one run in four), and 1 - HR > 0."
+ },
+ "baseline_audit2_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2",
+ "ab2_metrics_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/ab2/metrics.json"
+}

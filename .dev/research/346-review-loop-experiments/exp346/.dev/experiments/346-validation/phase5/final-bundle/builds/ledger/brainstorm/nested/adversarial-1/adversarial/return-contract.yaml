@@ -1,0 +1,27 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/346-ledger/nested/adversarial-1/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/brainstorms/346-ledger/nested/adversarial-1/adversarial/"
+  status: "partial"
+  base_variant: "sonnet:analyzer"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    # HIGH items the Round 2.5 probe found UNADDRESSED in the debate consensus.
+    # Status partial: depth standard has no Round 3, so the convergence gate stayed BLOCKED_BY_INVARIANTS.
+    # refactor-plan.md maps each to a change applied in merged-output.md; the merged text was not re-probed.
+    - {id: INV-004, category: state_variables, assumption: "coordinator stops dispatching after an early terminal decision", severity: HIGH}
+    - {id: INV-006, category: guard_conditions, assumption: "the reviser runs answer", severity: HIGH}
+    - {id: INV-007, category: guard_conditions, assumption: "an unclaimed-hunk refusal is always recoverable", severity: HIGH}
+    - {id: INV-008, category: guard_conditions, assumption: "the admission check bounds scope", severity: HIGH}
+    - {id: INV-013, category: count_divergence, assumption: "counting deferred MAJOR rows in the headline is comparable with control", severity: HIGH}
+    - {id: INV-021, category: interaction_effects, assumption: "unchanged S1 review briefs fit the report rule", severity: HIGH}
+    - {id: INV-022, category: interaction_effects, assumption: "verify passes stay inside plan rows and hunks", severity: HIGH}
+    - {id: INV-027, category: sufficiency_challenge, assumption: "the ledger alone lowers review-3 critical+major to 3 or fewer", severity: HIGH}
+    - {id: INV-028, category: sufficiency_challenge, assumption: "sweep findings do not break the bar", severity: HIGH}
+  notes:
+    - "Round 1 convergence 0.741 (63 of 85); Round 2 convergence 1.000 (85 of 85), computed by /tmp/bs346-tools/convergence.py"
+    - "Base selection: B 0.899, A 0.882, C 0.819; tiebreaker level 1 (debate points won outright B 22, A 12)"
+    - "Merge: 65 of 65 planned changes applied; post-merge validation PASS (merge-log.md)"

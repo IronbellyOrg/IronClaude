@@ -1,0 +1,179 @@
+{
+ "decision": "NOT RUN",
+ "sonnet_verdict": "NOT RUN",
+ "reasons": [
+  "no completed Sonnet runs"
+ ],
+ "summary": {
+  "n_planned": 6,
+  "n_completed": 0,
+  "BLK_T": null,
+  "AUD_mean": null,
+  "AUD2_mean": null,
+  "PASS_T": null,
+  "GROWTH_T": null,
+  "loop_tokens": null,
+  "one_audit_tokens": null,
+  "R_LOOP": null,
+  "R_B": null,
+  "THEME_T": null,
+  "THEME_B": 0.8333333333333334,
+  "R1_tokens": null
+ },
+ "baseline": {
+  "B_BLK_recomputed": 1.5,
+  "THEME_B": 0.8333333333333334,
+  "audits": 12
+ },
+ "haiku": {
+  "n_planned": 0,
+  "n_completed": 0,
+  "status": "pending",
+  "reason": "no Haiku runs yet"
+ },
+ "next_action": null,
+ "extension_used": false,
+ "runs": {
+  "sonnet": [
+   {
+    "run": "l2-r1",
+    "stratum": "sonnet",
+    "completed": false,
+    "final_verdict": null,
+    "reviews": 0,
+    "pass": false,
+    "growth_pct": null,
+    "loop_tokens": 0,
+    "r1_tokens": null,
+    "aud_tokens": [],
+    "one_audit_tokens": null,
+    "audits": [],
+    "lint": {
+     "LINT1": {
+      "checks": "REF",
+      "findings": 0,
+      "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+      "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+     }
+    },
+    "tokens_by_step": {}
+   },
+   {
+    "run": "l2-r2",
+    "stratum": "sonnet",
+    "completed": false,
+    "final_verdict": null,
+    "reviews": 0,
+    "pass": false,
+    "growth_pct": null,
+    "loop_tokens": 0,
+    "r1_tokens": null,
+    "aud_tokens": [],
+    "one_audit_tokens": null,
+    "audits": [],
+    "lint": {
+     "LINT1": {
+      "checks": "REF",
+      "findings": 0,
+      "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+      "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+     }
+    },
+    "tokens_by_step": {}
+   },
+   {
+    "run": "l2-r3",
+    "stratum": "sonnet",
+    "completed": false,
+    "final_verdict": null,
+    "reviews": 0,
+    "pass": false,
+    "growth_pct": null,
+    "loop_tokens": 0,
+    "r1_tokens": null,
+    "aud_tokens": [],
+    "one_audit_tokens": null,
+    "audits": [],
+    "lint": {
+     "LINT1": {
+      "checks": "REF",
+      "findings": 0,
+      "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+      "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+     }
+    },
+    "tokens_by_step": {}
+   },
+   {
+    "run": "l2-r4",
+    "stratum": "sonnet",
+    "completed": false,
+    "final_verdict": null,
+    "reviews": 0,
+    "pass": false,
+    "growth_pct": null,
+    "loop_tokens": 0,
+    "r1_tokens": null,
+    "aud_tokens": [],
+    "one_audit_tokens": null,
+    "audits": [],
+    "lint": {
+     "LINT1": {
+      "checks": "REF",
+      "findings": 0,
+      "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+      "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+     }
+    },
+    "tokens_by_step": {}
+   },
+   {
+    "run": "l2-r5",
+    "stratum": "sonnet",
+    "completed": false,
+    "final_verdict": null,
+    "reviews": 0,
+    "pass": false,
+    "growth_pct": null,
+    "loop_tokens": 0,
+    "r1_tokens": null,
+    "aud_tokens": [],
+    "one_audit_tokens": null,
+    "audits": [],
+    "lint": {
+     "LINT1": {
+      "checks": "REF",
+      "findings": 0,
+      "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+      "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+     }
+    },
+    "tokens_by_step": {}
+   },
+   {
+    "run": "l2-r6",
+    "stratum": "sonnet",
+    "completed": false,
+    "final_verdict": null,
+    "reviews": 0,
+    "pass": false,
+    "growth_pct": null,
+    "loop_tokens": 0,
+    "r1_tokens": null,
+    "aud_tokens": [],
+    "one_audit_tokens": null,
+    "audits": [],
+    "lint": {
+     "LINT1": {
+      "checks": "REF",
+      "findings": 0,
+      "sha256": "6a70e9a1255ee5d4652078e22f1d02b3383feeb5af682b9017b29610cb1b420a",
+      "spec_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+     }
+    },
+    "tokens_by_step": {}
+   }
+  ],
+  "haiku": []
+ }
+}

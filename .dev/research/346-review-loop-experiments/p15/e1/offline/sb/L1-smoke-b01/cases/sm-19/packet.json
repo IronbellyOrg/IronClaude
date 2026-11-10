@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-19",
+ "finding": {
+  "heading": "### R1-1 The nightly job never looks for duplicate numbers",
+  "body": "The duplicate check rule says the job does not look for duplicate invoice numbers, although the gap check next to it relies on the numbers being trustworthy. Cited: spec lines 18-19 (before version).\nAn implementer who follows IN-5 builds a reconciliation job that never reports two invoices with the same number.\nProtected requirement: line 18 (the gap check must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -14,9 +14,9 @@\n \n ## 3. Numbering and checks\n \n-- **IN-3 Sequence.** Invoice numbers are taken from one sequence that is shared by all regions, in the order in which invoices are issued.\n+- **IN-3 Sequence.** Each region has its own invoice sequence, and every invoice number carries the code of its region.\n - **IN-4 Gap check.** The nightly reconciliation job reports every gap in the invoice sequence to the finance team.\n-- **IN-5 Duplicate check.** The reconciliation job does not look for duplicate invoice numbers.\n+- **IN-5 Duplicate check.** The reconciliation job reports every number that appears twice in the shared sequence of all regions. This revision introduces no conflict with other requirements.\n - **IN-6 Time of assignment.** A number is assigned at the moment the invoice is issued, not when the draft is created.\n \n ## 4. Archive\n"
+}

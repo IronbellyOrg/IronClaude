@@ -1,0 +1,5 @@
+### F-03 BLOCKING: AC-1.1 contradicts the scope of section 3 and the load row (Cockburn)
+- Locations: `spec:76` ("Every changed command also gains the `## Unattended mode` section"), `spec:79` (3.1 "Ready today": "The only command changes are the small fixes"), `spec:84` (brainstorm, small fix "None"), `spec:87` (init-lite, small fix "None"), `spec:159` (P1 requires `--unattended` on every 3.1 command), `spec:195` (AC-1.1 requires the section in every 3.1 and 3.2 command, naming `return-contract.yaml`), `spec:112` (load: report "none (see note)"), `spec:265` (Decisions: a report file for load "would be an unrequested addition").
+- Sentence: An implementer who follows `spec:79` and the "None" cells leaves brainstorm and init-lite without the section and the flag, and AC-1.1 fails for both; an implementer who follows AC-1.1 gives load a `return-contract.yaml` that `spec:265` says must not exist.
+- Recommendation: State the exact list of commands that gain the section and the flag, and either give load a contract or remove load from AC-1.1. Make `spec:79` say that ready commands still gain the flag.
+- Priority: High.

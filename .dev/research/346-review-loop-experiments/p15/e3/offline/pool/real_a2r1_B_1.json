@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": true,
+  "run": "a2-r1"
+ },
+ "case_id": "real_a2r1_B_1",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D19",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "B-1",
+  "finding_section": "### B-1 (CRITICAL, blocking) AC-0.4 requires a step that Phase 0 cannot pass\n- Expert: Adzic (lead), Wiegers. Priority High. Quality impact: Testability +2.\n- Grading sentence: an implementer who follows AC-0.4 as written runs the 7.2 live check on `/sc:troubleshoot`, `/sc:workflow` and `/sc:adversarial` at P0 and must pass steps 1-3, so builds a Phase 0 gate that cannot pass, because step 3 requires the worker's report path to be \"the WC-4 contract path\" and its outcome to match \"the contract's `status`\" (SPEC:182), while AC-0.4 itself says \"the contract arrives in P1\" (SPEC:194) and P0 makes no command edits (SPEC:158). Troubleshoot's report today is REPORT.md and it writes `return-contract.yaml` only with `--caller task-unified` (INV-B:242).\n- Evidence: AC-0.4 carves out step 4 only (SPEC:194). Step 3 is listed as required with no carve-out. Even the carved-out step 4 runs a YAML parse asserting `d['status']` and `d['command']` (SPEC:183), which a markdown REPORT.md cannot satisfy. \"Later phases do not start until the earlier phase's checks in section 7 pass\" (SPEC:154), so P1 never starts.\n- Recommendation: state which parts of step 3 apply at P0 (exactly one `worker_done`, outcome matches the command's own report), and replace step 4 at P0 with a check that suits the command's own report file."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a2-r1/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

@@ -1,0 +1,15 @@
+Operator fix after the ladder-end halt (option C): extra runs outside the suite.
+Property generator (same assertions as test_property_enforce_then_check_exits_0, 200 cases per seed); 'structure' and 'recheck' count --enforce runs that used those revert reasons, 'raw-size' counts whole-baseline restores:
+PROP_BASE seeds 1-50:
+fails []
+fallbacks {'structure': 14, 'raw-size': 17}
+shuffled blocks seeds 201-280:
+fails []
+fallbacks {'structure': 18, 'raw-size': 3}
+fails []
+fallbacks {'raw-size': 13, 'structure': 37}
+Pairwise probe A (one in-budget replace fix plus one undeclared edit: delete, stray fence after or before, join, added paragraph, prefixed sentence, reword, row cut/join/delete/add; 9 bases); problems = exit not 0, kept fix missing, or a sentence duplicated:
+cases 3791 problems 0
+Pairwise probe B (fix shapes replace, narrow, add, delete x the same undeclared edits). Each problem is tagged with the plain check run BEFORE --enforce: 'pre-check-flags-F1' means that check already reported F1 not fixed (over budget, mislabelled, or its hunk unattributed because the undeclared neighbour edit was charged to it by the Task 2 neighbour rule, note F4.2), so --enforce reverts what the report flags:
+cases 15164 problems 267
+[(('narrow', 'prefix', 'fix reverted', 'pre-check-flags-F1'), 50), (('add', 'delete', 'fix lost', 'pre-check-flags-F1'), 50), (('delete', 'prefix', 'delete lost', 'pre-check-flags-F1'), 50), (('narrow', 'add', 'fix reverted', 'pre-check-flags-F1'), 50), (('delete', 'add', 'delete lost', 'pre-check-flags-F1'), 50), (('add', 'join', 'fix lost', 'pre-check-flags-F1'), 3), (('add', 'delrow', 'fix lost', 'pre-check-flags-F1'), 3), (('narrow', 'addrow', 'fix reverted', 'pre-check-flags-F1'), 3), (('delete', 'addrow', 'delete lost', 'pre-check-flags-F1'), 3), (('narrow', 'delete', 'fix lost', 'pre-check-flags-F1'), 3), (('delete', 'join', 'delete lost', 'pre-check-flags-F1'), 2)]

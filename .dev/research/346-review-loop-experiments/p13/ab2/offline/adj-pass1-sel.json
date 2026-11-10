@@ -1,0 +1,1986 @@
+{
+ "info": {
+  "PATH": {
+   "distinct": 196,
+   "sampled": 30
+  },
+  "REF": {
+   "distinct": 430,
+   "sampled": 30
+  },
+  "PHASE": {
+   "distinct": 4,
+   "sampled": 4
+  },
+  "KV": {
+   "distinct": 26,
+   "sampled": 26
+  },
+  "COUNT": {
+   "distinct": 7,
+   "sampled": 7
+  }
+ },
+ "flags": [
+  {
+   "check": "PATH",
+   "doc_sha": "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-23",
+   "lines": [
+    261,
+    261
+   ],
+   "other_lines": [
+    62,
+    62
+   ],
+   "quote": "| Report shape | A per-command format; a new shared file name; reuse `return-contract.yaml` | Reuse: workflow, brainstorm, reflect and adversarial already write `return-contract.yaml` (`INV-B:272`,...",
+   "message": "`return-contract.yaml` has the basename of the template `<dir>/return-contract.yaml` (line 62) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v4-after-round3.md",
+   "lint_id": "LINT-PATH-19",
+   "lines": [
+    362,
+    362
+   ],
+   "other_lines": [
+    68,
+    68
+   ],
+   "quote": "| Report shape | A per-command format; a new shared file name; reuse `return-contract.yaml` | Reuse: workflow, brainstorm, reflect and adversarial already write `return-contract.yaml` (`INV-B:272`,...",
+   "message": "`return-contract.yaml` has the basename of the template `<output>/return-contract.yaml` (line 68) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r5/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-8",
+   "lines": [
+    197,
+    197
+   ],
+   "other_lines": [
+    194,
+    194
+   ],
+   "quote": "| P1 | AC-1.3 | For two P1 commands, run once in a plain session with no `--unattended` and no new output flag (for example `claude -p \"/sc:analyze src/superclaude/cli/install_core.py\"` in a scratc...",
+   "message": "`return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 194) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-7",
+   "lines": [
+    254,
+    254
+   ],
+   "other_lines": [
+    269,
+    269
+   ],
+   "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command in the Phase 1 list of section 6 except `/sc:load` (14 commands) has a `## Unattended mo...",
+   "message": "`return-contract.yaml` has the basename of the template `<dir>/return-contract.yaml` (line 269) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-32",
+   "lines": [
+    302,
+    302
+   ],
+   "other_lines": [
+    64,
+    64
+   ],
+   "quote": "| Report shape | A per-command format; a new shared file name; reuse `return-contract.yaml` | Reuse: workflow, brainstorm, reflect and adversarial already write `return-contract.yaml` (`INV-B:272`,...",
+   "message": "`return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 64) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PATH-4",
+   "lines": [
+    63,
+    63
+   ],
+   "other_lines": [
+    63,
+    63
+   ],
+   "quote": "| WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes one contract file, placed by this rule (finding 4): (i) when the caller passes a...",
+   "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 63) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PATH-6",
+   "lines": [
+    340,
+    340
+   ],
+   "other_lines": [
+    73,
+    73
+   ],
+   "quote": "| Report shape | A per-command format; a new shared file name; reuse `return-contract.yaml` | Reuse: workflow, brainstorm, reflect and adversarial already write `return-contract.yaml` (`INV-B:272`,...",
+   "message": "`return-contract.yaml` has the basename of the template `<output>/return-contract.yaml` (line 73) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r5/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-3",
+   "lines": [
+    84,
+    84
+   ],
+   "other_lines": [
+    194,
+    194
+   ],
+   "quote": "| brainstorm | `--output <dir>`; never `--interactive` | `<output>/return-contract.yaml` | `--resume-from <seed-brief>` | None | `sk/sc-brainstorm-protocol/SKILL.md:134,335`; `cmd/brainstorm.md:59-...",
+   "message": "`<output>/return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 194) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-1",
+   "lines": [
+    62,
+    62
+   ],
+   "other_lines": [
+    62,
+    62
+   ],
+   "quote": "| WC-4 | **One report file, at a path one rule fixes, written on every outcome.** In unattended mode the command writes `return-contract.yaml` at one of three places (R1-B2): `<dir>/return-contract...",
+   "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 62) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PATH-4",
+   "lines": [
+    254,
+    254
+   ],
+   "other_lines": [
+    73,
+    73
+   ],
+   "quote": "| P1 | AC-1.3 | For two P1 commands, run once in a plain session with no `--unattended` and no `--report-dir` (for example `claude -p \"/sc:analyze src/superclaude/cli/install_core.py\"` in a scratch...",
+   "message": "`return-contract.yaml` has the basename of the template `<output>/return-contract.yaml` (line 73) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-16",
+   "lines": [
+    195,
+    195
+   ],
+   "other_lines": [
+    62,
+    62
+   ],
+   "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command whose section 3 phase is P1 has a `## Unattended mode` section naming `return-contract.y...",
+   "message": "`return-contract.yaml` has the basename of the template `<dir>/return-contract.yaml` (line 62) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PATH-23",
+   "lines": [
+    294,
+    294
+   ],
+   "other_lines": [
+    63,
+    63
+   ],
+   "quote": "| Report shape | A per-command format; a new shared file name; reuse `return-contract.yaml` | Reuse: workflow, brainstorm, reflect and adversarial already write `return-contract.yaml` (`INV-B:272`,...",
+   "message": "`return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 63) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-21",
+   "lines": [
+    132,
+    132
+   ],
+   "other_lines": [
+    64,
+    64
+   ],
+   "quote": "| validate-roadmap | no gate | reconcile the command's `validate/validation-report.md` with the skill's `02-consolidated-report.md`; contract at `<OUTPUT_DIR>/return-contract.yaml` (WC-4.1 i; the o...",
+   "message": "`<OUTPUT_DIR>/return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 64) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PATH-3",
+   "lines": [
+    63,
+    63
+   ],
+   "other_lines": [
+    63,
+    63
+   ],
+   "quote": "| WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes one contract file, placed by this rule (finding 4): (i) when the caller passes a...",
+   "message": "`<dir>/return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 63) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-1",
+   "lines": [
+    64,
+    64
+   ],
+   "other_lines": [
+    64,
+    64
+   ],
+   "quote": "| WC-4 | **One report file, known before dispatch wherever the command allows it, written on every outcome.** In unattended mode the command writes one contract file. **WC-4.1 Placement (finding 4;...",
+   "message": "`.claude-audit/return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 64) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "bbc5da09c16d99c761039d7df263e9ff3629635be3ec1f834b924b06575af75f",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-4",
+   "lines": [
+    261,
+    261
+   ],
+   "other_lines": [
+    62,
+    62
+   ],
+   "quote": "| Report shape | A per-command format; a new shared file name; reuse `return-contract.yaml` | Reuse: workflow, brainstorm, reflect and adversarial already write `return-contract.yaml` (`INV-B:272`,...",
+   "message": "`return-contract.yaml` has the basename of the template `<contract-dir>/return-contract.yaml` (line 62) but does not fit it.",
+   "n_docs": 3,
+   "shas": [
+    "bbc5da09c16d99c761039d7df263e9ff3629635be3ec1f834b924b06575af75f",
+    "7cfc46955e89212267b7b42612208b7b453942bd61bda42b47e3e96f605b89ff",
+    "49b44eed9e9476353afbf46c4ab057a94b41cde7cfd310c3fc03ba949d765180"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v4-after-round3.md",
+   "lint_id": "LINT-PATH-6",
+   "lines": [
+    106,
+    106
+   ],
+   "other_lines": [
+    68,
+    68
+   ],
+   "quote": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix its own contract filename to `<output>/ad...",
+   "message": "`<output>/return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 68) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-21",
+   "lines": [
+    343,
+    343
+   ],
+   "other_lines": [
+    74,
+    74
+   ],
+   "quote": "| Report shape | A per-command format; a new shared file name; reuse `return-contract.yaml` | Reuse: workflow, brainstorm, reflect and adversarial already write `return-contract.yaml` (`INV-B:272`,...",
+   "message": "`return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 74) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v3-after-round2.md",
+   "lint_id": "LINT-PATH-3",
+   "lines": [
+    67,
+    67
+   ],
+   "other_lines": [
+    67,
+    67
+   ],
+   "quote": "| WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes `<report-dir>/return-contract.yaml`, where `<report-dir>` is the one report dire...",
+   "message": "`return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 67) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-30",
+   "lines": [
+    237,
+    237
+   ],
+   "other_lines": [
+    64,
+    64
+   ],
+   "quote": "| P1 | AC-1.3 | For two P1 commands, run once in a plain session with no `--unattended` and no new output flag (for example `claude -p \"/sc:analyze src/superclaude/cli/install_core.py\"` in a scratc...",
+   "message": "`return-contract.yaml` has the basename of the template `<dir>/return-contract.yaml` (line 64) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PATH-10",
+   "lines": [
+    97,
+    97
+   ],
+   "other_lines": [
+    63,
+    63
+   ],
+   "quote": "| troubleshoot | no `--fix` | `REPORT.md` (`report_path`); `return-contract.yaml` only with `--caller task-unified` today (`INV-B:242`) | Fresh dir | Under `--unattended`, write `return-contract.ya...",
+   "message": "`return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 63) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v2-after-round1.md",
+   "lint_id": "LINT-PATH-4",
+   "lines": [
+    264,
+    264
+   ],
+   "other_lines": [
+    66,
+    66
+   ],
+   "quote": "| P1 | AC-1.3 | For two P1 commands, run once with no `--unattended` and no new output flag, then `git status --short`. This covers file creation only (SA-3): `claude -p \"/sc:analyze src/superclaud...",
+   "message": "`return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 66) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-3",
+   "lines": [
+    64,
+    64
+   ],
+   "other_lines": [
+    64,
+    64
+   ],
+   "quote": "| WC-4 | **One report file, known before dispatch wherever the command allows it, written on every outcome.** In unattended mode the command writes one contract file. **WC-4.1 Placement (finding 4;...",
+   "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 64) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-3",
+   "lines": [
+    62,
+    62
+   ],
+   "other_lines": [
+    62,
+    62
+   ],
+   "quote": "| WC-4 | **One report file, at a path one rule fixes, written on every outcome.** In unattended mode the command writes `return-contract.yaml` at one of three places (R1-B2): `<dir>/return-contract...",
+   "message": "`<dir>/return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 62) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-22",
+   "lines": [
+    343,
+    343
+   ],
+   "other_lines": [
+    74,
+    74
+   ],
+   "quote": "| Report shape | A per-command format; a new shared file name; reuse `return-contract.yaml` | Reuse: workflow, brainstorm, reflect and adversarial already write `return-contract.yaml` (`INV-B:272`,...",
+   "message": "`return-contract.yaml` has the basename of the template `<output>/return-contract.yaml` (line 74) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-15",
+   "lines": [
+    266,
+    266
+   ],
+   "other_lines": [
+    269,
+    269
+   ],
+   "quote": "| P2 | AC-2.9 | Nested reports (WC-13): 7.2 run of `/sc:tasklist <roadmap with at least 2 phases> --unattended --report-dir <dir>` | `<dir>` holds `reflect-1/` to `reflect-N/` for the N phases, eac...",
+   "message": "`return-contract.yaml` has the basename of the template `<dir>/return-contract.yaml` (line 269) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PATH-8",
+   "lines": [
+    83,
+    83
+   ],
+   "other_lines": [
+    62,
+    62
+   ],
+   "quote": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix the contract filename to `<output>/advers...",
+   "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 62) but does not fit it.",
+   "n_docs": 3,
+   "shas": [
+    "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3",
+    "83f24502ee791d296bebd644adce8eba84b0a7bccbb076f090415ba276880733",
+    "cf9b3e748906ea7675896ba4ee5a7993c98b0ab7a8ec22a0e9311df04e7ebb69"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PATH-2",
+   "lines": [
+    252,
+    252
+   ],
+   "other_lines": [
+    73,
+    73
+   ],
+   "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command in the Phase 1 list of section 6 except `/sc:load` (14 commands) has a `## Unattended mo...",
+   "message": "`return-contract.yaml` has the basename of the template `<output>/return-contract.yaml` (line 73) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-PATH-17",
+   "lines": [
+    228,
+    228
+   ],
+   "other_lines": [
+    63,
+    63
+   ],
+   "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts over the commands changed so far (finding 1): each of the 14 commands of the P1 row has a `## Unattended mo...",
+   "message": "`return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 63) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d"
+   ]
+  },
+  {
+   "check": "PATH",
+   "doc_sha": "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v3-after-round2.md",
+   "lint_id": "LINT-PATH-16",
+   "lines": [
+    267,
+    267
+   ],
+   "other_lines": [
+    67,
+    67
+   ],
+   "quote": "| P1 | AC-1.3 | For two P1 commands, run once with no `--unattended` and no new output flag, then `git status --short`. This covers file creation only (SA-3): `claude -p \"/sc:analyze src/superclaud...",
+   "message": "`return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 67) but does not fit it.",
+   "n_docs": 1,
+   "shas": [
+    "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v4-after-round3.md",
+   "lint_id": "LINT-REF-12",
+   "lines": [
+    261,
+    261
+   ],
+   "other_lines": null,
+   "quote": "| P1 | AC-1.5 | WC-4 missing report directory: `/sc:analyze src/ --unattended` with neither `--output` nor `--report-dir`, as a 7.2 live check whose steps 3-4 are replaced by this row's conditions ...",
+   "message": "AC-1.5 is referenced but never defined (3 references).",
+   "n_docs": 1,
+   "shas": [
+    "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-REF-33",
+   "lines": [
+    314,
+    314
+   ],
+   "other_lines": null,
+   "quote": "| `skills/sc-issue-protocol/refs/claim.md` | Wave 0 step 3, Wave 5 additions, Wave 6 hand-off, Waves 7 and 8, final output (section 7). No new ref file. |",
+   "message": "Section 0 is referenced but no heading has that number.",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher.md",
+   "lint_id": "LINT-REF-8",
+   "lines": [
+    71,
+    71
+   ],
+   "other_lines": null,
+   "quote": "| Intended owner | Candidate 1: assignee set exactly {own login} (OD-3), stricter than the claim's own rule. |",
+   "message": "OD-3 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-REF-1",
+   "lines": [
+    46,
+    46
+   ],
+   "other_lines": null,
+   "quote": "2. **The 60-second readiness evidence is narrower than it looks.** It concerns a question shown *before* Claude reached its input box (`EVIDENCE.md:39`, a shell wrapper's session-name prompt). A co...",
+   "message": "AC-0.4 is referenced but never defined (8 references).",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "7cfc46955e89212267b7b42612208b7b453942bd61bda42b47e3e96f605b89ff",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r5/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-REF-8",
+   "lines": [
+    196,
+    196
+   ],
+   "other_lines": null,
+   "quote": "| P1 | AC-1.2 | 7.2 live check on each P1 command with `--unattended --contract-dir <dir>` (B-1) | all steps pass |",
+   "message": "AC-1.2 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "7cfc46955e89212267b7b42612208b7b453942bd61bda42b47e3e96f605b89ff"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-37",
+   "lines": [
+    189,
+    189
+   ],
+   "other_lines": null,
+   "quote": "- **Match (FR-L-16):** whole prompt trimmed and lower-cased matches `^approved[.!]?$`, or first line matches `^/(sc:implement|sc:task|task)([[:space:]]|$)`. `/task-builder`, `/tasks`, `/sc:implemen...",
+   "message": "L-16 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-24",
+   "lines": [
+    163,
+    163
+   ],
+   "other_lines": null,
+   "quote": "**Canonical push (FR-L-33, FR-L-34).** Any call with PUSH, at every level, tests the raw `cmd`:",
+   "message": "L-33 is referenced but never defined (4 references).",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "091df47422c4f3ffcb133f9c811066f00870f6c23c7aaafbb0432a7206da0410",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md",
+   "lint_id": "LINT-REF-8",
+   "lines": [
+    1001,
+    1001
+   ],
+   "other_lines": null,
+   "quote": "- **WC-4, the report directory.** The brief passes exactly one report directory. A command uses its own directory-valued `--output` or `--output-dir` as the report directory; `--report-dir <dir>` i...",
+   "message": "WC-5 is referenced but never defined (2 references).",
+   "n_docs": 1,
+   "shas": [
+    "091df47422c4f3ffcb133f9c811066f00870f6c23c7aaafbb0432a7206da0410"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-REF-46",
+   "lines": [
+    431,
+    431
+   ],
+   "other_lines": null,
+   "quote": "**Observed runs** (owner steps after merge, on test issues only; **not run in this change**): OB-1 default claim: one new row at Orca's default location, `git merge-base HEAD origin/<B>` equals `gi...",
+   "message": "OB-9 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "7ca69313c5868bfdfd1c5c0fa9578c00f4661365db8219a53df506743a799176",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher-setup.md",
+   "lint_id": "LINT-REF-1",
+   "lines": [
+    564,
+    564
+   ],
+   "other_lines": null,
+   "quote": "- **Run one enabled workspace per GitHub login** (OD-8 of the design). The local record cannot see another workspace, so two enabled workspaces on one login could launch the same issue twice. Every...",
+   "message": "OD-8 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "7ca69313c5868bfdfd1c5c0fa9578c00f4661365db8219a53df506743a799176"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "83f24502ee791d296bebd644adce8eba84b0a7bccbb076f090415ba276880733",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r6/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-REF-4",
+   "lines": [
+    73,
+    73
+   ],
+   "other_lines": null,
+   "quote": "The contract only works if the brief carries what the command would otherwise ask a person. For each Task the coordinator's brief states: the exact command line including `--unattended` (except for...",
+   "message": "REQ-2 is referenced but never defined (4 references).",
+   "n_docs": 2,
+   "shas": [
+    "83f24502ee791d296bebd644adce8eba84b0a7bccbb076f090415ba276880733",
+    "cf9b3e748906ea7675896ba4ee5a7993c98b0ab7a8ec22a0e9311df04e7ebb69"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-20",
+   "lines": [
+    131,
+    131
+   ],
+   "other_lines": null,
+   "quote": "### 5.1 Bash and Monitor (FR-L-22 to FR-L-39, FR-L-44, FR-L-47 to FR-L-50)",
+   "message": "L-44 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v2-after-round1.md",
+   "lint_id": "LINT-REF-17",
+   "lines": [
+    271,
+    271
+   ],
+   "other_lines": null,
+   "quote": "| P2 | AC-2.4 | `/sc:auggie-review <PR> --unattended --output-dir <dir>` on a fork PR; before and after, `gh api repos/IronbellyOrg/IronClaude/pulls/<PR>/reviews --jq length` and `.../pulls/<PR>/co...",
+   "message": "AC-2.4 is referenced but never defined (2 references).",
+   "n_docs": 3,
+   "shas": [
+    "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec",
+    "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+    "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-74",
+   "lines": [
+    305,
+    305
+   ],
+   "other_lines": null,
+   "quote": "| AC-4 | T-ISO-1, T-ISO-4, T-ISO-7, T-ISO-8, T-ISO-9, T-REG-3 |",
+   "message": "ISO-9 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-REF-14",
+   "lines": [
+    65,
+    65
+   ],
+   "other_lines": null,
+   "quote": "| WC-5 | **WC-5.1 Outcome mapping.** The worker sends `worker_done` exactly once from its own top-level session. `--outcome failed` when the report says `failed` or `blocked`, or no usable report e...",
+   "message": "WC-5.2 is referenced but never defined (6 references).",
+   "n_docs": 1,
+   "shas": [
+    "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-34",
+   "lines": [
+    182,
+    182
+   ],
+   "other_lines": null,
+   "quote": "- **Cron\\*, Schedule\\* (FR-L-43):** TURN. RemoteTrigger, Workflow, SendMessage: ESCAPE (FR-L-46).",
+   "message": "L-46 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-REF-58",
+   "lines": [
+    422,
+    422
+   ],
+   "other_lines": null,
+   "quote": "| Task 8: best-effort rename; `contract_version` always added; `--answer` grammar | WC-4, WC-3 | N-11, N-12 |",
+   "message": "N-12 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "92073bce9aa934458a66ff79344ce2e439141e3c08d2246944949c626f472a09",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r4/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-REF-5",
+   "lines": [
+    195,
+    195
+   ],
+   "other_lines": null,
+   "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command named in the P1 row of section 6, except `load` (usage-line fix only, no report file, se...",
+   "message": "AC-1.1 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "92073bce9aa934458a66ff79344ce2e439141e3c08d2246944949c626f472a09"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-REF-31",
+   "lines": [
+    289,
+    289
+   ],
+   "other_lines": null,
+   "quote": "| `W-LAUNCH-NOT-CCSESSION` | launch (status `launched`) | in none of the 5 tries does the screen show `[ccsession]` or the session-name question, or the tab title carry the `sc-launch-v1-...` sessi...",
+   "message": "OB-5 is referenced but never defined (2 references).",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-REF-35",
+   "lines": [
+    403,
+    403
+   ],
+   "other_lines": null,
+   "quote": "| `partial` defined; dependents wait for the coordinator to read the report | WC-5, 2.3 | F-12 |",
+   "message": "F-12 is referenced but never defined.",
+   "n_docs": 2,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-92",
+   "lines": [
+    308,
+    308
+   ],
+   "other_lines": null,
+   "quote": "| AC-7 | T-MSG-1, T-MSG-2, T-MSG-3, T-FC-3 |",
+   "message": "FC-3 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-REF-54",
+   "lines": [
+    445,
+    445
+   ],
+   "other_lines": null,
+   "quote": "- **A7, pending records (m-5).** Pending launch records are consumed by the #394 guard when a session binds to one; an unconsumed record is never pruned (owner decision O-15), so unused records kee...",
+   "message": "O-15 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "7d31f7c49bc684b022504fe6730429f5c5b09ff3a76841344026b64dde9565a6",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r4/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-REF-2",
+   "lines": [
+    112,
+    112
+   ],
+   "other_lines": null,
+   "quote": "| load | no gate | none | n/a | none: use it as a step inside another worker's brief, not as its own Task; it gets no `## Unattended mode` section, no `--unattended` flag and no contract, so AC-1.1...",
+   "message": "AC-1.2 is referenced but never defined (2 references).",
+   "n_docs": 1,
+   "shas": [
+    "7d31f7c49bc684b022504fe6730429f5c5b09ff3a76841344026b64dde9565a6"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-48",
+   "lines": [
+    264,
+    264
+   ],
+   "other_lines": null,
+   "quote": "| ordinary payload with a forged nested bound id | allow | P3, P6, T-ISO-6 |",
+   "message": "P3 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-REF-6",
+   "lines": [
+    58,
+    58
+   ],
+   "other_lines": null,
+   "quote": "| Level state file | AD FR-31: the skill writes `<wt>/.dev/issues/<N>/pipeline.json` as the hook's input | **Not built.** The hook's input is a launch record outside the worktree (section 6). | The...",
+   "message": "FR-31 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "a2b614530d4d2f9c44c81623f924ed82b9cee7814f0dfe24c94eeb8a08916f3b",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/guides/roadmap-cli-tools-release-guide.md",
+   "lint_id": "LINT-REF-4",
+   "lines": [
+    142,
+    142
+   ],
+   "other_lines": null,
+   "quote": "| `--allow-regeneration` | Flag | Off | Allow patches that exceed the diff-size threshold (FR-9). Use with caution. |",
+   "message": "FR-9 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "a2b614530d4d2f9c44c81623f924ed82b9cee7814f0dfe24c94eeb8a08916f3b"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+   "lint_id": "LINT-REF-84",
+   "lines": [
+    307,
+    307
+   ],
+   "other_lines": null,
+   "quote": "| AC-6 | T-PSH-4, T-PSH-12, T-GIT-9, T-GIT-14, T-NRM-1, T-GH-2, T-GH-11, T-GH-14, T-MCP-1, T-COR-2 |",
+   "message": "GH-14 is referenced but never defined.",
+   "n_docs": 1,
+   "shas": [
+    "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-REF-2",
+   "lines": [
+    52,
+    52
+   ],
+   "other_lines": null,
+   "quote": "- **Token rule for the switch (F6)**: unattended mode is on only when `--unattended` is a standalone argument token on the command line, outside any quoted argument, topic, inline content or pasted...",
+   "message": "AC-1.5 is referenced but never defined (3 references).",
+   "n_docs": 2,
+   "shas": [
+    "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287",
+    "17479b82d914ec92bfca3e0b3c09474faf485af426822cee887df371ddc48fc3"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "83f24502ee791d296bebd644adce8eba84b0a7bccbb076f090415ba276880733",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r6/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-REF-12",
+   "lines": [
+    198,
+    198
+   ],
+   "other_lines": null,
+   "quote": "| P1 | AC-1.4 | `grep -n 'return-contract.yaml' src/superclaude/skills/sc-adversarial-protocol/SKILL.md` | adversarial names one fixed path (REQ-1) |",
+   "message": "AC-1.4 is referenced but never defined.",
+   "n_docs": 2,
+   "shas": [
+    "83f24502ee791d296bebd644adce8eba84b0a7bccbb076f090415ba276880733",
+    "cf9b3e748906ea7675896ba4ee5a7993c98b0ab7a8ec22a0e9311df04e7ebb69"
+   ]
+  },
+  {
+   "check": "REF",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-REF-37",
+   "lines": [
+    405,
+    405
+   ],
+   "other_lines": null,
+   "quote": "| Skill-tool invocation in the brief | 2.3 | F-14 |",
+   "message": "F-14 is referenced but never defined.",
+   "n_docs": 2,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-1",
+   "lines": [
+    251,
+    251
+   ],
+   "other_lines": [
+    210,
+    210
+   ],
+   "quote": "| P0 | AC-0.5 | In the contract documents or skill references of workflow, reflect, brainstorm, adversarial and troubleshoot (`--caller task-unified`), list every `status` value each writes (read t...",
+   "message": "The P0 row (AC-0.5) uses WC-4, which the rollout table first introduces in P1.",
+   "n_docs": 2,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-2",
+   "lines": [
+    254,
+    254
+   ],
+   "other_lines": [
+    211,
+    211
+   ],
+   "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command in the Phase 1 list of section 6 except `/sc:load` (14 commands) has a `## Unattended mo...",
+   "message": "The P1 row (AC-1.1) uses WC-13, which the rollout table first introduces in P2.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-3",
+   "lines": [
+    255,
+    255
+   ],
+   "other_lines": [
+    211,
+    211
+   ],
+   "quote": "| P1 | AC-1.2 | 7.2 live check on each of the 14 P1 commands with `--unattended --report-dir <dir>` and the command's own output flag where section 3 lists one; for workflow the transcript also sho...",
+   "message": "The P1 row (AC-1.2) uses WC-13, which the rollout table first introduces in P2.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "PHASE",
+   "doc_sha": "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-PHASE-1",
+   "lines": [
+    233,
+    233
+   ],
+   "other_lines": [
+    184,
+    184
+   ],
+   "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"`, `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth quick --output <dir>`, each run...",
+   "message": "The P0 row (AC-0.4) uses WC-4, which the rollout table first introduces in P1.",
+   "n_docs": 2,
+   "shas": [
+    "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096",
+    "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-KV-1",
+   "lines": [
+    348,
+    348
+   ],
+   "other_lines": [
+    71,
+    71
+   ],
+   "quote": "| Wait size for WC-10 | 5 minutes; 4 minutes; a cap on every tool call | 4 minutes for every call the command makes to wait on something outside the session (poll, sleep, eval, Monitor), with a hea...",
+   "message": "\"4 minutes\" here (section decisions) and \"1 minute\" at line 71 (section 2.2) share the stem 'call'.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-KV-2",
+   "lines": [
+    398,
+    398
+   ],
+   "other_lines": [
+    71,
+    71
+   ],
+   "quote": "| Every tool call at most 4 minutes; Monitor waits | WC-10, AC-2.8 | F-07 |",
+   "message": "\"4 minutes\" here (section revision-log-task-6-and-task-8) and \"1 minute\" at line 71 (section 2.2) share the stem 'call'.",
+   "n_docs": 1,
+   "shas": [
+    "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-KV-1",
+   "lines": [
+    389,
+    389
+   ],
+   "other_lines": [
+    345,
+    345
+   ],
+   "quote": "| Every tool call at most 4 minutes; Monitor waits | WC-10, AC-2.8 | F-07 |",
+   "message": "\"4 minutes\" here (section revision-log-task-6) and \"5 minutes\" at line 345 (section decisions) share the stem 'call'.",
+   "n_docs": 1,
+   "shas": [
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher.md",
+   "lint_id": "LINT-KV-1",
+   "lines": [
+    397,
+    397
+   ],
+   "other_lines": [
+    117,
+    117
+   ],
+   "quote": "| `dispatch.json` | 0600 | `init-state` | `once` (not dry-run), `reset` | `once`, `status`, `reset` |",
+   "message": "`init-state` is bound to `once` (not dry-run), `reset` here (section 7.1) and to `--config <path>` at line 117 (section 4.1).",
+   "n_docs": 1,
+   "shas": [
+    "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher.md",
+   "lint_id": "LINT-KV-2",
+   "lines": [
+    479,
+    479
+   ],
+   "other_lines": [
+    436,
+    436
+   ],
+   "quote": "| T-2 | `failed` | now >= `updated_at` + 10 min and `attempts` < 3 | eligible | none (re-runs every check) | `record.backoff_elapsed(entry, now)` |",
+   "message": "\"10 min\" here (section 7.4) and \"60 min\" at line 436 (section 7.2) share the stem 'now'.",
+   "n_docs": 1,
+   "shas": [
+    "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher.md",
+   "lint_id": "LINT-KV-3",
+   "lines": [
+    499,
+    499
+   ],
+   "other_lines": [
+    436,
+    436
+   ],
+   "quote": "| `failed` backoff | 10 min after `updated_at` | elapsed iff now >= `updated_at` + 10 min |",
+   "message": "\"10 min\" here (section 7.5) and \"60 min\" at line 436 (section 7.2) share the stem 'now'.",
+   "n_docs": 1,
+   "shas": [
+    "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher.md",
+   "lint_id": "LINT-KV-4",
+   "lines": [
+    632,
+    632
+   ],
+   "other_lines": [
+    483,
+    483
+   ],
+   "quote": "| `timed_out` (120 s) | `unknown` | `unknown` `launch_unknown` |",
+   "message": "`unknown` is bound to `unknown` `launch_unknown` here (section 8.4) and to `operation_id` if any at line 483 (section 7.4).",
+   "n_docs": 1,
+   "shas": [
+    "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher.md",
+   "lint_id": "LINT-KV-5",
+   "lines": [
+    633,
+    633
+   ],
+   "other_lines": [
+    482,
+    482
+   ],
+   "quote": "| exit 0, JSON object, operation id a non-empty `str` | `launched` | `launched`, `operation_id` |",
+   "message": "`launched` is bound to `launched`, `operation_id` here (section 8.4) and to `operation_id`, `lease_expires_at` at line 482 (section 7.4).",
+   "n_docs": 1,
+   "shas": [
+    "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher.md",
+   "lint_id": "LINT-KV-6",
+   "lines": [
+    711,
+    711
+   ],
+   "other_lines": [
+    421,
+    421
+   ],
+   "quote": "| `issue` | no | yes | optional | int |",
+   "message": "`issue` is bound to no here (section 10.1) and to int 1..999999999 at line 421 (section 7.2).",
+   "n_docs": 1,
+   "shas": [
+    "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher.md",
+   "lint_id": "LINT-KV-7",
+   "lines": [
+    777,
+    777
+   ],
+   "other_lines": [
+    298,
+    298
+   ],
+   "quote": "| `Clock` | `FakeClock(now, mono)` with `advance(s)` | the only time source; no `sleep` |",
+   "message": "`Clock` is bound to `FakeClock(now, mono)` with `advance(s)` here (section 12) and to `SystemClock()` at line 298 (section 5.4).",
+   "n_docs": 1,
+   "shas": [
+    "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher.md",
+   "lint_id": "LINT-KV-8",
+   "lines": [
+    778,
+    778
+   ],
+   "other_lines": [
+    297,
+    297
+   ],
+   "quote": "| `Launcher` | `FakeLauncher(outcomes)` | records argv and cwd; can raise |",
+   "message": "`Launcher` is bound to `FakeLauncher(outcomes)` here (section 12) and to `OrcaLauncher(runner)` at line 297 (section 5.4).",
+   "n_docs": 1,
+   "shas": [
+    "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/user-guide/commands.md",
+   "lint_id": "LINT-KV-1",
+   "lines": [
+    568,
+    568
+   ],
+   "other_lines": [
+    144,
+    144
+   ],
+   "quote": "| `--depth quick\\|standard\\|deep` | `standard` | Analysis depth |",
+   "message": "`standard` is bound to Analysis depth here (section sc-release-split-release-split-analysis) and to Debate depth at line 144 (section sc-adversarial-adversarial-debate-and-merge).",
+   "n_docs": 1,
+   "shas": [
+    "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/user-guide/commands.md",
+   "lint_id": "LINT-KV-2",
+   "lines": [
+    602,
+    602
+   ],
+   "other_lines": [
+    144,
+    144
+   ],
+   "quote": "| `--depth quick\\|standard\\|deep` | `standard` | Review depth |",
+   "message": "`standard` is bound to Review depth here (section sc-review-translation-localization-quality-review) and to Debate depth at line 144 (section sc-adversarial-adversarial-debate-and-merge).",
+   "n_docs": 1,
+   "shas": [
+    "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/user-guide/commands.md",
+   "lint_id": "LINT-KV-3",
+   "lines": [
+    636,
+    636
+   ],
+   "other_lines": [
+    144,
+    144
+   ],
+   "quote": "| `--depth quick\\|standard\\|deep` | `standard` | Debate rounds (1, 2 or 3) |",
+   "message": "`standard` is bound to Debate rounds (1, 2 or 3) here (section sc-roadmap-roadmap-generator) and to Debate depth at line 144 (section sc-adversarial-adversarial-debate-and-merge).",
+   "n_docs": 1,
+   "shas": [
+    "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/user-guide/commands.md",
+   "lint_id": "LINT-KV-4",
+   "lines": [
+    772,
+    772
+   ],
+   "other_lines": [
+    144,
+    144
+   ],
+   "quote": "| `--tier lightweight\\|standard\\|heavyweight` | `standard` | Design depth |",
+   "message": "`standard` is bound to Design depth here (section sc-tdd-technical-design-document-creator) and to Debate depth at line 144 (section sc-adversarial-adversarial-debate-and-merge).",
+   "n_docs": 1,
+   "shas": [
+    "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/user-guide/commands.md",
+   "lint_id": "LINT-KV-5",
+   "lines": [
+    806,
+    806
+   ],
+   "other_lines": [
+    144,
+    144
+   ],
+   "quote": "| `--depth quick\\|standard\\|deep` | `standard` | How thorough the analysis is |",
+   "message": "`standard` is bound to How thorough the analysis is here (section sc-validate-roadmap-roadmap-pipeline-output-validator) and to Debate depth at line 144 (section sc-adversarial-adversarial-debate-and-merge).",
+   "n_docs": 1,
+   "shas": [
+    "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "a5de26814d9232f30a617197e5e8feeb07a44037c50c64d80d6a3e2ebafedfde",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/sprint-cli-deep-dive.md",
+   "lint_id": "LINT-KV-1",
+   "lines": [
+    917,
+    917
+   ],
+   "other_lines": [
+    837,
+    837
+   ],
+   "quote": "| `off` | No (returns immediately) | No | No | No |",
+   "message": "`off` is bound to No (returns immediately) here (section 17.2) and to No at line 837 (section 16.2).",
+   "n_docs": 1,
+   "shas": [
+    "a5de26814d9232f30a617197e5e8feeb07a44037c50c64d80d6a3e2ebafedfde"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "a5de26814d9232f30a617197e5e8feeb07a44037c50c64d80d6a3e2ebafedfde",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/sprint-cli-deep-dive.md",
+   "lint_id": "LINT-KV-2",
+   "lines": [
+    1391,
+    1391
+   ],
+   "other_lines": [
+    1361,
+    1361
+   ],
+   "quote": "| `SprintConfig` | `PipelineConfig` | work_dir, dry_run, max_turns, model, permission_flag, debug |",
+   "message": "`SprintConfig` is bound to `PipelineConfig` here (section 26) and to (20+ fields \u2014 see Section 3) at line 1361 (section dataclasses).",
+   "n_docs": 1,
+   "shas": [
+    "a5de26814d9232f30a617197e5e8feeb07a44037c50c64d80d6a3e2ebafedfde"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-KV-1",
+   "lines": [
+    133,
+    133
+   ],
+   "other_lines": [
+    22,
+    22
+   ],
+   "quote": "The word-to-level map the hook applies: `worktree` = W (planning only, `WA` after a person approves), `full` = F, `full-submit` = FS. The approval step of level `worktree` is the hook's (a person t...",
+   "message": "`full` is bound to F here (section 6) and to `--pipeline full` at line 22 (section 1).",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-KV-2",
+   "lines": [
+    133,
+    133
+   ],
+   "other_lines": [
+    78,
+    78
+   ],
+   "quote": "The word-to-level map the hook applies: `worktree` = W (planning only, `WA` after a person approves), `full` = F, `full-submit` = FS. The approval step of level `worktree` is the hook's (a person t...",
+   "message": "`worktree` is bound to W here (section 6) and to `worktree`, `full`, `none` at line 78 (section 4).",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+   "lint_id": "LINT-KV-3",
+   "lines": [
+    148,
+    148
+   ],
+   "other_lines": [
+    24,
+    24
+   ],
+   "quote": "2. For `<L>` other than `none`: `uv run --no-project python \"<skill base>/scripts/orca_worktree.py\" prompt --template \"<skill base>/templates/launch-prompt.md\" --level <L> [--submit] --number <N> -...",
+   "message": "`none` is bound to `uv run --no-project python \"<skill base>/scripts/orca_worktree.py\" prompt --template \"<skill base>/templates/launch-prompt.md\" --level <L> [--submit] --number <N> --out \"<D>/launch-prompt.md\"` here (section 7) and to `--pipeline none` at line 24 (section 1).",
+   "n_docs": 1,
+   "shas": [
+    "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "cc1009c39f64ee96a6f00833d08671bc3fa45654e0ce98d1aa13ec77bf232ddb",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-command.md",
+   "lint_id": "LINT-KV-1",
+   "lines": [
+    207,
+    207
+   ],
+   "other_lines": [
+    75,
+    75
+   ],
+   "quote": "Complexity follows depth, as the issue body pairs them: `quick` = simple, `standard` = medium, `deep` = complex. Every choice is written to `<D>/flags.md` from `templates/flags-decision.md` (mode, ...",
+   "message": "`quick` is bound to simple here (section 8) and to `quick`, `standard`, `deep` at line 75 (section 4).",
+   "n_docs": 1,
+   "shas": [
+    "cc1009c39f64ee96a6f00833d08671bc3fa45654e0ce98d1aa13ec77bf232ddb"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "cc1009c39f64ee96a6f00833d08671bc3fa45654e0ce98d1aa13ec77bf232ddb",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-command.md",
+   "lint_id": "LINT-KV-2",
+   "lines": [
+    259,
+    259
+   ],
+   "other_lines": [
+    182,
+    182
+   ],
+   "quote": "| `issue-summary.md` | claim | worker t2/t1 | `issue-summary.md` |",
+   "message": "`issue-summary.md` is bound to claim here (section 10) and to issue at line 182 (section 7).",
+   "n_docs": 1,
+   "shas": [
+    "cc1009c39f64ee96a6f00833d08671bc3fa45654e0ce98d1aa13ec77bf232ddb"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "7ca69313c5868bfdfd1c5c0fa9578c00f4661365db8219a53df506743a799176",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher-setup.md",
+   "lint_id": "LINT-KV-1",
+   "lines": [
+    238,
+    238
+   ],
+   "other_lines": [
+    196,
+    196
+   ],
+   "quote": "The timeouts, the day cap of 6 launches in 24 hours, the 60-minute lease and the limit of 10 candidates per cycle are fixed in the code, not in the configuration file. The design lists them as prop...",
+   "message": "\"60-minute\" here (section 8.1) and \"5 minutes\" at line 196 (section 7) share the stem 'hour'.",
+   "n_docs": 1,
+   "shas": [
+    "7ca69313c5868bfdfd1c5c0fa9578c00f4661365db8219a53df506743a799176"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "7ca69313c5868bfdfd1c5c0fa9578c00f4661365db8219a53df506743a799176",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher-setup.md",
+   "lint_id": "LINT-KV-2",
+   "lines": [
+    484,
+    484
+   ],
+   "other_lines": [
+    363,
+    363
+   ],
+   "quote": "| `launched` | Orca was asked to start the session. The watcher waits up to 60 minutes for the claim marker | None |",
+   "message": "\"60 minutes\" here (section 11.1) and \"10 minutes\" at line 363 (section 10.2) share the stem 'wait'.",
+   "n_docs": 1,
+   "shas": [
+    "7ca69313c5868bfdfd1c5c0fa9578c00f4661365db8219a53df506743a799176"
+   ]
+  },
+  {
+   "check": "KV",
+   "doc_sha": "7ca69313c5868bfdfd1c5c0fa9578c00f4661365db8219a53df506743a799176",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher-setup.md",
+   "lint_id": "LINT-KV-3",
+   "lines": [
+    546,
+    546
+   ],
+   "other_lines": [
+    414,
+    414
+   ],
+   "quote": "The watcher sends no alerts itself. The rule is: alert when `last_completed_cycle_age_seconds` is above 900 or null. 900 seconds is three missed 5-minute cycles. `superclaude issue-watch status` al...",
+   "message": "\"900 seconds\" here (section 12) and \"60 seconds\" at line 414 (section 10.3) share the stem 'abov'.",
+   "n_docs": 1,
+   "shas": [
+    "7ca69313c5868bfdfd1c5c0fa9578c00f4661365db8219a53df506743a799176"
+   ]
+  },
+  {
+   "check": "COUNT",
+   "doc_sha": "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287",
+   "group": "final",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "lint_id": "LINT-COUNT-1",
+   "lines": [
+    373,
+    373
+   ],
+   "other_lines": [
+    374,
+    374
+   ],
+   "quote": "14. Independent citation check (UNVERIFIED here: its record is not among the deliverables, F21): a fresh `evidence-validator` agent re-read about 340 citations in this spec on 2026-11-02 and found ...",
+   "message": "The text says \"All 9 were\" but the list next to it has 6 items.",
+   "n_docs": 1,
+   "shas": [
+    "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287"
+   ]
+  },
+  {
+   "check": "COUNT",
+   "doc_sha": "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-COUNT-1",
+   "lines": [
+    370,
+    370
+   ],
+   "other_lines": [
+    371,
+    371
+   ],
+   "quote": "14. Independent citation check: a fresh `evidence-validator` agent re-read about 340 citations in this spec on 2026-11-02 and found 9 defects (5 overstated, 3 wrong or missing lines, 1 low). All 9 ...",
+   "message": "The text says \"All 9 were\" but the list next to it has 6 items.",
+   "n_docs": 1,
+   "shas": [
+    "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21"
+   ]
+  },
+  {
+   "check": "COUNT",
+   "doc_sha": "17479b82d914ec92bfca3e0b3c09474faf485af426822cee887df371ddc48fc3",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-COUNT-1",
+   "lines": [
+    344,
+    344
+   ],
+   "other_lines": [
+    345,
+    345
+   ],
+   "quote": "14. Independent citation check (UNVERIFIED here: its record is not among the deliverables, F21): a fresh `evidence-validator` agent re-read about 340 citations in this spec on 2026-11-02 and found ...",
+   "message": "The text says \"All 9 were\" but the list next to it has 4 items.",
+   "n_docs": 1,
+   "shas": [
+    "17479b82d914ec92bfca3e0b3c09474faf485af426822cee887df371ddc48fc3"
+   ]
+  },
+  {
+   "check": "COUNT",
+   "doc_sha": "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d",
+   "group": "hist",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+   "lint_id": "LINT-COUNT-1",
+   "lines": [
+    322,
+    322
+   ],
+   "other_lines": [
+    323,
+    323
+   ],
+   "quote": "14. Independent citation check: a fresh `evidence-validator` agent re-read about 340 citations in this spec on 2026-11-02 and found 9 defects (5 overstated, 3 wrong or missing lines, 1 low). All 9 ...",
+   "message": "The text says \"All 9 were\" but the list next to it has 4 items.",
+   "n_docs": 1,
+   "shas": [
+    "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d"
+   ]
+  },
+  {
+   "check": "COUNT",
+   "doc_sha": "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec",
+   "group": "ref",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v2-after-round1.md",
+   "lint_id": "LINT-COUNT-1",
+   "lines": [
+    394,
+    394
+   ],
+   "other_lines": [
+    395,
+    395
+   ],
+   "quote": "14. Independent citation check: a fresh `evidence-validator` agent re-read about 340 citations in this spec on 2026-11-02 and found 9 defects (5 overstated, 3 wrong or missing lines, 1 low). All 9 ...",
+   "message": "The text says \"All 9 were\" but the list next to it has 8 items.",
+   "n_docs": 1,
+   "shas": [
+    "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec"
+   ]
+  },
+  {
+   "check": "COUNT",
+   "doc_sha": "cd0ac77196b300ab85121193c5a286cb3f584937a54e5d35cce22005f30fa499",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/guides/tdd-skill-release-guide.md",
+   "lint_id": "LINT-COUNT-1",
+   "lines": [
+    309,
+    309
+   ],
+   "other_lines": [
+    310,
+    310
+   ],
+   "quote": "1. All 28 template sections present (or explicitly marked as N/A with rationale per tier)",
+   "message": "The text says \"All 28 template\" but the list next to it has 14 items.",
+   "n_docs": 1,
+   "shas": [
+    "cd0ac77196b300ab85121193c5a286cb3f584937a54e5d35cce22005f30fa499"
+   ]
+  },
+  {
+   "check": "COUNT",
+   "doc_sha": "cd0ac77196b300ab85121193c5a286cb3f584937a54e5d35cce22005f30fa499",
+   "group": "other",
+   "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/guides/tdd-skill-release-guide.md",
+   "lint_id": "LINT-COUNT-2",
+   "lines": [
+    313,
+    313
+   ],
+   "other_lines": [
+    314,
+    314
+   ],
+   "quote": "5. Document Information table has all 7 rows plus Approvers table",
+   "message": "The text says \"all 7 rows\" but the list next to it has 10 items.",
+   "n_docs": 1,
+   "shas": [
+    "cd0ac77196b300ab85121193c5a286cb3f584937a54e5d35cce22005f30fa499"
+   ]
+  }
+ ]
+}

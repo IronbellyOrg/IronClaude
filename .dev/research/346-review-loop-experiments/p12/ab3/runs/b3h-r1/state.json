@@ -1,0 +1,269 @@
+{
+ "run": "b3h-r1",
+ "design": "b3",
+ "stratum": "haiku",
+ "loop_model": "haiku",
+ "rep": 1,
+ "product_ref": "e924cc2b505da847c78d8580aa7daa17f4e15f2c",
+ "cmd_sha": "dbe23632d0d981289c2a33edaeee5e1ff7fb3babeff14940979e5d2486223099",
+ "rules_sha": "0bf6d28fbffb08a2ce62010bdabda114a80065090d9fb4fc24beaa06471e7408",
+ "done": [
+  "R1",
+  "V1",
+  "R2",
+  "V2",
+  "R3",
+  "G",
+  "GV",
+  "GR",
+  "AUD",
+  "AUD2"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 26423,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "F-01, F-02, F-03, F-04, F-05, F-06",
+   "blocking": [
+    {
+     "id": "F-01",
+     "theme": "T2",
+     "heading": "#### F-01 (BLOCKING) WC-4's contract path cannot be derived for file-valued `--output` commands"
+    },
+    {
+     "id": "F-02",
+     "theme": "T2",
+     "heading": "#### F-02 (BLOCKING) The spec-panel output flag conflicts with its own `--unattended` contract"
+    },
+    {
+     "id": "F-03",
+     "theme": "other",
+     "heading": "#### F-03 (BLOCKING) SA-3 contradicts the \u00a73.1 contract fixes for standalone runs"
+    },
+    {
+     "id": "F-04",
+     "theme": "T3",
+     "heading": "#### F-04 (BLOCKING) AC-0.4 requires a contract path that P0 cannot produce"
+    },
+    {
+     "id": "F-05",
+     "theme": "T3",
+     "heading": "#### F-05 (BLOCKING) AC-C1 scans a directory that holds content the spec allows to name Orca"
+    },
+    {
+     "id": "F-06",
+     "theme": "other",
+     "heading": "#### F-06 (BLOCKING) Fixed-path commands clobber output under concurrent or retried workers"
+    }
+   ],
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   }
+  },
+  "V1": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 6936,
+   "spec_after": {
+    "bytes": 59746,
+    "lines": 285,
+    "sha256": "e1f78b891d8bb255eebfc49ad5aa8456501e35c3ff87d61c58e99699e8350b62"
+   }
+  },
+  "R2": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 25708,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "blocking_ids": "F-03, R2-01",
+   "blocking": [
+    {
+     "id": "F-03",
+     "theme": "T2",
+     "heading": "### F-03 (blocking, open)"
+    },
+    {
+     "id": "R2-01",
+     "theme": "T3",
+     "heading": "### R2-01 (blocking, new; origin=changed)"
+    }
+   ],
+   "spec_after": {
+    "bytes": 59746,
+    "lines": 285,
+    "sha256": "e1f78b891d8bb255eebfc49ad5aa8456501e35c3ff87d61c58e99699e8350b62"
+   }
+  },
+  "V2": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 3564,
+   "spec_after": {
+    "bytes": 59962,
+    "lines": 285,
+    "sha256": "2a0ba05dc4158ae8fc6c4b9c265ce2ded840533c29031835d61d7c548122ac84"
+   }
+  },
+  "R3": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 17823,
+   "verdict": "PASS",
+   "review_header": [
+    "3"
+   ],
+   "blocking_ids": null,
+   "blocking": [],
+   "spec_after": {
+    "bytes": 59962,
+    "lines": 285,
+    "sha256": "2a0ba05dc4158ae8fc6c4b9c265ce2ded840533c29031835d61d7c548122ac84"
+   }
+  },
+  "G": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 21732,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "B-1, B-2, B-3, B-4, B-5",
+   "blocking": [
+    {
+     "id": "B-1",
+     "theme": "other",
+     "heading": "**B-1. WC-3 lets a worker ask the coordinator at a Ruling halt; the implement row and D2(a) forbid t"
+    },
+    {
+     "id": "B-2",
+     "theme": "T3",
+     "heading": "**B-2. Section 2.3 requires `--unattended` in every brief; the P0 smoke runs use ready commands that"
+    },
+    {
+     "id": "B-3",
+     "theme": "T2",
+     "heading": "**B-3. WC-4 requires a known report directory before dispatch, but three ready rows name no director"
+    },
+    {
+     "id": "B-4",
+     "theme": "T2",
+     "heading": "**B-4. WC-4 places each contract beside its `--output` file, so two dispatches in one directory writ"
+    },
+    {
+     "id": "B-5",
+     "theme": "T1",
+     "heading": "**B-5. AC-1.1 requires `load` to name `return-contract.yaml`, but the spec gives `load` no report an"
+    }
+   ]
+  },
+  "GV": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 6448,
+   "spec_after": {
+    "bytes": 61081,
+    "lines": 285,
+    "sha256": "060d1fb59804955f83e92638dceec3c2655f94b7c59c399f7112f8a8c9bfd1d2"
+   }
+  },
+  "GR": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 19898,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "blocking_ids": "none. Nothing is open, so no REVISE pass is due and the gate loop ends here. Revise only text a blocking finding names; none is named",
+   "blocking": [],
+   "header_expected": "2",
+   "spec_after": {
+    "bytes": 61081,
+    "lines": 285,
+    "sha256": "060d1fb59804955f83e92638dceec3c2655f94b7c59c399f7112f8a8c9bfd1d2"
+   }
+  },
+  "AUD": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 14777,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "B-1",
+   "blocking": [
+    {
+     "id": "B-1",
+     "theme": "other",
+     "heading": "### B-1 (CRITICAL, blocking): cli-portify cannot reach `succeeded` in unattended mode"
+    }
+   ],
+   "spec_audited": {
+    "bytes": 61081
+   }
+  },
+  "AUD2": {
+   "output_exists": true,
+   "stratum": "haiku",
+   "report_bytes": 33596,
+   "verdict": "PASS",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": null,
+   "blocking": [],
+   "spec_audited": {
+    "bytes": 61081
+   }
+  }
+ },
+ "launched": {
+  "R1": "2026-11-10T06:06:29+00:00",
+  "V1": "2026-11-10T06:14:43+00:00",
+  "R2": "2026-11-10T06:23:07+00:00",
+  "V2": "2026-11-10T06:32:17+00:00",
+  "R3": "2026-11-10T06:37:48+00:00",
+  "G": "2026-11-10T06:44:43+00:00",
+  "GV": "2026-11-10T06:53:39+00:00",
+  "GR": "2026-11-10T07:00:03+00:00",
+  "AUD": "2026-11-10T07:07:17+00:00",
+  "AUD2": "2026-11-10T07:07:17+00:00"
+ },
+ "noted_unactioned": [],
+ "loop_end": "GATE-LOOP-PASS",
+ "manual": [],
+ "stall": {
+  "auto": false,
+  "pairs": [
+   [
+    "B-3",
+    "round1.md",
+    "F-01"
+   ],
+   [
+    "B-4",
+    "round1.md",
+    "F-01"
+   ]
+  ],
+  "gate_ids": [
+   "B-1",
+   "B-2",
+   "B-3",
+   "B-4",
+   "B-5"
+  ]
+ }
+}

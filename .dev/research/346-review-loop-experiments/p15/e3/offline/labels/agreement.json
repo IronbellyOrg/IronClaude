@@ -1,0 +1,12 @@
+{
+ "fields": {
+  "blocking": {
+   "kappa": 0.6271929824561401,
+   "n": 120,
+   "raw": 0.8583333333333333
+  }
+ },
+ "n_adjudicated": 46,
+ "n_cases": 120,
+ "unresolved": []
+}

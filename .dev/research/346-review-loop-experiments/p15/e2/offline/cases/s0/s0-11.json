@@ -1,0 +1,38 @@
+{
+ "author_intent": {
+  "category": "synth-chain",
+  "expect": "defect",
+  "layer": "synthetic"
+ },
+ "case_id": "s0-11",
+ "category": "synth-chain",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "payments",
+ "group": "fam-payments",
+ "packet": {
+  "defect": "PAY-2 retries a timed-out capture three times following RTY-1, RTY-1 takes the retry budget from TIER-1, and TIER-1 gives capture a budget of 0 because a repeat could charge the customer twice.",
+  "doc": "offline/docs/doc-1ef4812f57.md",
+  "doc_sha256": "1ef4812f572174f7bd29255c9368a0e1456d0714d110b3128f483ba227d05128",
+  "evidence_quotes": [
+   "A capture that times out is retried three times following RTY-1",
+   "The number of retries for a call is the retry budget listed for its call type in TIER-1",
+   "| TIER-1 | capture | 0 |"
+  ],
+  "evidence_set": [
+   "P0006",
+   "P0010",
+   "P0016"
+  ]
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "offline/docs/doc-1ef4812f57.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "synthetic"
+}

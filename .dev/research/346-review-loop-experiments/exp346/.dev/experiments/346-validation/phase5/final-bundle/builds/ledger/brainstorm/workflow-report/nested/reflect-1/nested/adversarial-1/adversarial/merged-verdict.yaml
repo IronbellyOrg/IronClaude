@@ -1,0 +1,228 @@
+# Provenance: This document was produced by /sc:adversarial
+# Base: Variant A (variant-1-original.md, reviewer 1 analyzer/sonnet)
+# Merge date: 2026-11-08T19:01:31Z
+# Refactoring plan: refactor-plan.md (14 planned changes, 4 rejected); log: merge-log.md
+# Finding ids renumbered contiguously; plan ids M-F6 (heartbeat) -> M-F20 and M-F7 (brief ownership) -> M-F21
+# (base R1-F6 and R1-F7 keep M-F6 and M-F7). Full mapping in merge-log.md.
+merge_method: adversarial
+verdict: FAIL
+convergence_score: 1.0
+convergence_status: "BLOCKED_BY_INVARIANTS (resolved by carrying INV-001, INV-002 as blocking findings)"
+source_cards: [reviewer-1-card.yaml, reviewer-2-card.yaml]
+findings:
+  - id: M-F1
+    class: necessary
+    grade: blocking
+    task: "Constraints; Task 6; Task 7"
+    spec_ref: "source.md:83, source.md:124-125"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:25, :127, :132, :144-145"
+    claim: "The plan requires the variant to contain no `src/superclaude` string and also to be a byte-identical copy of spec-panel.md outside the changed blocks. src/superclaude/commands/spec-panel.md:220 (Tool Coordination, outside every changed block) contains `src/superclaude/examples/release-spec-template.md`, so the Task 6 grep, the Task 7 whole-file pin and the Constraints grep fail, or the drift test does. The conflict is inherited from the spec (source.md:83 vs :124-125)."
+    recommendation: "Keep the whole-file no-`src/superclaude` pin. Rewrite line 220 in the variant under a recorded owner decision that names the target template: the installed `src/superclaude/templates/documents/release-spec-template.md` (installs to `~/.claude/templates/`, install_templates.py:4, :45) differs from the `examples/` copy (`cmp` differs at byte 401, line 8), so the rewrite changes which template the agent reads. Add line 220 to the drift exclusions (plan :145) and declare it; test that every other retained line stays equal."
+    source: "R1-F1 class + R2-F1 remedy (change 3); round2-variant-A evidence 3; INV-016"
+  - id: M-F2
+    class: drift
+    grade: blocking
+    task: "Task 7; Task 5; Task 8"
+    spec_ref: "source.md:124"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:26, :140-145, :113, :159"
+    claim: "The spec's premise '(that test scans all of `src/`)' (source.md:124) is false: `_tracked_text()` (tests/skills/test_review_severity_rule.py:36-52) scans only `git ls-files`, so the new untracked command, SKILL.md and script are never scanned; the plan inherited the false claim. Task 7 omits the banned-severity-phrase and cap-above-2 assertions the spec requires. Once the files are committed, every other tracked-file scan in that test applies (`_SCAN_TREES` at :28): site-sweep phrases and F1-F6 fix-loop patterns (:390, :398-405, :448-450) and the zero-tolerance check (:506-508); plan :26 covers only two."
+    recommendation: "Add both assertions to tests/skills/test_spec_panel_ledger_command.py using imported BANNED_SEVERITY_PHRASES and CAP_REGRESSION over the variant, SKILL.md and script; check by inserting 'max 3 fix cycles' temporarily and confirming failure. State in the plan that every other tracked-file scan in tests/skills/test_review_severity_rule.py (site-sweep phrases, F1-F6 fix-loop patterns, zero-tolerance) is expected to apply to the new files once committed."
+    source: "R1-F2 + round2-variant-A evidence 4 + INV-003 (change 4)"
+  - id: M-F3
+    class: necessary
+    grade: blocking
+    task: "Task 8; Constraints"
+    spec_ref: "source.md:79"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:15, :155, :159, :19"
+    claim: "tests/recommend/test_routing_refresh.py:647-648 asserts the command-file stem set minus {graph, impact, issue} equals a fixed active set of 43; adding spec-panel-ledger.md should break it, Task 8 does not run it, and fixing it edits an existing test (not run by the reviewer). Any fix edits a frozen-package test (test_routing_refresh.py:29-33) against 'additive only' (plan :15, source.md:79)."
+    recommendation: "Add tests/recommend/test_routing_refresh.py to Task 8; decide and record one outcome (owner-approved addition to `_POST_REFRESH_ADDITIONS` at line 33 as a necessary deviation, or report the failure unfixed); list tests/recommend/test_routing_refresh.py in Constraints so Task 8's report-not-fix rule applies to it."
+    source: "R1-F3 + INV-017 (change 5)"
+  - id: M-F4
+    class: drift
+    grade: blocking
+    task: "Task 2; Task 3"
+    spec_ref: "source.md:25-27, :60"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:61, :68, :79"
+    claim: "Task ordering defect: Task 2's AC needs a round-3 `begin` and `E-CAP` on a fourth `begin`, which require `verify` and `close` from Task 3 (a test could recompute body_sha256, so this is ordering, not impossibility). E-CAP (plan :61, :68) and E-TERMINAL (review 3 is always terminal, plan :79) target the same fourth-`begin` state and their order is unspecified; Task 2's E-CAP test passes only if E-CAP is checked first."
+    recommendation: "Move the round-3 and E-CAP tests into Task 3's AC, or give Task 2 an explicit test-only path to round 3. Pin the check order of E-CAP vs E-TERMINAL on a fourth `begin`; Task 3's E-TERMINAL test uses a ledger ended at review 2."
+    source: "R1-F4 reworded + round2-variant-A evidence 5 + INV-019 (change 6)"
+  - id: M-F5
+    class: drift
+    grade: blocking
+    task: "Task 1; Task 4; Task 6"
+    spec_ref: "source.md:28, :52, :60"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:44, :51, :91, :125, :171"
+    claim: "The spec skips the sweep only after a review-1 PASS with the document unchanged (source.md:28). Task 1 drops the 'unchanged' condition and gives `verdict` exit 0 for any review-1 PASS (plan :44, :51), while Task 6 instructs a sweep after every terminal close (plan :125): the tasks conflict. A single skip predicate is not enough on its own (INV-002): `close` writes `verdict: PASS` right after `find` (plan :44), when the document cannot yet have changed; the T06 reviser always runs after review 1 (plan :171), so the report says PASS while `verdict` would return 12; and `sweep --prepare` copies the accepted snapshot r1.md (plan :91), so edited text is never swept. The terminal tail is defined only after review 2 or 3, though the formula allows ESCALATE at k=1 (source.md:52)."
+    recommendation: "One skip predicate in Tasks 1, 4 and 6: review 1, loop PASS, live-document hash equal to the reviewed snapshot (else `verdict` exit 12). State where it is evaluated (at `verdict`, before the sweep, not at `close`); state what `close` writes at a review-1 PASS (not `verdict: PASS` while the reviser may still edit); make the sweep copy the live accepted text, not r1.md. Specify the review-1 ESCALATE tail and exit. Tests: unchanged and edited-after cases, and the k=1 ESCALATE tail."
+    source: "R1-F5 class + R2-F2 content + INV-002 (change 2)"
+  - id: M-F6
+    class: drift
+    grade: minor
+    task: "Task 2"
+    spec_ref: "source.md:60"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:61, :68"
+    claim: "E-CAP covers a fourth review or a third fix cycle; Task 2 covers only the fourth review."
+    recommendation: "Add the third-fix-cycle refusal and one test."
+    source: "base (original)"
+  - id: M-F7
+    class: drift
+    grade: minor
+    task: "Task 1"
+    spec_ref: "source.md:17, :60, :120"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:46, :53"
+    claim: "No role flag, no second computed stop, no event log or git calls are not covered; the stdlib-import AC would let a subprocess git call or a --role flag through. Constraints:27 adds shutil, tempfile, sys beyond the spec list without noting it."
+    recommendation: "Task 1 AC: imports a subset of the spec list plus shutil/tempfile/sys, no subprocess; `grep -nE 'subprocess|\\bgit\\b|--role'` prints nothing; test that --help shows no --role."
+    source: "base (original)"
+  - id: M-F8
+    class: drift
+    grade: minor
+    task: "Task 9"
+    spec_ref: "source.md:137-143"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:177"
+    claim: "Each S1 brief is one line, so 'diff shows exactly one changed line pair' proves nothing."
+    recommendation: "Reverse the substitution on the copy with sed and cmp against the original; check the run line appears once."
+    source: "base (original)"
+  - id: M-F9
+    class: necessary
+    grade: minor
+    task: "Task 11"
+    spec_ref: "source.md:136"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:207"
+    claim: "The INSTALL completeness AC uses all untracked files, which already include the pre-existing .dev/brainstorms/346-ledger planning files, so it fails or forces listing them."
+    recommendation: "Scope the AC to files created by Tasks 1-10 (snapshot untracked list before Task 1) or add one wildcard 'not installed' row for the planning files."
+    source: "base (original)"
+  - id: M-F10
+    class: drift
+    grade: minor
+    task: "Task 4"
+    spec_ref: "source.md:159-163"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:93, :95, :99"
+    claim: "Literal plan :93 U3 ('C/M rows not verified') also counts deferred, outside and sweep rows, so on the :99 fixture U3 = 3 = headline_raw, which makes 'U3 alone is the analogue of Arm B' (source.md:163) meaningless; no AC tests U3. Sweep challenges are added to headline_raw ('plus sweep challenges', plan :93) but their storage is undefined, so a challenge stored as a sweep row (:95) counts twice. (No disjointness claim: source.md:163 leaves duplicate defects across sets to an analyst.)"
+    recommendation: "Define U3 as the loop-row analogue of Arm B and add one AC for it; define how a sweep challenge is stored so headline_raw counts it once."
+    source: "INV-008 + INV-009; replaces withdrawn R1-F10 (change 8)"
+  - id: M-F11
+    class: authorized
+    grade: minor
+    task: "Task 6"
+    spec_ref: "source.md:95"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:124"
+    claim: "Dropping the second Usage line removes --target-release, --output, --report-dir, --improve from Usage while the body still references them; spec-literal but unnoted."
+    recommendation: "Add one line to Task 6 or INSTALL.md that the Usage block is deliberately narrower than the body."
+    source: "base (original)"
+  - id: M-F12
+    class: drift
+    grade: minor
+    task: "Task 6"
+    spec_ref: "src/superclaude/commands/spec-panel.md:261"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:124"
+    claim: "The old Review Loop guards 'every run is one review whatever `--iterations` says' and 'skips the Improve step and writes no revised specification' (src/superclaude/commands/spec-panel.md:261) are not carried into the eight bullets, although the Improve step is copied (spec-panel.md:35) and Usage keeps `--iterations N` (plan :124); the Cap bullet carries neither guard."
+    recommendation: "Carry both guards into the Review Ledger Loop bullets, or record why each no longer applies."
+    source: "INV-005 (change 9)"
+  - id: M-F13
+    class: necessary
+    grade: minor
+    task: "Task 1; Task 6"
+    spec_ref: "source.md:103, :148"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:44"
+    claim: "Owner note (spec-origin): the original Reviser brief (src/superclaude/commands/spec-panel.md:263) restates 'add no rule, mechanism or section', finding-id citation and byte size before/after; the script tail is only 'Reviser brief listing only blocking row ids' (plan :44) and source.md:103 drops these rules. This is a fourth treatment difference not among the three declared (source.md:148)."
+    recommendation: "Owner decides whether the reviser rules and byte-size reporting are dropped on purpose; if so, declare it as a fourth treatment difference."
+    source: "INV-004 (change 10)"
+  - id: M-F14
+    class: necessary
+    grade: minor
+    task: "Task 4"
+    spec_ref: "source.md:72, :157"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:93-99"
+    claim: "Owner note (spec-origin): the metrics omit the 'bytes per claim are only measured' span (source.md:72); Task 4 lists per-cycle unclaimed and reverted bytes but no per-claim byte measurement. The plan followed source.md:157, a spec-internal gap."
+    recommendation: "Owner decides whether bytes per claim are measured; if yes, add a matrix row, specify per-claim byte data in Tasks 2/4 and assert two distinct claims are measured separately."
+    source: "R2-F4 (change 10)"
+  - id: M-F15
+    class: necessary
+    grade: minor
+    task: "Task 9; Task 11"
+    spec_ref: "source.md:97"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:170-171, :197-203"
+    claim: "Owner note (spec-origin): S1 has a fixed five dispatches; after a review-1/2 PASS or ESCALATE, T06-T09 still dispatch (plan :170-171), a later `begin` gets E-TERMINAL and 'a refusal stops the run' (source.md:97). INSTALL.md (plan :197-203) gives the coordinator no skip rule."
+    recommendation: "Add a coordinator skip rule to INSTALL.md for the remaining S1 dispatches after an early loop end."
+    source: "INV-006 (change 10)"
+  - id: M-F16
+    class: drift
+    grade: minor
+    task: "Task 3"
+    spec_ref: "source.md:60, :190"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:78"
+    claim: "E-REPORT-EDITED has no recovery: the briefs say 'stub the output file first and fill it section by section' (T05: 'then add a numbered findings list'), the tail must be last (source.md:60) and `begin` refuses an edited tail (plan :78); the failure result is 5 (source.md:190)."
+    recommendation: "Define a recovery path for E-REPORT-EDITED (or when the tail may be written relative to section-by-section filling) and add one test."
+    source: "INV-007 (change 11)"
+  - id: M-F17
+    class: drift
+    grade: minor
+    task: "Task 3"
+    spec_ref: "source.md:38"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:77"
+    claim: "Plan :77 maps only verifier answers `resolved` and `open`; `regressed` and `cannot-verify` have no target status (source.md:38), and `resolved` on an untouched `open` row has no defined refusal."
+    recommendation: "Define the target status for `regressed` and `cannot-verify` and the refusal for `resolved` on an untouched open row; one test each."
+    source: "INV-010 (change 11)"
+  - id: M-F18
+    class: drift
+    grade: minor
+    task: "Task 1; Task 2"
+    spec_ref: "source.md:25"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:38, :61, :62, :63"
+    claim: "Hunks and the unclaimed set are computed at the next `begin` (plan :61, source.md:25), but the reviser's `answer` (:62) and `begin --revert-unclaimed --hunk k` (:63) run before that; phase values are never listed (:38)."
+    recommendation: "State when hunks exist relative to `answer` and `--revert-unclaimed`, and list the phase values."
+    source: "INV-011 (change 11)"
+  - id: M-F19
+    class: drift
+    grade: minor
+    task: "Task 2"
+    spec_ref: "source.md:207, :237"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:61"
+    claim: "'Enclosing paragraph' is undefined (plan :61); a blank-line paragraph makes a whole table one unit (source.md:207, :237); merged-requirements.md:83 (difflib autojunk off) and :478 (`HUNKS_LARGE`) are absent from the plan."
+    recommendation: "Define the paragraph unit, set difflib autojunk off and carry `HUNKS_LARGE` into Task 2."
+    source: "INV-013 (change 11)"
+  - id: M-F20
+    class: drift
+    grade: blocking
+    task: "Task 6; Task 9; Task 11"
+    spec_ref: "source.md:144, :200"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:125, :172, :200"
+    claim: "The spec requires the fallback when spawning a subagent or keeping its 5-minute heartbeat fails (source.md:144). Task 6's route (plan :125) and Task 9's sixth-dispatch fallback (plan :172) condition only on spawning; :200 defines no smoke check; `heartbeat` appears nowhere in the plan. A smoke check finishing under 5 minutes passes trivially, while the sweep takes about 10-15 minutes (source.md:200)."
+    recommendation: "Amend Tasks 6, 9 and 11 so the subagent route requires a recorded smoke check covering spawn and a heartbeat interval longer than 5 minutes; pin the combined condition and the fallback."
+    source: "R2-F3 + INV-014 (change 1; plan id M-F6)"
+  - id: M-F21
+    class: necessary
+    grade: blocking
+    task: "Constraints; Task 1; Task 2; Task 9"
+    spec_ref: "source.md:104, :155"
+    plan_ref: "TASK-WF-spec-20261108-181649.md:22, :23, :37, :61"
+    claim: "The review briefs are used verbatim (plan :22) and the owner consent (plan :23) covers only the revert. T05/T07/T09 say 'write ONLY your output file' and 'no edits to the spec or any other file', but `init`/`find`/`begin`/`verify` write ledger.json, snapshots/, diffs/, inputs/ and plan-r<k>.md (plan :37, :61), and `begin --revert-unclaimed` edits the spec. The Precedence bullet 'a brief may narrow this scope' (source.md:104) lets the brief win, so the replicate fails V1-ledger (source.md:155). Conflict between owner decisions and the spec mechanism."
+    recommendation: "Owner decision required before execution: reconcile the verbatim briefs with the ledger's writes and the spec revert, and record the decision in Constraints."
+    source: "INV-001 (change 7; plan id M-F7)"
+notes:
+  - "INV-012 (LOW): round, fix_cycles and the review counter have no stated relation (plan :38, :46); a zero-hunk round 'counts as a review' (plan :68). State the relation."
+  - "INV-015 (LOW): in `--sweep` mode one session runs `sweep --prepare` and `sweep --input` (plan :125, source.md:116) and every call prints counts/next_action (plan :46), so the sweep context sees ledger counts; only a cited row id is detected (source.md:155)."
+  - "INV-020 (LOW): the spec-panel.md:3 description is a quoted YAML string; plan :123 does not say the suffix goes inside the quotes."
+  - "INV-021 (LOW): the title `# /sc:spec-panel` (spec-panel.md:10) and the examples (spec-panel.md:406-436) still name the original command and stay byte-identical (plan :127)."
+coverage:
+  standard: "covered = an AC would fail on violation (X-001); a task that only references a row is not coverage"
+  referenced_by_a_task:
+    - "INF-002, INF-003 -> TASK-WF-spec-20261108-181649.md:35 (Task 1 incorporates source.md 'Parts')"
+    - "INF-007 -> :37-42; INF-011 -> :125; INF-012 -> :35-43; INF-015 -> :164-177; INF-023 -> :77,125; INF-027 -> :75,171; INF-029 -> :89-91,125"
+    - "INF-033, INF-039, INF-040 -> :75-82; INF-049 -> :44; INF-053 -> :44,79-82; INF-056 -> :52,61,68; INF-062 -> :46"
+    - "INF-063 -> :44,61,77; INF-064, INF-066 -> :77,83; INF-067 -> :61,68; INF-068 -> :44-46,61; INF-069 -> :37-40; INF-070 -> :19; INF-073 -> :27,35,53"
+    - "INF-082, INF-085, INF-086, INF-090, INF-091 -> :125-130; INF-101 -> :45,93; INF-102 -> :63,92; INF-116 -> :26,159; INF-132 -> :170,177"
+  checked_by_an_ac: "not established per row by either reviewer; the rows above are references only"
+  true_gaps:
+    - "INF-134: Task 6 route and Task 9 fallback check only spawning, not the 5-minute heartbeat; no AC covers spawn-success/heartbeat-failure (M-F20)."
+    - "INF-005, INF-058, INF-104: referenced by Task 1 (:35, :44) but no AC fails on violation; plan :53 accepts a `subprocess` git call (M-F7, absence rules)."
+t1_deviation_agreement:
+  D1: "agree - authorized expansion (Constraints:21); only the U3 overlap (M-F10) needs tightening."
+  D2: "agree - necessary deviation; keep one line and state which session runs `sweep --input` in the --sweep fallback."
+  D3: "partly disagree - necessary minor deviation, not drift: a dispatch brief needs an output file, the name follows the spec-panel-round3.md pattern, the deviation is declared; mark the name as a coordinator-changeable placeholder."
+  D4: "agree on facts; spec-literal (authorized), the silence is a minor note (M-F11)."
+rejected_alternatives:
+  - "X-002, X-003: B's `regression` class for the copy/no-path conflict and the review-1 omission - rejected; inherited conflict = necessary, dropped condition = drift."
+  - "X-001 / C-003: B counting INF-005/058/104 as covered by reference - rejected; covered only when an AC would fail on violation, plan :53 accepts `subprocess`."
+  - "C-001: A's first remedy (scope the no-path pin to the loop section) - rejected; would ship a `src/superclaude/examples/` path in an installed primitive; A conceded."
+  - "C-012: A's original U3/W/O disjointness claim - rejected; withdrawn, source.md:163 leaves duplicate defects to an analyst; only the narrower INV-008 note (M-F10) is kept."

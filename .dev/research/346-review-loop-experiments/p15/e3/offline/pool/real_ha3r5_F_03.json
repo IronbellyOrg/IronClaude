@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "haiku",
+  "reviewer_blocking": true,
+  "run": "a3-r5"
+ },
+ "case_id": "real_ha3r5_F_03",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "T2:6",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-03",
+  "finding_section": "### F-03 (MAJOR, BLOCKING): WC-4 contract is not assigned to several commands it applies to\n\n- Location: spec line 62 (WC-4: every command \"writes `<output-dir>/return-contract.yaml` ... on success, failure, blocked and partial outcomes\"); line 79 (\"the worker reports the named file until Phase 1 adds the contract\"); line 159 (P1 scope: \"The WC-4 contract in unattended mode ... the --unattended flag accepted by every command in sections 3.1 and 3.2\"); P1 \"Commands\" column at line 159 names 13 commands only.\n- Issue: the rows assign no contract to init-lite (line 87, \"Small fix: None\"; `commands-a.md:55`, no contract), tdd (line 90; `commands-b.md:222`, report is the TDD file), troubleshoot (line 91; `commands-b.md:242`, `return-contract.yaml` only with `--caller task-unified`), release-split (line 89; `commands-b.md:122`, `release-split-report.md`), index-repo (line 86) and cleanup-audit (line 85), where P1 adds only a report name. Load (line 112, \"none\") and validate-tests (line 125) have no contract either. AC-1.2 (line 196) tests only \"each P1 command\", which does not include init-lite, tdd, troubleshoot or release-split.\n- Grading check: \"An implementer who follows the 3.1 'small fix' column and the P1 command list builds init-lite, tdd, troubleshoot and release-split without `return-contract.yaml`, and that is wrong because WC-4 requires the file on every outcome and line 79 says Phase 1 adds it.\" This holds with no added assumption: the P1 scope text and the row text contradict each other.\n- Recommendation: add a contract row for each of these commands, or state an explicit WC-4 exemption (with reason) for `load` and `validate-tests`. Reconcile the P1 \"Commands\" column with the P1 scope sentence.\n- Expert: Fowler (interface contract coverage), Wiegers (every requirement needs an owner)."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p14/haiku-baseline/runs/a3-r5/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

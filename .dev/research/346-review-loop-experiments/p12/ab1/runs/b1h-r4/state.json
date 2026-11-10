@@ -1,0 +1,502 @@
+{
+ "run": "b1h-r4",
+ "design": "b1",
+ "rep": 4,
+ "stratum": "haiku",
+ "loop_model": "haiku",
+ "product_ref": "44f37e16d335a322e618b24c16ba387ffdfb47a1",
+ "cmd_sha": "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494",
+ "rules_sha": "ed219181156e47e6d70120730063e0b00081482d8a78b3d2633da188574ca829",
+ "done": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "VF3",
+  "AUD2",
+  "AUD"
+ ],
+ "prepared": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "VF3",
+  "AUD",
+  "AUD2"
+ ],
+ "transitioned": [
+  "R1a",
+  "R1b",
+  "R1c",
+  "VF1",
+  "V1",
+  "R2",
+  "VF2",
+  "V2",
+  "R3",
+  "VF3",
+  "AUD2",
+  "AUD"
+ ],
+ "log": {
+  "R1a": {
+   "output_exists": true,
+   "report_bytes": 24626,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 4
+   },
+   "blocking_ids": "B1, B2, B3",
+   "blocking_word_count": 12,
+   "output_tokens": 78943
+  },
+  "R1b": {
+   "output_exists": true,
+   "report_bytes": 26333,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 2,
+    "MAJOR": 2
+   },
+   "blocking_ids": "B1, B2, B3, B4",
+   "blocking_word_count": 8,
+   "output_tokens": 89037
+  },
+  "R1c": {
+   "output_exists": true,
+   "report_bytes": 28369,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 2
+   },
+   "blocking_ids": "B-1** and **B-2** only",
+   "blocking_word_count": 13,
+   "output_tokens": 71668
+  },
+  "VF1": {
+   "output_exists": true,
+   "finding_ids": [
+    "M1",
+    "M2",
+    "M3",
+    "M4",
+    "M5",
+    "M6",
+    "M7",
+    "M8",
+    "M9"
+   ],
+   "report_bytes": 8103,
+   "confirmed": [
+    "M2",
+    "M4",
+    "M6",
+    "M7",
+    "M8",
+    "M9"
+   ],
+   "rejected": {
+    "M1": "The file-versus-directory contradiction between WC-4 and the tdd row is real. The stated outcome (contract written to `<tdd-file>/return-contract.yaml`, never written, WC-5 reports failed) needs the implementer to read a file-valued `--output` as a directory, which the candidate does not say. The `command.md:23` and `:459-461` evidence and `INV-B:182` are outside the workspace and UNVERIFIED.",
+    "M3": "WC-5 is the worker's own rule and runs only before the worker sends `worker_done`. A worker killed mid-write sends no `worker_done`, so the stated `--outcome succeeded` cannot come from that worker. The candidate has no text where a surviving worker reads a 0-byte file and sends succeeded. The settling and dependent-start effects depend on CAPS text that cannot be checked here.",
+    "M5": "The contradiction is real: the no-op qualifier covers only gate-less commands, and auggie-review sits in section 3.2 with a gate resolution. But line 159 does not say what the flag does for auggie-review in P1, so \"still posts to GitHub\" needs an unstated choice that P1 leaves the command unchanged. AC-1.2 (line 196) covers only P1 commands, and the posting check AC-2.4 (line 202) runs after P2."
+   },
+   "parse_ok": true,
+   "output_tokens": 22909
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 8062,
+   "spec_after": {
+    "bytes": 60372,
+    "lines": 309,
+    "sha256": "6f240e27e8d58d66b8256a439936eb55132bda0b917254aa463c5abc36931750"
+   },
+   "output_tokens": 62209
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 26718,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "labels": {},
+   "blocking_ids": "M2, N1, N2. Rules for the reviser (restating the Review Loop's Reviser contract): revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding; report the byte size before and after, with the bytes added and deleted per finding id",
+   "blocking_word_count": 10,
+   "spec_after": {
+    "bytes": 60372,
+    "lines": 309,
+    "sha256": "6f240e27e8d58d66b8256a439936eb55132bda0b917254aa463c5abc36931750"
+   },
+   "output_tokens": 51446
+  },
+  "VF2": {
+   "output_exists": true,
+   "finding_ids": [
+    "M2",
+    "N1",
+    "N2"
+   ],
+   "report_bytes": 2999,
+   "confirmed": [
+    "N2"
+   ],
+   "rejected": {
+    "M2": "The row itself tags the init-lite fix as P1 (86), and the P1 scope at 160 includes \"the small fixes to ready commands\", which covers init-lite (listed as ready in 3.1). So a phase does schedule it.",
+    "N1": "Overwrite outcome: 160 includes \"the small fixes to ready commands\" and 86 tags the fix P1, so the premise that P1 skips init-lite fails. Dispatch outcome: the \"not accepted today\" baseline rests only on spec-v1.md:87, which is absent. Also 79 gives init-lite's stated flag as \"after P1\", so 79 does not license passing `--output <dir>` today. The readiness wording is inconsistent, but the stated wrong outcomes do not follow from the candidate text."
+   },
+   "parse_ok": true,
+   "output_tokens": 15111
+  },
+  "V2": {
+   "output_exists": true,
+   "report_bytes": 6314,
+   "spec_after": {
+    "bytes": 60539,
+    "lines": 309,
+    "sha256": "005c14750dde7985fd4ffcf42529a7b23cc2ca06ed4169b3ad679316a9e00f9a"
+   },
+   "output_tokens": 13983
+  },
+  "R3": {
+   "output_exists": true,
+   "report_bytes": 13153,
+   "verdict": "FAIL",
+   "review_header": [
+    "3"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 13,
+   "spec_after": {
+    "bytes": 60539,
+    "lines": 309,
+    "sha256": "005c14750dde7985fd4ffcf42529a7b23cc2ca06ed4169b3ad679316a9e00f9a"
+   },
+   "output_tokens": 32260
+  },
+  "VF3": {
+   "output_exists": true,
+   "finding_ids": [
+    "N3"
+   ],
+   "report_bytes": 1632,
+   "confirmed": [
+    "N3"
+   ],
+   "rejected": {},
+   "parse_ok": true,
+   "output_tokens": 3019
+  },
+  "AUD2": {
+   "output_exists": true,
+   "report_bytes": 16653,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "MAJOR": 2
+   },
+   "blocking_ids": "F-1, F-2",
+   "blocking_word_count": 9,
+   "spec_audited": {
+    "bytes": 60539
+   },
+   "output_tokens": 17719
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 22626,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 4,
+    "MAJOR": 4
+   },
+   "blocking_ids": "B-1, B-2, B-3",
+   "blocking_word_count": 12,
+   "spec_audited": {
+    "bytes": 60539
+   },
+   "output_tokens": 31332
+  }
+ },
+ "launched": {
+  "R1a": "2026-11-10T08:38:31+00:00",
+  "R1b": "2026-11-10T08:45:24+00:00",
+  "R1c": "2026-11-10T08:48:43+00:00",
+  "VF1": "2026-11-10T08:57:36+00:00",
+  "V1": "2026-11-10T09:03:24+00:00",
+  "R2": "2026-11-10T09:12:26+00:00",
+  "VF2": "2026-11-10T09:20:20+00:00",
+  "V2": "2026-11-10T09:25:10+00:00",
+  "R3": "2026-11-10T09:29:48+00:00",
+  "VF3": "2026-11-10T09:36:13+00:00",
+  "AUD": "2026-11-10T09:40:21+00:00",
+  "AUD2": "2026-11-10T09:40:21+00:00"
+ },
+ "noted_unactioned": [
+  {
+   "step": "VF1",
+   "id": "M1",
+   "theme": "T2",
+   "cited": [
+    11,
+    62,
+    63,
+    90,
+    120,
+    200
+   ],
+   "heading": "**B1. Output flag value types contradict each other (tdd, spec-panel, AC-2.2).** Expert: Fowler (lead), Wiegers. Severity: MAJOR, blocking.",
+   "reason": "The file-versus-directory contradiction between WC-4 and the tdd row is real. The stated outcome (contract written to `<tdd-file>/return-contract.yaml`, never written, WC-5 reports failed) needs the implementer to read a file-valued `--output` as a directory, which the candidate does not say. The `command.md:23` and `:459-461` evidence and `INV-B:182` are outside the workspace and UNVERIFIED."
+  },
+  {
+   "step": "VF1",
+   "id": "M3",
+   "theme": "other",
+   "cited": [
+    63,
+    183
+   ],
+   "heading": "**B3. The outcome mapping treats an empty or status-less contract as success.** Expert: Whittaker (FR-2.1 Zero/Empty), Wiegers. Severity: MAJOR, blocking (names a concrete wrong outcome).",
+   "reason": "WC-5 is the worker's own rule and runs only before the worker sends `worker_done`. A worker killed mid-write sends no `worker_done`, so the stated `--outcome succeeded` cannot come from that worker. The candidate has no text where a surviving worker reads a 0-byte file and sends succeeded. The settling and dependent-start effects depend on CAPS text that cannot be checked here."
+  },
+  {
+   "step": "VF1",
+   "id": "M5",
+   "theme": "T1",
+   "cited": [
+    67,
+    100,
+    159,
+    160
+   ],
+   "heading": "### B2. Phase 1 lets `--unattended` run with PR posting still on. CRITICAL.",
+   "reason": "The contradiction is real: the no-op qualifier covers only gate-less commands, and auggie-review sits in section 3.2 with a gate resolution. But line 159 does not say what the flag does for auggie-review in P1, so \"still posts to GitHub\" needs an unstated choice that P1 leaves the command unchanged. AC-1.2 (line 196) covers only P1 commands, and the posting check AC-2.4 (line 202) runs after P2."
+  },
+  {
+   "step": "VF2",
+   "id": "M2",
+   "theme": "T2",
+   "cited": [],
+   "heading": "| M2 | open | Row `candidate:86` now asks for a per-run directory, which WC-6 needs, but no phase schedules it: the P1 command list at `candidate:160` omits init-lite. The same row also changes the standalone `--output` type (see N2). Open until N1 and N2 are fixed. |",
+   "reason": "The row itself tags the init-lite fix as P1 (86), and the P1 scope at 160 includes \"the small fixes to ready commands\", which covers init-lite (listed as ready in 3.1). So a phase does schedule it."
+  },
+  {
+   "step": "VF2",
+   "id": "N1",
+   "theme": "T3",
+   "cited": [],
+   "heading": "### N1 (blocking, origin=changed): the init-lite fix is in no phase, and the row still treats init-lite as ready today",
+   "reason": "Overwrite outcome: 160 includes \"the small fixes to ready commands\" and 86 tags the fix P1, so the premise that P1 skips init-lite fails. Dispatch outcome: the \"not accepted today\" baseline rests only on spec-v1.md:87, which is absent. Also 79 gives init-lite's stated flag as \"after P1\", so 79 does not license passing `--output <dir>` today. The readiness wording is inconsistent, but the stated wrong outcomes do not follow from the candidate text."
+  }
+ ],
+ "loop_end": "ESCALATED",
+ "manual": [
+  {
+   "step": "R3",
+   "ids": [
+    "N3"
+   ],
+   "raw": "N3"
+  }
+ ],
+ "relaunch": {},
+ "lost": false,
+ "complete": true,
+ "merge": {
+  "raw_count": 9,
+  "merged_count": 9,
+  "groups": [
+   {
+    "mid": "M1",
+    "theme": "T2",
+    "members": [
+     "round1-a.md/B1"
+    ],
+    "cited": [
+     11,
+     62,
+     63,
+     90,
+     120,
+     200
+    ],
+    "heading": "**B1. Output flag value types contradict each other (tdd, spec-panel, AC-2.2).** Expert: Fowler (lead), Wiegers. Severity: MAJOR, blocking."
+   },
+   {
+    "mid": "M2",
+    "theme": "other",
+    "members": [
+     "round1-a.md/B2"
+    ],
+    "cited": [
+     64,
+     87
+    ],
+    "heading": "**B2. init-lite re-run overwrites its report, which WC-6 forbids.** Expert: Nygard (lead), Fowler. Severity: MAJOR, blocking."
+   },
+   {
+    "mid": "M3",
+    "theme": "other",
+    "members": [
+     "round1-a.md/B3"
+    ],
+    "cited": [
+     63,
+     183
+    ],
+    "heading": "**B3. The outcome mapping treats an empty or status-less contract as success.** Expert: Whittaker (FR-2.1 Zero/Empty), Wiegers. Severity: MAJOR, blocking (names a concrete wrong outcome)."
+   },
+   {
+    "mid": "M4",
+    "theme": "T3",
+    "members": [
+     "round1-b.md/B1"
+    ],
+    "cited": [
+     43,
+     158,
+     182,
+     183,
+     194
+    ],
+    "heading": "### B1. Phase 0 acceptance check AC-0.4 cannot pass as written. CRITICAL."
+   },
+   {
+    "mid": "M5",
+    "theme": "T1",
+    "members": [
+     "round1-b.md/B2"
+    ],
+    "cited": [
+     67,
+     100,
+     159,
+     160
+    ],
+    "heading": "### B2. Phase 1 lets `--unattended` run with PR posting still on. CRITICAL."
+   },
+   {
+    "mid": "M6",
+    "theme": "T1",
+    "members": [
+     "round1-b.md/B3"
+    ],
+    "cited": [
+     69,
+     85,
+     86
+    ],
+    "heading": "### B3. Default output path breaks WC-11 for index-repo. MAJOR."
+   },
+   {
+    "mid": "M7",
+    "theme": "T2",
+    "members": [
+     "round1-b.md/B4"
+    ],
+    "cited": [
+     62,
+     76,
+     112,
+     195,
+     265
+    ],
+    "heading": "### B4. The load row contradicts WC-4 and AC-1.1. MAJOR."
+   },
+   {
+    "mid": "M8",
+    "theme": "T2",
+    "members": [
+     "round1-c.md/B-1"
+    ],
+    "cited": [],
+    "heading": "#### B-1. WC-4 and the adversarial P1 fix name different contract paths (blocking)"
+   },
+   {
+    "mid": "M9",
+    "theme": "other",
+    "members": [
+     "round1-c.md/B-2"
+    ],
+    "cited": [],
+    "heading": "#### B-2. AC-C1 cannot fail, so the SA-2 gate is non-functional (blocking)"
+   }
+  ],
+  "reviewers": {
+   "a": {
+    "verdict": "FAIL",
+    "sha256": "85c0cdc8639c07cdcfcfecf761b9d6f4462d07daf4a60368241530fe756123e8",
+    "ids": [
+     "B1",
+     "B2",
+     "B3"
+    ],
+    "themes": [
+     "T2",
+     "other",
+     "other"
+    ]
+   },
+   "b": {
+    "verdict": "FAIL",
+    "sha256": "51a19315af8e3382faf6ba675061fc671df61dbec79d35e8b8dd3eb8ddd77e2a",
+    "ids": [
+     "B1",
+     "B2",
+     "B3",
+     "B4"
+    ],
+    "themes": [
+     "T3",
+     "T1",
+     "T1",
+     "T2"
+    ]
+   },
+   "c": {
+    "verdict": "FAIL",
+    "sha256": "5efe1dab5b50b30f950e5c74fa0b6b5dc3f5c999b4cff65ea2d385f9172020ed",
+    "ids": [
+     "B-1",
+     "B-2"
+    ],
+    "themes": [
+     "T2",
+     "other"
+    ]
+   }
+  },
+  "done": true
+ },
+ "final_spec": {
+  "bytes": 60539,
+  "lines": 309,
+  "sha256": "005c14750dde7985fd4ffcf42529a7b23cc2ca06ed4169b3ad679316a9e00f9a"
+ }
+}

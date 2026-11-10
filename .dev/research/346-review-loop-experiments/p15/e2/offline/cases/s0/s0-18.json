@@ -1,0 +1,36 @@
+{
+ "author_intent": {
+  "category": "synth-exception",
+  "expect": "defect",
+  "layer": "synthetic"
+ },
+ "case_id": "s0-18",
+ "category": "synth-exception",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "retention",
+ "group": "fam-retention",
+ "packet": {
+  "defect": "RET-1 requires every deleted record to be purged within 30 days with no exceptions, but RET-5 keeps a deleted record until its support ticket closes, which can be longer than 30 days.",
+  "doc": "offline/docs/doc-df93cd3cc3.md",
+  "doc_sha256": "df93cd3cc3c5641945b79da9535d86b658f4427f7047f80b1622515c9192c7c9",
+  "evidence_quotes": [
+   "Every deleted record is purged from all stores within 30 days of deletion, with no exceptions",
+   "A deleted record that is referenced by an open support ticket is kept until the ticket closes"
+  ],
+  "evidence_set": [
+   "P0005",
+   "P0010"
+  ]
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "offline/docs/doc-df93cd3cc3.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "synthetic"
+}

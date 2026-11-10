@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "sonnet-or-panel",
+  "reviewer_blocking": false,
+  "run": "a3-r1"
+ },
+ "case_id": "real_a3r1_F14",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:23",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F14",
+  "finding_section": "**F14. Medium. Cockburn, Newman. D4(a) and D2(a) treat a relayed approval differently.** D2(a) rejects a relayed Ruling because \"the rule exists to stop an agent approving its own work\" (`spec:236`); D4(a) accepts a coordinator-quoted user instruction for push, PR and install (`spec:245-247`) and says it \"matches the repo's own rule\" that the user pre-authorized the step \"this session\". INV-B:79 quotes the rule as \"unless the user pre-authorized them this session\"; a brief is another agent's message in a different session. The recommendation is the user's to make, but the stated justification overstates the match."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a3-r1/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

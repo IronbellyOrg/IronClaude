@@ -1,0 +1,216 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32",
+  "doc_bytes": 83849,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        31,
+        31
+      ],
+      "quote": "| `_assumed_shape` JSON fixtures standing in for unverified GitHub and Orca reply shapes | Writes to GitHub of any kind (NG-2), Project writes (NG-3) |",
+      "other_lines": null,
+      "message": "NG-2 is referenced but never defined (5 references)."
+    },
+    {
+      "lint_id": "LINT-REF-2",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        31,
+        31
+      ],
+      "quote": "| `_assumed_shape` JSON fixtures standing in for unverified GitHub and Orca reply shapes | Writes to GitHub of any kind (NG-2), Project writes (NG-3) |",
+      "other_lines": null,
+      "message": "NG-3 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-3",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        43,
+        43
+      ],
+      "quote": "| D1 option A | No listener, inbound port or address registry. A pull poller run by cron in each workspace. | Package shape (section 5); NG-1 |",
+      "other_lines": null,
+      "message": "NG-1 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-4",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        66,
+        66
+      ],
+      "quote": "| Agent name | Module constant `launch.ORCA_AGENT`, pinned by a unit test to the `--agent` value of the seed brief's launch line. Not configurable. Its literal is not written in this document (PF-0...",
+      "other_lines": null,
+      "message": "PF-034 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-5",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        68,
+        68
+      ],
+      "quote": "| Process model | `gh`, `git` and Orca run as argv lists with `shell=False` (NFR-004). The poller is a plain process, never an Orca worker, so WC-13 (\"workers never run `agent launch`\", `src/superc...",
+      "other_lines": null,
+      "message": "WC-13 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-6",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        70,
+        70
+      ],
+      "quote": "| Non-goals | NG-1 push designs B/C/D; NG-2 no GitHub write (REST GET only; GraphQL POST only with a constant query without `mutation`); NG-3 no Project writes; NG-4 no session constraint beyond th...",
+      "other_lines": null,
+      "message": "NG-4 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-7",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        70,
+        70
+      ],
+      "quote": "| Non-goals | NG-1 push designs B/C/D; NG-2 no GitHub write (REST GET only; GraphQL POST only with a constant query without `mutation`); NG-3 no Project writes; NG-4 no session constraint beyond th...",
+      "other_lines": null,
+      "message": "NG-5 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-8",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        71,
+        71
+      ],
+      "quote": "| Intended owner | Candidate 1: assignee set exactly {own login} (OD-3), stricter than the claim's own rule. |",
+      "other_lines": null,
+      "message": "OD-3 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-9",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        72,
+        72
+      ],
+      "quote": "| Project unreadable | Fail closed, no label-only mode (OD-4). |",
+      "other_lines": null,
+      "message": "OD-4 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-10",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        74,
+        74
+      ],
+      "quote": "| Refactor-log notes | PF-016 kept: a prompt `ValueError` is still recorded as pre-pending `failed` and retried. PF-019 kept: the launcher Protocol stays as the test seam. PF-047 kept: runbook step...",
+      "other_lines": null,
+      "message": "PF-016 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-11",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        74,
+        74
+      ],
+      "quote": "| Refactor-log notes | PF-016 kept: a prompt `ValueError` is still recorded as pre-pending `failed` and retried. PF-019 kept: the launcher Protocol stays as the test seam. PF-047 kept: runbook step...",
+      "other_lines": null,
+      "message": "PF-019 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-12",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        74,
+        74
+      ],
+      "quote": "| Refactor-log notes | PF-016 kept: a prompt `ValueError` is still recorded as pre-pending `failed` and retried. PF-019 kept: the launcher Protocol stays as the test seam. PF-047 kept: runbook step...",
+      "other_lines": null,
+      "message": "PF-031 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-13",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        74,
+        74
+      ],
+      "quote": "| Refactor-log notes | PF-016 kept: a prompt `ValueError` is still recorded as pre-pending `failed` and retried. PF-019 kept: the launcher Protocol stays as the test seam. PF-047 kept: runbook step...",
+      "other_lines": null,
+      "message": "PF-047 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-14",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        74,
+        74
+      ],
+      "quote": "| Refactor-log notes | PF-016 kept: a prompt `ValueError` is still recorded as pre-pending `failed` and retried. PF-019 kept: the launcher Protocol stays as the test seam. PF-047 kept: runbook step...",
+      "other_lines": null,
+      "message": "PF-048 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-15",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        87,
+        87
+      ],
+      "quote": "| C6 | The claim and the watcher share one owner rule | `src/superclaude/skills/sc-issue-protocol/refs/claim.md:41-42`: another assignee means STOP, self-assigned means continue, and an unassigned ...",
+      "other_lines": null,
+      "message": "PF-001 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-16",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        386,
+        386
+      ],
+      "quote": "\"Examined\" stops at the first eligible candidate: after the launch, and after any launch-step outcome, later candidates are neither read nor stamped (FR-016, PF-029). A candidate skipped locally (s...",
+      "other_lines": null,
+      "message": "PF-029 is referenced but never defined."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

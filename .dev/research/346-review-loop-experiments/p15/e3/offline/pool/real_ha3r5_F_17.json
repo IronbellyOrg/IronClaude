@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "haiku",
+  "reviewer_blocking": false,
+  "run": "a3-r5"
+ },
+ "case_id": "real_ha3r5_F_17",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:6",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-17",
+  "finding_section": "### F-17 (MINOR, MEDIUM): WC-10 boundary and cadence are not specified at the threshold\n\n- Location: line 68 (WC-10: heartbeat every 5 minutes; split waits \"longer than 5 minutes\" into at most 4 minutes); line 181 (7.2 step 2: `worker-show` at least once per 5 minutes).\n- Issue: a call of exactly 300 s is not covered (the rule says \"longer than\"). A step of 4 min 59 s plus model time can exceed the 5-minute heartbeat cadence, and the spec does not say whether the heartbeat is sent between calls only.\n- Recommendation: say \"at most 4 minutes\" applies to any call of 5 minutes or more, and state that the heartbeat cannot be sent during a tool call.\n- Expert: Nygard (failure and liveness timing)."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p14/haiku-baseline/runs/a3-r5/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "pool",
+ "variant": "base"
+}

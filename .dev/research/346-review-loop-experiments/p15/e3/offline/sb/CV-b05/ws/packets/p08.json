@@ -1,0 +1,17 @@
+{
+ "finding": {
+  "title": "AC-1.1 contradicts the scope of section 3 and the load row (Cockburn)",
+  "wrong_outcome": "An implementer who follows `spec:79` and the \"None\" cells leaves brainstorm and init-lite without the section and the flag, and AC-1.1 fails for both; an implementer who follows AC-1.1 gives load a `return-contract.yaml` that `spec:265` says must not exist."
+ },
+ "evidence": {
+  "e1": {
+   "text": "would be an unrequested addition",
+   "line": 265,
+   "context": "| Status vocabulary | Copy each command's own statuses; a fixed four-value set | Fixed set `succeeded / partial / failed / blocked`, mapped to Orca's two outcomes in WC-5, because Orca accepts only `succeeded` or `failed` (`CAPS:73`). |\n| `partial` maps to `succeeded` | `succeeded`; `failed` | A partial run left a usable deliverable; `failed` would tell the coordinator the work is lost. The body's first sentence and the contract still say `partial` (WC-5), so nothing is hidden. A worker's own `failed` report does not trip Orca's circuit breaker either way (`CAPS:80`). |\n| Where shared rules live | Repeat them in every command; one core file referenced by installed path | One core file (`~/.claude/WORKER-CONTRACT.md`), following the installed-path rule (`CLAUDE.md:72-83`) and the write-once rule. |\n| `/sc:load` handling | Add a report file; use it only inside another worker's brief | Use it inside a brief: its only output is context for the current session (`INV-B:65`); a report file would be an unrequested addition. Only its usage-line defect is fixed. |\n| Wait size for WC-10 | 5 minutes; 4 minutes | 4 minutes leaves a margin under the 5-minute heartbeat cadence (`CAPS:130`). |\n| Phase order | By inventory group; by risk | By risk: no-gate commands first, then gates, then drift, then safety rules and outward actions, so every later phase has report files to check and user decisions are needed only at the end. |\n| Inventory verdicts | Re-judge commands; keep the inventories' 10 / 27 / 6 split | Keep: both inventories were independently citation-checked (`INV-A:106`, `INV-B:320`) and nothing read in this task contradicted a verdict. `/sc:load` and `/sc:recommend` are noted as coordinator-side helpers without changing their verdict. |"
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 1
+ }
+}

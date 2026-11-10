@@ -1,0 +1,420 @@
+{
+ "parsed_count": 0,
+ "inferred_count": 34,
+ "matched": 31,
+ "coverage_pct": null,
+ "coverage_pct_union": 0.9118,
+ "unmapped_requirements": [],
+ "unmapped_requirements_union": [
+  "INF-003",
+  "INF-009",
+  "INF-034"
+ ],
+ "coverage_degraded": "parsed-sparse",
+ "total_tasks": 14,
+ "S_dev_density": 0.0882,
+ "rows": [
+  {
+   "requirement_id": "INF-001",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:104",
+   "quote_verbatim": true,
+   "ratio": 0.9,
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "quote": "Frontmatter `name: spec-panel-stoprule`; `description` ends \"(experimental variant: computed review-loop verdict)\""
+  },
+  {
+   "requirement_id": "INF-002",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:104",
+   "quote_verbatim": true,
+   "ratio": 1.0,
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "quote": "Under the title add the activation line `> Skill sc:spec-panel-stoprule-protocol`."
+  },
+  {
+   "requirement_id": "INF-003",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:105",
+   "quote_verbatim": true,
+   "ratio": 0.571,
+   "matched_task_ids": [],
+   "match_method": "none",
+   "quote": "FR-10 stays (it feeds the table `sc:adversarial` consumes)."
+  },
+  {
+   "requirement_id": "INF-004",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:106",
+   "quote_verbatim": true,
+   "ratio": 0.692,
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "quote": "bullets 1 and 7 keep the 427 text (7 adds \"and may not change the rubric or its hash\"); bullets 2-6 are replaced; bullet 8 is new."
+  },
+  {
+   "requirement_id": "INF-005",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:115",
+   "quote_verbatim": true,
+   "ratio": 0.667,
+   "matched_task_ids": [
+    "Task 9"
+   ],
+   "match_method": "containment",
+   "quote": "stop with `E-SKILL-MISSING`; never run the plain 427 loop under this name."
+  },
+  {
+   "requirement_id": "INF-006",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:118",
+   "quote_verbatim": true,
+   "ratio": 0.931,
+   "matched_task_ids": [
+    "Task 8"
+   ],
+   "match_method": "containment",
+   "quote": "a failure table (grader reply invalid twice or Agent tool unavailable -> claims `unconfirmed`, verdict FAIL `incomplete`, no reviser edits; script exit codes and messages), and a \"do not\" list (no verdict line, no ledger edit after `seal`, no edit of `refs/rubric.md`)."
+  },
+  {
+   "requirement_id": "INF-007",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:119",
+   "quote_verbatim": true,
+   "ratio": 0.833,
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "match_method": "containment",
+   "quote": "`refs/rubric.md`: the literal text of section 2.3."
+  },
+  {
+   "requirement_id": "INF-008",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:120",
+   "quote_verbatim": true,
+   "ratio": 0.75,
+   "matched_task_ids": [
+    "Task 1"
+   ],
+   "match_method": "containment",
+   "quote": "`refs/canaries.json`: 4 synthetic blocking and 4 synthetic minor claims (`{quote, span, outcome, evidence, answer}`), unrelated to any real spec; rotated by seed."
+  },
+  {
+   "requirement_id": "INF-009",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:121",
+   "quote_verbatim": true,
+   "ratio": 0.25,
+   "matched_task_ids": [],
+   "match_method": "none",
+   "quote": "Takes `--rubric` and `--cap` so other loops can reuse it."
+  },
+  {
+   "requirement_id": "INF-010",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:121",
+   "quote_verbatim": true,
+   "ratio": 0.857,
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "quote": "Known limit to put in a code comment: \"markdown tables and wrapped cells are not normalised; upgrade if `quote-not-found` dominates the audit\"."
+  },
+  {
+   "requirement_id": "INF-011",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:124",
+   "quote_verbatim": true,
+   "ratio": 0.929,
+   "matched_task_ids": [
+    "Task 2"
+   ],
+   "match_method": "containment",
+   "quote": "Frontmatter `name: finding-grader`, `tools: Read`, `model: sonnet`, `maxTurns: 10`, `permissionMode: plan` (same pattern as `confidence-calibrator`)."
+  },
+  {
+   "requirement_id": "INF-012",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:127",
+   "quote_verbatim": true,
+   "ratio": 0.833,
+   "matched_task_ids": [
+    "Task 10"
+   ],
+   "match_method": "containment",
+   "quote": "the variant equals `spec-panel.md` outside the replaced blocks (computed diff, so a later spec-panel change fails the test instead of drifting); `install_skills._has_corresponding_command(\"sc-spec-panel-stoprule-protocol\")` is False."
+  },
+  {
+   "requirement_id": "INF-013",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:128",
+   "quote_verbatim": true,
+   "ratio": 0.8,
+   "matched_task_ids": [
+    "Task 7"
+   ],
+   "match_method": "containment",
+   "quote": "a replay fixture built from control r1's spec v2/v3 and its 8 review-3 claims."
+  },
+  {
+   "requirement_id": "INF-014",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:128",
+   "quote_verbatim": true,
+   "ratio": 0.762,
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "quote": "`begin` exit 4 on a prior review-3 FAIL; exit 5 on rubric drift, prior-verdict mismatch and baseline hash mismatch; ledger edited after `seal` -> `check` exit 6; `grade-raw` mismatch -> exit 6; `finalize` refuses a hand-typed `verdict:`"
+  },
+  {
+   "requirement_id": "INF-015",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:129",
+   "quote_verbatim": true,
+   "ratio": 1.0,
+   "matched_task_ids": [
+    "Task 10"
+   ],
+   "match_method": "containment",
+   "quote": "Run, do not edit: `tests/skills/test_review_severity_rule.py`, `tests/unit/test_cli_install.py`, `tests/recommend/test_routing_refresh.py`"
+  },
+  {
+   "requirement_id": "INF-016",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:132",
+   "quote_verbatim": true,
+   "ratio": 0.8,
+   "matched_task_ids": [
+    "Task 11"
+   ],
+   "match_method": "containment",
+   "quote": "New `docs/designs/spec-panel-stoprule.md` (this spec trimmed to the final decision); one sentence in `docs/designs/spec-panel-review-loop.md` section 11 pointing to it."
+  },
+  {
+   "requirement_id": "INF-017",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:132",
+   "quote_verbatim": true,
+   "ratio": 0.8,
+   "matched_task_ids": [
+    "Constraints"
+   ],
+   "match_method": "containment",
+   "quote": "No routing-guide row, `/sc:help` entry or plugin mirror while the variant is experimental."
+  },
+  {
+   "requirement_id": "INF-018",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:132",
+   "quote_verbatim": true,
+   "ratio": 1.0,
+   "matched_task_ids": [
+    "Task 12"
+   ],
+   "match_method": "containment",
+   "quote": "Then `make sync-dev`, `make verify-sync`; stage `src/`, `tests/`, `docs/`, `.dev/tasks`, never `.claude/`."
+  },
+  {
+   "requirement_id": "INF-019",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:135",
+   "quote_verbatim": true,
+   "ratio": 1.0,
+   "matched_task_ids": [
+    "Constraints"
+   ],
+   "match_method": "containment",
+   "quote": "`src/superclaude/commands/spec-panel.md`, `~/.claude/commands/sc/spec-panel.md`, the rf-qa agents, `confidence-calibrator`, `evidence-validator`, `sc-implement-protocol`, `WORKER-CONTRACT.md`."
+  },
+  {
+   "requirement_id": "INF-020",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:148",
+   "quote_verbatim": true,
+   "ratio": 1.0,
+   "matched_task_ids": [
+    "Task 13"
+   ],
+   "match_method": "containment",
+   "quote": "perl -pe 's#(/?sc:spec-panel)(?![-\\w])#$1-stoprule#g' brief.md > brief.stoprule.md"
+  },
+  {
+   "requirement_id": "INF-021",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:150",
+   "quote_verbatim": true,
+   "ratio": 0.9,
+   "matched_task_ids": [
+    "Task 14"
+   ],
+   "match_method": "containment",
+   "quote": "Apply it to the **Arm B** briefs (review 2 and 3 pass `--re-review <prior> --baseline <saved copy>`)"
+  },
+  {
+   "requirement_id": "INF-022",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:163",
+   "quote_verbatim": true,
+   "ratio": 0.81,
+   "matched_task_ids": [
+    "Task 13"
+   ],
+   "match_method": "containment",
+   "quote": "The measurement copy of the command is built from the exact Arm B base file (472 lines, sha256[:12] `c8d80346a96c`) plus the section 3.1 edits, so the only difference from Arm B is the stoprule change."
+  },
+  {
+   "requirement_id": "INF-023",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:163",
+   "quote_verbatim": true,
+   "ratio": 0.6,
+   "matched_task_ids": [
+    "Task 13"
+   ],
+   "match_method": "containment",
+   "quote": "**Rollback:** delete the three installed paths."
+  },
+  {
+   "requirement_id": "INF-024",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:165",
+   "quote_verbatim": true,
+   "ratio": 0.8,
+   "matched_task_ids": [
+    "Task 13"
+   ],
+   "match_method": "containment",
+   "quote": "Never pass `--force` on the experiment machine: it overwrites every installed command, `spec-panel.md` included."
+  },
+  {
+   "requirement_id": "INF-025",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:62",
+   "quote_verbatim": true,
+   "ratio": 0.95,
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "quote": "Writes a `begin` marker with a random 16-hex nonce, opens the ledger block in the stub report, prints the rubric and the list of changed hunks (difflib, whitespace-only changes ignored)."
+  },
+  {
+   "requirement_id": "INF-026",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:64",
+   "quote_verbatim": true,
+   "ratio": 0.667,
+   "matched_task_ids": [
+    "Task 3"
+   ],
+   "match_method": "containment",
+   "quote": "every changed hunk needs a claim or a `checked` line."
+  },
+  {
+   "requirement_id": "INF-027",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:65",
+   "quote_verbatim": true,
+   "ratio": 0.96,
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "quote": "Every other form-valid claim, late-found ones included, goes into batches of at most 6 claims plus 2 canaries (one known-blocking, one known-minor, from `refs/canaries.json`), shuffled with seed `sha256(nonce, review, ledger)` and renamed `C1..Cn`."
+  },
+  {
+   "requirement_id": "INF-028",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:67",
+   "quote_verbatim": true,
+   "ratio": 1.0,
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "quote": "A wrong canary answer rejects the batch (one rerun); a second failure leaves those claims `unconfirmed`."
+  },
+  {
+   "requirement_id": "INF-029",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:68",
+   "quote_verbatim": true,
+   "ratio": 0.667,
+   "matched_task_ids": [
+    "Task 4"
+   ],
+   "match_method": "containment",
+   "quote": "Any `real:true` reinstates the claim (`confirmed-audit`) and the verdict becomes FAIL; the sentinel records `pre_audit=PASS`."
+  },
+  {
+   "requirement_id": "INF-030",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:70",
+   "quote_verbatim": true,
+   "ratio": 1.0,
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "quote": "Refuses if the report already holds a line starting `verdict:`."
+  },
+  {
+   "requirement_id": "INF-031",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:74",
+   "quote_verbatim": true,
+   "ratio": 0.933,
+   "matched_task_ids": [
+    "Task 5"
+   ],
+   "match_method": "containment",
+   "quote": "Re-extracts the ledger, verifies the seal and every `grade-raw` hash, recomputes every status and the verdict, compares sentinel, computed block and last line."
+  },
+  {
+   "requirement_id": "INF-032",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:75",
+   "quote_verbatim": true,
+   "ratio": 0.818,
+   "matched_task_ids": [
+    "Task 14"
+   ],
+   "match_method": "containment",
+   "quote": "`stoprule.py check-disposition` lists any id the reviser applied outside D1..Dk (reported, never blocking)."
+  },
+  {
+   "requirement_id": "INF-033",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:76",
+   "quote_verbatim": true,
+   "ratio": 0.905,
+   "matched_task_ids": [
+    "Task 6"
+   ],
+   "match_method": "containment",
+   "quote": "`stoprule.py verify-transcript --report R --transcript <worker session .jsonl>` checks that each `grade-raw` text appears verbatim as an Agent tool result in the worker's transcript and prints `grader-integrity: verified|mismatch|unverified`."
+  },
+  {
+   "requirement_id": "INF-034",
+   "source": "inferred",
+   "citation": ".dev/tasks/to-do/TASK-WF-spec-20261108-181616/source.md:180",
+   "quote_verbatim": true,
+   "ratio": 0.333,
+   "matched_task_ids": [],
+   "match_method": "none",
+   "quote": "The owner independently labels 5 sampled items (`stoprule.py audit-sample`, k = 5) and auditor-owner agreement is reported as its own number."
+  }
+ ]
+}

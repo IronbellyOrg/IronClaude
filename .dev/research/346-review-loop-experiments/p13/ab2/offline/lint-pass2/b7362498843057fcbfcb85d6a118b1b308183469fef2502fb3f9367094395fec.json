@@ -1,0 +1,99 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec",
+  "doc_bytes": 82643,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-PATH-1",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        104,
+        104
+      ],
+      "quote": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix the contract filename to `<output>/advers...",
+      "other_lines": [
+        66,
+        66
+      ],
+      "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 66) but fits none of them."
+    },
+    {
+      "lint_id": "LINT-PATH-2",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        113,
+        113
+      ],
+      "quote": "| workflow | `--handoff none`; `--report-dir <dir>` (its `--output` is retired, `cmd/workflow.md:42`) | `.dev/tasks/to-do/<id>/return-contract.yaml` (the `<id>` is generated with a timestamp, `cmd/...",
+      "other_lines": [
+        66,
+        66
+      ],
+      "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 66) but fits none of them."
+    },
+    {
+      "lint_id": "LINT-PHASE-1",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        259,
+        259
+      ],
+      "quote": "| P0 | AC-0.4 | 7.2 live check on `/sc:troubleshoot \"<real symptom>\"` (no `--fix`, no `--depth deep`), `/sc:workflow \"<small change>\" --handoff none`, `/sc:adversarial --compare <two files> --depth...",
+      "other_lines": [
+        232,
+        232
+      ],
+      "message": "The P0 row (AC-0.4) refers to section 7.2, which uses WC-4 (P1); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-PHASE-2",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        262,
+        262
+      ],
+      "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command listed for P1 in the section 6 table of commands accepting `--unattended` has a `## Unat...",
+      "other_lines": [
+        174,
+        174
+      ],
+      "message": "The P1 row (AC-1.1) refers to section 6, which uses WC-10 (P2), WC-9 (P2); the rollout table first introduces each in a later phase."
+    },
+    {
+      "lint_id": "LINT-KV-1",
+      "check": "KV",
+      "class": "possible",
+      "lines": [
+        372,
+        372
+      ],
+      "quote": "| Heartbeat gaps during Agent-tool fan-out | Require fan-out to return within 4 minutes; accept the gap | Accept the gap (WC-10): commands keep their fan-out (WC-7) and may not call Orca (SA-2), an...",
+      "other_lines": [
+        282,
+        282
+      ],
+      "message": "\"4 minutes\" here (section decisions) and \"5 minutes\" at line 282 (section 7.3) share the head words fan, out."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

@@ -1,0 +1,702 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21",
+  "doc_bytes": 80732,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        45,
+        45
+      ],
+      "quote": "2. **The 60-second readiness evidence is narrower than it looks.** It concerns a question shown *before* Claude reached its input box (`EVIDENCE.md:39`, a shell wrapper's session-name prompt). A co...",
+      "other_lines": null,
+      "message": "AC-0.4 is referenced but never defined (6 references)."
+    },
+    {
+      "lint_id": "LINT-REF-2",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        45,
+        45
+      ],
+      "quote": "2. **The 60-second readiness evidence is narrower than it looks.** It concerns a question shown *before* Claude reached its input box (`EVIDENCE.md:39`, a shell wrapper's session-name prompt). A co...",
+      "other_lines": null,
+      "message": "AC-2.2 is referenced but never defined (3 references)."
+    },
+    {
+      "lint_id": "LINT-REF-3",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        70,
+        70
+      ],
+      "quote": "| WC-10 | **Liveness during long waits.** The worker sends a heartbeat at least every 5 minutes while working. No single tool call made by a command may last longer than 4 minutes: a longer wait (a...",
+      "other_lines": null,
+      "message": "AC-2.8 is referenced but never defined (6 references)."
+    },
+    {
+      "lint_id": "LINT-PATH-1",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        168,
+        168
+      ],
+      "quote": "| roadmap | the \"Resume? [Y/n]\" prompt is replaced by the explicit resume flag (resume only when passed); `--interactive` refused | contract pointing at `roadmap.md` and siblings | reconcile the co...",
+      "other_lines": [
+        265,
+        265
+      ],
+      "message": "`.session-memory.md` has the basename of the template `<dir>/.session-memory.md` (line 265) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-REF-4",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        222,
+        222
+      ],
+      "quote": "| AC-C1 | The two greps in the block below the table. The first scans the places commands run from, excluding only the `ccsession-tag` launcher. The second scans `core/` and excludes only the two d...",
+      "other_lines": null,
+      "message": "AC-0.3 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-5",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        247,
+        247
+      ],
+      "quote": "| P0 | AC-0.1 | `uv run python -c \"from superclaude.cli.install_core import KNOWN_CORE_FILES; assert 'WORKER-CONTRACT.md' in KNOWN_CORE_FILES\"` | exits 0 |",
+      "other_lines": null,
+      "message": "AC-0.1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-6",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        248,
+        248
+      ],
+      "quote": "| P0 | AC-0.2 | `cmp src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` and the level-table test the repo already runs (`CLAUDE.md:334`) | identical; t...",
+      "other_lines": null,
+      "message": "AC-0.2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-PHASE-1",
+      "check": "PHASE",
+      "class": "fact",
+      "lines": [
+        250,
+        250
+      ],
+      "quote": "| P0 | AC-0.5 | In the contract documents or skill references of workflow, reflect, brainstorm, adversarial and troubleshoot (`--caller task-unified`), list every `status` value each writes (read t...",
+      "other_lines": [
+        209,
+        209
+      ],
+      "message": "The P0 row (AC-0.5) uses WC-4, which the rollout table first introduces in P1."
+    },
+    {
+      "lint_id": "LINT-PATH-2",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        252,
+        252
+      ],
+      "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command in the Phase 1 list of section 6 except `/sc:load` (14 commands) has a `## Unattended mo...",
+      "other_lines": [
+        73,
+        73
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `<output>/return-contract.yaml` (line 73) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-3",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        252,
+        252
+      ],
+      "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command in the Phase 1 list of section 6 except `/sc:load` (14 commands) has a `## Unattended mo...",
+      "other_lines": [
+        64,
+        64
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 64) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-REF-7",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        253,
+        253
+      ],
+      "quote": "| P1 | AC-1.2 | 7.2 live check on each of the 14 P1 commands with `--unattended --report-dir <dir>` and the command's own output flag where section 3 lists one | all steps pass |",
+      "other_lines": null,
+      "message": "AC-1.2 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-8",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        254,
+        254
+      ],
+      "quote": "| P1 | AC-1.3 | For two P1 commands, run once in a plain session with no `--unattended` and no `--report-dir` (for example `claude -p \"/sc:analyze src/superclaude/cli/install_core.py\"` in a scratch...",
+      "other_lines": null,
+      "message": "AC-1.3 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-PATH-4",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        254,
+        254
+      ],
+      "quote": "| P1 | AC-1.3 | For two P1 commands, run once in a plain session with no `--unattended` and no `--report-dir` (for example `claude -p \"/sc:analyze src/superclaude/cli/install_core.py\"` in a scratch...",
+      "other_lines": [
+        73,
+        73
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `<output>/return-contract.yaml` (line 73) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-5",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        254,
+        254
+      ],
+      "quote": "| P1 | AC-1.3 | For two P1 commands, run once in a plain session with no `--unattended` and no `--report-dir` (for example `claude -p \"/sc:analyze src/superclaude/cli/install_core.py\"` in a scratch...",
+      "other_lines": [
+        64,
+        64
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 64) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-REF-9",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        255,
+        255
+      ],
+      "quote": "| P1 | AC-1.4 | `grep -n 'return-contract.yaml' src/superclaude/skills/sc-adversarial-protocol/SKILL.md` and the workflow return-contract ref | adversarial names one fixed path; workflow states the...",
+      "other_lines": null,
+      "message": "AC-1.4 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-10",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        256,
+        256
+      ],
+      "quote": "| P2 | AC-2.1 | `test_worker_contract.py` gains one assertion per gate listed in the section 3 row, for example the auggie-review section names both `--no-post-pr` and `--no-remediation-offer` | pa...",
+      "other_lines": null,
+      "message": "AC-2.1 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-11",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        258,
+        258
+      ],
+      "quote": "| P2 | AC-2.3 | Happy-path run per P2 command with every required flag in the brief | 7.2 passes with `--outcome succeeded` |",
+      "other_lines": null,
+      "message": "AC-2.3 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-12",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        259,
+        259
+      ],
+      "quote": "| P2 | AC-2.4 | `/sc:auggie-review <PR> --unattended --report-dir <dir>` on a fork PR; before and after, `gh api repos/IronbellyOrg/IronClaude/pulls/<PR>/reviews --jq length` and `.../pulls/<PR>/co...",
+      "other_lines": null,
+      "message": "AC-2.4 is referenced but never defined (3 references)."
+    },
+    {
+      "lint_id": "LINT-REF-13",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        260,
+        260
+      ],
+      "quote": "| P2 | AC-2.6 | Ask path (WC-3): a 7.2 run of `/sc:tdd \"auth\" --unattended --report-dir <dir> --output <file>` with `answer_wait` of 15 minutes; the coordinator answers the `ask` with `reply`. Then...",
+      "other_lines": null,
+      "message": "AC-2.6 is referenced but never defined (4 references)."
+    },
+    {
+      "lint_id": "LINT-REF-14",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        261,
+        261
+      ],
+      "quote": "| P2 | AC-2.7 | Retry (WC-4, WC-6): after a failed P2 run, `worker-start --task <task_id> --retry-of <dispatch_id>` with a new `--report-dir`; `sha256sum` of the first contract before and after. Al...",
+      "other_lines": null,
+      "message": "AC-2.7 is referenced but never defined (3 references)."
+    },
+    {
+      "lint_id": "LINT-REF-15",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        263,
+        263
+      ],
+      "quote": "| P2 | AC-2.5 | A person runs `/sc:cli-eval run` and `/sc:cleanup <dir> --interactive` in a plain session (manual check) | the suite menu and the approval prompts appear exactly as before (SA-1) |",
+      "other_lines": null,
+      "message": "AC-2.5 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-16",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        264,
+        264
+      ],
+      "quote": "| P3 | AC-3.1 | `test_worker_contract.py` asserts that `cmd/validate-roadmap.md` and `sk/sc-validate-roadmap-protocol/SKILL.md` name the same report filename, and that every flag `cmd/roadmap.md` l...",
+      "other_lines": null,
+      "message": "AC-3.1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-17",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        265,
+        265
+      ],
+      "quote": "| P3 | AC-3.2 | `/sc:roadmap <spec> --unattended --report-dir <report-dir> --output <dir>` with an existing `<dir>/.session-memory.md` and no resume flag | starts fresh, no `[Y/n]` in the transcrip...",
+      "other_lines": null,
+      "message": "AC-3.2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-18",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        266,
+        266
+      ],
+      "quote": "| P3 | AC-3.3 | `test -d` on the default target in `cmd/validate-tests.md`; `/sc:validate-tests --report <path> --unattended` | directory exists; report file exists |",
+      "other_lines": null,
+      "message": "AC-3.3 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-19",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        267,
+        267
+      ],
+      "quote": "| P3 | AC-3.4 | Two workers in one worktree each run `/sc:save --unattended`; `sha256sum .superclaude/memory/pm_context.md .superclaude/memory/last_session.md .superclaude/memory/next_actions.md` b...",
+      "other_lines": null,
+      "message": "AC-3.4 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-20",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        268,
+        268
+      ],
+      "quote": "| P4 | AC-4.1 | `/sc:implement <plan> --unattended` on a plan with one acceptance criterion that cannot be met | ledger shows the halt; contract `status: blocked`; outcome `failed`; the ledger reco...",
+      "other_lines": null,
+      "message": "AC-4.1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-21",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        269,
+        269
+      ],
+      "quote": "| P4 | AC-4.2 | `/sc:post-release <version> --unattended --report-dir <dir> --output <dir>` with no authorization flags | no install, VM, commit or PR: `git log -1` unchanged and no new PR from `gh...",
+      "other_lines": null,
+      "message": "AC-4.2 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-22",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        270,
+        270
+      ],
+      "quote": "| P4 | AC-4.3 | If D3 allows pr-submit as a worker: one 7.2 run on a scratch fork PR; `worker-read` transcript inspected for Bash waits | heartbeats arrive at most 5 minutes apart; no single tool c...",
+      "other_lines": null,
+      "message": "AC-4.3 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-PATH-6",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        340,
+        340
+      ],
+      "quote": "| Report shape | A per-command format; a new shared file name; reuse `return-contract.yaml` | Reuse: workflow, brainstorm, reflect and adversarial already write `return-contract.yaml` (`INV-B:272`,...",
+      "other_lines": [
+        73,
+        73
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `<output>/return-contract.yaml` (line 73) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-7",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        340,
+        340
+      ],
+      "quote": "| Report shape | A per-command format; a new shared file name; reuse `return-contract.yaml` | Reuse: workflow, brainstorm, reflect and adversarial already write `return-contract.yaml` (`INV-B:272`,...",
+      "other_lines": [
+        64,
+        64
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `<report-dir>/return-contract.yaml` (line 64) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-COUNT-1",
+      "check": "COUNT",
+      "class": "fact",
+      "lines": [
+        370,
+        370
+      ],
+      "quote": "14. Independent citation check: a fresh `evidence-validator` agent re-read about 340 citations in this spec on 2026-11-02 and found 9 defects (5 overstated, 3 wrong or missing lines, 1 low). All 9 ...",
+      "other_lines": [
+        371,
+        371
+      ],
+      "message": "The text says \"All 9 were\" but the list next to it has 6 items."
+    },
+    {
+      "lint_id": "LINT-REF-23",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        383,
+        383
+      ],
+      "quote": "| One report flag `--report-dir`, defined once and used in every AC and example | 2.1, WC-4, section 3 intro, rows, 7.2, 7.3, D1 | F-01 |",
+      "other_lines": null,
+      "message": "F-01 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-24",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        384,
+        384
+      ],
+      "quote": "| Report directory new per attempt; refusal when missing, unusable or inside `.git/`; fresh-directory wording in WC-6 | WC-4, WC-6, 2.3 | F-02 |",
+      "other_lines": null,
+      "message": "F-02 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-25",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        385,
+        385
+      ],
+      "quote": "| Flag accepted only in the converting phase; P1 list is 14 plus load; AC-1.1 per phase list | section 3 intro, 6, AC-1.1 | F-03 |",
+      "other_lines": null,
+      "message": "F-03 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-26",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        386,
+        386
+      ],
+      "quote": "| AC-C1 scoped and written out as a block | 7.1 | F-04 |",
+      "other_lines": null,
+      "message": "F-04 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-27",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        387,
+        387
+      ],
+      "quote": "| Validity rule for reports; `worker_status` for existing contracts; AC-0.5 | WC-4, WC-5, 7.2 step 4, AC-0.5 | F-05 |",
+      "other_lines": null,
+      "message": "F-05 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-28",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        388,
+        388
+      ],
+      "quote": "| Ask rule per gate, `--answer`, `answer_wait`, decline path | WC-3, 2.3, AC-2.6 | F-06 |",
+      "other_lines": null,
+      "message": "F-06 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-29",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        389,
+        389
+      ],
+      "quote": "| Every tool call at most 4 minutes; Monitor waits | WC-10, AC-2.8 | F-07 |",
+      "other_lines": null,
+      "message": "F-07 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-KV-1",
+      "check": "KV",
+      "class": "possible",
+      "lines": [
+        389,
+        389
+      ],
+      "quote": "| Every tool call at most 4 minutes; Monitor waits | WC-10, AC-2.8 | F-07 |",
+      "other_lines": [
+        345,
+        345
+      ],
+      "message": "\"4 minutes\" here (section revision-log-task-6) and \"5 minutes\" at line 345 (section decisions) share the stem 'call'."
+    },
+    {
+      "lint_id": "LINT-REF-30",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        390,
+        390
+      ],
+      "quote": "| Authorization flags named; conflict is a usage error | WC-9, 3.2 rows, AC-2.4 | F-08 |",
+      "other_lines": null,
+      "message": "F-08 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-31",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        391,
+        391
+      ],
+      "quote": "| Requirement coverage table and new checks | 7.4, AC-2.6 to AC-2.8 | F-09 |",
+      "other_lines": null,
+      "message": "F-09 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-32",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        392,
+        392
+      ],
+      "quote": "| Nested commands rule | WC-13, AC-1.1 | F-10 |",
+      "other_lines": null,
+      "message": "F-10 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-33",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        393,
+        393
+      ],
+      "quote": "| Coordinator procedure for stalls | 2.3 | F-11 |",
+      "other_lines": null,
+      "message": "F-11 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-34",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        394,
+        394
+      ],
+      "quote": "| `partial` defined; dependents wait for the coordinator to read the report | WC-5, 2.3 | F-12 |",
+      "other_lines": null,
+      "message": "F-12 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-35",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        395,
+        395
+      ],
+      "quote": "| Fixed-path outputs have one owner; worktree rule | WC-11, 2.3 | F-13 |",
+      "other_lines": null,
+      "message": "F-13 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-36",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        396,
+        396
+      ],
+      "quote": "| Skill-tool invocation in the brief | 2.3 | F-14 |",
+      "other_lines": null,
+      "message": "F-14 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-37",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        397,
+        397
+      ],
+      "quote": "| Report text treated as data | 2.3 | F-15 |",
+      "other_lines": null,
+      "message": "F-15 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-38",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        398,
+        398
+      ],
+      "quote": "| `contract_version`, atomic write, `blocked` naming note | WC-4 | F-16 |",
+      "other_lines": null,
+      "message": "F-16 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-39",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        399,
+        399
+      ],
+      "quote": "| `README:31` dropped as rationale | WC-9; section 4 /sc:git row | F-17 |",
+      "other_lines": null,
+      "message": "F-17 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-40",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        400,
+        400
+      ],
+      "quote": "| Three statements marked or reconciled | 1.4 (1), 1.4 (2), 3.2 tasklist row | F-18 |",
+      "other_lines": null,
+      "message": "F-18 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-41",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        401,
+        401
+      ],
+      "quote": "| \"Within 30 s\" | WC-1 | F-19 |",
+      "other_lines": null,
+      "message": "F-19 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-42",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        402,
+        402
+      ],
+      "quote": "| `/sc:load` trimmed | 3.2 load row, 4, AC-1.1 | F-20 |",
+      "other_lines": null,
+      "message": "F-20 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-43",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        403,
+        403
+      ],
+      "quote": "| D1 assumption stated | 6, 9 | F-21 |",
+      "other_lines": null,
+      "message": "F-21 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-44",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        404,
+        404
+      ],
+      "quote": "| Worked examples | 2.4 | F-22 |",
+      "other_lines": null,
+      "message": "F-22 is referenced but never defined."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

@@ -1,0 +1,191 @@
+{
+ "run": "b3-r2",
+ "design": "b3",
+ "stratum": "sonnet",
+ "loop_model": "sonnet",
+ "rep": 2,
+ "product_ref": "e924cc2b505da847c78d8580aa7daa17f4e15f2c",
+ "cmd_sha": "dbe23632d0d981289c2a33edaeee5e1ff7fb3babeff14940979e5d2486223099",
+ "rules_sha": "0bf6d28fbffb08a2ce62010bdabda114a80065090d9fb4fc24beaa06471e7408",
+ "done": [
+  "R1",
+  "V1",
+  "R2",
+  "G",
+  "GV",
+  "GR",
+  "AUD2",
+  "AUD"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 34396,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "B-1, B-2, B-3",
+   "blocking": [
+    {
+     "id": "B-1",
+     "theme": "T1",
+     "heading": "### B-1 (blocking, CRITICAL). The Phase 1 acceptance check AC-1.1 cannot pass as scoped, and two rea"
+    },
+    {
+     "id": "B-2",
+     "theme": "T2",
+     "heading": "### B-2 (blocking, MAJOR). WC-4's contract location contradicts the rows and checks that depend on i"
+    },
+    {
+     "id": "B-3",
+     "theme": "T2",
+     "heading": "### B-3 (blocking, MAJOR). WC-6's \"fresh output directory\" contradicts WC-4 and the Phase 3 check AC"
+    }
+   ],
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "output_tokens": 64643
+  },
+  "V1": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 8641,
+   "spec_after": {
+    "bytes": 59339,
+    "lines": 285,
+    "sha256": "523f1629dc21eaacc3987537a70cf3e5944edf741f8b5368cdaad6f32cf68d9c"
+   },
+   "output_tokens": 20946
+  },
+  "R2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 47609,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "blocking_ids": "none. No revision is requested. For any later brief that uses this report: revise only text a blocking finding names; add no rule, mechanism or section no blocking finding calls for; each added paragraph or table cites its finding id; prefer deleting or narrowing to adding and report the byte size before and after, with the bytes added and deleted per finding id; Medium and minor findings are not part of any brief and a brief cannot make one of them blocking",
+   "blocking": [],
+   "spec_after": {
+    "bytes": 59339,
+    "lines": 285,
+    "sha256": "523f1629dc21eaacc3987537a70cf3e5944edf741f8b5368cdaad6f32cf68d9c"
+   }
+  },
+  "G": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 13582,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "F-1",
+   "blocking": [
+    {
+     "id": "F-1",
+     "theme": "other",
+     "heading": "### F-1 [BLOCKING] [MAJOR] cli-portify's three always-on approval gates have no pass-through, so its"
+    }
+   ]
+  },
+  "GV": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 1300,
+   "spec_after": {
+    "bytes": 59523,
+    "lines": 285,
+    "sha256": "3df6411553609a3781774f54ed644139d6073eeb6265fab7bf239562e2658b99"
+   }
+  },
+  "GR": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 10798,
+   "verdict": "PASS",
+   "review_header": [
+    "2"
+   ],
+   "blocking_ids": "F-1",
+   "blocking": [],
+   "header_expected": "2",
+   "spec_after": {
+    "bytes": 59523,
+    "lines": 285,
+    "sha256": "3df6411553609a3781774f54ed644139d6073eeb6265fab7bf239562e2658b99"
+   }
+  },
+  "AUD2": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 21751,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "F-1, C5",
+   "blocking": [
+    {
+     "id": "F-1",
+     "theme": "other",
+     "heading": "### F-1 [MAJOR, blocking] The additive-edit check AC-C5 (and AC-0.3) cannot detect deleted lines it "
+    },
+    {
+     "id": "C5",
+     "theme": "other",
+     "heading": ""
+    }
+   ],
+   "spec_audited": {
+    "bytes": 59523
+   }
+  },
+  "AUD": {
+   "output_exists": true,
+   "stratum": "sonnet",
+   "report_bytes": 24267,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "blocking_ids": "F1",
+   "blocking": [
+    {
+     "id": "F1",
+     "theme": "other",
+     "heading": "### F1. `index` unattended handling contradicts UNVERIFIED item 6 (blocking)"
+    }
+   ],
+   "spec_audited": {
+    "bytes": 59523
+   }
+  }
+ },
+ "launched": {
+  "R1": "2026-11-10T05:12:50+00:00",
+  "V1": "2026-11-10T05:21:08+00:00",
+  "R2": "2026-11-10T05:25:08+00:00",
+  "G": "2026-11-10T05:37:36+00:00",
+  "GV": "2026-11-10T05:44:54+00:00",
+  "GR": "2026-11-10T05:50:57+00:00",
+  "AUD": "2026-11-10T05:57:45+00:00",
+  "AUD2": "2026-11-10T05:57:45+00:00"
+ },
+ "noted_unactioned": [],
+ "loop_end": "GATE-LOOP-PASS",
+ "manual": [],
+ "stall": {
+  "auto": false,
+  "pairs": [],
+  "gate_ids": [
+   "F-1"
+  ]
+ }
+}

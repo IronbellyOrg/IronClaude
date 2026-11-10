@@ -1,0 +1,6 @@
+# Noted, unactioned (rejected by the verifier)
+
+| step | id | theme | heading | verifier reason |
+|---|---|---|---|---|
+| VF1 | B-2 | T3 | ### B-2 (BLOCKING): the P0 acceptance check cannot pass for a command whose report is not a YAML contract | The quoted text exists and the candidate does route step 4 to `REPORT.md`. The failure needs `REPORT.md` to be something other than a YAML mapping with `status` and `command`. The candidate never states the format or contents of `REPORT.md`. The "no status field" premise rests only on `INV-B:49`, which is not in the workspace. |
+| VF1 | B-4 | other | ### B-4 (BLOCKING): `--unattended` auto-accepts reflect remediation, which lets the worker approve its own corrective work | The routing from spec:88 and spec:122 is as quoted. The wrong outcome, corrective work run with no person approving, needs the content of the headless auto-accept rule. The candidate does not define that rule. Its definition is in `remediation-handoff.md`, which is not in the workspace. The D2 principle at spec:236 is about implement Rulings, not reflect remediation. The finding also misstates SA-6 (spec:151): SA-6 says "`--unattended` reuses it and does not replace it", not that it does not require reuse. Spec:280 further says the candidate itself only assumes reflect treats an Orca worker as non-headless. |

@@ -1,0 +1,604 @@
+[
+ {
+  "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "bytes": 57763,
+  "group": "orig",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/repo-overlay/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/repo-overlay/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r3/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/history/spec-v1.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/history/spec-v1.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/history/spec-v1.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r1/ws/.dev/orca-command-refactor/specs/history/spec-v1.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r2/ws/.dev/orca-command-refactor/specs/history/spec-v1.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r4/ws/.dev/orca-command-refactor/specs/history/spec-v1.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r5/ws/.dev/orca-command-refactor/specs/history/spec-v1.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r6/ws/.dev/orca-command-refactor/specs/history/spec-v1.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r1/ws/.dev/orca-command-refactor/specs/history/spec-v1.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r2/ws/.dev/orca-command-refactor/specs/history/spec-v1.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r3/ws/.dev/orca-command-refactor/specs/history/spec-v1.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r4/ws/.dev/orca-command-refactor/specs/history/spec-v1.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r5/ws/.dev/orca-command-refactor/specs/history/spec-v1.md",
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r6/ws/.dev/orca-command-refactor/specs/history/spec-v1.md"
+  ],
+  "labels": [
+   "orig:orig",
+   "final:a2-r3",
+   "hist:a1-r1/spec-v1.md",
+   "hist:a1-r2/spec-v1.md",
+   "hist:a1-r3/spec-v1.md",
+   "hist:a2-r1/spec-v1.md",
+   "hist:a2-r2/spec-v1.md",
+   "hist:a2-r4/spec-v1.md",
+   "hist:a2-r5/spec-v1.md",
+   "hist:a2-r6/spec-v1.md",
+   "hist:a3-r1/spec-v1.md",
+   "hist:a3-r2/spec-v1.md",
+   "hist:a3-r3/spec-v1.md",
+   "hist:a3-r4/spec-v1.md",
+   "hist:a3-r5/spec-v1.md",
+   "hist:a3-r6/spec-v1.md"
+  ],
+  "groups": [
+   "orig",
+   "final",
+   "hist"
+  ]
+ },
+ {
+  "sha256": "dfd8eb09ad658caf27fb1ccbd22af2c367bacfaff3af8eab38b6eb4f622b5aad",
+  "bytes": 95578,
+  "group": "final",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+  ],
+  "labels": [
+   "final:a1-r1"
+  ],
+  "groups": [
+   "final"
+  ]
+ },
+ {
+  "sha256": "95746463446db9b44a66e9389562c81d93a8d4e3fcaaec808dc338416eae8287",
+  "bytes": 103222,
+  "group": "final",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+  ],
+  "labels": [
+   "final:a1-r2"
+  ],
+  "groups": [
+   "final"
+  ]
+ },
+ {
+  "sha256": "7492365d5c2762de22b8891da8bbf57aa26adebbb515942890f731fdffd2f096",
+  "bytes": 90054,
+  "group": "final",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+  ],
+  "labels": [
+   "final:a1-r3"
+  ],
+  "groups": [
+   "final"
+  ]
+ },
+ {
+  "sha256": "f42ebd1cb0922207da16c10e49e26f992ea80bee8c020e73ba1dacefbcfd5f95",
+  "bytes": 58099,
+  "group": "final",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+  ],
+  "labels": [
+   "final:a2-r1"
+  ],
+  "groups": [
+   "final"
+  ]
+ },
+ {
+  "sha256": "bbc5da09c16d99c761039d7df263e9ff3629635be3ec1f834b924b06575af75f",
+  "bytes": 58510,
+  "group": "final",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+  ],
+  "labels": [
+   "final:a2-r2"
+  ],
+  "groups": [
+   "final"
+  ]
+ },
+ {
+  "sha256": "7d31f7c49bc684b022504fe6730429f5c5b09ff3a76841344026b64dde9565a6",
+  "bytes": 57927,
+  "group": "final",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r4/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r4/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+  ],
+  "labels": [
+   "final:a2-r4"
+  ],
+  "groups": [
+   "final"
+  ]
+ },
+ {
+  "sha256": "7cfc46955e89212267b7b42612208b7b453942bd61bda42b47e3e96f605b89ff",
+  "bytes": 58629,
+  "group": "final",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r5/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r5/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+  ],
+  "labels": [
+   "final:a2-r5"
+  ],
+  "groups": [
+   "final"
+  ]
+ },
+ {
+  "sha256": "5214f80e3dc9557f5cf50e915b26edd24f7757a9ce7975ec766b78482cde7fd6",
+  "bytes": 57880,
+  "group": "final",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r6/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r6/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+  ],
+  "labels": [
+   "final:a2-r6"
+  ],
+  "groups": [
+   "final"
+  ]
+ },
+ {
+  "sha256": "d1f34e4bb75f645e00e9b421dc8abdf0366d981ef45c7dfcc8f6689db8833a6a",
+  "bytes": 57973,
+  "group": "final",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r1/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+  ],
+  "labels": [
+   "final:a3-r1"
+  ],
+  "groups": [
+   "final"
+  ]
+ },
+ {
+  "sha256": "466dcf239d1cdea564cc23de1d5abe284de1d002582065afb592d5d4494fa5a3",
+  "bytes": 59034,
+  "group": "final",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r2/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+  ],
+  "labels": [
+   "final:a3-r2"
+  ],
+  "groups": [
+   "final"
+  ]
+ },
+ {
+  "sha256": "0af4c9147b1078d164edae3da1719df0954c532ee06138e07f894bc91e1ab096",
+  "bytes": 58196,
+  "group": "final",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r3/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r3/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+  ],
+  "labels": [
+   "final:a3-r3"
+  ],
+  "groups": [
+   "final"
+  ]
+ },
+ {
+  "sha256": "92073bce9aa934458a66ff79344ce2e439141e3c08d2246944949c626f472a09",
+  "bytes": 57873,
+  "group": "final",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r4/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r4/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+  ],
+  "labels": [
+   "final:a3-r4"
+  ],
+  "groups": [
+   "final"
+  ]
+ },
+ {
+  "sha256": "5d3d225a6ef33d0f0c3eb9b745dd4e780b4ca5a0b2dd745dd00ce966449d2b61",
+  "bytes": 58448,
+  "group": "final",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r5/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r5/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+  ],
+  "labels": [
+   "final:a3-r5"
+  ],
+  "groups": [
+   "final"
+  ]
+ },
+ {
+  "sha256": "83f24502ee791d296bebd644adce8eba84b0a7bccbb076f090415ba276880733",
+  "bytes": 59941,
+  "group": "final",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r6/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r6/ws/.dev/orca-command-refactor/specs/orca-worker-contract-spec.md"
+  ],
+  "labels": [
+   "final:a3-r6"
+  ],
+  "groups": [
+   "final"
+  ]
+ },
+ {
+  "sha256": "51d8a83eefd5bd30ab385153e09e9d5edd96b411bfb1065c937c39d193eeae21",
+  "bytes": 80732,
+  "group": "hist",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r1/ws/.dev/orca-command-refactor/specs/history/spec-v2.md"
+  ],
+  "labels": [
+   "hist:a1-r1/spec-v2.md"
+  ],
+  "groups": [
+   "hist"
+  ]
+ },
+ {
+  "sha256": "17479b82d914ec92bfca3e0b3c09474faf485af426822cee887df371ddc48fc3",
+  "bytes": 83303,
+  "group": "hist",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r2/ws/.dev/orca-command-refactor/specs/history/spec-v2.md"
+  ],
+  "labels": [
+   "hist:a1-r2/spec-v2.md"
+  ],
+  "groups": [
+   "hist"
+  ]
+ },
+ {
+  "sha256": "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d",
+  "bytes": 71195,
+  "group": "hist",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a1-r3/ws/.dev/orca-command-refactor/specs/history/spec-v2.md"
+  ],
+  "labels": [
+   "hist:a1-r3/spec-v2.md"
+  ],
+  "groups": [
+   "hist"
+  ]
+ },
+ {
+  "sha256": "49b44eed9e9476353afbf46c4ab057a94b41cde7cfd310c3fc03ba949d765180",
+  "bytes": 58349,
+  "group": "hist",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r2/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a2-r2/ws/.dev/orca-command-refactor/specs/history/spec-v2.md"
+  ],
+  "labels": [
+   "hist:a2-r2/spec-v2.md"
+  ],
+  "groups": [
+   "hist"
+  ]
+ },
+ {
+  "sha256": "cf9b3e748906ea7675896ba4ee5a7993c98b0ab7a8ec22a0e9311df04e7ebb69",
+  "bytes": 59765,
+  "group": "hist",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r6/ws/.dev/orca-command-refactor/specs/history/spec-v2.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs/a3-r6/ws/.dev/orca-command-refactor/specs/history/spec-v2.md"
+  ],
+  "labels": [
+   "hist:a3-r6/spec-v2.md"
+  ],
+  "groups": [
+   "hist"
+  ]
+ },
+ {
+  "sha256": "b7362498843057fcbfcb85d6a118b1b308183469fef2502fb3f9367094395fec",
+  "bytes": 82643,
+  "group": "ref",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v2-after-round1.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v2-after-round1.md"
+  ],
+  "labels": [
+   "ref:spec-v2-after-round1.md"
+  ],
+  "groups": [
+   "ref"
+  ]
+ },
+ {
+  "sha256": "8235ebb569ee642c4fe9c1f689dd5913ea81ee9b7c7e52a37c1456989e1743e9",
+  "bytes": 92194,
+  "group": "ref",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v3-after-round2.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v3-after-round2.md"
+  ],
+  "labels": [
+   "ref:spec-v3-after-round2.md"
+  ],
+  "groups": [
+   "ref"
+  ]
+ },
+ {
+  "sha256": "5d3cb2c86eb9d71a04607650fb87ec2a872e322436b80a63ac1e10665b98d128",
+  "bytes": 89089,
+  "group": "ref",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v4-after-round3.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/exp346/.dev/experiments/346-validation/phase2/S1/inputs/reference-snapshots/spec-v4-after-round3.md"
+  ],
+  "labels": [
+   "ref:spec-v4-after-round3.md"
+  ],
+  "groups": [
+   "ref"
+  ]
+ },
+ {
+  "sha256": "b33781f8a6ec449ba0faa6543201185cb4d27ce7f2cc6f00534763734df6d520",
+  "bytes": 3282,
+  "group": "pos",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p5/docs/seeded.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p5/docs/seeded.md"
+  ],
+  "labels": [
+   "pos:seeded"
+  ],
+  "groups": [
+   "pos"
+  ]
+ },
+ {
+  "sha256": "71b3f5729b19a9e0c08e42bd2f4fd26e06f021ec7abfb7b6cd16a598c3ad82a9",
+  "bytes": 2654,
+  "group": "pos",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p5/docs/cand_deletion.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p5/docs/cand_deletion.md"
+  ],
+  "labels": [
+   "pos:cand_deletion"
+  ],
+  "groups": [
+   "pos"
+  ]
+ },
+ {
+  "sha256": "42a38753c0df0dd136e1355a56d4ff5e3eee6a71edc9c06213464d10bec82616",
+  "bytes": 2935,
+  "group": "pos",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p5/docs/cand_regression.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p5/docs/cand_regression.md"
+  ],
+  "labels": [
+   "pos:cand_regression"
+  ],
+  "groups": [
+   "pos"
+  ]
+ },
+ {
+  "sha256": "361ee250973583cc6070f0fc82025c2017dd2659a5533f0dca31b83ba307ed71",
+  "bytes": 2783,
+  "group": "clean",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p5/docs/clean.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p5/docs/clean.md"
+  ],
+  "labels": [
+   "clean:clean"
+  ],
+  "groups": [
+   "clean"
+  ]
+ },
+ {
+  "sha256": "a0fcaa3030578772df2dd46a2b6965e8362b0fa6ab23b8510f2f234d5e36bf1e",
+  "bytes": 2787,
+  "group": "clean",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p5/docs/minor.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p5/docs/minor.md"
+  ],
+  "labels": [
+   "clean:minor"
+  ],
+  "groups": [
+   "clean"
+  ]
+ },
+ {
+  "sha256": "091df47422c4f3ffcb133f9c811066f00870f6c23c7aaafbb0432a7206da0410",
+  "bytes": 98243,
+  "group": "other",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md"
+  ],
+  "labels": [
+   "other:docs/developer-guide/SuperClaude-Developer-Guide-Commands-Skills-Agents.md"
+  ],
+  "groups": [
+   "other"
+  ]
+ },
+ {
+  "sha256": "6eee8621bff4576de7a9a3f750ae4dbb2ba91f9bc864170e3c2c5e6309100e32",
+  "bytes": 83849,
+  "group": "other",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher.md"
+  ],
+  "labels": [
+   "other:docs/designs/issue-watcher.md"
+  ],
+  "groups": [
+   "other"
+  ]
+ },
+ {
+  "sha256": "687c2911f5beac2508d0c7570c7a66e5ece8b29da268d79775db9259147220f5",
+  "bytes": 75712,
+  "group": "other",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-launch-level-hook.md"
+  ],
+  "labels": [
+   "other:docs/designs/sc-issue-launch-level-hook.md"
+  ],
+  "groups": [
+   "other"
+  ]
+ },
+ {
+  "sha256": "5c71b428b4d2d0ad66f5a6e7c3a9fb25a7458b1ff13d53ff2b02b5abd66e9de9",
+  "bytes": 69721,
+  "group": "other",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/user-guide/commands.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/user-guide/commands.md"
+  ],
+  "labels": [
+   "other:docs/user-guide/commands.md"
+  ],
+  "groups": [
+   "other"
+  ]
+ },
+ {
+  "sha256": "a5de26814d9232f30a617197e5e8feeb07a44037c50c64d80d6a3e2ebafedfde",
+  "bytes": 67807,
+  "group": "other",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/sprint-cli-deep-dive.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/sprint-cli-deep-dive.md"
+  ],
+  "labels": [
+   "other:docs/sprint-cli-deep-dive.md"
+  ],
+  "groups": [
+   "other"
+  ]
+ },
+ {
+  "sha256": "87c18cb95ca05069545e22f12d723960e98667daf8014a0f1fe4869731578aab",
+  "bytes": 66323,
+  "group": "other",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-claim-pipeline-flag.md"
+  ],
+  "labels": [
+   "other:docs/designs/sc-issue-claim-pipeline-flag.md"
+  ],
+  "groups": [
+   "other"
+  ]
+ },
+ {
+  "sha256": "a2b614530d4d2f9c44c81623f924ed82b9cee7814f0dfe24c94eeb8a08916f3b",
+  "bytes": 62364,
+  "group": "other",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/guides/roadmap-cli-tools-release-guide.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/guides/roadmap-cli-tools-release-guide.md"
+  ],
+  "labels": [
+   "other:docs/guides/roadmap-cli-tools-release-guide.md"
+  ],
+  "groups": [
+   "other"
+  ]
+ },
+ {
+  "sha256": "cc1009c39f64ee96a6f00833d08671bc3fa45654e0ce98d1aa13ec77bf232ddb",
+  "bytes": 58894,
+  "group": "other",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-command.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/sc-issue-command.md"
+  ],
+  "labels": [
+   "other:docs/designs/sc-issue-command.md"
+  ],
+  "groups": [
+   "other"
+  ]
+ },
+ {
+  "sha256": "7ca69313c5868bfdfd1c5c0fa9578c00f4661365db8219a53df506743a799176",
+  "bytes": 55831,
+  "group": "other",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher-setup.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/designs/issue-watcher-setup.md"
+  ],
+  "labels": [
+   "other:docs/designs/issue-watcher-setup.md"
+  ],
+  "groups": [
+   "other"
+  ]
+ },
+ {
+  "sha256": "cd0ac77196b300ab85121193c5a286cb3f584937a54e5d35cce22005f30fa499",
+  "bytes": 47982,
+  "group": "other",
+  "path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/guides/tdd-skill-release-guide.md",
+  "paths": [
+   "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p13/clones/pn2/docs/guides/tdd-skill-release-guide.md"
+  ],
+  "labels": [
+   "other:docs/guides/tdd-skill-release-guide.md"
+  ],
+  "groups": [
+   "other"
+  ]
+ }
+]

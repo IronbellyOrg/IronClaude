@@ -1,0 +1,133 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "091df47422c4f3ffcb133f9c811066f00870f6c23c7aaafbb0432a7206da0410",
+  "doc_bytes": 98243,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        122,
+        122
+      ],
+      "quote": "The worker contract `~/.claude/WORKER-CONTRACT.md` is installed beside `CLAUDE.md` too. It is read on demand by an Orca coordinator and, from P1, by a worker applying the brief guard, and it is nev...",
+      "other_lines": null,
+      "message": "P1 is referenced but never defined (4 references)."
+    },
+    {
+      "lint_id": "LINT-REF-2",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        306,
+        306
+      ],
+      "quote": "| `## Unattended mode` | This command's gate resolutions, report file, report directory flag and nested invocations under `--unattended` ([section 7.7](#77-orca-orchestration-commands-as-workers)) ...",
+      "other_lines": null,
+      "message": "P0 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-3",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        336,
+        336
+      ],
+      "quote": "- **Worker fit**: `/sc:spawn` is a never-as-worker command (section 7.7); `/sc:adversarial` is in the contract's ready-with-brief-constraints table. Such a command may fan out with the Agent tool (...",
+      "other_lines": null,
+      "message": "WC-7 is referenced but never defined (7 references)."
+    },
+    {
+      "lint_id": "LINT-REF-4",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        353,
+        353
+      ],
+      "quote": "- **Worker fit**: outward actions and the command's own commit step are off under `--unattended` (WC-9); per the rollout plan, `/sc:implement` is converted in P4. See [section 7.7](#77-orca-orchest...",
+      "other_lines": null,
+      "message": "P4 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-5",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        484,
+        484
+      ],
+      "quote": "- Under `--unattended` nothing asks the person, so an agent resolves a gate the way its command's `## Unattended mode` section says (this guide's convention); only the worker session may put a bloc...",
+      "other_lines": null,
+      "message": "WC-3 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-6",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        802,
+        802
+      ],
+      "quote": "- [ ] **No Orca dispatch**: no call to `worker-start`, `dispatch` or `task-create` in the skill, its refs or scripts (WC-8, [section 7.7](#77-orca-orchestration-commands-as-workers)), and, per the ...",
+      "other_lines": null,
+      "message": "SA-2 is referenced but never defined (3 references)."
+    },
+    {
+      "lint_id": "LINT-REF-7",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        987,
+        987
+      ],
+      "quote": "- Per the rollout plan (SA-1), without `--unattended` every command behaves exactly as it does today: the same prompts, approval gates, default values, output paths and outward defaults.",
+      "other_lines": null,
+      "message": "SA-1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-8",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        1001,
+        1001
+      ],
+      "quote": "- **WC-4, the report directory.** The brief passes exactly one report directory. A command uses its own directory-valued `--output` or `--output-dir` as the report directory; `--report-dir <dir>` i...",
+      "other_lines": null,
+      "message": "WC-5 is referenced but never defined (2 references)."
+    }
+  ],
+  "census": {
+    "rfc2119": {
+      "the-three-tier-architecture": {
+        "MUST": 1,
+        "SHALL": 0,
+        "SHOULD": 0,
+        "MAY": 0
+      },
+      "the-activation-pattern": {
+        "MUST": 1,
+        "SHALL": 0,
+        "SHOULD": 0,
+        "MAY": 0
+      }
+    },
+    "rfc2119_total": {
+      "MUST": 2,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

@@ -1,0 +1,49 @@
+# PN2 decision constants. Data, not code: harness.py / analysis.py read this file and hold no threshold of their own.
+# D1 (owner): the three zones and the numeric thresholds of PLAN-2 section 2 are unchanged.
+# D2 (owner): cost is judged on LOOP-ONLY output tokens (A); loop + one audit (B) is reported next to it and never decides.
+# D6 (owner): a cost limit L written against loop + audit (R_B) is converted with
+#             R_LOOP_limit = (L * 169468 - 69044) / 100424, rounded to two decimals.
+#             Cost never stops, truncates or skips a run; it enters the verdict only here, after the runs completed.
+
+[baseline]            # Stage 2 arm 3, n=6, mean per replicate, each message id counted once (C9.1)
+a_base = 100424       # loop only (R1, V1, R2, V2, R3)
+audit_base = 69044    # one frozen audit
+b_base = 169468       # a_base + audit_base (reported only, R_B)
+b_blk = 1.50          # mean blocking ids per audit over the 12 baseline audits
+growth_base_pct = 1.41
+r1_tokens_base = 50576
+
+[drop]                # any one of these (and no ADOPT) gives DROP
+blk_t_at_least = 1.50          # BLK_T >= B_BLK
+r_loop_above = 1.42            # post-hoc cost clause. original L = 1.25 on R_B -> (1.25*169468-69044)/100424 = 1.42
+pass_t_below = 0.8333333333    # 5/6
+growth_above_pct = 2.82
+
+[adopt]               # all of these, and no DROP
+blk_t_drop = 0.5               # BLK_T <= B_BLK - 0.5
+theme_ratio_at_most = 0.5      # THEME_T <= 0.5 * THEME_B
+r_loop_at_most = 1.25          # post-hoc cost clause. original L = 1.15 on R_B -> (1.15*169468-69044)/100424 = 1.2531 -> 1.25
+
+[validity]
+min_completed = 5              # fewer completed runs -> INCONCLUSIVE
+aud_gap_max = 0.75             # arm means of AUD and AUD2 differ by more -> INCONCLUSIVE
+
+[theme]
+# Hit themes of the live check set REF (offline-results.md, pass 2: HIT >= 0.5 on T1 and T2 over final documents).
+themes = ["T1", "T2"]
+
+[lint]
+checks = "REF"                 # live check set from Phase O (MP >= 0.8 and CLEAN = 0)
+product_ref = "448048aec24f4238f3974f8d273a4ec3624263fc"
+
+[strata]                       # D3
+sonnet_n = 6
+sonnet_extra = 3               # D4: one adaptive extension, only from INCONCLUSIVE, then decide at n = 9
+haiku_n = 4
+haiku_model = "haiku"          # loop workers only; AUD and AUD2 always sonnet
+haiku_failure_margin = 0.25    # Haiku harness-failure rate may exceed its baseline's by at most this (operationalizes "no inflated harness-failure rate")
+haiku_baseline = "p14/haiku-baseline/results.json"
+
+[launch]
+max_concurrent = 6
+lost_after_minutes = 25        # a launched prompt with no transcript after this long is relaunched once, then marked lost (liveness, not cost)

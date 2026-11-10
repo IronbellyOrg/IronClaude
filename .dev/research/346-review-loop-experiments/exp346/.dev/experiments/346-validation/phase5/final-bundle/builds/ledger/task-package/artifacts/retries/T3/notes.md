@@ -1,0 +1,4 @@
+0047c2b27973251d0eb09a98eae2c34de5c7b671
+A1 r1-1 F1.2 minor tests/skills/test_review_ledger_script.py:1092 ac=scope n,n,n,n test_close_in_revise_with_intact_tail_is_e_phase asserts E-PHASE only for a different report; an unchanged same report is replayed (identical-retry rule), a body-edited same report with its tail intact gives E-PHASE (reviewer probe), with no test of that case.
+A2 r2-1 F2.1 minor tests/skills/test_review_ledger_script.py:1129 ac=T3.AC2 n,n,n,n the row-count and grade baseline of the full-loop test is taken after the round-2 begin, not at row creation; the loop runs no answer, revert-unclaimed or new verify row.
+A2 r2-1 F2.2 minor tests/skills/test_review_ledger_script.py:1092 ac=T3.AC1 n,n,n,n same as F1.2: the intact-tail E-PHASE test gets E-PHASE from a different report; an unchanged same report replays.

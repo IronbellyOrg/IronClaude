@@ -1,0 +1,624 @@
+{
+  "schema": "review-lint/1",
+  "doc_sha256": "21f9a30849e58e904a88686ee3356524de9dc6d303a6a872e67ef04ab0a2622d",
+  "doc_bytes": 71195,
+  "checks": [
+    "REF",
+    "COUNT",
+    "KV",
+    "PHASE",
+    "PATH",
+    "RFC"
+  ],
+  "findings": [
+    {
+      "lint_id": "LINT-PATH-1",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        63,
+        63
+      ],
+      "quote": "| WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes one contract file, placed by this rule (finding 4): (i) when the caller passes a...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-2",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        63,
+        63
+      ],
+      "quote": "| WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes one contract file, placed by this rule (finding 4): (i) when the caller passes a...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`<dir>/return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-3",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        63,
+        63
+      ],
+      "quote": "| WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes one contract file, placed by this rule (finding 4): (i) when the caller passes a...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`<dir>/return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-4",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        63,
+        63
+      ],
+      "quote": "| WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes one contract file, placed by this rule (finding 4): (i) when the caller passes a...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-REF-1",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        77,
+        77
+      ],
+      "quote": "- **Start instruction (finding 5).** The brief tells the worker to start the command as its first action through the Skill tool (`skill` = the command's name, for example `sc:troubleshoot`; `args` ...",
+      "other_lines": null,
+      "message": "AC-0.4 is referenced but never defined (4 references)."
+    },
+    {
+      "lint_id": "LINT-PATH-5",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        89,
+        89
+      ],
+      "quote": "| adversarial | `--output <dir>`; never `--interactive` | contract, but filename not fixed | `--pipeline-resume` (pipeline mode only); else fresh dir | Fix the contract filename to `<output>/advers...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`<output>/adversarial/return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-6",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        90,
+        90
+      ],
+      "quote": "| brainstorm | `--output <dir>`; never `--interactive` | `<output>/return-contract.yaml` | `--resume-from <seed-brief>` | None (section and flag only, P1; finding 1) | `sk/sc-brainstorm-protocol/SK...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`<output>/return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-7",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        90,
+        90
+      ],
+      "quote": "| brainstorm | `--output <dir>`; never `--interactive` | `<output>/return-contract.yaml` | `--resume-from <seed-brief>` | None (section and flag only, P1; finding 1) | `sk/sc-brainstorm-protocol/SK...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`<output>/return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-8",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        94,
+        94
+      ],
+      "quote": "| reflect | no `--remediate`; `--no-promote` when the coordinator owns folder moves | `<output>/return-contract.yaml` | Fresh dir (`--promote-resume` covers promotion only) | Under `--unattended`, ...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`<output>/return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-9",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        94,
+        94
+      ],
+      "quote": "| reflect | no `--remediate`; `--no-promote` when the coordinator owns folder moves | `<output>/return-contract.yaml` | Fresh dir (`--promote-resume` covers promotion only) | Under `--unattended`, ...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`<output>/return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-10",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        97,
+        97
+      ],
+      "quote": "| troubleshoot | no `--fix` | `REPORT.md` (`report_path`); `return-contract.yaml` only with `--caller task-unified` today (`INV-B:242`) | Fresh dir | Under `--unattended`, write `return-contract.ya...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-11",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        97,
+        97
+      ],
+      "quote": "| troubleshoot | no `--fix` | `REPORT.md` (`report_path`); `return-contract.yaml` only with `--caller task-unified` today (`INV-B:242`) | Fresh dir | Under `--unattended`, write `return-contract.ya...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `<dir>/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-12",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        97,
+        97
+      ],
+      "quote": "| troubleshoot | no `--fix` | `REPORT.md` (`report_path`); `return-contract.yaml` only with `--caller task-unified` today (`INV-B:242`) | Fresh dir | Under `--unattended`, write `return-contract.ya...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-13",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        98,
+        98
+      ],
+      "quote": "| workflow | `--handoff none` | `.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | None (section and flag only, P1). The contract path is the generated `<id>` directory, which ...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`.dev/tasks/to-do/<id>/return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-14",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        124,
+        124
+      ],
+      "quote": "| roadmap | the \"Resume? [Y/n]\" prompt is replaced by the explicit resume flag (resume only when passed); `--interactive` refused | contract pointing at `roadmap.md` and siblings | reconcile the co...",
+      "other_lines": [
+        238,
+        238
+      ],
+      "message": "`.session-memory.md` has the basename of the template `<dir>/.session-memory.md` (line 238) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-REF-2",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        206,
+        206
+      ],
+      "quote": "Code block 2 (AC-C5 and AC-0.3; lists every removed line, so deleted bullets and removed frontmatter fences show up; only the `--- a/<path>` file header is dropped; the earlier pattern `^-[^-]` hid...",
+      "other_lines": null,
+      "message": "AC-0.3 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-REF-3",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        224,
+        224
+      ],
+      "quote": "| P0 | AC-0.1 | `uv run python -c \"from superclaude.cli.install_core import KNOWN_CORE_FILES; assert 'WORKER-CONTRACT.md' in KNOWN_CORE_FILES\"` | exits 0 |",
+      "other_lines": null,
+      "message": "AC-0.1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-4",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        225,
+        225
+      ],
+      "quote": "| P0 | AC-0.2 | `cmp src/superclaude/core/HOW-WE-WORK.md plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` and the level-table test the repo already runs (`CLAUDE.md:334`) | identical; t...",
+      "other_lines": null,
+      "message": "AC-0.2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-5",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        228,
+        228
+      ],
+      "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts over the commands changed so far (finding 1): each of the 14 commands of the P1 row has a `## Unattended mo...",
+      "other_lines": null,
+      "message": "AC-1.1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-PATH-15",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        228,
+        228
+      ],
+      "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts over the commands changed so far (finding 1): each of the 14 commands of the P1 row has a `## Unattended mo...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-16",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        228,
+        228
+      ],
+      "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts over the commands changed so far (finding 1): each of the 14 commands of the P1 row has a `## Unattended mo...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `<dir>/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-17",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        228,
+        228
+      ],
+      "quote": "| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts over the commands changed so far (finding 1): each of the 14 commands of the P1 row has a `## Unattended mo...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-REF-6",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        229,
+        229
+      ],
+      "quote": "| P1 | AC-1.2 | 7.2 live check on each P1 command with `--unattended --output <dir>` | all steps pass |",
+      "other_lines": null,
+      "message": "AC-1.2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-7",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        230,
+        230
+      ],
+      "quote": "| P1 | AC-1.3 | For two P1 commands, run once in a plain session with no `--unattended` and no new output flag (for example `claude -p \"/sc:analyze src/superclaude/cli/install_core.py\"` in a scratc...",
+      "other_lines": null,
+      "message": "AC-1.3 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-PATH-18",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        230,
+        230
+      ],
+      "quote": "| P1 | AC-1.3 | For two P1 commands, run once in a plain session with no `--unattended` and no new output flag (for example `claude -p \"/sc:analyze src/superclaude/cli/install_core.py\"` in a scratc...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-19",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        230,
+        230
+      ],
+      "quote": "| P1 | AC-1.3 | For two P1 commands, run once in a plain session with no `--unattended` and no new output flag (for example `claude -p \"/sc:analyze src/superclaude/cli/install_core.py\"` in a scratc...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `<dir>/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-20",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        230,
+        230
+      ],
+      "quote": "| P1 | AC-1.3 | For two P1 commands, run once in a plain session with no `--unattended` and no new output flag (for example `claude -p \"/sc:analyze src/superclaude/cli/install_core.py\"` in a scratc...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-REF-8",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        231,
+        231
+      ],
+      "quote": "| P1 | AC-1.4 | `grep -n 'return-contract.yaml' src/superclaude/skills/sc-adversarial-protocol/SKILL.md` and the workflow return-contract ref | adversarial names one fixed path; workflow states tha...",
+      "other_lines": null,
+      "message": "AC-1.4 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-9",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        232,
+        232
+      ],
+      "quote": "| P2 | AC-2.1 | `test_worker_contract.py` gains one assertion per gate listed in the section 3 row, for example the auggie-review section names both `--no-post-pr` and `--no-remediation-offer` | pa...",
+      "other_lines": null,
+      "message": "AC-2.1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-10",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        233,
+        233
+      ],
+      "quote": "| P2 | AC-2.2 | Gate-trigger run per P2 command: a 7.2 live check with input that hits the gate (for example `/sc:tdd \"auth\" --unattended --output <file>` with a bare topic, whose contract is `<fil...",
+      "other_lines": null,
+      "message": "AC-2.2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-11",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        234,
+        234
+      ],
+      "quote": "| P2 | AC-2.3 | Happy-path run per P2 command with every required flag in the brief | 7.2 passes with `--outcome succeeded` |",
+      "other_lines": null,
+      "message": "AC-2.3 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-12",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        235,
+        235
+      ],
+      "quote": "| P2 | AC-2.4 | `/sc:auggie-review <PR> --unattended` on a fork PR; before and after, `gh api repos/IronbellyOrg/IronClaude/pulls/<PR>/reviews --jq length` and `.../pulls/<PR>/comments --jq length`...",
+      "other_lines": null,
+      "message": "AC-2.4 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-13",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        236,
+        236
+      ],
+      "quote": "| P2 | AC-2.5 | A person runs `/sc:cli-eval run` and `/sc:cleanup <dir> --interactive` in a plain session (manual check) | the suite menu and the approval prompts appear exactly as before (SA-1) |",
+      "other_lines": null,
+      "message": "AC-2.5 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-14",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        237,
+        237
+      ],
+      "quote": "| P3 | AC-3.1 | `test_worker_contract.py` asserts that `cmd/validate-roadmap.md` and `sk/sc-validate-roadmap-protocol/SKILL.md` name the same report filename, and that every flag `cmd/roadmap.md` l...",
+      "other_lines": null,
+      "message": "AC-3.1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-15",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        238,
+        238
+      ],
+      "quote": "| P3 | AC-3.2 | `/sc:roadmap <spec> --unattended --output <dir>` with an existing `<dir>/.session-memory.md` and no resume flag | starts fresh, no `[Y/n]` in the transcript, contract written |",
+      "other_lines": null,
+      "message": "AC-3.2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-16",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        239,
+        239
+      ],
+      "quote": "| P3 | AC-3.3 | `test -d` on the default target in `cmd/validate-tests.md`; `/sc:validate-tests --report <path> --unattended` | directory exists; report file exists |",
+      "other_lines": null,
+      "message": "AC-3.3 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-17",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        240,
+        240
+      ],
+      "quote": "| P3 | AC-3.4 | Two workers in one worktree each run `/sc:save --unattended`; `sha256sum .superclaude/memory/pm_context.md .superclaude/memory/last_session.md .superclaude/memory/next_actions.md` b...",
+      "other_lines": null,
+      "message": "AC-3.4 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-18",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        241,
+        241
+      ],
+      "quote": "| P4 | AC-4.1 | `/sc:implement <plan> --unattended` on a plan with one acceptance criterion that cannot be met | ledger shows the halt; contract `status: blocked`; outcome `failed`; the ledger reco...",
+      "other_lines": null,
+      "message": "AC-4.1 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-19",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        242,
+        242
+      ],
+      "quote": "| P4 | AC-4.2 | `/sc:post-release <version> --unattended --output <dir>` with no authorization flags | no install, VM, commit or PR: `git log -1` unchanged and no new PR from `gh pr list --repo Iro...",
+      "other_lines": null,
+      "message": "AC-4.2 is referenced but never defined."
+    },
+    {
+      "lint_id": "LINT-REF-20",
+      "check": "REF",
+      "class": "fact",
+      "lines": [
+        243,
+        243
+      ],
+      "quote": "| P4 | AC-4.3 | If D3 allows pr-submit as a worker: one 7.2 run on a scratch fork PR; `worker-read` transcript inspected for Bash waits | heartbeats arrive at most 5 minutes apart; no single tool c...",
+      "other_lines": null,
+      "message": "AC-4.3 is referenced but never defined (2 references)."
+    },
+    {
+      "lint_id": "LINT-PATH-21",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        294,
+        294
+      ],
+      "quote": "| Report shape | A per-command format; a new shared file name; reuse `return-contract.yaml` | Reuse: workflow, brainstorm, reflect and adversarial already write `return-contract.yaml` (`INV-B:272`,...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `.dev/tasks/to-do/<id>/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-22",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        294,
+        294
+      ],
+      "quote": "| Report shape | A per-command format; a new shared file name; reuse `return-contract.yaml` | Reuse: workflow, brainstorm, reflect and adversarial already write `return-contract.yaml` (`INV-B:272`,...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `<dir>/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-PATH-23",
+      "check": "PATH",
+      "class": "possible",
+      "lines": [
+        294,
+        294
+      ],
+      "quote": "| Report shape | A per-command format; a new shared file name; reuse `return-contract.yaml` | Reuse: workflow, brainstorm, reflect and adversarial already write `return-contract.yaml` (`INV-B:272`,...",
+      "other_lines": [
+        63,
+        63
+      ],
+      "message": "`return-contract.yaml` has the basename of the template `<output>/adversarial/return-contract.yaml` (line 63) but does not fit it."
+    },
+    {
+      "lint_id": "LINT-COUNT-1",
+      "check": "COUNT",
+      "class": "fact",
+      "lines": [
+        322,
+        322
+      ],
+      "quote": "14. Independent citation check: a fresh `evidence-validator` agent re-read about 340 citations in this spec on 2026-11-02 and found 9 defects (5 overstated, 3 wrong or missing lines, 1 low). All 9 ...",
+      "other_lines": [
+        323,
+        323
+      ],
+      "message": "The text says \"All 9 were\" but the list next to it has 4 items."
+    }
+  ],
+  "census": {
+    "rfc2119": {},
+    "rfc2119_total": {
+      "MUST": 0,
+      "SHALL": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    }
+  }
+}

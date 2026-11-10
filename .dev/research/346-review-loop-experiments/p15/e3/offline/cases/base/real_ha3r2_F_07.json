@@ -1,0 +1,29 @@
+{
+ "author_intent": {
+  "reviewer": "haiku",
+  "reviewer_blocking": true,
+  "run": "a3-r2"
+ },
+ "case_id": "real_ha3r2_F_07",
+ "category": "real",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "other:8",
+ "packet": {
+  "candidate_sha": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "finding_id": "F-07",
+  "finding_section": "**F-07. Two ready-today commands can stall with no `worker_done`.**\n\u00a73.1 (line 81) says the ready commands \"run as workers now if the brief uses the stated flags\". Two rows depend on prompts that the stated flags do not stop:\n- tdd (line 90): the nested `/task` \"ask the user\" lines are unflagged until P2 (the row says so). `/task` asks when several task files match (INV-B:219, citing sk/task/SKILL.md:49). The brief's precise prompt and `--output` do not prevent this.\n- troubleshoot (line 91): the `--depth deep` short-input STOP that asks the user is unflagged until P2 (INV-B:239, citing sk/sc-troubleshoot-protocol/SKILL.md:57). A brief that uses `--depth deep` with a short input stalls.\nAn implementer who follows \u00a73.1 dispatches these and gets a silent stall, which WC-2 says must not happen and which the coordinator sees only through `agentWait` (\u00a77.2 step 2).\nFix: list the triggering inputs in the \"Brief must pass\" column (for tdd, a specific component with a known task file; for troubleshoot, no `--depth deep`), or move both rows out of ready-today until P2."
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p14/haiku-baseline/runs/a3-r2/ws/.dev/orca-command-refactor/review/round1.md"
+  ],
+  "url": null
+ },
+ "split": "base",
+ "variant": "base"
+}

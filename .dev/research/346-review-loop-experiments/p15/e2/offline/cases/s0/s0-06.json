@@ -1,0 +1,38 @@
+{
+ "author_intent": {
+  "category": "theme-T2",
+  "cluster": "D1",
+  "expect": "defect",
+  "layer": "real",
+  "theme": "T2"
+ },
+ "case_id": "s0-06",
+ "category": "theme-T2",
+ "data_classes": [
+  "s1_spec"
+ ],
+ "family": "s1-original",
+ "group": "s1-original",
+ "packet": {
+  "defect": "WC-4 puts the contract at `<output-dir>/return-contract.yaml` in the directory the coordinator passed, but the adversarial row puts it in a subdirectory `<output>/adversarial/`, so the coordinator cannot know the path from the brief alone.",
+  "doc": "offline/docs/doc-d3cdbe573e.md",
+  "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "evidence_quotes": [
+   "the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed",
+   "Fix the contract filename to `<output>/adversarial/return-contract.yaml` (P1)"
+  ],
+  "evidence_set": [
+   "P0044",
+   "P0060"
+  ]
+ },
+ "source": {
+  "kind": "s1",
+  "paths": [
+   "offline/docs/doc-d3cdbe573e.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "real"
+}

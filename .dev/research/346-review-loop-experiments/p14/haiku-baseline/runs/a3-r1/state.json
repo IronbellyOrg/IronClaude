@@ -1,0 +1,107 @@
+{
+ "run": "a3-r1",
+ "arm": 3,
+ "rep": 1,
+ "done": [
+  "R1",
+  "V1",
+  "R2",
+  "V2",
+  "R3",
+  "AUD"
+ ],
+ "log": {
+  "R1": {
+   "output_exists": true,
+   "report_bytes": 19503,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {},
+   "blocking_ids": "F-1, F-2, F-3, F-4",
+   "blocking_word_count": 10,
+   "spec_after": {
+    "bytes": 57763,
+    "lines": 285,
+    "sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+   },
+   "output_tokens": 135584
+  },
+  "V1": {
+   "output_exists": true,
+   "report_bytes": 3596,
+   "spec_after": {
+    "bytes": 59286,
+    "lines": 286,
+    "sha256": "24081c933a7fbedd6b461f8f09d06fe7d90105a4b5e12f7221ed9cf63dc4b40e"
+   },
+   "output_tokens": 84228
+  },
+  "R2": {
+   "output_exists": true,
+   "report_bytes": 20384,
+   "verdict": "FAIL",
+   "review_header": [
+    "2"
+   ],
+   "labels": {
+    "MINOR": 2
+   },
+   "blocking_ids": "F-5, F-6",
+   "blocking_word_count": 9,
+   "spec_after": {
+    "bytes": 59286,
+    "lines": 286,
+    "sha256": "24081c933a7fbedd6b461f8f09d06fe7d90105a4b5e12f7221ed9cf63dc4b40e"
+   },
+   "output_tokens": 95954
+  },
+  "V2": {
+   "output_exists": true,
+   "report_bytes": 4376,
+   "spec_after": {
+    "bytes": 60147,
+    "lines": 286,
+    "sha256": "e9171857b793b520e3e6291ce69b77aaa2e13a035d1f119ba47eb5a42eff8f83"
+   },
+   "output_tokens": 36243
+  },
+  "R3": {
+   "output_exists": true,
+   "report_bytes": 16404,
+   "verdict": "FAIL",
+   "review_header": [
+    "3"
+   ],
+   "labels": {},
+   "blocking_ids": null,
+   "blocking_word_count": 9,
+   "spec_after": {
+    "bytes": 60147,
+    "lines": 286,
+    "sha256": "e9171857b793b520e3e6291ce69b77aaa2e13a035d1f119ba47eb5a42eff8f83"
+   },
+   "output_tokens": 116108
+  },
+  "AUD": {
+   "output_exists": true,
+   "report_bytes": 29426,
+   "verdict": "FAIL",
+   "review_header": [
+    "1"
+   ],
+   "labels": {
+    "CRITICAL": 5,
+    "MAJOR": 1,
+    "MINOR": 2
+   },
+   "blocking_ids": "B-1, B-2",
+   "blocking_word_count": 9,
+   "spec_audited": {
+    "bytes": 60147
+   },
+   "output_tokens": 123712
+  }
+ }
+}

@@ -1,0 +1,58 @@
+{
+  "_comment": "Pre-registered decision constants for A/B design 3 (final whole-document gate). Written once from plan sections 2-3 and owner decisions D1-D6; read by harness.py analyze. No threshold literal lives in code.",
+  "design": "b3",
+  "strata": {"sonnet": {"prefix": "b3-r", "loop_model": "sonnet"}, "haiku": {"prefix": "b3h-r", "loop_model": "haiku"}},
+  "N_SONNET": 6,
+  "N_HAIKU": 4,
+  "N_EXTEND": 3,
+  "min_completed_sonnet": {"6": 5, "9": 8},
+  "_comment_min_completed": "Fewer completed Sonnet runs than this makes the result INCONCLUSIVE (plan 3, F; 3c).",
+  "SPEC_BYTES": 57763,
+  "tokens": {
+    "_comment": "D2: loop-only A decides; B = loop + one audit is reported only. Message ids counted once.",
+    "A_BASE": 100424,
+    "AUD_BASE": 69044,
+    "B_BASE": 169468
+  },
+  "baseline_defaults": {
+    "_comment": "Stage 2 arm 3 (a3-r1..r6), one audit each. Replaced by the pooled 12-audit values when baseline-audit2 reports exist.",
+    "B_PASS": [6, 6],
+    "B_REV": 2.17,
+    "B_GROWTH": 0.0141,
+    "B_BLK": 1.5,
+    "B_AUDFAIL": [5, 6],
+    "B_THEME": [5, 6]
+  },
+  "baseline_audit2_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p12/baseline-audit2",
+  "baseline_runs_dir": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p11/runs",
+  "haiku_baseline_path": "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/results.json",
+  "rules": {
+    "_comment": "Order of evaluation: DROP-1, DROP-2, DROP-3, ADOPT, else INCONCLUSIVE. Fractions are [numerator, denominator] and are compared by cross-multiplication; they reproduce the plan's counts (n=6: 10/12, 4/6, 8/12; n=9: 15/18, 6/9, 12/18).",
+    "DROP1_theme_rate_min": [4, 5],
+    "DROP2_final_pass_rate_min": [4, 6],
+    "DROP3_r_loop_max": {
+      "value": 2.35,
+      "original_L_on_R_B": 1.8,
+      "formula": "R_LOOP_limit = (L * 169468 - 69044) / 100424, rounded to 2 decimals (owner decision D6)",
+      "_comment": "The plan's DROP-3 limit 1.8 was stated against loop+audit (R_B). D6 converts it to a loop-only limit on R_LOOP. Cost is judged post-hoc only; it never stops a run."
+    },
+    "ADOPT_blk_factor": 0.67,
+    "ADOPT_audfail_factor": 0.8,
+    "D6_converted_limits_reference": {
+      "L=1.8": 2.35, "L=2.0": 2.69, "L=1.25": 1.42, "L=1.5": 1.84, "L=1.65": 2.10
+    }
+  },
+  "haiku_condition": {
+    "_comment": "3b: ADOPT additionally requires 1 - HR > 0 and a Haiku harness-failure rate at most this much above the Haiku baseline's (one run in four).",
+    "max_harness_failure_excess": [1, 4]
+  },
+  "extension": {
+    "_comment": "3c / D4: once, only after a Sonnet n=6 outcome INCONCLUSIVE (after the replica-agreement check, before the Haiku condition); never a second time.",
+    "allowed_when_sonnet_outcome": "INCONCLUSIVE",
+    "run_names": ["b3-r7", "b3-r8", "b3-r9"]
+  },
+  "cost_policy": {
+    "_comment": "D6: no loop, replicate, wave or experiment is ever stopped, aborted, truncated or skipped because of token or dollar cost. Cost is evaluated only after runs complete (post-hoc clause DROP-3). Review-count caps (5 reviews, 3 fix cycles), the scoped cap and the stall rule are not cost rules.",
+    "mid_run_cost_kill": false
+  }
+}

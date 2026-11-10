@@ -1,0 +1,46 @@
+{
+ "author_intent": {
+  "inherits": "real_a1r3_F2",
+  "perturbation": "paraphrase"
+ },
+ "base_case_id": "real_a1r3_F2",
+ "case_id": "real_a1r3_F2~paraphrase",
+ "category": "real",
+ "confirmable_from_packet": "yes",
+ "data_classes": [
+  "s1_spec",
+  "stage2_artifact"
+ ],
+ "family": "s1_first_review",
+ "group": "D3",
+ "packet": {
+  "base_case_id": "real_a1r3_F2",
+  "code_outcome": "OK",
+  "state": {
+   "evidence": {
+    "e1": {
+     "context": "| Command | Unattended-mode gate resolution (WC-2) | Report (WC-4) | Resume (WC-6) | Other required change | Evidence | Phase |\n|---|---|---|---|---|---|---|\n| analyze | no gate | add `--output`; contract plus the report | fresh dir | none | `cmd/analyze.md:46,53,100,103`; `INV-A:37` | P1 |\n| auggie-review | `--unattended` implies `--no-post-pr` and `--no-remediation-offer`; posting returns only with an explicit `--post-pr` in the brief (WC-9) | contract pointing at `REVIEW.md` in `--output-dir`; the output contract is inline only today | fresh dir | none | `cmd/auggie-review.md:51-55`; `sk/sc-auggie-review-protocol/SKILL.md:50-61,314-336`; `sk/sc-auggie-review-protocol/refs/remediation-handoff.md:50,92-109`; `INV-A:38,62` | P2 |\n| build | no gate | add a report path; contract | fresh dir | none; installs and deploys are already \"Will Not\" | `cmd/build.md:31,52,105-107`; `INV-A:40` | P1 |\n| business-panel | `--mode socratic` refused under `--unattended` (whether it waits is UNVERIFIED) | add an output path; contract | fresh dir | move the frontmatter out of its code block (effect on loading UNVERIFIED) | `cmd/business-panel.md:3-10,41-43,66,118`; `INV-A:41` | P1 |\n| cleanup | apply only items the file already allows without approval; list every \"Approval Required\" item in the report, unapplied; `--interactive` refused | add a report path; contract lists applied and deferred items | fresh dir | none (its \"rollback\" mechanism is UNVERIFIED, so the report must list every changed file) | `cmd/cleanup.md:22,31,38,51,81,116-127`; `INV-A:43` | P2 |",
+     "line": 100,
+     "text": "--unattended"
+    }
+   },
+   "facts": {
+    "evidence_count": 1,
+    "quotes_found_verbatim": true
+   },
+   "finding": {
+    "title": "I can break this specification by Sequence Attack. The invariant at section 6 P1 versus section 3 rows (SPEC:159 against SPEC:99-125) fails when a command accepts `--unattended` in a phase before its gate rows are converted., (concrete attack below). Expert: Whittaker.",
+    "wrong_outcome": "I can break this specification by Sequence Attack. The invariant at section 6 P1 versus section 3 rows (SPEC:159 against SPEC:99-125) does not work when a command accepts `--unattended` in a phase before its gate rows are converted., (concrete attack below). Expert: Whittaker."
+   }
+  }
+ },
+ "source": {
+  "kind": "stage2",
+  "paths": [
+   "p11/runs/a1-r3/ws/.dev/orca-command-refactor/review/spec-panel.md"
+  ],
+  "url": null
+ },
+ "split": "perturb",
+ "variant": "paraphrase"
+}

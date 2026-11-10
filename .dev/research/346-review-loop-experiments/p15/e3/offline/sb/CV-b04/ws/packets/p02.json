@@ -1,0 +1,22 @@
+{
+ "finding": {
+  "title": "Urgent notifications are queued until 07:00",
+  "wrong_outcome": "an implementer who follows the stated text as written builds a queue that holds urgent notifications created at 23:00 until 07:00, because `Notifications of other priorities created during quiet hours are queued and delivered at 07:00.` (S:10) is read next to `Urgent notifications are delivered at any hour.` (S:11), and an urgent alert arrives eight hours late."
+ },
+ "evidence": {
+  "e1": {
+   "text": "Notifications of other priorities created during quiet hours are queued and delivered at 07:00.",
+   "line": 10,
+   "context": "\n## 2. Quiet hours\nR4. Between 22:00 and 07:00 in the user's time zone, only notifications of priority urgent are delivered.\nR5. Notifications of other priorities created during quiet hours are queued and delivered at 07:00.\nR6. Urgent notifications are delivered at any hour.\n\n## 3. Limits"
+  },
+  "e2": {
+   "text": "Urgent notifications are delivered at any hour.",
+   "line": 11,
+   "context": "## 2. Quiet hours\nR4. Between 22:00 and 07:00 in the user's time zone, only notifications of priority urgent are delivered.\nR5. Notifications of other priorities created during quiet hours are queued and delivered at 07:00.\nR6. Urgent notifications are delivered at any hour.\n\n## 3. Limits\nR7. A user receives at most 5 notifications per hour over SMS."
+  }
+ },
+ "facts": {
+  "quotes_found_verbatim": true,
+  "evidence_count": 2
+ }
+}

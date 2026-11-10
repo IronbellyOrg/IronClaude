@@ -1,0 +1,3 @@
+# diff of source.md section 2.3 fenced block (extracted by awk) against refs/rubric.md
+$ diff <section 2.3 block> src/superclaude/skills/sc-spec-panel-stoprule-protocol/refs/rubric.md
+diff exit=0 (0 = no difference)

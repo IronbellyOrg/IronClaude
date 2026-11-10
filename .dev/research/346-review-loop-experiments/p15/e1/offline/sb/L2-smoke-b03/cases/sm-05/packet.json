@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-05",
+ "finding": {
+  "heading": "### R1-1 Purchase follow-ups ignore the opt-out",
+  "body": "The purchase follow-up rule keeps sending marketing notifications to opted-out customers. It contradicts the opt-out rule, which says an opted-out customer receives none. Cited: spec lines 17, 19 (before version).\nAn implementer who follows NO-4 builds a sender that emails opted-out customers about their recent purchases.\nProtected requirement: line 17 (the opt-out must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -15,8 +15,7 @@\n ## 3. Opt-out\n \n - **NO-2 Opt-out.** A customer who opts out of marketing notifications receives none of them, on any channel, from the moment the preference is saved.\n-- **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent.\n-- **NO-4 Purchase follow-ups.** Opted-out customers still receive marketing notifications about products they bought in the last 90 days.\n+- **NO-3 Transactional messages.** Order confirmations, shipping updates and security alerts are not marketing notifications and are always sent. This revision keeps every opt-out obligation intact.\n - **NO-5 Unsubscribe link.** Every marketing e-mail contains a link that opts the customer out with one click and without a sign-in.\n \n ## 4. Operations\n"
+}

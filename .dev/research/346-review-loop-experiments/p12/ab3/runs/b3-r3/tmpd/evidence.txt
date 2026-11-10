@@ -1,0 +1,158 @@
+
+**Hunk 62c62** (`diff -w` ranges: baseline lines c candidate lines)
+
+BEFORE (baseline):
+```text
+| WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes `<output-dir>/return-contract.yaml`, where `<output-dir>` is the directory the coordinator passed (`--output` / `--output-dir`). It follows the return-contract pattern several commands already use and carries at least: `status` (one of `succeeded`, `partial`, `failed`, `blocked`), `command` (the exact command line), `report_path` (the main human-readable deliverable, if any), `artifacts` (every other file written), and, when blocked, `blocked_question`. It is written on success, failure, blocked and partial outcomes, including stops before any other output exists. Commands that already write a contract keep their fields and add the missing ones. The worker passes the contract path as `worker_done --report-path`. Orca does not check the file, so the coordinator opens it. | Command writes; worker reports; coordinator reads | `CAPS:72-74` (`--report-path` only with real values); `CAPS:79` (Orca's handling of the file is UNVERIFIED); existing models: `sk/sc-workflow-protocol/refs/return-contract.md:3-19,41` via `INV-B:272`, `sk/sc-brainstorm-protocol/SKILL.md:335` via `INV-A:97` |
+```
+
+AFTER (candidate):
+```text
+| WC-4 | **One report file, known before dispatch, written on every outcome.** In unattended mode the command writes its contract at the path the brief makes known (F-01): `<dir>/return-contract.yaml` where the brief passes a directory (`--output` / `--output-dir`); for tdd and init-lite, whose `--output` names a file, that path with `.return-contract.yaml` in place of its extension (`--output .dev/tdd/auth.md` gives `.dev/tdd/auth.return-contract.yaml`); for adversarial, `<dir>/adversarial/return-contract.yaml`; for cli-eval and workflow, which have no output flag today, `<dir>/return-contract.yaml` for a new `--output <dir>` that only names the contract directory. A row in section 3 states any other path. It follows the return-contract pattern several commands already use and carries at least: `status` (one of `succeeded`, `partial`, `failed`, `blocked`), `command` (the exact command line), `report_path` (the main human-readable deliverable, if any), `artifacts` (every other file written), and, when blocked, `blocked_question`. It is written on success, failure, blocked and partial outcomes, including stops before any other output exists. Commands that already write a contract keep their fields and add the missing ones. The worker passes the contract path as `worker_done --report-path`. Orca does not check the file, so the coordinator opens it. | Command writes; worker reports; coordinator reads | `CAPS:72-74` (`--report-path` only with real values); `CAPS:79` (Orca's handling of the file is UNVERIFIED); existing models: `sk/sc-workflow-protocol/refs/return-contract.md:3-19,41` via `INV-B:272`, `sk/sc-brainstorm-protocol/SKILL.md:335` via `INV-A:97` |
+```
+
+**Hunk 73c73** (`diff -w` ranges: baseline lines c candidate lines)
+
+BEFORE (baseline):
+```text
+The contract only works if the brief carries what the command would otherwise ask a person. For each Task the coordinator's brief states: the exact command line including `--unattended` and every flag section 3 lists as required; the output directory, so the report path is known before dispatch (WC-4); which outward actions, if any, are authorized (WC-9); and the worktree placement (`CAPS:115`). After `worker_done`, the coordinator opens the report file, then releases or reuses the worker (`CAPS:107-113`).
+```
+
+AFTER (candidate):
+```text
+The contract only works if the brief carries what the command would otherwise ask a person. For each Task the coordinator's brief states: the exact command line including `--unattended` and every flag section 3 lists as required; the `--output` value, so the contract path is known before dispatch (WC-4); which outward actions, if any, are authorized (WC-9); and the worktree placement (`CAPS:115`). After `worker_done`, the coordinator opens the report file, then releases or reuses the worker (`CAPS:107-113`).
+```
+
+**Hunk 76c76** (`diff -w` ranges: baseline lines c candidate lines)
+
+BEFORE (baseline):
+```text
+The 43 commands in `cmd/` (21 in `INV-A:3`, 22 in `INV-B:3`) split into 10 ready today, 27 needing a change and 6 coordinator-only (section 4). The inventories hold the full evidence; each row below gives only what changes, with the deciding lines. "Contract" means the WC-4 file `<output-dir>/return-contract.yaml`. Every changed command also gains the `## Unattended mode` section (section 2.1). Phase numbers refer to section 6.
+```
+
+AFTER (candidate):
+```text
+The 43 commands in `cmd/` (21 in `INV-A:3`, 22 in `INV-B:3`) split into 10 ready today, 27 needing a change and 6 coordinator-only (section 4). The inventories hold the full evidence; each row below gives only what changes, with the deciding lines. "Contract" means the WC-4 file, at the path WC-4 gives for that command. Every changed command gains the `## Unattended mode` section (section 2.1) in the phase its row names, except `load` (usage line only) and `pr-submit` under D3 (a) (F-02). Phase numbers refer to section 6.
+```
+
+**Hunk 84c84** (`diff -w` ranges: baseline lines c candidate lines)
+
+BEFORE (baseline):
+```text
+| brainstorm | `--output <dir>`; never `--interactive` | `<output>/return-contract.yaml` | `--resume-from <seed-brief>` | None | `sk/sc-brainstorm-protocol/SKILL.md:134,335`; `cmd/brainstorm.md:59-63`; `INV-A:39` |
+```
+
+AFTER (candidate):
+```text
+| brainstorm | `--output <dir>`; never `--interactive` | `<output>/return-contract.yaml` | `--resume-from <seed-brief>` | Accept `--unattended` (no gate) (P1, F-02) | `sk/sc-brainstorm-protocol/SKILL.md:134,335`; `cmd/brainstorm.md:59-63`; `INV-A:39` |
+```
+
+**Hunk 87c87** (`diff -w` ranges: baseline lines c candidate lines)
+
+BEFORE (baseline):
+```text
+| init-lite | `--output <file>` | `.dev/superclaude/context-audit.md` or `--output` | Re-run overwrites its marked report | None | `cmd/init-lite.md:32`; `sk/sc-init-lite-protocol/SKILL.md:66,70`; `INV-A:55` |
+```
+
+AFTER (candidate):
+```text
+| init-lite | `--output <file>` | `.dev/superclaude/context-audit.md` or `--output` | Re-run overwrites its marked report | Contract beside the `--output` file (WC-4) (P1, F-01) | `cmd/init-lite.md:32`; `sk/sc-init-lite-protocol/SKILL.md:66,70`; `INV-A:55` |
+```
+
+**Hunk 90c90** (`diff -w` ranges: baseline lines c candidate lines)
+
+BEFORE (baseline):
+```text
+| tdd | a precise component prompt, not a bare topic; `--output <file>` | the TDD at `--output` | `--resume <task-file>` | Under `--unattended`, the topic-only clarification and nested `/task` "ask the user" lines resolve as blocked (P2) | `sk/tdd/SKILL.md:48,52-61,190`; `sk/task/SKILL.md:49,114`; `cmd/tdd.md:29`; `INV-B:47,217-225` |
+```
+
+AFTER (candidate):
+```text
+| tdd | a precise component prompt, not a bare topic; `--output <file>` | the TDD at `--output` | `--resume <task-file>` | Under `--unattended`, the topic-only clarification and nested `/task` "ask the user" lines resolve as blocked; contract beside the `--output` file (WC-4) (P2, F-01) | `sk/tdd/SKILL.md:48,52-61,190`; `sk/task/SKILL.md:49,114`; `cmd/tdd.md:29`; `INV-B:47,217-225` |
+```
+
+**Hunk 92c92** (`diff -w` ranges: baseline lines c candidate lines)
+
+BEFORE (baseline):
+```text
+| workflow | `--handoff none` | `.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | Write the contract for pre-creation STOPs too (WC-4 "every outcome") (P1) | `sk/sc-workflow-protocol/SKILL.md:58,66,72`; `sk/sc-workflow-protocol/refs/return-contract.md:3-19,39,41`; `INV-B:52,267-275` |
+```
+
+AFTER (candidate):
+```text
+| workflow | `--handoff none`; `--output <dir>` (new, contract directory only) | `.dev/tasks/to-do/<id>/return-contract.yaml` | Fresh package each run | Under `--unattended`, also write the contract at `<dir>/return-contract.yaml` on every outcome, including pre-creation STOPs where `<id>/` does not exist yet; the package copy keeps its path (WC-4) (P1, F-01) | `sk/sc-workflow-protocol/SKILL.md:58,66,72`; `sk/sc-workflow-protocol/refs/return-contract.md:3-19,39,41`; `INV-B:52,267-275` |
+```
+
+**Hunk 104c104** (`diff -w` ranges: baseline lines c candidate lines)
+
+BEFORE (baseline):
+```text
+| cli-eval | `run` requires `--suite` and the safety flags in the brief, else blocked; the W0 "confirm with the user" and missing-`$1` cases resolve as blocked | contract for both pipelines (today a chat table) | fresh dir | split the eval wait into waits of at most 4 minutes (WC-10) | `sk/sc-cli-eval-protocol/SKILL.md:39,55-58,128-153,183-201`; `sk/sc-cli-eval-protocol/refs/run-pipeline.md:5,43-44`; `INV-A:44,65` | P2 |
+```
+
+AFTER (candidate):
+```text
+| cli-eval | `run` requires `--suite` and the safety flags in the brief, else blocked; the W0 "confirm with the user" and missing-`$1` cases resolve as blocked | contract for both pipelines (today a chat table), at `<dir>/return-contract.yaml` for a new `--output <dir>` that only names the contract directory, including the blocked cases before any suite is chosen (WC-4, F-01) | fresh dir | split the eval wait into waits of at most 4 minutes (WC-10) | `sk/sc-cli-eval-protocol/SKILL.md:39,55-58,128-153,183-201`; `sk/sc-cli-eval-protocol/refs/run-pipeline.md:5,43-44`; `INV-A:44,65` | P2 |
+```
+
+**Hunk 112c112** (`diff -w` ranges: baseline lines c candidate lines)
+
+BEFORE (baseline):
+```text
+| load | no gate | none (see note) | n/a | none: use it as a step inside another worker's brief, not as its own Task; separately, `--checkpoint` is missing from its Usage line | `cmd/load.md:22,42-43,52,82`; `INV-B:31,57-65` | P1 (usage line only) |
+```
+
+AFTER (candidate):
+```text
+| load | no gate | none (see note) | n/a | none: use it as a step inside another worker's brief, not as its own Task; separately, `--checkpoint` is missing from its Usage line; it gets neither `--unattended` nor the section (F-02) | `cmd/load.md:22,42-43,52,82`; `INV-B:31,57-65` | P1 (usage line only) |
+```
+
+**Hunk 159c159** (`diff -w` ranges: baseline lines c candidate lines)
+
+BEFORE (baseline):
+```text
+| **P1. Report files and commands with no gate** | The WC-4 contract in unattended mode; the `--unattended` flag accepted by every command in sections 3.1 and 3.2 (a no-op where a command has no gate); output flags for commands that lack one; the small fixes to ready commands. | analyze, build, business-panel, design, document, explain, index, test, load (usage line only); fixes to adversarial, cleanup-audit, index-repo, workflow | No person gate is involved, so each change is mechanical and gives every later phase a report file to check. |
+```
+
+AFTER (candidate):
+```text
+| **P1. Report files and commands with no gate** | The WC-4 contract in unattended mode; the `--unattended` flag and `## Unattended mode` section on the commands named in this row only (a no-op where a command has no gate; each later phase adds them to its own commands with their gate behavior, F-02); output flags for commands that lack one; the small fixes to ready commands. | analyze, build, business-panel, design, document, explain, index, test, brainstorm, init-lite; fixes to adversarial, cleanup-audit, index-repo, workflow; `load` (usage line only, no flag and no section) | No person gate is involved, so each change is mechanical and gives every later phase a report file to check. |
+```
+
+**Hunk 162c162** (`diff -w` ranges: baseline lines c candidate lines)
+
+BEFORE (baseline):
+```text
+| **P4. Outward actions and safety rules** | Apply the answers to D2-D4: the implement halt path, post-release pre-authorization, pr-submit as a worker. | implement, post-release, pr-submit | Each one either changes a deliberate safety rule (`sk/sc-implement-protocol/refs/qa.md:238`) or performs outward actions (`sk/sc-pr-submit-protocol/SKILL.md:189,196`; `sk/sc-post-release-protocol/SKILL.md:340,351`), so it needs the user's decision first. |
+```
+
+AFTER (candidate):
+```text
+| **P4. Outward actions and safety rules** | Apply the answers to D2-D4: the implement halt path, post-release pre-authorization, pr-submit as a worker. implement and post-release gain the flag and section here; pr-submit does only under D3 (b), and under the recommended D3 (a) it gets neither (F-02). | implement, post-release, pr-submit | Each one either changes a deliberate safety rule (`sk/sc-implement-protocol/refs/qa.md:238`) or performs outward actions (`sk/sc-pr-submit-protocol/SKILL.md:189,196`; `sk/sc-post-release-protocol/SKILL.md:340,351`), so it needs the user's decision first. |
+```
+
+**Hunk 195,196c195,196** (`diff -w` ranges: baseline lines c candidate lines)
+
+BEFORE (baseline):
+```text
+| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`, and that no section-4 command has one | passes |
+| P1 | AC-1.2 | 7.2 live check on each P1 command with `--unattended --output <dir>` | all steps pass |
+```
+
+AFTER (candidate):
+```text
+| P1 | AC-1.1 | `uv run pytest tests/skills/test_worker_contract.py -q`; the test asserts that every command named in the P1 row of section 6 except `load` has a `## Unattended mode` section naming `return-contract.yaml` and `~/.claude/WORKER-CONTRACT.md`, and that neither `load` nor any section-4 command has one (F-02) | passes |
+| P1 | AC-1.2 | 7.2 live check on each P1 command with `--unattended` and its `--output` as WC-4 gives it (a directory, or a file for init-lite) | all steps pass |
+```
+
+**Hunk 200c200** (`diff -w` ranges: baseline lines c candidate lines)
+
+BEFORE (baseline):
+```text
+| P2 | AC-2.2 | Gate-trigger run per P2 command: a 7.2 live check with input that hits the gate (for example `/sc:tdd "auth" --unattended --output <file>` with a bare topic; `/sc:cli-eval run --unattended` with no `--suite`) | `worker_done --outcome failed`; contract `status: blocked` with a non-empty `blocked_question`; step 2 never shows `agentWait` |
+```
+
+AFTER (candidate):
+```text
+| P2 | AC-2.2 | Gate-trigger run per P2 command: a 7.2 live check with input that hits the gate (for example `/sc:tdd "auth" --unattended --output <file>` with a bare topic; `/sc:cli-eval run --unattended --output <dir>` with no `--suite`) | `worker_done --outcome failed`; contract `status: blocked` with a non-empty `blocked_question`; step 2 never shows `agentWait` |
+```

@@ -1,0 +1,8 @@
+{
+ "case_id": "sm-13",
+ "finding": {
+  "heading": "### R1-1 Excess requests are held without telling the client",
+  "body": "The excess request rule holds requests above the limit and answers them later, so the client gets no signal that it exceeded its limit. Cited: spec lines 19-20 (before version).\nAn implementer who follows RL-5 builds a server that holds excess requests without a rejection, so clients cannot back off.\nProtected requirement: line 19 (the per-minute limit must hold)."
+ },
+ "full_diff": "--- before.md\n+++ after.md\n@@ -17,7 +17,7 @@\n ## 3. Enforcement\n \n - **RL-4 Limit.** Each API key may send at most 100 requests per minute.\n-- **RL-5 Excess requests.** Requests above the limit are queued silently and answered when capacity is free.\n+- **RL-5 Excess requests.** Requests above the limit are rejected with HTTP 429 and a `Retry-After` header. The server then repeats the rejected request on the client's behalf, as described in RL-2.\n - **RL-6 Counting.** A request is counted when the server has received it completely, whatever the result of the request.\n \n ## 4. Operations\n"
+}
