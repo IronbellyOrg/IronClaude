@@ -1,0 +1,38 @@
+{
+ "author_intent": {
+  "category": "synth-chain",
+  "expect": "defect",
+  "layer": "synthetic"
+ },
+ "case_id": "s0-16",
+ "category": "synth-chain",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "locks",
+ "group": "fam-locks",
+ "packet": {
+  "defect": "PAY-3 has the worker hold its lock for a 2-second capture (citing LOCK-2), LOCK-2 limits a lock to 5 ticks, and CFG-1 defines a tick as 100 milliseconds, so the lock lasts 500 ms and expires during the capture.",
+  "doc": "offline/docs/doc-5055e0d59d.md",
+  "doc_sha256": "5055e0d59dc3e2c85782885cb3e51d5b09492544f1eb5d3000ce9eb82e288d37",
+  "evidence_quotes": [
+   "A payment capture takes 2 seconds, and the worker holds its lock for the whole capture (LOCK-2)",
+   "A lock is held for at most 5 ticks (see CFG-1 for the tick)",
+   "One tick is 100 milliseconds"
+  ],
+  "evidence_set": [
+   "P0007",
+   "P0011",
+   "P0015"
+  ]
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "offline/docs/doc-5055e0d59d.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "synthetic"
+}

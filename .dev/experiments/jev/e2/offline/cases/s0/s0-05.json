@@ -1,0 +1,38 @@
+{
+ "author_intent": {
+  "category": "theme-T1",
+  "cluster": "D12",
+  "expect": "defect",
+  "layer": "real",
+  "theme": "T1"
+ },
+ "case_id": "s0-05",
+ "category": "theme-T1",
+ "data_classes": [
+  "s1_spec"
+ ],
+ "family": "s1-original",
+ "group": "s1-original",
+ "packet": {
+  "defect": "Acceptance check AC-1.1 requires every command in sections 3.1-3.2 to have a `## Unattended mode` section naming `return-contract.yaml`, but the `load` row says load has no report and is not used as its own Task.",
+  "doc": "offline/docs/doc-d3cdbe573e.md",
+  "doc_sha256": "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d",
+  "evidence_quotes": [
+   "every command in sections 3.1-3.2 has a `## Unattended mode` section naming `return-contract.yaml`",
+   "| load | no gate | none (see note) | n/a |"
+  ],
+  "evidence_set": [
+   "P0152",
+   "P0086"
+  ]
+ },
+ "source": {
+  "kind": "s1",
+  "paths": [
+   "offline/docs/doc-d3cdbe573e.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "real"
+}

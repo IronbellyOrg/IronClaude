@@ -1,0 +1,38 @@
+{
+ "author_intent": {
+  "category": "seed-chain",
+  "expect": "defect",
+  "layer": "seeded"
+ },
+ "case_id": "s0-21",
+ "category": "seed-chain",
+ "data_classes": [
+  "s1_spec"
+ ],
+ "family": "s1-edit-memory",
+ "group": "s1-edit-memory",
+ "packet": {
+  "defect": "AC-3.5 expects the second `/sc:save --unattended` run to overwrite `pm_context.md` (citing WC-11); WC-11 says memory keys overwritten whole are not written in unattended mode, and AC-3.4 lists `pm_context.md` among the single-owner files whose hashes must stay unchanged; only the chain shows the two checks cannot both pass.",
+  "doc": "offline/docs/doc-9352d22af0.md",
+  "doc_sha256": "9352d22af092dd4a604bc71067f8ec9ab8e5093892260296f92c1f05c36a7c37",
+  "evidence_quotes": [
+   "the second run overwrites `pm_context.md` with the new session's content (WC-11)",
+   "single-owner shared files (for example memory keys overwritten whole) are not written in unattended mode",
+   "two new per-session files; the single-owner files' hashes unchanged"
+  ],
+  "evidence_set": [
+   "P0165",
+   "P0051",
+   "P0164"
+  ]
+ },
+ "source": {
+  "kind": "s1",
+  "paths": [
+   "offline/docs/doc-9352d22af0.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "seeded"
+}

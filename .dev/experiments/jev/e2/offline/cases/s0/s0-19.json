@@ -1,0 +1,36 @@
+{
+ "author_intent": {
+  "category": "control-exception",
+  "expect": "clean",
+  "layer": "control"
+ },
+ "case_id": "s0-19",
+ "category": "control-exception",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "freeze",
+ "group": "fam-freeze",
+ "packet": {
+  "defect": "REL-4 forbids deployments during the last week of each quarter, but REL-9 allows security patches to be deployed during that week.",
+  "doc": "offline/docs/doc-a2292c2866.md",
+  "doc_sha256": "a2292c2866f26b30121cbd68cff163a68642a943eedd8118975955061fb2f4c1",
+  "evidence_quotes": [
+   "No deployments during the last week of each quarter",
+   "Security patches may be deployed at any time, including during the freeze in REL-4"
+  ],
+  "evidence_set": [
+   "P0008",
+   "P0011"
+  ]
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "offline/docs/doc-a2292c2866.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "control"
+}

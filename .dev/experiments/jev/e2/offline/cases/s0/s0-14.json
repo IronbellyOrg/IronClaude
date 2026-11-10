@@ -1,0 +1,36 @@
+{
+ "author_intent": {
+  "category": "synth-unit",
+  "expect": "defect",
+  "layer": "synthetic"
+ },
+ "case_id": "s0-14",
+ "category": "synth-unit",
+ "data_classes": [
+  "synthetic"
+ ],
+ "family": "gateway",
+ "group": "fam-gateway",
+ "packet": {
+  "defect": "GW-2 limits request bodies to 10 MB, but NGX-1 makes the proxy in front of the gateway reject bodies larger than 10 Mbit (1.25 MB), so bodies the gateway accepts never arrive.",
+  "doc": "offline/docs/doc-b6fddf6478.md",
+  "doc_sha256": "b6fddf64781d1f721c088c177cdd188ceaccb295fc1167473bf08139b46f5474",
+  "evidence_quotes": [
+   "Request bodies are limited to 10 MB",
+   "The proxy in front of the gateway rejects bodies larger than 10 Mbit"
+  ],
+  "evidence_set": [
+   "P0006",
+   "P0010"
+  ]
+ },
+ "source": {
+  "kind": "synthetic",
+  "paths": [
+   "offline/docs/doc-b6fddf6478.md"
+  ],
+  "url": null
+ },
+ "split": "s0",
+ "variant": "synthetic"
+}

@@ -1,0 +1,105 @@
+# E2 decision file (contract J10.6 common sections + E2 sections).  Constants live here, not in code (D1-D6).
+# Frozen at Session 1 (2026-11-10).  pool_cap and [prefilter] may change only between Stage 0 and Stage 1 (with a Stage 0 rerun).
+
+[baseline]                 # Stage 2 arm 3, n=6, each message id once
+a_base = 100424            # loop only
+audit_base = 69044         # one frozen audit
+b_base = 169468            # a_base + audit_base (R_B, reported only)
+b_blk = 1.50               # recomputed by analyze over the 12 audits; this is the stated value
+growth_mean_pct = 1.41
+growth_median_pct = 0.97   # per-run growth 0.36, 2.20, 0.75, 0.19, 1.19, 3.77
+loop_pass = "6/6"
+escalations = 0
+reviews_mean = 2.17
+a_median = 95106           # per-run loop 70,694; 109,207; 95,213; 81,415; 94,998; 151,017
+
+[d6]
+formula = "R_LOOP_limit = (L*169468 - 69044)/100424, rounded to 2 decimals"
+note = "Cost never stops, truncates or skips anything; cost clauses are post-hoc verdict clauses only."
+
+[strata]
+sonnet_n = 6
+haiku_n = 4
+haiku_model = "haiku"      # loop workers only; AUD/AUD2 always sonnet
+haiku_baseline = "/tmp/claude-0/-home-user-IronClaude/a6884237-9a8e-5417-a03f-8e5a29d7c57f/scratchpad/p14/haiku-baseline/results.json"
+haiku_failure_margin = 0.25
+
+[extension]
+extra_sonnet = 3           # D4: once, only from a Sonnet n=6 INCONCLUSIVE, for every fresh arm
+max_extensions = 1
+
+[validity]
+min_completed = 5          # per arm at n=6 (8 at n=9)
+aud_gap_max = 0.75         # arm means of AUD and AUD2 differ by more -> INCONCLUSIVE
+
+[launch]
+max_concurrent = 6         # per experiment, both strata together
+block_seed = 1502          # E2 block order (Session 3 draws the interleaving with random.Random(block_seed))
+
+[jev]
+model = "jev-1.14.0"
+offline_ceiling_usd = 5.0
+offline_ceiling_input_tokens = 30000000
+live_ceiling_usd = 1.0
+
+[frozen]
+spec_sha = "d3cdbe573e57303b9ce6c93d1fe98ba18fb7cb1a15773d926bf6a0c31425200d"
+cmd_sha = "e62e70b98e878cb4b60ba8f95f1cc3442a25e815828a3ef3d17a95b65ea97494"
+rules_sha = "3eb772f944491720af24133267681e170510ba49949af1b08db913e9eeaddfb8"
+insertion_sha = ""         # sha256 of insertion.txt (the Reading-priorities rules insertion); pinned by Session 3 when it writes the file
+
+# ---------------------------------------------------------------- E2 specific
+[stage0]
+case_seed = 20260          # shuffles the opaque case numbers (cases_s0.py)
+batches = 3                # 3 label batches of 8 cases
+batch_size = 8
+min_h_for_go = 1           # H >= 1 of the 20 defect cases (>= 5%) -> GO-REPLAY; H == 0 -> NO-GO-OFFLINE
+pool_miss_action_threshold = 2   # candidate-pool misses > 2 -> raise pool_cap / extend prefilter BEFORE Stage 1 and rerun Stage 0
+must_read_rule = "connected"     # a defect is covered when the pairs of the (pool | static top-12) connect ALL its evidence passages
+l1_model = "sonnet"
+l2_model = "haiku"
+adj_model = "sonnet"
+
+[prefilter]                # candidates.py; identical for every router
+pool_cap = 150
+min_words = 3              # passages with fewer words (and headings, table header rows) are not candidates
+rare_frac = 0.04           # a content word is rare when it occurs in 2..max(2, ceil(rare_frac * n)) candidate passages
+rare_min_df = 2
+min_shared_rare_words = 2
+w_explicit = 6.0           # prefilter score = sum of IDF-weighted shared features (explicit reference counts as 6.0)
+w_id = 1.0
+w_term = 1.0
+w_path = 1.0
+w_numunit = 1.0
+w_word = 0.5
+
+[static]
+seed = 1502                # random.Random(seed): the stratified distant-pair sample after the three rule tiers
+section_distance_buckets = "0 | 1-2 | 3-5 | 6+ (most distant stratum first, round robin)"
+
+[hints]
+budget_tokens = 1200       # bytes/4
+max_pairs = 12             # the same allocation for every router
+fallback = "first 12 pool pairs in document order (never deletion, never PASS)"
+
+[thresholds]               # fitted on calibration only in Stage 1 (Session 2); starting grid
+t_hi_grid = [0.6, 0.7, 0.8]
+t_lo_grid = [0.2, 0.3, 0.4]
+t_hi = 0.7
+t_lo = 0.3
+calibration_freeze_sha256 = ""    # set by Session 2 before any held-out call
+
+[rules]                    # live rules (Stage 2, Session 3), per-audit means; 6 runs => total = 6 x mean
+drop1_escalations_margin = 2
+drop1_growth_pp_margin = 2.0
+drop2_blk_ge = 1.50
+drop3_blk_gt_static = true
+adopt_blk_le = 0.83        # 1.50 - 4/6  (">= 4 fewer total residual blockers than A across 6 runs")
+adopt_blk_le_static_minus = 0.3333333333   # 2/6  (">= 2 fewer than static")
+adopt_cost_ratio_vs_static = 1.10          # A_mean(h2j) <= 1.10 x A_mean(h2s), the predeclared comparator budget
+replay_min_gain = 8        # Jev top-12 captures >= static + 8 must-read relationships among the 160 held-out defect cases
+replay_max_fallback_pct = 5.0
+
+[offline]
+replay_ceiling_usd = 5.0
+replay_ceiling_tokens = 30000000
